@@ -369,6 +369,11 @@ function SecurityTab(){
     while(k.length<dstLen)k.push(0xFF);
     return new Uint8Array(k.slice(0,dstLen));
   }
+  function keyWidthWarning(srcMod,dstMod){
+    if(!srcMod||!dstMod||!srcMod.skey||!dstMod.skey)return null;
+    if(srcMod.skey.length<dstMod.skey.length)return srcMod.type+' has '+srcMod.skey.length+'B key → '+dstMod.type+' needs '+dstMod.skey.length+'B (padded with 0xFF)';
+    return null;
+  }
   function syncKey(si,ti){const s=mods[si],t=mods[ti];if(!s.skey||s.skb||t.skoff===undefined)return;const p=new Uint8Array(t.data);const adapted=adaptKey(s.skey,s.skEndian,t.skEndian,Math.min(s.skey.length,16));for(let i=0;i<adapted.length;i++)p[t.skoff+i]=adapted[i];if(t.type==='GPEC2A'&&t.skmoff!==undefined)for(let i=0;i<Math.min(adapted.length,8);i++)p[t.skmoff+i]=adapted[i];dl(p,t.filename.replace(/\./,'_KEYSYNCED.'));setMods(prev=>{const u=[...prev];u[ti]=parseModule(p,t.filename);return u;});setMsg('Key from '+s.filename+' → '+t.filename);}
 
   function patchModVIN(i){
@@ -503,7 +508,10 @@ function SecurityTab(){
           {m.secretKey&&<div style={{fontSize:11,marginBottom:4}}>Secret: <span style={{fontFamily:"'JetBrains Mono'",color:C.a4,fontSize:10}}>{m.secretKey.hex}</span> {m.keyConsistent?'✓':'✗'}</div>}
           {m.vehicleSecret&&<div style={{fontSize:11,marginBottom:4}}>Secret ({m.vehicleSecret.endian}): <span style={{fontFamily:"'JetBrains Mono'",color:C.a4,fontSize:10}}>{m.vehicleSecret.hex}</span></div>}
           {m.skey&&!m.vehicleSecret&&!m.secretKey&&<div style={{fontSize:11,marginBottom:4}}>Secret @0x{m.skoff.toString(16).toUpperCase()}: <span style={{fontFamily:"'JetBrains Mono'",color:m.skb?C.tm:C.a4,fontSize:10}}>{m.skb?'ERASED':hxb(m.skey)}</span>
-            {(m.skb||skBad)&&sks.length>0&&<div style={{marginTop:4,display:'flex',gap:4,flexWrap:'wrap'}}>{sks.filter(s=>s.idx!==i).map(s=><Btn key={s.idx} onClick={()=>syncKey(s.idx,i)} color={C.a4} outline>Copy from {TL[s.type]||s.type}</Btn>)}</div>}
+            {(m.skb||skBad)&&sks.length>0&&<div style={{marginTop:4}}>
+              <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>{sks.filter(s=>s.idx!==i).map(s=>{const w=keyWidthWarning(mods[s.idx],m);return<span key={s.idx} title={w||''}><Btn onClick={()=>syncKey(s.idx,i)} color={C.a4} outline>Copy from {TL[s.type]||s.type}{w?' ⚠':''}  </Btn></span>;})}</div>
+              {sks.filter(s=>s.idx!==i).some(s=>keyWidthWarning(mods[s.idx],m))&&<div style={{fontSize:9,color:C.wn,marginTop:2}}>⚠ Key width mismatch — shorter keys padded with 0xFF</div>}
+            </div>}
           </div>}
           {m.fobikSlots!==undefined&&<div style={{fontSize:11}}>FOBIK: <span style={{color:C.a1,fontWeight:700}}>{m.fobikSlots} slots</span> · CC66AA55: {m.securityMarkers} · ZZZZ: {m.zzzzBlocks}</div>}
           {m.fobikCount!==undefined&&<div style={{fontSize:11}}>FOBIK: <span style={{color:C.a1,fontWeight:700}}>{m.fobikCount} keys</span></div>}
