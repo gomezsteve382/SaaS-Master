@@ -288,12 +288,10 @@ function BenchTab(){
     mods.forEach((m,idx)=>{
       const out=new Uint8Array(m.data);let fixes=0;
       if(m.type==='BCM'){
-        const fullOffs=[];
         for(let i=0;i<=out.length-19;i++){
           let v=true;for(let j=0;j<17;j++)if(out[i+j]<0x20||out[i+j]>0x7E){v=false;break;}
           if(!v)continue;let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(out[i+j]);
           if(!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;
-          fullOffs.push(i);
           const sc=(out[i+17]<<8)|out[i+18],cc=crc16(out.slice(i,i+17));
           if(sc!==cc){out[i+17]=(cc>>8)&0xFF;out[i+18]=cc&0xFF;addLog('  '+m.name+' @0x'+i.toString(16).toUpperCase()+': CRC16 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}
           i+=16;
