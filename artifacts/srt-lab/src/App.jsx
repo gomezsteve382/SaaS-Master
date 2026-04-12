@@ -560,7 +560,7 @@ function SecurityTab(){
           <div style={{fontSize:12,fontWeight:800,color:C.a1,marginBottom:6}}>{g.v} — 0x{g.base.toString(16).toUpperCase()}</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:6}}>
             {g.keys.map(k=><div key={k.slot} style={{padding:10,borderRadius:10,background:C.c2,border:'1px solid '+(k.empty?C.bd:C.gn+'40')}}>
-              <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:10,fontWeight:700,color:C.tm}}>KEY {k.slot}</span><Tag color={k.empty?C.tm:C.gn}>{k.empty?'—':'SET'}</Tag></div>
+              <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:10,fontWeight:700,color:C.tm}}>KEY {k.slot}</span><Tag color={k.empty?C.tm:C.gn}>{k.empty?'EMPTY':'SET'}</Tag></div>
               <div style={{fontFamily:"'JetBrains Mono'",fontSize:8,color:k.empty?'#D5D0C8':C.ts,marginTop:4,wordBreak:'break-all'}}>{k.hex}</div>
             </div>)}
           </div>
