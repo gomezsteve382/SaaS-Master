@@ -150,7 +150,7 @@ function computeDiff(a,b){
 function analyzeFile(buf,name){const data=new Uint8Array(buf);const sz=data.length;let type='unknown';
   if(sz===65536||sz===131072)type='BCM';else if(sz===8192||sz===16384)type='95640';else if(sz===4096){let a=true;for(let i=0;i<17&&i<sz;i++)if(data[i]<0x30||data[i]>0x5A){a=false;break;}type=a?'GPEC2A':'RFHUB';}else if(sz>131072)type='FW';
   const vins=[],partials=[];
-  if(type==='RFHUB'){for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);vins.push({off,vin:s,algo:'rfhub',coff:off+17,ok:true,cv:checkVin(s),mirrored:true});break;}}
+  if(type==='RFHUB'){for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);vins.push({off,vin:s,algo:'rfhub',coff:off+17,ok:true,cv:checkVin(s),mirrored:true});}}
   else if(type==='GPEC2A'){for(const off of[0,0x1F0,0x224]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(v&&/^[1-9A-HJ-NPR-Z]/.test(s))vins.push({off,vin:s,algo:'none',coff:-1,ok:true,cv:checkVin(s)});}}
   else if(type==='95640'){for(const off of[0x275,0x288]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(!v||!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const sc=data[off-1],cc=crc8a(data.slice(off,off+17));vins.push({off,vin:s,algo:'c8',coff:off-1,sc,cc,ok:sc===cc,cv:checkVin(s)});}}
   else if(type==='BCM'||type==='FW'){for(let i=0;i<=sz-19;i++){let v=true;for(let j=0;j<17;j++)if(data[i+j]<0x20||data[i+j]>0x7E){v=false;break;}if(!v)continue;let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(data[i+j]);if(!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const cv=checkVin(s);if(!cv.ok)continue;const sc=(data[i+17]<<8)|data[i+18],cc=crc16(data.slice(i,i+17));if(sc===cc){vins.push({off:i,vin:s,algo:'c16',coff:i+17,sc,cc,ok:true,cv});i+=16;}}
@@ -185,10 +185,12 @@ function writeModuleVIN(data,type,vin,existingVins){
   else if(type==='RFHUB')offs=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
   else if(type==='95640')offs=[0x275,0x288];
   else offs=[];
-  offs.forEach(o=>{for(let i=0;i<17;i++)out[o+i]=vb[i];});
+  const hasMirrored=existingVins&&existingVins.some(v=>v.mirrored);
+  if(type==='RFHUB'&&hasMirrored){const mr=[...vb].reverse();offs.forEach(o=>{for(let i=0;i<17;i++)out[o+i]=mr[i];let s=0;for(let i=0;i<17;i++)s=(s+out[o+i])&0xff;out[o+17]=s;});}
+  else{offs.forEach(o=>{for(let i=0;i<17;i++)out[o+i]=vb[i];});}
   if(type==='BCM')offs.forEach(o=>{const c=crc16(vb);out[o+17]=(c>>8)&0xFF;out[o+18]=c&0xFF;});
   if(type==='95640')offs.forEach(o=>{out[o-1]=crc8a(vb);});
-  if(type==='RFHUB')offs.forEach(o=>{let s=0;for(let i=0;i<17;i++)s=(s+out[o+i])&0xff;out[o+17]=s;});
+  if(type==='RFHUB'&&!hasMirrored)offs.forEach(o=>{let s=0;for(let i=0;i<17;i++)s=(s+out[o+i])&0xff;out[o+17]=s;});
   return out;
 }
 
@@ -820,77 +822,122 @@ function DumpsTab({files,setFiles,loadF}){
   </div>;
 }
 
-/* ═══ SEED→KEY TAB ═══ */
+/* ═══ SEED → KEY TAB ═══ */
 function SeedTab(){
-  const[sv,setSv]=useState('');const[mode,setMode]=useState('single');
-  const seed=parseInt(sv,16);const valid=!isNaN(seed)&&sv.length>=1;
-  return<div>
-    <Card glow style={{marginBottom:14}}>
-      <div style={{fontSize:16,fontWeight:900,marginBottom:14}}>🔑 Seed → Key Calculator</div>
-      <div style={{display:'flex',gap:8,marginBottom:12}}>
-        <Btn onClick={()=>setMode('single')} color={mode==='single'?C.sr:C.tm} outline={mode!=='single'}>Single Seed</Btn>
-        <Btn onClick={()=>setMode('batch')} color={mode==='batch'?C.sr:C.tm} outline={mode!=='batch'}>Batch (All Algos)</Btn>
-      </div>
-      <input value={sv} placeholder="Enter seed (hex, e.g. DEADBEEF)" onChange={e=>setSv(e.target.value.replace(/[^0-9A-Fa-f]/g,'').toUpperCase())} style={{width:'100%',padding:'12px 16px',borderRadius:12,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:18,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box'}} onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
-      <div style={{fontSize:10,color:C.tm,marginTop:6,textAlign:'center'}}>Decimal: {valid?seed.toLocaleString():'-'}</div>
-    </Card>
-    {valid&&mode==='batch'&&<Card style={{padding:16}}>
-      <div style={{fontSize:14,fontWeight:800,marginBottom:12}}>All Algorithms</div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-        {ALGOS.map(a=>{const k=a.fn(seed);return<div key={a.id} style={{padding:'10px 12px',borderRadius:10,background:C.c2,border:'1px solid '+C.bd}}>
-          <div style={{fontSize:11,fontWeight:800,color:C.sr}}>{a.n}</div>
-          <div style={{fontSize:8,color:C.tm}}>{a.h}</div>
-          <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:900,color:C.a1,marginTop:4}}>{k.toString(16).toUpperCase().padStart(8,'0')}</div>
-        </div>;})}
-      </div>
-    </Card>}
-    {valid&&mode==='single'&&<div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
-      {ALGOS.map(a=>{const k=a.fn(seed);return<Card key={a.id} style={{padding:14}}>
-        <div style={{fontSize:12,fontWeight:800,color:C.sr}}>{a.n}</div>
-        <div style={{fontSize:9,color:C.tm}}>{a.h}</div>
-        <div style={{fontFamily:"'JetBrains Mono'",fontSize:16,fontWeight:900,color:C.a1,marginTop:8}}>{k.toString(16).toUpperCase().padStart(8,'0')}</div>
-        <div style={{fontSize:9,color:C.tm,marginTop:2}}>Dec: {k.toLocaleString()}</div>
-      </Card>;})}
-    </div>}
-    {!valid&&<Card style={{textAlign:'center',padding:'40px 24px'}}><div style={{fontSize:36,opacity:.2}}>🔑</div><div style={{fontSize:13,color:C.tm,marginTop:4}}>Enter a hex seed above</div></Card>}
-  </div>;
-}
+  const[al,setAl]=useState('gpec2');const[sh,setSh]=useState('');const[res,setRes]=useState(null);const[all,setAll]=useState(false);
+  const calc=useCallback(()=>{
+    const raw=sh.replace(/\s/g,'');const v=parseInt(raw,16);if(isNaN(v)||!raw)return;
+    if(all){setRes({multi:true,results:ALGOS.map(a=>({n:a.n,h:a.h,k:a.fn(v).toString(16).toUpperCase().padStart(8,'0')})),seed:v.toString(16).toUpperCase().padStart(8,'0')});}
+    else{const a=ALGOS.find(x=>x.id===al);if(!a)return;setRes({multi:false,n:a.n,seed:v.toString(16).toUpperCase().padStart(8,'0'),key:a.fn(v).toString(16).toUpperCase().padStart(8,'0')});}
+  },[al,sh,all]);
 
-/* ═══ GPEC TAB ═══ */
-function GpecTab(){
-  const[f,setF]=useState(null);const[msg,setMsg]=useState('');
-  const load=e=>{const fi=e.target.files[0];if(!fi)return;const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);if(d.length<0x30000){setMsg('File too small for GPEC firmware');return;}setF({name:fi.name,data:d,cur:d[0x2FFFC]});setMsg('');};r.readAsArrayBuffer(fi);};
-  const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
-  const unlock=()=>{if(!f)return;const p=new Uint8Array(f.data);p[0x2FFFC]=0x96;dl(p,'UNLOCKED_'+f.name);setF({...f,cur:0x96,data:p});setMsg('Unlocked: 0x2FFFC set to 0x96');};
-  const lock=()=>{if(!f)return;const p=new Uint8Array(f.data);p[0x2FFFC]=0xFF;dl(p,'LOCKED_'+f.name);setF({...f,cur:0xFF,data:p});setMsg('Locked: 0x2FFFC set to 0xFF');};
-  return<div>
-    <Card glow style={{marginBottom:14}}>
-      <div style={{fontSize:16,fontWeight:900,marginBottom:14}}>🔓 GPEC Firmware Unlock</div>
-      <label style={{cursor:'pointer'}}><div style={{padding:20,borderRadius:12,border:'2px dashed '+C.sr+'30',textAlign:'center'}}>
-        <div style={{fontSize:28}}>📂</div><div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:4}}>Load GPEC Firmware (.bin)</div>
-        <input type="file" hidden onChange={load} accept=".bin,.BIN"/>
-      </div></label>
-    </Card>
-    {f&&<Card glow>
-      <div style={{fontSize:14,fontWeight:800,marginBottom:12}}>{f.name}</div>
-      <div style={{display:'flex',gap:16,alignItems:'center',marginBottom:16}}>
-        <div style={{flex:1,padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
-          <div style={{fontSize:10,fontWeight:800,color:C.tm}}>BYTE @ 0x2FFFC</div>
-          <div style={{fontFamily:"'JetBrains Mono'",fontSize:32,fontWeight:900,color:f.cur===0x96?C.gn:f.cur===0xFF?C.er:C.wn}}>0x{f.cur.toString(16).toUpperCase().padStart(2,'0')}</div>
-          <Tag color={f.cur===0x96?C.gn:f.cur===0xFF?C.er:C.wn}>{f.cur===0x96?'UNLOCKED':f.cur===0xFF?'LOCKED':'UNKNOWN'}</Tag>
+  return<div style={{maxWidth:760}}>
+    <Card glow>
+      <div style={{fontSize:18,fontWeight:900,marginBottom:4}}>🔑 Seed → Key Calculator</div>
+      <div style={{fontSize:12,color:C.ts,marginBottom:16}}>14 algorithms extracted from FCA security access routines</div>
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(130px,1fr))',gap:6,marginBottom:16}}>
+        {ALGOS.map(a=><div key={a.id} onClick={()=>{setAl(a.id);setAll(false);}} style={{
+          padding:'9px 11px',borderRadius:10,cursor:'pointer',transition:'all 0.2s',
+          background:al===a.id&&!all?C.sr+'12':C.c2,border:`1.5px solid ${al===a.id&&!all?C.sr:C.bd}`}}>
+          <div style={{fontSize:11,fontWeight:800,color:al===a.id&&!all?C.sr:C.tx}}>{a.n}</div>
+          <div style={{fontSize:8,color:C.tm}}>{a.h}</div>
+        </div>)}
+        <div onClick={()=>setAll(true)} style={{padding:'9px 11px',borderRadius:10,cursor:'pointer',background:all?C.a4+'12':C.c2,border:`1.5px solid ${all?C.a4:C.bd}`}}>
+          <div style={{fontSize:11,fontWeight:800,color:all?C.a4:C.tx}}>ALL</div>
+          <div style={{fontSize:8,color:C.tm}}>Run all 14</div>
         </div>
       </div>
-      <div style={{display:'flex',gap:8}}>
-        <Btn onClick={unlock} color={C.gn} disabled={f.cur===0x96} full>🔓 Unlock (Set 0x96)</Btn>
-        <Btn onClick={lock} color={C.er} disabled={f.cur===0xFF} full>🔒 Lock (Set 0xFF)</Btn>
-      </div>
-      {msg&&<div style={{marginTop:10,padding:'9px 12px',borderRadius:10,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,color:C.gn,fontWeight:700}}>✓ {msg}</div>}
-    </Card>}
-    {!f&&<Card style={{textAlign:'center',padding:'40px 24px'}}><div style={{fontSize:36,opacity:.2}}>🔓</div><div style={{fontSize:13,color:C.tm,marginTop:4}}>Load a GPEC firmware file to unlock/lock</div></Card>}
+
+      <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:2}}>SEED (HEX)</div>
+      <input value={sh} placeholder="e.g. A1B2C3D4" onChange={e=>setSh(e.target.value.toUpperCase().replace(/[^A-F0-9\s]/g,''))}
+        style={{width:'100%',padding:'14px 16px',borderRadius:12,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:20,fontWeight:700,letterSpacing:4,textAlign:'center',outline:'none',boxSizing:'border-box'}}
+        onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}
+        onKeyDown={e=>{if(e.key==='Enter')calc();}}/>
+      <div style={{marginTop:12}}><Btn onClick={calc} disabled={!sh.trim()} full>Calculate Key</Btn></div>
+
+      {res&&!res.multi&&<div style={{marginTop:20,padding:20,borderRadius:14,background:C.c2,border:'1.5px solid '+C.bd}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 40px 1fr',gap:12,alignItems:'center'}}>
+          <div><div style={{fontSize:9,color:C.tm,letterSpacing:2,marginBottom:6}}>SEED</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:26,fontWeight:800,color:C.a3}}>{res.seed}</div></div>
+          <div style={{textAlign:'center',fontSize:20,color:C.tm}}>→</div>
+          <div><div style={{fontSize:9,color:C.tm,letterSpacing:2,marginBottom:6}}>KEY</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:26,fontWeight:800,color:C.sr}}>{res.key}</div></div>
+        </div>
+        <div style={{marginTop:8,fontSize:11,color:C.tm}}>{res.n}</div>
+      </div>}
+
+      {res&&res.multi&&<div style={{marginTop:20}}>
+        <div style={{fontSize:12,fontWeight:800,marginBottom:10}}>Seed: <span style={{fontFamily:"'JetBrains Mono'",color:C.a3}}>{res.seed}</span></div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+          {res.results.map((r,i)=><div key={i} style={{padding:'10px 12px',borderRadius:10,background:C.c2,border:'1px solid '+C.bd,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div><div style={{fontSize:11,fontWeight:800,color:C.tx}}>{r.n}</div><div style={{fontSize:8,color:C.tm}}>{r.h}</div></div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:800,color:C.sr}}>{r.k}</div>
+          </div>)}
+        </div>
+      </div>}
+    </Card>
   </div>;
 }
 
-/* ═══ GPEC2A TOOLS TAB ═══ */
+/* ═══ GPEC UNLOCK TAB ═══ */
+function GpecTab(){
+  const[fw,setFw]=useState(null);const[res,setRes]=useState(null);
+  const load=useCallback(e=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);setFw({name:f.name,data:d,size:d.length});setRes(null);};r.readAsArrayBuffer(f);
+  },[]);
+  const unlock=useCallback(()=>{
+    if(!fw)return;const d=new Uint8Array(fw.data);
+    if(d.length<=0x2FFFC){setRes({ok:false,msg:'File too small — need at least 192KB'});return;}
+    const cur=d[0x2FFFC];
+    if(cur===0x96){setRes({ok:false,msg:'Already unlocked (0x2FFFC = 0x96)'});return;}
+    d[0x2FFFC]=0x96;setRes({ok:true,msg:'Unlock flag set: 0x2FFFC changed from 0x'+cur.toString(16).toUpperCase()+' → 0x96',data:d});
+  },[fw]);
+  const dl=useCallback(()=>{
+    if(!res?.data)return;const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([res.data]));a.download='UNLOCKED_'+fw.name;a.click();
+  },[res,fw]);
+
+  return<div style={{maxWidth:640}}>
+    <Card glow>
+      <div style={{fontSize:18,fontWeight:900,marginBottom:4}}>🔓 GPEC Firmware Unlock</div>
+      <div style={{fontSize:12,color:C.ts,marginBottom:20}}>Sets byte at offset 0x2FFFC to 0x96 — cracked from .NET IL disassembly</div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+        <label style={{cursor:'pointer'}}>
+          <div style={{padding:24,borderRadius:14,background:C.c2,border:'2px dashed '+C.bd,textAlign:'center',transition:'all 0.2s'}}>
+            <div style={{fontSize:32}}>📂</div>
+            <div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:6}}>Load Firmware</div>
+            {fw&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a3,marginTop:6}}>{fw.name} ({(fw.size/1024).toFixed(0)}KB)</div>}
+          </div>
+          <input type="file" hidden onChange={load} accept=".bin,.BIN"/>
+        </label>
+        <div onClick={fw?unlock:undefined} style={{padding:24,borderRadius:14,background:fw?C.sr+'08':C.c2,border:'2px solid '+(fw?C.sr+'30':C.bd),textAlign:'center',cursor:fw?'pointer':'default',opacity:fw?1:0.4,transition:'all 0.2s'}}>
+          <div style={{fontSize:32}}>🔓</div>
+          <div style={{fontSize:12,fontWeight:800,color:C.sr,marginTop:6}}>Unlock</div>
+        </div>
+      </div>
+
+      {fw&&<div style={{marginTop:14,padding:'10px 14px',borderRadius:10,background:C.c2,border:'1px solid '+C.bd}}>
+        <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>
+          <span style={{color:C.tm}}>0x2FFFC = </span>
+          <span style={{fontWeight:800,color:fw.data.length>0x2FFFC?(fw.data[0x2FFFC]===0x96?C.gn:C.a1):C.er}}>
+            {fw.data.length>0x2FFFC?'0x'+fw.data[0x2FFFC].toString(16).toUpperCase():'N/A'}
+          </span>
+          {fw.data.length>0x2FFFC&&fw.data[0x2FFFC]===0x96&&<span style={{color:C.gn,marginLeft:8}}>✓ Already unlocked</span>}
+        </div>
+      </div>}
+
+      {res&&<div style={{marginTop:14,padding:16,borderRadius:12,background:res.ok?C.gn+'10':C.wn+'10',border:'1px solid '+(res.ok?C.gn:C.wn)+'30'}}>
+        <div style={{fontSize:13,fontWeight:800,color:res.ok?C.gn:C.wn}}>{res.ok?'✓ ':'⚠ '}{res.msg}</div>
+        {res.ok&&<div style={{marginTop:10}}><Btn onClick={dl} color={C.gn}>💾 Download Unlocked Firmware</Btn></div>}
+      </div>}
+    </Card>
+  </div>;
+}
+
+/* ═══ GPEC2A TOOLS TAB (Piece 5) ═══ */
 function Gpec2aTab(){
   const[f,setF]=useState(null);const[f2,setF2]=useState(null);const[msg,setMsg]=useState('');
   const load=(e,slot)=>{const fi=e.target.files[0];if(!fi)return;const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);if(d.length!==4096){setMsg('GPEC2A must be 4096 bytes');return;}const a=analyzeFile(d.buffer,fi.name);if(a.type!=='GPEC2A'){setMsg('Not a GPEC2A file');return;}if(slot===1)setF(a);else setF2(a);setMsg('');};r.readAsArrayBuffer(fi);};
@@ -933,45 +980,70 @@ function Gpec2aTab(){
       </Card>
 
       <Card style={{marginBottom:14,padding:16}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Secret Key</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔑 Secret Key</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
           <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
-            <div style={{fontSize:10,fontWeight:700,color:C.tm}}>Primary @ 0x0203</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:f.sec.key.every(b=>b===0xFF)?C.tm:C.a4,marginTop:4,wordBreak:'break-all'}}>{hxb(f.sec.key)}</div>
+            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>Primary @ 0x0203 (8B)</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:f.sec.key.every(b=>b===0xFF)?'#D5D0C8':C.a4}}>{hxb(f.sec.key)}</div>
           </div>
           <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
-            <div style={{fontSize:10,fontWeight:700,color:C.tm}}>Mirror @ 0x0361</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:f.sec.mir.every(b=>b===0xFF)?C.tm:C.a4,marginTop:4,wordBreak:'break-all'}}>{hxb(f.sec.mir)}</div>
+            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>Mirror @ 0x0361 (8B)</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:f.sec.mir.every(b=>b===0xFF)?'#D5D0C8':C.a4}}>{hxb(f.sec.mir)}</div>
           </div>
         </div>
-        <div style={{marginTop:6}}><Tag color={f.sec.km?C.gn:C.er}>{f.sec.km?'Keys Match ✓':'MISMATCH ✗'}</Tag></div>
+        <div style={{marginTop:6,fontSize:10}}><Tag color={f.sec.km?C.gn:C.er}>{f.sec.km?'Primary = Mirror ✓':'MISMATCH'}</Tag></div>
       </Card>
 
       <Card style={{marginBottom:14,padding:16}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔑 Transponder Keys</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:6}}>
-          {f.sec.tr.map((tk,i)=><div key={i} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
-            <div style={{fontSize:9,fontWeight:700,color:C.tm}}>KEY {i+1}</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:tk.every(b=>b===0xFF)?C.tm:C.a1,marginTop:2}}>{hxb(tk)}</div>
-          </div>)}
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Transponder Keys @ 0x0888</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
+          {f.sec.tr.map((t,i)=>{const blank=t.every(b=>b===0xFF||b===0);return<div key={i} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(blank?C.bd:C.gn+'40'),textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:C.tm}}>KEY {i+1}</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:blank?'#D5D0C8':C.a4,marginTop:4}}>{hxb(t)}</div>
+            <Tag color={blank?C.tm:C.gn}>{blank?'—':'SET'}</Tag>
+          </div>;})}
         </div>
+      </Card>
+
+      <Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>📊 Runtime Counters</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
+          {[{n:'Counter 1',o:0xE61},{n:'Counter 2',o:0xE69},{n:'Counter 3',o:0xE6D},{n:'Counter 4',o:0xE75}].map(c=>{
+            const v=(f.data[c.o]<<24|f.data[c.o+1]<<16|f.data[c.o+2]<<8|f.data[c.o+3])>>>0;
+            return<div key={c.o} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
+              <div style={{fontSize:9,color:C.tm}}>{c.n}</div>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:800,color:C.a1,marginTop:2}}>{v.toLocaleString()}</div>
+              <div style={{fontSize:8,color:C.tm}}>0x{c.o.toString(16).toUpperCase()}</div>
+            </div>;})}
+        </div>
+      </Card>
+
+      <Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:8}}>VINs</div>
+        {f.vins.map((v,i)=><div key={i} style={{fontFamily:"'JetBrains Mono'",fontSize:12,marginBottom:4}}>
+          <span style={{color:C.tm}}>0x{v.off.toString(16).toUpperCase().padStart(4,'0')}: </span>
+          <span style={{fontWeight:800,color:C.a1}}>{v.vin}</span>
+        </div>)}
       </Card>
     </>}
 
-    {diff.length>0&&<Card style={{padding:16}}>
-      <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>📊 Hex Diff ({diff.length} bytes different)</div>
-      <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,maxHeight:300,overflow:'auto',background:C.c2,borderRadius:10,padding:10,border:'1px solid '+C.bd}}>
-        {diff.slice(0,200).map(d=><div key={d.off} style={{display:'flex',gap:12,padding:'1px 0'}}>
-          <span style={{color:C.tm,minWidth:48}}>0x{d.off.toString(16).toUpperCase().padStart(4,'0')}</span>
-          <span style={{color:C.er,fontWeight:700}}>{d.a.toString(16).toUpperCase().padStart(2,'0')}</span>
-          <span style={{color:C.tm}}>→</span>
-          <span style={{color:C.gn,fontWeight:700}}>{d.b.toString(16).toUpperCase().padStart(2,'0')}</span>
+    {f&&f2&&<Card style={{padding:16}}>
+      <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔀 Hex Diff — {diff.length} byte{diff.length!==1?'s':''} different</div>
+      {diff.length===0&&<div style={{fontSize:12,color:C.gn,fontWeight:700}}>✓ Files are identical</div>}
+      {diff.length>0&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,background:C.c2,borderRadius:8,padding:10,maxHeight:260,overflow:'auto',border:'1px solid '+C.bd}}>
+        <div style={{display:'grid',gridTemplateColumns:'70px 1fr 1fr',gap:4,marginBottom:4}}>
+          <span style={{fontWeight:700,color:C.tm}}>Offset</span><span style={{fontWeight:700,color:C.a1}}>File 1</span><span style={{fontWeight:700,color:C.a3}}>File 2</span>
+        </div>
+        {diff.slice(0,200).map((d,i)=><div key={i} style={{display:'grid',gridTemplateColumns:'70px 1fr 1fr',gap:4}}>
+          <span style={{color:C.tm}}>0x{d.off.toString(16).toUpperCase().padStart(4,'0')}</span>
+          <span style={{color:C.a1,fontWeight:700}}>0x{d.a.toString(16).toUpperCase().padStart(2,'0')}</span>
+          <span style={{color:C.a3,fontWeight:700}}>0x{d.b.toString(16).toUpperCase().padStart(2,'0')}</span>
         </div>)}
-        {diff.length>200&&<div style={{color:C.tm,marginTop:4}}>+{diff.length-200} more</div>}
-      </div>
+        {diff.length>200&&<div style={{color:C.tm,marginTop:4}}>...and {diff.length-200} more</div>}
+      </div>}
     </Card>}
 
-    {msg&&<div style={{marginTop:10,padding:'8px 12px',borderRadius:8,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
-    {!f&&<Card style={{textAlign:'center',padding:'40px 24px'}}><div style={{fontSize:36,opacity:.2}}>⚙️</div><div style={{fontSize:13,color:C.tm,marginTop:4}}>Load a GPEC2A EEPROM file</div></Card>}
+    {msg&&<div style={{marginTop:10,padding:'8px 12px',borderRadius:8,background:C.gn+'10',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
+    {!f&&<div style={{textAlign:'center',padding:30,color:C.tm,fontSize:12}}>Load a GPEC2A 4KB .bin file above</div>}
   </div>;
 }
