@@ -5,6 +5,7 @@ import FcaAnalyzerTab from "./FcaAnalyzerTab";
 function crc16(d,i=0xFFFF){let c=i;for(let x=0;x<d.length;x++){c^=d[x]<<8;for(let j=0;j<8;j++)c=c&0x8000?(c<<1)^0x1021:c<<1;c&=0xFFFF;}return c;}
 function reflect8(b){let r=0;for(let i=0;i<8;i++){r=(r<<1)|(b&1);b>>=1;}return r;}
 function crc8a(d){let c=0x0C;for(let x=0;x<d.length;x++){c^=reflect8(d[x]);for(let j=0;j<8;j++)c=c&0x80?((c<<1)^0x0C)&0xFF:(c<<1)&0xFF;}return c;}
+function crc8rf(d){let c=0x54;for(let x=0;x<d.length;x++){c^=d[x];for(let j=0;j<8;j++)c=c&1?((c>>1)^0xA0):c>>1;}return c&0xFF;}
 const u32=n=>n>>>0;
 function sxor(s,c){let k=u32(s);for(let i=0;i<5;i++)k=k&0x80000000?u32((k<<1)^u32(c)):u32(k<<1);return k;}
 function cda6(s){let k=u32(s);k=u32(k^0x4B129F);k=u32((k<<3)|(k>>>29));k=u32(k+0x1234);k=u32(k^0xABCD);return u32((k>>>5)|(k<<27));}
@@ -67,9 +68,9 @@ function parseModule(data,filename){
     };
   }else if(type==='RFHUB'){
     const knownOffsets=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
-    const knownVins=knownOffsets.map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);
+    const knownVins=knownOffsets.map(o=>{const v=extractVIN(data,o);if(v)return{offset:o,vin:v,mirrored:false,sc:o+17<sz?data[o+17]:0,cc:crc8rf(data.slice(o,o+17)),crcOk:o+17<sz&&data[o+17]===crc8rf(data.slice(o,o+17))};return null;}).filter(v=>v);
     if(knownVins.length>0)info.vins=knownVins;
-    else{info.vins=[];for(const o of knownOffsets){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);if(/^[1-9A-HJ-NPR-Z]/.test(s)){info.vins.push({offset:o,vin:s,mirrored:true});}}}
+    else{info.vins=[];for(const o of knownOffsets){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);if(/^[1-9A-HJ-NPR-Z]/.test(s)){const sc=o+17<sz?data[o+17]:0,cc=crc8rf(st);info.vins.push({offset:o,vin:s,mirrored:true,sc,cc,crcOk:sc===cc});}}}
     if(data.length>=0x051e)info.vehicleSecret={offset:0x050e,bytes:data.slice(0x050e,0x051e),hex:extractHex(data,0x050e,16),endian:"big"};
     info.fobikSlots=countAA50(data,0x0880,10);
     info.securityMarkers=countPat(data,0xcc,0x66,0xaa,0x55);
@@ -157,7 +158,7 @@ function computeDiff(a,b){
 function analyzeFile(buf,name){const data=new Uint8Array(buf);const sz=data.length;let type='unknown';
   if(sz===65536||sz===131072)type='BCM';else if(sz===8192||sz===16384)type='95640';else if(sz===4096){let a=true;for(let i=0;i<17&&i<sz;i++)if(data[i]<0x30||data[i]>0x5A){a=false;break;}type=a?'GPEC2A':'RFHUB';}else if(sz>131072)type='FW';
   const vins=[],partials=[];
-  if(type==='RFHUB'){for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);vins.push({off,vin:s,algo:'rfhub',coff:off+17,ok:true,cv:checkVin(s),mirrored:true});}}
+  if(type==='RFHUB'){for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);const sc=data[off+17],cc=crc8rf(st);vins.push({off,vin:s,algo:'c8',coff:off+17,sc,cc,ok:sc===cc,cv:checkVin(s),mirrored:true});}}
   else if(type==='GPEC2A'){for(const off of[0,0x1F0,0x224]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(v&&/^[1-9A-HJ-NPR-Z]/.test(s))vins.push({off,vin:s,algo:'none',coff:-1,ok:true,cv:checkVin(s)});}}
   else if(type==='95640'){for(const off of[0x275,0x288]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(!v||!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const sc=data[off-1],cc=crc8a(data.slice(off,off+17));vins.push({off,vin:s,algo:'c8',coff:off-1,sc,cc,ok:sc===cc,cv:checkVin(s)});}}
   else if(type==='BCM'||type==='FW'){for(let i=0;i<=sz-19;i++){let v=true;for(let j=0;j<17;j++)if(data[i+j]<0x20||data[i+j]>0x7E){v=false;break;}if(!v)continue;let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(data[i+j]);if(!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const cv=checkVin(s);if(!cv.ok)continue;const sc=(data[i+17]<<8)|data[i+18],cc=crc16(data.slice(i,i+17));if(sc===cc){vins.push({off:i,vin:s,algo:'c16',coff:i+17,sc,cc,ok:true,cv});i+=16;}}
@@ -171,7 +172,7 @@ function analyzeFile(buf,name){const data=new Uint8Array(buf);const sz=data.leng
   return{name,size:sz,type,data,vins,partials,sec};}
 
 function patchFile(f,nv){const out=new Uint8Array(f.data);const vb=new TextEncoder().encode(nv.toUpperCase());const log=[];
-  for(const s of f.vins){if(s.mirrored){const m=[...vb].reverse();for(let j=0;j<17;j++)out[s.off+j]=m[j];log.push('0x'+s.off.toString(16).toUpperCase()+' mirrored');}else{for(let j=0;j<17;j++)out[s.off+j]=vb[j];if(s.algo==='c16'){const c=crc16(vb);out[s.coff]=(c>>8)&0xFF;out[s.coff+1]=c&0xFF;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC16');}else if(s.algo==='c8'){const c=crc8a(vb);out[s.coff]=c;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC8');}else log.push('0x'+s.off.toString(16).toUpperCase());}}
+  for(const s of f.vins){if(s.mirrored){const m=[...vb].reverse();for(let j=0;j<17;j++)out[s.off+j]=m[j];const stored=new Uint8Array(m);out[s.coff]=crc8rf(stored);log.push('0x'+s.off.toString(16).toUpperCase()+' mirrored CRC8');}else{for(let j=0;j<17;j++)out[s.off+j]=vb[j];if(s.algo==='c16'){const c=crc16(vb);out[s.coff]=(c>>8)&0xFF;out[s.coff+1]=c&0xFF;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC16');}else if(s.algo==='c8'){const c=crc8a(vb);out[s.coff]=c;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC8');}else log.push('0x'+s.off.toString(16).toUpperCase());}}
   if(f.partials){const tb=new TextEncoder().encode(nv.toUpperCase().slice(9));for(const s of f.partials){for(let j=0;j<8;j++)out[s.off+j]=tb[j];const c=crc16(tb);out[s.coff]=(c>>8)&0xFF;out[s.coff+1]=c&0xFF;log.push('0x'+s.off.toString(16).toUpperCase()+' partial');}}
   return{data:out,log};}
 
@@ -194,12 +195,12 @@ function writeModuleVIN(data,type,vin,existingVins){
   else if(type==='95640')offs=[0x275,0x288];
   else offs=[];
   const hasMirrored=existingVins&&existingVins.some(v=>v.mirrored);
-  if(type==='RFHUB'&&hasMirrored){const mr=[...vb].reverse();offs.forEach(o=>{for(let i=0;i<17;i++)out[o+i]=mr[i];let s=0;for(let i=0;i<17;i++)s=(s+out[o+i])&0xff;out[o+17]=s;});}
+  if(type==='RFHUB'&&hasMirrored){const mr=[...vb].reverse();offs.forEach(o=>{for(let i=0;i<17;i++)out[o+i]=mr[i];out[o+17]=crc8rf(new Uint8Array(mr));});}
   else{offs.forEach(o=>{for(let i=0;i<17;i++)out[o+i]=vb[i];});}
   if(type==='BCM'){offs.forEach(o=>{const c=crc16(vb);out[o+17]=(c>>8)&0xFF;out[o+18]=c&0xFF;});
     const tb=new TextEncoder().encode(vin.slice(9));for(const po of[0x4098,0x40B0]){if(po+10>out.length)continue;for(let i=0;i<8;i++)out[po+i]=tb[i];const c=crc16(tb);out[po+8]=(c>>8)&0xFF;out[po+9]=c&0xFF;}}
   if(type==='95640')offs.forEach(o=>{out[o-1]=crc8a(vb);});
-  if(type==='RFHUB'&&!hasMirrored)offs.forEach(o=>{let s=0;for(let i=0;i<17;i++)s=(s+out[o+i])&0xff;out[o+17]=s;});
+  if(type==='RFHUB'&&!hasMirrored)offs.forEach(o=>{out[o+17]=crc8rf(out.slice(o,o+17));});
   return out;
 }
 
@@ -535,7 +536,7 @@ function SecurityTab(){
           <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
             <thead><tr>{['Offset','Category','Value','Detail'].map(h=><th key={h} style={{textAlign:'left',color:C.tm,fontWeight:600,padding:'6px 10px',borderBottom:'1px solid '+C.bd,fontSize:10,textTransform:'uppercase',letterSpacing:.5}}>{h}</th>)}</tr></thead>
             <tbody>
-              {m.vins?.map((v,j)=><tr key={'v'+j}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(v.offset)}</td><td><Tag color={C.gn}>VIN {j+1}</Tag></td><td style={{padding:'5px 10px',color:C.gn,fontWeight:700,fontSize:12}}>{v.vin}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>{v.mirrored?'17B Mirrored':'17B ASCII'}</td></tr>)}
+              {m.vins?.map((v,j)=><tr key={'v'+j}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(v.offset)}</td><td><Tag color={C.gn}>VIN {j+1}</Tag></td><td style={{padding:'5px 10px',color:C.gn,fontWeight:700,fontSize:12}}>{v.vin}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>{v.mirrored?'17B Mirrored':'17B ASCII'}{v.crcOk!==undefined&&<Tag color={v.crcOk?C.gn:C.er} style={{marginLeft:6}}>CRC8 {v.crcOk?'✓':'✗'}</Tag>}</td></tr>)}
               {m.partialVins?.map((pv,j)=><tr key={'pv'+j}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(pv.offset)}</td><td><Tag color={C.a2}>TAIL {j+1}</Tag></td><td style={{padding:'5px 10px',color:C.a2,fontWeight:700,fontSize:12}}>{pv.tail}</td><td style={{padding:'5px 10px',color:pv.crcOk?C.gn:C.er,fontSize:12}}>8B partial CRC {pv.crcOk?'✓':'✗'}</td></tr>)}
               {m.skimStatus!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x0011</td><td><Tag color={C.sr}>SKIM</Tag></td><td style={{padding:'5px 10px',color:m.skimByte===0x80?C.gn:C.er,fontWeight:700,fontSize:12}}>0x{m.skimByte.toString(16).toUpperCase()} — {m.skimStatus}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>Immobilizer byte</td></tr>}
               {m.secretKey&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(m.secretKey.offset)}</td><td><Tag color={C.a4}>SECRET</Tag></td><td style={{padding:'5px 10px',color:C.a4,fontWeight:700,fontSize:12}}>{m.secretKey.hex}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>8B sync key {m.keyConsistent?'✓':'✗'}</td></tr>}
@@ -890,7 +891,7 @@ function DumpsTab({files,setFiles,loadF}){
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>VIN Locations ({f.vins.length} full{f.partials?.length>0?', '+f.partials.length+' partial':''})</div>
         {f.vins.map((v,i)=><div key={i} style={{padding:'8px 10px',borderRadius:8,marginBottom:4,background:C.c2,border:'1px solid '+C.bd,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:4}}>
           <div><span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.tm}}>0x{v.off.toString(16).toUpperCase()} </span><span style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:C.a1}}>{v.vin}</span>{v.mirrored&&<Tag color={C.a3}>MIRRORED</Tag>}</div>
-          <div>{v.algo==='c16'&&<Tag color={C.gn}>CRC16 ✓</Tag>}{v.algo==='c8'&&<Tag color={v.ok?C.gn:C.wn}>CRC8 {v.ok?'✓':'!'}</Tag>}{v.algo==='rfhub'&&<Tag color={C.a3}>Boot CRC</Tag>}{v.algo==='none'&&<Tag color={C.a2}>No CRC</Tag>}</div>
+          <div>{v.algo==='c16'&&<Tag color={C.gn}>CRC16 ✓</Tag>}{v.algo==='c8'&&<Tag color={v.ok?C.gn:C.wn}>CRC8 {v.ok?'✓':'!'}</Tag>}{v.algo==='none'&&<Tag color={C.a2}>No CRC</Tag>}</div>
         </div>)}
         {f.partials?.map((v,i)=><div key={'p'+i} style={{padding:'6px 10px',borderRadius:8,marginBottom:4,background:'#FFF8E1',border:'1px solid #FFE082',fontSize:11}}>
           <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.tm}}>0x{v.off.toString(16).toUpperCase()} </span><span style={{fontFamily:"'JetBrains Mono'",fontWeight:700,color:C.a1}}>…{v.vin}</span><Tag color={C.wn}>PARTIAL</Tag>
