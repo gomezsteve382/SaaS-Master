@@ -3,7 +3,8 @@ import FcaAnalyzerTab from "./FcaAnalyzerTab";
 
 /* ═══ VERIFIED ENGINES ═══ */
 function crc16(d,i=0xFFFF){let c=i;for(let x=0;x<d.length;x++){c^=d[x]<<8;for(let j=0;j<8;j++)c=c&0x8000?(c<<1)^0x1021:c<<1;c&=0xFFFF;}return c;}
-function crc8a(d,i=0){let c=i;for(let x=0;x<d.length;x++){c^=d[x];for(let j=0;j<8;j++)c=c&0x80?(c<<1)^0x26:c<<1;c&=0xFF;}return c;}
+function reflect8(b){let r=0;for(let i=0;i<8;i++){r=(r<<1)|(b&1);b>>=1;}return r;}
+function crc8a(d){let c=0x0C;for(let x=0;x<d.length;x++){c^=reflect8(d[x]);for(let j=0;j<8;j++)c=c&0x80?((c<<1)^0x0C)&0xFF:(c<<1)&0xFF;}return c;}
 const u32=n=>n>>>0;
 function sxor(s,c){let k=u32(s);for(let i=0;i<5;i++)k=k&0x80000000?u32((k<<1)^u32(c)):u32(k<<1);return k;}
 function cda6(s){let k=u32(s);k=u32(k^0x4B129F);k=u32((k<<3)|(k>>>29));k=u32(k+0x1234);k=u32(k^0xABCD);return u32((k>>>5)|(k<<27));}
