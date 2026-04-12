@@ -81,6 +81,8 @@ function parseModule(data,filename){
     info.skey=data.slice(0x40,0x50);info.skoff=0x40;info.skb=info.skey.every(b=>b===0xFF);
   }else if(type==='BCM'){
     info.vins=[0x5328,0x5348,0x5368,0x5388].map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);
+    info.partialVins=[];
+    for(const po of[0x4098,0x40B0]){if(po+10>sz)continue;let s='',ok=true;for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}if(ok&&s.length===8){const sc=(data[po+8]<<8)|data[po+9],cc=crc16(data.slice(po,po+8));info.partialVins.push({offset:po,tail:s,storedCrc:sc,calcCrc:cc,crcOk:sc===cc});}}
     info.vehicleSecret={offset:0x40c9,bytes:data.slice(0x40c9,0x40d9),hex:extractHex(data,0x40c9,16),endian:"little"};
     info.securityLock={offset:0x8028,value:data[0x8028],locked:data[0x8028]===0x5a};
     info.fobikCount=data[0x5862];
@@ -192,7 +194,8 @@ function writeModuleVIN(data,type,vin,existingVins){
   const hasMirrored=existingVins&&existingVins.some(v=>v.mirrored);
   if(type==='RFHUB'&&hasMirrored){const mr=[...vb].reverse();offs.forEach(o=>{for(let i=0;i<17;i++)out[o+i]=mr[i];let s=0;for(let i=0;i<17;i++)s=(s+out[o+i])&0xff;out[o+17]=s;});}
   else{offs.forEach(o=>{for(let i=0;i<17;i++)out[o+i]=vb[i];});}
-  if(type==='BCM')offs.forEach(o=>{const c=crc16(vb);out[o+17]=(c>>8)&0xFF;out[o+18]=c&0xFF;});
+  if(type==='BCM'){offs.forEach(o=>{const c=crc16(vb);out[o+17]=(c>>8)&0xFF;out[o+18]=c&0xFF;});
+    const tb=new TextEncoder().encode(vin.slice(9));for(const po of[0x4098,0x40B0]){if(po+10>out.length)continue;for(let i=0;i<8;i++)out[po+i]=tb[i];const c=crc16(tb);out[po+8]=(c>>8)&0xFF;out[po+9]=c&0xFF;}}
   if(type==='95640')offs.forEach(o=>{out[o-1]=crc8a(vb);});
   if(type==='RFHUB'&&!hasMirrored)offs.forEach(o=>{let s=0;for(let i=0;i<17;i++)s=(s+out[o+i])&0xff;out[o+17]=s;});
   return out;
@@ -294,12 +297,10 @@ function BenchTab(){
           if(sc!==cc){out[i+17]=(cc>>8)&0xFF;out[i+18]=cc&0xFF;addLog('  '+m.name+' @0x'+i.toString(16).toUpperCase()+': CRC16 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}
           i+=16;
         }
-        const tail=m.vins?.[0]?.vin?.slice(9);
-        if(tail){const tc=[];for(let k=0;k<8;k++)tc.push(tail.charCodeAt(k));
-          for(let i=0;i<=out.length-10;i++){let mt=true;for(let j=0;j<8;j++)if(out[i+j]!==tc[j]){mt=false;break;}if(!mt)continue;
-            if(fullOffs.some(fo=>i>=fo&&i<fo+19))continue;
-            const sc=(out[i+8]<<8)|out[i+9],cc=crc16(out.slice(i,i+8));
-            if(sc!==cc){out[i+8]=(cc>>8)&0xFF;out[i+9]=cc&0xFF;addLog('  '+m.name+' @0x'+i.toString(16).toUpperCase()+': partial CRC16 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}}}
+        for(const po of[0x4098,0x40B0]){if(po+10>out.length)continue;
+          let pk=true;for(let j=0;j<8;j++)if(out[po+j]<0x20||out[po+j]>0x7E){pk=false;break;}if(!pk)continue;
+          const sc=(out[po+8]<<8)|out[po+9],cc=crc16(out.slice(po,po+8));
+          if(sc!==cc){out[po+8]=(cc>>8)&0xFF;out[po+9]=cc&0xFF;addLog('  '+m.name+' @0x'+po.toString(16).toUpperCase()+': partial CRC16 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}}
       }else if(m.type==='95640'){
         for(const off of[0x275,0x288]){if(off+17>out.length)continue;
           let v=true;for(let j=0;j<17;j++)if(out[off+j]<0x20||out[off+j]>0x7E){v=false;break;}if(!v)continue;
