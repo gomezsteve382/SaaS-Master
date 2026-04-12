@@ -50,6 +50,7 @@ function parseModule(data,filename){
     info.secretKey={offset:0x0203,bytes:data.slice(0x0203,0x020b),hex:extractHex(data,0x0203,8)};
     info.secretKeyMirror={offset:0x0361,bytes:data.slice(0x0361,0x0369),hex:extractHex(data,0x0361,8)};
     info.keyConsistent=arrEq(data.slice(0x0203,0x020b),data.slice(0x0361,0x0369));
+    info.skey=data.slice(0x0203,0x020b);info.skoff=0x0203;info.skmoff=0x0361;info.skb=info.skey.every(b=>b===0xFF);
     info.transponderKeys=[];
     for(let i=0;i<4;i++){const o=0x0888+i*4;info.transponderKeys.push({offset:o,hex:extractHex(data,o,4)});}
     info.zzzzTamper={offset:0x0c8c,hex:extractHex(data,0x0c8c,8),intact:data[0x0c8c]===0x5a};
@@ -64,7 +65,7 @@ function parseModule(data,filename){
     const knownOffsets=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
     const knownVins=knownOffsets.map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);
     if(knownVins.length>0)info.vins=knownVins;
-    else{info.vins=[];for(const o of knownOffsets){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);if(/^[1-9A-HJ-NPR-Z]/.test(s)){info.vins.push({offset:o,vin:s,mirrored:true});break;}}}
+    else{info.vins=[];for(const o of knownOffsets){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);if(/^[1-9A-HJ-NPR-Z]/.test(s)){info.vins.push({offset:o,vin:s,mirrored:true});}}}
     if(data.length>=0x051e)info.vehicleSecret={offset:0x050e,bytes:data.slice(0x050e,0x051e),hex:extractHex(data,0x050e,16),endian:"big"};
     info.fobikSlots=countAA50(data,0x0880,10);
     info.securityMarkers=countPat(data,0xcc,0x66,0xaa,0x55);
@@ -362,7 +363,7 @@ function SecurityTab(){
   const sks=useMemo(()=>mods.filter(m=>m.skey&&!m.skb).map(m=>({idx:mods.indexOf(m),type:m.type,key:m.skey,fn:m.filename})),[mods]);
   const skBad=useMemo(()=>{if(sks.length<2)return false;for(let i=1;i<sks.length;i++)for(let j=0;j<sks[0].key.length;j++)if(sks[0].key[j]!==sks[i].key[j])return true;return false;},[sks]);
 
-  function syncKey(si,ti){const s=mods[si],t=mods[ti];if(!s.skey||s.skb||t.skoff===undefined)return;const p=new Uint8Array(t.data);for(let i=0;i<Math.min(s.skey.length,16);i++)p[t.skoff+i]=s.skey[i];dl(p,t.filename.replace(/\./,'_KEYSYNCED.'));setMsg('Key from '+s.filename+' → '+t.filename);}
+  function syncKey(si,ti){const s=mods[si],t=mods[ti];if(!s.skey||s.skb||t.skoff===undefined)return;const p=new Uint8Array(t.data);for(let i=0;i<Math.min(s.skey.length,16);i++)p[t.skoff+i]=s.skey[i];if(t.type==='GPEC2A'&&t.skmoff!==undefined)for(let i=0;i<Math.min(s.skey.length,16);i++)p[t.skmoff+i]=s.skey[i];dl(p,t.filename.replace(/\./,'_KEYSYNCED.'));setMods(prev=>{const u=[...prev];u[ti]=parseModule(p,t.filename);return u;});setMsg('Key from '+s.filename+' → '+t.filename);}
 
   function patchModVIN(i){
     if(tv.length!==17)return;const m=mods[i];
@@ -371,15 +372,17 @@ function SecurityTab(){
   }
 
   function matchAll(){
-    if(tv.length!==17||!mods.length)return;
+    if(!mods.length)return;const doVin=tv.length===17;
     const results=[];let srcKey=null;
     if(keySrc>=0&&mods[keySrc]&&mods[keySrc].skey&&!mods[keySrc].skb){srcKey={data:mods[keySrc].skey,type:mods[keySrc].type,fn:mods[keySrc].filename};}
     else{for(const m of mods){if(m.skey&&!m.skb){srcKey={data:m.skey,type:m.type,fn:m.filename};break;}}}
     mods.forEach((m,i)=>{
-      let patched=writeModuleVIN(m.data,m.type,tv,m.vins);
+      let patched=doVin?writeModuleVIN(m.data,m.type,tv,m.vins):null;
       if(!patched)patched=new Uint8Array(m.data);
-      if(srcKey&&m.skey&&m.skb&&m.skoff!==undefined){
-        for(let j=0;j<Math.min(srcKey.data.length,16);j++)patched[m.skoff+j]=srcKey.data[j];
+      if(srcKey&&m.skoff!==undefined){
+        let needsSync=m.skb;
+        if(!needsSync&&m.skey){for(let j=0;j<Math.min(srcKey.data.length,m.skey.length);j++)if(srcKey.data[j]!==m.skey[j]){needsSync=true;break;}}
+        if(needsSync){for(let j=0;j<Math.min(srcKey.data.length,16);j++)patched[m.skoff+j]=srcKey.data[j];if(m.type==='GPEC2A'&&m.skmoff!==undefined)for(let j=0;j<Math.min(srcKey.data.length,16);j++)patched[m.skmoff+j]=srcKey.data[j];}
       }
       const fn='MATCHED_'+tv+'_'+m.filename;
       const flashNote=m.type==='BCM'?'Flash this BCM D-FLASH file':m.type==='RFHUB'?'Write this RFHUB to EEE chip':m.type==='GPEC2A'?'Write this GPEC2A to 95320 SPI chip':m.type==='95640'?'Write this 95640 EEPROM':'Flash this file';
@@ -416,7 +419,7 @@ function SecurityTab(){
       <Card style={{marginBottom:12,padding:14}}>
         <div style={{fontSize:10,fontWeight:800,color:C.sr,letterSpacing:2,marginBottom:6}}>TARGET VIN</div>
         <input value={tv} maxLength={17} placeholder="17-char target VIN" onChange={e=>setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}} onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
-        {vinBad&&tv.length===17&&<div style={{marginTop:8}}>
+        {(vinBad||skBad)&&<div style={{marginTop:8}}>
           {sks.length>1&&<div style={{marginBottom:6,display:'flex',gap:8,alignItems:'center'}}>
             <span style={{fontSize:10,fontWeight:800,color:C.tm}}>Key Source:</span>
             <select value={keySrc} onChange={e=>setKeySrc(+e.target.value)} style={{background:C.c2,color:C.tx,border:'1px solid '+C.bd,borderRadius:6,padding:'4px 10px',fontSize:11,fontFamily:'inherit'}}>
@@ -424,7 +427,8 @@ function SecurityTab(){
               {sks.map(s=><option key={s.idx} value={s.idx}>{s.fn} ({TL[s.type]||s.type})</option>)}
             </select>
           </div>}
-          <Btn onClick={matchAll} full>⚡ Match All Modules → {tv} + Download Files to Flash</Btn>
+          <Btn onClick={matchAll} disabled={vinBad&&tv.length!==17} full>⚡ Match All Modules{tv.length===17?' → '+tv:''} + Download Files to Flash</Btn>
+          {vinBad&&tv.length!==17&&<div style={{fontSize:10,color:C.wn,marginTop:4}}>Enter a 17-char target VIN above to sync VINs</div>}
         </div>}
       </Card>
 
@@ -490,7 +494,7 @@ function SecurityTab(){
           {m.secretKey&&<div style={{fontSize:11,marginBottom:4}}>Secret: <span style={{fontFamily:"'JetBrains Mono'",color:C.a4,fontSize:10}}>{m.secretKey.hex}</span> {m.keyConsistent?'✓':'✗'}</div>}
           {m.vehicleSecret&&<div style={{fontSize:11,marginBottom:4}}>Secret ({m.vehicleSecret.endian}): <span style={{fontFamily:"'JetBrains Mono'",color:C.a4,fontSize:10}}>{m.vehicleSecret.hex}</span></div>}
           {m.skey&&!m.vehicleSecret&&!m.secretKey&&<div style={{fontSize:11,marginBottom:4}}>Secret @0x{m.skoff.toString(16).toUpperCase()}: <span style={{fontFamily:"'JetBrains Mono'",color:m.skb?C.tm:C.a4,fontSize:10}}>{m.skb?'ERASED':hxb(m.skey)}</span>
-            {m.skb&&sks.length>0&&<div style={{marginTop:4,display:'flex',gap:4,flexWrap:'wrap'}}>{sks.filter(s=>s.idx!==i).map(s=><Btn key={s.idx} onClick={()=>syncKey(s.idx,i)} color={C.a4} outline>Copy from {TL[s.type]||s.type}</Btn>)}</div>}
+            {(m.skb||skBad)&&sks.length>0&&<div style={{marginTop:4,display:'flex',gap:4,flexWrap:'wrap'}}>{sks.filter(s=>s.idx!==i).map(s=><Btn key={s.idx} onClick={()=>syncKey(s.idx,i)} color={C.a4} outline>Copy from {TL[s.type]||s.type}</Btn>)}</div>}
           </div>}
           {m.fobikSlots!==undefined&&<div style={{fontSize:11}}>FOBIK: <span style={{color:C.a1,fontWeight:700}}>{m.fobikSlots} slots</span> · CC66AA55: {m.securityMarkers} · ZZZZ: {m.zzzzBlocks}</div>}
           {m.fobikCount!==undefined&&<div style={{fontSize:11}}>FOBIK: <span style={{color:C.a1,fontWeight:700}}>{m.fobikCount} keys</span></div>}
