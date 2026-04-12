@@ -250,6 +250,8 @@ export default function App(){const[pg,setPg]=useState('dumps');const[files,setF
 /* ═══ BENCH TAB ═══ */
 function BenchTab(){
   const[mods,setMods]=useState([]);const[nv,setNv]=useState('');const[msg,setMsg]=useState('');const[log,setLog]=useState([]);
+  const[benchConn,setBenchConn]=useState(false);const[benchBusy,setBenchBusy]=useState('');
+  const benchEng=useRef(null);
   const addLog=(m,l='info')=>setLog(p=>[...p,{m,l,t:new Date().toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})}]);
   const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
 
@@ -311,9 +313,8 @@ function BenchTab(){
       }else if(m.type==='RFHUB'){
         for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+18>out.length)continue;
           const st=out.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;
-          let s=0;for(let j=0;j<17;j++)s=(s+out[off+j])&0xFF;
-          const sc=out[off+17];
-          if(sc!==s){out[off+17]=s;addLog('  '+m.name+' @0x'+off.toString(16).toUpperCase()+': Boot CRC '+sc.toString(16).toUpperCase()+' → '+s.toString(16).toUpperCase(),'rx');fixes++;}
+          const cc=crc8rf(st),sc=out[off+17];
+          if(sc!==cc){out[off+17]=cc;addLog('  '+m.name+' @0x'+off.toString(16).toUpperCase()+': CRC8 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}
         }
       }
       if(fixes>0){dl(out,'CRC_PATCHED_'+m.filename);addLog(m.name+': '+fixes+' CRC(s) fixed → download','rx');patched++;
@@ -322,6 +323,52 @@ function BenchTab(){
     });
     setMsg(patched>0?patched+' module(s) CRC-patched':'All CRCs already valid');
   },[mods]);
+
+  const benchConnect=useCallback(async()=>{
+    try{
+      if(!navigator.serial){addLog('Web Serial not available — use Chrome','error');return;}
+      const port=await navigator.serial.requestPort();
+      await port.open({baudRate:115200});
+      const w=port.writable.getWriter();
+      const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable).catch(()=>{});
+      const rd=dec.readable.getReader();let buf='';
+      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value)buf+=value;}}catch(e){}})();
+      const send=async(cmd,to=2000)=>{buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(buf.includes('>')){const r=buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}return buf.trim();};
+      await send('ATZ',3000);await new Promise(r=>setTimeout(r,500));
+      addLog('Bench adapter: '+(await send('ATI')),'info');
+      for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6']){await send(c);await new Promise(r=>setTimeout(r,80));}
+      benchEng.current={send,uds:async(tx,rx,data)=>{
+        await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));
+        await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));
+        const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
+        const r=await send(h,5000);
+        if(!r||r.includes('NO DATA')||r.includes('ERROR'))return{ok:false};
+        const ls=r.split(/\r?\n/).map(l=>l.trim()).filter(l=>/^[0-9A-F\s]+$/i.test(l));
+        let all=[];ls.forEach(l=>{(l.replace(/\s/g,'').match(/.{2}/g)||[]).forEach(x=>all.push(parseInt(x,16)));});
+        return{ok:true,d:new Uint8Array(all)};
+      }};
+      setBenchConn(true);addLog('Bench ready — HS-CAN 500kbps','info');
+    }catch(e){addLog('Bench connect failed: '+e.message,'error');}
+  },[]);
+
+  const benchWriteModule=useCallback(async(tx,rx,label)=>{
+    if(!benchEng.current||nv.length!==17)return;setBenchBusy('Writing '+label+'...');
+    await benchEng.current.uds(tx,rx,[0x10,0x03]);
+    const sr=await benchEng.current.uds(tx,rx,[0x27,0x01]);
+    if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
+      if(sv){const k=cda6(sv);await benchEng.current.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(label+' unlocked','rx');}}
+    const vb=[...new TextEncoder().encode(nv)];
+    for(const did of[0xF190,0x7B90,0x7B88]){const r=await benchEng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(label+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
+    await benchEng.current.uds(tx,rx,[0x11,0x01]);addLog(label+' VIN written + reset','rx');setBenchBusy('');
+  },[nv]);
+
+  const benchReadVin=useCallback(async(tx,rx,label)=>{
+    if(!benchEng.current)return;setBenchBusy('Reading '+label+'...');
+    const r=await benchEng.current.uds(tx,rx,[0x22,0xF1,0x90]);
+    if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);addLog(label+' VIN: '+vin,'rx');}
+    else addLog(label+' read failed','error');
+    setBenchBusy('');
+  },[]);
 
   const bcm=mods.find(m=>m.type==='BCM');
   const gpec=mods.find(m=>m.type==='GPEC2A');
@@ -371,6 +418,46 @@ function BenchTab(){
           <div><b>Downloads:</b> Each operation produces a modified .bin ready to write to chip</div>
         </div>
       </Card>}
+
+      <Card glow style={{marginBottom:14}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+          <div style={{fontSize:14,fontWeight:800}}>UDS Bench Tools</div>
+          <Tag color={benchConn?C.gn:C.tm}>{benchConn?'CONNECTED':'OFFLINE'}</Tag>
+        </div>
+        <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:12}}>
+          <Btn onClick={benchConnect} disabled={benchConn} color={benchConn?C.gn:C.a3}>{benchConn?'✓ Bench Connected':'🔌 Connect OBDLink (Bench)'}</Btn>
+        </div>
+        {benchConn&&<>
+          <input value={nv} maxLength={17} placeholder="Enter 17-character VIN" onChange={e=>setNv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))}
+            style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',marginBottom:10}}
+            onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+            <span style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:800,color:nv.length===17?C.sr:C.tm}}>{nv.length}/17</span>
+            {benchBusy&&<span style={{fontSize:10,color:C.wn,fontWeight:700}}>{benchBusy}</span>}
+          </div>
+          <div style={{fontSize:12,fontWeight:800,color:C.tx,marginBottom:8}}>Write VIN</div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:10}}>
+            <Btn onClick={()=>benchWriteModule(0x7E4,0x7EC,'DAMP')} disabled={!!benchBusy||nv.length!==17} color={C.a4}>⚡ Write DAMP</Btn>
+            <Btn onClick={()=>benchWriteModule(0x745,0x765,'IPC')} disabled={!!benchBusy||nv.length!==17} color={C.a1}>⚡ Write IPC</Btn>
+            <Btn onClick={()=>benchWriteModule(0x7E0,0x7E8,'ECM')} disabled={!!benchBusy||nv.length!==17} color={C.a2}>⚡ Write ECM</Btn>
+            <Btn onClick={()=>benchWriteModule(0x7E1,0x7E9,'TCM')} disabled={!!benchBusy||nv.length!==17} color={C.a3}>⚡ Write TCM</Btn>
+            <Btn onClick={()=>benchWriteModule(0x742,0x762,'BCM')} disabled={!!benchBusy||nv.length!==17} color={C.sr}>⚡ Write BCM</Btn>
+          </div>
+          <div style={{fontSize:12,fontWeight:800,color:C.tx,marginBottom:8}}>Read VIN</div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            <Btn onClick={()=>benchReadVin(0x7E4,0x7EC,'DAMP')} disabled={!!benchBusy} color={C.a4} outline>📖 Read DAMP</Btn>
+            <Btn onClick={()=>benchReadVin(0x745,0x765,'IPC')} disabled={!!benchBusy} color={C.a1} outline>📖 Read IPC</Btn>
+            <Btn onClick={()=>benchReadVin(0x7E0,0x7E8,'ECM')} disabled={!!benchBusy} color={C.a2} outline>📖 Read ECM</Btn>
+            <Btn onClick={()=>benchReadVin(0x7E1,0x7E9,'TCM')} disabled={!!benchBusy} color={C.a3} outline>📖 Read TCM</Btn>
+            <Btn onClick={()=>benchReadVin(0x742,0x762,'BCM')} disabled={!!benchBusy} color={C.sr} outline>📖 Read BCM</Btn>
+          </div>
+          <div style={{marginTop:10,fontSize:10,color:C.ts}}>
+            <div><b>Flow:</b> Extended session → CDA6 security → Write DIDs (F190/7B90/7B88) → ECU Reset</div>
+            <div><b>Bench:</b> Power module with 12V supply, connect OBDLink to CAN H/L pins</div>
+          </div>
+        </>}
+        {!benchConn&&<div style={{fontSize:10,color:C.ts}}>Connect OBDLink to write VINs to individual modules on the bench via UDS over CAN</div>}
+      </Card>
 
       {msg&&<div style={{marginTop:10,padding:'8px 12px',borderRadius:8,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
     </div>
@@ -770,6 +857,17 @@ function OBDTab(){
     else addLog('SKIM read failed','error');setBusy('');
   },[]);
 
+  const writeOneModule=useCallback(async(tx,rx,label)=>{
+    if(!eng.current||nv.length!==17)return;setBusy('Writing '+label+'...');
+    await eng.current.uds(tx,rx,[0x10,0x03]);
+    const sr=await eng.current.uds(tx,rx,[0x27,0x01]);
+    if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
+      if(sv){const k=cda6(sv);await eng.current.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(label+' unlocked','rx');}}
+    const vb=[...new TextEncoder().encode(nv)];
+    for(const did of[0xF190,0x7B90,0x7B88]){const r=await eng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(label+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
+    await eng.current.uds(tx,rx,[0x11,0x01]);addLog(label+' VIN written + reset','rx');setBusy('');
+  },[nv]);
+
   const virginRfhub=useCallback(async()=>{
     if(!eng.current)return;setBusy('Virginizing RFHUB...');
     await eng.current.uds(0x75F,0x767,[0x10,0x03]);
@@ -818,6 +916,14 @@ function OBDTab(){
           <Btn onClick={readSkim} disabled={!!busy} color={C.a2} outline>🛡️ Read SKIM State</Btn>
           <Btn onClick={virginRfhub} disabled={!!busy} color={C.er} outline>💀 Virginize RFHUB</Btn>
         </div>
+        <div style={{marginTop:12,fontSize:12,fontWeight:800,color:C.tx,marginBottom:8}}>Write VIN to Single Module</div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <Btn onClick={()=>writeOneModule(0x7E4,0x7EC,'DAMP')} disabled={!!busy||nv.length!==17} color={C.a4} outline>🔧 Write DAMP</Btn>
+          <Btn onClick={()=>writeOneModule(0x745,0x765,'IPC')} disabled={!!busy||nv.length!==17} color={C.a1} outline>🔧 Write IPC</Btn>
+          <Btn onClick={()=>writeOneModule(0x7E0,0x7E8,'ECM')} disabled={!!busy||nv.length!==17} color={C.a2} outline>🔧 Write ECM</Btn>
+          <Btn onClick={()=>writeOneModule(0x7E1,0x7E9,'TCM')} disabled={!!busy||nv.length!==17} color={C.a3} outline>🔧 Write TCM</Btn>
+        </div>
+        <div style={{marginTop:6,fontSize:9,color:C.wn}}>{nv.length!==17?'↑ Enter VIN above to enable individual writes':''}</div>
         <div style={{marginTop:10,fontSize:10,color:C.ts}}>
           <div><b>DIDs:</b> 0xF190 VIN · 0x7B90 Current · 0x7B88 Original · 0x2023 Proxi · 0x6E9EB0 SKIM</div>
           <div><b>Security:</b> Extended session (10 03) → Seed (27 01) → CDA6 key → Send (27 02) → Write (2E) → Reset (11 01)</div>
