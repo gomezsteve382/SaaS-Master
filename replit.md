@@ -55,7 +55,7 @@ No backend required — the API server exists but is unused by this app.
 ## Verified CRC Algorithms
 
 - **BCM D-FLASH**: CRC-16 CCITT-FALSE (poly 0x1021, init 0xFFFF)
-- **95640 EEPROM**: CRC-8 Forward (poly 0x26, init 0x00)
+- **95640 EEPROM**: CRC-8 Forward (poly 0x42, init 0x2E)
 - **RFHUB EEE**: Context-dependent, preserved on patch
 - **GPEC2A**: No CRC (plain ASCII VIN storage)
 
