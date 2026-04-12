@@ -14,6 +14,8 @@ function tipm(s,t='a'){const tb=TT[t]||TT.a;let v=s&0xFFFF,k=0;for(let i=0;i<tb.
 const ALGOS=[{id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},{id:'gpec2',n:'GPEC2',h:'Continental',fn:s=>sxor(s,0xE72E3799)},{id:'gpec2f',n:'GPEC2 Flash',h:'Flash',fn:s=>sxor(s,0x966AEEB1)},{id:'gpec2e',n:'GPEC2 EPROM',h:'EPROM',fn:s=>sxor(s,0x3F711F5A)},{id:'gpec3',n:'GPEC3',h:'2018+',fn:s=>sxor(s,0x129D657F)},{id:'gpec2a',n:'GPEC2A',h:'GPEC2A',fn:s=>sxor(s,0xCE853A6F)},{id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},{id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},{id:'jtec',n:'JTEC',h:'Fixed 0000',fn:()=>0},{id:'cda6',n:'CDA6',h:'BCM/ABS/IPC',fn:s=>cda6(s)},{id:'t80',n:'TIPM 0x80',h:'t8001',fn:s=>tipm(s,'a')},{id:'t36',n:'TIPM 0x36',h:'t3605',fn:s=>tipm(s,'b')},{id:'t81',n:'TIPM 0x81',h:'t8101',fn:s=>tipm(s,'c')},{id:'t3c',n:'TIPM 0x3C',h:'t3c',fn:s=>tipm(s,'d')}];
 const MODS=[{c:'ECM',n:'Engine',tx:0x7E0,rx:0x7E8},{c:'TCM',n:'Transmission',tx:0x7E1,rx:0x7E9},{c:'BCM',n:'Body Control',tx:0x742,rx:0x762},{c:'RFHUB',n:'RF Hub',tx:0x75F,rx:0x767},{c:'ABS',n:'Brakes',tx:0x760,rx:0x768},{c:'IPC',n:'Cluster',tx:0x745,rx:0x765},{c:'RADIO',n:'Uconnect',tx:0x772,rx:0x77A},{c:'DAMP',n:'Damping',tx:0x7E4,rx:0x7EC},{c:'EPS',n:'Steering',tx:0x75F,rx:0x769},{c:'TIPM',n:'Power Module',tx:0x74C,rx:0x76C}];
 
+const SKIM_OFF=[{v:'Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT',base:0x40C0,ks:18,kc:6}];
+
 /* ═══ VIN ═══ */
 const TR={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9};for(let d=0;d<=9;d++)TR[String(d)]=d;
 const WT=[8,7,6,5,4,3,2,10,0,9,8,7,6,5,4,3,2];
@@ -276,6 +278,46 @@ function BenchTab(){
     dl(v,'VIRGIN_'+rf.filename);addLog('RFHUB virginized (bench)','rx');setMsg('RFHUB virginized');
   },[mods]);
 
+  const doCrcPatch=useCallback(()=>{
+    if(!mods.length){addLog('No modules loaded','error');return;}
+    let patched=0;
+    mods.forEach((m,idx)=>{
+      const out=new Uint8Array(m.data);let fixes=0;
+      if(m.type==='BCM'){
+        for(let i=0;i<=out.length-19;i++){
+          let v=true;for(let j=0;j<17;j++)if(out[i+j]<0x20||out[i+j]>0x7E){v=false;break;}
+          if(!v)continue;let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(out[i+j]);
+          if(!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;
+          const sc=(out[i+17]<<8)|out[i+18],cc=crc16(out.slice(i,i+17));
+          if(sc!==cc){out[i+17]=(cc>>8)&0xFF;out[i+18]=cc&0xFF;addLog('  '+m.name+' @0x'+i.toString(16).toUpperCase()+': CRC16 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}
+          i+=16;
+        }
+        const tail=m.vins?.[0]?.vin?.slice(9);
+        if(tail){const tc=[];for(let k=0;k<8;k++)tc.push(tail.charCodeAt(k));
+          for(let i=0;i<=out.length-10;i++){let mt=true;for(let j=0;j<8;j++)if(out[i+j]!==tc[j]){mt=false;break;}if(!mt)continue;
+            const sc=(out[i+8]<<8)|out[i+9],cc=crc16(out.slice(i,i+8));
+            if(sc!==cc){out[i+8]=(cc>>8)&0xFF;out[i+9]=cc&0xFF;addLog('  '+m.name+' @0x'+i.toString(16).toUpperCase()+': partial CRC16 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}}}
+      }else if(m.type==='95640'){
+        for(const off of[0x275,0x288]){if(off+17>out.length)continue;
+          let v=true;for(let j=0;j<17;j++)if(out[off+j]<0x20||out[off+j]>0x7E){v=false;break;}if(!v)continue;
+          const sc=out[off-1],cc=crc8a(out.slice(off,off+17));
+          if(sc!==cc){out[off-1]=cc;addLog('  '+m.name+' @0x'+off.toString(16).toUpperCase()+': CRC8 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}
+        }
+      }else if(m.type==='RFHUB'){
+        for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+18>out.length)continue;
+          const st=out.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;
+          let s=0;for(let j=0;j<17;j++)s=(s+out[off+j])&0xFF;
+          const sc=out[off+17];
+          if(sc!==s){out[off+17]=s;addLog('  '+m.name+' @0x'+off.toString(16).toUpperCase()+': Boot CRC '+sc.toString(16).toUpperCase()+' → '+s.toString(16).toUpperCase(),'rx');fixes++;}
+        }
+      }
+      if(fixes>0){dl(out,'CRC_PATCHED_'+m.filename);addLog(m.name+': '+fixes+' CRC(s) fixed → download','rx');patched++;
+        setMods(p=>{const u=[...p];u[idx]=parseModule(out,m.filename);return u;});
+      }else addLog(m.name+': all CRCs valid ✓','info');
+    });
+    setMsg(patched>0?patched+' module(s) CRC-patched':'All CRCs already valid');
+  },[mods]);
+
   const bcm=mods.find(m=>m.type==='BCM');
   const gpec=mods.find(m=>m.type==='GPEC2A');
 
@@ -317,6 +359,7 @@ function BenchTab(){
           <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}addLog('BCM Proxi @0x2023: '+extractHex(bcm.data,0x2023,16),'rx');}} disabled={!bcm} color={C.a3} outline>📋 Read BCM Proxi</Btn>
           <Btn onClick={()=>{if(!gpec){addLog('No GPEC2A loaded','error');return;}addLog('SKIM State: '+(gpec.skimByte===0x80?'ENABLED':'DISABLED')+' (0x'+gpec.skimByte.toString(16).toUpperCase()+')','rx');}} disabled={!gpec} color={C.a2} outline>🛡️ Read SKIM State</Btn>
           <Btn onClick={doVirginRfhub} disabled={!mods.find(m=>m.type==='RFHUB')} color={C.er} outline>💀 Virginize RFHUB</Btn>
+          <Btn onClick={doCrcPatch} disabled={!mods.length} color={C.sr}>🔧 CRC Patch All</Btn>
         </div>
         <div style={{marginTop:10,fontSize:10,color:C.ts}}>
           <div><b>Bench mode:</b> All operations work on loaded .bin files — no serial connection needed</div>
@@ -360,6 +403,16 @@ function SecurityTab(){
   const allVins=useMemo(()=>{const s=new Set();mods.forEach(m=>{if(m.vins)m.vins.forEach(v=>s.add(v.vin));});return[...s];},[mods]);
   const vinBad=allVins.length>1;
   const val=useMemo(()=>mods.length>0?crossValidate(mods):null,[mods]);
+
+  const skimG=useMemo(()=>{
+    const bcmMod=mods.find(m=>m.type==='BCM');if(!bcmMod)return[];
+    const r=[];for(const c of SKIM_OFF){if(c.base+c.ks*c.kc>bcmMod.size)continue;
+      const keys=[];let has=false;
+      for(let i=0;i<c.kc;i++){const o=c.base+i*c.ks;const kb=bcmMod.data.slice(o,o+c.ks);const hex=hxb(kb);if(!kb.every(b=>b===0xFF||b===0))has=true;keys.push({slot:i+1,off:o,hex,empty:kb.every(b=>b===0xFF||b===0)});}
+      if(has)r.push({v:c.v,keys,base:c.base});}
+    return r;
+  },[mods]);
+
   const diff=useMemo(()=>{if(mods.length<2)return null;const a=mods[dp[0]]?.data,b=mods[dp[1]]?.data;return a&&b?computeDiff(a,b):null;},[mods,dp]);
 
   const sks=useMemo(()=>mods.filter(m=>m.skey&&!m.skb).map(m=>({idx:mods.indexOf(m),type:m.type,key:m.skey,fn:m.filename})),[mods]);
@@ -497,6 +550,20 @@ function SecurityTab(){
           </table>
         </div>
       </Card>)}
+
+      {skimG.length>0&&<Card style={{marginTop:8,padding:16}}>
+        <div style={{fontSize:14,fontWeight:800,marginBottom:10}}>🔐 SKIM Key Grid</div>
+        {skimG.map((g,gi)=><div key={gi} style={{marginBottom:12}}>
+          <div style={{fontSize:12,fontWeight:800,color:C.a1,marginBottom:6}}>{g.v} — 0x{g.base.toString(16).toUpperCase()}</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:6}}>
+            {g.keys.map(k=><div key={k.slot} style={{padding:10,borderRadius:10,background:C.c2,border:'1px solid '+(k.empty?C.bd:C.gn+'40')}}>
+              <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:10,fontWeight:700,color:C.tm}}>KEY {k.slot}</span><Tag color={k.empty?C.tm:C.gn}>{k.empty?'—':'SET'}</Tag></div>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:8,color:k.empty?'#D5D0C8':C.ts,marginTop:4,wordBreak:'break-all'}}>{k.hex}</div>
+            </div>)}
+          </div>
+        </div>)}
+        <Btn onClick={()=>{let t='SKIM KEYS\n';skimG.forEach(g=>{t+=g.v+' @0x'+g.base.toString(16).toUpperCase()+'\n';g.keys.forEach(k=>{t+='  Key '+k.slot+': '+(k.empty?'EMPTY':k.hex)+'\n';});});navigator.clipboard?.writeText(t);setMsg('SKIM keys copied to clipboard');}} color={C.a1} outline>📋 Copy Keys</Btn>
+      </Card>}
     </div>}
 
     {/* SECURITY SUB-TAB */}
