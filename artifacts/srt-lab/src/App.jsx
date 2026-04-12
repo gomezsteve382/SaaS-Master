@@ -353,21 +353,24 @@ function BenchTab(){
 
   const benchWriteModule=useCallback(async(tx,rx,label)=>{
     if(!benchEng.current||nv.length!==17)return;setBenchBusy('Writing '+label+'...');
-    await benchEng.current.uds(tx,rx,[0x10,0x03]);
-    const sr=await benchEng.current.uds(tx,rx,[0x27,0x01]);
-    if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
-      if(sv){const k=cda6(sv);await benchEng.current.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(label+' unlocked','rx');}}
-    const vb=[...new TextEncoder().encode(nv)];
-    for(const did of[0xF190,0x7B90,0x7B88]){const r=await benchEng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(label+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
-    await benchEng.current.uds(tx,rx,[0x11,0x01]);addLog(label+' VIN written + reset','rx');setBenchBusy('');
+    try{
+      await benchEng.current.uds(tx,rx,[0x10,0x03]);
+      const sr=await benchEng.current.uds(tx,rx,[0x27,0x01]);
+      if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
+        if(sv){const k=cda6(sv);await benchEng.current.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(label+' unlocked','rx');}}
+      const vb=[...new TextEncoder().encode(nv)];
+      for(const did of[0xF190,0x7B90,0x7B88]){const r=await benchEng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(label+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
+      await benchEng.current.uds(tx,rx,[0x11,0x01]);addLog(label+' VIN written + reset','rx');
+    }catch(e){addLog(label+' error: '+e.message,'error');}finally{setBenchBusy('');}
   },[nv]);
 
   const benchReadVin=useCallback(async(tx,rx,label)=>{
     if(!benchEng.current)return;setBenchBusy('Reading '+label+'...');
-    const r=await benchEng.current.uds(tx,rx,[0x22,0xF1,0x90]);
-    if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);addLog(label+' VIN: '+vin,'rx');}
-    else addLog(label+' read failed','error');
-    setBenchBusy('');
+    try{
+      const r=await benchEng.current.uds(tx,rx,[0x22,0xF1,0x90]);
+      if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);addLog(label+' VIN: '+vin,'rx');}
+      else addLog(label+' read failed','error');
+    }catch(e){addLog(label+' error: '+e.message,'error');}finally{setBenchBusy('');}
   },[]);
 
   const bcm=mods.find(m=>m.type==='BCM');
@@ -859,13 +862,15 @@ function OBDTab(){
 
   const writeOneModule=useCallback(async(tx,rx,label)=>{
     if(!eng.current||nv.length!==17)return;setBusy('Writing '+label+'...');
-    await eng.current.uds(tx,rx,[0x10,0x03]);
-    const sr=await eng.current.uds(tx,rx,[0x27,0x01]);
-    if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
-      if(sv){const k=cda6(sv);await eng.current.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(label+' unlocked','rx');}}
-    const vb=[...new TextEncoder().encode(nv)];
-    for(const did of[0xF190,0x7B90,0x7B88]){const r=await eng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(label+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
-    await eng.current.uds(tx,rx,[0x11,0x01]);addLog(label+' VIN written + reset','rx');setBusy('');
+    try{
+      await eng.current.uds(tx,rx,[0x10,0x03]);
+      const sr=await eng.current.uds(tx,rx,[0x27,0x01]);
+      if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
+        if(sv){const k=cda6(sv);await eng.current.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(label+' unlocked','rx');}}
+      const vb=[...new TextEncoder().encode(nv)];
+      for(const did of[0xF190,0x7B90,0x7B88]){const r=await eng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(label+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
+      await eng.current.uds(tx,rx,[0x11,0x01]);addLog(label+' VIN written + reset','rx');
+    }catch(e){addLog(label+' error: '+e.message,'error');}finally{setBusy('');}
   },[nv]);
 
   const virginRfhub=useCallback(async()=>{
