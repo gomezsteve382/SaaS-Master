@@ -83,7 +83,7 @@ function parseModule(data,filename){
     info.fobikCount=data[0x5862];
     info.immoKeys=[0x81a4,0x81c4,0x81e4].map(o=>({offset:o,hex:extractHex(data,o,16)}));
     info.fobikParts=extractVIN(data,0x5818,10)||extractHex(data,0x5818,10);
-    info.skey=data.slice(0x40c9,0x40d9);info.skoff=0x40c9;info.skb=info.skey.every(b=>b===0xFF);
+    info.skey=data.slice(0x40c9,0x40d9);info.skoff=0x40c9;info.skb=info.skey.every(b=>b===0xFF);info.skEndian='little';
     const sb=data.slice(0x40C0,0x40E0);info.immoBlank=sb.every(b=>b===0xFF);
     if(!info.immoBlank){info.immo=data.slice(0x40C8,0x40DA);info.immoBak=data.slice(0x40F0,0x4102);info.immoOk=arrEq(info.immo,info.immoBak);}
     info.bakBlank=data.slice(0x2000,0x2020).every(b=>b===0xFF);
@@ -363,7 +363,13 @@ function SecurityTab(){
   const sks=useMemo(()=>mods.filter(m=>m.skey&&!m.skb).map(m=>({idx:mods.indexOf(m),type:m.type,key:m.skey,fn:m.filename})),[mods]);
   const skBad=useMemo(()=>{if(sks.length<2)return false;for(let i=1;i<sks.length;i++)for(let j=0;j<sks[0].key.length;j++)if(sks[0].key[j]!==sks[i].key[j])return true;return false;},[sks]);
 
-  function syncKey(si,ti){const s=mods[si],t=mods[ti];if(!s.skey||s.skb||t.skoff===undefined)return;const p=new Uint8Array(t.data);for(let i=0;i<Math.min(s.skey.length,16);i++)p[t.skoff+i]=s.skey[i];if(t.type==='GPEC2A'&&t.skmoff!==undefined)for(let i=0;i<Math.min(s.skey.length,16);i++)p[t.skmoff+i]=s.skey[i];dl(p,t.filename.replace(/\./,'_KEYSYNCED.'));setMods(prev=>{const u=[...prev];u[ti]=parseModule(p,t.filename);return u;});setMsg('Key from '+s.filename+' → '+t.filename);}
+  function adaptKey(srcKey,srcEndian,dstEndian,dstLen){
+    let k=Array.from(srcKey);
+    if(srcEndian!==dstEndian&&srcEndian&&dstEndian)k=k.reverse();
+    while(k.length<dstLen)k.push(0xFF);
+    return new Uint8Array(k.slice(0,dstLen));
+  }
+  function syncKey(si,ti){const s=mods[si],t=mods[ti];if(!s.skey||s.skb||t.skoff===undefined)return;const p=new Uint8Array(t.data);const adapted=adaptKey(s.skey,s.skEndian,t.skEndian,Math.min(s.skey.length,16));for(let i=0;i<adapted.length;i++)p[t.skoff+i]=adapted[i];if(t.type==='GPEC2A'&&t.skmoff!==undefined)for(let i=0;i<Math.min(adapted.length,8);i++)p[t.skmoff+i]=adapted[i];dl(p,t.filename.replace(/\./,'_KEYSYNCED.'));setMods(prev=>{const u=[...prev];u[ti]=parseModule(p,t.filename);return u;});setMsg('Key from '+s.filename+' → '+t.filename);}
 
   function patchModVIN(i){
     if(tv.length!==17)return;const m=mods[i];
@@ -374,22 +380,25 @@ function SecurityTab(){
   function matchAll(){
     if(!mods.length)return;const doVin=tv.length===17;
     const results=[];let srcKey=null;
-    if(keySrc>=0&&mods[keySrc]&&mods[keySrc].skey&&!mods[keySrc].skb){srcKey={data:mods[keySrc].skey,type:mods[keySrc].type,fn:mods[keySrc].filename};}
-    else{for(const m of mods){if(m.skey&&!m.skb){srcKey={data:m.skey,type:m.type,fn:m.filename};break;}}}
+    if(keySrc>=0&&mods[keySrc]&&mods[keySrc].skey&&!mods[keySrc].skb){const sk=mods[keySrc];srcKey={data:sk.skey,type:sk.type,fn:sk.filename,endian:sk.skEndian};}
+    else{for(const m of mods){if(m.skey&&!m.skb){srcKey={data:m.skey,type:m.type,fn:m.filename,endian:m.skEndian};break;}}}
     mods.forEach((m,i)=>{
       let patched=doVin?writeModuleVIN(m.data,m.type,tv,m.vins):null;
       if(!patched)patched=new Uint8Array(m.data);
       if(srcKey&&m.skoff!==undefined){
+        const adapted=adaptKey(srcKey.data,srcKey.endian,m.skEndian,Math.min(srcKey.data.length,16));
         let needsSync=m.skb;
-        if(!needsSync&&m.skey){for(let j=0;j<Math.min(srcKey.data.length,m.skey.length);j++)if(srcKey.data[j]!==m.skey[j]){needsSync=true;break;}}
-        if(needsSync){for(let j=0;j<Math.min(srcKey.data.length,16);j++)patched[m.skoff+j]=srcKey.data[j];if(m.type==='GPEC2A'&&m.skmoff!==undefined)for(let j=0;j<Math.min(srcKey.data.length,16);j++)patched[m.skmoff+j]=srcKey.data[j];}
+        if(!needsSync&&m.skey){for(let j=0;j<Math.min(adapted.length,m.skey.length);j++)if(adapted[j]!==m.skey[j]){needsSync=true;break;}}
+        if(needsSync){for(let j=0;j<adapted.length;j++)patched[m.skoff+j]=adapted[j];if(m.type==='GPEC2A'&&m.skmoff!==undefined)for(let j=0;j<Math.min(adapted.length,8);j++)patched[m.skmoff+j]=adapted[j];}
       }
       const fn='MATCHED_'+tv+'_'+m.filename;
       const flashNote=m.type==='BCM'?'Flash this BCM D-FLASH file':m.type==='RFHUB'?'Write this RFHUB to EEE chip':m.type==='GPEC2A'?'Write this GPEC2A to 95320 SPI chip':m.type==='95640'?'Write this 95640 EEPROM':'Flash this file';
       results.push({data:patched,fn,type:m.type,name:m.name,note:flashNote,original:m.filename});
       setMods(p=>{const u=[...p];u[i]=parseModule(patched,m.filename);return u;});
     });
-    setFlashList(results);setMsg('All modules matched to '+tv+(srcKey?' with key from '+srcKey.fn:''));setSub('tools');
+    const postCheck=crossValidate(results.map(r=>parseModule(r.data,r.fn)));
+    const statusNote=postCheck.issues.length===0?' — all checks passed':' — '+postCheck.issues.length+' issue(s) remain';
+    setFlashList(results);setMsg('All modules matched'+(doVin?' to '+tv:'')+(srcKey?' with key from '+srcKey.fn:'')+statusNote);setSub('tools');
   }
 
   function doTool(action){
