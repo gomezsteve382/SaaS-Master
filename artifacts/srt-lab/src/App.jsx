@@ -80,7 +80,7 @@ function parseModule(data,filename){
     if(cal)info.partNumbers.cal=cal;else if(data.length>=0x083a)info.partNumbers.cal=extractHex(data,0x082c,14);
     info.skey=data.slice(0x40,0x50);info.skoff=0x40;info.skb=info.skey.every(b=>b===0xFF);
   }else if(type==='BCM'){
-    info.vins=[0x5328,0x5348,0x5368,0x5388].map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);
+    info.vins=[0x5320,0x5340,0x5360,0x5380].map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);
     info.partialVins=[];
     for(const po of[0x4098,0x40B0]){if(po+10>sz)continue;let s='',ok=true;for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}if(ok&&s.length===8){const sc=(data[po+8]<<8)|data[po+9],cc=crc16(data.slice(po,po+8));info.partialVins.push({offset:po,tail:s,storedCrc:sc,calcCrc:cc,crcOk:sc===cc});}}
     info.vehicleSecret={offset:0x40c9,bytes:data.slice(0x40c9,0x40d9),hex:extractHex(data,0x40c9,16),endian:"little"};
@@ -187,7 +187,7 @@ function writeModuleVIN(data,type,vin,existingVins){
   const out=new Uint8Array(data);const vb=new TextEncoder().encode(vin);
   let offs;
   if(type==='GPEC2A')offs=[0x0000,0x01f0,0x0224];
-  else if(type==='BCM')offs=[0x5328,0x5348,0x5368,0x5388];
+  else if(type==='BCM')offs=[0x5320,0x5340,0x5360,0x5380];
   else if(type==='RFHUB'&&existingVins&&existingVins.length>0)offs=existingVins.map(v=>v.offset);
   else if(type==='RFHUB')offs=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
   else if(type==='95640')offs=[0x275,0x288];
@@ -206,7 +206,7 @@ function virginizeModule(data,type){
   const o=new Uint8Array(data);
   if(type==='GPEC2A'){o[0x0011]=0x00;for(let i=0x0203;i<0x020b;i++)o[i]=0x00;for(let i=0x0361;i<0x0369;i++)o[i]=0x00;for(let i=0x0888;i<0x0899;i++)o[i]=0xff;for(let i=0x0c8c;i<0x0c94;i++)o[i]=0x00;}
   else if(type==='RFHUB'){[0xEA5,0xEB9,0xECD,0xEE1].forEach(off=>{for(let j=0;j<18;j++)o[off+j]=0;});for(let i=0;i<16;i++)o[0x40+i]=0xFF;for(let i=0;i<64;i++)o[0x200+i]=0xFF;}
-  else if(type==='BCM'){[0x5328,0x5348,0x5368,0x5388].forEach(off=>{for(let j=0;j<19;j++)o[off+j]=0;});[0x2000,0x40C0].forEach(base=>{for(let i=0;i<32;i++)o[base+i]=0xFF;});}
+  else if(type==='BCM'){[0x5320,0x5340,0x5360,0x5380].forEach(off=>{for(let j=0;j<19;j++)o[off+j]=0;});[0x2000,0x40C0].forEach(base=>{for(let i=0;i<32;i++)o[base+i]=0xFF;});}
   else if(type==='95640'){[0x275,0x288].forEach(off=>{for(let j=-1;j<17;j++)o[off+j]=0;});for(let i=0;i<16;i++)o[0x40+i]=0xFF;}
   return o;
 }
