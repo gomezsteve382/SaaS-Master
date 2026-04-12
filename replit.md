@@ -23,10 +23,29 @@ No backend required — the API server exists but is unused by this app.
 
 1. **DUMPS** — Load .bin files, auto-detect type, VIN patch with correct CRC, hex viewer, virginizer
 2. **LIVE OBD** — Web Serial connect, scan modules, read/write VIN over UDS, RFHUB virginize, proxi read
-3. **SEED->KEY** — 14 algorithm calculator (GPEC, NGC, JTEC, CDA6, TIPM variants)
-4. **GPEC** — Firmware unlock (0x2FFFC = 0x96)
-5. **SECURITY** — Module file loader, cross-module key matching, VIN sync, SKIM key grid
-6. **GPEC2A** — SKIM byte toggle, secret key extract, transponder keys, ZZZZ tamper, hex diff
+3. **BENCH** — Offline module diagnostics: load .bin files, auto-detect module type, VIN write with CRC to all, BCM proxi read, GPEC2A SKIM read, RFHUB virginize — all from binary dumps (no serial needed)
+4. **SEED→KEY** — 14 algorithm calculator (GPEC, NGC, JTEC, CDA6, TIPM variants)
+5. **GPEC** — Firmware unlock (0x2FFFC = 0x96)
+6. **SECURITY** — Cross-vehicle security matcher with 4 sub-views:
+   - **Overview**: Per-module offset table (VIN/SKIM/SECRET/FOBIK/IMMO/TAMPER/LOCK/CTR), cross-module validation (pass/warn/fail), runtime counters for GPEC2A
+   - **Security**: Side-by-side architecture cards per module with VIN match/mismatch, SKIM status, vehicle secrets (endianness-aware), FOBIK slots/count, lock status, tamper status, key sync buttons
+   - **Diff**: Hex diff between any two loaded modules with changed-byte highlighting, region grouping, byte counts
+   - **Tools**: VIN writer (all modules at once), SKIM toggle, virginize, extract/sync secret key with user-chosen key source picker, and "Files to Flash" summary with download for each modified module
+7. **GPEC2A** — SKIM byte toggle, secret key extract, transponder keys, ZZZZ tamper, hex diff
+
+## Enhanced Module Parser
+
+`parseModule()` merges the original `analyzeFile`/`secAnalyze` with the richer `fca_module_analyzer` for deeper extraction:
+- **GPEC2A**: Runtime counters, transponder keys, part number, ZZZZ tamper, secret key mirror validation
+- **RFHUB**: FOBIK slot counting (AA50), CC66AA55 security markers, ZZZZ blocks, part numbers, 16-byte vehicle secret, mirrored VIN support
+- **BCM**: Security lock byte (0x8028), FOBIK count (0x5862), IMMO key entries, FOBIK part number, FEE1000 header detection, vehicle secret (little-endian)
+- **95640**: Secret key at 0x40–0x50, fob data at 0x200–0x240
+
+## Cross-Vehicle Matching
+
+- Loads modules from different vehicles, compares VINs and security bytes
+- `crossValidate()` checks: VIN consistency, RFHUB↔BCM vehicle secret (byte-reversed), GPEC2A key consistency, SKIM state, FOBIK count match, 95640↔RFHUB key match
+- "Match All" syncs VINs+keys from a user-chosen source module to all others, producing downloadable .bin files with plain-English flash instructions per module type
 
 ## Key Commands
 
@@ -42,8 +61,8 @@ No backend required — the API server exists but is unused by this app.
 
 ## File Type Detection
 
-- 64KB/128KB -> BCM D-FLASH
-- 8KB/16KB -> 95640 EEPROM
-- 4KB with VIN at byte 0 -> GPEC2A
-- 4KB otherwise -> RFHUB EEE
-- >128KB -> Firmware
+- 64KB/128KB → BCM D-FLASH (with FEE1000 header confirmation)
+- 8KB/16KB → 95640 EEPROM
+- 4KB with VIN at byte 0 → GPEC2A (confirmed via SKIM byte 0x0011 or VIN copy at 0x01F0)
+- 4KB otherwise → RFHUB EEE
+- >128KB → Firmware

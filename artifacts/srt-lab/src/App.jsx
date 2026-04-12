@@ -23,7 +23,130 @@ const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).
 const TC={BCM:'#FF6D00','95640':'#AA00FF',RFHUB:'#2979FF',GPEC2A:'#00BFA5',FW:'#9E9E9E'};
 const TL={BCM:'BCM D-FLASH','95640':'FCA 95640',RFHUB:'RFHUB EEE',GPEC2A:'GPEC2A',FW:'Firmware'};
 
-/* ═══ File analysis ═══ */
+/* ═══ Helpers for enhanced parser ═══ */
+function extractVIN(data,offset,len){if(!len)len=17;if(offset+len>data.length)return null;const bytes=data.slice(offset,offset+len);for(let i=0;i<bytes.length;i++){if(bytes[i]<0x30||bytes[i]>0x5a)return null;}return String.fromCharCode.apply(null,bytes);}
+function extractHex(data,offset,len){const r=[];for(let i=0;i<len;i++)r.push(data[offset+i].toString(16).padStart(2,"0").toUpperCase());return r.join(" ");}
+function arrEq(a,b){if(a.length!==b.length)return false;for(let i=0;i<a.length;i++)if(a[i]!==b[i])return false;return true;}
+function rd32(data,o){return(data[o]<<24)|(data[o+1]<<16)|(data[o+2]<<8)|data[o+3];}
+function countAA50(d,s,n){let c=0;for(let i=0;i<n;i++)if(d[s+i*2]===0xaa&&d[s+i*2+1]===0x50)c++;return c;}
+function countPat(d,a,b,c2,d2){let c=0;for(let i=0;i<d.length-3;i++)if(d[i]===a&&d[i+1]===b&&d[i+2]===c2&&d[i+3]===d2)c++;return c;}
+const SKIM_VALUES={0x80:"ENABLED",0x00:"DISABLED",0x02:"DISABLED (alt)"};
+const fO=n=>"0x"+n.toString(16).toUpperCase().padStart(4,"0");
+
+/* ═══ Enhanced Module Parser (merged from analyzer) ═══ */
+function parseModule(data,filename){
+  const sz=data.length;let type='UNKNOWN';
+  if(sz===65536||sz===131072){type='BCM';for(let i=0;i<256&&i+7<=sz;i++){if(data[i]===0x46&&String.fromCharCode.apply(null,data.slice(i,i+7))==='FEE1000'){type='BCM';break;}}}
+  else if(sz===8192||sz===16384)type='95640';
+  else if(sz===4096){let va=true;for(let i=0;i<17&&i<sz;i++){const b=data[i];if(!((b>=0x30&&b<=0x39)||(b>=0x41&&b<=0x5A))){va=false;break;}}if(va){const sk=data[0x0011];if(sk===0x80||sk===0x00||sk===0x02||extractVIN(data,0x01f0))type='GPEC2A';else type='GPEC2A';}else type='RFHUB';}
+  else if(sz>131072)type='FW';
+
+  const info={type,filename,data,size:sz,name:TL[type]||type,color:TC[type]||'#9E9E9E'};
+
+  if(type==='GPEC2A'){
+    info.vins=[{offset:0x0000,vin:extractVIN(data,0x0000)},{offset:0x01f0,vin:extractVIN(data,0x01f0)},{offset:0x0224,vin:extractVIN(data,0x0224)}].filter(v=>v.vin);
+    info.skimByte=data[0x0011];
+    info.skimStatus=SKIM_VALUES[data[0x0011]]||"UNKNOWN (0x"+data[0x0011].toString(16).toUpperCase()+")";
+    info.secretKey={offset:0x0203,bytes:data.slice(0x0203,0x020b),hex:extractHex(data,0x0203,8)};
+    info.secretKeyMirror={offset:0x0361,bytes:data.slice(0x0361,0x0369),hex:extractHex(data,0x0361,8)};
+    info.keyConsistent=arrEq(data.slice(0x0203,0x020b),data.slice(0x0361,0x0369));
+    info.transponderKeys=[];
+    for(let i=0;i<4;i++){const o=0x0888+i*4;info.transponderKeys.push({offset:o,hex:extractHex(data,o,4)});}
+    info.zzzzTamper={offset:0x0c8c,hex:extractHex(data,0x0c8c,8),intact:data[0x0c8c]===0x5a};
+    info.partNumberStr=extractVIN(data,0x0fa1,13)||extractHex(data,0x0fa1,13);
+    info.runtimeCounters={
+      counterA:{offset:0x0e61,value:rd32(data,0x0e61),hex:extractHex(data,0x0e61,4)},
+      counterB:{offset:0x0e69,value:rd32(data,0x0e69),hex:extractHex(data,0x0e69,4)},
+      distance:{offset:0x0e6d,value:rd32(data,0x0e6d),hex:extractHex(data,0x0e6d,4)},
+      keyCycles:{offset:0x0e75,value:rd32(data,0x0e75),hex:extractHex(data,0x0e75,4)},
+    };
+  }else if(type==='RFHUB'){
+    const knownOffsets=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
+    const knownVins=knownOffsets.map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);
+    if(knownVins.length>0)info.vins=knownVins;
+    else{info.vins=[];for(const o of knownOffsets){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);if(/^[1-9A-HJ-NPR-Z]/.test(s)){info.vins.push({offset:o,vin:s,mirrored:true});break;}}}
+    if(data.length>=0x051e)info.vehicleSecret={offset:0x050e,bytes:data.slice(0x050e,0x051e),hex:extractHex(data,0x050e,16),endian:"big"};
+    info.fobikSlots=countAA50(data,0x0880,10);
+    info.securityMarkers=countPat(data,0xcc,0x66,0xaa,0x55);
+    info.zzzzBlocks=countPat(data,0x5a,0x5a,0x5a,0x5a);
+    info.partNumbers={};
+    const hw=extractVIN(data,0x0808,10),sw=extractVIN(data,0x0812,10),cal=extractVIN(data,0x082c,14);
+    if(hw)info.partNumbers.hw=hw;else if(data.length>=0x0812)info.partNumbers.hw=extractHex(data,0x0808,10);
+    if(sw)info.partNumbers.sw=sw;else if(data.length>=0x081c)info.partNumbers.sw=extractHex(data,0x0812,10);
+    if(cal)info.partNumbers.cal=cal;else if(data.length>=0x083a)info.partNumbers.cal=extractHex(data,0x082c,14);
+    info.skey=data.slice(0x40,0x50);info.skoff=0x40;info.skb=info.skey.every(b=>b===0xFF);
+  }else if(type==='BCM'){
+    info.vins=[0x5328,0x5348,0x5368,0x5388].map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);
+    info.vehicleSecret={offset:0x40c9,bytes:data.slice(0x40c9,0x40d9),hex:extractHex(data,0x40c9,16),endian:"little"};
+    info.securityLock={offset:0x8028,value:data[0x8028],locked:data[0x8028]===0x5a};
+    info.fobikCount=data[0x5862];
+    info.immoKeys=[0x81a4,0x81c4,0x81e4].map(o=>({offset:o,hex:extractHex(data,o,16)}));
+    info.fobikParts=extractVIN(data,0x5818,10)||extractHex(data,0x5818,10);
+    info.skey=data.slice(0x40c9,0x40d9);info.skoff=0x40c9;info.skb=info.skey.every(b=>b===0xFF);
+    const sb=data.slice(0x40C0,0x40E0);info.immoBlank=sb.every(b=>b===0xFF);
+    if(!info.immoBlank){info.immo=data.slice(0x40C8,0x40DA);info.immoBak=data.slice(0x40F0,0x4102);info.immoOk=arrEq(info.immo,info.immoBak);}
+    info.bakBlank=data.slice(0x2000,0x2020).every(b=>b===0xFF);
+    if(!info.bakBlank)info.bak=data.slice(0x2000,0x2020);
+  }else if(type==='95640'){
+    info.vins=[];
+    for(const off of[0x275,0x288]){const v=extractVIN(data,off);if(v)info.vins.push({offset:off,vin:v});}
+    info.skey=data.slice(0x40,0x50);info.skoff=0x40;info.skb=info.skey.every(b=>b===0xFF);
+    info.fobBlank=data.slice(0x200,0x240).every(b=>b===0xFF);
+  }
+
+  return info;
+}
+
+/* ═══ Cross-module validation ═══ */
+function crossValidate(modules){
+  const issues=[],warnings=[],passed=[];
+  const allVins=new Set();
+  modules.forEach(m=>{if(m.vins)m.vins.forEach(v=>allVins.add(v.vin));});
+  if(allVins.size===0)warnings.push("No VINs found.");
+  else if(allVins.size===1)passed.push("VIN consistent: "+Array.from(allVins)[0]);
+  else issues.push("VIN MISMATCH: "+Array.from(allVins).join(", "));
+
+  const rfhub=modules.find(m=>m.type==="RFHUB");
+  const bcm=modules.find(m=>m.type==="BCM");
+  const gpec=modules.find(m=>m.type==="GPEC2A");
+  const e95=modules.find(m=>m.type==="95640");
+
+  if(rfhub&&rfhub.vehicleSecret&&bcm&&bcm.vehicleSecret){
+    const rev=Array.from(bcm.vehicleSecret.bytes).reverse();
+    if(arrEq(new Uint8Array(Array.from(rfhub.vehicleSecret.bytes)),new Uint8Array(rev)))
+      passed.push("RFHUB ↔ BCM vehicle secret: MATCH (byte-reversed)");
+    else issues.push("RFHUB ↔ BCM vehicle secret: MISMATCH!");
+  }
+  if(gpec&&gpec.secretKey&&bcm)warnings.push("GPEC↔BCM key comparison requires manual check (8B vs 16B)");
+  if(gpec){
+    if(gpec.skimByte===0x80)passed.push("GPEC2A SKIM: ENABLED (0x80)");
+    else if(gpec.skimByte===0x00)warnings.push("GPEC2A SKIM: DISABLED (0x00) — bypassed");
+    if(!gpec.keyConsistent)issues.push("GPEC2A secret key INCONSISTENT (0x0203 vs 0x0361)!");
+    else passed.push("GPEC2A secret key consistent (0x0203 = 0x0361)");
+    if(gpec.zzzzTamper&&!gpec.zzzzTamper.intact)warnings.push("GPEC2A ZZZZ tamper: CLEARED");
+    else if(gpec.zzzzTamper&&gpec.zzzzTamper.intact)passed.push("GPEC2A ZZZZ tamper: INTACT");
+  }
+  if(bcm&&bcm.securityLock){if(bcm.securityLock.locked)passed.push("BCM lock: 0x5A LOCKED");else warnings.push("BCM lock: UNLOCKED");}
+  if(rfhub){passed.push("RFHUB FOBIK: "+rfhub.fobikSlots+" slots");passed.push("RFHUB CC66AA55: "+rfhub.securityMarkers);}
+  if(bcm){passed.push("BCM FOBIK: "+bcm.fobikCount+" keys");if(rfhub&&rfhub.fobikSlots!==bcm.fobikCount)warnings.push("Key count mismatch: RFHUB="+rfhub.fobikSlots+" BCM="+bcm.fobikCount);}
+  if(e95){if(!e95.skb)passed.push("95640 secret key: SET");else warnings.push("95640 secret key: ERASED");}
+  if(e95&&rfhub&&!e95.skb&&!rfhub.skb){
+    if(arrEq(e95.skey,rfhub.skey))passed.push("95640 ↔ RFHUB secret key: MATCH");
+    else issues.push("95640 ↔ RFHUB secret key: MISMATCH!");
+  }
+  return{issues,warnings,passed};
+}
+
+/* ═══ Hex diff ═══ */
+function computeDiff(a,b){
+  const changes=[],len=Math.max(a.length,b.length);
+  for(let i=0;i<len;i++){if((a[i]||0)!==(b[i]||0))changes.push(i);}
+  const groups=[];
+  if(changes.length){let s=changes[0],p=changes[0];for(let i=1;i<changes.length;i++){if(changes[i]>p+1){groups.push([s,p]);s=changes[i];}p=changes[i];}groups.push([s,p]);}
+  return{totalChanged:changes.length,groups,changedSet:new Set(changes)};
+}
+
+/* ═══ File analysis (legacy for DUMPS tab) ═══ */
 function analyzeFile(buf,name){const data=new Uint8Array(buf);const sz=data.length;let type='unknown';
   if(sz===65536||sz===131072)type='BCM';else if(sz===8192||sz===16384)type='95640';else if(sz===4096){let a=true;for(let i=0;i<17&&i<sz;i++)if(data[i]<0x30||data[i]>0x5A){a=false;break;}type=a?'GPEC2A':'RFHUB';}else if(sz>131072)type='FW';
   const vins=[],partials=[];
@@ -51,13 +174,40 @@ function virginizeFile(f){const out=new Uint8Array(f.data);const log=[];
   else if(f.type==='GPEC2A'){[0,0x1F0,0x224].forEach(o=>{for(let j=0;j<17;j++)out[o+j]=0;});log.push('VINs cleared');}
   return{data:out,log};}
 
+/* ═══ Module VIN writer for enhanced parser ═══ */
+function writeModuleVIN(data,type,vin,existingVins){
+  if(vin.length!==17)return null;
+  const out=new Uint8Array(data);const vb=new TextEncoder().encode(vin);
+  let offs;
+  if(type==='GPEC2A')offs=[0x0000,0x01f0,0x0224];
+  else if(type==='BCM')offs=[0x5328,0x5348,0x5368,0x5388];
+  else if(type==='RFHUB'&&existingVins&&existingVins.length>0)offs=existingVins.map(v=>v.offset);
+  else if(type==='RFHUB')offs=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
+  else if(type==='95640')offs=[0x275,0x288];
+  else offs=[];
+  offs.forEach(o=>{for(let i=0;i<17;i++)out[o+i]=vb[i];});
+  if(type==='BCM')offs.forEach(o=>{const c=crc16(vb);out[o+17]=(c>>8)&0xFF;out[o+18]=c&0xFF;});
+  if(type==='95640')offs.forEach(o=>{out[o-1]=crc8a(vb);});
+  if(type==='RFHUB')offs.forEach(o=>{let s=0;for(let i=0;i<17;i++)s=(s+out[o+i])&0xff;out[o+17]=s;});
+  return out;
+}
+
+function virginizeModule(data,type){
+  const o=new Uint8Array(data);
+  if(type==='GPEC2A'){o[0x0011]=0x00;for(let i=0x0203;i<0x020b;i++)o[i]=0x00;for(let i=0x0361;i<0x0369;i++)o[i]=0x00;for(let i=0x0888;i<0x0899;i++)o[i]=0xff;for(let i=0x0c8c;i<0x0c94;i++)o[i]=0x00;}
+  else if(type==='RFHUB'){[0xEA5,0xEB9,0xECD,0xEE1].forEach(off=>{for(let j=0;j<18;j++)o[off+j]=0;});for(let i=0;i<16;i++)o[0x40+i]=0xFF;for(let i=0;i<64;i++)o[0x200+i]=0xFF;}
+  else if(type==='BCM'){[0x5328,0x5348,0x5368,0x5388].forEach(off=>{for(let j=0;j<19;j++)o[off+j]=0;});[0x2000,0x40C0].forEach(base=>{for(let i=0;i<32;i++)o[base+i]=0xFF;});}
+  else if(type==='95640'){[0x275,0x288].forEach(off=>{for(let j=-1;j<17;j++)o[off+j]=0;});for(let i=0;i<16;i++)o[0x40+i]=0xFF;}
+  return o;
+}
+
 /* ═══ DESIGN ═══ */
 const C={bg:'#F4F1EC',cd:'#FFF',c2:'#FAF9F7',sr:'#D32F2F',sl:'#FF5252',bk:'#1A1A1A',a1:'#FF6D00',a2:'#00BFA5',a3:'#2979FF',a4:'#AA00FF',tx:'#1A1A1A',ts:'#5A5A5A',tm:'#9E9E9E',bd:'#E8E4DE',gn:'#00C853',wn:'#FFB300',er:'#FF1744'};
 function Card({children,style={},glow,onClick}){const[h,setH]=useState(false);return<div onClick={onClick} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{background:C.cd,borderRadius:16,padding:22,border:`1.5px solid ${h&&onClick?C.sr:C.bd}`,boxShadow:h&&onClick?'0 8px 32px rgba(211,47,47,0.12)':'0 2px 16px rgba(0,0,0,0.06)',transition:'all 0.3s',transform:h&&onClick?'translateY(-2px)':'none',cursor:onClick?'pointer':'default',position:'relative',overflow:'hidden',...style}}>{glow&&<div style={{position:'absolute',top:-40,right:-40,width:120,height:120,borderRadius:'50%',background:'radial-gradient(circle,#FF525215,transparent 70%)',pointerEvents:'none'}}/>}<div style={{position:'relative',zIndex:1}}>{children}</div></div>;}
 function Tag({children,color=C.sr}){return<span style={{fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:8,background:color+'14',color,letterSpacing:.5,display:'inline-block',marginLeft:4}}>{children}</span>;}
 function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=useState(false);return<button onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#E8E4DE':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?C.tm:outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
-const TABS=[{id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},{id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},{id:'seed',i:'🔑',l:'SEED→KEY',s:'14 Algorithms'},{id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},{id:'skim',i:'🛡️',l:'SECURITY',s:'Keys · SKIM'},{id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'}];
-function PH({icon,title,sub}){return<Card style={{textAlign:'center',padding:'60px 24px'}}><div style={{fontSize:48,marginBottom:12,opacity:.3}}>{icon}</div><div style={{fontSize:20,fontWeight:900,color:C.tm}}>{title}</div><div style={{fontSize:13,color:C.tm,marginTop:4}}>{sub}</div></Card>;}
+function SLine({type,msg}){const col={error:C.er,warn:C.wn,pass:C.gn};const ico={error:'✗',warn:'⚠',pass:'✓'};return<div style={{fontSize:12,color:col[type],padding:'4px 0',display:'flex',gap:8}}><span style={{fontWeight:700,minWidth:14}}>{ico[type]}</span><span>{msg}</span></div>;}
+const TABS=[{id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},{id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},{id:'bench',i:'🔧',l:'BENCH',s:'Offline · Dumps'},{id:'seed',i:'🔑',l:'SEED→KEY',s:'14 Algorithms'},{id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},{id:'skim',i:'🛡️',l:'SECURITY',s:'Cross-Match'},{id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'}];
 
 /* ═══ APP ═══ */
 export default function App(){const[pg,setPg]=useState('dumps');const[files,setFiles]=useState([]);
@@ -77,342 +227,376 @@ export default function App(){const[pg,setPg]=useState('dumps');const[files,setF
     <div style={{maxWidth:1100,margin:'0 auto',padding:'22px 22px 60px'}}>
       {pg==='dumps'&&<DumpsTab files={files} setFiles={setFiles} loadF={loadF}/>}
       {pg==='obd'&&<OBDTab/>}
+      {pg==='bench'&&<BenchTab/>}
       {pg==='seed'&&<SeedTab/>}
       {pg==='gpec'&&<GpecTab/>}
-      {pg==='skim'&&<SkimTab/>}
+      {pg==='skim'&&<SecurityTab/>}
       {pg==='gpec2a'&&<Gpec2aTab/>}
     </div></div>;}
 
-/* ═══ SECURITY MATCHER TAB (Piece 4) ═══ */
-function extractVAt(d,o){if(o+17>d.length)return null;let s='';for(let i=0;i<17;i++){const b=d[o+i];if(b<0x20||b>0x7E)return null;s+=String.fromCharCode(b);}return/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s)?s:null;}
-function secAnalyze(data,fn){const sz=data.length;const m={fn,sz,type:'?',vins:[],skey:null,skoff:-1,skb:true,immo:null,immoBak:null,immoOk:true,immoBlank:true,bak:null,bakBlank:true,fobBlank:true,raw:data};
-  if(sz===65536||sz===131072){m.type='bcm';
-    for(let i=0;i<=sz-19;i++){const v=extractVAt(data,i);if(!v)continue;let sum=0;for(let j=0;j<17;j++)sum+=(TR[v[j]]||0)*WT[j];if('0123456789X'[sum%11]!==v[8])continue;const sc=(data[i+17]<<8)|data[i+18],cc=crc16(data.slice(i,i+17));if(sc===cc){m.vins.push({off:i,vin:v});i+=16;}}
-    const sb=data.slice(0x40C0,0x40E0);if(!sb.every(b=>b===0xFF)){m.immoBlank=false;m.immo=data.slice(0x40C8,0x40DA);m.immoBak=data.slice(0x40F0,0x4102);m.immoOk=true;for(let j=0;j<m.immo.length;j++)if(m.immo[j]!==m.immoBak[j]){m.immoOk=false;break;}}
-    m.bakBlank=data.slice(0x2000,0x2020).every(b=>b===0xFF);if(!m.bakBlank)m.bak=data.slice(0x2000,0x2020);
-  }else if(sz===8192||sz===16384){m.type='95640';
-    for(const o of[0x275,0x288]){const v=extractVAt(data,o);if(v)m.vins.push({off:o,vin:v});}
-    m.skey=data.slice(0x40,0x50);m.skoff=0x40;m.skb=m.skey.every(b=>b===0xFF);m.fobBlank=data.slice(0x200,0x240).every(b=>b===0xFF);
-  }else if(sz===4096){
-    const v0=extractVAt(data,0);
-    if(v0){m.type='gpec2a';m.vins.push({off:0,vin:v0});const v1=extractVAt(data,0x1F0);if(v1)m.vins.push({off:0x1F0,vin:v1});const v2=extractVAt(data,0x224);if(v2)m.vins.push({off:0x224,vin:v2});}
-    else{m.type='rfhub';for(const o of[0xEA5,0xEB9,0xECD,0xEE1]){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];m.vins.push({off:o,vin:String.fromCharCode(...rev),mir:true});break;}
-      m.skey=data.slice(0x40,0x50);m.skoff=0x40;m.skb=m.skey.every(b=>b===0xFF);}
-  }return m;}
-
-const SKLBL={bcm:'BCM D-FLASH','95640':'FCA 95640',rfhub:'RFHUB EEE',gpec2a:'GPEC2A'};
-const SKCOL={bcm:C.a1,'95640':C.a4,rfhub:C.a3,gpec2a:C.a2};
-const SKIM_OFF=[{v:'Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT',base:0x40C0,ks:18,kc:6}];
-
-function SkimTab(){
-  const[mods,setMods]=useState([]);const[tv,setTv]=useState('');const[msg,setMsg]=useState('');
-  const addF=useCallback(fl=>{Promise.all(Array.from(fl).map(f=>new Promise(r=>{const rd=new FileReader();rd.onload=e=>{const d=new Uint8Array(e.target.result);const m=secAnalyze(d,f.name);r(m.type!=='?'?m:null);};rd.readAsArrayBuffer(f);}))).then(res=>{const v=res.filter(Boolean);setMods(p=>{const u=[...p,...v];if(!tv&&u.length)for(const m of u)if(m.vins.length){setTv(m.vins[0].vin);break;}return u;});});},[tv]);
-  const allV=useMemo(()=>{const s=new Set();mods.forEach(m=>m.vins.forEach(v=>s.add(v.vin)));return[...s];},[mods]);
-  const vinBad=allV.length>1;
-  const sks=useMemo(()=>mods.filter(m=>m.skey&&!m.skb).map(m=>({idx:mods.indexOf(m),type:m.type,key:m.skey,fn:m.fn})),[mods]);
-  const skBad=useMemo(()=>{if(sks.length<2)return false;for(let i=1;i<sks.length;i++)for(let j=0;j<sks[0].key.length;j++)if(sks[0].key[j]!==sks[i].key[j])return true;return false;},[sks]);
-  const skimG=useMemo(()=>{const bcm=mods.find(m=>m.type==='bcm');if(!bcm)return[];const r=[];for(const c of SKIM_OFF){if(c.base+c.ks*c.kc>bcm.sz)continue;const keys=[];let has=false;for(let i=0;i<c.kc;i++){const o=c.base+i*c.ks;const kb=bcm.raw.slice(o,o+c.ks);const hex=hxb(kb);if(!kb.every(b=>b===0xFF||b===0))has=true;keys.push({slot:i+1,off:o,hex,empty:kb.every(b=>b===0xFF||b===0)});}if(has)r.push({v:c.v,keys,base:c.base});}return r;},[mods]);
+/* ═══ BENCH TAB ═══ */
+function BenchTab(){
+  const[mods,setMods]=useState([]);const[nv,setNv]=useState('');const[msg,setMsg]=useState('');const[log,setLog]=useState([]);
+  const addLog=(m,l='info')=>setLog(p=>[...p,{m,l,t:new Date().toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})}]);
   const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
-  function syncKey(si,ti){const s=mods[si],t=mods[ti];if(!s.skey||s.skb||t.skoff<0)return;const p=new Uint8Array(t.raw);for(let i=0;i<16;i++)p[t.skoff+i]=s.skey[i];dl(p,t.fn.replace(/\./,'_KEYSYNCED.'));setMsg('Key from '+s.fn+' → '+t.fn);}
-  function patchV(i){if(tv.length!==17)return;const m=mods[i];const p=new Uint8Array(m.raw);const vb=new TextEncoder().encode(tv);
-    if(m.type==='bcm'){m.vins.forEach(v=>{for(let j=0;j<17;j++)p[v.off+j]=vb[j];const c=crc16(vb);p[v.off+17]=(c>>8)&0xFF;p[v.off+18]=c&0xFF;});}
-    else if(m.type==='95640'){[0x275,0x288].forEach(o=>{if(o+17>p.length)return;for(let j=0;j<17;j++)p[o+j]=vb[j];p[o-1]=crc8a(vb);});}
-    else if(m.type==='rfhub'){const mr=[...vb].reverse();[0xEA5,0xEB9,0xECD,0xEE1].forEach(o=>{if(o+18>p.length)return;for(let j=0;j<17;j++)p[o+j]=mr[j];});}
-    else if(m.type==='gpec2a'){[0,0x1F0,0x224].forEach(o=>{if(o+17>p.length)return;for(let j=0;j<17;j++)p[o+j]=vb[j];});}
-    dl(p,m.fn.replace(/\./,'_VIN_'+tv+'.'));setMsg('Patched '+SKLBL[m.type]+' → '+tv);}
+
+  const loadFiles=useCallback(fl=>{
+    Array.from(fl).forEach(f=>{
+      const r=new FileReader();
+      r.onload=ev=>{
+        const d=new Uint8Array(ev.target.result);
+        const m=parseModule(d,f.name);
+        if(m.type!=='UNKNOWN'){setMods(p=>[...p,m]);addLog('Loaded '+m.name+': '+f.name,'info');
+          if(m.vins?.[0])addLog('  VIN: '+m.vins[0].vin,'rx');
+        }else addLog('Unknown file: '+f.name,'error');
+      };r.readAsArrayBuffer(f);
+    });
+  },[]);
+
+  const writeAllVins=useCallback(()=>{
+    if(nv.length!==17)return;
+    mods.forEach((m,i)=>{
+      const patched=writeModuleVIN(m.data,m.type,nv,m.vins);
+      if(patched){dl(patched,'VIN_'+nv+'_'+m.filename);addLog(m.name+': VIN patched → '+nv,'rx');
+        setMods(p=>{const u=[...p];u[i]=parseModule(patched,m.filename);return u;});
+      }
+    });
+    setMsg('All modules patched with '+nv);
+  },[mods,nv]);
+
+  const doVirginRfhub=useCallback(()=>{
+    const rf=mods.find(m=>m.type==='RFHUB');
+    if(!rf){addLog('No RFHUB loaded','error');return;}
+    const v=virginizeModule(rf.data,'RFHUB');
+    dl(v,'VIRGIN_'+rf.filename);addLog('RFHUB virginized (bench)','rx');setMsg('RFHUB virginized');
+  },[mods]);
+
+  const bcm=mods.find(m=>m.type==='BCM');
+  const gpec=mods.find(m=>m.type==='GPEC2A');
+
+  return<div style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:16}}>
+    <div>
+      <Card glow style={{marginBottom:14}}>
+        <div style={{display:'flex',gap:10,flexWrap:'wrap',alignItems:'center'}}>
+          <Btn onClick={()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='.bin,.BIN';i.onchange=e=>loadFiles(e.target.files);i.click();}} color={C.a3} full>📂 Load Module Files (.bin)</Btn>
+        </div>
+        <div style={{fontSize:10,color:C.ts,marginTop:8}}>Auto-detects BCM D-FLASH · RFHUB EEE · GPEC2A · 95640</div>
+      </Card>
+
+      {mods.length>0&&<Card glow style={{marginBottom:14}}>
+        <div style={{fontSize:14,fontWeight:800,marginBottom:12}}>Detected Modules ({mods.length})</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          {mods.map((m,i)=><div key={i} style={{padding:12,borderRadius:10,background:C.c2,border:'1px solid '+C.bd,position:'relative'}}>
+            <button onClick={()=>setMods(p=>p.filter((_,j)=>j!==i))} style={{position:'absolute',top:6,right:8,background:'none',border:'none',color:C.tm,cursor:'pointer',fontSize:12}}>✕</button>
+            <div style={{fontSize:13,fontWeight:800,color:m.color}}>{m.name}</div>
+            <div style={{fontSize:9,color:C.ts}}>{m.filename} · {(m.size/1024).toFixed(0)}KB</div>
+            {m.vins?.[0]&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.a1,fontWeight:700,marginTop:4}}>{m.vins[0].vin}</div>}
+          </div>)}
+        </div>
+      </Card>}
+
+      {mods.length>0&&<Card glow style={{marginBottom:14}}>
+        <div style={{fontSize:14,fontWeight:800,marginBottom:10}}>Write VIN to All Modules</div>
+        <input value={nv} maxLength={17} placeholder="Enter 17-character VIN" onChange={e=>setNv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))}
+          style={{width:'100%',padding:'12px 16px',borderRadius:12,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:16,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box'}}
+          onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
+        <div style={{display:'flex',justifyContent:'space-between',marginTop:10,alignItems:'center'}}>
+          <span style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:nv.length===17?C.sr:C.tm}}>{nv.length}/17</span>
+          <Btn onClick={writeAllVins} disabled={nv.length!==17||!mods.length}>⚡ Patch + Download All</Btn>
+        </div>
+      </Card>}
+
+      {mods.length>0&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>Quick Tools (Bench)</div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}addLog('BCM Proxi @0x2023: '+extractHex(bcm.data,0x2023,16),'rx');}} disabled={!bcm} color={C.a3} outline>📋 Read BCM Proxi</Btn>
+          <Btn onClick={()=>{if(!gpec){addLog('No GPEC2A loaded','error');return;}addLog('SKIM State: '+(gpec.skimByte===0x80?'ENABLED':'DISABLED')+' (0x'+gpec.skimByte.toString(16).toUpperCase()+')','rx');}} disabled={!gpec} color={C.a2} outline>🛡️ Read SKIM State</Btn>
+          <Btn onClick={doVirginRfhub} disabled={!mods.find(m=>m.type==='RFHUB')} color={C.er} outline>💀 Virginize RFHUB</Btn>
+        </div>
+        <div style={{marginTop:10,fontSize:10,color:C.ts}}>
+          <div><b>Bench mode:</b> All operations work on loaded .bin files — no serial connection needed</div>
+          <div><b>Downloads:</b> Each operation produces a modified .bin ready to write to chip</div>
+        </div>
+      </Card>}
+
+      {msg&&<div style={{marginTop:10,padding:'8px 12px',borderRadius:8,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
+    </div>
+
+    <div style={{background:C.cd,borderRadius:14,padding:14,border:'1px solid '+C.bd,maxHeight:600,overflow:'auto',boxShadow:'0 2px 12px rgba(0,0,0,0.04)'}}>
+      <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:8,letterSpacing:2}}>BENCH LOG</div>
+      {log.map((e,i)=><div key={i} style={{fontSize:9,fontFamily:"'JetBrains Mono'",padding:'2px 0',color:e.l==='error'?C.er:e.l==='tx'?C.a3:e.l==='rx'?C.sr:C.ts}}>
+        <span style={{color:C.tm,marginRight:4}}>{e.t}</span>{e.m}
+      </div>)}
+      {!log.length&&<div style={{fontSize:11,color:C.tm,textAlign:'center',padding:30}}>Load files to see log</div>}
+    </div>
+  </div>;
+}
+
+/* ═══ SECURITY TAB (Cross-Vehicle Matcher with 4 sub-views) ═══ */
+function SecurityTab(){
+  const[mods,setMods]=useState([]);const[sub,setSub]=useState('overview');const[tv,setTv]=useState('');
+  const[msg,setMsg]=useState('');const[dp,setDp]=useState([0,1]);const[tt,setTt]=useState(0);
+  const[tr,setTr]=useState(null);const[flashList,setFlashList]=useState([]);const[keySrc,setKeySrc]=useState(-1);
+
+  const addF=useCallback(fl=>{
+    Array.from(fl).forEach(f=>{
+      const r=new FileReader();
+      r.onload=ev=>{
+        const d=new Uint8Array(ev.target.result);
+        const m=parseModule(d,f.name);
+        if(m.type!=='UNKNOWN'&&m.type!=='FW')setMods(p=>{const u=[...p,m];if(!tv&&m.vins?.[0])setTv(m.vins[0].vin);return u;});
+      };r.readAsArrayBuffer(f);
+    });
+  },[tv]);
+
+  const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
+  const rmMod=i=>setMods(p=>p.filter((_,j)=>j!==i));
+
+  const allVins=useMemo(()=>{const s=new Set();mods.forEach(m=>{if(m.vins)m.vins.forEach(v=>s.add(v.vin));});return[...s];},[mods]);
+  const vinBad=allVins.length>1;
+  const val=useMemo(()=>mods.length>0?crossValidate(mods):null,[mods]);
+  const diff=useMemo(()=>{if(mods.length<2)return null;const a=mods[dp[0]]?.data,b=mods[dp[1]]?.data;return a&&b?computeDiff(a,b):null;},[mods,dp]);
+
+  const sks=useMemo(()=>mods.filter(m=>m.skey&&!m.skb).map(m=>({idx:mods.indexOf(m),type:m.type,key:m.skey,fn:m.filename})),[mods]);
+  const skBad=useMemo(()=>{if(sks.length<2)return false;for(let i=1;i<sks.length;i++)for(let j=0;j<sks[0].key.length;j++)if(sks[0].key[j]!==sks[i].key[j])return true;return false;},[sks]);
+
+  function syncKey(si,ti){const s=mods[si],t=mods[ti];if(!s.skey||s.skb||t.skoff===undefined)return;const p=new Uint8Array(t.data);for(let i=0;i<Math.min(s.skey.length,16);i++)p[t.skoff+i]=s.skey[i];dl(p,t.filename.replace(/\./,'_KEYSYNCED.'));setMsg('Key from '+s.filename+' → '+t.filename);}
+
+  function patchModVIN(i){
+    if(tv.length!==17)return;const m=mods[i];
+    const patched=writeModuleVIN(m.data,m.type,tv,m.vins);
+    if(patched){const fn=m.filename.replace(/\./,'_VIN_'+tv+'.');dl(patched,fn);setMods(p=>{const u=[...p];u[i]=parseModule(patched,m.filename);return u;});setMsg('Patched '+m.name+' → '+tv);}
+  }
+
+  function matchAll(){
+    if(tv.length!==17||!mods.length)return;
+    const results=[];let srcKey=null;
+    if(keySrc>=0&&mods[keySrc]&&mods[keySrc].skey&&!mods[keySrc].skb){srcKey={data:mods[keySrc].skey,type:mods[keySrc].type,fn:mods[keySrc].filename};}
+    else{for(const m of mods){if(m.skey&&!m.skb){srcKey={data:m.skey,type:m.type,fn:m.filename};break;}}}
+    mods.forEach((m,i)=>{
+      let patched=writeModuleVIN(m.data,m.type,tv,m.vins);
+      if(!patched)patched=new Uint8Array(m.data);
+      if(srcKey&&m.skey&&m.skb&&m.skoff!==undefined){
+        for(let j=0;j<Math.min(srcKey.data.length,16);j++)patched[m.skoff+j]=srcKey.data[j];
+      }
+      const fn='MATCHED_'+tv+'_'+m.filename;
+      const flashNote=m.type==='BCM'?'Flash this BCM D-FLASH file':m.type==='RFHUB'?'Write this RFHUB to EEE chip':m.type==='GPEC2A'?'Write this GPEC2A to 95320 SPI chip':m.type==='95640'?'Write this 95640 EEPROM':'Flash this file';
+      results.push({data:patched,fn,type:m.type,name:m.name,note:flashNote,original:m.filename});
+      setMods(p=>{const u=[...p];u[i]=parseModule(patched,m.filename);return u;});
+    });
+    setFlashList(results);setMsg('All modules matched to '+tv+(srcKey?' with key from '+srcKey.fn:''));setSub('tools');
+  }
+
+  function doTool(action){
+    const m=mods[tt];if(!m)return;let res=null;
+    if(action==='virginize'){const d=virginizeModule(m.data,m.type);res={data:d,desc:m.name+' virginized: keys/VINs/SKIM cleared.'};}
+    else if(action==='writeVin'&&tv.length===17){const d=writeModuleVIN(m.data,m.type,tv,m.vins);if(d)res={data:d,desc:'VIN updated to '+tv+' at '+(m.vins?m.vins.length:0)+' locations'};}
+    else if(action==='skimToggle'&&m.type==='GPEC2A'){const d=new Uint8Array(m.data);d[0x0011]=m.skimByte===0x80?0x00:0x80;res={data:d,desc:'SKIM: 0x'+m.skimByte.toString(16).toUpperCase()+' → 0x'+d[0x0011].toString(16).toUpperCase()};}
+    else if(action==='extractKey'){let k=m.secretKey?m.secretKey.hex:m.vehicleSecret?m.vehicleSecret.hex:m.skey&&!m.skb?hxb(m.skey):'';res={keyHex:k,desc:'Extracted from '+m.type};}
+    setTr(res);
+  }
+  const dlResult=()=>{if(!tr?.data)return;const b=new Blob([tr.data],{type:'application/octet-stream'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='modified_'+(mods[tt]?.filename||'module.bin');a.click();URL.revokeObjectURL(u);};
+
+  const SUBS=[{id:'overview',l:'Overview'},{id:'security',l:'Security'},{id:'diff',l:'Diff'},{id:'tools',l:'Tools'}];
+  const selSt={background:C.c2,color:C.tx,border:'1px solid '+C.bd,borderRadius:6,padding:'6px 12px',fontSize:12,fontFamily:'inherit'};
 
   return<div>
-    {/* Drop zone */}
     <div onClick={()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='.bin,.BIN';i.onchange=e=>addF(e.target.files);i.click();}} onDrop={e=>{e.preventDefault();addF(e.dataTransfer.files);}} onDragOver={e=>e.preventDefault()}>
       <Card style={{textAlign:'center',padding:'24px',cursor:'pointer',border:'2px dashed '+C.sr+'25',marginBottom:16}} onClick={()=>{}}>
         <span style={{fontSize:32}}>🛡️</span>
-        <div style={{fontSize:16,fontWeight:900,color:C.sr,marginTop:4}}>Drop Module Files for Security Matching</div>
-        <div style={{fontSize:11,color:C.ts}}>BCM · 95640 · RFHUB EEE · GPEC2A — compare keys, sync, patch VINs</div>
+        <div style={{fontSize:16,fontWeight:900,color:C.sr,marginTop:4}}>Drop Module Files for Cross-Vehicle Matching</div>
+        <div style={{fontSize:11,color:C.ts}}>BCM · 95640 · RFHUB EEE · GPEC2A — compare keys, sync VINs, match security bytes</div>
         {mods.length>0&&<Tag color={C.a3}>{mods.length} loaded</Tag>}
       </Card>
     </div>
-    {/* Target VIN + banners */}
-    {mods.length>0&&<><Card style={{marginBottom:12,padding:14}}>
-      <div style={{fontSize:10,fontWeight:800,color:C.sr,letterSpacing:2,marginBottom:6}}>TARGET VIN</div>
-      <input value={tv} maxLength={17} placeholder="17-char target VIN" onChange={e=>setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}} onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
-      {vinBad&&tv.length===17&&<div style={{marginTop:8}}><Btn onClick={()=>mods.forEach((_,i)=>patchV(i))} full>⚡ Patch All Mismatched → {tv}</Btn></div>}
-    </Card>
-    <div style={{display:'flex',gap:6,marginBottom:12,flexWrap:'wrap'}}>
-      <div style={{padding:'7px 12px',borderRadius:8,fontSize:11,fontWeight:800,background:vinBad?C.er+'10':C.gn+'10',color:vinBad?C.er:C.gn}}>{vinBad?'⚠ VIN MISMATCH — '+allV.length+' different':'✓ VINs Match'}</div>
-      {sks.length>0&&<div style={{padding:'7px 12px',borderRadius:8,fontSize:11,fontWeight:800,background:skBad?C.er+'10':C.gn+'10',color:skBad?C.er:C.gn}}>{skBad?'⚠ KEY MISMATCH':'✓ Keys Match'}</div>}
-    </div></>}
-    {/* Module cards */}
-    {mods.map((m,idx)=>{const vinOk=m.vins.length>0&&m.vins[0].vin===tv;return<Card key={idx} style={{marginBottom:12,borderColor:vinOk?C.gn+'50':m.vins.length&&tv.length===17?C.er+'40':C.bd}}>
-      <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:10}}>
-        <Tag color={SKCOL[m.type]||C.tm}>{SKLBL[m.type]||m.type}</Tag>
-        <span style={{flex:1,fontSize:12,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.fn}</span>
-        <span style={{fontSize:10,color:C.tm}}>{(m.sz/1024).toFixed(0)}KB</span>
-        <button onClick={()=>setMods(p=>p.filter((_,i)=>i!==idx))} style={{background:'none',border:'none',color:C.tm,cursor:'pointer',fontSize:14}}>✕</button>
+
+    {mods.length>0&&<>
+      <Card style={{marginBottom:12,padding:14}}>
+        <div style={{fontSize:10,fontWeight:800,color:C.sr,letterSpacing:2,marginBottom:6}}>TARGET VIN</div>
+        <input value={tv} maxLength={17} placeholder="17-char target VIN" onChange={e=>setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}} onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
+        {vinBad&&tv.length===17&&<div style={{marginTop:8}}>
+          {sks.length>1&&<div style={{marginBottom:6,display:'flex',gap:8,alignItems:'center'}}>
+            <span style={{fontSize:10,fontWeight:800,color:C.tm}}>Key Source:</span>
+            <select value={keySrc} onChange={e=>setKeySrc(+e.target.value)} style={{background:C.c2,color:C.tx,border:'1px solid '+C.bd,borderRadius:6,padding:'4px 10px',fontSize:11,fontFamily:'inherit'}}>
+              <option value={-1}>Auto (first with key)</option>
+              {sks.map(s=><option key={s.idx} value={s.idx}>{s.fn} ({TL[s.type]||s.type})</option>)}
+            </select>
+          </div>}
+          <Btn onClick={matchAll} full>⚡ Match All Modules → {tv} + Download Files to Flash</Btn>
+        </div>}
+      </Card>
+
+      <div style={{display:'flex',gap:6,marginBottom:12,flexWrap:'wrap'}}>
+        <div style={{padding:'7px 12px',borderRadius:8,fontSize:11,fontWeight:800,background:vinBad?C.er+'10':C.gn+'10',color:vinBad?C.er:C.gn}}>{vinBad?'⚠ VIN MISMATCH — '+allVins.length+' different VINs':'✓ All VINs Match'}</div>
+        {sks.length>0&&<div style={{padding:'7px 12px',borderRadius:8,fontSize:11,fontWeight:800,background:skBad?C.er+'10':C.gn+'10',color:skBad?C.er:C.gn}}>{skBad?'⚠ SECRET KEY MISMATCH':'✓ Secret Keys Match'}</div>}
       </div>
-      {m.vins.length>0&&<div style={{padding:'8px 12px',borderRadius:8,marginBottom:8,background:vinOk?C.gn+'08':C.er+'06',border:'1px solid '+(vinOk?C.gn:C.er)+'20',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <div><span style={{fontSize:10,color:C.tm}}>VIN: </span><span style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:900,letterSpacing:2,color:vinOk?C.gn:C.er}}>{m.vins[0].vin}</span>{m.vins[0].mir&&<Tag color={C.a3}>MIRRORED</Tag>}</div>
-        <span style={{fontSize:10,fontWeight:800,color:vinOk?C.gn:C.er}}>{vinOk?'✓ MATCH':'✗'}</span>
-      </div>}
-      {m.skey&&<div style={{padding:'8px 12px',borderRadius:8,marginBottom:8,background:C.c2,border:'1px solid '+C.bd}}>
-        <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}><span style={{fontSize:10,fontWeight:700}}>Secret Key @0x{m.skoff.toString(16).toUpperCase()}</span><Tag color={m.skb?C.wn:C.gn}>{m.skb?'ERASED':'SET'}</Tag></div>
-        <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:m.skb?'#D5D0C8':C.a4,wordBreak:'break-all'}}>{hxb(m.skey)}</div>
-        {m.skb&&sks.length>0&&<div style={{marginTop:6,display:'flex',gap:4,flexWrap:'wrap'}}>{sks.filter(s=>s.idx!==idx).map(s=><Btn key={s.idx} onClick={()=>syncKey(s.idx,idx)} color={C.a4} outline>Copy from {SKLBL[s.type]}</Btn>)}</div>}
-      </div>}
-      {m.type==='bcm'&&<div style={{padding:'8px 12px',borderRadius:8,marginBottom:8,background:C.c2,border:'1px solid '+C.bd}}>
-        <div style={{fontSize:10,marginBottom:4}}>Immo @0x40C0: <Tag color={m.immoBlank?C.wn:C.gn}>{m.immoBlank?'BLANK':'SET'}</Tag>{!m.immoBlank&&<Tag color={m.immoOk?C.gn:C.er}>Backup {m.immoOk?'✓':'MISMATCH'}</Tag>}</div>
-        {!m.immoBlank&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:C.a4,marginBottom:4}}>{hxb(m.immo)}</div>}
-        <div style={{fontSize:10}}>Backup @0x2000: <Tag color={m.bakBlank?C.tm:C.gn}>{m.bakBlank?'BLANK':'SET'}</Tag></div>
-      </div>}
-      {m.type==='95640'&&<div style={{padding:'6px 12px',borderRadius:8,marginBottom:8,background:C.c2,border:'1px solid '+C.bd,fontSize:10}}>Fob Data: <Tag color={m.fobBlank?C.tm:C.gn}>{m.fobBlank?'NONE':'HAS FOBS'}</Tag></div>}
-      {tv.length===17&&<Btn onClick={()=>patchV(idx)} full color={vinOk?C.gn:C.sr}>{vinOk?'↓ Download':'⚡ Patch → '+tv+' + Download'}</Btn>}
-    </Card>;})}
-    {/* SKIM grid */}
-    {skimG.length>0&&<Card style={{marginTop:8}}><div style={{fontSize:14,fontWeight:800,marginBottom:10}}>🔐 SKIM Key Grid</div>
-      {skimG.map((g,gi)=><div key={gi} style={{marginBottom:12}}><div style={{fontSize:12,fontWeight:800,color:C.a1,marginBottom:6}}>{g.v} — 0x{g.base.toString(16).toUpperCase()}</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:6}}>{g.keys.map(k=><div key={k.slot} style={{padding:10,borderRadius:10,background:C.c2,border:'1px solid '+(k.empty?C.bd:C.gn+'40')}}>
-          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:10,fontWeight:700,color:C.tm}}>KEY {k.slot}</span><Tag color={k.empty?C.tm:C.gn}>{k.empty?'—':'SET'}</Tag></div>
-          <div style={{fontFamily:"'JetBrains Mono'",fontSize:8,color:k.empty?'#D5D0C8':C.ts,marginTop:4,wordBreak:'break-all'}}>{k.hex}</div>
-        </div>)}</div></div>)}
-      <Btn onClick={()=>{let t='SKIM KEYS\n';skimG.forEach(g=>{t+=g.v+' @0x'+g.base.toString(16).toUpperCase()+'\n';g.keys.forEach(k=>{t+='  Key '+k.slot+': '+(k.empty?'EMPTY':k.hex)+'\n';});});navigator.clipboard?.writeText(t);setMsg('Copied');}} color={C.a1} outline>📋 Copy Keys</Btn>
-    </Card>}
-    {msg&&<div style={{marginTop:10,padding:'8px 12px',borderRadius:8,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
-    {!mods.length&&<div style={{textAlign:'center',padding:30,color:C.tm,fontSize:12}}>Drop BCM, RFHUB, 95640, GPEC2A files above to compare security</div>}
-  </div>;
-}
 
-/* ═══ GPEC2A TOOLS TAB (Piece 5) ═══ */
-function Gpec2aTab(){
-  const[f,setF]=useState(null);const[f2,setF2]=useState(null);const[msg,setMsg]=useState('');
-  const load=(e,slot)=>{const fi=e.target.files[0];if(!fi)return;const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);if(d.length!==4096){setMsg('GPEC2A must be 4096 bytes');return;}const a=analyzeFile(d.buffer,fi.name);if(a.type!=='GPEC2A'){setMsg('Not a GPEC2A file');return;}if(slot===1)setF(a);else setF2(a);setMsg('');};r.readAsArrayBuffer(fi);};
-  const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
-
-  function toggleSkim(){if(!f)return;const p=new Uint8Array(f.data);p[0x11]=p[0x11]===0x80?0x00:0x80;setF(analyzeFile(p.buffer,f.name));dl(p,'SKIM_'+(p[0x11]===0x80?'ENABLED':'DISABLED')+'_'+f.name);setMsg('SKIM toggled to 0x'+p[0x11].toString(16).toUpperCase());}
-
-  // Hex diff
-  const diff=useMemo(()=>{if(!f||!f2)return[];const r=[];for(let i=0;i<Math.min(f.data.length,f2.data.length);i++)if(f.data[i]!==f2.data[i])r.push({off:i,a:f.data[i],b:f2.data[i]});return r;},[f,f2]);
-
-  return<div>
-    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
-      <label style={{cursor:'pointer'}}><Card style={{textAlign:'center',padding:18}} onClick={()=>{}}>
-        <div style={{fontSize:28}}>📂</div><div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:4}}>Load GPEC2A File 1</div>
-        {f&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a2,marginTop:4}}>{f.name}</div>}
-        <input type="file" hidden onChange={e=>load(e,1)} accept=".bin,.BIN"/>
-      </Card></label>
-      <label style={{cursor:'pointer'}}><Card style={{textAlign:'center',padding:18}} onClick={()=>{}}>
-        <div style={{fontSize:28}}>📂</div><div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:4}}>Load File 2 (for diff)</div>
-        {f2&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a2,marginTop:4}}>{f2.name}</div>}
-        <input type="file" hidden onChange={e=>load(e,2)} accept=".bin,.BIN"/>
-      </Card></label>
-    </div>
-
-    {f&&f.sec?.t==='gpec2a'&&<>
-      {/* SKIM byte */}
-      <Card glow style={{marginBottom:14}}>
-        <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>⚙️ GPEC2A Analysis</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
-          <div style={{padding:14,borderRadius:12,background:C.c2,border:'1px solid '+C.bd}}>
-            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6}}>SKIM BYTE @ 0x0011</div>
-            <div style={{fontSize:28,fontWeight:900,color:f.sec.on?C.gn:C.wn,fontFamily:"'JetBrains Mono'"}}>{f.sec.on?'ENABLED':'DISABLED'}</div>
-            <div style={{fontSize:10,color:C.tm}}>0x{f.sec.skim.toString(16).toUpperCase().padStart(2,'0')}</div>
-            <div style={{marginTop:8}}><Btn onClick={toggleSkim} color={f.sec.on?C.wn:C.gn} outline>{f.sec.on?'Disable SKIM':'Enable SKIM'}</Btn></div>
-          </div>
-          <div style={{padding:14,borderRadius:12,background:C.c2,border:'1px solid '+C.bd}}>
-            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6}}>ZZZZ TAMPER @ 0x0C8C</div>
-            <div style={{fontSize:28,fontWeight:900,color:f.sec.zz?C.gn:C.er}}>{f.sec.zz?'INTACT':'TAMPERED'}</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:C.ts,marginTop:4}}>{hxb(f.data.slice(0xC8C,0xC94))}</div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Secret key */}
-      <Card style={{marginBottom:14,padding:16}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔑 Secret Key</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
-          <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
-            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>Primary @ 0x0203 (8B)</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:f.sec.key.every(b=>b===0xFF)?'#D5D0C8':C.a4}}>{hxb(f.sec.key)}</div>
-          </div>
-          <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
-            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>Mirror @ 0x0361 (8B)</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:f.sec.mir.every(b=>b===0xFF)?'#D5D0C8':C.a4}}>{hxb(f.sec.mir)}</div>
-          </div>
-        </div>
-        <div style={{marginTop:6,fontSize:10}}><Tag color={f.sec.km?C.gn:C.er}>{f.sec.km?'Primary = Mirror ✓':'MISMATCH'}</Tag></div>
-      </Card>
-
-      {/* Transponder keys */}
-      <Card style={{marginBottom:14,padding:16}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Transponder Keys @ 0x0888</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
-          {f.sec.tr.map((t,i)=>{const blank=t.every(b=>b===0xFF||b===0);return<div key={i} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(blank?C.bd:C.gn+'40'),textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:C.tm}}>KEY {i+1}</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:blank?'#D5D0C8':C.a4,marginTop:4}}>{hxb(t)}</div>
-            <Tag color={blank?C.tm:C.gn}>{blank?'—':'SET'}</Tag>
-          </div>;})}
-        </div>
-      </Card>
-
-      {/* Runtime counters */}
-      <Card style={{marginBottom:14,padding:16}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>📊 Runtime Counters</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
-          {[{n:'Counter 1',o:0xE61},{n:'Counter 2',o:0xE69},{n:'Counter 3',o:0xE6D},{n:'Counter 4',o:0xE75}].map(c=>{
-            const v=(f.data[c.o]<<24|f.data[c.o+1]<<16|f.data[c.o+2]<<8|f.data[c.o+3])>>>0;
-            return<div key={c.o} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
-              <div style={{fontSize:9,color:C.tm}}>{c.n}</div>
-              <div style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:800,color:C.a1,marginTop:2}}>{v.toLocaleString()}</div>
-              <div style={{fontSize:8,color:C.tm}}>0x{c.o.toString(16).toUpperCase()}</div>
-            </div>;})}
-        </div>
-      </Card>
-
-      {/* VINs */}
-      <Card style={{marginBottom:14,padding:16}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:8}}>VINs</div>
-        {f.vins.map((v,i)=><div key={i} style={{fontFamily:"'JetBrains Mono'",fontSize:12,marginBottom:4}}>
-          <span style={{color:C.tm}}>0x{v.off.toString(16).toUpperCase().padStart(4,'0')}: </span>
-          <span style={{fontWeight:800,color:C.a1}}>{v.vin}</span>
-        </div>)}
-      </Card>
+      <div style={{display:'flex',gap:2,marginBottom:16}}>
+        {SUBS.map(s=><button key={s.id} onClick={()=>setSub(s.id)} style={{padding:'8px 18px',border:'none',cursor:'pointer',background:sub===s.id?C.sr:C.cd,color:sub===s.id?'#fff':C.ts,borderRadius:8,fontFamily:"'Nunito'",fontWeight:800,fontSize:11,letterSpacing:.8,transition:'all 0.2s'}}>{s.l}</button>)}
+      </div>
     </>}
 
-    {/* Hex diff */}
-    {f&&f2&&<Card style={{padding:16}}>
-      <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔀 Hex Diff — {diff.length} byte{diff.length!==1?'s':''} different</div>
-      {diff.length===0&&<div style={{fontSize:12,color:C.gn,fontWeight:700}}>✓ Files are identical</div>}
-      {diff.length>0&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,background:C.c2,borderRadius:8,padding:10,maxHeight:260,overflow:'auto',border:'1px solid '+C.bd}}>
-        <div style={{display:'grid',gridTemplateColumns:'70px 1fr 1fr',gap:4,marginBottom:4}}>
-          <span style={{fontWeight:700,color:C.tm}}>Offset</span><span style={{fontWeight:700,color:C.a1}}>File 1</span><span style={{fontWeight:700,color:C.a3}}>File 2</span>
+    {/* OVERVIEW SUB-TAB */}
+    {sub==='overview'&&mods.length>0&&<div>
+      {val&&<Card style={{marginBottom:16,padding:16}}>
+        <div style={{fontSize:14,fontWeight:800,marginBottom:10}}>Cross-Module Validation</div>
+        {val.issues.map((m,i)=><SLine key={'i'+i} type="error" msg={m}/>)}
+        {val.warnings.map((m,i)=><SLine key={'w'+i} type="warn" msg={m}/>)}
+        {val.passed.map((m,i)=><SLine key={'p'+i} type="pass" msg={m}/>)}
+      </Card>}
+
+      {mods.map((m,i)=><Card key={i} style={{marginBottom:14,padding:16}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+          <Tag color={m.color}>{m.name}</Tag>
+          <span style={{fontSize:12,fontWeight:700}}>{m.filename}</span>
+          <span style={{fontSize:10,color:C.tm}}>{(m.size/1024).toFixed(0)}KB</span>
+          <button onClick={()=>rmMod(i)} style={{marginLeft:'auto',background:'none',border:'none',color:C.tm,cursor:'pointer',fontSize:14}}>✕</button>
         </div>
-        {diff.slice(0,200).map((d,i)=><div key={i} style={{display:'grid',gridTemplateColumns:'70px 1fr 1fr',gap:4}}>
-          <span style={{color:C.tm}}>0x{d.off.toString(16).toUpperCase().padStart(4,'0')}</span>
-          <span style={{color:C.a1,fontWeight:700}}>0x{d.a.toString(16).toUpperCase().padStart(2,'0')}</span>
-          <span style={{color:C.a3,fontWeight:700}}>0x{d.b.toString(16).toUpperCase().padStart(2,'0')}</span>
-        </div>)}
-        {diff.length>200&&<div style={{color:C.tm,marginTop:4}}>...and {diff.length-200} more</div>}
-      </div>}
-    </Card>}
-
-    {msg&&<div style={{marginTop:10,padding:'8px 12px',borderRadius:8,background:C.gn+'10',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
-    {!f&&<div style={{textAlign:'center',padding:30,color:C.tm,fontSize:12}}>Load a GPEC2A 4KB .bin file above</div>}
-  </div>;
-}
-
-/* ═══ SEED → KEY TAB ═══ */
-function SeedTab(){
-  const[al,setAl]=useState('gpec2');const[sh,setSh]=useState('');const[res,setRes]=useState(null);const[all,setAll]=useState(false);
-  const calc=useCallback(()=>{
-    const raw=sh.replace(/\s/g,'');const v=parseInt(raw,16);if(isNaN(v)||!raw)return;
-    if(all){setRes({multi:true,results:ALGOS.map(a=>({n:a.n,h:a.h,k:a.fn(v).toString(16).toUpperCase().padStart(8,'0')})),seed:v.toString(16).toUpperCase().padStart(8,'0')});}
-    else{const a=ALGOS.find(x=>x.id===al);if(!a)return;setRes({multi:false,n:a.n,seed:v.toString(16).toUpperCase().padStart(8,'0'),key:a.fn(v).toString(16).toUpperCase().padStart(8,'0')});}
-  },[al,sh,all]);
-
-  return<div style={{maxWidth:760}}>
-    <Card glow>
-      <div style={{fontSize:18,fontWeight:900,marginBottom:4}}>🔑 Seed → Key Calculator</div>
-      <div style={{fontSize:12,color:C.ts,marginBottom:16}}>14 algorithms extracted from FCA security access routines</div>
-
-      {/* Algorithm grid */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(130px,1fr))',gap:6,marginBottom:16}}>
-        {ALGOS.map(a=><div key={a.id} onClick={()=>{setAl(a.id);setAll(false);}} style={{
-          padding:'9px 11px',borderRadius:10,cursor:'pointer',transition:'all 0.2s',
-          background:al===a.id&&!all?C.sr+'12':C.c2,border:`1.5px solid ${al===a.id&&!all?C.sr:C.bd}`}}>
-          <div style={{fontSize:11,fontWeight:800,color:al===a.id&&!all?C.sr:C.tx}}>{a.n}</div>
-          <div style={{fontSize:8,color:C.tm}}>{a.h}</div>
-        </div>)}
-        <div onClick={()=>setAll(true)} style={{padding:'9px 11px',borderRadius:10,cursor:'pointer',background:all?C.a4+'12':C.c2,border:`1.5px solid ${all?C.a4:C.bd}`}}>
-          <div style={{fontSize:11,fontWeight:800,color:all?C.a4:C.tx}}>ALL</div>
-          <div style={{fontSize:8,color:C.tm}}>Run all 14</div>
+        <div style={{overflowX:'auto'}}>
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+            <thead><tr>{['Offset','Category','Value','Detail'].map(h=><th key={h} style={{textAlign:'left',color:C.tm,fontWeight:600,padding:'6px 10px',borderBottom:'1px solid '+C.bd,fontSize:10,textTransform:'uppercase',letterSpacing:.5}}>{h}</th>)}</tr></thead>
+            <tbody>
+              {m.vins?.map((v,j)=><tr key={'v'+j}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(v.offset)}</td><td><Tag color={C.gn}>VIN {j+1}</Tag></td><td style={{padding:'5px 10px',color:C.gn,fontWeight:700,fontSize:12}}>{v.vin}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>{v.mirrored?'17B Mirrored':'17B ASCII'}</td></tr>)}
+              {m.skimStatus!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x0011</td><td><Tag color={C.sr}>SKIM</Tag></td><td style={{padding:'5px 10px',color:m.skimByte===0x80?C.gn:C.er,fontWeight:700,fontSize:12}}>0x{m.skimByte.toString(16).toUpperCase()} — {m.skimStatus}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>Immobilizer byte</td></tr>}
+              {m.secretKey&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(m.secretKey.offset)}</td><td><Tag color={C.a4}>SECRET</Tag></td><td style={{padding:'5px 10px',color:C.a4,fontWeight:700,fontSize:12}}>{m.secretKey.hex}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>8B sync key {m.keyConsistent?'✓':'✗'}</td></tr>}
+              {m.vehicleSecret&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(m.vehicleSecret.offset)}</td><td><Tag color={C.a4}>SECRET</Tag></td><td style={{padding:'5px 10px',color:C.a4,fontWeight:700,fontSize:12}}>{m.vehicleSecret.hex}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>{m.vehicleSecret.endian}-endian 16B</td></tr>}
+              {m.skey&&!m.vehicleSecret&&!m.secretKey&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(m.skoff)}</td><td><Tag color={C.a4}>SECRET</Tag></td><td style={{padding:'5px 10px',color:m.skb?C.tm:C.a4,fontWeight:700,fontSize:12}}>{m.skb?'ERASED':hxb(m.skey)}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>16B key</td></tr>}
+              {m.transponderKeys?.map((tk,j)=><tr key={'t'+j}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(tk.offset)}</td><td><Tag color={C.a1}>FOBIK {j+1}</Tag></td><td style={{padding:'5px 10px',color:C.a1,fontSize:12}}>{tk.hex}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>Transponder</td></tr>)}
+              {m.immoKeys?.map((ik,j)=><tr key={'k'+j}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(ik.offset)}</td><td><Tag color={C.a1}>IMMO {j+1}</Tag></td><td style={{padding:'5px 10px',color:C.a1,fontSize:12}}>{ik.hex}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>IMMO entry</td></tr>)}
+              {m.zzzzTamper&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(m.zzzzTamper.offset)}</td><td><Tag color={C.wn}>TAMPER</Tag></td><td style={{padding:'5px 10px',color:m.zzzzTamper.intact?C.gn:C.wn,fontSize:12}}>{m.zzzzTamper.hex} — {m.zzzzTamper.intact?'INTACT':'CLEARED'}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>ZZZZ</td></tr>}
+              {m.securityLock&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x8028</td><td><Tag color={C.sr}>LOCK</Tag></td><td style={{padding:'5px 10px',color:m.securityLock.locked?C.gn:C.wn,fontWeight:700,fontSize:12}}>0x{m.securityLock.value.toString(16).toUpperCase()}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>{m.securityLock.locked?'LOCKED':'UNLOCKED'}</td></tr>}
+              {m.fobikSlots!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x0880</td><td><Tag color={C.a1}>FOBIK</Tag></td><td style={{padding:'5px 10px',color:C.a1,fontWeight:700,fontSize:12}}>{m.fobikSlots} slots</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>AA50 pattern</td></tr>}
+              {m.fobikCount!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x5862</td><td><Tag color={C.a1}>FOBIK</Tag></td><td style={{padding:'5px 10px',color:C.a1,fontWeight:700,fontSize:12}}>{m.fobikCount} keys</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>BCM count</td></tr>}
+              {m.partNumbers&&Object.entries(m.partNumbers).map(([k,v])=><tr key={k}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>—</td><td><Tag color={C.a3}>PN-{k.toUpperCase()}</Tag></td><td style={{padding:'5px 10px',fontSize:12}}>{v}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>Part#</td></tr>)}
+              {m.partNumberStr&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x0FA1</td><td><Tag color={C.a3}>SRI</Tag></td><td style={{padding:'5px 10px',fontSize:12}}>{m.partNumberStr}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>SW Release</td></tr>}
+              {m.runtimeCounters&&Object.entries(m.runtimeCounters).map(([k,v])=><tr key={k}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(v.offset)}</td><td><Tag color={C.tm}>CTR</Tag></td><td style={{padding:'5px 10px',fontSize:12}}>{v.hex} ({v.value.toLocaleString()})</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>{k}</td></tr>)}
+              {m.immoBlank!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x40C0</td><td><Tag color={C.sr}>IMMO</Tag></td><td style={{padding:'5px 10px',color:m.immoBlank?C.wn:C.gn,fontWeight:700,fontSize:12}}>{m.immoBlank?'BLANK':'SET'}{!m.immoBlank&&(m.immoOk?' ✓':' BACKUP MISMATCH')}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>BCM immobilizer</td></tr>}
+            </tbody>
+          </table>
         </div>
+      </Card>)}
+    </div>}
+
+    {/* SECURITY SUB-TAB */}
+    {sub==='security'&&mods.length>0&&<div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(320px,1fr))',gap:12}}>
+        {mods.map((m,i)=>{const vinOk=m.vins?.length>0&&m.vins[0].vin===tv;return<Card key={i} style={{padding:16,borderLeft:'3px solid '+m.color,borderColor:vinOk?C.gn+'50':m.vins?.length&&tv.length===17?C.er+'40':C.bd}}>
+          <div style={{fontWeight:800,color:m.color,marginBottom:8,fontSize:14}}>{m.name}</div>
+          <div style={{fontSize:11,color:C.tm,marginBottom:8}}>{m.filename} · {(m.size/1024).toFixed(0)}KB</div>
+          {m.vins?.[0]&&<div style={{fontSize:12,marginBottom:4}}>VIN: <span style={{fontFamily:"'JetBrains Mono'",fontWeight:800,color:vinOk?C.gn:C.er}}>{m.vins[0].vin}</span>{vinOk?<Tag color={C.gn}>MATCH</Tag>:<Tag color={C.er}>MISMATCH</Tag>}</div>}
+          {m.skimStatus!==undefined&&<div style={{fontSize:11,marginBottom:4}}>SKIM: <span style={{color:m.skimByte===0x80?C.gn:C.er,fontWeight:700}}>{m.skimStatus}</span></div>}
+          {m.secretKey&&<div style={{fontSize:11,marginBottom:4}}>Secret: <span style={{fontFamily:"'JetBrains Mono'",color:C.a4,fontSize:10}}>{m.secretKey.hex}</span> {m.keyConsistent?'✓':'✗'}</div>}
+          {m.vehicleSecret&&<div style={{fontSize:11,marginBottom:4}}>Secret ({m.vehicleSecret.endian}): <span style={{fontFamily:"'JetBrains Mono'",color:C.a4,fontSize:10}}>{m.vehicleSecret.hex}</span></div>}
+          {m.skey&&!m.vehicleSecret&&!m.secretKey&&<div style={{fontSize:11,marginBottom:4}}>Secret @0x{m.skoff.toString(16).toUpperCase()}: <span style={{fontFamily:"'JetBrains Mono'",color:m.skb?C.tm:C.a4,fontSize:10}}>{m.skb?'ERASED':hxb(m.skey)}</span>
+            {m.skb&&sks.length>0&&<div style={{marginTop:4,display:'flex',gap:4,flexWrap:'wrap'}}>{sks.filter(s=>s.idx!==i).map(s=><Btn key={s.idx} onClick={()=>syncKey(s.idx,i)} color={C.a4} outline>Copy from {TL[s.type]||s.type}</Btn>)}</div>}
+          </div>}
+          {m.fobikSlots!==undefined&&<div style={{fontSize:11}}>FOBIK: <span style={{color:C.a1,fontWeight:700}}>{m.fobikSlots} slots</span> · CC66AA55: {m.securityMarkers} · ZZZZ: {m.zzzzBlocks}</div>}
+          {m.fobikCount!==undefined&&<div style={{fontSize:11}}>FOBIK: <span style={{color:C.a1,fontWeight:700}}>{m.fobikCount} keys</span></div>}
+          {m.securityLock&&<div style={{fontSize:11}}>Lock: <span style={{color:m.securityLock.locked?C.gn:C.wn,fontWeight:700}}>{m.securityLock.locked?'0x5A LOCKED':'UNLOCKED'}</span></div>}
+          {m.zzzzTamper&&<div style={{fontSize:11}}>Tamper: <span style={{color:m.zzzzTamper.intact?C.gn:C.wn,fontWeight:700}}>{m.zzzzTamper.intact?'INTACT':'CLEARED'}</span></div>}
+          {m.immoBlank!==undefined&&<div style={{fontSize:11,marginTop:4}}>Immo @0x40C0: <Tag color={m.immoBlank?C.wn:C.gn}>{m.immoBlank?'BLANK':'SET'}</Tag>{!m.immoBlank&&<Tag color={m.immoOk?C.gn:C.er}>Backup {m.immoOk?'✓':'MISMATCH'}</Tag>}</div>}
+          {m.fobBlank!==undefined&&<div style={{fontSize:11}}>Fob Data: <Tag color={m.fobBlank?C.tm:C.gn}>{m.fobBlank?'NONE':'HAS FOBS'}</Tag></div>}
+          {tv.length===17&&<div style={{marginTop:8}}><Btn onClick={()=>patchModVIN(i)} full color={vinOk?C.gn:C.sr}>{vinOk?'↓ Download':'⚡ Patch → '+tv}</Btn></div>}
+        </Card>;})}
       </div>
+    </div>}
 
-      {/* Seed input */}
-      <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:2}}>SEED (HEX)</div>
-      <input value={sh} placeholder="e.g. A1B2C3D4" onChange={e=>setSh(e.target.value.toUpperCase().replace(/[^A-F0-9\s]/g,''))}
-        style={{width:'100%',padding:'14px 16px',borderRadius:12,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:20,fontWeight:700,letterSpacing:4,textAlign:'center',outline:'none',boxSizing:'border-box'}}
-        onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}
-        onKeyDown={e=>{if(e.key==='Enter')calc();}}/>
-      <div style={{marginTop:12}}><Btn onClick={calc} disabled={!sh.trim()} full>Calculate Key</Btn></div>
-
-      {/* Result */}
-      {res&&!res.multi&&<div style={{marginTop:20,padding:20,borderRadius:14,background:C.c2,border:'1.5px solid '+C.bd}}>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 40px 1fr',gap:12,alignItems:'center'}}>
-          <div><div style={{fontSize:9,color:C.tm,letterSpacing:2,marginBottom:6}}>SEED</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:26,fontWeight:800,color:C.a3}}>{res.seed}</div></div>
-          <div style={{textAlign:'center',fontSize:20,color:C.tm}}>→</div>
-          <div><div style={{fontSize:9,color:C.tm,letterSpacing:2,marginBottom:6}}>KEY</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:26,fontWeight:800,color:C.sr}}>{res.key}</div></div>
+    {/* DIFF SUB-TAB */}
+    {sub==='diff'&&<div>
+      {mods.length<2?<Card style={{textAlign:'center',padding:30}}><div style={{color:C.tm}}>Load 2+ modules to compare.</div></Card>:<div>
+        <div style={{display:'flex',gap:12,marginBottom:16,alignItems:'center'}}>
+          <select value={dp[0]} onChange={e=>setDp([+e.target.value,dp[1]])} style={selSt}>{mods.map((m,i)=><option key={i} value={i}>{m.filename}</option>)}</select>
+          <span style={{color:C.tm}}>↔</span>
+          <select value={dp[1]} onChange={e=>setDp([dp[0],+e.target.value])} style={selSt}>{mods.map((m,i)=><option key={i} value={i}>{m.filename}</option>)}</select>
         </div>
-        <div style={{marginTop:8,fontSize:11,color:C.tm}}>{res.n}</div>
+        {diff&&<div>
+          <div style={{fontSize:12,color:C.wn,marginBottom:12,fontWeight:700}}>{diff.totalChanged} bytes changed, {diff.groups.length} regions</div>
+          <Card style={{padding:16,maxHeight:500,overflowY:'auto'}}>
+            {diff.groups.slice(0,50).map(([s,e],gi)=>{
+              const a=mods[dp[0]].data,b=mods[dp[1]].data;
+              const ls=s&~0xf,le=(e|0xf)+1,lines=[];
+              for(let o=ls;o<le&&o<Math.max(a.length,b.length);o+=16){
+                const ha=[],hb=[];
+                for(let j=0;j<16&&o+j<Math.max(a.length,b.length);j++){
+                  const idx=o+j,va=a[idx]||0,vb=b[idx]||0,ch=diff.changedSet.has(idx);
+                  ha.push({v:va.toString(16).padStart(2,'0').toUpperCase(),c:ch});
+                  hb.push({v:vb.toString(16).padStart(2,'0').toUpperCase(),c:ch});
+                }lines.push({o,ha,hb});
+              }
+              return<div key={gi} style={{marginBottom:12}}>
+                <div style={{fontSize:10,color:C.tm,fontWeight:700}}>{fO(s)}–{fO(e)} ({e-s+1}B)</div>
+                {lines.map((l,li)=><div key={li} style={{display:'flex',gap:16,fontSize:11,lineHeight:1.6,fontFamily:"'JetBrains Mono'"}}>
+                  <span style={{color:C.a3,minWidth:40}}>{l.o.toString(16).toUpperCase().padStart(4,'0')}</span>
+                  <span style={{minWidth:200}}>{l.ha.map((h,hi)=><span key={hi} style={{color:h.c?C.er:C.tm,marginRight:4}}>{h.v}</span>)}</span>
+                  <span style={{color:C.tm}}>→</span>
+                  <span>{l.hb.map((h,hi)=><span key={hi} style={{color:h.c?C.gn:C.tm,marginRight:4}}>{h.v}</span>)}</span>
+                </div>)}
+              </div>;
+            })}
+            {diff.groups.length>50&&<div style={{color:C.tm,fontSize:11}}>+{diff.groups.length-50} more regions</div>}
+          </Card>
+        </div>}
       </div>}
+    </div>}
 
-      {res&&res.multi&&<div style={{marginTop:20}}>
-        <div style={{fontSize:12,fontWeight:800,marginBottom:10}}>Seed: <span style={{fontFamily:"'JetBrains Mono'",color:C.a3}}>{res.seed}</span></div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-          {res.results.map((r,i)=><div key={i} style={{padding:'10px 12px',borderRadius:10,background:C.c2,border:'1px solid '+C.bd,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <div><div style={{fontSize:11,fontWeight:800,color:C.tx}}>{r.n}</div><div style={{fontSize:8,color:C.tm}}>{r.h}</div></div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:800,color:C.sr}}>{r.k}</div>
+    {/* TOOLS SUB-TAB */}
+    {sub==='tools'&&<div>
+      {mods.length===0?<Card style={{textAlign:'center',padding:30}}><div style={{color:C.tm}}>Load a module first.</div></Card>:<div>
+        <div style={{display:'flex',gap:12,marginBottom:16,alignItems:'center'}}>
+          <span style={{fontSize:12,color:C.tm,fontWeight:700}}>Target:</span>
+          <select value={tt} onChange={e=>setTt(+e.target.value)} style={selSt}>{mods.map((m,i)=><option key={i} value={i}>{m.filename} ({m.name})</option>)}</select>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:12}}>
+          <Card style={{padding:16,borderTop:'3px solid '+C.gn}}>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>VIN Writer</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Update VIN at all locations with CRC.</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:700,color:tv.length===17?C.gn:C.tm,marginBottom:8}}>{tv||'Set target VIN above'} ({tv.length}/17)</div>
+            <Btn onClick={()=>doTool('writeVin')} disabled={tv.length!==17} full>Write VIN</Btn>
+          </Card>
+          <Card style={{padding:16,borderTop:'3px solid '+C.sr}}>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>SKIM Manager</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Toggle SKIM byte at 0x0011 (GPEC2A).</div>
+            {mods[tt]?.type==='GPEC2A'?<div>
+              <div style={{fontSize:12,marginBottom:8}}>Current: <span style={{color:mods[tt].skimByte===0x80?C.gn:C.er,fontWeight:700}}>0x{mods[tt].skimByte.toString(16).toUpperCase()}</span></div>
+              <Btn onClick={()=>doTool('skimToggle')} full>{mods[tt].skimByte===0x80?'Disable SKIM':'Enable SKIM'}</Btn>
+            </div>:<div style={{fontSize:11,color:C.tm}}>Select a GPEC2A module.</div>}
+          </Card>
+          <Card style={{padding:16,borderTop:'3px solid '+C.wn}}>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>Virginize Module</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Clear keys, SKIM, ZZZZ, VINs.</div>
+            <Btn onClick={()=>doTool('virginize')} full color={C.wn}>Virginize {mods[tt]?.name||''}</Btn>
+          </Card>
+          <Card style={{padding:16,borderTop:'3px solid '+C.a4}}>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>Extract Secret Key</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Extract immobilizer sync key.</div>
+            <Btn onClick={()=>doTool('extractKey')} full color={C.a4}>Extract</Btn>
+          </Card>
+        </div>
+
+        {tr&&<Card style={{marginTop:16,padding:16,borderLeft:'3px solid '+C.gn}}>
+          <div style={{fontSize:13,fontWeight:800,color:C.gn,marginBottom:8}}>Result</div>
+          <div style={{fontSize:12,marginBottom:8}}>{tr.desc}</div>
+          {tr.keyHex&&<div style={{background:C.c2,padding:12,borderRadius:8,fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:700,color:C.a4,letterSpacing:1,marginBottom:8}}>{tr.keyHex}</div>}
+          {tr.data&&<Btn onClick={dlResult} color={C.gn}>↓ Download Modified .bin</Btn>}
+        </Card>}
+
+        {flashList.length>0&&<Card style={{marginTop:16,padding:16,borderLeft:'3px solid '+C.a1}}>
+          <div style={{fontSize:14,fontWeight:800,color:C.a1,marginBottom:12}}>📋 Files to Flash</div>
+          <div style={{fontSize:11,color:C.ts,marginBottom:12}}>All modules have been matched to <b>{tv}</b>. Download each file and write it to the corresponding chip:</div>
+          {flashList.map((f,i)=><div key={i} style={{padding:12,borderRadius:10,marginBottom:8,background:C.c2,border:'1px solid '+C.bd,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
+            <div>
+              <Tag color={TC[f.type]||C.tm}>{f.name}</Tag>
+              <span style={{fontSize:11,fontWeight:700,marginLeft:8}}>{f.fn}</span>
+              <div style={{fontSize:11,color:C.a1,fontWeight:700,marginTop:4}}>→ {f.note}</div>
+            </div>
+            <Btn onClick={()=>dl(f.data,f.fn)} color={C.gn} outline>↓ Download</Btn>
           </div>)}
-        </div>
+        </Card>}
       </div>}
-    </Card>
-  </div>;
-}
+    </div>}
 
-/* ═══ GPEC UNLOCK TAB ═══ */
-function GpecTab(){
-  const[fw,setFw]=useState(null);const[res,setRes]=useState(null);
-  const load=useCallback(e=>{
-    const f=e.target.files[0];if(!f)return;
-    const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);setFw({name:f.name,data:d,size:d.length});setRes(null);};r.readAsArrayBuffer(f);
-  },[]);
-  const unlock=useCallback(()=>{
-    if(!fw)return;const d=new Uint8Array(fw.data);
-    if(d.length<=0x2FFFC){setRes({ok:false,msg:'File too small — need at least 192KB'});return;}
-    const cur=d[0x2FFFC];
-    if(cur===0x96){setRes({ok:false,msg:'Already unlocked (0x2FFFC = 0x96)'});return;}
-    d[0x2FFFC]=0x96;setRes({ok:true,msg:'Unlock flag set: 0x2FFFC changed from 0x'+cur.toString(16).toUpperCase()+' → 0x96',data:d});
-  },[fw]);
-  const dl=useCallback(()=>{
-    if(!res?.data)return;const a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob([res.data]));a.download='UNLOCKED_'+fw.name;a.click();
-  },[res,fw]);
-
-  return<div style={{maxWidth:640}}>
-    <Card glow>
-      <div style={{fontSize:18,fontWeight:900,marginBottom:4}}>🔓 GPEC Firmware Unlock</div>
-      <div style={{fontSize:12,color:C.ts,marginBottom:20}}>Sets byte at offset 0x2FFFC to 0x96 — cracked from .NET IL disassembly</div>
-
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
-        <label style={{cursor:'pointer'}}>
-          <div style={{padding:24,borderRadius:14,background:C.c2,border:'2px dashed '+C.bd,textAlign:'center',transition:'all 0.2s'}}>
-            <div style={{fontSize:32}}>📂</div>
-            <div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:6}}>Load Firmware</div>
-            {fw&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a3,marginTop:6}}>{fw.name} ({(fw.size/1024).toFixed(0)}KB)</div>}
-          </div>
-          <input type="file" hidden onChange={load} accept=".bin,.BIN"/>
-        </label>
-        <div onClick={fw?unlock:undefined} style={{padding:24,borderRadius:14,background:fw?C.sr+'08':C.c2,border:'2px solid '+(fw?C.sr+'30':C.bd),textAlign:'center',cursor:fw?'pointer':'default',opacity:fw?1:0.4,transition:'all 0.2s'}}>
-          <div style={{fontSize:32}}>🔓</div>
-          <div style={{fontSize:12,fontWeight:800,color:C.sr,marginTop:6}}>Unlock</div>
-        </div>
-      </div>
-
-      {fw&&<div style={{marginTop:14,padding:'10px 14px',borderRadius:10,background:C.c2,border:'1px solid '+C.bd}}>
-        <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>
-          <span style={{color:C.tm}}>0x2FFFC = </span>
-          <span style={{fontWeight:800,color:fw.data.length>0x2FFFC?(fw.data[0x2FFFC]===0x96?C.gn:C.a1):C.er}}>
-            {fw.data.length>0x2FFFC?'0x'+fw.data[0x2FFFC].toString(16).toUpperCase():'N/A'}
-          </span>
-          {fw.data.length>0x2FFFC&&fw.data[0x2FFFC]===0x96&&<span style={{color:C.gn,marginLeft:8}}>✓ Already unlocked</span>}
-        </div>
-      </div>}
-
-      {res&&<div style={{marginTop:14,padding:16,borderRadius:12,background:res.ok?C.gn+'10':C.wn+'10',border:'1px solid '+(res.ok?C.gn:C.wn)+'30'}}>
-        <div style={{fontSize:13,fontWeight:800,color:res.ok?C.gn:C.wn}}>{res.ok?'✓ ':'⚠ '}{res.msg}</div>
-        {res.ok&&<div style={{marginTop:10}}><Btn onClick={dl} color={C.gn}>💾 Download Unlocked Firmware</Btn></div>}
-      </div>}
-    </Card>
+    {msg&&<div style={{marginTop:12,padding:'8px 12px',borderRadius:8,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
+    {!mods.length&&<div style={{textAlign:'center',padding:30,color:C.tm,fontSize:12}}>Drop BCM, RFHUB, 95640, GPEC2A files above to compare security</div>}
   </div>;
 }
 
@@ -502,15 +686,12 @@ function OBDTab(){
 
   return<div style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:16}}>
     <div>
-      {/* Connect */}
       <Card glow style={{marginBottom:14}}>
         <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
           <Btn onClick={connect} disabled={conn} color={conn?C.gn:C.a3} full>{conn?'✓ Connected to OBDLink':'🔌 Connect OBDLink EX'}</Btn>
           {conn&&<Btn onClick={scan} disabled={!!busy} color={C.a1}>{busy||'📡 Scan Modules'}</Btn>}
         </div>
       </Card>
-
-      {/* Found modules */}
       {found.length>0&&<Card glow style={{marginBottom:14}}>
         <div style={{fontSize:14,fontWeight:800,marginBottom:12}}>Modules on Bus ({found.length})</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
@@ -521,8 +702,6 @@ function OBDTab(){
           </div>)}
         </div>
       </Card>}
-
-      {/* Write VIN */}
       {conn&&<Card glow style={{marginBottom:14}}>
         <div style={{fontSize:14,fontWeight:800,marginBottom:10}}>Write VIN to All Modules</div>
         <input value={nv} maxLength={17} placeholder="Enter 17-character VIN" onChange={e=>setNv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))}
@@ -534,8 +713,6 @@ function OBDTab(){
         </div>
         {prog>0&&prog<100&&<div style={{marginTop:10,height:5,borderRadius:3,background:C.bd,overflow:'hidden'}}><div style={{height:'100%',width:prog+'%',background:'linear-gradient(90deg,#D32F2F,#FF5252)',borderRadius:3,transition:'width 0.4s'}}/></div>}
       </Card>}
-
-      {/* Quick tools */}
       {conn&&<Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>Quick Tools</div>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
@@ -549,8 +726,6 @@ function OBDTab(){
         </div>
       </Card>}
     </div>
-
-    {/* UDS log panel */}
     <div style={{background:C.cd,borderRadius:14,padding:14,border:'1px solid '+C.bd,maxHeight:600,overflow:'auto',boxShadow:'0 2px 12px rgba(0,0,0,0.04)'}}>
       <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:8,letterSpacing:2}}>UDS TRAFFIC LOG</div>
       {log.map((e,i)=><div key={i} style={{fontSize:9,fontFamily:"'JetBrains Mono'",padding:'2px 0',color:e.l==='error'?C.er:e.l==='tx'?C.a3:e.l==='rx'?C.sr:C.ts}}>
@@ -594,7 +769,6 @@ function DumpsTab({files,setFiles,loadF}){
       </Card>}
     </div>
     {f&&<div>
-      {/* PATCH */}
       <Card glow style={{marginBottom:14}}>
         <div style={{fontSize:16,fontWeight:900,marginBottom:14}}>⚡ PATCH VIN</div>
         <input value={nv} maxLength={17} placeholder="Enter new 17-character VIN" onChange={e=>setNv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'12px 16px',borderRadius:12,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:16,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box'}} onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
@@ -615,7 +789,6 @@ function DumpsTab({files,setFiles,loadF}){
         </div>
         {msg&&<div style={{marginTop:10,padding:'9px 12px',borderRadius:10,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,color:C.gn,fontWeight:700}}>✓ {msg}</div>}
       </Card>
-      {/* VIN LIST */}
       <Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>VIN Locations ({f.vins.length} full{f.partials?.length>0?', '+f.partials.length+' partial':''})</div>
         {f.vins.map((v,i)=><div key={i} style={{padding:'8px 10px',borderRadius:8,marginBottom:4,background:C.c2,border:'1px solid '+C.bd,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:4}}>
@@ -626,7 +799,6 @@ function DumpsTab({files,setFiles,loadF}){
           <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.tm}}>0x{v.off.toString(16).toUpperCase()} </span><span style={{fontFamily:"'JetBrains Mono'",fontWeight:700,color:C.a1}}>…{v.vin}</span><Tag color={C.wn}>PARTIAL</Tag>
         </div>)}
       </Card>
-      {/* SECURITY */}
       {f.sec&&<Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Security</div>
         {f.sec.t==='bcm'&&<><div style={{fontSize:11,marginBottom:6}}>Immo @0x40C0: <Tag color={f.sec.b1?C.wn:C.gn}>{f.sec.b1?'BLANK':'SET'}</Tag>{!f.sec.b1&&<Tag color={f.sec.immoOk?C.gn:C.er}>Backup {f.sec.immoOk?'✓':'MISMATCH'}</Tag>}</div><div style={{fontSize:11}}>Backup @0x2000: <Tag color={f.sec.b2?C.tm:C.gn}>{f.sec.b2?'BLANK':'SET'}</Tag></div></>}
@@ -634,7 +806,6 @@ function DumpsTab({files,setFiles,loadF}){
         {f.sec.t==='rfhub'&&<><div style={{fontSize:11,marginBottom:4}}>Secret Key @0x40: <Tag color={f.sec.kb?C.wn:C.gn}>{f.sec.kb?'ERASED':'SET'}</Tag></div>{!f.sec.kb&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a4}}>{hxb(f.sec.key)}</div>}</>}
         {f.sec.t==='gpec2a'&&<><div style={{fontSize:11,marginBottom:4}}>SKIM: <Tag color={f.sec.on?C.gn:C.wn}>{f.sec.on?'ENABLED 0x80':'OFF 0x'+f.sec.skim.toString(16).toUpperCase()}</Tag></div><div style={{fontSize:11,marginBottom:4}}>Secret Key: {!f.sec.key.every(b=>b===0xFF)?<><span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a4}}>{hxb(f.sec.key)}</span><Tag color={f.sec.km?C.gn:C.er}>{f.sec.km?'Mirror ✓':'MISMATCH'}</Tag></>:<Tag color={C.wn}>BLANK</Tag>}</div><div style={{fontSize:11}}>ZZZZ Tamper: <Tag color={f.sec.zz?C.gn:C.er}>{f.sec.zz?'INTACT':'TAMPERED'}</Tag></div></>}
       </Card>}
-      {/* HEX */}
       <Card style={{padding:14}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:8}}>Hex Viewer</div>
         <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,background:C.c2,borderRadius:10,padding:10,maxHeight:320,overflow:'auto',border:'1px solid '+C.bd}}>
@@ -646,5 +817,161 @@ function DumpsTab({files,setFiles,loadF}){
         </div>
       </Card>
     </div>}
+  </div>;
+}
+
+/* ═══ SEED→KEY TAB ═══ */
+function SeedTab(){
+  const[sv,setSv]=useState('');const[mode,setMode]=useState('single');
+  const seed=parseInt(sv,16);const valid=!isNaN(seed)&&sv.length>=1;
+  return<div>
+    <Card glow style={{marginBottom:14}}>
+      <div style={{fontSize:16,fontWeight:900,marginBottom:14}}>🔑 Seed → Key Calculator</div>
+      <div style={{display:'flex',gap:8,marginBottom:12}}>
+        <Btn onClick={()=>setMode('single')} color={mode==='single'?C.sr:C.tm} outline={mode!=='single'}>Single Seed</Btn>
+        <Btn onClick={()=>setMode('batch')} color={mode==='batch'?C.sr:C.tm} outline={mode!=='batch'}>Batch (All Algos)</Btn>
+      </div>
+      <input value={sv} placeholder="Enter seed (hex, e.g. DEADBEEF)" onChange={e=>setSv(e.target.value.replace(/[^0-9A-Fa-f]/g,'').toUpperCase())} style={{width:'100%',padding:'12px 16px',borderRadius:12,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:18,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box'}} onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
+      <div style={{fontSize:10,color:C.tm,marginTop:6,textAlign:'center'}}>Decimal: {valid?seed.toLocaleString():'-'}</div>
+    </Card>
+    {valid&&mode==='batch'&&<Card style={{padding:16}}>
+      <div style={{fontSize:14,fontWeight:800,marginBottom:12}}>All Algorithms</div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+        {ALGOS.map(a=>{const k=a.fn(seed);return<div key={a.id} style={{padding:'10px 12px',borderRadius:10,background:C.c2,border:'1px solid '+C.bd}}>
+          <div style={{fontSize:11,fontWeight:800,color:C.sr}}>{a.n}</div>
+          <div style={{fontSize:8,color:C.tm}}>{a.h}</div>
+          <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:900,color:C.a1,marginTop:4}}>{k.toString(16).toUpperCase().padStart(8,'0')}</div>
+        </div>;})}
+      </div>
+    </Card>}
+    {valid&&mode==='single'&&<div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+      {ALGOS.map(a=>{const k=a.fn(seed);return<Card key={a.id} style={{padding:14}}>
+        <div style={{fontSize:12,fontWeight:800,color:C.sr}}>{a.n}</div>
+        <div style={{fontSize:9,color:C.tm}}>{a.h}</div>
+        <div style={{fontFamily:"'JetBrains Mono'",fontSize:16,fontWeight:900,color:C.a1,marginTop:8}}>{k.toString(16).toUpperCase().padStart(8,'0')}</div>
+        <div style={{fontSize:9,color:C.tm,marginTop:2}}>Dec: {k.toLocaleString()}</div>
+      </Card>;})}
+    </div>}
+    {!valid&&<Card style={{textAlign:'center',padding:'40px 24px'}}><div style={{fontSize:36,opacity:.2}}>🔑</div><div style={{fontSize:13,color:C.tm,marginTop:4}}>Enter a hex seed above</div></Card>}
+  </div>;
+}
+
+/* ═══ GPEC TAB ═══ */
+function GpecTab(){
+  const[f,setF]=useState(null);const[msg,setMsg]=useState('');
+  const load=e=>{const fi=e.target.files[0];if(!fi)return;const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);if(d.length<0x30000){setMsg('File too small for GPEC firmware');return;}setF({name:fi.name,data:d,cur:d[0x2FFFC]});setMsg('');};r.readAsArrayBuffer(fi);};
+  const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
+  const unlock=()=>{if(!f)return;const p=new Uint8Array(f.data);p[0x2FFFC]=0x96;dl(p,'UNLOCKED_'+f.name);setF({...f,cur:0x96,data:p});setMsg('Unlocked: 0x2FFFC set to 0x96');};
+  const lock=()=>{if(!f)return;const p=new Uint8Array(f.data);p[0x2FFFC]=0xFF;dl(p,'LOCKED_'+f.name);setF({...f,cur:0xFF,data:p});setMsg('Locked: 0x2FFFC set to 0xFF');};
+  return<div>
+    <Card glow style={{marginBottom:14}}>
+      <div style={{fontSize:16,fontWeight:900,marginBottom:14}}>🔓 GPEC Firmware Unlock</div>
+      <label style={{cursor:'pointer'}}><div style={{padding:20,borderRadius:12,border:'2px dashed '+C.sr+'30',textAlign:'center'}}>
+        <div style={{fontSize:28}}>📂</div><div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:4}}>Load GPEC Firmware (.bin)</div>
+        <input type="file" hidden onChange={load} accept=".bin,.BIN"/>
+      </div></label>
+    </Card>
+    {f&&<Card glow>
+      <div style={{fontSize:14,fontWeight:800,marginBottom:12}}>{f.name}</div>
+      <div style={{display:'flex',gap:16,alignItems:'center',marginBottom:16}}>
+        <div style={{flex:1,padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
+          <div style={{fontSize:10,fontWeight:800,color:C.tm}}>BYTE @ 0x2FFFC</div>
+          <div style={{fontFamily:"'JetBrains Mono'",fontSize:32,fontWeight:900,color:f.cur===0x96?C.gn:f.cur===0xFF?C.er:C.wn}}>0x{f.cur.toString(16).toUpperCase().padStart(2,'0')}</div>
+          <Tag color={f.cur===0x96?C.gn:f.cur===0xFF?C.er:C.wn}>{f.cur===0x96?'UNLOCKED':f.cur===0xFF?'LOCKED':'UNKNOWN'}</Tag>
+        </div>
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <Btn onClick={unlock} color={C.gn} disabled={f.cur===0x96} full>🔓 Unlock (Set 0x96)</Btn>
+        <Btn onClick={lock} color={C.er} disabled={f.cur===0xFF} full>🔒 Lock (Set 0xFF)</Btn>
+      </div>
+      {msg&&<div style={{marginTop:10,padding:'9px 12px',borderRadius:10,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,color:C.gn,fontWeight:700}}>✓ {msg}</div>}
+    </Card>}
+    {!f&&<Card style={{textAlign:'center',padding:'40px 24px'}}><div style={{fontSize:36,opacity:.2}}>🔓</div><div style={{fontSize:13,color:C.tm,marginTop:4}}>Load a GPEC firmware file to unlock/lock</div></Card>}
+  </div>;
+}
+
+/* ═══ GPEC2A TOOLS TAB ═══ */
+function Gpec2aTab(){
+  const[f,setF]=useState(null);const[f2,setF2]=useState(null);const[msg,setMsg]=useState('');
+  const load=(e,slot)=>{const fi=e.target.files[0];if(!fi)return;const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);if(d.length!==4096){setMsg('GPEC2A must be 4096 bytes');return;}const a=analyzeFile(d.buffer,fi.name);if(a.type!=='GPEC2A'){setMsg('Not a GPEC2A file');return;}if(slot===1)setF(a);else setF2(a);setMsg('');};r.readAsArrayBuffer(fi);};
+  const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
+
+  function toggleSkim(){if(!f)return;const p=new Uint8Array(f.data);p[0x11]=p[0x11]===0x80?0x00:0x80;setF(analyzeFile(p.buffer,f.name));dl(p,'SKIM_'+(p[0x11]===0x80?'ENABLED':'DISABLED')+'_'+f.name);setMsg('SKIM toggled to 0x'+p[0x11].toString(16).toUpperCase());}
+
+  const diff=useMemo(()=>{if(!f||!f2)return[];const r=[];for(let i=0;i<Math.min(f.data.length,f2.data.length);i++)if(f.data[i]!==f2.data[i])r.push({off:i,a:f.data[i],b:f2.data[i]});return r;},[f,f2]);
+
+  return<div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+      <label style={{cursor:'pointer'}}><Card style={{textAlign:'center',padding:18}} onClick={()=>{}}>
+        <div style={{fontSize:28}}>📂</div><div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:4}}>Load GPEC2A File 1</div>
+        {f&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a2,marginTop:4}}>{f.name}</div>}
+        <input type="file" hidden onChange={e=>load(e,1)} accept=".bin,.BIN"/>
+      </Card></label>
+      <label style={{cursor:'pointer'}}><Card style={{textAlign:'center',padding:18}} onClick={()=>{}}>
+        <div style={{fontSize:28}}>📂</div><div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:4}}>Load File 2 (for diff)</div>
+        {f2&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a2,marginTop:4}}>{f2.name}</div>}
+        <input type="file" hidden onChange={e=>load(e,2)} accept=".bin,.BIN"/>
+      </Card></label>
+    </div>
+
+    {f&&f.sec?.t==='gpec2a'&&<>
+      <Card glow style={{marginBottom:14}}>
+        <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>⚙️ GPEC2A Analysis</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          <div style={{padding:14,borderRadius:12,background:C.c2,border:'1px solid '+C.bd}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6}}>SKIM BYTE @ 0x0011</div>
+            <div style={{fontSize:28,fontWeight:900,color:f.sec.on?C.gn:C.wn,fontFamily:"'JetBrains Mono'"}}>{f.sec.on?'ENABLED':'DISABLED'}</div>
+            <div style={{fontSize:10,color:C.tm}}>0x{f.sec.skim.toString(16).toUpperCase().padStart(2,'0')}</div>
+            <div style={{marginTop:8}}><Btn onClick={toggleSkim} color={f.sec.on?C.wn:C.gn} outline>{f.sec.on?'Disable SKIM':'Enable SKIM'}</Btn></div>
+          </div>
+          <div style={{padding:14,borderRadius:12,background:C.c2,border:'1px solid '+C.bd}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6}}>ZZZZ TAMPER @ 0x0C8C</div>
+            <div style={{fontSize:28,fontWeight:900,color:f.sec.zz?C.gn:C.er}}>{f.sec.zz?'INTACT':'TAMPERED'}</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:C.ts,marginTop:4}}>{hxb(f.data.slice(0xC8C,0xC94))}</div>
+          </div>
+        </div>
+      </Card>
+
+      <Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Secret Key</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+            <div style={{fontSize:10,fontWeight:700,color:C.tm}}>Primary @ 0x0203</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:f.sec.key.every(b=>b===0xFF)?C.tm:C.a4,marginTop:4,wordBreak:'break-all'}}>{hxb(f.sec.key)}</div>
+          </div>
+          <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+            <div style={{fontSize:10,fontWeight:700,color:C.tm}}>Mirror @ 0x0361</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:f.sec.mir.every(b=>b===0xFF)?C.tm:C.a4,marginTop:4,wordBreak:'break-all'}}>{hxb(f.sec.mir)}</div>
+          </div>
+        </div>
+        <div style={{marginTop:6}}><Tag color={f.sec.km?C.gn:C.er}>{f.sec.km?'Keys Match ✓':'MISMATCH ✗'}</Tag></div>
+      </Card>
+
+      <Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔑 Transponder Keys</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:6}}>
+          {f.sec.tr.map((tk,i)=><div key={i} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
+            <div style={{fontSize:9,fontWeight:700,color:C.tm}}>KEY {i+1}</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:tk.every(b=>b===0xFF)?C.tm:C.a1,marginTop:2}}>{hxb(tk)}</div>
+          </div>)}
+        </div>
+      </Card>
+    </>}
+
+    {diff.length>0&&<Card style={{padding:16}}>
+      <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>📊 Hex Diff ({diff.length} bytes different)</div>
+      <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,maxHeight:300,overflow:'auto',background:C.c2,borderRadius:10,padding:10,border:'1px solid '+C.bd}}>
+        {diff.slice(0,200).map(d=><div key={d.off} style={{display:'flex',gap:12,padding:'1px 0'}}>
+          <span style={{color:C.tm,minWidth:48}}>0x{d.off.toString(16).toUpperCase().padStart(4,'0')}</span>
+          <span style={{color:C.er,fontWeight:700}}>{d.a.toString(16).toUpperCase().padStart(2,'0')}</span>
+          <span style={{color:C.tm}}>→</span>
+          <span style={{color:C.gn,fontWeight:700}}>{d.b.toString(16).toUpperCase().padStart(2,'0')}</span>
+        </div>)}
+        {diff.length>200&&<div style={{color:C.tm,marginTop:4}}>+{diff.length-200} more</div>}
+      </div>
+    </Card>}
+
+    {msg&&<div style={{marginTop:10,padding:'8px 12px',borderRadius:8,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
+    {!f&&<Card style={{textAlign:'center',padding:'40px 24px'}}><div style={{fontSize:36,opacity:.2}}>⚙️</div><div style={{fontSize:13,color:C.tm,marginTop:4}}>Load a GPEC2A EEPROM file</div></Card>}
   </div>;
 }
