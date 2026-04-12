@@ -284,10 +284,12 @@ function BenchTab(){
     mods.forEach((m,idx)=>{
       const out=new Uint8Array(m.data);let fixes=0;
       if(m.type==='BCM'){
+        const fullOffs=[];
         for(let i=0;i<=out.length-19;i++){
           let v=true;for(let j=0;j<17;j++)if(out[i+j]<0x20||out[i+j]>0x7E){v=false;break;}
           if(!v)continue;let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(out[i+j]);
           if(!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;
+          fullOffs.push(i);
           const sc=(out[i+17]<<8)|out[i+18],cc=crc16(out.slice(i,i+17));
           if(sc!==cc){out[i+17]=(cc>>8)&0xFF;out[i+18]=cc&0xFF;addLog('  '+m.name+' @0x'+i.toString(16).toUpperCase()+': CRC16 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}
           i+=16;
@@ -295,6 +297,7 @@ function BenchTab(){
         const tail=m.vins?.[0]?.vin?.slice(9);
         if(tail){const tc=[];for(let k=0;k<8;k++)tc.push(tail.charCodeAt(k));
           for(let i=0;i<=out.length-10;i++){let mt=true;for(let j=0;j<8;j++)if(out[i+j]!==tc[j]){mt=false;break;}if(!mt)continue;
+            if(fullOffs.some(fo=>i>=fo&&i<fo+19))continue;
             const sc=(out[i+8]<<8)|out[i+9],cc=crc16(out.slice(i,i+8));
             if(sc!==cc){out[i+8]=(cc>>8)&0xFF;out[i+9]=cc&0xFF;addLog('  '+m.name+' @0x'+i.toString(16).toUpperCase()+': partial CRC16 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}}}
       }else if(m.type==='95640'){
