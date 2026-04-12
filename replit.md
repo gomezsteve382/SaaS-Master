@@ -22,8 +22,8 @@ No backend required — the API server exists but is unused by this app.
 ## Tabs
 
 1. **DUMPS** — Load .bin files, auto-detect type, VIN patch with correct CRC, hex viewer, virginizer
-2. **LIVE OBD** — Web Serial connect, scan modules, read/write VIN over UDS, RFHUB virginize, proxi read
-3. **BENCH** — Offline module diagnostics: load .bin files, auto-detect module type, VIN write with CRC to all, BCM proxi read, GPEC2A SKIM read, RFHUB virginize — all from binary dumps (no serial needed)
+2. **LIVE OBD** — Web Serial connect, scan modules, read/write VIN over UDS, RFHUB virginize, proxi read, individual module write (DAMP/IPC/ECM/TCM) via CDA6 security
+3. **BENCH** — Offline module diagnostics + UDS bench tools: load .bin files, auto-detect module type, VIN write with CRC to all, BCM proxi read, GPEC2A SKIM read, RFHUB virginize; separate Web Serial bench connection for on-bench UDS VIN read/write (DAMP/IPC/ECM/TCM/BCM)
 4. **SEED→KEY** — 14 algorithm calculator (GPEC, NGC, JTEC, CDA6, TIPM variants)
 5. **GPEC** — Firmware unlock (0x2FFFC = 0x96)
 6. **SECURITY** — Cross-vehicle security matcher with 4 sub-views:
