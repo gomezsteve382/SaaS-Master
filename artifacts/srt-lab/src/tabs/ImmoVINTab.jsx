@@ -1,27 +1,26 @@
 import React, {useState, useCallback, useRef} from "react";
 import {C} from "../lib/constants.js";
 import {Card, Tag, Btn} from "../lib/ui.jsx";
-import {crc16} from "../lib/crc.js";
+import {crc8rf} from "../lib/crc.js";
 
 const fO = n => "0x" + n.toString(16).toUpperCase().padStart(4, "0");
+const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
 const dl = (data, name) => {
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([data], {type: "application/octet-stream"}));
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  a.href = URL.createObjectURL(new Blob([data], {type:"application/octet-stream"}));
+  a.download = name; a.click(); URL.revokeObjectURL(a.href);
 };
 
-function Badge({ok}) {
-  return (
-    <span style={{display:"inline-block",padding:"2px 8px",borderRadius:6,fontSize:10,fontWeight:800,letterSpacing:.5,background:ok?C.gn+"18":C.er+"18",color:ok?C.gn:C.er}}>{ok?"OK":"FAIL"}</span>
-  );
+const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
+
+function Badge({ok, label}) {
+  return <span style={{display:"inline-block",padding:"2px 8px",borderRadius:6,fontSize:10,fontWeight:800,letterSpacing:.5,background:ok?C.gn+"18":C.er+"18",color:ok?C.gn:C.er}}>{label||(ok?"OK":"FAIL")}</span>;
 }
 
 function SectionHeader({icon, title, subtitle}) {
   return (
     <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18}}>
-      <div style={{width:40,height:40,borderRadius:10,background:"linear-gradient(135deg,#AA00FF22,#AA00FF44)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,border:"1.5px solid #AA00FF33"}}>{icon}</div>
+      <div style={{width:40,height:40,borderRadius:10,background:"linear-gradient(135deg,#D32F2F22,#D32F2F44)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,border:"1.5px solid #D32F2F33"}}>{icon}</div>
       <div>
         <div style={{fontSize:15,fontWeight:900,color:C.tx}}>{title}</div>
         <div style={{fontSize:10,color:C.ts}}>{subtitle}</div>
@@ -36,403 +35,416 @@ function FileDropZone({label, onFile, fileName}) {
     <div onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)onFile(f);}} onDragOver={e=>e.preventDefault()} onClick={()=>inputRef.current.click()} style={{border:"2px dashed "+C.sr+"30",borderRadius:10,padding:"14px 16px",cursor:"pointer",textAlign:"center",background:C.c2}}>
       <input ref={inputRef} type="file" accept=".bin,.BIN" style={{display:"none"}} onChange={e=>e.target.files[0]&&onFile(e.target.files[0])}/>
       <div style={{fontSize:22,marginBottom:4}}>📂</div>
-      {fileName
-        ? <div style={{fontSize:12,fontWeight:800,color:C.sr}}>{fileName}</div>
-        : <div style={{fontSize:12,color:C.ts}}>{label}</div>
-      }
+      {fileName ? <div style={{fontSize:12,fontWeight:800,color:C.sr}}>{fileName}</div>
+                : <div style={{fontSize:12,color:C.ts}}>{label}</div>}
     </div>
   );
 }
 
-const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
+/* ─── RFHUB EEE (24C32) helpers ──────────────────────────────────────── */
 
-function extractIdField(data, offset, maxLen) {
-  if (offset + maxLen > data.length) maxLen = data.length - offset;
-  let printable = "", hexStr = "";
-  for (let i = 0; i < maxLen; i++) {
-    const b = data[offset + i];
-    if (i > 0) hexStr += " ";
-    hexStr += b.toString(16).toUpperCase().padStart(2, "0");
-    printable += (b >= 0x20 && b <= 0x7E) ? String.fromCharCode(b) : ".";
-  }
-  const isBlank = Array.from(data.slice(offset, offset + maxLen)).every(b => b === 0xFF || b === 0x00);
-  return {printable, hex: hexStr, isBlank};
-}
+const RFH_VIN_OFFSETS = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
 
-function extractVin95640(data, offset) {
-  if (offset + 17 > data.length) return null;
+function decodeRfhVin(data, off) {
+  if (off + 17 > data.length) return null;
+  const rev = new Uint8Array(17);
+  for (let i = 0; i < 17; i++) rev[i] = data[off + 16 - i];
   let s = "";
   for (let i = 0; i < 17; i++) {
-    const b = data[offset + i];
-    const ch = String.fromCharCode(b);
-    if (!/[A-HJ-NPR-Z0-9]/.test(ch)) return null;
+    const ch = String.fromCharCode(rev[i]);
+    if (!/[A-HJ-NPR-Z0-9 ]/.test(ch) && rev[i] < 0x20) return null;
     s += ch;
   }
-  return s;
+  const vin = s.trim();
+  return VIN_RE.test(vin) ? vin : null;
 }
 
-function byteSum17(data, offset) {
-  let s = 0;
-  for (let i = 0; i < 17; i++) s += data[offset + i];
-  return s & 0xFF;
-}
-
-function parse95640(data) {
+function parseRfhub(data) {
   const sz = data.length;
-  const ok = sz === 8192;
-  const id1 = extractIdField(data, 0x0000, 16);
-  const pn  = extractIdField(data, 0x0010, 10);
-  const id2 = extractIdField(data, 0x001A, 8);
-  const vin1 = extractVin95640(data, 0x0275);
-  const vin2 = extractVin95640(data, 0x0288);
-  const cs1Stored = data[0x0274];
-  const cs2Stored = data[0x0287];
-  const cs1Calc = vin1 !== null ? byteSum17(data, 0x0275) : null;
-  const cs2Calc = vin2 !== null ? byteSum17(data, 0x0288) : null;
-  return {ok, sz, id1, pn, id2, mainVin: vin1 || vin2 || null, vin1, vin2, cs1Stored, cs2Stored, cs1Calc, cs2Calc};
+  const validSz = sz === 4096 || sz === 2048;
+  const slots = RFH_VIN_OFFSETS.map((off, idx) => {
+    if (off + 18 > sz) return {idx:idx+1, offset:off, vin:null, csStored:null, csCalc:null, crcOk:false};
+    const rawStored = data.slice(off, off+17);
+    const vin = decodeRfhVin(data, off);
+    const csStored = data[off + 17];
+    const csCalc = crc8rf(rawStored);
+    return {idx:idx+1, offset:off, vin, csStored, csCalc, crcOk: csStored === csCalc};
+  });
+
+  const sec16s = [[1, 0x00AE, 0x00BE], [2, 0x00C0, 0x00D0]].map(([slot, off, csOff]) => {
+    if (csOff + 2 > sz) return {slot, offset:off, hex:"", blank:true, csStored:null, csCalc:null, csOk:false};
+    const raw = data.slice(off, off+16);
+    const blank = Array.from(raw).every(b => b === 0xFF || b === 0x00);
+    const hex = hxb(raw).replace(/ /g,"");
+    let xr = 0; for (let i = 0; i < 16; i++) xr ^= raw[i];
+    const csCalc = (xr << 8) | xr;
+    const csStored = (data[csOff] << 8) | data[csOff+1];
+    return {slot, offset:off, raw:Array.from(raw), hex, blank, csStored, csCalc, csOk: csStored === csCalc};
+  });
+  const sec16valid = sec16s.length === 2 && !sec16s[0].blank &&
+    sec16s[0].hex === sec16s[1].hex;
+
+  const skey = data.length >= 0x50 ? data.slice(0x40, 0x50) : null;
+  const skeyBlank = skey ? Array.from(skey).every(b => b === 0xFF) : true;
+
+  return {sz, validSz, slots, sec16s, sec16valid, skey, skeyBlank};
 }
 
-function apply95640(data, newVin) {
+function applyRfhub(data, newVin) {
   const out = new Uint8Array(data);
   const enc = new TextEncoder().encode(newVin.toUpperCase());
-  const cs = enc.reduce((a, b) => (a + b) & 0xFF, 0);
-  out[0x0274] = cs;
-  for (let i = 0; i < 17; i++) out[0x0275 + i] = enc[i];
-  out[0x0287] = cs;
-  for (let i = 0; i < 17; i++) out[0x0288 + i] = enc[i];
-  return out;
-}
-
-function IdFieldCell({field}) {
-  if (field.isBlank) return <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.tm}}>(blank)</span>;
-  const dots = (field.printable.match(/\./g)||[]).length;
-  if (dots / field.printable.length < 0.5) {
-    return <span style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.ts}}>{field.printable}</span>;
+  const rev = new Uint8Array(17);
+  for (let i = 0; i < 17; i++) rev[i] = enc[16 - i];
+  const cs = crc8rf(rev);
+  for (const off of RFH_VIN_OFFSETS) {
+    if (off + 18 > out.length) continue;
+    for (let i = 0; i < 17; i++) out[off + i] = rev[i];
+    out[off + 17] = cs;
   }
-  return <span style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:C.ts,wordBreak:"break-all"}}>{field.hex}</span>;
+  return out;
 }
 
 function RFHSection() {
-  const [inspectFile, setInspectFile] = useState(null);
-  const [inspectData, setInspectData] = useState(null);
-  const [inspectResult, setInspectResult] = useState(null);
-  const [inspectError, setInspectError] = useState("");
-  const [applyFile, setApplyFile] = useState(null);
-  const [applyData, setApplyData] = useState(null);
+  const [iFile, setIFile] = useState(null);
+  const [iData, setIData] = useState(null);
+  const [iResult, setIResult] = useState(null);
+  const [iErr, setIErr] = useState("");
+  const [aFile, setAFile] = useState(null);
+  const [aData, setAData] = useState(null);
   const [newVin, setNewVin] = useState("");
-  const [applyMsg, setApplyMsg] = useState("");
+  const [aMsg, setAMsg] = useState("");
 
-  const handleInspectFile = useCallback(f => {
+  const handleIFile = useCallback(f => {
     const r = new FileReader();
     r.onload = ev => {
       const d = new Uint8Array(ev.target.result);
-      if (d.length !== 8192) {
-        setInspectError("Wrong size: " + d.length + " bytes (need exactly 8192)");
-        setInspectFile(null); setInspectData(null); setInspectResult(null);
-        return;
+      if (d.length !== 4096 && d.length !== 2048) {
+        setIErr("Wrong size: " + d.length + " bytes (need 4096 or 2048)");
+        setIFile(null); setIData(null); setIResult(null); return;
       }
-      setInspectError(""); setInspectFile(f); setInspectData(d); setInspectResult(null);
+      setIErr(""); setIFile(f); setIData(d); setIResult(null);
     };
     r.readAsArrayBuffer(f);
   }, []);
 
-  const handleApplyFile = useCallback(f => {
+  const handleAFile = useCallback(f => {
     const r = new FileReader();
     r.onload = ev => {
       const d = new Uint8Array(ev.target.result);
-      if (d.length !== 8192) { setApplyMsg("Wrong size: " + d.length + " bytes (need 8192)"); setApplyFile(null); setApplyData(null); return; }
-      setApplyFile(f); setApplyData(d); setApplyMsg("");
+      if (d.length !== 4096 && d.length !== 2048) { setAMsg("Wrong size: " + d.length + " bytes (need 4096 or 2048)"); setAFile(null); setAData(null); return; }
+      setAFile(f); setAData(d); setAMsg("");
     };
     r.readAsArrayBuffer(f);
   }, []);
 
   const doApply = () => {
-    if (!applyData || newVin.length !== 17) return;
-    const patched = apply95640(applyData, newVin);
-    const fn = applyFile.name.replace(/(\.[^.]+)?$/, "_VIN_" + newVin + ".bin");
+    if (!aData || newVin.length !== 17) return;
+    const patched = applyRfhub(aData, newVin);
+    const fn = aFile.name.replace(/(\.[^.]+)?$/, "_RFHVIN_" + newVin + ".bin");
     dl(patched, fn);
-    setApplyMsg("✓ Patched & downloaded: " + fn);
+    setAMsg("✓ Patched & downloaded: " + fn);
   };
 
   const vinValid = VIN_RE.test(newVin);
+  const res = iResult;
 
   return (
     <Card style={{marginBottom:20}}>
-      <SectionHeader icon="🔌" title="RFH MC9S12X / ST95640 — 8KB EEPROM" subtitle="FCA Remote Function Hub · ST95640 chip · VIN slots at 0x0275 and 0x0288"/>
+      <SectionHeader icon="📡" title="RFHUB EEE — 24C32 (4KB EEPROM)" subtitle="FCA Remote Function Hub · 4 mirrored VIN slots · CRC8RF · SEC16 pairing bytes"/>
 
       <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:8}}>PHASE 1 — INSPECT</div>
-      <FileDropZone label="Drop 8KB ST95640 .bin file to inspect" onFile={handleInspectFile} fileName={inspectFile?.name}/>
-      {inspectError && <div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:12,fontWeight:700}}>✗ {inspectError}</div>}
-      {inspectFile && !inspectError && (
-        <div style={{marginTop:10}}>
-          <Btn onClick={()=>setInspectResult(parse95640(inspectData))} full color={C.sr}>🔍 Analyze File</Btn>
-        </div>
-      )}
+      <FileDropZone label="Drop 4KB RFHUB .bin file (24C32)" onFile={handleIFile} fileName={iFile?.name}/>
+      {iErr && <div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:12,fontWeight:700}}>✗ {iErr}</div>}
+      {iFile && !iErr && <div style={{marginTop:10}}><Btn onClick={()=>setIResult(parseRfhub(iData))} full color={C.sr}>🔍 Analyze File</Btn></div>}
 
-      {inspectResult && (
+      {res && (
         <div style={{marginTop:14}}>
-          <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:10}}>
-            <Tag color={inspectResult.ok?C.gn:C.wn}>{inspectResult.sz} bytes — {inspectResult.ok?"8KB ✓":"SIZE WARN"}</Tag>
-            <Tag color="#AA00FF">ST95640 CHIP</Tag>
-            {inspectResult.mainVin&&<Tag color={C.a1}>{inspectResult.mainVin}</Tag>}
+          <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:12}}>
+            <Tag color={res.validSz?C.gn:C.wn}>{res.sz} bytes — {res.sz===4096?"4KB (Gen2)":res.sz===2048?"2KB (Gen1)":"SIZE WARN"}</Tag>
+            <Tag color="#1565C0">24C32 EEE</Tag>
+            {res.sec16valid && <Tag color={C.gn}>SEC16 VALID ✓</Tag>}
+            {res.skeyBlank && <Tag color={C.wn}>SECRET KEY BLANK</Tag>}
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
-            {[["ID1","0x0000",inspectResult.id1],["PN","0x0010",inspectResult.pn],["ID2","0x001A",inspectResult.id2]].map(([k,off,field])=>(
-              <div key={k} style={{padding:"8px 10px",borderRadius:8,background:C.c2,border:"1px solid "+C.bd}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}>
-                  <span style={{fontSize:9,fontWeight:800,color:C.tm,letterSpacing:1}}>{k}</span>
-                  <span style={{fontSize:9,color:C.a3,fontFamily:"'JetBrains Mono'"}}>{off}</span>
-                </div>
-                <IdFieldCell field={field}/>
-              </div>
-            ))}
-          </div>
-          <div style={{overflowX:"auto"}}>
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-              <thead><tr>{["Slot","Offset","VIN (17 bytes)","Stored CS","Calc CS","Status"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",borderBottom:"1.5px solid "+C.bd,fontSize:10,fontWeight:800,color:C.tm,textTransform:"uppercase",letterSpacing:.5}}>{h}</th>)}</tr></thead>
-              <tbody>
-                {[
-                  {slot:"VIN 1",offset:0x0275,vin:inspectResult.vin1,csS:inspectResult.cs1Stored,csC:inspectResult.cs1Calc},
-                  {slot:"VIN 2",offset:0x0288,vin:inspectResult.vin2,csS:inspectResult.cs2Stored,csC:inspectResult.cs2Calc},
-                ].map(row=>(
-                  <tr key={row.slot} style={{borderBottom:"1px solid "+C.bd+"60"}}>
-                    <td style={{padding:"7px 10px",fontWeight:800,color:"#AA00FF"}}>{row.slot}</td>
-                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.a3}}>{fO(row.offset)}</td>
-                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontWeight:700,fontSize:12,color:row.vin?C.gn:C.er}}>{row.vin||"(empty / invalid)"}</td>
-                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>{"0x"+row.csS.toString(16).toUpperCase().padStart(2,"0")}</td>
-                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>{row.csC!==null?"0x"+row.csC.toString(16).toUpperCase().padStart(2,"0"):"—"}</td>
-                    <td style={{padding:"7px 10px"}}>{row.vin?<Badge ok={row.csS===row.csC}/>:<span style={{fontSize:10,color:C.tm}}>—</span>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
-      <div style={{marginTop:20,borderTop:"1.5px solid "+C.bd,paddingTop:16}}>
-        <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY</div>
-        <FileDropZone label="Re-upload the same 8KB .bin file to patch" onFile={handleApplyFile} fileName={applyFile?.name}/>
-        <div style={{marginTop:10}}>
-          <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN (17 chars)</div>
-          <input value={newVin} maxLength={17} placeholder="Enter 17-character VIN"
-            onChange={e=>setNewVin(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,""))}
-            style={{width:"100%",padding:"10px 14px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newVin.length===17&&vinValid?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:"center",outline:"none",color:C.tx}}
-          />
-          <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
-            <span style={{fontSize:11,fontWeight:800,color:newVin.length===17?C.gn:C.tm}}>{newVin.length}/17</span>
-            {newVin.length===17&&!vinValid&&<span style={{fontSize:11,color:C.er}}>Invalid VIN characters</span>}
-          </div>
-        </div>
-        <div style={{marginTop:10}}>
-          <Btn onClick={doApply} disabled={!applyFile||!vinValid} full color={C.a2}>⚡ APPLY — Write VIN to both slots + Download</Btn>
-        </div>
-        {applyMsg&&<div style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:applyMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(applyMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:applyMsg.startsWith("✓")?C.gn:C.er}}>{applyMsg}</div>}
-      </div>
-    </Card>
-  );
-}
-
-const BCM_VIN_OFFSETS = [0x5320, 0x5340, 0x5360, 0x5380];
-
-function extractBcmVin(data, offset) {
-  if (offset + 17 > data.length) return null;
-  let s = "";
-  for (let i = 0; i < 17; i++) {
-    const ch = String.fromCharCode(data[offset + i]);
-    if (!/[A-HJ-NPR-Z0-9]/.test(ch)) return null;
-    s += ch;
-  }
-  return s;
-}
-
-function parseBcm(data) {
-  const sz = data.length;
-  const ok = sz === 65536;
-  const slots = BCM_VIN_OFFSETS.map((off, idx) => {
-    const vin = extractBcmVin(data, off);
-    const storedCrc = off + 19 <= sz ? ((data[off+17]<<8)|data[off+18]) : null;
-    let calcCrc = null;
-    if (vin) {
-      const vb = new Uint8Array(17);
-      for (let i = 0; i < 17; i++) vb[i] = data[off + i];
-      calcCrc = crc16(vb);
-    }
-    return {idx: idx + 1, offset: off, vin, storedCrc, calcCrc, crcOk: vin !== null && storedCrc !== null && storedCrc === calcCrc};
-  });
-  let mainVin = null, best = -1;
-  for (const s of slots) {
-    if (!s.vin) continue;
-    let sc = 1;
-    if (/^[1-9A-HJ-NPR-Z]/.test(s.vin)) sc += 2;
-    if (s.crcOk) sc += 4;
-    if (sc > best) {best = sc; mainVin = s.vin;}
-  }
-  let sec16 = null;
-  if (sz >= 0x84A) {
-    const raw = data.slice(0x0838, 0x0848);
-    const storedCrc = (data[0x0848]<<8)|data[0x0849];
-    const calcCrc = crc16(raw);
-    const blank = Array.from(raw).every(b => b===0xFF||b===0x00);
-    const hex = Array.from(raw).map(b=>b.toString(16).toUpperCase().padStart(2,"0")).join("");
-    sec16 = {hex, storedCrc, calcCrc, csOk: storedCrc===calcCrc, blank};
-  }
-  return {ok, sz, slots, mainVin, sec16};
-}
-
-function applyBcm(data, newVin, newSec16Hex) {
-  const out = new Uint8Array(data);
-  if (newVin && newVin.length === 17) {
-    const enc = new TextEncoder().encode(newVin.toUpperCase());
-    const cs = crc16(enc);
-    for (const off of BCM_VIN_OFFSETS) {
-      for (let i = 0; i < 17; i++) out[off+i] = enc[i];
-      out[off+17] = (cs>>8)&0xFF; out[off+18] = cs&0xFF;
-    }
-  }
-  if (newSec16Hex && newSec16Hex.length === 32) {
-    const raw = new Uint8Array(16);
-    for (let i = 0; i < 16; i++) raw[i] = parseInt(newSec16Hex.slice(i*2, i*2+2), 16);
-    const cs = crc16(raw);
-    for (let i = 0; i < 16; i++) out[0x0838+i] = raw[i];
-    out[0x0848] = (cs>>8)&0xFF; out[0x0849] = cs&0xFF;
-  }
-  return out;
-}
-
-function BCMSection() {
-  const [inspectFile, setInspectFile] = useState(null);
-  const [inspectData, setInspectData] = useState(null);
-  const [inspectResult, setInspectResult] = useState(null);
-  const [inspectError, setInspectError] = useState("");
-  const [applyFile, setApplyFile] = useState(null);
-  const [applyData, setApplyData] = useState(null);
-  const [newVin, setNewVin] = useState("");
-  const [newSec16, setNewSec16] = useState("");
-  const [applyMsg, setApplyMsg] = useState("");
-
-  const handleInspectFile = useCallback(f => {
-    const r = new FileReader();
-    r.onload = ev => {
-      const d = new Uint8Array(ev.target.result);
-      if (d.length !== 65536) {
-        setInspectError("Wrong size: " + d.length + " bytes (need exactly 65536 / 64KB)");
-        setInspectFile(null); setInspectData(null); setInspectResult(null);
-        return;
-      }
-      setInspectError(""); setInspectFile(f); setInspectData(d); setInspectResult(null);
-    };
-    r.readAsArrayBuffer(f);
-  }, []);
-
-  const handleApplyFile = useCallback(f => {
-    const r = new FileReader();
-    r.onload = ev => {
-      const d = new Uint8Array(ev.target.result);
-      if (d.length !== 65536) { setApplyMsg("Wrong size: " + d.length + " bytes (need 65536 / 64KB)"); setApplyFile(null); setApplyData(null); return; }
-      setApplyFile(f); setApplyData(d); setApplyMsg("");
-    };
-    r.readAsArrayBuffer(f);
-  }, []);
-
-  const doApply = () => {
-    if (!applyData) return;
-    const vinToWrite = newVin.length === 17 ? newVin : "";
-    const sec16ToWrite = newSec16.length === 32 ? newSec16 : "";
-    if (!vinToWrite && !sec16ToWrite) { setApplyMsg("Enter at least one field (VIN or SEC16) to apply."); return; }
-    const patched = applyBcm(applyData, vinToWrite, sec16ToWrite);
-    const suffix = [vinToWrite&&"VIN_"+vinToWrite, sec16ToWrite&&"SEC16"].filter(Boolean).join("_");
-    const fn = applyFile.name.replace(/(\.[^.]+)?$/, "_"+suffix+".bin");
-    dl(patched, fn);
-    setApplyMsg("✓ Patched & downloaded: " + fn);
-  };
-
-  const vinValid = newVin.length === 0 || VIN_RE.test(newVin);
-  const sec16Valid = newSec16.length === 0 || (newSec16.length === 32 && /^[0-9A-Fa-f]{32}$/.test(newSec16));
-
-  return (
-    <Card>
-      <SectionHeader icon="🖥️" title="BCM MPC5606B_05B — 64KB D-Flash" subtitle="Body Control Module · MPC5606B chip · VINs at 0x5320–0x5380 · SEC16 at 0x0838"/>
-
-      <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:8}}>PHASE 1 — INSPECT</div>
-      <FileDropZone label="Drop 64KB BCM MPC5606B .bin file to inspect" onFile={handleInspectFile} fileName={inspectFile?.name}/>
-      {inspectError&&<div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:12,fontWeight:700}}>✗ {inspectError}</div>}
-      {inspectFile&&!inspectError&&(
-        <div style={{marginTop:10}}>
-          <Btn onClick={()=>setInspectResult(parseBcm(inspectData))} full color={C.sr}>🔍 Analyze File</Btn>
-        </div>
-      )}
-
-      {inspectResult&&(
-        <div style={{marginTop:14}}>
-          <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:10}}>
-            <Tag color={inspectResult.ok?C.gn:C.wn}>{inspectResult.sz} bytes — {inspectResult.ok?"64KB ✓":"SIZE WARN"}</Tag>
-            <Tag color={C.a1}>BCM MPC5606B_05B</Tag>
-            {inspectResult.mainVin&&<Tag color={C.sr}>{inspectResult.mainVin}</Tag>}
-          </div>
+          {/* VIN slots */}
           <div style={{overflowX:"auto",marginBottom:14}}>
             <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-              <thead><tr>{["Copy","Offset","VIN (17 bytes)","Stored CRC16","Calc CRC16","Status"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",borderBottom:"1.5px solid "+C.bd,fontSize:10,fontWeight:800,color:C.tm,textTransform:"uppercase",letterSpacing:.5}}>{h}</th>)}</tr></thead>
+              <thead><tr>{["Slot","Offset","VIN (decoded)","Stored CRC8RF","Calc CRC8RF","Status"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",borderBottom:"1.5px solid "+C.bd,fontSize:10,fontWeight:800,color:C.tm,textTransform:"uppercase",letterSpacing:.5}}>{h}</th>)}</tr></thead>
               <tbody>
-                {inspectResult.slots.map(row=>(
+                {res.slots.map(row=>(
                   <tr key={row.idx} style={{borderBottom:"1px solid "+C.bd+"60"}}>
-                    <td style={{padding:"7px 10px",fontWeight:800,color:C.a1}}>VIN {row.idx}</td>
+                    <td style={{padding:"7px 10px",fontWeight:800,color:C.sr}}>VIN {row.idx}</td>
                     <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.a3}}>{fO(row.offset)}</td>
                     <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontWeight:700,fontSize:12,color:row.vin?C.gn:C.er}}>{row.vin||"(empty / invalid)"}</td>
-                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>{row.storedCrc!==null?"0x"+row.storedCrc.toString(16).toUpperCase().padStart(4,"0"):"—"}</td>
-                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>{row.calcCrc!==null?"0x"+row.calcCrc.toString(16).toUpperCase().padStart(4,"0"):"—"}</td>
+                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>{row.csStored!==null?"0x"+row.csStored.toString(16).toUpperCase().padStart(2,"0"):"—"}</td>
+                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>{row.csCalc!==null?"0x"+row.csCalc.toString(16).toUpperCase().padStart(2,"0"):"—"}</td>
                     <td style={{padding:"7px 10px"}}>{row.vin?<Badge ok={row.crcOk}/>:<span style={{fontSize:10,color:C.tm}}>—</span>}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          {inspectResult.sec16&&(
-            <div style={{padding:"10px 14px",borderRadius:10,background:C.c2,border:"1px solid "+C.bd}}>
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                <div style={{fontSize:11,fontWeight:800,color:C.a4}}>SEC16 @ {fO(0x0838)}</div>
-                {inspectResult.sec16.blank?<Tag color={C.tm}>BLANK</Tag>:<Badge ok={inspectResult.sec16.csOk}/>}
+
+          {/* SEC16 */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
+            {res.sec16s.map(s=>(
+              <div key={s.slot} style={{padding:"10px 14px",borderRadius:10,background:C.c2,border:"1px solid "+C.bd}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                  <span style={{fontSize:11,fontWeight:800,color:C.a4}}>SEC16 Slot {s.slot} @ {fO(s.offset)}</span>
+                  {s.blank?<Tag color={C.tm}>BLANK</Tag>:<Badge ok={s.csOk}/>}
+                  {!s.blank&&s.slot===1&&res.sec16valid&&<Tag color={C.gn}>VALID ✓</Tag>}
+                </div>
+                {!s.blank&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:9,fontWeight:700,color:C.a4,wordBreak:"break-all"}}>{s.hex}</div>}
+                {!s.blank&&<div style={{fontSize:9,color:C.ts,marginTop:4}}>CS stored: 0x{s.csStored.toString(16).toUpperCase().padStart(4,"0")} | calc: 0x{s.csCalc.toString(16).toUpperCase().padStart(4,"0")}</div>}
               </div>
-              {!inspectResult.sec16.blank&&(
-                <>
-                  <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.a4,letterSpacing:.5,wordBreak:"break-all",marginBottom:4}}>{inspectResult.sec16.hex}</div>
-                  <div style={{fontSize:10,color:C.ts}}>CRC16 stored: 0x{inspectResult.sec16.storedCrc.toString(16).toUpperCase().padStart(4,"0")} | calc: 0x{inspectResult.sec16.calcCrc.toString(16).toUpperCase().padStart(4,"0")}</div>
-                </>
-              )}
+            ))}
+          </div>
+
+          {/* Secret key */}
+          <div style={{padding:"10px 14px",borderRadius:10,background:C.c2,border:"1px solid "+C.bd}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+              <span style={{fontSize:11,fontWeight:800,color:C.a4}}>Secret Key @ 0x0040</span>
+              <Tag color={res.skeyBlank?C.wn:C.gn}>{res.skeyBlank?"BLANK/ERASED":"SET"}</Tag>
             </div>
-          )}
+            {res.skey&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:res.skeyBlank?C.tm:C.a4}}>{hxb(res.skey)}</div>}
+          </div>
+        </div>
+      )}
+
+      <div style={{marginTop:20,borderTop:"1.5px solid "+C.bd,paddingTop:16}}>
+        <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY VIN</div>
+        <div style={{fontSize:11,color:C.ts,marginBottom:8}}>Writes byte-reversed VIN to all 4 slots · Recalculates CRC8RF per slot</div>
+        <FileDropZone label="Re-upload the same 4KB RFHUB .bin to patch" onFile={handleAFile} fileName={aFile?.name}/>
+        <div style={{marginTop:10}}>
+          <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN (17 chars)</div>
+          <input value={newVin} maxLength={17} placeholder="Enter 17-character VIN"
+            onChange={e=>setNewVin(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,""))}
+            style={{width:"100%",padding:"10px 14px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newVin.length===17&&vinValid?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:"center",outline:"none",color:C.tx}}/>
+          <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
+            <span style={{fontSize:11,fontWeight:800,color:newVin.length===17?C.gn:C.tm}}>{newVin.length}/17</span>
+            {newVin.length===17&&!vinValid&&<span style={{fontSize:11,color:C.er}}>Invalid VIN characters</span>}
+          </div>
+        </div>
+        <div style={{marginTop:10}}>
+          <Btn onClick={doApply} disabled={!aFile||!vinValid||newVin.length!==17} full color={C.a2}>⚡ APPLY — Write VIN to 4 slots + Download</Btn>
+        </div>
+        {aMsg&&<div style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:aMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(aMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:aMsg.startsWith("✓")?C.gn:C.er}}>{aMsg}</div>}
+      </div>
+    </Card>
+  );
+}
+
+/* ─── GPEC2A (95320 SPI) helpers ─────────────────────────────────────── */
+
+const GPEC_VIN_OFFSETS = [0x0000, 0x01F0, 0x0224];
+
+function extractGpecVin(data, off) {
+  if (off + 17 > data.length) return null;
+  let s = "";
+  for (let i = 0; i < 17; i++) {
+    const ch = String.fromCharCode(data[off + i]);
+    if (!/[A-HJ-NPR-Z0-9]/.test(ch)) return null;
+    s += ch;
+  }
+  return s;
+}
+
+function parseGpec2a(data) {
+  const sz = data.length;
+  const validSz = sz === 4096;
+  const slots = GPEC_VIN_OFFSETS.map((off, idx) => ({
+    idx: idx+1, offset: off, vin: extractGpecVin(data, off)
+  }));
+  const validVins = slots.filter(s => s.vin).map(s => s.vin);
+  const consistent = validVins.length > 0 && validVins.every(v => v === validVins[0]);
+  const mainVin = consistent ? validVins[0] : (validVins[0] || null);
+
+  const keyPrimary = sz >= 0x020B ? Array.from(data.slice(0x0203, 0x020B)) : null;
+  const keyMirror  = sz >= 0x0369 ? Array.from(data.slice(0x0361, 0x0369)) : null;
+  const keyConsistent = keyPrimary && keyMirror && keyPrimary.every((b,i) => b === keyMirror[i]);
+
+  const skimByte = sz > 0x0011 ? data[0x0011] : null;
+  const skimStatus = skimByte === 0x80 ? "ENABLED" : skimByte === 0x00 ? "DISABLED" : "UNKNOWN";
+
+  let pcmSec6 = null;
+  if (sz > 0x03CE) {
+    const raw = Array.from(data.slice(0x03C8, 0x03CE));
+    const damaged = raw.every(b => b === 0xFF);
+    pcmSec6 = {hex: hxb(raw), damaged};
+  }
+
+  return {sz, validSz, slots, consistent, mainVin, keyPrimary, keyMirror, keyConsistent, skimByte, skimStatus, pcmSec6};
+}
+
+function applyGpec2a(data, newVin, newKeyHex) {
+  const out = new Uint8Array(data);
+  if (newVin && newVin.length === 17) {
+    const enc = new TextEncoder().encode(newVin.toUpperCase());
+    for (const off of GPEC_VIN_OFFSETS) {
+      if (off + 17 <= out.length) for (let i = 0; i < 17; i++) out[off+i] = enc[i];
+    }
+  }
+  if (newKeyHex && newKeyHex.length === 16) {
+    for (let i = 0; i < 8; i++) {
+      const b = parseInt(newKeyHex.slice(i*2, i*2+2), 16);
+      if (0x0203 + i < out.length) out[0x0203+i] = b;
+      if (0x0361 + i < out.length) out[0x0361+i] = b;
+    }
+  }
+  return out;
+}
+
+function GPECSection() {
+  const [iFile, setIFile] = useState(null);
+  const [iData, setIData] = useState(null);
+  const [iResult, setIResult] = useState(null);
+  const [iErr, setIErr] = useState("");
+  const [aFile, setAFile] = useState(null);
+  const [aData, setAData] = useState(null);
+  const [newVin, setNewVin] = useState("");
+  const [newKey, setNewKey] = useState("");
+  const [aMsg, setAMsg] = useState("");
+
+  const handleIFile = useCallback(f => {
+    const r = new FileReader();
+    r.onload = ev => {
+      const d = new Uint8Array(ev.target.result);
+      if (d.length !== 4096) {
+        setIErr("Wrong size: " + d.length + " bytes (need exactly 4096 / 4KB)");
+        setIFile(null); setIData(null); setIResult(null); return;
+      }
+      setIErr(""); setIFile(f); setIData(d); setIResult(null);
+    };
+    r.readAsArrayBuffer(f);
+  }, []);
+
+  const handleAFile = useCallback(f => {
+    const r = new FileReader();
+    r.onload = ev => {
+      const d = new Uint8Array(ev.target.result);
+      if (d.length !== 4096) { setAMsg("Wrong size: " + d.length + " bytes (need 4096)"); setAFile(null); setAData(null); return; }
+      setAFile(f); setAData(d); setAMsg("");
+    };
+    r.readAsArrayBuffer(f);
+  }, []);
+
+  const doApply = () => {
+    if (!aData) return;
+    const vinToWrite = newVin.length === 17 && VIN_RE.test(newVin) ? newVin : "";
+    const keyToWrite = newKey.length === 16 && /^[0-9A-F]{16}$/i.test(newKey) ? newKey : "";
+    if (!vinToWrite && !keyToWrite) { setAMsg("Enter at least one field (VIN or Secret Key) to apply."); return; }
+    const patched = applyGpec2a(aData, vinToWrite, keyToWrite);
+    const parts = [vinToWrite && "VIN_"+vinToWrite, keyToWrite && "KEY"].filter(Boolean).join("_");
+    const fn = aFile.name.replace(/(\.[^.]+)?$/, "_GPEC_"+parts+".bin");
+    dl(patched, fn);
+    setAMsg("✓ Patched & downloaded: " + fn);
+  };
+
+  const vinValid = newVin.length === 0 || VIN_RE.test(newVin);
+  const keyValid = newKey.length === 0 || (newKey.length === 16 && /^[0-9A-Fa-f]{16}$/.test(newKey));
+  const res = iResult;
+
+  return (
+    <Card>
+      <SectionHeader icon="⚙️" title="GPEC2A — 95320 SPI EEPROM (4KB)" subtitle="PCM/GPEC2A · 3 plain ASCII VIN slots · 8B secret key · SKIM byte · PCM SEC6"/>
+
+      <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:8}}>PHASE 1 — INSPECT</div>
+      <FileDropZone label="Drop 4KB GPEC2A .bin file (95320)" onFile={handleIFile} fileName={iFile?.name}/>
+      {iErr && <div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:12,fontWeight:700}}>✗ {iErr}</div>}
+      {iFile && !iErr && <div style={{marginTop:10}}><Btn onClick={()=>setIResult(parseGpec2a(iData))} full color={C.sr}>🔍 Analyze File</Btn></div>}
+
+      {res && (
+        <div style={{marginTop:14}}>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:12}}>
+            <Tag color={res.validSz?C.gn:C.wn}>{res.sz} bytes — {res.validSz?"4KB ✓":"SIZE WARN"}</Tag>
+            <Tag color={C.sr}>95320 SPI</Tag>
+            {res.mainVin && <Tag color={res.consistent?C.gn:C.wn}>{res.mainVin}</Tag>}
+            {res.consistent
+              ? <Tag color={C.gn}>VINs CONSISTENT ✓</Tag>
+              : <Tag color={C.er}>VIN MISMATCH ✗</Tag>}
+          </div>
+
+          {/* VIN slots */}
+          <div style={{overflowX:"auto",marginBottom:14}}>
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+              <thead><tr>{["Slot","Offset","VIN (17B ASCII)","No CRC","Status"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",borderBottom:"1.5px solid "+C.bd,fontSize:10,fontWeight:800,color:C.tm,textTransform:"uppercase",letterSpacing:.5}}>{h}</th>)}</tr></thead>
+              <tbody>
+                {res.slots.map(row=>(
+                  <tr key={row.idx} style={{borderBottom:"1px solid "+C.bd+"60"}}>
+                    <td style={{padding:"7px 10px",fontWeight:800,color:C.sr}}>VIN {row.idx}</td>
+                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.a3}}>{fO(row.offset)}</td>
+                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontWeight:700,fontSize:12,color:row.vin?C.gn:C.er}}>{row.vin||"(empty / invalid)"}</td>
+                    <td style={{padding:"7px 10px",fontSize:10,color:C.tm}}>—</td>
+                    <td style={{padding:"7px 10px"}}>{row.vin?<Badge ok={true} label="READ OK"/>:<span style={{fontSize:10,color:C.er}}>EMPTY</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Secret key */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
+            {[["PRIMARY","0x0203",res.keyPrimary],["MIRROR","0x0361",res.keyMirror]].map(([lbl,off,key])=>(
+              <div key={lbl} style={{padding:"10px 14px",borderRadius:10,background:C.c2,border:"1px solid "+C.bd}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <span style={{fontSize:11,fontWeight:800,color:C.a4}}>Key {lbl} @ {off}</span>
+                  {res.keyConsistent!==null&&lbl==="PRIMARY"&&<Badge ok={res.keyConsistent} label={res.keyConsistent?"MATCH ✓":"MISMATCH ✗"}/>}
+                </div>
+                <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:key?C.a4:C.tm}}>{key?hxb(key):"—"}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* SKIM byte + PCM SEC6 */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            <div style={{padding:"10px 14px",borderRadius:10,background:C.c2,border:"1px solid "+C.bd}}>
+              <div style={{fontSize:11,fontWeight:800,color:C.sr,marginBottom:4}}>SKIM Byte @ 0x0011</div>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <span style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:800,color:C.tx}}>0x{res.skimByte!==null?res.skimByte.toString(16).toUpperCase().padStart(2,"0"):"?"}</span>
+                <Tag color={res.skimByte===0x80?C.gn:res.skimByte===0x00?C.wn:C.er}>{res.skimStatus}</Tag>
+              </div>
+            </div>
+            {res.pcmSec6&&(
+              <div style={{padding:"10px 14px",borderRadius:10,background:C.c2,border:"1px solid "+C.bd}}>
+                <div style={{fontSize:11,fontWeight:800,color:C.a4,marginBottom:4}}>PCM SEC6 @ 0x03C8</div>
+                <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:res.pcmSec6.damaged?C.er:C.a4}}>{res.pcmSec6.hex}</span>
+                  {res.pcmSec6.damaged&&<Tag color={C.er}>IMMO_DAMAGED</Tag>}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       <div style={{marginTop:20,borderTop:"1.5px solid "+C.bd,paddingTop:16}}>
         <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY</div>
-        <FileDropZone label="Re-upload the same 64KB .bin file to patch" onFile={handleApplyFile} fileName={applyFile?.name}/>
+        <div style={{fontSize:11,color:C.ts,marginBottom:8}}>VIN written to all 3 slots (no CRC) · Key written to PRIMARY + MIRROR · Blank fields skipped</div>
+        <FileDropZone label="Re-upload the same 4KB GPEC2A .bin to patch" onFile={handleAFile} fileName={aFile?.name}/>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginTop:10}}>
           <div>
             <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN — optional</div>
             <input value={newVin} maxLength={17} placeholder="Leave blank to skip"
               onChange={e=>setNewVin(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,""))}
-              style={{width:"100%",padding:"10px 12px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newVin.length===17&&vinValid?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:700,letterSpacing:2,textAlign:"center",outline:"none",color:C.tx}}
-            />
+              style={{width:"100%",padding:"10px 12px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newVin.length===17&&vinValid?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:700,letterSpacing:2,textAlign:"center",outline:"none",color:C.tx}}/>
             <div style={{fontSize:11,fontWeight:800,color:newVin.length===17?C.gn:C.tm,marginTop:2}}>{newVin.length}/17</div>
           </div>
           <div>
-            <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW SEC16 (32 hex digits) — optional</div>
-            <input value={newSec16} maxLength={32} placeholder="Leave blank to skip"
-              onChange={e=>setNewSec16(e.target.value.toUpperCase().replace(/[^0-9A-F]/g,""))}
-              style={{width:"100%",padding:"10px 12px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newSec16.length===32&&sec16Valid?C.gn:newSec16.length>0&&!sec16Valid?C.er:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,letterSpacing:1,outline:"none",color:C.tx}}
-            />
+            <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW SECRET KEY (16 hex digits = 8 bytes) — optional</div>
+            <input value={newKey} maxLength={16} placeholder="e.g. A1B2C3D4E5F60718"
+              onChange={e=>setNewKey(e.target.value.toUpperCase().replace(/[^0-9A-F]/g,""))}
+              style={{width:"100%",padding:"10px 12px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newKey.length===16&&keyValid?C.gn:newKey.length>0&&!keyValid?C.er:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:700,letterSpacing:1,outline:"none",color:C.tx}}/>
             <div style={{display:"flex",justifyContent:"space-between",marginTop:2}}>
-              <span style={{fontSize:11,fontWeight:800,color:newSec16.length===32?C.gn:C.tm}}>{newSec16.length}/32</span>
-              {newSec16.length>0&&!sec16Valid&&<span style={{fontSize:10,color:C.er}}>Must be 32 hex digits</span>}
+              <span style={{fontSize:11,fontWeight:800,color:newKey.length===16?C.gn:C.tm}}>{newKey.length}/16</span>
+              <span style={{fontSize:10,color:C.ts}}>Written to 0x0203 + 0x0361</span>
             </div>
           </div>
         </div>
         <div style={{marginTop:12}}>
-          <Btn onClick={doApply} disabled={!applyFile||(newVin.length>0&&!vinValid)||(newSec16.length>0&&!sec16Valid)} full color={C.a2}>⚡ APPLY — Patch non-empty fields + Download</Btn>
-          <div style={{fontSize:10,color:C.ts,marginTop:4,textAlign:"center"}}>Fields left blank will not be modified in the output file.</div>
+          <Btn onClick={doApply} disabled={!aFile||(newVin.length>0&&!vinValid)||(newKey.length>0&&!keyValid)} full color={C.a2}>⚡ APPLY — Patch non-empty fields + Download</Btn>
+          <div style={{fontSize:10,color:C.ts,marginTop:4,textAlign:"center"}}>Blank fields are not modified in the output file.</div>
         </div>
-        {applyMsg&&<div style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:applyMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(applyMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:applyMsg.startsWith("✓")?C.gn:C.er}}>{applyMsg}</div>}
+        {aMsg&&<div style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:aMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(aMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:aMsg.startsWith("✓")?C.gn:C.er}}>{aMsg}</div>}
       </div>
     </Card>
   );
@@ -446,7 +458,7 @@ export default function ImmoVINTab() {
         <div style={{fontSize:12,color:C.ts}}>Binary VIN inspection and editing for FCA EEPROM modules — two-phase workflow: INSPECT then APPLY</div>
       </div>
       <RFHSection/>
-      <BCMSection/>
+      <GPECSection/>
     </div>
   );
 }
