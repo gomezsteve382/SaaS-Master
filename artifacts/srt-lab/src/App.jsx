@@ -861,7 +861,7 @@ function OBDTab(){
         if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
         else if(wake.ok){setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (no VIN)','warn');}}
       else if(wake.ok){setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (no VIN)','warn');}
-    }catch(e){}}
+    }catch(e){}finally{await new Promise(r=>setTimeout(r,100));}}
     setBusy('');addLog('Scan complete','info');
   },[]);
 
