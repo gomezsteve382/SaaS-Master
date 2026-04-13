@@ -255,9 +255,8 @@ function parseGpec2a(data) {
   const slots = GPEC_VIN_OFFSETS.map((off, idx) => ({
     idx: idx+1, offset: off, vin: extractGpecVin(data, off)
   }));
-  const validVins = slots.filter(s => s.vin).map(s => s.vin);
-  const consistent = validVins.length > 0 && validVins.every(v => v === validVins[0]);
-  const mainVin = consistent ? validVins[0] : (validVins[0] || null);
+  const consistent = slots.length === 3 && slots.every(s => s.vin) && slots.every(s => s.vin === slots[0].vin);
+  const mainVin = consistent ? slots[0].vin : (slots.find(s => s.vin)?.vin || null);
 
   const keyPrimary = sz >= 0x020B ? Array.from(data.slice(0x0203, 0x020B)) : null;
   const keyMirror  = sz >= 0x0369 ? Array.from(data.slice(0x0361, 0x0369)) : null;
@@ -334,8 +333,7 @@ function GPECSection() {
     const keyToWrite = newKey.length === 16 && /^[0-9A-F]{16}$/i.test(newKey) ? newKey : "";
     if (!vinToWrite && !keyToWrite) { setAMsg("Enter at least one field (VIN or Secret Key) to apply."); return; }
     const patched = applyGpec2a(aData, vinToWrite, keyToWrite);
-    const parts = [vinToWrite && "VIN_"+vinToWrite, keyToWrite && "KEY"].filter(Boolean).join("_");
-    const fn = aFile.name.replace(/(\.[^.]+)?$/, "_GPEC_"+parts+".bin");
+    const fn = aFile.name.replace(/(\.[^.]+)?$/, "_GPEC_"+(vinToWrite||"NOVIN")+".bin");
     dl(patched, fn);
     setAMsg("✓ Patched & downloaded: " + fn);
   };
