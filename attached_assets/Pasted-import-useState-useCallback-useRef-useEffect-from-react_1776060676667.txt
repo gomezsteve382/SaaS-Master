@@ -1,0 +1,508 @@
+import { useState, useCallback, useRef, useEffect } from "react";
+
+/*
+ * OBD SWARM DIAGNOSTIC AGENT
+ * 5 parallel "agents" attack the OBDLink EX from every angle simultaneously.
+ * Each agent has a specific job and reports findings to the central log.
+ * 
+ * Agent 1: BUS SCOUT — passive ATMA monitor, identifies all active CAN IDs
+ * Agent 2: BROADCAST HUNTER — 7DF functional broadcast, catches all responders
+ * Agent 3: ADDRESS SWEEPER — tries every known address from every project file
+ * Agent 4: PROTOCOL SHIFTER — tries different protocols, baud rates, pin configs
+ * Agent 5: RAW BRUTE — sweeps 0x600-0x7FF when all else fails
+ */
+
+const ALL_KNOWN_ADDRS = [
+  // From alphaobd-can-addresses-CORRECT.ts (CDA6 database)
+  {tx:0x7E0,rx:0x7E8,src:'CDA6',name:'ECM/PCM'},
+  {tx:0x7E1,rx:0x7E9,src:'CDA6',name:'TCM'},
+  {tx:0x7E2,rx:0x7EA,src:'CDA6',name:'TCMP'},
+  {tx:0x750,rx:0x758,src:'CDA6',name:'BCM'},
+  {tx:0x75F,rx:0x767,src:'CDA6',name:'RFHUB/EPS'},
+  {tx:0x760,rx:0x768,src:'CDA6',name:'ABS'},
+  {tx:0x740,rx:0x748,src:'CDA6',name:'IPC'},
+  {tx:0x758,rx:0x760,src:'CDA6',name:'ORC'},
+  {tx:0x7A8,rx:0x7B0,src:'CDA6',name:'ADCM'},
+  {tx:0x7A0,rx:0x7A8,src:'CDA6',name:'AMP'},
+  {tx:0x770,rx:0x778,src:'CDA6',name:'BSM'},
+  {tx:0x7E4,rx:0x7EC,src:'CDA6',name:'BPCM'},
+  // From CLAUDE.md
+  {tx:0x742,rx:0x762,src:'CLAUDE',name:'BCM/RFHUB'},
+  {tx:0x745,rx:0x765,src:'CLAUDE',name:'IPC/SDM'},
+  {tx:0x772,rx:0x77A,src:'CLAUDE',name:'RADIO'},
+  {tx:0x761,rx:0x769,src:'CLAUDE',name:'EPS'},
+  {tx:0x74C,rx:0x76C,src:'CLAUDE',name:'TIPM'},
+  // From module-database.ts (DarkVIN)
+  {tx:0x6B0,rx:0x6B8,src:'DVIN',name:'BCM'},
+  {tx:0x743,rx:0x763,src:'DVIN',name:'CCM'},
+  {tx:0x744,rx:0x764,src:'DVIN',name:'ADM'},
+  {tx:0x746,rx:0x766,src:'DVIN',name:'IPCM'},
+  {tx:0x747,rx:0x767,src:'DVIN',name:'ORC'},
+  {tx:0x748,rx:0x768,src:'DVIN',name:'DDM'},
+  {tx:0x749,rx:0x769,src:'DVIN',name:'PDM'},
+  {tx:0x74A,rx:0x76A,src:'DVIN',name:'EPS'},
+  {tx:0x74B,rx:0x76B,src:'DVIN',name:'SCCM'},
+  {tx:0x74E,rx:0x76E,src:'DVIN',name:'TPMS'},
+  {tx:0x74F,rx:0x76F,src:'DVIN',name:'SGW'},
+  {tx:0x751,rx:0x759,src:'DVIN',name:'HVAC'},
+  {tx:0x752,rx:0x75A,src:'DVIN',name:'TPM'},
+  {tx:0x753,rx:0x773,src:'DVIN',name:'RADIO'},
+  {tx:0x754,rx:0x75C,src:'DVIN',name:'RADIO2'},
+  // From swarmScanner.ts
+  {tx:0x7B0,rx:0x7B8,src:'SWARM',name:'BCM'},
+  {tx:0x720,rx:0x728,src:'SWARM',name:'IPC'},
+  {tx:0x762,rx:0x76A,src:'SWARM',name:'RFHUB'},
+  {tx:0x7C0,rx:0x7C8,src:'SWARM',name:'GWAY'},
+  {tx:0x7D0,rx:0x7D8,src:'SWARM',name:'RADIO'},
+  {tx:0x730,rx:0x738,src:'SWARM',name:'ORC'},
+  {tx:0x6C0,rx:0x6C8,src:'SWARM',name:'REAR_AXLE'},
+  {tx:0x700,rx:0x708,src:'SWARM',name:'ACC'},
+  // From alphaobd-can-addresses.ts (PowerNet)
+  {tx:0x620,rx:0x628,src:'PNET',name:'BCM'},
+  {tx:0x741,rx:0x749,src:'PNET',name:'SKIM'},
+  {tx:0x7C8,rx:0x7D0,src:'PNET',name:'RADIO'},
+  {tx:0x688,rx:0x690,src:'PNET',name:'HVAC'},
+];
+
+// Deduplicate by tx:rx pair
+const UNIQUE_ADDRS = [];
+const seen = new Set();
+for (const a of ALL_KNOWN_ADDRS) {
+  const k = a.tx + ':' + a.rx;
+  if (!seen.has(k)) { seen.add(k); UNIQUE_ADDRS.push(a); }
+}
+
+const AGENT_COLORS = {
+  SCOUT: '#00E5FF',
+  HUNTER: '#FF6D00',
+  SWEEPER: '#76FF03',
+  SHIFTER: '#E040FB',
+  BRUTE: '#FF1744',
+  SYSTEM: '#B0BEC5',
+  FOUND: '#FFD600',
+};
+
+export default function OBDSwarmDiagnostic() {
+  const [logs, setLogs] = useState([]);
+  const [found, setFound] = useState([]);
+  const [status, setStatus] = useState('disconnected');
+  const [running, setRunning] = useState(false);
+  const [ppEnabled, setPpEnabled] = useState(false);
+  const eng = useRef(null);
+  const foundSet = useRef(new Set());
+  const logRef = useRef(null);
+
+  useEffect(() => {
+    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+  }, [logs]);
+
+  const addLog = useCallback((agent, msg, color) => {
+    const ts = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    setLogs(p => [...p.slice(-500), { ts, agent, msg, color: color || AGENT_COLORS[agent] || '#fff' }]);
+  }, []);
+
+  const addFound = useCallback((tx, rx, name, src, vin) => {
+    const k = tx + ':' + rx;
+    if (foundSet.current.has(k)) return;
+    foundSet.current.add(k);
+    setFound(p => [...p, { tx, rx, name, src, vin: vin || '?' }]);
+    addLog('FOUND', `${name} TX:${tx.toString(16).toUpperCase().padStart(3,'0')} RX:${rx.toString(16).toUpperCase().padStart(3,'0')} [${src}] VIN:${vin||'?'}`, AGENT_COLORS.FOUND);
+  }, [addLog]);
+
+  const connect = useCallback(async () => {
+    if (!navigator.serial) { addLog('SYSTEM', 'Web Serial not available', AGENT_COLORS.SYSTEM); return; }
+    try {
+      const port = await navigator.serial.requestPort();
+      await port.open({ baudRate: 115200 });
+      const w = port.writable.getWriter();
+      const rd = port.readable.getReader();
+      const tdec = new TextDecoder();
+      let rbuf = '';
+
+      const send = async (cmd, to = 3000) => {
+        rbuf = '';
+        await w.write(new TextEncoder().encode(cmd + '\r'));
+        const deadline = Date.now() + to;
+        while (Date.now() < deadline) {
+          try {
+            const rp = rd.read();
+            const tp = new Promise(r => setTimeout(() => r({ value: undefined, done: true }), Math.min(500, deadline - Date.now())));
+            const res = await Promise.race([rp, tp]);
+            if (res.done || !res.value) { if (Date.now() >= deadline) break; continue; }
+            rbuf += tdec.decode(res.value);
+            const pi = rbuf.indexOf('>');
+            if (pi !== -1) {
+              const r = rbuf.substring(0, pi).replace(/\r/g, '\n').replace(/\n+/g, '\n').trim();
+              rbuf = rbuf.substring(pi + 1);
+              return r;
+            }
+          } catch (e) { break; }
+        }
+        return rbuf.replace(/\r/g, '\n').replace(/\n+/g, '\n').replace(/>/g, '').trim();
+      };
+
+      // Init
+      addLog('SYSTEM', 'Initializing OBDLink...', AGENT_COLORS.SYSTEM);
+      await send('ATZ', 3000); await new Promise(r => setTimeout(r, 500));
+      await send('ATE0');
+      const ati = await send('ATI');
+      const stdi = await send('STDI');
+      const isSTN = !stdi.includes('?') && !stdi.includes('ERROR') && stdi.length > 2;
+      const rv = await send('ATRV');
+      addLog('SYSTEM', `${isSTN ? 'OBDLink STN' : 'ELM327'} | ${stdi} | ${rv}`, AGENT_COLORS.SYSTEM);
+
+      // PP commands — REQUIRED for body module access
+      if (isSTN) {
+        addLog('SYSTEM', 'Enabling MFG extended mode (PP2C=81)...', AGENT_COLORS.SYSTEM);
+        await send('ATPP2CSV81', 2000);
+        await send('ATPP2CON', 2000);
+        await send('ATPP2DSV01', 2000);
+        await send('ATPP2DON', 2000);
+        await send('ATZ', 3000);
+        await new Promise(r => setTimeout(r, 1000));
+        await send('ATE0', 2000);
+        await new Promise(r => setTimeout(r, 300));
+        setPpEnabled(true);
+        addLog('SYSTEM', 'MFG extended mode ACTIVE', AGENT_COLORS.FOUND);
+      }
+
+      // CAN config
+      await send('ATL0'); await send('ATS1'); await send('ATH1');
+      await send('ATSP6'); await send('ATAT2'); await send('ATST96');
+      await send('ATCAF1');
+      if (isSTN) {
+        await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1');
+      }
+
+      const uds = async (tx, rx, data) => {
+        await send('ATCRA');
+        await send('ATSH' + tx.toString(16).toUpperCase().padStart(3, '0'));
+        if (isSTN) await send('ATFCSH' + tx.toString(16).toUpperCase().padStart(3, '0'));
+        await send('ATCRA' + rx.toString(16).toUpperCase().padStart(3, '0'));
+        const h = data.map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
+        const r = await send(h, 4000);
+        if (!r || /NO DATA|CAN ERROR|UNABLE|BUS ERROR/.test(r)) return { ok: false, raw: r || '' };
+        if (r.includes('?') || r.includes('ERROR')) return { ok: false, raw: r };
+        const lines = r.split(/[\r\n]+/).map(l => l.trim()).filter(l => l.length > 0);
+        let all = [];
+        for (const line of lines) {
+          if (line.includes('SEARCHING') || line === 'OK') continue;
+          const toks = line.split(/\s+/);
+          if (toks.length < 2) continue;
+          const first = toks[0].toUpperCase();
+          if (/^[0-9A-F]{3}$/.test(first)) {
+            for (let i = 1; i < toks.length; i++) { if (/^[0-9A-Fa-f]{2}$/.test(toks[i])) all.push(parseInt(toks[i], 16)); }
+          } else {
+            for (const t of toks) { if (/^[0-9A-Fa-f]{2}$/.test(t)) all.push(parseInt(t, 16)); }
+          }
+        }
+        if (!all.length) return { ok: false, raw: r };
+        return { ok: true, d: new Uint8Array(all), raw: r };
+      };
+
+      eng.current = { send, uds, isSTN };
+      setStatus('connected');
+      addLog('SYSTEM', 'Ready — launch swarm scan', AGENT_COLORS.FOUND);
+    } catch (e) {
+      addLog('SYSTEM', 'Connect failed: ' + e.message, '#FF1744');
+    }
+  }, [addLog]);
+
+  const launchSwarm = useCallback(async () => {
+    if (!eng.current) return;
+    setRunning(true);
+    setFound([]);
+    foundSet.current = new Set();
+    const { send, uds, isSTN } = eng.current;
+
+    const parseVin = (d) => {
+      if (!d || d.length < 3) return null;
+      const vc = Array.from(d).filter(b => b >= 0x20 && b <= 0x7E);
+      const vs = String.fromCharCode(...vc).slice(-17);
+      return vs.length >= 10 ? vs : null;
+    };
+
+    // ═══════════════════════════════════════════════
+    // AGENT 1: BUS SCOUT — passive monitor
+    // ═══════════════════════════════════════════════
+    addLog('SCOUT', '🔍 Passive CAN monitor starting (4 seconds)...', AGENT_COLORS.SCOUT);
+    await send('ATCRA');
+    const ma = await send('ATMA', 4500);
+    await send('\r');
+    await new Promise(r => setTimeout(r, 300));
+    const busIds = new Set();
+    if (ma) {
+      for (const line of ma.split(/[\r\n]+/)) {
+        const t = line.trim();
+        if (/^[0-9A-Fa-f]{3}\s/.test(t)) busIds.add(t.slice(0, 3).toUpperCase());
+      }
+    }
+    if (busIds.size > 0) {
+      addLog('SCOUT', `Bus ALIVE: ${busIds.size} CAN IDs broadcasting`, AGENT_COLORS.SCOUT);
+      addLog('SCOUT', `IDs: ${[...busIds].sort().join(', ')}`, AGENT_COLORS.SCOUT);
+      // Check if any diagnostic-range IDs are broadcasting
+      const diagIds = [...busIds].filter(id => parseInt(id, 16) >= 0x600);
+      if (diagIds.length > 0) addLog('SCOUT', `Diagnostic-range IDs on bus: ${diagIds.join(', ')}`, AGENT_COLORS.FOUND);
+    } else {
+      addLog('SCOUT', 'WARNING: No CAN traffic detected!', '#FF1744');
+    }
+
+    // Re-init after ATMA
+    await send('ATSP6'); await send('ATH1'); await send('ATS1'); await send('ATCAF1');
+    await send('ATAT2'); await send('ATST96');
+    if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
+
+    // ═══════════════════════════════════════════════
+    // AGENT 2: BROADCAST HUNTER — 7DF functional broadcast
+    // ═══════════════════════════════════════════════
+    addLog('HUNTER', '📡 Functional broadcast 7DF — Read VIN from ALL modules...', AGENT_COLORS.HUNTER);
+    await send('ATCRA');
+    await send('ATSH7DF');
+    if (isSTN) await send('ATFCSH7DF');
+    const bcast = await send('22 F1 90', 6000);
+    if (bcast && !bcast.includes('NO DATA') && !bcast.includes('CAN ERROR')) {
+      addLog('HUNTER', 'Broadcast got responses!', AGENT_COLORS.HUNTER);
+      const blines = bcast.split(/[\r\n]+/);
+      for (const bl of blines) {
+        const bt = bl.trim();
+        if (/^[0-9A-Fa-f]{3}\s/.test(bt)) {
+          const rid = parseInt(bt.slice(0, 3), 16);
+          const tid = rid - 8;
+          let name = 'UNK_' + tid.toString(16).toUpperCase();
+          for (const a of UNIQUE_ADDRS) { if (a.rx === rid || a.tx === tid) { name = a.name; break; } }
+          addFound(tid, rid, name, 'BCAST', null);
+        }
+      }
+    } else {
+      addLog('HUNTER', 'Broadcast: ' + (bcast || 'no response'), AGENT_COLORS.HUNTER);
+    }
+
+    // Also try TesterPresent broadcast
+    addLog('HUNTER', '📡 TesterPresent broadcast...', AGENT_COLORS.HUNTER);
+    await send('ATCRA');
+    await send('ATSH7DF');
+    const tp = await send('3E 00', 4000);
+    if (tp && !tp.includes('NO DATA') && !tp.includes('CAN ERROR')) {
+      addLog('HUNTER', 'TesterPresent responses: ' + tp.substring(0, 100), AGENT_COLORS.HUNTER);
+      for (const bl of tp.split(/[\r\n]+/)) {
+        const bt = bl.trim();
+        if (/^[0-9A-Fa-f]{3}\s/.test(bt)) {
+          const rid = parseInt(bt.slice(0, 3), 16);
+          const tid = rid - 8;
+          let name = 'UNK_' + tid.toString(16).toUpperCase();
+          for (const a of UNIQUE_ADDRS) { if (a.rx === rid || a.tx === tid) { name = a.name; break; } }
+          addFound(tid, rid, name, 'BCAST_TP', null);
+        }
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    // AGENT 3: ADDRESS SWEEPER — every known address
+    // ═══════════════════════════════════════════════
+    addLog('SWEEPER', `🎯 Sweeping ${UNIQUE_ADDRS.length} known addresses...`, AGENT_COLORS.SWEEPER);
+    for (const a of UNIQUE_ADDRS) {
+      const k = a.tx + ':' + a.rx;
+      if (foundSet.current.has(k)) continue;
+      try {
+        // Try Read VIN first (body modules prefer this)
+        const r = await uds(a.tx, a.rx, [0x22, 0xF1, 0x90]);
+        if (r.ok) {
+          const vin = parseVin(r.d);
+          addFound(a.tx, a.rx, a.name, a.src, vin);
+          continue;
+        }
+        // Try TesterPresent
+        const tp = await uds(a.tx, a.rx, [0x3E, 0x00]);
+        if (tp.ok) {
+          addFound(a.tx, a.rx, a.name, a.src, null);
+          continue;
+        }
+        // Try DiagSession
+        const ds = await uds(a.tx, a.rx, [0x10, 0x01]);
+        if (ds.ok) {
+          addFound(a.tx, a.rx, a.name, a.src, null);
+          continue;
+        }
+      } catch (e) { }
+      await new Promise(r => setTimeout(r, 20));
+    }
+    addLog('SWEEPER', `Sweep complete — ${foundSet.current.size} modules found so far`, AGENT_COLORS.SWEEPER);
+
+    // ═══════════════════════════════════════════════
+    // AGENT 4: PROTOCOL SHIFTER — try different configs
+    // ═══════════════════════════════════════════════
+    if (isSTN && foundSet.current.size <= 2) {
+      addLog('SHIFTER', '🔄 Trying CAN-IHS (STP61, pins 3/11, 125kbps)...', AGENT_COLORS.SHIFTER);
+      const sw = await send('STP61');
+      if (sw.includes('OK') || (!sw.includes('?') && !sw.includes('ERROR'))) {
+        await send('ATSP7'); await new Promise(r => setTimeout(r, 400));
+        await send('ATCRA'); await send('ATH1'); await send('ATCAF1'); await send('ATST50');
+
+        // Broadcast on CAN-IHS
+        await send('ATSH7DF');
+        const ihsB = await send('22 F1 90', 5000);
+        if (ihsB && !ihsB.includes('NO DATA') && !ihsB.includes('CAN ERROR')) {
+          addLog('SHIFTER', 'CAN-IHS broadcast responses!', AGENT_COLORS.FOUND);
+          for (const bl of ihsB.split(/[\r\n]+/)) {
+            const bt = bl.trim();
+            if (/^[0-9A-Fa-f]{3}\s/.test(bt)) {
+              const rid = parseInt(bt.slice(0, 3), 16);
+              addFound(rid - 8, rid, 'IHS_' + (rid - 8).toString(16).toUpperCase(), 'CAN-IHS', null);
+            }
+          }
+        }
+
+        // Physical scan on CAN-IHS
+        for (const a of UNIQUE_ADDRS) {
+          const k = a.tx + ':' + a.rx;
+          if (foundSet.current.has(k)) continue;
+          if (a.tx >= 0x7E0 && a.tx <= 0x7EF) continue; // skip powertrain on IHS
+          try {
+            const r = await uds(a.tx, a.rx, [0x22, 0xF1, 0x90]);
+            if (r.ok) { addFound(a.tx, a.rx, a.name, 'CAN-IHS', parseVin(r.d)); continue; }
+            const tp = await uds(a.tx, a.rx, [0x3E, 0x00]);
+            if (tp.ok) { addFound(a.tx, a.rx, a.name, 'CAN-IHS', null); }
+          } catch (e) { }
+        }
+
+        addLog('SHIFTER', 'Trying CAN-IHS at 500kbps...', AGENT_COLORS.SHIFTER);
+        await send('ATSP6'); await new Promise(r => setTimeout(r, 200));
+        await send('ATCRA'); await send('ATSH7DF');
+        const ihs500 = await send('22 F1 90', 4000);
+        if (ihs500 && !ihs500.includes('NO DATA') && !ihs500.includes('CAN ERROR')) {
+          addLog('SHIFTER', 'CAN-IHS 500k responses!', AGENT_COLORS.FOUND);
+        }
+
+        // Switch back
+        await send('ATSP6');
+        try { await send('STP60'); } catch (e) { }
+        await send('ATST96');
+        addLog('SHIFTER', 'Back on CAN-C', AGENT_COLORS.SHIFTER);
+      } else {
+        addLog('SHIFTER', 'STP61 failed: ' + sw, AGENT_COLORS.SHIFTER);
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    // AGENT 5: RAW BRUTE — sweep 0x600-0x7FF
+    // ═══════════════════════════════════════════════
+    if (foundSet.current.size <= 2) {
+      addLog('BRUTE', '💀 Brute force sweep 0x600-0x7FF...', AGENT_COLORS.BRUTE);
+      await send('ATSP6'); await send('ATST32'); // shorter timeout for speed
+      for (let tx = 0x600; tx <= 0x7FF; tx++) {
+        const rx = tx + 8;
+        const k = tx + ':' + rx;
+        if (foundSet.current.has(k)) continue;
+        try {
+          await send('ATCRA');
+          await send('ATSH' + tx.toString(16).toUpperCase().padStart(3, '0'));
+          await send('ATCRA' + rx.toString(16).toUpperCase().padStart(3, '0'));
+          const r = await send('3E 00', 1200);
+          if (r && !r.includes('NO DATA') && !r.includes('CAN ERROR') && !r.includes('?') && r.trim().length > 3) {
+            addFound(tx, rx, 'BRUTE_' + tx.toString(16).toUpperCase(), 'BRUTE', null);
+          }
+        } catch (e) { }
+        if (tx % 64 === 0) addLog('BRUTE', `Sweep: 0x${tx.toString(16).toUpperCase()}...`, AGENT_COLORS.BRUTE);
+      }
+      await send('ATST96');
+    }
+
+    // ═══════════════════════════════════════════════
+    // RESULTS
+    // ═══════════════════════════════════════════════
+    addLog('SYSTEM', `═══ SWARM COMPLETE: ${foundSet.current.size} modules found ═══`, AGENT_COLORS.FOUND);
+    setRunning(false);
+  }, [addLog, addFound]);
+
+  const resetPP = useCallback(async () => {
+    if (!eng.current) return;
+    addLog('SYSTEM', 'Resetting PP to factory defaults...', AGENT_COLORS.SYSTEM);
+    await eng.current.send('ATPP2COFF', 2000);
+    await eng.current.send('ATPP2DOFF', 2000);
+    await eng.current.send('ATPPSOFF', 2000);
+    await eng.current.send('ATD', 2000);
+    await eng.current.send('ATZ', 3000);
+    await new Promise(r => setTimeout(r, 1000));
+    setPpEnabled(false);
+    addLog('SYSTEM', 'PP reset complete — adapter at factory defaults', AGENT_COLORS.FOUND);
+  }, [addLog]);
+
+  const S = {
+    bg: '#0A0A0F',
+    card: '#12121A',
+    border: '#1E1E2E',
+    text: '#E0E0E0',
+    dim: '#666',
+    red: '#D32F2F',
+    font: "'JetBrains Mono', 'Fira Code', monospace",
+  };
+
+  return (
+    <div style={{ background: S.bg, minHeight: '100vh', padding: 16, fontFamily: S.font, color: S.text }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <span style={{ fontSize: 28, fontWeight: 900, color: S.red }}>⚡ SWARM</span>
+          <span style={{ fontSize: 14, color: S.dim }}>OBD DIAGNOSTIC AGENT v1.0</span>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+            {status === 'disconnected' && (
+              <button onClick={connect} style={{ padding: '8px 16px', background: S.red, color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontFamily: S.font, fontWeight: 700 }}>
+                🔌 CONNECT
+              </button>
+            )}
+            {status === 'connected' && !running && (
+              <button onClick={launchSwarm} style={{ padding: '8px 16px', background: '#00E5FF', color: '#000', border: 'none', borderRadius: 6, cursor: 'pointer', fontFamily: S.font, fontWeight: 700 }}>
+                🚀 LAUNCH SWARM
+              </button>
+            )}
+            {status === 'connected' && (
+              <button onClick={resetPP} style={{ padding: '8px 16px', background: '#333', color: '#fff', border: '1px solid #555', borderRadius: 6, cursor: 'pointer', fontFamily: S.font, fontSize: 11 }}>
+                🔄 Reset PP
+              </button>
+            )}
+            <div style={{ padding: '8px 12px', background: status === 'connected' ? '#1B5E20' : '#333', borderRadius: 6, fontSize: 11 }}>
+              {status === 'connected' ? '● CONNECTED' : '○ DISCONNECTED'}
+              {ppEnabled && <span style={{ color: AGENT_COLORS.FOUND, marginLeft: 8 }}>PP:ON</span>}
+            </div>
+          </div>
+        </div>
+
+        {/* Found modules */}
+        {found.length > 0 && (
+          <div style={{ background: '#1A2E1A', border: '1px solid #2E7D32', borderRadius: 8, padding: 12, marginBottom: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#66BB6A', marginBottom: 8 }}>MODULES FOUND: {found.length}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {found.map((m, i) => (
+                <div key={i} style={{ background: '#0D1F0D', border: '1px solid #388E3C', borderRadius: 4, padding: '4px 8px', fontSize: 11 }}>
+                  <span style={{ color: AGENT_COLORS.FOUND, fontWeight: 700 }}>{m.name}</span>
+                  <span style={{ color: S.dim, marginLeft: 6 }}>TX:{m.tx.toString(16).toUpperCase().padStart(3, '0')}</span>
+                  <span style={{ color: S.dim, marginLeft: 4 }}>RX:{m.rx.toString(16).toUpperCase().padStart(3, '0')}</span>
+                  <span style={{ color: '#81C784', marginLeft: 6 }}>[{m.src}]</span>
+                  {m.vin && m.vin !== '?' && <span style={{ color: '#fff', marginLeft: 6 }}>{m.vin}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Agent log */}
+        <div ref={logRef} style={{ background: S.card, border: `1px solid ${S.border}`, borderRadius: 8, padding: 8, height: 500, overflowY: 'auto', fontSize: 11, lineHeight: 1.6 }}>
+          {logs.map((l, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8, borderBottom: '1px solid #111' }}>
+              <span style={{ color: S.dim, minWidth: 60, flexShrink: 0 }}>{l.ts}</span>
+              <span style={{ color: l.color, minWidth: 70, flexShrink: 0, fontWeight: 700 }}>[{l.agent}]</span>
+              <span style={{ color: l.agent === 'FOUND' ? AGENT_COLORS.FOUND : S.text }}>{l.msg}</span>
+            </div>
+          ))}
+          {logs.length === 0 && <div style={{ color: S.dim, padding: 20, textAlign: 'center' }}>Connect adapter and launch swarm scan</div>}
+        </div>
+
+        {/* Agent legend */}
+        <div style={{ display: 'flex', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
+          {Object.entries(AGENT_COLORS).filter(([k]) => k !== 'SYSTEM' && k !== 'FOUND').map(([name, color]) => (
+            <span key={name} style={{ fontSize: 10, color }}>● {name}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
