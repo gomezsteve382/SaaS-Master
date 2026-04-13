@@ -845,33 +845,52 @@ function OBDTab(){
       const w=port.writable.getWriter();
       const rd=port.readable.getReader();
       const tdec=new TextDecoder();
-      const state={buf:''};
-      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value){state.buf+=tdec.decode(value,{stream:true});}}}catch(e){addLog('Reader error: '+e.message,'error');}})();
-      const send=async(cmd,to=2000)=>{state.buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(state.buf.includes('>')){const r=state.buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const t=state.buf.trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;};
-      await send('ATZ',3000);await new Promise(r=>setTimeout(r,1000));
-      addLog('Adapter: '+(await send('ATI')),'info');
-      for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6','ATSTFF']){await send(c);await new Promise(r=>setTimeout(r,100));}
-      eng.current={send,uds:async(tx,rx,data)=>{
-        await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));
-        await new Promise(r=>setTimeout(r,50));
-        await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));
-        await new Promise(r=>setTimeout(r,50));
-        const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-        const r=await send(h,5000);
-        if(!r||/NO DATA|ERROR|UNABLE|BUS INIT|STOPPED/.test(r))return{ok:false,raw:r||''};
-        const lines=r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0&&/^[0-9A-Fa-f\s]+$/.test(l));
-        if(!lines.length)return{ok:false,raw:r};
-        let all=[];const multi=lines.length>1;
-        for(const line of lines){
-          const toks=line.split(/\s+/).filter(t=>/^[0-9A-Fa-f]+$/.test(t));if(!toks.length)continue;
-          let si=0;if(toks[0].length===3)si=1;
-          let bytes;
-          if(toks.length===1&&toks[0].length>3&&toks[0].length%2===1){let hex=toks[0].slice(3);bytes=[];for(let j=0;j<hex.length;j+=2)bytes.push(parseInt(hex.substr(j,2),16));}
-          else if(toks.length===1||(toks.length===1+si&&toks[si].length>2)){let hex=toks.slice(si).join('');if(hex.length%2===1)hex=hex.slice(0,-1);bytes=[];for(let j=0;j<hex.length;j+=2)bytes.push(parseInt(hex.substr(j,2),16));}
-          else{bytes=toks.slice(si).map(t=>parseInt(t,16));}
-          if(multi&&bytes.length>0){const pci=bytes[0]>>4;if(pci===0)bytes=bytes.slice(1);else if(pci===1)bytes=bytes.slice(2);else if(pci===2)bytes=bytes.slice(1);else if(pci===3)continue;}
-          all.push(...bytes);
+      let rbuf='';
+      const send=async(cmd,to=3000)=>{
+        rbuf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');
+        const deadline=Date.now()+to;
+        while(Date.now()<deadline){
+          try{
+            const rp=rd.read();const tp=new Promise(r=>setTimeout(()=>r({value:undefined,done:true}),Math.min(500,deadline-Date.now())));
+            const res=await Promise.race([rp,tp]);
+            if(res.done||!res.value){if(Date.now()>=deadline)break;continue;}
+            rbuf+=tdec.decode(res.value);
+            const pi=rbuf.indexOf('>');
+            if(pi!==-1){const r=rbuf.substring(0,pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();rbuf=rbuf.substring(pi+1);addLog('RX < '+r,'rx');return r;}
+          }catch(e){break;}
         }
+        const t=rbuf.replace(/\r/g,'\n').replace(/\n+/g,'\n').replace(/>/g,'').trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;
+      };
+      await send('ATZ',2000);await new Promise(r=>setTimeout(r,500));
+      await send('ATE0');
+      const ati=await send('ATI');addLog('Firmware: '+ati,'info');
+      const stdi=await send('STDI');
+      const isSTN=!stdi.includes('?')&&!stdi.includes('ERROR')&&stdi.length>2;
+      addLog('Adapter: '+(isSTN?'OBDLink/STN':'ELM327'),'info');
+      await send('ATL0');await send('ATS1');await send('ATH1');await send('ATSP6');await send('ATAT2');await send('ATST96');
+      if(isSTN){await send('ATCAF1');await send('STCSWM1');await send('ATFCSH7E0');await send('ATFCSD300000');await send('ATFCSM1');}
+      else{await send('ATCAF1');await send('ATCFC1');await send('ATAL');await send('ATFCSM1');}
+      let curTx=0,curRx=0;
+      eng.current={send,isSTN,uds:async(tx,rx,data)=>{
+        if(tx!==curTx){await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));if(isSTN)await send('ATFCSH'+tx.toString(16).toUpperCase().padStart(3,'0'));curTx=tx;}
+        if(rx!==curRx){await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));curRx=rx;}
+        const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+        const r=await send(h,5000);
+        if(!r||/NO DATA|UNABLE TO CONNECT|CAN ERROR|BUS ERROR|BUS INIT|STOPPED/.test(r))return{ok:false,raw:r||''};
+        if(r.includes('?')||r.includes('ERROR'))return{ok:false,raw:r};
+        const rxHex=rx.toString(16).toUpperCase().padStart(3,'0');
+        const lines=r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0);
+        if(!lines.length)return{ok:false,raw:r};
+        let all=[];
+        for(const line of lines){
+          if(line.includes('SEARCHING')||line==='OK')continue;
+          const toks=line.split(/\s+/);if(toks.length<2)continue;
+          const first=toks[0].toUpperCase();
+          if(/^[0-9A-F]{3}$/.test(first)){
+            if(first===rxHex){for(let i=1;i<toks.length;i++){if(/^[0-9A-Fa-f]{2}$/.test(toks[i]))all.push(parseInt(toks[i],16));}}
+          }else{for(const t of toks){if(/^[0-9A-Fa-f]{2}$/.test(t))all.push(parseInt(t,16));}}
+        }
+        if(!all.length)return{ok:false,raw:r};
         return{ok:true,d:new Uint8Array(all)};
       }};
       setConn(true);addLog('Ready — HS-CAN 500kbps','info');
