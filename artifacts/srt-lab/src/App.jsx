@@ -334,9 +334,9 @@ function BenchTab(){
       await port.open({baudRate:115200});
       const w=port.writable.getWriter();
       const rd=port.readable.getReader();
-      const dec=new TextDecoder();
+      const tdec=new TextDecoder();
       const state={buf:''};
-      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value){state.buf+=dec.decode(value,{stream:true});}}}catch(e){addLog('Reader error: '+e.message,'error');}})();
+      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value){state.buf+=tdec.decode(value,{stream:true});}}}catch(e){addLog('Reader error: '+e.message,'error');}})();
       const send=async(cmd,to=2000)=>{state.buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(state.buf.includes('>')){const r=state.buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const t=state.buf.trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;};
       await send('ATZ',3000);await new Promise(r=>setTimeout(r,1000));
       addLog('Bench adapter: '+(await send('ATI')),'info');
@@ -347,7 +347,7 @@ function BenchTab(){
         await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));
         await new Promise(r=>setTimeout(r,50));
         const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-        const r=await send(h,6000);
+        const r=await send(h,5000);
         if(!r||r.includes('NO DATA')||r.includes('ERROR'))return{ok:false};
         const ls=r.split(/\r?\n/).map(l=>l.trim()).filter(l=>/^[0-9A-F\s]+$/i.test(l));
         let all=[];ls.forEach(l=>{(l.replace(/\s/g,'').match(/.{2}/g)||[]).forEach(x=>all.push(parseInt(x,16)));});
@@ -821,23 +821,21 @@ function OBDTab(){
       await port.open({baudRate:115200});
       const w=port.writable.getWriter();
       const rd=port.readable.getReader();
-      const dec=new TextDecoder();
+      const tdec=new TextDecoder();
       const state={buf:''};
-      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value){state.buf+=dec.decode(value,{stream:true});}}}catch(e){addLog('Reader error: '+e.message,'error');}})();
+      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value){state.buf+=tdec.decode(value,{stream:true});}}}catch(e){addLog('Reader error: '+e.message,'error');}})();
       const send=async(cmd,to=2000)=>{state.buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(state.buf.includes('>')){const r=state.buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const t=state.buf.trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;};
       await send('ATZ',3000);await new Promise(r=>setTimeout(r,1000));
-      const ati=await send('ATI');addLog('Adapter: '+ati,'info');
-      const isSTN=ati.toUpperCase().includes('STN')||ati.toUpperCase().includes('OBD');
+      addLog('Adapter: '+(await send('ATI')),'info');
       for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6','ATSTFF']){await send(c);await new Promise(r=>setTimeout(r,100));}
-      if(isSTN){await send('ATAT1');await new Promise(r=>setTimeout(r,100));}
-      eng.current={send,isSTN,uds:async(tx,rx,data)=>{
+      eng.current={send,uds:async(tx,rx,data)=>{
         await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));
         await new Promise(r=>setTimeout(r,50));
         await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));
         await new Promise(r=>setTimeout(r,50));
         const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-        const r=await send(h,6000);
-        if(!r||/NO DATA|ERROR|UNABLE|BUS|STOPPED/.test(r))return{ok:false,raw:r||''};
+        const r=await send(h,5000);
+        if(!r||/NO DATA|ERROR|UNABLE|BUS INIT|STOPPED/.test(r))return{ok:false,raw:r||''};
         const lines=r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0&&/^[0-9A-Fa-f\s]+$/.test(l));
         if(!lines.length)return{ok:false,raw:r};
         let all=[];const multi=lines.length>1;
@@ -866,20 +864,19 @@ function OBDTab(){
       await new Promise(r=>setTimeout(r,50));
       await eng.current.send('ATSH'+m.tx.toString(16).toUpperCase().padStart(3,'0'));
       await new Promise(r=>setTimeout(r,50));
-      let alive=false,lastRaw='';
-      const tp=await eng.current.send('3E00',4000);
-      if(tp&&!/NO DATA|ERROR|\?/.test(tp)&&/[0-9A-Fa-f]{2,}/.test(tp)){alive=true;addLog(m.c+' responded to TesterPresent: '+tp,'rx');}
-      else{lastRaw=tp||'no response';
-        const ds=await eng.current.send('1001',4000);
-        if(ds&&!/NO DATA|ERROR|\?/.test(ds)&&/[0-9A-Fa-f]{2,}/.test(ds)){alive=true;addLog(m.c+' responded to DiagSession: '+ds,'rx');}
-        else{lastRaw=ds||'no response';}}
+      let alive=false;
+      const tp=await eng.current.send('3E00',3000);
+      if(tp&&!/NO DATA|ERROR/.test(tp)&&/^[0-9A-Fa-f\s]+$/m.test(tp)){alive=true;addLog(m.c+' responded to TesterPresent: '+tp,'rx');}
+      else{
+        const ds=await eng.current.send('1001',3000);
+        if(ds&&!/NO DATA|ERROR/.test(ds)&&/^[0-9A-Fa-f\s]+$/m.test(ds)){alive=true;addLog(m.c+' responded to DiagSession: '+ds,'rx');}}
       if(alive){
         const r=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
         if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
           if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
           else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus but VIN unreadable','warn');}}
         else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus but VIN read failed'+(r.raw?' — '+r.raw:''),'warn');}
-      }else{addLog(m.c+': no response ('+lastRaw+')','error');}
+      }else{addLog(m.c+': no response','error');}
     }catch(e){addLog(m.c+' error: '+e.message,'error');}
     await new Promise(r=>setTimeout(r,200));}
     setBusy('');addLog('Scan complete','info');
@@ -938,12 +935,35 @@ function OBDTab(){
     addLog('RFHUB virginized over OBD','rx');setBusy('');
   },[]);
 
+  const canMonitor=useCallback(async()=>{
+    if(!eng.current)return;setBusy('Monitoring CAN...');
+    addLog('Starting CAN bus monitor (5s)...','info');
+    try{
+      await eng.current.send('ATCRA');
+      await new Promise(r=>setTimeout(r,50));
+      const raw=await eng.current.send('ATMA',6000);
+      await eng.current.send('');
+      await new Promise(r=>setTimeout(r,200));
+      const ids=new Set();
+      if(raw){raw.split(/[\r\n]+/).forEach(l=>{const m=l.trim().match(/^([0-9A-Fa-f]{3})\s/);if(m)ids.add(m[1].toUpperCase());});}
+      const sorted=[...ids].sort();
+      addLog('Active CAN IDs ('+sorted.length+'): '+sorted.join(', '),'info');
+      for(const id of sorted){const mod=MODS.find(m=>m.rx.toString(16).toUpperCase().padStart(3,'0')===id||m.tx.toString(16).toUpperCase().padStart(3,'0')===id);
+        if(mod)addLog('  '+id+' → '+mod.c+' ('+mod.n+')','rx');
+        else addLog('  '+id+' → unknown','warn');}
+      await eng.current.send('ATSP6');
+      await eng.current.send('ATCAF1');
+    }catch(e){addLog('CAN monitor error: '+e.message,'error');}
+    setBusy('');
+  },[]);
+
   return<div style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:16}}>
     <div>
       <Card glow style={{marginBottom:14}}>
         <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-          <Btn onClick={connect} disabled={conn} color={conn?C.gn:C.a3} full>{conn?'✓ Connected to OBDLink':'🔌 Connect OBDLink EX'}</Btn>
+          <Btn onClick={connect} disabled={conn} color={conn?C.gn:C.a3} full>{conn?'✓ Connected':'🔌 Connect ELM327 / OBDLink'}</Btn>
           {conn&&<Btn onClick={scan} disabled={!!busy} color={C.a1}>{busy||'📡 Scan Modules'}</Btn>}
+          {conn&&<Btn onClick={canMonitor} disabled={!!busy} color={C.a4} outline>📻 CAN Monitor</Btn>}
         </div>
       </Card>
       {found.length>0&&<Card glow style={{marginBottom:14}}>
