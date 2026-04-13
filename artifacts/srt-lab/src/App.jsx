@@ -68,6 +68,14 @@ function parseModule(data,filename){
       distance:{offset:0x0e6d,value:rd32(data,0x0e6d),hex:extractHex(data,0x0e6d,4)},
       keyCycles:{offset:0x0e75,value:rd32(data,0x0e75),hex:extractHex(data,0x0e75,4)},
     };
+    /* PCM SEC6 — 6-byte vehicle secret at 0x3C8 (FCA SINCRO ref, offset 968) */
+    if(sz>0x3CE){
+      const s6=data.slice(0x3C8,0x3CE);
+      const s6blank=s6.every(b=>b===0xFF||b===0x00);
+      const s6damaged=s6.every(b=>b===0xFF);
+      info.pcmSec6={offset:0x3C8,raw:s6,hex:extractHex(data,0x3C8,6),blank:s6blank,damaged:s6damaged,
+        immoState:s6damaged?'IMMO_DAMAGED':'SET'};
+    }
   }else if(type==='RFHUB'){
     const knownOffsets=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
     const knownVins=knownOffsets.map(o=>{const v=extractVIN(data,o);if(v)return{offset:o,vin:v,mirrored:false,sc:o+17<sz?data[o+17]:0,cc:crc8rf(data.slice(o,o+17)),crcOk:o+17<sz&&data[o+17]===crc8rf(data.slice(o,o+17))};return null;}).filter(v=>v);
@@ -83,6 +91,24 @@ function parseModule(data,filename){
     if(sw)info.partNumbers.sw=sw;else if(data.length>=0x081c)info.partNumbers.sw=extractHex(data,0x0812,10);
     if(cal)info.partNumbers.cal=cal;else if(data.length>=0x083a)info.partNumbers.cal=extractHex(data,0x082c,14);
     info.skey=data.slice(0x40,0x50);info.skoff=0x40;info.skb=info.skey.every(b=>b===0xFF);
+    /* SEC16 main slots — 0xAE (Slot1) / 0xC0 (Slot2), each 16B raw + 2B CS (FCA SINCRO ref) */
+    info.sec16s=[];
+    for(const[slot,off]of[[1,0xAE],[2,0xC0]]){
+      if(off+18>sz)continue;
+      const raw=data.slice(off,off+16);
+      const cs=(data[off+16]<<8)|data[off+17];
+      const blank=raw.every(b=>b===0xFF||b===0x00);
+      const hex=Array.from(raw).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
+      /* simple XOR-sum checksum over 16 bytes (verify against stored CS) */
+      let csCalc=0;for(let i=0;i<16;i++)csCalc^=raw[i];csCalc=(csCalc<<8)|csCalc;
+      info.sec16s.push({slot,offset:off,raw,hex,cs,csCalc,blank});
+    }
+    if(info.sec16s.length===2){
+      info.sec16match=arrEq(Array.from(info.sec16s[0].raw),Array.from(info.sec16s[1].raw));
+      info.sec16valid=!info.sec16s[0].blank&&info.sec16match;
+    }
+    /* Gen detection based on file size */
+    info.rfhGen=sz===4096?'Gen2 (24C32)':sz===8192?'Gen2-x2 (8192B, unusual)':sz===2048?'Gen1 (24C16)':'Unknown';
   }else if(type==='BCM'){
     info.vins=[0x5320,0x5340,0x5360,0x5380].map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);
     info.partialVins=[];
@@ -125,6 +151,21 @@ function crossValidate(modules){
     if(arrEq(new Uint8Array(Array.from(rfhub.vehicleSecret.bytes)),new Uint8Array(rev)))
       passed.push("RFHUB ↔ BCM vehicle secret: MATCH (byte-reversed)");
     else issues.push("RFHUB ↔ BCM vehicle secret: MISMATCH!");
+  }
+  if(rfhub&&rfhub.sec16s){
+    if(rfhub.sec16valid)passed.push("RFHUB SEC16: VALID — slots 1&2 match, non-blank");
+    else if(rfhub.sec16s[0]?.blank)warnings.push("RFHUB SEC16: BLANK (all FF/00) — virgin module");
+    else warnings.push("RFHUB SEC16: Slot 1/2 MISMATCH or unreadable");
+  }
+  if(gpec&&gpec.pcmSec6){
+    if(gpec.pcmSec6.damaged)issues.push("PCM SEC6 @ 0x3C8: IMMO_DAMAGED (FF FF FF FF FF FF) — needs RFH import");
+    else passed.push("PCM SEC6 @ 0x3C8: "+gpec.pcmSec6.hex+" ("+gpec.pcmSec6.immoState+")");
+  }
+  if(rfhub&&gpec&&rfhub.sec16valid&&gpec.pcmSec6&&!gpec.pcmSec6.damaged){
+    const s16=rfhub.sec16s[0].raw;const s6=gpec.pcmSec6.raw;
+    const match=arrEq(Array.from(s6),Array.from(s16.slice(0,6)));
+    if(match)passed.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MATCH ✓");
+    else warnings.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MISMATCH — use RFH→PCM Import tool");
   }
   if(gpec&&gpec.secretKey&&bcm)warnings.push("GPEC↔BCM key comparison requires manual check (8B vs 16B)");
   if(gpec){
@@ -599,6 +640,15 @@ function SecurityTab(){
     else if(action==='skimToggle'&&m.type==='GPEC2A'){const d=new Uint8Array(m.data);d[0x0011]=m.skimByte===0x80?0x00:0x80;res={data:d,desc:'SKIM: 0x'+m.skimByte.toString(16).toUpperCase()+' → 0x'+d[0x0011].toString(16).toUpperCase()};}
     else if(action==='extractKey'){let k=m.secretKey?m.secretKey.hex:m.vehicleSecret?m.vehicleSecret.hex:m.skey&&!m.skb?hxb(m.skey):'';res={keyHex:k,desc:'Extracted from '+m.type};}
     else if(action==='syncImmo'&&m.type==='BCM'){const d=syncImmoBackup(m.data);if(d)res={data:d,desc:'IMMO backup synced: '+countSkimRecs(m.data,0x40C0)+' SKIM records copied 0x40C0 → 0x2000'};else res={desc:'BCM file too small for IMMO sync'};}
+    else if(action==='rfhPcmSync'&&m.type==='GPEC2A'){
+      const rfh=mods.find(mn=>mn.type==='RFHUB');
+      if(rfh&&rfh.sec16valid&&rfh.sec16s?.length){
+        const d=new Uint8Array(m.data);const s16=rfh.sec16s[0].raw;
+        for(let i=0;i<6&&i<s16.length;i++)d[0x3C8+i]=s16[i];
+        const hex6=Array.from(s16.slice(0,6)).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+        res={data:d,desc:'PCM SEC6 @ 0x3C8 ← RFHUB SEC16[0:6]: '+hex6};
+      }else res={desc:'RFHUB must be loaded with valid (non-blank, matching) SEC16 slots.'};
+    }
     setTr(res);
   }
   const dlResult=()=>{if(!tr?.data)return;const b=new Blob([tr.data],{type:'application/octet-stream'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='modified_'+(mods[tt]?.filename||'module.bin');a.click();URL.revokeObjectURL(u);};
@@ -673,6 +723,9 @@ function SecurityTab(){
               {m.immoKeys?.map((ik,j)=><tr key={'k'+j}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(ik.offset)}</td><td><Tag color={C.a1}>IMMO {j+1}</Tag></td><td style={{padding:'5px 10px',color:C.a1,fontSize:12}}>{ik.hex}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>IMMO entry</td></tr>)}
               {m.zzzzTamper&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(m.zzzzTamper.offset)}</td><td><Tag color={C.wn}>TAMPER</Tag></td><td style={{padding:'5px 10px',color:m.zzzzTamper.intact?C.gn:C.wn,fontSize:12}}>{m.zzzzTamper.hex} — {m.zzzzTamper.intact?'INTACT':'CLEARED'}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>ZZZZ</td></tr>}
               {m.securityLock&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x8028</td><td><Tag color={C.sr}>LOCK</Tag></td><td style={{padding:'5px 10px',color:m.securityLock.locked?C.gn:C.wn,fontWeight:700,fontSize:12}}>0x{m.securityLock.value.toString(16).toUpperCase()}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>{m.securityLock.locked?'LOCKED':'UNLOCKED'}</td></tr>}
+              {m.rfhGen&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>—</td><td><Tag color={C.a3}>GEN</Tag></td><td style={{padding:'5px 10px',fontSize:12,fontWeight:700}}>{m.rfhGen}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>RFH generation</td></tr>}
+              {m.sec16s?.map(s=><tr key={'s16-'+s.slot}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(s.offset)}</td><td><Tag color={s.blank?C.tm:s.slot===1?C.sr:C.a4}>SEC16-{s.slot}</Tag></td><td style={{padding:'5px 10px',fontFamily:"'JetBrains Mono'",fontSize:10,color:s.blank?C.tm:C.sr,fontWeight:700,wordBreak:'break-all'}}>{s.blank?'(blank)':s.hex}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>CS:{s.cs.toString(16).toUpperCase().padStart(4,'0').toUpperCase()} {m.sec16match!==undefined&&s.slot===1&&<Tag color={m.sec16valid?C.gn:C.wn}>{m.sec16valid?'VALID ✓':'SLOTS MISMATCH'}</Tag>}</td></tr>)}
+              {m.pcmSec6&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x03C8</td><td><Tag color={m.pcmSec6.damaged?C.er:C.a4}>PCM-SEC6</Tag></td><td style={{padding:'5px 10px',fontFamily:"'JetBrains Mono'",fontSize:11,color:m.pcmSec6.damaged?C.er:C.a4,fontWeight:700}}>{m.pcmSec6.hex}</td><td style={{padding:'5px 10px',color:m.pcmSec6.damaged?C.er:C.gn,fontSize:12,fontWeight:700}}>{m.pcmSec6.immoState}</td></tr>}
               {m.fobikSlots!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x0880</td><td><Tag color={C.a1}>FOBIK</Tag></td><td style={{padding:'5px 10px',color:C.a1,fontWeight:700,fontSize:12}}>{m.fobikSlots} slots</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>AA50 pattern</td></tr>}
               {m.fobikCount!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x5862</td><td><Tag color={C.a1}>FOBIK</Tag></td><td style={{padding:'5px 10px',color:C.a1,fontWeight:700,fontSize:12}}>{m.fobikCount} keys</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>BCM count</td></tr>}
               {m.partNumbers&&Object.entries(m.partNumbers).map(([k,v])=><tr key={k}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>—</td><td><Tag color={C.a3}>PN-{k.toUpperCase()}</Tag></td><td style={{padding:'5px 10px',fontSize:12}}>{v}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>Part#</td></tr>)}
@@ -716,6 +769,8 @@ function SecurityTab(){
               {sks.filter(s=>s.idx!==i).some(s=>keyWidthWarning(mods[s.idx],m))&&<div style={{fontSize:9,color:C.wn,marginTop:2}}>⚠ Key width mismatch — shorter keys padded with 0xFF</div>}
             </div>}
           </div>}
+          {m.sec16s?.map(s=><div key={'sc'+s.slot} style={{fontSize:11,marginBottom:2}}>SEC16-{s.slot} <span style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:s.blank?C.tm:C.sr}}>{s.blank?'(blank)':s.hex.slice(0,16)+'…'}</span> <Tag color={s.blank?C.tm:m.sec16valid?C.gn:C.wn}>{s.blank?'BLANK':m.sec16valid&&s.slot===1?'VALID ✓':'–'}</Tag></div>)}
+          {m.pcmSec6&&<div style={{fontSize:11,marginBottom:2}}>PCM SEC6: <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:m.pcmSec6.damaged?C.er:C.a4}}>{m.pcmSec6.hex}</span> <Tag color={m.pcmSec6.damaged?C.er:C.gn}>{m.pcmSec6.immoState}</Tag></div>}
           {m.fobikSlots!==undefined&&<div style={{fontSize:11}}>FOBIK: <span style={{color:C.a1,fontWeight:700}}>{m.fobikSlots} slots</span> · CC66AA55: {m.securityMarkers} · ZZZZ: {m.zzzzBlocks}</div>}
           {m.fobikCount!==undefined&&<div style={{fontSize:11}}>FOBIK: <span style={{color:C.a1,fontWeight:700}}>{m.fobikCount} keys</span></div>}
           {m.securityLock&&<div style={{fontSize:11}}>Lock: <span style={{color:m.securityLock.locked?C.gn:C.wn,fontWeight:700}}>{m.securityLock.locked?'0x5A LOCKED':'UNLOCKED'}</span></div>}
@@ -806,6 +861,21 @@ function SecurityTab(){
               <div style={{fontSize:11,marginBottom:8}}>Backup: <Tag color={mods[tt].bakBlank?C.tm:C.gn}>{mods[tt].bakBlank?'BLANK':mods[tt].bakRecs+' keys'}</Tag>{!mods[tt].bakBlank&&!mods[tt].immoBlank&&<Tag color={mods[tt].immoSynced?C.gn:C.wn}>{mods[tt].immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</div>
               <Btn onClick={()=>doTool('syncImmo')} disabled={mods[tt].immoBlank} full color={C.a1}>🔄 Sync IMMO Backup</Btn>
             </div>:<div style={{fontSize:11,color:C.tm}}>Select a BCM module.</div>}
+          </Card>
+          <Card style={{padding:16,borderTop:'3px solid '+C.sr}}>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>RFH → PCM SEC6 Import</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Write RFHUB SEC16[0:6] → PCM 0x3C8 (Cherokee/Trackhawk pairing).</div>
+            {mods[tt]?.type==='GPEC2A'?<div>
+              {(()=>{const rfh=mods.find(mn=>mn.type==='RFHUB');if(!rfh)return<div style={{fontSize:11,color:C.wn}}>Also load an RFHUB (24C32) dump.</div>;
+              const s1=rfh.sec16s?.[0];
+              return<div>
+                <div style={{fontSize:11,marginBottom:4}}>RFHUB: <Tag color={rfh.rfhGen?C.a3:C.tm}>{rfh.rfhGen||'?'}</Tag></div>
+                <div style={{fontSize:11,marginBottom:4}}>SEC16 Slot 1 <span style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:s1&&!s1.blank?C.sr:C.tm}}>{s1&&!s1.blank?s1.hex.slice(0,24)+'…':'(blank)'}</span> <Tag color={rfh.sec16valid?C.gn:C.wn}>{rfh.sec16valid?'VALID ✓':'BLANK/MISMATCH'}</Tag></div>
+                {mods[tt].pcmSec6&&<div style={{fontSize:11,marginBottom:8}}>PCM SEC6 now: <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:mods[tt].pcmSec6.damaged?C.er:C.a4}}>{mods[tt].pcmSec6.hex}</span> <Tag color={mods[tt].pcmSec6.damaged?C.er:C.gn}>{mods[tt].pcmSec6.immoState}</Tag></div>}
+                <Btn onClick={()=>doTool('rfhPcmSync')} disabled={!rfh.sec16valid} full color={C.sr}>🔑 Import SEC6 from RFHUB</Btn>
+                {!rfh.sec16valid&&<div style={{fontSize:9,color:C.wn,marginTop:4}}>RFHUB SEC16 must be non-blank and both slots matching</div>}
+              </div>;})()}
+            </div>:<div style={{fontSize:11,color:C.tm}}>Select a GPEC2A (PCM) as target.</div>}
           </Card>
         </div>
 

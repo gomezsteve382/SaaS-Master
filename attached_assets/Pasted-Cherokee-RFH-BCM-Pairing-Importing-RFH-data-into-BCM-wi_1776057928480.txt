@@ -1,0 +1,157 @@
+Cherokee – RFH → BCM
+Pairing / Importing RFH data into BCM with extended validation.
+Guides:
+BCM (ST95640)
+UPA
+RFH (24C32)
+UPA
+RFH
+24C32
+BCM
+25C640
+INSPECT / APPLY / DOWNLOAD
+1) Load files and filter (INSPECT)
+The BCM (25C640) and RFH (24C32) are raised. The system validates and displays extended checks.
+BCM 25C640 file (.bin)
+No file chosen
+Complete BCM dump.
+RFH 24C32 file (.bin)
+No file chosen
+Dump RFH to detect generation, SEC16, PIN, PN and serial.
+
+INSPECT – Filter RFH/BCM
+Clean / Reset
+2) RFH → BCM compatibility status
+The APPLY command is only enabled if the backend indicates valid compatibility.
+⛔ LOCKED
+mistake
+❌ Sibling cannot be applied.
+Issues
+RFH without VIN.
+BCM was not detected as BCM Cherokee KL (EEPROM 8KB).
+RFH without legible or reliable Part Number.
+The current BCM VIN is in an invalid format.
+BCM without SEC16 valid before applying.
+BCM checksums reported as 'bad' before application.
+Info
+The BCM VIN is different from the RFH VIN or was not present.
+SEC16 from BCM already matches SEC16 converted from RFH.
+Comparisons
+VIN equal before: FALSE
+SEC16 equal before: TRUE
+RFH Gen: gen2
+RFH VIN: missing
+RFH SEC16 main: ok
+RFH PN: missing
+RFH SERIAL: ok
+BCM VIN: format_bad
+BCM SEC16: missing
+BCM CS: bad
+BCM
+PATCHED_1C4RJFDJXEC365477_DRAGRFHUB_OG.BIN
+ST95640
+8192 bytes
+bad
+Identity
+MCU / Platform
+ST95640 (Cherokee KL)
+Part Number
+����<� �)
+YOU
+D�D� ���
+VIN
+VIN detected
+Q���7'� �7'� �.
+Offset / State
+7042 · format_bad
+Checksum VIN
+CS ERROR
+stored=5984
+calc=2031
+SEC16
+SEC16 (hex)
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+SEC16 BCM → RFH (reverse bytes)
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+Offset / State
+2104 · missing
+Checksum SEC16
+CS ERROR
+stored=65535
+calc=4845
+BCM Warnings
+VIN with unexpected format: 'Q���7'� �7'� �.'.
+incorrect SEC16 checksum (stored=0xFFFF, calc=0x12ED).
+Incorrect VIN checksum (stored=0x1760, calc=0x07EF).
+RFH
+PATCHED_1C4RJFDJXEC365477_DRAGRFHUB_OG.BIN
+KL_24C32_GEN2
+gen2
+8192 bytes
+Generation / Score
+gen1=3
+gen2=6
+VIN
+Offset / State
+146 · missing
+VIN Checksum HEX
+FFFF
+Part Number / Serial
+Part Number
+L
+Status: missing
+Serial
+}rl}
+Status: ok
+SEC16 main
+SEC16 RFH
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+SEC16 BCM
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+Checksum HEX / PIN / Status
+FFFF · PIN=66666 · ok
+Selection reason
+Slots 1/2 match in SEC16 and checksum; slot 1 is used as a reference.
+Checks RFH
+SEC16 match: TRUE
+SEC16 CS match: TRUE
+PIN match: TRUE
+BCM match: N/A
+PIN S1: 66666
+PIN S2: 66666
+Slots SEC16
+Slot 1
+Offset 174
+Len 16
+SEC16 bad
+BCM bad
+CS ok
+PIN ok
+SEC16 RFH
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+SEC16 BCM
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+Checksum / PIN
+FFFF · PIN=66666
+Slot 2
+Offset 192
+Len 16
+SEC16 bad
+BCM bad
+CS ok
+PIN ok
+SEC16 RFH
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+SEC16 BCM
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+Checksum / PIN
+FFFF · PIN=66666
+RFH Warnings
+Unexpected size: 8192 bytes. 4096 bytes is expected for 24C32 Gen2.
+3) Actions (APPLY)
+Import data from RFH to BCM and download the modified BCM.
+APPLY disabled
+
+Import RFH → BCM (download modified BCM)
+Re-filter / reload
+If you refresh the page or open it in another tab, the state will be lost. Run Inspect again.
