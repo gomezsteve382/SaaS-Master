@@ -13,7 +13,7 @@ function ngc(s){let k=0;for(let i=0;i<4;i++){let b=(u32(s)>>(i*8))&0xFF;k=u32(k^
 const TT={a:[0x727B,0xB301,0x08EB,0xB0BA,0xECA7,0x0ECC,0xD69A,0xE47E],b:[0x7A44,0x0201,0xF123,0x146E,0xCBC2,0x553F,0xD398,0x4EDC],c:[0x22B5,0x5767,0x4C5A,0xE443,0xC606,0x7544,0x0DFB,0x36D6],d:[0x632A,0x193B,0x914F,0x0F88,0x5E51,0x8DCD,0xDD6C,0x00DD]},TM=[0xBAEE,0xE000,0x1C00,0x0380,0x0070,0x0007];
 function tipm(s,t='a'){const tb=TT[t]||TT.a;let v=s&0xFFFF,k=0;for(let i=0;i<tb.length;i++){let m=v&TM[i%TM.length],b=0,x=m;while(x){b^=x&1;x>>=1;}k=(k<<1)|b;k^=tb[i];k&=0xFFFF;}return k;}
 const ALGOS=[{id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},{id:'gpec2',n:'GPEC2',h:'Continental',fn:s=>sxor(s,0xE72E3799)},{id:'gpec2f',n:'GPEC2 Flash',h:'Flash',fn:s=>sxor(s,0x966AEEB1)},{id:'gpec2e',n:'GPEC2 EPROM',h:'EPROM',fn:s=>sxor(s,0x3F711F5A)},{id:'gpec3',n:'GPEC3',h:'2018+',fn:s=>sxor(s,0x129D657F)},{id:'gpec2a',n:'GPEC2A',h:'GPEC2A',fn:s=>sxor(s,0xCE853A6F)},{id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},{id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},{id:'jtec',n:'JTEC',h:'Fixed 0000',fn:()=>0},{id:'cda6',n:'CDA6',h:'BCM/ABS/IPC',fn:s=>cda6(s)},{id:'t80',n:'TIPM 0x80',h:'t8001',fn:s=>tipm(s,'a')},{id:'t36',n:'TIPM 0x36',h:'t3605',fn:s=>tipm(s,'b')},{id:'t81',n:'TIPM 0x81',h:'t8101',fn:s=>tipm(s,'c')},{id:'t3c',n:'TIPM 0x3C',h:'t3c',fn:s=>tipm(s,'d')}];
-const MODS=[{c:'ECM',n:'Engine',tx:0x7E0,rx:0x7E8},{c:'TCM',n:'Transmission',tx:0x7E1,rx:0x7E9},{c:'BCM',n:'Body Control',tx:0x750,rx:0x758},{c:'RFHUB',n:'RF Hub',tx:0x75F,rx:0x767},{c:'ABS',n:'Brakes',tx:0x760,rx:0x768},{c:'IPC',n:'Cluster',tx:0x740,rx:0x748},{c:'RADIO',n:'Uconnect',tx:0x754,rx:0x75C},{c:'ADCM',n:'Active Damping',tx:0x7A8,rx:0x7B0},{c:'EPS',n:'Steering',tx:0x761,rx:0x769},{c:'TIPM',n:'Power Module',tx:0x74C,rx:0x76C},{c:'ORC',n:'Occupant Restraint',tx:0x758,rx:0x760},{c:'HVAC',n:'HVAC Control',tx:0x751,rx:0x759},{c:'DTCM',n:'Transfer Case',tx:0x7E2,rx:0x7EA},{c:'TPM',n:'Tire Pressure',tx:0x752,rx:0x75A}];
+const MODS=[{c:'ECM',n:'Engine',tx:0x7E0,rx:0x7E8,bus:'C'},{c:'TCM',n:'Transmission',tx:0x7E1,rx:0x7E9,bus:'C'},{c:'DTCM',n:'Transfer Case',tx:0x7E2,rx:0x7EA,bus:'C'},{c:'BCM',n:'Body Control',tx:0x750,rx:0x758,bus:'IHS'},{c:'RFHUB',n:'RF Hub',tx:0x75F,rx:0x767,bus:'IHS'},{c:'ABS',n:'Brakes',tx:0x760,rx:0x768,bus:'IHS'},{c:'IPC',n:'Cluster',tx:0x740,rx:0x748,bus:'IHS'},{c:'RADIO',n:'Uconnect',tx:0x772,rx:0x77A,bus:'IHS'},{c:'ADCM',n:'Active Damping',tx:0x7A8,rx:0x7B0,bus:'IHS'},{c:'EPS',n:'Steering',tx:0x761,rx:0x769,bus:'IHS'},{c:'TIPM',n:'Power Module',tx:0x74C,rx:0x76C,bus:'IHS'},{c:'ORC',n:'Occupant Restraint',tx:0x758,rx:0x760,bus:'IHS'},{c:'HVAC',n:'HVAC Control',tx:0x751,rx:0x759,bus:'IHS'},{c:'TPM',n:'Tire Pressure',tx:0x752,rx:0x75A,bus:'IHS'}];
 
 const SKIM_OFF=[{v:'Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT',base:0x40C0,ks:18,kc:6}];
 const IMMO_REC=24,IMMO_KC=8,IMMO_BLOCK=IMMO_REC*IMMO_KC;
@@ -336,18 +336,15 @@ function BenchTab(){
       const rd=port.readable.getReader();
       const tdec=new TextDecoder();
       let rbuf='';
+      /* Background IIFE reader — drains port continuously, eliminates stale Promise.race reads */
+      (async()=>{while(true){try{const{value,done}=await rd.read();if(done)break;rbuf+=tdec.decode(value);}catch(e){break;}}})();
       const send=async(cmd,to=3000)=>{
         rbuf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');
         const deadline=Date.now()+to;
         while(Date.now()<deadline){
-          try{
-            const rp=rd.read();const tp=new Promise(r=>setTimeout(()=>r({value:undefined,done:true}),Math.min(500,deadline-Date.now())));
-            const res=await Promise.race([rp,tp]);
-            if(res.done||!res.value){if(Date.now()>=deadline)break;continue;}
-            rbuf+=tdec.decode(res.value);
-            const pi=rbuf.indexOf('>');
-            if(pi!==-1){const r=rbuf.substring(0,pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();rbuf=rbuf.substring(pi+1);addLog('RX < '+r,'rx');return r;}
-          }catch(e){break;}
+          const pi=rbuf.indexOf('>');
+          if(pi!==-1){const r=rbuf.substring(0,pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();rbuf=rbuf.substring(pi+1);addLog('RX < '+r,'rx');return r;}
+          await new Promise(r=>setTimeout(r,20));
         }
         const t=rbuf.replace(/\r/g,'\n').replace(/\n+/g,'\n').replace(/>/g,'').trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;
       };
@@ -370,8 +367,18 @@ function BenchTab(){
         if(r.includes('?')||r.includes('ERROR'))return{ok:false};
         const rxHex=rx.toString(16).toUpperCase().padStart(3,'0');
         const lines=r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0);
+        /* ISO-TP PCI stripper: PCI high nibble 0=SF,1=FF,2=CF; UDS responses start at nibble ≥4 */
         let all=[];
-        for(const line of lines){if(line.includes('SEARCHING')||line==='OK')continue;const toks=line.split(/\s+/);if(toks.length<2)continue;const first=toks[0].toUpperCase();if(/^[0-9A-F]{3}$/.test(first)){if(first===rxHex){for(let i=1;i<toks.length;i++){if(/^[0-9A-Fa-f]{2}$/.test(toks[i]))all.push(parseInt(toks[i],16));}}}else{for(const t of toks){if(/^[0-9A-Fa-f]{2}$/.test(t))all.push(parseInt(t,16));}}}
+        for(const line of lines){
+          if(line.includes('SEARCHING')||line==='OK')continue;
+          const toks=line.split(/\s+/).filter(t=>/^[0-9A-Fa-f]{2,3}$/.test(t));if(!toks.length)continue;
+          let dt;if(/^[0-9A-Fa-f]{3}$/.test(toks[0])){if(toks[0].toUpperCase()!==rxHex)continue;dt=toks.slice(1);}else{dt=toks;}
+          if(!dt.length)continue;const b0=parseInt(dt[0],16);const pn=(b0>>4)&0xF;
+          if(pn===0){for(let i=1;i<dt.length;i++)all.push(parseInt(dt[i],16));}
+          else if(pn===1){for(let i=2;i<dt.length;i++)all.push(parseInt(dt[i],16));}
+          else if(pn===2){for(let i=1;i<dt.length;i++)all.push(parseInt(dt[i],16));}
+          else{for(const t of dt)all.push(parseInt(t,16));}
+        }
         if(!all.length)return{ok:false};
         return{ok:true,d:new Uint8Array(all)};
       }};
@@ -845,18 +852,15 @@ function OBDTab(){
       const rd=port.readable.getReader();
       const tdec=new TextDecoder();
       let rbuf='';
+      /* Background IIFE reader — drains port continuously, eliminates stale Promise.race reads */
+      (async()=>{while(true){try{const{value,done}=await rd.read();if(done)break;rbuf+=tdec.decode(value);}catch(e){break;}}})();
       const send=async(cmd,to=3000)=>{
         rbuf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');
         const deadline=Date.now()+to;
         while(Date.now()<deadline){
-          try{
-            const rp=rd.read();const tp=new Promise(r=>setTimeout(()=>r({value:undefined,done:true}),Math.min(500,deadline-Date.now())));
-            const res=await Promise.race([rp,tp]);
-            if(res.done||!res.value){if(Date.now()>=deadline)break;continue;}
-            rbuf+=tdec.decode(res.value);
-            const pi=rbuf.indexOf('>');
-            if(pi!==-1){const r=rbuf.substring(0,pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();rbuf=rbuf.substring(pi+1);addLog('RX < '+r,'rx');return r;}
-          }catch(e){break;}
+          const pi=rbuf.indexOf('>');
+          if(pi!==-1){const r=rbuf.substring(0,pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();rbuf=rbuf.substring(pi+1);addLog('RX < '+r,'rx');return r;}
+          await new Promise(r=>setTimeout(r,20));
         }
         const t=rbuf.replace(/\r/g,'\n').replace(/\n+/g,'\n').replace(/>/g,'').trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;
       };
@@ -865,10 +869,12 @@ function OBDTab(){
       const ati=await send('ATI');addLog('Firmware: '+ati,'info');
       const stdi=await send('STDI');
       const isSTN=!stdi.includes('?')&&!stdi.includes('ERROR')&&stdi.length>2;
-      addLog('Adapter: '+(isSTN?'OBDLink/STN':'ELM327'),'info');
+      const at1=await send('AT@1');
+      const rv=await send('ATRV');
+      addLog('Adapter: '+(isSTN?'STN/OBDLink':'ELM327')+' | '+at1+' | '+rv,'info');
       await send('ATL0');await send('ATS1');await send('ATH1');await send('ATSP6');await send('ATAT2');await send('ATST96');
-      if(isSTN){await send('ATCAF1');await send('ATFCSH7E0');await send('ATFCSD300000');await send('ATFCSM1');}
-      else{await send('ATCAF1');await send('ATCFC1');await send('ATAL');await send('ATFCSM1');}
+      if(isSTN){await send('ATCAF1');await send('ATFCSH7E0');await send('ATFCSD300000');await send('ATFCSM1');addLog('STN: CAF ON, auto flow control','info');}
+      else{await send('ATCAF1');await send('ATFCSM1');addLog('ELM327: CAF ON, flow control mode 1','info');}
       let curTx=0,curRx=0;
       eng.current={send,isSTN,uds:async(tx,rx,data)=>{
         if(tx!==curTx){await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));if(isSTN)await send('ATFCSH'+tx.toString(16).toUpperCase().padStart(3,'0'));curTx=tx;}
@@ -880,17 +886,20 @@ function OBDTab(){
         const rxHex=rx.toString(16).toUpperCase().padStart(3,'0');
         const lines=r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0);
         if(!lines.length)return{ok:false,raw:r};
+        /* ISO-TP PCI stripper: PCI high nibble 0=SF,1=FF,2=CF; UDS responses start at nibble ≥4 */
         let all=[];
         for(const line of lines){
           if(line.includes('SEARCHING')||line==='OK')continue;
-          const toks=line.split(/\s+/);if(toks.length<2)continue;
-          const first=toks[0].toUpperCase();
-          if(/^[0-9A-F]{3}$/.test(first)){
-            if(first===rxHex){for(let i=1;i<toks.length;i++){if(/^[0-9A-Fa-f]{2}$/.test(toks[i]))all.push(parseInt(toks[i],16));}}
-          }else{for(const t of toks){if(/^[0-9A-Fa-f]{2}$/.test(t))all.push(parseInt(t,16));}}
+          const toks=line.split(/\s+/).filter(t=>/^[0-9A-Fa-f]{2,3}$/.test(t));if(!toks.length)continue;
+          let dt;if(/^[0-9A-Fa-f]{3}$/.test(toks[0])){if(toks[0].toUpperCase()!==rxHex)continue;dt=toks.slice(1);}else{dt=toks;}
+          if(!dt.length)continue;const b0=parseInt(dt[0],16);const pn=(b0>>4)&0xF;
+          if(pn===0){for(let i=1;i<dt.length;i++)all.push(parseInt(dt[i],16));}
+          else if(pn===1){for(let i=2;i<dt.length;i++)all.push(parseInt(dt[i],16));}
+          else if(pn===2){for(let i=1;i<dt.length;i++)all.push(parseInt(dt[i],16));}
+          else{for(const t of dt)all.push(parseInt(t,16));}
         }
         if(!all.length)return{ok:false,raw:r};
-        return{ok:true,d:new Uint8Array(all)};
+        return{ok:true,d:new Uint8Array(all),raw:r};
       }};
       setConn(true);addLog('Ready — HS-CAN 500kbps','info');
     }catch(e){addLog('Connect failed: '+e.message,'error');}
@@ -898,59 +907,47 @@ function OBDTab(){
 
   const scan=useCallback(async()=>{
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
-    addLog('=== SCANNING ALL MODULES ===','info');
-    addLog('Strategy: functional broadcast 0x7DF + physical addressing per module','info');
-    for(const m of MODS){try{
-      addLog('Trying '+m.c+' (TX:'+m.tx.toString(16).toUpperCase()+' RX:'+m.rx.toString(16).toUpperCase()+')...','info');
-      /* set CRA filter for THIS module's expected response */
-      await eng.current.send('ATCRA'+m.rx.toString(16).toUpperCase().padStart(3,'0'));
-      await new Promise(r=>setTimeout(r,50));
-      let alive=false;
-      /* ATTEMPT 1: Physical addressing (ATSH = module TX) */
-      await eng.current.send('ATSH'+m.tx.toString(16).toUpperCase().padStart(3,'0'));
-      await new Promise(r=>setTimeout(r,50));
-      let tp=await eng.current.send('3E00',3000);
-      if(tp&&!/NO DATA|ERROR/.test(tp)&&/[0-9A-Fa-f]{3}\s/.test(tp)){alive=true;addLog(m.c+' alive (physical '+m.tx.toString(16).toUpperCase()+')','rx');}
-      if(!alive){
-        /* ATTEMPT 2: Functional broadcast (ATSH7DF) — module hears 7DF, responds on its RX */
-        await eng.current.send('ATSH7DF');
-        await new Promise(r=>setTimeout(r,50));
-        tp=await eng.current.send('3E00',3000);
-        if(tp&&!/NO DATA|ERROR/.test(tp)&&/[0-9A-Fa-f]{3}\s/.test(tp)){alive=true;addLog(m.c+' alive (functional 7DF → '+m.rx.toString(16).toUpperCase()+')','rx');}
-      }
-      if(!alive){
-        /* ATTEMPT 3: Try alternate physical IDs — some WK2 bench modules use offset addressing */
-        const altTx=m.tx>=0x7E0?m.tx:m.tx+0x10;
-        const altRx=m.rx>=0x7E8?m.rx:m.rx+0x10;
-        if(altTx!==m.tx){
-          await eng.current.send('ATCRA'+altRx.toString(16).toUpperCase().padStart(3,'0'));
-          await new Promise(r=>setTimeout(r,50));
-          await eng.current.send('ATSH'+altTx.toString(16).toUpperCase().padStart(3,'0'));
-          await new Promise(r=>setTimeout(r,50));
-          tp=await eng.current.send('3E00',3000);
-          if(tp&&!/NO DATA|ERROR/.test(tp)&&/[0-9A-Fa-f]{3}\s/.test(tp)){alive=true;addLog(m.c+' alive (alt '+altTx.toString(16).toUpperCase()+'/'+altRx.toString(16).toUpperCase()+')','rx');}
-        }
-      }
-      if(!alive){
-        /* ATTEMPT 4: DiagnosticSessionControl default (0x10 0x01) via physical */
-        await eng.current.send('ATCRA'+m.rx.toString(16).toUpperCase().padStart(3,'0'));
-        await new Promise(r=>setTimeout(r,50));
-        await eng.current.send('ATSH'+m.tx.toString(16).toUpperCase().padStart(3,'0'));
-        await new Promise(r=>setTimeout(r,50));
-        const ds=await eng.current.send('1001',3000);
-        if(ds&&!/NO DATA|ERROR/.test(ds)&&/[0-9A-Fa-f]{3}\s/.test(ds)){alive=true;addLog(m.c+' alive (DiagSession)','rx');}
-      }
-      if(alive){
-        /* read VIN — make sure ATSH and ATCRA are correct for this module */
-        const r=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
-        if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
+    const canC=MODS.filter(m=>m.bus==='C');
+    const canIHS=MODS.filter(m=>m.bus==='IHS');
+    /* Scan CAN-C modules first (HS-CAN pins 6/14 — already active) */
+    addLog('── Scanning CAN-C (HS-CAN pins 6/14) ──','info');
+    for(const m of canC){try{
+      const r=await eng.current.uds(m.tx,m.rx,[0x3E,0x00]);
+      if(r.ok){
+        addLog(m.c+' alive','rx');
+        const vr=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
+        if(vr.ok&&vr.d?.length>3){const vc=Array.from(vr.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
           if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
-          else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus, VIN unreadable','warn');}}
-        else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus, VIN read failed','warn');}
-      }else{addLog(m.c+': no response (all methods)','error');}
+          else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': VIN unreadable','warn');}}
+        else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': present, VIN read failed','warn');}
+      }else{addLog(m.c+': no response','error');}
     }catch(e){addLog(m.c+' error: '+e.message,'error');}
-    await new Promise(r=>setTimeout(r,200));}
-    setBusy('');addLog('=== Scan complete ===','info');
+    await new Promise(r=>setTimeout(r,100));}
+    /* Switch to CAN-IHS (pins 3/11) via STPX — STN adapters only */
+    if(eng.current.isSTN){
+      addLog('── Switching to CAN-IHS (MS-CAN pins 3/11) ──','info');
+      await eng.current.send('STPX H:030B');
+      await new Promise(r=>setTimeout(r,200));
+      for(const m of canIHS){try{
+        const r=await eng.current.uds(m.tx,m.rx,[0x3E,0x00]);
+        if(r.ok){
+          addLog(m.c+' alive','rx');
+          const vr=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
+          if(vr.ok&&vr.d?.length>3){const vc=Array.from(vr.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
+            if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
+            else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': VIN unreadable','warn');}}
+          else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': present, VIN read failed','warn');}
+        }else{addLog(m.c+': no response','error');}
+      }catch(e){addLog(m.c+' error: '+e.message,'error');}
+      await new Promise(r=>setTimeout(r,100));}
+      /* Switch back to HS-CAN (pins 6/14) */
+      await eng.current.send('STPX H:0E06');
+      await eng.current.send('ATSP6');
+      addLog('── Back on HS-CAN (pins 6/14) ──','info');
+    }else{
+      addLog('Adapter is not STN — cannot switch to CAN-IHS. Only CAN-C modules scanned.','warn');
+    }
+    setBusy('');addLog('Scan complete','info');
   },[]);
 
   const writeAll=useCallback(async()=>{
@@ -1077,7 +1074,7 @@ function OBDTab(){
         </div>
         <div style={{marginTop:12,fontSize:12,fontWeight:800,color:C.tx,marginBottom:8}}>Write VIN to Single Module</div>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-          <Btn onClick={()=>writeOneModule(0x7E4,0x7EC,'DAMP')} disabled={!!busy||nv.length!==17} color={C.a4} outline>🔧 Write DAMP</Btn>
+          <Btn onClick={()=>writeOneModule(0x7A8,0x7B0,'ADCM')} disabled={!!busy||nv.length!==17} color={C.a4} outline>🔧 Write ADCM</Btn>
           <Btn onClick={()=>writeOneModule(0x740,0x748,'IPC')} disabled={!!busy||nv.length!==17} color={C.a1} outline>🔧 Write IPC</Btn>
           <Btn onClick={()=>writeOneModule(0x7E0,0x7E8,'ECM')} disabled={!!busy||nv.length!==17} color={C.a2} outline>🔧 Write ECM</Btn>
           <Btn onClick={()=>writeOneModule(0x7E1,0x7E9,'TCM')} disabled={!!busy||nv.length!==17} color={C.a3} outline>🔧 Write TCM</Btn>
