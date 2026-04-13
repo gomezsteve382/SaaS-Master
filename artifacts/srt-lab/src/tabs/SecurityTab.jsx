@@ -67,6 +67,7 @@ function SecurityTab(){
     const results=[];let srcKey=null;
     if(keySrc>=0&&mods[keySrc]&&mods[keySrc].skey&&!mods[keySrc].skb){const sk=mods[keySrc];srcKey={data:sk.skey,type:sk.type,fn:sk.filename,endian:sk.skEndian};}
     else{for(const m of mods){if(m.skey&&!m.skb){srcKey={data:m.skey,type:m.type,fn:m.filename,endian:m.skEndian};break;}}}
+    const rfhubForSec6=mods.find(mn=>mn.type==='RFHUB'&&mn.sec16valid&&mn.sec16s?.length);
     mods.forEach((m,i)=>{
       let patched=doVin?writeModuleVIN(m.data,m.type,tv,m.vins):null;
       if(!patched)patched=new Uint8Array(m.data);
@@ -76,6 +77,7 @@ function SecurityTab(){
         if(!needsSync&&m.skey){for(let j=0;j<Math.min(adapted.length,m.skey.length);j++)if(adapted[j]!==m.skey[j]){needsSync=true;break;}}
         if(needsSync){for(let j=0;j<adapted.length;j++)patched[m.skoff+j]=adapted[j];if(m.type==='GPEC2A'&&m.skmoff!==undefined)for(let j=0;j<Math.min(adapted.length,8);j++)patched[m.skmoff+j]=adapted[j];}
       }
+      if(m.type==='GPEC2A'&&rfhubForSec6){const s16=rfhubForSec6.sec16s[0].raw;for(let i=0;i<6&&i<s16.length;i++)patched[0x3C8+i]=s16[i];}
       const fn='MATCHED_'+tv+'_'+m.filename;
       const flashNote=m.type==='BCM'?'Flash this BCM D-FLASH file':m.type==='RFHUB'?'Write this RFHUB to EEE chip':m.type==='GPEC2A'?'Write this GPEC2A to 95320 SPI chip':m.type==='95640'?'Write this 95640 EEPROM':'Flash this file';
       results.push({data:patched,fn,type:m.type,name:m.name,note:flashNote,original:m.filename});
@@ -119,8 +121,37 @@ function SecurityTab(){
       }else res={desc:'RFHUB must be loaded with valid (non-blank, matching) SEC16 slots.'};
     }
     setTr(res);
+    if(res?.data)setMods(prev=>{const u=[...prev];u[tt]=parseModule(res.data,m.filename);return u;});
   }
   const dlResult=()=>{if(!tr?.data)return;const b=new Blob([tr.data],{type:'application/octet-stream'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='modified_'+(mods[tt]?.filename||'module.bin');a.click();URL.revokeObjectURL(u);};
+
+  function syncGpecRfh(){
+    const gm=mods.find(m=>m.type==='GPEC2A');
+    const rm=mods.find(m=>m.type==='RFHUB'&&m.sec16valid);
+    if(!gm||!rm||tv.length!==17)return;
+    /* 1. Patch GPEC2A VINs (no CRC for GPEC2A) */
+    let gd=writeModuleVIN(gm.data,'GPEC2A',tv,gm.vins);
+    if(!gd)gd=new Uint8Array(gm.data);
+    /* 2. Write RFHUB SEC16[0:6] → GPEC2A PCM SEC6 @ 0x3C8 */
+    const s16=rm.sec16s[0].raw;
+    for(let i=0;i<6&&i<s16.length;i++)gd[0x3C8+i]=s16[i];
+    const sec6hex=Array.from(s16.slice(0,6)).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+    /* 3. Patch RFHUB VINs (mirrored + CRC8RF per slot — writeModuleVIN handles this) */
+    const rd=writeModuleVIN(rm.data,'RFHUB',tv,rm.vins)||new Uint8Array(rm.data);
+    /* 4. Update both modules in state immediately */
+    setMods(prev=>{
+      const u=[...prev];
+      const gi=u.findIndex(m=>m.type==='GPEC2A');
+      const ri=u.findIndex(m=>m.type==='RFHUB'&&m.sec16valid);
+      if(gi>=0)u[gi]=parseModule(gd,gm.filename);
+      if(ri>=0)u[ri]=parseModule(rd,rm.filename);
+      return u;
+    });
+    /* 5. Download both patched files */
+    dl(gd,gm.filename.replace(/\./,'_SYNCED.'));
+    dl(rd,rm.filename.replace(/\./,'_SYNCED.'));
+    setMsg('✓ GPEC2A + RFHUB synced → '+tv+' | PCM SEC6: '+sec6hex+' | VINs patched + CRC updated');
+  }
 
   const SUBS=[{id:'overview',l:'Overview'},{id:'security',l:'Security'},{id:'diff',l:'Diff'},{id:'tools',l:'Tools'}];
   const selSt={background:C.c2,color:C.tx,border:'1px solid '+C.bd,borderRadius:6,padding:'6px 12px',fontSize:12,fontFamily:'inherit'};
@@ -230,7 +261,17 @@ function SecurityTab(){
       const secBcm=mods.find(m=>m.type==='BCM');
       const gpecBcmCmp=(secGpec&&secGpec.secretKey&&secBcm&&secBcm.vehicleSecret)?compareGpecBcmKey(secGpec.secretKey.bytes,secBcm.vehicleSecret.bytes):null;
       const toHex=arr=>Array.from(arr).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+      const canSync=secGpec&&mods.find(m=>m.type==='RFHUB'&&m.sec16valid)&&tv.length===17;
       return<div>
+      {canSync&&<Card style={{marginBottom:12,padding:14,border:'2px solid '+C.sr+'60',background:C.sr+'08'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:800,fontSize:13,color:C.sr,marginBottom:2}}>🔗 GPEC2A ↔ RFHUB Sync Ready</div>
+            <div style={{fontSize:11,color:C.tm}}>Patches RFHUB SEC16[0:6] → GPEC2A PCM SEC6 · Writes VIN to both modules with correct CRC · Downloads both files</div>
+          </div>
+          <Btn onClick={syncGpecRfh} color={C.sr}>🔗 Sync GPEC2A + RFHUB → {tv}</Btn>
+        </div>
+      </Card>}
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(320px,1fr))',gap:12}}>
         {mods.map((m,i)=>{const vinOk=m.vins?.length>0&&m.vins[0].vin===tv;return<Card key={i} style={{padding:16,borderLeft:'3px solid '+m.color,borderColor:vinOk?C.gn+'50':m.vins?.length&&tv.length===17?C.er+'40':C.bd}}>
           <div style={{fontWeight:800,color:m.color,marginBottom:8,fontSize:14}}>{m.name}</div>
