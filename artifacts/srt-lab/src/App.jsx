@@ -854,9 +854,13 @@ function OBDTab(){
   const scan=useCallback(async()=>{
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
     for(const m of MODS){try{
+      const wake=await eng.current.uds(m.tx,m.rx,[0x10,0x01]);
+      await new Promise(r=>setTimeout(r,100));
       const r=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
       if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
-        if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}}
+        if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
+        else if(wake.ok){setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (no VIN)','warn');}}
+      else if(wake.ok){setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (no VIN)','warn');}
     }catch(e){}}
     setBusy('');addLog('Scan complete','info');
   },[]);
