@@ -1073,11 +1073,16 @@ function OBDTab(){
       }else{addLog(m.c+': no response','error');}
     }catch(e){addLog(m.c+' error: '+e.message,'error');}
     await new Promise(r=>setTimeout(r,100));}
-    /* Switch to CAN-IHS (pins 3/11) via STPX — STN adapters only */
+    /* Switch to CAN-IHS (pins 3/11) via STP61 — STN adapters only */
     if(eng.current.isSTN){
       addLog('── Switching to CAN-IHS (MS-CAN pins 3/11) ──','info');
-      await eng.current.send('STPX H:030B');
-      await new Promise(r=>setTimeout(r,200));
+      const stp61r=await eng.current.send('STP61');
+      if(stp61r.includes('?')||stp61r.includes('ERROR'))addLog('STP61 not supported — falling back','warn');
+      await eng.current.send('ATSP7');
+      await new Promise(r=>setTimeout(r,300));
+      await eng.current.send('ATCRA');
+      await eng.current.send('ATH1');
+      await eng.current.send('ATST50');
       for(const m of canIHS){try{
         const r=await eng.current.uds(m.tx,m.rx,[0x3E,0x00]);
         if(r.ok){
@@ -1091,8 +1096,10 @@ function OBDTab(){
       }catch(e){addLog(m.c+' error: '+e.message,'error');}
       await new Promise(r=>setTimeout(r,100));}
       /* Switch back to HS-CAN (pins 6/14) */
-      await eng.current.send('STPX H:0E06');
       await eng.current.send('ATSP6');
+      await eng.current.send('STP60');
+      await new Promise(r=>setTimeout(r,100));
+      await eng.current.send('ATST96');
       addLog('── Back on HS-CAN (pins 6/14) ──','info');
     }else{
       addLog('Adapter is not STN — cannot switch to CAN-IHS. Only CAN-C modules scanned.','warn');
