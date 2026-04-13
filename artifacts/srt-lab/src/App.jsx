@@ -333,18 +333,21 @@ function BenchTab(){
       const port=await navigator.serial.requestPort();
       await port.open({baudRate:115200});
       const w=port.writable.getWriter();
-      const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable).catch(()=>{});
-      const rd=dec.readable.getReader();let buf='';
-      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value)buf+=value;}}catch(e){}})();
-      const send=async(cmd,to=2000)=>{buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(buf.includes('>')){const r=buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const t=buf.trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;};
-      await send('ATZ',3000);await new Promise(r=>setTimeout(r,500));
+      const rd=port.readable.getReader();
+      const dec=new TextDecoder();
+      const state={buf:''};
+      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value){state.buf+=dec.decode(value,{stream:true});}}}catch(e){addLog('Reader error: '+e.message,'error');}})();
+      const send=async(cmd,to=2000)=>{state.buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(state.buf.includes('>')){const r=state.buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const t=state.buf.trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;};
+      await send('ATZ',3000);await new Promise(r=>setTimeout(r,1000));
       addLog('Bench adapter: '+(await send('ATI')),'info');
-      for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6']){await send(c);await new Promise(r=>setTimeout(r,80));}
+      for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6','ATSTFF']){await send(c);await new Promise(r=>setTimeout(r,100));}
       benchEng.current={send,uds:async(tx,rx,data)=>{
         await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));
+        await new Promise(r=>setTimeout(r,50));
         await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));
+        await new Promise(r=>setTimeout(r,50));
         const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-        const r=await send(h,5000);
+        const r=await send(h,6000);
         if(!r||r.includes('NO DATA')||r.includes('ERROR'))return{ok:false};
         const ls=r.split(/\r?\n/).map(l=>l.trim()).filter(l=>/^[0-9A-F\s]+$/i.test(l));
         let all=[];ls.forEach(l=>{(l.replace(/\s/g,'').match(/.{2}/g)||[]).forEach(x=>all.push(parseInt(x,16)));});
@@ -817,21 +820,24 @@ function OBDTab(){
       const port=await navigator.serial.requestPort();
       await port.open({baudRate:115200});
       const w=port.writable.getWriter();
-      const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable).catch(()=>{});
-      const rd=dec.readable.getReader();let buf='';
-      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value)buf+=value;}}catch(e){}})();
-      const send=async(cmd,to=2000)=>{buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(buf.includes('>')){const r=buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const t=buf.trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;};
-      await send('ATZ',3000);await new Promise(r=>setTimeout(r,500));
-      addLog('Adapter: '+(await send('ATI')),'info');
-      for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6']){await send(c);await new Promise(r=>setTimeout(r,80));}
-      eng.current={send,uds:async(tx,rx,data)=>{
-        await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'),3000);
+      const rd=port.readable.getReader();
+      const dec=new TextDecoder();
+      const state={buf:''};
+      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value){state.buf+=dec.decode(value,{stream:true});}}}catch(e){addLog('Reader error: '+e.message,'error');}})();
+      const send=async(cmd,to=2000)=>{state.buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(state.buf.includes('>')){const r=state.buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const t=state.buf.trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;};
+      await send('ATZ',3000);await new Promise(r=>setTimeout(r,1000));
+      const ati=await send('ATI');addLog('Adapter: '+ati,'info');
+      const isSTN=ati.toUpperCase().includes('STN')||ati.toUpperCase().includes('OBD');
+      for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6','ATSTFF']){await send(c);await new Promise(r=>setTimeout(r,100));}
+      if(isSTN){await send('ATAT1');await new Promise(r=>setTimeout(r,100));}
+      eng.current={send,isSTN,uds:async(tx,rx,data)=>{
+        await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));
         await new Promise(r=>setTimeout(r,50));
-        await send('ATAR',3000);
+        await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));
         await new Promise(r=>setTimeout(r,50));
         const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-        const r=await send(h,5000);
-        if(!r||/NO DATA|ERROR|UNABLE|BUS|CAN|STOPPED|\?/.test(r))return{ok:false,raw:r||''};
+        const r=await send(h,6000);
+        if(!r||/NO DATA|ERROR|UNABLE|BUS|STOPPED/.test(r))return{ok:false,raw:r||''};
         const lines=r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0&&/^[0-9A-Fa-f\s]+$/.test(l));
         if(!lines.length)return{ok:false,raw:r};
         let all=[];const multi=lines.length>1;
@@ -853,24 +859,29 @@ function OBDTab(){
 
   const scan=useCallback(async()=>{
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
+    addLog('Scanning '+MODS.length+' modules...','info');
     for(const m of MODS){try{
-      addLog('Trying '+m.c+' ('+m.tx.toString(16).toUpperCase()+'/'+m.rx.toString(16).toUpperCase()+')...','info');
-      let woke=false,lastRaw='';
-      for(const wk of[[0x10,0x01,'default session'],[0x10,0x03,'extended session'],[0x3E,0x00,'tester present']]){
-        const w=await eng.current.uds(m.tx,m.rx,wk.slice(0,2));
-        await new Promise(r=>setTimeout(r,100));
-        if(w.ok){addLog(m.c+' responded to '+wk[2],'rx');woke=true;break;}
-        lastRaw=w.raw||'no response';
-        addLog(m.c+' '+wk[2]+': '+lastRaw,'warn');
-      }
-      if(woke){
+      addLog('Trying '+m.c+' (TX:'+m.tx.toString(16).toUpperCase()+' RX:'+m.rx.toString(16).toUpperCase()+')...','info');
+      await eng.current.send('ATCRA'+m.rx.toString(16).toUpperCase().padStart(3,'0'));
+      await new Promise(r=>setTimeout(r,50));
+      await eng.current.send('ATSH'+m.tx.toString(16).toUpperCase().padStart(3,'0'));
+      await new Promise(r=>setTimeout(r,50));
+      let alive=false,lastRaw='';
+      const tp=await eng.current.send('3E00',4000);
+      if(tp&&!/NO DATA|ERROR|\?/.test(tp)&&/[0-9A-Fa-f]{2,}/.test(tp)){alive=true;addLog(m.c+' responded to TesterPresent: '+tp,'rx');}
+      else{lastRaw=tp||'no response';
+        const ds=await eng.current.send('1001',4000);
+        if(ds&&!/NO DATA|ERROR|\?/.test(ds)&&/[0-9A-Fa-f]{2,}/.test(ds)){alive=true;addLog(m.c+' responded to DiagSession: '+ds,'rx');}
+        else{lastRaw=ds||'no response';}}
+      if(alive){
         const r=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
         if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
           if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
-          else{setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (VIN unreadable)','warn');}}
-        else{setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (VIN read failed: '+(r.raw||'')+')', 'warn');}
-      }else{addLog(m.c+': not found ('+lastRaw+')','error');}
-    }catch(e){addLog(m.c+' error: '+e.message,'error');}finally{await new Promise(r=>setTimeout(r,100));}}
+          else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus but VIN unreadable','warn');}}
+        else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus but VIN read failed'+(r.raw?' — '+r.raw:''),'warn');}
+      }else{addLog(m.c+': no response ('+lastRaw+')','error');}
+    }catch(e){addLog(m.c+' error: '+e.message,'error');}
+    await new Promise(r=>setTimeout(r,200));}
     setBusy('');addLog('Scan complete','info');
   },[]);
 
