@@ -16,6 +16,9 @@ const ALGOS=[{id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},{id:'gpec2',
 const MODS=[{c:'ECM',n:'Engine',tx:0x7E0,rx:0x7E8},{c:'TCM',n:'Transmission',tx:0x7E1,rx:0x7E9},{c:'BCM',n:'Body Control',tx:0x742,rx:0x762},{c:'RFHUB',n:'RF Hub',tx:0x75F,rx:0x767},{c:'ABS',n:'Brakes',tx:0x760,rx:0x768},{c:'IPC',n:'Cluster',tx:0x745,rx:0x765},{c:'RADIO',n:'Uconnect',tx:0x772,rx:0x77A},{c:'DAMP',n:'Damping',tx:0x7E4,rx:0x7EC},{c:'EPS',n:'Steering',tx:0x75F,rx:0x769},{c:'TIPM',n:'Power Module',tx:0x74C,rx:0x76C}];
 
 const SKIM_OFF=[{v:'Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT',base:0x40C0,ks:18,kc:6}];
+const IMMO_REC=24,IMMO_KC=6,IMMO_BLOCK=IMMO_REC*IMMO_KC;
+function countSkimRecs(d,base){let c=0;for(let i=0;i<IMMO_KC;i++){const o=base+i*IMMO_REC;if(o+IMMO_REC>d.length)break;const r=d.slice(o,o+IMMO_REC);if(!r.every(b=>b===0xFF||b===0x00))c++;}return c;}
+function syncImmoBackup(d){if(d.length<0x40C0+IMMO_BLOCK||d.length<0x2000+IMMO_BLOCK)return null;const o=new Uint8Array(d);for(let i=0;i<IMMO_BLOCK;i++)o[0x2000+i]=o[0x40C0+i];return o;}
 
 /* ═══ VIN ═══ */
 const TR={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9};for(let d=0;d<=9;d++)TR[String(d)]=d;
@@ -90,10 +93,9 @@ function parseModule(data,filename){
     info.immoKeys=[0x81a4,0x81c4,0x81e4].map(o=>({offset:o,hex:extractHex(data,o,16)}));
     info.fobikParts=extractVIN(data,0x5818,10)||extractHex(data,0x5818,10);
     info.skey=data.slice(0x40c9,0x40d9);info.skoff=0x40c9;info.skb=info.skey.every(b=>b===0xFF);info.skEndian='little';
-    const sb=data.slice(0x40C0,0x40E0);info.immoBlank=sb.every(b=>b===0xFF);
-    if(!info.immoBlank){info.immo=data.slice(0x40C8,0x40DA);info.immoBak=data.slice(0x40F0,0x4102);info.immoOk=arrEq(info.immo,info.immoBak);}
-    info.bakBlank=data.slice(0x2000,0x2020).every(b=>b===0xFF);
-    if(!info.bakBlank)info.bak=data.slice(0x2000,0x2020);
+    info.immoRecs=countSkimRecs(data,0x40C0);info.immoBlank=info.immoRecs===0;
+    info.bakRecs=countSkimRecs(data,0x2000);info.bakBlank=info.bakRecs===0;
+    info.immoSynced=info.immoRecs>0&&info.bakRecs>0&&arrEq(data.slice(0x40C0,0x40C0+IMMO_BLOCK),data.slice(0x2000,0x2000+IMMO_BLOCK));
   }else if(type==='95640'){
     info.vins=[];
     for(const off of[0x275,0x288]){const v=extractVIN(data,off);if(v)info.vins.push({offset:off,vin:v});}
@@ -164,7 +166,7 @@ function analyzeFile(buf,name){const data=new Uint8Array(buf);const sz=data.leng
     if(type==='BCM'){for(const po of[0x4098,0x40B0]){if(po+10>sz)continue;let s='',ok=true;for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}if(!ok||s.length!==8)continue;const sc=(data[po+8]<<8)|data[po+9],cc=crc16(data.slice(po,po+8));partials.push({off:po,vin:s,algo:'c16',coff:po+8,sc,cc});}}
     else if(vins.length>0){const tail=vins[0].vin.slice(9);const tc=[];for(let k=0;k<8;k++)tc.push(tail.charCodeAt(k));for(let i=0;i<=sz-10;i++){let m=true;for(let j=0;j<8;j++)if(data[i+j]!==tc[j]){m=false;break;}if(!m)continue;if(vins.some(fv=>i>=fv.off&&i<fv.off+17))continue;const sc=(data[i+8]<<8)|data[i+9],cc=crc16(data.slice(i,i+8));if(sc===cc)partials.push({off:i,vin:tail,algo:'c16',coff:i+8,sc,cc});}}}
   let sec=null;
-  if(type==='BCM'){sec={t:'bcm'};const sb=data.slice(0x40C0,0x40E0);sec.b1=sb.every(b=>b===0xFF);if(!sec.b1){sec.immo=data.slice(0x40C8,0x40DA);sec.immoBak=data.slice(0x40F0,0x4102);sec.immoOk=true;for(let j=0;j<sec.immo.length;j++)if(sec.immo[j]!==sec.immoBak[j]){sec.immoOk=false;break;}}sec.b2=data.slice(0x2000,0x2020).every(b=>b===0xFF);if(!sec.b2)sec.bak=data.slice(0x2000,0x2020);}
+  if(type==='BCM'){sec={t:'bcm'};sec.immoRecs=countSkimRecs(data,0x40C0);sec.b1=sec.immoRecs===0;sec.bakRecs=countSkimRecs(data,0x2000);sec.b2=sec.bakRecs===0;sec.immoSynced=sec.immoRecs>0&&sec.bakRecs>0&&arrEq(data.slice(0x40C0,0x40C0+IMMO_BLOCK),data.slice(0x2000,0x2000+IMMO_BLOCK));}
   else if(type==='95640'){sec={t:'95640'};sec.key=data.slice(0x40,0x50);sec.kb=sec.key.every(b=>b===0xFF);sec.fob=data.slice(0x200,0x240);sec.fb=sec.fob.every(b=>b===0xFF);}
   else if(type==='RFHUB'){sec={t:'rfhub'};sec.key=data.slice(0x40,0x50);sec.kb=sec.key.every(b=>b===0xFF);}
   else if(type==='GPEC2A'){sec={t:'gpec2a'};sec.skim=data[0x11];sec.on=data[0x11]===0x80;sec.key=data.slice(0x203,0x20B);sec.mir=data.slice(0x361,0x369);sec.km=true;for(let j=0;j<8;j++)if(sec.key[j]!==sec.mir[j]){sec.km=false;break;}sec.tr=[];for(let i=0;i<4;i++)sec.tr.push(data.slice(0x888+i*4,0x888+i*4+4));sec.zz=data[0xC8C]===0x5A;}
@@ -173,10 +175,11 @@ function analyzeFile(buf,name){const data=new Uint8Array(buf);const sz=data.leng
 function patchFile(f,nv){const out=new Uint8Array(f.data);const vb=new TextEncoder().encode(nv.toUpperCase());const log=[];
   for(const s of f.vins){if(s.mirrored){const m=[...vb].reverse();for(let j=0;j<17;j++)out[s.off+j]=m[j];const stored=new Uint8Array(m);out[s.coff]=crc8rf(stored);log.push('0x'+s.off.toString(16).toUpperCase()+' mirrored CRC8');}else{for(let j=0;j<17;j++)out[s.off+j]=vb[j];if(s.algo==='c16'){const c=crc16(vb);out[s.coff]=(c>>8)&0xFF;out[s.coff+1]=c&0xFF;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC16');}else if(s.algo==='c8'){const c=crc8_42(vb);out[s.coff]=c;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC8');}else log.push('0x'+s.off.toString(16).toUpperCase());}}
   if(f.partials){const tb=new TextEncoder().encode(nv.toUpperCase().slice(9));for(const s of f.partials){for(let j=0;j<8;j++)out[s.off+j]=tb[j];const c=crc16(tb);out[s.coff]=(c>>8)&0xFF;out[s.coff+1]=c&0xFF;log.push('0x'+s.off.toString(16).toUpperCase()+' partial');}}
+  if(f.type==='BCM'){for(let i=0;i<IMMO_BLOCK;i++)out[0x2000+i]=out[0x40C0+i];log.push('IMMO backup synced');}
   return{data:out,log};}
 
 function virginizeFile(f){const out=new Uint8Array(f.data);const log=[];
-  if(f.type==='BCM'){f.vins.forEach(v=>{for(let j=0;j<19;j++)out[v.off+j]=0;});f.partials?.forEach(v=>{for(let j=0;j<10;j++)out[v.off+j]=0;});[0x2000,0x40C0].forEach(o=>{for(let i=0;i<32;i++)out[o+i]=0xFF;});log.push('VINs+CRC zeroed, SKIM cleared');}
+  if(f.type==='BCM'){f.vins.forEach(v=>{for(let j=0;j<19;j++)out[v.off+j]=0;});f.partials?.forEach(v=>{for(let j=0;j<10;j++)out[v.off+j]=0;});[0x2000,0x40C0].forEach(o=>{for(let i=0;i<IMMO_BLOCK;i++)out[o+i]=0xFF;});log.push('VINs+CRC zeroed, SKIM cleared');}
   else if(f.type==='95640'){[0x275,0x288].forEach(o=>{for(let j=-1;j<17;j++)out[o+j]=0;});for(let i=0;i<16;i++)out[0x40+i]=0xFF;log.push('VINs+CRC+key cleared');}
   else if(f.type==='RFHUB'){[0xEA5,0xEB9,0xECD,0xEE1].forEach(o=>{for(let j=0;j<18;j++)out[o+j]=0;});for(let i=0;i<16;i++)out[0x40+i]=0xFF;for(let i=0;i<64;i++)out[0x200+i]=0xFF;log.push('VINs+key+fobs cleared');}
   else if(f.type==='GPEC2A'){[0,0x1F0,0x224].forEach(o=>{for(let j=0;j<17;j++)out[o+j]=0;});log.push('VINs cleared');}
@@ -200,6 +203,7 @@ function writeModuleVIN(data,type,vin,existingVins){
     const tb=new TextEncoder().encode(vin.slice(9));for(const po of[0x4098,0x40B0]){if(po+10>out.length)continue;for(let i=0;i<8;i++)out[po+i]=tb[i];const c=crc16(tb);out[po+8]=(c>>8)&0xFF;out[po+9]=c&0xFF;}}
   if(type==='95640')offs.forEach(o=>{out[o-1]=crc8_42(vb);});
   if(type==='RFHUB'&&!hasMirrored)offs.forEach(o=>{out[o+17]=crc8rf(out.slice(o,o+17));});
+  if(type==='BCM')for(let i=0;i<IMMO_BLOCK;i++)out[0x2000+i]=out[0x40C0+i];
   return out;
 }
 
@@ -207,7 +211,7 @@ function virginizeModule(data,type){
   const o=new Uint8Array(data);
   if(type==='GPEC2A'){o[0x0011]=0x00;for(let i=0x0203;i<0x020b;i++)o[i]=0x00;for(let i=0x0361;i<0x0369;i++)o[i]=0x00;for(let i=0x0888;i<0x0899;i++)o[i]=0xff;for(let i=0x0c8c;i<0x0c94;i++)o[i]=0x00;}
   else if(type==='RFHUB'){[0xEA5,0xEB9,0xECD,0xEE1].forEach(off=>{for(let j=0;j<18;j++)o[off+j]=0;});for(let i=0;i<16;i++)o[0x40+i]=0xFF;for(let i=0;i<64;i++)o[0x200+i]=0xFF;}
-  else if(type==='BCM'){[0x5320,0x5340,0x5360,0x5380].forEach(off=>{for(let j=0;j<19;j++)o[off+j]=0;});[0x2000,0x40C0].forEach(base=>{for(let i=0;i<32;i++)o[base+i]=0xFF;});}
+  else if(type==='BCM'){[0x5320,0x5340,0x5360,0x5380].forEach(off=>{for(let j=0;j<19;j++)o[off+j]=0;});[0x2000,0x40C0].forEach(base=>{for(let i=0;i<IMMO_BLOCK;i++)o[base+i]=0xFF;});}
   else if(type==='95640'){[0x275,0x288].forEach(off=>{for(let j=-1;j<17;j++)o[off+j]=0;});for(let i=0;i<16;i++)o[0x40+i]=0xFF;}
   return o;
 }
@@ -413,6 +417,7 @@ function BenchTab(){
           <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}addLog('BCM Proxi @0x2023: '+extractHex(bcm.data,0x2023,16),'rx');}} disabled={!bcm} color={C.a3} outline>📋 Read BCM Proxi</Btn>
           <Btn onClick={()=>{if(!gpec){addLog('No GPEC2A loaded','error');return;}addLog('SKIM State: '+(gpec.skimByte===0x80?'ENABLED':'DISABLED')+' (0x'+gpec.skimByte.toString(16).toUpperCase()+')','rx');}} disabled={!gpec} color={C.a2} outline>🛡️ Read SKIM State</Btn>
           <Btn onClick={doVirginRfhub} disabled={!mods.find(m=>m.type==='RFHUB')} color={C.er} outline>💀 Virginize RFHUB</Btn>
+          <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}if(bcm.immoBlank){addLog('BCM IMMO is blank — nothing to sync','warn');return;}const d=syncImmoBackup(bcm.data);dl(d,'IMMO_SYNCED_'+bcm.filename);addLog('IMMO backup synced: '+bcm.immoRecs+' keys → 0x2000','rx');setMods(p=>{const u=[...p];const idx=u.findIndex(m=>m.type==='BCM');u[idx]=parseModule(d,bcm.filename);return u;});setMsg('IMMO backup synced');}} disabled={!bcm} color={C.a1} outline>🔄 Sync IMMO Backup</Btn>
           <Btn onClick={doCrcPatch} disabled={!mods.length} color={C.sr}>🔧 CRC Patch All</Btn>
         </div>
         <div style={{marginTop:10,fontSize:10,color:C.ts}}>
@@ -558,9 +563,10 @@ function SecurityTab(){
   function doTool(action){
     const m=mods[tt];if(!m)return;let res=null;
     if(action==='virginize'){const d=virginizeModule(m.data,m.type);res={data:d,desc:m.name+' virginized: keys/VINs/SKIM cleared.'};}
-    else if(action==='writeVin'&&tv.length===17){const d=writeModuleVIN(m.data,m.type,tv,m.vins);if(d)res={data:d,desc:'VIN updated to '+tv+' at '+(m.vins?m.vins.length:0)+' locations'};}
+    else if(action==='writeVin'&&tv.length===17){const d=writeModuleVIN(m.data,m.type,tv,m.vins);if(d)res={data:d,desc:'VIN updated to '+tv+' at '+(m.vins?m.vins.length:0)+' locations + IMMO backup synced'};}
     else if(action==='skimToggle'&&m.type==='GPEC2A'){const d=new Uint8Array(m.data);d[0x0011]=m.skimByte===0x80?0x00:0x80;res={data:d,desc:'SKIM: 0x'+m.skimByte.toString(16).toUpperCase()+' → 0x'+d[0x0011].toString(16).toUpperCase()};}
     else if(action==='extractKey'){let k=m.secretKey?m.secretKey.hex:m.vehicleSecret?m.vehicleSecret.hex:m.skey&&!m.skb?hxb(m.skey):'';res={keyHex:k,desc:'Extracted from '+m.type};}
+    else if(action==='syncImmo'&&m.type==='BCM'){const d=syncImmoBackup(m.data);res={data:d,desc:'IMMO backup synced: '+countSkimRecs(m.data,0x40C0)+' SKIM records copied 0x40C0 → 0x2000'};}
     setTr(res);
   }
   const dlResult=()=>{if(!tr?.data)return;const b=new Blob([tr.data],{type:'application/octet-stream'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='modified_'+(mods[tt]?.filename||'module.bin');a.click();URL.revokeObjectURL(u);};
@@ -640,7 +646,8 @@ function SecurityTab(){
               {m.partNumbers&&Object.entries(m.partNumbers).map(([k,v])=><tr key={k}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>—</td><td><Tag color={C.a3}>PN-{k.toUpperCase()}</Tag></td><td style={{padding:'5px 10px',fontSize:12}}>{v}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>Part#</td></tr>)}
               {m.partNumberStr&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x0FA1</td><td><Tag color={C.a3}>SRI</Tag></td><td style={{padding:'5px 10px',fontSize:12}}>{m.partNumberStr}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>SW Release</td></tr>}
               {m.runtimeCounters&&Object.entries(m.runtimeCounters).map(([k,v])=><tr key={k}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(v.offset)}</td><td><Tag color={C.tm}>CTR</Tag></td><td style={{padding:'5px 10px',fontSize:12}}>{v.hex} ({v.value.toLocaleString()})</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>{k}</td></tr>)}
-              {m.immoBlank!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x40C0</td><td><Tag color={C.sr}>IMMO</Tag></td><td style={{padding:'5px 10px',color:m.immoBlank?C.wn:C.gn,fontWeight:700,fontSize:12}}>{m.immoBlank?'BLANK':'SET'}{!m.immoBlank&&(m.immoOk?' ✓':' BACKUP MISMATCH')}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>BCM immobilizer</td></tr>}
+              {m.immoBlank!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x40C0</td><td><Tag color={C.sr}>IMMO</Tag></td><td style={{padding:'5px 10px',color:m.immoBlank?C.wn:C.gn,fontWeight:700,fontSize:12}}>{m.immoBlank?'BLANK':m.immoRecs+' keys'}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>SKIM primary</td></tr>}
+              {m.bakBlank!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x2000</td><td><Tag color={C.sr}>BACKUP</Tag></td><td style={{padding:'5px 10px',color:m.bakBlank?C.wn:C.gn,fontWeight:700,fontSize:12}}>{m.bakBlank?'BLANK':m.bakRecs+' keys'}{!m.bakBlank&&!m.immoBlank&&<Tag color={m.immoSynced?C.gn:C.wn}>{m.immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>SKIM backup</td></tr>}
             </tbody>
           </table>
         </div>
@@ -681,7 +688,8 @@ function SecurityTab(){
           {m.fobikCount!==undefined&&<div style={{fontSize:11}}>FOBIK: <span style={{color:C.a1,fontWeight:700}}>{m.fobikCount} keys</span></div>}
           {m.securityLock&&<div style={{fontSize:11}}>Lock: <span style={{color:m.securityLock.locked?C.gn:C.wn,fontWeight:700}}>{m.securityLock.locked?'0x5A LOCKED':'UNLOCKED'}</span></div>}
           {m.zzzzTamper&&<div style={{fontSize:11}}>Tamper: <span style={{color:m.zzzzTamper.intact?C.gn:C.wn,fontWeight:700}}>{m.zzzzTamper.intact?'INTACT':'CLEARED'}</span></div>}
-          {m.immoBlank!==undefined&&<div style={{fontSize:11,marginTop:4}}>Immo @0x40C0: <Tag color={m.immoBlank?C.wn:C.gn}>{m.immoBlank?'BLANK':'SET'}</Tag>{!m.immoBlank&&<Tag color={m.immoOk?C.gn:C.er}>Backup {m.immoOk?'✓':'MISMATCH'}</Tag>}</div>}
+          {m.immoBlank!==undefined&&<div style={{fontSize:11,marginTop:4}}>Immo @0x40C0: <Tag color={m.immoBlank?C.wn:C.gn}>{m.immoBlank?'BLANK':m.immoRecs+' keys'}</Tag></div>}
+          {m.bakBlank!==undefined&&<div style={{fontSize:11,marginTop:2}}>Backup @0x2000: <Tag color={m.bakBlank?C.tm:C.gn}>{m.bakBlank?'BLANK':m.bakRecs+' keys'}</Tag>{!m.bakBlank&&!m.immoBlank&&<Tag color={m.immoSynced?C.gn:C.wn}>{m.immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</div>}
           {m.fobBlank!==undefined&&<div style={{fontSize:11}}>Fob Data: <Tag color={m.fobBlank?C.tm:C.gn}>{m.fobBlank?'NONE':'HAS FOBS'}</Tag></div>}
           {tv.length===17&&<div style={{marginTop:8}}><Btn onClick={()=>patchModVIN(i)} full color={vinOk?C.gn:C.sr}>{vinOk?'↓ Download':'⚡ Patch → '+tv}</Btn></div>}
         </Card>;})}
@@ -757,6 +765,15 @@ function SecurityTab(){
             <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>Extract Secret Key</div>
             <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Extract immobilizer sync key.</div>
             <Btn onClick={()=>doTool('extractKey')} full color={C.a4}>Extract</Btn>
+          </Card>
+          <Card style={{padding:16,borderTop:'3px solid '+C.a1}}>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>Sync IMMO Backup</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Copy SKIM keys 0x40C0 → 0x2000 (BCM only).</div>
+            {mods[tt]?.type==='BCM'?<div>
+              <div style={{fontSize:11,marginBottom:6}}>Primary: <Tag color={mods[tt].immoBlank?C.wn:C.gn}>{mods[tt].immoBlank?'BLANK':mods[tt].immoRecs+' keys'}</Tag></div>
+              <div style={{fontSize:11,marginBottom:8}}>Backup: <Tag color={mods[tt].bakBlank?C.tm:C.gn}>{mods[tt].bakBlank?'BLANK':mods[tt].bakRecs+' keys'}</Tag>{!mods[tt].bakBlank&&!mods[tt].immoBlank&&<Tag color={mods[tt].immoSynced?C.gn:C.wn}>{mods[tt].immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</div>
+              <Btn onClick={()=>doTool('syncImmo')} disabled={mods[tt].immoBlank} full color={C.a1}>🔄 Sync IMMO Backup</Btn>
+            </div>:<div style={{fontSize:11,color:C.tm}}>Select a BCM module.</div>}
           </Card>
         </div>
 
@@ -1009,7 +1026,7 @@ function DumpsTab({files,setFiles,loadF}){
       </Card>
       {f.sec&&<Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Security</div>
-        {f.sec.t==='bcm'&&<><div style={{fontSize:11,marginBottom:6}}>Immo @0x40C0: <Tag color={f.sec.b1?C.wn:C.gn}>{f.sec.b1?'BLANK':'SET'}</Tag>{!f.sec.b1&&<Tag color={f.sec.immoOk?C.gn:C.er}>Backup {f.sec.immoOk?'✓':'MISMATCH'}</Tag>}</div><div style={{fontSize:11}}>Backup @0x2000: <Tag color={f.sec.b2?C.tm:C.gn}>{f.sec.b2?'BLANK':'SET'}</Tag></div></>}
+        {f.sec.t==='bcm'&&<><div style={{fontSize:11,marginBottom:6}}>Immo @0x40C0: <Tag color={f.sec.b1?C.wn:C.gn}>{f.sec.b1?'BLANK':f.sec.immoRecs+' SKIM keys'}</Tag></div><div style={{fontSize:11,marginBottom:6}}>Backup @0x2000: <Tag color={f.sec.b2?C.tm:C.gn}>{f.sec.b2?'BLANK':f.sec.bakRecs+' keys'}</Tag>{!f.sec.b2&&!f.sec.b1&&<Tag color={f.sec.immoSynced?C.gn:C.wn}>{f.sec.immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</div>{!f.sec.b1&&(f.sec.b2||!f.sec.immoSynced)&&<div style={{marginTop:6}}><Btn onClick={()=>{const d=syncImmoBackup(f.data);dl(d,'IMMO_SYNCED_'+f.name);const u=[...files];u[sel]=analyzeFile(d.buffer,f.name);setFiles(u);setMsg('IMMO backup synced: '+f.sec.immoRecs+' keys copied to 0x2000');}} color={C.a1} outline>🔄 Sync IMMO Backup</Btn></div>}</>}
         {f.sec.t==='95640'&&<><div style={{fontSize:11,marginBottom:4}}>Secret Key @0x40: <Tag color={f.sec.kb?C.wn:C.gn}>{f.sec.kb?'ERASED':'SET'}</Tag></div>{!f.sec.kb&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a4,marginBottom:4}}>{hxb(f.sec.key)}</div>}<div style={{fontSize:11}}>Fob Data: <Tag color={f.sec.fb?C.tm:C.gn}>{f.sec.fb?'NONE':'HAS FOBS'}</Tag></div></>}
         {f.sec.t==='rfhub'&&<><div style={{fontSize:11,marginBottom:4}}>Secret Key @0x40: <Tag color={f.sec.kb?C.wn:C.gn}>{f.sec.kb?'ERASED':'SET'}</Tag></div>{!f.sec.kb&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a4}}>{hxb(f.sec.key)}</div>}</>}
         {f.sec.t==='gpec2a'&&<><div style={{fontSize:11,marginBottom:4}}>SKIM: <Tag color={f.sec.on?C.gn:C.wn}>{f.sec.on?'ENABLED 0x80':'OFF 0x'+f.sec.skim.toString(16).toUpperCase()}</Tag></div><div style={{fontSize:11,marginBottom:4}}>Secret Key: {!f.sec.key.every(b=>b===0xFF)?<><span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a4}}>{hxb(f.sec.key)}</span><Tag color={f.sec.km?C.gn:C.er}>{f.sec.km?'Mirror ✓':'MISMATCH'}</Tag></>:<Tag color={C.wn}>BLANK</Tag>}</div><div style={{fontSize:11}}>ZZZZ Tamper: <Tag color={f.sec.zz?C.gn:C.er}>{f.sec.zz?'INTACT':'TAMPERED'}</Tag></div></>}

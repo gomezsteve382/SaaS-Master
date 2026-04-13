@@ -38,7 +38,7 @@ No backend required — the API server exists but is unused by this app.
 `parseModule()` merges the original `analyzeFile`/`secAnalyze` with the richer `fca_module_analyzer` for deeper extraction:
 - **GPEC2A**: Runtime counters, transponder keys, part number, ZZZZ tamper, secret key mirror validation
 - **RFHUB**: FOBIK slot counting (AA50), CC66AA55 security markers, ZZZZ blocks, part numbers, 16-byte vehicle secret, mirrored VIN support
-- **BCM**: Security lock byte (0x8028), FOBIK count (0x5862), IMMO key entries, FOBIK part number, FEE1000 header detection, vehicle secret (little-endian)
+- **BCM**: Security lock byte (0x8028), FOBIK count (0x5862), IMMO key entries, FOBIK part number, FEE1000 header detection, vehicle secret (little-endian), IMMO SKIM record counting (24-byte records at 0x40C0 primary, 0x2000 backup), backup sync status
 - **95640**: Secret key at 0x40–0x50, fob data at 0x200–0x240
 
 ## Cross-Vehicle Matching
@@ -51,6 +51,16 @@ No backend required — the API server exists but is unused by this app.
 
 - `pnpm --filter @workspace/srt-lab run dev` — Start dev server
 - `pnpm run typecheck` — Full typecheck across all packages
+
+## BCM IMMO Backup Sync
+
+BCM SKIM key tables use 24-byte records (IMMO_REC=24, IMMO_KC=6, IMMO_BLOCK=144 bytes):
+- **Primary**: 0x40C0 (SRT layout, 6 SKIM key records)
+- **Backup**: 0x2000 (Trackhawk layout, mirrors primary)
+- `syncImmoBackup()`: copies 144 bytes from 0x40C0→0x2000 with bounds check
+- Auto-syncs during BCM VIN patching (both `patchFile` and `writeModuleVIN`)
+- Standalone sync buttons in DUMPS, BENCH, and SECURITY Tools tabs
+- Virginize clears full 144-byte IMMO block at both addresses
 
 ## Verified CRC Algorithms
 
