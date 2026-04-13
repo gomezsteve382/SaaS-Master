@@ -828,7 +828,7 @@ function OBDTab(){
           buf='';await w.write(new TextEncoder().encode('ATZ\r'));
           const s=Date.now();while(Date.now()-s<3000){const cl=buf.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'');if(cl.includes('>')){ok=true;usedRate=rate;break;}await new Promise(r=>setTimeout(r,50));}
           if(ok)break;
-          try{w.releaseLock();}catch(e){}try{await port.close();}catch(e){}
+          try{rd.releaseLock();}catch(e){}try{w.releaseLock();}catch(e){}try{await port.close();}catch(e){}
           addLog('No response at '+rate+' baud, trying next...','warn');
         }catch(e){try{await port.close();}catch(ex){}}
       }
@@ -852,7 +852,9 @@ function OBDTab(){
         for(const line of lines){
           const toks=line.split(/\s+/).filter(t=>/^[0-9A-Fa-f]+$/.test(t));if(!toks.length)continue;
           let si=0;if(toks[0].length===3)si=1;
-          let bytes=toks.slice(si).map(t=>parseInt(t,16));
+          let bytes;
+          if(toks.length===1||(toks.length===1+si&&toks[si].length>2)){let hex=toks.slice(si).join('');if(hex.length%2===1)hex=hex.slice(0,-1);bytes=[];for(let j=0;j<hex.length;j+=2)bytes.push(parseInt(hex.substr(j,2),16));}
+          else{bytes=toks.slice(si).map(t=>parseInt(t,16));}
           if(multi&&bytes.length>0){const pci=bytes[0]>>4;if(pci===0)bytes=bytes.slice(1);else if(pci===1)bytes=bytes.slice(2);else if(pci===2)bytes=bytes.slice(1);else if(pci===3)continue;}
           all.push(...bytes);
         }
