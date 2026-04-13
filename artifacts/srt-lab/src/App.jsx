@@ -827,7 +827,7 @@ function OBDTab(){
       eng.current={send,uds:async(tx,rx,data)=>{
         await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'),3000);
         await new Promise(r=>setTimeout(r,50));
-        await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'),3000);
+        await send('ATAR',3000);
         await new Promise(r=>setTimeout(r,50));
         const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
         const r=await send(h,5000);
