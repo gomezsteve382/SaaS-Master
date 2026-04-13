@@ -831,9 +831,9 @@ function OBDTab(){
         await new Promise(r=>setTimeout(r,50));
         const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
         const r=await send(h,5000);
-        if(!r||/NO DATA|ERROR|UNABLE|BUS|CAN|STOPPED|\?/.test(r))return{ok:false};
+        if(!r||/NO DATA|ERROR|UNABLE|BUS|CAN|STOPPED|\?/.test(r))return{ok:false,raw:r||''};
         const lines=r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0&&/^[0-9A-Fa-f\s]+$/.test(l));
-        if(!lines.length)return{ok:false};
+        if(!lines.length)return{ok:false,raw:r};
         let all=[];const multi=lines.length>1;
         for(const line of lines){
           const toks=line.split(/\s+/).filter(t=>/^[0-9A-Fa-f]+$/.test(t));if(!toks.length)continue;
@@ -854,14 +854,22 @@ function OBDTab(){
   const scan=useCallback(async()=>{
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
     for(const m of MODS){try{
-      const wake=await eng.current.uds(m.tx,m.rx,[0x10,0x01]);
-      await new Promise(r=>setTimeout(r,100));
-      const r=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
-      if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
-        if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
-        else if(wake.ok){setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (no VIN)','warn');}}
-      else if(wake.ok){setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (no VIN)','warn');}
-    }catch(e){}finally{await new Promise(r=>setTimeout(r,100));}}
+      addLog('Trying '+m.c+' ('+m.tx.toString(16).toUpperCase()+'/'+m.rx.toString(16).toUpperCase()+')...','info');
+      let woke=false;
+      for(const wk of[[0x10,0x01,'default session'],[0x10,0x03,'extended session'],[0x3E,0x00,'tester present']]){
+        const w=await eng.current.uds(m.tx,m.rx,wk.slice(0,2));
+        await new Promise(r=>setTimeout(r,100));
+        if(w.ok){addLog(m.c+' responded to '+wk[2],'rx');woke=true;break;}
+        addLog(m.c+' '+wk[2]+': '+(w.raw||'no response'),'warn');
+      }
+      if(woke){
+        const r=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
+        if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
+          if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
+          else{setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (VIN unreadable)','warn');}}
+        else{setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (VIN read failed: '+(r.raw||'')+')', 'warn');}
+      }else{addLog(m.c+': not found','error');}
+    }catch(e){addLog(m.c+' error: '+e.message,'error');}finally{await new Promise(r=>setTimeout(r,100));}}
     setBusy('');addLog('Scan complete','info');
   },[]);
 
