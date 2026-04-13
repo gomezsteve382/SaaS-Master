@@ -857,8 +857,55 @@ function OBDTab(){
 
   const scan=useCallback(async()=>{
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
-    addLog('Scanning '+MODS.length+' modules...','info');
-    for(const m of MODS){try{
+
+    /* ══ PHASE 1: Functional broadcast discovery ══
+       Send TesterPresent via 0x7DF (functional addressing) with NO CRA filter.
+       Every UDS-capable module on the bus responds with its own physical RX ID.
+       This works on bench WITHOUT the gateway. */
+    addLog('=== PHASE 1: Functional broadcast (0x7DF) ===','info');
+    await eng.current.send('ATCRA');/* clear all RX filters — accept ANY response */
+    await new Promise(r=>setTimeout(r,50));
+    await eng.current.send('ATSH7DF');/* functional broadcast address */
+    await new Promise(r=>setTimeout(r,50));
+    const bcast=await eng.current.send('3E00',4000);
+    const discoveredRx=new Set();
+    if(bcast&&!/NO DATA|ERROR/.test(bcast)){
+      addLog('Broadcast responses: '+bcast,'rx');
+      /* parse response lines to extract responding CAN IDs */
+      const lines=bcast.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0);
+      for(const line of lines){
+        const m3=line.match(/^([0-9A-Fa-f]{3})\s/);
+        if(m3)discoveredRx.add(parseInt(m3[1],16));
+      }
+      if(discoveredRx.size>0){
+        addLog('Discovered '+discoveredRx.size+' responding module(s): '+[...discoveredRx].map(id=>'0x'+id.toString(16).toUpperCase()).join(', '),'rx');
+        /* match discovered RX IDs to known modules */
+        for(const rxId of discoveredRx){
+          const known=MODS.find(m=>m.rx===rxId);
+          if(known)addLog('  0x'+rxId.toString(16).toUpperCase()+' → '+known.c+' ('+known.n+')','rx');
+          else addLog('  0x'+rxId.toString(16).toUpperCase()+' → unknown module (TX likely 0x'+(rxId-8).toString(16).toUpperCase()+' or 0x'+(rxId-0x20).toString(16).toUpperCase()+')','warn');
+        }
+      }
+    }else{addLog('No functional broadcast response — trying individual scan','warn');}
+
+    /* ══ PHASE 2: Read VIN from each discovered + known module ══ */
+    addLog('=== PHASE 2: Individual module scan ===','info');
+    /* build scan targets: merge known MODS with any discovered IDs */
+    const targets=[...MODS];
+    for(const rxId of discoveredRx){
+      if(!MODS.find(m=>m.rx===rxId)){
+        /* unknown module — guess TX as RX-8 (standard UDS offset) */
+        const txGuess=rxId>=0x7E8?rxId-8:rxId-0x20;
+        targets.push({c:'UNK_'+rxId.toString(16).toUpperCase(),n:'Discovered 0x'+rxId.toString(16).toUpperCase(),tx:txGuess,rx:rxId});
+      }
+    }
+    for(const m of targets){try{
+      /* skip modules we know aren't on the bus (not discovered AND not standard) */
+      const wasDiscovered=discoveredRx.has(m.rx);
+      if(discoveredRx.size>0&&!wasDiscovered&&!m.c.startsWith('UNK')){
+        /* only try known modules that WEREN'T discovered if we had broadcast responses */
+        addLog(m.c+': not discovered, skipping...','info');continue;
+      }
       addLog('Trying '+m.c+' (TX:'+m.tx.toString(16).toUpperCase()+' RX:'+m.rx.toString(16).toUpperCase()+')...','info');
       await eng.current.send('ATCRA'+m.rx.toString(16).toUpperCase().padStart(3,'0'));
       await new Promise(r=>setTimeout(r,50));
@@ -866,16 +913,19 @@ function OBDTab(){
       await new Promise(r=>setTimeout(r,50));
       let alive=false;
       const tp=await eng.current.send('3E00',3000);
-      if(tp&&!/NO DATA|ERROR/.test(tp)&&/^[0-9A-Fa-f\s]+$/m.test(tp)){alive=true;addLog(m.c+' responded to TesterPresent: '+tp,'rx');}
+      if(tp&&!/NO DATA|ERROR/.test(tp)&&/^[0-9A-Fa-f\s]+$/m.test(tp)){alive=true;addLog(m.c+' alive','rx');}
       else{
         const ds=await eng.current.send('1001',3000);
-        if(ds&&!/NO DATA|ERROR/.test(ds)&&/^[0-9A-Fa-f\s]+$/m.test(ds)){alive=true;addLog(m.c+' responded to DiagSession: '+ds,'rx');}}
+        if(ds&&!/NO DATA|ERROR/.test(ds)&&/^[0-9A-Fa-f\s]+$/m.test(ds)){alive=true;addLog(m.c+' alive (DiagSession)','rx');}}
       if(alive){
         const r=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
         if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
           if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
-          else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus but VIN unreadable','warn');}}
-        else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus but VIN read failed'+(r.raw?' — '+r.raw:''),'warn');}
+          else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus, VIN unreadable','warn');}}
+        else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus, VIN read failed','warn');}
+      }else if(wasDiscovered){
+        /* module responded to broadcast but not to individual — add it anyway */
+        setFound(p=>[...p,{...m,vin:'(discovered)'}]);addLog(m.c+': responded to broadcast only','warn');
       }else{addLog(m.c+': no response','error');}
     }catch(e){addLog(m.c+' error: '+e.message,'error');}
     await new Promise(r=>setTimeout(r,200));}
@@ -936,24 +986,31 @@ function OBDTab(){
   },[]);
 
   const canMonitor=useCallback(async()=>{
-    if(!eng.current)return;setBusy('Monitoring CAN...');
-    addLog('Starting CAN bus monitor (5s)...','info');
-    try{
-      await eng.current.send('ATCRA');
-      await new Promise(r=>setTimeout(r,50));
-      const raw=await eng.current.send('ATMA',6000);
-      await eng.current.send('');
-      await new Promise(r=>setTimeout(r,200));
+    if(!eng.current)return;setBusy('Monitoring...');
+    addLog('=== CAN BUS MONITOR — listening 5 sec ===','info');
+    await eng.current.send('ATCRA');/* clear CRA filter = accept all */
+    await new Promise(r=>setTimeout(r,100));
+    const r=await eng.current.send('ATMA',6000);
+    /* break out of ATMA */
+    await eng.current.send('',500);
+    await new Promise(r=>setTimeout(r,300));
+    if(r){
       const ids=new Set();
-      if(raw){raw.split(/[\r\n]+/).forEach(l=>{const m=l.trim().match(/^([0-9A-Fa-f]{3})\s/);if(m)ids.add(m[1].toUpperCase());});}
-      const sorted=[...ids].sort();
-      addLog('Active CAN IDs ('+sorted.length+'): '+sorted.join(', '),'info');
-      for(const id of sorted){const mod=MODS.find(m=>m.rx.toString(16).toUpperCase().padStart(3,'0')===id||m.tx.toString(16).toUpperCase().padStart(3,'0')===id);
-        if(mod)addLog('  '+id+' → '+mod.c+' ('+mod.n+')','rx');
-        else addLog('  '+id+' → unknown','warn');}
-      await eng.current.send('ATSP6');
-      await eng.current.send('ATCAF1');
-    }catch(e){addLog('CAN monitor error: '+e.message,'error');}
+      r.split(/[\r\n]+/).forEach(line=>{
+        const clean=line.trim();
+        if(/^[0-9A-Fa-f]{3}\s/.test(clean))ids.add(clean.slice(0,3).toUpperCase());
+      });
+      if(ids.size>0){
+        addLog('Active CAN IDs: '+[...ids].sort().join(', '),'rx');
+        for(const id of ids){
+          const num=parseInt(id,16);
+          const mod=MODS.find(m=>m.rx===num||m.tx===num);
+          if(mod)addLog('  '+id+' → '+mod.c+' ('+mod.n+')','rx');
+        }
+      }else{addLog('No CAN traffic detected — check wiring and power','error');addLog('Raw: '+r.slice(0,200),'warn');}
+    }else{addLog('ATMA returned nothing — bus may be silent','error');}
+    await eng.current.send('ATSP6');
+    await eng.current.send('ATCAF1');
     setBusy('');
   },[]);
 
