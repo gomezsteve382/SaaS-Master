@@ -1,0 +1,156 @@
+herokee – RFH → PCM
+Pairing / Importing RFH data into PCM with extended validation.
+Guides:
+RFH (24C32)
+UPA
+PCM (GPEC2)
+GODIAG
+PCM (GPEC3)
+GODIAG
+PCM (GPEC2A)
+GODIAG
+RFH
+24C32
+PCM
+GPEC2/GPEC3/GPEC2A
+INSPECT / APPLY / DOWNLOAD
+Load files and filter (INSPECT)
+The RFH (24C32) and PCM (GPEC2/GPEC3/GPEC2A) are raised. The system validates and displays complete checks.
+RFH 24C32 file (.bin)
+No file chosen
+Dump of RFH to detect generation, main SEC16, checks and derive SEC6.
+PCM GPEC file (.bin/.eprom)
+No file chosen
+Bin or eprom of the PCM.
+
+INSPECT – Filter RFH/PCM
+RFH → PCM Compatibility Status
+The APPLY command is only enabled if the backend indicates valid compatibility.
+⛔ LOCKED
+mistake
+❌ Sibling cannot be applied.
+Reason
+RFH without valid VIN.
+Issues
+RFH without valid VIN.
+Could not derive SEC6 from RFH: Main SEC16 invalid (expected 32 hex, not all FF/00).
+RFH without legible or reliable Part Number.
+PCM with damaged IMMO. The SEC6+VIN pairing can be applied, but the IMMO fix is ​​separate.
+Info
+PCM VIN is different from RFH VIN or was not present.
+SEC6 of PCM is different from SEC6 derived from RFH or was not present.
+SEC6 RFH → PCM
+SEC6 PCM current
+FFFFFFFFFFFF
+Comparisons
+VIN equal before: FALSE
+SEC6 equal before: FALSE
+RFH Gen: gen2
+RFH VIN: missing
+RFH SEC16 main: ok
+RFH PN: missing
+RFH SERIAL: ok
+PCM IMMO: IMMO_DAMAGED
+PCM SEC6 read: TRUE
+PCM Write Check
+WRITE OK
+need=974
+buf=4096
+RFH (24C32)
+Data detected from the RFH dump.
+KL_24C32_GEN2
+8192 bytes
+gen2
+VIN / Identity
+VIN RFH
+VIN status: missing
+VIN CS: FFFF
+Score gen1=3
+Score gen2=6
+Part Number (RFH)
+L
+Status: missing
+Serial (RFH)
+}rl}
+Status: ok
+SEC16 main / SEC6 derived
+Main slot
+1
+SEC16 main (RFH)
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+SEC16 BCM style
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+CS: FFFF
+PIN: 66666
+Status: ok
+Selection reason
+Slots 1/2 match in SEC16 and checksum; the former is used as a reference.
+SEC6 derived
+SEC6 ERROR
+Source status: ok
+SEC16 main invalid (expected 32 hex, not all FF/00).
+
+Checks RFH
+SEC16 match: TRUE
+SEC16 CS match: TRUE
+PIN match: TRUE
+BCM match: N/A
+PIN S1: 66666
+PIN S2: 66666
+Slots SEC16
+Slot 1
+Offset 174
+Len 16
+SEC16 bad
+BCM bad
+CS ok
+PIN ok
+SEC16 RFH
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+SEC16 BCM style
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+Checksum / PIN
+FFFF · PIN=66666
+Slot 2
+Offset 192
+Len 16
+SEC16 bad
+BCM bad
+CS ok
+PIN ok
+SEC16 RFH
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+SEC16 BCM style
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+Checksum / PIN
+FFFF · PIN=66666
+RFH Warnings
+Unexpected size: 8192 bytes. 4096 bytes is expected for 24C32 Gen2.
+PCM (GPEC)
+View of SEC6 / VINs / IMMO from the PCM.
+GPEC
+4096 bytes
+IMMO IMMO_DANADO
+VIN / Identity
+VIN PCM (Current)
+1C4RJFN9XJC309165
+VIN PCM (Original)
+1C4RJFN9XJC309165
+YOU
+05036124AE
+Part Number (PCM)
+68377858AA
+Serial
+T00EP3487F18CQ
+IMMO / Integrity
+IMMO State
+State (raw)
+IMMO_DANADO
+Pattern
+FF FF FF FF
+SEC6 PCM
+SEC6 raw
+FF FF FF FF FF FF
+Offset: 968
+Len: 6
+Read OK: TRUE
