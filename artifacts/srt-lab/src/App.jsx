@@ -13,7 +13,7 @@ function ngc(s){let k=0;for(let i=0;i<4;i++){let b=(u32(s)>>(i*8))&0xFF;k=u32(k^
 const TT={a:[0x727B,0xB301,0x08EB,0xB0BA,0xECA7,0x0ECC,0xD69A,0xE47E],b:[0x7A44,0x0201,0xF123,0x146E,0xCBC2,0x553F,0xD398,0x4EDC],c:[0x22B5,0x5767,0x4C5A,0xE443,0xC606,0x7544,0x0DFB,0x36D6],d:[0x632A,0x193B,0x914F,0x0F88,0x5E51,0x8DCD,0xDD6C,0x00DD]},TM=[0xBAEE,0xE000,0x1C00,0x0380,0x0070,0x0007];
 function tipm(s,t='a'){const tb=TT[t]||TT.a;let v=s&0xFFFF,k=0;for(let i=0;i<tb.length;i++){let m=v&TM[i%TM.length],b=0,x=m;while(x){b^=x&1;x>>=1;}k=(k<<1)|b;k^=tb[i];k&=0xFFFF;}return k;}
 const ALGOS=[{id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},{id:'gpec2',n:'GPEC2',h:'Continental',fn:s=>sxor(s,0xE72E3799)},{id:'gpec2f',n:'GPEC2 Flash',h:'Flash',fn:s=>sxor(s,0x966AEEB1)},{id:'gpec2e',n:'GPEC2 EPROM',h:'EPROM',fn:s=>sxor(s,0x3F711F5A)},{id:'gpec3',n:'GPEC3',h:'2018+',fn:s=>sxor(s,0x129D657F)},{id:'gpec2a',n:'GPEC2A',h:'GPEC2A',fn:s=>sxor(s,0xCE853A6F)},{id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},{id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},{id:'jtec',n:'JTEC',h:'Fixed 0000',fn:()=>0},{id:'cda6',n:'CDA6',h:'BCM/ABS/IPC',fn:s=>cda6(s)},{id:'t80',n:'TIPM 0x80',h:'t8001',fn:s=>tipm(s,'a')},{id:'t36',n:'TIPM 0x36',h:'t3605',fn:s=>tipm(s,'b')},{id:'t81',n:'TIPM 0x81',h:'t8101',fn:s=>tipm(s,'c')},{id:'t3c',n:'TIPM 0x3C',h:'t3c',fn:s=>tipm(s,'d')}];
-const MODS=[{c:'ECM',n:'Engine',tx:0x7E0,rx:0x7E8},{c:'TCM',n:'Transmission',tx:0x7E1,rx:0x7E9},{c:'BCM',n:'Body Control',tx:0x750,rx:0x758},{c:'RFHUB',n:'RF Hub',tx:0x75F,rx:0x767},{c:'ABS',n:'Brakes',tx:0x760,rx:0x768},{c:'IPC',n:'Cluster',tx:0x740,rx:0x748},{c:'RADIO',n:'Uconnect',tx:0x754,rx:0x75C},{c:'DAMP',n:'Damping',tx:0x7E4,rx:0x7EC},{c:'EPS',n:'Steering',tx:0x761,rx:0x769},{c:'TIPM',n:'Power Module',tx:0x74C,rx:0x76C},{c:'ORC',n:'Occupant Restraint',tx:0x758,rx:0x760},{c:'HVAC',n:'HVAC Control',tx:0x751,rx:0x759},{c:'DTCM',n:'Transfer Case',tx:0x7E2,rx:0x7EA},{c:'TPM',n:'Tire Pressure',tx:0x752,rx:0x75A}];
+const MODS=[{c:'ECM',n:'Engine',tx:0x7E0,rx:0x7E8},{c:'TCM',n:'Transmission',tx:0x7E1,rx:0x7E9},{c:'BCM',n:'Body Control',tx:0x750,rx:0x758},{c:'RFHUB',n:'RF Hub',tx:0x75F,rx:0x767},{c:'ABS',n:'Brakes',tx:0x760,rx:0x768},{c:'IPC',n:'Cluster',tx:0x740,rx:0x748},{c:'RADIO',n:'Uconnect',tx:0x754,rx:0x75C},{c:'ADCM',n:'Active Damping',tx:0x7A8,rx:0x7B0},{c:'EPS',n:'Steering',tx:0x761,rx:0x769},{c:'TIPM',n:'Power Module',tx:0x74C,rx:0x76C},{c:'ORC',n:'Occupant Restraint',tx:0x758,rx:0x760},{c:'HVAC',n:'HVAC Control',tx:0x751,rx:0x759},{c:'DTCM',n:'Transfer Case',tx:0x7E2,rx:0x7EA},{c:'TPM',n:'Tire Pressure',tx:0x752,rx:0x75A}];
 
 const SKIM_OFF=[{v:'Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT',base:0x40C0,ks:18,kc:6}];
 const IMMO_REC=24,IMMO_KC=8,IMMO_BLOCK=IMMO_REC*IMMO_KC;
@@ -335,22 +335,45 @@ function BenchTab(){
       const w=port.writable.getWriter();
       const rd=port.readable.getReader();
       const tdec=new TextDecoder();
-      const state={buf:''};
-      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value){state.buf+=tdec.decode(value,{stream:true});}}}catch(e){addLog('Reader error: '+e.message,'error');}})();
-      const send=async(cmd,to=2000)=>{state.buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(state.buf.includes('>')){const r=state.buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const t=state.buf.trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;};
-      await send('ATZ',3000);await new Promise(r=>setTimeout(r,1000));
-      addLog('Bench adapter: '+(await send('ATI')),'info');
-      for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6','ATSTFF']){await send(c);await new Promise(r=>setTimeout(r,100));}
-      benchEng.current={send,uds:async(tx,rx,data)=>{
-        await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));
-        await new Promise(r=>setTimeout(r,50));
-        await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));
-        await new Promise(r=>setTimeout(r,50));
-        const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
+      let rbuf='';
+      const send=async(cmd,to=3000)=>{
+        rbuf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');
+        const deadline=Date.now()+to;
+        while(Date.now()<deadline){
+          try{
+            const rp=rd.read();const tp=new Promise(r=>setTimeout(()=>r({value:undefined,done:true}),Math.min(500,deadline-Date.now())));
+            const res=await Promise.race([rp,tp]);
+            if(res.done||!res.value){if(Date.now()>=deadline)break;continue;}
+            rbuf+=tdec.decode(res.value);
+            const pi=rbuf.indexOf('>');
+            if(pi!==-1){const r=rbuf.substring(0,pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();rbuf=rbuf.substring(pi+1);addLog('RX < '+r,'rx');return r;}
+          }catch(e){break;}
+        }
+        const t=rbuf.replace(/\r/g,'\n').replace(/\n+/g,'\n').replace(/>/g,'').trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;
+      };
+      await send('ATZ',2000);await new Promise(r=>setTimeout(r,500));
+      await send('ATE0');
+      const ati=await send('ATI');addLog('Firmware: '+ati,'info');
+      const stdi=await send('STDI');
+      const isSTN=!stdi.includes('?')&&!stdi.includes('ERROR')&&stdi.length>2;
+      addLog('Bench adapter: '+(isSTN?'STN/OBDLink':'ELM327'),'info');
+      if(isSTN){await send('ATPP2CSV81');await send('ATPP2CON');await send('ATPP2DSV01');await send('ATPP2DON');await send('ATZ',1500);await new Promise(r=>setTimeout(r,500));await send('ATE0');}
+      await send('ATL0');await send('ATS1');await send('ATH1');await send('ATSP6');await send('ATAT2');await send('ATST96');
+      if(isSTN){await send('ATCAF1');await send('STCSWM1');await send('ATFCSH7E0');await send('ATFCSD300000');await send('ATFCSM1');}
+      else{await send('ATCAF1');await send('ATFCSM1');}
+      let curTx=0,curRx=0;
+      benchEng.current={send,isSTN,uds:async(tx,rx,data)=>{
+        if(tx!==curTx){await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));if(isSTN)await send('ATFCSH'+tx.toString(16).toUpperCase().padStart(3,'0'));curTx=tx;}
+        if(rx!==curRx){await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));curRx=rx;}
+        const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
         const r=await send(h,5000);
-        if(!r||r.includes('NO DATA')||r.includes('ERROR'))return{ok:false};
-        const ls=r.split(/\r?\n/).map(l=>l.trim()).filter(l=>/^[0-9A-F\s]+$/i.test(l));
-        let all=[];ls.forEach(l=>{(l.replace(/\s/g,'').match(/.{2}/g)||[]).forEach(x=>all.push(parseInt(x,16)));});
+        if(!r||/NO DATA|UNABLE TO CONNECT|CAN ERROR|BUS ERROR/.test(r))return{ok:false};
+        if(r.includes('?')||r.includes('ERROR'))return{ok:false};
+        const rxHex=rx.toString(16).toUpperCase().padStart(3,'0');
+        const lines=r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0);
+        let all=[];
+        for(const line of lines){if(line.includes('SEARCHING')||line==='OK')continue;const toks=line.split(/\s+/);if(toks.length<2)continue;const first=toks[0].toUpperCase();if(/^[0-9A-F]{3}$/.test(first)){if(first===rxHex){for(let i=1;i<toks.length;i++){if(/^[0-9A-Fa-f]{2}$/.test(toks[i]))all.push(parseInt(toks[i],16));}}}else{for(const t of toks){if(/^[0-9A-Fa-f]{2}$/.test(t))all.push(parseInt(t,16));}}}
+        if(!all.length)return{ok:false};
         return{ok:true,d:new Uint8Array(all)};
       }};
       setBenchConn(true);addLog('Bench ready — HS-CAN 500kbps','info');
@@ -447,19 +470,19 @@ function BenchTab(){
           </div>
           <div style={{fontSize:12,fontWeight:800,color:C.tx,marginBottom:8}}>Write VIN</div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:10}}>
-            <Btn onClick={()=>benchWriteModule(0x7E4,0x7EC,'DAMP')} disabled={!!benchBusy||nv.length!==17} color={C.a4}>⚡ Write DAMP</Btn>
-            <Btn onClick={()=>benchWriteModule(0x745,0x765,'IPC')} disabled={!!benchBusy||nv.length!==17} color={C.a1}>⚡ Write IPC</Btn>
+            <Btn onClick={()=>benchWriteModule(0x7A8,0x7B0,'ADCM')} disabled={!!benchBusy||nv.length!==17} color={C.a4}>⚡ Write ADCM</Btn>
+            <Btn onClick={()=>benchWriteModule(0x740,0x748,'IPC')} disabled={!!benchBusy||nv.length!==17} color={C.a1}>⚡ Write IPC</Btn>
             <Btn onClick={()=>benchWriteModule(0x7E0,0x7E8,'ECM')} disabled={!!benchBusy||nv.length!==17} color={C.a2}>⚡ Write ECM</Btn>
             <Btn onClick={()=>benchWriteModule(0x7E1,0x7E9,'TCM')} disabled={!!benchBusy||nv.length!==17} color={C.a3}>⚡ Write TCM</Btn>
-            <Btn onClick={()=>benchWriteModule(0x742,0x762,'BCM')} disabled={!!benchBusy||nv.length!==17} color={C.sr}>⚡ Write BCM</Btn>
+            <Btn onClick={()=>benchWriteModule(0x750,0x758,'BCM')} disabled={!!benchBusy||nv.length!==17} color={C.sr}>⚡ Write BCM</Btn>
           </div>
           <div style={{fontSize:12,fontWeight:800,color:C.tx,marginBottom:8}}>Read VIN</div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-            <Btn onClick={()=>benchReadVin(0x7E4,0x7EC,'DAMP')} disabled={!!benchBusy} color={C.a4} outline>📖 Read DAMP</Btn>
-            <Btn onClick={()=>benchReadVin(0x745,0x765,'IPC')} disabled={!!benchBusy} color={C.a1} outline>📖 Read IPC</Btn>
+            <Btn onClick={()=>benchReadVin(0x7A8,0x7B0,'ADCM')} disabled={!!benchBusy} color={C.a4} outline>📖 Read ADCM</Btn>
+            <Btn onClick={()=>benchReadVin(0x740,0x748,'IPC')} disabled={!!benchBusy} color={C.a1} outline>📖 Read IPC</Btn>
             <Btn onClick={()=>benchReadVin(0x7E0,0x7E8,'ECM')} disabled={!!benchBusy} color={C.a2} outline>📖 Read ECM</Btn>
             <Btn onClick={()=>benchReadVin(0x7E1,0x7E9,'TCM')} disabled={!!benchBusy} color={C.a3} outline>📖 Read TCM</Btn>
-            <Btn onClick={()=>benchReadVin(0x742,0x762,'BCM')} disabled={!!benchBusy} color={C.sr} outline>📖 Read BCM</Btn>
+            <Btn onClick={()=>benchReadVin(0x750,0x758,'BCM')} disabled={!!benchBusy} color={C.sr} outline>📖 Read BCM</Btn>
           </div>
           <div style={{marginTop:10,fontSize:10,color:C.ts}}>
             <div><b>Flow:</b> Extended session → CDA6 security → Write DIDs (F190/7B90/7B88) → ECU Reset</div>
