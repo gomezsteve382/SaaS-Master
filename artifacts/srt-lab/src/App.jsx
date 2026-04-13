@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import FcaAnalyzerTab from "./FcaAnalyzerTab";
 import OBDSwarmDiagnostic from "./OBDSwarmDiagnostic";
+import J2534Scanner from "./J2534Scanner";
 
 /* ═══ VERIFIED ENGINES ═══ */
 function crc16(d,i=0xFFFF){let c=i;for(let x=0;x<d.length;x++){c^=d[x]<<8;for(let j=0;j<8;j++)c=c&0x8000?(c<<1)^0x1021:c<<1;c&=0xFFFF;}return c;}
@@ -403,7 +404,7 @@ function Card({children,style={},glow,onClick}){const[h,setH]=useState(false);re
 function Tag({children,color=C.sr}){return<span style={{fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:8,background:color+'14',color,letterSpacing:.5,display:'inline-block',marginLeft:4}}>{children}</span>;}
 function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=useState(false);return<button onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#E8E4DE':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?C.tm:outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
 function SLine({type,msg}){const col={error:C.er,warn:C.wn,pass:C.gn};const ico={error:'✗',warn:'⚠',pass:'✓'};return<div style={{fontSize:12,color:col[type],padding:'4px 0',display:'flex',gap:8}}><span style={{fontWeight:700,minWidth:14}}>{ico[type]}</span><span>{msg}</span></div>;}
-const TABS=[{id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},{id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},{id:'bench',i:'🔧',l:'BENCH',s:'Offline · Dumps'},{id:'seed',i:'🔑',l:'SEED→KEY',s:'14 Algorithms'},{id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},{id:'skim',i:'🛡️',l:'SECURITY',s:'Cross-Match'},{id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'},{id:'analyzer',i:'🔬',l:'ANALYZER',s:'GPEC · RFHUB · BCM'},{id:'swarm',i:'🐝',l:'SWARM',s:'5-Agent CAN Scan'}];
+const TABS=[{id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},{id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},{id:'bench',i:'🔧',l:'BENCH',s:'Offline · Dumps'},{id:'seed',i:'🔑',l:'SEED→KEY',s:'14 Algorithms'},{id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},{id:'skim',i:'🛡️',l:'SECURITY',s:'Cross-Match'},{id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'},{id:'analyzer',i:'🔬',l:'ANALYZER',s:'GPEC · RFHUB · BCM'},{id:'swarm',i:'🐝',l:'SWARM',s:'5-Agent CAN Scan'},{id:'j2534',i:'⚡',l:'J2534',s:'Raw CAN PassThru'}];
 
 /* ═══ APP ═══ */
 export default function App(){const[pg,setPg]=useState('dumps');const[files,setFiles]=useState([]);
@@ -430,6 +431,7 @@ export default function App(){const[pg,setPg]=useState('dumps');const[files,setF
       {pg==='gpec2a'&&<Gpec2aTab/>}
       {pg==='analyzer'&&<FcaAnalyzerTab/>}
       {pg==='swarm'&&<OBDSwarmDiagnostic/>}
+      {pg==='j2534'&&<J2534Scanner/>}
     </div></div>;}
 
 /* ═══ BENCH TAB ═══ */
