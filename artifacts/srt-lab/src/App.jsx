@@ -563,7 +563,7 @@ function SecurityTab(){
   function doTool(action){
     const m=mods[tt];if(!m)return;let res=null;
     if(action==='virginize'){const d=virginizeModule(m.data,m.type);res={data:d,desc:m.name+' virginized: keys/VINs/SKIM cleared.'};}
-    else if(action==='writeVin'&&tv.length===17){const d=writeModuleVIN(m.data,m.type,tv,m.vins);if(d)res={data:d,desc:'VIN updated to '+tv+' at '+(m.vins?m.vins.length:0)+' locations + IMMO backup synced'};}
+    else if(action==='writeVin'&&tv.length===17){const d=writeModuleVIN(m.data,m.type,tv,m.vins);if(d)res={data:d,desc:'VIN updated to '+tv+' at '+(m.vins?m.vins.length:0)+' locations'+(m.type==='BCM'?' + IMMO backup synced':'')};}
     else if(action==='skimToggle'&&m.type==='GPEC2A'){const d=new Uint8Array(m.data);d[0x0011]=m.skimByte===0x80?0x00:0x80;res={data:d,desc:'SKIM: 0x'+m.skimByte.toString(16).toUpperCase()+' → 0x'+d[0x0011].toString(16).toUpperCase()};}
     else if(action==='extractKey'){let k=m.secretKey?m.secretKey.hex:m.vehicleSecret?m.vehicleSecret.hex:m.skey&&!m.skb?hxb(m.skey):'';res={keyHex:k,desc:'Extracted from '+m.type};}
     else if(action==='syncImmo'&&m.type==='BCM'){const d=syncImmoBackup(m.data);if(d)res={data:d,desc:'IMMO backup synced: '+countSkimRecs(m.data,0x40C0)+' SKIM records copied 0x40C0 → 0x2000'};else res={desc:'BCM file too small for IMMO sync'};}
