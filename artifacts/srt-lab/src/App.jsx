@@ -357,9 +357,8 @@ function BenchTab(){
       const stdi=await send('STDI');
       const isSTN=!stdi.includes('?')&&!stdi.includes('ERROR')&&stdi.length>2;
       addLog('Bench adapter: '+(isSTN?'STN/OBDLink':'ELM327'),'info');
-      if(isSTN){await send('ATPP2CSV81');await send('ATPP2CON');await send('ATPP2DSV01');await send('ATPP2DON');await send('ATZ',1500);await new Promise(r=>setTimeout(r,500));await send('ATE0');}
       await send('ATL0');await send('ATS1');await send('ATH1');await send('ATSP6');await send('ATAT2');await send('ATST96');
-      if(isSTN){await send('ATCAF1');await send('STCSWM1');await send('ATFCSH7E0');await send('ATFCSD300000');await send('ATFCSM1');}
+      if(isSTN){await send('ATCAF1');await send('ATFCSH7E0');await send('ATFCSD300000');await send('ATFCSM1');}
       else{await send('ATCAF1');await send('ATFCSM1');}
       let curTx=0,curRx=0;
       benchEng.current={send,isSTN,uds:async(tx,rx,data)=>{
@@ -868,7 +867,7 @@ function OBDTab(){
       const isSTN=!stdi.includes('?')&&!stdi.includes('ERROR')&&stdi.length>2;
       addLog('Adapter: '+(isSTN?'OBDLink/STN':'ELM327'),'info');
       await send('ATL0');await send('ATS1');await send('ATH1');await send('ATSP6');await send('ATAT2');await send('ATST96');
-      if(isSTN){await send('ATCAF1');await send('STCSWM1');await send('ATFCSH7E0');await send('ATFCSD300000');await send('ATFCSM1');}
+      if(isSTN){await send('ATCAF1');await send('ATFCSH7E0');await send('ATFCSD300000');await send('ATFCSM1');}
       else{await send('ATCAF1');await send('ATCFC1');await send('ATAL');await send('ATFCSM1');}
       let curTx=0,curRx=0;
       eng.current={send,isSTN,uds:async(tx,rx,data)=>{
