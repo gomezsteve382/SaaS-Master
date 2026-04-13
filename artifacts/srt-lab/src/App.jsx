@@ -988,30 +988,33 @@ function OBDTab(){
   const canMonitor=useCallback(async()=>{
     if(!eng.current)return;setBusy('Monitoring...');
     addLog('=== CAN BUS MONITOR — listening 5 sec ===','info');
-    await eng.current.send('ATCRA');/* clear CRA filter = accept all */
-    await new Promise(r=>setTimeout(r,100));
-    const r=await eng.current.send('ATMA',6000);
-    /* break out of ATMA */
-    await eng.current.send('',500);
-    await new Promise(r=>setTimeout(r,300));
-    if(r){
-      const ids=new Set();
-      r.split(/[\r\n]+/).forEach(line=>{
-        const clean=line.trim();
-        if(/^[0-9A-Fa-f]{3}\s/.test(clean))ids.add(clean.slice(0,3).toUpperCase());
-      });
-      if(ids.size>0){
-        addLog('Active CAN IDs: '+[...ids].sort().join(', '),'rx');
-        for(const id of ids){
-          const num=parseInt(id,16);
-          const mod=MODS.find(m=>m.rx===num||m.tx===num);
-          if(mod)addLog('  '+id+' → '+mod.c+' ('+mod.n+')','rx');
-        }
-      }else{addLog('No CAN traffic detected — check wiring and power','error');addLog('Raw: '+r.slice(0,200),'warn');}
-    }else{addLog('ATMA returned nothing — bus may be silent','error');}
-    await eng.current.send('ATSP6');
-    await eng.current.send('ATCAF1');
-    setBusy('');
+    try{
+      await eng.current.send('ATCRA');/* clear CRA filter = accept all */
+      await new Promise(r=>setTimeout(r,100));
+      const r=await eng.current.send('ATMA',6000);
+      /* break out of ATMA */
+      await eng.current.send('',500);
+      await new Promise(r=>setTimeout(r,300));
+      if(r){
+        const ids=new Set();
+        r.split(/[\r\n]+/).forEach(line=>{
+          const clean=line.trim();
+          if(/^[0-9A-Fa-f]{3}\s/.test(clean))ids.add(clean.slice(0,3).toUpperCase());
+        });
+        if(ids.size>0){
+          addLog('Active CAN IDs: '+[...ids].sort().join(', '),'rx');
+          for(const id of ids){
+            const num=parseInt(id,16);
+            const mod=MODS.find(m=>m.rx===num||m.tx===num);
+            if(mod)addLog('  '+id+' → '+mod.c+' ('+mod.n+')','rx');
+            else addLog('  '+id+' → unknown','warn');
+          }
+        }else{addLog('No CAN traffic detected — check wiring and power','error');addLog('Raw: '+r.slice(0,200),'warn');}
+      }else{addLog('ATMA returned nothing — bus may be silent','error');}
+      await eng.current.send('ATSP6');
+      await eng.current.send('ATCAF1');
+    }catch(e){addLog('CAN monitor error: '+e.message,'error');}
+    finally{setBusy('');}
   },[]);
 
   return<div style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:16}}>
