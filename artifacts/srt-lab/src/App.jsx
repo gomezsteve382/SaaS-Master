@@ -816,26 +816,13 @@ function OBDTab(){
     try{
       if(!navigator.serial){addLog('Web Serial not available — use Chrome','error');return;}
       const port=await navigator.serial.requestPort();
-      const rates=[baud,...[115200,38400,9600,2000000].filter(r=>r!==baud)];
-      let w,buf='',ok=false,usedRate=baud;
-      for(const rate of rates){
-        try{
-          await port.open({baudRate:rate});
-          w=port.writable.getWriter();
-          const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable).catch(()=>{});
-          const rd=dec.readable.getReader();buf='';
-          (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value)buf+=value;}}catch(e){}})();
-          buf='';await w.write(new TextEncoder().encode('ATZ\r'));
-          const s=Date.now();while(Date.now()-s<3000){const cl=buf.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'');if(cl.includes('>')){ok=true;usedRate=rate;break;}await new Promise(r=>setTimeout(r,50));}
-          if(ok)break;
-          try{rd.releaseLock();}catch(e){}try{w.releaseLock();}catch(e){}try{await port.close();}catch(e){}
-          addLog('No response at '+rate+' baud, trying next...','warn');
-        }catch(e){try{await port.close();}catch(ex){}}
-      }
-      if(!ok){addLog('No adapter response at any baud rate — check USB connection','error');return;}
-      addLog('Connected @ '+usedRate+' baud','info');
+      await port.open({baudRate:baud});
+      const w=port.writable.getWriter();
+      const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable).catch(()=>{});
+      const rd=dec.readable.getReader();let buf='';
+      (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value)buf+=value;}}catch(e){}})();
       const send=async(cmd,to=2000)=>{buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){const cl=buf.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'');if(cl.includes('>')){const r=cl.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const partial=buf.replace(/[\x00-\x1f]/g,' ').trim();if(partial)addLog('RX (timeout) < '+partial,'warn');else addLog('RX (no response)','warn');return partial;};
-      await new Promise(r=>setTimeout(r,300));
+      await send('ATZ',3000);await new Promise(r=>setTimeout(r,500));
       const id=await send('ATI',3000);addLog('Adapter: '+id,'info');
       for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6']){const ar=await send(c);if(ar.includes('?'))addLog(c+' not supported','warn');await new Promise(r=>setTimeout(r,100));}
       eng.current={send,uds:async(tx,rx,data)=>{
