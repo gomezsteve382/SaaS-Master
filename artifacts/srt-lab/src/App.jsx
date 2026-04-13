@@ -175,7 +175,7 @@ function analyzeFile(buf,name){const data=new Uint8Array(buf);const sz=data.leng
 function patchFile(f,nv){const out=new Uint8Array(f.data);const vb=new TextEncoder().encode(nv.toUpperCase());const log=[];
   for(const s of f.vins){if(s.mirrored){const m=[...vb].reverse();for(let j=0;j<17;j++)out[s.off+j]=m[j];const stored=new Uint8Array(m);out[s.coff]=crc8rf(stored);log.push('0x'+s.off.toString(16).toUpperCase()+' mirrored CRC8');}else{for(let j=0;j<17;j++)out[s.off+j]=vb[j];if(s.algo==='c16'){const c=crc16(vb);out[s.coff]=(c>>8)&0xFF;out[s.coff+1]=c&0xFF;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC16');}else if(s.algo==='c8'){const c=crc8_42(vb);out[s.coff]=c;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC8');}else log.push('0x'+s.off.toString(16).toUpperCase());}}
   if(f.partials){const tb=new TextEncoder().encode(nv.toUpperCase().slice(9));for(const s of f.partials){for(let j=0;j<8;j++)out[s.off+j]=tb[j];const c=crc16(tb);out[s.coff]=(c>>8)&0xFF;out[s.coff+1]=c&0xFF;log.push('0x'+s.off.toString(16).toUpperCase()+' partial');}}
-  if(f.type==='BCM'){for(let i=0;i<IMMO_BLOCK;i++)out[0x2000+i]=out[0x40C0+i];log.push('IMMO backup synced');}
+  if(f.type==='BCM'&&out.length>=0x40C0+IMMO_BLOCK&&out.length>=0x2000+IMMO_BLOCK){for(let i=0;i<IMMO_BLOCK;i++)out[0x2000+i]=out[0x40C0+i];log.push('IMMO backup synced');}
   return{data:out,log};}
 
 function virginizeFile(f){const out=new Uint8Array(f.data);const log=[];
@@ -203,7 +203,7 @@ function writeModuleVIN(data,type,vin,existingVins){
     const tb=new TextEncoder().encode(vin.slice(9));for(const po of[0x4098,0x40B0]){if(po+10>out.length)continue;for(let i=0;i<8;i++)out[po+i]=tb[i];const c=crc16(tb);out[po+8]=(c>>8)&0xFF;out[po+9]=c&0xFF;}}
   if(type==='95640')offs.forEach(o=>{out[o-1]=crc8_42(vb);});
   if(type==='RFHUB'&&!hasMirrored)offs.forEach(o=>{out[o+17]=crc8rf(out.slice(o,o+17));});
-  if(type==='BCM')for(let i=0;i<IMMO_BLOCK;i++)out[0x2000+i]=out[0x40C0+i];
+  if(type==='BCM'&&out.length>=0x40C0+IMMO_BLOCK&&out.length>=0x2000+IMMO_BLOCK)for(let i=0;i<IMMO_BLOCK;i++)out[0x2000+i]=out[0x40C0+i];
   return out;
 }
 
