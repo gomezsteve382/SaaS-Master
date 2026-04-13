@@ -54,13 +54,13 @@ No backend required — the API server exists but is unused by this app.
 
 ## BCM IMMO Backup Sync
 
-BCM SKIM key tables use 24-byte records (IMMO_REC=24, IMMO_KC=6, IMMO_BLOCK=144 bytes):
-- **Primary**: 0x40C0 (SRT layout, 6 SKIM key records)
+BCM SKIM key tables use 24-byte records (IMMO_REC=24, IMMO_KC=8, IMMO_BLOCK=192 bytes):
+- **Primary**: 0x40C0 (SRT layout, up to 8 SKIM key records, 0x40C0–0x417F)
 - **Backup**: 0x2000 (Trackhawk layout, mirrors primary)
-- `syncImmoBackup()`: copies 144 bytes from 0x40C0→0x2000 with bounds check
+- `syncImmoBackup()`: copies 192 bytes from 0x40C0→0x2000 with bounds check
 - Auto-syncs during BCM VIN patching (both `patchFile` and `writeModuleVIN`)
 - Standalone sync buttons in DUMPS, BENCH, and SECURITY Tools tabs
-- Virginize clears full 144-byte IMMO block at both addresses
+- Virginize clears full 192-byte IMMO block at both addresses
 
 ## Verified CRC Algorithms
 
