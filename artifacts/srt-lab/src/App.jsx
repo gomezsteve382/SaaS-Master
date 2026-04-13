@@ -336,7 +336,7 @@ function BenchTab(){
       const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable).catch(()=>{});
       const rd=dec.readable.getReader();let buf='';
       (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value)buf+=value;}}catch(e){}})();
-      const send=async(cmd,to=2000)=>{buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(buf.includes('>')){const r=buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}return buf.trim();};
+      const send=async(cmd,to=2000)=>{buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(buf.includes('>')){const r=buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const t=buf.trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;};
       await send('ATZ',3000);await new Promise(r=>setTimeout(r,500));
       addLog('Bench adapter: '+(await send('ATI')),'info');
       for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6']){await send(c);await new Promise(r=>setTimeout(r,80));}
@@ -820,7 +820,7 @@ function OBDTab(){
       const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable).catch(()=>{});
       const rd=dec.readable.getReader();let buf='';
       (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value)buf+=value;}}catch(e){}})();
-      const send=async(cmd,to=2000)=>{buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(buf.includes('>')){const r=buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}return buf.trim();};
+      const send=async(cmd,to=2000)=>{buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(buf.includes('>')){const r=buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const t=buf.trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;};
       await send('ATZ',3000);await new Promise(r=>setTimeout(r,500));
       addLog('Adapter: '+(await send('ATI')),'info');
       for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6']){await send(c);await new Promise(r=>setTimeout(r,80));}
