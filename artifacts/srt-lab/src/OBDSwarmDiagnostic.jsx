@@ -271,18 +271,85 @@ export default function OBDSwarmDiagnostic() {
       const k = a.tx + ':' + a.rx;
       if (foundSet.current.has(k)) continue;
       try {
+        // DiagSession ExtendedDiag first (body modules require this before VIN read)
+        const ds = await uds(a.tx, a.rx, [0x10, 0x03]);
+        if (ds.ok) {
+          const r = await uds(a.tx, a.rx, [0x22, 0xF1, 0x90]);
+          addFound(a.tx, a.rx, a.name, a.src, r.ok ? parseVin(r.d) : null);
+          continue;
+        }
+        // Fallback: VIN read without session
         const r = await uds(a.tx, a.rx, [0x22, 0xF1, 0x90]);
         if (r.ok) { addFound(a.tx, a.rx, a.name, a.src, parseVin(r.d)); continue; }
+        // Fallback: TesterPresent
         const tpr = await uds(a.tx, a.rx, [0x3E, 0x00]);
         if (tpr.ok) { addFound(a.tx, a.rx, a.name, a.src, null); continue; }
-        const ds = await uds(a.tx, a.rx, [0x10, 0x01]);
-        if (ds.ok) { addFound(a.tx, a.rx, a.name, a.src, null); continue; }
       } catch (e) { }
       await new Promise(r => setTimeout(r, 20));
     }
     addLog('SWEEPER', `Sweep complete — ${foundSet.current.size} modules found so far`, AGENT_COLORS.SWEEPER);
 
     if (isSTN && foundSet.current.size <= 2) {
+      addLog('SHIFTER', '🔄 Protocol variant probing (SP5/SP6/SP7 + CAN-IHS)...', AGENT_COLORS.SHIFTER);
+
+      // SP5 = ISO 15765-4 CAN (11-bit, 250kbps)
+      addLog('SHIFTER', 'Trying ATSP5 (CAN 11-bit 250kbps)...', AGENT_COLORS.SHIFTER);
+      await send('ATSP5'); await new Promise(r => setTimeout(r, 300));
+      await send('ATCRA'); await send('ATH1'); await send('ATCAF1'); await send('ATST96');
+      await send('ATSH7DF');
+      const sp5r = await send('22 F1 90', 4000);
+      if (sp5r && !sp5r.includes('NO DATA') && !sp5r.includes('CAN ERROR') && !sp5r.includes('UNABLE')) {
+        addLog('SHIFTER', 'SP5 responses found!', AGENT_COLORS.FOUND);
+        for (const bl of sp5r.split(/[\r\n]+/)) {
+          const bt = bl.trim();
+          if (/^[0-9A-Fa-f]{3}\s/.test(bt)) {
+            const rid = parseInt(bt.slice(0, 3), 16);
+            const tid = rid - 8;
+            let name = 'SP5_' + tid.toString(16).toUpperCase();
+            for (const a of UNIQUE_ADDRS) { if (a.rx === rid || a.tx === tid) { name = a.name; break; } }
+            addFound(tid, rid, name, 'SP5', null);
+          }
+        }
+      } else {
+        addLog('SHIFTER', 'SP5: ' + (sp5r || 'no response'), AGENT_COLORS.SHIFTER);
+      }
+
+      // SP7 = ISO 15765-4 CAN (11-bit, 33.3kbps) — used by some older modules
+      addLog('SHIFTER', 'Trying ATSP7 (CAN 11-bit 33.3kbps)...', AGENT_COLORS.SHIFTER);
+      await send('ATSP7'); await new Promise(r => setTimeout(r, 300));
+      await send('ATCRA'); await send('ATH1'); await send('ATCAF1'); await send('ATST96');
+      await send('ATSH7DF');
+      const sp7r = await send('22 F1 90', 4000);
+      if (sp7r && !sp7r.includes('NO DATA') && !sp7r.includes('CAN ERROR') && !sp7r.includes('UNABLE')) {
+        addLog('SHIFTER', 'SP7 responses found!', AGENT_COLORS.FOUND);
+        for (const bl of sp7r.split(/[\r\n]+/)) {
+          const bt = bl.trim();
+          if (/^[0-9A-Fa-f]{3}\s/.test(bt)) {
+            const rid = parseInt(bt.slice(0, 3), 16);
+            const tid = rid - 8;
+            let name = 'SP7_' + tid.toString(16).toUpperCase();
+            for (const a of UNIQUE_ADDRS) { if (a.rx === rid || a.tx === tid) { name = a.name; break; } }
+            addFound(tid, rid, name, 'SP7', null);
+          }
+        }
+      } else {
+        addLog('SHIFTER', 'SP7: ' + (sp7r || 'no response'), AGENT_COLORS.SHIFTER);
+      }
+
+      // Restore SP6 (standard HS-CAN 500kbps)
+      await send('ATSP6'); await new Promise(r => setTimeout(r, 200));
+      await send('ATCRA'); await send('ATH1'); await send('ATCAF1');
+      await send('ATAT2'); await send('ATST96');
+      if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
+      addLog('SHIFTER', 'Restored SP6 (HS-CAN 500kbps)', AGENT_COLORS.SHIFTER);
+
+      // Verify PP mode on STN adapter
+      if (isSTN) {
+        const ppv = await send('ATPP2C?', 2000);
+        addLog('SHIFTER', 'PP2C status: ' + (ppv || '?'), AGENT_COLORS.SHIFTER);
+      }
+
+      // CAN-IHS via STP61 (pins 3/11, 125kbps) — fast-fail on CAN ERROR
       addLog('SHIFTER', '🔄 Trying CAN-IHS (STP61, pins 3/11, 125kbps)...', AGENT_COLORS.SHIFTER);
       const sw = await send('STP61');
       if (sw.includes('OK') || (!sw.includes('?') && !sw.includes('ERROR'))) {

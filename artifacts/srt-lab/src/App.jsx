@@ -1281,7 +1281,7 @@ function OBDTab(){
           addLog('Active CAN IDs: '+[...ids].sort().join(', '),'rx');
           for(const id of ids){
             const num=parseInt(id,16);
-            const mod=MODS.find(m=>m.rx===num||m.tx===num);
+            const mod=MODS.find(m=>m.addrs.some(a=>a.tx===num||a.rx===num));
             if(mod)addLog('  '+id+' → '+mod.c+' ('+mod.n+')','rx');
             else addLog('  '+id+' → unknown','warn');
           }
