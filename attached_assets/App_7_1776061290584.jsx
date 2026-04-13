@@ -13,7 +13,24 @@ function ngc(s){let k=0;for(let i=0;i<4;i++){let b=(u32(s)>>(i*8))&0xFF;k=u32(k^
 const TT={a:[0x727B,0xB301,0x08EB,0xB0BA,0xECA7,0x0ECC,0xD69A,0xE47E],b:[0x7A44,0x0201,0xF123,0x146E,0xCBC2,0x553F,0xD398,0x4EDC],c:[0x22B5,0x5767,0x4C5A,0xE443,0xC606,0x7544,0x0DFB,0x36D6],d:[0x632A,0x193B,0x914F,0x0F88,0x5E51,0x8DCD,0xDD6C,0x00DD]},TM=[0xBAEE,0xE000,0x1C00,0x0380,0x0070,0x0007];
 function tipm(s,t='a'){const tb=TT[t]||TT.a;let v=s&0xFFFF,k=0;for(let i=0;i<tb.length;i++){let m=v&TM[i%TM.length],b=0,x=m;while(x){b^=x&1;x>>=1;}k=(k<<1)|b;k^=tb[i];k&=0xFFFF;}return k;}
 const ALGOS=[{id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},{id:'gpec2',n:'GPEC2',h:'Continental',fn:s=>sxor(s,0xE72E3799)},{id:'gpec2f',n:'GPEC2 Flash',h:'Flash',fn:s=>sxor(s,0x966AEEB1)},{id:'gpec2e',n:'GPEC2 EPROM',h:'EPROM',fn:s=>sxor(s,0x3F711F5A)},{id:'gpec3',n:'GPEC3',h:'2018+',fn:s=>sxor(s,0x129D657F)},{id:'gpec2a',n:'GPEC2A',h:'GPEC2A',fn:s=>sxor(s,0xCE853A6F)},{id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},{id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},{id:'jtec',n:'JTEC',h:'Fixed 0000',fn:()=>0},{id:'cda6',n:'CDA6',h:'BCM/ABS/IPC',fn:s=>cda6(s)},{id:'t80',n:'TIPM 0x80',h:'t8001',fn:s=>tipm(s,'a')},{id:'t36',n:'TIPM 0x36',h:'t3605',fn:s=>tipm(s,'b')},{id:'t81',n:'TIPM 0x81',h:'t8101',fn:s=>tipm(s,'c')},{id:'t3c',n:'TIPM 0x3C',h:'t3c',fn:s=>tipm(s,'d')}];
-const MODS=[{c:'ECM',n:'Engine',tx:0x7E0,rx:0x7E8,bus:'C'},{c:'TCM',n:'Transmission',tx:0x7E1,rx:0x7E9,bus:'C'},{c:'DTCM',n:'Transfer Case',tx:0x7E2,rx:0x7EA,bus:'C'},{c:'BCM',n:'Body Control',tx:0x750,rx:0x758,bus:'IHS'},{c:'RFHUB',n:'RF Hub',tx:0x75F,rx:0x767,bus:'IHS'},{c:'ABS',n:'Brakes',tx:0x760,rx:0x768,bus:'IHS'},{c:'IPC',n:'Cluster',tx:0x740,rx:0x748,bus:'IHS'},{c:'RADIO',n:'Uconnect',tx:0x772,rx:0x77A,bus:'IHS'},{c:'ADCM',n:'Active Damping',tx:0x7A8,rx:0x7B0,bus:'IHS'},{c:'EPS',n:'Steering',tx:0x761,rx:0x769,bus:'IHS'},{c:'TIPM',n:'Power Module',tx:0x74C,rx:0x76C,bus:'IHS'},{c:'ORC',n:'Occupant Restraint',tx:0x758,rx:0x760,bus:'IHS'},{c:'HVAC',n:'HVAC Control',tx:0x751,rx:0x759,bus:'IHS'},{c:'TPM',n:'Tire Pressure',tx:0x752,rx:0x75A,bus:'IHS'}];
+const MODS=[
+{c:'ECM',n:'Engine',addrs:[{tx:0x7E0,rx:0x7E8}]},
+{c:'TCM',n:'Transmission',addrs:[{tx:0x7E1,rx:0x7E9}]},
+{c:'BCM',n:'Body Control',addrs:[{tx:0x742,rx:0x762},{tx:0x750,rx:0x758},{tx:0x6B0,rx:0x6B8},{tx:0x7B0,rx:0x7B8},{tx:0x620,rx:0x628}]},
+{c:'RFHUB',n:'RF Hub',addrs:[{tx:0x75F,rx:0x767},{tx:0x742,rx:0x762},{tx:0x762,rx:0x76A},{tx:0x740,rx:0x748}]},
+{c:'ABS',n:'Brakes',addrs:[{tx:0x760,rx:0x768},{tx:0x747,rx:0x74F},{tx:0x740,rx:0x748}]},
+{c:'IPC',n:'Cluster',addrs:[{tx:0x745,rx:0x765},{tx:0x740,rx:0x748},{tx:0x746,rx:0x766},{tx:0x720,rx:0x728},{tx:0x742,rx:0x74A}]},
+{c:'RADIO',n:'Uconnect',addrs:[{tx:0x772,rx:0x77A},{tx:0x754,rx:0x75C},{tx:0x753,rx:0x773},{tx:0x7D0,rx:0x7D8},{tx:0x7C8,rx:0x7D0}]},
+{c:'ADCM',n:'Active Damping',addrs:[{tx:0x744,rx:0x764},{tx:0x745,rx:0x765},{tx:0x7A8,rx:0x7B0},{tx:0x7E4,rx:0x7EC},{tx:0x754,rx:0x75C}]},
+{c:'EPS',n:'Steering',addrs:[{tx:0x75F,rx:0x767},{tx:0x761,rx:0x769},{tx:0x74A,rx:0x76A}]},
+{c:'TIPM',n:'Power Module',addrs:[{tx:0x74C,rx:0x76C},{tx:0x74C,rx:0x754}]},
+{c:'ORC',n:'Airbag',addrs:[{tx:0x758,rx:0x760},{tx:0x747,rx:0x767},{tx:0x744,rx:0x74C},{tx:0x730,rx:0x738}]},
+{c:'HVAC',n:'Climate',addrs:[{tx:0x751,rx:0x759},{tx:0x743,rx:0x763},{tx:0x688,rx:0x690},{tx:0x7A0,rx:0x7A8}]},
+{c:'DTCM',n:'Transfer Case',addrs:[{tx:0x7E2,rx:0x7EA},{tx:0x7A6,rx:0x7AE}]},
+{c:'SCCM',n:'Steering Column',addrs:[{tx:0x744,rx:0x764},{tx:0x763,rx:0x76B},{tx:0x750,rx:0x758}]},
+{c:'DDM',n:'Driver Door',addrs:[{tx:0x748,rx:0x768},{tx:0x640,rx:0x648}]},
+{c:'SGW',n:'Gateway',addrs:[{tx:0x74F,rx:0x76F},{tx:0x7C0,rx:0x7C8},{tx:0x6C0,rx:0x6C8}]}
+];
 
 const SKIM_OFF=[{v:'Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT',base:0x40C0,ks:18,kc:6}];
 const IMMO_REC=24,IMMO_KC=8,IMMO_BLOCK=IMMO_REC*IMMO_KC;
@@ -27,41 +44,8 @@ const WMI={'1C4':'Chrysler US','2C3':'Dodge CA','1C6':'RAM US','2C4':'Chrysler C
 const YR={A:2010,B:2011,C:2012,D:2013,E:2014,F:2015,G:2016,H:2017,J:2018,K:2019,L:2020,M:2021,N:2022,P:2023,R:2024,S:2025,T:2026};
 function checkVin(v){if(!v||v.length!==17)return{ok:false};const u=v.toUpperCase();if(!/^[A-HJ-NPR-Z0-9]{17}$/.test(u))return{ok:false,err:'Invalid chars'};let sum=0;for(let i=0;i<17;i++)sum+=(TR[u[i]]||0)*WT[i];const cd='0123456789X'[sum%11];return{ok:u[8]===cd,cd,wmi:u.slice(0,3),mfr:WMI[u.slice(0,3)]||'',yr:YR[u[9]]||'',err:u[8]!==cd?'Check digit: need '+cd:''};}
 const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
-const TC={BCM:'#FF6D00','95640':'#AA00FF',RFHUB:'#2979FF',GPEC2A:'#00BFA5',FW:'#9E9E9E',TCM:'#00897B',TIPM:'#F57C00',UNKNOWN:'#616161'};
-const TL={BCM:'BCM D-FLASH','95640':'FCA 95640',RFHUB:'RFHUB EEE',GPEC2A:'GPEC2A',FW:'Firmware',TCM:'TCM EEPROM',TIPM:'TIPM EEPROM',UNKNOWN:'Unknown'};
-
-/* ═══ Content-signature detection ═══ */
-function detectBySignature(data){
-  const sz=data.length;
-  /* TCM EEPROM — FCA ZF 8HP / 9-speed TCM: 8 KB or 16 KB EEPROM.
-     Characteristic: first two bytes are 0x00 0x00 or 0xFF 0xFF (erased),
-     bytes 0x10-0x11 hold a module class marker 0x01-0x08 (transmission type),
-     and a recognizable FCA part-number string appears around 0x200-0x220. */
-  if(sz>=4096&&sz<=20480){
-    const b0=data[0],b1=data[1];
-    const classMarker=data[0x10];
-    const hasTcmMarker=(b0===0x00&&b1===0x00)||(b0===0xFF&&b1===0xFF);
-    const tcmClass=classMarker>=0x01&&classMarker<=0x08;
-    /* Look for 0x55 AA pattern (TCM init sentinel) around first 32 bytes */
-    let has55AA=false;for(let i=0;i<Math.min(32,sz-1);i++)if(data[i]===0x55&&data[i+1]===0xAA){has55AA=true;break;}
-    /* Look for 0xA5 sentinel byte in header (common in ZF eeprom) */
-    const hasA5=data[2]===0xA5||data[3]===0xA5||data[4]===0xA5;
-    if((hasTcmMarker&&tcmClass)||(has55AA&&tcmClass)||(hasA5&&tcmClass))return'TCM';
-  }
-  /* TIPM EEPROM — Total Integrated Power Module: typically 2 KB–8 KB.
-     Magic: byte 0 = 0x00 or 0xFF, bytes 2-3 = config word 0x00xx or 0xFFxx,
-     repeating 0xAA pattern in first 16 bytes (power-distribution map sentinel),
-     and/or 0x36 or 0x80 marker at offset 0x04 (TIPM hardware variant). */
-  if(sz>=1024&&sz<=10240){
-    const tipmVariant=data[0x04]===0x36||data[0x04]===0x80||data[0x04]===0x81||data[0x04]===0x3C;
-    let aaCount=0;for(let i=0;i<Math.min(16,sz);i++)if(data[i]===0xAA)aaCount++;
-    const hasAaPattern=aaCount>=4;
-    /* TIPM modules often start with 0x00 0x00 header + variant byte */
-    const tipmHeader=(data[0]===0x00&&data[1]===0x00)||(data[0]===0xFF&&data[1]===0xFF);
-    if(tipmVariant&&(hasAaPattern||tipmHeader))return'TIPM';
-  }
-  return'UNKNOWN';
-}
+const TC={BCM:'#FF6D00','95640':'#AA00FF',RFHUB:'#2979FF',GPEC2A:'#00BFA5',FW:'#9E9E9E'};
+const TL={BCM:'BCM D-FLASH','95640':'FCA 95640',RFHUB:'RFHUB EEE',GPEC2A:'GPEC2A',FW:'Firmware'};
 
 /* ═══ Helpers for enhanced parser ═══ */
 function extractVIN(data,offset,len){if(!len)len=17;if(offset+len>data.length)return null;const bytes=data.slice(offset,offset+len);for(let i=0;i<bytes.length;i++){if(bytes[i]<0x30||bytes[i]>0x5a)return null;}return String.fromCharCode.apply(null,bytes);}
@@ -76,33 +60,12 @@ const fO=n=>"0x"+n.toString(16).toUpperCase().padStart(4,"0");
 /* ═══ Enhanced Module Parser (merged from analyzer) ═══ */
 function parseModule(data,filename){
   const sz=data.length;let type='UNKNOWN';
-  if(sz===65536||sz===131072){type='BCM';}
-  else if(sz===8192||sz===16384){
-    /* Check content signature first — TCM/TIPM can live at these sizes */
-    const sig=detectBySignature(data);
-    type=sig!=='UNKNOWN'?sig:'95640';
-  }
-  else if(sz===4096){
-    /* Check content signature first so TCM/TIPM at 4 KB override GPEC2A/RFHUB */
-    const sig4=detectBySignature(data);
-    if(sig4!=='UNKNOWN'){type=sig4;}
-    else{let va=true;for(let i=0;i<17&&i<sz;i++){const b=data[i];if(!((b>=0x30&&b<=0x39)||(b>=0x41&&b<=0x5A))){va=false;break;}}type=va?'GPEC2A':'RFHUB';}
-  }
+  if(sz===65536||sz===131072){type='BCM';for(let i=0;i<256&&i+7<=sz;i++){if(data[i]===0x46&&String.fromCharCode.apply(null,data.slice(i,i+7))==='FEE1000'){type='BCM';break;}}}
+  else if(sz===8192||sz===16384)type='95640';
+  else if(sz===4096){let va=true;for(let i=0;i<17&&i<sz;i++){const b=data[i];if(!((b>=0x30&&b<=0x39)||(b>=0x41&&b<=0x5A))){va=false;break;}}if(va){const sk=data[0x0011];if(sk===0x80||sk===0x00||sk===0x02||extractVIN(data,0x01f0))type='GPEC2A';else type='GPEC2A';}else type='RFHUB';}
   else if(sz>131072)type='FW';
-  /* Fuzzy-size ±4 KB gate: files within ±4 KB of any canonical EEPROM size
-     (64/128 KB BCM, 8/16 KB 95640, 4 KB GPEC2A/RFHUB) that fell through exact
-     classification (e.g. truncated/padded reads) are detected via content signature.
-     All other UNKNOWN files also run signature detection (TCM/TIPM may be any size).
-     Type changes only on a confirmed signature — proximity alone does not classify. */
-  if(type==='UNKNOWN'){
-    const CANONICAL_SIZES=[65536,131072,8192,16384,4096];
-    const nearCanonical=CANONICAL_SIZES.some(s=>Math.abs(sz-s)<=4096&&sz!==s);
-    /* nearCanonical marks the primary fuzzy-size path; signature runs regardless */
-    if(nearCanonical||sz>=512){const sig=detectBySignature(data);if(sig!=='UNKNOWN')type=sig;}
-  }
 
   const info={type,filename,data,size:sz,name:TL[type]||type,color:TC[type]||'#9E9E9E'};
-  if(type==='UNKNOWN')info.hexOnly=true;
 
   if(type==='GPEC2A'){
     info.vins=[{offset:0x0000,vin:extractVIN(data,0x0000)},{offset:0x01f0,vin:extractVIN(data,0x01f0)},{offset:0x0224,vin:extractVIN(data,0x0224)}].filter(v=>v.vin);
@@ -122,14 +85,6 @@ function parseModule(data,filename){
       distance:{offset:0x0e6d,value:rd32(data,0x0e6d),hex:extractHex(data,0x0e6d,4)},
       keyCycles:{offset:0x0e75,value:rd32(data,0x0e75),hex:extractHex(data,0x0e75,4)},
     };
-    /* PCM SEC6 — 6-byte vehicle secret at 0x3C8 (FCA SINCRO ref, offset 968) */
-    if(sz>0x3CE){
-      const s6=data.slice(0x3C8,0x3CE);
-      const s6blank=s6.every(b=>b===0xFF||b===0x00);
-      const s6damaged=s6.every(b=>b===0xFF);
-      info.pcmSec6={offset:0x3C8,raw:s6,hex:extractHex(data,0x3C8,6),blank:s6blank,damaged:s6damaged,
-        immoState:s6damaged?'IMMO_DAMAGED':'SET'};
-    }
   }else if(type==='RFHUB'){
     const knownOffsets=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
     const knownVins=knownOffsets.map(o=>{const v=extractVIN(data,o);if(v)return{offset:o,vin:v,mirrored:false,sc:o+17<sz?data[o+17]:0,cc:crc8rf(data.slice(o,o+17)),crcOk:o+17<sz&&data[o+17]===crc8rf(data.slice(o,o+17))};return null;}).filter(v=>v);
@@ -145,34 +100,6 @@ function parseModule(data,filename){
     if(sw)info.partNumbers.sw=sw;else if(data.length>=0x081c)info.partNumbers.sw=extractHex(data,0x0812,10);
     if(cal)info.partNumbers.cal=cal;else if(data.length>=0x083a)info.partNumbers.cal=extractHex(data,0x082c,14);
     info.skey=data.slice(0x40,0x50);info.skoff=0x40;info.skb=info.skey.every(b=>b===0xFF);
-    /* Secondary VIN at 0x92 (146) — FCA SINCRO ref, 17B + 2B CRC16 */
-    if(sz>=0x92+19){
-      const raw17=data.slice(0x92,0x92+17);
-      const notBlank=!raw17.every(b=>b===0xFF||b===0x00);
-      if(notBlank){let s='';for(let i=0;i<17;i++)s+=String.fromCharCode(raw17[i]);
-        const sc=(data[0x92+17]<<8)|data[0x92+18];const cc=crc16(raw17);
-        if(/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))
-          info.rfhVin92={offset:0x92,vin:s,storedCs:sc,calcCs:cc,csOk:sc===cc};
-      }
-    }
-    /* SEC16 main slots — 0xAE (Slot1) / 0xC0 (Slot2), each 16B raw + 2B CS (FCA SINCRO ref) */
-    info.sec16s=[];
-    for(const[slot,off]of[[1,0xAE],[2,0xC0]]){
-      if(off+18>sz)continue;
-      const raw=data.slice(off,off+16);
-      const cs=(data[off+16]<<8)|data[off+17];
-      const blank=raw.every(b=>b===0xFF||b===0x00);
-      const hex=Array.from(raw).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-      /* simple XOR-sum checksum over 16 bytes (verify against stored CS) */
-      let csCalc=0;for(let i=0;i<16;i++)csCalc^=raw[i];csCalc=(csCalc<<8)|csCalc;
-      info.sec16s.push({slot,offset:off,raw,hex,cs,csCalc,blank});
-    }
-    if(info.sec16s.length===2){
-      info.sec16match=arrEq(Array.from(info.sec16s[0].raw),Array.from(info.sec16s[1].raw));
-      info.sec16valid=!info.sec16s[0].blank&&info.sec16match;
-    }
-    /* Gen detection based on file size */
-    info.rfhGen=sz===4096?'Gen2 (24C32)':sz===8192?'Gen2-x2 (8192B, unusual)':sz===2048?'Gen1 (24C16)':'Unknown';
   }else if(type==='BCM'){
     info.vins=[0x5320,0x5340,0x5360,0x5380].map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);
     info.partialVins=[];
@@ -189,23 +116,8 @@ function parseModule(data,filename){
   }else if(type==='95640'){
     info.vins=[];
     for(const off of[0x275,0x288]){const v=extractVIN(data,off);if(v)info.vins.push({offset:off,vin:v});}
-    /* VIN at 0x1B82 (Cherokee KL BCM EEPROM, FCA SINCRO ref, decimal 7042) */
-    if(sz>=0x1B95){const v=extractVIN(data,0x1B82);if(v)info.vins.push({offset:0x1B82,vin:v});}
     info.skey=data.slice(0x40,0x50);info.skoff=0x40;info.skb=info.skey.every(b=>b===0xFF);
     info.fobBlank=data.slice(0x200,0x240).every(b=>b===0xFF);
-    /* BCM SEC16 at 0x838 (16B + 2B CRC16) — stored as byte-reversed RFH SEC16 */
-    if(sz>=0x84A){
-      const raw16=data.slice(0x838,0x848);
-      const storedCs=(data[0x848]<<8)|data[0x849];
-      const calcCs=crc16(raw16);
-      const csOk=storedCs===calcCs;
-      const blank=raw16.every(b=>b===0xFF||b===0x00);
-      const hex=Array.from(raw16).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-      /* Byte-reverse to get RFH form */
-      const reversed=new Uint8Array(16);for(let i=0;i<16;i++)reversed[i]=raw16[15-i];
-      const reversedHex=Array.from(reversed).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-      info.bcmSec16={offset:0x838,raw:raw16,hex,reversed,reversedHex,storedCs,calcCs,csOk,blank};
-    }
   }
 
   return info;
@@ -231,21 +143,6 @@ function crossValidate(modules){
       passed.push("RFHUB ↔ BCM vehicle secret: MATCH (byte-reversed)");
     else issues.push("RFHUB ↔ BCM vehicle secret: MISMATCH!");
   }
-  if(rfhub&&rfhub.sec16s){
-    if(rfhub.sec16valid)passed.push("RFHUB SEC16: VALID — slots 1&2 match, non-blank");
-    else if(rfhub.sec16s[0]?.blank)warnings.push("RFHUB SEC16: BLANK (all FF/00) — virgin module");
-    else warnings.push("RFHUB SEC16: Slot 1/2 MISMATCH or unreadable");
-  }
-  if(gpec&&gpec.pcmSec6){
-    if(gpec.pcmSec6.damaged)issues.push("PCM SEC6 @ 0x3C8: IMMO_DAMAGED (FF FF FF FF FF FF) — needs RFH import");
-    else passed.push("PCM SEC6 @ 0x3C8: "+gpec.pcmSec6.hex+" ("+gpec.pcmSec6.immoState+")");
-  }
-  if(rfhub&&gpec&&rfhub.sec16valid&&gpec.pcmSec6&&!gpec.pcmSec6.damaged){
-    const s16=rfhub.sec16s[0].raw;const s6=gpec.pcmSec6.raw;
-    const match=arrEq(Array.from(s6),Array.from(s16.slice(0,6)));
-    if(match)passed.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MATCH ✓");
-    else warnings.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MISMATCH — use RFH→PCM Import tool");
-  }
   if(gpec&&gpec.secretKey&&bcm)warnings.push("GPEC↔BCM key comparison requires manual check (8B vs 16B)");
   if(gpec){
     if(gpec.skimByte===0x80)passed.push("GPEC2A SKIM: ENABLED (0x80)");
@@ -263,25 +160,6 @@ function crossValidate(modules){
     if(arrEq(e95.skey,rfhub.skey))passed.push("95640 ↔ RFHUB secret key: MATCH");
     else issues.push("95640 ↔ RFHUB secret key: MISMATCH!");
   }
-  /* BCM (95640) SEC16 validation and cross-check with RFHUB SEC16 */
-  if(e95&&e95.bcmSec16){
-    if(e95.bcmSec16.blank)warnings.push("95640 BCM-SEC16 @ 0x838: BLANK (virgin EEPROM)");
-    else if(e95.bcmSec16.csOk)passed.push("95640 BCM-SEC16 @ 0x838: SET, CRC16 ✓ (→RFH: "+e95.bcmSec16.reversedHex.slice(0,16)+"…)");
-    else warnings.push("95640 BCM-SEC16 @ 0x838: CRC16 BAD (stored="+e95.bcmSec16.storedCs.toString(16).toUpperCase()+" calc="+e95.bcmSec16.calcCs.toString(16).toUpperCase()+")");
-  }
-  if(rfhub&&e95&&rfhub.sec16valid&&e95.bcmSec16&&!e95.bcmSec16.blank){
-    /* BCM stores byte-reversed RFH SEC16; reverse BCM value back to RFH form for comparison */
-    const rfhHex=rfhub.sec16s[0].hex;
-    const match=rfhHex===e95.bcmSec16.reversedHex;
-    if(match)passed.push("RFHUB SEC16 ↔ 95640 BCM-SEC16 (reversed): MATCH ✓");
-    else warnings.push("RFHUB SEC16 ↔ 95640 BCM-SEC16 (reversed): MISMATCH — use RFH→BCM Import tool");
-  }
-  /* RFH VIN@0x92 vs 95640 VINs */
-  if(rfhub&&rfhub.rfhVin92&&e95&&e95.vins?.length){
-    const e95VinSet=new Set(e95.vins.map(v=>v.vin));
-    if(e95VinSet.has(rfhub.rfhVin92.vin))passed.push("RFH VIN@0x92 ↔ 95640 VIN: MATCH ("+rfhub.rfhVin92.vin+")");
-    else warnings.push("RFH VIN@0x92 ("+rfhub.rfhVin92.vin+") not found in 95640 VINs");
-  }
   return{issues,warnings,passed};
 }
 
@@ -295,12 +173,8 @@ function computeDiff(a,b){
 }
 
 /* ═══ File analysis (legacy for DUMPS tab) ═══ */
-function analyzeFile(buf,name){const data=new Uint8Array(buf);const sz=data.length;let type='UNKNOWN';
-  if(sz===65536||sz===131072)type='BCM';
-  else if(sz===8192||sz===16384){const sig=detectBySignature(data);type=sig!=='UNKNOWN'?sig:'95640';}
-  else if(sz===4096){const sig4=detectBySignature(data);if(sig4!=='UNKNOWN'){type=sig4;}else{let a=true;for(let i=0;i<17&&i<sz;i++)if(data[i]<0x30||data[i]>0x5A){a=false;break;}type=a?'GPEC2A':'RFHUB';}}
-  else if(sz>131072)type='FW';
-  if(type==='UNKNOWN'){const CANONICAL_SIZES=[65536,131072,8192,16384,4096];const nearCanonical=CANONICAL_SIZES.some(s=>Math.abs(sz-s)<=4096&&sz!==s);if(nearCanonical||sz>=512){const sig=detectBySignature(data);if(sig!=='UNKNOWN')type=sig;}}
+function analyzeFile(buf,name){const data=new Uint8Array(buf);const sz=data.length;let type='unknown';
+  if(sz===65536||sz===131072)type='BCM';else if(sz===8192||sz===16384)type='95640';else if(sz===4096){let a=true;for(let i=0;i<17&&i<sz;i++)if(data[i]<0x30||data[i]>0x5A){a=false;break;}type=a?'GPEC2A':'RFHUB';}else if(sz>131072)type='FW';
   const vins=[],partials=[];
   if(type==='RFHUB'){for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);const sc=data[off+17],cc=crc8rf(st);vins.push({off,vin:s,algo:'c8',coff:off+17,sc,cc,ok:sc===cc,cv:checkVin(s),mirrored:true});}}
   else if(type==='GPEC2A'){for(const off of[0,0x1F0,0x224]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(v&&/^[1-9A-HJ-NPR-Z]/.test(s))vins.push({off,vin:s,algo:'none',coff:-1,ok:true,cv:checkVin(s)});}}
@@ -313,8 +187,7 @@ function analyzeFile(buf,name){const data=new Uint8Array(buf);const sz=data.leng
   else if(type==='95640'){sec={t:'95640'};sec.key=data.slice(0x40,0x50);sec.kb=sec.key.every(b=>b===0xFF);sec.fob=data.slice(0x200,0x240);sec.fb=sec.fob.every(b=>b===0xFF);}
   else if(type==='RFHUB'){sec={t:'rfhub'};sec.key=data.slice(0x40,0x50);sec.kb=sec.key.every(b=>b===0xFF);}
   else if(type==='GPEC2A'){sec={t:'gpec2a'};sec.skim=data[0x11];sec.on=data[0x11]===0x80;sec.key=data.slice(0x203,0x20B);sec.mir=data.slice(0x361,0x369);sec.km=true;for(let j=0;j<8;j++)if(sec.key[j]!==sec.mir[j]){sec.km=false;break;}sec.tr=[];for(let i=0;i<4;i++)sec.tr.push(data.slice(0x888+i*4,0x888+i*4+4));sec.zz=data[0xC8C]===0x5A;}
-  const hexOnly=type==='UNKNOWN';
-  return{name,size:sz,type,data,vins,partials,sec,hexOnly};}
+  return{name,size:sz,type,data,vins,partials,sec};}
 
 function patchFile(f,nv){const out=new Uint8Array(f.data);const vb=new TextEncoder().encode(nv.toUpperCase());const log=[];
   for(const s of f.vins){if(s.mirrored){const m=[...vb].reverse();for(let j=0;j<17;j++)out[s.off+j]=m[j];const stored=new Uint8Array(m);out[s.coff]=crc8rf(stored);log.push('0x'+s.off.toString(16).toUpperCase()+' mirrored CRC8');}else{for(let j=0;j<17;j++)out[s.off+j]=vb[j];if(s.algo==='c16'){const c=crc16(vb);out[s.coff]=(c>>8)&0xFF;out[s.coff+1]=c&0xFF;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC16');}else if(s.algo==='c8'){const c=crc8_42(vb);out[s.coff]=c;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC8');}else log.push('0x'+s.off.toString(16).toUpperCase());}}
@@ -370,7 +243,7 @@ const TABS=[{id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},{id:'obd
 
 /* ═══ APP ═══ */
 export default function App(){const[pg,setPg]=useState('dumps');const[files,setFiles]=useState([]);
-  const loadF=useCallback(fl=>{Promise.all(Array.from(fl).map(f=>new Promise(r=>{const rd=new FileReader();rd.onload=e=>r(analyzeFile(e.target.result,f.name));rd.readAsArrayBuffer(f);}))).then(res=>setFiles(p=>[...p,...res]));},[]);
+  const loadF=useCallback(fl=>{Promise.all(Array.from(fl).map(f=>new Promise(r=>{const rd=new FileReader();rd.onload=e=>r(analyzeFile(e.target.result,f.name));rd.readAsArrayBuffer(f);}))).then(res=>setFiles(p=>[...p,...res.filter(f=>f.type!=='unknown')]));},[]);
   return<div style={{minHeight:'100vh',background:C.bg,color:C.tx,fontFamily:"'Nunito',sans-serif"}}>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Righteous&display=swap" rel="stylesheet"/>
     <div style={{background:'linear-gradient(135deg,#1A1A1A 0%,#2D2D2D 40%,#D32F2F 100%)',position:'relative',overflow:'hidden'}}>
@@ -408,9 +281,9 @@ function BenchTab(){
       r.onload=ev=>{
         const d=new Uint8Array(ev.target.result);
         const m=parseModule(d,f.name);
-        setMods(p=>[...p,m]);
-        if(m.hexOnly)addLog('Unrecognized file (hex view only): '+f.name,'error');
-        else{addLog('Loaded '+m.name+': '+f.name,'info');if(m.vins?.[0])addLog('  VIN: '+m.vins[0].vin,'rx');}
+        if(m.type!=='UNKNOWN'){setMods(p=>[...p,m]);addLog('Loaded '+m.name+': '+f.name,'info');
+          if(m.vins?.[0])addLog('  VIN: '+m.vins[0].vin,'rx');
+        }else addLog('Unknown file: '+f.name,'error');
       };r.readAsArrayBuffer(f);
     });
   },[]);
@@ -480,15 +353,18 @@ function BenchTab(){
       const rd=port.readable.getReader();
       const tdec=new TextDecoder();
       let rbuf='';
-      /* Background IIFE reader — drains port continuously, eliminates stale Promise.race reads */
-      (async()=>{while(true){try{const{value,done}=await rd.read();if(done)break;rbuf+=tdec.decode(value);}catch(e){break;}}})();
       const send=async(cmd,to=3000)=>{
         rbuf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');
         const deadline=Date.now()+to;
         while(Date.now()<deadline){
-          const pi=rbuf.indexOf('>');
-          if(pi!==-1){const r=rbuf.substring(0,pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();rbuf=rbuf.substring(pi+1);addLog('RX < '+r,'rx');return r;}
-          await new Promise(r=>setTimeout(r,20));
+          try{
+            const rp=rd.read();const tp=new Promise(r=>setTimeout(()=>r({value:undefined,done:true}),Math.min(500,deadline-Date.now())));
+            const res=await Promise.race([rp,tp]);
+            if(res.done||!res.value){if(Date.now()>=deadline)break;continue;}
+            rbuf+=tdec.decode(res.value);
+            const pi=rbuf.indexOf('>');
+            if(pi!==-1){const r=rbuf.substring(0,pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();rbuf=rbuf.substring(pi+1);addLog('RX < '+r,'rx');return r;}
+          }catch(e){break;}
         }
         const t=rbuf.replace(/\r/g,'\n').replace(/\n+/g,'\n').replace(/>/g,'').trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;
       };
@@ -498,6 +374,7 @@ function BenchTab(){
       const stdi=await send('STDI');
       const isSTN=!stdi.includes('?')&&!stdi.includes('ERROR')&&stdi.length>2;
       addLog('Bench adapter: '+(isSTN?'STN/OBDLink':'ELM327'),'info');
+      if(isSTN){await send('ATPP2CSV81',2000);await send('ATPP2CON',2000);await send('ATPP2DSV01',2000);await send('ATPP2DON',2000);await send('ATZ',3000);await new Promise(r=>setTimeout(r,1000));await send('ATE0',2000);await new Promise(r=>setTimeout(r,200));addLog('MFG extended mode active','info');}
       await send('ATL0');await send('ATS1');await send('ATH1');await send('ATSP6');await send('ATAT2');await send('ATST96');
       if(isSTN){await send('ATCAF1');await send('ATFCSH7E0');await send('ATFCSD300000');await send('ATFCSM1');}
       else{await send('ATCAF1');await send('ATFCSM1');}
@@ -511,18 +388,8 @@ function BenchTab(){
         if(r.includes('?')||r.includes('ERROR'))return{ok:false};
         const rxHex=rx.toString(16).toUpperCase().padStart(3,'0');
         const lines=r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0);
-        /* ISO-TP PCI stripper: PCI high nibble 0=SF,1=FF,2=CF; UDS responses start at nibble ≥4 */
         let all=[];
-        for(const line of lines){
-          if(line.includes('SEARCHING')||line==='OK')continue;
-          const toks=line.split(/\s+/).filter(t=>/^[0-9A-Fa-f]{2,3}$/.test(t));if(!toks.length)continue;
-          let dt;if(/^[0-9A-Fa-f]{3}$/.test(toks[0])){if(toks[0].toUpperCase()!==rxHex)continue;dt=toks.slice(1);}else{dt=toks;}
-          if(!dt.length)continue;const b0=parseInt(dt[0],16);const pn=(b0>>4)&0xF;
-          if(pn===0){for(let i=1;i<dt.length;i++)all.push(parseInt(dt[i],16));}
-          else if(pn===1){for(let i=2;i<dt.length;i++)all.push(parseInt(dt[i],16));}
-          else if(pn===2){for(let i=1;i<dt.length;i++)all.push(parseInt(dt[i],16));}
-          else{for(const t of dt)all.push(parseInt(t,16));}
-        }
+        for(const line of lines){if(line.includes('SEARCHING')||line==='OK')continue;const toks=line.split(/\s+/);if(toks.length<2)continue;const first=toks[0].toUpperCase();if(/^[0-9A-F]{3}$/.test(first)){if(first===rxHex){for(let i=1;i<toks.length;i++){if(/^[0-9A-Fa-f]{2}$/.test(toks[i]))all.push(parseInt(toks[i],16));}}}else{for(const t of toks){if(/^[0-9A-Fa-f]{2}$/.test(t))all.push(parseInt(t,16));}}}
         if(!all.length)return{ok:false};
         return{ok:true,d:new Uint8Array(all)};
       }};
@@ -620,7 +487,7 @@ function BenchTab(){
           </div>
           <div style={{fontSize:12,fontWeight:800,color:C.tx,marginBottom:8}}>Write VIN</div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:10}}>
-            <Btn onClick={()=>benchWriteModule(0x7A8,0x7B0,'ADCM')} disabled={!!benchBusy||nv.length!==17} color={C.a4}>⚡ Write ADCM</Btn>
+            <Btn onClick={()=>benchWriteModule(0x7A8,0x7B0,'ADCM')} disabled={!!benchBusy||nv.length!==17} color={C.a4}>⚡ Write DAMP</Btn>
             <Btn onClick={()=>benchWriteModule(0x740,0x748,'IPC')} disabled={!!benchBusy||nv.length!==17} color={C.a1}>⚡ Write IPC</Btn>
             <Btn onClick={()=>benchWriteModule(0x7E0,0x7E8,'ECM')} disabled={!!benchBusy||nv.length!==17} color={C.a2}>⚡ Write ECM</Btn>
             <Btn onClick={()=>benchWriteModule(0x7E1,0x7E9,'TCM')} disabled={!!benchBusy||nv.length!==17} color={C.a3}>⚡ Write TCM</Btn>
@@ -628,7 +495,7 @@ function BenchTab(){
           </div>
           <div style={{fontSize:12,fontWeight:800,color:C.tx,marginBottom:8}}>Read VIN</div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-            <Btn onClick={()=>benchReadVin(0x7A8,0x7B0,'ADCM')} disabled={!!benchBusy} color={C.a4} outline>📖 Read ADCM</Btn>
+            <Btn onClick={()=>benchReadVin(0x7A8,0x7B0,'ADCM')} disabled={!!benchBusy} color={C.a4} outline>📖 Read DAMP</Btn>
             <Btn onClick={()=>benchReadVin(0x740,0x748,'IPC')} disabled={!!benchBusy} color={C.a1} outline>📖 Read IPC</Btn>
             <Btn onClick={()=>benchReadVin(0x7E0,0x7E8,'ECM')} disabled={!!benchBusy} color={C.a2} outline>📖 Read ECM</Btn>
             <Btn onClick={()=>benchReadVin(0x7E1,0x7E9,'TCM')} disabled={!!benchBusy} color={C.a3} outline>📖 Read TCM</Btn>
@@ -743,31 +610,6 @@ function SecurityTab(){
     else if(action==='skimToggle'&&m.type==='GPEC2A'){const d=new Uint8Array(m.data);d[0x0011]=m.skimByte===0x80?0x00:0x80;res={data:d,desc:'SKIM: 0x'+m.skimByte.toString(16).toUpperCase()+' → 0x'+d[0x0011].toString(16).toUpperCase()};}
     else if(action==='extractKey'){let k=m.secretKey?m.secretKey.hex:m.vehicleSecret?m.vehicleSecret.hex:m.skey&&!m.skb?hxb(m.skey):'';res={keyHex:k,desc:'Extracted from '+m.type};}
     else if(action==='syncImmo'&&m.type==='BCM'){const d=syncImmoBackup(m.data);if(d)res={data:d,desc:'IMMO backup synced: '+countSkimRecs(m.data,0x40C0)+' SKIM records copied 0x40C0 → 0x2000'};else res={desc:'BCM file too small for IMMO sync'};}
-    else if(action==='rfhPcmSync'&&m.type==='GPEC2A'){
-      const rfh=mods.find(mn=>mn.type==='RFHUB');
-      if(rfh&&rfh.sec16valid&&rfh.sec16s?.length){
-        const d=new Uint8Array(m.data);const s16=rfh.sec16s[0].raw;
-        for(let i=0;i<6&&i<s16.length;i++)d[0x3C8+i]=s16[i];
-        const hex6=Array.from(s16.slice(0,6)).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
-        res={data:d,desc:'PCM SEC6 @ 0x3C8 ← RFHUB SEC16[0:6]: '+hex6};
-      }else res={desc:'RFHUB must be loaded with valid (non-blank, matching) SEC16 slots.'};
-    }
-    else if(action==='rfhBcmSync'&&m.type==='95640'){
-      const rfh=mods.find(mn=>mn.type==='RFHUB');
-      if(rfh&&rfh.sec16valid&&rfh.sec16s?.length){
-        const d=new Uint8Array(m.data);
-        if(d.length>=0x84A){
-          /* Byte-reverse RFH SEC16 slot 1 → write to 95640 @ 0x838 */
-          const s16=rfh.sec16s[0].raw;
-          const rev=new Uint8Array(16);for(let i=0;i<16;i++)rev[i]=s16[15-i];
-          for(let i=0;i<16;i++)d[0x838+i]=rev[i];
-          /* CRC16 of the 16 reversed bytes → write big-endian @ 0x848 */
-          const cs=crc16(rev);d[0x848]=(cs>>8)&0xFF;d[0x849]=cs&0xFF;
-          const revHex=Array.from(rev).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
-          res={data:d,desc:'95640 BCM-SEC16 @ 0x838 ← RFH SEC16 (byte-reversed): '+revHex+' CRC16='+cs.toString(16).toUpperCase().padStart(4,'0')};
-        }else res={desc:'95640 file too small (need ≥0x84A bytes)'};
-      }else res={desc:'RFHUB must be loaded with valid (non-blank, matching) SEC16 slots.'};
-    }
     setTr(res);
   }
   const dlResult=()=>{if(!tr?.data)return;const b=new Blob([tr.data],{type:'application/octet-stream'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='modified_'+(mods[tt]?.filename||'module.bin');a.click();URL.revokeObjectURL(u);};
@@ -842,9 +684,6 @@ function SecurityTab(){
               {m.immoKeys?.map((ik,j)=><tr key={'k'+j}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(ik.offset)}</td><td><Tag color={C.a1}>IMMO {j+1}</Tag></td><td style={{padding:'5px 10px',color:C.a1,fontSize:12}}>{ik.hex}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>IMMO entry</td></tr>)}
               {m.zzzzTamper&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(m.zzzzTamper.offset)}</td><td><Tag color={C.wn}>TAMPER</Tag></td><td style={{padding:'5px 10px',color:m.zzzzTamper.intact?C.gn:C.wn,fontSize:12}}>{m.zzzzTamper.hex} — {m.zzzzTamper.intact?'INTACT':'CLEARED'}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>ZZZZ</td></tr>}
               {m.securityLock&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x8028</td><td><Tag color={C.sr}>LOCK</Tag></td><td style={{padding:'5px 10px',color:m.securityLock.locked?C.gn:C.wn,fontWeight:700,fontSize:12}}>0x{m.securityLock.value.toString(16).toUpperCase()}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>{m.securityLock.locked?'LOCKED':'UNLOCKED'}</td></tr>}
-              {m.rfhGen&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>—</td><td><Tag color={C.a3}>GEN</Tag></td><td style={{padding:'5px 10px',fontSize:12,fontWeight:700}}>{m.rfhGen}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>RFH generation</td></tr>}
-              {m.sec16s?.map(s=><tr key={'s16-'+s.slot}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(s.offset)}</td><td><Tag color={s.blank?C.tm:s.slot===1?C.sr:C.a4}>SEC16-{s.slot}</Tag></td><td style={{padding:'5px 10px',fontFamily:"'JetBrains Mono'",fontSize:10,color:s.blank?C.tm:C.sr,fontWeight:700,wordBreak:'break-all'}}>{s.blank?'(blank)':s.hex}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>CS:{s.cs.toString(16).toUpperCase().padStart(4,'0').toUpperCase()} {m.sec16match!==undefined&&s.slot===1&&<Tag color={m.sec16valid?C.gn:C.wn}>{m.sec16valid?'VALID ✓':'SLOTS MISMATCH'}</Tag>}</td></tr>)}
-              {m.pcmSec6&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x03C8</td><td><Tag color={m.pcmSec6.damaged?C.er:C.a4}>PCM-SEC6</Tag></td><td style={{padding:'5px 10px',fontFamily:"'JetBrains Mono'",fontSize:11,color:m.pcmSec6.damaged?C.er:C.a4,fontWeight:700}}>{m.pcmSec6.hex}</td><td style={{padding:'5px 10px',color:m.pcmSec6.damaged?C.er:C.gn,fontSize:12,fontWeight:700}}>{m.pcmSec6.immoState}</td></tr>}
               {m.fobikSlots!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x0880</td><td><Tag color={C.a1}>FOBIK</Tag></td><td style={{padding:'5px 10px',color:C.a1,fontWeight:700,fontSize:12}}>{m.fobikSlots} slots</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>AA50 pattern</td></tr>}
               {m.fobikCount!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x5862</td><td><Tag color={C.a1}>FOBIK</Tag></td><td style={{padding:'5px 10px',color:C.a1,fontWeight:700,fontSize:12}}>{m.fobikCount} keys</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>BCM count</td></tr>}
               {m.partNumbers&&Object.entries(m.partNumbers).map(([k,v])=><tr key={k}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>—</td><td><Tag color={C.a3}>PN-{k.toUpperCase()}</Tag></td><td style={{padding:'5px 10px',fontSize:12}}>{v}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>Part#</td></tr>)}
@@ -852,8 +691,6 @@ function SecurityTab(){
               {m.runtimeCounters&&Object.entries(m.runtimeCounters).map(([k,v])=><tr key={k}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(v.offset)}</td><td><Tag color={C.tm}>CTR</Tag></td><td style={{padding:'5px 10px',fontSize:12}}>{v.hex} ({v.value.toLocaleString()})</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>{k}</td></tr>)}
               {m.immoBlank!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x40C0</td><td><Tag color={C.sr}>IMMO</Tag></td><td style={{padding:'5px 10px',color:m.immoBlank?C.wn:C.gn,fontWeight:700,fontSize:12}}>{m.immoBlank?'BLANK':m.immoRecs+' keys'}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>SKIM primary</td></tr>}
               {m.bakBlank!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x2000</td><td><Tag color={C.sr}>BACKUP</Tag></td><td style={{padding:'5px 10px',color:m.bakBlank?C.wn:C.gn,fontWeight:700,fontSize:12}}>{m.bakBlank?'BLANK':m.bakRecs+' keys'}{!m.bakBlank&&!m.immoBlank&&<Tag color={m.immoSynced?C.gn:C.wn}>{m.immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>SKIM backup</td></tr>}
-              {m.bcmSec16&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x0838</td><td><Tag color={m.bcmSec16.blank?C.tm:m.bcmSec16.csOk?C.a4:C.wn}>BCM-SEC16</Tag></td><td style={{padding:'5px 10px',fontFamily:"'JetBrains Mono'",fontSize:10,color:m.bcmSec16.blank?C.tm:C.a4,fontWeight:700,wordBreak:'break-all'}}>{m.bcmSec16.blank?'(blank)':m.bcmSec16.hex}{!m.bcmSec16.blank&&<div style={{color:C.sr,fontSize:9,marginTop:2}}>→RFH: {m.bcmSec16.reversedHex}</div>}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>16B+CRC16 {m.bcmSec16.csOk?<Tag color={C.gn}>CRC ✓</Tag>:m.bcmSec16.blank?'':<Tag color={C.wn}>CRC ✗</Tag>}</td></tr>}
-              {m.rfhVin92&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x0092</td><td><Tag color={m.rfhVin92.csOk?C.gn:C.wn}>VIN@92</Tag></td><td style={{padding:'5px 10px',color:m.rfhVin92.csOk?C.gn:C.wn,fontWeight:700,fontSize:12}}>{m.rfhVin92.vin}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>Secondary VIN {m.rfhVin92.csOk?<Tag color={C.gn}>CRC16 ✓</Tag>:<Tag color={C.wn}>CRC16 ✗</Tag>}</td></tr>}
             </tbody>
           </table>
         </div>
@@ -890,8 +727,6 @@ function SecurityTab(){
               {sks.filter(s=>s.idx!==i).some(s=>keyWidthWarning(mods[s.idx],m))&&<div style={{fontSize:9,color:C.wn,marginTop:2}}>⚠ Key width mismatch — shorter keys padded with 0xFF</div>}
             </div>}
           </div>}
-          {m.sec16s?.map(s=><div key={'sc'+s.slot} style={{fontSize:11,marginBottom:2}}>SEC16-{s.slot} <span style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:s.blank?C.tm:C.sr}}>{s.blank?'(blank)':s.hex.slice(0,16)+'…'}</span> <Tag color={s.blank?C.tm:m.sec16valid?C.gn:C.wn}>{s.blank?'BLANK':m.sec16valid&&s.slot===1?'VALID ✓':'–'}</Tag></div>)}
-          {m.pcmSec6&&<div style={{fontSize:11,marginBottom:2}}>PCM SEC6: <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:m.pcmSec6.damaged?C.er:C.a4}}>{m.pcmSec6.hex}</span> <Tag color={m.pcmSec6.damaged?C.er:C.gn}>{m.pcmSec6.immoState}</Tag></div>}
           {m.fobikSlots!==undefined&&<div style={{fontSize:11}}>FOBIK: <span style={{color:C.a1,fontWeight:700}}>{m.fobikSlots} slots</span> · CC66AA55: {m.securityMarkers} · ZZZZ: {m.zzzzBlocks}</div>}
           {m.fobikCount!==undefined&&<div style={{fontSize:11}}>FOBIK: <span style={{color:C.a1,fontWeight:700}}>{m.fobikCount} keys</span></div>}
           {m.securityLock&&<div style={{fontSize:11}}>Lock: <span style={{color:m.securityLock.locked?C.gn:C.wn,fontWeight:700}}>{m.securityLock.locked?'0x5A LOCKED':'UNLOCKED'}</span></div>}
@@ -899,8 +734,6 @@ function SecurityTab(){
           {m.immoBlank!==undefined&&<div style={{fontSize:11,marginTop:4}}>Immo @0x40C0: <Tag color={m.immoBlank?C.wn:C.gn}>{m.immoBlank?'BLANK':m.immoRecs+' keys'}</Tag></div>}
           {m.bakBlank!==undefined&&<div style={{fontSize:11,marginTop:2}}>Backup @0x2000: <Tag color={m.bakBlank?C.tm:C.gn}>{m.bakBlank?'BLANK':m.bakRecs+' keys'}</Tag>{!m.bakBlank&&!m.immoBlank&&<Tag color={m.immoSynced?C.gn:C.wn}>{m.immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</div>}
           {m.fobBlank!==undefined&&<div style={{fontSize:11}}>Fob Data: <Tag color={m.fobBlank?C.tm:C.gn}>{m.fobBlank?'NONE':'HAS FOBS'}</Tag></div>}
-          {m.bcmSec16&&<div style={{fontSize:11,marginTop:4}}>BCM-SEC16 @0x838: <Tag color={m.bcmSec16.blank?C.tm:m.bcmSec16.csOk?C.a4:C.wn}>{m.bcmSec16.blank?'BLANK':'SET'}</Tag>{!m.bcmSec16.blank&&<><Tag color={m.bcmSec16.csOk?C.gn:C.wn}>CRC16 {m.bcmSec16.csOk?'✓':'✗'}</Tag><div style={{fontFamily:"'JetBrains Mono'",fontSize:8,color:C.a4,marginTop:2,wordBreak:'break-all'}}>{m.bcmSec16.hex}</div></>}</div>}
-          {m.rfhVin92&&<div style={{fontSize:11,marginTop:4}}>VIN@0x92: <span style={{fontFamily:"'JetBrains Mono'",fontWeight:700,color:m.rfhVin92.csOk?C.gn:C.wn,fontSize:10}}>{m.rfhVin92.vin}</span> <Tag color={m.rfhVin92.csOk?C.gn:C.wn}>CRC16 {m.rfhVin92.csOk?'✓':'✗'}</Tag></div>}
           {tv.length===17&&<div style={{marginTop:8}}><Btn onClick={()=>patchModVIN(i)} full color={vinOk?C.gn:C.sr}>{vinOk?'↓ Download':'⚡ Patch → '+tv}</Btn></div>}
         </Card>;})}
       </div>
@@ -985,37 +818,6 @@ function SecurityTab(){
               <Btn onClick={()=>doTool('syncImmo')} disabled={mods[tt].immoBlank} full color={C.a1}>🔄 Sync IMMO Backup</Btn>
             </div>:<div style={{fontSize:11,color:C.tm}}>Select a BCM module.</div>}
           </Card>
-          <Card style={{padding:16,borderTop:'3px solid '+C.sr}}>
-            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>RFH → PCM SEC6 Import</div>
-            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Write RFHUB SEC16[0:6] → PCM 0x3C8 (Cherokee/Trackhawk pairing).</div>
-            {mods[tt]?.type==='GPEC2A'?<div>
-              {(()=>{const rfh=mods.find(mn=>mn.type==='RFHUB');if(!rfh)return<div style={{fontSize:11,color:C.wn}}>Also load an RFHUB (24C32) dump.</div>;
-              const s1=rfh.sec16s?.[0];
-              return<div>
-                <div style={{fontSize:11,marginBottom:4}}>RFHUB: <Tag color={rfh.rfhGen?C.a3:C.tm}>{rfh.rfhGen||'?'}</Tag></div>
-                <div style={{fontSize:11,marginBottom:4}}>SEC16 Slot 1 <span style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:s1&&!s1.blank?C.sr:C.tm}}>{s1&&!s1.blank?s1.hex.slice(0,24)+'…':'(blank)'}</span> <Tag color={rfh.sec16valid?C.gn:C.wn}>{rfh.sec16valid?'VALID ✓':'BLANK/MISMATCH'}</Tag></div>
-                {mods[tt].pcmSec6&&<div style={{fontSize:11,marginBottom:8}}>PCM SEC6 now: <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:mods[tt].pcmSec6.damaged?C.er:C.a4}}>{mods[tt].pcmSec6.hex}</span> <Tag color={mods[tt].pcmSec6.damaged?C.er:C.gn}>{mods[tt].pcmSec6.immoState}</Tag></div>}
-                <Btn onClick={()=>doTool('rfhPcmSync')} disabled={!rfh.sec16valid} full color={C.sr}>🔑 Import SEC6 from RFHUB</Btn>
-                {!rfh.sec16valid&&<div style={{fontSize:9,color:C.wn,marginTop:4}}>RFHUB SEC16 must be non-blank and both slots matching</div>}
-              </div>;})()}
-            </div>:<div style={{fontSize:11,color:C.tm}}>Select a GPEC2A (PCM) as target.</div>}
-          </Card>
-          <Card style={{padding:16,borderTop:'3px solid '+C.a4}}>
-            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>RFH → BCM (95640) SEC16 Import</div>
-            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Write RFHUB SEC16 byte-reversed → 95640 @ 0x838, CRC16 @ 0x848.</div>
-            {mods[tt]?.type==='95640'?<div>
-              {(()=>{const rfh=mods.find(mn=>mn.type==='RFHUB');if(!rfh)return<div style={{fontSize:11,color:C.wn}}>Also load an RFHUB EEE dump.</div>;
-              const s1=rfh.sec16s?.[0];const bs=mods[tt].bcmSec16;
-              return<div>
-                <div style={{fontSize:11,marginBottom:4}}>RFHUB: <Tag color={rfh.rfhGen?C.a3:C.tm}>{rfh.rfhGen||'?'}</Tag></div>
-                <div style={{fontSize:11,marginBottom:4}}>SEC16 Slot 1 <span style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:s1&&!s1.blank?C.sr:C.tm}}>{s1&&!s1.blank?s1.hex.slice(0,24)+'…':'(blank)'}</span> <Tag color={rfh.sec16valid?C.gn:C.wn}>{rfh.sec16valid?'VALID ✓':'BLANK/MISMATCH'}</Tag></div>
-                {bs&&!bs.blank&&<div style={{fontSize:11,marginBottom:4}}>Current @ 0x838 (rev): <span style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:bs.csOk?C.gn:C.wn}}>{bs.reversedHex.slice(0,24)+'…'}</span> <Tag color={bs.csOk?C.gn:C.wn}>CRC16 {bs.csOk?'✓':'✗'}</Tag></div>}
-                {bs&&bs.blank&&<div style={{fontSize:11,marginBottom:4,color:C.wn}}>95640 BCM-SEC16 @ 0x838: BLANK (virgin)</div>}
-                <Btn onClick={()=>doTool('rfhBcmSync')} disabled={!rfh.sec16valid} full color={C.a4}>🔑 Import SEC16 → 95640</Btn>
-                {!rfh.sec16valid&&<div style={{fontSize:9,color:C.wn,marginTop:4}}>RFHUB SEC16 must be non-blank and both slots matching</div>}
-              </div>;})()}
-            </div>:<div style={{fontSize:11,color:C.tm}}>Select a 95640 EEPROM as target.</div>}
-          </Card>
         </div>
 
         {tr&&<Card style={{marginTop:16,padding:16,borderLeft:'3px solid '+C.gn}}>
@@ -1058,54 +860,92 @@ function OBDTab(){
       const port=await navigator.serial.requestPort();
       await port.open({baudRate:115200});
       const w=port.writable.getWriter();
+      /* Direct reader — matches AlphaOBDProtocol.ts readUntilPrompt() */
       const rd=port.readable.getReader();
       const tdec=new TextDecoder();
       let rbuf='';
-      /* Background IIFE reader — drains port continuously, eliminates stale Promise.race reads */
-      (async()=>{while(true){try{const{value,done}=await rd.read();if(done)break;rbuf+=tdec.decode(value);}catch(e){break;}}})();
       const send=async(cmd,to=3000)=>{
         rbuf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');
         const deadline=Date.now()+to;
         while(Date.now()<deadline){
-          const pi=rbuf.indexOf('>');
-          if(pi!==-1){const r=rbuf.substring(0,pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();rbuf=rbuf.substring(pi+1);addLog('RX < '+r,'rx');return r;}
-          await new Promise(r=>setTimeout(r,20));
+          try{
+            const rp=rd.read();const tp=new Promise(r=>setTimeout(()=>r({value:undefined,done:true}),Math.min(500,deadline-Date.now())));
+            const res=await Promise.race([rp,tp]);
+            if(res.done||!res.value){if(Date.now()>=deadline)break;continue;}
+            rbuf+=tdec.decode(res.value);
+            const pi=rbuf.indexOf('>');
+            if(pi!==-1){const r=rbuf.substring(0,pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();rbuf=rbuf.substring(pi+1);addLog('RX < '+r,'rx');return r;}
+          }catch(e){break;}
         }
         const t=rbuf.replace(/\r/g,'\n').replace(/\n+/g,'\n').replace(/>/g,'').trim();if(t)addLog('RX (timeout) < '+t,'warn');return t;
       };
+      /* Phase 1: Reset + identify — matches AlphaOBDProtocol.ts initAlphaOBDStyle() */
       await send('ATZ',2000);await new Promise(r=>setTimeout(r,500));
       await send('ATE0');
       const ati=await send('ATI');addLog('Firmware: '+ati,'info');
+      /* Phase 2: Detect STN chipset (OBDLink) — AlphaOBDProtocol.ts Phase 2 */
       const stdi=await send('STDI');
       const isSTN=!stdi.includes('?')&&!stdi.includes('ERROR')&&stdi.length>2;
       const at1=await send('AT@1');
       const rv=await send('ATRV');
       addLog('Adapter: '+(isSTN?'STN/OBDLink':'ELM327')+' | '+at1+' | '+rv,'info');
-      await send('ATL0');await send('ATS1');await send('ATH1');await send('ATSP6');await send('ATAT2');await send('ATST96');
-      if(isSTN){await send('ATCAF1');await send('ATFCSH7E0');await send('ATFCSD300000');await send('ATFCSM1');addLog('STN: CAF ON, auto flow control','info');}
-      else{await send('ATCAF1');await send('ATFCSM1');addLog('ELM327: CAF ON, flow control mode 1','info');}
+      /* Phase 3: STN programmable parameters — REQUIRED for body module access
+         PP2C=81 enables MFG extended mode — opens full CAN ID range (0x600-0x7FF)
+         Without this, OBDLink only processes standard OBD-II IDs (0x7E0-0x7EF)
+         This is why only ECM responds without PP — it's in the standard range */
+      if(isSTN){
+        addLog('Setting MFG extended mode (PP2C=81, PP2D=01)...','info');
+        await send('ATPP2CSV81',2000);
+        await send('ATPP2CON',2000);
+        await send('ATPP2DSV01',2000);
+        await send('ATPP2DON',2000);
+        /* Reset to apply — MUST wait for full reboot */
+        await send('ATZ',3000);
+        await new Promise(r=>setTimeout(r,1000));/* longer delay than AlphaOBD's 500ms */
+        await send('ATE0',2000);
+        await new Promise(r=>setTimeout(r,200));
+        addLog('MFG extended mode active','info');
+      }
+      /* Phase 4: CAN protocol — AlphaOBDProtocol.ts Phase 4 */
+      await send('ATL0');await send('ATS1');await send('ATH1');
+      await send('ATSP6');
+      await send('ATAT2');/* aggressive adaptive timing */
+      await send('ATST96');/* 600ms timeout */
+      /* Phase 5: ISO-TP config — AlphaOBDProtocol.ts Phase 5 */
+      if(isSTN){
+        await send('ATCAF1');
+        await send('ATFCSH7E0');await send('ATFCSD300000');await send('ATFCSM1');
+        addLog('STN: CAF ON, auto flow control','info');
+      }else{
+        await send('ATCAF1');await send('ATFCSM1');
+        addLog('ELM327: CAF ON, flow control mode 1','info');
+      }
+      /* Store state for UDS */
       let curTx=0,curRx=0;
       eng.current={send,isSTN,uds:async(tx,rx,data)=>{
-        if(tx!==curTx){await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));if(isSTN)await send('ATFCSH'+tx.toString(16).toUpperCase().padStart(3,'0'));curTx=tx;}
-        if(rx!==curRx){await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));curRx=rx;}
+        /* Clear stale filter, then set new — per obd2-protocol.ts probeAddress() */
+        if(tx!==curTx||rx!==curRx){
+          await send('ATCRA');/* clear receive filter first */
+          await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));
+          if(isSTN)await send('ATFCSH'+tx.toString(16).toUpperCase().padStart(3,'0'));
+          await send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));
+          curTx=tx;curRx=rx;
+        }
         const h=Array.from(data).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
         const r=await send(h,5000);
-        if(!r||/NO DATA|UNABLE TO CONNECT|CAN ERROR|BUS ERROR|BUS INIT|STOPPED/.test(r))return{ok:false,raw:r||''};
+        if(!r||/NO DATA|UNABLE TO CONNECT|CAN ERROR|BUS ERROR/.test(r))return{ok:false,raw:r||''};
         if(r.includes('?')||r.includes('ERROR'))return{ok:false,raw:r};
-        const rxHex=rx.toString(16).toUpperCase().padStart(3,'0');
+        /* Parse response — accept ANY CAN ID in response (not just expected RX) */
         const lines=r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0);
-        if(!lines.length)return{ok:false,raw:r};
-        /* ISO-TP PCI stripper: PCI high nibble 0=SF,1=FF,2=CF; UDS responses start at nibble ≥4 */
         let all=[];
         for(const line of lines){
           if(line.includes('SEARCHING')||line==='OK')continue;
-          const toks=line.split(/\s+/).filter(t=>/^[0-9A-Fa-f]{2,3}$/.test(t));if(!toks.length)continue;
-          let dt;if(/^[0-9A-Fa-f]{3}$/.test(toks[0])){if(toks[0].toUpperCase()!==rxHex)continue;dt=toks.slice(1);}else{dt=toks;}
-          if(!dt.length)continue;const b0=parseInt(dt[0],16);const pn=(b0>>4)&0xF;
-          if(pn===0){for(let i=1;i<dt.length;i++)all.push(parseInt(dt[i],16));}
-          else if(pn===1){for(let i=2;i<dt.length;i++)all.push(parseInt(dt[i],16));}
-          else if(pn===2){for(let i=1;i<dt.length;i++)all.push(parseInt(dt[i],16));}
-          else{for(const t of dt)all.push(parseInt(t,16));}
+          const toks=line.split(/\s+/);if(toks.length<2)continue;
+          const first=toks[0].toUpperCase();
+          if(/^[0-9A-F]{3}$/.test(first)){
+            /* Accept response from any CAN ID — module might respond on unexpected ID */
+            for(let i=1;i<toks.length;i++){if(/^[0-9A-Fa-f]{2}$/.test(toks[i]))all.push(parseInt(toks[i],16));}
+          }else{for(const t of toks){if(/^[0-9A-Fa-f]{2}$/.test(t))all.push(parseInt(t,16));}}
         }
         if(!all.length)return{ok:false,raw:r};
         return{ok:true,d:new Uint8Array(all),raw:r};
@@ -1116,54 +956,151 @@ function OBDTab(){
 
   const scan=useCallback(async()=>{
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
-    const canC=MODS.filter(m=>m.bus==='C');
-    const canIHS=MODS.filter(m=>m.bus==='IHS');
-    /* Scan CAN-C modules first (HS-CAN pins 6/14 — already active) */
-    addLog('── Scanning CAN-C (HS-CAN pins 6/14) ──','info');
-    for(const m of canC){try{
-      const r=await eng.current.uds(m.tx,m.rx,[0x3E,0x00]);
-      if(r.ok){
-        addLog(m.c+' alive','rx');
-        const vr=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
-        if(vr.ok&&vr.d?.length>3){const vc=Array.from(vr.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
-          if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
-          else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': VIN unreadable','warn');}}
-        else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': present, VIN read failed','warn');}
-      }else{addLog(m.c+': no response','error');}
-    }catch(e){addLog(m.c+' error: '+e.message,'error');}
-    await new Promise(r=>setTimeout(r,100));}
-    /* Switch to CAN-IHS (pins 3/11) via STP61 — STN adapters only */
+    const foundSet=new Set();const addMod=(c,n,tx,rx,vin)=>{const k=tx+':'+rx;if(foundSet.has(k))return;foundSet.add(k);setFound(p=>[...p,{c,n,tx,rx,vin}]);};
+
+    /* ═══ LAYER 1: Passive CAN monitor — confirm bus is alive ═══ */
+    addLog('── Layer 1: Passive CAN monitor (3s) ──','info');
+    await eng.current.send('ATCRA');/* clear filter */
+    const ma=await eng.current.send('ATMA',3500);
+    await eng.current.send('\r');/* interrupt ATMA */
+    await new Promise(r=>setTimeout(r,200));
+    const busIds=new Set();
+    if(ma){for(const line of ma.split(/[\r\n]+/)){const t=line.trim();if(/^[0-9A-Fa-f]{3}\s/.test(t))busIds.add(t.slice(0,3).toUpperCase());}}
+    if(busIds.size>0)addLog('Bus alive: '+busIds.size+' CAN IDs seen ('+[...busIds].slice(0,10).join(',')+')','rx');
+    else addLog('WARNING: No CAN traffic detected on pins 6/14','error');
+
+    /* ═══ LAYER 2: Functional broadcast 0x7DF — find all responding modules ═══ */
+    addLog('── Layer 2: Functional broadcast (read VIN from all) ──','info');
+    await eng.current.send('ATCRA');/* clear RX filter — accept ALL responses */
+    await eng.current.send('ATSH7DF');
+    await eng.current.send('ATFCSH7DF');
+    const bcast=await eng.current.send('22 F1 90',5000);
+    if(bcast&&!bcast.includes('NO DATA')&&!bcast.includes('CAN ERROR')&&!bcast.includes('?')){
+      addLog('Broadcast responses: '+bcast.substring(0,120),'rx');
+      const blines=bcast.split(/[\r\n]+/);
+      for(const bl of blines){const bt=bl.trim();if(/^[0-9A-Fa-f]{3}\s/.test(bt)){
+        const rid=parseInt(bt.slice(0,3),16);
+        /* RX ID → TX ID is typically RX-8 */
+        const tid=rid-8;const tidH=tid.toString(16).toUpperCase().padStart(3,'0');const ridH=rid.toString(16).toUpperCase().padStart(3,'0');
+        /* Find module name */
+        let mname='UNK_'+tidH;for(const m of MODS){for(const a of m.addrs){if(a.rx===rid||a.tx===tid){mname=m.c;break;}}}
+        /* Try to parse VIN from response */
+        const toks=bt.split(/\s+/).slice(1).filter(s=>/^[0-9A-Fa-f]{2}$/.test(s)).map(s=>parseInt(s,16));
+        let vin='(present)';
+        if(toks.length>5){const vc=toks.filter(b=>b>=0x20&&b<=0x7E);const vs=String.fromCharCode(...vc);if(vs.length>=10)vin=vs.slice(-17);}
+        addMod(mname,mname,tid,rid,vin);
+        addLog('Found '+mname+' at TX:'+tidH+' RX:'+ridH,'rx');
+      }}
+    }else{addLog('Broadcast: '+(bcast||'no response'),'warn');}
+
+    /* ═══ LAYER 3: Physical addressing — every known address on CAN-C ═══ */
+    addLog('── Layer 3: Physical scan — all known addresses on CAN-C ──','info');
+    await eng.current.send('ATSP6');/* make sure we're on 500kbps */
+    /* Wakeup broadcast — per obd2-protocol.ts */
+    await eng.current.send('ATCRA');await eng.current.send('ATSH7DF');
+    try{await eng.current.send('3E 00',2000);}catch(e){}
+    await new Promise(r=>setTimeout(r,300));
+    for(const m of MODS){
+      let hit=false;
+      for(const a of m.addrs){
+        const k=a.tx+':'+a.rx;if(foundSet.has(k))continue;
+        try{
+          /* Body modules respond better to Read VIN than TesterPresent — obd2-protocol.ts probeAddressVIA() */
+          const probe=(m.c==='ECM'||m.c==='TCM'||m.c==='DTCM')?[0x3E,0x00]:[0x22,0xF1,0x90];
+          const r=await eng.current.uds(a.tx,a.rx,probe);
+          if(r.ok){
+            const txH=a.tx.toString(16).toUpperCase().padStart(3,'0');
+            addLog(m.c+' alive at TX:'+txH,'rx');
+            let vin='(present)';
+            if(probe[0]===0x22&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vs=String.fromCharCode(...vc).slice(-17);if(vs.length>=10)vin=vs;}
+            else if(probe[0]===0x3E){const vr=await eng.current.uds(a.tx,a.rx,[0x22,0xF1,0x90]);if(vr.ok&&vr.d?.length>3){const vc=Array.from(vr.d).filter(b=>b>=0x20&&b<=0x7E);const vs=String.fromCharCode(...vc).slice(-17);if(vs.length>=10)vin=vs;}}
+            addMod(m.c,m.n,a.tx,a.rx,vin);if(vin!=='(present)')addLog(m.c+': '+vin,'rx');
+            hit=true;break;
+          }
+        }catch(e){}
+        await new Promise(r=>setTimeout(r,30));
+      }
+      if(!hit)addLog(m.c+': no response on CAN-C ('+m.addrs.length+' addrs)','warn');
+    }
+
+    /* ═══ LAYER 4: CAN-IHS via STP61 (pins 3/11, 125kbps) ═══ */
     if(eng.current.isSTN){
-      addLog('── Switching to CAN-IHS (MS-CAN pins 3/11) ──','info');
-      const stp61r=await eng.current.send('STP61');
-      if(stp61r.includes('?')||stp61r.includes('ERROR'))addLog('STP61 not supported — falling back','warn');
-      await eng.current.send('STPBR 125000');
-      await new Promise(r=>setTimeout(r,300));
-      await eng.current.send('ATCRA');
-      await eng.current.send('ATH1');
-      await eng.current.send('ATST50');
-      for(const m of canIHS){try{
-        const r=await eng.current.uds(m.tx,m.rx,[0x3E,0x00]);
-        if(r.ok){
-          addLog(m.c+' alive','rx');
-          const vr=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
-          if(vr.ok&&vr.d?.length>3){const vc=Array.from(vr.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
-            if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
-            else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': VIN unreadable','warn');}}
-          else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': present, VIN read failed','warn');}
-        }else{addLog(m.c+': no response','error');}
-      }catch(e){addLog(m.c+' error: '+e.message,'error');}
-      await new Promise(r=>setTimeout(r,100));}
-      /* Switch back to HS-CAN (pins 6/14) — STP60 unsupported on r2.1 */
-      await eng.current.send('STPBR 500000');
+      addLog('── Layer 4: CAN-IHS (STP61, pins 3/11, 125kbps) ──','info');
+      const sw1=await eng.current.send('STP61');
+      const ok61=sw1.includes('OK')||(!sw1.includes('?')&&!sw1.includes('ERROR')&&sw1.trim().length>0);
+      if(ok61){
+        await eng.current.send('ATSP7');await new Promise(r=>setTimeout(r,300));
+        await eng.current.send('ATCRA');await eng.current.send('ATH1');await eng.current.send('ATST50');
+        /* Broadcast on CAN-IHS */
+        await eng.current.send('ATSH7DF');await eng.current.send('ATFCSH7DF');
+        const ihsBcast=await eng.current.send('22 F1 90',5000);
+        if(ihsBcast&&!ihsBcast.includes('NO DATA')&&!ihsBcast.includes('CAN ERROR')){
+          addLog('CAN-IHS broadcast responses: '+ihsBcast.substring(0,120),'rx');
+          const il=ihsBcast.split(/[\r\n]+/);
+          for(const bl of il){const bt=bl.trim();if(/^[0-9A-Fa-f]{3}\s/.test(bt)){
+            const rid=parseInt(bt.slice(0,3),16);const tid=rid-8;
+            let mname='IHS_'+tid.toString(16).toUpperCase();for(const m of MODS){for(const a of m.addrs){if(a.rx===rid||a.tx===tid){mname=m.c;break;}}}
+            addMod(mname,mname,tid,rid,'(CAN-IHS)');
+            addLog('Found '+mname+' on CAN-IHS at TX:'+tid.toString(16).toUpperCase().padStart(3,'0'),'rx');
+          }}
+        }
+        /* Physical scan on CAN-IHS */
+        for(const m of MODS){if(m.c==='ECM'||m.c==='TCM'||m.c==='DTCM')continue;
+          for(const a of m.addrs){const k=a.tx+':'+a.rx;if(foundSet.has(k))continue;
+            try{const r=await eng.current.uds(a.tx,a.rx,[0x3E,0x00]);
+              if(r.ok){addMod(m.c,m.n,a.tx,a.rx,'(CAN-IHS)');addLog(m.c+' alive on CAN-IHS','rx');break;}
+            }catch(e){}
+            await new Promise(r=>setTimeout(r,30));
+          }
+        }
+      }else{addLog('STP61 not supported: '+sw1,'warn');}
+
+      /* ═══ LAYER 5: CAN-IHS at 500kbps (bench may run body bus at 500k) ═══ */
+      addLog('── Layer 5: CAN-IHS pins 3/11 at 500kbps ──','info');
+      await eng.current.send('ATSP6');await new Promise(r=>setTimeout(r,200));
+      await eng.current.send('ATCRA');await eng.current.send('ATSH7DF');
+      const ihs500=await eng.current.send('22 F1 90',4000);
+      if(ihs500&&!ihs500.includes('NO DATA')&&!ihs500.includes('CAN ERROR')){
+        addLog('CAN-IHS 500k responses: '+ihs500.substring(0,120),'rx');
+        const il=ihs500.split(/[\r\n]+/);
+        for(const bl of il){const bt=bl.trim();if(/^[0-9A-Fa-f]{3}\s/.test(bt)){
+          const rid=parseInt(bt.slice(0,3),16);const tid=rid-8;
+          let mname='IHS500_'+tid.toString(16).toUpperCase();for(const m of MODS){for(const a of m.addrs){if(a.rx===rid||a.tx===tid){mname=m.c;break;}}}
+          addMod(mname,mname,tid,rid,'(IHS-500k)');
+          addLog('Found '+mname+' on CAN-IHS 500k','rx');
+        }}
+      }
+
+      /* Switch back to CAN-C */
       await eng.current.send('ATSP6');
+      try{await eng.current.send('STP60');}catch(e){}
       await new Promise(r=>setTimeout(r,100));
       await eng.current.send('ATST96');
-      addLog('── Back on HS-CAN (pins 6/14) ──','info');
-    }else{
-      addLog('Adapter is not STN — cannot switch to CAN-IHS. Only CAN-C modules scanned.','warn');
+      addLog('── Back on CAN-C ──','info');
     }
-    setBusy('');addLog('Scan complete','info');
+
+    /* ═══ LAYER 6: Brute force sweep 0x600-0x7FF on CAN-C ═══ */
+    if(foundSet.size<=1){
+      addLog('── Layer 6: Brute force sweep 0x600-0x7FF ──','info');
+      await eng.current.send('ATSP6');
+      for(let tx=0x600;tx<=0x7FF;tx+=1){
+        const rx=tx+8;const k=tx+':'+rx;if(foundSet.has(k))continue;
+        try{
+          await eng.current.send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'));
+          await eng.current.send('ATCRA'+rx.toString(16).toUpperCase().padStart(3,'0'));
+          const r=await eng.current.send('3E 00',1500);
+          if(r&&!r.includes('NO DATA')&&!r.includes('CAN ERROR')&&!r.includes('?')&&r.trim().length>3){
+            const tidH=tx.toString(16).toUpperCase().padStart(3,'0');
+            let mname='MODULE_'+tidH;for(const m of MODS){for(const a of m.addrs){if(a.tx===tx){mname=m.c;break;}}}
+            addMod(mname,mname,tx,rx,'(brute)');
+            addLog('FOUND at TX:'+tidH+' → '+r.substring(0,60),'rx');
+          }
+        }catch(e){}
+        if(tx%32===0)addLog('Sweep: 0x'+tx.toString(16).toUpperCase()+'...','info');
+      }
+    }
+
+    setBusy('');addLog('═══ Scan complete: found '+foundSet.size+' modules ═══','info');
   },[]);
 
   const writeAll=useCallback(async()=>{
@@ -1219,45 +1156,12 @@ function OBDTab(){
     addLog('RFHUB virginized over OBD','rx');setBusy('');
   },[]);
 
-  const canMonitor=useCallback(async()=>{
-    if(!eng.current)return;setBusy('Monitoring...');
-    addLog('=== CAN BUS MONITOR — listening 5 sec ===','info');
-    try{
-      await eng.current.send('ATCRA');/* clear CRA filter = accept all */
-      await new Promise(r=>setTimeout(r,100));
-      const r=await eng.current.send('ATMA',6000);
-      /* break out of ATMA */
-      await eng.current.send('',500);
-      await new Promise(r=>setTimeout(r,300));
-      if(r){
-        const ids=new Set();
-        r.split(/[\r\n]+/).forEach(line=>{
-          const clean=line.trim();
-          if(/^[0-9A-Fa-f]{3}\s/.test(clean))ids.add(clean.slice(0,3).toUpperCase());
-        });
-        if(ids.size>0){
-          addLog('Active CAN IDs: '+[...ids].sort().join(', '),'rx');
-          for(const id of ids){
-            const num=parseInt(id,16);
-            const mod=MODS.find(m=>m.rx===num||m.tx===num);
-            if(mod)addLog('  '+id+' → '+mod.c+' ('+mod.n+')','rx');
-            else addLog('  '+id+' → unknown','warn');
-          }
-        }else{addLog('No CAN traffic detected — check wiring and power','error');addLog('Raw: '+r.slice(0,200),'warn');}
-      }else{addLog('ATMA returned nothing — bus may be silent','error');}
-      await eng.current.send('ATSP6');
-      await eng.current.send('ATCAF1');
-    }catch(e){addLog('CAN monitor error: '+e.message,'error');}
-    finally{setBusy('');}
-  },[]);
-
   return<div style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:16}}>
     <div>
       <Card glow style={{marginBottom:14}}>
         <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-          <Btn onClick={connect} disabled={conn} color={conn?C.gn:C.a3} full>{conn?'✓ Connected':'🔌 Connect ELM327 / OBDLink'}</Btn>
+          <Btn onClick={connect} disabled={conn} color={conn?C.gn:C.a3} full>{conn?'✓ Connected to OBDLink':'🔌 Connect OBDLink EX'}</Btn>
           {conn&&<Btn onClick={scan} disabled={!!busy} color={C.a1}>{busy||'📡 Scan Modules'}</Btn>}
-          {conn&&<Btn onClick={canMonitor} disabled={!!busy} color={C.a4} outline>📻 CAN Monitor</Btn>}
         </div>
       </Card>
       {found.length>0&&<Card glow style={{marginBottom:14}}>
@@ -1290,7 +1194,7 @@ function OBDTab(){
         </div>
         <div style={{marginTop:12,fontSize:12,fontWeight:800,color:C.tx,marginBottom:8}}>Write VIN to Single Module</div>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-          <Btn onClick={()=>writeOneModule(0x7A8,0x7B0,'ADCM')} disabled={!!busy||nv.length!==17} color={C.a4} outline>🔧 Write ADCM</Btn>
+          <Btn onClick={()=>writeOneModule(0x7A8,0x7B0,'ADCM')} disabled={!!busy||nv.length!==17} color={C.a4} outline>🔧 Write DAMP</Btn>
           <Btn onClick={()=>writeOneModule(0x740,0x748,'IPC')} disabled={!!busy||nv.length!==17} color={C.a1} outline>🔧 Write IPC</Btn>
           <Btn onClick={()=>writeOneModule(0x7E0,0x7E8,'ECM')} disabled={!!busy||nv.length!==17} color={C.a2} outline>🔧 Write ECM</Btn>
           <Btn onClick={()=>writeOneModule(0x7E1,0x7E9,'TCM')} disabled={!!busy||nv.length!==17} color={C.a3} outline>🔧 Write TCM</Btn>
@@ -1324,9 +1228,9 @@ function DumpsTab({files,setFiles,loadF}){
     <Card style={{textAlign:'center',padding:'60px 24px',cursor:'pointer',border:'2.5px dashed #D32F2F30'}} onClick={()=>{}}>
       <div style={{fontSize:52,marginBottom:10}}>📂</div>
       <div style={{fontSize:20,fontWeight:900,color:C.sr}}>Drop EEPROM or Firmware Files</div>
-      <div style={{fontSize:13,color:C.ts,marginTop:6}}>Auto-detects BCM · 95640 · RFHUB EEE · GPEC2A · TCM · TIPM</div>
+      <div style={{fontSize:13,color:C.ts,marginTop:6}}>Auto-detects BCM · 95640 · RFHUB EEE · GPEC2A</div>
       <div style={{display:'flex',gap:8,justifyContent:'center',marginTop:18,flexWrap:'wrap'}}>
-        {[['BCM D-FLASH',C.a1],['95640',C.a4],['RFHUB EEE',C.a3],['GPEC2A',C.a2],['TCM EEPROM',TC.TCM],['TIPM EEPROM',TC.TIPM]].map(([l,c])=><Tag key={l} color={c}>{l}</Tag>)}
+        {[['BCM D-FLASH',C.a1],['95640',C.a4],['RFHUB EEE',C.a3],['GPEC2A',C.a2]].map(([l,c])=><Tag key={l} color={c}>{l}</Tag>)}
       </div>
     </Card></div>;
 
@@ -1334,13 +1238,9 @@ function DumpsTab({files,setFiles,loadF}){
     <div>
       <Btn onClick={()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='.bin,.BIN';i.onchange=e=>loadF(e.target.files);i.click();}} full>+ Add Files</Btn>
       <div style={{marginTop:10,display:'flex',flexDirection:'column',gap:7}}>
-        {files.map((fi,i)=><Card key={i} onClick={()=>{setSel(i);setMsg('');}} style={{padding:13,borderColor:sel===i?C.sr:fi.hexOnly?'#61616140':C.bd}}>
+        {files.map((fi,i)=><Card key={i} onClick={()=>{setSel(i);setMsg('');}} style={{padding:13,borderColor:sel===i?C.sr:C.bd}}>
           <div style={{fontSize:12,fontWeight:800,color:sel===i?C.sr:C.tx,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{fi.name}</div>
-          <div style={{display:'flex',gap:4,marginTop:5,alignItems:'center',flexWrap:'wrap'}}>
-            {fi.hexOnly?<Tag color={TC.UNKNOWN}>Unrecognized — hex view only</Tag>:<Tag color={TC[fi.type]||C.tm}>{TL[fi.type]||fi.type}</Tag>}
-            <span style={{fontSize:10,color:C.tm}}>{(fi.size/1024).toFixed(1)}KB</span>
-            {!fi.hexOnly&&<span style={{fontSize:10,color:C.tm}}>{fi.vins.length}V{fi.partials?.length>0?'+'+fi.partials.length+'p':''}</span>}
-          </div>
+          <div style={{display:'flex',gap:4,marginTop:5,alignItems:'center',flexWrap:'wrap'}}><Tag color={TC[fi.type]||C.tm}>{TL[fi.type]||fi.type}</Tag><span style={{fontSize:10,color:C.tm}}>{(fi.size/1024).toFixed(0)}KB</span><span style={{fontSize:10,color:C.tm}}>{fi.vins.length}V{fi.partials?.length>0?'+'+fi.partials.length+'p':''}</span></div>
           {fi.vins[0]&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.a1,fontWeight:700,marginTop:5}}>{fi.vins[0].vin}</div>}
         </Card>)}
       </div>
@@ -1349,36 +1249,27 @@ function DumpsTab({files,setFiles,loadF}){
       </Card>}
     </div>
     {f&&<div>
-      {f.hexOnly
-        ?<Card style={{marginBottom:14,padding:16,border:'2px solid '+TC.UNKNOWN+'60',background:TC.UNKNOWN+'08'}}>
-          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
-            <Tag color={TC.UNKNOWN}>Unrecognized module — read only</Tag>
-            <span style={{fontSize:11,color:C.tm}}>{(f.size/1024).toFixed(1)} KB · {f.size} bytes</span>
-          </div>
-          <div style={{fontSize:12,color:C.ts,marginBottom:10}}>This file does not match any known module type. You can inspect the raw bytes below and download the file, but patching is not available.</div>
-          <Btn onClick={()=>dl(f.data,f.name)} color={C.a3} outline>💾 Download Raw</Btn>
-        </Card>
-        :<Card glow style={{marginBottom:14}}>
-          <div style={{fontSize:16,fontWeight:900,marginBottom:14}}>⚡ PATCH VIN</div>
-          <input value={nv} maxLength={17} placeholder="Enter new 17-character VIN" onChange={e=>setNv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'12px 16px',borderRadius:12,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:16,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box'}} onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:8,flexWrap:'wrap',gap:4}}>
-            <span style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:nv.length===17?C.gn:C.tm}}>{nv.length}/17</span>
-            {cv&&<div style={{display:'flex',gap:4,alignItems:'center',flexWrap:'wrap'}}>
-              {cv.ok?<Tag color={C.gn}>✓ Valid</Tag>:<Tag color={C.er}>{cv.err||'Invalid'}</Tag>}
-              {cv.mfr&&<Tag color={C.a3}>{cv.mfr}</Tag>}
-              {cv.yr&&<Tag color={C.a2}>{cv.yr}</Tag>}
-            </div>}
-          </div>
-          <div style={{display:'flex',gap:8,marginTop:14,flexWrap:'wrap'}}>
-            <Btn onClick={doPatch} disabled={nv.length!==17} full>⚡ Patch VIN + Download</Btn>
-          </div>
-          <div style={{display:'flex',gap:8,marginTop:8}}>
-            <Btn onClick={doVirgin} color={C.er} outline>💀 Virginize</Btn>
-            <Btn onClick={()=>dl(f.data,f.name)} color={C.a3} outline>💾 Download</Btn>
-          </div>
-          {msg&&<div style={{marginTop:10,padding:'9px 12px',borderRadius:10,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,color:C.gn,fontWeight:700}}>✓ {msg}</div>}
-        </Card>}
-      {!f.hexOnly&&<Card style={{marginBottom:14,padding:16}}>
+      <Card glow style={{marginBottom:14}}>
+        <div style={{fontSize:16,fontWeight:900,marginBottom:14}}>⚡ PATCH VIN</div>
+        <input value={nv} maxLength={17} placeholder="Enter new 17-character VIN" onChange={e=>setNv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'12px 16px',borderRadius:12,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:16,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box'}} onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:8,flexWrap:'wrap',gap:4}}>
+          <span style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:nv.length===17?C.gn:C.tm}}>{nv.length}/17</span>
+          {cv&&<div style={{display:'flex',gap:4,alignItems:'center',flexWrap:'wrap'}}>
+            {cv.ok?<Tag color={C.gn}>✓ Valid</Tag>:<Tag color={C.er}>{cv.err||'Invalid'}</Tag>}
+            {cv.mfr&&<Tag color={C.a3}>{cv.mfr}</Tag>}
+            {cv.yr&&<Tag color={C.a2}>{cv.yr}</Tag>}
+          </div>}
+        </div>
+        <div style={{display:'flex',gap:8,marginTop:14,flexWrap:'wrap'}}>
+          <Btn onClick={doPatch} disabled={nv.length!==17} full>⚡ Patch VIN + Download</Btn>
+        </div>
+        <div style={{display:'flex',gap:8,marginTop:8}}>
+          <Btn onClick={doVirgin} color={C.er} outline>💀 Virginize</Btn>
+          <Btn onClick={()=>dl(f.data,f.name)} color={C.a3} outline>💾 Download</Btn>
+        </div>
+        {msg&&<div style={{marginTop:10,padding:'9px 12px',borderRadius:10,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,color:C.gn,fontWeight:700}}>✓ {msg}</div>}
+      </Card>
+      <Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>VIN Locations ({f.vins.length} full{f.partials?.length>0?', '+f.partials.length+' partial':''})</div>
         {f.vins.map((v,i)=><div key={i} style={{padding:'8px 10px',borderRadius:8,marginBottom:4,background:C.c2,border:'1px solid '+C.bd,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:4}}>
           <div><span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.tm}}>0x{v.off.toString(16).toUpperCase()} </span><span style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:C.a1}}>{v.vin}</span>{v.mirrored&&<Tag color={C.a3}>MIRRORED</Tag>}</div>
@@ -1387,8 +1278,8 @@ function DumpsTab({files,setFiles,loadF}){
         {f.partials?.map((v,i)=><div key={'p'+i} style={{padding:'6px 10px',borderRadius:8,marginBottom:4,background:'#FFF8E1',border:'1px solid #FFE082',fontSize:11}}>
           <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.tm}}>0x{v.off.toString(16).toUpperCase()} </span><span style={{fontFamily:"'JetBrains Mono'",fontWeight:700,color:C.a1}}>…{v.vin}</span><Tag color={C.wn}>PARTIAL</Tag>
         </div>)}
-      </Card>}
-      {!f.hexOnly&&f.sec&&<Card style={{marginBottom:14,padding:16}}>
+      </Card>
+      {f.sec&&<Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Security</div>
         {f.sec.t==='bcm'&&<><div style={{fontSize:11,marginBottom:6}}>Immo @0x40C0: <Tag color={f.sec.b1?C.wn:C.gn}>{f.sec.b1?'BLANK':f.sec.immoRecs+' SKIM keys'}</Tag></div><div style={{fontSize:11,marginBottom:6}}>Backup @0x2000: <Tag color={f.sec.b2?C.tm:C.gn}>{f.sec.b2?'BLANK':f.sec.bakRecs+' keys'}</Tag>{!f.sec.b2&&!f.sec.b1&&<Tag color={f.sec.immoSynced?C.gn:C.wn}>{f.sec.immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</div>{!f.sec.b1&&(f.sec.b2||!f.sec.immoSynced)&&<div style={{marginTop:6}}><Btn onClick={()=>{const d=syncImmoBackup(f.data);if(!d){setMsg('BCM file too small for IMMO sync');return;}dl(d,'IMMO_SYNCED_'+f.name);const u=[...files];u[sel]=analyzeFile(d.buffer,f.name);setFiles(u);setMsg('IMMO backup synced: '+f.sec.immoRecs+' keys copied to 0x2000');}} color={C.a1} outline>🔄 Sync IMMO Backup</Btn></div>}</>}
         {f.sec.t==='95640'&&<><div style={{fontSize:11,marginBottom:4}}>Secret Key @0x40: <Tag color={f.sec.kb?C.wn:C.gn}>{f.sec.kb?'ERASED':'SET'}</Tag></div>{!f.sec.kb&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a4,marginBottom:4}}>{hxb(f.sec.key)}</div>}<div style={{fontSize:11}}>Fob Data: <Tag color={f.sec.fb?C.tm:C.gn}>{f.sec.fb?'NONE':'HAS FOBS'}</Tag></div></>}
@@ -1396,11 +1287,11 @@ function DumpsTab({files,setFiles,loadF}){
         {f.sec.t==='gpec2a'&&<><div style={{fontSize:11,marginBottom:4}}>SKIM: <Tag color={f.sec.on?C.gn:C.wn}>{f.sec.on?'ENABLED 0x80':'OFF 0x'+f.sec.skim.toString(16).toUpperCase()}</Tag></div><div style={{fontSize:11,marginBottom:4}}>Secret Key: {!f.sec.key.every(b=>b===0xFF)?<><span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a4}}>{hxb(f.sec.key)}</span><Tag color={f.sec.km?C.gn:C.er}>{f.sec.km?'Mirror ✓':'MISMATCH'}</Tag></>:<Tag color={C.wn}>BLANK</Tag>}</div><div style={{fontSize:11}}>ZZZZ Tamper: <Tag color={f.sec.zz?C.gn:C.er}>{f.sec.zz?'INTACT':'TAMPERED'}</Tag></div></>}
       </Card>}
       <Card style={{padding:14}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:8}}>Hex Viewer{f.hexOnly&&<span style={{marginLeft:8,fontSize:10,fontWeight:400,color:C.tm}}>({Math.ceil(f.size/16)} rows · {f.size} bytes)</span>}</div>
-        <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,background:C.c2,borderRadius:10,padding:10,maxHeight:f.hexOnly?520:320,overflow:'auto',border:'1px solid '+C.bd}}>
-          {Array.from({length:f.hexOnly?Math.ceil(f.size/16):Math.min(32,Math.ceil(f.size/16))},(_,row)=>{const a=row*16;const bs=f.data.slice(a,Math.min(a+16,f.size));const iv=!f.hexOnly&&f.vins.some(v=>a+16>v.off&&a<v.off+17);return<div key={row} style={{display:'flex',gap:8,padding:'1px 4px',background:iv?'#D32F2F06':'transparent',borderRadius:3}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:8}}>Hex Viewer</div>
+        <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,background:C.c2,borderRadius:10,padding:10,maxHeight:320,overflow:'auto',border:'1px solid '+C.bd}}>
+          {Array.from({length:Math.min(32,Math.ceil(f.size/16))},(_,row)=>{const a=row*16;const bs=f.data.slice(a,Math.min(a+16,f.size));const iv=f.vins.some(v=>a+16>v.off&&a<v.off+17);return<div key={row} style={{display:'flex',gap:8,padding:'1px 4px',background:iv?'#D32F2F06':'transparent',borderRadius:3}}>
             <span style={{color:C.tm,minWidth:48,fontWeight:600}}>{a.toString(16).toUpperCase().padStart(6,'0')}</span>
-            <span style={{flex:1}}>{Array.from(bs).map((b,j)=>{const isV=!f.hexOnly&&f.vins.some(v=>(a+j)>=v.off&&(a+j)<v.off+17);return<span key={j} style={{color:isV?C.sr:b===0xFF?'#D5D0C8':b===0?'#C8C3BB':C.ts,fontWeight:isV?800:400}}>{b.toString(16).toUpperCase().padStart(2,'0')} </span>;})}</span>
+            <span style={{flex:1}}>{Array.from(bs).map((b,j)=>{const isV=f.vins.some(v=>(a+j)>=v.off&&(a+j)<v.off+17);return<span key={j} style={{color:isV?C.sr:b===0xFF?'#D5D0C8':b===0?'#C8C3BB':C.ts,fontWeight:isV?800:400}}>{b.toString(16).toUpperCase().padStart(2,'0')} </span>;})}</span>
             <span style={{color:C.tm,minWidth:90,fontSize:9}}>{Array.from(bs).map(b=>b>=32&&b<=126?String.fromCharCode(b):'·').join('')}</span>
           </div>;})}
         </div>
