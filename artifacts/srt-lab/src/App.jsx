@@ -855,12 +855,13 @@ function OBDTab(){
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
     for(const m of MODS){try{
       addLog('Trying '+m.c+' ('+m.tx.toString(16).toUpperCase()+'/'+m.rx.toString(16).toUpperCase()+')...','info');
-      let woke=false;
+      let woke=false,lastRaw='';
       for(const wk of[[0x10,0x01,'default session'],[0x10,0x03,'extended session'],[0x3E,0x00,'tester present']]){
         const w=await eng.current.uds(m.tx,m.rx,wk.slice(0,2));
         await new Promise(r=>setTimeout(r,100));
         if(w.ok){addLog(m.c+' responded to '+wk[2],'rx');woke=true;break;}
-        addLog(m.c+' '+wk[2]+': '+(w.raw||'no response'),'warn');
+        lastRaw=w.raw||'no response';
+        addLog(m.c+' '+wk[2]+': '+lastRaw,'warn');
       }
       if(woke){
         const r=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
@@ -868,7 +869,7 @@ function OBDTab(){
           if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
           else{setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (VIN unreadable)','warn');}}
         else{setFound(p=>[...p,{...m,vin:'NO VIN'}]);addLog(m.c+': present (VIN read failed: '+(r.raw||'')+')', 'warn');}
-      }else{addLog(m.c+': not found','error');}
+      }else{addLog(m.c+': not found ('+lastRaw+')','error');}
     }catch(e){addLog(m.c+' error: '+e.message,'error');}finally{await new Promise(r=>setTimeout(r,100));}}
     setBusy('');addLog('Scan complete','info');
   },[]);
