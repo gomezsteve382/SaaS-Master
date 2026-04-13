@@ -1,10 +1,11 @@
 import React, {useState, useCallback, useMemo} from "react";
 import {C,TC,TL,SKIM_OFF,IMMO_BLOCK,IMMO_REC,IMMO_KC} from "../lib/constants.js";
 import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
-import {parseModule,arrEq} from "../lib/parseModule.js";
+import {parseModule,arrEq,fO,countSkimRecs,syncImmoBackup} from "../lib/parseModule.js";
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crossValidate,computeDiff,compareGpecBcmKey} from "../lib/crossValidate.js";
 import {crc16} from "../lib/crc.js";
+const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
 
 function SecurityTab(){
   const[mods,setMods]=useState([]);const[sub,setSub]=useState('overview');const[tv,setTv]=useState('');
