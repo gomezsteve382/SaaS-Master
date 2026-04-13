@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import FcaAnalyzerTab from "./FcaAnalyzerTab";
+import OBDSwarmDiagnostic from "./OBDSwarmDiagnostic";
 
 /* ═══ VERIFIED ENGINES ═══ */
 function crc16(d,i=0xFFFF){let c=i;for(let x=0;x<d.length;x++){c^=d[x]<<8;for(let j=0;j<8;j++)c=c&0x8000?(c<<1)^0x1021:c<<1;c&=0xFFFF;}return c;}
@@ -13,7 +14,24 @@ function ngc(s){let k=0;for(let i=0;i<4;i++){let b=(u32(s)>>(i*8))&0xFF;k=u32(k^
 const TT={a:[0x727B,0xB301,0x08EB,0xB0BA,0xECA7,0x0ECC,0xD69A,0xE47E],b:[0x7A44,0x0201,0xF123,0x146E,0xCBC2,0x553F,0xD398,0x4EDC],c:[0x22B5,0x5767,0x4C5A,0xE443,0xC606,0x7544,0x0DFB,0x36D6],d:[0x632A,0x193B,0x914F,0x0F88,0x5E51,0x8DCD,0xDD6C,0x00DD]},TM=[0xBAEE,0xE000,0x1C00,0x0380,0x0070,0x0007];
 function tipm(s,t='a'){const tb=TT[t]||TT.a;let v=s&0xFFFF,k=0;for(let i=0;i<tb.length;i++){let m=v&TM[i%TM.length],b=0,x=m;while(x){b^=x&1;x>>=1;}k=(k<<1)|b;k^=tb[i];k&=0xFFFF;}return k;}
 const ALGOS=[{id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},{id:'gpec2',n:'GPEC2',h:'Continental',fn:s=>sxor(s,0xE72E3799)},{id:'gpec2f',n:'GPEC2 Flash',h:'Flash',fn:s=>sxor(s,0x966AEEB1)},{id:'gpec2e',n:'GPEC2 EPROM',h:'EPROM',fn:s=>sxor(s,0x3F711F5A)},{id:'gpec3',n:'GPEC3',h:'2018+',fn:s=>sxor(s,0x129D657F)},{id:'gpec2a',n:'GPEC2A',h:'GPEC2A',fn:s=>sxor(s,0xCE853A6F)},{id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},{id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},{id:'jtec',n:'JTEC',h:'Fixed 0000',fn:()=>0},{id:'cda6',n:'CDA6',h:'BCM/ABS/IPC',fn:s=>cda6(s)},{id:'t80',n:'TIPM 0x80',h:'t8001',fn:s=>tipm(s,'a')},{id:'t36',n:'TIPM 0x36',h:'t3605',fn:s=>tipm(s,'b')},{id:'t81',n:'TIPM 0x81',h:'t8101',fn:s=>tipm(s,'c')},{id:'t3c',n:'TIPM 0x3C',h:'t3c',fn:s=>tipm(s,'d')}];
-const MODS=[{c:'ECM',n:'Engine',tx:0x7E0,rx:0x7E8,bus:'C'},{c:'TCM',n:'Transmission',tx:0x7E1,rx:0x7E9,bus:'C'},{c:'DTCM',n:'Transfer Case',tx:0x7E2,rx:0x7EA,bus:'C'},{c:'BCM',n:'Body Control',tx:0x750,rx:0x758,bus:'IHS'},{c:'RFHUB',n:'RF Hub',tx:0x75F,rx:0x767,bus:'IHS'},{c:'ABS',n:'Brakes',tx:0x760,rx:0x768,bus:'IHS'},{c:'IPC',n:'Cluster',tx:0x740,rx:0x748,bus:'IHS'},{c:'RADIO',n:'Uconnect',tx:0x772,rx:0x77A,bus:'IHS'},{c:'ADCM',n:'Active Damping',tx:0x7A8,rx:0x7B0,bus:'IHS'},{c:'EPS',n:'Steering',tx:0x761,rx:0x769,bus:'IHS'},{c:'TIPM',n:'Power Module',tx:0x74C,rx:0x76C,bus:'IHS'},{c:'ORC',n:'Occupant Restraint',tx:0x758,rx:0x760,bus:'IHS'},{c:'HVAC',n:'HVAC Control',tx:0x751,rx:0x759,bus:'IHS'},{c:'TPM',n:'Tire Pressure',tx:0x752,rx:0x75A,bus:'IHS'}];
+const MODS=[
+{c:'ECM',n:'Engine',addrs:[{tx:0x7E0,rx:0x7E8}]},
+{c:'TCM',n:'Transmission',addrs:[{tx:0x7E1,rx:0x7E9}]},
+{c:'BCM',n:'Body Control',addrs:[{tx:0x742,rx:0x762},{tx:0x750,rx:0x758},{tx:0x6B0,rx:0x6B8},{tx:0x7B0,rx:0x7B8},{tx:0x620,rx:0x628}]},
+{c:'RFHUB',n:'RF Hub',addrs:[{tx:0x75F,rx:0x767},{tx:0x742,rx:0x762},{tx:0x762,rx:0x76A},{tx:0x740,rx:0x748}]},
+{c:'ABS',n:'Brakes',addrs:[{tx:0x760,rx:0x768},{tx:0x747,rx:0x74F},{tx:0x740,rx:0x748}]},
+{c:'IPC',n:'Cluster',addrs:[{tx:0x745,rx:0x765},{tx:0x740,rx:0x748},{tx:0x746,rx:0x766},{tx:0x720,rx:0x728},{tx:0x742,rx:0x74A}]},
+{c:'RADIO',n:'Uconnect',addrs:[{tx:0x772,rx:0x77A},{tx:0x754,rx:0x75C},{tx:0x753,rx:0x773},{tx:0x7D0,rx:0x7D8},{tx:0x7C8,rx:0x7D0}]},
+{c:'ADCM',n:'Active Damping',addrs:[{tx:0x744,rx:0x764},{tx:0x745,rx:0x765},{tx:0x7A8,rx:0x7B0},{tx:0x7E4,rx:0x7EC},{tx:0x754,rx:0x75C}]},
+{c:'EPS',n:'Steering',addrs:[{tx:0x75F,rx:0x767},{tx:0x761,rx:0x769},{tx:0x74A,rx:0x76A}]},
+{c:'TIPM',n:'Power Module',addrs:[{tx:0x74C,rx:0x76C},{tx:0x74C,rx:0x754}]},
+{c:'ORC',n:'Airbag',addrs:[{tx:0x758,rx:0x760},{tx:0x747,rx:0x767},{tx:0x744,rx:0x74C},{tx:0x730,rx:0x738}]},
+{c:'HVAC',n:'Climate',addrs:[{tx:0x751,rx:0x759},{tx:0x743,rx:0x763},{tx:0x688,rx:0x690},{tx:0x7A0,rx:0x7A8}]},
+{c:'DTCM',n:'Transfer Case',addrs:[{tx:0x7E2,rx:0x7EA},{tx:0x7A6,rx:0x7AE}]},
+{c:'SCCM',n:'Steering Column',addrs:[{tx:0x744,rx:0x764},{tx:0x763,rx:0x76B},{tx:0x750,rx:0x758}]},
+{c:'DDM',n:'Driver Door',addrs:[{tx:0x748,rx:0x768},{tx:0x640,rx:0x648}]},
+{c:'SGW',n:'Gateway',addrs:[{tx:0x74F,rx:0x76F},{tx:0x7C0,rx:0x7C8},{tx:0x6C0,rx:0x6C8}]}
+];
 
 const SKIM_OFF=[{v:'Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT',base:0x40C0,ks:18,kc:6}];
 const IMMO_REC=24,IMMO_KC=8,IMMO_BLOCK=IMMO_REC*IMMO_KC;
@@ -366,7 +384,7 @@ function Card({children,style={},glow,onClick}){const[h,setH]=useState(false);re
 function Tag({children,color=C.sr}){return<span style={{fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:8,background:color+'14',color,letterSpacing:.5,display:'inline-block',marginLeft:4}}>{children}</span>;}
 function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=useState(false);return<button onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#E8E4DE':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?C.tm:outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
 function SLine({type,msg}){const col={error:C.er,warn:C.wn,pass:C.gn};const ico={error:'✗',warn:'⚠',pass:'✓'};return<div style={{fontSize:12,color:col[type],padding:'4px 0',display:'flex',gap:8}}><span style={{fontWeight:700,minWidth:14}}>{ico[type]}</span><span>{msg}</span></div>;}
-const TABS=[{id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},{id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},{id:'bench',i:'🔧',l:'BENCH',s:'Offline · Dumps'},{id:'seed',i:'🔑',l:'SEED→KEY',s:'14 Algorithms'},{id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},{id:'skim',i:'🛡️',l:'SECURITY',s:'Cross-Match'},{id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'},{id:'analyzer',i:'🔬',l:'ANALYZER',s:'GPEC · RFHUB · BCM'}];
+const TABS=[{id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},{id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},{id:'bench',i:'🔧',l:'BENCH',s:'Offline · Dumps'},{id:'seed',i:'🔑',l:'SEED→KEY',s:'14 Algorithms'},{id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},{id:'skim',i:'🛡️',l:'SECURITY',s:'Cross-Match'},{id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'},{id:'analyzer',i:'🔬',l:'ANALYZER',s:'GPEC · RFHUB · BCM'},{id:'swarm',i:'🐝',l:'SWARM',s:'5-Agent CAN Scan'}];
 
 /* ═══ APP ═══ */
 export default function App(){const[pg,setPg]=useState('dumps');const[files,setFiles]=useState([]);
@@ -392,6 +410,7 @@ export default function App(){const[pg,setPg]=useState('dumps');const[files,setF
       {pg==='skim'&&<SecurityTab/>}
       {pg==='gpec2a'&&<Gpec2aTab/>}
       {pg==='analyzer'&&<FcaAnalyzerTab/>}
+      {pg==='swarm'&&<OBDSwarmDiagnostic/>}
     </div></div>;}
 
 /* ═══ BENCH TAB ═══ */
@@ -1116,44 +1135,67 @@ function OBDTab(){
 
   const scan=useCallback(async()=>{
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
-    const canC=MODS.filter(m=>m.bus==='C');
-    const canIHS=MODS.filter(m=>m.bus==='IHS');
-    /* Scan CAN-C modules first (HS-CAN pins 6/14 — already active) */
+    /* CAN-C = any module whose first addr is in 0x7E0-0x7EF (powertrain range) */
+    const canC=MODS.filter(m=>m.addrs[0].tx>=0x7E0&&m.addrs[0].tx<=0x7EF);
+    const canIHS=MODS.filter(m=>!(m.addrs[0].tx>=0x7E0&&m.addrs[0].tx<=0x7EF));
+    /* Scan CAN-C modules — try each address variant until one responds */
     addLog('── Scanning CAN-C (HS-CAN pins 6/14) ──','info');
-    for(const m of canC){try{
-      const r=await eng.current.uds(m.tx,m.rx,[0x3E,0x00]);
-      if(r.ok){
-        addLog(m.c+' alive','rx');
-        const vr=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
-        if(vr.ok&&vr.d?.length>3){const vc=Array.from(vr.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
-          if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
-          else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': VIN unreadable','warn');}}
-        else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': present, VIN read failed','warn');}
-      }else{addLog(m.c+': no response','error');}
-    }catch(e){addLog(m.c+' error: '+e.message,'error');}
-    await new Promise(r=>setTimeout(r,100));}
+    for(const m of canC){
+      let responded=false;
+      for(const addr of m.addrs){try{
+        const r=await eng.current.uds(addr.tx,addr.rx,[0x3E,0x00]);
+        if(r.ok){
+          addLog(m.c+' alive @ 0x'+addr.tx.toString(16).toUpperCase(),'rx');
+          const vr=await eng.current.uds(addr.tx,addr.rx,[0x22,0xF1,0x90]);
+          if(vr.ok&&vr.d?.length>3){const vc=Array.from(vr.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
+            if(vin.length>=10){setFound(p=>[...p,{...m,tx:addr.tx,rx:addr.rx,vin}]);addLog(m.c+': '+vin,'rx');}
+            else{setFound(p=>[...p,{...m,tx:addr.tx,rx:addr.rx,vin:'(present)'}]);addLog(m.c+': VIN unreadable','warn');}}
+          else{setFound(p=>[...p,{...m,tx:addr.tx,rx:addr.rx,vin:'(present)'}]);addLog(m.c+': present, VIN read failed','warn');}
+          responded=true;break;
+        }
+      }catch(e){addLog(m.c+' error: '+e.message,'error');}}
+      if(!responded){addLog(m.c+': no response','error');}
+      await new Promise(r=>setTimeout(r,100));
+    }
     /* Switch to CAN-IHS (pins 3/11) via STP61 — STN adapters only */
     if(eng.current.isSTN){
       addLog('── Switching to CAN-IHS (MS-CAN pins 3/11) ──','info');
       const stp61r=await eng.current.send('STP61');
-      if(stp61r.includes('?')||stp61r.includes('ERROR'))addLog('STP61 not supported — falling back','warn');
-      await eng.current.send('STPBR 125000');
-      await new Promise(r=>setTimeout(r,300));
-      await eng.current.send('ATCRA');
-      await eng.current.send('ATH1');
-      await eng.current.send('ATST50');
-      for(const m of canIHS){try{
-        const r=await eng.current.uds(m.tx,m.rx,[0x3E,0x00]);
-        if(r.ok){
-          addLog(m.c+' alive','rx');
-          const vr=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
-          if(vr.ok&&vr.d?.length>3){const vc=Array.from(vr.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
-            if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
-            else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': VIN unreadable','warn');}}
-          else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': present, VIN read failed','warn');}
-        }else{addLog(m.c+': no response','error');}
-      }catch(e){addLog(m.c+' error: '+e.message,'error');}
-      await new Promise(r=>setTimeout(r,100));}
+      if(stp61r.includes('?')||stp61r.includes('ERROR')){addLog('STP61 not supported — IHS scan skipped','warn');}
+      else{
+        await eng.current.send('STPBR 125000');
+        await new Promise(r=>setTimeout(r,300));
+        await eng.current.send('ATCRA');
+        await eng.current.send('ATH1');
+        await eng.current.send('ATST50');
+        let ihsAbort=false;
+        for(const m of canIHS){
+          if(ihsAbort)break;
+          let responded=false;
+          for(const addr of m.addrs){
+            if(ihsAbort)break;
+            try{
+              const r=await eng.current.uds(addr.tx,addr.rx,[0x3E,0x00]);
+              /* Fast-fail: CAN ERROR = transceiver not wired to pins 3/11 */
+              if(r.raw&&/CAN ERROR/.test(r.raw)){
+                addLog('CAN ERROR on IHS bus — OBDLink EX transceiver is only wired to pins 6/14. Body module scan aborted. A physical Y-cable to pins 3/11 is required.','error');
+                ihsAbort=true;break;
+              }
+              if(r.ok){
+                addLog(m.c+' alive @ 0x'+addr.tx.toString(16).toUpperCase(),'rx');
+                const vr=await eng.current.uds(addr.tx,addr.rx,[0x22,0xF1,0x90]);
+                if(vr.ok&&vr.d?.length>3){const vc=Array.from(vr.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
+                  if(vin.length>=10){setFound(p=>[...p,{...m,tx:addr.tx,rx:addr.rx,vin}]);addLog(m.c+': '+vin,'rx');}
+                  else{setFound(p=>[...p,{...m,tx:addr.tx,rx:addr.rx,vin:'(present)'}]);addLog(m.c+': VIN unreadable','warn');}}
+                else{setFound(p=>[...p,{...m,tx:addr.tx,rx:addr.rx,vin:'(present)'}]);addLog(m.c+': present, VIN read failed','warn');}
+                responded=true;break;
+              }
+            }catch(e){addLog(m.c+' error: '+e.message,'error');}
+          }
+          if(!responded&&!ihsAbort){addLog(m.c+': no response on any address','error');}
+          await new Promise(r=>setTimeout(r,100));
+        }
+      }
       /* Switch back to HS-CAN (pins 6/14) — STP60 unsupported on r2.1 */
       await eng.current.send('STPBR 500000');
       await eng.current.send('ATSP6');
