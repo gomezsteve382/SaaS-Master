@@ -165,7 +165,7 @@ function RFHSection() {
           <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:12}}>
             <Tag color={res.validSz?C.gn:C.wn}>{res.sz} bytes — {res.sz===4096?"4KB (Gen2)":res.sz===2048?"2KB (Gen1)":"SIZE WARN"}</Tag>
             <Tag color="#1565C0">24C32 EEE</Tag>
-            {res.sec16valid && <Tag color={C.gn}>SEC16 VALID ✓</Tag>}
+            {res.sec16valid ? <Tag color={C.gn}>SEC16 VALID ✓</Tag> : <Tag color={C.er}>SEC16 MISMATCH ✗</Tag>}
             {res.skeyBlank && <Tag color={C.wn}>SECRET KEY BLANK</Tag>}
           </div>
 
@@ -181,7 +181,7 @@ function RFHSection() {
                     <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontWeight:700,fontSize:12,color:row.vin?C.gn:C.er}}>{row.vin||"(empty / invalid)"}</td>
                     <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>{row.csStored!==null?"0x"+row.csStored.toString(16).toUpperCase().padStart(2,"0"):"—"}</td>
                     <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>{row.csCalc!==null?"0x"+row.csCalc.toString(16).toUpperCase().padStart(2,"0"):"—"}</td>
-                    <td style={{padding:"7px 10px"}}>{row.vin?<Badge ok={row.crcOk}/>:<span style={{fontSize:10,color:C.tm}}>—</span>}</td>
+                    <td style={{padding:"7px 10px"}}>{row.csStored!==null?<Badge ok={row.crcOk}/>:<span style={{fontSize:10,color:C.tm}}>—</span>}</td>
                   </tr>
                 ))}
               </tbody>
