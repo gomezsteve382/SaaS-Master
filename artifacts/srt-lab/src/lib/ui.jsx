@@ -1,0 +1,9 @@
+import React, {useState} from "react";
+import {C} from './constants.js';
+
+function Card({children,style={},glow,onClick}){const[h,setH]=useState(false);return<div onClick={onClick} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{background:C.cd,borderRadius:16,padding:22,border:`1.5px solid ${h&&onClick?C.sr:C.bd}`,boxShadow:h&&onClick?'0 8px 32px rgba(211,47,47,0.12)':'0 2px 16px rgba(0,0,0,0.06)',transition:'all 0.3s',transform:h&&onClick?'translateY(-2px)':'none',cursor:onClick?'pointer':'default',position:'relative',overflow:'hidden',...style}}>{glow&&<div style={{position:'absolute',top:-40,right:-40,width:120,height:120,borderRadius:'50%',background:'radial-gradient(circle,#FF525215,transparent 70%)',pointerEvents:'none'}}/>}<div style={{position:'relative',zIndex:1}}>{children}</div></div>;}
+function Tag({children,color=C.sr}){return<span style={{fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:8,background:color+'14',color,letterSpacing:.5,display:'inline-block',marginLeft:4}}>{children}</span>;}
+function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=useState(false);return<button onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#E8E4DE':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?C.tm:outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
+function SLine({type,msg}){const col={error:C.er,warn:C.wn,pass:C.gn};const ico={error:'✗',warn:'⚠',pass:'✓'};return<div style={{fontSize:12,color:col[type],padding:'4px 0',display:'flex',gap:8}}><span style={{fontWeight:700,minWidth:14}}>{ico[type]}</span><span>{msg}</span></div>;}
+
+export {Card,Tag,Btn,SLine};
