@@ -364,7 +364,9 @@ function virginizeFile(f){const out=new Uint8Array(f.data);const log=[];
   if(f.type==='BCM'){f.vins.forEach(v=>{for(let j=0;j<19;j++)out[v.off+j]=0;});f.partials?.forEach(v=>{for(let j=0;j<10;j++)out[v.off+j]=0;});[0x2000,0x40C0].forEach(o=>{for(let i=0;i<IMMO_BLOCK;i++)out[o+i]=0xFF;});log.push('VINs+CRC zeroed, SKIM cleared');}
   else if(f.type==='95640'){[0x275,0x288].forEach(o=>{for(let j=-1;j<17;j++)out[o+j]=0;});for(let i=0;i<16;i++)out[0x40+i]=0xFF;log.push('VINs+CRC+key cleared');}
   else if(f.type==='RFHUB'){[0xEA5,0xEB9,0xECD,0xEE1].forEach(o=>{for(let j=0;j<18;j++)out[o+j]=0;});for(let i=0;i<16;i++)out[0x40+i]=0xFF;for(let i=0;i<64;i++)out[0x200+i]=0xFF;log.push('VINs+key+fobs cleared');}
-  else if(f.type==='GPEC2A'){[0,0x1F0,0x224].forEach(o=>{for(let j=0;j<17;j++)out[o+j]=0;});log.push('VINs cleared');}
+  else if(f.type==='GPEC2A'){[0,0x1F0,0x224].forEach(o=>{for(let j=0;j<17;j++)out[o+j]=0;});out[0x0011]=0x00;for(let i=0x0203;i<0x020B;i++)out[i]=0x00;for(let i=0x0361;i<0x0369;i++)out[i]=0x00;for(let i=0x0888;i<0x0899;i++)out[i]=0xFF;for(let i=0x0C8C;i<0x0C94;i++)out[i]=0x00;log.push('VINs cleared, SKIM disabled, keys/ZZZZ wiped');}
+  else if(f.type==='FW'){const bv=new Uint8Array(17);const bc=crc16(bv);f.vins.forEach(v=>{for(let j=0;j<17;j++)out[v.off+j]=0;out[v.off+17]=(bc>>8)&0xFF;out[v.off+18]=bc&0xFF;});const bt=new Uint8Array(8);const btc=crc16(bt);f.partials?.forEach(v=>{for(let j=0;j<8;j++)out[v.off+j]=0;out[v.off+8]=(btc>>8)&0xFF;out[v.off+9]=btc&0xFF;});log.push(f.vins.length+' VIN(s) zeroed+CRC16 patched');const EB=0x30000;if(out.length>EB){[[0x0011,1,0x00],[0x0203,8,0x00],[0x0361,8,0x00],[0x0888,17,0xFF],[0x0C8C,8,0x00]].forEach(([r,l,fv])=>{const a=EB+r;if(a+l<=out.length)for(let i=0;i<l;i++)out[a+i]=fv;});log.push('SKIM/seed regions cleared');}}
+  else{return{data:out,log:['Not supported for this module type']};}
   return{data:out,log};}
 
 /* ═══ Module VIN writer for enhanced parser ═══ */
@@ -395,6 +397,7 @@ function virginizeModule(data,type){
   else if(type==='RFHUB'){[0xEA5,0xEB9,0xECD,0xEE1].forEach(off=>{for(let j=0;j<18;j++)o[off+j]=0;});for(let i=0;i<16;i++)o[0x40+i]=0xFF;for(let i=0;i<64;i++)o[0x200+i]=0xFF;}
   else if(type==='BCM'){[0x5320,0x5340,0x5360,0x5380].forEach(off=>{for(let j=0;j<19;j++)o[off+j]=0;});[0x2000,0x40C0].forEach(base=>{for(let i=0;i<IMMO_BLOCK;i++)o[base+i]=0xFF;});}
   else if(type==='95640'){[0x275,0x288].forEach(off=>{for(let j=-1;j<17;j++)o[off+j]=0;});for(let i=0;i<16;i++)o[0x40+i]=0xFF;}
+  else{return null;}
   return o;
 }
 
@@ -778,7 +781,7 @@ function SecurityTab(){
 
   function doTool(action){
     const m=mods[tt];if(!m)return;let res=null;
-    if(action==='virginize'){const d=virginizeModule(m.data,m.type);res={data:d,desc:m.name+' virginized: keys/VINs/SKIM cleared.'};}
+    if(action==='virginize'){const d=virginizeModule(m.data,m.type);if(d===null){res={desc:'Not supported for this module type ('+m.type+'). No changes made.'}}else{res={data:d,desc:m.name+' virginized: keys/VINs/SKIM cleared.'}}}
     else if(action==='writeVin'&&tv.length===17){const d=writeModuleVIN(m.data,m.type,tv,m.vins);if(d)res={data:d,desc:'VIN updated to '+tv+' at '+(m.vins?m.vins.length:0)+' locations'+(m.type==='BCM'?' + IMMO backup synced':'')};}
     else if(action==='skimToggle'&&m.type==='GPEC2A'){const d=new Uint8Array(m.data);d[0x0011]=m.skimByte===0x80?0x00:0x80;res={data:d,desc:'SKIM: 0x'+m.skimByte.toString(16).toUpperCase()+' → 0x'+d[0x0011].toString(16).toUpperCase()};}
     else if(action==='extractKey'){let k=m.secretKey?m.secretKey.hex:m.vehicleSecret?m.vehicleSecret.hex:m.skey&&!m.skb?hxb(m.skey):'';res={keyHex:k,desc:'Extracted from '+m.type};}
@@ -1414,7 +1417,7 @@ function DumpsTab({files,setFiles,loadF}){
   const f=sel!==null?files[sel]:null;const cv=useMemo(()=>nv.length===17?checkVin(nv):null,[nv]);
   const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
   const doPatch=()=>{if(!f||nv.length!==17)return;const r=patchFile(f,nv);dl(r.data,'PATCHED_'+nv+'_'+f.name);const u=[...files];u[sel]=analyzeFile(r.data.buffer,f.name);setFiles(u);setMsg('Patched '+r.log.length+' locations');};
-  const doVirgin=()=>{if(!f)return;const r=virginizeFile(f);dl(r.data,'VIRGIN_'+f.name);setMsg('Virginized: '+r.log.join(', '));};
+  const doVirgin=()=>{if(!f)return;const r=virginizeFile(f);if(r.log[0]==='Not supported for this module type'){setMsg(r.log[0]);return;}const check=analyzeFile(r.data.buffer,f.name);const vc=check.vins.length===0?' ✓ '+check.type+' re-parsed, 0 VINs':' ⚠ '+check.vins.length+' VIN(s) remain';dl(r.data,'VIRGIN_'+f.name);const u=[...files];u[sel]=check;setFiles(u);setMsg('Virginized: '+r.log.join(', ')+'.'+vc);};
 
   if(!files.length)return<div onClick={()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='.bin,.BIN';i.onchange=e=>loadF(e.target.files);i.click();}} onDrop={e=>{e.preventDefault();loadF(e.dataTransfer.files);}} onDragOver={e=>e.preventDefault()}>
     <Card style={{textAlign:'center',padding:'60px 24px',cursor:'pointer',border:'2.5px dashed #D32F2F30'}} onClick={()=>{}}>
@@ -1472,7 +1475,7 @@ function DumpsTab({files,setFiles,loadF}){
             <Btn onClick={doVirgin} color={C.er} outline>💀 Virginize</Btn>
             <Btn onClick={()=>dl(f.data,f.name)} color={C.a3} outline>💾 Download</Btn>
           </div>
-          {msg&&<div style={{marginTop:10,padding:'9px 12px',borderRadius:10,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,color:C.gn,fontWeight:700}}>✓ {msg}</div>}
+          {msg&&<div style={{marginTop:10,padding:'9px 12px',borderRadius:10,background:(msg.startsWith('Not supported')?C.wn:C.gn)+'10',border:'1px solid '+(msg.startsWith('Not supported')?C.wn:C.gn)+'25',fontSize:11,color:msg.startsWith('Not supported')?C.wn:C.gn,fontWeight:700}}>{msg.startsWith('Not supported')?'⚠':'✓'} {msg}</div>}
         </Card>}
       {!f.hexOnly&&<Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>VIN Locations ({f.vins.length} full{f.partials?.length>0?', '+f.partials.length+' partial':''})</div>
