@@ -853,7 +853,8 @@ function OBDTab(){
           const toks=line.split(/\s+/).filter(t=>/^[0-9A-Fa-f]+$/.test(t));if(!toks.length)continue;
           let si=0;if(toks[0].length===3)si=1;
           let bytes;
-          if(toks.length===1||(toks.length===1+si&&toks[si].length>2)){let hex=toks.slice(si).join('');if(hex.length%2===1)hex=hex.slice(0,-1);bytes=[];for(let j=0;j<hex.length;j+=2)bytes.push(parseInt(hex.substr(j,2),16));}
+          if(toks.length===1&&toks[0].length>3&&toks[0].length%2===1){let hex=toks[0].slice(3);bytes=[];for(let j=0;j<hex.length;j+=2)bytes.push(parseInt(hex.substr(j,2),16));}
+          else if(toks.length===1||(toks.length===1+si&&toks[si].length>2)){let hex=toks.slice(si).join('');if(hex.length%2===1)hex=hex.slice(0,-1);bytes=[];for(let j=0;j<hex.length;j+=2)bytes.push(parseInt(hex.substr(j,2),16));}
           else{bytes=toks.slice(si).map(t=>parseInt(t,16));}
           if(multi&&bytes.length>0){const pci=bytes[0]>>4;if(pci===0)bytes=bytes.slice(1);else if(pci===1)bytes=bytes.slice(2);else if(pci===2)bytes=bytes.slice(1);else if(pci===3)continue;}
           all.push(...bytes);
