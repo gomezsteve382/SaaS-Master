@@ -1078,7 +1078,7 @@ function OBDTab(){
       addLog('── Switching to CAN-IHS (MS-CAN pins 3/11) ──','info');
       const stp61r=await eng.current.send('STP61');
       if(stp61r.includes('?')||stp61r.includes('ERROR'))addLog('STP61 not supported — falling back','warn');
-      await eng.current.send('ATSP7');
+      await eng.current.send('STPBR 125000');
       await new Promise(r=>setTimeout(r,300));
       await eng.current.send('ATCRA');
       await eng.current.send('ATH1');
@@ -1095,9 +1095,9 @@ function OBDTab(){
         }else{addLog(m.c+': no response','error');}
       }catch(e){addLog(m.c+' error: '+e.message,'error');}
       await new Promise(r=>setTimeout(r,100));}
-      /* Switch back to HS-CAN (pins 6/14) */
+      /* Switch back to HS-CAN (pins 6/14) — STP60 unsupported on r2.1 */
+      await eng.current.send('STPBR 500000');
       await eng.current.send('ATSP6');
-      await eng.current.send('STP60');
       await new Promise(r=>setTimeout(r,100));
       await eng.current.send('ATST96');
       addLog('── Back on HS-CAN (pins 6/14) ──','info');
