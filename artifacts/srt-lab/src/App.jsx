@@ -808,7 +808,6 @@ function SecurityTab(){
 function OBDTab(){
   const[conn,setConn]=useState(false);const[found,setFound]=useState([]);const[nv,setNv]=useState('');
   const[busy,setBusy]=useState('');const[prog,setProg]=useState(0);const[log,setLog]=useState([]);
-  const[baud,setBaud]=useState(115200);
   const eng=useRef(null);
   const addLog=(m,l='info')=>setLog(p=>[...p,{m,l,t:new Date().toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})}]);
 
@@ -816,15 +815,15 @@ function OBDTab(){
     try{
       if(!navigator.serial){addLog('Web Serial not available — use Chrome','error');return;}
       const port=await navigator.serial.requestPort();
-      await port.open({baudRate:baud});
+      await port.open({baudRate:115200});
       const w=port.writable.getWriter();
       const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable).catch(()=>{});
       const rd=dec.readable.getReader();let buf='';
       (async()=>{try{while(true){const{value,done}=await rd.read();if(done)break;if(value)buf+=value;}}catch(e){}})();
-      const send=async(cmd,to=2000)=>{buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){const cl=buf.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'');if(cl.includes('>')){const r=cl.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}const partial=buf.replace(/[\x00-\x1f]/g,' ').trim();if(partial)addLog('RX (timeout) < '+partial,'warn');else addLog('RX (no response)','warn');return partial;};
+      const send=async(cmd,to=2000)=>{buf='';await w.write(new TextEncoder().encode(cmd+'\r'));addLog('TX > '+cmd,'tx');const s=Date.now();while(Date.now()-s<to){if(buf.includes('>')){const r=buf.replace(/>/g,'').trim();addLog('RX < '+r,'rx');return r;}await new Promise(r=>setTimeout(r,50));}return buf.trim();};
       await send('ATZ',3000);await new Promise(r=>setTimeout(r,500));
-      const id=await send('ATI',3000);addLog('Adapter: '+id,'info');
-      for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6']){const ar=await send(c);if(ar.includes('?'))addLog(c+' not supported','warn');await new Promise(r=>setTimeout(r,100));}
+      addLog('Adapter: '+(await send('ATI')),'info');
+      for(const c of['ATE0','ATL0','ATS1','ATH1','ATCAF1','ATCFC1','ATAL','ATSP6']){await send(c);await new Promise(r=>setTimeout(r,80));}
       eng.current={send,uds:async(tx,rx,data)=>{
         await send('ATSH'+tx.toString(16).toUpperCase().padStart(3,'0'),3000);
         await new Promise(r=>setTimeout(r,50));
@@ -850,7 +849,7 @@ function OBDTab(){
       }};
       setConn(true);addLog('Ready — HS-CAN 500kbps','info');
     }catch(e){addLog('Connect failed: '+e.message,'error');}
-  },[baud]);
+  },[]);
 
   const scan=useCallback(async()=>{
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
@@ -919,9 +918,6 @@ function OBDTab(){
     <div>
       <Card glow style={{marginBottom:14}}>
         <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-          {!conn&&<select value={baud} onChange={e=>setBaud(Number(e.target.value))} style={{padding:'8px 12px',borderRadius:10,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,outline:'none',cursor:'pointer'}}>
-            <option value={115200}>115200 baud</option><option value={38400}>38400 baud</option><option value={9600}>9600 baud</option><option value={2000000}>2M baud (STN)</option>
-          </select>}
           <Btn onClick={connect} disabled={conn} color={conn?C.gn:C.a3} full>{conn?'✓ Connected to OBDLink':'🔌 Connect OBDLink EX'}</Btn>
           {conn&&<Btn onClick={scan} disabled={!!busy} color={C.a1}>{busy||'📡 Scan Modules'}</Btn>}
         </div>
