@@ -13,7 +13,7 @@ function ngc(s){let k=0;for(let i=0;i<4;i++){let b=(u32(s)>>(i*8))&0xFF;k=u32(k^
 const TT={a:[0x727B,0xB301,0x08EB,0xB0BA,0xECA7,0x0ECC,0xD69A,0xE47E],b:[0x7A44,0x0201,0xF123,0x146E,0xCBC2,0x553F,0xD398,0x4EDC],c:[0x22B5,0x5767,0x4C5A,0xE443,0xC606,0x7544,0x0DFB,0x36D6],d:[0x632A,0x193B,0x914F,0x0F88,0x5E51,0x8DCD,0xDD6C,0x00DD]},TM=[0xBAEE,0xE000,0x1C00,0x0380,0x0070,0x0007];
 function tipm(s,t='a'){const tb=TT[t]||TT.a;let v=s&0xFFFF,k=0;for(let i=0;i<tb.length;i++){let m=v&TM[i%TM.length],b=0,x=m;while(x){b^=x&1;x>>=1;}k=(k<<1)|b;k^=tb[i];k&=0xFFFF;}return k;}
 const ALGOS=[{id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},{id:'gpec2',n:'GPEC2',h:'Continental',fn:s=>sxor(s,0xE72E3799)},{id:'gpec2f',n:'GPEC2 Flash',h:'Flash',fn:s=>sxor(s,0x966AEEB1)},{id:'gpec2e',n:'GPEC2 EPROM',h:'EPROM',fn:s=>sxor(s,0x3F711F5A)},{id:'gpec3',n:'GPEC3',h:'2018+',fn:s=>sxor(s,0x129D657F)},{id:'gpec2a',n:'GPEC2A',h:'GPEC2A',fn:s=>sxor(s,0xCE853A6F)},{id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},{id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},{id:'jtec',n:'JTEC',h:'Fixed 0000',fn:()=>0},{id:'cda6',n:'CDA6',h:'BCM/ABS/IPC',fn:s=>cda6(s)},{id:'t80',n:'TIPM 0x80',h:'t8001',fn:s=>tipm(s,'a')},{id:'t36',n:'TIPM 0x36',h:'t3605',fn:s=>tipm(s,'b')},{id:'t81',n:'TIPM 0x81',h:'t8101',fn:s=>tipm(s,'c')},{id:'t3c',n:'TIPM 0x3C',h:'t3c',fn:s=>tipm(s,'d')}];
-const MODS=[{c:'ECM',n:'Engine',tx:0x7E0,rx:0x7E8},{c:'TCM',n:'Transmission',tx:0x7E1,rx:0x7E9},{c:'BCM',n:'Body Control',tx:0x742,rx:0x762},{c:'RFHUB',n:'RF Hub',tx:0x75F,rx:0x767},{c:'ABS',n:'Brakes',tx:0x760,rx:0x768},{c:'IPC',n:'Cluster',tx:0x745,rx:0x765},{c:'RADIO',n:'Uconnect',tx:0x772,rx:0x77A},{c:'DAMP',n:'Damping',tx:0x7E4,rx:0x7EC},{c:'EPS',n:'Steering',tx:0x75F,rx:0x769},{c:'TIPM',n:'Power Module',tx:0x74C,rx:0x76C}];
+const MODS=[{c:'ECM',n:'Engine',tx:0x7E0,rx:0x7E8},{c:'TCM',n:'Transmission',tx:0x7E1,rx:0x7E9},{c:'BCM',n:'Body Control',tx:0x750,rx:0x758},{c:'RFHUB',n:'RF Hub',tx:0x75F,rx:0x767},{c:'ABS',n:'Brakes',tx:0x760,rx:0x768},{c:'IPC',n:'Cluster',tx:0x740,rx:0x748},{c:'RADIO',n:'Uconnect',tx:0x754,rx:0x75C},{c:'DAMP',n:'Damping',tx:0x7E4,rx:0x7EC},{c:'EPS',n:'Steering',tx:0x761,rx:0x769},{c:'TIPM',n:'Power Module',tx:0x74C,rx:0x76C},{c:'ORC',n:'Occupant Restraint',tx:0x758,rx:0x760},{c:'HVAC',n:'HVAC Control',tx:0x751,rx:0x759},{c:'DTCM',n:'Transfer Case',tx:0x7E2,rx:0x7EA},{c:'TPM',n:'Tire Pressure',tx:0x752,rx:0x75A}];
 
 const SKIM_OFF=[{v:'Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT',base:0x40C0,ks:18,kc:6}];
 const IMMO_REC=24,IMMO_KC=8,IMMO_BLOCK=IMMO_REC*IMMO_KC;
@@ -857,79 +857,59 @@ function OBDTab(){
 
   const scan=useCallback(async()=>{
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
-
-    /* ══ PHASE 1: Functional broadcast discovery ══
-       Send TesterPresent via 0x7DF (functional addressing) with NO CRA filter.
-       Every UDS-capable module on the bus responds with its own physical RX ID.
-       This works on bench WITHOUT the gateway. */
-    addLog('=== PHASE 1: Functional broadcast (0x7DF) ===','info');
-    await eng.current.send('ATCRA');/* clear all RX filters — accept ANY response */
-    await new Promise(r=>setTimeout(r,50));
-    await eng.current.send('ATSH7DF');/* functional broadcast address */
-    await new Promise(r=>setTimeout(r,50));
-    const bcast=await eng.current.send('3E00',4000);
-    const discoveredRx=new Set();
-    if(bcast&&!/NO DATA|ERROR/.test(bcast)){
-      addLog('Broadcast responses: '+bcast,'rx');
-      /* parse response lines to extract responding CAN IDs */
-      const lines=bcast.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0);
-      for(const line of lines){
-        const m3=line.match(/^([0-9A-Fa-f]{3})\s/);
-        if(m3)discoveredRx.add(parseInt(m3[1],16));
-      }
-      if(discoveredRx.size>0){
-        addLog('Discovered '+discoveredRx.size+' responding module(s): '+[...discoveredRx].map(id=>'0x'+id.toString(16).toUpperCase()).join(', '),'rx');
-        /* match discovered RX IDs to known modules */
-        for(const rxId of discoveredRx){
-          const known=MODS.find(m=>m.rx===rxId);
-          if(known)addLog('  0x'+rxId.toString(16).toUpperCase()+' → '+known.c+' ('+known.n+')','rx');
-          else addLog('  0x'+rxId.toString(16).toUpperCase()+' → unknown module (TX likely 0x'+(rxId-8).toString(16).toUpperCase()+' or 0x'+(rxId-0x20).toString(16).toUpperCase()+')','warn');
-        }
-      }
-    }else{addLog('No functional broadcast response — trying individual scan','warn');}
-
-    /* ══ PHASE 2: Read VIN from each discovered + known module ══ */
-    addLog('=== PHASE 2: Individual module scan ===','info');
-    /* build scan targets: merge known MODS with any discovered IDs */
-    const targets=[...MODS];
-    for(const rxId of discoveredRx){
-      if(!MODS.find(m=>m.rx===rxId)){
-        /* unknown module — guess TX as RX-8 (standard UDS offset) */
-        const txGuess=rxId>=0x7E8?rxId-8:rxId-0x20;
-        targets.push({c:'UNK_'+rxId.toString(16).toUpperCase(),n:'Discovered 0x'+rxId.toString(16).toUpperCase(),tx:txGuess,rx:rxId});
-      }
-    }
-    for(const m of targets){try{
-      /* skip modules we know aren't on the bus (not discovered AND not standard) */
-      const wasDiscovered=discoveredRx.has(m.rx);
-      if(discoveredRx.size>0&&!wasDiscovered&&!m.c.startsWith('UNK')){
-        /* only try known modules that WEREN'T discovered if we had broadcast responses */
-        addLog(m.c+': not discovered, skipping...','info');continue;
-      }
+    addLog('=== SCANNING ALL MODULES ===','info');
+    addLog('Strategy: functional broadcast 0x7DF + physical addressing per module','info');
+    for(const m of MODS){try{
       addLog('Trying '+m.c+' (TX:'+m.tx.toString(16).toUpperCase()+' RX:'+m.rx.toString(16).toUpperCase()+')...','info');
+      /* set CRA filter for THIS module's expected response */
       await eng.current.send('ATCRA'+m.rx.toString(16).toUpperCase().padStart(3,'0'));
       await new Promise(r=>setTimeout(r,50));
+      let alive=false;
+      /* ATTEMPT 1: Physical addressing (ATSH = module TX) */
       await eng.current.send('ATSH'+m.tx.toString(16).toUpperCase().padStart(3,'0'));
       await new Promise(r=>setTimeout(r,50));
-      let alive=false;
-      const tp=await eng.current.send('3E00',3000);
-      if(tp&&!/NO DATA|ERROR/.test(tp)&&/^[0-9A-Fa-f\s]+$/m.test(tp)){alive=true;addLog(m.c+' alive','rx');}
-      else{
+      let tp=await eng.current.send('3E00',3000);
+      if(tp&&!/NO DATA|ERROR/.test(tp)&&/[0-9A-Fa-f]{3}\s/.test(tp)){alive=true;addLog(m.c+' alive (physical '+m.tx.toString(16).toUpperCase()+')','rx');}
+      if(!alive){
+        /* ATTEMPT 2: Functional broadcast (ATSH7DF) — module hears 7DF, responds on its RX */
+        await eng.current.send('ATSH7DF');
+        await new Promise(r=>setTimeout(r,50));
+        tp=await eng.current.send('3E00',3000);
+        if(tp&&!/NO DATA|ERROR/.test(tp)&&/[0-9A-Fa-f]{3}\s/.test(tp)){alive=true;addLog(m.c+' alive (functional 7DF → '+m.rx.toString(16).toUpperCase()+')','rx');}
+      }
+      if(!alive){
+        /* ATTEMPT 3: Try alternate physical IDs — some WK2 bench modules use offset addressing */
+        const altTx=m.tx>=0x7E0?m.tx:m.tx+0x10;
+        const altRx=m.rx>=0x7E8?m.rx:m.rx+0x10;
+        if(altTx!==m.tx){
+          await eng.current.send('ATCRA'+altRx.toString(16).toUpperCase().padStart(3,'0'));
+          await new Promise(r=>setTimeout(r,50));
+          await eng.current.send('ATSH'+altTx.toString(16).toUpperCase().padStart(3,'0'));
+          await new Promise(r=>setTimeout(r,50));
+          tp=await eng.current.send('3E00',3000);
+          if(tp&&!/NO DATA|ERROR/.test(tp)&&/[0-9A-Fa-f]{3}\s/.test(tp)){alive=true;addLog(m.c+' alive (alt '+altTx.toString(16).toUpperCase()+'/'+altRx.toString(16).toUpperCase()+')','rx');}
+        }
+      }
+      if(!alive){
+        /* ATTEMPT 4: DiagnosticSessionControl default (0x10 0x01) via physical */
+        await eng.current.send('ATCRA'+m.rx.toString(16).toUpperCase().padStart(3,'0'));
+        await new Promise(r=>setTimeout(r,50));
+        await eng.current.send('ATSH'+m.tx.toString(16).toUpperCase().padStart(3,'0'));
+        await new Promise(r=>setTimeout(r,50));
         const ds=await eng.current.send('1001',3000);
-        if(ds&&!/NO DATA|ERROR/.test(ds)&&/^[0-9A-Fa-f\s]+$/m.test(ds)){alive=true;addLog(m.c+' alive (DiagSession)','rx');}}
+        if(ds&&!/NO DATA|ERROR/.test(ds)&&/[0-9A-Fa-f]{3}\s/.test(ds)){alive=true;addLog(m.c+' alive (DiagSession)','rx');}
+      }
       if(alive){
+        /* read VIN — make sure ATSH and ATCRA are correct for this module */
         const r=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
         if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
           if(vin.length>=10){setFound(p=>[...p,{...m,vin}]);addLog(m.c+': '+vin,'rx');}
           else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus, VIN unreadable','warn');}}
         else{setFound(p=>[...p,{...m,vin:'(present)'}]);addLog(m.c+': on bus, VIN read failed','warn');}
-      }else if(wasDiscovered){
-        /* module responded to broadcast but not to individual — add it anyway */
-        setFound(p=>[...p,{...m,vin:'(discovered)'}]);addLog(m.c+': responded to broadcast only','warn');
-      }else{addLog(m.c+': no response','error');}
+      }else{addLog(m.c+': no response (all methods)','error');}
     }catch(e){addLog(m.c+' error: '+e.message,'error');}
     await new Promise(r=>setTimeout(r,200));}
-    setBusy('');addLog('Scan complete','info');
+    setBusy('');addLog('=== Scan complete ===','info');
   },[]);
 
   const writeAll=useCallback(async()=>{
@@ -948,14 +928,14 @@ function OBDTab(){
 
   const readProxi=useCallback(async()=>{
     if(!eng.current)return;setBusy('Reading proxi...');
-    const r=await eng.current.uds(0x742,0x762,[0x22,0x20,0x23]);
+    const r=await eng.current.uds(0x750,0x758,[0x22,0x20,0x23]);
     if(r.ok)addLog('BCM Proxi: '+hxb(r.d),'rx');else addLog('Proxi read failed','error');
     setBusy('');
   },[]);
 
   const readSkim=useCallback(async()=>{
     if(!eng.current)return;setBusy('Reading SKIM...');
-    const r=await eng.current.uds(0x742,0x762,[0x22,0x6E,0x9E,0xB0]);
+    const r=await eng.current.uds(0x750,0x758,[0x22,0x6E,0x9E,0xB0]);
     if(r.ok){const v=r.d?.length>0?r.d[r.d.length-1]:null;addLog('SKIM State: '+(v===0x80?'ENABLED':'DISABLED')+' (0x'+(v?.toString(16).toUpperCase()||'??')+')','rx');}
     else addLog('SKIM read failed','error');setBusy('');
   },[]);
@@ -1057,7 +1037,7 @@ function OBDTab(){
         <div style={{marginTop:12,fontSize:12,fontWeight:800,color:C.tx,marginBottom:8}}>Write VIN to Single Module</div>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
           <Btn onClick={()=>writeOneModule(0x7E4,0x7EC,'DAMP')} disabled={!!busy||nv.length!==17} color={C.a4} outline>🔧 Write DAMP</Btn>
-          <Btn onClick={()=>writeOneModule(0x745,0x765,'IPC')} disabled={!!busy||nv.length!==17} color={C.a1} outline>🔧 Write IPC</Btn>
+          <Btn onClick={()=>writeOneModule(0x740,0x748,'IPC')} disabled={!!busy||nv.length!==17} color={C.a1} outline>🔧 Write IPC</Btn>
           <Btn onClick={()=>writeOneModule(0x7E0,0x7E8,'ECM')} disabled={!!busy||nv.length!==17} color={C.a2} outline>🔧 Write ECM</Btn>
           <Btn onClick={()=>writeOneModule(0x7E1,0x7E9,'TCM')} disabled={!!busy||nv.length!==17} color={C.a3} outline>🔧 Write TCM</Btn>
         </div>
