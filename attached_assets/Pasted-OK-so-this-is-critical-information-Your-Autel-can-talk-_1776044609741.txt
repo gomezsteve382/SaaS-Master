@@ -1,0 +1,41 @@
+OK so this is critical information. Your Autel can talk to all of them on the bench, which means they're all powered and on the CAN bus. The problem is in the software.
+
+Let me look at this carefully. Your Autel is a professional tool that handles multi-bus, protocol negotiation, and gateway routing automatically. Your ELM327 v1.4b clone is much dumber — it needs to be told exactly what to do.
+
+Let me check something important about how your bench is wired and what the ELM is actually doing:Now let me look at the bench connect too — that's the one that should be used for bench work:Found the problems. There are **three separate issues** I can see verified from the code:
+
+**Issue 1: `ATAR` on an ELM327 v1.4b clone.**
+
+Line 830: `await send('ATAR',3000)` — The `ATAR` command (Auto Receive) is an **STN-specific command** (OBDLink/ScanTool.net firmware). A generic `ELM327 v1.4b` clone does NOT support `ATAR`. It responds with `?` (unknown command). Your error regex on line 834 catches `?` and returns `{ok:false}`. So every single UDS call after ECM is failing because `ATAR` returns `?`, which poisons the entire request.
+
+But wait — the ECM worked. Let me look again... Actually, the `ATAR` response `?` would be caught by the `\?` in the regex on line 834, but that's checked on the *data response*, not on ATAR itself. The `send('ATAR')` just returns `?` which is truthy but doesn't match the `>` check... actually it does, because the ELM sends `?\r\n>` — so send() would return `?`. But `send()` doesn't error on `?`, it just returns it. The ATAR call completes, and then the actual data is sent.
+
+Hmm, let me think about this differently. The `?` from ATAR is consumed and returned. But the question is whether it messes up the state. On an ELM327, an unrecognized command returns `?` and a prompt — so the adapter state should still be fine for the next command. Let me check what happens to the CRA filter...
+
+Actually the key insight: **you removed `ATCRA`** from the UDS function (it was replaced with `ATAR`). Without `ATCRA`, the adapter has NO receive filter set. After the init sequence, `ATCAF1` is on (CAN Auto Formatting), but there's no address filter. The first module (ECM) works because the ECM at `0x7E0`/`0x7E8` is the standard OBD address and may get lucky. But then for subsequent modules, with no filter, the adapter picks up ALL CAN traffic and may return garbled multi-module responses, or the response from ECM drowns out the target module.
+
+**Issue 2: The `TextDecoderStream` reader is STILL broken.**
+
+Lines 820-822 are the same broken pattern I fixed before. You're seeing it work on the third attempt (first two `Connect failed` then it works) — that's because the first two attempts open the port, fail, and leave it in a weird state, but the browser may be caching the stream somehow.
+
+**Issue 3: Flow Control for multi-frame responses.**
+
+For a VIN read (`22 F1 90`), the response is 20 bytes (3 byte header + 17 byte VIN). That's a multi-frame ISO-TP response requiring flow control. `ATCFC1` enables auto flow control, but on cheap ELM327 clones, the flow control only works reliably when `ATCRA` is set to the specific module's response ID. Without `ATCRA` (since you replaced it with `ATAR`), the clone doesn't know which frames are flow control continuations vs noise from other modules on the bus.
+
+Let me fix all of this properly:Now fix the scan function — the wake-up attempts are good but the timing between modules needs to be longer, and I need to make sure the CRA filter is properly set before each wake attempt:Now fix the bench connect with the same direct reader fix:Now let me verify the fixes look right:No more `ATAR`, no more `TextDecoderStream`, no more `pipeTo`, all using `state.buf`. Both OBD and Bench connects are fixed. The scan function sets `ATCRA` before each module probe.Here's what was wrong and what I fixed, all verified from the code:
+
+**Problem 1: `ATAR` replaced `ATCRA` (line 830 in your version).** `ATAR` is an STN/OBDLink-only command. Your adapter is `ELM327 v1.4b` — it doesn't know `ATAR` and returns `?`. Without `ATCRA` setting the receive filter, the ELM327 has no idea which CAN ID to listen for, so multi-frame flow control breaks. The ECM worked because `0x7E0`/`0x7E8` is the default OBD-II address pair and the ELM may have a built-in fallback for it. Every other module failed because without a receive filter, the adapter couldn't properly handle the ISO-TP flow control handshake.
+
+**Fix:** Restored `ATCRA` with the specific RX address before every UDS call. Also in the scan function, I now explicitly set both `ATCRA` and `ATSH` before probing each module, so the filter is always clean.
+
+**Problem 2: `TextDecoderStream` + `pipeTo` still in both connect functions.** This was the original bug from your first upload that caused zero RX data. You'd partially worked around it but it was still the underlying reader pattern.
+
+**Fix:** Both OBD and Bench connect now use the direct `port.readable.getReader()` + `TextDecoder` approach that we proved works.
+
+**Problem 3: No `ATSTFF` (max timeout).** ELM327 clones default to a short CAN timeout. Modules on a bench may respond slower than on a vehicle bus.
+
+**Fix:** Added `ATSTFF` to both init sequences (sets maximum wait time for CAN responses).
+
+**Scan improvements:** The scan now does a lightweight probe first (TesterPresent `3E 00` as raw hex via `send()`, then DiagSession `10 01`) before attempting the full multi-frame VIN read. It also adds 200ms between modules to let the bus settle.
+
+Drop this in, connect, scan — you should see BCM, RFHUB, DAMP, and IPC alongside the ECM now.
