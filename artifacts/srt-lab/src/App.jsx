@@ -229,6 +229,24 @@ function parseModule(data,filename){
   return info;
 }
 
+/* ═══ GPEC↔BCM key comparison ═══ */
+function compareGpecBcmKey(gpecKey,bcmKey){
+  // GPEC: 8-byte big-endian secret key (0x0203..0x020A)
+  // BCM: 16-byte little-endian vehicle secret (0x40C9..0x40D8)
+  // Rule: reverse BCM's 16 bytes to get big-endian form, compare first 8 bytes against GPEC 8-byte key
+  const bcmBE=Array.from(bcmKey).reverse();
+  const bcmCmp=new Uint8Array(bcmBE.slice(0,8));
+  const gpecCmp=new Uint8Array(gpecKey.slice(0,8));
+  const match=arrEq(gpecCmp,bcmCmp);
+  return{
+    match,
+    gpecBytes:gpecCmp,
+    bcmBytes:bcmCmp,
+    bcmFull:new Uint8Array(bcmBE),
+    rule:'BCM[16B LE] reversed → first 8B vs GPEC[8B]'
+  };
+}
+
 /* ═══ Cross-module validation ═══ */
 function crossValidate(modules){
   const issues=[],warnings=[],passed=[];
@@ -264,7 +282,8 @@ function crossValidate(modules){
     if(match)passed.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MATCH ✓");
     else warnings.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MISMATCH — use RFH→PCM Import tool");
   }
-  if(gpec&&gpec.secretKey&&bcm)warnings.push("GPEC↔BCM key comparison requires manual check (8B vs 16B)");
+  if(gpec&&gpec.secretKey&&bcm&&bcm.vehicleSecret){const cmp=compareGpecBcmKey(gpec.secretKey.bytes,bcm.vehicleSecret.bytes);if(cmp.match)passed.push("GPEC↔BCM key: MATCH ✓ (BCM LE reversed, first 8B = GPEC 8B)");else issues.push("GPEC↔BCM key: MISMATCH! GPEC="+Array.from(cmp.gpecBytes).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ')+" BCM(rev)[0:8]="+Array.from(cmp.bcmBytes).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' '));}
+  else if(gpec&&gpec.secretKey&&bcm)warnings.push("GPEC↔BCM key: BCM vehicle secret not found for comparison");
   if(gpec){
     if(gpec.skimByte===0x80)passed.push("GPEC2A SKIM: ENABLED (0x80)");
     else if(gpec.skimByte===0x00)warnings.push("GPEC2A SKIM: DISABLED (0x00) — bypassed");
@@ -894,7 +913,12 @@ function SecurityTab(){
     </div>}
 
     {/* SECURITY SUB-TAB */}
-    {sub==='security'&&mods.length>0&&<div>
+    {sub==='security'&&mods.length>0&&(()=>{
+      const secGpec=mods.find(m=>m.type==='GPEC2A');
+      const secBcm=mods.find(m=>m.type==='BCM');
+      const gpecBcmCmp=(secGpec&&secGpec.secretKey&&secBcm&&secBcm.vehicleSecret)?compareGpecBcmKey(secGpec.secretKey.bytes,secBcm.vehicleSecret.bytes):null;
+      const toHex=arr=>Array.from(arr).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+      return<div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(320px,1fr))',gap:12}}>
         {mods.map((m,i)=>{const vinOk=m.vins?.length>0&&m.vins[0].vin===tv;return<Card key={i} style={{padding:16,borderLeft:'3px solid '+m.color,borderColor:vinOk?C.gn+'50':m.vins?.length&&tv.length===17?C.er+'40':C.bd}}>
           <div style={{fontWeight:800,color:m.color,marginBottom:8,fontSize:14}}>{m.name}</div>
@@ -923,7 +947,35 @@ function SecurityTab(){
           {tv.length===17&&<div style={{marginTop:8}}><Btn onClick={()=>patchModVIN(i)} full color={vinOk?C.gn:C.sr}>{vinOk?'↓ Download':'⚡ Patch → '+tv}</Btn></div>}
         </Card>;})}
       </div>
-    </div>}
+      {gpecBcmCmp&&<Card style={{marginTop:16,padding:16,borderTop:'3px solid '+(gpecBcmCmp.match?C.gn:C.er)}}>
+        <div style={{fontWeight:800,fontSize:14,marginBottom:4,color:gpecBcmCmp.match?C.gn:C.er}}>GPEC↔BCM Key Comparison {gpecBcmCmp.match?'✓ MATCH':'✗ MISMATCH'}</div>
+        <div style={{fontSize:10,color:C.tm,marginBottom:10}}>Rule: BCM 16B little-endian → reversed (big-endian), first 8B vs GPEC 8B key</div>
+        <table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
+          <thead><tr>
+            <th style={{textAlign:'left',color:C.tm,fontWeight:600,padding:'4px 8px',borderBottom:'1px solid '+C.bd,fontSize:10,textTransform:'uppercase'}}>Module</th>
+            <th style={{textAlign:'left',color:C.tm,fontWeight:600,padding:'4px 8px',borderBottom:'1px solid '+C.bd,fontSize:10,textTransform:'uppercase'}}>Key (8B)</th>
+            <th style={{textAlign:'left',color:C.tm,fontWeight:600,padding:'4px 8px',borderBottom:'1px solid '+C.bd,fontSize:10,textTransform:'uppercase'}}>Status</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td style={{padding:'5px 8px',color:C.a1,fontWeight:700}}>GPEC2A @0x0203</td>
+              <td style={{padding:'5px 8px',fontFamily:"'JetBrains Mono'",color:C.a4,fontSize:10}}>{toHex(gpecBcmCmp.gpecBytes)}</td>
+              <td style={{padding:'5px 8px'}}><Tag color={gpecBcmCmp.match?C.gn:C.er}>{gpecBcmCmp.match?'MATCH':'MISMATCH'}</Tag></td>
+            </tr>
+            <tr>
+              <td style={{padding:'5px 8px',color:C.a3,fontWeight:700}}>BCM @0x40C9 [rev↑][0:8]</td>
+              <td style={{padding:'5px 8px',fontFamily:"'JetBrains Mono'",color:C.a4,fontSize:10}}>{toHex(gpecBcmCmp.bcmBytes)}</td>
+              <td style={{padding:'5px 8px'}}><Tag color={gpecBcmCmp.match?C.gn:C.er}>{gpecBcmCmp.match?'MATCH':'MISMATCH'}</Tag></td>
+            </tr>
+            <tr>
+              <td style={{padding:'5px 8px',color:C.tm}}>BCM full (BE)</td>
+              <td colSpan={2} style={{padding:'5px 8px',fontFamily:"'JetBrains Mono'",color:C.tm,fontSize:9}}>{toHex(gpecBcmCmp.bcmFull)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </Card>}
+      </div>;
+    })()}
 
     {/* DIFF SUB-TAB */}
     {sub==='diff'&&<div>

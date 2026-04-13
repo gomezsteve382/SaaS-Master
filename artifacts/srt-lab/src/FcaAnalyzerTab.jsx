@@ -161,6 +161,14 @@ function parseModule(data, filename) {
   return info;
 }
 
+function compareGpecBcmKey(gpecKey, bcmKey) {
+  const bcmBE = Array.from(bcmKey).reverse();
+  const bcmCmp = new Uint8Array(bcmBE.slice(0, 8));
+  const gpecCmp = new Uint8Array(gpecKey.slice(0, 8));
+  const match = arrEq(gpecCmp, bcmCmp);
+  return { match, gpecBytes: gpecCmp, bcmBytes: bcmCmp, bcmFull: new Uint8Array(bcmBE), rule: 'BCM[16B LE] reversed → first 8B vs GPEC[8B]' };
+}
+
 function crossValidate(modules) {
   const issues = [], warnings = [], passed = [];
   const allVins = new Set();
@@ -179,7 +187,12 @@ function crossValidate(modules) {
       passed.push("RFHUB <-> BCM vehicle secret: MATCH (byte-reversed)");
     else issues.push("RFHUB <-> BCM vehicle secret: MISMATCH!");
   }
-  if (gpec && gpec.secretKey && bcm) warnings.push("GPEC<->BCM key comparison requires manual check (8B vs 16B)");
+  if (gpec && gpec.secretKey && bcm && bcm.vehicleSecret) {
+    const cmp = compareGpecBcmKey(gpec.secretKey.bytes, bcm.vehicleSecret.bytes);
+    const toH = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
+    if (cmp.match) passed.push("GPEC<->BCM key: MATCH \u2713 (BCM LE reversed, first 8B = GPEC 8B)");
+    else issues.push("GPEC<->BCM key: MISMATCH! GPEC=" + toH(cmp.gpecBytes) + " BCM(rev)[0:8]=" + toH(cmp.bcmBytes));
+  } else if (gpec && gpec.secretKey && bcm) warnings.push("GPEC<->BCM key: BCM vehicle secret not found for comparison");
   if (gpec) {
     if (gpec.skimByte === 0x80) passed.push("GPEC2A SKIM: ENABLED (0x80)");
     else if (gpec.skimByte === 0x00) warnings.push("GPEC2A SKIM: DISABLED (0x00) -- bypassed");
@@ -337,7 +350,12 @@ export default function FcaAnalyzerTab() {
           </div>)}
         </div>}
 
-        {tab === "security" && modules.length > 0 && <div>
+        {tab === "security" && modules.length > 0 && (() => {
+          const secGpec = modules.find(m => m.type === "GPEC2A");
+          const secBcm = modules.find(m => m.type === "BCM");
+          const gpecBcmCmp = (secGpec && secGpec.secretKey && secBcm && secBcm.vehicleSecret) ? compareGpecBcmKey(secGpec.secretKey.bytes, secBcm.vehicleSecret.bytes) : null;
+          const toHex = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+          return <div>
           <STitle>Security Architecture</STitle>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 12 }}>
             {modules.map((m, i) => <div key={i} style={{ background: C.surface2, border: "1px solid " + C.border, borderRadius: 8, padding: 16, borderLeft: "3px solid " + m.color }}>
@@ -352,7 +370,35 @@ export default function FcaAnalyzerTab() {
               {m.zzzzTamper && <div style={{ fontSize: 11 }}>Tamper: <span style={{ color: m.zzzzTamper.intact?C.green:C.warn }}>{m.zzzzTamper.intact?"INTACT":"CLEARED"}</span></div>}
             </div>)}
           </div>
-        </div>}
+          {gpecBcmCmp && <div style={{ marginTop: 16, background: C.surface, border: "1px solid " + C.border, borderRadius: 8, padding: 16, borderTop: "2px solid " + (gpecBcmCmp.match ? C.green : C.red) }}>
+            <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4, color: gpecBcmCmp.match ? C.green : C.red }}>GPEC\u2194BCM Key Comparison {gpecBcmCmp.match ? "\u2713 MATCH" : "\u2717 MISMATCH"}</div>
+            <div style={{ fontSize: 10, color: C.dim, marginBottom: 10 }}>Rule: BCM 16B little-endian \u2192 reversed (big-endian), first 8B vs GPEC 8B key</div>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
+              <thead><tr>
+                <th style={{ textAlign: "left", color: C.dim, fontWeight: 600, padding: "4px 8px", borderBottom: "1px solid " + C.border, fontSize: 10, textTransform: "uppercase" }}>Module</th>
+                <th style={{ textAlign: "left", color: C.dim, fontWeight: 600, padding: "4px 8px", borderBottom: "1px solid " + C.border, fontSize: 10, textTransform: "uppercase" }}>Key (8B)</th>
+                <th style={{ textAlign: "left", color: C.dim, fontWeight: 600, padding: "4px 8px", borderBottom: "1px solid " + C.border, fontSize: 10, textTransform: "uppercase" }}>Status</th>
+              </tr></thead>
+              <tbody>
+                <tr>
+                  <td style={{ padding: "5px 8px", color: C.orange, fontWeight: 700 }}>GPEC2A @0x0203</td>
+                  <td style={{ padding: "5px 8px", fontFamily: "monospace", color: C.crypto, fontSize: 10 }}>{toHex(gpecBcmCmp.gpecBytes)}</td>
+                  <td style={{ padding: "5px 8px" }}><span style={{ display: "inline-block", padding: "1px 7px", borderRadius: 3, fontSize: 10, fontWeight: 700, background: (gpecBcmCmp.match ? C.green : C.red) + "22", color: gpecBcmCmp.match ? C.green : C.red }}>{gpecBcmCmp.match ? "MATCH" : "MISMATCH"}</span></td>
+                </tr>
+                <tr>
+                  <td style={{ padding: "5px 8px", color: C.blue, fontWeight: 700 }}>BCM @0x40C9 [rev][0:8]</td>
+                  <td style={{ padding: "5px 8px", fontFamily: "monospace", color: C.crypto, fontSize: 10 }}>{toHex(gpecBcmCmp.bcmBytes)}</td>
+                  <td style={{ padding: "5px 8px" }}><span style={{ display: "inline-block", padding: "1px 7px", borderRadius: 3, fontSize: 10, fontWeight: 700, background: (gpecBcmCmp.match ? C.green : C.red) + "22", color: gpecBcmCmp.match ? C.green : C.red }}>{gpecBcmCmp.match ? "MATCH" : "MISMATCH"}</span></td>
+                </tr>
+                <tr>
+                  <td style={{ padding: "5px 8px", color: C.dim }}>BCM full (BE)</td>
+                  <td colSpan={2} style={{ padding: "5px 8px", fontFamily: "monospace", color: C.dim, fontSize: 9 }}>{toHex(gpecBcmCmp.bcmFull)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>}
+          </div>;
+        })()}
 
         {tab === "diff" && <div>
           <STitle>Hex Diff</STitle>
