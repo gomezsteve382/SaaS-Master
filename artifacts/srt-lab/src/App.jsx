@@ -91,6 +91,16 @@ function parseModule(data,filename){
     if(sw)info.partNumbers.sw=sw;else if(data.length>=0x081c)info.partNumbers.sw=extractHex(data,0x0812,10);
     if(cal)info.partNumbers.cal=cal;else if(data.length>=0x083a)info.partNumbers.cal=extractHex(data,0x082c,14);
     info.skey=data.slice(0x40,0x50);info.skoff=0x40;info.skb=info.skey.every(b=>b===0xFF);
+    /* Secondary VIN at 0x92 (146) — FCA SINCRO ref, 17B + 2B CRC16 */
+    if(sz>=0x92+19){
+      const raw17=data.slice(0x92,0x92+17);
+      const notBlank=!raw17.every(b=>b===0xFF||b===0x00);
+      if(notBlank){let s='';for(let i=0;i<17;i++)s+=String.fromCharCode(raw17[i]);
+        const sc=(data[0x92+17]<<8)|data[0x92+18];const cc=crc16(raw17);
+        if(/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))
+          info.rfhVin92={offset:0x92,vin:s,storedCs:sc,calcCs:cc,csOk:sc===cc};
+      }
+    }
     /* SEC16 main slots — 0xAE (Slot1) / 0xC0 (Slot2), each 16B raw + 2B CS (FCA SINCRO ref) */
     info.sec16s=[];
     for(const[slot,off]of[[1,0xAE],[2,0xC0]]){
@@ -125,8 +135,23 @@ function parseModule(data,filename){
   }else if(type==='95640'){
     info.vins=[];
     for(const off of[0x275,0x288]){const v=extractVIN(data,off);if(v)info.vins.push({offset:off,vin:v});}
+    /* VIN at 0x1B82 (Cherokee KL BCM EEPROM, FCA SINCRO ref, decimal 7042) */
+    if(sz>=0x1B95){const v=extractVIN(data,0x1B82);if(v)info.vins.push({offset:0x1B82,vin:v});}
     info.skey=data.slice(0x40,0x50);info.skoff=0x40;info.skb=info.skey.every(b=>b===0xFF);
     info.fobBlank=data.slice(0x200,0x240).every(b=>b===0xFF);
+    /* BCM SEC16 at 0x838 (16B + 2B CRC16) — stored as byte-reversed RFH SEC16 */
+    if(sz>=0x84A){
+      const raw16=data.slice(0x838,0x848);
+      const storedCs=(data[0x848]<<8)|data[0x849];
+      const calcCs=crc16(raw16);
+      const csOk=storedCs===calcCs;
+      const blank=raw16.every(b=>b===0xFF||b===0x00);
+      const hex=Array.from(raw16).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
+      /* Byte-reverse to get RFH form */
+      const reversed=new Uint8Array(16);for(let i=0;i<16;i++)reversed[i]=raw16[15-i];
+      const reversedHex=Array.from(reversed).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
+      info.bcmSec16={offset:0x838,raw:raw16,hex,reversed,reversedHex,storedCs,calcCs,csOk,blank};
+    }
   }
 
   return info;
@@ -183,6 +208,25 @@ function crossValidate(modules){
   if(e95&&rfhub&&!e95.skb&&!rfhub.skb){
     if(arrEq(e95.skey,rfhub.skey))passed.push("95640 ↔ RFHUB secret key: MATCH");
     else issues.push("95640 ↔ RFHUB secret key: MISMATCH!");
+  }
+  /* BCM (95640) SEC16 validation and cross-check with RFHUB SEC16 */
+  if(e95&&e95.bcmSec16){
+    if(e95.bcmSec16.blank)warnings.push("95640 BCM-SEC16 @ 0x838: BLANK (virgin EEPROM)");
+    else if(e95.bcmSec16.csOk)passed.push("95640 BCM-SEC16 @ 0x838: SET, CRC16 ✓ (→RFH: "+e95.bcmSec16.reversedHex.slice(0,16)+"…)");
+    else warnings.push("95640 BCM-SEC16 @ 0x838: CRC16 BAD (stored="+e95.bcmSec16.storedCs.toString(16).toUpperCase()+" calc="+e95.bcmSec16.calcCs.toString(16).toUpperCase()+")");
+  }
+  if(rfhub&&e95&&rfhub.sec16valid&&e95.bcmSec16&&!e95.bcmSec16.blank){
+    /* BCM stores byte-reversed RFH SEC16; reverse BCM value back to RFH form for comparison */
+    const rfhHex=rfhub.sec16s[0].hex;
+    const match=rfhHex===e95.bcmSec16.reversedHex;
+    if(match)passed.push("RFHUB SEC16 ↔ 95640 BCM-SEC16 (reversed): MATCH ✓");
+    else warnings.push("RFHUB SEC16 ↔ 95640 BCM-SEC16 (reversed): MISMATCH — use RFH→BCM Import tool");
+  }
+  /* RFH VIN@0x92 vs 95640 VINs */
+  if(rfhub&&rfhub.rfhVin92&&e95&&e95.vins?.length){
+    const e95VinSet=new Set(e95.vins.map(v=>v.vin));
+    if(e95VinSet.has(rfhub.rfhVin92.vin))passed.push("RFH VIN@0x92 ↔ 95640 VIN: MATCH ("+rfhub.rfhVin92.vin+")");
+    else warnings.push("RFH VIN@0x92 ("+rfhub.rfhVin92.vin+") not found in 95640 VINs");
   }
   return{issues,warnings,passed};
 }
@@ -649,6 +693,22 @@ function SecurityTab(){
         res={data:d,desc:'PCM SEC6 @ 0x3C8 ← RFHUB SEC16[0:6]: '+hex6};
       }else res={desc:'RFHUB must be loaded with valid (non-blank, matching) SEC16 slots.'};
     }
+    else if(action==='rfhBcmSync'&&m.type==='95640'){
+      const rfh=mods.find(mn=>mn.type==='RFHUB');
+      if(rfh&&rfh.sec16valid&&rfh.sec16s?.length){
+        const d=new Uint8Array(m.data);
+        if(d.length>=0x84A){
+          /* Byte-reverse RFH SEC16 slot 1 → write to 95640 @ 0x838 */
+          const s16=rfh.sec16s[0].raw;
+          const rev=new Uint8Array(16);for(let i=0;i<16;i++)rev[i]=s16[15-i];
+          for(let i=0;i<16;i++)d[0x838+i]=rev[i];
+          /* CRC16 of the 16 reversed bytes → write big-endian @ 0x848 */
+          const cs=crc16(rev);d[0x848]=(cs>>8)&0xFF;d[0x849]=cs&0xFF;
+          const revHex=Array.from(rev).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+          res={data:d,desc:'95640 BCM-SEC16 @ 0x838 ← RFH SEC16 (byte-reversed): '+revHex+' CRC16='+cs.toString(16).toUpperCase().padStart(4,'0')};
+        }else res={desc:'95640 file too small (need ≥0x84A bytes)'};
+      }else res={desc:'RFHUB must be loaded with valid (non-blank, matching) SEC16 slots.'};
+    }
     setTr(res);
   }
   const dlResult=()=>{if(!tr?.data)return;const b=new Blob([tr.data],{type:'application/octet-stream'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='modified_'+(mods[tt]?.filename||'module.bin');a.click();URL.revokeObjectURL(u);};
@@ -733,6 +793,8 @@ function SecurityTab(){
               {m.runtimeCounters&&Object.entries(m.runtimeCounters).map(([k,v])=><tr key={k}><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>{fO(v.offset)}</td><td><Tag color={C.tm}>CTR</Tag></td><td style={{padding:'5px 10px',fontSize:12}}>{v.hex} ({v.value.toLocaleString()})</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>{k}</td></tr>)}
               {m.immoBlank!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x40C0</td><td><Tag color={C.sr}>IMMO</Tag></td><td style={{padding:'5px 10px',color:m.immoBlank?C.wn:C.gn,fontWeight:700,fontSize:12}}>{m.immoBlank?'BLANK':m.immoRecs+' keys'}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>SKIM primary</td></tr>}
               {m.bakBlank!==undefined&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x2000</td><td><Tag color={C.sr}>BACKUP</Tag></td><td style={{padding:'5px 10px',color:m.bakBlank?C.wn:C.gn,fontWeight:700,fontSize:12}}>{m.bakBlank?'BLANK':m.bakRecs+' keys'}{!m.bakBlank&&!m.immoBlank&&<Tag color={m.immoSynced?C.gn:C.wn}>{m.immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>SKIM backup</td></tr>}
+              {m.bcmSec16&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x0838</td><td><Tag color={m.bcmSec16.blank?C.tm:m.bcmSec16.csOk?C.a4:C.wn}>BCM-SEC16</Tag></td><td style={{padding:'5px 10px',fontFamily:"'JetBrains Mono'",fontSize:10,color:m.bcmSec16.blank?C.tm:C.a4,fontWeight:700,wordBreak:'break-all'}}>{m.bcmSec16.blank?'(blank)':m.bcmSec16.hex}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>16B+CRC16 {m.bcmSec16.csOk?<Tag color={C.gn}>CRC ✓</Tag>:m.bcmSec16.blank?'':<Tag color={C.wn}>CRC ✗</Tag>}</td></tr>}
+              {m.rfhVin92&&<tr><td style={{padding:'5px 10px',color:C.a3,fontSize:12}}>0x0092</td><td><Tag color={m.rfhVin92.csOk?C.gn:C.wn}>VIN@92</Tag></td><td style={{padding:'5px 10px',color:m.rfhVin92.csOk?C.gn:C.wn,fontWeight:700,fontSize:12}}>{m.rfhVin92.vin}</td><td style={{padding:'5px 10px',color:C.tm,fontSize:12}}>Secondary VIN {m.rfhVin92.csOk?<Tag color={C.gn}>CRC16 ✓</Tag>:<Tag color={C.wn}>CRC16 ✗</Tag>}</td></tr>}
             </tbody>
           </table>
         </div>
@@ -778,6 +840,8 @@ function SecurityTab(){
           {m.immoBlank!==undefined&&<div style={{fontSize:11,marginTop:4}}>Immo @0x40C0: <Tag color={m.immoBlank?C.wn:C.gn}>{m.immoBlank?'BLANK':m.immoRecs+' keys'}</Tag></div>}
           {m.bakBlank!==undefined&&<div style={{fontSize:11,marginTop:2}}>Backup @0x2000: <Tag color={m.bakBlank?C.tm:C.gn}>{m.bakBlank?'BLANK':m.bakRecs+' keys'}</Tag>{!m.bakBlank&&!m.immoBlank&&<Tag color={m.immoSynced?C.gn:C.wn}>{m.immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</div>}
           {m.fobBlank!==undefined&&<div style={{fontSize:11}}>Fob Data: <Tag color={m.fobBlank?C.tm:C.gn}>{m.fobBlank?'NONE':'HAS FOBS'}</Tag></div>}
+          {m.bcmSec16&&<div style={{fontSize:11,marginTop:4}}>BCM-SEC16 @0x838: <Tag color={m.bcmSec16.blank?C.tm:m.bcmSec16.csOk?C.a4:C.wn}>{m.bcmSec16.blank?'BLANK':'SET'}</Tag>{!m.bcmSec16.blank&&<><Tag color={m.bcmSec16.csOk?C.gn:C.wn}>CRC16 {m.bcmSec16.csOk?'✓':'✗'}</Tag><div style={{fontFamily:"'JetBrains Mono'",fontSize:8,color:C.a4,marginTop:2,wordBreak:'break-all'}}>{m.bcmSec16.hex}</div></>}</div>}
+          {m.rfhVin92&&<div style={{fontSize:11,marginTop:4}}>VIN@0x92: <span style={{fontFamily:"'JetBrains Mono'",fontWeight:700,color:m.rfhVin92.csOk?C.gn:C.wn,fontSize:10}}>{m.rfhVin92.vin}</span> <Tag color={m.rfhVin92.csOk?C.gn:C.wn}>CRC16 {m.rfhVin92.csOk?'✓':'✗'}</Tag></div>}
           {tv.length===17&&<div style={{marginTop:8}}><Btn onClick={()=>patchModVIN(i)} full color={vinOk?C.gn:C.sr}>{vinOk?'↓ Download':'⚡ Patch → '+tv}</Btn></div>}
         </Card>;})}
       </div>
@@ -876,6 +940,21 @@ function SecurityTab(){
                 {!rfh.sec16valid&&<div style={{fontSize:9,color:C.wn,marginTop:4}}>RFHUB SEC16 must be non-blank and both slots matching</div>}
               </div>;})()}
             </div>:<div style={{fontSize:11,color:C.tm}}>Select a GPEC2A (PCM) as target.</div>}
+          </Card>
+          <Card style={{padding:16,borderTop:'3px solid '+C.a4}}>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>RFH → BCM (95640) SEC16 Import</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Write RFHUB SEC16 byte-reversed → 95640 @ 0x838, CRC16 @ 0x848.</div>
+            {mods[tt]?.type==='95640'?<div>
+              {(()=>{const rfh=mods.find(mn=>mn.type==='RFHUB');if(!rfh)return<div style={{fontSize:11,color:C.wn}}>Also load an RFHUB EEE dump.</div>;
+              const s1=rfh.sec16s?.[0];const bs=mods[tt].bcmSec16;
+              return<div>
+                <div style={{fontSize:11,marginBottom:4}}>RFHUB SEC16 <span style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:s1&&!s1.blank?C.sr:C.tm}}>{s1&&!s1.blank?s1.hex.slice(0,24)+'…':'(blank)'}</span> <Tag color={rfh.sec16valid?C.gn:C.wn}>{rfh.sec16valid?'VALID ✓':'BLANK/MISMATCH'}</Tag></div>
+                {bs&&!bs.blank&&<div style={{fontSize:11,marginBottom:4}}>Current @ 0x838 (rev): <span style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:bs.csOk?C.gn:C.wn}}>{bs.reversedHex.slice(0,24)+'…'}</span> <Tag color={bs.csOk?C.gn:C.wn}>CRC16 {bs.csOk?'✓':'✗'}</Tag></div>}
+                {bs&&bs.blank&&<div style={{fontSize:11,marginBottom:4,color:C.wn}}>95640 BCM-SEC16 @ 0x838: BLANK (virgin)</div>}
+                <Btn onClick={()=>doTool('rfhBcmSync')} disabled={!rfh.sec16valid} full color={C.a4}>🔑 Import SEC16 → 95640</Btn>
+                {!rfh.sec16valid&&<div style={{fontSize:9,color:C.wn,marginTop:4}}>RFHUB SEC16 must be non-blank and both slots matching</div>}
+              </div>;})()}
+            </div>:<div style={{fontSize:11,color:C.tm}}>Select a 95640 EEPROM as target.</div>}
           </Card>
         </div>
 
