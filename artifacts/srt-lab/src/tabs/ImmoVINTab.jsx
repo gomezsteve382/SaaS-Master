@@ -131,7 +131,10 @@ function RFHSection() {
     const r = new FileReader();
     r.onload = ev => {
       const d = new Uint8Array(ev.target.result);
-      if (d.length !== 4096 && d.length !== 2048) { setAMsg("Wrong size: " + d.length + " bytes (need 4096 or 2048)"); setAFile(null); setAData(null); return; }
+      if (d.length !== 4096) {
+        setAMsg("APPLY requires a Gen2 4KB (4096-byte) dump — VIN offsets 0x0EA5+ do not exist in a 2KB Gen1 file.");
+        setAFile(null); setAData(null); return;
+      }
       setAFile(f); setAData(d); setAMsg("");
     };
     r.readAsArrayBuffer(f);
@@ -214,7 +217,7 @@ function RFHSection() {
       <div style={{marginTop:20,borderTop:"1.5px solid "+C.bd,paddingTop:16}}>
         <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY VIN</div>
         <div style={{fontSize:11,color:C.ts,marginBottom:8}}>Writes byte-reversed VIN to all 4 slots · Recalculates CRC8RF per slot</div>
-        <FileDropZone label="Re-upload the same 4KB RFHUB .bin to patch" onFile={handleAFile} fileName={aFile?.name}/>
+        <FileDropZone label="Re-upload the same RFHUB .bin to patch (must be 4096B Gen2)" onFile={handleAFile} fileName={aFile?.name}/>
         <div style={{marginTop:10}}>
           <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN (17 chars)</div>
           <input value={newVin} maxLength={17} placeholder="Enter 17-character VIN"
