@@ -1,4 +1,4 @@
-import {crc16,crc8rf,rfhGen2VinCs} from './crc.js';
+import {crc16,crc8rf,rfhGen2VinCs,rfhSec16Cs} from './crc.js';
 import {TC,TL,SKIM_VALUES,IMMO_REC,IMMO_KC,IMMO_BLOCK,SKIM_OFF} from './constants.js';
 
 const fO=n=>"0x"+n.toString(16).toUpperCase().padStart(4,"0");
@@ -124,13 +124,19 @@ function parseModule(data,filename){
       const cs=(data[off+16]<<8)|data[off+17];
       const blank=raw.every(b=>b===0xFF||b===0x00);
       const hex=Array.from(raw).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-      let csCalc=0;for(let i=0;i<16;i++)csCalc^=raw[i];csCalc=(csCalc<<8)|csCalc;
-      info.sec16s.push({slot,offset:off,raw,hex,cs,csCalc,blank});
+      // Gen2: CS = rfhSec16Cs (XOR^0x8B <<8 | 0x00). Gen1: formula not confirmed, csOk left undefined.
+      const csCalc=sec16IsGen2?rfhSec16Cs(raw):undefined;
+      const csOk=sec16IsGen2?(cs===csCalc):undefined;
+      // BCM-endian (derived): byte-reversed version of the 16 raw bytes
+      const bcmHex=Array.from(raw).reverse().map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
+      info.sec16s.push({slot,offset:off,raw,hex,cs,csCalc,csOk,bcmHex,blank});
     }
     if(info.sec16s.length===2){
       info.sec16match=arrEq(Array.from(info.sec16s[0].raw),Array.from(info.sec16s[1].raw));
-      info.sec16valid=!info.sec16s[0].blank&&info.sec16match;
+      // Gen2: also require slot 1 CS is valid; Gen1: match + not blank is sufficient
+      info.sec16valid=!info.sec16s[0].blank&&info.sec16match&&(!sec16IsGen2||!!info.sec16s[0].csOk);
     }
+    info.sec16SourceSlot=1;
     info.rfhGen=sz===4096?'Gen2 (24C32)':sz===8192?'Gen2-x2 (8192B, unusual)':sz===2048?'Gen1 (24C16)':'Unknown';
   }else if(type==='BCM'){
     info.vins=[0x5320,0x5340,0x5360,0x5380].map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);

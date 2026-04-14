@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Tag, Btn } from "../lib/ui.jsx";
+import { rfhSec16Cs } from "../lib/crc.js";
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
@@ -120,15 +121,9 @@ function applyBcmFromRfh(bcmData, rfhInfo) {
 const RFH_VIN_OFFSETS  = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
 const RFH_SEC16_OFFSETS = [0x050E, 0x0522];
 const RFH_VIN_CS_MAGIC  = 0x87;   // empirically determined: CS = XOR(17 raw bytes) ^ 0x87
-const RFH_SEC16_CS_MAGIC = 0x8B;  // empirically determined: CS[0] = XOR(16 bytes) ^ 0x8B, CS[1] = 0x00
-
 function rfhVinCs(raw17) {
   const xr = Array.from(raw17).reduce((a, b) => a ^ b, 0);
   return xr ^ RFH_VIN_CS_MAGIC;
-}
-function rfhSec16Cs(raw16) {
-  const xr = Array.from(raw16).reduce((a, b) => a ^ b, 0);
-  return [xr ^ RFH_SEC16_CS_MAGIC, 0x00];
 }
 
 function parseRfhGen2(data, filename) {
@@ -149,7 +144,8 @@ function parseRfhGen2(data, filename) {
     const hex = hxb(raw);
     const csStored0 = data[off + 16];
     const csStored1 = data[off + 17];
-    const [csCalc0, csCalc1] = rfhSec16Cs(raw);
+    const csVal = rfhSec16Cs(raw);
+    const csCalc0 = (csVal >> 8) & 0xFF; const csCalc1 = csVal & 0xFF;
     const csOk = csStored0 === csCalc0 && csStored1 === csCalc1;
     return { slot: i + 1, offset: off, raw, hex, csStored0, csStored1, csCalc0, csCalc1, csOk };
   });
@@ -180,11 +176,11 @@ function applyRfhFromBcm(rfhData, bcmInfo) {
   // SEC16: reverse BCM_SEC16 → RFH_SEC16
   const bcmSec16 = bcmInfo.sec16Copies[0].raw;
   const rfhSec16 = [...bcmSec16].reverse();
-  const [cs0, cs1] = rfhSec16Cs(rfhSec16);
+  const csVal = rfhSec16Cs(rfhSec16);
   for (const off of RFH_SEC16_OFFSETS) {
     for (let i = 0; i < 16; i++) out[off + i] = rfhSec16[i];
-    out[off + 16] = cs0;
-    out[off + 17] = cs1;
+    out[off + 16] = (csVal >> 8) & 0xFF;
+    out[off + 17] = csVal & 0xFF;
   }
 
   return out;
