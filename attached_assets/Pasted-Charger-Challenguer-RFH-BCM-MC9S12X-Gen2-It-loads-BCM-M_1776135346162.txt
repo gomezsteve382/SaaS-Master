@@ -1,0 +1,118 @@
+Charger/Challenguer — RFH ⇄ BCM (MC9S12X Gen2)
+It loads BCM (MPC5606B) and RFH (MC9S12X Type1 Gen2), validates VIN/SEC16 and checksums, and allows application in both directions without re-uploading files.
+Connection guides:
+BCM Guide (MPC560XB)
+MULTIPROG
+BCM Guide (MPC560XB)
+UPA
+RFH Guide (9S12X)
+MULTIPROG
+RFH Guide (9S12X)
+UPA
+RFH Guide (9S12X)
+OBDSTAR
+1) Load files and filter (INSPECT)
+Upload BCM and RFH. The system detects VIN/SEC16 and validates checksums.
+BCM file (.bin)No file chosen
+Dump BCM (full flash).
+RFH File (MC9S12X Gen2) (.bin/.eprom)No file chosen
+Dump RFH (Gen2: VIN 4 slots + SEC16 2 slots).
+
+Inspect BCM / RFH
+Clean / Reset
+Tip: If you refresh the page or open it in another tab, the state will be lost. Run Inspect again.
+
+Inspection Result: 
+✅ Ready to apply
+BCM (MPC5606B - 05B)
+CARTMAN0GBCMDFLASH21CHARGERRED.bin
+MPC5606B_05B
+65536 bytes
+VIN (BCM)
+VIN: 2C3CDZL95NH179529
+
+Copies: 4
+
+VIN 1 – 
+CS OK
+VIN 2 – 
+CS OK
+VIN 3 – 
+CS OK
+VIN 4 – 
+CS OK
+SEC16 (BCM)
+SEC16 BCM:
+8C F8 E4 01 2D 19 B2 7E 64 73 1D 5A 2F BD 4B DE
+
+SEC16 RFH (view):
+DE 4B BD 2F 5A 1D 73 64 7E B2 19 2D 01 E4 F8 8C
+
+SEC16 main
+Total: 3
+
+SEC16 mirrors (with CRC)
+MIRROR 1 – 
+CS OK
+MIRROR 2 – 
+CS OK
+RFH (MC9S12X Type 1 — Gen 2)
+CARTMAN21CHARGER6.2RFHUBOG.bin
+MC9S12X
+4096 bytes
+VIN (RFH Gen2 — 4 slots + CHK after)
+SLOT 1 — 
+CS OK
+VIN: 2C3CDZL95NH179529
+SLOT 2 — 
+CS OK
+VIN: 2C3CDZL95NH179529
+SLOT 3 — 
+CS OK
+VIN: 2C3CDZL95NH179529
+SLOT 4 — 
+CS OK
+VIN: 2C3CDZL95NH179529
+SEC16 (RFH Gen2 — 2 slots + CHK after)
+Slots match: 
+Yeah
+
+SLOT 1 — 
+CS OK
+SEC16:
+DE4BBD2F5A1D73647EB2192D01E4F88C
+SLOT 2 — 
+CS OK
+SEC16:
+DE4BBD2F5A1D73647EB2192D01E4F88C
+Derived (demo) — RFH → BCM
+Rule: reverse bytes of the entire block .
+
+SEC16 BCM (hex):
+8CF8E4012D19B27E64731D5A2FBD4BDE
+
+OS / PN / SERIAL (Best Pick)
+YOU: 
+score 120
+
+useful=10 ratio=1.00 len=10 pr=1.00
+
+PN: 
+score 120
+
+useful=10 ratio=1.00 len=10 pr=1.00
+
+SERIAL: 
+score 160
+
+useful=14 ratio=1.00 len=14 pr=1.00
+
+Actions
+It applies in both directions using the data already uploaded (without re-uploading files).
+APPLY enabled
+
+Import RFH data → to BCM (download twinned BCM)
+
+Import data from BCM → to RFH (download twinned RFH)
+Re-filter / reload files
+*Note:* If you refresh the page, the status will be lost. Run Inspect again.
