@@ -105,7 +105,7 @@ function parseVin(d) {
 
 function hx3(n) { return n.toString(16).toUpperCase().padStart(3, '0'); }
 
-async function execStrategy(stratIdx, mod, eng, addLog) {
+async function runStrategy(stratIdx, mod, eng, addLog) {
   const { send, uds, isSTN } = eng;
   const { tx, rx } = mod;
 
@@ -419,7 +419,7 @@ export default function OBDSwarmDiagnostic() {
 
         let result;
         try {
-          result = await execStrategy(mod.strategyIdx, mod, engObj, addLog);
+          result = await runStrategy(mod.strategyIdx, mod, engObj, addLog);
         } catch(e) {
           result = { ok: false, reason: 'exception:'+e.message };
         }
@@ -535,7 +535,7 @@ export default function OBDSwarmDiagnostic() {
         {/* Stats bar */}
         <div style={{display:'flex',gap:16,marginBottom:12,fontSize:11,flexWrap:'wrap'}}>
           <span style={{color:STATE_COLORS.confirmed}}>✓ Confirmed: <strong>{confirmed}</strong></span>
-          <span style={{color:STATE_COLORS.retrying}}>↻ Active: <strong>{retrying}</strong></span>
+          <span style={{color:STATE_COLORS.retrying}}>↻ Retrying: <strong>{retrying}</strong></span>
           <span style={{color:STATE_COLORS.exhausted}}>✗ Exhausted: <strong>{exhausted}</strong></span>
           <span style={{color:STATE_COLORS.pending}}>◌ Pending: <strong>{pending}</strong></span>
           <span style={{color:'#aaa',marginLeft:'auto'}}>Attempts: <strong>{totalAttempts}</strong></span>
