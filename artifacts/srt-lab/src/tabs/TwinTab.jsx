@@ -403,7 +403,7 @@ function RfhCard({ info }) {
 function PcmCard({ info }) {
   return (
     <Card style={{ marginBottom: 14 }}>
-      <SectionTitle icon="⚙️" text="PCM — GPEC2A" sub={`${info.filename}  ·  ${(info.size / 1024).toFixed(0)} KB`} />
+      <SectionTitle icon="⚙️" text="PCM — GPEC2A" sub={`${info.filename}  ·  ${info.size} bytes`} />
       <div style={{ marginBottom: 10 }}>
         <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>Current VIN</div>
         <MonoHex hex={info.vin || "(none)"} color={C.a1} />
