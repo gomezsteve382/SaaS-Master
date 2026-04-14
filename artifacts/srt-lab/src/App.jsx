@@ -37,7 +37,7 @@ const MODS=[
 {c:'SGW',n:'Gateway',addrs:[{tx:0x74F,rx:0x76F},{tx:0x7C0,rx:0x7C8},{tx:0x6C0,rx:0x6C8}]}
 ];
 
-const SKIM_OFF=[{v:'Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT',base:0x40C0,ks:18,kc:6}];
+const SKIM_OFF=[{v:'JGC / Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT / Charger',base:0x40C0,ks:18,kc:6}];
 const IMMO_REC=24,IMMO_KC=8,IMMO_BLOCK=IMMO_REC*IMMO_KC;
 function countSkimRecs(d,base){let c=0;for(let i=0;i<IMMO_KC;i++){const o=base+i*IMMO_REC;if(o+IMMO_REC>d.length)break;const r=d.slice(o,o+IMMO_REC);if(!r.every(b=>b===0xFF||b===0x00))c++;}return c;}
 function syncImmoBackup(d){if(d.length<0x40C0+IMMO_BLOCK||d.length<0x2000+IMMO_BLOCK)return null;const o=new Uint8Array(d);for(let i=0;i<IMMO_BLOCK;i++)o[0x2000+i]=o[0x40C0+i];return o;}
