@@ -83,9 +83,18 @@ function parseModule(data,filename){
     }
   }else if(type==='RFHUB'){
     const knownOffsets=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
-    const knownVins=knownOffsets.map(o=>{const v=extractVIN(data,o);if(v)return{offset:o,vin:v,mirrored:false,sc:o+17<sz?data[o+17]:0,cc:crc8rf(data.slice(o,o+17)),crcOk:o+17<sz&&data[o+17]===crc8rf(data.slice(o,o+17))};return null;}).filter(v=>v);
-    if(knownVins.length>0)info.vins=knownVins;
-    else{info.vins=[];for(const o of knownOffsets){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);if(/^[1-9A-HJ-NPR-Z]/.test(s)){const sc=o+17<sz?data[o+17]:0,cc=crc8rf(st);info.vins.push({offset:o,vin:s,mirrored:true,sc,cc,crcOk:sc===cc});}}}
+    const rfhIsGen2=sz===4096||sz===8192;
+    // Gen2 (24C32): VINs stored byte-reversed, CS = XOR(17 raw stored bytes) ^ 0x87
+    // Gen1 (24C16): VINs stored plain or mirrored, CS = crc8rf
+    const rfhVinCs2=raw17=>Array.from(raw17).reduce((a,b)=>a^b,0)^0x87;
+    if(rfhIsGen2){
+      info.vins=[];
+      for(const o of knownOffsets){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);if(!/^[1-9A-HJ-NPR-Z]/.test(s))continue;const sc=o+17<sz?data[o+17]:0,cc=rfhVinCs2(st);info.vins.push({offset:o,vin:s,mirrored:true,sc,cc,crcOk:sc===cc});}
+    }else{
+      const knownVins=knownOffsets.map(o=>{const v=extractVIN(data,o);if(v)return{offset:o,vin:v,mirrored:false,sc:o+17<sz?data[o+17]:0,cc:crc8rf(data.slice(o,o+17)),crcOk:o+17<sz&&data[o+17]===crc8rf(data.slice(o,o+17))};return null;}).filter(v=>v);
+      if(knownVins.length>0)info.vins=knownVins;
+      else{info.vins=[];for(const o of knownOffsets){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);if(/^[1-9A-HJ-NPR-Z]/.test(s)){const sc=o+17<sz?data[o+17]:0,cc=crc8rf(st);info.vins.push({offset:o,vin:s,mirrored:true,sc,cc,crcOk:sc===cc});}}}
+    }
     if(data.length>=0x051e)info.vehicleSecret={offset:0x050e,bytes:data.slice(0x050e,0x051e),hex:extractHex(data,0x050e,16),endian:"big"};
     info.fobikSlots=countAA50(data,0x0880,10);
     info.securityMarkers=countPat(data,0xcc,0x66,0xaa,0x55);
