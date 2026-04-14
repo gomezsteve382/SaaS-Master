@@ -114,8 +114,10 @@ function parseModule(data,filename){
       }
     }
     info.sec16s=[];
-    // Gen2 (24C32, 4096 B): SEC16 at 0x050E / 0x0522; Gen1 (24C16): 0x00AE / 0x00C0
-    const sec16Offsets=rfhIsGen2?[[1,0x050E],[2,0x0522]]:[[1,0xAE],[2,0xC0]];
+    // Gen2 (24C32 4096 B, or 8192 B unusual): SEC16 at 0x050E / 0x0522
+    // Gen1 (24C16, 2048 B): SEC16 at 0x00AE / 0x00C0
+    const sec16IsGen2=sz===4096||sz===8192;
+    const sec16Offsets=sec16IsGen2?[[1,0x050E],[2,0x0522]]:[[1,0xAE],[2,0xC0]];
     for(const[slot,off]of sec16Offsets){
       if(off+18>sz)continue;
       const raw=data.slice(off,off+16);
