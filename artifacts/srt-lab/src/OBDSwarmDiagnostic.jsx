@@ -129,31 +129,43 @@ async function execStrategy(stratIdx, mod, eng, addLog) {
       return { ok: false, reason: 'tp_fail:' + (r.raw||'').slice(0,20) };
     }
     case 4: {
-      await send('ATST32');
-      const res = await tryVin([0x10, 0x03]);
-      await send('ATST96');
+      let res;
+      try {
+        await send('ATST32');
+        res = await tryVin([0x10, 0x03]);
+      } finally {
+        await send('ATST96');
+      }
       return res;
     }
     case 5: {
-      await send('ATSP5');
-      await new Promise(r => setTimeout(r, 300));
-      await send('ATH1'); await send('ATCAF1'); await send('ATST96');
-      const res = await tryVin([0x10, 0x03]);
-      await send('ATSP6');
-      await new Promise(r => setTimeout(r, 200));
-      await send('ATH1'); await send('ATCAF1'); await send('ATAT2'); await send('ATST96');
-      if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
+      let res;
+      try {
+        await send('ATSP5');
+        await new Promise(r => setTimeout(r, 300));
+        await send('ATH1'); await send('ATCAF1'); await send('ATST96');
+        res = await tryVin([0x10, 0x03]);
+      } finally {
+        await send('ATSP6');
+        await new Promise(r => setTimeout(r, 200));
+        await send('ATH1'); await send('ATCAF1'); await send('ATAT2'); await send('ATST96');
+        if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
+      }
       return res;
     }
     case 6: {
-      await send('ATSP7');
-      await new Promise(r => setTimeout(r, 300));
-      await send('ATH1'); await send('ATCAF1'); await send('ATST96');
-      const res = await tryVin([0x10, 0x03]);
-      await send('ATSP6');
-      await new Promise(r => setTimeout(r, 200));
-      await send('ATH1'); await send('ATCAF1'); await send('ATAT2'); await send('ATST96');
-      if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
+      let res;
+      try {
+        await send('ATSP7');
+        await new Promise(r => setTimeout(r, 300));
+        await send('ATH1'); await send('ATCAF1'); await send('ATST96');
+        res = await tryVin([0x10, 0x03]);
+      } finally {
+        await send('ATSP6');
+        await new Promise(r => setTimeout(r, 200));
+        await send('ATH1'); await send('ATCAF1'); await send('ATAT2'); await send('ATST96');
+        if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
+      }
       return res;
     }
     case 7: {
@@ -202,7 +214,6 @@ export default function OBDSwarmDiagnostic() {
   const eng = useRef(null);
   const logRef = useRef(null);
   const attemptsRef = useRef(0);
-  const abortRef = useRef(false);
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
@@ -304,7 +315,6 @@ export default function OBDSwarmDiagnostic() {
 
   const launchSwarm = useCallback(async () => {
     if (!eng.current) return;
-    abortRef.current = false;
     attemptsRef.current = 0;
     setTotalAttempts(0);
     setRunning(true);
@@ -395,12 +405,11 @@ export default function OBDSwarmDiagnostic() {
 
     addLog('SWEEPER', `🤖 Agentic loop starting — ${mods.filter(m=>m.state==='pending').length} modules to negotiate...`, AGENT_COLORS.SWEEPER);
 
-    while (!abortRef.current) {
+    for (;;) {
       const active = mods.filter(m => m.state === 'pending' || m.state === 'retrying');
       if (active.length === 0) break;
 
       for (const mod of active) {
-        if (abortRef.current) break;
 
         mod.state = 'probing';
         updateMod(mod);
@@ -441,11 +450,6 @@ export default function OBDSwarmDiagnostic() {
     const exhausted = mods.filter(m => m.state === 'exhausted').length;
     addLog('SYSTEM', `═══ SWARM COMPLETE: confirmed=${confirmed} exhausted=${exhausted} attempts=${attemptsRef.current} ═══`, AGENT_COLORS.FOUND);
     setRunning(false);
-  }, [addLog]);
-
-  const stopSwarm = useCallback(() => {
-    abortRef.current = true;
-    addLog('SYSTEM', 'Abort requested — finishing current probe...', AGENT_COLORS.SYSTEM);
   }, [addLog]);
 
   const resetPP = useCallback(async () => {
@@ -497,9 +501,9 @@ export default function OBDSwarmDiagnostic() {
               </button>
             )}
             {running && (
-              <button onClick={stopSwarm} style={{padding:'8px 16px',background:'#FF6D00',color:'#fff',border:'none',borderRadius:6,cursor:'pointer',fontFamily:S.font,fontWeight:700}}>
-                ⏹ STOP
-              </button>
+              <div style={{padding:'8px 14px',background:'#1A2E1A',border:'1px solid #2E7D32',borderRadius:6,fontSize:11,color:'#66BB6A',fontWeight:700}}>
+                ⚡ RUNNING…
+              </div>
             )}
             {status==='connected' && (
               <button onClick={resetPP} style={{padding:'8px 16px',background:'#333',color:'#fff',border:'1px solid #555',borderRadius:6,cursor:'pointer',fontFamily:S.font,fontSize:11}}>
