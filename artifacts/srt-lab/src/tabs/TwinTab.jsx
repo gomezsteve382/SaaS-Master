@@ -190,9 +190,10 @@ function applyRfhFromBcm(rfhData, bcmInfo) {
   return out;
 }
 
-/* ─── PCM / GPEC2A (8192 bytes) ──────────────────────────────────────────── */
+/* ─── PCM / GPEC2A (4096 / 8192 / 16384 bytes) ───────────────────────────── */
+const PCM_VALID_SIZES = new Set([4096, 8192, 16384]);
 function parsePcm(data, filename) {
-  if (data.length !== 8192) return null;
+  if (!PCM_VALID_SIZES.has(data.length)) return null;
   const vinRaw = data.slice(0, 17);
   const vin = Array.from(vinRaw).map(b => String.fromCharCode(b)).join("");
   const vinOk = /^[A-HJ-NPR-Z0-9]{17}$/.test(vin);
@@ -402,7 +403,7 @@ function RfhCard({ info }) {
 function PcmCard({ info }) {
   return (
     <Card style={{ marginBottom: 14 }}>
-      <SectionTitle icon="⚙️" text="PCM — GPEC2A" sub={`${info.filename}  ·  8192 bytes`} />
+      <SectionTitle icon="⚙️" text="PCM — GPEC2A" sub={`${info.filename}  ·  ${(info.size / 1024).toFixed(0)} KB`} />
       <div style={{ marginBottom: 10 }}>
         <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>Current VIN</div>
         <MonoHex hex={info.vin || "(none)"} color={C.a1} />
@@ -587,8 +588,8 @@ export default function TwinTab() {
       errors.push("BCM must be a 65536-byte MPC5606B full flash dump.");
     if (!rfhData || rfhData.length !== 4096)
       errors.push("RFH must be a 4096-byte MC9S12X Gen2 EEPROM dump.");
-    if (pcmData && pcmData.length !== 8192)
-      errors.push("PCM must be a 8192-byte GPEC2A EEPROM dump.");
+    if (pcmData && !PCM_VALID_SIZES.has(pcmData.length))
+      errors.push("PCM must be a GPEC2A EEPROM dump (4096, 8192, or 16384 bytes).");
 
     if (errors.length) { setErr(errors.join(" ")); return; }
 
