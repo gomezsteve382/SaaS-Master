@@ -1,4 +1,4 @@
-import {crc16,crc8_42,crc8rf} from './crc.js';
+import {crc16,crc8_42,crc8rf,rfhGen2VinCs} from './crc.js';
 import {IMMO_BLOCK,TR,WT,WMI,YR,TC,TL} from './constants.js';
 import {arrEq} from './parseModule.js';
 
@@ -32,7 +32,8 @@ function analyzeFile(buf,name){
   else if(sz>131072)type='FW';
   if(type==='UNKNOWN'){const CANONICAL_SIZES=[65536,131072,8192,16384,4096];const nearCanonical=CANONICAL_SIZES.some(s=>Math.abs(sz-s)<=4096&&sz!==s);if(nearCanonical||sz>=512){const sig=_detectBySignature(data);if(sig!=='UNKNOWN')type=sig;}}
   const vins=[],partials=[];
-  if(type==='RFHUB'){const rfhIsGen2=sz===4096||sz===8192;const rfhVinCs2=raw17=>Array.from(raw17).reduce((a,b)=>a^b,0)^0x87;for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);const sc=data[off+17],cc=rfhIsGen2?rfhVinCs2(st):crc8rf(st);vins.push({off,vin:s,algo:'c8',coff:off+17,sc,cc,ok:sc===cc,cv:_checkVin(s),mirrored:true});}}
+  // Gen2 (24C32, 4096 B): CS = rfhGen2VinCs (XOR^0x87); Gen1 (24C16, 2048 B): CS = crc8rf
+  if(type==='RFHUB'){const rfhIsGen2=sz===4096;for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);const sc=data[off+17],cc=rfhIsGen2?rfhGen2VinCs(st):crc8rf(st);vins.push({off,vin:s,algo:'c8',coff:off+17,sc,cc,ok:sc===cc,cv:_checkVin(s),mirrored:true});}}
   else if(type==='GPEC2A'){for(const off of[0,0x1F0,0x224]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(v&&/^[1-9A-HJ-NPR-Z]/.test(s))vins.push({off,vin:s,algo:'none',coff:-1,ok:true,cv:_checkVin(s)});}}
   else if(type==='95640'){for(const off of[0x275,0x288]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(!v||!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const sc=data[off-1],cc=crc8_42(data.slice(off,off+17));vins.push({off,vin:s,algo:'c8',coff:off-1,sc,cc,ok:sc===cc,cv:_checkVin(s)});}}
   else if(type==='BCM'||type==='FW'){for(let i=0;i<=sz-19;i++){let v=true;for(let j=0;j<17;j++)if(data[i+j]<0x20||data[i+j]>0x7E){v=false;break;}if(!v)continue;let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(data[i+j]);if(!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const cv=_checkVin(s);if(!cv.ok)continue;const sc=(data[i+17]<<8)|data[i+18],cc=crc16(data.slice(i,i+17));if(sc===cc){vins.push({off:i,vin:s,algo:'c16',coff:i+17,sc,cc,ok:true,cv});i+=16;}}
