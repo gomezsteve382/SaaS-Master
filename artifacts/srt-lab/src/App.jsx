@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
-import FcaAnalyzerTab from "./FcaAnalyzerTab";
 import ImmoVINTab from "./tabs/ImmoVINTab";
 import SecurityTab from "./tabs/SecurityTab";
 import TwinTab from "./tabs/TwinTab";
@@ -244,7 +243,7 @@ function Card({children,style={},glow,onClick}){const[h,setH]=useState(false);re
 function Tag({children,color=C.sr}){return<span style={{fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:8,background:color+'14',color,letterSpacing:.5,display:'inline-block',marginLeft:4}}>{children}</span>;}
 function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=useState(false);return<button onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#E8E4DE':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?C.tm:outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
 function SLine({type,msg}){const col={error:C.er,warn:C.wn,pass:C.gn};const ico={error:'✗',warn:'⚠',pass:'✓'};return<div style={{fontSize:12,color:col[type],padding:'4px 0',display:'flex',gap:8}}><span style={{fontWeight:700,minWidth:14}}>{ico[type]}</span><span>{msg}</span></div>;}
-const TABS=[{id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},{id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},{id:'bench',i:'🔧',l:'BENCH',s:'Offline · Dumps'},{id:'seed',i:'🔑',l:'SEED→KEY',s:'14 Algorithms'},{id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},{id:'skim',i:'🛡️',l:'SECURITY',s:'Cross-Match'},{id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'},{id:'analyzer',i:'🔬',l:'ANALYZER',s:'GPEC · RFHUB · BCM'},{id:'immovin',i:'🔎',l:'IMMOVIN',s:'RFH · BCM VIN Edit'},{id:'twin',i:'🔗',l:'TWIN',s:'BCM ↔ RFH ↔ PCM'},{id:'swarm',i:'🌐',l:'SWARM',s:'CAN Bus Scan'},{id:'j2534',i:'⚡',l:'J2534',s:'Raw CAN PassThru'}];
+const TABS=[{id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},{id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},{id:'bench',i:'🔧',l:'BENCH',s:'Offline · Dumps'},{id:'seed',i:'🔑',l:'SEED→KEY',s:'14 Algorithms'},{id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},{id:'skim',i:'🛡️',l:'SECURITY',s:'Cross-Match'},{id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'},{id:'immovin',i:'🔎',l:'IMMOVIN',s:'RFH · BCM VIN Edit'},{id:'twin',i:'🔗',l:'TWIN',s:'BCM ↔ RFH ↔ PCM'},{id:'swarm',i:'🌐',l:'SWARM',s:'CAN Bus Scan'},{id:'j2534',i:'⚡',l:'J2534',s:'Raw CAN PassThru'}];
 
 /* ═══ APP ═══ */
 export default function App(){const[pg,setPg]=useState('dumps');const[files,setFiles]=useState([]);
@@ -269,7 +268,6 @@ export default function App(){const[pg,setPg]=useState('dumps');const[files,setF
       {pg==='gpec'&&<GpecTab/>}
       {pg==='skim'&&<SecurityTab/>}
       {pg==='gpec2a'&&<Gpec2aTab/>}
-      {pg==='analyzer'&&<FcaAnalyzerTab/>}
       {pg==='immovin'&&<ImmoVINTab/>}
       {pg==='twin'&&<TwinTab/>}
       {pg==='swarm'&&<OBDSwarmDiagnostic/>}
