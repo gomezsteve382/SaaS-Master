@@ -114,7 +114,9 @@ function parseModule(data,filename){
       }
     }
     info.sec16s=[];
-    for(const[slot,off]of[[1,0xAE],[2,0xC0]]){
+    // Gen2 (24C32, 4096 B): SEC16 at 0x050E / 0x0522; Gen1 (24C16): 0x00AE / 0x00C0
+    const sec16Offsets=rfhIsGen2?[[1,0x050E],[2,0x0522]]:[[1,0xAE],[2,0xC0]];
+    for(const[slot,off]of sec16Offsets){
       if(off+18>sz)continue;
       const raw=data.slice(off,off+16);
       const cs=(data[off+16]<<8)|data[off+17];
