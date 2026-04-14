@@ -23,9 +23,10 @@ function crc16(d) {
 }
 
 /* ─── BCM (MPC5606B_05B, 65536 bytes) ────────────────────────────────────── */
-const BCM_VIN_PRIMARY   = [0x1338, 0x1358, 0x1378, 0x1398];
-const BCM_VIN_SECONDARY = [0x0698, 0x06B8, 0x06D8, 0x06F8, 0x0718, 0x0738];
-const BCM_SEC16_OFFSETS = [0x00C9, 0x00F1];
+const BCM_VIN_PRIMARY    = [0x1338, 0x1358, 0x1378, 0x1398];
+const BCM_VIN_SECONDARY  = [0x0698, 0x06B8, 0x06D8, 0x06F8, 0x0718, 0x0738];
+const BCM_VIN_PARTIAL    = [0x4098, 0x40B0];   // 8-byte tail + CRC16
+const BCM_SEC16_OFFSETS  = [0x00C9, 0x00F1];
 
 function parseBcm(data, filename) {
   if (data.length !== 65536) return null;
@@ -38,6 +39,20 @@ function parseBcm(data, filename) {
     return { slot: i + 1, offset: off, vin, csStored, csCalc, csOk: csStored === csCalc };
   });
 
+  // Partial VINs: 8-byte tail (chars 10–17 of VIN) + 2-byte CRC16
+  const partialVins = BCM_VIN_PARTIAL.map((off, i) => {
+    const raw = data.slice(off, off + 8);
+    let tail = "", ok = true;
+    for (let j = 0; j < 8; j++) {
+      const b = raw[j];
+      if (b < 0x20 || b > 0x7E) { ok = false; break; }
+      tail += String.fromCharCode(b);
+    }
+    const csStored = (data[off + 8] << 8) | data[off + 9];
+    const csCalc   = crc16(raw);
+    return { slot: i + 1, offset: off, tail: ok ? tail : "(invalid)", raw: Array.from(raw), csStored, csCalc, csOk: ok && csStored === csCalc };
+  });
+
   const sec16Copies = BCM_SEC16_OFFSETS.map((off, i) => {
     const raw = data.slice(off, off + 16);
     const hex = hxb(raw);
@@ -47,15 +62,15 @@ function parseBcm(data, filename) {
   const secMatch = sec16Copies.length > 1 &&
     sec16Copies[0].hex === sec16Copies[1].hex;
 
-  const sec16Raw  = sec16Copies[0].raw;
-  const sec16Hex  = hxb(sec16Raw);
-  const sec16RfhRaw  = [...sec16Raw].reverse();
-  const sec16RfhHex  = hxb(sec16RfhRaw);
-  const pcmSec6Hex   = hxb(sec16RfhRaw.slice(0, 6));
+  const sec16Raw    = sec16Copies[0].raw;
+  const sec16Hex    = hxb(sec16Raw);
+  const sec16RfhRaw = [...sec16Raw].reverse();
+  const sec16RfhHex = hxb(sec16RfhRaw);
+  const pcmSec6Hex  = hxb(sec16RfhRaw.slice(0, 6));
 
   return {
     type: "MPC5606B_05B", filename, size: data.length,
-    vins, sec16Copies, secMatch,
+    vins, partialVins, sec16Copies, secMatch,
     sec16Hex, sec16RfhHex, pcmSec6Hex,
   };
 }
@@ -81,6 +96,14 @@ function applyBcmFromRfh(bcmData, rfhInfo) {
     for (let i = 0; i < 17; i++) out[off + i] = enc[i];
     out[off + 17] = csHi;
     out[off + 18] = csLo;
+  }
+  // Write to partial VIN slots (8-byte tail + CRC16)
+  const tail8 = enc.slice(9); // last 8 chars of 17-char VIN
+  const tailCs = crc16(tail8);
+  for (const off of BCM_VIN_PARTIAL) {
+    for (let i = 0; i < 8; i++) out[off + i] = tail8[i];
+    out[off + 8] = (tailCs >> 8) & 0xFF;
+    out[off + 9] = tailCs & 0xFF;
   }
 
   // SEC16: reverse RFH_SEC16 → BCM_SEC16
@@ -278,6 +301,22 @@ function BcmCard({ info }) {
           </div>
         ))}
         <Tag color={allCsOk ? C.gn : C.er}>{allCsOk ? "All CS OK" : "CS Errors Found"}</Tag>
+      </div>
+
+      {/* Partial VINs (tail-only slots at 0x4098 / 0x40B0) */}
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 8, textTransform: "uppercase", letterSpacing: .6 }}>Partial VINs — Tail ×2</div>
+        {info.partialVins.map(p => (
+          <div key={p.slot} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(p.offset)}</span>
+            <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.a2, letterSpacing: .3 }}>…{p.tail}</span>
+            <CsBadge ok={p.csOk} small />
+            <span style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
+              stored={p.csStored.toString(16).toUpperCase().padStart(4,"0")} calc={p.csCalc.toString(16).toUpperCase().padStart(4,"0")}
+            </span>
+          </div>
+        ))}
+        <Tag color={C.tm}>8-char tail · CRC16</Tag>
       </div>
 
       <div>
