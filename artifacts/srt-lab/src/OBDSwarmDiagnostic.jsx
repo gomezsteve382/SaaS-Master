@@ -48,51 +48,173 @@ const ALL_KNOWN_ADDRS = [
 ];
 
 const UNIQUE_ADDRS = [];
-const seen = new Set();
+const _seen = new Set();
 for (const a of ALL_KNOWN_ADDRS) {
   const k = a.tx + ':' + a.rx;
-  if (!seen.has(k)) { seen.add(k); UNIQUE_ADDRS.push(a); }
+  if (!_seen.has(k)) { _seen.add(k); UNIQUE_ADDRS.push(a); }
 }
 
 const AGENT_COLORS = {
-  SCOUT: '#00E5FF',
-  HUNTER: '#FF6D00',
+  SCOUT:   '#00E5FF',
+  HUNTER:  '#FF6D00',
   SWEEPER: '#76FF03',
   SHIFTER: '#E040FB',
-  BRUTE: '#FF1744',
-  SYSTEM: '#B0BEC5',
-  FOUND: '#FFD600',
+  BRUTE:   '#FF1744',
+  SYSTEM:  '#B0BEC5',
+  FOUND:   '#FFD600',
 };
+
+const STATE_COLORS = {
+  pending:   '#555',
+  probing:   '#00E5FF',
+  retrying:  '#FF6D00',
+  confirmed: '#66BB6A',
+  exhausted: '#FF1744',
+};
+
+const STRATEGIES = [
+  { id: 'S0', name: 'EXT_VIN',       label: 'ExtSession→VIN' },
+  { id: 'S1', name: 'DEF_VIN',       label: 'DefSession→VIN' },
+  { id: 'S2', name: 'RAW_VIN',       label: 'RawVIN' },
+  { id: 'S3', name: 'TESTER_PRESENT',label: 'TesterPresent' },
+  { id: 'S4', name: 'SLOW_TIMING',   label: 'SlowTiming+VIN' },
+  { id: 'S5', name: 'SP5_250K',      label: 'SP5(250k)+VIN' },
+  { id: 'S6', name: 'SP7_33K',       label: 'SP7(33k)+VIN' },
+  { id: 'S7', name: 'FUNC_BCAST',    label: 'FuncBcast' },
+  { id: 'S8', name: 'SOFT_RESET',    label: 'AdapReset+VIN' },
+];
+
+function mkModules() {
+  return UNIQUE_ADDRS.map(a => ({
+    tx: a.tx, rx: a.rx, name: a.name, src: a.src,
+    state: 'pending',
+    strategyIdx: 0,
+    attempts: 0,
+    lastError: '',
+    confirmedBy: '',
+    vin: null,
+  }));
+}
+
+function parseVin(d) {
+  if (!d || d.length < 3) return null;
+  const vc = Array.from(d).filter(b => b >= 0x20 && b <= 0x7E);
+  const vs = String.fromCharCode(...vc).slice(-17);
+  return vs.length >= 10 ? vs : null;
+}
+
+function hx3(n) { return n.toString(16).toUpperCase().padStart(3, '0'); }
+
+async function execStrategy(stratIdx, mod, eng, addLog) {
+  const { send, uds, isSTN } = eng;
+  const { tx, rx } = mod;
+
+  const tryVin = async (sess) => {
+    if (sess) {
+      const ds = await uds(tx, rx, sess);
+      if (!ds.ok) return { ok: false, reason: 'session_fail:' + (ds.raw||'').slice(0,20) };
+    }
+    const r = await uds(tx, rx, [0x22, 0xF1, 0x90]);
+    if (r.ok) return { ok: true, vin: parseVin(r.d) };
+    return { ok: false, reason: 'vin_fail:' + (r.raw||'').slice(0,20) };
+  };
+
+  switch (stratIdx) {
+    case 0: return tryVin([0x10, 0x03]);
+    case 1: return tryVin([0x10, 0x01]);
+    case 2: return tryVin(null);
+    case 3: {
+      const r = await uds(tx, rx, [0x3E, 0x00]);
+      if (r.ok) return { ok: true, vin: null };
+      return { ok: false, reason: 'tp_fail:' + (r.raw||'').slice(0,20) };
+    }
+    case 4: {
+      await send('ATST32');
+      const res = await tryVin([0x10, 0x03]);
+      await send('ATST96');
+      return res;
+    }
+    case 5: {
+      await send('ATSP5');
+      await new Promise(r => setTimeout(r, 300));
+      await send('ATH1'); await send('ATCAF1'); await send('ATST96');
+      const res = await tryVin([0x10, 0x03]);
+      await send('ATSP6');
+      await new Promise(r => setTimeout(r, 200));
+      await send('ATH1'); await send('ATCAF1'); await send('ATAT2'); await send('ATST96');
+      if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
+      return res;
+    }
+    case 6: {
+      await send('ATSP7');
+      await new Promise(r => setTimeout(r, 300));
+      await send('ATH1'); await send('ATCAF1'); await send('ATST96');
+      const res = await tryVin([0x10, 0x03]);
+      await send('ATSP6');
+      await new Promise(r => setTimeout(r, 200));
+      await send('ATH1'); await send('ATCAF1'); await send('ATAT2'); await send('ATST96');
+      if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
+      return res;
+    }
+    case 7: {
+      await send('ATCRA');
+      await send('ATSH7DF');
+      if (isSTN) await send('ATFCSH7DF');
+      const bcast = await send('22 F1 90', 6000);
+      if (bcast && !bcast.includes('NO DATA') && !bcast.includes('CAN ERROR')) {
+        for (const line of bcast.split(/[\r\n]+/)) {
+          const t = line.trim();
+          if (/^[0-9A-Fa-f]{3}\s/.test(t)) {
+            const rid = parseInt(t.slice(0,3), 16);
+            if (rid === rx) return { ok: true, vin: null };
+          }
+        }
+      }
+      return { ok: false, reason: 'bcast_miss' };
+    }
+    case 8: {
+      addLog('SYSTEM', `Soft reset for ${mod.name} (${hx3(tx)})...`, AGENT_COLORS.SYSTEM);
+      await send('ATZ', 3000);
+      await new Promise(r => setTimeout(r, 800));
+      await send('ATE0'); await send('ATL0'); await send('ATS1'); await send('ATH1');
+      await send('ATSP6'); await send('ATAT2'); await send('ATST96'); await send('ATCAF1');
+      if (isSTN) {
+        await send('ATPP2CSV81', 2000); await send('ATPP2CON', 2000);
+        await send('ATPP2DSV01', 2000); await send('ATPP2DON', 2000);
+        await send('ATZ', 3000); await new Promise(r => setTimeout(r, 800));
+        await send('ATE0'); await send('ATL0'); await send('ATS1'); await send('ATH1');
+        await send('ATSP6'); await send('ATAT2'); await send('ATST96'); await send('ATCAF1');
+        await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1');
+      }
+      return tryVin([0x10, 0x03]);
+    }
+    default: return { ok: false, reason: 'no_more_strategies' };
+  }
+}
 
 export default function OBDSwarmDiagnostic() {
   const [logs, setLogs] = useState([]);
-  const [found, setFound] = useState([]);
+  const [moduleStates, setModuleStates] = useState(mkModules());
   const [status, setStatus] = useState('disconnected');
   const [running, setRunning] = useState(false);
   const [ppEnabled, setPpEnabled] = useState(false);
+  const [totalAttempts, setTotalAttempts] = useState(0);
   const eng = useRef(null);
-  const foundSet = useRef(new Set());
   const logRef = useRef(null);
+  const attemptsRef = useRef(0);
+  const abortRef = useRef(false);
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [logs]);
 
   const addLog = useCallback((agent, msg, color) => {
-    const ts = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    setLogs(p => [...p.slice(-500), { ts, agent, msg, color: color || AGENT_COLORS[agent] || '#fff' }]);
+    const ts = new Date().toLocaleTimeString('en-US', {hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    setLogs(p => [...p.slice(-600), { ts, agent, msg, color: color || AGENT_COLORS[agent] || '#fff' }]);
   }, []);
 
-  const addFound = useCallback((tx, rx, name, src, vin) => {
-    const k = tx + ':' + rx;
-    if (foundSet.current.has(k)) return;
-    foundSet.current.add(k);
-    setFound(p => [...p, { tx, rx, name, src, vin: vin || '?' }]);
-    addLog('FOUND', `${name} TX:${tx.toString(16).toUpperCase().padStart(3,'0')} RX:${rx.toString(16).toUpperCase().padStart(3,'0')} [${src}] VIN:${vin||'?'}`, AGENT_COLORS.FOUND);
-  }, [addLog]);
-
   const connect = useCallback(async () => {
-    if (!navigator.serial) { addLog('SYSTEM', 'Web Serial not available', AGENT_COLORS.SYSTEM); return; }
+    if (!navigator.serial) { addLog('SYSTEM', 'Web Serial not available — use Chrome/Edge', AGENT_COLORS.SYSTEM); return; }
     try {
       const port = await navigator.serial.requestPort();
       await port.open({ baudRate: 115200 });
@@ -108,19 +230,45 @@ export default function OBDSwarmDiagnostic() {
         while (Date.now() < deadline) {
           try {
             const rp = rd.read();
-            const tp = new Promise(r => setTimeout(() => r({ value: undefined, done: true }), Math.min(500, deadline - Date.now())));
+            const tp = new Promise(r => setTimeout(() => r({value:undefined,done:true}), Math.min(500, deadline - Date.now())));
             const res = await Promise.race([rp, tp]);
             if (res.done || !res.value) { if (Date.now() >= deadline) break; continue; }
             rbuf += tdec.decode(res.value);
             const pi = rbuf.indexOf('>');
             if (pi !== -1) {
-              const r = rbuf.substring(0, pi).replace(/\r/g, '\n').replace(/\n+/g, '\n').trim();
+              const r = rbuf.substring(0, pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();
               rbuf = rbuf.substring(pi + 1);
               return r;
             }
-          } catch (e) { break; }
+          } catch(e) { break; }
         }
-        return rbuf.replace(/\r/g, '\n').replace(/\n+/g, '\n').replace(/>/g, '').trim();
+        return rbuf.replace(/\r/g,'\n').replace(/\n+/g,'\n').replace(/>/g,'').trim();
+      };
+
+      const uds = async (tx, rx, data) => {
+        await send('ATCRA');
+        await send('ATSH' + hx3(tx));
+        if (eng.current?.isSTN) await send('ATFCSH' + hx3(tx));
+        await send('ATCRA' + hx3(rx));
+        const h = data.map(b => b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+        const r = await send(h, 4000);
+        if (!r || /NO DATA|CAN ERROR|UNABLE|BUS ERROR/.test(r)) return { ok:false, raw:r||'' };
+        if (r.includes('?') || r.includes('ERROR')) return { ok:false, raw:r };
+        const lines = r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>l.length>0);
+        let all = [];
+        for (const line of lines) {
+          if (line.includes('SEARCHING') || line === 'OK') continue;
+          const toks = line.split(/\s+/);
+          if (toks.length < 2) continue;
+          const first = toks[0].toUpperCase();
+          if (/^[0-9A-F]{3}$/.test(first)) {
+            for (let i=1;i<toks.length;i++) { if (/^[0-9A-Fa-f]{2}$/.test(toks[i])) all.push(parseInt(toks[i],16)); }
+          } else {
+            for (const t of toks) { if (/^[0-9A-Fa-f]{2}$/.test(t)) all.push(parseInt(t,16)); }
+          }
+        }
+        if (!all.length) return { ok:false, raw:r };
+        return { ok:true, d:new Uint8Array(all), raw:r };
       };
 
       addLog('SYSTEM', 'Initializing OBDLink...', AGENT_COLORS.SYSTEM);
@@ -134,74 +282,57 @@ export default function OBDSwarmDiagnostic() {
 
       if (isSTN) {
         addLog('SYSTEM', 'Enabling MFG extended mode (PP2C=81)...', AGENT_COLORS.SYSTEM);
-        await send('ATPP2CSV81', 2000);
-        await send('ATPP2CON', 2000);
-        await send('ATPP2DSV01', 2000);
-        await send('ATPP2DON', 2000);
-        await send('ATZ', 3000);
-        await new Promise(r => setTimeout(r, 1000));
-        await send('ATE0', 2000);
-        await new Promise(r => setTimeout(r, 300));
+        await send('ATPP2CSV81', 2000); await send('ATPP2CON', 2000);
+        await send('ATPP2DSV01', 2000); await send('ATPP2DON', 2000);
+        await send('ATZ', 3000); await new Promise(r => setTimeout(r, 1000));
+        await send('ATE0'); await new Promise(r => setTimeout(r, 300));
         setPpEnabled(true);
         addLog('SYSTEM', 'MFG extended mode ACTIVE', AGENT_COLORS.FOUND);
       }
 
       await send('ATL0'); await send('ATS1'); await send('ATH1');
-      await send('ATSP6'); await send('ATAT2'); await send('ATST96');
-      await send('ATCAF1');
-      if (isSTN) {
-        await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1');
-      }
-
-      const uds = async (tx, rx, data) => {
-        await send('ATCRA');
-        await send('ATSH' + tx.toString(16).toUpperCase().padStart(3, '0'));
-        if (isSTN) await send('ATFCSH' + tx.toString(16).toUpperCase().padStart(3, '0'));
-        await send('ATCRA' + rx.toString(16).toUpperCase().padStart(3, '0'));
-        const h = data.map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
-        const r = await send(h, 4000);
-        if (!r || /NO DATA|CAN ERROR|UNABLE|BUS ERROR/.test(r)) return { ok: false, raw: r || '' };
-        if (r.includes('?') || r.includes('ERROR')) return { ok: false, raw: r };
-        const lines = r.split(/[\r\n]+/).map(l => l.trim()).filter(l => l.length > 0);
-        let all = [];
-        for (const line of lines) {
-          if (line.includes('SEARCHING') || line === 'OK') continue;
-          const toks = line.split(/\s+/);
-          if (toks.length < 2) continue;
-          const first = toks[0].toUpperCase();
-          if (/^[0-9A-F]{3}$/.test(first)) {
-            for (let i = 1; i < toks.length; i++) { if (/^[0-9A-Fa-f]{2}$/.test(toks[i])) all.push(parseInt(toks[i], 16)); }
-          } else {
-            for (const t of toks) { if (/^[0-9A-Fa-f]{2}$/.test(t)) all.push(parseInt(t, 16)); }
-          }
-        }
-        if (!all.length) return { ok: false, raw: r };
-        return { ok: true, d: new Uint8Array(all), raw: r };
-      };
+      await send('ATSP6'); await send('ATAT2'); await send('ATST96'); await send('ATCAF1');
+      if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
 
       eng.current = { send, uds, isSTN };
       setStatus('connected');
-      addLog('SYSTEM', 'Ready — launch swarm scan', AGENT_COLORS.FOUND);
-    } catch (e) {
+      addLog('SYSTEM', 'Ready — launch SWARM to begin agentic scan', AGENT_COLORS.FOUND);
+    } catch(e) {
       addLog('SYSTEM', 'Connect failed: ' + e.message, '#FF1744');
     }
   }, [addLog]);
 
   const launchSwarm = useCallback(async () => {
     if (!eng.current) return;
+    abortRef.current = false;
+    attemptsRef.current = 0;
+    setTotalAttempts(0);
     setRunning(true);
-    setFound([]);
-    foundSet.current = new Set();
-    const { send, uds, isSTN } = eng.current;
 
-    const parseVin = (d) => {
-      if (!d || d.length < 3) return null;
-      const vc = Array.from(d).filter(b => b >= 0x20 && b <= 0x7E);
-      const vs = String.fromCharCode(...vc).slice(-17);
-      return vs.length >= 10 ? vs : null;
+    const mods = mkModules();
+    setModuleStates([...mods]);
+
+    const { send, uds, isSTN } = eng.current;
+    const engObj = { send, uds, isSTN };
+
+    const updateMod = (mod) => {
+      setModuleStates(prev => {
+        const next = [...prev];
+        const idx = next.findIndex(m => m.tx === mod.tx && m.rx === mod.rx);
+        if (idx !== -1) next[idx] = { ...mod };
+        return next;
+      });
     };
 
-    addLog('SCOUT', '🔍 Passive CAN monitor starting (4 seconds)...', AGENT_COLORS.SCOUT);
+    const markConfirmed = (mod, strategy, vin) => {
+      mod.state = 'confirmed';
+      mod.confirmedBy = strategy;
+      mod.vin = vin || null;
+      updateMod(mod);
+      addLog('FOUND', `✓ ${mod.name} TX:${hx3(mod.tx)} via ${strategy}${vin ? ' VIN:'+vin : ''}`, AGENT_COLORS.FOUND);
+    };
+
+    addLog('SCOUT', '🔍 Passive CAN monitor (4s)...', AGENT_COLORS.SCOUT);
     await send('ATCRA');
     const ma = await send('ATMA', 4500);
     await send('\r');
@@ -210,216 +341,112 @@ export default function OBDSwarmDiagnostic() {
     if (ma) {
       for (const line of ma.split(/[\r\n]+/)) {
         const t = line.trim();
-        if (/^[0-9A-Fa-f]{3}\s/.test(t)) busIds.add(t.slice(0, 3).toUpperCase());
+        if (/^[0-9A-Fa-f]{3}\s/.test(t)) busIds.add(t.slice(0,3).toUpperCase());
       }
     }
     if (busIds.size > 0) {
-      addLog('SCOUT', `Bus ALIVE: ${busIds.size} CAN IDs broadcasting`, AGENT_COLORS.SCOUT);
-      addLog('SCOUT', `IDs: ${[...busIds].sort().join(', ')}`, AGENT_COLORS.SCOUT);
-      const diagIds = [...busIds].filter(id => parseInt(id, 16) >= 0x600);
-      if (diagIds.length > 0) addLog('SCOUT', `Diagnostic-range IDs on bus: ${diagIds.join(', ')}`, AGENT_COLORS.FOUND);
+      addLog('SCOUT', `Bus ALIVE: ${busIds.size} CAN IDs seen`, AGENT_COLORS.SCOUT);
+      const diagIds = [...busIds].filter(id => parseInt(id,16) >= 0x600);
+      if (diagIds.length) addLog('SCOUT', `Diag-range IDs: ${diagIds.join(', ')}`, AGENT_COLORS.FOUND);
+      for (const mod of mods) {
+        const rxHex = hx3(mod.rx);
+        if (busIds.has(rxHex)) {
+          markConfirmed(mod, 'BUS_PASSIVE', null);
+        }
+      }
     } else {
-      addLog('SCOUT', 'WARNING: No CAN traffic detected!', '#FF1744');
+      addLog('SCOUT', 'WARNING: No CAN traffic seen!', '#FF1744');
     }
 
     await send('ATSP6'); await send('ATH1'); await send('ATS1'); await send('ATCAF1');
     await send('ATAT2'); await send('ATST96');
     if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
 
-    addLog('HUNTER', '📡 Functional broadcast 7DF — Read VIN from ALL modules...', AGENT_COLORS.HUNTER);
+    addLog('HUNTER', '📡 Functional broadcast 7DF → VIN...', AGENT_COLORS.HUNTER);
     await send('ATCRA');
     await send('ATSH7DF');
     if (isSTN) await send('ATFCSH7DF');
     const bcast = await send('22 F1 90', 6000);
     if (bcast && !bcast.includes('NO DATA') && !bcast.includes('CAN ERROR')) {
-      addLog('HUNTER', 'Broadcast got responses!', AGENT_COLORS.HUNTER);
-      const blines = bcast.split(/[\r\n]+/);
-      for (const bl of blines) {
+      for (const bl of bcast.split(/[\r\n]+/)) {
         const bt = bl.trim();
         if (/^[0-9A-Fa-f]{3}\s/.test(bt)) {
-          const rid = parseInt(bt.slice(0, 3), 16);
-          const tid = rid - 8;
-          let name = 'UNK_' + tid.toString(16).toUpperCase();
-          for (const a of UNIQUE_ADDRS) { if (a.rx === rid || a.tx === tid) { name = a.name; break; } }
-          addFound(tid, rid, name, 'BCAST', null);
+          const rid = parseInt(bt.slice(0,3), 16);
+          const mod = mods.find(m => m.rx === rid);
+          if (mod && mod.state !== 'confirmed') markConfirmed(mod, 'BCAST_VIN', null);
         }
       }
-    } else {
-      addLog('HUNTER', 'Broadcast: ' + (bcast || 'no response'), AGENT_COLORS.HUNTER);
     }
 
     addLog('HUNTER', '📡 TesterPresent broadcast...', AGENT_COLORS.HUNTER);
     await send('ATCRA');
     await send('ATSH7DF');
-    const tp = await send('3E 00', 4000);
-    if (tp && !tp.includes('NO DATA') && !tp.includes('CAN ERROR')) {
-      addLog('HUNTER', 'TesterPresent responses: ' + tp.substring(0, 100), AGENT_COLORS.HUNTER);
-      for (const bl of tp.split(/[\r\n]+/)) {
+    const tpb = await send('3E 00', 4000);
+    if (tpb && !tpb.includes('NO DATA') && !tpb.includes('CAN ERROR')) {
+      for (const bl of tpb.split(/[\r\n]+/)) {
         const bt = bl.trim();
         if (/^[0-9A-Fa-f]{3}\s/.test(bt)) {
-          const rid = parseInt(bt.slice(0, 3), 16);
-          const tid = rid - 8;
-          let name = 'UNK_' + tid.toString(16).toUpperCase();
-          for (const a of UNIQUE_ADDRS) { if (a.rx === rid || a.tx === tid) { name = a.name; break; } }
-          addFound(tid, rid, name, 'BCAST_TP', null);
+          const rid = parseInt(bt.slice(0,3), 16);
+          const mod = mods.find(m => m.rx === rid);
+          if (mod && mod.state !== 'confirmed') markConfirmed(mod, 'BCAST_TP', null);
         }
       }
     }
 
-    addLog('SWEEPER', `🎯 Sweeping ${UNIQUE_ADDRS.length} known addresses...`, AGENT_COLORS.SWEEPER);
-    for (const a of UNIQUE_ADDRS) {
-      const k = a.tx + ':' + a.rx;
-      if (foundSet.current.has(k)) continue;
-      try {
-        // DiagSession ExtendedDiag first (body modules require this before VIN read)
-        const ds = await uds(a.tx, a.rx, [0x10, 0x03]);
-        if (ds.ok) {
-          const r = await uds(a.tx, a.rx, [0x22, 0xF1, 0x90]);
-          addFound(a.tx, a.rx, a.name, a.src, r.ok ? parseVin(r.d) : null);
-          continue;
-        }
-        // Fallback: VIN read without session
-        const r = await uds(a.tx, a.rx, [0x22, 0xF1, 0x90]);
-        if (r.ok) { addFound(a.tx, a.rx, a.name, a.src, parseVin(r.d)); continue; }
-        // Fallback: TesterPresent
-        const tpr = await uds(a.tx, a.rx, [0x3E, 0x00]);
-        if (tpr.ok) { addFound(a.tx, a.rx, a.name, a.src, null); continue; }
-      } catch (e) { }
-      await new Promise(r => setTimeout(r, 20));
-    }
-    addLog('SWEEPER', `Sweep complete — ${foundSet.current.size} modules found so far`, AGENT_COLORS.SWEEPER);
+    addLog('SWEEPER', `🤖 Agentic loop starting — ${mods.filter(m=>m.state==='pending').length} modules to negotiate...`, AGENT_COLORS.SWEEPER);
 
-    if (isSTN && foundSet.current.size <= 2) {
-      addLog('SHIFTER', '🔄 Protocol variant probing (SP5/SP6/SP7 + CAN-IHS)...', AGENT_COLORS.SHIFTER);
+    while (!abortRef.current) {
+      const active = mods.filter(m => m.state === 'pending' || m.state === 'retrying');
+      if (active.length === 0) break;
 
-      // SP5 = ISO 15765-4 CAN (11-bit, 250kbps)
-      addLog('SHIFTER', 'Trying ATSP5 (CAN 11-bit 250kbps)...', AGENT_COLORS.SHIFTER);
-      await send('ATSP5'); await new Promise(r => setTimeout(r, 300));
-      await send('ATCRA'); await send('ATH1'); await send('ATCAF1'); await send('ATST96');
-      await send('ATSH7DF');
-      const sp5r = await send('22 F1 90', 4000);
-      if (sp5r && !sp5r.includes('NO DATA') && !sp5r.includes('CAN ERROR') && !sp5r.includes('UNABLE')) {
-        addLog('SHIFTER', 'SP5 responses found!', AGENT_COLORS.FOUND);
-        for (const bl of sp5r.split(/[\r\n]+/)) {
-          const bt = bl.trim();
-          if (/^[0-9A-Fa-f]{3}\s/.test(bt)) {
-            const rid = parseInt(bt.slice(0, 3), 16);
-            const tid = rid - 8;
-            let name = 'SP5_' + tid.toString(16).toUpperCase();
-            for (const a of UNIQUE_ADDRS) { if (a.rx === rid || a.tx === tid) { name = a.name; break; } }
-            addFound(tid, rid, name, 'SP5', null);
-          }
-        }
-      } else {
-        addLog('SHIFTER', 'SP5: ' + (sp5r || 'no response'), AGENT_COLORS.SHIFTER);
-      }
+      for (const mod of active) {
+        if (abortRef.current) break;
 
-      // SP7 = ISO 15765-4 CAN (11-bit, 33.3kbps) — used by some older modules
-      addLog('SHIFTER', 'Trying ATSP7 (CAN 11-bit 33.3kbps)...', AGENT_COLORS.SHIFTER);
-      await send('ATSP7'); await new Promise(r => setTimeout(r, 300));
-      await send('ATCRA'); await send('ATH1'); await send('ATCAF1'); await send('ATST96');
-      await send('ATSH7DF');
-      const sp7r = await send('22 F1 90', 4000);
-      if (sp7r && !sp7r.includes('NO DATA') && !sp7r.includes('CAN ERROR') && !sp7r.includes('UNABLE')) {
-        addLog('SHIFTER', 'SP7 responses found!', AGENT_COLORS.FOUND);
-        for (const bl of sp7r.split(/[\r\n]+/)) {
-          const bt = bl.trim();
-          if (/^[0-9A-Fa-f]{3}\s/.test(bt)) {
-            const rid = parseInt(bt.slice(0, 3), 16);
-            const tid = rid - 8;
-            let name = 'SP7_' + tid.toString(16).toUpperCase();
-            for (const a of UNIQUE_ADDRS) { if (a.rx === rid || a.tx === tid) { name = a.name; break; } }
-            addFound(tid, rid, name, 'SP7', null);
-          }
-        }
-      } else {
-        addLog('SHIFTER', 'SP7: ' + (sp7r || 'no response'), AGENT_COLORS.SHIFTER);
-      }
+        mod.state = 'probing';
+        updateMod(mod);
 
-      // Restore SP6 (standard HS-CAN 500kbps)
-      await send('ATSP6'); await new Promise(r => setTimeout(r, 200));
-      await send('ATCRA'); await send('ATH1'); await send('ATCAF1');
-      await send('ATAT2'); await send('ATST96');
-      if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
-      addLog('SHIFTER', 'Restored SP6 (HS-CAN 500kbps)', AGENT_COLORS.SHIFTER);
+        const strat = STRATEGIES[mod.strategyIdx];
+        addLog('SWEEPER', `→ ${mod.name}(${hx3(mod.tx)}) [${strat.label}] attempt #${mod.attempts+1}`, AGENT_COLORS.SWEEPER);
 
-      // Verify PP mode on STN adapter
-      if (isSTN) {
-        const ppv = await send('ATPP2C?', 2000);
-        addLog('SHIFTER', 'PP2C status: ' + (ppv || '?'), AGENT_COLORS.SHIFTER);
-      }
-
-      // CAN-IHS via STP61 (pins 3/11, 125kbps) — fast-fail on CAN ERROR
-      addLog('SHIFTER', '🔄 Trying CAN-IHS (STP61, pins 3/11, 125kbps)...', AGENT_COLORS.SHIFTER);
-      const sw = await send('STP61');
-      if (sw.includes('OK') || (!sw.includes('?') && !sw.includes('ERROR'))) {
-        await send('STPBR 125000'); await new Promise(r => setTimeout(r, 400));
-        await send('ATCRA'); await send('ATH1'); await send('ATCAF1'); await send('ATST50');
-
-        await send('ATSH7DF');
-        const ihsB = await send('22 F1 90', 5000);
-        if (ihsB && !ihsB.includes('NO DATA') && !ihsB.includes('CAN ERROR')) {
-          addLog('SHIFTER', 'CAN-IHS broadcast responses!', AGENT_COLORS.FOUND);
-          for (const bl of ihsB.split(/[\r\n]+/)) {
-            const bt = bl.trim();
-            if (/^[0-9A-Fa-f]{3}\s/.test(bt)) {
-              const rid = parseInt(bt.slice(0, 3), 16);
-              addFound(rid - 8, rid, 'IHS_' + (rid - 8).toString(16).toUpperCase(), 'CAN-IHS', null);
-            }
-          }
-        } else if (ihsB && ihsB.includes('CAN ERROR')) {
-          addLog('SHIFTER', 'CAN ERROR on IHS bus — OBDLink EX transceiver is wired to pins 6/14 only. Physical Y-cable required for pins 3/11.', '#FF1744');
-        }
-
-        if (!ihsB || !ihsB.includes('CAN ERROR')) {
-          for (const a of UNIQUE_ADDRS) {
-            const k = a.tx + ':' + a.rx;
-            if (foundSet.current.has(k)) continue;
-            if (a.tx >= 0x7E0 && a.tx <= 0x7EF) continue;
-            try {
-              const r = await uds(a.tx, a.rx, [0x22, 0xF1, 0x90]);
-              if (r.raw && r.raw.includes('CAN ERROR')) break;
-              if (r.ok) { addFound(a.tx, a.rx, a.name, 'CAN-IHS', parseVin(r.d)); continue; }
-              const tpr = await uds(a.tx, a.rx, [0x3E, 0x00]);
-              if (tpr.ok) { addFound(a.tx, a.rx, a.name, 'CAN-IHS', null); }
-            } catch (e) { }
-          }
-        }
-
-        await send('STPBR 500000');
-        await send('ATSP6');
-        await new Promise(r => setTimeout(r, 100));
-        await send('ATST96');
-        addLog('SHIFTER', 'Back on CAN-C', AGENT_COLORS.SHIFTER);
-      } else {
-        addLog('SHIFTER', 'STP61 failed: ' + sw, AGENT_COLORS.SHIFTER);
-      }
-    }
-
-    if (foundSet.current.size <= 2) {
-      addLog('BRUTE', '💀 Brute force sweep 0x600-0x7FF...', AGENT_COLORS.BRUTE);
-      await send('ATSP6'); await send('ATST32');
-      for (let tx = 0x600; tx <= 0x7FF; tx++) {
-        const rx = tx + 8;
-        const k = tx + ':' + rx;
-        if (foundSet.current.has(k)) continue;
+        let result;
         try {
-          await send('ATCRA');
-          await send('ATSH' + tx.toString(16).toUpperCase().padStart(3, '0'));
-          await send('ATCRA' + rx.toString(16).toUpperCase().padStart(3, '0'));
-          const r = await send('3E 00', 1200);
-          if (r && !r.includes('NO DATA') && !r.includes('CAN ERROR') && !r.includes('?') && r.trim().length > 3) {
-            addFound(tx, rx, 'BRUTE_' + tx.toString(16).toUpperCase(), 'BRUTE', null);
+          result = await execStrategy(mod.strategyIdx, mod, engObj, addLog);
+        } catch(e) {
+          result = { ok: false, reason: 'exception:'+e.message };
+        }
+
+        mod.attempts++;
+        attemptsRef.current++;
+        setTotalAttempts(attemptsRef.current);
+
+        if (result.ok) {
+          markConfirmed(mod, strat.name, result.vin);
+        } else {
+          mod.lastError = result.reason || '';
+          mod.strategyIdx++;
+          if (mod.strategyIdx >= STRATEGIES.length) {
+            mod.state = 'exhausted';
+            addLog('BRUTE', `✗ ${mod.name}(${hx3(mod.tx)}) exhausted all strategies`, AGENT_COLORS.BRUTE);
+          } else {
+            mod.state = 'retrying';
           }
-        } catch (e) { }
-        if (tx % 64 === 0) addLog('BRUTE', `Sweep: 0x${tx.toString(16).toUpperCase()}...`, AGENT_COLORS.BRUTE);
+          updateMod(mod);
+        }
+
+        await new Promise(r => setTimeout(r, 30));
       }
-      await send('ATST96');
     }
 
-    addLog('SYSTEM', `═══ SWARM COMPLETE: ${foundSet.current.size} modules found ═══`, AGENT_COLORS.FOUND);
+    const confirmed = mods.filter(m => m.state === 'confirmed').length;
+    const exhausted = mods.filter(m => m.state === 'exhausted').length;
+    addLog('SYSTEM', `═══ SWARM COMPLETE: confirmed=${confirmed} exhausted=${exhausted} attempts=${attemptsRef.current} ═══`, AGENT_COLORS.FOUND);
     setRunning(false);
-  }, [addLog, addFound]);
+  }, [addLog]);
+
+  const stopSwarm = useCallback(() => {
+    abortRef.current = true;
+    addLog('SYSTEM', 'Abort requested — finishing current probe...', AGENT_COLORS.SYSTEM);
+  }, [addLog]);
 
   const resetPP = useCallback(async () => {
     if (!eng.current) return;
@@ -434,83 +461,158 @@ export default function OBDSwarmDiagnostic() {
     addLog('SYSTEM', 'PP reset complete — adapter at factory defaults', AGENT_COLORS.FOUND);
   }, [addLog]);
 
+  const confirmed = moduleStates.filter(m => m.state === 'confirmed').length;
+  const retrying  = moduleStates.filter(m => m.state === 'retrying' || m.state === 'probing').length;
+  const exhausted = moduleStates.filter(m => m.state === 'exhausted').length;
+  const pending   = moduleStates.filter(m => m.state === 'pending').length;
+  const total     = moduleStates.length;
+
   const S = {
-    bg: '#0A0A0F',
-    card: '#12121A',
+    bg:     '#0A0A0F',
+    card:   '#12121A',
     border: '#1E1E2E',
-    text: '#E0E0E0',
-    dim: '#666',
-    red: '#D32F2F',
-    font: "'JetBrains Mono', 'Fira Code', monospace",
+    text:   '#E0E0E0',
+    dim:    '#666',
+    red:    '#D32F2F',
+    font:   "'JetBrains Mono','Fira Code',monospace",
   };
 
   return (
-    <div style={{ background: S.bg, minHeight: '100%', padding: 16, fontFamily: S.font, color: S.text }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-          <span style={{ fontSize: 28, fontWeight: 900, color: S.red }}>⚡ SWARM</span>
-          <span style={{ fontSize: 14, color: S.dim }}>OBD DIAGNOSTIC AGENT v1.0</span>
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-            {status === 'disconnected' && (
-              <button onClick={connect} style={{ padding: '8px 16px', background: S.red, color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontFamily: S.font, fontWeight: 700 }}>
+    <div style={{background:S.bg,minHeight:'100%',padding:16,fontFamily:S.font,color:S.text}}>
+      <div style={{maxWidth:1100,margin:'0 auto'}}>
+
+        {/* Header */}
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:14,flexWrap:'wrap'}}>
+          <span style={{fontSize:26,fontWeight:900,color:S.red}}>⚡ SWARM</span>
+          <span style={{fontSize:12,color:S.dim}}>AGENTIC CAN NEGOTIATOR v2.0</span>
+          <div style={{marginLeft:'auto',display:'flex',gap:8,flexWrap:'wrap'}}>
+            {status==='disconnected' && (
+              <button onClick={connect} style={{padding:'8px 16px',background:S.red,color:'#fff',border:'none',borderRadius:6,cursor:'pointer',fontFamily:S.font,fontWeight:700}}>
                 🔌 CONNECT
               </button>
             )}
-            {status === 'connected' && !running && (
-              <button onClick={launchSwarm} style={{ padding: '8px 16px', background: '#00E5FF', color: '#000', border: 'none', borderRadius: 6, cursor: 'pointer', fontFamily: S.font, fontWeight: 700 }}>
+            {status==='connected' && !running && (
+              <button onClick={launchSwarm} style={{padding:'8px 16px',background:'#00E5FF',color:'#000',border:'none',borderRadius:6,cursor:'pointer',fontFamily:S.font,fontWeight:700}}>
                 🚀 LAUNCH SWARM
               </button>
             )}
-            {status === 'connected' && (
-              <button onClick={resetPP} style={{ padding: '8px 16px', background: '#333', color: '#fff', border: '1px solid #555', borderRadius: 6, cursor: 'pointer', fontFamily: S.font, fontSize: 11 }}>
+            {running && (
+              <button onClick={stopSwarm} style={{padding:'8px 16px',background:'#FF6D00',color:'#fff',border:'none',borderRadius:6,cursor:'pointer',fontFamily:S.font,fontWeight:700}}>
+                ⏹ STOP
+              </button>
+            )}
+            {status==='connected' && (
+              <button onClick={resetPP} style={{padding:'8px 16px',background:'#333',color:'#fff',border:'1px solid #555',borderRadius:6,cursor:'pointer',fontFamily:S.font,fontSize:11}}>
                 🔄 Reset PP
               </button>
             )}
-            <div style={{ padding: '8px 12px', background: status === 'connected' ? '#1B5E20' : '#333', borderRadius: 6, fontSize: 11 }}>
-              {status === 'connected' ? '● CONNECTED' : '○ DISCONNECTED'}
-              {ppEnabled && <span style={{ color: AGENT_COLORS.FOUND, marginLeft: 8 }}>PP:ON</span>}
+            <div style={{padding:'8px 12px',background:status==='connected'?'#1B5E20':'#333',borderRadius:6,fontSize:11}}>
+              {status==='connected'?'● CONNECTED':'○ DISCONNECTED'}
+              {ppEnabled&&<span style={{color:AGENT_COLORS.FOUND,marginLeft:8}}>PP:ON</span>}
             </div>
           </div>
         </div>
 
-        {found.length > 0 && (
-          <div style={{ background: '#1A2E1A', border: '1px solid #2E7D32', borderRadius: 8, padding: 12, marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#66BB6A', marginBottom: 8 }}>MODULES FOUND: {found.length}</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {found.map((m, i) => (
-                <div key={i} style={{ background: '#0D1F0D', border: '1px solid #388E3C', borderRadius: 4, padding: '4px 8px', fontSize: 11 }}>
-                  <span style={{ color: AGENT_COLORS.FOUND, fontWeight: 700 }}>{m.name}</span>
-                  <span style={{ color: S.dim, marginLeft: 6 }}>TX:{m.tx.toString(16).toUpperCase().padStart(3, '0')}</span>
-                  <span style={{ color: S.dim, marginLeft: 4 }}>RX:{m.rx.toString(16).toUpperCase().padStart(3, '0')}</span>
-                  <span style={{ color: '#81C784', marginLeft: 6 }}>[{m.src}]</span>
-                  {m.vin && m.vin !== '?' && <span style={{ color: '#fff', marginLeft: 6 }}>{m.vin}</span>}
-                </div>
-              ))}
+        {/* Progress bar */}
+        {(running || confirmed > 0) && (
+          <div style={{marginBottom:10}}>
+            <div style={{height:6,background:'#1E1E2E',borderRadius:3,overflow:'hidden'}}>
+              <div style={{
+                height:'100%',
+                width:`${(confirmed/total)*100}%`,
+                background:'linear-gradient(90deg,#66BB6A,#00E5FF)',
+                borderRadius:3,
+                transition:'width 0.3s',
+              }}/>
             </div>
           </div>
         )}
 
-        <div ref={logRef} style={{ background: S.card, border: `1px solid ${S.border}`, borderRadius: 8, padding: 8, height: 500, overflowY: 'auto', fontSize: 11, lineHeight: 1.6 }}>
-          {logs.length === 0 && (
-            <div style={{ color: S.dim, textAlign: 'center', marginTop: 40 }}>
-              Connect adapter and launch swarm to begin diagnostic
+        {/* Stats bar */}
+        <div style={{display:'flex',gap:16,marginBottom:12,fontSize:11,flexWrap:'wrap'}}>
+          <span style={{color:STATE_COLORS.confirmed}}>✓ Confirmed: <strong>{confirmed}</strong></span>
+          <span style={{color:STATE_COLORS.retrying}}>↻ Active: <strong>{retrying}</strong></span>
+          <span style={{color:STATE_COLORS.exhausted}}>✗ Exhausted: <strong>{exhausted}</strong></span>
+          <span style={{color:STATE_COLORS.pending}}>◌ Pending: <strong>{pending}</strong></span>
+          <span style={{color:'#aaa',marginLeft:'auto'}}>Attempts: <strong>{totalAttempts}</strong></span>
+        </div>
+
+        {/* Module status board */}
+        <div style={{background:S.card,border:`1px solid ${S.border}`,borderRadius:8,padding:10,marginBottom:12}}>
+          <div style={{fontSize:10,color:S.dim,marginBottom:8,fontWeight:700,letterSpacing:1}}>MODULE STATUS BOARD</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+            {moduleStates.map((m, i) => {
+              const col = STATE_COLORS[m.state] || '#555';
+              const isPulsing = m.state === 'probing';
+              return (
+                <div key={i} title={`${m.name} TX:${hx3(m.tx)} RX:${hx3(m.rx)}\nState:${m.state}\nStrategy:${m.strategyIdx < STRATEGIES.length ? STRATEGIES[m.strategyIdx].label : 'done'}\nAttempts:${m.attempts}\n${m.lastError ? 'Last err:'+m.lastError : ''}${m.vin ? '\nVIN:'+m.vin : ''}`}
+                  style={{
+                    border:`2px solid ${col}`,
+                    borderRadius:5,
+                    padding:'4px 7px',
+                    fontSize:10,
+                    minWidth:80,
+                    position:'relative',
+                    background: m.state==='confirmed' ? col+'18' : m.state==='exhausted' ? col+'15' : '#0D0D15',
+                    animation: isPulsing ? 'swarm-pulse 0.8s ease-in-out infinite alternate' : 'none',
+                    transition:'border-color 0.3s,background 0.3s',
+                  }}>
+                  <div style={{color:col,fontWeight:700,fontSize:9}}>{m.name}</div>
+                  <div style={{color:'#444',fontSize:8}}>{hx3(m.tx)}</div>
+                  {m.state==='confirmed' && (
+                    <div style={{fontSize:8,color:STATE_COLORS.confirmed}}>via {m.confirmedBy}</div>
+                  )}
+                  {(m.state==='retrying'||m.state==='probing') && m.strategyIdx<STRATEGIES.length && (
+                    <div style={{fontSize:8,color:col}}>{STRATEGIES[m.strategyIdx].label}</div>
+                  )}
+                  {m.state==='exhausted' && (
+                    <div style={{fontSize:8,color:STATE_COLORS.exhausted}}>dead</div>
+                  )}
+                  {m.vin && (
+                    <div style={{fontSize:7,color:'#fff',marginTop:1,overflow:'hidden',maxWidth:78}}>{m.vin}</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {/* Legend */}
+          <div style={{display:'flex',gap:12,marginTop:8,flexWrap:'wrap'}}>
+            {Object.entries(STATE_COLORS).map(([s,c])=>(
+              <span key={s} style={{fontSize:9,color:c}}>● {s.toUpperCase()}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Log panel */}
+        <div ref={logRef} style={{background:S.card,border:`1px solid ${S.border}`,borderRadius:8,padding:8,height:360,overflowY:'auto',fontSize:11,lineHeight:1.6}}>
+          {logs.length===0 && (
+            <div style={{color:S.dim,textAlign:'center',marginTop:40}}>
+              Connect adapter and launch SWARM to begin agentic scan
             </div>
           )}
-          {logs.map((l, i) => (
-            <div key={i} style={{ display: 'flex', gap: 8, borderBottom: '1px solid #111' }}>
-              <span style={{ color: S.dim, minWidth: 60, flexShrink: 0 }}>{l.ts}</span>
-              <span style={{ color: l.color, minWidth: 70, flexShrink: 0, fontWeight: 700 }}>{l.agent}</span>
-              <span style={{ color: S.text, wordBreak: 'break-all' }}>{l.msg}</span>
+          {logs.map((l,i)=>(
+            <div key={i} style={{display:'flex',gap:8,borderBottom:'1px solid #111'}}>
+              <span style={{color:S.dim,minWidth:60,flexShrink:0}}>{l.ts}</span>
+              <span style={{color:l.color,minWidth:70,flexShrink:0,fontWeight:700}}>{l.agent}</span>
+              <span style={{color:S.text,wordBreak:'break-all'}}>{l.msg}</span>
             </div>
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
-          {Object.entries(AGENT_COLORS).filter(([k]) => k !== 'SYSTEM' && k !== 'FOUND').map(([name, color]) => (
-            <span key={name} style={{ fontSize: 10, color }}>● {name}</span>
+        {/* Agent legend */}
+        <div style={{display:'flex',gap:12,marginTop:8,flexWrap:'wrap'}}>
+          {Object.entries(AGENT_COLORS).filter(([k])=>k!=='SYSTEM'&&k!=='FOUND').map(([name,color])=>(
+            <span key={name} style={{fontSize:10,color}}>● {name}</span>
           ))}
         </div>
       </div>
+
+      <style>{`
+        @keyframes swarm-pulse {
+          from { box-shadow: 0 0 4px #00E5FF44; }
+          to   { box-shadow: 0 0 12px #00E5FFBB, 0 0 20px #00E5FF44; }
+        }
+      `}</style>
     </div>
   );
 }
