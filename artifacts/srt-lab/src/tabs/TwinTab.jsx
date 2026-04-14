@@ -655,19 +655,35 @@ export default function TwinTab() {
       {/* Phase 2: inspection results */}
       {inspected && bcmInfo && rfhInfo && (
         <>
-          {/* overall status */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: 10, marginBottom: 16,
-            padding: "12px 20px", borderRadius: 12,
-            background: "linear-gradient(135deg,#00C85315,#00C85308)",
-            border: "1.5px solid #00C85335",
-          }}>
-            <span style={{ fontSize: 20 }}>✅</span>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 900, color: C.gn }}>Ready to apply</div>
-              <div style={{ fontSize: 10, color: C.ts }}>All three APPLY buttons are enabled. Files remain in memory.</div>
-            </div>
-          </div>
+          {/* overall status — gated on actual comparison results */}
+          {(() => {
+            const vinMatch   = bcmInfo.vins[0].vin === rfhInfo.vins[0].vin;
+            const sec16Match = bcmInfo.sec16Hex === rfhInfo.sec16BcmHex;
+            const sec6Match  = pcmInfo ? bcmInfo.pcmSec6Hex === pcmInfo.sec6Hex : true;
+            const allOk = vinMatch && sec16Match && sec6Match;
+            return (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 10, marginBottom: 16,
+                padding: "12px 20px", borderRadius: 12,
+                background: allOk
+                  ? "linear-gradient(135deg,#00C85315,#00C85308)"
+                  : "linear-gradient(135deg,#FFB30018,#FFB30008)",
+                border: `1.5px solid ${allOk ? "#00C85335" : "#FFB30040"}`,
+              }}>
+                <span style={{ fontSize: 20 }}>{allOk ? "✅" : "⚠️"}</span>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: allOk ? C.gn : C.wn }}>
+                    {allOk ? "Ready to apply" : "Mismatch detected — apply will sync the differing data"}
+                  </div>
+                  <div style={{ fontSize: 10, color: C.ts }}>
+                    {allOk
+                      ? "VIN and SEC16 match across modules. APPLY buttons are enabled."
+                      : `Issues: ${[!vinMatch && "VIN", !sec16Match && "SEC16", pcmInfo && !sec6Match && "SEC6"].filter(Boolean).join(", ")} differ between modules.`}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* BCM + RFH cards side by side */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 0 }}>
