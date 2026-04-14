@@ -1,0 +1,700 @@
+import React, { useState, useCallback, useRef } from "react";
+import { C } from "../lib/constants.js";
+import { Card, Tag, Btn } from "../lib/ui.jsx";
+
+/* ─── helpers ─────────────────────────────────────────────────────────────── */
+const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
+const fO  = n => "0x" + n.toString(16).toUpperCase().padStart(4,"0");
+const dl  = (data, name) => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([data], {type:"application/octet-stream"}));
+  a.download = name; a.click(); URL.revokeObjectURL(a.href);
+};
+
+/* ─── checksums ───────────────────────────────────────────────────────────── */
+function crc16(d) {
+  let c = 0xFFFF;
+  for (let x = 0; x < d.length; x++) {
+    c ^= d[x] << 8;
+    for (let j = 0; j < 8; j++) c = c & 0x8000 ? (c << 1) ^ 0x1021 : c << 1;
+    c &= 0xFFFF;
+  }
+  return c;
+}
+
+/* ─── BCM (MPC5606B_05B, 65536 bytes) ────────────────────────────────────── */
+const BCM_VIN_PRIMARY   = [0x1338, 0x1358, 0x1378, 0x1398];
+const BCM_VIN_SECONDARY = [0x0698, 0x06B8, 0x06D8, 0x06F8, 0x0718, 0x0738];
+const BCM_SEC16_OFFSETS = [0x00C9, 0x00F1];
+
+function parseBcm(data, filename) {
+  if (data.length !== 65536) return null;
+
+  const vins = BCM_VIN_PRIMARY.map((off, i) => {
+    const raw = data.slice(off, off + 17);
+    const vin = Array.from(raw).map(b => String.fromCharCode(b)).join("");
+    const csStored = (data[off + 17] << 8) | data[off + 18];
+    const csCalc   = crc16(raw);
+    return { slot: i + 1, offset: off, vin, csStored, csCalc, csOk: csStored === csCalc };
+  });
+
+  const sec16Copies = BCM_SEC16_OFFSETS.map((off, i) => {
+    const raw = data.slice(off, off + 16);
+    const hex = hxb(raw);
+    return { label: `Mirror ${i + 1}`, offset: off, raw: Array.from(raw), hex };
+  });
+
+  const secMatch = sec16Copies.length > 1 &&
+    sec16Copies[0].hex === sec16Copies[1].hex;
+
+  const sec16Raw  = sec16Copies[0].raw;
+  const sec16Hex  = hxb(sec16Raw);
+  const sec16RfhRaw  = [...sec16Raw].reverse();
+  const sec16RfhHex  = hxb(sec16RfhRaw);
+  const pcmSec6Hex   = hxb(sec16RfhRaw.slice(0, 6));
+
+  return {
+    type: "MPC5606B_05B", filename, size: data.length,
+    vins, sec16Copies, secMatch,
+    sec16Hex, sec16RfhHex, pcmSec6Hex,
+  };
+}
+
+function applyBcmFromRfh(bcmData, rfhInfo) {
+  const out = new Uint8Array(bcmData);
+  const vin = rfhInfo.vins[0].vin;
+  const enc = Array.from(vin).map(c => c.charCodeAt(0));
+
+  // compute CRC16 of VIN bytes
+  const cs = crc16(enc);
+  const csHi = (cs >> 8) & 0xFF;
+  const csLo = cs & 0xFF;
+
+  // Write to primary slots
+  for (const off of BCM_VIN_PRIMARY) {
+    for (let i = 0; i < 17; i++) out[off + i] = enc[i];
+    out[off + 17] = csHi;
+    out[off + 18] = csLo;
+  }
+  // Write to secondary slots (only overwrite bytes 0..18, preserve 19..31)
+  for (const off of BCM_VIN_SECONDARY) {
+    for (let i = 0; i < 17; i++) out[off + i] = enc[i];
+    out[off + 17] = csHi;
+    out[off + 18] = csLo;
+  }
+
+  // SEC16: reverse RFH_SEC16 → BCM_SEC16
+  const rfhSec16 = rfhInfo.sec16Slots[0].raw;
+  const bcmSec16 = [...rfhSec16].reverse();
+  for (const off of BCM_SEC16_OFFSETS) {
+    for (let i = 0; i < 16; i++) out[off + i] = bcmSec16[i];
+  }
+
+  return out;
+}
+
+/* ─── RFH Gen2 (MC9S12X Type 1, 4096 bytes) ──────────────────────────────── */
+const RFH_VIN_OFFSETS  = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
+const RFH_SEC16_OFFSETS = [0x050E, 0x0522];
+const RFH_VIN_CS_MAGIC  = 0x87;   // empirically determined: CS = XOR(17 raw bytes) ^ 0x87
+const RFH_SEC16_CS_MAGIC = 0x8B;  // empirically determined: CS[0] = XOR(16 bytes) ^ 0x8B, CS[1] = 0x00
+
+function rfhVinCs(raw17) {
+  const xr = Array.from(raw17).reduce((a, b) => a ^ b, 0);
+  return xr ^ RFH_VIN_CS_MAGIC;
+}
+function rfhSec16Cs(raw16) {
+  const xr = Array.from(raw16).reduce((a, b) => a ^ b, 0);
+  return [xr ^ RFH_SEC16_CS_MAGIC, 0x00];
+}
+
+function parseRfhGen2(data, filename) {
+  if (data.length !== 4096) return null;
+
+  const vins = RFH_VIN_OFFSETS.map((off, i) => {
+    const rawStored = data.slice(off, off + 17);
+    // VIN stored reversed
+    const vinBytes = Array.from(rawStored).reverse();
+    const vin = vinBytes.map(b => String.fromCharCode(b)).join("");
+    const csStored = data[off + 17];
+    const csCalc   = rfhVinCs(rawStored);
+    return { slot: i + 1, offset: off, vin, rawStored: Array.from(rawStored), csStored, csCalc, csOk: csStored === csCalc };
+  });
+
+  const sec16Slots = RFH_SEC16_OFFSETS.map((off, i) => {
+    const raw = Array.from(data.slice(off, off + 16));
+    const hex = hxb(raw);
+    const csStored0 = data[off + 16];
+    const csStored1 = data[off + 17];
+    const [csCalc0, csCalc1] = rfhSec16Cs(raw);
+    const csOk = csStored0 === csCalc0 && csStored1 === csCalc1;
+    return { slot: i + 1, offset: off, raw, hex, csStored0, csStored1, csCalc0, csCalc1, csOk };
+  });
+
+  const slotsMatch = sec16Slots.length === 2 && sec16Slots[0].hex === sec16Slots[1].hex;
+  const sec16Hex    = sec16Slots[0].hex;
+  const sec16BcmRaw = [...sec16Slots[0].raw].reverse();
+  const sec16BcmHex = hxb(sec16BcmRaw);
+
+  return {
+    type: "MC9S12X", filename, size: data.length,
+    vins, sec16Slots, slotsMatch, sec16Hex, sec16BcmHex,
+  };
+}
+
+function applyRfhFromBcm(rfhData, bcmInfo) {
+  const out = new Uint8Array(rfhData);
+  const vin = bcmInfo.vins[0].vin;
+  const enc = Array.from(vin).map(c => c.charCodeAt(0));
+  const rev = [...enc].reverse();
+
+  const cs = rfhVinCs(rev);
+  for (const off of RFH_VIN_OFFSETS) {
+    for (let i = 0; i < 17; i++) out[off + i] = rev[i];
+    out[off + 17] = cs;
+  }
+
+  // SEC16: reverse BCM_SEC16 → RFH_SEC16
+  const bcmSec16 = bcmInfo.sec16Copies[0].raw;
+  const rfhSec16 = [...bcmSec16].reverse();
+  const [cs0, cs1] = rfhSec16Cs(rfhSec16);
+  for (const off of RFH_SEC16_OFFSETS) {
+    for (let i = 0; i < 16; i++) out[off + i] = rfhSec16[i];
+    out[off + 16] = cs0;
+    out[off + 17] = cs1;
+  }
+
+  return out;
+}
+
+/* ─── PCM / GPEC2A (8192 bytes) ──────────────────────────────────────────── */
+function parsePcm(data, filename) {
+  if (data.length !== 8192) return null;
+  const vinRaw = data.slice(0, 17);
+  const vin = Array.from(vinRaw).map(b => String.fromCharCode(b)).join("");
+  const vinOk = /^[A-HJ-NPR-Z0-9]{17}$/.test(vin);
+  const sec6 = Array.from(data.slice(0x3C8, 0x3C8 + 6));
+  const sec6Hex = hxb(sec6);
+  return { type: "GPEC2A", filename, size: data.length, vin: vinOk ? vin : null, sec6, sec6Hex };
+}
+
+function applyPcmFromBcm(pcmData, bcmInfo) {
+  const out = new Uint8Array(pcmData);
+  const sec16Rev = [...bcmInfo.sec16Copies[0].raw].reverse();
+  const sec6 = sec16Rev.slice(0, 6);
+  for (let i = 0; i < 6; i++) out[0x3C8 + i] = sec6[i];
+  return out;
+}
+
+/* ─── UI sub-components ───────────────────────────────────────────────────── */
+function CsBadge({ ok, small }) {
+  const style = {
+    display: "inline-block", padding: small ? "1px 6px" : "2px 8px",
+    borderRadius: 6, fontSize: small ? 9 : 10, fontWeight: 800, letterSpacing: .5,
+    background: ok ? C.gn + "20" : C.er + "20",
+    color: ok ? C.gn : C.er, marginLeft: 4,
+  };
+  return <span style={style}>{ok ? "CS OK" : "CS FAIL"}</span>;
+}
+
+function MatchBadge({ ok }) {
+  const style = {
+    display: "inline-flex", alignItems: "center", gap: 4,
+    padding: "3px 10px", borderRadius: 8, fontSize: 11, fontWeight: 800,
+    background: ok ? C.gn + "15" : C.wn + "20",
+    color: ok ? C.gn : C.wn, border: `1px solid ${ok ? C.gn + "30" : C.wn + "40"}`,
+  };
+  return <span style={style}>{ok ? "✓ MATCH" : "⚠ MISMATCH"}</span>;
+}
+
+function FileDropZone({ label, hint, onFile, fileName, accept = ".bin,.BIN" }) {
+  const inputRef = useRef();
+  const [drag, setDrag] = useState(false);
+  return (
+    <div
+      onDrop={e => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) onFile(f); }}
+      onDragOver={e => { e.preventDefault(); setDrag(true); }}
+      onDragLeave={() => setDrag(false)}
+      onClick={() => inputRef.current.click()}
+      style={{
+        border: `2px dashed ${drag ? C.sr : C.sr + "40"}`, borderRadius: 12,
+        padding: "18px 20px", cursor: "pointer", textAlign: "center",
+        background: drag ? C.sr + "08" : C.c2, transition: "all .2s",
+      }}
+    >
+      <input ref={inputRef} type="file" accept={accept} style={{ display: "none" }}
+        onChange={e => e.target.files[0] && onFile(e.target.files[0])} />
+      <div style={{ fontSize: 24, marginBottom: 4 }}>📂</div>
+      {fileName
+        ? <div style={{ fontSize: 12, fontWeight: 800, color: C.sr }}>{fileName}</div>
+        : <div style={{ fontSize: 12, color: C.ts }}>{label}</div>}
+      {hint && <div style={{ fontSize: 10, color: C.tm, marginTop: 2 }}>{hint}</div>}
+    </div>
+  );
+}
+
+function MonoHex({ hex, color = C.a3 }) {
+  return (
+    <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color, letterSpacing: .3 }}>
+      {hex}
+    </span>
+  );
+}
+
+function SectionTitle({ icon, text, sub }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+      <div style={{
+        width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+        background: "linear-gradient(135deg,#D32F2F1A,#D32F2F33)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 18, border: "1.5px solid #D32F2F25",
+      }}>{icon}</div>
+      <div>
+        <div style={{ fontSize: 14, fontWeight: 900, color: C.tx }}>{text}</div>
+        {sub && <div style={{ fontSize: 10, color: C.ts }}>{sub}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ─── BCM Card ───────────────────────────────────────────────────────────── */
+function BcmCard({ info }) {
+  const allCsOk = info.vins.every(v => v.csOk);
+  return (
+    <Card style={{ marginBottom: 14 }}>
+      <SectionTitle icon="🧠" text="BCM — MPC5606B_05B" sub={`${info.filename}  ·  65536 bytes`} />
+
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 8, textTransform: "uppercase", letterSpacing: .6 }}>VIN — 4 Primary Copies</div>
+        {info.vins.map(v => (
+          <div key={v.slot} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(v.offset)}</span>
+            <MonoHex hex={v.vin} color={C.a1} />
+            <CsBadge ok={v.csOk} small />
+            <span style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
+              stored={v.csStored.toString(16).toUpperCase().padStart(4,"0")} calc={v.csCalc.toString(16).toUpperCase().padStart(4,"0")}
+            </span>
+          </div>
+        ))}
+        <Tag color={allCsOk ? C.gn : C.er}>{allCsOk ? "All CS OK" : "CS Errors Found"}</Tag>
+      </div>
+
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 8, textTransform: "uppercase", letterSpacing: .6 }}>SEC16 — {info.sec16Copies.length} Mirror Copies</div>
+        {info.sec16Copies.map(m => (
+          <div key={m.offset} style={{ marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+              <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(m.offset)}</span>
+              <span style={{ fontSize: 10, color: C.tm }}>{m.label}</span>
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.a4, paddingLeft: 66 }}>
+              {m.hex}
+            </div>
+          </div>
+        ))}
+        <Tag color={info.secMatch ? C.gn : C.er}>{info.secMatch ? "Mirrors Match ✓" : "Mirror Mismatch!"}</Tag>
+
+        <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 10, background: C.c2, border: `1px solid ${C.bd}` }}>
+          <div style={{ fontSize: 10, color: C.ts, marginBottom: 4, fontWeight: 700 }}>BCM format (main)</div>
+          <MonoHex hex={info.sec16Hex} color={C.a4} />
+          <div style={{ fontSize: 10, color: C.ts, marginTop: 8, marginBottom: 4, fontWeight: 700 }}>RFH view (reversed)</div>
+          <MonoHex hex={info.sec16RfhHex} color={C.a3} />
+          <div style={{ fontSize: 10, color: C.ts, marginTop: 8, marginBottom: 4, fontWeight: 700 }}>PCM SEC6 (first 6 bytes of RFH view)</div>
+          <MonoHex hex={info.pcmSec6Hex} color={C.a2} />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+/* ─── RFH Card ───────────────────────────────────────────────────────────── */
+function RfhCard({ info }) {
+  const allVinOk = info.vins.every(v => v.csOk);
+  return (
+    <Card style={{ marginBottom: 14 }}>
+      <SectionTitle icon="📡" text="RFHUB — MC9S12X Type 1 Gen2" sub={`${info.filename}  ·  4096 bytes`} />
+
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 8, textTransform: "uppercase", letterSpacing: .6 }}>VIN — 4 Slots (byte-reversed)</div>
+        {info.vins.map(v => (
+          <div key={v.slot} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(v.offset)}</span>
+            <MonoHex hex={v.vin} color={C.a1} />
+            <CsBadge ok={v.csOk} small />
+            <span style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
+              stored={v.csStored.toString(16).toUpperCase().padStart(2,"0")} calc={v.csCalc.toString(16).toUpperCase().padStart(2,"0")}
+            </span>
+          </div>
+        ))}
+        <Tag color={allVinOk ? C.gn : C.er}>{allVinOk ? "All CS OK" : "CS Errors Found"}</Tag>
+      </div>
+
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 8, textTransform: "uppercase", letterSpacing: .6 }}>
+          SEC16 — 2 Slots
+          {info.slotsMatch ? <Tag color={C.gn}>Slots Match ✓</Tag> : <Tag color={C.er}>Slots Differ!</Tag>}
+        </div>
+        {info.sec16Slots.map(s => (
+          <div key={s.slot} style={{ marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+              <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(s.offset)}</span>
+              <span style={{ fontSize: 10, color: C.tm }}>Slot {s.slot}</span>
+              <CsBadge ok={s.csOk} small />
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.a3, paddingLeft: 66 }}>
+              {s.hex}
+            </div>
+          </div>
+        ))}
+
+        <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 10, background: C.c2, border: `1px solid ${C.bd}` }}>
+          <div style={{ fontSize: 10, color: C.ts, marginBottom: 4, fontWeight: 700 }}>RFH format</div>
+          <MonoHex hex={info.sec16Hex} color={C.a3} />
+          <div style={{ fontSize: 10, color: C.ts, marginTop: 8, marginBottom: 4, fontWeight: 700 }}>BCM view (reversed)</div>
+          <MonoHex hex={info.sec16BcmHex} color={C.a4} />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+/* ─── PCM Card ───────────────────────────────────────────────────────────── */
+function PcmCard({ info }) {
+  return (
+    <Card style={{ marginBottom: 14 }}>
+      <SectionTitle icon="⚙️" text="PCM — GPEC2A" sub={`${info.filename}  ·  8192 bytes`} />
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>Current VIN</div>
+        <MonoHex hex={info.vin || "(none)"} color={C.a1} />
+      </div>
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>SEC6 @ 0x03C8</div>
+        <MonoHex hex={info.sec6Hex} color={C.a2} />
+      </div>
+    </Card>
+  );
+}
+
+/* ─── Comparison Table ───────────────────────────────────────────────────── */
+function CompareTable({ bcm, rfh, pcm }) {
+  const vinMatch   = bcm.vins[0].vin === rfh.vins[0].vin;
+  const sec16Match = bcm.sec16Hex === rfh.sec16BcmHex;
+  const sec6Match  = pcm ? bcm.pcmSec6Hex === pcm.sec6Hex : null;
+
+  const allOk = vinMatch && sec16Match && (pcm ? sec6Match : true);
+
+  const rowStyle = { display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderBottom: `1px solid ${C.bd}` };
+  const labelStyle = { fontSize: 11, fontWeight: 800, color: C.ts, minWidth: 80 };
+  const valStyle = { fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.tx, flex: 1, wordBreak: "break-all" };
+
+  return (
+    <Card style={{ marginBottom: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <SectionTitle icon="🔀" text="Cross-Module Comparison" sub="VIN · SEC16 · SEC6" />
+        <div style={{
+          padding: "8px 16px", borderRadius: 20, fontWeight: 900, fontSize: 13,
+          background: allOk ? C.gn + "15" : C.wn + "18",
+          color: allOk ? C.gn : C.wn,
+          border: `1.5px solid ${allOk ? C.gn + "30" : C.wn + "40"}`,
+        }}>
+          {allOk ? "✅ Ready to Apply" : "⚠ Mismatch Detected"}
+        </div>
+      </div>
+
+      <div style={{ borderRadius: 10, overflow: "hidden", border: `1px solid ${C.bd}` }}>
+        <div style={{ background: C.c2, padding: "8px 14px", display: "grid", gridTemplateColumns: "90px 1fr 1fr 80px", gap: 8, fontSize: 10, fontWeight: 800, color: C.tm, textTransform: "uppercase", letterSpacing: .5 }}>
+          <span>Check</span><span>BCM</span><span>RFH / PCM</span><span>Status</span>
+        </div>
+
+        {/* VIN row */}
+        <div style={{ padding: "10px 14px", display: "grid", gridTemplateColumns: "90px 1fr 1fr 80px", gap: 8, alignItems: "center" }}>
+          <span style={{ fontSize: 11, fontWeight: 800, color: C.ts }}>VIN</span>
+          <MonoHex hex={bcm.vins[0].vin} />
+          <MonoHex hex={rfh.vins[0].vin} />
+          <MatchBadge ok={vinMatch} />
+        </div>
+
+        {/* SEC16 row */}
+        <div style={{ padding: "10px 14px", display: "grid", gridTemplateColumns: "90px 1fr 1fr 80px", gap: 8, alignItems: "start", borderTop: `1px solid ${C.bd}` }}>
+          <span style={{ fontSize: 11, fontWeight: 800, color: C.ts, paddingTop: 2 }}>SEC16</span>
+          <div>
+            <div style={{ fontSize: 9, color: C.tm, marginBottom: 2 }}>BCM format</div>
+            <MonoHex hex={bcm.sec16Hex} color={C.a4} />
+          </div>
+          <div>
+            <div style={{ fontSize: 9, color: C.tm, marginBottom: 2 }}>RFH BCM-view (reversed)</div>
+            <MonoHex hex={rfh.sec16BcmHex} color={C.a4} />
+          </div>
+          <MatchBadge ok={sec16Match} />
+        </div>
+
+        {/* SEC6 row (if PCM loaded) */}
+        {pcm && (
+          <div style={{ padding: "10px 14px", display: "grid", gridTemplateColumns: "90px 1fr 1fr 80px", gap: 8, alignItems: "center", borderTop: `1px solid ${C.bd}` }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: C.ts }}>PCM SEC6</span>
+            <div>
+              <div style={{ fontSize: 9, color: C.tm, marginBottom: 2 }}>Derived (BCM→PCM)</div>
+              <MonoHex hex={bcm.pcmSec6Hex} color={C.a2} />
+            </div>
+            <div>
+              <div style={{ fontSize: 9, color: C.tm, marginBottom: 2 }}>PCM stored @ 0x03C8</div>
+              <MonoHex hex={pcm.sec6Hex} color={C.a2} />
+            </div>
+            <MatchBadge ok={sec6Match} />
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+}
+
+/* ─── Apply Panel ─────────────────────────────────────────────────────────── */
+function ApplyPanel({ bcm, rfh, pcm, bcmData, rfhData, pcmData }) {
+  const [applied, setApplied] = useState(null);
+
+  function doRfhToBcm() {
+    const out = applyBcmFromRfh(bcmData, rfh);
+    const name = "BCM_SYCNED_" + bcm.filename;
+    dl(out, name);
+    setApplied("rfh→bcm");
+  }
+
+  function doBcmToRfh() {
+    const out = applyRfhFromBcm(rfhData, bcm);
+    const name = "RFH_SYCNED_" + rfh.filename;
+    dl(out, name);
+    setApplied("bcm→rfh");
+  }
+
+  function doBcmToPcm() {
+    if (!pcm) return;
+    const out = applyPcmFromBcm(pcmData, bcm);
+    const name = "PCM_SYCNED_" + pcm.filename;
+    dl(out, name);
+    setApplied("bcm→pcm");
+  }
+
+  const btnRow = { display: "flex", flexWrap: "wrap", gap: 10, marginTop: 12 };
+
+  return (
+    <Card style={{ marginBottom: 14 }}>
+      <SectionTitle icon="⚡" text="Apply — Bidirectional Sync" sub="Files stay in memory — no re-upload needed" />
+      <div style={btnRow}>
+        <Btn onClick={doRfhToBcm} color={C.a3}>
+          📥 Import RFH → BCM (download twinned BCM)
+        </Btn>
+        <Btn onClick={doBcmToRfh} color={C.a4}>
+          📤 Import BCM → RFH (download twinned RFH)
+        </Btn>
+        {pcm && (
+          <Btn onClick={doBcmToPcm} color={C.a2}>
+            🔑 Import BCM → PCM SEC6 (download twinned PCM)
+          </Btn>
+        )}
+      </div>
+      {applied && (
+        <div style={{ marginTop: 12, padding: "8px 14px", borderRadius: 8, background: C.gn + "10", fontSize: 12, fontWeight: 700, color: C.gn, border: `1px solid ${C.gn}30` }}>
+          ✓ Twinned file downloaded —{" "}
+          {{
+            "rfh→bcm": "BCM updated from RFH data",
+            "bcm→rfh": "RFH updated from BCM data",
+            "bcm→pcm": "PCM SEC6 updated from BCM",
+          }[applied]}
+        </div>
+      )}
+      <div style={{ marginTop: 14, padding: "10px 14px", borderRadius: 8, background: C.c2, border: `1px solid ${C.bd}` }}>
+        <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .5 }}>Derivation Rules</div>
+        <div style={{ fontSize: 11, color: C.tm, lineHeight: 1.7, fontFamily: "'JetBrains Mono'" }}>
+          RFH_SEC16 = reverse(BCM_SEC16)<br />
+          PCM_SEC6 = RFH_SEC16[0:6] = reverse(BCM_SEC16)[0:6]
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+/* ─── Main Tab ─────────────────────────────────────────────────────────────── */
+export default function TwinTab() {
+  const [bcmFile, setBcmFile] = useState(null);
+  const [bcmData, setBcmData] = useState(null);
+  const [rfhFile, setRfhFile] = useState(null);
+  const [rfhData, setRfhData] = useState(null);
+  const [pcmFile, setPcmFile] = useState(null);
+  const [pcmData, setPcmData] = useState(null);
+
+  const [bcmInfo, setBcmInfo] = useState(null);
+  const [rfhInfo, setRfhInfo] = useState(null);
+  const [pcmInfo, setPcmInfo] = useState(null);
+
+  const [err, setErr] = useState("");
+  const [inspected, setInspected] = useState(false);
+
+  const loadFile = useCallback((f, setter, dataSetter) => {
+    const r = new FileReader();
+    r.onload = ev => {
+      dataSetter(new Uint8Array(ev.target.result));
+      setter(f);
+      setInspected(false);
+    };
+    r.readAsArrayBuffer(f);
+  }, []);
+
+  function handleInspect() {
+    setErr(""); setInspected(false);
+    const errors = [];
+
+    if (!bcmData || bcmData.length !== 65536)
+      errors.push("BCM must be a 65536-byte MPC5606B full flash dump.");
+    if (!rfhData || rfhData.length !== 4096)
+      errors.push("RFH must be a 4096-byte MC9S12X Gen2 EEPROM dump.");
+    if (pcmData && pcmData.length !== 8192)
+      errors.push("PCM must be a 8192-byte GPEC2A EEPROM dump.");
+
+    if (errors.length) { setErr(errors.join(" ")); return; }
+
+    const bcm = parseBcm(bcmData, bcmFile.name);
+    const rfh = parseRfhGen2(rfhData, rfhFile.name);
+    const pcm = pcmData ? parsePcm(pcmData, pcmFile.name) : null;
+
+    if (!bcm) { setErr("BCM parse failed — unexpected file format."); return; }
+    if (!rfh) { setErr("RFH parse failed — unexpected file format."); return; }
+
+    setBcmInfo(bcm);
+    setRfhInfo(rfh);
+    setPcmInfo(pcm);
+    setInspected(true);
+  }
+
+  function handleReset() {
+    setBcmFile(null); setBcmData(null);
+    setRfhFile(null); setRfhData(null);
+    setPcmFile(null); setPcmData(null);
+    setBcmInfo(null); setRfhInfo(null); setPcmInfo(null);
+    setErr(""); setInspected(false);
+  }
+
+  return (
+    <div style={{ maxWidth: 900, margin: "0 auto" }}>
+      {/* header */}
+      <div style={{ marginBottom: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12,
+            background: "linear-gradient(135deg,#D32F2F,#FF5252)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 22, boxShadow: "0 4px 16px rgba(211,47,47,0.3)",
+          }}>🔗</div>
+          <div>
+            <div style={{ fontFamily: "'Righteous'", fontSize: 22, color: C.tx, letterSpacing: 1 }}>TWIN</div>
+            <div style={{ fontSize: 10, color: C.ts, letterSpacing: .5 }}>BCM ↔ RFHUB ↔ PCM — 2017 Dodge Charger / Challenger</div>
+          </div>
+        </div>
+        <div style={{ fontSize: 12, color: C.ts, maxWidth: 700, lineHeight: 1.6 }}>
+          Synchronise VIN and SEC16 across BCM (MPC5606B_05B), RFHUB (MC9S12X Type 1 Gen2), and PCM (GPEC2A).
+          All operations are fully client-side. No re-upload needed after Inspect.
+        </div>
+      </div>
+
+      {/* Phase 1: load files */}
+      <Card style={{ marginBottom: 14 }}>
+        <SectionTitle icon="📂" text="1 — Load Files" sub="BCM required · RFH required · PCM optional" />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>BCM file (.bin)</div>
+            <div style={{ fontSize: 9, color: C.tm, marginBottom: 6 }}>Full flash dump — 65536 bytes</div>
+            <FileDropZone
+              label="Drop BCM .bin here"
+              onFile={f => loadFile(f, setBcmFile, setBcmData)}
+              fileName={bcmFile?.name}
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>RFH file (.bin/.eprom)</div>
+            <div style={{ fontSize: 9, color: C.tm, marginBottom: 6 }}>MC9S12X Gen2 — 4096 bytes</div>
+            <FileDropZone
+              label="Drop RFH .bin here"
+              accept=".bin,.BIN,.eprom"
+              onFile={f => loadFile(f, setRfhFile, setRfhData)}
+              fileName={rfhFile?.name}
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>PCM file — optional (.bin)</div>
+            <div style={{ fontSize: 9, color: C.tm, marginBottom: 6 }}>GPEC2A EEPROM — 8192 bytes</div>
+            <FileDropZone
+              label="Drop GPEC2A .bin here (optional)"
+              onFile={f => loadFile(f, setPcmFile, setPcmData)}
+              fileName={pcmFile?.name}
+            />
+          </div>
+        </div>
+
+        {err && (
+          <div style={{ padding: "8px 14px", borderRadius: 8, background: C.er + "10", fontSize: 12, fontWeight: 700, color: C.er, marginBottom: 10 }}>
+            ⚠ {err}
+          </div>
+        )}
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <Btn onClick={handleInspect} disabled={!bcmData || !rfhData}>
+            🔍 Inspect BCM / RFH
+          </Btn>
+          <Btn onClick={handleReset} outline>
+            Clean / Reset
+          </Btn>
+        </div>
+
+        {!inspected && (
+          <div style={{ fontSize: 10, color: C.tm, marginTop: 10 }}>
+            Tip: If you refresh the page the state will be lost. Run Inspect again.
+          </div>
+        )}
+      </Card>
+
+      {/* Phase 2: inspection results */}
+      {inspected && bcmInfo && rfhInfo && (
+        <>
+          {/* overall status */}
+          <div style={{
+            display: "flex", alignItems: "center", gap: 10, marginBottom: 16,
+            padding: "12px 20px", borderRadius: 12,
+            background: "linear-gradient(135deg,#00C85315,#00C85308)",
+            border: "1.5px solid #00C85335",
+          }}>
+            <span style={{ fontSize: 20 }}>✅</span>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 900, color: C.gn }}>Ready to apply</div>
+              <div style={{ fontSize: 10, color: C.ts }}>All three APPLY buttons are enabled. Files remain in memory.</div>
+            </div>
+          </div>
+
+          {/* BCM + RFH cards side by side */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 0 }}>
+            <BcmCard info={bcmInfo} />
+            <RfhCard info={rfhInfo} />
+          </div>
+
+          {/* PCM card (full width if present) */}
+          {pcmInfo && <PcmCard info={pcmInfo} />}
+
+          {/* Comparison table */}
+          <CompareTable bcm={bcmInfo} rfh={rfhInfo} pcm={pcmInfo} />
+
+          {/* Apply buttons */}
+          <ApplyPanel
+            bcm={bcmInfo} rfh={rfhInfo} pcm={pcmInfo}
+            bcmData={bcmData} rfhData={rfhData} pcmData={pcmData}
+          />
+        </>
+      )}
+
+      {!inspected && !bcmData && !rfhData && (
+        <div style={{ textAlign: "center", padding: 48, color: C.tm, fontSize: 13 }}>
+          <div style={{ fontSize: 36, marginBottom: 12 }}>🔗</div>
+          Load a BCM (65 KB) and RFH (4 KB) file above, then click <strong>Inspect</strong>.
+        </div>
+      )}
+    </div>
+  );
+}
