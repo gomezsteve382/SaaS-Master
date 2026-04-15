@@ -24,10 +24,12 @@ function crc16(d) {
 }
 
 /* ─── BCM (MPC5606B_05B, 65536 bytes) ────────────────────────────────────── */
-const BCM_VIN_PRIMARY    = [0x1338, 0x1358, 0x1378, 0x1398];
+const BCM_VIN_PRIMARY    = [0x5328, 0x5348, 0x5368, 0x5388];
 const BCM_VIN_SECONDARY  = [0x0698, 0x06B8, 0x06D8, 0x06F8, 0x0718, 0x0738];
 const BCM_VIN_PARTIAL    = [0x4098, 0x40B0];   // 8-byte tail + CRC16
-const BCM_SEC16_OFFSETS  = [0x00C9, 0x00F1];
+const BCM_SEC16_OFFSETS  = [0x40C9, 0x40F1];
+// BCM 0x81xx split copies (bytes 0-6 at copy+0..6, gap copy+7..10 untouched, bytes 7-15 at copy+11..19)
+const BCM_SEC16_SPLIT_COPIES = [0x81A9, 0x81C9, 0x81E9];
 
 function parseBcm(data, filename) {
   if (data.length !== 65536) return null;
@@ -57,8 +59,11 @@ function parseBcm(data, filename) {
   const sec16Copies = BCM_SEC16_OFFSETS.map((off, i) => {
     const raw = data.slice(off, off + 16);
     const hex = hxb(raw);
-    const csStored = (data[off + 16] << 8) | data[off + 17];
-    const csCalc   = crc16(Array.from(raw));
+    // CRC stored at off+19/off+20 (bytes off+16..+18 are fixed gap 8F FF FF)
+    const csStored = (data[off + 19] << 8) | data[off + 20];
+    // CRC16 CCITT over 20 bytes: [data[off-1], data[off..off+15], data[off+16], data[off+17], data[off+18]]
+    const crcInput = Array.from(data.slice(off - 1, off + 19));
+    const csCalc   = crc16(crcInput);
     const csOk     = csStored === csCalc;
     return { label: `Mirror ${i + 1}`, offset: off, raw: Array.from(raw), hex, csStored, csCalc, csOk };
   });
@@ -110,14 +115,27 @@ function applyBcmFromRfh(bcmData, rfhInfo) {
     out[off + 9] = tailCs & 0xFF;
   }
 
-  // SEC16: reverse RFH_SEC16 → BCM_SEC16, then write CRC16 at off+16/17
+  // SEC16: reverse RFH_SEC16 → BCM_SEC16
+  // Structure: off+0..+15 = 16 data bytes; off+16..+18 = fixed gap (8F FF FF, do NOT overwrite);
+  //            off+19/+20 = CRC16 CCITT of 20 bytes starting at off-1
   const rfhSec16 = rfhInfo.sec16Slots[0].raw;
   const bcmSec16 = [...rfhSec16].reverse();
-  const bcmSec16Crc = crc16(bcmSec16);
   for (const off of BCM_SEC16_OFFSETS) {
     for (let i = 0; i < 16; i++) out[off + i] = bcmSec16[i];
-    out[off + 16] = (bcmSec16Crc >> 8) & 0xFF;
-    out[off + 17] = bcmSec16Crc & 0xFF;
+    // keep gap bytes at off+16..+18 as-is (read from existing file)
+    const crcInput = Array.from(out.slice(off - 1, off + 19));
+    const bcmSec16Crc = crc16(crcInput);
+    out[off + 19] = (bcmSec16Crc >> 8) & 0xFF;
+    out[off + 20] = bcmSec16Crc & 0xFF;
+  }
+
+  // Write 3 additional 0x81xx split copies (no CRC bytes):
+  //   bytes 0-6 → copy_off + 0..6
+  //   bytes 7-15 → copy_off + 11..19
+  //   copy_off + 7..10 (fixed gap 04 04 00 14) is NOT touched
+  for (const copyOff of BCM_SEC16_SPLIT_COPIES) {
+    for (let i = 0; i <= 6; i++) out[copyOff + i] = bcmSec16[i];
+    for (let i = 7; i <= 15; i++) out[copyOff + 4 + i] = bcmSec16[i]; // +4 = offset past the 4-byte gap
   }
 
   return out;
