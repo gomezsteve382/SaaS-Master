@@ -57,11 +57,14 @@ function parseBcm(data, filename) {
   const sec16Copies = BCM_SEC16_OFFSETS.map((off, i) => {
     const raw = data.slice(off, off + 16);
     const hex = hxb(raw);
-    return { label: `Mirror ${i + 1}`, offset: off, raw: Array.from(raw), hex };
+    const csStored = (data[off + 16] << 8) | data[off + 17];
+    const csCalc   = crc16(Array.from(raw));
+    const csOk     = csStored === csCalc;
+    return { label: `Mirror ${i + 1}`, offset: off, raw: Array.from(raw), hex, csStored, csCalc, csOk };
   });
 
-  const secMatch = sec16Copies.length > 1 &&
-    sec16Copies[0].hex === sec16Copies[1].hex;
+  const secMatch    = sec16Copies.length > 1 && sec16Copies[0].hex === sec16Copies[1].hex;
+  const secAllCsOk  = sec16Copies.every(m => m.csOk);
 
   const sec16Raw    = sec16Copies[0].raw;
   const sec16Hex    = hxb(sec16Raw);
@@ -71,7 +74,7 @@ function parseBcm(data, filename) {
 
   return {
     type: "MPC5606B_05B", filename, size: data.length,
-    vins, partialVins, sec16Copies, secMatch,
+    vins, partialVins, sec16Copies, secMatch, secAllCsOk,
     sec16Hex, sec16RfhHex, pcmSec6Hex,
   };
 }
@@ -107,11 +110,14 @@ function applyBcmFromRfh(bcmData, rfhInfo) {
     out[off + 9] = tailCs & 0xFF;
   }
 
-  // SEC16: reverse RFH_SEC16 → BCM_SEC16
+  // SEC16: reverse RFH_SEC16 → BCM_SEC16, then write CRC16 at off+16/17
   const rfhSec16 = rfhInfo.sec16Slots[0].raw;
   const bcmSec16 = [...rfhSec16].reverse();
+  const bcmSec16Crc = crc16(bcmSec16);
   for (const off of BCM_SEC16_OFFSETS) {
     for (let i = 0; i < 16; i++) out[off + i] = bcmSec16[i];
+    out[off + 16] = (bcmSec16Crc >> 8) & 0xFF;
+    out[off + 17] = bcmSec16Crc & 0xFF;
   }
 
   return out;
@@ -320,9 +326,13 @@ function BcmCard({ info }) {
         <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 8, textTransform: "uppercase", letterSpacing: .6 }}>SEC16 — {info.sec16Copies.length} Mirror Copies</div>
         {info.sec16Copies.map(m => (
           <div key={m.offset} style={{ marginBottom: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2, flexWrap: "wrap" }}>
               <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(m.offset)}</span>
               <span style={{ fontSize: 10, color: C.tm }}>{m.label}</span>
+              <CsBadge ok={m.csOk} small />
+              <span style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
+                stored={m.csStored.toString(16).toUpperCase().padStart(4,"0")} calc={m.csCalc.toString(16).toUpperCase().padStart(4,"0")}
+              </span>
             </div>
             <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.a4, paddingLeft: 66 }}>
               {m.hex}
@@ -330,6 +340,7 @@ function BcmCard({ info }) {
           </div>
         ))}
         <Tag color={info.secMatch ? C.gn : C.er}>{info.secMatch ? "Mirrors Match ✓" : "Mirror Mismatch!"}</Tag>
+        {" "}<Tag color={info.secAllCsOk ? C.gn : C.er}>{info.secAllCsOk ? "All CRC OK ✓" : "CRC Errors!"}</Tag>
 
         <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 10, background: C.c2, border: `1px solid ${C.bd}` }}>
           <div style={{ fontSize: 10, color: C.ts, marginBottom: 4, fontWeight: 700 }}>BCM format (main)</div>
@@ -389,6 +400,9 @@ function RfhCard({ info }) {
           <MonoHex hex={info.sec16Hex} color={C.a3} />
           <div style={{ fontSize: 10, color: C.ts, marginTop: 8, marginBottom: 4, fontWeight: 700 }}>BCM view (reversed)</div>
           <MonoHex hex={info.sec16BcmHex} color={C.a4} />
+          <div style={{ fontSize: 10, color: C.tm, marginTop: 6, fontStyle: "italic" }}>
+            Rule: reverse bytes of the entire block.
+          </div>
         </div>
       </div>
     </Card>
