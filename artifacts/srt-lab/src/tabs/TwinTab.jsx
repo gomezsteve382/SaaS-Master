@@ -473,8 +473,10 @@ function PairedBanner() {
       position: "relative", overflow: "hidden",
       background: "linear-gradient(135deg, #001a0a 0%, #003318 50%, #001a0a 100%)",
       borderRadius: 16, padding: "20px 24px", marginBottom: 14,
+      minHeight: 160,
       border: "2px solid #00C85350",
       boxShadow: "0 0 30px #00C85320, inset 0 0 60px #00C85308",
+      display: "flex", alignItems: "center",
     }}>
       {/* Road lines animation */}
       <div style={{
@@ -495,21 +497,24 @@ function PairedBanner() {
       {/* Charger photo */}
       <div style={{
         position: "absolute", right: 0, top: 0, bottom: 0,
-        display: "flex", alignItems: "center",
+        width: 380,
+        overflow: "hidden",
         animation: "chargerBounce 0.6s ease-in-out infinite alternate",
         filter: "drop-shadow(0 0 18px #00C85370)",
+        borderRadius: "0 14px 14px 0",
+        maskImage: "linear-gradient(to right, transparent 0%, black 22%)",
+        WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 22%)",
       }}>
         <img
           src={chargerImg}
           alt="Dodge Charger Hellcat"
           style={{
-            height: "100%",
+            position: "absolute",
+            top: "50%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            height: "180%",
             width: "auto",
-            objectFit: "cover",
-            objectPosition: "left center",
-            borderRadius: "0 14px 14px 0",
-            maskImage: "linear-gradient(to right, transparent 0%, black 18%)",
-            WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 18%)",
+            minWidth: "100%",
           }}
         />
       </div>
