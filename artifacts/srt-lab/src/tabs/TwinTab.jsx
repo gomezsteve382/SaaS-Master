@@ -496,25 +496,23 @@ function PairedBanner() {
       ))}
       {/* Charger photo */}
       <div style={{
-        position: "absolute", right: 0, top: 0, bottom: 0,
-        width: 380,
+        position: "absolute", right: 0, top: "50%",
+        width: 400, height: 170,
         overflow: "hidden",
         animation: "chargerBounce 0.6s ease-in-out infinite alternate",
         filter: "drop-shadow(0 0 18px #00C85370)",
         borderRadius: "0 14px 14px 0",
-        maskImage: "linear-gradient(to right, transparent 0%, black 22%)",
-        WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 22%)",
+        maskImage: "linear-gradient(to right, transparent 0%, black 20%)",
+        WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 20%)",
       }}>
         <img
           src={chargerImg}
           alt="Dodge Charger Hellcat"
           style={{
-            position: "absolute",
-            top: "50%", left: "50%",
-            transform: "translate(-50%, -50%)",
-            height: "180%",
-            width: "auto",
-            minWidth: "100%",
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center 45%",
           }}
         />
       </div>
