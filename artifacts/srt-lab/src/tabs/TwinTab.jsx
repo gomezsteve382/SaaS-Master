@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Tag, Btn } from "../lib/ui.jsx";
-import { rfhSec16Cs, rfhGen2DetectMagic } from "../lib/crc.js";
+import { rfhSec16Cs, rfhGen2DetectMagic, RFH_GEN2_VIN_CS_KNOWN_MAGICS } from "../lib/crc.js";
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
@@ -152,6 +152,7 @@ function rfhVinCs(raw17) {
 
 function parseRfhGen2(data, filename) {
   if (data.length !== 4096) return null;
+  _rfhVinMagic = 0xDB; // reset to default before each parse to prevent stale carry-over
 
   const vins = RFH_VIN_OFFSETS.map((off, i) => {
     const rawStored = data.slice(off, off + 17);
@@ -192,6 +193,7 @@ function parseRfhGen2(data, filename) {
   return {
     type: "MC9S12X", filename, size: data.length,
     vins, sec16Slots, slotsMatch, sec16Hex, sec16BcmHex,
+    vinMagic: _rfhVinMagic,
   };
 }
 
@@ -383,6 +385,29 @@ function BcmCard({ info }) {
   );
 }
 
+/* ─── RFH VIN Variant Badge ──────────────────────────────────────────────── */
+const RFH_MAGIC_LABELS = { 0xDB: "Redeye (0xDB)", 0x87: "Legacy (0x87)" };
+function VinVariantBadge({ magic }) {
+  const known  = RFH_GEN2_VIN_CS_KNOWN_MAGICS.includes(magic);
+  const label  = known
+    ? RFH_MAGIC_LABELS[magic] || `0x${magic.toString(16).toUpperCase().padStart(2,"0")}`
+    : `0x${magic.toString(16).toUpperCase().padStart(2,"0")}`;
+  const bg     = known ? C.a3 + "18" : C.wn + "20";
+  const border = known ? C.a3 + "35" : C.wn + "50";
+  const color  = known ? C.a3 : C.wn;
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 4,
+      padding: "2px 9px", borderRadius: 20, fontSize: 10, fontWeight: 800,
+      background: bg, color, border: `1px solid ${border}`, marginLeft: 8,
+    }}>
+      {!known && <span style={{ fontSize: 11 }}>⚠</span>}
+      {known ? "✓" : ""} {label}
+      {!known && <span style={{ fontSize: 9, fontWeight: 600, opacity: .85 }}> — unknown variant</span>}
+    </span>
+  );
+}
+
 /* ─── RFH Card ───────────────────────────────────────────────────────────── */
 function RfhCard({ info }) {
   const allVinOk = info.vins.every(v => v.csOk);
@@ -391,7 +416,10 @@ function RfhCard({ info }) {
       <SectionTitle icon="📡" text="RFHUB — MC9S12X Type 1 Gen2" sub={`${info.filename}  ·  4096 bytes`} />
 
       <div style={{ marginBottom: 14 }}>
-        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 8, textTransform: "uppercase", letterSpacing: .6 }}>VIN — 4 Slots (byte-reversed)</div>
+        <div style={{ display: "flex", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 4 }}>
+          <span style={{ fontSize: 11, fontWeight: 800, color: C.ts, textTransform: "uppercase", letterSpacing: .6 }}>VIN — 4 Slots (byte-reversed)</span>
+          {info.vinMagic != null && <VinVariantBadge magic={info.vinMagic} />}
+        </div>
         {info.vins.map(v => (
           <div key={v.slot} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
             <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(v.offset)}</span>
