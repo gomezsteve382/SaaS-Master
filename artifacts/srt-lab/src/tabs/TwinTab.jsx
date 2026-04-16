@@ -482,6 +482,137 @@ function PcmCard({ info }) {
   );
 }
 
+/* ─── Status Banners ─────────────────────────────────────────────────────── */
+function PairedBanner() {
+  return (
+    <div style={{
+      position: "relative", overflow: "hidden",
+      background: "linear-gradient(135deg, #001a0a 0%, #003318 50%, #001a0a 100%)",
+      borderRadius: 16, padding: "20px 24px", marginBottom: 14,
+      border: "2px solid #00C85350",
+      boxShadow: "0 0 30px #00C85320, inset 0 0 60px #00C85308",
+    }}>
+      {/* Road lines animation */}
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0, height: 3,
+        background: "repeating-linear-gradient(90deg, #FFB30080 0px, #FFB30080 30px, transparent 30px, transparent 60px)",
+        animation: "roadScroll 0.8s linear infinite",
+      }} />
+      {/* Speed lines */}
+      {[15, 35, 55, 70].map((top, i) => (
+        <div key={i} style={{
+          position: "absolute", top: `${top}%`, right: 0,
+          width: 60 + i * 20, height: 1,
+          background: `linear-gradient(90deg, transparent, #00C853${30 + i * 10})`,
+          animation: `speedLine ${0.4 + i * 0.15}s linear infinite`,
+          opacity: 0.6,
+        }} />
+      ))}
+      {/* Charger SVG */}
+      <div style={{
+        position: "absolute", right: 30, top: "50%", transform: "translateY(-50%)",
+        animation: "chargerBounce 0.6s ease-in-out infinite alternate",
+        filter: "drop-shadow(0 0 12px #00C85360)",
+      }}>
+        <svg width="140" height="50" viewBox="0 0 140 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 32 L25 18 L50 12 L95 10 L120 14 L130 22 L132 30 L128 34 L15 34 Z" fill="#1a1a1a" stroke="#00C853" strokeWidth="1.5"/>
+          <path d="M52 13 L62 10 L78 10 L82 13" fill="#00C85330" stroke="#00C85380" strokeWidth="1"/>
+          <rect x="126" y="20" width="8" height="5" rx="1" fill="#FFB300" opacity="0.9"/>
+          <rect x="126" y="26" width="8" height="3" rx="1" fill="#FF1744" opacity="0.7"/>
+          <rect x="90" y="11" width="20" height="3" rx="1" fill="#00C85340" stroke="#00C85360" strokeWidth="0.5"/>
+          <circle cx="108" cy="35" r="7" fill="#111" stroke="#444" strokeWidth="2"/>
+          <circle cx="108" cy="35" r="3" fill="#333" stroke="#555" strokeWidth="1"/>
+          <circle cx="35" cy="35" r="7" fill="#111" stroke="#444" strokeWidth="2"/>
+          <circle cx="35" cy="35" r="3" fill="#333" stroke="#555" strokeWidth="1"/>
+          <circle cx="8" cy="33" r="4" fill="#ffffff10" style={{animation: "smoke 0.5s ease-out infinite"}}/>
+          <circle cx="3" cy="31" r="3" fill="#ffffff08" style={{animation: "smoke 0.7s ease-out infinite"}}/>
+          <line x1="45" y1="12" x2="45" y2="33" stroke="#00C85340" strokeWidth="2"/>
+          <line x1="49" y1="12" x2="49" y2="33" stroke="#00C85340" strokeWidth="2"/>
+        </svg>
+      </div>
+      {/* Text */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+          <span style={{ fontSize: 28, filter: "drop-shadow(0 0 8px #00C85380)" }}>🔗</span>
+          <span style={{
+            fontSize: 22, fontWeight: 900, color: "#00C853",
+            textShadow: "0 0 20px #00C85340",
+            letterSpacing: 2, textTransform: "uppercase",
+          }}>PAIRED</span>
+        </div>
+        <div style={{ fontSize: 12, color: "#00C85390", fontWeight: 600 }}>
+          VIN and SEC16 match across all modules — ready to flash
+        </div>
+      </div>
+      <style>{`
+        @keyframes roadScroll {
+          from { background-position-x: 0; }
+          to { background-position-x: -60px; }
+        }
+        @keyframes speedLine {
+          from { transform: translateX(0); opacity: 0.6; }
+          to { transform: translateX(-200px); opacity: 0; }
+        }
+        @keyframes chargerBounce {
+          from { transform: translateY(-50%) translateX(0); }
+          to { transform: translateY(-52%) translateX(-3px); }
+        }
+        @keyframes smoke {
+          from { transform: translateX(0) scale(1); opacity: 0.15; }
+          to { transform: translateX(-20px) scale(2); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function MismatchBanner() {
+  return (
+    <div style={{
+      position: "relative", overflow: "hidden",
+      background: "linear-gradient(135deg, #1a0005 0%, #330011 50%, #1a0005 100%)",
+      borderRadius: 16, padding: "20px 24px", marginBottom: 14,
+      border: "2px solid #FF174450",
+      boxShadow: "0 0 30px #FF174420",
+      animation: "mismatchPulse 2s ease-in-out infinite",
+    }}>
+      {/* Warning stripes */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: 4,
+        background: "repeating-linear-gradient(90deg, #FF1744 0px, #FF1744 20px, #FFB300 20px, #FFB300 40px)",
+      }} />
+      {/* Broken chain icon */}
+      <div style={{
+        position: "absolute", right: 30, top: "50%", transform: "translateY(-50%)",
+        fontSize: 48, opacity: 0.3, filter: "drop-shadow(0 0 10px #FF174440)",
+      }}>🔓</div>
+      {/* Text */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+          <span style={{ fontSize: 28 }}>⛓️‍💥</span>
+          <span style={{
+            fontSize: 22, fontWeight: 900, color: "#FF1744",
+            textShadow: "0 0 20px #FF174440",
+            letterSpacing: 2, textTransform: "uppercase",
+          }}>MISMATCH</span>
+        </div>
+        <div style={{ fontSize: 12, color: "#FF8A80", fontWeight: 600 }}>
+          Modules are NOT paired — VIN or SEC16 differ between BCM and RFHUB
+        </div>
+        <div style={{ fontSize: 11, color: "#FF174480", fontWeight: 500, marginTop: 4 }}>
+          Apply sync to fix, or load matching files
+        </div>
+      </div>
+      <style>{`
+        @keyframes mismatchPulse {
+          0%, 100% { box-shadow: 0 0 30px #FF174420; }
+          50% { box-shadow: 0 0 50px #FF174435; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 /* ─── Comparison Table ───────────────────────────────────────────────────── */
 function CompareTable({ bcm, rfh, pcm }) {
   const vinMatch   = bcm.vins[0].vin === rfh.vins[0].vin;
@@ -496,16 +627,9 @@ function CompareTable({ bcm, rfh, pcm }) {
 
   return (
     <Card style={{ marginBottom: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+      {allOk ? <PairedBanner /> : <MismatchBanner />}
+      <div style={{ marginBottom: 16 }}>
         <SectionTitle icon="🔀" text="Cross-Module Comparison" sub="VIN · SEC16 · SEC6" />
-        <div style={{
-          padding: "8px 16px", borderRadius: 20, fontWeight: 900, fontSize: 13,
-          background: allOk ? C.gn + "15" : C.wn + "18",
-          color: allOk ? C.gn : C.wn,
-          border: `1.5px solid ${allOk ? C.gn + "30" : C.wn + "40"}`,
-        }}>
-          {allOk ? "✅ Ready to Apply" : "⚠ Mismatch Detected"}
-        </div>
       </div>
 
       <div style={{ borderRadius: 10, overflow: "hidden", border: `1px solid ${C.bd}` }}>
@@ -767,28 +891,7 @@ export default function TwinTab() {
             const sec16Match = bcmInfo.sec16Hex === rfhInfo.sec16BcmHex;
             const sec6Match  = pcmInfo ? bcmInfo.pcmSec6Hex === pcmInfo.sec6Hex : true;
             const allOk = vinMatch && sec16Match && sec6Match;
-            return (
-              <div style={{
-                display: "flex", alignItems: "center", gap: 10, marginBottom: 16,
-                padding: "12px 20px", borderRadius: 12,
-                background: allOk
-                  ? "linear-gradient(135deg,#00C85315,#00C85308)"
-                  : "linear-gradient(135deg,#FFB30018,#FFB30008)",
-                border: `1.5px solid ${allOk ? "#00C85335" : "#FFB30040"}`,
-              }}>
-                <span style={{ fontSize: 20 }}>{allOk ? "✅" : "⚠️"}</span>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: allOk ? C.gn : C.wn }}>
-                    {allOk ? "Ready to apply" : "Mismatch detected — apply will sync the differing data"}
-                  </div>
-                  <div style={{ fontSize: 10, color: C.ts }}>
-                    {allOk
-                      ? "VIN and SEC16 match across modules. APPLY buttons are enabled."
-                      : `Issues: ${[!vinMatch && "VIN", !sec16Match && "SEC16", pcmInfo && !sec6Match && "SEC6"].filter(Boolean).join(", ")} differ between modules.`}
-                  </div>
-                </div>
-              </div>
-            );
+            return allOk ? <PairedBanner /> : <MismatchBanner />;
           })()}
 
           {/* BCM + RFH cards side by side */}
