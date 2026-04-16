@@ -508,20 +508,101 @@ function PairedBanner() {
         animation: "chargerBounce 0.6s ease-in-out infinite alternate",
         filter: "drop-shadow(0 0 12px #00C85360)",
       }}>
-        <svg width="140" height="50" viewBox="0 0 140 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 32 L25 18 L50 12 L95 10 L120 14 L130 22 L132 30 L128 34 L15 34 Z" fill="#1a1a1a" stroke="#00C853" strokeWidth="1.5"/>
-          <path d="M52 13 L62 10 L78 10 L82 13" fill="#00C85330" stroke="#00C85380" strokeWidth="1"/>
-          <rect x="126" y="20" width="8" height="5" rx="1" fill="#FFB300" opacity="0.9"/>
-          <rect x="126" y="26" width="8" height="3" rx="1" fill="#FF1744" opacity="0.7"/>
-          <rect x="90" y="11" width="20" height="3" rx="1" fill="#00C85340" stroke="#00C85360" strokeWidth="0.5"/>
-          <circle cx="108" cy="35" r="7" fill="#111" stroke="#444" strokeWidth="2"/>
-          <circle cx="108" cy="35" r="3" fill="#333" stroke="#555" strokeWidth="1"/>
-          <circle cx="35" cy="35" r="7" fill="#111" stroke="#444" strokeWidth="2"/>
-          <circle cx="35" cy="35" r="3" fill="#333" stroke="#555" strokeWidth="1"/>
-          <circle cx="8" cy="33" r="4" fill="#ffffff10" style={{animation: "smoke 0.5s ease-out infinite"}}/>
-          <circle cx="3" cy="31" r="3" fill="#ffffff08" style={{animation: "smoke 0.7s ease-out infinite"}}/>
-          <line x1="45" y1="12" x2="45" y2="33" stroke="#00C85340" strokeWidth="2"/>
-          <line x1="49" y1="12" x2="49" y2="33" stroke="#00C85340" strokeWidth="2"/>
+        <svg width="210" height="72" viewBox="0 0 220 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* ── Main body silhouette with wheel arch cutouts ── */}
+          <path d="
+            M 12 62
+            L 13 44 L 20 40 L 28 37 L 33 34
+            L 36 31 L 38 29 L 41 31
+            L 57 19 L 62 17
+            L 132 17 L 150 30
+            L 192 30 L 196 34 L 198 39 L 199 52 L 197 62
+            L 189 62 Q 189 48 168 48 Q 147 48 147 62
+            L 67 62 Q 67 48 50 48 Q 33 48 33 62 Z
+          " fill="#1a1a1a" stroke="#00C853" strokeWidth="1.5"/>
+
+          {/* ── Supercharger hood dome ── */}
+          <path d="M 152 30 L 157 25 L 188 25 L 192 30 Z" fill="#252525" stroke="#00C85345" strokeWidth="1"/>
+          {/* Hood scoop slots */}
+          <rect x="162" y="25" width="10" height="2" rx="0.5" fill="#0a0a0a" opacity="0.8"/>
+          <rect x="175" y="25" width="8" height="2" rx="0.5" fill="#0a0a0a" opacity="0.8"/>
+
+          {/* ── Window glass ── */}
+          <path d="M 62 18 L 132 18 L 148 31 L 57 33 L 57 20 Z" fill="#00C85322" stroke="#00C85350" strokeWidth="0.8"/>
+          {/* B-pillar */}
+          <line x1="106" y1="18" x2="106" y2="33" stroke="#1a1a1a" strokeWidth="3.5"/>
+          {/* Window chrome trim */}
+          <path d="M 62 18 L 132 18 L 148 31" stroke="#00C85345" strokeWidth="0.6" fill="none"/>
+
+          {/* ── Decklid spoiler lip ── */}
+          <line x1="35" y1="29" x2="27" y2="29" stroke="#00C853" strokeWidth="1.8" strokeLinecap="round"/>
+
+          {/* ── Body character line (muscular crease) ── */}
+          <path d="M 14 46 L 195 43" stroke="#00C85320" strokeWidth="1.2"/>
+
+          {/* ── Taillights — tall stacked (rear left) ── */}
+          <rect x="11" y="44" width="4" height="15" rx="1" fill="#FF1744" opacity="0.9"/>
+          <line x1="11" y1="48" x2="15" y2="48" stroke="#FF000050" strokeWidth="0.6"/>
+          <line x1="11" y1="51" x2="15" y2="51" stroke="#FF000050" strokeWidth="0.6"/>
+          <line x1="11" y1="54" x2="15" y2="54" stroke="#FF000050" strokeWidth="0.6"/>
+          <line x1="11" y1="57" x2="15" y2="57" stroke="#FF000050" strokeWidth="0.6"/>
+          {/* Reverse light */}
+          <rect x="11" y="59" width="4" height="2" rx="0.5" fill="#fff" opacity="0.3"/>
+
+          {/* ── Exhaust tips ── */}
+          <rect x="10" y="56" width="5" height="2.5" rx="0.8" fill="#2a2a2a" stroke="#555" strokeWidth="0.5"/>
+          <rect x="10" y="59" width="5" height="2.5" rx="0.8" fill="#2a2a2a" stroke="#555" strokeWidth="0.5"/>
+
+          {/* ── Exhaust smoke ── */}
+          <circle cx="5" cy="57" r="4" fill="#ffffff10" style={{animation:"smoke 0.5s ease-out infinite"}}/>
+          <circle cx="2" cy="54" r="3" fill="#ffffff08" style={{animation:"smoke 0.7s ease-out infinite"}}/>
+          <circle cx="7" cy="52" r="2.5" fill="#ffffff06" style={{animation:"smoke 0.9s ease-out infinite"}}/>
+
+          {/* ── Headlights — stacked (front right) ── */}
+          {/* DRL strip */}
+          <rect x="193" y="36" width="5" height="3" rx="1" fill="#FFB300" opacity="0.95"/>
+          {/* Main lamp block */}
+          <rect x="193" y="40" width="5" height="9" rx="1" fill="#FFB30070"/>
+          {/* Projector lens */}
+          <circle cx="196" cy="45" r="2.5" fill="#FFB300" opacity="0.55"/>
+          {/* Inner chrome ring */}
+          <circle cx="196" cy="45" r="1.2" fill="none" stroke="#FFB300" strokeWidth="0.6" opacity="0.8"/>
+
+          {/* ── Front fascia — split grille (Charger signature) ── */}
+          {/* Upper grille bar / mesh */}
+          <rect x="194" y="50" width="5" height="4" rx="0.5" fill="#0d0d0d" stroke="#00C85330" strokeWidth="0.6"/>
+          <line x1="194" y1="52" x2="199" y2="52" stroke="#00C85325" strokeWidth="0.5"/>
+          {/* Lower main intake */}
+          <rect x="194" y="55" width="5" height="7" rx="0.5" fill="#080808" stroke="#00C85330" strokeWidth="0.6"/>
+          <line x1="194" y1="57" x2="199" y2="57" stroke="#00C85320" strokeWidth="0.5"/>
+          <line x1="194" y1="59" x2="199" y2="59" stroke="#00C85320" strokeWidth="0.5"/>
+          {/* Splitter */}
+          <rect x="192" y="62" width="10" height="2" rx="0.5" fill="#1a1a1a" stroke="#333" strokeWidth="0.5"/>
+
+          {/* ── Rear wheel — 5 spoke ── */}
+          <circle cx="50" cy="61" r="13" fill="#111" stroke="#444" strokeWidth="2"/>
+          <circle cx="50" cy="61" r="5" fill="#1e1e1e" stroke="#555" strokeWidth="1.5"/>
+          <line x1="50" y1="61" x2="50" y2="48" stroke="#666" strokeWidth="1.5"/>
+          <line x1="50" y1="61" x2="62" y2="57" stroke="#666" strokeWidth="1.5"/>
+          <line x1="50" y1="61" x2="58" y2="72" stroke="#666" strokeWidth="1.5"/>
+          <line x1="50" y1="61" x2="42" y2="72" stroke="#666" strokeWidth="1.5"/>
+          <line x1="50" y1="61" x2="38" y2="57" stroke="#666" strokeWidth="1.5"/>
+          {/* Rim highlight */}
+          <circle cx="50" cy="61" r="13" fill="none" stroke="#00C85318" strokeWidth="1"/>
+
+          {/* ── Front wheel — 5 spoke ── */}
+          <circle cx="168" cy="61" r="13" fill="#111" stroke="#444" strokeWidth="2"/>
+          <circle cx="168" cy="61" r="5" fill="#1e1e1e" stroke="#555" strokeWidth="1.5"/>
+          <line x1="168" y1="61" x2="168" y2="48" stroke="#666" strokeWidth="1.5"/>
+          <line x1="168" y1="61" x2="180" y2="57" stroke="#666" strokeWidth="1.5"/>
+          <line x1="168" y1="61" x2="176" y2="72" stroke="#666" strokeWidth="1.5"/>
+          <line x1="168" y1="61" x2="160" y2="72" stroke="#666" strokeWidth="1.5"/>
+          <line x1="168" y1="61" x2="156" y2="57" stroke="#666" strokeWidth="1.5"/>
+          {/* Rim highlight */}
+          <circle cx="168" cy="61" r="13" fill="none" stroke="#00C85318" strokeWidth="1"/>
+
+          {/* ── Ground shadow ── */}
+          <ellipse cx="109" cy="74" rx="98" ry="2.5" fill="#00000035"/>
         </svg>
       </div>
       {/* Text */}
