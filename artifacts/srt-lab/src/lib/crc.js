@@ -7,13 +7,10 @@ function crc8rf(d){let c=0x54;for(let x=0;x<d.length;x++){c^=d[x];for(let j=0;j<
 // AUTO-DETECT: pass storedCs from any valid slot to derive the correct magic automatically.
 const RFH_GEN2_VIN_CS_KNOWN_MAGICS = [0xDB, 0x87];
 
-function rfhGen2VinCs(raw17, storedCs) {
-  const xorAll = Array.from(raw17).reduce((a, b) => a ^ b, 0);
-  if (storedCs !== undefined) {
-    const magic = storedCs ^ xorAll;
-    return xorAll ^ magic; // === storedCs
-  }
-  return xorAll ^ 0xDB;
+// rfhGen2VinCs(raw17, magic): compute VIN CS; magic defaults to 0xDB (2020+ Redeye).
+// Callers should auto-detect magic via rfhGen2DetectMagic() before validating all slots.
+function rfhGen2VinCs(raw17, magic = 0xDB) {
+  return Array.from(raw17).reduce((a, b) => a ^ b, 0) ^ magic;
 }
 
 // Derive the magic constant from a file's first VIN slot for use in writes

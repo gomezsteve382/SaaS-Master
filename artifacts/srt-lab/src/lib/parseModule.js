@@ -1,4 +1,4 @@
-import {crc16,crc8rf,rfhGen2VinCs,rfhSec16Cs} from './crc.js';
+import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs} from './crc.js';
 import {TC,TL,SKIM_VALUES,IMMO_REC,IMMO_KC,IMMO_BLOCK,SKIM_OFF} from './constants.js';
 
 const fO=n=>"0x"+n.toString(16).toUpperCase().padStart(4,"0");
@@ -88,7 +88,10 @@ function parseModule(data,filename){
     const rfhIsGen2=sz===4096;
     if(rfhIsGen2){
       info.vins=[];
-      for(const o of knownOffsets){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);if(!/^[1-9A-HJ-NPR-Z]/.test(s))continue;const sc=o+17<sz?data[o+17]:0,cc=rfhGen2VinCs(st);info.vins.push({offset:o,vin:s,mirrored:true,sc,cc,crcOk:sc===cc});}
+      // auto-detect VIN CS magic (0xDB=2020+ Redeye, 0x87=older Gen2)
+      let rfhMagic=0xDB;
+      for(const _o of knownOffsets){const _st=data.slice(_o,_o+17);const _sc=_o+17<sz?data[_o+17]:0;if(!_st.every(b=>b===0xFF||b===0)&&_sc!==0x00&&_sc!==0xFF){rfhMagic=rfhGen2DetectMagic(_st,_sc);break;}}
+      for(const o of knownOffsets){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);if(!/^[1-9A-HJ-NPR-Z]/.test(s))continue;const sc=o+17<sz?data[o+17]:0,cc=rfhGen2VinCs(st,rfhMagic);info.vins.push({offset:o,vin:s,mirrored:true,sc,cc,crcOk:sc===cc});}
     }else{
       const knownVins=knownOffsets.map(o=>{const v=extractVIN(data,o);if(v)return{offset:o,vin:v,mirrored:false,sc:o+17<sz?data[o+17]:0,cc:crc8rf(data.slice(o,o+17)),crcOk:o+17<sz&&data[o+17]===crc8rf(data.slice(o,o+17))};return null;}).filter(v=>v);
       if(knownVins.length>0)info.vins=knownVins;
