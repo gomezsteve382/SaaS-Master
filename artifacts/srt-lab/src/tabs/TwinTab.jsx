@@ -644,7 +644,7 @@ function MismatchBanner() {
 }
 
 /* ─── Comparison Table ───────────────────────────────────────────────────── */
-function CompareTable({ bcm, rfh, pcm }) {
+function CompareTable({ bcm, rfh, pcm, previewPaired }) {
   const vinMatch   = bcm.vins[0].vin === rfh.vins[0].vin;
   const sec16Match = bcm.sec16Hex === rfh.sec16BcmHex;
   const sec6Match  = pcm ? bcm.pcmSec6Hex === pcm.sec6Hex : null;
@@ -657,7 +657,7 @@ function CompareTable({ bcm, rfh, pcm }) {
 
   return (
     <Card style={{ marginBottom: 14 }}>
-      {allOk ? <PairedBanner /> : <MismatchBanner />}
+      {(previewPaired || allOk) ? <PairedBanner /> : <MismatchBanner />}
       <div style={{ marginBottom: 16 }}>
         <SectionTitle icon="🔀" text="Cross-Module Comparison" sub="VIN · SEC16 · SEC6" />
       </div>
@@ -789,6 +789,7 @@ export default function TwinTab() {
 
   const [err, setErr] = useState("");
   const [inspected, setInspected] = useState(false);
+  const [previewPaired, setPreviewPaired] = useState(false);
 
   const loadFile = useCallback((f, setter, dataSetter) => {
     const r = new FileReader();
@@ -838,23 +839,43 @@ export default function TwinTab() {
     <div style={{ maxWidth: 900, margin: "0 auto" }}>
       {/* header */}
       <div style={{ marginBottom: 22 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12,
-            background: "linear-gradient(135deg,#D32F2F,#FF5252)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 22, boxShadow: "0 4px 16px rgba(211,47,47,0.3)",
-          }}>🔗</div>
-          <div>
-            <div style={{ fontFamily: "'Righteous'", fontSize: 22, color: C.tx, letterSpacing: 1 }}>TWIN</div>
-            <div style={{ fontSize: 10, color: C.ts, letterSpacing: .5 }}>BCM ↔ RFHUB ↔ PCM — 2017 Dodge Charger / Challenger</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6, justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: 12,
+              background: "linear-gradient(135deg,#D32F2F,#FF5252)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 22, boxShadow: "0 4px 16px rgba(211,47,47,0.3)",
+            }}>🔗</div>
+            <div>
+              <div style={{ fontFamily: "'Righteous'", fontSize: 22, color: C.tx, letterSpacing: 1 }}>TWIN</div>
+              <div style={{ fontSize: 10, color: C.ts, letterSpacing: .5 }}>BCM ↔ RFHUB ↔ PCM — 2017 Dodge Charger / Challenger</div>
+            </div>
           </div>
+          <button
+            onClick={() => setPreviewPaired(p => !p)}
+            title={previewPaired ? "Exit preview — return to file-based status" : "Preview the PAIRED banner without loading files"}
+            style={{
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "5px 12px", borderRadius: 8, cursor: "pointer",
+              fontSize: 11, fontWeight: 700, letterSpacing: .4,
+              border: `1.5px solid ${previewPaired ? "#00C853" : C.bd}`,
+              background: previewPaired ? "#00C85318" : "transparent",
+              color: previewPaired ? "#00C853" : C.ts,
+              transition: "all 0.2s",
+            }}
+          >
+            {previewPaired ? "✕ Exit Preview" : "👁 Preview PAIRED"}
+          </button>
         </div>
         <div style={{ fontSize: 12, color: C.ts, maxWidth: 700, lineHeight: 1.6 }}>
           Synchronise VIN and SEC16 across BCM (MPC5606B_05B), RFHUB (MC9S12X Type 1 Gen2), and PCM (GPEC2A).
           All operations are fully client-side. No re-upload needed after Inspect.
         </div>
       </div>
+
+      {/* Preview banner — shown even without files when toggle is on */}
+      {previewPaired && !inspected && <PairedBanner />}
 
       {/* Phase 1: load files */}
       <Card style={{ marginBottom: 14 }}>
@@ -921,7 +942,7 @@ export default function TwinTab() {
             const sec16Match = bcmInfo.sec16Hex === rfhInfo.sec16BcmHex;
             const sec6Match  = pcmInfo ? bcmInfo.pcmSec6Hex === pcmInfo.sec6Hex : true;
             const allOk = vinMatch && sec16Match && sec6Match;
-            return allOk ? <PairedBanner /> : <MismatchBanner />;
+            return (previewPaired || allOk) ? <PairedBanner /> : <MismatchBanner />;
           })()}
 
           {/* BCM + RFH cards side by side */}
@@ -934,7 +955,7 @@ export default function TwinTab() {
           {pcmInfo && <PcmCard info={pcmInfo} />}
 
           {/* Comparison table */}
-          <CompareTable bcm={bcmInfo} rfh={rfhInfo} pcm={pcmInfo} />
+          <CompareTable bcm={bcmInfo} rfh={rfhInfo} pcm={pcmInfo} previewPaired={previewPaired} />
 
           {/* Apply buttons */}
           <ApplyPanel
