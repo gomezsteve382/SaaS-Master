@@ -832,7 +832,7 @@ export default function TwinTab() {
     setRfhFile(null); setRfhData(null);
     setPcmFile(null); setPcmData(null);
     setBcmInfo(null); setRfhInfo(null); setPcmInfo(null);
-    setErr(""); setInspected(false);
+    setErr(""); setInspected(false); setPreviewPaired(false);
   }
 
   return (
