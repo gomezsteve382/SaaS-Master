@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Tag, Btn } from "../lib/ui.jsx";
-import { rfhSec16Cs, rfhGen2DetectMagic, rfhGen2VinCs, RFH_GEN2_VIN_CS_KNOWN_MAGICS } from "../lib/crc.js";
+import { crc16, rfhSec16Cs, rfhGen2DetectMagic, rfhGen2VinCs, RFH_GEN2_VIN_CS_KNOWN_MAGICS } from "../lib/crc.js";
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
@@ -11,17 +11,6 @@ const dl  = (data, name) => {
   a.href = URL.createObjectURL(new Blob([data], {type:"application/octet-stream"}));
   a.download = name; a.click(); URL.revokeObjectURL(a.href);
 };
-
-/* ─── checksums ───────────────────────────────────────────────────────────── */
-function crc16(d) {
-  let c = 0xFFFF;
-  for (let x = 0; x < d.length; x++) {
-    c ^= d[x] << 8;
-    for (let j = 0; j < 8; j++) c = c & 0x8000 ? (c << 1) ^ 0x1021 : c << 1;
-    c &= 0xFFFF;
-  }
-  return c;
-}
 
 /* ─── BCM (MPC5606B_05B, 65536 bytes) ────────────────────────────────────── */
 const BCM_VIN_PRIMARY    = [0x5328, 0x5348, 0x5368, 0x5388];
