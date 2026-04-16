@@ -597,7 +597,7 @@ function MismatchBanner() {
           }}>MISMATCH</span>
         </div>
         <div style={{ fontSize: 12, color: "#FF8A80", fontWeight: 600 }}>
-          Modules are NOT paired — VIN or SEC16 differ between BCM and RFHUB
+          Modules are NOT paired — VIN, SEC16, or SEC6 differ between loaded modules
         </div>
         <div style={{ fontSize: 11, color: "#FF174480", fontWeight: 500, marginTop: 4 }}>
           Apply sync to fix, or load matching files
