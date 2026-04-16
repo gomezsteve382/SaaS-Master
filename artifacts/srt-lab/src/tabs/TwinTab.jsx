@@ -497,7 +497,7 @@ function PairedBanner() {
       {/* Charger photo */}
       <div style={{
         position: "absolute", right: 0, top: "50%",
-        width: 400, height: 170,
+        width: "min(400px, 45%)", height: 170,
         overflow: "hidden",
         animation: "chargerBounce 0.6s ease-in-out infinite alternate",
         filter: "drop-shadow(0 0 18px #00C85370)",
