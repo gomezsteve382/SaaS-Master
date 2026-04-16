@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Tag, Btn } from "../lib/ui.jsx";
-import { rfhSec16Cs } from "../lib/crc.js";
+import { rfhSec16Cs, rfhGen2DetectMagic } from "../lib/crc.js";
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
@@ -144,10 +144,10 @@ function applyBcmFromRfh(bcmData, rfhInfo) {
 /* ─── RFH Gen2 (MC9S12X Type 1, 4096 bytes) ──────────────────────────────── */
 const RFH_VIN_OFFSETS  = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
 const RFH_SEC16_OFFSETS = [0x050E, 0x0522];
-const RFH_VIN_CS_MAGIC  = 0x87;   // empirically determined: CS = XOR(17 raw bytes) ^ 0x87
+let _rfhVinMagic = 0xDB; // auto-detected per file in parseRfhGen2 (0xDB=2020+ Redeye, 0x87=older Gen2)
 function rfhVinCs(raw17) {
   const xr = Array.from(raw17).reduce((a, b) => a ^ b, 0);
-  return xr ^ RFH_VIN_CS_MAGIC;
+  return xr ^ _rfhVinMagic;
 }
 
 function parseRfhGen2(data, filename) {
@@ -162,6 +162,16 @@ function parseRfhGen2(data, filename) {
     const csCalc   = rfhVinCs(rawStored);
     return { slot: i + 1, offset: off, vin, rawStored: Array.from(rawStored), csStored, csCalc, csOk: csStored === csCalc };
   });
+
+  // Auto-detect VIN CS magic from first slot with a non-trivial stored checksum
+  const validSlot = vins.find(v => v.csStored !== 0x00 && v.csStored !== 0xFF);
+  if (validSlot) {
+    _rfhVinMagic = rfhGen2DetectMagic(validSlot.rawStored, validSlot.csStored);
+    for (const v of vins) {
+      v.csCalc = rfhVinCs(v.rawStored);
+      v.csOk   = v.csStored === v.csCalc;
+    }
+  }
 
   const sec16Slots = RFH_SEC16_OFFSETS.map((off, i) => {
     const raw = Array.from(data.slice(off, off + 16));
