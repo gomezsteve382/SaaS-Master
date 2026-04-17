@@ -300,7 +300,7 @@ export function computeCompatibility(rfh, pcm) {
   if (!rfhVin) issues.push('RFH VIN at 0x92 is missing or invalid ASCII');
   else if (rfh.vin && !rfh.vin.csOk) info.push('RFH VIN CS check failed (' + rfh.vin.csAlgo + ') — VIN bytes still usable');
 
-  if (pcm.immo.state === 'IMMO_DAMAGED') info.push('PCM IMMO byte pattern is IMMO_DAMAGED (all-FF). This tab will not repair the IMMO byte; SEC6 + VIN write only.');
+  if (pcm.immo.state === 'IMMO_DAMAGED') info.push('PCM IMMO byte pattern is IMMO_DAMAGED (all-FF). Enable the "Repair PCM IMMO byte" toggle to also rewrite 0x0011 → ENABLED (80 00 00 00) on Apply.');
 
   if (vinEqualBefore) info.push('VIN already matches between RFH and PCM');
   if (sec6EqualBefore) info.push('SEC6 already matches — no change needed');
@@ -333,12 +333,16 @@ export function computeCompatibility(rfh, pcm) {
 
 const PCM_VIN_OFFSETS = [0x0000, 0x01F0, 0x0224];
 const PCM_SEC6_OFFSET = 0x03C8;
+const PCM_IMMO_OFFSET = 0x0011;
+const PCM_IMMO_ENABLED_PATTERN = [0x80, 0x00, 0x00, 0x00];
 
 /**
  * Apply RFH-derived SEC6 (and RFH VIN if valid) into a copy of the PCM buffer.
+ * If opts.repairImmo is true and the PCM IMMO byte at 0x0011 is reported as
+ * IMMO_DAMAGED (all-FF), also rewrite the 4-byte IMMO pattern to ENABLED (0x80 00 00 00).
  * Returns { data, log } or null if not applicable.
  */
-export function applyRfhToPcm(rfh, pcm, pcmBuf) {
+export function applyRfhToPcm(rfh, pcm, pcmBuf, opts) {
   if (!rfh || !pcm || !rfh.sec6 || !pcm.writeCheck.ok) return null;
   const out = new Uint8Array(pcmBuf);
   const log = [];
@@ -355,7 +359,18 @@ export function applyRfhToPcm(rfh, pcm, pcmBuf) {
   } else {
     log.push('RFH VIN missing/invalid — VIN slots NOT written');
   }
+  const repairImmo = !!(opts && opts.repairImmo);
+  if (repairImmo) {
+    if (out.length < PCM_IMMO_OFFSET + 4) {
+      log.push('IMMO repair SKIPPED — PCM buffer too small for 0x0011..0x0014');
+    } else if (pcm.immo?.state === 'IMMO_DAMAGED') {
+      for (let i = 0; i < 4; i++) out[PCM_IMMO_OFFSET + i] = PCM_IMMO_ENABLED_PATTERN[i];
+      log.push('PCM IMMO @ 0x0011 ← 80 00 00 00 (ENABLED) [was IMMO_DAMAGED all-FF]');
+    } else {
+      log.push('IMMO repair SKIPPED — PCM IMMO state is ' + (pcm.immo?.label || 'UNKNOWN') + ' (only repairs IMMO_DAMAGED)');
+    }
+  }
   return { data: out, log };
 }
 
-export const RFH_PCM_CONST = { PCM_VIN_OFFSETS, PCM_SEC6_OFFSET };
+export const RFH_PCM_CONST = { PCM_VIN_OFFSETS, PCM_SEC6_OFFSET, PCM_IMMO_OFFSET, PCM_IMMO_ENABLED_PATTERN };

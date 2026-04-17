@@ -56,6 +56,7 @@ export default function RFHPCMTab() {
   const [patched, setPatched] = useState(null);
   const [applyLog, setApplyLog] = useState([]);
   const [msg, setMsg] = useState("");
+  const [repairImmo, setRepairImmo] = useState(false);
 
   const handleRfh = useCallback(f => {
     const r = new FileReader();
@@ -93,7 +94,7 @@ export default function RFHPCMTab() {
 
   const doApply = () => {
     if (!compat.canApply) return;
-    const result = applyRfhToPcm(rfh, pcm, pcmBuf);
+    const result = applyRfhToPcm(rfh, pcm, pcmBuf, {repairImmo});
     if (!result) { setMsg("Apply failed — invalid inputs"); return; }
     setPatched(result.data);
     setApplyLog(result.log);
@@ -257,6 +258,22 @@ export default function RFHPCMTab() {
           <Row label="SEC6 PCM current" value={compat.sec6PcmCurrent || "—"} mono color={C.a4}/>
         </tbody>
       </table>
+
+      <div style={{padding:"10px 12px",borderRadius:10,background:C.c2,border:"1px solid "+C.bd,marginBottom:10}}>
+        <label style={{display:"flex",alignItems:"flex-start",gap:10,cursor:"pointer"}}>
+          <input type="checkbox" checked={repairImmo} onChange={e=>setRepairImmo(e.target.checked)}
+                 style={{marginTop:3,width:16,height:16,accentColor:C.a2,cursor:"pointer"}}/>
+          <div>
+            <div style={{fontSize:12,fontWeight:900,color:repairImmo?C.a2:C.tx,letterSpacing:.5}}>
+              Repair PCM IMMO byte @ 0x0011 → ENABLED (80 00 00 00)
+            </div>
+            <div style={{fontSize:10,color:C.tm,fontWeight:600,marginTop:2,lineHeight:1.4}}>
+              Only writes when the PCM IMMO state is IMMO_DAMAGED (all-FF). Other states (ENABLED/DISABLED/UNKNOWN) are left untouched.
+              {pcm?.immo && <> Current state: <span style={{color:pcm.immo.state==='IMMO_DAMAGED'?C.er:pcm.immo.state==='ENABLED'?C.gn:C.wn,fontWeight:800}}>{pcm.immo.label}</span></>}
+            </div>
+          </div>
+        </label>
+      </div>
 
       <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
         <Btn onClick={doApply} disabled={!compat.canApply} color={C.a2}>⚡ APPLY — Patch PCM in memory</Btn>
