@@ -4,6 +4,8 @@ import TwinTab from "./tabs/TwinTab";
 import OBDSwarmDiagnostic from "./OBDSwarmDiagnostic";
 import J2534Scanner from "./J2534Scanner";
 import JailbreakTab from "./tabs/JailbreakTab";
+import { QR_CMDS } from "./lib/quickRef.js";
+import { buildQuickReferencePDF } from "./lib/buildQuickReferencePDF.js";
 
 /* ═══ VERIFIED ENGINES ═══ */
 function crc16(d,i=0xFFFF){let c=i;for(let x=0;x<d.length;x++){c^=d[x]<<8;for(let j=0;j<8;j++)c=c&0x8000?(c<<1)^0x1021:c<<1;c&=0xFFFF;}return c;}
@@ -965,13 +967,14 @@ function OBDTab(){
 
 /* ═══ DUMPS TAB ═══ */
 function DesktopDriverCard(){
-  const cmds=['python srt_lab.py devices','python srt_lab.py scan','python srt_lab.py unlock-test BCM','python srt_lab.py bcm-write --vin <VIN17>'];
+  const cmds=QR_CMDS.map(c=>c[0]);
   const[man,setMan]=useState(null);
   const[showCl,setShowCl]=useState(false);
   const[dlCount,setDlCount]=useState(0);
   const[copied,setCopied]=useState(null);
   const[hover,setHover]=useState(null);
   const[focus,setFocus]=useState(null);
+  const[pdfBusy,setPdfBusy]=useState(false);
   useEffect(()=>{
     const base=import.meta.env.BASE_URL||'/';
     fetch(base+'srt_lab.manifest.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(setMan).catch(()=>{});
@@ -980,6 +983,7 @@ function DesktopDriverCard(){
   const onDl=()=>{
     try{const n=(parseInt(localStorage.getItem('srtlab_dl_count')||'0',10)||0)+1;localStorage.setItem('srtlab_dl_count',String(n));setDlCount(n);}catch(e){}
   };
+  const onPdf=async()=>{if(pdfBusy)return;setPdfBusy(true);try{await buildQuickReferencePDF();}catch(e){console.error(e);alert('PDF build failed: '+e.message);}finally{setPdfBusy(false);}};
   const sizeMB=man?(man.sizeBytes/(1024*1024)).toFixed(2):null;
   const copy=async(text,key)=>{
     try{
@@ -1000,9 +1004,14 @@ function DesktopDriverCard(){
       v{man.version} · {sizeMB} MB · last updated {man.lastUpdated}
     </div>}
     <div style={{fontSize:12,color:C.ts,lineHeight:1.5,marginBottom:12}}>Real J2534 hardware bridge — Windows + Autel MaxiFlash · MaxiPro · DrewTech. Bench mechanic mode: full UDS stack, 17 FCA security algorithms, BCM auto-discovery, one-shot VIN write.</div>
-    <a href={(import.meta.env.BASE_URL||'/')+'srt_lab.py'} download="srt_lab.py" onClick={onDl} style={{textDecoration:'none',display:'inline-block',marginBottom:8}}>
-      <span style={{display:'inline-block',padding:'10px 18px',borderRadius:10,background:C.sr,color:'#fff',fontWeight:800,fontSize:12,letterSpacing:.5,fontFamily:"'Nunito'"}}>⬇ Download srt_lab.py</span>
-    </a>
+    <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:8}}>
+      <a href={(import.meta.env.BASE_URL||'/')+'srt_lab.py'} download="srt_lab.py" onClick={onDl} style={{textDecoration:'none'}}>
+        <span style={{display:'inline-block',padding:'10px 18px',borderRadius:10,background:C.sr,color:'#fff',fontWeight:800,fontSize:12,letterSpacing:.5,fontFamily:"'Nunito'"}}>⬇ Download srt_lab.py</span>
+      </a>
+      <button onClick={onPdf} disabled={pdfBusy} style={{cursor:pdfBusy?'wait':'pointer',border:'2px solid '+C.sr,padding:'8px 16px',borderRadius:10,background:'#fff',color:C.sr,fontWeight:800,fontSize:12,letterSpacing:.5,fontFamily:"'Nunito'"}}>
+        {pdfBusy?'⏳ Building...':'⬇ Download Quick Reference (PDF)'}
+      </button>
+    </div>
     {dlCount>0&&<div style={{fontSize:10,color:C.tm,marginBottom:8,letterSpacing:.3}}>You've downloaded this {dlCount} time{dlCount===1?'':'s'}</div>}
     {man&&man.changelog&&man.changelog.length>0&&<div style={{marginBottom:10}}>
       <button onClick={()=>setShowCl(s=>!s)} style={{background:'none',border:'none',padding:0,cursor:'pointer',fontSize:10,fontWeight:800,color:C.a3,letterSpacing:.5}}>
