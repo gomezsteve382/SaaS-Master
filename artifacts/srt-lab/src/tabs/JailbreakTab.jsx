@@ -346,9 +346,9 @@ function JailbreakTab() {
           ? <Btn onClick={connect} color="#1976D2">CONNECT OBDLink</Btn>
           : <Btn onClick={disconnect} color="#666" outline>DISCONNECT</Btn>}
         <Btn onClick={findBCM} disabled={!conn || busy} color="#7B1FA2">AUTO-FIND BCM</Btn>
-        <Btn onClick={unlock} disabled={!conn || busy} color="#D32F2F">
+        {target.needsUnlock && <Btn onClick={unlock} disabled={!conn || busy} color="#D32F2F">
           {unlocked ? "RE-UNLOCK" : "UNLOCK"}
-        </Btn>
+        </Btn>}
         {busy && <span style={{ fontSize: 11, color: C.tm, marginLeft: 8 }}>⏳ {busy}</span>}
       </div>
       <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
