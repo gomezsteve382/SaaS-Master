@@ -5,7 +5,7 @@ import {parseModule} from "../lib/parseModule.js";
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crc16,crc8_42,crc8rf} from "../lib/crc.js";
 import {MODS} from "../lib/mods.js";
-import {u32, unlockKey, unlockIdForTx} from "../lib/algos.js";
+import {unlockKeyBytes, unlockIdForTx} from "../lib/algos.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {DownloadCounter} from "../lib/useDownloadCount.jsx";
 
@@ -149,8 +149,9 @@ function BenchTab(){
     try{
       await benchEng.current.uds(tx,rx,[0x10,0x03]);
       const sr=await benchEng.current.uds(tx,rx,[0x27,0x01]);
-      if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
-        if(sv){const aid=unlockIdForTx(tx);const k=unlockKey(aid,sv);if(k!==null){await benchEng.current.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(label+' ('+aid+') unlocked','rx');}}}
+      if(sr.ok&&sr.d&&sr.d.length>=6&&sr.d[0]===0x67){const sb=Array.from(sr.d).slice(2);
+        const nz=sb.some(b=>b!==0);
+        if(nz){const aid=unlockIdForTx(tx);const kb=unlockKeyBytes(aid,sb);if(kb!==null){await benchEng.current.uds(tx,rx,[0x27,0x02,...kb]);addLog(label+' ('+aid+', '+kb.length+'B key) unlocked','rx');}}}
       const vb=[...new TextEncoder().encode(nv)];
       for(const did of[0xF190,0x7B90,0x7B88]){const r=await benchEng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(label+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
       await benchEng.current.uds(tx,rx,[0x11,0x01]);addLog(label+' VIN written + reset','rx');

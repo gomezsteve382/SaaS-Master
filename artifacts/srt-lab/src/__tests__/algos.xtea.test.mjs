@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   SGW_XTEA_KEY, xteaEncryptBlock, xteaDecryptBlock,
-  xtea_sgw, unlockKey, unlockIdForTx, ALGOS,
+  xtea_sgw, xtea_sgw_full, unlockKey, unlockKeyBytes, unlockIdForTx, ALGOS,
 } from "../lib/algos.js";
 import { MODULE_TARGETS } from "../lib/jailbreakFeatures.js";
 
@@ -103,4 +103,68 @@ test("unlock dispatch routes 0x74F to xtea_sgw and everything else to cda6", () 
   assert.equal(unlockIdForTx(0x7E0), "cda6");
   assert.equal(unlockKey("xtea_sgw", 0x12345678), xtea_sgw(0x12345678));
   assert.notEqual(unlockKey("cda6", 0x12345678), xtea_sgw(0x12345678));
+});
+
+// ─── 8-byte SGW path ──────────────────────────────────────────────────
+// These tests pin the new behavior: when the SGW responds with an 8-byte
+// seed, the unlock layer must encrypt the full 64-bit block (v0=high4,
+// v1=low4) and return all 8 ciphertext bytes for 27 02. The 4-byte path
+// must still produce the truncated XTEA high-word response so legacy
+// gateways keep working.
+test("unlockKeyBytes returns the 4-byte SGW response for a 4-byte seed", () => {
+  for (const [seed, expectedHi] of SGW_VECTORS) {
+    const sb = [(seed>>>24)&0xFF,(seed>>>16)&0xFF,(seed>>>8)&0xFF,seed&0xFF];
+    const kb = unlockKeyBytes("xtea_sgw", sb);
+    assert.equal(kb.length, 4);
+    const got = (kb[0]<<24)|(kb[1]<<16)|(kb[2]<<8)|kb[3];
+    assert.equal(u32(got), expectedHi);
+  }
+});
+
+test("unlockKeyBytes returns the full 8-byte XTEA block for an 8-byte seed", () => {
+  for (const [seed, expectedHi, expectedLo] of SGW_VECTORS) {
+    // SGW 8-byte seed framed as seed||~seed mirrors the 4-byte invocation,
+    // so the resulting 8-byte block must equal hi||lo from the pinned vectors.
+    const inv = u32(~seed);
+    const sb = [(seed>>>24)&0xFF,(seed>>>16)&0xFF,(seed>>>8)&0xFF,seed&0xFF,
+                (inv>>>24)&0xFF,(inv>>>16)&0xFF,(inv>>>8)&0xFF,inv&0xFF];
+    const kb = unlockKeyBytes("xtea_sgw", sb);
+    assert.equal(kb.length, 8);
+    const hi = u32((kb[0]<<24)|(kb[1]<<16)|(kb[2]<<8)|kb[3]);
+    const lo = u32((kb[4]<<24)|(kb[5]<<16)|(kb[6]<<8)|kb[7]);
+    assert.equal(hi, expectedHi);
+    assert.equal(lo, expectedLo);
+    // And it has to match xtea_sgw_full() byte-for-byte for the same inputs.
+    const [c0, c1] = xtea_sgw_full(seed);
+    assert.equal(hi, c0);
+    assert.equal(lo, c1);
+  }
+});
+
+test("unlockKeyBytes 8-byte path honours both halves of an arbitrary seed", () => {
+  // When SGW chooses v1 independently (not seed-complement), the 8-byte
+  // response must reflect that — i.e. we cannot collapse to the 4-byte
+  // helper. Compare against the raw XTEA primitive.
+  const sb = [0x12,0x34,0x56,0x78, 0x9A,0xBC,0xDE,0xF0];
+  const kb = unlockKeyBytes("xtea_sgw", sb);
+  const [c0, c1] = xteaEncryptBlock(0x12345678, 0x9ABCDEF0, SGW_XTEA_KEY);
+  assert.deepEqual(kb, [
+    (c0>>>24)&0xFF,(c0>>>16)&0xFF,(c0>>>8)&0xFF,c0&0xFF,
+    (c1>>>24)&0xFF,(c1>>>16)&0xFF,(c1>>>8)&0xFF,c1&0xFF,
+  ]);
+});
+
+test("unlockKeyBytes for non-SGW algorithms stays 4-byte regardless of seed length", () => {
+  // CDA6 is 4-byte in / 4-byte out; even if the caller hands us 8 bytes
+  // (extra bytes ignored) we must NOT widen its response.
+  const sb8 = [0xA1,0xB2,0xC3,0xD4, 0xDE,0xAD,0xBE,0xEF];
+  const kb = unlockKeyBytes("cda6", sb8);
+  assert.equal(kb.length, 4);
+  const k = unlockKey("cda6", 0xA1B2C3D4);
+  assert.deepEqual(kb, [(k>>>24)&0xFF,(k>>>16)&0xFF,(k>>>8)&0xFF,k&0xFF]);
+});
+
+test("unlockKeyBytes rejects too-short or unknown inputs", () => {
+  assert.equal(unlockKeyBytes("xtea_sgw", [1,2,3]), null);
+  assert.equal(unlockKeyBytes("not_a_real_algo", [1,2,3,4]), null);
 });

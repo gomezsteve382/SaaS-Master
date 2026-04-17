@@ -2,7 +2,7 @@ import React, {useState, useCallback, useRef} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
 import {MODS} from "../lib/mods.js";
-import {u32, unlockKey, unlockIdForTx} from "../lib/algos.js";
+import {unlockKeyBytes, unlockIdForTx} from "../lib/algos.js";
 import {backupModule,CRITICAL_DIDS} from "../lib/backups.js";
 import {logSession} from "../lib/paperTrail.js";
 
@@ -159,8 +159,9 @@ function OBDTab(){
     for(let i=0;i<found.length;i++){const m=found[i];
       await eng.current.uds(m.tx,m.rx,[0x10,0x03]);
       const sr=await eng.current.uds(m.tx,m.rx,[0x27,0x01]);
-      if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
-        if(sv){const aid=unlockIdForTx(m.tx);const k=unlockKey(aid,sv);if(k!==null){await eng.current.uds(m.tx,m.rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(m.c+' ('+aid+') unlocked','rx');}}}
+      if(sr.ok&&sr.d&&sr.d.length>=6&&sr.d[0]===0x67){const sb=Array.from(sr.d).slice(2);
+        const nz=sb.some(b=>b!==0);
+        if(nz){const aid=unlockIdForTx(m.tx);const kb=unlockKeyBytes(aid,sb);if(kb!==null){await eng.current.uds(m.tx,m.rx,[0x27,0x02,...kb]);addLog(m.c+' ('+aid+', '+kb.length+'B key) unlocked','rx');}}}
       /* Auto-snapshot before any 0x2E. Falls back to no-backup for modules
          without a profile (TCM, IPC, etc.) but the session record still notes it. */
       const bt=backupTypeFor(m.c);
@@ -210,8 +211,9 @@ function OBDTab(){
     try{
       await eng.current.uds(tx,rx,[0x10,0x03]);
       const sr=await eng.current.uds(tx,rx,[0x27,0x01]);
-      if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
-        if(sv){const aid=unlockIdForTx(tx);const k=unlockKey(aid,sv);if(k!==null){await eng.current.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(label+' ('+aid+') unlocked','rx');}}}
+      if(sr.ok&&sr.d&&sr.d.length>=6&&sr.d[0]===0x67){const sb=Array.from(sr.d).slice(2);
+        const nz=sb.some(b=>b!==0);
+        if(nz){const aid=unlockIdForTx(tx);const kb=unlockKeyBytes(aid,sb);if(kb!==null){await eng.current.uds(tx,rx,[0x27,0x02,...kb]);addLog(label+' ('+aid+', '+kb.length+'B key) unlocked','rx');}}}
       const bt=backupTypeFor(label);
       if(bt){
         addLog('Snapshotting '+label+' before write...','info');
@@ -242,8 +244,9 @@ function OBDTab(){
     try{
       await eng.current.uds(0x75F,0x767,[0x10,0x03]);
       const sr=await eng.current.uds(0x75F,0x767,[0x27,0x01]);
-      if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
-        if(sv){const aid=unlockIdForTx(0x75F);const k=unlockKey(aid,sv);if(k!==null){await eng.current.uds(0x75F,0x767,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);}}}
+      if(sr.ok&&sr.d&&sr.d.length>=6&&sr.d[0]===0x67){const sb=Array.from(sr.d).slice(2);
+        const nz=sb.some(b=>b!==0);
+        if(nz){const aid=unlockIdForTx(0x75F);const kb=unlockKeyBytes(aid,sb);if(kb!==null){await eng.current.uds(0x75F,0x767,[0x27,0x02,...kb]);}}}
       addLog('Snapshotting RFHUB before virginize...','info');
       const b=await backupModule(eng.current.uds,0x75F,0x767,'RFHUB',addLog,hx);
       backupKey=b?.key||null;

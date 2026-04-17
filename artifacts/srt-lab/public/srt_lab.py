@@ -219,6 +219,30 @@ def algo_xtea_sgw(seed):
     v0, _ = xtea_encrypt_block(s, (~s) & 0xFFFFFFFF)
     return v0
 
+def algo_xtea_sgw_full(seed):
+    """8-byte variant of the SGW XTEA transform. Some 2018+ FCA Secure
+    Gateways issue an 8-byte seed in 67 01 and demand the full 8-byte
+    XTEA ciphertext block in 27 02 instead of the truncated 4-byte form.
+    Seed may be supplied as an int (treated as a 4-byte u32 with v1 set
+    to its complement, matching algo_xtea_sgw) or as a bytes-like object
+    of length 4 or 8 carrying the raw seed bytes from the UDS response.
+    Returns 8 bytes (big-endian: v0 high word || v1 low word)."""
+    if isinstance(seed, (bytes, bytearray, memoryview)):
+        sb = bytes(seed)
+        if len(sb) >= 8:
+            v0 = int.from_bytes(sb[0:4], "big")
+            v1 = int.from_bytes(sb[4:8], "big")
+        elif len(sb) >= 4:
+            v0 = int.from_bytes(sb[0:4], "big")
+            v1 = (~v0) & 0xFFFFFFFF
+        else:
+            raise ValueError("seed must be at least 4 bytes")
+    else:
+        v0 = seed & 0xFFFFFFFF
+        v1 = (~v0) & 0xFFFFFFFF
+    c0, c1 = xtea_encrypt_block(v0, v1)
+    return c0.to_bytes(4, "big") + c1.to_bytes(4, "big")
+
 # Pinned parity vectors. These MUST match the SGW_VECTORS constant in
 # artifacts/srt-lab/src/__tests__/algos.xtea.test.mjs and the worked example
 # in artifacts/srt-lab/docs/SGW_XTEA_ALGORITHM.md byte-for-byte. If you ever
@@ -239,6 +263,16 @@ def _selftest_xtea_sgw():
         v0, v1 = xtea_encrypt_block(seed, (~seed) & 0xFFFFFFFF)
         assert got_hi == hi, f"SGW XTEA mismatch for seed=0x{seed:08X}: got 0x{got_hi:08X}, want 0x{hi:08X}"
         assert v0 == hi and v1 == lo, f"SGW XTEA full-block mismatch for seed=0x{seed:08X}"
+        # 8-byte variant — int form (v1 = ~v0) must echo the pinned hi||lo block.
+        full = algo_xtea_sgw_full(seed)
+        want = hi.to_bytes(4, "big") + lo.to_bytes(4, "big")
+        assert full == want, f"SGW XTEA 8-byte mismatch for seed=0x{seed:08X}"
+        # 8-byte variant — bytes form with seed||~seed must match the int form.
+        sb = seed.to_bytes(4, "big") + ((~seed) & 0xFFFFFFFF).to_bytes(4, "big")
+        assert algo_xtea_sgw_full(sb) == want, f"SGW XTEA 8-byte bytes-form mismatch for seed=0x{seed:08X}"
+        # 4-byte bytes form must match the int form too.
+        assert algo_xtea_sgw_full(seed.to_bytes(4, "big")) == want, (
+            f"SGW XTEA 8-byte short-bytes mismatch for seed=0x{seed:08X}")
 
 # Run on import so any drift between the JS port and the Python port is
 # caught the moment srt_lab.py loads.

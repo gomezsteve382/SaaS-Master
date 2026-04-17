@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn, Tag } from "../lib/ui.jsx";
-import { cda6, u32, unlockKey } from "../lib/algos.js";
+import { cda6, u32, unlockKey, unlockKeyBytes } from "../lib/algos.js";
 import { createObdEngine, decodeDTC, decodeDTCStatus } from "../lib/obdEngine.js";
 import {
   JAILBREAK_FEATURES, FEATURE_CATEGORY, CATEGORY_ORDER,
@@ -147,17 +147,13 @@ function JailbreakTab() {
       addLog("Bad seed response: " + Array.from(r.d).slice(0, 8).map(b => hx(b)).join(" "), "error");
       setBusy(""); return;
     }
-    const sb = Array.from(r.d).slice(2, 6);
-    let sv = 0;
-    for (const b of sb) sv = (sv << 8) | b;
-    sv = u32(sv);
-    addLog("Seed: 0x" + hx(sv, 8), "info");
+    const sb = Array.from(r.d).slice(2);
+    addLog("Seed (" + sb.length + "B): " + sb.map(b => hx(b)).join(" "), "info");
     const algoId = target.unlock || "cda6";
-    const k = unlockKey(algoId, sv);
-    if (k === null) { addLog("Unknown unlock algorithm: " + algoId, "error"); setBusy(""); return; }
-    addLog(algoId.toUpperCase() + " key: 0x" + hx(k, 8), "info");
-    r = await eng.current.uds(target.tx, target.rx,
-      [0x27, 0x02, (k >> 24) & 0xFF, (k >> 16) & 0xFF, (k >> 8) & 0xFF, k & 0xFF]);
+    const kb = unlockKeyBytes(algoId, sb);
+    if (kb === null) { addLog("Unknown unlock algorithm: " + algoId, "error"); setBusy(""); return; }
+    addLog(algoId.toUpperCase() + " key (" + kb.length + "B): " + kb.map(b => hx(b)).join(" "), "info");
+    r = await eng.current.uds(target.tx, target.rx, [0x27, 0x02, ...kb]);
     if (r.ok) { setUnlocked(true); addLog(target.label + " UNLOCKED", "rx"); }
     else addLog("Key rejected — try a different module/algorithm", "error");
     setBusy("");

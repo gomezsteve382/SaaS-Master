@@ -1,7 +1,7 @@
 import React, {useState, useCallback} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn} from "../lib/ui.jsx";
-import {ALGOS} from "../lib/algos.js";
+import {ALGOS, xtea_sgw_full, u32} from "../lib/algos.js";
 import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
 import {SEED_KEY_REF} from "../lib/tabReferences.js";
 
@@ -11,8 +11,9 @@ function SeedTab(){
   const onPdf=async()=>{if(pdfBusy)return;setPdfBusy(true);try{await buildOnePagerPDF(SEED_KEY_REF);}catch(e){console.error(e);alert('PDF build failed: '+e.message);}finally{setPdfBusy(false);}};
   const calc=useCallback(()=>{
     const raw=sh.replace(/\s/g,'');const v=parseInt(raw,16);if(isNaN(v)||!raw)return;
-    if(all){setRes({multi:true,results:ALGOS.map(a=>({n:a.n,h:a.h,k:a.fn(v).toString(16).toUpperCase().padStart(8,'0')})),seed:v.toString(16).toUpperCase().padStart(8,'0')});}
-    else{const a=ALGOS.find(x=>x.id===al);if(!a)return;setRes({multi:false,n:a.n,seed:v.toString(16).toUpperCase().padStart(8,'0'),key:a.fn(v).toString(16).toUpperCase().padStart(8,'0')});}
+    const sgwFull=()=>{const [c0,c1]=xtea_sgw_full(u32(v));return c0.toString(16).toUpperCase().padStart(8,'0')+c1.toString(16).toUpperCase().padStart(8,'0');};
+    if(all){setRes({multi:true,results:ALGOS.map(a=>({id:a.id,n:a.n,h:a.h,k:a.fn(v).toString(16).toUpperCase().padStart(8,'0'),k8:a.id==='xtea_sgw'?sgwFull():null})),seed:v.toString(16).toUpperCase().padStart(8,'0')});}
+    else{const a=ALGOS.find(x=>x.id===al);if(!a)return;setRes({multi:false,id:a.id,n:a.n,seed:v.toString(16).toUpperCase().padStart(8,'0'),key:a.fn(v).toString(16).toUpperCase().padStart(8,'0'),key8:a.id==='xtea_sgw'?sgwFull():null});}
   },[al,sh,all]);
 
   return<div style={{maxWidth:760}}>
@@ -52,18 +53,26 @@ function SeedTab(){
           <div><div style={{fontSize:9,color:C.tm,letterSpacing:2,marginBottom:6}}>SEED</div>
             <div style={{fontFamily:"'JetBrains Mono'",fontSize:26,fontWeight:800,color:C.a3}}>{res.seed}</div></div>
           <div style={{textAlign:'center',fontSize:20,color:C.tm}}>→</div>
-          <div><div style={{fontSize:9,color:C.tm,letterSpacing:2,marginBottom:6}}>KEY</div>
+          <div><div style={{fontSize:9,color:C.tm,letterSpacing:2,marginBottom:6}}>KEY (4-BYTE)</div>
             <div style={{fontFamily:"'JetBrains Mono'",fontSize:26,fontWeight:800,color:C.sr}}>{res.key}</div></div>
         </div>
+        {res.key8&&<div style={{marginTop:14,paddingTop:14,borderTop:'1px dashed '+C.bd}}>
+          <div style={{fontSize:9,color:C.tm,letterSpacing:2,marginBottom:6}}>KEY (8-BYTE, full XTEA block)</div>
+          <div style={{fontFamily:"'JetBrains Mono'",fontSize:18,fontWeight:800,color:C.sr,wordBreak:'break-all'}}>{res.key8}</div>
+          <div style={{marginTop:6,fontSize:10,color:C.tm}}>Send when SGW issues an 8-byte seed in 67 01.</div>
+        </div>}
         <div style={{marginTop:8,fontSize:11,color:C.tm}}>{res.n}</div>
       </div>}
 
       {res&&res.multi&&<div style={{marginTop:20}}>
         <div style={{fontSize:12,fontWeight:800,marginBottom:10}}>Seed: <span style={{fontFamily:"'JetBrains Mono'",color:C.a3}}>{res.seed}</span></div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-          {res.results.map((r,i)=><div key={i} style={{padding:'10px 12px',borderRadius:10,background:C.c2,border:'1px solid '+C.bd,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          {res.results.map((r,i)=><div key={i} style={{padding:'10px 12px',borderRadius:10,background:C.c2,border:'1px solid '+C.bd,display:'flex',justifyContent:'space-between',alignItems:'center',gap:8}}>
             <div><div style={{fontSize:11,fontWeight:800,color:C.tx}}>{r.n}</div><div style={{fontSize:8,color:C.tm}}>{r.h}</div></div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:800,color:C.sr}}>{r.k}</div>
+            <div style={{textAlign:'right'}}>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:800,color:C.sr}}>{r.k}</div>
+              {r.k8&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:C.sr,opacity:.75,marginTop:2}}>8B: {r.k8}</div>}
+            </div>
           </div>)}
         </div>
       </div>}

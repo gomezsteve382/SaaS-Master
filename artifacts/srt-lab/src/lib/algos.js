@@ -76,6 +76,28 @@ function unlockKey(unlockId, seedU32){
   return a?u32(a.fn(seedU32)):null;
 }
 
+// Byte-oriented unlock: takes the raw seed bytes from the UDS 67 01 response
+// and returns the key bytes to send back in 27 02. For SGW XTEA, when the
+// gateway hands us an 8-byte seed we feed both halves into XTEA and return
+// the full 8-byte ciphertext block; legacy 4-byte SGW seeds keep the existing
+// 4-byte response. All other algorithms remain 4-byte in / 4-byte out.
+// Returns null on unknown algorithm or insufficient seed bytes.
+function unlockKeyBytes(unlockId, seedBytes){
+  const sb=Array.from(seedBytes||[]);
+  if(sb.length<4) return null;
+  if(unlockId==='xtea_sgw' && sb.length>=8){
+    const v0=u32((sb[0]<<24)|(sb[1]<<16)|(sb[2]<<8)|sb[3]);
+    const v1=u32((sb[4]<<24)|(sb[5]<<16)|(sb[6]<<8)|sb[7]);
+    const [c0,c1]=xteaEncryptBlock(v0,v1,SGW_XTEA_KEY);
+    return [(c0>>>24)&0xFF,(c0>>>16)&0xFF,(c0>>>8)&0xFF,c0&0xFF,
+            (c1>>>24)&0xFF,(c1>>>16)&0xFF,(c1>>>8)&0xFF,c1&0xFF];
+  }
+  let sv=0;for(let i=0;i<4;i++)sv=(sv<<8)|sb[i];sv=u32(sv);
+  const k=unlockKey(unlockId,sv);
+  if(k===null) return null;
+  return [(k>>>24)&0xFF,(k>>>16)&0xFF,(k>>>8)&0xFF,k&0xFF];
+}
+
 // Pick the unlock algorithm id based on the UDS tx address. The 2018+ FCA
 // Secure Gateway lives at 0x74F/0x76F and uses XTEA; everything else on the
 // CDA6 bus continues to use the legacy CDA6 transform.
@@ -83,4 +105,4 @@ function unlockIdForTx(tx){
   return tx===0x74F?'xtea_sgw':'cda6';
 }
 
-export {u32,sxor,cda6,ngc,tipm,xteaEncryptBlock,xteaDecryptBlock,xtea_sgw,xtea_sgw_full,SGW_XTEA_KEY,unlockKey,unlockIdForTx,ALGOS};
+export {u32,sxor,cda6,ngc,tipm,xteaEncryptBlock,xteaDecryptBlock,xtea_sgw,xtea_sgw_full,SGW_XTEA_KEY,unlockKey,unlockKeyBytes,unlockIdForTx,ALGOS};
