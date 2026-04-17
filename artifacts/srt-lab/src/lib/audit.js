@@ -324,6 +324,74 @@ export function deleteBackup(key) {
   } catch {}
 }
 
+/* Build a single archive containing every backup currently in localStorage,
+ * along with the index. Used by the Backups tab "Export all" button so users
+ * can archive history before pruning or move it between machines. */
+export function exportAllBackups() {
+  const idx = getBackupList();
+  const backups = {};
+  for (const entry of idx) {
+    const data = getBackup(entry.key);
+    if (data) backups[entry.key] = data;
+  }
+  return {
+    type: "srtlab_backup_archive",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    count: Object.keys(backups).length,
+    index: idx,
+    backups,
+  };
+}
+
+/* Merge an archive produced by exportAllBackups back into localStorage.
+ * Duplicates (matching localStorage key) are skipped so re-importing the same
+ * archive twice is a no-op. Returns counts for the caller to surface. */
+export function importBackups(archive) {
+  const result = { imported: 0, skipped: 0, invalid: 0 };
+  if (!archive || archive.type !== "srtlab_backup_archive" || !archive.backups) {
+    throw new Error("Not a valid SRT Lab backup archive");
+  }
+  let idx;
+  try {
+    idx = JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY) || "[]");
+  } catch { idx = []; }
+  const existingKeys = new Set(idx.map(b => b.key));
+  const archiveIndex = Array.isArray(archive.index) ? archive.index : [];
+  const indexByKey = new Map(archiveIndex.map(e => [e.key, e]));
+
+  for (const [key, data] of Object.entries(archive.backups)) {
+    if (!key.startsWith(BACKUP_KEY_PREFIX)) { result.invalid++; continue; }
+    if (!data || !data.module || !data.dids) { result.invalid++; continue; }
+    if (existingKeys.has(key)) { result.skipped++; continue; }
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+      const meta = indexByKey.get(key) || {
+        key,
+        module: data.module,
+        vin: data.dids?.[0xF190]?.ascii?.slice(-17) || "unknown",
+        timestamp: data.timestamp || new Date().toISOString(),
+        didCount: Object.keys(data.dids).length,
+      };
+      idx.unshift(meta);
+      existingKeys.add(key);
+      result.imported++;
+    } catch (e) {
+      result.invalid++;
+    }
+  }
+  /* Newest-first, then trim to MAX_BACKUPS like the rest of the system. */
+  idx.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
+  if (idx.length > MAX_BACKUPS) {
+    idx.slice(MAX_BACKUPS).forEach(b => {
+      try { localStorage.removeItem(b.key); } catch {}
+    });
+  }
+  localStorage.setItem(BACKUP_INDEX_KEY, JSON.stringify(idx.slice(0, MAX_BACKUPS)));
+  notify();
+  return result;
+}
+
 export function clearBackups() {
   try {
     const idx = JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY) || "[]");

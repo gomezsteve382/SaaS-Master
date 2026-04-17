@@ -6,6 +6,7 @@ import {
   restoreModule, subscribeAudit, logSession,
   getBackupStorageUsage, pruneNonCriticalBackups,
   subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
+  exportAllBackups, importBackups,
 } from "../lib/audit.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/ReadFirstModal.jsx";
@@ -24,6 +25,7 @@ export default function BackupsTab() {
   const [conn, setConn] = useState(false);
   const [restoreLog, setRestoreLog] = useState([]);
   const eng = useRef(null);
+  const importInputRef = useRef(null);
 
   const refresh = useCallback(() => {
     const list = getBackupList();
@@ -134,6 +136,43 @@ export default function BackupsTab() {
     setSelected(null); setSelectedData(null);
     refresh();
   }, [backups.length, refresh]);
+
+  const handleExportAll = useCallback(() => {
+    const archive = exportAllBackups();
+    if (archive.count === 0) {
+      alert("No backups to export.");
+      return;
+    }
+    const blob = new Blob([JSON.stringify(archive, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    a.download = "srtlab_backups_archive_" + stamp + ".json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
+  const handleImportClick = useCallback(() => {
+    importInputRef.current?.click();
+  }, []);
+
+  const handleImportFile = useCallback(async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const archive = JSON.parse(text);
+      const r = importBackups(archive);
+      refresh();
+      const parts = [r.imported + " imported", r.skipped + " skipped (duplicate)"];
+      if (r.invalid > 0) parts.push(r.invalid + " invalid");
+      alert("Backup import complete: " + parts.join(", ") + ".");
+    } catch (err) {
+      alert("Import failed: " + err.message);
+    }
+  }, [refresh]);
 
   const downloadBackup = useCallback((key) => {
     const data = getBackup(key); if (!data) return;
@@ -294,6 +333,22 @@ export default function BackupsTab() {
               {busy === "Connecting..." ? "..." : (conn ? "🔌 Disconnect" : "🔌 Connect Adapter")}
             </Btn>
             <Btn onClick={refresh} color={C.a3} outline>🔄 Refresh</Btn>
+            {backups.length > 0 && (
+              <Btn onClick={handleExportAll} color={C.a2} outline data-testid="export-all-backups">
+                📦 Export All
+              </Btn>
+            )}
+            <Btn onClick={handleImportClick} color={C.a2} outline data-testid="import-backups">
+              📥 Import
+            </Btn>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={handleImportFile}
+              style={{ display: "none" }}
+              data-testid="import-backups-input"
+            />
             {backups.length > 0 && <Btn onClick={handleClearAll} color={C.er} outline>🗑️ Clear All</Btn>}
           </div>
         </div>
