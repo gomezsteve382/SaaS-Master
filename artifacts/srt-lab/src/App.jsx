@@ -898,6 +898,25 @@ function OBDTab(){
 }
 
 /* ═══ DUMPS TAB ═══ */
+function DesktopDriverCard(){
+  const cmds=['python srt_lab.py devices','python srt_lab.py scan','python srt_lab.py unlock-test BCM','python srt_lab.py bcm-write --vin <VIN17>'];
+  return <Card style={{padding:18}}>
+    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+      <span style={{fontSize:18}}>🖥️</span>
+      <span style={{fontSize:13,fontWeight:900,letterSpacing:1,color:C.bk}}>DESKTOP DRIVER</span>
+      <Tag color={C.a3}>WINDOWS</Tag>
+    </div>
+    <div style={{fontSize:12,color:C.ts,lineHeight:1.5,marginBottom:12}}>Real J2534 hardware bridge — Windows + Autel MaxiFlash · MaxiPro · DrewTech. Bench mechanic mode: full UDS stack, 17 FCA security algorithms, BCM auto-discovery, one-shot VIN write.</div>
+    <a href="srt_lab.py" download="srt_lab.py" style={{textDecoration:'none',display:'inline-block',marginBottom:12}}>
+      <span style={{display:'inline-block',padding:'10px 18px',borderRadius:10,background:C.sr,color:'#fff',fontWeight:800,fontSize:12,letterSpacing:.5,fontFamily:"'Nunito'"}}>⬇ Download srt_lab.py</span>
+    </a>
+    <div style={{fontSize:10,color:C.tm,marginBottom:8,letterSpacing:.5}}>REQUIREMENTS: Windows 10/11 · Python 3.8+ · J2534 vendor drivers (no pip packages)</div>
+    <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1}}>QUICK START</div>
+    <div style={{background:C.bk,borderRadius:8,padding:10,fontFamily:"'JetBrains Mono'",fontSize:11,color:'#A5D6A7',lineHeight:1.7}}>
+      {cmds.map((c,i)=><div key={i}><span style={{color:'#666'}}>$ </span>{c}</div>)}
+    </div>
+  </Card>;
+}
 function DumpsTab({files,setFiles,loadF}){
   const[sel,setSel]=useState(null);const[nv,setNv]=useState('');const[msg,setMsg]=useState('');
   const f=sel!==null?files[sel]:null;const cv=useMemo(()=>nv.length===17?checkVin(nv):null,[nv]);
@@ -905,15 +924,19 @@ function DumpsTab({files,setFiles,loadF}){
   const doPatch=()=>{if(!f||nv.length!==17)return;const r=patchFile(f,nv);dl(r.data,'PATCHED_'+nv+'_'+f.name);const u=[...files];u[sel]=analyzeFile(r.data.buffer,f.name);setFiles(u);setMsg('Patched '+r.log.length+' locations');};
   const doVirgin=()=>{if(!f)return;const r=virginizeFile(f);dl(r.data,'VIRGIN_'+f.name);setMsg('Virginized: '+r.log.join(', '));};
 
-  if(!files.length)return<div onClick={()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='.bin,.BIN';i.onchange=e=>loadF(e.target.files);i.click();}} onDrop={e=>{e.preventDefault();loadF(e.dataTransfer.files);}} onDragOver={e=>e.preventDefault()}>
-    <Card style={{textAlign:'center',padding:'60px 24px',cursor:'pointer',border:'2.5px dashed #D32F2F30'}} onClick={()=>{}}>
-      <div style={{fontSize:52,marginBottom:10}}>📂</div>
-      <div style={{fontSize:20,fontWeight:900,color:C.sr}}>Drop EEPROM or Firmware Files</div>
-      <div style={{fontSize:13,color:C.ts,marginTop:6}}>Auto-detects BCM · 95640 · RFHUB EEE · GPEC2A</div>
-      <div style={{display:'flex',gap:8,justifyContent:'center',marginTop:18,flexWrap:'wrap'}}>
-        {[['BCM D-FLASH',C.a1],['95640',C.a4],['RFHUB EEE',C.a3],['GPEC2A',C.a2]].map(([l,c])=><Tag key={l} color={c}>{l}</Tag>)}
-      </div>
-    </Card></div>;
+  if(!files.length)return<div style={{display:'flex',flexDirection:'column',gap:18}}>
+    <div onClick={()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='.bin,.BIN';i.onchange=e=>loadF(e.target.files);i.click();}} onDrop={e=>{e.preventDefault();loadF(e.dataTransfer.files);}} onDragOver={e=>e.preventDefault()}>
+      <Card style={{textAlign:'center',padding:'60px 24px',cursor:'pointer',border:'2.5px dashed #D32F2F30'}} onClick={()=>{}}>
+        <div style={{fontSize:52,marginBottom:10}}>📂</div>
+        <div style={{fontSize:20,fontWeight:900,color:C.sr}}>Drop EEPROM or Firmware Files</div>
+        <div style={{fontSize:13,color:C.ts,marginTop:6}}>Auto-detects BCM · 95640 · RFHUB EEE · GPEC2A</div>
+        <div style={{display:'flex',gap:8,justifyContent:'center',marginTop:18,flexWrap:'wrap'}}>
+          {[['BCM D-FLASH',C.a1],['95640',C.a4],['RFHUB EEE',C.a3],['GPEC2A',C.a2]].map(([l,c])=><Tag key={l} color={c}>{l}</Tag>)}
+        </div>
+      </Card>
+    </div>
+    <DesktopDriverCard/>
+  </div>;
 
   return<div style={{display:'grid',gridTemplateColumns:'260px 1fr',gap:18,alignItems:'start'}}>
     <div>
@@ -928,6 +951,7 @@ function DumpsTab({files,setFiles,loadF}){
       {files.length>=2&&<Card style={{marginTop:10,padding:12}}><div style={{fontSize:10,fontWeight:800,color:C.a1,marginBottom:4,letterSpacing:1}}>CROSS-MATCH</div>
         {(()=>{const vs={};files.forEach(fi=>fi.vins.forEach(v=>{vs[v.vin]=(vs[v.vin]||0)+1;}));return Object.entries(vs).map(([vin,ct])=><div key={vin} style={{fontSize:10,fontFamily:"'JetBrains Mono'"}}><span style={{color:ct===files.length?C.gn:C.wn}}>{vin}</span><span style={{color:C.tm,marginLeft:4}}>{ct}/{files.length}{ct===files.length?' ✓':''}</span></div>);})()}
       </Card>}
+      <div style={{marginTop:10}}><DesktopDriverCard/></div>
     </div>
     {f&&<div>
       <Card glow style={{marginBottom:14}}>
