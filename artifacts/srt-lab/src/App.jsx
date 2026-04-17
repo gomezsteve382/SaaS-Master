@@ -10,6 +10,8 @@ import BackupsTab from "./tabs/BackupsTab";
 import SessionsTab from "./tabs/SessionsTab";
 import EcmTab from "./tabs/EcmTab.jsx";
 import AdcmTab from "./tabs/AdcmTab.jsx";
+import ProgramAllTab from "./tabs/ProgramAllTab.jsx";
+import UdsTab from "./tabs/UdsTab.jsx";
 import { MasterVinProvider, useMasterVin } from "./lib/masterVinContext.jsx";
 import { QR_CMDS } from "./lib/quickRef.js";
 import { buildQuickReferencePDF } from "./lib/buildQuickReferencePDF.js";
@@ -257,12 +259,12 @@ function Tag({children,color=C.sr}){return<span style={{fontSize:10,fontWeight:8
 function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=useState(false);return<button onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#E8E4DE':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?C.tm:outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
 function SLine({type,msg}){const col={error:C.er,warn:C.wn,pass:C.gn};const ico={error:'✗',warn:'⚠',pass:'✓'};return<div style={{fontSize:12,color:col[type],padding:'4px 0',display:'flex',gap:8}}><span style={{fontWeight:700,minWidth:14}}>{ico[type]}</span><span>{msg}</span></div>;}
 const TABS=[
-  {id:'program',i:'🚀',l:'PROGRAM ALL',s:'BCM→RFHUB→ECM→ADCM',placeholder:true},
+  {id:'program',i:'🚀',l:'PROGRAM ALL',s:'BCM→RFHUB→ECM→ADCM'},
   {id:'bcm',i:'🧠',l:'BCM',s:'VIN · CRC · Features'},
   {id:'rfhub',i:'🔑',l:'RFHUB',s:'VIN · Key Fobs'},
   {id:'ecm',i:'⚡',l:'ECM',s:'Engine · 10 Algorithms'},
   {id:'adcm',i:'🏎️',l:'ACTIVE DAMPING',s:'VIN · Variant Config'},
-  {id:'uds',i:'🔬',l:'UDS PROGRAMMER',s:'Universal · Raw',placeholder:true},
+  {id:'uds',i:'🔬',l:'UDS PROGRAMMER',s:'Universal · Raw'},
   {id:'backups',i:'💾',l:'BACKUPS',s:'History · Restore'},
   {id:'sessions',i:'📋',l:'SESSIONS',s:'Paper Trail · Reports'},
   {id:'analyzer',i:'🧪',l:'FCA ANALYZER',s:'Cross-module audit',placeholder:true},
@@ -403,6 +405,8 @@ function AppShell({pg,setPg,files,setFiles,loadF}){
       {pg==='jailbreak'&&<JailbreakTab/>}
       {pg==='backups'&&<BackupsTab/>}
       {pg==='sessions'&&<SessionsTab/>}
+      {pg==='program'&&<ProgramAllTab/>}
+      {pg==='uds'&&<UdsTab/>}
     </div>
   </div>;
 }

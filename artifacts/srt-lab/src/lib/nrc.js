@@ -9,3 +9,5 @@ export function decodeNRC(code){
   };
   return nrc[code]||('NRC 0x'+code.toString(16).toUpperCase());
 }
+
+export {parseVinFromResponse} from './initAdapter.js';
