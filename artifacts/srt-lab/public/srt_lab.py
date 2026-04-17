@@ -1,31 +1,31 @@
 #!/usr/bin/env python3
 """
-SRT LAB v2 - Direct J2534 BCM VIN Programmer (and more)
-
+SRT LAB v2 — Direct J2534 BCM VIN Programmer (and more)
+=========================================================
 Pure Python. No browser. No WebSocket. No ELM327.
 Talks directly to Autel IM608 / MaxiFlash J2534 DLL on Windows.
 
-Built from: AlfaOBD CDA6 analysis, Villain extraction, and the toolkit.
+Built from: AlphaOBD CDA6 analysis, Villain extraction, and the toolkit.
 
-PRIMARY USE CASE: BCM VIN change - one command, fully automated.
+PRIMARY USE CASE: BCM VIN change — one command, fully automated.
 
 USAGE:
   python srt_lab.py devices
-  python srt_lab.py scan                                 # Scan all FCA modules
-  python srt_lab.py scan -v                              # Scan with full TX/RX log
-  python srt_lab.py read ECM                             # Read VIN from named module
-  python srt_lab.py read --tx 0x750 --rx 0x758           # Read by address
-  python srt_lab.py probe --tx 0x750 --rx 0x758          # Probe one address
-  python srt_lab.py monitor --duration 10                # Passive CAN monitor
-  python srt_lab.py unlock-test BCM                      # Try all algorithms on BCM
-  python srt_lab.py bcm-write --vin <VIN17>              # FULL BCM VIN CHANGE
-  python srt_lab.py bcm-write --vin <VIN17> --tx 0x750   # BCM write at specific address
+  python srt_lab.py scan                                      Scan all FCA modules
+  python srt_lab.py scan -v                                   Scan with full TX/RX log
+  python srt_lab.py read ECM                                  Read VIN from named module
+  python srt_lab.py read --tx 0x750 --rx 0x758                Read by address
+  python srt_lab.py probe --tx 0x750 --rx 0x758               Probe one address
+  python srt_lab.py monitor --duration 10                     Passive CAN monitor
+  python srt_lab.py unlock-test BCM                           Try all algorithms on BCM
+  python srt_lab.py bcm-write --vin <VIN17>                   FULL BCM VIN CHANGE
+  python srt_lab.py bcm-write --vin <VIN17> --tx 0x750        BCM write at specific address
 
 REQUIREMENTS:
   - Windows 10/11
   - Python 3.8+
   - Autel MaxiFlash / MaxiPro J2534 drivers installed
-  - Autel IM608 (or any J2534 PassThru device) connected via USB
+  - Autel IM608 connected via USB
   - Bench/vehicle powered, ignition RUN
 
 SECURITY ALGORITHMS INCLUDED:
@@ -44,7 +44,6 @@ from ctypes import c_ulong, c_long, c_void_p, POINTER, byref
 # ═══════════════════════════════════════════════════════════════
 # J2534 CONSTANTS
 # ═══════════════════════════════════════════════════════════════
-
 PROTOCOL_CAN = 5
 PROTOCOL_ISO15765 = 6
 ISO15765_FRAME_PAD = 0x00000040
@@ -73,56 +72,49 @@ DID_SKIM_STATE = 0x6E9EB0
 BCM_VIN_DIDS = [DID_VIN_F190, DID_VIN_7B90, DID_VIN_7B88]
 
 NEG_RESPONSE_CODES = {
-    0x10: "General reject",
-    0x11: "Service not supported",
-    0x12: "Subfunction not supported",
-    0x13: "Incorrect length",
-    0x22: "Conditions not correct",
-    0x24: "Sequence error",
-    0x31: "Request out of range",
-    0x33: "Security access denied",
-    0x35: "Invalid key",
-    0x36: "Exceeded attempts",
-    0x37: "Time delay not expired",
-    0x78: "Response pending",
+    0x10: "General reject", 0x11: "Service not supported",
+    0x12: "Subfunction not supported", 0x13: "Incorrect length",
+    0x22: "Conditions not correct", 0x24: "Sequence error",
+    0x31: "Request out of range", 0x33: "Security access denied",
+    0x35: "Invalid key", 0x36: "Exceeded attempts",
+    0x37: "Time delay not expired", 0x78: "Response pending",
 }
 
 # ═══════════════════════════════════════════════════════════════
 # MODULE DATABASE
 # ═══════════════════════════════════════════════════════════════
-
 MODULES = {
-    'ECM':       (0x7E0, 0x7E8, "Engine Control Module"),
-    'TCM':       (0x7E1, 0x7E9, "Transmission Control Module"),
-    'DTCM':      (0x7E2, 0x7EA, "Drive Train Control Module"),
-    'BPCM':      (0x7E4, 0x7EC, "Battery Pack Control Module"),
-    'BCM':       (0x750, 0x758, "Body Control Module"),
-    'RFHUB':     (0x75F, 0x767, "RF Hub Module"),
-    'ABS':       (0x760, 0x768, "Anti-lock Brake System"),
-    'IPC':       (0x740, 0x748, "Instrument Panel Cluster"),
-    'ORC':       (0x758, 0x760, "Occupant Restraint Controller"),
-    'ADCM':      (0x7A8, 0x7B0, "Active Damping Control Module"),
-    'AMP':       (0x7A0, 0x7A8, "Audio Amplifier"),
-    'BSM':       (0x770, 0x778, "Blind Spot Monitor"),
-    'RADIO':     (0x772, 0x77A, "Uconnect Radio"),
-    'HVAC':      (0x751, 0x759, "HVAC Climate"),
-    'TPMS':      (0x752, 0x75A, "Tire Pressure Monitoring"),
-    'EPS':       (0x761, 0x769, "Electric Power Steering"),
-    'SGW':       (0x74F, 0x76F, "Security Gateway"),
-    'CGW':       (0x7C0, 0x7C8, "Central Gateway"),
-    'BCM_ALT':   (0x742, 0x762, "BCM (alternate)"),
-    'IPC_ALT':   (0x745, 0x765, "IPC / SDM (alternate)"),
-    'RADIO_ALT': (0x754, 0x75C, "Radio (alternate)"),
-    'EPS_ALT':   (0x74A, 0x76A, "EPS (alternate)"),
-    'CCM':       (0x743, 0x763, "Climate Control Module"),
-    'ADM':       (0x744, 0x764, "Active Dampening Module"),
-    'SDM':       (0x745, 0x765, "Suspension Dampening Module"),
-    'IPCM':      (0x746, 0x766, "IPC Module"),
-    'DDM':       (0x748, 0x768, "Driver Door Module"),
-    'PDM':       (0x749, 0x769, "Passenger Door Module"),
-    'SCCM':      (0x74D, 0x76D, "Steering Column Control"),
-    'TIPM':      (0x74C, 0x76C, "Integrated Power Module"),
-    'SKREEM':    (0x75A, 0x77A, "SKIM/SKREEM"),
+    'ECM':     (0x7E0, 0x7E8, "Engine Control Module"),
+    'TCM':     (0x7E1, 0x7E9, "Transmission Control Module"),
+    'DTCM':    (0x7E2, 0x7EA, "Drive Train Control Module"),
+    'BPCM':    (0x7E4, 0x7EC, "Battery Pack Control Module"),
+    'BCM':     (0x750, 0x758, "Body Control Module"),
+    'RFHUB':   (0x75F, 0x767, "RF Hub Module"),
+    'ABS':     (0x760, 0x768, "Anti-lock Brake System"),
+    'IPC':     (0x740, 0x748, "Instrument Panel Cluster"),
+    'ORC':     (0x758, 0x760, "Occupant Restraint Controller"),
+    'ADCM':    (0x7A8, 0x7B0, "Active Damping Control Module"),
+    'AMP':     (0x7A0, 0x7A8, "Audio Amplifier"),
+    'BSM':     (0x770, 0x778, "Blind Spot Monitor"),
+    'RADIO':   (0x772, 0x77A, "Uconnect Radio"),
+    'HVAC':    (0x751, 0x759, "HVAC Climate"),
+    'TPMS':    (0x752, 0x75A, "Tire Pressure Monitoring"),
+    'EPS':     (0x761, 0x769, "Electric Power Steering"),
+    'SGW':     (0x74F, 0x76F, "Security Gateway"),
+    'CGW':     (0x7C0, 0x7C8, "Central Gateway"),
+    'BCM_ALT': (0x742, 0x762, "BCM (alternate)"),
+    'IPC_ALT': (0x745, 0x765, "IPC / SDM (alternate)"),
+    'RADIO_ALT':(0x754, 0x75C, "Radio (alternate)"),
+    'EPS_ALT': (0x74A, 0x76A, "EPS (alternate)"),
+    'CCM':     (0x743, 0x763, "Climate Control Module"),
+    'ADM':     (0x744, 0x764, "Active Dampening Module"),
+    'SDM':     (0x745, 0x765, "Suspension Dampening Module"),
+    'IPCM':    (0x746, 0x766, "IPC Module"),
+    'DDM':     (0x748, 0x768, "Driver Door Module"),
+    'PDM':     (0x749, 0x769, "Passenger Door Module"),
+    'SCCM':    (0x74D, 0x76D, "Steering Column Control"),
+    'TIPM':    (0x74C, 0x76C, "Integrated Power Module"),
+    'SKREEM':  (0x75A, 0x77A, "SKIM/SKREEM"),
 }
 
 BCM_CANDIDATES = [
@@ -137,12 +129,10 @@ BCM_CANDIDATES = [
 # ═══════════════════════════════════════════════════════════════
 # SECURITY ALGORITHMS
 # ═══════════════════════════════════════════════════════════════
-
-def u32(n):
-    return n & 0xFFFFFFFF
+def u32(n): return n & 0xFFFFFFFF
 
 def algo_sxor(seed, const):
-    """GPEC shift-XOR - 5 rounds"""
+    """GPEC shift-XOR — 5 rounds"""
     k = u32(seed)
     for _ in range(5):
         if k & 0x80000000:
@@ -152,7 +142,7 @@ def algo_sxor(seed, const):
     return k
 
 def algo_cda6(seed):
-    """CDA6 - BCM/ABS/IPC primary"""
+    """CDA6 — BCM/ABS/IPC primary"""
     k = u32(seed)
     k = u32(k ^ 0x4B129F)
     k = u32((k << 3) | (k >> 29))
@@ -203,58 +193,49 @@ def algo_sbec(seed):
     return (seed * 4 + 0x9018) & 0xFFFFFFFF
 
 BCM_ALGORITHMS = [
-    ('CDA6',         algo_cda6,                          "Modern Chrysler BCM/ABS/IPC"),
-    ('BCM Standard', algo_bcm_standard,                  "BCM 2007-2015"),
-    ('BCM FCA',      algo_bcm_fca,                       "BCM 2016+"),
-    ('GPEC2',        lambda s: algo_sxor(s, 0xE72E3799), "Continental GPEC2"),
-    ('GPEC2 Flash',  lambda s: algo_sxor(s, 0x966AEEB1), "GPEC2 Flash mode"),
-    ('GPEC2 EPROM',  lambda s: algo_sxor(s, 0x3F711F5A), "GPEC2 EPROM mode"),
-    ('GPEC3',        lambda s: algo_sxor(s, 0x129D657F), "GPEC3 2018+"),
-    ('GPEC2A',       lambda s: algo_sxor(s, 0xCE853A6F), "GPEC2A variant"),
-    ('GPEC2 2015',   lambda s: algo_sxor(s, 0x47EC21F8), "GPEC2 2015-18"),
-    ('GPEC1',        lambda s: algo_sxor(s, 670269),     "GPEC1 KEY=670269"),
-    ('NGC',          algo_ngc,                           "NGC DAIMLERCHRYSLER"),
-    ('JTEC',         lambda s: 0x00000000,               "JTEC fixed 0000"),
-    ('TIPM t8001',   lambda s: algo_tipm(s, 'a'),        "TIPM 0x80"),
-    ('TIPM t3605',   lambda s: algo_tipm(s, 'b'),        "TIPM 0x36"),
-    ('TIPM t8101',   lambda s: algo_tipm(s, 'c'),        "TIPM 0x81"),
-    ('TIPM t3c',     lambda s: algo_tipm(s, 'd'),        "TIPM 0x3C"),
-    ('SBEC',         algo_sbec,                          "Legacy SBEC2/3"),
+    ('CDA6',         algo_cda6,                             "Modern Chrysler BCM/ABS/IPC"),
+    ('BCM Standard', algo_bcm_standard,                     "BCM 2007-2015"),
+    ('BCM FCA',      algo_bcm_fca,                          "BCM 2016+"),
+    ('GPEC2',        lambda s: algo_sxor(s, 0xE72E3799),    "Continental GPEC2"),
+    ('GPEC2 Flash',  lambda s: algo_sxor(s, 0x966AEEB1),    "GPEC2 Flash mode"),
+    ('GPEC2 EPROM',  lambda s: algo_sxor(s, 0x3F711F5A),    "GPEC2 EPROM mode"),
+    ('GPEC3',        lambda s: algo_sxor(s, 0x129D657F),    "GPEC3 2018+"),
+    ('GPEC2A',       lambda s: algo_sxor(s, 0xCE853A6F),    "GPEC2A variant"),
+    ('GPEC2 2015',   lambda s: algo_sxor(s, 0x47EC21F8),    "GPEC2 2015-18"),
+    ('GPEC1',        lambda s: algo_sxor(s, 670269),        "GPEC1 KEY=670269"),
+    ('NGC',          algo_ngc,                              "NGC DAIMLERCHRYSLER"),
+    ('JTEC',         lambda s: 0x00000000,                  "JTEC fixed 0000"),
+    ('TIPM t8001',   lambda s: algo_tipm(s, 'a'),           "TIPM 0x80"),
+    ('TIPM t3605',   lambda s: algo_tipm(s, 'b'),           "TIPM 0x36"),
+    ('TIPM t8101',   lambda s: algo_tipm(s, 'c'),           "TIPM 0x81"),
+    ('TIPM t3c',     lambda s: algo_tipm(s, 'd'),           "TIPM 0x3C"),
+    ('SBEC',         algo_sbec,                             "Legacy SBEC2/3"),
 ]
 
 # ═══════════════════════════════════════════════════════════════
 # J2534 STRUCTURES
 # ═══════════════════════════════════════════════════════════════
-
 class PASSTHRU_MSG(ctypes.Structure):
     _fields_ = [
-        ("ProtocolID", c_ulong),
-        ("RxStatus", c_ulong),
-        ("TxFlags", c_ulong),
-        ("Timestamp", c_ulong),
-        ("DataSize", c_ulong),
-        ("ExtraDataIndex", c_ulong),
+        ("ProtocolID", c_ulong), ("RxStatus", c_ulong),
+        ("TxFlags", c_ulong), ("Timestamp", c_ulong),
+        ("DataSize", c_ulong), ("ExtraDataIndex", c_ulong),
         ("Data", ctypes.c_ubyte * 4128),
     ]
 
 # ═══════════════════════════════════════════════════════════════
 # LOGGING
 # ═══════════════════════════════════════════════════════════════
-
 VERBOSE = False
 
 def _color(level):
-    return {
-        "OK": "\033[1;32m", "ERROR": "\033[1;31m", "WARN": "\033[33m",
-        "FOUND": "\033[1;33m", "TX": "\033[36m", "RX": "\033[35m",
-        "STEP": "\033[1;36m", "HEAD": "\033[1;37m",
-    }.get(level, "")
+    return {"OK":"\033[1;32m","ERROR":"\033[1;31m","WARN":"\033[33m",
+            "FOUND":"\033[1;33m","TX":"\033[36m","RX":"\033[35m",
+            "STEP":"\033[1;36m","HEAD":"\033[1;37m"}.get(level, "")
 
 def log(msg, level="INFO"):
-    prefix = {
-        "INFO": "[*]", "OK": "[+]", "ERROR": "[!]", "WARN": "[?]",
-        "TX": "[->]", "RX": "[<-]", "FOUND": "[*]", "STEP": "[>]", "HEAD": "",
-    }.get(level, "[*]")
+    prefix = {"INFO":"[*]","OK":"[+]","ERROR":"[!]","WARN":"[?]",
+              "TX":"[->]","RX":"[<-]","FOUND":"[*]","STEP":"[>]","HEAD":""}.get(level, "[*]")
     color = _color(level)
     reset = "\033[0m" if color else ""
     ts = time.strftime("%H:%M:%S")
@@ -272,7 +253,6 @@ def head(msg):
 # ═══════════════════════════════════════════════════════════════
 # J2534 CLIENT
 # ═══════════════════════════════════════════════════════════════
-
 class J2534:
     def __init__(self):
         self.dll = None
@@ -300,45 +280,29 @@ class J2534:
                             name = winreg.QueryValueEx(sub, "Name")[0]
                             if os.path.exists(dll):
                                 devices.append((name, dll))
-                        except Exception:
-                            pass
+                        except: pass
                         winreg.CloseKey(sub)
                         i += 1
-                    except OSError:
-                        break
+                    except OSError: break
                 winreg.CloseKey(key)
-            except Exception:
-                pass
-        seen = set()
-        unique = []
+            except: pass
+        seen = set(); unique = []
         for n, d in devices:
             if d.lower() not in seen:
-                seen.add(d.lower())
-                unique.append((n, d))
+                seen.add(d.lower()); unique.append((n, d))
         return unique
 
     def load(self, dll_path):
         self.dll = ctypes.WinDLL(dll_path)
-        self.dll.PassThruOpen.argtypes = [c_void_p, POINTER(c_ulong)]
-        self.dll.PassThruOpen.restype = c_long
-        self.dll.PassThruClose.argtypes = [c_ulong]
-        self.dll.PassThruClose.restype = c_long
-        self.dll.PassThruConnect.argtypes = [c_ulong, c_ulong, c_ulong, c_ulong, POINTER(c_ulong)]
-        self.dll.PassThruConnect.restype = c_long
-        self.dll.PassThruDisconnect.argtypes = [c_ulong]
-        self.dll.PassThruDisconnect.restype = c_long
-        self.dll.PassThruReadMsgs.argtypes = [c_ulong, POINTER(PASSTHRU_MSG), POINTER(c_ulong), c_ulong]
-        self.dll.PassThruReadMsgs.restype = c_long
-        self.dll.PassThruWriteMsgs.argtypes = [c_ulong, POINTER(PASSTHRU_MSG), POINTER(c_ulong), c_ulong]
-        self.dll.PassThruWriteMsgs.restype = c_long
-        self.dll.PassThruStartMsgFilter.argtypes = [c_ulong, c_ulong, POINTER(PASSTHRU_MSG),
-                                                    POINTER(PASSTHRU_MSG), POINTER(PASSTHRU_MSG),
-                                                    POINTER(c_ulong)]
-        self.dll.PassThruStartMsgFilter.restype = c_long
-        self.dll.PassThruStopMsgFilter.argtypes = [c_ulong, c_ulong]
-        self.dll.PassThruStopMsgFilter.restype = c_long
-        self.dll.PassThruIoctl.argtypes = [c_ulong, c_ulong, c_void_p, c_void_p]
-        self.dll.PassThruIoctl.restype = c_long
+        self.dll.PassThruOpen.argtypes=[c_void_p,POINTER(c_ulong)]; self.dll.PassThruOpen.restype=c_long
+        self.dll.PassThruClose.argtypes=[c_ulong]; self.dll.PassThruClose.restype=c_long
+        self.dll.PassThruConnect.argtypes=[c_ulong,c_ulong,c_ulong,c_ulong,POINTER(c_ulong)]; self.dll.PassThruConnect.restype=c_long
+        self.dll.PassThruDisconnect.argtypes=[c_ulong]; self.dll.PassThruDisconnect.restype=c_long
+        self.dll.PassThruReadMsgs.argtypes=[c_ulong,POINTER(PASSTHRU_MSG),POINTER(c_ulong),c_ulong]; self.dll.PassThruReadMsgs.restype=c_long
+        self.dll.PassThruWriteMsgs.argtypes=[c_ulong,POINTER(PASSTHRU_MSG),POINTER(c_ulong),c_ulong]; self.dll.PassThruWriteMsgs.restype=c_long
+        self.dll.PassThruStartMsgFilter.argtypes=[c_ulong,c_ulong,POINTER(PASSTHRU_MSG),POINTER(PASSTHRU_MSG),POINTER(PASSTHRU_MSG),POINTER(c_ulong)]; self.dll.PassThruStartMsgFilter.restype=c_long
+        self.dll.PassThruStopMsgFilter.argtypes=[c_ulong,c_ulong]; self.dll.PassThruStopMsgFilter.restype=c_long
+        self.dll.PassThruIoctl.argtypes=[c_ulong,c_ulong,c_void_p,c_void_p]; self.dll.PassThruIoctl.restype=c_long
 
     def open(self):
         return self.dll.PassThruOpen(None, byref(self.device_id)) == 0
@@ -366,64 +330,45 @@ class J2534:
 
     def clear_filters(self):
         for fid in self.filters:
-            try:
-                self.dll.PassThruStopMsgFilter(self.channel_id, fid)
-            except Exception:
-                pass
+            try: self.dll.PassThruStopMsgFilter(self.channel_id, fid)
+            except: pass
         self.filters = []
 
     def clear_rx(self):
         self.dll.PassThruIoctl(self.channel_id, CLEAR_RX_BUFFER, None, None)
 
     def setup_iso15765(self, tx_id, rx_id):
-        mask = PASSTHRU_MSG()
-        mask.ProtocolID = PROTOCOL_ISO15765
-        mask.DataSize = 4
-        mask.Data[0] = 0xFF; mask.Data[1] = 0xFF; mask.Data[2] = 0xFF; mask.Data[3] = 0xFF
-        pattern = PASSTHRU_MSG()
-        pattern.ProtocolID = PROTOCOL_ISO15765
-        pattern.DataSize = 4
-        pattern.Data[0] = (rx_id >> 24) & 0xFF
-        pattern.Data[1] = (rx_id >> 16) & 0xFF
-        pattern.Data[2] = (rx_id >> 8) & 0xFF
-        pattern.Data[3] = rx_id & 0xFF
-        fc = PASSTHRU_MSG()
-        fc.ProtocolID = PROTOCOL_ISO15765
-        fc.TxFlags = ISO15765_FRAME_PAD
-        fc.DataSize = 4
-        fc.Data[0] = (tx_id >> 24) & 0xFF
-        fc.Data[1] = (tx_id >> 16) & 0xFF
-        fc.Data[2] = (tx_id >> 8) & 0xFF
-        fc.Data[3] = tx_id & 0xFF
+        mask = PASSTHRU_MSG(); mask.ProtocolID=PROTOCOL_ISO15765; mask.DataSize=4
+        mask.Data[0]=0xFF; mask.Data[1]=0xFF; mask.Data[2]=0xFF; mask.Data[3]=0xFF
+        pattern = PASSTHRU_MSG(); pattern.ProtocolID=PROTOCOL_ISO15765; pattern.DataSize=4
+        pattern.Data[0]=(rx_id>>24)&0xFF; pattern.Data[1]=(rx_id>>16)&0xFF
+        pattern.Data[2]=(rx_id>>8)&0xFF; pattern.Data[3]=rx_id&0xFF
+        fc = PASSTHRU_MSG(); fc.ProtocolID=PROTOCOL_ISO15765; fc.TxFlags=ISO15765_FRAME_PAD; fc.DataSize=4
+        fc.Data[0]=(tx_id>>24)&0xFF; fc.Data[1]=(tx_id>>16)&0xFF
+        fc.Data[2]=(tx_id>>8)&0xFF; fc.Data[3]=tx_id&0xFF
         fid = c_ulong(0)
         r = self.dll.PassThruStartMsgFilter(self.channel_id, FLOW_CONTROL_FILTER,
-                                            byref(mask), byref(pattern), byref(fc), byref(fid))
+                                              byref(mask), byref(pattern), byref(fc), byref(fid))
         if r == 0:
             self.filters.append(fid.value)
             return True
         return False
 
     def send(self, tx_id, data, timeout=2000):
-        msg = PASSTHRU_MSG()
-        msg.ProtocolID = PROTOCOL_ISO15765
-        msg.TxFlags = ISO15765_FRAME_PAD
+        msg = PASSTHRU_MSG(); msg.ProtocolID=PROTOCOL_ISO15765; msg.TxFlags=ISO15765_FRAME_PAD
         msg.DataSize = 4 + len(data)
-        msg.Data[0] = (tx_id >> 24) & 0xFF
-        msg.Data[1] = (tx_id >> 16) & 0xFF
-        msg.Data[2] = (tx_id >> 8) & 0xFF
-        msg.Data[3] = tx_id & 0xFF
-        for i, b in enumerate(data):
-            msg.Data[4 + i] = b
+        msg.Data[0]=(tx_id>>24)&0xFF; msg.Data[1]=(tx_id>>16)&0xFF
+        msg.Data[2]=(tx_id>>8)&0xFF; msg.Data[3]=tx_id&0xFF
+        for i, b in enumerate(data): msg.Data[4+i] = b
         num = c_ulong(1)
         vlog(f"TX 0x{tx_id:03X}: {' '.join(f'{b:02X}' for b in data)}", "TX")
         return self.dll.PassThruWriteMsgs(self.channel_id, byref(msg), byref(num), timeout) == 0
 
     def recv(self, timeout=2000):
-        msg = PASSTHRU_MSG()
-        num = c_ulong(1)
+        msg = PASSTHRU_MSG(); num = c_ulong(1)
         r = self.dll.PassThruReadMsgs(self.channel_id, byref(msg), byref(num), timeout)
         if r == 0 and num.value > 0 and msg.DataSize > 4:
-            can_id = (msg.Data[0] << 24) | (msg.Data[1] << 16) | (msg.Data[2] << 8) | msg.Data[3]
+            can_id = (msg.Data[0]<<24)|(msg.Data[1]<<16)|(msg.Data[2]<<8)|msg.Data[3]
             data = [msg.Data[i] for i in range(4, msg.DataSize)]
             vlog(f"RX 0x{can_id:03X}: {' '.join(f'{b:02X}' for b in data)}", "RX")
             return can_id, data
@@ -437,7 +382,7 @@ class J2534:
                 return None
         if not self.send(tx_id, data, timeout):
             return None
-        deadline = time.time() + (timeout / 1000.0) + 2
+        deadline = time.time() + (timeout/1000.0) + 2
         while time.time() < deadline:
             can_id, resp = self.recv(timeout)
             if resp is None:
@@ -453,7 +398,6 @@ class J2534:
 # ═══════════════════════════════════════════════════════════════
 # UDS HELPERS
 # ═══════════════════════════════════════════════════════════════
-
 def parse_vin(data):
     if not data or len(data) < 3:
         return None
@@ -468,12 +412,11 @@ def neg_decode(resp):
     return NEG_RESPONSE_CODES.get(resp[2], f"0x{resp[2]:02X} (unknown)")
 
 def is_positive(resp, service):
-    return bool(resp) and resp[0] == (service + 0x40)
+    return resp and resp[0] == (service + 0x40)
 
 # ═══════════════════════════════════════════════════════════════
 # TESTER PRESENT THREAD
 # ═══════════════════════════════════════════════════════════════
-
 class TesterPresent:
     def __init__(self, j2534_client, tx_id, rx_id):
         self.j = j2534_client
@@ -501,13 +444,11 @@ class TesterPresent:
                 break
             try:
                 self.j.send(self.tx_id, [SID_TESTER_PRESENT, 0x80], timeout=500)
-            except Exception:
-                pass
+            except: pass
 
 # ═══════════════════════════════════════════════════════════════
 # CORE OPERATIONS
 # ═══════════════════════════════════════════════════════════════
-
 def probe_module(j, tx, rx):
     resp = j.request(tx, rx, [SID_READ_DATA_BY_ID, 0xF1, 0x90], timeout=1500)
     if resp:
@@ -527,15 +468,13 @@ def scan_all(j):
     found = []
     seen = set()
     for code, (tx, rx, desc) in MODULES.items():
-        if (tx, rx) in seen:
-            continue
+        if (tx, rx) in seen: continue
         seen.add((tx, rx))
         r = probe_module(j, tx, rx)
         if r["found"]:
             vin = r.get("vin") or "(present)"
             log(f"{code:<10} TX:0x{tx:03X} RX:0x{rx:03X}  {desc:<38} {vin}", "FOUND")
-            found.append({"code": code, "tx": tx, "rx": rx, "name": desc,
-                          "vin": vin, "method": r["method"]})
+            found.append({"code":code,"tx":tx,"rx":rx,"name":desc,"vin":vin,"method":r["method"]})
         else:
             vlog(f"{code:<10} TX:0x{tx:03X} RX:0x{rx:03X}  no response", "INFO")
     print()
@@ -581,7 +520,7 @@ def request_seed(j, tx, rx, level=0x01):
         return None
     seed_bytes = resp[2:]
     if not seed_bytes:
-        log("Seed response empty - module may already be unlocked", "WARN")
+        log("Seed response empty — module may already be unlocked", "WARN")
         return b''
     seed_hex = ''.join(f'{b:02X}' for b in seed_bytes)
     log(f"Seed: {seed_hex} ({len(seed_bytes)} bytes)", "OK")
@@ -599,7 +538,7 @@ def send_key(j, tx, rx, key_bytes, level=0x02):
     return False, f"unexpected 0x{resp[0]:02X}"
 
 def try_unlock(j, tx, rx):
-    head("Security Unlock - trying all algorithms")
+    head("Security Unlock — trying all algorithms")
     seed_bytes = request_seed(j, tx, rx, level=0x01)
     if seed_bytes is None:
         return None
@@ -633,7 +572,7 @@ def try_unlock(j, tx, rx):
             time.sleep(0.5)
             s = request_seed(j, tx, rx, level=0x01)
             if s is None:
-                log("Seed re-request failed - module may be locked out", "ERROR")
+                log("Seed re-request failed — module may be locked out", "ERROR")
                 return None
             if s:
                 seed_int = int.from_bytes(s[-min(4, len(s)):], 'big')
@@ -680,9 +619,8 @@ def ecu_reset(j, tx, rx):
     return False
 
 # ═══════════════════════════════════════════════════════════════
-# BCM WRITE - MAIN FLOW
+# BCM WRITE — MAIN FLOW
 # ═══════════════════════════════════════════════════════════════
-
 def bcm_write_vin(j, new_vin, force_tx=None, force_rx=None):
     if len(new_vin) != 17:
         log(f"VIN must be 17 characters (got {len(new_vin)})", "ERROR")
@@ -692,7 +630,7 @@ def bcm_write_vin(j, new_vin, force_tx=None, force_rx=None):
         return False
 
     new_vin = new_vin.upper()
-    head(f"BCM VIN PROGRAMMING - Target: {new_vin}")
+    head(f"BCM VIN PROGRAMMING — Target: {new_vin}")
 
     if force_tx and force_rx:
         tx, rx = force_tx, force_rx
@@ -756,7 +694,6 @@ def bcm_write_vin(j, new_vin, force_tx=None, force_rx=None):
 # ═══════════════════════════════════════════════════════════════
 # CONNECTION
 # ═══════════════════════════════════════════════════════════════
-
 def connect_device():
     devs = J2534.find_devices()
     if not devs:
@@ -772,7 +709,7 @@ def connect_device():
         log(f"Failed to load DLL: {e}", "ERROR")
         return None
     if not j.open():
-        log("PassThruOpen failed - device connected via USB?", "ERROR")
+        log("PassThruOpen failed — device connected via USB?", "ERROR")
         return None
     log("Device opened", "OK")
     if not j.connect(baud=500000):
@@ -785,7 +722,6 @@ def connect_device():
 # ═══════════════════════════════════════════════════════════════
 # CLI
 # ═══════════════════════════════════════════════════════════════
-
 def cmd_devices(args):
     devs = J2534.find_devices()
     if not devs:
@@ -798,12 +734,9 @@ def cmd_devices(args):
 
 def cmd_scan(args):
     j = connect_device()
-    if not j:
-        return 1
-    try:
-        scan_all(j)
-    finally:
-        j.close()
+    if not j: return 1
+    try: scan_all(j)
+    finally: j.close()
     return 0
 
 def cmd_read(args):
@@ -816,58 +749,43 @@ def cmd_read(args):
         name = m
     else:
         if not (args.tx and args.rx):
-            log("Need either <module> or --tx/--rx", "ERROR")
-            return 1
-        tx = int(args.tx, 0)
-        rx = int(args.rx, 0)
-        name = f"0x{tx:03X}"
+            log("Need either <module> or --tx/--rx", "ERROR"); return 1
+        tx = int(args.tx, 0); rx = int(args.rx, 0); name = f"0x{tx:03X}"
     j = connect_device()
-    if not j:
-        return 1
+    if not j: return 1
     try:
         head(f"Reading VIN from {name}")
         enter_session(j, tx, rx, 0x03)
         for did in [DID_VIN_F190, DID_VIN_7B90, DID_VIN_7B88]:
             vin = read_vin_from_did(j, tx, rx, did)
             log(f"DID 0x{did:04X}: {vin or '(no response)'}", "FOUND" if vin else "WARN")
-    finally:
-        j.close()
+    finally: j.close()
     return 0
 
 def cmd_probe(args):
-    tx = int(args.tx, 0)
-    rx = int(args.rx, 0)
+    tx = int(args.tx, 0); rx = int(args.rx, 0)
     j = connect_device()
-    if not j:
-        return 1
+    if not j: return 1
     try:
         r = probe_module(j, tx, rx)
         if r["found"]:
             log(f"Module responded at 0x{tx:03X}/0x{rx:03X} ({r['method']})", "FOUND")
-            if r.get("vin"):
-                log(f"VIN: {r['vin']}", "FOUND")
+            if r.get("vin"): log(f"VIN: {r['vin']}", "FOUND")
         else:
             log(f"No response from 0x{tx:03X}/0x{rx:03X}", "WARN")
-    finally:
-        j.close()
+    finally: j.close()
     return 0
 
 def cmd_monitor(args):
     j = connect_device()
-    if not j:
-        return 1
+    if not j: return 1
     try:
         log(f"Monitoring CAN for {args.duration}s...", "INFO")
-        mask = PASSTHRU_MSG()
-        mask.ProtocolID = PROTOCOL_CAN
-        mask.DataSize = 4
-        pattern = PASSTHRU_MSG()
-        pattern.ProtocolID = PROTOCOL_CAN
-        pattern.DataSize = 4
+        mask = PASSTHRU_MSG(); mask.ProtocolID = PROTOCOL_CAN; mask.DataSize = 4
+        pattern = PASSTHRU_MSG(); pattern.ProtocolID = PROTOCOL_CAN; pattern.DataSize = 4
         fid = c_ulong(0)
         j.dll.PassThruStartMsgFilter(j.channel_id, PASS_FILTER, byref(mask), byref(pattern), None, byref(fid))
-        if fid.value:
-            j.filters.append(fid.value)
+        if fid.value: j.filters.append(fid.value)
         seen = {}
         deadline = time.time() + args.duration
         while time.time() < deadline:
@@ -878,52 +796,44 @@ def cmd_monitor(args):
         log(f"Seen {len(seen)} unique CAN IDs:", "OK")
         for cid in sorted(seen):
             print(f"    0x{cid:03X}  ({seen[cid]} frames)")
-    finally:
-        j.close()
+    finally: j.close()
     return 0
 
 def cmd_unlock_test(args):
     m = args.module.upper()
     if m not in MODULES:
-        log(f"Unknown module '{m}'", "ERROR")
-        return 1
+        log(f"Unknown module '{m}'", "ERROR"); return 1
     tx, rx, _ = MODULES[m]
     j = connect_device()
-    if not j:
-        return 1
+    if not j: return 1
     try:
-        head(f"Unlock test - {m} at TX:0x{tx:03X} RX:0x{rx:03X}")
-        if not enter_session(j, tx, rx, 0x03):
-            return 1
+        head(f"Unlock test — {m} at TX:0x{tx:03X} RX:0x{rx:03X}")
+        if not enter_session(j, tx, rx, 0x03): return 1
         algo = try_unlock(j, tx, rx)
         if algo:
             log(f"SUCCESS: {m} unlocks with {algo}", "FOUND")
         else:
             log(f"FAILED: no algorithm worked on {m}", "ERROR")
-    finally:
-        j.close()
+    finally: j.close()
     return 0
 
 def cmd_bcm_write(args):
     j = connect_device()
-    if not j:
-        return 1
+    if not j: return 1
     try:
         force_tx = int(args.tx, 0) if args.tx else None
         force_rx = int(args.rx, 0) if args.rx else None
         ok = bcm_write_vin(j, args.vin, force_tx, force_rx)
         return 0 if ok else 2
-    finally:
-        j.close()
+    finally: j.close()
 
 # ═══════════════════════════════════════════════════════════════
 # MAIN
 # ═══════════════════════════════════════════════════════════════
-
 def main():
     global VERBOSE
     p = argparse.ArgumentParser(
-        description="SRT LAB v2 - J2534 BCM VIN Programmer",
+        description="SRT LAB v2 — J2534 BCM VIN Programmer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Examples:
   python srt_lab.py devices
@@ -943,12 +853,10 @@ def main():
 
     rd = sub.add_parser('read', help='Read VIN from module')
     rd.add_argument('module', nargs='?')
-    rd.add_argument('--tx')
-    rd.add_argument('--rx')
+    rd.add_argument('--tx'); rd.add_argument('--rx')
 
     pr = sub.add_parser('probe', help='Probe one address')
-    pr.add_argument('--tx', required=True)
-    pr.add_argument('--rx', required=True)
+    pr.add_argument('--tx', required=True); pr.add_argument('--rx', required=True)
 
     mo = sub.add_parser('monitor', help='Passive CAN monitor')
     mo.add_argument('--duration', type=int, default=5)
@@ -958,8 +866,7 @@ def main():
 
     bw = sub.add_parser('bcm-write', help='Write VIN to BCM (full sequence)')
     bw.add_argument('--vin', required=True)
-    bw.add_argument('--tx')
-    bw.add_argument('--rx')
+    bw.add_argument('--tx'); bw.add_argument('--rx')
 
     args = p.parse_args()
     VERBOSE = args.verbose
@@ -974,7 +881,6 @@ def main():
         'bcm-write': cmd_bcm_write,
     }
     return dispatch[args.command](args)
-
 
 if __name__ == "__main__":
     try:

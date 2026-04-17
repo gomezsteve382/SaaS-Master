@@ -1009,7 +1009,7 @@ function DesktopDriverCard(){
     {man&&<div style={{fontSize:11,color:C.ts,marginBottom:8,fontFamily:"'JetBrains Mono'",letterSpacing:.3}}>
       v{man.version} · {sizeMB} MB · last updated {man.lastUpdated}
     </div>}
-    <div style={{fontSize:12,color:C.ts,lineHeight:1.5,marginBottom:12}}>Real J2534 hardware bridge — Windows + Autel MaxiFlash · MaxiPro · DrewTech. Bench mechanic mode: full UDS stack, 17 FCA security algorithms, BCM auto-discovery, one-shot VIN write.</div>
+    <div style={{fontSize:12,color:C.ts,lineHeight:1.5,marginBottom:12}}>Windows · J2534 · Autel IM608 — direct PassThru DLL driver. No WebSerial, no ELM327. Full UDS stack, 17 FCA security algorithms, BCM auto-discovery, one-shot VIN write.</div>
     <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:8}}>
       <a href={(import.meta.env.BASE_URL||'/')+'srt_lab.py'} download="srt_lab.py" onClick={onDl} style={{textDecoration:'none'}}>
         <span style={{display:'inline-block',padding:'10px 18px',borderRadius:10,background:C.sr,color:'#fff',fontWeight:800,fontSize:12,letterSpacing:.5,fontFamily:"'Nunito'"}}>⬇ Download srt_lab.py</span>

@@ -1,10 +1,15 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "filename": "srt_lab.py",
-  "sizeBytes": 38136,
-  "sha256": "847bc57e6e25023fb2389db2c8c3c54a763d164b0a63201ffca7613f1c35a38f",
+  "sizeBytes": 37191,
+  "sha256": "56e2cc77c934a46b2b9aa1b0d40a9b23b74ba5f51d6a1eac2d7771bbb9551998",
   "lastUpdated": "2026-04-17",
   "changelog": [
+    {
+      "version": "2.1.0",
+      "date": "2026-04-17",
+      "notes": "Swapped to J2534 build for Autel IM608 / MaxiFlash on Windows — drops WebSerial/ELM327 path, talks directly to the J2534 DLL."
+    },
     {
       "version": "2.0.0",
       "date": "2026-04-17",
