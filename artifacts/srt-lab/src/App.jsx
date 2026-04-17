@@ -903,6 +903,9 @@ function DesktopDriverCard(){
   const[man,setMan]=useState(null);
   const[showCl,setShowCl]=useState(false);
   const[dlCount,setDlCount]=useState(0);
+  const[copied,setCopied]=useState(null);
+  const[hover,setHover]=useState(null);
+  const[focus,setFocus]=useState(null);
   useEffect(()=>{
     const base=import.meta.env.BASE_URL||'/';
     fetch(base+'srt_lab.manifest.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(setMan).catch(()=>{});
@@ -912,6 +915,14 @@ function DesktopDriverCard(){
     try{const n=(parseInt(localStorage.getItem('srtlab_dl_count')||'0',10)||0)+1;localStorage.setItem('srtlab_dl_count',String(n));setDlCount(n);}catch(e){}
   };
   const sizeMB=man?(man.sizeBytes/(1024*1024)).toFixed(2):null;
+  const copy=async(text,key)=>{
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(text);}
+      else{const t=document.createElement('textarea');t.value=text;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);}
+      setCopied(key);setTimeout(()=>setCopied(c=>c===key?null:c),1500);
+    }catch(e){setCopied('err');setTimeout(()=>setCopied(null),1500);}
+  };
+  const btnStyle={background:'transparent',border:'1px solid #444',color:'#A5D6A7',borderRadius:5,padding:'1px 6px',fontSize:9,fontFamily:"'JetBrains Mono'",cursor:'pointer',letterSpacing:.5};
   return <Card style={{padding:18}}>
     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
       <span style={{fontSize:18}}>🖥️</span>
@@ -939,9 +950,21 @@ function DesktopDriverCard(){
       </div>}
     </div>}
     <div style={{fontSize:10,color:C.tm,marginBottom:8,letterSpacing:.5}}>REQUIREMENTS: Windows 10/11 · Python 3.8+ · J2534 vendor drivers (no pip packages)</div>
-    <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1}}>QUICK START</div>
+    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:6}}>
+      <div style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>QUICK START</div>
+      <button type="button" onClick={()=>copy(cmds.join('\n'),'all')} style={{...btnStyle,color:C.tm,borderColor:'#ddd',background:'#fff'}}>{copied==='all'?'✓ Copied all':'⧉ Copy all'}</button>
+    </div>
     <div style={{background:C.bk,borderRadius:8,padding:10,fontFamily:"'JetBrains Mono'",fontSize:11,color:'#A5D6A7',lineHeight:1.7}}>
-      {cmds.map((c,i)=><div key={i}><span style={{color:'#666'}}>$ </span>{c}</div>)}
+      {cmds.map((c,i)=>{
+        const isVisible=hover===i||focus===i||copied===i;
+        const isCopied=copied===i;
+        return <div key={i} onMouseEnter={()=>setHover(i)} onMouseLeave={()=>setHover(h=>h===i?null:h)} style={{display:'flex',alignItems:'center',gap:8,minHeight:22}}>
+          <div style={{flex:1,minWidth:0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+            <span style={{color:'#666'}}>$ </span>{c}
+          </div>
+          <button type="button" onClick={()=>copy(c,i)} onFocus={()=>setFocus(i)} onBlur={()=>setFocus(f=>f===i?null:f)} aria-label={'Copy command: '+c} title="Copy command" style={{...btnStyle,opacity:isVisible?1:0.001,transition:'opacity 120ms'}}>{isCopied?'✓ Copied!':'⧉ Copy'}</button>
+        </div>;
+      })}
     </div>
   </Card>;
 }
