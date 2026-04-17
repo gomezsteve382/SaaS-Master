@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useRef } from "react";
+import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import ImmoVINTab from "./tabs/ImmoVINTab";
 import TwinTab from "./tabs/TwinTab";
 import OBDSwarmDiagnostic from "./OBDSwarmDiagnostic";
@@ -900,16 +900,44 @@ function OBDTab(){
 /* ═══ DUMPS TAB ═══ */
 function DesktopDriverCard(){
   const cmds=['python srt_lab.py devices','python srt_lab.py scan','python srt_lab.py unlock-test BCM','python srt_lab.py bcm-write --vin <VIN17>'];
+  const[man,setMan]=useState(null);
+  const[showCl,setShowCl]=useState(false);
+  const[dlCount,setDlCount]=useState(0);
+  useEffect(()=>{
+    const base=import.meta.env.BASE_URL||'/';
+    fetch(base+'srt_lab.manifest.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(setMan).catch(()=>{});
+    try{const n=parseInt(localStorage.getItem('srtlab_dl_count')||'0',10);setDlCount(isNaN(n)?0:n);}catch(e){}
+  },[]);
+  const onDl=()=>{
+    try{const n=(parseInt(localStorage.getItem('srtlab_dl_count')||'0',10)||0)+1;localStorage.setItem('srtlab_dl_count',String(n));setDlCount(n);}catch(e){}
+  };
+  const sizeMB=man?(man.sizeBytes/(1024*1024)).toFixed(2):null;
   return <Card style={{padding:18}}>
-    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
       <span style={{fontSize:18}}>🖥️</span>
       <span style={{fontSize:13,fontWeight:900,letterSpacing:1,color:C.bk}}>DESKTOP DRIVER</span>
       <Tag color={C.a3}>WINDOWS</Tag>
+      {man&&<Tag color={C.a1}>v{man.version}</Tag>}
     </div>
+    {man&&<div style={{fontSize:11,color:C.ts,marginBottom:8,fontFamily:"'JetBrains Mono'",letterSpacing:.3}}>
+      v{man.version} · {sizeMB} MB · last updated {man.lastUpdated}
+    </div>}
     <div style={{fontSize:12,color:C.ts,lineHeight:1.5,marginBottom:12}}>Real J2534 hardware bridge — Windows + Autel MaxiFlash · MaxiPro · DrewTech. Bench mechanic mode: full UDS stack, 17 FCA security algorithms, BCM auto-discovery, one-shot VIN write.</div>
-    <a href={(import.meta.env.BASE_URL||'/')+'srt_lab.py'} download="srt_lab.py" style={{textDecoration:'none',display:'inline-block',marginBottom:12}}>
+    <a href={(import.meta.env.BASE_URL||'/')+'srt_lab.py'} download="srt_lab.py" onClick={onDl} style={{textDecoration:'none',display:'inline-block',marginBottom:8}}>
       <span style={{display:'inline-block',padding:'10px 18px',borderRadius:10,background:C.sr,color:'#fff',fontWeight:800,fontSize:12,letterSpacing:.5,fontFamily:"'Nunito'"}}>⬇ Download srt_lab.py</span>
     </a>
+    {dlCount>0&&<div style={{fontSize:10,color:C.tm,marginBottom:8,letterSpacing:.3}}>You've downloaded this {dlCount} time{dlCount===1?'':'s'}</div>}
+    {man&&man.changelog&&man.changelog.length>0&&<div style={{marginBottom:10}}>
+      <button onClick={()=>setShowCl(s=>!s)} style={{background:'none',border:'none',padding:0,cursor:'pointer',fontSize:10,fontWeight:800,color:C.a3,letterSpacing:.5}}>
+        {showCl?'▼':'▶'} RECENT CHANGES
+      </button>
+      {showCl&&<div style={{marginTop:8,borderLeft:'2px solid '+C.bd,paddingLeft:10,display:'flex',flexDirection:'column',gap:8}}>
+        {man.changelog.slice(0,3).map((e,i)=><div key={i}>
+          <div style={{fontSize:10,fontWeight:800,color:C.bk,fontFamily:"'JetBrains Mono'"}}>v{e.version} <span style={{color:C.tm,fontWeight:600,marginLeft:4}}>{e.date}</span></div>
+          <div style={{fontSize:11,color:C.ts,lineHeight:1.4,marginTop:2}}>{e.notes}</div>
+        </div>)}
+      </div>}
+    </div>}
     <div style={{fontSize:10,color:C.tm,marginBottom:8,letterSpacing:.5}}>REQUIREMENTS: Windows 10/11 · Python 3.8+ · J2534 vendor drivers (no pip packages)</div>
     <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1}}>QUICK START</div>
     <div style={{background:C.bk,borderRadius:8,padding:10,fontFamily:"'JetBrains Mono'",fontSize:11,color:'#A5D6A7',lineHeight:1.7}}>
