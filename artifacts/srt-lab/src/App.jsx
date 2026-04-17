@@ -6,6 +6,8 @@ import J2534Scanner from "./J2534Scanner";
 import JailbreakTab from "./tabs/JailbreakTab";
 import BcmTab from "./tabs/BcmTab.jsx";
 import RfhubTab from "./tabs/RfhubTab.jsx";
+import BackupsTab from "./tabs/BackupsTab";
+import SessionsTab from "./tabs/SessionsTab";
 import { MasterVinProvider, useMasterVin } from "./lib/masterVinContext.jsx";
 import { QR_CMDS } from "./lib/quickRef.js";
 import { buildQuickReferencePDF } from "./lib/buildQuickReferencePDF.js";
@@ -259,8 +261,8 @@ const TABS=[
   {id:'ecm',i:'⚡',l:'ECM',s:'VIN · Tune · Cal',placeholder:true},
   {id:'adcm',i:'🏎️',l:'ACTIVE DAMPING',s:'VIN · Variant',placeholder:true},
   {id:'uds',i:'🔬',l:'UDS PROGRAMMER',s:'Universal · Raw',placeholder:true},
-  {id:'backups',i:'💾',l:'BACKUPS',s:'History · Restore',placeholder:true},
-  {id:'sessions',i:'📋',l:'SESSIONS',s:'Paper Trail · Reports',placeholder:true},
+  {id:'backups',i:'💾',l:'BACKUPS',s:'History · Restore'},
+  {id:'sessions',i:'📋',l:'SESSIONS',s:'Paper Trail · Reports'},
   {id:'analyzer',i:'🧪',l:'FCA ANALYZER',s:'Cross-module audit',placeholder:true},
   {id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},
   {id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},
@@ -395,6 +397,8 @@ function AppShell({pg,setPg,files,setFiles,loadF}){
       {pg==='swarm'&&<OBDSwarmDiagnostic/>}
       {pg==='j2534'&&<J2534Scanner/>}
       {pg==='jailbreak'&&<JailbreakTab/>}
+      {pg==='backups'&&<BackupsTab/>}
+      {pg==='sessions'&&<SessionsTab/>}
     </div>
   </div>;
 }
