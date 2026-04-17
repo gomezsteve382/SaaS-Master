@@ -15,23 +15,43 @@ FCA/Stellantis ECU module workbench. React single-page app (Vite + React) runnin
 
 ## Architecture
 
-Single file: `artifacts/srt-lab/src/App.jsx` — all processing is client-side in the browser. Binary files loaded via FileReader API, processed as Uint8Array.
+`artifacts/srt-lab/` — React + Vite SPA. All binary processing is client-side via FileReader → Uint8Array. The shared `MasterVinContext` (`src/lib/masterVinContext.jsx`) holds the current VIN, vinValid regex, and per-module status (BCM / RFHUB / ECM / ADCM) so any tab can drive the next.
+
+Processing helpers live in `src/lib/`:
+- `parseModule.js` — auto-detects GPEC2A / RFHUB / BCM / 95640 and extracts every documented field per type.
+- `crossValidate.js` — cross-module rules + `computeDiff(a,b)` hex diff with adjacent grouping.
+- `crc.js` — verified CRC primitives (CCITT-FALSE 0x1021, 95640 0x42, RFHUB 0xA0 reflected).
+- `algos.js` — seed→key algorithms (cda6, sxor, ngc, jtec, sbec).
+- `initAdapter.js` — shared OBD adapter init (ATZ 3000 ms + 1000 ms settle + STN PP2C/PP2D) and `parseVinFromResponse`.
+- `backups.js` — localStorage-backed module backups, capped at 50 entries (`srtlab_backup_*`).
+- `paperTrail.js` — session log, capped at 500 entries (`srtlab_sessions`).
+- `nrc.js` — UDS negative-response code decoder.
+- `programmerData.js` — ADCM_VARIANTS (14) + ADCM_MODULES (5).
+
+A desktop J2534 driver (Python, separate package) handles raw CAN PassThru when Web Serial is insufficient.
 
 No backend required — the API server exists but is unused by this app.
 
-## Tabs
+## Tabs (order mirrors reference App.jsx)
 
-1. **DUMPS** — Load .bin files, auto-detect type, VIN patch with correct CRC, hex viewer, virginizer
-2. **LIVE OBD** — Web Serial connect (115200 baud), scan modules, read/write VIN over UDS, RFHUB virginize, proxi read, individual module write (DAMP/IPC/ECM/TCM) via CDA6 security; improved UDS response parser with CAN header stripping for ATH1, ISO-TP PCI byte stripping for multi-frame responses, contiguous hex fallback
-3. **BENCH** — Offline module diagnostics + UDS bench tools: load .bin files, auto-detect module type, VIN write with CRC to all, BCM proxi read, GPEC2A SKIM read, RFHUB virginize; separate Web Serial bench connection for on-bench UDS VIN read/write (DAMP/IPC/ECM/TCM/BCM)
-4. **SEED→KEY** — 14 algorithm calculator (GPEC, NGC, JTEC, CDA6, TIPM variants)
-5. **GPEC** — Firmware unlock (0x2FFFC = 0x96)
-6. **SECURITY** — Cross-vehicle security matcher with 4 sub-views:
-   - **Overview**: Per-module offset table (VIN/SKIM/SECRET/FOBIK/IMMO/TAMPER/LOCK/CTR), cross-module validation (pass/warn/fail), runtime counters for GPEC2A
-   - **Security**: Side-by-side architecture cards per module with VIN match/mismatch, SKIM status, vehicle secrets (endianness-aware), FOBIK slots/count, lock status, tamper status, key sync buttons
-   - **Diff**: Hex diff between any two loaded modules with changed-byte highlighting, region grouping, byte counts
-   - **Tools**: VIN writer (all modules at once), SKIM toggle, virginize, extract/sync secret key with user-chosen key source picker, and "Files to Flash" summary with download for each modified module
-7. **GPEC2A** — SKIM byte toggle, secret key extract, transponder keys, ZZZZ tamper, hex diff
+1. **PROGRAM ALL** — sequential BCM → RFHUB → ECM → ADCM programmer with cross-verify *(placeholder — pending migration)*
+2. **BCM** — VIN read/write at DIDs F190/7B90/7B88 with CDA6 unlock, CRC patch, IMMO backup sync
+3. **RFHUB** — VIN read/write, key fob program/locate/erase routines (0x0401/0x0403/0x0404), known-algo lookup
+4. **ECM** — Engine module with 10 seed→key algorithms (GPEC1/2/2A/3 sxor variants, NGC, SBEC, JTEC, CDA6)
+5. **ACTIVE DAMPING (ADCM)** — VIN + variant config (DIDs F1A1/DE10/DE11) with Routine 0x0312 unlock + SBEC fallback
+6. **UDS PROGRAMMER** — universal raw UDS console *(placeholder — pending migration)*
+7. **BACKUPS** — view, restore, and export historical module dumps
+8. **SESSIONS** — paper-trail report (technician, addresses, algorithm, success/fail) with PDF export
+9. **JAILBREAK** — SRT / Demon / Hellcat / Redeye feature unlocks
+10. **DUMPS** — load .bin, auto-detect, VIN patch with CRC, hex viewer, virginizer
+11. **LIVE OBD** — Web Serial scan, read/write VIN, RFHUB virginize, proxi read, ECM/TCM/IPC/DAMP write
+12. **BENCH** — offline diagnostics + on-bench UDS VIN read/write
+13. **SEED→KEY** — 14 algorithm calculator
+14. **GPEC** — firmware unlock (0x2FFFC = 0x96)
+15. **GPEC2A** — SKIM byte toggle, secret key extract, transponder keys, ZZZZ tamper
+16. **FCA ANALYZER** — multi-file cross-module audit (overview / security / diff / tools sub-tabs); virginize, writeVIN, SKIM toggle, extract key with downloadable .bin
+17. **SWARM** — CAN bus scan diagnostic *(SRT Lab addition, not in reference)*
+18. **J2534** — raw CAN PassThru via desktop driver *(SRT Lab addition, not in reference)*
 
 ## Enhanced Module Parser
 

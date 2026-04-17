@@ -1,6 +1,4 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import ImmoVINTab from "./tabs/ImmoVINTab";
-import TwinTab from "./tabs/TwinTab";
 import OBDSwarmDiagnostic from "./OBDSwarmDiagnostic";
 import J2534Scanner from "./J2534Scanner";
 import JailbreakTab from "./tabs/JailbreakTab";
@@ -12,6 +10,7 @@ import EcmTab from "./tabs/EcmTab.jsx";
 import AdcmTab from "./tabs/AdcmTab.jsx";
 import ProgramAllTab from "./tabs/ProgramAllTab.jsx";
 import UdsTab from "./tabs/UdsTab.jsx";
+import FcaAnalyzerTab from "./tabs/FcaAnalyzerTab.jsx";
 import { MasterVinProvider, useMasterVin } from "./lib/masterVinContext.jsx";
 import { QR_CMDS } from "./lib/quickRef.js";
 import { buildQuickReferencePDF } from "./lib/buildQuickReferencePDF.js";
@@ -259,6 +258,10 @@ function Card({children,style={},glow,onClick}){const[h,setH]=useState(false);re
 function Tag({children,color=C.sr}){return<span style={{fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:8,background:color+'14',color,letterSpacing:.5,display:'inline-block',marginLeft:4}}>{children}</span>;}
 function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=useState(false);return<button onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#E8E4DE':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?C.tm:outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
 function SLine({type,msg}){const col={error:C.er,warn:C.wn,pass:C.gn};const ico={error:'✗',warn:'⚠',pass:'✓'};return<div style={{fontSize:12,color:col[type],padding:'4px 0',display:'flex',gap:8}}><span style={{fontWeight:700,minWidth:14}}>{ico[type]}</span><span>{msg}</span></div>;}
+/* Tab list — order mirrors reference attached_assets/App_1776444434000.jsx
+   (program → bcm → rfhub → ecm → adcm → uds → backups → sessions → jailbreak
+   → dumps → obd → bench → seed → gpec → skim → gpec2a → analyzer), with the
+   advanced diagnostics swarm + j2534 retained as SRT Lab additions. */
 const TABS=[
   {id:'program',i:'🚀',l:'PROGRAM ALL',s:'BCM→RFHUB→ECM→ADCM'},
   {id:'bcm',i:'🧠',l:'BCM',s:'VIN · CRC · Features'},
@@ -268,18 +271,16 @@ const TABS=[
   {id:'uds',i:'🔬',l:'UDS PROGRAMMER',s:'Universal · Raw'},
   {id:'backups',i:'💾',l:'BACKUPS',s:'History · Restore'},
   {id:'sessions',i:'📋',l:'SESSIONS',s:'Paper Trail · Reports'},
-  {id:'analyzer',i:'🧪',l:'FCA ANALYZER',s:'Cross-module audit',placeholder:true},
+  {id:'jailbreak',i:'💀',l:'JAILBREAK',s:'SRT · Demon · Hellcat · Redeye'},
   {id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},
   {id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},
   {id:'bench',i:'🔧',l:'BENCH',s:'Offline · Dumps'},
   {id:'seed',i:'🔑',l:'SEED→KEY',s:'14 Algorithms'},
   {id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},
   {id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'},
-  {id:'immovin',i:'🔎',l:'IMMOVIN',s:'RFH · BCM VIN Edit'},
-  {id:'twin',i:'🔗',l:'SECURITY BYTE MATCH',s:'BCM ↔ RFH Sync'},
+  {id:'analyzer',i:'🧪',l:'FCA ANALYZER',s:'GPEC · RFHUB · BCM · Cross-audit'},
   {id:'swarm',i:'🌐',l:'SWARM',s:'CAN Bus Scan'},
   {id:'j2534',i:'⚡',l:'J2534',s:'Raw CAN PassThru'},
-  {id:'jailbreak',i:'💀',l:'JAILBREAK OPTIONS',s:'SRT · Demon · Hellcat · Redeye'},
 ];
 
 /* Placeholder body shown for tabs delivered in later migration chunks.
@@ -409,8 +410,7 @@ function AppShell({pg,setPg,files,setFiles,loadF}){
       {pg==='gpec2a'&&<Gpec2aTab/>}
       {pg==='ecm'&&<EcmTab/>}
       {pg==='adcm'&&<AdcmTab/>}
-      {pg==='immovin'&&<ImmoVINTab/>}
-      {pg==='twin'&&<TwinTab/>}
+      {pg==='analyzer'&&<FcaAnalyzerTab/>}
       {pg==='swarm'&&<OBDSwarmDiagnostic/>}
       {pg==='j2534'&&<J2534Scanner/>}
       {pg==='jailbreak'&&<JailbreakTab/>}
