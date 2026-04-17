@@ -907,7 +907,7 @@ function DesktopDriverCard(){
       <Tag color={C.a3}>WINDOWS</Tag>
     </div>
     <div style={{fontSize:12,color:C.ts,lineHeight:1.5,marginBottom:12}}>Real J2534 hardware bridge — Windows + Autel MaxiFlash · MaxiPro · DrewTech. Bench mechanic mode: full UDS stack, 17 FCA security algorithms, BCM auto-discovery, one-shot VIN write.</div>
-    <a href="srt_lab.py" download="srt_lab.py" style={{textDecoration:'none',display:'inline-block',marginBottom:12}}>
+    <a href={(import.meta.env.BASE_URL||'/')+'srt_lab.py'} download="srt_lab.py" style={{textDecoration:'none',display:'inline-block',marginBottom:12}}>
       <span style={{display:'inline-block',padding:'10px 18px',borderRadius:10,background:C.sr,color:'#fff',fontWeight:800,fontSize:12,letterSpacing:.5,fontFamily:"'Nunito'"}}>⬇ Download srt_lab.py</span>
     </a>
     <div style={{fontSize:10,color:C.tm,marginBottom:8,letterSpacing:.5}}>REQUIREMENTS: Windows 10/11 · Python 3.8+ · J2534 vendor drivers (no pip packages)</div>
