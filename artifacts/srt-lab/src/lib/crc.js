@@ -25,4 +25,39 @@ function rfhGen2DetectMagic(raw17, storedCs) {
 function crc8_65(d){let c=0xBF;for(let x=0;x<d.length;x++){c^=d[x];for(let j=0;j<8;j++)c=c&0x80?((c<<1)^0x65)&0xFF:(c<<1)&0xFF;}return c;}
 function rfhSec16Cs(raw16){return(crc8_65(Array.from(raw16))<<8)|0x00;}
 
-export {crc16,crc8_42,crc8rf,crc8_65,rfhGen2VinCs,rfhGen2DetectMagic,RFH_GEN2_VIN_CS_KNOWN_MAGICS,rfhSec16Cs};
+/* CRC-16/CCITT-FALSE — production_vin_patcher.py port (poly 0x1021, init 0xFFFF). */
+function crc16ccitt(data){
+  let crc=0xFFFF;
+  for(const b of data){
+    crc^=(b<<8);
+    for(let i=0;i<8;i++){
+      if(crc&0x8000)crc=((crc<<1)^0x1021)&0xFFFF;
+      else crc=(crc<<1)&0xFFFF;
+    }
+  }
+  return crc;
+}
+
+/* CRC-16 generic — RFHUB VIN-specific poly/init (use with RFHUB_KNOWN_ALGOS). */
+function crc16generic(data,poly,init){
+  let crc=init;
+  for(const b of data){
+    crc^=(b<<8);
+    for(let i=0;i<8;i++){
+      if(crc&0x8000)crc=((crc<<1)^poly)&0xFFFF;
+      else crc=(crc<<1)&0xFFFF;
+    }
+  }
+  return crc;
+}
+
+const RFHUB_KNOWN_ALGOS={
+  '2C3CDXKT3FH796320':{poly:0x589B,init:0xFFFF},
+  '2B3CJ4DV6AH300549':{poly:0x8C5B,init:0xFFFF},
+  '2B3CJ5DT2BH590794':{poly:0x535D,init:0x0000},
+  '2C3CDZFK3HH506737':{poly:0x71DE,init:0x4625},
+  '2C3CDZC99HH514330':{poly:0x1189,init:0x0C99},
+  '2C3CDXGJ1MH539855':{poly:0x5F08,init:0x0C99},
+};
+
+export {crc16,crc8_42,crc8rf,crc8_65,crc16ccitt,crc16generic,RFHUB_KNOWN_ALGOS,rfhGen2VinCs,rfhGen2DetectMagic,RFH_GEN2_VIN_CS_KNOWN_MAGICS,rfhSec16Cs};

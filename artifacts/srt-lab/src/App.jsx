@@ -8,6 +8,9 @@ import { QR_CMDS } from "./lib/quickRef.js";
 import { buildQuickReferencePDF } from "./lib/buildQuickReferencePDF.js";
 import { ASSET_IDS, trackDownload as trackDownloadFn } from "./lib/downloadAssets.js";
 import { useDownloadCount, DownloadCounter } from "./lib/useDownloadCount.jsx";
+import { MasterVinProvider, useMasterVin } from "./lib/masterVinContext.jsx";
+import { ReadFirstModal } from "./lib/readFirstModal.jsx";
+import { logSession } from "./lib/paperTrail.js";
 
 /* ═══ VERIFIED ENGINES ═══ */
 function crc16(d,i=0xFFFF){let c=i;for(let x=0;x<d.length;x++){c^=d[x]<<8;for(let j=0;j<8;j++)c=c&0x8000?(c<<1)^0x1021:c<<1;c&=0xFFFF;}return c;}
@@ -247,24 +250,111 @@ function Card({children,style={},glow,onClick}){const[h,setH]=useState(false);re
 function Tag({children,color=C.sr}){return<span style={{fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:8,background:color+'14',color,letterSpacing:.5,display:'inline-block',marginLeft:4}}>{children}</span>;}
 function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=useState(false);return<button onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#E8E4DE':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?C.tm:outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
 function SLine({type,msg}){const col={error:C.er,warn:C.wn,pass:C.gn};const ico={error:'✗',warn:'⚠',pass:'✓'};return<div style={{fontSize:12,color:col[type],padding:'4px 0',display:'flex',gap:8}}><span style={{fontWeight:700,minWidth:14}}>{ico[type]}</span><span>{msg}</span></div>;}
-const TABS=[{id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},{id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},{id:'bench',i:'🔧',l:'BENCH',s:'Offline · Dumps'},{id:'seed',i:'🔑',l:'SEED→KEY',s:'14 Algorithms'},{id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},{id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'},{id:'immovin',i:'🔎',l:'IMMOVIN',s:'RFH · BCM VIN Edit'},{id:'twin',i:'🔗',l:'SECURITY BYTE MATCH',s:'BCM ↔ RFH Sync'},{id:'swarm',i:'🌐',l:'SWARM',s:'CAN Bus Scan'},{id:'j2534',i:'⚡',l:'J2534',s:'Raw CAN PassThru'},{id:'jailbreak',i:'💀',l:'JAILBREAK OPTIONS',s:'SRT · Demon · Hellcat · Redeye'}];
+const TABS=[
+  {id:'program',i:'🚀',l:'PROGRAM ALL',s:'BCM→RFHUB→ECM→ADCM',placeholder:true},
+  {id:'bcm',i:'🧠',l:'BCM',s:'VIN · CRC · Features',placeholder:true},
+  {id:'rfhub',i:'🔑',l:'RFHUB',s:'VIN · Key Fobs',placeholder:true},
+  {id:'ecm',i:'⚡',l:'ECM',s:'VIN · Tune · Cal',placeholder:true},
+  {id:'adcm',i:'🏎️',l:'ACTIVE DAMPING',s:'VIN · Variant',placeholder:true},
+  {id:'uds',i:'🔬',l:'UDS PROGRAMMER',s:'Universal · Raw',placeholder:true},
+  {id:'backups',i:'💾',l:'BACKUPS',s:'History · Restore',placeholder:true},
+  {id:'sessions',i:'📋',l:'SESSIONS',s:'Paper Trail · Reports',placeholder:true},
+  {id:'analyzer',i:'🧪',l:'FCA ANALYZER',s:'Cross-module audit',placeholder:true},
+  {id:'dumps',i:'📂',l:'DUMPS',s:'VIN · Hex · Virginize'},
+  {id:'obd',i:'📡',l:'LIVE OBD',s:'UDS · Scan · Write'},
+  {id:'bench',i:'🔧',l:'BENCH',s:'Offline · Dumps'},
+  {id:'seed',i:'🔑',l:'SEED→KEY',s:'14 Algorithms'},
+  {id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},
+  {id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'},
+  {id:'immovin',i:'🔎',l:'IMMOVIN',s:'RFH · BCM VIN Edit'},
+  {id:'twin',i:'🔗',l:'SECURITY BYTE MATCH',s:'BCM ↔ RFH Sync'},
+  {id:'swarm',i:'🌐',l:'SWARM',s:'CAN Bus Scan'},
+  {id:'j2534',i:'⚡',l:'J2534',s:'Raw CAN PassThru'},
+  {id:'jailbreak',i:'💀',l:'JAILBREAK OPTIONS',s:'SRT · Demon · Hellcat · Redeye'},
+];
+
+/* Placeholder body shown for tabs delivered in later migration chunks.
+   Reads MasterVinContext so the shared state is exercised app-wide today. */
+function PlaceholderTab({tab}){
+  const{vin,vinValid,moduleStatus}=useMasterVin();
+  return <Card glow>
+    <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:10}}>
+      <span style={{fontSize:32}}>{tab.i}</span>
+      <div>
+        <div style={{fontSize:18,fontWeight:900,letterSpacing:1}}>{tab.l}</div>
+        <div style={{fontSize:11,color:C.ts,fontWeight:700,letterSpacing:1.5}}>{tab.s}</div>
+      </div>
+      <Tag color={C.wn}>COMING IN NEXT CHUNK</Tag>
+    </div>
+    <div style={{fontSize:12,color:C.ts,lineHeight:1.6,marginTop:14}}>
+      This tab will be implemented in an upcoming migration step. The Master VIN bar above
+      and the module status strip already work — every programmer tab will read them via the
+      shared context once it ships.
+    </div>
+    <div style={{marginTop:14,padding:12,borderRadius:10,background:C.c2,border:'1px solid '+C.bd,fontFamily:"'JetBrains Mono'",fontSize:11}}>
+      <div><span style={{color:C.tm}}>masterVin:</span> <b style={{color:vinValid?C.gn:C.tm}}>{vin||'(not set)'}</b> {vinValid&&<Tag color={C.gn}>VALID</Tag>}</div>
+      <div style={{marginTop:6}}>
+        <span style={{color:C.tm}}>moduleStatus:</span>{' '}
+        {Object.entries(moduleStatus).map(([k,v])=><span key={k} style={{marginRight:10}}>{k}=<b>{v}</b></span>)}
+      </div>
+    </div>
+  </Card>;
+}
 
 /* ═══ APP ═══ */
-export default function App(){const[pg,setPg]=useState('dumps');const[files,setFiles]=useState([]);
+export default function App(){
+  const[pg,setPg]=useState('program');
+  const[files,setFiles]=useState([]);
   const loadF=useCallback(fl=>{Promise.all(Array.from(fl).map(f=>new Promise(r=>{const rd=new FileReader();rd.onload=e=>r(analyzeFile(e.target.result,f.name));rd.readAsArrayBuffer(f);}))).then(res=>setFiles(p=>[...p,...res.filter(f=>f.type!=='unknown')]));},[]);
-  return<div style={{minHeight:'100vh',background:C.bg,color:C.tx,fontFamily:"'Nunito',sans-serif"}}>
+  return <MasterVinProvider setPg={setPg}>
+    <AppShell pg={pg} setPg={setPg} files={files} setFiles={setFiles} loadF={loadF}/>
+  </MasterVinProvider>;
+}
+
+function AppShell({pg,setPg,files,setFiles,loadF}){
+  const{vin,setVin,vinValid,moduleStatus}=useMasterVin();
+  const tab=TABS.find(t=>t.id===pg);
+
+  /* Expose logSession on window for console-driven smoke tests of the paper trail */
+  useEffect(()=>{
+    if(typeof window!=='undefined')window.logSession=logSession;
+  },[]);
+
+  return <div style={{minHeight:'100vh',background:C.bg,color:C.tx,fontFamily:"'Nunito',sans-serif"}}>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Righteous&display=swap" rel="stylesheet"/>
     <div style={{background:'linear-gradient(135deg,#1A1A1A 0%,#2D2D2D 40%,#D32F2F 100%)',position:'relative',overflow:'hidden'}}>
       <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 80% 50%,rgba(255,82,82,0.3),transparent 60%)',pointerEvents:'none'}}/>
-      <div style={{position:'relative',padding:'22px 28px 0',display:'flex',alignItems:'center',gap:14}}>
+      <div style={{position:'relative',padding:'22px 28px 0',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap'}}>
         <div style={{width:46,height:46,borderRadius:13,background:'linear-gradient(135deg,#FF5252,#D32F2F)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 20px rgba(211,47,47,0.4)'}}><span style={{fontFamily:"'Righteous'",fontSize:22,color:'#fff'}}>S</span></div>
         <div><div style={{fontFamily:"'Righteous'",fontSize:26,color:'#fff',letterSpacing:2}}>SRT LAB</div><div style={{fontSize:9,color:'rgba(255,255,255,0.4)',fontWeight:700,letterSpacing:6}}>JAILBREAK EDITION</div></div>
+        <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:10,padding:'8px 14px',background:'rgba(0,0,0,0.3)',borderRadius:10,border:'1px solid rgba(255,255,255,0.15)'}}>
+          <div style={{fontSize:9,color:'rgba(255,255,255,0.5)',fontWeight:800,letterSpacing:2}}>MASTER VIN</div>
+          <input
+            data-testid="master-vin-input"
+            value={vin}
+            onChange={e=>setVin(e.target.value)}
+            maxLength={17}
+            placeholder="17 characters"
+            style={{width:200,padding:'6px 10px',border:'1.5px solid '+(vin.length===0?'rgba(255,255,255,0.2)':vinValid?'#00E676':'#FF5252'),borderRadius:6,fontSize:13,fontFamily:"'JetBrains Mono'",fontWeight:700,letterSpacing:1.5,background:'rgba(0,0,0,0.4)',color:'#fff',outline:'none'}}
+          />
+          <div style={{fontSize:10,fontFamily:"'JetBrains Mono'",fontWeight:700,color:vinValid?'#00E676':vin.length===0?'rgba(255,255,255,0.4)':'#FF5252'}}>{vin.length}/17</div>
+        </div>
       </div>
+      {vinValid&&<div data-testid="module-status-strip" style={{padding:'8px 28px',background:'rgba(0,0,0,0.25)',display:'flex',gap:14,alignItems:'center',fontSize:10,fontFamily:"'JetBrains Mono'",fontWeight:700}}>
+        <span style={{color:'rgba(255,255,255,0.4)',letterSpacing:2}}>BENCH STATUS:</span>
+        {['BCM','RFHUB','ECM','ADCM'].map(m=>{
+          const st=moduleStatus[m];
+          const col={pending:'#999',writing:'#FFB300',ok:'#00E676',fail:'#FF5252'}[st]||'#999';
+          const icon={pending:'○',writing:'⏳',ok:'✓',fail:'✗'}[st]||'○';
+          return <span key={m} data-testid={'status-'+m} style={{color:col,display:'flex',alignItems:'center',gap:4}}>{icon} {m}</span>;
+        })}
+      </div>}
       <div style={{display:'flex',padding:'12px 16px 0',overflowX:'auto',gap:2}}>
-        {TABS.map(t=>{const a=pg===t.id;return<button key={t.id} onClick={()=>setPg(t.id)} style={{padding:'11px 16px 13px',border:'none',cursor:'pointer',background:a?C.bg:'transparent',borderRadius:'11px 11px 0 0',color:a?C.sr:'rgba(255,255,255,0.4)',fontFamily:"'Nunito'",fontWeight:a?900:700,fontSize:11,letterSpacing:1.2,transition:'all 0.25s',boxShadow:a?'0 -4px 16px rgba(0,0,0,0.06)':'none',whiteSpace:'nowrap'}}><span style={{fontSize:14,marginRight:4,filter:a?'none':'grayscale(1) brightness(2)'}}>{t.i}</span>{t.l}<div style={{fontSize:7,marginTop:1,opacity:.4}}>{t.s}</div></button>;})}
+        {TABS.map(t=>{const a=pg===t.id;return<button key={t.id} data-testid={'tab-'+t.id} onClick={()=>setPg(t.id)} style={{padding:'11px 16px 13px',border:'none',cursor:'pointer',background:a?C.bg:'transparent',borderRadius:'11px 11px 0 0',color:a?C.sr:'rgba(255,255,255,0.4)',fontFamily:"'Nunito'",fontWeight:a?900:700,fontSize:11,letterSpacing:1.2,transition:'all 0.25s',boxShadow:a?'0 -4px 16px rgba(0,0,0,0.06)':'none',whiteSpace:'nowrap'}}><span style={{fontSize:14,marginRight:4,filter:a?'none':'grayscale(1) brightness(2)'}}>{t.i}</span>{t.l}{t.placeholder&&<span style={{marginLeft:4,fontSize:8,opacity:.7}}>·SOON</span>}<div style={{fontSize:7,marginTop:1,opacity:.4}}>{t.s}</div></button>;})}
       </div>
     </div>
     <div style={{maxWidth:1100,margin:'0 auto',padding:'22px 22px 60px'}}>
+      {tab?.placeholder&&<PlaceholderTab tab={tab}/>}
       {pg==='dumps'&&<DumpsTab files={files} setFiles={setFiles} loadF={loadF}/>}
       {pg==='obd'&&<OBDTab/>}
       {pg==='bench'&&<BenchTab/>}
@@ -276,7 +366,9 @@ export default function App(){const[pg,setPg]=useState('dumps');const[files,setF
       {pg==='swarm'&&<OBDSwarmDiagnostic/>}
       {pg==='j2534'&&<J2534Scanner/>}
       {pg==='jailbreak'&&<JailbreakTab/>}
-    </div></div>;}
+    </div>
+  </div>;
+}
 
 /* ═══ BENCH TAB ═══ */
 function BenchTab(){
