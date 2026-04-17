@@ -1,8 +1,13 @@
 import React, {useState} from "react";
+import {vinHasSGW, parseVinYear} from "../lib/vin.js";
+import {useBridgeStatus} from "../lib/bridgeClient.js";
 
 // Pre-write confirmation modal — blocks any destructive write until tech confirms.
 // onConfirm receives {reviewed,titleRef,titleNotes,technician,preWriteConfirmed}.
 function ReadFirstModal({module,currentState,newVin,onConfirm,onCancel}){
+  const sgwReq=vinHasSGW(newVin);
+  const vinYear=parseVinYear(newVin);
+  const{connected:bridgeOk,status:bridgeStatus}=useBridgeStatus(sgwReq?5000:0);
   const [reviewed,setReviewed]=useState(false);
   const [titleRef,setTitleRef]=useState('');
   const [titleNotes,setTitleNotes]=useState('');
@@ -44,6 +49,19 @@ function ReadFirstModal({module,currentState,newVin,onConfirm,onCancel}){
           <div style={{fontSize:11,fontWeight:800,color:'#666',letterSpacing:2,marginBottom:8}}>NEW VIN TO WRITE</div>
           <div style={{padding:12,background:'#FFEBEE',border:'2px solid #D32F2F',borderRadius:8,fontFamily:"'JetBrains Mono'",fontSize:16,fontWeight:800,color:'#D32F2F',letterSpacing:2,textAlign:'center'}}>{newVin||'(no VIN entered)'}</div>
         </div>
+        {sgwReq&&<div data-testid="sgw-routing-block" style={{marginBottom:14,background:bridgeOk?'#FFF3E0':'#FFF8E1',border:'2px solid '+(bridgeOk?'#FF6D00':'#FFB300'),borderRadius:8,padding:12}}>
+          <div style={{fontSize:11,fontWeight:800,color:bridgeOk?'#E65100':'#B26500',letterSpacing:2,marginBottom:6}}>🔐 SECURE GATEWAY ROUTING</div>
+          {bridgeOk?<div style={{fontSize:12,color:'#6D4C00',lineHeight:1.5}}>
+            Routing through <b>{bridgeStatus?.vendor||'Autel MaxiFlash'}</b> (SGW authenticated).
+            VIN model year <b>{vinYear}</b> requires Secure Gateway. Bridge is connected
+            {bridgeStatus?.deviceSerial?<> · serial <b>{bridgeStatus.deviceSerial}</b></>:null}
+            {bridgeStatus?.versions?.firmware?<> · firmware <b>{bridgeStatus.versions.firmware}</b></>:null}.
+          </div>:<div style={{fontSize:12,color:'#6D4C00',lineHeight:1.5}}>
+            VIN model year <b>{vinYear}</b> requires FCA Secure Gateway, but the local
+            J2534 bridge daemon is <b>not reachable</b>. Open the <b>AUTEL SGW</b> tab,
+            start <code>j2534_bridge.py</code>, and verify the Autel cable before retrying.
+          </div>}
+        </div>}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
           <div>
             <div style={{fontSize:11,fontWeight:800,color:'#666',letterSpacing:1,marginBottom:4}}>TECHNICIAN</div>

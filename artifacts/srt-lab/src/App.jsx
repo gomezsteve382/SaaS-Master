@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import OBDSwarmDiagnostic from "./OBDSwarmDiagnostic";
 import J2534Scanner from "./J2534Scanner";
+import AutelSgwTab from "./tabs/AutelSgwTab.jsx";
+import {vinHasSGW} from "./lib/vin.js";
+import {useBridgeStatus} from "./lib/bridgeClient.js";
 import JailbreakTab from "./tabs/JailbreakTab";
 import BcmTab from "./tabs/BcmTab.jsx";
 import RfhubTab from "./tabs/RfhubTab.jsx";
@@ -283,6 +286,7 @@ const TABS=[
   {id:'rfhpcm',i:'🧬',l:'RFH → PCM',s:'SEC6 Pairing'},
   {id:'swarm',i:'🌐',l:'SWARM',s:'CAN Bus Scan'},
   {id:'j2534',i:'⚡',l:'J2534',s:'Raw CAN PassThru'},
+  {id:'autel',i:'🔐',l:'AUTEL SGW',s:'Secure Gateway · Bridge'},
 ];
 
 /* Placeholder body shown for tabs delivered in later migration chunks.
@@ -311,6 +315,23 @@ function PlaceholderTab({tab}){
       </div>
     </div>
   </Card>;
+}
+
+/* Header chip — flags whether the loaded VIN needs FCA Secure-Gateway
+   (2018+) and whether the local J2534 bridge daemon is reachable.
+   Click to jump to the AUTEL SGW tab. */
+function SgwBridgeChip({vin,setPg}){
+  const needs=vinHasSGW(vin);
+  const{connected}=useBridgeStatus(needs?6000:0);
+  if(!needs)return null;
+  const ok=connected;
+  const col=ok?'#00E676':'#FFB300';
+  const label=ok?'🔐 SGW · BRIDGE LIVE':'🔐 SGW REQ · BRIDGE OFFLINE';
+  return <button data-testid="sgw-req-chip" onClick={()=>setPg&&setPg('autel')}
+    title={ok?'Autel J2534 bridge connected — SGW writes will route through the cable.':'Start j2534_bridge.py on this machine to authenticate SGW writes.'}
+    style={{marginLeft:'auto',padding:'3px 9px',borderRadius:6,background:col+'22',color:col,border:'1px solid '+col+'77',fontSize:10,fontWeight:800,letterSpacing:1,cursor:'pointer',fontFamily:"'JetBrains Mono'"}}>
+    {label}
+  </button>;
 }
 
 function MasterVinBar(){
@@ -394,6 +415,7 @@ function AppShell({pg,setPg,files,setFiles,loadF}){
           const icon={pending:'○',writing:'⏳',ok:'✓',fail:'✗'}[st]||'○';
           return <span key={m} data-testid={'status-'+m} style={{color:col,display:'flex',alignItems:'center',gap:4}}>{icon} {m}</span>;
         })}
+        <SgwBridgeChip vin={vin} setPg={setPg}/>
       </div>}
       <div style={{display:'flex',padding:'12px 16px 0',overflowX:'auto',gap:2}}>
         {TABS.map(t=>{const a=pg===t.id;return<button key={t.id} data-testid={'tab-'+t.id} onClick={()=>setPg(t.id)} style={{padding:'11px 16px 13px',border:'none',cursor:'pointer',background:a?C.bg:'transparent',borderRadius:'11px 11px 0 0',color:a?C.sr:'rgba(255,255,255,0.4)',fontFamily:"'Nunito'",fontWeight:a?900:700,fontSize:11,letterSpacing:1.2,transition:'all 0.25s',boxShadow:a?'0 -4px 16px rgba(0,0,0,0.06)':'none',whiteSpace:'nowrap'}}><span style={{fontSize:14,marginRight:4,filter:a?'none':'grayscale(1) brightness(2)'}}>{t.i}</span>{t.l}{t.placeholder&&<span style={{marginLeft:4,fontSize:8,opacity:.7}}>·SOON</span>}<div style={{fontSize:7,marginTop:1,opacity:.4}}>{t.s}</div></button>;})}
@@ -416,6 +438,7 @@ function AppShell({pg,setPg,files,setFiles,loadF}){
       {pg==='rfhpcm'&&<RFHPCMTab/>}
       {pg==='swarm'&&<OBDSwarmDiagnostic/>}
       {pg==='j2534'&&<J2534Scanner/>}
+      {pg==='autel'&&<AutelSgwTab/>}
       {pg==='jailbreak'&&<JailbreakTab/>}
       {pg==='backups'&&<BackupsTab/>}
       {pg==='sessions'&&<SessionsTab/>}

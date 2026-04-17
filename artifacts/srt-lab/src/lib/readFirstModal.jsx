@@ -1,4 +1,6 @@
 import React, {useState, useCallback} from 'react';
+import {vinHasSGW, parseVinYear} from './vin.js';
+import {useBridgeStatus} from './bridgeClient.js';
 
 /* ReadFirstModal — pre-write confirmation gate.
    Props:
@@ -9,6 +11,9 @@ import React, {useState, useCallback} from 'react';
      onCancel     — ()
    Renders a fixed-position modal at z-index 9999. */
 export function ReadFirstModal({module,currentState=[],newVin,onConfirm,onCancel}){
+  const sgwReq=vinHasSGW(newVin);
+  const vinYear=parseVinYear(newVin);
+  const{connected:bridgeOk,status:bridgeStatus}=useBridgeStatus(sgwReq?5000:0);
   const[reviewed,setReviewed]=useState(false);
   const[titleRef,setTitleRef]=useState('');
   const[titleNotes,setTitleNotes]=useState('');
@@ -49,6 +54,19 @@ export function ReadFirstModal({module,currentState=[],newVin,onConfirm,onCancel
             <div style={{fontFamily:"'JetBrains Mono'",fontSize:18,fontWeight:800,letterSpacing:2,color:'#1B5E20'}}>{newVin}</div>
           </div>
         </div>
+        {sgwReq&&<div data-testid="sgw-routing-block" style={{marginBottom:18,background:bridgeOk?'#FFF3E0':'#FFF8E1',border:'2px solid '+(bridgeOk?'#FF6D00':'#FFB300'),borderRadius:8,padding:14}}>
+          <div style={{fontSize:11,fontWeight:800,color:bridgeOk?'#E65100':'#B26500',letterSpacing:2,marginBottom:6}}>🔐 SECURE GATEWAY ROUTING</div>
+          {bridgeOk?<div style={{fontSize:12,color:'#6D4C00',lineHeight:1.5}}>
+            Routing through <b>{bridgeStatus?.vendor||'Autel MaxiFlash'}</b> (SGW authenticated).
+            VIN model year <b>{vinYear}</b> requires Secure Gateway. The Autel J2534 bridge is
+            connected{bridgeStatus?.versions?.firmware?<> · firmware <b>{bridgeStatus.versions.firmware}</b></>:null}.
+          </div>:<div style={{fontSize:12,color:'#6D4C00',lineHeight:1.5}}>
+            VIN model year <b>{vinYear}</b> requires FCA Secure Gateway, but the local
+            J2534 bridge daemon is <b>not reachable</b>. The write will fail at the cable
+            unless you start <code>j2534_bridge.py</code> and an Autel VCI is connected.
+            Open the <b>AUTEL SGW</b> tab to verify, then retry.
+          </div>}
+        </div>}
         <div style={{marginBottom:18,background:'#F0F8FF',border:'1px solid #B0D4F0',borderRadius:8,padding:14}}>
           <div style={{fontSize:11,fontWeight:800,color:'#1976D2',letterSpacing:2,marginBottom:10}}>📄 TITLE REFERENCE (paper trail)</div>
           <div style={{marginBottom:10}}>

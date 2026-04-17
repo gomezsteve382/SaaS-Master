@@ -2,7 +2,7 @@ import {TR,WT,WMI,YR} from './constants.js';
 
 const VIN_RX=/^[A-HJ-NPR-Z0-9]{17}$/;
 
-function checkVin(v){
+export function checkVin(v){
   if(!v||v.length!==17)return{ok:false};
   const u=v.toUpperCase();
   if(!VIN_RX.test(u))return{ok:false,err:'Invalid chars'};
@@ -11,19 +11,21 @@ function checkVin(v){
   return{ok:u[8]===cd,cd,wmi:u.slice(0,3),mfr:WMI[u.slice(0,3)]||'',yr:YR[u[9]]||'',err:u[8]!==cd?'Check digit: need '+cd:''};
 }
 
-function parseVinYear(vin){
-  if(!vin||vin.length<10)return null;
-  const c=vin[9].toUpperCase();
-  return YR[c]||null;
+/* Parse the model-year char (position 10, index 9) of a 17-char VIN.
+   Returns the 4-digit year (e.g. 2019) or null if the VIN is too short
+   or the year code is not recognised. */
+export function parseVinYear(vin){
+  if(typeof vin!=='string'||vin.length<10)return null;
+  const ch=vin[9].toUpperCase();
+  return YR[ch]||null;
 }
 
-// SGW (Security Gateway Module) shipped on FCA platforms beginning model year 2018.
-// Heuristic: any FCA/Stellantis VIN whose model-year code maps to >= 2018.
-// Conservative; consumer-side code should still probe the bus to confirm.
-function vinHasSGW(vin){
-  const yr=parseVinYear(vin);
-  if(!yr)return false;
-  return yr>=2018;
+/* FCA Secure-Gateway (SGW) shipped on US-market 2018+ models.
+   Returns true when the VIN's model year is >= 2018. Unknown / short
+   VINs return false (callers must treat unknown as "not required"). */
+export function vinHasSGW(vin){
+  const y=parseVinYear(vin);
+  return typeof y==='number'&&y>=2018;
 }
 
-export {checkVin,parseVinYear,vinHasSGW,VIN_RX};
+export {VIN_RX};
