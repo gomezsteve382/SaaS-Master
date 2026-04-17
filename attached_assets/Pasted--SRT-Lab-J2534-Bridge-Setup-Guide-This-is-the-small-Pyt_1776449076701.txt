@@ -1,0 +1,169 @@
+# SRT Lab J2534 Bridge — Setup Guide
+
+This is the small Python daemon that lets the SRT Lab React app talk to
+your Autel MaxiFlash VCI for 2018+ SGW-protected vehicles.
+
+## How it fits together
+
+```
+   React app (browser)            j2534_bridge.py             MaxiFlashJ2534.dll              MaxiFlash VCI
+   https://asset-...replit.app    localhost:8765              (Autel-shipped)                 (USB)
+         |                                |                          |                              |
+         | fetch POST /sendmsg            | ctypes call              | USB                          |
+         +------------------------------->+------------------------->+----------------------------->+
+         |                                |                          |                              |
+                                                                                                    |
+                                                                                                    v
+                                                                                            Secure Gateway
+                                                                                            (VCI handles the
+                                                                                            authentication in
+                                                                                            firmware using
+                                                                                            Autel's licensed
+                                                                                            credentials)
+```
+
+The VCI performs SGW authentication using credentials baked into its firmware
+by Autel. The bridge just relays J2534 calls. No keys are stored in, sent to,
+or extracted by the bridge.
+
+## First-time setup
+
+### 1. Install Autel MaxiPC suite
+
+Download from autel.com → Downloads → MaxiPC. Install it. This installs
+`MaxiFlashJ2534.dll` (typically in `C:\Program Files (x86)\Autel\` or similar).
+
+Verify with Autel’s own “MaxiFlash Tester” utility first to confirm your VCI
+is talking to the PC and your subscription is active.
+
+### 2. Confirm subscription tier
+
+SGW access requires **Gold** or **Platinum** Autel subscription. Log into the
+Autel web portal and verify your VCI is registered under an active
+subscription.
+
+If you only have **Standard**, the bridge will still work for pre-SGW
+(2017 and older) cars — it just won’t get through the gateway on 2018+
+vehicles.
+
+### 3. Install Python 3.8+
+
+https://www.python.org/downloads/
+
+Only the standard library is used — no pip packages required.
+
+### 4. Run the bridge
+
+Open a terminal (Command Prompt on Windows) and:
+
+```bash
+python3 j2534_bridge.py --dll "C:\Program Files (x86)\Autel\MaxiFlashJ2534.dll"
+```
+
+Adjust the `--dll` path to wherever Autel installed it. Common locations:
+
+- `C:\Program Files (x86)\Autel\MaxiFlashJ2534.dll`
+- `C:\Program Files\Autel\MaxiFlashJ2534.dll`
+- `C:\Autel\MaxiSys\MaxiFlashJ2534.dll`
+
+If the DLL loads and the VCI is connected, you should see:
+
+```
+SRT Lab J2534 Bridge v1.0.0
+============================================================
+Platform: Windows 10
+DLL:      C:\Program Files (x86)\Autel\MaxiFlashJ2534.dll
+[OK] DLL loaded (Autel MaxiFlash)
+[OK] Device opened (ID 1)
+  Firmware: V3.20
+  DLL ver:  V1.00
+  API ver:  04.04
+[OK] Listening on http://127.0.0.1:8765
+Endpoints: GET /status - POST /open /connect /sendmsg /readmsg /close /setfilter
+Press Ctrl+C to stop
+============================================================
+```
+
+Leave this terminal window open.
+
+### 5. In the SRT Lab app → AUTEL SGW tab
+
+- Verify the bridge URL matches (default `http://localhost:8765`)
+- Click **Run Test**
+- You should see green `[OK]` lines for each check
+- Once the VCI is detected, save the configuration
+
+### 6. Test on a bench or vehicle
+
+Enter a 2018+ VIN in the Master VIN bar. The status strip should show:
+`🔐 SGW REQ` and the AUTEL tab should show `✓ BRIDGE CONNECTED`.
+Pre-write modal will indicate SGW routing through Autel MaxiFlash.
+
+## Command-line options
+
+```
+--dll PATH         Required. Path to the J2534 DLL.
+--port N           HTTP port to listen on (default 8765).
+--verbose          Print every HTTP request.
+--no-open          Don't open the VCI on startup (open on first API call instead).
+                   Useful if the VCI isn't always plugged in.
+```
+
+## Troubleshooting
+
+**“Failed to load DLL”**
+Check the path. On 64-bit Windows, the DLL is often in `Program Files (x86)`.
+Make sure you’re running the same bitness of Python as the DLL (64-bit DLL
+needs 64-bit Python, 32-bit needs 32-bit).
+
+**“PassThruOpen failed: ERR_DEVICE_NOT_CONNECTED”**
+VCI isn’t detected by Autel’s drivers. Plug it in, check Device Manager,
+reinstall Autel MaxiPC drivers if needed.
+
+**“PassThruOpen failed: ERR_FAILED”**
+Usually means another process has the VCI open. Close MaxiPC, MaxiSys Ultra,
+or whatever Autel software you have running, then retry.
+
+**Bridge loads but /status shows no VCI**
+The DLL loaded but couldn’t open the device. Check that MaxiPC isn’t running
+(they can’t share the VCI) and the device shows up in Device Manager.
+
+**Bridge runs on Windows but app shows “Bridge offline”**
+Windows Firewall sometimes blocks localhost requests from browsers.
+Allow `python.exe` through the firewall, or click through the firewall prompt
+when the bridge starts.
+
+**“ERR_FAILED” on every /sendmsg**
+Might not have called `/open` and `/connect` first. The app should do this
+automatically, but if you’re testing with curl/Postman, you need to:
+
+1. POST `/open`
+1. POST `/connect` with `{"protocol": 6, "baudrate": 500000}`
+1. POST `/setfilter` with `{"tx_id": 2016, "rx_id": 2024}` (example)
+1. Then `/sendmsg`
+
+## Security notes
+
+- The bridge only listens on `127.0.0.1` (localhost). It does not accept
+  connections from other machines.
+- It has permissive CORS headers so the claude.ai-hosted app can call it
+  from the browser — this is safe because it still requires local network
+  access (browser → localhost).
+- The bridge does not log or transmit any vehicle data anywhere. Everything
+  stays on your machine.
+
+## What this bridge does NOT do
+
+- It does NOT perform any SGW bypass using extracted keys. Authentication
+  is handled by the VCI firmware using Autel’s licensed credentials.
+- It does NOT store, transmit, or know anything about your Autel subscription
+  credentials. Those live in Autel’s software.
+- It does NOT work with unregistered VCIs or expired subscriptions for
+  SGW-protected operations. It will still pass traffic for non-SGW
+  operations (reading DTCs, reading VIN, etc.) on any J2534 device.
+
+## Files
+
+- `j2534_bridge.py` — the bridge daemon (558 lines, no dependencies)
+- `App.jsx` — React app (5130 lines) with AUTEL SGW tab wired up
+- `README_J2534_BRIDGE.md` — this file
