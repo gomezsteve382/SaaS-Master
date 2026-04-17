@@ -192,8 +192,61 @@ def algo_bcm_fca(seed):
 def algo_sbec(seed):
     return (seed * 4 + 0x9018) & 0xFFFFFFFF
 
+# ─── SGW XTEA ─────────────────────────────────────────────────────────
+# Key extracted from CDA.swf constant pool @ 0x24664A. The two
+# 16-char ASCII-hex constants ("BC474048A33B483A" + "6368727973313372")
+# decode to a 16-byte (128-bit) XTEA key. Class
+# com.hurlant.crypto.symmetric.XTeaKey @ 0x22ca32 (NUM_ROUNDS=32,
+# delta 0x9E3779B9). Mirrors xtea_sgw() in artifacts/srt-lab/src/lib/algos.js.
+SGW_XTEA_KEY = (0xBC474048, 0xA33B483A, 0x63687279, 0x73313372)
+_XTEA_DELTA = 0x9E3779B9
+
+def xtea_encrypt_block(v0, v1, key=SGW_XTEA_KEY):
+    v0 &= 0xFFFFFFFF; v1 &= 0xFFFFFFFF
+    s = 0
+    for _ in range(32):
+        v0 = (v0 + ((((v1 << 4) ^ (v1 >> 5)) + v1) ^ (s + key[s & 3]))) & 0xFFFFFFFF
+        s  = (s + _XTEA_DELTA) & 0xFFFFFFFF
+        v1 = (v1 + ((((v0 << 4) ^ (v0 >> 5)) + v0) ^ (s + key[(s >> 11) & 3]))) & 0xFFFFFFFF
+    return v0, v1
+
+def algo_xtea_sgw(seed):
+    """Seed→key transform for FCA Secure Gateway (CAN 0x74F/0x76F).
+    Loads the 4-byte UDS seed into v0, complement into v1, runs one
+    XTEA(32) block with the SGW key, returns the high 32 bits of the
+    ciphertext as the 4-byte UDS key."""
+    s = seed & 0xFFFFFFFF
+    v0, _ = xtea_encrypt_block(s, (~s) & 0xFFFFFFFF)
+    return v0
+
+# Pinned parity vectors. These MUST match the SGW_VECTORS constant in
+# artifacts/srt-lab/src/__tests__/algos.xtea.test.mjs and the worked example
+# in artifacts/srt-lab/docs/SGW_XTEA_ALGORITHM.md byte-for-byte. If you ever
+# change the key, padding, or round count, regenerate all three together.
+#   (seed, expected high-word u32 == algo_xtea_sgw(seed),
+#          expected low-word  u32 == second word of XTEA ciphertext)
+SGW_XTEA_VECTORS = [
+    (0x00000000, 0x9D76B2A1, 0x34A91DEE),
+    (0x12345678, 0xFCB85437, 0xB3E3C96A),
+    (0xA1B2C3D4, 0x3E98C5CE, 0xF921AB09),
+    (0xDEADBEEF, 0x85135F8C, 0xDD4A5FF3),
+    (0xFFFFFFFF, 0x8DC3151B, 0x23A6E04A),
+]
+
+def _selftest_xtea_sgw():
+    for seed, hi, lo in SGW_XTEA_VECTORS:
+        got_hi = algo_xtea_sgw(seed)
+        v0, v1 = xtea_encrypt_block(seed, (~seed) & 0xFFFFFFFF)
+        assert got_hi == hi, f"SGW XTEA mismatch for seed=0x{seed:08X}: got 0x{got_hi:08X}, want 0x{hi:08X}"
+        assert v0 == hi and v1 == lo, f"SGW XTEA full-block mismatch for seed=0x{seed:08X}"
+
+# Run on import so any drift between the JS port and the Python port is
+# caught the moment srt_lab.py loads.
+_selftest_xtea_sgw()
+
 BCM_ALGORITHMS = [
     ('CDA6',         algo_cda6,                             "Modern Chrysler BCM/ABS/IPC"),
+    ('SGW XTEA',     algo_xtea_sgw,                         "2018+ Secure Gateway (CAN 0x74F)"),
     ('BCM Standard', algo_bcm_standard,                     "BCM 2007-2015"),
     ('BCM FCA',      algo_bcm_fca,                          "BCM 2016+"),
     ('GPEC2',        lambda s: algo_sxor(s, 0xE72E3799),    "Continental GPEC2"),

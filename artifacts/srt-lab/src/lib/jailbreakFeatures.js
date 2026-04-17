@@ -209,6 +209,7 @@ export const MODULE_TARGETS = [
   { id: "bcm-legacy",  label: "BCM (Legacy)",     tx: 0x7E0, rx: 0x7E8, unlock: "cda6", needsUnlock: true },
   { id: "bcm-darkvin", label: "BCM (DarkVIN)",    tx: 0x6B0, rx: 0x6B8, unlock: "cda6", needsUnlock: true },
   { id: "adcm",        label: "ADCM (Active Damping)", tx: 0x7A8, rx: 0x7B0, unlock: null, needsUnlock: false },
+  { id: "sgw-xtea",    label: "SGW (XTEA, 2018+)", tx: 0x74F, rx: 0x76F, unlock: "xtea_sgw", needsUnlock: true },
 ];
 
 // Pre-defined routine IDs for the "Run Routine" UI.

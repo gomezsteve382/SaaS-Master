@@ -2,7 +2,7 @@ import React, {useState, useCallback, useRef} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
 import {MODS} from "../lib/mods.js";
-import {cda6} from "../lib/algos.js";
+import {u32, unlockKey, unlockIdForTx} from "../lib/algos.js";
 
 function OBDTab(){
   const[conn,setConn]=useState(false);const[found,setFound]=useState([]);const[nv,setNv]=useState('');
@@ -153,7 +153,7 @@ function OBDTab(){
       await eng.current.uds(m.tx,m.rx,[0x10,0x03]);
       const sr=await eng.current.uds(m.tx,m.rx,[0x27,0x01]);
       if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
-        if(sv){const k=cda6(sv);await eng.current.uds(m.tx,m.rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(m.c+' unlocked','rx');}}
+        if(sv){const aid=unlockIdForTx(m.tx);const k=unlockKey(aid,sv);if(k!==null){await eng.current.uds(m.tx,m.rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(m.c+' ('+aid+') unlocked','rx');}}}
       const vb=[...new TextEncoder().encode(nv)];
       for(const did of[0xF190,0x7B90,0x7B88]){const r=await eng.current.uds(m.tx,m.rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(m.c+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
       await eng.current.uds(m.tx,m.rx,[0x11,0x01]);addLog(m.c+' reset sent','info');
@@ -181,7 +181,7 @@ function OBDTab(){
       await eng.current.uds(tx,rx,[0x10,0x03]);
       const sr=await eng.current.uds(tx,rx,[0x27,0x01]);
       if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
-        if(sv){const k=cda6(sv);await eng.current.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(label+' unlocked','rx');}}
+        if(sv){const aid=unlockIdForTx(tx);const k=unlockKey(aid,sv);if(k!==null){await eng.current.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(label+' ('+aid+') unlocked','rx');}}}
       const vb=[...new TextEncoder().encode(nv)];
       for(const did of[0xF190,0x7B90,0x7B88]){const r=await eng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(label+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
       await eng.current.uds(tx,rx,[0x11,0x01]);addLog(label+' VIN written + reset','rx');
@@ -193,7 +193,7 @@ function OBDTab(){
     await eng.current.uds(0x75F,0x767,[0x10,0x03]);
     const sr=await eng.current.uds(0x75F,0x767,[0x27,0x01]);
     if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
-      if(sv){const k=cda6(sv);await eng.current.uds(0x75F,0x767,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);}}
+      if(sv){const k=unlockKey('cda6',sv);await eng.current.uds(0x75F,0x767,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);}}
     const blank=new Array(17).fill(0x00);
     for(const did of[0xF190,0x7B90]){await eng.current.uds(0x75F,0x767,[0x2E,(did>>8)&0xFF,did&0xFF,...blank]);}
     await eng.current.uds(0x75F,0x767,[0x11,0x01]);
