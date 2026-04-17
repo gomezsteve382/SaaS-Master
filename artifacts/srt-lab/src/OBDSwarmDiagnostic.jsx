@@ -1,4 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { buildOnePagerPDF } from "./lib/buildOnePagerPDF.js";
+import { SWARM_REF } from "./lib/tabReferences.js";
 
 const ALL_KNOWN_ADDRS = [
   {tx:0x7E0,rx:0x7E8,src:'CDA6',name:'ECM/PCM'},
@@ -211,6 +213,14 @@ export default function OBDSwarmDiagnostic() {
   const [running, setRunning] = useState(false);
   const [ppEnabled, setPpEnabled] = useState(false);
   const [totalAttempts, setTotalAttempts] = useState(0);
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const onPdf = async () => {
+    if (pdfBusy) return;
+    setPdfBusy(true);
+    try { await buildOnePagerPDF(SWARM_REF); }
+    catch (e) { console.error(e); alert('PDF build failed: ' + e.message); }
+    finally { setPdfBusy(false); }
+  };
   const eng = useRef(null);
   const logRef = useRef(null);
   const attemptsRef = useRef(0);
@@ -514,6 +524,9 @@ export default function OBDSwarmDiagnostic() {
               {status==='connected'?'● CONNECTED':'○ DISCONNECTED'}
               {ppEnabled&&<span style={{color:AGENT_COLORS.FOUND,marginLeft:8}}>PP:ON</span>}
             </div>
+            <button onClick={onPdf} disabled={pdfBusy} style={{padding:'8px 14px',background:pdfBusy?'#333':'#fff',color:pdfBusy?'#666':S.red,border:'2px solid '+S.red,borderRadius:6,cursor:pdfBusy?'wait':'pointer',fontFamily:S.font,fontWeight:700,fontSize:11,letterSpacing:.5}}>
+              {pdfBusy?'⏳ Building...':'🖨 Print Reference'}
+            </button>
           </div>
         </div>
 

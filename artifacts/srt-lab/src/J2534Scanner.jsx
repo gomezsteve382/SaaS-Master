@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { ASSET_IDS } from "./lib/downloadAssets.js";
 import { useDownloadCount } from "./lib/useDownloadCount.jsx";
+import { buildOnePagerPDF } from "./lib/buildOnePagerPDF.js";
+import { J2534_REF } from "./lib/tabReferences.js";
 
 /**
  * J2534 Module Scanner
@@ -20,7 +22,15 @@ export default function J2534Scanner() {
   const [found, setFound] = useState([]);
   const [scanning, setScanning] = useState(false);
   const [devices, setDevices] = useState([]);
+  const [pdfBusy, setPdfBusy] = useState(false);
   const logRef = useRef(null);
+  const onPdf = async () => {
+    if (pdfBusy) return;
+    setPdfBusy(true);
+    try { await buildOnePagerPDF(J2534_REF); }
+    catch (e) { console.error(e); alert('PDF build failed: ' + e.message); }
+    finally { setPdfBusy(false); }
+  };
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
@@ -255,6 +265,9 @@ export default function J2534Scanner() {
             {status === "device_open" && "● DEVICE OPEN"}
             {status === "can_connected" && "● CAN LIVE"}
           </div>
+          <button onClick={onPdf} disabled={pdfBusy} style={{marginLeft:8,padding:'6px 12px',background:pdfBusy?'#333':'#fff',color:pdfBusy?'#666':S.red,border:'2px solid '+S.red,borderRadius:6,cursor:pdfBusy?'wait':'pointer',fontFamily:S.font,fontWeight:700,fontSize:11,letterSpacing:.5}}>
+            {pdfBusy?'⏳ Building...':'🖨 Print Reference'}
+          </button>
         </div>
 
         {/* Download bridge script */}

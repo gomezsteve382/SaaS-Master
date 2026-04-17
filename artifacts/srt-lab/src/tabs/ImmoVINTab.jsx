@@ -4,6 +4,8 @@ import {Card, Tag, Btn} from "../lib/ui.jsx";
 import {crc8rf} from "../lib/crc.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {DownloadCounter} from "../lib/useDownloadCount.jsx";
+import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
+import {IMMO_VIN_REF} from "../lib/tabReferences.js";
 
 const fO = n => "0x" + n.toString(16).toUpperCase().padStart(4, "0");
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
@@ -457,11 +459,24 @@ function GPECSection() {
 }
 
 export default function ImmoVINTab() {
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const onPdf = async () => {
+    if (pdfBusy) return;
+    setPdfBusy(true);
+    try { await buildOnePagerPDF(IMMO_VIN_REF); }
+    catch (e) { console.error(e); alert('PDF build failed: ' + e.message); }
+    finally { setPdfBusy(false); }
+  };
   return (
     <div>
-      <div style={{marginBottom:20}}>
-        <div style={{fontSize:22,fontWeight:900,color:C.tx,marginBottom:4}}>ImmoVIN</div>
-        <div style={{fontSize:12,color:C.ts}}>Binary VIN inspection and editing for FCA EEPROM modules — two-phase workflow: INSPECT then APPLY</div>
+      <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,marginBottom:20}}>
+        <div>
+          <div style={{fontSize:22,fontWeight:900,color:C.tx,marginBottom:4}}>ImmoVIN</div>
+          <div style={{fontSize:12,color:C.ts}}>Binary VIN inspection and editing for FCA EEPROM modules — two-phase workflow: INSPECT then APPLY</div>
+        </div>
+        <button onClick={onPdf} disabled={pdfBusy} style={{cursor:pdfBusy?'wait':'pointer',border:'2px solid '+C.sr,padding:'8px 14px',borderRadius:10,background:'#fff',color:C.sr,fontWeight:800,fontSize:11,letterSpacing:.5,fontFamily:"'Nunito'",whiteSpace:'nowrap'}}>
+          {pdfBusy?'⏳ Building...':'🖨 Print Reference'}
+        </button>
       </div>
       <RFHSection/>
       <GPECSection/>
