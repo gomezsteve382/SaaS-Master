@@ -4,11 +4,13 @@ import TwinTab from "./tabs/TwinTab";
 import OBDSwarmDiagnostic from "./OBDSwarmDiagnostic";
 import J2534Scanner from "./J2534Scanner";
 import JailbreakTab from "./tabs/JailbreakTab";
+import BcmTab from "./tabs/BcmTab.jsx";
+import RfhubTab from "./tabs/RfhubTab.jsx";
+import { MasterVinProvider, useMasterVin } from "./lib/masterVinContext.jsx";
 import { QR_CMDS } from "./lib/quickRef.js";
 import { buildQuickReferencePDF } from "./lib/buildQuickReferencePDF.js";
 import { ASSET_IDS, trackDownload as trackDownloadFn } from "./lib/downloadAssets.js";
 import { useDownloadCount, DownloadCounter } from "./lib/useDownloadCount.jsx";
-import { MasterVinProvider, useMasterVin } from "./lib/masterVinContext.jsx";
 import { ReadFirstModal } from "./lib/readFirstModal.jsx";
 import { logSession } from "./lib/paperTrail.js";
 
@@ -252,8 +254,8 @@ function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=
 function SLine({type,msg}){const col={error:C.er,warn:C.wn,pass:C.gn};const ico={error:'✗',warn:'⚠',pass:'✓'};return<div style={{fontSize:12,color:col[type],padding:'4px 0',display:'flex',gap:8}}><span style={{fontWeight:700,minWidth:14}}>{ico[type]}</span><span>{msg}</span></div>;}
 const TABS=[
   {id:'program',i:'🚀',l:'PROGRAM ALL',s:'BCM→RFHUB→ECM→ADCM',placeholder:true},
-  {id:'bcm',i:'🧠',l:'BCM',s:'VIN · CRC · Features',placeholder:true},
-  {id:'rfhub',i:'🔑',l:'RFHUB',s:'VIN · Key Fobs',placeholder:true},
+  {id:'bcm',i:'🧠',l:'BCM',s:'VIN · CRC · Features'},
+  {id:'rfhub',i:'🔑',l:'RFHUB',s:'VIN · Key Fobs'},
   {id:'ecm',i:'⚡',l:'ECM',s:'VIN · Tune · Cal',placeholder:true},
   {id:'adcm',i:'🏎️',l:'ACTIVE DAMPING',s:'VIN · Variant',placeholder:true},
   {id:'uds',i:'🔬',l:'UDS PROGRAMMER',s:'Universal · Raw',placeholder:true},
@@ -299,6 +301,30 @@ function PlaceholderTab({tab}){
       </div>
     </div>
   </Card>;
+}
+
+function MasterVinBar(){
+  const {vin,setVin,moduleStatus}=useMasterVin();
+  const ok=vin.length===17;
+  const statusColor={pending:'#9E9E9E',writing:'#FFB300',ok:'#00C853',fail:'#FF1744'};
+  const statusGlyph={pending:'○',writing:'⋯',ok:'●',fail:'✗'};
+  return <div style={{maxWidth:1100,margin:'14px auto 0',padding:'0 22px'}}>
+    <div style={{background:C.cd,borderRadius:14,border:'1.5px solid '+C.bd,padding:'12px 16px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap',boxShadow:'0 2px 12px rgba(0,0,0,0.04)'}}>
+      <div style={{fontWeight:900,fontSize:11,letterSpacing:2,color:C.sr}}>MASTER VIN</div>
+      <input value={vin} maxLength={17} placeholder="Enter 17-character VIN to drive BCM/RFHUB writes"
+        onChange={e=>setVin(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))}
+        style={{flex:1,minWidth:280,padding:'9px 12px',borderRadius:8,border:'2px solid '+(ok?C.gn:C.bd),background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:700,letterSpacing:2,outline:'none'}}/>
+      <span style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:800,color:ok?C.gn:C.tm}}>{vin.length}/17</span>
+      <div style={{display:'flex',gap:6}}>
+        {['BCM','RFHUB','ECM','ADCM'].map(m=>{
+          const st=moduleStatus[m]||'pending';
+          return <div key={m} title={m+': '+st} style={{padding:'4px 9px',borderRadius:6,fontSize:10,fontWeight:800,letterSpacing:.6,background:statusColor[st]+'18',color:statusColor[st],border:'1px solid '+statusColor[st]+'55'}}>
+            {statusGlyph[st]} {m}
+          </div>;
+        })}
+      </div>
+    </div>
+  </div>;
 }
 
 /* ═══ APP ═══ */
@@ -353,11 +379,14 @@ function AppShell({pg,setPg,files,setFiles,loadF}){
         {TABS.map(t=>{const a=pg===t.id;return<button key={t.id} data-testid={'tab-'+t.id} onClick={()=>setPg(t.id)} style={{padding:'11px 16px 13px',border:'none',cursor:'pointer',background:a?C.bg:'transparent',borderRadius:'11px 11px 0 0',color:a?C.sr:'rgba(255,255,255,0.4)',fontFamily:"'Nunito'",fontWeight:a?900:700,fontSize:11,letterSpacing:1.2,transition:'all 0.25s',boxShadow:a?'0 -4px 16px rgba(0,0,0,0.06)':'none',whiteSpace:'nowrap'}}><span style={{fontSize:14,marginRight:4,filter:a?'none':'grayscale(1) brightness(2)'}}>{t.i}</span>{t.l}{t.placeholder&&<span style={{marginLeft:4,fontSize:8,opacity:.7}}>·SOON</span>}<div style={{fontSize:7,marginTop:1,opacity:.4}}>{t.s}</div></button>;})}
       </div>
     </div>
+    <MasterVinBar/>
     <div style={{maxWidth:1100,margin:'0 auto',padding:'22px 22px 60px'}}>
       {tab?.placeholder&&<PlaceholderTab tab={tab}/>}
       {pg==='dumps'&&<DumpsTab files={files} setFiles={setFiles} loadF={loadF}/>}
       {pg==='obd'&&<OBDTab/>}
       {pg==='bench'&&<BenchTab/>}
+      {pg==='bcm'&&<BcmTab/>}
+      {pg==='rfhub'&&<RfhubTab/>}
       {pg==='seed'&&<SeedTab/>}
       {pg==='gpec'&&<GpecTab/>}
       {pg==='gpec2a'&&<Gpec2aTab/>}
