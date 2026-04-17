@@ -2,13 +2,16 @@ import React, {useState, useCallback, useRef} from "react";
 import {C} from "../lib/constants.js";
 import {Card, Tag, Btn} from "../lib/ui.jsx";
 import {crc8rf} from "../lib/crc.js";
+import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
+import {DownloadCounter} from "../lib/useDownloadCount.jsx";
 
 const fO = n => "0x" + n.toString(16).toUpperCase().padStart(4, "0");
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
-const dl = (data, name) => {
+const dl = (data, name, assetId) => {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([data], {type:"application/octet-stream"}));
   a.download = name; a.click(); URL.revokeObjectURL(a.href);
+  if (assetId) trackDownload(assetId);
 };
 
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
@@ -144,7 +147,7 @@ function RFHSection() {
     if (!aData || newVin.length !== 17) return;
     const patched = applyRfhub(aData, newVin);
     const fn = aFile.name.replace(/(\.[^.]+)?$/, "_RFHVIN_" + newVin + ".bin");
-    dl(patched, fn);
+    dl(patched, fn, ASSET_IDS.immoRfhPatched);
     setAMsg("✓ Patched & downloaded: " + fn);
   };
 
@@ -230,6 +233,7 @@ function RFHSection() {
         </div>
         <div style={{marginTop:10}}>
           <Btn onClick={doApply} disabled={!aFile||!vinValid||newVin.length!==17} full color={C.a2}>⚡ APPLY — Write VIN to 4 slots + Download</Btn>
+          <div style={{marginTop:6,textAlign:"center"}}><DownloadCounter assetId={ASSET_IDS.immoRfhPatched}/></div>
         </div>
         {aMsg&&<div style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:aMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(aMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:aMsg.startsWith("✓")?C.gn:C.er}}>{aMsg}</div>}
       </div>
@@ -337,7 +341,7 @@ function GPECSection() {
     if (!vinToWrite && !keyToWrite) { setAMsg("Enter at least one field (VIN or Secret Key) to apply."); return; }
     const patched = applyGpec2a(aData, vinToWrite, keyToWrite);
     const fn = aFile.name.replace(/(\.[^.]+)?$/, "_GPEC_"+(vinToWrite||"NOVIN")+".bin");
-    dl(patched, fn);
+    dl(patched, fn, ASSET_IDS.immoGpecPatched);
     setAMsg("✓ Patched & downloaded: " + fn);
   };
 
@@ -444,6 +448,7 @@ function GPECSection() {
         <div style={{marginTop:12}}>
           <Btn onClick={doApply} disabled={!aFile||(newVin.length>0&&!vinValid)||(newKey.length>0&&!keyValid)} full color={C.a2}>⚡ APPLY — Patch non-empty fields + Download</Btn>
           <div style={{fontSize:10,color:C.ts,marginTop:4,textAlign:"center"}}>Blank fields are not modified in the output file.</div>
+          <div style={{marginTop:6,textAlign:"center"}}><DownloadCounter assetId={ASSET_IDS.immoGpecPatched}/></div>
         </div>
         {aMsg&&<div style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:aMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(aMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:aMsg.startsWith("✓")?C.gn:C.er}}>{aMsg}</div>}
       </div>

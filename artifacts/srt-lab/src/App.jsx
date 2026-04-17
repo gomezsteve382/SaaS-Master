@@ -6,6 +6,8 @@ import J2534Scanner from "./J2534Scanner";
 import JailbreakTab from "./tabs/JailbreakTab";
 import { QR_CMDS } from "./lib/quickRef.js";
 import { buildQuickReferencePDF } from "./lib/buildQuickReferencePDF.js";
+import { ASSET_IDS, trackDownload as trackDownloadFn } from "./lib/downloadAssets.js";
+import { useDownloadCount, DownloadCounter } from "./lib/useDownloadCount.jsx";
 
 /* ═══ VERIFIED ENGINES ═══ */
 function crc16(d,i=0xFFFF){let c=i;for(let x=0;x<d.length;x++){c^=d[x]<<8;for(let j=0;j<8;j++)c=c&0x8000?(c<<1)^0x1021:c<<1;c&=0xFFFF;}return c;}
@@ -282,7 +284,7 @@ function BenchTab(){
   const[benchConn,setBenchConn]=useState(false);const[benchBusy,setBenchBusy]=useState('');
   const benchEng=useRef(null);
   const addLog=(m,l='info')=>setLog(p=>[...p,{m,l,t:new Date().toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})}]);
-  const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
+  const dl=(d,n,assetId)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();if(assetId)trackDownloadFn(assetId);};
 
   const loadFiles=useCallback(fl=>{
     Array.from(fl).forEach(f=>{
@@ -301,7 +303,7 @@ function BenchTab(){
     if(nv.length!==17)return;
     mods.forEach((m,i)=>{
       const patched=writeModuleVIN(m.data,m.type,nv,m.vins);
-      if(patched){dl(patched,'VIN_'+nv+'_'+m.filename);addLog(m.name+': VIN patched → '+nv,'rx');
+      if(patched){dl(patched,'VIN_'+nv+'_'+m.filename,ASSET_IDS.benchPatchedVin);addLog(m.name+': VIN patched → '+nv,'rx');
         setMods(p=>{const u=[...p];u[i]=parseModule(patched,m.filename);return u;});
       }
     });
@@ -312,7 +314,7 @@ function BenchTab(){
     const rf=mods.find(m=>m.type==='RFHUB');
     if(!rf){addLog('No RFHUB loaded','error');return;}
     const v=virginizeModule(rf.data,'RFHUB');
-    dl(v,'VIRGIN_'+rf.filename);addLog('RFHUB virginized (bench)','rx');setMsg('RFHUB virginized');
+    dl(v,'VIRGIN_'+rf.filename,ASSET_IDS.benchVirginRfh);addLog('RFHUB virginized (bench)','rx');setMsg('RFHUB virginized');
   },[mods]);
 
   const doCrcPatch=useCallback(()=>{
@@ -346,7 +348,7 @@ function BenchTab(){
           if(sc!==cc){out[off+17]=cc;addLog('  '+m.name+' @0x'+off.toString(16).toUpperCase()+': CRC8 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}
         }
       }
-      if(fixes>0){dl(out,'CRC_PATCHED_'+m.filename);addLog(m.name+': '+fixes+' CRC(s) fixed → download','rx');patched++;
+      if(fixes>0){dl(out,'CRC_PATCHED_'+m.filename,ASSET_IDS.benchCrcPatch);addLog(m.name+': '+fixes+' CRC(s) fixed → download','rx');patched++;
         setMods(p=>{const u=[...p];u[idx]=parseModule(out,m.filename);return u;});
       }else addLog(m.name+': all CRCs valid ✓','info');
     });
@@ -461,6 +463,7 @@ function BenchTab(){
           <span style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:nv.length===17?C.sr:C.tm}}>{nv.length}/17</span>
           <Btn onClick={writeAllVins} disabled={nv.length!==17||!mods.length}>⚡ Patch + Download All</Btn>
         </div>
+        <div style={{marginTop:8}}><DownloadCounter assetId={ASSET_IDS.benchPatchedVin}/></div>
       </Card>}
 
       {mods.length>0&&<Card style={{marginBottom:14,padding:16}}>
@@ -469,8 +472,13 @@ function BenchTab(){
           <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}addLog('BCM Proxi @0x2023: '+extractHex(bcm.data,0x2023,16),'rx');}} disabled={!bcm} color={C.a3} outline>📋 Read BCM Proxi</Btn>
           <Btn onClick={()=>{if(!gpec){addLog('No GPEC2A loaded','error');return;}addLog('SKIM State: '+(gpec.skimByte===0x80?'ENABLED':'DISABLED')+' (0x'+gpec.skimByte.toString(16).toUpperCase()+')','rx');}} disabled={!gpec} color={C.a2} outline>🛡️ Read SKIM State</Btn>
           <Btn onClick={doVirginRfhub} disabled={!mods.find(m=>m.type==='RFHUB')} color={C.er} outline>💀 Virginize RFHUB</Btn>
-          <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}if(bcm.immoBlank){addLog('BCM IMMO is blank — nothing to sync','warn');return;}const d=syncImmoBackup(bcm.data);if(!d){addLog('BCM file too small for IMMO sync','error');return;}dl(d,'IMMO_SYNCED_'+bcm.filename);addLog('IMMO backup synced: '+bcm.immoRecs+' keys → 0x2000','rx');setMods(p=>{const u=[...p];const idx=u.findIndex(m=>m.type==='BCM');u[idx]=parseModule(d,bcm.filename);return u;});setMsg('IMMO backup synced');}} disabled={!bcm} color={C.a1} outline>🔄 Sync IMMO Backup</Btn>
+          <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}if(bcm.immoBlank){addLog('BCM IMMO is blank — nothing to sync','warn');return;}const d=syncImmoBackup(bcm.data);if(!d){addLog('BCM file too small for IMMO sync','error');return;}dl(d,'IMMO_SYNCED_'+bcm.filename,ASSET_IDS.benchImmoSync);addLog('IMMO backup synced: '+bcm.immoRecs+' keys → 0x2000','rx');setMods(p=>{const u=[...p];const idx=u.findIndex(m=>m.type==='BCM');u[idx]=parseModule(d,bcm.filename);return u;});setMsg('IMMO backup synced');}} disabled={!bcm} color={C.a1} outline>🔄 Sync IMMO Backup</Btn>
           <Btn onClick={doCrcPatch} disabled={!mods.length} color={C.sr}>🔧 CRC Patch All</Btn>
+        </div>
+        <div style={{marginTop:8,display:'flex',gap:14,flexWrap:'wrap'}}>
+          <DownloadCounter assetId={ASSET_IDS.benchVirginRfh}/>
+          <DownloadCounter assetId={ASSET_IDS.benchImmoSync}/>
+          <DownloadCounter assetId={ASSET_IDS.benchCrcPatch}/>
         </div>
         <div style={{marginTop:10,fontSize:10,color:C.ts}}>
           <div><b>Bench mode:</b> All operations work on loaded .bin files — no serial connection needed</div>
@@ -968,11 +976,10 @@ function OBDTab(){
 /* ═══ DUMPS TAB ═══ */
 function DesktopDriverCard(){
   const cmds=QR_CMDS.map(c=>c[0]);
-  const DL_ID='srt_lab';
-  const DL_URL='/api/downloads/'+DL_ID;
   const[man,setMan]=useState(null);
   const[showCl,setShowCl]=useState(false);
-  const[dlCount,setDlCount]=useState(null);
+  const[dlCount,trackDl]=useDownloadCount(ASSET_IDS.desktopDriver);
+  const[,trackPdf]=useDownloadCount(ASSET_IDS.quickRefPdf);
   const[copied,setCopied]=useState(null);
   const[hover,setHover]=useState(null);
   const[focus,setFocus]=useState(null);
@@ -980,12 +987,9 @@ function DesktopDriverCard(){
   useEffect(()=>{
     const base=import.meta.env.BASE_URL||'/';
     fetch(base+'srt_lab.manifest.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(setMan).catch(()=>{});
-    fetch(DL_URL,{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&typeof d.count==='number')setDlCount(d.count);}).catch(()=>{});
   },[]);
-  const onDl=()=>{
-    fetch(DL_URL,{method:'POST'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&typeof d.count==='number')setDlCount(d.count);}).catch(()=>{});
-  };
-  const onPdf=async()=>{if(pdfBusy)return;setPdfBusy(true);try{await buildQuickReferencePDF();}catch(e){console.error(e);alert('PDF build failed: '+e.message);}finally{setPdfBusy(false);}};
+  const onDl=()=>{trackDl();};
+  const onPdf=async()=>{if(pdfBusy)return;setPdfBusy(true);try{await buildQuickReferencePDF();trackPdf();}catch(e){console.error(e);alert('PDF build failed: '+e.message);}finally{setPdfBusy(false);}};
   const sizeMB=man?(man.sizeBytes/(1024*1024)).toFixed(2):null;
   const copy=async(text,key)=>{
     try{
@@ -1014,7 +1018,10 @@ function DesktopDriverCard(){
         {pdfBusy?'⏳ Building...':'⬇ Download Quick Reference (PDF)'}
       </button>
     </div>
-    {dlCount!==null&&dlCount>0&&<div style={{fontSize:10,color:C.tm,marginBottom:8,letterSpacing:.3}}>Downloaded {dlCount.toLocaleString()} time{dlCount===1?'':'s'} worldwide</div>}
+    <div style={{display:'flex',gap:14,flexWrap:'wrap',marginBottom:8}}>
+      {dlCount>0&&<span style={{fontSize:10,color:C.tm,letterSpacing:.3,fontWeight:600}}>⬇ {dlCount.toLocaleString()} driver download{dlCount===1?'':'s'} globally</span>}
+      <DownloadCounter assetId={ASSET_IDS.quickRefPdf}/>
+    </div>
     {man&&man.changelog&&man.changelog.length>0&&<div style={{marginBottom:10}}>
       <button onClick={()=>setShowCl(s=>!s)} style={{background:'none',border:'none',padding:0,cursor:'pointer',fontSize:10,fontWeight:800,color:C.a3,letterSpacing:.5}}>
         {showCl?'▼':'▶'} RECENT CHANGES
@@ -1048,9 +1055,9 @@ function DesktopDriverCard(){
 function DumpsTab({files,setFiles,loadF}){
   const[sel,setSel]=useState(null);const[nv,setNv]=useState('');const[msg,setMsg]=useState('');
   const f=sel!==null?files[sel]:null;const cv=useMemo(()=>nv.length===17?checkVin(nv):null,[nv]);
-  const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
-  const doPatch=()=>{if(!f||nv.length!==17)return;const r=patchFile(f,nv);dl(r.data,'PATCHED_'+nv+'_'+f.name);const u=[...files];u[sel]=analyzeFile(r.data.buffer,f.name);setFiles(u);setMsg('Patched '+r.log.length+' locations');};
-  const doVirgin=()=>{if(!f)return;const r=virginizeFile(f);dl(r.data,'VIRGIN_'+f.name);setMsg('Virginized: '+r.log.join(', '));};
+  const dl=(d,n,assetId)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();if(assetId)trackDownloadFn(assetId);};
+  const doPatch=()=>{if(!f||nv.length!==17)return;const r=patchFile(f,nv);dl(r.data,'PATCHED_'+nv+'_'+f.name,ASSET_IDS.dumpsPatchedVin);const u=[...files];u[sel]=analyzeFile(r.data.buffer,f.name);setFiles(u);setMsg('Patched '+r.log.length+' locations');};
+  const doVirgin=()=>{if(!f)return;const r=virginizeFile(f);dl(r.data,'VIRGIN_'+f.name,ASSET_IDS.dumpsVirgin);setMsg('Virginized: '+r.log.join(', '));};
 
   if(!files.length)return<div style={{display:'flex',flexDirection:'column',gap:18}}>
     <div onClick={()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='.bin,.BIN';i.onchange=e=>loadF(e.target.files);i.click();}} onDrop={e=>{e.preventDefault();loadF(e.dataTransfer.files);}} onDragOver={e=>e.preventDefault()}>
@@ -1098,7 +1105,12 @@ function DumpsTab({files,setFiles,loadF}){
         </div>
         <div style={{display:'flex',gap:8,marginTop:8}}>
           <Btn onClick={doVirgin} color={C.er} outline>💀 Virginize</Btn>
-          <Btn onClick={()=>dl(f.data,f.name)} color={C.a3} outline>💾 Download</Btn>
+          <Btn onClick={()=>dl(f.data,f.name,ASSET_IDS.dumpsRaw)} color={C.a3} outline>💾 Download</Btn>
+        </div>
+        <div style={{display:'flex',gap:14,marginTop:8,flexWrap:'wrap'}}>
+          <DownloadCounter assetId={ASSET_IDS.dumpsPatchedVin}/>
+          <DownloadCounter assetId={ASSET_IDS.dumpsVirgin}/>
+          <DownloadCounter assetId={ASSET_IDS.dumpsRaw}/>
         </div>
         {msg&&<div style={{marginTop:10,padding:'9px 12px',borderRadius:10,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,color:C.gn,fontWeight:700}}>✓ {msg}</div>}
       </Card>
@@ -1114,7 +1126,7 @@ function DumpsTab({files,setFiles,loadF}){
       </Card>
       {f.sec&&<Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Security</div>
-        {f.sec.t==='bcm'&&<><div style={{fontSize:11,marginBottom:6}}>Immo @0x40C0: <Tag color={f.sec.b1?C.wn:C.gn}>{f.sec.b1?'BLANK':f.sec.immoRecs+' SKIM keys'}</Tag></div><div style={{fontSize:11,marginBottom:6}}>Backup @0x2000: <Tag color={f.sec.b2?C.tm:C.gn}>{f.sec.b2?'BLANK':f.sec.bakRecs+' keys'}</Tag>{!f.sec.b2&&!f.sec.b1&&<Tag color={f.sec.immoSynced?C.gn:C.wn}>{f.sec.immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</div>{!f.sec.b1&&(f.sec.b2||!f.sec.immoSynced)&&<div style={{marginTop:6}}><Btn onClick={()=>{const d=syncImmoBackup(f.data);if(!d){setMsg('BCM file too small for IMMO sync');return;}dl(d,'IMMO_SYNCED_'+f.name);const u=[...files];u[sel]=analyzeFile(d.buffer,f.name);setFiles(u);setMsg('IMMO backup synced: '+f.sec.immoRecs+' keys copied to 0x2000');}} color={C.a1} outline>🔄 Sync IMMO Backup</Btn></div>}</>}
+        {f.sec.t==='bcm'&&<><div style={{fontSize:11,marginBottom:6}}>Immo @0x40C0: <Tag color={f.sec.b1?C.wn:C.gn}>{f.sec.b1?'BLANK':f.sec.immoRecs+' SKIM keys'}</Tag></div><div style={{fontSize:11,marginBottom:6}}>Backup @0x2000: <Tag color={f.sec.b2?C.tm:C.gn}>{f.sec.b2?'BLANK':f.sec.bakRecs+' keys'}</Tag>{!f.sec.b2&&!f.sec.b1&&<Tag color={f.sec.immoSynced?C.gn:C.wn}>{f.sec.immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</div>{!f.sec.b1&&(f.sec.b2||!f.sec.immoSynced)&&<div style={{marginTop:6,display:'flex',gap:12,alignItems:'center',flexWrap:'wrap'}}><Btn onClick={()=>{const d=syncImmoBackup(f.data);if(!d){setMsg('BCM file too small for IMMO sync');return;}dl(d,'IMMO_SYNCED_'+f.name,ASSET_IDS.dumpsImmoSync);const u=[...files];u[sel]=analyzeFile(d.buffer,f.name);setFiles(u);setMsg('IMMO backup synced: '+f.sec.immoRecs+' keys copied to 0x2000');}} color={C.a1} outline>🔄 Sync IMMO Backup</Btn><DownloadCounter assetId={ASSET_IDS.dumpsImmoSync}/></div>}</>}
         {f.sec.t==='95640'&&<><div style={{fontSize:11,marginBottom:4}}>Secret Key @0x40: <Tag color={f.sec.kb?C.wn:C.gn}>{f.sec.kb?'ERASED':'SET'}</Tag></div>{!f.sec.kb&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a4,marginBottom:4}}>{hxb(f.sec.key)}</div>}<div style={{fontSize:11}}>Fob Data: <Tag color={f.sec.fb?C.tm:C.gn}>{f.sec.fb?'NONE':'HAS FOBS'}</Tag></div></>}
         {f.sec.t==='rfhub'&&<><div style={{fontSize:11,marginBottom:4}}>Secret Key @0x40: <Tag color={f.sec.kb?C.wn:C.gn}>{f.sec.kb?'ERASED':'SET'}</Tag></div>{!f.sec.kb&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a4}}>{hxb(f.sec.key)}</div>}</>}
         {f.sec.t==='gpec2a'&&<><div style={{fontSize:11,marginBottom:4}}>SKIM: <Tag color={f.sec.on?C.gn:C.wn}>{f.sec.on?'ENABLED 0x80':'OFF 0x'+f.sec.skim.toString(16).toUpperCase()}</Tag></div><div style={{fontSize:11,marginBottom:4}}>Secret Key: {!f.sec.key.every(b=>b===0xFF)?<><span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a4}}>{hxb(f.sec.key)}</span><Tag color={f.sec.km?C.gn:C.er}>{f.sec.km?'Mirror ✓':'MISMATCH'}</Tag></>:<Tag color={C.wn}>BLANK</Tag>}</div><div style={{fontSize:11}}>ZZZZ Tamper: <Tag color={f.sec.zz?C.gn:C.er}>{f.sec.zz?'INTACT':'TAMPERED'}</Tag></div></>}
@@ -1208,6 +1220,7 @@ function GpecTab(){
   const dl=useCallback(()=>{
     if(!res?.data)return;const a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([res.data]));a.download='UNLOCKED_'+fw.name;a.click();
+    trackDownloadFn(ASSET_IDS.gpecUnlockedFw);
   },[res,fw]);
 
   return<div style={{maxWidth:640}}>
@@ -1242,7 +1255,7 @@ function GpecTab(){
 
       {res&&<div style={{marginTop:14,padding:16,borderRadius:12,background:res.ok?C.gn+'10':C.wn+'10',border:'1px solid '+(res.ok?C.gn:C.wn)+'30'}}>
         <div style={{fontSize:13,fontWeight:800,color:res.ok?C.gn:C.wn}}>{res.ok?'✓ ':'⚠ '}{res.msg}</div>
-        {res.ok&&<div style={{marginTop:10}}><Btn onClick={dl} color={C.gn}>💾 Download Unlocked Firmware</Btn></div>}
+        {res.ok&&<div style={{marginTop:10,display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}><Btn onClick={dl} color={C.gn}>💾 Download Unlocked Firmware</Btn><DownloadCounter assetId={ASSET_IDS.gpecUnlockedFw}/></div>}
       </div>}
     </Card>
   </div>;
@@ -1252,9 +1265,9 @@ function GpecTab(){
 function Gpec2aTab(){
   const[f,setF]=useState(null);const[f2,setF2]=useState(null);const[msg,setMsg]=useState('');
   const load=(e,slot)=>{const fi=e.target.files[0];if(!fi)return;const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);if(d.length!==4096){setMsg('GPEC2A must be 4096 bytes');return;}const a=analyzeFile(d.buffer,fi.name);if(a.type!=='GPEC2A'){setMsg('Not a GPEC2A file');return;}if(slot===1)setF(a);else setF2(a);setMsg('');};r.readAsArrayBuffer(fi);};
-  const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
+  const dl=(d,n,assetId)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();if(assetId)trackDownloadFn(assetId);};
 
-  function toggleSkim(){if(!f)return;const p=new Uint8Array(f.data);p[0x11]=p[0x11]===0x80?0x00:0x80;setF(analyzeFile(p.buffer,f.name));dl(p,'SKIM_'+(p[0x11]===0x80?'ENABLED':'DISABLED')+'_'+f.name);setMsg('SKIM toggled to 0x'+p[0x11].toString(16).toUpperCase());}
+  function toggleSkim(){if(!f)return;const p=new Uint8Array(f.data);p[0x11]=p[0x11]===0x80?0x00:0x80;setF(analyzeFile(p.buffer,f.name));dl(p,'SKIM_'+(p[0x11]===0x80?'ENABLED':'DISABLED')+'_'+f.name,ASSET_IDS.gpec2aSkim);setMsg('SKIM toggled to 0x'+p[0x11].toString(16).toUpperCase());}
 
   const diff=useMemo(()=>{if(!f||!f2)return[];const r=[];for(let i=0;i<Math.min(f.data.length,f2.data.length);i++)if(f.data[i]!==f2.data[i])r.push({off:i,a:f.data[i],b:f2.data[i]});return r;},[f,f2]);
 
@@ -1280,7 +1293,7 @@ function Gpec2aTab(){
             <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6}}>SKIM BYTE @ 0x0011</div>
             <div style={{fontSize:28,fontWeight:900,color:f.sec.on?C.gn:C.wn,fontFamily:"'JetBrains Mono'"}}>{f.sec.on?'ENABLED':'DISABLED'}</div>
             <div style={{fontSize:10,color:C.tm}}>0x{f.sec.skim.toString(16).toUpperCase().padStart(2,'0')}</div>
-            <div style={{marginTop:8}}><Btn onClick={toggleSkim} color={f.sec.on?C.wn:C.gn} outline>{f.sec.on?'Disable SKIM':'Enable SKIM'}</Btn></div>
+            <div style={{marginTop:8,display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}><Btn onClick={toggleSkim} color={f.sec.on?C.wn:C.gn} outline>{f.sec.on?'Disable SKIM':'Enable SKIM'}</Btn><DownloadCounter assetId={ASSET_IDS.gpec2aSkim}/></div>
           </div>
           <div style={{padding:14,borderRadius:12,background:C.c2,border:'1px solid '+C.bd}}>
             <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6}}>ZZZZ TAMPER @ 0x0C8C</div>

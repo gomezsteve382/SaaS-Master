@@ -3,6 +3,8 @@ import chargerImg from "@assets/charger_1776312563310.png";
 import { C } from "../lib/constants.js";
 import { Card, Tag, Btn } from "../lib/ui.jsx";
 import { crc16, rfhSec16Cs, rfhGen2DetectMagic, rfhGen2VinCs, RFH_GEN2_VIN_CS_KNOWN_MAGICS } from "../lib/crc.js";
+import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
+import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
@@ -11,6 +13,7 @@ const dl  = (data, name) => {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([data], {type:"application/octet-stream"}));
   a.download = name; a.click(); URL.revokeObjectURL(a.href);
+  trackDownload(ASSET_IDS.twinPaired);
 };
 
 /* ─── BCM (MPC5606B_05B, 65536 bytes) ────────────────────────────────────── */
@@ -709,6 +712,7 @@ function ApplyPanel({ bcm, rfh, pcm, bcmData, rfhData, pcmData }) {
           </Btn>
         )}
       </div>
+      <div style={{ marginTop: 8 }}><DownloadCounter assetId={ASSET_IDS.twinPaired}/></div>
       {applied && (
         <div style={{ marginTop: 12, padding: "8px 14px", borderRadius: 8, background: C.gn + "10", fontSize: 12, fontWeight: 700, color: C.gn, border: `1px solid ${C.gn}30` }}>
           ✓ Twinned file downloaded —{" "}

@@ -1,4 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { ASSET_IDS } from "./lib/downloadAssets.js";
+import { useDownloadCount } from "./lib/useDownloadCount.jsx";
 
 /**
  * J2534 Module Scanner
@@ -262,23 +264,7 @@ export default function J2534Scanner() {
             The J2534 bridge runs locally on your laptop and exposes the adapter to the browser via WebSocket.
           </div>
           <div style={{ marginTop: 8 }}>
-            <a
-              href="j2534_bridge.py"
-              download="j2534_bridge.py"
-              style={{
-                display: "inline-block",
-                padding: "8px 16px",
-                background: "#2E7D32",
-                color: "#fff",
-                borderRadius: 6,
-                textDecoration: "none",
-                fontWeight: 700,
-                fontSize: 12,
-                fontFamily: S.font,
-              }}
-            >
-              ⬇ Download j2534_bridge.py
-            </a>
+            <BridgeDownloadLink S={S} />
             <span style={{ color: S.dim, marginLeft: 12 }}>then: pip install websockets &amp;&amp; python j2534_bridge.py</span>
           </div>
         </div>
@@ -378,5 +364,36 @@ export default function J2534Scanner() {
         )}
       </div>
     </div>
+  );
+}
+
+function BridgeDownloadLink({ S }) {
+  const [count, track] = useDownloadCount(ASSET_IDS.j2534Bridge);
+  return (
+    <>
+      <a
+        href="j2534_bridge.py"
+        download="j2534_bridge.py"
+        onClick={() => track()}
+        style={{
+          display: "inline-block",
+          padding: "8px 16px",
+          background: "#2E7D32",
+          color: "#fff",
+          borderRadius: 6,
+          textDecoration: "none",
+          fontWeight: 700,
+          fontSize: 12,
+          fontFamily: S.font,
+        }}
+      >
+        ⬇ Download j2534_bridge.py
+      </a>
+      {count > 0 && (
+        <span style={{ color: S.dim, marginLeft: 12, fontSize: 11 }}>
+          ⬇ {count.toLocaleString()} download{count === 1 ? "" : "s"} globally
+        </span>
+      )}
+    </>
   );
 }

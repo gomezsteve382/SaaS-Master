@@ -5,13 +5,15 @@ import {parseModule} from "../lib/parseModule.js";
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crc16,crc8_42,crc8rf} from "../lib/crc.js";
 import {MODS} from "../lib/mods.js";
+import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
+import {DownloadCounter} from "../lib/useDownloadCount.jsx";
 
 function BenchTab(){
   const[mods,setMods]=useState([]);const[nv,setNv]=useState('');const[msg,setMsg]=useState('');const[log,setLog]=useState([]);
   const[benchConn,setBenchConn]=useState(false);const[benchBusy,setBenchBusy]=useState('');
   const benchEng=useRef(null);
   const addLog=(m,l='info')=>setLog(p=>[...p,{m,l,t:new Date().toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})}]);
-  const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
+  const dl=(d,n,assetId)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();if(assetId)trackDownload(assetId);};
 
   const loadFiles=useCallback(fl=>{
     Array.from(fl).forEach(f=>{
@@ -30,7 +32,7 @@ function BenchTab(){
     if(nv.length!==17)return;
     mods.forEach((m,i)=>{
       const patched=writeModuleVIN(m.data,m.type,nv,m.vins);
-      if(patched){dl(patched,'VIN_'+nv+'_'+m.filename);addLog(m.name+': VIN patched → '+nv,'rx');
+      if(patched){dl(patched,'VIN_'+nv+'_'+m.filename,ASSET_IDS.benchPatchedVin);addLog(m.name+': VIN patched → '+nv,'rx');
         setMods(p=>{const u=[...p];u[i]=parseModule(patched,m.filename);return u;});
       }
     });
@@ -41,7 +43,7 @@ function BenchTab(){
     const rf=mods.find(m=>m.type==='RFHUB');
     if(!rf){addLog('No RFHUB loaded','error');return;}
     const v=virginizeModule(rf.data,'RFHUB');
-    dl(v,'VIRGIN_'+rf.filename);addLog('RFHUB virginized (bench)','rx');setMsg('RFHUB virginized');
+    dl(v,'VIRGIN_'+rf.filename,ASSET_IDS.benchVirginRfh);addLog('RFHUB virginized (bench)','rx');setMsg('RFHUB virginized');
   },[mods]);
 
   const doCrcPatch=useCallback(()=>{
@@ -75,7 +77,7 @@ function BenchTab(){
           if(sc!==cc){out[off+17]=cc;addLog('  '+m.name+' @0x'+off.toString(16).toUpperCase()+': CRC8 '+sc.toString(16).toUpperCase()+' → '+cc.toString(16).toUpperCase(),'rx');fixes++;}
         }
       }
-      if(fixes>0){dl(out,'CRC_PATCHED_'+m.filename);addLog(m.name+': '+fixes+' CRC(s) fixed → download','rx');patched++;
+      if(fixes>0){dl(out,'CRC_PATCHED_'+m.filename,ASSET_IDS.benchCrcPatch);addLog(m.name+': '+fixes+' CRC(s) fixed → download','rx');patched++;
         setMods(p=>{const u=[...p];u[idx]=parseModule(out,m.filename);return u;});
       }else addLog(m.name+': all CRCs valid ✓','info');
     });
@@ -196,6 +198,7 @@ function BenchTab(){
           <span style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:nv.length===17?C.sr:C.tm}}>{nv.length}/17</span>
           <Btn onClick={writeAllVins} disabled={nv.length!==17||!mods.length}>⚡ Patch + Download All</Btn>
         </div>
+        <div style={{marginTop:8}}><DownloadCounter assetId={ASSET_IDS.benchPatchedVin}/></div>
       </Card>}
 
       {mods.length>0&&<Card style={{marginBottom:14,padding:16}}>
@@ -204,8 +207,13 @@ function BenchTab(){
           <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}addLog('BCM Proxi @0x2023: '+extractHex(bcm.data,0x2023,16),'rx');}} disabled={!bcm} color={C.a3} outline>📋 Read BCM Proxi</Btn>
           <Btn onClick={()=>{if(!gpec){addLog('No GPEC2A loaded','error');return;}addLog('SKIM State: '+(gpec.skimByte===0x80?'ENABLED':'DISABLED')+' (0x'+gpec.skimByte.toString(16).toUpperCase()+')','rx');}} disabled={!gpec} color={C.a2} outline>🛡️ Read SKIM State</Btn>
           <Btn onClick={doVirginRfhub} disabled={!mods.find(m=>m.type==='RFHUB')} color={C.er} outline>💀 Virginize RFHUB</Btn>
-          <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}if(bcm.immoBlank){addLog('BCM IMMO is blank — nothing to sync','warn');return;}const d=syncImmoBackup(bcm.data);if(!d){addLog('BCM file too small for IMMO sync','error');return;}dl(d,'IMMO_SYNCED_'+bcm.filename);addLog('IMMO backup synced: '+bcm.immoRecs+' keys → 0x2000','rx');setMods(p=>{const u=[...p];const idx=u.findIndex(m=>m.type==='BCM');u[idx]=parseModule(d,bcm.filename);return u;});setMsg('IMMO backup synced');}} disabled={!bcm} color={C.a1} outline>🔄 Sync IMMO Backup</Btn>
+          <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}if(bcm.immoBlank){addLog('BCM IMMO is blank — nothing to sync','warn');return;}const d=syncImmoBackup(bcm.data);if(!d){addLog('BCM file too small for IMMO sync','error');return;}dl(d,'IMMO_SYNCED_'+bcm.filename,ASSET_IDS.benchImmoSync);addLog('IMMO backup synced: '+bcm.immoRecs+' keys → 0x2000','rx');setMods(p=>{const u=[...p];const idx=u.findIndex(m=>m.type==='BCM');u[idx]=parseModule(d,bcm.filename);return u;});setMsg('IMMO backup synced');}} disabled={!bcm} color={C.a1} outline>🔄 Sync IMMO Backup</Btn>
           <Btn onClick={doCrcPatch} disabled={!mods.length} color={C.sr}>🔧 CRC Patch All</Btn>
+        </div>
+        <div style={{marginTop:8,display:'flex',gap:14,flexWrap:'wrap'}}>
+          <DownloadCounter assetId={ASSET_IDS.benchVirginRfh}/>
+          <DownloadCounter assetId={ASSET_IDS.benchImmoSync}/>
+          <DownloadCounter assetId={ASSET_IDS.benchCrcPatch}/>
         </div>
         <div style={{marginTop:10,fontSize:10,color:C.ts}}>
           <div><b>Bench mode:</b> All operations work on loaded .bin files — no serial connection needed</div>

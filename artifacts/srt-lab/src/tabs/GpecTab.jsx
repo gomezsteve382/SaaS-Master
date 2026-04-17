@@ -1,9 +1,12 @@
 import React, {useState, useCallback} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Btn} from "../lib/ui.jsx";
+import {ASSET_IDS} from "../lib/downloadAssets.js";
+import {useDownloadCount, DownloadCounter} from "../lib/useDownloadCount.jsx";
 
 function GpecTab(){
   const[fw,setFw]=useState(null);const[res,setRes]=useState(null);
+  const[,trackUnlocked]=useDownloadCount(ASSET_IDS.gpecUnlockedFw);
   const load=useCallback(e=>{
     const f=e.target.files[0];if(!f)return;
     const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);setFw({name:f.name,data:d,size:d.length});setRes(null);};r.readAsArrayBuffer(f);
@@ -18,7 +21,8 @@ function GpecTab(){
   const dl=useCallback(()=>{
     if(!res?.data)return;const a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([res.data]));a.download='UNLOCKED_'+fw.name;a.click();
-  },[res,fw]);
+    trackUnlocked();
+  },[res,fw,trackUnlocked]);
 
   return<div style={{maxWidth:640}}>
     <Card glow>
@@ -52,7 +56,7 @@ function GpecTab(){
 
       {res&&<div style={{marginTop:14,padding:16,borderRadius:12,background:res.ok?C.gn+'10':C.wn+'10',border:'1px solid '+(res.ok?C.gn:C.wn)+'30'}}>
         <div style={{fontSize:13,fontWeight:800,color:res.ok?C.gn:C.wn}}>{res.ok?'✓ ':'⚠ '}{res.msg}</div>
-        {res.ok&&<div style={{marginTop:10}}><Btn onClick={dl} color={C.gn}>💾 Download Unlocked Firmware</Btn></div>}
+        {res.ok&&<div style={{marginTop:10,display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}><Btn onClick={dl} color={C.gn}>💾 Download Unlocked Firmware</Btn><DownloadCounter assetId={ASSET_IDS.gpecUnlockedFw}/></div>}
       </div>}
     </Card>
   </div>;
