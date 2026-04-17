@@ -18,8 +18,8 @@ const downloadBin=(data,name)=>{
    parses each via parseModule, runs crossValidate, and surfaces every
    byte-level field the parser exposes. Read-only beyond the IMMO-sync action. */
 export default function FcaAnalyzerTab(){
-  const {vin:masterVin,setVin}=useContext(MasterVinContext);
-  const [mods,setMods]=useState([]);
+  const {vin:masterVin,setVin,loadedDumps,addDump,replaceDump,removeDump,clearDumps}=useContext(MasterVinContext);
+  const mods=useMemo(()=>loadedDumps.map(d=>d.mod),[loadedDumps]);
   const [sel,setSel]=useState(0);
   const [msg,setMsg]=useState('');
 
@@ -29,15 +29,12 @@ export default function FcaAnalyzerTab(){
       rd.onload=ev=>r(parseModule(new Uint8Array(ev.target.result),f.name));
       rd.readAsArrayBuffer(f);
     }))).then(parsed=>{
-      setMods(p=>{
-        const next=[...p,...parsed];
-        return next;
-      });
+      parsed.forEach(p=>addDump(p));
       setSel(0);
       const firstVin=parsed.find(p=>p.vins?.[0]?.vin)?.vins?.[0]?.vin;
       if(firstVin&&!masterVin)setVin(firstVin);
     });
-  },[masterVin,setVin]);
+  },[masterVin,setVin,addDump]);
 
   const cv=useMemo(()=>mods.length?crossValidate(mods):null,[mods]);
   const cur=mods[sel];
@@ -60,11 +57,11 @@ export default function FcaAnalyzerTab(){
     const synced=syncImmoBackup(cur.data);
     if(!synced){setMsg('BCM file too small for IMMO sync.');return;}
     downloadBin(synced,'IMMO_SYNCED_'+cur.filename);
-    setMods(p=>{
-      const u=[...p];u[sel]=parseModule(synced,cur.filename);return u;
-    });
+    const reparsed=parseModule(synced,cur.filename);
+    const oldHash=loadedDumps[sel]?.hash;
+    if(oldHash)replaceDump(oldHash,reparsed);
     setMsg('IMMO backup synced: '+cur.immoRecs+' keys copied → 0x2000. Snapshot downloaded.');
-  },[cur,sel]);
+  },[cur,sel,loadedDumps,replaceDump]);
 
   const masterCheck=useMemo(()=>masterVin.length===17?checkVin(masterVin):null,[masterVin]);
   const masterYear=useMemo(()=>parseVinYear(masterVin),[masterVin]);
@@ -92,12 +89,12 @@ export default function FcaAnalyzerTab(){
         <div style={{fontSize:11,color:C.ts,marginTop:4}}>Auto-detects BCM (64/128 KB) · RFHUB (4 KB) · GPEC2A (4 KB) · 95640 (8/16 KB)</div>
       </div>
       {mods.length>0&&<div style={{marginTop:12,display:'flex',gap:8,flexWrap:'wrap'}}>
-        {mods.map((m,i)=><button key={i} onClick={()=>setSel(i)} style={{padding:'8px 12px',borderRadius:10,border:'1.5px solid '+(sel===i?C.sr:C.bd),background:sel===i?C.sr+'10':C.cd,cursor:'pointer',display:'flex',alignItems:'center',gap:6}}>
-          <Tag color={m.color}>{m.name}</Tag>
-          <span style={{fontSize:10,fontFamily:"'JetBrains Mono'",color:C.ts}}>{m.filename}</span>
-          <span onClick={e=>{e.stopPropagation();setMods(p=>p.filter((_,j)=>j!==i));setSel(0);}} style={{color:C.tm,fontSize:13,marginLeft:4}}>✕</span>
+        {loadedDumps.map((d,i)=><button key={d.hash} onClick={()=>setSel(i)} style={{padding:'8px 12px',borderRadius:10,border:'1.5px solid '+(sel===i?C.sr:C.bd),background:sel===i?C.sr+'10':C.cd,cursor:'pointer',display:'flex',alignItems:'center',gap:6}}>
+          <Tag color={d.mod.color}>{d.mod.name}</Tag>
+          <span style={{fontSize:10,fontFamily:"'JetBrains Mono'",color:C.ts}}>{d.filename}</span>
+          <span onClick={e=>{e.stopPropagation();removeDump(d.hash);setSel(0);}} style={{color:C.tm,fontSize:13,marginLeft:4}}>✕</span>
         </button>)}
-        <Btn onClick={()=>{setMods([]);setMsg('');}} color={C.tm} outline>Clear all</Btn>
+        <Btn onClick={()=>{clearDumps();setMsg('');}} color={C.tm} outline>Clear all</Btn>
       </div>}
     </Card>
 

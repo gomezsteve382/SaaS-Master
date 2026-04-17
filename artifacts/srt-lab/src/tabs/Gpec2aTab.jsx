@@ -1,15 +1,22 @@
-import React, {useState, useMemo, useCallback} from "react";
+import React, {useState, useMemo, useCallback, useContext} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn} from "../lib/ui.jsx";
 import {parseModule} from "../lib/parseModule.js";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
+import {MasterVinContext} from "../lib/masterVinContext.jsx";
 
 const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();URL.revokeObjectURL(a.href);};
 
 function Gpec2aTab(){
-  const [f,setF]=useState(null);
-  const [f2,setF2]=useState(null);
+  const {getDumpsByType,addDump,replaceDump}=useContext(MasterVinContext);
+  const gpecDumps=getDumpsByType('GPEC2A');
+  const [hash1,setHash1]=useState(null);
+  const [hash2,setHash2]=useState(null);
   const [msg,setMsg]=useState('');
+  const entry1=gpecDumps.find(d=>d.hash===hash1)||gpecDumps[0]||null;
+  const entry2=gpecDumps.find(d=>d.hash===hash2&&d.hash!==entry1?.hash)||gpecDumps.find(d=>d.hash!==entry1?.hash)||null;
+  const f=entry1?.mod||null;
+  const f2=entry2?.mod||null;
 
   const load=useCallback((e,slot)=>{
     const fi=e.target.files[0];if(!fi)return;
@@ -19,21 +26,23 @@ function Gpec2aTab(){
       if(d.length!==4096){setMsg('GPEC2A must be 4096 bytes');return;}
       const m=parseModule(d,fi.name);
       if(m.type!=='GPEC2A'){setMsg('Not a GPEC2A file');return;}
-      if(slot===1)setF(m);else setF2(m);
+      const entry=addDump(m);
+      if(entry){if(slot===1)setHash1(entry.hash);else setHash2(entry.hash);}
       setMsg('');
     };
     r.readAsArrayBuffer(fi);
-  },[]);
+  },[addDump]);
 
   const toggleSkim=useCallback(()=>{
-    if(!f)return;
+    if(!f||!entry1)return;
     const p=new Uint8Array(f.data);
     p[0x11]=p[0x11]===0x80?0x00:0x80;
     const next=parseModule(p,f.filename);
-    setF(next);
+    const updated=replaceDump(entry1.hash,next);
+    if(updated)setHash1(updated.hash);
     dl(p,'SKIM_'+(p[0x11]===0x80?'ENABLED':'DISABLED')+'_'+f.filename);
     setMsg('SKIM toggled to 0x'+p[0x11].toString(16).toUpperCase()+' — patched .bin downloaded');
-  },[f]);
+  },[f,entry1,replaceDump]);
 
   const diff=useMemo(()=>{
     if(!f||!f2)return[];

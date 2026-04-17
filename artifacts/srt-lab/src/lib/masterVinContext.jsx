@@ -1,8 +1,9 @@
 import React, {createContext, useContext, useState, useCallback, useMemo} from 'react';
 
-/* MasterVinContext — single source of truth for the in-progress job VIN
-   and the per-module write status (BCM / RFHUB / ECM / ADCM).
-   Tabs read with `useContext(MasterVinContext)` or `useMasterVin()`.
+/* MasterVinContext — single source of truth for the in-progress job VIN,
+   the per-module write status (BCM / RFHUB / ECM / ADCM), AND the set of
+   parsed module dumps loaded into the workspace. Tabs read with
+   `useContext(MasterVinContext)` or `useMasterVin()`.
    Values:
      vin             — current Master VIN string (uppercase, ≤17 chars)
      setVin          — setter (auto-uppercases / strips whitespace upstream)
@@ -11,15 +12,43 @@ import React, {createContext, useContext, useState, useCallback, useMemo} from '
      setModuleStatus — full setter (e.g. patch)
      updateStatus    — convenience: updateStatus('BCM','ok')
      setPg           — navigate to a different tab id from a tab
-     resetStatus     — reset all four modules back to 'pending' */
+     resetStatus     — reset all four modules back to 'pending'
+     loadedDumps     — array of {hash,type,name,filename,size,mod,addedAt}
+                       parsed dumps the user has loaded; survives tab switches.
+                       Keyed (de-duped) by file content hash.
+     addDump         — addDump(parsedMod) → returns the canonical entry (existing
+                       if duplicate). parsedMod must come from parseModule().
+     replaceDump     — replaceDump(hash, parsedMod) swap an existing entry
+                       (e.g. after IMMO sync) preserving its slot.
+     removeDump      — removeDump(hash) drop a single dump.
+     clearDumps      — drop every loaded dump.
+     getDumpsByType  — getDumpsByType('BCM') → array filtered by module type.
+*/
 
 const VIN_RX=/^[A-HJ-NPR-Z0-9]{17}$/i;
+
+/* Cheap stable 32-bit FNV-1a hash over the raw bytes — used purely as an
+   identity key so the same .bin loaded twice de-dupes. Not cryptographic. */
+function hashBytes(bytes){
+  let h=0x811C9DC5;
+  for(let i=0;i<bytes.length;i++){
+    h^=bytes[i];
+    h=(h+((h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24)))>>>0;
+  }
+  return ('00000000'+h.toString(16).toUpperCase()).slice(-8);
+}
 
 export const MasterVinContext=createContext({
   vin:'',setVin:()=>{},vinValid:false,
   moduleStatus:{BCM:'pending',RFHUB:'pending',ECM:'pending',ADCM:'pending'},
   setModuleStatus:()=>{},updateStatus:()=>{},resetStatus:()=>{},
   setPg:()=>{},
+  loadedDumps:[],
+  addDump:()=>null,
+  replaceDump:()=>null,
+  removeDump:()=>{},
+  clearDumps:()=>{},
+  getDumpsByType:()=>[],
 });
 
 export function useMasterVin(){return useContext(MasterVinContext);}
@@ -27,6 +56,7 @@ export function useMasterVin(){return useContext(MasterVinContext);}
 export function MasterVinProvider({setPg,children}){
   const[vin,setVinRaw]=useState('');
   const[moduleStatus,setModuleStatus]=useState({BCM:'pending',RFHUB:'pending',ECM:'pending',ADCM:'pending'});
+  const[loadedDumps,setLoadedDumps]=useState([]);
 
   const setVin=useCallback(v=>{
     if(typeof v!=='string')return;
@@ -41,13 +71,77 @@ export function MasterVinProvider({setPg,children}){
     setModuleStatus({BCM:'pending',RFHUB:'pending',ECM:'pending',ADCM:'pending'});
   },[]);
 
+  const addDump=useCallback(parsed=>{
+    if(!parsed||!parsed.data)return null;
+    const hash=hashBytes(parsed.data);
+    let canonical=null;
+    setLoadedDumps(p=>{
+      const existing=p.find(d=>d.hash===hash);
+      if(existing){canonical=existing;return p;}
+      canonical={
+        hash,
+        type:parsed.type,
+        name:parsed.name,
+        filename:parsed.filename,
+        size:parsed.size,
+        mod:parsed,
+        addedAt:Date.now(),
+      };
+      return [...p,canonical];
+    });
+    return canonical;
+  },[]);
+
+  const replaceDump=useCallback((hash,parsed)=>{
+    if(!hash||!parsed||!parsed.data)return null;
+    const newHash=hashBytes(parsed.data);
+    let canonical=null;
+    setLoadedDumps(p=>{
+      const target=p.find(d=>d.hash===hash);
+      if(!target)return p;
+      /* If the replacement bytes collide with a *different* existing entry,
+         merge: keep the older slot (so UI selection is stable) and drop the
+         old hash to preserve global uniqueness. */
+      const collision=newHash!==hash&&p.some(d=>d.hash===newHash);
+      const replacement={
+        hash:newHash,
+        type:parsed.type,
+        name:parsed.name,
+        filename:parsed.filename,
+        size:parsed.size,
+        mod:parsed,
+        addedAt:target.addedAt,
+      };
+      canonical=replacement;
+      if(collision){
+        return p.flatMap(d=>{
+          if(d.hash===hash)return [];
+          if(d.hash===newHash){canonical={...replacement,addedAt:d.addedAt};return [canonical];}
+          return [d];
+        });
+      }
+      return p.map(d=>d.hash===hash?replacement:d);
+    });
+    return canonical;
+  },[]);
+
+  const removeDump=useCallback(hash=>{
+    setLoadedDumps(p=>p.filter(d=>d.hash!==hash));
+  },[]);
+
+  const clearDumps=useCallback(()=>setLoadedDumps([]),[]);
+
+  const getDumpsByType=useCallback(type=>loadedDumps.filter(d=>d.type===type),[loadedDumps]);
+
   const vinValid=vin.length===17&&VIN_RX.test(vin);
 
   const value=useMemo(()=>({
     vin,setVin,vinValid,
     moduleStatus,setModuleStatus,updateStatus,resetStatus,
     setPg:setPg||(()=>{}),
-  }),[vin,setVin,vinValid,moduleStatus,updateStatus,resetStatus,setPg]);
+    loadedDumps,addDump,replaceDump,removeDump,clearDumps,getDumpsByType,
+  }),[vin,setVin,vinValid,moduleStatus,updateStatus,resetStatus,setPg,
+      loadedDumps,addDump,replaceDump,removeDump,clearDumps,getDumpsByType]);
 
   return <MasterVinContext.Provider value={value}>{children}</MasterVinContext.Provider>;
 }

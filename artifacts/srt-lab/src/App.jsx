@@ -16,6 +16,7 @@ import ProgramAllTab from "./tabs/ProgramAllTab.jsx";
 import UdsTab from "./tabs/UdsTab.jsx";
 import FcaAnalyzerTab from "./tabs/FcaAnalyzerTab.jsx";
 import { MasterVinProvider, useMasterVin } from "./lib/masterVinContext.jsx";
+import { parseModule as parseModuleShared } from "./lib/parseModule.js";
 import { QR_CMDS } from "./lib/quickRef.js";
 import { buildQuickReferencePDF } from "./lib/buildQuickReferencePDF.js";
 import { ASSET_IDS, trackDownload as trackDownloadFn } from "./lib/downloadAssets.js";
@@ -335,10 +336,11 @@ function SgwBridgeChip({vin,setPg}){
 }
 
 function MasterVinBar(){
-  const {vin,setVin,moduleStatus}=useMasterVin();
+  const {vin,setVin,moduleStatus,loadedDumps,clearDumps,setPg}=useMasterVin();
   const ok=vin.length===17;
   const statusColor={pending:'#9E9E9E',writing:'#FFB300',ok:'#00C853',fail:'#FF1744'};
   const statusGlyph={pending:'○',writing:'⋯',ok:'●',fail:'✗'};
+  const dumpCounts=loadedDumps.reduce((a,d)=>{a[d.type]=(a[d.type]||0)+1;return a;},{});
   return <div style={{maxWidth:1100,margin:'14px auto 0',padding:'0 22px'}}>
     <div style={{background:C.cd,borderRadius:14,border:'1.5px solid '+C.bd,padding:'12px 16px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap',boxShadow:'0 2px 12px rgba(0,0,0,0.04)'}}>
       <div style={{fontWeight:900,fontSize:11,letterSpacing:2,color:C.sr}}>MASTER VIN</div>
@@ -355,6 +357,14 @@ function MasterVinBar(){
         })}
       </div>
     </div>
+    {loadedDumps.length>0&&<div style={{background:C.cd,borderRadius:10,border:'1px dashed '+C.bd,padding:'7px 14px',marginTop:6,display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',fontSize:11}}>
+      <span style={{fontWeight:900,letterSpacing:1.5,color:C.a3,fontSize:10}}>📂 LOADED DUMPS</span>
+      <span style={{color:C.tm,fontWeight:700}}>{loadedDumps.length} file{loadedDumps.length===1?'':'s'} in workspace —</span>
+      {Object.entries(dumpCounts).map(([type,n])=><span key={type} title={'Open in FCA Analyzer'} onClick={()=>setPg&&setPg('analyzer')} style={{padding:'2px 8px',borderRadius:6,background:C.c2,border:'1px solid '+C.bd,fontFamily:"'JetBrains Mono'",fontWeight:800,color:C.a2,cursor:'pointer'}}>
+        {type} ×{n}
+      </span>)}
+      <button onClick={clearDumps} style={{marginLeft:'auto',border:'none',background:'transparent',color:C.tm,cursor:'pointer',fontSize:10,fontWeight:700,letterSpacing:1}}>CLEAR</button>
+    </div>}
   </div>;
 }
 
@@ -1463,11 +1473,33 @@ function GpecTab(){
 
 /* ═══ GPEC2A TOOLS TAB (Piece 5) ═══ */
 function Gpec2aTab(){
-  const[f,setF]=useState(null);const[f2,setF2]=useState(null);const[msg,setMsg]=useState('');
-  const load=(e,slot)=>{const fi=e.target.files[0];if(!fi)return;const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);if(d.length!==4096){setMsg('GPEC2A must be 4096 bytes');return;}const a=analyzeFile(d.buffer,fi.name);if(a.type!=='GPEC2A'){setMsg('Not a GPEC2A file');return;}if(slot===1)setF(a);else setF2(a);setMsg('');};r.readAsArrayBuffer(fi);};
+  const{loadedDumps,addDump,replaceDump}=useMasterVin();
+  const gpecDumps=useMemo(()=>loadedDumps.filter(d=>d.type==='GPEC2A'),[loadedDumps]);
+  const[slot1Hash,setSlot1Hash]=useState(null);
+  const[slot2Hash,setSlot2Hash]=useState(null);
+  const[msg,setMsg]=useState('');
+  /* Derive per-slot files from the shared store; auto-fall back to whatever
+     dumps are present so a GPEC2A loaded in another tab shows up here. */
+  const entry1=gpecDumps.find(d=>d.hash===slot1Hash)||gpecDumps[0]||null;
+  const entry2=gpecDumps.find(d=>d.hash===slot2Hash&&d.hash!==entry1?.hash)
+              ||gpecDumps.find(d=>d.hash!==entry1?.hash)||null;
+  /* The legacy in-file inspector cards expect the analyzeFile() shape
+     (f.sec.t, f.name, ...). Derive that locally from the shared raw bytes. */
+  const f=useMemo(()=>entry1?analyzeFile(entry1.mod.data.buffer.slice(entry1.mod.data.byteOffset,entry1.mod.data.byteOffset+entry1.mod.data.byteLength),entry1.filename):null,[entry1]);
+  const f2=useMemo(()=>entry2?analyzeFile(entry2.mod.data.buffer.slice(entry2.mod.data.byteOffset,entry2.mod.data.byteOffset+entry2.mod.data.byteLength),entry2.filename):null,[entry2]);
+
+  const load=(e,slot)=>{const fi=e.target.files[0];if(!fi)return;const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);if(d.length!==4096){setMsg('GPEC2A must be 4096 bytes');return;}const a=analyzeFile(d.buffer,fi.name);if(a.type!=='GPEC2A'){setMsg('Not a GPEC2A file');return;}const entry=addDump(parseModuleShared(d,fi.name));if(entry){if(slot===1)setSlot1Hash(entry.hash);else setSlot2Hash(entry.hash);}setMsg('');};r.readAsArrayBuffer(fi);};
   const dl=(d,n,assetId)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();if(assetId)trackDownloadFn(assetId);};
 
-  function toggleSkim(){if(!f)return;const p=new Uint8Array(f.data);p[0x11]=p[0x11]===0x80?0x00:0x80;setF(analyzeFile(p.buffer,f.name));dl(p,'SKIM_'+(p[0x11]===0x80?'ENABLED':'DISABLED')+'_'+f.name,ASSET_IDS.gpec2aSkim);setMsg('SKIM toggled to 0x'+p[0x11].toString(16).toUpperCase());}
+  function toggleSkim(){
+    if(!f||!entry1)return;
+    const p=new Uint8Array(f.data);
+    p[0x11]=p[0x11]===0x80?0x00:0x80;
+    const updated=replaceDump(entry1.hash,parseModuleShared(p,f.name));
+    if(updated)setSlot1Hash(updated.hash);
+    dl(p,'SKIM_'+(p[0x11]===0x80?'ENABLED':'DISABLED')+'_'+f.name,ASSET_IDS.gpec2aSkim);
+    setMsg('SKIM toggled to 0x'+p[0x11].toString(16).toUpperCase());
+  }
 
   const diff=useMemo(()=>{if(!f||!f2)return[];const r=[];for(let i=0;i<Math.min(f.data.length,f2.data.length);i++)if(f.data[i]!==f2.data[i])r.push({off:i,a:f.data[i],b:f2.data[i]});return r;},[f,f2]);
 

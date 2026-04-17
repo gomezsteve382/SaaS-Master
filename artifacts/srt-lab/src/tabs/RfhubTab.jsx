@@ -32,7 +32,7 @@ const RFHUB_CANDIDATES=[
 ];
 
 export default function RfhubTab(){
-  const {vin:masterVin,setModuleStatus}=useContext(MasterVinContext);
+  const {vin:masterVin,setModuleStatus,getDumpsByType,addDump,removeDump}=useContext(MasterVinContext);
   const [conn,setConn]=useState(false);
   const [unlocked,setUnlocked]=useState(false);
   const [busy,setBusy]=useState('');
@@ -259,17 +259,26 @@ export default function RfhubTab(){
     setBusy('');
   },[rfhubAddr,unlocked,addLog]);
 
-  const [inspectMod,setInspectMod]=useState(null);
+  const rfhubDumps=getDumpsByType('RFHUB');
+  const [inspectHash,setInspectHash]=useState(null);
   const [inspectMsg,setInspectMsg]=useState('');
+  const inspectEntry=rfhubDumps.find(d=>d.hash===inspectHash)||rfhubDumps[0]||null;
+  const inspectMod=inspectEntry?.mod||null;
   const onInspectFile=useCallback(file=>{
     const r=new FileReader();
     r.onload=ev=>{
       const m=parseModule(new Uint8Array(ev.target.result),file.name);
-      if(m.type!=='RFHUB'){setInspectMsg('Selected file is '+m.type+', not RFHUB — load a 4 KB RFHUB EEE dump.');setInspectMod(null);return;}
-      setInspectMod(m);setInspectMsg('');
+      if(m.type!=='RFHUB'){setInspectMsg('Selected file is '+m.type+', not RFHUB — load a 4 KB RFHUB EEE dump.');return;}
+      const entry=addDump(m);
+      if(entry)setInspectHash(entry.hash);
+      setInspectMsg('');
     };
     r.readAsArrayBuffer(file);
-  },[]);
+  },[addDump]);
+  const closeInspect=useCallback(()=>{
+    if(inspectEntry)removeDump(inspectEntry.hash);
+    setInspectHash(null);setInspectMsg('');
+  },[inspectEntry,removeDump]);
 
   const vinValid=masterVin.length===17;
   return <div>
@@ -380,11 +389,17 @@ export default function RfhubTab(){
           📂 Load RFHUB .bin to inspect byte-level fields
           <input type="file" accept=".bin,.BIN" hidden onChange={e=>e.target.files[0]&&onInspectFile(e.target.files[0])}/>
         </label>
+        {rfhubDumps.length>1&&<select value={inspectEntry?.hash||''} onChange={e=>setInspectHash(e.target.value)}
+          style={{padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:11}}>
+          {rfhubDumps.map(d=><option key={d.hash} value={d.hash}>{d.filename}</option>)}
+        </select>}
         {inspectMod&&<>
           <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.ts}}>{inspectMod.filename} · {(inspectMod.size/1024).toFixed(1)} KB</span>
-          <button onClick={()=>{setInspectMod(null);setInspectMsg('');}} style={{border:'none',background:'transparent',color:C.tm,cursor:'pointer',fontSize:14}}>✕</button>
+          <button onClick={closeInspect} style={{border:'none',background:'transparent',color:C.tm,cursor:'pointer',fontSize:14}} title="Remove from workspace">✕</button>
         </>}
       </div>
+      {!inspectMod&&rfhubDumps.length===0&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the FCA Analyzer tab show up here automatically.</div>}
+      {inspectMod&&rfhubDumps.length>0&&<div style={{marginTop:6,fontSize:10,color:C.gn,fontWeight:700}}>✓ Auto-loaded from shared workspace ({rfhubDumps.length} RFHUB dump{rfhubDumps.length===1?'':'s'} available)</div>}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.wn,fontWeight:700}}>{inspectMsg}</div>}
       {inspectMod&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod}/></div>}
     </Card>
