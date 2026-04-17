@@ -9,6 +9,8 @@ import {decodeNRC} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../components/ReadFirstModal.jsx";
 import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
+import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
+import {parseModule} from "../lib/parseModule.js";
 
 // VIN-specific RFHUB CRC algorithms (poly+init pairs derived from real dumps).
 // Used as a hint shown to the user; the actual write goes through UDS so the
@@ -257,6 +259,18 @@ export default function RfhubTab(){
     setBusy('');
   },[rfhubAddr,unlocked,addLog]);
 
+  const [inspectMod,setInspectMod]=useState(null);
+  const [inspectMsg,setInspectMsg]=useState('');
+  const onInspectFile=useCallback(file=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      const m=parseModule(new Uint8Array(ev.target.result),file.name);
+      if(m.type!=='RFHUB'){setInspectMsg('Selected file is '+m.type+', not RFHUB — load a 4 KB RFHUB EEE dump.');setInspectMod(null);return;}
+      setInspectMod(m);setInspectMsg('');
+    };
+    r.readAsArrayBuffer(file);
+  },[]);
+
   const vinValid=masterVin.length===17;
   return <div>
     {showConfirmModal&&<ReadFirstModal
@@ -358,6 +372,22 @@ export default function RfhubTab(){
         ⚠ Unknown VIN — firmware will compute CRC on-the-fly during UDS write. No brute-force needed.
       </div>}
     </Card>}
+
+    <Card style={{marginBottom:14}}>
+      <div style={{fontWeight:800,fontSize:11,color:C.a2,marginBottom:10,letterSpacing:2}}>🔍 RFHUB DUMP INSPECTOR</div>
+      <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+        <label style={{padding:'10px 16px',borderRadius:10,border:'2px dashed '+C.a2+'40',background:C.c2,cursor:'pointer',fontSize:12,fontWeight:800,color:C.a2}}>
+          📂 Load RFHUB .bin to inspect byte-level fields
+          <input type="file" accept=".bin,.BIN" hidden onChange={e=>e.target.files[0]&&onInspectFile(e.target.files[0])}/>
+        </label>
+        {inspectMod&&<>
+          <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.ts}}>{inspectMod.filename} · {(inspectMod.size/1024).toFixed(1)} KB</span>
+          <button onClick={()=>{setInspectMod(null);setInspectMsg('');}} style={{border:'none',background:'transparent',color:C.tm,cursor:'pointer',fontSize:14}}>✕</button>
+        </>}
+      </div>
+      {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.wn,fontWeight:700}}>{inspectMsg}</div>}
+      {inspectMod&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod}/></div>}
+    </Card>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{fontWeight:800,fontSize:12,color:'#00BFA5',marginBottom:10,letterSpacing:2}}>📋 LOG</div>

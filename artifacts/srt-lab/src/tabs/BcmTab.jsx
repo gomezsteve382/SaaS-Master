@@ -10,6 +10,8 @@ import {decodeNRC} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../components/ReadFirstModal.jsx";
 import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
+import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
+import {parseModule, syncImmoBackup} from "../lib/parseModule.js";
 
 const BCM_CANDIDATES=[
   {tx:0x750,rx:0x758,name:'CDA6 primary (2017 Scat Pack)'},
@@ -186,6 +188,28 @@ export default function BcmTab(){
     setUnlocked(false);
   },[bcmAddr,addLog]);
 
+  const [inspectMod,setInspectMod]=useState(null);
+  const [inspectMsg,setInspectMsg]=useState('');
+  const onInspectFile=useCallback(file=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      const m=parseModule(new Uint8Array(ev.target.result),file.name);
+      if(m.type!=='BCM'){setInspectMsg('Selected file is '+m.type+', not BCM — load a 64 KB or 128 KB BCM dump.');setInspectMod(null);return;}
+      setInspectMod(m);setInspectMsg('');
+    };
+    r.readAsArrayBuffer(file);
+  },[]);
+  const onSyncImmoFile=useCallback(()=>{
+    if(!inspectMod)return;
+    if(inspectMod.immoBlank){setInspectMsg('IMMO primary is blank — nothing to sync.');return;}
+    if(!window.confirm('Copy IMMO primary @0x40C0 → backup @0x2000? A patched .bin will be downloaded; the original file is not modified.'))return;
+    const synced=syncImmoBackup(inspectMod.data);
+    if(!synced){setInspectMsg('BCM file too small for IMMO sync.');return;}
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([synced]));a.download='IMMO_SYNCED_'+inspectMod.filename;a.click();URL.revokeObjectURL(a.href);
+    setInspectMod(parseModule(synced,inspectMod.filename));
+    setInspectMsg('IMMO backup synced: '+inspectMod.immoRecs+' keys → 0x2000. Snapshot downloaded.');
+  },[inspectMod]);
+
   const vinValid=masterVin.length===17;
   return <div>
     {showConfirmModal&&<ReadFirstModal
@@ -264,6 +288,22 @@ export default function BcmTab(){
         BCM firmware auto-updates these internal flash locations when DID 0xF190 is written via UDS.
       </div>
     </Card>}
+
+    <Card style={{marginBottom:14}}>
+      <div style={{fontWeight:800,fontSize:11,color:C.sr,marginBottom:10,letterSpacing:2}}>🔍 BCM DUMP INSPECTOR</div>
+      <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+        <label style={{padding:'10px 16px',borderRadius:10,border:'2px dashed '+C.sr+'40',background:C.c2,cursor:'pointer',fontSize:12,fontWeight:800,color:C.sr}}>
+          📂 Load BCM .bin to inspect byte-level fields
+          <input type="file" accept=".bin,.BIN" hidden onChange={e=>e.target.files[0]&&onInspectFile(e.target.files[0])}/>
+        </label>
+        {inspectMod&&<>
+          <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.ts}}>{inspectMod.filename} · {(inspectMod.size/1024).toFixed(0)} KB</span>
+          <button onClick={()=>{setInspectMod(null);setInspectMsg('');}} style={{border:'none',background:'transparent',color:C.tm,cursor:'pointer',fontSize:14}}>✕</button>
+        </>}
+      </div>
+      {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.gn,fontWeight:700}}>{inspectMsg}</div>}
+      {inspectMod&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
+    </Card>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{fontWeight:800,fontSize:12,color:'#FF5252',marginBottom:10,letterSpacing:2}}>📋 LOG</div>
