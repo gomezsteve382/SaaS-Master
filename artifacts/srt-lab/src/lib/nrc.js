@@ -11,4 +11,5 @@ export function nrcMsg(code){
 }
 
 export const decodeNRC = nrcMsg;
+
 export {parseVinFromResponse} from './initAdapter.js';

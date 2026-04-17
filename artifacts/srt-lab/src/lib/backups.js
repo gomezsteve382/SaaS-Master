@@ -1,6 +1,6 @@
 /* Module Backup Service — snapshots critical DIDs to localStorage before writes.
    Ported from reference App.jsx (vault/server/module-backup-service.ts). */
-import {decodeNRC} from './nrc.js';
+import {nrcMsg} from './nrc.js';
 
 const INDEX_KEY='srtlab_backup_index';
 const MAX_BACKUPS=50;
@@ -79,17 +79,38 @@ export async function backupModule(engUds,tx,rx,moduleType,addLog,hxFn){
   addLog('Backup complete: '+successCount+'/'+dids.length+' DIDs captured','info');
   const vin=backup.dids[0xF190]?.ascii?.slice(-17)||'unknown';
   const key='srtlab_backup_'+moduleType+'_'+vin+'_'+Date.now();
+
+  // Persist to the project database so backup history survives across
+  // browsers and shop machines. localStorage is kept as an offline cache.
+  let savedRemote=false;
+  try{
+    const res=await fetch('/api/backups',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        id:key,module:moduleType,vin,didCount:successCount,
+        tx,rx,timestamp:backup.timestamp,payload:backup,
+      }),
+    });
+    savedRemote=res.ok;
+    if(res.ok)addLog('✓ Backup saved to database: '+key,'info');
+    else addLog('Backup server returned '+res.status+' — keeping local copy only','warn');
+  }catch(e){
+    addLog('Backup server unreachable ('+e.message+') — keeping local copy only','warn');
+  }
+
   try{
     localStorage.setItem(key,JSON.stringify(backup));
     const idx=JSON.parse(localStorage.getItem(INDEX_KEY)||'[]');
-    idx.unshift({key,module:moduleType,vin,timestamp:backup.timestamp,didCount:successCount});
+    idx.unshift({key,module:moduleType,vin,timestamp:backup.timestamp,didCount:successCount,tx,rx});
     if(idx.length>MAX_BACKUPS){
       idx.slice(MAX_BACKUPS).forEach(b=>{try{localStorage.removeItem(b.key);}catch{/* ignore */}});
     }
     localStorage.setItem(INDEX_KEY,JSON.stringify(idx.slice(0,MAX_BACKUPS)));
     backup.key=key;
-    addLog('✓ Backup saved to localStorage: '+key,'info');
     try{window.dispatchEvent(new Event('srtlab:audit'));}catch{/* ignore */}
+    if(savedRemote)addLog('✓ Backup saved to database: '+key,'info');
+    else addLog('✓ Backup saved to localStorage: '+key,'info');
   }catch(e){addLog('Failed to save backup: '+e.message,'error');}
   return backup;
 }
@@ -107,7 +128,7 @@ export async function restoreModule(engUds,tx,rx,backup,addLog,hxFn,fullRestore=
     const r=await engUds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...data.bytes]);
     if(r.ok&&r.d&&r.d[0]===0x6E){addLog('  ✓ Restored','rx');restoredCount++;}
     else{
-      if(r.ok&&r.d&&r.d[0]===0x7F)addLog('  NRC: '+decodeNRC(r.d[2]||0),'error');
+      if(r.ok&&r.d&&r.d[0]===0x7F)addLog('  NRC: '+nrcMsg(r.d[2]||0),'error');
       else addLog('  Failed','error');
       failedCount++;
     }
@@ -133,5 +154,7 @@ export function deleteBackup(key){
     localStorage.removeItem(key);
     const idx=JSON.parse(localStorage.getItem(INDEX_KEY)||'[]');
     localStorage.setItem(INDEX_KEY,JSON.stringify(idx.filter(b=>b.key!==key)));
+    try{window.dispatchEvent(new Event('srtlab:audit'));}catch{/* ignore */}
   }catch{/* ignore */}
+  fetch('/api/backups/'+encodeURIComponent(key),{method:'DELETE'}).catch(()=>{/* best-effort */});
 }

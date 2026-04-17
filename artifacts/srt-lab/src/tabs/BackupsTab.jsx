@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn } from "../lib/ui.jsx";
 import {
-  getBackupList, getBackup, deleteBackup, clearBackups,
-  restoreModule, subscribeAudit, logSession,
+  getBackupList, getBackupAsync, deleteBackup, clearBackups,
+  restoreModule, subscribeAudit, logSession, refreshBackupsFromServer,
   getBackupStorageUsage, pruneNonCriticalBackups,
   subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
   exportAllBackups, importBackups,
@@ -57,6 +57,20 @@ export default function BackupsTab() {
     refresh();
   }, [refresh]);
 
+  const refreshFromServer = useCallback(() => {
+    refreshBackupsFromServer().catch(() => {/* offline ok */});
+  }, []);
+
+  // Pull from the database on mount + on every focus so backups created in
+  // another browser show up here too. Local cache + audit events keep the
+  // UI snappy in between server hits.
+  useEffect(() => {
+    refreshFromServer();
+    const onFocus = () => refreshFromServer();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [refreshFromServer]);
+
   // Auto-update + cross-tab notifications + 4s poll fallback.
   useEffect(() => {
     const unsub = subscribeAudit(refresh);
@@ -98,9 +112,11 @@ export default function BackupsTab() {
     setRestoreLog(p => [...p.slice(-200), { t: ts, m, type: t }]);
   }, []);
 
-  const loadBackup = useCallback((key) => {
+  const loadBackup = useCallback(async (key) => {
     setSelected(key);
-    setSelectedData(getBackup(key));
+    setSelectedData(null);
+    const data = await getBackupAsync(key);
+    setSelectedData(data);
   }, []);
 
   // Deep-link from SessionsTab: if there's a pending backup key, auto-select it.
@@ -174,8 +190,8 @@ export default function BackupsTab() {
     }
   }, [refresh]);
 
-  const downloadBackup = useCallback((key) => {
-    const data = getBackup(key); if (!data) return;
+  const downloadBackup = useCallback(async (key) => {
+    const data = await getBackupAsync(key); if (!data) return;
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -332,7 +348,7 @@ export default function BackupsTab() {
             <Btn onClick={handleConnect} color={conn ? C.gn : C.a3} outline>
               {busy === "Connecting..." ? "..." : (conn ? "🔌 Disconnect" : "🔌 Connect Adapter")}
             </Btn>
-            <Btn onClick={refresh} color={C.a3} outline>🔄 Refresh</Btn>
+            <Btn onClick={refreshFromServer} color={C.a3} outline>🔄 Refresh</Btn>
             {backups.length > 0 && (
               <Btn onClick={handleExportAll} color={C.a2} outline data-testid="export-all-backups">
                 📦 Export All

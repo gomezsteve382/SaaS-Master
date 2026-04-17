@@ -1,9 +1,12 @@
-// Module backup + session paper-trail services backed by localStorage.
-// Ported from the reference App.jsx (`backupModule`, `restoreModule`,
-// `logSession`, `getSessions`, `generateSessionReport`, etc.).
+// Module backup + session paper-trail services.
+// Backups are persisted to the project database via the API server
+// (/api/backups). localStorage is used only as an offline cache so the UI
+// can render synchronously and continue working when the server is
+// unreachable. Sessions remain localStorage-only for now.
 
 const BACKUP_INDEX_KEY = "srtlab_backup_index";
 const BACKUP_KEY_PREFIX = "srtlab_backup_";
+const BACKUP_MIGRATED_KEY = "srtlab_backup_migrated_v1";
 const SESSION_KEY = "srtlab_sessions";
 const MAX_BACKUPS = 50;
 const MAX_SESSIONS = 500;
@@ -14,6 +17,7 @@ const MAX_SESSIONS = 500;
 export const BACKUP_QUOTA_BYTES = 4 * 1024 * 1024;
 export const BACKUP_WARN_PERCENT = 70;
 const BACKUP_PRUNE_PERCENT = 90;
+const API_BASE = "/api/backups";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 
@@ -70,9 +74,6 @@ function notify() {
   } catch {}
 }
 
-/* App-wide toast bus. Anything that wants to surface a transient banner to the
- * user (e.g. quota warnings, save failures) dispatches here; AppShell mounts a
- * listener that renders the banner regardless of which tab is active. */
 export function dispatchToast(message, type = "info", durationMs = 6000) {
   try {
     window.dispatchEvent(new CustomEvent("srtlab:toast", {
@@ -87,13 +88,38 @@ export function subscribeToast(handler) {
   return () => window.removeEventListener("srtlab:toast", listener);
 }
 
+function readLocalIndex() {
+  try { return JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY) || "[]"); }
+  catch { return []; }
+}
+
+function writeLocalIndex(idx) {
+  try { localStorage.setItem(BACKUP_INDEX_KEY, JSON.stringify(idx.slice(0, MAX_BACKUPS))); }
+  catch {}
+}
+
+function localPayload(key) {
+  try { return JSON.parse(localStorage.getItem(key) || "null"); }
+  catch { return null; }
+}
+
+function setLocalPayload(key, payload) {
+  try { localStorage.setItem(key, JSON.stringify(payload)); return true; }
+  catch { return false; }
+}
+
+function removeLocalPayload(key) {
+  try { localStorage.removeItem(key); } catch {}
+}
+
 /* ─── BACKUP QUOTA ─── */
 
 /* Approximate byte cost of a localStorage entry. JS strings are UTF-16, so each
  * character is 2 bytes; key length counts too. This is an estimate, but it's
  * stable enough to drive the warning banner. */
 function entryBytes(key, value) {
-  return ((key?.length || 0) + (value?.length || 0)) * 2;
+  const s = typeof value === "string" ? value : JSON.stringify(value || "");
+  return ((key?.length || 0) + s.length) * 2;
 }
 
 export function getBackupStorageUsage() {
@@ -123,7 +149,7 @@ export function pruneNonCriticalBackups({ targetBytes = BACKUP_QUOTA_BYTES * 0.6
   let prunedCount = 0;
   let freedBytes = 0;
   try {
-    const idx = JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY) || "[]");
+    const idx = readLocalIndex();
     if (idx.length === 0) return { prunedCount, freedBytes };
     /* idx is newest-first; iterate oldest-first so older duplicates die first. */
     const ordered = [...idx].reverse();
@@ -149,7 +175,7 @@ export function pruneNonCriticalBackups({ targetBytes = BACKUP_QUOTA_BYTES * 0.6
     }
     if (prunedCount > 0) {
       const remaining = idx.filter(b => !toDelete.has(b.key) || localStorage.getItem(b.key) !== null);
-      localStorage.setItem(BACKUP_INDEX_KEY, JSON.stringify(remaining));
+      writeLocalIndex(remaining);
       notify();
     }
   } catch {}
@@ -194,7 +220,7 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
   addLog("Backup complete: " + successCount + "/" + dids.length + " DIDs captured", "info");
   const vin = backup.dids[0xF190]?.ascii?.slice(-17) || "unknown";
   const key = BACKUP_KEY_PREFIX + moduleType + "_" + vin + "_" + Date.now();
-  const payload = JSON.stringify(backup);
+  const meta = { key, id: key, module: moduleType, vin, timestamp: backup.timestamp, didCount: successCount, tx, rx };
 
   /* Pre-flight: if we're already past the prune threshold, drop redundant
    * historical snapshots before the write so we don't trip the browser quota. */
@@ -204,33 +230,55 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
     if (r.prunedCount > 0) {
       addLog(
         "Backup storage was " + preUsage.percent + "% full — auto-pruned " +
-        r.prunedCount + " redundant snapshot(s) (" + fmtBytes(r.freedBytes) + " freed)",
+        r.prunedCount + " redundant snapshot(s) (" + formatBytes(r.freedBytes) + " freed)",
         "warn",
       );
     }
   }
 
-  const trySave = () => {
-    localStorage.setItem(key, payload);
-    const idx = JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY) || "[]");
-    idx.unshift({ key, module: moduleType, vin, timestamp: backup.timestamp, didCount: successCount });
-    if (idx.length > MAX_BACKUPS) {
-      idx.slice(MAX_BACKUPS).forEach(b => localStorage.removeItem(b.key));
+  // Try the database first; fall back to localStorage cache.
+  let savedRemote = false;
+  try {
+    const res = await fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: key, module: moduleType, vin, didCount: successCount,
+        tx, rx, timestamp: backup.timestamp, payload: backup,
+      }),
+    });
+    savedRemote = res.ok;
+    if (!res.ok) {
+      addLog("Backup server returned " + res.status + " — keeping local copy only", "warn");
+    } else {
+      addLog("✓ Backup saved to database: " + key, "info");
     }
-    localStorage.setItem(BACKUP_INDEX_KEY, JSON.stringify(idx.slice(0, MAX_BACKUPS)));
+  } catch (e) {
+    addLog("Backup server unreachable (" + e.message + ") — keeping local copy only", "warn");
+  }
+
+  const trySaveLocal = () => {
+    setLocalPayload(key, backup);
+    const idx = readLocalIndex();
+    idx.unshift(meta);
+    if (idx.length > MAX_BACKUPS) {
+      idx.slice(MAX_BACKUPS).forEach(b => removeLocalPayload(b.key));
+    }
+    writeLocalIndex(idx);
     backup.key = key;
   };
 
   try {
-    trySave();
-    addLog("✓ Backup saved: " + key, "info");
+    trySaveLocal();
+    if (!savedRemote) addLog("✓ Backup saved (local cache only): " + key, "info");
+
     /* Post-save: if we just crossed the warn threshold, surface a toast so the
      * user knows to visit the Backups tab and free space. */
     const postUsage = getBackupStorageUsage();
     if (postUsage.percent >= BACKUP_WARN_PERCENT) {
       dispatchToast(
         "Backup storage is " + postUsage.percent + "% full (" +
-        fmtBytes(postUsage.used) + " of " + fmtBytes(postUsage.max) +
+        formatBytes(postUsage.used) + " of " + formatBytes(postUsage.max) +
         "). Visit the Backups tab to free space.",
         "warn",
       );
@@ -243,7 +291,7 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
     addLog("Backup save failed (" + e.message + ") — pruning and retrying...", "warn");
     const r = pruneNonCriticalBackups({ targetBytes: BACKUP_QUOTA_BYTES * 0.4 });
     try {
-      trySave();
+      trySaveLocal();
       addLog(
         "✓ Backup saved after pruning " + r.prunedCount +
         " redundant snapshot(s): " + key,
@@ -257,14 +305,17 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
       notify();
     } catch (e2) {
       addLog("Failed to save backup: " + e2.message, "error");
-      dispatchToast(
-        "Could not save " + moduleType + " backup: " + e2.message +
-        ". Open the Backups tab and clear old entries before writing again.",
-        "error",
-        10000,
-      );
+      if (!savedRemote) {
+        dispatchToast(
+          "Could not save " + moduleType + " backup: " + e2.message +
+          ". Open the Backups tab and clear old entries before writing again.",
+          "error",
+          10000,
+        );
+      }
     }
   }
+
   return backup;
 }
 
@@ -303,25 +354,41 @@ export async function restoreModule(engUds, tx, rx, backup, addLog = () => {}, f
   return failedCount === 0;
 }
 
+/* Synchronous list — returns the local cache so React can render
+   without awaiting. Pair with refreshBackupsFromServer() to keep it fresh. */
 export function getBackupList(moduleType) {
-  try {
-    const idx = JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY) || "[]");
-    return moduleType ? idx.filter(b => b.module === moduleType) : idx;
-  } catch { return []; }
+  const idx = readLocalIndex();
+  return moduleType ? idx.filter(b => b.module === moduleType) : idx;
 }
 
+/* Synchronous payload from local cache. */
 export function getBackup(key) {
-  try { return JSON.parse(localStorage.getItem(key) || "null"); }
-  catch { return null; }
+  return localPayload(key);
+}
+
+/* Async payload — checks local cache first, then fetches from the server. */
+export async function getBackupAsync(key) {
+  const local = localPayload(key);
+  if (local) return local;
+  try {
+    const res = await fetch(API_BASE + "/" + encodeURIComponent(key));
+    if (!res.ok) return null;
+    const j = await res.json();
+    if (j && j.payload) {
+      setLocalPayload(key, j.payload);
+      return j.payload;
+    }
+  } catch {}
+  return null;
 }
 
 export function deleteBackup(key) {
-  try {
-    localStorage.removeItem(key);
-    const idx = JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY) || "[]");
-    localStorage.setItem(BACKUP_INDEX_KEY, JSON.stringify(idx.filter(b => b.key !== key)));
-    notify();
-  } catch {}
+  // Optimistic local removal; server delete fires in the background.
+  removeLocalPayload(key);
+  writeLocalIndex(readLocalIndex().filter(b => b.key !== key));
+  notify();
+  fetch(API_BASE + "/" + encodeURIComponent(key), { method: "DELETE" })
+    .catch(() => { /* best-effort */ });
 }
 
 /* Build a single archive containing every backup currently in localStorage,
@@ -393,12 +460,82 @@ export function importBackups(archive) {
 }
 
 export function clearBackups() {
+  const idx = readLocalIndex();
+  idx.forEach(b => removeLocalPayload(b.key));
+  try { localStorage.removeItem(BACKUP_INDEX_KEY); } catch {}
+  notify();
+  fetch(API_BASE, { method: "DELETE" }).catch(() => { /* best-effort */ });
+}
+
+/* Pulls the canonical list from the server, migrates any local-only entries
+   on first run, and refreshes the local cache index so getBackupList() is
+   up-to-date. Safe to call repeatedly; returns the merged list. */
+export async function refreshBackupsFromServer() {
+  let serverList = null;
   try {
-    const idx = JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY) || "[]");
-    idx.forEach(b => localStorage.removeItem(b.key));
-    localStorage.removeItem(BACKUP_INDEX_KEY);
-    notify();
-  } catch {}
+    const res = await fetch(API_BASE);
+    if (res.ok) {
+      const j = await res.json();
+      if (Array.isArray(j.backups)) serverList = j.backups;
+    }
+  } catch { /* offline; keep local cache */ }
+
+  if (!serverList) return readLocalIndex();
+
+  // First-run migration: push local-only entries to the database.
+  const serverIds = new Set(serverList.map(b => b.id || b.key));
+  const localIdx = readLocalIndex();
+  let migrated = false;
+  if (!localStorage.getItem(BACKUP_MIGRATED_KEY)) {
+    for (const meta of localIdx) {
+      if (serverIds.has(meta.key)) continue;
+      const payload = localPayload(meta.key);
+      if (!payload) continue;
+      try {
+        const res = await fetch(API_BASE, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: meta.key,
+            module: meta.module,
+            vin: meta.vin,
+            didCount: meta.didCount,
+            tx: meta.tx ?? payload.tx ?? null,
+            rx: meta.rx ?? payload.rx ?? null,
+            timestamp: meta.timestamp || payload.timestamp,
+            payload,
+          }),
+        });
+        if (res.ok) { serverIds.add(meta.key); migrated = true; }
+      } catch { /* offline mid-migration; try next refresh */ }
+    }
+    try { localStorage.setItem(BACKUP_MIGRATED_KEY, new Date().toISOString()); } catch {}
+  }
+
+  // Re-pull if we migrated anything so the merged list reflects DB ordering.
+  if (migrated) {
+    try {
+      const res = await fetch(API_BASE);
+      if (res.ok) {
+        const j = await res.json();
+        if (Array.isArray(j.backups)) serverList = j.backups;
+      }
+    } catch {}
+  }
+
+  const normalized = serverList.map(b => ({
+    key: b.id || b.key,
+    id: b.id || b.key,
+    module: b.module,
+    vin: b.vin,
+    timestamp: b.timestamp,
+    didCount: b.didCount,
+    tx: b.tx,
+    rx: b.rx,
+  }));
+  writeLocalIndex(normalized);
+  notify();
+  return normalized;
 }
 
 /* ─── SESSIONS ─── */
