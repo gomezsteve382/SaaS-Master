@@ -12,6 +12,8 @@ import ReadFirstModal from "../components/ReadFirstModal.jsx";
 import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule, syncImmoBackup} from "../lib/parseModule.js";
+import {vinHasSGW} from "../lib/vin.js";
+import {createBridgeEngine} from "../lib/bridgeEngine.js";
 
 const BCM_CANDIDATES=[
   {tx:0x750,rx:0x758,name:'CDA6 primary (2017 Scat Pack)'},
@@ -112,8 +114,19 @@ export default function BcmTab(){
     addLog('═══ BCM VIN WRITE ═══','info');
     if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
+    const sgwReq=vinHasSGW(masterVin);
+    let activeEng=eng.current;
+    if(sgwReq){
+      const br=await createBridgeEngine({addLog});
+      if(!br.ok){
+        addLog('🛑 SGW REQUIRED but bridge offline: '+br.error,'error');
+        addLog('Open the AUTEL SGW tab, start j2534_bridge.py, verify the Autel cable, then retry.','error');
+        setModuleStatus(p=>({...p,BCM:'fail'}));setBusy('');return;
+      }
+      activeEng=br.engine;
+    }
     let volts=null;
-    try{volts=await eng.current.readVoltage();}catch{}
+    try{volts=await activeEng.readVoltage();}catch{}
     if(volts!==null){
       addLog('Bench voltage: '+volts.toFixed(1)+'V','info');
       if(volts<12.4){
@@ -125,7 +138,7 @@ export default function BcmTab(){
       }
     }else addLog('Could not read voltage — proceeding without check','warn');
     addLog('Creating safety backup before write...','info');
-    const backup=await backupModule(eng.current.uds,bcmAddr.tx,bcmAddr.rx,'BCM',addLog,hx);
+    const backup=await backupModule(activeEng.uds,bcmAddr.tx,bcmAddr.rx,'BCM',addLog,hx);
     if(backup)setBackupCount(getBackupList('BCM').length);
     const backupKey=backup?.key||null;
     addLog('Target: '+masterVin,'info');
@@ -137,7 +150,7 @@ export default function BcmTab(){
     let allOk=true;
     for(const did of [0xF190,0x7B90,0x7B88]){
       addLog('Writing DID 0x'+hx(did,4)+'...','info');
-      const r=await eng.current.uds(bcmAddr.tx,bcmAddr.rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);
+      const r=await activeEng.uds(bcmAddr.tx,bcmAddr.rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);
       if(r.ok&&r.d&&r.d[0]===0x6E){addLog('✓ 0x'+hx(did,4)+' written','rx');}
       else{
         if(r.ok&&r.d&&r.d[0]===0x7F)addLog('✗ 0x'+hx(did,4)+' NRC: '+decodeNRC(r.d[2]||0),'error');
@@ -149,7 +162,7 @@ export default function BcmTab(){
     addLog('─── Verifying ───','info');
     const verifiedVins={};
     for(const did of [0xF190,0x7B90,0x7B88]){
-      const r=await eng.current.uds(bcmAddr.tx,bcmAddr.rx,[0x22,(did>>8)&0xFF,did&0xFF]);
+      const r=await activeEng.uds(bcmAddr.tx,bcmAddr.rx,[0x22,(did>>8)&0xFF,did&0xFF]);
       const v=r.ok?parseVinFromResponse(r.d):null;
       verifiedVins[did]=v;
       const match=v===masterVin;
@@ -165,7 +178,8 @@ export default function BcmTab(){
       oldVin:oldVinSnapshot,
       newVin:masterVin,
       moduleAddr:{tx:bcmAddr.tx,rx:bcmAddr.rx},
-      adapter:eng.current?.adapter||'ELM327/STN',
+      adapter:activeEng?.adapter||eng.current?.adapter||'ELM327/STN',
+      sgwRouted:sgwReq,
       voltage:volts,
       algorithm:algo,
       success:allOk,

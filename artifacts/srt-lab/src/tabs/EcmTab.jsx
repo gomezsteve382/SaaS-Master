@@ -8,6 +8,8 @@ import {logSession} from '../lib/paperTrail.js';
 import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ECM_ALGOS, u32} from '../lib/programmerData.js';
+import {vinHasSGW} from '../lib/vin.js';
+import {createBridgeEngine} from '../lib/bridgeEngine.js';
 
 export default function EcmTab(){
   const{vin:masterVin,updateStatus}=useMasterVin();
@@ -123,15 +125,26 @@ export default function EcmTab(){
     addLog('═══ ECM VIN WRITE ═══','info');
     if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
+    const sgwReq=vinHasSGW(masterVin);
+    let activeEng=eng.current;
+    if(sgwReq){
+      const br=await createBridgeEngine({addLog});
+      if(!br.ok){
+        addLog('🛑 SGW REQUIRED but bridge offline: '+br.error,'error');
+        addLog('Open the AUTEL SGW tab, start j2534_bridge.py, verify the Autel cable, then retry.','error');
+        updateStatus('ECM','fail');setBusy('');return;
+      }
+      activeEng=br.engine;
+    }
     addLog('Creating safety backup before write...','info');
-    await backupModule(eng.current.uds,ecmAddr.tx,ecmAddr.rx,'ECM',addLog,hx);
+    await backupModule(activeEng.uds,ecmAddr.tx,ecmAddr.rx,'ECM',addLog,hx);
     const vb=Array.from(masterVin).map(c=>c.charCodeAt(0));
-    const r=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x2E,0xF1,0x90,...vb]);
+    const r=await activeEng.uds(ecmAddr.tx,ecmAddr.rx,[0x2E,0xF1,0x90,...vb]);
     let ok=false;
     if(r.ok&&r.d&&r.d[0]===0x6E){ok=true;addLog('✓ VIN written','rx');}
     else if(r.ok&&r.d&&r.d[0]===0x7F)addLog('NRC: '+decodeNRC(r.d[2]||0),'error');
     else addLog('Write failed','error');
-    const vr=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x22,0xF1,0x90]);
+    const vr=await activeEng.uds(ecmAddr.tx,ecmAddr.rx,[0x22,0xF1,0x90]);
     const v=vr.ok?parseVinFromResponse(vr.d):null;
     setCurVin(v);
     const match=v===masterVin;
@@ -139,7 +152,8 @@ export default function EcmTab(){
     updateStatus('ECM',(ok&&match)?'ok':'fail');
     logSession({
       module:'ECM',operation:'VIN Write',oldVin:oldVinSnapshot,newVin:masterVin,
-      moduleAddr:{tx:ecmAddr.tx,rx:ecmAddr.rx},adapter:eng.current.adapter||'ELM327/STN',
+      moduleAddr:{tx:ecmAddr.tx,rx:ecmAddr.rx},adapter:activeEng?.adapter||eng.current.adapter||'ELM327/STN',
+      sgwRouted:sgwReq,
       algorithm:algo,success:ok&&match,
       technician:confirmData.technician,titleRef:confirmData.titleRef,
       titleNotes:confirmData.titleNotes,preWriteConfirmed:confirmData.preWriteConfirmed,

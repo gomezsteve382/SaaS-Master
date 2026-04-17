@@ -11,6 +11,8 @@ import ReadFirstModal from "../components/ReadFirstModal.jsx";
 import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule} from "../lib/parseModule.js";
+import {vinHasSGW} from "../lib/vin.js";
+import {createBridgeEngine} from "../lib/bridgeEngine.js";
 
 // VIN-specific RFHUB CRC algorithms (poly+init pairs derived from real dumps).
 // Used as a hint shown to the user; the actual write goes through UDS so the
@@ -146,19 +148,30 @@ export default function RfhubTab(){
     addLog('═══ RFHUB VIN WRITE ═══','info');
     if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
+    const sgwReq=vinHasSGW(masterVin);
+    let activeEng=eng.current;
+    if(sgwReq){
+      const br=await createBridgeEngine({addLog});
+      if(!br.ok){
+        addLog('🛑 SGW REQUIRED but bridge offline: '+br.error,'error');
+        addLog('Open the AUTEL SGW tab, start j2534_bridge.py, verify the Autel cable, then retry.','error');
+        setModuleStatus(p=>({...p,RFHUB:'fail'}));setBusy('');return;
+      }
+      activeEng=br.engine;
+    }
     addLog('Creating safety backup before write...','info');
-    const backup=await backupModule(eng.current.uds,rfhubAddr.tx,rfhubAddr.rx,'RFHUB',addLog,hx);
+    const backup=await backupModule(activeEng.uds,rfhubAddr.tx,rfhubAddr.rx,'RFHUB',addLog,hx);
     const backupKey=backup?.key||null;
     const knownAlgo=RFHUB_KNOWN_ALGOS[masterVin];
     if(knownAlgo)addLog('Known CRC algorithm: poly=0x'+hx(knownAlgo.poly,4)+' init=0x'+hx(knownAlgo.init,4),'info');
     else addLog('VIN not in known algorithm DB — RFHUB firmware will compute CRC','warn');
     const vb=Array.from(masterVin).map(c=>c.charCodeAt(0));
-    const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x2E,0xF1,0x90,...vb]);
+    const r=await activeEng.uds(rfhubAddr.tx,rfhubAddr.rx,[0x2E,0xF1,0x90,...vb]);
     let ok=false;
     if(r.ok&&r.d&&r.d[0]===0x6E){ok=true;addLog('✓ VIN written','rx');}
     else if(r.ok&&r.d&&r.d[0]===0x7F)addLog('NRC: '+decodeNRC(r.d[2]||0),'error');
     else addLog('Write failed','error');
-    const vr=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x22,0xF1,0x90]);
+    const vr=await activeEng.uds(rfhubAddr.tx,rfhubAddr.rx,[0x22,0xF1,0x90]);
     const v=vr.ok?parseVinFromResponse(vr.d):null;
     setCurVin(v);
     const match=v===masterVin;
@@ -170,7 +183,8 @@ export default function RfhubTab(){
       oldVin:oldVinSnapshot,
       newVin:masterVin,
       moduleAddr:{tx:rfhubAddr.tx,rx:rfhubAddr.rx},
-      adapter:eng.current?.adapter||'ELM327/STN',
+      adapter:activeEng?.adapter||eng.current?.adapter||'ELM327/STN',
+      sgwRouted:sgwReq,
       success:ok&&match,
       technician:confirmData.technician,
       titleRef:confirmData.titleRef,

@@ -8,6 +8,8 @@ import {logSession} from '../lib/paperTrail.js';
 import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ADCM_VARIANTS, ADCM_MODULES, u32} from '../lib/programmerData.js';
+import {vinHasSGW} from '../lib/vin.js';
+import {createBridgeEngine} from '../lib/bridgeEngine.js';
 
 export default function AdcmTab(){
   const{vin:masterVin,updateStatus}=useMasterVin();
@@ -156,29 +158,47 @@ export default function AdcmTab(){
     addLog('═══ WRITING VINs TO '+mod.id+' ═══','info');
     if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
-    addLog('Creating safety backup before write...','info');
-    await backupModule(eng.current.uds,mod.tx,mod.rx,'ADCM',addLog,hx);
-    addLog('Target VIN: '+vin.toUpperCase(),'info');
-    const okF190=await writeVinToDid(0xF190,'DID 0xF190 (Primary)');
-    await new Promise(r=>setTimeout(r,200));
-    const ok7B90=await writeVinToDid(0x7B90,'DID 0x7B90 (Current)');
-    await new Promise(r=>setTimeout(r,200));
-    const ok7B88=await writeVinToDid(0x7B88,'DID 0x7B88 (Original)');
-    addLog('─── Verifying ───','info');
-    const v1=await readVinDid(0xF190,'Verify 0xF190');
-    const v2=await readVinDid(0x7B90,'Verify 0x7B90');
-    setCurVinF190(v1||'');setCurVin7B90(v2||'');
     const target=vin.toUpperCase();
-    const match1=v1===target,match2=v2===target;
-    const allOk=match1&&match2&&(okF190||ok7B90||ok7B88);
-    addLog(match1?'✓ 0xF190 MATCH':'✗ 0xF190 mismatch',match1?'rx':'warn');
-    addLog(match2?'✓ 0x7B90 MATCH':'✗ 0x7B90 mismatch',match2?'rx':'warn');
+    const sgwReq=vinHasSGW(masterVin);
+    const realEng=eng.current;
+    if(sgwReq){
+      const br=await createBridgeEngine({addLog});
+      if(!br.ok){
+        addLog('🛑 SGW REQUIRED but bridge offline: '+br.error,'error');
+        addLog('Open the AUTEL SGW tab, start j2534_bridge.py, verify the Autel cable, then retry.','error');
+        updateStatus('ADCM','fail');setBusy('');return;
+      }
+      eng.current=br.engine;
+    }
+    let allOk=false,match1=false,match2=false,v1=null,v2=null;
+    let okF190=false,ok7B90=false,ok7B88=false;
+    try{
+      addLog('Creating safety backup before write...','info');
+      await backupModule(eng.current.uds,mod.tx,mod.rx,'ADCM',addLog,hx);
+      addLog('Target VIN: '+target,'info');
+      okF190=await writeVinToDid(0xF190,'DID 0xF190 (Primary)');
+      await new Promise(r=>setTimeout(r,200));
+      ok7B90=await writeVinToDid(0x7B90,'DID 0x7B90 (Current)');
+      await new Promise(r=>setTimeout(r,200));
+      ok7B88=await writeVinToDid(0x7B88,'DID 0x7B88 (Original)');
+      addLog('─── Verifying ───','info');
+      v1=await readVinDid(0xF190,'Verify 0xF190');
+      v2=await readVinDid(0x7B90,'Verify 0x7B90');
+      setCurVinF190(v1||'');setCurVin7B90(v2||'');
+      match1=v1===target;match2=v2===target;
+      allOk=match1&&match2&&(okF190||ok7B90||ok7B88);
+      addLog(match1?'✓ 0xF190 MATCH':'✗ 0xF190 mismatch',match1?'rx':'warn');
+      addLog(match2?'✓ 0x7B90 MATCH':'✗ 0x7B90 mismatch',match2?'rx':'warn');
+    }finally{
+      if(sgwReq)eng.current=realEng;
+    }
     updateStatus('ADCM',allOk?'ok':'fail');
     logSession({
       module:'ADCM',operation:'VIN Write (F190 + 7B90 + 7B88)',
       oldVin:oldVinF190||oldVin7B90,newVin:target,
       moduleAddr:{tx:mod.tx,rx:mod.rx},
-      adapter:eng.current.adapter||'ELM327/STN',success:allOk,
+      adapter:(sgwReq?'Autel J2534 (SGW)':(realEng?.adapter||'ELM327/STN')),
+      sgwRouted:sgwReq,success:allOk,
       technician:confirmData.technician,titleRef:confirmData.titleRef,
       titleNotes:confirmData.titleNotes,preWriteConfirmed:confirmData.preWriteConfirmed,
       dids:[
