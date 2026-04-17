@@ -8,6 +8,8 @@ import BcmTab from "./tabs/BcmTab.jsx";
 import RfhubTab from "./tabs/RfhubTab.jsx";
 import BackupsTab from "./tabs/BackupsTab";
 import SessionsTab from "./tabs/SessionsTab";
+import EcmTab from "./tabs/EcmTab.jsx";
+import AdcmTab from "./tabs/AdcmTab.jsx";
 import { MasterVinProvider, useMasterVin } from "./lib/masterVinContext.jsx";
 import { QR_CMDS } from "./lib/quickRef.js";
 import { buildQuickReferencePDF } from "./lib/buildQuickReferencePDF.js";
@@ -258,8 +260,8 @@ const TABS=[
   {id:'program',i:'🚀',l:'PROGRAM ALL',s:'BCM→RFHUB→ECM→ADCM',placeholder:true},
   {id:'bcm',i:'🧠',l:'BCM',s:'VIN · CRC · Features'},
   {id:'rfhub',i:'🔑',l:'RFHUB',s:'VIN · Key Fobs'},
-  {id:'ecm',i:'⚡',l:'ECM',s:'VIN · Tune · Cal',placeholder:true},
-  {id:'adcm',i:'🏎️',l:'ACTIVE DAMPING',s:'VIN · Variant',placeholder:true},
+  {id:'ecm',i:'⚡',l:'ECM',s:'Engine · 10 Algorithms'},
+  {id:'adcm',i:'🏎️',l:'ACTIVE DAMPING',s:'VIN · Variant Config'},
   {id:'uds',i:'🔬',l:'UDS PROGRAMMER',s:'Universal · Raw',placeholder:true},
   {id:'backups',i:'💾',l:'BACKUPS',s:'History · Restore'},
   {id:'sessions',i:'📋',l:'SESSIONS',s:'Paper Trail · Reports'},
@@ -392,6 +394,8 @@ function AppShell({pg,setPg,files,setFiles,loadF}){
       {pg==='seed'&&<SeedTab/>}
       {pg==='gpec'&&<GpecTab/>}
       {pg==='gpec2a'&&<Gpec2aTab/>}
+      {pg==='ecm'&&<EcmTab/>}
+      {pg==='adcm'&&<AdcmTab/>}
       {pg==='immovin'&&<ImmoVINTab/>}
       {pg==='twin'&&<TwinTab/>}
       {pg==='swarm'&&<OBDSwarmDiagnostic/>}
