@@ -352,6 +352,16 @@ function AppShell({pg,setPg,files,setFiles,loadF}){
     if(typeof window!=='undefined')window.logSession=logSession;
   },[]);
 
+  /* Module History panels deep-link to backups/sessions tabs via this event. */
+  useEffect(()=>{
+    const onNav=(e)=>{
+      const t=e?.detail?.tab;
+      if(t==='backups'||t==='sessions')setPg(t);
+    };
+    window.addEventListener('srtlab:navigate',onNav);
+    return()=>window.removeEventListener('srtlab:navigate',onNav);
+  },[setPg]);
+
   return <div style={{minHeight:'100vh',background:C.bg,color:C.tx,fontFamily:"'Nunito',sans-serif"}}>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Righteous&display=swap" rel="stylesheet"/>
     <div style={{background:'linear-gradient(135deg,#1A1A1A 0%,#2D2D2D 40%,#D32F2F 100%)',position:'relative',overflow:'hidden'}}>

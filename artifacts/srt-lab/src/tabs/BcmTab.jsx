@@ -9,6 +9,7 @@ import {logSession} from "../lib/paperTrail.js";
 import {decodeNRC, parseVinFromResponse} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../components/ReadFirstModal.jsx";
+import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
 
 const BCM_CANDIDATES=[
   {tx:0x750,rx:0x758,name:'CDA6 primary (2017 Scat Pack)'},
@@ -230,6 +231,8 @@ export default function BcmTab(){
         ✓ {backupCount} backup{backupCount===1?'':'s'} saved for this module
       </div>}
     </Card>
+
+    <ModuleHistoryPanel moduleType="BCM"/>
 
     <Card style={{marginBottom:14}}>
       <div style={{fontWeight:800,fontSize:11,color:C.sr,marginBottom:10,letterSpacing:2}}>🔑 VIN STATUS</div>

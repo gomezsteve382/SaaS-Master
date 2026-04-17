@@ -8,6 +8,7 @@ import {logSession} from "../lib/paperTrail.js";
 import {decodeNRC, parseVinFromResponse} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../components/ReadFirstModal.jsx";
+import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
 
 // VIN-specific RFHUB CRC algorithms (poly+init pairs derived from real dumps).
 // Used as a hint shown to the user; the actual write goes through UDS so the
@@ -294,6 +295,8 @@ export default function RfhubTab(){
         Target: {rfhubAddr.name} · TX 0x{hx(rfhubAddr.tx,3)} · RX 0x{hx(rfhubAddr.rx,3)}
       </div>
     </Card>
+
+    <ModuleHistoryPanel moduleType="RFHUB"/>
 
     <Card style={{marginBottom:14}}>
       <div style={{fontWeight:800,fontSize:11,color:C.a2,marginBottom:10,letterSpacing:2}}>🔑 VIN STATUS</div>

@@ -36,6 +36,30 @@ export default function BackupsTab() {
     return () => { unsub(); clearInterval(id); };
   }, [refresh]);
 
+  // Deep-link: select a backup pre-chosen via URL hash or History panel event.
+  useEffect(() => {
+    const applyHash = () => {
+      const m = (window.location.hash || "").match(/backup=([^&]+)/);
+      if (!m) return;
+      const key = decodeURIComponent(m[1]);
+      const data = getBackup(key);
+      if (data) { setSelected(key); setSelectedData(data); }
+      try { history.replaceState(null, "", window.location.pathname + window.location.search); } catch {}
+    };
+    applyHash();
+    const onNav = (e) => {
+      if (e?.detail?.tab !== "backups" || !e?.detail?.key) return;
+      const data = getBackup(e.detail.key);
+      if (data) { setSelected(e.detail.key); setSelectedData(data); }
+    };
+    window.addEventListener("hashchange", applyHash);
+    window.addEventListener("srtlab:navigate", onNav);
+    return () => {
+      window.removeEventListener("hashchange", applyHash);
+      window.removeEventListener("srtlab:navigate", onNav);
+    };
+  }, []);
+
   // Release Web Serial port when this tab unmounts.
   useEffect(() => () => {
     if (eng.current) { try { eng.current.disconnect(); } catch {} eng.current = null; }

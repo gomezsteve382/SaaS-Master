@@ -28,6 +28,27 @@ export default function SessionsTab() {
     return () => { unsub(); clearInterval(id); };
   }, [refresh]);
 
+  // Deep-link: select a session pre-chosen via URL hash or History panel event.
+  useEffect(() => {
+    const applyHash = () => {
+      const m = (window.location.hash || "").match(/session=([^&]+)/);
+      if (!m) return;
+      setSelected(decodeURIComponent(m[1]));
+      try { history.replaceState(null, "", window.location.pathname + window.location.search); } catch {}
+    };
+    applyHash();
+    const onNav = (e) => {
+      if (e?.detail?.tab !== "sessions" || !e?.detail?.id) return;
+      setSelected(e.detail.id);
+    };
+    window.addEventListener("hashchange", applyHash);
+    window.addEventListener("srtlab:navigate", onNav);
+    return () => {
+      window.removeEventListener("hashchange", applyHash);
+      window.removeEventListener("srtlab:navigate", onNav);
+    };
+  }, []);
+
   const handleDelete = useCallback((id) => {
     if (!window.confirm("Delete this session record? This removes it from your paper trail.")) return;
     deleteSession(id);
