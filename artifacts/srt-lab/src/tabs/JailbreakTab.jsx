@@ -7,6 +7,8 @@ import {
   JAILBREAK_FEATURES, FEATURE_CATEGORY, CATEGORY_ORDER,
   PROFILES, MODULE_TARGETS, ROUTINE_PRESETS,
 } from "../lib/jailbreakFeatures.js";
+import { backupModule, CRITICAL_DIDS } from "../lib/backups.js";
+import { logSession } from "../lib/paperTrail.js";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 
@@ -247,6 +249,22 @@ function JailbreakTab() {
     const keys = Object.keys(pending);
     if (!keys.length) { addLog("No pending changes", "info"); return; }
     setBusy("Writing " + keys.length + " features...");
+    // Auto-snapshot the target module before any 0x2E (Task #89).
+    // Most jailbreak targets are BCM variants → CRITICAL_DIDS.BCM applies.
+    // Custom / unknown targets fall back to BCM profile if it looks like a BCM
+    // (isBcmTarget) so users still get their feature bytes saved.
+    const backupType = CRITICAL_DIDS[target.id?.split("-")[0]?.toUpperCase()]
+      ? target.id.split("-")[0].toUpperCase()
+      : (isBcmTarget ? "BCM" : null);
+    let backupKey = null, oldVin = null;
+    if (backupType) {
+      addLog("Snapshotting " + backupType + " before feature write...", "info");
+      const b = await backupModule(eng.current.uds, target.tx, target.rx, backupType, addLog, hx);
+      backupKey = b?.key || null;
+      const vinDid = b?.dids?.[0xF190]; if (vinDid?.ascii) oldVin = vinDid.ascii.slice(-17);
+    } else {
+      addLog("No backup profile for " + target.label + " — feature write proceeds without snapshot", "warn");
+    }
     // Group pending changes by DID.
     const byDid = {};
     for (const k of keys) {
@@ -291,14 +309,37 @@ function JailbreakTab() {
     }
     if (writes === 0) {
       addLog("No DIDs were written.", "warn");
+      logSession({
+        module: backupType || target.label,
+        operation: "Jailbreak Feature Write",
+        oldVin, newVin: oldVin,
+        moduleAddr: { tx: target.tx, rx: target.rx },
+        adapter: "ELM327/STN",
+        success: false,
+        backupKey,
+        notes: "No DIDs written — see log for refusals.",
+      });
       setBusy(""); return;
     }
     addLog("Sending ECU reset (11 01)...", "info");
     await eng.current.uds(target.tx, target.rx, [0x11, 0x01]);
+    const featureSummary = keys.map(k => pending[k].feat.id + "=0x" + hx(pending[k].value));
+    logSession({
+      module: backupType || target.label,
+      operation: "Jailbreak Feature Write",
+      oldVin, newVin: oldVin,
+      moduleAddr: { tx: target.tx, rx: target.rx },
+      adapter: "ELM327/STN",
+      algorithm: "CDA6",
+      success: writes > 0,
+      backupKey,
+      notes: writes + " DID(s) written: " + featureSummary.join(", "),
+    });
+    addLog("📄 Session logged to paper trail", "info");
     setPending({});
     addLog("Write complete + reset", "info");
     setBusy("");
-  }, [target, unlocked, pending, values, addLog]);
+  }, [target, unlocked, pending, values, addLog, isBcmTarget]);
 
   const applyProfile = useCallback((key) => {
     const prof = PROFILES[key];

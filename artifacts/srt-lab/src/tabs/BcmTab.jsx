@@ -125,6 +125,7 @@ export default function BcmTab(){
     addLog('Creating safety backup before write...','info');
     const backup=await backupModule(eng.current.uds,bcmAddr.tx,bcmAddr.rx,'BCM',addLog,hx);
     if(backup)setBackupCount(getBackupList('BCM').length);
+    const backupKey=backup?.key||null;
     addLog('Target: '+masterVin,'info');
     const shortVin=masterVin.slice(-8);
     const shortVinBytes=Array.from(shortVin).map(c=>c.charCodeAt(0));
@@ -170,6 +171,7 @@ export default function BcmTab(){
       titleRef:confirmData.titleRef,
       titleNotes:confirmData.titleNotes,
       preWriteConfirmed:confirmData.preWriteConfirmed,
+      backupKey,
       dids:Object.keys(verifiedVins).map(d=>({did:'0x'+hx(parseInt(d),4),value:verifiedVins[d]})),
     });
     addLog('📄 Session logged to paper trail','info');

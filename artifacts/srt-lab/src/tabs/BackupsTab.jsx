@@ -101,6 +101,26 @@ export default function BackupsTab() {
     setSelectedData(getBackup(key));
   }, []);
 
+  // Deep-link from SessionsTab: if there's a pending backup key, auto-select it.
+  useEffect(() => {
+    const consume = () => {
+      try {
+        const key = localStorage.getItem("srtlab_pending_backup_select");
+        if (!key) return;
+        localStorage.removeItem("srtlab_pending_backup_select");
+        const data = getBackup(key);
+        if (data) {
+          setSelected(key);
+          setSelectedData(data);
+          addRestoreLog("Loaded backup from session deep-link: " + key, "info");
+        }
+      } catch {/* ignore */}
+    };
+    consume();
+    window.addEventListener("srtlab:backupSelect", consume);
+    return () => window.removeEventListener("srtlab:backupSelect", consume);
+  }, [addRestoreLog]);
+
   const handleDelete = useCallback((key) => {
     if (!window.confirm("Delete this backup? Cannot be undone.")) return;
     deleteBackup(key);

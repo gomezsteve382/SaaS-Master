@@ -218,6 +218,7 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
       idx.slice(MAX_BACKUPS).forEach(b => localStorage.removeItem(b.key));
     }
     localStorage.setItem(BACKUP_INDEX_KEY, JSON.stringify(idx.slice(0, MAX_BACKUPS)));
+    backup.key = key;
   };
 
   try {

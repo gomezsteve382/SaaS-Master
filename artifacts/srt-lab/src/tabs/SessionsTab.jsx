@@ -1,14 +1,19 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useContext } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn } from "../lib/ui.jsx";
 import {
   getSessions, deleteSession, clearSessions,
   generateSessionReport, sessionsToCSV, subscribeAudit,
+  getBackup,
 } from "../lib/audit.js";
+import { MasterVinContext } from "../lib/masterVinContext.jsx";
+
+const PENDING_BACKUP_KEY = "srtlab_pending_backup_select";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 
 export default function SessionsTab() {
+  const { setPg } = useContext(MasterVinContext);
   const [sessions, setSessions] = useState(getSessions());
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState("all");
@@ -296,6 +301,23 @@ export default function SessionsTab() {
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 6 }}>
+                  {selectedSession.backupKey && getBackup(selectedSession.backupKey) && (
+                    <button
+                      onClick={() => {
+                        try { localStorage.setItem(PENDING_BACKUP_KEY, selectedSession.backupKey); } catch {}
+                        try { window.dispatchEvent(new Event("srtlab:backupSelect")); } catch {}
+                        setPg("backups");
+                      }}
+                      title="Open the Backups tab and load the snapshot taken before this write."
+                      style={chip("#00C85322", "#fff", "#00C85355")}
+                    >💾 Restore this session's backup</button>
+                  )}
+                  {selectedSession.backupKey && !getBackup(selectedSession.backupKey) && (
+                    <span title="The snapshot taken before this write was deleted from local storage."
+                      style={{ ...chip("rgba(255,255,255,0.05)", "#FFB300AA", "#FFB30055"), cursor: "default" }}>
+                      ⚠ Backup deleted
+                    </span>
+                  )}
                   <button onClick={() => generateReport([selectedSession])} style={chip("rgba(255,255,255,0.1)", "#fff")}>📄 Print</button>
                   <button onClick={() => handleDelete(selectedSession.id)} style={chip("#FF525222", "#fff", "#FF525255")}>🗑 Delete</button>
                 </div>
@@ -355,6 +377,14 @@ export default function SessionsTab() {
                   <Row k="Session ID:" v={
                     <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.tm }}>{selectedSession.id}</span>
                   } />
+                  {selectedSession.backupKey && (
+                    <Row k="Pre-Write Backup:" v={
+                      <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: getBackup(selectedSession.backupKey) ? C.gn : C.wn }}>
+                        {selectedSession.backupKey}
+                        {!getBackup(selectedSession.backupKey) && " (deleted)"}
+                      </span>
+                    } />
+                  )}
                 </div>
 
                 {selectedSession.notes && (

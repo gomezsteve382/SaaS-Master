@@ -145,7 +145,8 @@ export default function RfhubTab(){
     if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
     addLog('Creating safety backup before write...','info');
-    await backupModule(eng.current.uds,rfhubAddr.tx,rfhubAddr.rx,'RFHUB',addLog,hx);
+    const backup=await backupModule(eng.current.uds,rfhubAddr.tx,rfhubAddr.rx,'RFHUB',addLog,hx);
+    const backupKey=backup?.key||null;
     const knownAlgo=RFHUB_KNOWN_ALGOS[masterVin];
     if(knownAlgo)addLog('Known CRC algorithm: poly=0x'+hx(knownAlgo.poly,4)+' init=0x'+hx(knownAlgo.init,4),'info');
     else addLog('VIN not in known algorithm DB — RFHUB firmware will compute CRC','warn');
@@ -173,6 +174,7 @@ export default function RfhubTab(){
       titleRef:confirmData.titleRef,
       titleNotes:confirmData.titleNotes,
       preWriteConfirmed:confirmData.preWriteConfirmed,
+      backupKey,
     });
     addLog('📄 Session logged to paper trail','info');
     setBusy('');

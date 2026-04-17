@@ -87,7 +87,9 @@ export async function backupModule(engUds,tx,rx,moduleType,addLog,hxFn){
       idx.slice(MAX_BACKUPS).forEach(b=>{try{localStorage.removeItem(b.key);}catch{/* ignore */}});
     }
     localStorage.setItem(INDEX_KEY,JSON.stringify(idx.slice(0,MAX_BACKUPS)));
+    backup.key=key;
     addLog('✓ Backup saved to localStorage: '+key,'info');
+    try{window.dispatchEvent(new Event('srtlab:audit'));}catch{/* ignore */}
   }catch(e){addLog('Failed to save backup: '+e.message,'error');}
   return backup;
 }

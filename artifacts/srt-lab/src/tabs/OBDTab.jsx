@@ -3,6 +3,13 @@ import {C} from "../lib/constants.js";
 import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
 import {MODS} from "../lib/mods.js";
 import {u32, unlockKey, unlockIdForTx} from "../lib/algos.js";
+import {backupModule,CRITICAL_DIDS} from "../lib/backups.js";
+import {logSession} from "../lib/paperTrail.js";
+
+const hx=(n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0');
+/* Map OBD scan code → backup profile name. Modules without a profile skip
+   the snapshot but the session is still logged with backupKey:null. */
+const backupTypeFor=(code)=>CRITICAL_DIDS[code]?code:null;
 
 function OBDTab(){
   const[conn,setConn]=useState(false);const[found,setFound]=useState([]);const[nv,setNv]=useState('');
@@ -154,11 +161,33 @@ function OBDTab(){
       const sr=await eng.current.uds(m.tx,m.rx,[0x27,0x01]);
       if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
         if(sv){const aid=unlockIdForTx(m.tx);const k=unlockKey(aid,sv);if(k!==null){await eng.current.uds(m.tx,m.rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(m.c+' ('+aid+') unlocked','rx');}}}
+      /* Auto-snapshot before any 0x2E. Falls back to no-backup for modules
+         without a profile (TCM, IPC, etc.) but the session record still notes it. */
+      const bt=backupTypeFor(m.c);
+      let backupKey=null;
+      if(bt){
+        addLog('Snapshotting '+bt+' before write...','info');
+        const b=await backupModule(eng.current.uds,m.tx,m.rx,bt,addLog,hx);
+        backupKey=b?.key||null;
+      }else addLog('No backup profile for '+m.c+' — write proceeds without snapshot','warn');
       const vb=[...new TextEncoder().encode(nv)];
-      for(const did of[0xF190,0x7B90,0x7B88]){const r=await eng.current.uds(m.tx,m.rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(m.c+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
+      const writeResults=[];
+      for(const did of[0xF190,0x7B90,0x7B88]){const r=await eng.current.uds(m.tx,m.rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);writeResults.push({did,ok:!!r.ok});addLog(m.c+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
       await eng.current.uds(m.tx,m.rx,[0x11,0x01]);addLog(m.c+' reset sent','info');
+      const allOk=writeResults.every(w=>w.ok);
+      logSession({
+        module:m.c,
+        operation:'OBD Bulk VIN Write',
+        oldVin:m.vin&&m.vin!=='(present)'?m.vin:null,
+        newVin:nv,
+        moduleAddr:{tx:m.tx,rx:m.rx},
+        adapter:eng.current?.isSTN?'OBDLink/STN':'ELM327',
+        success:allOk,
+        backupKey,
+        dids:writeResults.map(w=>({did:'0x'+hx(w.did,4),ok:w.ok})),
+      });
       setProg(Math.round(((i+1)/found.length)*100));
-    }setBusy('');addLog('All modules written','info');
+    }setBusy('');addLog('All modules written + sessions logged','info');
   },[found,nv]);
 
   const readProxi=useCallback(async()=>{
@@ -177,28 +206,65 @@ function OBDTab(){
 
   const writeOneModule=useCallback(async(tx,rx,label)=>{
     if(!eng.current||nv.length!==17)return;setBusy('Writing '+label+'...');
+    let backupKey=null,oldVin=null,allOk=false;
     try{
       await eng.current.uds(tx,rx,[0x10,0x03]);
       const sr=await eng.current.uds(tx,rx,[0x27,0x01]);
       if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
         if(sv){const aid=unlockIdForTx(tx);const k=unlockKey(aid,sv);if(k!==null){await eng.current.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);addLog(label+' ('+aid+') unlocked','rx');}}}
+      const bt=backupTypeFor(label);
+      if(bt){
+        addLog('Snapshotting '+label+' before write...','info');
+        const b=await backupModule(eng.current.uds,tx,rx,bt,addLog,hx);
+        backupKey=b?.key||null;
+        const vinDid=b?.dids?.[0xF190]; if(vinDid?.ascii)oldVin=vinDid.ascii.slice(-17);
+      }else addLog('No backup profile for '+label+' — write proceeds without snapshot','warn');
       const vb=[...new TextEncoder().encode(nv)];
-      for(const did of[0xF190,0x7B90,0x7B88]){const r=await eng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(label+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
+      const writeResults=[];
+      for(const did of[0xF190,0x7B90,0x7B88]){const r=await eng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);writeResults.push({did,ok:!!r.ok});addLog(label+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
       await eng.current.uds(tx,rx,[0x11,0x01]);addLog(label+' VIN written + reset','rx');
-    }catch(e){addLog(label+' error: '+e.message,'error');}finally{setBusy('');}
-  },[nv]);
+      allOk=writeResults.every(w=>w.ok);
+      logSession({
+        module:label,operation:'OBD Single Module VIN Write',
+        oldVin,newVin:nv,moduleAddr:{tx,rx},
+        adapter:eng.current?.isSTN?'OBDLink/STN':'ELM327',
+        success:allOk,backupKey,
+        dids:writeResults.map(w=>({did:'0x'+hx(w.did,4),ok:w.ok})),
+      });
+    }catch(e){addLog(label+' error: '+e.message,'error');
+      logSession({module:label,operation:'OBD Single Module VIN Write',oldVin,newVin:nv,moduleAddr:{tx,rx},success:false,backupKey,notes:'Exception: '+e.message});
+    }finally{setBusy('');}
+  },[nv,addLog]);
 
   const virginRfhub=useCallback(async()=>{
     if(!eng.current)return;setBusy('Virginizing RFHUB...');
-    await eng.current.uds(0x75F,0x767,[0x10,0x03]);
-    const sr=await eng.current.uds(0x75F,0x767,[0x27,0x01]);
-    if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
-      if(sv){const k=unlockKey('cda6',sv);await eng.current.uds(0x75F,0x767,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);}}
-    const blank=new Array(17).fill(0x00);
-    for(const did of[0xF190,0x7B90]){await eng.current.uds(0x75F,0x767,[0x2E,(did>>8)&0xFF,did&0xFF,...blank]);}
-    await eng.current.uds(0x75F,0x767,[0x11,0x01]);
-    addLog('RFHUB virginized over OBD','rx');setBusy('');
-  },[]);
+    let backupKey=null,oldVin=null,ok=false;
+    try{
+      await eng.current.uds(0x75F,0x767,[0x10,0x03]);
+      const sr=await eng.current.uds(0x75F,0x767,[0x27,0x01]);
+      if(sr.ok&&sr.d){const sb=Array.from(sr.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
+        if(sv){const aid=unlockIdForTx(0x75F);const k=unlockKey(aid,sv);if(k!==null){await eng.current.uds(0x75F,0x767,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);}}}
+      addLog('Snapshotting RFHUB before virginize...','info');
+      const b=await backupModule(eng.current.uds,0x75F,0x767,'RFHUB',addLog,hx);
+      backupKey=b?.key||null;
+      const vinDid=b?.dids?.[0xF190]; if(vinDid?.ascii)oldVin=vinDid.ascii.slice(-17);
+      const blank=new Array(17).fill(0x00);
+      const results=[];
+      for(const did of[0xF190,0x7B90]){const r=await eng.current.uds(0x75F,0x767,[0x2E,(did>>8)&0xFF,did&0xFF,...blank]);results.push({did,ok:!!r.ok});}
+      await eng.current.uds(0x75F,0x767,[0x11,0x01]);
+      ok=results.every(w=>w.ok);
+      addLog('RFHUB virginized over OBD','rx');
+      logSession({
+        module:'RFHUB',operation:'OBD Virginize (zero VIN)',
+        oldVin,newVin:'(virgin / zeros)',moduleAddr:{tx:0x75F,rx:0x767},
+        adapter:eng.current?.isSTN?'OBDLink/STN':'ELM327',
+        success:ok,backupKey,
+        dids:results.map(w=>({did:'0x'+hx(w.did,4),ok:w.ok})),
+      });
+    }catch(e){addLog('Virginize error: '+e.message,'error');
+      logSession({module:'RFHUB',operation:'OBD Virginize (zero VIN)',oldVin,newVin:'(virgin / zeros)',moduleAddr:{tx:0x75F,rx:0x767},success:false,backupKey,notes:'Exception: '+e.message});
+    }finally{setBusy('');}
+  },[addLog]);
 
   const canMonitor=useCallback(async()=>{
     if(!eng.current)return;setBusy('Monitoring...');
