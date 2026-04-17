@@ -30,7 +30,7 @@ const ALL_KNOWN_ADDRS = [
   {tx:0x74A,rx:0x76A,src:'DVIN',name:'EPS'},
   {tx:0x74B,rx:0x76B,src:'DVIN',name:'SCCM'},
   {tx:0x74E,rx:0x76E,src:'DVIN',name:'TPMS'},
-  {tx:0x74F,rx:0x76F,src:'XTEA',name:'SGW',unlock:'xtea_sgw'},
+  {tx:0x74F,rx:0x76F,src:'XTEA',name:'SGW (DEMO)',unlock:'xtea_sgw',demo:true},
   {tx:0x751,rx:0x759,src:'DVIN',name:'HVAC'},
   {tx:0x752,rx:0x75A,src:'DVIN',name:'TPM'},
   {tx:0x753,rx:0x773,src:'DVIN',name:'RADIO'},

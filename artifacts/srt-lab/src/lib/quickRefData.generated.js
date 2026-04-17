@@ -48,7 +48,7 @@ export const QR_BCM_CANDIDATES = [
 
 export const QR_ALGOS = [
   ["CDA6", "Modern Chrysler BCM/ABS/IPC"],
-  ["SGW XTEA", "2018+ Secure Gateway (CAN 0x74F)"],
+  ["SGW XTEA (DEMO)", "2018+ Secure Gateway (CAN 0x74F) — DEMO, not yet vehicle-verified"],
   ["BCM Standard", "BCM 2007-2015"],
   ["BCM FCA", "BCM 2016+"],
   ["GPEC2", "Continental GPEC2"],

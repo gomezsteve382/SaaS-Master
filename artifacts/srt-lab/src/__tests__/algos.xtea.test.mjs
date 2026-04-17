@@ -94,6 +94,7 @@ test("MODULE_TARGETS contains the SGW (XTEA) entry on 0x74F/0x76F", () => {
   assert.equal(sgw.rx, 0x76F);
   assert.equal(sgw.unlock, "xtea_sgw");
   assert.equal(sgw.needsUnlock, true);
+  assert.equal(sgw.demo, true, "SGW XTEA must stay flagged demo until verified on a real 2018+ vehicle");
 });
 
 test("unlock dispatch routes 0x74F to xtea_sgw and everything else to cda6", () => {
