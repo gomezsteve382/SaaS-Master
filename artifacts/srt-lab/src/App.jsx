@@ -901,7 +901,6 @@ function OBDTab(){
         <div style={{display:'flex',gap:10,flexWrap:'wrap',alignItems:'center'}}>
           <Btn onClick={connect} disabled={conn} color={conn?C.gn:C.a3} full>{conn?'✓ Connected to OBDLink'+(extActive?' · EXT':''):'🔌 Connect OBDLink EX'}</Btn>
           {conn&&<Btn onClick={scan} disabled={!!busy} color={C.a1}>{busy||'📡 Scan Modules'}</Btn>}
-          {conn&&<Btn onClick={resetAdapter} disabled={!!busy} color={C.er} outline title="Wipes PP 2C/2D and reboots the OBDLink to factory defaults. Use if scans return CAN ERROR after enabling Extended Mode.">♻️ Reset Adapter</Btn>}
         </div>
         {!conn&&adapterType!=='elm'&&<label style={{display:'flex',gap:8,alignItems:'center',marginTop:10,fontSize:11,color:C.tx,cursor:'pointer'}} title="OBDLink/STN only. Writes PP 2C=81 and PP 2D=01 at connect time to open the 0x600-0x7FF CAN ID range so body modules (BCM/IPC/RFHUB/ABS/ORC/ADCM) become reachable. Read at connect time only — toggle after connecting has no effect until next reconnect.">
           <input type="checkbox" checked={extMode} onChange={e=>setExt(e.target.checked)} style={{accentColor:C.sr,width:16,height:16}}/>
@@ -938,6 +937,7 @@ function OBDTab(){
           <Btn onClick={readProxi} disabled={!!busy} color={C.a3} outline>📋 Read BCM Proxi</Btn>
           <Btn onClick={readSkim} disabled={!!busy} color={C.a2} outline>🛡️ Read SKIM State</Btn>
           <Btn onClick={virginRfhub} disabled={!!busy} color={C.er} outline>💀 Virginize RFHUB</Btn>
+          <Btn onClick={resetAdapter} disabled={!!busy} color={C.er} outline title="Wipes PP 2C/2D and reboots the OBDLink to factory defaults. Use if scans return CAN ERROR after enabling Extended Mode.">♻️ Reset Adapter</Btn>
         </div>
         <div style={{marginTop:12,fontSize:12,fontWeight:800,color:C.tx,marginBottom:8}}>Write VIN to Single Module</div>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
