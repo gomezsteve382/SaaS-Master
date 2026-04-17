@@ -532,17 +532,22 @@ function BenchTab(){
 function OBDTab(){
   const[conn,setConn]=useState(false);const[found,setFound]=useState([]);const[nv,setNv]=useState('');
   const[busy,setBusy]=useState('');const[prog,setProg]=useState(0);const[log,setLog]=useState([]);
-  const eng=useRef(null);
+  const[extMode,setExtMode]=useState(true);const[extActive,setExtActive]=useState(false);
+  const[adapterType,setAdapterType]=useState('unknown');/* 'unknown' | 'stn' | 'elm' — hides toggle when known non-STN */
+  const eng=useRef(null);const extModeRef=useRef(true);
   const addLog=(m,l='info')=>setLog(p=>[...p,{m,l,t:new Date().toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})}]);
+  const setExt=useCallback(v=>{extModeRef.current=v;setExtMode(v);},[]);
 
   const connect=useCallback(async()=>{
+    const useExt=extModeRef.current;
+    let port=null,w=null,rd=null;
     try{
       if(!navigator.serial){addLog('Web Serial not available — use Chrome','error');return;}
-      const port=await navigator.serial.requestPort();
+      port=await navigator.serial.requestPort();
       await port.open({baudRate:115200});
-      const w=port.writable.getWriter();
+      w=port.writable.getWriter();
       /* Direct reader — matches AlphaOBDProtocol.ts readUntilPrompt() */
-      const rd=port.readable.getReader();
+      rd=port.readable.getReader();
       const tdec=new TextDecoder();
       let rbuf='';
       const send=async(cmd,to=3000)=>{
@@ -567,25 +572,34 @@ function OBDTab(){
       /* Phase 2: Detect STN chipset (OBDLink) — AlphaOBDProtocol.ts Phase 2 */
       const stdi=await send('STDI');
       const isSTN=!stdi.includes('?')&&!stdi.includes('ERROR')&&stdi.length>2;
+      setAdapterType(isSTN?'stn':'elm');
       const at1=await send('AT@1');
       const rv=await send('ATRV');
       addLog('Adapter: '+(isSTN?'STN/OBDLink':'ELM327')+' | '+at1+' | '+rv,'info');
       /* Phase 3: STN programmable parameters — REQUIRED for body module access
          PP2C=81 enables MFG extended mode — opens full CAN ID range (0x600-0x7FF)
          Without this, OBDLink only processes standard OBD-II IDs (0x7E0-0x7EF)
-         This is why only ECM responds without PP — it's in the standard range */
-      if(isSTN){
-        addLog('Setting MFG extended mode (PP2C=81, PP2D=01)...','info');
+         This is why only ECM responds without PP — it's in the standard range
+         Gated behind the "Extended Mode (STN)" toggle; on by default. */
+      let extOn=false;
+      if(isSTN&&useExt){
+        addLog('── STN extended-mode init (PP 2C/2D) ──','info');
         await send('ATPP2CSV81',2000);
         await send('ATPP2CON',2000);
         await send('ATPP2DSV01',2000);
         await send('ATPP2DON',2000);
-        /* Reset to apply — MUST wait for full reboot */
+        addLog('PP 2C ← 81, PP 2D ← 01','info');
+        /* Known-good safe timing: ATZ 3000ms + 1000ms settle.
+           Anything shorter has bricked the adapter into permanent CAN ERROR before. */
         await send('ATZ',3000);
-        await new Promise(r=>setTimeout(r,1000));/* longer delay than AlphaOBD's 500ms */
+        await new Promise(r=>setTimeout(r,1000));
+        addLog('ATZ 3000ms + 1000ms settle complete','info');
         await send('ATE0',2000);
         await new Promise(r=>setTimeout(r,200));
-        addLog('MFG extended mode active','info');
+        extOn=true;
+        addLog('✓ Extended mode ACTIVE — body modules now reachable','rx');
+      }else if(isSTN){
+        addLog('Extended mode OFF (toggle disabled at connect) — only powertrain modules will respond','warn');
       }
       /* Phase 4: CAN protocol — AlphaOBDProtocol.ts Phase 4 */
       await send('ATL0');await send('ATS1');await send('ATH1');
@@ -603,7 +617,7 @@ function OBDTab(){
       }
       /* Store state for UDS */
       let curTx=0,curRx=0;
-      eng.current={send,isSTN,uds:async(tx,rx,data)=>{
+      eng.current={send,isSTN,extOn,port,reader:rd,writer:w,uds:async(tx,rx,data)=>{
         /* Clear stale filter, then set new — per obd2-protocol.ts probeAddress() */
         if(tx!==curTx||rx!==curRx){
           await send('ATCRA');/* clear receive filter first */
@@ -631,12 +645,47 @@ function OBDTab(){
         if(!all.length)return{ok:false,raw:r};
         return{ok:true,d:new Uint8Array(all),raw:r};
       }};
-      setConn(true);addLog('Ready — HS-CAN 500kbps','info');
-    }catch(e){addLog('Connect failed: '+e.message,'error');}
+      setExtActive(extOn);
+      setConn(true);addLog('Ready — HS-CAN 500kbps'+(extOn?' (extended mode)':''),'info');
+    }catch(e){
+      addLog('Connect failed: '+e.message,'error');
+      /* Cleanup any handles acquired before the failure so the next Connect starts clean */
+      try{await rd?.cancel();}catch{}
+      try{rd?.releaseLock();}catch{}
+      try{await w?.close();}catch{}
+      try{w?.releaseLock();}catch{}
+      try{await port?.close();}catch{}
+      eng.current=null;setConn(false);setExtActive(false);
+    }
+  },[]);
+
+  const resetAdapter=useCallback(async()=>{
+    if(!eng.current){addLog('Not connected','error');return;}
+    setBusy('Resetting adapter...');
+    addLog('── Resetting adapter to factory defaults ──','info');
+    try{
+      const e=eng.current;
+      await e.send('ATPP2COFF',2000);await new Promise(r=>setTimeout(r,200));
+      await e.send('ATPP2DOFF',2000);await new Promise(r=>setTimeout(r,200));
+      await e.send('ATPPSOFF',2000);await new Promise(r=>setTimeout(r,200));
+      await e.send('ATD',2000);await new Promise(r=>setTimeout(r,200));
+      await e.send('ATZ',3000);await new Promise(r=>setTimeout(r,1000));
+      addLog('✓ PP wiped, defaults restored','rx');
+      /* Release port so a fresh Connect starts clean */
+      try{await e.reader?.cancel();}catch{}
+      try{e.reader?.releaseLock();}catch{}
+      try{await e.writer?.close();}catch{}
+      try{e.writer?.releaseLock();}catch{}
+      try{await e.port?.close();}catch{}
+      eng.current=null;setConn(false);setExtActive(false);
+      addLog('Port released — click Connect to re-pair','info');
+    }catch(err){addLog('Reset error: '+err.message,'error');}
+    finally{setBusy('');}
   },[]);
 
   const scan=useCallback(async()=>{
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
+    const wasExt=eng.current.extOn;let firstProbeChecked=false;
     const foundSet=new Set();const addMod=(c,n,tx,rx,vin)=>{const k=tx+':'+rx;if(foundSet.has(k))return;foundSet.add(k);setFound(p=>[...p,{c,n,tx,rx,vin}]);};
 
     /* ═══ LAYER 1: Passive CAN monitor — confirm bus is alive ═══ */
@@ -689,6 +738,15 @@ function OBDTab(){
           /* Body modules respond better to Read VIN than TesterPresent — obd2-protocol.ts probeAddressVIA() */
           const probe=(m.c==='ECM'||m.c==='TCM'||m.c==='DTCM')?[0x3E,0x00]:[0x22,0xF1,0x90];
           const r=await eng.current.uds(a.tx,a.rx,probe);
+          /* Early-bricking guard: if extended mode was just applied and the very first physical probe
+             returns CAN ERROR, the adapter rejected the PP config — abort and tell the operator how to recover. */
+          if(!firstProbeChecked&&wasExt){
+            firstProbeChecked=true;
+            if(r.raw&&/CAN ERROR/.test(r.raw)){
+              addLog('★ Adapter rejected extended mode — press "Reset Adapter" to recover, then reconnect with Extended Mode off.','error');
+              setBusy('');return;
+            }
+          }
           if(r.ok){
             const txH=a.tx.toString(16).toUpperCase().padStart(3,'0');
             addLog(m.c+' alive at TX:'+txH,'rx');
@@ -840,10 +898,18 @@ function OBDTab(){
   return<div style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:16}}>
     <div>
       <Card glow style={{marginBottom:14}}>
-        <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-          <Btn onClick={connect} disabled={conn} color={conn?C.gn:C.a3} full>{conn?'✓ Connected to OBDLink':'🔌 Connect OBDLink EX'}</Btn>
+        <div style={{display:'flex',gap:10,flexWrap:'wrap',alignItems:'center'}}>
+          <Btn onClick={connect} disabled={conn} color={conn?C.gn:C.a3} full>{conn?'✓ Connected to OBDLink'+(extActive?' · EXT':''):'🔌 Connect OBDLink EX'}</Btn>
           {conn&&<Btn onClick={scan} disabled={!!busy} color={C.a1}>{busy||'📡 Scan Modules'}</Btn>}
+          {conn&&<Btn onClick={resetAdapter} disabled={!!busy} color={C.er} outline title="Wipes PP 2C/2D and reboots the OBDLink to factory defaults. Use if scans return CAN ERROR after enabling Extended Mode.">♻️ Reset Adapter</Btn>}
         </div>
+        {!conn&&adapterType!=='elm'&&<label style={{display:'flex',gap:8,alignItems:'center',marginTop:10,fontSize:11,color:C.tx,cursor:'pointer'}} title="OBDLink/STN only. Writes PP 2C=81 and PP 2D=01 at connect time to open the 0x600-0x7FF CAN ID range so body modules (BCM/IPC/RFHUB/ABS/ORC/ADCM) become reachable. Read at connect time only — toggle after connecting has no effect until next reconnect.">
+          <input type="checkbox" checked={extMode} onChange={e=>setExt(e.target.checked)} style={{accentColor:C.sr,width:16,height:16}}/>
+          <span style={{fontWeight:700}}>Extended Mode (STN)</span>
+          <span style={{color:C.ts,fontSize:10}}>— required for body modules; ignored on non-STN adapters</span>
+        </label>}
+        {!conn&&adapterType==='elm'&&<div style={{marginTop:10,fontSize:11,color:C.tm}}>Generic ELM327 detected — Extended Mode is OBDLink/STN only and has been hidden.</div>}
+        {conn&&<div style={{marginTop:8,fontSize:10,color:C.ts}}>Extended Mode: <b style={{color:extActive?C.sr:C.tm}}>{extActive?'ACTIVE':'OFF'}</b> · {extActive?'Body modules reachable.':'Reconnect with toggle on to reach body modules.'}</div>}
       </Card>
       {found.length>0&&<Card glow style={{marginBottom:14}}>
         <div style={{fontSize:14,fontWeight:800,marginBottom:12}}>Modules on Bus ({found.length})</div>
