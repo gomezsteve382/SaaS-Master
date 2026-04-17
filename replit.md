@@ -51,6 +51,9 @@ No backend required — the API server exists but is unused by this app.
 
 - `pnpm --filter @workspace/srt-lab run dev` — Start dev server
 - `pnpm run typecheck` — Full typecheck across all packages
+- `pnpm --filter @workspace/srt-lab run manifest:update` — Refresh `srt_lab.manifest.json` sizeBytes/sha256/lastUpdated from `public/srt_lab.py` (also runs automatically as `prebuild`)
+- `pnpm --filter @workspace/srt-lab run manifest:check` — Fail if the manifest is out of sync with `srt_lab.py` (use as pre-commit / CI guard)
+- `pnpm --filter @workspace/srt-lab exec node scripts/update-manifest.mjs --bump <ver> --notes "<text>"` — Bump version and prepend a changelog entry in one command
 
 ## BCM IMMO Backup Sync
 
