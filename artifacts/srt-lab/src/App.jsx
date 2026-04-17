@@ -4,6 +4,7 @@ import J2534Scanner from "./J2534Scanner";
 import JailbreakTab from "./tabs/JailbreakTab";
 import BcmTab from "./tabs/BcmTab.jsx";
 import RfhubTab from "./tabs/RfhubTab.jsx";
+import RFHPCMTab from "./tabs/RFHPCMTab.jsx";
 import BackupsTab from "./tabs/BackupsTab";
 import SessionsTab from "./tabs/SessionsTab";
 import EcmTab from "./tabs/EcmTab.jsx";
@@ -279,6 +280,7 @@ const TABS=[
   {id:'gpec',i:'🔓',l:'GPEC',s:'FW Unlock'},
   {id:'gpec2a',i:'⚙️',l:'GPEC2A',s:'SKIM · Tamper'},
   {id:'analyzer',i:'🧪',l:'FCA ANALYZER',s:'GPEC · RFHUB · BCM · Cross-audit'},
+  {id:'rfhpcm',i:'🧬',l:'RFH → PCM',s:'SEC6 Pairing'},
   {id:'swarm',i:'🌐',l:'SWARM',s:'CAN Bus Scan'},
   {id:'j2534',i:'⚡',l:'J2534',s:'Raw CAN PassThru'},
 ];
@@ -411,6 +413,7 @@ function AppShell({pg,setPg,files,setFiles,loadF}){
       {pg==='ecm'&&<EcmTab/>}
       {pg==='adcm'&&<AdcmTab/>}
       {pg==='analyzer'&&<FcaAnalyzerTab/>}
+      {pg==='rfhpcm'&&<RFHPCMTab/>}
       {pg==='swarm'&&<OBDSwarmDiagnostic/>}
       {pg==='j2534'&&<J2534Scanner/>}
       {pg==='jailbreak'&&<JailbreakTab/>}
