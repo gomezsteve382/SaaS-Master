@@ -5,15 +5,18 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { HealthStatus } from "./api.schemas";
+import type { DownloadCount, HealthStatus } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
 import type { ErrorType } from "../custom-fetch";
@@ -99,3 +102,176 @@ export function useHealthCheck<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Returns the lifetime download count for a given asset id.
+ * @summary Get global download count
+ */
+export const getGetDownloadCountUrl = (id: string) => {
+  return `/api/downloads/${id}`;
+};
+
+export const getDownloadCount = async (
+  id: string,
+  options?: RequestInit,
+): Promise<DownloadCount> => {
+  return customFetch<DownloadCount>(getGetDownloadCountUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetDownloadCountQueryKey = (id: string) => {
+  return [`/api/downloads/${id}`] as const;
+};
+
+export const getGetDownloadCountQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDownloadCount>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getDownloadCount>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetDownloadCountQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDownloadCount>>
+  > = ({ signal }) => getDownloadCount(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDownloadCount>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetDownloadCountQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDownloadCount>>
+>;
+export type GetDownloadCountQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get global download count
+ */
+
+export function useGetDownloadCount<
+  TData = Awaited<ReturnType<typeof getDownloadCount>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getDownloadCount>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetDownloadCountQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Atomically increments and returns the lifetime download count for a given asset id.
+ * @summary Increment global download count
+ */
+export const getIncrementDownloadCountUrl = (id: string) => {
+  return `/api/downloads/${id}`;
+};
+
+export const incrementDownloadCount = async (
+  id: string,
+  options?: RequestInit,
+): Promise<DownloadCount> => {
+  return customFetch<DownloadCount>(getIncrementDownloadCountUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getIncrementDownloadCountMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof incrementDownloadCount>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof incrementDownloadCount>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["incrementDownloadCount"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof incrementDownloadCount>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return incrementDownloadCount(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type IncrementDownloadCountMutationResult = NonNullable<
+  Awaited<ReturnType<typeof incrementDownloadCount>>
+>;
+
+export type IncrementDownloadCountMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Increment global download count
+ */
+export const useIncrementDownloadCount = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof incrementDownloadCount>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof incrementDownloadCount>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getIncrementDownloadCountMutationOptions(options));
+};

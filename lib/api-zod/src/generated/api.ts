@@ -14,3 +14,33 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Returns the lifetime download count for a given asset id.
+ * @summary Get global download count
+ */
+export const GetDownloadCountParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const getDownloadCountResponseCountMin = 0;
+
+export const GetDownloadCountResponse = zod.object({
+  id: zod.string(),
+  count: zod.number().min(getDownloadCountResponseCountMin),
+});
+
+/**
+ * Atomically increments and returns the lifetime download count for a given asset id.
+ * @summary Increment global download count
+ */
+export const IncrementDownloadCountParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const incrementDownloadCountResponseCountMin = 0;
+
+export const IncrementDownloadCountResponse = zod.object({
+  id: zod.string(),
+  count: zod.number().min(incrementDownloadCountResponseCountMin),
+});

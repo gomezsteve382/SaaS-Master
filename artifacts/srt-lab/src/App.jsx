@@ -968,9 +968,11 @@ function OBDTab(){
 /* ═══ DUMPS TAB ═══ */
 function DesktopDriverCard(){
   const cmds=QR_CMDS.map(c=>c[0]);
+  const DL_ID='srt_lab';
+  const DL_URL='/api/downloads/'+DL_ID;
   const[man,setMan]=useState(null);
   const[showCl,setShowCl]=useState(false);
-  const[dlCount,setDlCount]=useState(0);
+  const[dlCount,setDlCount]=useState(null);
   const[copied,setCopied]=useState(null);
   const[hover,setHover]=useState(null);
   const[focus,setFocus]=useState(null);
@@ -978,10 +980,10 @@ function DesktopDriverCard(){
   useEffect(()=>{
     const base=import.meta.env.BASE_URL||'/';
     fetch(base+'srt_lab.manifest.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(setMan).catch(()=>{});
-    try{const n=parseInt(localStorage.getItem('srtlab_dl_count')||'0',10);setDlCount(isNaN(n)?0:n);}catch(e){}
+    fetch(DL_URL,{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&typeof d.count==='number')setDlCount(d.count);}).catch(()=>{});
   },[]);
   const onDl=()=>{
-    try{const n=(parseInt(localStorage.getItem('srtlab_dl_count')||'0',10)||0)+1;localStorage.setItem('srtlab_dl_count',String(n));setDlCount(n);}catch(e){}
+    fetch(DL_URL,{method:'POST'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&typeof d.count==='number')setDlCount(d.count);}).catch(()=>{});
   };
   const onPdf=async()=>{if(pdfBusy)return;setPdfBusy(true);try{await buildQuickReferencePDF();}catch(e){console.error(e);alert('PDF build failed: '+e.message);}finally{setPdfBusy(false);}};
   const sizeMB=man?(man.sizeBytes/(1024*1024)).toFixed(2):null;
@@ -1012,7 +1014,7 @@ function DesktopDriverCard(){
         {pdfBusy?'⏳ Building...':'⬇ Download Quick Reference (PDF)'}
       </button>
     </div>
-    {dlCount>0&&<div style={{fontSize:10,color:C.tm,marginBottom:8,letterSpacing:.3}}>You've downloaded this {dlCount} time{dlCount===1?'':'s'}</div>}
+    {dlCount!==null&&dlCount>0&&<div style={{fontSize:10,color:C.tm,marginBottom:8,letterSpacing:.3}}>Downloaded {dlCount.toLocaleString()} time{dlCount===1?'':'s'} worldwide</div>}
     {man&&man.changelog&&man.changelog.length>0&&<div style={{marginBottom:10}}>
       <button onClick={()=>setShowCl(s=>!s)} style={{background:'none',border:'none',padding:0,cursor:'pointer',fontSize:10,fontWeight:800,color:C.a3,letterSpacing:.5}}>
         {showCl?'▼':'▶'} RECENT CHANGES
