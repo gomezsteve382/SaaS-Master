@@ -3,9 +3,17 @@
 // `logSession`, `getSessions`, `generateSessionReport`, etc.).
 
 const BACKUP_INDEX_KEY = "srtlab_backup_index";
+const BACKUP_KEY_PREFIX = "srtlab_backup_";
 const SESSION_KEY = "srtlab_sessions";
 const MAX_BACKUPS = 50;
 const MAX_SESSIONS = 500;
+
+/* Soft quota for backup storage. Browsers typically cap localStorage at ~5 MB
+ * per origin; we warn at 70% and auto-prune at 90% so the index never silently
+ * gets dropped on the next setItem. */
+export const BACKUP_QUOTA_BYTES = 4 * 1024 * 1024;
+export const BACKUP_WARN_PERCENT = 70;
+const BACKUP_PRUNE_PERCENT = 90;
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 
@@ -62,6 +70,92 @@ function notify() {
   } catch {}
 }
 
+/* App-wide toast bus. Anything that wants to surface a transient banner to the
+ * user (e.g. quota warnings, save failures) dispatches here; AppShell mounts a
+ * listener that renders the banner regardless of which tab is active. */
+export function dispatchToast(message, type = "info", durationMs = 6000) {
+  try {
+    window.dispatchEvent(new CustomEvent("srtlab:toast", {
+      detail: { message, type, durationMs, ts: Date.now() },
+    }));
+  } catch {}
+}
+
+export function subscribeToast(handler) {
+  const listener = (e) => handler(e.detail);
+  window.addEventListener("srtlab:toast", listener);
+  return () => window.removeEventListener("srtlab:toast", listener);
+}
+
+/* ─── BACKUP QUOTA ─── */
+
+/* Approximate byte cost of a localStorage entry. JS strings are UTF-16, so each
+ * character is 2 bytes; key length counts too. This is an estimate, but it's
+ * stable enough to drive the warning banner. */
+function entryBytes(key, value) {
+  return ((key?.length || 0) + (value?.length || 0)) * 2;
+}
+
+export function getBackupStorageUsage() {
+  let used = 0;
+  let count = 0;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k) continue;
+      if (k === BACKUP_INDEX_KEY || k.startsWith(BACKUP_KEY_PREFIX)) {
+        const v = localStorage.getItem(k) || "";
+        used += entryBytes(k, v);
+        if (k.startsWith(BACKUP_KEY_PREFIX) && k !== BACKUP_INDEX_KEY) count++;
+      }
+    }
+  } catch {}
+  const max = BACKUP_QUOTA_BYTES;
+  const percent = max > 0 ? Math.min(100, Math.round((used / max) * 100)) : 0;
+  return { used, max, percent, count };
+}
+
+/* Walk the backup index from oldest to newest. A backup is "non-critical" if a
+ * newer backup exists for the same (module, vin) pair — meaning the older one
+ * is a redundant historical snapshot we can safely drop. We stop pruning as
+ * soon as usage falls under `targetBytes`. */
+export function pruneNonCriticalBackups({ targetBytes = BACKUP_QUOTA_BYTES * 0.6 } = {}) {
+  let prunedCount = 0;
+  let freedBytes = 0;
+  try {
+    const idx = JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY) || "[]");
+    if (idx.length === 0) return { prunedCount, freedBytes };
+    /* idx is newest-first; iterate oldest-first so older duplicates die first. */
+    const ordered = [...idx].reverse();
+    const seen = new Map();
+    /* Walk newest-first to mark which (module,vin) pairs already have a newer
+     * snapshot kept; their older twins become eligible for pruning. */
+    for (const entry of idx) {
+      const k = entry.module + "|" + entry.vin;
+      if (!seen.has(k)) seen.set(k, entry.key);
+    }
+    const toDelete = new Set();
+    for (const entry of ordered) {
+      const k = entry.module + "|" + entry.vin;
+      if (seen.get(k) !== entry.key) toDelete.add(entry.key);
+    }
+    for (const entry of ordered) {
+      if (getBackupStorageUsage().used <= targetBytes) break;
+      if (!toDelete.has(entry.key)) continue;
+      const raw = localStorage.getItem(entry.key) || "";
+      freedBytes += entryBytes(entry.key, raw);
+      localStorage.removeItem(entry.key);
+      prunedCount++;
+    }
+    if (prunedCount > 0) {
+      const remaining = idx.filter(b => !toDelete.has(b.key) || localStorage.getItem(b.key) !== null);
+      localStorage.setItem(BACKUP_INDEX_KEY, JSON.stringify(remaining));
+      notify();
+    }
+  } catch {}
+  return { prunedCount, freedBytes };
+}
+
 /* ─── BACKUPS ─── */
 
 export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}) {
@@ -99,22 +193,87 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
   }
   addLog("Backup complete: " + successCount + "/" + dids.length + " DIDs captured", "info");
   const vin = backup.dids[0xF190]?.ascii?.slice(-17) || "unknown";
-  const key = "srtlab_backup_" + moduleType + "_" + vin + "_" + Date.now();
-  try {
-    localStorage.setItem(key, JSON.stringify(backup));
+  const key = BACKUP_KEY_PREFIX + moduleType + "_" + vin + "_" + Date.now();
+  const payload = JSON.stringify(backup);
+
+  /* Pre-flight: if we're already past the prune threshold, drop redundant
+   * historical snapshots before the write so we don't trip the browser quota. */
+  const preUsage = getBackupStorageUsage();
+  if (preUsage.percent >= BACKUP_PRUNE_PERCENT) {
+    const r = pruneNonCriticalBackups();
+    if (r.prunedCount > 0) {
+      addLog(
+        "Backup storage was " + preUsage.percent + "% full — auto-pruned " +
+        r.prunedCount + " redundant snapshot(s) (" + fmtBytes(r.freedBytes) + " freed)",
+        "warn",
+      );
+    }
+  }
+
+  const trySave = () => {
+    localStorage.setItem(key, payload);
     const idx = JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY) || "[]");
     idx.unshift({ key, module: moduleType, vin, timestamp: backup.timestamp, didCount: successCount });
     if (idx.length > MAX_BACKUPS) {
       idx.slice(MAX_BACKUPS).forEach(b => localStorage.removeItem(b.key));
     }
     localStorage.setItem(BACKUP_INDEX_KEY, JSON.stringify(idx.slice(0, MAX_BACKUPS)));
+  };
+
+  try {
+    trySave();
     addLog("✓ Backup saved: " + key, "info");
+    /* Post-save: if we just crossed the warn threshold, surface a toast so the
+     * user knows to visit the Backups tab and free space. */
+    const postUsage = getBackupStorageUsage();
+    if (postUsage.percent >= BACKUP_WARN_PERCENT) {
+      dispatchToast(
+        "Backup storage is " + postUsage.percent + "% full (" +
+        fmtBytes(postUsage.used) + " of " + fmtBytes(postUsage.max) +
+        "). Visit the Backups tab to free space.",
+        "warn",
+      );
+    }
     notify();
   } catch (e) {
-    addLog("Failed to save backup: " + e.message, "error");
+    /* Quota hit. Aggressively prune redundant snapshots and retry once. If we
+     * still fail, surface a visible toast — silent loss of audit history is
+     * worse than spamming a banner. */
+    addLog("Backup save failed (" + e.message + ") — pruning and retrying...", "warn");
+    const r = pruneNonCriticalBackups({ targetBytes: BACKUP_QUOTA_BYTES * 0.4 });
+    try {
+      trySave();
+      addLog(
+        "✓ Backup saved after pruning " + r.prunedCount +
+        " redundant snapshot(s): " + key,
+        "info",
+      );
+      dispatchToast(
+        "Backup storage was full — auto-pruned " + r.prunedCount +
+        " older snapshot(s) to make room.",
+        "warn",
+      );
+      notify();
+    } catch (e2) {
+      addLog("Failed to save backup: " + e2.message, "error");
+      dispatchToast(
+        "Could not save " + moduleType + " backup: " + e2.message +
+        ". Open the Backups tab and clear old entries before writing again.",
+        "error",
+        10000,
+      );
+    }
   }
   return backup;
 }
+
+function fmtBytes(b) {
+  if (b < 1024) return b + " B";
+  if (b < 1024 * 1024) return (b / 1024).toFixed(1) + " KB";
+  return (b / 1024 / 1024).toFixed(2) + " MB";
+}
+
+export { fmtBytes as formatBytes };
 
 export async function restoreModule(engUds, tx, rx, backup, addLog = () => {}, fullRestore = false) {
   if (!backup || !backup.dids) {

@@ -19,6 +19,7 @@ import { ASSET_IDS, trackDownload as trackDownloadFn } from "./lib/downloadAsset
 import { useDownloadCount, DownloadCounter } from "./lib/useDownloadCount.jsx";
 import { ReadFirstModal } from "./lib/readFirstModal.jsx";
 import { logSession } from "./lib/paperTrail.js";
+import { subscribeToast } from "./lib/audit.js";
 
 /* ═══ VERIFIED ENGINES ═══ */
 function crc16(d,i=0xFFFF){let c=i;for(let x=0;x<d.length;x++){c^=d[x]<<8;for(let j=0;j<8;j++)c=c&0x8000?(c<<1)^0x1021:c<<1;c&=0xFFFF;}return c;}
@@ -418,6 +419,36 @@ function AppShell({pg,setPg,files,setFiles,loadF}){
       {pg==='program'&&<ProgramAllTab/>}
       {pg==='uds'&&<UdsTab/>}
     </div>
+    <GlobalToastBar/>
+  </div>;
+}
+
+/* Global, fixed-position banner that surfaces toasts dispatched anywhere in
+ * the app (e.g. backup save failures triggered while writing a module from a
+ * different tab). Critical for the audit story — a silent QuotaExceededError
+ * means lost history, so the user must always see when one occurs. */
+function GlobalToastBar(){
+  const[toasts,setToasts]=useState([]);
+  useEffect(()=>{
+    return subscribeToast(detail=>{
+      setToasts(p=>[...p,detail]);
+      setTimeout(()=>{
+        setToasts(p=>p.filter(t=>t.ts!==detail.ts));
+      },detail.durationMs||6000);
+    });
+  },[]);
+  if(toasts.length===0)return null;
+  return <div data-testid="global-toast-bar" style={{position:'fixed',top:18,right:18,zIndex:9999,display:'flex',flexDirection:'column',gap:8,maxWidth:420}}>
+    {toasts.map(t=>{
+      const col=t.type==='error'?'#FF5252':t.type==='warn'?'#FFB300':'#00E676';
+      const bg=t.type==='error'?'#FFEBEE':t.type==='warn'?'#FFF8E1':'#E8F5E9';
+      const ico=t.type==='error'?'✗':t.type==='warn'?'⚠':'✓';
+      return <div key={t.ts} data-testid={'toast-'+t.type} style={{background:bg,border:'1.5px solid '+col,borderRadius:10,padding:'12px 14px',boxShadow:'0 6px 24px rgba(0,0,0,0.18)',display:'flex',alignItems:'flex-start',gap:10,fontFamily:"'Nunito',sans-serif"}}>
+        <div style={{fontSize:18,color:col,fontWeight:900,lineHeight:1}}>{ico}</div>
+        <div style={{flex:1,fontSize:12,color:'#333',lineHeight:1.45}}>{t.message}</div>
+        <button onClick={()=>setToasts(p=>p.filter(x=>x.ts!==t.ts))} style={{border:'none',background:'transparent',cursor:'pointer',fontSize:16,color:'#888',padding:0,lineHeight:1}}>×</button>
+      </div>;
+    })}
   </div>;
 }
 

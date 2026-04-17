@@ -4,6 +4,8 @@ import { Card, Btn } from "../lib/ui.jsx";
 import {
   getBackupList, getBackup, deleteBackup, clearBackups,
   restoreModule, subscribeAudit, logSession,
+  getBackupStorageUsage, pruneNonCriticalBackups,
+  subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
 } from "../lib/audit.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/ReadFirstModal.jsx";
@@ -12,6 +14,8 @@ const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 
 export default function BackupsTab() {
   const [backups, setBackups] = useState(getBackupList());
+  const [usage, setUsage] = useState(getBackupStorageUsage());
+  const [toast, setToast] = useState(null);
   const [selected, setSelected] = useState(null);
   const [selectedData, setSelectedData] = useState(null);
   const [filter, setFilter] = useState("all");
@@ -24,10 +28,32 @@ export default function BackupsTab() {
   const refresh = useCallback(() => {
     const list = getBackupList();
     setBackups(list);
+    setUsage(getBackupStorageUsage());
     if (selected && !list.some(b => b.key === selected)) {
       setSelected(null); setSelectedData(null);
     }
   }, [selected]);
+
+  /* Toast bus — surfaces save failures from any tab while Backups is open. */
+  useEffect(() => {
+    return subscribeToast((detail) => {
+      setToast(detail);
+      const id = setTimeout(() => {
+        setToast((cur) => (cur && cur.ts === detail.ts ? null : cur));
+      }, detail.durationMs || 6000);
+      return () => clearTimeout(id);
+    });
+  }, []);
+
+  const handlePrune = useCallback(() => {
+    const r = pruneNonCriticalBackups();
+    if (r.prunedCount === 0) {
+      alert("No redundant snapshots to prune. Each backup is the latest for its module + VIN. Use 'Clear All' or delete entries individually if you need more space.");
+    } else {
+      alert("Pruned " + r.prunedCount + " redundant snapshot(s) — freed " + formatBytes(r.freedBytes) + ".");
+    }
+    refresh();
+  }, [refresh]);
 
   // Auto-update + cross-tab notifications + 4s poll fallback.
   useEffect(() => {
@@ -173,8 +199,21 @@ export default function BackupsTab() {
               PRE-WRITE SNAPSHOTS · ONE-CLICK RESTORE
             </div>
           </div>
-          <div style={{ fontSize: 11, padding: "6px 12px", background: "rgba(255,255,255,0.15)", borderRadius: 8 }}>
-            {backups.length} backup{backups.length === 1 ? "" : "s"}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+            <div style={{ fontSize: 11, padding: "6px 12px", background: "rgba(255,255,255,0.15)", borderRadius: 8 }}>
+              {backups.length} backup{backups.length === 1 ? "" : "s"}
+            </div>
+            <div data-testid="backup-storage-usage" style={{ fontSize: 10, padding: "4px 10px", background: "rgba(0,0,0,0.25)", borderRadius: 6, fontFamily: "'JetBrains Mono'", letterSpacing: 0.5 }}>
+              {formatBytes(usage.used)} / {formatBytes(usage.max)} ({usage.percent}%)
+            </div>
+            <div style={{ width: 160, height: 4, background: "rgba(255,255,255,0.15)", borderRadius: 2, overflow: "hidden" }}>
+              <div style={{
+                width: usage.percent + "%", height: "100%",
+                background: usage.percent >= 90 ? "#FF5252"
+                  : usage.percent >= BACKUP_WARN_PERCENT ? "#FFB300" : "#00E676",
+                transition: "all 0.3s",
+              }} />
+            </div>
           </div>
         </div>
         <div style={{ fontSize: 12, opacity: 0.85, marginTop: 10 }}>
@@ -182,6 +221,46 @@ export default function BackupsTab() {
           If a write goes wrong, restore from here. Max 50 backups kept (auto-rotates).
         </div>
       </Card>
+
+      {usage.percent >= BACKUP_WARN_PERCENT && (
+        <Card data-testid="backup-quota-warning" style={{
+          marginBottom: 14, padding: 14,
+          background: usage.percent >= 90 ? "#FFEBEE" : "#FFF8E1",
+          border: "1.5px solid " + (usage.percent >= 90 ? "#FF5252" : "#FFB300"),
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ fontSize: 24 }}>{usage.percent >= 90 ? "🚨" : "⚠️"}</div>
+            <div style={{ flex: 1, fontSize: 12, color: C.ts, lineHeight: 1.5 }}>
+              <b>Backup storage is {usage.percent}% full</b> ({formatBytes(usage.used)} of {formatBytes(usage.max)}).
+              {usage.percent >= 90
+                ? " The next backup may fail or silently drop the audit index. Free space now."
+                : " Approaching the browser's localStorage cap — older snapshots will start to be auto-pruned."}
+            </div>
+            <Btn onClick={handlePrune} color={usage.percent >= 90 ? C.er : C.wn}>
+              🧹 Prune older duplicates
+            </Btn>
+          </div>
+        </Card>
+      )}
+
+      {toast && (
+        <Card data-testid="backup-toast" style={{
+          marginBottom: 14, padding: 12,
+          background: toast.type === "error" ? "#FFEBEE" : toast.type === "warn" ? "#FFF8E1" : "#E8F5E9",
+          border: "1.5px solid " + (toast.type === "error" ? "#FF5252" : toast.type === "warn" ? "#FFB300" : "#00E676"),
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ fontSize: 18 }}>
+              {toast.type === "error" ? "✗" : toast.type === "warn" ? "⚠" : "✓"}
+            </div>
+            <div style={{ flex: 1, fontSize: 12, color: C.ts, lineHeight: 1.5 }}>{toast.message}</div>
+            <button onClick={() => setToast(null)} style={{
+              border: "none", background: "transparent", cursor: "pointer",
+              fontSize: 16, color: C.tm, padding: "0 6px",
+            }}>×</button>
+          </div>
+        </Card>
+      )}
 
       <Card style={{ marginBottom: 14 }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
