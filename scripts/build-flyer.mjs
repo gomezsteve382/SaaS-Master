@@ -56,9 +56,9 @@ function block({x, y, w, h, eyebrow, title, accent, hits, tag}) {
     // bold lead + body
     const m = h.match(/^([^—]+?)\s+—\s+(.*)$/);
     if (m) {
-      s += `<text x="${x+pad+30}" y="${by-8}" ${body} font-size="26" font-weight="900" fill="${C.bone}">${escapeXml(m[1].trim())}</text>`;
-      s += `<text x="${x+pad+30}" y="${by+30}" ${body} font-size="24" font-weight="500" fill="${C.ash}">${escapeXml(m[2].trim())}</text>`;
-      by += 72;
+      s += `<text x="${x+pad+30}" y="${by-8}" ${body} font-size="25" font-weight="900" fill="${C.bone}">${escapeXml(m[1].trim())}</text>`;
+      s += `<text x="${x+pad+30}" y="${by+24}" ${body} font-size="22" font-weight="500" fill="${C.ash}">${escapeXml(m[2].trim())}</text>`;
+      by += 66;
     } else {
       s += `<text x="${x+pad+30}" y="${by-8}" ${body} font-size="26" font-weight="700" fill="${C.bone}">${escapeXml(h)}</text>`;
       by += 50;
@@ -153,9 +153,9 @@ const hero = `
 // ── BLOCKS ────────────────────────────────────────────────────────────────
 const COLS = 2;
 const COL_W = 1155;
-const COL_H = 700;
+const COL_H = 640;
 const GAP = 30;
-const X0 = 120, Y0 = 1020;
+const X0 = 120, Y0 = 990;
 
 const blocks = [
   {
@@ -299,5 +299,8 @@ console.log('using', RSVG);
 execSync(`${RSVG} -f png -b "${C.bg}" -o "${PNG_PATH}" "${SVG_PATH}"`, {stdio: 'inherit'});
 console.log('wrote', PNG_PATH);
 
-execSync(`${RSVG} -f pdf -b "${C.bg}" -o "${PDF_PATH}" "${SVG_PATH}"`, {stdio: 'inherit'});
+// SVG is authored in 300dpi pixels (2550 x 3300 = 8.5 x 11 in). Tell rsvg
+// to interpret px at 300 dpi so the resulting PDF page is exactly Letter
+// (612 x 792 pt) instead of the default 96-dpi blow-up.
+execSync(`${RSVG} -f pdf --dpi-x 300 --dpi-y 300 -b "${C.bg}" -o "${PDF_PATH}" "${SVG_PATH}"`, {stdio: 'inherit'});
 console.log('wrote', PDF_PATH);
