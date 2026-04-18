@@ -37,6 +37,7 @@ import ctypes
 import json
 import os
 import platform
+import socket
 import sys
 import threading
 import time
@@ -390,6 +391,7 @@ class J2534Bridge:
         return None
 
     def status(self) -> dict:
+        vendor = vendor_for(self.dll_path)
         return {
             "ok": True,
             "bridgeVersion": "1.0.0",
@@ -397,7 +399,11 @@ class J2534Bridge:
             "pythonVersion": platform.python_version(),
             "dllPath": self.dll_path,
             "dllLoaded": self.dll is not None,
-            "vendor": vendor_for(self.dll_path),
+            "vendor": vendor,
+            # True for VCIs that can carry FCA Secure Gateway authentication
+            # (currently only Autel MaxiFlash). The web client uses this so it
+            # doesn't have to string-match the vendor name itself.
+            "sgwCapable": "maxiflash" in (self.dll_path or "").lower() or vendor.lower() == "autel maxiflash",
             "deviceOpen": self.opened,
             "channelConnected": self.connected,
             "deviceId": self.device_id.value if self.opened else None,
@@ -409,6 +415,37 @@ class J2534Bridge:
 
 # ─── HTTP handler ────────────────────────────────────────────────────────────
 BRIDGE: J2534Bridge | None = None
+
+
+def _coerce_int(v) -> int:
+    """Accept ints or hex/decimal strings (e.g. '0x7E0' or '2016')."""
+    if isinstance(v, int):
+        return v
+    if isinstance(v, str):
+        s = v.strip()
+        if not s:
+            return 0
+        return int(s, 16) if s.lower().startswith("0x") else int(s, 0)
+    return int(v)
+
+
+def _find_port(preferred: int, host: str) -> int:
+    """Bind to `preferred` if free, otherwise pick any free port and return it.
+    Restores the auto-fallback behaviour from the original spec so a busy
+    8765 doesn't kill the daemon on a tech's laptop."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind((host, preferred))
+        s.close()
+        return preferred
+    except OSError:
+        s.close()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind((host, 0))
+        return s.getsockname()[1]
+    finally:
+        s.close()
 
 
 def _hex_to_bytes(s: str) -> bytes:
@@ -501,21 +538,33 @@ class Handler(BaseHTTPRequestHandler):
                 BRIDGE.close()
                 self._json({"ok": True, **BRIDGE.status()})
             elif path == "/setfilter":
-                tx = int(body.get("txId", 0))
-                rx = int(body.get("rxId", 0))
+                tx = _coerce_int(body.get("txId", body.get("tx_id", 0)))
+                rx = _coerce_int(body.get("rxId", body.get("rx_id", 0)))
                 fid = BRIDGE.set_filter(tx, rx)
-                self._json({"ok": True, "filterId": fid})
+                self._json({"ok": True, "filterId": fid, "filter_id": fid})
             elif path == "/sendmsg":
-                tx = int(body.get("txId", 0))
-                data = _hex_to_bytes(str(body.get("data", "")))
+                tx = _coerce_int(body.get("txId", body.get("tx_id", 0)))
+                raw_data = body.get("data", "")
+                if isinstance(raw_data, list):
+                    data = bytes(int(b) & 0xFF for b in raw_data)
+                else:
+                    data = _hex_to_bytes(str(raw_data))
                 flags = int(body.get("flags", ISO15765_FRAME_PAD))
-                timeout = int(body.get("timeoutMs", 1000))
+                timeout = int(body.get("timeoutMs", body.get("timeout_ms", 1000)))
                 BRIDGE.send_msg(tx, data, flags=flags, timeout_ms=timeout)
                 self._json({"ok": True})
             elif path == "/readmsg":
-                timeout = int(body.get("timeoutMs", 1000))
-                msg = BRIDGE.read_msg(timeout_ms=timeout)
-                self._json({"ok": True, "msg": msg})
+                timeout = int(body.get("timeoutMs", body.get("timeout_ms", 1000)))
+                max_msgs = int(body.get("max_msgs", body.get("maxMsgs", 1)))
+                msgs = []
+                for _ in range(max(1, max_msgs)):
+                    m = BRIDGE.read_msg(timeout_ms=timeout)
+                    if m is None:
+                        break
+                    msgs.append(m)
+                # Return both shapes so callers written to either spec keep working:
+                # legacy spec wants `messages: [...]`; shipped client wants `msg: {...}`.
+                self._json({"ok": True, "msg": msgs[0] if msgs else None, "messages": msgs})
             else:
                 self._json({"ok": False, "error": f"unknown endpoint {path}"}, 404)
         except FileNotFoundError as e:
@@ -541,6 +590,12 @@ def main() -> int:
 
     global BRIDGE
     BRIDGE = J2534Bridge(args.dll, verbose=args.verbose)
+
+    # Auto-fallback to a free port if --port is busy (matches the original spec).
+    bind_port = _find_port(args.port, args.host)
+    if bind_port != args.port:
+        print(f"  [!] Port {args.port} busy on {args.host} — falling back to {bind_port}")
+    args.port = bind_port
 
     print("=" * 64)
     print(" SRT Lab — J2534 HTTP Bridge")

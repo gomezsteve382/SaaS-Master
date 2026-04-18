@@ -28,4 +28,13 @@ export function vinHasSGW(vin){
   return typeof y==='number'&&y>=2018;
 }
 
+/* True when the VIN is exactly 17 chars, uses only the legal alphabet,
+   and the position-9 (index 8) check digit matches the ISO 3779 weighted
+   sum. Thin wrapper around checkVin so every tab can share one source
+   of truth instead of re-implementing it. */
+export function vinCheckDigitValid(vin){
+  if(typeof vin!=='string')return false;
+  return checkVin(vin).ok===true;
+}
+
 export {VIN_RX};

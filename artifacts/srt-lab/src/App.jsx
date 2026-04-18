@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import OBDSwarmDiagnostic from "./OBDSwarmDiagnostic";
 import J2534Scanner from "./J2534Scanner";
 import AutelSgwTab from "./tabs/AutelSgwTab.jsx";
-import {vinHasSGW} from "./lib/vin.js";
+import {vinHasSGW,parseVinYear,vinCheckDigitValid} from "./lib/vin.js";
 import {useBridgeStatus} from "./lib/bridgeClient.js";
 import JailbreakTab from "./tabs/JailbreakTab";
 import BcmTab from "./tabs/BcmTab.jsx";
@@ -425,6 +425,8 @@ function AppShell({pg,setPg,files,setFiles,loadF}){
           const icon={pending:'○',writing:'⏳',ok:'✓',fail:'✗'}[st]||'○';
           return <span key={m} data-testid={'status-'+m} style={{color:col,display:'flex',alignItems:'center',gap:4}}>{icon} {m}</span>;
         })}
+        {(()=>{const y=parseVinYear(vin);if(!y)return null;return <span data-testid="vin-year-chip" title={'Model year decoded from VIN position 10 ('+vin[9]+')'} style={{color:'#9FB4FF',display:'flex',alignItems:'center',gap:4}}>YEAR:{y}</span>;})()}
+        {(()=>{const ok=vinCheckDigitValid(vin);const col=ok?'#00E676':'#FFB300';const icon=ok?'✓':'⚠';const lbl=ok?'VIN CHKSUM':'VIN CHKSUM BAD';return <span data-testid="vin-checksum-chip" title={ok?'ISO 3779 check digit (position 9) matches':'ISO 3779 check digit mismatch — typo in VIN?'} style={{color:col,display:'flex',alignItems:'center',gap:4}}>{icon} {lbl}</span>;})()}
         <SgwBridgeChip vin={vin} setPg={setPg}/>
       </div>}
       <div style={{display:'flex',padding:'12px 16px 0',overflowX:'auto',gap:2}}>
