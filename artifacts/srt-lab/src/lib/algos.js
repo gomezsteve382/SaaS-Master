@@ -105,4 +105,114 @@ function unlockIdForTx(tx){
   return tx===0x74F?'xtea_sgw':'cda6';
 }
 
-export {u32,sxor,cda6,ngc,tipm,xteaEncryptBlock,xteaDecryptBlock,xtea_sgw,xtea_sgw_full,SGW_XTEA_KEY,unlockKey,unlockKeyBytes,unlockIdForTx,ALGOS};
+// Per-module preferred unlock algorithm by scan code (MODS[].c). Powertrain
+// modules (ECM/TCM/DAMP/ADCM) historically use the GPEC2 sxor-0xE72E3799
+// constant; body-bus modules use CDA6; TIPM uses its own table; SGW uses
+// XTEA. Anything not listed falls through to unlockIdForTx(tx) below.
+const MOD_UNLOCK = {
+  ECM:'gpec2', TCM:'gpec2', DAMP:'gpec2', ADCM:'gpec2',
+  BCM:'cda6', RFHUB:'cda6', ABS:'cda6', IPC:'cda6',
+  EPS:'cda6', RADIO:'cda6', ORC:'cda6', HVAC:'cda6',
+  DTCM:'cda6', SCCM:'cda6', DDM:'cda6',
+  TIPM:'t80',
+  SGW:'xtea_sgw',
+};
+
+// Fallback unlock chain — tried in order when the preferred algorithm is
+// rejected with NRC 0x35 (invalid key). Covers the realistic universe of
+// FCA/Stellantis seed→key transforms; 0x74F (SGW) bypasses this list.
+const UNLOCK_FALLBACK = ['cda6','gpec2','gpec3','gpec2a','gpec15'];
+
+// Build an ordered unlock-algorithm chain to try for a given tx + module
+// code. SGW (tx 0x74F) is always XTEA-only — no fallback. Otherwise the
+// preferred algorithm (MOD_UNLOCK[code] or unlockIdForTx(tx) for unknown
+// modules) is tried first, then UNLOCK_FALLBACK with duplicates stripped.
+function pickUnlockChain(tx, code){
+  if(tx===0x74F) return ['xtea_sgw'];
+  const pref = (code && MOD_UNLOCK[code]) || unlockIdForTx(tx);
+  const out = [pref];
+  for(const id of UNLOCK_FALLBACK) if(!out.includes(id)) out.push(id);
+  return out;
+}
+
+// Encode a UDS DID (DataIdentifier) into request bytes. ISO 14229 DIDs are
+// 16-bit (e.g. 0xF190 VIN), but FCA exposes 24-bit module-specific DIDs in
+// the 0x6E_____ space (e.g. 0x6E2025 BCM proxi VIN slot). Truncating to
+// 16-bit silently writes 0x2025 — a different DID — and corrupts unrelated
+// data. Encoder picks 2-byte vs 3-byte form based on magnitude.
+function encodeDid(did){
+  if(did<0||!Number.isInteger(did)) throw new Error('encodeDid: bad did '+did);
+  if(did<=0xFFFF) return [(did>>>8)&0xFF, did&0xFF];
+  if(did<=0xFFFFFF) return [(did>>>16)&0xFF, (did>>>8)&0xFF, did&0xFF];
+  throw new Error('encodeDid: did too large 0x'+did.toString(16));
+}
+
+// Per-module VIN write DID list. Default = ISO 14229 standard chain
+// (F190 = VIN, 7B90 = current VIN copy, 7B88 = original VIN copy). BCM and
+// RFHUB carry an additional FCA-specific 24-bit copy in the 0x6E2025/0x6E2027
+// configuration block; EPS keeps F190 plus its own 0x6EF190 mirror.
+const VIN_WRITE_DIDS = {
+  default: [0xF190, 0x7B90, 0x7B88],
+  BCM:     [0xF190, 0x7B90, 0x7B88, 0x6E2025],
+  RFHUB:   [0xF190, 0x7B90, 0x7B88, 0x6E2027],
+  EPS:     [0xF190, 0x6EF190],
+};
+function vinWriteDids(code){
+  return VIN_WRITE_DIDS[code] || VIN_WRITE_DIDS.default;
+}
+
+// NRC-aware security access: walks pickUnlockChain(tx,code), requesting a
+// fresh seed before each attempt and trying the next algorithm only when
+// the ECU rejects the key with NRC 0x35 (invalid key). Returns the algo id
+// that succeeded, true if the seed was already zero (already unlocked), or
+// false on terminal failure. addLog is optional (info/warn/rx/error).
+async function tryUnlock(uds, tx, rx, code, addLog, label){
+  const lbl = label || code || ('0x'+tx.toString(16).toUpperCase());
+  const chain = pickUnlockChain(tx, code);
+  for(let i=0;i<chain.length;i++){
+    const aid = chain[i];
+    const sr = await uds(tx, rx, [0x27, 0x01]);
+    if(!(sr && sr.ok && sr.d && sr.d.length>=2)){
+      addLog && addLog(lbl+' seed read failed','error');
+      return false;
+    }
+    if(sr.d[0]===0x7F){
+      const nrc = sr.d[2];
+      addLog && addLog(lbl+' seed NRC 0x'+(nrc||0).toString(16).toUpperCase(),'error');
+      return false;
+    }
+    if(sr.d[0]!==0x67 || sr.d.length<6){
+      addLog && addLog(lbl+' seed bad framing: '+Array.from(sr.d).slice(0,6).map(b=>b.toString(16)).join(' '),'error');
+      return false;
+    }
+    const sb = Array.from(sr.d).slice(2);
+    if(!sb.some(b=>b!==0)){
+      addLog && addLog(lbl+' already unlocked (zero seed)','rx');
+      return true;
+    }
+    const kb = unlockKeyBytes(aid, sb);
+    if(kb===null){ continue; }
+    const kr = await uds(tx, rx, [0x27, 0x02, ...kb]);
+    if(kr && kr.ok && kr.d && kr.d[0]===0x67){
+      addLog && addLog(lbl+' UNLOCKED via '+aid+' ('+kb.length+'B key)','rx');
+      return aid;
+    }
+    const nrc = (kr && kr.ok && kr.d && kr.d[0]===0x7F) ? kr.d[2] : null;
+    addLog && addLog(lbl+' '+aid+' rejected'+(nrc!=null?(' (NRC 0x'+nrc.toString(16).toUpperCase()+')'):''),'warn');
+    // Only NRC 0x35 (invalid key) warrants trying the next algorithm.
+    // Other NRCs (0x36 attempts exceeded, 0x37 delay, 0x33 denied) mean
+    // the algorithm is irrelevant — bail out so we don't burn attempts.
+    if(nrc!==0x35) return false;
+  }
+  addLog && addLog(lbl+' all unlock algorithms exhausted','error');
+  return false;
+}
+
+export {
+  u32,sxor,cda6,ngc,tipm,
+  xteaEncryptBlock,xteaDecryptBlock,xtea_sgw,xtea_sgw_full,SGW_XTEA_KEY,
+  unlockKey,unlockKeyBytes,unlockIdForTx,
+  MOD_UNLOCK,UNLOCK_FALLBACK,pickUnlockChain,tryUnlock,
+  encodeDid,VIN_WRITE_DIDS,vinWriteDids,
+  ALGOS,
+};

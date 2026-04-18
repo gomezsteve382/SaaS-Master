@@ -5,7 +5,7 @@ import {parseModule,extractHex,syncImmoBackup} from "../lib/parseModule.js";
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crc16,crc8_42,crc8rf} from "../lib/crc.js";
 import {MODS} from "../lib/mods.js";
-import {unlockKeyBytes, unlockIdForTx} from "../lib/algos.js";
+import {tryUnlock, encodeDid, vinWriteDids} from "../lib/algos.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {DownloadCounter} from "../lib/useDownloadCount.jsx";
 
@@ -148,13 +148,24 @@ function BenchTab(){
     if(!benchEng.current||nv.length!==17)return;setBenchBusy('Writing '+label+'...');
     try{
       await benchEng.current.uds(tx,rx,[0x10,0x03]);
-      const sr=await benchEng.current.uds(tx,rx,[0x27,0x01]);
-      if(sr.ok&&sr.d&&sr.d.length>=6&&sr.d[0]===0x67){const sb=Array.from(sr.d).slice(2);
-        const nz=sb.some(b=>b!==0);
-        if(nz){const aid=unlockIdForTx(tx);const kb=unlockKeyBytes(aid,sb);if(kb!==null){await benchEng.current.uds(tx,rx,[0x27,0x02,...kb]);addLog(label+' ('+aid+', '+kb.length+'B key) unlocked','rx');}}}
+      await tryUnlock(benchEng.current.uds,tx,rx,label,addLog,label);
       const vb=[...new TextEncoder().encode(nv)];
-      for(const did of[0xF190,0x7B90,0x7B88]){const r=await benchEng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);addLog(label+' DID 0x'+did.toString(16).toUpperCase()+': '+(r.ok?'OK':'FAIL'),r.ok?'rx':'error');}
-      await benchEng.current.uds(tx,rx,[0x11,0x01]);addLog(label+' VIN written + reset','rx');
+      const dids=vinWriteDids(label);
+      for(const did of dids){
+        const dh=encodeDid(did);
+        const r=await benchEng.current.uds(tx,rx,[0x2E,...dh,...vb]);
+        const ok=!!(r.ok&&r.d&&r.d[0]===0x6E);
+        addLog(label+' DID 0x'+did.toString(16).toUpperCase()+' ('+dh.length+'B): '+(ok?'OK':'FAIL'+(r.d&&r.d[0]===0x7F?' NRC 0x'+r.d[2].toString(16).toUpperCase():'')),ok?'rx':'error');
+      }
+      await benchEng.current.uds(tx,rx,[0x11,0x01]);
+      addLog(label+' reset sent — settling 1500ms','info');
+      await new Promise(r=>setTimeout(r,1500));
+      const rb=await benchEng.current.uds(tx,rx,[0x22,0xF1,0x90]);
+      if(rb.ok&&rb.d&&rb.d[0]===0x62&&rb.d.length>=20){
+        const vc=Array.from(rb.d).slice(3).filter(b=>b>=0x20&&b<=0x7E);
+        const readbackVin=String.fromCharCode(...vc).slice(-17);
+        addLog(label+' read-back VIN: '+readbackVin+' '+(readbackVin===nv?'✓ MATCH':'✗ MISMATCH'),readbackVin===nv?'rx':'error');
+      }else addLog(label+' read-back failed','error');
     }catch(e){addLog(label+' error: '+e.message,'error');}finally{setBenchBusy('');}
   },[nv]);
 
