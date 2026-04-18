@@ -2,7 +2,7 @@ import React, {useState, useCallback, useRef} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
 import {MODS} from "../lib/mods.js";
-import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse} from "../lib/algos.js";
+import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse, vinReadbackOk} from "../lib/algos.js";
 import {backupModule,CRITICAL_DIDS} from "../lib/backups.js";
 import {logSession} from "../lib/paperTrail.js";
 
@@ -203,7 +203,7 @@ function OBDTab(){
         const dh=encodeDid(did);
         const rb=await eng.current.uds(m.tx,m.rx,[0x22,...dh]);
         const tail=rb.ok?vinFromReadResponse(rb.d,did):'';
-        const ok=tail===nv;
+        const ok=vinReadbackOk(did,tail,nv);
         readResults[did]={tail,ok};
         if(!ok) allReadbackOk=false;
         addLog(m.c+' read-back 0x'+did.toString(16).toUpperCase()+': '+(tail||'(no data)')+' '+(ok?'✓':'✗ MISMATCH'),ok?'rx':'error');
@@ -284,7 +284,7 @@ function OBDTab(){
         const dh=encodeDid(did);
         const rb=await eng.current.uds(tx,rx,[0x22,...dh]);
         const tail=rb.ok?vinFromReadResponse(rb.d,did):'';
-        const ok=tail===nv;
+        const ok=vinReadbackOk(did,tail,nv);
         readResults[did]={tail,ok};
         if(!ok) allReadbackOk=false;
         addLog(label+' read-back 0x'+did.toString(16).toUpperCase()+': '+(tail||'(no data)')+' '+(ok?'✓':'✗ MISMATCH'),ok?'rx':'error');

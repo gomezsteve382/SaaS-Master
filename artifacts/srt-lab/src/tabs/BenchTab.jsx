@@ -5,7 +5,7 @@ import {parseModule,extractHex,syncImmoBackup} from "../lib/parseModule.js";
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crc16,crc8_42,crc8rf} from "../lib/crc.js";
 import {MODS} from "../lib/mods.js";
-import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse} from "../lib/algos.js";
+import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse, vinReadbackOk} from "../lib/algos.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {DownloadCounter} from "../lib/useDownloadCount.jsx";
 
@@ -168,7 +168,7 @@ function BenchTab(){
         const dh=encodeDid(did);
         const rb=await benchEng.current.uds(tx,rx,[0x22,...dh]);
         const tail=rb.ok?vinFromReadResponse(rb.d,did):'';
-        const ok=tail===nv;
+        const ok=vinReadbackOk(did,tail,nv);
         addLog(label+' read-back 0x'+did.toString(16).toUpperCase()+': '+(tail||'(no data)')+' '+(ok?'✓':'✗ MISMATCH'),ok?'rx':'error');
       }
     }catch(e){addLog(label+' error: '+e.message,'error');}finally{setBenchBusy('');}

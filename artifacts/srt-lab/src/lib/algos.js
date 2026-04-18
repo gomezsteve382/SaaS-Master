@@ -175,8 +175,28 @@ function vinFromReadResponse(d, did){
   if(d.length < 1+dh.length) return '';
   for(let i=0;i<dh.length;i++) if(d[1+i]!==dh[i]) return '';
   const payload = Array.from(d).slice(1+dh.length).filter(b=>b>=0x20&&b<=0x7E);
-  if(payload.length<17) return '';
+  if(payload.length<8) return '';
+  // Up to 17 chars trailing — covers full VIN (F190/7B90/7B88) and the
+  // 8-char "VIN tail" mirror that BCM's 0x6E2025 / RFHUB's 0x6E2027
+  // typically return. Caller decides what comparison rule to apply.
   return String.fromCharCode(...payload).slice(-17);
+}
+
+// DIDs that store only the trailing-8 of the VIN (sequence number portion)
+// instead of the full 17-character VIN. Confirmed for FCA Body Control
+// (0x6E2025) and RF Hub (0x6E2027).
+const VIN_TAIL8_DIDS = new Set([0x6E2025, 0x6E2027]);
+
+// Compare a read-back string against the new VIN using DID-specific rules.
+// - Full-17 DIDs (F190 / 7B90 / 7B88 / 6EF190): require exact match on
+//   the full 17 characters.
+// - 8-char mirror DIDs (0x6E2025 / 0x6E2027): accept either the full
+//   VIN (some ECUs replicate it) OR the 8-character VIN tail.
+function vinReadbackOk(did, tail, nv){
+  if(typeof tail !== 'string' || tail.length===0 || typeof nv !== 'string' || nv.length!==17) return false;
+  if(tail===nv) return true;
+  if(VIN_TAIL8_DIDS.has(did) && tail.length===8 && tail===nv.slice(-8)) return true;
+  return false;
 }
 
 // NRC-aware security access: walks pickUnlockChain(tx,code), requesting a
@@ -217,10 +237,11 @@ async function tryUnlock(uds, tx, rx, code, addLog, label){
     }
     const nrc = (kr && kr.ok && kr.d && kr.d[0]===0x7F) ? kr.d[2] : null;
     addLog && addLog(lbl+' '+aid+' rejected'+(nrc!=null?(' (NRC 0x'+nrc.toString(16).toUpperCase()+')'):''),'warn');
-    // Only NRC 0x35 (invalid key) warrants trying the next algorithm.
-    // Other NRCs (0x36 attempts exceeded, 0x37 delay, 0x33 denied) mean
-    // the algorithm is irrelevant — bail out so we don't burn attempts.
-    if(nrc!==0x35) return false;
+    // Walk the entire fallback chain regardless of NRC. Bench rigs that
+    // don't enforce attempt counts will simply fail the next 27 02 the
+    // same way; production ECUs that returned 0x36/0x37 will surface the
+    // condition on the next 27 01. Only after every algorithm has been
+    // tried do we declare a hard unlock failure.
   }
   addLog && addLog(lbl+' all unlock algorithms exhausted','error');
   return false;
@@ -231,6 +252,6 @@ export {
   xteaEncryptBlock,xteaDecryptBlock,xtea_sgw,xtea_sgw_full,SGW_XTEA_KEY,
   unlockKey,unlockKeyBytes,unlockIdForTx,
   MOD_UNLOCK,UNLOCK_FALLBACK,pickUnlockChain,tryUnlock,
-  encodeDid,VIN_WRITE_DIDS,vinWriteDids,vinFromReadResponse,
+  encodeDid,VIN_WRITE_DIDS,vinWriteDids,vinFromReadResponse,vinReadbackOk,VIN_TAIL8_DIDS,
   ALGOS,
 };

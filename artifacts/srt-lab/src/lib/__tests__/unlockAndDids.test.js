@@ -9,6 +9,8 @@ import {
   tryUnlock,
   unlockKey,
   vinFromReadResponse,
+  vinReadbackOk,
+  VIN_TAIL8_DIDS,
 } from '../algos.js';
 
 describe('encodeDid', () => {
@@ -132,16 +134,26 @@ describe('tryUnlock', () => {
     expect(m.calls.length).toBe(1);
   });
 
-  it('bails on non-0x35 NRC without trying next algo', async () => {
-    const cda6Key = unlockKey('cda6', seedU32);
-    const cda6Bytes = [(cda6Key >>> 24) & 0xFF, (cda6Key >>> 16) & 0xFF, (cda6Key >>> 8) & 0xFF, cda6Key & 0xFF];
-    const m = mockUds([
-      { req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seed]) } },
-      { req: [0x27, 0x02, ...cda6Bytes], resp: { ok: true, d: new Uint8Array([0x7F, 0x27, 0x36]) } }, // attempts exceeded
-    ]);
+  it('continues fallback chain on any NRC, hard-fails only after exhaustion', async () => {
+    // BCM chain: cda6 → gpec2 → gpec3 → gpec2a → gpec15 (5 algos).
+    // Every key is rejected with a mix of NRCs (0x36, 0x37, 0x35, 0x33,
+    // 0x35) and the loop must walk every algo before giving up. We script
+    // 10 calls (seed + key per algo) and expect all of them consumed.
+    const keyBytesFor = (aid) => {
+      const k = unlockKey(aid, seedU32);
+      return [(k >>> 24) & 0xFF, (k >>> 16) & 0xFF, (k >>> 8) & 0xFF, k & 0xFF];
+    };
+    const chain = pickUnlockChain(0x750, 'BCM');
+    const nrcs  = [0x36, 0x37, 0x35, 0x33, 0x35];
+    const script = [];
+    chain.forEach((aid, i) => {
+      script.push({ req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seed]) } });
+      script.push({ req: [0x27, 0x02, ...keyBytesFor(aid)], resp: { ok: true, d: new Uint8Array([0x7F, 0x27, nrcs[i % nrcs.length]]) } });
+    });
+    const m = mockUds(script);
     const result = await tryUnlock(m.uds, 0x750, 0x758, 'BCM', null, 'BCM');
     expect(result).toBe(false);
-    expect(m.calls.length).toBe(2);
+    expect(m.calls.length).toBe(chain.length * 2);
   });
 
   it('writer pattern: when tryUnlock returns false, no 0x2E is issued', async () => {
@@ -167,6 +179,63 @@ describe('tryUnlock', () => {
     expect(wroteAnything).toBe(false);
     // confirm no 0x2E ever hit the bus
     expect(m.calls.some(c => c.data[0] === 0x2E)).toBe(false);
+  });
+
+  it('vinReadbackOk accepts 17-char full match for every DID', () => {
+    const nv = '1C4HJXEN5MW123456';
+    for (const did of [0xF190, 0x7B90, 0x7B88, 0x6E2025, 0x6E2027, 0x6EF190]) {
+      expect(vinReadbackOk(did, nv, nv)).toBe(true);
+    }
+    expect(vinReadbackOk(0xF190, '1C4HJXEN5MW999999', nv)).toBe(false);
+  });
+
+  it('vinReadbackOk accepts the 8-char tail ONLY for 0x6E2025 / 0x6E2027', () => {
+    const nv   = '1C4HJXEN5MW123456';
+    const tail = nv.slice(-8); // 'MW123456'
+    expect(VIN_TAIL8_DIDS.has(0x6E2025)).toBe(true);
+    expect(VIN_TAIL8_DIDS.has(0x6E2027)).toBe(true);
+    expect(vinReadbackOk(0x6E2025, tail, nv)).toBe(true);
+    expect(vinReadbackOk(0x6E2027, tail, nv)).toBe(true);
+    // Full-VIN DIDs must NOT accept an 8-char string as a match.
+    expect(vinReadbackOk(0xF190, tail, nv)).toBe(false);
+    expect(vinReadbackOk(0x7B90, tail, nv)).toBe(false);
+    expect(vinReadbackOk(0x7B88, tail, nv)).toBe(false);
+    expect(vinReadbackOk(0x6EF190, tail, nv)).toBe(false);
+    // Wrong tail must still fail on the mirror DIDs.
+    expect(vinReadbackOk(0x6E2025, 'XX999999', nv)).toBe(false);
+  });
+
+  it('vinFromReadResponse extracts an 8-char mirror payload', () => {
+    const dh = encodeDid(0x6E2025); // [0x6E, 0x20, 0x25]
+    const tail = 'MW123456';
+    const d = new Uint8Array([0x62, ...dh, ...Array.from(tail).map(c => c.charCodeAt(0))]);
+    expect(vinFromReadResponse(d, 0x6E2025)).toBe(tail);
+  });
+
+  it('per-DID read-back loop accepts an 8-char mirror as MATCH', async () => {
+    // BCM writes F190+7B90+7B88+0x6E2025. The 24-bit mirror returns only
+    // the trailing 8 chars; the full DIDs return the full 17. The loop
+    // must declare every DID OK.
+    const newVin = '1C4HJXEN5MW123456';
+    const make = (did, payload) => {
+      const dh = encodeDid(did);
+      const a = new Uint8Array(1 + dh.length + payload.length);
+      a[0] = 0x62; dh.forEach((b, i) => { a[1 + i] = b; });
+      for (let i = 0; i < payload.length; i++) a[1 + dh.length + i] = payload.charCodeAt(i);
+      return { ok: true, d: a };
+    };
+    const dids = vinWriteDids('BCM');
+    const m = mockUds(dids.map(d => ({
+      req: [0x22, ...encodeDid(d)],
+      resp: d === 0x6E2025 ? make(d, newVin.slice(-8)) : make(d, newVin),
+    })));
+    let allOk = true;
+    for (const did of dids) {
+      const rb = await m.uds(0x750, 0x758, [0x22, ...encodeDid(did)]);
+      const tail = vinFromReadResponse(rb.d, did);
+      if (!vinReadbackOk(did, tail, newVin)) allOk = false;
+    }
+    expect(allOk).toBe(true);
   });
 
   it('per-DID read-back loop detects MISMATCH on a 24-bit mirror DID', async () => {
