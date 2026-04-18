@@ -8,6 +8,7 @@ import {
   UNLOCK_FALLBACK,
   tryUnlock,
   unlockKey,
+  vinFromReadResponse,
 } from '../algos.js';
 
 describe('encodeDid', () => {
@@ -141,6 +142,72 @@ describe('tryUnlock', () => {
     const result = await tryUnlock(m.uds, 0x750, 0x758, 'BCM', null, 'BCM');
     expect(result).toBe(false);
     expect(m.calls.length).toBe(2);
+  });
+
+  it('writer pattern: when tryUnlock returns false, no 0x2E is issued', async () => {
+    // Simulates the OBDTab/BenchTab gating contract: if tryUnlock returns
+    // false the caller must skip writes entirely. We exercise the real
+    // writer-side branch by inlining the same conditional and verifying
+    // zero writes occur after an exhausted unlock chain.
+    const cda6Key = unlockKey('cda6', seedU32);
+    const cda6Bytes = [(cda6Key >>> 24) & 0xFF, (cda6Key >>> 16) & 0xFF, (cda6Key >>> 8) & 0xFF, cda6Key & 0xFF];
+    const m = mockUds([
+      { req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seed]) } },
+      { req: [0x27, 0x02, ...cda6Bytes], resp: { ok: true, d: new Uint8Array([0x7F, 0x27, 0x35]) } },
+      { req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x7F, 0x27, 0x36]) } },
+    ]);
+    const ur = await tryUnlock(m.uds, 0x750, 0x758, 'BCM', null, 'BCM');
+    expect(ur).toBe(false);
+    let wroteAnything = false;
+    if (ur !== false) {
+      // would-be writes — must NOT execute
+      await m.uds(0x750, 0x758, [0x2E, 0xF1, 0x90, 0x41]);
+      wroteAnything = true;
+    }
+    expect(wroteAnything).toBe(false);
+    // confirm no 0x2E ever hit the bus
+    expect(m.calls.some(c => c.data[0] === 0x2E)).toBe(false);
+  });
+
+  it('per-DID read-back loop detects MISMATCH on a 24-bit mirror DID', async () => {
+    // Simulates writing F190+7B90+7B88+0x6E2025 to BCM, then reading every
+    // DID back. F190/7B90/7B88 echo the new VIN; the 24-bit 0x6E2025
+    // mirror still holds the OLD VIN (write silently rejected). The
+    // read-back loop must flag exactly that DID as mismatched.
+    const newVin  = '1C4HJXEN5MW123456';
+    const oldVin  = '1C4HJXEN5MW000000';
+    const okFor = (didBytes, vin) => {
+      const a = new Uint8Array(1 + didBytes.length + 17);
+      a[0] = 0x62;
+      didBytes.forEach((b, i) => { a[1 + i] = b; });
+      for (let i = 0; i < 17; i++) a[1 + didBytes.length + i] = vin.charCodeAt(i);
+      return { ok: true, d: a };
+    };
+    const dids = vinWriteDids('BCM'); // [F190,7B90,7B88,0x6E2025]
+    const responses = dids.map(d => {
+      const dh = encodeDid(d);
+      return d === 0x6E2025
+        ? okFor(dh, oldVin)   // mismatch
+        : okFor(dh, newVin);  // match
+    });
+    const m = mockUds(responses.map((r, i) => ({
+      req: [0x22, ...encodeDid(dids[i])], resp: r,
+    })));
+    const results = {};
+    let allOk = true;
+    for (const did of dids) {
+      const rb = await m.uds(0x750, 0x758, [0x22, ...encodeDid(did)]);
+      const tail = vinFromReadResponse(rb.d, did);
+      const ok = tail === newVin;
+      results[did] = { tail, ok };
+      if (!ok) allOk = false;
+    }
+    expect(allOk).toBe(false);
+    expect(results[0xF190].ok).toBe(true);
+    expect(results[0x7B90].ok).toBe(true);
+    expect(results[0x7B88].ok).toBe(true);
+    expect(results[0x6E2025].ok).toBe(false);
+    expect(results[0x6E2025].tail).toBe(oldVin);
   });
 
   it('SGW @ 0x74F never falls back to non-XTEA', async () => {

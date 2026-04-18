@@ -2,7 +2,7 @@ import React, {useState, useCallback, useRef} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
 import {MODS} from "../lib/mods.js";
-import {tryUnlock, encodeDid, vinWriteDids} from "../lib/algos.js";
+import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse} from "../lib/algos.js";
 import {backupModule,CRITICAL_DIDS} from "../lib/backups.js";
 import {logSession} from "../lib/paperTrail.js";
 
@@ -159,6 +159,19 @@ function OBDTab(){
     for(let i=0;i<found.length;i++){const m=found[i];
       await eng.current.uds(m.tx,m.rx,[0x10,0x03]);
       const unlockResult=await tryUnlock(eng.current.uds,m.tx,m.rx,m.c,addLog,m.c);
+      if(unlockResult===false){
+        addLog(m.c+' UNLOCK FAILED — skipping VIN writes for this module','error');
+        logSession({
+          module:m.c,operation:'OBD Bulk VIN Write',
+          oldVin:m.vin&&m.vin!=='(present)'?m.vin:null,newVin:nv,
+          moduleAddr:{tx:m.tx,rx:m.rx},
+          adapter:eng.current?.isSTN?'OBDLink/STN':'ELM327',
+          success:false,backupKey:null,
+          notes:'Unlock chain exhausted — writes skipped',
+        });
+        setProg(Math.round(((i+1)/found.length)*100));
+        continue;
+      }
       /* Auto-snapshot before any 0x2E. Falls back to no-backup for modules
          without a profile (TCM, IPC, etc.) but the session record still notes it. */
       const bt=backupTypeFor(m.c);
@@ -179,17 +192,23 @@ function OBDTab(){
       }
       await eng.current.uds(m.tx,m.rx,[0x11,0x01]);addLog(m.c+' reset sent — settling 1500ms','info');
       await new Promise(r=>setTimeout(r,1500));
-      /* Read-back verify: after reset the ECU is in default session, but
-         22 F1 90 (VIN) is universally readable without security. */
-      const rb=await eng.current.uds(m.tx,m.rx,[0x22,0xF1,0x90]);
-      let readbackOk=false, readbackVin='';
-      if(rb.ok&&rb.d&&rb.d[0]===0x62&&rb.d.length>=20){
-        const vc=Array.from(rb.d).slice(3).filter(b=>b>=0x20&&b<=0x7E);
-        readbackVin=String.fromCharCode(...vc).slice(-17);
-        readbackOk=readbackVin===nv;
-        addLog(m.c+' read-back VIN: '+readbackVin+' '+(readbackOk?'✓ MATCH':'✗ MISMATCH'),readbackOk?'rx':'error');
-      }else addLog(m.c+' read-back failed','error');
-      const allOk=writeResults.every(w=>w.ok)&&readbackOk;
+      /* Per-DID read-back: re-read every DID we wrote and tail-compare to
+         the new VIN. F190/7B90/7B88 are universally readable without
+         security after reset; 0x6E____ DIDs may need a second 10 03 +
+         unlock on some modules — we attempt without and let mismatches
+         surface honestly rather than masking them. */
+      const readResults={};
+      let allReadbackOk=true;
+      for(const did of dids){
+        const dh=encodeDid(did);
+        const rb=await eng.current.uds(m.tx,m.rx,[0x22,...dh]);
+        const tail=rb.ok?vinFromReadResponse(rb.d,did):'';
+        const ok=tail===nv;
+        readResults[did]={tail,ok};
+        if(!ok) allReadbackOk=false;
+        addLog(m.c+' read-back 0x'+did.toString(16).toUpperCase()+': '+(tail||'(no data)')+' '+(ok?'✓':'✗ MISMATCH'),ok?'rx':'error');
+      }
+      const allOk=writeResults.every(w=>w.ok)&&allReadbackOk;
       logSession({
         module:m.c,
         operation:'OBD Bulk VIN Write',
@@ -200,8 +219,8 @@ function OBDTab(){
         success:allOk,
         backupKey,
         algorithm:typeof unlockResult==='string'?unlockResult:null,
-        dids:writeResults.map(w=>({did:'0x'+hx(w.did,4),ok:w.ok})),
-        notes:'read-back: '+(readbackOk?'OK ('+readbackVin+')':'FAIL ('+(readbackVin||'no response')+')'),
+        dids:writeResults.map(w=>({did:'0x'+hx(w.did,4),ok:w.ok,readback:readResults[w.did]?.tail||'',readbackOk:!!readResults[w.did]?.ok})),
+        notes:'read-back: '+(allReadbackOk?'all DIDs match':'mismatch on '+Object.entries(readResults).filter(([,v])=>!v.ok).map(([d])=>'0x'+Number(d).toString(16).toUpperCase()).join(',')),
       });
       setProg(Math.round(((i+1)/found.length)*100));
     }setBusy('');addLog('All modules written + sessions logged','info');
@@ -224,10 +243,21 @@ function OBDTab(){
   const writeOneModule=useCallback(async(tx,rx,label)=>{
     if(!eng.current||nv.length!==17)return;setBusy('Writing '+label+'...');
     let backupKey=null,oldVin=null,allOk=false;
-    let unlockResult=null,readbackVin='',readbackOk=false;
+    let unlockResult=null;
     try{
       await eng.current.uds(tx,rx,[0x10,0x03]);
       unlockResult=await tryUnlock(eng.current.uds,tx,rx,label,addLog,label);
+      if(unlockResult===false){
+        addLog(label+' UNLOCK FAILED — skipping VIN writes','error');
+        logSession({
+          module:label,operation:'OBD Single Module VIN Write',
+          oldVin,newVin:nv,moduleAddr:{tx,rx},
+          adapter:eng.current?.isSTN?'OBDLink/STN':'ELM327',
+          success:false,backupKey:null,
+          notes:'Unlock chain exhausted — writes skipped',
+        });
+        return;
+      }
       const bt=backupTypeFor(label);
       if(bt){
         addLog('Snapshotting '+label+' before write...','info');
@@ -248,22 +278,26 @@ function OBDTab(){
       await eng.current.uds(tx,rx,[0x11,0x01]);
       addLog(label+' reset sent — settling 1500ms','info');
       await new Promise(r=>setTimeout(r,1500));
-      const rb=await eng.current.uds(tx,rx,[0x22,0xF1,0x90]);
-      if(rb.ok&&rb.d&&rb.d[0]===0x62&&rb.d.length>=20){
-        const vc=Array.from(rb.d).slice(3).filter(b=>b>=0x20&&b<=0x7E);
-        readbackVin=String.fromCharCode(...vc).slice(-17);
-        readbackOk=readbackVin===nv;
-        addLog(label+' read-back VIN: '+readbackVin+' '+(readbackOk?'✓ MATCH':'✗ MISMATCH'),readbackOk?'rx':'error');
-      }else addLog(label+' read-back failed','error');
-      allOk=writeResults.every(w=>w.ok)&&readbackOk;
+      const readResults={};
+      let allReadbackOk=true;
+      for(const did of dids){
+        const dh=encodeDid(did);
+        const rb=await eng.current.uds(tx,rx,[0x22,...dh]);
+        const tail=rb.ok?vinFromReadResponse(rb.d,did):'';
+        const ok=tail===nv;
+        readResults[did]={tail,ok};
+        if(!ok) allReadbackOk=false;
+        addLog(label+' read-back 0x'+did.toString(16).toUpperCase()+': '+(tail||'(no data)')+' '+(ok?'✓':'✗ MISMATCH'),ok?'rx':'error');
+      }
+      allOk=writeResults.every(w=>w.ok)&&allReadbackOk;
       logSession({
         module:label,operation:'OBD Single Module VIN Write',
         oldVin,newVin:nv,moduleAddr:{tx,rx},
         adapter:eng.current?.isSTN?'OBDLink/STN':'ELM327',
         success:allOk,backupKey,
         algorithm:typeof unlockResult==='string'?unlockResult:null,
-        dids:writeResults.map(w=>({did:'0x'+hx(w.did,4),ok:w.ok})),
-        notes:'read-back: '+(readbackOk?'OK ('+readbackVin+')':'FAIL ('+(readbackVin||'no response')+')'),
+        dids:writeResults.map(w=>({did:'0x'+hx(w.did,4),ok:w.ok,readback:readResults[w.did]?.tail||'',readbackOk:!!readResults[w.did]?.ok})),
+        notes:'read-back: '+(allReadbackOk?'all DIDs match':'mismatch on '+Object.entries(readResults).filter(([,v])=>!v.ok).map(([d])=>'0x'+Number(d).toString(16).toUpperCase()).join(',')),
       });
     }catch(e){addLog(label+' error: '+e.message,'error');
       logSession({module:label,operation:'OBD Single Module VIN Write',oldVin,newVin:nv,moduleAddr:{tx,rx},success:false,backupKey,notes:'Exception: '+e.message});
@@ -275,7 +309,12 @@ function OBDTab(){
     let backupKey=null,oldVin=null,ok=false;
     try{
       await eng.current.uds(0x75F,0x767,[0x10,0x03]);
-      await tryUnlock(eng.current.uds,0x75F,0x767,'RFHUB',addLog,'RFHUB');
+      const ur=await tryUnlock(eng.current.uds,0x75F,0x767,'RFHUB',addLog,'RFHUB');
+      if(ur===false){
+        addLog('RFHUB UNLOCK FAILED — virginize aborted','error');
+        logSession({module:'RFHUB',operation:'OBD Virginize (zero VIN)',oldVin,newVin:'(virgin / zeros)',moduleAddr:{tx:0x75F,rx:0x767},success:false,backupKey:null,notes:'Unlock chain exhausted — writes skipped'});
+        setBusy('');return;
+      }
       addLog('Snapshotting RFHUB before virginize...','info');
       const b=await backupModule(eng.current.uds,0x75F,0x767,'RFHUB',addLog,hx);
       backupKey=b?.key||null;

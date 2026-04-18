@@ -161,6 +161,24 @@ function vinWriteDids(code){
   return VIN_WRITE_DIDS[code] || VIN_WRITE_DIDS.default;
 }
 
+// Decode a UDS 0x22 ReadDataByIdentifier positive response and return the
+// trailing-17 ASCII characters — the universal "VIN tail". Works for both
+// 16-bit DIDs (62 DH DL ...) and 24-bit DIDs (62 DH DM DL ...). Returns
+// '' when the response isn't a positive 0x62 frame or doesn't contain at
+// least 17 printable bytes after the DID echo. This keeps the per-DID
+// read-back compare uniform across F190 / 7B90 / 7B88 / 6E2025 / 6E2027 /
+// 6EF190 — every one of those slots is a 17-byte VIN string in practice.
+function vinFromReadResponse(d, did){
+  if(!d || d.length<2 || d[0]!==0x62) return '';
+  const dh = encodeDid(did);
+  // Confirm the echoed DID bytes match what we asked for; if not, reject.
+  if(d.length < 1+dh.length) return '';
+  for(let i=0;i<dh.length;i++) if(d[1+i]!==dh[i]) return '';
+  const payload = Array.from(d).slice(1+dh.length).filter(b=>b>=0x20&&b<=0x7E);
+  if(payload.length<17) return '';
+  return String.fromCharCode(...payload).slice(-17);
+}
+
 // NRC-aware security access: walks pickUnlockChain(tx,code), requesting a
 // fresh seed before each attempt and trying the next algorithm only when
 // the ECU rejects the key with NRC 0x35 (invalid key). Returns the algo id
@@ -213,6 +231,6 @@ export {
   xteaEncryptBlock,xteaDecryptBlock,xtea_sgw,xtea_sgw_full,SGW_XTEA_KEY,
   unlockKey,unlockKeyBytes,unlockIdForTx,
   MOD_UNLOCK,UNLOCK_FALLBACK,pickUnlockChain,tryUnlock,
-  encodeDid,VIN_WRITE_DIDS,vinWriteDids,
+  encodeDid,VIN_WRITE_DIDS,vinWriteDids,vinFromReadResponse,
   ALGOS,
 };

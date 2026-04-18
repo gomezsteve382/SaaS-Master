@@ -5,7 +5,7 @@ import {parseModule,extractHex,syncImmoBackup} from "../lib/parseModule.js";
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crc16,crc8_42,crc8rf} from "../lib/crc.js";
 import {MODS} from "../lib/mods.js";
-import {tryUnlock, encodeDid, vinWriteDids} from "../lib/algos.js";
+import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse} from "../lib/algos.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {DownloadCounter} from "../lib/useDownloadCount.jsx";
 
@@ -148,7 +148,11 @@ function BenchTab(){
     if(!benchEng.current||nv.length!==17)return;setBenchBusy('Writing '+label+'...');
     try{
       await benchEng.current.uds(tx,rx,[0x10,0x03]);
-      await tryUnlock(benchEng.current.uds,tx,rx,label,addLog,label);
+      const ur=await tryUnlock(benchEng.current.uds,tx,rx,label,addLog,label);
+      if(ur===false){
+        addLog(label+' UNLOCK FAILED — bench writes skipped','error');
+        return;
+      }
       const vb=[...new TextEncoder().encode(nv)];
       const dids=vinWriteDids(label);
       for(const did of dids){
@@ -160,12 +164,13 @@ function BenchTab(){
       await benchEng.current.uds(tx,rx,[0x11,0x01]);
       addLog(label+' reset sent — settling 1500ms','info');
       await new Promise(r=>setTimeout(r,1500));
-      const rb=await benchEng.current.uds(tx,rx,[0x22,0xF1,0x90]);
-      if(rb.ok&&rb.d&&rb.d[0]===0x62&&rb.d.length>=20){
-        const vc=Array.from(rb.d).slice(3).filter(b=>b>=0x20&&b<=0x7E);
-        const readbackVin=String.fromCharCode(...vc).slice(-17);
-        addLog(label+' read-back VIN: '+readbackVin+' '+(readbackVin===nv?'✓ MATCH':'✗ MISMATCH'),readbackVin===nv?'rx':'error');
-      }else addLog(label+' read-back failed','error');
+      for(const did of dids){
+        const dh=encodeDid(did);
+        const rb=await benchEng.current.uds(tx,rx,[0x22,...dh]);
+        const tail=rb.ok?vinFromReadResponse(rb.d,did):'';
+        const ok=tail===nv;
+        addLog(label+' read-back 0x'+did.toString(16).toUpperCase()+': '+(tail||'(no data)')+' '+(ok?'✓':'✗ MISMATCH'),ok?'rx':'error');
+      }
     }catch(e){addLog(label+' error: '+e.message,'error');}finally{setBenchBusy('');}
   },[nv]);
 
