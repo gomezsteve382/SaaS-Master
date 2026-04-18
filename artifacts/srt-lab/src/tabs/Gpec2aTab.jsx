@@ -5,7 +5,6 @@ import {parseModule} from "../lib/parseModule.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 
 const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();URL.revokeObjectURL(a.href);};
-const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
 const offHex=o=>'0x'+o.toString(16).toUpperCase().padStart(4,'0');
 const isBlank=arr=>!arr||arr.every(b=>b===0xFF||b===0x00);
 
