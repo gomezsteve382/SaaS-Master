@@ -12,7 +12,7 @@ import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule} from "../lib/parseModule.js";
 import {vinHasSGW} from "../lib/vin.js";
-import {createBridgeEngine} from "../lib/bridgeEngine.js";
+import {createBridgeEngine, reUnlockSeedKey} from "../lib/bridgeEngine.js";
 
 // VIN-specific RFHUB CRC algorithms (poly+init pairs derived from real dumps).
 // Used as a hint shown to the user; the actual write goes through UDS so the
@@ -158,6 +158,12 @@ export default function RfhubTab(){
         setModuleStatus(p=>({...p,RFHUB:'fail'}));setBusy('');return;
       }
       activeEng=br.engine;
+      const ru=await reUnlockSeedKey(activeEng,rfhubAddr.tx,rfhubAddr.rx,sbecKey,{addLog,hx});
+      if(!ru.ok){
+        addLog('🛑 Bridge re-unlock failed: '+ru.error,'error');
+        addLog('Aborting write — RFHUB is still locked on the bridge channel.','error');
+        setModuleStatus(p=>({...p,RFHUB:'fail'}));setBusy('');return;
+      }
     }
     addLog('Creating safety backup before write...','info');
     const backup=await backupModule(activeEng.uds,rfhubAddr.tx,rfhubAddr.rx,'RFHUB',addLog,hx);

@@ -13,7 +13,13 @@ import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule, syncImmoBackup} from "../lib/parseModule.js";
 import {vinHasSGW} from "../lib/vin.js";
-import {createBridgeEngine} from "../lib/bridgeEngine.js";
+import {createBridgeEngine, reUnlockSeedKey} from "../lib/bridgeEngine.js";
+
+const BCM_ALGOS={
+  'CDA6':s=>cda6(s),
+  'BCM Standard':s=>(s*0x9D+0x1234)&0xFFFFFFFF,
+  'BCM FCA':s=>((s^0xABCDEF12)*0x4D+0x5678)&0xFFFFFFFF,
+};
 
 const BCM_CANDIDATES=[
   {tx:0x750,rx:0x758,name:'CDA6 primary (2017 Scat Pack)'},
@@ -85,11 +91,7 @@ export default function BcmTab(){
     if(!s.ok||!s.d||s.d.length<4){addLog('Seed request failed','error');setBusy('');return;}
     const sb=Array.from(s.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
     addLog('Seed: 0x'+hx(sv,8),'info');
-    const algosToTry=[
-      {n:'CDA6',fn:s=>cda6(s)},
-      {n:'BCM Standard',fn:s=>(s*0x9D+0x1234)&0xFFFFFFFF},
-      {n:'BCM FCA',fn:s=>((s^0xABCDEF12)*0x4D+0x5678)&0xFFFFFFFF},
-    ];
+    const algosToTry=Object.entries(BCM_ALGOS).map(([n,fn])=>({n,fn}));
     for(const a of algosToTry){
       const k=a.fn(sv);
       addLog('Trying '+a.n+' key 0x'+hx(k,8)+'...','info');
@@ -124,6 +126,17 @@ export default function BcmTab(){
         setModuleStatus(p=>({...p,BCM:'fail'}));setBusy('');return;
       }
       activeEng=br.engine;
+      const algoFn=BCM_ALGOS[algo];
+      if(!algoFn){
+        addLog('🛑 SGW required but no successful sim-channel unlock to replay — run Unlock first','error');
+        setModuleStatus(p=>({...p,BCM:'fail'}));setBusy('');return;
+      }
+      const ru=await reUnlockSeedKey(activeEng,bcmAddr.tx,bcmAddr.rx,algoFn,{addLog,hx});
+      if(!ru.ok){
+        addLog('🛑 Bridge re-unlock failed: '+ru.error,'error');
+        addLog('Aborting write — module is still locked on the bridge channel.','error');
+        setModuleStatus(p=>({...p,BCM:'fail'}));setBusy('');return;
+      }
     }
     let volts=null;
     try{volts=await activeEng.readVoltage();}catch{}

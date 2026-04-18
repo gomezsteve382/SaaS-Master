@@ -9,7 +9,7 @@ import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ADCM_VARIANTS, ADCM_MODULES, u32} from '../lib/programmerData.js';
 import {vinHasSGW} from '../lib/vin.js';
-import {createBridgeEngine} from '../lib/bridgeEngine.js';
+import {createBridgeEngine, reUnlockAdcmRoutine} from '../lib/bridgeEngine.js';
 
 export default function AdcmTab(){
   const{vin:masterVin,updateStatus}=useMasterVin();
@@ -169,6 +169,13 @@ export default function AdcmTab(){
         updateStatus('ADCM','fail');setBusy('');return;
       }
       eng.current=br.engine;
+      const ru=await reUnlockAdcmRoutine(eng.current,mod.tx,mod.rx,{addLog,hx});
+      if(!ru.ok){
+        addLog('🛑 Bridge re-unlock failed: '+ru.error,'error');
+        addLog('Aborting write — '+mod.id+' is still locked on the bridge channel.','error');
+        eng.current=realEng;
+        updateStatus('ADCM','fail');setBusy('');return;
+      }
     }
     let allOk=false,match1=false,match2=false,v1=null,v2=null;
     let okF190=false,ok7B90=false,ok7B88=false;

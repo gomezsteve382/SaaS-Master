@@ -98,3 +98,79 @@ export async function createBridgeEngine({addLog, url}={}){
     },
   };
 }
+
+/* Re-issue the extended-session + seed/key unlock on a freshly-routed engine
+   (typically the bridge engine returned by createBridgeEngine). The unlock the
+   tech ran on the simulator/ELM channel does not carry over once SGW routing
+   flips us to the Autel cable, so we must re-run it on the bridge channel
+   before the first 2E write or the module will reject with an NRC.
+
+   algoFn(seed:number) -> number  computes the key from the seed, using the
+   same algorithm that succeeded on the sim channel.
+
+   Returns {ok:true} on success or {ok:false, error, nrc?} on failure. */
+export async function reUnlockSeedKey(engine,tx,rx,algoFn,{addLog,hx}={}){
+  const log=(m,t='info')=>{try{addLog&&addLog(m,t);}catch{}};
+  const _hx=hx||((n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0'));
+  if(!engine||typeof engine.uds!=='function')return {ok:false,error:'no engine'};
+  if(typeof algoFn!=='function')return {ok:false,error:'no unlock algorithm available — run sim-channel unlock first'};
+  log('Re-running unlock on bridge channel (10 03)...','info');
+  const ds=await engine.uds(tx,rx,[0x10,0x03]);
+  if(!ds.ok)return {ok:false,error:'bridge 10 03 failed: '+(ds.raw||'no response')};
+  if(ds.d&&ds.d[0]===0x7F){
+    const nrc=ds.d.length>2?ds.d[2]:0;
+    return {ok:false,nrc,error:'bridge 10 03 NRC 0x'+_hx(nrc)};
+  }
+  log('Requesting seed on bridge (27 01)...','info');
+  const s=await engine.uds(tx,rx,[0x27,0x01]);
+  if(!s||!s.ok||!s.d||s.d.length===0)return {ok:false,error:'bridge 27 01 failed: '+(s?.raw||'no response')};
+  if(s.d[0]===0x7F){
+    const nrc=s.d.length>2?s.d[2]:0;
+    return {ok:false,nrc,error:'bridge 27 01 NRC 0x'+_hx(nrc)};
+  }
+  if(s.d.length<4)return {ok:false,error:'bridge 27 01 short response: '+(s.raw||'')};
+  const sb=Array.from(s.d).slice(-4);
+  let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=sv>>>0;
+  log('Bridge seed: 0x'+_hx(sv,8),'info');
+  const k=(algoFn(sv)>>>0);
+  log('Bridge key: 0x'+_hx(k,8),'info');
+  const r=await engine.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);
+  if(r.ok&&r.d&&r.d[0]===0x67){log('✓ Bridge channel unlocked','rx');return {ok:true};}
+  if(r.ok&&r.d&&r.d[0]===0x7F){
+    const nrc=r.d.length>2?r.d[2]:0;
+    return {ok:false,nrc,error:'bridge 27 02 NRC 0x'+_hx(nrc)};
+  }
+  return {ok:false,error:'bridge 27 02 no response: '+(r?.raw||'')};
+}
+
+/* Re-run an ADCM-style routine unlock (Routine 0x0312) on the bridge channel,
+   with SBEC seed/key fallback that matches AdcmTab.startRoutine(). */
+export async function reUnlockAdcmRoutine(engine,tx,rx,{addLog,hx}={}){
+  const log=(m,t='info')=>{try{addLog&&addLog(m,t);}catch{}};
+  const _hx=hx||((n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0'));
+  if(!engine||typeof engine.uds!=='function')return {ok:false,error:'no engine'};
+  log('Re-running ADCM unlock on bridge channel (10 03)...','info');
+  await engine.uds(tx,rx,[0x10,0x03]);
+  await engine.uds(tx,rx,[0x3E,0x80]);
+  const r=await engine.uds(tx,rx,[0x31,0x01,0x03,0x12]);
+  if(r.ok&&r.d&&r.d[0]===0x71){log('✓ Bridge ADCM routine 0x0312 accepted','rx');return {ok:true};}
+  if(r.ok&&r.d&&r.d[0]===0x7F)log('Bridge routine 0x0312 NRC 0x'+_hx(r.d[2]||0)+' — falling back to SBEC seed/key','warn');
+  const s=await engine.uds(tx,rx,[0x27,0x01]);
+  if(!s||!s.ok||!s.d||s.d.length===0)return {ok:false,error:'bridge 27 01 failed: '+(s?.raw||'no response')};
+  if(s.d[0]===0x7F){
+    const nrc=s.d.length>2?s.d[2]:0;
+    return {ok:false,nrc,error:'bridge 27 01 NRC 0x'+_hx(nrc)};
+  }
+  if(s.d.length<4)return {ok:false,error:'bridge 27 01 short response: '+(s.raw||'')};
+  const sb=Array.from(s.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=sv>>>0;
+  log('Bridge seed: 0x'+_hx(sv,8),'info');
+  const k=((sv*4+0x9018)>>>0);
+  log('Bridge SBEC key: 0x'+_hx(k,8),'info');
+  const kr=await engine.uds(tx,rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);
+  if(kr.ok&&kr.d&&kr.d[0]===0x67){log('✓ Bridge SBEC unlock succeeded','rx');return {ok:true};}
+  if(kr.ok&&kr.d&&kr.d[0]===0x7F){
+    const nrc=kr.d.length>2?kr.d[2]:0;
+    return {ok:false,nrc,error:'bridge 27 02 NRC 0x'+_hx(nrc)};
+  }
+  return {ok:false,error:'bridge 27 02 no response'};
+}

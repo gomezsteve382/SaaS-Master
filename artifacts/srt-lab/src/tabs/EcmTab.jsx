@@ -9,7 +9,7 @@ import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ECM_ALGOS, u32} from '../lib/programmerData.js';
 import {vinHasSGW} from '../lib/vin.js';
-import {createBridgeEngine} from '../lib/bridgeEngine.js';
+import {createBridgeEngine, reUnlockSeedKey} from '../lib/bridgeEngine.js';
 
 export default function EcmTab(){
   const{vin:masterVin,updateStatus}=useMasterVin();
@@ -135,6 +135,17 @@ export default function EcmTab(){
         updateStatus('ECM','fail');setBusy('');return;
       }
       activeEng=br.engine;
+      const algoEntry=ECM_ALGOS.find(a=>a.n===algo);
+      if(!algoEntry){
+        addLog('🛑 SGW required but no successful sim-channel unlock to replay — run Unlock first','error');
+        updateStatus('ECM','fail');setBusy('');return;
+      }
+      const ru=await reUnlockSeedKey(activeEng,ecmAddr.tx,ecmAddr.rx,algoEntry.fn,{addLog,hx});
+      if(!ru.ok){
+        addLog('🛑 Bridge re-unlock failed: '+ru.error,'error');
+        addLog('Aborting write — ECM is still locked on the bridge channel.','error');
+        updateStatus('ECM','fail');setBusy('');return;
+      }
     }
     addLog('Creating safety backup before write...','info');
     await backupModule(activeEng.uds,ecmAddr.tx,ecmAddr.rx,'ECM',addLog,hx);
