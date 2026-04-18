@@ -76,7 +76,7 @@ ${sessions.map(s=>`
 <span>Old VIN:</span><span class="vin">${s.oldVin||'(not read)'}</span>
 <span>New VIN:</span><span class="vin">${s.newVin||'—'}</span>
 ${s.moduleAddr?`<span>Module Address:</span><span>TX 0x${s.moduleAddr.tx.toString(16).toUpperCase()} / RX 0x${s.moduleAddr.rx.toString(16).toUpperCase()}</span>`:''}
-${s.adapter?`<span>Adapter:</span><span>${s.adapter}</span>`:''}
+${s.adapter?`<span>Adapter:</span><span>${s.adapter}${s.sgwRouted?' <b style="color:#1565C0">[SGW ROUTED]</b>':''}</span>`:''}
 ${s.technician?`<span>Technician:</span><span>${s.technician}</span>`:''}
 ${s.preWriteConfirmed?`<span>Pre-Write Review:</span><span>✓ Confirmed at ${new Date(s.preWriteConfirmed).toLocaleTimeString()}</span>`:''}
 </div>

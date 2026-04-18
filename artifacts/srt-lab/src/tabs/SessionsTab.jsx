@@ -18,6 +18,7 @@ export default function SessionsTab() {
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState("all");
   const [outcome, setOutcome] = useState("all"); // all | success | fail
+  const [routing, setRouting] = useState("all"); // all | sgw | legacy
   const [search, setSearch] = useState("");
   const [shopInfo, setShopInfo] = useState(() => {
     try { return JSON.parse(localStorage.getItem("srtlab_shopinfo") || "{}"); }
@@ -117,6 +118,8 @@ export default function SessionsTab() {
       if (filter !== "all" && s.module !== filter) return false;
       if (outcome === "success" && !s.success) return false;
       if (outcome === "fail" && s.success) return false;
+      if (routing === "sgw" && !s.sgwRouted) return false;
+      if (routing === "legacy" && s.sgwRouted) return false;
       if (q) {
         const hay = [
           s.module, s.operation, s.oldVin, s.newVin, s.titleRef,
@@ -126,12 +129,14 @@ export default function SessionsTab() {
       }
       return true;
     });
-  }, [sessions, filter, outcome, search]);
+  }, [sessions, filter, outcome, routing, search]);
 
   const moduleCounts = {};
   sessions.forEach(s => { moduleCounts[s.module] = (moduleCounts[s.module] || 0) + 1; });
   const successCount = filtered.filter(s => s.success).length;
   const failCount = filtered.length - successCount;
+  const sgwTotal = sessions.filter(s => s.sgwRouted).length;
+  const legacyTotal = sessions.length - sgwTotal;
   const selectedSession = selected ? sessions.find(s => s.id === selected) : null;
 
   return (
@@ -215,6 +220,11 @@ export default function SessionsTab() {
           {[["all", "All"], ["success", "✓ Success"], ["fail", "✗ Failed"]].map(([id, label]) => (
             <button key={id} onClick={() => setOutcome(id)} style={pill(outcome === id, C.a3)}>{label}</button>
           ))}
+          <div style={{ width: 1, height: 22, background: C.bd, margin: "0 4px" }} />
+          <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, letterSpacing: 2 }}>ROUTING:</div>
+          <button onClick={() => setRouting("all")} style={pill(routing === "all", C.a4)}>All</button>
+          <button onClick={() => setRouting("sgw")} style={pill(routing === "sgw", C.a4)}>🔒 SGW ({sgwTotal})</button>
+          <button onClick={() => setRouting("legacy")} style={pill(routing === "legacy", C.a4)}>Legacy ({legacyTotal})</button>
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -275,6 +285,20 @@ export default function SessionsTab() {
                     <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.tx, marginTop: 3 }}>
                       {s.newVin || "—"}
                     </div>
+                    {(s.adapter || s.sgwRouted) && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4, flexWrap: "wrap" }}>
+                        {s.sgwRouted && (
+                          <span title="Authenticated through Security Gateway via Autel J2534" style={{
+                            fontSize: 9, fontWeight: 800, padding: "1px 6px", borderRadius: 4,
+                            background: "#E3F2FD", color: "#1565C0", border: "1px solid #1565C055",
+                            letterSpacing: 1,
+                          }}>🔒 SGW</span>
+                        )}
+                        {s.adapter && (
+                          <span style={{ fontSize: 10, color: C.ts, fontFamily: "'JetBrains Mono'" }}>{s.adapter}</span>
+                        )}
+                      </div>
+                    )}
                     {s.titleRef && <div style={{ fontSize: 10, color: C.a3, marginTop: 3 }}>📄 {s.titleRef}</div>}
                     <div style={{ fontSize: 10, color: C.tm, marginTop: 3 }}>{date.toLocaleString()}</div>
                   </div>
@@ -367,7 +391,17 @@ export default function SessionsTab() {
                       </span>
                     } />
                   )}
-                  {selectedSession.adapter && <Row k="Adapter:" v={selectedSession.adapter} />}
+                  {selectedSession.adapter && <Row k="Adapter:" v={
+                    <span>
+                      {selectedSession.adapter}
+                      {selectedSession.sgwRouted && (
+                        <span title="Authenticated through Security Gateway via Autel J2534" style={{
+                          marginLeft: 8, fontSize: 9, fontWeight: 800, padding: "1px 6px", borderRadius: 4,
+                          background: "#E3F2FD", color: "#1565C0", border: "1px solid #1565C055", letterSpacing: 1,
+                        }}>🔒 SGW ROUTED</span>
+                      )}
+                    </span>
+                  } />}
                   {selectedSession.algorithm && <Row k="Security Algorithm:" v={selectedSession.algorithm} />}
                   {selectedSession.voltage !== undefined && selectedSession.voltage !== null &&
                     <Row k="Bench Voltage:" v={selectedSession.voltage.toFixed(1) + "V"} />}

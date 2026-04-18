@@ -112,6 +112,19 @@ export default function ModuleHistoryPanel({moduleType, limit=5}){
                 <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.ts,marginTop:2}}>
                   {s.newVin||s.oldVin||"—"}
                 </div>
+                {(s.adapter||s.sgwRouted) && (
+                  <div style={{display:"flex",alignItems:"center",gap:6,marginTop:3,flexWrap:"wrap"}}>
+                    {s.sgwRouted && (
+                      <span title="Authenticated through Security Gateway via Autel J2534" style={{
+                        fontSize:9,fontWeight:800,padding:"1px 6px",borderRadius:4,
+                        background:"#E3F2FD",color:"#1565C0",border:"1px solid #1565C055",letterSpacing:1,
+                      }}>🔒 SGW</span>
+                    )}
+                    {s.adapter && (
+                      <span style={{fontSize:10,color:C.ts,fontFamily:"'JetBrains Mono'"}}>{s.adapter}</span>
+                    )}
+                  </div>
+                )}
                 <div style={{fontSize:10,color:C.tm,marginTop:2}}>{new Date(s.timestamp).toLocaleString()}</div>
               </button>
             )}
