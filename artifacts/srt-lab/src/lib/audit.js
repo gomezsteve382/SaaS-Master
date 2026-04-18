@@ -538,11 +538,11 @@ export async function refreshBackupsFromServer() {
   return normalized;
 }
 
-/* ─── SESSIONS layer removed (paper-trail stripped). See lib/paperTrail.js
- *     for compile-safe stubs. Backup snapshots above are preserved. ─── */
+/* ─── SESSIONS layer — audit paper trail of every write op. Persists to
+ *     localStorage (cap MAX_SESSIONS=500). Re-exported from lib/paperTrail.js
+ *     for the historical import path used by the tab call sites. ─── */
 
-/* eslint-disable no-unused-vars */
-function __sessionsRemoved(entry) {
+export function logSession(entry) {
   try {
     const sessions = JSON.parse(localStorage.getItem(SESSION_KEY) || "[]");
     const record = {
@@ -658,7 +658,6 @@ ${s.notes ? `<div style="font-size:12px;color:#555;margin-top:8px"><b>Notes:</b>
 </body></html>`;
   return html;
 }
-/* eslint-enable no-unused-vars */
 
 /* React hook helper: triggers a re-render when audit storage changes. */
 export function subscribeAudit(handler) {

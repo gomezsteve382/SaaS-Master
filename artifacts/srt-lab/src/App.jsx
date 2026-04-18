@@ -9,6 +9,7 @@ import BcmTab from "./tabs/BcmTab.jsx";
 import RfhubTab from "./tabs/RfhubTab.jsx";
 import RFHPCMTab from "./tabs/RFHPCMTab.jsx";
 import BackupsTab from "./tabs/BackupsTab";
+import SessionsTab from "./tabs/SessionsTab.jsx";
 import EcmTab from "./tabs/EcmTab.jsx";
 import AdcmTab from "./tabs/AdcmTab.jsx";
 import ProgramAllTab from "./tabs/ProgramAllTab.jsx";
@@ -26,8 +27,7 @@ import { C } from "./lib/constants.js";
 import { Card, Tag } from "./lib/ui.jsx";
 import { subscribeToast } from "./lib/audit.js";
 
-/* Tab list — order mirrors the production reference. SESSIONS / paper-trail
- * tab was removed during the SRT Lab deep-cleanup; binary backups remain. */
+/* Tab list — order mirrors the production reference. */
 const TABS = [
   { id: "program",   i: "🚀", l: "PROGRAM ALL",    s: "BCM→RFHUB→ECM→ADCM" },
   { id: "bcm",       i: "🧠", l: "BCM",            s: "VIN · CRC · Features" },
@@ -36,6 +36,7 @@ const TABS = [
   { id: "adcm",      i: "🏎️", l: "ACTIVE DAMPING", s: "VIN · Variant Config" },
   { id: "uds",       i: "🔬", l: "UDS PROGRAMMER", s: "Universal · Raw" },
   { id: "backups",   i: "💾", l: "BACKUPS",        s: "History · Restore" },
+  { id: "sessions",  i: "📜", l: "SESSIONS",       s: "Audit · Paper Trail" },
   { id: "jailbreak", i: "💀", l: "JAILBREAK",      s: "SRT · Demon · Hellcat · Redeye" },
   { id: "dumps",     i: "📂", l: "DUMPS",          s: "VIN · Hex · Virginize" },
   { id: "obd",       i: "📡", l: "LIVE OBD",       s: "UDS · Scan · Write" },
@@ -148,7 +149,7 @@ function AppShell({ pg, setPg, files, setFiles, loadF }) {
   useEffect(() => {
     const onNav = (e) => {
       const t = e?.detail?.tab;
-      if (t === "backups") setPg(t);
+      if (t === "backups" || t === "sessions") setPg(t);
     };
     window.addEventListener("srtlab:navigate", onNav);
     return () => window.removeEventListener("srtlab:navigate", onNav);
@@ -182,13 +183,9 @@ function AppShell({ pg, setPg, files, setFiles, loadF }) {
           const icon = { pending: "○", writing: "⏳", ok: "✓", fail: "✗" }[st] || "○";
           return <span key={m} data-testid={"status-" + m} style={{ color: col, display: "flex", alignItems: "center", gap: 4 }}>{icon} {m}</span>;
         })}
-<<<<<<< HEAD
-        {(()=>{const y=parseVinYear(vin);if(!y)return null;return <span data-testid="vin-year-chip" title={'Model year decoded from VIN position 10 ('+vin[9]+')'} style={{color:'#9FB4FF',display:'flex',alignItems:'center',gap:4}}>YEAR:{y}</span>;})()}
-        {(()=>{const ok=vinCheckDigitValid(vin);const col=ok?'#00E676':'#FFB300';const icon=ok?'✓':'⚠';const lbl=ok?'VIN CHKSUM':'VIN CHKSUM BAD';return <span data-testid="vin-checksum-chip" title={ok?'ISO 3779 check digit (position 9) matches':'ISO 3779 check digit mismatch — typo in VIN?'} style={{color:col,display:'flex',alignItems:'center',gap:4}}>{icon} {lbl}</span>;})()}
-        <SgwBridgeChip vin={vin} setPg={setPg}/>
-=======
+        {(() => { const y = parseVinYear(vin); if (!y) return null; return <span data-testid="vin-year-chip" title={"Model year decoded from VIN position 10 (" + vin[9] + ")"} style={{ color: "#9FB4FF", display: "flex", alignItems: "center", gap: 4 }}>YEAR:{y}</span>; })()}
+        {(() => { const ok = vinCheckDigitValid(vin); const col = ok ? "#00E676" : "#FFB300"; const icon = ok ? "✓" : "⚠"; const lbl = ok ? "VIN CHKSUM" : "VIN CHKSUM BAD"; return <span data-testid="vin-checksum-chip" title={ok ? "ISO 3779 check digit (position 9) matches" : "ISO 3779 check digit mismatch — typo in VIN?"} style={{ color: col, display: "flex", alignItems: "center", gap: 4 }}>{icon} {lbl}</span>; })()}
         <SgwBridgeChip vin={vin} setPg={setPg} />
->>>>>>> d79d7f0 (SRT Lab deep cleanup (Task #119))
       </div>}
       <div style={{ display: "flex", padding: "12px 16px 0", overflowX: "auto", gap: 2 }}>
         {TABS.map(t => { const a = pg === t.id; return <button key={t.id} data-testid={"tab-" + t.id} onClick={() => setPg(t.id)} style={{ padding: "11px 16px 13px", border: "none", cursor: "pointer", background: a ? C.bg : "transparent", borderRadius: "11px 11px 0 0", color: a ? C.sr : "rgba(255,255,255,0.4)", fontFamily: "'Nunito'", fontWeight: a ? 900 : 700, fontSize: 11, letterSpacing: 1.2, transition: "all 0.25s", boxShadow: a ? "0 -4px 16px rgba(0,0,0,0.06)" : "none", whiteSpace: "nowrap" }}><span style={{ fontSize: 14, marginRight: 4, filter: a ? "none" : "grayscale(1) brightness(2)" }}>{t.i}</span>{t.l}{t.placeholder && <span style={{ marginLeft: 4, fontSize: 8, opacity: .7 }}>·SOON</span>}<div style={{ fontSize: 7, marginTop: 1, opacity: .4 }}>{t.s}</div></button>; })}
@@ -214,6 +211,7 @@ function AppShell({ pg, setPg, files, setFiles, loadF }) {
       {pg === "autel"     && <AutelSgwTab />}
       {pg === "jailbreak" && <JailbreakTab />}
       {pg === "backups"   && <BackupsTab />}
+      {pg === "sessions"  && <SessionsTab />}
       {pg === "program"   && <ProgramAllTab />}
       {pg === "uds"       && <UdsTab />}
     </div>

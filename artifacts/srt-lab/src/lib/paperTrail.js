@@ -1,10 +1,12 @@
-/* Paper-trail layer removed.
- * Sessions / audit logging is no longer recorded. These stubs remain so any
- * remaining call sites continue to compile and run silently. Binary backup
- * snapshots (lib/backups.js + lib/audit.js backup half) are unaffected. */
-export function logSession() { return null; }
-export function getSessions() { return []; }
-export function deleteSession() {}
-export function clearSessions() {}
-export function generateSessionReport() { return ""; }
-export function sessionsToCSV() { return ""; }
+/* Paper-trail layer — thin re-export shim over lib/audit.js so the eleven
+ * existing `logSession(...)` call sites across the BCM/RFHUB/ECM/ADCM/OBD/
+ * UDS/Jailbreak/ProgramAll tabs keep working at their historical import
+ * path. The single source of truth lives in lib/audit.js. */
+export {
+  logSession,
+  getSessions,
+  deleteSession,
+  clearSessions,
+  generateSessionReport,
+  sessionsToCSV,
+} from "./audit.js";

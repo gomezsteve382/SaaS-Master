@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn } from "../lib/ui.jsx";
 import {
-  getBackupList, getBackupAsync, deleteBackup, clearBackups,
+  getBackupList, getBackup, getBackupAsync, deleteBackup, clearBackups,
   restoreModule, subscribeAudit, refreshBackupsFromServer,
   getBackupStorageUsage, pruneNonCriticalBackups,
   subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
-  exportAllBackups, importBackups,
+  exportAllBackups, importBackups, logSession,
 } from "../lib/audit.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
@@ -227,12 +227,13 @@ export default function BackupsTab() {
     setModalOpen(true);
   }, [selectedData, conn]);
 
-  const onConfirmRestore = useCallback(async () => {
+  const onConfirmRestore = useCallback(async (meta = {}) => {
     setModalOpen(false);
     if (!eng.current || !selectedData) return;
     setBusy("Restoring...");
+    let ok = false;
     try {
-      await restoreModule(
+      ok = await restoreModule(
         eng.current.uds,
         selectedData.tx, selectedData.rx,
         selectedData, addRestoreLog, true,
@@ -240,7 +241,21 @@ export default function BackupsTab() {
     } catch (e) {
       addRestoreLog("Restore exception: " + e.message, "error");
     } finally { setBusy(""); }
-  }, [selectedData, addRestoreLog]);
+
+    logSession({
+      module: selectedData.module,
+      operation: "Restore from backup",
+      success: !!ok,
+      moduleAddr: { tx: selectedData.tx, rx: selectedData.rx },
+      newVin: selectedData.dids?.[0xF190]?.ascii?.slice(-17) || "",
+      backupKey: selected,
+      titleRef: meta.titleRef,
+      titleNotes: meta.titleNotes,
+      technician: meta.technician,
+      preWriteConfirmed: meta.preWriteConfirmed,
+      notes: "Restored from snapshot " + selectedData.timestamp,
+    });
+  }, [selectedData, selected, addRestoreLog]);
 
   const filtered = filter === "all" ? backups : backups.filter(b => b.module === filter);
   const moduleCounts = {};
