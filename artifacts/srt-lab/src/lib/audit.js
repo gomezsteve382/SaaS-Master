@@ -637,13 +637,13 @@ ${shopInfo.tech ? "<br>Technician: " + shopInfo.tech : ""}
 </div>
 ${sessions.map(s => `
 <div class="sess">
-<h3><span class="mod">${s.module} — ${s.operation || "VIN Write"}</span><span class="ts">${new Date(s.timestamp).toLocaleString()}</span></h3>
+<h3><span class="mod">${s.module} — ${s.operation || "VIN Write"}${s.sgwRouted ? " [SGW ROUTED]" : ""}</span><span class="ts">${new Date(s.timestamp).toLocaleString()}</span></h3>
 <div class="grid">
-<span>Result:</span><span><span class="result ${s.success ? "ok" : "fail"}">${s.success ? "✓ SUCCESS" : "✗ FAILED"}</span></span>
+<span>Result:</span><span><span class="result ${s.success ? "ok" : "fail"}">${s.success ? "✓ SUCCESS" : "✗ FAILED"}</span>${s.sgwRouted ? ' <span class="result ok" style="background:#E3F2FD;color:#1565C0;margin-left:6px">🔒 [SGW ROUTED]</span>' : ""}</span>
 <span>Old VIN:</span><span class="vin">${s.oldVin || "(not read)"}</span>
 <span>New VIN:</span><span class="vin">${s.newVin || "—"}</span>
 ${s.moduleAddr ? `<span>Module Address:</span><span>TX 0x${s.moduleAddr.tx.toString(16).toUpperCase()} / RX 0x${s.moduleAddr.rx.toString(16).toUpperCase()}</span>` : ""}
-${s.adapter ? `<span>Adapter:</span><span>${s.adapter}</span>` : ""}
+${s.adapter ? `<span>Adapter:</span><span>${s.adapter}${s.sgwRouted ? " (SGW-authenticated via Autel J2534)" : ""}</span>` : ""}
 ${s.technician ? `<span>Technician:</span><span>${s.technician}</span>` : ""}
 ${s.preWriteConfirmed ? `<span>Pre-Write Review:</span><span>✓ Confirmed at ${new Date(s.preWriteConfirmed).toLocaleTimeString()}</span>` : ""}
 </div>
