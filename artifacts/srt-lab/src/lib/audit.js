@@ -591,7 +591,7 @@ export function sessionsToCSV(sessions) {
   const cols = [
     "id", "timestamp", "module", "operation", "success",
     "oldVin", "newVin", "technician", "titleRef", "titleNotes",
-    "adapter", "algorithm", "voltage", "preWriteConfirmed", "notes",
+    "adapter", "sgwRouted", "algorithm", "voltage", "preWriteConfirmed", "notes",
   ];
   const esc = v => {
     if (v === null || v === undefined) return "";
@@ -600,6 +600,7 @@ export function sessionsToCSV(sessions) {
   };
   const rows = sessions.map(s => cols.map(c => {
     if (c === "success") return s.success ? "true" : "false";
+    if (c === "sgwRouted") return s.sgwRouted ? "true" : "false";
     return esc(s[c]);
   }).join(","));
   return cols.join(",") + "\n" + rows.join("\n");
