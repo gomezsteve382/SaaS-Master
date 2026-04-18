@@ -8,7 +8,7 @@ import {backupModule, getBackupList} from "../lib/backups.js";
 import {logSession} from "../lib/paperTrail.js";
 import {decodeNRC} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
-import ReadFirstModal from "../components/ReadFirstModal.jsx";
+import ReadFirstModal from "../lib/readFirstModal.jsx";
 import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule, syncImmoBackup} from "../lib/parseModule.js";

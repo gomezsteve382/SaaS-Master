@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useRef} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
-import {parseModule} from "../lib/parseModule.js";
+import {parseModule,extractHex,syncImmoBackup} from "../lib/parseModule.js";
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crc16,crc8_42,crc8rf} from "../lib/crc.js";
 import {MODS} from "../lib/mods.js";

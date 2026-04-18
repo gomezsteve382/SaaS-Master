@@ -6,6 +6,7 @@ import {syncImmoBackup} from "../lib/parseModule.js";
 import {TR,WT,WMI,YR,IMMO_BLOCK} from "../lib/constants.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {DownloadCounter} from "../lib/useDownloadCount.jsx";
+import DesktopDriverCard from "../components/DesktopDriverCard.jsx";
 
 const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
 function checkVin(v){if(!v||v.length!==17)return{ok:false};const u=v.toUpperCase();if(!/^[A-HJ-NPR-Z0-9]{17}$/.test(u))return{ok:false,err:"Invalid chars"};let sum=0;for(let i=0;i<17;i++)sum+=(TR[u[i]]||0)*WT[i];const cd="0123456789X"[sum%11];return{ok:u[8]===cd,cd,wmi:u.slice(0,3),mfr:WMI[u.slice(0,3)]||"",yr:YR[u[9]]||"",err:u[8]!==cd?"Check digit: need "+cd:""};}
@@ -17,15 +18,19 @@ function DumpsTab({files,setFiles,loadF}){
   const doPatch=()=>{if(!f||nv.length!==17)return;const r=patchFile(f,nv);dl(r.data,'PATCHED_'+nv+'_'+f.name,ASSET_IDS.dumpsPatchedVin);const u=[...files];u[sel]=analyzeFile(r.data.buffer,f.name);setFiles(u);setMsg('Patched '+r.log.length+' locations');};
   const doVirgin=()=>{if(!f)return;const r=virginizeFile(f);dl(r.data,'VIRGIN_'+f.name,ASSET_IDS.dumpsVirgin);setMsg('Virginized: '+r.log.join(', '));};
 
-  if(!files.length)return<div onClick={()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='.bin,.BIN';i.onchange=e=>loadF(e.target.files);i.click();}} onDrop={e=>{e.preventDefault();loadF(e.dataTransfer.files);}} onDragOver={e=>e.preventDefault()}>
-    <Card style={{textAlign:'center',padding:'60px 24px',cursor:'pointer',border:'2.5px dashed #D32F2F30'}} onClick={()=>{}}>
-      <div style={{fontSize:52,marginBottom:10}}>📂</div>
-      <div style={{fontSize:20,fontWeight:900,color:C.sr}}>Drop EEPROM or Firmware Files</div>
-      <div style={{fontSize:13,color:C.ts,marginTop:6}}>Auto-detects BCM · 95640 · RFHUB EEE · GPEC2A · TCM · TIPM</div>
-      <div style={{display:'flex',gap:8,justifyContent:'center',marginTop:18,flexWrap:'wrap'}}>
-        {[['BCM D-FLASH',C.a1],['95640',C.a4],['RFHUB EEE',C.a3],['GPEC2A',C.a2],['TCM EEPROM',TC.TCM],['TIPM EEPROM',TC.TIPM]].map(([l,c])=><Tag key={l} color={c}>{l}</Tag>)}
-      </div>
-    </Card></div>;
+  if(!files.length)return<div style={{display:'flex',flexDirection:'column',gap:18}}>
+    <div onClick={()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='.bin,.BIN';i.onchange=e=>loadF(e.target.files);i.click();}} onDrop={e=>{e.preventDefault();loadF(e.dataTransfer.files);}} onDragOver={e=>e.preventDefault()}>
+      <Card style={{textAlign:'center',padding:'60px 24px',cursor:'pointer',border:'2.5px dashed #D32F2F30'}} onClick={()=>{}}>
+        <div style={{fontSize:52,marginBottom:10}}>📂</div>
+        <div style={{fontSize:20,fontWeight:900,color:C.sr}}>Drop EEPROM or Firmware Files</div>
+        <div style={{fontSize:13,color:C.ts,marginTop:6}}>Auto-detects BCM · 95640 · RFHUB EEE · GPEC2A · TCM · TIPM</div>
+        <div style={{display:'flex',gap:8,justifyContent:'center',marginTop:18,flexWrap:'wrap'}}>
+          {[['BCM D-FLASH',C.a1],['95640',C.a4],['RFHUB EEE',C.a3],['GPEC2A',C.a2],['TCM EEPROM',TC.TCM],['TIPM EEPROM',TC.TIPM]].map(([l,c])=><Tag key={l} color={c}>{l}</Tag>)}
+        </div>
+      </Card>
+    </div>
+    <DesktopDriverCard/>
+  </div>;
 
   return<div style={{display:'grid',gridTemplateColumns:'260px 1fr',gap:18,alignItems:'start'}}>
     <div>
@@ -44,6 +49,7 @@ function DumpsTab({files,setFiles,loadF}){
       {files.length>=2&&<Card style={{marginTop:10,padding:12}}><div style={{fontSize:10,fontWeight:800,color:C.a1,marginBottom:4,letterSpacing:1}}>CROSS-MATCH</div>
         {(()=>{const vs={};files.forEach(fi=>fi.vins.forEach(v=>{vs[v.vin]=(vs[v.vin]||0)+1;}));return Object.entries(vs).map(([vin,ct])=><div key={vin} style={{fontSize:10,fontFamily:"'JetBrains Mono'"}}><span style={{color:ct===files.length?C.gn:C.wn}}>{vin}</span><span style={{color:C.tm,marginLeft:4}}>{ct}/{files.length}{ct===files.length?' ✓':''}</span></div>);})()}
       </Card>}
+      <div style={{marginTop:10}}><DesktopDriverCard/></div>
     </div>
     {f&&<div>
       {f.hexOnly

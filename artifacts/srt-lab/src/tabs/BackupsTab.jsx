@@ -3,13 +3,13 @@ import { C } from "../lib/constants.js";
 import { Card, Btn } from "../lib/ui.jsx";
 import {
   getBackupList, getBackupAsync, deleteBackup, clearBackups,
-  restoreModule, subscribeAudit, logSession, refreshBackupsFromServer,
+  restoreModule, subscribeAudit, refreshBackupsFromServer,
   getBackupStorageUsage, pruneNonCriticalBackups,
   subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
   exportAllBackups, importBackups,
 } from "../lib/audit.js";
 import { createObdEngine } from "../lib/obdEngine.js";
-import ReadFirstModal from "../lib/ReadFirstModal.jsx";
+import ReadFirstModal from "../lib/readFirstModal.jsx";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 
@@ -227,13 +227,12 @@ export default function BackupsTab() {
     setModalOpen(true);
   }, [selectedData, conn]);
 
-  const onConfirmRestore = useCallback(async (meta) => {
+  const onConfirmRestore = useCallback(async () => {
     setModalOpen(false);
     if (!eng.current || !selectedData) return;
     setBusy("Restoring...");
-    let ok = false;
     try {
-      ok = await restoreModule(
+      await restoreModule(
         eng.current.uds,
         selectedData.tx, selectedData.rx,
         selectedData, addRestoreLog, true,
@@ -241,19 +240,6 @@ export default function BackupsTab() {
     } catch (e) {
       addRestoreLog("Restore exception: " + e.message, "error");
     } finally { setBusy(""); }
-
-    logSession({
-      module: selectedData.module,
-      operation: "Restore from backup",
-      success: ok,
-      moduleAddr: { tx: selectedData.tx, rx: selectedData.rx },
-      newVin: selectedData.dids?.[0xF190]?.ascii?.slice(-17) || "",
-      titleRef: meta.titleRef,
-      titleNotes: meta.titleNotes,
-      technician: meta.technician,
-      preWriteConfirmed: meta.preWriteConfirmed,
-      notes: "Restored from snapshot " + selectedData.timestamp,
-    });
   }, [selectedData, addRestoreLog]);
 
   const filtered = filter === "all" ? backups : backups.filter(b => b.module === filter);
