@@ -80,89 +80,187 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
 
     {/* RFHUB -------------------------------------------------------------- */}
     {mod.type==='RFHUB'&&<>
-      <Card style={{marginBottom:12,padding:14}}>
-        <div style={{fontWeight:800,fontSize:11,color:C.a3,marginBottom:8,letterSpacing:1.5}}>🔑 RFHUB FIELDS</div>
-        <Row label="Generation"><Tag color={C.a3}>{mod.rfhGen}</Tag></Row>
-        <Row label="FOBIK slots"><b>{mod.fobikSlots}</b> <span style={{color:C.tm}}>(AA50 markers @0x0880)</span></Row>
-        <Row label="Security markers"><b>{mod.securityMarkers}</b> <span style={{color:C.tm}}>(CC 66 AA 55)</span></Row>
-        <Row label="ZZZZ blocks"><b>{mod.zzzzBlocks}</b> <span style={{color:C.tm}}>(5A 5A 5A 5A)</span></Row>
-        {mod.vehicleSecret&&<Row label="Vehicle secret @0x050E"><Hex muted={mod.vehicleSecret.bytes.every(b=>b===0xFF||b===0)}>{mod.vehicleSecret.hex}</Hex></Row>}
-        {mod.rfhVin92&&<Row label="VIN @0x0092">
-          <span style={{fontWeight:700,color:C.a1}}>{mod.rfhVin92.vin}</span>{' '}
-          <Tag color={mod.rfhVin92.csOk?C.gn:C.er}>CRC16 {mod.rfhVin92.csOk?'✓':'✗'}</Tag>
-        </Row>}
+      <Card glow style={{marginBottom:14}}>
+        <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>🔑 RFHUB Analysis</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          <div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.a3+'40'}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>FOBIK SLOTS @0x0880</div>
+            <div style={{fontSize:28,fontWeight:900,color:C.a3,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>{mod.fobikSlots}</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:4}}>AA50 markers · Gen {mod.rfhGen}</div>
+          </div>
+          {mod.rfhVin92?<div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+(mod.rfhVin92.csOk?C.gn+'40':C.er+'40')}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>VIN @0x0092</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:900,color:C.a1,lineHeight:1.1,wordBreak:'break-all'}}>{mod.rfhVin92.vin}</div>
+            <div style={{marginTop:6}}><Tag color={mod.rfhVin92.csOk?C.gn:C.er}>CRC16 {mod.rfhVin92.csOk?'✓ VALID':'✗ INVALID'}</Tag></div>
+          </div>:<div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.bd}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>VIN @0x0092</div>
+            <div style={{fontSize:24,fontWeight:900,color:C.tm,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>—</div>
+          </div>}
+        </div>
       </Card>
 
-      <Card style={{marginBottom:12,padding:14}}>
-        <div style={{fontWeight:800,fontSize:11,color:C.a3,marginBottom:8,letterSpacing:1.5}}>🏷️ PART NUMBERS</div>
-        {mod.partNumbers.hw&&<Row label="HW @0x0808">{mod.partNumbers.hw}</Row>}
-        {mod.partNumbers.sw&&<Row label="SW @0x0812">{mod.partNumbers.sw}</Row>}
-        {mod.partNumbers.cal&&<Row label="CAL @0x082C">{mod.partNumbers.cal}</Row>}
+      <Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>📊 RFHUB Markers</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
+          {[
+            {n:'SECURITY MARKERS',v:mod.securityMarkers,sub:'CC 66 AA 55'},
+            {n:'ZZZZ BLOCKS',v:mod.zzzzBlocks,sub:'5A 5A 5A 5A'},
+            {n:'FOBIK SLOTS',v:mod.fobikSlots,sub:'AA50 @0x0880'},
+          ].map(t=><div key={t.n} style={{padding:12,borderRadius:10,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>{t.n}</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:24,fontWeight:900,color:C.a3,marginTop:4,lineHeight:1.1}}>{t.v}</div>
+            <div style={{fontSize:9,color:C.tm,marginTop:2}}>{t.sub}</div>
+          </div>)}
+        </div>
       </Card>
 
-      {mod.sec16s?.length>0&&<Card style={{marginBottom:12,padding:14}}>
-        <div style={{fontWeight:800,fontSize:11,color:C.a3,marginBottom:8,letterSpacing:1.5}}>🔒 SEC16 SLOTS</div>
-        {mod.sec16s.map(s=><Row key={s.slot} label={'Slot '+s.slot+' @'+fO(s.offset)}>
-          {s.blank?<Tag color={C.tm}>BLANK</Tag>:<>
-            <Hex>{s.hex}</Hex>{' '}
-            {s.csOk!==undefined&&<Tag color={s.csOk?C.gn:C.er}>CS {s.csOk?'✓':'✗'}</Tag>}
-          </>}
-        </Row>)}
-        {mod.sec16match!==undefined&&<div style={{marginTop:6,fontSize:11}}>
+      {mod.vehicleSecret&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Vehicle Secret @0x050E</div>
+        <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+          <Hex muted={mod.vehicleSecret.bytes.every(b=>b===0xFF||b===0)}>{mod.vehicleSecret.hex}</Hex>
+        </div>
+      </Card>}
+
+      {mod.sec16s?.length>0&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔒 SEC16 Slots</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          {mod.sec16s.map(s=><div key={s.slot} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(s.blank?C.bd:s.csOk===false?C.er+'40':C.gn+'40')}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+              <span style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>SLOT {s.slot} · {fO(s.offset)}</span>
+              {s.blank?<Tag color={C.tm}>BLANK</Tag>:s.csOk!==undefined&&<Tag color={s.csOk?C.gn:C.er}>CS {s.csOk?'✓':'✗'}</Tag>}
+            </div>
+            {!s.blank&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.a4,wordBreak:'break-all'}}>{s.hex}</div>}
+          </div>)}
+        </div>
+        {mod.sec16match!==undefined&&<div style={{marginTop:8}}>
           <Tag color={mod.sec16valid?C.gn:C.wn}>{mod.sec16valid?'SEC16 VALID — slots match':'SEC16 mismatch / blank'}</Tag>
         </div>}
+      </Card>}
+
+      {(mod.partNumbers.hw||mod.partNumbers.sw||mod.partNumbers.cal)&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🏷️ Part Numbers</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
+          {[{l:'HW',o:0x0808,v:mod.partNumbers.hw},{l:'SW',o:0x0812,v:mod.partNumbers.sw},{l:'CAL',o:0x082C,v:mod.partNumbers.cal}].map(p=>p.v?<div key={p.l} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>{p.l} @{fO(p.o)}</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:C.a3,letterSpacing:1}}>{p.v}</div>
+          </div>:null)}
+        </div>
       </Card>}
     </>}
 
     {/* BCM ---------------------------------------------------------------- */}
     {mod.type==='BCM'&&<>
-      <Card style={{marginBottom:12,padding:14}}>
-        <div style={{fontWeight:800,fontSize:11,color:C.a1,marginBottom:8,letterSpacing:1.5}}>🧠 BCM FIELDS</div>
-        {mod.vehicleSecret&&<Row label="Vehicle secret @0x40C9"><Hex muted={mod.skb}>{mod.vehicleSecret.hex}</Hex> <span style={{color:C.tm,fontSize:10}}>(LE)</span></Row>}
-        <Row label="Security lock @0x8028">
-          <Tag color={mod.securityLock.locked?C.gn:C.wn}>{mod.securityLock.locked?'LOCKED 0x5A':'UNLOCKED 0x'+mod.securityLock.value.toString(16).toUpperCase().padStart(2,'0')}</Tag>
-        </Row>
-        <Row label="FOBIK count @0x5862"><b>{mod.fobikCount}</b></Row>
-        <Row label="FOBIK part @0x5818">{mod.fobikParts}</Row>
-        <Row label="IMMO primary @0x40C0">
-          <Tag color={mod.immoBlank?C.wn:C.gn}>{mod.immoBlank?'BLANK':mod.immoRecs+' SKIM keys'}</Tag>
-        </Row>
-        <Row label="IMMO backup @0x2000">
-          <Tag color={mod.bakBlank?C.tm:C.gn}>{mod.bakBlank?'BLANK':mod.bakRecs+' keys'}</Tag>{' '}
-          {!mod.bakBlank&&!mod.immoBlank&&<Tag color={mod.immoSynced?C.gn:C.wn}>{mod.immoSynced?'SYNCED':'OUT OF SYNC'}</Tag>}
-        </Row>
-        {onSyncImmo&&!mod.immoBlank&&(mod.bakBlank||!mod.immoSynced)&&<div style={{marginTop:8}}>
+      <Card glow style={{marginBottom:14}}>
+        <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>🧠 BCM Analysis</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          <div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+(mod.securityLock.locked?C.gn+'40':C.wn+'40')}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>SECURITY LOCK @0x8028</div>
+            <div style={{fontSize:28,fontWeight:900,color:mod.securityLock.locked?C.gn:C.wn,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>{mod.securityLock.locked?'LOCKED':'UNLOCKED'}</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:4}}>0x{mod.securityLock.value.toString(16).toUpperCase().padStart(2,'0')} {mod.securityLock.locked?'(0x5A)':''}</div>
+          </div>
+          <div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.a1+'40'}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>FOBIK COUNT @0x5862</div>
+            <div style={{fontSize:28,fontWeight:900,color:C.a1,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>{mod.fobikCount}</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:4}}>{mod.fobikParts||'—'}</div>
+          </div>
+        </div>
+      </Card>
+
+      <Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 IMMO Status</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          <div style={{padding:14,borderRadius:10,background:C.c2,border:'1px solid '+(mod.immoBlank?C.wn+'40':C.gn+'40')}}>
+            <div style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1.5}}>IMMO PRIMARY @0x40C0</div>
+            <div style={{fontSize:24,fontWeight:900,color:mod.immoBlank?C.wn:C.gn,fontFamily:"'JetBrains Mono'",marginTop:4,lineHeight:1.1}}>{mod.immoBlank?'BLANK':mod.immoRecs}</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:2}}>{mod.immoBlank?'no SKIM keys':'SKIM key'+(mod.immoRecs===1?'':'s')}</div>
+          </div>
+          <div style={{padding:14,borderRadius:10,background:C.c2,border:'1px solid '+(mod.bakBlank?C.bd:C.gn+'40')}}>
+            <div style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1.5}}>IMMO BACKUP @0x2000</div>
+            <div style={{fontSize:24,fontWeight:900,color:mod.bakBlank?C.tm:C.gn,fontFamily:"'JetBrains Mono'",marginTop:4,lineHeight:1.1}}>{mod.bakBlank?'BLANK':mod.bakRecs}</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:2}}>
+              {!mod.bakBlank&&!mod.immoBlank?<Tag color={mod.immoSynced?C.gn:C.wn}>{mod.immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>:(mod.bakBlank?'no backup keys':'')}
+            </div>
+          </div>
+        </div>
+        {onSyncImmo&&!mod.immoBlank&&(mod.bakBlank||!mod.immoSynced)&&<div style={{marginTop:10}}>
           <button onClick={onSyncImmo} style={{padding:'8px 14px',border:'2px solid '+C.a1+'55',borderRadius:8,background:'transparent',color:C.a1,fontWeight:800,fontSize:11,cursor:'pointer',fontFamily:"'Nunito'",letterSpacing:.5}}>🔄 Sync IMMO primary → backup</button>
         </div>}
       </Card>
 
-      {mod.partialVins?.length>0&&<Card style={{marginBottom:12,padding:14}}>
-        <div style={{fontWeight:800,fontSize:11,color:C.a1,marginBottom:8,letterSpacing:1.5}}>🔢 PARTIAL VINs (last 8 chars)</div>
-        {mod.partialVins.map((p,i)=><Row key={i} label={fO(p.offset)}>
-          <span style={{fontWeight:700,color:C.a1}}>…{p.tail}</span>{' '}
-          <Tag color={p.crcOk?C.gn:C.er}>CRC16 {p.crcOk?'✓':'✗'}</Tag>
-          <span style={{color:C.tm,marginLeft:6}}>stored=0x{p.storedCrc.toString(16).toUpperCase().padStart(4,'0')} calc=0x{p.calcCrc.toString(16).toUpperCase().padStart(4,'0')}</span>
-        </Row>)}
+      {mod.vehicleSecret&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔑 Vehicle Secret @0x40C9 <span style={{fontSize:10,color:C.tm,fontWeight:600}}>(LE)</span></div>
+        <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+          <Hex muted={mod.skb}>{mod.vehicleSecret.hex}</Hex>
+        </div>
       </Card>}
 
-      {mod.immoKeys?.length>0&&<Card style={{marginBottom:12,padding:14}}>
-        <div style={{fontWeight:800,fontSize:11,color:C.a1,marginBottom:8,letterSpacing:1.5}}>🗝️ IMMO KEY SLOTS</div>
-        {mod.immoKeys.map((k,i)=><Row key={i} label={'Slot '+(i+1)+' @'+fO(k.offset)}><Hex>{k.hex}</Hex></Row>)}
+      {mod.immoKeys?.length>0&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🗝️ SKIM Key Slots</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
+          {mod.immoKeys.map((k,i)=>{
+            const bytes=k.hex.split(' ').map(h=>parseInt(h,16));
+            const blank=bytes.every(b=>b===0xFF||b===0);
+            return <div key={i} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(blank?C.bd:C.gn+'40'),textAlign:'center'}}>
+              <div style={{fontSize:10,fontWeight:800,color:C.tm}}>SLOT {i+1}</div>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:blank?'#D5D0C8':C.a4,marginTop:4,wordBreak:'break-all'}}>{k.hex}</div>
+              <div style={{fontSize:9,color:C.tm,marginTop:2}}>{fO(k.offset)}</div>
+              <Tag color={blank?C.tm:C.gn}>{blank?'—':'SET'}</Tag>
+            </div>;
+          })}
+        </div>
+      </Card>}
+
+      {mod.partialVins?.length>0&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔢 Partial VINs (last 8 chars)</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          {mod.partialVins.map((p,i)=><div key={i} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(p.crcOk?C.gn+'40':C.er+'40')}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+              <span style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>{fO(p.offset)}</span>
+              <Tag color={p.crcOk?C.gn:C.er}>CRC16 {p.crcOk?'✓':'✗'}</Tag>
+            </div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:900,color:C.a1,lineHeight:1.1}}>…{p.tail}</div>
+            <div style={{fontSize:9,color:C.tm,marginTop:4,fontFamily:"'JetBrains Mono'"}}>stored 0x{p.storedCrc.toString(16).toUpperCase().padStart(4,'0')} · calc 0x{p.calcCrc.toString(16).toUpperCase().padStart(4,'0')}</div>
+          </div>)}
+        </div>
       </Card>}
     </>}
 
     {/* 95640 -------------------------------------------------------------- */}
-    {mod.type==='95640'&&<Card style={{marginBottom:12,padding:14}}>
-      <div style={{fontWeight:800,fontSize:11,color:C.a4,marginBottom:8,letterSpacing:1.5}}>💾 95640 FIELDS</div>
-      <Row label="Secret key @0x0040"><Hex muted={mod.skb}>{hxArr(mod.skey)}</Hex> <Tag color={mod.skb?C.wn:C.gn}>{mod.skb?'ERASED':'SET'}</Tag></Row>
-      <Row label="Fob block @0x0200"><Tag color={mod.fobBlank?C.tm:C.gn}>{mod.fobBlank?'BLANK':'HAS FOBS'}</Tag></Row>
-      {mod.bcmSec16&&<Row label="BCM-SEC16 @0x0838">
-        {mod.bcmSec16.blank?<Tag color={C.wn}>BLANK</Tag>:<>
-          <Hex>{mod.bcmSec16.hex}</Hex>{' '}
-          <Tag color={mod.bcmSec16.csOk?C.gn:C.er}>CRC16 {mod.bcmSec16.csOk?'✓':'✗'}</Tag>
-        </>}
-      </Row>}
-    </Card>}
+    {mod.type==='95640'&&<>
+      <Card glow style={{marginBottom:14}}>
+        <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>💾 95640 Analysis</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          <div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+(mod.skb?C.wn+'40':C.gn+'40')}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>SECRET KEY @0x0040</div>
+            <div style={{fontSize:28,fontWeight:900,color:mod.skb?C.wn:C.gn,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>{mod.skb?'ERASED':'SET'}</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:4}}>16-byte key block</div>
+          </div>
+          <div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+(mod.fobBlank?C.bd:C.gn+'40')}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>FOB BLOCK @0x0200</div>
+            <div style={{fontSize:28,fontWeight:900,color:mod.fobBlank?C.tm:C.gn,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>{mod.fobBlank?'BLANK':'HAS FOBS'}</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:4}}>0x0200 – 0x0240</div>
+          </div>
+        </div>
+      </Card>
+
+      {!mod.skb&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Secret Key Bytes</div>
+        <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+          <Hex>{hxArr(mod.skey)}</Hex>
+        </div>
+      </Card>}
+
+      {mod.bcmSec16&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔒 BCM-SEC16 @0x0838</div>
+        <div style={{padding:12,borderRadius:10,background:C.c2,border:'1px solid '+(mod.bcmSec16.blank?C.wn+'40':mod.bcmSec16.csOk?C.gn+'40':C.er+'40')}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+            <span style={{fontSize:11,fontWeight:800,color:C.tm,letterSpacing:1.5}}>SEC16 BLOCK</span>
+            {mod.bcmSec16.blank?<Tag color={C.wn}>BLANK</Tag>:<Tag color={mod.bcmSec16.csOk?C.gn:C.er}>CRC16 {mod.bcmSec16.csOk?'✓ VALID':'✗ INVALID'}</Tag>}
+          </div>
+          {!mod.bcmSec16.blank&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.a4,wordBreak:'break-all'}}>{mod.bcmSec16.hex}</div>}
+        </div>
+      </Card>}
+    </>}
   </div>;
 }
 
