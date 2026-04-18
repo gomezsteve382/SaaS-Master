@@ -2,10 +2,12 @@ import React, {useState, useMemo, useCallback, useContext} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn} from "../lib/ui.jsx";
 import {parseModule} from "../lib/parseModule.js";
-import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 
 const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();URL.revokeObjectURL(a.href);};
+const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+const offHex=o=>'0x'+o.toString(16).toUpperCase().padStart(4,'0');
+const isBlank=arr=>!arr||arr.every(b=>b===0xFF||b===0x00);
 
 function Gpec2aTab(){
   const {getDumpsByType,addDump,replaceDump}=useContext(MasterVinContext);
@@ -52,6 +54,15 @@ function Gpec2aTab(){
     return r;
   },[f,f2]);
 
+  const skimOn=f?.skimByte===0x80;
+  const counters=f?.runtimeCounters;
+  const counterTiles=counters?[
+    {n:'COUNTER A',c:counters.counterA},
+    {n:'COUNTER B',c:counters.counterB},
+    {n:'DISTANCE', c:counters.distance},
+    {n:'KEY CYCLES',c:counters.keyCycles},
+  ]:[];
+
   return <div>
     <Card style={{background:'linear-gradient(135deg,#003D33 0%,#00897B 50%,#00BFA5 100%)',color:'#fff',marginBottom:18}}>
       <div style={{display:'flex',alignItems:'center',gap:14}}>
@@ -79,22 +90,93 @@ function Gpec2aTab(){
     </div>
 
     {f&&<>
-      <Card style={{marginBottom:14,padding:14}}>
-        <div style={{display:'flex',gap:10,flexWrap:'wrap',alignItems:'center'}}>
-          <div style={{fontWeight:800,fontSize:11,color:C.a2,letterSpacing:1.5}}>QUICK ACTIONS</div>
-          <Btn onClick={toggleSkim} color={f.skimByte===0x80?C.wn:C.gn} outline>{f.skimByte===0x80?'Disable SKIM':'Enable SKIM'}</Btn>
+      {/* Hero status: SKIM + ZZZZ tamper */}
+      <Card glow style={{marginBottom:14}}>
+        <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>⚙️ GPEC2A Analysis</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          <div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+(skimOn?C.gn+'40':C.wn+'40')}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>SKIM @ 0x0011</div>
+            <div style={{fontSize:28,fontWeight:900,color:skimOn?C.gn:C.wn,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>{skimOn?'ENABLED':'DISABLED'}</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:2}}>0x{(f.skimByte||0).toString(16).toUpperCase().padStart(2,'0')} — {f.skimStatus}</div>
+            <div style={{marginTop:10}}><Btn onClick={toggleSkim} color={skimOn?C.wn:C.gn} outline>{skimOn?'Disable SKIM':'Enable SKIM'}</Btn></div>
+          </div>
+          {f.zzzzTamper&&<div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+(f.zzzzTamper.intact?C.gn+'40':C.er+'40')}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>ZZZZ TAMPER @ {offHex(f.zzzzTamper.offset)}</div>
+            <div style={{fontSize:28,fontWeight:900,color:f.zzzzTamper.intact?C.gn:C.er,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>{f.zzzzTamper.intact?'INTACT':'TAMPERED'}</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.ts,marginTop:6,wordBreak:'break-all'}}>{f.zzzzTamper.hex}</div>
+          </div>}
         </div>
       </Card>
 
+      {/* Runtime counters — 4 large-number tiles */}
+      {counters&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>📊 Runtime Counters</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
+          {counterTiles.map(t=><div key={t.n} style={{padding:12,borderRadius:10,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>{t.n}</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:24,fontWeight:900,color:C.a1,marginTop:4,lineHeight:1.1}}>{(t.c.value>>>0).toLocaleString()}</div>
+            <div style={{fontSize:9,color:C.tm,marginTop:2}}>{offHex(t.c.offset)}</div>
+          </div>)}
+        </div>
+      </Card>}
+
+      {/* Transponder keys — 4-up grid */}
+      {f.transponderKeys?.length>0&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Transponder Keys @ 0x0888</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
+          {f.transponderKeys.map((t,i)=>{
+            const bytes=f.data.slice(t.offset,t.offset+4);
+            const blank=isBlank(bytes);
+            return <div key={i} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(blank?C.bd:C.gn+'40'),textAlign:'center'}}>
+              <div style={{fontSize:10,fontWeight:800,color:C.tm}}>KEY {i+1}</div>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:blank?'#D5D0C8':C.a4,marginTop:4,wordBreak:'break-all'}}>{t.hex}</div>
+              <div style={{fontSize:9,color:C.tm,marginTop:2}}>{offHex(t.offset)}</div>
+              <Tag color={blank?C.tm:C.gn}>{blank?'—':'SET'}</Tag>
+            </div>;
+          })}
+        </div>
+      </Card>}
+
+      {/* Secret key + mirror */}
+      {f.secretKey&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔑 Secret Key</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>Primary @ {offHex(f.secretKey.offset)} (8B)</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:isBlank(f.secretKey.bytes)?'#D5D0C8':C.a4,wordBreak:'break-all'}}>{f.secretKey.hex}</div>
+          </div>
+          {f.secretKeyMirror&&<div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>Mirror @ {offHex(f.secretKeyMirror.offset)} (8B)</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:isBlank(f.secretKeyMirror.bytes)?'#D5D0C8':C.a4,wordBreak:'break-all'}}>{f.secretKeyMirror.hex}</div>
+          </div>}
+        </div>
+        <div style={{marginTop:8}}><Tag color={f.keyConsistent?C.gn:C.er}>{f.keyConsistent?'Primary = Mirror ✓':'MISMATCH'}</Tag></div>
+      </Card>}
+
+      {/* Part number + PCM Sec6 */}
+      {(f.partNumberStr||f.pcmSec6)&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔖 Identifiers</div>
+        {f.partNumberStr&&<div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd,marginBottom:8}}>
+          <div style={{fontSize:10,color:C.tm,marginBottom:4}}>Part Number @ 0x0FA1 (13B)</div>
+          <div style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:800,color:C.a3,letterSpacing:2}}>{f.partNumberStr}</div>
+        </div>}
+        {f.pcmSec6&&<div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+            <span style={{fontSize:10,color:C.tm}}>PCM Sec6 @ {offHex(f.pcmSec6.offset)} (6B)</span>
+            <Tag color={f.pcmSec6.damaged?C.er:f.pcmSec6.blank?C.wn:C.gn}>{f.pcmSec6.immoState}</Tag>
+          </div>
+          <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:f.pcmSec6.damaged?'#D5D0C8':C.a4,wordBreak:'break-all'}}>{f.pcmSec6.hex}</div>
+        </div>}
+      </Card>}
+
+      {/* VINs */}
       {f.vins?.length>0&&<Card style={{marginBottom:14,padding:14}}>
         <div style={{fontWeight:800,fontSize:11,color:C.a2,marginBottom:8,letterSpacing:1.5}}>VINs</div>
         {f.vins.map((v,i)=><div key={i} style={{fontFamily:"'JetBrains Mono'",fontSize:12,marginBottom:4}}>
-          <span style={{color:C.tm}}>0x{v.offset.toString(16).toUpperCase().padStart(4,'0')}: </span>
+          <span style={{color:C.tm}}>{offHex(v.offset)}: </span>
           <span style={{fontWeight:800,color:C.a1}}>{v.vin}</span>
         </div>)}
       </Card>}
-
-      <ModuleFieldsPanel mod={f}/>
     </>}
 
     {f&&f2&&<Card style={{padding:16,marginTop:10}}>
@@ -107,7 +189,7 @@ function Gpec2aTab(){
           <span style={{fontWeight:700,color:C.a3}}>File 2</span>
         </div>
         {diff.slice(0,200).map((d,i)=><div key={i} style={{display:'grid',gridTemplateColumns:'70px 1fr 1fr',gap:4}}>
-          <span style={{color:C.tm}}>0x{d.off.toString(16).toUpperCase().padStart(4,'0')}</span>
+          <span style={{color:C.tm}}>{offHex(d.off)}</span>
           <span style={{color:C.a1,fontWeight:700}}>0x{d.a.toString(16).toUpperCase().padStart(2,'0')}</span>
           <span style={{color:C.a3,fontWeight:700}}>0x{d.b.toString(16).toUpperCase().padStart(2,'0')}</span>
         </div>)}
