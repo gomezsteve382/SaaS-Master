@@ -221,6 +221,97 @@ describe("decodeConfigRows — synthetic byte vector with hand-picked rows", () 
 });
 
 /* ----------------------------------------------------------------------
+ * Per-decoder hand-picked label assertions (one known-good vector per
+ * non-BCM wrapper). Hardens against silent regressions if the wrapper
+ * routing or the underlying catalog rows ever drift.
+ * -------------------------------------------------------------------- */
+function writeBitsTo(b, bitOffset, bitLength, raw) {
+  for (let i = 0; i < bitLength; i++) {
+    const bit = (raw >> (bitLength - 1 - i)) & 1;
+    const abs = bitOffset + i;
+    const byteIdx = abs >> 3;
+    const bitIdx = 7 - (abs & 7);
+    if (bit) b[byteIdx] |= 1 << bitIdx;
+    else     b[byteIdx] &= ~(1 << bitIdx);
+  }
+}
+
+describe("decodeTipmCgwConfig — semantic label assertion", () => {
+  /* "Configurable Inputs: Wheel Speed Sensor" lives at request 3B01,
+   * bit 19 length 1, options ["0: Not Set","1: Set"]. Set raw=1 and
+   * the decoder must report label="Set". */
+  const buf = new Uint8Array(32);
+  const row = CGW_CONFIG.find(
+    (r) => r.byte === "3B01" && r.name === "Configurable Inputs: Wheel Speed Sensor",
+  );
+  it("the source row survived codegen", () => {
+    expect(row).toBeDefined();
+    expect(row.options).toEqual(["0: Not Set", "1: Set"]);
+  });
+  writeBitsTo(buf, row.bit, row.length, 1);
+  it("decodes the row to the expected label", () => {
+    const decoded = decodeTipmCgwConfig(buf);
+    const hit = decoded.find((d) => d.setting === row.name && d.request === "3B01");
+    expect(hit).toBeDefined();
+    expect(hit.raw).toBe(1);
+    expect(hit.label).toBe("Set");
+  });
+});
+
+describe("decodeFcmCgwConfig — semantic label assertion", () => {
+  /* "MSM Memory Seat Module" at F010 bit 35 length 1,
+   * options ["0: Not enabled","1: Enabled"]. */
+  const buf = new Uint8Array(32);
+  const row = CGW_CONFIG.find(
+    (r) => r.byte === "F010" && r.name === "MSM Memory Seat Module",
+  );
+  it("the source row survived codegen", () => {
+    expect(row).toBeDefined();
+    expect(row.options[1]).toMatch(/Enabled/i);
+  });
+  writeBitsTo(buf, row.bit, row.length, 1);
+  it("decodes the row to the expected label", () => {
+    const decoded = decodeFcmCgwConfig(buf);
+    const hit = decoded.find((d) => d.setting === row.name && d.request === "F010");
+    expect(hit).toBeDefined();
+    expect(hit.raw).toBe(1);
+    expect(hit.label).toBe("Enabled");
+  });
+});
+
+describe("decodeMarelliConfig / decodeDelphiRamConfig — semantic label assertion (A0 family)", () => {
+  /* "Sound Horn on Lock" at A050 bit 24 length 1,
+   * options ["0: Not enabled","1: Enabled"]. */
+  const buf = new Uint8Array(32);
+  const row = CGW_CONFIG.find(
+    (r) => r.byte === "A050" && r.name === "Sound Horn on Lock",
+  );
+  it("the source row survived codegen", () => {
+    expect(row).toBeDefined();
+  });
+  writeBitsTo(buf, row.bit, row.length, 1);
+  it("decodeMarelliConfig resolves the row to Enabled", () => {
+    const decoded = decodeMarelliConfig(buf);
+    const hit = decoded.find((d) => d.setting === row.name && d.request === "A050");
+    expect(hit).toBeDefined();
+    expect(hit.raw).toBe(1);
+    expect(hit.label).toBe("Enabled");
+  });
+  it("decodeDelphiRamConfig resolves the row to Enabled (shared A0 range)", () => {
+    const decoded = decodeDelphiRamConfig(buf);
+    const hit = decoded.find((d) => d.setting === row.name && d.request === "A050");
+    expect(hit).toBeDefined();
+    expect(hit.label).toBe("Enabled");
+  });
+  it("decodeDelphi500Config resolves the row to Enabled (shared A0 range)", () => {
+    const decoded = decodeDelphi500Config(buf);
+    const hit = decoded.find((d) => d.setting === row.name && d.request === "A050");
+    expect(hit).toBeDefined();
+    expect(hit.label).toBe("Enabled");
+  });
+});
+
+/* ----------------------------------------------------------------------
  * groupByRequest — used by the BCM Feature Matrix panel.
  * -------------------------------------------------------------------- */
 describe("groupByRequest", () => {
