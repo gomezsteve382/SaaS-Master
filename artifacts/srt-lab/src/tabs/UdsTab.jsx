@@ -4,6 +4,7 @@ import {C} from "../lib/constants.js";
 import {initAdapter} from "../lib/initAdapter.js";
 import {decodeNRC} from "../lib/nrc.js";
 import {logSession} from "../lib/paperTrail.js";
+import {parseDtcResponse, formatDtcLogLine, buildDtcDetail, DTC_STATUS_BITS} from "../lib/dtc.js";
 
 const MODULE_PRESETS={
   BCM:{tx:0x750,rx:0x758},RFHUB:{tx:0x75F,rx:0x767},
@@ -31,11 +32,12 @@ export default function UdsTab(){
   const[routineId,setRoutineId]=useState('0312');
   const[routineData,setRoutineData]=useState('');
   const[selectedModule,setSelectedModule]=useState('BCM');
+  const[dtcDetail,setDtcDetail]=useState(null);
   const eng=useRef(null);
 
-  const addLog=useCallback((m,t='info')=>{
+  const addLog=useCallback((m,t='info',extra=null)=>{
     const ts=new Date().toLocaleTimeString();
-    setLog(p=>[...p.slice(-400),{t:ts,m,type:t}]);
+    setLog(p=>[...p.slice(-400),{t:ts,m,type:t,...(extra||{})}]);
   },[]);
   const hx=(n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0');
   const hexToBytes=s=>{
@@ -168,17 +170,24 @@ export default function UdsTab(){
     if(!eng.current){addLog('Connect first','error');return;}
     const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
     const r=await eng.current.uds(tx,rx,[0x19,0x02,0x08]);
+    /* NOTE: this is the only DTC read surface in the app today.
+       OBDTab.jsx does VIN scans, OBDSwarmDiagnostic.jsx does VIN
+       discovery — neither calls 0x19. If a future tab adds a DTC
+       read, share parseDtcResponse / formatDtcLogLine from
+       ../lib/dtc.js — do not duplicate the parse loop. */
     const codes=[];
     if(r.ok&&r.d){
-      const d=Array.from(r.d);
-      for(let i=3;i+3<d.length;i+=4){
-        const dtc=(d[i]<<16)|(d[i+1]<<8)|d[i+2];if(dtc===0)continue;
-        const prefix=['P','C','B','U'][(d[i]>>6)&3];
-        const code=prefix+hx((d[i]&0x3F),1)+hx(d[i+1])+hx(d[i+2]);
-        addLog('DTC: '+code+' status=0x'+hx(d[i+3]),'warn');codes.push(code);
+      const entries=parseDtcResponse(r.d);
+      for(const entry of entries){
+        const detail=buildDtcDetail(entry,{tx,rx});
+        addLog(formatDtcLogLine(entry),'warn',{dtc:detail});
+        codes.push(entry.code);
       }
       if(!codes.length)addLog('✓ No DTCs','rx');
     }
+    /* Audit record contract is preserved: structured log row keeps
+       just the hex codes, full details live on the in-memory log
+       row only. Historical paper-trail diffs stay stable. */
     recordPaper('Read DTCs',{success:!!r.ok,dtcs:codes});
   },[txAddr,rxAddr,addLog,recordPaper]);
 
@@ -325,9 +334,41 @@ export default function UdsTab(){
       </div>
       <div data-testid="uds-log" style={{maxHeight:380,overflowY:'auto',fontFamily:"'JetBrains Mono'",fontSize:10,lineHeight:1.6}}>
         {log.length===0&&<div style={{color:'#666',textAlign:'center',padding:20}}>Ready — send a command to begin</div>}
-        {log.map((l,i)=><div key={i} style={{color:l.type==='error'?'#FF5252':l.type==='rx'?'#00E676':l.type==='tx'?'#40C4FF':l.type==='warn'?'#FFB300':'#AAA'}}>
-          <span style={{color:'#555'}}>{l.t}</span> {l.m}
-        </div>)}
+        {log.map((l,i)=>{
+          const color=l.type==='error'?'#FF5252':l.type==='rx'?'#00E676':l.type==='tx'?'#40C4FF':l.type==='warn'?'#FFB300':'#AAA';
+          if(l.dtc){
+            const isOpen=dtcDetail&&dtcDetail._row===i;
+            return <div key={i}>
+              <div data-testid={'uds-log-dtc-'+l.dtc.code} onClick={()=>setDtcDetail(isOpen?null:{...l.dtc,_row:i})}
+                style={{color,cursor:'pointer',userSelect:'none'}} title="Click for details">
+                <span style={{color:'#555'}}>{l.t}</span> {l.m} <span style={{color:'#888'}}>{isOpen?'▾':'▸'}</span>
+              </div>
+              {isOpen&&<div data-testid="uds-dtc-detail" style={{margin:'4px 0 8px 80px',padding:10,background:'#1A1A24',border:'1px solid #2D2D40',borderRadius:6,color:'#E0E0E0'}}>
+                <div style={{fontSize:11,fontWeight:800,color:'#FFB300'}}>{l.dtc.code}{l.dtc.category?' · '+l.dtc.category:''}</div>
+                <div style={{fontSize:11,marginTop:4,color:'#FFF'}}>{l.dtc.description||'(no description in fault table — Task T1 .db not yet ingested)'}</div>
+                <div style={{fontSize:10,marginTop:8,color:'#AAA'}}>Status byte {l.dtc.statusHex} ({l.dtc.statusByte.toString(2).padStart(8,'0')}b):</div>
+                <div style={{fontSize:10,marginTop:4,display:'grid',gridTemplateColumns:'repeat(2, 1fr)',gap:'2px 12px'}}>
+                  {DTC_STATUS_BITS.map(d=>{
+                    const on=l.dtc.statusBits[d.key];
+                    return <div key={d.key} style={{color:on?'#00E676':'#555'}}>
+                      {on?'■':'□'} {d.label}
+                    </div>;
+                  })}
+                </div>
+                {l.dtc.moduleAddr&&<div style={{fontSize:10,marginTop:8,color:'#AAA'}}>
+                  Module: TX 0x{l.dtc.moduleAddr.tx.toString(16).toUpperCase().padStart(3,'0')} · RX 0x{l.dtc.moduleAddr.rx.toString(16).toUpperCase().padStart(3,'0')}
+                </div>}
+                <div style={{marginTop:8}}>
+                  <button data-testid="uds-dtc-copy" onClick={(e)=>{e.stopPropagation();try{navigator.clipboard.writeText(l.dtc.code);}catch(_){}}}
+                    style={{fontSize:10,fontWeight:700,padding:'4px 10px',borderRadius:4,border:'1px solid #444',background:'#0D0D15',color:'#B388FF',cursor:'pointer'}}>📋 Copy code</button>
+                </div>
+              </div>}
+            </div>;
+          }
+          return <div key={i} style={{color}}>
+            <span style={{color:'#555'}}>{l.t}</span> {l.m}
+          </div>;
+        })}
       </div>
     </Card>
   </div>;
