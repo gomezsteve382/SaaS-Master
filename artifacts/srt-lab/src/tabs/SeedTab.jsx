@@ -3,6 +3,7 @@ import {C} from "../lib/constants.js";
 import {Card,Btn} from "../lib/ui.jsx";
 import {ALGOS, xtea_sgw_full, alfaW6, alfaW6By, u32} from "../lib/algos.js";
 import {AOBD_W6, AOBD_W7, AOBD_DISPATCH} from "../lib/alfaobdAlgorithms.generated.js";
+import {mergeDispatch, STATUS_BRANCH_KNOWN} from "../lib/alfaobdDispatchAuxiliary.js";
 import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
 import {SEED_KEY_REF} from "../lib/tabReferences.js";
 
@@ -19,12 +20,47 @@ function SeedTab(){
   // accept either bare hex digits ("234521F9") or 0x-prefixed.
   const[customR,setCustomR]=useState('');
   const[customS,setCustomS]=useState('');
-  const familyKeys=useMemo(()=>Object.keys(AOBD_DISPATCH).sort(),[]);
+  // Merged dispatch view: catalog-resolved entries take precedence over
+  // the auxiliary "branch known but algorithm not yet traced" rows so
+  // a future RE finding in the catalog JSON automatically wins. Family
+  // keys are sorted with resolved (computable) families first.
+  const fullDispatch=useMemo(()=>mergeDispatch(AOBD_DISPATCH),[]);
+  const familyKeys=useMemo(()=>{
+    const all=Object.keys(fullDispatch);
+    const isResolved=(k)=>Object.keys(fullDispatch[k]).some(lk=>lk!=='_status');
+    return all.sort((a,b)=>{
+      const ra=isResolved(a),rb=isResolved(b);
+      if(ra!==rb) return ra?-1:1;
+      return a.localeCompare(b);
+    });
+  },[fullDispatch]);
+  // Humanize a dispatcher level key. Catalog uses `aj_1`, `aj_3`, `aj_5`,
+  // `aj_7` (eEcusecaccess level); strip the prefix and present as
+  // "Level N" so the operator doesn't have to know the AlfaOBD field
+  // naming convention. Unknown keys (e.g. `_status`) are filtered out
+  // upstream — they should never reach the dropdown.
+  const humanLevel=(lk)=>{
+    const m=/^aj_(\d+)$/.exec(lk);
+    return m?`Level ${m[1]}`:lk;
+  };
+  // Humanize a family/ecu key. `family_27` → "Family 27"; `ecu_UCONNECT_0x149`
+  // → "ECU UCONNECT (0x149)"; bare `ecu_TBM2_PN` → "ECU TBM2_PN".
+  const humanFamily=(fk)=>{
+    if(/^family_\d+$/.test(fk)) return 'Family '+fk.slice('family_'.length);
+    if(fk.startsWith('ecu_')){
+      const rest=fk.slice('ecu_'.length);
+      const m=/^(.+)_0x([0-9A-Fa-f]+)$/.exec(rest);
+      if(m) return `ECU ${m[1]} (0x${m[2].toUpperCase()})`;
+      return `ECU ${rest}`;
+    }
+    return fk;
+  };
   const lvlKeys=useMemo(()=>{
-    if(!famKey||!AOBD_DISPATCH[famKey]) return [];
-    return Object.keys(AOBD_DISPATCH[famKey]).sort();
-  },[famKey]);
-  const dispatchedName=famKey&&lvlKey?(AOBD_DISPATCH[famKey]?.[lvlKey]||''):'';
+    if(!famKey||!fullDispatch[famKey]) return [];
+    return Object.keys(fullDispatch[famKey]).filter(k=>k!=='_status').sort();
+  },[famKey,fullDispatch]);
+  const isFamilyAdvisory=famKey && fullDispatch[famKey]?._status===STATUS_BRANCH_KNOWN;
+  const dispatchedName=famKey&&lvlKey?(fullDispatch[famKey]?.[lvlKey]||''):'';
   const dispatchedIsW6=dispatchedName && (dispatchedName in AOBD_W6);
   const dispatchedIsW7=dispatchedName && (dispatchedName in AOBD_W7);
   const dispatchedIsAo=/^ao\b/.test(dispatchedName);
@@ -52,7 +88,7 @@ function SeedTab(){
     const sb=seedToBytes(u32(v));
     const sgwFull=()=>{const [c0,c1]=xtea_sgw_full(u32(v));return c0.toString(16).toUpperCase().padStart(8,'0')+c1.toString(16).toUpperCase().padStart(8,'0');};
     const wrapResult=wrapName.trim()?{name:wrapName.trim(),key:computeWrapper(wrapName.trim(),sb)}:null;
-    const dispResult=dispatchedIsW6?{name:dispatchedName,level:lvlKey,family:famKey,key:computeWrapper(dispatchedName,sb)}:null;
+    const dispResult=dispatchedIsW6?{name:dispatchedName,level:humanLevel(lvlKey),family:humanFamily(famKey),key:computeWrapper(dispatchedName,sb)}:null;
     // alfa_w6_custom: prefer manual (r,s) when both fields parse cleanly,
     // else fall back to wrapper-name lookup. Surfaces a clear error when
     // neither is usable.
@@ -140,17 +176,20 @@ function SeedTab(){
             <div style={{fontSize:9,color:C.tm,marginBottom:4}}>FAMILY / ECU</div>
             <select value={famKey} onChange={e=>{setFamKey(e.target.value);setLvlKey('');}}
               style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,color:C.tx,fontSize:11,fontFamily:"'JetBrains Mono'"}}>
-              <option value="">— select family —</option>
-              {familyKeys.map(k=><option key={k} value={k}>{k}</option>)}
+              <option value="">— select family / ECU —</option>
+              {familyKeys.map(k=>{
+                const advisory=fullDispatch[k]?._status===STATUS_BRANCH_KNOWN;
+                return <option key={k} value={k}>{humanFamily(k)}{advisory?' — branch known, algorithm not traced':''}</option>;
+              })}
             </select>
           </div>
           <div>
             <div style={{fontSize:9,color:C.tm,marginBottom:4}}>LEVEL</div>
             <select value={lvlKey} onChange={e=>setLvlKey(e.target.value)}
-              disabled={!famKey}
+              disabled={!famKey || isFamilyAdvisory}
               style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,color:C.tx,fontSize:11,fontFamily:"'JetBrains Mono'"}}>
-              <option value="">— level —</option>
-              {lvlKeys.map(k=><option key={k} value={k}>{k}</option>)}
+              <option value="">{isFamilyAdvisory?'— no levels traced —':'— level —'}</option>
+              {lvlKeys.map(k=><option key={k} value={k}>{humanLevel(k)}</option>)}
             </select>
           </div>
           <div>

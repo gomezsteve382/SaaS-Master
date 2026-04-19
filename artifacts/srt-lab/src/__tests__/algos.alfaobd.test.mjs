@@ -99,6 +99,37 @@ test("catalog parses and matches expected entry counts", () => {
   assert.ok(keys.some(k => k.startsWith("ecu_")));
 });
 
+// PARITY: derive the dispatcher-mapped w6 wrappers from the catalog
+// JSON itself (no hardcoded count) and assert ALGOS exposes a first-
+// class entry for every one of them. This rules out the "we shipped a
+// subset" failure mode the reviewer flagged: today the catalog has 4
+// dispatcher-mapped w6 wrappers (tt/tu/tv/ez per families 27 & 66);
+// if a future RE pass moves a w7 wrapper down into w6 (or adds a new
+// family_/ecu_ row that points at a w6 wrapper), this test fails and
+// forces ALGOS + UNLOCK_FALLBACK to be updated. The 19 w7-resolving
+// dispatcher rows are explicitly NOT covered here — they're tracked
+// by follow-up #145 ("translate the AlfaOBD w7 cipher").
+test("ALGOS covers EVERY dispatcher-mapped w6 wrapper from the catalog", () => {
+  const dispatchedW6 = new Set();
+  for (const fam of Object.keys(AOBD_DISPATCH)) {
+    for (const lvl of Object.keys(AOBD_DISPATCH[fam])) {
+      const wrapper = AOBD_DISPATCH[fam][lvl];
+      if (typeof wrapper === "string" && wrapper in AOBD_W6) {
+        dispatchedW6.add(wrapper);
+      }
+    }
+  }
+  // Documented snapshot — the count must match the catalog's truth.
+  // If this changes, update the comment AND ALGOS to match.
+  assert.ok(dispatchedW6.size >= 1, "catalog has no dispatcher-mapped w6 wrappers");
+  for (const wrapper of dispatchedW6) {
+    const id = `alfa_w6_${wrapper}`;
+    const entry = ALGOS.find(a => a.id === id);
+    assert.ok(entry, `ALGOS missing dispatcher-mapped w6 wrapper '${wrapper}' (id ${id})`);
+    assert.ok(UNLOCK_FALLBACK.includes(id), `UNLOCK_FALLBACK missing ${id}`);
+  }
+});
+
 // ─── Pinned vectors ───────────────────────────────────────────────────
 test("alfaHt matches pinned reference vectors", () => {
   for (const [seed, want] of Object.entries(HT_VECTORS)) {
