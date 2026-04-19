@@ -16,15 +16,41 @@ import { createHash } from "node:crypto";
 import { readdirSync } from "node:fs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const ARCHIVE = resolve(ROOT, "srt-lab-monorepo.tar.gz");
+const ARCHIVE_FULL = resolve(ROOT, "srt-lab-monorepo.tar.gz");
+const ARCHIVE_CODE = resolve(ROOT, "srt-lab-monorepo-code.tar.gz");
 const BUNDLE  = resolve(ROOT, "srt-lab-monorepo-bundle.txt");
+
+/* CLI: --mode=code|full|both (default: both).
+ *   code  → srt-lab-monorepo-code.tar.gz, source only (excludes attached_assets/)
+ *   full  → srt-lab-monorepo.tar.gz, everything including attached_assets/
+ *   both  → write both archives in one run.
+ * The text bundle is always written (binaries are placeholdered already). */
+const VALID_MODES = new Set(["code", "full", "both"]);
+let mode = "both";
+for (const arg of process.argv.slice(2)) {
+  const m = /^--mode(?:=(.+))?$/.exec(arg);
+  if (!m) {
+    console.error(`unknown arg: ${arg}`);
+    console.error(`usage: build-codebase-bundle.mjs [--mode=code|full|both]`);
+    process.exit(2);
+  }
+  const val = m[1];
+  if (!val || !VALID_MODES.has(val)) {
+    console.error(`--mode requires one of: ${[...VALID_MODES].join(", ")}`);
+    process.exit(2);
+  }
+  mode = val;
+}
+const writeFull = mode === "full" || mode === "both";
+const writeCode = mode === "code" || mode === "both";
+console.log(`mode: ${mode}`);
 
 /* Always-exclude file patterns (never go in archive or bundle). */
 const EXCLUDE_FILE_RE = [
   /\.db$/i, /\.sqlite$/i, /\.sqlite3$/i,    // large generated DBs
   /^\.env(\..+)?$/i,                          // never ship secrets
   /^\.DS_Store$/, /^Thumbs\.db$/i,
-  /^srt-lab-monorepo(\.tar\.gz|-bundle\.txt)$/, // our own outputs
+  /^srt-lab-monorepo(-code)?(\.tar\.gz|-bundle\.txt)$/, // our own outputs
   /^srt-lab-all-code\.txt$/,                    // legacy bundle, replaced
 ];
 
@@ -71,7 +97,12 @@ const files = tracked
   .filter((rel) => existsSync(join(ROOT, rel)))
   .sort();
 
-console.log(`inventory: ${tracked.length} tracked → ${files.length} after filters`);
+/* Code-only file list: source tree minus the heavy reference-asset dir. */
+const isAsset = (rel) => rel === "attached_assets" || rel.startsWith("attached_assets/");
+const codeFiles = files.filter((rel) => !isAsset(rel));
+const assetFiles = files.filter(isAsset);
+
+console.log(`inventory: ${tracked.length} tracked → ${files.length} after filters (code=${codeFiles.length}, assets=${assetFiles.length})`);
 
 let totalBytes = 0;
 for (const rel of files) totalBytes += statSync(join(ROOT, rel)).size;
@@ -89,7 +120,8 @@ out.write(`# SRT Lab Monorepo — Source Bundle\n`);
 out.write(`# Generated: ${new Date().toISOString()}\n`);
 out.write(`# Files: ${files.length}\n`);
 out.write(`# Source-tree size: ${totalMB} MB\n`);
-out.write(`# Companion archive: srt-lab-monorepo.tar.gz\n`);
+out.write(`# Companion archives: srt-lab-monorepo-code.tar.gz (source only)\n`);
+out.write(`#                    srt-lab-monorepo.tar.gz      (with attached_assets)\n`);
 out.write(`#\n`);
 out.write(`# Source set: git ls-files (honors .gitignore — node_modules,\n`);
 out.write(`#   .cache, dist, build, .local, etc. are not tracked) minus\n`);
@@ -122,46 +154,67 @@ await new Promise((res) => out.end(res));
 const bundleSize = statSync(BUNDLE).size;
 console.log(`bundle: text=${textCount} (${(textBytes/1024).toFixed(0)} KB inlined) binary=${binaryCount} → ${(bundleSize/1024/1024).toFixed(2)} MB`);
 
-/* ---------------- tar.gz archive ---------------- */
-console.log(`writing ${ARCHIVE} …`);
-rmSync(ARCHIVE, { force: true });
-/* Feed the file list to tar via -T to avoid relying on tar globs. */
-const listFile = join(tmpdir(), `srt-lab-files-${process.pid}.txt`);
-writeFileSync(listFile, files.join("\n") + "\n", "utf8");
-try {
-  execFileSync(
-    "tar",
-    ["-czf", ARCHIVE, "--owner=0", "--group=0", "--no-recursion", "-C", ROOT, "-T", listFile],
-    { stdio: ["ignore", "inherit", "inherit"] },
-  );
-} finally {
-  rmSync(listFile, { force: true });
-}
-const archiveSize = statSync(ARCHIVE).size;
-console.log(`archive: ${(archiveSize / (1024 * 1024)).toFixed(2)} MB`);
-
-/* Verify it extracts cleanly with the same file count. */
-console.log("verifying…");
-const tmp = mkdtempSync(join(tmpdir(), "srt-lab-verify-"));
-try {
-  execFileSync("tar", ["-xzf", ARCHIVE, "-C", tmp], { stdio: ["ignore", "ignore", "inherit"] });
-  let extracted = 0;
-  (function count(d) {
-    for (const e of readdirSync(d, { withFileTypes: true })) {
-      const p = join(d, e.name);
-      if (e.isDirectory()) count(p);
-      else if (e.isFile()) extracted++;
-    }
-  })(tmp);
-  console.log(`verify: ${extracted} files extracted (expected ${files.length})`);
-  if (extracted !== files.length) {
-    console.error(`refusing: extracted file count (${extracted}) ≠ bundle (${files.length}).`);
-    process.exit(1);
+/* ---------------- tar.gz archive(s) ---------------- */
+function writeArchive(archivePath, fileList, label) {
+  console.log(`writing ${archivePath} …  (${label}, ${fileList.length} files)`);
+  rmSync(archivePath, { force: true });
+  /* Feed the file list to tar via -T to avoid relying on tar globs. */
+  const listFile = join(tmpdir(), `srt-lab-files-${label}-${process.pid}.txt`);
+  writeFileSync(listFile, fileList.join("\n") + "\n", "utf8");
+  try {
+    execFileSync(
+      "tar",
+      ["-czf", archivePath, "--owner=0", "--group=0", "--no-recursion", "-C", ROOT, "-T", listFile],
+      { stdio: ["ignore", "inherit", "inherit"] },
+    );
+  } finally {
+    rmSync(listFile, { force: true });
   }
-} finally {
-  rmSync(tmp, { recursive: true, force: true });
+  const size = statSync(archivePath).size;
+  console.log(`archive: ${(size / (1024 * 1024)).toFixed(2)} MB`);
+
+  /* Verify it extracts cleanly with the same file count. */
+  console.log(`verifying ${label} …`);
+  const tmp = mkdtempSync(join(tmpdir(), `srt-lab-verify-${label}-`));
+  try {
+    execFileSync("tar", ["-xzf", archivePath, "-C", tmp], { stdio: ["ignore", "ignore", "inherit"] });
+    let extracted = 0;
+    (function count(d) {
+      for (const e of readdirSync(d, { withFileTypes: true })) {
+        const p = join(d, e.name);
+        if (e.isDirectory()) count(p);
+        else if (e.isFile()) extracted++;
+      }
+    })(tmp);
+    console.log(`verify: ${extracted} files extracted (expected ${fileList.length})`);
+    if (extracted !== fileList.length) {
+      console.error(`refusing: extracted file count (${extracted}) ≠ list (${fileList.length}).`);
+      process.exit(1);
+    }
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+  return size;
+}
+
+const written = [];
+if (writeFull) {
+  const size = writeArchive(ARCHIVE_FULL, files, "full");
+  written.push([ARCHIVE_FULL, size]);
+} else {
+  /* Clean up stale full archive when only producing the code archive, so
+   * downloaders don't pick up an out-of-date copy. */
+  if (existsSync(ARCHIVE_FULL)) rmSync(ARCHIVE_FULL, { force: true });
+}
+if (writeCode) {
+  const size = writeArchive(ARCHIVE_CODE, codeFiles, "code");
+  written.push([ARCHIVE_CODE, size]);
+} else {
+  if (existsSync(ARCHIVE_CODE)) rmSync(ARCHIVE_CODE, { force: true });
 }
 
 console.log("done.");
-console.log(`  ${ARCHIVE}  (${(archiveSize / (1024 * 1024)).toFixed(2)} MB)`);
+for (const [path, size] of written) {
+  console.log(`  ${path}  (${(size / (1024 * 1024)).toFixed(2)} MB)`);
+}
 console.log(`  ${BUNDLE}   (${(bundleSize  / (1024 * 1024)).toFixed(2)} MB)`);

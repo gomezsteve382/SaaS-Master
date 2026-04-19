@@ -203,8 +203,26 @@ the run.
 
 ## Other scripts
 
-- `bundle-all-code.mjs` — concatenates the React app's source into a single
-  text bundle for sharing / context-paste use.
+- `build-codebase-bundle.mjs` — packages the monorepo for offsite hand-off.
+  Always writes the text bundle (`srt-lab-monorepo-bundle.txt`, ~6 MB, with
+  binaries as sha256 placeholders). Pick which tarball(s) you want with
+  `--mode`:
+
+  ```bash
+  node scripts/build-codebase-bundle.mjs                # both (default)
+  node scripts/build-codebase-bundle.mjs --mode=code    # ~0.6 MB, source only
+  node scripts/build-codebase-bundle.mjs --mode=full    # ~141 MB, includes attached_assets/
+  ```
+
+  - `srt-lab-monorepo-code.tar.gz` — source tree minus `attached_assets/`.
+    The right pick when you just want the code.
+  - `srt-lab-monorepo.tar.gz` — everything, including the BCM/RFH .bin
+    dumps, AlfaOBD .db / .zip, screenshots, etc. Needed for re-running
+    AlfaOBD codegen, the seed-key catalog, and any task that pattern-matches
+    against the captured ECU binaries.
+
+  When invoked with a single mode, the other archive is removed so a stale
+  copy doesn't sit next to the fresh one.
 - `post-merge.sh` — runs after a task merge (managed by Replit, do not invoke
   manually).
 
