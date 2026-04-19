@@ -170,6 +170,37 @@ after dropping the new file in `attached_assets/`.
 
 ---
 
+## `build-codebase-bundle.mjs` — Codebase packager
+
+Produces two offsite-friendly snapshots of the monorepo at the repo root:
+
+- `srt-lab-monorepo.tar.gz` — full archive of every git-tracked file (minus
+  large generated DBs `*.db` / `*.sqlite*`, `.env*`, OS junk, and the bundle
+  outputs themselves). Verified by extracting and counting files.
+- `srt-lab-monorepo-bundle.txt` — single text file with every text source
+  inlined in full and binaries replaced by `<<binary file, NNN bytes,
+  sha256:…>>` placeholders. Useful for context-paste / LLM ingestion.
+
+Inventory comes from `git ls-files`, so `.gitignore` is honored automatically
+(no `node_modules`, `.cache`, `dist`, `.local`, etc.).
+
+### Regenerate
+
+From the repo root:
+
+```bash
+pnpm bundle
+```
+
+That's wired in `package.json` (`scripts.bundle`) and is the one command
+anyone needs to refresh both files. Output paths are printed at the end of
+the run.
+
+### Prerequisites
+
+- `git` on PATH (for `git ls-files`).
+- `tar` on PATH (gzip mode). Both ship in the default Replit Nix profile.
+
 ## Other scripts
 
 - `bundle-all-code.mjs` — concatenates the React app's source into a single
