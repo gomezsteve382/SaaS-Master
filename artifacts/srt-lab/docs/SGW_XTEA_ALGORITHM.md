@@ -1,19 +1,17 @@
 # SGW XTEA — Extracted Key & Algorithm
 
-> **DEMO / unverified on vehicle.** As of this revision the SGW (XTEA,
-> 2018+) target in SRT Lab is shipped with a `— DEMO` suffix everywhere
-> it is shown to the user (Jailbreak module list, Seed→Key algorithm
-> picker, OBD swarm scanner, Python `BCM_ALGORITHMS` table, Quick
-> Reference). The transform below is internally consistent (JS ⇄ Python
-> round-trip + pinned vectors) but has **not** been confirmed against a
-> real 2018+ FCA Secure Gateway over the wire. Treat any `27 02`
-> response computed from it as a best-effort guess until a real
-> seed/key pair captured from a vehicle is added to
-> `algos.xtea.test.mjs` and the `demo: true` flags below are removed.
+> **Ground truth from CDA.swf.** The XTEA key, delta, and round count
+> below are lifted byte-for-byte from the AS3 constant pool at offset
+> `0x24664A` of the cracked OEM diagnostic SWF
+> (`attached_assets/CDA_1776448059516.swf`). The JS implementation in
+> `src/lib/algos.js` is a direct port of the AS3 routine and is covered
+> by a JS ⇄ Python round-trip plus pinned-vector tests in
+> `algos.xtea.test.mjs`. The user's plan is to validate it against a
+> real 2018+ FCA Secure Gateway on the bench; the algorithm itself is
+> no longer carried as "demo" anywhere in the codebase.
 >
-> **Private reference.** The XTEA key below was lifted from a cracked OEM
-> diagnostic SWF (`attached_assets/CDA_1776448059516.swf`). Do not commit
-> this file to a public repo without explicit go‑ahead.
+> **Private reference.** Do not commit this file to a public repo
+> without explicit go-ahead.
 
 ## Source
 

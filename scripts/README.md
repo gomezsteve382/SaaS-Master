@@ -176,3 +176,39 @@ after dropping the new file in `attached_assets/`.
   text bundle for sharing / context-paste use.
 - `post-merge.sh` — runs after a task merge (managed by Replit, do not invoke
   manually).
+
+---
+
+## `artifacts/srt-lab/scripts/extract-alfaobd-algorithms.mjs` — AlfaOBD seed-key catalog codegen
+
+Reads `attached_assets/alfaobd_algorithm_catalog*.json` and emits
+`artifacts/srt-lab/src/lib/alfaobdAlgorithms.generated.js` exporting:
+
+- `AOBD_W6` — 380 per-ECU `(r, s)` constant pairs for the parameterized
+  linear cipher (`alfaW6` in `algos.js`). Drives the SeedTab "AlfaOBD
+  lookup" affordance and the `alfa_w6_*` registry entries.
+- `AOBD_W7` — 360 per-ECU `(n, o, p)` triples. **Data only.** The
+  arithmetic core (`ad::w7` plus 7 big-integer helpers) has not yet been
+  translated; SeedTab surfaces these rows in a read-only "algorithm
+  pending translation" panel so the catalog is visibly staged.
+- `AOBD_DISPATCH` — `{ family|ecu: { level: wrapperName } }` for the 8
+  ECU families resolved by AlfaOBD's `abf()` switch plus 2 explicit
+  per-ECU branches (UCONNECT, RADIO_FGA at level 5).
+
+Wired into `prebuild` / `predev` next to the AlfaOBD database codegen.
+Also runnable directly:
+
+```bash
+pnpm --filter @workspace/srt-lab codegen:alfaobd-algos        # write
+pnpm --filter @workspace/srt-lab codegen:alfaobd-algos:check  # CI: in-sync
+```
+
+### Source data (in `attached_assets/`)
+
+- `alfaobd_algorithm_catalog*.json` — the machine-readable bundle (3378
+  lines) carrying all 740 wrappers + dispatch map. Source of truth — do
+  not hand-copy `(r, s)` or `(n, o, p)` values into source.
+- `alfaobd_seedkey_*.{js,py}` — reference impls for `ht`, `f`, `ao`
+  used to generate the pinned vectors in
+  `src/__tests__/algos.alfaobd.test.mjs`.
+- `alfaobd_seedkey_README_*.md` — RE notes on the algorithms.

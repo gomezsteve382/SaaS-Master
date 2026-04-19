@@ -1,27 +1,66 @@
-import React, {useState, useCallback} from "react";
+import React, {useState, useCallback, useMemo} from "react";
 import {C} from "../lib/constants.js";
-import {Card,Tag,Btn} from "../lib/ui.jsx";
-import {ALGOS, xtea_sgw_full, u32} from "../lib/algos.js";
+import {Card,Btn} from "../lib/ui.jsx";
+import {ALGOS, xtea_sgw_full, alfaW6By, u32} from "../lib/algos.js";
+import {AOBD_W6, AOBD_W7, AOBD_DISPATCH} from "../lib/alfaobdAlgorithms.generated.js";
 import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
 import {SEED_KEY_REF} from "../lib/tabReferences.js";
 
 function SeedTab(){
   const[al,setAl]=useState('gpec2');const[sh,setSh]=useState('');const[res,setRes]=useState(null);const[all,setAll]=useState(false);
   const[pdfBusy,setPdfBusy]=useState(false);
+  // AlfaOBD lookup affordances — these don't pollute the main picker
+  // (380 wrappers would be unusable). Selecting a family/level or
+  // entering a wrapper name computes alongside the chosen ALGOS entry.
+  const[wrapName,setWrapName]=useState('');
+  const[famKey,setFamKey]=useState('');
+  const[lvlKey,setLvlKey]=useState('');
+  const familyKeys=useMemo(()=>Object.keys(AOBD_DISPATCH).sort(),[]);
+  const lvlKeys=useMemo(()=>{
+    if(!famKey||!AOBD_DISPATCH[famKey]) return [];
+    return Object.keys(AOBD_DISPATCH[famKey]).sort();
+  },[famKey]);
+  const dispatchedName=famKey&&lvlKey?(AOBD_DISPATCH[famKey]?.[lvlKey]||''):'';
+  const dispatchedIsW6=dispatchedName && (dispatchedName in AOBD_W6);
+  const dispatchedIsW7=dispatchedName && (dispatchedName in AOBD_W7);
+  const dispatchedIsAo=/^ao\b/.test(dispatchedName);
+
   const onPdf=async()=>{if(pdfBusy)return;setPdfBusy(true);try{await buildOnePagerPDF(SEED_KEY_REF);}catch(e){console.error(e);alert('PDF build failed: '+e.message);}finally{setPdfBusy(false);}};
+
+  const computeWrapper=(name,seedBytes)=>{
+    const out=alfaW6By(seedBytes,name);
+    if(!out) return null;
+    return Array.from(out).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+  };
+  const seedToBytes=(v)=>[(v>>>24)&0xFF,(v>>>16)&0xFF,(v>>>8)&0xFF,v&0xFF];
+
   const calc=useCallback(()=>{
     const raw=sh.replace(/\s/g,'');const v=parseInt(raw,16);if(isNaN(v)||!raw)return;
+    const sb=seedToBytes(u32(v));
     const sgwFull=()=>{const [c0,c1]=xtea_sgw_full(u32(v));return c0.toString(16).toUpperCase().padStart(8,'0')+c1.toString(16).toUpperCase().padStart(8,'0');};
-    if(all){setRes({multi:true,results:ALGOS.map(a=>({id:a.id,n:a.n,h:a.h,k:a.fn(v).toString(16).toUpperCase().padStart(8,'0'),k8:a.id==='xtea_sgw'?sgwFull():null})),seed:v.toString(16).toUpperCase().padStart(8,'0')});}
-    else{const a=ALGOS.find(x=>x.id===al);if(!a)return;setRes({multi:false,id:a.id,n:a.n,seed:v.toString(16).toUpperCase().padStart(8,'0'),key:a.fn(v).toString(16).toUpperCase().padStart(8,'0'),key8:a.id==='xtea_sgw'?sgwFull():null});}
-  },[al,sh,all]);
+    const wrapResult=wrapName.trim()?{name:wrapName.trim(),key:computeWrapper(wrapName.trim(),sb)}:null;
+    const dispResult=dispatchedIsW6?{name:dispatchedName,level:lvlKey,family:famKey,key:computeWrapper(dispatchedName,sb)}:null;
+    if(all){
+      setRes({multi:true,seed:v.toString(16).toUpperCase().padStart(8,'0'),
+        results:ALGOS.map(a=>({id:a.id,n:a.n,h:a.h,k:a.fn(v).toString(16).toUpperCase().padStart(8,'0'),k8:a.id==='xtea_sgw'?sgwFull():null})),
+        wrapResult,dispResult});
+    } else {
+      const a=ALGOS.find(x=>x.id===al);if(!a)return;
+      setRes({multi:false,id:a.id,n:a.n,seed:v.toString(16).toUpperCase().padStart(8,'0'),
+        key:a.fn(v).toString(16).toUpperCase().padStart(8,'0'),
+        key8:a.id==='xtea_sgw'?sgwFull():null,
+        wrapResult,dispResult});
+    }
+  },[al,sh,all,wrapName,dispatchedName,dispatchedIsW6,famKey,lvlKey]);
 
-  return<div style={{maxWidth:760}}>
+  const totalAlgoCount=ALGOS.length;
+
+  return<div style={{maxWidth:880}}>
     <Card glow>
       <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,marginBottom:4}}>
         <div>
           <div style={{fontSize:18,fontWeight:900,marginBottom:4}}>🔑 Seed → Key Calculator</div>
-          <div style={{fontSize:12,color:C.ts,marginBottom:16}}>14 algorithms extracted from FCA security access routines</div>
+          <div style={{fontSize:12,color:C.ts,marginBottom:16}}>{totalAlgoCount} algorithms + AlfaOBD w6 catalog (380 wrappers) + w7 staged (360 wrappers, cipher pending)</div>
         </div>
         <button onClick={onPdf} disabled={pdfBusy} style={{cursor:pdfBusy?'wait':'pointer',border:'2px solid '+C.sr,padding:'8px 14px',borderRadius:10,background:'#fff',color:C.sr,fontWeight:800,fontSize:11,letterSpacing:.5,fontFamily:"'Nunito'",whiteSpace:'nowrap'}}>
           {pdfBusy?'⏳ Building...':'🖨 Print Reference'}
@@ -37,8 +76,47 @@ function SeedTab(){
         </div>)}
         <div onClick={()=>setAll(true)} style={{padding:'9px 11px',borderRadius:10,cursor:'pointer',background:all?C.a4+'12':C.c2,border:`1.5px solid ${all?C.a4:C.bd}`}}>
           <div style={{fontSize:11,fontWeight:800,color:all?C.a4:C.tx}}>ALL</div>
-          <div style={{fontSize:8,color:C.tm}}>Run all 14</div>
+          <div style={{fontSize:8,color:C.tm}}>Run all {totalAlgoCount}</div>
         </div>
+      </div>
+
+      {/* AlfaOBD lookup row — family+level dispatch + manual w6 wrapper */}
+      <div style={{padding:12,borderRadius:10,background:C.c2,border:'1px solid '+C.bd,marginBottom:16}}>
+        <div style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:2,marginBottom:8}}>ALFAOBD LOOKUP (in addition to picker above)</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 100px 1fr',gap:8,alignItems:'end'}}>
+          <div>
+            <div style={{fontSize:9,color:C.tm,marginBottom:4}}>FAMILY / ECU</div>
+            <select value={famKey} onChange={e=>{setFamKey(e.target.value);setLvlKey('');}}
+              style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,color:C.tx,fontSize:11,fontFamily:"'JetBrains Mono'"}}>
+              <option value="">— select family —</option>
+              {familyKeys.map(k=><option key={k} value={k}>{k}</option>)}
+            </select>
+          </div>
+          <div>
+            <div style={{fontSize:9,color:C.tm,marginBottom:4}}>LEVEL</div>
+            <select value={lvlKey} onChange={e=>setLvlKey(e.target.value)}
+              disabled={!famKey}
+              style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,color:C.tx,fontSize:11,fontFamily:"'JetBrains Mono'"}}>
+              <option value="">— level —</option>
+              {lvlKeys.map(k=><option key={k} value={k}>{k}</option>)}
+            </select>
+          </div>
+          <div>
+            <div style={{fontSize:9,color:C.tm,marginBottom:4}}>OR WRAPPER NAME (e.g. tt, ez, c0)</div>
+            <input value={wrapName} onChange={e=>setWrapName(e.target.value.toLowerCase().replace(/[^a-z0-9]/g,''))}
+              placeholder="manual w6 wrapper"
+              style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,color:C.tx,fontSize:11,fontFamily:"'JetBrains Mono'",boxSizing:'border-box'}}/>
+          </div>
+        </div>
+        {dispatchedName&&<div style={{marginTop:8,fontSize:11,color:C.tm}}>
+          Dispatched → <code style={{color:C.tx,fontWeight:800}}>{dispatchedName}</code>
+          {' '}{dispatchedIsW6&&<span style={{color:C.a3,fontWeight:700}}>(w6 — computable)</span>}
+          {dispatchedIsW7&&<span style={{color:C.a4,fontWeight:700}}>(w7 — algorithm pending translation)</span>}
+          {dispatchedIsAo&&<span style={{color:C.sr,fontWeight:700}}>(use the AlfaOBD ao entry above)</span>}
+        </div>}
+        {wrapName&&!(wrapName in AOBD_W6)&&<div style={{marginTop:6,fontSize:11,color:C.a4}}>
+          Wrapper <code>{wrapName}</code> not in catalog (expecting one of {Object.keys(AOBD_W6).length} w6 names).
+        </div>}
       </div>
 
       <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:2}}>SEED (HEX)</div>
@@ -76,6 +154,58 @@ function SeedTab(){
           </div>)}
         </div>
       </div>}
+
+      {/* AlfaOBD per-call results: dispatched + manual wrapper */}
+      {res&&(res.dispResult||res.wrapResult)&&<div style={{marginTop:14,padding:12,borderRadius:10,background:C.c2,border:'1px dashed '+C.bd}}>
+        <div style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:2,marginBottom:8}}>ALFAOBD LOOKUP RESULTS</div>
+        {res.dispResult&&<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 0'}}>
+          <div style={{fontSize:11}}>
+            <div style={{fontWeight:800}}>{res.dispResult.family} / {res.dispResult.level}</div>
+            <div style={{fontSize:9,color:C.tm}}>w6 wrapper <code>{res.dispResult.name}</code></div>
+          </div>
+          <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:800,color:C.sr}}>{res.dispResult.key||'—'}</div>
+        </div>}
+        {res.wrapResult&&<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 0',borderTop:res.dispResult?'1px dotted '+C.bd:'none'}}>
+          <div style={{fontSize:11}}>
+            <div style={{fontWeight:800}}>Manual: <code>{res.wrapResult.name}</code></div>
+            <div style={{fontSize:9,color:C.tm}}>w6 / custom (r,s)</div>
+          </div>
+          <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:800,color:C.sr}}>{res.wrapResult.key||'wrapper not in catalog'}</div>
+        </div>}
+      </div>}
+    </Card>
+
+    {/* w7 read-only catalog panel — staged data, no cipher yet */}
+    <Card style={{marginTop:16}}>
+      <div style={{fontSize:14,fontWeight:900,marginBottom:4}}>📋 AlfaOBD w7 catalog</div>
+      <div style={{fontSize:11,color:C.ts,marginBottom:10}}>
+        {Object.keys(AOBD_W7).length} per-ECU parameter triples (n, o, p) staged from
+        the AlfaOBD .NET drop. <strong>Algorithm pending translation</strong> — cipher
+        core (`ad::w7` + 7 big-integer helpers) not yet ported. Once it lands,
+        these rows light up automatically.
+      </div>
+      <div style={{maxHeight:240,overflow:'auto',border:'1px solid '+C.bd,borderRadius:8,background:C.c2}}>
+        <table style={{width:'100%',borderCollapse:'collapse',fontFamily:"'JetBrains Mono'",fontSize:10}}>
+          <thead style={{position:'sticky',top:0,background:C.c2,borderBottom:'1px solid '+C.bd}}>
+            <tr>
+              <th style={{textAlign:'left',padding:'6px 10px',fontWeight:800,color:C.tm}}>name</th>
+              <th style={{textAlign:'left',padding:'6px 10px',fontWeight:800,color:C.tm}}>n</th>
+              <th style={{textAlign:'left',padding:'6px 10px',fontWeight:800,color:C.tm}}>o</th>
+              <th style={{textAlign:'left',padding:'6px 10px',fontWeight:800,color:C.tm}}>p</th>
+              <th style={{textAlign:'right',padding:'6px 10px',fontWeight:800,color:C.tm}}>status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(AOBD_W7).map(([name,trip])=><tr key={name} style={{borderTop:'1px solid '+C.bd+'80'}}>
+              <td style={{padding:'4px 10px',fontWeight:700}}>{name}</td>
+              <td style={{padding:'4px 10px'}}>0x{(trip[0]>>>0).toString(16).padStart(8,'0').toUpperCase()}</td>
+              <td style={{padding:'4px 10px'}}>0x{(trip[1]>>>0).toString(16).padStart(8,'0').toUpperCase()}</td>
+              <td style={{padding:'4px 10px'}}>0x{(trip[2]>>>0).toString(16).padStart(8,'0').toUpperCase()}</td>
+              <td style={{padding:'4px 10px',textAlign:'right',color:C.a4,fontSize:9}}>algorithm pending</td>
+            </tr>)}
+          </tbody>
+        </table>
+      </div>
     </Card>
   </div>;
 }

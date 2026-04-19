@@ -49,6 +49,104 @@ function xtea_sgw_full(seed){
   return xteaEncryptBlock(s,u32(~s),SGW_XTEA_KEY);
 }
 
+// ─── AlfaOBD seed-key primitives ──────────────────────────────────────────
+// Reverse-engineered from AlfaOBD.exe's inner .NET assembly (Dotfuscator-
+// obfuscated). Three standalone methods plus a parameterized linear core
+// that 380 per-ECU wrappers reduce to. Reference port:
+// attached_assets/alfaobd_seedkey_1776573875649.{js,py}.
+//
+// IMPORTANT — NON-STANDARD XTEA CONSTANTS:
+// ALFA_XTEA_KEY/DELTA below are AlfaOBD's own values, lifted from the .NET
+// IL of `ad::f` and `ad::ao`. They are intentionally distinct from the
+// SGW_XTEA_KEY / 0x9E3779B9 used by the FCA Secure Gateway above — do NOT
+// collapse the two into one shared XTEA primitive. SGW XTEA = CDA.swf
+// extraction (32 rounds, standard delta). AlfaOBD XTEA = .NET extraction
+// (64 rounds, custom delta 0x8F750A1D, distinct 4-word key).
+const ALFA_XTEA_KEY=[0x9B127D51,0x5BA41903,0x4FE87269,0x6BC361D8];
+const ALFA_XTEA_DELTA=0x8F750A1D, ALFA_XTEA_ROUNDS=64;
+function alfaXtea64(v1,v8){
+  v1=u32(v1); v8=u32(v8); let sum=0;
+  for(let i=0;i<ALFA_XTEA_ROUNDS;i++){
+    const inner1=u32(u32((v8<<4)^(v8>>>5))+v8);
+    v1=u32(v1+u32(inner1^u32(sum+ALFA_XTEA_KEY[sum&3])));
+    sum=u32(sum+ALFA_XTEA_DELTA);
+    const inner2=u32(u32((v1<<4)^(v1>>>5))+v1);
+    v8=u32(v8+u32(inner2^u32(sum+ALFA_XTEA_KEY[(sum>>>11)&3])));
+  }
+  return [u32(v1),u32(v8)];
+}
+
+// w6: parameterized linear cipher. Each per-ECU wrapper reduces to a
+// (r, s) constant pair. 380 catalogued wrappers live in
+// AOBD_W6 (alfaobdAlgorithms.generated.js). Input is the 4 raw seed
+// bytes (Uint8Array | number[] | tuple), output is a Uint8Array(4).
+function alfaW6(seedBytes,r,s){
+  const sb=Array.from(seedBytes||[]);
+  if(sb.length<4) throw new Error('alfaW6: seed must be at least 4 bytes');
+  const s0=sb[0]&0xFF,s1=sb[1]&0xFF,s2=sb[2]&0xFF,s3=sb[3]&0xFF;
+  const v0=u32((s0<<24)|(s1<<16)|(s2<<8)|s3);
+  let v1=u32((s1<<24)|(s0<<16)|(s3<<8)|s2);
+  v1=u32((v1<<11)|(v1>>>22));
+  const v2=u32(s&v0);
+  v1=u32(v1^u32(r)^v2);
+  return new Uint8Array([(v1>>>24)&0xFF,(v1>>>16)&0xFF,(v1>>>8)&0xFF,v1&0xFF]);
+}
+
+// ht is literally w6 with AlfaOBD's hard-coded (0x41AA42BB, 0x22BA9A31).
+// We define it as such on purpose so the equivalence is visible in the
+// source rather than buried in a comment. Verified byte-for-byte against
+// the reference Python impl in algos.alfaobd.test.mjs.
+function alfaHt(seedBytes){ return alfaW6(seedBytes,0x41AA42BB,0x22BA9A31); }
+
+// f: AlfaOBD XTEA, seed packed LITTLE-ENDIAN. Triggered when
+// af::ix=true && af::ge=51 && af::aj=5.
+function alfaF(seedBytes){
+  const sb=Array.from(seedBytes||[]);
+  if(sb.length<4) throw new Error('alfaF: seed must be at least 4 bytes');
+  const v1Init=u32((sb[3]<<24)|(sb[2]<<16)|(sb[1]<<8)|sb[0]);
+  const [v1]=alfaXtea64(v1Init,0);
+  return new Uint8Array([(v1>>>24)&0xFF,(v1>>>16)&0xFF,(v1>>>8)&0xFF,v1&0xFF]);
+}
+
+// ao: AlfaOBD XTEA, seed packed BIG-ENDIAN. Triggered for UCONNECT
+// (eEcutype 0x149) and RADIO_FGA (0x14E) at security access level 5.
+// Wired into UNLOCK_FALLBACK so any 0x67 01 → 4-byte seed on a body-bus
+// CAN ID retries with this transform after CDA6/GPEC fail.
+function alfaAo(seedBytes){
+  const sb=Array.from(seedBytes||[]);
+  if(sb.length<4) throw new Error('alfaAo: seed must be at least 4 bytes');
+  const v1Init=u32((sb[0]<<24)|(sb[1]<<16)|(sb[2]<<8)|sb[3]);
+  const [v1]=alfaXtea64(v1Init,0);
+  return new Uint8Array([(v1>>>24)&0xFF,(v1>>>16)&0xFF,(v1>>>8)&0xFF,v1&0xFF]);
+}
+
+// Lookup wrapper by name from the catalog. Lazy-imported so the 31KB
+// generated module isn't pulled into the algos.js import graph for
+// callers that only need the SGW XTEA bits.
+import { AOBD_W6 } from "./alfaobdAlgorithms.generated.js";
+function alfaW6By(seedBytes,name){
+  const rs=AOBD_W6[name];
+  if(!rs) return null;
+  return alfaW6(seedBytes,rs[0],rs[1]);
+}
+
+// Helper for the seed-key picker: takes a u32 seed (so it slots into
+// the existing ALGOS.fn(seed) signature) and returns a u32 key.
+function _seedU32ToBytes(s){
+  s=u32(s);
+  return [(s>>>24)&0xFF,(s>>>16)&0xFF,(s>>>8)&0xFF,s&0xFF];
+}
+function _bytesToU32(b){ return u32((b[0]<<24)|(b[1]<<16)|(b[2]<<8)|b[3]); }
+function alfaHtU32(seed){ return _bytesToU32(alfaHt(_seedU32ToBytes(seed))); }
+function alfaFU32(seed){ return _bytesToU32(alfaF(_seedU32ToBytes(seed))); }
+function alfaAoU32(seed){ return _bytesToU32(alfaAo(_seedU32ToBytes(seed))); }
+function alfaW6ByU32(name){
+  return (seed)=>{
+    const k=alfaW6By(_seedU32ToBytes(seed),name);
+    return k?_bytesToU32(k):0;
+  };
+}
+
 const ALGOS=[
   {id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},
   {id:'gpec2',n:'GPEC2',h:'Continental',fn:s=>sxor(s,0xE72E3799)},
@@ -60,18 +158,38 @@ const ALGOS=[
   {id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},
   {id:'jtec',n:'JTEC',h:'Fixed 0000',fn:()=>0},
   {id:'cda6',n:'CDA6',h:'BCM/ABS/IPC',fn:s=>cda6(s)},
-  {id:'xtea_sgw',n:'SGW (XTEA) — DEMO',h:'2018+ Secure GW (unverified on vehicle)',fn:s=>xtea_sgw(s),demo:true},
+  {id:'xtea_sgw',n:'SGW (XTEA)',h:'2018+ Secure Gateway (CDA.swf)',fn:s=>xtea_sgw(s)},
   {id:'t80',n:'TIPM 0x80',h:'t8001',fn:s=>tipm(s,'a')},
   {id:'t36',n:'TIPM 0x36',h:'t3605',fn:s=>tipm(s,'b')},
   {id:'t81',n:'TIPM 0x81',h:'t8101',fn:s=>tipm(s,'c')},
   {id:'t3c',n:'TIPM 0x3C',h:'t3c',fn:s=>tipm(s,'d')},
+  // ── AlfaOBD seed-key family (RE'd from AlfaOBD.exe .NET IL) ──
+  {id:'alfa_ht',n:'AlfaOBD ht',h:'w6(0x41AA42BB,0x22BA9A31)',fn:alfaHtU32},
+  {id:'alfa_f', n:'AlfaOBD f',  h:'XTEA64 LE seed',           fn:alfaFU32},
+  {id:'alfa_ao',n:'AlfaOBD ao', h:'XTEA64 BE — UCONNECT/RADIO_FGA L5',fn:alfaAoU32},
+  // Directly-hittable w6 family wrappers (per AOBD_DISPATCH). The other
+  // dispatcher rows resolve to w7 wrappers whose cipher core is not yet
+  // ported; they are surfaced as parameter rows in the SeedTab w7 panel.
+  {id:'alfa_w6_tt',n:'AlfaOBD w6/tt',h:'family 27 / level 5',fn:alfaW6ByU32('tt')},
+  {id:'alfa_w6_tu',n:'AlfaOBD w6/tu',h:'family 27 / level 3',fn:alfaW6ByU32('tu')},
+  {id:'alfa_w6_tv',n:'AlfaOBD w6/tv',h:'family 27 / level 1',fn:alfaW6ByU32('tv')},
+  {id:'alfa_w6_ez',n:'AlfaOBD w6/ez',h:'family 66 / level 3',fn:alfaW6ByU32('ez')},
 ];
 
 // Look up an unlock algorithm by the id used in MODULE_TARGETS.unlock.
 // Returns a u32 key for the given u32 seed, or null if the id is unknown.
+// Prefer unlockKeyBytes for AlfaOBD primitives — those care about byte
+// order and round-tripping through u32 silently corrupts `alfa_f`.
 function unlockKey(unlockId, seedU32){
   if(unlockId==='xtea_sgw') return xtea_sgw(seedU32);
   if(unlockId==='cda6'||!unlockId) return cda6(seedU32);
+  if(unlockId==='alfa_ht') return alfaHtU32(seedU32);
+  if(unlockId==='alfa_f')  return alfaFU32(seedU32);
+  if(unlockId==='alfa_ao') return alfaAoU32(seedU32);
+  if(unlockId && unlockId.startsWith('alfa_w6/')){
+    const fn=alfaW6ByU32(unlockId.slice('alfa_w6/'.length));
+    return fn(seedU32);
+  }
   const a=ALGOS.find(x=>x.id===unlockId);
   return a?u32(a.fn(seedU32)):null;
 }
@@ -91,6 +209,16 @@ function unlockKeyBytes(unlockId, seedBytes){
     const [c0,c1]=xteaEncryptBlock(v0,v1,SGW_XTEA_KEY);
     return [(c0>>>24)&0xFF,(c0>>>16)&0xFF,(c0>>>8)&0xFF,c0&0xFF,
             (c1>>>24)&0xFF,(c1>>>16)&0xFF,(c1>>>8)&0xFF,c1&0xFF];
+  }
+  // AlfaOBD primitives are byte-native — bypass the u32 round-trip so we
+  // don't accidentally swap LE/BE seed framing for `f` vs `ao`.
+  if(unlockId==='alfa_ht'){ const k=alfaHt(sb); return Array.from(k); }
+  if(unlockId==='alfa_f'){  const k=alfaF(sb);  return Array.from(k); }
+  if(unlockId==='alfa_ao'){ const k=alfaAo(sb); return Array.from(k); }
+  if(unlockId && unlockId.startsWith('alfa_w6/')){
+    const name=unlockId.slice('alfa_w6/'.length);
+    const k=alfaW6By(sb,name);
+    return k?Array.from(k):null;
   }
   let sv=0;for(let i=0;i<4;i++)sv=(sv<<8)|sb[i];sv=u32(sv);
   const k=unlockKey(unlockId,sv);
@@ -121,7 +249,9 @@ const MOD_UNLOCK = {
 // Fallback unlock chain — tried in order when the preferred algorithm is
 // rejected with NRC 0x35 (invalid key). Covers the realistic universe of
 // FCA/Stellantis seed→key transforms; 0x74F (SGW) bypasses this list.
-const UNLOCK_FALLBACK = ['cda6','gpec2','gpec3','gpec2a','gpec15'];
+// `alfa_ao` is appended last so a UCONNECT / RADIO_FGA at access level 5
+// authenticates without needing a per-module override.
+const UNLOCK_FALLBACK = ['cda6','gpec2','gpec3','gpec2a','gpec15','alfa_ao'];
 
 // Build an ordered unlock-algorithm chain to try for a given tx + module
 // code. SGW (tx 0x74F) is always XTEA-only — no fallback. Otherwise the
@@ -250,6 +380,8 @@ async function tryUnlock(uds, tx, rx, code, addLog, label){
 export {
   u32,sxor,cda6,ngc,tipm,
   xteaEncryptBlock,xteaDecryptBlock,xtea_sgw,xtea_sgw_full,SGW_XTEA_KEY,
+  alfaHt,alfaF,alfaAo,alfaW6,alfaW6By,
+  ALFA_XTEA_KEY,ALFA_XTEA_DELTA,ALFA_XTEA_ROUNDS,
   unlockKey,unlockKeyBytes,unlockIdForTx,
   MOD_UNLOCK,UNLOCK_FALLBACK,pickUnlockChain,tryUnlock,
   encodeDid,VIN_WRITE_DIDS,vinWriteDids,vinFromReadResponse,vinReadbackOk,VIN_TAIL8_DIDS,

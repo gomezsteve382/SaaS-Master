@@ -280,7 +280,7 @@ _selftest_xtea_sgw()
 
 BCM_ALGORITHMS = [
     ('CDA6',         algo_cda6,                             "Modern Chrysler BCM/ABS/IPC"),
-    ('SGW XTEA (DEMO)', algo_xtea_sgw,                      "2018+ Secure Gateway (CAN 0x74F) — DEMO, not yet vehicle-verified"),
+    ('SGW XTEA',        algo_xtea_sgw,                      "2018+ Secure Gateway (CAN 0x74F) — XTEA key from CDA.swf"),
     ('BCM Standard', algo_bcm_standard,                     "BCM 2007-2015"),
     ('BCM FCA',      algo_bcm_fca,                          "BCM 2016+"),
     ('GPEC2',        lambda s: algo_sxor(s, 0xE72E3799),    "Continental GPEC2"),
