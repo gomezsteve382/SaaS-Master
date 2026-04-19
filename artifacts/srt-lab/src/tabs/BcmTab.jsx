@@ -12,6 +12,7 @@ import ReadFirstModal from "../lib/readFirstModal.jsx";
 import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule, syncImmoBackup} from "../lib/parseModule.js";
+import {bcmFeatureMatrix} from "../lib/cgwConfig.js";
 import {vinHasSGW} from "../lib/vin.js";
 import {createBridgeEngine, reUnlockSeedKey} from "../lib/bridgeEngine.js";
 
@@ -27,6 +28,74 @@ const BCM_CANDIDATES=[
   {tx:0x7E0,rx:0x7E8,name:'Pre-2016'},
   {tx:0x6B0,rx:0x6B8,name:'DarkVIN alt'},
 ];
+
+/* Feature Matrix panel — decodes the loaded BCM dump bytes against the
+ * BodyPN / Delphi config catalog (Task #144).
+ *
+ * NB: BCM .bin dumps are flash images (64KB / 128KB EEPROM), not CAN
+ * response payloads, so the bit-offset map in CGW_CONFIG won't line up
+ * 1:1 with file bytes. We still surface the catalog as a labeled
+ * feature reference here, and decode the first 64 bytes of the dump
+ * as a best-effort preview — clearly marked as such — so the user
+ * can spot known features without having to capture a UDS response.
+ * The same decoder is used live in UDS reads on the (future) Live OBD
+ * surface; bytes there will line up correctly. */
+function FeatureMatrixPanel({mod, bytes}){
+  const [open,setOpen]=useState(false);
+  const matrix=React.useMemo(()=>bcmFeatureMatrix(bytes||(mod?mod.data.slice(0x4090,0x4090+128):null)),[mod,bytes]);
+  const requests=Array.from(matrix.keys());
+  return <Card style={{marginBottom:14,background:'#FFF8F0'}}>
+    <div onClick={()=>setOpen(!open)} style={{cursor:'pointer',display:'flex',alignItems:'center',gap:10}}>
+      <div style={{fontSize:18}}>🎛️</div>
+      <div style={{flex:1}}>
+        <div style={{fontWeight:800,fontSize:12,color:C.sr,letterSpacing:1.5}}>BODY FEATURE MATRIX (DECODED)</div>
+        <div style={{fontSize:10,color:C.tm,marginTop:2,fontStyle:'italic'}}>{requests.length} requests · best-effort decode of dump bytes against AlfaOBD BodyPN catalog</div>
+      </div>
+      <div style={{fontSize:14,color:C.tm}}>{open?'▾':'▸'}</div>
+    </div>
+    {open&&<div style={{marginTop:12,maxHeight:400,overflowY:'auto'}}>
+      <div style={{fontSize:10,color:C.wn,padding:'6px 10px',background:'#fff',borderRadius:6,marginBottom:8,border:'1px dashed '+C.wn+'66'}}>
+        ⚠ Catalog rows are indexed by UDS-response bit offset, not flash file offset. Values shown for a flash dump are best-effort and may read as "(out of range)" or unexpected. Capture a real CAN response on the Live OBD surface for accurate decoding.
+      </div>
+      {requests.slice(0,8).map(req=><div key={req} style={{marginBottom:10,padding:'8px 10px',background:'#fff',borderRadius:6,border:'1px solid '+C.bd}}>
+        <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:800,color:C.a3,marginBottom:6}}>Request 0x{req}</div>
+        {matrix.get(req).slice(0,12).map((row,i)=><div key={i} style={{display:'flex',gap:10,fontSize:11,padding:'2px 0',borderBottom:'1px dotted '+C.bd}}>
+          <span style={{flex:1,color:C.tx}}>{row.setting}</span>
+          <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.tm}}>bit{row.bit}/+{row.length}</span>
+          <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:row.raw===null?C.wn:C.gn,minWidth:120,textAlign:'right',fontWeight:700}}>{row.label}</span>
+        </div>)}
+        {matrix.get(req).length>12&&<div style={{fontSize:9,color:C.tm,fontStyle:'italic',marginTop:4}}>… +{matrix.get(req).length-12} more rows</div>}
+      </div>)}
+      {requests.length>8&&<div style={{fontSize:10,color:C.tm,fontStyle:'italic',textAlign:'center',padding:6}}>… +{requests.length-8} more requests in catalog</div>}
+    </div>}
+  </Card>;
+}
+
+/* Standalone catalog browser — visible even without a loaded dump so
+ * users can browse the BodyPN feature reference. */
+function FeatureMatrixCatalog(){
+  const [open,setOpen]=useState(false);
+  const matrix=React.useMemo(()=>bcmFeatureMatrix(null),[]);
+  const requests=Array.from(matrix.keys());
+  const total=Array.from(matrix.values()).reduce((s,a)=>s+a.length,0);
+  return <Card style={{marginBottom:14}}>
+    <div onClick={()=>setOpen(!open)} style={{cursor:'pointer',display:'flex',alignItems:'center',gap:10}}>
+      <div style={{fontSize:18}}>📚</div>
+      <div style={{flex:1}}>
+        <div style={{fontWeight:800,fontSize:11,color:C.sr,letterSpacing:1.5}}>BCM FEATURE CATALOG (REFERENCE)</div>
+        <div style={{fontSize:10,color:C.tm,marginTop:2}}>{total} BodyPN/Delphi features across {requests.length} request hexes — sourced from AlfaOBD database recovery</div>
+      </div>
+      <div style={{fontSize:14,color:C.tm}}>{open?'▾':'▸'}</div>
+    </div>
+    {open&&<div style={{marginTop:10,maxHeight:300,overflowY:'auto',fontSize:11}}>
+      {requests.map(req=><div key={req} style={{padding:'4px 0',borderBottom:'1px dotted '+C.bd}}>
+        <span style={{fontFamily:"'JetBrains Mono'",fontWeight:800,color:C.a3,marginRight:10}}>0x{req}</span>
+        <span style={{color:C.ts,fontSize:10}}>{matrix.get(req).length} feature{matrix.get(req).length===1?'':'s'}</span>
+        <span style={{marginLeft:10,fontSize:10,color:C.tm}}>{matrix.get(req).slice(0,3).map(r=>r.setting).join(' · ')}{matrix.get(req).length>3?' …':''}</span>
+      </div>)}
+    </div>}
+  </Card>;
+}
 
 export default function BcmTab(){
   const {vin:masterVin,setModuleStatus,getDumpsByType,addDump,replaceDump,removeDump}=useContext(MasterVinContext);
@@ -348,6 +417,10 @@ export default function BcmTab(){
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.gn,fontWeight:700}}>{inspectMsg}</div>}
       {inspectMod&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
     </Card>
+
+    {inspectMod&&<FeatureMatrixPanel mod={inspectMod}/>}
+
+    <FeatureMatrixCatalog/>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{fontWeight:800,fontSize:12,color:'#FF5252',marginBottom:10,letterSpacing:2}}>📋 LOG</div>

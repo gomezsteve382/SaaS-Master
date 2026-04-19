@@ -2,6 +2,7 @@ import React, {useState, useCallback, useMemo, useContext} from "react";
 import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
 import {C} from "../lib/constants.js";
 import {parseModule,syncImmoBackup} from "../lib/parseModule.js";
+import {decodeBcmConfig,decodeTipmCgwConfig,groupByRequest} from "../lib/cgwConfig.js";
 import {crossValidate} from "../lib/crossValidate.js";
 import {checkVin,parseVinYear,vinHasSGW} from "../lib/vin.js";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
@@ -12,6 +13,33 @@ const downloadBin=(data,name)=>{
   a.href=URL.createObjectURL(new Blob([data],{type:'application/octet-stream'}));
   a.download=name;a.click();URL.revokeObjectURL(a.href);
 };
+
+/* Cross-module audit badge — labels any config block the analyzer
+ * spots in the loaded BCM/TIPM dump using the AlfaOBD BodyPN /
+ * TIPM_CGW catalog (Task #144). Read-only; same caveat as the BCM
+ * tab — flash dumps don't line up 1:1 with UDS bit offsets, so the
+ * panel marks values as best-effort. */
+function ConfigBlockBadge({mod}){
+  const decoded=mod.type==='TIPM'?decodeTipmCgwConfig(mod.data.slice(0,128)):decodeBcmConfig(mod.data.slice(0x4090,0x4090+128));
+  const grouped=groupByRequest(decoded);
+  /* Only show requests where at least one row decoded to a known label
+     (i.e. raw landed inside the option list) — keeps the badge tight. */
+  const hits=Array.from(grouped.entries()).filter(([,rows])=>rows.some(r=>r.raw!==null&&!r.label.startsWith('(unknown')));
+  if(hits.length===0)return null;
+  return <Card style={{marginBottom:14,padding:14,background:'#F0F8FF'}}>
+    <div style={{fontWeight:800,fontSize:11,color:C.sr,marginBottom:8,letterSpacing:1.5}}>🎛️ {mod.type} CONFIG BLOCKS ({mod.type==='BCM'?'BodyPN':'TIPM_CGW'})</div>
+    <div style={{fontSize:10,color:C.tm,marginBottom:8,fontStyle:'italic'}}>Best-effort decode of dump bytes against AlfaOBD catalog — see BCM tab for details.</div>
+    {hits.slice(0,5).map(([req,rows])=>{
+      const known=rows.filter(r=>r.raw!==null&&!r.label.startsWith('(unknown')).slice(0,4);
+      return <div key={req} style={{padding:'6px 0',borderBottom:'1px dotted '+C.bd}}>
+        <span style={{fontFamily:"'JetBrains Mono'",fontWeight:800,color:C.a3,marginRight:10}}>0x{req}</span>
+        {known.map((r,i)=><span key={i} style={{marginRight:14,fontSize:11}}>
+          <span style={{color:C.ts}}>{r.setting}:</span> <b style={{color:C.gn}}>{r.label}</b>
+        </span>)}
+      </div>;
+    })}
+  </Card>;
+}
 
 /* FCA Analyzer — cross-module audit
    Drop one or more dump files (BCM / RFHUB / GPEC2A / 95640) and the tab
@@ -143,6 +171,8 @@ export default function FcaAnalyzerTab(){
       </div>
       <ModuleFieldsPanel mod={cur} onSyncImmo={onSyncImmo}/>
     </Card>}
+
+    {cur&&(cur.type==='BCM'||cur.type==='TIPM')&&<ConfigBlockBadge mod={cur}/>}
 
     {msg&&<div style={{padding:'10px 14px',borderRadius:10,background:C.gn+'14',border:'1px solid '+C.gn+'33',fontSize:12,fontWeight:700,color:C.gn,marginTop:12}}>✓ {msg}</div>}
     {mods.length===0&&<div style={{textAlign:'center',padding:30,color:C.tm,fontSize:12}}>Load one or more module dumps to begin the audit.</div>}
