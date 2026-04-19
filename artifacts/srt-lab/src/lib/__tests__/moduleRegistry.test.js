@@ -5,6 +5,7 @@ import {
   getRow,
   getRowByTx,
   vinWritableRows,
+  noVinRows,
   unsupportedRows,
   sgwRequiredFor,
   partitionForVin,
@@ -27,6 +28,32 @@ describe('moduleRegistry', () => {
     const sgw = getRow('SGW');
     expect(sgw.kind).toBe('unsupported');
     expect(sgw.tx).toBe(0x74F);
+  });
+
+  it('exposes a populated no-vin bucket of passive sensor modules', () => {
+    const noVin = noVinRows();
+    expect(noVin.length).toBeGreaterThan(0);
+    // BSM_RDR is the canonical AlfaOBD example — passive radar w/ no VIN slot.
+    const r = getRow('BSM_RDR');
+    expect(r).toBeTruthy();
+    expect(r.kind).toBe('no-vin');
+  });
+
+  it('exposes a populated pending-w7 bucket flagged with accessLevel 0x03', () => {
+    const w7 = REGISTRY.filter(r => r.unlockStatus === 'pending-w7');
+    expect(w7.length).toBeGreaterThanOrEqual(2);
+    for (const r of w7) {
+      expect(r.kind).toBe('vin-writable');     // they WOULD be writable…
+      expect(r.accessLevel).toBe(0x03);         // …at security access level 3,
+      expect(r.unlockId).toMatch(/^w7_/);       // using a W7 cipher mapping.
+    }
+  });
+
+  it('partitionForVin routes pending-w7 rows into their own bucket and out of writable', () => {
+    const part = partitionForVin('1C4HJXEN5MW123456'); // non-SGW VIN
+    const inWritable = part.writable.find(r => r.unlockStatus === 'pending-w7');
+    expect(inWritable).toBeUndefined();
+    expect(part.pendingW7.length).toBeGreaterThan(0);
   });
 
   it('dedupes addresses by tx:rx (no two rows share a bus address)', () => {

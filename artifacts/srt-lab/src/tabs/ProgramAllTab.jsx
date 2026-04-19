@@ -40,9 +40,18 @@ export default function ProgramAllTab(){
   // ── universal-batch state ──
   // selection: tx → boolean (default: every writable row checked)
   const [selection, setSelection] = useState({});
+  // perRowVin: tx → string. When non-empty AND 17 chars, overrides masterVin
+  // for that row only. Lets a tech write a different VIN to one specific
+  // module (e.g. when transplanting a module from another VIN-locked car).
+  const [perRowVin, setPerRowVin] = useState({});
   const [stopOnFail, setStopOnFail] = useState(false);
   const [batchBusy, setBatchBusy] = useState(false);
-  const [batchResults, setBatchResults] = useState({}); // tx → { status, reason?, before?, after?, unlockAlgo? }
+  const [scanBusy, setScanBusy] = useState(false);
+  const [batchResults, setBatchResults] = useState({}); // tx → { status, reason?, before?, after?, unlockAlgo?, errors? }
+  // currentVins: tx → string|null. Populated by the "Read all current VINs"
+  // preflight scan (no writes), shown next to each row.
+  const [currentVins, setCurrentVins] = useState({});
+  const [expandedErrors, setExpandedErrors] = useState({}); // tx → bool
   const [batchLog, setBatchLog] = useState([]);
   const blog = useCallback((m, t='info') => {
     setBatchLog(p => [...p.slice(-300), { t: new Date().toLocaleTimeString(), m, type: t }]);
@@ -76,6 +85,47 @@ export default function ProgramAllTab(){
   const selectAll = useCallback((value) => {
     setSelection(allWritable.reduce((acc, r) => { acc[r.tx] = value; return acc; }, {}));
   }, [allWritable]);
+  const setRowVin = useCallback((tx, v) => {
+    setPerRowVin(p => ({ ...p, [tx]: (v || '').toUpperCase() }));
+  }, []);
+  const toggleErrors = useCallback((tx) => {
+    setExpandedErrors(p => ({ ...p, [tx]: !p[tx] }));
+  }, []);
+
+  // Pre-entry "Read all current VINs" — preflight every selected row by
+  // sending 0x22 0xF1 0x90 (no writes, no unlock). Populates currentVins
+  // so the per-row card can show the on-bus VIN before the tech commits.
+  const scanCurrentVins = useCallback(async () => {
+    const targets = allWritable.filter(r => selection[r.tx]);
+    if (targets.length === 0) { blog('Nothing selected to scan', 'warn'); return; }
+    setScanBusy(true);
+    blog(`═══ PREFLIGHT SCAN — ${targets.length} module${targets.length===1?'':'s'} ═══`, 'info');
+    const needsBridge = targets.some(r => r.sgwRequired);
+    let eng = null;
+    if (needsBridge) {
+      const br = await createBridgeEngine({ addLog: (m,t)=>blog(m,t) });
+      if (!br.ok) { blog('Bridge unavailable — aborting scan: '+br.error, 'error'); setScanBusy(false); return; }
+      eng = br.engine;
+    } else {
+      eng = await initAdapter((m,t)=>blog(m,t), hx);
+      if (!eng) { blog('Adapter init failed — aborting scan', 'error'); setScanBusy(false); return; }
+    }
+    for (const row of targets) {
+      const r = await eng.uds(row.tx, row.rx, [0x22, 0xF1, 0x90]);
+      if (r.ok && r.d && r.d[0] === 0x62) {
+        const data = Array.from(r.d).slice(3);
+        const ascii = data.filter(b => b >= 0x20 && b <= 0x7E).map(b => String.fromCharCode(b)).join('').trim();
+        const vin = ascii.length >= 17 ? ascii.slice(-17) : ascii;
+        setCurrentVins(p => ({ ...p, [row.tx]: vin || null }));
+        blog(`  ${row.code}: ${vin || '(empty)'}`, 'rx');
+      } else {
+        setCurrentVins(p => ({ ...p, [row.tx]: null }));
+        blog(`  ${row.code}: no response`, 'warn');
+      }
+    }
+    blog('═══ SCAN DONE ═══', 'info');
+    setScanBusy(false);
+  }, [allWritable, selection, blog]);
 
   const runBatch = useCallback(async () => {
     if (!vinValid) { blog('Master VIN must be valid before running a batch', 'error'); return; }
@@ -111,15 +161,24 @@ export default function ProgramAllTab(){
 
     let okCount = 0, failCount = 0, skipCount = 0;
     for (const row of targets) {
-      blog(`── ${row.code} (TX 0x${hx(row.tx,3)}) ──`, 'info');
+      // Per-row VIN override: if the tech entered a 17-char VIN for this
+      // specific row, use it; otherwise use the master VIN.
+      const rowOverride = (perRowVin[row.tx] || '').trim();
+      const vinForThisRow = rowOverride.length === 17 ? rowOverride : masterVin;
+      const usingOverride = vinForThisRow !== masterVin;
+
+      blog(`── ${row.code} (TX 0x${hx(row.tx,3)})${usingOverride?` · VIN OVERRIDE → ${vinForThisRow}`:''} ──`, 'info');
       setBatchResults(p => ({ ...p, [row.tx]: { status: 'running' } }));
 
       const r = await programVin({
         eng: activeEng,
         row,
-        vin: masterVin,
+        vin: vinForThisRow,
         addLog: (m,t)=>blog(`  ${m}`, t),
       });
+      // Refresh currentVins from the verification read — keeps the per-row
+      // display in sync after every batch.
+      if (r.afterVin) setCurrentVins(p => ({ ...p, [row.tx]: r.afterVin }));
 
       if (r.ok) {
         okCount++;
@@ -177,7 +236,7 @@ export default function ProgramAllTab(){
     // batchResults intentionally omitted from deps — we use functional
     // setState updates throughout, so re-binding mid-batch on every state
     // change would be wasteful and risk stale closures inside the loop.
-  }, [vinValid, masterVin, allWritable, selection, stopOnFail, blog, setModuleStatus]);
+  }, [vinValid, masterVin, allWritable, selection, perRowVin, stopOnFail, blog, setModuleStatus]);
 
   // ── classic 4-step bench-workflow data (kept for the per-tab nav cards) ──
   const benchSteps = [
@@ -241,6 +300,9 @@ export default function ProgramAllTab(){
           </label>
           <Btn onClick={()=>selectAll(true)} disabled={batchBusy} color={C.a3} outline>select all</Btn>
           <Btn onClick={()=>selectAll(false)} disabled={batchBusy} color={C.tm} outline>clear</Btn>
+          <Btn onClick={scanCurrentVins} disabled={batchBusy||scanBusy||selectedCount===0} color={C.a2} outline>
+            {scanBusy?'⏳ scanning…':'📖 read current VINs'}
+          </Btn>
           <Btn onClick={runBatch} disabled={batchBusy||!vinValid||selectedCount===0||sgwBatchBlocked} color={C.sr}>
             {batchBusy?'⏳ Running…':`▶ Program ${selectedCount} module${selectedCount===1?'':'s'}`}
           </Btn>
@@ -253,19 +315,23 @@ export default function ProgramAllTab(){
         start j2534_bridge.py, then retry. <b>{sgwBlockedRows.length}</b> module(s) currently require the bridge.
       </div>}
 
-      <div data-testid="universal-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(220px, 1fr))',gap:8}}>
+      <div data-testid="universal-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))',gap:8}}>
         {allWritable.map(r => {
           const sel = !!selection[r.tx];
           const res = batchResults[r.tx] || { status: 'pending' };
           const stColor = STATUS_COLORS[res.status] || STATUS_COLORS.pending;
-          return <label key={r.tx} data-testid={'urow-'+r.code} style={{
+          const cur = currentVins[r.tx];
+          const override = (perRowVin[r.tx] || '').trim();
+          const overrideValid = override.length === 0 || override.length === 17;
+          const expanded = !!expandedErrors[r.tx];
+          return <div key={r.tx} data-testid={'urow-'+r.code} style={{
             display:'flex',gap:8,alignItems:'flex-start',padding:10,
             background:sel?'#F8FFF8':'#F5F5F5',
-            border:'1.5px solid '+(sel?C.gn:C.bd),borderRadius:8,cursor:batchBusy?'not-allowed':'pointer',
+            border:'1.5px solid '+(sel?C.gn:C.bd),borderRadius:8,
             opacity:batchBusy?.85:1,
           }}>
             <input type="checkbox" checked={sel} disabled={batchBusy}
-              onChange={()=>toggleSelection(r.tx)} style={{marginTop:2}}/>
+              onChange={()=>toggleSelection(r.tx)} style={{marginTop:2,cursor:batchBusy?'not-allowed':'pointer'}}/>
             <div style={{flex:1,minWidth:0}}>
               <div style={{display:'flex',justifyContent:'space-between',gap:6,alignItems:'center'}}>
                 <div style={{fontWeight:800,fontSize:12,color:C.tx}}>{r.code}</div>
@@ -277,10 +343,39 @@ export default function ProgramAllTab(){
               <div style={{fontSize:9,color:C.tm,fontFamily:"'JetBrains Mono'",marginTop:2}}>
                 TX 0x{hx(r.tx,3)} · {r.unlockId||'auto'}{r.sgwRequired?' · SGW':''}
               </div>
-              {res.status==='fail'&&<div style={{fontSize:9,color:C.er,marginTop:2}}>{REASON_LABELS[res.reason]||res.reason}</div>}
+              {/* Per-row preflight VIN read (populated by "Read current VINs"
+                  or by the verification pass after a successful write). */}
+              <div data-testid={'ucur-'+r.code} style={{fontSize:9,color:cur?C.ts:C.tm,fontFamily:"'JetBrains Mono'",marginTop:4}}>
+                current: <b>{cur || '(unread)'}</b>
+              </div>
+              {/* Per-row VIN override input — empty falls back to the master VIN. */}
+              <input
+                data-testid={'uvin-'+r.code}
+                type="text"
+                placeholder="override VIN (optional)"
+                maxLength={17}
+                value={override}
+                disabled={batchBusy}
+                onChange={e=>setRowVin(r.tx, e.target.value)}
+                onClick={e=>e.stopPropagation()}
+                style={{
+                  marginTop:4,width:'100%',fontFamily:"'JetBrains Mono'",fontSize:10,
+                  padding:'4px 6px',borderRadius:4,
+                  border:'1px solid '+(overrideValid?C.bd:C.er),
+                  background:override?'#FFF8E1':'#fff',
+                }}
+              />
+              {res.status==='fail'&&<div style={{marginTop:4}}>
+                <button onClick={()=>toggleErrors(r.tx)} style={{fontSize:9,color:C.er,background:'transparent',border:'none',padding:0,cursor:'pointer',textDecoration:'underline'}}>
+                  {REASON_LABELS[res.reason]||res.reason} {res.errors&&res.errors.length>0?(expanded?'▼':'▶'):''}
+                </button>
+                {expanded&&res.errors&&res.errors.length>0&&<div data-testid={'uerr-'+r.code} style={{marginTop:3,padding:6,background:'#FFEBEE',border:'1px solid '+C.er,borderRadius:4,fontSize:9,color:'#B71C1C',fontFamily:"'JetBrains Mono'"}}>
+                  {res.errors.map((e,i)=><div key={i}>• {e}</div>)}
+                </div>}
+              </div>}
               {res.status==='ok'&&res.unlockAlgo&&res.unlockAlgo!==true&&<div style={{fontSize:9,color:C.gn,marginTop:2}}>via {res.unlockAlgo}</div>}
             </div>
-          </label>;
+          </div>;
         })}
       </div>
 

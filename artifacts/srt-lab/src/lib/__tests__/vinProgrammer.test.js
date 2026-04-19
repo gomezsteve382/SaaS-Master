@@ -161,6 +161,69 @@ describe('programVin', () => {
     expect(r.didResults[1].match).toBe(true);
   });
 
+  it('threads accessLevel and crcStrategy from the registry row through to the result', async () => {
+    const row = getRow('ECM_W7'); // accessLevel 0x03, crc 'module-computed', unlockStatus 'pending-w7'
+    expect(row).toBeTruthy();
+    expect(row.accessLevel).toBe(0x03);
+    // The engine doesn't refuse the call up front (pending-w7 is a UI bucket,
+    // not an engine gate), but the result MUST surface the row metadata.
+    const dids = vinWriteDids(row.code);
+    const m = mockUds([
+      { req: [0x22, ...encodeDid(dids[0])], resp: { ok: false, raw: 'NO DATA' } },
+    ]);
+    const r = await programVin({ eng: m, row, vin: VIN });
+    expect(r.accessLevel).toBe(0x03);
+    expect(r.crcStrategy).toBe('module-computed');
+    expect(r.crcValue).toBeNull(); // module-computed → no extra CRC
+  });
+
+  it('computes ccitt-tail8 CRC and surfaces it on the result', async () => {
+    // Construct a synthetic row that asks for ccitt-tail8 (the BCM/RFHUB
+    // payload-CRC strategy). The engine should compute crc16ccitt over the
+    // last 8 ASCII bytes of the VIN and put it on result.crcValue, even on
+    // a preflight-aborted run (CRC is computed before bus traffic so the
+    // log line lands either way).
+    const row = { ...getRow('BCM'), crc: 'ccitt-tail8' };
+    const dids = vinWriteDids('BCM');
+    // Drive a full success run so crcValue is computed at step 4b.
+    const seedBytes = [0x11, 0x22, 0x33, 0x44];
+    const seedU32 = 0x11223344;
+    const script = [
+      { req: [0x22, ...encodeDid(dids[0])], resp: vinReadResp(dids[0], '1C4HJXEN5MW000000') },
+      { req: [0x10, 0x03], resp: { ok: true, d: new Uint8Array([0x50, 0x03]) } },
+      { req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seedBytes]) } },
+      { req: [0x27, 0x02, ...keyBytesFor('cda6', seedU32)], resp: { ok: true, d: new Uint8Array([0x67, 0x02]) } },
+    ];
+    for (const did of dids) {
+      const vb = Array.from(VIN).map(c => c.charCodeAt(0));
+      script.push({ req: [0x2E, ...encodeDid(did), ...vb], resp: { ok: true, d: new Uint8Array([0x6E, ...encodeDid(did)]) } });
+      script.push({ req: [0x22, ...encodeDid(did)], resp: vinReadResp(did, did === 0x6E2025 ? VIN.slice(-8) : VIN) });
+    }
+    script.push({ req: [0x22, ...encodeDid(dids[0])], resp: vinReadResp(dids[0], VIN) });
+
+    const m = mockUds(script);
+    const r = await programVin({ eng: m, row, vin: VIN });
+    expect(r.ok).toBe(true);
+    expect(r.crcStrategy).toBe('ccitt-tail8');
+    // Independently compute the expected CRC so the test catches drift.
+    const tail = VIN.slice(-8);
+    const bytes = Array.from(tail).map(c => c.charCodeAt(0));
+    let crc = 0xFFFF;
+    for (const b of bytes) {
+      crc ^= (b << 8);
+      for (let i = 0; i < 8; i++) crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
+    }
+    expect(r.crcValue).toBe(crc);
+  });
+
+  it('treats unknown crc strategies as no-op (defensive)', async () => {
+    const row = { ...getRow('SGW') }; // SGW returns at preflight regardless
+    row.crc = 'totally-made-up-strategy';
+    const r = await programVin({ eng: mockUds([]), row, vin: VIN });
+    expect(r.crcStrategy).toBe('totally-made-up-strategy');
+    expect(r.crcValue).toBeNull();
+  });
+
   it('honors registry row.unlockId override (preferred algo runs first)', async () => {
     const row = { ...getRow('ABS'), unlockId: 'gpec3' }; // override default cda6
     const dids = vinWriteDids('ABS');

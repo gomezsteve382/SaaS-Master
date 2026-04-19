@@ -63,6 +63,33 @@ const ROWS = [
   {code:'SGW',   name:'Security Gateway',              tx:0x74F, rx:0x76F, kind:'unsupported', unlockId:'xtea_sgw',
     notes:'SGW authenticates other writes; it does not store a VIN slot. Excluded from Program-All.'},
 
+  // ── Passive / no-VIN-slot modules (rendered for reference) ────────────
+  // These respond on the bus but do not own a F190 DID per AlfaOBD's
+  // catalog — programming them would either NRC 0x31 (request-out-of-range)
+  // or silently no-op. The Program-All UI shows them in a separate panel
+  // so techs know why they're skipped.
+  {code:'BSM_RDR',  name:'Blind-Spot Radar Element',   tx:0x771, rx:0x779, kind:'no-vin',
+    notes:'Passive radar — no VIN slot per AlfaOBD wrapper map.'},
+  {code:'TPMS_SENS',name:'TPMS Wheel Sensor Array',    tx:0x718, rx:0x720, kind:'no-vin',
+    notes:'Per-wheel passive sensor — VIN held by the parent TPMS.'},
+  {code:'OCS_SENS', name:'Occupant Classification Sens',tx:0x728, rx:0x730, kind:'no-vin',
+    notes:'Weight sensor — ORC owns the VIN slot.'},
+
+  // ── W7 cipher pending (algorithm not yet translated, task #145) ───────
+  // These ECUs respond and would otherwise be VIN-writable, but their
+  // unlock requires the W7 cipher core which is being ported under
+  // task #145. Listing them here lets techs see they are recognised but
+  // intentionally gated.
+  {code:'ECM_W7',   name:'ECM (W7 cipher variant)',    tx:0x7E5, rx:0x7ED, kind:'vin-writable',
+    unlockId:'w7_ecm', accessLevel:0x03, unlockStatus:'pending-w7',
+    notes:'AlfaOBD-mapped W7 PCM (e.g. some ICE Renegade/Compass). Awaiting cipher port.'},
+  {code:'TCM_W7',   name:'TCM (W7 cipher variant)',    tx:0x7E6, rx:0x7EE, kind:'vin-writable',
+    unlockId:'w7_tcm', accessLevel:0x03, unlockStatus:'pending-w7',
+    notes:'W7 transmission controller — AlfaOBD wrapper present, cipher pending.'},
+  {code:'BCM_W7',   name:'BCM (W7 hybrid)',            tx:0x7B2, rx:0x7BA, kind:'vin-writable',
+    unlockId:'w7_bcm', accessLevel:0x03, unlockStatus:'pending-w7',
+    notes:'Body controller variant on W7 platforms (newer Maserati). Pending W7 port.'},
+
   // ── DVIN-class / DarkVIN address aliases ──────────────────────────────
   {code:'BCM_DVIN',  name:'BCM (DarkVIN alt)',         tx:0x6B0, rx:0x6B8, kind:'vin-writable', unlockId:'cda6'},
   {code:'CCM',       name:'Climate Control Module',    tx:0x743, rx:0x763, kind:'vin-writable', unlockId:'cda6'},

@@ -26,13 +26,21 @@
        beforeVin: string|null,        // VIN read before the write
        afterVin: string|null,         // VIN read after the write (F190)
        unlockAlgo: string|true|false, // result of tryUnlock
+       accessLevel: number,           // security access level used (default 0x01)
+       crcStrategy: string,           // strategy run from the row
+       crcValue: number|null,         // computed CRC, if applicable
        didResults: [                  // one entry per row.vinDids
          { did, wrote: boolean, readback: string, match: boolean }
        ],
        backupKey: string|null,        // key returned by makeBackup, if any
        errors: string[],              // structured error messages
      }
-*/
+
+   Note on accessLevel: tryUnlock today is hardcoded to security access
+   level 0x01. The engine threads row.accessLevel into the result for
+   diagnostics and audit-log bookkeeping; switching the seed/key request
+   bytes (0x27 0x03 / 0x27 0x04 etc.) for real per-row level control is
+   tracked by a focused follow-up. */
 
 import {
   encodeDid,
@@ -43,7 +51,28 @@ import {
   tryUnlock,
   MOD_UNLOCK,
 } from './algos.js';
+import {crc16ccitt} from './crc.js';
 import {decodeNRC} from './nrc.js';
+
+// CRC strategy table — the engine consults row.crc to decide what to do
+// AFTER all VIN DIDs have been written. The dominant case is
+// 'module-computed' (firmware recomputes the VIN CRC on its own when the
+// last VIN byte lands — nothing extra to do). 'ccitt-tail8' computes
+// CRC16-CCITT over the last 8 chars of the VIN and returns it for tabs
+// whose payload format embeds the checksum in the write payload itself
+// (e.g. BCM/RFHUB tabs prebuild a `vin || crc` block). 'none' is an
+// explicit no-op.
+const CRC_STRATEGIES = {
+  'module-computed': () => null,
+  'none':            () => null,
+  'ccitt-tail8':     (vin) => crc16ccitt(Array.from(vin.slice(-8)).map(c => c.charCodeAt(0))),
+};
+
+function computeCrc(strategy, vin) {
+  const fn = CRC_STRATEGIES[strategy];
+  if (typeof fn !== 'function') return null;
+  return fn(vin);
+}
 
 const EXTENDED_SESSION = [0x10, 0x03];
 
@@ -80,6 +109,9 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
     beforeVin: null,
     afterVin: null,
     unlockAlgo: null,
+    accessLevel: row?.accessLevel ?? 0x01,
+    crcStrategy: row?.crc || 'module-computed',
+    crcValue: null,
     didResults: [],
     backupKey: null,
     errors: [],
@@ -170,6 +202,14 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
     } catch (e) {
       log(`${lbl} backup failed: ${e?.message || e} — continuing`, 'warn');
     }
+  }
+
+  // Step 4b — compute any extra CRC mandated by row.crc. The CRC is
+  // computed BEFORE writes so log lines can surface it; tabs that need
+  // the checksum embedded in the payload can read it off result.crcValue.
+  result.crcValue = computeCrc(result.crcStrategy, vin);
+  if (result.crcValue !== null) {
+    log(`${lbl} CRC (${result.crcStrategy}): 0x${result.crcValue.toString(16).toUpperCase().padStart(4, '0')}`, 'info');
   }
 
   // Step 5 — write each DID, then verify by re-read.
