@@ -386,21 +386,28 @@ export default function ProgramAllTab(){
       </div>}
     </Card>
 
-    {/* ── Reference panels: SGW / unsupported / pending-W7 ── */}
-    {(partition.unsupported.length>0||partition.pendingW7.length>0)&&<Card style={{marginBottom:14,background:'#FAFAFA'}}>
-      <div style={{fontWeight:800,fontSize:11,color:C.ts,letterSpacing:2,marginBottom:10}}>📋 NOT IN BATCH</div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+    {/* ── Reference panels: unsupported / no-vin / pending-W7 ── */}
+    {(partition.unsupported.length>0||partition.pendingW7.length>0||partition.noVin.length>0)&&<Card style={{marginBottom:14,background:'#FAFAFA'}}>
+      <div style={{fontWeight:800,fontSize:11,color:C.ts,letterSpacing:2,marginBottom:10}}>📋 REFERENCE — NOT TARGETED FOR VIN WRITES</div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14}}>
         <div>
-          <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6}}>Unsupported / no VIN slot</div>
+          <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6}}>Unsupported (gateway / proxy)</div>
           {partition.unsupported.map(r=><div key={r.tx} style={{fontSize:11,color:C.ts,fontFamily:"'JetBrains Mono'",marginBottom:2}}>
             <b style={{color:C.tx}}>{r.code}</b> · 0x{hx(r.tx,3)} — {r.notes||r.name}
           </div>)}
           {partition.unsupported.length===0&&<div style={{fontSize:11,color:C.tm,fontStyle:'italic'}}>none</div>}
         </div>
         <div>
+          <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6}}>No VIN slot (passive sensors)</div>
+          {partition.noVin.map(r=><div key={r.tx} data-testid={'unovin-'+r.code} style={{fontSize:11,color:C.ts,fontFamily:"'JetBrains Mono'",marginBottom:2}}>
+            <b style={{color:C.tx}}>{r.code}</b> · 0x{hx(r.tx,3)} — {r.notes||r.name}
+          </div>)}
+          {partition.noVin.length===0&&<div style={{fontSize:11,color:C.tm,fontStyle:'italic'}}>none</div>}
+        </div>
+        <div>
           <div style={{fontSize:11,fontWeight:800,color:C.wn,marginBottom:6}}>Pending W7 cipher (task #145)</div>
           {partition.pendingW7.map(r=><div key={r.tx} style={{fontSize:11,color:C.ts,fontFamily:"'JetBrains Mono'",marginBottom:2}}>
-            <b style={{color:C.tx}}>{r.code}</b> · 0x{hx(r.tx,3)} — algorithm pending
+            <b style={{color:C.tx}}>{r.code}</b> · 0x{hx(r.tx,3)} — attempted, will fail-soft
           </div>)}
           {partition.pendingW7.length===0&&<div style={{fontSize:11,color:C.tm,fontStyle:'italic'}}>none</div>}
         </div>
