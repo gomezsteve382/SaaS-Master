@@ -112,6 +112,64 @@ authored at 2550 × 3300 px and rendered at 300 dpi.
 
 ---
 
+## `artifacts/srt-lab/scripts/extract-alfaobd.mjs` — AlfaOBD database codegen
+
+Extracts an English-only slice of the reverse-engineered AlfaOBD SQLite
+database into `artifacts/srt-lab/src/lib/alfaobdData.generated.js`. Wired
+into the SRT Lab `prebuild` / `predev` hooks; also runnable directly:
+
+```bash
+pnpm --filter @workspace/srt-lab codegen:alfaobd        # write
+pnpm --filter @workspace/srt-lab codegen:alfaobd:check  # CI: in-sync check
+```
+
+### Source data (in `attached_assets/`)
+
+- `alfao_bd*.decrypted*.db` — the 66 MB XOR-decrypted SQLite dump from
+  `AlfaOBD.exe`. **Treat as build-time input only — never bundle it.**
+- `alfao_bd*.xor_key*.bin` / `*.xor_key.hex*.txt` — the 1024-byte XOR key
+  recovered statistically from the encrypted original. Kept for posterity.
+- `alfao_bd*.analysis*.txt` — partial schema dump (CREATE statements
+  truncated by the same corruption that affects the data).
+- `decrypt_alfaobd*.py` — the helper used to produce the decrypted .db.
+
+### Known data corruption (read this before re-running)
+
+The decrypted .db has too many byte errors for SQLite to traverse its
+B-tree (sqlite_master itself is unreadable). The script works around this
+by running `sqlite3 .recover` on the source, caching the recovered DB at
+`attached_assets/.cache/alfao_bd.recovered.db` (gitignored), then
+bucketing rows by their original column count. Recovery takes ~30s on
+the first run; subsequent runs reuse the cache as long as the source is
+unchanged.
+
+Tables that survive the recovery cleanly:
+
+- **`DIAG_NAMES`** (~3,800 rows): parameter-id → English label.
+- **`CGW_CONFIG`** (~430 rows): byte/bit feature matrix entries with
+  `{ byte, bit, length, name, options[] }` for the BCM/CGW config
+  decoder (Task #144).
+
+Tables that **do NOT** survive (text columns are mojibake; 0 rows pass
+a basic ASCII filter):
+
+- `Faults` (DTC plain-English text)
+- `STATES` (state-id → label)
+- `Units` (unit-id → string)
+- `Diag_descriptions`
+
+These are exported as empty stubs so consumers fail loudly instead of
+silently. Task #143 (DTC plain-English overlay) is blocked until a
+clean .db (or a corrected XOR key) is provided; re-run the codegen
+after dropping the new file in `attached_assets/`.
+
+### Prerequisites
+
+- `sqlite3` CLI on PATH (provided by the `sqlite` Nix package).
+- `better-sqlite3` (devDep of `@workspace/srt-lab`, native build).
+
+---
+
 ## Other scripts
 
 - `bundle-all-code.mjs` — concatenates the React app's source into a single

@@ -27,6 +27,11 @@ Processing helpers live in `src/lib/`:
 - `paperTrail.js` — session log, capped at 500 entries (`srtlab_sessions`).
 - `nrc.js` — UDS negative-response code decoder.
 - `programmerData.js` — ADCM_VARIANTS (14) + ADCM_MODULES (5).
+- `alfaobdData.generated.js` — codegen-emitted slice of the AlfaOBD
+  reverse-engineered SQLite database (`DIAG_NAMES`, `CGW_CONFIG`, plus
+  empty stubs for tables lost to source-data corruption). See
+  `scripts/README.md` → "AlfaOBD database codegen" for regen, source
+  `.db` location, and the corruption caveats.
 
 A desktop J2534 driver (Python, separate package) handles raw CAN PassThru when Web Serial is insufficient.
 
