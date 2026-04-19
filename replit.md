@@ -99,3 +99,14 @@ BCM SKIM key tables use 24-byte records (IMMO_REC=24, IMMO_KC=8, IMMO_BLOCK=192 
 - 4KB with VIN at byte 0 → GPEC2A (confirmed via SKIM byte 0x0011 or VIN copy at 0x01F0)
 - 4KB otherwise → RFHUB EEE
 - >128KB → Firmware
+
+## Regenerating the SRT Lab flyer
+
+The marketing flyer at `attached_assets/flyers/srt_lab_flyer.{svg,png,pdf}` is
+generated from `scripts/build-flyer.mjs` (inline SVG → librsvg → PNG + PDF).
+See `scripts/README.md` for prerequisites (ImageMagick + librsvg + the three
+brand fonts), the one-line font install steps, and the regen command:
+
+```bash
+node scripts/build-flyer.mjs
+```
