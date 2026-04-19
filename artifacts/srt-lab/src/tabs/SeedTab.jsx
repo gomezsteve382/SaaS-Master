@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useMemo} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Btn} from "../lib/ui.jsx";
-import {ALGOS, xtea_sgw_full, alfaW6By, u32} from "../lib/algos.js";
+import {ALGOS, xtea_sgw_full, alfaW6, alfaW6By, u32} from "../lib/algos.js";
 import {AOBD_W6, AOBD_W7, AOBD_DISPATCH} from "../lib/alfaobdAlgorithms.generated.js";
 import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
 import {SEED_KEY_REF} from "../lib/tabReferences.js";
@@ -15,6 +15,10 @@ function SeedTab(){
   const[wrapName,setWrapName]=useState('');
   const[famKey,setFamKey]=useState('');
   const[lvlKey,setLvlKey]=useState('');
+  // Manual (r, s) input for the AlfaOBD w6 (custom) ALGOS entry. These
+  // accept either bare hex digits ("234521F9") or 0x-prefixed.
+  const[customR,setCustomR]=useState('');
+  const[customS,setCustomS]=useState('');
   const familyKeys=useMemo(()=>Object.keys(AOBD_DISPATCH).sort(),[]);
   const lvlKeys=useMemo(()=>{
     if(!famKey||!AOBD_DISPATCH[famKey]) return [];
@@ -32,6 +36,15 @@ function SeedTab(){
     if(!out) return null;
     return Array.from(out).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
   };
+  const computeManualW6=(r,s,seedBytes)=>{
+    const out=alfaW6(seedBytes,r,s);
+    return Array.from(out).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+  };
+  const parseHexU32=(t)=>{
+    const raw=(t||'').replace(/\s/g,'').replace(/^0x/i,'');
+    if(!/^[0-9a-fA-F]{1,8}$/.test(raw)) return null;
+    return parseInt(raw,16)>>>0;
+  };
   const seedToBytes=(v)=>[(v>>>24)&0xFF,(v>>>16)&0xFF,(v>>>8)&0xFF,v&0xFF];
 
   const calc=useCallback(()=>{
@@ -40,18 +53,35 @@ function SeedTab(){
     const sgwFull=()=>{const [c0,c1]=xtea_sgw_full(u32(v));return c0.toString(16).toUpperCase().padStart(8,'0')+c1.toString(16).toUpperCase().padStart(8,'0');};
     const wrapResult=wrapName.trim()?{name:wrapName.trim(),key:computeWrapper(wrapName.trim(),sb)}:null;
     const dispResult=dispatchedIsW6?{name:dispatchedName,level:lvlKey,family:famKey,key:computeWrapper(dispatchedName,sb)}:null;
+    // alfa_w6_custom: prefer manual (r,s) when both fields parse cleanly,
+    // else fall back to wrapper-name lookup. Surfaces a clear error when
+    // neither is usable.
+    const computeCustom=()=>{
+      const r=parseHexU32(customR), s=parseHexU32(customS);
+      if(r!==null && s!==null) return {via:'manual (r, s)',key:computeManualW6(r,s,sb)};
+      if(wrapName.trim()){
+        const k=computeWrapper(wrapName.trim(),sb);
+        if(k) return {via:'wrapper '+wrapName.trim(),key:k};
+      }
+      return {via:'',key:'enter (r, s) above OR a wrapper name in the AlfaOBD lookup'};
+    };
     if(all){
       setRes({multi:true,seed:v.toString(16).toUpperCase().padStart(8,'0'),
-        results:ALGOS.map(a=>({id:a.id,n:a.n,h:a.h,k:a.fn(v).toString(16).toUpperCase().padStart(8,'0'),k8:a.id==='xtea_sgw'?sgwFull():null})),
+        results:ALGOS.map(a=>({id:a.id,n:a.n,h:a.h,
+          k:a.id==='alfa_w6_custom'?(computeCustom().key||'—'):a.fn(v).toString(16).toUpperCase().padStart(8,'0'),
+          k8:a.id==='xtea_sgw'?sgwFull():null})),
         wrapResult,dispResult});
     } else {
       const a=ALGOS.find(x=>x.id===al);if(!a)return;
+      const isCustom=a.id==='alfa_w6_custom';
+      const customRes=isCustom?computeCustom():null;
       setRes({multi:false,id:a.id,n:a.n,seed:v.toString(16).toUpperCase().padStart(8,'0'),
-        key:a.fn(v).toString(16).toUpperCase().padStart(8,'0'),
+        key:isCustom?(customRes.key||'—'):a.fn(v).toString(16).toUpperCase().padStart(8,'0'),
         key8:a.id==='xtea_sgw'?sgwFull():null,
+        customVia:isCustom?customRes.via:null,
         wrapResult,dispResult});
     }
-  },[al,sh,all,wrapName,dispatchedName,dispatchedIsW6,famKey,lvlKey]);
+  },[al,sh,all,wrapName,dispatchedName,dispatchedIsW6,famKey,lvlKey,customR,customS]);
 
   const totalAlgoCount=ALGOS.length;
 
@@ -79,6 +109,28 @@ function SeedTab(){
           <div style={{fontSize:8,color:C.tm}}>Run all {totalAlgoCount}</div>
         </div>
       </div>
+
+      {/* AlfaOBD w6 (custom) extra inputs — only shown when that ALGOS entry is selected */}
+      {al==='alfa_w6_custom'&&!all&&<div style={{padding:12,borderRadius:10,background:C.a4+'10',border:'1.5px solid '+C.a4,marginBottom:12}}>
+        <div style={{fontSize:10,fontWeight:800,color:C.a4,letterSpacing:2,marginBottom:8}}>ALFAOBD W6 — MANUAL (r, s)</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          <div>
+            <div style={{fontSize:9,color:C.tm,marginBottom:4}}>r (hex u32)</div>
+            <input value={customR} onChange={e=>setCustomR(e.target.value.toUpperCase().replace(/[^0-9A-FX\s]/g,''))}
+              placeholder="234521F9 or 0x234521F9"
+              style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,color:C.tx,fontSize:12,fontFamily:"'JetBrains Mono'",boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <div style={{fontSize:9,color:C.tm,marginBottom:4}}>s (hex u32)</div>
+            <input value={customS} onChange={e=>setCustomS(e.target.value.toUpperCase().replace(/[^0-9A-FX\s]/g,''))}
+              placeholder="19390673 or 0x19390673"
+              style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,color:C.tx,fontSize:12,fontFamily:"'JetBrains Mono'",boxSizing:'border-box'}}/>
+          </div>
+        </div>
+        <div style={{marginTop:8,fontSize:10,color:C.tm}}>
+          Leave both blank to compute from the wrapper-name field below instead.
+        </div>
+      </div>}
 
       {/* AlfaOBD lookup row — family+level dispatch + manual w6 wrapper */}
       <div style={{padding:12,borderRadius:10,background:C.c2,border:'1px solid '+C.bd,marginBottom:16}}>
@@ -139,6 +191,7 @@ function SeedTab(){
           <div style={{fontFamily:"'JetBrains Mono'",fontSize:18,fontWeight:800,color:C.sr,wordBreak:'break-all'}}>{res.key8}</div>
           <div style={{marginTop:6,fontSize:10,color:C.tm}}>Send when SGW issues an 8-byte seed in 67 01.</div>
         </div>}
+        {res.customVia&&<div style={{marginTop:8,fontSize:10,color:C.tm}}>via: <code style={{color:C.a4}}>{res.customVia}</code></div>}
         <div style={{marginTop:8,fontSize:11,color:C.tm}}>{res.n}</div>
       </div>}
 

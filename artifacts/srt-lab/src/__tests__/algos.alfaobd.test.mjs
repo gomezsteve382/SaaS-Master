@@ -19,7 +19,7 @@ import {
   unlockKey, unlockKeyBytes,
   ALFA_XTEA_DELTA, ALFA_XTEA_ROUNDS, ALFA_XTEA_KEY,
   SGW_XTEA_KEY,
-  ALGOS, UNLOCK_FALLBACK,
+  ALGOS, UNLOCK_FALLBACK, pickUnlockChain,
 } from "../lib/algos.js";
 import { AOBD_W6, AOBD_W7, AOBD_DISPATCH, AOBD_META }
   from "../lib/alfaobdAlgorithms.generated.js";
@@ -191,8 +191,51 @@ test("ALGOS registry exposes the AlfaOBD entries", () => {
   }
 });
 
-test("UNLOCK_FALLBACK ends with alfa_ao", () => {
-  assert.equal(UNLOCK_FALLBACK[UNLOCK_FALLBACK.length - 1], "alfa_ao");
+test("UNLOCK_FALLBACK puts alfa_ao directly after CDA6 and lists w6 wrappers at the tail", () => {
+  // Order matters: CDA6 first (default for body-bus), then alfa_ao so
+  // UCONNECT/RADIO_FGA at access level 5 resolves before we burn an
+  // attempt on the GPEC XOR family. The four dispatcher-mapped w6
+  // wrappers come last so a body-bus ECU that turns out to be one of
+  // them still gets covered without a per-module override.
+  assert.equal(UNLOCK_FALLBACK[0], "cda6");
+  assert.equal(UNLOCK_FALLBACK[1], "alfa_ao");
+  for (const w of ["alfa_w6_tt","alfa_w6_tu","alfa_w6_tv","alfa_w6_ez"]) {
+    assert.ok(UNLOCK_FALLBACK.includes(w), `UNLOCK_FALLBACK missing ${w}`);
+  }
+  // GPEC family still present and ordered after alfa_ao.
+  const aoIdx = UNLOCK_FALLBACK.indexOf("alfa_ao");
+  const gpec2Idx = UNLOCK_FALLBACK.indexOf("gpec2");
+  assert.ok(aoIdx < gpec2Idx, "alfa_ao must come before gpec2");
+});
+
+test("pickUnlockChain composes the body-bus chain with alfa_ao + w6 wrappers", () => {
+  // Body-bus example: BCM at 0x742 with code 'BCM' (cda6 preferred).
+  const chain = pickUnlockChain(0x742, "BCM");
+  // Preferred algorithm (cda6) leads, then alfa_ao, then GPEC, then w6 tail.
+  assert.equal(chain[0], "cda6");
+  assert.equal(chain[1], "alfa_ao");
+  assert.ok(chain.includes("gpec2"));
+  for (const w of ["alfa_w6_tt","alfa_w6_tu","alfa_w6_tv","alfa_w6_ez"]) {
+    assert.ok(chain.includes(w), `chain missing ${w}`);
+  }
+  // No duplicates.
+  assert.equal(new Set(chain).size, chain.length);
+});
+
+test("pickUnlockChain on the SGW gateway stays XTEA-only — no alfa_* fallback", () => {
+  const chain = pickUnlockChain(0x74F, "SGW");
+  assert.deepEqual(chain, ["xtea_sgw"]);
+});
+
+test("ALGOS exposes a single AlfaOBD w6 (custom) entry", () => {
+  // The reviewer-required "wrapper-or-(r,s)" entry. The fn intentionally
+  // returns 0 — SeedTab is the source of truth for the actual compute,
+  // because the (r, s) pair lives in UI state, not the registry.
+  const custom = ALGOS.find(a => a.id === "alfa_w6_custom");
+  assert.ok(custom, "alfa_w6_custom missing from ALGOS");
+  assert.equal(custom.custom, "alfa_w6", "custom marker missing");
+  assert.equal(custom.fn(0xDEADBEEF), 0, "bare fn must return 0 (UI handles params)");
+  assert.ok(!/demo/i.test(custom.n));
 });
 
 test("unlockKey routes alfa_* ids byte-natively (and matches pinned vectors)", () => {

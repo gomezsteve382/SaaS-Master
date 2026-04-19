@@ -174,6 +174,14 @@ const ALGOS=[
   {id:'alfa_w6_tu',n:'AlfaOBD w6/tu',h:'family 27 / level 3',fn:alfaW6ByU32('tu')},
   {id:'alfa_w6_tv',n:'AlfaOBD w6/tv',h:'family 27 / level 1',fn:alfaW6ByU32('tv')},
   {id:'alfa_w6_ez',n:'AlfaOBD w6/ez',h:'family 66 / level 3',fn:alfaW6ByU32('ez')},
+  // Catch-all picker entry: SeedTab special-cases this id and shows
+  // (a) a wrapper-name input (auto-resolves through AOBD_W6) and
+  // (b) a manual (r, s) hex input pair so the operator can try any of
+  // the 380 catalogued wrappers, or even a bench-derived (r, s) that
+  // hasn't been catalogued yet, without polluting the picker grid.
+  // The bare `fn` returns 0; the SeedTab interaction is the source of
+  // truth for what gets computed.
+  {id:'alfa_w6_custom',n:'AlfaOBD w6 (custom)',h:'wrapper name or manual (r, s)',fn:()=>0,custom:'alfa_w6'},
 ];
 
 // Look up an unlock algorithm by the id used in MODULE_TARGETS.unlock.
@@ -249,18 +257,42 @@ const MOD_UNLOCK = {
 // Fallback unlock chain — tried in order when the preferred algorithm is
 // rejected with NRC 0x35 (invalid key). Covers the realistic universe of
 // FCA/Stellantis seed→key transforms; 0x74F (SGW) bypasses this list.
-// `alfa_ao` is appended last so a UCONNECT / RADIO_FGA at access level 5
-// authenticates without needing a per-module override.
-const UNLOCK_FALLBACK = ['cda6','gpec2','gpec3','gpec2a','gpec15','alfa_ao'];
+// `alfa_ao` follows CDA6 directly so a UCONNECT / RADIO_FGA at access
+// level 5 authenticates without needing a per-module override; the four
+// dispatcher-mapped w6 wrappers (families 27 + 66) come after the GPEC
+// XOR family so a body-bus ECU that turns out to be one of those gets
+// covered too. Order is documented and tested.
+const UNLOCK_FALLBACK = [
+  'cda6','alfa_ao','gpec2','gpec3','gpec2a','gpec15',
+  'alfa_w6_tt','alfa_w6_tu','alfa_w6_tv','alfa_w6_ez',
+];
+
+// Tx address ranges that live on the body bus and therefore should be
+// retried with the AlfaOBD body-bus algorithms (`alfa_ao` + the four
+// dispatcher-mapped w6 wrappers). Today this is "anything that isn't
+// the SGW gateway 0x74F" — pickUnlockChain stays conservative and lets
+// UNLOCK_FALLBACK supply all algorithms in declared order.
+function isBodyBusTx(tx){ return tx !== 0x74F; }
 
 // Build an ordered unlock-algorithm chain to try for a given tx + module
 // code. SGW (tx 0x74F) is always XTEA-only — no fallback. Otherwise the
 // preferred algorithm (MOD_UNLOCK[code] or unlockIdForTx(tx) for unknown
 // modules) is tried first, then UNLOCK_FALLBACK with duplicates stripped.
+// Body-bus modules also pick up the dispatcher-mapped w6 wrappers — see
+// AOBD_DISPATCH for which family/level combinations resolve to which
+// wrapper. Non-body-bus tx ids stay on the legacy chain.
 function pickUnlockChain(tx, code){
   if(tx===0x74F) return ['xtea_sgw'];
   const pref = (code && MOD_UNLOCK[code]) || unlockIdForTx(tx);
   const out = [pref];
+  if(!isBodyBusTx(tx)){
+    // Non body-bus: legacy chain only, drop the alfa_* tails.
+    for(const id of UNLOCK_FALLBACK){
+      if(id.startsWith('alfa_')) continue;
+      if(!out.includes(id)) out.push(id);
+    }
+    return out;
+  }
   for(const id of UNLOCK_FALLBACK) if(!out.includes(id)) out.push(id);
   return out;
 }

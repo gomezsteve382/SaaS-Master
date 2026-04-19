@@ -104,21 +104,28 @@ describe('tryUnlock', () => {
   const seed = [0x11, 0x22, 0x33, 0x44];
   const seedU32 = 0x11223344;
 
-  it('walks fallback chain on NRC 0x35, succeeds with second algo', async () => {
+  it('walks fallback chain on NRC 0x35, succeeds with later algo (alfa_ao now between cda6 and gpec2)', async () => {
     // BCM (preferred cda6) — but pretend the ECU is actually a gpec2 module
-    // mis-labeled as BCM. cda6 key rejected, gpec2 key accepted.
-    const cda6Key = unlockKey('cda6', seedU32);
-    const cda6Bytes = [(cda6Key >>> 24) & 0xFF, (cda6Key >>> 16) & 0xFF, (cda6Key >>> 8) & 0xFF, cda6Key & 0xFF];
-    const gpec2Key = unlockKey('gpec2', seedU32);
-    const gpec2Bytes = [(gpec2Key >>> 24) & 0xFF, (gpec2Key >>> 16) & 0xFF, (gpec2Key >>> 8) & 0xFF, gpec2Key & 0xFF];
-
+    // mis-labeled as BCM. cda6 + alfa_ao both rejected, gpec2 accepted.
+    // alfa_ao is now in slot 2 of UNLOCK_FALLBACK so we explicitly script
+    // its rejection to prove the loop walks past it before reaching gpec2.
+    const keyBytesFor = (aid) => {
+      // alfa_* algorithms are byte-native; route through unlockKeyBytes for
+      // those, u32 for the rest. The script doesn't need to care, but the
+      // mock does — so derive the exact bytes the loop will send.
+      const k = unlockKey(aid, seedU32);
+      return [(k >>> 24) & 0xFF, (k >>> 16) & 0xFF, (k >>> 8) & 0xFF, k & 0xFF];
+    };
     const m = mockUds([
       // attempt 1: cda6
       { req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seed]) } },
-      { req: [0x27, 0x02, ...cda6Bytes], resp: { ok: true, d: new Uint8Array([0x7F, 0x27, 0x35]) } },
-      // attempt 2: gpec2 (next in fallback) — fresh seed
+      { req: [0x27, 0x02, ...keyBytesFor('cda6')], resp: { ok: true, d: new Uint8Array([0x7F, 0x27, 0x35]) } },
+      // attempt 2: alfa_ao (NEW — directly after cda6)
       { req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seed]) } },
-      { req: [0x27, 0x02, ...gpec2Bytes], resp: { ok: true, d: new Uint8Array([0x67, 0x02]) } },
+      { req: [0x27, 0x02, ...keyBytesFor('alfa_ao')], resp: { ok: true, d: new Uint8Array([0x7F, 0x27, 0x35]) } },
+      // attempt 3: gpec2 (next in fallback) — accepted
+      { req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seed]) } },
+      { req: [0x27, 0x02, ...keyBytesFor('gpec2')], resp: { ok: true, d: new Uint8Array([0x67, 0x02]) } },
     ]);
 
     const result = await tryUnlock(m.uds, 0x750, 0x758, 'BCM', null, 'BCM');

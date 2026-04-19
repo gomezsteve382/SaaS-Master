@@ -4,7 +4,7 @@
 //
 // w6: 380 entries (fully decoded — see alfaW6 in algos.js)
 // w7: 360 entries (DATA ONLY — cipher core not yet translated)
-// dispatch: 10 keys (8 ECU families + per-ECU branches)
+// dispatch: 41 keys (8 ECU families + per-ECU branches)
 
 export const AOBD_W6 = {
   "a0": [0x57EF2013, 0x48AD5DA6],
@@ -753,8 +753,101 @@ export const AOBD_W7 = {
 };
 
 export const AOBD_DISPATCH = {
+  "ecu_ABS_CHRYSLER": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_ABS_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_ADCM": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_ADCM_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_AFLS_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_AMP_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_ANC_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_APM_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_ASBS_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_ASCM_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_BPCM": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_BPCM_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_CSWM_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_CVPM_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_DDM_DT": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_EPS_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_EVCU": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_ICS_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_IPC_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_LBSS_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_OBCM": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_OCM_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_ORC": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_PDM_DT": {
+    "_status": "branch_known_algo_not_traced",
+  },
   "ecu_RADIO_FGA_0x14E": {
     "level_5": "ao (XTEA-BE)",
+  },
+  "ecu_RADIO_NON_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_RBSS_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_TBM2": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_TBM2_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_TGW_PN": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_TIPM_CGW": {
+    "_status": "branch_known_algo_not_traced",
+  },
+  "ecu_TTPM_PN": {
+    "_status": "branch_known_algo_not_traced",
   },
   "ecu_UCONNECT_0x149": {
     "level_5": "ao (XTEA-BE)",
@@ -803,7 +896,8 @@ export const AOBD_DISPATCH = {
 export const AOBD_META = {
   "w6_count": 380,
   "w7_count": 360,
-  "dispatch_keys": 10,
+  "dispatch_keys": 41,
+  "dispatch_resolved": 10,
   "source": "alfaobd_algorithm_catalog_1776573875648.json",
-  "note": "w6 = parameterized linear cipher (alfaW6 in algos.js); w7 = big-integer arithmetic core, parameters staged but cipher not yet ported."
+  "note": "w6 = parameterized linear cipher (alfaW6 in algos.js); w7 = big-integer arithmetic core, parameters staged but cipher not yet ported. dispatch entries marked `_status: branch_known_algo_not_traced` are ECUs the RE README documents as having explicit branches in abf() but whose wrapper names haven't been catalogued yet."
 };
