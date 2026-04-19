@@ -4,7 +4,7 @@ import {C} from "../lib/constants.js";
 import {initAdapter} from "../lib/initAdapter.js";
 import {decodeNRC} from "../lib/nrc.js";
 import {logSession} from "../lib/paperTrail.js";
-import {parseDtcResponse, formatDtcLogLine, buildDtcDetail} from "../lib/dtc.js";
+import {runDtcRead} from "../lib/dtc.js";
 import DtcDetailPanel from "../lib/DtcDetailPanel.jsx";
 
 const MODULE_PRESETS={
@@ -170,26 +170,14 @@ export default function UdsTab(){
   const readDtcs=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
-    const r=await eng.current.uds(tx,rx,[0x19,0x02,0x08]);
-    /* NOTE: this is the only DTC read surface in the app today.
-       OBDTab.jsx does VIN scans, OBDSwarmDiagnostic.jsx does VIN
-       discovery — neither calls 0x19. If a future tab adds a DTC
-       read, share parseDtcResponse / formatDtcLogLine from
-       ../lib/dtc.js — do not duplicate the parse loop. */
-    const codes=[];
-    if(r.ok&&r.d){
-      const entries=parseDtcResponse(r.d);
-      for(const entry of entries){
-        const detail=buildDtcDetail(entry,{tx,rx});
-        addLog(formatDtcLogLine(entry),'warn',{dtc:detail});
-        codes.push(entry.code);
-      }
-      if(!codes.length)addLog('✓ No DTCs','rx');
-    }
+    /* runDtcRead lives in ../lib/dtc.js so the same flow is unit-
+       tested with a mocked engine (see DtcDetailPanel.test.jsx).
+       AdcmTab and JailbreakTab share the underlying helpers. */
+    const {ok,codes}=await runDtcRead({engine:eng.current,addLog,txAddr:tx,rxAddr:rx});
     /* Audit record contract is preserved: structured log row keeps
        just the hex codes, full details live on the in-memory log
        row only. Historical paper-trail diffs stay stable. */
-    recordPaper('Read DTCs',{success:!!r.ok,dtcs:codes});
+    recordPaper('Read DTCs',{success:ok,dtcs:codes});
   },[txAddr,rxAddr,addLog,recordPaper]);
 
   const clearDtcs=useCallback(async()=>{

@@ -161,6 +161,32 @@ export function formatDtcLogLine(entry, table = DEFAULT_FAULTS) {
   return `DTC: ${entry.code} (${desc}) status=${status.hex} — ${status.summary}`;
 }
 
+/* Run the full Read-DTCs flow against a mocked or real engine.
+ *
+ * Pulled out of UdsTab so an integration test can drive the same
+ * code path with a fake engine and assert the rendered log lines
+ * + structured detail payloads — no React mount, no jsdom needed.
+ *
+ * `addLog(message, level, extra)` matches UdsTab's signature; the
+ * `extra` arg carries the `{dtc: <detail>}` payload that the log
+ * renderer uses to expand the inline detail panel. The function
+ * returns the array of formatted hex codes for paper-trail
+ * recording. */
+export async function runDtcRead({ engine, addLog, txAddr, rxAddr, table = DEFAULT_FAULTS }) {
+  const r = await engine.uds(txAddr, rxAddr, [0x19, 0x02, 0x08]);
+  const codes = [];
+  if (r && r.ok && r.d) {
+    const entries = parseDtcResponse(r.d);
+    for (const entry of entries) {
+      const detail = buildDtcDetail(entry, { tx: txAddr, rx: rxAddr }, table);
+      addLog(formatDtcLogLine(entry, table), "warn", { dtc: detail });
+      codes.push(entry.code);
+    }
+    if (!codes.length) addLog("✓ No DTCs", "rx");
+  }
+  return { ok: !!(r && r.ok), codes };
+}
+
 /* Build the structured payload attached to a clickable log row.
  * Keeps the audit-record contract (just hex codes) untouched. */
 export function buildDtcDetail(entry, moduleAddr, table = DEFAULT_FAULTS) {

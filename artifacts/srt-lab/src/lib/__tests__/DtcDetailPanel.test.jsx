@@ -17,6 +17,7 @@ import {
   parseDtcResponse,
   buildDtcDetail,
   formatDtcLogLine,
+  runDtcRead,
 } from "../dtc.js";
 import DtcDetailPanel from "../DtcDetailPanel.jsx";
 
@@ -102,5 +103,102 @@ describe("DTC overlay end-to-end (parse → buildDetail → render)", () => {
     const unknownLine = formatDtcLogLine(entries[1], FAULT_TABLE);
     expect(unknownLine).toContain("(unknown)");
     expect(unknownLine).toContain("pending");
+  });
+});
+
+describe("UdsTab Read-DTCs integration (mocked engine)", () => {
+  /* This is the integration-style test the reviewer flagged: it
+   * drives the exact code path UdsTab's "Read DTCs" button calls
+   * (runDtcRead, lifted out of the component for testability),
+   * with a mocked engine that returns the same fixture bytes the
+   * bridge daemon would. We assert the addLog calls UdsTab makes,
+   * the structured `dtc:` payloads attached to each log row, the
+   * detail-panel HTML they would mount to, and the audit-record
+   * shape (codes-only) that paper-trail receives. */
+
+  function mockEngine(responseBytes) {
+    const calls = [];
+    return {
+      calls,
+      uds: async (tx, rx, req) => {
+        calls.push({ tx, rx, req: Array.from(req) });
+        return { ok: true, d: responseBytes };
+      },
+    };
+  }
+
+  function makeAddLog() {
+    const calls = [];
+    return {
+      calls,
+      addLog: (m, t = "info", extra = null) => calls.push({ m, t, extra }),
+    };
+  }
+
+  it("calls the engine with 19 02 08 on the requested module", async () => {
+    const eng = mockEngine(FIXTURE_RESPONSE);
+    const sink = makeAddLog();
+    await runDtcRead({ engine: eng, addLog: sink.addLog, txAddr: 0x7e0, rxAddr: 0x7e8, table: FAULT_TABLE });
+    expect(eng.calls).toEqual([{ tx: 0x7e0, rx: 0x7e8, req: [0x19, 0x02, 0x08] }]);
+  });
+
+  it("emits one warn log per DTC with the enriched description and status", async () => {
+    const eng = mockEngine(FIXTURE_RESPONSE);
+    const sink = makeAddLog();
+    const r = await runDtcRead({ engine: eng, addLog: sink.addLog, txAddr: 0x7e0, rxAddr: 0x7e8, table: FAULT_TABLE });
+
+    /* Two DTCs in the fixture → two warn rows. */
+    const warns = sink.calls.filter((c) => c.t === "warn");
+    expect(warns).toHaveLength(2);
+
+    /* Known code: enriched description appears inline. */
+    expect(warns[0].m).toContain("P030100");
+    expect(warns[0].m).toContain("Cylinder 1 misfire detected");
+    expect(warns[0].m).toContain("confirmed");
+
+    /* Unknown code: graceful (unknown) fallback + pending. */
+    expect(warns[1].m).toContain("U014000");
+    expect(warns[1].m).toContain("(unknown)");
+    expect(warns[1].m).toContain("pending");
+
+    /* Paper-trail contract: hex codes only, no descriptions. */
+    expect(r).toEqual({ ok: true, codes: ["P030100", "U014000"] });
+  });
+
+  it("attaches a structured `dtc` payload that mounts in DtcDetailPanel", async () => {
+    const eng = mockEngine(FIXTURE_RESPONSE);
+    const sink = makeAddLog();
+    await runDtcRead({ engine: eng, addLog: sink.addLog, txAddr: 0x7e0, rxAddr: 0x7e8, table: FAULT_TABLE });
+
+    /* The first DTC's payload — what the click-to-expand panel
+       receives — has every field the panel needs. */
+    const known = sink.calls.find((c) => c.t === "warn").extra.dtc;
+    expect(known.code).toBe("P030100");
+    expect(known.description).toBe("Cylinder 1 misfire detected");
+    expect(known.statusBits.confirmed).toBe(true);
+    expect(known.statusBits.testFailed).toBe(true);
+    expect(known.statusBits.pending).toBe(false);
+    expect(known.moduleAddr).toEqual({ tx: 0x7e0, rx: 0x7e8 });
+
+    /* And feeding that payload into DtcDetailPanel produces the
+       expected human-readable HTML — full integration: response
+       bytes → log payload → mounted panel HTML. */
+    const html = renderToString(<DtcDetailPanel detail={known} />);
+    expect(html).toContain("Cylinder 1 misfire detected");
+    expect(html).toContain("0x09");
+    expect(html).toContain("TX 0x7E0");
+  });
+
+  it("logs '✓ No DTCs' when the response carries zero DTC slots", async () => {
+    /* SID echo + sub-fn + avail-mask + one zero-padded DTC. */
+    const empty = new Uint8Array([0x59, 0x02, 0x08, 0x00, 0x00, 0x00, 0x00]);
+    const eng = mockEngine(empty);
+    const sink = makeAddLog();
+    const r = await runDtcRead({ engine: eng, addLog: sink.addLog, txAddr: 0x750, rxAddr: 0x758, table: FAULT_TABLE });
+
+    expect(r.codes).toEqual([]);
+    const last = sink.calls[sink.calls.length - 1];
+    expect(last.m).toContain("No DTCs");
+    expect(last.t).toBe("rx");
   });
 });
