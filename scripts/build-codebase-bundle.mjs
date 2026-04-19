@@ -38,7 +38,9 @@ const BINARY_EXT = new Set([
   ".pptx",".docx",".xlsx",".odt",".odp",".ods",
   ".swf",".mdb",".accdb",
 ]);
-const HUGE_TEXT_LIMIT = 256 * 1024;   // 256 KB per text file
+/* No size cap on text files — the bundle must contain every source file
+ * in full so it's a complete drop-in replacement for the working tree.
+ * Binaries are still placeholdered. */
 
 function isExcludedPath(rel) {
   const base = rel.split("/").pop();
@@ -55,7 +57,6 @@ function classify(rel, buf) {
   const ext = extname(rel).toLowerCase();
   if (BINARY_EXT.has(ext)) return "binary";
   if (looksBinary(buf)) return "binary";
-  if (buf.length > HUGE_TEXT_LIMIT) return "huge_text";
   return "text";
 }
 
@@ -96,11 +97,10 @@ out.write(`#   large generated DBs (*.db, *.sqlite*), .env*, OS junk, and\n`);
 out.write(`#   the bundle output files themselves.\n`);
 out.write(`# Binary files appear as <<binary file, NNN bytes, sha256:…>>\n`);
 out.write(`#   placeholder lines so the file index is complete.\n`);
-out.write(`# Text files larger than ${HUGE_TEXT_LIMIT} bytes are summarized\n`);
-out.write(`#   the same way to keep the bundle scannable.\n`);
+out.write(`# All text files are inlined in full — no size cap.\n`);
 out.write(`#\n\n`);
 
-let textCount = 0, binaryCount = 0, hugeCount = 0, textBytes = 0;
+let textCount = 0, binaryCount = 0, textBytes = 0;
 for (const rel of files) {
   const abs = join(ROOT, rel);
   const buf = readFileSync(abs);
@@ -113,15 +113,14 @@ for (const rel of files) {
     textBytes += buf.length;
   } else {
     const sha = createHash("sha256").update(buf).digest("hex").slice(0, 16);
-    const label = kind === "binary" ? "binary" : "huge text";
-    out.write(`<<${label} file, ${buf.length} bytes, sha256:${sha}…>>\n`);
-    if (kind === "binary") binaryCount++; else hugeCount++;
+    out.write(`<<binary file, ${buf.length} bytes, sha256:${sha}…>>\n`);
+    binaryCount++;
   }
   out.write("\n");
 }
 await new Promise((res) => out.end(res));
 const bundleSize = statSync(BUNDLE).size;
-console.log(`bundle: text=${textCount} (${(textBytes/1024).toFixed(0)} KB inlined) binary=${binaryCount} huge=${hugeCount} → ${(bundleSize/1024/1024).toFixed(2)} MB`);
+console.log(`bundle: text=${textCount} (${(textBytes/1024).toFixed(0)} KB inlined) binary=${binaryCount} → ${(bundleSize/1024/1024).toFixed(2)} MB`);
 
 /* ---------------- tar.gz archive ---------------- */
 console.log(`writing ${ARCHIVE} …`);
