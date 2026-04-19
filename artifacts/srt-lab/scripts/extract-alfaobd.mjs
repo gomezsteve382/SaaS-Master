@@ -45,6 +45,7 @@ import {
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import { gzipSync } from "node:zlib";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
@@ -310,9 +311,20 @@ function main() {
   }
 
   writeFileSync(OUT_PATH, next);
+  // Bundle-size guardrail per task spec: warn (don't fail) if the
+  // gzipped generated module exceeds 500 KB, so regen on a future
+  // expanded data drop notices the bloat.
+  const GZ_LIMIT = 500 * 1024;
+  const gzipSize = gzipSync(next).length;
+  const sizeKB = (gzipSize / 1024).toFixed(1);
   console.log(
-    `extract-alfaobd: wrote ${OUT_PATH} (diag_names=${Object.keys(diagNames).length}, cgw_config=${cgwConfig.length})`,
+    `extract-alfaobd: wrote ${OUT_PATH} (diag_names=${Object.keys(diagNames).length}, cgw_config=${cgwConfig.length}, gzipped=${sizeKB} KB)`,
   );
+  if (gzipSize > GZ_LIMIT) {
+    console.warn(
+      `extract-alfaobd: WARNING — generated module is ${sizeKB} KB gzipped, over the 500 KB ceiling. Tighten filters or split the module.`,
+    );
+  }
 }
 
 main();
