@@ -49,11 +49,19 @@ describe('moduleRegistry', () => {
     }
   });
 
-  it('partitionForVin routes pending-w7 rows into their own bucket and out of writable', () => {
+  it('partitionForVin lists pending-w7 rows in BOTH writable and pendingW7 buckets', () => {
+    // The batch runner attempts pending-w7 rows so they fail-soft with
+    // an explicit "W7 cipher pending" reason instead of being silently
+    // skipped — the pendingW7 bucket exists for the reference panel
+    // that explains WHY the row will fail.
     const part = partitionForVin('1C4HJXEN5MW123456'); // non-SGW VIN
     const inWritable = part.writable.find(r => r.unlockStatus === 'pending-w7');
-    expect(inWritable).toBeUndefined();
+    expect(inWritable).toBeTruthy();
     expect(part.pendingW7.length).toBeGreaterThan(0);
+    // And the same rows appear in BOTH buckets (referential overlap).
+    const w7Codes = new Set(part.pendingW7.map(r => r.code));
+    const writableW7 = part.writable.filter(r => w7Codes.has(r.code));
+    expect(writableW7.length).toBe(part.pendingW7.length);
   });
 
   it('dedupes addresses by tx:rx (no two rows share a bus address)', () => {

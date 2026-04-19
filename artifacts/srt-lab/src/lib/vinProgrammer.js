@@ -137,12 +137,14 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
     result.errors.push(`Module ${row.code} is ${row.kind}; refusing to write`);
     return result;
   }
-  if (row.unlockStatus === 'pending-w7') {
-    result.reason = 'unlock';
-    result.errors.push(`Module ${row.code} requires W7 cipher (translation pending — task #145)`);
-    return result;
-  }
-
+  // Note: pending-W7 rows are NOT short-circuited here. The engine attempts
+  // them like any other module — the unlock chain will naturally exhaust
+  // (because the w7_* algorithms aren't in ALGOS yet, task #145), producing
+  // a normal `reason: 'unlock'` failure. The result.errors array is annotated
+  // with a clear "W7 cipher pending" hint so the audit trail is explicit
+  // about WHY the module failed, while still giving the bus traffic a real
+  // chance (handy if a tech has manually patched in a W7 algo).
+  const isPendingW7 = row.unlockStatus === 'pending-w7';
   const lbl = row.code || ('0x' + row.tx.toString(16).toUpperCase());
   const dids = (row.vinDids && row.vinDids.length) ? row.vinDids : vinWriteDids(row.code);
 
@@ -191,6 +193,13 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
   if (result.unlockAlgo === false) {
     result.reason = 'unlock';
     result.errors.push(`${lbl} all unlock algorithms exhausted`);
+    if (isPendingW7) {
+      // Augment the audit trail with the structural reason so techs can
+      // tell apart "wrong key" from "no key implementation yet". This is
+      // intentionally additive — the failure is still a normal `unlock`
+      // reason so callers don't need to special-case W7.
+      result.errors.push(`${lbl} is flagged pending-w7 — W7 cipher not yet translated (task #145)`);
+    }
     return result;
   }
 

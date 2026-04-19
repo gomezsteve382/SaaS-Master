@@ -161,6 +161,36 @@ describe('programVin', () => {
     expect(r.didResults[1].match).toBe(true);
   });
 
+  it('attempts pending-w7 rows and fail-softs with an explicit W7 hint in errors', async () => {
+    // The engine no longer hard-blocks pending-w7 — the bus traffic is
+    // attempted, the unlock chain exhausts (because no w7_* algos are
+    // registered yet), and the result carries a structured reason plus
+    // an explicit "W7 cipher pending" annotation in errors.
+    const row = getRow('ECM_W7');
+    const dids = vinWriteDids(row.code);
+    const seedBytes = [0x00, 0x00, 0x00, 0x01];
+    const script = [
+      // Preflight succeeds — module is on the bus.
+      { req: [0x22, ...encodeDid(dids[0])], resp: vinReadResp(dids[0], '1C4HJXEN5MW000000') },
+      { req: [0x10, 0x03], resp: { ok: true, d: new Uint8Array([0x50, 0x03]) } },
+    ];
+    // tryUnlock walks the entire 10-algo MOD_UNLOCK chain — every key is
+    // rejected with NRC 0x35 (no w7 algo exists yet, so every attempt is
+    // structurally wrong).
+    for (let i = 0; i < 10; i++) {
+      script.push({ req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seedBytes]) } });
+      script.push({ resp: { ok: true, d: new Uint8Array([0x7F, 0x27, 0x35]) } });
+    }
+    const m = mockUds(script);
+    const r = await programVin({ eng: m, row, vin: VIN });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toBe('unlock');
+    expect(r.errors.some(e => /W7 cipher/i.test(e))).toBe(true);
+    expect(r.errors.some(e => /pending-w7/.test(e))).toBe(true);
+    // Confirms the engine actually TRIED — bus calls were made.
+    expect(m.calls.length).toBeGreaterThan(0);
+  });
+
   it('threads accessLevel and crcStrategy from the registry row through to the result', async () => {
     const row = getRow('ECM_W7'); // accessLevel 0x03, crc 'module-computed', unlockStatus 'pending-w7'
     expect(row).toBeTruthy();

@@ -184,8 +184,12 @@ function partitionForVin(vin) {
   for (const r of REGISTRY) {
     if (r.kind === 'no-vin') { noVin.push(r); continue; }
     if (r.kind === 'unsupported') { unsupported.push(r); continue; }
-    if (r.unlockStatus === 'pending-w7') { pendingW7.push(r); continue; }
     const target = { ...r, sgwRequired: sgwRequiredFor(r, vin) };
+    // W7-pending rows are STILL added to the writable bucket so the
+    // batch runner can attempt them. They also appear in pendingW7 so
+    // the UI can render the dedicated reference panel and surface the
+    // expected outcome ("unlock will fail until task #145 lands").
+    if (r.unlockStatus === 'pending-w7') pendingW7.push(target);
     if (target.sgwRequired) blockedBySgw.push(target);
     writable.push(target);
   }
