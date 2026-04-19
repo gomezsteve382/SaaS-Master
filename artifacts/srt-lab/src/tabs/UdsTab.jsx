@@ -4,7 +4,8 @@ import {C} from "../lib/constants.js";
 import {initAdapter} from "../lib/initAdapter.js";
 import {decodeNRC} from "../lib/nrc.js";
 import {logSession} from "../lib/paperTrail.js";
-import {parseDtcResponse, formatDtcLogLine, buildDtcDetail, DTC_STATUS_BITS} from "../lib/dtc.js";
+import {parseDtcResponse, formatDtcLogLine, buildDtcDetail} from "../lib/dtc.js";
+import DtcDetailPanel from "../lib/DtcDetailPanel.jsx";
 
 const MODULE_PRESETS={
   BCM:{tx:0x750,rx:0x758},RFHUB:{tx:0x75F,rx:0x767},
@@ -343,26 +344,7 @@ export default function UdsTab(){
                 style={{color,cursor:'pointer',userSelect:'none'}} title="Click for details">
                 <span style={{color:'#555'}}>{l.t}</span> {l.m} <span style={{color:'#888'}}>{isOpen?'▾':'▸'}</span>
               </div>
-              {isOpen&&<div data-testid="uds-dtc-detail" style={{margin:'4px 0 8px 80px',padding:10,background:'#1A1A24',border:'1px solid #2D2D40',borderRadius:6,color:'#E0E0E0'}}>
-                <div style={{fontSize:11,fontWeight:800,color:'#FFB300'}}>{l.dtc.code}{l.dtc.category?' · '+l.dtc.category:''}</div>
-                <div style={{fontSize:11,marginTop:4,color:'#FFF'}}>{l.dtc.description||'(no description in fault table — Task T1 .db not yet ingested)'}</div>
-                <div style={{fontSize:10,marginTop:8,color:'#AAA'}}>Status byte {l.dtc.statusHex} ({l.dtc.statusByte.toString(2).padStart(8,'0')}b):</div>
-                <div style={{fontSize:10,marginTop:4,display:'grid',gridTemplateColumns:'repeat(2, 1fr)',gap:'2px 12px'}}>
-                  {DTC_STATUS_BITS.map(d=>{
-                    const on=l.dtc.statusBits[d.key];
-                    return <div key={d.key} style={{color:on?'#00E676':'#555'}}>
-                      {on?'■':'□'} {d.label}
-                    </div>;
-                  })}
-                </div>
-                {l.dtc.moduleAddr&&<div style={{fontSize:10,marginTop:8,color:'#AAA'}}>
-                  Module: TX 0x{l.dtc.moduleAddr.tx.toString(16).toUpperCase().padStart(3,'0')} · RX 0x{l.dtc.moduleAddr.rx.toString(16).toUpperCase().padStart(3,'0')}
-                </div>}
-                <div style={{marginTop:8}}>
-                  <button data-testid="uds-dtc-copy" onClick={(e)=>{e.stopPropagation();try{navigator.clipboard.writeText(l.dtc.code);}catch(_){}}}
-                    style={{fontSize:10,fontWeight:700,padding:'4px 10px',borderRadius:4,border:'1px solid #444',background:'#0D0D15',color:'#B388FF',cursor:'pointer'}}>📋 Copy code</button>
-                </div>
-              </div>}
+              {isOpen&&<DtcDetailPanel detail={l.dtc}/>}
             </div>;
           }
           return <div key={i} style={{color}}>

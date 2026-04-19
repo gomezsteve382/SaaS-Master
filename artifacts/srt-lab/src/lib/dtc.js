@@ -175,6 +175,7 @@ export function buildDtcDetail(entry, moduleAddr, table = DEFAULT_FAULTS) {
     statusBits: status.bits,
     statusLabels: status.labels,
     statusSummary: status.summary,
+    statusShort: status.summary,
     moduleAddr: moduleAddr || null,
   };
 }

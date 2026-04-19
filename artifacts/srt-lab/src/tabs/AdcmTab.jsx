@@ -10,6 +10,7 @@ import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ADCM_VARIANTS, ADCM_MODULES, u32} from '../lib/programmerData.js';
 import {vinHasSGW} from '../lib/vin.js';
 import {createBridgeEngine, reUnlockAdcmRoutine} from '../lib/bridgeEngine.js';
+import {parseDtcResponse, formatDtcLogLine, buildDtcDetail} from '../lib/dtc.js';
 
 export default function AdcmTab(){
   const{vin:masterVin,updateStatus}=useMasterVin();
@@ -253,15 +254,13 @@ export default function AdcmTab(){
     addLog('ReadDTCInformation (19 02 08)...','info');
     const r=await eng.current.uds(mod.tx,mod.rx,[0x19,0x02,0x08]);
     if(r.ok&&r.d){
-      const d=Array.from(r.d);const list=[];
-      for(let i=3;i+3<d.length;i+=4){
-        const dtc=(d[i]<<16)|(d[i+1]<<8)|d[i+2];const st=d[i+3];
-        if(dtc===0)continue;
-        const prefix=(d[i]>>6)===0?'P':(d[i]>>6)===1?'C':(d[i]>>6)===2?'B':'U';
-        const code=prefix+hx((d[i]&0x3F),1)+hx(d[i+1])+hx(d[i+2]);
-        list.push({code,status:st});
-        addLog('DTC: '+code+' status=0x'+hx(st),'warn');
-      }
+      /* Shared parser/log formatter from ../lib/dtc.js — same plain-
+         English overlay as the UDS Programmer tab. Description is
+         pulled from FAULTS_BY_HEX (currently empty until Task T1
+         lands a clean .db) with a "(unknown)" fallback. */
+      const entries=parseDtcResponse(r.d);
+      const list=entries.map(e=>buildDtcDetail(e,{tx:mod.tx,rx:mod.rx}));
+      for(const e of entries){addLog(formatDtcLogLine(e),'warn');}
       setDtcs(list);
       if(!list.length)addLog('✓ No DTCs stored','rx');
     }
@@ -417,7 +416,7 @@ export default function AdcmTab(){
         <Btn onClick={ecuReset} disabled={!!busy||!conn} color={C.er} outline>⚡ ECU Reset (11 01)</Btn>
       </div>
       {dtcs.length>0?<div style={{padding:10,background:'#FFF8F0',border:'1px solid '+C.wn+'44',borderRadius:8}}>
-        {dtcs.map((d,i)=><div key={i} style={{fontSize:12,padding:'3px 0',fontFamily:"'JetBrains Mono'"}}>⚠ {d.code} — status 0x{hx(d.status)}</div>)}
+        {dtcs.map((d,i)=><div key={i} style={{fontSize:12,padding:'3px 0',fontFamily:"'JetBrains Mono'"}}>⚠ {d.code} — {d.description||'(unknown)'} — status {d.statusHex} {d.statusSummary&&d.statusSummary!=='—'?'('+d.statusSummary+')':''}</div>)}
       </div>:<div style={{fontSize:11,color:C.tm,fontStyle:'italic'}}>No DTCs read yet</div>}
     </Card>
 

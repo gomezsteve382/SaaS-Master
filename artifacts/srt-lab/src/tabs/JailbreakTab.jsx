@@ -3,6 +3,7 @@ import { C } from "../lib/constants.js";
 import { Card, Btn, Tag } from "../lib/ui.jsx";
 import { cda6, u32, unlockKey, unlockKeyBytes } from "../lib/algos.js";
 import { createObdEngine, decodeDTC, decodeDTCStatus } from "../lib/obdEngine.js";
+import { dtcLookup } from "../lib/dtc.js";
 import {
   JAILBREAK_FEATURES, FEATURE_CATEGORY, CATEGORY_ORDER,
   PROFILES, MODULE_TARGETS, ROUTINE_PRESETS,
@@ -184,7 +185,11 @@ function JailbreakTab() {
     for (let i = 3; i + 4 <= data.length; i += 4) {
       const code = decodeDTC(data[i], data[i + 1], data[i + 2]);
       const status = decodeDTCStatus(data[i + 3]);
-      out.push({ code, status, raw: hx(data[i]) + hx(data[i + 1]) + hx(data[i + 2]), statusByte: data[i + 3] });
+      /* Plain-English overlay (Task #143). Shared lookup against
+         FAULTS_BY_HEX (currently empty pending Task T1) — falls
+         back to "(unknown)" so the column always renders. */
+      const desc = dtcLookup(code)?.description || "(unknown)";
+      out.push({ code, status, description: desc, raw: hx(data[i]) + hx(data[i + 1]) + hx(data[i + 2]), statusByte: data[i + 3] });
     }
     setDtcs(out);
     addLog(out.length + " DTC(s) decoded", "rx");
@@ -456,10 +461,11 @@ function JailbreakTab() {
         <div style={{ fontSize: 10, fontWeight: 800, color: C.tm, marginBottom: 6 }}>
           DTCs ({dtcs.length})
         </div>
-        {dtcs.map((d, i) => <div key={i} style={{ display: "flex", gap: 12, fontSize: 12, padding: "3px 0", fontFamily: "monospace" }}>
-          <span style={{ fontWeight: 800, color: d.code.startsWith("P") ? "#D32F2F" : d.code.startsWith("B") ? "#F57C00" : d.code.startsWith("C") ? "#7B1FA2" : "#1976D2", minWidth: 70 }}>{d.code}</span>
+        {dtcs.map((d, i) => <div key={i} style={{ display: "flex", gap: 12, fontSize: 12, padding: "3px 0", fontFamily: "monospace", alignItems: "baseline" }}>
+          <span style={{ fontWeight: 800, color: d.code.startsWith("P") ? "#D32F2F" : d.code.startsWith("B") ? "#F57C00" : d.code.startsWith("C") ? "#7B1FA2" : "#1976D2", minWidth: 80 }}>{d.code}</span>
+          <span style={{ color: C.tx, flex: 1 }}>{d.description || "(unknown)"}</span>
           <span style={{ color: C.tm }}>{d.status}</span>
-          <span style={{ marginLeft: "auto", fontSize: 10, opacity: .5 }}>raw: {d.raw} / {hx(d.statusByte)}</span>
+          <span style={{ fontSize: 10, opacity: .5 }}>raw: {d.raw} / {hx(d.statusByte)}</span>
         </div>)}
       </div>}
     </Card>
