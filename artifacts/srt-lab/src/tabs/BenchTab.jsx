@@ -8,11 +8,14 @@ import {MODS} from "../lib/mods.js";
 import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse, vinReadbackOk} from "../lib/algos.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {DownloadCounter} from "../lib/useDownloadCount.jsx";
+import {openSerialPort, onPortDisconnect, cleanupPort} from "../lib/serialErrors.js";
 
 function BenchTab(){
   const[mods,setMods]=useState([]);const[nv,setNv]=useState('');const[msg,setMsg]=useState('');const[log,setLog]=useState([]);
   const[benchConn,setBenchConn]=useState(false);const[benchBusy,setBenchBusy]=useState('');
+  const[benchErr,setBenchErr]=useState(null);
   const benchEng=useRef(null);
+  const benchDetach=useRef(null);
   const addLog=(m,l='info')=>setLog(p=>[...p,{m,l,t:new Date().toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})}]);
   const dl=(d,n,assetId)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();if(assetId)trackDownload(assetId);};
 
@@ -85,13 +88,19 @@ function BenchTab(){
     setMsg(patched>0?patched+' module(s) CRC-patched':'All CRCs already valid');
   },[mods]);
 
-  const benchConnect=useCallback(async()=>{
+  const tryBenchConnect=useCallback(async(opts={})=>{
+    setBenchErr(null);
+    /* openSerialPort wraps requestPort+open and classifies any DOMException
+       (port busy, cable unplugged, permission denied) into a friendly,
+       actionable message so the bench tech sees what to do, not a raw
+       browser exception. reusePort lets Retry skip the picker. */
+    const opened=await openSerialPort({addLog,reusePort:!opts.forceRepick,forceRepick:!!opts.forceRepick});
+    if(!opened.ok){setBenchErr(opened.error);return;}
+    const port=opened.port;
+    let w=null,rd=null;
     try{
-      if(!navigator.serial){addLog('Web Serial not available — use Chrome','error');return;}
-      const port=await navigator.serial.requestPort();
-      await port.open({baudRate:115200});
-      const w=port.writable.getWriter();
-      const rd=port.readable.getReader();
+      w=port.writable.getWriter();
+      rd=port.readable.getReader();
       const tdec=new TextDecoder();
       let rbuf='';
       /* Background IIFE reader — drains port continuously, eliminates stale Promise.race reads */
@@ -140,9 +149,25 @@ function BenchTab(){
         if(!all.length)return{ok:false};
         return{ok:true,d:new Uint8Array(all)};
       }};
+      try{benchDetach.current?.();}catch{}
+      benchDetach.current=onPortDisconnect(port,()=>{
+        addLog('Bench adapter unplugged — connection lost. Plug the cable back in and click Retry.','error');
+        setBenchConn(false);
+        benchEng.current=null;
+        cleanupPort(port,rd,w);
+        setBenchErr({kind:'disconnected',friendly:'Bench adapter unplugged mid-session — re-plug the cable, then click Retry.',repickRequired:false});
+      });
       setBenchConn(true);addLog('Bench ready — HS-CAN 500kbps','info');
-    }catch(e){addLog('Bench connect failed: '+e.message,'error');}
+    }catch(e){
+      addLog('Bench init failed: '+e.message,'error');
+      setBenchErr({kind:'generic',friendly:'Adapter responded but init failed: '+e.message,repickRequired:false});
+      await cleanupPort(port,rd,w);
+    }
   },[]);
+
+  const benchConnect=useCallback(()=>tryBenchConnect(),[tryBenchConnect]);
+  const benchRetry=useCallback(()=>tryBenchConnect({forceRepick:false}),[tryBenchConnect]);
+  const benchRepick=useCallback(()=>tryBenchConnect({forceRepick:true}),[tryBenchConnect]);
 
   const benchWriteModule=useCallback(async(tx,rx,label)=>{
     if(!benchEng.current||nv.length!==17)return;setBenchBusy('Writing '+label+'...');
@@ -247,6 +272,14 @@ function BenchTab(){
         <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:12}}>
           <Btn onClick={benchConnect} disabled={benchConn} color={benchConn?C.gn:C.a3}>{benchConn?'✓ Bench Connected':'🔌 Connect OBDLink (Bench)'}</Btn>
         </div>
+        {benchErr&&!benchConn&&<div style={{marginBottom:12,padding:'12px 14px',borderRadius:10,background:'#FFF3E0',border:'1.5px solid '+C.wn}}>
+          <div style={{fontSize:12,fontWeight:800,color:'#B71C1C',marginBottom:6}}>⚠ Adapter not connected</div>
+          <div style={{fontSize:12,color:C.tx,lineHeight:1.5,marginBottom:10}}>{benchErr.friendly}</div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            {!benchErr.repickRequired&&<Btn onClick={benchRetry} color={C.sr}>🔁 Retry</Btn>}
+            <Btn onClick={benchRepick} color={C.a3} outline>🎯 Pick a different port</Btn>
+          </div>
+        </div>}
         {benchConn&&<>
           <input value={nv} maxLength={17} placeholder="Enter 17-character VIN" onChange={e=>setNv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))}
             style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',marginBottom:10}}

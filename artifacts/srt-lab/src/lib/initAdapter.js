@@ -1,50 +1,52 @@
 /* Shared adapter init — preserves the known-good ATZ 3000 ms + 1000 ms settle
    timing validated on the 11/3 bench test. Returns
      { send, uds, isSTN, adapter, readVoltage, disconnect, port }
-   or null on failure. Includes cleanupPort() retry logic that releases locks
-   and closes the serial port if any step throws. */
+   or null on failure. On failure, sets `initAdapter.lastError` to the
+   classified `{kind, friendly, repickRequired}` object so the caller can
+   render a Retry / "Pick a different port" recovery UI without having to
+   reimplement the messaging. */
 
-async function cleanupPort(port,reader,writer){
-  try{await reader?.cancel();}catch{/* ignore */}
-  try{reader?.releaseLock();}catch{/* ignore */}
-  try{await writer?.close();}catch{/* ignore */}
-  try{writer?.releaseLock();}catch{/* ignore */}
-  try{await port?.close();}catch{/* ignore */}
-}
+import { openSerialPort, cleanupPort, onPortDisconnect, classifySerialError } from './serialErrors.js';
 
-export async function initAdapter(addLog,hxFn){
-  if(!navigator.serial){addLog('Web Serial not supported — use Chrome/Edge','error');return null;}
-  let port=null,rd=null,w=null;
-  try{
-    port=await navigator.serial.requestPort();
-    await port.open({baudRate:115200});
-    w=port.writable.getWriter();
-    rd=port.readable.getReader();
-    const tdec=new TextDecoder();
-    let rbuf='';
-    const send=async(cmd,to=3000)=>{
-      rbuf='';
-      await w.write(new TextEncoder().encode(cmd+'\r'));
-      addLog('TX > '+cmd,'tx');
-      const deadline=Date.now()+to;
-      while(Date.now()<deadline){
-        try{
-          const rp=rd.read();
-          const tp=new Promise(r=>setTimeout(()=>r({value:undefined,done:true}),Math.min(500,deadline-Date.now())));
-          const res=await Promise.race([rp,tp]);
-          if(res.done||!res.value){if(Date.now()>=deadline)break;continue;}
-          rbuf+=tdec.decode(res.value);
-          const pi=rbuf.indexOf('>');
-          if(pi!==-1){
-            const r=rbuf.substring(0,pi).replace(/\r/g,'\n').replace(/\n+/g,'\n').trim();
-            rbuf=rbuf.substring(pi+1);
-            addLog('RX < '+r,'rx');
+export async function initAdapter(addLog, hxFn, opts = {}) {
+  const { forceRepick = false, onDisconnect = null } = opts;
+  initAdapter.lastError = null;
+
+  const opened = await openSerialPort({ addLog, forceRepick });
+  if (!opened.ok) {
+    initAdapter.lastError = opened.error;
+    return null;
+  }
+  const port = opened.port;
+  let rd = null, w = null, detach = null;
+  try {
+    w = port.writable.getWriter();
+    rd = port.readable.getReader();
+    const tdec = new TextDecoder();
+    let rbuf = '';
+    const send = async (cmd, to = 3000) => {
+      rbuf = '';
+      await w.write(new TextEncoder().encode(cmd + '\r'));
+      addLog('TX > ' + cmd, 'tx');
+      const deadline = Date.now() + to;
+      while (Date.now() < deadline) {
+        try {
+          const rp = rd.read();
+          const tp = new Promise(r => setTimeout(() => r({ value: undefined, done: true }), Math.min(500, deadline - Date.now())));
+          const res = await Promise.race([rp, tp]);
+          if (res.done || !res.value) { if (Date.now() >= deadline) break; continue; }
+          rbuf += tdec.decode(res.value);
+          const pi = rbuf.indexOf('>');
+          if (pi !== -1) {
+            const r = rbuf.substring(0, pi).replace(/\r/g, '\n').replace(/\n+/g, '\n').trim();
+            rbuf = rbuf.substring(pi + 1);
+            addLog('RX < ' + r, 'rx');
             return r;
           }
-        }catch{break;}
+        } catch { break; }
       }
-      const t=rbuf.replace(/\r/g,'\n').replace(/\n+/g,'\n').replace(/>/g,'').trim();
-      if(t)addLog('RX (to) < '+t,'warn');
+      const t = rbuf.replace(/\r/g, '\n').replace(/\n+/g, '\n').replace(/>/g, '').trim();
+      if (t) addLog('RX (to) < ' + t, 'warn');
       return t;
     };
 
@@ -113,12 +115,29 @@ export async function initAdapter(addLog,hxFn){
       return m?parseFloat(m[1]):null;
     };
 
-    const disconnect=()=>cleanupPort(port,rd,w);
+    /* Mid-session unplug detection — if the cable is yanked while the
+       tab is connected, fire onDisconnect so the UI can show the same
+       friendly recovery flow as a failed init. */
+    if (onDisconnect) {
+      detach = onPortDisconnect(port, () => {
+        addLog('Adapter unplugged — connection lost. Plug the cable back in and click Retry.', 'error');
+        cleanupPort(port, rd, w);
+        try { onDisconnect({ kind: 'disconnected', friendly: 'Adapter unplugged mid-session — re-plug the OBD cable, then click Retry.', repickRequired: false }); } catch { /* ignore */ }
+      });
+    }
 
-    return{send,uds,isSTN,adapter:ati,readVoltage,disconnect,port};
-  }catch(e){
-    addLog('Init failed: '+e.message,'error');
-    await cleanupPort(port,rd,w);
+    const disconnect = async () => {
+      try { detach?.(); } catch { /* ignore */ }
+      await cleanupPort(port, rd, w);
+    };
+
+    return { send, uds, isSTN, adapter: ati, readVoltage, disconnect, port };
+  } catch (e) {
+    const cls = classifySerialError(e);
+    addLog(cls.friendly, 'error');
+    initAdapter.lastError = cls;
+    try { detach?.(); } catch { /* ignore */ }
+    await cleanupPort(port, rd, w);
     return null;
   }
 }
@@ -131,4 +150,4 @@ export function parseVinFromResponse(d){
   return ascii.length>=10?ascii.slice(-17):null;
 }
 
-export {cleanupPort};
+export { cleanupPort };

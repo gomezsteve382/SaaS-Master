@@ -210,7 +210,8 @@ export default function BackupsTab() {
     setBusy("Connecting...");
     try {
       eng.current = createObdEngine(addRestoreLog);
-      await eng.current.connect();
+      const ok = await eng.current.connect();
+      if (!ok) { eng.current = null; return; }
       setConn(true);
       addRestoreLog("Adapter connected.", "info");
     } catch (e) {

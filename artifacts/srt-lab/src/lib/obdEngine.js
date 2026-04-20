@@ -1,10 +1,16 @@
 // Shared Web Serial OBDLink/ELM327 engine for FCA UDS work.
-// Returns { connect, disconnect, uds, isConnected, isSTN }.
+// Returns { connect, disconnect, uds, isConnected, isSTN, lastError }.
 // Caller passes a log(msg, type) callback. UDS responses are returned
 // as { ok, d:Uint8Array, raw, err } with multi-frame ISO-TP already
 // reassembled by the adapter (ATCAF1 + ATFC*) and the hex tokens
 // concatenated into a single byte array. Negative UDS responses
 // (0x7F SID NRC) are treated as failures, NOT successes.
+// connect() returns true on success and false on failure; on failure
+// engine.lastError holds the classified {kind, friendly, repickRequired}
+// from serialErrors.js so the caller can render a Retry / "Pick a
+// different port" recovery UI instead of a raw DOMException.
+
+import { openSerialPort, classifySerialError, onPortDisconnect, cleanupPort } from "./serialErrors.js";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 
@@ -30,6 +36,9 @@ export function createObdEngine(log = () => {}) {
   let rxBuf = "";
   let pumpRunning = false;
   let pumpDone = null;
+  let lastError = null;
+  let detachDisc = null;
+  let onDisconnectCb = null;
   const tdec = new TextDecoder();
   const tenc = new TextEncoder();
 
@@ -73,16 +82,43 @@ export function createObdEngine(log = () => {}) {
     return t;
   }
 
-  async function connect() {
-    if (typeof navigator === "undefined" || !navigator.serial) {
-      throw new Error("Web Serial not supported in this browser");
+  async function connect(opts = {}) {
+    const { forceRepick = false, onDisconnect = null } = opts;
+    lastError = null;
+    onDisconnectCb = onDisconnect;
+    const opened = await openSerialPort({ addLog: log, forceRepick });
+    if (!opened.ok) {
+      lastError = opened.error;
+      return false;
     }
+    port = opened.port;
     try {
-      port = await navigator.serial.requestPort();
-      await port.open({ baudRate: 115200 });
       writer = port.writable.getWriter();
       reader = port.readable.getReader();
       pump();   // start continuous read pump
+
+      // Mid-session unplug detection — surface the same friendly error
+      // shape so the UI can offer Retry / Pick a different port.
+      detachDisc = onPortDisconnect(port, () => {
+        log("Adapter unplugged — connection lost. Plug the cable back in and click Retry.", "error");
+        connected = false;
+        /* Fully release the half-dead port + reader/writer locks so that
+           a subsequent reconnect (Retry / Pick a different port) can
+           reacquire without "port already open" / "stream locked" errors,
+           even if the consumer never invoked engine.disconnect() itself. */
+        const r = reader, w = writer, p = port;
+        reader = null; writer = null; port = null;
+        cleanupPort(p, r, w);
+        if (onDisconnectCb) {
+          try {
+            onDisconnectCb({
+              kind: "disconnected",
+              friendly: "Adapter unplugged mid-session — re-plug the OBD cable, then click Retry.",
+              repickRequired: false,
+            });
+          } catch { /* ignore */ }
+        }
+      });
 
       await rawSend("ATZ", 3000);
       await new Promise(r => setTimeout(r, 800));
@@ -118,20 +154,27 @@ export function createObdEngine(log = () => {}) {
       curTx = -1; curRx = -1;
       connected = true;
       log("Connected", "info");
+      return true;
     } catch (e) {
-      // Cleanup any partially-acquired resources on failure.
+      // Cleanup any partially-acquired resources on failure, then classify
+      // the error so the caller can render a Retry / Pick-different recovery
+      // UI instead of a raw DOMException.
+      try { detachDisc?.(); } catch {} detachDisc = null;
       try { pumpRunning = false; if (reader) await reader.cancel(); } catch {}
       try { if (reader) reader.releaseLock(); } catch {}
       try { if (writer) writer.releaseLock(); } catch {}
       try { if (port) await port.close(); } catch {}
       reader = null; writer = null; port = null; connected = false;
-      throw e;
+      lastError = classifySerialError(e);
+      log(lastError.friendly, "error");
+      return false;
     }
   }
 
   async function disconnect() {
     connected = false;
     pumpRunning = false;
+    try { detachDisc?.(); } catch {} detachDisc = null;
     try {
       if (reader) {
         const waitPump = new Promise(res => { pumpDone = res; });
@@ -232,6 +275,7 @@ export function createObdEngine(log = () => {}) {
     connect, disconnect, uds,
     get isConnected() { return connected; },
     get isSTN() { return isSTN; },
+    get lastError() { return lastError; },
   };
 }
 

@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { buildOnePagerPDF } from "./lib/buildOnePagerPDF.js";
 import { SWARM_REF } from "./lib/tabReferences.js";
+import { openSerialPort, onPortDisconnect, cleanupPort } from "./lib/serialErrors.js";
 
 const ALL_KNOWN_ADDRS = [
   {tx:0x7E0,rx:0x7E8,src:'CDA6',name:'ECM/PCM'},
@@ -214,6 +215,8 @@ export default function OBDSwarmDiagnostic() {
   const [ppEnabled, setPpEnabled] = useState(false);
   const [totalAttempts, setTotalAttempts] = useState(0);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [connErr, setConnErr] = useState(null);
+  const detachRef = useRef(null);
   const onPdf = async () => {
     if (pdfBusy) return;
     setPdfBusy(true);
@@ -234,13 +237,22 @@ export default function OBDSwarmDiagnostic() {
     setLogs(p => [...p.slice(-600), { ts, agent, msg, color: color || AGENT_COLORS[agent] || '#fff' }]);
   }, []);
 
-  const connect = useCallback(async () => {
-    if (!navigator.serial) { addLog('SYSTEM', 'Web Serial not available — use Chrome/Edge', AGENT_COLORS.SYSTEM); return; }
+  const tryConnect = useCallback(async (opts = {}) => {
+    setConnErr(null);
+    /* openSerialPort wraps requestPort+open and classifies any DOMException
+       (port busy, cable unplugged, permission denied) into a friendly,
+       actionable message. reusePort lets Retry skip the picker. */
+    const opened = await openSerialPort({
+      addLog: (m, l) => addLog('SYSTEM', m, l === 'error' ? '#FF1744' : AGENT_COLORS.SYSTEM),
+      reusePort: !opts.forceRepick,
+      forceRepick: !!opts.forceRepick,
+    });
+    if (!opened.ok) { setConnErr(opened.error); return; }
+    const port = opened.port;
+    let w = null, rd = null;
     try {
-      const port = await navigator.serial.requestPort();
-      await port.open({ baudRate: 115200 });
-      const w = port.writable.getWriter();
-      const rd = port.readable.getReader();
+      w = port.writable.getWriter();
+      rd = port.readable.getReader();
       const tdec = new TextDecoder();
       let rbuf = '';
 
@@ -316,12 +328,26 @@ export default function OBDSwarmDiagnostic() {
       if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
 
       eng.current = { send, uds, isSTN };
+      try { detachRef.current?.(); } catch {}
+      detachRef.current = onPortDisconnect(port, () => {
+        addLog('SYSTEM', 'Adapter unplugged — connection lost. Plug the cable back in and click Retry.', '#FF1744');
+        setStatus('disconnected');
+        eng.current = null;
+        cleanupPort(port, rd, w);
+        setConnErr({ kind:'disconnected', friendly:'Adapter unplugged mid-session — re-plug the OBD cable, then click Retry.', repickRequired:false });
+      });
       setStatus('connected');
       addLog('SYSTEM', 'Ready — launch SWARM to begin agentic scan', AGENT_COLORS.FOUND);
     } catch(e) {
-      addLog('SYSTEM', 'Connect failed: ' + e.message, '#FF1744');
+      addLog('SYSTEM', 'Init failed: ' + e.message, '#FF1744');
+      setConnErr({ kind:'generic', friendly:'Adapter responded but init failed: '+e.message, repickRequired:false });
+      await cleanupPort(port, rd, w);
     }
   }, [addLog]);
+
+  const connect = useCallback(() => tryConnect(), [tryConnect]);
+  const retryConnect = useCallback(() => tryConnect({ forceRepick:false }), [tryConnect]);
+  const repickConnect = useCallback(() => tryConnect({ forceRepick:true }), [tryConnect]);
 
   const launchSwarm = useCallback(async () => {
     if (!eng.current) return;
@@ -500,10 +526,22 @@ export default function OBDSwarmDiagnostic() {
           <span style={{fontSize:26,fontWeight:900,color:S.red}}>⚡ SWARM</span>
           <span style={{fontSize:12,color:S.dim}}>AGENTIC CAN NEGOTIATOR v2.0</span>
           <div style={{marginLeft:'auto',display:'flex',gap:8,flexWrap:'wrap'}}>
-            {status==='disconnected' && (
+            {status==='disconnected' && !connErr && (
               <button onClick={connect} style={{padding:'8px 16px',background:S.red,color:'#fff',border:'none',borderRadius:6,cursor:'pointer',fontFamily:S.font,fontWeight:700}}>
                 🔌 CONNECT
               </button>
+            )}
+            {status==='disconnected' && connErr && (
+              <>
+                {!connErr.repickRequired && (
+                  <button onClick={retryConnect} style={{padding:'8px 16px',background:S.red,color:'#fff',border:'none',borderRadius:6,cursor:'pointer',fontFamily:S.font,fontWeight:700}}>
+                    🔁 RETRY
+                  </button>
+                )}
+                <button onClick={repickConnect} style={{padding:'8px 16px',background:'#333',color:'#fff',border:'1px solid '+S.red,borderRadius:6,cursor:'pointer',fontFamily:S.font,fontWeight:700}}>
+                  🎯 PICK DIFFERENT PORT
+                </button>
+              </>
             )}
             {status==='connected' && !running && (
               <button onClick={launchSwarm} style={{padding:'8px 16px',background:'#00E5FF',color:'#000',border:'none',borderRadius:6,cursor:'pointer',fontFamily:S.font,fontWeight:700}}>
@@ -529,6 +567,13 @@ export default function OBDSwarmDiagnostic() {
             </button>
           </div>
         </div>
+
+        {connErr && status==='disconnected' && (
+          <div style={{marginBottom:12,padding:'12px 14px',borderRadius:8,background:'#2A1A1A',border:'1.5px solid '+S.red,color:'#FFCDD2',fontSize:12,lineHeight:1.5}}>
+            <div style={{fontWeight:800,color:S.red,marginBottom:4}}>⚠ Adapter not connected</div>
+            {connErr.friendly}
+          </div>
+        )}
 
         {/* Progress bar */}
         {(running || confirmed > 0) && (

@@ -97,7 +97,8 @@ function JailbreakTab() {
     if (eng.current) return;
     eng.current = createObdEngine(addLog);
     try {
-      await eng.current.connect();
+      const ok = await eng.current.connect();
+      if (!ok) { eng.current = null; return; }
       setConn(true);
     } catch (e) {
       addLog("Connect failed: " + e.message, "error");

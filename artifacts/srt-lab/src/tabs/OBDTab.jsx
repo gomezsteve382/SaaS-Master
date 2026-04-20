@@ -5,6 +5,7 @@ import {MODS} from "../lib/mods.js";
 import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse, vinReadbackOk} from "../lib/algos.js";
 import {backupModule,CRITICAL_DIDS} from "../lib/backups.js";
 import {logSession} from "../lib/paperTrail.js";
+import {openSerialPort, onPortDisconnect, cleanupPort} from "../lib/serialErrors.js";
 
 const hx=(n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0');
 /* Map OBD scan code → backup profile name. Modules without a profile skip
@@ -14,16 +15,24 @@ const backupTypeFor=(code)=>CRITICAL_DIDS[code]?code:null;
 function OBDTab(){
   const[conn,setConn]=useState(false);const[found,setFound]=useState([]);const[nv,setNv]=useState('');
   const[busy,setBusy]=useState('');const[prog,setProg]=useState(0);const[log,setLog]=useState([]);
+  const[connErr,setConnErr]=useState(null);
   const eng=useRef(null);
+  const detachRef=useRef(null);
   const addLog=(m,l='info')=>setLog(p=>[...p,{m,l,t:new Date().toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})}]);
 
-  const connect=useCallback(async()=>{
+  const tryConnect=useCallback(async(opts={})=>{
+    setConnErr(null);
+    /* openSerialPort wraps requestPort+open and classifies any DOMException
+       into a friendly message. With reusePort:true (default) Retry skips the
+       picker and reuses the previously-granted port, so the tech only has
+       to close the conflicting app and click Retry. */
+    const opened=await openSerialPort({addLog,reusePort:!opts.forceRepick,forceRepick:!!opts.forceRepick});
+    if(!opened.ok){setConnErr(opened.error);return;}
+    const port=opened.port;
+    let w=null,rd=null;
     try{
-      if(!navigator.serial){addLog('Web Serial not available — use Chrome','error');return;}
-      const port=await navigator.serial.requestPort();
-      await port.open({baudRate:115200});
-      const w=port.writable.getWriter();
-      const rd=port.readable.getReader();
+      w=port.writable.getWriter();
+      rd=port.readable.getReader();
       const tdec=new TextDecoder();
       let rbuf='';
       /* Background IIFE reader — drains port continuously, eliminates stale Promise.race reads */
@@ -75,9 +84,27 @@ function OBDTab(){
         if(!all.length)return{ok:false,raw:r};
         return{ok:true,d:new Uint8Array(all),raw:r};
       }};
+      /* Mid-session unplug detection — when the cable is yanked the same
+         friendly recovery UI appears and the half-open port is released. */
+      try{detachRef.current?.();}catch{}
+      detachRef.current=onPortDisconnect(port,()=>{
+        addLog('Adapter unplugged — connection lost. Plug the cable back in and click Retry.','error');
+        setConn(false);
+        eng.current=null;
+        cleanupPort(port,rd,w);
+        setConnErr({kind:'disconnected',friendly:'Adapter unplugged mid-session — re-plug the OBD cable, then click Retry.',repickRequired:false});
+      });
       setConn(true);addLog('Ready — HS-CAN 500kbps','info');
-    }catch(e){addLog('Connect failed: '+e.message,'error');}
+    }catch(e){
+      addLog('Init failed: '+e.message,'error');
+      setConnErr({kind:'generic',friendly:'Adapter responded but init failed: '+e.message,repickRequired:false});
+      await cleanupPort(port,rd,w);
+    }
   },[]);
+
+  const connect=useCallback(()=>tryConnect(),[tryConnect]);
+  const retryConnect=useCallback(()=>tryConnect({forceRepick:false}),[tryConnect]);
+  const repickConnect=useCallback(()=>tryConnect({forceRepick:true}),[tryConnect]);
 
   const scan=useCallback(async()=>{
     if(!eng.current)return;setBusy('Scanning...');setFound([]);
@@ -377,6 +404,14 @@ function OBDTab(){
           {conn&&<Btn onClick={scan} disabled={!!busy} color={C.a1}>{busy||'📡 Scan Modules'}</Btn>}
           {conn&&<Btn onClick={canMonitor} disabled={!!busy} color={C.a4} outline>📻 CAN Monitor</Btn>}
         </div>
+        {connErr&&!conn&&<div style={{marginTop:12,padding:'12px 14px',borderRadius:10,background:'#FFF3E0',border:'1.5px solid '+C.wn}}>
+          <div style={{fontSize:12,fontWeight:800,color:'#B71C1C',marginBottom:6}}>⚠ Adapter not connected</div>
+          <div style={{fontSize:12,color:C.tx,lineHeight:1.5,marginBottom:10}}>{connErr.friendly}</div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            {!connErr.repickRequired&&<Btn onClick={retryConnect} color={C.sr}>🔁 Retry</Btn>}
+            <Btn onClick={repickConnect} color={C.a3} outline>🎯 Pick a different port</Btn>
+          </div>
+        </div>}
       </Card>
       {found.length>0&&<Card glow style={{marginBottom:14}}>
         <div style={{fontSize:14,fontWeight:800,marginBottom:12}}>Modules on Bus ({found.length})</div>
