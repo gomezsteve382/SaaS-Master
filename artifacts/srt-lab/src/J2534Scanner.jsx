@@ -239,7 +239,6 @@ export default function J2534Scanner() {
 
     const targets = REGISTRY.filter((r) => r.kind !== "unsupported");
     let hits = 0;
-    const discovered = [];
     for (const row of targets) {
       log(
         `→ probe ${row.code} TX:0x${row.tx.toString(16).toUpperCase().padStart(3, "0")} RX:0x${row.rx
@@ -248,18 +247,20 @@ export default function J2534Scanner() {
           .padStart(3, "0")}`,
         "scan"
       );
-      const tp = await udsExchange(row.tx, row.rx, [0x3e, 0x00], 600);
-      if (!tp.ok) continue;
+      // Single-step probe: send 22 F1 90 and accept ANY reply as proof
+      // the module is on the bus. A positive 62 F1 90 ... yields the VIN;
+      // a NRC (7F 22 xx) still proves the module is present.
+      const v = await udsExchange(row.tx, row.rx, [0x22, 0xf1, 0x90], 1200);
+      if (!v.ok) continue;
       hits++;
       let vin = null;
-      const v = await udsExchange(row.tx, row.rx, [0x22, 0xf1, 0x90], 1500);
-      if (v.ok && v.data && v.data.length) {
-        const ascii = v.data.filter((b) => b >= 0x20 && b <= 0x7e);
+      const bytes = v.data || [];
+      if (bytes.length >= 4 && bytes[0] === 0x62 && bytes[1] === 0xf1 && bytes[2] === 0x90) {
+        const ascii = bytes.slice(3).filter((b) => b >= 0x20 && b <= 0x7e);
         const s = String.fromCharCode(...ascii).slice(-17);
         if (s.length >= 10) vin = s;
       }
       const hit = { code: row.code, name: row.name, tx: row.tx, rx: row.rx, vin };
-      discovered.push(hit);
       setFound((p) => [...p, hit]);
       log(
         `✓ ${row.name} (${row.code}) TX:0x${row.tx.toString(16).toUpperCase().padStart(3, "0")} RX:0x${row.rx
