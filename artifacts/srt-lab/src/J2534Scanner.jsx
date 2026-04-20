@@ -3,27 +3,61 @@ import { ASSET_IDS } from "./lib/downloadAssets.js";
 import { useDownloadCount } from "./lib/useDownloadCount.jsx";
 import { buildOnePagerPDF } from "./lib/buildOnePagerPDF.js";
 import { J2534_REF } from "./lib/tabReferences.js";
+import {
+  getStatus,
+  open as bridgeOpen,
+  connect as bridgeConnect,
+  setFilter,
+  sendMsg,
+  readMsg,
+  getAutelState,
+  DEFAULT_BRIDGE_URL,
+} from "./lib/bridgeClient.js";
+import { REGISTRY } from "./lib/moduleRegistry.js";
 
 /**
  * J2534 Module Scanner
- * Connects to j2534_bridge.py via WebSocket on ws://localhost:8765
- * Bypasses ELM327 AT commands entirely — raw CAN via J2534 PassThru API
+ * Talks to the local j2534_bridge.py HTTP daemon (default http://localhost:8765)
+ * via the shared bridgeClient. Same daemon the AUTEL SGW tab uses.
  *
- * Setup:
- *   1. pip install websockets
- *   2. python j2534_bridge.py
- *   3. Open this in Chrome
+ * Setup (on the laptop with the J2534 cable plugged in):
+ *   1. Download j2534_bridge.py (button below)
+ *   2. python j2534_bridge.py --dll <path-to-vendor-J2534-DLL>
+ *   3. Click "Connect Bridge" here.
  */
 
+const PROTOCOL_ISO15765 = 6;
+const ISO15765_FRAME_PAD = 0x40;
+
+function bytesToHex(arr) {
+  return Array.from(arr)
+    .map((b) => b.toString(16).toUpperCase().padStart(2, "0"))
+    .join("");
+}
+function hexToBytes(hex) {
+  if (!hex) return [];
+  const clean = String(hex).replace(/\s+/g, "");
+  const out = [];
+  for (let i = 0; i + 1 < clean.length; i += 2) {
+    const b = parseInt(clean.substr(i, 2), 16);
+    if (!isNaN(b)) out.push(b);
+  }
+  return out;
+}
+
 export default function J2534Scanner() {
-  const [ws, setWs] = useState(null);
+  const [bridgeUrl, setBridgeUrl] = useState(() => getAutelState().url || DEFAULT_BRIDGE_URL);
   const [status, setStatus] = useState("disconnected");
   const [logs, setLogs] = useState([]);
   const [found, setFound] = useState([]);
   const [scanning, setScanning] = useState(false);
-  const [devices, setDevices] = useState([]);
+  const [vendor, setVendor] = useState(null);
   const [pdfBusy, setPdfBusy] = useState(false);
   const logRef = useRef(null);
+  // Track the (tx,rx) we last filtered on so we don't re-issue setFilter
+  // for back-to-back UDS calls to the same module.
+  const lastFilterRef = useRef({ tx: -1, rx: -1 });
+
   const onPdf = async () => {
     if (pdfBusy) return;
     setPdfBusy(true);
@@ -36,153 +70,141 @@ export default function J2534Scanner() {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [logs]);
 
+  // Pick up URL changes the user makes on the AUTEL SGW tab while this
+  // tab is mounted. Cheap poll — the SGW tab persists to localStorage.
+  useEffect(() => {
+    const t = setInterval(() => {
+      const u = getAutelState().url || DEFAULT_BRIDGE_URL;
+      setBridgeUrl((cur) => (cur === u ? cur : u));
+    }, 2000);
+    return () => clearInterval(t);
+  }, []);
+
   const log = useCallback((msg, type = "info") => {
     const ts = new Date().toLocaleTimeString("en-US", { hour12: false });
     setLogs((p) => [...p.slice(-400), { ts, msg, type }]);
   }, []);
 
-  const sendCmd = useCallback(
-    (cmd) => {
-      return new Promise((resolve, reject) => {
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-          reject(new Error("WebSocket not connected"));
-          return;
-        }
-        const handler = (e) => {
-          try {
-            const resp = JSON.parse(e.data);
-            if (resp.type === "scanProgress") {
-              log(resp.message, "scan");
-              return;
-            }
-            ws.removeEventListener("message", handler);
-            resolve(resp);
-          } catch (err) {
-            ws.removeEventListener("message", handler);
-            reject(err);
-          }
-        };
-        ws.addEventListener("message", handler);
-        ws.send(JSON.stringify(cmd));
-        setTimeout(() => {
-          ws.removeEventListener("message", handler);
-          reject(new Error("Timeout"));
-        }, 30000);
-      });
-    },
-    [ws, log]
-  );
-
   const connectBridge = useCallback(async () => {
-    log("Connecting to J2534 bridge on ws://localhost:8765...");
-    try {
-      const socket = new WebSocket("ws://localhost:8765");
-      await new Promise((resolve, reject) => {
-        socket.onopen = resolve;
-        socket.onerror = () => reject(new Error("Cannot connect to bridge. Is j2534_bridge.py running?"));
-        setTimeout(() => reject(new Error("Connection timeout")), 5000);
-      });
-      setWs(socket);
-      setStatus("bridge_connected");
-      log("Bridge connected!", "success");
-
-      const listHandler = (e) => {
-        try {
-          const resp = JSON.parse(e.data);
-          if (resp.devices) {
-            setDevices(resp.devices);
-            resp.devices.forEach((d) => log(`Found J2534 device: ${d.name}`, "success"));
-          }
-        } catch (err) {}
-      };
-      socket.addEventListener("message", listHandler, { once: true });
-      socket.send(JSON.stringify({ command: "ListDevices" }));
-
-      socket.onclose = () => {
-        setStatus("disconnected");
-        setWs(null);
-        log("Bridge disconnected", "error");
-      };
-    } catch (e) {
-      log("Bridge connection failed: " + e.message, "error");
-      log("Make sure j2534_bridge.py is running: python j2534_bridge.py", "error");
+    log(`Probing local J2534 bridge at ${bridgeUrl} ...`);
+    const st = await getStatus(bridgeUrl);
+    if (!st || !st.ok) {
+      log("Bridge connection failed: " + (st?.error || "no response"), "error");
+      log("Start the daemon on this laptop, e.g.:", "error");
+      log('  python j2534_bridge.py --dll "<path to vendor J2534 DLL>"', "error");
+      return;
     }
-  }, [log]);
+    setVendor(st.vendor || null);
+    log(`Bridge OK — vendor=${st.vendor || "?"} platform=${st.platform || "?"} bridge=${st.bridgeVersion || "?"}`, "success");
+    if (st.dllPath) log(`  DLL: ${st.dllPath}`, "info");
+    if (!st.dllLoaded || !st.dllPath) {
+      log("Bridge has no DLL loaded — restart it with --dll <vendor J2534 DLL> or open will fail.", "warn");
+    }
+    if (st.deviceOpen && st.channelConnected) {
+      setStatus("can_connected");
+      log("Bridge already has device open + ISO15765 channel up — ready to scan.", "success");
+    } else if (st.deviceOpen) {
+      setStatus("device_open");
+      log("Bridge already has device open — click Open J2534 Device to bring up the CAN channel.", "info");
+    } else {
+      setStatus("bridge_connected");
+    }
+  }, [bridgeUrl, log]);
 
   const openDevice = useCallback(async () => {
     try {
-      log("Opening J2534 device...");
-      const resp = await sendCmd({ command: "Open" });
-      if (resp.success) {
-        log(`Device opened: ${resp.deviceName || "J2534"}`, "success");
-        setStatus("device_open");
-
-        log("Connecting to CAN bus (ISO15765, 500kbps)...");
-        const connResp = await sendCmd({ command: "Connect", baudRate: 500000 });
-        if (connResp.success) {
-          log("CAN bus connected — ISO15765 500kbps", "success");
-          setStatus("can_connected");
-        } else {
-          log("CAN connect failed", "error");
-        }
-      } else {
-        log("Device open failed — check USB connection", "error");
+      log("Opening J2534 device (PassThruOpen) ...");
+      const o = await bridgeOpen(bridgeUrl);
+      if (!o.ok) {
+        log("Device open failed: " + (o.error || "unknown"), "error");
+        return;
       }
+      log(`Device opened — id=${o.deviceId ?? "?"}${o.versions?.firmware ? " fw " + o.versions.firmware : ""}`, "success");
+      setStatus("device_open");
+
+      log("Connecting CAN channel (ISO15765 / 500 kbps) ...");
+      const c = await bridgeConnect({ protocol: PROTOCOL_ISO15765, flags: 0, baudrate: 500000 }, bridgeUrl);
+      if (!c.ok) {
+        log("CAN connect failed: " + (c.error || "unknown"), "error");
+        return;
+      }
+      log("CAN bus up — ISO15765 500 kbps", "success");
+      setStatus("can_connected");
+      lastFilterRef.current = { tx: -1, rx: -1 };
     } catch (e) {
       log("Error: " + e.message, "error");
     }
-  }, [sendCmd, log]);
+  }, [bridgeUrl, log]);
 
-  const scanAll = useCallback(async () => {
-    setScanning(true);
-    setFound([]);
-    log("═══ Starting J2534 full module scan ═══", "header");
-    log("Scanning ALL known FCA module addresses via raw CAN...");
-
-    try {
-      const resp = await sendCmd({ command: "Scan" });
-      if (resp.success) {
-        setFound(resp.found || []);
-        log(`═══ Scan complete: ${resp.found?.length || 0} modules found out of ${resp.total} ═══`, "header");
-        (resp.found || []).forEach((m) => {
-          log(
-            `✓ ${m.name} TX:0x${m.tx.toString(16).toUpperCase().padStart(3, "0")} RX:0x${m.rx.toString(16).toUpperCase().padStart(3, "0")} VIN:${m.vin || "?"}`,
-            "success"
-          );
-        });
-      } else {
-        log("Scan failed: " + (resp.error || "unknown"), "error");
+  // Single UDS request/response over the HTTP bridge. Mirrors the
+  // setfilter+sendmsg+readmsg loop used by lib/bridgeEngine.js.
+  const udsExchange = useCallback(
+    async (tx, rx, data, timeoutMs = 1500) => {
+      if (lastFilterRef.current.tx !== tx || lastFilterRef.current.rx !== rx) {
+        const f = await setFilter({ txId: tx, rxId: rx }, bridgeUrl);
+        if (!f.ok) return { ok: false, error: "setFilter: " + (f.error || "failed") };
+        lastFilterRef.current = { tx, rx };
       }
-    } catch (e) {
-      log("Scan error: " + e.message, "error");
-    }
-    setScanning(false);
-  }, [sendCmd, log]);
+      const sm = await sendMsg(
+        { txId: tx, data: bytesToHex(data), flags: ISO15765_FRAME_PAD, timeoutMs: 1000 },
+        bridgeUrl
+      );
+      if (!sm.ok) return { ok: false, error: "sendMsg: " + (sm.error || "failed") };
+      const deadline = Date.now() + timeoutMs;
+      while (Date.now() < deadline) {
+        const remaining = deadline - Date.now();
+        const slice = Math.min(1500, Math.max(150, remaining));
+        const r = await readMsg({ timeoutMs: slice }, bridgeUrl);
+        if (!r) return { ok: false, error: "readMsg: no response from bridge" };
+        // Some daemon variants surface "no message in buffer" as ok:false with
+        // an ERR_BUFFER_EMPTY / STATUS_NOERROR / "empty" marker — treat those
+        // as "keep polling", not a hard failure. The shipped daemon returns
+        // ok:true with msg:null for the same case, which falls through below.
+        if (!r.ok) {
+          const err = String(r.error || "").toLowerCase();
+          if (err.includes("buffer_empty") || err.includes("buffer empty") ||
+              err.includes("no msgs") || err.includes("no message") ||
+              err.includes("status_noerror") || err === "empty") {
+            continue;
+          }
+          return { ok: false, error: "readMsg: " + (r.error || "failed") };
+        }
+        const m = r.msg;
+        if (!m || !m.data) continue;
+        if (typeof m.canId === "number" && rx && m.canId !== rx) continue;
+        const bytes = hexToBytes(m.data);
+        if (!bytes.length) continue;
+        // 7F xx 78 = response pending — keep waiting
+        if (bytes.length >= 3 && bytes[0] === 0x7f && bytes[2] === 0x78) continue;
+        return { ok: true, canId: m.canId, data: bytes };
+      }
+      return { ok: false, error: "timeout after " + timeoutMs + "ms" };
+    },
+    [bridgeUrl]
+  );
 
   const sendUDS = useCallback(
     async (tx, rx, data, label) => {
-      try {
+      log(
+        `TX [${label}] → 0x${tx.toString(16).toUpperCase()}: ${data
+          .map((b) => b.toString(16).toUpperCase().padStart(2, "0"))
+          .join(" ")}`,
+        "tx"
+      );
+      const resp = await udsExchange(tx, rx, data, 3000);
+      if (resp.ok) {
         log(
-          `TX [${label}] → 0x${tx.toString(16).toUpperCase()}: ${data.map((b) => b.toString(16).toUpperCase().padStart(2, "0")).join(" ")}`,
-          "tx"
+          `RX [${label}] ← 0x${(resp.canId || rx).toString(16).toUpperCase()}: ${resp.data
+            .map((b) => b.toString(16).toUpperCase().padStart(2, "0"))
+            .join(" ")}`,
+          "rx"
         );
-        const resp = await sendCmd({ command: "UDS", txId: tx, rxId: rx, data, timeout: 3000 });
-        if (resp.success) {
-          log(
-            `RX [${label}] ← 0x${resp.canId.toString(16).toUpperCase()}: ${resp.data.map((b) => b.toString(16).toUpperCase().padStart(2, "0")).join(" ")}`,
-            "rx"
-          );
-          return resp;
-        } else {
-          log(`[${label}] No response`, "warn");
-          return null;
-        }
-      } catch (e) {
-        log(`[${label}] Error: ${e.message}`, "error");
-        return null;
+        return resp;
       }
+      log(`[${label}] ${resp.error || "no response"}`, "warn");
+      return null;
     },
-    [sendCmd, log]
+    [udsExchange, log]
   );
 
   const readVIN = useCallback(
@@ -200,6 +222,59 @@ export default function J2534Scanner() {
     },
     [sendUDS, log]
   );
+
+  // Client-side iteration over the shared module registry. For each row we
+  // run a TesterPresent (3E 00) probe; if we get any reply, the module is
+  // present and we follow up with a 22 F1 90 to grab the VIN. We skip the
+  // SGW row because it never answers a generic 3E 00 in the clear.
+  const scanAll = useCallback(async () => {
+    if (status !== "can_connected") {
+      log("Not on CAN — open the device and connect first.", "error");
+      return;
+    }
+    setScanning(true);
+    setFound([]);
+    log("═══ Starting J2534 full module scan ═══", "header");
+    log("Scanning known FCA module addresses via raw CAN ...");
+
+    const targets = REGISTRY.filter((r) => r.kind !== "unsupported");
+    let hits = 0;
+    const discovered = [];
+    for (const row of targets) {
+      log(
+        `→ probe ${row.code} TX:0x${row.tx.toString(16).toUpperCase().padStart(3, "0")} RX:0x${row.rx
+          .toString(16)
+          .toUpperCase()
+          .padStart(3, "0")}`,
+        "scan"
+      );
+      const tp = await udsExchange(row.tx, row.rx, [0x3e, 0x00], 600);
+      if (!tp.ok) continue;
+      hits++;
+      let vin = null;
+      const v = await udsExchange(row.tx, row.rx, [0x22, 0xf1, 0x90], 1500);
+      if (v.ok && v.data && v.data.length) {
+        const ascii = v.data.filter((b) => b >= 0x20 && b <= 0x7e);
+        const s = String.fromCharCode(...ascii).slice(-17);
+        if (s.length >= 10) vin = s;
+      }
+      const hit = { code: row.code, name: row.name, tx: row.tx, rx: row.rx, vin };
+      discovered.push(hit);
+      setFound((p) => [...p, hit]);
+      log(
+        `✓ ${row.name} (${row.code}) TX:0x${row.tx.toString(16).toUpperCase().padStart(3, "0")} RX:0x${row.rx
+          .toString(16)
+          .toUpperCase()
+          .padStart(3, "0")}${vin ? " VIN:" + vin : ""}`,
+        "success"
+      );
+    }
+    log(
+      `═══ Scan complete: ${hits} module${hits === 1 ? "" : "s"} found out of ${targets.length} probed ═══`,
+      "header"
+    );
+    setScanning(false);
+  }, [status, udsExchange, log]);
 
   const S = {
     bg: "#0A0A0F",
@@ -274,11 +349,13 @@ export default function J2534Scanner() {
         <div style={{ background: "#0D1A0D", border: "1px solid #2E7D32", borderRadius: 8, padding: 14, marginBottom: 14, fontSize: 12 }}>
           <div style={{ color: "#66BB6A", fontWeight: 700, marginBottom: 6 }}>STEP 0 — DOWNLOAD BRIDGE SCRIPT</div>
           <div style={{ color: S.dim, lineHeight: 1.8 }}>
-            The J2534 bridge runs locally on your laptop and exposes the adapter to the browser via WebSocket.
+            The J2534 bridge runs locally on your laptop and exposes the adapter to the browser via a local HTTP server (default <span style={{color:'#fff'}}>http://localhost:8765</span>). Same daemon the AUTEL SGW tab uses.
           </div>
           <div style={{ marginTop: 8 }}>
             <BridgeDownloadLink S={S} />
-            <span style={{ color: S.dim, marginLeft: 12 }}>then: pip install websockets &amp;&amp; python j2534_bridge.py</span>
+            <span style={{ color: S.dim, marginLeft: 12 }}>
+              then: <span style={{color:'#fff'}}>python j2534_bridge.py --dll &lt;path-to-vendor-J2534-DLL&gt;</span>
+            </span>
           </div>
         </div>
 
@@ -287,11 +364,12 @@ export default function J2534Scanner() {
           <div style={{ background: "#1A1A2E", border: "1px solid #333", borderRadius: 8, padding: 16, marginBottom: 16, fontSize: 12 }}>
             <div style={{ color: S.red, fontWeight: 700, marginBottom: 8 }}>SETUP</div>
             <div style={{ color: S.dim, lineHeight: 1.8 }}>
-              1. Download j2534_bridge.py above<br />
+              1. Download j2534_bridge.py above (Python 3.8+, no pip packages required)<br />
               2. Open a terminal on your laptop<br />
-              3. Run: <span style={{ color: "#fff" }}>pip install websockets</span><br />
-              4. Run: <span style={{ color: "#fff" }}>python j2534_bridge.py</span><br />
-              5. Make sure OBDLink EX (or any J2534 adapter) is plugged in via USB<br />
+              3. Run: <span style={{ color: "#fff" }}>python j2534_bridge.py --dll "&lt;path to vendor J2534 DLL&gt;"</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;e.g. Autel: <span style={{ color: "#fff" }}>--dll "C:\Program Files (x86)\Autel\MaxiPC\MaxiFlashJ2534.dll"</span><br />
+              4. Plug your J2534 adapter (Autel MaxiFlash, etc.) into the vehicle and the laptop USB<br />
+              5. Bridge URL (from AUTEL SGW tab): <span style={{ color: "#fff" }}>{bridgeUrl}</span><br />
               6. Click "Connect Bridge" below
             </div>
           </div>
@@ -301,6 +379,7 @@ export default function J2534Scanner() {
         <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
           {status === "disconnected" && <Btn onClick={connectBridge} color={S.blue}>🔌 Connect Bridge</Btn>}
           {status === "bridge_connected" && <Btn onClick={openDevice} color={S.blue}>📡 Open J2534 Device</Btn>}
+          {status === "device_open" && <Btn onClick={openDevice} color={S.blue}>📡 Connect CAN Channel</Btn>}
           {status === "can_connected" && (
             <>
               <Btn onClick={scanAll} disabled={scanning} color={S.red}>
@@ -328,7 +407,7 @@ export default function J2534Scanner() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {found.map((m, i) => (
                 <div key={i} style={{ background: "#0D1F0D", border: "1px solid #388E3C", borderRadius: 4, padding: "6px 10px", fontSize: 11 }}>
-                  <span style={{ color: "#FFD600", fontWeight: 700 }}>{m.name}</span>
+                  <span style={{ color: "#FFD600", fontWeight: 700 }}>{m.code || m.name}</span>
                   <span style={{ color: S.dim, marginLeft: 8 }}>
                     TX:0x{m.tx.toString(16).toUpperCase().padStart(3, "0")}
                   </span>
@@ -364,15 +443,14 @@ export default function J2534Scanner() {
           ))}
           {logs.length === 0 && (
             <div style={{ color: S.dim, padding: 20, textAlign: "center" }}>
-              Download j2534_bridge.py, run it, then click Connect Bridge
+              Download j2534_bridge.py, run it with --dll, then click Connect Bridge
             </div>
           )}
         </div>
 
-        {/* Devices */}
-        {devices.length > 0 && (
+        {vendor && (
           <div style={{ marginTop: 8, fontSize: 10, color: S.dim }}>
-            J2534 Devices: {devices.map((d) => d.name).join(", ")}
+            J2534 vendor: {vendor}
           </div>
         )}
       </div>
