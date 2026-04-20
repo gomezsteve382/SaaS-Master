@@ -10,6 +10,41 @@ import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {partitionForVin, getRow} from "../lib/moduleRegistry.js";
 import {programVin} from "../lib/vinProgrammer.js";
 
+/* Dev-only test hook: when the dev server URL carries
+   `?testEngine=stop-on-fail-ecm`, install a deterministic stub uds engine
+   on window.__SRT_TEST_ENGINE__. The runner picks the stub up in place of
+   initAdapter()/createBridgeEngine() so the Playwright suite can exercise
+   the universal batch UI without real hardware or browser-internal JS
+   injection. The stub fails ECM (tx 0x7E0) preflight and returns positive
+   responses for every other tx so stop-on-fail can be observed end-to-end. */
+if (typeof window !== 'undefined'
+    && import.meta.env?.DEV
+    && !window.__SRT_TEST_ENGINE__) {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('testEngine') === 'stop-on-fail-ecm') {
+      // eslint-disable-next-line no-console
+      console.log('[srt-lab test hook] installing stub uds engine for stop-on-fail-ecm');
+      const VIN_BYTES = Array.from('1C3CCBBG7HN500001').map(c => c.charCodeAt(0));
+      window.__SRT_TEST_ENGINE__ = {
+        adapter: 'TEST_STUB',
+        uds: async (tx, _rx, bytes) => {
+          if (tx === 0x7E0) return { ok: false, raw: 'no response' };
+          const sid = bytes[0];
+          if (sid === 0x22) return { ok: true, d: [0x62, ...bytes.slice(1), ...VIN_BYTES], raw: 'OK' };
+          if (sid === 0x2E) return { ok: true, d: [0x6E, ...bytes.slice(1, 3)], raw: 'OK' };
+          if (sid === 0x10) return { ok: true, d: [0x50, bytes[1], 0,0,0,0], raw: 'OK' };
+          if (sid === 0x27) {
+            if (bytes[1] & 1) return { ok: true, d: [0x67, bytes[1], 1,2,3,4,5,6], raw: 'OK' };
+            return { ok: true, d: [0x67, bytes[1]], raw: 'OK' };
+          }
+          return { ok: true, d: [bytes[0] + 0x40], raw: 'OK' };
+        },
+      };
+    }
+  } catch { /* ignore — query parsing is best-effort */ }
+}
+
 const STATUS_COLORS = {
   pending: '#777',
   running: '#FFB300',
@@ -168,7 +203,12 @@ export default function ProgramAllTab(){
     blog(`═══ PREFLIGHT SCAN — ${targets.length} module${targets.length===1?'':'s'} ═══`, 'info');
     const needsBridge = targets.some(r => r.sgwRequired);
     let eng = null;
-    if (needsBridge) {
+    // Test hook: when window.__SRT_TEST_ENGINE__ is set (Playwright suite),
+    // bypass the real serial / bridge engines and use the injected stub.
+    if (typeof window !== 'undefined' && window.__SRT_TEST_ENGINE__) {
+      blog('🧪 using stubbed test engine', 'info');
+      eng = window.__SRT_TEST_ENGINE__;
+    } else if (needsBridge) {
       // Bridge reachable AND SGW authenticated for this VIN — both gates
       // apply to preflight reads too, because every 0x22 to a body-bus
       // module on a 2018+ truck still has to traverse the SGW.
@@ -240,7 +280,12 @@ export default function ProgramAllTab(){
     // standard ELM/STN serial engine.
     const needsBridge = targets.some(r => r.sgwRequired);
     let activeEng = null;
-    if (needsBridge) {
+    // Test hook: when window.__SRT_TEST_ENGINE__ is set (Playwright suite),
+    // bypass the real serial / bridge engines and use the injected stub.
+    if (typeof window !== 'undefined' && window.__SRT_TEST_ENGINE__) {
+      blog('🧪 using stubbed test engine', 'info');
+      activeEng = window.__SRT_TEST_ENGINE__;
+    } else if (needsBridge) {
       // Hard gate: refuse to dispatch ANY write when the SGW hasn't been
       // unlocked for this VIN. The bridge being reachable is necessary
       // but not sufficient — without (b) the SGW silently rejects every
