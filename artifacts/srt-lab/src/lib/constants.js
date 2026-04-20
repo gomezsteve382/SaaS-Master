@@ -1,0 +1,17 @@
+const SKIM_OFF=[{v:'JGC / Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT / Charger',base:0x40C0,ks:18,kc:6}];
+const IMMO_REC=24,IMMO_KC=8,IMMO_BLOCK=IMMO_REC*IMMO_KC;
+
+const TR={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9};
+for(let d=0;d<=9;d++)TR[String(d)]=d;
+const WT=[8,7,6,5,4,3,2,10,0,9,8,7,6,5,4,3,2];
+const WMI={'1C4':'Chrysler US','2C3':'Dodge CA','1C6':'RAM US','2C4':'Chrysler CA','1J4':'Jeep US','1B3':'Dodge US','2B3':'Dodge CA','1J8':'Jeep US'};
+const YR={A:2010,B:2011,C:2012,D:2013,E:2014,F:2015,G:2016,H:2017,J:2018,K:2019,L:2020,M:2021,N:2022,P:2023,R:2024,S:2025,T:2026};
+
+const TC={BCM:'#FF6D00','95640':'#AA00FF',RFHUB:'#2979FF',GPEC2A:'#00BFA5',FW:'#9E9E9E',TCM:'#00897B',TIPM:'#F57C00',UNKNOWN:'#616161'};
+const TL={BCM:'BCM D-FLASH','95640':'FCA 95640',RFHUB:'RFHUB EEE',GPEC2A:'GPEC2A',FW:'Firmware',TCM:'TCM EEPROM',TIPM:'TIPM EEPROM',UNKNOWN:'Unknown'};
+
+const C={bg:'#F4F1EC',cd:'#FFF',c2:'#FAF9F7',sr:'#D32F2F',sl:'#FF5252',bk:'#1A1A1A',a1:'#FF6D00',a2:'#00BFA5',a3:'#2979FF',a4:'#AA00FF',tx:'#1A1A1A',ts:'#5A5A5A',tm:'#9E9E9E',bd:'#E8E4DE',gn:'#00C853',wn:'#FFB300',er:'#FF1744'};
+
+const SKIM_VALUES={0x80:"ENABLED",0x00:"DISABLED",0x02:"DISABLED (alt)"};
+
+export {SKIM_OFF,IMMO_REC,IMMO_KC,IMMO_BLOCK,TR,WT,WMI,YR,TC,TL,C,SKIM_VALUES};
