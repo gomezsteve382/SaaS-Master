@@ -5,6 +5,7 @@ import {crc16ccitt} from "../lib/crc.js";
 import {initAdapter} from "../lib/initAdapter.js";
 import {createBridgeEngine} from "../lib/bridgeEngine.js";
 import {useBridgeStatus} from "../lib/bridgeClient.js";
+import {useSgwAuth, isSgwAuthenticated} from "../lib/sgwAuth.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {logSession} from "../lib/paperTrail.js";
 import {partitionForVin, getRow} from "../lib/moduleRegistry.js";
@@ -29,6 +30,7 @@ const REASON_LABELS = {
 export default function ProgramAllTab(){
   const{vin:masterVin,vinValid,moduleStatus,setPg,setModuleStatus}=useContext(MasterVinContext);
   const{connected:bridgeConnected}=useBridgeStatus(5000);
+  const sgwAuth=useSgwAuth();
   const hx=(n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0');
 
   // ── partition the registry against the current Master VIN ──
@@ -59,7 +61,13 @@ export default function ProgramAllTab(){
 
   const allWritable = partition.writable;
   const sgwBlockedRows = partition.blockedBySgw;
-  const sgwBatchBlocked = sgwBlockedRows.length > 0 && !bridgeConnected;
+  // Two distinct gates:
+  //   1. Bridge reachable — daemon is running, cable is plugged in.
+  //   2. SGW authenticated — actual seed/key exchange succeeded for this VIN.
+  // Both must be true before the runner will dispatch SGW-required rows.
+  // Without (2), the SGW will silently reject every downstream WriteByID.
+  const sgwAuthOk = sgwAuth.authenticated && sgwAuth.vin === masterVin;
+  const sgwBatchBlocked = sgwBlockedRows.length > 0 && (!bridgeConnected || !sgwAuthOk);
 
   // Initialize selection on first VIN load — every vin-writable row is
   // checked unless the user has previously unchecked it for that address.
@@ -103,6 +111,14 @@ export default function ProgramAllTab(){
     const needsBridge = targets.some(r => r.sgwRequired);
     let eng = null;
     if (needsBridge) {
+      // Bridge reachable AND SGW authenticated for this VIN — both gates
+      // apply to preflight reads too, because every 0x22 to a body-bus
+      // module on a 2018+ truck still has to traverse the SGW.
+      if (!isSgwAuthenticated(masterVin)) {
+        blog('🛑 SGW not authenticated for this VIN — open AUTEL SGW tab and click AUTHENTICATE SGW first', 'error');
+        setScanBusy(false);
+        return;
+      }
       const br = await createBridgeEngine({ addLog: (m,t)=>blog(m,t) });
       if (!br.ok) { blog('Bridge unavailable — aborting scan: '+br.error, 'error'); setScanBusy(false); return; }
       eng = br.engine;
@@ -144,6 +160,16 @@ export default function ProgramAllTab(){
     const needsBridge = targets.some(r => r.sgwRequired);
     let activeEng = null;
     if (needsBridge) {
+      // Hard gate: refuse to dispatch ANY write when the SGW hasn't been
+      // unlocked for this VIN. The bridge being reachable is necessary
+      // but not sufficient — without (b) the SGW silently rejects every
+      // downstream WriteByID and the tech is left chasing ghost NRCs.
+      if (!isSgwAuthenticated(masterVin)) {
+        blog('🛑 SGW REQUIRED but not authenticated for this VIN', 'error');
+        blog('Open the AUTEL SGW tab and click AUTHENTICATE SGW first.', 'error');
+        setBatchBusy(false);
+        return;
+      }
       blog('🔐 SGW required — opening bridge engine…', 'info');
       const br = await createBridgeEngine({ addLog: (m,t)=>blog(m,t) });
       if (!br.ok) {
@@ -311,8 +337,10 @@ export default function ProgramAllTab(){
 
       {sgwBatchBlocked&&<div style={{padding:10,background:'#FFEBEE',border:'2px solid '+C.er,borderRadius:8,marginBottom:12,fontSize:12,color:'#B71C1C'}}>
         🛑 <b>SGW required</b> — this VIN ({masterVin.slice(0,4)}…) targets a 2018+ secure-gateway vehicle.
-        {' '}Open the <a href="#" onClick={e=>{e.preventDefault();setPg('autel');}} style={{color:C.sr,fontWeight:800}}>AUTEL SGW tab</a>,
-        start j2534_bridge.py, then retry. <b>{sgwBlockedRows.length}</b> module(s) currently require the bridge.
+        {!bridgeConnected
+          ?<> Open the <a href="#" onClick={e=>{e.preventDefault();setPg('autel');}} style={{color:C.sr,fontWeight:800}}>AUTEL SGW tab</a>, start <code>j2534_bridge.py</code>, then retry.</>
+          :<> Bridge is connected, but SGW is <b>not authenticated</b> for this VIN. Open the <a href="#" onClick={e=>{e.preventDefault();setPg('autel');}} style={{color:C.sr,fontWeight:800}}>AUTEL SGW tab</a> and click <b>AUTHENTICATE SGW</b> to run the seed/key dance.</>}
+        {' '}<b>{sgwBlockedRows.length}</b> module(s) currently require SGW authentication.
       </div>}
 
       <div data-testid="universal-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))',gap:8}}>

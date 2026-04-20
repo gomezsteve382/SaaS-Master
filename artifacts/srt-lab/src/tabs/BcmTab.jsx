@@ -14,6 +14,7 @@ import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule, syncImmoBackup} from "../lib/parseModule.js";
 import {bcmFeatureMatrix} from "../lib/cgwConfig.js";
 import {vinHasSGW} from "../lib/vin.js";
+import {isSgwAuthenticated} from "../lib/sgwAuth.js";
 import {createBridgeEngine, reUnlockSeedKey} from "../lib/bridgeEngine.js";
 
 const BCM_ALGOS={
@@ -188,6 +189,15 @@ export default function BcmTab(){
     const sgwReq=vinHasSGW(masterVin);
     let activeEng=eng.current;
     if(sgwReq){
+      // Hard-fail BEFORE we open the bridge channel: a reachable bridge
+      // does NOT mean SGW seed/key has succeeded for this VIN. Without
+      // an authenticated SGW, every WriteByID below would be silently
+      // dropped by the gateway.
+      if(!isSgwAuthenticated(masterVin)){
+        addLog('🛑 SGW REQUIRED but not authenticated for this VIN','error');
+        addLog('Open the AUTEL SGW tab and click AUTHENTICATE SGW first.','error');
+        setModuleStatus(p=>({...p,BCM:'fail'}));setBusy('');return;
+      }
       const br=await createBridgeEngine({addLog});
       if(!br.ok){
         addLog('🛑 SGW REQUIRED but bridge offline: '+br.error,'error');

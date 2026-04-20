@@ -8,6 +8,7 @@ import {logSession} from '../lib/paperTrail.js';
 import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ECM_ALGOS, u32} from '../lib/programmerData.js';
+import {isSgwAuthenticated} from '../lib/sgwAuth.js';
 import {vinHasSGW} from '../lib/vin.js';
 import {createBridgeEngine, reUnlockSeedKey} from '../lib/bridgeEngine.js';
 
@@ -128,6 +129,13 @@ export default function EcmTab(){
     const sgwReq=vinHasSGW(masterVin);
     let activeEng=eng.current;
     if(sgwReq){
+      // See BcmTab.executeWriteVin for rationale — bridge reachability
+      // is necessary but not sufficient; the SGW must be unlocked first.
+      if(!isSgwAuthenticated(masterVin)){
+        addLog('🛑 SGW REQUIRED but not authenticated for this VIN','error');
+        addLog('Open the AUTEL SGW tab and click AUTHENTICATE SGW first.','error');
+        updateStatus('ECM','fail');setBusy('');return;
+      }
       const br=await createBridgeEngine({addLog});
       if(!br.ok){
         addLog('🛑 SGW REQUIRED but bridge offline: '+br.error,'error');

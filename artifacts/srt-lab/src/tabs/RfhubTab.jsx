@@ -8,6 +8,7 @@ import {logSession} from "../lib/paperTrail.js";
 import {decodeNRC} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
+import {isSgwAuthenticated} from "../lib/sgwAuth.js";
 import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule} from "../lib/parseModule.js";
@@ -151,6 +152,13 @@ export default function RfhubTab(){
     const sgwReq=vinHasSGW(masterVin);
     let activeEng=eng.current;
     if(sgwReq){
+      // See BcmTab.executeWriteVin for rationale — bridge reachability
+      // is necessary but not sufficient; the SGW must be unlocked first.
+      if(!isSgwAuthenticated(masterVin)){
+        addLog('🛑 SGW REQUIRED but not authenticated for this VIN','error');
+        addLog('Open the AUTEL SGW tab and click AUTHENTICATE SGW first.','error');
+        setModuleStatus(p=>({...p,RFHUB:'fail'}));setBusy('');return;
+      }
       const br=await createBridgeEngine({addLog});
       if(!br.ok){
         addLog('🛑 SGW REQUIRED but bridge offline: '+br.error,'error');
