@@ -3,7 +3,6 @@ import {Card, Btn} from "../lib/ui.jsx";
 import {C} from "../lib/constants.js";
 import {initAdapter} from "../lib/initAdapter.js";
 import {decodeNRC} from "../lib/nrc.js";
-import {logSession} from "../lib/paperTrail.js";
 import {runDtcRead} from "../lib/dtc.js";
 import DtcDetailPanel from "../lib/DtcDetailPanel.jsx";
 
@@ -49,17 +48,10 @@ export default function UdsTab(){
   };
   const parseAddr=s=>parseInt(String(s).replace(/^0x/i,''),16);
 
-  const recordPaper=useCallback((operation,extra)=>{
-    try{
-      logSession({
-        module:selectedModule||'UDS',
-        operation,
-        moduleAddr:{tx:parseAddr(txAddr),rx:parseAddr(rxAddr)},
-        adapter:eng.current?.adapter||'ELM327/STN',
-        ...extra,
-      });
-    }catch(e){/* ignore */}
-  },[selectedModule,txAddr,rxAddr]);
+  // Paper-trail recording was removed at the user's request. The helper
+  // is kept as a no-op so the existing call sites keep their no-throw
+  // contract without needing surgery; the args are intentionally ignored.
+  const recordPaper=useCallback((_operation,_extra)=>{},[]);
 
   const loadPreset=m=>{
     const p=MODULE_PRESETS[m];if(!p)return;

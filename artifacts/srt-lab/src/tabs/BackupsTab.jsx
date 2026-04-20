@@ -6,7 +6,7 @@ import {
   restoreModule, subscribeAudit, refreshBackupsFromServer,
   getBackupStorageUsage, pruneNonCriticalBackups,
   subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
-  exportAllBackups, importBackups, logSession,
+  exportAllBackups, importBackups,
 } from "../lib/audit.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
@@ -119,7 +119,8 @@ export default function BackupsTab() {
     setSelectedData(data);
   }, []);
 
-  // Deep-link from SessionsTab: if there's a pending backup key, auto-select it.
+  // Deep-link via window event "srtlab:backupSelect" — auto-select a key
+  // dropped into localStorage by anything that wants to open a backup here.
   useEffect(() => {
     const consume = () => {
       try {
@@ -130,7 +131,7 @@ export default function BackupsTab() {
         if (data) {
           setSelected(key);
           setSelectedData(data);
-          addRestoreLog("Loaded backup from session deep-link: " + key, "info");
+          addRestoreLog("Loaded backup from deep-link: " + key, "info");
         }
       } catch {/* ignore */}
     };
@@ -231,10 +232,10 @@ export default function BackupsTab() {
   const onConfirmRestore = useCallback(async (meta = {}) => {
     setModalOpen(false);
     if (!eng.current || !selectedData) return;
+    void meta;
     setBusy("Restoring...");
-    let ok = false;
     try {
-      ok = await restoreModule(
+      await restoreModule(
         eng.current.uds,
         selectedData.tx, selectedData.rx,
         selectedData, addRestoreLog, true,
@@ -242,21 +243,7 @@ export default function BackupsTab() {
     } catch (e) {
       addRestoreLog("Restore exception: " + e.message, "error");
     } finally { setBusy(""); }
-
-    logSession({
-      module: selectedData.module,
-      operation: "Restore from backup",
-      success: !!ok,
-      moduleAddr: { tx: selectedData.tx, rx: selectedData.rx },
-      newVin: selectedData.dids?.[0xF190]?.ascii?.slice(-17) || "",
-      backupKey: selected,
-      titleRef: meta.titleRef,
-      titleNotes: meta.titleNotes,
-      technician: meta.technician,
-      preWriteConfirmed: meta.preWriteConfirmed,
-      notes: "Restored from snapshot " + selectedData.timestamp,
-    });
-  }, [selectedData, selected, addRestoreLog]);
+  }, [selectedData, addRestoreLog]);
 
   const filtered = filter === "all" ? backups : backups.filter(b => b.module === filter);
   const moduleCounts = {};

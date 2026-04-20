@@ -4,12 +4,11 @@ import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
 import {MODS} from "../lib/mods.js";
 import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse, vinReadbackOk} from "../lib/algos.js";
 import {backupModule,CRITICAL_DIDS} from "../lib/backups.js";
-import {logSession} from "../lib/paperTrail.js";
 import {openSerialPort, onPortDisconnect, cleanupPort} from "../lib/serialErrors.js";
 
 const hx=(n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0');
 /* Map OBD scan code → backup profile name. Modules without a profile skip
-   the snapshot but the session is still logged with backupKey:null. */
+   the snapshot. */
 const backupTypeFor=(code)=>CRITICAL_DIDS[code]?code:null;
 
 function OBDTab(){
@@ -188,14 +187,6 @@ function OBDTab(){
       const unlockResult=await tryUnlock(eng.current.uds,m.tx,m.rx,m.c,addLog,m.c);
       if(unlockResult===false){
         addLog(m.c+' UNLOCK FAILED — skipping VIN writes for this module','error');
-        logSession({
-          module:m.c,operation:'OBD Bulk VIN Write',
-          oldVin:m.vin&&m.vin!=='(present)'?m.vin:null,newVin:nv,
-          moduleAddr:{tx:m.tx,rx:m.rx},
-          adapter:eng.current?.isSTN?'OBDLink/STN':'ELM327',
-          success:false,backupKey:null,
-          notes:'Unlock chain exhausted — writes skipped',
-        });
         setProg(Math.round(((i+1)/found.length)*100));
         continue;
       }
@@ -235,22 +226,11 @@ function OBDTab(){
         if(!ok) allReadbackOk=false;
         addLog(m.c+' read-back 0x'+did.toString(16).toUpperCase()+': '+(tail||'(no data)')+' '+(ok?'✓':'✗ MISMATCH'),ok?'rx':'error');
       }
+      void backupKey; void unlockResult;
       const allOk=writeResults.every(w=>w.ok)&&allReadbackOk;
-      logSession({
-        module:m.c,
-        operation:'OBD Bulk VIN Write',
-        oldVin:m.vin&&m.vin!=='(present)'?m.vin:null,
-        newVin:nv,
-        moduleAddr:{tx:m.tx,rx:m.rx},
-        adapter:eng.current?.isSTN?'OBDLink/STN':'ELM327',
-        success:allOk,
-        backupKey,
-        algorithm:typeof unlockResult==='string'?unlockResult:null,
-        dids:writeResults.map(w=>({did:'0x'+hx(w.did,4),ok:w.ok,readback:readResults[w.did]?.tail||'',readbackOk:!!readResults[w.did]?.ok})),
-        notes:'read-back: '+(allReadbackOk?'all DIDs match':'mismatch on '+Object.entries(readResults).filter(([,v])=>!v.ok).map(([d])=>'0x'+Number(d).toString(16).toUpperCase()).join(',')),
-      });
+      addLog(m.c+' result: '+(allOk?'OK':'FAIL')+' — read-back '+(allReadbackOk?'all DIDs match':'mismatch on '+Object.entries(readResults).filter(([,v])=>!v.ok).map(([d])=>'0x'+Number(d).toString(16).toUpperCase()).join(',')),allOk?'rx':'warn');
       setProg(Math.round(((i+1)/found.length)*100));
-    }setBusy('');addLog('All modules written + sessions logged','info');
+    }setBusy('');addLog('All modules written','info');
   },[found,nv]);
 
   const readProxi=useCallback(async()=>{
@@ -276,13 +256,6 @@ function OBDTab(){
       unlockResult=await tryUnlock(eng.current.uds,tx,rx,label,addLog,label);
       if(unlockResult===false){
         addLog(label+' UNLOCK FAILED — skipping VIN writes','error');
-        logSession({
-          module:label,operation:'OBD Single Module VIN Write',
-          oldVin,newVin:nv,moduleAddr:{tx,rx},
-          adapter:eng.current?.isSTN?'OBDLink/STN':'ELM327',
-          success:false,backupKey:null,
-          notes:'Unlock chain exhausted — writes skipped',
-        });
         return;
       }
       const bt=backupTypeFor(label);
@@ -317,17 +290,9 @@ function OBDTab(){
         addLog(label+' read-back 0x'+did.toString(16).toUpperCase()+': '+(tail||'(no data)')+' '+(ok?'✓':'✗ MISMATCH'),ok?'rx':'error');
       }
       allOk=writeResults.every(w=>w.ok)&&allReadbackOk;
-      logSession({
-        module:label,operation:'OBD Single Module VIN Write',
-        oldVin,newVin:nv,moduleAddr:{tx,rx},
-        adapter:eng.current?.isSTN?'OBDLink/STN':'ELM327',
-        success:allOk,backupKey,
-        algorithm:typeof unlockResult==='string'?unlockResult:null,
-        dids:writeResults.map(w=>({did:'0x'+hx(w.did,4),ok:w.ok,readback:readResults[w.did]?.tail||'',readbackOk:!!readResults[w.did]?.ok})),
-        notes:'read-back: '+(allReadbackOk?'all DIDs match':'mismatch on '+Object.entries(readResults).filter(([,v])=>!v.ok).map(([d])=>'0x'+Number(d).toString(16).toUpperCase()).join(',')),
-      });
+      void backupKey; void oldVin; void allOk;
+      addLog(label+' result: '+(allOk?'OK':'FAIL')+' — read-back '+(allReadbackOk?'all DIDs match':'mismatch on '+Object.entries(readResults).filter(([,v])=>!v.ok).map(([d])=>'0x'+Number(d).toString(16).toUpperCase()).join(',')),allOk?'rx':'warn');
     }catch(e){addLog(label+' error: '+e.message,'error');
-      logSession({module:label,operation:'OBD Single Module VIN Write',oldVin,newVin:nv,moduleAddr:{tx,rx},success:false,backupKey,notes:'Exception: '+e.message});
     }finally{setBusy('');}
   },[nv,addLog]);
 
@@ -339,7 +304,6 @@ function OBDTab(){
       const ur=await tryUnlock(eng.current.uds,0x75F,0x767,'RFHUB',addLog,'RFHUB');
       if(ur===false){
         addLog('RFHUB UNLOCK FAILED — virginize aborted','error');
-        logSession({module:'RFHUB',operation:'OBD Virginize (zero VIN)',oldVin,newVin:'(virgin / zeros)',moduleAddr:{tx:0x75F,rx:0x767},success:false,backupKey:null,notes:'Unlock chain exhausted — writes skipped'});
         setBusy('');return;
       }
       addLog('Snapshotting RFHUB before virginize...','info');
@@ -351,16 +315,9 @@ function OBDTab(){
       for(const did of[0xF190,0x7B90]){const r=await eng.current.uds(0x75F,0x767,[0x2E,(did>>8)&0xFF,did&0xFF,...blank]);results.push({did,ok:!!r.ok});}
       await eng.current.uds(0x75F,0x767,[0x11,0x01]);
       ok=results.every(w=>w.ok);
+      void backupKey; void oldVin; void ok;
       addLog('RFHUB virginized over OBD','rx');
-      logSession({
-        module:'RFHUB',operation:'OBD Virginize (zero VIN)',
-        oldVin,newVin:'(virgin / zeros)',moduleAddr:{tx:0x75F,rx:0x767},
-        adapter:eng.current?.isSTN?'OBDLink/STN':'ELM327',
-        success:ok,backupKey,
-        dids:results.map(w=>({did:'0x'+hx(w.did,4),ok:w.ok})),
-      });
     }catch(e){addLog('Virginize error: '+e.message,'error');
-      logSession({module:'RFHUB',operation:'OBD Virginize (zero VIN)',oldVin,newVin:'(virgin / zeros)',moduleAddr:{tx:0x75F,rx:0x767},success:false,backupKey,notes:'Exception: '+e.message});
     }finally{setBusy('');}
   },[addLog]);
 

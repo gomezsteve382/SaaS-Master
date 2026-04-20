@@ -4,12 +4,10 @@ import {C} from "../lib/constants.js";
 import {u32} from "../lib/algos.js";
 import {initAdapter, parseVinFromResponse} from "../lib/initAdapter.js";
 import {backupModule} from "../lib/backups.js";
-import {logSession} from "../lib/paperTrail.js";
 import {decodeNRC} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
-import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule} from "../lib/parseModule.js";
 import {vinHasSGW} from "../lib/vin.js";
@@ -191,22 +189,7 @@ export default function RfhubTab(){
     const match=v===masterVin;
     addLog(match?'✓ VERIFIED: VIN matches':'✗ VERIFY FAIL: '+(v||'no response'),match?'rx':'warn');
     setModuleStatus(p=>({...p,RFHUB:(ok&&match)?'ok':'fail'}));
-    logSession({
-      module:'RFHUB',
-      operation:'VIN Write',
-      oldVin:oldVinSnapshot,
-      newVin:masterVin,
-      moduleAddr:{tx:rfhubAddr.tx,rx:rfhubAddr.rx},
-      adapter:activeEng?.adapter||eng.current?.adapter||'ELM327/STN',
-      sgwRouted:sgwReq,
-      success:ok&&match,
-      technician:confirmData.technician,
-      titleRef:confirmData.titleRef,
-      titleNotes:confirmData.titleNotes,
-      preWriteConfirmed:confirmData.preWriteConfirmed,
-      backupKey,
-    });
-    addLog('📄 Session logged to paper trail','info');
+    void backupKey; void oldVinSnapshot;
     setBusy('');
   },[masterVin,rfhubAddr,addLog,setModuleStatus,curVin]);
 
@@ -348,8 +331,6 @@ export default function RfhubTab(){
         Target: {rfhubAddr.name} · TX 0x{hx(rfhubAddr.tx,3)} · RX 0x{hx(rfhubAddr.rx,3)}
       </div>
     </Card>
-
-    <ModuleHistoryPanel moduleType="RFHUB"/>
 
     <Card style={{marginBottom:14}}>
       <div style={{fontWeight:800,fontSize:11,color:C.a2,marginBottom:10,letterSpacing:2}}>🔑 VIN STATUS</div>

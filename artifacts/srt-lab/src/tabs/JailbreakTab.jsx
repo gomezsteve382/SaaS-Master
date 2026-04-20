@@ -9,7 +9,6 @@ import {
   PROFILES, MODULE_TARGETS, ROUTINE_PRESETS,
 } from "../lib/jailbreakFeatures.js";
 import { backupModule, CRITICAL_DIDS } from "../lib/backups.js";
-import { logSession } from "../lib/paperTrail.js";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 
@@ -311,33 +310,13 @@ function JailbreakTab() {
     }
     if (writes === 0) {
       addLog("No DIDs were written.", "warn");
-      logSession({
-        module: backupType || target.label,
-        operation: "Jailbreak Feature Write",
-        oldVin, newVin: oldVin,
-        moduleAddr: { tx: target.tx, rx: target.rx },
-        adapter: "ELM327/STN",
-        success: false,
-        backupKey,
-        notes: "No DIDs written — see log for refusals.",
-      });
       setBusy(""); return;
     }
     addLog("Sending ECU reset (11 01)...", "info");
     await eng.current.uds(target.tx, target.rx, [0x11, 0x01]);
     const featureSummary = keys.map(k => pending[k].feat.id + "=0x" + hx(pending[k].value));
-    logSession({
-      module: backupType || target.label,
-      operation: "Jailbreak Feature Write",
-      oldVin, newVin: oldVin,
-      moduleAddr: { tx: target.tx, rx: target.rx },
-      adapter: "ELM327/STN",
-      algorithm: "CDA6",
-      success: writes > 0,
-      backupKey,
-      notes: writes + " DID(s) written: " + featureSummary.join(", "),
-    });
-    addLog("📄 Session logged to paper trail", "info");
+    addLog(writes + " DID(s) written: " + featureSummary.join(", "), "info");
+    void backupKey; void oldVin;
     setPending({});
     addLog("Write complete + reset", "info");
     setBusy("");

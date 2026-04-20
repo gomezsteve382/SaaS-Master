@@ -36,11 +36,11 @@
        errors: string[],              // structured error messages
      }
 
-   Note on accessLevel: tryUnlock today is hardcoded to security access
-   level 0x01. The engine threads row.accessLevel into the result for
-   diagnostics and audit-log bookkeeping; switching the seed/key request
-   bytes (0x27 0x03 / 0x27 0x04 etc.) for real per-row level control is
-   tracked by a focused follow-up. */
+   Note on accessLevel: row.accessLevel (default 0x01) is now threaded
+   into tryUnlock so the seed request becomes [0x27, level] and the key
+   send becomes [0x27, level+1, ...kb]. The W7 rows in REGISTRY use
+   level 0x03 (programming session); everything else falls back to the
+   level-1 default the seed/key code historically used. */
 
 import {
   encodeDid,
@@ -179,7 +179,7 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
     const prev = MOD_UNLOCK[row.code];
     MOD_UNLOCK[row.code] = row.unlockId;
     try {
-      result.unlockAlgo = await tryUnlock(eng.uds, row.tx, row.rx, row.code, addLog, lbl);
+      result.unlockAlgo = await tryUnlock(eng.uds, row.tx, row.rx, row.code, addLog, lbl, result.accessLevel);
     } finally {
       if (prev === undefined) delete MOD_UNLOCK[row.code]; else MOD_UNLOCK[row.code] = prev;
     }
@@ -187,7 +187,7 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
     // override above.
     void chain;
   } else {
-    result.unlockAlgo = await tryUnlock(eng.uds, row.tx, row.rx, row.code, addLog, lbl);
+    result.unlockAlgo = await tryUnlock(eng.uds, row.tx, row.rx, row.code, addLog, lbl, result.accessLevel);
   }
 
   if (result.unlockAlgo === false) {

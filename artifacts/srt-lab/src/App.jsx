@@ -9,7 +9,6 @@ import BcmTab from "./tabs/BcmTab.jsx";
 import RfhubTab from "./tabs/RfhubTab.jsx";
 import RFHPCMTab from "./tabs/RFHPCMTab.jsx";
 import BackupsTab from "./tabs/BackupsTab";
-import SessionsTab from "./tabs/SessionsTab.jsx";
 import EcmTab from "./tabs/EcmTab.jsx";
 import AdcmTab from "./tabs/AdcmTab.jsx";
 import ProgramAllTab from "./tabs/ProgramAllTab.jsx";
@@ -36,7 +35,6 @@ const TABS = [
   { id: "adcm",      i: "🏎️", l: "ACTIVE DAMPING", s: "VIN · Variant Config" },
   { id: "uds",       i: "🔬", l: "UDS PROGRAMMER", s: "Universal · Raw" },
   { id: "backups",   i: "💾", l: "BACKUPS",        s: "History · Restore" },
-  { id: "sessions",  i: "📜", l: "SESSIONS",       s: "Audit · Paper Trail" },
   { id: "jailbreak", i: "💀", l: "JAILBREAK",      s: "SRT · Demon · Hellcat · Redeye" },
   { id: "dumps",     i: "📂", l: "DUMPS",          s: "VIN · Hex · Virginize" },
   { id: "obd",       i: "📡", l: "LIVE OBD",       s: "UDS · Scan · Write" },
@@ -145,11 +143,11 @@ function AppShell({ pg, setPg, files, setFiles, loadF }) {
   const { vin, setVin, vinValid, moduleStatus } = useMasterVin();
   const tab = TABS.find(t => t.id === pg);
 
-  /* Module History panels deep-link to the backups tab via this event. */
+  /* Backups tab deep-link via custom event (BackupsTab opens a row by key). */
   useEffect(() => {
     const onNav = (e) => {
       const t = e?.detail?.tab;
-      if (t === "backups" || t === "sessions") setPg(t);
+      if (t === "backups") setPg(t);
     };
     window.addEventListener("srtlab:navigate", onNav);
     return () => window.removeEventListener("srtlab:navigate", onNav);
@@ -211,7 +209,6 @@ function AppShell({ pg, setPg, files, setFiles, loadF }) {
       {pg === "autel"     && <AutelSgwTab />}
       {pg === "jailbreak" && <JailbreakTab />}
       {pg === "backups"   && <BackupsTab />}
-      {pg === "sessions"  && <SessionsTab />}
       {pg === "program"   && <ProgramAllTab />}
       {pg === "uds"       && <UdsTab />}
     </div>

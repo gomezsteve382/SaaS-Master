@@ -176,9 +176,10 @@ describe('programVin', () => {
     ];
     // tryUnlock walks the entire 10-algo MOD_UNLOCK chain — every key is
     // rejected with NRC 0x35 (no w7 algo exists yet, so every attempt is
-    // structurally wrong).
+    // structurally wrong). W7 rows use security access level 0x03 (seed
+    // sub-function), so the seed request goes out as 27 03, not 27 01.
     for (let i = 0; i < 10; i++) {
-      script.push({ req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seedBytes]) } });
+      script.push({ req: [0x27, 0x03], resp: { ok: true, d: new Uint8Array([0x67, 0x03, ...seedBytes]) } });
       script.push({ resp: { ok: true, d: new Uint8Array([0x7F, 0x27, 0x35]) } });
     }
     const m = mockUds(script);

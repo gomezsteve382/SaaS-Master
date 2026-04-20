@@ -4,7 +4,6 @@ import {C} from '../lib/constants.js';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
 import {decodeNRC} from '../lib/nrc.js';
 import {backupModule} from '../lib/backups.js';
-import {logSession} from '../lib/paperTrail.js';
 import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ECM_ALGOS, u32} from '../lib/programmerData.js';
@@ -169,15 +168,7 @@ export default function EcmTab(){
     const match=v===masterVin;
     addLog(match?'✓ VERIFIED':'✗ VERIFY FAIL: '+(v||'no response'),match?'rx':'warn');
     updateStatus('ECM',(ok&&match)?'ok':'fail');
-    logSession({
-      module:'ECM',operation:'VIN Write',oldVin:oldVinSnapshot,newVin:masterVin,
-      moduleAddr:{tx:ecmAddr.tx,rx:ecmAddr.rx},adapter:activeEng?.adapter||eng.current.adapter||'ELM327/STN',
-      sgwRouted:sgwReq,
-      algorithm:algo,success:ok&&match,
-      technician:confirmData.technician,titleRef:confirmData.titleRef,
-      titleNotes:confirmData.titleNotes,preWriteConfirmed:confirmData.preWriteConfirmed,
-    });
-    addLog('📄 Session logged to paper trail','info');
+    void oldVinSnapshot;
     setBusy('');
   },[masterVin,addLog,updateStatus,curVin,algo]);
 

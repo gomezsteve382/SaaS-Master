@@ -366,12 +366,22 @@ function vinReadbackOk(did, tail, nv){
 // the ECU rejects the key with NRC 0x35 (invalid key). Returns the algo id
 // that succeeded, true if the seed was already zero (already unlocked), or
 // false on terminal failure. addLog is optional (info/warn/rx/error).
-async function tryUnlock(uds, tx, rx, code, addLog, label){
+async function tryUnlock(uds, tx, rx, code, addLog, label, accessLevel){
   const lbl = label || code || ('0x'+tx.toString(16).toUpperCase());
   const chain = pickUnlockChain(tx, code);
+  // ISO 14229 SecurityAccess: odd sub-functions request a seed
+  // (01/03/05/07/…), the next even sub-function (02/04/06/08/…) sends the
+  // computed key back. accessLevel must therefore be odd. The default of
+  // 0x01 mirrors the historical behavior — every existing call site that
+  // doesn't pass a level still gets level-1 seed/key, so behavior is
+  // unchanged for the dozens of CDA6/Alfa rows that use level 1.
+  const seedSF = (typeof accessLevel === 'number' && accessLevel >= 1 && accessLevel <= 0x3D)
+    ? (accessLevel | 1)   // force odd, in case a caller passes the key sub-function by mistake
+    : 0x01;
+  const keySF = seedSF + 1;
   for(let i=0;i<chain.length;i++){
     const aid = chain[i];
-    const sr = await uds(tx, rx, [0x27, 0x01]);
+    const sr = await uds(tx, rx, [0x27, seedSF]);
     if(!(sr && sr.ok && sr.d && sr.d.length>=2)){
       addLog && addLog(lbl+' seed read failed','error');
       return false;
@@ -392,9 +402,9 @@ async function tryUnlock(uds, tx, rx, code, addLog, label){
     }
     const kb = unlockKeyBytes(aid, sb);
     if(kb===null){ continue; }
-    const kr = await uds(tx, rx, [0x27, 0x02, ...kb]);
+    const kr = await uds(tx, rx, [0x27, keySF, ...kb]);
     if(kr && kr.ok && kr.d && kr.d[0]===0x67){
-      addLog && addLog(lbl+' UNLOCKED via '+aid+' ('+kb.length+'B key)','rx');
+      addLog && addLog(lbl+' UNLOCKED via '+aid+' ('+kb.length+'B key, level 0x'+seedSF.toString(16).toUpperCase().padStart(2,'0')+')','rx');
       return aid;
     }
     const nrc = (kr && kr.ok && kr.d && kr.d[0]===0x7F) ? kr.d[2] : null;

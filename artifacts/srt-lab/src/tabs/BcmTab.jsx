@@ -5,11 +5,9 @@ import {cda6, u32} from "../lib/algos.js";
 import {crc16ccitt} from "../lib/crc.js";
 import {initAdapter, parseVinFromResponse} from "../lib/initAdapter.js";
 import {backupModule, getBackupList} from "../lib/backups.js";
-import {logSession} from "../lib/paperTrail.js";
 import {decodeNRC} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
-import ModuleHistoryPanel from "../components/ModuleHistoryPanel.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule, syncImmoBackup} from "../lib/parseModule.js";
 import {bcmFeatureMatrix} from "../lib/cgwConfig.js";
@@ -264,25 +262,7 @@ export default function BcmTab(){
     setCurVin(verifiedVins);
     setModuleStatus(p=>({...p,BCM:allOk?'ok':'fail'}));
     addLog(allOk?'═══ BCM VIN WRITE COMPLETE ═══':'═══ BCM VIN WRITE HAD FAILURES ═══',allOk?'info':'error');
-    logSession({
-      module:'BCM',
-      operation:'VIN Write',
-      oldVin:oldVinSnapshot,
-      newVin:masterVin,
-      moduleAddr:{tx:bcmAddr.tx,rx:bcmAddr.rx},
-      adapter:activeEng?.adapter||eng.current?.adapter||'ELM327/STN',
-      sgwRouted:sgwReq,
-      voltage:volts,
-      algorithm:algo,
-      success:allOk,
-      technician:confirmData.technician,
-      titleRef:confirmData.titleRef,
-      titleNotes:confirmData.titleNotes,
-      preWriteConfirmed:confirmData.preWriteConfirmed,
-      backupKey,
-      dids:Object.keys(verifiedVins).map(d=>({did:'0x'+hx(parseInt(d),4),value:verifiedVins[d]})),
-    });
-    addLog('📄 Session logged to paper trail','info');
+    void backupKey; void oldVinSnapshot;
     setBusy('');
   },[masterVin,bcmAddr,addLog,setModuleStatus,curVin,algo]);
 
@@ -374,8 +354,6 @@ export default function BcmTab(){
         ✓ {backupCount} backup{backupCount===1?'':'s'} saved for this module
       </div>}
     </Card>
-
-    <ModuleHistoryPanel moduleType="BCM"/>
 
     <Card style={{marginBottom:14}}>
       <div style={{fontWeight:800,fontSize:11,color:C.sr,marginBottom:10,letterSpacing:2}}>🔑 VIN STATUS</div>

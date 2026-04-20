@@ -4,7 +4,6 @@ import {C} from '../lib/constants.js';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
 import {decodeNRC} from '../lib/nrc.js';
 import {backupModule} from '../lib/backups.js';
-import {logSession} from '../lib/paperTrail.js';
 import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ADCM_VARIANTS, ADCM_MODULES, u32} from '../lib/programmerData.js';
@@ -209,21 +208,6 @@ export default function AdcmTab(){
       if(sgwReq)eng.current=realEng;
     }
     updateStatus('ADCM',allOk?'ok':'fail');
-    logSession({
-      module:'ADCM',operation:'VIN Write (F190 + 7B90 + 7B88)',
-      oldVin:oldVinF190||oldVin7B90,newVin:target,
-      moduleAddr:{tx:mod.tx,rx:mod.rx},
-      adapter:(sgwReq?'Autel J2534 (SGW)':(realEng?.adapter||'ELM327/STN')),
-      sgwRouted:sgwReq,success:allOk,
-      technician:confirmData.technician,titleRef:confirmData.titleRef,
-      titleNotes:confirmData.titleNotes,preWriteConfirmed:confirmData.preWriteConfirmed,
-      dids:[
-        {did:'0xF190',value:v1,match:match1},
-        {did:'0x7B90',value:v2,match:match2},
-        {did:'0x7B88',written:ok7B88},
-      ],
-    });
-    addLog('📄 Session logged to paper trail','info');
     setBusy('');
   },[vin,mod,writeVinToDid,readVinDid,addLog,curVinF190,curVin7B90,updateStatus]);
 
@@ -247,12 +231,6 @@ export default function AdcmTab(){
       await new Promise(r=>setTimeout(r,150));
     }
     addLog('Variant configuration complete for '+v.n,'info');
-    logSession({
-      module:'ADCM',operation:'Variant Config',
-      variant:v.id,variantCode:v.code,variantName:v.n,
-      moduleAddr:{tx:mod.tx,rx:mod.rx},
-      adapter:eng.current.adapter||'ELM327/STN',success:true,
-    });
     setBusy('');
   },[variant,mod,unlocked,addLog]);
 

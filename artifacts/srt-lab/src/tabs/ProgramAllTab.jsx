@@ -7,7 +7,6 @@ import {createBridgeEngine} from "../lib/bridgeEngine.js";
 import {useBridgeStatus} from "../lib/bridgeClient.js";
 import {useSgwAuth, isSgwAuthenticated} from "../lib/sgwAuth.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
-import {logSession} from "../lib/paperTrail.js";
 import {partitionForVin, getRow} from "../lib/moduleRegistry.js";
 import {programVin} from "../lib/vinProgrammer.js";
 
@@ -222,22 +221,6 @@ export default function ProgramAllTab(){
       if (['BCM','RFHUB','ECM','ADCM'].includes(row.code)) {
         setModuleStatus(p => ({ ...p, [row.code]: r.ok ? 'ok' : 'fail' }));
       }
-
-      try {
-        logSession({
-          module: row.code,
-          operation: 'Universal VIN Write',
-          newVin: masterVin,
-          oldVin: r.beforeVin,
-          moduleAddr: { tx: row.tx, rx: row.rx },
-          adapter: activeEng?.adapter || (needsBridge ? 'Autel J2534 (bridge)' : 'ELM327/STN'),
-          sgwRouted: needsBridge,
-          success: r.ok,
-          unlockAlgo: r.unlockAlgo,
-          dids: r.didResults.map(d => ({ did: '0x' + d.did.toString(16).toUpperCase(), value: d.readback, match: d.match })),
-          errors: r.errors,
-        });
-      } catch { /* ignore */ }
 
       if (!r.ok && stopOnFail) {
         // Determine remaining targets without depending on the (stale)
