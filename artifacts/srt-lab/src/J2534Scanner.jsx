@@ -224,9 +224,10 @@ export default function J2534Scanner() {
   );
 
   // Client-side iteration over the shared module registry. For each row we
-  // run a TesterPresent (3E 00) probe; if we get any reply, the module is
-  // present and we follow up with a 22 F1 90 to grab the VIN. We skip the
-  // SGW row because it never answers a generic 3E 00 in the clear.
+  // send a single 22 F1 90 (Read Data By Identifier — VIN) and accept any
+  // reply as proof the module is on the bus: a positive 62 F1 90 yields the
+  // VIN, an NRC (7F 22 xx) still confirms presence. The SGW row is excluded
+  // because it does not own a F190 DID.
   const scanAll = useCallback(async () => {
     if (status !== "can_connected") {
       log("Not on CAN — open the device and connect first.", "error");
@@ -239,6 +240,7 @@ export default function J2534Scanner() {
 
     const targets = REGISTRY.filter((r) => r.kind !== "unsupported");
     let hits = 0;
+    try {
     for (const row of targets) {
       log(
         `→ probe ${row.code} TX:0x${row.tx.toString(16).toUpperCase().padStart(3, "0")} RX:0x${row.rx
@@ -274,7 +276,11 @@ export default function J2534Scanner() {
       `═══ Scan complete: ${hits} module${hits === 1 ? "" : "s"} found out of ${targets.length} probed ═══`,
       "header"
     );
-    setScanning(false);
+    } catch (e) {
+      log("Scan aborted: " + (e?.message || String(e)), "error");
+    } finally {
+      setScanning(false);
+    }
   }, [status, udsExchange, log]);
 
   const S = {
