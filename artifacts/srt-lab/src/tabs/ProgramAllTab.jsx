@@ -26,6 +26,10 @@ const REASON_LABELS = {
   verify:    'read-back mismatch',
 };
 
+// sessionStorage key for resumable batch state. Bumped if the persisted
+// shape ever changes — older snapshots are then ignored on mount.
+const RESUME_KEY = 'srt-lab.programall.resume.v1';
+
 export default function ProgramAllTab(){
   const{vin:masterVin,vinValid,moduleStatus,setPg,setModuleStatus}=useContext(MasterVinContext);
   const{connected:bridgeConnected}=useBridgeStatus(5000);
@@ -54,9 +58,64 @@ export default function ProgramAllTab(){
   const [currentVins, setCurrentVins] = useState({});
   const [expandedErrors, setExpandedErrors] = useState({}); // tx → bool
   const [batchLog, setBatchLog] = useState([]);
+  // Resumable-batch state. `savedSession` is the snapshot read from
+  // sessionStorage on mount — when non-null we render a "Resume previous
+  // batch?" banner. `sessionLoaded` gates the persist effect so the first
+  // render doesn't clobber the saved snapshot before we've consumed it.
+  const [savedSession, setSavedSession] = useState(null);
+  const [sessionLoaded, setSessionLoaded] = useState(false);
   const blog = useCallback((m, t='info') => {
     setBatchLog(p => [...p.slice(-300), { t: new Date().toLocaleTimeString(), m, type: t }]);
   }, []);
+
+  // ── On mount: look for an interrupted batch in sessionStorage ──
+  // sessionStorage survives a page reload / in-tab navigation (but not
+  // closing the tab itself), which covers the "USB unplug / browser
+  // refresh / voltage drop while the tab stayed open" recovery flow.
+  // Surviving a full tab close is tracked as a follow-up.
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(RESUME_KEY);
+      if (raw) {
+        const s = JSON.parse(raw);
+        const txs = s && s.batchResults ? Object.keys(s.batchResults) : [];
+        // Only offer a resume if the snapshot has at least one row that
+        // wasn't fully verified — i.e. fail/pending/running/skipped.
+        const incomplete = txs.some(tx => {
+          const st = s.batchResults[tx]?.status;
+          return st && st !== 'ok';
+        });
+        if (incomplete) setSavedSession(s);
+        else { try { sessionStorage.removeItem(RESUME_KEY); } catch { /* ignore */ } }
+      }
+    } catch { /* ignore corrupt snapshot */ }
+    setSessionLoaded(true);
+  }, []);
+
+  // ── Persist the in-flight batch on every relevant state change ──
+  // We only write when the batch has actually started (batchResults is
+  // non-empty) so an idle tab doesn't pollute sessionStorage. The
+  // snapshot is cleared once every targeted row has verified ok.
+  useEffect(() => {
+    if (!sessionLoaded) return;
+    if (!vinValid) return;
+    const txs = Object.keys(batchResults);
+    if (txs.length === 0) return;
+    const allOk = !batchBusy && txs.every(tx => batchResults[tx].status === 'ok');
+    try {
+      if (allOk) {
+        sessionStorage.removeItem(RESUME_KEY);
+      } else {
+        sessionStorage.setItem(RESUME_KEY, JSON.stringify({
+          vin: masterVin,
+          selection,
+          perRowVin,
+          batchResults,
+          ts: Date.now(),
+        }));
+      }
+    } catch { /* quota / private mode — silently ignore */ }
+  }, [sessionLoaded, vinValid, masterVin, selection, perRowVin, batchResults, batchBusy]);
 
   const allWritable = partition.writable;
   const sgwBlockedRows = partition.blockedBySgw;
@@ -142,15 +201,38 @@ export default function ProgramAllTab(){
     setScanBusy(false);
   }, [allWritable, selection, blog]);
 
-  const runBatch = useCallback(async () => {
+  const runBatch = useCallback(async (opts = {}) => {
     if (!vinValid) { blog('Master VIN must be valid before running a batch', 'error'); return; }
-    const targets = allWritable.filter(r => selection[r.tx]);
-    if (targets.length === 0) { blog('No modules selected', 'warn'); return; }
+    // Resume mode: caller passes priorResults so we can skip rows that
+    // already verified ok and only retry fail/pending/skipped/running.
+    // Resume callers also pass selectionOverride / perRowVinOverride so
+    // we operate on the saved snapshot directly instead of reading
+    // through stale closures captured by useCallback. Writing the wrong
+    // VIN to the wrong module is unacceptable in this flow.
+    const priorResults = opts.priorResults || null;
+    const activeSelection = opts.selectionOverride || selection;
+    const activePerRowVin = opts.perRowVinOverride || perRowVin;
+    const allTargets = allWritable.filter(r => activeSelection[r.tx]);
+    if (allTargets.length === 0) { blog('No modules selected', 'warn'); return; }
+    let targets = allTargets;
+    let preservedOk = 0;
+    if (priorResults) {
+      const okSet = new Set(Object.keys(priorResults).filter(tx => priorResults[tx]?.status === 'ok').map(Number));
+      preservedOk = allTargets.filter(r => okSet.has(r.tx)).length;
+      targets = allTargets.filter(r => !okSet.has(r.tx));
+      if (targets.length === 0) { blog('Nothing to resume — every selected row is already OK', 'warn'); return; }
+    }
 
     setBatchBusy(true);
-    setBatchResults({});
+    // Preserve already-verified rows on resume so the grid keeps its
+    // green badges; otherwise wipe results for a clean run.
+    setBatchResults(priorResults ? { ...priorResults } : {});
     setBatchLog([]);
-    blog(`═══ UNIVERSAL VIN BATCH — ${targets.length} module${targets.length===1?'':'s'} ═══`, 'info');
+    if (priorResults) {
+      blog(`═══ RESUMING BATCH — ${targets.length} retry · ${preservedOk} already ok ═══`, 'info');
+    } else {
+      blog(`═══ UNIVERSAL VIN BATCH — ${targets.length} module${targets.length===1?'':'s'} ═══`, 'info');
+    }
     blog(`Target VIN: ${masterVin}`, 'info');
 
     // Decide which uds engine to use. If any selected row needs SGW we
@@ -188,7 +270,7 @@ export default function ProgramAllTab(){
     for (const row of targets) {
       // Per-row VIN override: if the tech entered a 17-char VIN for this
       // specific row, use it; otherwise use the master VIN.
-      const rowOverride = (perRowVin[row.tx] || '').trim();
+      const rowOverride = (activePerRowVin[row.tx] || '').trim();
       const vinForThisRow = rowOverride.length === 17 ? rowOverride : masterVin;
       const usingOverride = vinForThisRow !== masterVin;
 
@@ -247,6 +329,45 @@ export default function ProgramAllTab(){
     // change would be wasteful and risk stale closures inside the loop.
   }, [vinValid, masterVin, allWritable, selection, perRowVin, stopOnFail, blog, setModuleStatus]);
 
+  // ── Resume an interrupted batch ──
+  // Restores selection / per-row VIN overrides / prior results from the
+  // sessionStorage snapshot, then kicks off runBatch in resume mode so
+  // it skips already-verified rows and only retries the rest.
+  const resumeSavedSession = useCallback(() => {
+    if (!savedSession) return;
+    const sel = savedSession.selection || {};
+    const rowVin = savedSession.perRowVin || {};
+    const prior = savedSession.batchResults || {};
+    // Mirror the snapshot into React state so the grid renders the
+    // restored selection / overrides / badges, then kick off runBatch
+    // with the same values passed explicitly so we don't depend on a
+    // re-render to flush the new state into runBatch's closure. This
+    // matters because writing the wrong VIN to the wrong module is a
+    // hard-to-undo mistake on a real bench.
+    setSelection(sel);
+    setPerRowVin(rowVin);
+    setBatchResults(prior);
+    setSavedSession(null);
+    runBatch({ priorResults: prior, selectionOverride: sel, perRowVinOverride: rowVin });
+  }, [savedSession, runBatch]);
+
+  const discardSavedSession = useCallback(() => {
+    try { sessionStorage.removeItem(RESUME_KEY); } catch { /* ignore */ }
+    setSavedSession(null);
+  }, []);
+
+  // Banner numbers — count rows in the saved snapshot by status.
+  const savedCounts = useMemo(() => {
+    if (!savedSession?.batchResults) return null;
+    const c = { ok: 0, fail: 0, pending: 0, skipped: 0, other: 0 };
+    for (const tx of Object.keys(savedSession.batchResults)) {
+      const st = savedSession.batchResults[tx]?.status;
+      if (st in c) c[st]++; else c.other++;
+    }
+    return c;
+  }, [savedSession]);
+  const savedVinMismatch = !!(savedSession && vinValid && savedSession.vin && savedSession.vin !== masterVin);
+
   // ── classic 4-step bench-workflow data (kept for the per-tab nav cards) ──
   const benchSteps = [
     {order:1,key:'BCM',  icon:'🧠',name:'Body Control Module',     color:C.sr,tab:'bcm'},
@@ -291,6 +412,43 @@ export default function ProgramAllTab(){
           <div style={{fontSize:10,color:C.ts,letterSpacing:1,marginBottom:4}}>SELECTED</div>
           <div style={{fontSize:32,fontWeight:900,color:C.gn}}>{selectedCount}<span style={{fontSize:18,color:C.ts}}>/{allWritable.length}</span></div>
           <div style={{fontSize:10,color:C.ts}}>writable modules</div>
+        </div>
+      </div>
+    </Card>}
+
+    {/* ── Resume-previous-batch banner ── */}
+    {savedSession && savedCounts && <Card data-testid="resume-banner" style={{
+      marginBottom:14,
+      background:'linear-gradient(135deg,#FFF8E1 0%,#FFE082 100%)',
+      border:'2px solid '+C.wn,
+    }}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+        <div style={{flex:1,minWidth:240}}>
+          <div style={{fontWeight:900,fontSize:13,color:'#5D4037',letterSpacing:1}}>
+            ⚠ INTERRUPTED BATCH FOUND
+          </div>
+          <div style={{fontSize:12,color:'#5D4037',marginTop:4,lineHeight:1.5}}>
+            A previous run for VIN <b data-testid="resume-saved-vin" style={{fontFamily:"'JetBrains Mono'"}}>{savedSession.vin || '(unknown)'}</b> was
+            cut short. <b data-testid="resume-ok-count">{savedCounts.ok}</b> ok ·{' '}
+            <b data-testid="resume-retry-count">{savedCounts.fail + savedCounts.pending + savedCounts.skipped + savedCounts.other}</b> to retry.
+          </div>
+          {savedVinMismatch && <div style={{fontSize:11,color:C.er,marginTop:6,fontWeight:700}}>
+            ⚠ Master VIN was changed since — set the Master VIN back to <b style={{fontFamily:"'JetBrains Mono'"}}>{savedSession.vin}</b> to resume, or discard.
+          </div>}
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          <Btn data-testid="resume-btn"
+            onClick={resumeSavedSession}
+            disabled={batchBusy || savedVinMismatch || !vinValid}
+            color={C.gn}>
+            ▶ Resume previous batch
+          </Btn>
+          <Btn data-testid="resume-discard-btn"
+            onClick={discardSavedSession}
+            disabled={batchBusy}
+            color={C.tm} outline>
+            ✕ Discard
+          </Btn>
         </div>
       </div>
     </Card>}
