@@ -8,8 +8,11 @@ import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ECM_ALGOS, u32} from '../lib/programmerData.js';
 import {isSgwAuthenticated} from '../lib/sgwAuth.js';
+import {logSession} from '../lib/paperTrail.js';
 import {vinHasSGW} from '../lib/vin.js';
-import {createBridgeEngine, reUnlockSeedKey} from '../lib/bridgeEngine.js';
+import {createBridgeEngine} from '../lib/bridgeEngine.js';
+import {getRow} from '../lib/moduleRegistry.js';
+import {programVin} from '../lib/vinProgrammer.js';
 
 export default function EcmTab(){
   const{vin:masterVin,updateStatus}=useMasterVin();
@@ -125,6 +128,8 @@ export default function EcmTab(){
     addLog('═══ ECM VIN WRITE ═══','info');
     if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
+    // Bridge engine when SGW-routed; programVin replays the registry's
+    // 10-algo GPEC platform sweep on the chosen channel.
     const sgwReq=vinHasSGW(masterVin);
     let activeEng=eng.current;
     if(sgwReq){
@@ -142,33 +147,25 @@ export default function EcmTab(){
         updateStatus('ECM','fail');setBusy('');return;
       }
       activeEng=br.engine;
-      const algoEntry=ECM_ALGOS.find(a=>a.n===algo);
-      if(!algoEntry){
-        addLog('🛑 SGW required but no successful sim-channel unlock to replay — run Unlock first','error');
-        updateStatus('ECM','fail');setBusy('');return;
-      }
-      const ru=await reUnlockSeedKey(activeEng,ecmAddr.tx,ecmAddr.rx,algoEntry.fn,{addLog,hx});
-      if(!ru.ok){
-        addLog('🛑 Bridge re-unlock failed: '+ru.error,'error');
-        addLog('Aborting write — ECM is still locked on the bridge channel.','error');
-        updateStatus('ECM','fail');setBusy('');return;
-      }
     }
-    addLog('Creating safety backup before write...','info');
-    await backupModule(activeEng.uds,ecmAddr.tx,ecmAddr.rx,'ECM',addLog,hx);
-    const vb=Array.from(masterVin).map(c=>c.charCodeAt(0));
-    const r=await activeEng.uds(ecmAddr.tx,ecmAddr.rx,[0x2E,0xF1,0x90,...vb]);
-    let ok=false;
-    if(r.ok&&r.d&&r.d[0]===0x6E){ok=true;addLog('✓ VIN written','rx');}
-    else if(r.ok&&r.d&&r.d[0]===0x7F)addLog('NRC: '+decodeNRC(r.d[2]||0),'error');
-    else addLog('Write failed','error');
-    const vr=await activeEng.uds(ecmAddr.tx,ecmAddr.rx,[0x22,0xF1,0x90]);
-    const v=vr.ok?parseVinFromResponse(vr.d):null;
-    setCurVin(v);
-    const match=v===masterVin;
-    addLog(match?'✓ VERIFIED':'✗ VERIFY FAIL: '+(v||'no response'),match?'rx':'warn');
-    updateStatus('ECM',(ok&&match)?'ok':'fail');
-    void oldVinSnapshot;
+    const row=getRow('ECM');
+    const r=await programVin({
+      eng:activeEng, row, vin:masterVin,
+      addLog:(m,t)=>addLog(m,t),
+      makeBackup: async ({uds})=>backupModule(uds,ecmAddr.tx,ecmAddr.rx,'ECM',addLog,hx),
+    });
+    const f190=r.didResults.find(d=>d.did===0xF190);
+    setCurVin(f190?.readback||null);
+    updateStatus('ECM',r.ok?'ok':'fail');
+    logSession({
+      module:'ECM',operation:'VIN Write',oldVin:oldVinSnapshot,newVin:masterVin,
+      moduleAddr:{tx:ecmAddr.tx,rx:ecmAddr.rx},adapter:activeEng?.adapter||eng.current.adapter||'ELM327/STN',
+      sgwRouted:sgwReq,
+      algorithm:r.unlockAlgo||algo,success:r.ok,
+      technician:confirmData.technician,titleRef:confirmData.titleRef,
+      titleNotes:confirmData.titleNotes,preWriteConfirmed:confirmData.preWriteConfirmed,
+    });
+    addLog('📄 Session logged to paper trail','info');
     setBusy('');
   },[masterVin,addLog,updateStatus,curVin,algo]);
 

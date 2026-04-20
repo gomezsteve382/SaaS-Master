@@ -48,8 +48,7 @@ import {
   vinFromReadResponse,
   vinReadbackOk,
   pickUnlockChain,
-  tryUnlock,
-  MOD_UNLOCK,
+  tryUnlockWithChain,
 } from './algos.js';
 import {crc16ccitt} from './crc.js';
 import {decodeNRC} from './nrc.js';
@@ -166,28 +165,43 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
   // step will catch a hostile ECU.
   await eng.uds(row.tx, row.rx, EXTENDED_SESSION);
 
-  // Step 3 — unlock chain.
-  if (row.unlockId) {
-    // The registry's preferred unlockId trumps MOD_UNLOCK[code]. We
-    // synthesize a fresh chain that starts with row.unlockId and
-    // overlays whatever pickUnlockChain would have returned. Anything
-    // already in the chain is de-duped.
-    const baseChain = pickUnlockChain(row.tx, row.code);
-    const chain = [row.unlockId, ...baseChain.filter(id => id !== row.unlockId)];
-    // Patch MOD_UNLOCK ephemerally so tryUnlock picks our preferred
-    // algo first. We never persist it — restored in finally.
-    const prev = MOD_UNLOCK[row.code];
-    MOD_UNLOCK[row.code] = row.unlockId;
-    try {
-      result.unlockAlgo = await tryUnlock(eng.uds, row.tx, row.rx, row.code, addLog, lbl, result.accessLevel);
-    } finally {
-      if (prev === undefined) delete MOD_UNLOCK[row.code]; else MOD_UNLOCK[row.code] = prev;
+  // Step 3a — optional routine-based pre-unlock (e.g. ADCM Routine 0x0312).
+  // Some FCA modules accept a Start-Routine instead of a seed/key dance to
+  // open the configuration session. When row.routinePreUnlock is set we
+  // try it FIRST; on a positive 0x71 we skip the seed/key chain entirely.
+  // Failure (NRC or no-op) is non-fatal — we fall through to the normal
+  // chain so the row's unlockId/unlockChain still gets a shot.
+  let routineUnlocked = false;
+  if (typeof row.routinePreUnlock === 'number') {
+    const rid = row.routinePreUnlock;
+    const ridHex = '0x' + rid.toString(16).toUpperCase().padStart(4, '0');
+    log(`${lbl} pre-unlock routine ${ridHex}…`, 'info');
+    const rr = await eng.uds(row.tx, row.rx, [0x31, 0x01, (rid >> 8) & 0xFF, rid & 0xFF]);
+    if (rr && rr.ok && rr.d && rr.d[0] === 0x71) {
+      routineUnlocked = true;
+      result.unlockAlgo = `routine:${ridHex}`;
+      log(`${lbl} ✓ pre-unlock routine accepted`, 'rx');
+    } else {
+      log(`${lbl} pre-unlock routine rejected — falling back to seed/key chain`, 'warn');
     }
-    // chain is computed for diagnostics; not enforced beyond MOD_UNLOCK
-    // override above.
-    void chain;
-  } else {
-    result.unlockAlgo = await tryUnlock(eng.uds, row.tx, row.rx, row.code, addLog, lbl, result.accessLevel);
+  }
+
+  // Step 3b — seed/key unlock chain (skipped when the routine pre-unlock
+  // already opened the session).
+  if (!routineUnlocked) {
+    let chain;
+    if (Array.isArray(row.unlockChain) && row.unlockChain.length) {
+      // Explicit override (e.g. ECM tab's 10-algo platform sweep).
+      chain = row.unlockChain.slice();
+    } else if (row.unlockId) {
+      // Preferred algo first, then everything pickUnlockChain would
+      // have returned (de-duped).
+      const baseChain = pickUnlockChain(row.tx, row.code);
+      chain = [row.unlockId, ...baseChain.filter(id => id !== row.unlockId)];
+    } else {
+      chain = pickUnlockChain(row.tx, row.code);
+    }
+    result.unlockAlgo = await tryUnlockWithChain(eng.uds, row.tx, row.rx, chain, addLog, lbl, result.accessLevel);
   }
 
   if (result.unlockAlgo === false) {

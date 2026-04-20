@@ -157,6 +157,7 @@ const ALGOS=[
   {id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},
   {id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},
   {id:'jtec',n:'JTEC',h:'Fixed 0000',fn:()=>0},
+  {id:'sbec',n:'SBEC (legacy)',h:'(seed*4)+0x9018',fn:s=>u32(s*4+0x9018)},
   {id:'cda6',n:'CDA6',h:'BCM/ABS/IPC',fn:s=>cda6(s)},
   {id:'xtea_sgw',n:'SGW (XTEA)',h:'2018+ Secure Gateway (CDA.swf)',fn:s=>xtea_sgw(s)},
   {id:'t80',n:'TIPM 0x80',h:'t8001',fn:s=>tipm(s,'a')},
@@ -366,56 +367,65 @@ function vinReadbackOk(did, tail, nv){
 // the ECU rejects the key with NRC 0x35 (invalid key). Returns the algo id
 // that succeeded, true if the seed was already zero (already unlocked), or
 // false on terminal failure. addLog is optional (info/warn/rx/error).
-async function tryUnlock(uds, tx, rx, code, addLog, label, accessLevel){
-  const lbl = label || code || ('0x'+tx.toString(16).toUpperCase());
+async function tryUnlock(uds, tx, rx, code, addLog, label, accessLevel) {
   const chain = pickUnlockChain(tx, code);
-  // ISO 14229 SecurityAccess: odd sub-functions request a seed
-  // (01/03/05/07/…), the next even sub-function (02/04/06/08/…) sends the
-  // computed key back. accessLevel must therefore be odd. The default of
-  // 0x01 mirrors the historical behavior — every existing call site that
-  // doesn't pass a level still gets level-1 seed/key, so behavior is
-  // unchanged for the dozens of CDA6/Alfa rows that use level 1.
+  return tryUnlockWithChain(uds, tx, rx, chain, addLog, label || code || ('0x' + tx.toString(16).toUpperCase()), accessLevel);
+}
+
+// Same as tryUnlock but takes an explicit, ordered list of algorithm ids.
+// Used by vinProgrammer when a registry row carries an `unlockChain`
+// override (e.g. ECM tab's 10-algo platform sweep).
+//
+// ISO 14229 SecurityAccess: odd sub-functions request a seed
+// (01/03/05/07/…), the next even sub-function (02/04/06/08/…) sends the
+// computed key back. accessLevel must therefore be odd. The default of
+// 0x01 mirrors the historical behavior — every existing call site that
+// doesn't pass a level still gets level-1 seed/key, so behavior is
+// unchanged for the dozens of CDA6/Alfa rows that use level 1.
+async function tryUnlockWithChain(uds, tx, rx, chain, addLog, label, accessLevel) {
+  const lbl = label || ('0x' + tx.toString(16).toUpperCase());
   const seedSF = (typeof accessLevel === 'number' && accessLevel >= 1 && accessLevel <= 0x3D)
-    ? (accessLevel | 1)   // force odd, in case a caller passes the key sub-function by mistake
+    ? (accessLevel | 1) // force odd, in case a caller passes the key sub-function by mistake
     : 0x01;
   const keySF = seedSF + 1;
-  for(let i=0;i<chain.length;i++){
+
+  for (let i = 0; i < chain.length; i++) {
     const aid = chain[i];
     const sr = await uds(tx, rx, [0x27, seedSF]);
-    if(!(sr && sr.ok && sr.d && sr.d.length>=2)){
-      addLog && addLog(lbl+' seed read failed','error');
+    if (!(sr && sr.ok && sr.d && sr.d.length >= 2)) {
+      addLog && addLog(lbl + ' seed read failed', 'error');
       return false;
     }
-    if(sr.d[0]===0x7F){
+    if (sr.d[0] === 0x7F) {
       const nrc = sr.d[2];
-      addLog && addLog(lbl+' seed NRC 0x'+(nrc||0).toString(16).toUpperCase(),'error');
+      addLog && addLog(lbl + ' seed NRC 0x' + (nrc || 0).toString(16).toUpperCase(), 'error');
       return false;
     }
-    if(sr.d[0]!==0x67 || sr.d.length<6){
-      addLog && addLog(lbl+' seed bad framing: '+Array.from(sr.d).slice(0,6).map(b=>b.toString(16)).join(' '),'error');
+    if (sr.d[0] !== 0x67 || sr.d.length < 6) {
+      addLog && addLog(lbl + ' seed bad framing: ' + Array.from(sr.d).slice(0, 6).map(b => b.toString(16)).join(' '), 'error');
       return false;
     }
     const sb = Array.from(sr.d).slice(2);
-    if(!sb.some(b=>b!==0)){
-      addLog && addLog(lbl+' already unlocked (zero seed)','rx');
+    if (!sb.some(b => b !== 0)) {
+      addLog && addLog(lbl + ' already unlocked (zero seed)', 'rx');
       return true;
     }
     const kb = unlockKeyBytes(aid, sb);
-    if(kb===null){ continue; }
+    if (kb === null) { continue; }
     const kr = await uds(tx, rx, [0x27, keySF, ...kb]);
-    if(kr && kr.ok && kr.d && kr.d[0]===0x67){
-      addLog && addLog(lbl+' UNLOCKED via '+aid+' ('+kb.length+'B key, level 0x'+seedSF.toString(16).toUpperCase().padStart(2,'0')+')','rx');
+    if (kr && kr.ok && kr.d && kr.d[0] === 0x67) {
+      addLog && addLog(lbl + ' UNLOCKED via ' + aid + ' (' + kb.length + 'B key, level 0x' + seedSF.toString(16).toUpperCase().padStart(2, '0') + ')', 'rx');
       return aid;
     }
-    const nrc = (kr && kr.ok && kr.d && kr.d[0]===0x7F) ? kr.d[2] : null;
-    addLog && addLog(lbl+' '+aid+' rejected'+(nrc!=null?(' (NRC 0x'+nrc.toString(16).toUpperCase()+')'):''),'warn');
+    const nrc = (kr && kr.ok && kr.d && kr.d[0] === 0x7F) ? kr.d[2] : null;
+    addLog && addLog(lbl + ' ' + aid + ' rejected' + (nrc != null ? (' (NRC 0x' + nrc.toString(16).toUpperCase() + ')') : ''), 'warn');
     // Walk the entire fallback chain regardless of NRC. Bench rigs that
     // don't enforce attempt counts will simply fail the next 27 02 the
     // same way; production ECUs that returned 0x36/0x37 will surface the
     // condition on the next 27 01. Only after every algorithm has been
     // tried do we declare a hard unlock failure.
   }
-  addLog && addLog(lbl+' all unlock algorithms exhausted','error');
+  addLog && addLog(lbl + ' all unlock algorithms exhausted', 'error');
   return false;
 }
 
@@ -425,7 +435,7 @@ export {
   alfaHt,alfaF,alfaAo,alfaW6,alfaW6By,
   ALFA_XTEA_KEY,ALFA_XTEA_DELTA,ALFA_XTEA_ROUNDS,
   unlockKey,unlockKeyBytes,unlockIdForTx,
-  MOD_UNLOCK,UNLOCK_FALLBACK,pickUnlockChain,tryUnlock,
+  MOD_UNLOCK,UNLOCK_FALLBACK,pickUnlockChain,tryUnlock,tryUnlockWithChain,
   encodeDid,VIN_WRITE_DIDS,vinWriteDids,vinFromReadResponse,vinReadbackOk,VIN_TAIL8_DIDS,
   ALGOS,
 };

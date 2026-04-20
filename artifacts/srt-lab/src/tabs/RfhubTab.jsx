@@ -8,10 +8,13 @@ import {decodeNRC} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
+import {logSession} from "../lib/paperTrail.js";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule} from "../lib/parseModule.js";
 import {vinHasSGW} from "../lib/vin.js";
-import {createBridgeEngine, reUnlockSeedKey} from "../lib/bridgeEngine.js";
+import {createBridgeEngine} from "../lib/bridgeEngine.js";
+import {getRow} from "../lib/moduleRegistry.js";
+import {programVin} from "../lib/vinProgrammer.js";
 
 // VIN-specific RFHUB CRC algorithms (poly+init pairs derived from real dumps).
 // Used as a hint shown to the user; the actual write goes through UDS so the
@@ -147,6 +150,8 @@ export default function RfhubTab(){
     addLog('═══ RFHUB VIN WRITE ═══','info');
     if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
+    // SGW-routed VINs require the Autel J2534 bridge channel; programVin
+    // re-runs the SBEC seed/key on whichever channel we hand it.
     const sgwReq=vinHasSGW(masterVin);
     let activeEng=eng.current;
     if(sgwReq){
@@ -164,32 +169,36 @@ export default function RfhubTab(){
         setModuleStatus(p=>({...p,RFHUB:'fail'}));setBusy('');return;
       }
       activeEng=br.engine;
-      const ru=await reUnlockSeedKey(activeEng,rfhubAddr.tx,rfhubAddr.rx,sbecKey,{addLog,hx});
-      if(!ru.ok){
-        addLog('🛑 Bridge re-unlock failed: '+ru.error,'error');
-        addLog('Aborting write — RFHUB is still locked on the bridge channel.','error');
-        setModuleStatus(p=>({...p,RFHUB:'fail'}));setBusy('');return;
-      }
     }
-    addLog('Creating safety backup before write...','info');
-    const backup=await backupModule(activeEng.uds,rfhubAddr.tx,rfhubAddr.rx,'RFHUB',addLog,hx);
-    const backupKey=backup?.key||null;
+    // Surface the known-CRC hint before the registry-driven write — purely
+    // informational; RFHUB firmware computes the actual flash CRC.
     const knownAlgo=RFHUB_KNOWN_ALGOS[masterVin];
     if(knownAlgo)addLog('Known CRC algorithm: poly=0x'+hx(knownAlgo.poly,4)+' init=0x'+hx(knownAlgo.init,4),'info');
     else addLog('VIN not in known algorithm DB — RFHUB firmware will compute CRC','warn');
-    const vb=Array.from(masterVin).map(c=>c.charCodeAt(0));
-    const r=await activeEng.uds(rfhubAddr.tx,rfhubAddr.rx,[0x2E,0xF1,0x90,...vb]);
-    let ok=false;
-    if(r.ok&&r.d&&r.d[0]===0x6E){ok=true;addLog('✓ VIN written','rx');}
-    else if(r.ok&&r.d&&r.d[0]===0x7F)addLog('NRC: '+decodeNRC(r.d[2]||0),'error');
-    else addLog('Write failed','error');
-    const vr=await activeEng.uds(rfhubAddr.tx,rfhubAddr.rx,[0x22,0xF1,0x90]);
-    const v=vr.ok?parseVinFromResponse(vr.d):null;
-    setCurVin(v);
-    const match=v===masterVin;
-    addLog(match?'✓ VERIFIED: VIN matches':'✗ VERIFY FAIL: '+(v||'no response'),match?'rx':'warn');
-    setModuleStatus(p=>({...p,RFHUB:(ok&&match)?'ok':'fail'}));
-    void backupKey; void oldVinSnapshot;
+
+    // Use the RFHUB registry row (sbec unlock + 0xF190/0x6E2027 mirror DIDs)
+    // but pin tx/rx to the address resolved by findRfhub for non-canonical
+    // benches.
+    const row={...getRow('RFHUB'),tx:rfhubAddr.tx,rx:rfhubAddr.rx};
+    const r=await programVin({
+      eng:activeEng, row, vin:masterVin,
+      addLog:(m,t)=>addLog(m,t),
+      makeBackup: async ({uds})=>backupModule(uds,rfhubAddr.tx,rfhubAddr.rx,'RFHUB',addLog,hx),
+    });
+    const f190=r.didResults.find(d=>d.did===0xF190);
+    setCurVin(f190?.readback||null);
+    setModuleStatus(p=>({...p,RFHUB:r.ok?'ok':'fail'}));
+    logSession({
+      module:'RFHUB', operation:'VIN Write',
+      oldVin:oldVinSnapshot, newVin:masterVin,
+      moduleAddr:{tx:rfhubAddr.tx,rx:rfhubAddr.rx},
+      adapter:activeEng?.adapter||eng.current?.adapter||'ELM327/STN',
+      sgwRouted:sgwReq, success:r.ok,
+      technician:confirmData.technician, titleRef:confirmData.titleRef,
+      titleNotes:confirmData.titleNotes, preWriteConfirmed:confirmData.preWriteConfirmed,
+      backupKey:r.backupKey,
+    });
+    addLog('📄 Session logged to paper trail','info');
     setBusy('');
   },[masterVin,rfhubAddr,addLog,setModuleStatus,curVin]);
 

@@ -2,10 +2,10 @@ import React, {useState, useCallback, useRef, useContext} from "react";
 import {Card, Btn} from "../lib/ui.jsx";
 import {C} from "../lib/constants.js";
 import {cda6, u32} from "../lib/algos.js";
-import {crc16ccitt} from "../lib/crc.js";
 import {initAdapter, parseVinFromResponse} from "../lib/initAdapter.js";
 import {backupModule, getBackupList} from "../lib/backups.js";
 import {decodeNRC} from "../lib/nrc.js";
+import {logSession} from "../lib/paperTrail.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
@@ -13,7 +13,9 @@ import {parseModule, syncImmoBackup} from "../lib/parseModule.js";
 import {bcmFeatureMatrix} from "../lib/cgwConfig.js";
 import {vinHasSGW} from "../lib/vin.js";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
-import {createBridgeEngine, reUnlockSeedKey} from "../lib/bridgeEngine.js";
+import {createBridgeEngine} from "../lib/bridgeEngine.js";
+import {getRow} from "../lib/moduleRegistry.js";
+import {programVin} from "../lib/vinProgrammer.js";
 
 const BCM_ALGOS={
   'CDA6':s=>cda6(s),
@@ -184,6 +186,9 @@ export default function BcmTab(){
     addLog('═══ BCM VIN WRITE ═══','info');
     if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
+    // Pick the engine: bridge channel when SGW is mandated by the VIN year,
+    // otherwise the live ELM/STN adapter. programVin() then drives unlock +
+    // write + verify on whichever channel we hand it — no replay needed.
     const sgwReq=vinHasSGW(masterVin);
     let activeEng=eng.current;
     if(sgwReq){
@@ -203,18 +208,10 @@ export default function BcmTab(){
         setModuleStatus(p=>({...p,BCM:'fail'}));setBusy('');return;
       }
       activeEng=br.engine;
-      const algoFn=BCM_ALGOS[algo];
-      if(!algoFn){
-        addLog('🛑 SGW required but no successful sim-channel unlock to replay — run Unlock first','error');
-        setModuleStatus(p=>({...p,BCM:'fail'}));setBusy('');return;
-      }
-      const ru=await reUnlockSeedKey(activeEng,bcmAddr.tx,bcmAddr.rx,algoFn,{addLog,hx});
-      if(!ru.ok){
-        addLog('🛑 Bridge re-unlock failed: '+ru.error,'error');
-        addLog('Aborting write — module is still locked on the bridge channel.','error');
-        setModuleStatus(p=>({...p,BCM:'fail'}));setBusy('');return;
-      }
     }
+    // BCM-specific bench safety: refuse to write under 12.4V (voltage drop
+    // mid-write can brick the module). Tab-side because the registry
+    // engine has no opinion on hardware health.
     let volts=null;
     try{volts=await activeEng.readVoltage();}catch{}
     if(volts!==null){
@@ -227,42 +224,37 @@ export default function BcmTab(){
         }
       }
     }else addLog('Could not read voltage — proceeding without check','warn');
-    addLog('Creating safety backup before write...','info');
-    const backup=await backupModule(activeEng.uds,bcmAddr.tx,bcmAddr.rx,'BCM',addLog,hx);
-    if(backup)setBackupCount(getBackupList('BCM').length);
-    const backupKey=backup?.key||null;
-    addLog('Target: '+masterVin,'info');
-    const shortVin=masterVin.slice(-8);
-    const shortVinBytes=Array.from(shortVin).map(c=>c.charCodeAt(0));
-    const crc=crc16ccitt(shortVinBytes);
-    addLog('Short VIN: '+shortVin+' | CRC16-CCITT: 0x'+hx(crc,4),'info');
-    const vb=Array.from(masterVin).map(c=>c.charCodeAt(0));
-    let allOk=true;
-    for(const did of [0xF190,0x7B90,0x7B88]){
-      addLog('Writing DID 0x'+hx(did,4)+'...','info');
-      const r=await activeEng.uds(bcmAddr.tx,bcmAddr.rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);
-      if(r.ok&&r.d&&r.d[0]===0x6E){addLog('✓ 0x'+hx(did,4)+' written','rx');}
-      else{
-        if(r.ok&&r.d&&r.d[0]===0x7F)addLog('✗ 0x'+hx(did,4)+' NRC: '+decodeNRC(r.d[2]||0),'error');
-        else addLog('✗ 0x'+hx(did,4)+' failed','error');
-        allOk=false;
-      }
-      await new Promise(r=>setTimeout(r,200));
-    }
-    addLog('─── Verifying ───','info');
+    // Use the BCM registry row but pin tx/rx to the address the user
+    // selected via the candidate dropdown (may differ from the canonical
+    // 0x750/0x758 for legacy/DarkVIN benches).
+    const row={...getRow('BCM'),tx:bcmAddr.tx,rx:bcmAddr.rx};
+    const r=await programVin({
+      eng:activeEng, row, vin:masterVin,
+      addLog:(m,t)=>addLog(m,t),
+      makeBackup: async ({uds})=>{
+        const b=await backupModule(uds,bcmAddr.tx,bcmAddr.rx,'BCM',addLog,hx);
+        if(b)setBackupCount(getBackupList('BCM').length);
+        return b;
+      },
+    });
     const verifiedVins={};
-    for(const did of [0xF190,0x7B90,0x7B88]){
-      const r=await activeEng.uds(bcmAddr.tx,bcmAddr.rx,[0x22,(did>>8)&0xFF,did&0xFF]);
-      const v=r.ok?parseVinFromResponse(r.d):null;
-      verifiedVins[did]=v;
-      const match=v===masterVin;
-      addLog('0x'+hx(did,4)+': '+(match?'✓ MATCH':'✗ '+(v||'no response')),match?'rx':'warn');
-      if(!match)allOk=false;
-    }
+    for(const dr of r.didResults) verifiedVins[dr.did]=dr.readback;
     setCurVin(verifiedVins);
-    setModuleStatus(p=>({...p,BCM:allOk?'ok':'fail'}));
-    addLog(allOk?'═══ BCM VIN WRITE COMPLETE ═══':'═══ BCM VIN WRITE HAD FAILURES ═══',allOk?'info':'error');
-    void backupKey; void oldVinSnapshot;
+    setModuleStatus(p=>({...p,BCM:r.ok?'ok':'fail'}));
+    addLog(r.ok?'═══ BCM VIN WRITE COMPLETE ═══':'═══ BCM VIN WRITE HAD FAILURES ═══',r.ok?'info':'error');
+    logSession({
+      module:'BCM', operation:'VIN Write',
+      oldVin:oldVinSnapshot, newVin:masterVin,
+      moduleAddr:{tx:bcmAddr.tx,rx:bcmAddr.rx},
+      adapter:activeEng?.adapter||eng.current?.adapter||'ELM327/STN',
+      sgwRouted:sgwReq, voltage:volts,
+      algorithm:r.unlockAlgo||algo, success:r.ok,
+      technician:confirmData.technician, titleRef:confirmData.titleRef,
+      titleNotes:confirmData.titleNotes, preWriteConfirmed:confirmData.preWriteConfirmed,
+      backupKey:r.backupKey,
+      dids:r.didResults.map(d=>({did:'0x'+hx(d.did,4),value:d.readback})),
+    });
+    addLog('📄 Session logged to paper trail','info');
     setBusy('');
   },[masterVin,bcmAddr,addLog,setModuleStatus,curVin,algo]);
 

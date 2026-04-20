@@ -8,8 +8,11 @@ import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ADCM_VARIANTS, ADCM_MODULES, u32} from '../lib/programmerData.js';
 import {isSgwAuthenticated} from '../lib/sgwAuth.js';
+import {logSession} from '../lib/paperTrail.js';
 import {vinHasSGW} from '../lib/vin.js';
-import {createBridgeEngine, reUnlockAdcmRoutine} from '../lib/bridgeEngine.js';
+import {createBridgeEngine} from '../lib/bridgeEngine.js';
+import {getRow} from '../lib/moduleRegistry.js';
+import {programVin} from '../lib/vinProgrammer.js';
 import {parseDtcResponse, formatDtcLogLine, buildDtcDetail} from '../lib/dtc.js';
 
 export default function AdcmTab(){
@@ -160,8 +163,12 @@ export default function AdcmTab(){
     if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
     const target=vin.toUpperCase();
+    // Pick the engine for this write (bridge if SGW-routed). The registry
+    // row carries the Routine 0x0312 pre-unlock + SBEC fallback chain so
+    // programVin reproduces both paths on whichever channel we hand it.
     const sgwReq=vinHasSGW(masterVin);
     const realEng=eng.current;
+    let activeEng=realEng;
     if(sgwReq){
       // See BcmTab.executeWriteVin for rationale — bridge reachability
       // is necessary but not sufficient; the SGW must be unlocked first.
@@ -176,40 +183,41 @@ export default function AdcmTab(){
         addLog('Open the AUTEL SGW tab, start j2534_bridge.py, verify the Autel cable, then retry.','error');
         updateStatus('ADCM','fail');setBusy('');return;
       }
-      eng.current=br.engine;
-      const ru=await reUnlockAdcmRoutine(eng.current,mod.tx,mod.rx,{addLog,hx});
-      if(!ru.ok){
-        addLog('🛑 Bridge re-unlock failed: '+ru.error,'error');
-        addLog('Aborting write — '+mod.id+' is still locked on the bridge channel.','error');
-        eng.current=realEng;
-        updateStatus('ADCM','fail');setBusy('');return;
-      }
+      activeEng=br.engine;
     }
-    let allOk=false,match1=false,match2=false,v1=null,v2=null;
-    let okF190=false,ok7B90=false,ok7B88=false;
-    try{
-      addLog('Creating safety backup before write...','info');
-      await backupModule(eng.current.uds,mod.tx,mod.rx,'ADCM',addLog,hx);
-      addLog('Target VIN: '+target,'info');
-      okF190=await writeVinToDid(0xF190,'DID 0xF190 (Primary)');
-      await new Promise(r=>setTimeout(r,200));
-      ok7B90=await writeVinToDid(0x7B90,'DID 0x7B90 (Current)');
-      await new Promise(r=>setTimeout(r,200));
-      ok7B88=await writeVinToDid(0x7B88,'DID 0x7B88 (Original)');
-      addLog('─── Verifying ───','info');
-      v1=await readVinDid(0xF190,'Verify 0xF190');
-      v2=await readVinDid(0x7B90,'Verify 0x7B90');
-      setCurVinF190(v1||'');setCurVin7B90(v2||'');
-      match1=v1===target;match2=v2===target;
-      allOk=match1&&match2&&(okF190||ok7B90||ok7B88);
-      addLog(match1?'✓ 0xF190 MATCH':'✗ 0xF190 mismatch',match1?'rx':'warn');
-      addLog(match2?'✓ 0x7B90 MATCH':'✗ 0x7B90 mismatch',match2?'rx':'warn');
-    }finally{
-      if(sgwReq)eng.current=realEng;
-    }
-    updateStatus('ADCM',allOk?'ok':'fail');
+
+    // ADCM_MODULES exposes alt CAN addresses (ADM/SDM); pin tx/rx so the
+    // engine targets the user-selected variant rather than the registry's
+    // canonical 0x7A8/0x7B0.
+    const row={...getRow('ADCM'),tx:mod.tx,rx:mod.rx};
+    const r=await programVin({
+      eng:activeEng, row, vin:target,
+      addLog:(m,t)=>addLog(m,t),
+      makeBackup: async ({uds})=>backupModule(uds,mod.tx,mod.rx,'ADCM',addLog,hx),
+    });
+    const f190=r.didResults.find(d=>d.did===0xF190);
+    const v7b90=r.didResults.find(d=>d.did===0x7B90);
+    const v7b88=r.didResults.find(d=>d.did===0x7B88);
+    setCurVinF190(f190?.readback||'');
+    setCurVin7B90(v7b90?.readback||'');
+    updateStatus('ADCM',r.ok?'ok':'fail');
+    logSession({
+      module:'ADCM',operation:'VIN Write (F190 + 7B90 + 7B88)',
+      oldVin:oldVinF190||oldVin7B90,newVin:target,
+      moduleAddr:{tx:mod.tx,rx:mod.rx},
+      adapter:(sgwReq?'Autel J2534 (SGW)':(realEng?.adapter||'ELM327/STN')),
+      sgwRouted:sgwReq,success:r.ok,
+      technician:confirmData.technician,titleRef:confirmData.titleRef,
+      titleNotes:confirmData.titleNotes,preWriteConfirmed:confirmData.preWriteConfirmed,
+      dids:[
+        {did:'0xF190',value:f190?.readback||null,match:!!f190?.match},
+        {did:'0x7B90',value:v7b90?.readback||null,match:!!v7b90?.match},
+        {did:'0x7B88',written:!!v7b88?.wrote},
+      ],
+    });
+    addLog('📄 Session logged to paper trail','info');
     setBusy('');
-  },[vin,mod,writeVinToDid,readVinDid,addLog,curVinF190,curVin7B90,updateStatus]);
+  },[vin,mod,addLog,curVinF190,curVin7B90,updateStatus,masterVin]);
 
   const writeVariant=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}

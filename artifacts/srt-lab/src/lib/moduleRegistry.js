@@ -37,18 +37,24 @@ import {vinHasSGW} from './vin.js';
 // reference.
 const ROWS = [
   // ── Powertrain (GPEC family) ──────────────────────────────────────────
-  {code:'ECM',   name:'Engine Control Module',         tx:0x7E0, rx:0x7E8, kind:'vin-writable', unlockId:'gpec2', notes:'Primary PCM. ECM tab auto-tries 10 algorithms.'},
+  {code:'ECM',   name:'Engine Control Module',         tx:0x7E0, rx:0x7E8, kind:'vin-writable', unlockId:'gpec2',
+    unlockChain:['gpec2','gpec2f','gpec2e','gpec3','gpec2a','gpec15','gpec1','ngc','sbec','jtec'],
+    notes:'Primary PCM. 10-algorithm GPEC platform sweep (ECM tab parity).'},
   {code:'TCM',   name:'Transmission Control Module',   tx:0x7E1, rx:0x7E9, kind:'vin-writable', unlockId:'gpec2'},
   {code:'DTCM',  name:'Drive Train Control Module',    tx:0x7E2, rx:0x7EA, kind:'vin-writable', unlockId:'gpec2'},
   {code:'BPCM',  name:'Battery Pack Control Module',   tx:0x7E4, rx:0x7EC, kind:'vin-writable', unlockId:'gpec2'},
 
   // ── Body bus (CDA6 family) ────────────────────────────────────────────
   {code:'BCM',   name:'Body Control Module',           tx:0x750, rx:0x758, kind:'vin-writable', unlockId:'cda6',  notes:'CRC16-CCITT auto-calc; ALSO writes 0x6E2025 mirror.'},
-  {code:'RFHUB', name:'RF Hub Module',                 tx:0x75F, rx:0x767, kind:'vin-writable', unlockId:'cda6',  notes:'SBEC unlock per RfhubTab; ALSO writes 0x6E2027 mirror.'},
+  {code:'RFHUB', name:'RF Hub Module',                 tx:0x75F, rx:0x767, kind:'vin-writable', unlockId:'sbec',
+    unlockChain:['sbec','cda6','alfa_ao','gpec2'],
+    notes:'SBEC unlock per RfhubTab; ALSO writes 0x6E2027 mirror.'},
   {code:'ABS',   name:'Anti-lock Brake System',        tx:0x760, rx:0x768, kind:'vin-writable', unlockId:'cda6'},
   {code:'IPC',   name:'Instrument Panel Cluster',      tx:0x740, rx:0x748, kind:'vin-writable', unlockId:'cda6'},
   {code:'ORC',   name:'Occupant Restraint Controller', tx:0x758, rx:0x760, kind:'vin-writable', unlockId:'cda6'},
-  {code:'ADCM',  name:'Active Damping Module',         tx:0x7A8, rx:0x7B0, kind:'vin-writable', unlockId:'cda6',  notes:'AdcmTab uses Routine 0x0312 (try first) then SBEC fallback.'},
+  {code:'ADCM',  name:'Active Damping Module',         tx:0x7A8, rx:0x7B0, kind:'vin-writable', unlockId:'sbec',
+    routinePreUnlock:0x0312, unlockChain:['sbec','cda6'],
+    notes:'AdcmTab quirk: Routine 0x0312 first (engine pre-unlock), SBEC fallback.'},
   {code:'AMP',   name:'Audio Amplifier',               tx:0x7A0, rx:0x7A8, kind:'vin-writable', unlockId:'cda6'},
   {code:'BSM',   name:'Blind Spot Monitor',            tx:0x770, rx:0x778, kind:'vin-writable', unlockId:'cda6'},
   {code:'EPS',   name:'Electric Power Steering',       tx:0x761, rx:0x769, kind:'vin-writable', unlockId:'cda6',  notes:'Has 0x6EF190 mirror DID.'},
