@@ -125,7 +125,25 @@ export const AOBD_META = ${JSON.stringify(meta, null, 2)};
 
 function main() {
   const check = process.argv.includes("--check");
-  const next = emit();
+  let next;
+  try {
+    next = emit();
+  } catch (e) {
+    if (check) {
+      console.log(
+        `[extract-alfaobd-algorithms] skipping --check: ${e.message}`
+      );
+      return;
+    }
+    if (existsSync(OUT_PATH)) {
+      console.warn(
+        `[extract-alfaobd-algorithms] ${e.message}. Committed ${OUT_PATH} exists, leaving it unchanged.`
+      );
+      return;
+    }
+    console.error(`[extract-alfaobd-algorithms] ${e.message}`);
+    process.exit(1);
+  }
   if (check) {
     if (!existsSync(OUT_PATH)) {
       console.error(

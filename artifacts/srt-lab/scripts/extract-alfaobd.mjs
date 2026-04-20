@@ -272,15 +272,22 @@ function main() {
     return;
   }
 
-  const recoveredPath = ensureRecovered(srcDb);
   let Database;
   try {
     Database = require("better-sqlite3");
   } catch (e) {
-    fail(
-      "better-sqlite3 not installed in artifacts/srt-lab. Run: pnpm --filter @workspace/srt-lab install",
-    );
+    const msg =
+      "better-sqlite3 not loadable in artifacts/srt-lab. " +
+      "Run: pnpm --filter @workspace/srt-lab install";
+    if (existsSync(OUT_PATH)) {
+      console.warn(
+        `extract-alfaobd: ${msg}. Committed ${OUT_PATH} exists, leaving it unchanged.`,
+      );
+      return;
+    }
+    fail(msg);
   }
+  const recoveredPath = ensureRecovered(srcDb);
   const db = new Database(recoveredPath, { readonly: true });
   db.pragma("query_only = ON");
 
