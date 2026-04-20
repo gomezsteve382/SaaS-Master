@@ -36,11 +36,27 @@
 import {useEffect, useState} from 'react';
 
 export const SGW_AUTH_TTL_MS = 10 * 60 * 1000;
+const BYPASS_KEY = 'srtlab_sgw_bypass';
 
 // Module-level state. A simple Set of subscriber callbacks lets the React
 // hook re-render any tab that cares without pulling in a heavier context.
 let _state = { vin: null, authenticatedAt: null, expiresAt: null };
 const _subs = new Set();
+
+/* Bench bypass — when the SGW is physically out of the harness (bench
+   work, jumpered out, or pre-2018 vehicle wired into a bench loom that
+   originally had a gateway) the gate I added has nothing to gate against.
+   This flag short-circuits isSgwAuthenticated() so writes go through.
+   It is INTENTIONALLY persisted in localStorage so a tech who runs a
+   bench all day doesn't have to re-tick it on every reload, and it is
+   surfaced as a loud red banner in the AUTEL SGW tab so it cannot be
+   forgotten when the next vehicle is plugged in. */
+let _bypass = false;
+try {
+  if (typeof localStorage !== 'undefined') {
+    _bypass = localStorage.getItem(BYPASS_KEY) === '1';
+  }
+} catch { /* SSR / tests / private mode — bypass stays off */ }
 
 function _notify(){
   for (const cb of _subs) {
@@ -69,17 +85,37 @@ export function clearSgwAuth(){
 }
 
 /* Synchronous gate. Returns true iff:
-     - we have a non-expired authentication, AND
-     - if `vin` is provided, it matches the VIN that was authenticated.
+     - bench bypass is enabled (SGW physically out of the harness), OR
+     - we have a non-expired authentication AND, if `vin` is provided, it
+       matches the VIN that was authenticated.
    Use this from non-React contexts (engine code, button handlers) where
    pulling the hook isn't appropriate. */
 export function isSgwAuthenticated(vin){
+  if (_bypass) return true;
   if (!_state.expiresAt || Date.now() >= _state.expiresAt) return false;
   if (typeof vin === 'string' && vin.length === 17) {
     if (_state.vin !== vin.toUpperCase()) return false;
   }
   return true;
 }
+
+/* Bench bypass setter — persists to localStorage and notifies subscribers
+   so the AUTEL SGW tab banner and every bench tab's gate UI re-render
+   immediately. */
+export function setSgwBypass(on){
+  const next = !!on;
+  if (next === _bypass) return;
+  _bypass = next;
+  try {
+    if (typeof localStorage !== 'undefined') {
+      if (next) localStorage.setItem(BYPASS_KEY, '1');
+      else localStorage.removeItem(BYPASS_KEY);
+    }
+  } catch { /* private mode — in-memory only is fine */ }
+  _notify();
+}
+
+export function isSgwBypassed(){ return _bypass; }
 
 /* Read-only snapshot for non-React callers (e.g. a CLI or a test). */
 export function getSgwAuthState(){
@@ -90,7 +126,9 @@ export function getSgwAuthState(){
    via clearSgwAuth() so subscribers are notified. */
 export function _resetSgwAuthForTests(){
   _state = { vin: null, authenticatedAt: null, expiresAt: null };
+  _bypass = false;
   _subs.clear();
+  try { if (typeof localStorage !== 'undefined') localStorage.removeItem(BYPASS_KEY); } catch {}
 }
 
 /* React hook — re-renders the calling component whenever the auth state
@@ -113,11 +151,15 @@ export function useSgwAuth(){
     return () => { _subs.delete(cb); clearInterval(t); };
   }, []);
   const now = Date.now();
-  const authenticated = !!(_state.expiresAt && now < _state.expiresAt);
+  const realAuth = !!(_state.expiresAt && now < _state.expiresAt);
+  // The gate the rest of the app reads honors bypass — surface that here
+  // so banners say "writes unblocked" even when no seed/key has run.
+  const authenticated = _bypass || realAuth;
   return {
     authenticated,
-    vin: authenticated ? _state.vin : null,
-    expiresAt: authenticated ? _state.expiresAt : null,
-    remainingMs: authenticated ? Math.max(0, _state.expiresAt - now) : 0,
+    bypassed: _bypass,
+    vin: realAuth ? _state.vin : null,
+    expiresAt: realAuth ? _state.expiresAt : null,
+    remainingMs: realAuth ? Math.max(0, _state.expiresAt - now) : 0,
   };
 }

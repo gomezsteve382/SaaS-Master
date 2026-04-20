@@ -7,7 +7,7 @@ import {
 } from '../lib/bridgeClient.js';
 import {createBridgeEngine} from '../lib/bridgeEngine.js';
 import {unlockKeyBytes} from '../lib/algos.js';
-import {setSgwAuthenticated, clearSgwAuth, useSgwAuth} from '../lib/sgwAuth.js';
+import {setSgwAuthenticated, clearSgwAuth, useSgwAuth, setSgwBypass} from '../lib/sgwAuth.js';
 
 const SGW_TX = 0x74F;
 const SGW_RX = 0x76F;
@@ -187,10 +187,12 @@ export default function AutelSgwTab(){
         {sgwReq?<Pill color={C.a1}>🔐 SGW REQUIRED ({yr})</Pill>
               :vinValid?<Pill color={C.tm}>SGW NOT REQUIRED ({yr||'?'})</Pill>
                        :<Pill color={C.tm}>NO VIN LOADED</Pill>}
-        {sgwAuth.authenticated
-          ?<Pill color={C.gn}>✓ SGW AUTH ({Math.ceil(sgwAuth.remainingMs/1000/60)}m left)</Pill>
-          :sgwReq?<Pill color={C.er}>⚠ SGW NOT AUTHENTICATED</Pill>
-                 :null}
+        {sgwAuth.bypassed
+          ?<Pill color={C.a1}>⚙ BENCH BYPASS</Pill>
+          :sgwAuth.authenticated
+            ?<Pill color={C.gn}>✓ SGW AUTH ({Math.ceil(sgwAuth.remainingMs/1000/60)}m left)</Pill>
+            :sgwReq?<Pill color={C.er}>⚠ SGW NOT AUTHENTICATED</Pill>
+                   :null}
       </div>
       <div style={{fontSize:12,color:C.ts,lineHeight:1.6}}>
         Routes UDS traffic for 2018+ FCA vehicles through your Autel MaxiFlash (or any
@@ -217,20 +219,37 @@ export default function AutelSgwTab(){
           Plugging in the cable is NOT authentication. The button below
           actually runs 27 01/02 against tx 0x74F and only marks the gate
           open on a 67 02 reply. Other tabs read this state via useSgwAuth. */}
-      <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap',padding:'10px 12px',borderRadius:8,background:sgwReq?(sgwAuth.authenticated?'#E8F5E9':'#FFF3E0'):'#F5F5F5',border:'1px solid '+(sgwReq?(sgwAuth.authenticated?C.gn:C.a1):C.bd),marginBottom:12}}>
+      <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap',padding:'10px 12px',borderRadius:8,background:sgwAuth.bypassed?'#FFF3E0':sgwReq?(sgwAuth.authenticated?'#E8F5E9':'#FFF3E0'):'#F5F5F5',border:'1px solid '+(sgwAuth.bypassed?C.a1:sgwReq?(sgwAuth.authenticated?C.gn:C.a1):C.bd),marginBottom:12}}>
         <div style={{flex:1,minWidth:240,fontSize:12,color:C.ts,lineHeight:1.5}}>
           <b style={{color:C.tx}}>SGW Authentication.</b>{' '}
-          {sgwReq
-            ?(sgwAuth.authenticated
-                ?<>Authenticated for VIN <b style={{fontFamily:"'JetBrains Mono'"}}>{sgwAuth.vin}</b> · expires in <b>{Math.floor(sgwAuth.remainingMs/60000)}m {Math.floor((sgwAuth.remainingMs%60000)/1000).toString().padStart(2,'0')}s</b>. BCM / RFHUB / ECM / ADCM writes are unblocked.</>
-                :<>Required for this VIN. Click <b>AUTHENTICATE SGW</b> to run the seed/key dance against <code>0x74F</code>. Other tabs will refuse to write until this turns green.</>)
-            :<>Not required for this VIN. Other tabs gate on bridge reachability only.</>}
+          {sgwAuth.bypassed
+            ?<><b style={{color:'#E65100'}}>BENCH BYPASS ACTIVE.</b> All SGW gates are open — every BCM / RFHUB / ECM / ADCM write will be sent regardless of seed/key state. Use this only when the gateway is physically out of the harness. <b>Turn off before plugging into a vehicle.</b></>
+            :sgwReq
+              ?(sgwAuth.authenticated
+                  ?<>Authenticated for VIN <b style={{fontFamily:"'JetBrains Mono'"}}>{sgwAuth.vin}</b> · expires in <b>{Math.floor(sgwAuth.remainingMs/60000)}m {Math.floor((sgwAuth.remainingMs%60000)/1000).toString().padStart(2,'0')}s</b>. BCM / RFHUB / ECM / ADCM writes are unblocked.</>
+                  :<>Required for this VIN. Click <b>AUTHENTICATE SGW</b> to run the seed/key dance against <code>0x74F</code>. Other tabs will refuse to write until this turns green.</>)
+              :<>Not required for this VIN. Other tabs gate on bridge reachability only.</>}
         </div>
-        <button onClick={authenticateSgw} disabled={busy||!connected||!vinValid||!sgwReq} style={{padding:'9px 16px',borderRadius:8,border:'none',background:(busy||!connected||!vinValid||!sgwReq)?C.bd:C.sr,color:'#fff',fontWeight:800,fontSize:11,letterSpacing:1,cursor:(busy||!connected||!vinValid||!sgwReq)?'not-allowed':'pointer',opacity:(busy||!connected||!vinValid||!sgwReq)?.6:1}}>
+        <button onClick={authenticateSgw} disabled={busy||!connected||!vinValid||!sgwReq||sgwAuth.bypassed} style={{padding:'9px 16px',borderRadius:8,border:'none',background:(busy||!connected||!vinValid||!sgwReq||sgwAuth.bypassed)?C.bd:C.sr,color:'#fff',fontWeight:800,fontSize:11,letterSpacing:1,cursor:(busy||!connected||!vinValid||!sgwReq||sgwAuth.bypassed)?'not-allowed':'pointer',opacity:(busy||!connected||!vinValid||!sgwReq||sgwAuth.bypassed)?.6:1}}>
           {busy?'WORKING…':'AUTHENTICATE SGW'}
         </button>
-        {sgwAuth.authenticated&&<button onClick={dropAuth} disabled={busy} style={{padding:'9px 14px',borderRadius:8,border:'1.5px solid '+C.bd,background:'#fff',color:C.tx,fontWeight:800,fontSize:11,cursor:'pointer'}}>CLEAR AUTH</button>}
+        {sgwAuth.authenticated&&!sgwAuth.bypassed&&<button onClick={dropAuth} disabled={busy} style={{padding:'9px 14px',borderRadius:8,border:'1.5px solid '+C.bd,background:'#fff',color:C.tx,fontWeight:800,fontSize:11,cursor:'pointer'}}>CLEAR AUTH</button>}
       </div>
+
+      {/* Bench bypass — for when the SGW is physically out of the harness
+          (bench loom, jumpered out, or pre-2018 vehicle plugged into a
+          bench harness that originally carried a gateway). Persists in
+          localStorage so it survives page reload, surfaces a loud orange
+          banner above so it cannot be forgotten. */}
+      <label style={{display:'flex',gap:10,alignItems:'flex-start',padding:'10px 12px',borderRadius:8,background:sgwAuth.bypassed?'#FFE0B2':C.c2,border:'1.5px solid '+(sgwAuth.bypassed?C.a1:C.bd),cursor:'pointer',marginBottom:12}}>
+        <input type="checkbox" checked={sgwAuth.bypassed} onChange={e=>{
+          setSgwBypass(e.target.checked);
+          log(e.target.checked?'BENCH BYPASS ENABLED — all SGW gates open. Disable before connecting to a vehicle.':'Bench bypass disabled — SGW gates re-armed.', e.target.checked?'warn':'pass');
+        }} style={{marginTop:2,width:16,height:16,cursor:'pointer'}}/>
+        <div style={{flex:1,fontSize:12,color:C.tx,lineHeight:1.5}}>
+          <b>Bench mode — SGW physically bypassed.</b> Skips the seed/key gate entirely so writes go through without authentication. Use only when the gateway is removed or jumpered out of the harness. <b style={{color:'#E65100'}}>Disable before reconnecting to a vehicle</b> — the gate exists to stop SGW NRCs that look like random write failures.
+        </div>
+      </label>
       {error&&!connected&&<div style={{padding:10,borderRadius:8,background:'#FFEBEE',border:'1.5px solid '+C.er,fontSize:12,color:'#B71C1C',marginBottom:8}}>
         Cannot reach bridge: <b>{error}</b>
       </div>}

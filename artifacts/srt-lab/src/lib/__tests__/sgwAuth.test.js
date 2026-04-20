@@ -11,6 +11,8 @@ import {
   isSgwAuthenticated,
   getSgwAuthState,
   SGW_AUTH_TTL_MS,
+  setSgwBypass,
+  isSgwBypassed,
   _resetSgwAuthForTests,
 } from '../sgwAuth.js';
 import {partitionForVin} from '../moduleRegistry.js';
@@ -138,6 +140,18 @@ describe('SGW gate composition (mirrors ProgramAllTab.runBatch + bench tabs)', (
     setSgwAuthenticated(SGW_VIN_2018);
     expect(gateAllowsWrite(SGW_VIN_2018)).toBe(true);
     expect(gateAllowsWrite(SGW_VIN_2019)).toBe(false);
+  });
+
+  it('bench bypass: opens the gate for ANY VIN regardless of auth state', () => {
+    expect(gateAllowsWrite(SGW_VIN_2018)).toBe(false);
+    setSgwBypass(true);
+    expect(isSgwBypassed()).toBe(true);
+    expect(gateAllowsWrite(SGW_VIN_2018)).toBe(true);
+    expect(gateAllowsWrite(SGW_VIN_2019)).toBe(true);
+    expect(gateAllowsWrite(NO_SGW_VIN)).toBe(true);
+    setSgwBypass(false);
+    expect(isSgwBypassed()).toBe(false);
+    expect(gateAllowsWrite(SGW_VIN_2018)).toBe(false); // re-armed
   });
 
   it('partitionForVin actually surfaces SGW-blocked rows for a 2018+ VIN', () => {
