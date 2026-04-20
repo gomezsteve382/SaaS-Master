@@ -8,7 +8,6 @@ import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ECM_ALGOS, u32} from '../lib/programmerData.js';
 import {isSgwAuthenticated} from '../lib/sgwAuth.js';
-import {logSession} from '../lib/paperTrail.js';
 import {vinHasSGW} from '../lib/vin.js';
 import {createBridgeEngine} from '../lib/bridgeEngine.js';
 import {getRow} from '../lib/moduleRegistry.js';
@@ -157,15 +156,6 @@ export default function EcmTab(){
     const f190=r.didResults.find(d=>d.did===0xF190);
     setCurVin(f190?.readback||null);
     updateStatus('ECM',r.ok?'ok':'fail');
-    logSession({
-      module:'ECM',operation:'VIN Write',oldVin:oldVinSnapshot,newVin:masterVin,
-      moduleAddr:{tx:ecmAddr.tx,rx:ecmAddr.rx},adapter:activeEng?.adapter||eng.current.adapter||'ELM327/STN',
-      sgwRouted:sgwReq,
-      algorithm:r.unlockAlgo||algo,success:r.ok,
-      technician:confirmData.technician,titleRef:confirmData.titleRef,
-      titleNotes:confirmData.titleNotes,preWriteConfirmed:confirmData.preWriteConfirmed,
-    });
-    addLog('📄 Session logged to paper trail','info');
     setBusy('');
   },[masterVin,addLog,updateStatus,curVin,algo]);
 

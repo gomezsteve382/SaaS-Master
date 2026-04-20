@@ -5,7 +5,6 @@ import {cda6, u32} from "../lib/algos.js";
 import {initAdapter, parseVinFromResponse} from "../lib/initAdapter.js";
 import {backupModule, getBackupList} from "../lib/backups.js";
 import {decodeNRC} from "../lib/nrc.js";
-import {logSession} from "../lib/paperTrail.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
@@ -242,19 +241,6 @@ export default function BcmTab(){
     setCurVin(verifiedVins);
     setModuleStatus(p=>({...p,BCM:r.ok?'ok':'fail'}));
     addLog(r.ok?'═══ BCM VIN WRITE COMPLETE ═══':'═══ BCM VIN WRITE HAD FAILURES ═══',r.ok?'info':'error');
-    logSession({
-      module:'BCM', operation:'VIN Write',
-      oldVin:oldVinSnapshot, newVin:masterVin,
-      moduleAddr:{tx:bcmAddr.tx,rx:bcmAddr.rx},
-      adapter:activeEng?.adapter||eng.current?.adapter||'ELM327/STN',
-      sgwRouted:sgwReq, voltage:volts,
-      algorithm:r.unlockAlgo||algo, success:r.ok,
-      technician:confirmData.technician, titleRef:confirmData.titleRef,
-      titleNotes:confirmData.titleNotes, preWriteConfirmed:confirmData.preWriteConfirmed,
-      backupKey:r.backupKey,
-      dids:r.didResults.map(d=>({did:'0x'+hx(d.did,4),value:d.readback})),
-    });
-    addLog('📄 Session logged to paper trail','info');
     setBusy('');
   },[masterVin,bcmAddr,addLog,setModuleStatus,curVin,algo]);
 

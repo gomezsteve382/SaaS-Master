@@ -8,7 +8,6 @@ import {decodeNRC} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
-import {logSession} from "../lib/paperTrail.js";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule} from "../lib/parseModule.js";
 import {vinHasSGW} from "../lib/vin.js";
@@ -188,17 +187,6 @@ export default function RfhubTab(){
     const f190=r.didResults.find(d=>d.did===0xF190);
     setCurVin(f190?.readback||null);
     setModuleStatus(p=>({...p,RFHUB:r.ok?'ok':'fail'}));
-    logSession({
-      module:'RFHUB', operation:'VIN Write',
-      oldVin:oldVinSnapshot, newVin:masterVin,
-      moduleAddr:{tx:rfhubAddr.tx,rx:rfhubAddr.rx},
-      adapter:activeEng?.adapter||eng.current?.adapter||'ELM327/STN',
-      sgwRouted:sgwReq, success:r.ok,
-      technician:confirmData.technician, titleRef:confirmData.titleRef,
-      titleNotes:confirmData.titleNotes, preWriteConfirmed:confirmData.preWriteConfirmed,
-      backupKey:r.backupKey,
-    });
-    addLog('📄 Session logged to paper trail','info');
     setBusy('');
   },[masterVin,rfhubAddr,addLog,setModuleStatus,curVin]);
 

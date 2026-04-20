@@ -8,7 +8,6 @@ import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ADCM_VARIANTS, ADCM_MODULES, u32} from '../lib/programmerData.js';
 import {isSgwAuthenticated} from '../lib/sgwAuth.js';
-import {logSession} from '../lib/paperTrail.js';
 import {vinHasSGW} from '../lib/vin.js';
 import {createBridgeEngine} from '../lib/bridgeEngine.js';
 import {getRow} from '../lib/moduleRegistry.js';
@@ -201,21 +200,6 @@ export default function AdcmTab(){
     setCurVinF190(f190?.readback||'');
     setCurVin7B90(v7b90?.readback||'');
     updateStatus('ADCM',r.ok?'ok':'fail');
-    logSession({
-      module:'ADCM',operation:'VIN Write (F190 + 7B90 + 7B88)',
-      oldVin:oldVinF190||oldVin7B90,newVin:target,
-      moduleAddr:{tx:mod.tx,rx:mod.rx},
-      adapter:(sgwReq?'Autel J2534 (SGW)':(realEng?.adapter||'ELM327/STN')),
-      sgwRouted:sgwReq,success:r.ok,
-      technician:confirmData.technician,titleRef:confirmData.titleRef,
-      titleNotes:confirmData.titleNotes,preWriteConfirmed:confirmData.preWriteConfirmed,
-      dids:[
-        {did:'0xF190',value:f190?.readback||null,match:!!f190?.match},
-        {did:'0x7B90',value:v7b90?.readback||null,match:!!v7b90?.match},
-        {did:'0x7B88',written:!!v7b88?.wrote},
-      ],
-    });
-    addLog('📄 Session logged to paper trail','info');
     setBusy('');
   },[vin,mod,addLog,curVinF190,curVin7B90,updateStatus,masterVin]);
 
