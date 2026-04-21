@@ -205,12 +205,30 @@ export default function J2534Scanner() {
     return null;
   }, []);
 
+  // Send a UDS request and wait for a matching reply (or a NRC to that same service).
+  // Handles filter install + drain + send + read. Returns {msg, data} or null.
+  const unitRequest = useCallback(async (mod, dataHex, expectedPositivePrefix, expectedServiceId, timeoutMs) => {
+    try {
+      await bridgeCall("/setfilter", { txId: mod.tx, rxId: mod.rx });
+    } catch (e) {
+      if (!/not[_ ]unique/i.test(e.message)) return null;
+    }
+    // quick drain
+    try { await bridgeCall("/readmsg", { timeoutMs: 50 }); } catch {}
+    try {
+      await bridgeCall("/sendmsg", { txId: mod.tx, data: dataHex, flags: ISO15765_FRAME_PAD, timeoutMs: 1000 });
+    } catch (e) {
+      return null;
+    }
+    return await readUntilMatch([expectedPositivePrefix, [0x7F, expectedServiceId]], timeoutMs);
+  }, [readUntilMatch]);
+
   const probeOne = useCallback(async (mod) => {
     const txHex = mod.tx.toString(16).toUpperCase().padStart(3, "0");
     const rxHex = mod.rx.toString(16).toUpperCase().padStart(3, "0");
     log(`→ probe ${mod.name} TX:0x${txHex} RX:0x${rxHex}`);
 
-    // Install filter (ERR_NOT_UNIQUE is harmless — filter already there from a previous probe)
+    // Install filter (idempotent)
     try {
       await bridgeCall("/setfilter", { txId: mod.tx, rxId: mod.rx });
     } catch (e) {
@@ -220,44 +238,36 @@ export default function J2534Scanner() {
       }
     }
 
-    // Hard-drain any leftover frames (up to 300ms) from previous probes.
-    // Important: previous ECM replies can still be arriving when we're 2-3 addresses down
-    // the list. Without this they get attributed to the wrong module.
-    const drainDeadline = Date.now() + 300;
+    // Hard-drain leftover frames from previous probes
+    const drainDeadline = Date.now() + 200;
     while (Date.now() < drainDeadline) {
-      try { await bridgeCall("/readmsg", { timeoutMs: 80 }); } catch { break; }
+      try { await bridgeCall("/readmsg", { timeoutMs: 60 }); } catch { break; }
     }
 
-    // Send 10 03 (extended session) and wait specifically for 50 03... or 7F 10...
-    try {
-      await bridgeCall("/sendmsg", { txId: mod.tx, data: "1003", flags: ISO15765_FRAME_PAD, timeoutMs: 1000 });
-    } catch (e) {
-      log(`  10 03 send failed: ${e.message}`, "warn");
-      return null;
+    // STRATEGY 1: try 22 F1 90 directly in default session.
+    // Most FCA body modules (BCM/RFHUB/IPC) answer VIN reads in default session and will
+    // REFUSE 10 03 without security access — so starting with 10 03 causes them to ignore
+    // everything else we send them.
+    let vinReply = await unitRequest(mod, "22F190", [0x62, 0xF1, 0x90], 0x22, 1500);
+    if (vinReply) {
+      return interpretReply(mod, vinReply.msg);
     }
-    // Positive response to 10 is 50, negative is 7F 10
-    const sess = await readUntilMatch([[0x50], [0x7F, 0x10]], 1200);
-    // Whether session accepted or not, module is alive if we got ANY sensible 10-reply.
-    // Some modules only answer 22 F1 90 after a default session too, so continue either way.
 
-    // Send 22 F1 90 and wait specifically for 62 F1 90... or 7F 22...
-    try {
-      await bridgeCall("/sendmsg", { txId: mod.tx, data: "22F190", flags: ISO15765_FRAME_PAD, timeoutMs: 1500 });
-    } catch (e) {
-      log(`  22 F1 90 send failed: ${e.message}`, "warn");
-      // If session probe got a reply, the module is still present — count it
-      if (sess) return { ...mod, kind: "present", canId: sess.msg.canId, nrc: null };
-      return null;
+    // STRATEGY 2: module didn't answer default-session VIN. Try extended session,
+    // then VIN. This is what ECM/TCM/TCM2 want.
+    const sess = await unitRequest(mod, "1003", [0x50, 0x03], 0x10, 1200);
+    if (!sess) {
+      // Also try 10 01 (default session) as a probe — some weirdos only answer this
+      const sess01 = await unitRequest(mod, "1001", [0x50, 0x01], 0x10, 800);
+      if (!sess01) return null;
     }
-    const vin = await readUntilMatch([[0x62, 0xF1, 0x90], [0x7F, 0x22]], 1800);
-    if (vin) {
-      return interpretReply(mod, vin.msg);
+    vinReply = await unitRequest(mod, "22F190", [0x62, 0xF1, 0x90], 0x22, 1500);
+    if (vinReply) {
+      return interpretReply(mod, vinReply.msg);
     }
-    // No VIN reply, but session did answer → module is present
-    if (sess) return { ...mod, kind: "present", canId: sess.msg.canId, nrc: null };
-    // Nothing at all
-    return null;
-  }, [log, readUntilMatch]);
+    // Got a session reply but no VIN reply — module is present, just not answering VIN DID
+    return { ...mod, kind: "present", canId: mod.rx, nrc: null };
+  }, [log, unitRequest]);
 
   const interpretReply = (mod, msg) => {
     const data = parseMsgData(msg.data);
@@ -280,6 +290,19 @@ export default function J2534Scanner() {
     setScanning(true);
     setFound([]);
     log("═══ Starting J2534 full module scan ═══", "header");
+    log("Sending functional wakeup broadcast on 0x7DF ...");
+    // Broadcast a functional 22 F1 90 on 0x7DF. Any module on the bus will hear this,
+    // wake up, and reply on its physical RX id. We don't install a filter for the wakeup
+    // itself — the per-module probe below installs filters one by one.
+    try {
+      // Install a temp generic filter for 0x7E8..0x7EF range doesn't work in CAN-11bit,
+      // so we skip the read here; the wakeup is just to trigger module-level wake.
+      await bridgeCall("/sendmsg", { txId: 0x7DF, data: "22F190", flags: ISO15765_FRAME_PAD, timeoutMs: 500 });
+    } catch (e) {
+      log("  wakeup broadcast send failed (non-fatal): " + e.message, "warn");
+    }
+    // Give modules 500ms to come out of sleep
+    await new Promise((r) => setTimeout(r, 500));
     log("Scanning known FCA module addresses via raw CAN ...");
     const discovered = [];
     for (const mod of FCA_MODULES) {
