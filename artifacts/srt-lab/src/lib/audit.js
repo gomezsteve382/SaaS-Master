@@ -515,6 +515,9 @@ export async function refreshBackupsFromServer() {
             rx: meta.rx ?? payload.rx ?? null,
             timestamp: meta.timestamp || payload.timestamp,
             payload,
+            checksum: meta.checksum ?? payload.checksum ?? null,
+            snapshotKind: meta.snapshotKind ?? payload.snapshotKind ?? null,
+            preWriteKey: meta.preWriteKey ?? payload.preWriteKey ?? null,
           }),
         });
         if (res.ok) { serverIds.add(meta.key); migrated = true; }
