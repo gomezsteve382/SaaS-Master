@@ -750,6 +750,50 @@ export default function J2534Scanner() {
     reader.readAsText(file);
   }, [onImportBaselinesFromText, log]);
 
+  // Drag-and-drop a baseline JSON anywhere on the panel. Reuses the same
+  // file-reader + parse path as the IMPORT FILE button, including its error
+  // logging, so an invalid drop surfaces the same red log line.
+  const [dragActive, setDragActive] = useState(false);
+  const dragDepthRef = useRef(0);
+  const onPanelDragEnter = useCallback((e) => {
+    if (!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes("Files")) return;
+    e.preventDefault();
+    dragDepthRef.current += 1;
+    setDragActive(true);
+  }, []);
+  const onPanelDragOver = useCallback((e) => {
+    if (!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes("Files")) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  }, []);
+  const onPanelDragLeave = useCallback((e) => {
+    if (!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes("Files")) return;
+    e.preventDefault();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) setDragActive(false);
+  }, []);
+  const onPanelDrop = useCallback((e) => {
+    if (!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes("Files")) return;
+    e.preventDefault();
+    dragDepthRef.current = 0;
+    setDragActive(false);
+    const files = Array.from(e.dataTransfer.files || []);
+    if (!files.length) return;
+    if (files.length > 1) {
+      log(`Drop import: ${files.length} files dropped — only the first will be imported.`, "warn");
+    }
+    const file = files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = typeof reader.result === "string" ? reader.result : "";
+      onImportBaselinesFromText(text);
+    };
+    reader.onerror = () => {
+      log(`Could not read file "${file.name}".`, "error");
+    };
+    reader.readAsText(file);
+  }, [onImportBaselinesFromText, log]);
+
   const onPasteImport = useCallback(() => {
     let text = "";
     try {
@@ -879,7 +923,45 @@ export default function J2534Scanner() {
   );
 
   return (
-    <div style={{ background: S.bg, minHeight: "100%", padding: 20, fontFamily: S.font, color: S.text }}>
+    <div
+      onDragEnter={onPanelDragEnter}
+      onDragOver={onPanelDragOver}
+      onDragLeave={onPanelDragLeave}
+      onDrop={onPanelDrop}
+      style={{
+        minHeight: "100%",
+        padding: 20,
+        fontFamily: S.font,
+        color: S.text,
+        outline: dragActive ? `3px dashed ${S.blue}` : "none",
+        outlineOffset: dragActive ? -8 : 0,
+        background: dragActive ? "#0D1622" : S.bg,
+        transition: "background 120ms, outline-color 120ms",
+        position: "relative",
+      }}
+    >
+      {dragActive && (
+        <div
+          style={{
+            position: "sticky",
+            top: 8,
+            zIndex: 10,
+            margin: "0 auto 12px",
+            maxWidth: 900,
+            padding: "10px 14px",
+            background: "#0F2747",
+            border: `2px dashed ${S.blue}`,
+            borderRadius: 8,
+            color: "#90CAF9",
+            fontWeight: 700,
+            fontSize: 13,
+            textAlign: "center",
+            pointerEvents: "none",
+          }}
+        >
+          📥 Drop baseline JSON to import
+        </div>
+      )}
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
           <span style={{ fontSize: 24, fontWeight: 900, color: S.red }}>⚡ J2534</span>
