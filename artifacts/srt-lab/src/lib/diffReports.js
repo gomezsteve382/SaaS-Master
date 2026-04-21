@@ -188,6 +188,25 @@ export function clearDiffReports() {
   notify();
 }
 
+/* Fetches aggregate storage stats from the server.
+ * Returns { reportCount, totalBytes, capBytes } or null when the server is
+ * unreachable. The values are approximate (raw JSON byte length of the
+ * payload column) but accurate enough for the status-bar display. */
+export async function fetchDiffReportStats() {
+  try {
+    const res = await fetch(API_BASE + "/stats");
+    if (!res.ok) return null;
+    const j = await res.json();
+    return {
+      reportCount: typeof j.reportCount === "number" ? j.reportCount : 0,
+      totalBytes: typeof j.totalBytes === "number" ? j.totalBytes : 0,
+      capBytes: typeof j.capBytes === "number" ? j.capBytes : 500 * 2 * 1024 * 1024,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function subscribeDiffReports(handler) {
   const listener = () => handler();
   window.addEventListener("srtlab:diffReports", listener);

@@ -109,6 +109,25 @@ router.get("/diff-reports", async (_req, res, next) => {
   }
 });
 
+router.get("/diff-reports/stats", async (_req, res, next) => {
+  try {
+    const rows = await db.execute(sql`
+      SELECT
+        COUNT(*)::int AS report_count,
+        COALESCE(SUM(octet_length(payload::text)), 0)::bigint AS total_bytes
+      FROM ${diffReportsTable}
+    `);
+    const row = (rows as { rows?: { report_count?: unknown; total_bytes?: unknown }[] }).rows?.[0] ?? {};
+    res.json({
+      reportCount: Number(row.report_count ?? 0),
+      totalBytes: Number(row.total_bytes ?? 0),
+      capBytes: RETENTION_KEEP * MAX_PAYLOAD_BYTES,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get("/diff-reports/:id", async (req, res, next) => {
   try {
     const id = req.params.id;

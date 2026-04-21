@@ -14,7 +14,7 @@ import {
   listDiffReports, getDiffReport, getDiffReportAsync,
   deleteDiffReport, clearDiffReports,
   subscribeDiffReports, exportDiffReportPDF, fmtScanStamp,
-  refreshDiffReportsFromServer,
+  refreshDiffReportsFromServer, fetchDiffReportStats,
 } from "../lib/diffReports.js";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
@@ -22,6 +22,7 @@ const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 export default function BackupsTab() {
   const [backups, setBackups] = useState(getBackupList());
   const [diffReports, setDiffReports] = useState(() => listDiffReports());
+  const [diffStorageStats, setDiffStorageStats] = useState(null);
   const [diffBusy, setDiffBusy] = useState(null);
   const [usage, setUsage] = useState(getBackupStorageUsage());
   const [toast, setToast] = useState(null);
@@ -69,6 +70,9 @@ export default function BackupsTab() {
     refreshBackupsFromServer().catch(() => {/* offline ok */});
     refreshDiffReportsFromServer()
       .then((list) => { if (Array.isArray(list)) setDiffReports(list); })
+      .catch(() => {/* offline ok */});
+    fetchDiffReportStats()
+      .then((stats) => { if (stats) setDiffStorageStats(stats); })
       .catch(() => {/* offline ok */});
   }, []);
 
@@ -485,6 +489,11 @@ export default function BackupsTab() {
               <span data-testid="diff-reports-count-status" style={{ color: C.ts }}>
                 {diffReports.length} / {KEEP} reports
               </span>
+              {diffStorageStats && (
+                <span data-testid="diff-reports-storage-size" style={{ color: C.ts }}>
+                  ~{formatBytes(diffStorageStats.totalBytes)} / ~{formatBytes(diffStorageStats.capBytes)} cap
+                </span>
+              )}
               {oldestDate && (
                 <span data-testid="diff-reports-oldest">
                   oldest: <span style={{ color: C.tx }}>{oldestDate}</span>
