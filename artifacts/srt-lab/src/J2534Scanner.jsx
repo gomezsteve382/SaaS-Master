@@ -965,10 +965,153 @@ export default function J2534Scanner() {
   );
 }
 
+function buildDiffReportText(baseline, current, diff) {
+  const fmtTx = (m) => `0x${(m.tx || 0).toString(16).toUpperCase().padStart(3, "0")}`;
+  const lines = [];
+  lines.push("SRT LAB \u2014 BASELINE vs CURRENT DIFF REPORT");
+  lines.push("=".repeat(56));
+  lines.push(`Baseline scan : ${fmtScanStamp(baseline.ts) || "(unknown)"}  (${baseline.modules.length} modules)`);
+  lines.push(`Current scan  : ${fmtScanStamp(current.ts) || "(unsaved)"}  (${current.modules.length} modules)`);
+  lines.push("");
+  if (!diff.added.length && !diff.removed.length && !diff.changed.length) {
+    lines.push("No differences \u2014 current scan matches baseline exactly.");
+  }
+  if (diff.added.length) {
+    lines.push(`+ ADDED MODULES (${diff.added.length})`);
+    diff.added.forEach((m) => {
+      lines.push(`  + ${m.code || m.name}  TX:${fmtTx(m)}${m.vin ? "  VIN: " + m.vin : ""}`);
+    });
+    lines.push("");
+  }
+  if (diff.removed.length) {
+    lines.push(`- REMOVED MODULES (${diff.removed.length})`);
+    diff.removed.forEach((m) => {
+      lines.push(`  - ${m.code || m.name}  TX:${fmtTx(m)}${m.vin ? "  VIN: " + m.vin : ""}`);
+    });
+    lines.push("");
+  }
+  if (diff.changed.length) {
+    lines.push(`+/- CHANGED VINs (${diff.changed.length})`);
+    diff.changed.forEach((c) => {
+      lines.push(`  ${c.current.code || c.current.name}  TX:${fmtTx(c.current)}`);
+      lines.push(`    - ${c.baseline.vin || "(no VIN)"}`);
+      lines.push(`    + ${c.current.vin || "(no VIN)"}`);
+    });
+    lines.push("");
+  }
+  if (diff.same.length) {
+    lines.push(`${diff.same.length} module${diff.same.length === 1 ? "" : "s"} unchanged.`);
+  }
+  return lines.join("\n");
+}
+
+async function exportDiffReportPDF(baseline, current, diff) {
+  const fmtTx = (m) => `0x${(m.tx || 0).toString(16).toUpperCase().padStart(3, "0")}`;
+  const sections = [];
+  if (!diff.added.length && !diff.removed.length && !diff.changed.length) {
+    sections.push({
+      label: "RESULT",
+      type: "bullets",
+      data: ["No differences \u2014 current scan matches baseline exactly."],
+    });
+  }
+  if (diff.added.length) {
+    sections.push({
+      label: `+ ADDED MODULES (${diff.added.length})`,
+      type: "rows",
+      data: {
+        headers: ["MODULE", "TX", "VIN"],
+        rows: diff.added.map((m) => [m.code || m.name || "", fmtTx(m), m.vin || ""]),
+        colors: ["#2E7D32", "__mono__", "#1A1A1A"],
+      },
+    });
+  }
+  if (diff.removed.length) {
+    sections.push({
+      label: `- REMOVED MODULES (${diff.removed.length})`,
+      type: "rows",
+      data: {
+        headers: ["MODULE", "TX", "VIN"],
+        rows: diff.removed.map((m) => [m.code || m.name || "", fmtTx(m), m.vin || ""]),
+        colors: ["#C62828", "__mono__", "#1A1A1A"],
+      },
+    });
+  }
+  if (diff.changed.length) {
+    sections.push({
+      label: `+/- CHANGED VINs (${diff.changed.length})`,
+      type: "rows",
+      data: {
+        headers: ["MODULE", "TX", "BASELINE VIN", "CURRENT VIN"],
+        rows: diff.changed.map((c) => [
+          c.current.code || c.current.name || "",
+          fmtTx(c.current),
+          c.baseline.vin || "(none)",
+          c.current.vin || "(none)",
+        ]),
+        colors: ["#1A1A1A", "__mono__", "#C62828", "#2E7D32"],
+      },
+    });
+  }
+  if (diff.same.length) {
+    sections.push({
+      label: "UNCHANGED",
+      type: "bullets",
+      data: [`${diff.same.length} module${diff.same.length === 1 ? "" : "s"} unchanged.`],
+    });
+  }
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  await buildOnePagerPDF({
+    filename: `SRT_Lab_Diff_Report_${stamp}.pdf`,
+    title: "BASELINE vs CURRENT DIFF",
+    subtitle: "Scan comparison report",
+    version: new Date().toLocaleDateString(),
+    intro: [
+      `Baseline scan: ${fmtScanStamp(baseline.ts) || "(unknown)"}  \u00B7  ${baseline.modules.length} modules`,
+      `Current scan : ${fmtScanStamp(current.ts) || "(unsaved)"}  \u00B7  ${current.modules.length} modules`,
+    ],
+    sections,
+    footer: "SRT Lab \u00B7 Diff Report \u00B7 For authorized service use only",
+  });
+}
+
 function DiffPanel({ S, baseline, current, onClearBaseline }) {
   const diff = diffScans(baseline.modules, current.modules);
   const fmtTx = (m) => `0x${(m.tx || 0).toString(16).toUpperCase().padStart(3, "0")}`;
   const noChanges = !diff.added.length && !diff.removed.length && !diff.changed.length;
+  const [copyState, setCopyState] = useState("idle");
+  const [pdfState, setPdfState] = useState("idle");
+  const handleCopyText = async () => {
+    try {
+      const txt = buildDiffReportText(baseline, current, diff);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(txt);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = txt;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopyState("ok");
+      setTimeout(() => setCopyState("idle"), 1500);
+    } catch {
+      setCopyState("err");
+      setTimeout(() => setCopyState("idle"), 1500);
+    }
+  };
+  const handleSavePDF = async () => {
+    setPdfState("working");
+    try {
+      await exportDiffReportPDF(baseline, current, diff);
+      setPdfState("ok");
+      setTimeout(() => setPdfState("idle"), 1500);
+    } catch {
+      setPdfState("err");
+      setTimeout(() => setPdfState("idle"), 1500);
+    }
+  };
   const sectionTitle = (color, label, count) => (
     <div style={{ fontSize: 11, fontWeight: 700, color, marginBottom: 6, marginTop: 10, letterSpacing: 0.5 }}>
       {label} ({count})
@@ -999,24 +1142,60 @@ function DiffPanel({ S, baseline, current, onClearBaseline }) {
           baseline: <span style={{ color: "#fff" }}>{baseline.label || "(unlabeled)"}</span> · <span style={{ color: "#fff" }}>{fmtScanStamp(baseline.ts)}</span> ({baseline.modules.length} mod) →
           current: <span style={{ color: "#fff" }}>{fmtScanStamp(current.ts) || "(unsaved)"}</span> ({current.modules.length} mod)
         </div>
-        <button
-          onClick={onClearBaseline}
-          style={{
-            marginLeft: "auto",
-            padding: "4px 10px",
-            background: "#1E1E2E",
-            color: "#FFB74D",
-            border: "1px solid " + S.border,
-            borderRadius: 4,
-            cursor: "pointer",
-            fontFamily: S.font,
-            fontSize: 11,
-            fontWeight: 700,
-          }}
-          title="Delete the active baseline"
-        >
-          🗑 DELETE BASELINE
-        </button>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 6, flexWrap: "wrap" }}>
+          <button
+            onClick={handleSavePDF}
+            disabled={pdfState === "working"}
+            style={{
+              padding: "4px 10px",
+              background: pdfState === "ok" ? "#1B5E20" : "#0D2A4A",
+              color: "#90CAF9",
+              border: "1px solid " + S.border,
+              borderRadius: 4,
+              cursor: pdfState === "working" ? "wait" : "pointer",
+              fontFamily: S.font,
+              fontSize: 11,
+              fontWeight: 700,
+            }}
+            title="Save this diff as a printable PDF report"
+          >
+            {pdfState === "working" ? "… BUILDING" : pdfState === "ok" ? "✓ SAVED" : pdfState === "err" ? "✗ ERROR" : "📄 SAVE DIFF REPORT"}
+          </button>
+          <button
+            onClick={handleCopyText}
+            style={{
+              padding: "4px 10px",
+              background: copyState === "ok" ? "#1B5E20" : "#1E1E2E",
+              color: "#A5D6A7",
+              border: "1px solid " + S.border,
+              borderRadius: 4,
+              cursor: "pointer",
+              fontFamily: S.font,
+              fontSize: 11,
+              fontWeight: 700,
+            }}
+            title="Copy the diff report as plain text"
+          >
+            {copyState === "ok" ? "✓ COPIED" : copyState === "err" ? "✗ ERROR" : "📋 COPY AS TEXT"}
+          </button>
+          <button
+            onClick={onClearBaseline}
+            style={{
+              padding: "4px 10px",
+              background: "#1E1E2E",
+              color: "#FFB74D",
+              border: "1px solid " + S.border,
+              borderRadius: 4,
+              cursor: "pointer",
+              fontFamily: S.font,
+              fontSize: 11,
+              fontWeight: 700,
+            }}
+            title="Delete the active baseline"
+          >
+            🗑 DELETE BASELINE
+          </button>
+        </div>
       </div>
       {noChanges && (
         <div style={{ fontSize: 11, color: "#66BB6A", padding: "8px 0" }}>
