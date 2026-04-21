@@ -465,6 +465,68 @@ export default function BackupsTab() {
             </button>
           )}
         </div>
+        {diffReports.length > 0 && (() => {
+          const KEEP = 500;
+          const WARN_AGE_MS = 150 * 24 * 60 * 60 * 1000;
+          const now = Date.now();
+          const sorted = [...diffReports].sort((a, b) => (a.generatedAt ?? 0) - (b.generatedAt ?? 0));
+          const oldest = sorted[0];
+          const oldestMs = oldest?.generatedAt ?? null;
+          const oldestDate = oldestMs ? new Date(oldestMs).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : null;
+          const expiringSoon = oldestMs !== null && (now - oldestMs) >= WARN_AGE_MS;
+          const daysOld = oldestMs !== null ? Math.floor((now - oldestMs) / (24 * 60 * 60 * 1000)) : null;
+          const daysLeft = daysOld !== null ? 180 - daysOld : null;
+          const nearCap = diffReports.length >= Math.floor(KEEP * 0.9);
+          return (
+            <div
+              data-testid="diff-reports-status-bar"
+              style={{
+                display: "flex", alignItems: "center", flexWrap: "wrap", gap: 10,
+                padding: "7px 16px", borderBottom: "1px solid " + C.bd,
+                background: expiringSoon || nearCap ? "rgba(245,124,0,0.07)" : "rgba(0,0,0,0.03)",
+                fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'",
+              }}
+            >
+              <span data-testid="diff-reports-count-status" style={{ color: C.ts }}>
+                {diffReports.length} / {KEEP} reports
+              </span>
+              {oldestDate && (
+                <span data-testid="diff-reports-oldest">
+                  oldest: <span style={{ color: C.tx }}>{oldestDate}</span>
+                </span>
+              )}
+              <span style={{ color: C.tm, opacity: 0.5 }}>·</span>
+              <span style={{ color: C.tm }}>auto-pruned after 180 days</span>
+              {expiringSoon && daysLeft !== null && (
+                <span
+                  data-testid="diff-reports-expiry-warning"
+                  style={{
+                    marginLeft: 4, padding: "2px 8px", borderRadius: 4,
+                    background: daysLeft <= 7 ? "rgba(198,40,40,0.15)" : "rgba(245,124,0,0.15)",
+                    color: daysLeft <= 7 ? "#ff7676" : "#F57C00",
+                    fontWeight: 800, letterSpacing: 0.5,
+                  }}
+                  title={"Oldest report was saved " + daysOld + " days ago and will be pruned in " + daysLeft + " day(s). Export it before then if you need to keep it."}
+                >
+                  ⚠ oldest expires in {daysLeft}d — export to keep
+                </span>
+              )}
+              {nearCap && (
+                <span
+                  data-testid="diff-reports-cap-warning"
+                  style={{
+                    marginLeft: 4, padding: "2px 8px", borderRadius: 4,
+                    background: "rgba(245,124,0,0.15)", color: "#F57C00",
+                    fontWeight: 800, letterSpacing: 0.5,
+                  }}
+                  title={"You have " + diffReports.length + " of " + KEEP + " reports. Older reports will be pruned when the cap is reached."}
+                >
+                  ⚠ near storage cap
+                </span>
+              )}
+            </div>
+          );
+        })()}
         {diffReports.length === 0 ? (
           <div style={{ padding: 20, color: C.tm, fontSize: 12, lineHeight: 1.6 }}>
             No saved diff reports yet. Generate one from the J2534 Scanner —
