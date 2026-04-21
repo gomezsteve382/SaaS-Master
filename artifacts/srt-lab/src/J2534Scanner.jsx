@@ -111,6 +111,8 @@ export default function J2534Scanner() {
   const [scanning, setScanning] = useState(false);
   const [bridgeInfo, setBridgeInfo] = useState(null);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [periodicId, setPeriodicId] = useState(null);
+  const periodicIdRef = useRef(null);
   const logRef = useRef(null);
 
   const onPdf = async () => {
@@ -124,6 +126,23 @@ export default function J2534Scanner() {
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [logs]);
+
+  // Cleanup: stop the tester-present periodic when the component unmounts or
+  // the user navigates away from this tab. Without this, the periodic keeps
+  // blasting 3E 80 on 0x7DF forever until the bridge disconnects.
+  useEffect(() => {
+    return () => {
+      const pid = periodicIdRef.current;
+      if (pid != null) {
+        fetch(BRIDGE_URL + "/stopperiodic", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ periodicId: pid }),
+          keepalive: true,
+        }).catch(() => {});
+      }
+    };
+  }, []);
 
   const log = useCallback((msg, type = "info") => {
     const ts = new Date().toLocaleTimeString("en-US", { hour12: false });
@@ -145,6 +164,21 @@ export default function J2534Scanner() {
       }
       if (st.deviceOpen && st.channelConnected) {
         log("Bridge already has device open + ISO15765 channel up — ready to scan.", "success");
+        // Start tester-present periodic if we don't have one running yet
+        if (periodicIdRef.current == null) {
+          try {
+            const pr = await bridgeCall("/startperiodic", {
+              txId: 0x7DF, data: "3E80", intervalMs: 1000, flags: ISO15765_FRAME_PAD,
+            });
+            if (pr?.periodicId != null) {
+              periodicIdRef.current = pr.periodicId;
+              setPeriodicId(pr.periodicId);
+              log(`Tester-present periodic started (id=${pr.periodicId}).`, "success");
+            }
+          } catch (e) {
+            log("Tester-present start failed: " + e.message, "warn");
+          }
+        }
         setStatus("can_connected");
       } else if (st.deviceOpen) {
         log("Bridge has device open — click Open J2534 Device to bring up the CAN channel.");
@@ -169,6 +203,21 @@ export default function J2534Scanner() {
       log("Connecting CAN channel (ISO15765 / 500 kbps) ...");
       await bridgeCall("/connect", { protocol: PROTOCOL_ISO15765, flags: 0, baudrate: 500000 });
       log("CAN bus up — ISO15765 500 kbps", "success");
+      // Start tester-present periodic (3E 80 every 1000ms on 0x7DF functional) to keep
+      // body modules (BCM/RFHUB/IPC) awake during the scan. FCA's own canflash_j2534.exe
+      // does the exact same thing — without it those modules sleep in ~2s and go silent.
+      try {
+        const pr = await bridgeCall("/startperiodic", {
+          txId: 0x7DF, data: "3E80", intervalMs: 1000, flags: ISO15765_FRAME_PAD,
+        });
+        if (pr?.periodicId != null) {
+          periodicIdRef.current = pr.periodicId;
+          setPeriodicId(pr.periodicId);
+          log(`Tester-present periodic started (id=${pr.periodicId}) — body modules will stay awake.`, "success");
+        }
+      } catch (e) {
+        log("Tester-present periodic failed to start: " + e.message + " — scan may miss body modules.", "warn");
+      }
       setStatus("can_connected");
     } catch (e) {
       log("Open/Connect failed: " + e.message, "error");
