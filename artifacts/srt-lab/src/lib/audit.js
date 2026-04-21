@@ -541,6 +541,112 @@ export async function refreshBackupsFromServer() {
   return normalized;
 }
 
+/* Create per-module placeholder backups from a J2534 scan. Each scanned
+ * module becomes a stub backup entry so the BACKUPS tab can browse them
+ * without the user copy-pasting JSON. If a VIN was decoded for the module
+ * during the scan, it's stored as DID 0xF190 so the existing list/detail
+ * UI lights up the VIN field. Returns { created, keys }. Keys are stable
+ * for a given (module, scanTs, tx) so re-clicking "Send to BACKUPS" on the
+ * same scan is a no-op. */
+export async function saveScanPlaceholders(scanModules, { source = "j2534-scan", scanTs = Date.now() } = {}) {
+  if (!Array.isArray(scanModules) || scanModules.length === 0) {
+    return { created: 0, keys: [], skipped: 0, duplicates: [] };
+  }
+  const idx = readLocalIndex();
+  const existingKeys = new Set(idx.map(b => b.key));
+  const stamp = new Date(scanTs).toISOString();
+  const createdKeys = [];
+  const duplicateKeys = [];
+  const createdMetas = [];
+  let skipped = 0;
+  for (const m of scanModules) {
+    if (!m || !m.code) { skipped++; continue; }
+    const moduleType = m.code;
+    const vin = (m.vin && String(m.vin).slice(-17)) || "unknown";
+    const dids = {};
+    if (m.vin) {
+      const ascii = String(m.vin);
+      const bytes = Array.from(ascii).map(c => c.charCodeAt(0) & 0xFF);
+      dids[0xF190] = {
+        name: "VIN",
+        critical: true,
+        hex: bytes.map(b => hx(b)).join(""),
+        ascii,
+        bytes,
+      };
+    }
+    const payload = {
+      module: moduleType,
+      tx: m.tx,
+      rx: m.rx,
+      timestamp: stamp,
+      placeholder: true,
+      source,
+      dids,
+    };
+    const key = BACKUP_KEY_PREFIX + moduleType + "_" + vin + "_scan" +
+      scanTs + "_" + ((m.tx ?? 0).toString(16));
+    if (existingKeys.has(key)) { duplicateKeys.push(key); skipped++; continue; }
+    if (!setLocalPayload(key, payload)) { skipped++; continue; }
+    const meta = {
+      key, id: key, module: moduleType, vin,
+      timestamp: stamp,
+      didCount: Object.keys(dids).length,
+      tx: m.tx, rx: m.rx,
+      placeholder: true,
+      source,
+    };
+    idx.unshift(meta);
+    existingKeys.add(key);
+    createdKeys.push(key);
+    createdMetas.push({ meta, payload });
+  }
+  if (createdKeys.length === 0) {
+    return { created: 0, keys: [], skipped, duplicates: duplicateKeys };
+  }
+  if (idx.length > MAX_BACKUPS) {
+    idx.slice(MAX_BACKUPS).forEach(b => removeLocalPayload(b.key));
+  }
+  writeLocalIndex(idx);
+  notify();
+
+  /* Persist to the database too. Without this, BackupsTab's
+   * refreshBackupsFromServer() on mount/focus would overwrite the local
+   * index with the server list and our placeholders would silently
+   * disappear. Failures are non-fatal — the local cache still carries the
+   * entry, and a future refresh will simply not find it on the server. */
+  let serverFailures = 0;
+  await Promise.all(createdMetas.map(async ({ meta, payload }) => {
+    try {
+      const res = await fetch(API_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: meta.key,
+          module: meta.module,
+          vin: meta.vin,
+          didCount: meta.didCount,
+          tx: meta.tx ?? null,
+          rx: meta.rx ?? null,
+          timestamp: meta.timestamp,
+          payload,
+        }),
+      });
+      if (!res.ok) serverFailures++;
+    } catch {
+      serverFailures++;
+    }
+  }));
+
+  return {
+    created: createdKeys.length,
+    keys: createdKeys,
+    skipped,
+    duplicates: duplicateKeys,
+    serverFailures,
+  };
+}
+
 /* React hook helper: triggers a re-render when audit storage changes. */
 export function subscribeAudit(handler) {
   const listener = () => handler();

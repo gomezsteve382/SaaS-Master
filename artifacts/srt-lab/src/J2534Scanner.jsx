@@ -15,6 +15,7 @@ import {
 } from "./lib/bridgeClient.js";
 import { REGISTRY } from "./lib/moduleRegistry.js";
 import { useMasterVin } from "./lib/masterVinContext.jsx";
+import { saveScanPlaceholders } from "./lib/audit.js";
 
 /**
  * J2534 Module Scanner
@@ -225,6 +226,7 @@ export default function J2534Scanner() {
   const baseline = baselines.find((b) => b.id === activeBaselineId) || null;
   const [showDiff, setShowDiff] = useState(false);
   const [copyState, setCopyState] = useState("idle");
+  const [sendState, setSendState] = useState("idle");
   const [scanning, setScanning] = useState(false);
   const [vendor, setVendor] = useState(null);
   const [pdfBusy, setPdfBusy] = useState(false);
@@ -583,6 +585,41 @@ export default function J2534Scanner() {
     }
   }, [found, lastScanTs, log]);
 
+  const onSendToBackups = useCallback(async () => {
+    if (!found.length || sendState === "sending") return;
+    setSendState("sending");
+    try {
+      const r = await saveScanPlaceholders(found, { scanTs: lastScanTs || Date.now() });
+      if (r.created === 0 && (r.duplicates?.length || 0) > 0) {
+        log(`Send to BACKUPS: ${r.duplicates.length} placeholder(s) from this scan already in the backup library — opening BACKUPS tab.`, "info");
+      } else {
+        log(
+          `Send to BACKUPS: created ${r.created} placeholder backup(s)` +
+          (r.skipped ? " (" + r.skipped + " skipped)" : "") +
+          (r.serverFailures ? " — " + r.serverFailures + " did not save to server (kept locally)" : "") +
+          ".",
+          r.serverFailures ? "warn" : "success",
+        );
+      }
+      // Prefer a freshly created key; fall back to a duplicate from a prior
+      // send so re-clicking still navigates and pre-selects something.
+      const firstKey = r.keys[0] || r.duplicates?.[0] || null;
+      if (firstKey) {
+        try { localStorage.setItem("srtlab_pending_backup_select", firstKey); } catch { /* ignore */ }
+      }
+      try {
+        window.dispatchEvent(new CustomEvent("srtlab:navigate", { detail: { tab: "backups", key: firstKey } }));
+        window.dispatchEvent(new Event("srtlab:backupSelect"));
+      } catch { /* ignore */ }
+      setSendState("sent");
+      setTimeout(() => setSendState("idle"), 1800);
+    } catch (e) {
+      log("Send to BACKUPS failed: " + (e?.message || String(e)), "error");
+      setSendState("error");
+      setTimeout(() => setSendState("idle"), 1800);
+    }
+  }, [found, lastScanTs, log, sendState]);
+
   const S = {
     bg: "#0A0A0F",
     card: "#12121A",
@@ -818,6 +855,32 @@ export default function J2534Scanner() {
                   title="Copy scan as JSON for the BACKUPS tab or a bug report"
                 >
                   {copyState === "copied" ? "✓ COPIED" : copyState === "error" ? "✗ ERROR" : "📋 COPY AS JSON"}
+                </button>
+                <button
+                  onClick={onSendToBackups}
+                  data-testid="send-scan-to-backups"
+                  disabled={sendState === "sending"}
+                  style={{
+                    padding: "4px 10px",
+                    background: sendState === "sent" ? S.green : sendState === "error" ? S.red : "#1E1E2E",
+                    color: "#fff",
+                    border: "1px solid " + (sendState === "sent" ? S.green : S.border),
+                    borderRadius: 4,
+                    cursor: sendState === "sending" ? "wait" : "pointer",
+                    fontFamily: S.font,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    opacity: sendState === "sending" ? 0.6 : 1,
+                  }}
+                  title="Create per-module placeholder backups from this scan and open the BACKUPS tab"
+                >
+                  {sendState === "sent"
+                    ? "✓ SENT"
+                    : sendState === "error"
+                      ? "✗ ERROR"
+                      : sendState === "sending"
+                        ? "⏳ SENDING..."
+                        : "📂 SEND TO BACKUPS"}
                 </button>
                 <button
                   onClick={onClearLastScan}
