@@ -130,6 +130,78 @@ function loadBaselines() {
 function persistBaselines(list) {
   try { localStorage.setItem(BASELINES_KEY, JSON.stringify(list)); } catch { /* ignore */ }
 }
+
+// Wrapper format used by the export/import flow. Wrapping the baseline(s) in a
+// tagged envelope lets us tell a baseline JSON apart from an unrelated file
+// the tech might paste in by mistake, and gives us room to evolve the format.
+const BASELINE_EXPORT_TYPE = "srtlab.j2534.baseline";
+const BASELINE_EXPORT_VERSION = 1;
+
+function buildBaselineExport(baselines) {
+  return {
+    type: BASELINE_EXPORT_TYPE,
+    version: BASELINE_EXPORT_VERSION,
+    exportedAt: Date.now(),
+    baselines: baselines.map((b) => ({
+      label: b.label,
+      ts: b.ts,
+      modules: b.modules,
+    })),
+  };
+}
+
+// Sanitize a label into something that's safe to use as a filename across
+// Windows / macOS / Linux. Falls back to a generic name if nothing usable.
+function baselineFilename(label, ts) {
+  const safe = String(label || "baseline")
+    .replace(/[\\/:*?"<>|]+/g, "_")
+    .replace(/\s+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 60) || "baseline";
+  const stamp = new Date(ts || Date.now())
+    .toISOString()
+    .replace(/[:.]/g, "-")
+    .slice(0, 19);
+  return `srtlab-baseline-${safe}-${stamp}.json`;
+}
+
+// Parse a pasted/dropped baseline export. Accepts either the wrapped envelope
+// produced by buildBaselineExport, a bare baseline object, or an array of
+// baselines. Returns an array of normalized {label, ts, modules} entries
+// (without ids — the caller assigns fresh ones to avoid collisions).
+function parseBaselineImport(text) {
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error("Not valid JSON.");
+  }
+  let candidates = [];
+  if (Array.isArray(parsed)) {
+    candidates = parsed;
+  } else if (parsed && Array.isArray(parsed.baselines)) {
+    if (parsed.type && parsed.type !== BASELINE_EXPORT_TYPE) {
+      throw new Error(`Unrecognized export type "${parsed.type}".`);
+    }
+    candidates = parsed.baselines;
+  } else if (parsed && Array.isArray(parsed.modules)) {
+    candidates = [parsed];
+  } else {
+    throw new Error("JSON does not look like a baseline export.");
+  }
+  const out = [];
+  for (const c of candidates) {
+    if (!c || !Array.isArray(c.modules)) continue;
+    out.push({
+      label: typeof c.label === "string" && c.label.trim() ? c.label.trim() : "Imported baseline",
+      ts: typeof c.ts === "number" ? c.ts : Date.now(),
+      modules: c.modules,
+    });
+  }
+  if (!out.length) throw new Error("No baselines with modules found in JSON.");
+  return out;
+}
 function loadActiveBaselineId() {
   try { return localStorage.getItem(ACTIVE_BASELINE_KEY); } catch { return null; }
 }
@@ -580,6 +652,118 @@ export default function J2534Scanner() {
     log(`Renamed baseline "${target.label}" → "${trimmed}".`, "success");
   }, [baselines, log]);
 
+  const onExportBaseline = useCallback((id) => {
+    const target = baselines.find((b) => b.id === id);
+    if (!target) {
+      log("No baseline selected to export.", "warn");
+      return;
+    }
+    const payload = buildBaselineExport([target]);
+    const json = JSON.stringify(payload, null, 2);
+    let downloaded = false;
+    try {
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = baselineFilename(target.label, target.ts);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+      downloaded = true;
+    } catch (e) {
+      log(`Download failed: ${e?.message || e}. Falling back to clipboard.`, "warn");
+    }
+    if (downloaded) {
+      // Best-effort copy to clipboard too, so the tech can paste into chat/email.
+      try {
+        if (navigator?.clipboard?.writeText) {
+          navigator.clipboard.writeText(json).catch(() => {});
+        }
+      } catch { /* ignore */ }
+      log(
+        `Exported baseline "${target.label}" (${target.modules.length} module${target.modules.length === 1 ? "" : "s"}). Also copied JSON to clipboard.`,
+        "success"
+      );
+    } else {
+      try {
+        if (navigator?.clipboard?.writeText) {
+          navigator.clipboard.writeText(json);
+          log(`Copied baseline "${target.label}" JSON to clipboard.`, "success");
+        } else {
+          window.prompt("Copy this baseline JSON:", json);
+        }
+      } catch {
+        window.prompt("Copy this baseline JSON:", json);
+      }
+    }
+  }, [baselines, log]);
+
+  const onImportBaselinesFromText = useCallback((text) => {
+    let imported;
+    try {
+      imported = parseBaselineImport(text);
+    } catch (e) {
+      log(`Import failed: ${e?.message || e}`, "error");
+      return 0;
+    }
+    // Assign fresh ids so imports never collide with existing entries, even
+    // if the same baseline gets imported twice.
+    const fresh = imported.map((b) => ({
+      id: newBaselineId(),
+      label: b.label,
+      ts: b.ts,
+      modules: b.modules,
+    }));
+    const next = [...fresh, ...baselines];
+    setBaselines(next);
+    persistBaselines(next);
+    // Make the first imported baseline the active one so the tech can
+    // immediately diff against it.
+    setActiveBaselineId(fresh[0].id);
+    persistActiveBaselineId(fresh[0].id);
+    log(
+      `Imported ${fresh.length} baseline${fresh.length === 1 ? "" : "s"}: ${fresh.map((b) => `"${b.label}"`).join(", ")}.`,
+      "success"
+    );
+    return fresh.length;
+  }, [baselines, log]);
+
+  const fileInputRef = useRef(null);
+  const onPickImportFile = useCallback(() => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  }, []);
+  const onImportFileChange = useCallback((e) => {
+    const file = e.target.files && e.target.files[0];
+    // Always reset so picking the same file twice still fires onChange.
+    if (e.target) e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = typeof reader.result === "string" ? reader.result : "";
+      onImportBaselinesFromText(text);
+    };
+    reader.onerror = () => {
+      log(`Could not read file "${file.name}".`, "error");
+    };
+    reader.readAsText(file);
+  }, [onImportBaselinesFromText, log]);
+
+  const onPasteImport = useCallback(() => {
+    let text = "";
+    try {
+      text = window.prompt("Paste baseline JSON to import:", "") || "";
+    } catch {
+      text = "";
+    }
+    if (!text.trim()) {
+      log("Import cancelled.", "info");
+      return;
+    }
+    onImportBaselinesFromText(text);
+  }, [onImportBaselinesFromText, log]);
+
   const onClearLastScan = useCallback(() => {
     clearLastScan();
     setFound([]);
@@ -772,6 +956,59 @@ export default function J2534Scanner() {
           )}
         </div>
 
+        {/* Import-only bar — shown on a fresh laptop that hasn't scanned yet,
+            so a tech can pull in a baseline JSON shared from another machine
+            before they connect the cable. */}
+        {!(found.length > 0 || lastScanTs) && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 12, fontSize: 11, color: S.dim }}>
+            <span>📌 baselines:</span>
+            <span style={{ color: "#fff" }}>
+              {baselines.length} saved
+            </span>
+            <button
+              onClick={onPickImportFile}
+              style={{
+                padding: "4px 10px",
+                background: "#1E1E2E",
+                color: "#42A5F5",
+                border: "1px solid " + S.border,
+                borderRadius: 4,
+                cursor: "pointer",
+                fontFamily: S.font,
+                fontSize: 11,
+                fontWeight: 700,
+              }}
+              title="Import a baseline JSON file shared by another laptop"
+            >
+              📥 IMPORT FILE
+            </button>
+            <button
+              onClick={onPasteImport}
+              style={{
+                padding: "4px 10px",
+                background: "#1E1E2E",
+                color: "#42A5F5",
+                border: "1px solid " + S.border,
+                borderRadius: 4,
+                cursor: "pointer",
+                fontFamily: S.font,
+                fontSize: 11,
+                fontWeight: 700,
+              }}
+              title="Paste baseline JSON (e.g. copied from chat or email)"
+            >
+              📋 PASTE
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={onImportFileChange}
+              style={{ display: "none" }}
+            />
+          </div>
+        )}
+
         {/* Found modules */}
         {(found.length > 0 || lastScanTs) && (
           <div style={{ background: "#1A2E1A", border: "1px solid " + S.green, borderRadius: 8, padding: 12, marginBottom: 12 }}>
@@ -830,6 +1067,23 @@ export default function J2534Scanner() {
                         ✎
                       </button>
                       <button
+                        onClick={() => onExportBaseline(baseline.id)}
+                        style={{
+                          padding: "2px 6px",
+                          background: "transparent",
+                          color: "#42A5F5",
+                          border: "1px solid " + S.border,
+                          borderRadius: 4,
+                          cursor: "pointer",
+                          fontFamily: S.font,
+                          fontSize: 10,
+                          fontWeight: 700,
+                        }}
+                        title={`Export baseline "${baseline.label}" as JSON (download + clipboard)`}
+                      >
+                        ⬇ EXPORT
+                      </button>
+                      <button
                         onClick={() => onDeleteBaseline(baseline.id)}
                         style={{
                           padding: "2px 6px",
@@ -869,6 +1123,47 @@ export default function J2534Scanner() {
                 >
                   📌 SAVE BASELINE
                 </button>
+                <button
+                  onClick={onPickImportFile}
+                  style={{
+                    padding: "4px 10px",
+                    background: "#1E1E2E",
+                    color: "#42A5F5",
+                    border: "1px solid " + S.border,
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    fontFamily: S.font,
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                  title="Import a baseline JSON file shared by another laptop"
+                >
+                  📥 IMPORT FILE
+                </button>
+                <button
+                  onClick={onPasteImport}
+                  style={{
+                    padding: "4px 10px",
+                    background: "#1E1E2E",
+                    color: "#42A5F5",
+                    border: "1px solid " + S.border,
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    fontFamily: S.font,
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                  title="Paste baseline JSON (e.g. copied from chat or email)"
+                >
+                  📋 PASTE
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="application/json,.json"
+                  onChange={onImportFileChange}
+                  style={{ display: "none" }}
+                />
                 {baseline && (
                   <button
                     onClick={() => setShowDiff((v) => !v)}
