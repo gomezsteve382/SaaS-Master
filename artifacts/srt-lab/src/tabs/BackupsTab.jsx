@@ -486,6 +486,10 @@ export default function BackupsTab() {
                     </div>
                     <div style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", marginTop: 2 }}>
                       generated {fmtScanStamp(r.generatedAt)}
+                      {" · "}
+                      <span data-testid={"diff-report-author-" + r.id}>
+                        saved by {r.author ? <b style={{ color: C.ts }}>{r.author}</b> : <span style={{ fontStyle: "italic" }}>unknown</span>}
+                      </span>
                     </div>
                     <div style={{ fontSize: 10, color: C.ts, marginTop: 4 }}>
                       baseline {fmtScanStamp(r.baselineTs) || "(unknown)"} · {r.baselineModuleCount} mod

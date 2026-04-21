@@ -14,6 +14,7 @@ export const diffReportsTable = pgTable(
     removedCount: integer("removed_count").notNull().default(0),
     changedCount: integer("changed_count").notNull().default(0),
     sameCount: integer("same_count").notNull().default(0),
+    author: text("author"),
     payload: jsonb("payload").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

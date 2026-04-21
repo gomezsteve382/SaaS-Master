@@ -148,7 +148,35 @@ describe('diffReports rendering', () => {
     expect(txt).toMatch(/2 modules unchanged/);
   });
 
+  it('saveDiffReport tags the report with the configured tech from localStorage', () => {
+    localStorage.setItem('srtlab_tech', 'Jordan M.');
+    const meta = saveDiffReport({
+      baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff(),
+    });
+    expect(meta.author).toBe('Jordan M.');
+    expect(listDiffReports()[0].author).toBe('Jordan M.');
+    const full = getDiffReport(meta.id);
+    expect(full.author).toBe('Jordan M.');
+  });
+
+  it('saveDiffReport accepts an explicit author that overrides the stored tech', () => {
+    localStorage.setItem('srtlab_tech', 'Jordan M.');
+    const meta = saveDiffReport({
+      baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff(),
+      author: '  Alex Bench  ',
+    });
+    expect(meta.author).toBe('Alex Bench');
+  });
+
+  it('saveDiffReport leaves author null when no tech is configured', () => {
+    const meta = saveDiffReport({
+      baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff(),
+    });
+    expect(meta.author).toBeNull();
+  });
+
   it('saveDiffReport mirrors the report to /api/diff-reports', async () => {
+    localStorage.setItem('srtlab_tech', 'Jordan M.');
     saveDiffReport({ baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff() });
     // Microtask flush so the fire-and-forget fetch is observed.
     await new Promise((r) => setTimeout(r, 0));
@@ -159,6 +187,7 @@ describe('diffReports rendering', () => {
     expect(body.baselineLabel).toBe('My RO 12345');
     expect(body.addedCount).toBe(1);
     expect(body.payload.diff.removed[0].code).toBe('ECM');
+    expect(body.author).toBe('Jordan M.');
   });
 
   it('refreshDiffReportsFromServer overwrites the local index with the server list', async () => {

@@ -60,7 +60,7 @@ function removePayload(id) {
 
 /* Build the meta record stored in the index. Counts are denormalized so the
  * History list can render without having to load each payload. */
-function buildMeta({ id, generatedAt, baseline, current, diff }) {
+function buildMeta({ id, generatedAt, baseline, current, diff, author }) {
   return {
     id,
     generatedAt,
@@ -73,7 +73,20 @@ function buildMeta({ id, generatedAt, baseline, current, diff }) {
     removedCount: diff?.removed?.length || 0,
     changedCount: diff?.changed?.length || 0,
     sameCount: diff?.same?.length || 0,
+    author: author || null,
   };
+}
+
+/* The tech identifier persisted by ReadFirstModal under "srtlab_tech". Used
+ * as a default author for diff reports so multi-tech shops can tell saved
+ * comparisons apart without any extra UI. Returns null when not set. */
+function readCurrentTech() {
+  try {
+    const v = localStorage.getItem("srtlab_tech");
+    if (!v) return null;
+    const trimmed = v.trim().slice(0, 120);
+    return trimmed || null;
+  } catch { return null; }
 }
 
 /* Best-effort write-through to the server. The local cache is the source of
@@ -96,6 +109,7 @@ function pushToServer(meta, payload) {
         removedCount: meta.removedCount,
         changedCount: meta.changedCount,
         sameCount: meta.sameCount,
+        author: meta.author,
         payload,
       }),
     }).catch(() => { /* offline; cache only */ });
@@ -106,12 +120,16 @@ function pushToServer(meta, payload) {
 /* Persist a diff report. Returns the meta record (with id) on success or null
  * on cache write failure. The server write is fire-and-forget so the active
  * Save PDF flow continues even if the API is unreachable. */
-export function saveDiffReport({ baseline, current, diff }) {
+export function saveDiffReport({ baseline, current, diff, author } = {}) {
   const id = newReportId();
   const generatedAt = Date.now();
+  const resolvedAuthor =
+    (typeof author === "string" && author.trim()) ? author.trim().slice(0, 120) :
+    readCurrentTech();
   const payload = {
     id,
     generatedAt,
+    author: resolvedAuthor,
     baseline: {
       label: baseline?.label || "(unlabeled)",
       ts: baseline?.ts || null,
@@ -129,7 +147,7 @@ export function saveDiffReport({ baseline, current, diff }) {
     },
   };
   if (!writePayload(id, payload)) return null;
-  const meta = buildMeta({ id, generatedAt, ...payload });
+  const meta = buildMeta({ id, generatedAt, author: resolvedAuthor, ...payload });
   const idx = readIndex();
   idx.unshift(meta);
   if (idx.length > MAX_REPORTS) {
@@ -245,6 +263,7 @@ export async function refreshDiffReportsFromServer() {
             removedCount: meta.removedCount,
             changedCount: meta.changedCount,
             sameCount: meta.sameCount,
+            author: meta.author ?? null,
             payload,
           }),
         });
@@ -279,6 +298,7 @@ export async function refreshDiffReportsFromServer() {
     removedCount: r.removedCount,
     changedCount: r.changedCount,
     sameCount: r.sameCount,
+    author: r.author ?? null,
   }));
   writeIndex(normalized);
   notify();
