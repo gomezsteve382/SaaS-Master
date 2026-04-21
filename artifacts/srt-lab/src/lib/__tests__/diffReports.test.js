@@ -38,6 +38,8 @@ import {
   refreshDiffReportsFromServer,
   exportDiffReportPDF,
   buildDiffReportText,
+  reassignDiffReportAuthor,
+  reassignUnknownDiffReports,
 } from '../diffReports.js';
 
 const sampleBaseline = () => ({
@@ -271,6 +273,60 @@ describe('diffReports rendering', () => {
       ([url, opts]) => url === '/api/diff-reports/' + encodeURIComponent(meta.id) && opts?.method === 'DELETE',
     );
     expect(delCall).toBeTruthy();
+  });
+
+  it('reassignDiffReportAuthor updates a report tagged unknown to the given name', async () => {
+    const meta = saveDiffReport({
+      baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff(),
+    });
+    expect(meta.author).toBeNull();
+
+    globalThis.fetch.mockClear();
+    const r = await reassignDiffReportAuthor(meta.id, '  Jordan M.  ');
+    expect(r.ok).toBe(true);
+    expect(r.status).toBe('updated');
+
+    const list = listDiffReports();
+    expect(list[0].author).toBe('Jordan M.');
+    expect(getDiffReport(meta.id).author).toBe('Jordan M.');
+
+    const postCall = globalThis.fetch.mock.calls.find(
+      ([url, opts]) => url === '/api/diff-reports' && opts?.method === 'POST',
+    );
+    expect(postCall).toBeTruthy();
+    const body = JSON.parse(postCall[1].body);
+    expect(body.id).toBe(meta.id);
+    expect(body.author).toBe('Jordan M.');
+    expect(body.payload.author).toBe('Jordan M.');
+  });
+
+  it('reassignDiffReportAuthor rejects empty/whitespace names', async () => {
+    const meta = saveDiffReport({
+      baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff(),
+    });
+    const r = await reassignDiffReportAuthor(meta.id, '   ');
+    expect(r.ok).toBe(false);
+    expect(r.status).toBe('empty-name');
+    expect(listDiffReports()[0].author).toBeNull();
+  });
+
+  it('reassignUnknownDiffReports only touches rows tagged unknown', async () => {
+    const a = saveDiffReport({ baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff() });
+    localStorage.setItem('srtlab_tech', 'Already Set');
+    const b = saveDiffReport({ baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff() });
+    localStorage.removeItem('srtlab_tech');
+    const c = saveDiffReport({ baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff() });
+
+    expect(listDiffReports().filter((m) => !m.author)).toHaveLength(2);
+
+    const result = await reassignUnknownDiffReports('Alex Bench');
+    expect(result.updatedCount).toBe(2);
+    expect(result.failed).toEqual([]);
+
+    const byId = Object.fromEntries(listDiffReports().map((m) => [m.id, m.author]));
+    expect(byId[a.id]).toBe('Alex Bench');
+    expect(byId[b.id]).toBe('Already Set');
+    expect(byId[c.id]).toBe('Alex Bench');
   });
 
   it('saved reports survive a round-trip through the PDF rebuilder', async () => {

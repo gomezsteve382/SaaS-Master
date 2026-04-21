@@ -10,6 +10,7 @@ import {
 } from "../lib/audit.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
+import TechPicker from "../lib/TechPicker.jsx";
 import {
   listDiffReports, getDiffReport, getDiffReportAsync,
   deleteDiffReport, clearDiffReports,
@@ -436,6 +437,10 @@ export default function BackupsTab() {
             ))}
           </div>
         )}
+      </Card>
+
+      <Card style={{ marginBottom: 14 }}>
+        <TechPicker />
       </Card>
 
       <Card style={{ marginBottom: 14, padding: 0, overflow: "hidden" }} data-testid="diff-reports-history">
