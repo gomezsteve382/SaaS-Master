@@ -167,14 +167,23 @@ export default function J2534Scanner() {
         // Start tester-present periodic if we don't have one running yet
         if (periodicIdRef.current == null) {
           try {
-            const pr = await bridgeCall("/startperiodic", {
-              txId: 0x7DF, data: "3E80", intervalMs: 1000, flags: ISO15765_FRAME_PAD,
+            const pr1 = await bridgeCall("/startperiodic", {
+              txId: 0x7DF, data: "3E02", intervalMs: 1000, flags: ISO15765_FRAME_PAD,
             });
-            if (pr?.periodicId != null) {
-              periodicIdRef.current = pr.periodicId;
-              setPeriodicId(pr.periodicId);
-              log(`Tester-present periodic started (id=${pr.periodicId}).`, "success");
+            if (pr1?.periodicId != null) {
+              periodicIdRef.current = pr1.periodicId;
+              setPeriodicId(pr1.periodicId);
+              log(`Tester-present CAN C periodic started (id=${pr1.periodicId}, tx=0x7DF).`, "success");
             }
+            // Optional CAN B periodic
+            try {
+              const pr2 = await bridgeCall("/startperiodic", {
+                txId: 0x01C, data: "3E02", intervalMs: 1000, flags: ISO15765_FRAME_PAD,
+              });
+              if (pr2?.periodicId != null) {
+                log(`Tester-present CAN B periodic started (id=${pr2.periodicId}, tx=0x01C).`, "success");
+              }
+            } catch {}
           } catch (e) {
             log("Tester-present start failed: " + e.message, "warn");
           }
@@ -207,13 +216,29 @@ export default function J2534Scanner() {
       // body modules (BCM/RFHUB/IPC) awake during the scan. FCA's own canflash_j2534.exe
       // does the exact same thing — without it those modules sleep in ~2s and go silent.
       try {
-        const pr = await bridgeCall("/startperiodic", {
-          txId: 0x7DF, data: "3E80", intervalMs: 1000, flags: ISO15765_FRAME_PAD,
+        // FCA canflash_j2534.exe installs TWO periodic tester-present messages at channel
+        // open — one on 0x7DF (CAN C functional broadcast) and one on 0x1C (CAN B sleep-
+        // prevention broadcast). Payload is "3E 02" at 1000ms, ISO15765_FRAME_PAD flag.
+        // This is reverse-engineered from canflash_j2534.exe disassembly at 0x401E63/0x401F12.
+        const pr1 = await bridgeCall("/startperiodic", {
+          txId: 0x7DF, data: "3E02", intervalMs: 1000, flags: ISO15765_FRAME_PAD,
         });
-        if (pr?.periodicId != null) {
-          periodicIdRef.current = pr.periodicId;
-          setPeriodicId(pr.periodicId);
-          log(`Tester-present periodic started (id=${pr.periodicId}) — body modules will stay awake.`, "success");
+        if (pr1?.periodicId != null) {
+          periodicIdRef.current = pr1.periodicId;
+          setPeriodicId(pr1.periodicId);
+          log(`Tester-present CAN C periodic started (id=${pr1.periodicId}, tx=0x7DF).`, "success");
+        }
+        // Second periodic on CAN B (0x1C). Harmless if no CAN B bus is wired — the message
+        // just gets ignored. But without it, body modules on older FCA vehicles go silent.
+        try {
+          const pr2 = await bridgeCall("/startperiodic", {
+            txId: 0x01C, data: "3E02", intervalMs: 1000, flags: ISO15765_FRAME_PAD,
+          });
+          if (pr2?.periodicId != null) {
+            log(`Tester-present CAN B periodic started (id=${pr2.periodicId}, tx=0x01C).`, "success");
+          }
+        } catch (e) {
+          log(`CAN B periodic failed (non-fatal for bench setups): ${e.message}`, "warn");
         }
       } catch (e) {
         log("Tester-present periodic failed to start: " + e.message + " — scan may miss body modules.", "warn");
@@ -224,11 +249,12 @@ export default function J2534Scanner() {
     }
   }, [log]);
 
-  // Drain the RX queue and return the FIRST message whose data starts with one of the
-  // expected service-id prefixes (positive and negative response forms of a given UDS
-  // service). Other messages (TX echoes, flow-control frames, replies to previous probes
-  // still draining out) are skipped. Returns null on deadline.
-  const readUntilMatch = useCallback(async (expectedPrefixes, deadlineMs) => {
+  // Drain the RX queue and return the FIRST message whose:
+  //   - CAN ID matches expectedCanId (prevents attributing stale ECM replies to TCM etc.)
+  //   - data starts with one of the expected service-id prefixes
+  // Other messages (TX echoes, wrong-module replies still draining, unrelated frames) are
+  // silently skipped. Returns null on deadline.
+  const readUntilMatch = useCallback(async (expectedCanId, expectedPrefixes, deadlineMs) => {
     const deadline = Date.now() + deadlineMs;
     while (Date.now() < deadline) {
       let resp;
@@ -240,6 +266,9 @@ export default function J2534Scanner() {
       const msg = resp.msg;
       // Skip TX echoes (rxStatus bit 0x01 = TX_MSG_TYPE)
       if (msg.rxStatus & 0x01) continue;
+      // Enforce CAN ID match — this is critical when queue has stale replies from
+      // previous probes to other modules.
+      if (expectedCanId != null && msg.canId !== expectedCanId) continue;
       const data = parseMsgData(msg.data);
       if (!data || data.length === 0) continue;
       for (const pfx of expectedPrefixes) {
@@ -269,13 +298,20 @@ export default function J2534Scanner() {
     } catch (e) {
       return null;
     }
-    return await readUntilMatch([expectedPositivePrefix, [0x7F, expectedServiceId]], timeoutMs);
+    return await readUntilMatch(mod.rx, [expectedPositivePrefix, [0x7F, expectedServiceId]], timeoutMs);
   }, [readUntilMatch]);
 
   const probeOne = useCallback(async (mod) => {
     const txHex = mod.tx.toString(16).toUpperCase().padStart(3, "0");
     const rxHex = mod.rx.toString(16).toUpperCase().padStart(3, "0");
     log(`→ probe ${mod.name} TX:0x${txHex} RX:0x${rxHex}`);
+    
+    // Quick functional wakeup on 0x7DF before single-module probes. scanAll does this
+    // once at the start; individual Read VIN buttons don't. Without it, body modules are
+    // asleep when we try to talk to them.
+    try {
+      await bridgeCall("/sendmsg", { txId: 0x7DF, data: "22F190", flags: ISO15765_FRAME_PAD, timeoutMs: 300 });
+    } catch {}
 
     // Install filter (idempotent)
     try {
