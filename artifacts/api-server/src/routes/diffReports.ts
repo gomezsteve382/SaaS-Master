@@ -17,6 +17,43 @@ const ID_PATTERN = /^[A-Za-z0-9_.:-]{1,128}$/;
 const MAX_LIST = 200;
 const MAX_PAYLOAD_BYTES = 2 * 1024 * 1024; // 2 MB per report (scans can be large)
 
+/**
+ * Retention policy for saved diff reports.
+ *
+ * Each report can be up to MAX_PAYLOAD_BYTES (2 MB) of JSON, so without a cap
+ * the table would grow without bound and slow down list queries / bloat
+ * backups. We keep the most recent RETENTION_KEEP reports (ordered by
+ * generatedAt) and also drop anything older than RETENTION_MAX_AGE_MS
+ * regardless of count, so stale reports don't linger forever even on quiet
+ * installs. Pruning runs after each successful insert in a fire-and-forget
+ * task so it never blocks the request, and it's a no-op when the table is
+ * already under the cap.
+ */
+const RETENTION_KEEP = 500;
+const RETENTION_MAX_AGE_MS = 180 * 24 * 60 * 60 * 1000; // 180 days
+
+async function pruneOldReports(): Promise<void> {
+  try {
+    const cutoff = new Date(Date.now() - RETENTION_MAX_AGE_MS);
+    // Drop anything older than the max-age window first.
+    await db
+      .delete(diffReportsTable)
+      .where(sql`${diffReportsTable.generatedAt} < ${cutoff}`);
+    // Then keep only the most recent RETENTION_KEEP rows.
+    await db.execute(sql`
+      DELETE FROM ${diffReportsTable}
+      WHERE id IN (
+        SELECT id FROM ${diffReportsTable}
+        ORDER BY ${diffReportsTable.generatedAt} DESC
+        OFFSET ${RETENTION_KEEP}
+      )
+    `);
+  } catch (err) {
+    // Pruning is best-effort; log and move on so it never breaks user writes.
+    console.error("[diff-reports] prune failed", err);
+  }
+}
+
 function toMs(v: unknown): number | null {
   if (v == null) return null;
   if (typeof v === "number" && Number.isFinite(v)) return v;
@@ -203,6 +240,10 @@ router.post("/diff-reports", async (req, res, next) => {
           payload,
         },
       });
+
+    // Fire-and-forget retention sweep: keep the table bounded without
+    // blocking the response. Errors are swallowed inside pruneOldReports.
+    void pruneOldReports();
 
     res.json({ id, ok: true });
   } catch (err) {
