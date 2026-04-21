@@ -29,10 +29,11 @@ import { REGISTRY } from "./lib/moduleRegistry.js";
 const PROTOCOL_ISO15765 = 6;
 const ISO15765_FRAME_PAD = 0x40;
 const LAST_SCAN_KEY = "srtlab_j2534_lastscan";
+const BASELINE_SCAN_KEY = "srtlab_j2534_baseline";
 
-function loadLastScan() {
+function loadScanFromKey(key) {
   try {
-    const raw = localStorage.getItem(LAST_SCAN_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed || !Array.isArray(parsed.modules)) return null;
@@ -41,6 +42,8 @@ function loadLastScan() {
     return null;
   }
 }
+function loadLastScan() { return loadScanFromKey(LAST_SCAN_KEY); }
+function loadBaselineScan() { return loadScanFromKey(BASELINE_SCAN_KEY); }
 function saveLastScan(modules) {
   try {
     const payload = { ts: Date.now(), modules };
@@ -50,8 +53,54 @@ function saveLastScan(modules) {
     return null;
   }
 }
+function saveBaselineScan(modules, ts) {
+  try {
+    const payload = { ts: ts || Date.now(), modules };
+    localStorage.setItem(BASELINE_SCAN_KEY, JSON.stringify(payload));
+    return payload;
+  } catch {
+    return null;
+  }
+}
 function clearLastScan() {
   try { localStorage.removeItem(LAST_SCAN_KEY); } catch { /* ignore */ }
+}
+function clearBaselineScan() {
+  try { localStorage.removeItem(BASELINE_SCAN_KEY); } catch { /* ignore */ }
+}
+
+/**
+ * Build a diff between a baseline scan and the current scan.
+ * Modules are matched by `code` (falling back to name).
+ *   - added:    in current, not in baseline
+ *   - removed:  in baseline, not in current
+ *   - changed:  in both, but VIN differs (null vs string also counts)
+ *   - same:     in both, identical VIN
+ */
+function diffScans(baselineModules, currentModules) {
+  const keyOf = (m) => (m.code || m.name || `0x${(m.tx || 0).toString(16)}`);
+  const baseMap = new Map();
+  for (const m of baselineModules || []) baseMap.set(keyOf(m), m);
+  const curMap = new Map();
+  for (const m of currentModules || []) curMap.set(keyOf(m), m);
+  const added = [];
+  const removed = [];
+  const changed = [];
+  const same = [];
+  for (const [k, cur] of curMap) {
+    const base = baseMap.get(k);
+    if (!base) {
+      added.push(cur);
+    } else if ((base.vin || null) !== (cur.vin || null)) {
+      changed.push({ baseline: base, current: cur });
+    } else {
+      same.push(cur);
+    }
+  }
+  for (const [k, base] of baseMap) {
+    if (!curMap.has(k)) removed.push(base);
+  }
+  return { added, removed, changed, same };
 }
 function fmtScanStamp(ts) {
   if (!ts) return "";
@@ -90,6 +139,8 @@ export default function J2534Scanner() {
     return last ? last.ts : null;
   });
   const [scanIsRestored, setScanIsRestored] = useState(() => loadLastScan() !== null);
+  const [baseline, setBaseline] = useState(() => loadBaselineScan());
+  const [showDiff, setShowDiff] = useState(false);
   const [copyState, setCopyState] = useState("idle");
   const [scanning, setScanning] = useState(false);
   const [vendor, setVendor] = useState(null);
@@ -332,11 +383,37 @@ export default function J2534Scanner() {
     }
   }, [status, udsExchange, log]);
 
+  const onSetBaseline = useCallback(() => {
+    if (scanning) {
+      log("Wait for the scan to finish before setting a baseline.", "warn");
+      return;
+    }
+    if (!found.length) {
+      log("No current scan to set as baseline.", "warn");
+      return;
+    }
+    const saved = saveBaselineScan(found, lastScanTs || Date.now());
+    if (saved) {
+      setBaseline(saved);
+      log(`Baseline set — ${saved.modules.length} module${saved.modules.length === 1 ? "" : "s"}.`, "success");
+    } else {
+      log("Failed to save baseline.", "error");
+    }
+  }, [found, lastScanTs, log]);
+
+  const onClearBaseline = useCallback(() => {
+    clearBaselineScan();
+    setBaseline(null);
+    setShowDiff(false);
+    log("Cleared baseline.", "info");
+  }, [log]);
+
   const onClearLastScan = useCallback(() => {
     clearLastScan();
     setFound([]);
     setLastScanTs(null);
     setScanIsRestored(false);
+    setShowDiff(false);
     log("Cleared saved scan.", "info");
   }, [log]);
 
@@ -501,7 +578,49 @@ export default function J2534Scanner() {
                   {scanIsRestored && !scanning && " (loaded from last session)"}
                 </div>
               )}
-              <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+              {baseline && (
+                <div style={{ fontSize: 11, color: "#42A5F5" }}>
+                  📌 baseline: {baseline.modules.length} mod · {fmtScanStamp(baseline.ts)}
+                </div>
+              )}
+              <div style={{ marginLeft: "auto", display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <button
+                  onClick={onSetBaseline}
+                  disabled={!found.length || scanning}
+                  style={{
+                    padding: "4px 10px",
+                    background: "#1E1E2E",
+                    color: found.length && !scanning ? "#42A5F5" : S.dim,
+                    border: "1px solid " + S.border,
+                    borderRadius: 4,
+                    cursor: found.length && !scanning ? "pointer" : "not-allowed",
+                    fontFamily: S.font,
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                  title="Save current scan as baseline so you can compare a later scan against it"
+                >
+                  📌 SET AS BASELINE
+                </button>
+                {baseline && (
+                  <button
+                    onClick={() => setShowDiff((v) => !v)}
+                    style={{
+                      padding: "4px 10px",
+                      background: showDiff ? S.blue : "#1E1E2E",
+                      color: "#fff",
+                      border: "1px solid " + S.border,
+                      borderRadius: 4,
+                      cursor: "pointer",
+                      fontFamily: S.font,
+                      fontSize: 11,
+                      fontWeight: 700,
+                    }}
+                    title="Compare current scan against the saved baseline"
+                  >
+                    {showDiff ? "▼ HIDE DIFF" : "🔀 COMPARE TO BASELINE"}
+                  </button>
+                )}
                 <button
                   onClick={onCopyJSON}
                   style={{
@@ -555,6 +674,16 @@ export default function J2534Scanner() {
           </div>
         )}
 
+        {/* Diff vs baseline */}
+        {showDiff && baseline && (
+          <DiffPanel
+            S={S}
+            baseline={baseline}
+            current={{ ts: lastScanTs, modules: found }}
+            onClearBaseline={onClearBaseline}
+          />
+        )}
+
         {/* Log */}
         <div
           ref={logRef}
@@ -588,6 +717,124 @@ export default function J2534Scanner() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function DiffPanel({ S, baseline, current, onClearBaseline }) {
+  const diff = diffScans(baseline.modules, current.modules);
+  const fmtTx = (m) => `0x${(m.tx || 0).toString(16).toUpperCase().padStart(3, "0")}`;
+  const noChanges = !diff.added.length && !diff.removed.length && !diff.changed.length;
+  const sectionTitle = (color, label, count) => (
+    <div style={{ fontSize: 11, fontWeight: 700, color, marginBottom: 6, marginTop: 10, letterSpacing: 0.5 }}>
+      {label} ({count})
+    </div>
+  );
+  const row = (bgColor, borderColor, content, key) => (
+    <div
+      key={key}
+      style={{
+        background: bgColor,
+        border: "1px solid " + borderColor,
+        borderRadius: 4,
+        padding: "6px 10px",
+        fontSize: 11,
+        marginBottom: 4,
+      }}
+    >
+      {content}
+    </div>
+  );
+  return (
+    <div style={{ background: "#0F1626", border: "1px solid #2A3F66", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#42A5F5" }}>
+          🔀 BASELINE vs CURRENT
+        </div>
+        <div style={{ fontSize: 11, color: S.dim }}>
+          baseline: <span style={{ color: "#fff" }}>{fmtScanStamp(baseline.ts)}</span> ({baseline.modules.length} mod) →
+          current: <span style={{ color: "#fff" }}>{fmtScanStamp(current.ts) || "(unsaved)"}</span> ({current.modules.length} mod)
+        </div>
+        <button
+          onClick={onClearBaseline}
+          style={{
+            marginLeft: "auto",
+            padding: "4px 10px",
+            background: "#1E1E2E",
+            color: "#FFB74D",
+            border: "1px solid " + S.border,
+            borderRadius: 4,
+            cursor: "pointer",
+            fontFamily: S.font,
+            fontSize: 11,
+            fontWeight: 700,
+          }}
+          title="Forget the saved baseline"
+        >
+          🗑 CLEAR BASELINE
+        </button>
+      </div>
+      {noChanges && (
+        <div style={{ fontSize: 11, color: "#66BB6A", padding: "8px 0" }}>
+          ✓ No differences — current scan matches baseline exactly.
+        </div>
+      )}
+      {diff.added.length > 0 && (
+        <>
+          {sectionTitle("#66BB6A", "+ ADDED MODULES", diff.added.length)}
+          {diff.added.map((m, i) =>
+            row("#0D1F0D", "#388E3C", (
+              <>
+                <span style={{ color: "#FFD600", fontWeight: 700 }}>{m.code || m.name}</span>
+                <span style={{ color: S.dim, marginLeft: 8 }}>TX:{fmtTx(m)}</span>
+                {m.vin && <span style={{ color: "#66BB6A", marginLeft: 8 }}>VIN: {m.vin}</span>}
+                <span style={{ color: "#66BB6A", marginLeft: 8, fontWeight: 700 }}>+ NEW</span>
+              </>
+            ), `a${i}`)
+          )}
+        </>
+      )}
+      {diff.removed.length > 0 && (
+        <>
+          {sectionTitle("#EF5350", "− REMOVED MODULES", diff.removed.length)}
+          {diff.removed.map((m, i) =>
+            row("#1F0D0D", "#C62828", (
+              <>
+                <span style={{ color: "#FFD600", fontWeight: 700, textDecoration: "line-through" }}>{m.code || m.name}</span>
+                <span style={{ color: S.dim, marginLeft: 8 }}>TX:{fmtTx(m)}</span>
+                {m.vin && <span style={{ color: "#EF5350", marginLeft: 8, textDecoration: "line-through" }}>VIN: {m.vin}</span>}
+                <span style={{ color: "#EF5350", marginLeft: 8, fontWeight: 700 }}>− GONE</span>
+              </>
+            ), `r${i}`)
+          )}
+        </>
+      )}
+      {diff.changed.length > 0 && (
+        <>
+          {sectionTitle("#FFB74D", "± CHANGED VINs", diff.changed.length)}
+          {diff.changed.map((c, i) =>
+            row("#1F1A0D", "#F57C00", (
+              <div>
+                <div>
+                  <span style={{ color: "#FFD600", fontWeight: 700 }}>{c.current.code || c.current.name}</span>
+                  <span style={{ color: S.dim, marginLeft: 8 }}>TX:{fmtTx(c.current)}</span>
+                </div>
+                <div style={{ marginTop: 4, fontFamily: S.font }}>
+                  <span style={{ color: "#EF5350" }}>− {c.baseline.vin || "(no VIN)"}</span>
+                </div>
+                <div style={{ fontFamily: S.font }}>
+                  <span style={{ color: "#66BB6A" }}>+ {c.current.vin || "(no VIN)"}</span>
+                </div>
+              </div>
+            ), `c${i}`)
+          )}
+        </>
+      )}
+      {diff.same.length > 0 && (
+        <div style={{ fontSize: 11, color: S.dim, marginTop: 10 }}>
+          {diff.same.length} module{diff.same.length === 1 ? "" : "s"} unchanged
+        </div>
+      )}
     </div>
   );
 }
