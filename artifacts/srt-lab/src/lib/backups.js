@@ -79,6 +79,12 @@ export async function backupModule(engUds,tx,rx,moduleType,addLog,hxFn){
   addLog('Backup complete: '+successCount+'/'+dids.length+' DIDs captured','info');
   const vin=backup.dids[0xF190]?.ascii?.slice(-17)||'unknown';
   const key='srtlab_backup_'+moduleType+'_'+vin+'_'+Date.now();
+  let author=null;
+  try{
+    const v=localStorage.getItem('srtlab_tech');
+    if(v){const t=v.trim().slice(0,120); author=t||null;}
+  }catch{/* ignore */}
+  backup.author=author;
 
   // Persist to the project database so backup history survives across
   // browsers and shop machines. localStorage is kept as an offline cache.
@@ -89,7 +95,7 @@ export async function backupModule(engUds,tx,rx,moduleType,addLog,hxFn){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         id:key,module:moduleType,vin,didCount:successCount,
-        tx,rx,timestamp:backup.timestamp,payload:backup,
+        tx,rx,timestamp:backup.timestamp,author,payload:backup,
       }),
     });
     savedRemote=res.ok;
@@ -102,7 +108,7 @@ export async function backupModule(engUds,tx,rx,moduleType,addLog,hxFn){
   try{
     localStorage.setItem(key,JSON.stringify(backup));
     const idx=JSON.parse(localStorage.getItem(INDEX_KEY)||'[]');
-    idx.unshift({key,module:moduleType,vin,timestamp:backup.timestamp,didCount:successCount,tx,rx});
+    idx.unshift({key,module:moduleType,vin,timestamp:backup.timestamp,didCount:successCount,tx,rx,author});
     if(idx.length>MAX_BACKUPS){
       idx.slice(MAX_BACKUPS).forEach(b=>{try{localStorage.removeItem(b.key);}catch{/* ignore */}});
     }

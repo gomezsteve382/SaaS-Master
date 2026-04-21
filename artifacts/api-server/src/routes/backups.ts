@@ -29,6 +29,7 @@ router.get("/backups", async (req, res, next) => {
         tx: moduleBackupsTable.tx,
         rx: moduleBackupsTable.rx,
         timestamp: moduleBackupsTable.timestamp,
+        author: moduleBackupsTable.author,
       })
       .from(moduleBackupsTable);
 
@@ -51,6 +52,7 @@ router.get("/backups", async (req, res, next) => {
         tx: r.tx,
         rx: r.rx,
         timestamp: r.timestamp instanceof Date ? r.timestamp.toISOString() : r.timestamp,
+        author: r.author,
       })),
     });
   } catch (err) {
@@ -87,6 +89,7 @@ router.get("/backups/:id", async (req, res, next) => {
       tx: row.tx,
       rx: row.rx,
       timestamp: row.timestamp instanceof Date ? row.timestamp.toISOString() : row.timestamp,
+      author: row.author,
       payload: row.payload,
     });
   } catch (err) {
@@ -135,6 +138,12 @@ router.post("/backups", async (req, res, next) => {
     const ts = tsRaw ? new Date(tsRaw) : new Date();
     const timestamp = Number.isNaN(ts.getTime()) ? new Date() : ts;
 
+    const rawAuthor =
+      typeof body.author === "string" ? body.author :
+      typeof (payload as { author?: unknown }).author === "string" ? (payload as { author: string }).author :
+      null;
+    const author = rawAuthor ? rawAuthor.trim().slice(0, 120) || null : null;
+
     await db
       .insert(moduleBackupsTable)
       .values({
@@ -145,6 +154,7 @@ router.post("/backups", async (req, res, next) => {
         tx,
         rx,
         timestamp,
+        author,
         payload,
       })
       .onConflictDoUpdate({
@@ -156,6 +166,7 @@ router.post("/backups", async (req, res, next) => {
           tx,
           rx,
           timestamp,
+          author,
           payload,
         },
       });

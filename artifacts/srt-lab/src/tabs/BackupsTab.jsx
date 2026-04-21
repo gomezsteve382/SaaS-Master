@@ -578,6 +578,14 @@ export default function BackupsTab() {
                     </div>
                     <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.ts, marginTop: 3 }}>{b.vin}</div>
                     <div style={{ fontSize: 10, color: C.tm, marginTop: 3 }}>{date.toLocaleString()}</div>
+                    <div
+                      data-testid={"backup-author-" + b.key}
+                      style={{ fontSize: 10, color: C.tm, marginTop: 2 }}
+                    >
+                      saved by {b.author
+                        ? <b style={{ color: C.ts }}>{b.author}</b>
+                        : <span style={{ fontStyle: "italic" }}>unknown</span>}
+                    </div>
                   </div>
                 );
               })}

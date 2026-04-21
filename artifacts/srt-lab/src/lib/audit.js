@@ -71,6 +71,18 @@ export const CRITICAL_DIDS = {
   ],
 };
 
+/* The tech identifier persisted by ReadFirstModal under "srtlab_tech".
+ * Mirrors the diff-report author pattern so module backups can be attributed
+ * to the technician who captured the snapshot. Returns null when not set. */
+function readCurrentTech() {
+  try {
+    const v = localStorage.getItem("srtlab_tech");
+    if (!v) return null;
+    const trimmed = v.trim().slice(0, 120);
+    return trimmed || null;
+  } catch { return null; }
+}
+
 function notify() {
   try {
     window.dispatchEvent(new Event("srtlab:audit"));
@@ -223,7 +235,9 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
   addLog("Backup complete: " + successCount + "/" + dids.length + " DIDs captured", "info");
   const vin = backup.dids[0xF190]?.ascii?.slice(-17) || "unknown";
   const key = BACKUP_KEY_PREFIX + moduleType + "_" + vin + "_" + Date.now();
-  const meta = { key, id: key, module: moduleType, vin, timestamp: backup.timestamp, didCount: successCount, tx, rx };
+  const author = readCurrentTech();
+  backup.author = author;
+  const meta = { key, id: key, module: moduleType, vin, timestamp: backup.timestamp, didCount: successCount, tx, rx, author };
 
   /* Pre-flight: if we're already past the prune threshold, drop redundant
    * historical snapshots before the write so we don't trip the browser quota. */
@@ -247,7 +261,7 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: key, module: moduleType, vin, didCount: successCount,
-        tx, rx, timestamp: backup.timestamp, payload: backup,
+        tx, rx, timestamp: backup.timestamp, author, payload: backup,
       }),
     });
     savedRemote = res.ok;
@@ -535,6 +549,7 @@ export async function refreshBackupsFromServer() {
     didCount: b.didCount,
     tx: b.tx,
     rx: b.rx,
+    author: b.author ?? null,
   }));
   writeLocalIndex(normalized);
   notify();
@@ -575,6 +590,7 @@ export async function saveScanPlaceholders(scanModules, { source = "j2534-scan",
         bytes,
       };
     }
+    const author = readCurrentTech();
     const payload = {
       module: moduleType,
       tx: m.tx,
@@ -582,6 +598,7 @@ export async function saveScanPlaceholders(scanModules, { source = "j2534-scan",
       timestamp: stamp,
       placeholder: true,
       source,
+      author,
       dids,
     };
     const key = BACKUP_KEY_PREFIX + moduleType + "_" + vin + "_scan" +
@@ -595,6 +612,7 @@ export async function saveScanPlaceholders(scanModules, { source = "j2534-scan",
       tx: m.tx, rx: m.rx,
       placeholder: true,
       source,
+      author,
     };
     idx.unshift(meta);
     existingKeys.add(key);
@@ -629,6 +647,7 @@ export async function saveScanPlaceholders(scanModules, { source = "j2534-scan",
           tx: meta.tx ?? null,
           rx: meta.rx ?? null,
           timestamp: meta.timestamp,
+          author: meta.author ?? null,
           payload,
         }),
       });
