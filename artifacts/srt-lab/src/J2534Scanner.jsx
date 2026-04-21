@@ -705,6 +705,57 @@ export default function J2534Scanner() {
     }
   }, [baselines, log]);
 
+  const onExportAllBaselines = useCallback(() => {
+    if (!baselines.length) {
+      log("No baselines saved to export.", "warn");
+      return;
+    }
+    const payload = buildBaselineExport(baselines);
+    const json = JSON.stringify(payload, null, 2);
+    const stamp = new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-")
+      .slice(0, 19);
+    const filename = `srtlab-baselines-all-${baselines.length}-${stamp}.json`;
+    let downloaded = false;
+    try {
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+      downloaded = true;
+    } catch (e) {
+      log(`Download failed: ${e?.message || e}. Falling back to clipboard.`, "warn");
+    }
+    if (downloaded) {
+      try {
+        if (navigator?.clipboard?.writeText) {
+          navigator.clipboard.writeText(json).catch(() => {});
+        }
+      } catch { /* ignore */ }
+      log(
+        `Exported all ${baselines.length} baseline${baselines.length === 1 ? "" : "s"} to ${filename}. Also copied JSON to clipboard.`,
+        "success"
+      );
+    } else {
+      try {
+        if (navigator?.clipboard?.writeText) {
+          navigator.clipboard.writeText(json);
+          log(`Copied all ${baselines.length} baselines JSON to clipboard.`, "success");
+        } else {
+          window.prompt("Copy this baselines JSON:", json);
+        }
+      } catch {
+        window.prompt("Copy this baselines JSON:", json);
+      }
+    }
+  }, [baselines, log]);
+
   const onImportBaselinesFromText = useCallback((text) => {
     let imported;
     try {
@@ -1209,6 +1260,28 @@ export default function J2534Scanner() {
                   title="Save current scan as a new labeled baseline (you can keep multiple jobs side by side)"
                 >
                   📌 SAVE BASELINE
+                </button>
+                <button
+                  onClick={onExportAllBaselines}
+                  disabled={!baselines.length}
+                  style={{
+                    padding: "4px 10px",
+                    background: "#1E1E2E",
+                    color: baselines.length ? "#42A5F5" : S.dim,
+                    border: "1px solid " + S.border,
+                    borderRadius: 4,
+                    cursor: baselines.length ? "pointer" : "not-allowed",
+                    fontFamily: S.font,
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                  title={
+                    baselines.length
+                      ? `Download all ${baselines.length} saved baseline${baselines.length === 1 ? "" : "s"} as one JSON backup file`
+                      : "No baselines saved yet"
+                  }
+                >
+                  ⬇ EXPORT ALL
                 </button>
                 <button
                   onClick={onPickImportFile}
