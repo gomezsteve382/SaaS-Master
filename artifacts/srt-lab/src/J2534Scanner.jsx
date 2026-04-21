@@ -175,12 +175,42 @@ export default function J2534Scanner() {
     }
   }, [log]);
 
+  // Drain the RX queue and return the FIRST message whose data starts with one of the
+  // expected service-id prefixes (positive and negative response forms of a given UDS
+  // service). Other messages (TX echoes, flow-control frames, replies to previous probes
+  // still draining out) are skipped. Returns null on deadline.
+  const readUntilMatch = useCallback(async (expectedPrefixes, deadlineMs) => {
+    const deadline = Date.now() + deadlineMs;
+    while (Date.now() < deadline) {
+      let resp;
+      try {
+        const slice = Math.min(400, Math.max(50, deadline - Date.now()));
+        resp = await bridgeCall("/readmsg", { timeoutMs: slice });
+      } catch { return null; }
+      if (!resp || !resp.msg) continue;
+      const msg = resp.msg;
+      // Skip TX echoes (rxStatus bit 0x01 = TX_MSG_TYPE)
+      if (msg.rxStatus & 0x01) continue;
+      const data = parseMsgData(msg.data);
+      if (!data || data.length === 0) continue;
+      for (const pfx of expectedPrefixes) {
+        let ok = true;
+        for (let i = 0; i < pfx.length; i++) {
+          if (data[i] !== pfx[i]) { ok = false; break; }
+        }
+        if (ok) return { msg, data };
+      }
+      // Not what we wanted — keep draining
+    }
+    return null;
+  }, []);
+
   const probeOne = useCallback(async (mod) => {
     const txHex = mod.tx.toString(16).toUpperCase().padStart(3, "0");
     const rxHex = mod.rx.toString(16).toUpperCase().padStart(3, "0");
     log(`→ probe ${mod.name} TX:0x${txHex} RX:0x${rxHex}`);
 
-    // 1) install filter (ignore ERR_NOT_UNIQUE — filter already there from a previous probe)
+    // Install filter (ERR_NOT_UNIQUE is harmless — filter already there from a previous probe)
     try {
       await bridgeCall("/setfilter", { txId: mod.tx, rxId: mod.rx });
     } catch (e) {
@@ -190,53 +220,44 @@ export default function J2534Scanner() {
       }
     }
 
-    // 2) drain stale frames
-    try { await bridgeCall("/readmsg", { timeoutMs: 100 }); } catch {}
+    // Hard-drain any leftover frames (up to 300ms) from previous probes.
+    // Important: previous ECM replies can still be arriving when we're 2-3 addresses down
+    // the list. Without this they get attributed to the wrong module.
+    const drainDeadline = Date.now() + 300;
+    while (Date.now() < drainDeadline) {
+      try { await bridgeCall("/readmsg", { timeoutMs: 80 }); } catch { break; }
+    }
 
-    // 3) send 10 03 extended session to wake the module
+    // Send 10 03 (extended session) and wait specifically for 50 03... or 7F 10...
     try {
       await bridgeCall("/sendmsg", { txId: mod.tx, data: "1003", flags: ISO15765_FRAME_PAD, timeoutMs: 1000 });
     } catch (e) {
-      log(`  10 03 failed: ${e.message}`, "warn");
+      log(`  10 03 send failed: ${e.message}`, "warn");
+      return null;
     }
+    // Positive response to 10 is 50, negative is 7F 10
+    const sess = await readUntilMatch([[0x50], [0x7F, 0x10]], 1200);
+    // Whether session accepted or not, module is alive if we got ANY sensible 10-reply.
+    // Some modules only answer 22 F1 90 after a default session too, so continue either way.
 
-    // 4) give it a beat to answer, then drain session reply
-    await new Promise((r) => setTimeout(r, 150));
-    let sessResp = null;
-    try { sessResp = await bridgeCall("/readmsg", { timeoutMs: 800 }); } catch {}
-
-    // 5) send 22 F1 90 (Read VIN)
+    // Send 22 F1 90 and wait specifically for 62 F1 90... or 7F 22...
     try {
       await bridgeCall("/sendmsg", { txId: mod.tx, data: "22F190", flags: ISO15765_FRAME_PAD, timeoutMs: 1500 });
     } catch (e) {
-      log(`  22 F1 90 failed: ${e.message}`, "warn");
+      log(`  22 F1 90 send failed: ${e.message}`, "warn");
+      // If session probe got a reply, the module is still present — count it
+      if (sess) return { ...mod, kind: "present", canId: sess.msg.canId, nrc: null };
       return null;
     }
-
-    // 6) read VIN reply
-    await new Promise((r) => setTimeout(r, 150));
-    let resp = null;
-    try { resp = await bridgeCall("/readmsg", { timeoutMs: 1500 }); } catch {}
-
-    if (!resp || !resp.msg) {
-      // No reply at all — module silent on this address
-      return null;
+    const vin = await readUntilMatch([[0x62, 0xF1, 0x90], [0x7F, 0x22]], 1800);
+    if (vin) {
+      return interpretReply(mod, vin.msg);
     }
-    const msg = resp.msg;
-    const data = parseMsgData(msg.data);
-    // A TX echo comes back with rxStatus bit 0x01 set and empty data — skip it
-    if ((msg.rxStatus & 0x01) || !data || data.length === 0) {
-      // Sometimes the first reply is the TX echo. Try one more read.
-      try {
-        const r2 = await bridgeCall("/readmsg", { timeoutMs: 1500 });
-        if (r2?.msg && !(r2.msg.rxStatus & 0x01)) {
-          return interpretReply(mod, r2.msg);
-        }
-      } catch {}
-      return null;
-    }
-    return interpretReply(mod, msg);
-  }, [log]);
+    // No VIN reply, but session did answer → module is present
+    if (sess) return { ...mod, kind: "present", canId: sess.msg.canId, nrc: null };
+    // Nothing at all
+    return null;
+  }, [log, readUntilMatch]);
 
   const interpretReply = (mod, msg) => {
     const data = parseMsgData(msg.data);
