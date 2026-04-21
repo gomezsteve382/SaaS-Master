@@ -69,6 +69,18 @@ const state = {
   connected: false,
   filter: null, // {tx, rx}
   rxQueue: [], // [{canId, data: hexString}]
+  // Edge-case knobs — left at defaults for the original smoke flow so its
+  // behaviour is unchanged. The new tests below flip these to simulate
+  // messy real-world bus quirks.
+  scripted: false,        // when true, handleSendMsg does NOT auto-respond
+  // bufferEmptyMode defaults to TRUE so silent addresses (no queued reply)
+  // short-circuit the legacy in-test udsExchange — which treats ok:false as
+  // fatal — instead of polling to deadline. That is what gets the SCAN ALL
+  // sub-test off the old ~16s silent-timeout floor while leaving live
+  // modules unaffected (their reply is queued synchronously by handleSendMsg
+  // and is therefore returned on the very first readMsg).
+  bufferEmptyMode: true,
+  emptyHiccups: 0,        // number of forced buffer_empty/null returns BEFORE serving rxQueue
 };
 
 function reset() {
@@ -76,6 +88,9 @@ function reset() {
   state.connected = false;
   state.filter = null;
   state.rxQueue = [];
+  state.scripted = false;
+  state.bufferEmptyMode = true;
+  state.emptyHiccups = 0;
 }
 
 function bytesToHex(arr) {
@@ -109,6 +124,9 @@ function statusJson() {
 
 function handleSendMsg(body) {
   if (!state.connected) return { status: 200, json: { ok: false, error: "Channel not connected" } };
+  // Scripted mode: tests pre-populated state.rxQueue and just want sendMsg
+  // to succeed without any auto-generated reply on top of their script.
+  if (state.scripted) return { status: 200, json: { ok: true } };
   const tx = Number(body.txId ?? body.tx_id ?? 0);
   const data = hexToBytes(body.data || "");
   const target = LIVE_MODULES.get(tx);
@@ -139,10 +157,25 @@ function handleSendMsg(body) {
   return { status: 200, json: { ok: true } };
 }
 
+function emptyReadMsgJson() {
+  // Some real J2534 daemons surface "no message in buffer" as ok:false +
+  // ERR_BUFFER_EMPTY rather than ok:true with msg:null. The real scanner
+  // tolerates both — this knob lets us cover that branch.
+  if (state.bufferEmptyMode) return { ok: false, error: "ERR_BUFFER_EMPTY" };
+  return { ok: true, msg: null };
+}
+
 function handleReadMsg() {
   if (!state.connected) return { status: 200, json: { ok: false, error: "Channel not connected" } };
+  // Forced hiccups burn down BEFORE we look at rxQueue, so a test can
+  // simulate "N empty polls then the real frame arrives" deterministically
+  // without relying on setTimeout scheduling.
+  if (state.emptyHiccups > 0) {
+    state.emptyHiccups -= 1;
+    return { status: 200, json: emptyReadMsgJson() };
+  }
   const m = state.rxQueue.shift();
-  if (!m) return { status: 200, json: { ok: true, msg: null } };
+  if (!m) return { status: 200, json: emptyReadMsgJson() };
   return { status: 200, json: { ok: true, msg: { canId: m.canId, data: m.data, rxStatus: 0, timestamp: 0 } } };
 }
 
@@ -329,4 +362,192 @@ test("scanner smoke: full hardware flow against fake bridge", async (t) => {
     assert.equal(c.ok, true);
     assert.equal(c.deviceOpen, false);
   });
+});
+
+// ─── Edge-case tests: messy real-world bus quirks ──────────────────────────
+// The smoke test above simulates a clean bus. Real vehicles produce messier
+// behaviour the scanner has to tolerate, and the code paths for those quirks
+// (response-pending loops, ERR_BUFFER_EMPTY hiccups, off-target frames,
+// fragmented VIN delivery) live in J2534Scanner.jsx + bridgeClient.js but
+// aren't exercised above. The helper below mirrors the real udsExchange in
+// J2534Scanner.jsx more faithfully — including the "buffer_empty as continue"
+// branch — so the new scenarios drive the same code shape the UI does.
+
+async function udsExchangeReal(tx, rx, data, timeoutMs = 800) {
+  if (lastFilter.tx !== tx || lastFilter.rx !== rx) {
+    const f = await bridge.setFilter({ txId: tx, rxId: rx }, URL);
+    if (!f.ok) return { ok: false, error: "setFilter: " + (f.error || "failed") };
+    lastFilter = { tx, rx };
+  }
+  const sm = await bridge.sendMsg(
+    { txId: tx, data: bytesToHex(data), flags: ISO15765_FRAME_PAD, timeoutMs: 1000 },
+    URL,
+  );
+  if (!sm.ok) return { ok: false, error: "sendMsg: " + (sm.error || "failed") };
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const r = await bridge.readMsg({ timeoutMs: 50 }, URL);
+    if (!r) return { ok: false, error: "readMsg: no response from bridge" };
+    if (!r.ok) {
+      // Mirror J2534Scanner.jsx: tolerate the daemon's various flavours of
+      // "no message in buffer" and keep polling instead of bailing.
+      const err = String(r.error || "").toLowerCase();
+      if (err.includes("buffer_empty") || err.includes("buffer empty") ||
+          err.includes("no msgs") || err.includes("no message") ||
+          err.includes("status_noerror") || err === "empty") {
+        continue;
+      }
+      return { ok: false, error: "readMsg: " + (r.error || "failed") };
+    }
+    const m = r.msg;
+    if (!m || !m.data) continue;
+    // Wrong-canId guard — drops off-target frames from a shared broadcast.
+    if (typeof m.canId === "number" && rx && m.canId !== rx) continue;
+    const bytes = hexToBytes(m.data);
+    if (!bytes.length) continue;
+    // 7F xx 78 = response pending; the scanner waits for the real reply.
+    if (bytes.length >= 3 && bytes[0] === 0x7F && bytes[2] === 0x78) continue;
+    return { ok: true, canId: m.canId, data: bytes };
+  }
+  return { ok: false, error: "timeout after " + timeoutMs + "ms" };
+}
+
+function vinFrame(canId, vin) {
+  const vinBytes = Array.from(vin, (c) => c.charCodeAt(0));
+  return { canId, data: bytesToHex([0x62, 0xF1, 0x90, ...vinBytes]) };
+}
+function pendingFrame(canId, sid = 0x22) {
+  return { canId, data: bytesToHex([0x7F, sid, 0x78]) };
+}
+
+test("scanner edge cases: response-pending, wrong canId, fragmented delivery", async (t) => {
+  reset();
+  installFakeFetch();
+  lastFilter = { tx: -1, rx: -1 };
+  state.scripted = true; // tests pre-load state.rxQueue themselves
+
+  const o = await bridge.open(URL);
+  assert.equal(o.ok, true);
+  const c = await bridge.connect({ protocol: PROTOCOL_ISO15765, baudrate: 500000 }, URL);
+  assert.equal(c.ok, true);
+
+  await t.test("7F xx 78 'response pending' loop — scanner waits past stalls", async () => {
+    // ECM emits two 7F 22 78 "still working" frames before delivering the VIN.
+    state.rxQueue = [
+      pendingFrame(0x7E8),
+      pendingFrame(0x7E8),
+      vinFrame(0x7E8, FAKE_VIN),
+    ];
+    const t0 = Date.now();
+    const r = await udsExchangeReal(0x7E0, 0x7E8, [0x22, 0xF1, 0x90], 1500);
+    const elapsed = Date.now() - t0;
+    assert.equal(r.ok, true, `expected ok response after pending stalls, got ${r.error}`);
+    assert.equal(r.data[0], 0x62, "should skip the 7F frames and surface the 62 reply");
+    const ascii = r.data.slice(3).filter((b) => b >= 0x20 && b <= 0x7E);
+    assert.equal(String.fromCharCode(...ascii).slice(-17), FAKE_VIN);
+    assert.ok(elapsed < 1500, `must not hit the 1500ms deadline (took ${elapsed}ms)`);
+    assert.equal(state.rxQueue.length, 0, "all queued frames should have been consumed");
+  });
+
+  await t.test("ERR_BUFFER_EMPTY hiccup mid-scan — scanner keeps polling", async () => {
+    // Daemon temporarily reports buffer-empty (ok:false) before the real
+    // frame lands. Real scanner treats that as 'keep polling', not failure.
+    state.bufferEmptyMode = true;
+    state.emptyHiccups = 4; // four ok:false ERR_BUFFER_EMPTY returns first
+    state.rxQueue = [vinFrame(0x758, FAKE_VIN)];
+    try {
+      const r = await udsExchangeReal(0x750, 0x758, [0x22, 0xF1, 0x90], 1000);
+      assert.equal(r.ok, true, `should recover from buffer_empty, got ${r.error}`);
+      assert.equal(r.data[0], 0x62);
+      assert.equal(state.emptyHiccups, 0, "scanner should have polled through every hiccup");
+    } finally {
+      state.bufferEmptyMode = false;
+      state.emptyHiccups = 0;
+    }
+  });
+
+  await t.test("Hard readMsg failure (not buffer_empty) bails out fast — no 16s wait", async () => {
+    // Distinguish recoverable buffer-empty hiccups from a real bridge fault.
+    // A non-recoverable error must abort udsExchange immediately so the UI
+    // doesn't sit on a 16s silent-timeout for every dead address.
+    state.rxQueue = [];
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = async (url, init) => {
+      const path = String(url).replace(/^https?:\/\/[^/]+/, "").split("?")[0];
+      if (path === "/readmsg") {
+        return {
+          ok: true, status: 200,
+          text: async () => JSON.stringify({ ok: false, error: "PassThruReadMsgs returned ERR_DEVICE_NOT_CONNECTED" }),
+        };
+      }
+      return origFetch(url, init);
+    };
+    try {
+      const t0 = Date.now();
+      const r = await udsExchangeReal(0x7E0, 0x7E8, [0x22, 0xF1, 0x90], 1500);
+      const elapsed = Date.now() - t0;
+      assert.equal(r.ok, false, "hard error must surface as failure");
+      assert.match(r.error || "", /readMsg/, "should attribute the failure to readMsg");
+      assert.ok(elapsed < 200, `must short-circuit, not poll to deadline (took ${elapsed}ms)`);
+    } finally {
+      globalThis.fetch = origFetch;
+    }
+  });
+
+  await t.test("Two modules answering same broadcast — wrong-canId filter drops off-target frame", async () => {
+    // Scanner targeted ECM (rx 0x7E8) but TCM (rx 0x7E9) also answered the
+    // broadcast first with its own VIN. The off-target frame must be dropped
+    // and the scanner must surface ECM's reply, not TCM's.
+    const TCM_VIN  = "1C4RJFBG5KCTCMTCM"; // distinct so we can detect bleed-through
+    const ECM_VIN  = FAKE_VIN;
+    state.rxQueue = [
+      vinFrame(0x7E9, TCM_VIN), // off-target — must be filtered out
+      vinFrame(0x7E8, ECM_VIN), // on-target  — must be returned
+    ];
+    const r = await udsExchangeReal(0x7E0, 0x7E8, [0x22, 0xF1, 0x90], 1000);
+    assert.equal(r.ok, true);
+    assert.equal(r.canId, 0x7E8, "scanner must lock onto the requested rx id");
+    const ascii = r.data.slice(3).filter((b) => b >= 0x20 && b <= 0x7E);
+    const vin = String.fromCharCode(...ascii).slice(-17);
+    assert.equal(vin, ECM_VIN, "must return ECM's VIN, never TCM's");
+    assert.notEqual(vin, TCM_VIN, "off-target TCM VIN must not bleed through");
+  });
+
+  await t.test("ISO-TP VIN reply split across multiple readMsg polls — scanner stitches 17 chars", async () => {
+    // On a busy bus the daemon interleaves empty polls and a stray pending
+    // frame before finally delivering the assembled VIN payload. The scanner
+    // must poll through them all and still extract the canonical 17-char
+    // VIN from the eventual reply. (Real ISO-TP segmentation is reassembled
+    // by the J2534 cable itself; what the scanner sees is the multi-poll
+    // delivery cadence simulated here.)
+    state.bufferEmptyMode = true;
+    state.emptyHiccups = 2; // two ERR_BUFFER_EMPTY polls
+    state.rxQueue = [
+      pendingFrame(0x758),         // then: 7F 22 78 (response pending)
+      { canId: 0x758, data: "" },  // then: an empty-data frame the scanner must skip
+      vinFrame(0x758, FAKE_VIN),   // finally: the real assembled VIN reply
+    ];
+    const t0 = Date.now();
+    try {
+      const r = await udsExchangeReal(0x750, 0x758, [0x22, 0xF1, 0x90], 1500);
+      const elapsed = Date.now() - t0;
+      assert.equal(r.ok, true, `expected ok across split delivery, got ${r.error}`);
+      // Mirror readVIN's parser — proves the scanner can still pull a 17-char
+      // VIN out of a reply that arrived after several empty/pending polls.
+      const b = r.data;
+      assert.ok(b.length >= 4 && b[0] === 0x62 && b[1] === 0xF1 && b[2] === 0x90);
+      const ascii = b.slice(3).filter((x) => x >= 0x20 && x <= 0x7E);
+      const vin = String.fromCharCode(...ascii).slice(-17);
+      assert.equal(vin.length, 17, "stitched VIN must be exactly 17 chars");
+      assert.equal(vin, FAKE_VIN);
+      assert.ok(elapsed < 1500, `must not hit deadline (took ${elapsed}ms)`);
+      assert.equal(state.rxQueue.length, 0, "every interleaved frame should have been consumed");
+    } finally {
+      state.bufferEmptyMode = false;
+      state.emptyHiccups = 0;
+    }
+  });
+
+  await bridge.disconnect(URL);
+  await bridge.close(URL);
 });
