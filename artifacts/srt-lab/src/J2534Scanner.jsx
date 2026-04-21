@@ -14,6 +14,7 @@ import {
   DEFAULT_BRIDGE_URL,
 } from "./lib/bridgeClient.js";
 import { REGISTRY } from "./lib/moduleRegistry.js";
+import { useMasterVin } from "./lib/masterVinContext.jsx";
 
 /**
  * J2534 Module Scanner
@@ -29,7 +30,11 @@ import { REGISTRY } from "./lib/moduleRegistry.js";
 const PROTOCOL_ISO15765 = 6;
 const ISO15765_FRAME_PAD = 0x40;
 const LAST_SCAN_KEY = "srtlab_j2534_lastscan";
+// Legacy single-baseline key. Kept only for one-shot migration into the new
+// multi-baseline store. New code reads/writes BASELINES_KEY + ACTIVE_BASELINE_KEY.
 const BASELINE_SCAN_KEY = "srtlab_j2534_baseline";
+const BASELINES_KEY = "srtlab_j2534_baselines";
+const ACTIVE_BASELINE_KEY = "srtlab_j2534_baseline_active";
 
 function loadScanFromKey(key) {
   try {
@@ -43,7 +48,6 @@ function loadScanFromKey(key) {
   }
 }
 function loadLastScan() { return loadScanFromKey(LAST_SCAN_KEY); }
-function loadBaselineScan() { return loadScanFromKey(BASELINE_SCAN_KEY); }
 function saveLastScan(modules) {
   try {
     const payload = { ts: Date.now(), modules };
@@ -53,20 +57,86 @@ function saveLastScan(modules) {
     return null;
   }
 }
-function saveBaselineScan(modules, ts) {
-  try {
-    const payload = { ts: ts || Date.now(), modules };
-    localStorage.setItem(BASELINE_SCAN_KEY, JSON.stringify(payload));
-    return payload;
-  } catch {
-    return null;
-  }
-}
 function clearLastScan() {
   try { localStorage.removeItem(LAST_SCAN_KEY); } catch { /* ignore */ }
 }
-function clearBaselineScan() {
-  try { localStorage.removeItem(BASELINE_SCAN_KEY); } catch { /* ignore */ }
+
+function newBaselineId() {
+  return "b_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+}
+
+// Pick the most common non-empty VIN across the scanned modules. Used as the
+// default label when the user saves a new baseline.
+function dominantVIN(modules) {
+  if (!Array.isArray(modules)) return null;
+  const counts = new Map();
+  for (const m of modules) {
+    const v = m && m.vin;
+    if (typeof v === "string" && v.length >= 10) {
+      counts.set(v, (counts.get(v) || 0) + 1);
+    }
+  }
+  let best = null;
+  let bestN = 0;
+  for (const [v, n] of counts) {
+    if (n > bestN) { best = v; bestN = n; }
+  }
+  return best;
+}
+
+function loadBaselines() {
+  let list = [];
+  try {
+    const raw = localStorage.getItem(BASELINES_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        list = parsed.filter(
+          (b) => b && typeof b.id === "string" && Array.isArray(b.modules)
+        );
+      }
+    }
+  } catch { /* ignore */ }
+
+  // One-shot migration of the legacy single-baseline key.
+  try {
+    const legacyRaw = localStorage.getItem(BASELINE_SCAN_KEY);
+    if (legacyRaw) {
+      const legacy = JSON.parse(legacyRaw);
+      if (legacy && Array.isArray(legacy.modules)) {
+        const alreadyMigrated = list.some(
+          (b) => b.ts === legacy.ts && b.modules.length === legacy.modules.length
+        );
+        if (!alreadyMigrated) {
+          const vin = dominantVIN(legacy.modules);
+          list.unshift({
+            id: newBaselineId(),
+            label: vin || "Baseline (migrated)",
+            ts: legacy.ts || Date.now(),
+            modules: legacy.modules,
+          });
+          try { localStorage.setItem(BASELINES_KEY, JSON.stringify(list)); } catch { /* ignore */ }
+        }
+      }
+      // Drop the legacy key so we don't migrate it again.
+      try { localStorage.removeItem(BASELINE_SCAN_KEY); } catch { /* ignore */ }
+    }
+  } catch { /* ignore */ }
+
+  return list;
+}
+
+function persistBaselines(list) {
+  try { localStorage.setItem(BASELINES_KEY, JSON.stringify(list)); } catch { /* ignore */ }
+}
+function loadActiveBaselineId() {
+  try { return localStorage.getItem(ACTIVE_BASELINE_KEY); } catch { return null; }
+}
+function persistActiveBaselineId(id) {
+  try {
+    if (id) localStorage.setItem(ACTIVE_BASELINE_KEY, id);
+    else localStorage.removeItem(ACTIVE_BASELINE_KEY);
+  } catch { /* ignore */ }
 }
 
 /**
@@ -139,7 +209,20 @@ export default function J2534Scanner() {
     return last ? last.ts : null;
   });
   const [scanIsRestored, setScanIsRestored] = useState(() => loadLastScan() !== null);
-  const [baseline, setBaseline] = useState(() => loadBaselineScan());
+  const { vin: masterVin } = useMasterVin();
+  const [baselines, setBaselines] = useState(() => loadBaselines());
+  const [activeBaselineId, setActiveBaselineId] = useState(() => {
+    const saved = loadActiveBaselineId();
+    const list = loadBaselines();
+    if (saved && list.some((b) => b.id === saved)) return saved;
+    // Stale or missing pointer — pick the newest baseline if any, and write
+    // that selection back to localStorage so the on-disk state matches what
+    // the UI is showing.
+    const fallback = list.length ? list[0].id : null;
+    persistActiveBaselineId(fallback);
+    return fallback;
+  });
+  const baseline = baselines.find((b) => b.id === activeBaselineId) || null;
   const [showDiff, setShowDiff] = useState(false);
   const [copyState, setCopyState] = useState("idle");
   const [scanning, setScanning] = useState(false);
@@ -392,21 +475,78 @@ export default function J2534Scanner() {
       log("No current scan to set as baseline.", "warn");
       return;
     }
-    const saved = saveBaselineScan(found, lastScanTs || Date.now());
-    if (saved) {
-      setBaseline(saved);
-      log(`Baseline set — ${saved.modules.length} module${saved.modules.length === 1 ? "" : "s"}.`, "success");
-    } else {
-      log("Failed to save baseline.", "error");
+    // Prefer the app's Master VIN (top-right input) for the label, since
+    // that's the VIN the tech is actively working with for this job. Fall
+    // back to the most common VIN observed in the scan, then to a generic
+    // numbered label if neither is available.
+    const masterVinTrim = (masterVin || "").trim();
+    const fallback = `Baseline ${baselines.length + 1}`;
+    const suggested =
+      (masterVinTrim.length === 17 && masterVinTrim) ||
+      dominantVIN(found) ||
+      fallback;
+    let label = "";
+    try {
+      label = window.prompt(
+        "Label this baseline (VIN, RO #, customer name, etc.):",
+        suggested
+      );
+    } catch {
+      label = suggested;
     }
-  }, [found, lastScanTs, log]);
+    if (label === null) {
+      log("Set baseline cancelled.", "info");
+      return;
+    }
+    label = String(label).trim() || suggested;
+    const entry = {
+      id: newBaselineId(),
+      label,
+      ts: lastScanTs || Date.now(),
+      modules: found,
+    };
+    const next = [entry, ...baselines];
+    setBaselines(next);
+    persistBaselines(next);
+    setActiveBaselineId(entry.id);
+    persistActiveBaselineId(entry.id);
+    log(
+      `Baseline saved: "${label}" — ${entry.modules.length} module${entry.modules.length === 1 ? "" : "s"} (${next.length} total).`,
+      "success"
+    );
+  }, [found, lastScanTs, baselines, scanning, masterVin, log]);
+
+  const onSelectBaseline = useCallback((id) => {
+    setActiveBaselineId(id || null);
+    persistActiveBaselineId(id || null);
+    if (!id) setShowDiff(false);
+  }, []);
+
+  const onDeleteBaseline = useCallback((id) => {
+    const target = baselines.find((b) => b.id === id);
+    if (!target) return;
+    let confirmed = true;
+    try {
+      confirmed = window.confirm(
+        `Delete baseline "${target.label}"? This cannot be undone.`
+      );
+    } catch { /* assume yes in non-browser */ }
+    if (!confirmed) return;
+    const next = baselines.filter((b) => b.id !== id);
+    setBaselines(next);
+    persistBaselines(next);
+    if (activeBaselineId === id) {
+      const newActive = next.length ? next[0].id : null;
+      setActiveBaselineId(newActive);
+      persistActiveBaselineId(newActive);
+      if (!newActive) setShowDiff(false);
+    }
+    log(`Deleted baseline "${target.label}".`, "info");
+  }, [baselines, activeBaselineId, log]);
 
   const onClearBaseline = useCallback(() => {
-    clearBaselineScan();
-    setBaseline(null);
-    setShowDiff(false);
-    log("Cleared baseline.", "info");
-  }, [log]);
+    if (activeBaselineId) onDeleteBaseline(activeBaselineId);
+  }, [activeBaselineId, onDeleteBaseline]);
 
   const onClearLastScan = useCallback(() => {
     clearLastScan();
@@ -578,9 +718,50 @@ export default function J2534Scanner() {
                   {scanIsRestored && !scanning && " (loaded from last session)"}
                 </div>
               )}
-              {baseline && (
-                <div style={{ fontSize: 11, color: "#42A5F5" }}>
-                  📌 baseline: {baseline.modules.length} mod · {fmtScanStamp(baseline.ts)}
+              {baselines.length > 0 && (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#42A5F5" }}>
+                  <span>📌 baseline:</span>
+                  <select
+                    value={activeBaselineId || ""}
+                    onChange={(e) => onSelectBaseline(e.target.value || null)}
+                    style={{
+                      background: "#1E1E2E",
+                      color: "#fff",
+                      border: "1px solid " + S.border,
+                      borderRadius: 4,
+                      padding: "2px 6px",
+                      fontFamily: S.font,
+                      fontSize: 11,
+                      maxWidth: 260,
+                    }}
+                    title="Switch which baseline the diff compares against"
+                  >
+                    <option value="">— none —</option>
+                    {baselines.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.label} · {b.modules.length} mod · {fmtScanStamp(b.ts)}
+                      </option>
+                    ))}
+                  </select>
+                  {baseline && (
+                    <button
+                      onClick={() => onDeleteBaseline(baseline.id)}
+                      style={{
+                        padding: "2px 6px",
+                        background: "transparent",
+                        color: "#EF5350",
+                        border: "1px solid " + S.border,
+                        borderRadius: 4,
+                        cursor: "pointer",
+                        fontFamily: S.font,
+                        fontSize: 10,
+                        fontWeight: 700,
+                      }}
+                      title={`Delete baseline "${baseline.label}"`}
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               )}
               <div style={{ marginLeft: "auto", display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -598,9 +779,9 @@ export default function J2534Scanner() {
                     fontSize: 11,
                     fontWeight: 700,
                   }}
-                  title="Save current scan as baseline so you can compare a later scan against it"
+                  title="Save current scan as a new labeled baseline (you can keep multiple jobs side by side)"
                 >
-                  📌 SET AS BASELINE
+                  📌 SAVE BASELINE
                 </button>
                 {baseline && (
                   <button
@@ -752,7 +933,7 @@ function DiffPanel({ S, baseline, current, onClearBaseline }) {
           🔀 BASELINE vs CURRENT
         </div>
         <div style={{ fontSize: 11, color: S.dim }}>
-          baseline: <span style={{ color: "#fff" }}>{fmtScanStamp(baseline.ts)}</span> ({baseline.modules.length} mod) →
+          baseline: <span style={{ color: "#fff" }}>{baseline.label || "(unlabeled)"}</span> · <span style={{ color: "#fff" }}>{fmtScanStamp(baseline.ts)}</span> ({baseline.modules.length} mod) →
           current: <span style={{ color: "#fff" }}>{fmtScanStamp(current.ts) || "(unsaved)"}</span> ({current.modules.length} mod)
         </div>
         <button
@@ -769,9 +950,9 @@ function DiffPanel({ S, baseline, current, onClearBaseline }) {
             fontSize: 11,
             fontWeight: 700,
           }}
-          title="Forget the saved baseline"
+          title="Delete the active baseline"
         >
-          🗑 CLEAR BASELINE
+          🗑 DELETE BASELINE
         </button>
       </div>
       {noChanges && (
