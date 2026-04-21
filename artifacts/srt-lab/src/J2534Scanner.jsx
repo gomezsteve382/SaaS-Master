@@ -28,6 +28,38 @@ import { REGISTRY } from "./lib/moduleRegistry.js";
 
 const PROTOCOL_ISO15765 = 6;
 const ISO15765_FRAME_PAD = 0x40;
+const LAST_SCAN_KEY = "srtlab_j2534_lastscan";
+
+function loadLastScan() {
+  try {
+    const raw = localStorage.getItem(LAST_SCAN_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.modules)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+function saveLastScan(modules) {
+  try {
+    const payload = { ts: Date.now(), modules };
+    localStorage.setItem(LAST_SCAN_KEY, JSON.stringify(payload));
+    return payload;
+  } catch {
+    return null;
+  }
+}
+function clearLastScan() {
+  try { localStorage.removeItem(LAST_SCAN_KEY); } catch { /* ignore */ }
+}
+function fmtScanStamp(ts) {
+  if (!ts) return "";
+  try {
+    const d = new Date(ts);
+    return d.toLocaleString("en-US", { hour12: false });
+  } catch { return ""; }
+}
 
 function bytesToHex(arr) {
   return Array.from(arr)
@@ -49,7 +81,16 @@ export default function J2534Scanner() {
   const [bridgeUrl, setBridgeUrl] = useState(() => getAutelState().url || DEFAULT_BRIDGE_URL);
   const [status, setStatus] = useState("disconnected");
   const [logs, setLogs] = useState([]);
-  const [found, setFound] = useState([]);
+  const [found, setFound] = useState(() => {
+    const last = loadLastScan();
+    return last ? last.modules : [];
+  });
+  const [lastScanTs, setLastScanTs] = useState(() => {
+    const last = loadLastScan();
+    return last ? last.ts : null;
+  });
+  const [scanIsRestored, setScanIsRestored] = useState(() => loadLastScan() !== null);
+  const [copyState, setCopyState] = useState("idle");
   const [scanning, setScanning] = useState(false);
   const [vendor, setVendor] = useState(null);
   const [pdfBusy, setPdfBusy] = useState(false);
@@ -235,6 +276,8 @@ export default function J2534Scanner() {
     }
     setScanning(true);
     setFound([]);
+    setScanIsRestored(false);
+    const collected = [];
     log("═══ Starting J2534 full module scan ═══", "header");
     log("Scanning known FCA module addresses via raw CAN ...");
 
@@ -263,6 +306,7 @@ export default function J2534Scanner() {
         if (s.length >= 10) vin = s;
       }
       const hit = { code: row.code, name: row.name, tx: row.tx, rx: row.rx, vin };
+      collected.push(hit);
       setFound((p) => [...p, hit]);
       log(
         `✓ ${row.name} (${row.code}) TX:0x${row.tx.toString(16).toUpperCase().padStart(3, "0")} RX:0x${row.rx
@@ -280,8 +324,47 @@ export default function J2534Scanner() {
       log("Scan aborted: " + (e?.message || String(e)), "error");
     } finally {
       setScanning(false);
+      const saved = saveLastScan(collected);
+      if (saved) {
+        setLastScanTs(saved.ts);
+        log(`Scan saved to localStorage (${LAST_SCAN_KEY}).`, "info");
+      }
     }
   }, [status, udsExchange, log]);
+
+  const onClearLastScan = useCallback(() => {
+    clearLastScan();
+    setFound([]);
+    setLastScanTs(null);
+    setScanIsRestored(false);
+    log("Cleared saved scan.", "info");
+  }, [log]);
+
+  const onCopyJSON = useCallback(async () => {
+    const payload = JSON.stringify(
+      { ts: lastScanTs || Date.now(), modules: found },
+      null,
+      2
+    );
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(payload);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = payload;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopyState("copied");
+      setTimeout(() => setCopyState("idle"), 1500);
+    } catch (e) {
+      log("Copy failed: " + (e?.message || String(e)), "error");
+      setCopyState("error");
+      setTimeout(() => setCopyState("idle"), 1500);
+    }
+  }, [found, lastScanTs, log]);
 
   const S = {
     bg: "#0A0A0F",
@@ -406,10 +489,54 @@ export default function J2534Scanner() {
         </div>
 
         {/* Found modules */}
-        {found.length > 0 && (
+        {(found.length > 0 || lastScanTs) && (
           <div style={{ background: "#1A2E1A", border: "1px solid " + S.green, borderRadius: 8, padding: 12, marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#66BB6A", marginBottom: 8 }}>
-              MODULES FOUND: {found.length}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#66BB6A" }}>
+                MODULES FOUND: {found.length}
+              </div>
+              {lastScanTs && (
+                <div style={{ fontSize: 11, color: S.dim }}>
+                  scanned at <span style={{ color: "#fff" }}>{fmtScanStamp(lastScanTs)}</span>
+                  {scanIsRestored && !scanning && " (loaded from last session)"}
+                </div>
+              )}
+              <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+                <button
+                  onClick={onCopyJSON}
+                  style={{
+                    padding: "4px 10px",
+                    background: copyState === "copied" ? S.green : "#1E1E2E",
+                    color: "#fff",
+                    border: "1px solid " + S.border,
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    fontFamily: S.font,
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                  title="Copy scan as JSON for the BACKUPS tab or a bug report"
+                >
+                  {copyState === "copied" ? "✓ COPIED" : copyState === "error" ? "✗ ERROR" : "📋 COPY AS JSON"}
+                </button>
+                <button
+                  onClick={onClearLastScan}
+                  style={{
+                    padding: "4px 10px",
+                    background: "#1E1E2E",
+                    color: "#FFB74D",
+                    border: "1px solid " + S.border,
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    fontFamily: S.font,
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                  title="Clear saved scan from localStorage"
+                >
+                  🗑 CLEAR
+                </button>
+              </div>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {found.map((m, i) => (
