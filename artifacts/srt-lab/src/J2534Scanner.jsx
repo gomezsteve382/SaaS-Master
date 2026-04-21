@@ -550,6 +550,36 @@ export default function J2534Scanner() {
     if (activeBaselineId) onDeleteBaseline(activeBaselineId);
   }, [activeBaselineId, onDeleteBaseline]);
 
+  const onRenameBaseline = useCallback((id) => {
+    const target = baselines.find((b) => b.id === id);
+    if (!target) return;
+    let answer = null;
+    try {
+      answer = window.prompt(
+        "Rename baseline (VIN, RO #, customer name, etc.):",
+        target.label
+      );
+    } catch {
+      answer = null;
+    }
+    if (answer === null) {
+      log("Rename baseline cancelled.", "info");
+      return;
+    }
+    const trimmed = String(answer).trim();
+    // Empty/whitespace falls back to the previous label — no-op rename.
+    if (!trimmed || trimmed === target.label) {
+      if (!trimmed) log(`Rename ignored — kept "${target.label}".`, "info");
+      return;
+    }
+    const next = baselines.map((b) =>
+      b.id === id ? { ...b, label: trimmed } : b
+    );
+    setBaselines(next);
+    persistBaselines(next);
+    log(`Renamed baseline "${target.label}" → "${trimmed}".`, "success");
+  }, [baselines, log]);
+
   const onClearLastScan = useCallback(() => {
     clearLastScan();
     setFound([]);
@@ -781,23 +811,42 @@ export default function J2534Scanner() {
                     ))}
                   </select>
                   {baseline && (
-                    <button
-                      onClick={() => onDeleteBaseline(baseline.id)}
-                      style={{
-                        padding: "2px 6px",
-                        background: "transparent",
-                        color: "#EF5350",
-                        border: "1px solid " + S.border,
-                        borderRadius: 4,
-                        cursor: "pointer",
-                        fontFamily: S.font,
-                        fontSize: 10,
-                        fontWeight: 700,
-                      }}
-                      title={`Delete baseline "${baseline.label}"`}
-                    >
-                      ✕
-                    </button>
+                    <>
+                      <button
+                        onClick={() => onRenameBaseline(baseline.id)}
+                        style={{
+                          padding: "2px 6px",
+                          background: "transparent",
+                          color: "#42A5F5",
+                          border: "1px solid " + S.border,
+                          borderRadius: 4,
+                          cursor: "pointer",
+                          fontFamily: S.font,
+                          fontSize: 10,
+                          fontWeight: 700,
+                        }}
+                        title={`Rename baseline "${baseline.label}"`}
+                      >
+                        ✎
+                      </button>
+                      <button
+                        onClick={() => onDeleteBaseline(baseline.id)}
+                        style={{
+                          padding: "2px 6px",
+                          background: "transparent",
+                          color: "#EF5350",
+                          border: "1px solid " + S.border,
+                          borderRadius: 4,
+                          cursor: "pointer",
+                          fontFamily: S.font,
+                          fontSize: 10,
+                          fontWeight: 700,
+                        }}
+                        title={`Delete baseline "${baseline.label}"`}
+                      >
+                        ✕
+                      </button>
+                    </>
                   )}
                 </div>
               )}
