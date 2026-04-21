@@ -10,11 +10,17 @@ import {
 } from "../lib/audit.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
+import {
+  listDiffReports, getDiffReport, deleteDiffReport, clearDiffReports,
+  subscribeDiffReports, exportDiffReportPDF, fmtScanStamp,
+} from "../lib/diffReports.js";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 
 export default function BackupsTab() {
   const [backups, setBackups] = useState(getBackupList());
+  const [diffReports, setDiffReports] = useState(() => listDiffReports());
+  const [diffBusy, setDiffBusy] = useState(null);
   const [usage, setUsage] = useState(getBackupStorageUsage());
   const [toast, setToast] = useState(null);
   const [selected, setSelected] = useState(null);
@@ -77,6 +83,49 @@ export default function BackupsTab() {
     const id = setInterval(refresh, 4000);
     return () => { unsub(); clearInterval(id); };
   }, [refresh]);
+
+  // Saved diff reports — refreshed on storage events from any tab so a Save
+  // Diff Report click in the J2534 Scanner shows up here without a reload.
+  useEffect(() => {
+    const refreshDiffs = () => setDiffReports(listDiffReports());
+    refreshDiffs();
+    const unsub = subscribeDiffReports(refreshDiffs);
+    return () => unsub();
+  }, []);
+
+  const handleDownloadDiff = useCallback(async (id) => {
+    const report = getDiffReport(id);
+    if (!report) {
+      // Index pointed at a payload that's gone (e.g. cleared by another tab
+      // or a quota purge between writes). Self-heal by dropping the stale
+      // row so the user doesn't see a permanently broken entry.
+      deleteDiffReport(id);
+      setDiffReports(listDiffReports());
+      alert("This diff report is no longer available — its storage entry was removed.");
+      return;
+    }
+    setDiffBusy(id);
+    try {
+      await exportDiffReportPDF(report.baseline, report.current, report.diff);
+    } catch (e) {
+      alert("Could not rebuild diff report PDF: " + (e?.message || String(e)));
+    } finally {
+      setDiffBusy(null);
+    }
+  }, []);
+
+  const handleDeleteDiff = useCallback((id) => {
+    if (!window.confirm("Delete this saved diff report? This cannot be undone.")) return;
+    deleteDiffReport(id);
+    setDiffReports(listDiffReports());
+  }, []);
+
+  const handleClearAllDiffs = useCallback(() => {
+    if (!diffReports.length) return;
+    if (!window.confirm("Delete ALL " + diffReports.length + " saved diff reports? This cannot be undone.")) return;
+    clearDiffReports();
+    setDiffReports(listDiffReports());
+  }, [diffReports.length]);
 
   // Deep-link: select a backup pre-chosen via URL hash or History panel event.
   useEffect(() => {
@@ -371,6 +420,107 @@ export default function BackupsTab() {
         )}
       </Card>
 
+      <Card style={{ marginBottom: 14, padding: 0, overflow: "hidden" }} data-testid="diff-reports-history">
+        <div style={{
+          ...listHeader,
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+        }}>
+          <span>📊 SAVED DIFF REPORTS ({diffReports.length})</span>
+          {diffReports.length > 0 && (
+            <button
+              onClick={handleClearAllDiffs}
+              data-testid="diff-reports-clear-all"
+              style={{
+                padding: "4px 10px", fontSize: 10, fontWeight: 800,
+                color: C.er, background: "transparent",
+                border: "1px solid " + C.bd, borderRadius: 4,
+                cursor: "pointer", letterSpacing: 1,
+              }}
+              title="Delete every saved diff report"
+            >
+              🗑 CLEAR ALL
+            </button>
+          )}
+        </div>
+        {diffReports.length === 0 ? (
+          <div style={{ padding: 20, color: C.tm, fontSize: 12, lineHeight: 1.6 }}>
+            No saved diff reports yet. Generate one from the J2534 Scanner —
+            click <b>📌 Save Baseline</b>, scan again, then <b>🔀 Compare to Baseline</b>
+            and use <b>📄 Save Diff Report</b>. Every report you save shows up
+            here so you can re-download it without re-scanning.
+          </div>
+        ) : (
+          <div style={{ maxHeight: 320, overflowY: "auto" }} data-testid="diff-reports-list">
+            {diffReports.map((r) => {
+              const changeTotal = r.addedCount + r.removedCount + r.changedCount;
+              return (
+                <div
+                  key={r.id}
+                  data-testid={"diff-report-row-" + r.id}
+                  style={{
+                    padding: "12px 16px", borderBottom: "1px solid " + C.bd,
+                    display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap",
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontWeight: 800, fontSize: 12, color: C.tx }}>
+                      {r.baselineLabel}
+                    </div>
+                    <div style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", marginTop: 2 }}>
+                      generated {fmtScanStamp(r.generatedAt)}
+                    </div>
+                    <div style={{ fontSize: 10, color: C.ts, marginTop: 4 }}>
+                      baseline {fmtScanStamp(r.baselineTs) || "(unknown)"} · {r.baselineModuleCount} mod
+                      {" → "}
+                      current {fmtScanStamp(r.currentTs) || "(unsaved)"} · {r.currentModuleCount} mod
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 6, fontSize: 10, fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>
+                    {r.addedCount > 0 && <span style={diffBadge("#2E7D32")}>+{r.addedCount}</span>}
+                    {r.removedCount > 0 && <span style={diffBadge("#C62828")}>−{r.removedCount}</span>}
+                    {r.changedCount > 0 && <span style={diffBadge("#F57C00")}>±{r.changedCount}</span>}
+                    {changeTotal === 0 && <span style={diffBadge("#546E7A")}>no changes</span>}
+                    {r.sameCount > 0 && (
+                      <span style={{ ...diffBadge("#90A4AE"), opacity: 0.6 }}>
+                        ={r.sameCount}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button
+                      onClick={() => handleDownloadDiff(r.id)}
+                      disabled={diffBusy === r.id}
+                      data-testid={"diff-report-download-" + r.id}
+                      style={{
+                        padding: "6px 12px", fontSize: 11, fontWeight: 800,
+                        color: "#fff", background: diffBusy === r.id ? "#546E7A" : C.a2,
+                        border: "none", borderRadius: 4,
+                        cursor: diffBusy === r.id ? "wait" : "pointer", letterSpacing: 0.5,
+                      }}
+                      title="Rebuild and download this diff report as a PDF"
+                    >
+                      {diffBusy === r.id ? "… BUILDING" : "⬇ DOWNLOAD PDF"}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteDiff(r.id)}
+                      data-testid={"diff-report-delete-" + r.id}
+                      style={{
+                        padding: "6px 10px", fontSize: 11, fontWeight: 800,
+                        color: C.er, background: "transparent",
+                        border: "1px solid " + C.bd, borderRadius: 4, cursor: "pointer",
+                      }}
+                      title="Delete this saved diff report"
+                    >
+                      🗑
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Card>
+
       {backups.length === 0 ? (
         <Card style={{ textAlign: "center", padding: 40, color: C.tm }}>
           <div style={{ fontSize: 40, marginBottom: 10 }}>📭</div>
@@ -518,6 +668,16 @@ const pill = (active, color) => ({
   border: "1.5px solid " + (active ? color : C.bd),
   background: active ? color + "15" : "#fff",
   color: active ? color : C.ts, cursor: "pointer",
+});
+
+const diffBadge = (color) => ({
+  padding: "2px 8px",
+  border: "1px solid " + color + "55",
+  borderRadius: 999,
+  background: color + "10",
+  color: color,
+  fontSize: 10,
+  letterSpacing: 0.5,
 });
 
 const listHeader = {
