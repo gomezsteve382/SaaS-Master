@@ -30,6 +30,9 @@ export default function BackupsTab() {
   const [selected, setSelected] = useState(null);
   const [selectedData, setSelectedData] = useState(null);
   const [filter, setFilter] = useState("all");
+  const [techFilter, setTechFilter] = useState(
+    () => sessionStorage.getItem("backups_techFilter") || "all"
+  );
   const [modalOpen, setModalOpen] = useState(false);
   const [busy, setBusy] = useState("");
   const [conn, setConn] = useState(false);
@@ -67,6 +70,15 @@ export default function BackupsTab() {
       setSelected(null); setSelectedData(null);
     }
   }, [selected]);
+
+  /* Persist tech filter across tab unmounts and page refreshes. */
+  useEffect(() => {
+    if (techFilter === "all") {
+      sessionStorage.removeItem("backups_techFilter");
+    } else {
+      sessionStorage.setItem("backups_techFilter", techFilter);
+    }
+  }, [techFilter]);
 
   /* Toast bus — surfaces save failures from any tab while Backups is open. */
   useEffect(() => {
