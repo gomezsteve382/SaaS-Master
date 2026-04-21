@@ -11,8 +11,10 @@ import {
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import {
-  listDiffReports, getDiffReport, deleteDiffReport, clearDiffReports,
+  listDiffReports, getDiffReport, getDiffReportAsync,
+  deleteDiffReport, clearDiffReports,
   subscribeDiffReports, exportDiffReportPDF, fmtScanStamp,
+  refreshDiffReportsFromServer,
 } from "../lib/diffReports.js";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
@@ -65,11 +67,14 @@ export default function BackupsTab() {
 
   const refreshFromServer = useCallback(() => {
     refreshBackupsFromServer().catch(() => {/* offline ok */});
+    refreshDiffReportsFromServer()
+      .then((list) => { if (Array.isArray(list)) setDiffReports(list); })
+      .catch(() => {/* offline ok */});
   }, []);
 
-  // Pull from the database on mount + on every focus so backups created in
-  // another browser show up here too. Local cache + audit events keep the
-  // UI snappy in between server hits.
+  // Pull from the database on mount + on every focus so backups and diff
+  // reports created in another browser show up here too. Local cache +
+  // audit events keep the UI snappy in between server hits.
   useEffect(() => {
     refreshFromServer();
     const onFocus = () => refreshFromServer();
@@ -94,17 +99,30 @@ export default function BackupsTab() {
   }, []);
 
   const handleDownloadDiff = useCallback(async (id) => {
-    const report = getDiffReport(id);
-    if (!report) {
-      // Index pointed at a payload that's gone (e.g. cleared by another tab
-      // or a quota purge between writes). Self-heal by dropping the stale
-      // row so the user doesn't see a permanently broken entry.
-      deleteDiffReport(id);
-      setDiffReports(listDiffReports());
-      alert("This diff report is no longer available — its storage entry was removed.");
-      return;
-    }
+    // Try the local cache first for an instant download; fall back to a
+    // server fetch when the row came from another browser and isn't cached
+    // here yet. Only self-heal (drop the row) when the server CONFIRMS the
+    // payload is gone — transient/offline failures must not delete the
+    // canonical server record.
     setDiffBusy(id);
+    let report = getDiffReport(id);
+    if (!report) {
+      let lookup = { status: "unknown", payload: null };
+      try { lookup = await getDiffReportAsync(id); } catch { /* keep unknown */ }
+      if (lookup.status === "missing") {
+        deleteDiffReport(id);
+        setDiffReports(listDiffReports());
+        setDiffBusy(null);
+        alert("This diff report is no longer available — its storage entry was removed.");
+        return;
+      }
+      if (lookup.status !== "found") {
+        setDiffBusy(null);
+        alert("Could not load this diff report right now — check your connection and try again.");
+        return;
+      }
+      report = lookup.payload;
+    }
     try {
       await exportDiffReportPDF(report.baseline, report.current, report.diff);
     } catch (e) {

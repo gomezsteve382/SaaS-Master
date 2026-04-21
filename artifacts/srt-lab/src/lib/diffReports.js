@@ -1,11 +1,12 @@
 // Persisted diff reports.
 //
-// When the user clicks "Save Diff Report" on the J2534 Scanner's DiffPanel we
-// store a copy of the baseline + current scan + computed diff so the History
-// view in the Backups tab can re-open or re-print past comparisons without
-// requiring the user to re-scan the vehicle.
+// Diff reports are persisted to the project database via the API server
+// (/api/diff-reports). localStorage is used as an offline cache so the UI
+// can render synchronously and continue working when the server is
+// unreachable. Saving writes through to both layers, and the Backups tab
+// refreshes the canonical list from the server on mount + focus.
 //
-// Storage layout:
+// Storage layout (cache):
 //   srtlab_diff_reports_index      -> JSON array of meta records (newest first)
 //   srtlab_diff_report_<id>        -> JSON payload { baseline, current, diff, generatedAt }
 //
@@ -15,7 +16,9 @@ import { buildOnePagerPDF } from "./buildOnePagerPDF.js";
 
 const INDEX_KEY = "srtlab_diff_reports_index";
 const PAYLOAD_PREFIX = "srtlab_diff_report_";
+const MIGRATED_KEY = "srtlab_diff_reports_migrated_v1";
 const MAX_REPORTS = 50;
+const API_BASE = "/api/diff-reports";
 
 function newReportId() {
   return "d_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
@@ -73,10 +76,36 @@ function buildMeta({ id, generatedAt, baseline, current, diff }) {
   };
 }
 
+/* Best-effort write-through to the server. The local cache is the source of
+ * truth for the synchronous return path; failures here just mean the report
+ * won't survive a cache wipe — a future refresh will not find it. */
+function pushToServer(meta, payload) {
+  try {
+    return fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: meta.id,
+        generatedAt: meta.generatedAt,
+        baselineLabel: meta.baselineLabel,
+        baselineTs: meta.baselineTs,
+        baselineModuleCount: meta.baselineModuleCount,
+        currentTs: meta.currentTs,
+        currentModuleCount: meta.currentModuleCount,
+        addedCount: meta.addedCount,
+        removedCount: meta.removedCount,
+        changedCount: meta.changedCount,
+        sameCount: meta.sameCount,
+        payload,
+      }),
+    }).catch(() => { /* offline; cache only */ });
+  } catch { /* ignore */ }
+  return Promise.resolve();
+}
+
 /* Persist a diff report. Returns the meta record (with id) on success or null
- * on quota failure. The caller already has the full data in memory, so a
- * silent failure here just means the History list won't show it — the active
- * Save PDF flow continues. */
+ * on cache write failure. The server write is fire-and-forget so the active
+ * Save PDF flow continues even if the API is unreachable. */
 export function saveDiffReport({ baseline, current, diff }) {
   const id = newReportId();
   const generatedAt = Date.now();
@@ -107,17 +136,47 @@ export function saveDiffReport({ baseline, current, diff }) {
     idx.slice(MAX_REPORTS).forEach((m) => removePayload(m.id));
   }
   writeIndex(idx);
+  pushToServer(meta, payload);
   notify();
   return meta;
 }
 
 export function listDiffReports() { return readIndex(); }
 
+/* Returns the report payload from the local cache; falls back to a server
+ * fetch when the cache miss is real (cleared site data, different browser). */
 export function getDiffReport(id) { return readPayload(id); }
+
+/* Returns { status, payload }:
+ *   "found"     — payload was located locally or on the server
+ *   "missing"   — server confirmed the row no longer exists (HTTP 404)
+ *   "unknown"   — transient error / offline / unexpected status; caller
+ *                 should NOT treat this as a hard miss (i.e. don't delete).
+ */
+export async function getDiffReportAsync(id) {
+  const local = readPayload(id);
+  if (local) return { status: "found", payload: local };
+  let res;
+  try {
+    res = await fetch(API_BASE + "/" + encodeURIComponent(id));
+  } catch {
+    return { status: "unknown", payload: null };
+  }
+  if (res.status === 404) return { status: "missing", payload: null };
+  if (!res.ok) return { status: "unknown", payload: null };
+  let j;
+  try { j = await res.json(); } catch { return { status: "unknown", payload: null }; }
+  if (!j || !j.payload) return { status: "unknown", payload: null };
+  // Re-seed the local cache so subsequent reads are synchronous.
+  writePayload(id, j.payload);
+  return { status: "found", payload: j.payload };
+}
 
 export function deleteDiffReport(id) {
   removePayload(id);
   writeIndex(readIndex().filter((m) => m.id !== id));
+  fetch(API_BASE + "/" + encodeURIComponent(id), { method: "DELETE" })
+    .catch(() => { /* best-effort */ });
   notify();
 }
 
@@ -125,6 +184,7 @@ export function clearDiffReports() {
   const idx = readIndex();
   idx.forEach((m) => removePayload(m.id));
   try { localStorage.removeItem(INDEX_KEY); } catch { /* ignore */ }
+  fetch(API_BASE, { method: "DELETE" }).catch(() => { /* best-effort */ });
   notify();
 }
 
@@ -136,6 +196,93 @@ export function subscribeDiffReports(handler) {
     window.removeEventListener("srtlab:diffReports", listener);
     window.removeEventListener("storage", listener);
   };
+}
+
+/* Pulls the canonical list from the server, migrates any local-only entries
+ * on first run, and refreshes the local cache index so listDiffReports() is
+ * up-to-date. Safe to call repeatedly; returns the merged list. */
+export async function refreshDiffReportsFromServer() {
+  let serverList = null;
+  try {
+    const res = await fetch(API_BASE);
+    if (res.ok) {
+      const j = await res.json();
+      if (Array.isArray(j.reports)) serverList = j.reports;
+    }
+  } catch { /* offline; keep local cache */ }
+
+  if (!serverList) return readIndex();
+
+  // First-run migration: push local-only entries to the database so reports
+  // saved before this sync existed don't disappear when the server list
+  // overwrites the cache. The migration marker is only set after every
+  // candidate succeeds — partial failures leave it unset so the next
+  // refresh retries the leftovers, otherwise a transient outage during the
+  // first refresh would silently strand local-only reports.
+  const serverIds = new Set(serverList.map((r) => r.id));
+  const localIdx = readIndex();
+  let migrated = false;
+  if (!localStorage.getItem(MIGRATED_KEY)) {
+    let anyFailure = false;
+    for (const meta of localIdx) {
+      if (serverIds.has(meta.id)) continue;
+      const payload = readPayload(meta.id);
+      if (!payload) continue;
+      let ok = false;
+      try {
+        const res = await fetch(API_BASE, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: meta.id,
+            generatedAt: meta.generatedAt,
+            baselineLabel: meta.baselineLabel,
+            baselineTs: meta.baselineTs,
+            baselineModuleCount: meta.baselineModuleCount,
+            currentTs: meta.currentTs,
+            currentModuleCount: meta.currentModuleCount,
+            addedCount: meta.addedCount,
+            removedCount: meta.removedCount,
+            changedCount: meta.changedCount,
+            sameCount: meta.sameCount,
+            payload,
+          }),
+        });
+        if (res.ok) { serverIds.add(meta.id); migrated = true; ok = true; }
+      } catch { /* network error — retry on next refresh */ }
+      if (!ok) anyFailure = true;
+    }
+    if (!anyFailure) {
+      try { localStorage.setItem(MIGRATED_KEY, new Date().toISOString()); } catch { /* ignore */ }
+    }
+  }
+
+  if (migrated) {
+    try {
+      const res = await fetch(API_BASE);
+      if (res.ok) {
+        const j = await res.json();
+        if (Array.isArray(j.reports)) serverList = j.reports;
+      }
+    } catch { /* ignore */ }
+  }
+
+  const normalized = serverList.map((r) => ({
+    id: r.id,
+    generatedAt: r.generatedAt,
+    baselineLabel: r.baselineLabel,
+    baselineTs: r.baselineTs,
+    baselineModuleCount: r.baselineModuleCount,
+    currentTs: r.currentTs,
+    currentModuleCount: r.currentModuleCount,
+    addedCount: r.addedCount,
+    removedCount: r.removedCount,
+    changedCount: r.changedCount,
+    sameCount: r.sameCount,
+  }));
+  writeIndex(normalized);
+  notify();
+  return normalized;
 }
 
 /* Pretty timestamp shared between save flow and history view. */

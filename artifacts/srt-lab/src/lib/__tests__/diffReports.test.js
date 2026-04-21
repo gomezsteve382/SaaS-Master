@@ -32,8 +32,10 @@ import {
   saveDiffReport,
   listDiffReports,
   getDiffReport,
+  getDiffReportAsync,
   deleteDiffReport,
   clearDiffReports,
+  refreshDiffReportsFromServer,
   exportDiffReportPDF,
   buildDiffReportText,
 } from '../diffReports.js';
@@ -66,6 +68,7 @@ const sampleDiff = () => ({
 beforeEach(() => {
   localStorage.clear();
   buildOnePagerPDFMock.mockClear();
+  globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({}) }));
 });
 
 describe('diffReports persistence', () => {
@@ -143,6 +146,102 @@ describe('diffReports rendering', () => {
     );
     expect(txt).toMatch(/No differences/);
     expect(txt).toMatch(/2 modules unchanged/);
+  });
+
+  it('saveDiffReport mirrors the report to /api/diff-reports', async () => {
+    saveDiffReport({ baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff() });
+    // Microtask flush so the fire-and-forget fetch is observed.
+    await new Promise((r) => setTimeout(r, 0));
+    const calls = globalThis.fetch.mock.calls.filter(([url]) => url === '/api/diff-reports');
+    expect(calls.length).toBeGreaterThan(0);
+    const body = JSON.parse(calls[0][1].body);
+    expect(body.id).toMatch(/^d_/);
+    expect(body.baselineLabel).toBe('My RO 12345');
+    expect(body.addedCount).toBe(1);
+    expect(body.payload.diff.removed[0].code).toBe('ECM');
+  });
+
+  it('refreshDiffReportsFromServer overwrites the local index with the server list', async () => {
+    const serverRow = {
+      id: 'd_server_xyz',
+      generatedAt: 1700001000000,
+      baselineLabel: 'Other Tech',
+      baselineTs: 1700000000000,
+      baselineModuleCount: 3,
+      currentTs: 1700000900000,
+      currentModuleCount: 4,
+      addedCount: 1, removedCount: 0, changedCount: 2, sameCount: 2,
+    };
+    globalThis.fetch = vi.fn(async (url) => {
+      if (url === '/api/diff-reports') {
+        return { ok: true, json: async () => ({ reports: [serverRow] }) };
+      }
+      return { ok: true, json: async () => ({}) };
+    });
+    const list = await refreshDiffReportsFromServer();
+    expect(list).toHaveLength(1);
+    expect(list[0].id).toBe('d_server_xyz');
+    expect(listDiffReports()[0].baselineLabel).toBe('Other Tech');
+  });
+
+  it('getDiffReportAsync falls back to a server fetch when the local cache is empty', async () => {
+    const payload = {
+      id: 'd_remote_1',
+      generatedAt: 1700002000000,
+      baseline: { label: 'remote', ts: 1700000000000, modules: [] },
+      current: { ts: 1700001000000, modules: [] },
+      diff: { added: [], removed: [], changed: [], same: [] },
+    };
+    globalThis.fetch = vi.fn(async (url) => {
+      if (url === '/api/diff-reports/d_remote_1') {
+        return { ok: true, status: 200, json: async () => ({ id: 'd_remote_1', payload }) };
+      }
+      return { ok: false, status: 404, json: async () => ({}) };
+    });
+    expect(getDiffReport('d_remote_1')).toBeNull();
+    const fetched = await getDiffReportAsync('d_remote_1');
+    expect(fetched.status).toBe('found');
+    expect(fetched.payload.baseline.label).toBe('remote');
+    // Should now be cached locally.
+    expect(getDiffReport('d_remote_1')).toBeTruthy();
+  });
+
+  it('getDiffReportAsync reports "missing" only on a confirmed 404, "unknown" on transient failures', async () => {
+    globalThis.fetch = vi.fn(async () => ({ ok: false, status: 404, json: async () => ({}) }));
+    const gone = await getDiffReportAsync('d_gone');
+    expect(gone.status).toBe('missing');
+
+    globalThis.fetch = vi.fn(async () => { throw new Error('offline'); });
+    const offline = await getDiffReportAsync('d_offline');
+    expect(offline.status).toBe('unknown');
+
+    globalThis.fetch = vi.fn(async () => ({ ok: false, status: 500, json: async () => ({}) }));
+    const flaky = await getDiffReportAsync('d_flaky');
+    expect(flaky.status).toBe('unknown');
+  });
+
+  it('refreshDiffReportsFromServer leaves the migration marker unset when a POST fails so it retries next time', async () => {
+    // Pre-seed a local-only report.
+    saveDiffReport({ baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff() });
+    // Server returns empty list AND fails every migration POST.
+    globalThis.fetch = vi.fn(async (url, opts) => {
+      if (url === '/api/diff-reports' && (!opts || opts.method !== 'POST')) {
+        return { ok: true, status: 200, json: async () => ({ reports: [] }) };
+      }
+      return { ok: false, status: 503, json: async () => ({}) };
+    });
+    await refreshDiffReportsFromServer();
+    expect(localStorage.getItem('srtlab_diff_reports_migrated_v1')).toBeNull();
+  });
+
+  it('deleteDiffReport sends a DELETE to the API', async () => {
+    const meta = saveDiffReport({ baseline: sampleBaseline(), current: sampleCurrent(), diff: sampleDiff() });
+    globalThis.fetch.mockClear();
+    deleteDiffReport(meta.id);
+    const delCall = globalThis.fetch.mock.calls.find(
+      ([url, opts]) => url === '/api/diff-reports/' + encodeURIComponent(meta.id) && opts?.method === 'DELETE',
+    );
+    expect(delCall).toBeTruthy();
   });
 
   it('saved reports survive a round-trip through the PDF rebuilder', async () => {
