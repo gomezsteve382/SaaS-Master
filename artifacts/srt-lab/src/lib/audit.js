@@ -9,6 +9,8 @@
 // Module backups (read-before-write snapshots) remain because they are
 // functional data needed by the Restore flow.
 
+import { sha256Hex, backupDidsToBytes } from "./checksum.js";
+
 const BACKUP_INDEX_KEY = "srtlab_backup_index";
 const BACKUP_KEY_PREFIX = "srtlab_backup_";
 const BACKUP_MIGRATED_KEY = "srtlab_backup_migrated_v1";
@@ -187,7 +189,7 @@ export function pruneNonCriticalBackups({ targetBytes = BACKUP_QUOTA_BYTES * 0.6
 
 /* ─── BACKUPS ─── */
 
-export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}) {
+export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}, snapshotKind = "pre-write", preWriteKey = null) {
   const dids = CRITICAL_DIDS[moduleType];
   if (!dids) {
     addLog("No backup profile for " + moduleType, "warn");
@@ -221,9 +223,13 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
     }
   }
   addLog("Backup complete: " + successCount + "/" + dids.length + " DIDs captured", "info");
+  const checksum = await sha256Hex(backupDidsToBytes(backup.dids)).catch(() => null);
+  backup.checksum = checksum;
+  backup.snapshotKind = snapshotKind;
+  if (preWriteKey) backup.preWriteKey = preWriteKey;
   const vin = backup.dids[0xF190]?.ascii?.slice(-17) || "unknown";
   const key = BACKUP_KEY_PREFIX + moduleType + "_" + vin + "_" + Date.now();
-  const meta = { key, id: key, module: moduleType, vin, timestamp: backup.timestamp, didCount: successCount, tx, rx };
+  const meta = { key, id: key, module: moduleType, vin, timestamp: backup.timestamp, didCount: successCount, tx, rx, checksum, snapshotKind, preWriteKey: preWriteKey || null };
 
   /* Pre-flight: if we're already past the prune threshold, drop redundant
    * historical snapshots before the write so we don't trip the browser quota. */
@@ -248,6 +254,7 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
       body: JSON.stringify({
         id: key, module: moduleType, vin, didCount: successCount,
         tx, rx, timestamp: backup.timestamp, payload: backup,
+        checksum, snapshotKind, preWriteKey: preWriteKey || null,
       }),
     });
     savedRemote = res.ok;
@@ -536,6 +543,9 @@ export async function refreshBackupsFromServer() {
     didCount: b.didCount,
     tx: b.tx,
     rx: b.rx,
+    checksum: b.checksum ?? null,
+    snapshotKind: b.snapshotKind ?? null,
+    preWriteKey: b.preWriteKey ?? null,
   }));
   writeLocalIndex(normalized);
   notify();

@@ -8,6 +8,7 @@ import {
   subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
   exportAllBackups, importBackups,
 } from "../lib/audit.js";
+import { sha256Hex, backupDidsToBytes } from "../lib/checksum.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import {
@@ -33,8 +34,29 @@ export default function BackupsTab() {
   const [busy, setBusy] = useState("");
   const [conn, setConn] = useState(false);
   const [restoreLog, setRestoreLog] = useState([]);
+  const [verifyStates, setVerifyStates] = useState({});
+  const [pairedData, setPairedData] = useState(null);
   const eng = useRef(null);
   const importInputRef = useRef(null);
+
+  const handleVerify = useCallback(async (key, dids, storedChecksum) => {
+    if (!storedChecksum) return;
+    setVerifyStates(s => ({ ...s, [key]: "checking" }));
+    try {
+      const computed = await sha256Hex(backupDidsToBytes(dids));
+      setVerifyStates(s => ({ ...s, [key]: computed === storedChecksum ? "pass" : "fail" }));
+    } catch {
+      setVerifyStates(s => ({ ...s, [key]: "fail" }));
+    }
+  }, []);
+
+  const handleLoadPaired = useCallback(async (preWriteKey) => {
+    if (!preWriteKey) return;
+    try {
+      const paired = await getBackupAsync(preWriteKey);
+      setPairedData(paired);
+    } catch { /* ignore */ }
+  }, []);
 
   const refresh = useCallback(() => {
     const list = getBackupList();
@@ -635,7 +657,18 @@ export default function BackupsTab() {
                       transition: "all 0.15s",
                     }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ fontWeight: 800, fontSize: 13, color: isSel ? C.a2 : C.tx }}>{b.module}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ fontWeight: 800, fontSize: 13, color: isSel ? C.a2 : C.tx }}>{b.module}</div>
+                        {b.snapshotKind && (
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: "1px 5px", borderRadius: 3,
+                            background: b.snapshotKind === "post-write" ? "#1E6F3A22" : "#3A1E6F22",
+                            color: b.snapshotKind === "post-write" ? "#1E6F3A" : "#3A1E6F",
+                          }}>
+                            {b.snapshotKind === "post-write" ? "POST" : "PRE"}
+                          </span>
+                        )}
+                      </div>
                       <div style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>{b.didCount} DIDs</div>
                     </div>
                     <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.ts, marginTop: 3 }}>{b.vin}</div>
@@ -676,6 +709,62 @@ export default function BackupsTab() {
                   </span>
                   <span style={{ color: C.ts }}>DIDs captured:</span>
                   <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{Object.keys(selectedData.dids).length}</span>
+                  {selectedData.snapshotKind && (<>
+                    <span style={{ color: C.ts }}>Snapshot:</span>
+                    <span>
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, letterSpacing: 1, padding: "2px 7px", borderRadius: 3,
+                        background: selectedData.snapshotKind === "post-write" ? "#1E6F3A22" : "#3A1E6F22",
+                        color: selectedData.snapshotKind === "post-write" ? "#1E6F3A" : "#3A1E6F",
+                      }}>
+                        {selectedData.snapshotKind === "post-write" ? "POST-WRITE" : "PRE-WRITE"}
+                      </span>
+                    </span>
+                  </>)}
+                  {selectedData.checksum && (<>
+                    <span style={{ color: C.ts }}>SHA-256:</span>
+                    <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{selectedData.checksum.slice(0, 16)}…</span>
+                      <button onClick={() => navigator.clipboard?.writeText(selectedData.checksum)} style={{
+                        fontSize: 9, padding: "1px 6px", borderRadius: 3, border: "1px solid " + C.bd,
+                        background: "#f5f5f5", cursor: "pointer", color: C.ts,
+                      }}>Copy</button>
+                      <button
+                        disabled={verifyStates[selected] === "checking"}
+                        onClick={() => handleVerify(selected, selectedData.dids, selectedData.checksum)}
+                        style={{
+                          fontSize: 9, padding: "1px 6px", borderRadius: 3, border: "1px solid",
+                          cursor: "pointer", fontWeight: 700,
+                          borderColor: verifyStates[selected] === "pass" ? "#1E6F3A" : verifyStates[selected] === "fail" ? "#CC0000" : C.bd,
+                          background: verifyStates[selected] === "pass" ? "#e6f9ed" : verifyStates[selected] === "fail" ? "#FFE6E6" : "#f5f5f5",
+                          color: verifyStates[selected] === "pass" ? "#1E6F3A" : verifyStates[selected] === "fail" ? "#CC0000" : C.ts,
+                        }}
+                      >
+                        {verifyStates[selected] === "checking" ? "…" : verifyStates[selected] === "pass" ? "✓ PASS" : verifyStates[selected] === "fail" ? "✗ FAIL" : "Verify"}
+                      </button>
+                    </span>
+                  </>)}
+                  {selectedData.snapshotKind === "pre-write" && selectedData.preWriteKey == null && (() => {
+                    const postMatch = backups.find(b => b.preWriteKey === selected && b.snapshotKind === "post-write");
+                    return postMatch ? (<>
+                      <span style={{ color: C.ts }}>Post-write:</span>
+                      <span>
+                        <button onClick={() => loadBackup(postMatch.key)} style={{
+                          fontSize: 9, padding: "1px 6px", borderRadius: 3, border: "1px solid " + C.bd,
+                          background: "#f5f5f5", cursor: "pointer", color: C.ts,
+                        }}>View POST snapshot →</button>
+                      </span>
+                    </>) : null;
+                  })()}
+                  {selectedData.snapshotKind === "post-write" && selectedData.preWriteKey && (<>
+                    <span style={{ color: C.ts }}>Pre-write:</span>
+                    <span>
+                      <button onClick={() => loadBackup(selectedData.preWriteKey)} style={{
+                        fontSize: 9, padding: "1px 6px", borderRadius: 3, border: "1px solid " + C.bd,
+                        background: "#f5f5f5", cursor: "pointer", color: C.ts,
+                      }}>View PRE snapshot ←</button>
+                    </span>
+                  </>)}
                 </div>
 
                 <div style={{

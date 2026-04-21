@@ -11,6 +11,9 @@ export const moduleBackupsTable = pgTable(
     rx: integer("rx"),
     timestamp: timestamp("timestamp", { withTimezone: true }).notNull().defaultNow(),
     payload: jsonb("payload").notNull(),
+    checksum: text("checksum"),
+    snapshotKind: text("snapshot_kind"),
+    preWriteKey: text("pre_write_key"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({

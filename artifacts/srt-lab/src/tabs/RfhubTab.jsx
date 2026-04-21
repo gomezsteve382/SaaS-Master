@@ -182,7 +182,7 @@ export default function RfhubTab(){
     const r=await programVin({
       eng:activeEng, row, vin:masterVin,
       addLog:(m,t)=>addLog(m,t),
-      makeBackup: async ({uds})=>backupModule(uds,rfhubAddr.tx,rfhubAddr.rx,'RFHUB',addLog,hx),
+      makeBackup: async ({uds,snapshotKind,preWriteKey})=>backupModule(uds,rfhubAddr.tx,rfhubAddr.rx,'RFHUB',addLog,hx,snapshotKind,preWriteKey),
     });
     const f190=r.didResults.find(d=>d.did===0xF190);
     setCurVin(f190?.readback||null);

@@ -192,7 +192,7 @@ export default function AdcmTab(){
     const r=await programVin({
       eng:activeEng, row, vin:target,
       addLog:(m,t)=>addLog(m,t),
-      makeBackup: async ({uds})=>backupModule(uds,mod.tx,mod.rx,'ADCM',addLog,hx),
+      makeBackup: async ({uds,snapshotKind,preWriteKey})=>backupModule(uds,mod.tx,mod.rx,'ADCM',addLog,hx,snapshotKind,preWriteKey),
     });
     const f190=r.didResults.find(d=>d.did===0xF190);
     const v7b90=r.didResults.find(d=>d.did===0x7B90);

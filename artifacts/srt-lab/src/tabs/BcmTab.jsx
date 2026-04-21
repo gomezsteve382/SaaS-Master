@@ -230,8 +230,8 @@ export default function BcmTab(){
     const r=await programVin({
       eng:activeEng, row, vin:masterVin,
       addLog:(m,t)=>addLog(m,t),
-      makeBackup: async ({uds})=>{
-        const b=await backupModule(uds,bcmAddr.tx,bcmAddr.rx,'BCM',addLog,hx);
+      makeBackup: async ({uds,snapshotKind,preWriteKey})=>{
+        const b=await backupModule(uds,bcmAddr.tx,bcmAddr.rx,'BCM',addLog,hx,snapshotKind,preWriteKey);
         if(b)setBackupCount(getBackupList('BCM').length);
         return b;
       },

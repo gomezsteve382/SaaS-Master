@@ -29,6 +29,9 @@ router.get("/backups", async (req, res, next) => {
         tx: moduleBackupsTable.tx,
         rx: moduleBackupsTable.rx,
         timestamp: moduleBackupsTable.timestamp,
+        checksum: moduleBackupsTable.checksum,
+        snapshotKind: moduleBackupsTable.snapshotKind,
+        preWriteKey: moduleBackupsTable.preWriteKey,
       })
       .from(moduleBackupsTable);
 
@@ -51,6 +54,9 @@ router.get("/backups", async (req, res, next) => {
         tx: r.tx,
         rx: r.rx,
         timestamp: r.timestamp instanceof Date ? r.timestamp.toISOString() : r.timestamp,
+        checksum: r.checksum ?? null,
+        snapshotKind: r.snapshotKind ?? null,
+        preWriteKey: r.preWriteKey ?? null,
       })),
     });
   } catch (err) {
@@ -87,6 +93,9 @@ router.get("/backups/:id", async (req, res, next) => {
       tx: row.tx,
       rx: row.rx,
       timestamp: row.timestamp instanceof Date ? row.timestamp.toISOString() : row.timestamp,
+      checksum: row.checksum ?? null,
+      snapshotKind: row.snapshotKind ?? null,
+      preWriteKey: row.preWriteKey ?? null,
       payload: row.payload,
     });
   } catch (err) {
@@ -135,6 +144,10 @@ router.post("/backups", async (req, res, next) => {
     const ts = tsRaw ? new Date(tsRaw) : new Date();
     const timestamp = Number.isNaN(ts.getTime()) ? new Date() : ts;
 
+    const checksum = typeof body.checksum === "string" ? body.checksum : null;
+    const snapshotKind = typeof body.snapshotKind === "string" ? body.snapshotKind : null;
+    const preWriteKey = typeof body.preWriteKey === "string" ? body.preWriteKey : null;
+
     await db
       .insert(moduleBackupsTable)
       .values({
@@ -146,6 +159,9 @@ router.post("/backups", async (req, res, next) => {
         rx,
         timestamp,
         payload,
+        checksum,
+        snapshotKind,
+        preWriteKey,
       })
       .onConflictDoUpdate({
         target: moduleBackupsTable.id,
@@ -157,6 +173,9 @@ router.post("/backups", async (req, res, next) => {
           rx,
           timestamp,
           payload,
+          checksum,
+          snapshotKind,
+          preWriteKey,
         },
       });
 

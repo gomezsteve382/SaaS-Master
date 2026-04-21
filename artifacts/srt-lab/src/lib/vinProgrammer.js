@@ -113,6 +113,7 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
     crcValue: null,
     didResults: [],
     backupKey: null,
+    postWriteBackupKey: null,
     errors: [],
   };
 
@@ -217,10 +218,10 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
     return result;
   }
 
-  // Step 4 — optional backup.
+  // Step 4 — optional pre-write backup.
   if (typeof makeBackup === 'function') {
     try {
-      const bk = await makeBackup({ uds: eng.uds, tx: row.tx, rx: row.rx, code: row.code, addLog: log });
+      const bk = await makeBackup({ uds: eng.uds, tx: row.tx, rx: row.rx, code: row.code, addLog: log, snapshotKind: 'pre-write' });
       result.backupKey = bk?.key || null;
     } catch (e) {
       log(`${lbl} backup failed: ${e?.message || e} — continuing`, 'warn');
@@ -263,6 +264,21 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
   if (!allWroteOk) result.reason = 'write';
   else if (!allVerifiedOk) result.reason = 'verify';
   else result.ok = true;
+
+  // Step 7 — optional post-write snapshot. Only when every DID wrote and
+  // verified successfully — saves the confirmed after-state with its own
+  // checksum so both the before and after bytes are archived.
+  if (result.ok && typeof makeBackup === 'function') {
+    try {
+      const bk = await makeBackup({
+        uds: eng.uds, tx: row.tx, rx: row.rx, code: row.code, addLog: log,
+        snapshotKind: 'post-write', preWriteKey: result.backupKey,
+      });
+      result.postWriteBackupKey = bk?.key || null;
+    } catch (e) {
+      log(`${lbl} post-write backup failed: ${e?.message || e} — continuing`, 'warn');
+    }
+  }
 
   return result;
 }

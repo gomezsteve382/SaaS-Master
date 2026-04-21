@@ -1,6 +1,7 @@
 /* Module Backup Service — snapshots critical DIDs to localStorage before writes.
    Ported from reference App.jsx (vault/server/module-backup-service.ts). */
 import {nrcMsg} from './nrc.js';
+import {sha256Hex,backupDidsToBytes} from './checksum.js';
 
 const INDEX_KEY='srtlab_backup_index';
 const MAX_BACKUPS=50;
@@ -54,7 +55,7 @@ export const CRITICAL_DIDS={
 
 /* Read all critical DIDs from a module and persist to localStorage.
    engUds(tx,rx,bytes) -> {ok,d} */
-export async function backupModule(engUds,tx,rx,moduleType,addLog,hxFn){
+export async function backupModule(engUds,tx,rx,moduleType,addLog,hxFn,snapshotKind='pre-write',preWriteKey=null){
   const dids=CRITICAL_DIDS[moduleType];
   if(!dids){addLog('No backup profile for '+moduleType,'warn');return null;}
   addLog('═══ CREATING MODULE BACKUP: '+moduleType+' ═══','info');
@@ -77,6 +78,10 @@ export async function backupModule(engUds,tx,rx,moduleType,addLog,hxFn){
     }
   }
   addLog('Backup complete: '+successCount+'/'+dids.length+' DIDs captured','info');
+  const checksum=await sha256Hex(backupDidsToBytes(backup.dids)).catch(()=>null);
+  backup.checksum=checksum;
+  backup.snapshotKind=snapshotKind;
+  if(preWriteKey)backup.preWriteKey=preWriteKey;
   const vin=backup.dids[0xF190]?.ascii?.slice(-17)||'unknown';
   const key='srtlab_backup_'+moduleType+'_'+vin+'_'+Date.now();
 
@@ -90,6 +95,7 @@ export async function backupModule(engUds,tx,rx,moduleType,addLog,hxFn){
       body:JSON.stringify({
         id:key,module:moduleType,vin,didCount:successCount,
         tx,rx,timestamp:backup.timestamp,payload:backup,
+        checksum,snapshotKind,preWriteKey:preWriteKey||null,
       }),
     });
     savedRemote=res.ok;
@@ -102,7 +108,7 @@ export async function backupModule(engUds,tx,rx,moduleType,addLog,hxFn){
   try{
     localStorage.setItem(key,JSON.stringify(backup));
     const idx=JSON.parse(localStorage.getItem(INDEX_KEY)||'[]');
-    idx.unshift({key,module:moduleType,vin,timestamp:backup.timestamp,didCount:successCount,tx,rx});
+    idx.unshift({key,module:moduleType,vin,timestamp:backup.timestamp,didCount:successCount,tx,rx,checksum,snapshotKind,preWriteKey:preWriteKey||null});
     if(idx.length>MAX_BACKUPS){
       idx.slice(MAX_BACKUPS).forEach(b=>{try{localStorage.removeItem(b.key);}catch{/* ignore */}});
     }
