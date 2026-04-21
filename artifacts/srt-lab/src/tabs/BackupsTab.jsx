@@ -50,12 +50,13 @@ export default function BackupsTab() {
     }
   }, []);
 
-  const handleLoadPaired = useCallback(async (preWriteKey) => {
-    if (!preWriteKey) return;
+  const handleLoadPaired = useCallback(async (pairedKey) => {
+    if (!pairedKey) return;
+    setPairedData("loading");
     try {
-      const paired = await getBackupAsync(preWriteKey);
-      setPairedData(paired);
-    } catch { /* ignore */ }
+      const paired = await getBackupAsync(pairedKey);
+      setPairedData(paired || null);
+    } catch { setPairedData(null); }
   }, []);
 
   const refresh = useCallback(() => {
@@ -208,6 +209,7 @@ export default function BackupsTab() {
   const loadBackup = useCallback(async (key) => {
     setSelected(key);
     setSelectedData(null);
+    setPairedData(null);
     const data = await getBackupAsync(key);
     setSelectedData(data);
   }, []);
@@ -744,27 +746,31 @@ export default function BackupsTab() {
                       </button>
                     </span>
                   </>)}
-                  {selectedData.snapshotKind === "pre-write" && selectedData.preWriteKey == null && (() => {
-                    const postMatch = backups.find(b => b.preWriteKey === selected && b.snapshotKind === "post-write");
-                    return postMatch ? (<>
-                      <span style={{ color: C.ts }}>Post-write:</span>
-                      <span>
-                        <button onClick={() => loadBackup(postMatch.key)} style={{
+                  {(() => {
+                    const isPost = selectedData.snapshotKind === "post-write";
+                    const isPre = selectedData.snapshotKind === "pre-write";
+                    const postMatch = isPre ? backups.find(b => b.preWriteKey === selected && b.snapshotKind === "post-write") : null;
+                    const pairedKey = isPost ? selectedData.preWriteKey : postMatch?.key;
+                    if (!pairedKey) return null;
+                    const pairLabel = isPost ? "Compare PRE → POST" : "Compare PRE → POST";
+                    return (<>
+                      <span style={{ color: C.ts }}>Pair:</span>
+                      <span style={{ display: "flex", gap: 6 }}>
+                        <button onClick={() => handleLoadPaired(pairedKey)} style={{
+                          fontSize: 9, padding: "1px 7px", borderRadius: 3, border: "1px solid " + C.a2,
+                          background: pairedData ? "#e6f9ed" : "#f5f5f5", cursor: "pointer", color: C.a2, fontWeight: 700,
+                        }}>{pairedData === "loading" ? "…" : pairLabel}</button>
+                        {isPost && <button onClick={() => loadBackup(selectedData.preWriteKey)} style={{
                           fontSize: 9, padding: "1px 6px", borderRadius: 3, border: "1px solid " + C.bd,
                           background: "#f5f5f5", cursor: "pointer", color: C.ts,
-                        }}>View POST snapshot →</button>
+                        }}>← View PRE</button>}
+                        {isPre && postMatch && <button onClick={() => loadBackup(postMatch.key)} style={{
+                          fontSize: 9, padding: "1px 6px", borderRadius: 3, border: "1px solid " + C.bd,
+                          background: "#f5f5f5", cursor: "pointer", color: C.ts,
+                        }}>View POST →</button>}
                       </span>
-                    </>) : null;
+                    </>);
                   })()}
-                  {selectedData.snapshotKind === "post-write" && selectedData.preWriteKey && (<>
-                    <span style={{ color: C.ts }}>Pre-write:</span>
-                    <span>
-                      <button onClick={() => loadBackup(selectedData.preWriteKey)} style={{
-                        fontSize: 9, padding: "1px 6px", borderRadius: 3, border: "1px solid " + C.bd,
-                        background: "#f5f5f5", cursor: "pointer", color: C.ts,
-                      }}>View PRE snapshot ←</button>
-                    </span>
-                  </>)}
                 </div>
 
                 <div style={{
@@ -801,6 +807,53 @@ export default function BackupsTab() {
                     </div>
                   ))}
                 </div>
+
+                {pairedData && pairedData !== "loading" && (() => {
+                  const preSnap = selectedData.snapshotKind === "pre-write" ? selectedData : pairedData;
+                  const postSnap = selectedData.snapshotKind === "post-write" ? selectedData : pairedData;
+                  const allDids = new Set([...Object.keys(preSnap.dids || {}), ...Object.keys(postSnap.dids || {})]);
+                  const rows = [];
+                  allDids.forEach(did => {
+                    const before = preSnap.dids?.[did];
+                    const after = postSnap.dids?.[did];
+                    const changed = (before?.hex || "") !== (after?.hex || "");
+                    rows.push({ did, before, after, changed });
+                  });
+                  const changedRows = rows.filter(r => r.changed);
+                  const unchangedRows = rows.filter(r => !r.changed);
+                  return (
+                    <div style={{ marginTop: 16 }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, letterSpacing: 2, marginBottom: 8, display: "flex", justifyContent: "space-between" }}>
+                        <span>PRE → POST DIFF</span>
+                        <span style={{ fontWeight: 400, color: C.tm }}>{changedRows.length} changed · {unchangedRows.length} unchanged</span>
+                      </div>
+                      {changedRows.length === 0 && (
+                        <div style={{ fontSize: 11, color: C.a2, padding: "8px 10px", background: "#e6f9ed", borderRadius: 4 }}>
+                          No DID values changed between snapshots.
+                        </div>
+                      )}
+                      {changedRows.map(({ did, before, after }) => (
+                        <div key={did} style={{ padding: "6px 10px", marginBottom: 4, borderRadius: 4, border: "1px solid #f0c060", background: "#FFFBF0" }}>
+                          <div style={{ fontSize: 10, fontWeight: 800, color: C.tx, marginBottom: 4 }}>
+                            0x{hx(parseInt(did, 10), 4)} · {before?.name || after?.name}
+                          </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                            <div>
+                              <div style={{ fontSize: 8, fontWeight: 700, color: "#CC0000", letterSpacing: 1, marginBottom: 2 }}>BEFORE</div>
+                              {before?.ascii && <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: "#CC0000" }}>"{before.ascii}"</div>}
+                              <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: "#CC0000", wordBreak: "break-all" }}>{before?.hex || "(missing)"}</div>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: 8, fontWeight: 700, color: "#1E6F3A", letterSpacing: 1, marginBottom: 2 }}>AFTER</div>
+                              {after?.ascii && <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: "#1E6F3A" }}>"{after.ascii}"</div>}
+                              <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: "#1E6F3A", wordBreak: "break-all" }}>{after?.hex || "(missing)"}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             </Card>
           ) : (

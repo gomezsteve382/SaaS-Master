@@ -9,6 +9,7 @@ import {useSgwAuth, isSgwAuthenticated} from "../lib/sgwAuth.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {partitionForVin, getRow} from "../lib/moduleRegistry.js";
 import {programVin} from "../lib/vinProgrammer.js";
+import {backupModule} from "../lib/backups.js";
 
 /* Dev-only test hook: when the dev server URL carries
    `?testEngine=stop-on-fail-ecm`, install a deterministic stub uds engine
@@ -322,11 +323,14 @@ export default function ProgramAllTab(){
       blog(`── ${row.code} (TX 0x${hx(row.tx,3)})${usingOverride?` · VIN OVERRIDE → ${vinForThisRow}`:''} ──`, 'info');
       setBatchResults(p => ({ ...p, [row.tx]: { status: 'running' } }));
 
+      const rowLog = (m,t)=>blog(`  ${m}`, t);
       const r = await programVin({
         eng: activeEng,
         row,
         vin: vinForThisRow,
-        addLog: (m,t)=>blog(`  ${m}`, t),
+        addLog: rowLog,
+        makeBackup: async ({uds,snapshotKind,preWriteKey}) =>
+          backupModule(uds, row.tx, row.rx, row.code, rowLog, hx, snapshotKind, preWriteKey),
       });
       // Refresh currentVins from the verification read — keeps the per-row
       // display in sync after every batch.
