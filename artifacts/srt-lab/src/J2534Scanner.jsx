@@ -1130,6 +1130,7 @@ function DiffPanel({ S, baseline, current, onClearBaseline }) {
   const noChanges = !diff.added.length && !diff.removed.length && !diff.changed.length;
   const [copyState, setCopyState] = useState("idle");
   const [pdfState, setPdfState] = useState("idle");
+  const [emailState, setEmailState] = useState("idle");
   const handleCopyText = async () => {
     try {
       const txt = buildDiffReportText(baseline, current, diff);
@@ -1148,6 +1149,43 @@ function DiffPanel({ S, baseline, current, onClearBaseline }) {
     } catch {
       setCopyState("err");
       setTimeout(() => setCopyState("idle"), 1500);
+    }
+  };
+  const handleEmailReport = async () => {
+    setEmailState("working");
+    try {
+      const txt = buildDiffReportText(baseline, current, diff);
+      const stamp = fmtScanStamp(current.ts) || new Date().toLocaleString();
+      const subject = `SRT Lab Diff Report \u2014 ${baseline.label || "baseline"} \u2192 ${stamp}`;
+      const summary = [];
+      if (diff.added.length) summary.push(`${diff.added.length} added`);
+      if (diff.removed.length) summary.push(`${diff.removed.length} removed`);
+      if (diff.changed.length) summary.push(`${diff.changed.length} VIN change${diff.changed.length === 1 ? "" : "s"}`);
+      const summaryLine = summary.length ? summary.join(", ") : "no differences";
+      const body = [
+        `Diff summary: ${summaryLine}.`,
+        `The full PDF report has been downloaded to this machine \u2014 please attach "SRT_Lab_Diff_Report_*.pdf" to this message before sending.`,
+        "",
+        "------ PLAIN-TEXT DIFF ------",
+        txt,
+      ].join("\n");
+      try { await exportDiffReportPDF(baseline, current, diff); } catch {}
+      const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      if (mailto.length > 1900) {
+        const shortBody = [
+          `Diff summary: ${summaryLine}.`,
+          `Full PDF report has been downloaded \u2014 please attach "SRT_Lab_Diff_Report_*.pdf" before sending.`,
+          "(Plain-text diff omitted because it exceeded the email-link size limit. See the attached PDF for full details.)",
+        ].join("\n");
+        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(shortBody)}`;
+      } else {
+        window.location.href = mailto;
+      }
+      setEmailState("ok");
+      setTimeout(() => setEmailState("idle"), 1500);
+    } catch {
+      setEmailState("err");
+      setTimeout(() => setEmailState("idle"), 1500);
     }
   };
   const handleSavePDF = async () => {
@@ -1209,6 +1247,24 @@ function DiffPanel({ S, baseline, current, onClearBaseline }) {
             title="Save this diff as a printable PDF report"
           >
             {pdfState === "working" ? "… BUILDING" : pdfState === "ok" ? "✓ SAVED" : pdfState === "err" ? "✗ ERROR" : "📄 SAVE DIFF REPORT"}
+          </button>
+          <button
+            onClick={handleEmailReport}
+            disabled={emailState === "working"}
+            style={{
+              padding: "4px 10px",
+              background: emailState === "ok" ? "#1B5E20" : "#0D2A4A",
+              color: "#90CAF9",
+              border: "1px solid " + S.border,
+              borderRadius: 4,
+              cursor: emailState === "working" ? "wait" : "pointer",
+              fontFamily: S.font,
+              fontSize: 11,
+              fontWeight: 700,
+            }}
+            title="Open a prefilled email draft with the diff summary; PDF is downloaded so you can attach it"
+          >
+            {emailState === "working" ? "… PREPARING" : emailState === "ok" ? "✓ DRAFTED" : emailState === "err" ? "✗ ERROR" : "✉ EMAIL REPORT"}
           </button>
           <button
             onClick={handleCopyText}
