@@ -10,7 +10,6 @@ export const moduleBackupsTable = pgTable(
     tx: integer("tx"),
     rx: integer("rx"),
     timestamp: timestamp("timestamp", { withTimezone: true }).notNull().defaultNow(),
-    author: text("author"),
     payload: jsonb("payload").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

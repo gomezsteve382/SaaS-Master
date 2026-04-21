@@ -84,7 +84,6 @@ router.get("/diff-reports", async (_req, res, next) => {
         removedCount: diffReportsTable.removedCount,
         changedCount: diffReportsTable.changedCount,
         sameCount: diffReportsTable.sameCount,
-        author: diffReportsTable.author,
       })
       .from(diffReportsTable)
       .orderBy(desc(diffReportsTable.generatedAt))
@@ -103,7 +102,6 @@ router.get("/diff-reports", async (_req, res, next) => {
         removedCount: r.removedCount,
         changedCount: r.changedCount,
         sameCount: r.sameCount,
-        author: r.author,
       })),
     });
   } catch (err) {
@@ -140,7 +138,6 @@ router.get("/diff-reports/:id", async (req, res, next) => {
       removedCount: row.removedCount,
       changedCount: row.changedCount,
       sameCount: row.sameCount,
-      author: row.author,
       payload: row.payload,
     });
   } catch (err) {
@@ -197,12 +194,6 @@ router.post("/diff-reports", async (req, res, next) => {
       ? Number(body.sameCount)
       : Array.isArray(diff.same) ? diff.same.length : 0;
 
-    const rawAuthor =
-      typeof body.author === "string" ? body.author :
-      typeof (payload as { author?: unknown }).author === "string" ? (payload as { author: string }).author :
-      null;
-    const author = rawAuthor ? rawAuthor.trim().slice(0, 120) || null : null;
-
     const generatedAtRaw = body.generatedAt ?? (payload as { generatedAt?: unknown }).generatedAt ?? Date.now();
     const generatedAt = toDate(generatedAtRaw) ?? new Date();
 
@@ -220,7 +211,6 @@ router.post("/diff-reports", async (req, res, next) => {
         removedCount,
         changedCount,
         sameCount,
-        author,
         payload,
       })
       .onConflictDoUpdate({
@@ -236,7 +226,6 @@ router.post("/diff-reports", async (req, res, next) => {
           removedCount,
           changedCount,
           sameCount,
-          author,
           payload,
         },
       });

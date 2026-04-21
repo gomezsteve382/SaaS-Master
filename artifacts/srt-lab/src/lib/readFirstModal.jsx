@@ -1,7 +1,6 @@
 import React, {useState, useCallback} from 'react';
 import {vinHasSGW, parseVinYear} from './vin.js';
 import {useBridgeStatus} from './bridgeClient.js';
-import {getCurrentTech, setCurrentTech, getRecentTechs} from './techIdentity.js';
 
 /* ReadFirstModal — single shared pre-write confirmation gate.
  *
@@ -16,7 +15,7 @@ import {getCurrentTech, setCurrentTech, getRecentTechs} from './techIdentity.js'
  *               onConfirm, onCancel }   (no currentState/newVin)
  *
  * onConfirm is always invoked with
- *   { reviewed, titleRef, titleNotes, technician, preWriteConfirmed }.
+ *   { reviewed, titleRef, titleNotes, preWriteConfirmed }.
  */
 export function ReadFirstModal({
   module,
@@ -36,14 +35,11 @@ export function ReadFirstModal({
   const [reviewed, setReviewed] = useState(false);
   const [titleRef, setTitleRef] = useState('');
   const [titleNotes, setTitleNotes] = useState('');
-  const [technician, setTechnician] = useState(() => getCurrentTech() || '');
-  const recentTechs = getRecentTechs().filter((n) => n.toLowerCase() !== (technician || '').toLowerCase());
 
   const handleConfirm = useCallback(() => {
     if (!reviewed) { alert('Please check the box confirming you reviewed the current module state.'); return; }
-    if (technician) setCurrentTech(technician);
-    onConfirm({reviewed, titleRef, titleNotes, technician, preWriteConfirmed: new Date().toISOString()});
-  }, [reviewed, titleRef, titleNotes, technician, onConfirm]);
+    onConfirm({reviewed, titleRef, titleNotes, preWriteConfirmed: new Date().toISOString()});
+  }, [reviewed, titleRef, titleNotes, onConfirm]);
 
   const headerTitle = title || '⚠ READ BEFORE WRITING';
   const headerSubtitle = subtitle || 'Review the current module state below. Once you write, the old VIN is overwritten.';
@@ -100,13 +96,6 @@ export function ReadFirstModal({
           <div style={{marginBottom:10}}>
             <div style={{fontSize:10,color:'#666',marginBottom:3,fontWeight:700}}>NOTES (optional)</div>
             <textarea value={titleNotes} onChange={e=>setTitleNotes(e.target.value)} placeholder="e.g. Replacement BCM for 2017 Challenger" rows={2} style={{width:'100%',padding:10,border:'1.5px solid #B0D4F0',borderRadius:6,fontSize:12,resize:'vertical',fontFamily:"'Nunito'",boxSizing:'border-box'}}/>
-          </div>
-          <div>
-            <div style={{fontSize:10,color:'#666',marginBottom:3,fontWeight:700}}>TECHNICIAN NAME</div>
-            <input list="srtlab-tech-recents" value={technician} onChange={e=>setTechnician(e.target.value)} placeholder="Your name" style={{width:'100%',padding:10,border:'1.5px solid #B0D4F0',borderRadius:6,fontSize:13,boxSizing:'border-box'}}/>
-            {recentTechs.length > 0 && <datalist id="srtlab-tech-recents">
-              {recentTechs.map((n) => <option key={n} value={n} />)}
-            </datalist>}
           </div>
         </div>
 

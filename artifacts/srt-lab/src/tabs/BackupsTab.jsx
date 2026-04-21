@@ -10,7 +10,6 @@ import {
 } from "../lib/audit.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
-import TechPicker from "../lib/TechPicker.jsx";
 import {
   listDiffReports, getDiffReport, getDiffReportAsync,
   deleteDiffReport, clearDiffReports,
@@ -29,7 +28,6 @@ export default function BackupsTab() {
   const [selected, setSelected] = useState(null);
   const [selectedData, setSelectedData] = useState(null);
   const [filter, setFilter] = useState("all");
-  const [techFilter, setTechFilter] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [busy, setBusy] = useState("");
   const [conn, setConn] = useState(false);
@@ -314,15 +312,9 @@ export default function BackupsTab() {
     } finally { setBusy(""); }
   }, [selectedData, addRestoreLog]);
 
-  const techFiltered = techFilter === "all" ? backups
-    : techFilter === "__unknown__" ? backups.filter(b => !b.author)
-    : backups.filter(b => b.author === techFilter);
-  const filtered = filter === "all" ? techFiltered : techFiltered.filter(b => b.module === filter);
+  const filtered = filter === "all" ? backups : backups.filter(b => b.module === filter);
   const moduleCounts = {};
-  techFiltered.forEach(b => { moduleCounts[b.module] = (moduleCounts[b.module] || 0) + 1; });
-  const authors = Array.from(new Set(backups.map(b => b.author || null)));
-  const hasUnknown = authors.includes(null);
-  const knownAuthors = authors.filter(a => a !== null).sort();
+  backups.forEach(b => { moduleCounts[b.module] = (moduleCounts[b.module] || 0) + 1; });
 
   return (
     <div>
@@ -404,31 +396,10 @@ export default function BackupsTab() {
       <Card style={{ marginBottom: 14 }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
           <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, letterSpacing: 2 }}>MODULE:</div>
-          <button onClick={() => setFilter("all")} style={pill(filter === "all", C.a2)}>All ({techFiltered.length})</button>
+          <button onClick={() => setFilter("all")} style={pill(filter === "all", C.a2)}>All ({backups.length})</button>
           {Object.entries(moduleCounts).map(([m, n]) => (
             <button key={m} onClick={() => setFilter(m)} style={pill(filter === m, C.a2)}>{m} ({n})</button>
           ))}
-          <div style={{ width: 1, alignSelf: "stretch", background: C.bd, margin: "0 4px" }} />
-          <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, letterSpacing: 2 }}>SAVED BY:</div>
-          <select
-            data-testid="tech-filter-select"
-            value={techFilter}
-            onChange={e => { setTechFilter(e.target.value); setFilter("all"); }}
-            style={{
-              fontSize: 11, fontWeight: 700, color: techFilter !== "all" ? C.a2 : C.ts,
-              border: "1.5px solid " + (techFilter !== "all" ? C.a2 : C.bd),
-              borderRadius: 6, padding: "5px 10px", background: techFilter !== "all" ? C.a2 + "10" : "#fff",
-              cursor: "pointer", outline: "none",
-            }}
-          >
-            <option value="all">All techs ({backups.length})</option>
-            {knownAuthors.map(a => (
-              <option key={a} value={a}>{a} ({backups.filter(b => b.author === a).length})</option>
-            ))}
-            {hasUnknown && (
-              <option value="__unknown__">Unknown ({backups.filter(b => !b.author).length})</option>
-            )}
-          </select>
           <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
             <Btn onClick={handleConnect} color={conn ? C.gn : C.a3} outline>
               {busy === "Connecting..." ? "..." : (conn ? "🔌 Disconnect" : "🔌 Connect Adapter")}
@@ -465,10 +436,6 @@ export default function BackupsTab() {
             ))}
           </div>
         )}
-      </Card>
-
-      <Card style={{ marginBottom: 14 }}>
-        <TechPicker />
       </Card>
 
       <Card style={{ marginBottom: 14, padding: 0, overflow: "hidden" }} data-testid="diff-reports-history">
@@ -581,10 +548,6 @@ export default function BackupsTab() {
                     </div>
                     <div style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", marginTop: 2 }}>
                       generated {fmtScanStamp(r.generatedAt)}
-                      {" · "}
-                      <span data-testid={"diff-report-author-" + r.id}>
-                        saved by {r.author ? <b style={{ color: C.ts }}>{r.author}</b> : <span style={{ fontStyle: "italic" }}>unknown</span>}
-                      </span>
                     </div>
                     <div style={{ fontSize: 10, color: C.ts, marginTop: 4 }}>
                       baseline {fmtScanStamp(r.baselineTs) || "(unknown)"} · {r.baselineModuleCount} mod
@@ -668,14 +631,6 @@ export default function BackupsTab() {
                     </div>
                     <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.ts, marginTop: 3 }}>{b.vin}</div>
                     <div style={{ fontSize: 10, color: C.tm, marginTop: 3 }}>{date.toLocaleString()}</div>
-                    <div
-                      data-testid={"backup-author-" + b.key}
-                      style={{ fontSize: 10, color: C.tm, marginTop: 2 }}
-                    >
-                      saved by {b.author
-                        ? <b style={{ color: C.ts }}>{b.author}</b>
-                        : <span style={{ fontStyle: "italic" }}>unknown</span>}
-                    </div>
                   </div>
                 );
               })}

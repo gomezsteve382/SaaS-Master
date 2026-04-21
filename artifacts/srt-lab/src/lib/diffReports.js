@@ -13,7 +13,6 @@
 // Older reports are pruned when the cap is exceeded.
 
 import { buildOnePagerPDF } from "./buildOnePagerPDF.js";
-import { getCurrentTech } from "./techIdentity.js";
 
 const INDEX_KEY = "srtlab_diff_reports_index";
 const PAYLOAD_PREFIX = "srtlab_diff_report_";
@@ -61,7 +60,7 @@ function removePayload(id) {
 
 /* Build the meta record stored in the index. Counts are denormalized so the
  * History list can render without having to load each payload. */
-function buildMeta({ id, generatedAt, baseline, current, diff, author }) {
+function buildMeta({ id, generatedAt, baseline, current, diff }) {
   return {
     id,
     generatedAt,
@@ -74,16 +73,7 @@ function buildMeta({ id, generatedAt, baseline, current, diff, author }) {
     removedCount: diff?.removed?.length || 0,
     changedCount: diff?.changed?.length || 0,
     sameCount: diff?.same?.length || 0,
-    author: author || null,
   };
-}
-
-/* The active technician identity (set via the Backups tab tech picker or the
- * Read-First pre-write modal). Used as a default author for diff reports so
- * multi-tech shops can tell saved comparisons apart. Returns null when not
- * set. */
-function readCurrentTech() {
-  return getCurrentTech();
 }
 
 /* Best-effort write-through to the server. The local cache is the source of
@@ -106,7 +96,6 @@ function pushToServer(meta, payload) {
         removedCount: meta.removedCount,
         changedCount: meta.changedCount,
         sameCount: meta.sameCount,
-        author: meta.author,
         payload,
       }),
     }).catch(() => { /* offline; cache only */ });
@@ -117,16 +106,12 @@ function pushToServer(meta, payload) {
 /* Persist a diff report. Returns the meta record (with id) on success or null
  * on cache write failure. The server write is fire-and-forget so the active
  * Save PDF flow continues even if the API is unreachable. */
-export function saveDiffReport({ baseline, current, diff, author } = {}) {
+export function saveDiffReport({ baseline, current, diff } = {}) {
   const id = newReportId();
   const generatedAt = Date.now();
-  const resolvedAuthor =
-    (typeof author === "string" && author.trim()) ? author.trim().slice(0, 120) :
-    readCurrentTech();
   const payload = {
     id,
     generatedAt,
-    author: resolvedAuthor,
     baseline: {
       label: baseline?.label || "(unlabeled)",
       ts: baseline?.ts || null,
@@ -144,7 +129,7 @@ export function saveDiffReport({ baseline, current, diff, author } = {}) {
     },
   };
   if (!writePayload(id, payload)) return null;
-  const meta = buildMeta({ id, generatedAt, author: resolvedAuthor, ...payload });
+  const meta = buildMeta({ id, generatedAt, ...payload });
   const idx = readIndex();
   idx.unshift(meta);
   if (idx.length > MAX_REPORTS) {
@@ -260,7 +245,6 @@ export async function refreshDiffReportsFromServer() {
             removedCount: meta.removedCount,
             changedCount: meta.changedCount,
             sameCount: meta.sameCount,
-            author: meta.author ?? null,
             payload,
           }),
         });
@@ -295,84 +279,10 @@ export async function refreshDiffReportsFromServer() {
     removedCount: r.removedCount,
     changedCount: r.changedCount,
     sameCount: r.sameCount,
-    author: r.author ?? null,
   }));
   writeIndex(normalized);
   notify();
   return normalized;
-}
-
-/* Re-attribute a previously-saved diff report (typically one that landed
- * with `author = null` because no tech was set when it was saved) to the
- * given name. Updates both the local cache and the server row by re-POSTing
- * the existing payload with the new author — the server route uses
- * onConflictDoUpdate so the same id replaces the row in place.
- *
- * Returns { ok, status }:
- *   ok=true,  status="updated"     — local + server (or local + offline) write succeeded
- *   ok=false, status="missing"     — server confirmed the row is gone
- *   ok=false, status="empty-name"  — caller passed a blank/whitespace name
- *   ok=false, status="not-found"   — payload could not be located locally or remotely
- *   ok=false, status="error"       — unexpected failure (network/quota/etc.)
- */
-export async function reassignDiffReportAuthor(id, newAuthor) {
-  const norm = typeof newAuthor === "string" ? newAuthor.trim().slice(0, 120) : "";
-  if (!norm) return { ok: false, status: "empty-name" };
-
-  let payload = readPayload(id);
-  if (!payload) {
-    let lookup = { status: "unknown", payload: null };
-    try { lookup = await getDiffReportAsync(id); } catch { /* keep unknown */ }
-    if (lookup.status === "missing") return { ok: false, status: "missing" };
-    if (lookup.status !== "found") return { ok: false, status: "not-found" };
-    payload = lookup.payload;
-  }
-
-  const updatedPayload = { ...payload, author: norm };
-  const generatedAt = updatedPayload.generatedAt || Date.now();
-  if (!writePayload(id, updatedPayload)) return { ok: false, status: "error" };
-
-  const idx = readIndex().map((m) => (m.id === id ? { ...m, author: norm } : m));
-  writeIndex(idx);
-
-  try {
-    await fetch(API_BASE, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id,
-        generatedAt,
-        baselineLabel: updatedPayload.baseline?.label || "(unlabeled)",
-        baselineTs: updatedPayload.baseline?.ts || null,
-        baselineModuleCount: Array.isArray(updatedPayload.baseline?.modules) ? updatedPayload.baseline.modules.length : 0,
-        currentTs: updatedPayload.current?.ts || null,
-        currentModuleCount: Array.isArray(updatedPayload.current?.modules) ? updatedPayload.current.modules.length : 0,
-        addedCount: updatedPayload.diff?.added?.length || 0,
-        removedCount: updatedPayload.diff?.removed?.length || 0,
-        changedCount: updatedPayload.diff?.changed?.length || 0,
-        sameCount: updatedPayload.diff?.same?.length || 0,
-        author: norm,
-        payload: updatedPayload,
-      }),
-    });
-  } catch { /* offline — local cache still updated */ }
-
-  notify();
-  return { ok: true, status: "updated" };
-}
-
-/* Bulk-claim every report currently tagged as "unknown" (author == null)
- * for the given technician. Returns { updatedCount, failed }. */
-export async function reassignUnknownDiffReports(newAuthor) {
-  const list = readIndex().filter((m) => !m.author);
-  let updatedCount = 0;
-  const failed = [];
-  for (const meta of list) {
-    const r = await reassignDiffReportAuthor(meta.id, newAuthor);
-    if (r.ok) updatedCount += 1;
-    else failed.push({ id: meta.id, status: r.status });
-  }
-  return { updatedCount, failed };
 }
 
 /* Pretty timestamp shared between save flow and history view. */
