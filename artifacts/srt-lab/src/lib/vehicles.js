@@ -64,6 +64,9 @@ export function vehiclesForPartNumber(pn){
 }
 
 export function analyzeDumpPartNumber(bytes){
+  if(!(bytes instanceof ArrayBuffer)&&!ArrayBuffer.isView(bytes)){
+    console.warn('[vehicles] analyzeDumpPartNumber: expected a BufferSource (ArrayBuffer or TypedArray), got '+typeof bytes,bytes);
+  }
   const text=new TextDecoder('latin1').decode(bytes);
   const matches=[...text.matchAll(/68\d{6}/g)];
   const pns=[...new Set(matches.map(m=>m[0]))];
