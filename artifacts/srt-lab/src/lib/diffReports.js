@@ -353,6 +353,72 @@ export function buildDiffReportText(baseline, current, diff) {
   return lines.join("\n");
 }
 
+/* Bulk-export every saved diff report as a single JSON archive and trigger a
+ * browser download. Each entry contains the full payload so the archive can
+ * be imported / re-processed later without re-scanning.
+ *
+ * Returns { exported, missing } where:
+ *   exported — number of reports included in the archive
+ *   missing  — ids that could not be located (not in cache and server 404'd)
+ */
+export async function exportAllDiffReports() {
+  const index = readIndex();
+  if (!index.length) return { exported: 0, missing: [] };
+
+  const reports = [];
+  const missing = [];
+
+  for (const meta of index) {
+    let payload = readPayload(meta.id);
+    if (!payload) {
+      let lookup = { status: "unknown", payload: null };
+      try {
+        const res = await fetch(API_BASE + "/" + encodeURIComponent(meta.id));
+        if (res.status === 404) {
+          lookup = { status: "missing", payload: null };
+        } else if (res.ok) {
+          const j = await res.json().catch(() => null);
+          if (j && j.payload) {
+            writePayload(meta.id, j.payload);
+            lookup = { status: "found", payload: j.payload };
+          }
+        }
+      } catch { /* offline */ }
+      if (lookup.status === "found") {
+        payload = lookup.payload;
+      } else if (lookup.status === "missing") {
+        missing.push(meta.id);
+        continue;
+      } else {
+        // unknown / offline — include meta-only stub so the archive is complete
+        reports.push({ meta, payload: null });
+        continue;
+      }
+    }
+    reports.push({ meta, payload });
+  }
+
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  const archive = {
+    exportedAt: new Date().toISOString(),
+    reportCount: reports.length,
+    reports,
+  };
+
+  try {
+    const blob = new Blob([JSON.stringify(archive, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `SRT_Lab_Diff_Reports_${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  } catch { /* ignore download errors — caller can surface them */ }
+
+  return { exported: reports.length, missing };
+}
+
 /* Build and download the diff PDF. Same renderer used for the live "Save Diff
  * Report" button and for "Re-download" in the History view, so re-printing a
  * past report produces an identical document. */

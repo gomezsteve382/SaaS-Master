@@ -15,7 +15,7 @@ import {
   listDiffReports, getDiffReport, getDiffReportAsync,
   deleteDiffReport, clearDiffReports,
   subscribeDiffReports, exportDiffReportPDF, fmtScanStamp,
-  refreshDiffReportsFromServer, fetchDiffReportStats,
+  refreshDiffReportsFromServer, fetchDiffReportStats, exportAllDiffReports,
 } from "../lib/diffReports.js";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
@@ -25,6 +25,7 @@ export default function BackupsTab() {
   const [diffReports, setDiffReports] = useState(() => listDiffReports());
   const [diffStorageStats, setDiffStorageStats] = useState(null);
   const [diffBusy, setDiffBusy] = useState(null);
+  const [exportAllBusy, setExportAllBusy] = useState(false);
   const [usage, setUsage] = useState(getBackupStorageUsage());
   const [toast, setToast] = useState(null);
   const [selected, setSelected] = useState(null);
@@ -183,6 +184,21 @@ export default function BackupsTab() {
     clearDiffReports();
     setDiffReports(listDiffReports());
   }, [diffReports.length]);
+
+  const handleExportAllDiffs = useCallback(async () => {
+    if (!diffReports.length || exportAllBusy) return;
+    setExportAllBusy(true);
+    try {
+      const { exported, missing } = await exportAllDiffReports();
+      if (missing.length) {
+        alert(`Exported ${exported} report${exported === 1 ? "" : "s"}. ${missing.length} report${missing.length === 1 ? " was" : "s were"} no longer available on the server and skipped.`);
+      }
+    } catch (e) {
+      alert("Export failed: " + (e?.message || String(e)));
+    } finally {
+      setExportAllBusy(false);
+    }
+  }, [diffReports.length, exportAllBusy]);
 
   // Deep-link: select a backup pre-chosen via URL hash or History panel event.
   useEffect(() => {
@@ -485,19 +501,35 @@ export default function BackupsTab() {
         }}>
           <span>📊 SAVED DIFF REPORTS ({diffReports.length})</span>
           {diffReports.length > 0 && (
-            <button
-              onClick={handleClearAllDiffs}
-              data-testid="diff-reports-clear-all"
-              style={{
-                padding: "4px 10px", fontSize: 10, fontWeight: 800,
-                color: C.er, background: "transparent",
-                border: "1px solid " + C.bd, borderRadius: 4,
-                cursor: "pointer", letterSpacing: 1,
-              }}
-              title="Delete every saved diff report"
-            >
-              🗑 CLEAR ALL
-            </button>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button
+                onClick={handleExportAllDiffs}
+                disabled={exportAllBusy}
+                data-testid="diff-reports-export-all"
+                style={{
+                  padding: "4px 10px", fontSize: 10, fontWeight: 800,
+                  color: exportAllBusy ? C.tm : C.a2, background: "transparent",
+                  border: "1px solid " + (exportAllBusy ? C.bd : C.a2), borderRadius: 4,
+                  cursor: exportAllBusy ? "wait" : "pointer", letterSpacing: 1,
+                }}
+                title="Download all saved diff reports as a JSON archive"
+              >
+                {exportAllBusy ? "⏳ EXPORTING…" : "⬇ EXPORT ALL"}
+              </button>
+              <button
+                onClick={handleClearAllDiffs}
+                data-testid="diff-reports-clear-all"
+                style={{
+                  padding: "4px 10px", fontSize: 10, fontWeight: 800,
+                  color: C.er, background: "transparent",
+                  border: "1px solid " + C.bd, borderRadius: 4,
+                  cursor: "pointer", letterSpacing: 1,
+                }}
+                title="Delete every saved diff report"
+              >
+                🗑 CLEAR ALL
+              </button>
+            </div>
           )}
         </div>
         {diffReports.length > 0 && (() => {
