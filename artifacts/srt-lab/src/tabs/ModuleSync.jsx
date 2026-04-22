@@ -649,7 +649,17 @@ function Badge({ text, color = C.gn }) {
   );
 }
 
-function BcmCard({ parsed }) {
+function PnOverrideBadge() {
+  return (
+    <span data-testid="modsync-pn-override-pill" style={{
+      fontSize: 9, padding: '2px 7px', borderRadius: 999, letterSpacing: 0.6,
+      background: C.wn + '22', border: '1px solid ' + C.wn + '66', color: C.wn,
+      fontWeight: 800, marginLeft: 4,
+    }}>P/N OVERRIDE</span>
+  );
+}
+
+function BcmCard({ parsed, pnOverride }) {
   if (!parsed) return null;
   const match   = bcmVehicleMatch(parsed);
   const isGen2  = parsed.sec16Records.length > 0 || (match && match.gen === 'gen2');
@@ -665,7 +675,13 @@ function BcmCard({ parsed }) {
         🧠 BCM · MPC5606B
         <Badge text={status} color={statusColor} />
         {isGen2 && <Badge text="GEN2" color={C.a4} />}
+        {pnOverride && <PnOverrideBadge />}
       </div>
+      {pnOverride && (
+        <div style={{ marginBottom: 8, padding: '6px 10px', background: C.wn + '14', border: '1px solid ' + C.wn + '55', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700 }}>
+          ⚠ P/N override active — this BCM bypassed the registry compatibility check on the Dumps tab.
+        </div>
+      )}
       <Kv k="Stored VIN"   v={parsed.vin} mono />
       <Kv k="VIN slots"    v={`${parsed.vinSlots.length} / 4 · ${parsed.vinConsistent ? 'all match' : 'MISMATCH'}`} />
       <Kv k="File size"    v={`${parsed.size} bytes (${(parsed.size/1024).toFixed(1)} KB)`} mono />
@@ -706,7 +722,7 @@ function BcmCard({ parsed }) {
   );
 }
 
-function RfhCard({ parsed }) {
+function RfhCard({ parsed, pnOverride }) {
   if (!parsed) return null;
   const isVirgin = parsed.sec16?.virgin;
   const isMatch  = parsed.sec16?.match;
@@ -722,7 +738,13 @@ function RfhCard({ parsed }) {
         🔑 RFHUB · Yazaki FCM
         <Badge text={status} color={statusColor} />
         {parsed.format && <Badge text={parsed.format.toUpperCase()} color={parsed.format === 'gen2' ? C.a4 : C.a3} />}
+        {pnOverride && <PnOverrideBadge />}
       </div>
+      {pnOverride && (
+        <div style={{ marginBottom: 8, padding: '6px 10px', background: C.wn + '14', border: '1px solid ' + C.wn + '55', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700 }}>
+          ⚠ P/N override active — this RFHUB bypassed the registry compatibility check on the Dumps tab.
+        </div>
+      )}
       <Kv k="Stored VIN"  v={parsed.vin} mono />
       <Kv k="VIN slots"   v={`${parsed.vinSlots.length} / 4 · ${parsed.vinConsistent ? 'all match' : 'MISMATCH'}`} />
       <Kv k="File size"   v={`${parsed.size} bytes`} mono />
@@ -750,7 +772,7 @@ function RfhCard({ parsed }) {
   );
 }
 
-function PcmCard({ parsed }) {
+function PcmCard({ parsed, pnOverride }) {
   if (!parsed) return null;
   let status = 'READY', statusColor = C.gn;
   if (!parsed.ok)         { status = 'UNKNOWN';     statusColor = C.wn; }
@@ -764,7 +786,13 @@ function PcmCard({ parsed }) {
         ⚙️ PCM · Continental
         <Badge text={status} color={statusColor} />
         <Badge text={parsed.variant} color={C.a1} />
+        {pnOverride && <PnOverrideBadge />}
       </div>
+      {pnOverride && (
+        <div style={{ marginBottom: 8, padding: '6px 10px', background: C.wn + '14', border: '1px solid ' + C.wn + '55', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700 }}>
+          ⚠ P/N override active — this PCM bypassed the registry compatibility check on the Dumps tab.
+        </div>
+      )}
       <Kv k="Current VIN"  v={parsed.currentVin || parsed.vin} mono />
       {parsed.originalVin && parsed.originalVin !== parsed.currentVin &&
         <Kv k="Original VIN" v={parsed.originalVin} mono color={C.wn} hint="← donor VIN" />}
@@ -951,13 +979,25 @@ function engWriteEep95640FromRfh(bytes, rfhSec16) {
   return { bytes: out, sec16Hex: bytesToHex(rev).toUpperCase(), crc16: cs };
 }
 
-export default function ModuleSync({ vehicleId } = {}) {
+/* Look up a P/N-override flag on a Dumps-tab file that matches the just-loaded
+ * file by name + size. Lets the override badge propagate from Dumps → Module
+ * Sync without a deeper state refactor. Returns false when no match. */
+function lookupPnOverride(files, file, bytes) {
+  if (!Array.isArray(files) || !file) return false;
+  const match = files.find(f =>
+    f && f.pnOverride && f.name === file.name &&
+    (f.size === bytes.length || f.size === file.size)
+  );
+  return !!match;
+}
+
+export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const { vin: masterVin, vinValid: masterVinValid } = useMasterVin();
 
-  const [bcm, setBcm] = useState({ file: null, bytes: null, parsed: null });
-  const [rfh, setRfh] = useState({ file: null, bytes: null, parsed: null });
-  const [pcm, setPcm] = useState({ file: null, bytes: null, parsed: null });
-  const [eep, setEep] = useState({ file: null, bytes: null, parsed: null });
+  const [bcm, setBcm] = useState({ file: null, bytes: null, parsed: null, pnOverride: false });
+  const [rfh, setRfh] = useState({ file: null, bytes: null, parsed: null, pnOverride: false });
+  const [pcm, setPcm] = useState({ file: null, bytes: null, parsed: null, pnOverride: false });
+  const [eep, setEep] = useState({ file: null, bytes: null, parsed: null, pnOverride: false });
   const [vehicleFamily, setVehicleFamily] = useState('');
 
   const [targetVin, setTargetVin] = useState('');
@@ -981,9 +1021,11 @@ export default function ModuleSync({ vehicleId } = {}) {
 
   const handleBcm = useCallback((file, bytes) => {
     const parsed = engParseBcm(bytes);
-    setBcm({ file, bytes, parsed });
+    const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
+    setBcm({ file, bytes, parsed, pnOverride });
     setDiffRows([]); setOriginals(prev => ({ ...prev, bcm: null }));
     log(`Loaded BCM: ${file.name} (${bytes.length} bytes)`, 'info');
+    if (pnOverride) log('  ⚠ BCM was loaded with P/N OVERRIDE on the Dumps tab — bypassed registry check', 'warn');
     if (parsed.ok) {
       log(`  BCM VIN: ${parsed.vin} · ${parsed.vinSlots.length} slot(s)`, 'ok');
       if (parsed.sec16Records.length > 0)
@@ -1001,30 +1043,34 @@ export default function ModuleSync({ vehicleId } = {}) {
         if (fam.expectedPns.includes(match.pn)) { setVehicleFamily(fam.id); break; }
       }
     }
-  }, [log]);
+  }, [log, dumpsFiles]);
 
   const handleRfh = useCallback((file, bytes) => {
     const parsed = engParseRfh(bytes);
-    setRfh({ file, bytes, parsed });
+    const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
+    setRfh({ file, bytes, parsed, pnOverride });
     setDiffRows([]); setOriginals(prev => ({ ...prev, rfh: null }));
     log(`Loaded RFHUB: ${file.name} (${bytes.length} bytes)`, 'info');
+    if (pnOverride) log('  ⚠ RFHUB was loaded with P/N OVERRIDE on the Dumps tab — bypassed registry check', 'warn');
     if (parsed.ok) {
       log(`  RFHUB VIN: ${parsed.vin} · format: ${parsed.format}`, 'ok');
       if (parsed.sec16) log(`  SEC16: ${parsed.sec16.virgin ? 'VIRGIN' : parsed.sec16.match ? 'matched' : 'MISMATCH'} · ${[...parsed.sec16.slot1].map(hex2).join('').toUpperCase()}`, 'muted');
     } else {
       log('  RFHUB: no VIN parsed — file format not recognized', 'err');
     }
-  }, [log]);
+  }, [log, dumpsFiles]);
 
   const handlePcm = useCallback((file, bytes) => {
     const parsed = engParsePcm(bytes);
-    setPcm({ file, bytes, parsed });
+    const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
+    setPcm({ file, bytes, parsed, pnOverride });
     setDiffRows([]); setOriginals(prev => ({ ...prev, pcm: null }));
     log(`Loaded PCM: ${file.name} (${bytes.length} bytes) · ${parsed.variant}`, 'info');
+    if (pnOverride) log('  ⚠ PCM was loaded with P/N OVERRIDE on the Dumps tab — bypassed registry check', 'warn');
     if (parsed.vin)  log(`  PCM VIN: ${parsed.currentVin}${parsed.originalVin && parsed.originalVin !== parsed.currentVin ? ` (orig: ${parsed.originalVin})` : ''}`, parsed.ok ? 'ok' : 'warn');
     if (parsed.sec6) log(`  SEC6: ${parsed.sec6.bytes.map(hex2).join('').toUpperCase()} (marker ${parsed.sec6.marker})`, 'muted');
     if (parsed.immoDamaged) log('  ⚠ PCM: no SEC6 marker found — may be damaged or wrong file', 'warn');
-  }, [log]);
+  }, [log, dumpsFiles]);
 
   const handleEep = useCallback((file, bytes) => {
     const parsed = engParseEep95640(bytes);
@@ -1041,7 +1087,7 @@ export default function ModuleSync({ vehicleId } = {}) {
     if (!parsed.ok && !parsed.vin && (!parsed.bcmSec16 || parsed.bcmSec16Blank)) {
       log('  95640: no VIN and no SEC16 — file may be virgin or unrecognized', 'warn');
     }
-  }, [log]);
+  }, [log, dumpsFiles]);
 
   const tv      = targetVin.replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, VIN_LEN);
   const tvOk    = tv.length === VIN_LEN && VIN_RE.test(tv);
@@ -1132,6 +1178,16 @@ export default function ModuleSync({ vehicleId } = {}) {
      * a VIN: rfh-to-bcm, bcm-to-rfh, sync-all (and target-both). */
     const ov = (typeof overrideVin === 'string' && VIN_RE.test(overrideVin)) ? overrideVin : null;
     log(`=== SYNC: ${action}${virginize ? ' +VIRGINIZE' : ''}${ov ? ` (custom VIN ${ov})` : ''} ===`, 'info');
+    /* Surface any P/N overrides on the loaded modules so the result log makes
+     * it obvious which files bypassed the registry compatibility check. */
+    const overridden = [
+      bcm.pnOverride && 'BCM',
+      rfh.pnOverride && 'RFHUB',
+      pcm.pnOverride && 'PCM',
+    ].filter(Boolean);
+    if (overridden.length > 0) {
+      log(`⚠ P/N OVERRIDE in effect for: ${overridden.join(', ')} — registry check was bypassed on the Dumps tab`, 'warn');
+    }
     const rows = [];
 
     const addBcmRows = (parsedBcm, newVin, newCrc) => {
@@ -1521,9 +1577,9 @@ export default function ModuleSync({ vehicleId } = {}) {
           )}
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
-            <BcmCard parsed={bcm.parsed} />
-            <RfhCard parsed={rfh.parsed} />
-            {pcm.parsed && <PcmCard parsed={pcm.parsed} />}
+            <BcmCard parsed={bcm.parsed} pnOverride={bcm.pnOverride} />
+            <RfhCard parsed={rfh.parsed} pnOverride={rfh.pnOverride} />
+            {pcm.parsed && <PcmCard parsed={pcm.parsed} pnOverride={pcm.pnOverride} />}
           </div>
         </Card>
       )}

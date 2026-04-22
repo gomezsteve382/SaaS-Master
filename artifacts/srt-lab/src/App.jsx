@@ -1445,7 +1445,7 @@ function VehicleWorkspace({vehicleId, onBack}){
       </div>
       <div style={{maxWidth:1200,margin:'0 auto',padding:'22px 22px 60px'}}>
         {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
-        {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id}/>}
+        {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
         {tab==='analyzer'  && <FcaAnalyzerTab vehicleId={vehicle.id}/>}
         {tab==='jailbreak' && <JailbreakTab vehicle={vehicle}/>}
         {tab==='seed'      && <SeedTab/>}
