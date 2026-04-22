@@ -713,6 +713,53 @@ describe('readVinFromDump — bad bytes argument types', () => {
   }
 });
 
+// ── readVinFromDump — bad-input guard (non-Uint8Array values) ────────────────
+// Pinpoint regression coverage for the `bytes instanceof Uint8Array` guard on
+// line 109 of vehicles.js. Each case must return `null` without throwing, and
+// must short-circuit before any decoding work happens (verified by spying on
+// the global TextDecoder constructor and asserting it is never invoked).
+//
+// NOTE: this overlaps slightly with `readVinFromDump — bad bytes argument
+// types` above, which also checks non-throw + null returns for invalid `bytes`.
+// The duplication is intentional: this block adds the TextDecoder spy so a
+// future refactor that removes the early `instanceof` guard (but still happens
+// to return `null` further down) would still trip the spy and fail the test.
+
+const READ_VIN_NON_UINT8ARRAY_CASES = [
+  { label: 'null',         value: null },
+  { label: 'undefined',    value: undefined },
+  { label: 'string',       value: '2C3CDXGJ8KH123456' },
+  { label: 'number',       value: 0x1308 },
+  { label: 'plain object', value: { 0: 0x32, 1: 0x43, length: 17 } },
+];
+
+describe('readVinFromDump — bad-input guard (non-Uint8Array values)', () => {
+  let decoderSpy;
+
+  beforeEach(() => {
+    decoderSpy = vi.spyOn(globalThis, 'TextDecoder');
+  });
+
+  afterEach(() => {
+    decoderSpy.mockRestore();
+  });
+
+  for (const { label, value } of READ_VIN_NON_UINT8ARRAY_CASES) {
+    it(`returns null without throwing for: ${label}`, () => {
+      let result;
+      expect(
+        () => { result = readVinFromDump(value, 0x1308); },
+        `${label}: must not throw`,
+      ).not.toThrow();
+      expect(result, `${label}: must return null`).toBeNull();
+      expect(
+        decoderSpy,
+        `${label}: guard must short-circuit before constructing a TextDecoder`,
+      ).not.toHaveBeenCalled();
+    });
+  }
+});
+
 describe('readVinFromDump — property-based fuzz (seed=0x1a2b3c4d, 1000 samples)', () => {
   const rng = makeRng(0x1a2b3c4d);
 
