@@ -27,6 +27,39 @@ export const JARGON = {
   VIRGIN:     { label: 'Erased / factory blank', tip: 'Virgin — the security area is wiped to all FF, as if the module just left the factory. Forces a fresh re-pair.' },
   VIRGINIZE:  { label: 'Wipe security data',    tip: 'Virginize — deliberately erase the security area so the modules will negotiate a fresh secret on next power-up.' },
   GEN2:       { label: 'Newer key receiver',    tip: 'Gen2 — the newer RFHUB layout (post-2018). Stores its immobilizer token at different offsets than Gen1.' },
+
+  /* Engine / module families */
+  ECM:        { label: 'Engine computer',       tip: 'ECM — Engine Control Module. Same role as PCM on FCA platforms; runs the engine and holds the immobilizer key.' },
+  ECU:        { label: 'Module',                tip: 'ECU — Electronic Control Unit. Generic name for any in-vehicle module (BCM, PCM, RFHUB are all ECUs).' },
+
+  /* Memory / storage */
+  EEPROM:     { label: 'Memory chip',           tip: 'EEPROM — small electrically-erasable memory chip used inside modules (95640, 24C32, etc.) to store keys and settings.' },
+  '95320':    { label: 'GPEC2A storage chip',   tip: '95320 — the SPI EEPROM inside the GPEC2A engine computer that holds its security data.' },
+  '24C32':    { label: 'RFHUB storage chip',    tip: '24C32 — the older EEPROM chip used inside Gen1 RFHUBs to hold the immobilizer token.' },
+
+  /* Bus / protocols */
+  CAN:        { label: 'Vehicle data bus',      tip: 'CAN — Controller Area Network. The in-vehicle wiring all modules use to talk to each other and to diagnostic tools.' },
+  ISO15765:   { label: 'CAN transport',         tip: 'ISO 15765 — the CAN-bus transport that wraps UDS messages so multi-frame requests can be sent over CAN.' },
+  UDS:        { label: 'Diagnostic protocol',   tip: 'UDS (ISO 14229) — Unified Diagnostic Services, the request/response protocol used to read, write and unlock modern ECUs.' },
+  J2534:      { label: 'PassThru cable API',    tip: 'J2534 — the standard PassThru API used by MaxiFlash, Gould and DrewTech cables to talk to vehicle CAN buses from a PC.' },
+  OBD:        { label: 'Diagnostic port',       tip: 'OBD — On-Board Diagnostics. The 16-pin port under the dash where diagnostic cables plug in.' },
+
+  /* Cables / tools */
+  MAXIFLASH:  { label: 'Autel J2534 cable',     tip: 'MaxiFlash — Autel\'s J2534 PassThru cable. Used by SRT Lab to talk to the vehicle from Windows.' },
+  GOULD:      { label: 'Gould J2534 cable',     tip: 'Gould — a high-end J2534 PassThru cable favoured for stable flashing sessions.' },
+  ELM327:     { label: 'Cheap OBD chip',        tip: 'ELM327 — a low-cost OBD2 chip. Not used here because it cannot run UDS or J2534 sessions.' },
+  AUTEL:      { label: 'Autel',                 tip: 'Autel — maker of the IM608 key programmer and the MaxiFlash J2534 cable.' },
+  IM608:      { label: 'Autel key programmer',  tip: 'IM608 — Autel\'s flagship key programmer / diagnostic tablet, used for FOBIK pairing.' },
+
+  /* Security algorithms */
+  XTEA:       { label: 'Seed→key cipher',       tip: 'XTEA — eXtended TEA, the small block cipher used inside several FCA seed-to-key challenges.' },
+  CDA6:       { label: 'FCA unlock handshake',  tip: 'CDA6 — Chrysler Diagnostic Algorithm 6, the modern FCA seed/key handshake used to authenticate before writing.' },
+  FCA:        { label: 'Fiat Chrysler',         tip: 'FCA — Fiat Chrysler Automobiles. The platform group whose security algorithms the unlock-test runs against.' },
+  SEEDKEY:    { label: 'Seed→key handshake',    tip: 'Seed→Key — the challenge/response the ECU uses to verify a tool before allowing security-level writes.' },
+
+  /* BCM internals */
+  ZZZZ:       { label: 'Tamper marker',         tip: 'ZZZZ — a marker pattern in the BCM that signals the immobilizer firmware that the security area has been cleared.' },
+  AA50:       { label: 'FOBIK slot marker',     tip: 'AA50 — marker bytes inside the BCM that count and bound the FOBIK key slots.' },
 };
 
 const TIP_STYLE = {

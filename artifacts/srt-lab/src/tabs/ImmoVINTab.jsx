@@ -6,6 +6,7 @@ import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {DownloadCounter} from "../lib/useDownloadCount.jsx";
 import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
 import {IMMO_VIN_REF} from "../lib/tabReferences.js";
+import {Tip} from "../lib/plainEnglish.jsx";
 
 const fO = n => "0x" + n.toString(16).toUpperCase().padStart(4, "0");
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
@@ -158,7 +159,7 @@ function RFHSection() {
 
   return (
     <Card style={{marginBottom:20}}>
-      <SectionHeader icon="📡" title="RFHUB EEE — 24C32 (4KB EEPROM)" subtitle="FCA Remote Function Hub · 4 mirrored VIN slots · CRC8RF · SEC16 pairing bytes"/>
+      <SectionHeader icon="📡" title={<><Tip word="RFHUB">RFHUB</Tip> EEE — <Tip word="24C32">24C32</Tip> (4KB <Tip word="EEPROM">EEPROM</Tip>)</>} subtitle={<><Tip word="FCA">FCA</Tip> Remote Function Hub · 4 mirrored <Tip word="VIN">VIN</Tip> slots · <Tip word="CRC8">CRC8RF</Tip> · <Tip word="SEC16">SEC16</Tip> pairing bytes</>}/>
 
       <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:8}}>PHASE 1 — INSPECT</div>
       <FileDropZone label="Drop 4KB RFHUB .bin file (24C32)" onFile={handleIFile} fileName={iFile?.name}/>
@@ -353,7 +354,7 @@ function GPECSection() {
 
   return (
     <Card>
-      <SectionHeader icon="⚙️" title="GPEC2A — 95320 SPI EEPROM (4KB)" subtitle="PCM/GPEC2A · 3 plain ASCII VIN slots · 8B secret key · SKIM byte · PCM SEC6"/>
+      <SectionHeader icon="⚙️" title={<><Tip word="GPEC2A">GPEC2A</Tip> — <Tip word="95320">95320</Tip> SPI <Tip word="EEPROM">EEPROM</Tip> (4KB)</>} subtitle={<><Tip word="PCM">PCM</Tip>/<Tip word="GPEC2A">GPEC2A</Tip> · 3 plain ASCII <Tip word="VIN">VIN</Tip> slots · 8B secret key · <Tip word="SKIM">SKIM</Tip> byte · <Tip word="PCM">PCM</Tip> <Tip word="SEC6">SEC6</Tip></>}/>
 
       <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:8}}>PHASE 1 — INSPECT</div>
       <FileDropZone label="Drop 4KB GPEC2A .bin file (95320)" onFile={handleIFile} fileName={iFile?.name}/>
@@ -472,7 +473,7 @@ export default function ImmoVINTab() {
       <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,marginBottom:20}}>
         <div>
           <div style={{fontSize:22,fontWeight:900,color:C.tx,marginBottom:4}}>ImmoVIN</div>
-          <div style={{fontSize:12,color:C.ts}}>Binary VIN inspection and editing for FCA EEPROM modules — two-phase workflow: INSPECT then APPLY</div>
+          <div style={{fontSize:12,color:C.ts}}>Binary <Tip word="VIN">VIN</Tip> inspection and editing for <Tip word="FCA">FCA</Tip> <Tip word="EEPROM">EEPROM</Tip> modules — two-phase workflow: INSPECT then APPLY</div>
         </div>
         <button onClick={onPdf} disabled={pdfBusy} style={{cursor:pdfBusy?'wait':'pointer',border:'2px solid '+C.sr,padding:'8px 14px',borderRadius:10,background:'#fff',color:C.sr,fontWeight:800,fontSize:11,letterSpacing:.5,fontFamily:"'Nunito'",whiteSpace:'nowrap'}}>
           {pdfBusy?'⏳ Building...':'🖨 Print Reference'}

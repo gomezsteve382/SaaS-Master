@@ -6,7 +6,7 @@ import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crossValidate,computeDiff,compareGpecBcmKey} from "../lib/crossValidate.js";
 import {crc16} from "../lib/crc.js";
 import MismatchWizard from "../components/MismatchWizard.jsx";
-import {statusBanner, loadAdvanced, saveAdvanced} from "../lib/plainEnglish.jsx";
+import {statusBanner, loadAdvanced, saveAdvanced, Tip} from "../lib/plainEnglish.jsx";
 const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
 
 function SecurityTab(){
@@ -168,7 +168,7 @@ function SecurityTab(){
       <Card style={{textAlign:'center',padding:'24px',cursor:'pointer',border:'2px dashed '+C.sr+'25',marginBottom:16}} onClick={()=>{}}>
         <span style={{fontSize:32}}>🛡️</span>
         <div style={{fontSize:16,fontWeight:900,color:C.sr,marginTop:4}}>Drop Module Files for Cross-Vehicle Matching</div>
-        <div style={{fontSize:11,color:C.ts}}>BCM · 95640 · RFHUB EEE · GPEC2A — compare keys, sync VINs, match security bytes</div>
+        <div style={{fontSize:11,color:C.ts}}><Tip word="BCM">BCM</Tip> · <Tip word="95640">95640</Tip> · <Tip word="RFHUB">RFHUB</Tip> EEE · <Tip word="GPEC2A">GPEC2A</Tip> — compare keys, sync <Tip word="VIN">VINs</Tip>, match security bytes</div>
         {mods.length>0&&<Tag color={C.a3}>{mods.length} loaded</Tag>}
       </Card>
     </div>
@@ -206,7 +206,7 @@ function SecurityTab(){
 
     {mods.length>0&&advanced&&<>
       <Card style={{marginBottom:12,padding:14}}>
-        <div style={{fontSize:10,fontWeight:800,color:C.sr,letterSpacing:2,marginBottom:6}}>TARGET VIN</div>
+        <div style={{fontSize:10,fontWeight:800,color:C.sr,letterSpacing:2,marginBottom:6}}>TARGET <Tip word="VIN">VIN</Tip></div>
         <input value={tv} maxLength={17} placeholder="17-char target VIN" onChange={e=>setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}} onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
         {(vinBad||skBad)&&<div style={{marginTop:8}}>
           {sks.length>1&&<div style={{marginBottom:6,display:'flex',gap:8,alignItems:'center'}}>
@@ -217,12 +217,12 @@ function SecurityTab(){
             </select>
           </div>}
           <Btn onClick={matchAll} disabled={vinBad&&tv.length!==17} full>⚡ Match All Modules{tv.length===17?' → '+tv:''} + Download Files to Flash</Btn>
-          {vinBad&&tv.length!==17&&<div style={{fontSize:10,color:C.wn,marginTop:4}}>Enter a 17-char target VIN above to sync VINs</div>}
+          {vinBad&&tv.length!==17&&<div style={{fontSize:10,color:C.wn,marginTop:4}}>Enter a 17-char target <Tip word="VIN">VIN</Tip> above to sync <Tip word="VIN">VINs</Tip></div>}
         </div>}
       </Card>
 
       <div style={{display:'flex',gap:6,marginBottom:12,flexWrap:'wrap'}}>
-        <div style={{padding:'7px 12px',borderRadius:8,fontSize:11,fontWeight:800,background:vinBad?C.er+'10':C.gn+'10',color:vinBad?C.er:C.gn}}>{vinBad?'⚠ VIN MISMATCH — '+allVins.length+' different VINs':'✓ All VINs Match'}</div>
+        <div style={{padding:'7px 12px',borderRadius:8,fontSize:11,fontWeight:800,background:vinBad?C.er+'10':C.gn+'10',color:vinBad?C.er:C.gn}}>{vinBad?<>⚠ <Tip word="VIN">VIN</Tip> MISMATCH — {allVins.length} different <Tip word="VIN">VINs</Tip></>:<>✓ All <Tip word="VIN">VINs</Tip> Match</>}</div>
         {sks.length>0&&<div style={{padding:'7px 12px',borderRadius:8,fontSize:11,fontWeight:800,background:skBad?C.er+'10':C.gn+'10',color:skBad?C.er:C.gn}}>{skBad?'⚠ SECRET KEY MISMATCH':'✓ Secret Keys Match'}</div>}
       </div>
 
@@ -305,8 +305,8 @@ function SecurityTab(){
       {canSync&&<Card style={{marginBottom:12,padding:14,border:'2px solid '+C.sr+'60',background:C.sr+'08'}}>
         <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
           <div style={{flex:1}}>
-            <div style={{fontWeight:800,fontSize:13,color:C.sr,marginBottom:2}}>🔗 GPEC2A ↔ RFHUB Sync Ready</div>
-            <div style={{fontSize:11,color:C.tm}}>Patches RFHUB SEC16[0:6] → GPEC2A PCM SEC6 · Writes VIN to both modules with correct CRC · Downloads both files</div>
+            <div style={{fontWeight:800,fontSize:13,color:C.sr,marginBottom:2}}>🔗 <Tip word="GPEC2A">GPEC2A</Tip> ↔ <Tip word="RFHUB">RFHUB</Tip> Sync Ready</div>
+            <div style={{fontSize:11,color:C.tm}}>Patches <Tip word="RFHUB">RFHUB</Tip> <Tip word="SEC16">SEC16</Tip>[0:6] → <Tip word="GPEC2A">GPEC2A</Tip> <Tip word="PCM">PCM</Tip> <Tip word="SEC6">SEC6</Tip> · Writes <Tip word="VIN">VIN</Tip> to both modules with correct <Tip word="CRC8">CRC</Tip> · Downloads both files</div>
           </div>
           <Btn onClick={syncGpecRfh} color={C.sr}>🔗 Sync GPEC2A + RFHUB → {tv}</Btn>
         </div>
@@ -416,43 +416,43 @@ function SecurityTab(){
         </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:12}}>
           <Card style={{padding:16,borderTop:'3px solid '+C.gn}}>
-            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>VIN Writer</div>
-            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Update VIN at all locations with CRC.</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:700,color:tv.length===17?C.gn:C.tm,marginBottom:8}}>{tv||'Set target VIN above'} ({tv.length}/17)</div>
-            <Btn onClick={()=>doTool('writeVin')} disabled={tv.length!==17} full>Write VIN</Btn>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}><Tip word="VIN">VIN</Tip> Writer</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Update <Tip word="VIN">VIN</Tip> at all locations with <Tip word="CRC8">CRC</Tip>.</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:700,color:tv.length===17?C.gn:C.tm,marginBottom:8}}>{tv||<>Set target <Tip word="VIN">VIN</Tip> above</>} ({tv.length}/17)</div>
+            <Btn onClick={()=>doTool('writeVin')} disabled={tv.length!==17} full>Write <Tip word="VIN">VIN</Tip></Btn>
           </Card>
           <Card style={{padding:16,borderTop:'3px solid '+C.sr}}>
-            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>SKIM Manager</div>
-            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Toggle SKIM byte at 0x0011 (GPEC2A).</div>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}><Tip word="SKIM">SKIM</Tip> Manager</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Toggle <Tip word="SKIM">SKIM</Tip> byte at 0x0011 (<Tip word="GPEC2A">GPEC2A</Tip>).</div>
             {mods[tt]?.type==='GPEC2A'?<div>
               <div style={{fontSize:12,marginBottom:8}}>Current: <span style={{color:mods[tt].skimByte===0x80?C.gn:C.er,fontWeight:700}}>0x{mods[tt].skimByte.toString(16).toUpperCase()}</span></div>
               <Btn onClick={()=>doTool('skimToggle')} full>{mods[tt].skimByte===0x80?'Disable SKIM':'Enable SKIM'}</Btn>
-            </div>:<div style={{fontSize:11,color:C.tm}}>Select a GPEC2A module.</div>}
+            </div>:<div style={{fontSize:11,color:C.tm}}>Select a <Tip word="GPEC2A">GPEC2A</Tip> module.</div>}
           </Card>
           <Card style={{padding:16,borderTop:'3px solid '+C.wn}}>
-            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>Virginize Module</div>
-            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Clear keys, SKIM, ZZZZ, VINs.</div>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}><Tip word="VIRGINIZE">Virginize</Tip> Module</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Clear keys, <Tip word="SKIM">SKIM</Tip>, <Tip word="ZZZZ">ZZZZ</Tip>, <Tip word="VIN">VINs</Tip>.</div>
             <Btn onClick={()=>doTool('virginize')} full color={C.wn}>Virginize {mods[tt]?.name||''}</Btn>
           </Card>
           <Card style={{padding:16,borderTop:'3px solid '+C.a4}}>
             <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>Extract Secret Key</div>
-            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Extract immobilizer sync key.</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Extract <Tip word="IMMO">immobilizer</Tip> sync key.</div>
             <Btn onClick={()=>doTool('extractKey')} full color={C.a4}>Extract</Btn>
           </Card>
           <Card style={{padding:16,borderTop:'3px solid '+C.a1}}>
-            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>Sync IMMO Backup</div>
-            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Copy SKIM keys 0x40C0 → 0x2000 (BCM only).</div>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>Sync <Tip word="IMMO">IMMO</Tip> Backup</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Copy <Tip word="SKIM">SKIM</Tip> keys 0x40C0 → 0x2000 (<Tip word="BCM">BCM</Tip> only).</div>
             {mods[tt]?.type==='BCM'?<div>
               <div style={{fontSize:11,marginBottom:6}}>Primary: <Tag color={mods[tt].immoBlank?C.wn:C.gn}>{mods[tt].immoBlank?'BLANK':mods[tt].immoRecs+' keys'}</Tag></div>
               <div style={{fontSize:11,marginBottom:8}}>Backup: <Tag color={mods[tt].bakBlank?C.tm:C.gn}>{mods[tt].bakBlank?'BLANK':mods[tt].bakRecs+' keys'}</Tag>{!mods[tt].bakBlank&&!mods[tt].immoBlank&&<Tag color={mods[tt].immoSynced?C.gn:C.wn}>{mods[tt].immoSynced?'SYNCED ✓':'OUT OF SYNC'}</Tag>}</div>
               <Btn onClick={()=>doTool('syncImmo')} disabled={mods[tt].immoBlank} full color={C.a1}>🔄 Sync IMMO Backup</Btn>
-            </div>:<div style={{fontSize:11,color:C.tm}}>Select a BCM module.</div>}
+            </div>:<div style={{fontSize:11,color:C.tm}}>Select a <Tip word="BCM">BCM</Tip> module.</div>}
           </Card>
           <Card style={{padding:16,borderTop:'3px solid '+C.sr}}>
-            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>RFH → PCM SEC6 Import</div>
-            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Write RFHUB SEC16[0:6] → PCM 0x3C8 (Cherokee/Trackhawk pairing).</div>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}><Tip word="RFHUB">RFH</Tip> → <Tip word="PCM">PCM</Tip> <Tip word="SEC6">SEC6</Tip> Import</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Write <Tip word="RFHUB">RFHUB</Tip> <Tip word="SEC16">SEC16</Tip>[0:6] → <Tip word="PCM">PCM</Tip> 0x3C8 (Cherokee/Trackhawk pairing).</div>
             {mods[tt]?.type==='GPEC2A'?<div>
-              {(()=>{const rfh=mods.find(mn=>mn.type==='RFHUB');if(!rfh)return<div style={{fontSize:11,color:C.wn}}>Also load an RFHUB (24C32) dump.</div>;
+              {(()=>{const rfh=mods.find(mn=>mn.type==='RFHUB');if(!rfh)return<div style={{fontSize:11,color:C.wn}}>Also load an <Tip word="RFHUB">RFHUB</Tip> (<Tip word="24C32">24C32</Tip>) dump.</div>;
               const s1=rfh.sec16s?.[0];
               return<div>
                 <div style={{fontSize:11,marginBottom:4}}>RFHUB: <Tag color={rfh.rfhGen?C.a3:C.tm}>{rfh.rfhGen||'?'}</Tag></div>
@@ -461,13 +461,13 @@ function SecurityTab(){
                 <Btn onClick={()=>doTool('rfhPcmSync')} disabled={!rfh.sec16valid} full color={C.sr}>🔑 Import SEC6 from RFHUB</Btn>
                 {!rfh.sec16valid&&<div style={{fontSize:9,color:C.wn,marginTop:4}}>RFHUB SEC16 must be non-blank and both slots matching</div>}
               </div>;})()}
-            </div>:<div style={{fontSize:11,color:C.tm}}>Select a GPEC2A (PCM) as target.</div>}
+            </div>:<div style={{fontSize:11,color:C.tm}}>Select a <Tip word="GPEC2A">GPEC2A</Tip> (<Tip word="PCM">PCM</Tip>) as target.</div>}
           </Card>
           <Card style={{padding:16,borderTop:'3px solid '+C.a4}}>
-            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}>RFH → BCM (95640) SEC16 Import</div>
-            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Write RFHUB SEC16 byte-reversed → 95640 @ 0x838, CRC16 @ 0x848.</div>
+            <div style={{fontSize:14,fontWeight:800,marginBottom:4}}><Tip word="RFHUB">RFH</Tip> → <Tip word="BCM">BCM</Tip> (<Tip word="95640">95640</Tip>) <Tip word="SEC16">SEC16</Tip> Import</div>
+            <div style={{fontSize:11,color:C.tm,marginBottom:10}}>Write <Tip word="RFHUB">RFHUB</Tip> <Tip word="SEC16">SEC16</Tip> byte-reversed → <Tip word="95640">95640</Tip> @ 0x838, <Tip word="CRC16">CRC16</Tip> @ 0x848.</div>
             {mods[tt]?.type==='95640'?<div>
-              {(()=>{const rfh=mods.find(mn=>mn.type==='RFHUB');if(!rfh)return<div style={{fontSize:11,color:C.wn}}>Also load an RFHUB EEE dump.</div>;
+              {(()=>{const rfh=mods.find(mn=>mn.type==='RFHUB');if(!rfh)return<div style={{fontSize:11,color:C.wn}}>Also load an <Tip word="RFHUB">RFHUB</Tip> EEE dump.</div>;
               const s1=rfh.sec16s?.[0];const bs=mods[tt].bcmSec16;
               return<div>
                 <div style={{fontSize:11,marginBottom:4}}>RFHUB: <Tag color={rfh.rfhGen?C.a3:C.tm}>{rfh.rfhGen||'?'}</Tag></div>
@@ -477,7 +477,7 @@ function SecurityTab(){
                 <Btn onClick={()=>doTool('rfhBcmSync')} disabled={!rfh.sec16valid} full color={C.a4}>🔑 Import SEC16 → 95640</Btn>
                 {!rfh.sec16valid&&<div style={{fontSize:9,color:C.wn,marginTop:4}}>RFHUB SEC16 must be non-blank and both slots matching</div>}
               </div>;})()}
-            </div>:<div style={{fontSize:11,color:C.tm}}>Select a 95640 EEPROM as target.</div>}
+            </div>:<div style={{fontSize:11,color:C.tm}}>Select a <Tip word="95640">95640</Tip> <Tip word="EEPROM">EEPROM</Tip> as target.</div>}
           </Card>
         </div>
 

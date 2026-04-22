@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Tag } from "../lib/ui.jsx";
+import { Tip } from "../lib/plainEnglish.jsx";
 import { QR_CMDS } from "../lib/quickRef.js";
 import { buildQuickReferencePDF } from "../lib/buildQuickReferencePDF.js";
 import { ASSET_IDS } from "../lib/downloadAssets.js";
@@ -62,7 +63,7 @@ export default function DesktopDriverCard() {
     {man && <div style={{ fontSize: 11, color: C.ts, marginBottom: 8, fontFamily: "'JetBrains Mono'", letterSpacing: .3 }}>
       v{man.version} · {sizeMB} MB · last updated {man.lastUpdated}
     </div>}
-    <div style={{ fontSize: 12, color: C.ts, lineHeight: 1.5, marginBottom: 12 }}>Windows · J2534 · Autel IM608 — direct PassThru DLL driver. No WebSerial, no ELM327. Full UDS stack, 17 FCA security algorithms, BCM auto-discovery, one-shot VIN write.</div>
+    <div style={{ fontSize: 12, color: C.ts, lineHeight: 1.5, marginBottom: 12 }}>Windows · <Tip word="J2534">J2534</Tip> · <Tip word="AUTEL">Autel</Tip> <Tip word="IM608">IM608</Tip> — direct PassThru DLL driver. No WebSerial, no <Tip word="ELM327">ELM327</Tip>. Full <Tip word="UDS">UDS</Tip> stack, 17 <Tip word="FCA">FCA</Tip> security algorithms, <Tip word="BCM">BCM</Tip> auto-discovery, one-shot <Tip word="VIN">VIN</Tip> write.</div>
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
       <a href={(import.meta.env.BASE_URL || "/") + "srt_lab.py"} download="srt_lab.py" onClick={onDl} style={{ textDecoration: "none" }}>
         <span style={{ display: "inline-block", padding: "10px 18px", borderRadius: 10, background: C.sr, color: "#fff", fontWeight: 800, fontSize: 12, letterSpacing: .5, fontFamily: "'Nunito'" }}>⬇ Download srt_lab.py</span>
@@ -86,7 +87,7 @@ export default function DesktopDriverCard() {
         </div>)}
       </div>}
     </div>}
-    <div style={{ fontSize: 10, color: C.tm, marginBottom: 8, letterSpacing: .5 }}>REQUIREMENTS: Windows 10/11 · Python 3.8+ · J2534 vendor drivers (no pip packages)</div>
+    <div style={{ fontSize: 10, color: C.tm, marginBottom: 8, letterSpacing: .5 }}>REQUIREMENTS: Windows 10/11 · Python 3.8+ · <Tip word="J2534">J2534</Tip> vendor drivers (no pip packages)</div>
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
       <div style={{ fontSize: 10, fontWeight: 800, color: C.tm, letterSpacing: 1 }}>QUICK START</div>
       <button type="button" onClick={() => copy(cmds.join("\n"), "all")} style={{ ...btnStyle, color: C.tm, borderColor: "#ddd", background: "#fff" }}>{copied === "all" ? "✓ Copied all" : "⧉ Copy all"}</button>

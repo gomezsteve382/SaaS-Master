@@ -31,6 +31,7 @@ import BackupsTab from "./tabs/BackupsTab";
 import EcmTab from "./tabs/EcmTab";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import {parseModule} from "./lib/parseModule.js";
+import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
 import {VEHICLES,VEHICLE_LIST,KNOWN_BCM_PN,AMBIGUOUS_REDEYE_PNS,GEN2_YEAR_CHARS,vehiclesForPartNumber,analyzeDumpPartNumber,generationForPartNumber} from "./lib/vehicles.js";
 
@@ -1775,7 +1776,7 @@ function UnlocksSection({vehicle}){
 function LiveObdTab({vehicle}){
   const [section, setSection] = useState('uds');
   const sections = [
-    {id:'uds',  l:'UDS · J2534',     s:'MaxiFlash Elite · Gould'},
+    {id:'uds',  l:<><Tip word="UDS">UDS</Tip> · <Tip word="J2534">J2534</Tip></>,     s:<><Tip word="MAXIFLASH">MaxiFlash</Tip> Elite · <Tip word="GOULD">Gould</Tip></>},
     {id:'scan', l:'LIVE SCAN',       s:'Read modules'},
     {id:'seed', l:'SEED→KEY',        s:'All algorithms'},
   ];
@@ -1819,7 +1820,7 @@ function UdsSection({vehicle}){
 
   return <div>
     <div style={{display:'flex',gap:10,alignItems:'center',marginBottom:14,padding:'10px 14px',background:C.c2,borderRadius:10,border:'1px solid '+C.bd}}>
-      <div style={{fontSize:10,fontWeight:800,color:C.ts,letterSpacing:2}}>J2534 (MAXIFLASH ELITE / GOULD)</div>
+      <div style={{fontSize:10,fontWeight:800,color:C.ts,letterSpacing:2}}><Tip word="J2534">J2534</Tip> (<Tip word="MAXIFLASH">MAXIFLASH</Tip> ELITE / <Tip word="GOULD">GOULD</Tip>)</div>
       <div style={{fontSize:10,color:j2534Status==='connected'?C.gn:C.tm,fontFamily:'JetBrains Mono'}}>{j2534Status==='connected'?'● CONNECTED':'○ DISCONNECTED'}</div>
       <div style={{flex:1}}/>
       <Btn onClick={()=>setJ2534Status(s=>s==='connected'?'disconnected':'connected')} color={vehicle.accent}>{j2534Status==='connected'?'DISCONNECT':'CONNECT'}</Btn>
@@ -1839,7 +1840,7 @@ function UdsSection({vehicle}){
       <Btn onClick={sendFrame} color={vehicle.accent}>▶ SEND</Btn>
     </div>
 
-    <div style={{fontSize:9,fontWeight:800,color:C.ts,letterSpacing:2,marginBottom:6}}>CAN / UDS LOG</div>
+    <div style={{fontSize:9,fontWeight:800,color:C.ts,letterSpacing:2,marginBottom:6}}><Tip word="CAN">CAN</Tip> / <Tip word="UDS">UDS</Tip> LOG</div>
     <div style={{padding:10,borderRadius:10,background:C2.dark,color:'#0F0',fontFamily:'JetBrains Mono',fontSize:11,minHeight:220,maxHeight:340,overflowY:'auto'}}>
       {log.length===0 ? <div style={{color:'#555'}}>// idle — no frames sent</div> : log.map((l,i)=><div key={i} style={{padding:'2px 0',color:l.d==='TX'?'#0F0':'#0FF'}}>[{l.t}] {l.d} · {l.h}</div>)}
     </div>
