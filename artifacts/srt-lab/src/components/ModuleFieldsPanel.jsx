@@ -27,40 +27,48 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
     {mod.type==='GPEC2A'&&(()=>{
       const rc=mod.runtimeCounters||{};
       const tks=mod.transponderKeys||[];
+      const sz=mod.size;
       const missing=[];
-      if(!mod.secretKey)missing.push('secret key @0x0203');
-      if(!mod.secretKeyMirror)missing.push('key mirror @0x0361');
-      if(!mod.zzzzTamper)missing.push('ZZZZ tamper @0x0C8C');
-      if(!mod.partNumberStr)missing.push('part number @0x0FA1');
-      if(!rc.counterA||!rc.counterB||!rc.distance||!rc.keyCycles)missing.push('runtime counters @0x0E61');
-      if(tks.some(k=>k.hex==null))missing.push('transponder keys @0x0888');
+      if(mod.skimByte==null)missing.push({n:'SKIM byte @0x0011',need:0x12});
+      if(!mod.secretKey)missing.push({n:'secret key @0x0203',need:0x020B});
+      if(!mod.secretKeyMirror)missing.push({n:'key mirror @0x0361',need:0x0369});
+      if(!mod.zzzzTamper)missing.push({n:'ZZZZ tamper @0x0C8C',need:0x0C94});
+      if(!mod.partNumberStr)missing.push({n:'part number @0x0FA1',need:0x0FAE});
+      if(!rc.counterA)missing.push({n:'runtime counter A @0x0E61',need:0x0E65});
+      if(!rc.counterB)missing.push({n:'runtime counter B @0x0E69',need:0x0E6D});
+      if(!rc.distance)missing.push({n:'runtime distance @0x0E6D',need:0x0E71});
+      if(!rc.keyCycles)missing.push({n:'runtime keyCycles @0x0E75',need:0x0E79});
+      tks.forEach((k,i)=>{if(k.hex==null)missing.push({n:`transponder key ${i+1} @${fO(k.offset)}`,need:k.offset+4});});
       const undersized=missing.length>0;
-      const Missing=()=><span style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.wn,fontWeight:700}}>buffer too small</span>;
+      const Missing=({need})=><span title={need!=null?`needs ${need.toLocaleString()} bytes, got ${sz.toLocaleString()}`:undefined} style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.wn,fontWeight:700}}>buffer too small{need!=null?` (needs ${need.toLocaleString()} B, got ${sz.toLocaleString()})`:''}</span>;
       return <>
       {undersized&&<Card style={{marginBottom:12,padding:12,border:'1px solid '+C.wn+'66',background:C.wn+'14'}}>
         <div style={{fontWeight:800,fontSize:12,color:C.wn,marginBottom:4,letterSpacing:.5}}>⚠️ FILE TOO SMALL</div>
-        <div style={{fontSize:11,color:C.tx,lineHeight:1.4}}>
-          This dump is only {mod.size.toLocaleString()} bytes — a full GPEC2A is 4,096 bytes.
-          The following region{missing.length===1?'':'s'} could not be read: <span style={{color:C.wn,fontWeight:700}}>{missing.join(', ')}</span>.
+        <div style={{fontSize:11,color:C.tx,lineHeight:1.4,marginBottom:6}}>
+          This dump is only {sz.toLocaleString()} bytes — a full GPEC2A is 4,096 bytes.
+          The following region{missing.length===1?'':'s'} could not be read:
         </div>
+        <ul style={{margin:'4px 0 0 18px',padding:0,fontSize:11,color:C.tx,lineHeight:1.5}}>
+          {missing.map(x=><li key={x.n}><span style={{color:C.wn,fontWeight:700}}>{x.n}</span> <span style={{color:C.tm}}>— needs {x.need.toLocaleString()} B, got {sz.toLocaleString()}</span></li>)}
+        </ul>
       </Card>}
       <Card style={{marginBottom:12,padding:14}}>
         <div style={{fontWeight:800,fontSize:11,color:C.a2,marginBottom:8,letterSpacing:1.5}}>⚙️ GPEC2A SECURITY</div>
-        {mod.skimByte!=null&&<Row label="SKIM byte @0x0011">
+        <Row label="SKIM byte @0x0011">{mod.skimByte!=null?<>
           <Tag color={mod.skimByte===0x80?C.gn:C.wn}>{mod.skimStatus}</Tag>
           <span style={{marginLeft:6,color:C.tm}}>0x{mod.skimByte.toString(16).toUpperCase().padStart(2,'0')}</span>
-        </Row>}
-        <Row label="Secret key @0x0203">{mod.secretKey?<Hex muted={mod.skb}>{mod.secretKey.hex}</Hex>:<Missing/>}</Row>
-        <Row label="Mirror @0x0361">{mod.secretKeyMirror?<><Hex muted={mod.skb}>{mod.secretKeyMirror.hex}</Hex>{' '}<Tag color={mod.keyConsistent?C.gn:C.er}>{mod.keyConsistent?'MATCH':'MISMATCH'}</Tag></>:<Missing/>}</Row>
+        </>:<Missing need={0x12}/>}</Row>
+        <Row label="Secret key @0x0203">{mod.secretKey?<Hex muted={mod.skb}>{mod.secretKey.hex}</Hex>:<Missing need={0x020B}/>}</Row>
+        <Row label="Mirror @0x0361">{mod.secretKeyMirror?<><Hex muted={mod.skb}>{mod.secretKeyMirror.hex}</Hex>{' '}<Tag color={mod.keyConsistent?C.gn:C.er}>{mod.keyConsistent?'MATCH':'MISMATCH'}</Tag></>:<Missing need={0x0369}/>}</Row>
         <Row label="ZZZZ tamper @0x0C8C">{mod.zzzzTamper?<>
           <Tag color={mod.zzzzTamper.intact?C.gn:C.er}>{mod.zzzzTamper.intact?'INTACT':'CLEARED'}</Tag>
           <span style={{marginLeft:6,fontSize:10,color:C.ts}}>{mod.zzzzTamper.hex}</span>
-        </>:<Missing/>}</Row>
+        </>:<Missing need={0x0C94}/>}</Row>
         {mod.pcmSec6&&<Row label="PCM SEC6 @0x03C8">
           <Hex muted={mod.pcmSec6.blank}>{mod.pcmSec6.hex}</Hex>{' '}
           <Tag color={mod.pcmSec6.damaged?C.er:C.gn}>{mod.pcmSec6.immoState}</Tag>
         </Row>}
-        <Row label="Part number @0x0FA1">{mod.partNumberStr||<Missing/>}</Row>
+        <Row label="Part number @0x0FA1">{mod.partNumberStr||<Missing need={0x0FAE}/>}</Row>
       </Card>
 
       <Card style={{marginBottom:12,padding:14}}>
@@ -69,9 +77,11 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
           {tks.map((k,i)=>{
             const unread=k.hex==null;
             const blank=!unread&&Array.from(k.hex.split(' ').map(h=>parseInt(h,16))).every(b=>b===0xFF||b===0);
+            const need=k.offset+4;
             return <div key={i} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+(unread?C.wn+'66':blank?C.bd:C.gn+'40'),textAlign:'center'}}>
               <div style={{fontSize:9,color:C.tm,fontWeight:700}}>KEY {i+1} · {fO(k.offset)}</div>
-              <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:unread?C.wn:blank?'#D5D0C8':C.a4,marginTop:3}}>{unread?'buffer too small':k.hex}</div>
+              <div title={unread?`needs ${need.toLocaleString()} bytes, got ${sz.toLocaleString()}`:undefined} style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:unread?C.wn:blank?'#D5D0C8':C.a4,marginTop:3}}>{unread?'buffer too small':k.hex}</div>
+              {unread&&<div style={{fontSize:8,color:C.tm,marginTop:2}}>needs {need.toLocaleString()} B · got {sz.toLocaleString()}</div>}
               <Tag color={unread?C.wn:blank?C.tm:C.gn}>{unread?'N/A':blank?'—':'SET'}</Tag>
             </div>;
           })}
@@ -82,14 +92,15 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
         <div style={{fontWeight:800,fontSize:11,color:C.a2,marginBottom:8,letterSpacing:1.5}}>📊 RUNTIME COUNTERS</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
           {[
-            {n:'Counter A',c:rc.counterA},
-            {n:'Counter B',c:rc.counterB},
-            {n:'Distance',c:rc.distance},
-            {n:'Key cycles',c:rc.keyCycles},
+            {n:'Counter A',c:rc.counterA,need:0x0E65},
+            {n:'Counter B',c:rc.counterB,need:0x0E6D},
+            {n:'Distance',c:rc.distance,need:0x0E71},
+            {n:'Key cycles',c:rc.keyCycles,need:0x0E79},
           ].map(x=>{
-            if(!x.c)return <div key={x.n} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+C.wn+'66',textAlign:'center'}}>
+            if(!x.c)return <div key={x.n} title={`needs ${x.need.toLocaleString()} bytes, got ${sz.toLocaleString()}`} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+C.wn+'66',textAlign:'center'}}>
               <div style={{fontSize:9,color:C.tm}}>{x.n}</div>
               <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.wn,marginTop:6}}>buffer too small</div>
+              <div style={{fontSize:8,color:C.tm,marginTop:2}}>needs {x.need.toLocaleString()} B · got {sz.toLocaleString()}</div>
             </div>;
             const v=(x.c.value>>>0);
             return <div key={x.n} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
@@ -173,20 +184,44 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
     </>}
 
     {/* BCM ---------------------------------------------------------------- */}
-    {mod.type==='BCM'&&<>
+    {mod.type==='BCM'&&(()=>{
+      const bcmSz=mod.size;
+      const bcmMissing=[];
+      if(!mod.securityLock)bcmMissing.push({n:'security lock @0x8028',need:0x8029});
+      if(mod.fobikCount==null)bcmMissing.push({n:'FOBIK count @0x5862',need:0x5863});
+      const bcmUndersized=bcmMissing.length>0;
+      return <>
+      {bcmUndersized&&<Card style={{marginBottom:12,padding:12,border:'1px solid '+C.wn+'66',background:C.wn+'14'}}>
+        <div style={{fontWeight:800,fontSize:12,color:C.wn,marginBottom:4,letterSpacing:.5}}>⚠️ FILE TOO SMALL</div>
+        <div style={{fontSize:11,color:C.tx,lineHeight:1.4,marginBottom:6}}>
+          This dump is only {bcmSz.toLocaleString()} bytes — a full BCM is 65,536 or 131,072 bytes.
+          The following region{bcmMissing.length===1?'':'s'} could not be read:
+        </div>
+        <ul style={{margin:'4px 0 0 18px',padding:0,fontSize:11,color:C.tx,lineHeight:1.5}}>
+          {bcmMissing.map(x=><li key={x.n}><span style={{color:C.wn,fontWeight:700}}>{x.n}</span> <span style={{color:C.tm}}>— needs {x.need.toLocaleString()} B, got {bcmSz.toLocaleString()}</span></li>)}
+        </ul>
+      </Card>}
       <Card glow style={{marginBottom:14}}>
         <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>🧠 BCM Analysis</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
-          <div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+(mod.securityLock.locked?C.gn+'40':C.wn+'40')}}>
+          {mod.securityLock?<div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+(mod.securityLock.locked?C.gn+'40':C.wn+'40')}}>
             <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>SECURITY LOCK @0x8028</div>
             <div style={{fontSize:28,fontWeight:900,color:mod.securityLock.locked?C.gn:C.wn,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>{mod.securityLock.locked?'LOCKED':'UNLOCKED'}</div>
             <div style={{fontSize:10,color:C.tm,marginTop:4}}>0x{mod.securityLock.value.toString(16).toUpperCase().padStart(2,'0')} {mod.securityLock.locked?'(0x5A)':''}</div>
-          </div>
-          <div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.a1+'40'}}>
+          </div>:<div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.wn+'66'}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>SECURITY LOCK @0x8028</div>
+            <div style={{fontSize:18,fontWeight:900,color:C.wn,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>buffer too small</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:4}}>needs {(0x8029).toLocaleString()} B · got {bcmSz.toLocaleString()}</div>
+          </div>}
+          {mod.fobikCount!=null?<div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.a1+'40'}}>
             <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>FOBIK COUNT @0x5862</div>
             <div style={{fontSize:28,fontWeight:900,color:C.a1,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>{mod.fobikCount}</div>
             <div style={{fontSize:10,color:C.tm,marginTop:4}}>{mod.fobikParts||'—'}</div>
-          </div>
+          </div>:<div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.wn+'66'}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>FOBIK COUNT @0x5862</div>
+            <div style={{fontSize:18,fontWeight:900,color:C.wn,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>buffer too small</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:4}}>needs {(0x5863).toLocaleString()} B · got {bcmSz.toLocaleString()}</div>
+          </div>}
         </div>
       </Card>
 
@@ -247,7 +282,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
           </div>)}
         </div>
       </Card>}
-    </>}
+    </>;})()}
 
     {/* 95640 -------------------------------------------------------------- */}
     {mod.type==='95640'&&<>
