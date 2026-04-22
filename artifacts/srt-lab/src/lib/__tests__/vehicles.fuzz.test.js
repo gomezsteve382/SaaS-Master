@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { analyzeDumpPartNumber, generationForPartNumber, vehiclesForPartNumber, KNOWN_BCM_PN, VEHICLES } from '../vehicles.js';
+import { analyzeDumpPartNumber, generationForPartNumber, vehiclesForPartNumber, readVinFromDump, KNOWN_BCM_PN, VEHICLES } from '../vehicles.js';
 
 const VEHICLE_IDS = Object.keys(VEHICLES);
 
@@ -490,6 +490,220 @@ describe('vehiclesForPartNumber — property-based fuzz (seed=0xbabe1234, 1000 s
     for (const { pn, label } of inputs) {
       const result = vehiclesForPartNumber(pn);
       assertVehiclesArray(result, label);
+    }
+  });
+});
+
+// ── readVinFromDump fuzz ───────────────────────────────────────────────────────
+// Collect every unique vinOff value defined across all vehicle generations so
+// the adversarial inputs are grounded in real offsets the production code uses.
+
+const ALL_VIN_OFFSETS = [
+  ...new Set(
+    Object.values(VEHICLES).flatMap(v => v.generations.map(g => g.vinOff)),
+  ),
+];
+
+function assertVinResult(result, label) {
+  // Return value must be null or a 17-character printable-ASCII string
+  if (result === null) return;
+  expect(typeof result, `${label}: non-null result must be a string`).toBe('string');
+  expect(result.length, `${label}: VIN string must be exactly 17 chars`).toBe(17);
+  for (let i = 0; i < result.length; i++) {
+    const code = result.charCodeAt(i);
+    expect(code >= 0x20 && code <= 0x7e, `${label}: VIN char[${i}] must be printable ASCII`).toBe(true);
+  }
+}
+
+// ── Fixed edge cases specific to the VIN-offset reader ────────────────────────
+
+const VIN_OFFSET_FIXED_CASES = ALL_VIN_OFFSETS.flatMap(vinOff => [
+  // Buffer is completely empty
+  { label: `vinOff=0x${vinOff.toString(16)} empty buffer`, bytes: new Uint8Array(0), vinOff },
+  // Buffer stops exactly one byte before the offset
+  { label: `vinOff=0x${vinOff.toString(16)} buffer length = vinOff-1`, bytes: new Uint8Array(vinOff > 0 ? vinOff - 1 : 0), vinOff },
+  // Buffer starts at the offset but has fewer than 17 bytes (partial VIN)
+  { label: `vinOff=0x${vinOff.toString(16)} buffer length = vinOff+8 (partial VIN)`, bytes: new Uint8Array(vinOff + 8), vinOff },
+  // Buffer exactly covers the offset with exactly 17 bytes (minimal valid size)
+  { label: `vinOff=0x${vinOff.toString(16)} buffer length = vinOff+17 (exact fit)`, bytes: new Uint8Array(vinOff + 17), vinOff },
+  // VIN region is all 0x00 (erased / unprogrammed flash)
+  {
+    label: `vinOff=0x${vinOff.toString(16)} VIN region all 0x00`,
+    bytes: (() => { const b = new Uint8Array(vinOff + 64); return b; })(),
+    vinOff,
+  },
+  // VIN region is all 0xFF (blank EEPROM / erased sector)
+  {
+    label: `vinOff=0x${vinOff.toString(16)} VIN region all 0xFF`,
+    bytes: (() => { const b = new Uint8Array(vinOff + 64).fill(0xff); return b; })(),
+    vinOff,
+  },
+  // VIN region contains a realistic ASCII VIN
+  {
+    label: `vinOff=0x${vinOff.toString(16)} valid ASCII VIN`,
+    bytes: (() => {
+      const b = new Uint8Array(vinOff + 64).fill(0xff);
+      new TextEncoder().encode('2C3CDXGJ8KH123456').forEach((byte, i) => { b[vinOff + i] = byte; });
+      return b;
+    })(),
+    vinOff,
+  },
+  // VIN region is mostly valid but has one null byte injected mid-VIN
+  {
+    label: `vinOff=0x${vinOff.toString(16)} VIN with embedded 0x00 at byte 9`,
+    bytes: (() => {
+      const b = new Uint8Array(vinOff + 64).fill(0xff);
+      new TextEncoder().encode('2C3CDXGJ8KH123456').forEach((byte, i) => { b[vinOff + i] = byte; });
+      b[vinOff + 9] = 0x00;
+      return b;
+    })(),
+    vinOff,
+  },
+  // VIN region is mostly valid but has one 0xFF byte injected mid-VIN
+  {
+    label: `vinOff=0x${vinOff.toString(16)} VIN with embedded 0xFF at byte 4`,
+    bytes: (() => {
+      const b = new Uint8Array(vinOff + 64).fill(0x00);
+      new TextEncoder().encode('2C3CDXGJ8KH123456').forEach((byte, i) => { b[vinOff + i] = byte; });
+      b[vinOff + 4] = 0xff;
+      return b;
+    })(),
+    vinOff,
+  },
+  // Buffer around offset filled with latin1 high bytes (no printable VIN)
+  {
+    label: `vinOff=0x${vinOff.toString(16)} VIN region latin1 high bytes (0xA5)`,
+    bytes: new Uint8Array(vinOff + 64).fill(0xa5),
+    vinOff,
+  },
+]);
+
+// Also exercise with bad vinOff types / values (bytes argument is valid)
+const VALID_DUMP = (() => {
+  const b = new Uint8Array(0x6000).fill(0xff);
+  new TextEncoder().encode('2C3CDXGJ8KH123456').forEach((byte, i) => { b[0x1308 + i] = byte; });
+  return b;
+})();
+
+const VIN_OFFSET_BAD_OFFSET_CASES = [
+  { label: 'vinOff = -1',          bytes: VALID_DUMP, vinOff: -1 },
+  { label: 'vinOff = 0',           bytes: VALID_DUMP, vinOff: 0 },
+  { label: 'vinOff = NaN',         bytes: VALID_DUMP, vinOff: NaN },
+  { label: 'vinOff = Infinity',     bytes: VALID_DUMP, vinOff: Infinity },
+  { label: 'vinOff = -Infinity',    bytes: VALID_DUMP, vinOff: -Infinity },
+  { label: 'vinOff = 1.5',         bytes: VALID_DUMP, vinOff: 1.5 },
+  { label: 'vinOff = null',        bytes: VALID_DUMP, vinOff: null },
+  { label: 'vinOff = undefined',   bytes: VALID_DUMP, vinOff: undefined },
+  { label: 'vinOff = "0x1308"',    bytes: VALID_DUMP, vinOff: '0x1308' },
+  { label: 'vinOff = {}',          bytes: VALID_DUMP, vinOff: {} },
+  { label: 'vinOff > buffer.length', bytes: VALID_DUMP, vinOff: VALID_DUMP.length + 1 },
+];
+
+const VIN_OFFSET_BAD_BYTES_CASES = [
+  { label: 'bytes = null',        bytes: null,      vinOff: 0x1308 },
+  { label: 'bytes = undefined',   bytes: undefined, vinOff: 0x1308 },
+  { label: 'bytes = plain Array', bytes: [0xff, 0xff], vinOff: 0 },
+  { label: 'bytes = string',      bytes: 'hello',   vinOff: 0 },
+  { label: 'bytes = number',      bytes: 42,         vinOff: 0 },
+  { label: 'bytes = {}',          bytes: {},         vinOff: 0 },
+];
+
+describe('readVinFromDump — fixed edge cases (VIN-offset inputs)', () => {
+  for (const { label, bytes, vinOff } of VIN_OFFSET_FIXED_CASES) {
+    it(`never throws and returns null or a valid VIN: ${label}`, () => {
+      let result;
+      expect(() => { result = readVinFromDump(bytes, vinOff); }, `${label}: must not throw`).not.toThrow();
+      assertVinResult(result, label);
+    });
+  }
+});
+
+describe('readVinFromDump — bad vinOff values', () => {
+  for (const { label, bytes, vinOff } of VIN_OFFSET_BAD_OFFSET_CASES) {
+    it(`never throws: ${label}`, () => {
+      let result;
+      expect(() => { result = readVinFromDump(bytes, vinOff); }, `${label}: must not throw`).not.toThrow();
+      assertVinResult(result, label);
+    });
+  }
+});
+
+describe('readVinFromDump — bad bytes argument types', () => {
+  for (const { label, bytes, vinOff } of VIN_OFFSET_BAD_BYTES_CASES) {
+    it(`never throws and returns null: ${label}`, () => {
+      let result;
+      expect(() => { result = readVinFromDump(bytes, vinOff); }, `${label}: must not throw`).not.toThrow();
+      expect(result, `${label}: must return null for non-Uint8Array input`).toBeNull();
+    });
+  }
+});
+
+describe('readVinFromDump — property-based fuzz (seed=0x1a2b3c4d, 1000 samples)', () => {
+  const rng = makeRng(0x1a2b3c4d);
+
+  const samples = Array.from({ length: 1000 }, (_, i) => {
+    const vinOff = ALL_VIN_OFFSETS[rng.nextInt(0, ALL_VIN_OFFSETS.length - 1)];
+    const strategy = rng.nextInt(0, 7);
+    let bytes;
+
+    if (strategy === 0) {
+      // Buffer too short to reach vinOff
+      const len = rng.nextInt(0, vinOff > 0 ? vinOff - 1 : 0);
+      bytes = rng.nextBytes(len);
+
+    } else if (strategy === 1) {
+      // Buffer reaches vinOff but has fewer than 17 VIN bytes
+      const extra = rng.nextInt(0, 16);
+      bytes = rng.nextBytes(vinOff + extra);
+
+    } else if (strategy === 2) {
+      // VIN region entirely 0x00
+      bytes = new Uint8Array(vinOff + 64);
+
+    } else if (strategy === 3) {
+      // VIN region entirely 0xFF
+      bytes = new Uint8Array(vinOff + 64).fill(0xff);
+
+    } else if (strategy === 4) {
+      // Valid-looking VIN with random mutations at random positions
+      const buf = new Uint8Array(vinOff + 64).fill(0x20);
+      new TextEncoder().encode('2C3CDXGJ8KH123456').forEach((b, idx) => { buf[vinOff + idx] = b; });
+      const mutations = rng.nextInt(0, 17);
+      for (let m = 0; m < mutations; m++) {
+        buf[vinOff + rng.nextInt(0, 16)] = rng.nextByte();
+      }
+      bytes = buf;
+
+    } else if (strategy === 5) {
+      // Random bytes of random total length (may or may not cover vinOff)
+      const len = rng.nextInt(0, vinOff + 128);
+      bytes = rng.nextBytes(len);
+
+    } else if (strategy === 6) {
+      // Large buffer (up to 128 KB), VIN region randomised
+      const len = rng.nextInt(vinOff + 17, vinOff + 131072);
+      const buf = new Uint8Array(len).fill(0xff);
+      for (let j = 0; j < 17; j++) buf[vinOff + j] = rng.nextByte();
+      bytes = buf;
+
+    } else {
+      // latin1 high-byte fill around VIN region
+      bytes = new Uint8Array(vinOff + 64).fill(0x80 + rng.nextInt(0, 127));
+    }
+
+    return { label: `sample[${i}] strategy=${strategy} vinOff=0x${vinOff.toString(16)}`, bytes, vinOff };
+  });
+
+  it('never throws for any generated input', () => {
+    for (const { label, bytes, vinOff } of samples) {
+      expect(() => readVinFromDump(bytes, vinOff), `must not throw: ${label}`).not.toThrow();
+    }
+  });
+
+  it('always returns null or a valid 17-char printable-ASCII VIN', () => {
+    for (const { label, bytes, vinOff } of samples) {
+      const result = readVinFromDump(bytes, vinOff);
+      assertVinResult(result, label);
     }
   });
 });

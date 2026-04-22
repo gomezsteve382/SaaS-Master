@@ -90,3 +90,27 @@ export function generationForPartNumber(vehicleId,pn,vinYearChar){
   }
   return v.generations.find(g=>g.bcmPn===pn);
 }
+
+/**
+ * Read the raw 17-byte VIN from a BCM dump buffer at a generation-specific
+ * byte offset (vinOff).  Returns null for any invalid input so callers never
+ * need to guard against exceptions.
+ *
+ * @param {Uint8Array} bytes  - Raw dump buffer (may be any length, including 0)
+ * @param {number}     vinOff - Byte offset at which the VIN starts
+ * @returns {string|null} 17-character VIN string, or null when the region is
+ *   absent, too short, or filled entirely with 0x00 / 0xFF sentinel bytes.
+ */
+export function readVinFromDump(bytes,vinOff){
+  if(!(bytes instanceof Uint8Array))return null;
+  if(!Number.isFinite(vinOff)||vinOff<0||!Number.isInteger(vinOff))return null;
+  if(bytes.length<=vinOff)return null;
+  const slice=bytes.subarray(vinOff,vinOff+17);
+  if(slice.length<17)return null;
+  let allZero=true,allFF=true;
+  for(let i=0;i<17;i++){if(slice[i]!==0x00)allZero=false;if(slice[i]!==0xff)allFF=false;}
+  if(allZero||allFF)return null;
+  const raw=new TextDecoder('latin1').decode(slice);
+  const clean=raw.replace(/[^\x20-\x7e]/g,'');
+  return clean.length===17?clean:null;
+}
