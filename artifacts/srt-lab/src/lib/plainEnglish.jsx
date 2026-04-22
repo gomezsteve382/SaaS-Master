@@ -86,7 +86,7 @@ export function translateIssue(raw) {
   if (u.includes('SEC16') && (u.includes('MISMATCH') || u.includes('INVALID')))
     return { plain: 'The immobilizer token in the BCM does not match the one in the key receiver. The engine will refuse to start until they match.', term: 'SEC16' };
   if (u.includes('PCM SEC6') || u.includes('IMMO_DAMAGED'))
-    return { plain: 'The engine computer\'s immobilizer key is missing or damaged. The engine will not start.', term: 'SEC6' };
+    return { plain: 'The engine computer\'s immobilizer key is missing or damaged. The engine will not start. Open the Module Sync tab and load your RFHUB dump alongside this PCM — the tool will copy the correct security bytes from the RFHUB into the PCM and download a patched .bin.', term: 'SEC6' };
   if (u.includes('VEHICLE SECRET'))
     return { plain: 'The shared vehicle secret stored in the BCM and key receiver disagree. The immobilizer handshake will fail.', term: 'IMMO' };
   if (u.includes('BCM PN MISMATCH'))

@@ -39,14 +39,14 @@ function crossValidate(modules){
     else warnings.push("RFHUB SEC16: Slot 1/2 MISMATCH or unreadable");
   }
   if(gpec&&gpec.pcmSec6){
-    if(gpec.pcmSec6.damaged)issues.push("PCM SEC6 @ 0x3C8: IMMO_DAMAGED (FF FF FF FF FF FF) — needs RFH import");
+    if(gpec.pcmSec6.damaged)issues.push("PCM SEC6 @ 0x3C8: IMMO_DAMAGED (FF FF FF FF FF FF) — open the Module Sync tab and load your RFHUB dump alongside this PCM to apply the RFH→PCM SEC6 import");
     else passed.push("PCM SEC6 @ 0x3C8: "+gpec.pcmSec6.hex+" ("+gpec.pcmSec6.immoState+")");
   }
   if(rfhub&&gpec&&rfhub.sec16valid&&gpec.pcmSec6&&!gpec.pcmSec6.damaged){
     const s16=rfhub.sec16s[0].raw;const s6=gpec.pcmSec6.raw;
     const match=arrEq(Array.from(s6),Array.from(s16.slice(0,6)));
     if(match)passed.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MATCH ✓");
-    else warnings.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MISMATCH — use RFH→PCM Import tool");
+    else warnings.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MISMATCH — open the Module Sync tab to apply the RFH→PCM SEC6 import");
   }
   if(gpec&&gpec.secretKey&&bcm&&bcm.vehicleSecret){const cmp=compareGpecBcmKey(gpec.secretKey.bytes,bcm.vehicleSecret.bytes);if(cmp.match)passed.push("GPEC↔BCM key: MATCH ✓ (BCM LE reversed, first 8B = GPEC 8B)");else issues.push("GPEC↔BCM key: MISMATCH! GPEC="+Array.from(cmp.gpecBytes).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ')+" BCM(rev)[0:8]="+Array.from(cmp.bcmBytes).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' '));}
   else if(gpec&&gpec.secretKey&&bcm)warnings.push("GPEC↔BCM key: BCM vehicle secret not found for comparison");
