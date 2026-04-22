@@ -240,6 +240,26 @@ export default function BackupsTab() {
     setPairedData(null);
     const data = await getBackupAsync(key);
     setSelectedData(data);
+    // Auto-load the paired snapshot so the diff section appears immediately.
+    if (data) {
+      const isPost = data.snapshotKind === "post-write";
+      const isPre = data.snapshotKind === "pre-write";
+      let pairedKey = null;
+      if (isPost && data.preWriteKey) {
+        pairedKey = data.preWriteKey;
+      } else if (isPre) {
+        const list = getBackupList();
+        const match = list.find(b => b.preWriteKey === key && b.snapshotKind === "post-write");
+        pairedKey = match?.key ?? null;
+      }
+      if (pairedKey) {
+        setPairedData("loading");
+        try {
+          const paired = await getBackupAsync(pairedKey);
+          setPairedData(paired || null);
+        } catch { setPairedData(null); }
+      }
+    }
   }, []);
 
   // Deep-link via window event "srtlab:backupSelect" — auto-select a key
@@ -852,6 +872,15 @@ export default function BackupsTab() {
                   ))}
                 </div>
 
+                {pairedData === "loading" && (
+                  <div data-testid="snapshot-diff-loading" style={{
+                    marginTop: 16, padding: "10px 14px", background: "#F0F4FF",
+                    border: "1px solid #90A4AE", borderRadius: 6,
+                    fontSize: 11, color: C.ts, display: "flex", alignItems: "center", gap: 8,
+                  }}>
+                    <span style={{ opacity: 0.6 }}>⏳</span> Loading paired snapshot for comparison…
+                  </div>
+                )}
                 {pairedData && pairedData !== "loading" && (() => {
                   const preSnap = selectedData.snapshotKind === "pre-write" ? selectedData : pairedData;
                   const postSnap = selectedData.snapshotKind === "post-write" ? selectedData : pairedData;
@@ -866,35 +895,126 @@ export default function BackupsTab() {
                   const changedRows = rows.filter(r => r.changed);
                   const unchangedRows = rows.filter(r => !r.changed);
                   return (
-                    <div style={{ marginTop: 16 }}>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, letterSpacing: 2, marginBottom: 8, display: "flex", justifyContent: "space-between" }}>
-                        <span>PRE → POST DIFF</span>
-                        <span style={{ fontWeight: 400, color: C.tm }}>{changedRows.length} changed · {unchangedRows.length} unchanged</span>
+                    <div data-testid="snapshot-diff-panel" style={{ marginTop: 16 }}>
+                      <div style={{
+                        fontSize: 10, fontWeight: 800, color: C.ts, letterSpacing: 2,
+                        marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center",
+                      }}>
+                        <span>🔀 COMPARE CHANGES</span>
+                        <span style={{ fontWeight: 400, color: C.tm }}>
+                          {changedRows.length > 0
+                            ? <span style={{ color: "#CC7700", fontWeight: 700 }}>{changedRows.length} changed</span>
+                            : <span style={{ color: C.a2, fontWeight: 700 }}>0 changed</span>
+                          }
+                          {" · "}
+                          <span style={{ color: C.tm }}>{unchangedRows.length} unchanged</span>
+                        </span>
                       </div>
-                      {changedRows.length === 0 && (
-                        <div style={{ fontSize: 11, color: C.a2, padding: "8px 10px", background: "#e6f9ed", borderRadius: 4 }}>
-                          No DID values changed between snapshots.
+
+                      {changedRows.length === 0 ? (
+                        <div data-testid="snapshot-diff-no-changes" style={{
+                          fontSize: 11, color: C.a2, padding: "10px 12px",
+                          background: "#e6f9ed", border: "1px solid #A5D6A7",
+                          borderRadius: 6, marginBottom: 6,
+                        }}>
+                          ✓ No DID values changed between the PRE and POST snapshots.
+                        </div>
+                      ) : (
+                        <div data-testid="snapshot-diff-changed">
+                          {changedRows.map(({ did, before, after }) => (
+                            <div
+                              key={did}
+                              data-testid={"snapshot-diff-row-changed-" + did}
+                              style={{
+                                padding: "8px 10px", marginBottom: 5, borderRadius: 5,
+                                border: "1.5px solid #F9A825",
+                                background: "linear-gradient(135deg,#FFFDE7 0%,#FFFBF0 100%)",
+                              }}
+                            >
+                              <div style={{ fontSize: 10, fontWeight: 800, color: C.tx, marginBottom: 5 }}>
+                                {(before?.critical || after?.critical) && "🔴 "}
+                                0x{hx(parseInt(did, 10), 4)} · {before?.name || after?.name}
+                              </div>
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                                <div style={{
+                                  padding: "5px 8px", borderRadius: 4,
+                                  background: "#FFEBEE", border: "1px solid #FFCDD2",
+                                }}>
+                                  <div style={{ fontSize: 8, fontWeight: 800, color: "#CC0000", letterSpacing: 1.5, marginBottom: 3 }}>BEFORE</div>
+                                  {before?.ascii && (
+                                    <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: "#B71C1C", fontWeight: 700, marginBottom: 1 }}>
+                                      "{before.ascii}"
+                                    </div>
+                                  )}
+                                  <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 9, color: "#CC0000", wordBreak: "break-all", opacity: 0.85 }}>
+                                    {before?.hex || <span style={{ fontStyle: "italic", opacity: 0.6 }}>(missing)</span>}
+                                  </div>
+                                </div>
+                                <div style={{
+                                  padding: "5px 8px", borderRadius: 4,
+                                  background: "#E8F5E9", border: "1px solid #C8E6C9",
+                                }}>
+                                  <div style={{ fontSize: 8, fontWeight: 800, color: "#1E6F3A", letterSpacing: 1.5, marginBottom: 3 }}>AFTER</div>
+                                  {after?.ascii && (
+                                    <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: "#1B5E20", fontWeight: 700, marginBottom: 1 }}>
+                                      "{after.ascii}"
+                                    </div>
+                                  )}
+                                  <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 9, color: "#1E6F3A", wordBreak: "break-all", opacity: 0.85 }}>
+                                    {after?.hex || <span style={{ fontStyle: "italic", opacity: 0.6 }}>(missing)</span>}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       )}
-                      {changedRows.map(({ did, before, after }) => (
-                        <div key={did} style={{ padding: "6px 10px", marginBottom: 4, borderRadius: 4, border: "1px solid #f0c060", background: "#FFFBF0" }}>
-                          <div style={{ fontSize: 10, fontWeight: 800, color: C.tx, marginBottom: 4 }}>
-                            0x{hx(parseInt(did, 10), 4)} · {before?.name || after?.name}
+
+                      {unchangedRows.length > 0 && (
+                        <details data-testid="snapshot-diff-unchanged" style={{ marginTop: 4 }}>
+                          <summary style={{
+                            fontSize: 10, color: C.tm, cursor: "pointer",
+                            padding: "5px 8px", borderRadius: 4,
+                            background: "#F5F5F5", border: "1px solid " + C.bd,
+                            userSelect: "none", listStyle: "none",
+                            display: "flex", alignItems: "center", gap: 5,
+                          }}>
+                            <span>▶</span>
+                            <span>{unchangedRows.length} unchanged DID{unchangedRows.length !== 1 ? "s" : ""} (no diff)</span>
+                          </summary>
+                          <div style={{ marginTop: 3 }}>
+                            {unchangedRows.map(({ did, before, after }) => (
+                              <div
+                                key={did}
+                                data-testid={"snapshot-diff-row-unchanged-" + did}
+                                style={{
+                                  padding: "5px 10px", borderBottom: "1px solid " + C.bd,
+                                  display: "flex", alignItems: "center", gap: 10,
+                                  opacity: 0.45,
+                                }}
+                              >
+                                <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, fontWeight: 700, color: C.ts, whiteSpace: "nowrap" }}>
+                                  0x{hx(parseInt(did, 10), 4)}
+                                </span>
+                                <span style={{ fontSize: 10, color: C.tm, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  {before?.name || after?.name}
+                                </span>
+                                {(before || after)?.ascii && (
+                                  <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 9, color: C.ts }}>
+                                    "{(before || after).ascii}"
+                                  </span>
+                                )}
+                                <span style={{
+                                  fontSize: 8, fontWeight: 700, color: C.a2, letterSpacing: 1,
+                                  padding: "1px 5px", background: "#e6f9ed", borderRadius: 3,
+                                }}>
+                                  =
+                                </span>
+                              </div>
+                            ))}
                           </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-                            <div>
-                              <div style={{ fontSize: 8, fontWeight: 700, color: "#CC0000", letterSpacing: 1, marginBottom: 2 }}>BEFORE</div>
-                              {before?.ascii && <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: "#CC0000" }}>"{before.ascii}"</div>}
-                              <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: "#CC0000", wordBreak: "break-all" }}>{before?.hex || "(missing)"}</div>
-                            </div>
-                            <div>
-                              <div style={{ fontSize: 8, fontWeight: 700, color: "#1E6F3A", letterSpacing: 1, marginBottom: 2 }}>AFTER</div>
-                              {after?.ascii && <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: "#1E6F3A" }}>"{after.ascii}"</div>}
-                              <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: "#1E6F3A", wordBreak: "break-all" }}>{after?.hex || "(missing)"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                        </details>
+                      )}
                     </div>
                   );
                 })()}
