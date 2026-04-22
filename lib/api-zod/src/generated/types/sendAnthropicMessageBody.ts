@@ -6,6 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ModuleAssistantBodyModuleContextModulesItem = {
-  [key: string]: unknown;
-};
+export interface SendAnthropicMessageBody {
+  content: string;
+}

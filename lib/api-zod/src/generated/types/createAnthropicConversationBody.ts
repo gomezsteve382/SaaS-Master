@@ -6,6 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ModuleAssistantBodyModuleContextHexSnippets = {
-  [key: string]: unknown;
-};
+export interface CreateAnthropicConversationBody {
+  title: string;
+}
