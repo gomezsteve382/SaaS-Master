@@ -22,6 +22,12 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import GpecTab from "./tabs/GpecTab";
 import OBDTab from "./tabs/OBDTab";
 import SeedTab from "./tabs/SeedTab";
+import ModuleSync from "./tabs/ModuleSync";
+import FcaAnalyzerTab from "./tabs/FcaAnalyzerTab";
+import JailbreakTab from "./tabs/JailbreakTab";
+import BcmTab from "./tabs/BcmTab";
+import RfhubTab from "./tabs/RfhubTab";
+import BackupsTab from "./tabs/BackupsTab";
 
 /* ═══ VERIFIED ENGINES ═══ */
 function crc16(d,i=0xFFFF){let c=i;for(let x=0;x<d.length;x++){c^=d[x]<<8;for(let j=0;j<8;j++)c=c&0x8000?(c<<1)^0x1021:c<<1;c&=0xFFFF;}return c;}
@@ -1370,10 +1376,17 @@ function VehicleLanding({onSelect}){
 
 /* ═══ VEHICLE WORKSPACE ═══ */
 const WORKSPACE_TABS = [
-  {id:'dumps', i:'📂', l:'DUMPS',      s:'VIN · SEC16 · Unlocks · Hex'},
-  {id:'obd',   i:'📡', l:'LIVE OBD',   s:'UDS · Seed→Key · J2534 · Gould'},
-  {id:'skim',  i:'🛡️', l:'SKIM',       s:'Keys · Immo'},
-  {id:'info',  i:'ℹ️', l:'INFO',       s:'Reference'},
+  {id:'dumps',     i:'📂', l:'DUMPS',        s:'VIN · SEC16 · Unlocks · Hex'},
+  {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
+  {id:'analyzer',  i:'🧪', l:'ANALYZER',     s:'Cross-validate · Mismatch'},
+  {id:'jailbreak', i:'💀', l:'JAILBREAK',    s:'SRT · Demon · Hellcat · Redeye'},
+  {id:'seed',      i:'🔑', l:'SEED→KEY',     s:'14 Algorithms'},
+  {id:'bcm',       i:'🧠', l:'BCM',          s:'VIN · CRC · Features'},
+  {id:'rfhub',     i:'📡', l:'RFHUB',        s:'VIN · Key Fobs'},
+  {id:'backups',   i:'💾', l:'BACKUPS',      s:'History · Restore'},
+  {id:'obd',       i:'📡', l:'LIVE OBD',     s:'UDS · Seed→Key · J2534 · Gould'},
+  {id:'skim',      i:'🛡️', l:'SKIM',         s:'Keys · Immo'},
+  {id:'info',      i:'ℹ️', l:'INFO',         s:'Reference'},
 ];
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -1406,17 +1419,24 @@ function VehicleWorkspace({vehicleId, onBack}){
         </div>
       </div>
       <div style={{maxWidth:1200,margin:'0 auto',padding:'22px 22px 60px'}}>
-        {tab==='dumps' && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF}/>}
-        {tab==='obd' && <LiveObdTab vehicle={vehicle}/>}
-        {tab==='skim' && <SkimTab/>}
-        {tab==='info' && <InfoTab vehicle={vehicle}/>}
+        {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
+        {tab==='modsync'   && <ModuleSync/>}
+        {tab==='analyzer'  && <FcaAnalyzerTab/>}
+        {tab==='jailbreak' && <JailbreakTab/>}
+        {tab==='seed'      && <SeedTab/>}
+        {tab==='bcm'       && <BcmTab/>}
+        {tab==='rfhub'     && <RfhubTab/>}
+        {tab==='backups'   && <BackupsTab/>}
+        {tab==='obd'       && <LiveObdTab vehicle={vehicle}/>}
+        {tab==='skim'      && <SkimTab/>}
+        {tab==='info'      && <InfoTab vehicle={vehicle}/>}
       </div>
     </div>
   );
 }
 
 /* ═══ DUMPS TAB v2 — vehicle-aware ═══ */
-function DumpsTabV2({vehicle, files, setFiles, loadF}){
+function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   const [tv, setTv] = useState('');
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
@@ -1546,6 +1566,20 @@ function DumpsTabV2({vehicle, files, setFiles, loadF}){
         </div>
       ))}
     </Card>
+
+    {/* Go-to-Module-Sync CTA */}
+    {files.length>0 && onGoSync && (
+      <div onClick={onGoSync} style={{cursor:'pointer',padding:'14px 20px',borderRadius:12,background:'linear-gradient(90deg,rgba(0,188,212,0.12),rgba(0,188,212,0.04))',border:'1.5px solid rgba(0,188,212,0.35)',display:'flex',alignItems:'center',gap:14,transition:'all .2s'}}
+        onMouseEnter={e=>{e.currentTarget.style.background='linear-gradient(90deg,rgba(0,188,212,0.22),rgba(0,188,212,0.08))';}}
+        onMouseLeave={e=>{e.currentTarget.style.background='linear-gradient(90deg,rgba(0,188,212,0.12),rgba(0,188,212,0.04))';}}>
+        <span style={{fontSize:24}}>🔄</span>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:900,fontSize:12,letterSpacing:1.5,color:'#00BCD4'}}>READY FOR MODULE SYNC</div>
+          <div style={{fontSize:11,color:'rgba(255,255,255,0.55)',marginTop:2}}>Open Module Sync to fix VIN mismatches, sync SEC16 security secrets, and download patched binaries.</div>
+        </div>
+        <div style={{fontSize:20,color:'#00BCD4',fontWeight:900}}>→</div>
+      </div>
+    )}
 
     {/* Detected data */}
     {bcm && <Card><ModuleSummary vehicle={vehicle} bcm={bcm} rfh={rfh} pcm={pcm} targetVin={tv}/></Card>}
