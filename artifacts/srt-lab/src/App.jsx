@@ -1449,7 +1449,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
         {tab==='modsync'   && <ModuleSync/>}
         {tab==='analyzer'  && <FcaAnalyzerTab/>}
-        {tab==='jailbreak' && <JailbreakTab/>}
+        {tab==='jailbreak' && <JailbreakTab vehicle={vehicle}/>}
         {tab==='seed'      && <SeedTab/>}
         {tab==='bcm'       && <BcmTab/>}
         {tab==='rfhub'     && <RfhubTab/>}

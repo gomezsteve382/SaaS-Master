@@ -6,13 +6,13 @@ import { createObdEngine, decodeDTC, decodeDTCStatus } from "../lib/obdEngine.js
 import { dtcLookup } from "../lib/dtc.js";
 import {
   JAILBREAK_FEATURES, FEATURE_CATEGORY, CATEGORY_ORDER,
-  PROFILES, MODULE_TARGETS, ROUTINE_PRESETS,
+  PROFILES, MODULE_TARGETS, ROUTINE_PRESETS, getVehicleBcmDefaults,
 } from "../lib/jailbreakFeatures.js";
 import { backupModule, CRITICAL_DIDS } from "../lib/backups.js";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 
-function JailbreakTab() {
+function JailbreakTab({ vehicle }) {
   const [conn, setConn] = useState(false);
   const [busy, setBusy] = useState("");
   const [log, setLog] = useState([]);
@@ -20,6 +20,7 @@ function JailbreakTab() {
   const [customTx, setCustomTx] = useState("750");
   const [customRx, setCustomRx] = useState("758");
   const [useCustom, setUseCustom] = useState(false);
+  const [overrideVehicle, setOverrideVehicle] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [values, setValues] = useState({});      // { did: number[] }
   const [pending, setPending] = useState({});    // { featId: { feat, value } }
@@ -30,6 +31,19 @@ function JailbreakTab() {
   const [routineCustom, setRoutineCustom] = useState("");
   const eng = useRef(null);
   const logEndRef = useRef(null);
+
+  // Derive vehicle BCM defaults whenever the active vehicle changes.
+  const vehicleDefaults = useMemo(() => getVehicleBcmDefaults(vehicle), [vehicle]);
+
+  // When the vehicle changes (and user hasn't manually overridden), auto-apply
+  // the correct BCM target and reset override state.
+  useEffect(() => {
+    if (!vehicleDefaults) return;
+    setOverrideVehicle(false);
+    setUseCustom(false);
+    setTargetId(vehicleDefaults.targetId);
+    setUnlocked(false); setValues({}); setPending({}); setDtcs([]);
+  }, [vehicle?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addLog = useCallback((m, t = "info") => {
     const ts = new Date().toLocaleTimeString("en", { hour12: false });
@@ -68,16 +82,25 @@ function JailbreakTab() {
     setUnlocked(false); setValues({}); setPending({}); setDtcs([]);
   }, [target.tx, target.rx]);
 
+  // When a vehicle with known defaults is active (and user hasn't overridden),
+  // filter features to only those appropriate for its BCM generation.
+  const activeIsGen2 = (vehicleDefaults && !overrideVehicle) ? vehicleDefaults.isGen2 : null;
+
   const groups = useMemo(() => {
     const g = {};
     for (const cat of CATEGORY_ORDER) g[cat] = [];
     for (const f of JAILBREAK_FEATURES) {
+      // Filter by gen when a vehicle is active and not overridden.
+      if (activeIsGen2 !== null) {
+        if (activeIsGen2 && f.gen === "gen1") continue;
+        if (!activeIsGen2 && f.gen === "gen2") continue;
+      }
       const cat = FEATURE_CATEGORY[f.id] || "Valet & Misc";
       if (!g[cat]) g[cat] = [];
       g[cat].push(f);
     }
     return Object.entries(g).filter(([, v]) => v.length > 0);
-  }, []);
+  }, [activeIsGen2, overrideVehicle]);
 
   const filtered = useMemo(() => {
     if (!search) return groups;
@@ -375,31 +398,66 @@ function JailbreakTab() {
         </Btn>}
         {busy && <span style={{ fontSize: 11, color: C.tm, marginLeft: 8 }}>⏳ {busy}</span>}
       </div>
-      <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
-        <span style={{ fontSize: 11, fontWeight: 700, color: C.tm }}>TARGET:</span>
-        <select
-          value={useCustom ? "__custom" : targetId}
-          onChange={e => {
-            if (e.target.value === "__custom") setUseCustom(true);
-            else { setUseCustom(false); setTargetId(e.target.value); }
-          }}
-          style={{ padding: "6px 10px", fontSize: 12, borderRadius: 6, border: `1px solid ${C.bd}`, background: "#fff" }}
-        >
-          {MODULE_TARGETS.map(m => <option key={m.id} value={m.id}>
-            {m.label} — TX 0x{hx(m.tx, 3)} / RX 0x{hx(m.rx, 3)}
-          </option>)}
-          <option value="__custom">Custom TX/RX...</option>
-        </select>
-        {useCustom && <>
-          <span style={{ fontSize: 11 }}>TX:</span>
-          <input value={customTx} onChange={e => setCustomTx(e.target.value)} style={{ width: 60, padding: "4px 6px", fontSize: 12, borderRadius: 4, border: `1px solid ${C.bd}`, fontFamily: "monospace" }} placeholder="750" />
-          <span style={{ fontSize: 11 }}>RX:</span>
-          <input value={customRx} onChange={e => setCustomRx(e.target.value)} style={{ width: 60, padding: "4px 6px", fontSize: 12, borderRadius: 4, border: `1px solid ${C.bd}`, fontFamily: "monospace" }} placeholder="758" />
-        </>}
-        <span style={{ fontSize: 10, color: C.tm }}>
-          Active: TX 0x{hx(target.tx, 3)} · RX 0x{hx(target.rx, 3)}
-        </span>
-      </div>
+
+      {/* Vehicle BCM defaults banner */}
+      {vehicleDefaults && !overrideVehicle ? (
+        <div style={{
+          marginTop: 12, padding: "10px 14px", borderRadius: 8,
+          background: "linear-gradient(90deg,#0D2B1A 0%,#1A3D25 100%)",
+          border: "1px solid #2E7D32", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap",
+        }}>
+          <span style={{ fontSize: 13 }}>✅</span>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: "#A5D6A7", letterSpacing: 1 }}>
+              Using {vehicle.name} BCM defaults
+            </span>
+            <span style={{ fontSize: 11, color: "#81C784", marginLeft: 10 }}>
+              {vehicleDefaults.moduleTarget.label} · TX 0x{hx(vehicleDefaults.moduleTarget.tx, 3)} / RX 0x{hx(vehicleDefaults.moduleTarget.rx, 3)} ·{" "}
+              {vehicleDefaults.isGen2 ? "Gen2 (SEC16 · Redeye / TRX)" : "Gen1 (CDA6 · 2011–2017)"}
+            </span>
+          </div>
+          <button
+            onClick={() => setOverrideVehicle(true)}
+            style={{ fontSize: 10, padding: "3px 8px", borderRadius: 4, border: "1px solid #4CAF50", background: "transparent", color: "#81C784", cursor: "pointer", fontFamily: "'Nunito'", fontWeight: 700 }}
+          >
+            Override
+          </button>
+        </div>
+      ) : (
+        <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+          {vehicleDefaults && overrideVehicle && (
+            <button
+              onClick={() => { setOverrideVehicle(false); setUseCustom(false); setTargetId(vehicleDefaults.targetId); }}
+              style={{ fontSize: 10, padding: "3px 8px", borderRadius: 4, border: "1px solid #F57C00", background: "transparent", color: "#F57C00", cursor: "pointer", fontFamily: "'Nunito'", fontWeight: 700 }}
+            >
+              ← Reset to {vehicle.name} defaults
+            </button>
+          )}
+          <span style={{ fontSize: 11, fontWeight: 700, color: C.tm }}>TARGET:</span>
+          <select
+            value={useCustom ? "__custom" : targetId}
+            onChange={e => {
+              if (e.target.value === "__custom") setUseCustom(true);
+              else { setUseCustom(false); setTargetId(e.target.value); }
+            }}
+            style={{ padding: "6px 10px", fontSize: 12, borderRadius: 6, border: `1px solid ${C.bd}`, background: "#fff" }}
+          >
+            {MODULE_TARGETS.map(m => <option key={m.id} value={m.id}>
+              {m.label} — TX 0x{hx(m.tx, 3)} / RX 0x{hx(m.rx, 3)}
+            </option>)}
+            <option value="__custom">Custom TX/RX...</option>
+          </select>
+          {useCustom && <>
+            <span style={{ fontSize: 11 }}>TX:</span>
+            <input value={customTx} onChange={e => setCustomTx(e.target.value)} style={{ width: 60, padding: "4px 6px", fontSize: 12, borderRadius: 4, border: `1px solid ${C.bd}`, fontFamily: "monospace" }} placeholder="750" />
+            <span style={{ fontSize: 11 }}>RX:</span>
+            <input value={customRx} onChange={e => setCustomRx(e.target.value)} style={{ width: 60, padding: "4px 6px", fontSize: 12, borderRadius: 4, border: `1px solid ${C.bd}`, fontFamily: "monospace" }} placeholder="758" />
+          </>}
+          <span style={{ fontSize: 10, color: C.tm }}>
+            Active: TX 0x{hx(target.tx, 3)} · RX 0x{hx(target.rx, 3)}
+          </span>
+        </div>
+      )}
     </Card>
 
     {/* DIAGNOSTIC SERVICES ROW */}
