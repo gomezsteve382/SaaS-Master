@@ -689,6 +689,7 @@ function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onActi
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
   const [appliedAction, setAppliedAction] = useState(null);
   const [patchRows, setPatchRows] = useState(null);
+  const [actionError, setActionError] = useState(false);
 
   const clrMap = { error: W.er, warning: W.wn, info: W.a3 };
   const clr = clrMap[step.severity] || W.a3;
@@ -696,9 +697,15 @@ function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onActi
   const isResolved = done || skipped || appliedAction;
 
   const handleAction = (actionId) => {
+    setActionError(false);
     const rows = onAction(actionId, step.id);
-    setAppliedAction(actionId);
-    if (rows) setPatchRows(rows);
+    if (rows) {
+      setAppliedAction(actionId);
+      setPatchRows(rows);
+    } else {
+      /* Action returned no rows — surface failure so user knows to retry */
+      setActionError(true);
+    }
   };
 
   return (
@@ -756,6 +763,12 @@ function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onActi
       {!isResolved && available.length === 0 && (
         <div style={{ fontSize: 11, color: W.ts, fontStyle: 'italic', marginBottom: 10 }}>
           No automated fix available — follow the steps above manually or ask the AI assistant.
+        </div>
+      )}
+
+      {actionError && !appliedAction && (
+        <div style={{ padding: '8px 12px', borderRadius: 8, marginTop: 8, background: W.er + '14', border: `1.5px solid ${W.er}40`, color: W.er, fontSize: 12, fontFamily: W.sans }}>
+          Action did not complete — modules may not be loaded yet. Check that all required dump files are imported, then try again.
         </div>
       )}
 
