@@ -79,7 +79,7 @@ function parseModule(data,filename){
       distance:sz>=0x0e71?{offset:0x0e6d,value:rd32(data,0x0e6d),hex:extractHex(data,0x0e6d,4)}:null,
       keyCycles:sz>=0x0e79?{offset:0x0e75,value:rd32(data,0x0e75),hex:extractHex(data,0x0e75,4)}:null,
     };
-    if(sz>0x3CE){
+    if(sz>=0x3CE){
       const s6=data.slice(0x3C8,0x3CE);
       const s6blank=s6.every(b=>b===0xFF||b===0x00);
       const s6damaged=s6.every(b=>b===0xFF);

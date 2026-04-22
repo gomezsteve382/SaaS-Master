@@ -33,6 +33,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
       if(!mod.secretKey)missing.push({n:'secret key @0x0203',need:0x020B});
       if(!mod.secretKeyMirror)missing.push({n:'key mirror @0x0361',need:0x0369});
       if(!mod.zzzzTamper)missing.push({n:'ZZZZ tamper @0x0C8C',need:0x0C94});
+      if(!mod.pcmSec6)missing.push({n:'PCM SEC6 @0x03C8',need:0x03CE});
       if(!mod.partNumberStr)missing.push({n:'part number @0x0FA1',need:0x0FAE});
       if(!rc.counterA)missing.push({n:'runtime counter A @0x0E61',need:0x0E65});
       if(!rc.counterB)missing.push({n:'runtime counter B @0x0E69',need:0x0E6D});
@@ -64,10 +65,10 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
           <Tag color={mod.zzzzTamper.intact?C.gn:C.er}>{mod.zzzzTamper.intact?'INTACT':'CLEARED'}</Tag>
           <span style={{marginLeft:6,fontSize:10,color:C.ts}}>{mod.zzzzTamper.hex}</span>
         </>:<Missing need={0x0C94}/>}</Row>
-        {mod.pcmSec6&&<Row label="PCM SEC6 @0x03C8">
+        <Row label="PCM SEC6 @0x03C8">{mod.pcmSec6?<>
           <Hex muted={mod.pcmSec6.blank}>{mod.pcmSec6.hex}</Hex>{' '}
           <Tag color={mod.pcmSec6.damaged?C.er:C.gn}>{mod.pcmSec6.immoState}</Tag>
-        </Row>}
+        </>:<Missing need={0x03CE}/>}</Row>
         <Row label="Part number @0x0FA1">{mod.partNumberStr||<Missing need={0x0FAE}/>}</Row>
       </Card>
 
