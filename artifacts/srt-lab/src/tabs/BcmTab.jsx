@@ -359,7 +359,7 @@ export default function BcmTab({vehicle}){
           {vehicle&&<div style={{marginTop:8,padding:'6px 10px',background:'rgba(0,0,0,0.3)',borderRadius:8,display:'inline-block'}}>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,color:'rgba(255,255,255,0.9)'}}>{vehicle.full} — {vehicle.body}</div>
             <div style={{fontSize:10,color:'rgba(255,255,255,0.6)',marginTop:3,fontFamily:"'JetBrains Mono'"}}>{vehicle.generations.length} gen{vehicle.generations.length===1?'':'s'} · expected P/Ns: {vehicle.bcmFamilies.slice(0,4).join(', ')}{vehicle.bcmFamilies.length>4?' +'+( vehicle.bcmFamilies.length-4)+' more':''}</div>
-            <div style={{marginTop:4,display:'flex',gap:6,flexWrap:'wrap'}}>
+            <div style={{marginTop:4,display:'flex',gap:6,flexWrap:'wrap',alignItems:'center'}}>
               {vehicle.generations.map(g=>{
                 const isMatch=detectedGen&&detectedGen.id===g.id;
                 return <span key={g.id} style={{
@@ -376,6 +376,17 @@ export default function BcmTab({vehicle}){
                   {g.label} · {g.bcmPn} · {g.sec16==='gen2-split'?'Gen2 split SEC16':g.sec16==='trackhawk-no-flash'?'No flash SEC16':'Gen1 SEC16'} · VIN@0x{g.vinOff.toString(16).toUpperCase()}
                 </span>;
               })}
+              {detectedPn&&<span style={{
+                fontSize:9,padding:'2px 8px',
+                background:detectedGen?'rgba(255,255,255,0.18)':'rgba(255,179,0,0.25)',
+                borderRadius:4,
+                border:'1px dashed '+(detectedGen?'rgba(255,255,255,0.6)':'rgba(255,179,0,0.8)'),
+                fontFamily:"'JetBrains Mono'",fontWeight:700,letterSpacing:0.5,
+                color:detectedGen?'rgba(255,255,255,0.95)':'#FFD54F',
+                marginLeft:4,
+              }}>
+                {detectedGen?'':'⚠ '}{detectedGen?'Detected:':'Unknown P/N:'} {detectedPn}
+              </span>}
             </div>
           </div>}
         </div>
