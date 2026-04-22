@@ -1541,7 +1541,6 @@ export default function ModuleSync() {
           hexSnippets={wizardHexSnippets}
           onClose={() => setWizardOpen(false)}
           onAction={(actionId) => {
-            setWizardOpen(false);
             doSync(actionId === 'full-sync' ? 'sync-all' : actionId);
           }}
           stepActions={wizardStepActions}

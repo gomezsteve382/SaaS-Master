@@ -4,13 +4,13 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
  * MismatchWizard — Guided resolution wizard + Claude AI chat panel
  *
  * Props:
- *   issues     : string[]  — error-level issues from crossValidate / ModuleSync
- *   warnings   : string[]  — warning-level items
- *   modules    : string[]  — loaded module names, e.g. ['BCM', 'RFHUB']
- *   hexSnippets: string[]  — optional hex values for AI context
- *   onClose    : () => void
- *   onAction   : (actionId: string) => void  — callback for wizard action buttons
- *   stepActions: { id, label, enabled, description }[]  — available action buttons from parent
+ *   issues      : string[]  — error-level issues
+ *   warnings    : string[]  — warning-level items
+ *   modules     : string[]  — loaded module names
+ *   hexSnippets : string[]  — hex values for AI context
+ *   onClose     : () => void
+ *   onAction    : (actionId: string, stepId: string) => void
+ *   stepActions : { id, label, enabled, description }[]
  * ============================================================================ */
 
 const W = {
@@ -20,7 +20,6 @@ const W = {
   s3:   '#243347',
   bd:   '#2C3E56',
   sr:   '#D32F2F',
-  sl:   '#FF5252',
   a1:   '#FF6D00',
   a2:   '#00BFA5',
   a3:   '#2979FF',
@@ -35,15 +34,22 @@ const W = {
   sans: "'Nunito', system-ui, sans-serif",
 };
 
-/* Base URL for API calls */
-const API_BASE = import.meta.env.BASE_URL?.replace(/\/$/, '') + '/api';
+const API_BASE = (import.meta.env.BASE_URL?.replace(/\/$/, '') || '') + '/api';
+
+/* ─── Deterministic ID from issue string (djb2-style) ─── */
+function stableId(str) {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
+  return 'step-' + (h >>> 0).toString(36);
+}
 
 /* ─── Resolve issue → guided step ─── */
 function issueToStep(issue) {
   const u = issue.toUpperCase();
+  const id = stableId(issue);
 
   if (u.includes('VIN MISMATCH')) return {
-    id: 'vin-mismatch',
+    id,
     icon: '🪪',
     title: 'VIN Mismatch',
     severity: 'error',
@@ -51,14 +57,15 @@ function issueToStep(issue) {
     guidance: 'These modules came from different vehicles. The VIN must be re-stamped so both modules report the same chassis ID.',
     steps: [
       'Confirm which VIN is correct — it should match the vehicle\'s dashboard sticker or title.',
-      'Use the SYNC button in Module Sync to write the correct VIN to both BCM and RFHUB.',
+      'Click the sync action below. The correct VIN will be written to both BCM and RFHUB.',
       'After flashing, power-cycle the vehicle for 30 seconds to allow the modules to handshake.',
     ],
-    actions: ['full-sync'],
+    skipConsequence: 'Leaving a VIN mismatch means the modules will continue to report conflicting chassis IDs. Key fob pairing and immobilizer authentication may fail.',
+    actions: ['full-sync', 'rfh-to-bcm', 'bcm-to-rfh'],
   };
 
   if (u.includes('SEC16') && (u.includes('MISMATCH') || u.includes('INVALID'))) return {
-    id: 'sec16-mismatch',
+    id,
     icon: '🔐',
     title: 'SEC16 Security Token Mismatch',
     severity: 'error',
@@ -70,11 +77,12 @@ function issueToStep(issue) {
       'If RFHUB came from a different vehicle, use "BCM SEC16 → RFHUB" to make BCM the master instead.',
       'Flash the patched file(s) and power-cycle 30 seconds.',
     ],
+    skipConsequence: 'Skipping SEC16 sync means the immobilizer handshake will fail — the vehicle will not start.',
     actions: ['sec16-only', 'bcm-sec16-to-rfh'],
   };
 
   if (u.includes('BCM SEC16 → RFHUB') || u.includes('BCM → RFH')) return {
-    id: 'bcm-to-rfh',
+    id,
     icon: '🔄',
     title: 'BCM SEC16 → RFHUB Sync',
     severity: 'warning',
@@ -85,41 +93,44 @@ function issueToStep(issue) {
       'Click "BCM SEC16 → RFHUB" button.',
       'Flash the patched RFHUB, then power-cycle 30 seconds.',
     ],
+    skipConsequence: 'The RFHUB will retain a mismatched SEC16, preventing secure key pairing.',
     actions: ['bcm-sec16-to-rfh'],
   };
 
   if (u.includes('PCM SEC6') || u.includes('IMMO_DAMAGED')) return {
-    id: 'pcm-sec6',
+    id,
     icon: '⚙️',
     title: 'PCM SEC6 Damaged / Mismatch',
     severity: 'error',
     summary: issue,
-    guidance: 'The PCM IMMO SEC6 is damaged (all FF) or does not match RFHUB SEC16[0:6]. The PCM will reject the immobilizer handshake until this is corrected.',
+    guidance: 'The PCM IMMO SEC6 is damaged (all FF) or does not match RFHUB SEC16[0:6]. The PCM will reject the immobilizer handshake until corrected.',
     steps: [
       'Load a valid RFHUB with a known-good SEC16.',
       'Run a full sync or SEC16-only sync — this also writes the PCM SEC6.',
       'Flash the patched PCM and power-cycle 30 seconds.',
     ],
+    skipConsequence: 'Vehicle will not start — the PCM will reject all immobilizer tokens.',
     actions: ['full-sync', 'sec16-only'],
   };
 
   if (u.includes('RFHUB') && u.includes('VEHICLE SECRET') && u.includes('MISMATCH')) return {
-    id: 'vehicle-secret',
+    id,
     icon: '🔑',
     title: 'Vehicle Secret Mismatch (RFHUB ↔ BCM)',
     severity: 'error',
     summary: issue,
-    guidance: 'The 16-byte vehicle secret stored in RFHUB and BCM do not match (byte-reversed). This is a deep IMMO mismatch — full sync including SEC16 is required.',
+    guidance: 'The 16-byte vehicle secret stored in RFHUB and BCM do not match (byte-reversed). This is a deep IMMO mismatch — full sync is required.',
     steps: [
       'Run a full sync to re-stamp VIN and synchronize all security tokens.',
       'Both BCM and RFHUB must be flashed.',
       'Power-cycle 30 seconds after flashing.',
     ],
+    skipConsequence: 'The IMMO handshake will fail and the vehicle will not start.',
     actions: ['full-sync'],
   };
 
   if (u.includes('95640') && u.includes('MISMATCH')) return {
-    id: 'eeprom-mismatch',
+    id,
     icon: '📟',
     title: '95640 EEPROM Mismatch',
     severity: 'error',
@@ -130,11 +141,12 @@ function issueToStep(issue) {
       'If the 95640 backup key is erased, re-program it from RFHUB.',
       'Use the RFHUB tab for 95640 → RFH or RFH → BCM import tools.',
     ],
+    skipConsequence: 'Key backup will be out of sync; re-pairing may fail in some scenarios.',
     actions: [],
   };
 
   if (u.includes('GPEC2A') && u.includes('KEY INCONSISTENT')) return {
-    id: 'gpec-key',
+    id,
     icon: '⚠️',
     title: 'GPEC2A Key Inconsistency',
     severity: 'error',
@@ -145,18 +157,19 @@ function issueToStep(issue) {
       'Run a full sync to re-write VIN and SEC6.',
       'Contact the SRT Lab community for GPEC2A recovery if the PCM is inaccessible.',
     ],
+    skipConsequence: 'The PCM may fail IMMO auth unpredictably.',
     actions: [],
   };
 
-  /* Generic fallback */
   return {
-    id: 'generic-' + Math.random().toString(36).slice(2, 7),
+    id,
     icon: '⚠️',
     title: 'Module Issue',
     severity: u.includes('MISMATCH') || u.includes('DAMAGED') ? 'error' : 'warning',
     summary: issue,
-    guidance: 'Review the issue carefully and consult the Claude AI panel below for guidance specific to your module dumps.',
+    guidance: 'Review the issue carefully and consult the Claude AI assistant below for guidance specific to your module dumps.',
     steps: ['Ask the AI assistant for step-by-step guidance on this specific issue.'],
+    skipConsequence: 'This issue will remain unresolved. Check with the AI assistant if skipping is safe.',
     actions: [],
   };
 }
@@ -168,17 +181,21 @@ function useChatStream(moduleContext) {
   const [error, setError] = useState(null);
   const abortRef = useRef(null);
 
-  const sendMessage = useCallback(async (userText) => {
+  const sendMessage = useCallback(async (userText, opts = {}) => {
     if (streaming) return;
+    const { silent = false } = opts;
 
     const userMsg = { role: 'user', content: userText };
     const newHistory = [...messages, userMsg];
-    setMessages(newHistory);
+    if (!silent) setMessages(newHistory);
+    else setMessages(h => [...h, userMsg]);
     setStreaming(true);
     setError(null);
 
     const assistantMsg = { role: 'assistant', content: '' };
-    setMessages([...newHistory, assistantMsg]);
+    setMessages(h => [...h, assistantMsg]);
+
+    const historyToSend = silent ? [...messages, userMsg] : newHistory;
 
     try {
       const controller = new AbortController();
@@ -187,7 +204,7 @@ function useChatStream(moduleContext) {
       const res = await fetch(`${API_BASE}/anthropic/module-assistant`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newHistory, moduleContext }),
+        body: JSON.stringify({ messages: historyToSend, moduleContext }),
         signal: controller.signal,
       });
 
@@ -247,11 +264,20 @@ function useChatStream(moduleContext) {
 }
 
 /* ─── Chat Panel ─── */
-function ChatPanel({ moduleContext, contextHint }) {
+function ChatPanel({ moduleContext, contextHint, autoGreet }) {
   const { messages, streaming, error, sendMessage, clearMessages } = useChatStream(moduleContext);
   const [input, setInput] = useState('');
   const [collapsed, setCollapsed] = useState(false);
   const bottomRef = useRef(null);
+  const greeted = useRef(false);
+
+  /* Auto-brief on mount when there are issues */
+  useEffect(() => {
+    if (greeted.current || streaming || messages.length > 0) return;
+    if (!autoGreet) return;
+    greeted.current = true;
+    sendMessage(autoGreet);
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -269,10 +295,10 @@ function ChatPanel({ moduleContext, contextHint }) {
   };
 
   const quickPrompts = [
-    contextHint || 'Explain these issues and what I should do first',
     'Walk me through the full sync step by step',
     'What does SEC16 mean and why does it matter?',
     'Which module is the IMMO master?',
+    'Is it safe to flash BCM without flashing RFHUB?',
   ];
 
   return (
@@ -284,8 +310,8 @@ function ChatPanel({ moduleContext, contextHint }) {
       flexDirection: 'column',
       overflow: 'hidden',
       flex: collapsed ? '0 0 auto' : '1 1 auto',
-      minHeight: collapsed ? 0 : 280,
-      maxHeight: collapsed ? 52 : 480,
+      minHeight: collapsed ? 0 : 260,
+      maxHeight: collapsed ? 52 : 440,
       transition: 'all 0.25s ease',
     }}>
       {/* Header */}
@@ -293,42 +319,35 @@ function ChatPanel({ moduleContext, contextHint }) {
         padding: '10px 14px',
         background: W.s2,
         borderBottom: `1px solid ${W.bd}`,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        flexShrink: 0,
-        cursor: 'pointer',
+        display: 'flex', alignItems: 'center', gap: 8,
+        flexShrink: 0, cursor: 'pointer',
       }} onClick={() => setCollapsed(c => !c)}>
         <div style={{ fontSize: 16 }}>🤖</div>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 800, fontSize: 12, color: W.tx, letterSpacing: 1 }}>CLAUDE AI ASSISTANT</div>
           <div style={{ fontSize: 10, color: W.ts }}>Powered by Anthropic · context-aware</div>
         </div>
+        {streaming && <div style={{ fontSize: 10, color: W.a2, fontWeight: 700 }}>● streaming…</div>}
         {messages.length > 0 && !collapsed && (
-          <button onClick={e => { e.stopPropagation(); clearMessages(); }}
+          <button onClick={e => { e.stopPropagation(); clearMessages(); greeted.current = false; }}
             style={{ background: 'none', border: 'none', color: W.tm, fontSize: 11, cursor: 'pointer', padding: '2px 6px' }}>
             clear
           </button>
         )}
-        <div style={{ color: W.tm, fontSize: 13, marginLeft: 4 }}>{collapsed ? '▲' : '▼'}</div>
+        <div style={{ color: W.tm, fontSize: 13 }}>{collapsed ? '▲' : '▼'}</div>
       </div>
 
       {!collapsed && (
         <>
-          {/* Messages */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {messages.length === 0 && (
-              <div style={{ color: W.ts, fontSize: 11, textAlign: 'center', padding: '14px 0' }}>
-                <div style={{ fontSize: 24, marginBottom: 6 }}>💬</div>
+            {messages.length === 0 && !streaming && (
+              <div style={{ color: W.ts, fontSize: 11, textAlign: 'center', padding: '10px 0' }}>
+                <div style={{ fontSize: 22, marginBottom: 4 }}>💬</div>
                 Module context is pre-loaded. Ask anything about these mismatches.
-                <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
+                <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
                   {quickPrompts.map((q, i) => (
                     <button key={i} onClick={() => { setInput(''); sendMessage(q); }}
-                      style={{
-                        background: W.s3, border: `1px solid ${W.bd}`, borderRadius: 20,
-                        padding: '4px 10px', fontSize: 10, color: W.ts, cursor: 'pointer',
-                        fontFamily: W.sans,
-                      }}>
+                      style={{ background: W.s3, border: `1px solid ${W.bd}`, borderRadius: 20, padding: '4px 10px', fontSize: 10, color: W.ts, cursor: 'pointer', fontFamily: W.sans }}>
                       {q}
                     </button>
                   ))}
@@ -338,8 +357,8 @@ function ChatPanel({ moduleContext, contextHint }) {
             {messages.map((msg, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
                 <div style={{
-                  fontSize: 16, flexShrink: 0, width: 28, height: 28,
-                  borderRadius: '50%', background: msg.role === 'user' ? W.a3 + '30' : W.a2 + '30',
+                  fontSize: 15, flexShrink: 0, width: 26, height: 26, borderRadius: '50%',
+                  background: msg.role === 'user' ? W.a3 + '30' : W.a2 + '30',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>{msg.role === 'user' ? '👤' : '🤖'}</div>
                 <div style={{
@@ -350,7 +369,7 @@ function ChatPanel({ moduleContext, contextHint }) {
                   fontFamily: W.sans, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
                 }}>
                   {msg.content || (streaming && i === messages.length - 1
-                    ? <span style={{ opacity: 0.5 }}>▌</span>
+                    ? <span style={{ opacity: 0.5, fontFamily: W.mono }}>▌</span>
                     : null)}
                 </div>
               </div>
@@ -363,7 +382,6 @@ function ChatPanel({ moduleContext, contextHint }) {
             <div ref={bottomRef} />
           </div>
 
-          {/* Input */}
           <div style={{ padding: '8px 12px', borderTop: `1px solid ${W.bd}`, display: 'flex', gap: 8, flexShrink: 0 }}>
             <textarea
               value={input}
@@ -382,8 +400,7 @@ function ChatPanel({ moduleContext, contextHint }) {
             <button onClick={submit} disabled={!input.trim() || streaming} style={{
               background: W.a3, border: 'none', borderRadius: 8, padding: '0 14px',
               color: '#fff', fontWeight: 800, fontSize: 13, cursor: 'pointer',
-              opacity: (!input.trim() || streaming) ? 0.4 : 1,
-              flexShrink: 0,
+              opacity: (!input.trim() || streaming) ? 0.4 : 1, flexShrink: 0,
             }}>
               {streaming ? '…' : '→'}
             </button>
@@ -394,84 +411,122 @@ function ChatPanel({ moduleContext, contextHint }) {
   );
 }
 
+/* ─── Skip confirmation ─── */
+function SkipConfirm({ consequence, onConfirm, onCancel }) {
+  return (
+    <div style={{
+      padding: 14, borderRadius: 10, marginTop: 10,
+      background: W.wn + '14', border: `2px solid ${W.wn}50`,
+    }}>
+      <div style={{ fontWeight: 900, fontSize: 12, color: W.wn, marginBottom: 6 }}>⚠ Skipping this step — are you sure?</div>
+      <div style={{ fontSize: 12, color: W.tx, lineHeight: 1.6, marginBottom: 10 }}>
+        <strong style={{ color: W.wn }}>Consequence:</strong> {consequence}
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button onClick={onConfirm} style={{
+          background: W.wn, border: 'none', borderRadius: 8,
+          padding: '6px 14px', color: '#000', fontWeight: 900, fontSize: 12, cursor: 'pointer',
+        }}>Confirm Skip</button>
+        <button onClick={onCancel} style={{
+          background: W.s3, border: `1px solid ${W.bd}`, borderRadius: 8,
+          padding: '6px 14px', color: W.ts, fontSize: 12, cursor: 'pointer',
+        }}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Action Result Banner ─── */
+function ActionResult({ actionId, onContinue }) {
+  return (
+    <div style={{
+      padding: '12px 14px', borderRadius: 10, marginTop: 10,
+      background: W.gn + '14', border: `1.5px solid ${W.gn}40`,
+    }}>
+      <div style={{ fontWeight: 900, fontSize: 13, color: W.gn, marginBottom: 4 }}>
+        ✓ Action applied: <span style={{ fontFamily: W.mono, fontSize: 11 }}>{actionId}</span>
+      </div>
+      <div style={{ fontSize: 12, color: W.ts, marginBottom: 10, lineHeight: 1.5 }}>
+        Patched .bin file(s) have been downloaded. Flash them to the module(s) and power-cycle
+        the vehicle for 30 seconds to complete the handshake.
+      </div>
+      <button onClick={onContinue} style={{
+        background: W.a3, border: 'none', borderRadius: 8,
+        padding: '7px 16px', color: '#fff', fontWeight: 800, fontSize: 12, cursor: 'pointer',
+      }}>
+        ✓ Looks good — continue →
+      </button>
+    </div>
+  );
+}
+
 /* ─── Step card ─── */
-function WizardStepCard({ step, stepNum, total, stepActions, onAction, done, onMarkDone }) {
+function WizardStepCard({ step, stepNum, total, stepActions, onAction, done, skipped, onMarkDone, onSkip }) {
+  const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+  const [appliedAction, setAppliedAction] = useState(null);
+
   const colors = { error: W.er, warning: W.wn, info: W.a3 };
   const clr = colors[step.severity] || W.a3;
-
   const availableActions = stepActions.filter(a => step.actions.includes(a.id));
+
+  const handleAction = (actionId) => {
+    onAction(actionId, step.id);
+    setAppliedAction(actionId);
+  };
+
+  const isResolved = done || skipped || appliedAction;
 
   return (
     <div style={{
       background: W.surf,
-      border: `1.5px solid ${clr}40`,
+      border: `1.5px solid ${clr}${isResolved ? '30' : '60'}`,
       borderRadius: 14,
       padding: 18,
       position: 'relative',
-      opacity: done ? 0.65 : 1,
+      opacity: (done || skipped) ? 0.75 : 1,
     }}>
-      {/* Step badge */}
       <div style={{
         position: 'absolute', top: -10, left: 18,
         background: clr, color: '#fff',
-        fontSize: 10, fontWeight: 800, padding: '2px 10px', borderRadius: 20,
-        letterSpacing: 1,
+        fontSize: 10, fontWeight: 800, padding: '2px 10px', borderRadius: 20, letterSpacing: 1,
       }}>
         STEP {stepNum} / {total}
       </div>
 
-      {done && (
-        <div style={{
-          position: 'absolute', top: -10, right: 18,
-          background: W.gn, color: '#fff',
-          fontSize: 10, fontWeight: 800, padding: '2px 10px', borderRadius: 20,
-        }}>✓ DONE</div>
-      )}
+      {done && <div style={{ position: 'absolute', top: -10, right: 18, background: W.gn, color: '#fff', fontSize: 10, fontWeight: 800, padding: '2px 10px', borderRadius: 20 }}>✓ DONE</div>}
+      {skipped && <div style={{ position: 'absolute', top: -10, right: 18, background: W.wn, color: '#000', fontSize: 10, fontWeight: 800, padding: '2px 10px', borderRadius: 20 }}>SKIPPED</div>}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, marginTop: 8 }}>
         <span style={{ fontSize: 22 }}>{step.icon}</span>
         <div>
           <div style={{ fontWeight: 900, fontSize: 14, color: W.tx }}>{step.title}</div>
-          <div style={{ fontSize: 10, color: clr, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}>
-            {step.severity}
-          </div>
+          <div style={{ fontSize: 10, color: clr, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}>{step.severity}</div>
         </div>
       </div>
 
-      {/* Issue text */}
       <div style={{
         fontFamily: W.mono, fontSize: 10, padding: '6px 10px',
         background: clr + '12', borderRadius: 8, marginBottom: 12,
         color: clr, wordBreak: 'break-all', lineHeight: 1.5,
-      }}>
-        {step.summary}
-      </div>
+      }}>{step.summary}</div>
 
-      {/* Guidance */}
-      <div style={{ fontSize: 12, color: W.ts, marginBottom: 12, lineHeight: 1.6 }}>
-        {step.guidance}
-      </div>
+      <div style={{ fontSize: 12, color: W.ts, marginBottom: 12, lineHeight: 1.6 }}>{step.guidance}</div>
 
-      {/* Sub-steps */}
       {step.steps.length > 0 && (
         <ol style={{ margin: '0 0 14px 0', paddingLeft: 20, fontSize: 12, color: W.tx, lineHeight: 1.8 }}>
-          {step.steps.map((s, i) => (
-            <li key={i} style={{ marginBottom: 4 }}>{s}</li>
-          ))}
+          {step.steps.map((s, i) => <li key={i} style={{ marginBottom: 4 }}>{s}</li>)}
         </ol>
       )}
 
-      {/* Action buttons */}
-      {availableActions.length > 0 && (
+      {!isResolved && availableActions.length > 0 && (
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
           {availableActions.map(a => (
-            <button key={a.id} disabled={!a.enabled || done} onClick={() => onAction(a.id)} style={{
+            <button key={a.id} disabled={!a.enabled} onClick={() => handleAction(a.id)} style={{
               background: a.enabled ? W.a2 : W.s3,
               border: `1.5px solid ${a.enabled ? W.a2 : W.bd}`,
               borderRadius: 8, padding: '8px 16px', color: a.enabled ? '#fff' : W.tm,
               fontWeight: 800, fontSize: 12, cursor: a.enabled ? 'pointer' : 'not-allowed',
               fontFamily: W.sans, letterSpacing: 0.5,
-              opacity: done ? 0.5 : 1,
             }}>
               {a.label}
             </button>
@@ -479,21 +534,47 @@ function WizardStepCard({ step, stepNum, total, stepActions, onAction, done, onM
         </div>
       )}
 
-      {availableActions.length === 0 && (
+      {!isResolved && availableActions.length === 0 && (
         <div style={{ fontSize: 11, color: W.ts, fontStyle: 'italic', marginBottom: 10 }}>
           No automated fix available — follow the steps above manually or ask the AI assistant.
         </div>
       )}
 
-      {/* Mark done */}
-      <button onClick={onMarkDone} style={{
-        background: done ? W.gn + '20' : W.s3,
-        border: `1px solid ${done ? W.gn : W.bd}`,
-        borderRadius: 8, padding: '5px 12px', color: done ? W.gn : W.tm,
-        fontSize: 11, cursor: 'pointer', fontWeight: 700, fontFamily: W.sans,
-      }}>
-        {done ? '✓ Marked complete' : 'Mark as resolved'}
-      </button>
+      {/* Action result in-wizard confirmation */}
+      {appliedAction && !done && (
+        <ActionResult actionId={appliedAction} onContinue={() => onMarkDone(step.id)} />
+      )}
+
+      {/* Manual mark done + skip */}
+      {!appliedAction && !done && !skipped && (
+        <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
+          <button onClick={() => onMarkDone(step.id)} style={{
+            background: W.gn + '18', border: `1px solid ${W.gn}40`,
+            borderRadius: 8, padding: '5px 12px', color: W.gn,
+            fontSize: 11, cursor: 'pointer', fontWeight: 700, fontFamily: W.sans,
+          }}>✓ Mark as resolved</button>
+          <button onClick={() => setShowSkipConfirm(s => !s)} style={{
+            background: 'none', border: `1px solid ${W.bd}`,
+            borderRadius: 8, padding: '5px 12px', color: W.tm,
+            fontSize: 11, cursor: 'pointer', fontFamily: W.sans,
+          }}>Skip step</button>
+        </div>
+      )}
+
+      {done && (
+        <button onClick={() => onMarkDone(step.id)} style={{
+          background: W.gn + '18', border: `1px solid ${W.gn}40`, borderRadius: 8,
+          padding: '5px 12px', color: W.gn, fontSize: 11, cursor: 'pointer', fontWeight: 700, fontFamily: W.sans,
+        }}>✓ Marked complete — click to undo</button>
+      )}
+
+      {showSkipConfirm && (
+        <SkipConfirm
+          consequence={step.skipConsequence}
+          onConfirm={() => { setShowSkipConfirm(false); onSkip(step.id); }}
+          onCancel={() => setShowSkipConfirm(false)}
+        />
+      )}
     </div>
   );
 }
@@ -501,47 +582,26 @@ function WizardStepCard({ step, stepNum, total, stepActions, onAction, done, onM
 /* ─── Summary screen ─── */
 function SummaryScreen({ issues, warnings, modules, onStart }) {
   return (
-    <div style={{ textAlign: 'center', padding: '20px 0' }}>
-      <div style={{ fontSize: 44, marginBottom: 12 }}>🔧</div>
-      <div style={{ fontWeight: 900, fontSize: 20, color: W.tx, marginBottom: 6, fontFamily: W.sans }}>
-        Mismatch Resolution Wizard
-      </div>
-      <div style={{ fontSize: 13, color: W.ts, marginBottom: 20, lineHeight: 1.6 }}>
-        {modules.length > 0 && (
-          <>Modules loaded: <strong style={{ color: W.tx }}>{modules.join(', ')}</strong><br /></>
-        )}
+    <div style={{ textAlign: 'center', padding: '18px 0' }}>
+      <div style={{ fontSize: 40, marginBottom: 10 }}>🔧</div>
+      <div style={{ fontWeight: 900, fontSize: 20, color: W.tx, marginBottom: 6, fontFamily: W.sans }}>Mismatch Resolution Wizard</div>
+      <div style={{ fontSize: 13, color: W.ts, marginBottom: 18, lineHeight: 1.6 }}>
+        {modules.length > 0 && <><strong style={{ color: W.tx }}>Loaded:</strong> {modules.join(', ')}<br /></>}
         Found <strong style={{ color: W.er }}>{issues.length} error{issues.length !== 1 ? 's' : ''}</strong>
         {warnings.length > 0 && <> and <strong style={{ color: W.wn }}>{warnings.length} warning{warnings.length !== 1 ? 's' : ''}</strong></>}
       </div>
-
-      {issues.length > 0 && (
-        <div style={{ textAlign: 'left', marginBottom: 16 }}>
-          {issues.map((iss, i) => (
-            <div key={i} style={{
-              padding: '8px 12px', borderRadius: 8, marginBottom: 6,
-              background: W.er + '12', border: `1px solid ${W.er}30`,
-              fontSize: 12, color: W.tx, fontFamily: W.mono, wordBreak: 'break-all',
-            }}>
-              ❌ {iss}
-            </div>
-          ))}
+      {issues.map((iss, i) => (
+        <div key={i} style={{ padding: '8px 12px', borderRadius: 8, marginBottom: 6, background: W.er + '12', border: `1px solid ${W.er}30`, fontSize: 12, color: W.tx, fontFamily: W.mono, wordBreak: 'break-all', textAlign: 'left' }}>
+          ❌ {iss}
         </div>
-      )}
-      {warnings.length > 0 && (
-        <div style={{ textAlign: 'left', marginBottom: 16 }}>
-          {warnings.map((w, i) => (
-            <div key={i} style={{
-              padding: '8px 12px', borderRadius: 8, marginBottom: 6,
-              background: W.wn + '12', border: `1px solid ${W.wn}30`,
-              fontSize: 12, color: W.tx, fontFamily: W.mono, wordBreak: 'break-all',
-            }}>
-              ⚠️ {w}
-            </div>
-          ))}
+      ))}
+      {warnings.map((w, i) => (
+        <div key={i} style={{ padding: '8px 12px', borderRadius: 8, marginBottom: 6, background: W.wn + '12', border: `1px solid ${W.wn}30`, fontSize: 12, color: W.tx, fontFamily: W.mono, wordBreak: 'break-all', textAlign: 'left' }}>
+          ⚠️ {w}
         </div>
-      )}
-
+      ))}
       <button onClick={onStart} style={{
+        marginTop: 12,
         background: `linear-gradient(135deg, ${W.sr} 0%, ${W.a1} 100%)`,
         border: 'none', borderRadius: 10, padding: '12px 32px',
         color: '#fff', fontWeight: 900, fontSize: 14, cursor: 'pointer',
@@ -555,60 +615,60 @@ function SummaryScreen({ issues, warnings, modules, onStart }) {
 }
 
 /* ─── Final checklist screen ─── */
-function FinalScreen({ steps, doneSet, onClose }) {
-  const allDone = steps.every(s => doneSet.has(s.id));
-  const countDone = steps.filter(s => doneSet.has(s.id)).length;
+function FinalScreen({ steps, doneSet, skippedSet, onClose }) {
+  const resolved = steps.filter(s => doneSet.has(s.id) || skippedSet.has(s.id)).length;
+  const allResolved = resolved === steps.length;
 
   return (
-    <div style={{ textAlign: 'center', padding: '20px 0' }}>
-      <div style={{ fontSize: 44, marginBottom: 10 }}>{allDone ? '🎉' : '📋'}</div>
-      <div style={{ fontWeight: 900, fontSize: 18, color: W.tx, marginBottom: 8 }}>
-        {allDone ? 'All Issues Resolved!' : `${countDone} / ${steps.length} Steps Complete`}
-      </div>
-      <div style={{ fontSize: 12, color: W.ts, marginBottom: 20, lineHeight: 1.7 }}>
-        {allDone
-          ? 'Flash the patched .bin files to your modules and power-cycle the vehicle for 30 seconds.'
-          : 'Mark remaining steps as resolved once you have flashed and verified each module.'}
-      </div>
-
-      {/* Checklist */}
-      <div style={{ textAlign: 'left', marginBottom: 20 }}>
-        {steps.map(s => {
-          const done = doneSet.has(s.id);
-          return (
-            <div key={s.id} style={{
-              display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
-              borderRadius: 8, marginBottom: 6,
-              background: done ? W.gn + '12' : W.s3,
-              border: `1px solid ${done ? W.gn + '40' : W.bd}`,
-            }}>
-              <span style={{ fontSize: 16 }}>{done ? '✅' : '⬜'}</span>
-              <span style={{ fontSize: 12, color: done ? W.gn : W.ts, flex: 1 }}>{s.title}</span>
-            </div>
-          );
-        })}
+    <div style={{ padding: '18px 0' }}>
+      <div style={{ textAlign: 'center', marginBottom: 16 }}>
+        <div style={{ fontSize: 40, marginBottom: 8 }}>{allResolved ? '🎉' : '📋'}</div>
+        <div style={{ fontWeight: 900, fontSize: 18, color: W.tx, marginBottom: 6 }}>
+          {allResolved ? 'All Steps Resolved!' : `${resolved} / ${steps.length} Steps Done`}
+        </div>
+        <div style={{ fontSize: 12, color: W.ts, lineHeight: 1.7 }}>
+          {allResolved
+            ? 'Flash the patched .bin files to your modules and power-cycle 30 seconds.'
+            : 'Complete remaining steps, then return for the final checklist.'}
+        </div>
       </div>
 
-      {/* Flash reminder */}
+      {steps.map(s => {
+        const done = doneSet.has(s.id);
+        const skipped = skippedSet.has(s.id);
+        return (
+          <div key={s.id} style={{
+            display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
+            borderRadius: 8, marginBottom: 6,
+            background: done ? W.gn + '12' : skipped ? W.wn + '10' : W.s3,
+            border: `1px solid ${done ? W.gn + '40' : skipped ? W.wn + '30' : W.bd}`,
+          }}>
+            <span style={{ fontSize: 16 }}>{done ? '✅' : skipped ? '⏭' : '⬜'}</span>
+            <span style={{ fontSize: 12, color: done ? W.gn : skipped ? W.wn : W.ts, flex: 1 }}>
+              {s.title}
+            </span>
+            {skipped && <span style={{ fontSize: 10, color: W.wn }}>skipped</span>}
+          </div>
+        );
+      })}
+
       <div style={{
-        padding: '12px 16px', borderRadius: 10, marginBottom: 16,
+        padding: '12px 16px', borderRadius: 10, marginTop: 14, marginBottom: 14,
         background: W.a1 + '14', border: `1px solid ${W.a1}30`,
-        fontSize: 12, color: W.tx, textAlign: 'left', lineHeight: 1.7,
+        fontSize: 12, color: W.tx, lineHeight: 1.7,
       }}>
         <div style={{ fontWeight: 900, color: W.a1, marginBottom: 4 }}>⚡ Post-Flash Checklist</div>
-        <div>✓ Flash BCM .bin via OBD/Flashzilla/AlfaOBD</div>
+        <div>✓ Flash BCM .bin via OBD / Flashzilla / AlfaOBD</div>
         <div>✓ Flash RFHUB .bin via OBD</div>
-        {steps.some(s => s.actions.includes('full-sync') || s.actions.includes('sec16-only')) && (
-          <div>✓ Flash PCM .bin if SEC6 was updated</div>
-        )}
+        <div>✓ Flash PCM .bin if SEC6 was updated</div>
         <div>✓ Power-cycle vehicle battery for 30 seconds</div>
         <div>✓ Verify with SKIM tab — all keys should pair</div>
       </div>
 
       <button onClick={onClose} style={{
-        background: W.gn, border: 'none', borderRadius: 10, padding: '12px 32px',
-        color: '#fff', fontWeight: 900, fontSize: 14, cursor: 'pointer',
-        fontFamily: W.sans, letterSpacing: 1,
+        width: '100%', background: W.gn, border: 'none', borderRadius: 10,
+        padding: '12px 32px', color: '#fff', fontWeight: 900, fontSize: 14,
+        cursor: 'pointer', fontFamily: W.sans, letterSpacing: 1,
       }}>
         CLOSE WIZARD
       </button>
@@ -628,9 +688,10 @@ export default function MismatchWizard({
   onAction,
   stepActions = [],
 }) {
-  const [phase, setPhase] = useState('summary'); /* summary | steps | final */
+  const [phase, setPhase] = useState('summary');
   const [currentStep, setCurrentStep] = useState(0);
   const [doneSteps, setDoneSteps] = useState(new Set());
+  const [skippedSteps, setSkippedSteps] = useState(new Set());
   const overlayRef = useRef(null);
 
   const allItems = [
@@ -648,23 +709,20 @@ export default function MismatchWizard({
     title: 'No Issues Detected',
     severity: 'info',
     summary: 'All checked items passed.',
-    guidance: 'No mismatches were found. You may still use the AI assistant to ask questions.',
+    guidance: 'No mismatches were found. Use the AI assistant to ask questions.',
     steps: [],
+    skipConsequence: '',
     actions: [],
   }];
 
-  const moduleContext = {
-    modules,
-    issues,
-    warnings,
-    hexSnippets,
-  };
+  const moduleContext = { modules, issues, warnings, hexSnippets };
 
-  const contextHint = issues.length > 0
-    ? `Explain: ${issues[0].slice(0, 80)}`
+  /* Auto-greet: first issue summary */
+  const autoGreet = issues.length > 0
+    ? `I'm looking at these modules: ${modules.join(', ')}. I found ${issues.length} issue(s): ${issues.slice(0, 2).join('; ')}${issues.length > 2 ? ` and ${issues.length - 2} more` : ''}. Please summarize what's wrong and what I should do first.`
     : warnings.length > 0
-    ? `Explain: ${warnings[0].slice(0, 80)}`
-    : 'Explain the current module status';
+    ? `I see these warnings in my module dumps: ${warnings.slice(0, 2).join('; ')}. Can you explain what they mean and whether I need to fix them?`
+    : null;
 
   const toggleDone = (stepId) => {
     setDoneSteps(prev => {
@@ -672,17 +730,19 @@ export default function MismatchWizard({
       if (next.has(stepId)) next.delete(stepId); else next.add(stepId);
       return next;
     });
+    setSkippedSteps(prev => { const next = new Set(prev); next.delete(stepId); return next; });
   };
 
-  const handleAction = (actionId) => {
-    onAction?.(actionId);
-    setTimeout(() => {
-      const step = steps[currentStep];
-      if (step) toggleDone(step.id);
-    }, 500);
+  const skipStep = (stepId) => {
+    setSkippedSteps(prev => { const next = new Set(prev); next.add(stepId); return next; });
+    setDoneSteps(prev => { const next = new Set(prev); next.delete(stepId); return next; });
   };
 
-  /* Close on overlay click */
+  const handleAction = (actionId, stepId) => {
+    onAction?.(actionId, stepId);
+    /* Don't close wizard — action result shown in-card */
+  };
+
   const handleOverlayClick = (e) => {
     if (e.target === overlayRef.current) onClose?.();
   };
@@ -690,37 +750,30 @@ export default function MismatchWizard({
   return (
     <div ref={overlayRef} onClick={handleOverlayClick} style={{
       position: 'fixed', inset: 0, zIndex: 9999,
-      background: 'rgba(0,0,0,0.75)',
-      backdropFilter: 'blur(4px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '16px',
+      background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
     }}>
       <div style={{
         background: W.bg,
         border: `1.5px solid ${W.bd}`,
         borderRadius: 20,
-        width: '100%',
-        maxWidth: 820,
-        maxHeight: '90vh',
-        display: 'flex',
-        flexDirection: 'column',
+        width: '100%', maxWidth: 840,
+        maxHeight: '92vh',
+        display: 'flex', flexDirection: 'column',
         overflow: 'hidden',
         boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
       }}>
 
-        {/* Modal header */}
+        {/* Header */}
         <div style={{
-          padding: '16px 22px',
+          padding: '14px 20px',
           background: `linear-gradient(135deg, ${W.s2} 0%, #1A2D45 100%)`,
           borderBottom: `1px solid ${W.bd}`,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          flexShrink: 0,
+          display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0,
         }}>
-          <div style={{ fontSize: 24 }}>🔧</div>
+          <div style={{ fontSize: 22 }}>🔧</div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 900, fontSize: 16, color: W.tx, fontFamily: W.sans, letterSpacing: 1 }}>
+            <div style={{ fontWeight: 900, fontSize: 15, color: W.tx, fontFamily: W.sans, letterSpacing: 1 }}>
               MISMATCH RESOLUTION WIZARD
             </div>
             <div style={{ fontSize: 10, color: W.ts, letterSpacing: 2 }}>
@@ -729,13 +782,12 @@ export default function MismatchWizard({
             </div>
           </div>
 
-          {/* Phase nav dots */}
           {phase === 'steps' && steps.length > 1 && (
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
               {steps.map((s, i) => (
-                <button key={i} onClick={() => setCurrentStep(i)} style={{
+                <button key={s.id} onClick={() => setCurrentStep(i)} style={{
                   width: 10, height: 10, borderRadius: '50%',
-                  background: i === currentStep ? W.a3 : doneSteps.has(s.id) ? W.gn : W.bd,
+                  background: i === currentStep ? W.a3 : doneSteps.has(s.id) ? W.gn : skippedSteps.has(s.id) ? W.wn : W.bd,
                   border: 'none', cursor: 'pointer', padding: 0,
                 }} title={s.title} />
               ))}
@@ -748,23 +800,12 @@ export default function MismatchWizard({
           }}>✕</button>
         </div>
 
-        {/* Body — scrollable left panel + chat */}
-        <div style={{
-          flex: 1,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 0,
-        }}>
-          {/* Main content */}
-          <div style={{ flex: '1 1 auto', overflowY: 'auto', padding: '18px 22px 0 22px' }}>
+        {/* Body */}
+        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: '1 1 auto', overflowY: 'auto', padding: '16px 20px 0 20px' }}>
             {phase === 'summary' && (
-              <SummaryScreen
-                issues={issues}
-                warnings={warnings}
-                modules={modules}
-                onStart={() => { setPhase('steps'); setCurrentStep(0); }}
-              />
+              <SummaryScreen issues={issues} warnings={warnings} modules={modules}
+                onStart={() => { setPhase('steps'); setCurrentStep(0); }} />
             )}
 
             {phase === 'steps' && (
@@ -776,16 +817,15 @@ export default function MismatchWizard({
                   stepActions={stepActions}
                   onAction={handleAction}
                   done={doneSteps.has(steps[currentStep].id)}
-                  onMarkDone={() => toggleDone(steps[currentStep].id)}
+                  skipped={skippedSteps.has(steps[currentStep].id)}
+                  onMarkDone={toggleDone}
+                  onSkip={skipStep}
                 />
 
-                {/* Navigation */}
-                <div style={{ display: 'flex', gap: 10, marginTop: 14, marginBottom: 6 }}>
-                  <button onClick={() => currentStep > 0 ? setCurrentStep(i => i - 1) : setPhase('summary')}
-                    style={{
-                      background: W.s3, border: `1px solid ${W.bd}`, borderRadius: 8,
-                      padding: '8px 16px', color: W.ts, cursor: 'pointer', fontSize: 12, fontFamily: W.sans,
-                    }}>
+                <div style={{ display: 'flex', gap: 10, marginTop: 12, marginBottom: 4 }}>
+                  <button
+                    onClick={() => currentStep > 0 ? setCurrentStep(i => i - 1) : setPhase('summary')}
+                    style={{ background: W.s3, border: `1px solid ${W.bd}`, borderRadius: 8, padding: '8px 16px', color: W.ts, cursor: 'pointer', fontSize: 12, fontFamily: W.sans }}>
                     ← {currentStep === 0 ? 'Back to Summary' : 'Previous'}
                   </button>
                   <div style={{ flex: 1 }} />
@@ -800,9 +840,8 @@ export default function MismatchWizard({
                   ) : (
                     <button onClick={() => setPhase('final')} style={{
                       background: `linear-gradient(135deg, ${W.gn} 0%, ${W.a2} 100%)`,
-                      border: 'none', borderRadius: 8,
-                      padding: '8px 20px', color: '#fff', cursor: 'pointer',
-                      fontSize: 12, fontWeight: 900, fontFamily: W.sans, letterSpacing: 0.5,
+                      border: 'none', borderRadius: 8, padding: '8px 20px',
+                      color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 900, fontFamily: W.sans,
                     }}>
                       View Checklist ✓
                     </button>
@@ -812,17 +851,17 @@ export default function MismatchWizard({
             )}
 
             {phase === 'final' && (
-              <FinalScreen
-                steps={steps}
-                doneSet={doneSteps}
-                onClose={onClose}
-              />
+              <FinalScreen steps={steps} doneSet={doneSteps} skippedSet={skippedSteps} onClose={onClose} />
             )}
           </div>
 
-          {/* Claude chat panel — always visible */}
-          <div style={{ flexShrink: 0, padding: '10px 22px 18px 22px' }}>
-            <ChatPanel moduleContext={moduleContext} contextHint={contextHint} />
+          {/* Claude chat — always visible */}
+          <div style={{ flexShrink: 0, padding: '10px 20px 16px 20px' }}>
+            <ChatPanel
+              moduleContext={moduleContext}
+              contextHint={autoGreet}
+              autoGreet={autoGreet}
+            />
           </div>
         </div>
       </div>
