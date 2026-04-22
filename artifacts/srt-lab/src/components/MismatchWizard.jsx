@@ -309,6 +309,27 @@ function HexDiffCard({ step, hexSnippets }) {
  */
 const LAST_CONV_KEY = (sessionKey) => `srt-wizard-last-conv:${sessionKey || 'default'}`;
 
+/* Render a compact relative timestamp ("5m ago", "2h ago", "3d ago"…)
+ * for the Past Sessions list. Falls back to a locale string for very
+ * old entries so the user still gets a real date. Exported for tests. */
+export function formatRelativeTime(input, now = Date.now()) {
+  if (!input) return '';
+  const t = typeof input === 'number' ? input : new Date(input).getTime();
+  if (!Number.isFinite(t)) return '';
+  const diff = Math.max(0, now - t);
+  const sec = Math.floor(diff / 1000);
+  if (sec < 45) return 'just now';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  if (day < 7) return `${day}d ago`;
+  const wk = Math.floor(day / 7);
+  if (wk < 5) return `${wk}w ago`;
+  return new Date(t).toLocaleDateString();
+}
+
 function useChatStream(sessionKey) {
   const [messages, setMessages] = useState([]);
   const [streaming, setStreaming] = useState(false);
@@ -540,6 +561,17 @@ function ChatPanel({ moduleContext, autoGreet, sessionKey }) {
   const bottomRef = useRef(null);
   const greeted = useRef(false);
 
+  /* Transient "↻ RESUMED" pill — shows for ~5s right after the chat
+   * is hydrated from a saved pointer, then auto-fades so it doesn't
+   * sit there for the entire session. */
+  const [pillVisible, setPillVisible] = useState(false);
+  useEffect(() => {
+    if (!resumed) { setPillVisible(false); return; }
+    setPillVisible(true);
+    const t = setTimeout(() => setPillVisible(false), 5000);
+    return () => clearTimeout(t);
+  }, [resumed, conversationId]);
+
   /* Keep Claude context current as wizard state changes */
   useEffect(() => {
     updateContext(moduleContext);
@@ -651,7 +683,7 @@ function ChatPanel({ moduleContext, autoGreet, sessionKey }) {
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 800, fontSize: 12, color: W.tx, letterSpacing: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
             CLAUDE AI ASSISTANT
-            {resumed && (
+            {pillVisible && (
               <span
                 data-testid="wizard-chat-resumed-pill"
                 title="This chat was loaded from your previous session and persists across modal close/reopen."
@@ -726,8 +758,10 @@ function ChatPanel({ moduleContext, autoGreet, sessionKey }) {
                   <div style={{ fontSize: 11, color: W.tx, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {s.title || `Chat #${s.id}`}
                   </div>
-                  <div style={{ fontSize: 9, color: W.tm, fontFamily: W.mono }}>
-                    #{s.id} · {s.createdAt ? new Date(s.createdAt).toLocaleString() : ''}
+                  <div
+                    style={{ fontSize: 9, color: W.tm, fontFamily: W.mono }}
+                    title={s.createdAt ? new Date(s.createdAt).toLocaleString() : ''}>
+                    #{s.id} · {s.createdAt ? formatRelativeTime(s.createdAt) : ''}
                   </div>
                 </div>
                 <button onClick={(ev) => handleDeleteSession(s.id, ev)} title="Delete this chat" style={{ background: 'none', border: 'none', color: W.tm, fontSize: 12, cursor: 'pointer', padding: '2px 4px' }}>🗑</button>
