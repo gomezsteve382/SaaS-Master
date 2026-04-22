@@ -291,8 +291,14 @@ export default function BcmTab({vehicle}){
   // Run part-number detection whenever the active dump changes — covers both
   // manual file loads (via onInspectFile) and dumps auto-shared from the FCA
   // Analyzer tab that bypass onInspectFile entirely.
+  // When the dump disappears (external removeDump call), also clear the
+  // generation highlight so the vehicle banner resets correctly.
   useEffect(()=>{
-    if(!inspectMod||!vehicle||!vehicle.bcmFamilies){setInspectPnCheck(null);return;}
+    if(!inspectMod||!vehicle||!vehicle.bcmFamilies){
+      setInspectPnCheck(null);
+      if(!inspectMod){setDetectedGen(null);setDetectedPn(null);}
+      return;
+    }
     const a=analyzeDumpPartNumber(inspectMod.data);
     const compatible=a.compatibleVehicles.includes(vehicle.id);
     const gen=a.primaryPn?generationForPartNumber(vehicle.id,a.primaryPn,a.vinModelYearChar):null;
