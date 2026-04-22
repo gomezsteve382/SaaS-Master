@@ -429,6 +429,68 @@ describe('Wizard chat persistence (useChatStream via ChatPanel)', () => {
     await waitFor(() => expect(screen.getByText('hello world')).toBeTruthy());
   });
 
+  it('shows pastError when Past sessions list endpoint returns a 500', async () => {
+    /* Open "Past sessions ▾" while the list endpoint is hard-down.
+     * refreshPastSessions() must surface the failure into pastError so
+     * the user sees a "✗ HTTP 500" message instead of a perpetual
+     * "Loading…" spinner that hides the outage. */
+    global.fetch = vi.fn(async (url) => {
+      if (String(url).includes('/anthropic/conversations?scope=')) {
+        return new Response('boom', { status: 500 });
+      }
+      throw new Error('unexpected ' + url);
+    });
+
+    renderWizard();
+    await screen.findByPlaceholderText(/Ask about this mismatch/i);
+
+    fireEvent.click(screen.getByTestId('wizard-chat-past-sessions-btn'));
+
+    /* Error text rendered with the leading ✗ marker. */
+    await waitFor(() => expect(screen.getByText(/✗ HTTP 500/)).toBeTruthy());
+    /* "Loading…" placeholder must NOT be visible alongside the error —
+     * the render guards `pastSessions === null && !pastError`, so a
+     * regression that leaves pastSessions=null on failure would surface
+     * here as a duplicate Loading row. */
+    expect(screen.queryByText(/Loading…/)).toBeNull();
+  });
+
+  it('"↻ refresh" after the server recovers populates the list and clears the error', async () => {
+    /* First list call fails (500), second call (after the user clicks
+     * "↻ refresh") succeeds and returns one session. The error banner
+     * must disappear and the recovered session row must render. */
+    let listCallCount = 0;
+    global.fetch = vi.fn(async (url) => {
+      if (String(url).includes('/anthropic/conversations?scope=')) {
+        listCallCount += 1;
+        if (listCallCount === 1) return new Response('boom', { status: 500 });
+        return jsonResponse(200, [
+          { id: 55, title: 'recovered chat', scope: SCOPE, createdAt: Date.now() - 30_000 },
+        ]);
+      }
+      throw new Error('unexpected ' + url);
+    });
+
+    renderWizard();
+    await screen.findByPlaceholderText(/Ask about this mismatch/i);
+
+    fireEvent.click(screen.getByTestId('wizard-chat-past-sessions-btn'));
+    await waitFor(() => expect(screen.getByText(/✗ HTTP 500/)).toBeTruthy());
+
+    /* Locate the "↻ refresh" button inside the panel and click it. */
+    const panel = screen.getByTestId('wizard-chat-past-sessions-panel');
+    const refreshBtn = Array.from(panel.querySelectorAll('button')).find(
+      b => /refresh/i.test(b.textContent || '')
+    );
+    expect(refreshBtn).toBeTruthy();
+    fireEvent.click(refreshBtn);
+
+    /* Recovered row appears and the error banner is gone. */
+    await waitFor(() => expect(screen.getByTestId('wizard-chat-past-session-55')).toBeTruthy());
+    expect(screen.queryByText(/✗ HTTP 500/)).toBeNull();
+    expect(screen.getByText('recovered chat')).toBeTruthy();
+  });
+
   it('"+ New chat" clears in-memory state and the localStorage pointer', async () => {
     localStorage.setItem(KEY, '11');
     global.fetch = vi.fn(async () =>
