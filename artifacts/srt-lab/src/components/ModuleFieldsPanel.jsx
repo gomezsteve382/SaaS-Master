@@ -114,7 +114,33 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
     </>;})()}
 
     {/* RFHUB -------------------------------------------------------------- */}
-    {mod.type==='RFHUB'&&<>
+    {mod.type==='RFHUB'&&(()=>{
+      const rfhSz=mod.size;
+      const rfhMissing=[];
+      if(!mod.rfhVin92&&rfhSz<0xA5)rfhMissing.push({n:'rfhVin92 @0x0092',need:0xA5});
+      if(!mod.partNumbers.hw&&rfhSz<0x0812)rfhMissing.push({n:'partNumber HW @0x0808',need:0x0812});
+      if(!mod.partNumbers.sw&&rfhSz<0x081C)rfhMissing.push({n:'partNumber SW @0x0812',need:0x081C});
+      if(!mod.partNumbers.cal&&rfhSz<0x083A)rfhMissing.push({n:'partNumber CAL @0x082C',need:0x083A});
+      if(!mod.vehicleSecret&&rfhSz<0x051E)rfhMissing.push({n:'vehicleSecret @0x050E',need:0x051E});
+      // sec16: default to Gen2 layout (matches parser when sz===4096||sz===8192, and is the
+      // typical truncated-dump case since type==='RFHUB' is set when sz===4096)
+      const sec16IsGen2=rfhSz===4096||rfhSz===8192||rfhSz<2048;
+      const expectedSec16=sec16IsGen2?[[1,0x050E,0x0520],[2,0x0522,0x0534]]:[[1,0xAE,0xC0],[2,0xC0,0xD2]];
+      for(const[slot,off,need]of expectedSec16){
+        if(rfhSz<need&&!(mod.sec16s||[]).find(s=>s.slot===slot))rfhMissing.push({n:`sec16s slot${slot} @${fO(off)}`,need});
+      }
+      const rfhUndersized=rfhMissing.length>0;
+      return <>
+      {rfhUndersized&&<Card style={{marginBottom:12,padding:12,border:'1px solid '+C.wn+'66',background:C.wn+'14'}}>
+        <div style={{fontWeight:800,fontSize:12,color:C.wn,marginBottom:4,letterSpacing:.5}}>⚠️ FILE TOO SMALL</div>
+        <div style={{fontSize:11,color:C.tx,lineHeight:1.4,marginBottom:6}}>
+          This dump is only {rfhSz.toLocaleString()} bytes — a full RFHUB is 4,096 bytes (Gen2) or 2,048 bytes (Gen1).
+          The following region{rfhMissing.length===1?'':'s'} could not be read:
+        </div>
+        <ul style={{margin:'4px 0 0 18px',padding:0,fontSize:11,color:C.tx,lineHeight:1.5}}>
+          {rfhMissing.map(x=><li key={x.n}><span style={{color:C.wn,fontWeight:700}}>{x.n}</span> <span style={{color:C.tm}}>— needs {x.need.toLocaleString()} B, got {rfhSz.toLocaleString()}</span></li>)}
+        </ul>
+      </Card>}
       <Card glow style={{marginBottom:14}}>
         <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>🔑 RFHUB Analysis</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
@@ -181,7 +207,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
           </div>:null)}
         </div>
       </Card>}
-    </>}
+    </>;})()}
 
     {/* BCM ---------------------------------------------------------------- */}
     {mod.type==='BCM'&&(()=>{
@@ -285,7 +311,24 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
     </>;})()}
 
     {/* 95640 -------------------------------------------------------------- */}
-    {mod.type==='95640'&&<>
+    {mod.type==='95640'&&(()=>{
+      const eepSz=mod.size;
+      const eepMissing=[];
+      if(!mod.bcmSec16&&eepSz<0x84A)eepMissing.push({n:'bcmSec16 @0x0838',need:0x84A});
+      const hasThirdVin=(mod.vins||[]).some(v=>v.offset===0x1B82);
+      if(!hasThirdVin&&eepSz<0x1B95)eepMissing.push({n:'VIN slot 3 @0x1B82',need:0x1B95});
+      const eepUndersized=eepMissing.length>0;
+      return <>
+      {eepUndersized&&<Card style={{marginBottom:12,padding:12,border:'1px solid '+C.wn+'66',background:C.wn+'14'}}>
+        <div style={{fontWeight:800,fontSize:12,color:C.wn,marginBottom:4,letterSpacing:.5}}>⚠️ FILE TOO SMALL</div>
+        <div style={{fontSize:11,color:C.tx,lineHeight:1.4,marginBottom:6}}>
+          This dump is only {eepSz.toLocaleString()} bytes — a full 95640 is 8,192 bytes.
+          The following region{eepMissing.length===1?'':'s'} could not be read:
+        </div>
+        <ul style={{margin:'4px 0 0 18px',padding:0,fontSize:11,color:C.tx,lineHeight:1.5}}>
+          {eepMissing.map(x=><li key={x.n}><span style={{color:C.wn,fontWeight:700}}>{x.n}</span> <span style={{color:C.tm}}>— needs {x.need.toLocaleString()} B, got {eepSz.toLocaleString()}</span></li>)}
+        </ul>
+      </Card>}
       <Card glow style={{marginBottom:14}}>
         <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>💾 95640 Analysis</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
@@ -319,7 +362,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
           {!mod.bcmSec16.blank&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.a4,wordBreak:'break-all'}}>{mod.bcmSec16.hex}</div>}
         </div>
       </Card>}
-    </>}
+    </>;})()}
   </div>;
 }
 
