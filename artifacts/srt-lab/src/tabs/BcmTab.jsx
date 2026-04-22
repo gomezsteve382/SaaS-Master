@@ -496,11 +496,8 @@ export default function BcmTab({vehicle}){
             </div>
       )}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.gn,fontWeight:700}}>{inspectMsg}</div>}
-      {detectedPn&&<div style={{marginTop:10,padding:'8px 12px',background:detectedGen?'#E8F5E9':'#FFF8F0',border:'1px solid '+(detectedGen?C.gn:C.wn),borderRadius:8,fontSize:11,fontFamily:"'JetBrains Mono'"}}>
-        {detectedGen
-          ?<><span style={{color:C.gn,fontWeight:800}}>Detected:</span> <span style={{color:C.tx}}>{detectedGen.label} ({detectedPn}) — {detectedGen.sec16==='gen2-split'?'Gen2 split SEC16':detectedGen.sec16==='trackhawk-no-flash'?'No flash SEC16':'Gen1 SEC16'} · VIN offset 0x{detectedGen.vinOff.toString(16).toUpperCase()}</span></>
-          :<><span style={{color:C.wn,fontWeight:800}}>P/N {detectedPn}</span> <span style={{color:C.ts}}>detected — no matching generation found for the selected vehicle. Check you have the correct vehicle selected.</span></>
-        }
+      {detectedPn&&detectedGen&&<div style={{marginTop:10,padding:'8px 12px',background:'#E8F5E9',border:'1px solid '+C.gn,borderRadius:8,fontSize:11,fontFamily:"'JetBrains Mono'"}}>
+        <span style={{color:C.gn,fontWeight:800}}>Generation:</span> <span style={{color:C.tx}}>{detectedGen.label} — {detectedGen.sec16==='gen2-split'?'Gen2 split SEC16':detectedGen.sec16==='trackhawk-no-flash'?'No flash SEC16':'Gen1 SEC16'} · VIN offset 0x{detectedGen.vinOff.toString(16).toUpperCase()}</span>
       </div>}
       {inspectMod&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
     </Card>
