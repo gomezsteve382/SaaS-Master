@@ -28,6 +28,7 @@ import JailbreakTab from "./tabs/JailbreakTab";
 import BcmTab from "./tabs/BcmTab";
 import RfhubTab from "./tabs/RfhubTab";
 import BackupsTab from "./tabs/BackupsTab";
+import { writeBcmSec16Gen2, writePcmSec6 } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import {parseModule} from "./lib/parseModule.js";
@@ -1126,104 +1127,10 @@ function engWriteBcmVin(bytes,newVin){if(!VIN_REGEX.test(newVin))throw new Error
   return{bytes:out,fullPatched,shortPatched,fullCrc,tailCrc};
 }
 
-function engWriteBcmSec16Gen2(bytes,rfhSec16){
-  /* VERIFIED ALGORITHM — produces byte-identical output to SINCRO/ArmandoQS.
-     Writes 3 targets:
-       1. Split records at 0x81A0/C0/E0 (bank 2, persistent):
-            7-byte prefix + separator "04 04 00 14" + 9-byte suffix
-       2. Mirror 1 (slot 0xEB, size 0x18) in INACTIVE bank:
-            header + idx(02) + SEC16(16b) + trailer(8F) + FF FF + CRC(2b) + EB 00
-       3. Mirror 2 (slot 0xCA, size 0x28) in INACTIVE bank:
-            same payload structure
-     Inactive bank determined by comparing FEE sequence numbers (higher = active).
-     CRC = CRC-16/CCITT(poly 0x1021, init 0xFFFF) over 20 bytes
-       [idx + SEC16(16) + trailer(8F) + FF + FF], stored big-endian at record+28. */
-  if(!rfhSec16||rfhSec16.length!==16)throw new Error('RFH SEC16 must be 16 bytes');
-  const bcmSec16=new Uint8Array(16);
-  for(let i=0;i<16;i++)bcmSec16[i]=rfhSec16[15-i];
-  const prefix7=bcmSec16.slice(0,7);
-  const suffix9=bcmSec16.slice(7,16);
-  const out=new Uint8Array(bytes);
-  let splitPatched=0,mirrorPatched=0;
-  
-  /* 1. Split records */
-  for(const recOff of [0x81A0,0x81C0,0x81E0]){
-    if(recOff+30>out.length)continue;
-    if(out[recOff]!==0xFF||out[recOff+1]!==0xFF)continue;
-    let hdrOk=true;for(let j=2;j<8;j++)if(out[recOff+j]!==0x00){hdrOk=false;break;}
-    if(!hdrOk)continue;
-    const idx=out[recOff+8];if(idx!==0x01&&idx!==0x02)continue;
-    if(out[recOff+16]!==0x04||out[recOff+17]!==0x04||out[recOff+18]!==0x00||out[recOff+19]!==0x14)continue;
-    for(let k=0;k<7;k++)out[recOff+9+k]=prefix7[k];
-    for(let k=0;k<9;k++)out[recOff+20+k]=suffix9[k];
-    splitPatched++;
-  }
-  
-  /* 2. Determine inactive bank (higher seq = active) */
-  const bank0Seq=(out[0x0002]<<8)|out[0x0003];
-  const bank1Seq=(out[0x4002]<<8)|out[0x4003];
-  const inactiveBase=bank0Seq>=bank1Seq?0x4000:0x0000;
-  
-  /* Helper: find record with given slot type and size in given bank */
-  const findRec=(bankBase,slotType,sizeByte)=>{
-    const bankEnd=bankBase+0x4000;
-    for(let i=bankBase;i<bankEnd-8;i++){
-      if(out[i]===0x00&&out[i+1]===0x00&&out[i+2]===0x00&&
-         out[i+3]===sizeByte&&out[i+4]===0x00&&out[i+5]===0x46&&
-         out[i+6]===slotType&&out[i+7]===0x00) return i;
-    }
-    return -1;
-  };
-  
-  /* CRC-16/CCITT(0x1021, init 0xFFFF) */
-  const crc16Ccitt=(data)=>{
-    let c=0xFFFF;
-    for(let x=0;x<data.length;x++){
-      c^=data[x]<<8;
-      for(let j=0;j<8;j++)c=c&0x8000?((c<<1)^0x1021)&0xFFFF:(c<<1)&0xFFFF;
-    }
-    return c&0xFFFF;
-  };
-  
-  /* Helper: write mirror payload to a record */
-  const writeMirror=(off)=>{
-    out[off+8]=0x02; /* idx */
-    for(let k=0;k<16;k++)out[off+9+k]=bcmSec16[k];
-    out[off+25]=0x8F; /* trailer */
-    out[off+26]=0xFF;
-    out[off+27]=0xFF;
-    /* Compute CRC over idx + SEC16 + trailer + FF + FF (20 bytes) */
-    const crcInput=new Uint8Array(20);
-    crcInput[0]=0x02;
-    for(let k=0;k<16;k++)crcInput[1+k]=bcmSec16[k];
-    crcInput[17]=0x8F;crcInput[18]=0xFF;crcInput[19]=0xFF;
-    const crc=crc16Ccitt(crcInput);
-    out[off+28]=(crc>>8)&0xFF;
-    out[off+29]=crc&0xFF;
-    out[off+30]=0xEB;
-    out[off+31]=0x00;
-  };
-  
-  /* 3. Find and write mirror 1: slot 0xEB, size 0x18 */
-  const m1Off=findRec(inactiveBase,0xEB,0x18);
-  if(m1Off>=0){writeMirror(m1Off);mirrorPatched++;}
-  
-  /* 4. Find and write mirror 2: slot 0xCA, size 0x28 */
-  const m2Off=findRec(inactiveBase,0xCA,0x28);
-  if(m2Off>=0){writeMirror(m2Off);mirrorPatched++;}
-  
-  const hexStr=(arr)=>[...arr].map(b=>b.toString(16).padStart(2,'0')).join('');
-  return{
-    bytes:out,
-    splitPatched,
-    mirrorPatched,
-    inactiveBase,
-    mirror1Offset:m1Off>=0?m1Off:null,
-    mirror2Offset:m2Off>=0?m2Off:null,
-    bcmSec16Hex:hexStr(bcmSec16),
-    patched:splitPatched+mirrorPatched /* legacy field for backward compat */
-  };
-}
+/* engWriteBcmSec16Gen2 / engWritePcmSec6 — extracted to lib/securityBytes.js
+ * (single source of truth, golden-vector regression test in
+ * lib/__tests__/securityBytes.golden.test.js). */
+const engWriteBcmSec16Gen2 = writeBcmSec16Gen2;
 
 function engWriteRfhVin(bytes,newVin,virginize){if(!VIN_REGEX.test(newVin))throw new Error('Invalid VIN: '+newVin);const out=new Uint8Array(bytes);const fwd=new TextEncoder().encode(newVin);const rev=new Uint8Array(17);for(let i=0;i<17;i++)rev[i]=fwd[16-i];let sum=0;for(const b of rev)sum=(sum+b)&0xFF;const chk=(0xF9-sum)&0xFF;let patched=0;
   for(const off of RFH_VIN_OFFSETS){if(off+18>out.length)continue;for(let k=0;k<17;k++)out[off+k]=rev[k];out[off+17]=chk;patched++;}
@@ -1232,35 +1139,7 @@ function engWriteRfhVin(bytes,newVin,virginize){if(!VIN_REGEX.test(newVin))throw
   return{bytes:out,patched,sec16Wiped,chk};
 }
 
-function engWritePcmSec6(bytes,rfhSec16){
-  /* Write first 6 bytes of RFH SEC16 as PCM SEC6.
-     GPEC2A: at "FF FF FF AA" + 4. GPEC5: at "FF FF FF FF" + 4 where current SEC6 is not all FF.
-     Fallback: if no marker match found, write at the location identified by parsing. */
-  if(!rfhSec16||rfhSec16.length!==16)throw new Error('RFH SEC16 must be 16 bytes');
-  const sec6=rfhSec16.slice(0,6);const out=new Uint8Array(bytes);let patched=0;let markerUsed=null;
-  /* Try GPEC2A marker first */
-  for(let i=0;i<out.length-10;i++){
-    if(out[i]===0xFF&&out[i+1]===0xFF&&out[i+2]===0xFF&&out[i+3]===0xAA){
-      for(let k=0;k<6;k++)out[i+4+k]=sec6[k];
-      patched++;markerUsed='FF FF FF AA';
-    }
-  }
-  /* If no GPEC2A marker, try GPEC5 (FF FF FF FF followed by non-all-FF current SEC6) */
-  if(patched===0){
-    for(let i=0;i<out.length-20;i++){
-      if(out[i]===0xFF&&out[i+1]===0xFF&&out[i+2]===0xFF&&out[i+3]===0xFF){
-        /* Require the next 6 bytes to look like SEC6 data (NOT all FF — that would mean no marker match) */
-        let hasData=false;for(let k=0;k<6;k++)if(out[i+4+k]!==0xFF){hasData=true;break;}
-        if(hasData){
-          for(let k=0;k<6;k++)out[i+4+k]=sec6[k];
-          patched++;markerUsed='FF FF FF FF';
-          break;/* GPEC5 only has one location */
-        }
-      }
-    }
-  }
-  return{bytes:out,patched,markerUsed,sec6Hex:[...sec6].map(b=>b.toString(16).padStart(2,'0')).join('')};
-}
+const engWritePcmSec6 = writePcmSec6;
 
 function engWritePcmVin(bytes,newVin){if(!VIN_REGEX.test(newVin))throw new Error('Invalid VIN: '+newVin);const out=new Uint8Array(bytes);const vb=new TextEncoder().encode(newVin);let patched=0;for(const off of [0x0000,0x01F0,0x0224,0x0CE0]){if(off+17>out.length)continue;for(let k=0;k<17;k++)out[off+k]=vb[k];patched++;}return{bytes:out,patched};}
 

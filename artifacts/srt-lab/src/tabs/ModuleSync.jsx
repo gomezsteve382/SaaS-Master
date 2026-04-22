@@ -3,6 +3,7 @@ import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
+import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm } from "../lib/securityBytes.js";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -406,97 +407,11 @@ function engWriteRfhVin(bytes, newVin, virginize) {
   return { bytes: out, patched, sec16Wiped, chk };
 }
 
-/* SINCRO-verified: produces byte-identical output to ArmandoQS on ref dumps.
-   Writes SEC16 to: (1) split records at 0x81A0/C0/E0, (2) mirrors (0xEB/0xCA)
-   in the inactive bank. BCM SEC16 = reverse(RFH SEC16). */
-function engWriteBcmSec16Gen2(bytes, rfhSec16) {
-  if (!rfhSec16 || rfhSec16.length !== 16) throw new Error('RFH SEC16 must be 16 bytes');
-  const bcmSec16 = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) bcmSec16[i] = rfhSec16[15 - i];
-  const prefix7 = bcmSec16.slice(0, 7);
-  const suffix9  = bcmSec16.slice(7, 16);
-  const out = new Uint8Array(bytes);
-  let splitPatched = 0, mirrorPatched = 0;
-
-  /* 1. Split records */
-  for (const recOff of [0x81A0, 0x81C0, 0x81E0]) {
-    if (recOff + 30 > out.length) continue;
-    if (out[recOff] !== 0xFF || out[recOff+1] !== 0xFF) continue;
-    let hdrOk = true;
-    for (let j = 2; j < 8; j++) if (out[recOff + j] !== 0x00) { hdrOk = false; break; }
-    if (!hdrOk) continue;
-    const idx = out[recOff + 8]; if (idx !== 0x01 && idx !== 0x02) continue;
-    if (out[recOff+16] !== 0x04 || out[recOff+17] !== 0x04 || out[recOff+18] !== 0x00 || out[recOff+19] !== 0x14) continue;
-    for (let k = 0; k < 7; k++) out[recOff + 9  + k] = prefix7[k];
-    for (let k = 0; k < 9; k++) out[recOff + 20 + k] = suffix9[k];
-    splitPatched++;
-  }
-
-  /* 2. Inactive bank */
-  const bank0Seq = (out[0x0002] << 8) | out[0x0003];
-  const bank1Seq = (out[0x4002] << 8) | out[0x4003];
-  const inactiveBase = bank0Seq >= bank1Seq ? 0x4000 : 0x0000;
-
-  const findRec = (base, slotType, sizeByte) => {
-    const end = base + 0x4000;
-    for (let i = base; i < end - 8; i++) {
-      if (out[i] === 0x00 && out[i+1] === 0x00 && out[i+2] === 0x00 &&
-          out[i+3] === sizeByte && out[i+4] === 0x00 && out[i+5] === 0x46 &&
-          out[i+6] === slotType && out[i+7] === 0x00) return i;
-    }
-    return -1;
-  };
-
-  const writeMirror = (off) => {
-    out[off + 8] = 0x02;
-    for (let k = 0; k < 16; k++) out[off + 9 + k] = bcmSec16[k];
-    out[off + 25] = 0x8F; out[off + 26] = 0xFF; out[off + 27] = 0xFF;
-    const ci = new Uint8Array(20);
-    ci[0] = 0x02;
-    for (let k = 0; k < 16; k++) ci[1 + k] = bcmSec16[k];
-    ci[17] = 0x8F; ci[18] = 0xFF; ci[19] = 0xFF;
-    const crc = engCrc16(ci);
-    out[off + 28] = (crc >> 8) & 0xFF;
-    out[off + 29] = crc & 0xFF;
-    out[off + 30] = 0xEB; out[off + 31] = 0x00;
-  };
-
-  const m1 = findRec(inactiveBase, 0xEB, 0x18);
-  if (m1 >= 0) { writeMirror(m1); mirrorPatched++; }
-  const m2 = findRec(inactiveBase, 0xCA, 0x28);
-  if (m2 >= 0) { writeMirror(m2); mirrorPatched++; }
-
-  const hx = a => [...a].map(b => b.toString(16).padStart(2,'0')).join('');
-  return { bytes: out, splitPatched, mirrorPatched, inactiveBase, bcmSec16Hex: hx(bcmSec16) };
-}
-
-function engWritePcmSec6(bytes, rfhSec16) {
-  if (!rfhSec16 || rfhSec16.length < 6) throw new Error('Need at least 6 bytes of RFH SEC16');
-  const sec6 = rfhSec16.slice(0, 6);
-  const out  = new Uint8Array(bytes);
-  let patched = 0; let markerUsed = null;
-
-  for (let i = 0; i < out.length - 10; i++) {
-    if (out[i] === 0xFF && out[i+1] === 0xFF && out[i+2] === 0xFF && out[i+3] === 0xAA) {
-      for (let k = 0; k < 6; k++) out[i + 4 + k] = sec6[k];
-      patched++; markerUsed = 'FF FF FF AA';
-    }
-  }
-  if (patched === 0) {
-    for (let i = 0; i < out.length - 20; i++) {
-      if (out[i] === 0xFF && out[i+1] === 0xFF && out[i+2] === 0xFF && out[i+3] === 0xFF) {
-        let hasData = false;
-        for (let k = 0; k < 6; k++) if (out[i+4+k] !== 0xFF) { hasData = true; break; }
-        if (hasData) {
-          for (let k = 0; k < 6; k++) out[i + 4 + k] = sec6[k];
-          patched++; markerUsed = 'FF FF FF FF'; break;
-        }
-      }
-    }
-  }
-  const hx = [...sec6].map(b => b.toString(16).padStart(2,'0')).join('');
-  return { bytes: out, patched, markerUsed, sec6Hex: hx };
-}
+/* engWriteBcmSec16Gen2 / engWritePcmSec6 / engWriteRfhSec16FromBcm
+ * extracted to lib/securityBytes.js — single source of truth, golden-vector
+ * regression test in lib/__tests__/securityBytes.golden.test.js. */
+const engWriteBcmSec16Gen2 = writeBcmSec16Gen2;
+const engWritePcmSec6      = writePcmSec6;
 
 function engWritePcmVin(bytes, newVin) {
   if (!VIN_RE.test(newVin)) throw new Error('Invalid VIN: ' + newVin);
@@ -511,32 +426,7 @@ function engWritePcmVin(bytes, newVin) {
   return { bytes: out, patched };
 }
 
-/* Writes BCM secret → RFHUB Gen2 SEC16 slots.
-   BCM stores reverse(RFHUB SEC16), so RFHUB SEC16 = reverse(BCM SEC16).
-   Checksum formula (empirically verified on ref dumps):
-     chk = (0xFE - (sum_of_16_bytes % 255)) & 0xFF, followed by 0x00.
-   Writes to both Gen2 slots: 0x050E and 0x0522. */
-function engWriteRfhSec16FromBcm(bytes, bcmSec16) {
-  if (!bcmSec16 || bcmSec16.length !== 16) throw new Error('BCM SEC16 must be 16 bytes');
-  const rfhSec16 = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) rfhSec16[i] = bcmSec16[15 - i];
-  let sum = 0;
-  for (const b of rfhSec16) sum += b;
-  const chk = (0xFE - (sum % 255)) & 0xFF;
-  const out = new Uint8Array(bytes);
-  if (out[0x0500] !== 0xAA || out[0x0501] !== 0x55 || out[0x0502] !== 0x31 || out[0x0503] !== 0x01)
-    throw new Error('Not a Gen2 RFHUB (AA 55 31 01 header missing at 0x0500)');
-  let patched = 0;
-  for (const slotOff of [0x050E, 0x0522]) {
-    if (slotOff + 18 > out.length) continue;
-    for (let k = 0; k < 16; k++) out[slotOff + k] = rfhSec16[k];
-    out[slotOff + 16] = chk;
-    out[slotOff + 17] = 0x00;
-    patched++;
-  }
-  const hx = [...rfhSec16].map(b => b.toString(16).padStart(2,'0')).join('');
-  return { bytes: out, patched, rfhSec16Hex: hx, chk };
-}
+const engWriteRfhSec16FromBcm = writeRfhSec16FromBcm;
 
 /* ==========================================================================
  * VEHICLE CATALOG — part-number awareness
