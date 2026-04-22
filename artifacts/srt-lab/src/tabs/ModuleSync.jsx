@@ -479,6 +479,33 @@ function engWritePcmVin(bytes, newVin) {
   return { bytes: out, patched };
 }
 
+/* Writes BCM secret → RFHUB Gen2 SEC16 slots.
+   BCM stores reverse(RFHUB SEC16), so RFHUB SEC16 = reverse(BCM SEC16).
+   Checksum formula (empirically verified on ref dumps):
+     chk = (0xFE - (sum_of_16_bytes % 255)) & 0xFF, followed by 0x00.
+   Writes to both Gen2 slots: 0x050E and 0x0522. */
+function engWriteRfhSec16FromBcm(bytes, bcmSec16) {
+  if (!bcmSec16 || bcmSec16.length !== 16) throw new Error('BCM SEC16 must be 16 bytes');
+  const rfhSec16 = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) rfhSec16[i] = bcmSec16[15 - i];
+  let sum = 0;
+  for (const b of rfhSec16) sum += b;
+  const chk = (0xFE - (sum % 255)) & 0xFF;
+  const out = new Uint8Array(bytes);
+  if (out[0x0500] !== 0xAA || out[0x0501] !== 0x55 || out[0x0502] !== 0x31 || out[0x0503] !== 0x01)
+    throw new Error('Not a Gen2 RFHUB (AA 55 31 01 header missing at 0x0500)');
+  let patched = 0;
+  for (const slotOff of [0x050E, 0x0522]) {
+    if (slotOff + 18 > out.length) continue;
+    for (let k = 0; k < 16; k++) out[slotOff + k] = rfhSec16[k];
+    out[slotOff + 16] = chk;
+    out[slotOff + 17] = 0x00;
+    patched++;
+  }
+  const hx = [...rfhSec16].map(b => b.toString(16).padStart(2,'0')).join('');
+  return { bytes: out, patched, rfhSec16Hex: hx, chk };
+}
+
 /* ==========================================================================
  * VEHICLE CATALOG — part-number awareness
  * ========================================================================== */
@@ -915,9 +942,10 @@ export default function ModuleSync() {
   const vinMatch  = bothReady && bcm.parsed.vin === rfh.parsed.vin;
 
   /* SEC16 sync eligibility */
-  const bcmHasSec16   = !!(bcm.parsed?.sec16Records?.length > 0 || bcm.parsed?.mirrorsPopulated > 0);
-  const rfhHasSec16   = !!(rfh.parsed?.sec16 && !rfh.parsed.sec16.virgin);
-  const sec16SyncOk   = bcmHasSec16 && rfhHasSec16;
+  const bcmHasSec16      = !!(bcm.parsed?.sec16Records?.length > 0 || bcm.parsed?.mirrorsPopulated > 0);
+  const rfhHasSec16      = !!(rfh.parsed?.sec16 && !rfh.parsed.sec16.virgin);
+  const sec16SyncOk      = bcmHasSec16 && rfhHasSec16;
+  const bcmToRfhSec16Ok  = bcmHasSec16 && rfh.parsed?.format?.startsWith('gen2');
 
   const doSync = (action) => {
     const ts  = timestamp();
@@ -1081,6 +1109,23 @@ export default function ModuleSync() {
           log(`PCM SEC6: ${pr.patched} location(s) written · marker ${pr.markerUsed}`, 'ok');
           downloadBin(pr.bytes, `PCM_SEC6_SYNCED_${ts}.bin`);
         }
+
+      } else if (action === 'bcm-sec16-to-rfh') {
+        /* BCM SEC16 → RFHUB Gen2 slots — use when RFHUB is from a different vehicle.
+           BCM is master: reverse(BCM SEC16) is written to RFHUB 0x050E + 0x0522. */
+        const bcmSec16 = bcm.parsed?.sec16Records?.[0]?.sec16
+                      ?? bcm.parsed?.sec16Mirrors?.find(m => m.populated && m.crcOk)?.sec16;
+        if (!bcmSec16) { log('✗ No BCM SEC16 found in split records or mirrors', 'err'); return; }
+        const snapR = new Uint8Array(rfh.bytes);
+        setOriginals(prev => ({ ...prev, rfh: { bytes: snapR, filename: rfh.file?.name || 'RFH' } }));
+        const sr = engWriteRfhSec16FromBcm(rfh.bytes, bcmSec16);
+        log(`RFHUB SEC16 sync (BCM → RFH): ${sr.patched} slot(s) written`, 'ok');
+        log(`  RFHUB new SEC16: ${sr.rfhSec16Hex.toUpperCase()} · slot chk: 0x${sr.chk.toString(16).padStart(2,'0').toUpperCase()}`, 'muted');
+        const rfhFinal = sr.bytes;
+        const ts2 = timestamp();
+        downloadBin(rfhFinal, `RFHUB_BCM_SEC16_SYNCED_${ts2}.bin`);
+        log(`Downloaded: RFHUB_BCM_SEC16_SYNCED_${ts2}.bin`, 'ok');
+        log('Flash corrected RFHUB + power-cycle 30 s — BCM, RFHUB and PCM will now share the same secret.', 'ok');
       }
 
       log('✓ Sync complete. Flash .bin file(s) to modules and power-cycle 30 s for handshake.', 'ok');
