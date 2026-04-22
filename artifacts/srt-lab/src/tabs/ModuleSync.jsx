@@ -1022,6 +1022,101 @@ function lookupPnOverride(files, file, bytes) {
   return !!match;
 }
 
+function OverrideConfirmModal({ modules, onConfirm, onCancel }) {
+  const [dontAsk, setDontAsk] = useState(false);
+  const overlayRef = useRef(null);
+  const handleOverlay = (e) => { if (e.target === overlayRef.current) onCancel?.(); };
+  return (
+    <div
+      ref={overlayRef}
+      onClick={handleOverlay}
+      data-testid="pn-override-confirm"
+      style={{
+        position: 'fixed', inset: 0, zIndex: 10000,
+        background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(3px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+      }}>
+      <div style={{
+        background: C.cd, border: `1.5px solid ${C.wn}`, borderRadius: 14,
+        width: '100%', maxWidth: 520, boxShadow: '0 18px 60px rgba(0,0,0,0.5)',
+        overflow: 'hidden', display: 'flex', flexDirection: 'column',
+      }}>
+        <div style={{
+          padding: '14px 18px',
+          background: `linear-gradient(135deg, ${C.wn}22 0%, ${C.wn}11 100%)`,
+          borderBottom: `1px solid ${C.bd}`,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <div style={{ fontSize: 22 }}>⚠️</div>
+          <div>
+            <div style={{ fontWeight: 900, fontSize: 14, color: C.tx, letterSpacing: 0.5 }}>
+              REGISTRY CHECK BYPASSED
+            </div>
+            <div style={{ fontSize: 11, color: C.ts, marginTop: 2 }}>
+              Confirm before syncing files that skipped P/N validation
+            </div>
+          </div>
+        </div>
+        <div style={{ padding: '16px 18px', fontSize: 13, color: C.tx, lineHeight: 1.5 }}>
+          <div style={{ marginBottom: 10 }}>
+            The following loaded module{modules.length > 1 ? 's are' : ' is'} flagged
+            <strong> P/N OVERRIDE</strong> — the part-number registry check was bypassed
+            on the Dumps tab when {modules.length > 1 ? 'they were' : 'it was'} loaded:
+          </div>
+          <ul style={{ margin: '0 0 12px 18px', padding: 0, color: C.tx }}>
+            {modules.map(m => (
+              <li key={m} style={{ marginBottom: 4 }}>
+                <strong style={{ color: C.sr }}>{m}</strong>
+                <span style={{ color: C.ts, fontSize: 12 }}> — registry compatibility unverified</span>
+              </li>
+            ))}
+          </ul>
+          <div style={{
+            background: C.wn + '14', border: `1px solid ${C.wn}55`, borderRadius: 8,
+            padding: '8px 10px', fontSize: 12, color: C.tx, marginBottom: 10,
+          }}>
+            Mixing registry-checked and override files can produce a mismatched sync.
+            Acknowledge that this is intentional before continuing.
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: C.ts, cursor: 'pointer', userSelect: 'none' }}>
+            <input
+              type="checkbox"
+              checked={dontAsk}
+              onChange={e => setDontAsk(e.target.checked)}
+              data-testid="pn-override-dont-ask"
+              style={{ accentColor: C.a3, cursor: 'pointer' }}
+            />
+            Don&rsquo;t ask again for the rest of this session
+          </label>
+        </div>
+        <div style={{
+          padding: '12px 18px', borderTop: `1px solid ${C.bd}`,
+          display: 'flex', justifyContent: 'flex-end', gap: 10, background: C.c2,
+        }}>
+          <button
+            onClick={onCancel}
+            data-testid="pn-override-cancel"
+            style={{
+              padding: '8px 16px', borderRadius: 8, border: `1px solid ${C.bd}`,
+              background: C.cd, color: C.tx, fontSize: 13, fontWeight: 700, cursor: 'pointer',
+            }}>
+            Cancel
+          </button>
+          <button
+            onClick={() => onConfirm?.(dontAsk)}
+            data-testid="pn-override-confirm-btn"
+            style={{
+              padding: '8px 16px', borderRadius: 8, border: 'none',
+              background: C.wn, color: '#1A1A1A', fontSize: 13, fontWeight: 800, cursor: 'pointer',
+            }}>
+            Acknowledge & Sync
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const { vin: masterVin, vinValid: masterVinValid } = useMasterVin();
 
@@ -1037,6 +1132,10 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const [diffRows,  setDiffRows]  = useState([]);
   const [originals, setOriginals] = useState({ bcm: null, rfh: null, pcm: null, eep: null });
   const [wizardOpen, setWizardOpen] = useState(false);
+  /* Confirm dialog shown before a sync proceeds when one or more loaded
+   * modules carry pnOverride (registry compatibility check was bypassed). */
+  const [overrideConfirm, setOverrideConfirm] = useState(null); /* { action, overrideVin, modules } */
+  const skipOverrideConfirmRef = useRef(false); /* per-session "don't ask again" */
   const logRef = useRef(null);
 
   const log = useCallback((msg, level = 'info') => {
@@ -1203,6 +1302,21 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   ];
 
   const doSync = (action, overrideVin) => {
+    /* Gate: if any loaded module bypassed the registry check, ask the tech to
+     * acknowledge before the sync proceeds. Per-session opt-out is honoured. */
+    const overridden = [
+      bcm.pnOverride && 'BCM',
+      rfh.pnOverride && 'RFHUB',
+      pcm.pnOverride && 'PCM',
+    ].filter(Boolean);
+    if (overridden.length > 0 && !skipOverrideConfirmRef.current) {
+      setOverrideConfirm({ action, overrideVin, modules: overridden });
+      return;
+    }
+    return executeSync(action, overrideVin);
+  };
+
+  const executeSync = (action, overrideVin) => {
     const ts  = timestamp();
     /* Optional master-VIN override coming from the wizard's scenario card.
      * When present, it replaces the auto-picked VIN for actions that stamp
@@ -1846,6 +1960,27 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           </div>
           <VinDiffTable rows={diffRows} />
         </Card>
+      )}
+
+      {/* ── P/N Override confirm dialog ── */}
+      {overrideConfirm && (
+        <OverrideConfirmModal
+          modules={overrideConfirm.modules}
+          onCancel={() => {
+            log(`Sync cancelled — P/N override acknowledgement declined (${overrideConfirm.modules.join(', ')})`, 'warn');
+            setOverrideConfirm(null);
+          }}
+          onConfirm={(dontAskAgain) => {
+            const { action, overrideVin, modules } = overrideConfirm;
+            if (dontAskAgain) {
+              skipOverrideConfirmRef.current = true;
+              log('P/N override prompt suppressed for the rest of this session.', 'muted');
+            }
+            log(`Tech acknowledged P/N override on ${modules.join(', ')} — proceeding with ${action}.`, 'warn');
+            setOverrideConfirm(null);
+            executeSync(action, overrideVin);
+          }}
+        />
       )}
 
       {/* ── Mismatch Resolution Wizard modal ── */}
