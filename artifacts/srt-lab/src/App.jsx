@@ -868,7 +868,7 @@ function DumpsTab({files,setFiles,loadF}){
 const VEHICLES = {
   charger: {
     id:'charger', name:'CHARGER', full:'Dodge Charger', body:'LX · LD · WIDEBODY',
-    img:'/vehicles/charger.png', accent:'#FF6D00',
+    img:'/vehicles/charger.webp', accent:'#FF6D00',
     bcmFamilies:['68525720','68525721','68277389','68277390','68396561','68396562','68309504','68309505'],
     generations:[
       {id:'lx1',label:'2011–2014 LX',years:'11-14',bcmPn:'68525720',family:'mpc5605b',sec16:'gen1-18b',vinOff:0x5308},
@@ -879,7 +879,7 @@ const VEHICLES = {
   },
   challenger: {
     id:'challenger', name:'CHALLENGER', full:'Dodge Challenger', body:'LC · COUPE',
-    img:'/vehicles/challenger.png', accent:'#D32F2F',
+    img:'/vehicles/challenger.webp', accent:'#D32F2F',
     bcmFamilies:['68525720','68525721','68277389','68277390','68396561','68396562','68309504','68309505'],
     generations:[
       {id:'lc1',label:'2011–2014 LC',years:'11-14',bcmPn:'68525720',family:'mpc5605b',sec16:'gen1-18b',vinOff:0x5308},
@@ -889,7 +889,7 @@ const VEHICLES = {
   },
   durango: {
     id:'durango', name:'DURANGO', full:'Dodge Durango SRT', body:'WD · SUV',
-    img:'/vehicles/durango.png', accent:'#BDBDBD',
+    img:'/vehicles/durango.webp', accent:'#BDBDBD',
     bcmFamilies:['68525720','68525721','68277389','68277390','68396561','68396562','68309504','68309505'],
     generations:[
       {id:'wd1',label:'2011–2014 WD',years:'11-14',bcmPn:'68525720',family:'mpc5605b',sec16:'gen1-18b',vinOff:0x5308},
@@ -899,7 +899,7 @@ const VEHICLES = {
   },
   trackhawk: {
     id:'trackhawk', name:'TRACKHAWK', full:'Jeep Grand Cherokee Trackhawk', body:'WK2 · JEEP',
-    img:'/vehicles/trackhawk.png', accent:'#2979FF',
+    img:'/vehicles/trackhawk.webp', accent:'#2979FF',
     bcmFamilies:['68354769','68354770'],
     generations:[
       {id:'wk2',label:'2018–2021 WK2',years:'18-21',bcmPn:'68354769',family:'mpc5606b',sec16:'trackhawk-no-flash',vinOff:0x1308},
@@ -907,7 +907,7 @@ const VEHICLES = {
   },
   trx: {
     id:'trx', name:'TRX', full:'RAM 1500 TRX', body:'DT · PICKUP',
-    img:'/vehicles/trx.png', accent:'#00BFA5',
+    img:'/vehicles/trx.webp', accent:'#00BFA5',
     bcmFamilies:['68463847','68463848','68396561','68396562'],
     generations:[
       {id:'dt1',label:'2021–2024 DT',years:'21-24',bcmPn:'68463847',family:'mpc5606b05b',sec16:'gen2-split',vinOff:0x1308},
