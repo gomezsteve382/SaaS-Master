@@ -547,13 +547,98 @@ function SkipConfirm({ consequence, onConfirm, onCancel }) {
   );
 }
 
-/* ─── In-wizard action result banner ─── */
-function ActionResult({ actionId, onContinue }) {
+/* ─── Compute predicted before/after state for an action ─── */
+function computeActionDiff(actionId, hexSnippets) {
+  const find = (prefix) => {
+    const s = hexSnippets.find(x => x.toUpperCase().startsWith(prefix.toUpperCase() + ':'));
+    return s ? s.slice(s.indexOf(':') + 1).trim() : null;
+  };
+  const rfhSec16 = find('RFHUB SEC16');
+  const bcmSec16 = find('BCM SEC16');
+  const rfhVin   = find('RFHUB VIN');
+  const bcmVin   = find('BCM VIN');
+
+  const changes = [];
+
+  const addHexChange = (field, before, after) => {
+    if (before && after && before.replace(/\s/g,'') !== after.replace(/\s/g,'')) {
+      const ab = (before.replace(/\s/g,'')).match(/.{1,2}/g) || [];
+      const bb = (after.replace(/\s/g,'')).match(/.{1,2}/g) || [];
+      const len = Math.max(ab.length, bb.length);
+      const diff = Array.from({length: len}, (_, i) => ({
+        before: ab[i] || '??', after: bb[i] || '??', changed: ab[i] !== bb[i],
+      }));
+      changes.push({ field, type: 'hex', diff });
+    }
+  };
+  const addStrChange = (field, before, after) => {
+    if (before && after && before !== after) changes.push({ field, type: 'str', before, after });
+  };
+
+  if (actionId === 'rfh-to-bcm') {
+    addStrChange('BCM VIN', bcmVin, rfhVin);
+  } else if (actionId === 'bcm-to-rfh') {
+    addStrChange('RFHUB VIN', rfhVin, bcmVin);
+  } else if (actionId === 'full-sync') {
+    addStrChange('BCM VIN', bcmVin, rfhVin);
+    addHexChange('BCM SEC16', bcmSec16, rfhSec16);
+  } else if (actionId === 'sec16-only') {
+    addHexChange('BCM SEC16', bcmSec16, rfhSec16);
+  } else if (actionId === 'bcm-sec16-to-rfh') {
+    addHexChange('RFHUB SEC16', rfhSec16, bcmSec16);
+  }
+
+  return changes;
+}
+
+/* ─── In-wizard action result banner with before/after diff ─── */
+function ActionResult({ actionId, hexSnippets, onContinue }) {
+  const diffs = useMemo(() => computeActionDiff(actionId, hexSnippets || []), [actionId, hexSnippets]);
+
   return (
     <div style={{ padding: '12px 14px', borderRadius: 10, marginTop: 10, background: W.gn + '14', border: `1.5px solid ${W.gn}40` }}>
       <div style={{ fontWeight: 900, fontSize: 13, color: W.gn, marginBottom: 4 }}>
         ✓ Action applied: <span style={{ fontFamily: W.mono, fontSize: 11 }}>{actionId}</span>
       </div>
+
+      {diffs.length > 0 && (
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, color: W.ts, letterSpacing: 1, marginBottom: 6 }}>
+            BYTE DIFF — BEFORE → AFTER
+          </div>
+          {diffs.map(d => (
+            <div key={d.field} style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 10, color: W.a2, fontWeight: 800, marginBottom: 3 }}>{d.field}</div>
+              {d.type === 'str' ? (
+                <div style={{ fontFamily: W.mono, fontSize: 11 }}>
+                  <div><span style={{ color: W.er }}>− </span><span style={{ color: W.er }}>{d.before}</span></div>
+                  <div><span style={{ color: W.gn }}>+ </span><span style={{ color: W.gn }}>{d.after}</span></div>
+                </div>
+              ) : (
+                <div>
+                  {['before', 'after'].map(side => (
+                    <div key={side} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                      <span style={{ fontSize: 10, width: 40, color: side === 'before' ? W.er : W.gn, fontWeight: 800 }}>
+                        {side === 'before' ? '−' : '+'} {side}
+                      </span>
+                      <div style={{ fontFamily: W.mono, fontSize: 9.5, lineHeight: 1.8, letterSpacing: 1 }}>
+                        {d.diff.map((b, i) => (
+                          <span key={i} style={{
+                            color: b.changed ? (side === 'before' ? W.er : W.gn) : W.ts,
+                            background: b.changed ? (side === 'before' ? W.er : W.gn) + '1A' : 'transparent',
+                            borderRadius: 2, padding: '0 1px', fontWeight: b.changed ? 800 : 400,
+                          }}>{side === 'before' ? b.before : b.after} </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       <div style={{ fontSize: 12, color: W.ts, marginBottom: 10, lineHeight: 1.5 }}>
         Patched .bin file(s) have been downloaded to your Downloads folder. Flash each module and
         power-cycle the vehicle for 30 seconds to complete the handshake.
@@ -638,7 +723,7 @@ function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onActi
         </div>
       )}
 
-      {appliedAction && !done && <ActionResult actionId={appliedAction} onContinue={() => onMarkDone(step.id)} />}
+      {appliedAction && !done && <ActionResult actionId={appliedAction} hexSnippets={hexSnippets} onContinue={() => onMarkDone(step.id)} />}
 
       {!appliedAction && !done && !skipped && (
         <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>

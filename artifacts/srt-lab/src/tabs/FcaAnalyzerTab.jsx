@@ -84,17 +84,21 @@ export default function FcaAnalyzerTab(){
     return s;
   },[rfhMod,bcmMod]);
 
-  /* Step actions: determine enabled state from what's loaded */
-  const bothReady=!!(rfhMod&&bcmMod);
-  const bcmImmoOk=bcmMod&&!bcmMod.immoBlank;
+  /* Step actions:
+   * sync-immo-backup is the only action executable in FCA Analyzer context.
+   * Multi-module sync actions (full-sync, sec16-only, bcm-sec16-to-rfh) require
+   * the Module Sync tab and are always disabled here to avoid misleading users. */
+  const bcmImmoOk=!!(bcmMod&&!bcmMod.immoBlank);
   const wizardStepActions=useMemo(()=>[
-    {id:'full-sync',        label:'⚡ Full 3-Module Sync',   enabled:bothReady, description:'VIN + SEC16 + SEC6 across all modules'},
-    {id:'sec16-only',       label:'🔐 SEC16 Sync Only',      enabled:bothReady, description:'RFHUB SEC16 → BCM + PCM SEC6'},
-    {id:'bcm-sec16-to-rfh', label:'🔄 BCM SEC16 → RFHUB',   enabled:!!(bcmMod&&rfhMod), description:'Use BCM as master, write to RFHUB'},
-    {id:'sync-immo-backup', label:'🗂 Sync BCM IMMO Backup', enabled:!!bcmImmoOk, description:'Copy BCM IMMO primary → backup region'},
-  ],[bothReady,bcmMod,rfhMod,bcmImmoOk]);
+    {id:'full-sync',        label:'⚡ Full Sync (use Module Sync tab)', enabled:false, description:'Load BCM+RFHUB in the Module Sync tab to run this action.'},
+    {id:'sec16-only',       label:'🔐 SEC16 Sync (use Module Sync tab)', enabled:false, description:'Load BCM+RFHUB in the Module Sync tab to run this action.'},
+    {id:'bcm-sec16-to-rfh', label:'🔄 BCM→RFHUB (use Module Sync tab)', enabled:false, description:'Load BCM+RFHUB in the Module Sync tab to run this action.'},
+    {id:'rfh-to-bcm',       label:'← RFHUB VIN→BCM (use Module Sync tab)', enabled:false, description:'Load BCM+RFHUB in the Module Sync tab.'},
+    {id:'bcm-to-rfh',       label:'→ BCM VIN→RFHUB (use Module Sync tab)', enabled:false, description:'Load BCM+RFHUB in the Module Sync tab.'},
+    {id:'sync-immo-backup', label:'🗂 Sync BCM IMMO Backup', enabled:bcmImmoOk, description:'Copy BCM IMMO primary → backup region (downloads patched BCM)'},
+  ],[bcmImmoOk]);
 
-  /* onAction: dispatch to relevant handler without closing wizard */
+  /* onAction: only sync-immo-backup is actually executable here */
   const onWizardAction=useCallback((actionId)=>{
     if(actionId==='sync-immo-backup'){
       if(!bcmMod)return;
@@ -104,11 +108,9 @@ export default function FcaAnalyzerTab(){
       const reparsed=parseModule(synced,bcmMod.filename);
       const d=loadedDumps.find(d=>d.mod===bcmMod);
       if(d)replaceDump(d.hash,reparsed);
-      setMsg('IMMO backup synced and downloaded. Return to Module Sync tab for multi-module sync.');
-      return;
+      setMsg('IMMO backup synced and downloaded.');
     }
-    /* For full multi-module sync actions, guide user to Module Sync tab */
-    setMsg(`Action "${actionId}" requires BCM + RFHUB loaded in the Module Sync tab. Switch to that tab to run the sync.`);
+    /* Other actions are disabled; no-op here */
   },[bcmMod,loadedDumps,replaceDump]);
 
   const allVins=useMemo(()=>{
