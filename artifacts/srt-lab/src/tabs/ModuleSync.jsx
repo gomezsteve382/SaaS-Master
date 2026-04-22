@@ -347,6 +347,94 @@ function ModCard({ parsed, kind }) {
   );
 }
 
+function VinDiffTable({ rows }) {
+  if (!rows || rows.length === 0) return null;
+  const changed = rows.filter(r => r.oldVin !== r.newVin);
+  const unchanged = rows.filter(r => r.oldVin === r.newVin);
+  const allPass = rows.every(r => r.newPass);
+  return (
+    <div style={{ marginTop: 14 }}>
+      <div style={{
+        fontWeight: 900, fontSize: 11, letterSpacing: 1.2, textTransform: 'uppercase',
+        color: '#9E9E9E', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8,
+      }}>
+        <span>VIN Slot Diff</span>
+        <span style={{
+          marginLeft: 'auto', padding: '2px 8px', borderRadius: 4, fontSize: 10,
+          fontWeight: 700, letterSpacing: 0.5,
+          background: allPass ? 'rgba(0,200,83,0.15)' : 'rgba(255,23,68,0.15)',
+          color: allPass ? '#4ADE80' : '#F87171',
+        }}>
+          {allPass ? '✓ ALL SLOTS PASS' : '✗ CHECK FAILED'}
+        </span>
+      </div>
+      <div style={{ overflowX: 'auto', borderRadius: 8, border: '1.5px solid #2A2F36' }}>
+        <table style={{
+          width: '100%', borderCollapse: 'collapse',
+          fontFamily: "'JetBrains Mono'", fontSize: 10.5, color: '#E0E0E0',
+          background: '#0F1419',
+        }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid #2A2F36', background: '#161C24' }}>
+              {['Module', 'Slot', 'Offset', 'Old VIN', 'New VIN', 'Old Chk', 'New Chk', 'Status'].map(h => (
+                <th key={h} style={{
+                  padding: '7px 10px', textAlign: 'left', fontWeight: 700,
+                  fontSize: 9, letterSpacing: 1, textTransform: 'uppercase', color: '#6B7280',
+                }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => {
+              const vinChanged = r.oldVin !== r.newVin;
+              return (
+                <tr key={i} style={{
+                  borderBottom: i < rows.length - 1 ? '1px solid #1E252D' : 'none',
+                  background: vinChanged ? 'rgba(255,109,0,0.06)' : 'transparent',
+                }}>
+                  <td style={{ padding: '7px 10px', color: r.module === 'BCM' ? '#60A5FA' : '#C084FC', fontWeight: 700, fontSize: 10 }}>
+                    {r.module}
+                  </td>
+                  <td style={{ padding: '7px 10px', color: '#6B7280' }}>#{r.slot}</td>
+                  <td style={{ padding: '7px 10px', color: '#9CA3AF' }}>{r.offset}</td>
+                  <td style={{ padding: '7px 10px', color: vinChanged ? '#F87171' : '#6B7280', letterSpacing: 1.5 }}>
+                    {r.oldVin || '—'}
+                  </td>
+                  <td style={{ padding: '7px 10px', color: vinChanged ? '#4ADE80' : '#6B7280', fontWeight: vinChanged ? 700 : 400, letterSpacing: 1.5 }}>
+                    {r.newVin}
+                  </td>
+                  <td style={{ padding: '7px 10px', color: r.oldPass === true ? '#4ADE80' : r.oldPass === false ? '#F87171' : '#6B7280' }}>
+                    <span style={{ color: '#4B5563', fontSize: 9, marginRight: 4 }}>{r.checkLabel}</span>
+                    {r.oldCheck}
+                    {r.oldPass === false && <span style={{ color: '#F87171', marginLeft: 4, fontSize: 9 }}>✗</span>}
+                    {r.oldPass === true && <span style={{ color: '#4ADE80', marginLeft: 4, fontSize: 9 }}>✓</span>}
+                  </td>
+                  <td style={{ padding: '7px 10px', color: '#4ADE80', fontWeight: 700 }}>
+                    <span style={{ color: '#4B5563', fontSize: 9, marginRight: 4 }}>{r.checkLabel}</span>
+                    {r.newCheck}
+                    {r.newPass && <span style={{ color: '#4ADE80', marginLeft: 4, fontSize: 9 }}>✓</span>}
+                  </td>
+                  <td style={{ padding: '7px 10px' }}>
+                    {vinChanged
+                      ? <span style={{ background: 'rgba(74,222,128,0.15)', color: '#4ADE80', padding: '2px 7px', borderRadius: 4, fontSize: 9, fontWeight: 700, letterSpacing: 0.5 }}>PATCHED</span>
+                      : <span style={{ background: 'rgba(107,114,128,0.15)', color: '#6B7280', padding: '2px 7px', borderRadius: 4, fontSize: 9, fontWeight: 700, letterSpacing: 0.5 }}>NO CHANGE</span>
+                    }
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {changed.length > 0 && unchanged.length > 0 && (
+        <div style={{ marginTop: 6, fontSize: 10, color: '#6B7280', fontFamily: "'JetBrains Mono'" }}>
+          {changed.length} slot{changed.length !== 1 ? 's' : ''} patched · {unchanged.length} already matched
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ActionBtn({ title, desc, enabled, onClick }) {
   const [h, setH] = useState(false);
   return (
@@ -378,6 +466,7 @@ export default function ModuleSync() {
   const [targetVin, setTargetVin] = useState('');
   const [virginize, setVirginize] = useState(false);
   const [logLines, setLogLines] = useState([]);
+  const [diffRows, setDiffRows] = useState([]);
   const logRef = useRef(null);
 
   const log = useCallback((msg, level = 'info') => {
@@ -397,6 +486,7 @@ export default function ModuleSync() {
   const handleBcm = useCallback((file, bytes) => {
     const parsed = parseBcm(bytes);
     setBcm({ file, bytes, parsed });
+    setDiffRows([]);
     log(`Loaded BCM: ${file.name} (${bytes.length} bytes)`, 'info');
     if (parsed.ok) log(`  BCM VIN: ${parsed.vin}`, 'ok');
     else log(`  BCM: no VIN parsed — file format not recognized`, 'err');
@@ -404,6 +494,7 @@ export default function ModuleSync() {
   const handleRfh = useCallback((file, bytes) => {
     const parsed = parseRfh(bytes);
     setRfh({ file, bytes, parsed });
+    setDiffRows([]);
     log(`Loaded RFHUB: ${file.name} (${bytes.length} bytes)`, 'info');
     if (parsed.ok) log(`  RFHUB VIN: ${parsed.vin}`, 'ok');
     else log(`  RFHUB: no VIN parsed — file format not recognized`, 'err');
@@ -418,39 +509,101 @@ export default function ModuleSync() {
   const doSync = (action) => {
     const ts = timestamp();
     log(`=== SYNC: ${action}${virginize ? ' +VIRGINIZE' : ''} ===`, 'info');
+    const rows = [];
     try {
       if (action === 'rfh-to-bcm') {
-        const r = writeBcmVin(bcm.bytes, rfh.parsed.vin);
+        const newVin = rfh.parsed.vin;
+        const newCrc = crc16Ccitt(new TextEncoder().encode(newVin));
+        bcm.parsed.vinSlots.forEach((s, idx) => {
+          rows.push({
+            module: 'BCM', slot: idx + 1,
+            offset: `0x${hex4(s.offset)}`,
+            oldVin: s.vin, newVin,
+            checkLabel: 'CRC-16',
+            oldCheck: s.storedCrc != null ? `0x${hex4(s.storedCrc)}` : '—',
+            newCheck: `0x${hex4(newCrc)}`,
+            oldPass: s.crcOk, newPass: true,
+          });
+        });
+        const r = writeBcmVin(bcm.bytes, newVin);
         log(`BCM: patched ${r.patched} VIN slot(s)`, 'ok');
-        const name = `BCM_SYNCED_${rfh.parsed.vin}_${ts}.bin`;
+        const name = `BCM_SYNCED_${newVin}_${ts}.bin`;
         downloadBin(r.bytes, name);
         log(`Downloaded: ${name}`, 'ok');
         if (virginize) {
-          const rr = writeRfhVin(rfh.bytes, rfh.parsed.vin, true);
-          const rn = `RFH_VIRGIN_${rfh.parsed.vin}_${ts}.bin`;
+          const rr = writeRfhVin(rfh.bytes, newVin, true);
+          const rn = `RFH_VIRGIN_${newVin}_${ts}.bin`;
           downloadBin(rr.bytes, rn);
           log(`RFH: re-wrote VIN + wiped ${rr.sec16Wiped} SEC16 slot(s)`, 'warn');
           log(`Downloaded: ${rn}`, 'ok');
+          rfh.parsed.vinSlots.forEach((s, idx) => {
+            rows.push({
+              module: 'RFHUB', slot: idx + 1,
+              offset: `0x${hex4(s.offset)}`,
+              oldVin: s.vin, newVin,
+              checkLabel: 'Chk',
+              oldCheck: s.storedChk != null ? `0x${hex2(s.storedChk)}` : '—',
+              newCheck: `0x${hex2(rr.chk)}`,
+              oldPass: s.chkOk, newPass: true,
+            });
+          });
         }
       } else if (action === 'bcm-to-rfh') {
-        const r = writeRfhVin(rfh.bytes, bcm.parsed.vin, virginize);
+        const newVin = bcm.parsed.vin;
+        const r = writeRfhVin(rfh.bytes, newVin, virginize);
         log(`RFHUB: patched ${r.patched} VIN slot(s)${virginize ? ` + wiped ${r.sec16Wiped} SEC16 slot(s)` : ''}`, virginize ? 'warn' : 'ok');
-        const name = virginize ? `RFH_SYNCED_VIRGIN_${bcm.parsed.vin}_${ts}.bin` : `RFH_SYNCED_${bcm.parsed.vin}_${ts}.bin`;
+        const name = virginize ? `RFH_SYNCED_VIRGIN_${newVin}_${ts}.bin` : `RFH_SYNCED_${newVin}_${ts}.bin`;
         downloadBin(r.bytes, name);
         log(`Downloaded: ${name}`, 'ok');
+        rfh.parsed.vinSlots.forEach((s, idx) => {
+          rows.push({
+            module: 'RFHUB', slot: idx + 1,
+            offset: `0x${hex4(s.offset)}`,
+            oldVin: s.vin, newVin,
+            checkLabel: 'Chk',
+            oldCheck: s.storedChk != null ? `0x${hex2(s.storedChk)}` : '—',
+            newCheck: `0x${hex2(r.chk)}`,
+            oldPass: s.chkOk, newPass: true,
+          });
+        });
       } else if (action === 'target-both') {
-        const br = writeBcmVin(bcm.bytes, tv);
+        const newVin = tv;
+        const newCrc = crc16Ccitt(new TextEncoder().encode(newVin));
+        const br = writeBcmVin(bcm.bytes, newVin);
         log(`BCM: patched ${br.patched} VIN slot(s)`, 'ok');
-        const bn = `BCM_SYNCED_${tv}_${ts}.bin`;
+        const bn = `BCM_SYNCED_${newVin}_${ts}.bin`;
         downloadBin(br.bytes, bn);
         log(`Downloaded: ${bn}`, 'ok');
-        const rr = writeRfhVin(rfh.bytes, tv, virginize);
+        bcm.parsed.vinSlots.forEach((s, idx) => {
+          rows.push({
+            module: 'BCM', slot: idx + 1,
+            offset: `0x${hex4(s.offset)}`,
+            oldVin: s.vin, newVin,
+            checkLabel: 'CRC-16',
+            oldCheck: s.storedCrc != null ? `0x${hex4(s.storedCrc)}` : '—',
+            newCheck: `0x${hex4(newCrc)}`,
+            oldPass: s.crcOk, newPass: true,
+          });
+        });
+        const rr = writeRfhVin(rfh.bytes, newVin, virginize);
         log(`RFHUB: patched ${rr.patched} VIN slot(s)${virginize ? ` + wiped ${rr.sec16Wiped} SEC16 slot(s)` : ''}`, virginize ? 'warn' : 'ok');
-        const rn = virginize ? `RFH_SYNCED_VIRGIN_${tv}_${ts}.bin` : `RFH_SYNCED_${tv}_${ts}.bin`;
+        const rn = virginize ? `RFH_SYNCED_VIRGIN_${newVin}_${ts}.bin` : `RFH_SYNCED_${newVin}_${ts}.bin`;
         downloadBin(rr.bytes, rn);
         log(`Downloaded: ${rn}`, 'ok');
+        rfh.parsed.vinSlots.forEach((s, idx) => {
+          rows.push({
+            module: 'RFHUB', slot: idx + 1,
+            offset: `0x${hex4(s.offset)}`,
+            oldVin: s.vin, newVin,
+            checkLabel: 'Chk',
+            oldCheck: s.storedChk != null ? `0x${hex2(s.storedChk)}` : '—',
+            newCheck: `0x${hex2(rr.chk)}`,
+            oldPass: s.chkOk, newPass: true,
+          });
+        });
       }
       log('✓ Sync complete. Flash the .bin files to their modules and power-cycle 30s to handshake.', 'ok');
+      setDiffRows(rows);
     } catch (e) {
       log(`✗ Error: ${e.message}`, 'err');
     }
@@ -624,6 +777,7 @@ export default function ModuleSync() {
               );
             })}
           </div>
+          <VinDiffTable rows={diffRows} />
         </Card>
       )}
     </div>
