@@ -9,7 +9,7 @@ function syncImmoBackup(d){if(d.length<0x40C0+IMMO_BLOCK||d.length<0x2000+IMMO_B
 function extractVIN(data,offset,len){if(!len)len=17;if(offset+len>data.length)return null;const bytes=data.slice(offset,offset+len);for(let i=0;i<bytes.length;i++){if(bytes[i]<0x30||bytes[i]>0x5a)return null;}return String.fromCharCode.apply(null,bytes);}
 function extractHex(data,offset,len){if(offset+len>data.length)return null;const r=[];for(let i=0;i<len;i++){r.push(data[offset+i].toString(16).padStart(2,"0").toUpperCase());}return r.join(" ");}
 function arrEq(a,b){if(a.length!==b.length)return false;for(let i=0;i<a.length;i++)if(a[i]!==b[i])return false;return true;}
-function rd32(data,o){return(data[o]<<24)|(data[o+1]<<16)|(data[o+2]<<8)|data[o+3];}
+function rd32(data,o){if(o<0||o+4>data.length)return null;return(data[o]<<24)|(data[o+1]<<16)|(data[o+2]<<8)|data[o+3];}
 function countAA50(d,s,n){let c=0;for(let i=0;i<n;i++)if(d[s+i*2]===0xaa&&d[s+i*2+1]===0x50)c++;return c;}
 function countPat(d,a,b,c2,d2){let c=0;for(let i=0;i<d.length-3;i++)if(d[i]===a&&d[i+1]===b&&d[i+2]===c2&&d[i+3]===d2)c++;return c;}
 
@@ -58,8 +58,13 @@ function parseModule(data,filename){
 
   if(type==='GPEC2A'){
     info.vins=[{offset:0x0000,vin:extractVIN(data,0x0000)},{offset:0x01f0,vin:extractVIN(data,0x01f0)},{offset:0x0224,vin:extractVIN(data,0x0224)}].filter(v=>v.vin);
-    info.skimByte=data[0x0011];
-    info.skimStatus=SKIM_VALUES[data[0x0011]]||"UNKNOWN (0x"+data[0x0011].toString(16).toUpperCase()+")";
+    if(sz>0x0011){
+      info.skimByte=data[0x0011];
+      info.skimStatus=SKIM_VALUES[info.skimByte]||"UNKNOWN (0x"+info.skimByte.toString(16).toUpperCase()+")";
+    }else{
+      info.skimByte=null;
+      info.skimStatus=null;
+    }
     info.secretKey=sz>=0x020b?{offset:0x0203,bytes:data.slice(0x0203,0x020b),hex:extractHex(data,0x0203,8)}:null;
     info.secretKeyMirror=sz>=0x0369?{offset:0x0361,bytes:data.slice(0x0361,0x0369),hex:extractHex(data,0x0361,8)}:null;
     info.keyConsistent=sz>=0x0369?arrEq(data.slice(0x0203,0x020b),data.slice(0x0361,0x0369)):null;
@@ -146,8 +151,8 @@ function parseModule(data,filename){
     info.partialVins=[];
     for(const po of[0x4098,0x40B0]){if(po+10>sz)continue;let s='',ok=true;for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}if(ok&&s.length===8){const sc=(data[po+8]<<8)|data[po+9],cc=crc16(data.slice(po,po+8));info.partialVins.push({offset:po,tail:s,storedCrc:sc,calcCrc:cc,crcOk:sc===cc});}}
     info.vehicleSecret={offset:0x40c9,bytes:data.slice(0x40c9,0x40d9),hex:extractHex(data,0x40c9,16),endian:"little"};
-    info.securityLock={offset:0x8028,value:data[0x8028],locked:data[0x8028]===0x5a};
-    info.fobikCount=data[0x5862];
+    info.securityLock=sz>0x8028?{offset:0x8028,value:data[0x8028],locked:data[0x8028]===0x5a}:null;
+    info.fobikCount=sz>0x5862?data[0x5862]:null;
     info.immoKeys=[0x81a4,0x81c4,0x81e4].map(o=>({offset:o,hex:extractHex(data,o,16)}));
     info.fobikParts=extractVIN(data,0x5818,10)||extractHex(data,0x5818,10);
     info.skey=data.slice(0x40c9,0x40d9);info.skoff=0x40c9;info.skb=info.skey.every(b=>b===0xFF);info.skEndian='little';
@@ -176,4 +181,4 @@ function parseModule(data,filename){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO};
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32};

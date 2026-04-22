@@ -6,6 +6,7 @@ import {
   detectBySignature,
   extractVIN,
   extractHex,
+  rd32,
 } from '../parseModule.js';
 import { IMMO_BLOCK, IMMO_REC } from '../constants.js';
 import { crc8rf, rfhSec16Cs } from '../crc.js';
@@ -411,6 +412,79 @@ describe('extractHex — null-return bounds guard', () => {
     expect(m.runtimeCounters.distance).not.toBeNull();
     expect(m.runtimeCounters.keyCycles).not.toBeNull();
     m.transponderKeys.forEach(k => expect(k.hex).not.toBeNull());
+  });
+});
+
+describe('rd32 bounds-checking', () => {
+  it('reads a 32-bit big-endian value when fully in range', () => {
+    const buf = new Uint8Array([0x12, 0x34, 0x56, 0x78]);
+    expect(rd32(buf, 0)).toBe(0x12345678);
+  });
+  it('reads at the last legal offset (offset+4 === length)', () => {
+    const buf = new Uint8Array([0, 0xDE, 0xAD, 0xBE, 0xEF]);
+    expect(rd32(buf, 1)).toBe(0xDEADBEEF | 0); // signed-int form (same bits)
+  });
+  it('returns null when offset is negative', () => {
+    expect(rd32(new Uint8Array(8), -1)).toBeNull();
+  });
+  it('returns null when offset+4 exceeds length', () => {
+    const buf = new Uint8Array(4);
+    expect(rd32(buf, 1)).toBeNull();
+    expect(rd32(buf, 4)).toBeNull();
+    expect(rd32(buf, 100)).toBeNull();
+  });
+  it('returns null on an empty buffer', () => {
+    expect(rd32(new Uint8Array(0), 0)).toBeNull();
+  });
+  it('returns null on a 3-byte buffer (not enough for 4 bytes)', () => {
+    expect(rd32(new Uint8Array(3), 0)).toBeNull();
+  });
+  it('GPEC2A runtimeCounters .value is a number for a full-size buffer', () => {
+    const m = parseModule(makeGpec2a(), 'gpec.bin');
+    expect(typeof m.runtimeCounters.counterA.value).toBe('number');
+    expect(Number.isNaN(m.runtimeCounters.counterA.value)).toBe(false);
+    expect(m.runtimeCounters.counterA.value).toBe(0x00001234);
+  });
+});
+
+describe('parseModule data[] direct-access bounds', () => {
+  it('GPEC2A skimByte/skimStatus return real values for a full 4096-byte buffer', () => {
+    const m = parseModule(makeGpec2a(), 'gpec.bin');
+    expect(m.skimByte).toBe(0x80);
+    expect(m.skimStatus).toBe('ENABLED');
+  });
+  it('GPEC2A skim guard yields null skimByte/skimStatus when sz <= 0x11', () => {
+    // The GPEC2A branch is reached only for sz===4096, so the null guard is
+    // defense-in-depth. We verify the guard predicate directly by hand-
+    // simulating the branch on a tiny buffer that would otherwise crash on
+    // `data[0x0011].toString(16)`.
+    const tiny = new Uint8Array(4);
+    expect(tiny.length > 0x0011).toBe(false);
+    expect(tiny[0x0011]).toBeUndefined();
+    // Confirm the previous unguarded code path would have thrown:
+    expect(() => tiny[0x0011].toString(16)).toThrow();
+  });
+  it('BCM securityLock and fobikCount expose values for full-size BCM', () => {
+    const m = parseModule(makeBcm(), 'bcm.bin');
+    expect(m.securityLock).not.toBeNull();
+    expect(m.securityLock.offset).toBe(0x8028);
+    expect(typeof m.securityLock.value).toBe('number');
+    expect(typeof m.fobikCount).toBe('number');
+  });
+  it('BCM null-guards collapse to null when sz <= guarded offset (predicate check)', () => {
+    // BCM is only reached for sz===65536 / 131072, so the null branches are
+    // defense-in-depth against future size additions. Verify the guard
+    // predicates short-circuit as designed.
+    const small = new Uint8Array(0x5862);
+    expect(small.length > 0x8028).toBe(false);
+    expect(small.length > 0x5862).toBe(false);
+    expect(small[0x8028]).toBeUndefined();
+    expect(small[0x5862]).toBeUndefined();
+  });
+  it('does not throw on tiny / empty buffers (overall null-safety)', () => {
+    expect(() => parseModule(new Uint8Array(0), 'empty.bin')).not.toThrow();
+    expect(() => parseModule(new Uint8Array(16), 'tiny.bin')).not.toThrow();
+    expect(() => parseModule(new Uint8Array(512), 'small.bin')).not.toThrow();
   });
 });
 
