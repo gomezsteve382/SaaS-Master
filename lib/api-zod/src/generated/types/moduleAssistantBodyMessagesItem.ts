@@ -6,10 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface AnthropicMessage {
-  id: number;
-  conversationId: number;
+export type ModuleAssistantBodyMessagesItem = {
   role: string;
   content: string;
-  createdAt: Date;
-}
+};

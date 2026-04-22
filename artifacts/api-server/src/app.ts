@@ -25,7 +25,21 @@ app.use(
     },
   }),
 );
-app.use(cors());
+const allowedOriginRe =
+  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$|^https:\/\/[a-z0-9-]+\.(repl\.co|replit\.app|replit\.dev)(\/.*)?$/i;
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      // Allow same-origin requests (no Origin header) and matching Replit/localhost origins
+      if (!origin || allowedOriginRe.test(origin)) {
+        cb(null, true);
+      } else {
+        cb(new Error("CORS: origin not permitted"));
+      }
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -35,7 +35,7 @@ Processing helpers live in `src/lib/`:
 
 A desktop J2534 driver (Python, separate package) handles raw CAN PassThru when Web Serial is insufficient.
 
-No backend required — the API server exists but is unused by this app.
+The API server (`artifacts/api-server/`) is used for download counters, module backups, diff reports, and the **Anthropic AI module assistant** (`/api/anthropic/module-assistant`). This streaming SSE endpoint accepts module context (parsed dump info, detected issues, hex snippets) and returns Claude AI responses for the Mismatch Wizard.
 
 ## Tabs (order mirrors reference App.jsx)
 

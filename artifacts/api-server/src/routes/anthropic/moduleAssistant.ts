@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { anthropic } from "@workspace/integrations-anthropic-ai";
 
 const router = Router();
 
@@ -20,6 +19,18 @@ Key knowledge:
 Be concise, technical, and action-oriented. When describing hex data, use formatting like \`AB CD EF\`. Always guide the user toward the specific action button or step needed in the wizard. Never ask the user to open another tool — all actions are available in SRT Lab itself.`;
 
 router.post("/module-assistant", async (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let anthropic: any;
+  try {
+    const mod = await import("@workspace/integrations-anthropic-ai");
+    anthropic = mod.anthropic;
+  } catch {
+    return res.status(503).json({ error: "AI service unavailable: Anthropic integration not configured" });
+  }
+  if (!anthropic) {
+    return res.status(503).json({ error: "AI service unavailable" });
+  }
+
   try {
     const { messages, moduleContext } = req.body as {
       messages: { role: string; content: string }[];
