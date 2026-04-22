@@ -122,6 +122,16 @@ function RemoveDumpHelper({ actionRef }) {
   return null;
 }
 
+// Removes only the first BCM dump (index 0) — leaves the second (active) dump intact.
+function RemoveFirstDumpHelper({ actionRef }) {
+  const { getDumpsByType, removeDump } = useContext(MasterVinContext);
+  actionRef.current = () => {
+    const bcmDumps = getDumpsByType('BCM');
+    if (bcmDumps.length > 0) removeDump(bcmDumps[0].hash);
+  };
+  return null;
+}
+
 // ── Test suites ───────────────────────────────────────────────────────────────
 describe('BcmTab generation highlight', () => {
   let bcmBytes;
@@ -358,6 +368,76 @@ describe('BcmTab dump-switcher dropdown highlight', () => {
         checkmarks.length,
         '✓ must clear again when switching to the unknown-P/N dump',
       ).toBe(0);
+    }, { timeout: 3000 });
+  });
+
+  // ── Task #284 ─────────────────────────────────────────────────────────────
+  it('hides the dropdown and keeps the badge when the non-active dump is removed', async () => {
+    const vehicle = VEHICLES.challenger;
+
+    // Load lc2 first, then lc3. After loading both, lc3 is the active (selected) dump.
+    const bytesLc2 = buildBcmBytesWithPn(BCM_PN_LC2); // 2015-2017 LC — will be non-active
+    const bytesLc3 = buildBcmBytesWithPn(BCM_PN_LC3); // 2018-2023 LC — will be active
+
+    restoreFileReader = installSequenceFileReaderMock([bytesLc2, bytesLc3]);
+
+    const removeHelper = { current: null };
+
+    render(
+      <MasterVinProvider>
+        <RemoveFirstDumpHelper actionRef={removeHelper} />
+        <BcmTab vehicle={vehicle} />
+      </MasterVinProvider>,
+    );
+
+    // Load first dump (lc2).
+    await loadFileViaInput(bytesLc2, 'dump_lc2.bin');
+    await waitFor(() => {
+      expect(document.body.textContent.includes('✓'), 'lc2 ✓ should appear').toBe(true);
+    }, { timeout: 3000 });
+
+    // Load second dump (lc3) — dropdown should now be visible.
+    await loadFileViaInput(bytesLc3, 'dump_lc3.bin');
+    await waitFor(() => {
+      const sel = document.querySelector('select');
+      expect(sel, 'dropdown should appear after loading two dumps').toBeTruthy();
+      expect(sel.options.length, 'dropdown should have exactly two options').toBe(2);
+    }, { timeout: 3000 });
+
+    // Active dump is lc3 — its badge must show ✓.
+    await waitFor(() => {
+      const spans = Array.from(document.querySelectorAll('span'));
+      const checked = spans.find(s => s.textContent.trim() === '✓');
+      expect(checked, '✓ must exist for the active lc3 dump').toBeTruthy();
+      const row = checked?.parentElement?.textContent || '';
+      expect(
+        row.includes(BCM_GEN_LABEL_LC3),
+        `✓ should be beside "${BCM_GEN_LABEL_LC3}" while lc3 is active`,
+      ).toBe(true);
+    }, { timeout: 3000 });
+
+    // Remove the non-active dump (lc2, index 0 in getDumpsByType order).
+    await act(async () => {
+      removeHelper.current?.();
+      await new Promise(r => setTimeout(r, 60));
+    });
+
+    // Dropdown must be gone (bcmDumps.length === 1 hides the <select>).
+    await waitFor(() => {
+      const sel = document.querySelector('select');
+      expect(sel, '<select> must disappear after removing the non-active dump').toBeNull();
+    }, { timeout: 3000 });
+
+    // The remaining (lc3) dump's badge must still show ✓.
+    await waitFor(() => {
+      const spans = Array.from(document.querySelectorAll('span'));
+      const checked = spans.find(s => s.textContent.trim() === '✓');
+      expect(checked, '✓ badge must still be present for the remaining dump').toBeTruthy();
+      const row = checked?.parentElement?.textContent || '';
+      expect(
+        row.includes(BCM_GEN_LABEL_LC3),
+        `✓ should remain beside "${BCM_GEN_LABEL_LC3}" after the non-active dump is removed`,
+      ).toBe(true);
     }, { timeout: 3000 });
   });
 });
