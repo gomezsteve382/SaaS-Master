@@ -917,9 +917,36 @@ const VEHICLES = {
 const VEHICLE_LIST = Object.values(VEHICLES);
 const KNOWN_BCM_PN = ['68396561','68396562','68277389','68277390','68525720','68525721','68354769','68354770','68463847','68463848','68309504','68309505'];
 
+/* Part numbers shared between gen1 (2011-2014) and gen2-split (2021+ Redeye/Scat Pack).
+ * Disambiguation requires the VIN model-year character (10th VIN char, index 9).
+ * Year chars J/K/L/M/N/P/R/S/T map to 2018+, so any 68525720/68525721 dump whose
+ * parsed VIN has one of these chars is a gen2-split Redeye, not a gen1 module. */
+const AMBIGUOUS_REDEYE_PNS = ['68525720','68525721'];
+const GEN2_YEAR_CHARS = new Set(['J','K','L','M','N','P','R','S','T']);
+
 function vehiclesForPartNumber(pn){return VEHICLE_LIST.filter(v=>v.bcmFamilies.includes(pn));}
-function generationForPartNumber(vehicleId,pn){const v=VEHICLES[vehicleId];if(!v)return null;return v.generations.find(g=>g.bcmPn===pn);}
-function analyzeDumpPartNumber(bytes){const text=new TextDecoder('latin1').decode(bytes);const matches=[...text.matchAll(/68\d{6}/g)];const pns=[...new Set(matches.map(m=>m[0]))];const primary=pns.find(p=>KNOWN_BCM_PN.includes(p));return{partNumbers:pns,primaryPn:primary||pns[0]||null,compatibleVehicles:primary?vehiclesForPartNumber(primary).map(v=>v.id):[]};}
+function generationForPartNumber(vehicleId,pn,vinYearChar){
+  const v=VEHICLES[vehicleId];if(!v)return null;
+  if(AMBIGUOUS_REDEYE_PNS.includes(pn)){
+    const isGen2=vinYearChar&&GEN2_YEAR_CHARS.has(String(vinYearChar).toUpperCase());
+    /* 68525721 is the hardware sibling of 68525720 and shares the same generation
+     * entries in VEHICLES. Normalise to 68525720 for the find() call. */
+    const lookupPn='68525720';
+    return v.generations.find(g=>g.bcmPn===lookupPn&&(isGen2?g.sec16==='gen2-split':g.sec16==='gen1-18b'));
+  }
+  return v.generations.find(g=>g.bcmPn===pn);
+}
+function analyzeDumpPartNumber(bytes){
+  const text=new TextDecoder('latin1').decode(bytes);
+  const matches=[...text.matchAll(/68\d{6}/g)];
+  const pns=[...new Set(matches.map(m=>m[0]))];
+  const primary=pns.find(p=>KNOWN_BCM_PN.includes(p));
+  let vinModelYearChar=null;
+  for(const vm of text.matchAll(/[12345][A-HJ-NPR-Z0-9]{16}/g)){
+    const yc=vm[0][9];if(/[A-HJ-NPR-Z]/.test(yc)){vinModelYearChar=yc;break;}
+  }
+  return{partNumbers:pns,primaryPn:primary||pns[0]||null,compatibleVehicles:primary?vehiclesForPartNumber(primary).map(v=>v.id):[],vinModelYearChar};
+}
 
 /* ═══ VEHICLE-AWARE SYNC ENGINE ═══ 
  * BCM/RFH/PCM parsing + writing for Gen2 (68396561 family) modules.
@@ -1450,7 +1477,7 @@ function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       if(f.type==='BCM' || f.size===65536){
         const a = analyzeDumpPartNumber(f.data);
         const compatible = a.compatibleVehicles.includes(vehicle.id);
-        const gen = a.primaryPn ? generationForPartNumber(vehicle.id, a.primaryPn) : null;
+        const gen = a.primaryPn ? generationForPartNumber(vehicle.id, a.primaryPn, a.vinModelYearChar) : null;
         return {file:f, analysis:a, compatible, generation:gen};
       }
       return {file:f, analysis:null, compatible:true, generation:null};
@@ -1479,7 +1506,9 @@ function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
 
       // SEC16 write — Gen2 only, requires RFH present
       const pns = analyzeDumpPartNumber(bcm.data);
-      const isGen2 = pns.primaryPn && ['68396561','68396562','68525720','68525721','68463847','68463848'].includes(pns.primaryPn);
+      const isGen2Pn = pns.primaryPn && ['68396561','68396562','68463847','68463848'].includes(pns.primaryPn);
+      const isAmbigGen2 = pns.primaryPn && AMBIGUOUS_REDEYE_PNS.includes(pns.primaryPn) && pns.vinModelYearChar && GEN2_YEAR_CHARS.has(pns.vinModelYearChar);
+      const isGen2 = isGen2Pn || isAmbigGen2;
       if(isGen2 && rfh){
         const rfhP = engParseRfh(rfh.data);
         if(rfhP.format==='gen2' && rfhP.sec16 && !rfhP.sec16.virgin){
@@ -1603,7 +1632,7 @@ function UploadSlot({label, file, onLoad}){
 
 function ModuleSummary({vehicle, bcm, rfh, pcm, targetVin}){
   const pnInfo = useMemo(()=>bcm?analyzeDumpPartNumber(bcm.data):null,[bcm]);
-  const gen = pnInfo?.primaryPn ? generationForPartNumber(vehicle.id, pnInfo.primaryPn) : null;
+  const gen = pnInfo?.primaryPn ? generationForPartNumber(vehicle.id, pnInfo.primaryPn, pnInfo.vinModelYearChar) : null;
   const bcmEng = useMemo(()=>bcm?engParseBcm(bcm.data):null,[bcm]);
   const rfhEng = useMemo(()=>rfh?engParseRfh(rfh.data):null,[rfh]);
   const pcmEng = useMemo(()=>pcm?engParsePcm(pcm.data):null,[pcm]);

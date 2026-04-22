@@ -510,13 +510,22 @@ function engWriteRfhSec16FromBcm(bytes, bcmSec16) {
  * VEHICLE CATALOG — part-number awareness
  * ========================================================================== */
 
+/* For 68525720/68525721 the gen is determined by VIN model-year char (see bcmVehicleMatch). */
 const BCM_PN_VEHICLES = {
-  '68525720': { name: 'Charger / Challenger / Durango (2011-2014 LX/LC/WD)', gen: 'gen1', sec: 'Gen1 18-byte' },
+  '68525720':      { name: 'Charger / Challenger / Durango (2011-2014 LX/LC/WD)', gen: 'gen1', sec: 'Gen1 18-byte' },
+  '68525720_gen2': { name: '2021+ Redeye / Scat Pack · Charger (gen2-split)',      gen: 'gen2', sec: 'Gen2 SEC16 split' },
+  '68525721':      { name: 'Charger / Challenger / Durango (2011-2014 LX/LC/WD)', gen: 'gen1', sec: 'Gen1 18-byte' },
+  '68525721_gen2': { name: '2021+ Redeye / Scat Pack · Charger (gen2-split)',      gen: 'gen2', sec: 'Gen2 SEC16 split' },
   '68277389': { name: 'Charger / Challenger / Durango (2015-2017 LX/LC/WD)', gen: 'gen1', sec: 'Gen1 18-byte' },
   '68396561': { name: 'Charger / Challenger / Durango (2018-2020 LD/LC/WD)', gen: 'gen2', sec: 'Gen2 SEC16 split' },
   '68354769': { name: 'Grand Cherokee Trackhawk (2018-2021 WK2)',             gen: 'gen2', sec: 'Gen2 SEC16 split' },
   '68463847': { name: 'Ram 1500 TRX (2021-2024 DT)',                          gen: 'gen2', sec: 'Gen2 SEC16 split' },
 };
+
+/* Model-year chars that indicate a 2018+ vehicle (per SAE J681 VIN standard).
+ * Used to disambiguate part numbers shared between gen1 and gen2-split Redeye modules. */
+const REDEYE_AMBIGUOUS_PNS = ['68525720', '68525721'];
+const GEN2_YEAR_CHARS_SYNC = new Set(['J','K','L','M','N','P','R','S','T']);
 
 /* Vehicle family definitions — used for the mismatch warning selector */
 const VEHICLE_FAMILIES = [
@@ -529,8 +538,15 @@ const VEHICLE_FAMILIES = [
 
 function bcmVehicleMatch(parsedBcm) {
   if (!parsedBcm || !parsedBcm.partNumbers) return null;
+  /* Extract model-year char from the parsed VIN (10th character, index 9). */
+  const vinYearChar = parsedBcm.vin ? parsedBcm.vin[9] : null;
   for (const pn of parsedBcm.partNumbers) {
     const trimmed = pn.replace(/[^0-9]/g, '');
+    if (REDEYE_AMBIGUOUS_PNS.includes(trimmed)) {
+      const isGen2 = vinYearChar && GEN2_YEAR_CHARS_SYNC.has(vinYearChar.toUpperCase());
+      const key = isGen2 ? trimmed + '_gen2' : trimmed;
+      if (BCM_PN_VEHICLES[key]) return { pn: trimmed, ...BCM_PN_VEHICLES[key] };
+    }
     if (BCM_PN_VEHICLES[trimmed]) return { pn: trimmed, ...BCM_PN_VEHICLES[trimmed] };
   }
   return null;
