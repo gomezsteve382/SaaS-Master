@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { analyzeDumpPartNumber, KNOWN_BCM_PN } from '../vehicles.js';
+import { analyzeDumpPartNumber, generationForPartNumber, vehiclesForPartNumber, KNOWN_BCM_PN, VEHICLES } from '../vehicles.js';
+
+const VEHICLE_IDS = Object.keys(VEHICLES);
 
 // ── Deterministic PRNG (mulberry32) ───────────────────────────────────────────
 // Using a seeded PRNG makes every run reproducible while still covering a wide
@@ -297,6 +299,197 @@ describe('analyzeDumpPartNumber — property-based fuzz (seed=0xcafebabe, 500 sa
     for (const { label, buf } of corpus) {
       const result = analyzeDumpPartNumber(buf);
       assertStructurallyValid(result, label);
+    }
+  });
+});
+
+// ── generationForPartNumber fuzz ──────────────────────────────────────────────
+
+// Valid generation shape fields (all optional to handle undefined return, but
+// when an object is returned every listed field must have the correct type).
+function assertValidGenerationOrAbsent(result, label) {
+  if (result === null || result === undefined) return;
+  expect(typeof result, `${label}: result must be an object`).toBe('object');
+  expect(typeof result.id,     `${label}: id must be string`).toBe('string');
+  expect(typeof result.label,  `${label}: label must be string`).toBe('string');
+  expect(typeof result.years,  `${label}: years must be string`).toBe('string');
+  expect(typeof result.bcmPn,  `${label}: bcmPn must be string`).toBe('string');
+  expect(typeof result.family, `${label}: family must be string`).toBe('string');
+  expect(typeof result.sec16,  `${label}: sec16 must be string`).toBe('string');
+  expect(typeof result.vinOff, `${label}: vinOff must be number`).toBe('number');
+}
+
+// Helpers for generating adversarial scalar inputs
+function randomScalar(rng) {
+  const kind = rng.nextInt(0, 8);
+  if (kind === 0) return null;
+  if (kind === 1) return undefined;
+  if (kind === 2) return '';
+  if (kind === 3) return rng.nextInt(0, 999999);
+  if (kind === 4) return true;
+  if (kind === 5) return [];
+  if (kind === 6) return {};
+  if (kind === 7) return NaN;
+  // random printable string of length 0–20
+  const len = rng.nextInt(0, 20);
+  return Array.from({ length: len }, () => String.fromCharCode(rng.nextInt(32, 126))).join('');
+}
+
+function randomVinYearChar(rng) {
+  const kind = rng.nextInt(0, 5);
+  if (kind === 0) return null;
+  if (kind === 1) return undefined;
+  if (kind === 2) return '';
+  if (kind === 3) return String.fromCharCode(rng.nextInt(65, 90));  // A-Z
+  if (kind === 4) return String.fromCharCode(rng.nextInt(48, 57));  // 0-9
+  // multi-char string
+  const len = rng.nextInt(2, 8);
+  return Array.from({ length: len }, () => String.fromCharCode(rng.nextInt(32, 126))).join('');
+}
+
+const GENERATION_FIXED_CASES = [
+  // known vehicle + known P/N combinations
+  ...VEHICLE_IDS.flatMap(vid =>
+    KNOWN_BCM_PN.map(pn => ({ vehicleId: vid, pn, vinYearChar: null, label: `vid=${vid} pn=${pn} ync=null` }))
+  ),
+  // known vehicle + known P/N + various year chars
+  ...VEHICLE_IDS.flatMap(vid =>
+    ['J','K','L','M','N','P','R','S','T','B','C','0','9'].map(yc => ({
+      vehicleId: vid, pn: '68525720', vinYearChar: yc,
+      label: `vid=${vid} pn=68525720 ync=${yc}`,
+    }))
+  ),
+  // invalid vehicleId values
+  { vehicleId: '',          pn: '68277389', vinYearChar: null,  label: 'empty vehicleId' },
+  { vehicleId: null,        pn: '68277389', vinYearChar: 'K',   label: 'null vehicleId' },
+  { vehicleId: undefined,   pn: '68277389', vinYearChar: 'K',   label: 'undefined vehicleId' },
+  { vehicleId: 0,           pn: '68277389', vinYearChar: null,  label: 'numeric vehicleId' },
+  { vehicleId: {},          pn: '68277389', vinYearChar: null,  label: 'object vehicleId' },
+  // empty / null P/N
+  { vehicleId: 'charger',   pn: '',         vinYearChar: null,  label: 'empty pn' },
+  { vehicleId: 'charger',   pn: null,       vinYearChar: null,  label: 'null pn' },
+  { vehicleId: 'charger',   pn: undefined,  vinYearChar: null,  label: 'undefined pn' },
+  // numeric-looking P/N string (not in KNOWN_BCM_PN)
+  { vehicleId: 'charger',   pn: '00000000', vinYearChar: null,  label: 'zero pn' },
+  { vehicleId: 'challenger', pn: '99999999', vinYearChar: 'M',  label: 'all-9 pn' },
+  // non-string year chars
+  { vehicleId: 'charger',   pn: '68525720', vinYearChar: 0,     label: 'numeric year char 0' },
+  { vehicleId: 'charger',   pn: '68525720', vinYearChar: 75,    label: 'numeric year char 75 ("K")' },
+  { vehicleId: 'charger',   pn: '68525720', vinYearChar: false, label: 'false year char' },
+  { vehicleId: 'charger',   pn: '68525720', vinYearChar: [],    label: 'array year char' },
+  { vehicleId: 'charger',   pn: '68525720', vinYearChar: 'KK',  label: 'two-char year char' },
+];
+
+describe('generationForPartNumber — fixed edge cases', () => {
+  for (const { vehicleId, pn, vinYearChar, label } of GENERATION_FIXED_CASES) {
+    it(`never throws and returns null/undefined or a valid generation: ${label}`, () => {
+      let result;
+      expect(
+        () => { result = generationForPartNumber(vehicleId, pn, vinYearChar); },
+        `${label}: must not throw`,
+      ).not.toThrow();
+      assertValidGenerationOrAbsent(result, label);
+    });
+  }
+});
+
+describe('generationForPartNumber — property-based fuzz (seed=0xf00dcafe, 1000 samples)', () => {
+  const rng = makeRng(0xf00dcafe);
+  const samples = Array.from({ length: 1000 }, (_, i) => {
+    // Alternate between fully-random args and semi-realistic args
+    const realistic = rng.next() > 0.4;
+    const vehicleId = realistic
+      ? VEHICLE_IDS[rng.nextInt(0, VEHICLE_IDS.length - 1)]
+      : randomScalar(rng);
+    const pn = realistic
+      ? (rng.next() > 0.5 ? KNOWN_BCM_PN[rng.nextInt(0, KNOWN_BCM_PN.length - 1)] : randomScalar(rng))
+      : randomScalar(rng);
+    const vinYearChar = randomVinYearChar(rng);
+    return { vehicleId, pn, vinYearChar, label: `sample[${i}]` };
+  });
+
+  it('never throws for any argument combination', () => {
+    for (const { vehicleId, pn, vinYearChar, label } of samples) {
+      expect(
+        () => generationForPartNumber(vehicleId, pn, vinYearChar),
+        `must not throw: ${label}`,
+      ).not.toThrow();
+    }
+  });
+
+  it('always returns null, undefined, or a valid generation shape', () => {
+    for (const { vehicleId, pn, vinYearChar, label } of samples) {
+      const result = generationForPartNumber(vehicleId, pn, vinYearChar);
+      assertValidGenerationOrAbsent(result, label);
+    }
+  });
+});
+
+// ── vehiclesForPartNumber fuzz ────────────────────────────────────────────────
+
+function assertVehiclesArray(result, label) {
+  expect(Array.isArray(result), `${label}: must return an Array`).toBe(true);
+  for (const v of result) {
+    expect(typeof v,          `${label}: each entry must be an object`).toBe('object');
+    expect(typeof v.id,       `${label}: vehicle id must be string`).toBe('string');
+    expect(typeof v.name,     `${label}: vehicle name must be string`).toBe('string');
+    expect(Array.isArray(v.bcmFamilies), `${label}: bcmFamilies must be Array`).toBe(true);
+  }
+}
+
+const VEHICLES_FIXED_CASES = [
+  { pn: '',         label: 'empty string' },
+  { pn: null,       label: 'null' },
+  { pn: undefined,  label: 'undefined' },
+  { pn: 0,          label: 'number 0' },
+  { pn: {},         label: 'plain object' },
+  { pn: [],         label: 'empty array' },
+  { pn: NaN,        label: 'NaN' },
+  { pn: '00000000', label: 'unknown 8-digit string' },
+  { pn: '68XXXXXX', label: 'non-numeric 68-prefix' },
+  ...KNOWN_BCM_PN.map(pn => ({ pn, label: `known pn ${pn}` })),
+];
+
+describe('vehiclesForPartNumber — fixed edge cases', () => {
+  for (const { pn, label } of VEHICLES_FIXED_CASES) {
+    it(`never throws and returns a valid array: ${label}`, () => {
+      let result;
+      expect(
+        () => { result = vehiclesForPartNumber(pn); },
+        `${label}: must not throw`,
+      ).not.toThrow();
+      assertVehiclesArray(result, label);
+    });
+  }
+});
+
+describe('vehiclesForPartNumber — property-based fuzz (seed=0xbabe1234, 1000 samples)', () => {
+  const rng = makeRng(0xbabe1234);
+  const inputs = Array.from({ length: 1000 }, (_, i) => {
+    const kind = rng.nextInt(0, 5);
+    let pn;
+    if (kind === 0) pn = KNOWN_BCM_PN[rng.nextInt(0, KNOWN_BCM_PN.length - 1)];
+    else if (kind === 1) pn = `68${String(rng.nextInt(0, 999999)).padStart(6, '0')}`;
+    else if (kind === 2) pn = randomScalar(rng);
+    else if (kind === 3) {
+      const len = rng.nextInt(0, 24);
+      pn = Array.from({ length: len }, () => String.fromCharCode(rng.nextInt(32, 126))).join('');
+    } else {
+      pn = rng.nextInt(0, 99999999);
+    }
+    return { pn, label: `sample[${i}] pn=${JSON.stringify(pn)}` };
+  });
+
+  it('never throws for any input', () => {
+    for (const { pn, label } of inputs) {
+      expect(() => vehiclesForPartNumber(pn), `must not throw: ${label}`).not.toThrow();
+    }
+  });
+
+  it('always returns a valid array', () => {
+    for (const { pn, label } of inputs) {
+      const result = vehiclesForPartNumber(pn);
+      assertVehiclesArray(result, label);
     }
   });
 });
