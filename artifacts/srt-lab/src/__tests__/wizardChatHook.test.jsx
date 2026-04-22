@@ -99,6 +99,12 @@ describe('Wizard chat persistence (useChatStream via ChatPanel)', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     originalFetch = global.fetch;
     localStorage.clear();
+    sessionStorage.clear();
+    /* The wizard now defaults to a simplified guided view; the persistent
+     * chat panel only mounts when "Advanced" is on. Pre-flip the per-scope
+     * sessionStorage flag so renderWizard() boots straight into advanced
+     * mode and the ChatPanel under test is in the DOM. */
+    sessionStorage.setItem(`srt-advanced:wizard:${SCOPE}`, '1');
     /* jsdom doesn't ship scrollIntoView; ChatPanel calls it on every
      * messages change. Stub it so the auto-scroll effect doesn't crash. */
     if (!Element.prototype.scrollIntoView) {
