@@ -467,6 +467,7 @@ export default function ModuleSync() {
   const [virginize, setVirginize] = useState(false);
   const [logLines, setLogLines] = useState([]);
   const [diffRows, setDiffRows] = useState([]);
+  const [originals, setOriginals] = useState({ bcm: null, rfh: null });
   const logRef = useRef(null);
 
   const log = useCallback((msg, level = 'info') => {
@@ -487,6 +488,7 @@ export default function ModuleSync() {
     const parsed = parseBcm(bytes);
     setBcm({ file, bytes, parsed });
     setDiffRows([]);
+    setOriginals(prev => ({ ...prev, bcm: null }));
     log(`Loaded BCM: ${file.name} (${bytes.length} bytes)`, 'info');
     if (parsed.ok) log(`  BCM VIN: ${parsed.vin}`, 'ok');
     else log(`  BCM: no VIN parsed — file format not recognized`, 'err');
@@ -495,6 +497,7 @@ export default function ModuleSync() {
     const parsed = parseRfh(bytes);
     setRfh({ file, bytes, parsed });
     setDiffRows([]);
+    setOriginals(prev => ({ ...prev, rfh: null }));
     log(`Loaded RFHUB: ${file.name} (${bytes.length} bytes)`, 'info');
     if (parsed.ok) log(`  RFHUB VIN: ${parsed.vin}`, 'ok');
     else log(`  RFHUB: no VIN parsed — file format not recognized`, 'err');
@@ -525,12 +528,16 @@ export default function ModuleSync() {
             oldPass: s.crcOk, newPass: true,
           });
         });
+        const snapBcm = new Uint8Array(bcm.bytes);
+        setOriginals(prev => ({ ...prev, bcm: { bytes: snapBcm, filename: bcm.file?.name || 'BCM' } }));
         const r = writeBcmVin(bcm.bytes, newVin);
         log(`BCM: patched ${r.patched} VIN slot(s)`, 'ok');
         const name = `BCM_SYNCED_${newVin}_${ts}.bin`;
         downloadBin(r.bytes, name);
         log(`Downloaded: ${name}`, 'ok');
         if (virginize) {
+          const snapRfh = new Uint8Array(rfh.bytes);
+          setOriginals(prev => ({ ...prev, rfh: { bytes: snapRfh, filename: rfh.file?.name || 'RFH' } }));
           const rr = writeRfhVin(rfh.bytes, newVin, true);
           const rn = `RFH_VIRGIN_${newVin}_${ts}.bin`;
           downloadBin(rr.bytes, rn);
@@ -550,6 +557,8 @@ export default function ModuleSync() {
         }
       } else if (action === 'bcm-to-rfh') {
         const newVin = bcm.parsed.vin;
+        const snapRfh = new Uint8Array(rfh.bytes);
+        setOriginals(prev => ({ ...prev, rfh: { bytes: snapRfh, filename: rfh.file?.name || 'RFH' } }));
         const r = writeRfhVin(rfh.bytes, newVin, virginize);
         log(`RFHUB: patched ${r.patched} VIN slot(s)${virginize ? ` + wiped ${r.sec16Wiped} SEC16 slot(s)` : ''}`, virginize ? 'warn' : 'ok');
         const name = virginize ? `RFH_SYNCED_VIRGIN_${newVin}_${ts}.bin` : `RFH_SYNCED_${newVin}_${ts}.bin`;
@@ -569,6 +578,9 @@ export default function ModuleSync() {
       } else if (action === 'target-both') {
         const newVin = tv;
         const newCrc = crc16Ccitt(new TextEncoder().encode(newVin));
+        const snapBcm = new Uint8Array(bcm.bytes);
+        const snapRfh = new Uint8Array(rfh.bytes);
+        setOriginals({ bcm: { bytes: snapBcm, filename: bcm.file?.name || 'BCM' }, rfh: { bytes: snapRfh, filename: rfh.file?.name || 'RFH' } });
         const br = writeBcmVin(bcm.bytes, newVin);
         log(`BCM: patched ${br.patched} VIN slot(s)`, 'ok');
         const bn = `BCM_SYNCED_${newVin}_${ts}.bin`;
@@ -604,9 +616,20 @@ export default function ModuleSync() {
       }
       log('✓ Sync complete. Flash the .bin files to their modules and power-cycle 30s to handshake.', 'ok');
       setDiffRows(rows);
+      log('ℹ Use the Restore Original button(s) below if you need to recover the pre-patch bytes.', 'muted');
     } catch (e) {
       log(`✗ Error: ${e.message}`, 'err');
     }
+  };
+
+  const doRestore = (kind) => {
+    const snap = originals[kind];
+    if (!snap) return;
+    const ts = timestamp();
+    const prefix = kind === 'bcm' ? 'BCM' : 'RFH';
+    const name = `${prefix}_ORIGINAL_${ts}.bin`;
+    downloadBin(snap.bytes, name);
+    log(`⟲ Restored original ${prefix}: downloaded ${name}`, 'ok');
   };
 
   const Card = ({ children, style = {} }) => (
@@ -739,6 +762,47 @@ export default function ModuleSync() {
               desc={tvOk ? `Write ${tv} into BOTH modules. Downloads both new bins.` : 'Enter a valid 17-char VIN above.'}
               onClick={() => doSync('target-both')} />
           </div>
+
+          {(originals.bcm || originals.rfh) && (
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
+              {originals.bcm && (
+                <button
+                  onClick={() => doRestore('bcm')}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '10px 16px', borderRadius: 10,
+                    border: `2px solid ${C.a3}40`, background: `rgba(41,121,255,0.06)`,
+                    color: C.a3, cursor: 'pointer', fontFamily: "'Nunito'",
+                    fontWeight: 800, fontSize: 12, letterSpacing: 0.5,
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  ⟲ Restore BCM original
+                  <span style={{ fontSize: 10, fontWeight: 600, color: C.ts, fontFamily: "'JetBrains Mono'" }}>
+                    {originals.bcm.filename}
+                  </span>
+                </button>
+              )}
+              {originals.rfh && (
+                <button
+                  onClick={() => doRestore('rfh')}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '10px 16px', borderRadius: 10,
+                    border: `2px solid ${C.a2}40`, background: `rgba(0,191,165,0.06)`,
+                    color: C.a2, cursor: 'pointer', fontFamily: "'Nunito'",
+                    fontWeight: 800, fontSize: 12, letterSpacing: 0.5,
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  ⟲ Restore RFH original
+                  <span style={{ fontSize: 10, fontWeight: 600, color: C.ts, fontFamily: "'JetBrains Mono'" }}>
+                    {originals.rfh.filename}
+                  </span>
+                </button>
+              )}
+            </div>
+          )}
 
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10,
