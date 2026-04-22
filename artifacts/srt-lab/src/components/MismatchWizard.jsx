@@ -1228,12 +1228,37 @@ function SimpleFlow({ issues, warnings, modules, hexSnippets, stepActions, onAct
   const [phase, setPhase] = useState('plan');     /* 'plan' | 'busy' | 'done' | 'failed' */
   const [errMsg, setErrMsg] = useState(null);
 
+  /* Inline master-VIN editor state. The auto-picked default lives in
+   * scenario.targetVin; if the user clicks the badge to edit it, we keep
+   * the typed value here and pass it to onAction as { vinOverride }. */
+  const SCENARIO_VIN_RE = /^[12345][A-HJ-NPR-Z0-9]{16}$/;
+  const [vinEditing, setVinEditing] = useState(false);
+  const [vinDraft, setVinDraft] = useState('');
+  const [vinOverride, setVinOverride] = useState(null);
+  const effectiveVin = vinOverride || scenario?.targetVin || null;
+  const isCustomVin = !!vinOverride && vinOverride !== scenario?.targetVin;
+  const vinDraftClean = vinDraft.replace(/[^A-HJ-NPR-Z0-9]/gi, '').toUpperCase().slice(0, 17);
+  const vinDraftValid = SCENARIO_VIN_RE.test(vinDraftClean);
+
+  const beginVinEdit = () => {
+    setVinDraft(effectiveVin || '');
+    setVinEditing(true);
+  };
+  const cancelVinEdit = () => { setVinEditing(false); setVinDraft(''); };
+  const saveVinEdit = () => {
+    if (!vinDraftValid) return;
+    setVinOverride(vinDraftClean === scenario?.targetVin ? null : vinDraftClean);
+    setVinEditing(false);
+    setVinDraft('');
+  };
+  const resetVinOverride = () => { setVinOverride(null); cancelVinEdit(); };
+
   const applyAction = async (actionId) => {
     if (!actionId) return;
     setPhase('busy');
     setErrMsg(null);
     try {
-      const result = onAction?.(actionId, 'simple');
+      const result = onAction?.(actionId, 'simple', vinOverride ? { vinOverride } : undefined);
       const rows = result && typeof result.then === 'function' ? await result : result;
       if (rows && (Array.isArray(rows) ? rows.length > 0 : true)) setPhase('done');
       else { setErrMsg('No changes were applied. Make sure all required dump files are loaded.'); setPhase('failed'); }
@@ -1313,25 +1338,133 @@ function SimpleFlow({ issues, warnings, modules, hexSnippets, stepActions, onAct
               {scenario.name}
             </div>
           </div>
-          <div style={{ fontSize: 13, color: W.tx, lineHeight: 1.6, marginBottom: 10 }}>
+          <div style={{ fontSize: 13, color: W.tx, lineHeight: 1.6, marginBottom: 6 }}>
             {scenario.summary}
           </div>
-          <div style={{ display: 'flex', gap: 10, fontSize: 11, color: W.ts, flexWrap: 'wrap' }}>
+          {recommended?.title && (
+            <div style={{ fontSize: 12, color: W.gn, fontWeight: 700, marginBottom: 10, fontStyle: 'italic' }}>
+              {recommended.title}
+            </div>
+          )}
+          {(issues.length > 0 || warnings.length > 0) && (
+            <div style={{ marginBottom: 10 }}>
+              {issues.map((iss, i) => {
+                const t = translateIssue(iss);
+                return (
+                  <div key={`i${i}`} style={{ fontSize: 12, color: W.tx, lineHeight: 1.5, marginBottom: 3 }}>
+                    <span style={{ marginRight: 6 }}>❌</span>
+                    {t.term ? <Tip word={t.term}>{t.plain}</Tip> : t.plain}
+                  </div>
+                );
+              })}
+              {warnings.map((wn, i) => {
+                const t = translateIssue(wn);
+                return (
+                  <div key={`w${i}`} style={{ fontSize: 12, color: W.tx, lineHeight: 1.5, marginBottom: 3 }}>
+                    <span style={{ marginRight: 6 }}>⚠️</span>
+                    {t.term ? <Tip word={t.term}>{t.plain}</Tip> : t.plain}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 10, fontSize: 11, color: W.ts, flexWrap: 'wrap', alignItems: 'center' }}>
             {modules.length > 0 && (
               <span>Loaded: <strong style={{ color: W.tx }}>{modules.join(' + ')}</strong></span>
             )}
             {scenario.modulesAffected.length > 0 && (
               <span>· Will write: <strong style={{ color: W.gn }}>{scenario.modulesAffected.join(' + ')}</strong></span>
             )}
-            {scenario.targetVin && (
-              <span>· Master <Tip word="VIN" />: <span style={{ fontFamily: W.mono, color: W.tx, fontWeight: 700, letterSpacing: 1.5 }}>{scenario.targetVin}</span></span>
+            {effectiveVin && !vinEditing && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                · Master <Tip word="VIN" />:{' '}
+                <button
+                  data-testid="scenario-vin-edit-btn"
+                  onClick={beginVinEdit}
+                  title="Click to override the master VIN"
+                  style={{
+                    background: isCustomVin ? W.a1 + '22' : W.s3,
+                    border: `1px solid ${isCustomVin ? W.a1 + '80' : W.bd}`,
+                    borderRadius: 6, padding: '2px 8px',
+                    fontFamily: W.mono, color: W.tx, fontWeight: 700,
+                    letterSpacing: 1.5, fontSize: 11, cursor: 'pointer',
+                  }}>
+                  {effectiveVin} <span style={{ color: W.ts, fontWeight: 400, marginLeft: 4 }}>✎</span>
+                </button>
+                {isCustomVin && (
+                  <span data-testid="scenario-vin-custom-badge" style={{
+                    background: W.a1, color: '#fff', fontSize: 9, fontWeight: 800,
+                    padding: '2px 6px', borderRadius: 4, letterSpacing: 1,
+                    fontFamily: W.sans, textTransform: 'uppercase',
+                  }}>custom VIN</span>
+                )}
+                {isCustomVin && (
+                  <button
+                    data-testid="scenario-vin-reset-btn"
+                    onClick={resetVinOverride}
+                    title={`Reset to auto-picked VIN (${scenario.targetVin})`}
+                    style={{ background: 'none', border: 'none', color: W.ts, cursor: 'pointer', fontSize: 11, padding: 0, textDecoration: 'underline' }}>
+                    reset
+                  </button>
+                )}
+              </span>
+            )}
+            {vinEditing && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                · Master <Tip word="VIN" />:{' '}
+                <input
+                  data-testid="scenario-vin-input"
+                  autoFocus
+                  value={vinDraft}
+                  onChange={e => setVinDraft(e.target.value.toUpperCase())}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && vinDraftValid) saveVinEdit();
+                    else if (e.key === 'Escape') cancelVinEdit();
+                  }}
+                  maxLength={20}
+                  spellCheck={false}
+                  placeholder="17-char VIN"
+                  style={{
+                    background: W.bg,
+                    border: `1.5px solid ${vinDraftClean.length === 0 ? W.bd : vinDraftValid ? W.gn : W.er}`,
+                    borderRadius: 6, padding: '3px 8px',
+                    fontFamily: W.mono, color: W.tx, fontWeight: 700,
+                    letterSpacing: 1.5, fontSize: 11, width: 200, outline: 'none',
+                    textTransform: 'uppercase',
+                  }}
+                />
+                <span style={{ fontFamily: W.mono, fontSize: 10, color: vinDraftValid ? W.gn : W.tm, fontWeight: 700 }}>
+                  {vinDraftClean.length}/17
+                </span>
+                <button
+                  data-testid="scenario-vin-save-btn"
+                  onClick={saveVinEdit}
+                  disabled={!vinDraftValid}
+                  style={{
+                    background: vinDraftValid ? W.gn : W.bd, border: 'none', borderRadius: 6,
+                    padding: '3px 10px', color: '#fff', fontWeight: 800, fontSize: 11,
+                    cursor: vinDraftValid ? 'pointer' : 'not-allowed', fontFamily: W.sans,
+                  }}>
+                  Save
+                </button>
+                <button
+                  onClick={cancelVinEdit}
+                  style={{ background: 'none', border: `1px solid ${W.bd}`, borderRadius: 6, padding: '3px 10px', color: W.ts, cursor: 'pointer', fontSize: 11, fontFamily: W.sans }}>
+                  Cancel
+                </button>
+              </span>
             )}
           </div>
+          {vinEditing && vinDraftClean.length > 0 && !vinDraftValid && (
+            <div style={{ marginTop: 6, fontSize: 11, color: W.er }}>
+              Not a valid 17-char VIN (must start with 1-5; no I, O, or Q).
+            </div>
+          )}
         </div>
 
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 4 }}>
           <button
-            data-testid="scenario-confirm-btn"
+            data-testid="simple-fix-btn"
             onClick={() => applyAction(scenario.actionId)}
             disabled={phase === 'busy'}
             style={{
@@ -1343,7 +1476,7 @@ function SimpleFlow({ issues, warnings, modules, hexSnippets, stepActions, onAct
               boxShadow: '0 4px 16px rgba(0,200,83,0.25)',
               flex: 1, minWidth: 240,
             }}>
-            {phase === 'busy' ? 'Working…' : '✓ Confirm & Download patched .bin'}
+            {phase === 'busy' ? 'Working…' : '✓ FIX IT — Download patched .bin'}
           </button>
           <button onClick={onClose} style={{ background: 'none', border: `1px solid ${W.bd}`, borderRadius: 10, padding: '12px 18px', color: W.ts, cursor: 'pointer', fontFamily: W.sans, fontSize: 12 }}>
             Cancel
@@ -1526,8 +1659,8 @@ export default function MismatchWizard({
     setDoneSteps(prev => { const n = new Set(prev); n.delete(stepId); return n; });
   };
 
-  const handleAction = (actionId, stepId) => {
-    return onAction?.(actionId, stepId);
+  const handleAction = (actionId, stepId, opts) => {
+    return onAction?.(actionId, stepId, opts);
     /* Wizard stays open — ActionResult banner shown in-card */
   };
 

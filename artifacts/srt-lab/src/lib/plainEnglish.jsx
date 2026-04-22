@@ -253,7 +253,20 @@ export function detectCommonScenario({ issues = [], warnings = [], stepActions =
         targetVin,
       };
     }
-    /* VIN / SEC16 / vehicle-secret mismatch → full pair using RFHUB as master */
+    /* SEC16-only mismatch (no VIN issue) → narrower 1-click. Checked
+     * before the broader full-pair branch so we don't over-write VINs
+     * when only the immobilizer token needs syncing. */
+    if (sec16Mismatch && !vinMismatch && !secretMismatch && enabled.has('sec16-only')) {
+      return {
+        key: 'sec16-only-pair',
+        name: 'Sync immobilizer token (RFHUB → BCM)',
+        actionId: 'sec16-only',
+        summary: 'Copy the immobilizer token from the key receiver into the BCM. VINs are left unchanged.',
+        modulesAffected: ['BCM'],
+        targetVin,
+      };
+    }
+    /* VIN / SEC16+VIN / vehicle-secret mismatch → full pair using RFHUB as master */
     if ((vinMismatch || sec16Mismatch || secretMismatch) && enabled.has('full-sync')) {
       return {
         key: 'pair-rfhub-to-bcm',
@@ -263,17 +276,6 @@ export function detectCommonScenario({ issues = [], warnings = [], stepActions =
           ? `Stamp VIN ${targetVin} into both modules and copy the immobilizer token from the key receiver into the BCM.`
           : 'Stamp the same VIN into both modules and copy the immobilizer token from the key receiver into the BCM.',
         modulesAffected: ['BCM', 'RFHUB'],
-        targetVin,
-      };
-    }
-    /* SEC16-only mismatch → narrower 1-click */
-    if (sec16Mismatch && !vinMismatch && enabled.has('sec16-only')) {
-      return {
-        key: 'sec16-only-pair',
-        name: 'Sync immobilizer token (RFHUB → BCM)',
-        actionId: 'sec16-only',
-        summary: 'Copy the immobilizer token from the key receiver into the BCM. VINs are left unchanged.',
-        modulesAffected: ['BCM'],
         targetVin,
       };
     }

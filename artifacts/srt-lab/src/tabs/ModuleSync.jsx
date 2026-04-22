@@ -1017,9 +1017,13 @@ export default function ModuleSync({ vehicleId } = {}) {
     { id: 'bcm-to-rfh',       label: '→ BCM VIN → RFHUB',       enabled: bothReady, description: 'Stamp RFHUB with BCM VIN' },
   ];
 
-  const doSync = (action) => {
+  const doSync = (action, overrideVin) => {
     const ts  = timestamp();
-    log(`=== SYNC: ${action}${virginize ? ' +VIRGINIZE' : ''} ===`, 'info');
+    /* Optional master-VIN override coming from the wizard's scenario card.
+     * When present, it replaces the auto-picked VIN for actions that stamp
+     * a VIN: rfh-to-bcm, bcm-to-rfh, sync-all (and target-both). */
+    const ov = (typeof overrideVin === 'string' && VIN_RE.test(overrideVin)) ? overrideVin : null;
+    log(`=== SYNC: ${action}${virginize ? ' +VIRGINIZE' : ''}${ov ? ` (custom VIN ${ov})` : ''} ===`, 'info');
     const rows = [];
 
     const addBcmRows = (parsedBcm, newVin, newCrc) => {
@@ -1060,7 +1064,7 @@ export default function ModuleSync({ vehicleId } = {}) {
 
     try {
       if (action === 'rfh-to-bcm') {
-        const newVin = rfh.parsed.vin;
+        const newVin = ov || rfh.parsed.vin;
         const newCrc = engCrc16(new TextEncoder().encode(newVin));
         addBcmRows(bcm.parsed, newVin, newCrc);
         const snap = new Uint8Array(bcm.bytes);
@@ -1079,7 +1083,7 @@ export default function ModuleSync({ vehicleId } = {}) {
         }
 
       } else if (action === 'bcm-to-rfh') {
-        const newVin = bcm.parsed.vin;
+        const newVin = ov || bcm.parsed.vin;
         const snap   = new Uint8Array(rfh.bytes);
         setOriginals(prev => ({ ...prev, rfh: { bytes: snap, filename: rfh.file?.name || 'RFH' } }));
         const r  = engWriteRfhVin(rfh.bytes, newVin, virginize);
@@ -1089,7 +1093,7 @@ export default function ModuleSync({ vehicleId } = {}) {
         log(`Downloaded: RFH_SYNCED_${newVin}_${ts}.bin`, 'ok');
 
       } else if (action === 'target-both') {
-        const newVin = tv;
+        const newVin = ov || tv;
         const newCrc = engCrc16(new TextEncoder().encode(newVin));
         const snapB  = new Uint8Array(bcm.bytes);
         const snapR  = new Uint8Array(rfh.bytes);
@@ -1107,7 +1111,7 @@ export default function ModuleSync({ vehicleId } = {}) {
 
       } else if (action === 'sync-all') {
         /* Full 3-module sync: VIN → BCM + RFH + PCM, SEC16 BCM ← RFH, SEC6 PCM ← RFH */
-        const newVin = tvOk ? tv : (rfh.parsed?.vin || bcm.parsed?.vin);
+        const newVin = ov || (tvOk ? tv : (rfh.parsed?.vin || bcm.parsed?.vin));
         if (!newVin) { log('✗ No target VIN available', 'err'); return; }
         const newCrc = engCrc16(new TextEncoder().encode(newVin));
 
@@ -1579,8 +1583,11 @@ export default function ModuleSync({ vehicleId } = {}) {
           modules={wizardModules}
           hexSnippets={wizardHexSnippets}
           onClose={() => setWizardOpen(false)}
-          onAction={(actionId) => {
-            return doSync(actionId === 'full-sync' ? 'sync-all' : actionId);
+          onAction={(actionId, _stepId, opts) => {
+            return doSync(
+              actionId === 'full-sync' ? 'sync-all' : actionId,
+              opts?.vinOverride,
+            );
           }}
           stepActions={wizardStepActions}
           sessionKey={`modsync:${vehicleId || 'global'}`}
