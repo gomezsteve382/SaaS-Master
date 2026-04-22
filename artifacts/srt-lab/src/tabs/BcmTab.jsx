@@ -23,32 +23,6 @@ const BCM_ALGOS={
   'BCM FCA':s=>((s^0xABCDEF12)*0x4D+0x5678)&0xFFFFFFFF,
 };
 
-/* ── Part-number analyser (self-contained, no App.jsx import to avoid cycles) ── */
-const BCM_KNOWN_PN=['68396561','68396562','68277389','68277390','68525720','68525721','68354769','68354770','68463847','68463848','68309504','68309505'];
-const BCM_AMBIG_REDEYE=['68525720','68525721'];
-const BCM_GEN2_YEAR=new Set(['J','K','L','M','N','P','R','S','T']);
-
-function parseBcmDumpPn(bytes){
-  const text=new TextDecoder('latin1').decode(bytes);
-  const pns=[...new Set([...text.matchAll(/68\d{6}/g)].map(m=>m[0]))];
-  const primary=pns.find(p=>BCM_KNOWN_PN.includes(p))||pns[0]||null;
-  let vinModelYearChar=null;
-  for(const vm of text.matchAll(/[12345][A-HJ-NPR-Z0-9]{16}/g)){
-    const yc=vm[0][9];if(/[A-HJ-NPR-Z]/.test(yc)){vinModelYearChar=yc;break;}
-  }
-  return{primaryPn:primary,vinModelYearChar};
-}
-
-function matchGeneration(vehicle,primaryPn,vinModelYearChar){
-  if(!vehicle||!primaryPn)return null;
-  if(BCM_AMBIG_REDEYE.includes(primaryPn)){
-    const isGen2=vinModelYearChar&&BCM_GEN2_YEAR.has(String(vinModelYearChar).toUpperCase());
-    const lookupPn='68525720';
-    return vehicle.generations.find(g=>g.bcmPn===lookupPn&&(isGen2?g.sec16==='gen2-split':g.sec16==='gen1-18b'))||null;
-  }
-  return vehicle.generations.find(g=>g.bcmPn===primaryPn)||null;
-}
-
 const BCM_CANDIDATES=[
   {tx:0x750,rx:0x758,name:'CDA6 primary (2017 Scat Pack)'},
   {tx:0x742,rx:0x762,name:'Legacy/DarkVIN'},
@@ -331,8 +305,8 @@ export default function BcmTab({vehicle}){
       if(entry)setInspectHash(entry.hash);
       setInspectMsg('');
       // Auto-detect matching generation and highlight in the vehicle banner
-      const{primaryPn,vinModelYearChar}=parseBcmDumpPn(bytes);
-      const gen=matchGeneration(vehicle,primaryPn,vinModelYearChar);
+      const{primaryPn,vinModelYearChar}=analyzeDumpPartNumber(bytes);
+      const gen=vehicle&&primaryPn?generationForPartNumber(vehicle.id,primaryPn,vinModelYearChar):null;
       setDetectedPn(primaryPn);
       setDetectedGen(gen||null);
       // inspectPnCheck is updated reactively via useEffect on inspectMod
@@ -497,8 +471,8 @@ export default function BcmTab({vehicle}){
           const entry=bcmDumps.find(d=>d.hash===hash);
           const bytes=entry?.mod?.data;
           if(bytes&&bytes.length){
-            const{primaryPn,vinModelYearChar}=parseBcmDumpPn(bytes);
-            const gen=matchGeneration(vehicle,primaryPn,vinModelYearChar);
+            const{primaryPn,vinModelYearChar}=analyzeDumpPartNumber(bytes);
+            const gen=vehicle&&primaryPn?generationForPartNumber(vehicle.id,primaryPn,vinModelYearChar):null;
             setDetectedPn(primaryPn);
             setDetectedGen(gen||null);
           }else{
