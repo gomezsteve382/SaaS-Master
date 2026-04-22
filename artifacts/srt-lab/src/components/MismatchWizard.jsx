@@ -2,7 +2,7 @@ import React, {
   useState, useRef, useEffect, useCallback, useMemo,
 } from "react";
 import {
-  Tip, translateIssue, pickRecommendedFix,
+  Tip, translateIssue, pickRecommendedFix, detectCommonScenario,
   loadAdvanced, saveAdvanced,
 } from "../lib/plainEnglish.jsx";
 
@@ -1212,6 +1212,14 @@ function FinalScreen({ steps, doneSet, skippedSet, onClose, onRerunSync }) {
  * Default view when Advanced is off.
  * ═══════════════════════════════════════════════════════════════ */
 function SimpleFlow({ issues, warnings, modules, hexSnippets, stepActions, onAction, onClose }) {
+  /* A "scenario" is a recognized common pairing (e.g. BCM+RFHUB). When one
+   * matches, we show a streamlined "Confirm & Download" card instead of the
+   * full Recommended/Plan breakdown. Falls back to pickRecommendedFix() for
+   * less common combinations. */
+  const scenario = useMemo(
+    () => detectCommonScenario({ issues, warnings, stepActions, modules, hexSnippets }),
+    [issues, warnings, stepActions, modules, hexSnippets]
+  );
   const recommended = useMemo(
     () => pickRecommendedFix({ issues, warnings, stepActions, modules, hexSnippets }),
     [issues, warnings, stepActions, modules, hexSnippets]
@@ -1220,12 +1228,12 @@ function SimpleFlow({ issues, warnings, modules, hexSnippets, stepActions, onAct
   const [phase, setPhase] = useState('plan');     /* 'plan' | 'busy' | 'done' | 'failed' */
   const [errMsg, setErrMsg] = useState(null);
 
-  const apply = async () => {
-    if (!recommended) return;
+  const applyAction = async (actionId) => {
+    if (!actionId) return;
     setPhase('busy');
     setErrMsg(null);
     try {
-      const result = onAction?.(recommended.actionId, 'simple');
+      const result = onAction?.(actionId, 'simple');
       const rows = result && typeof result.then === 'function' ? await result : result;
       if (rows && (Array.isArray(rows) ? rows.length > 0 : true)) setPhase('done');
       else { setErrMsg('No changes were applied. Make sure all required dump files are loaded.'); setPhase('failed'); }
@@ -1234,6 +1242,8 @@ function SimpleFlow({ issues, warnings, modules, hexSnippets, stepActions, onAct
       setPhase('failed');
     }
   };
+
+  const apply = () => applyAction(recommended?.actionId);
 
   /* Empty state — no issues + no warnings */
   if (issues.length === 0 && warnings.length === 0) {
@@ -1276,6 +1286,72 @@ function SimpleFlow({ issues, warnings, modules, hexSnippets, stepActions, onAct
         <button onClick={onClose} style={{ background: W.gn, border: 'none', borderRadius: 10, padding: '12px 32px', color: '#fff', fontWeight: 900, fontSize: 14, cursor: 'pointer', fontFamily: W.sans, letterSpacing: 1 }}>
           CLOSE
         </button>
+      </div>
+    );
+  }
+
+  /* ── Streamlined "named scenario" view for common pairings ──────────────
+   * Replaces the multi-section "what you have / what's wrong / what I'll do
+   * / FIX IT" breakdown with a single-confirmation card. Less common cases
+   * fall through to the recommended/advanced flow below. */
+  if (scenario && phase !== 'failed') {
+    return (
+      <div style={{ padding: '8px 0' }} data-testid="scenario-card">
+        <div style={{ fontSize: 10, fontWeight: 800, color: W.ts, letterSpacing: 1.5, marginBottom: 6 }}>
+          ONE-CLICK SCENARIO
+        </div>
+        <div style={{
+          padding: '18px 18px',
+          borderRadius: 14,
+          background: `linear-gradient(135deg, ${W.gn}14, ${W.a2}14)`,
+          border: `1.5px solid ${W.gn}55`,
+          marginBottom: 14,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <div style={{ fontSize: 26 }}>🔧</div>
+            <div style={{ fontWeight: 900, fontSize: 18, color: W.tx, fontFamily: W.sans, lineHeight: 1.2 }}>
+              {scenario.name}
+            </div>
+          </div>
+          <div style={{ fontSize: 13, color: W.tx, lineHeight: 1.6, marginBottom: 10 }}>
+            {scenario.summary}
+          </div>
+          <div style={{ display: 'flex', gap: 10, fontSize: 11, color: W.ts, flexWrap: 'wrap' }}>
+            {modules.length > 0 && (
+              <span>Loaded: <strong style={{ color: W.tx }}>{modules.join(' + ')}</strong></span>
+            )}
+            {scenario.modulesAffected.length > 0 && (
+              <span>· Will write: <strong style={{ color: W.gn }}>{scenario.modulesAffected.join(' + ')}</strong></span>
+            )}
+            {scenario.targetVin && (
+              <span>· Master <Tip word="VIN" />: <span style={{ fontFamily: W.mono, color: W.tx, fontWeight: 700, letterSpacing: 1.5 }}>{scenario.targetVin}</span></span>
+            )}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 4 }}>
+          <button
+            data-testid="scenario-confirm-btn"
+            onClick={() => applyAction(scenario.actionId)}
+            disabled={phase === 'busy'}
+            style={{
+              background: phase === 'busy' ? W.bd : `linear-gradient(135deg, ${W.gn} 0%, ${W.a2} 100%)`,
+              border: 'none', borderRadius: 10, padding: '14px 28px',
+              color: '#fff', fontWeight: 900, fontSize: 14,
+              cursor: phase === 'busy' ? 'wait' : 'pointer',
+              fontFamily: W.sans, letterSpacing: 1,
+              boxShadow: '0 4px 16px rgba(0,200,83,0.25)',
+              flex: 1, minWidth: 240,
+            }}>
+            {phase === 'busy' ? 'Working…' : '✓ Confirm & Download patched .bin'}
+          </button>
+          <button onClick={onClose} style={{ background: 'none', border: `1px solid ${W.bd}`, borderRadius: 10, padding: '12px 18px', color: W.ts, cursor: 'pointer', fontFamily: W.sans, fontSize: 12 }}>
+            Cancel
+          </button>
+        </div>
+        <div style={{ fontSize: 11, color: W.tm, marginTop: 8, lineHeight: 1.6 }}>
+          One click writes the patched .bin file{scenario.modulesAffected.length === 1 ? '' : 's'} to your Downloads folder. Flash{scenario.modulesAffected.length === 1 ? ' it' : ' them'} and power-cycle the vehicle for 30 seconds.
+        </div>
       </div>
     );
   }

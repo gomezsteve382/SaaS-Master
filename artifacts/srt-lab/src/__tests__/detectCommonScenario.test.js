@@ -1,0 +1,118 @@
+import { describe, test, expect } from 'vitest';
+import { detectCommonScenario } from '../lib/plainEnglish.jsx';
+
+const stepActions = [
+  { id: 'full-sync',        label: 'Full', enabled: true,  description: '' },
+  { id: 'sec16-only',       label: 'S16',  enabled: true,  description: '' },
+  { id: 'bcm-sec16-to-rfh', label: 'B>R',  enabled: true,  description: '' },
+  { id: 'rfh-to-bcm',       label: 'R>B',  enabled: true,  description: '' },
+  { id: 'bcm-to-rfh',       label: 'B>R',  enabled: true,  description: '' },
+];
+
+describe('detectCommonScenario', () => {
+  test('returns null when nothing is wrong', () => {
+    expect(detectCommonScenario({
+      issues: [], warnings: [], stepActions, modules: ['BCM', 'RFHUB'],
+    })).toBeNull();
+  });
+
+  test('returns null when no actions are enabled', () => {
+    expect(detectCommonScenario({
+      issues: ['VIN MISMATCH between BCM and RFHUB'],
+      stepActions: stepActions.map(a => ({ ...a, enabled: false })),
+      modules: ['BCM', 'RFHUB'],
+    })).toBeNull();
+  });
+
+  test('BCM+RFHUB VIN mismatch → "Pair RFHUB to BCM" via full-sync', () => {
+    const got = detectCommonScenario({
+      issues: ['VIN MISMATCH between BCM and RFHUB'],
+      stepActions, modules: ['BCM', 'RFHUB'],
+      hexSnippets: ['RFHUB VIN @0x5320: 2C3CDXBT0LH123456'],
+    });
+    expect(got.key).toBe('pair-rfhub-to-bcm');
+    expect(got.actionId).toBe('full-sync');
+    expect(got.name).toBe('Pair RFHUB to BCM');
+    expect(got.modulesAffected).toEqual(['BCM', 'RFHUB']);
+    expect(got.targetVin).toBe('2C3CDXBT0LH123456');
+  });
+
+  test('BCM has good token, RFHUB does not → BCM SEC16 → RFHUB', () => {
+    const got = detectCommonScenario({
+      issues: ['BCM SEC16 valid but RFHUB SEC16 invalid'],
+      stepActions, modules: ['BCM', 'RFHUB'],
+    });
+    expect(got.key).toBe('bcm-sec16-to-rfhub');
+    expect(got.actionId).toBe('bcm-sec16-to-rfh');
+    expect(got.modulesAffected).toEqual(['RFHUB']);
+  });
+
+  test('all 3 modules + VIN mismatch → "Pair BCM + RFHUB + Engine computer"', () => {
+    const got = detectCommonScenario({
+      issues: ['VIN MISMATCH between BCM and RFHUB', 'PCM SEC6 damaged'],
+      stepActions, modules: ['BCM', 'RFHUB', 'PCM'],
+    });
+    expect(got.key).toBe('pair-all-three');
+    expect(got.actionId).toBe('full-sync');
+    expect(got.modulesAffected).toEqual(['BCM', 'RFHUB', 'PCM']);
+  });
+
+  test('single BCM with VIN mismatch → "Re-stamp VIN into the BCM"', () => {
+    const got = detectCommonScenario({
+      issues: ['VIN MISMATCH'],
+      stepActions, modules: ['BCM'],
+    });
+    expect(got.key).toBe('restamp-bcm-vin');
+    expect(got.actionId).toBe('rfh-to-bcm');
+    expect(got.modulesAffected).toEqual(['BCM']);
+  });
+
+  test('single RFHUB with VIN issue → "Re-stamp VIN into the key receiver"', () => {
+    const got = detectCommonScenario({
+      issues: ['VIN MISMATCH'],
+      stepActions, modules: ['RFHUB'],
+    });
+    expect(got.key).toBe('restamp-rfhub-vin');
+    expect(got.actionId).toBe('bcm-to-rfh');
+    expect(got.modulesAffected).toEqual(['RFHUB']);
+  });
+
+  test('GPEC2A + 95640 with IMMO issue → "Pair GPEC2A engine computer to 95640 backup chip"', () => {
+    const got = detectCommonScenario({
+      issues: ['PCM SEC6 IMMO_DAMAGED'],
+      stepActions: [
+        { id: 'gpec2a-95640-pair', label: 'pair', enabled: true, description: '' },
+      ],
+      modules: ['GPEC2A', '95640'],
+    });
+    expect(got).not.toBeNull();
+    expect(got.key).toBe('pair-gpec2a-95640');
+    expect(got.actionId).toBe('gpec2a-95640-pair');
+    expect(got.modulesAffected).toEqual(['PCM', '95640']);
+  });
+
+  test('PCM + 95640 falls back to full-sync when dedicated action is not enabled', () => {
+    const got = detectCommonScenario({
+      issues: ['PCM SEC6 IMMO_DAMAGED'],
+      stepActions: [{ id: 'full-sync', label: 'full', enabled: true, description: '' }],
+      modules: ['PCM', '95640'],
+    });
+    expect(got.key).toBe('pair-gpec2a-95640');
+    expect(got.actionId).toBe('full-sync');
+  });
+
+  test('GPEC2A + 95640 with only a non-IMMO warning → null (no over-trigger)', () => {
+    expect(detectCommonScenario({
+      warnings: ['BCM PN MISMATCH'],
+      stepActions: [{ id: 'full-sync', label: 'full', enabled: true, description: '' }],
+      modules: ['GPEC2A', '95640'],
+    })).toBeNull();
+  });
+
+  test('uncommon shape (BCM+PCM only with random warning) → null fallback', () => {
+    expect(detectCommonScenario({
+      warnings: ['BCM PN MISMATCH'],
+      stepActions, modules: ['BCM', 'PCM'],
+    })).toBeNull();
+  });
+});
