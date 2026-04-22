@@ -169,6 +169,20 @@ function issueToStep(issue, fromIssue) {
     actions: [],
   };
 
+  if (u.includes('BCM PN MISMATCH')) return {
+    ...base, severity: 'warning',
+    icon: '🔢', title: 'BCM Part Number Mismatch',
+    hexFilter: [],
+    guidance: 'The BCM part number found in the dump does not match the expected part number for the selected vehicle family. This is an informational warning — the BCM may still function, but immobilizer and key-fob pairing behavior may differ.',
+    steps: [
+      'Confirm the vehicle family selection is correct.',
+      'If the BCM PN is unexpected, verify the BCM came from a compatible vehicle model and year.',
+      'If you proceed with a mismatched BCM, monitor for key-fob pairing errors after flashing.',
+    ],
+    skipConsequence: 'The BCM may have reduced compatibility with this vehicle\'s key-fob and immobilizer system.',
+    actions: [],
+  };
+
   return {
     ...base,
     icon: '⚠️', title: 'Module Issue',
@@ -549,8 +563,13 @@ function SkipConfirm({ consequence, onConfirm, onCancel }) {
 
 /* ─── Compute predicted before/after state for an action ─── */
 function computeActionDiff(actionId, hexSnippets) {
+  /* Handle both plain "LABEL: HEX" and annotated "LABEL @0xOFFSET: HEX" formats */
   const find = (prefix) => {
-    const s = hexSnippets.find(x => x.toUpperCase().startsWith(prefix.toUpperCase() + ':'));
+    const p = prefix.toUpperCase();
+    const s = hexSnippets.find(x => {
+      const label = x.split(':')[0].replace(/@0x[0-9A-Fa-f]+\s*$/i, '').trim().toUpperCase();
+      return label === p || label.startsWith(p);
+    });
     return s ? s.slice(s.indexOf(':') + 1).trim() : null;
   };
   const rfhSec16 = find('RFHUB SEC16');
@@ -591,9 +610,24 @@ function computeActionDiff(actionId, hexSnippets) {
   return changes;
 }
 
+/* ─── Format real patch rows from doSync into diff entries ─── */
+function formatRealRows(rows) {
+  if (!rows || !rows.length) return [];
+  return rows.map(r => ({
+    field: `${r.module} Slot ${r.slot} @${r.offset}`,
+    type: 'str',
+    before: `${r.oldVin || '—'}${r.checkLabel ? ` (${r.checkLabel}: ${r.oldCheck} ${r.oldPass ? '✓' : '✗'})` : ''}`,
+    after:  `${r.newVin || '—'}${r.checkLabel ? ` (${r.checkLabel}: ${r.newCheck} ✓)` : ''}`,
+  }));
+}
+
 /* ─── In-wizard action result banner with before/after diff ─── */
-function ActionResult({ actionId, hexSnippets, onContinue }) {
-  const diffs = useMemo(() => computeActionDiff(actionId, hexSnippets || []), [actionId, hexSnippets]);
+function ActionResult({ actionId, hexSnippets, patchRows, onContinue }) {
+  /* Prefer real rows from doSync; fall back to computed prediction */
+  const diffs = useMemo(() => {
+    const real = formatRealRows(patchRows);
+    return real.length > 0 ? real : computeActionDiff(actionId, hexSnippets || []);
+  }, [actionId, hexSnippets, patchRows]);
 
   return (
     <div style={{ padding: '12px 14px', borderRadius: 10, marginTop: 10, background: W.gn + '14', border: `1.5px solid ${W.gn}40` }}>
@@ -654,6 +688,7 @@ function ActionResult({ actionId, hexSnippets, onContinue }) {
 function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onAction, done, skipped, onMarkDone, onSkip }) {
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
   const [appliedAction, setAppliedAction] = useState(null);
+  const [patchRows, setPatchRows] = useState(null);
 
   const clrMap = { error: W.er, warning: W.wn, info: W.a3 };
   const clr = clrMap[step.severity] || W.a3;
@@ -661,8 +696,9 @@ function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onActi
   const isResolved = done || skipped || appliedAction;
 
   const handleAction = (actionId) => {
-    onAction(actionId, step.id);
+    const rows = onAction(actionId, step.id);
     setAppliedAction(actionId);
+    if (rows) setPatchRows(rows);
   };
 
   return (
@@ -723,7 +759,7 @@ function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onActi
         </div>
       )}
 
-      {appliedAction && !done && <ActionResult actionId={appliedAction} hexSnippets={hexSnippets} onContinue={() => onMarkDone(step.id)} />}
+      {appliedAction && !done && <ActionResult actionId={appliedAction} hexSnippets={hexSnippets} patchRows={patchRows} onContinue={() => onMarkDone(step.id)} />}
 
       {!appliedAction && !done && !skipped && (
         <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>

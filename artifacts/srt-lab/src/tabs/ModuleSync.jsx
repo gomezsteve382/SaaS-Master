@@ -981,12 +981,32 @@ export default function ModuleSync() {
     wizardWarnings.push(`RFHUB SEC16: Slot 1/2 MISMATCH or unreadable`);
   if (rfh.parsed?.sec16?.virgin)
     wizardWarnings.push(`RFHUB SEC16: BLANK (all FF/00) — virgin module`);
+
+  /* PN-family mismatch — informational warning for wizard */
+  const pnFamResult = vehicleFamily && bcm.parsed?.ok ? bcmFamilyMismatch(bcm.parsed, vehicleFamily) : null;
+  if (pnFamResult && !pnFamResult.match) {
+    wizardWarnings.push(
+      `BCM PN MISMATCH: vehicle=${pnFamResult.family.label}, expected=${pnFamResult.expected?.join('/') || '—'}, detected=${pnFamResult.detected.join(', ') || 'none'}`
+    );
+  }
+
   const wizardModules = [bcm.bytes && 'BCM', rfh.bytes && 'RFHUB', pcm.bytes && 'PCM'].filter(Boolean);
+
+  /* Hex snippets with offset annotations for structured Claude context */
   const wizardHexSnippets = [];
-  if (rfh.parsed?.sec16?.slot1)
-    wizardHexSnippets.push('RFHUB SEC16: ' + bytesToHex(rfh.parsed.sec16.slot1).toUpperCase());
-  if (bcm.parsed?.sec16Hex)
-    wizardHexSnippets.push('BCM SEC16: ' + bcm.parsed.sec16Hex.toUpperCase());
+  if (rfh.parsed?.sec16?.slot1) {
+    const off = rfh.parsed.format?.startsWith('gen2') ? '0x050E' : '0x00AE';
+    wizardHexSnippets.push(`RFHUB SEC16 @${off}: ${bytesToHex(rfh.parsed.sec16.slot1).toUpperCase()}`);
+  }
+  if (bcm.parsed?.sec16Hex) {
+    const recOff = bcm.parsed.sec16Records?.[0]?.offset != null
+      ? `0x${hex4(bcm.parsed.sec16Records[0].offset)}` : '0x4090';
+    wizardHexSnippets.push(`BCM SEC16 @${recOff}: ${bcm.parsed.sec16Hex.toUpperCase()}`);
+  }
+  if (bcm.parsed?.vin)
+    wizardHexSnippets.push(`BCM VIN @0x0000: ${bcm.parsed.vin}`);
+  if (rfh.parsed?.vin)
+    wizardHexSnippets.push(`RFHUB VIN @0x5320: ${rfh.parsed.vin}`);
 
   /* Step actions available in wizard matching doSync() actions */
   const wizardStepActions = [
@@ -1181,8 +1201,10 @@ export default function ModuleSync() {
       log('✓ Sync complete. Flash .bin file(s) to modules and power-cycle 30 s for handshake.', 'ok');
       setDiffRows(rows);
       log('ℹ Use the Restore buttons below to recover pre-patch bytes if needed.', 'muted');
+      return rows;
     } catch (e) {
       log(`✗ Error: ${e.message}`, 'err');
+      return null;
     }
   };
 
@@ -1541,7 +1563,7 @@ export default function ModuleSync() {
           hexSnippets={wizardHexSnippets}
           onClose={() => setWizardOpen(false)}
           onAction={(actionId) => {
-            doSync(actionId === 'full-sync' ? 'sync-all' : actionId);
+            return doSync(actionId === 'full-sync' ? 'sync-all' : actionId);
           }}
           stepActions={wizardStepActions}
         />
