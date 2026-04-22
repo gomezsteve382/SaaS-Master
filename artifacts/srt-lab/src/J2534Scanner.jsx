@@ -262,7 +262,12 @@ export default function J2534Scanner() {
         const slice = Math.min(400, Math.max(50, deadline - Date.now()));
         resp = await bridgeCall("/readmsg", { timeoutMs: slice });
       } catch { return null; }
-      if (!resp || !resp.msg) continue;
+      // ERR_BUFFER_EMPTY means the bridge already waited its timeout and got nothing;
+      // bail immediately rather than tight-spinning until our client-side deadline.
+      if (!resp || !resp.msg) {
+        if (!resp || resp.error === 'ERR_BUFFER_EMPTY' || resp.ok === false) return null;
+        continue;
+      }
       const msg = resp.msg;
       // Skip TX echoes (rxStatus bit 0x01 = TX_MSG_TYPE)
       if (msg.rxStatus & 0x01) continue;
@@ -285,23 +290,30 @@ export default function J2534Scanner() {
 
   // Send a UDS request and wait for a matching reply (or a NRC to that same service).
   // Handles filter install + drain + send + read. Returns {msg, data} or null.
-  const unitRequest = useCallback(async (mod, dataHex, expectedPositivePrefix, expectedServiceId, timeoutMs) => {
+  // When verbose=true, logs TX and RX hex lines so the user can see the raw frames.
+  const unitRequest = useCallback(async (mod, dataHex, expectedPositivePrefix, expectedServiceId, timeoutMs, verbose = false) => {
     try {
       await bridgeCall("/setfilter", { txId: mod.tx, rxId: mod.rx });
     } catch (e) {
       if (!/not[_ ]unique/i.test(e.message)) return null;
     }
-    // quick drain
-    try { await bridgeCall("/readmsg", { timeoutMs: 50 }); } catch {}
+    // quick drain (break on empty — see readUntilMatch for rationale)
+    try { const _d = await bridgeCall("/readmsg", { timeoutMs: 50 }); void _d; } catch {}
+    const txHex = mod.tx.toString(16).toUpperCase().padStart(3, "0");
+    const rxHex = mod.rx.toString(16).toUpperCase().padStart(3, "0");
+    const fmtHex = s => ((s || "").match(/.{1,2}/g) || []).join(" ");
+    if (verbose) log(`TX [${mod.name}] → 0x${txHex}: ${fmtHex(dataHex)}`);
     try {
       await bridgeCall("/sendmsg", { txId: mod.tx, data: dataHex, flags: ISO15765_FRAME_PAD, timeoutMs: 1000 });
     } catch (e) {
       return null;
     }
-    return await readUntilMatch(mod.rx, [expectedPositivePrefix, [0x7F, expectedServiceId]], timeoutMs);
-  }, [readUntilMatch]);
+    const result = await readUntilMatch(mod.rx, [expectedPositivePrefix, [0x7F, expectedServiceId]], timeoutMs);
+    if (verbose && result) log(`RX [${mod.name}] ← 0x${rxHex}: ${fmtHex(result.msg?.data)}`);
+    return result;
+  }, [readUntilMatch, log]);
 
-  const probeOne = useCallback(async (mod) => {
+  const probeOne = useCallback(async (mod, verbose = false) => {
     const txHex = mod.tx.toString(16).toUpperCase().padStart(3, "0");
     const rxHex = mod.rx.toString(16).toUpperCase().padStart(3, "0");
     log(`→ probe ${mod.name} TX:0x${txHex} RX:0x${rxHex}`);
@@ -323,30 +335,33 @@ export default function J2534Scanner() {
       }
     }
 
-    // Hard-drain leftover frames from previous probes
+    // Hard-drain leftover frames from previous probes.
+    // Break immediately on ERR_BUFFER_EMPTY (buffer already empty) to avoid spinning.
     const drainDeadline = Date.now() + 200;
     while (Date.now() < drainDeadline) {
-      try { await bridgeCall("/readmsg", { timeoutMs: 60 }); } catch { break; }
+      let dr;
+      try { dr = await bridgeCall("/readmsg", { timeoutMs: 60 }); } catch { break; }
+      if (!dr || !dr.msg || dr.ok === false) break;
     }
 
     // STRATEGY 1: try 22 F1 90 directly in default session.
     // Most FCA body modules (BCM/RFHUB/IPC) answer VIN reads in default session and will
     // REFUSE 10 03 without security access — so starting with 10 03 causes them to ignore
     // everything else we send them.
-    let vinReply = await unitRequest(mod, "22F190", [0x62, 0xF1, 0x90], 0x22, 1500);
+    let vinReply = await unitRequest(mod, "22F190", [0x62, 0xF1, 0x90], 0x22, 1500, verbose);
     if (vinReply) {
       return interpretReply(mod, vinReply.msg);
     }
 
     // STRATEGY 2: module didn't answer default-session VIN. Try extended session,
     // then VIN. This is what ECM/TCM/TCM2 want.
-    const sess = await unitRequest(mod, "1003", [0x50, 0x03], 0x10, 1200);
+    const sess = await unitRequest(mod, "1003", [0x50, 0x03], 0x10, 1200, verbose);
     if (!sess) {
       // Also try 10 01 (default session) as a probe — some weirdos only answer this
-      const sess01 = await unitRequest(mod, "1001", [0x50, 0x01], 0x10, 800);
+      const sess01 = await unitRequest(mod, "1001", [0x50, 0x01], 0x10, 800, verbose);
       if (!sess01) return null;
     }
-    vinReply = await unitRequest(mod, "22F190", [0x62, 0xF1, 0x90], 0x22, 1500);
+    vinReply = await unitRequest(mod, "22F190", [0x62, 0xF1, 0x90], 0x22, 1500, verbose);
     if (vinReply) {
       return interpretReply(mod, vinReply.msg);
     }
@@ -424,7 +439,7 @@ export default function J2534Scanner() {
   const readVinOne = useCallback(async (mod) => {
     log(`Reading VIN from ${mod.name} ...`);
     try {
-      const hit = await probeOne(mod);
+      const hit = await probeOne(mod, true /* verbose: log TX/RX */);
       if (hit?.vin) log(`${mod.name} VIN: ${hit.vin}`, "success");
       else if (hit?.kind === "nrc") log(`${mod.name} NRC 0x${hit.nrc.toString(16).padStart(2,"0")}`, "warn");
       else log(`${mod.name} no reply`, "warn");

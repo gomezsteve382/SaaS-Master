@@ -491,6 +491,15 @@ const BCM_PN_VEHICLES = {
   '68463847': { name: 'Ram 1500 TRX (2021-2024 DT)',                          gen: 'gen2', sec: 'Gen2 SEC16 split' },
 };
 
+/* Vehicle family definitions — used for the mismatch warning selector */
+const VEHICLE_FAMILIES = [
+  { id: 'charger',    label: 'Dodge Charger (LX/LD · 2011–2023)',         expectedPns: ['68525720','68277389','68396561'] },
+  { id: 'challenger', label: 'Dodge Challenger (LC · 2011–2023)',          expectedPns: ['68525720','68277389','68396561'] },
+  { id: 'durango',    label: 'Dodge Durango (WD · 2011–2023)',             expectedPns: ['68525720','68277389','68396561'] },
+  { id: 'trackhawk',  label: 'Grand Cherokee Trackhawk (WK2 · 2018–2021)', expectedPns: ['68354769'] },
+  { id: 'trx',        label: 'Ram 1500 TRX (DT · 2021–2024)',              expectedPns: ['68463847'] },
+];
+
 function bcmVehicleMatch(parsedBcm) {
   if (!parsedBcm || !parsedBcm.partNumbers) return null;
   for (const pn of parsedBcm.partNumbers) {
@@ -498,6 +507,16 @@ function bcmVehicleMatch(parsedBcm) {
     if (BCM_PN_VEHICLES[trimmed]) return { pn: trimmed, ...BCM_PN_VEHICLES[trimmed] };
   }
   return null;
+}
+
+function bcmFamilyMismatch(parsedBcm, familyId) {
+  if (!familyId || !parsedBcm?.partNumbers?.length) return null;
+  const family = VEHICLE_FAMILIES.find(f => f.id === familyId);
+  if (!family) return null;
+  const detected = parsedBcm.partNumbers.map(p => p.replace(/[^0-9]/g, ''));
+  const match = family.expectedPns.some(ep => detected.includes(ep));
+  if (match) return { match: true, family, detected };
+  return { match: false, family, detected, expected: family.expectedPns };
 }
 
 /* ==========================================================================
@@ -822,6 +841,7 @@ export default function ModuleSync() {
   const [bcm, setBcm] = useState({ file: null, bytes: null, parsed: null });
   const [rfh, setRfh] = useState({ file: null, bytes: null, parsed: null });
   const [pcm, setPcm] = useState({ file: null, bytes: null, parsed: null });
+  const [vehicleFamily, setVehicleFamily] = useState('');
 
   const [targetVin, setTargetVin] = useState('');
   const [virginize, setVirginize] = useState(false);
@@ -856,7 +876,13 @@ export default function ModuleSync() {
       log('  BCM: no VIN parsed — file format not recognized', 'err');
     }
     const match = bcmVehicleMatch(parsed);
-    if (match) log(`  Vehicle: ${match.name} (${match.sec})`, 'muted');
+    if (match) {
+      log(`  Vehicle: ${match.name} (${match.sec})`, 'muted');
+      /* Auto-select vehicle family if the BCM PN is in the catalog */
+      for (const fam of VEHICLE_FAMILIES) {
+        if (fam.expectedPns.includes(match.pn)) { setVehicleFamily(fam.id); break; }
+      }
+    }
   }, [log]);
 
   const handleRfh = useCallback((file, bytes) => {
@@ -1110,6 +1136,61 @@ export default function ModuleSync() {
       {loaded > 0 && (
         <Card>
           <H2>Inspection Result</H2>
+
+          {/* Vehicle family selector */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: C.ts, marginBottom: 6 }}>
+              Vehicle Family — select to verify BCM part number
+            </div>
+            <select
+              data-testid="vehicle-family-select"
+              value={vehicleFamily}
+              onChange={e => setVehicleFamily(e.target.value)}
+              style={{
+                padding: '10px 14px', borderRadius: 10, border: `2px solid ${vehicleFamily ? C.a3 : C.bd}`,
+                background: C.c2, color: C.tx, fontFamily: "'Nunito'", fontSize: 13, fontWeight: 700,
+                cursor: 'pointer', outline: 'none', width: '100%', maxWidth: 480,
+              }}
+            >
+              <option value="">— select vehicle family to verify BCM PN —</option>
+              {VEHICLE_FAMILIES.map(f => (
+                <option key={f.id} value={f.id}>{f.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* BCM part-number mismatch warning */}
+          {(() => {
+            if (!bcm.parsed?.ok) return null;
+            const r = bcmFamilyMismatch(bcm.parsed, vehicleFamily);
+            if (!r) return null;
+            if (r.match) return (
+              <div data-testid="bcm-family-match" style={{
+                padding: '12px 16px', borderRadius: 10, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10,
+                background: 'rgba(0,200,83,0.08)', color: '#0a7a3b', border: '1.5px solid rgba(0,200,83,0.3)', fontWeight: 700, fontSize: 13,
+              }}>
+                ✓ BCM part number matches <strong>{r.family.label}</strong>
+              </div>
+            );
+            return (
+              <div data-testid="bcm-family-mismatch" style={{
+                padding: '12px 16px', borderRadius: 10, marginBottom: 14, display: 'flex', flexDirection: 'column', gap: 6,
+                background: 'rgba(255,179,0,0.09)', border: '2px solid rgba(255,179,0,0.4)',
+              }}>
+                <div style={{ fontWeight: 900, fontSize: 13, color: '#7a4a00' }}>
+                  ⚠ BCM PART NUMBER MISMATCH
+                </div>
+                <div style={{ fontSize: 12, color: '#7a4a00', lineHeight: 1.5 }}>
+                  Selected vehicle: <strong>{r.family.label}</strong><br />
+                  Expected BCM PN: <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{r.expected?.join(', ') || '—'}</span><br />
+                  Detected BCM PN: <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{r.detected.join(', ') || '— none recognized'}</span>
+                </div>
+                <div style={{ fontSize: 11, color: '#9a6000', fontStyle: 'italic' }}>
+                  Flash a mismatched BCM into this vehicle at your own risk — key-fob and immobilizer pairing may fail.
+                </div>
+              </div>
+            );
+          })()}
 
           {/* VIN match banner */}
           {bothReady && (
