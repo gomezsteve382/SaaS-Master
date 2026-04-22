@@ -33,7 +33,7 @@ import MismatchWizard from "./components/MismatchWizard.jsx";
 import {parseModule} from "./lib/parseModule.js";
 import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
-import {VEHICLES,VEHICLE_LIST,KNOWN_BCM_PN,AMBIGUOUS_REDEYE_PNS,GEN2_YEAR_CHARS,vehiclesForPartNumber,analyzeDumpPartNumber,generationForPartNumber} from "./lib/vehicles.js";
+import {VEHICLES,VEHICLE_LIST,KNOWN_BCM_PN,vehiclesForPartNumber,analyzeDumpPartNumber,generationForPartNumber} from "./lib/vehicles.js";
 
 /* ═══ VERIFIED ENGINES ═══ */
 function crc16(d,i=0xFFFF){let c=i;for(let x=0;x<d.length;x++){c^=d[x]<<8;for(let j=0;j<8;j++)c=c&0x8000?(c<<1)^0x1021:c<<1;c&=0xFFFF;}return c;}
@@ -1527,9 +1527,8 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
 
       // SEC16 write — Gen2 only, requires RFH present
       const pns = analyzeDumpPartNumber(bcm.data);
-      const isGen2Pn = pns.primaryPn && ['68396561','68396562','68396563','68463847','68463848'].includes(pns.primaryPn);
-      const isAmbigGen2 = pns.primaryPn && AMBIGUOUS_REDEYE_PNS.includes(pns.primaryPn) && pns.vinModelYearChar && GEN2_YEAR_CHARS.has(pns.vinModelYearChar);
-      const isGen2 = isGen2Pn || isAmbigGen2;
+      const genRow = pns.primaryPn ? generationForPartNumber(vehicle.id, pns.primaryPn, pns.vinModelYearChar) : null;
+      const isGen2 = genRow?.sec16 === 'gen2-split';
       if(isGen2 && rfh){
         const rfhP = engParseRfh(rfh.data);
         if(rfhP.format==='gen2' && rfhP.sec16 && !rfhP.sec16.virgin){
