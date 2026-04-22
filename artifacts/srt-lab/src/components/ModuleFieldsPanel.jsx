@@ -117,19 +117,29 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
     {mod.type==='RFHUB'&&(()=>{
       const rfhSz=mod.size;
       const rfhMissing=[];
-      if(!mod.rfhVin92&&rfhSz<0xA5)rfhMissing.push({n:'rfhVin92 @0x0092',need:0xA5});
-      if(!mod.partNumbers.hw&&rfhSz<0x0812)rfhMissing.push({n:'partNumber HW @0x0808',need:0x0812});
-      if(!mod.partNumbers.sw&&rfhSz<0x081C)rfhMissing.push({n:'partNumber SW @0x0812',need:0x081C});
-      if(!mod.partNumbers.cal&&rfhSz<0x083A)rfhMissing.push({n:'partNumber CAL @0x082C',need:0x083A});
-      if(!mod.vehicleSecret&&rfhSz<0x051E)rfhMissing.push({n:'vehicleSecret @0x050E',need:0x051E});
+      const vin92Missing=!mod.rfhVin92&&rfhSz<0xA5;
+      const hwMissing=!mod.partNumbers.hw&&rfhSz<0x0812;
+      const swMissing=!mod.partNumbers.sw&&rfhSz<0x081C;
+      const calMissing=!mod.partNumbers.cal&&rfhSz<0x083A;
+      const vsMissing=!mod.vehicleSecret&&rfhSz<0x051E;
+      if(vin92Missing)rfhMissing.push({n:'rfhVin92 @0x0092',need:0xA5});
+      if(hwMissing)rfhMissing.push({n:'partNumber HW @0x0808',need:0x0812});
+      if(swMissing)rfhMissing.push({n:'partNumber SW @0x0812',need:0x081C});
+      if(calMissing)rfhMissing.push({n:'partNumber CAL @0x082C',need:0x083A});
+      if(vsMissing)rfhMissing.push({n:'vehicleSecret @0x050E',need:0x051E});
       // sec16: default to Gen2 layout (matches parser when sz===4096||sz===8192, and is the
       // typical truncated-dump case since type==='RFHUB' is set when sz===4096)
       const sec16IsGen2=rfhSz===4096||rfhSz===8192||rfhSz<2048;
       const expectedSec16=sec16IsGen2?[[1,0x050E,0x0520],[2,0x0522,0x0534]]:[[1,0xAE,0xC0],[2,0xC0,0xD2]];
+      const sec16MissingSlots=[];
       for(const[slot,off,need]of expectedSec16){
-        if(rfhSz<need&&!(mod.sec16s||[]).find(s=>s.slot===slot))rfhMissing.push({n:`sec16s slot${slot} @${fO(off)}`,need});
+        if(rfhSz<need&&!(mod.sec16s||[]).find(s=>s.slot===slot)){
+          rfhMissing.push({n:`sec16s slot${slot} @${fO(off)}`,need});
+          sec16MissingSlots.push({slot,offset:off,need});
+        }
       }
       const rfhUndersized=rfhMissing.length>0;
+      const RfhMissing=({need})=><span title={`needs ${need.toLocaleString()} bytes, got ${rfhSz.toLocaleString()}`} style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.wn,fontWeight:700}}>buffer too small (needs {need.toLocaleString()} B, got {rfhSz.toLocaleString()})</span>;
       return <>
       {rfhUndersized&&<Card style={{marginBottom:12,padding:12,border:'1px solid '+C.wn+'66',background:C.wn+'14'}}>
         <div style={{fontWeight:800,fontSize:12,color:C.wn,marginBottom:4,letterSpacing:.5}}>⚠️ FILE TOO SMALL</div>
@@ -153,6 +163,10 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
             <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>VIN @0x0092</div>
             <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:900,color:C.a1,lineHeight:1.1,wordBreak:'break-all'}}>{mod.rfhVin92.vin}</div>
             <div style={{marginTop:6}}><Tag color={mod.rfhVin92.csOk?C.gn:C.er}>CRC16 {mod.rfhVin92.csOk?'✓ VALID':'✗ INVALID'}</Tag></div>
+          </div>:vin92Missing?<div title={`needs ${(0xA5).toLocaleString()} bytes, got ${rfhSz.toLocaleString()}`} style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.wn+'66'}}>
+            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>VIN @0x0092</div>
+            <div style={{fontSize:18,fontWeight:900,color:C.wn,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>buffer too small</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:4}}>needs {(0xA5).toLocaleString()} B · got {rfhSz.toLocaleString()}</div>
           </div>:<div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.bd}}>
             <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>VIN @0x0092</div>
             <div style={{fontSize:24,fontWeight:900,color:C.tm,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>—</div>
@@ -175,22 +189,29 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
         </div>
       </Card>
 
-      {mod.vehicleSecret&&<Card style={{marginBottom:14,padding:16}}>
+      {(mod.vehicleSecret||vsMissing)&&<Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Vehicle Secret @0x050E</div>
-        <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
-          <Hex muted={mod.vehicleSecret.bytes.every(b=>b===0xFF||b===0)}>{mod.vehicleSecret.hex}</Hex>
+        <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(vsMissing?C.wn+'66':C.bd)}}>
+          {mod.vehicleSecret?<Hex muted={mod.vehicleSecret.bytes.every(b=>b===0xFF||b===0)}>{mod.vehicleSecret.hex}</Hex>:<RfhMissing need={0x051E}/>}
         </div>
       </Card>}
 
-      {mod.sec16s?.length>0&&<Card style={{marginBottom:14,padding:16}}>
+      {(mod.sec16s?.length>0||sec16MissingSlots.length>0)&&<Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔒 SEC16 Slots</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-          {mod.sec16s.map(s=><div key={s.slot} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(s.blank?C.bd:s.csOk===false?C.er+'40':C.gn+'40')}}>
+          {(mod.sec16s||[]).map(s=><div key={'p'+s.slot} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(s.blank?C.bd:s.csOk===false?C.er+'40':C.gn+'40')}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
               <span style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>SLOT {s.slot} · {fO(s.offset)}</span>
               {s.blank?<Tag color={C.tm}>BLANK</Tag>:s.csOk!==undefined&&<Tag color={s.csOk?C.gn:C.er}>CS {s.csOk?'✓':'✗'}</Tag>}
             </div>
             {!s.blank&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.a4,wordBreak:'break-all'}}>{s.hex}</div>}
+          </div>)}
+          {sec16MissingSlots.map(s=><div key={'m'+s.slot} title={`needs ${s.need.toLocaleString()} bytes, got ${rfhSz.toLocaleString()}`} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.wn+'66'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+              <span style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>SLOT {s.slot} · {fO(s.offset)}</span>
+              <Tag color={C.wn}>N/A</Tag>
+            </div>
+            <RfhMissing need={s.need}/>
           </div>)}
         </div>
         {mod.sec16match!==undefined&&<div style={{marginTop:8}}>
@@ -198,12 +219,19 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
         </div>}
       </Card>}
 
-      {(mod.partNumbers.hw||mod.partNumbers.sw||mod.partNumbers.cal)&&<Card style={{marginBottom:14,padding:16}}>
+      {(mod.partNumbers.hw||mod.partNumbers.sw||mod.partNumbers.cal||hwMissing||swMissing||calMissing)&&<Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🏷️ Part Numbers</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
-          {[{l:'HW',o:0x0808,v:mod.partNumbers.hw},{l:'SW',o:0x0812,v:mod.partNumbers.sw},{l:'CAL',o:0x082C,v:mod.partNumbers.cal}].map(p=>p.v?<div key={p.l} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+          {[
+            {l:'HW',o:0x0808,v:mod.partNumbers.hw,miss:hwMissing,need:0x0812},
+            {l:'SW',o:0x0812,v:mod.partNumbers.sw,miss:swMissing,need:0x081C},
+            {l:'CAL',o:0x082C,v:mod.partNumbers.cal,miss:calMissing,need:0x083A},
+          ].map(p=>p.v?<div key={p.l} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
             <div style={{fontSize:10,color:C.tm,marginBottom:4}}>{p.l} @{fO(p.o)}</div>
             <div style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:C.a3,letterSpacing:1}}>{p.v}</div>
+          </div>:p.miss?<div key={p.l} title={`needs ${p.need.toLocaleString()} bytes, got ${rfhSz.toLocaleString()}`} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.wn+'66'}}>
+            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>{p.l} @{fO(p.o)}</div>
+            <RfhMissing need={p.need}/>
           </div>:null)}
         </div>
       </Card>}
@@ -314,10 +342,13 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
     {mod.type==='95640'&&(()=>{
       const eepSz=mod.size;
       const eepMissing=[];
-      if(!mod.bcmSec16&&eepSz<0x84A)eepMissing.push({n:'bcmSec16 @0x0838',need:0x84A});
+      const sec16Missing=!mod.bcmSec16&&eepSz<0x84A;
       const hasThirdVin=(mod.vins||[]).some(v=>v.offset===0x1B82);
-      if(!hasThirdVin&&eepSz<0x1B95)eepMissing.push({n:'VIN slot 3 @0x1B82',need:0x1B95});
+      const vin3Missing=!hasThirdVin&&eepSz<0x1B95;
+      if(sec16Missing)eepMissing.push({n:'bcmSec16 @0x0838',need:0x84A});
+      if(vin3Missing)eepMissing.push({n:'VIN slot 3 @0x1B82',need:0x1B95});
       const eepUndersized=eepMissing.length>0;
+      const EepMissing=({need})=><span title={`needs ${need.toLocaleString()} bytes, got ${eepSz.toLocaleString()}`} style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.wn,fontWeight:700}}>buffer too small (needs {need.toLocaleString()} B, got {eepSz.toLocaleString()})</span>;
       return <>
       {eepUndersized&&<Card style={{marginBottom:12,padding:12,border:'1px solid '+C.wn+'66',background:C.wn+'14'}}>
         <div style={{fontWeight:800,fontSize:12,color:C.wn,marginBottom:4,letterSpacing:.5}}>⚠️ FILE TOO SMALL</div>
@@ -352,14 +383,21 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
         </div>
       </Card>}
 
-      {mod.bcmSec16&&<Card style={{marginBottom:14,padding:16}}>
+      {(mod.bcmSec16||sec16Missing)&&<Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔒 BCM-SEC16 @0x0838</div>
-        <div style={{padding:12,borderRadius:10,background:C.c2,border:'1px solid '+(mod.bcmSec16.blank?C.wn+'40':mod.bcmSec16.csOk?C.gn+'40':C.er+'40')}}>
+        <div style={{padding:12,borderRadius:10,background:C.c2,border:'1px solid '+(sec16Missing?C.wn+'66':mod.bcmSec16.blank?C.wn+'40':mod.bcmSec16.csOk?C.gn+'40':C.er+'40')}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
             <span style={{fontSize:11,fontWeight:800,color:C.tm,letterSpacing:1.5}}>SEC16 BLOCK</span>
-            {mod.bcmSec16.blank?<Tag color={C.wn}>BLANK</Tag>:<Tag color={mod.bcmSec16.csOk?C.gn:C.er}>CRC16 {mod.bcmSec16.csOk?'✓ VALID':'✗ INVALID'}</Tag>}
+            {sec16Missing?<Tag color={C.wn}>N/A</Tag>:mod.bcmSec16.blank?<Tag color={C.wn}>BLANK</Tag>:<Tag color={mod.bcmSec16.csOk?C.gn:C.er}>CRC16 {mod.bcmSec16.csOk?'✓ VALID':'✗ INVALID'}</Tag>}
           </div>
-          {!mod.bcmSec16.blank&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.a4,wordBreak:'break-all'}}>{mod.bcmSec16.hex}</div>}
+          {sec16Missing?<EepMissing need={0x84A}/>:!mod.bcmSec16.blank&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.a4,wordBreak:'break-all'}}>{mod.bcmSec16.hex}</div>}
+        </div>
+      </Card>}
+
+      {(hasThirdVin||vin3Missing)&&<Card style={{marginBottom:14,padding:16}}>
+        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔢 VIN Slot 3 @0x1B82</div>
+        <div style={{padding:12,borderRadius:10,background:C.c2,border:'1px solid '+(vin3Missing?C.wn+'66':C.bd)}}>
+          {vin3Missing?<EepMissing need={0x1B95}/>:<span style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:800,color:C.a1}}>{(mod.vins||[]).find(v=>v.offset===0x1B82)?.vin}</span>}
         </div>
       </Card>}
     </>;})()}
