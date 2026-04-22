@@ -338,6 +338,8 @@ function useChatStream(sessionKey) {
   const [messages, setMessages] = useState([]);
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState(null);
+  const [hydrateError, setHydrateError] = useState(null);
+  const [hydrateNonce, setHydrateNonce] = useState(0);
   const [conversationId, setConversationId] = useState(null);
   const [hydrated, setHydrated] = useState(false);
   const [resumed, setResumed] = useState(false); /* true ⇢ we loaded a prior chat */
@@ -353,6 +355,13 @@ function useChatStream(sessionKey) {
     contextRef.current = ctx;
   }, []);
 
+  /* Manually re-run the hydrate effect against the same saved pointer.
+   * Used by the header "Retry" button after a transient hydrate failure
+   * so the user can recover without remounting the wizard. */
+  const retryHydrate = useCallback(() => {
+    setHydrateNonce(n => n + 1);
+  }, []);
+
   /* ── Hydrate prior session on mount / sessionKey change ── */
   useEffect(() => {
     let cancelled = false;
@@ -361,6 +370,7 @@ function useChatStream(sessionKey) {
     setMessages([]);
     setConversationId(null);
     setError(null);
+    setHydrateError(null);
 
     const lastId = (() => {
       try { return localStorage.getItem(LAST_CONV_KEY(sessionKey)); }
@@ -391,17 +401,19 @@ function useChatStream(sessionKey) {
          * even if the prior session had no messages yet. */
         setResumed(true);
         setHydrated(true);
-      } catch {
+      } catch (e) {
         /* Transient failure (network down, server restart). Don't clear the
          * pointer or mark hydrated — leaving hydrated=false suppresses the
          * auto-greet effect, so we won't accidentally fork a brand-new
-         * conversation and overwrite the saved one on the next user send. */
-        if (!cancelled) setError('Could not load previous chat. Reopen the wizard once the server is reachable to resume.');
+         * conversation and overwrite the saved one on the next user send.
+         * Surface a dedicated hydrateError so the header can show a Retry
+         * button alongside the message. */
+        if (!cancelled) setHydrateError(e.message || 'Could not load previous chat.');
       }
     })();
 
     return () => { cancelled = true; };
-  }, [sessionKey]);
+  }, [sessionKey, hydrateNonce]);
 
   const sendMessage = useCallback(async (userText) => {
     if (streaming) return;
@@ -544,8 +556,8 @@ function useChatStream(sessionKey) {
   }, [startNewSession]);
 
   return {
-    messages, streaming, error, conversationId, hydrated, resumed,
-    sendMessage, updateContext,
+    messages, streaming, error, hydrateError, conversationId, hydrated, resumed,
+    sendMessage, updateContext, retryHydrate,
     startNewSession, switchToSession, listSessions, deleteSession,
   };
 }
@@ -553,8 +565,8 @@ function useChatStream(sessionKey) {
 /* ─── Chat Panel ─── */
 function ChatPanel({ moduleContext, autoGreet, sessionKey }) {
   const {
-    messages, streaming, error, conversationId, hydrated, resumed,
-    sendMessage, updateContext,
+    messages, streaming, error, hydrateError, conversationId, hydrated, resumed,
+    sendMessage, updateContext, retryHydrate,
     startNewSession, switchToSession, listSessions, deleteSession,
   } = useChatStream(sessionKey);
   const [input, setInput] = useState('');
@@ -724,6 +736,33 @@ function ChatPanel({ moduleContext, autoGreet, sessionKey }) {
         )}
         <div style={{ color: W.tm, fontSize: 13 }}>{collapsed ? '▲' : '▼'}</div>
       </div>
+
+      {/* Hydrate failure banner with manual retry — appears when the saved
+          conversation pointer couldn't be loaded due to a transient (non-404)
+          error. Lets the user recover without remounting the wizard. */}
+      {!collapsed && hydrateError && !hydrated && (
+        <div
+          data-testid="wizard-chat-hydrate-error"
+          style={{
+            padding: '8px 14px', background: W.er + '14', borderBottom: `1px solid ${W.er}55`,
+            display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0,
+          }}>
+          <div style={{ flex: 1, color: W.er, fontSize: 11, lineHeight: 1.5 }}>
+            ✗ Couldn't load your previous chat ({hydrateError}). Your saved chat is still safe.
+          </div>
+          <button
+            data-testid="wizard-chat-hydrate-retry-btn"
+            onClick={(e) => { e.stopPropagation(); retryHydrate(); }}
+            title="Try loading the saved chat again"
+            style={{
+              background: W.er, border: 'none', borderRadius: 6, padding: '4px 12px',
+              color: '#fff', fontSize: 11, fontWeight: 800, letterSpacing: 0.5,
+              cursor: 'pointer', flexShrink: 0,
+            }}>
+            ↻ Retry
+          </button>
+        </div>
+      )}
 
       {/* Past sessions dropdown */}
       {!collapsed && pastOpen && (

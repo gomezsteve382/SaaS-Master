@@ -299,6 +299,47 @@ describe('Wizard chat persistence (useChatStream via ChatPanel)', () => {
     expect(screen.queryByTestId('wizard-chat-resumed-pill')).toBeNull();
   });
 
+  it('shows a Retry button on transient hydrate failure and re-hydrates against the saved pointer when clicked', async () => {
+    /* First GET fails 500 → header shows Retry button + error message;
+     * pointer is preserved (covered separately). Click Retry → second
+     * GET returns 200 with the saved messages → resumed pill appears,
+     * messages render, and the error banner disappears. The wizard is
+     * never remounted. */
+    localStorage.setItem(KEY, '55');
+    let getCalls = 0;
+    global.fetch = vi.fn(async (url) => {
+      const u = String(url);
+      if (u.endsWith('/anthropic/conversations/55')) {
+        getCalls += 1;
+        if (getCalls === 1) return new Response('boom', { status: 500 });
+        return jsonResponse(200, {
+          id: 55, title: 'recovered', scope: SCOPE,
+          messages: [{ role: 'user', content: 'saved question' }],
+        });
+      }
+      throw new Error('unexpected ' + url);
+    });
+
+    renderWizard();
+
+    /* Header surfaces a clear, clickable Retry control alongside the error. */
+    const retryBtn = await screen.findByTestId('wizard-chat-hydrate-retry-btn');
+    expect(retryBtn).toBeTruthy();
+    expect(screen.getByTestId('wizard-chat-hydrate-error')).toBeTruthy();
+    /* Pointer survived the failure so retry can target the same conversation. */
+    expect(localStorage.getItem(KEY)).toBe('55');
+
+    fireEvent.click(retryBtn);
+
+    /* Second GET is issued against the same id and succeeds. */
+    await waitFor(() => expect(getCalls).toBe(2));
+    /* Saved messages render and the resumed pill confirms recovery. */
+    await waitFor(() => expect(screen.getByText('saved question')).toBeTruthy());
+    expect(screen.getByTestId('wizard-chat-resumed-pill')).toBeTruthy();
+    /* Error banner is gone now that hydration completed. */
+    expect(screen.queryByTestId('wizard-chat-hydrate-error')).toBeNull();
+  });
+
   it('switching to a past session updates the localStorage pointer to that session id', async () => {
     /* Start with no pointer ⇒ chat boots empty. Open Past Sessions,
      * server returns one prior chat, click it ⇒ pointer should now
