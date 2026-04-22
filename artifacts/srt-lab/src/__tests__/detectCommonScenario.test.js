@@ -109,6 +109,56 @@ describe('detectCommonScenario', () => {
     })).toBeNull();
   });
 
+  test('RFHUB + 95640 with BCM-SEC16 mismatch → "Re-key 95640 from RFHUB"', () => {
+    const got = detectCommonScenario({
+      issues: ['95640 BCM-SEC16 MISMATCH: 95640 token ≠ reverse(RFHUB SEC16)'],
+      stepActions: [
+        { id: 'rekey-95640-from-rfh', label: 're-key', enabled: true, description: '' },
+      ],
+      modules: ['RFHUB', '95640'],
+    });
+    expect(got).not.toBeNull();
+    expect(got.key).toBe('rekey-95640-from-rfhub');
+    expect(got.actionId).toBe('rekey-95640-from-rfh');
+    expect(got.name).toBe('Re-key 95640 from RFHUB');
+    expect(got.modulesAffected).toEqual(['95640']);
+  });
+
+  test('RFHUB + 95640 with BLANK 95640 SEC16 → "Re-key 95640 from RFHUB"', () => {
+    const got = detectCommonScenario({
+      issues: ['95640 BCM-SEC16 BLANK — backup chip needs re-keying from RFHUB'],
+      stepActions: [
+        { id: 'rekey-95640-from-rfh', label: 're-key', enabled: true, description: '' },
+      ],
+      modules: ['RFHUB', '95640'],
+    });
+    expect(got).not.toBeNull();
+    expect(got.key).toBe('rekey-95640-from-rfhub');
+    expect(got.actionId).toBe('rekey-95640-from-rfh');
+  });
+
+  test('RFHUB + 95640 with no issues → null (no over-trigger)', () => {
+    expect(detectCommonScenario({
+      stepActions: [
+        { id: 'rekey-95640-from-rfh', label: 're-key', enabled: true, description: '' },
+      ],
+      modules: ['RFHUB', '95640'],
+    })).toBeNull();
+  });
+
+  test('RFHUB + 95640 + BCM falls through to BCM/RFHUB scenario (not 95640 re-key)', () => {
+    const got = detectCommonScenario({
+      issues: ['VIN MISMATCH between BCM and RFHUB'],
+      stepActions: [
+        ...stepActions,
+        { id: 'rekey-95640-from-rfh', label: 're-key', enabled: true, description: '' },
+      ],
+      modules: ['BCM', 'RFHUB', '95640'],
+    });
+    expect(got).not.toBeNull();
+    expect(got.key).not.toBe('rekey-95640-from-rfhub');
+  });
+
   test('uncommon shape (BCM+PCM only with random warning) → null fallback', () => {
     expect(detectCommonScenario({
       warnings: ['BCM PN MISMATCH'],

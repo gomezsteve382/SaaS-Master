@@ -879,19 +879,91 @@ function ActionBtn({ title, desc, enabled, onClick, color }) {
  * MAIN COMPONENT
  * ========================================================================== */
 
+/* 95640 BCM-backup EEPROM parser.
+ *  · VIN slots at 0x275 / 0x288 with crc8 at off-1 (we don't recompute CRC8 here)
+ *  · 16-byte secret key at 0x40-0x4F
+ *  · BCM-SEC16 token at 0x838 (16 bytes), big-endian CRC16 at 0x848-0x849
+ * The 95640 stores the SEC16 byte-reversed compared to the RFHUB SEC16, which
+ * is why "Re-key 95640 from RFHUB" reverses the RFH SEC16 before writing.
+ */
+function engParseEep95640(bytes) {
+  const r = {
+    ok: false, kind: '95640', size: bytes.length,
+    vinSlots: [], vin: null, vinConsistent: false,
+    secretKey: null, secretKeyHex: null, secretKeyBlank: true,
+    bcmSec16: null, bcmSec16Hex: null, bcmSec16Blank: true,
+    bcmSec16StoredCrc: null, bcmSec16CalcCrc: null, bcmSec16CrcOk: false,
+    bcmSec16ReversedHex: null,
+  };
+  for (const off of [0x275, 0x288]) {
+    if (off + 17 > bytes.length) continue;
+    let vin = '', valid = true;
+    for (let k = 0; k < 17; k++) {
+      const b = bytes[off + k];
+      if (b < 0x20 || b > 0x7E) { valid = false; break; }
+      vin += String.fromCharCode(b);
+    }
+    if (!valid || !VIN_RE.test(vin)) continue;
+    r.vinSlots.push({ offset: off, vin });
+  }
+  if (r.vinSlots.length > 0) {
+    r.vin = r.vinSlots[0].vin;
+    r.vinConsistent = r.vinSlots.every(s => s.vin === r.vin);
+  }
+  if (bytes.length >= 0x50) {
+    const k = bytes.slice(0x40, 0x50);
+    r.secretKey = k;
+    r.secretKeyHex = bytesToHex(k).toUpperCase();
+    r.secretKeyBlank = k.every(b => b === 0xFF) || k.every(b => b === 0x00);
+  }
+  if (bytes.length >= 0x84A) {
+    const s16 = bytes.slice(0x838, 0x848);
+    r.bcmSec16 = s16;
+    r.bcmSec16Hex = bytesToHex(s16).toUpperCase();
+    r.bcmSec16Blank = s16.every(b => b === 0xFF) || s16.every(b => b === 0x00);
+    r.bcmSec16StoredCrc = (bytes[0x848] << 8) | bytes[0x849];
+    r.bcmSec16CalcCrc   = engCrc16(s16);
+    r.bcmSec16CrcOk = !r.bcmSec16Blank && r.bcmSec16StoredCrc === r.bcmSec16CalcCrc;
+    const rev = new Uint8Array(16);
+    for (let i = 0; i < 16; i++) rev[i] = s16[15 - i];
+    r.bcmSec16ReversedHex = bytesToHex(rev).toUpperCase();
+  }
+  r.ok = r.vin !== null || (r.bcmSec16 && !r.bcmSec16Blank);
+  return r;
+}
+
+/* Write the byte-reversed RFHUB SEC16 (slot 1, 16 bytes) into a 95640 dump
+ * at 0x838, with big-endian CRC16 of the reversed bytes at 0x848-0x849.
+ * Mirrors the algorithm used by SecurityTab's `rfhBcmSync` tool. */
+function engWriteEep95640FromRfh(bytes, rfhSec16) {
+  if (!rfhSec16 || rfhSec16.length < 16)
+    throw new Error('RFHUB SEC16 slot must be 16 bytes');
+  if (bytes.length < 0x84A)
+    throw new Error(`95640 file too small (need ≥0x84A bytes, got ${bytes.length})`);
+  const out = new Uint8Array(bytes);
+  const rev = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) rev[i] = rfhSec16[15 - i];
+  for (let i = 0; i < 16; i++) out[0x838 + i] = rev[i];
+  const cs = engCrc16(rev);
+  out[0x848] = (cs >> 8) & 0xFF;
+  out[0x849] = cs & 0xFF;
+  return { bytes: out, sec16Hex: bytesToHex(rev).toUpperCase(), crc16: cs };
+}
+
 export default function ModuleSync({ vehicleId } = {}) {
   const { vin: masterVin, vinValid: masterVinValid } = useMasterVin();
 
   const [bcm, setBcm] = useState({ file: null, bytes: null, parsed: null });
   const [rfh, setRfh] = useState({ file: null, bytes: null, parsed: null });
   const [pcm, setPcm] = useState({ file: null, bytes: null, parsed: null });
+  const [eep, setEep] = useState({ file: null, bytes: null, parsed: null });
   const [vehicleFamily, setVehicleFamily] = useState('');
 
   const [targetVin, setTargetVin] = useState('');
   const [virginize, setVirginize] = useState(false);
   const [logLines,  setLogLines]  = useState([]);
   const [diffRows,  setDiffRows]  = useState([]);
-  const [originals, setOriginals] = useState({ bcm: null, rfh: null, pcm: null });
+  const [originals, setOriginals] = useState({ bcm: null, rfh: null, pcm: null, eep: null });
   const [wizardOpen, setWizardOpen] = useState(false);
   const logRef = useRef(null);
 
@@ -953,9 +1025,26 @@ export default function ModuleSync({ vehicleId } = {}) {
     if (parsed.immoDamaged) log('  ⚠ PCM: no SEC6 marker found — may be damaged or wrong file', 'warn');
   }, [log]);
 
+  const handleEep = useCallback((file, bytes) => {
+    const parsed = engParseEep95640(bytes);
+    setEep({ file, bytes, parsed });
+    setDiffRows([]); setOriginals(prev => ({ ...prev, eep: null }));
+    log(`Loaded 95640: ${file.name} (${bytes.length} bytes)`, 'info');
+    if (parsed.vin) log(`  95640 VIN: ${parsed.vin} · ${parsed.vinSlots.length} slot(s)`, 'ok');
+    if (parsed.bcmSec16) {
+      if (parsed.bcmSec16Blank) log(`  95640 BCM-SEC16 @0x838: BLANK (virgin)`, 'warn');
+      else log(`  95640 BCM-SEC16 @0x838: ${parsed.bcmSec16Hex} · CRC16 ${parsed.bcmSec16CrcOk ? '✓' : '✗ (stored=0x' + hex4(parsed.bcmSec16StoredCrc) + ' calc=0x' + hex4(parsed.bcmSec16CalcCrc) + ')'}`, parsed.bcmSec16CrcOk ? 'ok' : 'warn');
+    } else if (bytes.length < 0x84A) {
+      log(`  95640: file too small for SEC16 region (need ≥0x84A bytes)`, 'warn');
+    }
+    if (!parsed.ok && !parsed.vin && (!parsed.bcmSec16 || parsed.bcmSec16Blank)) {
+      log('  95640: no VIN and no SEC16 — file may be virgin or unrecognized', 'warn');
+    }
+  }, [log]);
+
   const tv      = targetVin.replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, VIN_LEN);
   const tvOk    = tv.length === VIN_LEN && VIN_RE.test(tv);
-  const loaded  = (bcm.bytes ? 1 : 0) + (rfh.bytes ? 1 : 0) + (pcm.bytes ? 1 : 0);
+  const loaded  = (bcm.bytes ? 1 : 0) + (rfh.bytes ? 1 : 0) + (pcm.bytes ? 1 : 0) + (eep.bytes ? 1 : 0);
   const bothReady = !!(bcm.bytes && rfh.bytes && bcm.parsed?.ok && rfh.parsed?.ok);
   const vinMatch  = bothReady && bcm.parsed.vin === rfh.parsed.vin;
 
@@ -964,6 +1053,10 @@ export default function ModuleSync({ vehicleId } = {}) {
   const rfhHasSec16      = !!(rfh.parsed?.sec16 && !rfh.parsed.sec16.virgin);
   const sec16SyncOk      = bcmHasSec16 && rfhHasSec16;
   const bcmToRfhSec16Ok  = bcmHasSec16 && rfh.parsed?.format?.startsWith('gen2');
+
+  /* 95640 re-key eligibility — needs RFHUB SEC16 master + 95640 dump ≥0x84A bytes */
+  const eep95640Loaded   = !!eep.bytes;
+  const rekey95640Ok     = eep95640Loaded && rfhHasSec16 && eep.bytes.length >= 0x84A;
 
   /* Wizard issue/warning arrays derived from loaded module state */
   const wizardIssues = [];
@@ -982,6 +1075,19 @@ export default function ModuleSync({ vehicleId } = {}) {
   if (rfh.parsed?.sec16?.virgin)
     wizardWarnings.push(`RFHUB SEC16: BLANK (all FF/00) — virgin module`);
 
+  /* 95640 BCM-backup chip — flag mismatch/blank vs RFHUB SEC16 (reversed) */
+  if (eep.bytes && rfhHasSec16 && rfh.parsed.sec16.slot1) {
+    if (eep.bytes.length < 0x84A) {
+      wizardWarnings.push(`95640 file too small (need ≥0x84A bytes for BCM-SEC16 region)`);
+    } else if (!eep.parsed?.bcmSec16 || eep.parsed.bcmSec16Blank) {
+      wizardIssues.push(`95640 BCM-SEC16 BLANK — backup chip needs re-keying from RFHUB`);
+    } else {
+      const rfhRevHex = bytesToHex(Array.from(rfh.parsed.sec16.slot1).reverse()).toUpperCase();
+      if (eep.parsed.bcmSec16Hex !== rfhRevHex)
+        wizardIssues.push(`95640 BCM-SEC16 MISMATCH: 95640 token ≠ reverse(RFHUB SEC16)`);
+    }
+  }
+
   /* PN-family mismatch — informational warning for wizard */
   const pnFamResult = vehicleFamily && bcm.parsed?.ok ? bcmFamilyMismatch(bcm.parsed, vehicleFamily) : null;
   if (pnFamResult && !pnFamResult.match) {
@@ -990,7 +1096,7 @@ export default function ModuleSync({ vehicleId } = {}) {
     );
   }
 
-  const wizardModules = [bcm.bytes && 'BCM', rfh.bytes && 'RFHUB', pcm.bytes && 'PCM'].filter(Boolean);
+  const wizardModules = [bcm.bytes && 'BCM', rfh.bytes && 'RFHUB', pcm.bytes && 'PCM', eep.bytes && '95640'].filter(Boolean);
 
   /* Hex snippets with offset annotations for structured Claude context */
   const wizardHexSnippets = [];
@@ -1015,6 +1121,7 @@ export default function ModuleSync({ vehicleId } = {}) {
     { id: 'bcm-sec16-to-rfh', label: '🔄 BCM SEC16 → RFHUB',    enabled: bcmToRfhSec16Ok, description: 'Use BCM as master, write to RFHUB Gen2 slots' },
     { id: 'rfh-to-bcm',       label: '← RFHUB VIN → BCM',       enabled: bothReady, description: 'Stamp BCM with RFHUB VIN' },
     { id: 'bcm-to-rfh',       label: '→ BCM VIN → RFHUB',       enabled: bothReady, description: 'Stamp RFHUB with BCM VIN' },
+    { id: 'rekey-95640-from-rfh', label: '📟 Re-key 95640 from RFHUB', enabled: rekey95640Ok, description: 'Write reverse(RFHUB SEC16) → 95640 @ 0x838 + CRC16 @ 0x848' },
   ];
 
   const doSync = (action, overrideVin) => {
@@ -1184,6 +1291,30 @@ export default function ModuleSync({ vehicleId } = {}) {
           downloadBin(pr.bytes, `PCM_SEC6_SYNCED_${ts}.bin`);
         }
 
+      } else if (action === 'rekey-95640-from-rfh') {
+        /* Re-key 95640 BCM-backup chip from RFHUB master.
+           Reverses RFH SEC16 slot1 → 95640 @ 0x838 + CRC16 @ 0x848. */
+        const rfhSec16 = rfh.parsed?.sec16?.slot1;
+        if (!rfhSec16) { log('✗ No RFHUB SEC16 available — load a Gen2 RFHUB with populated SEC16', 'err'); return null; }
+        if (!eep.bytes) { log('✗ 95640 dump not loaded', 'err'); return null; }
+        const snapE = new Uint8Array(eep.bytes);
+        setOriginals(prev => ({ ...prev, eep: { bytes: snapE, filename: eep.file?.name || '95640' } }));
+        const wr = engWriteEep95640FromRfh(eep.bytes, rfhSec16);
+        log(`95640 BCM-SEC16 @0x838 ← reverse(RFHUB SEC16): ${wr.sec16Hex}`, 'ok');
+        log(`  CRC16 @0x848: 0x${hex4(wr.crc16)} (big-endian)`, 'muted');
+        rows.push({
+          module: '95640', slot: 1, offset: '0x0838',
+          oldVin: eep.parsed?.bcmSec16Blank ? '— BLANK —' : (eep.parsed?.bcmSec16Hex || '—'),
+          newVin: wr.sec16Hex,
+          checkLabel: 'CRC-16',
+          oldCheck: eep.parsed?.bcmSec16StoredCrc != null ? `0x${hex4(eep.parsed.bcmSec16StoredCrc)}` : '—',
+          newCheck: `0x${hex4(wr.crc16)}`,
+          oldPass: eep.parsed?.bcmSec16CrcOk ?? null,
+          newPass: true,
+        });
+        downloadBin(wr.bytes, `EEP95640_REKEYED_${ts}.bin`);
+        log(`Downloaded: EEP95640_REKEYED_${ts}.bin`, 'ok');
+
       } else if (action === 'bcm-sec16-to-rfh') {
         /* BCM SEC16 → RFHUB Gen2 slots — use when RFHUB is from a different vehicle.
            BCM is master: reverse(BCM SEC16) is written to RFHUB 0x050E + 0x0522. */
@@ -1214,7 +1345,7 @@ export default function ModuleSync({ vehicleId } = {}) {
 
   const doRestore = (kind) => {
     const snap = originals[kind]; if (!snap) return;
-    const prefix = kind === 'bcm' ? 'BCM' : kind === 'rfh' ? 'RFH' : 'PCM';
+    const prefix = kind === 'bcm' ? 'BCM' : kind === 'rfh' ? 'RFH' : kind === 'pcm' ? 'PCM' : 'EEP95640';
     const name   = `${prefix}_ORIGINAL_${timestamp()}.bin`;
     downloadBin(snap.bytes, name);
     log(`⟲ Restored original ${prefix}: downloaded ${name}`, 'ok');
@@ -1259,7 +1390,7 @@ export default function ModuleSync({ vehicleId } = {}) {
 
       {/* ── Load & Inspect ── */}
       <Card>
-        <H2 badge={`${loaded} / 3`}>Load &amp; Inspect</H2>
+        <H2 badge={`${loaded} / 4`}>Load &amp; Inspect</H2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
           <DropZone label="BCM"      icon="🧠" hint="MPC5606B DFLASH · Gen1 or Gen2 · drag .bin"
                     file={bcm.file} onFile={handleBcm} />
@@ -1267,6 +1398,8 @@ export default function ModuleSync({ vehicleId } = {}) {
                     file={rfh.file} onFile={handleRfh} accent={C.a4} />
           <DropZone label="PCM (optional)" icon="⚙️" hint="GPEC2A (4KB) or GPEC5 (8KB) · drag .bin"
                     file={pcm.file} onFile={handlePcm} accent={C.a1} />
+          <DropZone label="95640 (optional)" icon="📟" hint="BCM-backup EEPROM · 8 / 16 KB · drag .bin"
+                    file={eep.file} onFile={handleEep} accent={C.a4} />
         </div>
       </Card>
 
@@ -1425,6 +1558,28 @@ export default function ModuleSync({ vehicleId } = {}) {
         </div>
       </Card>
 
+      {/* ── 95640 Standalone Tools ── shown when 95640 + RFHUB are loaded but BCM is not,
+           so the "Re-key 95640 from RFHUB" 1-click flow is reachable without a BCM dump. */}
+      {eep95640Loaded && !bothReady && (
+        <Card>
+          <H2 badge="1-click">95640 Backup Chip</H2>
+          <div style={{ fontSize: 12, color: C.ts, marginBottom: 12, lineHeight: 1.6 }}>
+            The 95640 mirrors the BCM key data. Load the RFHUB master to enable a 1-click
+            <strong> Re-key 95640 from RFHUB</strong> — writes reverse(RFH SEC16) into 95640 @ 0x838 with CRC16 @ 0x848.
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
+            <ActionBtn title="📟 Re-key 95640 from RFHUB" enabled={rekey95640Ok}
+              color={C.a4}
+              desc={rekey95640Ok
+                ? 'Reverse the RFHUB SEC16 (16 bytes) and write into 95640 @ 0x838. Big-endian CRC16 stamped @ 0x848. Downloads a new 95640 .bin.'
+                : !rfhHasSec16 ? 'Load a Gen2 RFHUB with populated SEC16 to enable.'
+                : eep.bytes && eep.bytes.length < 0x84A ? `95640 file too small (${eep.bytes.length} bytes — need ≥0x84A).`
+                : 'Load a 95640 dump to enable.'}
+              onClick={() => doSync('rekey-95640-from-rfh')} />
+          </div>
+        </Card>
+      )}
+
       {/* ── Sync Actions ── */}
       {bothReady && (
         <Card>
@@ -1519,7 +1674,7 @@ export default function ModuleSync({ vehicleId } = {}) {
           )}
 
           {/* Restore originals */}
-          {(originals.bcm || originals.rfh || originals.pcm) && (
+          {(originals.bcm || originals.rfh || originals.pcm || originals.eep) && (
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
               {originals.bcm && (
                 <button onClick={() => doRestore('bcm')}
@@ -1540,6 +1695,13 @@ export default function ModuleSync({ vehicleId } = {}) {
                   style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 10, border: `2px solid ${C.a1}40`, background: `rgba(255,109,0,0.06)`, color: C.a1, cursor: 'pointer', fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, letterSpacing: 0.5 }}>
                   ⟲ Restore PCM original
                   <span style={{ fontSize: 10, fontWeight: 600, color: C.ts, fontFamily: "'JetBrains Mono'" }}>{originals.pcm.filename}</span>
+                </button>
+              )}
+              {originals.eep && (
+                <button onClick={() => doRestore('eep')}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 10, border: `2px solid ${C.a4}40`, background: `rgba(170,0,255,0.06)`, color: C.a4, cursor: 'pointer', fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, letterSpacing: 0.5 }}>
+                  ⟲ Restore 95640 original
+                  <span style={{ fontSize: 10, fontWeight: 600, color: C.ts, fontFamily: "'JetBrains Mono'" }}>{originals.eep.filename}</span>
                 </button>
               )}
             </div>

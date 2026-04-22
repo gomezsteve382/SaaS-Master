@@ -35,7 +35,7 @@ beforeEach(() => {
 afterEach(() => { cleanup(); });
 
 describe("SimpleFlow rendering (Advanced off)", () => {
-  it("shows the recommended fix and a FIX IT button when issues are present", () => {
+  it("shows the named scenario card and a Confirm button when issues are present", () => {
     render(
       <MismatchWizard
         issues={["BCM/RFHUB VIN MISMATCH"]}
@@ -55,14 +55,12 @@ describe("SimpleFlow rendering (Advanced off)", () => {
     // Header is in "GUIDED FIX" mode by default (advanced off).
     expect(screen.getByText(/GUIDED FIX/i)).toBeTruthy();
 
-    // Plain-English issue text is rendered.
-    expect(screen.getByText(/different cars/i)).toBeTruthy();
-
-    // The "What I'll do" recommendation block is visible with the master VIN.
-    expect(screen.getByText(/I can re-pair these modules/i)).toBeTruthy();
+    // BCM+RFHUB+PCM with a VIN mismatch matches the "pair-all-three" scenario.
+    expect(screen.getByTestId("scenario-card")).toBeTruthy();
+    expect(screen.getByText(/Pair BCM \+ RFHUB \+ Engine computer/i)).toBeTruthy();
     expect(screen.getAllByText(/1C3CDFCT0FD999999/).length).toBeGreaterThan(0);
 
-    // The 1-click fix button is rendered and enabled.
+    // The 1-click confirm button is rendered and enabled.
     const fixBtn = screen.getByTestId("simple-fix-btn");
     expect(fixBtn).toBeTruthy();
     expect(fixBtn.textContent).toMatch(/FIX IT/);

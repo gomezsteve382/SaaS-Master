@@ -309,7 +309,32 @@ export function detectCommonScenario({ issues = [], warnings = [], stepActions =
    * (full-sync, sec16-only). */
   const hasPcm    = mods.has('GPEC2A') || mods.has('PCM');
   const hasEeprom = mods.has('95640');
-  const immoIssue = vinMismatch || sec16Mismatch || sec6Damaged || secretMismatch;
+  const eepromMismatch = issueText.includes('95640') && (issueText.includes('MISMATCH') || issueText.includes('BLANK'));
+  const immoIssue = vinMismatch || sec16Mismatch || sec6Damaged || secretMismatch || eepromMismatch;
+
+  /* ── Scenario E: RFHUB + 95640 BCM backup chip (no PCM) ────────────────
+   * The 95640 EEPROM mirrors the BCM key data. When the user has only the
+   * RFHUB (master) + the 95640 backup chip on the bench — typically after
+   * replacing the chip — the 1-click flow is to copy the RFHUB token
+   * (byte-reversed) into the 95640 so it mirrors the rest of the vehicle.
+   * The consumer wires this up by enabling a `rekey-95640-from-rfh` action;
+   * if that's not available we fall back to whatever sec16 action exists. */
+  if (mods.has('RFHUB') && hasEeprom && !hasPcm && !mods.has('BCM') && immoIssue) {
+    let actionId = null;
+    if (enabled.has('rekey-95640-from-rfh')) actionId = 'rekey-95640-from-rfh';
+    else if (enabled.has('sec16-only'))      actionId = 'sec16-only';
+    if (actionId) {
+      return {
+        key: 'rekey-95640-from-rfhub',
+        name: 'Re-key 95640 from RFHUB',
+        actionId,
+        summary: 'Use the RFHUB as master and copy its immobilizer token (byte-reversed) into the 95640 BCM backup chip so the chip mirrors the rest of the vehicle.',
+        modulesAffected: ['95640'],
+        targetVin,
+      };
+    }
+  }
+
   if (hasPcm && hasEeprom && immoIssue) {
     let actionId = null;
     if (enabled.has('gpec2a-95640-pair'))      actionId = 'gpec2a-95640-pair';
