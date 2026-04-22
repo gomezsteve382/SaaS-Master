@@ -24,35 +24,55 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
 
   return <div>
     {/* GPEC2A ------------------------------------------------------------- */}
-    {mod.type==='GPEC2A'&&<>
+    {mod.type==='GPEC2A'&&(()=>{
+      const rc=mod.runtimeCounters||{};
+      const tks=mod.transponderKeys||[];
+      const missing=[];
+      if(!mod.secretKey)missing.push('secret key @0x0203');
+      if(!mod.secretKeyMirror)missing.push('key mirror @0x0361');
+      if(!mod.zzzzTamper)missing.push('ZZZZ tamper @0x0C8C');
+      if(!mod.partNumberStr)missing.push('part number @0x0FA1');
+      if(!rc.counterA||!rc.counterB||!rc.distance||!rc.keyCycles)missing.push('runtime counters @0x0E61');
+      if(tks.some(k=>k.hex==null))missing.push('transponder keys @0x0888');
+      const undersized=missing.length>0;
+      const Missing=()=><span style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.wn,fontWeight:700}}>buffer too small</span>;
+      return <>
+      {undersized&&<Card style={{marginBottom:12,padding:12,border:'1px solid '+C.wn+'66',background:C.wn+'14'}}>
+        <div style={{fontWeight:800,fontSize:12,color:C.wn,marginBottom:4,letterSpacing:.5}}>⚠️ FILE TOO SMALL</div>
+        <div style={{fontSize:11,color:C.tx,lineHeight:1.4}}>
+          This dump is only {mod.size.toLocaleString()} bytes — a full GPEC2A is 4,096 bytes.
+          The following region{missing.length===1?'':'s'} could not be read: <span style={{color:C.wn,fontWeight:700}}>{missing.join(', ')}</span>.
+        </div>
+      </Card>}
       <Card style={{marginBottom:12,padding:14}}>
         <div style={{fontWeight:800,fontSize:11,color:C.a2,marginBottom:8,letterSpacing:1.5}}>⚙️ GPEC2A SECURITY</div>
-        <Row label="SKIM byte @0x0011">
+        {mod.skimByte!=null&&<Row label="SKIM byte @0x0011">
           <Tag color={mod.skimByte===0x80?C.gn:C.wn}>{mod.skimStatus}</Tag>
           <span style={{marginLeft:6,color:C.tm}}>0x{mod.skimByte.toString(16).toUpperCase().padStart(2,'0')}</span>
-        </Row>
-        <Row label="Secret key @0x0203"><Hex muted={mod.skb}>{mod.secretKey.hex}</Hex></Row>
-        <Row label="Mirror @0x0361"><Hex muted={mod.skb}>{mod.secretKeyMirror.hex}</Hex>{' '}<Tag color={mod.keyConsistent?C.gn:C.er}>{mod.keyConsistent?'MATCH':'MISMATCH'}</Tag></Row>
-        <Row label="ZZZZ tamper @0x0C8C">
+        </Row>}
+        <Row label="Secret key @0x0203">{mod.secretKey?<Hex muted={mod.skb}>{mod.secretKey.hex}</Hex>:<Missing/>}</Row>
+        <Row label="Mirror @0x0361">{mod.secretKeyMirror?<><Hex muted={mod.skb}>{mod.secretKeyMirror.hex}</Hex>{' '}<Tag color={mod.keyConsistent?C.gn:C.er}>{mod.keyConsistent?'MATCH':'MISMATCH'}</Tag></>:<Missing/>}</Row>
+        <Row label="ZZZZ tamper @0x0C8C">{mod.zzzzTamper?<>
           <Tag color={mod.zzzzTamper.intact?C.gn:C.er}>{mod.zzzzTamper.intact?'INTACT':'CLEARED'}</Tag>
           <span style={{marginLeft:6,fontSize:10,color:C.ts}}>{mod.zzzzTamper.hex}</span>
-        </Row>
+        </>:<Missing/>}</Row>
         {mod.pcmSec6&&<Row label="PCM SEC6 @0x03C8">
           <Hex muted={mod.pcmSec6.blank}>{mod.pcmSec6.hex}</Hex>{' '}
           <Tag color={mod.pcmSec6.damaged?C.er:C.gn}>{mod.pcmSec6.immoState}</Tag>
         </Row>}
-        <Row label="Part number @0x0FA1">{mod.partNumberStr||<span style={{color:C.tm}}>—</span>}</Row>
+        <Row label="Part number @0x0FA1">{mod.partNumberStr||<Missing/>}</Row>
       </Card>
 
       <Card style={{marginBottom:12,padding:14}}>
         <div style={{fontWeight:800,fontSize:11,color:C.a2,marginBottom:8,letterSpacing:1.5}}>🔐 TRANSPONDER KEYS @0x0888</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
-          {mod.transponderKeys.map((k,i)=>{
-            const blank=Array.from(k.hex.split(' ').map(h=>parseInt(h,16))).every(b=>b===0xFF||b===0);
-            return <div key={i} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+(blank?C.bd:C.gn+'40'),textAlign:'center'}}>
+          {tks.map((k,i)=>{
+            const unread=k.hex==null;
+            const blank=!unread&&Array.from(k.hex.split(' ').map(h=>parseInt(h,16))).every(b=>b===0xFF||b===0);
+            return <div key={i} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+(unread?C.wn+'66':blank?C.bd:C.gn+'40'),textAlign:'center'}}>
               <div style={{fontSize:9,color:C.tm,fontWeight:700}}>KEY {i+1} · {fO(k.offset)}</div>
-              <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:blank?'#D5D0C8':C.a4,marginTop:3}}>{k.hex}</div>
-              <Tag color={blank?C.tm:C.gn}>{blank?'—':'SET'}</Tag>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:unread?C.wn:blank?'#D5D0C8':C.a4,marginTop:3}}>{unread?'buffer too small':k.hex}</div>
+              <Tag color={unread?C.wn:blank?C.tm:C.gn}>{unread?'N/A':blank?'—':'SET'}</Tag>
             </div>;
           })}
         </div>
@@ -62,11 +82,15 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
         <div style={{fontWeight:800,fontSize:11,color:C.a2,marginBottom:8,letterSpacing:1.5}}>📊 RUNTIME COUNTERS</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
           {[
-            {n:'Counter A',c:mod.runtimeCounters.counterA},
-            {n:'Counter B',c:mod.runtimeCounters.counterB},
-            {n:'Distance',c:mod.runtimeCounters.distance},
-            {n:'Key cycles',c:mod.runtimeCounters.keyCycles},
+            {n:'Counter A',c:rc.counterA},
+            {n:'Counter B',c:rc.counterB},
+            {n:'Distance',c:rc.distance},
+            {n:'Key cycles',c:rc.keyCycles},
           ].map(x=>{
+            if(!x.c)return <div key={x.n} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+C.wn+'66',textAlign:'center'}}>
+              <div style={{fontSize:9,color:C.tm}}>{x.n}</div>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.wn,marginTop:6}}>buffer too small</div>
+            </div>;
             const v=(x.c.value>>>0);
             return <div key={x.n} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
               <div style={{fontSize:9,color:C.tm}}>{x.n}</div>
@@ -76,7 +100,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
           })}
         </div>
       </Card>
-    </>}
+    </>;})()}
 
     {/* RFHUB -------------------------------------------------------------- */}
     {mod.type==='RFHUB'&&<>
