@@ -24,6 +24,35 @@ const BRIDGE_URL = "http://localhost:8765";
 const PROTOCOL_ISO15765 = 6;
 const ISO15765_FRAME_PAD = 0x40;
 
+const BASELINES_KEY = "srtlab_j2534_baselines";
+
+function buildBaselineExport(baselines) {
+  return {
+    type: "srtlab.j2534.baseline",
+    version: 1,
+    exportedAt: Date.now(),
+    baselines: baselines.map((b) => ({
+      label: b.label,
+      ts: b.ts,
+      modules: b.modules,
+    })),
+  };
+}
+
+function persistBaselines(list) {
+  try { localStorage.setItem(BASELINES_KEY, JSON.stringify(list)); } catch {}
+}
+
+function loadBaselines() {
+  try {
+    const raw = localStorage.getItem(BASELINES_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((b) => b && typeof b.id === "string" && Array.isArray(b.modules));
+  } catch { return []; }
+}
+
 // All known FCA module addresses (tx/rx decimal pairs)
 const FCA_MODULES = [
   { name: "ECM",        tx: 0x7E0, rx: 0x7E8 },
@@ -114,6 +143,32 @@ export default function J2534Scanner() {
   const [periodicId, setPeriodicId] = useState(null);
   const periodicIdRef = useRef(null);
   const logRef = useRef(null);
+  const [baselines, setBaselines] = useState(() => loadBaselines());
+
+  const onRenameBaseline = useCallback((id) => {
+    setBaselines((prev) => {
+      const target = prev.find((b) => b.id === id);
+      if (!target) return prev;
+      const answer = window.prompt("New label for baseline:", target.label);
+      if (answer === null) return prev;
+      const trimmed = String(answer).trim();
+      if (!trimmed || trimmed === target.label) return prev;
+      const next = prev.map((b) => (b.id === id ? { ...b, label: trimmed } : b));
+      persistBaselines(next);
+      return next;
+    });
+  }, []);
+
+  const onExportAllBaselines = useCallback(() => {
+    const payload = buildBaselineExport(baselines);
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "srtlab_baselines_export.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [baselines]);
 
   const onPdf = async () => {
     if (pdfBusy) return;
@@ -536,6 +591,9 @@ export default function J2534Scanner() {
                 Read BCM 0x742
               </Btn>
             </>
+          )}
+          {baselines.length > 0 && (
+            <Btn onClick={onExportAllBaselines} color={S.blue}>💾 EXPORT ALL</Btn>
           )}
         </div>
 
