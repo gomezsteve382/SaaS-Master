@@ -344,6 +344,143 @@ describe('generationForPartNumber', () => {
     });
   });
 
+  describe('even-numbered P/N siblings', () => {
+    describe('analyzeDumpPartNumber — detection and compatibleVehicles', () => {
+      it('detects 68525721 and returns same compatibleVehicles as its odd twin 68525720', () => {
+        const result721 = analyzeDumpPartNumber(makeBuffer('68525721'));
+        const result720 = analyzeDumpPartNumber(makeBuffer('68525720'));
+        expect(result721.primaryPn).toBe('68525721');
+        expect(result721.compatibleVehicles.sort()).toEqual(result720.compatibleVehicles.sort());
+        expect(result721.compatibleVehicles.sort()).toEqual(['challenger', 'charger', 'durango']);
+      });
+
+      it('detects 68277390 and returns charger, challenger, durango — same as odd twin 68277389', () => {
+        const result = analyzeDumpPartNumber(makeBuffer('68277390'));
+        expect(result.primaryPn).toBe('68277390');
+        expect(result.compatibleVehicles.sort()).toEqual(['challenger', 'charger', 'durango']);
+        const oddResult = analyzeDumpPartNumber(makeBuffer('68277389'));
+        expect(result.compatibleVehicles.sort()).toEqual(oddResult.compatibleVehicles.sort());
+      });
+
+      it('detects 68396562 and returns charger, challenger, durango, trx — same as odd twin 68396561', () => {
+        const result = analyzeDumpPartNumber(makeBuffer('68396562'));
+        expect(result.primaryPn).toBe('68396562');
+        expect(result.compatibleVehicles).toContain('charger');
+        expect(result.compatibleVehicles).toContain('challenger');
+        expect(result.compatibleVehicles).toContain('durango');
+        expect(result.compatibleVehicles).toContain('trx');
+        const oddResult = analyzeDumpPartNumber(makeBuffer('68396561'));
+        expect(result.compatibleVehicles.sort()).toEqual(oddResult.compatibleVehicles.sort());
+      });
+
+      it('detects 68354770 and returns trackhawk — same as odd twin 68354769', () => {
+        const result = analyzeDumpPartNumber(makeBuffer('68354770'));
+        expect(result.primaryPn).toBe('68354770');
+        expect(result.compatibleVehicles).toContain('trackhawk');
+        expect(result.compatibleVehicles).toHaveLength(1);
+        const oddResult = analyzeDumpPartNumber(makeBuffer('68354769'));
+        expect(result.compatibleVehicles.sort()).toEqual(oddResult.compatibleVehicles.sort());
+      });
+
+      it('detects 68463848 and returns trx — same as odd twin 68463847', () => {
+        const result = analyzeDumpPartNumber(makeBuffer('68463848'));
+        expect(result.primaryPn).toBe('68463848');
+        expect(result.compatibleVehicles).toContain('trx');
+        const oddResult = analyzeDumpPartNumber(makeBuffer('68463847'));
+        expect(result.compatibleVehicles.sort()).toEqual(oddResult.compatibleVehicles.sort());
+      });
+
+      it('detects 68309504 and returns charger, challenger, durango — same as odd twin 68309505', () => {
+        const result = analyzeDumpPartNumber(makeBuffer('68309504'));
+        expect(result.primaryPn).toBe('68309504');
+        expect(result.compatibleVehicles).toContain('charger');
+        expect(result.compatibleVehicles).toContain('challenger');
+        expect(result.compatibleVehicles).toContain('durango');
+        const oddResult = analyzeDumpPartNumber(makeBuffer('68309505'));
+        expect(result.compatibleVehicles.sort()).toEqual(oddResult.compatibleVehicles.sort());
+      });
+
+      it('all even-numbered P/Ns are present in KNOWN_BCM_PN', () => {
+        const evens = ['68525721', '68277390', '68396562', '68354770', '68463848', '68309504'];
+        for (const pn of evens) {
+          expect(KNOWN_BCM_PN, `${pn} should be in KNOWN_BCM_PN`).toContain(pn);
+        }
+      });
+    });
+
+    describe('generationForPartNumber — even P/N siblings route correctly', () => {
+      it('68525721 resolves to the same Charger generation as 68525720 for a gen2 year char', () => {
+        const gen721 = generationForPartNumber('charger', '68525721', 'N');
+        const gen720 = generationForPartNumber('charger', '68525720', 'N');
+        expect(gen721).toBeTruthy();
+        expect(gen721.id).toBe(gen720.id);
+        expect(gen721.sec16).toBe('gen2-split');
+      });
+
+      it('68525721 resolves to the same Charger generation as 68525720 for a gen1 year char', () => {
+        const gen721 = generationForPartNumber('charger', '68525721', 'E');
+        const gen720 = generationForPartNumber('charger', '68525720', 'E');
+        expect(gen721).toBeTruthy();
+        expect(gen721.id).toBe(gen720.id);
+        expect(gen721.sec16).toBe('gen1-18b');
+      });
+
+      it('68525721 resolves to the same Challenger gen1 generation as 68525720', () => {
+        const gen721 = generationForPartNumber('challenger', '68525721', 'G');
+        const gen720 = generationForPartNumber('challenger', '68525720', 'G');
+        expect(gen721).toBeTruthy();
+        expect(gen721.id).toBe(gen720.id);
+      });
+
+      it('68525721 with gen2 year char on Challenger is undefined (no lc gen2-split row), same as 68525720', () => {
+        const gen721 = generationForPartNumber('challenger', '68525721', 'N');
+        const gen720 = generationForPartNumber('challenger', '68525720', 'N');
+        expect(gen721).toBeUndefined();
+        expect(gen720).toBeUndefined();
+      });
+
+      it('68277390 returns undefined for charger — no generation row uses this even P/N as bcmPn', () => {
+        expect(generationForPartNumber('charger', '68277390', null)).toBeUndefined();
+      });
+
+      it('68277390 returns undefined for challenger — no generation row uses this even P/N', () => {
+        expect(generationForPartNumber('challenger', '68277390', null)).toBeUndefined();
+      });
+
+      it('68277390 returns undefined for durango — no generation row uses this even P/N', () => {
+        expect(generationForPartNumber('durango', '68277390', null)).toBeUndefined();
+      });
+
+      it('68396562 returns undefined for charger — no generation row uses this even P/N as bcmPn', () => {
+        expect(generationForPartNumber('charger', '68396562', null)).toBeUndefined();
+      });
+
+      it('68396562 returns undefined for trx — no generation row uses this even P/N as bcmPn', () => {
+        expect(generationForPartNumber('trx', '68396562', null)).toBeUndefined();
+      });
+
+      it('68354770 returns undefined for trackhawk — no generation row uses this even P/N as bcmPn', () => {
+        expect(generationForPartNumber('trackhawk', '68354770', null)).toBeUndefined();
+      });
+
+      it('68463848 returns undefined for trx — no generation row uses this even P/N as bcmPn', () => {
+        expect(generationForPartNumber('trx', '68463848', null)).toBeUndefined();
+      });
+
+      it('68309504 returns undefined for charger — no generation row uses this even P/N as bcmPn', () => {
+        expect(generationForPartNumber('charger', '68309504', null)).toBeUndefined();
+      });
+
+      it('68309504 returns undefined for challenger — no generation row uses this even P/N as bcmPn', () => {
+        expect(generationForPartNumber('challenger', '68309504', null)).toBeUndefined();
+      });
+
+      it('68309504 returns undefined for durango — no generation row uses this even P/N as bcmPn', () => {
+        expect(generationForPartNumber('durango', '68309504', null)).toBeUndefined();
+      });
+    });
+  });
+
   describe('each vehicle has correct gen count', () => {
     it('Charger has 4 generations', () => {
       expect(VEHICLES.charger.generations).toHaveLength(4);
