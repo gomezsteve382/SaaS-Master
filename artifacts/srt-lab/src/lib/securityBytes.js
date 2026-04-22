@@ -28,6 +28,21 @@ function crc16Ccitt(data, init = 0xFFFF, poly = 0x1021) {
   return c & 0xFFFF;
 }
 
+/* CRC-8 — poly 0x65, init 0xBF, no-reflect, no-xorOut.
+ * RFHUB Gen2 SEC16 checksum primitive. Mirrors lib/crc.js#crc8_65 exactly;
+ * duplicated here so this module stays free of cross-file dependencies for
+ * its core algorithms (matches the crc16Ccitt pattern above). */
+function crc8_65(data) {
+  let c = 0xBF;
+  for (let x = 0; x < data.length; x++) {
+    c ^= data[x];
+    for (let j = 0; j < 8; j++) {
+      c = (c & 0x80) ? (((c << 1) ^ 0x65) & 0xFF) : ((c << 1) & 0xFF);
+    }
+  }
+  return c & 0xFF;
+}
+
 const hexStr = (arr) => [...arr].map(b => b.toString(16).padStart(2, '0')).join('');
 
 /* ----------------------------------------------------------------------------
@@ -179,25 +194,24 @@ export function writePcmSec6(bytes, rfhSec16) {
  *
  * Writes BCM secret → RFHUB Gen2 SEC16 slots.
  * BCM stores reverse(RFHUB SEC16), so RFHUB SEC16 = reverse(BCM SEC16).
- * Checksum formula (empirically verified on reference dumps):
- *     chk = (0xFE - (sum_of_16_bytes % 255)) & 0xFF
- * stored at slotOff+16, with 0x00 at slotOff+17.
+ * Checksum formula (CRC-8, poly 0x65, init 0xBF — verified against a real
+ * RFHUB Gen2 dump where slot bytes 01 23 45 67 89 AB CD EF FE DC BA 98 76
+ * 54 32 10 store CS bytes E2 00):
+ *     chk = crc8_65(rfhSec16);  trailer = 0x00
  * Writes to both Gen2 slots: 0x050E and 0x0522.
  * Throws if the buffer is not a Gen2 RFHUB (header AA 55 31 01 at 0x0500).
  *
- * NOTE: this checksum formula intentionally diverges from parseModule's
- * `rfhSec16Cs` (which uses crc8_65). The writer formula is the one observed
- * on real ECU dumps; the parser formula is a separate audit item tracked by
- * the existing "Debug all checksum & security-byte paths against real ECU
- * dumps" task. The golden tests pin the writer's empirical formula as-is.
+ * Previously this writer used an empirical (0xFE - sum%255) formula which
+ * disagreed with the parseModule.js reader (rfhSec16Cs / crc8_65). The
+ * parser's formula is the one confirmed against the real-dump golden vector
+ * pinned in crc.golden.test.js; the writer was reconciled to match it so
+ * freshly-written slots round-trip with csOk=true.
  * ---------------------------------------------------------------------------- */
 export function writeRfhSec16FromBcm(bytes, bcmSec16) {
   if (!bcmSec16 || bcmSec16.length !== 16) throw new Error('BCM SEC16 must be 16 bytes');
   const rfhSec16 = new Uint8Array(16);
   for (let i = 0; i < 16; i++) rfhSec16[i] = bcmSec16[15 - i];
-  let sum = 0;
-  for (const b of rfhSec16) sum += b;
-  const chk = (0xFE - (sum % 255)) & 0xFF;
+  const chk = crc8_65(rfhSec16);
   const out = new Uint8Array(bytes);
   if (out[0x0500] !== 0xAA || out[0x0501] !== 0x55 ||
       out[0x0502] !== 0x31 || out[0x0503] !== 0x01) {

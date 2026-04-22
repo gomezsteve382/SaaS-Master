@@ -22,8 +22,9 @@ import { parseModule } from '../parseModule.js';
 //      touch, against an independently-computed Uint8Array of expected
 //      bytes (NOT recomputed from the writer itself), and
 //   3. derived check bytes (CRC-16/CCITT for the BCM mirrors, the
-//      empirical (0xFE - sum%255) checksum for the RFHUB slots), again
-//      computed independently.
+//      crc8_65 checksum for the RFHUB slots — same primitive the parser
+//      uses, verified against a real-dump golden in crc.golden.test.js),
+//      again computed independently.
 //
 // If anyone later changes a constant or shifts an offset in one of the
 // writers, a golden assertion here will fail with a clear "expected X at
@@ -60,6 +61,19 @@ function crc16Ccitt(data) {
     for (let j = 0; j < 8; j++) c = (c & 0x8000) ? (((c << 1) ^ 0x1021) & 0xFFFF) : ((c << 1) & 0xFFFF);
   }
   return c & 0xFFFF;
+}
+
+/* Local CRC-8 (poly 0x65, init 0xBF) — duplicated from crc.js so a
+ * coordinated accidental change in BOTH securityBytes.js AND crc.js would
+ * still trip this test. Same primitive the parser uses to validate
+ * RFHUB Gen2 SEC16 slots. */
+function crc8_65Local(data) {
+  let c = 0xBF;
+  for (let i = 0; i < data.length; i++) {
+    c ^= data[i];
+    for (let j = 0; j < 8; j++) c = (c & 0x80) ? (((c << 1) ^ 0x65) & 0xFF) : ((c << 1) & 0xFF);
+  }
+  return c & 0xFF;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -398,10 +412,14 @@ describe('writeRfhSec16FromBcm — golden vectors', () => {
     expect(r.rfhSec16Hex).toBe('0123456789abcdeffedcba9876543210');
   });
 
-  it('produces the empirical (0xFE - sum%255) checksum for the real slot', () => {
+  it('produces the crc8_65 checksum (matches the real-dump golden in crc.golden.test.js)', () => {
     const r = writeRfhSec16FromBcm(buildSyntheticRfhubGen2(), BCM_SEC16_FROM_RFH);
-    // sum(RFH_SEC16_REAL_SLOT) = 2040; 2040 % 255 = 0; (0xFE - 0) & 0xFF = 0xFE.
-    expect(r.chk).toBe(0xFE);
+    // crc8_65 of RFH_SEC16_REAL_SLOT is pinned to 0xE2 by crc.golden.test.js,
+    // and the real RFHUB Gen2 dump that slot was sampled from stores CS bytes
+    // E2 00 — confirming this is the correct formula, not the writer's old
+    // empirical (0xFE - sum%255) which would have produced 0xFE here.
+    expect(r.chk).toBe(0xE2);
+    expect(r.chk).toBe(crc8_65Local(RFH_SEC16_REAL_SLOT));
   });
 
   it('writes both Gen2 slots (0x050E and 0x0522) byte-exactly with chk + 0x00 trailer', () => {
@@ -410,7 +428,7 @@ describe('writeRfhSec16FromBcm — golden vectors', () => {
     for (const slotOff of [0x050E, 0x0522]) {
       expect(Array.from(r.bytes.slice(slotOff, slotOff + 16)))
         .toEqual(Array.from(RFH_SEC16_REAL_SLOT));
-      expect(r.bytes[slotOff + 16]).toBe(0xFE); // chk
+      expect(r.bytes[slotOff + 16]).toBe(0xE2); // chk = crc8_65(rfhSec16)
       expect(r.bytes[slotOff + 17]).toBe(0x00); // trailer
     }
     // Header survives untouched.
@@ -420,17 +438,18 @@ describe('writeRfhSec16FromBcm — golden vectors', () => {
   it('write→re-read round-trip: chk recomputed from the written 16 bytes matches', () => {
     const r = writeRfhSec16FromBcm(buildSyntheticRfhubGen2(), BCM_SEC16_FROM_RFH);
     for (const slotOff of [0x050E, 0x0522]) {
-      let sum = 0;
-      for (let k = 0; k < 16; k++) sum += r.bytes[slotOff + k];
-      const expectedChk = (0xFE - (sum % 255)) & 0xFF;
+      const slot = r.bytes.slice(slotOff, slotOff + 16);
+      const expectedChk = crc8_65Local(slot);
       expect(r.bytes[slotOff + 16]).toBe(expectedChk);
     }
   });
 
   it('produces a different chk for a different secret', () => {
-    const altBcm = new Uint8Array(16).fill(0x42); // sum = 16*0x42 = 1056; 1056%255=36; chk=0xDA
+    // crc8_65 of 16x 0x42 = 0xE3 (independently verified).
+    const altBcm = new Uint8Array(16).fill(0x42);
     const r = writeRfhSec16FromBcm(buildSyntheticRfhubGen2(), altBcm);
-    expect(r.chk).toBe(0xDA);
+    expect(r.chk).toBe(0xE3);
+    expect(r.chk).toBe(crc8_65Local(new Uint8Array(16).fill(0x42)));
   });
 
   it('does not mutate the input buffer', () => {
@@ -442,18 +461,13 @@ describe('writeRfhSec16FromBcm — golden vectors', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Cross-check via parseModule — proves the writer's RFH output is at least
-// structurally parseable by the existing parser even where the parser's
-// expected checksum formula (rfhSec16Cs / crc8_65) diverges from the
-// writer's empirical (0xFE - sum%255) formula.
-//
-// This deliberately documents the divergence: the parser will surface
-// `csOk: false` for writer output. Reconciling the two formulas against
-// real ECU dumps is tracked by the existing
-// "Debug all checksum & security-byte paths against real ECU dumps" task.
+// Cross-check via parseModule — the writer and parser agree on the SEC16
+// checksum formula (both crc8_65), so a freshly-written slot must round-trip
+// with csOk=true. This pins the reconciliation in place: any future drift
+// in either side flips csOk back to false and trips this assertion.
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe('writeRfhSec16FromBcm — parseModule structural round-trip', () => {
+describe('writeRfhSec16FromBcm — parseModule round-trip agrees on csOk', () => {
   it('parseModule extracts the same 16-byte SEC16 slot raw bytes the writer stored', () => {
     const r = writeRfhSec16FromBcm(buildSyntheticRfhubGen2(), BCM_SEC16_FROM_RFH);
     const parsed = parseModule(r.bytes, 'rfh-out.bin');
@@ -462,10 +476,13 @@ describe('writeRfhSec16FromBcm — parseModule structural round-trip', () => {
     // First slot raw bytes equal the RFH_SEC16 we wrote.
     const slot1Raw = parsed.sec16s[0].raw;
     expect(Array.from(slot1Raw)).toEqual(Array.from(RFH_SEC16_REAL_SLOT));
-    // Stored cs (BE16 of [chk, 0x00]) = 0xFE00.
-    expect(parsed.sec16s[0].cs).toBe(0xFE00);
-    // Documented divergence: parser's rfhSec16Cs (crc8_65 << 8) does NOT
-    // equal the writer's empirical chk for this slot. csOk is false.
-    expect(parsed.sec16s[0].csOk).toBe(false);
+    // Stored cs (BE16 of [chk, 0x00]) = 0xE200 (crc8_65 of the slot << 8).
+    expect(parsed.sec16s[0].cs).toBe(0xE200);
+    // Writer and parser now use the same crc8_65 formula, so csOk is true
+    // for both slots and the file is flagged sec16valid.
+    expect(parsed.sec16s[0].csOk).toBe(true);
+    expect(parsed.sec16s[1].csOk).toBe(true);
+    expect(parsed.sec16match).toBe(true);
+    expect(parsed.sec16valid).toBe(true);
   });
 });
