@@ -147,7 +147,18 @@ function parseModule(data,filename){
     info.sec16SourceSlot=1;
     info.rfhGen=sz===4096?'Gen2 (24C32)':sz===8192?'Gen2-x2 (8192B, unusual)':sz===2048?'Gen1 (24C16)':'Unknown';
   }else if(type==='BCM'){
-    info.vins=[0x5320,0x5340,0x5360,0x5380].map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);
+    // Scan canonical slot bases at both base+0 (legacy/no-header layout) and
+    // base+8 (Redeye 2020+ layout: 8-byte FEE record header → 17-byte VIN →
+    // 2-byte BE CRC16 → 5-byte trailer). Whichever yields a valid 17-byte
+    // VIN is the slot's true VIN offset, so writers can target it precisely
+    // without clobbering the header or trailer.
+    info.vins=[];
+    for(const base of[0x5320,0x5340,0x5360,0x5380]){
+      const v8=extractVIN(data,base+8);
+      if(v8){info.vins.push({offset:base+8,vin:v8,slotBase:base,headerBytes:8});continue;}
+      const v0=extractVIN(data,base);
+      if(v0)info.vins.push({offset:base,vin:v0,slotBase:base,headerBytes:0});
+    }
     info.partialVins=[];
     for(const po of[0x4098,0x40B0]){if(po+10>sz)continue;let s='',ok=true;for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}if(ok&&s.length===8){const sc=(data[po+8]<<8)|data[po+9],cc=crc16(data.slice(po,po+8));info.partialVins.push({offset:po,tail:s,storedCrc:sc,calcCrc:cc,crcOk:sc===cc});}}
     info.vehicleSecret={offset:0x40c9,bytes:data.slice(0x40c9,0x40d9),hex:extractHex(data,0x40c9,16),endian:"little"};

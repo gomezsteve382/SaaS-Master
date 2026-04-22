@@ -65,6 +65,11 @@ function writeModuleVIN(data,type,vin,existingVins){
   const out=new Uint8Array(data);const vb=new TextEncoder().encode(vin);
   let offs;
   if(type==='GPEC2A')offs=[0x0000,0x01f0,0x0224];
+  // BCM: prefer parsed offsets so we hit the actual VIN bytes on Redeye 2020+
+  // dumps (which carry an 8-byte FEE record header — VIN at base+8 → CRC at
+  // base+25 → 5-byte trailer). Fall back to the legacy header-less layout
+  // (base+0) only when no parsed slots are available.
+  else if(type==='BCM'&&existingVins&&existingVins.length>0)offs=existingVins.map(v=>v.offset);
   else if(type==='BCM')offs=[0x5320,0x5340,0x5360,0x5380];
   else if(type==='RFHUB'&&existingVins&&existingVins.length>0)offs=existingVins.map(v=>v.offset);
   else if(type==='RFHUB')offs=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
