@@ -288,6 +288,9 @@ export default function BcmTab({vehicle}){
   const inspectEntry=bcmDumps.find(d=>d.hash===inspectHash)||bcmDumps[0]||null;
   const inspectMod=inspectEntry?.mod||null;
 
+  // Run part-number detection whenever the active dump changes — covers both
+  // manual file loads (via onInspectFile) and dumps auto-shared from the FCA
+  // Analyzer tab that bypass onInspectFile entirely.
   useEffect(()=>{
     if(!inspectMod||!vehicle||!vehicle.bcmFamilies){setInspectPnCheck(null);return;}
     const a=analyzeDumpPartNumber(inspectMod.data);
