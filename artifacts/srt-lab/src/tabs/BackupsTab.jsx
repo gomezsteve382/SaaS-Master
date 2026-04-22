@@ -16,6 +16,7 @@ import {
   deleteDiffReport, clearDiffReports,
   subscribeDiffReports, exportDiffReportPDF, fmtScanStamp,
   refreshDiffReportsFromServer, fetchDiffReportStats, exportAllDiffReports,
+  importDiffReports,
 } from "../lib/diffReports.js";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
@@ -42,6 +43,7 @@ export default function BackupsTab() {
   const [pairedData, setPairedData] = useState(null);
   const eng = useRef(null);
   const importInputRef = useRef(null);
+  const diffImportInputRef = useRef(null);
 
   const handleVerify = useCallback(async (key, dids, storedChecksum) => {
     if (!storedChecksum) return;
@@ -199,6 +201,27 @@ export default function BackupsTab() {
       setExportAllBusy(false);
     }
   }, [diffReports.length, exportAllBusy]);
+
+  const handleImportDiffsClick = useCallback(() => {
+    diffImportInputRef.current?.click();
+  }, []);
+
+  const handleImportDiffsFile = useCallback(async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const archive = JSON.parse(text);
+      const r = await importDiffReports(archive);
+      setDiffReports(listDiffReports());
+      const parts = [r.imported + " imported", r.skipped + " skipped (duplicate)"];
+      if (r.invalid > 0) parts.push(r.invalid + " invalid");
+      alert("Diff report import complete: " + parts.join(", ") + ".");
+    } catch (err) {
+      alert("Import failed: " + err.message);
+    }
+  }, []);
 
   // Deep-link: select a backup pre-chosen via URL hash or History panel event.
   useEffect(() => {
@@ -520,8 +543,8 @@ export default function BackupsTab() {
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
         }}>
           <span>📊 SAVED DIFF REPORTS ({diffReports.length})</span>
-          {diffReports.length > 0 && (
-            <div style={{ display: "flex", gap: 6 }}>
+          <div style={{ display: "flex", gap: 6 }}>
+            {diffReports.length > 0 && (
               <button
                 onClick={handleExportAllDiffs}
                 disabled={exportAllBusy}
@@ -536,6 +559,29 @@ export default function BackupsTab() {
               >
                 {exportAllBusy ? "⏳ EXPORTING…" : "⬇ EXPORT ALL"}
               </button>
+            )}
+            <button
+              onClick={handleImportDiffsClick}
+              data-testid="diff-reports-import"
+              style={{
+                padding: "4px 10px", fontSize: 10, fontWeight: 800,
+                color: C.a2, background: "transparent",
+                border: "1px solid " + C.a2, borderRadius: 4,
+                cursor: "pointer", letterSpacing: 1,
+              }}
+              title="Import a previously exported diff report archive"
+            >
+              ⬆ IMPORT ARCHIVE
+            </button>
+            <input
+              ref={diffImportInputRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={handleImportDiffsFile}
+              style={{ display: "none" }}
+              data-testid="diff-reports-import-input"
+            />
+            {diffReports.length > 0 && (
               <button
                 onClick={handleClearAllDiffs}
                 data-testid="diff-reports-clear-all"
@@ -549,8 +595,8 @@ export default function BackupsTab() {
               >
                 🗑 CLEAR ALL
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
         {diffReports.length > 0 && (() => {
           const KEEP = 500;

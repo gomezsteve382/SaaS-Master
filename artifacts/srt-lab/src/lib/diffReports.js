@@ -517,6 +517,62 @@ export async function exportAllDiffReports() {
   return { exported, skipped, missing };
 }
 
+/* Import a previously exported diff-report JSON archive.
+ *
+ * Accepts the object produced by exportAllDiffReports() (or the downloaded
+ * .json file parsed by the caller). Each entry is merged into the local index
+ * and pushed to the server. Entries whose id already exists locally or on the
+ * server are silently skipped so re-importing the same archive is safe.
+ *
+ * Returns { imported, skipped, invalid }:
+ *   imported — reports successfully added
+ *   skipped  — reports already present (duplicate id)
+ *   invalid  — entries that were malformed / missing required fields
+ */
+export async function importDiffReports(archive) {
+  if (!archive || !Array.isArray(archive.reports)) {
+    throw new Error("Not a valid diff report archive — missing 'reports' array.");
+  }
+
+  const existingIds = new Set(readIndex().map((m) => m.id));
+  let imported = 0;
+  let skipped = 0;
+  let invalid = 0;
+
+  for (const entry of archive.reports) {
+    if (!entry || typeof entry !== "object") { invalid++; continue; }
+    const { meta, payload } = entry;
+    if (!meta?.id || !payload?.baseline || !payload?.current || !payload?.diff) {
+      invalid++;
+      continue;
+    }
+    if (existingIds.has(meta.id)) { skipped++; continue; }
+
+    const builtMeta = buildMeta({
+      id: meta.id,
+      generatedAt: meta.generatedAt ?? Date.now(),
+      baseline: payload.baseline,
+      current: payload.current,
+      diff: payload.diff,
+    });
+
+    if (!writePayload(meta.id, payload)) { invalid++; continue; }
+
+    const idx = readIndex();
+    idx.unshift(builtMeta);
+    if (idx.length > MAX_REPORTS) {
+      idx.slice(MAX_REPORTS).forEach((m) => removePayload(m.id));
+    }
+    writeIndex(idx);
+    existingIds.add(meta.id);
+    pushToServer(builtMeta, payload);
+    imported++;
+  }
+
+  if (imported > 0) notify();
+  return { imported, skipped, invalid };
+}
+
 /* Build and download the diff PDF. Same renderer used for the live "Save Diff
  * Report" button and for "Re-download" in the History view, so re-printing a
  * past report produces an identical document. */
