@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useRef, useContext} from "react";
+import React, {useState, useCallback, useRef, useContext, useEffect} from "react";
 import {Card, Btn} from "../lib/ui.jsx";
 import {C} from "../lib/constants.js";
 import {cda6, u32} from "../lib/algos.js";
@@ -15,6 +15,7 @@ import {isSgwAuthenticated} from "../lib/sgwAuth.js";
 import {createBridgeEngine} from "../lib/bridgeEngine.js";
 import {getRow} from "../lib/moduleRegistry.js";
 import {programVin} from "../lib/vinProgrammer.js";
+import {analyzeDumpPartNumber, generationForPartNumber} from "../lib/vehicles.js";
 
 const BCM_ALGOS={
   'CDA6':s=>cda6(s),
@@ -283,14 +284,24 @@ export default function BcmTab({vehicle}){
   const [inspectMsg,setInspectMsg]=useState('');
   const [detectedGen,setDetectedGen]=useState(null);
   const [detectedPn,setDetectedPn]=useState(null);
+  const [inspectPnCheck,setInspectPnCheck]=useState(null);
   const inspectEntry=bcmDumps.find(d=>d.hash===inspectHash)||bcmDumps[0]||null;
   const inspectMod=inspectEntry?.mod||null;
+
+  useEffect(()=>{
+    if(!inspectMod||!vehicle||!vehicle.bcmFamilies){setInspectPnCheck(null);return;}
+    const a=analyzeDumpPartNumber(inspectMod.data);
+    const compatible=a.compatibleVehicles.includes(vehicle.id);
+    const gen=a.primaryPn?generationForPartNumber(vehicle.id,a.primaryPn,a.vinModelYearChar):null;
+    setInspectPnCheck({compatible,partNumber:a.primaryPn||a.partNumbers[0]||null,allPns:a.partNumbers,genLabel:gen?gen.label:null});
+  },[inspectMod,vehicle]);
+
   const onInspectFile=useCallback(file=>{
     const r=new FileReader();
     r.onload=ev=>{
       const bytes=new Uint8Array(ev.target.result);
       const m=parseModule(bytes,file.name);
-      if(m.type!=='BCM'){setInspectMsg('Selected file is '+m.type+', not BCM — load a 64 KB or 128 KB BCM dump.');setDetectedGen(null);setDetectedPn(null);return;}
+      if(m.type!=='BCM'){setInspectMsg('Selected file is '+m.type+', not BCM — load a 64 KB or 128 KB BCM dump.');setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);return;}
       const entry=addDump(m);
       if(entry)setInspectHash(entry.hash);
       setInspectMsg('');
@@ -299,6 +310,7 @@ export default function BcmTab({vehicle}){
       const gen=matchGeneration(vehicle,primaryPn,vinModelYearChar);
       setDetectedPn(primaryPn);
       setDetectedGen(gen||null);
+      // inspectPnCheck is updated reactively via useEffect on inspectMod
     };
     r.readAsArrayBuffer(file);
   },[addDump,vehicle]);
@@ -316,7 +328,7 @@ export default function BcmTab({vehicle}){
   },[inspectEntry,inspectMod,replaceDump]);
   const closeInspect=useCallback(()=>{
     if(inspectEntry)removeDump(inspectEntry.hash);
-    setInspectHash(null);setInspectMsg('');setDetectedGen(null);setDetectedPn(null);
+    setInspectHash(null);setInspectMsg('');setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);
   },[inspectEntry,removeDump]);
 
   const vinValid=masterVin.length===17;
@@ -436,6 +448,25 @@ export default function BcmTab({vehicle}){
       </div>
       {!inspectMod&&bcmDumps.length===0&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the FCA Analyzer tab show up here automatically.</div>}
       {inspectMod&&bcmDumps.length>0&&<div style={{marginTop:6,fontSize:10,color:C.gn,fontWeight:700}}>✓ Auto-loaded from shared workspace ({bcmDumps.length} BCM dump{bcmDumps.length===1?'':'s'} available)</div>}
+      {inspectPnCheck&&vehicle&&(
+        inspectPnCheck.compatible
+          ? <div style={{marginTop:10,padding:'10px 14px',borderRadius:10,background:C.gn+'14',border:'1px solid '+C.gn+'55'}}>
+              <div style={{fontSize:11,fontWeight:900,color:C.gn,letterSpacing:1,marginBottom:2}}>✓ DUMP MATCHES SELECTED VEHICLE</div>
+              <div style={{fontSize:11,color:C.tx}}>
+                P/N <code style={{fontFamily:"'JetBrains Mono'"}}>{inspectPnCheck.partNumber}</code> is compatible with <b>{vehicle.name||vehicle.full}</b>
+                {inspectPnCheck.genLabel?<span> · <span style={{fontWeight:700,color:C.gn}}>{inspectPnCheck.genLabel}</span></span>:null}
+              </div>
+            </div>
+          : <div style={{marginTop:10,padding:'10px 14px',borderRadius:10,background:C.er+'12',border:'1px solid '+C.er+'44'}}>
+              <div style={{fontSize:11,fontWeight:900,color:C.er,letterSpacing:1,marginBottom:4}}>⛔ DUMP DOES NOT MATCH SELECTED VEHICLE</div>
+              <div style={{fontSize:11,color:C.tx}}>
+                {inspectPnCheck.partNumber
+                  ? <>P/N <code style={{fontFamily:"'JetBrains Mono'"}}>{inspectPnCheck.partNumber}</code> is not in the BCM family list for <b>{vehicle.name||vehicle.full}</b>. Valid P/Ns: {vehicle.bcmFamilies.slice(0,4).join(', ')}{vehicle.bcmFamilies.length>4?' +'+( vehicle.bcmFamilies.length-4)+' more':''}.</>
+                  : <>No known BCM part number detected. Valid P/Ns for <b>{vehicle.name||vehicle.full}</b>: {vehicle.bcmFamilies.slice(0,4).join(', ')}{vehicle.bcmFamilies.length>4?' +'+( vehicle.bcmFamilies.length-4)+' more':''}.</>
+                }
+              </div>
+            </div>
+      )}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.gn,fontWeight:700}}>{inspectMsg}</div>}
       {detectedPn&&<div style={{marginTop:10,padding:'8px 12px',background:detectedGen?'#E8F5E9':'#FFF8F0',border:'1px solid '+(detectedGen?C.gn:C.wn),borderRadius:8,fontSize:11,fontFamily:"'JetBrains Mono'"}}>
         {detectedGen
