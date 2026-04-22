@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
+import { useMasterVin } from "../lib/masterVinContext.jsx";
 
 /* ============================================================================
  * SRT Lab — Module Sync (2017 and below)
@@ -461,6 +462,7 @@ function ActionBtn({ title, desc, enabled, onClick }) {
 }
 
 export default function ModuleSync() {
+  const { vin: masterVin, vinValid: masterVinValid } = useMasterVin();
   const [bcm, setBcm] = useState({ file: null, bytes: null, parsed: null });
   const [rfh, setRfh] = useState({ file: null, bytes: null, parsed: null });
   const [targetVin, setTargetVin] = useState('');
@@ -745,10 +747,34 @@ export default function ModuleSync() {
                   textAlign: 'center', outline: 'none', textTransform: 'uppercase',
                 }}
               />
+              {masterVinValid && (
+                <button
+                  data-testid="prefill-master-vin"
+                  onClick={() => {
+                    setTargetVin(masterVin);
+                    log(`Pre-filled target VIN from session Master VIN: ${masterVin}`, 'info');
+                  }}
+                  title={`Pre-fill from session Master VIN: ${masterVin}`}
+                  style={{
+                    padding: '10px 14px', borderRadius: 10, border: `2px solid ${C.a3}`,
+                    background: C.a3, color: '#fff', cursor: 'pointer',
+                    fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
+                    letterSpacing: 0.4, whiteSpace: 'nowrap', flexShrink: 0,
+                    transition: 'opacity 0.15s',
+                  }}
+                >
+                  ↙ Use Master VIN
+                </button>
+              )}
               <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: tvOk ? C.gn : C.tm, fontWeight: 700, minWidth: 42, textAlign: 'right' }}>
                 {tv.length} / 17
               </div>
             </div>
+            {masterVinValid && (
+              <div style={{ fontSize: 11, color: C.a3, marginTop: 6, fontWeight: 700, fontFamily: "'JetBrains Mono'", letterSpacing: 0.5 }}>
+                Session Master VIN: <span style={{ color: C.tx }}>{masterVin}</span>
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10, marginBottom: 10 }}>

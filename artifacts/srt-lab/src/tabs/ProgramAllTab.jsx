@@ -661,6 +661,28 @@ export default function ProgramAllTab(){
       </Card>;
     })}
 
+    {/* ── Module Sync shortcut card ── */}
+    <div data-testid="modsync-shortcut">
+    <Card style={{marginBottom:12,borderLeft:'5px solid '+C.a4,padding:0,overflow:'hidden'}}>
+      <div style={{padding:'16px 20px',display:'grid',gridTemplateColumns:'auto 1fr auto',gap:16,alignItems:'center'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <div style={{width:40,height:40,borderRadius:10,background:C.a4+'15',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22}}>🔄</div>
+          <div style={{fontSize:24,fontWeight:900,color:C.a4,fontFamily:"'Righteous'"}}>5</div>
+        </div>
+        <div>
+          <div style={{fontWeight:800,fontSize:14,color:C.tx}}>Module Sync — BCM ↔ RFHUB</div>
+          <div style={{fontSize:11,color:C.ts,marginTop:2}}>
+            Offline file-based sync for 2016–2017 Continental BCM + Yazaki FCM. Patches VIN slots in both .bin dumps, optionally virginizes SEC16.
+            {vinValid&&<span style={{marginLeft:6,fontFamily:"'JetBrains Mono'",fontWeight:800,color:C.a4}}>Master VIN will pre-fill as target.</span>}
+          </div>
+        </div>
+        <Btn onClick={()=>setPg('modsync')} color={C.a4}>
+          Open Sync →
+        </Btn>
+      </div>
+    </Card>
+    </div>
+
     <Card style={{marginTop:18,background:'#F0F8FF',border:'1px solid #B0D4F0'}}>
       <div style={{fontWeight:800,fontSize:11,color:C.a3,marginBottom:10,letterSpacing:2}}>💡 BENCH TIPS</div>
       <div style={{fontSize:12,color:C.ts,lineHeight:1.8}}>
