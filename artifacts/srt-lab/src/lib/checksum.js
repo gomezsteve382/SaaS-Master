@@ -15,7 +15,7 @@ export async function sha256Hex(bytes) {
 export function backupDidsToBytes(dids) {
   const all = [];
   for (const data of Object.values(dids || {})) {
-    if (!data.missing && Array.isArray(data.bytes) && data.bytes.length > 0) {
+    if (data && !data.missing && Array.isArray(data.bytes) && data.bytes.length > 0) {
       all.push(...data.bytes);
     }
   }
