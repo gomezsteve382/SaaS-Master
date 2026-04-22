@@ -135,6 +135,7 @@ export default function BcmTab({vehicle}){
   const [bcmAddr,setBcmAddr]=useState(BCM_CANDIDATES[0]);
   const [backupCount,setBackupCount]=useState(()=>getBackupList('BCM').length);
   const [showConfirmModal,setShowConfirmModal]=useState(false);
+  const [genTooltipVisible,setGenTooltipVisible]=useState(false);
   const eng=useRef(null);
   const addLog=useCallback((m,t='info')=>{const ts=new Date().toLocaleTimeString();setLog(p=>[...p.slice(-300),{t:ts,m,type:t}]);},[]);
   const hx=(n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0');
@@ -382,16 +383,32 @@ export default function BcmTab({vehicle}){
                   {g.label} · {g.bcmPn} · {g.sec16==='gen2-split'?'Gen2 split SEC16':g.sec16==='trackhawk-no-flash'?'No flash SEC16':'Gen1 SEC16'} · VIN@0x{g.vinOff.toString(16).toUpperCase()}
                 </span>;
               })}
-              {detectedPn&&<span style={{
-                fontSize:9,padding:'2px 8px',
-                background:detectedGen?'rgba(255,255,255,0.18)':'rgba(255,179,0,0.25)',
-                borderRadius:4,
-                border:'1px dashed '+(detectedGen?'rgba(255,255,255,0.6)':'rgba(255,179,0,0.8)'),
-                fontFamily:"'JetBrains Mono'",fontWeight:700,letterSpacing:0.5,
-                color:detectedGen?'rgba(255,255,255,0.95)':'#FFD54F',
-                marginLeft:4,
-              }}>
-                {detectedGen?'':'⚠ '}{detectedGen?'Detected:':'Unknown P/N:'} {detectedPn}
+              {detectedPn&&<span
+                style={{position:'relative',display:'inline-block',marginLeft:4}}
+                onMouseEnter={()=>setGenTooltipVisible(true)}
+                onMouseLeave={()=>setGenTooltipVisible(false)}>
+                <span style={{
+                  fontSize:9,padding:'2px 8px',
+                  background:detectedGen?'rgba(255,255,255,0.18)':'rgba(255,179,0,0.25)',
+                  borderRadius:4,
+                  border:'1px dashed '+(detectedGen?'rgba(255,255,255,0.6)':'rgba(255,179,0,0.8)'),
+                  fontFamily:"'JetBrains Mono'",fontWeight:700,letterSpacing:0.5,
+                  color:detectedGen?'rgba(255,255,255,0.95)':'#FFD54F',
+                  cursor:detectedGen?'help':'default',
+                }}>
+                  {detectedGen?'':'⚠ '}{detectedGen?'Detected:':'Unknown P/N:'} {detectedPn}
+                </span>
+                {detectedGen&&genTooltipVisible&&<span style={{
+                  position:'absolute',top:'calc(100% + 6px)',left:0,zIndex:999,
+                  background:'#1A1A2E',border:'1px solid rgba(255,255,255,0.22)',
+                  borderRadius:6,padding:'7px 11px',whiteSpace:'nowrap',
+                  fontSize:10,fontFamily:"'JetBrains Mono'",color:'#E0E0E0',
+                  boxShadow:'0 4px 14px rgba(0,0,0,0.55)',lineHeight:1.8,
+                }}>
+                  <div><span style={{color:'#888'}}>Generation: </span>{detectedGen.label}</div>
+                  <div><span style={{color:'#888'}}>SEC16: </span>{detectedGen.sec16==='gen2-split'?'Gen2 split SEC16':detectedGen.sec16==='trackhawk-no-flash'?'No flash SEC16':'Gen1 SEC16'}</div>
+                  <div><span style={{color:'#888'}}>VIN offset: </span>0x{detectedGen.vinOff.toString(16).toUpperCase()}</div>
+                </span>}
               </span>}
             </div>
           </div>}
@@ -502,9 +519,6 @@ export default function BcmTab({vehicle}){
             </div>
       )}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.gn,fontWeight:700}}>{inspectMsg}</div>}
-      {detectedPn&&detectedGen&&<div style={{marginTop:10,padding:'8px 12px',background:'#E8F5E9',border:'1px solid '+C.gn,borderRadius:8,fontSize:11,fontFamily:"'JetBrains Mono'"}}>
-        <span style={{color:C.gn,fontWeight:800}}>Generation:</span> <span style={{color:C.tx}}>{detectedGen.label} — {detectedGen.sec16==='gen2-split'?'Gen2 split SEC16':detectedGen.sec16==='trackhawk-no-flash'?'No flash SEC16':'Gen1 SEC16'} · VIN offset 0x{detectedGen.vinOff.toString(16).toUpperCase()}</span>
-      </div>}
       {inspectMod&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
     </Card>
 
