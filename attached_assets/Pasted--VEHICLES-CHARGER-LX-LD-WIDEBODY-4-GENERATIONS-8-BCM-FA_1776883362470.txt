@@ -1,0 +1,134 @@
+← VEHICLES
+CHARGER
+LX · LD · WIDEBODY
+4 GENERATIONS
+8 BCM FAMILIES
+🔧 WIZARD
+📂DUMPS
+VIN · SEC16 · Unlocks · Hex
+🔄MODULE SYNC
+BCM · RFHUB · PCM · SEC16
+🧪ANALYZER
+Cross-validate · Mismatch
+💀JAILBREAK
+SRT · Demon · Hellcat · Redeye
+🔑SEED→KEY
+14 Algorithms
+🧠BCM
+VIN · CRC · Features
+📡RFHUB
+VIN · Key Fobs
+⚡ECM
+VIN · 10 Algorithms
+💾BACKUPS
+History · Restore
+📡LIVE OBD
+UDS · Seed→Key · J2534 · Gould
+🛡️SKIM
+Keys · Immo
+ℹ️INFO
+Reference
+🧪
+FCA ANALYZER
+CROSS-MODULE AUDIT · BCM ↔ RFHUB ↔ GPEC2A ↔ 95640
+3 modules loaded
+🔧 Open Wizard
+📂
+Drop or browse one or more module dumps
+Auto-detects BCM (64/128 KB) · RFHUB (4 KB) · GPEC2A (4 KB) · 95640 (8/16 KB)
+
+GPEC2A
+FCA_CONTINENTAL_GPEC2A_EXT EEPROM_20260422130226_VIN_2C3CDXGJ9KH633754.bin
+✕
+
+RFHUB EEE
+RFH_SCAT_OG.bin
+✕
+
+BCM D-FLASH
+MPC5606B_DFLASH_20260422130530.bin
+✕
+Clear all
+🛣️ MASTER VIN HELPERS
+VIN check digit
+VALIDneed 9
+Dodge CA
+Model year
+2019
+code K
+SGW expected?
+YES — bypass needed
+FCA gateway started MY2018
+📋 CROSS-MODULE AUDIT
+🔧 Fix with Wizard →
+✗
+RFHUB ↔ BCM vehicle secret: MISMATCH!
+✗
+PCM SEC6 @ 0x3C8: IMMO_DAMAGED (FF FF FF FF FF FF) — needs RFH import
+✗
+GPEC↔BCM key: MISMATCH! GPEC=C2 00 00 00 00 25 07 15 BCM(rev)[0:8]=FF FF FF FF FF FF FF FF
+⚠
+RFHUB SEC16: Slot 1/2 MISMATCH or unreadable
+⚠
+GPEC2A SKIM: DISABLED (0x00) — bypassed
+⚠
+GPEC2A ZZZZ tamper: CLEARED
+⚠
+Key count mismatch: RFHUB=5 BCM=255
+✓
+VIN consistent: 2C3CDXGJ9KH633754
+✓
+GPEC2A secret key consistent (0x0203 = 0x0361)
+✓
+BCM lock: 0x5A LOCKED
+✓
+RFHUB FOBIK: 5 slots
+✓
+RFHUB CC66AA55: 8
+✓
+BCM FOBIK: 255 keys
+🪪 VIN OCCURRENCES ACROSS DUMPS
+2C3CDXGJ9KH633754
+GPEC2A@0x0000GPEC2A@0x01F0GPEC2A@0x0224RFHUB@0x0EA5RFHUB@0x0EB9RFHUB@0x0ECDRFHUB@0x0EE1
+GPEC2A
+GPEC2A
+FCA_CONTINENTAL_GPEC2A_EXT EEPROM_20260422130226_VIN_2C3CDXGJ9KH633754.bin · 4.0 KB
+⚙️ GPEC2A SECURITY
+SKIM byte @0x0011
+DISABLED0x00
+Secret key @0x0203
+C2 00 00 00 00 25 07 15
+Mirror @0x0361
+C2 00 00 00 00 25 07 15 MATCH
+ZZZZ tamper @0x0C8C
+CLEARED00 00 00 00 00 00 00 00
+PCM SEC6 @0x03C8
+FF FF FF FF FF FF IMMO_DAMAGED
+Part number @0x0FA1
+A2C7577160000
+🔐 TRANSPONDER KEYS @0x0888
+KEY 1 · 0x0888
+7C 83 A7 58
+SET
+KEY 2 · 0x088C
+65 9A A8 57
+SET
+KEY 3 · 0x0890
+7B 84 A9 56
+SET
+KEY 4 · 0x0894
+7E 81 A7 58
+SET
+📊 RUNTIME COUNTERS
+Counter A
+268,154,624
+0x0E61 · 0F FB B7 00
+Counter B
+0
+0x0E69 · 00 00 00 00
+Distance
+0
+0x0E6D · 00 00 00 00
+Key cycles
+0
+0x0E75 · 00 00 00 00
