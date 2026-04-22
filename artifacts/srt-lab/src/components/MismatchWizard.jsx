@@ -293,42 +293,126 @@ function HexDiffCard({ step, hexSnippets }) {
   );
 }
 
-/* ─── Streaming Claude chat hook ─── */
-function useChatStream() {
+/* ─── Persistent Claude chat hook (DB-backed conversations API) ───
+ *
+ * Per `sessionKey` (e.g. "workspace:dodge-charger"), the hook:
+ *   • on mount, looks up localStorage["srt-wizard-last-conv:<sessionKey>"]
+ *     and hydrates the matching conversation from the server (GET /:id);
+ *   • on first send, POSTs /anthropic/conversations to create a new
+ *     conversation tagged with `scope=<sessionKey>`, then streams via
+ *     POST /anthropic/conversations/:id/messages (SSE);
+ *   • exposes startNewSession() / switchToSession(id) / listSessions().
+ *
+ * The server is the source of truth — the hook re-hydrates from the DB
+ * after every modal open, so chats survive close/reopen, page reloads,
+ * and even client disconnect mid-stream.
+ */
+const LAST_CONV_KEY = (sessionKey) => `srt-wizard-last-conv:${sessionKey || 'default'}`;
+
+function useChatStream(sessionKey) {
   const [messages, setMessages] = useState([]);
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState(null);
+  const [conversationId, setConversationId] = useState(null);
+  const [hydrated, setHydrated] = useState(false);
+  const [resumed, setResumed] = useState(false); /* true ⇢ we loaded a prior chat */
   const abortRef = useRef(null);
   const contextRef = useRef(null);
   const messagesRef = useRef([]);
+  const convIdRef = useRef(null);
 
-  /* Keep ref in sync */
   useEffect(() => { messagesRef.current = messages; }, [messages]);
+  useEffect(() => { convIdRef.current = conversationId; }, [conversationId]);
 
   const updateContext = useCallback((ctx) => {
     contextRef.current = ctx;
   }, []);
 
+  /* ── Hydrate prior session on mount / sessionKey change ── */
+  useEffect(() => {
+    let cancelled = false;
+    setHydrated(false);
+    setResumed(false);
+    setMessages([]);
+    setConversationId(null);
+    setError(null);
+
+    const lastId = (() => {
+      try { return localStorage.getItem(LAST_CONV_KEY(sessionKey)); }
+      catch { return null; }
+    })();
+
+    if (!lastId) {
+      setHydrated(true);
+      return () => { cancelled = true; };
+    }
+
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/anthropic/conversations/${encodeURIComponent(lastId)}`);
+        if (cancelled) return;
+        if (res.status === 404) {
+          /* Stale pointer — clear it */
+          try { localStorage.removeItem(LAST_CONV_KEY(sessionKey)); } catch {}
+          setHydrated(true);
+          return;
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (cancelled) return;
+        setConversationId(data.id);
+        setMessages((data.messages || []).map(m => ({ role: m.role, content: m.content })));
+        /* Hydrated successfully from a saved pointer ⇢ this is a resumed chat,
+         * even if the prior session had no messages yet. */
+        setResumed(true);
+        setHydrated(true);
+      } catch {
+        /* Transient failure (network down, server restart). Don't clear the
+         * pointer or mark hydrated — leaving hydrated=false suppresses the
+         * auto-greet effect, so we won't accidentally fork a brand-new
+         * conversation and overwrite the saved one on the next user send. */
+        if (!cancelled) setError('Could not load previous chat. Reopen the wizard once the server is reachable to resume.');
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [sessionKey]);
+
   const sendMessage = useCallback(async (userText) => {
     if (streaming) return;
-    const moduleContext = contextRef.current;
 
+    /* Optimistic UI */
     const userMsg = { role: 'user', content: userText };
-    const history = [...messagesRef.current, userMsg];
-    setMessages([...history, { role: 'assistant', content: '' }]);
+    setMessages(prev => [...prev, userMsg, { role: 'assistant', content: '' }]);
     setStreaming(true);
     setError(null);
 
     try {
+      /* Lazily create the server conversation on first send. */
+      let convId = convIdRef.current;
+      if (!convId) {
+        const createRes = await fetch(`${API_BASE}/anthropic/conversations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: 'New chat', scope: sessionKey || null }),
+        });
+        if (!createRes.ok) throw new Error(`Failed to create chat (HTTP ${createRes.status})`);
+        const created = await createRes.json();
+        convId = created.id;
+        setConversationId(convId);
+        convIdRef.current = convId;
+        try { localStorage.setItem(LAST_CONV_KEY(sessionKey), String(convId)); } catch {}
+      }
+
       const controller = new AbortController();
       abortRef.current = controller;
 
-      const res = await fetch(`${API_BASE}/anthropic/module-assistant`, {
+      const res = await fetch(`${API_BASE}/anthropic/conversations/${convId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: history,
-          moduleContext,
+          content: userText,
+          moduleContext: contextRef.current || undefined,
         }),
         signal: controller.signal,
       });
@@ -342,6 +426,7 @@ function useChatStream() {
       const decoder = new TextDecoder();
       let buffer = '';
 
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -352,47 +437,106 @@ function useChatStream() {
           if (!line.startsWith('data: ')) continue;
           const json = line.slice(6).trim();
           if (!json) continue;
-          try {
-            const parsed = JSON.parse(json);
-            if (parsed.done) break;
-            if (parsed.error) throw new Error(parsed.error);
-            if (parsed.content) {
-              setMessages(prev => {
-                const updated = [...prev];
-                updated[updated.length - 1] = {
-                  ...updated[updated.length - 1],
-                  content: updated[updated.length - 1].content + parsed.content,
-                };
-                return updated;
-              });
-            }
-          } catch {}
+          let parsed;
+          try { parsed = JSON.parse(json); }
+          catch { continue; /* malformed frame — skip, don't kill stream */ }
+          if (parsed.done) break;
+          /* Server-emitted error frame — propagate to outer catch so the
+           * empty assistant placeholder is rolled back and the user sees
+           * the failure instead of a silent dead reply. */
+          if (parsed.error) throw new Error(parsed.error);
+          if (parsed.content) {
+            setMessages(prev => {
+              const updated = [...prev];
+              updated[updated.length - 1] = {
+                ...updated[updated.length - 1],
+                content: updated[updated.length - 1].content + parsed.content,
+              };
+              return updated;
+            });
+          }
         }
       }
     } catch (err) {
       if (err.name !== 'AbortError') {
         setError(err.message);
-        setMessages(prev => prev.slice(0, -1));
+        /* Roll back the empty assistant placeholder; keep the user msg
+         * because the server already persisted it (or didn't, but the
+         * user can see what they typed and retry). */
+        setMessages(prev => {
+          const last = prev[prev.length - 1];
+          if (last && last.role === 'assistant' && last.content === '') return prev.slice(0, -1);
+          return prev;
+        });
       }
     } finally {
       setStreaming(false);
     }
-  }, [streaming]);
+  }, [streaming, sessionKey]);
 
-  const clearMessages = useCallback(() => {
+  const startNewSession = useCallback(() => {
     abortRef.current?.abort();
+    try { localStorage.removeItem(LAST_CONV_KEY(sessionKey)); } catch {}
+    setConversationId(null);
+    convIdRef.current = null;
     setMessages([]);
+    setResumed(false);
     setError(null);
-  }, []);
+  }, [sessionKey]);
 
-  return { messages, streaming, error, sendMessage, clearMessages, updateContext };
+  const switchToSession = useCallback(async (id) => {
+    abortRef.current?.abort();
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/anthropic/conversations/${encodeURIComponent(id)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setConversationId(data.id);
+      convIdRef.current = data.id;
+      setMessages((data.messages || []).map(m => ({ role: m.role, content: m.content })));
+      setResumed(true);
+      try { localStorage.setItem(LAST_CONV_KEY(sessionKey), String(data.id)); } catch {}
+    } catch (e) {
+      setError(`Could not load session: ${e.message}`);
+    }
+  }, [sessionKey]);
+
+  const listSessions = useCallback(async () => {
+    const url = sessionKey
+      ? `${API_BASE}/anthropic/conversations?scope=${encodeURIComponent(sessionKey)}`
+      : `${API_BASE}/anthropic/conversations`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }, [sessionKey]);
+
+  const deleteSession = useCallback(async (id) => {
+    const res = await fetch(`${API_BASE}/anthropic/conversations/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok && res.status !== 404) throw new Error(`HTTP ${res.status}`);
+    if (convIdRef.current === id) startNewSession();
+  }, [startNewSession]);
+
+  return {
+    messages, streaming, error, conversationId, hydrated, resumed,
+    sendMessage, updateContext,
+    startNewSession, switchToSession, listSessions, deleteSession,
+  };
 }
 
 /* ─── Chat Panel ─── */
-function ChatPanel({ moduleContext, autoGreet }) {
-  const { messages, streaming, error, sendMessage, clearMessages, updateContext } = useChatStream();
+function ChatPanel({ moduleContext, autoGreet, sessionKey }) {
+  const {
+    messages, streaming, error, conversationId, hydrated, resumed,
+    sendMessage, updateContext,
+    startNewSession, switchToSession, listSessions, deleteSession,
+  } = useChatStream(sessionKey);
   const [input, setInput] = useState('');
   const [collapsed, setCollapsed] = useState(false);
+  const [pastOpen, setPastOpen] = useState(false);
+  const [pastSessions, setPastSessions] = useState(null); /* null = not loaded yet */
+  const [pastError, setPastError] = useState(null);
   const bottomRef = useRef(null);
   const greeted = useRef(false);
 
@@ -401,13 +545,68 @@ function ChatPanel({ moduleContext, autoGreet }) {
     updateContext(moduleContext);
   }, [moduleContext, updateContext]);
 
-  /* Auto-brief on open */
+  /* Auto-brief on first open of a brand-new session (only if hydration
+   * found nothing). Don't re-greet a resumed conversation. */
   useEffect(() => {
-    if (greeted.current || streaming || messages.length > 0) return;
+    if (!hydrated) return;
+    if (greeted.current || streaming) return;
+    if (messages.length > 0 || conversationId) return;
     if (!autoGreet) return;
     greeted.current = true;
     sendMessage(autoGreet);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [hydrated, conversationId, messages.length, autoGreet, streaming, sendMessage]);
+
+  /* Reset the greeted flag whenever we start fresh so a brand-new chat
+   * still gets briefed automatically. */
+  useEffect(() => {
+    if (!conversationId && messages.length === 0) greeted.current = false;
+  }, [conversationId, messages.length]);
+
+  const refreshPastSessions = useCallback(async () => {
+    setPastError(null);
+    try {
+      const list = await listSessions();
+      setPastSessions(list);
+    } catch (e) {
+      setPastError(e.message);
+      setPastSessions([]);
+    }
+  }, [listSessions]);
+
+  const togglePast = () => {
+    setPastOpen(o => {
+      const next = !o;
+      if (next && pastSessions === null) refreshPastSessions();
+      return next;
+    });
+  };
+
+  const handleNewChat = () => {
+    if (messages.length > 0 && !window.confirm('Start a brand-new chat? The current chat is saved and remains in Past Sessions.')) {
+      return;
+    }
+    startNewSession();
+    /* Re-arm auto-greet for the fresh session */
+    greeted.current = false;
+  };
+
+  const handleSwitchSession = async (id) => {
+    await switchToSession(id);
+    setPastOpen(false);
+    /* Loaded a real prior session — never auto-greet over it */
+    greeted.current = true;
+  };
+
+  const handleDeleteSession = async (id, ev) => {
+    ev.stopPropagation();
+    if (!window.confirm('Delete this chat permanently?')) return;
+    try {
+      await deleteSession(id);
+      await refreshPastSessions();
+    } catch (e) {
+      setPastError(e.message);
+    }
+  };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -450,22 +649,93 @@ function ChatPanel({ moduleContext, autoGreet }) {
       }} onClick={() => setCollapsed(c => !c)}>
         <div style={{ fontSize: 16 }}>🤖</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 800, fontSize: 12, color: W.tx, letterSpacing: 1 }}>CLAUDE AI ASSISTANT</div>
+          <div style={{ fontWeight: 800, fontSize: 12, color: W.tx, letterSpacing: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+            CLAUDE AI ASSISTANT
+            {resumed && (
+              <span
+                data-testid="wizard-chat-resumed-pill"
+                title="This chat was loaded from your previous session and persists across modal close/reopen."
+                style={{ background: W.a2 + '22', border: `1px solid ${W.a2}55`, color: W.a2, fontSize: 9, fontWeight: 800, padding: '1px 7px', borderRadius: 10, letterSpacing: 0.5 }}>
+                ↻ RESUMED
+              </span>
+            )}
+          </div>
           <div style={{ fontSize: 10, color: W.ts }}>
             {moduleContext?.wizard
               ? `Step ${(moduleContext.wizard.currentStepIndex ?? 0) + 1}/${moduleContext.wizard.totalSteps} · ${moduleContext.wizard.completedSteps?.length ?? 0} resolved`
               : 'Powered by Anthropic · context-aware'}
+            {conversationId ? ` · #${conversationId}` : ''}
           </div>
         </div>
         {streaming && <div style={{ fontSize: 10, color: W.a2, fontWeight: 700 }}>● streaming…</div>}
-        {messages.length > 0 && !collapsed && (
-          <button onClick={e => { e.stopPropagation(); clearMessages(); greeted.current = false; }}
-            style={{ background: 'none', border: 'none', color: W.tm, fontSize: 11, cursor: 'pointer', padding: '2px 6px' }}>
-            clear
-          </button>
+        {!collapsed && (
+          <>
+            <button
+              data-testid="wizard-chat-past-sessions-btn"
+              onClick={e => { e.stopPropagation(); togglePast(); }}
+              title="Browse and switch between past chats for this launcher"
+              style={{ background: W.s3, border: `1px solid ${W.bd}`, color: W.ts, fontSize: 10, cursor: 'pointer', padding: '3px 8px', borderRadius: 6, fontWeight: 700, letterSpacing: 0.5 }}>
+              Past sessions ▾
+            </button>
+            <button
+              data-testid="wizard-chat-new-btn"
+              onClick={e => { e.stopPropagation(); handleNewChat(); }}
+              title="Start a new chat (the current one is saved)"
+              style={{ background: W.a3 + '22', border: `1px solid ${W.a3}55`, color: W.a3, fontSize: 10, cursor: 'pointer', padding: '3px 8px', borderRadius: 6, fontWeight: 800, letterSpacing: 0.5 }}>
+              + New chat
+            </button>
+          </>
         )}
         <div style={{ color: W.tm, fontSize: 13 }}>{collapsed ? '▲' : '▼'}</div>
       </div>
+
+      {/* Past sessions dropdown */}
+      {!collapsed && pastOpen && (
+        <div
+          data-testid="wizard-chat-past-sessions-panel"
+          style={{ background: W.bg, borderBottom: `1px solid ${W.bd}`, padding: '8px 14px', maxHeight: 180, overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <div style={{ fontSize: 10, fontWeight: 800, color: W.ts, letterSpacing: 1 }}>
+              PAST CHATS {sessionKey ? `· ${sessionKey}` : ''}
+            </div>
+            <button onClick={refreshPastSessions} style={{ background: 'none', border: 'none', color: W.tm, fontSize: 10, cursor: 'pointer', padding: 0 }}>↻ refresh</button>
+            <div style={{ flex: 1 }} />
+            <button onClick={() => setPastOpen(false)} style={{ background: 'none', border: 'none', color: W.tm, fontSize: 11, cursor: 'pointer' }}>✕</button>
+          </div>
+          {pastError && <div style={{ color: W.er, fontSize: 11 }}>✗ {pastError}</div>}
+          {pastSessions === null && !pastError && <div style={{ color: W.tm, fontSize: 11 }}>Loading…</div>}
+          {pastSessions && pastSessions.length === 0 && !pastError && (
+            <div style={{ color: W.tm, fontSize: 11, fontStyle: 'italic' }}>No previous chats for this launcher yet.</div>
+          )}
+          {pastSessions && pastSessions.map(s => {
+            const active = s.id === conversationId;
+            return (
+              <div
+                key={s.id}
+                data-testid={`wizard-chat-past-session-${s.id}`}
+                onClick={() => handleSwitchSession(s.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '5px 8px', marginBottom: 3, borderRadius: 6,
+                  background: active ? W.a3 + '18' : 'transparent',
+                  border: `1px solid ${active ? W.a3 + '55' : 'transparent'}`,
+                  cursor: 'pointer',
+                }}>
+                <span style={{ fontSize: 13 }}>{active ? '●' : '○'}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 11, color: W.tx, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {s.title || `Chat #${s.id}`}
+                  </div>
+                  <div style={{ fontSize: 9, color: W.tm, fontFamily: W.mono }}>
+                    #{s.id} · {s.createdAt ? new Date(s.createdAt).toLocaleString() : ''}
+                  </div>
+                </div>
+                <button onClick={(ev) => handleDeleteSession(s.id, ev)} title="Delete this chat" style={{ background: 'none', border: 'none', color: W.tm, fontSize: 12, cursor: 'pointer', padding: '2px 4px' }}>🗑</button>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {!collapsed && (
         <>
@@ -910,6 +1180,7 @@ export default function MismatchWizard({
   onClose,
   onAction,
   stepActions = [],
+  sessionKey,
 }) {
   const [phase, setPhase] = useState('summary');
   const [currentStep, setCurrentStep] = useState(0);
@@ -1083,7 +1354,7 @@ export default function MismatchWizard({
 
           {/* Claude chat — always visible */}
           <div style={{ flexShrink: 0, padding: '10px 20px 16px 20px' }}>
-            <ChatPanel moduleContext={moduleContext} autoGreet={autoGreet} />
+            <ChatPanel moduleContext={moduleContext} autoGreet={autoGreet} sessionKey={sessionKey} />
           </div>
         </div>
       </div>

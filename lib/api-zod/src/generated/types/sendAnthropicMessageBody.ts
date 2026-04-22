@@ -5,7 +5,9 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ModuleContext } from "./moduleContext";
 
 export interface SendAnthropicMessageBody {
   content: string;
+  moduleContext?: ModuleContext;
 }

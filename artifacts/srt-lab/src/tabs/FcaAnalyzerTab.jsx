@@ -46,7 +46,7 @@ function ConfigBlockBadge({mod}){
    Drop one or more dump files (BCM / RFHUB / GPEC2A / 95640) and the tab
    parses each via parseModule, runs crossValidate, and surfaces every
    byte-level field the parser exposes. Read-only beyond the IMMO-sync action. */
-export default function FcaAnalyzerTab(){
+export default function FcaAnalyzerTab({ vehicleId } = {}){
   const {vin:masterVin,setVin,loadedDumps,addDump,replaceDump,removeDump,clearDumps}=useContext(MasterVinContext);
   const mods=useMemo(()=>loadedDumps.map(d=>d.mod),[loadedDumps]);
   const [sel,setSel]=useState(0);
@@ -260,6 +260,7 @@ export default function FcaAnalyzerTab(){
         onClose={()=>setWizardOpen(false)}
         onAction={onWizardAction}
         stepActions={wizardStepActions}
+        sessionKey={`fca:${vehicleId || 'global'}`}
       />
     )}
   </div>;

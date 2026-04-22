@@ -879,7 +879,7 @@ function ActionBtn({ title, desc, enabled, onClick, color }) {
  * MAIN COMPONENT
  * ========================================================================== */
 
-export default function ModuleSync() {
+export default function ModuleSync({ vehicleId } = {}) {
   const { vin: masterVin, vinValid: masterVinValid } = useMasterVin();
 
   const [bcm, setBcm] = useState({ file: null, bytes: null, parsed: null });
@@ -1583,6 +1583,7 @@ export default function ModuleSync() {
             return doSync(actionId === 'full-sync' ? 'sync-all' : actionId);
           }}
           stepActions={wizardStepActions}
+          sessionKey={`modsync:${vehicleId || 'global'}`}
         />
       )}
     </div>

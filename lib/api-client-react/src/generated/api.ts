@@ -24,6 +24,7 @@ import type {
   CreateAnthropicConversationBody,
   DownloadCount,
   HealthStatus,
+  ListAnthropicConversationsParams,
   ModuleAssistantChatBody,
   SendAnthropicMessageBody,
 } from "./api.schemas";
@@ -289,15 +290,30 @@ export const useIncrementDownloadCount = <
 /**
  * @summary List all conversations
  */
-export const getListAnthropicConversationsUrl = () => {
-  return `/api/anthropic/conversations`;
+export const getListAnthropicConversationsUrl = (
+  params?: ListAnthropicConversationsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/anthropic/conversations?${stringifiedParams}`
+    : `/api/anthropic/conversations`;
 };
 
 export const listAnthropicConversations = async (
+  params?: ListAnthropicConversationsParams,
   options?: RequestInit,
 ): Promise<AnthropicConversation[]> => {
   return customFetch<AnthropicConversation[]>(
-    getListAnthropicConversationsUrl(),
+    getListAnthropicConversationsUrl(params),
     {
       ...options,
       method: "GET",
@@ -305,29 +321,35 @@ export const listAnthropicConversations = async (
   );
 };
 
-export const getListAnthropicConversationsQueryKey = () => {
-  return [`/api/anthropic/conversations`] as const;
+export const getListAnthropicConversationsQueryKey = (
+  params?: ListAnthropicConversationsParams,
+) => {
+  return [`/api/anthropic/conversations`, ...(params ? [params] : [])] as const;
 };
 
 export const getListAnthropicConversationsQueryOptions = <
   TData = Awaited<ReturnType<typeof listAnthropicConversations>>,
   TError = ErrorType<unknown>,
->(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof listAnthropicConversations>>,
-    TError,
-    TData
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}) => {
+>(
+  params?: ListAnthropicConversationsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAnthropicConversations>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ?? getListAnthropicConversationsQueryKey();
+    queryOptions?.queryKey ?? getListAnthropicConversationsQueryKey(params);
 
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof listAnthropicConversations>>
-  > = ({ signal }) => listAnthropicConversations({ signal, ...requestOptions });
+  > = ({ signal }) =>
+    listAnthropicConversations(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof listAnthropicConversations>>,
@@ -348,15 +370,21 @@ export type ListAnthropicConversationsQueryError = ErrorType<unknown>;
 export function useListAnthropicConversations<
   TData = Awaited<ReturnType<typeof listAnthropicConversations>>,
   TError = ErrorType<unknown>,
->(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof listAnthropicConversations>>,
-    TError,
-    TData
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getListAnthropicConversationsQueryOptions(options);
+>(
+  params?: ListAnthropicConversationsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAnthropicConversations>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListAnthropicConversationsQueryOptions(
+    params,
+    options,
+  );
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

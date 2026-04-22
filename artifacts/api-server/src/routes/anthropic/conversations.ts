@@ -2,27 +2,40 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { conversations, messages } from "@workspace/db";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, desc } from "drizzle-orm";
+import {
+  SYSTEM_PROMPT,
+  buildContextBlock,
+  buildAutoTitle,
+  type ModuleContext,
+} from "./_shared";
 
 const router = Router();
 
-/* GET /anthropic/conversations */
-router.get("/conversations", async (_req, res) => {
-  const rows = await db
-    .select()
-    .from(conversations)
-    .orderBy(asc(conversations.createdAt));
+/* GET /anthropic/conversations?scope=... */
+router.get("/conversations", async (req, res) => {
+  const scope = typeof req.query.scope === "string" ? req.query.scope : undefined;
+  const rows = scope
+    ? await db
+        .select()
+        .from(conversations)
+        .where(eq(conversations.scope, scope))
+        .orderBy(desc(conversations.createdAt))
+    : await db.select().from(conversations).orderBy(desc(conversations.createdAt));
   res.json(rows);
 });
 
-/* POST /anthropic/conversations */
+/* POST /anthropic/conversations  { title, scope? } */
 router.post("/conversations", async (req, res) => {
-  const { title } = req.body as { title?: string };
+  const { title, scope } = req.body as { title?: string; scope?: string | null };
   if (!title) {
     res.status(400).json({ error: "title is required" });
     return;
   }
-  const [row] = await db.insert(conversations).values({ title }).returning();
+  const [row] = await db
+    .insert(conversations)
+    .values({ title, scope: scope ?? null })
+    .returning();
   res.status(201).json(row);
 });
 
@@ -82,14 +95,19 @@ router.get("/conversations/:id/messages", async (req, res) => {
   res.json(msgs);
 });
 
-/* POST /anthropic/conversations/:id/messages — SSE stream */
+/* POST /anthropic/conversations/:id/messages — SSE stream
+ * Optional moduleContext in body injects the SRT system prompt + context block.
+ */
 router.post("/conversations/:id/messages", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
     res.status(400).json({ error: "Invalid id" });
     return;
   }
-  const { content } = req.body as { content?: string };
+  const { content, moduleContext } = req.body as {
+    content?: string;
+    moduleContext?: ModuleContext;
+  };
   if (!content) {
     res.status(400).json({ error: "content is required" });
     return;
@@ -106,6 +124,15 @@ router.post("/conversations/:id/messages", async (req, res) => {
 
   await db.insert(messages).values({ conversationId: id, role: "user", content });
 
+  /* Auto-title from first user message if conversation still has the placeholder. */
+  if (conv.title === "New chat" || conv.title.startsWith("[") && conv.title.endsWith("] New chat")) {
+    const newTitle = buildAutoTitle(content, conv.scope);
+    await db
+      .update(conversations)
+      .set({ title: newTitle })
+      .where(eq(conversations.id, id));
+  }
+
   const history = await db
     .select()
     .from(messages)
@@ -117,16 +144,25 @@ router.post("/conversations/:id/messages", async (req, res) => {
     content: m.content,
   }));
 
+  const systemPrompt = moduleContext
+    ? `${SYSTEM_PROMPT}\n\n${buildContextBlock(moduleContext)}`
+    : SYSTEM_PROMPT;
+
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
   let fullResponse = "";
+  let clientGone = false;
+  res.on("close", () => {
+    clientGone = true;
+  });
 
   try {
     const stream = anthropic.messages.stream({
       model: "claude-sonnet-4-6",
       max_tokens: 8192,
+      system: systemPrompt,
       messages: chatMessages,
     });
 
@@ -136,20 +172,34 @@ router.post("/conversations/:id/messages", async (req, res) => {
         event.delta.type === "text_delta"
       ) {
         fullResponse += event.delta.text;
-        res.write(`data: ${JSON.stringify({ content: event.delta.text })}\n\n`);
+        if (!clientGone) {
+          res.write(`data: ${JSON.stringify({ content: event.delta.text })}\n\n`);
+        }
       }
     }
 
-    await db
-      .insert(messages)
-      .values({ conversationId: id, role: "assistant", content: fullResponse });
+    /* Always persist the assistant reply, even if the client disconnected. */
+    if (fullResponse.length > 0) {
+      await db
+        .insert(messages)
+        .values({ conversationId: id, role: "assistant", content: fullResponse });
+    }
 
-    res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-    res.end();
+    if (!clientGone) {
+      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+      res.end();
+    }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    res.write(`data: ${JSON.stringify({ error: message })}\n\n`);
-    res.end();
+    if (fullResponse.length > 0) {
+      await db
+        .insert(messages)
+        .values({ conversationId: id, role: "assistant", content: fullResponse });
+    }
+    if (!clientGone) {
+      res.write(`data: ${JSON.stringify({ error: message })}\n\n`);
+      res.end();
+    }
   }
 });
 

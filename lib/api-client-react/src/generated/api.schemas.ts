@@ -18,6 +18,7 @@ export interface DownloadCount {
 export interface AnthropicConversation {
   id: number;
   title: string;
+  scope?: string | null;
   createdAt: string;
 }
 
@@ -31,15 +32,25 @@ export interface AnthropicMessage {
 
 export interface CreateAnthropicConversationBody {
   title: string;
+  scope?: string | null;
+}
+
+export interface ModuleContext {
+  modules?: string[];
+  issues?: string[];
+  warnings?: string[];
+  hexSnippets?: string[];
 }
 
 export interface SendAnthropicMessageBody {
   content: string;
+  moduleContext?: ModuleContext;
 }
 
 export interface AnthropicConversationWithMessages {
   id: number;
   title: string;
+  scope?: string | null;
   createdAt: string;
   messages: AnthropicMessage[];
 }
@@ -64,3 +75,10 @@ export interface ModuleAssistantChatBody {
   messages: ModuleAssistantChatBodyMessagesItem[];
   moduleContext: ModuleAssistantChatBodyModuleContext;
 }
+
+export type ListAnthropicConversationsParams = {
+  /**
+   * Optional scope key — when set, only conversations created with this scope are returned.
+   */
+  scope?: string;
+};

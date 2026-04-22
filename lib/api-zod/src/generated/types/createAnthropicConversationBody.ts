@@ -8,4 +8,5 @@
 
 export interface CreateAnthropicConversationBody {
   title: string;
+  scope?: string | null;
 }

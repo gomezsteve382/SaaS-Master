@@ -48,9 +48,19 @@ export const IncrementDownloadCountResponse = zod.object({
 /**
  * @summary List all conversations
  */
+export const ListAnthropicConversationsQueryParams = zod.object({
+  scope: zod.coerce
+    .string()
+    .optional()
+    .describe(
+      "Optional scope key — when set, only conversations created with this scope are returned.",
+    ),
+});
+
 export const ListAnthropicConversationsResponseItem = zod.object({
   id: zod.number(),
   title: zod.string(),
+  scope: zod.string().nullish(),
   createdAt: zod.coerce.date(),
 });
 export const ListAnthropicConversationsResponse = zod.array(
@@ -62,6 +72,7 @@ export const ListAnthropicConversationsResponse = zod.array(
  */
 export const CreateAnthropicConversationBody = zod.object({
   title: zod.string(),
+  scope: zod.string().nullish(),
 });
 
 /**
@@ -74,6 +85,7 @@ export const GetAnthropicConversationParams = zod.object({
 export const GetAnthropicConversationResponse = zod.object({
   id: zod.number(),
   title: zod.string(),
+  scope: zod.string().nullish(),
   createdAt: zod.coerce.date(),
   messages: zod.array(
     zod.object({
@@ -120,6 +132,14 @@ export const SendAnthropicMessageParams = zod.object({
 
 export const SendAnthropicMessageBody = zod.object({
   content: zod.string(),
+  moduleContext: zod
+    .object({
+      modules: zod.array(zod.string()).optional(),
+      issues: zod.array(zod.string()).optional(),
+      warnings: zod.array(zod.string()).optional(),
+      hexSnippets: zod.array(zod.string()).optional(),
+    })
+    .optional(),
 });
 
 /**

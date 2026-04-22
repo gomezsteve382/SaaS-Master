@@ -70,6 +70,13 @@ paths:
       operationId: listAnthropicConversations
       tags: [anthropic]
       summary: List all conversations
+      parameters:
+        - name: scope
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional scope key — when set, only conversations created with this scope are returned.
       responses:
         "200":
           description: List of conversations
@@ -223,6 +230,9 @@ components:
           type: integer
         title:
           type: string
+        scope:
+          type: string
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -255,6 +265,9 @@ components:
       properties:
         title:
           type: string
+        scope:
+          type: string
+          nullable: true
       required:
         - title
     SendAnthropicMessageBody:
@@ -262,6 +275,8 @@ components:
       properties:
         content:
           type: string
+        moduleContext:
+          $ref: "#/components/schemas/ModuleContext"
       required:
         - content
     AnthropicConversationWithMessages:
@@ -271,6 +286,9 @@ components:
           type: integer
         title:
           type: string
+        scope:
+          type: string
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -283,6 +301,25 @@ components:
         - title
         - createdAt
         - messages
+    ModuleContext:
+      type: object
+      properties:
+        modules:
+          type: array
+          items:
+            type: string
+        issues:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+        hexSnippets:
+          type: array
+          items:
+            type: string
     AnthropicError:
       type: object
       properties:

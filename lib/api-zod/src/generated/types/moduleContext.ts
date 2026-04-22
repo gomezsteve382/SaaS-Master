@@ -6,9 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface AnthropicConversation {
-  id: number;
-  title: string;
-  scope?: string | null;
-  createdAt: Date;
+export interface ModuleContext {
+  modules?: string[];
+  issues?: string[];
+  warnings?: string[];
+  hexSnippets?: string[];
 }

@@ -35,7 +35,30 @@ Processing helpers live in `src/lib/`:
 
 A desktop J2534 driver (Python, separate package) handles raw CAN PassThru when Web Serial is insufficient.
 
-The API server (`artifacts/api-server/`) is used for download counters, module backups, diff reports, and the **Anthropic AI module assistant** (`/api/anthropic/module-assistant`). This streaming SSE endpoint accepts module context (parsed dump info, detected issues, hex snippets) and returns Claude AI responses for the Mismatch Wizard.
+The API server (`artifacts/api-server/`) is used for download counters, module backups, diff reports, and the **Anthropic AI module assistant**:
+
+- **Stateless one-shot** — `/api/anthropic/module-assistant` (SSE) — accepts module context and streams a single Claude reply. Used by code paths that don't persist a chat.
+- **Persistent conversations** — `/api/anthropic/conversations` (CRUD) and `/api/anthropic/conversations/:id/messages` (SSE). Conversations are stored in the `conversations` + `conversation_messages` tables (`lib/db/src/schema/conversations.ts`) and tagged with an optional `scope` string for per-launcher isolation. The Mismatch Wizard uses this so chats survive close/reopen.
+
+The shared SRT system prompt + module-context block + auto-titling logic live in `artifacts/api-server/src/routes/anthropic/_shared.ts` so both endpoints stay in lock-step.
+
+### Wizard chat persistence (Continue Last Session)
+
+`MismatchWizard` accepts a `sessionKey` prop that is used to scope the persisted Claude chat per launcher:
+
+| Launcher                         | sessionKey                              |
+|----------------------------------|-----------------------------------------|
+| Workspace header (App.jsx)       | `workspace:<vehicleId>`                 |
+| Module Sync tab                  | `modsync:<vehicleId\|global>`           |
+| FCA Analyzer tab                 | `fca:<vehicleId\|global>`               |
+
+The internal `useChatStream(sessionKey)` hook:
+- on mount, reads `localStorage["srt-wizard-last-conv:<sessionKey>"]` and hydrates the prior conversation (404 ⇒ pointer is cleared);
+- lazily creates a server-side conversation on the first send, tagged `scope=<sessionKey>`;
+- streams responses through `POST /:id/messages`, persisting the assistant reply server-side even if the client disconnects mid-stream;
+- exposes `+ New chat` (clears pointer) and `Past sessions ▾` (lists conversations filtered by `?scope=<sessionKey>`, with delete buttons).
+
+A `↻ RESUMED` pill appears in the chat header whenever the panel was hydrated from a saved pointer.
 
 ## Tabs (order mirrors reference App.jsx)
 
