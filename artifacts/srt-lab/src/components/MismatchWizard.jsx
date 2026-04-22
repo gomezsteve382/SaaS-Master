@@ -951,7 +951,7 @@ export default function MismatchWizard({
   };
 
   const handleAction = (actionId, stepId) => {
-    onAction?.(actionId, stepId);
+    return onAction?.(actionId, stepId);
     /* Wizard stays open — ActionResult banner shown in-card */
   };
 
