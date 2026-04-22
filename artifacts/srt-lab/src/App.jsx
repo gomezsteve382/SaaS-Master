@@ -578,7 +578,45 @@ const SKLBL={bcm:'BCM D-FLASH','95640':'FCA 95640',rfhub:'RFHUB EEE',gpec2a:'GPE
 const SKCOL={bcm:C.a1,'95640':C.a4,rfhub:C.a3,gpec2a:C.a2};
 const SKIM_OFF=[{v:'Trackhawk',base:0x2000,ks:18,kc:6},{v:'SRT',base:0x40C0,ks:18,kc:6}];
 
-function SkimTab(){
+const SKIM_GEN_NOTES = {
+  'gen1-18b':   { label:'Gen1 · 18-byte SEC format', color:'#2979FF', notes:['Standard SKIM protocol (18-byte SEC16 record)','Key programming does not require RFHUB pre-sync','BCM secret key at fixed 0x40C0 block'] },
+  'gen2-split': { label:'Gen2 · SEC16 split format',  color:'#FF6D00', notes:['Gen2 requires RFHUB SEC16 sync before key programming','BCM and RFHUB must share matching secret key after any swap','SEC16 record is split across two BCM flash regions'] },
+  'trackhawk-no-flash': { label:'Trackhawk · no BCM flash', color:'#00BFA5', notes:['BCM is not flash-programmed — dealer J2534 only for key adds','SKIM secret key lives in the RFHUB 95640 EEPROM','VIN patch via 95640 drop; BCM follows from RFH sync'] },
+};
+
+function SkimVehicleBanner({vehicle}){
+  if(!vehicle) return null;
+  const gens = vehicle.generations ?? [];
+  const sec16Types = [...new Set(gens.map(g=>g.sec16).filter(Boolean))];
+  return(
+    <div style={{marginBottom:14,borderRadius:12,overflow:'hidden',border:'1px solid '+C.bd}}>
+      <div style={{padding:'10px 14px',background:C.c2,display:'flex',alignItems:'center',gap:10,borderBottom:'1px solid '+C.bd}}>
+        <span style={{fontSize:20}}>🛡️</span>
+        <div>
+          <div style={{fontSize:13,fontWeight:900,letterSpacing:1,color:C.tx}}>{vehicle.full ?? vehicle.name}</div>
+          <div style={{fontSize:10,color:C.tm,fontWeight:700,letterSpacing:1}}>{vehicle.body}</div>
+        </div>
+        <div style={{marginLeft:'auto',display:'flex',gap:6,flexWrap:'wrap'}}>
+          {gens.map(g=><span key={g.id} style={{padding:'3px 9px',borderRadius:6,fontSize:9,fontWeight:800,background:C.bd,color:C.ts,letterSpacing:1}}>{g.label}</span>)}
+        </div>
+      </div>
+      {sec16Types.map(st=>{
+        const info = SKIM_GEN_NOTES[st];
+        if(!info) return null;
+        return(
+          <div key={st} style={{padding:'9px 14px',borderBottom:'1px solid '+C.bd,background:C.cd}}>
+            <div style={{fontSize:10,fontWeight:900,color:info.color,letterSpacing:1,marginBottom:4}}>{info.label}</div>
+            <ul style={{margin:0,paddingLeft:16,listStyle:'disc'}}>
+              {info.notes.map((n,i)=><li key={i} style={{fontSize:10,color:C.ts,marginBottom:2}}>{n}</li>)}
+            </ul>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function SkimTab({vehicle}){
   const[mods,setMods]=useState([]);const[tv,setTv]=useState('');const[msg,setMsg]=useState('');
   const addF=useCallback(fl=>{Promise.all(Array.from(fl).map(f=>new Promise(r=>{const rd=new FileReader();rd.onload=e=>{const d=new Uint8Array(e.target.result);const m=secAnalyze(d,f.name);r(m.type!=='?'?m:null);};rd.readAsArrayBuffer(f);}))).then(res=>{const v=res.filter(Boolean);setMods(p=>{const u=[...p,...v];if(!tv&&u.length)for(const m of u)if(m.vins.length){setTv(m.vins[0].vin);break;}return u;});});},[tv]);
   const allV=useMemo(()=>{const s=new Set();mods.forEach(m=>m.vins.forEach(v=>s.add(v.vin)));return[...s];},[mods]);
@@ -596,6 +634,7 @@ function SkimTab(){
     dl(p,m.fn.replace(/\./,'_VIN_'+tv+'.'));setMsg('Patched '+SKLBL[m.type]+' → '+tv);}
 
   return<div>
+    <SkimVehicleBanner vehicle={vehicle}/>
     {/* Drop zone */}
     <div onClick={()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='.bin,.BIN';i.onchange=e=>addF(e.target.files);i.click();}} onDrop={e=>{e.preventDefault();addF(e.dataTransfer.files);}} onDragOver={e=>e.preventDefault()}>
       <Card style={{textAlign:'center',padding:'24px',cursor:'pointer',border:'2px dashed '+C.sr+'25',marginBottom:16}} onClick={()=>{}}>
@@ -1474,7 +1513,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='ecm'       && <EcmTab vehicle={vehicle}/>}
         {tab==='backups'   && <BackupsTab/>}
         {tab==='obd'       && <LiveObdTab vehicle={vehicle}/>}
-        {tab==='skim'      && <SkimTab/>}
+        {tab==='skim'      && <SkimTab vehicle={vehicle}/>}
         {tab==='info'      && <InfoTab vehicle={vehicle}/>}
       </div>
     </div>
