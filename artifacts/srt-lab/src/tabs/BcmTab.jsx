@@ -385,8 +385,9 @@ export default function BcmTab({vehicle}){
               })}
               {detectedPn&&<span
                 style={{position:'relative',display:'inline-block',marginLeft:4}}
-                onMouseEnter={()=>setGenTooltipVisible(true)}
-                onMouseLeave={()=>setGenTooltipVisible(false)}>
+                onPointerEnter={(e)=>{ if(e.pointerType==='mouse') setGenTooltipVisible(true); }}
+                onPointerLeave={(e)=>{ if(e.pointerType==='mouse') setGenTooltipVisible(false); }}
+                onClick={()=>detectedGen&&setGenTooltipVisible(v=>!v)}>
                 <span style={{
                   fontSize:9,padding:'2px 8px',
                   background:detectedGen?'rgba(255,255,255,0.18)':'rgba(255,179,0,0.25)',
@@ -394,7 +395,7 @@ export default function BcmTab({vehicle}){
                   border:'1px dashed '+(detectedGen?'rgba(255,255,255,0.6)':'rgba(255,179,0,0.8)'),
                   fontFamily:"'JetBrains Mono'",fontWeight:700,letterSpacing:0.5,
                   color:detectedGen?'rgba(255,255,255,0.95)':'#FFD54F',
-                  cursor:detectedGen?'help':'default',
+                  cursor:detectedGen?'pointer':'default',
                 }}>
                   {detectedGen?'':'⚠ '}{detectedGen?'Detected:':'Unknown P/N:'} {detectedPn}
                 </span>
