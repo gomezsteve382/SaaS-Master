@@ -15,6 +15,7 @@ import ProgramAllTab from "./tabs/ProgramAllTab.jsx";
 import UdsTab from "./tabs/UdsTab.jsx";
 import FcaAnalyzerTab from "./tabs/FcaAnalyzerTab.jsx";
 import TwinTab from "./tabs/TwinTab";
+import ModuleSync from "./tabs/ModuleSync";
 import OBDTab from "./tabs/OBDTab.jsx";
 import BenchTab from "./tabs/BenchTab.jsx";
 import DumpsTab from "./tabs/DumpsTab.jsx";
@@ -45,6 +46,7 @@ const TABS = [
   { id: "gpec2a",    i: "⚙️", l: "GPEC2A",         s: "SKIM · Tamper" },
   { id: "analyzer",  i: "🧪", l: "FCA ANALYZER",   s: "GPEC · RFHUB · BCM · Cross-audit" },
   { id: "twin",      i: "🔗", l: "SECURITY BYTE MATCH", s: "BCM ↔ RFH Sync" },
+  { id: "modsync",   i: "🔄", l: "MODULE SYNC",      s: "BCM ↔ RFHUB VIN Sync" },
   { id: "rfhpcm",    i: "🧬", l: "RFH → PCM",      s: "SEC6 Pairing" },
   { id: "swarm",     i: "🌐", l: "SWARM",          s: "CAN Bus Scan" },
   { id: "j2534",     i: "⚡", l: "J2534",          s: "Raw CAN PassThru" },
@@ -206,6 +208,7 @@ function AppShell({ pg, setPg, files, setFiles, loadF }) {
       {pg === "adcm"      && <AdcmTab />}
       {pg === "analyzer"  && <FcaAnalyzerTab />}
       {pg === "twin"      && <TwinTab />}
+      {pg === "modsync"   && <ModuleSync />}
       {pg === "rfhpcm"    && <RFHPCMTab />}
       {pg === "swarm"     && <OBDSwarmDiagnostic />}
       {pg === "j2534"     && <J2534Scanner />}

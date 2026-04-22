@@ -27,6 +27,9 @@ export const ASSET_IDS = {
   immoGpecPatched:  "immo-gpec-patched",    // ImmoVINTab — GPEC2A VIN/key apply
   gpec2aSkim:       "gpec2a-skim-toggled",  // Gpec2aTab — SKIM toggle download
   twinPaired:       "twin-paired",          // TwinTab — paired BCM/RFH/PCM files
+  modSyncPatched:   "modsync-patched-bin", // ModuleSync — synced BCM or RFH bin download
+  modSyncTool:      "modsync-sync-tool",   // ModuleSync — SRTLAB_SYNC_TOOL.html download
+  modSyncValidate:  "modsync-validate-py", // ModuleSync — srtlab_validate.py download
 };
 
 /**

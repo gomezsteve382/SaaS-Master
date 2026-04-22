@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SRT Lab — Module Sync (2017 and Below)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #F4F1EC;
+    --cd: #FFFFFF;
+    --c2: #FAF9F7;
+    --sr: #D32F2F;
+    --sl: #FF5252;
+    --bk: #1A1A1A;
+    --a1: #FF6D00;
+    --a2: #00BFA5;
+    --a3: #2979FF;
+    --a4: #AA00FF;
+    --tx: #1A1A1A;
+    --ts: #5A5A5A;
+    --tm: #9E9E9E;
+    --bd: #E8E4DE;
+    --gn: #00C853;
+    --wn: #FFB300;
+    --er: #FF1744;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Nunito', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--tx);
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  .wrap { max-width: 1280px; margin: 0 auto; }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--bd);
+  }
+  header .mark {
+    width: 52px; height: 52px;
+    background: var(--bk);
+    color: var(--sl);
+    display: grid; place-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 900;
+    font-size: 28px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(26,26,26,0.2);
+    letter-spacing: -2px;
+  }
+  header h1 { font-weight: 900; font-size: 24px; letter-spacing: 0.5px; }
+  header .sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ts); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+  .card {
+    background: var(--cd);
+    border: 1.5px solid var(--bd);
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+  }
+  .card + .card { margin-top: 18px; }
+
+  .h2 {
+    font-weight: 900;
+    font-size: 13px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    color: var(--tx);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .h2 .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--sr);
+  }
+  .h2 .count {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--tm);
+    padding: 2px 8px;
+    background: var(--c2);
+    border-radius: 6px;
+  }
+
+  .drop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 720px) { .drop-grid { grid-template-columns: 1fr; } }
+
+  .drop {
+    background: var(--cd);
+    border: 2px dashed var(--bd);
+    border-radius: 14px;
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .drop:hover, .drop.over { border-color: var(--sr); background: rgba(211,47,47,0.03); }
+  .drop.loaded { border-style: solid; border-color: var(--gn); background: rgba(0,200,83,0.03); }
+  .drop .icon { font-size: 30px; margin-bottom: 6px; }
+  .drop .title { font-weight: 800; font-size: 13px; letter-spacing: 0.8px; }
+  .drop .hint { font-size: 11px; color: var(--tm); margin-top: 4px; }
+  .drop input[type=file] { display: none; }
+  .drop .fname {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    margin-top: 6px;
+    color: var(--gn);
+    font-weight: 600;
+    word-break: break-all;
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 720px) { .results-grid { grid-template-columns: 1fr; } }
+
+  .mod-card {
+    background: var(--c2);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1.5px solid var(--bd);
+  }
+  .mod-card.ok { border-color: rgba(0,200,83,0.3); background: rgba(0,200,83,0.03); }
+  .mod-card.warn { border-color: rgba(255,179,0,0.4); background: rgba(255,179,0,0.03); }
+  .mod-card.err { border-color: rgba(255,23,68,0.3); background: rgba(255,23,68,0.03); }
+  .mod-card .ttl {
+    font-weight: 900;
+    font-size: 12px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--tx);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .mod-card .ttl .badge {
+    margin-left: auto;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.6px;
+    background: var(--cd);
+    color: var(--ts);
+    font-weight: 700;
+  }
+  .mod-card .ttl .badge.ok { background: var(--gn); color: #fff; }
+  .mod-card .ttl .badge.warn { background: var(--wn); color: #fff; }
+  .mod-card .ttl .badge.err { background: var(--er); color: #fff; }
+
+  .kv {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 4px 12px;
+    font-size: 12px;
+    margin-bottom: 6px;
+    align-items: start;
+  }
+  .kv .k { color: var(--ts); font-weight: 600; letter-spacing: 0.3px; }
+  .kv .v { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--tx); word-break: break-all; font-size: 11px; }
+  .kv .v.vin { font-size: 12px; letter-spacing: 1.5px; font-weight: 700; }
+  .kv .v.muted { color: var(--tm); font-style: italic; }
+
+  .match-banner {
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .match-banner.ok { background: rgba(0,200,83,0.1); color: #0a7a3b; border: 1.5px solid rgba(0,200,83,0.3); }
+  .match-banner.mismatch { background: rgba(255,23,68,0.08); color: #a00025; border: 1.5px solid rgba(255,23,68,0.25); }
+
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .act {
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 2px solid var(--bd);
+    background: var(--cd);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    font-family: 'Nunito', sans-serif;
+    color: var(--tx);
+  }
+  .act:not(:disabled):hover { border-color: var(--sr); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(211,47,47,0.1); }
+  .act:disabled { opacity: 0.35; cursor: not-allowed; }
+  .act .atitle { font-weight: 800; font-size: 12px; letter-spacing: 0.8px; display: flex; align-items: center; gap: 6px; }
+  .act .adesc { font-size: 11px; color: var(--ts); margin-top: 4px; line-height: 1.4; }
+  .act .arrow { margin-left: auto; font-size: 14px; opacity: 0.5; }
+
+  .vin-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .vin-input {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--bd);
+    background: var(--c2);
+    color: var(--tx);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-align: center;
+    outline: none;
+    text-transform: uppercase;
+  }
+  .vin-input:focus { border-color: var(--sr); }
+  .vin-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--tm);
+    font-weight: 700;
+    min-width: 42px;
+    text-align: right;
+  }
+  .vin-counter.ok { color: var(--gn); }
+
+  .virginize-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--c2);
+    border-radius: 10px;
+    margin-top: 10px;
+    border: 1.5px solid var(--bd);
+  }
+  .virginize-row label { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--tx); cursor: pointer; flex: 1; }
+  .virginize-row .warn { font-size: 10px; color: var(--wn); font-weight: 700; letter-spacing: 0.3px; }
+  .virginize-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--sr); cursor: pointer; }
+
+  .log {
+    background: #0F1419;
+    color: #E0E0E0;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    margin-top: 12px;
+    max-height: 280px;
+    overflow-y: auto;
+    border: 1.5px solid #2A2F36;
+  }
+  .log .ok { color: #4ADE80; }
+  .log .warn { color: #FACC15; }
+  .log .err { color: #F87171; }
+  .log .info { color: #60A5FA; }
+  .log .muted { color: #6B7280; }
+  .log .line { margin-bottom: 2px; }
+  .log .ts { color: #6B7280; margin-right: 8px; }
+
+  .btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-family: 'Nunito';
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+    border: none;
+    cursor: pointer;
+    background: var(--sr);
+    color: #fff;
+    transition: all 0.15s;
+  }
+  .btn:hover:not(:disabled) { background: var(--sl); transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn.outline { background: transparent; border: 2px solid var(--sr); color: var(--sr); }
+  .btn.outline:hover:not(:disabled) { background: var(--sr); color: #fff; }
+  .btn.ghost { background: transparent; color: var(--ts); }
+  .btn.ghost:hover:not(:disabled) { background: var(--c2); color: var(--tx); }
+
+  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .toolbar .spacer { flex: 1; }
+
+  .info-note {
+    font-size: 11px;
+    color: var(--ts);
+    font-style: italic;
+    padding: 8px 12px;
+    background: var(--c2);
+    border-radius: 8px;
+    border-left: 3px solid var(--a3);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  .hidden { display: none !important; }
+
+  .foot {
+    margin-top: 24px;
+    padding: 16px 0;
+    border-top: 1px solid var(--bd);
+    font-size: 11px;
+    color: var(--tm);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="mark">S</div>
+  <div>
+    <h1>SRT LAB — MODULE SYNC</h1>
+    <div class="sub">2017 AND BELOW · HUNTSVILLE BCM ↔ YAZAKI FCM</div>
+  </div>
+</header>
+
+<div class="card">
+  <div class="h2"><span class="dot"></span>LOAD &amp; INSPECT<span class="count" id="loadCount">0 / 2</span></div>
+  <div class="drop-grid">
+    <div class="drop" id="dropBcm" data-kind="bcm">
+      <div class="icon">🧠</div>
+      <div class="title">BCM</div>
+      <div class="hint">MPC5606B DFLASH · drag .bin here</div>
+      <div class="fname" id="fnameBcm"></div>
+      <input type="file" accept=".bin,.BIN" id="fileBcm">
+    </div>
+    <div class="drop" id="dropRfh" data-kind="rfh">
+      <div class="icon">🔑</div>
+      <div class="title">RFHUB / FCM</div>
+      <div class="hint">Yazaki FCM EEPROM · drag .bin here</div>
+      <div class="fname" id="fnameRfh"></div>
+      <input type="file" accept=".bin,.BIN,.eprom" id="fileRfh">
+    </div>
+  </div>
+</div>
+
+<div class="card hidden" id="inspectCard">
+  <div class="h2"><span class="dot"></span>INSPECTION RESULT</div>
+  <div id="matchBanner"></div>
+  <div class="results-grid" id="resultsGrid"></div>
+</div>
+
+<div class="card hidden" id="actionsCard">
+  <div class="h2"><span class="dot"></span>SYNC ACTIONS</div>
+  
+  <div style="margin-bottom:14px;">
+    <div style="font-size:11px;color:var(--ts);margin-bottom:6px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">Target VIN (optional — for write-both mode)</div>
+    <div class="vin-input-row">
+      <input id="targetVin" class="vin-input" maxlength="17" placeholder="Enter 17-character target VIN">
+      <div class="vin-counter" id="vinCount">0 / 17</div>
+    </div>
+  </div>
+
+  <div class="actions" id="actionsRow"></div>
+
+  <div class="virginize-row">
+    <label>
+      <input type="checkbox" id="virginizeChk">
+      <span>🆕 VIRGINIZE RFH SEC16 (wipe 0x0226 + 0x023A to FF)</span>
+    </label>
+    <div class="warn">⚠ forces re-pair on next power-up</div>
+  </div>
+
+  <div class="info-note">
+    <strong>Sync copies the VIN between modules and downloads new .bin files.</strong> 
+    Virginize option applies to all sync operations — if checked, the generated RFH bin 
+    will also have its SEC16 slots wiped so modules negotiate a fresh security byte on 
+    first power-up after flashing. Use virginize for salvage rebuilds; skip it for 
+    factory-paired swaps.
+  </div>
+
+  <div class="log" id="log"></div>
+</div>
+
+<div class="foot">SRT LAB · Huntsville BCM (68525720 / 68277389 family) + Yazaki FCM (AA30712804 family) · offsets verified across 2016 &amp; 2017 LX dumps</div>
+
+</div>
+
+<script>
+/* ======================================================================
+ * FCA module parsers — Huntsville BCM & Yazaki FCM
+ * Offsets verified from: 2017 LX BCM (68525720AA), 2016 LD BCM (68277389AC),
+ *                         two different Yazaki FCM RFHUB dumps
+ * ====================================================================== */
+
+const VIN_RE = /[12345][A-HJ-NPR-Z0-9][A-HJ-NPR-Z0-9][A-HJ-NPR-Z0-9]{14}/;
+const VIN_CHAR_RE = /^[A-HJ-NPR-Z0-9]$/;
+
+/* ---- BCM (Huntsville Continental) ---- */
+/*
+ * BCM stores VIN as plain ASCII in 4 redundant slots.
+ * Slot layout: 17 bytes of ASCII VIN preceded by "00 46 XX 00" marker
+ *              where XX is the slot type (46, 56, 57, 52).
+ * VIN slot offsets VARY by BCM variant:
+ *   68525720 family: 0x5308, 0x5328, 0x5348, 0x5368  (2014-2015 LX)
+ *   68277389 family: 0x1308, 0x1328, 0x1348, 0x1368  (2015-2017 LX)
+ * Strategy: search for any 17-byte ASCII run that looks like a VIN
+ *           AND is preceded by the 46-46-00 marker pattern.
+ */
+function crc16Ccitt(data, init = 0xFFFF, poly = 0x1021) {
+  let c = init;
+  for (const b of data) {
+    c ^= b << 8;
+    for (let j = 0; j < 8; j++) {
+      c = (c & 0x8000) ? (((c << 1) ^ poly) & 0xFFFF) : ((c << 1) & 0xFFFF);
+    }
+  }
+  return c & 0xFFFF;
+}
+
+function parseBcm(bytes) {
+  const result = {
+    ok: false,
+    kind: 'BCM',
+    size: bytes.length,
+    vinSlots: [],
+    vin: null,
+    vinConsistent: false,
+    partNumbers: [],
+    supplierSerial: null,
+    magic: null,
+    magicOffsets: [],
+    sequenceNumbers: [],
+  };
+
+  // Check FEE1000 magic
+  const magic = new TextEncoder().encode('FEE1000');
+  for (let i = 0; i < bytes.length - magic.length; i++) {
+    let match = true;
+    for (let j = 0; j < magic.length; j++) if (bytes[i+j] !== magic[j]) { match = false; break; }
+    if (match) {
+      result.magicOffsets.push(i);
+      if (i >= 2) {
+        const seq = (bytes[i-2] << 8) | bytes[i-1];
+        result.sequenceNumbers.push({offset: i-2, seq: seq});
+      }
+    }
+  }
+  result.magic = result.magicOffsets.length > 0;
+
+  // Scan for VIN slots using marker pattern "00 46 <XX> 00 <17 ASCII VIN bytes>"
+  // XX in {0x46, 0x52, 0x53, 0x56, 0x57} — all observed slot types
+  const slotTypes = [0x46, 0x52, 0x53, 0x56, 0x57];
+  for (let i = 0; i < bytes.length - 21; i++) {
+    if (bytes[i] !== 0x00 || bytes[i+1] !== 0x46) continue;
+    if (!slotTypes.includes(bytes[i+2])) continue;
+    if (bytes[i+3] !== 0x00) continue;
+    // Try to read 17 ASCII bytes after the marker
+    const vinStart = i + 4;
+    if (vinStart + 17 > bytes.length) continue;
+    let candidate = '';
+    let valid = true;
+    for (let k = 0; k < 17; k++) {
+      const b = bytes[vinStart + k];
+      if (b < 0x20 || b > 0x7E) { valid = false; break; }
+      candidate += String.fromCharCode(b);
+    }
+    if (!valid) continue;
+    if (!VIN_RE.test(candidate)) continue;
+    // Validate VIN CRC-16/CCITT at offset +17, +18 (big-endian)
+    let storedCrc = null, computedCrc = null, crcOk = null;
+    if (vinStart + 19 <= bytes.length) {
+      storedCrc = (bytes[vinStart + 17] << 8) | bytes[vinStart + 18];
+      const vinByteArray = bytes.slice(vinStart, vinStart + 17);
+      computedCrc = crc16Ccitt(vinByteArray);
+      crcOk = storedCrc === computedCrc;
+    }
+    result.vinSlots.push({
+      offset: vinStart,
+      markerOffset: i,
+      slotType: bytes[i+2],
+      vin: candidate,
+      storedCrc,
+      computedCrc,
+      crcOk,
+    });
+  }
+
+  if (result.vinSlots.length > 0) {
+    const vins = new Set(result.vinSlots.map(s => s.vin));
+    result.vin = result.vinSlots[0].vin;
+    result.vinConsistent = vins.size === 1;
+  }
+
+  // Look for 8-char Mopar part numbers: 5 digits + 3 alnum typically, or 8-digit
+  // Simple scan for "68XXXXXX" patterns — all Mopar FCA part numbers start with 68 or 56/05/etc
+  const pnRE = /68\d{6}/g;
+  const text = new TextDecoder('ascii').decode(bytes);
+  const partsSet = new Set();
+  let m;
+  while ((m = pnRE.exec(text)) !== null) partsSet.add(m[0]);
+  result.partNumbers = Array.from(partsSet);
+
+  // Supplier serial: look for TYHxxxxx or similar prefix at isolated positions
+  const supplierRE = /TY[A-Z]\d{5}/g;
+  while ((m = supplierRE.exec(text)) !== null) { result.supplierSerial = m[0]; break; }
+
+  result.ok = result.vin !== null;
+  return result;
+}
+
+/* ---- RFHUB (Yazaki FCM Gen 2) ---- */
+/*
+ * RFHUB stores VIN BYTE-REVERSED at 4 redundant slots:
+ *   0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1 — each 17 bytes, followed by "DB 01" trailer
+ * SEC16 (18 bytes) stored at:
+ *   0x0226 and 0x023A — primary + mirror slot, should be byte-identical when paired
+ * Key fob slots: 0x08C0-0x0A60 region, 16 bytes each, padded with 0x50/0x5A when empty
+ */
+function parseRfh(bytes) {
+  const result = {
+    ok: false,
+    kind: 'RFHUB',
+    size: bytes.length,
+    vinSlots: [],
+    vin: null,
+    vinConsistent: false,
+    sec16Slot1: null,
+    sec16Slot2: null,
+    sec16Match: false,
+    sec16Virgin: false,
+    partNumbers: [],
+    internalSerial: null,
+    keyCount: 0,
+  };
+
+  const VIN_OFFSETS = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
+  for (const off of VIN_OFFSETS) {
+    if (off + 17 > bytes.length) continue;
+    const slice = bytes.slice(off, off + 17);
+    // Reverse bytes to get forward VIN
+    const reversed = new Uint8Array(17);
+    for (let i = 0; i < 17; i++) reversed[i] = slice[16 - i];
+    let candidate = '';
+    let valid = true;
+    for (let k = 0; k < 17; k++) {
+      const b = reversed[k];
+      if (b < 0x20 || b > 0x7E) { valid = false; break; }
+      candidate += String.fromCharCode(b);
+    }
+    if (!valid) continue;
+    if (!VIN_RE.test(candidate)) continue;
+    // Validate VIN checksum at offset +17
+    let storedChk = null, computedChk = null, chkOk = null, sumByte = null;
+    if (off + 18 <= bytes.length) {
+      storedChk = bytes[off + 17];
+      sumByte = 0;
+      for (const b of slice) sumByte = (sumByte + b) & 0xFF;
+      computedChk = (0xF9 - sumByte) & 0xFF;
+      chkOk = storedChk === computedChk;
+    }
+    result.vinSlots.push({ offset: off, vin: candidate, rawReversed: slice,
+                           storedChk, computedChk, chkOk, sumByte });
+  }
+
+  if (result.vinSlots.length > 0) {
+    const vins = new Set(result.vinSlots.map(s => s.vin));
+    result.vin = result.vinSlots[0].vin;
+    result.vinConsistent = vins.size === 1;
+  }
+
+  // SEC16 — 18 bytes at 0x0226 and 0x023A
+  if (bytes.length >= 0x0226 + 18) {
+    result.sec16Slot1 = bytes.slice(0x0226, 0x0226 + 18);
+  }
+  if (bytes.length >= 0x023A + 18) {
+    result.sec16Slot2 = bytes.slice(0x023A, 0x023A + 18);
+  }
+  if (result.sec16Slot1 && result.sec16Slot2) {
+    result.sec16Match = true;
+    for (let i = 0; i < 18; i++) {
+      if (result.sec16Slot1[i] !== result.sec16Slot2[i]) { result.sec16Match = false; break; }
+    }
+    // Virgin = both slots all 0xFF
+    const allFF = arr => Array.from(arr).every(b => b === 0xFF);
+    result.sec16Virgin = allFF(result.sec16Slot1) && allFF(result.sec16Slot2);
+  }
+
+  // Part numbers — search for "AA30712804", "BAxxxxxxxx" patterns
+  const text = new TextDecoder('ascii').decode(bytes);
+  const pnRE = /(?:AA\d{8}|BA\d{8})/g;
+  const partsSet = new Set();
+  let m;
+  while ((m = pnRE.exec(text)) !== null) partsSet.add(m[0]);
+  result.partNumbers = Array.from(partsSet);
+
+  // Internal serial
+  const serialRE = /\d{4}[A-Z]\d{3,4}[A-Z]{2}\d{2}[A-Z]/g;
+  while ((m = serialRE.exec(text)) !== null) { result.internalSerial = m[0]; break; }
+
+  // Count programmed keys — fob slots at ~0x08C0-0x0A60, 16-byte stride
+  // An empty slot is filled with 0x50 0x50 0x50 0x50 0x50 pattern
+  const KEY_SLOT_START = 0x08C0;
+  const KEY_SLOT_END = 0x0A60;
+  const KEY_SLOT_STRIDE = 48;  // approximate stride for Yazaki fob records
+  // We'll count slots that contain non-0x50/0x5A/0xFF data in their first 8 bytes
+  for (let off = KEY_SLOT_START; off < KEY_SLOT_END && off + 16 < bytes.length; off += KEY_SLOT_STRIDE) {
+    const head = bytes.slice(off, off + 8);
+    const fill = Array.from(head).every(b => b === 0x50 || b === 0x5A || b === 0xFF);
+    if (!fill) result.keyCount++;
+  }
+
+  result.ok = result.vin !== null;
+  return result;
+}
+
+/* ---- Sync operations ---- */
+
+function writeBcmVin(bytes, newVin) {
+  /*
+   * Overwrites all 4 VIN slots in the BCM with the new VIN (ASCII forward) AND
+   * recomputes the 2-byte CRC-16/CCITT (big-endian) stored immediately after each VIN.
+   * Verified via comparison of factory GH214845 (CRC 0x0D7F) and ImmoVin-edited
+   * FH857853 (CRC 0x74B0) — ImmoVin recomputes correctly, so do we.
+   */
+  const out = new Uint8Array(bytes);
+  if (newVin.length !== 17) throw new Error('VIN must be 17 chars');
+  const slotTypes = [0x46, 0x52, 0x53, 0x56, 0x57];
+  const encoder = new TextEncoder();
+  const newVinBytes = encoder.encode(newVin);
+  const newCrc = crc16Ccitt(newVinBytes);
+  const crcHi = (newCrc >> 8) & 0xFF, crcLo = newCrc & 0xFF;
+
+  let patched = 0;
+  for (let i = 0; i < out.length - 21; i++) {
+    if (out[i] !== 0x00 || out[i+1] !== 0x46) continue;
+    if (!slotTypes.includes(out[i+2])) continue;
+    if (out[i+3] !== 0x00) continue;
+    const vinStart = i + 4;
+    if (vinStart + 19 > out.length) continue;
+    // Check if this slot currently holds a VIN-looking value
+    let curr = '';
+    let valid = true;
+    for (let k = 0; k < 17; k++) {
+      const b = out[vinStart + k];
+      if (b < 0x20 || b > 0x7E) { valid = false; break; }
+      curr += String.fromCharCode(b);
+    }
+    if (!valid || !VIN_RE.test(curr)) continue;
+    for (let k = 0; k < 17; k++) out[vinStart + k] = newVinBytes[k];
+    // Recompute CRC-16/CCITT stored BE at vinStart+17, vinStart+18
+    out[vinStart + 17] = crcHi;
+    out[vinStart + 18] = crcLo;
+    patched++;
+  }
+  return { bytes: out, patched, crc: newCrc };
+}
+
+function writeRfhVin(bytes, newVin, virginize) {
+  /*
+   * Overwrites all 4 VIN slots in the RFHUB with the new VIN (byte-reversed)
+   * and recomputes the 1-byte VIN checksum stored at the 18th byte of each slot.
+   * Formula: chk = (0xF9 - sum(reversed VIN bytes)) & 0xFF
+   * Verified across 2015-2017 LX dumps (FH796320, GH214845, FH857853, FH795771).
+   * 2011-era modules use (0xFA - sum); that's noted in the validator and can be
+   * toggled if needed for older platforms.
+   *
+   * If virginize=true, also wipes SEC16 slots at 0x0226 and 0x023A to 0xFF.
+   */
+  const out = new Uint8Array(bytes);
+  if (newVin.length !== 17) throw new Error('VIN must be 17 chars');
+  const VIN_OFFSETS = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
+  const encoder = new TextEncoder();
+  const forwardBytes = encoder.encode(newVin);
+  const reversedBytes = new Uint8Array(17);
+  for (let i = 0; i < 17; i++) reversedBytes[i] = forwardBytes[16 - i];
+  // Compute checksum once
+  let sum = 0;
+  for (const b of reversedBytes) sum = (sum + b) & 0xFF;
+  const chk = (0xF9 - sum) & 0xFF;
+
+  let patched = 0;
+  for (const off of VIN_OFFSETS) {
+    if (off + 18 > out.length) continue;
+    for (let k = 0; k < 17; k++) out[off + k] = reversedBytes[k];
+    out[off + 17] = chk;
+    patched++;
+  }
+
+  let sec16Wiped = 0;
+  if (virginize) {
+    for (const secOff of [0x0226, 0x023A]) {
+      if (secOff + 18 > out.length) continue;
+      for (let k = 0; k < 18; k++) out[secOff + k] = 0xFF;
+      sec16Wiped++;
+    }
+  }
+
+  return { bytes: out, patched, sec16Wiped, chk };
+}
+
+/* ======================================================================
+ * UI
+ * ====================================================================== */
+
+const state = {
+  bcm: { file: null, bytes: null, parsed: null },
+  rfh: { file: null, bytes: null, parsed: null },
+};
+
+function $(id) { return document.getElementById(id); }
+function hex(n, w=4) { return n.toString(16).toUpperCase().padStart(w, '0'); }
+function bytesToHex(bytes) { return Array.from(bytes).map(b => b.toString(16).padStart(2,'0').toUpperCase()).join(''); }
+
+function log(msg, level='info') {
+  const el = $('log');
+  const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
+  const div = document.createElement('div');
+  div.className = 'line';
+  div.innerHTML = `<span class="ts">${ts}</span><span class="${level}">${msg}</span>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function setupDrop(dropId, fileId, kind) {
+  const drop = $(dropId);
+  const input = $(fileId);
+  drop.addEventListener('click', (e) => {
+    if (e.target.tagName !== 'INPUT') input.click();
+  });
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', e => { drop.classList.remove('over'); });
+  drop.addEventListener('drop', e => {
+    e.preventDefault();
+    drop.classList.remove('over');
+    if (e.dataTransfer.files.length > 0) handleFile(kind, e.dataTransfer.files[0]);
+  });
+  input.addEventListener('change', e => {
+    if (e.target.files.length > 0) handleFile(kind, e.target.files[0]);
+  });
+}
+
+async function handleFile(kind, file) {
+  const buf = await file.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  const parsed = kind === 'bcm' ? parseBcm(bytes) : parseRfh(bytes);
+
+  state[kind].file = file;
+  state[kind].bytes = bytes;
+  state[kind].parsed = parsed;
+
+  const fnameEl = $(kind === 'bcm' ? 'fnameBcm' : 'fnameRfh');
+  fnameEl.textContent = `${file.name} · ${bytes.length} bytes`;
+  $(kind === 'bcm' ? 'dropBcm' : 'dropRfh').classList.add('loaded');
+
+  log(`Loaded ${kind.toUpperCase()}: ${file.name} (${bytes.length} bytes)`, 'info');
+  if (parsed.ok) {
+    log(`  ${kind.toUpperCase()} VIN: ${parsed.vin}`, 'ok');
+  } else {
+    log(`  ${kind.toUpperCase()}: no VIN parsed — check file type`, 'err');
+  }
+
+  updateUI();
+}
+
+function statusBadge(parsed, kind) {
+  if (!parsed || !parsed.ok) return { label: 'NO VIN', cls: 'err' };
+  if (!parsed.vinConsistent) return { label: 'VIN SLOTS INCONSISTENT', cls: 'warn' };
+  if (kind === 'rfh' && !parsed.sec16Match && !parsed.sec16Virgin) return { label: 'SEC16 MISMATCH', cls: 'warn' };
+  if (kind === 'rfh' && parsed.sec16Virgin) return { label: 'SEC16 VIRGIN', cls: 'warn' };
+  return { label: 'READY', cls: 'ok' };
+}
+
+function renderModCard(parsed, kind) {
+  if (!parsed) return '';
+  const s = statusBadge(parsed, kind);
+  const title = kind === 'bcm' ? '🧠 BCM · MPC5606B' : '🔑 RFHUB · Yazaki FCM';
+  let body = '';
+
+  body += `<div class="kv"><div class="k">Stored VIN</div><div class="v vin">${parsed.vin || '<span class="muted">none</span>'}</div></div>`;
+  body += `<div class="kv"><div class="k">VIN slots</div><div class="v">${parsed.vinSlots.length} / 4 ${parsed.vinConsistent ? '· all match' : '· MISMATCH'}</div></div>`;
+  body += `<div class="kv"><div class="k">Size</div><div class="v">${parsed.size} bytes (0x${hex(parsed.size,4)})</div></div>`;
+
+  // CRC/checksum status summary
+  if (kind === 'bcm' && parsed.vinSlots.length > 0) {
+    const allOk = parsed.vinSlots.every(s => s.crcOk);
+    const crcValue = parsed.vinSlots[0].computedCrc;
+    body += `<div class="kv"><div class="k">VIN CRC-16</div><div class="v">0x${(crcValue ?? 0).toString(16).toUpperCase().padStart(4,'0')} (CCITT/BE) · ${allOk ? '✓ all slots valid' : '✗ mismatch detected'}</div></div>`;
+  }
+  if (kind === 'rfh' && parsed.vinSlots.length > 0) {
+    const allOk = parsed.vinSlots.every(s => s.chkOk);
+    const chkValue = parsed.vinSlots[0].computedChk;
+    body += `<div class="kv"><div class="k">VIN checksum</div><div class="v">0x${(chkValue ?? 0).toString(16).toUpperCase().padStart(2,'0')} · ${allOk ? '✓ all slots valid' : '⚠ mismatch (older variant?)'}</div></div>`;
+  }
+
+  if (kind === 'bcm') {
+    body += `<div class="kv"><div class="k">Part numbers</div><div class="v">${parsed.partNumbers.length ? parsed.partNumbers.join(', ') : '<span class="muted">none</span>'}</div></div>`;
+    if (parsed.supplierSerial) body += `<div class="kv"><div class="k">Supplier serial</div><div class="v">${parsed.supplierSerial}</div></div>`;
+    body += `<div class="kv"><div class="k">DFLASH magic</div><div class="v">${parsed.magic ? 'FEE1000 @ ' + parsed.magicOffsets.map(o=>'0x'+hex(o,4)).join(', ') : '<span class="muted">not found</span>'}</div></div>`;
+    if (parsed.sequenceNumbers.length) {
+      const seqs = parsed.sequenceNumbers.map(s => `${s.seq}`).join(' / ');
+      body += `<div class="kv"><div class="k">DFLASH seq</div><div class="v">${seqs}</div></div>`;
+    }
+  } else {
+    body += `<div class="kv"><div class="k">Part numbers</div><div class="v">${parsed.partNumbers.length ? parsed.partNumbers.join(', ') : '<span class="muted">none</span>'}</div></div>`;
+    if (parsed.internalSerial) body += `<div class="kv"><div class="k">Serial</div><div class="v">${parsed.internalSerial}</div></div>`;
+    const sec1Hex = parsed.sec16Slot1 ? bytesToHex(parsed.sec16Slot1) : '';
+    const sec2Hex = parsed.sec16Slot2 ? bytesToHex(parsed.sec16Slot2) : '';
+    const sec16Status = parsed.sec16Virgin ? 'VIRGIN (all FF)' : parsed.sec16Match ? 'MATCH' : 'MISMATCH';
+    body += `<div class="kv"><div class="k">SEC16 slot 1</div><div class="v">${sec1Hex.slice(0,36)}${sec1Hex.length > 36 ? '…' : ''}</div></div>`;
+    body += `<div class="kv"><div class="k">SEC16 slot 2</div><div class="v">${sec2Hex.slice(0,36)}${sec2Hex.length > 36 ? '…' : ''}</div></div>`;
+    body += `<div class="kv"><div class="k">SEC16 status</div><div class="v">${sec16Status}</div></div>`;
+    body += `<div class="kv"><div class="k">Keys programmed</div><div class="v">${parsed.keyCount} slot${parsed.keyCount === 1 ? '' : 's'} populated</div></div>`;
+  }
+
+  return `
+    <div class="mod-card ${s.cls}">
+      <div class="ttl">${title}<span class="badge ${s.cls}">${s.label}</span></div>
+      ${body}
+    </div>
+  `;
+}
+
+function computeMatchBanner() {
+  const b = state.bcm.parsed, r = state.rfh.parsed;
+  if (!b || !r || !b.ok || !r.ok) return '';
+  if (b.vin === r.vin) {
+    return `<div class="match-banner ok">✓ VIN MATCH — BCM and RFHUB both carry <strong style="font-family:'JetBrains Mono',monospace;margin:0 4px;letter-spacing:2px;">${b.vin}</strong> · modules are already paired</div>`;
+  }
+  return `<div class="match-banner mismatch">✗ VIN MISMATCH — BCM has <strong style="font-family:'JetBrains Mono',monospace;margin:0 4px;letter-spacing:2px;">${b.vin}</strong> but RFHUB has <strong style="font-family:'JetBrains Mono',monospace;margin:0 4px;letter-spacing:2px;">${r.vin}</strong> · sync required before key programming</div>`;
+}
+
+function updateUI() {
+  const b = state.bcm.parsed, r = state.rfh.parsed;
+  const loaded = (state.bcm.bytes ? 1 : 0) + (state.rfh.bytes ? 1 : 0);
+  $('loadCount').textContent = `${loaded} / 2`;
+
+  if (loaded === 0) {
+    $('inspectCard').classList.add('hidden');
+    $('actionsCard').classList.add('hidden');
+    return;
+  }
+
+  $('inspectCard').classList.remove('hidden');
+  $('matchBanner').innerHTML = computeMatchBanner();
+  $('resultsGrid').innerHTML = (b ? renderModCard(b, 'bcm') : '<div class="mod-card" style="opacity:0.4;">BCM not loaded</div>')
+                              + (r ? renderModCard(r, 'rfh') : '<div class="mod-card" style="opacity:0.4;">RFHUB not loaded</div>');
+
+  if (loaded === 2 && b.ok && r.ok) {
+    $('actionsCard').classList.remove('hidden');
+    renderActions();
+  } else {
+    $('actionsCard').classList.add('hidden');
+  }
+}
+
+function renderActions() {
+  const b = state.bcm.parsed, r = state.rfh.parsed;
+  const tv = $('targetVin').value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+  const tvOk = tv.length === 17 && VIN_RE.test(tv);
+
+  const actions = [
+    {
+      id: 'rfh-to-bcm',
+      title: '➡ RFH VIN → BCM',
+      desc: `Copy RFHUB VIN (${r.vin}) into BCM bin at all 4 slots. Downloads new BCM bin.`,
+      enabled: r.ok,
+      fn: () => doSync('rfh-to-bcm'),
+    },
+    {
+      id: 'bcm-to-rfh',
+      title: '⬅ BCM VIN → RFH',
+      desc: `Copy BCM VIN (${b.vin}) into RFHUB bin (auto byte-reversed) at all 4 slots. Downloads new RFH bin.`,
+      enabled: b.ok,
+      fn: () => doSync('bcm-to-rfh'),
+    },
+    {
+      id: 'target-both',
+      title: '🎯 TARGET VIN → BOTH',
+      desc: tvOk 
+        ? `Write ${tv} into BOTH modules. Downloads both new bins.`
+        : 'Enter a 17-char target VIN above to enable.',
+      enabled: tvOk,
+      fn: () => doSync('target-both'),
+    },
+  ];
+
+  $('actionsRow').innerHTML = actions.map(a => `
+    <button class="act" ${a.enabled ? '' : 'disabled'} data-action="${a.id}">
+      <div class="atitle">${a.title} <span class="arrow">›</span></div>
+      <div class="adesc">${a.desc}</div>
+    </button>
+  `).join('');
+
+  for (const a of actions) {
+    const el = document.querySelector(`[data-action="${a.id}"]`);
+    if (el && a.enabled) el.addEventListener('click', a.fn);
+  }
+}
+
+function downloadBin(bytes, filename) {
+  const blob = new Blob([bytes], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function timestamp() {
+  const d = new Date();
+  const pad = n => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+}
+
+function doSync(action) {
+  const b = state.bcm.parsed, r = state.rfh.parsed;
+  const virginize = $('virginizeChk').checked;
+  const ts = timestamp();
+
+  log(`=== SYNC ACTION: ${action} ===`, 'info');
+  if (virginize) log('Virginize: ON — will wipe RFH SEC16 slots', 'warn');
+
+  try {
+    if (action === 'rfh-to-bcm') {
+      log(`Writing VIN ${r.vin} to BCM bin…`, 'info');
+      const res = writeBcmVin(state.bcm.bytes, r.vin);
+      log(`  BCM: patched ${res.patched} VIN slot(s)`, 'ok');
+      const name = `BCM_SYNCED_${r.vin}_${ts}.bin`;
+      downloadBin(res.bytes, name);
+      log(`  Downloaded: ${name}`, 'ok');
+      // Also regenerate RFH if virginize is on
+      if (virginize) {
+        const rres = writeRfhVin(state.rfh.bytes, r.vin, true);
+        log(`  RFHUB: re-wrote VIN + wiped ${rres.sec16Wiped} SEC16 slot(s)`, 'ok');
+        const rname = `RFH_VIRGIN_${r.vin}_${ts}.bin`;
+        downloadBin(rres.bytes, rname);
+        log(`  Downloaded: ${rname}`, 'ok');
+      }
+    } else if (action === 'bcm-to-rfh') {
+      log(`Writing VIN ${b.vin} to RFHUB bin (byte-reversed)…`, 'info');
+      const res = writeRfhVin(state.rfh.bytes, b.vin, virginize);
+      log(`  RFHUB: patched ${res.patched} VIN slot(s)`, 'ok');
+      if (virginize) log(`  RFHUB: wiped ${res.sec16Wiped} SEC16 slot(s)`, 'warn');
+      const name = virginize 
+        ? `RFH_SYNCED_VIRGIN_${b.vin}_${ts}.bin`
+        : `RFH_SYNCED_${b.vin}_${ts}.bin`;
+      downloadBin(res.bytes, name);
+      log(`  Downloaded: ${name}`, 'ok');
+    } else if (action === 'target-both') {
+      const tv = $('targetVin').value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+      log(`Writing target VIN ${tv} to BOTH modules…`, 'info');
+      const bres = writeBcmVin(state.bcm.bytes, tv);
+      log(`  BCM: patched ${bres.patched} VIN slot(s)`, 'ok');
+      const bname = `BCM_SYNCED_${tv}_${ts}.bin`;
+      downloadBin(bres.bytes, bname);
+      log(`  Downloaded: ${bname}`, 'ok');
+      const rres = writeRfhVin(state.rfh.bytes, tv, virginize);
+      log(`  RFHUB: patched ${rres.patched} VIN slot(s)`, 'ok');
+      if (virginize) log(`  RFHUB: wiped ${rres.sec16Wiped} SEC16 slot(s)`, 'warn');
+      const rname = virginize
+        ? `RFH_SYNCED_VIRGIN_${tv}_${ts}.bin`
+        : `RFH_SYNCED_${tv}_${ts}.bin`;
+      downloadBin(rres.bytes, rname);
+      log(`  Downloaded: ${rname}`, 'ok');
+    }
+    log('✓ Sync complete. Check your downloads folder.', 'ok');
+    log('Reminder: flash the BIN files to their respective modules via your J2534/BDM tool, then power-cycle the bench for 30s to let the modules handshake.', 'muted');
+  } catch (e) {
+    log(`✗ Error: ${e.message}`, 'err');
+  }
+}
+
+/* Init */
+setupDrop('dropBcm', 'fileBcm', 'bcm');
+setupDrop('dropRfh', 'fileRfh', 'rfh');
+
+$('targetVin').addEventListener('input', e => {
+  const v = e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, 17);
+  e.target.value = v;
+  const c = $('vinCount');
+  c.textContent = `${v.length} / 17`;
+  c.classList.toggle('ok', v.length === 17);
+  renderActions();
+});
+
+$('virginizeChk').addEventListener('change', () => {
+  log(`Virginize option: ${$('virginizeChk').checked ? 'ON' : 'OFF'}`, 'muted');
+});
+
+log('SRT Lab Sync Tool ready. Drop BCM and RFHUB .bin files to begin.', 'info');
+log('Supported: Huntsville Continental BCM (68525720 / 68277389 family) + Yazaki FCM RFHUB (AA30712804 family)', 'muted');
+log('Verified offsets across 2016 LD Scat Pack and 2017 LX Scat Pack dumps.', 'muted');
+
+</script>
+</body>
+</html>
