@@ -2,7 +2,7 @@ export const VEHICLES = {
   charger: {
     id:'charger', name:'CHARGER', full:'Dodge Charger', body:'LX · LD · WIDEBODY',
     img:'/vehicles/charger.webp', accent:'#FF6D00',
-    bcmFamilies:['68525720','68525721','68277389','68277390','68396561','68396562','68309504','68309505'],
+    bcmFamilies:['68525720','68525721','68277389','68277390','68396561','68396562','68396563','68309504','68309505'],
     generations:[
       {id:'lx1',label:'2011–2014 LX',years:'11-14',bcmPn:'68525720',family:'mpc5605b',sec16:'gen1-18b',vinOff:0x5308},
       {id:'lx2',label:'2015–2017 LX',years:'15-17',bcmPn:'68277389',family:'mpc5606b',sec16:'gen1-18b',vinOff:0x1308},
@@ -13,7 +13,7 @@ export const VEHICLES = {
   challenger: {
     id:'challenger', name:'CHALLENGER', full:'Dodge Challenger', body:'LC · COUPE',
     img:'/vehicles/challenger.webp', accent:'#D32F2F',
-    bcmFamilies:['68525720','68525721','68277389','68277390','68396561','68396562','68309504','68309505'],
+    bcmFamilies:['68525720','68525721','68277389','68277390','68396561','68396562','68396563','68309504','68309505'],
     generations:[
       {id:'lc1',label:'2011–2014 LC',years:'11-14',bcmPn:'68525720',family:'mpc5605b',sec16:'gen1-18b',vinOff:0x5308},
       {id:'lc2',label:'2015–2017 LC',years:'15-17',bcmPn:'68277389',family:'mpc5606b',sec16:'gen1-18b',vinOff:0x1308},
@@ -23,7 +23,7 @@ export const VEHICLES = {
   durango: {
     id:'durango', name:'DURANGO', full:'Dodge Durango SRT', body:'WD · SUV',
     img:'/vehicles/durango.webp', accent:'#BDBDBD',
-    bcmFamilies:['68525720','68525721','68277389','68277390','68396561','68396562','68309504','68309505'],
+    bcmFamilies:['68525720','68525721','68277389','68277390','68396561','68396562','68396563','68309504','68309505'],
     generations:[
       {id:'wd1',label:'2011–2014 WD',years:'11-14',bcmPn:'68525720',family:'mpc5605b',sec16:'gen1-18b',vinOff:0x5308},
       {id:'wd2',label:'2015–2017 WD',years:'15-17',bcmPn:'68277389',family:'mpc5606b',sec16:'gen1-18b',vinOff:0x1308},
@@ -50,7 +50,13 @@ export const VEHICLES = {
 
 export const VEHICLE_LIST = Object.values(VEHICLES);
 
-export const KNOWN_BCM_PN = ['68396561','68396562','68277389','68277390','68525720','68525721','68354769','68354770','68463847','68463848','68309504','68309505'];
+export const KNOWN_BCM_PN = ['68396561','68396562','68396563','68277389','68277390','68525720','68525721','68354769','68354770','68463847','68463848','68309504','68309505'];
+
+/* P/N aliases — sibling part numbers that share a generation row's hardware family.
+ * Keys are sibling P/Ns; values point at the canonical bcmPn used in the
+ * generations[] arrays. Keeps generationForPartNumber resolving correctly without
+ * adding duplicate rows for every minor part-number variant. */
+export const PN_ALIASES = { '68396563': '68396561' };
 
 export const AMBIGUOUS_REDEYE_PNS = ['68525720','68525721'];
 
@@ -95,7 +101,8 @@ export function generationForPartNumber(vehicleId,pn,vinYearChar){
     const lookupPn='68525720';
     return v.generations.find(g=>g.bcmPn===lookupPn&&(isGen2?g.sec16==='gen2-split':g.sec16==='gen1-18b'));
   }
-  return v.generations.find(g=>g.bcmPn===pn);
+  const lookupPn=PN_ALIASES[pn]||pn;
+  return v.generations.find(g=>g.bcmPn===lookupPn);
 }
 
 /**

@@ -519,6 +519,7 @@ const BCM_PN_VEHICLES = {
   '68525721_gen2': { name: '2021+ Redeye / Scat Pack · Charger (gen2-split)',      gen: 'gen2', sec: 'Gen2 SEC16 split' },
   '68277389': { name: 'Charger / Challenger / Durango (2015-2017 LX/LC/WD)', gen: 'gen1', sec: 'Gen1 18-byte' },
   '68396561': { name: 'Charger / Challenger / Durango (2018-2020 LD/LC/WD)', gen: 'gen2', sec: 'Gen2 SEC16 split' },
+  '68396563': { name: 'Charger / Challenger / Durango (2018-2020 LD/LC/WD)', gen: 'gen2', sec: 'Gen2 SEC16 split' },
   '68354769': { name: 'Grand Cherokee Trackhawk (2018-2021 WK2)',             gen: 'gen2', sec: 'Gen2 SEC16 split' },
   '68463847': { name: 'Ram 1500 TRX (2021-2024 DT)',                          gen: 'gen2', sec: 'Gen2 SEC16 split' },
 };
@@ -530,9 +531,9 @@ const GEN2_YEAR_CHARS_SYNC = new Set(['J','K','L','M','N','P','R','S','T']);
 
 /* Vehicle family definitions — used for the mismatch warning selector */
 const VEHICLE_FAMILIES = [
-  { id: 'charger',    label: 'Dodge Charger (LX/LD · 2011–2023)',         expectedPns: ['68525720','68277389','68396561'] },
-  { id: 'challenger', label: 'Dodge Challenger (LC · 2011–2023)',          expectedPns: ['68525720','68277389','68396561'] },
-  { id: 'durango',    label: 'Dodge Durango (WD · 2011–2023)',             expectedPns: ['68525720','68277389','68396561'] },
+  { id: 'charger',    label: 'Dodge Charger (LX/LD · 2011–2023)',         expectedPns: ['68525720','68277389','68396561','68396563'] },
+  { id: 'challenger', label: 'Dodge Challenger (LC · 2011–2023)',          expectedPns: ['68525720','68277389','68396561','68396563'] },
+  { id: 'durango',    label: 'Dodge Durango (WD · 2011–2023)',             expectedPns: ['68525720','68277389','68396561','68396563'] },
   { id: 'trackhawk',  label: 'Grand Cherokee Trackhawk (WK2 · 2018–2021)', expectedPns: ['68354769'] },
   { id: 'trx',        label: 'Ram 1500 TRX (DT · 2021–2024)',              expectedPns: ['68463847'] },
 ];

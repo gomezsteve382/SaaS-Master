@@ -1476,7 +1476,7 @@ function VehicleWorkspace({vehicleId, onBack}){
 }
 
 /* ═══ DUMPS TAB v2 — vehicle-aware ═══ */
-function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
+export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   const [tv, setTv] = useState('');
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
@@ -1485,19 +1485,27 @@ function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
 
   // Detect each uploaded file's part number and check vehicle compatibility
   const analyzed = useMemo(()=>{
-    return files.map(f=>{
+    return files.map((f,idx)=>{
       if(!f || !f.data) return null;
       if(f.type==='BCM' || f.size===65536){
         const a = analyzeDumpPartNumber(f.data);
-        const compatible = a.compatibleVehicles.includes(vehicle.id);
+        const registered = a.compatibleVehicles.includes(vehicle.id);
+        const compatible = registered || !!f.pnOverride;
         const gen = a.primaryPn ? generationForPartNumber(vehicle.id, a.primaryPn, a.vinModelYearChar) : null;
-        return {file:f, analysis:a, compatible, generation:gen};
+        return {file:f, fileIndex:idx, analysis:a, compatible, registered, generation:gen};
       }
-      return {file:f, analysis:null, compatible:true, generation:null};
+      return {file:f, fileIndex:idx, analysis:null, compatible:true, registered:true, generation:null};
     });
   },[files, vehicle.id]);
 
   const blockers = analyzed.filter(a=>a && !a.compatible && a.analysis && a.analysis.primaryPn);
+
+  const loadAnyway = useCallback((fileIndex)=>{
+    setFiles(p=>p.map((f,i)=>i===fileIndex?{...f,pnOverride:true}:f));
+  },[setFiles]);
+  const removeFile = useCallback((fileIndex)=>{
+    setFiles(p=>p.filter((_,i)=>i!==fileIndex));
+  },[setFiles]);
   const bcm = files.find(f=>f && f.type==='BCM');
   const rfh = files.find(f=>f && f.type==='RFHUB');
   const pcm = files.find(f=>f && (f.type==='GPEC2A' || f.type==='PCM'));
@@ -1519,7 +1527,7 @@ function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
 
       // SEC16 write — Gen2 only, requires RFH present
       const pns = analyzeDumpPartNumber(bcm.data);
-      const isGen2Pn = pns.primaryPn && ['68396561','68396562','68463847','68463848'].includes(pns.primaryPn);
+      const isGen2Pn = pns.primaryPn && ['68396561','68396562','68396563','68463847','68463848'].includes(pns.primaryPn);
       const isAmbigGen2 = pns.primaryPn && AMBIGUOUS_REDEYE_PNS.includes(pns.primaryPn) && pns.vinModelYearChar && GEN2_YEAR_CHARS.has(pns.vinModelYearChar);
       const isGen2 = isGen2Pn || isAmbigGen2;
       if(isGen2 && rfh){
@@ -1599,11 +1607,15 @@ function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
         <UploadSlot label="PCM / GPEC2A" file={pcm} onLoad={loadF}/>
       </div>
       {blockers.map((b,i)=>(
-        <div key={i} style={{marginTop:12,padding:'10px 14px',borderRadius:10,background:C.er+'12',border:'1px solid '+C.er+'44'}}>
+        <div key={i} data-testid="dump-blocker" style={{marginTop:12,padding:'10px 14px',borderRadius:10,background:C.er+'12',border:'1px solid '+C.er+'44'}}>
           <div style={{fontSize:11,fontWeight:900,color:C.er,letterSpacing:1,marginBottom:4}}>⛔ INCOMPATIBLE DUMP BLOCKED</div>
-          <div style={{fontSize:11,color:C.tx}}>
+          <div style={{fontSize:11,color:C.tx,marginBottom:8}}>
             <b>{b.file.name}</b> — P/N <code>{b.analysis.primaryPn}</code> does not match <b>{vehicle.name}</b>. 
             Compatible with: {b.analysis.compatibleVehicles.map(v=>VEHICLES[v]?.name||v).join(', ') || 'unknown vehicle'}
+          </div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            <button onClick={()=>removeFile(b.fileIndex)} style={{padding:'5px 12px',fontSize:10,background:'none',border:'1px solid '+C.bd,borderRadius:8,cursor:'pointer',color:C.ts,fontWeight:700,letterSpacing:1}}>REMOVE</button>
+            <button onClick={()=>loadAnyway(b.fileIndex)} title="Bench override — bypass the registry check for this file only. Parsing still uses the real BCM bytes." style={{padding:'5px 12px',fontSize:10,background:C.wn+'18',border:'1px solid '+C.wn+'66',borderRadius:8,cursor:'pointer',color:C.wn,fontWeight:800,letterSpacing:1}}>LOAD ANYWAY (P/N NOT IN REGISTRY)</button>
           </div>
         </div>
       ))}
@@ -1638,7 +1650,11 @@ function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
 function UploadSlot({label, file, onLoad}){
   return <div style={{padding:12,borderRadius:12,background:C.c2,border:'1.5px dashed '+C.bd,textAlign:'center',cursor:'pointer',transition:'all .2s'}} onClick={()=>document.getElementById('u-'+label).click()}>
     <div style={{fontSize:11,fontWeight:900,color:C.ts,letterSpacing:2,marginBottom:6}}>{label}</div>
-    {file ? <div style={{fontFamily:'JetBrains Mono',fontSize:10,color:C.a2,wordBreak:'break-all'}}>{file.name}<div style={{color:C.tm,fontSize:9}}>{file.size} bytes</div></div> : <div style={{fontSize:10,color:C.tm}}>drop / click to upload</div>}
+    {file ? <div style={{fontFamily:'JetBrains Mono',fontSize:10,color:C.a2,wordBreak:'break-all'}}>
+      {file.name}
+      <div style={{color:C.tm,fontSize:9}}>{file.size} bytes</div>
+      {file.pnOverride && <div data-testid="pn-override-pill" style={{display:'inline-block',marginTop:6,padding:'2px 8px',borderRadius:999,background:C.wn+'22',border:'1px solid '+C.wn+'66',color:C.wn,fontSize:9,fontWeight:800,letterSpacing:1}}>P/N OVERRIDE — NOT IN REGISTRY</div>}
+    </div> : <div style={{fontSize:10,color:C.tm}}>drop / click to upload</div>}
     <input id={'u-'+label} type="file" style={{display:'none'}} onChange={e=>onLoad(e.target.files)}/>
   </div>;
 }

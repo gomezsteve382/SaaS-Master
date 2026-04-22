@@ -502,4 +502,42 @@ describe('generationForPartNumber', () => {
       expect(VEHICLES.trx.generations).toHaveLength(1);
     });
   });
+
+  describe('68396563 (sibling of 68396561/62 — registered as Charger/Challenger/Durango Gen2-split)', () => {
+    it('is included in KNOWN_BCM_PN', () => {
+      expect(KNOWN_BCM_PN).toContain('68396563');
+    });
+
+    it('analyzeDumpPartNumber detects 68396563 as primary and lists charger/challenger/durango', () => {
+      const result = analyzeDumpPartNumber(makeBuffer('68396563'));
+      expect(result.primaryPn).toBe('68396563');
+      expect(result.compatibleVehicles).toContain('charger');
+      expect(result.compatibleVehicles).toContain('challenger');
+      expect(result.compatibleVehicles).toContain('durango');
+    });
+
+    it('does NOT list trackhawk among compatibleVehicles for 68396563', () => {
+      const result = analyzeDumpPartNumber(makeBuffer('68396563'));
+      expect(result.compatibleVehicles).not.toContain('trackhawk');
+    });
+
+    it('resolves to the existing lx3 / lc3 / wd3 generation rows (gen2-split family)', () => {
+      const lx = generationForPartNumber('charger', '68396563', null);
+      const lc = generationForPartNumber('challenger', '68396563', null);
+      const wd = generationForPartNumber('durango', '68396563', null);
+      expect(lx).toBeTruthy();
+      expect(lx.id).toBe('lx3');
+      expect(lx.sec16).toBe('gen2-split');
+      expect(lc).toBeTruthy();
+      expect(lc.id).toBe('lc3');
+      expect(lc.sec16).toBe('gen2-split');
+      expect(wd).toBeTruthy();
+      expect(wd.id).toBe('wd3');
+      expect(wd.sec16).toBe('gen2-split');
+    });
+
+    it('returns undefined for trackhawk (not registered for this P/N)', () => {
+      expect(generationForPartNumber('trackhawk', '68396563', null)).toBeUndefined();
+    });
+  });
 });
