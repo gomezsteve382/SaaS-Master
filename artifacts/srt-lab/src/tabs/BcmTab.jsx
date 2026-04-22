@@ -22,6 +22,32 @@ const BCM_ALGOS={
   'BCM FCA':s=>((s^0xABCDEF12)*0x4D+0x5678)&0xFFFFFFFF,
 };
 
+/* ── Part-number analyser (self-contained, no App.jsx import to avoid cycles) ── */
+const BCM_KNOWN_PN=['68396561','68396562','68277389','68277390','68525720','68525721','68354769','68354770','68463847','68463848','68309504','68309505'];
+const BCM_AMBIG_REDEYE=['68525720','68525721'];
+const BCM_GEN2_YEAR=new Set(['J','K','L','M','N','P','R','S','T']);
+
+function parseBcmDumpPn(bytes){
+  const text=new TextDecoder('latin1').decode(bytes);
+  const pns=[...new Set([...text.matchAll(/68\d{6}/g)].map(m=>m[0]))];
+  const primary=pns.find(p=>BCM_KNOWN_PN.includes(p))||pns[0]||null;
+  let vinModelYearChar=null;
+  for(const vm of text.matchAll(/[12345][A-HJ-NPR-Z0-9]{16}/g)){
+    const yc=vm[0][9];if(/[A-HJ-NPR-Z]/.test(yc)){vinModelYearChar=yc;break;}
+  }
+  return{primaryPn:primary,vinModelYearChar};
+}
+
+function matchGeneration(vehicle,primaryPn,vinModelYearChar){
+  if(!vehicle||!primaryPn)return null;
+  if(BCM_AMBIG_REDEYE.includes(primaryPn)){
+    const isGen2=vinModelYearChar&&BCM_GEN2_YEAR.has(String(vinModelYearChar).toUpperCase());
+    const lookupPn='68525720';
+    return vehicle.generations.find(g=>g.bcmPn===lookupPn&&(isGen2?g.sec16==='gen2-split':g.sec16==='gen1-18b'))||null;
+  }
+  return vehicle.generations.find(g=>g.bcmPn===primaryPn)||null;
+}
+
 const BCM_CANDIDATES=[
   {tx:0x750,rx:0x758,name:'CDA6 primary (2017 Scat Pack)'},
   {tx:0x742,rx:0x762,name:'Legacy/DarkVIN'},
@@ -255,19 +281,27 @@ export default function BcmTab({vehicle}){
   const bcmDumps=getDumpsByType('BCM');
   const [inspectHash,setInspectHash]=useState(null);
   const [inspectMsg,setInspectMsg]=useState('');
+  const [detectedGen,setDetectedGen]=useState(null);
+  const [detectedPn,setDetectedPn]=useState(null);
   const inspectEntry=bcmDumps.find(d=>d.hash===inspectHash)||bcmDumps[0]||null;
   const inspectMod=inspectEntry?.mod||null;
   const onInspectFile=useCallback(file=>{
     const r=new FileReader();
     r.onload=ev=>{
-      const m=parseModule(new Uint8Array(ev.target.result),file.name);
-      if(m.type!=='BCM'){setInspectMsg('Selected file is '+m.type+', not BCM — load a 64 KB or 128 KB BCM dump.');return;}
+      const bytes=new Uint8Array(ev.target.result);
+      const m=parseModule(bytes,file.name);
+      if(m.type!=='BCM'){setInspectMsg('Selected file is '+m.type+', not BCM — load a 64 KB or 128 KB BCM dump.');setDetectedGen(null);setDetectedPn(null);return;}
       const entry=addDump(m);
       if(entry)setInspectHash(entry.hash);
       setInspectMsg('');
+      // Auto-detect matching generation and highlight in the vehicle banner
+      const{primaryPn,vinModelYearChar}=parseBcmDumpPn(bytes);
+      const gen=matchGeneration(vehicle,primaryPn,vinModelYearChar);
+      setDetectedPn(primaryPn);
+      setDetectedGen(gen||null);
     };
     r.readAsArrayBuffer(file);
-  },[addDump]);
+  },[addDump,vehicle]);
   const onSyncImmoFile=useCallback(()=>{
     if(!inspectEntry||!inspectMod)return;
     if(inspectMod.immoBlank){setInspectMsg('IMMO primary is blank — nothing to sync.');return;}
@@ -282,7 +316,7 @@ export default function BcmTab({vehicle}){
   },[inspectEntry,inspectMod,replaceDump]);
   const closeInspect=useCallback(()=>{
     if(inspectEntry)removeDump(inspectEntry.hash);
-    setInspectHash(null);setInspectMsg('');
+    setInspectHash(null);setInspectMsg('');setDetectedGen(null);setDetectedPn(null);
   },[inspectEntry,removeDump]);
 
   const vinValid=masterVin.length===17;
@@ -311,9 +345,22 @@ export default function BcmTab({vehicle}){
             <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,color:'rgba(255,255,255,0.9)'}}>{vehicle.full} — {vehicle.body}</div>
             <div style={{fontSize:10,color:'rgba(255,255,255,0.6)',marginTop:3,fontFamily:"'JetBrains Mono'"}}>{vehicle.generations.length} gen{vehicle.generations.length===1?'':'s'} · expected P/Ns: {vehicle.bcmFamilies.slice(0,4).join(', ')}{vehicle.bcmFamilies.length>4?' +'+( vehicle.bcmFamilies.length-4)+' more':''}</div>
             <div style={{marginTop:4,display:'flex',gap:6,flexWrap:'wrap'}}>
-              {vehicle.generations.map(g=><span key={g.id} style={{fontSize:9,padding:'2px 7px',background:g.sec16==='gen2-split'?'rgba(255,179,0,0.3)':'rgba(0,200,83,0.2)',borderRadius:4,border:'1px solid '+(g.sec16==='gen2-split'?'rgba(255,179,0,0.5)':'rgba(0,200,83,0.3)'),fontFamily:"'JetBrains Mono'",fontWeight:700,letterSpacing:0.5}}>
-                {g.label} · {g.bcmPn} · {g.sec16==='gen2-split'?'Gen2 split SEC16':g.sec16==='trackhawk-no-flash'?'No flash SEC16':'Gen1 SEC16'} · VIN@0x{g.vinOff.toString(16).toUpperCase()}
-              </span>)}
+              {vehicle.generations.map(g=>{
+                const isMatch=detectedGen&&detectedGen.id===g.id;
+                return <span key={g.id} style={{
+                  fontSize:9,padding:'2px 7px',
+                  background:isMatch?'rgba(255,255,255,0.25)':(g.sec16==='gen2-split'?'rgba(255,179,0,0.3)':'rgba(0,200,83,0.2)'),
+                  borderRadius:4,
+                  border:'2px solid '+(isMatch?'#FFFFFF':(g.sec16==='gen2-split'?'rgba(255,179,0,0.5)':'rgba(0,200,83,0.3)')),
+                  fontFamily:"'JetBrains Mono'",fontWeight:isMatch?900:700,letterSpacing:0.5,
+                  boxShadow:isMatch?'0 0 8px rgba(255,255,255,0.5)':'none',
+                  color:isMatch?'#FFFFFF':'inherit',
+                  position:'relative',
+                }}>
+                  {isMatch&&<span style={{marginRight:4}}>✓</span>}
+                  {g.label} · {g.bcmPn} · {g.sec16==='gen2-split'?'Gen2 split SEC16':g.sec16==='trackhawk-no-flash'?'No flash SEC16':'Gen1 SEC16'} · VIN@0x{g.vinOff.toString(16).toUpperCase()}
+                </span>;
+              })}
             </div>
           </div>}
         </div>
@@ -390,6 +437,12 @@ export default function BcmTab({vehicle}){
       {!inspectMod&&bcmDumps.length===0&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the FCA Analyzer tab show up here automatically.</div>}
       {inspectMod&&bcmDumps.length>0&&<div style={{marginTop:6,fontSize:10,color:C.gn,fontWeight:700}}>✓ Auto-loaded from shared workspace ({bcmDumps.length} BCM dump{bcmDumps.length===1?'':'s'} available)</div>}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.gn,fontWeight:700}}>{inspectMsg}</div>}
+      {detectedPn&&<div style={{marginTop:10,padding:'8px 12px',background:detectedGen?'#E8F5E9':'#FFF8F0',border:'1px solid '+(detectedGen?C.gn:C.wn),borderRadius:8,fontSize:11,fontFamily:"'JetBrains Mono'"}}>
+        {detectedGen
+          ?<><span style={{color:C.gn,fontWeight:800}}>Detected:</span> <span style={{color:C.tx}}>{detectedGen.label} ({detectedPn}) — {detectedGen.sec16==='gen2-split'?'Gen2 split SEC16':detectedGen.sec16==='trackhawk-no-flash'?'No flash SEC16':'Gen1 SEC16'} · VIN offset 0x{detectedGen.vinOff.toString(16).toUpperCase()}</span></>
+          :<><span style={{color:C.wn,fontWeight:800}}>P/N {detectedPn}</span> <span style={{color:C.ts}}>detected — no matching generation found for the selected vehicle. Check you have the correct vehicle selected.</span></>
+        }
+      </div>}
       {inspectMod&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
     </Card>
 
