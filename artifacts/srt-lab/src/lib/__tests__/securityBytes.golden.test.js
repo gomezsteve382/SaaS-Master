@@ -252,6 +252,30 @@ describe('writeBcmSec16Gen2 — golden vectors', () => {
     writeBcmSec16Gen2(buf, RFH_SEC16_REAL_SLOT);
     expect(Array.from(buf)).toEqual(Array.from(snapshot));
   });
+
+  it('parseModule round-trip: split-record body bytes (visible via immoKeys) reflect the patched prefix7', () => {
+    // The BCM parser doesn't expose SEC16 split records as a typed field, but
+    // it does expose immoKeys at 0x81A4/0x81C4/0x81E4 (16 bytes each). Those
+    // 16 bytes overlap the writer-touched region of each split record:
+    //   offsets +4..+7  (header tail)        = "00 00 00 00"
+    //   offset  +8      (idx)                = 01 or 02
+    //   offsets +9..+15 (prefix7 — patched)  = first 7 bytes of BCM SEC16
+    //   offsets +16..+19 (separator)         = "04 04 00 14"
+    // So immoKeys[i].hex for a successfully-patched record must be exactly
+    // "00 00 00 00 <idx> <prefix7 hex...> 04 04 00 14".
+    const r = writeBcmSec16Gen2(buildSyntheticBcm(), RFH_SEC16_REAL_SLOT);
+    const parsed = parseModule(r.bytes, 'bcm-out.bin');
+    expect(parsed.type).toBe('BCM');
+    expect(parsed.immoKeys).toHaveLength(3);
+    const prefix7Hex = Array.from(BCM_SEC16_FROM_RFH.slice(0, 7))
+      .map(b => b.toString(16).toUpperCase().padStart(2, '0'))
+      .join(' ');
+    const expectedFor = (idx) =>
+      `00 00 00 00 ${idx.toString(16).toUpperCase().padStart(2, '0')} ${prefix7Hex} 04 04 00 14`;
+    expect(parsed.immoKeys[0].hex).toBe(expectedFor(0x01)); // 0x81A4 — split idx=01
+    expect(parsed.immoKeys[1].hex).toBe(expectedFor(0x02)); // 0x81C4 — split idx=02
+    expect(parsed.immoKeys[2].hex).toBe(expectedFor(0x01)); // 0x81E4 — split idx=01
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
