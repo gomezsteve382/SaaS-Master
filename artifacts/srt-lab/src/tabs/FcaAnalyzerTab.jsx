@@ -69,6 +69,48 @@ export default function FcaAnalyzerTab(){
   const cv=useMemo(()=>mods.length?crossValidate(mods):null,[mods]);
   const cur=mods[sel];
 
+  /* ── Wizard integration ── */
+  const rfhMod=useMemo(()=>mods.find(m=>m.type==='RFHUB'),[mods]);
+  const bcmMod=useMemo(()=>mods.find(m=>m.type==='BCM'),[mods]);
+
+  /* Hex snippets for diff cards */
+  const wizardHexSnippets=useMemo(()=>{
+    const s=[];
+    if(rfhMod?.sec16s?.[0]?.hex)s.push('RFHUB SEC16: '+rfhMod.sec16s[0].hex.toUpperCase());
+    if(bcmMod?.sec16s?.[0]?.hex)s.push('BCM SEC16: '+bcmMod.sec16s[0].hex.toUpperCase());
+    const rfhVin=rfhMod?.vins?.[0]?.vin;const bcmVin=bcmMod?.vins?.[0]?.vin;
+    if(rfhVin)s.push('RFHUB VIN: '+rfhVin);
+    if(bcmVin)s.push('BCM VIN: '+bcmVin);
+    return s;
+  },[rfhMod,bcmMod]);
+
+  /* Step actions: determine enabled state from what's loaded */
+  const bothReady=!!(rfhMod&&bcmMod);
+  const bcmImmoOk=bcmMod&&!bcmMod.immoBlank;
+  const wizardStepActions=useMemo(()=>[
+    {id:'full-sync',        label:'⚡ Full 3-Module Sync',   enabled:bothReady, description:'VIN + SEC16 + SEC6 across all modules'},
+    {id:'sec16-only',       label:'🔐 SEC16 Sync Only',      enabled:bothReady, description:'RFHUB SEC16 → BCM + PCM SEC6'},
+    {id:'bcm-sec16-to-rfh', label:'🔄 BCM SEC16 → RFHUB',   enabled:!!(bcmMod&&rfhMod), description:'Use BCM as master, write to RFHUB'},
+    {id:'sync-immo-backup', label:'🗂 Sync BCM IMMO Backup', enabled:!!bcmImmoOk, description:'Copy BCM IMMO primary → backup region'},
+  ],[bothReady,bcmMod,rfhMod,bcmImmoOk]);
+
+  /* onAction: dispatch to relevant handler without closing wizard */
+  const onWizardAction=useCallback((actionId)=>{
+    if(actionId==='sync-immo-backup'){
+      if(!bcmMod)return;
+      const synced=syncImmoBackup(bcmMod.data);
+      if(!synced){setMsg('BCM file too small for IMMO sync.');return;}
+      downloadBin(synced,'IMMO_SYNCED_'+bcmMod.filename);
+      const reparsed=parseModule(synced,bcmMod.filename);
+      const d=loadedDumps.find(d=>d.mod===bcmMod);
+      if(d)replaceDump(d.hash,reparsed);
+      setMsg('IMMO backup synced and downloaded. Return to Module Sync tab for multi-module sync.');
+      return;
+    }
+    /* For full multi-module sync actions, guide user to Module Sync tab */
+    setMsg(`Action "${actionId}" requires BCM + RFHUB loaded in the Module Sync tab. Switch to that tab to run the sync.`);
+  },[bcmMod,loadedDumps,replaceDump]);
+
   const allVins=useMemo(()=>{
     const out=new Map();
     mods.forEach(m=>m.vins?.forEach(v=>{
@@ -199,10 +241,10 @@ export default function FcaAnalyzerTab(){
         issues={cv.issues}
         warnings={cv.warnings}
         modules={mods.map(m=>m.type)}
-        hexSnippets={[]}
+        hexSnippets={wizardHexSnippets}
         onClose={()=>setWizardOpen(false)}
-        onAction={()=>setWizardOpen(false)}
-        stepActions={[]}
+        onAction={onWizardAction}
+        stepActions={wizardStepActions}
       />
     )}
   </div>;

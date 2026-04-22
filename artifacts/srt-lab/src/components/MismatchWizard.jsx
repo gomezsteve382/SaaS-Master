@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, {
+  useState, useRef, useEffect, useCallback, useMemo,
+} from "react";
 
 /* ============================================================================
  * MismatchWizard — Guided resolution wizard + Claude AI chat panel
@@ -7,7 +9,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
  *   issues      : string[]  — error-level issues
  *   warnings    : string[]  — warning-level items
  *   modules     : string[]  — loaded module names
- *   hexSnippets : string[]  — hex values for AI context
+ *   hexSnippets : string[]  — hex label: value strings for AI + diff cards
  *   onClose     : () => void
  *   onAction    : (actionId: string, stepId: string) => void
  *   stepActions : { id, label, enabled, description }[]
@@ -36,73 +38,85 @@ const W = {
 
 const API_BASE = (import.meta.env.BASE_URL?.replace(/\/$/, '') || '') + '/api';
 
-/* ─── Deterministic ID from issue string (djb2-style) ─── */
+/* ─── Deterministic ID from issue string (djb2) ─── */
 function stableId(str) {
   let h = 5381;
   for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
   return 'step-' + (h >>> 0).toString(36);
 }
 
-/* ─── Resolve issue → guided step ─── */
-function issueToStep(issue) {
+/* ─── Step priority: lower = more urgent ─── */
+const PRIORITY_MAP = [
+  [/VIN MISMATCH/,         0],
+  [/SEC16.*MISMATCH/,      1],
+  [/VEHICLE SECRET/,       2],
+  [/PCM SEC6|IMMO_DAMAGED/,3],
+  [/GPEC2A/,               4],
+  [/95640/,                5],
+  [/BCM SEC16.*RFHUB/,     6],
+];
+
+function stepPriority(issue, severity) {
+  const u = issue.toUpperCase();
+  for (const [re, pri] of PRIORITY_MAP) {
+    if (re.test(u)) return severity === 'error' ? pri : pri + 20;
+  }
+  return severity === 'error' ? 10 : 30;
+}
+
+/* ─── Issue → step definition ─── */
+function issueToStep(issue, fromIssue) {
   const u = issue.toUpperCase();
   const id = stableId(issue);
+  const base = { id, severity: fromIssue ? 'error' : 'warning', summary: issue };
 
   if (u.includes('VIN MISMATCH')) return {
-    id,
-    icon: '🪪',
-    title: 'VIN Mismatch',
-    severity: 'error',
-    summary: issue,
+    ...base, severity: 'error',
+    icon: '🪪', title: 'VIN Mismatch',
+    hexFilter: ['VIN', 'RFHUB VIN', 'BCM VIN'],
     guidance: 'These modules came from different vehicles. The VIN must be re-stamped so both modules report the same chassis ID.',
     steps: [
-      'Confirm which VIN is correct — it should match the vehicle\'s dashboard sticker or title.',
+      'Confirm which VIN is correct — it should match the dashboard sticker or title.',
       'Click the sync action below. The correct VIN will be written to both BCM and RFHUB.',
-      'After flashing, power-cycle the vehicle for 30 seconds to allow the modules to handshake.',
+      'After flashing, power-cycle the vehicle for 30 seconds.',
     ],
-    skipConsequence: 'Leaving a VIN mismatch means the modules will continue to report conflicting chassis IDs. Key fob pairing and immobilizer authentication may fail.',
+    skipConsequence: 'Leaving a VIN mismatch means both modules will report conflicting chassis IDs. Key fob pairing and immobilizer authentication may fail.',
     actions: ['full-sync', 'rfh-to-bcm', 'bcm-to-rfh'],
   };
 
   if (u.includes('SEC16') && (u.includes('MISMATCH') || u.includes('INVALID'))) return {
-    id,
-    icon: '🔐',
-    title: 'SEC16 Security Token Mismatch',
-    severity: 'error',
-    summary: issue,
-    guidance: 'The 16-byte IMMO security token differs between BCM and RFHUB. In the standard flow, RFHUB is master — its SEC16 is written (reversed) into the BCM, and the first 6 bytes become the PCM SEC6.',
+    ...base, severity: 'error',
+    icon: '🔐', title: 'SEC16 Security Token Mismatch',
+    hexFilter: ['SEC16', 'RFHUB SEC16', 'BCM SEC16'],
+    guidance: 'The 16-byte IMMO security token differs between BCM and RFHUB. RFHUB is master — its SEC16 is written (reversed) into BCM, and first 6 bytes become PCM SEC6.',
     steps: [
       'Confirm the RFHUB SEC16 is valid (non-blank, slots 1 & 2 match).',
-      'Use "SEC16 Sync Only" to write the RFHUB SEC16 to BCM and PCM without changing VINs.',
-      'If RFHUB came from a different vehicle, use "BCM SEC16 → RFHUB" to make BCM the master instead.',
+      'Use "SEC16 Sync Only" to write RFHUB SEC16 to BCM and PCM without changing VINs.',
+      'If RFHUB came from a different vehicle, use "BCM SEC16 → RFHUB" to make BCM master instead.',
       'Flash the patched file(s) and power-cycle 30 seconds.',
     ],
-    skipConsequence: 'Skipping SEC16 sync means the immobilizer handshake will fail — the vehicle will not start.',
+    skipConsequence: 'The immobilizer handshake will fail — the vehicle will not start.',
     actions: ['sec16-only', 'bcm-sec16-to-rfh'],
   };
 
-  if (u.includes('BCM SEC16 → RFHUB') || u.includes('BCM → RFH')) return {
-    id,
-    icon: '🔄',
-    title: 'BCM SEC16 → RFHUB Sync',
-    severity: 'warning',
-    summary: issue,
-    guidance: 'The BCM has a valid SEC16 but the RFHUB is from a different vehicle. Use BCM as the master and write its SEC16 into the RFHUB Gen2 slots.',
+  if (u.includes('BCM SEC16') && u.includes('RFHUB')) return {
+    ...base,
+    icon: '🔄', title: 'BCM SEC16 → RFHUB Sync Needed',
+    hexFilter: ['SEC16', 'BCM SEC16'],
+    guidance: 'The BCM has a valid SEC16 but the RFHUB is from a different vehicle. Use BCM as master and write its SEC16 into the RFHUB Gen2 slots.',
     steps: [
       'Verify the BCM SEC16 is non-blank and consistent.',
-      'Click "BCM SEC16 → RFHUB" button.',
+      'Click "BCM SEC16 → RFHUB" below.',
       'Flash the patched RFHUB, then power-cycle 30 seconds.',
     ],
-    skipConsequence: 'The RFHUB will retain a mismatched SEC16, preventing secure key pairing.',
+    skipConsequence: 'RFHUB retains a mismatched SEC16, preventing secure key pairing.',
     actions: ['bcm-sec16-to-rfh'],
   };
 
   if (u.includes('PCM SEC6') || u.includes('IMMO_DAMAGED')) return {
-    id,
-    icon: '⚙️',
-    title: 'PCM SEC6 Damaged / Mismatch',
-    severity: 'error',
-    summary: issue,
+    ...base, severity: 'error',
+    icon: '⚙️', title: 'PCM SEC6 Damaged / Mismatch',
+    hexFilter: ['SEC16', 'SEC6'],
     guidance: 'The PCM IMMO SEC6 is damaged (all FF) or does not match RFHUB SEC16[0:6]. The PCM will reject the immobilizer handshake until corrected.',
     steps: [
       'Load a valid RFHUB with a known-good SEC16.',
@@ -113,13 +127,11 @@ function issueToStep(issue) {
     actions: ['full-sync', 'sec16-only'],
   };
 
-  if (u.includes('RFHUB') && u.includes('VEHICLE SECRET') && u.includes('MISMATCH')) return {
-    id,
-    icon: '🔑',
-    title: 'Vehicle Secret Mismatch (RFHUB ↔ BCM)',
-    severity: 'error',
-    summary: issue,
-    guidance: 'The 16-byte vehicle secret stored in RFHUB and BCM do not match (byte-reversed). This is a deep IMMO mismatch — full sync is required.',
+  if (u.includes('RFHUB') && u.includes('VEHICLE SECRET')) return {
+    ...base, severity: 'error',
+    icon: '🔑', title: 'Vehicle Secret Mismatch (RFHUB ↔ BCM)',
+    hexFilter: ['SECRET', 'SEC16'],
+    guidance: 'The 16-byte vehicle secret stored in RFHUB and BCM do not match (byte-reversed). This is a deep IMMO mismatch — full sync required.',
     steps: [
       'Run a full sync to re-stamp VIN and synchronize all security tokens.',
       'Both BCM and RFHUB must be flashed.',
@@ -130,12 +142,10 @@ function issueToStep(issue) {
   };
 
   if (u.includes('95640') && u.includes('MISMATCH')) return {
-    id,
-    icon: '📟',
-    title: '95640 EEPROM Mismatch',
-    severity: 'error',
-    summary: issue,
-    guidance: 'The secret key or SEC16 stored in the 95640 EEPROM does not match the RFHUB. The 95640 typically mirrors RFHUB data.',
+    ...base,
+    icon: '📟', title: '95640 EEPROM Mismatch',
+    hexFilter: ['95640', 'SECRET', 'KEY'],
+    guidance: 'The secret key or SEC16 in the 95640 EEPROM does not match RFHUB. The 95640 typically mirrors RFHUB data.',
     steps: [
       'Check the RFHUB for a valid SEC16.',
       'If the 95640 backup key is erased, re-program it from RFHUB.',
@@ -145,12 +155,10 @@ function issueToStep(issue) {
     actions: [],
   };
 
-  if (u.includes('GPEC2A') && u.includes('KEY INCONSISTENT')) return {
-    id,
-    icon: '⚠️',
-    title: 'GPEC2A Key Inconsistency',
-    severity: 'error',
-    summary: issue,
+  if (u.includes('GPEC2A') && u.includes('KEY')) return {
+    ...base, severity: 'error',
+    icon: '⚠️', title: 'GPEC2A Key Inconsistency',
+    hexFilter: ['GPEC2A', 'KEY'],
     guidance: 'The GPEC2A secret key at 0x0203 and 0x0361 do not match — the PCM image may be corrupt or from a partial write.',
     steps: [
       'Obtain a verified GPEC2A dump for this vehicle.',
@@ -162,11 +170,9 @@ function issueToStep(issue) {
   };
 
   return {
-    id,
-    icon: '⚠️',
-    title: 'Module Issue',
-    severity: u.includes('MISMATCH') || u.includes('DAMAGED') ? 'error' : 'warning',
-    summary: issue,
+    ...base,
+    icon: '⚠️', title: 'Module Issue',
+    hexFilter: [],
     guidance: 'Review the issue carefully and consult the Claude AI assistant below for guidance specific to your module dumps.',
     steps: ['Ask the AI assistant for step-by-step guidance on this specific issue.'],
     skipConsequence: 'This issue will remain unresolved. Check with the AI assistant if skipping is safe.',
@@ -174,28 +180,130 @@ function issueToStep(issue) {
   };
 }
 
+/* ─── Parse hex snippet string "Label: HEXHEX..." → { label, hex } ─── */
+function parseSnippet(s) {
+  const colon = s.indexOf(': ');
+  if (colon === -1) return { label: 'Bytes', hex: s.trim() };
+  return { label: s.slice(0, colon).trim(), hex: s.slice(colon + 2).trim() };
+}
+
+/* ─── Hex Diff Card ─── */
+function HexDiffCard({ step, hexSnippets }) {
+  if (!hexSnippets || hexSnippets.length === 0) return null;
+
+  const filters = step.hexFilter || [];
+  const relevant = hexSnippets.filter(s => {
+    if (filters.length === 0) return true;
+    const su = s.toUpperCase();
+    return filters.some(f => su.includes(f.toUpperCase()));
+  });
+
+  if (relevant.length === 0) return null;
+  const parsed = relevant.map(parseSnippet);
+
+  /* Try to find RFHUB + BCM pair for side-by-side diff */
+  const rfh = parsed.find(p => p.label.toUpperCase().includes('RFHUB'));
+  const bcm = parsed.find(p => p.label.toUpperCase().includes('BCM'));
+  const hasDiff = rfh && bcm;
+
+  const hexStr = (h) => (h || '').match(/.{1,2}/g)?.join(' ') || h;
+
+  /* Byte-level differ */
+  const diffBytes = (a, b) => {
+    const ab = (a || '').match(/.{1,2}/g) || [];
+    const bb = (b || '').match(/.{1,2}/g) || [];
+    const len = Math.max(ab.length, bb.length);
+    return Array.from({ length: len }, (_, i) => ({
+      a: ab[i] || '??', b: bb[i] || '??',
+      diff: ab[i] !== bb[i],
+    }));
+  };
+
+  return (
+    <div style={{
+      borderRadius: 8, background: W.s3, border: `1px solid ${W.bd}`,
+      padding: '10px 12px', marginBottom: 12, overflow: 'hidden',
+    }}>
+      <div style={{ fontSize: 10, fontWeight: 800, color: W.ts, letterSpacing: 1.5, marginBottom: 8 }}>
+        BYTE CONTEXT {hasDiff ? '· BEFORE SYNC (mismatch highlighted)' : ''}
+      </div>
+
+      {hasDiff ? (
+        /* Side-by-side diff */
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          {[{ ...rfh, side: 'a' }, { ...bcm, side: 'b' }].map(({ label, hex, side }) => {
+            const bytes = diffBytes(rfh.hex, bcm.hex);
+            return (
+              <div key={side}>
+                <div style={{ fontSize: 10, color: side === 'a' ? W.a2 : W.a3, fontWeight: 800, marginBottom: 4 }}>
+                  {label}
+                </div>
+                <div style={{
+                  fontFamily: W.mono, fontSize: 9.5, lineHeight: 1.8,
+                  wordBreak: 'break-all', letterSpacing: 1,
+                }}>
+                  {bytes.map((b, i) => {
+                    const val = side === 'a' ? b.a : b.b;
+                    return (
+                      <span key={i} style={{
+                        color: b.diff ? W.er : W.ts,
+                        background: b.diff ? W.er + '1A' : 'transparent',
+                        borderRadius: 2, padding: '0 1px',
+                        fontWeight: b.diff ? 800 : 400,
+                      }}>{val} </span>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        parsed.map((p, i) => (
+          <div key={i} style={{ marginBottom: 6 }}>
+            <div style={{ fontSize: 10, color: W.a2, fontWeight: 800, marginBottom: 3 }}>{p.label}</div>
+            <div style={{
+              fontFamily: W.mono, fontSize: 9.5, color: W.ts, lineHeight: 1.8,
+              wordBreak: 'break-all', letterSpacing: 1,
+            }}>{hexStr(p.hex)}</div>
+          </div>
+        ))
+      )}
+
+      {hasDiff && (
+        <div style={{ fontSize: 10, color: W.er, marginTop: 6 }}>
+          ● <span style={{ fontFamily: W.mono }}>red bytes</span> = mismatch between modules
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Streaming Claude chat hook ─── */
-function useChatStream(moduleContext) {
+function useChatStream() {
   const [messages, setMessages] = useState([]);
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState(null);
   const abortRef = useRef(null);
+  const contextRef = useRef(null);
+  const messagesRef = useRef([]);
 
-  const sendMessage = useCallback(async (userText, opts = {}) => {
+  /* Keep ref in sync */
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
+
+  const updateContext = useCallback((ctx) => {
+    contextRef.current = ctx;
+  }, []);
+
+  const sendMessage = useCallback(async (userText) => {
     if (streaming) return;
-    const { silent = false } = opts;
+    const moduleContext = contextRef.current;
 
     const userMsg = { role: 'user', content: userText };
-    const newHistory = [...messages, userMsg];
-    if (!silent) setMessages(newHistory);
-    else setMessages(h => [...h, userMsg]);
+    const history = [...messagesRef.current, userMsg];
+    setMessages([...history, { role: 'assistant', content: '' }]);
     setStreaming(true);
     setError(null);
-
-    const assistantMsg = { role: 'assistant', content: '' };
-    setMessages(h => [...h, assistantMsg]);
-
-    const historyToSend = silent ? [...messages, userMsg] : newHistory;
 
     try {
       const controller = new AbortController();
@@ -204,7 +312,10 @@ function useChatStream(moduleContext) {
       const res = await fetch(`${API_BASE}/anthropic/module-assistant`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: historyToSend, moduleContext }),
+        body: JSON.stringify({
+          messages: history,
+          moduleContext,
+        }),
         signal: controller.signal,
       });
 
@@ -252,7 +363,7 @@ function useChatStream(moduleContext) {
     } finally {
       setStreaming(false);
     }
-  }, [messages, streaming, moduleContext]);
+  }, [streaming]);
 
   const clearMessages = useCallback(() => {
     abortRef.current?.abort();
@@ -260,24 +371,29 @@ function useChatStream(moduleContext) {
     setError(null);
   }, []);
 
-  return { messages, streaming, error, sendMessage, clearMessages };
+  return { messages, streaming, error, sendMessage, clearMessages, updateContext };
 }
 
 /* ─── Chat Panel ─── */
-function ChatPanel({ moduleContext, contextHint, autoGreet }) {
-  const { messages, streaming, error, sendMessage, clearMessages } = useChatStream(moduleContext);
+function ChatPanel({ moduleContext, autoGreet }) {
+  const { messages, streaming, error, sendMessage, clearMessages, updateContext } = useChatStream();
   const [input, setInput] = useState('');
   const [collapsed, setCollapsed] = useState(false);
   const bottomRef = useRef(null);
   const greeted = useRef(false);
 
-  /* Auto-brief on mount when there are issues */
+  /* Keep Claude context current as wizard state changes */
+  useEffect(() => {
+    updateContext(moduleContext);
+  }, [moduleContext, updateContext]);
+
+  /* Auto-brief on open */
   useEffect(() => {
     if (greeted.current || streaming || messages.length > 0) return;
     if (!autoGreet) return;
     greeted.current = true;
     sendMessage(autoGreet);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -288,10 +404,6 @@ function ChatPanel({ moduleContext, contextHint, autoGreet }) {
     if (!text || streaming) return;
     setInput('');
     sendMessage(text);
-  };
-
-  const handleKey = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
   };
 
   const quickPrompts = [
@@ -310,8 +422,8 @@ function ChatPanel({ moduleContext, contextHint, autoGreet }) {
       flexDirection: 'column',
       overflow: 'hidden',
       flex: collapsed ? '0 0 auto' : '1 1 auto',
-      minHeight: collapsed ? 0 : 260,
-      maxHeight: collapsed ? 52 : 440,
+      minHeight: collapsed ? 0 : 240,
+      maxHeight: collapsed ? 52 : 420,
       transition: 'all 0.25s ease',
     }}>
       {/* Header */}
@@ -325,7 +437,11 @@ function ChatPanel({ moduleContext, contextHint, autoGreet }) {
         <div style={{ fontSize: 16 }}>🤖</div>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 800, fontSize: 12, color: W.tx, letterSpacing: 1 }}>CLAUDE AI ASSISTANT</div>
-          <div style={{ fontSize: 10, color: W.ts }}>Powered by Anthropic · context-aware</div>
+          <div style={{ fontSize: 10, color: W.ts }}>
+            {moduleContext?.wizard
+              ? `Step ${(moduleContext.wizard.currentStepIndex ?? 0) + 1}/${moduleContext.wizard.totalSteps} · ${moduleContext.wizard.completedSteps?.length ?? 0} resolved`
+              : 'Powered by Anthropic · context-aware'}
+          </div>
         </div>
         {streaming && <div style={{ fontSize: 10, color: W.a2, fontWeight: 700 }}>● streaming…</div>}
         {messages.length > 0 && !collapsed && (
@@ -346,7 +462,7 @@ function ChatPanel({ moduleContext, contextHint, autoGreet }) {
                 Module context is pre-loaded. Ask anything about these mismatches.
                 <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
                   {quickPrompts.map((q, i) => (
-                    <button key={i} onClick={() => { setInput(''); sendMessage(q); }}
+                    <button key={i} onClick={() => sendMessage(q)}
                       style={{ background: W.s3, border: `1px solid ${W.bd}`, borderRadius: 20, padding: '4px 10px', fontSize: 10, color: W.ts, cursor: 'pointer', fontFamily: W.sans }}>
                       {q}
                     </button>
@@ -386,7 +502,7 @@ function ChatPanel({ moduleContext, contextHint, autoGreet }) {
             <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKey}
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }}
               disabled={streaming}
               placeholder="Ask about this mismatch… (Enter to send)"
               rows={2}
@@ -414,46 +530,35 @@ function ChatPanel({ moduleContext, contextHint, autoGreet }) {
 /* ─── Skip confirmation ─── */
 function SkipConfirm({ consequence, onConfirm, onCancel }) {
   return (
-    <div style={{
-      padding: 14, borderRadius: 10, marginTop: 10,
-      background: W.wn + '14', border: `2px solid ${W.wn}50`,
-    }}>
+    <div style={{ padding: 14, borderRadius: 10, marginTop: 10, background: W.wn + '14', border: `2px solid ${W.wn}50` }}>
       <div style={{ fontWeight: 900, fontSize: 12, color: W.wn, marginBottom: 6 }}>⚠ Skipping this step — are you sure?</div>
       <div style={{ fontSize: 12, color: W.tx, lineHeight: 1.6, marginBottom: 10 }}>
         <strong style={{ color: W.wn }}>Consequence:</strong> {consequence}
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
-        <button onClick={onConfirm} style={{
-          background: W.wn, border: 'none', borderRadius: 8,
-          padding: '6px 14px', color: '#000', fontWeight: 900, fontSize: 12, cursor: 'pointer',
-        }}>Confirm Skip</button>
-        <button onClick={onCancel} style={{
-          background: W.s3, border: `1px solid ${W.bd}`, borderRadius: 8,
-          padding: '6px 14px', color: W.ts, fontSize: 12, cursor: 'pointer',
-        }}>Cancel</button>
+        <button onClick={onConfirm} style={{ background: W.wn, border: 'none', borderRadius: 8, padding: '6px 14px', color: '#000', fontWeight: 900, fontSize: 12, cursor: 'pointer' }}>
+          Confirm Skip
+        </button>
+        <button onClick={onCancel} style={{ background: W.s3, border: `1px solid ${W.bd}`, borderRadius: 8, padding: '6px 14px', color: W.ts, fontSize: 12, cursor: 'pointer' }}>
+          Cancel
+        </button>
       </div>
     </div>
   );
 }
 
-/* ─── Action Result Banner ─── */
+/* ─── In-wizard action result banner ─── */
 function ActionResult({ actionId, onContinue }) {
   return (
-    <div style={{
-      padding: '12px 14px', borderRadius: 10, marginTop: 10,
-      background: W.gn + '14', border: `1.5px solid ${W.gn}40`,
-    }}>
+    <div style={{ padding: '12px 14px', borderRadius: 10, marginTop: 10, background: W.gn + '14', border: `1.5px solid ${W.gn}40` }}>
       <div style={{ fontWeight: 900, fontSize: 13, color: W.gn, marginBottom: 4 }}>
         ✓ Action applied: <span style={{ fontFamily: W.mono, fontSize: 11 }}>{actionId}</span>
       </div>
       <div style={{ fontSize: 12, color: W.ts, marginBottom: 10, lineHeight: 1.5 }}>
-        Patched .bin file(s) have been downloaded. Flash them to the module(s) and power-cycle
-        the vehicle for 30 seconds to complete the handshake.
+        Patched .bin file(s) have been downloaded to your Downloads folder. Flash each module and
+        power-cycle the vehicle for 30 seconds to complete the handshake.
       </div>
-      <button onClick={onContinue} style={{
-        background: W.a3, border: 'none', borderRadius: 8,
-        padding: '7px 16px', color: '#fff', fontWeight: 800, fontSize: 12, cursor: 'pointer',
-      }}>
+      <button onClick={onContinue} style={{ background: W.a3, border: 'none', borderRadius: 8, padding: '7px 16px', color: '#fff', fontWeight: 800, fontSize: 12, cursor: 'pointer' }}>
         ✓ Looks good — continue →
       </button>
     </div>
@@ -461,38 +566,30 @@ function ActionResult({ actionId, onContinue }) {
 }
 
 /* ─── Step card ─── */
-function WizardStepCard({ step, stepNum, total, stepActions, onAction, done, skipped, onMarkDone, onSkip }) {
+function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onAction, done, skipped, onMarkDone, onSkip }) {
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
   const [appliedAction, setAppliedAction] = useState(null);
 
-  const colors = { error: W.er, warning: W.wn, info: W.a3 };
-  const clr = colors[step.severity] || W.a3;
-  const availableActions = stepActions.filter(a => step.actions.includes(a.id));
+  const clrMap = { error: W.er, warning: W.wn, info: W.a3 };
+  const clr = clrMap[step.severity] || W.a3;
+  const available = stepActions.filter(a => step.actions.includes(a.id));
+  const isResolved = done || skipped || appliedAction;
 
   const handleAction = (actionId) => {
     onAction(actionId, step.id);
     setAppliedAction(actionId);
   };
 
-  const isResolved = done || skipped || appliedAction;
-
   return (
     <div style={{
       background: W.surf,
       border: `1.5px solid ${clr}${isResolved ? '30' : '60'}`,
-      borderRadius: 14,
-      padding: 18,
-      position: 'relative',
-      opacity: (done || skipped) ? 0.75 : 1,
+      borderRadius: 14, padding: 18, position: 'relative',
+      opacity: (done || skipped) ? 0.78 : 1,
     }}>
-      <div style={{
-        position: 'absolute', top: -10, left: 18,
-        background: clr, color: '#fff',
-        fontSize: 10, fontWeight: 800, padding: '2px 10px', borderRadius: 20, letterSpacing: 1,
-      }}>
+      <div style={{ position: 'absolute', top: -10, left: 18, background: clr, color: '#fff', fontSize: 10, fontWeight: 800, padding: '2px 10px', borderRadius: 20, letterSpacing: 1 }}>
         STEP {stepNum} / {total}
       </div>
-
       {done && <div style={{ position: 'absolute', top: -10, right: 18, background: W.gn, color: '#fff', fontSize: 10, fontWeight: 800, padding: '2px 10px', borderRadius: 20 }}>✓ DONE</div>}
       {skipped && <div style={{ position: 'absolute', top: -10, right: 18, background: W.wn, color: '#000', fontSize: 10, fontWeight: 800, padding: '2px 10px', borderRadius: 20 }}>SKIPPED</div>}
 
@@ -504,11 +601,12 @@ function WizardStepCard({ step, stepNum, total, stepActions, onAction, done, ski
         </div>
       </div>
 
-      <div style={{
-        fontFamily: W.mono, fontSize: 10, padding: '6px 10px',
-        background: clr + '12', borderRadius: 8, marginBottom: 12,
-        color: clr, wordBreak: 'break-all', lineHeight: 1.5,
-      }}>{step.summary}</div>
+      <div style={{ fontFamily: W.mono, fontSize: 10, padding: '6px 10px', background: clr + '12', borderRadius: 8, marginBottom: 12, color: clr, wordBreak: 'break-all', lineHeight: 1.5 }}>
+        {step.summary}
+      </div>
+
+      {/* Hex diff card — shows byte context before any action */}
+      <HexDiffCard step={step} hexSnippets={hexSnippets} />
 
       <div style={{ fontSize: 12, color: W.ts, marginBottom: 12, lineHeight: 1.6 }}>{step.guidance}</div>
 
@@ -518,15 +616,15 @@ function WizardStepCard({ step, stepNum, total, stepActions, onAction, done, ski
         </ol>
       )}
 
-      {!isResolved && availableActions.length > 0 && (
+      {!isResolved && available.length > 0 && (
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-          {availableActions.map(a => (
+          {available.map(a => (
             <button key={a.id} disabled={!a.enabled} onClick={() => handleAction(a.id)} style={{
               background: a.enabled ? W.a2 : W.s3,
               border: `1.5px solid ${a.enabled ? W.a2 : W.bd}`,
               borderRadius: 8, padding: '8px 16px', color: a.enabled ? '#fff' : W.tm,
               fontWeight: 800, fontSize: 12, cursor: a.enabled ? 'pointer' : 'not-allowed',
-              fontFamily: W.sans, letterSpacing: 0.5,
+              fontFamily: W.sans,
             }}>
               {a.label}
             </button>
@@ -534,38 +632,29 @@ function WizardStepCard({ step, stepNum, total, stepActions, onAction, done, ski
         </div>
       )}
 
-      {!isResolved && availableActions.length === 0 && (
+      {!isResolved && available.length === 0 && (
         <div style={{ fontSize: 11, color: W.ts, fontStyle: 'italic', marginBottom: 10 }}>
           No automated fix available — follow the steps above manually or ask the AI assistant.
         </div>
       )}
 
-      {/* Action result in-wizard confirmation */}
-      {appliedAction && !done && (
-        <ActionResult actionId={appliedAction} onContinue={() => onMarkDone(step.id)} />
-      )}
+      {appliedAction && !done && <ActionResult actionId={appliedAction} onContinue={() => onMarkDone(step.id)} />}
 
-      {/* Manual mark done + skip */}
       {!appliedAction && !done && !skipped && (
         <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
-          <button onClick={() => onMarkDone(step.id)} style={{
-            background: W.gn + '18', border: `1px solid ${W.gn}40`,
-            borderRadius: 8, padding: '5px 12px', color: W.gn,
-            fontSize: 11, cursor: 'pointer', fontWeight: 700, fontFamily: W.sans,
-          }}>✓ Mark as resolved</button>
-          <button onClick={() => setShowSkipConfirm(s => !s)} style={{
-            background: 'none', border: `1px solid ${W.bd}`,
-            borderRadius: 8, padding: '5px 12px', color: W.tm,
-            fontSize: 11, cursor: 'pointer', fontFamily: W.sans,
-          }}>Skip step</button>
+          <button onClick={() => onMarkDone(step.id)} style={{ background: W.gn + '18', border: `1px solid ${W.gn}40`, borderRadius: 8, padding: '5px 12px', color: W.gn, fontSize: 11, cursor: 'pointer', fontWeight: 700, fontFamily: W.sans }}>
+            ✓ Mark as resolved
+          </button>
+          <button onClick={() => setShowSkipConfirm(s => !s)} style={{ background: 'none', border: `1px solid ${W.bd}`, borderRadius: 8, padding: '5px 12px', color: W.tm, fontSize: 11, cursor: 'pointer', fontFamily: W.sans }}>
+            Skip step
+          </button>
         </div>
       )}
 
       {done && (
-        <button onClick={() => onMarkDone(step.id)} style={{
-          background: W.gn + '18', border: `1px solid ${W.gn}40`, borderRadius: 8,
-          padding: '5px 12px', color: W.gn, fontSize: 11, cursor: 'pointer', fontWeight: 700, fontFamily: W.sans,
-        }}>✓ Marked complete — click to undo</button>
+        <button onClick={() => onMarkDone(step.id)} style={{ background: W.gn + '18', border: `1px solid ${W.gn}40`, borderRadius: 8, padding: '5px 12px', color: W.gn, fontSize: 11, cursor: 'pointer', fontWeight: 700, fontFamily: W.sans }}>
+          ✓ Marked complete — click to undo
+        </button>
       )}
 
       {showSkipConfirm && (
@@ -615,9 +704,10 @@ function SummaryScreen({ issues, warnings, modules, onStart }) {
 }
 
 /* ─── Final checklist screen ─── */
-function FinalScreen({ steps, doneSet, skippedSet, onClose }) {
+function FinalScreen({ steps, doneSet, skippedSet, onClose, onRerunSync }) {
   const resolved = steps.filter(s => doneSet.has(s.id) || skippedSet.has(s.id)).length;
   const allResolved = resolved === steps.length;
+  const anyActionable = steps.some(s => s.actions.length > 0 && doneSet.has(s.id));
 
   return (
     <div style={{ padding: '18px 0' }}>
@@ -628,7 +718,7 @@ function FinalScreen({ steps, doneSet, skippedSet, onClose }) {
         </div>
         <div style={{ fontSize: 12, color: W.ts, lineHeight: 1.7 }}>
           {allResolved
-            ? 'Flash the patched .bin files to your modules and power-cycle 30 seconds.'
+            ? 'Patched .bin files were downloaded to your Downloads folder when you applied each action.'
             : 'Complete remaining steps, then return for the final checklist.'}
         </div>
       </div>
@@ -637,26 +727,29 @@ function FinalScreen({ steps, doneSet, skippedSet, onClose }) {
         const done = doneSet.has(s.id);
         const skipped = skippedSet.has(s.id);
         return (
-          <div key={s.id} style={{
-            display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
-            borderRadius: 8, marginBottom: 6,
-            background: done ? W.gn + '12' : skipped ? W.wn + '10' : W.s3,
-            border: `1px solid ${done ? W.gn + '40' : skipped ? W.wn + '30' : W.bd}`,
-          }}>
+          <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 8, marginBottom: 6, background: done ? W.gn + '12' : skipped ? W.wn + '10' : W.s3, border: `1px solid ${done ? W.gn + '40' : skipped ? W.wn + '30' : W.bd}` }}>
             <span style={{ fontSize: 16 }}>{done ? '✅' : skipped ? '⏭' : '⬜'}</span>
-            <span style={{ fontSize: 12, color: done ? W.gn : skipped ? W.wn : W.ts, flex: 1 }}>
-              {s.title}
-            </span>
+            <span style={{ fontSize: 12, color: done ? W.gn : skipped ? W.wn : W.ts, flex: 1 }}>{s.title}</span>
             {skipped && <span style={{ fontSize: 10, color: W.wn }}>skipped</span>}
           </div>
         );
       })}
 
-      <div style={{
-        padding: '12px 16px', borderRadius: 10, marginTop: 14, marginBottom: 14,
-        background: W.a1 + '14', border: `1px solid ${W.a1}30`,
-        fontSize: 12, color: W.tx, lineHeight: 1.7,
-      }}>
+      {/* Download shortcut */}
+      <div style={{ padding: '12px 16px', borderRadius: 10, marginTop: 14, background: W.a2 + '14', border: `1px solid ${W.a2}30`, fontSize: 12, color: W.tx, lineHeight: 1.7 }}>
+        <div style={{ fontWeight: 900, color: W.a2, marginBottom: 6 }}>📥 Patched Files</div>
+        <div style={{ color: W.ts, marginBottom: anyActionable ? 10 : 0 }}>
+          .bin files were automatically saved to your <strong style={{ color: W.tx }}>Downloads folder</strong> when you ran each sync action.
+          Flash them with Flashzilla / AlfaOBD / OBD before power-cycling.
+        </div>
+        {onRerunSync && (
+          <button onClick={onRerunSync} style={{ background: W.a2, border: 'none', borderRadius: 8, padding: '7px 16px', color: '#fff', fontWeight: 800, fontSize: 12, cursor: 'pointer', marginTop: 4 }}>
+            ↻ Re-run Full Sync (re-download)
+          </button>
+        )}
+      </div>
+
+      <div style={{ padding: '12px 16px', borderRadius: 10, marginTop: 10, marginBottom: 14, background: W.a1 + '14', border: `1px solid ${W.a1}30`, fontSize: 12, color: W.tx, lineHeight: 1.7 }}>
         <div style={{ fontWeight: 900, color: W.a1, marginBottom: 4 }}>⚡ Post-Flash Checklist</div>
         <div>✓ Flash BCM .bin via OBD / Flashzilla / AlfaOBD</div>
         <div>✓ Flash RFHUB .bin via OBD</div>
@@ -665,11 +758,7 @@ function FinalScreen({ steps, doneSet, skippedSet, onClose }) {
         <div>✓ Verify with SKIM tab — all keys should pair</div>
       </div>
 
-      <button onClick={onClose} style={{
-        width: '100%', background: W.gn, border: 'none', borderRadius: 10,
-        padding: '12px 32px', color: '#fff', fontWeight: 900, fontSize: 14,
-        cursor: 'pointer', fontFamily: W.sans, letterSpacing: 1,
-      }}>
+      <button onClick={onClose} style={{ width: '100%', background: W.gn, border: 'none', borderRadius: 10, padding: '12px 32px', color: '#fff', fontWeight: 900, fontSize: 14, cursor: 'pointer', fontFamily: W.sans, letterSpacing: 1 }}>
         CLOSE WIZARD
       </button>
     </div>
@@ -694,53 +783,55 @@ export default function MismatchWizard({
   const [skippedSteps, setSkippedSteps] = useState(new Set());
   const overlayRef = useRef(null);
 
-  const allItems = [
-    ...issues.map(i => ({ ...issueToStep(i), _fromIssue: true })),
-    ...warnings.map(w => {
-      const s = issueToStep(w);
-      if (s.severity === 'error') s.severity = 'warning';
-      return { ...s, _fromIssue: false };
-    }),
-  ];
+  /* Build and sort steps by priority (VIN → SEC16 → PCM → others → warnings) */
+  const steps = useMemo(() => {
+    const errorSteps = issues.map(i => issueToStep(i, true));
+    const warnSteps  = warnings.map(w => { const s = issueToStep(w, false); if (s.severity === 'error') s.severity = 'warning'; return s; });
+    const all = [...errorSteps, ...warnSteps];
+    all.sort((a, b) => stepPriority(a.summary, a.severity) - stepPriority(b.summary, b.severity));
+    return all.length > 0 ? all : [{
+      id: 'no-issues',
+      icon: '✅', title: 'No Issues Detected', severity: 'info',
+      summary: 'All checked items passed.',
+      hexFilter: [],
+      guidance: 'No mismatches found. Use the AI assistant to ask questions.',
+      steps: [], skipConsequence: '', actions: [],
+    }];
+  }, [issues, warnings]);
 
-  const steps = allItems.length > 0 ? allItems : [{
-    id: 'no-issues',
-    icon: '✅',
-    title: 'No Issues Detected',
-    severity: 'info',
-    summary: 'All checked items passed.',
-    guidance: 'No mismatches were found. Use the AI assistant to ask questions.',
-    steps: [],
-    skipConsequence: '',
-    actions: [],
-  }];
+  /* Reactive Claude context includes wizard state */
+  const moduleContext = useMemo(() => ({
+    modules, issues, warnings, hexSnippets,
+    wizard: {
+      phase,
+      currentStepIndex: currentStep,
+      currentStepTitle: steps[currentStep]?.title ?? '',
+      totalSteps: steps.length,
+      completedSteps: steps.filter(s => doneSteps.has(s.id)).map(s => s.title),
+      skippedSteps:   steps.filter(s => skippedSteps.has(s.id)).map(s => s.title),
+      remainingSteps: steps.filter(s => !doneSteps.has(s.id) && !skippedSteps.has(s.id)).map(s => s.title),
+    },
+  }), [modules, issues, warnings, hexSnippets, phase, currentStep, steps, doneSteps, skippedSteps]);
 
-  const moduleContext = { modules, issues, warnings, hexSnippets };
-
-  /* Auto-greet: first issue summary */
   const autoGreet = issues.length > 0
-    ? `I'm looking at these modules: ${modules.join(', ')}. I found ${issues.length} issue(s): ${issues.slice(0, 2).join('; ')}${issues.length > 2 ? ` and ${issues.length - 2} more` : ''}. Please summarize what's wrong and what I should do first.`
+    ? `I'm diagnosing modules: ${modules.join(', ')}. Found ${issues.length} issue(s): ${issues.slice(0, 2).join('; ')}${issues.length > 2 ? ` and ${issues.length - 2} more` : ''}. Please summarize what's wrong and what I should do first.`
     : warnings.length > 0
     ? `I see these warnings in my module dumps: ${warnings.slice(0, 2).join('; ')}. Can you explain what they mean and whether I need to fix them?`
     : null;
 
   const toggleDone = (stepId) => {
-    setDoneSteps(prev => {
-      const next = new Set(prev);
-      if (next.has(stepId)) next.delete(stepId); else next.add(stepId);
-      return next;
-    });
-    setSkippedSteps(prev => { const next = new Set(prev); next.delete(stepId); return next; });
+    setDoneSteps(prev => { const n = new Set(prev); if (n.has(stepId)) n.delete(stepId); else n.add(stepId); return n; });
+    setSkippedSteps(prev => { const n = new Set(prev); n.delete(stepId); return n; });
   };
 
   const skipStep = (stepId) => {
-    setSkippedSteps(prev => { const next = new Set(prev); next.add(stepId); return next; });
-    setDoneSteps(prev => { const next = new Set(prev); next.delete(stepId); return next; });
+    setSkippedSteps(prev => { const n = new Set(prev); n.add(stepId); return n; });
+    setDoneSteps(prev => { const n = new Set(prev); n.delete(stepId); return n; });
   };
 
   const handleAction = (actionId, stepId) => {
     onAction?.(actionId, stepId);
-    /* Don't close wizard — action result shown in-card */
+    /* Wizard stays open — ActionResult banner shown in-card */
   };
 
   const handleOverlayClick = (e) => {
@@ -757,7 +848,7 @@ export default function MismatchWizard({
         background: W.bg,
         border: `1.5px solid ${W.bd}`,
         borderRadius: 20,
-        width: '100%', maxWidth: 840,
+        width: '100%', maxWidth: 860,
         maxHeight: '92vh',
         display: 'flex', flexDirection: 'column',
         overflow: 'hidden',
@@ -777,11 +868,14 @@ export default function MismatchWizard({
               MISMATCH RESOLUTION WIZARD
             </div>
             <div style={{ fontSize: 10, color: W.ts, letterSpacing: 2 }}>
-              {phase === 'summary' ? 'ISSUE SUMMARY' : phase === 'steps' ? `STEP ${currentStep + 1} OF ${steps.length}` : 'FINAL CHECKLIST'}
+              {phase === 'summary' ? 'ISSUE SUMMARY'
+                : phase === 'steps' ? `STEP ${currentStep + 1} OF ${steps.length} · ${doneSteps.size} RESOLVED`
+                : 'FINAL CHECKLIST'}
               {modules.length > 0 && ` · ${modules.join(' + ')}`}
             </div>
           </div>
 
+          {/* Step dot nav */}
           {phase === 'steps' && steps.length > 1 && (
             <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
               {steps.map((s, i) => (
@@ -794,10 +888,7 @@ export default function MismatchWizard({
             </div>
           )}
 
-          <button onClick={onClose} style={{
-            background: 'none', border: `1px solid ${W.bd}`, borderRadius: 8,
-            padding: '4px 10px', color: W.ts, cursor: 'pointer', fontSize: 13,
-          }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: `1px solid ${W.bd}`, borderRadius: 8, padding: '4px 10px', color: W.ts, cursor: 'pointer', fontSize: 13 }}>✕</button>
         </div>
 
         {/* Body */}
@@ -815,6 +906,7 @@ export default function MismatchWizard({
                   stepNum={currentStep + 1}
                   total={steps.length}
                   stepActions={stepActions}
+                  hexSnippets={hexSnippets}
                   onAction={handleAction}
                   done={doneSteps.has(steps[currentStep].id)}
                   skipped={skippedSteps.has(steps[currentStep].id)}
@@ -830,19 +922,11 @@ export default function MismatchWizard({
                   </button>
                   <div style={{ flex: 1 }} />
                   {currentStep < steps.length - 1 ? (
-                    <button onClick={() => setCurrentStep(i => i + 1)} style={{
-                      background: W.a3, border: 'none', borderRadius: 8,
-                      padding: '8px 18px', color: '#fff', cursor: 'pointer',
-                      fontSize: 12, fontWeight: 800, fontFamily: W.sans,
-                    }}>
+                    <button onClick={() => setCurrentStep(i => i + 1)} style={{ background: W.a3, border: 'none', borderRadius: 8, padding: '8px 18px', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 800, fontFamily: W.sans }}>
                       Next Step →
                     </button>
                   ) : (
-                    <button onClick={() => setPhase('final')} style={{
-                      background: `linear-gradient(135deg, ${W.gn} 0%, ${W.a2} 100%)`,
-                      border: 'none', borderRadius: 8, padding: '8px 20px',
-                      color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 900, fontFamily: W.sans,
-                    }}>
+                    <button onClick={() => setPhase('final')} style={{ background: `linear-gradient(135deg, ${W.gn} 0%, ${W.a2} 100%)`, border: 'none', borderRadius: 8, padding: '8px 20px', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 900, fontFamily: W.sans }}>
                       View Checklist ✓
                     </button>
                   )}
@@ -851,17 +935,21 @@ export default function MismatchWizard({
             )}
 
             {phase === 'final' && (
-              <FinalScreen steps={steps} doneSet={doneSteps} skippedSet={skippedSteps} onClose={onClose} />
+              <FinalScreen
+                steps={steps}
+                doneSet={doneSteps}
+                skippedSet={skippedSteps}
+                onClose={onClose}
+                onRerunSync={stepActions.some(a => a.id === 'full-sync' && a.enabled)
+                  ? () => handleAction('full-sync', 'final')
+                  : undefined}
+              />
             )}
           </div>
 
           {/* Claude chat — always visible */}
           <div style={{ flexShrink: 0, padding: '10px 20px 16px 20px' }}>
-            <ChatPanel
-              moduleContext={moduleContext}
-              contextHint={autoGreet}
-              autoGreet={autoGreet}
-            />
+            <ChatPanel moduleContext={moduleContext} autoGreet={autoGreet} />
           </div>
         </div>
       </div>
