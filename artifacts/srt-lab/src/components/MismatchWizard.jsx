@@ -1,6 +1,10 @@
 import React, {
   useState, useRef, useEffect, useCallback, useMemo,
 } from "react";
+import {
+  Tip, translateIssue, pickRecommendedFix,
+  loadAdvanced, saveAdvanced,
+} from "../lib/plainEnglish.jsx";
 
 /* ============================================================================
  * MismatchWizard — Guided resolution wizard + Claude AI chat panel
@@ -1204,6 +1208,179 @@ function FinalScreen({ steps, doneSet, skippedSet, onClose, onRerunSync }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+ * Simple "what do you have → what do you want → done" flow.
+ * Default view when Advanced is off.
+ * ═══════════════════════════════════════════════════════════════ */
+function SimpleFlow({ issues, warnings, modules, hexSnippets, stepActions, onAction, onClose }) {
+  const recommended = useMemo(
+    () => pickRecommendedFix({ issues, warnings, stepActions, modules, hexSnippets }),
+    [issues, warnings, stepActions, modules, hexSnippets]
+  );
+
+  const [phase, setPhase] = useState('plan');     /* 'plan' | 'busy' | 'done' | 'failed' */
+  const [errMsg, setErrMsg] = useState(null);
+
+  const apply = async () => {
+    if (!recommended) return;
+    setPhase('busy');
+    setErrMsg(null);
+    try {
+      const result = onAction?.(recommended.actionId, 'simple');
+      const rows = result && typeof result.then === 'function' ? await result : result;
+      if (rows && (Array.isArray(rows) ? rows.length > 0 : true)) setPhase('done');
+      else { setErrMsg('No changes were applied. Make sure all required dump files are loaded.'); setPhase('failed'); }
+    } catch (e) {
+      setErrMsg(e?.message || 'Could not apply the fix.');
+      setPhase('failed');
+    }
+  };
+
+  /* Empty state — no issues + no warnings */
+  if (issues.length === 0 && warnings.length === 0) {
+    return (
+      <div style={{ textAlign: 'center', padding: '24px 0' }}>
+        <div style={{ fontSize: 48, marginBottom: 10 }}>✅</div>
+        <div style={{ fontWeight: 900, fontSize: 18, color: W.gn, marginBottom: 8, fontFamily: W.sans }}>
+          Modules paired — ready to flash
+        </div>
+        <div style={{ fontSize: 13, color: W.ts, marginBottom: 18, lineHeight: 1.6, maxWidth: 480, margin: '0 auto 18px' }}>
+          {modules.length > 0
+            ? <>Your <strong>{modules.join(' + ')}</strong> dumps look correct. Flash them and power-cycle the vehicle for 30 seconds.</>
+            : 'Drop BCM, key receiver and engine computer dumps to begin.'}
+        </div>
+        <button onClick={onClose} style={{ background: W.gn, border: 'none', borderRadius: 10, padding: '12px 32px', color: '#fff', fontWeight: 900, fontSize: 14, cursor: 'pointer', fontFamily: W.sans, letterSpacing: 1 }}>
+          DONE
+        </button>
+      </div>
+    );
+  }
+
+  /* Success */
+  if (phase === 'done') {
+    return (
+      <div style={{ textAlign: 'center', padding: '20px 0' }}>
+        <div style={{ fontSize: 48, marginBottom: 10 }}>🎉</div>
+        <div style={{ fontWeight: 900, fontSize: 20, color: W.gn, marginBottom: 8, fontFamily: W.sans }}>
+          Done — patched files saved
+        </div>
+        <div style={{ fontSize: 13, color: W.ts, marginBottom: 14, lineHeight: 1.7, maxWidth: 520, margin: '0 auto 14px' }}>
+          New <strong>.bin</strong> files were saved to your <strong>Downloads folder</strong>.
+          Flash each file to the matching module (Flashzilla / AlfaOBD / OBD), then power-cycle the vehicle battery for 30 seconds.
+        </div>
+        <div style={{ padding: '12px 16px', borderRadius: 10, marginTop: 8, marginBottom: 16, background: W.a1 + '14', border: `1px solid ${W.a1}30`, fontSize: 12, color: W.tx, lineHeight: 1.7, textAlign: 'left', maxWidth: 520, margin: '0 auto 16px' }}>
+          <div style={{ fontWeight: 900, color: W.a1, marginBottom: 4 }}>⚡ After flashing</div>
+          <div>✓ Flash each .bin via OBD / Flashzilla / AlfaOBD</div>
+          <div>✓ Disconnect battery for 30 seconds</div>
+          <div>✓ Re-import the dumps to verify the fix</div>
+        </div>
+        <button onClick={onClose} style={{ background: W.gn, border: 'none', borderRadius: 10, padding: '12px 32px', color: '#fff', fontWeight: 900, fontSize: 14, cursor: 'pointer', fontFamily: W.sans, letterSpacing: 1 }}>
+          CLOSE
+        </button>
+      </div>
+    );
+  }
+
+  /* Plan / busy / failed */
+  return (
+    <div style={{ padding: '8px 0' }}>
+      {/* What do you have */}
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ fontSize: 10, fontWeight: 800, color: W.ts, letterSpacing: 1.5, marginBottom: 6 }}>WHAT YOU HAVE</div>
+        <div style={{ padding: '12px 14px', borderRadius: 10, background: W.s3, border: `1px solid ${W.bd}`, fontSize: 13, color: W.tx, lineHeight: 1.6 }}>
+          {modules.length > 0
+            ? <>Loaded modules: <strong>{modules.join(' + ')}</strong></>
+            : <span style={{ color: W.ts }}>No module dumps loaded yet.</span>}
+          {recommended?.targetVin && (
+            <div style={{ marginTop: 6, fontSize: 12, color: W.ts }}>
+              Master <Tip word="VIN" />: <span style={{ fontFamily: W.mono, color: W.tx, fontWeight: 700, letterSpacing: 1.5 }}>{recommended.targetVin}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Issues in plain English */}
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ fontSize: 10, fontWeight: 800, color: W.ts, letterSpacing: 1.5, marginBottom: 6 }}>WHAT'S WRONG</div>
+        {issues.map((iss, i) => {
+          const t = translateIssue(iss);
+          return (
+            <div key={i} style={{ padding: '10px 14px', borderRadius: 10, marginBottom: 6, background: W.er + '12', border: `1px solid ${W.er}30`, fontSize: 13, color: W.tx, lineHeight: 1.55 }}>
+              <span style={{ marginRight: 6 }}>❌</span>
+              {t.term ? <Tip word={t.term}>{t.plain}</Tip> : t.plain}
+            </div>
+          );
+        })}
+        {warnings.map((wn, i) => {
+          const t = translateIssue(wn);
+          return (
+            <div key={i} style={{ padding: '10px 14px', borderRadius: 10, marginBottom: 6, background: W.wn + '10', border: `1px solid ${W.wn}30`, fontSize: 13, color: W.tx, lineHeight: 1.55 }}>
+              <span style={{ marginRight: 6 }}>⚠️</span>
+              {t.term ? <Tip word={t.term}>{t.plain}</Tip> : t.plain}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* What you'll do — recommended action */}
+      {recommended && (
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, color: W.ts, letterSpacing: 1.5, marginBottom: 6 }}>WHAT I'LL DO</div>
+          <div style={{ padding: '14px 16px', borderRadius: 12, background: `linear-gradient(135deg, ${W.gn}10, ${W.a2}10)`, border: `1.5px solid ${W.gn}40` }}>
+            <div style={{ fontWeight: 900, fontSize: 14, color: W.gn, marginBottom: 8 }}>
+              {recommended.title}
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 22, fontSize: 13, color: W.tx, lineHeight: 1.7 }}>
+              {recommended.plan.map((step, i) => <li key={i} style={{ marginBottom: 2 }}>{step}</li>)}
+            </ul>
+            {recommended.why && (
+              <div style={{ fontSize: 11, color: W.ts, marginTop: 10, fontStyle: 'italic' }}>
+                Why this matters: {recommended.why}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {!recommended && (
+        <div style={{ padding: '12px 14px', borderRadius: 10, marginBottom: 14, background: W.wn + '14', border: `1px solid ${W.wn}40`, fontSize: 12, color: W.tx, lineHeight: 1.6 }}>
+          No automatic fix is available for this combination. Switch on <strong>Advanced</strong> in the header to see the full step-by-step wizard, or ask the assistant below.
+        </div>
+      )}
+
+      {phase === 'failed' && errMsg && (
+        <div style={{ padding: '10px 14px', borderRadius: 10, marginBottom: 14, background: W.er + '14', border: `1px solid ${W.er}40`, fontSize: 12, color: W.er, fontFamily: W.sans }}>
+          {errMsg}
+        </div>
+      )}
+
+      {/* Action row */}
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 4 }}>
+        {recommended && (
+          <button
+            data-testid="simple-fix-btn"
+            onClick={apply}
+            disabled={phase === 'busy'}
+            style={{
+              background: phase === 'busy' ? W.bd : `linear-gradient(135deg, ${W.gn} 0%, ${W.a2} 100%)`,
+              border: 'none', borderRadius: 10, padding: '12px 28px',
+              color: '#fff', fontWeight: 900, fontSize: 14,
+              cursor: phase === 'busy' ? 'wait' : 'pointer',
+              fontFamily: W.sans, letterSpacing: 1,
+              boxShadow: '0 4px 16px rgba(0,200,83,0.25)',
+              flex: 1, minWidth: 220,
+            }}>
+            {phase === 'busy' ? 'Working…' : `✓ FIX IT — ${recommended.modulesAffected.length || 'all'} module${recommended.modulesAffected.length === 1 ? '' : 's'}`}
+          </button>
+        )}
+        <button onClick={onClose} style={{ background: 'none', border: `1px solid ${W.bd}`, borderRadius: 10, padding: '12px 18px', color: W.ts, cursor: 'pointer', fontFamily: W.sans, fontSize: 12 }}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
  * Main export
  * ═══════════════════════════════════════════════════════════════ */
 export default function MismatchWizard({
@@ -1220,6 +1397,11 @@ export default function MismatchWizard({
   const [currentStep, setCurrentStep] = useState(0);
   const [doneSteps, setDoneSteps] = useState(new Set());
   const [skippedSteps, setSkippedSteps] = useState(new Set());
+  const [advanced, setAdvancedState] = useState(() => loadAdvanced(`wizard:${sessionKey || 'global'}`));
+  const setAdvanced = (v) => {
+    setAdvancedState(v);
+    saveAdvanced(`wizard:${sessionKey || 'global'}`, v);
+  };
   const overlayRef = useRef(null);
 
   /* Build and sort steps by priority (VIN → SEC16 → PCM → others → warnings) */
@@ -1307,15 +1489,25 @@ export default function MismatchWizard({
               MISMATCH RESOLUTION WIZARD
             </div>
             <div style={{ fontSize: 10, color: W.ts, letterSpacing: 2 }}>
-              {phase === 'summary' ? 'ISSUE SUMMARY'
+              {!advanced ? 'GUIDED FIX'
+                : phase === 'summary' ? 'ISSUE SUMMARY'
                 : phase === 'steps' ? `STEP ${currentStep + 1} OF ${steps.length} · ${doneSteps.size} RESOLVED`
                 : 'FINAL CHECKLIST'}
               {modules.length > 0 && ` · ${modules.join(' + ')}`}
             </div>
           </div>
 
+          {/* Advanced toggle */}
+          <label
+            data-testid="wizard-advanced-toggle"
+            title="Show byte-level diffs, offset tables, sync strategy picker, and AI chat"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: advanced ? W.a3 : W.ts, fontFamily: W.sans, cursor: 'pointer', userSelect: 'none', padding: '4px 10px', borderRadius: 8, border: `1px solid ${advanced ? W.a3 + '60' : W.bd}`, background: advanced ? W.a3 + '14' : 'none' }}>
+            <input type="checkbox" checked={advanced} onChange={e => setAdvanced(e.target.checked)} style={{ accentColor: W.a3, cursor: 'pointer' }} />
+            Advanced
+          </label>
+
           {/* Step dot nav */}
-          {phase === 'steps' && steps.length > 1 && (
+          {advanced && phase === 'steps' && steps.length > 1 && (
             <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
               {steps.map((s, i) => (
                 <button key={s.id} onClick={() => setCurrentStep(i)} style={{
@@ -1333,12 +1525,24 @@ export default function MismatchWizard({
         {/* Body */}
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           <div style={{ flex: '1 1 auto', overflowY: 'auto', padding: '16px 20px 0 20px' }}>
-            {phase === 'summary' && (
+            {!advanced && (
+              <SimpleFlow
+                issues={issues}
+                warnings={warnings}
+                modules={modules}
+                hexSnippets={hexSnippets}
+                stepActions={stepActions}
+                onAction={handleAction}
+                onClose={onClose}
+              />
+            )}
+
+            {advanced && phase === 'summary' && (
               <SummaryScreen issues={issues} warnings={warnings} modules={modules}
                 onStart={() => { setPhase('steps'); setCurrentStep(0); }} />
             )}
 
-            {phase === 'steps' && (
+            {advanced && phase === 'steps' && (
               <div>
                 <WizardStepCard
                   step={steps[currentStep]}
@@ -1373,7 +1577,7 @@ export default function MismatchWizard({
               </div>
             )}
 
-            {phase === 'final' && (
+            {advanced && phase === 'final' && (
               <FinalScreen
                 steps={steps}
                 doneSet={doneSteps}
@@ -1386,10 +1590,12 @@ export default function MismatchWizard({
             )}
           </div>
 
-          {/* Claude chat — always visible */}
-          <div style={{ flexShrink: 0, padding: '10px 20px 16px 20px' }}>
-            <ChatPanel moduleContext={moduleContext} autoGreet={autoGreet} sessionKey={sessionKey} />
-          </div>
+          {/* Claude chat — Advanced mode only */}
+          {advanced && (
+            <div style={{ flexShrink: 0, padding: '10px 20px 16px 20px' }}>
+              <ChatPanel moduleContext={moduleContext} autoGreet={autoGreet} sessionKey={sessionKey} />
+            </div>
+          )}
         </div>
       </div>
     </div>

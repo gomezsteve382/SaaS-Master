@@ -5,12 +5,17 @@ import {parseModule,arrEq,fO,countSkimRecs,syncImmoBackup} from "../lib/parseMod
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crossValidate,computeDiff,compareGpecBcmKey} from "../lib/crossValidate.js";
 import {crc16} from "../lib/crc.js";
+import MismatchWizard from "../components/MismatchWizard.jsx";
+import {statusBanner, loadAdvanced, saveAdvanced} from "../lib/plainEnglish.jsx";
 const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
 
 function SecurityTab(){
   const[mods,setMods]=useState([]);const[sub,setSub]=useState('overview');const[tv,setTv]=useState('');
   const[msg,setMsg]=useState('');const[dp,setDp]=useState([0,1]);const[tt,setTt]=useState(0);
   const[tr,setTr]=useState(null);const[flashList,setFlashList]=useState([]);const[keySrc,setKeySrc]=useState(-1);
+  const[advanced,setAdvancedState]=useState(()=>loadAdvanced('security'));
+  const[wizardOpen,setWizardOpen]=useState(false);
+  const setAdvanced=v=>{setAdvancedState(v);saveAdvanced('security',v);};
 
   const addF=useCallback(fl=>{
     Array.from(fl).forEach(f=>{
@@ -87,6 +92,7 @@ function SecurityTab(){
     const postCheck=crossValidate(results.map(r=>parseModule(r.data,r.fn)));
     const statusNote=postCheck.issues.length===0?' — all checks passed':' — '+postCheck.issues.length+' issue(s) remain';
     setFlashList(results);setMsg('All modules matched'+(doVin?' to '+tv:'')+(srcKey?' with key from '+srcKey.fn:'')+statusNote);setSub('tools');
+    return {ok:postCheck.issues.length===0,patched:results.length,remainingIssues:postCheck.issues.length,issues:postCheck.issues};
   }
 
   function doTool(action){
@@ -167,7 +173,38 @@ function SecurityTab(){
       </Card>
     </div>
 
-    {mods.length>0&&<>
+    {/* ─── Plain-English status banner + guided fix entry point ─── */}
+    {mods.length>0&&(()=>{
+      const modNames=mods.map(m=>TL[m.type]||m.type).filter(Boolean);
+      const banner=statusBanner({issues:val?.issues||[],warnings:val?.warnings||[],modules:modNames});
+      const tone=banner.tone;
+      const bg=tone==='error'?C.er+'12':tone==='warning'?C.wn+'10':tone==='ok'?C.gn+'10':C.c2;
+      const fg=tone==='error'?C.er:tone==='warning'?C.wn:tone==='ok'?C.gn:C.tx;
+      const bd=tone==='error'?C.er+'40':tone==='warning'?C.wn+'40':tone==='ok'?C.gn+'40':C.bd;
+      const icon=tone==='error'?'❌':tone==='warning'?'⚠️':tone==='ok'?'✅':'ℹ️';
+      return<div data-testid="security-status-banner" style={{display:'flex',alignItems:'center',gap:14,padding:'14px 18px',borderRadius:12,marginBottom:12,background:bg,border:'1.5px solid '+bd,flexWrap:'wrap'}}>
+        <div style={{fontSize:28}}>{icon}</div>
+        <div style={{flex:1,minWidth:200}}>
+          <div style={{fontWeight:900,fontSize:14,color:fg,marginBottom:2}}>{banner.headline}</div>
+          <div style={{fontSize:12,color:C.ts,lineHeight:1.5}}>{banner.detail}</div>
+        </div>
+        {(tone==='error'||tone==='warning')&&<button
+          data-testid="security-open-guided-fix"
+          onClick={()=>setWizardOpen(true)}
+          style={{background:'linear-gradient(135deg,'+C.sr+' 0%,'+C.a1+' 100%)',border:'none',borderRadius:10,padding:'10px 20px',color:'#fff',fontWeight:900,fontSize:12,cursor:'pointer',letterSpacing:.5,fontFamily:"'Nunito'",boxShadow:'0 2px 8px rgba(211,47,47,0.25)'}}>
+          🔧 Open Guided Fix →
+        </button>}
+        <label
+          data-testid="security-advanced-toggle"
+          title="Show byte-level diffs, SKIM grid, sub-tab nav, and per-module tools"
+          style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:700,color:advanced?C.a3:C.tm,fontFamily:"'Nunito'",cursor:'pointer',userSelect:'none',padding:'6px 12px',borderRadius:8,border:'1px solid '+(advanced?C.a3+'60':C.bd),background:advanced?C.a3+'14':'none'}}>
+          <input type="checkbox" checked={advanced} onChange={e=>setAdvanced(e.target.checked)} style={{accentColor:C.a3,cursor:'pointer'}}/>
+          Advanced
+        </label>
+      </div>;
+    })()}
+
+    {mods.length>0&&advanced&&<>
       <Card style={{marginBottom:12,padding:14}}>
         <div style={{fontSize:10,fontWeight:800,color:C.sr,letterSpacing:2,marginBottom:6}}>TARGET VIN</div>
         <input value={tv} maxLength={17} placeholder="17-char target VIN" onChange={e=>setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}} onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}/>
@@ -195,7 +232,7 @@ function SecurityTab(){
     </>}
 
     {/* OVERVIEW SUB-TAB */}
-    {sub==='overview'&&mods.length>0&&<div>
+    {advanced&&sub==='overview'&&mods.length>0&&<div>
       {val&&<Card style={{marginBottom:16,padding:16}}>
         <div style={{fontSize:14,fontWeight:800,marginBottom:10}}>Cross-Module Validation</div>
         {val.issues.map((m,i)=><SLine key={'i'+i} type="error" msg={m}/>)}
@@ -258,7 +295,7 @@ function SecurityTab(){
     </div>}
 
     {/* SECURITY SUB-TAB */}
-    {sub==='security'&&mods.length>0&&(()=>{
+    {advanced&&sub==='security'&&mods.length>0&&(()=>{
       const secGpec=mods.find(m=>m.type==='GPEC2A');
       const secBcm=mods.find(m=>m.type==='BCM');
       const gpecBcmCmp=(secGpec&&secGpec.secretKey&&secBcm&&secBcm.vehicleSecret)?compareGpecBcmKey(secGpec.secretKey.bytes,secBcm.vehicleSecret.bytes):null;
@@ -333,7 +370,7 @@ function SecurityTab(){
     })()}
 
     {/* DIFF SUB-TAB */}
-    {sub==='diff'&&<div>
+    {advanced&&sub==='diff'&&<div>
       {mods.length<2?<Card style={{textAlign:'center',padding:30}}><div style={{color:C.tm}}>Load 2+ modules to compare.</div></Card>:<div>
         <div style={{display:'flex',gap:12,marginBottom:16,alignItems:'center'}}>
           <select value={dp[0]} onChange={e=>setDp([+e.target.value,dp[1]])} style={selSt}>{mods.map((m,i)=><option key={i} value={i}>{m.filename}</option>)}</select>
@@ -371,7 +408,7 @@ function SecurityTab(){
     </div>}
 
     {/* TOOLS SUB-TAB */}
-    {sub==='tools'&&<div>
+    {advanced&&sub==='tools'&&<div>
       {mods.length===0?<Card style={{textAlign:'center',padding:30}}><div style={{color:C.tm}}>Load a module first.</div></Card>:<div>
         <div style={{display:'flex',gap:12,marginBottom:16,alignItems:'center'}}>
           <span style={{fontSize:12,color:C.tm,fontWeight:700}}>Target:</span>
@@ -468,6 +505,39 @@ function SecurityTab(){
 
     {msg&&<div style={{marginTop:12,padding:'8px 12px',borderRadius:8,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
     {!mods.length&&<div style={{textAlign:'center',padding:30,color:C.tm,fontSize:12}}>Drop BCM, RFHUB, 95640, GPEC2A files above to compare security</div>}
+
+    {/* ─── Mismatch Wizard (guided fix entry point) ─── */}
+    {wizardOpen&&(()=>{
+      const issues=val?.issues||[];
+      const warnings=val?.warnings||[];
+      const moduleNames=mods.map(m=>m.type);
+      const hexSnippets=[];
+      mods.forEach(m=>{
+        if(m.vins?.[0])hexSnippets.push(`${m.type} VIN @0x${(m.vins[0].offset||0).toString(16).toUpperCase().padStart(4,'0')}: ${m.vins[0].vin}`);
+      });
+      const stepActions=[
+        {id:'match-all',label:'Match all modules',enabled:mods.length>=1,description:'Sync VIN, secret key and immobilizer token across all loaded modules.'},
+      ];
+      const handleAction=(actionId)=>{
+        if(actionId==='match-all'||actionId==='full-sync'||actionId==='sec16-only'||actionId==='rfh-to-bcm'||actionId==='bcm-sec16-to-rfh'){
+          const r=matchAll();
+          if(!r)return [{ok:false,error:'No modules loaded — drop module dumps above first.'}];
+          if(r.ok)return [{ok:true,note:`Patched ${r.patched} module${r.patched===1?'':'s'} — all checks passed.`}];
+          return [{ok:false,error:`Patched ${r.patched} module${r.patched===1?'':'s'}, but ${r.remainingIssues} issue${r.remainingIssues===1?'':'s'} remain. Open Advanced view for details.`}];
+        }
+        return null;
+      };
+      return <MismatchWizard
+        issues={issues}
+        warnings={warnings}
+        modules={moduleNames}
+        hexSnippets={hexSnippets}
+        stepActions={stepActions}
+        onClose={()=>setWizardOpen(false)}
+        onAction={handleAction}
+        sessionKey="security-tab"
+      />;
+    })()}
   </div>;
 }
 
