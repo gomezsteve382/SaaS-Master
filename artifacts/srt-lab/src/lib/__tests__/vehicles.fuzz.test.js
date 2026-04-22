@@ -853,3 +853,28 @@ describe('generationForPartNumber — console.warn fires for non-string inputs',
     });
   }
 });
+
+describe('generationForPartNumber — console.warn fires for bad vinYearChar', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const BAD_VIN_YEAR_CHAR_CASES = [
+    { vinYearChar: 0, label: 'numeric 0' },
+    { vinYearChar: 75, label: 'numeric 75' },
+    { vinYearChar: false, label: 'boolean false' },
+    { vinYearChar: [], label: 'empty array' },
+    { vinYearChar: 'KK', label: "multi-char string 'KK'" },
+  ];
+
+  for (const { vinYearChar, label } of BAD_VIN_YEAR_CHAR_CASES) {
+    it(`warns when vinYearChar is ${label}`, () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      generationForPartNumber('charger', '68525720', vinYearChar);
+      const matched = spy.mock.calls.some(args =>
+        typeof args[0] === 'string' && args[0].includes('vinYearChar')
+      );
+      expect(matched, `expected a console.warn mentioning vinYearChar for ${label}`).toBe(true);
+    });
+  }
+});

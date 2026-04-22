@@ -86,6 +86,9 @@ export function generationForPartNumber(vehicleId,pn,vinYearChar){
   if(typeof pn!=='string'){
     console.warn('[vehicles] generationForPartNumber: expected a string pn, got '+typeof pn,pn);
   }
+  if(vinYearChar!==null&&vinYearChar!==undefined&&(typeof vinYearChar!=='string'||vinYearChar.length!==1)){
+    console.warn('[vehicles] generationForPartNumber: expected a single-character string vinYearChar, got '+typeof vinYearChar,vinYearChar);
+  }
   const v=VEHICLES[vehicleId];if(!v)return null;
   if(AMBIGUOUS_REDEYE_PNS.includes(pn)){
     const isGen2=vinYearChar&&GEN2_YEAR_CHARS.has(String(vinYearChar).toUpperCase());
