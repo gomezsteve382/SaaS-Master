@@ -234,12 +234,20 @@ lines.push('Shared secret (BE):   ' + SHARED_SECRET_HEX);
 lines.push('Generated:            ' + new Date().toISOString());
 lines.push('');
 lines.push('-- BCM ' + outBcm);
+lines.push('   type:        ' + (bcmInfoAfter.type || 'BCM'));
 lines.push('   src SHA-256: ' + bcmSrcSha);
 lines.push('   out SHA-256: ' + bcmOutSha);
-lines.push('   Full VIN slots (BEFORE → AFTER):');
+lines.push('   Full VIN slots (BEFORE → AFTER, with stored vs calc CRC16):');
 for (let i = 0; i < bcmInfoBefore.vins.length; i++) {
   const b = bcmInfoBefore.vins[i], a = bcmInfoAfter.vins[i];
-  lines.push('     ' + fO(a.offset) + '  ' + b.vin + ' → ' + a.vin);
+  const slot = bcmPatched.slice(a.offset, a.offset + 17);
+  const crcStored = (bcmPatched[a.offset + 17] << 8) | bcmPatched[a.offset + 18];
+  const crcCalc = crc16(slot);
+  const ok = crcStored === crcCalc;
+  lines.push('     ' + fO(a.offset) + '  ' + b.vin + ' → ' + a.vin
+    + '  (CRC stored=0x' + crcStored.toString(16).padStart(4, '0').toUpperCase()
+    + ' calc=0x'        + crcCalc.toString(16).padStart(4, '0').toUpperCase()
+    + ' ok=' + ok + ')');
 }
 lines.push('   Partial VIN tails (BEFORE → AFTER):');
 for (let i = 0; i < bcmInfoBefore.partialVins.length; i++) {
