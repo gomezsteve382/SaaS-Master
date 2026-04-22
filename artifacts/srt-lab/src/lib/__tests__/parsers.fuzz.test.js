@@ -188,7 +188,7 @@ describe('extractVIN — never throws, returns string or null', () => {
 
 // ── extractHex ────────────────────────────────────────────────────────────────
 
-describe('extractHex — never throws, always returns a string', () => {
+describe('extractHex — never throws, returns string | null', () => {
   const rng = makeRng(0x12345678);
 
   it('handles empty buffer', () => {
@@ -205,7 +205,12 @@ describe('extractHex — never throws, always returns a string', () => {
       const len = rng.nextInt(0, 32);
       let r;
       expect(() => { r = extractHex(buf, off, len); }).not.toThrow();
-      expect(typeof r).toBe('string');
+      const outOfBounds = off + len > buf.length;
+      if (outOfBounds) {
+        expect(r).toBeNull();
+      } else {
+        expect(typeof r).toBe('string');
+      }
     }
   });
 });

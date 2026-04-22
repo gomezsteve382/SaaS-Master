@@ -7,7 +7,7 @@ function countSkimRecs(d,base){let c=0;for(let i=0;i<IMMO_KC;i++){const o=base+i
 function syncImmoBackup(d){if(d.length<0x40C0+IMMO_BLOCK||d.length<0x2000+IMMO_BLOCK)return null;const o=new Uint8Array(d);for(let i=0;i<IMMO_BLOCK;i++)o[0x2000+i]=o[0x40C0+i];return o;}
 
 function extractVIN(data,offset,len){if(!len)len=17;if(offset+len>data.length)return null;const bytes=data.slice(offset,offset+len);for(let i=0;i<bytes.length;i++){if(bytes[i]<0x30||bytes[i]>0x5a)return null;}return String.fromCharCode.apply(null,bytes);}
-function extractHex(data,offset,len){const r=[];for(let i=0;i<len;i++){const b=data[offset+i];r.push((b===undefined?0:b).toString(16).padStart(2,"0").toUpperCase());}return r.join(" ");}
+function extractHex(data,offset,len){if(offset+len>data.length)return null;const r=[];for(let i=0;i<len;i++){r.push(data[offset+i].toString(16).padStart(2,"0").toUpperCase());}return r.join(" ");}
 function arrEq(a,b){if(a.length!==b.length)return false;for(let i=0;i<a.length;i++)if(a[i]!==b[i])return false;return true;}
 function rd32(data,o){return(data[o]<<24)|(data[o+1]<<16)|(data[o+2]<<8)|data[o+3];}
 function countAA50(d,s,n){let c=0;for(let i=0;i<n;i++)if(d[s+i*2]===0xaa&&d[s+i*2+1]===0x50)c++;return c;}
@@ -60,19 +60,19 @@ function parseModule(data,filename){
     info.vins=[{offset:0x0000,vin:extractVIN(data,0x0000)},{offset:0x01f0,vin:extractVIN(data,0x01f0)},{offset:0x0224,vin:extractVIN(data,0x0224)}].filter(v=>v.vin);
     info.skimByte=data[0x0011];
     info.skimStatus=SKIM_VALUES[data[0x0011]]||"UNKNOWN (0x"+data[0x0011].toString(16).toUpperCase()+")";
-    info.secretKey={offset:0x0203,bytes:data.slice(0x0203,0x020b),hex:extractHex(data,0x0203,8)};
-    info.secretKeyMirror={offset:0x0361,bytes:data.slice(0x0361,0x0369),hex:extractHex(data,0x0361,8)};
-    info.keyConsistent=arrEq(data.slice(0x0203,0x020b),data.slice(0x0361,0x0369));
-    info.skey=data.slice(0x0203,0x020b);info.skoff=0x0203;info.skmoff=0x0361;info.skb=info.skey.every(b=>b===0xFF);
+    info.secretKey=sz>=0x020b?{offset:0x0203,bytes:data.slice(0x0203,0x020b),hex:extractHex(data,0x0203,8)}:null;
+    info.secretKeyMirror=sz>=0x0369?{offset:0x0361,bytes:data.slice(0x0361,0x0369),hex:extractHex(data,0x0361,8)}:null;
+    info.keyConsistent=sz>=0x0369?arrEq(data.slice(0x0203,0x020b),data.slice(0x0361,0x0369)):null;
+    info.skey=sz>=0x020b?data.slice(0x0203,0x020b):new Uint8Array(0);info.skoff=0x0203;info.skmoff=0x0361;info.skb=info.skey.every(b=>b===0xFF);
     info.transponderKeys=[];
-    for(let i=0;i<4;i++){const o=0x0888+i*4;info.transponderKeys.push({offset:o,hex:extractHex(data,o,4)});}
-    info.zzzzTamper={offset:0x0c8c,hex:extractHex(data,0x0c8c,8),intact:data[0x0c8c]===0x5a};
-    info.partNumberStr=extractVIN(data,0x0fa1,13)||extractHex(data,0x0fa1,13);
+    for(let i=0;i<4;i++){const o=0x0888+i*4;info.transponderKeys.push({offset:o,hex:o+4<=sz?extractHex(data,o,4):null});}
+    info.zzzzTamper=sz>=0x0c94?{offset:0x0c8c,hex:extractHex(data,0x0c8c,8),intact:data[0x0c8c]===0x5a}:null;
+    info.partNumberStr=sz>=0x0fae?(extractVIN(data,0x0fa1,13)||extractHex(data,0x0fa1,13)):null;
     info.runtimeCounters={
-      counterA:{offset:0x0e61,value:rd32(data,0x0e61),hex:extractHex(data,0x0e61,4)},
-      counterB:{offset:0x0e69,value:rd32(data,0x0e69),hex:extractHex(data,0x0e69,4)},
-      distance:{offset:0x0e6d,value:rd32(data,0x0e6d),hex:extractHex(data,0x0e6d,4)},
-      keyCycles:{offset:0x0e75,value:rd32(data,0x0e75),hex:extractHex(data,0x0e75,4)},
+      counterA:sz>=0x0e65?{offset:0x0e61,value:rd32(data,0x0e61),hex:extractHex(data,0x0e61,4)}:null,
+      counterB:sz>=0x0e6d?{offset:0x0e69,value:rd32(data,0x0e69),hex:extractHex(data,0x0e69,4)}:null,
+      distance:sz>=0x0e71?{offset:0x0e6d,value:rd32(data,0x0e6d),hex:extractHex(data,0x0e6d,4)}:null,
+      keyCycles:sz>=0x0e79?{offset:0x0e75,value:rd32(data,0x0e75),hex:extractHex(data,0x0e75,4)}:null,
     };
     if(sz>0x3CE){
       const s6=data.slice(0x3C8,0x3CE);

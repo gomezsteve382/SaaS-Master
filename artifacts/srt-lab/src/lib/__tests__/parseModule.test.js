@@ -5,6 +5,7 @@ import {
   countSkimRecs,
   detectBySignature,
   extractVIN,
+  extractHex,
 } from '../parseModule.js';
 import { IMMO_BLOCK, IMMO_REC } from '../constants.js';
 import { crc8rf, rfhSec16Cs } from '../crc.js';
@@ -260,6 +261,156 @@ describe('95640 parser', () => {
   it('reports skey ERASED when blank', () => {
     const blank = parseModule(make95640({ skeyBlank: true }), '95640.bin');
     expect(blank.skb).toBe(true);
+  });
+});
+
+describe('extractHex — null-return bounds guard', () => {
+  it('returns a hex string when offset+len is within the buffer', () => {
+    const buf = new Uint8Array([0xDE, 0xAD, 0xBE, 0xEF]);
+    expect(extractHex(buf, 0, 4)).toBe('DE AD BE EF');
+  });
+  it('returns null when offset+len equals buffer length (boundary)', () => {
+    const buf = new Uint8Array(4);
+    expect(extractHex(buf, 0, 4)).toBe('00 00 00 00');
+    expect(extractHex(buf, 1, 4)).toBeNull();
+  });
+  it('returns null when offset+len exceeds buffer length', () => {
+    const buf = new Uint8Array(3);
+    expect(extractHex(buf, 0, 4)).toBeNull();
+  });
+
+  // GPEC2A region: secretKey @ 0x0203, len 8 → needs 0x020B bytes
+  it('returns null for GPEC2A secretKey region when buffer < 0x020B', () => {
+    const buf = new Uint8Array(0x020a);
+    expect(extractHex(buf, 0x0203, 8)).toBeNull();
+  });
+  it('returns hex for GPEC2A secretKey region when buffer >= 0x020B', () => {
+    const buf = new Uint8Array(0x020b);
+    expect(extractHex(buf, 0x0203, 8)).not.toBeNull();
+  });
+
+  // GPEC2A region: secretKeyMirror @ 0x0361, len 8 → needs 0x0369 bytes
+  it('returns null for GPEC2A secretKeyMirror region when buffer < 0x0369', () => {
+    const buf = new Uint8Array(0x0368);
+    expect(extractHex(buf, 0x0361, 8)).toBeNull();
+  });
+  it('returns hex for GPEC2A secretKeyMirror region when buffer >= 0x0369', () => {
+    const buf = new Uint8Array(0x0369);
+    expect(extractHex(buf, 0x0361, 8)).not.toBeNull();
+  });
+
+  // GPEC2A region: transponder key slot 0 @ 0x0888, len 4 → needs 0x088C bytes
+  it('returns null for GPEC2A transponderKey[0] when buffer < 0x088C', () => {
+    const buf = new Uint8Array(0x0888);
+    expect(extractHex(buf, 0x0888, 4)).toBeNull();
+  });
+  it('returns hex for GPEC2A transponderKey[0] when buffer >= 0x088C', () => {
+    const buf = new Uint8Array(0x088c);
+    expect(extractHex(buf, 0x0888, 4)).not.toBeNull();
+  });
+
+  // GPEC2A region: transponder key slot 3 @ 0x0894, len 4 → needs 0x0898 bytes
+  it('returns null for GPEC2A transponderKey[3] when buffer < 0x0898', () => {
+    const buf = new Uint8Array(0x0897);
+    expect(extractHex(buf, 0x0894, 4)).toBeNull();
+  });
+  it('returns hex for GPEC2A transponderKey[3] when buffer >= 0x0898', () => {
+    const buf = new Uint8Array(0x0898);
+    expect(extractHex(buf, 0x0894, 4)).not.toBeNull();
+  });
+
+  // GPEC2A region: zzzzTamper @ 0x0C8C, len 8 → needs 0x0C94 bytes
+  it('returns null for GPEC2A zzzzTamper region when buffer < 0x0C94', () => {
+    const buf = new Uint8Array(0x0c93);
+    expect(extractHex(buf, 0x0c8c, 8)).toBeNull();
+  });
+  it('returns hex for GPEC2A zzzzTamper region when buffer >= 0x0C94', () => {
+    const buf = new Uint8Array(0x0c94);
+    expect(extractHex(buf, 0x0c8c, 8)).not.toBeNull();
+  });
+
+  // GPEC2A region: runtimeCounter counterA @ 0x0E61, len 4 → needs 0x0E65 bytes
+  it('returns null for GPEC2A counterA region when buffer < 0x0E65', () => {
+    const buf = new Uint8Array(0x0e64);
+    expect(extractHex(buf, 0x0e61, 4)).toBeNull();
+  });
+  it('returns hex for GPEC2A counterA region when buffer >= 0x0E65', () => {
+    const buf = new Uint8Array(0x0e65);
+    expect(extractHex(buf, 0x0e61, 4)).not.toBeNull();
+  });
+
+  // GPEC2A region: runtimeCounter counterB @ 0x0E69, len 4 → needs 0x0E6D bytes
+  it('returns null for GPEC2A counterB region when buffer < 0x0E6D', () => {
+    const buf = new Uint8Array(0x0e6c);
+    expect(extractHex(buf, 0x0e69, 4)).toBeNull();
+  });
+  it('returns hex for GPEC2A counterB region when buffer >= 0x0E6D', () => {
+    const buf = new Uint8Array(0x0e6d);
+    expect(extractHex(buf, 0x0e69, 4)).not.toBeNull();
+  });
+
+  // GPEC2A region: runtimeCounter distance @ 0x0E6D, len 4 → needs 0x0E71 bytes
+  it('returns null for GPEC2A distance region when buffer < 0x0E71', () => {
+    const buf = new Uint8Array(0x0e70);
+    expect(extractHex(buf, 0x0e6d, 4)).toBeNull();
+  });
+  it('returns hex for GPEC2A distance region when buffer >= 0x0E71', () => {
+    const buf = new Uint8Array(0x0e71);
+    expect(extractHex(buf, 0x0e6d, 4)).not.toBeNull();
+  });
+
+  // GPEC2A region: runtimeCounter keyCycles @ 0x0E75, len 4 → needs 0x0E79 bytes
+  it('returns null for GPEC2A keyCycles region when buffer < 0x0E79', () => {
+    const buf = new Uint8Array(0x0e78);
+    expect(extractHex(buf, 0x0e75, 4)).toBeNull();
+  });
+  it('returns hex for GPEC2A keyCycles region when buffer >= 0x0E79', () => {
+    const buf = new Uint8Array(0x0e79);
+    expect(extractHex(buf, 0x0e75, 4)).not.toBeNull();
+  });
+
+  // GPEC2A region: transponder key slot 1 @ 0x088C, len 4 → needs 0x0890 bytes
+  it('returns null for GPEC2A transponderKey[1] when buffer < 0x0890', () => {
+    const buf = new Uint8Array(0x088f);
+    expect(extractHex(buf, 0x088c, 4)).toBeNull();
+  });
+  it('returns hex for GPEC2A transponderKey[1] when buffer >= 0x0890', () => {
+    const buf = new Uint8Array(0x0890);
+    expect(extractHex(buf, 0x088c, 4)).not.toBeNull();
+  });
+
+  // GPEC2A region: transponder key slot 2 @ 0x0890, len 4 → needs 0x0894 bytes
+  it('returns null for GPEC2A transponderKey[2] when buffer < 0x0894', () => {
+    const buf = new Uint8Array(0x0893);
+    expect(extractHex(buf, 0x0890, 4)).toBeNull();
+  });
+  it('returns hex for GPEC2A transponderKey[2] when buffer >= 0x0894', () => {
+    const buf = new Uint8Array(0x0894);
+    expect(extractHex(buf, 0x0890, 4)).not.toBeNull();
+  });
+
+  // GPEC2A region: partNumberStr @ 0x0FA1, len 13 → needs 0x0FAE bytes
+  it('returns null for GPEC2A partNumberStr region when buffer < 0x0FAE', () => {
+    const buf = new Uint8Array(0x0fad);
+    expect(extractHex(buf, 0x0fa1, 13)).toBeNull();
+  });
+  it('returns hex for GPEC2A partNumberStr region when buffer >= 0x0FAE', () => {
+    const buf = new Uint8Array(0x0fae);
+    expect(extractHex(buf, 0x0fa1, 13)).not.toBeNull();
+  });
+
+  // GPEC2A full-size: all guarded fields must be non-null for a 4096-byte buffer
+  it('all GPEC2A guarded fields are non-null for a full 4096-byte buffer', () => {
+    const m = parseModule(makeGpec2a(), 'gpec.bin');
+    expect(m.secretKey).not.toBeNull();
+    expect(m.secretKeyMirror).not.toBeNull();
+    expect(m.zzzzTamper).not.toBeNull();
+    expect(m.partNumberStr).not.toBeNull();
+    expect(m.runtimeCounters.counterA).not.toBeNull();
+    expect(m.runtimeCounters.counterB).not.toBeNull();
+    expect(m.runtimeCounters.distance).not.toBeNull();
+    expect(m.runtimeCounters.keyCycles).not.toBeNull();
+    m.transponderKeys.forEach(k => expect(k.hex).not.toBeNull());
   });
 });
 
