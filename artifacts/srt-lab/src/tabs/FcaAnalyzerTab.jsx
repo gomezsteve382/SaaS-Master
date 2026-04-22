@@ -7,6 +7,7 @@ import {crossValidate} from "../lib/crossValidate.js";
 import {checkVin,parseVinYear,vinHasSGW} from "../lib/vin.js";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
+import MismatchWizard from "../components/MismatchWizard.jsx";
 
 const downloadBin=(data,name)=>{
   const a=document.createElement('a');
@@ -50,6 +51,7 @@ export default function FcaAnalyzerTab(){
   const mods=useMemo(()=>loadedDumps.map(d=>d.mod),[loadedDumps]);
   const [sel,setSel]=useState(0);
   const [msg,setMsg]=useState('');
+  const [wizardOpen,setWizardOpen]=useState(false);
 
   const loadFiles=useCallback(fl=>{
     Promise.all(Array.from(fl).map(f=>new Promise(r=>{
@@ -148,7 +150,22 @@ export default function FcaAnalyzerTab(){
     </Card>}
 
     {cv&&<Card style={{marginBottom:14,padding:16}}>
-      <div style={{fontWeight:800,fontSize:11,color:C.sr,marginBottom:10,letterSpacing:1.5}}>📋 CROSS-MODULE AUDIT</div>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+        <div style={{fontWeight:800,fontSize:11,color:C.sr,letterSpacing:1.5,flex:1}}>📋 CROSS-MODULE AUDIT</div>
+        {(cv.issues.length>0||cv.warnings.length>0)&&(
+          <button
+            data-testid="fca-open-wizard-btn"
+            onClick={()=>setWizardOpen(true)}
+            style={{
+              background:'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+              border:'none',borderRadius:8,padding:'5px 12px',
+              color:'#fff',fontWeight:900,fontSize:11,cursor:'pointer',
+              letterSpacing:0.5,fontFamily:"'Nunito'",whiteSpace:'nowrap',
+            }}>
+            🔧 Fix with Wizard →
+          </button>
+        )}
+      </div>
       {cv.issues.map((m,i)=><SLine key={'i'+i} type="error" msg={m}/>)}
       {cv.warnings.map((m,i)=><SLine key={'w'+i} type="warn" msg={m}/>)}
       {cv.passed.map((m,i)=><SLine key={'p'+i} type="pass" msg={m}/>)}
@@ -176,5 +193,17 @@ export default function FcaAnalyzerTab(){
 
     {msg&&<div style={{padding:'10px 14px',borderRadius:10,background:C.gn+'14',border:'1px solid '+C.gn+'33',fontSize:12,fontWeight:700,color:C.gn,marginTop:12}}>✓ {msg}</div>}
     {mods.length===0&&<div style={{textAlign:'center',padding:30,color:C.tm,fontSize:12}}>Load one or more module dumps to begin the audit.</div>}
+
+    {wizardOpen&&cv&&(
+      <MismatchWizard
+        issues={cv.issues}
+        warnings={cv.warnings}
+        modules={mods.map(m=>m.type)}
+        hexSnippets={[]}
+        onClose={()=>setWizardOpen(false)}
+        onAction={()=>setWizardOpen(false)}
+        stepActions={[]}
+      />
+    )}
   </div>;
 }

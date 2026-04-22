@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
+import MismatchWizard from "../components/MismatchWizard.jsx";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -891,6 +892,7 @@ export default function ModuleSync() {
   const [logLines,  setLogLines]  = useState([]);
   const [diffRows,  setDiffRows]  = useState([]);
   const [originals, setOriginals] = useState({ bcm: null, rfh: null, pcm: null });
+  const [wizardOpen, setWizardOpen] = useState(false);
   const logRef = useRef(null);
 
   const log = useCallback((msg, level = 'info') => {
@@ -962,6 +964,38 @@ export default function ModuleSync() {
   const rfhHasSec16      = !!(rfh.parsed?.sec16 && !rfh.parsed.sec16.virgin);
   const sec16SyncOk      = bcmHasSec16 && rfhHasSec16;
   const bcmToRfhSec16Ok  = bcmHasSec16 && rfh.parsed?.format?.startsWith('gen2');
+
+  /* Wizard issue/warning arrays derived from loaded module state */
+  const wizardIssues = [];
+  const wizardWarnings = [];
+  if (bothReady && !vinMatch)
+    wizardIssues.push(`VIN MISMATCH: BCM=${bcm.parsed.vin} vs RFHUB=${rfh.parsed.vin}`);
+  if (bothReady && rfhHasSec16 && bcmHasSec16) {
+    const rfhHex = bytesToHex(rfh.parsed.sec16.slot1).toUpperCase();
+    const bcmHex = bcm.parsed.sec16Hex?.toUpperCase();
+    const bcmRev = bcmHex ? [...Array(bcmHex.length / 2)].map((_,i) => bcmHex.slice(bcmHex.length - 2 - i*2, bcmHex.length - i*2)).join('') : null;
+    if (bcmRev && rfhHex !== bcmRev)
+      wizardIssues.push(`RFHUB ↔ BCM vehicle secret: MISMATCH! RFHUB SEC16 ≠ reverse(BCM SEC16)`);
+  }
+  if (rfh.parsed?.sec16 && !rfh.parsed.sec16.match && !rfh.parsed.sec16.virgin)
+    wizardWarnings.push(`RFHUB SEC16: Slot 1/2 MISMATCH or unreadable`);
+  if (rfh.parsed?.sec16?.virgin)
+    wizardWarnings.push(`RFHUB SEC16: BLANK (all FF/00) — virgin module`);
+  const wizardModules = [bcm.bytes && 'BCM', rfh.bytes && 'RFHUB', pcm.bytes && 'PCM'].filter(Boolean);
+  const wizardHexSnippets = [];
+  if (rfh.parsed?.sec16?.slot1)
+    wizardHexSnippets.push('RFHUB SEC16: ' + bytesToHex(rfh.parsed.sec16.slot1).toUpperCase());
+  if (bcm.parsed?.sec16Hex)
+    wizardHexSnippets.push('BCM SEC16: ' + bcm.parsed.sec16Hex.toUpperCase());
+
+  /* Step actions available in wizard matching doSync() actions */
+  const wizardStepActions = [
+    { id: 'full-sync',        label: '⚡ Full 3-Module Sync',    enabled: bothReady, description: 'VIN + SEC16 + SEC6 across all modules' },
+    { id: 'sec16-only',       label: '🔐 SEC16 Sync Only',       enabled: sec16SyncOk, description: 'RFHUB SEC16 → BCM + PCM SEC6' },
+    { id: 'bcm-sec16-to-rfh', label: '🔄 BCM SEC16 → RFHUB',    enabled: bcmToRfhSec16Ok, description: 'Use BCM as master, write to RFHUB Gen2 slots' },
+    { id: 'rfh-to-bcm',       label: '← RFHUB VIN → BCM',       enabled: bothReady, description: 'Stamp BCM with RFHUB VIN' },
+    { id: 'bcm-to-rfh',       label: '→ BCM VIN → RFHUB',       enabled: bothReady, description: 'Stamp RFHUB with BCM VIN' },
+  ];
 
   const doSync = (action) => {
     const ts  = timestamp();
@@ -1257,15 +1291,55 @@ export default function ModuleSync() {
           {bothReady && (
             <div style={{
               padding: '14px 18px', borderRadius: 12, marginBottom: 14,
-              fontWeight: 800, fontSize: 13, letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 10,
+              fontWeight: 800, fontSize: 13, letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
               background: vinMatch ? 'rgba(0,200,83,0.1)' : 'rgba(255,23,68,0.08)',
               color: vinMatch ? '#0a7a3b' : '#a00025',
               border: `1.5px solid ${vinMatch ? 'rgba(0,200,83,0.3)' : 'rgba(255,23,68,0.25)'}`,
             }}>
-              {vinMatch ? '✓ VIN MATCH' : '✗ VIN MISMATCH'} —{' '}
-              {vinMatch
-                ? <>BCM and RFHUB both carry <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{bcm.parsed.vin}</strong> · modules already paired</>
-                : <>BCM: <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{bcm.parsed.vin}</strong> · RFHUB: <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{rfh.parsed.vin}</strong> · sync required</>}
+              <span style={{ flex: 1 }}>
+                {vinMatch ? '✓ VIN MATCH' : '✗ VIN MISMATCH'} —{' '}
+                {vinMatch
+                  ? <>BCM and RFHUB both carry <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{bcm.parsed.vin}</strong> · modules already paired</>
+                  : <>BCM: <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{bcm.parsed.vin}</strong> · RFHUB: <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{rfh.parsed.vin}</strong> · sync required</>}
+              </span>
+              {(wizardIssues.length > 0 || wizardWarnings.length > 0) && (
+                <button
+                  data-testid="open-wizard-btn"
+                  onClick={() => setWizardOpen(true)}
+                  style={{
+                    background: 'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+                    border: 'none', borderRadius: 8, padding: '6px 14px',
+                    color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
+                    letterSpacing: 0.5, fontFamily: "'Nunito'",
+                    flexShrink: 0, whiteSpace: 'nowrap',
+                  }}>
+                  🔧 Fix with Wizard →
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Standalone wizard trigger when no VIN mismatch but SEC16 issues */}
+          {bothReady && vinMatch && (wizardIssues.length > 0 || wizardWarnings.length > 0) && (
+            <div style={{
+              padding: '10px 16px', borderRadius: 10, marginBottom: 14,
+              background: 'rgba(255,179,0,0.08)', border: '1.5px solid rgba(255,179,0,0.3)',
+              display: 'flex', alignItems: 'center', gap: 10,
+            }}>
+              <span style={{ fontSize: 12, color: '#7a4a00', flex: 1 }}>
+                ⚠ Security token issues detected — use the wizard for guided resolution.
+              </span>
+              <button
+                data-testid="open-wizard-btn-sec16"
+                onClick={() => setWizardOpen(true)}
+                style={{
+                  background: 'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+                  border: 'none', borderRadius: 8, padding: '6px 14px',
+                  color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
+                  letterSpacing: 0.5, fontFamily: "'Nunito'",
+                }}>
+                🔧 Fix with Wizard →
+              </button>
             </div>
           )}
 
@@ -1456,6 +1530,22 @@ export default function ModuleSync() {
           </div>
           <VinDiffTable rows={diffRows} />
         </Card>
+      )}
+
+      {/* ── Mismatch Resolution Wizard modal ── */}
+      {wizardOpen && (
+        <MismatchWizard
+          issues={wizardIssues}
+          warnings={wizardWarnings}
+          modules={wizardModules}
+          hexSnippets={wizardHexSnippets}
+          onClose={() => setWizardOpen(false)}
+          onAction={(actionId) => {
+            setWizardOpen(false);
+            doSync(actionId === 'full-sync' ? 'sync-all' : actionId);
+          }}
+          stepActions={wizardStepActions}
+        />
       )}
     </div>
   );

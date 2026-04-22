@@ -14,3 +14,53 @@ export interface DownloadCount {
   /** @minimum 0 */
   count: number;
 }
+
+export interface AnthropicConversation {
+  id: number;
+  title: string;
+  createdAt: string;
+}
+
+export interface AnthropicMessage {
+  id: number;
+  conversationId: number;
+  role: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface CreateAnthropicConversationBody {
+  title: string;
+}
+
+export interface SendAnthropicMessageBody {
+  content: string;
+}
+
+export interface AnthropicConversationWithMessages {
+  id: number;
+  title: string;
+  createdAt: string;
+  messages: AnthropicMessage[];
+}
+
+export interface AnthropicError {
+  error: string;
+}
+
+export type ModuleAssistantChatBodyMessagesItem = {
+  role: string;
+  content: string;
+};
+
+export type ModuleAssistantChatBodyModuleContext = {
+  modules: string[];
+  issues: string[];
+  warnings: string[];
+  hexSnippets?: string[];
+};
+
+export interface ModuleAssistantChatBody {
+  messages: ModuleAssistantChatBodyMessagesItem[];
+  moduleContext: ModuleAssistantChatBodyModuleContext;
+}

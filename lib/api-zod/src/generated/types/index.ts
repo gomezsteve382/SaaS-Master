@@ -6,5 +6,14 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./anthropicConversation";
+export * from "./anthropicConversationWithMessages";
+export * from "./anthropicError";
+export * from "./anthropicMessage";
+export * from "./createAnthropicConversationBody";
 export * from "./downloadCount";
 export * from "./healthStatus";
+export * from "./moduleAssistantChatBody";
+export * from "./moduleAssistantChatBodyMessagesItem";
+export * from "./moduleAssistantChatBodyModuleContext";
+export * from "./sendAnthropicMessageBody";
