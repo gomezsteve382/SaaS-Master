@@ -1516,6 +1516,22 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
     if(blockers.length>0){setErr('One or more uploads are not compatible with '+vehicle.name);return;}
     if(!bcm){setErr('Upload a BCM dump to continue');return;}
 
+    // Warn if the sync mixes registry-checked uploads with P/N override uploads
+    const loadedForSync = [bcm, rfh, pcm].filter(Boolean);
+    const overrideMods  = loadedForSync.filter(f=>f.pnOverride).map(f=>f.type||'file');
+    const checkedMods   = loadedForSync.filter(f=>!f.pnOverride).map(f=>f.type||'file');
+    if(overrideMods.length>0 && checkedMods.length>0){
+      const ok = typeof window!=='undefined' && typeof window.confirm==='function'
+        ? window.confirm(
+            'Mixed sync warning\n\n'+
+            'P/N OVERRIDE (registry bypass): '+overrideMods.join(', ')+'\n'+
+            'Registry-checked: '+checkedMods.join(', ')+'\n\n'+
+            'Mixing override and registry-verified files can produce inconsistent results. Continue anyway?'
+          )
+        : true;
+      if(!ok){ setMsg('Sync cancelled — mixed override/registry uploads.'); return; }
+    }
+
     try {
       const log=[];
       let currentBcm = bcm.data;

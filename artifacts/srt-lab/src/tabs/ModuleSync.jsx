@@ -30,6 +30,37 @@ const C = {
 };
 
 const VIN_RE   = /^[12345][A-HJ-NPR-Z0-9]{16}$/;
+
+/* Per-action map of which modules a given Module Sync action actually
+ * reads or writes. Used by computeMixedSyncParticipants() so the
+ * mixed-override warning only fires when the modules the action
+ * touches really mix registry-checked and override files.
+ * 95640/EEP is intentionally excluded: the Dumps tab does not expose
+ * a P/N override flag for it. */
+export const MODSYNC_ACTION_PARTICIPANTS = {
+  'rfh-to-bcm':            ['BCM', 'RFHUB'],
+  'bcm-to-rfh':            ['BCM', 'RFHUB'],
+  'target-both':           ['BCM', 'RFHUB'],
+  'bcm-sec16-to-rfh':      ['BCM', 'RFHUB'],
+  'sec16-only':            ['BCM', 'RFHUB', 'PCM'],
+  'sync-all':              ['BCM', 'RFHUB', 'PCM'],
+  'full-sync':             ['BCM', 'RFHUB', 'PCM'],
+  'rekey-95640-from-rfh':  ['RFHUB'],
+};
+
+/* Returns the names of currently-loaded participating modules split into
+ * `overrideNames` (P/N override active) and `checkedNames` (registry-
+ * checked / no override). Caller decides whether to prompt based on
+ * whether both lists are non-empty. */
+export function computeMixedSyncParticipants(action, slots) {
+  const order = MODSYNC_ACTION_PARTICIPANTS[action] || ['BCM', 'RFHUB', 'PCM'];
+  const participants = order.filter(name => slots[name]?.loaded);
+  return {
+    participants,
+    overrideNames: participants.filter(n => slots[n].override),
+    checkedNames:  participants.filter(n => !slots[n].override),
+  };
+}
 const BCM_SLOT_TYPES = [0x46, 0x52, 0x53, 0x56, 0x57];
 const RFH_VIN_OFFSETS = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
 const VIN_LEN  = 17;
@@ -1177,7 +1208,6 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
      * When present, it replaces the auto-picked VIN for actions that stamp
      * a VIN: rfh-to-bcm, bcm-to-rfh, sync-all (and target-both). */
     const ov = (typeof overrideVin === 'string' && VIN_RE.test(overrideVin)) ? overrideVin : null;
-    log(`=== SYNC: ${action}${virginize ? ' +VIRGINIZE' : ''}${ov ? ` (custom VIN ${ov})` : ''} ===`, 'info');
     /* Surface any P/N overrides on the loaded modules so the result log makes
      * it obvious which files bypassed the registry compatibility check. */
     const overridden = [
@@ -1185,6 +1215,30 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
       rfh.pnOverride && 'RFHUB',
       pcm.pnOverride && 'PCM',
     ].filter(Boolean);
+    /* If the sync mixes registry-checked and override files, prompt the
+     * operator before continuing. Only modules that the *current action*
+     * actually reads or writes are counted — a loaded-but-unused module
+     * shouldn't trigger a false-positive warning. */
+    const { overrideNames, checkedNames } = computeMixedSyncParticipants(action, {
+      BCM:   { loaded: !!bcm.bytes, override: !!bcm.pnOverride },
+      RFHUB: { loaded: !!rfh.bytes, override: !!rfh.pnOverride },
+      PCM:   { loaded: !!pcm.bytes, override: !!pcm.pnOverride },
+    });
+    if (overrideNames.length > 0 && checkedNames.length > 0) {
+      const ok = typeof window !== 'undefined' && typeof window.confirm === 'function'
+        ? window.confirm(
+            'Mixed sync warning\n\n'
+            + 'P/N OVERRIDE (registry bypass): ' + overrideNames.join(', ') + '\n'
+            + 'Registry-checked: ' + checkedNames.join(', ') + '\n\n'
+            + 'Mixing override and registry-verified files can produce inconsistent results. Continue anyway?'
+          )
+        : true;
+      if (!ok) {
+        log(`=== SYNC CANCELLED (${action}): mixed override/registry uploads ===`, 'warn');
+        return;
+      }
+    }
+    log(`=== SYNC: ${action}${virginize ? ' +VIRGINIZE' : ''}${ov ? ` (custom VIN ${ov})` : ''} ===`, 'info');
     if (overridden.length > 0) {
       log(`⚠ P/N OVERRIDE in effect for: ${overridden.join(', ')} — registry check was bypassed on the Dumps tab`, 'warn');
     }
