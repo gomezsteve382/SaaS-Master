@@ -66,6 +66,7 @@ export function vehiclesForPartNumber(pn){
 export function analyzeDumpPartNumber(bytes){
   if(!(bytes instanceof ArrayBuffer)&&!ArrayBuffer.isView(bytes)){
     console.warn('[vehicles] analyzeDumpPartNumber: expected a BufferSource (ArrayBuffer or TypedArray), got '+typeof bytes,bytes);
+    return{partNumbers:[],primaryPn:null,compatibleVehicles:[],vinModelYearChar:null};
   }
   const text=new TextDecoder('latin1').decode(bytes);
   const matches=[...text.matchAll(/68\d{6}/g)];

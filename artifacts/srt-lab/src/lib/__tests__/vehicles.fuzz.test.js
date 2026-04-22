@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { analyzeDumpPartNumber, generationForPartNumber, vehiclesForPartNumber, readVinFromDump, KNOWN_BCM_PN, VEHICLES } from '../vehicles.js';
 
 const VEHICLE_IDS = Object.keys(VEHICLES);
@@ -301,6 +301,56 @@ describe('analyzeDumpPartNumber — property-based fuzz (seed=0xcafebabe, 500 sa
       assertStructurallyValid(result, label);
     }
   });
+});
+
+// ── analyzeDumpPartNumber — bad-input guard ───────────────────────────────────
+// These cases pass non-BufferSource values to confirm that:
+//   1. console.warn is called (the guard fires)
+//   2. the function does NOT throw
+//   3. the returned object is structurally valid (safe empty result)
+
+const BAD_INPUT_CASES = [
+  { label: 'null',          value: null },
+  { label: 'undefined',     value: undefined },
+  { label: 'plain string',  value: 'hello world' },
+  { label: 'empty string',  value: '' },
+  { label: 'number',        value: 42 },
+  { label: 'zero',          value: 0 },
+  { label: 'plain object',  value: { data: [1, 2, 3] } },
+  { label: 'boolean true',  value: true },
+  { label: 'boolean false', value: false },
+  { label: 'array',         value: [0x68, 0x38] },
+];
+
+describe('analyzeDumpPartNumber — bad-input guard (non-BufferSource)', () => {
+  let warnSpy;
+
+  beforeEach(() => {
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  for (const { label, value } of BAD_INPUT_CASES) {
+    it(`warns and returns a valid object for: ${label}`, () => {
+      let result;
+      expect(
+        () => { result = analyzeDumpPartNumber(value); },
+        `${label}: must not throw`,
+      ).not.toThrow();
+
+      expect(warnSpy, `${label}: console.warn must have been called`).toHaveBeenCalled();
+      expect(warnSpy.mock.calls[0][0], `${label}: warn message must mention analyzeDumpPartNumber`).toContain('analyzeDumpPartNumber');
+
+      assertStructurallyValid(result, label);
+      expect(result.partNumbers, `${label}: partNumbers must be empty`).toEqual([]);
+      expect(result.primaryPn, `${label}: primaryPn must be null`).toBeNull();
+      expect(result.compatibleVehicles, `${label}: compatibleVehicles must be empty`).toEqual([]);
+      expect(result.vinModelYearChar, `${label}: vinModelYearChar must be null`).toBeNull();
+    });
+  }
 });
 
 // ── generationForPartNumber fuzz ──────────────────────────────────────────────
