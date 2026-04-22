@@ -56,7 +56,12 @@ export const AMBIGUOUS_REDEYE_PNS = ['68525720','68525721'];
 
 export const GEN2_YEAR_CHARS = new Set(['J','K','L','M','N','P','R','S','T']);
 
-export function vehiclesForPartNumber(pn){return VEHICLE_LIST.filter(v=>v.bcmFamilies.includes(pn));}
+export function vehiclesForPartNumber(pn){
+  if(typeof pn!=='string'){
+    console.warn('[vehicles] vehiclesForPartNumber: expected a string pn, got '+typeof pn,pn);
+  }
+  return VEHICLE_LIST.filter(v=>v.bcmFamilies.includes(pn));
+}
 
 export function analyzeDumpPartNumber(bytes){
   const text=new TextDecoder('latin1').decode(bytes);
@@ -71,6 +76,12 @@ export function analyzeDumpPartNumber(bytes){
 }
 
 export function generationForPartNumber(vehicleId,pn,vinYearChar){
+  if(typeof vehicleId!=='string'){
+    console.warn('[vehicles] generationForPartNumber: expected a string vehicleId, got '+typeof vehicleId,vehicleId);
+  }
+  if(typeof pn!=='string'){
+    console.warn('[vehicles] generationForPartNumber: expected a string pn, got '+typeof pn,pn);
+  }
   const v=VEHICLES[vehicleId];if(!v)return null;
   if(AMBIGUOUS_REDEYE_PNS.includes(pn)){
     const isGen2=vinYearChar&&GEN2_YEAR_CHARS.has(String(vinYearChar).toUpperCase());
