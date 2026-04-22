@@ -1236,6 +1236,23 @@ export default function ModuleSync() {
   return (
     <div style={{ fontFamily: "'Nunito', system-ui, sans-serif", color: C.tx }}>
 
+      {/* ── Always-visible wizard launcher ── */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+        <button
+          data-testid="open-wizard-btn-toolbar"
+          onClick={() => setWizardOpen(true)}
+          title="Open the guided Mismatch Wizard + AI assistant (works even with no files loaded)"
+          style={{
+            background: 'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+            border: 'none', borderRadius: 8, padding: '8px 16px',
+            color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
+            letterSpacing: 0.5, fontFamily: "'Nunito'",
+            boxShadow: '0 2px 8px rgba(211,47,47,0.25)',
+          }}>
+          🔧 Open Wizard
+        </button>
+      </div>
+
       {/* ── Load & Inspect ── */}
       <Card>
         <H2 badge={`${loaded} / 3`}>Load &amp; Inspect</H2>

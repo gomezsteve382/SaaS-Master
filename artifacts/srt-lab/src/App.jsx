@@ -29,6 +29,7 @@ import BcmTab from "./tabs/BcmTab";
 import RfhubTab from "./tabs/RfhubTab";
 import BackupsTab from "./tabs/BackupsTab";
 import EcmTab from "./tabs/EcmTab";
+import MismatchWizard from "./components/MismatchWizard.jsx";
 import {parseModule} from "./lib/parseModule.js";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
 import {VEHICLES,VEHICLE_LIST,KNOWN_BCM_PN,AMBIGUOUS_REDEYE_PNS,GEN2_YEAR_CHARS,vehiclesForPartNumber,analyzeDumpPartNumber,generationForPartNumber} from "./lib/vehicles.js";
@@ -1388,6 +1389,7 @@ function VehicleWorkspace({vehicleId, onBack}){
   const vehicle = VEHICLES[vehicleId];
   const [tab, setTab] = useState('dumps');
   const [files, setFiles] = useState([]);
+  const [workspaceWizardOpen, setWorkspaceWizardOpen] = useState(false);
   const {addDump} = useContext(MasterVinContext);
   const loadF = useCallback(fl=>{
     Promise.all(Array.from(fl).map(f=>new Promise(r=>{
@@ -1422,6 +1424,19 @@ function VehicleWorkspace({vehicleId, onBack}){
             <div>{vehicle.generations.length} GENERATIONS</div>
             <div>{vehicle.bcmFamilies.length} BCM FAMILIES</div>
           </div>
+          <button
+            data-testid="workspace-open-wizard-btn"
+            onClick={()=>setWorkspaceWizardOpen(true)}
+            title="Open the Mismatch Wizard + Claude AI assistant — works from any tab"
+            style={{
+              background:'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+              border:'none',borderRadius:10,padding:'10px 16px',
+              color:'#fff',fontWeight:900,fontSize:12,cursor:'pointer',
+              letterSpacing:1,fontFamily:"'Nunito'",whiteSpace:'nowrap',
+              boxShadow:'0 2px 12px rgba(211,47,47,0.35)',
+            }}>
+            🔧 WIZARD
+          </button>
         </div>
         <div style={{display:'flex',padding:'12px 16px 0',overflowX:'auto',gap:2}}>
           {WORKSPACE_TABS.map(t=>{const a=tab===t.id;return<button key={t.id} onClick={()=>setTab(t.id)} style={{padding:'11px 18px 13px',border:'none',cursor:'pointer',background:a?C.bg:'transparent',borderRadius:'11px 11px 0 0',color:a?accent:'rgba(255,255,255,0.45)',fontFamily:"'Nunito'",fontWeight:a?900:700,fontSize:11,letterSpacing:1.2,transition:'all 0.25s',boxShadow:a?'0 -4px 16px rgba(0,0,0,0.1)':'none',whiteSpace:'nowrap'}}><span style={{fontSize:14,marginRight:4,filter:a?'none':'grayscale(1) brightness(2)'}}>{t.i}</span>{t.l}<div style={{fontSize:7,marginTop:1,opacity:.4,letterSpacing:1}}>{t.s}</div></button>;})}
@@ -1441,6 +1456,19 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='skim'      && <SkimTab vehicle={vehicle}/>}
         {tab==='info'      && <InfoTab vehicle={vehicle}/>}
       </div>
+
+      {/* ── Workspace-level Mismatch Wizard ── */}
+      {workspaceWizardOpen && (
+        <MismatchWizard
+          issues={[]}
+          warnings={[]}
+          modules={Array.from(new Set(files.map(f=>f && f.type).filter(t=>t && t!=='UNKNOWN')))}
+          hexSnippets={[]}
+          onClose={()=>setWorkspaceWizardOpen(false)}
+          onAction={()=>{ /* workspace-level wizard is read-only / chat-only */ }}
+          stepActions={[]}
+        />
+      )}
     </div>
   );
 }

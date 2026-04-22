@@ -150,6 +150,19 @@ export default function FcaAnalyzerTab(){
           <div style={{fontSize:10,opacity:.7,letterSpacing:3,fontWeight:700}}>CROSS-MODULE AUDIT · BCM ↔ RFHUB ↔ GPEC2A ↔ 95640</div>
         </div>
         <div style={{fontSize:11,padding:'6px 12px',background:'rgba(255,255,255,0.12)',borderRadius:8,border:'1px solid rgba(255,255,255,0.2)'}}>{mods.length} module{mods.length===1?'':'s'} loaded</div>
+        <button
+          data-testid="fca-open-wizard-btn-toolbar"
+          onClick={()=>setWizardOpen(true)}
+          title="Open the guided Mismatch Wizard + AI assistant"
+          style={{
+            background:'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+            border:'none',borderRadius:8,padding:'6px 14px',
+            color:'#fff',fontWeight:900,fontSize:11,cursor:'pointer',
+            letterSpacing:0.5,fontFamily:"'Nunito'",whiteSpace:'nowrap',
+            boxShadow:'0 2px 8px rgba(211,47,47,0.25)',
+          }}>
+          🔧 Open Wizard
+        </button>
       </div>
     </Card>
 
