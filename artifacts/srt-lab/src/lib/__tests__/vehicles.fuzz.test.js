@@ -668,6 +668,31 @@ describe('readVinFromDump — fixed edge cases (VIN-offset inputs)', () => {
   }
 });
 
+// ── console.warn guard assertions ─────────────────────────────────────────────
+
+const VEHICLES_NON_STRING_CASES = [
+  { pn: null,      label: 'null' },
+  { pn: undefined, label: 'undefined' },
+  { pn: 0,         label: 'number 0' },
+  { pn: {},        label: 'plain object' },
+  { pn: [],        label: 'empty array' },
+  { pn: NaN,       label: 'NaN' },
+];
+
+describe('vehiclesForPartNumber — console.warn fires for non-string inputs', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  for (const { pn, label } of VEHICLES_NON_STRING_CASES) {
+    it(`warns when pn is ${label}`, () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vehiclesForPartNumber(pn);
+      expect(spy).toHaveBeenCalled();
+    });
+  }
+});
+
 describe('readVinFromDump — bad vinOff values', () => {
   for (const { label, bytes, vinOff } of VIN_OFFSET_BAD_OFFSET_CASES) {
     it(`never throws: ${label}`, () => {
@@ -756,4 +781,28 @@ describe('readVinFromDump — property-based fuzz (seed=0x1a2b3c4d, 1000 samples
       assertVinResult(result, label);
     }
   });
+});
+
+const GENERATION_NON_STRING_CASES = [
+  { vehicleId: null,      pn: '68277389', vinYearChar: null, label: 'null vehicleId' },
+  { vehicleId: undefined, pn: '68277389', vinYearChar: null, label: 'undefined vehicleId' },
+  { vehicleId: 0,         pn: '68277389', vinYearChar: null, label: 'numeric vehicleId' },
+  { vehicleId: {},        pn: '68277389', vinYearChar: null, label: 'object vehicleId' },
+  { vehicleId: 'charger', pn: null,       vinYearChar: null, label: 'null pn' },
+  { vehicleId: 'charger', pn: undefined,  vinYearChar: null, label: 'undefined pn' },
+  { vehicleId: 'charger', pn: 0,          vinYearChar: null, label: 'numeric pn' },
+];
+
+describe('generationForPartNumber — console.warn fires for non-string inputs', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  for (const { vehicleId, pn, vinYearChar, label } of GENERATION_NON_STRING_CASES) {
+    it(`warns when ${label}`, () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      generationForPartNumber(vehicleId, pn, vinYearChar);
+      expect(spy).toHaveBeenCalled();
+    });
+  }
 });
