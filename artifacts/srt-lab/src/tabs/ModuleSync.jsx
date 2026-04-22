@@ -1360,6 +1360,12 @@ export default function ModuleSync() {
                     ? `Copy RFH SEC16 (reversed) into BCM split records + mirrors. Write first 6 bytes as PCM SEC6${pcm.bytes ? '' : ' (load PCM to also patch PCM)'}.`
                     : bcmHasSec16 ? 'RFHUB SEC16 is virgin or not detected' : 'BCM has no Gen2 SEC16 records'}
                   onClick={() => doSync('sec16-only')} />
+                <ActionBtn title="🔄 BCM SEC16 → RFHUB"  enabled={bcmToRfhSec16Ok}
+                  color={C.a2}
+                  desc={bcmToRfhSec16Ok
+                    ? 'BCM is master: writes reverse(BCM SEC16) into RFHUB Gen2 slots (0x050E + 0x0522). Use when RFHUB is from a different vehicle.'
+                    : 'Requires BCM with Gen2 split records + Gen2 RFHUB (AA 55 31 01 header at 0x0500)'}
+                  onClick={() => doSync('bcm-sec16-to-rfh')} />
                 <ActionBtn title="⚡ SYNC ALL — BCM + RFH + PCM"  enabled={tvOk || !!(rfh.parsed.vin)}
                   color={C.a1}
                   desc={tvOk
@@ -1369,9 +1375,11 @@ export default function ModuleSync() {
               </div>
               {!sec16SyncOk && (
                 <div style={{ marginTop: 8, padding: '8px 12px', background: 'rgba(255,179,0,0.06)', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 600, lineHeight: 1.5 }}>
-                  ⚠ SEC16 sync requires: BCM with Gen2 split records (0x81A0/C0/E0) AND RFHUB with populated SEC16 (not virgin).
-                  {!bcmHasSec16 && ' BCM: no SEC16 records detected.'}
-                  {bcmHasSec16 && !rfhHasSec16 && ' RFHUB: SEC16 is virgin or undetected.'}
+                  {bcmToRfhSec16Ok
+                    ? '⚠ RFHUB SEC16 does not match BCM. Use "BCM SEC16 → RFHUB" (above) to re-sync the RFHUB to this BCM\'s secret, then key-program.'
+                    : '⚠ SEC16 sync requires: BCM with Gen2 split records (0x81A0/C0/E0) AND RFHUB with populated SEC16 (not virgin).'}
+                  {!bcmToRfhSec16Ok && !bcmHasSec16 && ' BCM: no SEC16 records detected.'}
+                  {!bcmToRfhSec16Ok && bcmHasSec16 && !rfhHasSec16 && ' RFHUB: SEC16 is virgin or undetected.'}
                 </div>
               )}
             </div>
