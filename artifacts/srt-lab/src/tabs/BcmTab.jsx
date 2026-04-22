@@ -437,7 +437,21 @@ export default function BcmTab({vehicle}){
           📂 Load BCM .bin to inspect byte-level fields
           <input type="file" accept=".bin,.BIN" hidden onChange={e=>e.target.files[0]&&onInspectFile(e.target.files[0])}/>
         </label>
-        {bcmDumps.length>1&&<select value={inspectEntry?.hash||''} onChange={e=>setInspectHash(e.target.value)}
+        {bcmDumps.length>1&&<select value={inspectEntry?.hash||''} onChange={e=>{
+          const hash=e.target.value;
+          setInspectHash(hash);
+          const entry=bcmDumps.find(d=>d.hash===hash);
+          const bytes=entry?.mod?.data;
+          if(bytes&&bytes.length){
+            const{primaryPn,vinModelYearChar}=parseBcmDumpPn(bytes);
+            const gen=matchGeneration(vehicle,primaryPn,vinModelYearChar);
+            setDetectedPn(primaryPn);
+            setDetectedGen(gen||null);
+          }else{
+            setDetectedPn(null);
+            setDetectedGen(null);
+          }
+        }}
           style={{padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:11}}>
           {bcmDumps.map(d=><option key={d.hash} value={d.hash}>{d.filename}</option>)}
         </select>}
