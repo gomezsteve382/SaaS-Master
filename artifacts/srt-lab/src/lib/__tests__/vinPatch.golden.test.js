@@ -89,6 +89,31 @@ d('Task #342 — Cluster B VIN patch (golden)', () => {
     expect(info.vins[0].vin).toBe(fakeVin);
   });
 
+  it('parseModule prefers base+8 when base+0 has a junk ASCII run and base+8 has a valid CRC', () => {
+    // Task #344 hardening: a coincidental 17-byte ASCII run at base+0 must
+    // not win over a CRC-valid VIN at base+8.
+    const buf = new Uint8Array(65536).fill(0xFF);
+    const realVin = '2C3CDXCT1HH652640';
+    const junk = 'AAAAAAAAAAAAAAAAA';
+    const base = 0x5320;
+    // Junk ASCII run at base+0 (no valid CRC trailer).
+    for (let i = 0; i < 17; i++) buf[base + i] = junk.charCodeAt(i);
+    // Real VIN + valid BE16 CRC at base+8.
+    for (let i = 0; i < 17; i++) buf[base + 8 + i] = realVin.charCodeAt(i);
+    const cc = crc16(buf.slice(base + 8, base + 8 + 17));
+    buf[base + 8 + 17] = (cc >> 8) & 0xFF;
+    buf[base + 8 + 18] = cc & 0xFF;
+
+    const info = parseModule(buf, 'crc-disambig.bin');
+    expect(info.type).toBe('BCM');
+    const slot = info.vins.find((v) => v.slotBase === base);
+    expect(slot).toBeTruthy();
+    expect(slot.offset).toBe(base + 8);
+    expect(slot.headerBytes).toBe(8);
+    expect(slot.vin).toBe(realVin);
+    expect(slot.crcOk).toBe(true);
+  });
+
   it('writeModuleVIN with discovered offsets stamps every VIN, header + trailer survive bit-exact', () => {
     const info = parseModule(bcmSrc, SRC_BCM);
     const out = writeModuleVIN(bcmSrc, 'BCM', TARGET_VIN, info.vins);

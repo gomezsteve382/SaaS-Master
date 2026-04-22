@@ -153,11 +153,24 @@ function parseModule(data,filename){
     // VIN is the slot's true VIN offset, so writers can target it precisely
     // without clobbering the header or trailer.
     info.vins=[];
+    // Prefer the candidate (base+8 vs base+0) whose stored BE16 CRC at
+    // vinOff+17/+18 matches crc16(vin). This keeps a corrupted/mid-erase
+    // dump from picking a coincidental ASCII run at the wrong offset and
+    // misrouting a subsequent VIN write. Fall back to a CRC-less accept
+    // (base+8 first, then base+0) when neither candidate has a valid CRC,
+    // so legacy fixtures without trailing CRCs keep parsing.
+    const crcAt=(off)=>{if(off+19>sz)return null;return(data[off+17]<<8)|data[off+18];};
     for(const base of[0x5320,0x5340,0x5360,0x5380]){
       const v8=extractVIN(data,base+8);
-      if(v8){info.vins.push({offset:base+8,vin:v8,slotBase:base,headerBytes:8});continue;}
       const v0=extractVIN(data,base);
-      if(v0)info.vins.push({offset:base,vin:v0,slotBase:base,headerBytes:0});
+      const c8=v8?crcAt(base+8):null;
+      const c0=v0?crcAt(base):null;
+      const ok8=v8&&c8!==null&&c8===crc16(data.slice(base+8,base+8+17));
+      const ok0=v0&&c0!==null&&c0===crc16(data.slice(base,base+17));
+      if(ok8){info.vins.push({offset:base+8,vin:v8,slotBase:base,headerBytes:8,crcOk:true});continue;}
+      if(ok0){info.vins.push({offset:base,vin:v0,slotBase:base,headerBytes:0,crcOk:true});continue;}
+      if(v8){info.vins.push({offset:base+8,vin:v8,slotBase:base,headerBytes:8,crcOk:false});continue;}
+      if(v0){info.vins.push({offset:base,vin:v0,slotBase:base,headerBytes:0,crcOk:false});}
     }
     info.partialVins=[];
     for(const po of[0x4098,0x40B0]){if(po+10>sz)continue;let s='',ok=true;for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}if(ok&&s.length===8){const sc=(data[po+8]<<8)|data[po+9],cc=crc16(data.slice(po,po+8));info.partialVins.push({offset:po,tail:s,storedCrc:sc,calcCrc:cc,crcOk:sc===cc});}}
