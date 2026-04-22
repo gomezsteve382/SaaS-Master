@@ -12,7 +12,7 @@
 //
 // Older reports are pruned when the cap is exceeded.
 
-import { buildOnePagerPDF } from "./buildOnePagerPDF.js";
+import { buildOnePagerPDF, buildOnePagerPDFBytes } from "./buildOnePagerPDF.js";
 
 const INDEX_KEY = "srtlab_diff_reports_index";
 const PAYLOAD_PREFIX = "srtlab_diff_report_";
@@ -353,20 +353,103 @@ export function buildDiffReportText(baseline, current, diff) {
   return lines.join("\n");
 }
 
-/* Bulk-export every saved diff report as a single JSON archive and trigger a
- * browser download. Each entry contains the full payload so the archive can
- * be imported / re-processed later without re-scanning.
+/* Build the PDF config object for a single diff report payload — mirrors the
+ * logic in exportDiffReportPDF so every report looks identical whether it is
+ * downloaded individually or exported in bulk. */
+function buildDiffPDFConfig(payload, filename) {
+  const { baseline, current, diff } = payload;
+  const fmtTx = (m) => `0x${(m.tx || 0).toString(16).toUpperCase().padStart(3, "0")}`;
+  const sections = [];
+  if (!diff.added.length && !diff.removed.length && !diff.changed.length) {
+    sections.push({
+      label: "RESULT",
+      type: "bullets",
+      data: ["No differences \u2014 current scan matches baseline exactly."],
+    });
+  }
+  if (diff.added.length) {
+    sections.push({
+      label: `+ ADDED MODULES (${diff.added.length})`,
+      type: "rows",
+      data: {
+        headers: ["MODULE", "TX", "VIN"],
+        rows: diff.added.map((m) => [m.code || m.name || "", fmtTx(m), m.vin || ""]),
+        colors: ["#2E7D32", "__mono__", "#1A1A1A"],
+      },
+    });
+  }
+  if (diff.removed.length) {
+    sections.push({
+      label: `- REMOVED MODULES (${diff.removed.length})`,
+      type: "rows",
+      data: {
+        headers: ["MODULE", "TX", "VIN"],
+        rows: diff.removed.map((m) => [m.code || m.name || "", fmtTx(m), m.vin || ""]),
+        colors: ["#C62828", "__mono__", "#1A1A1A"],
+      },
+    });
+  }
+  if (diff.changed.length) {
+    sections.push({
+      label: `+/- CHANGED VINs (${diff.changed.length})`,
+      type: "rows",
+      data: {
+        headers: ["MODULE", "TX", "BASELINE VIN", "CURRENT VIN"],
+        rows: diff.changed.map((c) => [
+          c.current.code || c.current.name || "",
+          fmtTx(c.current),
+          c.baseline.vin || "(none)",
+          c.current.vin || "(none)",
+        ]),
+        colors: ["#1A1A1A", "__mono__", "#C62828", "#2E7D32"],
+      },
+    });
+  }
+  if (diff.same.length) {
+    sections.push({
+      label: "UNCHANGED",
+      type: "bullets",
+      data: [`${diff.same.length} module${diff.same.length === 1 ? "" : "s"} unchanged.`],
+    });
+  }
+  return {
+    filename,
+    title: "BASELINE vs CURRENT DIFF",
+    subtitle: "Scan comparison report",
+    version: new Date(payload.generatedAt || Date.now()).toLocaleDateString(),
+    intro: [
+      `Baseline scan: ${fmtScanStamp(baseline.ts) || "(unknown)"}  \u00B7  ${(baseline.modules || []).length} modules`,
+      `Current scan : ${fmtScanStamp(current.ts) || "(unsaved)"}  \u00B7  ${(current.modules || []).length} modules`,
+    ],
+    sections,
+    footer: "SRT Lab \u00B7 Diff Report \u00B7 For authorized service use only",
+  };
+}
+
+/* Sanitise a string for use as a filename component. */
+function safeLabel(str) {
+  return (str || "unlabeled").replace(/[^a-zA-Z0-9_\-]/g, "_").slice(0, 40);
+}
+
+/* Bulk-export every saved diff report as a ZIP of individual PDFs and trigger
+ * a browser download. One PDF per report, named by date and baseline label,
+ * matching the single-report PDF format exactly.
  *
- * Returns { exported, missing } where:
- *   exported — number of reports included in the archive
+ * Returns { exported, skipped, missing } where:
+ *   exported — number of PDFs successfully included in the ZIP
+ *   skipped  — number of reports whose PDF generation failed (noted in filename)
  *   missing  — ids that could not be located (not in cache and server 404'd)
  */
 export async function exportAllDiffReports() {
   const index = readIndex();
-  if (!index.length) return { exported: 0, missing: [] };
+  if (!index.length) return { exported: 0, skipped: 0, missing: [] };
 
-  const reports = [];
+  const { zipSync } = await import("fflate");
+
+  const zipEntries = {};
   const missing = [];
+  let skipped = 0;
+  const usedNames = new Set();
 
   for (const meta of index) {
     let payload = readPayload(meta.id);
@@ -390,33 +473,48 @@ export async function exportAllDiffReports() {
         missing.push(meta.id);
         continue;
       } else {
-        // unknown / offline — include meta-only stub so the archive is complete
-        reports.push({ meta, payload: null });
+        // unknown / offline — skip gracefully
+        skipped++;
         continue;
       }
     }
-    reports.push({ meta, payload });
+
+    // Build a unique, human-readable filename for this entry.
+    const dateStr = meta.generatedAt
+      ? new Date(meta.generatedAt).toISOString().slice(0, 10)
+      : "unknown-date";
+    const labelStr = safeLabel(meta.baselineLabel);
+    let name = `${dateStr}_${labelStr}.pdf`;
+    let n = 2;
+    while (usedNames.has(name)) { name = `${dateStr}_${labelStr}_${n++}.pdf`; }
+    usedNames.add(name);
+
+    try {
+      const buffer = await buildOnePagerPDFBytes(buildDiffPDFConfig(payload, name));
+      zipEntries[name] = new Uint8Array(buffer);
+    } catch {
+      skipped++;
+    }
   }
 
+  const exported = Object.keys(zipEntries).length;
   const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  const archive = {
-    exportedAt: new Date().toISOString(),
-    reportCount: reports.length,
-    reports,
-  };
+  const skippedSuffix = skipped > 0 ? `_${skipped}skipped` : "";
+  const zipFilename = `SRT_Lab_Diff_Reports_${stamp}${skippedSuffix}.zip`;
 
   try {
-    const blob = new Blob([JSON.stringify(archive, null, 2)], { type: "application/json" });
+    const zipped = zipSync(zipEntries, { level: 6 });
+    const blob = new Blob([zipped], { type: "application/zip" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `SRT_Lab_Diff_Reports_${stamp}.json`;
+    a.download = zipFilename;
     document.body.appendChild(a);
     a.click();
     setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
   } catch { /* ignore download errors — caller can surface them */ }
 
-  return { exported: reports.length, missing };
+  return { exported, skipped, missing };
 }
 
 /* Build and download the diff PDF. Same renderer used for the live "Save Diff

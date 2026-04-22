@@ -39,7 +39,8 @@ function hexToRgb(h) {
   return [parseInt(v.slice(0, 2), 16), parseInt(v.slice(2, 4), 16), parseInt(v.slice(4, 6), 16)];
 }
 
-export async function buildOnePagerPDF(cfg) {
+/* Shared document-building logic. Returns the jsPDF instance. */
+async function buildDoc(cfg) {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ unit: 'pt', format: 'letter', compress: true });
   registerNunito(doc);
@@ -180,7 +181,19 @@ export async function buildOnePagerPDF(cfg) {
   doc.text(cfg.footer || 'SRT Lab \u00B7 Quick Reference \u00B7 For authorized service use only', M, H - 16);
   if (cfg.footerRight) doc.text(cfg.footerRight, W - M, H - 16, { align: 'right' });
 
+  return doc;
+}
+
+/* Build and trigger a browser download of the PDF. */
+export async function buildOnePagerPDF(cfg) {
+  const doc = await buildDoc(cfg);
   doc.save(cfg.filename || 'SRT_Lab_Reference.pdf');
+}
+
+/* Build and return the PDF as a Uint8Array (no download triggered). */
+export async function buildOnePagerPDFBytes(cfg) {
+  const doc = await buildDoc(cfg);
+  return doc.output('arraybuffer');
 }
 
 export const QR_COLORS = { SR, ORANGE, BLUE, PURPLE };
