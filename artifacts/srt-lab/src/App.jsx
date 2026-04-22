@@ -18,7 +18,7 @@
  *  - Full 3-module sync (BCM + RFH + PCM) driven by a single target VIN
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import React, { useState, useCallback, useMemo, useRef, useEffect, useContext } from "react";
 import GpecTab from "./tabs/GpecTab";
 import OBDTab from "./tabs/OBDTab";
 import SeedTab from "./tabs/SeedTab";
@@ -28,6 +28,9 @@ import JailbreakTab from "./tabs/JailbreakTab";
 import BcmTab from "./tabs/BcmTab";
 import RfhubTab from "./tabs/RfhubTab";
 import BackupsTab from "./tabs/BackupsTab";
+import EcmTab from "./tabs/EcmTab";
+import {parseModule} from "./lib/parseModule.js";
+import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
 
 /* ═══ VERIFIED ENGINES ═══ */
 function crc16(d,i=0xFFFF){let c=i;for(let x=0;x<d.length;x++){c^=d[x]<<8;for(let j=0;j<8;j++)c=c&0x8000?(c<<1)^0x1021:c<<1;c&=0xFFFF;}return c;}
@@ -1410,6 +1413,7 @@ const WORKSPACE_TABS = [
   {id:'seed',      i:'🔑', l:'SEED→KEY',     s:'14 Algorithms'},
   {id:'bcm',       i:'🧠', l:'BCM',          s:'VIN · CRC · Features'},
   {id:'rfhub',     i:'📡', l:'RFHUB',        s:'VIN · Key Fobs'},
+  {id:'ecm',       i:'⚡', l:'ECM',          s:'VIN · 10 Algorithms'},
   {id:'backups',   i:'💾', l:'BACKUPS',      s:'History · Restore'},
   {id:'obd',       i:'📡', l:'LIVE OBD',     s:'UDS · Seed→Key · J2534 · Gould'},
   {id:'skim',      i:'🛡️', l:'SKIM',         s:'Keys · Immo'},
@@ -1420,7 +1424,21 @@ function VehicleWorkspace({vehicleId, onBack}){
   const vehicle = VEHICLES[vehicleId];
   const [tab, setTab] = useState('dumps');
   const [files, setFiles] = useState([]);
-  const loadF = useCallback(fl=>{Promise.all(Array.from(fl).map(f=>new Promise(r=>{const rd=new FileReader();rd.onload=e=>r({name:f.name,data:new Uint8Array(e.target.result)});rd.readAsArrayBuffer(f);}))).then(res=>setFiles(p=>[...p,...res.map(x=>analyzeFile(x.data,x.name))]));},[]);
+  const {addDump} = useContext(MasterVinContext);
+  const loadF = useCallback(fl=>{
+    Promise.all(Array.from(fl).map(f=>new Promise(r=>{
+      const rd=new FileReader();
+      rd.onload=e=>r({name:f.name,data:new Uint8Array(e.target.result)});
+      rd.readAsArrayBuffer(f);
+    }))).then(res=>{
+      const analyzed=res.map(x=>analyzeFile(x.data,x.name));
+      setFiles(p=>[...p,...analyzed]);
+      res.forEach(x=>{
+        const parsed=parseModule(x.data,x.name);
+        if(parsed&&parsed.type&&parsed.type.toUpperCase()!=='UNKNOWN')addDump(parsed);
+      });
+    });
+  },[addDump]);
 
   const accent = vehicle.accent;
   return (
@@ -1451,8 +1469,9 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='analyzer'  && <FcaAnalyzerTab/>}
         {tab==='jailbreak' && <JailbreakTab vehicle={vehicle}/>}
         {tab==='seed'      && <SeedTab/>}
-        {tab==='bcm'       && <BcmTab/>}
-        {tab==='rfhub'     && <RfhubTab/>}
+        {tab==='bcm'       && <BcmTab vehicle={vehicle}/>}
+        {tab==='rfhub'     && <RfhubTab vehicle={vehicle}/>}
+        {tab==='ecm'       && <EcmTab vehicle={vehicle}/>}
         {tab==='backups'   && <BackupsTab/>}
         {tab==='obd'       && <LiveObdTab vehicle={vehicle}/>}
         {tab==='skim'      && <SkimTab/>}
@@ -1870,7 +1889,10 @@ function InfoTab({vehicle}){
 /* ═══ APP ═══ */
 export default function App(){
   const [vehicleId, setVehicleId] = useState(null);
-  return vehicleId
-    ? <VehicleWorkspace vehicleId={vehicleId} onBack={()=>setVehicleId(null)}/>
-    : <VehicleLanding onSelect={setVehicleId}/>;
+  if(!vehicleId) return <VehicleLanding onSelect={setVehicleId}/>;
+  return (
+    <MasterVinProvider>
+      <VehicleWorkspace vehicleId={vehicleId} onBack={()=>setVehicleId(null)}/>
+    </MasterVinProvider>
+  );
 }

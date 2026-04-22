@@ -13,7 +13,7 @@ import {createBridgeEngine} from '../lib/bridgeEngine.js';
 import {getRow} from '../lib/moduleRegistry.js';
 import {programVin} from '../lib/vinProgrammer.js';
 
-export default function EcmTab(){
+export default function EcmTab({vehicle}){
   const{vin:masterVin,updateStatus}=useMasterVin();
   const[conn,setConn]=useState(false);const[unlocked,setUnlocked]=useState(false);
   const[busy,setBusy]=useState('');const[log,setLog]=useState([]);
@@ -182,6 +182,10 @@ export default function EcmTab(){
         <div style={{flex:1}}>
           <div style={{fontFamily:"'Righteous'",fontSize:24,letterSpacing:2}}>ECM PROGRAMMER</div>
           <div style={{fontSize:10,opacity:.7,letterSpacing:3,fontWeight:700}}>ENGINE CONTROL MODULE · VIN · 10 ALGORITHMS</div>
+          {vehicle&&<div style={{marginTop:8,padding:'6px 10px',background:'rgba(0,0,0,0.3)',borderRadius:8,display:'inline-block'}}>
+            <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,color:'rgba(255,255,255,0.9)'}}>{vehicle.full} — {vehicle.body}</div>
+            <div style={{fontSize:10,color:'rgba(255,255,255,0.6)',marginTop:3,fontFamily:"'JetBrains Mono'"}}>{vehicle.generations.length} generation{vehicle.generations.length===1?'':'s'} · ECM address: 0x7E0/0x7E8 (standard for all)</div>
+          </div>}
         </div>
         <div style={{fontSize:11,padding:'6px 12px',background:conn?(unlocked?'#00C85333':'#FFB30033'):'#FF174433',borderRadius:8,border:'1px solid '+(conn?(unlocked?'#00C853':'#FFB300'):'#FF1744')}}>
           {!conn?'○ DISCONNECTED':unlocked?'● UNLOCKED ('+algo+')':'● CONNECTED'}

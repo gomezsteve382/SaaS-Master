@@ -97,7 +97,7 @@ function FeatureMatrixCatalog(){
   </Card>;
 }
 
-export default function BcmTab(){
+export default function BcmTab({vehicle}){
   const {vin:masterVin,setModuleStatus,getDumpsByType,addDump,replaceDump,removeDump}=useContext(MasterVinContext);
   const [conn,setConn]=useState(false);
   const [unlocked,setUnlocked]=useState(false);
@@ -307,6 +307,15 @@ export default function BcmTab(){
         <div style={{flex:1}}>
           <div style={{fontFamily:"'Righteous'",fontSize:24,letterSpacing:2}}>BCM PROGRAMMER</div>
           <div style={{fontSize:10,opacity:.7,letterSpacing:3,fontWeight:700}}>BODY CONTROL MODULE · VIN + CRC + FEATURES</div>
+          {vehicle&&<div style={{marginTop:8,padding:'6px 10px',background:'rgba(0,0,0,0.3)',borderRadius:8,display:'inline-block'}}>
+            <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,color:'rgba(255,255,255,0.9)'}}>{vehicle.full} — {vehicle.body}</div>
+            <div style={{fontSize:10,color:'rgba(255,255,255,0.6)',marginTop:3,fontFamily:"'JetBrains Mono'"}}>{vehicle.generations.length} gen{vehicle.generations.length===1?'':'s'} · expected P/Ns: {vehicle.bcmFamilies.slice(0,4).join(', ')}{vehicle.bcmFamilies.length>4?' +'+( vehicle.bcmFamilies.length-4)+' more':''}</div>
+            <div style={{marginTop:4,display:'flex',gap:6,flexWrap:'wrap'}}>
+              {vehicle.generations.map(g=><span key={g.id} style={{fontSize:9,padding:'2px 7px',background:g.sec16==='gen2-split'?'rgba(255,179,0,0.3)':'rgba(0,200,83,0.2)',borderRadius:4,border:'1px solid '+(g.sec16==='gen2-split'?'rgba(255,179,0,0.5)':'rgba(0,200,83,0.3)'),fontFamily:"'JetBrains Mono'",fontWeight:700,letterSpacing:0.5}}>
+                {g.label} · {g.bcmPn} · {g.sec16==='gen2-split'?'Gen2 split SEC16':g.sec16==='trackhawk-no-flash'?'No flash SEC16':'Gen1 SEC16'} · VIN@0x{g.vinOff.toString(16).toUpperCase()}
+              </span>)}
+            </div>
+          </div>}
         </div>
         <div style={{fontSize:11,padding:'6px 12px',background:conn?(unlocked?'#00C85333':'#FFB30033'):'#FF174433',borderRadius:8,border:'1px solid '+(conn?(unlocked?'#00C853':'#FFB300'):'#FF1744')}}>
           {!conn?'○ DISCONNECTED':unlocked?'● UNLOCKED ('+algo+')':'● CONNECTED'}

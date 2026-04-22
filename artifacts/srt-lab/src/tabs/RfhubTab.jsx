@@ -34,7 +34,7 @@ const RFHUB_CANDIDATES=[
   {tx:0x740,rx:0x748,name:'Legacy'},
 ];
 
-export default function RfhubTab(){
+export default function RfhubTab({vehicle}){
   const {vin:masterVin,setModuleStatus,getDumpsByType,addDump,removeDump}=useContext(MasterVinContext);
   const [conn,setConn]=useState(false);
   const [unlocked,setUnlocked]=useState(false);
@@ -308,12 +308,47 @@ export default function RfhubTab(){
         <div style={{flex:1}}>
           <div style={{fontFamily:"'Righteous'",fontSize:24,letterSpacing:2}}>RFHUB PROGRAMMER</div>
           <div style={{fontSize:10,opacity:.7,letterSpacing:3,fontWeight:700}}>RF HUB · VIN · KEY FOBS</div>
+          {vehicle&&<div style={{marginTop:8,padding:'6px 10px',background:'rgba(0,0,0,0.3)',borderRadius:8,display:'inline-block'}}>
+            <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,color:'rgba(255,255,255,0.9)'}}>{vehicle.full} — {vehicle.body}</div>
+            <div style={{marginTop:4,display:'flex',gap:6,flexWrap:'wrap'}}>
+              {vehicle.generations.map(g=>{
+                const needsSync=g.sec16==='gen2-split';
+                const noFlash=g.sec16==='trackhawk-no-flash';
+                return <span key={g.id} style={{fontSize:9,padding:'2px 7px',background:noFlash?'rgba(255,82,82,0.3)':needsSync?'rgba(255,179,0,0.3)':'rgba(0,200,83,0.2)',borderRadius:4,border:'1px solid '+(noFlash?'rgba(255,82,82,0.5)':needsSync?'rgba(255,179,0,0.5)':'rgba(0,200,83,0.3)'),fontFamily:"'JetBrains Mono'",fontWeight:700,letterSpacing:0.5}}>
+                  {g.label} · {noFlash?'⚠ NO FLASH SEC16 (OBD only)':needsSync?'Gen2 · SEC16 sync required':'Gen1 · 18-byte SEC16'}
+                </span>;
+              })}
+            </div>
+          </div>}
         </div>
         <div style={{fontSize:11,padding:'6px 12px',background:conn?(unlocked?'#00C85333':'#FFB30033'):'#FF174433',borderRadius:8,border:'1px solid '+(conn?(unlocked?'#00C853':'#FFB300'):'#FF1744')}}>
           {!conn?'○ DISCONNECTED':unlocked?'● UNLOCKED':'● CONNECTED'}
         </div>
       </div>
     </Card>
+
+    {vehicle&&vehicle.generations.length>0&&<Card style={{marginBottom:14,background:'#FFF8E1',border:'2px solid #FFB300'}}>
+      <div style={{fontWeight:800,fontSize:11,color:'#E65100',marginBottom:8,letterSpacing:1.5}}>📡 GENERATION OFFSET MAP — {vehicle.name}</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:8}}>
+        {vehicle.generations.map(g=>{
+          const isGen2=g.sec16==='gen2-split';
+          const noFlash=g.sec16==='trackhawk-no-flash';
+          return <div key={g.id} style={{padding:'8px 10px',background:'#fff',borderRadius:8,border:'2px solid '+(noFlash?'#FF5252':isGen2?'#FFB300':'#00C853')}}>
+            <div style={{fontWeight:800,fontSize:11,color:noFlash?'#C62828':isGen2?'#E65100':'#1B5E20',marginBottom:4}}>{g.label}</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,lineHeight:1.7,color:'#555'}}>
+              <div>BCM VIN offset: <b style={{color:'#222'}}>0x{g.vinOff.toString(16).toUpperCase()}</b></div>
+              {isGen2&&<>
+                <div>SEC16 split records: <b style={{color:'#E65100'}}>0x81A0 · 0x81C0 · 0x81E0</b></div>
+                <div>RFHUB→BCM sync: <b style={{color:'#E65100'}}>required</b></div>
+              </>}
+              {noFlash&&<div style={{color:'#C62828',fontWeight:700}}>RFHUB SEC16 not in flash — use OBD live read only</div>}
+              {!isGen2&&!noFlash&&<div>SEC16 format: <b style={{color:'#1B5E20'}}>18-byte inline (no RFHUB sync needed)</b></div>}
+              <div>Processor: <b style={{color:'#222'}}>{g.family}</b></div>
+            </div>
+          </div>;
+        })}
+      </div>
+    </Card>}
 
     <Card style={{marginBottom:14}}>
       <div style={{fontWeight:800,fontSize:11,color:C.a2,marginBottom:10,letterSpacing:2}}>⚡ CONTROLS</div>
