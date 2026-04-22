@@ -137,6 +137,21 @@ export default function BcmTab({vehicle}){
   const [showConfirmModal,setShowConfirmModal]=useState(false);
   const [genTooltipVisible,setGenTooltipVisible]=useState(false);
   const eng=useRef(null);
+  const genBadgeRef=useRef(null);
+  useEffect(()=>{
+    if(!genTooltipVisible)return;
+    const handler=(e)=>{
+      if(genBadgeRef.current&&!genBadgeRef.current.contains(e.target)){
+        setGenTooltipVisible(false);
+      }
+    };
+    document.addEventListener('mousedown',handler,true);
+    document.addEventListener('touchstart',handler,true);
+    return()=>{
+      document.removeEventListener('mousedown',handler,true);
+      document.removeEventListener('touchstart',handler,true);
+    };
+  },[genTooltipVisible]);
   const addLog=useCallback((m,t='info')=>{const ts=new Date().toLocaleTimeString();setLog(p=>[...p.slice(-300),{t:ts,m,type:t}]);},[]);
   const hx=(n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0');
 
@@ -384,6 +399,7 @@ export default function BcmTab({vehicle}){
                 </span>;
               })}
               {detectedPn&&<span
+                ref={genBadgeRef}
                 style={{position:'relative',display:'inline-block',marginLeft:4}}
                 onPointerEnter={(e)=>{ if(e.pointerType==='mouse') setGenTooltipVisible(true); }}
                 onPointerLeave={(e)=>{ if(e.pointerType==='mouse') setGenTooltipVisible(false); }}
