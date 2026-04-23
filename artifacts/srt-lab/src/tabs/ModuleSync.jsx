@@ -468,6 +468,29 @@ export function engParsePcm(bytes, filename) {
   return r;
 }
 
+/* ---------- skip-reason helpers ---------- */
+
+/* Task #433 — single source of truth for "why was PCM SEC6 NOT written?"
+ * used by every action that conditionally calls writePcmSec6 (full sync,
+ * SEC16-only). Returns null when the SEC6 step is safe to run, or a
+ * short human-readable reason string otherwise. Reasons are deliberately
+ * the same wording across call sites so users see a consistent line in
+ * the sync log: `PCM SEC6 skipped: <reason>`. */
+export function pcmSec6SkipReason({ rfh, pcm }) {
+  if (!rfh?.bytes)            return 'no RFH file loaded';
+  if (!rfh.parsed)            return 'RFH file could not be parsed';
+  if (rfh.parsed.format === 'gen1') return 'RFH is Gen1 (need Gen2)';
+  const slot1 = rfh.parsed.sec16?.slot1;
+  if (!slot1 || slot1.length < 6)   return 'RFH SEC16 not readable';
+  if (rfh.parsed.sec16?.virgin)     return 'RFH SEC16 not readable (virgin)';
+  if (!pcm?.bytes)            return 'no PCM file loaded';
+  if (!pcm.parsed)            return 'PCM file could not be parsed';
+  const sz = pcm.bytes.length;
+  if (sz !== 4096 && sz !== 8192)
+    return `non-canonical PCM size (${sz} B, need 4096 or 8192)`;
+  return null;
+}
+
 /* ---------- write helpers (SINCRO-verified) ---------- */
 
 function engWriteBcmVin(bytes, newVin) {
@@ -1693,30 +1716,24 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           addPcmRows(pcm.parsed, newVin);
           log(`PCM VIN: ${pr.patched} slot(s) patched`, 'ok');
           let pcmSec6Ok = true;
-          if (rfhSec16 && rfhSec16.length >= 6) {
+          /* Task #433 — single shared preflight covering all reasons the
+           * SEC6 write can be gated out (no RFH, Gen1 RFH, virgin SEC16,
+           * non-canonical PCM size). Mirrors the BCM SEC16 skip line above. */
+          const sec6Skip = pcmSec6SkipReason({ rfh, pcm: { bytes: pcmFinal, parsed: pcm.parsed } });
+          if (!sec6Skip) {
             const sr = engWritePcmSec6(pcmFinal, rfhSec16);
             if (sr.ok) {
               pcmFinal = sr.bytes;
               log(`PCM SEC6: ${sr.patched} location(s) written · ${sr.sec6Hex.toUpperCase()} (marker ${sr.markerUsed})`, 'ok');
             } else {
-              /* Task #399 — writer couldn't find any valid SEC6 site on a
-               * non-canonical PCM image. Refuse the download instead of
-               * silently shipping the unchanged file to the locksmith. */
+              /* Task #399 — preflight passed but writer still couldn't find
+               * a writable site (corrupt canonical region). Refuse the
+               * download instead of silently shipping the unchanged file. */
               pcmSec6Ok = false;
               log(`✗ PCM SEC6 SYNC FAILED — no writable site found (size=${pcmFinal.length} B, SEC6=${sr.sec6Hex.toUpperCase()}). PCM file NOT downloaded. Re-dump the PCM at the canonical 4 KB / 8 KB size and retry.`, 'err');
             }
           } else {
-            /* Task #433 — surface the explicit reason instead of silently
-             * shipping a PCM with no SEC6 written. The PCM file is still
-             * downloaded (the VIN patch is still useful), but the user
-             * can now see why the SEC6 step never ran. The local RFH
-             * parser populates `sec16` for any file ≥ 0x024C (Gen1 or
-             * Gen2), so reaching here means the RFH dump is structurally
-             * truncated below the SEC16 region. */
-            const reason = !rfh.parsed?.sec16
-              ? `RFH SEC16 region missing (file size=${rfh.bytes?.length ?? 0} B, need ≥ 0x024C)`
-              : 'RFH SEC16 not readable';
-            log(`PCM SEC6 skipped: ${reason}`, 'muted');
+            log(`PCM SEC6 skipped: ${sec6Skip}`, 'muted');
           }
           // Task #379: if the loaded PCM is a doubled 8 KB capture with a
           // 0xFF-padded half-2, slice the SYNC output down to 4 KB so the
@@ -1748,7 +1765,13 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
       } else if (action === 'sec16-only') {
         /* SEC16 sync only — BCM SEC16 ← RFH, PCM SEC6 ← RFH */
         const rfhSec16 = rfh.parsed?.sec16?.slot1;
-        if (!rfhSec16) { log('✗ No RFH SEC16 available', 'err'); return; }
+        if (!rfhSec16) {
+          /* Task #433 — also surface the per-writer skip lines so the user
+           * sees both gates failing, not just a single generic error. */
+          log('✗ No RFH SEC16 available', 'err');
+          log(`PCM SEC6 skipped: ${pcmSec6SkipReason({ rfh, pcm }) || 'RFH SEC16 not readable'}`, 'muted');
+          return;
+        }
         const snapB = new Uint8Array(bcm.bytes);
         setOriginals(prev => ({ ...prev, bcm: { bytes: snapB, filename: bcm.file?.name || 'BCM' } }));
         const sr = engWriteBcmSec16Gen2(bcm.bytes, rfhSec16);
@@ -1778,7 +1801,9 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         }
         downloadBin(bcmSec16Out, `BCM_SEC16_SYNCED_${ts}.bin`);
         log(`Downloaded: BCM_SEC16_SYNCED_${ts}.bin`, 'ok');
-        if (pcm.bytes && pcm.parsed && rfhSec16.length >= 6) {
+        /* Task #433 — single shared preflight, same reason set as full sync. */
+        const sec6Skip = pcmSec6SkipReason({ rfh, pcm });
+        if (!sec6Skip) {
           const snapP = new Uint8Array(pcm.bytes);
           setOriginals(prev => ({ ...prev, pcm: { bytes: snapP, filename: pcm.file?.name || 'PCM' } }));
           const pr = engWritePcmSec6(pcm.bytes, rfhSec16);
@@ -1787,19 +1812,12 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
             downloadBin(pr.bytes, `PCM_SEC6_SYNCED_${ts}.bin`);
             log(`Downloaded: PCM_SEC6_SYNCED_${ts}.bin`, 'ok');
           } else {
-            /* Task #399 — refuse to ship an unmodified PCM as "synced". */
+            /* Task #399 — preflight passed but writer still refused; refuse
+             * to ship an unmodified PCM as "synced". */
             log(`✗ PCM SEC6 SYNC FAILED — no writable site found (size=${pcm.bytes.length} B). PCM file NOT downloaded. Re-dump the PCM at the canonical 4 KB / 8 KB size and retry.`, 'err');
           }
-        } else if (!pcm.bytes) {
-          /* Task #433 — explicit skip-reason so the user sees why the
-           * SEC6 half of "SEC16 Sync Only" produced no PCM file. */
-          log('PCM SEC6 skipped: no PCM file loaded', 'muted');
-        } else if (!pcm.parsed) {
-          log('PCM SEC6 skipped: PCM file could not be parsed', 'muted');
         } else {
-          /* rfhSec16.length < 6 — the outer `if (!rfhSec16) return` already
-           * catches missing SEC16, so reaching here means a truncated SEC16. */
-          log('PCM SEC6 skipped: RFH SEC16 not readable (truncated)', 'muted');
+          log(`PCM SEC6 skipped: ${sec6Skip}`, 'muted');
         }
 
       } else if (action === 'rekey-95640-from-rfh') {

@@ -699,7 +699,20 @@ function ApplyPanel({ bcm, rfh, pcm, bcmData, rfhData, pcmData }) {
   }
 
   function doBcmToPcm() {
-    if (!pcm) return;
+    if (!pcm) { setApplied("bcm→pcm-skip-no-pcm"); return; }
+    /* Task #433 — explicit pre-flight skip reasons mirroring the
+     * ModuleSync `PCM SEC6 skipped: ...` log line. The button is only
+     * rendered when `pcm` is present, but `bcm` could still be missing
+     * its SEC16 (parser couldn't find any copy). Surface that as a
+     * visible banner instead of crashing on `bcm.sec16Copies[0].raw`. */
+    if (!bcm?.sec16Copies?.[0]?.raw) {
+      setApplied("bcm→pcm-skip-no-bcm-sec16");
+      return;
+    }
+    if (pcmData.length !== 4096 && pcmData.length !== 8192) {
+      setApplied("bcm→pcm-fail");
+      return;
+    }
     const out = applyPcmFromBcm(pcmData, bcm);
     if (!out.ok) {
       // Engine writer refused — non-canonical PCM size. Surface a real
@@ -744,6 +757,16 @@ function ApplyPanel({ bcm, rfh, pcm, bcmData, rfhData, pcmData }) {
       {applied === "bcm→pcm-fail" && (
         <div style={{ marginTop: 12, padding: "8px 14px", borderRadius: 8, background: C.er + "10", fontSize: 12, fontWeight: 700, color: C.er, border: `1px solid ${C.er}55` }}>
           ✗ PCM SEC6 sync refused — non-canonical PCM size {pcmData?.length} B (expected 4096 or 8192). No file was downloaded.
+        </div>
+      )}
+      {applied === "bcm→pcm-skip-no-pcm" && (
+        <div style={{ marginTop: 12, padding: "8px 14px", borderRadius: 8, background: C.tm + "10", fontSize: 12, fontWeight: 700, color: C.tm, border: `1px solid ${C.bd}` }}>
+          PCM SEC6 skipped: no PCM file loaded. Drop a PCM dump above and retry.
+        </div>
+      )}
+      {applied === "bcm→pcm-skip-no-bcm-sec16" && (
+        <div style={{ marginTop: 12, padding: "8px 14px", borderRadius: 8, background: C.tm + "10", fontSize: 12, fontWeight: 700, color: C.tm, border: `1px solid ${C.bd}` }}>
+          PCM SEC6 skipped: BCM SEC16 not readable (no SEC16 copy found in the loaded BCM dump). Re-dump the BCM and retry.
         </div>
       )}
       <div style={{ marginTop: 14, padding: "10px 14px", borderRadius: 8, background: C.c2, border: `1px solid ${C.bd}` }}>
