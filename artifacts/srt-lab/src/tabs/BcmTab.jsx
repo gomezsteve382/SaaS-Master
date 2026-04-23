@@ -8,7 +8,7 @@ import {decodeNRC} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
-import {parseModule, syncImmoBackup} from "../lib/parseModule.js";
+import {parseModule, syncImmoBackup, bcmTooSmall} from "../lib/parseModule.js";
 import {bcmFeatureMatrix} from "../lib/cgwConfig.js";
 import {vinHasSGW} from "../lib/vin.js";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
@@ -273,6 +273,7 @@ export default function BcmTab({vehicle}){
   const bcmDumps=getDumpsByType('BCM');
   const [inspectHash,setInspectHash]=useState(null);
   const [inspectMsg,setInspectMsg]=useState('');
+  const [inspectTooSmall,setInspectTooSmall]=useState(null);
   const [detectedGen,setDetectedGen]=useState(null);
   const [detectedPn,setDetectedPn]=useState(null);
   const [inspectPnCheck,setInspectPnCheck]=useState(null);
@@ -300,6 +301,23 @@ export default function BcmTab({vehicle}){
     const r=new FileReader();
     r.onload=ev=>{
       const bytes=new Uint8Array(ev.target.result);
+      // Reject undersized files up-front so users see a structured "isn't a
+      // full BCM dump" card instead of a partial parse / generic UNKNOWN
+      // message (Task #370).
+      const small=bcmTooSmall(bytes,file.name);
+      if(small){
+        // Stop selecting whichever BCM dump is currently inspected so the
+        // tile renders ONLY the structured "isn't a full BCM dump" card.
+        // We deliberately do NOT removeDump() — other tabs may still be
+        // working with that file; the panels themselves gate on
+        // !inspectTooSmall (deterministic suppression, Task #370).
+        setInspectHash(null);
+        setInspectTooSmall(small);
+        setInspectMsg('');
+        setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);
+        return;
+      }
+      setInspectTooSmall(null);
       const m=parseModule(bytes,file.name);
       if(m.type!=='BCM'){setInspectMsg('Selected file is '+m.type+', not BCM — load a 64 KB or 128 KB BCM dump.');setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);return;}
       const entry=addDump(m);
@@ -328,7 +346,7 @@ export default function BcmTab({vehicle}){
   },[inspectEntry,inspectMod,replaceDump]);
   const closeInspect=useCallback(()=>{
     if(inspectEntry)removeDump(inspectEntry.hash);
-    setInspectHash(null);setInspectMsg('');setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);
+    setInspectHash(null);setInspectMsg('');setInspectTooSmall(null);setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);
   },[inspectEntry,removeDump]);
 
   const vinValid=masterVin.length===17;
@@ -511,11 +529,20 @@ export default function BcmTab({vehicle}){
               </div>
             </div>
       )}
+      {inspectTooSmall&&<div data-testid="bcm-too-small-card" style={{marginTop:12,padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
+        <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ This isn&apos;t a full BCM dump</div>
+        <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.tx,lineHeight:1.7}}>
+          <div>File size: <strong style={{color:C.er}}>{inspectTooSmall.size.toLocaleString()} bytes</strong></div>
+          <div>Required min: <strong>{inspectTooSmall.min.toLocaleString()} bytes (64 KB MPC5605B/06B DFLASH)</strong></div>
+          <div>Detected ext: <strong>{inspectTooSmall.ext||'(none)'}</strong></div>
+        </div>
+        <div style={{marginTop:8,fontSize:12,color:C.tx,fontWeight:600,lineHeight:1.5}}>Re-read the BCM in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module.</div>
+      </div>}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.gn,fontWeight:700}}>{inspectMsg}</div>}
-      {inspectMod&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
+      {inspectMod&&!inspectTooSmall&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
     </Card>
 
-    {inspectMod&&<FeatureMatrixPanel mod={inspectMod}/>}
+    {inspectMod&&!inspectTooSmall&&<FeatureMatrixPanel mod={inspectMod}/>}
 
     <FeatureMatrixCatalog/>
 

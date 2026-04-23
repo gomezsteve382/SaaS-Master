@@ -24,6 +24,26 @@ const CANONICAL_SIZES_BY_TYPE={
   RFHUB:[2048,4096],
 };
 
+// Minimum byte size for any file we will treat as a real BCM dump. Files
+// smaller than this are EEPROM slices, fragments, or wrong-module dumps —
+// not a usable MPC5605B/06B DFLASH image. Single source of truth for the
+// BCM size guard used by parseModule + ModuleSync (Task #370).
+const BCM_MIN_SIZE=Math.min(...CANONICAL_SIZES_BY_TYPE.BCM);
+
+function fileExt(filename){
+  if(!filename)return '';
+  const m=String(filename).match(/\.([A-Za-z0-9]+)$/);
+  return m?'.'+m[1].toLowerCase():'';
+}
+
+// Check if a buffer is too small to be a real BCM dump. Returns a structured
+// result the inspector can render directly, or null if size is acceptable.
+function bcmTooSmall(bytes,filename){
+  const sz=bytes?bytes.length:0;
+  if(sz>=BCM_MIN_SIZE)return null;
+  return{tooSmall:true,size:sz,min:BCM_MIN_SIZE,ext:fileExt(filename)};
+}
+
 function typeFromFilename(name){
   if(!name)return null;
   const u=String(name).toUpperCase();
@@ -367,4 +387,4 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn};
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall};

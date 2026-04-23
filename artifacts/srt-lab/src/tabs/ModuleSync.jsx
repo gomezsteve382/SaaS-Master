@@ -4,6 +4,7 @@ import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm } from "../lib/securityBytes.js";
+import { bcmTooSmall } from "../lib/parseModule.js";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -79,7 +80,22 @@ function engCrc16(data, init = 0xFFFF, poly = 0x1021) {
   return c & 0xFFFF;
 }
 
-function engParseBcm(bytes) {
+export function engParseBcm(bytes, filename) {
+  /* Reject files smaller than a real MPC5605B/06B DFLASH dump. Without this
+   * short-circuit the inspector parses partial/EEPROM-slice files and shows
+   * misleading "CS ERROR" VIN slots, empty SEC16, and a fake "does not match"
+   * verdict — see Task #370. */
+  const small = bcmTooSmall(bytes, filename);
+  if (small) {
+    return {
+      ok: false, kind: 'BCM', size: bytes.length,
+      tooSmall: true, minSize: small.min, fileExt: small.ext,
+      vinSlots: [], vin: null, vinConsistent: false,
+      partNumbers: [], supplierSerial: null,
+      sec16Records: [], sec16Mirrors: [], sec16Consistent: false, sec16Hex: null, sec16MirrorHex: null,
+      banks: null,
+    };
+  }
   const r = {
     ok: false, kind: 'BCM', size: bytes.length,
     vinSlots: [], vin: null, vinConsistent: false,
@@ -582,6 +598,22 @@ function PnOverrideBadge() {
 
 function BcmCard({ parsed, pnOverride }) {
   if (!parsed) return null;
+  if (parsed.tooSmall) {
+    return (
+      <div data-testid="bcm-too-small-card" style={{ background: 'rgba(255,23,68,0.05)', borderRadius: 12, padding: 16, border: `2px solid ${C.er}`, gridColumn: '1 / -1' }}>
+        <div style={{ fontWeight: 900, fontSize: 13, letterSpacing: 1.2, textTransform: 'uppercase', color: C.er, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          ⛔ This isn&apos;t a full BCM dump
+          <Badge text="REJECTED" color={C.er} />
+        </div>
+        <Kv k="File size"   v={`${parsed.size.toLocaleString()} bytes`} mono color={C.er} />
+        <Kv k="Required min" v={`${parsed.minSize.toLocaleString()} bytes (64 KB MPC5605B/06B DFLASH)`} mono />
+        <Kv k="Detected ext" v={parsed.fileExt || '(none)'} mono />
+        <div style={{ marginTop: 10, padding: '10px 12px', background: 'rgba(255,23,68,0.08)', border: `1px solid ${C.er}55`, borderRadius: 8, fontSize: 12, color: C.tx, lineHeight: 1.5, fontWeight: 600 }}>
+          Re-read the BCM in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module.
+        </div>
+      </div>
+    );
+  }
   const match   = bcmVehicleMatch(parsed);
   const isGen2  = parsed.sec16Records.length > 0 || (match && match.gen === 'gen2');
   const hasSec16 = parsed.sec16Hex || parsed.sec16MirrorHex;
@@ -1040,11 +1072,15 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   }, [log]);
 
   const handleBcm = useCallback((file, bytes) => {
-    const parsed = engParseBcm(bytes);
+    const parsed = engParseBcm(bytes, file.name);
     const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
     setBcm({ file, bytes, parsed, pnOverride });
     setDiffRows([]); setOriginals(prev => ({ ...prev, bcm: null }));
     log(`Loaded BCM: ${file.name} (${bytes.length} bytes)`, 'info');
+    if (parsed.tooSmall) {
+      log(`  ✗ BCM file too small (${bytes.length} B, need ≥ ${parsed.minSize.toLocaleString()} B). Re-read the BCM in full or load the correct file.`, 'err');
+      return;
+    }
     if (pnOverride) log('  ⚠ BCM was loaded with P/N OVERRIDE on the Dumps tab — bypassed registry check', 'warn');
     if (parsed.ok) {
       log(`  BCM VIN: ${parsed.vin} · ${parsed.vinSlots.length} slot(s)`, 'ok');
@@ -1578,6 +1614,22 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
             );
           })()}
 
+          {/* BCM-too-small banner — shown in place of the VIN match / Comparison
+              wording so users aren't told the SEC6 doesn't match when the real
+              cause is an undersized / fragment / wrong-module BCM file. */}
+          {bcm.parsed?.tooSmall && (
+            <div data-testid="bcm-too-small-banner" style={{
+              padding: '14px 18px', borderRadius: 12, marginBottom: 14,
+              fontWeight: 800, fontSize: 13, letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+              background: 'rgba(255,23,68,0.08)', color: '#a00025',
+              border: `1.5px solid ${C.er}55`,
+            }}>
+              <span style={{ flex: 1 }}>
+                ✗ NOT READY — BCM file is too small ({bcm.parsed.size.toLocaleString()} B, need ≥ {bcm.parsed.minSize.toLocaleString()} B). Load a full BCM dump to enable VIN / SEC16 / SEC6 comparison.
+              </span>
+            </div>
+          )}
+
           {/* VIN match banner */}
           {bothReady && (
             <div style={{
@@ -1691,6 +1743,34 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                 : eep.bytes && eep.bytes.length < 0x84A ? `95640 file too small (${eep.bytes.length} bytes — need ≥0x84A).`
                 : 'Load a 95640 dump to enable.'}
               onClick={() => doSync('rekey-95640-from-rfh')} />
+          </div>
+        </Card>
+      )}
+
+      {/* ── Sync Actions disabled — BCM is too small (Task #370) ──
+           When the BCM dump is undersized, bothReady is false so the live
+           Sync Actions card below is hidden. Surface a parallel disabled-state
+           card with the exact wording the task calls for so the operator sees
+           why APPLY / Import data from BCM → PCM are unreachable. */}
+      {bcm.parsed?.tooSmall && (rfh.bytes || pcm.bytes) && (
+        <Card>
+          <H2>Sync Actions</H2>
+          <div data-testid="bcm-too-small-actions-notice"
+               title="BCM file is too small — load a full ≥ 64 KB BCM dump."
+               style={{
+                 padding: '14px 18px', borderRadius: 10,
+                 background: 'rgba(255,23,68,0.07)',
+                 border: `2px solid ${C.er}`,
+               }}>
+            <div style={{ fontWeight: 900, fontSize: 12, color: C.er, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 8 }}>
+              ⛔ APPLY / Import data from BCM → PCM unavailable
+            </div>
+            <div style={{ fontSize: 12, color: C.tx, fontWeight: 700, lineHeight: 1.6 }}>
+              BCM file is too small — load a full ≥ 64 KB BCM dump.
+            </div>
+            <div style={{ marginTop: 6, fontSize: 11, color: C.ts, lineHeight: 1.6 }}>
+              Detected size: {bcm.parsed.size.toLocaleString()} B · required min: {bcm.parsed.minSize.toLocaleString()} B (MPC5605B/06B DFLASH).
+            </div>
           </div>
         </Card>
       )}
