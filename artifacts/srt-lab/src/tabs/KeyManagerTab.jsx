@@ -1,26 +1,7 @@
-/* ============================================================================
- * KeyManagerTab — Task #407 — dual-pane RFHub Key Manager.
- *
- * Modeled on the FreshAuto RFHub Key Manager v6 workflow:
- *   • Load File A (source) and File B (target) — independent drop zones.
- *   • Each pane parses an RFHUB Gen2 (4 KB) or Gen1 (2 KB) image and shows
- *     occupancy of the four AA-50 fob slots plus the SEC16 master secret.
- *   • Per-row buttons let a locksmith Send a slot A→B (same index),
- *     Delete (clear marker) or Add (write AA 50 to a free slot).
- *   • A single Master-Transponder copy button transfers the SEC16 raw +
- *     recomputes the Gen2 CS (golden-tested formula in lib/crc.js).
- *   • Save buttons re-download the patched bin per pane, only enabled
- *     after at least one mutation succeeded. Refusal paths (writer
- *     returns ok:false) log "KEYMOD REFUSED" in red and skip the save.
- *
- * LAYOUT HONESTY — The per-fob Autel/H8/megamos transponder ID byte block
- * is NOT yet reverse-engineered for either Gen1 or Gen2 RFHUB images.
- * Transfer/Delete/Add operate on the AA-50 OCCUPANCY MARKER ONLY. The
- * banner at the top of the tab explains this so the locksmith never
- * assumes a "transferred" slot will start a vehicle without an
- * accompanying SEC16 (master) copy. See lib/rfhubKeySlots.js for the
- * exact contract and follow-up tasks for mapping per-slot IDs.
- * ============================================================================ */
+/* KeyManagerTab — dual-pane RFHub Key Manager.
+ * Per-slot transponder ID byte block is not yet mapped for Gen1 or Gen2;
+ * AA-50 marker, master SEC16 copy, and the on-screen banner are the
+ * authoritative contract. See lib/rfhubKeySlots.js. */
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { Card, Btn, Tag } from '../lib/ui.jsx';
 import { C } from '../lib/constants.js';
@@ -87,9 +68,7 @@ function patchedName(paneState, paneId) {
   return `RFH_KEYMOD_${vin}_${role}_${utcStamp()}.bin`;
 }
 
-/* Tiny localStorage-backed audit ring buffer — every successful or refused
- * mutation lands here so a locksmith has a tamper-evident record after the
- * tab is closed. (Reviewer #2 next-action item.) */
+/* Local audit ring buffer (supplemental to module backups). */
 const AUDIT_KEY = 'srt-lab.keymgr.audit.v1';
 const AUDIT_LIMIT = 500;
 function appendAudit(entry) {
@@ -341,10 +320,6 @@ export default function KeyManagerTab() {
 
   const loadPane = useCallback((paneId, name, bytes) => {
     const parsed = parseKeySlots(bytes);
-    // Snapshot the original buffer so the user can revert in-place without
-    // re-uploading the file. This is the project-local equivalent of the
-    // "snapshot before write" pattern in lib/audit.js#backupModule (which
-    // requires a live UDS engine and therefore cannot be used here).
     const originalBytes = new Uint8Array(bytes);
     appendAudit({ pane: paneId, op: 'load-snapshot', filename: name, bytes: bytes.length });
     if (!parsed.ok) {
@@ -384,10 +359,6 @@ export default function KeyManagerTab() {
     setPanes(p => {
       const cur = p[paneId];
       if (!cur) return p;
-      // Tightened "dirty" gating — compare pre/post buffers byte-for-byte and
-      // only flip dirty (which enables the Save download) when the writer
-      // actually moved bytes. Stops a no-op AA-50 mark on an already-empty
-      // slot from enabling a meaningless download (validation #2 follow-up).
       const same = cur.bytes.length === result.bytes.length
         && cur.bytes.every((b, i) => b === result.bytes[i]);
       actuallyChanged = !same;
@@ -398,8 +369,8 @@ export default function KeyManagerTab() {
       addLog(`${paneId} · ${label} ok (patched=${result.patched ?? '?'})`, 'pass');
       appendAudit({ pane: paneId, op: label, ok: true, patched: result.patched ?? 0 });
     } else {
-      addLog(`KEYMOD REFUSED · ${paneId} · ${label}: no-op (writer returned identical bytes)`, 'warn');
-      appendAudit({ pane: paneId, op: label, ok: false, error: 'no-op (identical bytes)' });
+      addLog(`KEYMOD REFUSED · ${paneId} · ${label}: no-op`, 'warn');
+      appendAudit({ pane: paneId, op: label, ok: false, error: 'no-op' });
     }
     return actuallyChanged;
   }, [addLog, reparse]);
@@ -448,11 +419,8 @@ export default function KeyManagerTab() {
     applyResult(paneId, r, `add manual @ first-free slot #${free}`);
   }, [panes, applyResult, addLog]);
 
-  /* Manual ID hex input — accepts 8 hex bytes (per FreshAuto v6 fob-ID
-   * widget) but currently REFUSES to write because the per-slot ID byte
-   * offsets aren't reverse-engineered yet (Task #408). The form proves
-   * the workflow shape and surfaces a clear red log entry instead of
-   * pretending to write garbage. */
+  /* Manual ID hex input. Accepts 8 hex bytes but refuses to write — the
+   * per-slot ID byte offsets are not yet mapped (see Task #408). */
   const handleManualHexAdd = useCallback((paneId) => {
     const cur = panes[paneId]; if (!cur?.bytes) return;
     const txt = (paneId === 'A' ? manualHexA : manualHexB).trim();
@@ -466,10 +434,6 @@ export default function KeyManagerTab() {
     appendAudit({ pane: paneId, op: 'manual-hex', ok: false, error: 'layout not mapped', hex: hex.toUpperCase() });
   }, [panes, manualHexA, manualHexB, addLog]);
 
-  /* Bulk transfer helpers (FreshAuto center panel: SELECTED A→B,
-   * SELECTED B→A, ALL A→B, ALL B→A). Each iterates the chosen indices,
-   * calls transferSlot per slot, and stops only on a hard refusal so a
-   * partial batch is recorded rather than silently rolled back. */
   const handleBulkTransfer = useCallback((srcId, mode) => {
     const dstId = srcId === 'A' ? 'B' : 'A';
     const src = panes[srcId]; const dst = panes[dstId];
@@ -521,54 +485,62 @@ export default function KeyManagerTab() {
     applyResult(dstId, r, `copy master SEC16 from ${srcId}`);
   }, [panes, applyResult, addLog]);
 
-  /* Write a synthetic snapshot record into the same localStorage index
-   * BackupsTab consumes (`srtlab_backup_index` + `srtlab_backup_RFHUB_*`)
-   * so a saved keymgr edit is recoverable from the existing Backups pane —
-   * not just from this tab's in-memory revert. We can't call
-   * audit.js#backupModule (it requires a live UDS engine), so we mint a
-   * compatible record by hand and rely on getBackup()/getBackupList() to
-   * surface it. */
-  function writeKeymgrSnapshot(paneId, name, vin, originalBytes, patchedBytes) {
-    if (typeof localStorage === 'undefined') return null;
+  /* Persist a keymgr snapshot through the same path BackupsTab uses:
+   * POST /api/backups (canonical persistence) with a localStorage fallback
+   * so the record survives `refreshBackupsFromServer()` re-syncs. */
+  async function writeKeymgrSnapshot(paneId, name, vin, originalBytes, patchedBytes) {
+    const ts = Date.now();
+    const tsIso = new Date(ts).toISOString();
+    const key = `srtlab_backup_RFHUB_${vin}_${ts}_keymgr_${paneId}`;
+    const toHex = (arr) => Array.from(arr, b => b.toString(16).padStart(2, '0').toUpperCase()).join('');
+    const payload = {
+      module: 'RFHUB',
+      tx: 0x000, rx: 0x000,
+      timestamp: tsIso,
+      snapshotKind: 'keymgr-pre-save',
+      source: name,
+      dids: {
+        0xEEEE: { name: 'RFHUB EEPROM (original)', critical: true,
+                  hex: toHex(originalBytes), bytes: Array.from(originalBytes) },
+        0xEEEF: { name: 'RFHUB EEPROM (patched)', critical: true,
+                  hex: toHex(patchedBytes), bytes: Array.from(patchedBytes) },
+      },
+    };
+    const meta = {
+      key, id: key, module: 'RFHUB', vin, timestamp: tsIso,
+      didCount: 2, tx: 0x000, rx: 0x000,
+      snapshotKind: 'keymgr-pre-save', preWriteKey: null,
+      source: 'keymgr', pane: paneId, filename: name,
+    };
+    let savedRemote = false;
     try {
-      const ts = Date.now();
-      const tsIso = new Date(ts).toISOString();
-      const key = `srtlab_backup_RFHUB_${vin}_${ts}_keymgr_${paneId}`;
-      const toHex = (arr) => Array.from(arr, b => b.toString(16).padStart(2, '0').toUpperCase()).join('');
-      const payload = {
-        module: 'RFHUB',
-        tx: 0x000, rx: 0x000,
-        timestamp: tsIso,
-        snapshotKind: 'keymgr-pre-save',
-        source: name,
-        dids: {
-          0xEEEE: { name: 'RFHUB EEPROM (original)', critical: true,
-                    hex: toHex(originalBytes), bytes: Array.from(originalBytes) },
-          0xEEEF: { name: 'RFHUB EEPROM (patched)', critical: true,
-                    hex: toHex(patchedBytes), bytes: Array.from(patchedBytes) },
-        },
-      };
-      localStorage.setItem(key, JSON.stringify(payload));
-      const idxRaw = localStorage.getItem('srtlab_backup_index') || '[]';
-      const idx = JSON.parse(idxRaw);
-      idx.unshift({
-        key, id: key, module: 'RFHUB', vin, timestamp: tsIso,
-        didCount: 2, tx: 0x000, rx: 0x000,
-        snapshotKind: 'keymgr-pre-save', preWriteKey: null,
-        source: 'keymgr', pane: paneId, filename: name,
+      const res = await fetch('/api/backups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: key, module: 'RFHUB', vin, didCount: 2,
+          tx: 0, rx: 0, timestamp: tsIso, payload,
+          snapshotKind: 'keymgr-pre-save', preWriteKey: null,
+        }),
       });
-      localStorage.setItem('srtlab_backup_index', JSON.stringify(idx.slice(0, 50)));
-      // Notify subscribers (BackupsTab listens for the same audit event)
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('srtlab:audit'));
+      savedRemote = res.ok;
+    } catch { /* offline — fall through to local cache */ }
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(key, JSON.stringify(payload));
+        const idxRaw = localStorage.getItem('srtlab_backup_index') || '[]';
+        const idx = JSON.parse(idxRaw);
+        idx.unshift(meta);
+        localStorage.setItem('srtlab_backup_index', JSON.stringify(idx.slice(0, 50)));
       }
-      return key;
-    } catch (e) {
-      return null;
+    } catch { /* quota or denied */ }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('srtlab:audit'));
     }
+    return { key, savedRemote };
   }
 
-  const handleSave = useCallback((paneId) => {
+  const handleSave = useCallback(async (paneId) => {
     const cur = panes[paneId];
     if (!cur?.bytes) return;
     if (!cur.dirty) {
@@ -577,17 +549,14 @@ export default function KeyManagerTab() {
     }
     const fn = patchedName(cur, paneId);
     const vin = extractRfhVin(cur.bytes, cur.parsed?.gen) || 'NOVIN';
-    // Persist a recoverable snapshot to the project-wide BackupsTab index
-    // BEFORE handing the file to the browser download — same "snapshot
-    // before write" ordering audit.js#backupModule uses.
-    const snapKey = writeKeymgrSnapshot(paneId, fn, vin, cur.originalBytes || cur.bytes, cur.bytes);
+    // Snapshot first, download second — matches lib/audit.js#backupModule.
+    const snap = await writeKeymgrSnapshot(paneId, fn, vin, cur.originalBytes || cur.bytes, cur.bytes);
     downloadBin(cur.bytes, fn);
-    addLog(`${paneId}: saved ${fn}${snapKey ? ` (snapshot ${snapKey})` : ''}`, 'pass');
-    appendAudit({ pane: paneId, op: 'save', filename: fn, bytes: cur.bytes.length, snapshotKey: snapKey });
-    // Reuse the project-wide toast + download-tracker pipeline rather than
-    // rolling a one-off save flow.
+    const remoteTag = snap.savedRemote ? 'server+local' : 'local-only';
+    addLog(`${paneId}: saved ${fn} (snapshot ${snap.key}, ${remoteTag})`, 'pass');
+    appendAudit({ pane: paneId, op: 'save', filename: fn, bytes: cur.bytes.length, snapshotKey: snap.key, savedRemote: snap.savedRemote });
     try { dispatchToast(`Saved ${fn}`, 'pass'); } catch { /* noop */ }
-    try { trackDownload('rfh-keymod'); } catch { /* counter is best-effort */ }
+    try { trackDownload('rfh-keymod'); } catch { /* best-effort */ }
   }, [panes, addLog]);
 
   const aLoaded = !!panes.A?.bytes && panes.A?.parsed?.ok;
@@ -615,10 +584,14 @@ export default function KeyManagerTab() {
           ⚠ LAYOUT STATUS — READ BEFORE FLASHING
         </div>
         <div style={{ fontSize: 12, lineHeight: 1.55, color: '#5D4037' }}>
-          <b>Confirmed:</b> AA-50 occupancy markers @ 0x0880 stride 2 (Gen1 + Gen2),
-          and the master-transponder SEC16 mirror pair (Gen2 CS = crc8_65 — golden-tested).
+          <b>Confirmed (Gen2 only):</b> AA-50 occupancy markers @ 0x0880 stride 2,
+          and the master-transponder SEC16 mirror pair (CS = crc8_65 — golden-tested).
           <br />
-          <b>Not yet mapped:</b> per-fob Autel transponder ID byte block.
+          <b>Not confirmed (Gen1):</b> the AA-50 base offset @ 0x0880 lies past the
+          end of a 2 KB Gen1 image, so per-slot edits are gated off for Gen1; only
+          Master-SEC16 copy is permitted on Gen1.
+          <br />
+          <b>Not yet mapped (any gen):</b> per-fob Autel transponder ID byte block.
           “Send →”, “Delete”, and “Add AA50” edit the OCCUPANCY MARKER ONLY.
           A transferred slot will not start a vehicle without an accompanying
           <i> Copy Master Transponder</i> (or a per-fob ID layout patch in a follow-up task).
