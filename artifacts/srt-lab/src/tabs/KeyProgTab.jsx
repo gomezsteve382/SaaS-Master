@@ -147,12 +147,75 @@ export function KeyProgZipSummaryCard({ zipSummary, onDismiss }) {
   );
 }
 
+/* Task #395 — categorize a saved-archive row by its BCM SEC16 outcome so the
+ * filter pills can group rows the same way the badge / VERIFY.txt do. A
+ * BLANK / virgin dump always wins (regardless of which candidate slice the
+ * resolver landed on), then we fall back to the resolver `source` string,
+ * and finally to 'unknown' for legacy archives that predate the SEC16
+ * snapshot. Exported for unit-test coverage. */
+export function categorizeArchiveSec16(archive) {
+  const sec16 = archive?.bcmSec16;
+  if (sec16?.blank) return 'virgin';
+  const src = sec16?.source;
+  if (src === 'split' || src === 'mirror1' || src === 'mirror2' || src === 'flat') return src;
+  return 'unknown';
+}
+
+const SEC16_FILTER_PILLS = [
+  { key: 'split',   label: 'split' },
+  { key: 'mirror1', label: 'mirror1' },
+  { key: 'mirror2', label: 'mirror2' },
+  { key: 'flat',    label: 'flat' },
+  { key: 'virgin',  label: 'virgin' },
+  { key: 'unknown', label: 'unknown' },
+];
+
 /* Task #392 — saved-archive history card. Each row carries the BCM SEC16
  * source line (split / mirror1 / mirror2 / flat / virgin) so a locksmith
  * scanning past sessions can see how the shared secret was derived without
- * re-opening each ZIP. Exported so the test suite can render it in
+ * re-opening each ZIP. Task #395 adds filter pills (split / mirror1 /
+ * mirror2 / flat / virgin / unknown) and a free-text VIN-or-filename search
+ * box so a high-volume shop can isolate "only flat fallbacks" or "only this
+ * VIN" without scrolling. Exported so the test suite can render it in
  * isolation against seeded archive records. */
 export function KeyProgSavedArchivesCard({ archives, onDelete, onClear }) {
+  const [activeSources, setActiveSources] = useState(() => new Set());
+  const [searchText, setSearchText] = useState('');
+
+  const toggleSource = useCallback((key) => {
+    setActiveSources((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setActiveSources(new Set());
+    setSearchText('');
+  }, []);
+
+  const total = archives?.length || 0;
+  const trimmedSearch = searchText.trim().toLowerCase();
+  const hasSourceFilter = activeSources.size > 0;
+  const hasSearch = trimmedSearch.length > 0;
+  const filtersActive = hasSourceFilter || hasSearch;
+
+  const visibleArchives = useMemo(() => {
+    if (!archives) return [];
+    return archives.filter((a) => {
+      if (hasSourceFilter && !activeSources.has(categorizeArchiveSec16(a))) return false;
+      if (hasSearch) {
+        const vin = (a.vin || '').toLowerCase();
+        const name = (a.zipName || '').toLowerCase();
+        if (!vin.includes(trimmedSearch) && !name.includes(trimmedSearch)) return false;
+      }
+      return true;
+    });
+  }, [archives, activeSources, hasSourceFilter, hasSearch, trimmedSearch]);
+
+  const visibleCount = visibleArchives.length;
+
   return (
     <Card style={{ marginBottom: 14, padding: 18 }} data-testid="keyprog-archive-history-card">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -170,8 +233,82 @@ export function KeyProgSavedArchivesCard({ archives, onDelete, onClear }) {
           No archives saved yet. Download a Key Prog ZIP and it will appear here.
         </div>
       ) : (
+        <>
+          <div
+            data-testid="keyprog-archive-history-controls"
+            style={{
+              display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8,
+              marginBottom: 10, paddingBottom: 10, borderBottom: '1px dashed ' + C.bd,
+            }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: C.tm, letterSpacing: 1 }}>
+              SEC16 SOURCE
+            </span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {SEC16_FILTER_PILLS.map((pill) => {
+                const active = activeSources.has(pill.key);
+                return (
+                  <button
+                    key={pill.key}
+                    type="button"
+                    data-testid={'keyprog-archive-filter-' + pill.key}
+                    data-active={active ? '1' : '0'}
+                    onClick={() => toggleSource(pill.key)}
+                    style={{
+                      padding: '3px 9px', fontSize: 10, fontWeight: 800, letterSpacing: 1,
+                      borderRadius: 999, cursor: 'pointer',
+                      border: '1px solid ' + (active ? C.sr : C.bd),
+                      background: active ? C.sr : 'transparent',
+                      color: active ? C.c1 : C.tm,
+                    }}>
+                    {pill.label.toUpperCase()}
+                  </button>
+                );
+              })}
+            </div>
+            <input
+              type="text"
+              data-testid="keyprog-archive-search"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Search VIN or filename…"
+              style={{
+                flex: 1, minWidth: 180, padding: '5px 9px', fontSize: 11,
+                borderRadius: 6, border: '1px solid ' + C.bd,
+                background: C.c2, color: C.tx, fontFamily: "'JetBrains Mono'",
+              }}
+            />
+            <span
+              data-testid="keyprog-archive-history-count"
+              data-visible={String(visibleCount)}
+              data-total={String(total)}
+              style={{ fontSize: 10, fontWeight: 700, color: C.tm, letterSpacing: 1 }}>
+              {filtersActive
+                ? `Showing ${visibleCount} of ${total}`
+                : `${total} archive${total === 1 ? '' : 's'}`}
+            </span>
+            {filtersActive && (
+              <button
+                type="button"
+                data-testid="keyprog-archive-filter-reset"
+                onClick={clearFilters}
+                style={{
+                  padding: '3px 9px', fontSize: 10, fontWeight: 800, letterSpacing: 1,
+                  borderRadius: 4, cursor: 'pointer',
+                  border: '1px solid ' + C.bd, background: 'transparent', color: C.tm,
+                }}>
+                RESET
+              </button>
+            )}
+          </div>
+          {visibleCount === 0 ? (
+            <div
+              data-testid="keyprog-archive-history-no-matches"
+              style={{ fontSize: 11, color: C.tm, fontStyle: 'italic' }}>
+              No archives match the current filters. Try clearing them or widening your search.
+            </div>
+          ) : (
         <div data-testid="keyprog-archive-history-list" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {archives.map((a) => {
+          {visibleArchives.map((a) => {
             const sec16 = a.bcmSec16;
             const blank = !!sec16?.blank;
             return (
@@ -222,20 +359,24 @@ export function KeyProgSavedArchivesCard({ archives, onDelete, onClear }) {
               </div>
             );
           })}
-          {archives.length > 1 && onClear && (
-            <button
-              data-testid="keyprog-archive-history-clear"
-              onClick={onClear}
-              style={{
-                alignSelf: 'flex-end', marginTop: 4, padding: '4px 10px',
-                fontSize: 10, fontWeight: 800, color: C.er, background: 'transparent',
-                border: '1px solid ' + C.bd, borderRadius: 4, cursor: 'pointer',
-                letterSpacing: 1,
-              }}>
-              CLEAR HISTORY
-            </button>
+            </div>
           )}
-        </div>
+          {archives.length > 1 && onClear && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
+              <button
+                data-testid="keyprog-archive-history-clear"
+                onClick={onClear}
+                style={{
+                  padding: '4px 10px',
+                  fontSize: 10, fontWeight: 800, color: C.er, background: 'transparent',
+                  border: '1px solid ' + C.bd, borderRadius: 4, cursor: 'pointer',
+                  letterSpacing: 1,
+                }}>
+                CLEAR HISTORY
+              </button>
+            </div>
+          )}
+        </>
       )}
     </Card>
   );
