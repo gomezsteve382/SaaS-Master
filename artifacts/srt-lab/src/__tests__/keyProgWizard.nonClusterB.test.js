@@ -176,19 +176,12 @@ describe('Non-Cluster-B Key Prog wizard trios (Task #347)', () => {
 
   /* Gen1 RFHUB (24C16, 2048 B):
    *
-   * The wizard's identifyModule defers to parseModule for the role
-   * decision. parseModule today only classifies 4096-byte (and 8192-byte
-   * doubled) RFH buffers as 'RFHUB'; 2048-byte Gen1 buffers fall through
-   * to type 'UNKNOWN' (see src/lib/__tests__/parseModule.test.js:
-   * "classifies 2048-byte RFHUB Gen1 buffers as UNKNOWN today").
-   *
-   * Until parseModule learns the Gen1 size + signature, this trio cannot
-   * reach a passing wizard run. The test below is `.skip`'d — flip it to
-   * `it(...)` once parseModule wires up Gen1 detection. We still build
-   * the fixture here so the regression beacon stays self-contained.
+   * Task #365 wired Gen1 detection into parseModule (sz===2048 → RFHUB,
+   * VIN @ 0x92 with CRC16 BE, SEC16 @ 0x00AE/0x00C0). The wizard's pass-
+   * through RFH path now reads the Gen1 secret bytes from the right place
+   * for older Cherokee/etc. vehicles.
    */
-  // eslint-disable-next-line vitest/no-disabled-tests
-  it.skip('Gen1 RFHUB (24C16, 2048 B) trio — pending parseModule Gen1 wiring', () => {
+  it('Gen1 RFHUB (24C16, 2048 B) trio — pass-through wizard run', () => {
     const bcm = {
       name: 'GEN1_BCM_DFLASH_OG.bin',
       data: makeBcmWithSecret({
@@ -212,18 +205,15 @@ describe('Non-Cluster-B Key Prog wizard trios (Task #347)', () => {
     for (const a of r.after.bcmFullVins) expect(a.vin).toBe(TARGET_VIN);
   });
 
-  it('Gen1 RFHUB beacon: parseModule still classifies 2048-byte buffers as UNKNOWN', () => {
-    // Today, parseModule treats 2048-byte RFH buffers as UNKNOWN; the wizard
-    // therefore correctly refuses to run the trio (the beacon test above
-    // skips). Pin that current behavior here so the moment parseModule
-    // gains Gen1 detection, this assertion flips and the maintainer is
-    // forced to enable the wizard test above (and the Gen1 SEC16 path
-    // becomes covered end-to-end).
+  it('Gen1 RFHUB beacon: parseModule classifies 2048-byte buffers as RFHUB', () => {
+    // Task #365: parseModule now recognizes Gen1 RFH dumps. identifyModule
+    // routes them through the RFH role and the wizard test above runs.
     const rfhGen1 = makeRfhubGen1({ vin: TARGET_VIN });
     const info = parseModule(rfhGen1, 'GEN1_RFH_EEE_OG.bin');
     expect(info.size).toBe(2048);
-    expect(info.type).toBe('UNKNOWN');
+    expect(info.type).toBe('RFHUB');
+    expect(info.rfhGen).toBe('Gen1 (24C16)');
     const id = identifyModule(rfhGen1, 'GEN1_RFH_EEE_OG.bin');
-    expect(id.role).toBeNull();
+    expect(id.role).toBe('RFH');
   });
 });

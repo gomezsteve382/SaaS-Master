@@ -159,11 +159,10 @@ function makeRfhubGen2({
 }
 
 // 2048-byte RFHUB Gen1 (24C16) fixture.
-// VINs stored PLAIN at 0x0ea5/0x0eb9/0x0ecd/0x0ee1 with crc8rf at +17.
-// SEC16 at 0x00AE (slot 1) / 0x00C0 (slot 2). Gen1 sizes are not in the
-// current sz-based type detection table, so parseModule() classifies these
-// buffers as 'UNKNOWN'; the fixture still exercises the underlying Gen1
-// CRC primitives (crc8rf) and pins that detection behavior.
+// VIN @ 0x92 with CRC16 BE at +17 (the only VIN copy a 2 KB image carries —
+// the 0xEA5+ Gen2 slot table is past the end of a 24C16). SEC16 at 0x00AE
+// (slot 1) / 0x00C0 (slot 2). Task #365 wired sz===2048 → RFHUB into
+// parseModule and the Key Prog wizard; this fixture matches that layout.
 function makeRfhubGen1({
   vin = VIN_DEFAULT,
   vinCount = 4,
@@ -182,6 +181,11 @@ function makeRfhubGen1({
   const sec = sec16Bytes || new Uint8Array(16).map((_, i) => 0xB0 + i);
   fill(buf, 0x00AE, sec);
   fill(buf, 0x00C0, sec);
+  // VIN @ 0x92 with CRC16 (CCITT) BE at +17. The Gen1 24C16 image is too
+  // small for the Gen2 0xEA5+ slot table, so the 0x92 record is where the
+  // module's only VIN copy actually lives.
+  fill(buf, 0x92, vinAscii);
+  writeBE16(buf, 0x92 + 17, crc16(vinAscii));
   return buf;
 }
 

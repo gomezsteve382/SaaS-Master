@@ -172,6 +172,12 @@ function parseModule(data,filename,opts){
     if(sig4!=='UNKNOWN'){type=sig4;}
     else{let va=true;for(let i=0;i<17&&i<sz;i++){const b=data[i];if(!((b>=0x30&&b<=0x39)||(b>=0x41&&b<=0x5A))){va=false;break;}}type=va?'GPEC2A':'RFHUB';}
   }
+  // Gen1 RFHUB (24C16, 2048 B): older Cherokee/etc. RFH key-fob hubs. The
+  // 2 KB image has no Gen2 0xEA5+ VIN slots (out of range) — VIN lives at
+  // 0x92 and SEC16 at 0x00AE/0x00C0. Classify here so the wizard can drive
+  // these older vehicles instead of bailing out as UNKNOWN. TIPM signature
+  // wins (it overlaps the 1024-10240 detection window).
+  else if(sz===2048){const sig=detectBySignature(data);type=sig!=='UNKNOWN'?sig:'RFHUB';}
   else if(sz>131072)type='FW';
   if(type==='UNKNOWN'){
     const CANONICAL_SIZES=[65536,131072,8192,16384,4096];
@@ -266,8 +272,15 @@ function parseModule(data,filename,opts){
       const notBlank=!raw17.every(b=>b===0xFF||b===0x00);
       if(notBlank){let s='';for(let i=0;i<17;i++)s+=String.fromCharCode(raw17[i]);
         const sc=(data[0x92+17]<<8)|data[0x92+18];const cc=crc16(raw17);
-        if(/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))
+        if(/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s)){
           info.rfhVin92={offset:0x92,vin:s,storedCs:sc,calcCs:cc,csOk:sc===cc};
+          // Gen1 (2 KB) RFHUB stores its VIN here — the 0xEA5+ slot table
+          // is past the end of a 24C16 image, so this is the only VIN the
+          // module carries. Surface it through info.vins so the Key Prog
+          // wizard's "RFH already carries target VIN" check can see it.
+          if(sz===2048&&info.vins.length===0)
+            info.vins.push({offset:0x92,vin:s,sc,cc,crcOk:sc===cc,algo:'c16'});
+        }
       }
     }
     info.sec16s=[];

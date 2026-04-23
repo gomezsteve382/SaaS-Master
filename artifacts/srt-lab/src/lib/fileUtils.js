@@ -29,6 +29,7 @@ function analyzeFile(buf,name){
   if(sz===65536||sz===131072)type='BCM';
   else if(sz===8192||sz===16384){const sig=_detectBySignature(data);type=sig!=='UNKNOWN'?sig:'95640';}
   else if(sz===4096){const sig4=_detectBySignature(data);if(sig4!=='UNKNOWN'){type=sig4;}else{let a=true;for(let i=0;i<17&&i<sz;i++)if(data[i]<0x30||data[i]>0x5A){a=false;break;}type=a?'GPEC2A':'RFHUB';}}
+  else if(sz===2048){const sig=_detectBySignature(data);type=sig!=='UNKNOWN'?sig:'RFHUB';} // Gen1 RFHUB (24C16) — see parseModule.js
   else if(sz>131072)type='FW';
   if(type==='UNKNOWN'){const CANONICAL_SIZES=[65536,131072,8192,16384,4096];const nearCanonical=CANONICAL_SIZES.some(s=>Math.abs(sz-s)<=4096&&sz!==s);if(nearCanonical||sz>=512){const sig=_detectBySignature(data);if(sig!=='UNKNOWN')type=sig;}}
   // Filename hint — see parseModule.js. Two rules: rescue the FW bucket, and
@@ -42,8 +43,16 @@ function analyzeFile(buf,name){
   const sizeWarn=buildSizeWarn(type,sz);
   const contentWarn=type==='BCM'?buildBcmContentWarn(data):null;
   const vins=[],partials=[];
-  // Gen2 (24C32, 4096 B): CS = rfhGen2VinCs (XOR^0x87); Gen1 (24C16, 2048 B): CS = crc8rf
-  if(type==='RFHUB'){const rfhIsGen2=sz===4096;let rfhMagic=0xDB;if(rfhIsGen2){for(const _o of[0xEA5,0xEB9,0xECD,0xEE1]){const _st=data.slice(_o,_o+17);const _sc=_o+17<sz?data[_o+17]:0;if(!_st.every(b=>b===0xFF||b===0)&&_sc!==0x00&&_sc!==0xFF){rfhMagic=rfhGen2DetectMagic(_st,_sc);break;}}}for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);const sc=data[off+17],cc=rfhIsGen2?rfhGen2VinCs(st,rfhMagic):crc8rf(st);vins.push({off,vin:s,algo:'c8',coff:off+17,sc,cc,ok:sc===cc,cv:_checkVin(s),mirrored:true});}}
+  // RFHUB VIN parsing:
+  //   Gen2 (24C32, 4096 B): mirrored VINs at 0xEA5/0xEB9/0xECD/0xEE1 with
+  //     rfhGen2VinCs (XOR^magic) at +17.
+  //   Gen2 8 KB (doubled/unusual): same layout as 4 KB but with crc8rf at +17.
+  //   Gen1 (24C16, 2048 B): plain ASCII VIN @ 0x92 with CRC16 BE at +17 — the
+  //     0xEA5+ slots are past the end of the image, so the Gen1 fallback
+  //     below picks up the only VIN copy on the module.
+  if(type==='RFHUB'){const rfhIsGen2=sz===4096;let rfhMagic=0xDB;if(rfhIsGen2){for(const _o of[0xEA5,0xEB9,0xECD,0xEE1]){const _st=data.slice(_o,_o+17);const _sc=_o+17<sz?data[_o+17]:0;if(!_st.every(b=>b===0xFF||b===0)&&_sc!==0x00&&_sc!==0xFF){rfhMagic=rfhGen2DetectMagic(_st,_sc);break;}}}for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);const sc=data[off+17],cc=rfhIsGen2?rfhGen2VinCs(st,rfhMagic):crc8rf(st);vins.push({off,vin:s,algo:'c8',coff:off+17,sc,cc,ok:sc===cc,cv:_checkVin(s),mirrored:true});}
+    // Gen1 (24C16, 2048 B): VIN @ 0x92 plain ASCII with CRC16 BE at +17.
+    if(sz===2048&&vins.length===0&&sz>=0x92+19){const off=0x92;const st=data.slice(off,off+17);if(!st.every(b=>b===0xFF||b===0)){let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(st[j]);if(/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s)){const sc=(data[off+17]<<8)|data[off+18];const cc=crc16(st);vins.push({off,vin:s,algo:'c16',coff:off+17,sc,cc,ok:sc===cc,cv:_checkVin(s)});}}}}
   else if(type==='GPEC2A'){for(const off of[0,0x1F0,0x224]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(v&&/^[1-9A-HJ-NPR-Z]/.test(s))vins.push({off,vin:s,algo:'none',coff:-1,ok:true,cv:_checkVin(s)});}}
   else if(type==='95640'){for(const off of[0x275,0x288]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(!v||!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const sc=data[off-1],cc=crc8_42(data.slice(off,off+17));vins.push({off,vin:s,algo:'c8',coff:off-1,sc,cc,ok:sc===cc,cv:_checkVin(s)});}}
   else if(type==='BCM'||type==='FW'){for(let i=0;i<=sz-19;i++){let v=true;for(let j=0;j<17;j++)if(data[i+j]<0x20||data[i+j]>0x7E){v=false;break;}if(!v)continue;let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(data[i+j]);if(!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const cv=_checkVin(s);if(!cv.ok)continue;const sc=(data[i+17]<<8)|data[i+18],cc=crc16(data.slice(i,i+17));if(sc===cc){vins.push({off:i,vin:s,algo:'c16',coff:i+17,sc,cc,ok:true,cv});i+=16;}}
@@ -73,6 +82,10 @@ function virginizeFile(f){const out=new Uint8Array(f.data);const log=[];
 function writeModuleVIN(data,type,vin,existingVins){
   if(vin.length!==17)return null;
   const out=new Uint8Array(data);const vb=new TextEncoder().encode(vin);
+  // Gen1 RFHUB (24C16, 2048 B): VIN @ 0x92 plain ASCII with CRC16 BE at +17
+  // (different layout from Gen2's 0xEA5+ mirrored slots). Detected by buffer
+  // size since the Gen2 slot table is past the end of a 2 KB image.
+  const isGen1Rfhub=type==='RFHUB'&&data.length===2048;
   let offs;
   if(type==='GPEC2A')offs=[0x0000,0x01f0,0x0224];
   // BCM: prefer parsed offsets so we hit the actual VIN bytes on Redeye 2020+
@@ -81,17 +94,19 @@ function writeModuleVIN(data,type,vin,existingVins){
   // (base+0) only when no parsed slots are available.
   else if(type==='BCM'&&existingVins&&existingVins.length>0)offs=existingVins.map(v=>v.offset);
   else if(type==='BCM')offs=[0x5320,0x5340,0x5360,0x5380];
+  else if(isGen1Rfhub)offs=[0x92];
   else if(type==='RFHUB'&&existingVins&&existingVins.length>0)offs=existingVins.map(v=>v.offset);
   else if(type==='RFHUB')offs=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
   else if(type==='95640')offs=[0x275,0x288];
   else offs=[];
-  const hasMirrored=existingVins&&existingVins.some(v=>v.mirrored);
+  const hasMirrored=!isGen1Rfhub&&existingVins&&existingVins.some(v=>v.mirrored);
   if(type==='RFHUB'&&hasMirrored){const mr=[...vb].reverse();offs.forEach(o=>{for(let i=0;i<17;i++)out[o+i]=mr[i];out[o+17]=crc8rf(new Uint8Array(mr));});}
   else{offs.forEach(o=>{for(let i=0;i<17;i++)out[o+i]=vb[i];});}
   if(type==='BCM'){offs.forEach(o=>{const c=crc16(vb);out[o+17]=(c>>8)&0xFF;out[o+18]=c&0xFF;});
     const tb=new TextEncoder().encode(vin.slice(9));for(const po of[0x4098,0x40B0]){if(po+10>out.length)continue;for(let i=0;i<8;i++)out[po+i]=tb[i];const c=crc16(tb);out[po+8]=(c>>8)&0xFF;out[po+9]=c&0xFF;}}
   if(type==='95640')offs.forEach(o=>{out[o-1]=crc8_42(vb);});
-  if(type==='RFHUB'&&!hasMirrored)offs.forEach(o=>{out[o+17]=crc8rf(out.slice(o,o+17));});
+  if(isGen1Rfhub)offs.forEach(o=>{const c=crc16(vb);out[o+17]=(c>>8)&0xFF;out[o+18]=c&0xFF;});
+  else if(type==='RFHUB'&&!hasMirrored)offs.forEach(o=>{out[o+17]=crc8rf(out.slice(o,o+17));});
   if(type==='BCM'&&out.length>=0x40C0+IMMO_BLOCK&&out.length>=0x2000+IMMO_BLOCK)for(let i=0;i<IMMO_BLOCK;i++)out[0x2000+i]=out[0x40C0+i];
   return out;
 }

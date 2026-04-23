@@ -492,12 +492,14 @@ describe('parseModule data[] direct-access bounds', () => {
 
 describe('RFHUB Gen1 (24C16, 2048 bytes)', () => {
   const buf = makeRfhubGen1();
-  it('classifies 2048-byte RFHUB Gen1 buffers as UNKNOWN today', () => {
-    // Pins current behavior: parseModule()'s sz-based table only handles
-    // sz===4096 for RFHUB. If/when 2048 is wired in, this test will catch it.
+  it('classifies 2048-byte RFHUB Gen1 buffers as RFHUB', () => {
+    // Task #365: parseModule()'s sz-based table now recognizes 2 KB Gen1
+    // RFH dumps so the Key Prog wizard can drive older Cherokee/etc.
+    // vehicles instead of bailing out.
     const m = parseModule(buf, 'rfh-gen1.bin');
-    expect(m.type).toBe('UNKNOWN');
-    expect(m.hexOnly).toBe(true);
+    expect(m.type).toBe('RFHUB');
+    expect(m.hexOnly).toBeUndefined();
+    expect(m.rfhGen).toBe('Gen1 (24C16)');
   });
   it('Gen1 VIN slots are out of range for 2KB EEPROMs (parser skips them)', () => {
     // The shared knownOffsets table (0x0ea5..) is past the end of a 2KB
