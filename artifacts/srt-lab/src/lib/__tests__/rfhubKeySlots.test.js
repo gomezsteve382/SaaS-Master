@@ -6,8 +6,9 @@
 import { describe, it, expect } from 'vitest';
 import {
   parseKeySlots, transferSlot, deleteSlot, addSlot,
-  copyMasterSec16, firstFreeSlot, detectGen,
+  copyMasterSec16, firstFreeSlot, detectGen, keyIdLayoutFor,
   KEY_SLOT_COUNT, AA50_BASE,
+  KEY_ID_BASE_GEN2, KEY_ID_BASE_GEN1, KEY_ID_BLOCK_LEN, KEY_ID_STRIDE,
 } from '../rfhubKeySlots.js';
 import { makeRfhubGen2, makeRfhubGen1 } from '../__fixtures__/buildFixtures.js';
 import { rfhSec16Cs } from '../crc.js';
@@ -38,9 +39,12 @@ describe('parseKeySlots — Gen2 fixture', () => {
     expect(r.sec16.slots.length).toBe(2);
     expect(r.sec16.slots[0].csOk).toBe(true);
     expect(r.sec16.match).toBe(true);
-    // Per-slot transponder ID layout is intentionally unmapped.
-    expect(r.slots[0].idMapped).toBe(false);
-    expect(r.slots[0].idBytes).toBeNull();
+    // Per-slot Autel transponder ID layout is mapped (Task #408).
+    expect(r.slots[0].idMapped).toBe(true);
+    expect(r.slots[0].idBytes).not.toBeNull();
+    expect(r.slots[0].idBytes.length).toBe(KEY_ID_BLOCK_LEN);
+    expect(r.slots[0].idOffset).toBe(KEY_ID_BASE_GEN2);
+    expect(r.slots[1].idOffset).toBe(KEY_ID_BASE_GEN2 + KEY_ID_STRIDE);
   });
 });
 
@@ -120,11 +124,22 @@ describe('transferSlot', () => {
     const r = transferSlot(src, dst, 1, 1);
     expect(r.ok).toBe(true);
     expect(r.occupiedAfter).toBe(true);
-    expect(r.idTransferred).toBe(false);
+    expect(r.idTransferred).toBe(true);
+    expect(r.idLen).toBe(KEY_ID_BLOCK_LEN);
     expect(r.bytes[AA50_BASE + 2]).toBe(0xAA);
     expect(r.bytes[AA50_BASE + 3]).toBe(0x50);
     // dst untouched at other slots
     expect(r.bytes[AA50_BASE]).toBe(dst[AA50_BASE]);
+    // Per-fob ID block at slot 1 now matches src byte-for-byte.
+    const idOff = KEY_ID_BASE_GEN2 + 1 * KEY_ID_STRIDE;
+    for (let k = 0; k < KEY_ID_BLOCK_LEN; k++) {
+      expect(r.bytes[idOff + k]).toBe(src[idOff + k]);
+    }
+    // Other slots' ID blocks untouched.
+    const otherOff = KEY_ID_BASE_GEN2 + 0 * KEY_ID_STRIDE;
+    for (let k = 0; k < KEY_ID_BLOCK_LEN; k++) {
+      expect(r.bytes[otherOff + k]).toBe(dst[otherOff + k]);
+    }
   });
   it('copies an empty marker A→B (used to "clear" via transfer)', () => {
     const src = makeRfhubGen2({ fobikSlots: 0 });
@@ -241,6 +256,81 @@ describe('Gen2 RFHUB header signature gate (Architect review #1)', () => {
     expect(buf[0x0502]).toBe(0x31);
     expect(buf[0x0503]).toBe(0x01);
     expect(deleteSlot(buf, 0).ok).toBe(true);
+  });
+});
+
+describe('Task #408 — per-fob ID block transfer (FreshAuto-style donor pair)', () => {
+  it('transfers slot byte-identically (AA-50 marker + 8-byte Autel ID block)', () => {
+    // FreshAuto-style donor pair: distinct VINs, distinct fob populations,
+    // distinct per-slot Autel transponder IDs. Modeled after the donor /
+    // recipient files a locksmith would actually drop into the pane.
+    const donorIds = [
+      new Uint8Array([0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0]), // donor's slot 0 fob
+      new Uint8Array([0xCA, 0xFE, 0xBA, 0xBE, 0xDE, 0xAD, 0xBE, 0xEF]), // donor's slot 1 fob
+      null, null,
+    ];
+    const recipIds = [
+      new Uint8Array([0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]),
+      null, null, null,
+    ];
+    const donor = makeRfhubGen2({
+      vin: '2C3CDXKT3FH123456',
+      fobikSlots: 2,
+      fobIds: donorIds,
+    });
+    const recipient = makeRfhubGen2({
+      vin: '2C3CDXKT3FH987654',
+      fobikSlots: 1,
+      fobIds: recipIds,
+    });
+    // Take donor slot 1 (CAFEBABE…) into recipient's empty slot 2.
+    const r = transferSlot(donor, recipient, 1, 2);
+    expect(r.ok).toBe(true);
+    expect(r.idTransferred).toBe(true);
+    expect(r.occupiedAfter).toBe(true);
+    // AA-50 marker + 8-byte ID block at the receiving offset matches the
+    // donor's source slot byte-for-byte.
+    const dstMarker = AA50_BASE + 2 * 2;
+    expect(r.bytes[dstMarker]).toBe(0xAA);
+    expect(r.bytes[dstMarker + 1]).toBe(0x50);
+    const srcIdOff = KEY_ID_BASE_GEN2 + 1 * KEY_ID_STRIDE;
+    const dstIdOff = KEY_ID_BASE_GEN2 + 2 * KEY_ID_STRIDE;
+    for (let k = 0; k < KEY_ID_BLOCK_LEN; k++) {
+      expect(r.bytes[dstIdOff + k]).toBe(donor[srcIdOff + k]);
+    }
+    // Recipient's pre-existing slot 0 is untouched (donor IDs not bled in).
+    const slot0Off = KEY_ID_BASE_GEN2;
+    for (let k = 0; k < KEY_ID_BLOCK_LEN; k++) {
+      expect(r.bytes[slot0Off + k]).toBe(recipient[slot0Off + k]);
+    }
+    // Donor buffer never mutated.
+    for (let off = 0; off < donor.length; off++) {
+      // (skip nothing — transferSlot must not touch src)
+      // Recreate donor and compare to be sure nothing bled back.
+    }
+    const donorReplay = makeRfhubGen2({
+      vin: '2C3CDXKT3FH123456',
+      fobikSlots: 2,
+      fobIds: donorIds,
+    });
+    for (let off = 0; off < donor.length; off++) {
+      expect(donor[off]).toBe(donorReplay[off]);
+    }
+    // Round-trip: parse the patched recipient and confirm slot 2's idBytes
+    // exactly equals the donor's slot 1 idBytes.
+    const re = parseKeySlots(r.bytes);
+    expect(re.ok).toBe(true);
+    expect(re.slots[2].occupied).toBe(true);
+    expect(re.slots[2].idMapped).toBe(true);
+    for (let k = 0; k < KEY_ID_BLOCK_LEN; k++) {
+      expect(re.slots[2].idBytes[k]).toBe(donorIds[1][k]);
+    }
+  });
+
+  it('exposes a stable layout descriptor via keyIdLayoutFor', () => {
+    expect(keyIdLayoutFor('gen2')).toEqual({ base: 0x0888, stride: 8, len: 8 });
+    expect(keyIdLayoutFor('gen1')).toEqual({ base: 0x00D2, stride: 8, len: 8 });
+    expect(keyIdLayoutFor('unknown')).toBeNull();
   });
 });
 

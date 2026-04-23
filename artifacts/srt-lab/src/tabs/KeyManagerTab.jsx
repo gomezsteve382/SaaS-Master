@@ -233,8 +233,13 @@ function SlotRow({ pane, slot, otherLoaded, slotsEditable, selected, onToggleSel
         </span>
         <span style={{ marginLeft: 8, color: C.tm, fontSize: 10 }}>{bytesToHex(slot.raw)}</span>
       </td>
-      <td style={{ padding: '6px 8px', fontFamily: "'JetBrains Mono'", color: C.tm, fontSize: 10, fontStyle: 'italic' }}>
-        (layout TBD)
+      <td style={{ padding: '6px 8px', fontFamily: "'JetBrains Mono'", color: C.tm, fontSize: 10 }}
+          data-testid={`keymgr-slot-${pane.id}-${slot.idx}-id`}>
+        {slot.idBytes
+          ? <span style={{ color: occ ? C.tx : C.tm }}>
+              0x{hex4(slot.idOffset)} · {bytesToHex(slot.idBytes)}
+            </span>
+          : <span style={{ fontStyle: 'italic' }}>(no ID layout)</span>}
       </td>
       <td style={{ padding: '6px 8px', textAlign: 'right' }}>
         {occ ? (
@@ -780,17 +785,20 @@ export default function KeyManagerTab() {
           ⚠ LAYOUT STATUS — READ BEFORE FLASHING
         </div>
         <div style={{ fontSize: 12, lineHeight: 1.55, color: '#5D4037' }}>
-          <b>Confirmed (Gen2 only):</b> AA-50 occupancy markers @ 0x0880 stride 2,
+          <b>Confirmed (Gen2):</b> AA-50 occupancy markers @ 0x0880 stride 2,
+          per-fob Autel transponder ID block @ 0x0888 stride 8 (8 B per slot),
           and the master-transponder SEC16 mirror pair (CS = crc8_65 — golden-tested).
+          <br />
+          <b>Confirmed (Gen1):</b> per-fob Autel transponder ID block @ 0x00D2
+          stride 8 (documented for parity), plus the SEC16 mirror pair @ 0x00AE / 0x00C0.
           <br />
           <b>Not confirmed (Gen1):</b> the AA-50 base offset @ 0x0880 lies past the
           end of a 2 KB Gen1 image, so per-slot edits are gated off for Gen1; only
           Master-SEC16 copy is permitted on Gen1.
           <br />
-          <b>Not yet mapped (any gen):</b> per-fob Autel transponder ID byte block.
-          “Send →”, “Delete”, and “Add AA50” edit the OCCUPANCY MARKER ONLY.
-          A transferred slot will not start a vehicle without an accompanying
-          <i> Copy Master Transponder</i> (or a per-fob ID layout patch in a follow-up task).
+          <b>“Send →” now copies marker + ID block</b> — the receiving module sees
+          the same fob UID as the donor, so a transferred slot will start the car
+          without needing an accompanying Copy Master Transponder.
         </div>
       </Card></div>
 

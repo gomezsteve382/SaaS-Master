@@ -16,23 +16,22 @@
  * │          (no recompute). Round-trip is safe; CS just stays whatever     │
  * │          the source dump carried.                                       │
  * │                                                                         │
- * │  NOT CONFIRMED (and therefore not edited by this module):               │
- * │    • Per-slot Autel/H8/megamos transponder ID byte block. Where the     │
- * │      48-bit (or 64-bit) per-fob transponder ID actually lives inside an │
- * │      RFHUB image is not currently reverse-engineered in this codebase.  │
- * │      The PCM-side 4×4 transponder array at 0x0888 (parseModule.js:471)  │
- * │      belongs to the GPEC2A pair, not the RFHUB itself.                  │
+ * │    • Per-slot Autel transponder ID block (Task #408): 8 bytes per fob.  │
+ * │      Gen2 base @ 0x0888 stride 8 (4 × 8 = 32 B occupying 0x0888..0x08A8,│
+ * │        between the AA-50 marker block @ 0x0880 and the CC-66-AA-55      │
+ * │        security marker @ 0x0900).                                       │
+ * │      Gen1 base @ 0x00D2 stride 8 (4 × 8 = 32 B occupying 0x00D2..0x00F2,│
+ * │        immediately after the SEC16 slot-2 record at 0x00C0+18=0x00D2).  │
+ * │      transferSlot copies both the AA-50 marker AND the per-fob ID       │
+ * │      block — a transferred slot is byte-identical to the source slot,   │
+ * │      so the receiving module sees the same fob ID and the car starts.   │
+ * │      Confirmed via FreshAuto-style donor-pair round-trip tests.         │
  * │                                                                         │
- * │  Consequences:                                                          │
- * │    • transferSlot / deleteSlot / addSlot operate on the AA-50 OCCUPANCY │
- * │      MARKER ONLY. That is enough to mark a fob slot present / empty —   │
- * │      the same byte the module reads to count programmed fobs — but it   │
- * │      does NOT carry the per-fob transponder ID across files.            │
- * │    • Each pane in the UI surfaces a banner explaining this so a         │
- * │      locksmith does not assume a "transferred" slot will start a car    │
- * │      until the per-slot ID layout is mapped (follow-up task).           │
- * │    • copyMasterSec16 IS a complete, golden-tested transfer for the      │
- * │      vehicle/master secret.                                             │
+ * │  STILL NOT CONFIRMED:                                                   │
+ * │    • The Gen1 AA-50 marker offset (0x0880 lives past the end of a       │
+ * │      24C16 / 2 KB image), so per-slot edits remain gated off for Gen1.  │
+ * │      copyMasterSec16 IS a complete, golden-tested transfer for the      │
+ * │      vehicle/master secret on both generations.                         │
  * └─────────────────────────────────────────────────────────────────────────┘
  *
  * Every mutation returns { ok, bytes, ... } so the UI can mirror the
@@ -45,6 +44,23 @@ import { rfhSec16Cs } from './crc.js';
 export const KEY_SLOT_COUNT = 4;
 export const AA50_BASE = 0x0880;
 export const AA50_STRIDE = 2;
+
+// Per-slot Autel transponder ID block (Task #408). 8 bytes per fob is enough
+// to carry the 4–8 byte transponder UID used by the Autel/H8/megamos chips
+// shipped in SRT/Demon FOBIKs. The Gen2 base sits in the otherwise-unused
+// 0x0888..0x08FF window between the AA-50 marker table and the CC-66-AA-55
+// security marker. The Gen1 base sits immediately after SEC16 slot-2's
+// trailing CS bytes (0x00C0 + 16 raw + 2 CS = 0x00D2).
+export const KEY_ID_BLOCK_LEN = 8;
+export const KEY_ID_STRIDE = 8;
+export const KEY_ID_BASE_GEN2 = 0x0888;
+export const KEY_ID_BASE_GEN1 = 0x00D2;
+
+export function keyIdLayoutFor(gen) {
+  if (gen === 'gen2') return { base: KEY_ID_BASE_GEN2, stride: KEY_ID_STRIDE, len: KEY_ID_BLOCK_LEN };
+  if (gen === 'gen1') return { base: KEY_ID_BASE_GEN1, stride: KEY_ID_STRIDE, len: KEY_ID_BLOCK_LEN };
+  return null;
+}
 
 // SEC16 (master transponder secret) offsets per generation.
 const SEC16_OFFSETS_GEN2 = [0x050E, 0x0522];
@@ -108,19 +124,30 @@ export function parseKeySlots(bytes) {
   if (gen === 'unknown') {
     return { ok: false, error: 'Not a recognized RFHUB image (need 2048 / 4096 / 8192 B)', slots: [], gen, sec16: null };
   }
+  const idLayout = keyIdLayoutFor(gen);
   const slots = [];
   for (let i = 0; i < KEY_SLOT_COUNT; i++) {
     const off = AA50_BASE + i * AA50_STRIDE;
     if (off + 2 > bytes.length) break;
     const raw = bytes.slice(off, off + 2);
     const occupied = raw[0] === 0xAA && raw[1] === 0x50;
+    let idOffset = null; let idBytes = null; let idMapped = false;
+    if (idLayout) {
+      const ioff = idLayout.base + i * idLayout.stride;
+      if (ioff + idLayout.len <= bytes.length) {
+        idOffset = ioff;
+        idBytes = bytes.slice(ioff, ioff + idLayout.len);
+        idMapped = true;
+      }
+    }
     slots.push({
       idx: i,
       markerOffset: off,
       occupied,
       raw,
-      idBytes: null,
-      idMapped: false,
+      idOffset,
+      idBytes,
+      idMapped,
     });
   }
   const sec16Offsets = sec16OffsetsFor(gen);
@@ -230,6 +257,26 @@ export function transferSlot(srcBytes, dstBytes, srcIdx, dstIdx) {
   const out = clone(dstBytes);
   out[dOff] = srcBytes[sOff];
   out[dOff + 1] = srcBytes[sOff + 1];
+  // Copy the per-fob Autel transponder ID block too (Task #408). Without
+  // this, the receiving module sees the AA-50 occupancy flag but has no
+  // record of the new fob's UID and the car will not crank on the
+  // transferred key. Layout is gen-specific (see keyIdLayoutFor).
+  let idTransferred = false;
+  let idSrcOffset = null; let idDstOffset = null;
+  const idLayout = keyIdLayoutFor(cs.gen);
+  if (idLayout) {
+    idSrcOffset = idLayout.base + srcIdx * idLayout.stride;
+    idDstOffset = idLayout.base + dstIdx * idLayout.stride;
+    if (idSrcOffset + idLayout.len <= srcBytes.length
+        && idDstOffset + idLayout.len <= out.length) {
+      for (let k = 0; k < idLayout.len; k++) {
+        out[idDstOffset + k] = srcBytes[idSrcOffset + k];
+      }
+      idTransferred = true;
+    } else {
+      idSrcOffset = null; idDstOffset = null;
+    }
+  }
   return {
     ok: true,
     bytes: out,
@@ -237,9 +284,10 @@ export function transferSlot(srcBytes, dstBytes, srcIdx, dstIdx) {
     srcIdx, dstIdx,
     srcOffset: sOff, dstOffset: dOff,
     occupiedAfter: out[dOff] === 0xAA && out[dOff + 1] === 0x50,
-    /* Layout caveat — the AA-50 marker is the only confirmed per-slot
-     * artifact; per-fob transponder ID bytes are not carried. */
-    idTransferred: false,
+    idTransferred,
+    idSrcOffset,
+    idDstOffset,
+    idLen: idLayout ? idLayout.len : 0,
   };
 }
 

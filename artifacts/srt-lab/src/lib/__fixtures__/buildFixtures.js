@@ -96,6 +96,7 @@ function makeRfhubGen2({
   fobikSlots = 2,
   withVin92 = true,
   vin92BadCrc = false,
+  fobIds = null,
 } = {}) {
   const sz = 4096;
   const buf = new Uint8Array(sz).fill(0xFF);
@@ -134,10 +135,19 @@ function makeRfhubGen2({
   buf[0x0522 + 16] = (cs2 >>> 8) & 0xff;
   buf[0x0522 + 17] = cs2 & 0xff;
 
-  // FOBIK slots: AA 50 markers at 0x0880 step 2.
+  // FOBIK slots: AA 50 markers at 0x0880 step 2, plus the per-fob Autel
+  // transponder ID block at 0x0888 stride 8 (Task #408). Only occupied
+  // slots get a non-FF ID block; empty slots keep the 0xFF virgin pattern
+  // so a transferred empty slot stays byte-identical to "empty."
   for (let i = 0; i < fobikSlots; i++) {
     buf[0x0880 + i * 2] = 0xAA;
     buf[0x0880 + i * 2 + 1] = 0x50;
+    const idOff = 0x0888 + i * 8;
+    const id = fobIds && fobIds[i]
+      ? fobIds[i]
+      : new Uint8Array([0xA0 + i, 0xB0 + i, 0xC0 + i, 0xD0 + i,
+                        0xE0 + i, 0xF0 + i, 0x10 + i, 0x20 + i]);
+    fill(buf, idOff, id);
   }
 
   // CC 66 AA 55 security marker pattern (one occurrence).
@@ -172,6 +182,7 @@ function makeRfhubGen1({
   vin = VIN_DEFAULT,
   vinCount = 4,
   sec16Bytes = null,
+  fobIds = null,
 } = {}) {
   const sz = 2048;
   const buf = new Uint8Array(sz).fill(0xFF);
@@ -186,6 +197,15 @@ function makeRfhubGen1({
   const sec = sec16Bytes || new Uint8Array(16).map((_, i) => 0xB0 + i);
   fill(buf, 0x00AE, sec);
   fill(buf, 0x00C0, sec);
+  // Per-fob Autel transponder ID block @ 0x00D2 stride 8 (Task #408).
+  // Documented for parity with Gen2; Gen1 slot edits are still gated off
+  // because the AA-50 marker offset is past EOF for a 24C16 image.
+  if (fobIds) {
+    for (let i = 0; i < 4; i++) {
+      if (!fobIds[i]) continue;
+      fill(buf, 0x00D2 + i * 8, fobIds[i]);
+    }
+  }
   // VIN @ 0x92 with CRC16 (CCITT) BE at +17. The Gen1 24C16 image is too
   // small for the Gen2 0xEA5+ slot table, so the 0x92 record is where the
   // module's only VIN copy actually lives.
