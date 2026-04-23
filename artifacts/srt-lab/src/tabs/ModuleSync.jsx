@@ -4,7 +4,7 @@ import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
-import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, resolveBcmSec16 } from "../lib/parseModule.js";
+import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, resolveBcmSec16, classifyPcmSec6 } from "../lib/parseModule.js";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -386,26 +386,56 @@ export function engParsePcm(bytes, filename) {
     if (r.vinSlots.length > 1) r.originalVin = r.vinSlots[r.vinSlots.length - 1].vin;
   }
 
-  /* SEC6 — GPEC2A uses FF FF FF AA marker, GPEC5 uses FF FF FF FF + non-all-FF bytes */
-  for (let i = 0; i < bytes.length - 10; i++) {
-    if (bytes[i] === 0xFF && bytes[i+1] === 0xFF && bytes[i+2] === 0xFF && bytes[i+3] === 0xAA) {
-      r.sec6 = { offset: i+4, bytes: bytes.slice(i+4, i+10), marker: 'FF FF FF AA' };
-      break;
-    }
-  }
-  if (!r.sec6) {
-    for (let i = 0; i < bytes.length - 20; i++) {
-      if (bytes[i] === 0xFF && bytes[i+1] === 0xFF && bytes[i+2] === 0xFF && bytes[i+3] === 0xFF) {
-        const n6 = bytes.slice(i+4, i+10);
-        if (!n6.every(b => b === 0xFF)) {
-          r.sec6 = { offset: i+4, bytes: n6, marker: 'FF FF FF FF' };
+  /* SEC6 detection (hardened in Task #396).
+   *   1. Canonical 0x3C8 read on 4 KB / 8 KB images — this is the same
+   *      offset parseModule.js uses, so a virgin GPEC2A (e.g. the
+   *      incident's FF FF 00 FF FF FF) is read from the right slot
+   *      instead of being fabricated from FF padding elsewhere.
+   *   2. FF FF FF AA marker scan (legacy GPEC2A path).
+   *   3. FF FF FF FF marker scan, gated on the populated classifier
+   *      so 4 KB virgin padding noise can no longer slip through. */
+  if (bytes.length >= 0x3CE) {
+    // For any GPEC2A/GPEC5-sized image trust the canonical slot —
+    // matches parseModule.js so the wizard, the FCA Analyzer and the
+    // AI assistant never disagree about whether SEC6 is populated.
+    const slot = bytes.slice(0x3C8, 0x3CE);
+    r.sec6 = { offset: 0x3C8, bytes: slot, marker: 'canonical 0x3C8' };
+  } else {
+    // Sub-canonical fragment — fall back to marker scans, gated on
+    // the populated classifier so virgin padding noise can no longer
+    // slip through (Task #396).
+    for (let i = 0; i < bytes.length - 10; i++) {
+      if (bytes[i] === 0xFF && bytes[i+1] === 0xFF && bytes[i+2] === 0xFF && bytes[i+3] === 0xAA) {
+        const candidate = bytes.slice(i+4, i+10);
+        if (classifyPcmSec6(candidate).populated) {
+          r.sec6 = { offset: i+4, bytes: candidate, marker: 'FF FF FF AA' };
           break;
         }
       }
     }
-    if (!r.sec6) r.immoDamaged = true;
+    if (!r.sec6) {
+      for (let i = 0; i < bytes.length - 20; i++) {
+        if (bytes[i] === 0xFF && bytes[i+1] === 0xFF && bytes[i+2] === 0xFF && bytes[i+3] === 0xFF) {
+          const n6 = bytes.slice(i+4, i+10);
+          if (classifyPcmSec6(n6).populated) {
+            r.sec6 = { offset: i+4, bytes: n6, marker: 'FF FF FF FF' };
+            break;
+          }
+        }
+      }
+    }
   }
-  r.immoOk = !!(r.sec6 && !r.sec6.bytes.every(b => b === 0xFF));
+  if (r.sec6) {
+    r.sec6Class = classifyPcmSec6(r.sec6.bytes);
+    r.immoOk = r.sec6Class.populated;
+    r.immoDamaged = !r.sec6Class.populated;
+    r.immoLabel = r.sec6Class.label;
+  } else {
+    r.sec6Class = classifyPcmSec6(null);
+    r.immoOk = false;
+    r.immoDamaged = true;
+    r.immoLabel = 'DAMAGED / MISSING';
+  }
 
   if (bytes.length > 0x0FB0) {
     const pnB = bytes.slice(0x0FA1, 0x0FAE);
@@ -885,8 +915,8 @@ export function PcmCard({ parsed, bytes, pnOverride }) {
         <Kv k="Original VIN" v={parsed.originalVin} mono color={C.wn} hint="← donor VIN" />}
       <Kv k="VIN slots"    v={`${parsed.vinSlots.length} found`} />
       <Kv k="File size"    v={`${parsed.size} bytes (${(parsed.size/1024).toFixed(1)} KB)`} mono />
-      <Kv k="Immo (SEC6)"  v={parsed.immoDamaged ? 'DAMAGED / MISSING' : parsed.immoOk ? '✓ Populated' : 'Virgin (all FF)'}
-          color={parsed.immoDamaged ? C.er : parsed.immoOk ? C.gn : C.wn} />
+      <Kv k="Immo (SEC6)"  v={parsed.immoLabel || (parsed.immoDamaged ? 'DAMAGED / MISSING' : parsed.immoOk ? '✓ Populated' : 'Virgin (all FF)')}
+          color={parsed.immoOk ? C.gn : (parsed.sec6Class && parsed.sec6Class.label === 'MISSING') ? C.er : C.wn} />
       {parsed.sec6 && (
         <>
           <Kv k="SEC6 marker" v={parsed.sec6.marker} mono />
@@ -1360,6 +1390,40 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
       const rfhRevHex = bytesToHex(Array.from(rfh.parsed.sec16.slot1).reverse()).toUpperCase();
       if (eep.parsed.bcmSec16Hex !== rfhRevHex)
         wizardIssues.push(`95640 BCM-SEC16 MISMATCH: 95640 token ≠ reverse(RFHUB SEC16)`);
+    }
+  }
+
+  /* BCM SEC16 → SEC6 ↔ PCM SEC6 (Task #396). Pre-#396 the wizard's
+   * issue list was hand-rolled and never consulted the BCM↔PCM SEC6
+   * pairing rule, so a paired BCM+RFHUB trio with a virgin PCM SEC6
+   * (e.g. FF FF 00 FF FF FF on the incident 2C3CDXGJ9KH633754 trio)
+   * was reported as "Found 0 errors". Mirror the crossValidate.js
+   * rule inline using the engParse* shapes so the wizard count, the
+   * MismatchWizard issue list, and the AI assistant context all
+   * surface the issue. */
+  if (pcm.bytes && bcm.parsed?.ok && bcmHasSec16) {
+    const bcmHexW = bcm.parsed.sec16Hex?.toUpperCase();
+    const bcmRevHex = bcmHexW
+      ? [...Array(bcmHexW.length / 2)].map((_, i) =>
+          bcmHexW.slice(bcmHexW.length - 2 - i * 2, bcmHexW.length - i * 2)
+        ).join('')
+      : null;
+    const sec6Bytes = pcm.parsed?.sec6?.bytes || null;
+    const sec6Class = pcm.parsed?.sec6Class || classifyPcmSec6(sec6Bytes);
+    if (bcmRevHex && bcmRevHex.length >= 12) {
+      const bcmRev6 = bcmRevHex.slice(0, 12).toUpperCase();
+      if (!sec6Class.populated) {
+        wizardIssues.push(
+          `BCM SEC16 → SEC6 ↔ PCM SEC6: PCM never paired with this BCM — apply BCM→PCM SEC6 sync before key programming. BCM(rev)[0:6]=${bcmRev6} PCM SEC6=${sec6Bytes ? bytesToHex(sec6Bytes).toUpperCase() : 'MISSING'} (${sec6Class.label})`
+        );
+      } else {
+        const pcmHex6 = bytesToHex(sec6Bytes).toUpperCase();
+        if (pcmHex6 !== bcmRev6) {
+          wizardIssues.push(
+            `BCM SEC16 → SEC6 ↔ PCM SEC6: MISMATCH — open Module Sync to apply BCM→PCM SEC6 import. BCM(rev)[0:6]=${bcmRev6} PCM=${pcmHex6}`
+          );
+        }
+      }
     }
   }
 

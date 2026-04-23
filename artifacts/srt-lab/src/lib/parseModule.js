@@ -55,6 +55,36 @@ function pcmChipFromKey(key){
   return PCM_CHIPS.find(c=>c.chipKey===k||c.chip===k)||null;
 }
 
+/* Task #396 — single source of truth for "is this PCM SEC6 byte slice
+ * actually populated, or is it just FF padding noise that happens to
+ * look like a 6-byte secret?". Pre-#396 both the parseModule.js path
+ * and the engParsePcm path used `bytes.every(b===0xFF)` which let a
+ * single stray non-FF byte (e.g. the real-world `FF FF 00 FF FF FF`
+ * that surfaced on a 4 KB GPEC2A virgin) slip through as "✓ Populated"
+ * — so the Mismatch Wizard reported "Found 0 errors" on a virgin PCM
+ * and the in-app AI told the user "safe to program a key". This
+ * classifier is exported and consumed from BOTH parsers + the
+ * crossValidate gate so they cannot drift again. */
+function classifyPcmSec6(bytes){
+  if(!bytes||bytes.length!==6){
+    return{populated:false,blank:false,damaged:true,allFF:false,allZero:false,nonFF:0,label:'MISSING'};
+  }
+  let ffCount=0,zeroCount=0;
+  for(let i=0;i<6;i++){if(bytes[i]===0xFF)ffCount++;if(bytes[i]===0x00)zeroCount++;}
+  const allFF=ffCount===6;
+  const allZero=zeroCount===6;
+  const nonFF=6-ffCount;
+  // virgin: all-FF, all-zero, OR mostly-FF (≥4 of 6 are FF, i.e. nonFF<=2).
+  // populated: ≥3 non-FF bytes AND not all-zero.
+  const populated=nonFF>=3&&!allZero;
+  let label;
+  if(allFF)label='Virgin (all FF)';
+  else if(allZero)label='Virgin (all 00)';
+  else if(!populated)label='Virgin (mostly FF)';
+  else label='\u2713 Populated';
+  return{populated,blank:allFF||allZero,damaged:!populated,allFF,allZero,nonFF,label};
+}
+
 // Minimum byte size for any file we will treat as a real BCM dump. Files
 // smaller than this are EEPROM slices, fragments, or wrong-module dumps —
 // not a usable MPC5605B/06B DFLASH image. Single source of truth for the
@@ -449,10 +479,13 @@ function parseModule(data,filename,opts){
     };
     if(sz>=0x3CE){
       const s6=data.slice(0x3C8,0x3CE);
-      const s6blank=s6.every(b=>b===0xFF||b===0x00);
-      const s6damaged=s6.every(b=>b===0xFF);
-      info.pcmSec6={offset:0x3C8,raw:s6,hex:extractHex(data,0x3C8,6),blank:s6blank,damaged:s6damaged,
-        immoState:s6damaged?'IMMO_DAMAGED':'SET'};
+      // Task #396 — share the classifier with engParsePcm so a mostly-FF
+      // SEC6 (e.g. FF FF 00 FF FF FF on a 4 KB virgin) is correctly tagged
+      // as IMMO_DAMAGED instead of slipping through as "SET".
+      const cls=classifyPcmSec6(s6);
+      info.pcmSec6={offset:0x3C8,raw:s6,hex:extractHex(data,0x3C8,6),
+        blank:cls.blank,damaged:cls.damaged,populated:cls.populated,
+        immoState:cls.populated?'SET':'IMMO_DAMAGED',classification:cls};
     }
   }else if(type==='RFHUB'){
     const knownOffsets=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
@@ -601,4 +634,4 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16};
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6};

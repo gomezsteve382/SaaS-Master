@@ -72,27 +72,41 @@ function crossValidate(modules){
     else if(rfhub.sec16s[0]?.blank)warnings.push("RFHUB SEC16: BLANK (all FF/00) — virgin module");
     else warnings.push("RFHUB SEC16: Slot 1/2 MISMATCH or unreadable");
   }
+  /* PCM SEC6 standalone state. Task #396 widens the "damaged" judgement
+   * via the shared classifyPcmSec6() — mostly-FF (e.g. FF FF 00 FF FF FF)
+   * now correctly trips IMMO_DAMAGED instead of the old strict all-FF gate. */
+  /* Treat legacy PCM SEC6 records (pre-#396, populated field absent)
+   * as populated when !damaged, so older crossValidate fixtures keep
+   * passing while parseModule.js callers get the new precise gating. */
+  const pcmPopulated=g=>g&&g.pcmSec6&&(g.pcmSec6.populated===undefined?!g.pcmSec6.damaged:!!g.pcmSec6.populated);
   if(gpec&&gpec.pcmSec6){
-    if(gpec.pcmSec6.damaged)issues.push("PCM SEC6 @ 0x3C8: IMMO_DAMAGED (FF FF FF FF FF FF) — open the Module Sync tab and load your RFHUB dump alongside this PCM to apply the RFH→PCM SEC6 import");
+    if(!pcmPopulated(gpec))issues.push("PCM SEC6 @ 0x3C8: "+gpec.pcmSec6.hex+" — IMMO_DAMAGED / virgin. Open the Module Sync tab and load your RFHUB or paired BCM dump to apply the SEC6 import.");
     else passed.push("PCM SEC6 @ 0x3C8: "+gpec.pcmSec6.hex+" ("+gpec.pcmSec6.immoState+")");
   }
-  if(rfhub&&gpec&&rfhub.sec16valid&&gpec.pcmSec6&&!gpec.pcmSec6.damaged){
+  if(rfhub&&gpec&&rfhub.sec16valid&&gpec.pcmSec6&&pcmPopulated(gpec)){
     const s16=rfhub.sec16s[0].raw;const s6=gpec.pcmSec6.raw;
     const match=arrEq(Array.from(s6),Array.from(s16.slice(0,6)));
     if(match)passed.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MATCH ✓");
     else warnings.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MISMATCH — open the Module Sync tab to apply the RFH→PCM SEC6 import");
   }
-  /* BCM SEC16 ↔ PCM SEC6 (Task #380) — the BCM-pairing field on the GPEC
-   * side is SEC6 at 0x03C8, NOT the GPEC-internal vehicle/skim key at
-   * 0x0203. SEC6 is the first six bytes of reverse(BCM SEC16) (i.e. the
-   * RFH-form prefix). When BCM SEC16 is blank we skip the comparison. */
-  if(bcm&&bcm.bcmSec16&&gpec&&gpec.pcmSec6&&!gpec.pcmSec6.damaged){
+  /* BCM SEC16 ↔ PCM SEC6 (Task #380, widened in #396). The BCM-pairing
+   * field on the GPEC side is SEC6 at 0x03C8 — first six bytes of
+   * reverse(BCM SEC16). Pre-#396 this was gated on `!damaged`, so a
+   * paired BCM against a virgin PCM produced no message at all and the
+   * Mismatch Wizard reported "Found 0 errors". Now we fire an issue in
+   * BOTH cases: virgin PCM against paired BCM ("never paired"), and
+   * non-matching populated SEC6 ("MISMATCH"). */
+  if(bcm&&bcm.bcmSec16&&gpec&&gpec.pcmSec6){
     const bRes=bcm.bcmSec16;
     if(!bRes.blank&&bRes.bytes){
       const rev6=Array.from(bRes.bytes).reverse().slice(0,6);
-      const s6=Array.from(gpec.pcmSec6.raw);
-      if(arrEq(rev6,s6))passed.push("BCM SEC16 → SEC6 ↔ PCM SEC6: MATCH ✓ (reverse(BCM "+bRes.source+")[0:6] = PCM SEC6)");
-      else issues.push("BCM SEC16 → SEC6 ↔ PCM SEC6: MISMATCH — open Module Sync to apply BCM→PCM SEC6 import. BCM(rev)[0:6]="+fmtHex(rev6)+" PCM="+fmtHex(s6));
+      if(!pcmPopulated(gpec)){
+        issues.push("BCM SEC16 → SEC6 ↔ PCM SEC6: PCM never paired with this BCM — apply BCM→PCM SEC6 sync before key programming. BCM(rev)[0:6]="+fmtHex(rev6)+" PCM SEC6="+gpec.pcmSec6.hex+" (virgin/damaged)");
+      }else{
+        const s6=Array.from(gpec.pcmSec6.raw);
+        if(arrEq(rev6,s6))passed.push("BCM SEC16 → SEC6 ↔ PCM SEC6: MATCH ✓ (reverse(BCM "+bRes.source+")[0:6] = PCM SEC6)");
+        else issues.push("BCM SEC16 → SEC6 ↔ PCM SEC6: MISMATCH — open Module Sync to apply BCM→PCM SEC6 import. BCM(rev)[0:6]="+fmtHex(rev6)+" PCM="+fmtHex(s6));
+      }
     }
   }
   if(gpec){
