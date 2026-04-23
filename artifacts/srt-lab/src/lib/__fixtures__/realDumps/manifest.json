@@ -25,5 +25,13 @@
       "rfhSec16Hex": "816531f7cde32e33c25a415c8440c72a",
       "source": "Second BCM VIN-write pair, distinct from the primary 2C3CDXL90MH582899 fixture. Anonymized real-bench BCM (MPC5606B DFLASH, 64 KB) capture from attached_assets/BCM_22CHARGER_REDEYE_6.2_KEYPROG_2C3CDXCT1HH652640.bin — VIN scrubbed (652640→600000) wherever the 17-char VIN appears in plaintext. Same anonymized vehicle as the rfhub/pcm slot above (real-bench triple). 'after' = captured synced BCM. 'before' = same buffer with the writer-target bytes erased to 0xFF: split records @ 0x81A0/C0/E0 (+9..+15 prefix7, +20..+28 suffix9) and the inactive-bank mirror records @ 0x40C0 (slot 0xEB / size 0x18) and 0x40E8 (slot 0xCA / size 0x28) at +8..+31. Headers + separators left intact so the writer's matchers fire."
     }
+  ],
+  "extraPcms": [
+    {
+      "before": "pcm8kb.before.bin",
+      "after": "pcm8kb.after.bin",
+      "rfhSec16Hex": "816531f7cde32e33c25a415c8440c72a",
+      "source": "Task #433 — second PCM pair pinning the 8 KB GPEC2A layout against a real capture. Anonymized real-bench PCM (Continental GPEC2A 95640, 8 KB) from attached_assets/PCM_FCA_CONTINENTAL_GPEC2A_8KB_KEYPROG_2C3CDXCT1HH652640.bin — VIN scrubbed (652640→600000) at 4 plaintext slots (0x0000/0x01F0/0x0224/0x0CE0; the 4th slot does not exist on the 4 KB sibling). Same anonymized vehicle as the rfhub/pcm 4 KB slot above; SEC6 secret matches (81 65 31 f7 cd e3) because both PCMs were paired to the same RFHUB. 'after' = captured synced 8 KB image with canonical FF FF FF AA marker @ 0x3C4 + SEC6 @ 0x3C8; half-2 (0x1000..0x1FFF) is 0xFF padding. 'before' = same buffer with marker @ 0x3C4..0x3C7 and SEC6 @ 0x3C8..0x3CD erased to 0xFF. Confirms the writePcmSec6 doc-comment assertion that the 8 KB image is just a larger GPEC2A — same marker offset, same SEC6 offset, no GPEC5 variant."
+    }
   ]
 }

@@ -68,11 +68,12 @@ function loadPair(entry, fallbackSec16) {
  *     rfhub: { before, after, beforePath, afterPath, rfhSec16, source? } | null,
  *     pcm:   { before, after, beforePath, afterPath, rfhSec16, source? } | null,
  *     extraBcms: Array<{ before, after, beforePath, afterPath, rfhSec16, source? }>,
+ *     extraPcms: Array<{ before, after, beforePath, afterPath, rfhSec16, source? }>,
  *   }
  * or null if the manifest itself is missing / malformed / lacks a usable
  * 16-byte top-level RFH SEC16. Per-pair entries may carry their own
- * `rfhSec16Hex` override (e.g. when the rfhub/pcm/extraBcm pair was
- * captured from a different vehicle than the primary BCM pair). */
+ * `rfhSec16Hex` override (e.g. when the rfhub/pcm/extraBcm/extraPcm pair
+ * was captured from a different vehicle than the primary BCM pair). */
 export function loadRealDumpFixtures() {
   if (!existsSync(MANIFEST_PATH)) return null;
   let manifest;
@@ -84,10 +85,10 @@ export function loadRealDumpFixtures() {
   if (!manifest || typeof manifest !== 'object') return null;
   const rfhSec16 = hexToBytes(manifest.rfhSec16Hex);
   if (!rfhSec16 || rfhSec16.length !== 16) return null;
-  const extras = Array.isArray(manifest.extraBcms) ? manifest.extraBcms : [];
-  const extraBcms = extras
-    .map(e => loadPair(e, rfhSec16))
-    .filter(Boolean);
+  const extraBcmRaw = Array.isArray(manifest.extraBcms) ? manifest.extraBcms : [];
+  const extraBcms = extraBcmRaw.map(e => loadPair(e, rfhSec16)).filter(Boolean);
+  const extraPcmRaw = Array.isArray(manifest.extraPcms) ? manifest.extraPcms : [];
+  const extraPcms = extraPcmRaw.map(e => loadPair(e, rfhSec16)).filter(Boolean);
   return {
     rfhSec16,
     source: typeof manifest.source === 'string' ? manifest.source : undefined,
@@ -95,5 +96,6 @@ export function loadRealDumpFixtures() {
     rfhub: loadPair(manifest.rfhub, rfhSec16),
     pcm:   loadPair(manifest.pcm,   rfhSec16),
     extraBcms,
+    extraPcms,
   };
 }

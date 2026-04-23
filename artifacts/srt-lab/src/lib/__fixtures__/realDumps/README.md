@@ -65,6 +65,15 @@ realDumps/
   // round-trips byte-for-byte through writeBcmSec16Gen2.
   "extraBcms": [
     { "before": "bcm2.before.bin", "after": "bcm2.after.bin", "rfhSec16Hex": "...", "source": "..." }
+  ],
+
+  // Optional list of additional PCM before/after pairs (e.g. an 8 KB
+  // GPEC2A capture alongside the primary 4 KB slot). Each entry has the
+  // same shape as the top-level `pcm` slot. The pcmSec6 round-trip
+  // suite iterates over every entry and asserts each pair round-trips
+  // byte-for-byte through writePcmSec6.
+  "extraPcms": [
+    { "before": "pcm8kb.before.bin", "after": "pcm8kb.after.bin", "rfhSec16Hex": "...", "source": "..." }
   ]
 }
 ```
@@ -156,6 +165,22 @@ vehicle (anonymized VIN `2C3CDXL90MH582899`).
   the existing `securityBytes.realDump.golden.test.js` suite (closes
   the second-VIN gap for #420).
 
+- **`pcm8kb.before.bin` / `pcm8kb.after.bin`** — Continental GPEC2A
+  (95640, **8 KB**) from
+  `attached_assets/PCM_FCA_CONTINENTAL_GPEC2A_8KB_KEYPROG_2C3CDXCT1HH652640.bin`.
+  Same anonymized vehicle and same paired SEC6 secret (`81 65 31 f7 cd e3`)
+  as the 4 KB primary `pcm` pair above. `before` has the marker @
+  0x3C4..0x3C7 and SEC6 @ 0x3C8..0x3CD erased to 0xFF; `after` is the
+  captured synced image. **VIN slots** on the 8 KB image: 0x0000,
+  0x01F0, 0x0224, 0x0CE0 — identical layout to the 4 KB sibling
+  (both PCMs were dumped from the same vehicle and carry VINs at all
+  four offsets). Half-2 (0x1000..0x1FFF) is verbatim 0xFF padding. Wired through
+  `extraPcms[0]` and asserted by the same
+  `pcmSec6.realDump.golden.test.js` suite (Task #433). Pins the
+  `writePcmSec6` doc-comment assertion that "the 8 KB image is just a
+  larger GPEC2A" — same marker offset, same SEC6 offset, no GPEC5
+  variant.
+
 ## Anonymization checklist
 
 Before committing any binary in this directory, scrub:
@@ -163,7 +188,8 @@ Before committing any binary in this directory, scrub:
 - VIN bytes — replace the captured 17-character VIN everywhere it appears
   (BCM: 0x5320/0x5340/0x5360/0x5380 and partial-VIN slots; RFHUB Gen2 VIN
   slots at 0x0EA5/0x0EB9/0x0ECD/0x0EE1 stored byte-reversed; PCM VIN at
-  0x0000/0x01F0/0x0224). The replacement VIN must be valid-shaped (17 chars,
+  0x0000/0x01F0/0x0224/0x0CE0 — same four offsets on both 4 KB and 8 KB
+  GPEC2A captures). The replacement VIN must be valid-shaped (17 chars,
   no I/O/Q) and the writer/parser CRCs must be re-stamped after the swap.
 - FOBIK / immobilizer key data outside the SEC16 region under test — these
   vary per vehicle and aren't required for this regression.

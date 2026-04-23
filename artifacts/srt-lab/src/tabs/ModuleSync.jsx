@@ -1705,6 +1705,18 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
               pcmSec6Ok = false;
               log(`✗ PCM SEC6 SYNC FAILED — no writable site found (size=${pcmFinal.length} B, SEC6=${sr.sec6Hex.toUpperCase()}). PCM file NOT downloaded. Re-dump the PCM at the canonical 4 KB / 8 KB size and retry.`, 'err');
             }
+          } else {
+            /* Task #433 — surface the explicit reason instead of silently
+             * shipping a PCM with no SEC6 written. The PCM file is still
+             * downloaded (the VIN patch is still useful), but the user
+             * can now see why the SEC6 step never ran. The local RFH
+             * parser populates `sec16` for any file ≥ 0x024C (Gen1 or
+             * Gen2), so reaching here means the RFH dump is structurally
+             * truncated below the SEC16 region. */
+            const reason = !rfh.parsed?.sec16
+              ? `RFH SEC16 region missing (file size=${rfh.bytes?.length ?? 0} B, need ≥ 0x024C)`
+              : 'RFH SEC16 not readable';
+            log(`PCM SEC6 skipped: ${reason}`, 'muted');
           }
           // Task #379: if the loaded PCM is a doubled 8 KB capture with a
           // 0xFF-padded half-2, slice the SYNC output down to 4 KB so the
@@ -1778,6 +1790,16 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
             /* Task #399 — refuse to ship an unmodified PCM as "synced". */
             log(`✗ PCM SEC6 SYNC FAILED — no writable site found (size=${pcm.bytes.length} B). PCM file NOT downloaded. Re-dump the PCM at the canonical 4 KB / 8 KB size and retry.`, 'err');
           }
+        } else if (!pcm.bytes) {
+          /* Task #433 — explicit skip-reason so the user sees why the
+           * SEC6 half of "SEC16 Sync Only" produced no PCM file. */
+          log('PCM SEC6 skipped: no PCM file loaded', 'muted');
+        } else if (!pcm.parsed) {
+          log('PCM SEC6 skipped: PCM file could not be parsed', 'muted');
+        } else {
+          /* rfhSec16.length < 6 — the outer `if (!rfhSec16) return` already
+           * catches missing SEC16, so reaching here means a truncated SEC16. */
+          log('PCM SEC6 skipped: RFH SEC16 not readable (truncated)', 'muted');
         }
 
       } else if (action === 'rekey-95640-from-rfh') {
