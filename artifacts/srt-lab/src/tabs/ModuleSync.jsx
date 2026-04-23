@@ -1,10 +1,11 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
-import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, resolveBcmSec16, classifyPcmSec6 } from "../lib/parseModule.js";
+import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, resolveBcmSec16, classifyPcmSec6, parseModule } from "../lib/parseModule.js";
+import { crossValidate } from "../lib/crossValidate.js";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -1363,22 +1364,38 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const eep95640Loaded   = !!eep.bytes;
   const rekey95640Ok     = eep95640Loaded && rfhHasSec16 && eep.bytes.length >= 0x84A;
 
-  /* Wizard issue/warning arrays derived from loaded module state */
-  const wizardIssues = [];
-  const wizardWarnings = [];
-  if (bothReady && !vinMatch)
-    wizardIssues.push(`VIN MISMATCH: BCM=${bcm.parsed.vin} vs RFHUB=${rfh.parsed.vin}`);
-  if (bothReady && rfhHasSec16 && bcmHasSec16) {
-    const rfhHex = bytesToHex(rfh.parsed.sec16.slot1).toUpperCase();
-    const bcmHex = bcm.parsed.sec16Hex?.toUpperCase();
-    const bcmRev = bcmHex ? [...Array(bcmHex.length / 2)].map((_,i) => bcmHex.slice(bcmHex.length - 2 - i*2, bcmHex.length - i*2)).join('') : null;
-    if (bcmRev && rfhHex !== bcmRev)
-      wizardIssues.push(`RFHUB ↔ BCM vehicle secret: MISMATCH! RFHUB SEC16 ≠ reverse(BCM SEC16)`);
-  }
-  if (rfh.parsed?.sec16 && !rfh.parsed.sec16.match && !rfh.parsed.sec16.virgin)
-    wizardWarnings.push(`RFHUB SEC16: Slot 1/2 MISMATCH or unreadable`);
-  if (rfh.parsed?.sec16?.virgin)
-    wizardWarnings.push(`RFHUB SEC16: BLANK (all FF/00) — virgin module`);
+  /* Task #396 — single source of truth: re-parse loaded bytes through
+   * parseModule() and run the canonical crossValidate() rules. The
+   * returned issues/warnings are merged (deduped) into the wizard's
+   * arrays below. Pre-#396 the wizard's rules were entirely hand-rolled
+   * which let the BCM↔PCM SEC6 pairing rule drift out of the wizard
+   * even though crossValidate already had it. Memoised on the byte
+   * references so re-parsing only happens when a file is loaded or
+   * replaced. */
+  const cvResult = useMemo(() => {
+    const mods = [];
+    if (bcm.bytes) { try { mods.push(parseModule(bcm.bytes, bcm.name || 'bcm.bin')); } catch { /* ignore parse errors */ } }
+    if (rfh.bytes) { try { mods.push(parseModule(rfh.bytes, rfh.name || 'rfh.bin')); } catch { /* ignore */ } }
+    if (pcm.bytes) { try { mods.push(parseModule(pcm.bytes, pcm.name || 'pcm.bin')); } catch { /* ignore */ } }
+    if (eep.bytes) { try { mods.push(parseModule(eep.bytes, eep.name || '95640.bin')); } catch { /* ignore */ } }
+    if (mods.length === 0) return { issues: [], warnings: [], passed: [] };
+    try { return crossValidate(mods); } catch { return { issues: [], warnings: [], passed: [] }; }
+  }, [bcm.bytes, rfh.bytes, pcm.bytes, eep.bytes, bcm.name, rfh.name, pcm.name, eep.name]);
+
+  /* Wizard issue/warning arrays — start from crossValidate output so the
+   * wizard, FCA Analyzer drawer, and AI assistant all share one rule
+   * set. Hand-rolled rules below add wizard-specific context that
+   * crossValidate does not cover, with dedupe to avoid double-counting. */
+  const wizardIssues = [...(cvResult.issues || [])];
+  const wizardWarnings = [...(cvResult.warnings || [])];
+  const _seenIssues = new Set(wizardIssues);
+  const _seenWarnings = new Set(wizardWarnings);
+  const _pushIssue = (msg) => { if (!_seenIssues.has(msg)) { _seenIssues.add(msg); wizardIssues.push(msg); } };
+  const _pushWarning = (msg) => { if (!_seenWarnings.has(msg)) { _seenWarnings.add(msg); wizardWarnings.push(msg); } };
+  /* VIN mismatch, RFHUB↔BCM vehicle secret mismatch, and RFHUB SEC16
+   * blank/slot-mismatch warnings now flow exclusively from
+   * crossValidate() via cvResult above (Task #396 — single source of
+   * truth). Keeping the rules inline here would double-emit. */
 
   /* 95640 BCM-backup chip — flag mismatch/blank vs RFHUB SEC16 (reversed) */
   if (eep.bytes && rfhHasSec16 && rfh.parsed.sec16.slot1) {
@@ -1393,39 +1410,10 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     }
   }
 
-  /* BCM SEC16 → SEC6 ↔ PCM SEC6 (Task #396). Pre-#396 the wizard's
-   * issue list was hand-rolled and never consulted the BCM↔PCM SEC6
-   * pairing rule, so a paired BCM+RFHUB trio with a virgin PCM SEC6
-   * (e.g. FF FF 00 FF FF FF on the incident 2C3CDXGJ9KH633754 trio)
-   * was reported as "Found 0 errors". Mirror the crossValidate.js
-   * rule inline using the engParse* shapes so the wizard count, the
-   * MismatchWizard issue list, and the AI assistant context all
-   * surface the issue. */
-  if (pcm.bytes && bcm.parsed?.ok && bcmHasSec16) {
-    const bcmHexW = bcm.parsed.sec16Hex?.toUpperCase();
-    const bcmRevHex = bcmHexW
-      ? [...Array(bcmHexW.length / 2)].map((_, i) =>
-          bcmHexW.slice(bcmHexW.length - 2 - i * 2, bcmHexW.length - i * 2)
-        ).join('')
-      : null;
-    const sec6Bytes = pcm.parsed?.sec6?.bytes || null;
-    const sec6Class = pcm.parsed?.sec6Class || classifyPcmSec6(sec6Bytes);
-    if (bcmRevHex && bcmRevHex.length >= 12) {
-      const bcmRev6 = bcmRevHex.slice(0, 12).toUpperCase();
-      if (!sec6Class.populated) {
-        wizardIssues.push(
-          `BCM SEC16 → SEC6 ↔ PCM SEC6: PCM never paired with this BCM — apply BCM→PCM SEC6 sync before key programming. BCM(rev)[0:6]=${bcmRev6} PCM SEC6=${sec6Bytes ? bytesToHex(sec6Bytes).toUpperCase() : 'MISSING'} (${sec6Class.label})`
-        );
-      } else {
-        const pcmHex6 = bytesToHex(sec6Bytes).toUpperCase();
-        if (pcmHex6 !== bcmRev6) {
-          wizardIssues.push(
-            `BCM SEC16 → SEC6 ↔ PCM SEC6: MISMATCH — open Module Sync to apply BCM→PCM SEC6 import. BCM(rev)[0:6]=${bcmRev6} PCM=${pcmHex6}`
-          );
-        }
-      }
-    }
-  }
+  /* The BCM SEC16 → SEC6 ↔ PCM SEC6 rule that closed the Task #396
+   * incident now lives in crossValidate.js (the canonical validator)
+   * and flows into wizardIssues via cvResult above — keeping a single
+   * source of truth instead of mirroring the rule inline here. */
 
   /* PN-family mismatch — informational warning for wizard */
   const pnFamResult = vehicleFamily && bcm.parsed?.ok ? bcmFamilyMismatch(bcm.parsed, vehicleFamily) : null;
