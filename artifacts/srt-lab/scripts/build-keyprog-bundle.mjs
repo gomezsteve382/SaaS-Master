@@ -73,7 +73,9 @@ const OUT_ZIP = 'KEYPROG_' + TARGET_VIN + '.zip';
  * only. With the proper-named virgin sources above the override is never
  * required — the guard only fires when somebody points the script at a
  * mis-prefixed file like "...797RFHUB...." for the BCM slot. */
-const FILENAME_PREFIX_RULES = {
+/* Filename-guard rules and helper exported for behavioral testing (see
+ * src/lib/__tests__/keyprogBundle.golden.test.js). */
+export const FILENAME_PREFIX_RULES = {
   BCM: { allow:  /^(BCM|22CHARGER|18TH_DFLASH|18TRACKHWK|18trackhwk|CARTMAN|BCM_HERMANADO)/i,
          refuse: /^(RFH|RFHUB|PCM|GPEC2A|FCA_CONTINENTAL|FCA_95640|95640|CONTINENTAL)/i },
   RFH: { allow:  /^(RFH|RFHUB|20CHRGR|2020_RFHUB|21RFHUB|DRAGRFHUB|CARTMAN.*RFHUB|FIXED_RFH)/i,
@@ -81,6 +83,39 @@ const FILENAME_PREFIX_RULES = {
   PCM: { allow:  /^(PCM|GPEC2A|FCA_CONTINENTAL|CONTINENTAL_GPEC2A|95640|FCA_95640)/i,
          refuse: /^(BCM|22CHARGER|RFH|RFHUB)/i },
 };
+
+/* Pure decision function: returns one of
+ *   { decision: 'refuse', reason }       — refuse pattern hit, override off
+ *   { decision: 'override', reason }     — refuse pattern hit, override on
+ *   { decision: 'unfamiliar', reason }   — neither allow nor refuse pattern hit
+ *   { decision: 'allow' }                — allow pattern hit
+ * Caller decides whether to abort (refuse), warn (override/unfamiliar) or
+ * proceed silently (allow). */
+export function evaluateFilenameGuard(role, name, { allowMislabeled = false } = {}) {
+  const rules = FILENAME_PREFIX_RULES[role];
+  if (!rules) return { decision: 'allow' };
+  if (rules.refuse.test(name)) {
+    const reason = role + ' source filename "' + name + '" starts with a non-' + role
+      + ' module-type prefix.';
+    return { decision: allowMislabeled ? 'override' : 'refuse', reason };
+  }
+  if (!rules.allow.test(name)) {
+    return { decision: 'unfamiliar',
+      reason: role + ' source filename "' + name + '" does not match the usual '
+        + role + ' naming pattern.' };
+  }
+  return { decision: 'allow' };
+}
+
+// The rest of this file only runs when the script is the entrypoint
+// (so importing it from a test doesn't trigger the bundler).
+const IS_ENTRYPOINT = (() => {
+  try { return import.meta.url === 'file://' + process.argv[1]; }
+  catch { return false; }
+})();
+if (!IS_ENTRYPOINT) {
+  // Exported helpers above are enough for tests; skip the build pipeline.
+} else {
 
 const args = new Set(process.argv.slice(2));
 const ALLOW_MISLABELED = args.has('--allow-mislabeled');
@@ -100,20 +135,15 @@ function readBin(name) {
   return new Uint8Array(fs.readFileSync(p));
 }
 function checkFilenameGuard(role, name) {
-  const rules = FILENAME_PREFIX_RULES[role];
-  if (!rules) return;
-  if (rules.refuse.test(name)) {
-    if (!ALLOW_MISLABELED) {
-      fail(role + ' source filename "' + name + '" starts with a non-' + role
-        + ' module-type prefix. Refusing to proceed without --allow-mislabeled.\n'
-        + '  This guard exists because the original KEYPROG bundle shipped a BCM dump\n'
-        + '  under an "RFHUB"-prefixed filename, creating a flash-to-wrong-module risk.');
-    }
-    console.warn('[WARN] ' + role + ' source filename "' + name + '" looks mislabeled '
-      + '(matches non-' + role + ' prefix). --allow-mislabeled override active.');
-  } else if (!rules.allow.test(name)) {
-    console.warn('[NOTE] ' + role + ' source filename "' + name + '" does not match the '
-      + 'usual ' + role + ' naming pattern. Bytes still verified — proceeding.');
+  const r = evaluateFilenameGuard(role, name, { allowMislabeled: ALLOW_MISLABELED });
+  if (r.decision === 'refuse') {
+    fail(r.reason + ' Refusing to proceed without --allow-mislabeled.\n'
+      + '  This guard exists because the original KEYPROG bundle shipped a BCM dump\n'
+      + '  under an "RFHUB"-prefixed filename, creating a flash-to-wrong-module risk.');
+  } else if (r.decision === 'override') {
+    console.warn('[WARN] ' + r.reason + ' --allow-mislabeled override active.');
+  } else if (r.decision === 'unfamiliar') {
+    console.warn('[NOTE] ' + r.reason + ' Bytes still verified — proceeding.');
   }
 }
 
@@ -447,3 +477,6 @@ console.log('  ' + OUT_PCM    + '   sha=' + outPcmSha.slice(0, 16) + '... (sz=' 
 console.log('  ' + OUT_VERIFY + '   sz=' + verifyText.length);
 console.log('  ' + OUT_ZIP    + '   sz=' + zipBytes.length);
 console.log('\nPASS — bundle ready.');
+
+} // end IS_ENTRYPOINT block
+

@@ -268,35 +268,86 @@ d('Task #366 — KEYPROG bundle (golden, runs the bundler)', () => {
   });
 });
 
-// Filename-guard test runs even without the bundle outputs as long as a
-// mislabeled BCM source exists somewhere in attached_assets/. We point the
-// bundler at any file whose name starts with "RFHUB" or "RFH_HERMANADO" via
-// a tiny wrapper script written to a temp path. To keep the test scope
-// small and side-effect-free, we instead spawn a one-shot Node process that
-// just exercises checkFilenameGuard via a tiny inline harness — but since
-// the bundler hard-codes its source filenames, the simpler check is to
-// confirm the script's source contains the guard machinery and the refusal
-// pattern. (The behavior itself is exercised in real life when an operator
-// edits SRC_BCM to a misnamed file.)
+// Behavioral test of the filename guard: imports the exported helper from the
+// bundler script (the script's build pipeline auto-skips when not run as the
+// entrypoint, so this import is side-effect-free) and exercises every
+// decision branch with realistic mislabeled vs proper-named filenames.
+import { evaluateFilenameGuard, FILENAME_PREFIX_RULES }
+  from '../../../scripts/build-keyprog-bundle.mjs';
+
+describe('Task #366 — bundler filename-guard (behavioral)', () => {
+  it('refuses an RFHUB-prefixed file fed into the BCM slot (override OFF)', () => {
+    const r = evaluateFilenameGuard(
+      'BCM',
+      'RFHUB_OGFILE_VIRGIN_2020_KEYPROG_X.bin',
+      { allowMislabeled: false }
+    );
+    expect(r.decision).toBe('refuse');
+    expect(r.reason).toMatch(/non-BCM module-type prefix/);
+  });
+
+  it('downgrades the same scenario to override when --allow-mislabeled is on', () => {
+    const r = evaluateFilenameGuard(
+      'BCM',
+      'RFHUB_OGFILE_VIRGIN_2020_KEYPROG_X.bin',
+      { allowMislabeled: true }
+    );
+    expect(r.decision).toBe('override');
+    expect(r.reason).toMatch(/non-BCM module-type prefix/);
+  });
+
+  it('refuses a BCM-prefixed file fed into the RFH or PCM slots', () => {
+    const a = evaluateFilenameGuard('RFH', 'BCM_22CHARGER_DFLASH.bin');
+    const b = evaluateFilenameGuard('PCM', '22CHARGER_REDEYE_6.2_797BCM_DFLASH.bin');
+    expect(a.decision).toBe('refuse');
+    expect(b.decision).toBe('refuse');
+  });
+
+  it('refuses a PCM-prefixed file fed into the BCM slot', () => {
+    const r = evaluateFilenameGuard('BCM', 'PCM_FCA_CONTINENTAL.bin');
+    expect(r.decision).toBe('refuse');
+  });
+
+  it('allows the proper-named virgin sources for each role', () => {
+    expect(evaluateFilenameGuard(
+      'BCM', '22CHARGER_REDEYE_6.2_797BCM_DFLASH_VIRGIN_1776226962777.bin'
+    ).decision).toBe('allow');
+    expect(evaluateFilenameGuard(
+      'RFH', 'RFH_HERMANADO_20CHRGR6.2RFHUBFILE_EEE_OG_VIRGINSYCHNED_1776899205057.bin'
+    ).decision).toBe('allow');
+    expect(evaluateFilenameGuard(
+      'PCM', 'FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGINSYNCHED_6.2_1776899205055.bin'
+    ).decision).toBe('allow');
+  });
+
+  it('returns "unfamiliar" for a name that matches neither allow nor refuse', () => {
+    const r = evaluateFilenameGuard('BCM', 'WEIRD_NAME_THAT_MATCHES_NOTHING.bin');
+    expect(r.decision).toBe('unfamiliar');
+  });
+
+  it('rules table covers BCM, RFH and PCM roles with non-overlapping refuse patterns', () => {
+    expect(Object.keys(FILENAME_PREFIX_RULES).sort()).toEqual(['BCM', 'PCM', 'RFH']);
+    // Sanity: a refuse pattern for one role must not match its own allow seeds.
+    expect(FILENAME_PREFIX_RULES.BCM.refuse.test('BCM_FOO')).toBe(false);
+    expect(FILENAME_PREFIX_RULES.RFH.refuse.test('RFH_FOO')).toBe(false);
+    expect(FILENAME_PREFIX_RULES.PCM.refuse.test('PCM_FOO')).toBe(false);
+  });
+});
+
+// Source-level guard invariants kept for defense in depth (catches regressions
+// in the wired-in cleanup logic that the runtime test doesn't exercise).
 const fileOk = fs.existsSync(BUNDLER);
 const guardDescribe = fileOk ? describe : describe.skip;
-guardDescribe('Task #366 — bundler filename-guard source-level invariants', () => {
+guardDescribe('Task #366 — bundler script-level invariants', () => {
   const src = fileOk ? fs.readFileSync(BUNDLER, 'utf8') : '';
 
-  it('declares refusal patterns for BCM/RFH/PCM that catch cross-prefix mistakes', () => {
-    expect(src).toMatch(/FILENAME_PREFIX_RULES/);
-    expect(src).toMatch(/BCM:[\s\S]*refuse:[^}]*RFHUB/);
-    expect(src).toMatch(/RFH:[\s\S]*refuse:[^}]*BCM/);
-    expect(src).toMatch(/PCM:[\s\S]*refuse:[^}]*RFH/);
-  });
-
-  it('aborts on a mislabeled source unless --allow-mislabeled is passed', () => {
-    expect(src).toMatch(/Refusing to proceed without --allow-mislabeled/);
-    expect(src).toMatch(/ALLOW_MISLABELED\s*=\s*args\.has\('--allow-mislabeled'\)/);
-  });
-
-  it('cleanup list never contains the current source filenames', () => {
+  it('cleanup list never deletes the current source filenames', () => {
     expect(src).toMatch(/PROTECTED_INPUTS\s*=\s*new Set\(\[SRC_BCM,\s*SRC_RFH,\s*SRC_PCM\]\)/);
     expect(src).toMatch(/if \(PROTECTED_INPUTS\.has\(f\)\) continue/);
+  });
+
+  it('--allow-mislabeled flag is wired through to the guard helper', () => {
+    expect(src).toMatch(/ALLOW_MISLABELED\s*=\s*args\.has\('--allow-mislabeled'\)/);
+    expect(src).toMatch(/evaluateFilenameGuard\(role, name, \{ allowMislabeled: ALLOW_MISLABELED \}\)/);
   });
 });
