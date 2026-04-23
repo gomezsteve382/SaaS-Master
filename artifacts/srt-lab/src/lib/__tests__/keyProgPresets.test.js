@@ -68,6 +68,34 @@ describe('keyProgPresets', () => {
     expect(after.find((p) => p.id === a.id)).toBeUndefined();
   });
 
+  it('stores a checks snapshot when provided', () => {
+    const checks = [
+      { label: 'A', pass: true },
+      { label: 'B', pass: true, detail: 'ok' },
+      { label: 'C', pass: false, detail: 'mismatch' },
+    ];
+    const saved = savePreset({ name: 'with-checks', vin: VIN, files: trio(), checks });
+    expect(saved.checksTotal).toBe(3);
+    expect(saved.checksPassed).toBe(2);
+    expect(saved.checksAllGreen).toBe(false);
+    expect(saved.checks).toHaveLength(3);
+    expect(saved.checks[2]).toEqual({ label: 'C', pass: false, detail: 'mismatch' });
+
+    const allGreen = savePreset({
+      name: 'green', vin: VIN, files: trio(),
+      checks: [{ label: 'X', pass: true }, { label: 'Y', pass: true }],
+    });
+    expect(allGreen.checksAllGreen).toBe(true);
+    expect(allGreen.checksPassed).toBe(2);
+  });
+
+  it('omits checks fields when no snapshot is provided', () => {
+    const saved = savePreset({ name: 'no-checks', vin: VIN, files: trio() });
+    expect(saved.checks).toBeUndefined();
+    expect(saved.checksTotal).toBeUndefined();
+    expect(saved.checksAllGreen).toBeUndefined();
+  });
+
   it('survives a corrupt storage payload', () => {
     globalThis.window.localStorage.setItem(STORAGE_KEY, '{not json');
     expect(loadPresets()).toEqual([]);

@@ -85,18 +85,6 @@ export default function KeyProgTab() {
   useEffect(() => { setPresets(loadPresets()); }, []);
 
   const trioReady = !!(files.BCM && files.RFH && files.PCM);
-  const canSavePreset = trioReady && vin.length === 17 && presetName.trim().length > 0;
-
-  const handleSavePreset = useCallback(() => {
-    try {
-      savePreset({ name: presetName, vin, files });
-      setPresets(loadPresets());
-      setPresetName('');
-      setPresetMsg({ kind: 'ok', text: 'Preset saved.' });
-    } catch (e) {
-      setPresetMsg({ kind: 'err', text: String(e.message || e) });
-    }
-  }, [presetName, vin, files]);
 
   const handleLoadPreset = useCallback((id) => {
     const p = loadPresets().find((x) => x.id === id);
@@ -142,6 +130,45 @@ export default function KeyProgTab() {
       return { ok: false, checks: [{ label: 'Patcher threw error', pass: false, detail: String(e) }], files: [], before: null, after: null };
     }
   }, [files, vin, promoteBank]);
+
+  const checksAllGreen = !!(result && result.ok && Array.isArray(result.checks)
+    && result.checks.length > 0 && result.checks.every((c) => c.pass));
+  const checksPassed = result?.checks?.filter((c) => c.pass).length || 0;
+  const checksTotal = result?.checks?.length || 0;
+  const canSavePreset = trioReady && vin.length === 17
+    && presetName.trim().length > 0 && checksAllGreen;
+
+  let saveDisabledReason = '';
+  if (!trioReady) saveDisabledReason = 'Load all three modules first.';
+  else if (vin.length !== 17) saveDisabledReason = 'Enter a 17-character target VIN.';
+  else if (!result) saveDisabledReason = 'Waiting for the patcher to finish previewing.';
+  else if (!checksAllGreen) {
+    saveDisabledReason = 'Wizard checks are not all green ('
+      + checksPassed + '/' + checksTotal + ' passed). Fix the failing checks before saving — '
+      + 'a preset saved now would reload modules that don\'t match.';
+  } else if (presetName.trim().length === 0) {
+    saveDisabledReason = 'Name the preset before saving.';
+  }
+
+  const handleSavePreset = useCallback(() => {
+    if (!checksAllGreen) {
+      setPresetMsg({
+        kind: 'err',
+        text: 'Refusing to save: wizard checks are not all green ('
+          + checksPassed + '/' + checksTotal + '). '
+          + 'Fix the failing checks first so the preset reloads to a READY state.',
+      });
+      return;
+    }
+    try {
+      savePreset({ name: presetName, vin, files, checks: result?.checks || [] });
+      setPresets(loadPresets());
+      setPresetName('');
+      setPresetMsg({ kind: 'ok', text: 'Preset saved (all ' + checksTotal + ' checks green).' });
+    } catch (e) {
+      setPresetMsg({ kind: 'err', text: String(e.message || e) });
+    }
+  }, [presetName, vin, files, result, checksAllGreen, checksPassed, checksTotal]);
 
   const dl = (data, name) => {
     const a = document.createElement('a');
@@ -282,7 +309,7 @@ export default function KeyProgTab() {
             data-testid="keyprog-preset-save"
             onClick={handleSavePreset}
             disabled={!canSavePreset}
-            title={canSavePreset ? 'Save current trio + VIN as a preset' : 'Load all three modules and a 17-char VIN, then name the preset'}
+            title={canSavePreset ? 'Save current trio + VIN as a preset' : (saveDisabledReason || 'Load all three modules and a 17-char VIN, then name the preset')}
             style={{
               padding: '8px 16px', borderRadius: 8, fontWeight: 800, fontSize: 11,
               border: 'none', cursor: canSavePreset ? 'pointer' : 'not-allowed',
@@ -292,6 +319,19 @@ export default function KeyProgTab() {
             ＋ Save preset
           </button>
         </div>
+        {trioReady && vin.length === 17 && result && !checksAllGreen && (
+          <div
+            data-testid="keyprog-preset-warn"
+            style={{
+              marginTop: 10, padding: '8px 12px', borderRadius: 8,
+              border: '1px solid ' + C.wn + '60', background: C.wn + '12',
+              fontSize: 11, color: C.wn, fontWeight: 700,
+            }}>
+            ⚠ Wizard checks are not all green ({checksPassed}/{checksTotal} passed).
+            Saving is disabled — a preset captured now would reload modules whose BCM
+            secret, RFH SEC16, or PCM SEC6 don't agree. Fix the failing checks first.
+          </div>
+        )}
         {presetMsg && (
           <div
             data-testid="keyprog-preset-msg"
@@ -320,6 +360,16 @@ export default function KeyProgTab() {
                     <div style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
                       VIN {p.vin} · BCM {p.files?.BCM?.name} · RFH {p.files?.RFH?.name} · PCM {p.files?.PCM?.name}
                     </div>
+                    {typeof p.checksTotal === 'number' && (
+                      <div
+                        data-testid={'keyprog-preset-checks-' + p.id}
+                        style={{
+                          fontSize: 10, marginTop: 2, fontWeight: 700,
+                          color: p.checksAllGreen ? C.gn : C.wn,
+                        }}>
+                        {p.checksAllGreen ? '✓' : '⚠'} saved with {p.checksPassed}/{p.checksTotal} checks green
+                      </div>
+                    )}
                   </div>
                   <button
                     data-testid={'keyprog-preset-load-' + p.id}

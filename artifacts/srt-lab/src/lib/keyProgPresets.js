@@ -71,13 +71,13 @@ function newId() {
   return 'kp_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
 }
 
-export function serializePreset({ name, vin, files }) {
+export function serializePreset({ name, vin, files, checks }) {
   if (!name || !name.trim()) throw new Error('Preset name is required');
   if (!vin || vin.length !== 17) throw new Error('VIN must be 17 characters');
   if (!files?.BCM?.data || !files?.RFH?.data || !files?.PCM?.data) {
     throw new Error('All three module files (BCM, RFH, PCM) must be loaded');
   }
-  return {
+  const preset = {
     id: newId(),
     name: name.trim(),
     vin,
@@ -88,6 +88,18 @@ export function serializePreset({ name, vin, files }) {
       PCM: { name: files.PCM.name, dataB64: bytesToB64(files.PCM.data) },
     },
   };
+  if (Array.isArray(checks)) {
+    const snapshot = checks.map((c) => ({
+      label: String(c.label || ''),
+      pass: !!c.pass,
+      detail: c.detail ? String(c.detail) : '',
+    }));
+    preset.checks = snapshot;
+    preset.checksPassed = snapshot.filter((c) => c.pass).length;
+    preset.checksTotal = snapshot.length;
+    preset.checksAllGreen = snapshot.length > 0 && snapshot.every((c) => c.pass);
+  }
+  return preset;
 }
 
 export function hydratePreset(preset) {
@@ -101,8 +113,8 @@ export function hydratePreset(preset) {
   return out;
 }
 
-export function savePreset({ name, vin, files }) {
-  const preset = serializePreset({ name, vin, files });
+export function savePreset({ name, vin, files, checks }) {
+  const preset = serializePreset({ name, vin, files, checks });
   const presets = loadPresets();
   presets.unshift(preset);
   if (!writePresets(presets)) {
