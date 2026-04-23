@@ -11,11 +11,14 @@
  * "Promote bank" toggle only if you intentionally want writeModuleVIN to
  * copy 0x40C0 → 0x2000.
  * ========================================================================== */
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { zipSync } from 'fflate';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
 import { identifyModule, runKeyProgPatch } from '../lib/keyProgWizard.js';
+import {
+  loadPresets, savePreset, deletePreset, hydratePreset,
+} from '../lib/keyProgPresets.js';
 
 const ROLE_LABEL = { BCM: 'BCM (D-FLASH)', RFH: 'RFHUB (EEE)', PCM: 'PCM (GPEC2A)' };
 const ROLE_ORDER = ['BCM', 'RFH', 'PCM'];
@@ -74,6 +77,41 @@ export default function KeyProgTab() {
   const [vin, setVin] = useState('');
   const [promoteBank, setPromoteBank] = useState(false);
   const [unknownDrops, setUnknownDrops] = useState([]);
+  const [presets, setPresets] = useState([]);
+  const [presetName, setPresetName] = useState('');
+  const [presetMsg, setPresetMsg] = useState(null);
+
+  useEffect(() => { setPresets(loadPresets()); }, []);
+
+  const trioReady = !!(files.BCM && files.RFH && files.PCM);
+  const canSavePreset = trioReady && vin.length === 17 && presetName.trim().length > 0;
+
+  const handleSavePreset = useCallback(() => {
+    try {
+      savePreset({ name: presetName, vin, files });
+      setPresets(loadPresets());
+      setPresetName('');
+      setPresetMsg({ kind: 'ok', text: 'Preset saved.' });
+    } catch (e) {
+      setPresetMsg({ kind: 'err', text: String(e.message || e) });
+    }
+  }, [presetName, vin, files]);
+
+  const handleLoadPreset = useCallback((id) => {
+    const p = loadPresets().find((x) => x.id === id);
+    if (!p) { setPresetMsg({ kind: 'err', text: 'Preset not found.' }); return; }
+    const h = hydratePreset(p);
+    if (!h) { setPresetMsg({ kind: 'err', text: 'Preset is corrupted.' }); return; }
+    setFiles(h.files);
+    setVin(h.vin);
+    setUnknownDrops([]);
+    setPresetMsg({ kind: 'ok', text: 'Loaded preset "' + p.name + '".' });
+  }, []);
+
+  const handleDeletePreset = useCallback((id) => {
+    setPresets(deletePreset(id));
+    setPresetMsg({ kind: 'ok', text: 'Preset deleted.' });
+  }, []);
 
   const acceptFiles = useCallback((fileList) => {
     Array.from(fileList).forEach((f) => {
@@ -198,6 +236,102 @@ export default function KeyProgTab() {
           Promote bank — auto-sync IMMO backup (0x40C0 → 0x2000). Off by default; only
           enable if you really intend to promote the staged secret into the active bank.
         </label>
+      </Card>
+
+      <Card style={{ marginBottom: 14, padding: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, color: C.sr, letterSpacing: 2 }}>
+            SAVED PRESETS
+          </div>
+          <span style={{ fontSize: 10, color: C.tm }}>
+            module trio + VIN, stored in this browser
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <input
+            data-testid="keyprog-preset-name"
+            value={presetName}
+            placeholder="Preset name (e.g. '2018 Charger Hellcat')"
+            maxLength={60}
+            onChange={(e) => setPresetName(e.target.value)}
+            style={{
+              flex: 1, minWidth: 220, padding: '8px 12px', borderRadius: 8,
+              border: '1.5px solid ' + C.bd, background: C.c2, fontSize: 12,
+              outline: 'none', color: C.tx, boxSizing: 'border-box',
+            }}
+          />
+          <button
+            data-testid="keyprog-preset-save"
+            onClick={handleSavePreset}
+            disabled={!canSavePreset}
+            title={canSavePreset ? 'Save current trio + VIN as a preset' : 'Load all three modules and a 17-char VIN, then name the preset'}
+            style={{
+              padding: '8px 16px', borderRadius: 8, fontWeight: 800, fontSize: 11,
+              border: 'none', cursor: canSavePreset ? 'pointer' : 'not-allowed',
+              background: canSavePreset ? C.sr : '#E8E4DE',
+              color: canSavePreset ? '#fff' : C.tm,
+            }}>
+            ＋ Save preset
+          </button>
+        </div>
+        {presetMsg && (
+          <div
+            data-testid="keyprog-preset-msg"
+            style={{ marginTop: 8, fontSize: 11, color: presetMsg.kind === 'ok' ? C.gn : C.er }}>
+            {presetMsg.text}
+          </div>
+        )}
+        <div data-testid="keyprog-preset-list" style={{ marginTop: 12 }}>
+          {presets.length === 0 ? (
+            <div style={{ fontSize: 11, color: C.tm, fontStyle: 'italic' }}>
+              No presets saved yet. Load a trio + VIN above and click "Save preset".
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {presets.map((p) => (
+                <div
+                  key={p.id}
+                  data-testid={'keyprog-preset-' + p.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+                    padding: '8px 12px', border: '1px solid ' + C.bd, borderRadius: 8,
+                    background: C.c2,
+                  }}>
+                  <div style={{ flex: 1, minWidth: 180 }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: C.tx }}>{p.name}</div>
+                    <div style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
+                      VIN {p.vin} · BCM {p.files?.BCM?.name} · RFH {p.files?.RFH?.name} · PCM {p.files?.PCM?.name}
+                    </div>
+                  </div>
+                  <button
+                    data-testid={'keyprog-preset-load-' + p.id}
+                    onClick={() => handleLoadPreset(p.id)}
+                    style={{
+                      padding: '6px 14px', borderRadius: 6, fontSize: 11, fontWeight: 800,
+                      border: '2px solid ' + C.sr + '33', background: 'transparent',
+                      color: C.sr, cursor: 'pointer',
+                    }}>
+                    ↺ Load
+                  </button>
+                  <button
+                    data-testid={'keyprog-preset-delete-' + p.id}
+                    onClick={() => {
+                      if (typeof window !== 'undefined' && window.confirm
+                          && !window.confirm('Delete preset "' + p.name + '"?')) return;
+                      handleDeletePreset(p.id);
+                    }}
+                    style={{
+                      padding: '6px 12px', borderRadius: 6, fontSize: 11,
+                      border: '1px solid ' + C.bd, background: 'transparent',
+                      color: C.tm, cursor: 'pointer',
+                    }}>
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </Card>
 
       {result && (
