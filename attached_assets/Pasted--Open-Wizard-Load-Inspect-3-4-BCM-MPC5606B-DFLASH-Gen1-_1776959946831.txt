@@ -1,0 +1,115 @@
+🔧 Open Wizard
+Load & Inspect
+3 / 4
+🧠
+BCM
+MPC5606B DFLASH · Gen1 or Gen2 · drag .bin
+MPC5606B_DFLASH_20260422130530.bin · 64.0 KB
+🔑
+RFHUB / FCM
+Yazaki FCM EEPROM · Gen1 or Gen2 · drag .bin
+RFH_SCAT_OG.bin · 4.0 KB
+⚙️
+PCM (optional)
+GPEC2A (4KB) or GPEC5 (8KB) · drag .bin
+PCM_SEC6_SYNCED_20260423_105214.bin · 4.0 KB
+📟
+95640 (optional)
+BCM-backup EEPROM · 8 / 16 KB · drag .bin
+Inspection Result
+Vehicle Family — select to verify BCM part number
+
+Dodge Charger (LX/LD · 2011–2023)
+✓ BCM part number matches
+Dodge Charger (LX/LD · 2011–2023)
+✓ VIN MATCH — BCM and RFHUB both carry 2C3CDXGJ9KH633754 · modules already paired
+🔧 Fix with Wizard →
+⚠ Security token issues detected — use the wizard for guided resolution.
+🔧 Fix with Wizard →
+🧠 BCM · MPC5606B
+READY
+GEN2
+Stored VIN
+2C3CDXGJ9KH633754
+VIN slots
+4 / 4 · all match
+File size
+65536 bytes (64.0 KB)
+VIN CRC-16
+0x7099 · ✓ valid
+Vehicle
+Charger / Challenger / Durango (2018-2020 LD/LC/WD)
+Part numbers
+68396563, 68396564
+Supplier
+TYH07990
+Active bank
+Bank 1 (seq 0x30CE)
+SEC16 SPLIT RECORDS3 found
+Consistent
+✓ All match
+SEC16 hex
+C42F3C79941582C3823530BAE7C5A108
+Mirror recs
+2 populated · 2 CRC OK
+🔑 RFHUB · Yazaki FCM
+READY
+GEN2
+Stored VIN
+2C3CDXGJ9KH633754
+VIN slots
+4 / 4 · all match
+File size
+4096 bytes
+VIN checksum
+0xD9 · ✓ valid
+Part numbers
+AA30712804
+Serial
+7161A9870IR00T
+Keys stored
+9 slots populated
+SEC16 · 0x050E / 0x0522
+Status
+✓ MATCH
+Slot 1
+08A1C5E7BA303582C3821594793C2FC4
+⚙️ PCM · Continental
+READY
+GPEC2A
+95320 · 4 KB
+Current VIN
+2C3CDXGJ9KH633754
+VIN slots
+4 found
+File size
+4096 bytes (4.0 KB)
+Immo (SEC6)
+✓ Populated
+SEC6 marker
+canonical 0x3C8
+SEC6 bytes
+08A1C5E7BA30
+Continental PN
+A2C7577160000
+Standalone Tools
+🌐 Sync Tool (HTML)
+Self-contained offline tool — drop BCM and RFHUB bins directly in a browser tab, no server needed.
+⬇ Download SRTLAB_SYNC_TOOL.html
+🐍 Python Validator
+CLI validator — verify VIN slots, CRC-16/CCITT checksums, and SEC16 state of any BCM or RFHUB dump.
+⬇ Download srtlab_validate.py
+Sync Actions
+Target VIN — for write-both / sync-all modes
+Enter 17-character VIN
+0 / 17
+
+➡ RFH VIN → BCM
+›
+Copy RFHUB VIN (2C3CDXGJ9KH633754) into BCM at all full + tail slots. Downloads new BCM bin.
+
+⬅ BCM VIN → RFH
+›
+Copy BCM VIN (2C3CDXGJ9KH633754) into RFHUB byte-reversed at all 4 slots. Downloads new RFH bin.
+
+🎯 TARGET VIN → BCM + RFH
