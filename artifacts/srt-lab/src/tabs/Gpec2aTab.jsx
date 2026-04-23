@@ -3,6 +3,7 @@ import {C} from "../lib/constants.js";
 import {Card,Tag,Btn} from "../lib/ui.jsx";
 import {parseModule} from "../lib/parseModule.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
+import {SizeWarnBanner} from "../components/ModuleFieldsPanel.jsx";
 
 const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();URL.revokeObjectURL(a.href);};
 const offHex=o=>'0x'+o.toString(16).toUpperCase().padStart(4,'0');
@@ -24,9 +25,12 @@ function Gpec2aTab(){
     const r=new FileReader();
     r.onload=ev=>{
       const d=new Uint8Array(ev.target.result);
-      if(d.length!==4096){setMsg('GPEC2A must be 4096 bytes');return;}
-      const m=parseModule(d,fi.name);
-      if(m.type!=='GPEC2A'){setMsg('Not a GPEC2A file');return;}
+      // Accept non-canonical sizes (oversized padded captures, truncated dumps)
+      // so users can still inspect them. parseModule will attach a sizeWarn
+      // banner explaining the discrepancy. Reject only sub-512B files where
+      // even the basic GPEC2A fields can't be read.
+      if(d.length<512){setMsg('File too small ('+d.length+' B) — needs at least 512 B to read GPEC2A fields');return;}
+      const m=parseModule(d,fi.name,{forceType:'GPEC2A'});
       const entry=addDump(m);
       if(entry){if(slot===1)setHash1(entry.hash);else setHash2(entry.hash);}
       setMsg('');
@@ -38,7 +42,7 @@ function Gpec2aTab(){
     if(!f||!entry1)return;
     const p=new Uint8Array(f.data);
     p[0x11]=p[0x11]===0x80?0x00:0x80;
-    const next=parseModule(p,f.filename);
+    const next=parseModule(p,f.filename,{forceType:'GPEC2A'});
     const updated=replaceDump(entry1.hash,next);
     if(updated)setHash1(updated.hash);
     dl(p,'SKIM_'+(p[0x11]===0x80?'ENABLED':'DISABLED')+'_'+f.filename);
@@ -87,6 +91,9 @@ function Gpec2aTab(){
         <input type="file" hidden onChange={e=>load(e,2)} accept=".bin,.BIN"/>
       </Card></label>
     </div>
+
+    {f&&f.sizeWarn&&<SizeWarnBanner warn={f.sizeWarn}/>}
+    {f2&&f2.sizeWarn&&<SizeWarnBanner warn={f2.sizeWarn}/>}
 
     {f&&<>
       {/* Hero status: SKIM + ZZZZ tamper */}

@@ -13,6 +13,78 @@ function rd32(data,o){if(o<0||o+4>data.length)return null;return(data[o]<<24)|(d
 function countAA50(d,s,n){let c=0;for(let i=0;i<n;i++)if(d[s+i*2]===0xaa&&d[s+i*2+1]===0x50)c++;return c;}
 function countPat(d,a,b,c2,d2){let c=0;for(let i=0;i<d.length-3;i++)if(d[i]===a&&d[i+1]===b&&d[i+2]===c2&&d[i+3]===d2)c++;return c;}
 
+// Canonical EEPROM/flash sizes per module type (in bytes). Captures from the
+// real world are sometimes padded (oversized) or truncated; we detect that
+// against this table and surface a warning so the user knows the dump is
+// non-standard rather than silently parsing potentially-corrupted regions.
+const CANONICAL_SIZES_BY_TYPE={
+  BCM:[65536,131072],
+  '95640':[8192],
+  GPEC2A:[4096],
+  RFHUB:[2048,4096],
+};
+
+function typeFromFilename(name){
+  if(!name)return null;
+  const u=String(name).toUpperCase();
+  if(/GPEC/.test(u))return'GPEC2A';
+  if(/RFH/.test(u))return'RFHUB';
+  if(/95640/.test(u))return'95640';
+  if(/\bBCM\b|DFLASH/.test(u))return'BCM';
+  return null;
+}
+
+function buildSizeWarn(type,sz){
+  const canonical=CANONICAL_SIZES_BY_TYPE[type];
+  if(!canonical||canonical.includes(sz))return null;
+  // Pick the closest canonical size as the "expected" reference so the user
+  // sees a sensible expected vs got pair (e.g. 384 KB vs 4 KB, not 64 KB).
+  let expected=canonical[0];
+  let bestDist=Math.abs(sz-expected);
+  for(const c of canonical){const d=Math.abs(sz-c);if(d<bestDist){bestDist=d;expected=c;}}
+  const causes=[];
+  const kind=sz>expected?'oversized':'truncated';
+  if(kind==='oversized'){
+    if(sz%expected===0&&sz/expected>=2)causes.push('Padded capture: file is '+(sz/expected)+'× the expected size — the dumper read past the EEPROM and filled the rest with 0xFF/0x00.');
+    else causes.push('Padded capture: extra bytes were appended by the dumper after the real module image.');
+    causes.push('Only the first '+expected.toLocaleString()+' bytes are the real '+type+' image — the trailing region is not part of the module.');
+    causes.push('Re-dump with the read length set to the module\u2019s real EEPROM size to clean it up.');
+  }else{
+    causes.push('Truncated dump: the dumper stopped before reading the full module.');
+    causes.push('Some fields past offset 0x'+sz.toString(16).toUpperCase()+' will be missing or read as padding.');
+    causes.push('Re-dump using the full read length so no bytes are missed.');
+  }
+  return{
+    actual:sz,
+    expected,
+    kind,
+    actualLabel:sz.toLocaleString()+' B',
+    expectedLabel:expected.toLocaleString()+' B',
+    message:'Unusual size: got '+sz.toLocaleString()+' B, expected '+expected.toLocaleString()+' B for '+type+'.',
+    causes,
+  };
+}
+
+// Content sanity check: do the BCM-defining structures look populated?
+// Used as a tiebreaker when the file size matches BCM (64 KB / 128 KB) but
+// the filename explicitly names a non-BCM module type. Real BCMs have either
+// VINs at the canonical 0x5320..0x5380 slots OR a structured immo block at
+// 0x40C0; padded GPEC2A/95640 captures have neither.
+function looksLikeRealBcm(data){
+  if(data.length<0x5400)return false;
+  for(const base of [0x5320,0x5340,0x5360,0x5380]){
+    if(extractVIN(data,base)||extractVIN(data,base+8))return true;
+  }
+  for(let i=0;i<8;i++){
+    const o=0x40C0+i*24;
+    if(o+24>data.length)break;
+    let nonblank=0;
+    for(let j=0;j<24;j++)if(data[o+j]!==0xFF&&data[o+j]!==0)nonblank++;
+    if(nonblank>2)return true;
+  }
+  return false;
+}
+
 function detectBySignature(data){
   const sz=data.length;
   if(sz>=4096&&sz<=20480){
@@ -34,8 +106,9 @@ function detectBySignature(data){
   return'UNKNOWN';
 }
 
-function parseModule(data,filename){
+function parseModule(data,filename,opts){
   const sz=data.length;let type='UNKNOWN';
+  const forceType=opts&&opts.forceType;
   if(sz===65536||sz===131072){type='BCM';}
   else if(sz===8192||sz===16384){
     const sig=detectBySignature(data);
@@ -52,8 +125,30 @@ function parseModule(data,filename){
     const nearCanonical=CANONICAL_SIZES.some(s=>Math.abs(sz-s)<=4096&&sz!==s);
     if(nearCanonical||sz>=512){const sig=detectBySignature(data);if(sig!=='UNKNOWN')type=sig;}
   }
+  // Filename hint is conservative — filenames in the wild are unreliable
+  // (e.g. a virgin BCM may carry "RFHUB" in its name). We allow override in
+  // three scenarios:
+  //   1. Generic FW bucket (sz>128 KB) — anything is better than "FW".
+  //   2. Size matches BCM (64 KB / 128 KB) but filename explicitly names a
+  //      non-BCM type (GPEC2A or 95640) AND the file lacks BCM-defining
+  //      content (no VINs in slots, no immo block) — handles padded
+  //      GPEC2A/95640 captures that collide with the BCM size.
+  // 8 KB files are intentionally NOT reclassified by filename: the
+  // keyProgWizard treats 8 KB "doubled PCM" captures as 95640 first and
+  // then reparses the first half as GPEC2A. Tabs that need GPEC2A behavior
+  // for an 8 KB file should pass {forceType:'GPEC2A'}.
+  const fnType=typeFromFilename(filename);
+  if(fnType&&fnType!==type){
+    if(type==='FW')type=fnType;
+    else if(type==='BCM'&&(fnType==='GPEC2A'||fnType==='95640')&&!looksLikeRealBcm(data))type=fnType;
+  }
+  // Tab context (Gpec2aTab, BcmTab, etc.) can force a type when the user
+  // explicitly loads a file under a known module type even if the size is
+  // non-canonical. The size warning will then explain the discrepancy.
+  if(forceType&&CANONICAL_SIZES_BY_TYPE[forceType])type=forceType;
 
   const info={type,filename,data,size:sz,name:TL[type]||type,color:TC[type]||'#9E9E9E'};
+  info.sizeWarn=buildSizeWarn(type,sz);
   if(type==='UNKNOWN')info.hexOnly=true;
 
   if(type==='GPEC2A'){
@@ -205,4 +300,4 @@ function parseModule(data,filename){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32};
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm};

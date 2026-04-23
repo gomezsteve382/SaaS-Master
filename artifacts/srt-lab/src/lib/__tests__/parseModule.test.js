@@ -7,6 +7,8 @@ import {
   extractVIN,
   extractHex,
   rd32,
+  buildSizeWarn,
+  typeFromFilename,
 } from '../parseModule.js';
 import { IMMO_BLOCK, IMMO_REC } from '../constants.js';
 import { crc8rf, rfhSec16Cs } from '../crc.js';
@@ -521,5 +523,110 @@ describe('RFHUB Gen1 (24C16, 2048 bytes)', () => {
     const gen2Cs = rfhSec16Cs(slot1);
     const stored = (buf[0xAE + 16] << 8) | buf[0xAE + 17];
     expect(stored).not.toBe(gen2Cs);
+  });
+});
+
+describe('sizeWarn — non-canonical capture sizes', () => {
+  it('canonical sizes produce no sizeWarn', () => {
+    expect(parseModule(makeBcm({ size: 65536 }), 'bcm.bin').sizeWarn).toBeNull();
+    expect(parseModule(make95640(), '95640.bin').sizeWarn).toBeNull();
+    expect(parseModule(makeGpec2a(), 'gpec.bin').sizeWarn).toBeNull();
+    expect(parseModule(makeRfhubGen2(), 'rfh.bin').sizeWarn).toBeNull();
+  });
+
+  it('forced GPEC2A at 8 KB (Trackhawk-style oversized) gets oversized warn', () => {
+    const buf = new Uint8Array(8192);
+    const m = parseModule(buf, 'gpec_oversized.bin', { forceType: 'GPEC2A' });
+    expect(m.type).toBe('GPEC2A');
+    expect(m.sizeWarn).not.toBeNull();
+    expect(m.sizeWarn.kind).toBe('oversized');
+    expect(m.sizeWarn.expected).toBe(4096);
+    expect(m.sizeWarn.actual).toBe(8192);
+    expect(m.sizeWarn.message).toMatch(/8,192.*expected 4,096.*GPEC2A/);
+    expect(m.sizeWarn.causes.length).toBeGreaterThan(0);
+  });
+
+  it('forced GPEC2A at 384 KB (Charger 6.2-style padded) gets oversized warn with multiplier hint', () => {
+    const buf = new Uint8Array(393216);
+    const m = parseModule(buf, 'pcm.bin', { forceType: 'GPEC2A' });
+    expect(m.type).toBe('GPEC2A');
+    expect(m.sizeWarn.kind).toBe('oversized');
+    expect(m.sizeWarn.expected).toBe(4096);
+    expect(m.sizeWarn.causes.some(c => /96×/.test(c))).toBe(true);
+  });
+
+  it('forced 95640 at 64 KB (FCA-style padded) gets oversized warn', () => {
+    const buf = new Uint8Array(65536);
+    const m = parseModule(buf, 'fca_95640.bin', { forceType: '95640' });
+    expect(m.type).toBe('95640');
+    expect(m.sizeWarn.kind).toBe('oversized');
+    expect(m.sizeWarn.expected).toBe(8192);
+  });
+
+  it('forced BCM at 8 KB (truncated demo dump) gets truncated warn', () => {
+    const buf = new Uint8Array(8192);
+    const m = parseModule(buf, 'bcm_demo.bin', { forceType: 'BCM' });
+    expect(m.type).toBe('BCM');
+    expect(m.sizeWarn.kind).toBe('truncated');
+    expect(m.sizeWarn.expected).toBe(65536);
+    expect(m.sizeWarn.causes.some(c => /Truncated/i.test(c))).toBe(true);
+  });
+
+  it('FW-bucket file (>128 KB) with GPEC filename reclassifies to GPEC2A and warns', () => {
+    const buf = new Uint8Array(393216);
+    const m = parseModule(buf, 'CHARGER_GPEC2A_PCM_oversized.bin');
+    expect(m.type).toBe('GPEC2A');
+    expect(m.sizeWarn).not.toBeNull();
+    expect(m.sizeWarn.kind).toBe('oversized');
+  });
+
+  it('canonical-sized BCM with misleading "RFHUB" in filename keeps BCM type (filename hint stays conservative)', () => {
+    const m = parseModule(makeBcm({ size: 65536 }), 'CHARGER_RFHUB_actually_a_bcm.bin');
+    expect(m.type).toBe('BCM');
+    expect(m.sizeWarn).toBeNull();
+  });
+
+  it('64 KB padded GPEC2A (no BCM content) reclassifies via filename hint and warns', () => {
+    const buf = new Uint8Array(65536).fill(0xFF);
+    const m = parseModule(buf, 'JOVENTINO_GPEC2A_PCM_EEPROM_padded.bin');
+    expect(m.type).toBe('GPEC2A');
+    expect(m.sizeWarn.kind).toBe('oversized');
+    expect(m.sizeWarn.expected).toBe(4096);
+    expect(m.sizeWarn.actual).toBe(65536);
+  });
+
+  it('64 KB padded 95640 (no BCM content) reclassifies via filename hint and warns', () => {
+    const buf = new Uint8Array(65536).fill(0xFF);
+    const m = parseModule(buf, 'FCA_DK_95640_EXT_EEPROM_padded.bin');
+    expect(m.type).toBe('95640');
+    expect(m.sizeWarn.kind).toBe('oversized');
+    expect(m.sizeWarn.expected).toBe(8192);
+  });
+
+  it('real BCM with filename hint of GPEC2A keeps BCM (content trumps filename)', () => {
+    const m = parseModule(makeBcm({ size: 65536 }), 'CHARGER_GPEC2A_actually_a_bcm.bin');
+    expect(m.type).toBe('BCM');
+    expect(m.sizeWarn).toBeNull();
+  });
+
+  it('8 KB file with GPEC filename stays as 95640 (keyProgWizard handles doubled-PCM reparse)', () => {
+    const buf = new Uint8Array(8192);
+    const m = parseModule(buf, 'TRACKHAWK_GPEC2A_PCM.bin');
+    expect(m.type).toBe('95640');
+  });
+
+  it('typeFromFilename basic mapping', () => {
+    expect(typeFromFilename('GPEC2A_dump.bin')).toBe('GPEC2A');
+    expect(typeFromFilename('rfhub_eee.bin')).toBe('RFHUB');
+    expect(typeFromFilename('95640_ext.bin')).toBe('95640');
+    expect(typeFromFilename('BCM_DFLASH.bin')).toBe('BCM');
+    expect(typeFromFilename(null)).toBe(null);
+  });
+
+  it('buildSizeWarn returns null for unknown / canonical-matching cases', () => {
+    expect(buildSizeWarn('TCM', 4096)).toBeNull();
+    expect(buildSizeWarn('BCM', 65536)).toBeNull();
+    expect(buildSizeWarn('RFHUB', 2048)).toBeNull();
+    expect(buildSizeWarn('RFHUB', 4096)).toBeNull();
   });
 });

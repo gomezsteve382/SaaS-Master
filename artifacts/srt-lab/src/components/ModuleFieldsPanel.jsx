@@ -19,10 +19,29 @@ function Hex({children,muted}){
 /* Renders the byte-level fields exposed by parseModule for a single module.
    Used by the FCA Analyzer tab and as an embedded "Module File Inspector"
    in BCM / RFHUB / GPEC2A tabs. Read-only. */
+export function SizeWarnBanner({warn}){
+  if(!warn)return null;
+  const isOver=warn.kind==='oversized';
+  return <Card style={{marginBottom:12,padding:12,border:'1px solid '+C.wn+'66',background:C.wn+'14'}}>
+    <div style={{fontWeight:800,fontSize:12,color:C.wn,marginBottom:4,letterSpacing:.5}}>⚠ {isOver?'OVERSIZED':'TRUNCATED'} CAPTURE — {warn.message}</div>
+    <div style={{fontSize:11,color:C.tx,lineHeight:1.45,marginBottom:6}}>
+      The bytes {isOver?'past offset 0x'+warn.expected.toString(16).toUpperCase()+' are not part of the module image':'past offset 0x'+warn.actual.toString(16).toUpperCase()+' are missing from this capture'}.
+      The app is parsing the file from offset 0, which usually still works, but the dump is non-standard.
+    </div>
+    <ul style={{margin:'4px 0 0 18px',padding:0,fontSize:11,color:C.tx,lineHeight:1.5}}>
+      {warn.causes.map((c,i)=><li key={i}>{c}</li>)}
+    </ul>
+  </Card>;
+}
+
 export default function ModuleFieldsPanel({mod,onSyncImmo}){
-  if(!mod||mod.type==='UNKNOWN')return <div style={{fontSize:11,color:C.tm,padding:10}}>Unknown module type — no enriched fields available.</div>;
+  if(!mod||mod.type==='UNKNOWN')return <div style={{fontSize:11,color:C.tm,padding:10}}>
+    {mod&&mod.sizeWarn&&<SizeWarnBanner warn={mod.sizeWarn}/>}
+    Unknown module type — no enriched fields available.
+  </div>;
 
   return <div>
+    <SizeWarnBanner warn={mod.sizeWarn}/>
     {/* GPEC2A ------------------------------------------------------------- */}
     {mod.type==='GPEC2A'&&(()=>{
       const rc=mod.runtimeCounters||{};
