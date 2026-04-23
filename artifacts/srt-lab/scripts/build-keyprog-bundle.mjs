@@ -46,7 +46,7 @@ import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
-import { parseModule, pcmChipFromKey, PCM_CHIPS } from '../src/lib/parseModule.js';
+import { parseModule, pcmChipFromKey, pcmChipFromSize, PCM_CHIPS } from '../src/lib/parseModule.js';
 import { crc16 } from '../src/lib/crc.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -140,16 +140,36 @@ const SKIP_CLEANUP = args.has('--no-cleanup');
 // mode. Pass --pcm-chip 8kb to ship the full doubled 95640 image.
 function parsePcmChipArg() {
   const i = argv.indexOf('--pcm-chip');
-  if (i < 0) return pcmChipFromKey('4kb');
-  const v = argv[i + 1];
-  const c = pcmChipFromKey(v);
-  if (!c) {
-    const valid = PCM_CHIPS.map((p) => p.chipKey + '|' + p.chip).join(', ');
-    fail('Unknown --pcm-chip "' + v + '". Valid: ' + valid + '.');
+  if (i >= 0) {
+    const v = argv[i + 1];
+    const c = pcmChipFromKey(v);
+    if (!c) {
+      const valid = PCM_CHIPS.map((p) => p.chipKey + '|' + p.chip).join(', ');
+      fail('Unknown --pcm-chip "' + v + '". Valid: ' + valid + '.');
+    }
+    return { chip: c, source: 'flag' };
   }
-  return c;
+  // Task #379: when --donor <path> is supplied without an explicit chip,
+  // auto-detect the chip from the donor PCM read. This is the durable
+  // protection against shipping a wrong-sized image when the bench tech
+  // points the bundler at the actual capture.
+  const di = argv.indexOf('--donor');
+  if (di >= 0) {
+    const dpath = argv[di + 1];
+    if (!dpath) fail('--donor requires a path to the donor PCM file');
+    let donor;
+    try { donor = fs.readFileSync(dpath); }
+    catch (e) { fail('Cannot read --donor file "' + dpath + '": ' + e.message); }
+    const detected = pcmChipFromSize(donor.length);
+    if (!detected) {
+      fail('Donor PCM size ' + donor.length + ' B is non-canonical (need 4096 or 8192). Refusing to guess.');
+    }
+    return { chip: detected, source: 'donor:' + dpath };
+  }
+  return { chip: pcmChipFromKey('4kb'), source: 'default' };
 }
-const PCM_CHIP = parsePcmChipArg();
+const PCM_CHIP_RES = parsePcmChipArg();
+const PCM_CHIP = PCM_CHIP_RES.chip;
 const OUT_PCM = pcmOutName(PCM_CHIP);
 const OUT_VERIFY = verifyOutName(PCM_CHIP);
 const OUT_ZIP = zipOutName(PCM_CHIP);

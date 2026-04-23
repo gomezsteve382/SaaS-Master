@@ -1980,12 +1980,29 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                     ? 'BCM is master: writes reverse(BCM SEC16) into RFHUB Gen2 slots (0x050E + 0x0522). Use when RFHUB is from a different vehicle.'
                     : 'Requires BCM with Gen2 split records + Gen2 RFHUB (AA 55 31 01 header at 0x0500)'}
                   onClick={() => doSync('bcm-sec16-to-rfh')} />
-                <ActionBtn title="⚡ SYNC ALL — BCM + RFH + PCM"  enabled={tvOk || !!(rfh.parsed.vin)}
-                  color={C.a1}
-                  desc={tvOk
-                    ? `Write ${tv} + SEC16 to all loaded modules in one pass. SINCRO-verified output.`
-                    : `Write ${rfh.parsed.vin || bcm.parsed.vin} + SEC16 to all modules (no target VIN set).`}
-                  onClick={() => doSync('sync-all')} />
+                {(() => {
+                  // Task #379: hard-block SYNC ALL when the loaded PCM is a
+                  // non-canonical size (neither 4 KB nor 8 KB). The CGDI
+                  // flasher will refuse the output, so producing it would
+                  // give the user a junk file and a wasted bench cycle.
+                  const pcmChip = pcm.parsed && !pcm.parsed.tooSmall
+                    ? pcmChipFromSize(pcm.parsed.size) : null;
+                  const pcmSizeBlocked = pcm.parsed && !pcm.parsed.tooSmall && !pcmChip;
+                  const baseEnabled = tvOk || !!(rfh.parsed.vin);
+                  const enabled = baseEnabled && !pcmSizeBlocked;
+                  const desc = pcmSizeBlocked
+                    ? `⛔ Loaded PCM is ${pcm.parsed.size} B — neither 4 KB (95320) nor 8 KB (95640). CGDI will reject. Re-read the PCM or load the matching virgin before SYNC.`
+                    : tvOk
+                      ? `Write ${tv} + SEC16 to all loaded modules in one pass. SINCRO-verified output.`
+                      : `Write ${rfh.parsed.vin || bcm.parsed.vin} + SEC16 to all modules (no target VIN set).`;
+                  return (
+                    <ActionBtn title="⚡ SYNC ALL — BCM + RFH + PCM"
+                      enabled={enabled}
+                      color={pcmSizeBlocked ? C.er : C.a1}
+                      desc={desc}
+                      onClick={() => doSync('sync-all')} />
+                  );
+                })()}
               </div>
               {!sec16SyncOk && (
                 <div style={{ marginTop: 8, padding: '8px 12px', background: 'rgba(255,179,0,0.06)', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 600, lineHeight: 1.5 }}>
