@@ -33,7 +33,7 @@ Processing helpers live in `src/lib/`:
   `scripts/README.md` → "AlfaOBD database codegen" for regen, source
   `.db` location, and the corruption caveats.
 
-A desktop J2534 driver (Python, separate package) handles raw CAN PassThru when Web Serial is insufficient.
+A desktop J2534 driver (Python, separate package) handles raw CAN PassThru when Web Serial is insufficient. The reference implementation of that driver — the localhost HTTP daemon `bridgeClient.js`/`bridgeEngine.js` talk to, plus 16 operational helper scripts and the per-module unlock DLL catalog — lives at `tools/python-bridge/` (sibling to `artifacts/`, **not** a pnpm package, not built or tested by CI). See `tools/python-bridge/README.md` for the wire protocol, Windows prerequisites, and per-script purpose.
 
 The API server (`artifacts/api-server/`) is used for download counters, module backups, diff reports, and the **Anthropic AI module assistant**:
 

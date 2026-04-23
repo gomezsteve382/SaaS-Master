@@ -1,0 +1,20 @@
+# SRT Lab Python J2534 bridge — runtime dependencies
+#
+# Standard library only:
+#   ctypes, http.server, urllib, json, argparse, os, sys, struct, re,
+#   threading, time, socket, platform, sqlite3
+# These are required by bridge/j2534_bridge.py and most tools/srtlab_*.py
+# scripts and ship with Python >= 3.8.
+
+# Required by tools/srtlab_unlock_catalog.py to introspect the per-module
+# unlock DLLs in tools/canflash_unlocks/.
+pefile>=2023.2.7
+
+# Required by tools/srtlab_unlock_catalog.py to emulate the 67 modules whose
+# unlock has not been ported to native Python (it runs the DLL's seed→key in
+# a tiny x86 sandbox via Unicorn).
+unicorn>=2.0.0
+
+# Optional — only needed if you run tools/srtlab_canflash_algos.py with the
+# capstone disassembler flag for development/reverse engineering.
+# capstone>=5.0.0
