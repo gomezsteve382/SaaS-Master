@@ -48,6 +48,27 @@ import { fileURLToPath } from 'node:url';
 
 import { parseModule, pcmChipFromKey, pcmChipFromSize, PCM_CHIPS } from '../src/lib/parseModule.js';
 import { crc16 } from '../src/lib/crc.js';
+import { formatBcmSec16Provenance } from '../src/lib/keyProgWizard.js';
+
+/* Soft-wrap a paragraph for fixed-width VERIFY.txt sections — duplicated
+ * (intentionally, per Task #391) from the same helper inside keyProgWizard.js
+ * so the bundler script doesn't have to drag in additional non-public
+ * exports just to render the virgin-explainer paragraph. */
+function wrapParagraph(text, indent, width = 78) {
+  const words = text.split(/\s+/);
+  const lines = [];
+  let line = indent;
+  for (const w of words) {
+    if (line.length + w.length + 1 > width && line.trim().length > 0) {
+      lines.push(line.trimEnd());
+      line = indent + w;
+    } else {
+      line += (line === indent ? '' : ' ') + w;
+    }
+  }
+  if (line.trim().length > 0) lines.push(line.trimEnd());
+  return lines;
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
@@ -388,6 +409,27 @@ lines.push('   IMMO backup synced:          ' + bcmInfoOut.immoSynced);
 lines.push('   Bank0 seq @0x0002:           ' + hex2(outBcm[0x0002]) + ' ' + hex2(outBcm[0x0003]));
 lines.push('   Bank1 seq @0x4002:           ' + hex2(outBcm[0x4002]) + ' ' + hex2(outBcm[0x4003]));
 lines.push('');
+// Task #391 — mirror the GUI wizard's "BCM SEC16 source" section into the
+// bundler's VERIFY.txt so a ZIP produced by the script is self-describing
+// to the same level as one produced by the wizard. Uses the shared
+// formatBcmSec16Provenance helper from keyProgWizard.js so the badge
+// label / offset / blank flag / virgin-explainer paragraph stay in sync.
+const prov = formatBcmSec16Provenance(bcmInfoOut.bcmSec16);
+if (prov) {
+  lines.push('-- BCM SEC16 source');
+  lines.push('   Source:    ' + prov.label);
+  if (prov.offsetHex) lines.push('   Offset:    ' + prov.offsetHex);
+  lines.push('   Blank:     ' + (prov.blank ? 'yes  [BLANK / virgin]' : 'no'));
+  if (prov.blank) {
+    lines.push('');
+    for (const ln of wrapParagraph(prov.virginExplainer, '   ')) {
+      lines.push(ln);
+    }
+  } else if (prov.beHex) {
+    lines.push('   Bytes (BE): ' + prov.beHex);
+  }
+  lines.push('');
+}
 lines.push('-- RFH ' + OUT_RFH + '  (PASS-THROUGH)');
 lines.push('   module type:   ' + rfhInfo.type + ' (' + rfhInfo.rfhGen + ')');
 lines.push('   src filename:  ' + SRC_RFH);

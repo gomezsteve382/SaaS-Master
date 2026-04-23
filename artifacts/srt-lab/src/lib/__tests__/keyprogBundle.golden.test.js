@@ -247,6 +247,22 @@ d('Task #366 — KEYPROG bundle (golden, runs the bundler)', () => {
     expect(text).toContain('0x40B0');
   });
 
+  // Task #391 — bundler-produced VERIFY.txt must mirror the GUI wizard's
+  // "BCM SEC16 source" provenance section so a ZIP from the script and a
+  // ZIP from the wizard look the same to an auditor.
+  it('VERIFY.txt declares the BCM SEC16 source section with source/offset/blank/bytes', () => {
+    const text = new TextDecoder().decode(verifyOut);
+    expect(text).toContain('-- BCM SEC16 source');
+    expect(text).toMatch(/Source:\s+(split|mirror1|mirror2|flat)/);
+    expect(text).toMatch(/Offset:\s+0x[0-9A-F]{4}/);
+    expect(text).toMatch(/Blank:\s+no/);
+    // The BCM in this golden is paired (not virgin) so the BE-bytes line
+    // appears and equals the shared secret; the virgin-explainer paragraph
+    // stays out.
+    expect(text).toMatch(/Bytes \(BE\):\s+816531F7CDE32E33C25A415C8440C72A/);
+    expect(text).not.toMatch(/This BCM looks virgin/);
+  });
+
   it('KEYPROG zip holds exactly the 4 expected entries with byte-identical contents', () => {
     const entries = readZipEntries(zipOut);
     const byName = Object.fromEntries(entries.map((e) => [e.name, e]));

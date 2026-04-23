@@ -2,7 +2,7 @@ KEYPROG bundle — VERIFY report (Task #366)
 =========================================
 Target VIN:           2C3CDXCT1HH652640
 Shared secret (BE):   816531F7CDE32E33C25A415C8440C72A
-Generated:            2026-04-23T14:02:26.975Z
+Generated:            2026-04-23T14:05:29.851Z
 Bundler:              scripts/build-keyprog-bundle.mjs
 
 -- BCM BCM_22CHARGER_REDEYE_6.2_KEYPROG_2C3CDXCT1HH652640.bin
@@ -27,6 +27,12 @@ Bundler:              scripts/build-keyprog-bundle.mjs
    IMMO backup synced:          false
    Bank0 seq @0x0002:           1A 0F
    Bank1 seq @0x4002:           1A 0E
+
+-- BCM SEC16 source
+   Source:    split @0x81A0
+   Offset:    0x81A0
+   Blank:     no
+   Bytes (BE): 816531F7CDE32E33C25A415C8440C72A
 
 -- RFH RFH_20CHRGR6.2_KEYPROG_2C3CDXCT1HH652640.bin  (PASS-THROUGH)
    module type:   RFHUB (Gen2 (24C32))
