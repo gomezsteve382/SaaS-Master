@@ -81,6 +81,7 @@ export default function KeyProgTab() {
   const [presets, setPresets] = useState([]);
   const [presetName, setPresetName] = useState('');
   const [presetMsg, setPresetMsg] = useState(null);
+  const [loadedPreset, setLoadedPreset] = useState(null);
 
   useEffect(() => { setPresets(loadPresets()); }, []);
 
@@ -94,7 +95,19 @@ export default function KeyProgTab() {
     setFiles(h.files);
     setVin(h.vin);
     setUnknownDrops([]);
-    setPresetMsg({ kind: 'ok', text: 'Loaded preset "' + p.name + '".' });
+    setPresetMsg(null);
+    setLoadedPreset({
+      id: p.id,
+      name: p.name,
+      hadChecksSnapshot: typeof p.checksTotal === 'number',
+      savedAllGreen: !!p.checksAllGreen,
+      savedPassed: p.checksPassed || 0,
+      savedTotal: p.checksTotal || 0,
+      status: 'verifying',
+      verifiedPassed: 0,
+      verifiedTotal: 0,
+      failedLabels: [],
+    });
   }, []);
 
   const handleDeletePreset = useCallback((id) => {
@@ -204,6 +217,42 @@ export default function KeyProgTab() {
   // Clear the post-download summary whenever inputs change so it always
   // reflects the most recent ZIP the user actually downloaded.
   useEffect(() => { setZipSummary(null); }, [files, vin, promoteBank]);
+
+  // Once the wizard has re-run after a Load, lock in a verification verdict
+  // for the loaded preset so the banner can switch from "verifying…" to a
+  // green/stale result. Old presets (no `checks` snapshot) flow through the
+  // same path so they get a real READY/STALE verdict instead of silently
+  // appearing safe.
+  useEffect(() => {
+    if (!loadedPreset || loadedPreset.status !== 'verifying') return;
+    if (!result) return;
+    const passed = result.checks?.filter((c) => c.pass).length || 0;
+    const total = result.checks?.length || 0;
+    const allGreen = !!(result.ok && total > 0 && result.checks.every((c) => c.pass));
+    const failedLabels = (result.checks || [])
+      .filter((c) => !c.pass)
+      .map((c) => c.label);
+    setLoadedPreset((prev) => (prev && prev.status === 'verifying'
+      ? {
+        ...prev,
+        status: allGreen ? 'green' : 'stale',
+        verifiedPassed: passed,
+        verifiedTotal: total,
+        failedLabels,
+      }
+      : prev));
+  }, [result, loadedPreset]);
+
+  // If the user mutates the inputs after we've shown a verdict, dismiss the
+  // banner — it would otherwise misrepresent the current trio. Intentionally
+  // does nothing while status === 'verifying' (initial load also flips
+  // files/vin, but we want to keep the banner through that transition).
+  useEffect(() => {
+    if (loadedPreset && loadedPreset.status !== 'verifying') {
+      setLoadedPreset(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [files, vin, promoteBank]);
 
   return (
     <div data-testid="keyprog-wizard">
@@ -401,6 +450,68 @@ export default function KeyProgTab() {
           )}
         </div>
       </Card>
+
+      {loadedPreset && (() => {
+        const isVerifying = loadedPreset.status === 'verifying';
+        const isGreen = loadedPreset.status === 'green';
+        const color = isVerifying ? C.tm : (isGreen ? C.gn : C.wn);
+        const icon = isVerifying ? '⏳' : (isGreen ? '✓' : '⚠');
+        const headline = isVerifying
+          ? 'Re-verifying preset "' + loadedPreset.name + '"…'
+          : (isGreen
+            ? 'Preset "' + loadedPreset.name + '" is still healthy ('
+              + loadedPreset.verifiedPassed + '/' + loadedPreset.verifiedTotal + ' checks green)'
+            : 'Preset "' + loadedPreset.name + '" is no longer fully healthy ('
+              + loadedPreset.verifiedPassed + '/' + loadedPreset.verifiedTotal + ' checks green)');
+        return (
+          <div
+            data-testid="keyprog-preset-verify-banner"
+            data-verify-status={loadedPreset.status}>
+            <Card
+              style={{
+                marginBottom: 14, padding: 14,
+                border: '2px solid ' + color + '60',
+                background: color + '10',
+              }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 18 }}>{icon}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color }}>
+                    {headline}
+                  </div>
+                  <div style={{ fontSize: 10, color: C.tm, marginTop: 3 }}>
+                    {isVerifying
+                      ? 'Re-running the wizard checks against the loaded trio…'
+                      : (loadedPreset.hadChecksSnapshot
+                        ? 'Saved with ' + loadedPreset.savedPassed + '/' + loadedPreset.savedTotal
+                          + ' green' + (loadedPreset.savedAllGreen ? '' : ' (already partial when saved)')
+                          + '.'
+                        : 'Older preset — no saved check snapshot, verified on load.')}
+                  </div>
+                  {!isVerifying && !isGreen && loadedPreset.failedLabels.length > 0 && (
+                    <ul
+                      data-testid="keyprog-preset-verify-failures"
+                      style={{ margin: '6px 0 0 18px', padding: 0, fontSize: 11, color: C.wn }}>
+                      {loadedPreset.failedLabels.map((label, i) => (
+                        <li key={i} style={{ marginTop: 2 }}>{label}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <button
+                  data-testid="keyprog-preset-verify-dismiss"
+                  onClick={() => setLoadedPreset(null)}
+                  style={{
+                    background: 'none', border: '1px solid ' + C.bd, color: C.tm,
+                    padding: '4px 10px', borderRadius: 6, fontSize: 10, cursor: 'pointer',
+                  }}>
+                  ✕ Dismiss
+                </button>
+              </div>
+            </Card>
+          </div>
+        );
+      })()}
 
       {result && (
         <div data-testid="keyprog-result"><Card style={{ marginBottom: 14, padding: 18 }}>

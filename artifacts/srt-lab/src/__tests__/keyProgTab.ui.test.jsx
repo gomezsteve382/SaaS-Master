@@ -171,6 +171,86 @@ describe('KeyProgTab UI (Task #343)', () => {
     }
   });
 
+  it('re-verifies a saved preset on Load and surfaces a green banner (Task #358)', async () => {
+    window.localStorage.clear();
+    render(<KeyProgTab />);
+    await uploadInto('keyprog-slot-bcm-input', loadFile(SRC_BCM));
+    await uploadInto('keyprog-slot-rfh-input', loadFile(SRC_RFH));
+    await uploadInto('keyprog-slot-pcm-input', loadFile(SRC_PCM));
+    await setVin(TARGET_VIN);
+    await waitFor(() => expect(screen.getByTestId('keyprog-result')).toBeTruthy());
+
+    // Save a preset (checks-all-green path).
+    const nameInput = screen.getByTestId('keyprog-preset-name');
+    const user = userEvent.setup();
+    await user.type(nameInput, 'Cluster B trio');
+    const saveBtn = screen.getByTestId('keyprog-preset-save');
+    await waitFor(() => expect(saveBtn.disabled).toBe(false));
+    await act(async () => { fireEvent.click(saveBtn); });
+
+    // Clear all three slots so we know Load is what restores them.
+    await act(async () => { fireEvent.click(screen.getByTestId('keyprog-slot-bcm-clear')); });
+    await act(async () => { fireEvent.click(screen.getByTestId('keyprog-slot-rfh-clear')); });
+    await act(async () => { fireEvent.click(screen.getByTestId('keyprog-slot-pcm-clear')); });
+    await waitFor(() => expect(screen.queryByTestId('keyprog-result')).toBeNull());
+
+    // No banner yet, then click Load via the per-preset testid.
+    expect(screen.queryByTestId('keyprog-preset-verify-banner')).toBeNull();
+    const loadBtn = document.querySelector('[data-testid^="keyprog-preset-load-"]');
+    expect(loadBtn).not.toBeNull();
+    await act(async () => { fireEvent.click(loadBtn); });
+
+    // Banner appears and resolves to green after re-verification.
+    await waitFor(() => expect(screen.getByTestId('keyprog-preset-verify-banner')).toBeTruthy());
+    await waitFor(() => {
+      const banner = screen.getByTestId('keyprog-preset-verify-banner');
+      expect(banner.getAttribute('data-verify-status')).toBe('green');
+    });
+
+    // Dismiss button removes the banner.
+    await act(async () => { fireEvent.click(screen.getByTestId('keyprog-preset-verify-dismiss')); });
+    expect(screen.queryByTestId('keyprog-preset-verify-banner')).toBeNull();
+  });
+
+  it('flags an old (no-checks-snapshot) preset as verified-on-load (Task #358)', async () => {
+    // Seed an "old" preset directly via the storage helper, omitting the
+    // checks snapshot — simulates a preset captured before Task #354.
+    const { savePreset, STORAGE_KEY } = await import('../lib/keyProgPresets.js');
+    const bcmBytes = new Uint8Array(fs.readFileSync(path.join(ATTACHED, SRC_BCM)));
+    const rfhBytes = new Uint8Array(fs.readFileSync(path.join(ATTACHED, SRC_RFH)));
+    const pcmBytes = new Uint8Array(fs.readFileSync(path.join(ATTACHED, SRC_PCM)));
+    window.localStorage.clear();
+    savePreset({
+      name: 'Legacy preset',
+      vin: TARGET_VIN,
+      files: {
+        BCM: { name: SRC_BCM, data: bcmBytes },
+        RFH: { name: SRC_RFH, data: rfhBytes },
+        PCM: { name: SRC_PCM, data: pcmBytes },
+      },
+      // intentionally no `checks`
+    });
+    // Confirm the stored preset has no check snapshot.
+    const stored = JSON.parse(window.localStorage.getItem(STORAGE_KEY));
+    expect(stored.presets[0].checksTotal).toBeUndefined();
+
+    render(<KeyProgTab />);
+    const loadBtn = await waitFor(() => {
+      const el = document.querySelector('[data-testid^="keyprog-preset-load-"]');
+      if (!el) throw new Error('load button not yet rendered');
+      return el;
+    });
+    await act(async () => { fireEvent.click(loadBtn); });
+
+    // Banner shows "Older preset" verbiage and resolves to green
+    // (the trio still matches the VIN).
+    await waitFor(() => {
+      const banner = screen.getByTestId('keyprog-preset-verify-banner');
+      expect(banner.getAttribute('data-verify-status')).toBe('green');
+      expect(banner.textContent).toMatch(/Older preset/);
+    });
+  });
+
   it('disables download when promoteBank is on (forbidden region check fails)', async () => {
     render(<KeyProgTab />);
     await uploadInto('keyprog-slot-bcm-input', loadFile(SRC_BCM));
