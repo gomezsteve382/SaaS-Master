@@ -21,8 +21,11 @@ import {
   SGW_XTEA_KEY,
   ALGOS, UNLOCK_FALLBACK, pickUnlockChain,
 } from "../lib/algos.js";
-import { AOBD_W6, AOBD_W7, AOBD_DISPATCH, AOBD_META }
+import { AOBD_W6, AOBD_W7, AOBD_W7_UNVERIFIED, AOBD_DISPATCH, AOBD_META }
   from "../lib/alfaobdAlgorithms.generated.js";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 
 const SEEDS = [
   "00000000","12345678","DEADBEEF","FFFFFFFF",
@@ -91,12 +94,130 @@ test("AlfaOBD XTEA constants are distinct from SGW XTEA", () => {
 test("catalog parses and matches expected entry counts", () => {
   assert.equal(Object.keys(AOBD_W6).length, 380);
   assert.equal(Object.keys(AOBD_W7).length, 360);
+  assert.equal(Object.keys(AOBD_W7_UNVERIFIED).length, 360);
+  // AOBD_W7 must remain a back-compat alias for the unverified table —
+  // a regression here would mean the SeedTab UI silently started rendering
+  // a different dataset. Identity check, not a deepEqual.
+  assert.equal(AOBD_W7, AOBD_W7_UNVERIFIED);
   assert.equal(AOBD_META.w6_count, 380);
   assert.equal(AOBD_META.w7_count, 360);
   // Sanity: dispatcher exposes both family_* and at least one ecu_* entry.
   const keys = Object.keys(AOBD_DISPATCH);
   assert.ok(keys.some(k => k.startsWith("family_")));
   assert.ok(keys.some(k => k.startsWith("ecu_")));
+});
+
+// ─── Falsification of the "w7 ≡ w6 with p=0xFFFFFFFF" hypothesis ─────
+// Task #424 asked us to verify the v2 paste's claim that the w7 cipher
+// collapses to w6 when its third parameter `p` is forced to 0xFFFFFFFF.
+// This test documents WHY we rejected the claim and locks the falsification
+// in place so a future agent that re-encounters the same paste can see the
+// reasoning without re-deriving it from scratch.
+//
+// Two independent failure modes:
+//   (1) Zero seed→key fixtures exist (per alfaobd_seedkey_README), so the
+//       claim cannot be confirmed against any real ECU transaction.
+//   (2) The v2 paste's own unified table is internally inconsistent: even
+//       restricted to the 110 catalog w7 entries that already carry
+//       p=0xFFFFFFFF — the only subset for which the substitution is
+//       trivially well-defined — only 87/110 of the paste's (r,s) pairs
+//       match the catalog's (n,o). 23 entries diverge with no documented
+//       derivation. A clean substitution would have produced 110/110.
+//
+// If we ever obtain a real seed→key capture for any w7 wrapper, the
+// correct next step is NOT to re-litigate this claim; it is to translate
+// the w7 cipher core from AlfaOBD's IL and verify against the capture.
+// The complete list of 23 wrapper names where the v2 paste's (r,s) for an
+// entry with catalog p=0xFFFFFFFF disagrees with the catalog's (n,o). Locked
+// here so the forensic record is searchable in CI logs and so any future
+// drift in either source surfaces as a precise diff rather than a count.
+const W7_DIVERGENT_FROM_PASTE_AT_PFF = Object.freeze([
+  "ap","c8","g1","gp","gs","gt","gu","gv","gw","gx","gy",
+  "j8","j9","ja","jj","jm","ka","m5","m7","m8","p7","v1","v3",
+]);
+
+test("w7≡w6(p=FFFFFFFF) hypothesis is rejected — paste data contradicts catalog", (t) => {
+  // Locate the v2 paste in attached_assets. If it's been removed from the
+  // drop, skip explicitly with a reason — the hypothesis is still rejected
+  // on grounds of (1) above (no fixtures), but the cross-check evidence
+  // recorded by this test only holds while the paste is present.
+  const here = dirname(fileURLToPath(import.meta.url));
+  const repoRoot = resolve(here, "../../../..");
+  const pastePath = resolve(repoRoot, "attached_assets/SRTLabJailbreakEdition_1776703301341.jsx");
+  let paste;
+  try { paste = readFileSync(pastePath, "utf8"); }
+  catch {
+    t.skip(`v2 paste not present at ${pastePath}; falsification still holds on grounds of zero seed/key fixtures, but the (r,s) vs (n,o) cross-check is unverifiable in this run`);
+    return;
+  }
+
+  const m = paste.match(/const AOBD_W6=\{([\s\S]*?)\};/);
+  assert.ok(m, "v2 paste no longer ships an inline AOBD_W6 table — re-evaluate");
+  const pasteW6 = {};
+  const re = /(\w+):\[(0x[0-9A-Fa-f]+),(0x[0-9A-Fa-f]+)\]/g;
+  let mm;
+  while ((mm = re.exec(m[1])) !== null) {
+    pasteW6[mm[1]] = [parseInt(mm[2],16) >>> 0, parseInt(mm[3],16) >>> 0];
+  }
+
+  // Restrict to the trivially-well-defined subset: catalog w7 entries
+  // where p=0xFFFFFFFF. The hypothesis would predict the paste's (r,s)
+  // for these names equals the catalog's (n,o) byte-for-byte.
+  let pFF = 0, matched = 0, diverged = 0;
+  const sampleDivergent = [];
+  for (const [name, trip] of Object.entries(AOBD_W7_UNVERIFIED)) {
+    const [n, o, p] = trip;
+    if (p !== 0xFFFFFFFF) continue;
+    pFF++;
+    const inPaste = pasteW6[name];
+    if (!inPaste) continue;
+    if (inPaste[0] === n && inPaste[1] === o) matched++;
+    else {
+      diverged++;
+      if (sampleDivergent.length < 3) sampleDivergent.push(name);
+    }
+  }
+  // Lock the actual numbers we measured so this test's evidence stays
+  // crisp. If the catalog or the paste shifts, this assertion forces a
+  // re-evaluation rather than silently passing on different data.
+  assert.equal(pFF, 110, `expected 110 w7 entries with p=0xFFFFFFFF, got ${pFF}`);
+  assert.equal(matched, 87, `expected 87 matches, got ${matched}`);
+  assert.equal(diverged, 23, `expected 23 divergent entries, got ${diverged}`);
+  // Recompute the actual divergent set and lock it against the enumerated
+  // forensic list above. If the paste ever ships a corrected entry, this
+  // diff will name exactly which wrapper changed instead of just shifting
+  // a count.
+  const measuredDivergent = [];
+  for (const [name, trip] of Object.entries(AOBD_W7_UNVERIFIED)) {
+    if (trip[2] !== 0xFFFFFFFF) continue;
+    const ip = pasteW6[name];
+    if (!ip) continue;
+    if (ip[0] !== trip[0] || ip[1] !== trip[1]) measuredDivergent.push(name);
+  }
+  assert.deepEqual(measuredDivergent.sort(), [...W7_DIVERGENT_FROM_PASTE_AT_PFF].sort(),
+    "divergent w7-at-pFF set drifted from the recorded forensic list");
+});
+
+test("AOBD_W7_UNVERIFIED entries are NOT silently exposed as alfaW6 ALGOS rows", () => {
+  // The whole point of keeping the table separate is that we do not call
+  // alfaW6 with these (n, o) pairs as if they were verified (r, s) pairs.
+  // The four dispatcher-mapped w6 wrappers (tt/tu/tv/ez) are the only
+  // alfa_w6_* entries in ALGOS today; if a future change starts auto-
+  // generating alfa_w6_<w7name> rows from the unverified table, this
+  // test fails so the regression is caught before users hit it.
+  const allowedAlfaW6 = new Set(["alfa_w6_tt","alfa_w6_tu","alfa_w6_tv","alfa_w6_ez","alfa_w6_custom"]);
+  for (const a of ALGOS) {
+    if (!a.id.startsWith("alfa_w6_")) continue;
+    assert.ok(allowedAlfaW6.has(a.id),
+      `ALGOS entry ${a.id} appears to expose an unverified w7 wrapper as a w6 row`);
+    // Verified entries must resolve to a name that exists in AOBD_W6.
+    if (a.id !== "alfa_w6_custom") {
+      const wrapperName = a.id.slice("alfa_w6_".length);
+      assert.ok(wrapperName in AOBD_W6, `ALGOS entry ${a.id} points at non-w6 wrapper`);
+      assert.ok(!(wrapperName in AOBD_W7_UNVERIFIED) || wrapperName in AOBD_W6,
+        `ALGOS entry ${a.id} points at an unverified w7 wrapper`);
+    }
+  }
 });
 
 // PARITY: derive the dispatcher-mapped w6 wrappers from the catalog

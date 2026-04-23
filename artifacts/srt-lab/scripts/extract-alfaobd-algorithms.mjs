@@ -7,10 +7,14 @@
  * wrappers + dispatcher map) shipped under `attached_assets/` and
  * emits `src/lib/alfaobdAlgorithms.generated.js` exporting:
  *
- *   AOBD_W6        { name: [r, s] }     — 380 entries, fully decoded
- *   AOBD_W7        { name: [n, o, p] }  — 360 entries, DATA ONLY
- *                                          (cipher core not yet ported)
- *   AOBD_DISPATCH  { family|ecu: { level: wrapperName } }
+ *   AOBD_W6                { name: [r, s] }     — 380 entries, fully decoded
+ *   AOBD_W7_UNVERIFIED     { name: [n, o, p] }  — 360 entries, DATA ONLY
+ *                                                  (cipher core not yet ported;
+ *                                                  the "w7 ≡ w6 with p=0xFFFFFFFF"
+ *                                                  hypothesis was tested and
+ *                                                  rejected — see test file)
+ *   AOBD_W7                — back-compat alias pointing at AOBD_W7_UNVERIFIED
+ *   AOBD_DISPATCH          { family|ecu: { level: wrapperName } }
  *
  * The catalog JSON is the source of truth; do not hand-copy values
  * into source. Re-run after dropping a corrected catalog file in
@@ -106,14 +110,39 @@ function emit() {
 // w6: ${meta.w6_count} entries (fully decoded — see alfaW6 in algos.js)
 // w7: ${meta.w7_count} entries (DATA ONLY — cipher core not yet translated)
 // dispatch: ${meta.dispatch_keys} keys (8 ECU families + per-ECU branches)
+//
+// VERIFICATION STATUS — "w7 ≡ w6 with p=0xFFFFFFFF" hypothesis (task #424):
+// The SRTLabJailbreakEdition_v2 paste asserted that the w7 cipher collapses
+// to w6 when its third parameter p is forced to 0xFFFFFFFF, and shipped a
+// 740-entry unified table claiming byte-identical output. We tested the
+// claim and REJECTED it for two independent reasons:
+//   1. Zero seed→key fixtures exist (see alfaobd_seedkey_README) — the
+//      hypothesis is unfalsifiable from any captured ECU transaction.
+//   2. The v2 paste's own data contradicts itself: of the 110 catalog w7
+//      entries with p=0xFFFFFFFF, only 87 of the paste's (r,s) pairs
+//      match the catalog's (n,o); 23 diverge. A clean substitution would
+//      have produced 110/110 matches. See algos.alfaobd.test.mjs for the
+//      full cross-check and named divergent samples.
+// Outcome: all 360 w7 entries stay in AOBD_W7_UNVERIFIED. Adopting the
+// v2 paste's table would silently ship 82 (23 + 59 from the p=0 subset)
+// algorithm rows that disagree with our extraction. AOBD_W6 is unchanged.
 
 export const AOBD_W6 = {
 ${w6Lines.join("\n")}
 };
 
-export const AOBD_W7 = {
+// 360 w7 wrappers staged with their per-ECU (n, o, p) parameters. The cipher
+// core that consumes these is NOT translated; do not call alfaW6 with these
+// values and do not migrate them into AOBD_W6 without first cross-checking
+// against a real seed→key capture. See header comment for the full rationale.
+export const AOBD_W7_UNVERIFIED = {
 ${w7Lines.join("\n")}
 };
+
+// Back-compat alias. Existing consumers (SeedTab, tests) imported this
+// name before the rename; keep it pointing at the unverified table so
+// the UI's advisory rendering keeps working unchanged.
+export const AOBD_W7 = AOBD_W7_UNVERIFIED;
 
 export const AOBD_DISPATCH = {
 ${dispLines.join("\n")}
