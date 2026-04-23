@@ -1,0 +1,113 @@
+FCA SINCRO
+FCA SINCRO
+Dashboard
+
+Go out
+Role:
+user
+Session IP:
+172.69.127.155
+IP changed
+Charger — BCM → PCM (GPEC2A)
+Load BCM and PCM, validate VIN/SEC6 and generate the modified PCM when ready.
+Guides:
+BCM (MPC560XB)
+MULTIPROG
+BCM (MPC560XB)
+UPA
+PCM (GPEC2A)
+GODIAG
+1) Load files and filter (INSPECT)
+Upload BCM and PCM. The system detects VIN/SEC6 and validates compatibility.
+BCM file (MPC5606B/MPC5605B)No file chosen
+Dump BCM (full flash).
+PCM file (GPEC2A)No file chosen
+Dump PCM (.bin/.eprom).
+
+Inspect BCM / PCM
+Clean / Reset
+Inspection Result: 
+✅ Ready to twin
+BCM (MPC5606B_05B)
+Data detected from the BCM.
+MPC5606B_05B
+65536 bytes
+VIN
+VIN detected: 2C3CDXGJ9KH633754
+
+Total copies: 4
+
+VIN 1 – 
+CS OK
+ (offset 4904)
+VIN 2 – 
+CS OK
+ (offset 4936)
+VIN 3 – 
+CS OK
+ (offset 4968)
+VIN 4 – 
+CS OK
+ (offset 5000)
+SEC16 main
+SEC16 BCM:
+C4 2F 3C 79 94 15 82 C3 82 35 30 BA E7 C5 A1 08
+
+SEC16 RFH format:
+08 A1 C5 E7 BA 30 35 82 C3 82 15 94 79 3C 2F C4
+
+SEC6 derived for PCM:
+08 A1 C5 E7 BA 30
+
+Main ones detected: 3
+
+SEC16 mirrors
+SEC16 MIRROR 1 – 
+CS OK
+ (off7 201)
+SEC16 MIRROR 2 – 
+CS OK
+ (off7 241)
+PCM (GPEC2A)
+Data detected from the PCM.
+GPEC
+4096 bytes
+IMMO: IMMO_DAMAGED
+VIN
+Current VIN: 2C3CDXGJ9KH633754
+
+Original VIN: 2C3CDXGJ9KH633754
+
+PCM Security
+Pattern: FF FF FF FF
+
+SEC6 (PCM):
+FF FF FF FF FF FF
+
+Additional information
+OS: 68419038AE
+
+PN: 68331185AA
+
+Serial: T00EP2548GAC6D
+
+Comparison
+VIN validation (current/original) and derived SEC6 vs current SEC6.
+READY
+VIN
+VIN BCM: 2C3CDXGJ9KH633754
+PCM VIN (current): 2C3CDXGJ9KH633754 
+OK
+PCM VIN (original): 2C3CDXGJ9KH633754 
+OK
+SEC6
+SEC6 derived BCM → PCM: 08 A1 C5 E7 BA 30
+SEC6 PCM (current): FF FF FF FF FF FF 
+It does not match
+Actions (APPLY)
+Apply BCM → PCM using the data already uploaded (without re-uploading files).
+APPLY enabled
+
+Import data from BCM → to PCM (download modified PCM)
+Re-filter / reload files
+© 2026 FCA SINCRO · ArmandoQS
