@@ -323,6 +323,84 @@ describe('KeyProgTab UI (Task #343)', () => {
     expect(screen.queryByTestId('keyprog-preset-dismissed-note')).toBeNull();
   });
 
+  describe('BCM SEC16 provenance badge (Task #384)', () => {
+    function fileFromBytes(bytes, name) {
+      return new File([bytes], name, { type: 'application/octet-stream' });
+    }
+
+    it('renders the split-source label for a real synced BCM dump', async () => {
+      const splitFx = path.resolve(
+        __dirname, '..', '..', 'src', '__tests__', 'fixtures',
+        'SAMPLE_BCM_SYNCED_2C3CDXL90MH582899.bin',
+      );
+      const bytes = new Uint8Array(fs.readFileSync(splitFx));
+      render(<KeyProgTab />);
+      await uploadInto(
+        'keyprog-slot-bcm-input',
+        fileFromBytes(bytes, 'SAMPLE_BCM_SYNCED_2C3CDXL90MH582899.bin'),
+      );
+      await waitFor(() => expect(screen.getByTestId('keyprog-bcm-sec16-status')).toBeTruthy());
+
+      const badge = screen.getByTestId('keyprog-bcm-sec16-status');
+      expect(badge.getAttribute('data-sec16-source')).toBe('split');
+      expect(badge.getAttribute('data-sec16-blank')).toBe('0');
+      expect(badge.textContent).toMatch(/BCM SEC16 · split @0x81A0/);
+      // Virgin explainer must NOT be present for a real synced dump.
+      expect(screen.queryByTestId('keyprog-bcm-virgin-explainer')).toBeNull();
+    });
+
+    it('renders the legacy flat-fallback label for a synthetic BCM with no split/mirror records', async () => {
+      const { makeBcm } = await import('../lib/__fixtures__/buildFixtures.js');
+      const bytes = makeBcm({ size: 65536 });
+      render(<KeyProgTab />);
+      await uploadInto(
+        'keyprog-slot-bcm-input',
+        fileFromBytes(bytes, 'SYNTHETIC_BCM_FLAT.bin'),
+      );
+      await waitFor(() => expect(screen.getByTestId('keyprog-bcm-sec16-status')).toBeTruthy());
+
+      const badge = screen.getByTestId('keyprog-bcm-sec16-status');
+      expect(badge.getAttribute('data-sec16-source')).toBe('flat');
+      expect(badge.getAttribute('data-sec16-blank')).toBe('0');
+      expect(badge.textContent).toMatch(/BCM SEC16 · flat @0x40C9 \(legacy\)/);
+      expect(screen.queryByTestId('keyprog-bcm-virgin-explainer')).toBeNull();
+    });
+
+    it('flags a virgin/BLANK BCM, surfaces the explainer, and keeps download buttons disabled', async () => {
+      const bytes = new Uint8Array(65536).fill(0xFF);
+      render(<KeyProgTab />);
+      await uploadInto(
+        'keyprog-slot-bcm-input',
+        fileFromBytes(bytes, 'VIRGIN_BCM_BLANK.bin'),
+      );
+      await waitFor(() => expect(screen.getByTestId('keyprog-bcm-sec16-status')).toBeTruthy());
+
+      const badge = screen.getByTestId('keyprog-bcm-sec16-status');
+      expect(badge.getAttribute('data-sec16-blank')).toBe('1');
+      // Source falls back to the flat slice surface even when every candidate is blank.
+      expect(badge.getAttribute('data-sec16-source')).toBe('flat');
+      expect(badge.textContent).toMatch(/BLANK \/ virgin/);
+
+      // Virgin explainer paragraph must be present.
+      const explainer = screen.getByTestId('keyprog-bcm-virgin-explainer');
+      expect(explainer.textContent).toMatch(/virgin/);
+
+      // Download buttons aren't even rendered without the full trio + VIN, but
+      // any that DO surface must be disabled. Load just RFH/PCM + VIN to push
+      // the wizard to the result block and confirm the buttons stay disabled
+      // because the virgin BCM has no derivable shared secret.
+      await uploadInto('keyprog-slot-rfh-input', loadFile(SRC_RFH));
+      await uploadInto('keyprog-slot-pcm-input', loadFile(SRC_PCM));
+      await setVin(TARGET_VIN);
+      await waitFor(() => expect(screen.getByTestId('keyprog-result')).toBeTruthy());
+      const dlButtons = document.querySelectorAll('[data-testid^="keyprog-download-"]');
+      expect(dlButtons.length).toBeGreaterThan(0);
+      for (const btn of dlButtons) {
+        expect(btn.disabled).toBe(true);
+      }
+    });
+  });
+
   it('disables download when promoteBank is on (forbidden region check fails)', async () => {
     render(<KeyProgTab />);
     await uploadInto('keyprog-slot-bcm-input', loadFile(SRC_BCM));
