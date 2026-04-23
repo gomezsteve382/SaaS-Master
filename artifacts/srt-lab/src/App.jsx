@@ -1439,18 +1439,29 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
         const pcmVinRes = engWritePcmVin(currentPcm, tv);
         currentPcm = pcmVinRes.bytes;
         log.push(`PCM VIN: ${pcmVinRes.patched} slots patched`);
+        /* Task #399 — gate PCM download on SEC6 writer reporting ok===true.
+         * A virgin GPEC2A PCM (no AA marker, all-FF SEC6) would otherwise
+         * report 0 patches and still get shipped as "synced" to the tech. */
+        let pcmSec6Ok = true;
         if(rfh){
           const rfhP = engParseRfh(rfh.data);
           if(rfhP.format==='gen2' && rfhP.sec16){
             const sec6Res = engWritePcmSec6(currentPcm, rfhP.sec16.slot1);
-            currentPcm = sec6Res.bytes;
-            log.push(`PCM SEC6: ${sec6Res.patched} location(s) patched (first 6 of RFH SEC16: ${sec6Res.sec6Hex})`);
+            if(sec6Res.ok){
+              currentPcm = sec6Res.bytes;
+              log.push(`PCM SEC6: ${sec6Res.patched} location(s) patched (first 6 of RFH SEC16: ${sec6Res.sec6Hex})`);
+            } else {
+              pcmSec6Ok = false;
+              log.push(`PCM SEC6 SYNC FAILED: no writable site (size=${currentPcm.length} B). PCM NOT downloaded — re-dump at 4 KB / 8 KB.`);
+            }
           }
         }
-        const pcmBlob = new Blob([currentPcm],{type:'application/octet-stream'});
-        const pcmUrl = URL.createObjectURL(pcmBlob);
-        const a3 = document.createElement('a'); a3.href=pcmUrl; a3.download=`${vehicle.id.toUpperCase()}_PCM_SYNCED_${tv}_${Date.now()}.bin`; a3.click();
-        URL.revokeObjectURL(pcmUrl);
+        if(pcmSec6Ok){
+          const pcmBlob = new Blob([currentPcm],{type:'application/octet-stream'});
+          const pcmUrl = URL.createObjectURL(pcmBlob);
+          const a3 = document.createElement('a'); a3.href=pcmUrl; a3.download=`${vehicle.id.toUpperCase()}_PCM_SYNCED_${tv}_${Date.now()}.bin`; a3.click();
+          URL.revokeObjectURL(pcmUrl);
+        }
       }
 
       setMsg(log.join(' · '));

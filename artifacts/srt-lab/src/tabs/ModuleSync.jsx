@@ -1662,10 +1662,19 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           const pr = { patched: pcm.parsed.vinSlots.length };
           addPcmRows(pcm.parsed, newVin);
           log(`PCM VIN: ${pr.patched} slot(s) patched`, 'ok');
+          let pcmSec6Ok = true;
           if (rfhSec16 && rfhSec16.length >= 6) {
             const sr = engWritePcmSec6(pcmFinal, rfhSec16);
-            pcmFinal = sr.bytes;
-            log(`PCM SEC6: ${sr.patched} location(s) written · ${sr.sec6Hex.toUpperCase()} (marker ${sr.markerUsed})`, 'ok');
+            if (sr.ok) {
+              pcmFinal = sr.bytes;
+              log(`PCM SEC6: ${sr.patched} location(s) written · ${sr.sec6Hex.toUpperCase()} (marker ${sr.markerUsed})`, 'ok');
+            } else {
+              /* Task #399 — writer couldn't find any valid SEC6 site on a
+               * non-canonical PCM image. Refuse the download instead of
+               * silently shipping the unchanged file to the locksmith. */
+              pcmSec6Ok = false;
+              log(`✗ PCM SEC6 SYNC FAILED — no writable site found (size=${pcmFinal.length} B, SEC6=${sr.sec6Hex.toUpperCase()}). PCM file NOT downloaded. Re-dump the PCM at the canonical 4 KB / 8 KB size and retry.`, 'err');
+            }
           }
           // Task #379: if the loaded PCM is a doubled 8 KB capture with a
           // 0xFF-padded half-2, slice the SYNC output down to 4 KB so the
@@ -1685,9 +1694,13 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           } else if (pcmFinal.length === 4096) {
             pcmChipSuffix = '_4KB';
           }
-          const pcmName = `PCM_SYNCED${pcmChipSuffix}_${newVin}_${ts}.bin`;
-          downloadBin(pcmFinal, pcmName);
-          log(`Downloaded: ${pcmName}`, 'ok');
+          if (pcmSec6Ok) {
+            const pcmName = `PCM_SYNCED${pcmChipSuffix}_${newVin}_${ts}.bin`;
+            downloadBin(pcmFinal, pcmName);
+            log(`Downloaded: ${pcmName}`, 'ok');
+          } else {
+            log('PCM file withheld: SEC6 could not be written; flashing this file would leave the car with an unpaired PCM.', 'err');
+          }
         }
 
       } else if (action === 'sec16-only') {
@@ -1727,8 +1740,14 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           const snapP = new Uint8Array(pcm.bytes);
           setOriginals(prev => ({ ...prev, pcm: { bytes: snapP, filename: pcm.file?.name || 'PCM' } }));
           const pr = engWritePcmSec6(pcm.bytes, rfhSec16);
-          log(`PCM SEC6: ${pr.patched} location(s) written · marker ${pr.markerUsed}`, 'ok');
-          downloadBin(pr.bytes, `PCM_SEC6_SYNCED_${ts}.bin`);
+          if (pr.ok) {
+            log(`PCM SEC6: ${pr.patched} location(s) written · marker ${pr.markerUsed}`, 'ok');
+            downloadBin(pr.bytes, `PCM_SEC6_SYNCED_${ts}.bin`);
+            log(`Downloaded: PCM_SEC6_SYNCED_${ts}.bin`, 'ok');
+          } else {
+            /* Task #399 — refuse to ship an unmodified PCM as "synced". */
+            log(`✗ PCM SEC6 SYNC FAILED — no writable site found (size=${pcm.bytes.length} B). PCM file NOT downloaded. Re-dump the PCM at the canonical 4 KB / 8 KB size and retry.`, 'err');
+          }
         }
 
       } else if (action === 'rekey-95640-from-rfh') {

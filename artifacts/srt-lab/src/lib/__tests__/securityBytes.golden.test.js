@@ -368,15 +368,61 @@ describe('writePcmSec6 — golden vectors', () => {
     expect(Array.from(r.bytes.slice(0x304, 0x30A))).toEqual(Array.from(PCM_SEC6_FROM_RFH));
   });
 
-  it('returns patched=0 / markerUsed=null when no marker is found', () => {
-    const buf = new Uint8Array(4096).fill(0x55); // zero markers, no FFFF runs
+  it('returns patched=0 / ok=false / markerUsed=null when no marker is found on a non-canonical size', () => {
+    // 2 KB buffer: not a canonical GPEC2A/PCM size, so the Task #399
+    // canonical 0x3C8 fallback does NOT engage. Writer must refuse.
+    const buf = new Uint8Array(2048).fill(0x55);
     const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
     expect(r.patched).toBe(0);
+    expect(r.ok).toBe(false);
     expect(r.markerUsed).toBeNull();
+    // Buffer is returned unchanged (writer is non-mutating and nothing fired).
+    expect(Array.from(r.bytes)).toEqual(Array.from(buf));
+  });
+
+  /* Task #399 — canonical 0x3C8 fallback for virgin PCM images.
+   * Before #399 a virgin 4 KB GPEC2A (no FF FF FF AA marker, all-FF
+   * SEC6 region) silently returned patched=0 while the UI still
+   * downloaded the unchanged file. The fallback now writes at the
+   * same offset the reader (parseModule.js / classifyPcmSec6) uses. */
+  it('writes at canonical 0x3C8 on a virgin 4 KB GPEC2A (no AA marker, all-FF)', () => {
+    const buf = new Uint8Array(4096).fill(0xFF);
+    const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
+    expect(r.patched).toBe(1);
+    expect(r.ok).toBe(true);
+    expect(r.markerUsed).toBe('canonical 0x3C8');
+    expect(Array.from(r.bytes.slice(0x3C8, 0x3CE))).toEqual(Array.from(PCM_SEC6_FROM_RFH));
+    // Surrounding bytes untouched (still 0xFF).
+    expect(r.bytes[0x3C7]).toBe(0xFF);
+    expect(r.bytes[0x3CE]).toBe(0xFF);
+  });
+
+  it('writes at canonical 0x3C8 on a virgin 8 KB PCM when no marker is present', () => {
+    const buf = new Uint8Array(8192).fill(0xFF);
+    const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
+    expect(r.patched).toBe(1);
+    expect(r.markerUsed).toBe('canonical 0x3C8');
+    expect(Array.from(r.bytes.slice(0x3C8, 0x3CE))).toEqual(Array.from(PCM_SEC6_FROM_RFH));
+  });
+
+  it('does NOT engage canonical fallback when an AA marker already fired', () => {
+    // AA marker at 0x100 — SEC6 should be written THERE, not at 0x3C8.
+    const buf = buildSyntheticPcmGpec2a();
+    const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
+    expect(r.markerUsed).toBe('FF FF FF AA');
+    // Canonical slot must remain untouched (still 0x55 canary).
+    expect(r.bytes[0x3C8]).toBe(0x55);
   });
 
   it('does not mutate the input buffer', () => {
     const buf = buildSyntheticPcmGpec2a();
+    const snapshot = new Uint8Array(buf);
+    writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
+    expect(Array.from(buf)).toEqual(Array.from(snapshot));
+  });
+
+  it('virgin 4 KB fallback does not mutate the input buffer either', () => {
+    const buf = new Uint8Array(4096).fill(0xFF);
     const snapshot = new Uint8Array(buf);
     writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
     expect(Array.from(buf)).toEqual(Array.from(snapshot));

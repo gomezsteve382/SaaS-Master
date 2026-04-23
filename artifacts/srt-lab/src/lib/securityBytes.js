@@ -188,8 +188,17 @@ export function writeBcmFlatSec16(bytes, resolvedSec16) {
  *   GPEC2A: at every "FF FF FF AA" marker + 4.
  *   GPEC5:  at the first "FF FF FF FF" + 4 where the next 6 bytes are not
  *           all-FF (i.e. there's existing SEC6 data to overwrite).
- * Only one of the two paths fires per call — GPEC2A first, GPEC5 only if
- * no GPEC2A markers were found.
+ *   Canonical fallback (Task #399): when neither marker path fires AND
+ *   the image is a canonical GPEC2A/PCM size (4096 or 8192 bytes), write
+ *   the 6-byte secret at 0x3C8 — the same offset parseModule.js and the
+ *   Task #396 classifier READ from. Before this fallback a virgin 4 KB
+ *   GPEC2A (no FF FF FF AA marker, all-FF SEC6 region) silently returned
+ *   patched=0 while the UI still downloaded the unchanged file, causing
+ *   the locksmith to flash a "synced" PCM that was actually unmodified.
+ * Only one of the three paths fires per call — AA-marker first, then
+ * GPEC5, then canonical 0x3C8. Non-canonical image sizes that don't hit
+ * either marker path return { patched: 0, ok: false } so the caller can
+ * refuse the download.
  * ---------------------------------------------------------------------------- */
 export function writePcmSec6(bytes, rfhSec16) {
   if (!rfhSec16 || rfhSec16.length < 6) throw new Error('Need at least 6 bytes of RFH SEC16');
@@ -221,9 +230,19 @@ export function writePcmSec6(bytes, rfhSec16) {
       }
     }
   }
+  /* Task #399 — canonical 0x3C8 fallback for virgin GPEC2A/PCM images.
+   * Only engages on the exact canonical sizes (4 KB / 8 KB) so a
+   * misidentified non-PCM buffer can't get a stray 6-byte tattoo at
+   * 0x3C8. Matches the reader/classifier wired up by Task #396. */
+  if (patched === 0 && (out.length === 4096 || out.length === 8192) && out.length >= 0x3CE) {
+    for (let k = 0; k < 6; k++) out[0x3C8 + k] = sec6[k];
+    patched = 1;
+    markerUsed = 'canonical 0x3C8';
+  }
   return {
     bytes: out,
     patched,
+    ok: patched > 0,
     markerUsed,
     sec6Hex: hexStr(sec6),
   };
