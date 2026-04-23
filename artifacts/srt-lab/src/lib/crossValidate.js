@@ -1,5 +1,11 @@
 import {arrEq} from './parseModule.js';
 
+/* Legacy GPEC↔BCM key comparator. As of Task #380 we no longer fire this
+ * rule from crossValidate (GPEC2A 0x0203 is the GPEC-internal vehicle/skim
+ * key, NOT the BCM-pairing field — BCM↔PCM pairing flows through SEC6 at
+ * GPEC 0x03C8 / BCM SEC16). Kept exported for backwards compatibility with
+ * SecurityTab.jsx, which still surfaces the byte-level overlap as a
+ * diagnostic table row. */
 function compareGpecBcmKey(gpecKey,bcmKey){
   const bcmBE=Array.from(bcmKey).reverse();
   const bcmCmp=new Uint8Array(bcmBE.slice(0,8));
@@ -14,6 +20,8 @@ function compareGpecBcmKey(gpecKey,bcmKey){
   };
 }
 
+const fmtHex=arr=>Array.from(arr).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+
 function crossValidate(modules){
   const issues=[],warnings=[],passed=[];
   const allVins=new Set();
@@ -27,11 +35,19 @@ function crossValidate(modules){
   const gpec=modules.find(m=>m.type==="GPEC2A");
   const e95=modules.find(m=>m.type==="95640");
 
-  if(rfhub&&rfhub.vehicleSecret&&bcm&&bcm.vehicleSecret){
-    const rev=Array.from(bcm.vehicleSecret.bytes).reverse();
-    if(arrEq(new Uint8Array(Array.from(rfhub.vehicleSecret.bytes)),new Uint8Array(rev)))
-      passed.push("RFHUB ↔ BCM vehicle secret: MATCH (byte-reversed)");
-    else issues.push("RFHUB ↔ BCM vehicle secret: MISMATCH!");
+  /* RFHUB ↔ BCM SEC16 (Task #380) — uses the resolved SEC16 instead of
+   * the flat 0x40C9 slice so synced Redeye dumps stop firing false
+   * MISMATCHes. BLANK is reported only when the resolver flags every
+   * candidate (split + mirrors + flat) as all-FF/00. */
+  if(rfhub&&rfhub.vehicleSecret&&bcm&&bcm.bcmSec16){
+    const bRes=bcm.bcmSec16;
+    if(bRes.blank||!bRes.bytes)warnings.push("BCM SEC16 BLANK (virgin) — split records, inactive-bank mirrors and flat 0x40C9 are all empty");
+    else{
+      const rev=Array.from(bRes.bytes).reverse();
+      if(arrEq(new Uint8Array(Array.from(rfhub.vehicleSecret.bytes)),new Uint8Array(rev)))
+        passed.push("RFHUB ↔ BCM vehicle secret: MATCH (BCM "+bRes.source+" → reversed = RFH SEC16)");
+      else issues.push("RFHUB ↔ BCM vehicle secret: MISMATCH — BCM("+bRes.source+")="+fmtHex(bRes.bytes)+" RFH="+fmtHex(rfhub.vehicleSecret.bytes));
+    }
   }
   if(rfhub&&rfhub.sec16s){
     if(rfhub.sec16valid)passed.push("RFHUB SEC16: VALID — slots 1&2 match, non-blank");
@@ -48,12 +64,29 @@ function crossValidate(modules){
     if(match)passed.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MATCH ✓");
     else warnings.push("RFHUB SEC16[0:6] ↔ PCM SEC6: MISMATCH — open the Module Sync tab to apply the RFH→PCM SEC6 import");
   }
-  if(gpec&&gpec.secretKey&&bcm&&bcm.vehicleSecret){const cmp=compareGpecBcmKey(gpec.secretKey.bytes,bcm.vehicleSecret.bytes);if(cmp.match)passed.push("GPEC↔BCM key: MATCH ✓ (BCM LE reversed, first 8B = GPEC 8B)");else issues.push("GPEC↔BCM key: MISMATCH! GPEC="+Array.from(cmp.gpecBytes).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ')+" BCM(rev)[0:8]="+Array.from(cmp.bcmBytes).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' '));}
-  else if(gpec&&gpec.secretKey&&bcm)warnings.push("GPEC↔BCM key: BCM vehicle secret not found for comparison");
+  /* BCM SEC16 ↔ PCM SEC6 (Task #380) — the BCM-pairing field on the GPEC
+   * side is SEC6 at 0x03C8, NOT the GPEC-internal vehicle/skim key at
+   * 0x0203. SEC6 is the first six bytes of reverse(BCM SEC16) (i.e. the
+   * RFH-form prefix). When BCM SEC16 is blank we skip the comparison. */
+  if(bcm&&bcm.bcmSec16&&gpec&&gpec.pcmSec6&&!gpec.pcmSec6.damaged){
+    const bRes=bcm.bcmSec16;
+    if(!bRes.blank&&bRes.bytes){
+      const rev6=Array.from(bRes.bytes).reverse().slice(0,6);
+      const s6=Array.from(gpec.pcmSec6.raw);
+      if(arrEq(rev6,s6))passed.push("BCM SEC16 → SEC6 ↔ PCM SEC6: MATCH ✓ (reverse(BCM "+bRes.source+")[0:6] = PCM SEC6)");
+      else issues.push("BCM SEC16 → SEC6 ↔ PCM SEC6: MISMATCH — open Module Sync to apply BCM→PCM SEC6 import. BCM(rev)[0:6]="+fmtHex(rev6)+" PCM="+fmtHex(s6));
+    }
+  }
   if(gpec){
     if(gpec.skimByte===0x80)passed.push("GPEC2A SKIM: ENABLED (0x80)");
     else if(gpec.skimByte===0x00)warnings.push("GPEC2A SKIM: DISABLED (0x00) — bypassed");
-    if(!gpec.keyConsistent)issues.push("GPEC2A secret key INCONSISTENT (0x0203 vs 0x0361)!");
+    /* Skip the key-consistency mismatch when the GPEC vehicle/skim key is
+     * virgin/erased (all-FF) — that's expected on a virgin GPEC, not a
+     * fault. The 0x0203 field is GPEC-internal and unrelated to the
+     * BCM-pairing path (SEC6). */
+    const gpecKeyVirgin=!!(gpec.skb||(gpec.secretKey&&gpec.secretKey.bytes&&Array.from(gpec.secretKey.bytes).every(b=>b===0xFF)));
+    if(gpecKeyVirgin)warnings.push("GPEC2A vehicle key: ERASED/virgin (all-FF @ 0x0203)");
+    else if(!gpec.keyConsistent)issues.push("GPEC2A secret key INCONSISTENT (0x0203 vs 0x0361)!");
     else passed.push("GPEC2A secret key consistent (0x0203 = 0x0361)");
     if(gpec.zzzzTamper&&!gpec.zzzzTamper.intact)warnings.push("GPEC2A ZZZZ tamper: CLEARED");
     else if(gpec.zzzzTamper&&gpec.zzzzTamper.intact)passed.push("GPEC2A ZZZZ tamper: INTACT");

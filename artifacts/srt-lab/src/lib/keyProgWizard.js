@@ -59,9 +59,16 @@ export function identifyModule(data, filename) {
 }
 
 function deriveSharedSecretBE(bcmInfo) {
-  if (!bcmInfo?.vehicleSecret?.bytes) return null;
-  const reversed = Array.from(bcmInfo.vehicleSecret.bytes).reverse();
-  return reversed.map(hex2).join('');
+  // Task #380 — use the resolved SEC16 (split → mirror → flat) instead of
+  // the raw 0x40C9 slice. On synced Redeye dumps the flat slice holds
+  // garbage; the resolver picks split/mirror records so the wizard can
+  // derive a working shared secret. `info.vehicleSecret.bytes` carries the
+  // resolved bytes for backwards compatibility.
+  const res = bcmInfo?.bcmSec16;
+  const bytes = (res && res.bytes && !res.blank) ? res.bytes
+    : bcmInfo?.vehicleSecret?.bytes;
+  if (!bytes || bytes.length !== 16) return null;
+  return Array.from(bytes).reverse().map(hex2).join('');
 }
 
 function bytesEqualRange(a, b, start, end) {
@@ -103,7 +110,16 @@ function buildVerifyText({
     lines.push('     ' + fO(a.offset) + '  ' + b.tail + ' → ' + a.tail + '  (crcOk=' + a.crcOk + ')');
   }
   if (bcmAfterInfo?.vehicleSecret) {
-    lines.push('   Vehicle secret (LE @0x40C9): ' + bcmAfterInfo.vehicleSecret.hex + '  [unchanged]');
+    const res = bcmAfterInfo.bcmSec16;
+    const srcLabel = res?.source === 'split'
+      ? 'split @' + fO(res.offset) + '/' + fO(res.offset + 0x20) + '/' + fO(res.offset + 0x40)
+      : res?.source === 'mirror1'
+        ? 'mirror1 0xEB/0x18 @' + fO(res.offset)
+        : res?.source === 'mirror2'
+          ? 'mirror2 0xCA/0x28 @' + fO(res.offset)
+          : 'flat @0x40C9 (legacy)';
+    const blank = res?.blank ? '  [BLANK / virgin]' : '  [unchanged]';
+    lines.push('   Vehicle secret (BCM SEC16 ' + srcLabel + '): ' + bcmAfterInfo.vehicleSecret.hex + blank);
   }
   lines.push('   Bank0 seq @0x0002:           ' + hex2(bcmPatched[0x0002]) + ' ' + hex2(bcmPatched[0x0003]) + '  [unchanged]');
   lines.push('   Bank1 seq @0x4002:           ' + hex2(bcmPatched[0x4002]) + ' ' + hex2(bcmPatched[0x4003]) + '  [unchanged]');
@@ -409,4 +425,4 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
   };
 }
 
-export { sha256Hex, BCM_FORBIDDEN, IMMO_BACKUP_SIZE };
+export { sha256Hex, BCM_FORBIDDEN, IMMO_BACKUP_SIZE, deriveSharedSecretBE };

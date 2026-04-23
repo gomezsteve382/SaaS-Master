@@ -262,6 +262,116 @@ function detectBySignature(data){
   return'UNKNOWN';
 }
 
+/* ----------------------------------------------------------------------------
+ * BCM SEC16 resolver (Task #380)
+ *
+ * On real synced Redeye BCM dumps the canonical SEC16 does NOT live at the
+ * flat little-endian slice 0x40C9..0x40D9 — that legacy field holds residual
+ * garbage. The live SEC16 is instead written into:
+ *   1. Three "split" records at 0x81A0 / 0x81C0 / 0x81E0
+ *      (header FF FF 00 00 00 00 00 00, idx 01/02, prefix7@+9, sep
+ *       04 04 00 14 @+16, suffix9@+20, trailer 7F/8F @+29).
+ *      SEC16 = prefix7 ++ suffix9 (16 B).
+ *   2. Mirror1 record (slot 0xEB / size 0x18) in the inactive bank
+ *      (header 00 00 00 18 00 46 EB 00, idx@+8, SEC16@+9..+25).
+ *   3. Mirror2 record (slot 0xCA / size 0x28) in the inactive bank
+ *      (header 00 00 00 28 00 46 CA 00, idx@+8, SEC16@+9..+25).
+ *   4. Legacy flat slice at 0x40C9 (kept as last-ditch fallback for
+ *      pre-Redeye / non-split-record dumps).
+ *
+ * Inactive bank = the lower of the two FEE seq values at 0x0002 / 0x4002
+ * (higher seq = active). Returns the chosen 16-byte secret + provenance so
+ * callers can describe the source in audits / VERIFY reports without having
+ * to re-implement the lookup.
+ * ---------------------------------------------------------------------------- */
+function resolveBcmSec16(data){
+  const sz=data.length;
+  const candidates={split:null,mirror1:null,mirror2:null,flat:null};
+  let inactiveBase=null;
+  /* -- split records (0x81A0/C0/E0) -- */
+  if(sz>=0x8200){
+    const splitOffs=[0x81A0,0x81C0,0x81E0];
+    const reads=[];
+    for(const off of splitOffs){
+      const hdrFFok=data[off]===0xFF&&data[off+1]===0xFF;
+      let hdrZeroOk=true;for(let j=2;j<8;j++)if(data[off+j]!==0x00){hdrZeroOk=false;break;}
+      const idx=data[off+8];
+      const idxOk=idx===0x01||idx===0x02;
+      const sepOk=data[off+16]===0x04&&data[off+17]===0x04&&data[off+18]===0x00&&data[off+19]===0x14;
+      if(!hdrFFok||!hdrZeroOk||!idxOk||!sepOk)continue;
+      const sec=new Uint8Array(16);
+      for(let k=0;k<7;k++)sec[k]=data[off+9+k];
+      for(let k=0;k<9;k++)sec[7+k]=data[off+20+k];
+      reads.push({offset:off,bytes:sec});
+    }
+    if(reads.length>0){
+      const first=reads[0].bytes;
+      const allSame=reads.every(r=>arrEq(r.bytes,first));
+      const blank=first.every(b=>b===0xFF||b===0x00);
+      candidates.split={offset:reads[0].offset,bytes:first,blank,records:reads,consistent:allSame};
+    }
+  }
+  /* -- mirror records in inactive bank -- */
+  if(sz>=0x4004){
+    const bank0Seq=(data[0x0002]<<8)|data[0x0003];
+    const bank1Seq=(data[0x4002]<<8)|data[0x4003];
+    inactiveBase=bank0Seq>=bank1Seq?0x4000:0x0000;
+    const findRec=(base,slotType,sizeByte)=>{
+      const end=Math.min(sz,base+0x4000)-8;
+      for(let i=base;i<end;i++){
+        if(data[i]===0x00&&data[i+1]===0x00&&data[i+2]===0x00&&data[i+3]===sizeByte&&
+           data[i+4]===0x00&&data[i+5]===0x46&&data[i+6]===slotType&&data[i+7]===0x00)return i;
+      }
+      return -1;
+    };
+    const m1=findRec(inactiveBase,0xEB,0x18);
+    if(m1>=0&&m1+25<=sz){
+      const idx=data[m1+8];
+      const sec=data.slice(m1+9,m1+25);
+      const blank=Array.from(sec).every(b=>b===0xFF||b===0x00);
+      candidates.mirror1={offset:m1,bytes:new Uint8Array(sec),blank,idx};
+    }
+    const m2=findRec(inactiveBase,0xCA,0x28);
+    if(m2>=0&&m2+25<=sz){
+      const idx=data[m2+8];
+      const sec=data.slice(m2+9,m2+25);
+      const blank=Array.from(sec).every(b=>b===0xFF||b===0x00);
+      candidates.mirror2={offset:m2,bytes:new Uint8Array(sec),blank,idx};
+    }
+  }
+  /* -- legacy flat slice at 0x40C9 -- */
+  if(sz>=0x40D9){
+    const sec=data.slice(0x40C9,0x40D9);
+    const blank=Array.from(sec).every(b=>b===0xFF||b===0x00);
+    candidates.flat={offset:0x40C9,bytes:new Uint8Array(sec),blank};
+  }
+  /* -- pick winner: prefer the first non-blank candidate in priority order -- */
+  let chosen=null,source=null;
+  for(const key of ['split','mirror1','mirror2','flat']){
+    const c=candidates[key];
+    if(c&&!c.blank){chosen=c;source=key;break;}
+  }
+  /* If everything is blank but at least the flat slice exists, surface it
+   * (so legacy tabs that read .bytes still have a value), and report blank. */
+  const allBlank=
+    (!candidates.split||candidates.split.blank)&&
+    (!candidates.mirror1||candidates.mirror1.blank)&&
+    (!candidates.mirror2||candidates.mirror2.blank)&&
+    (!candidates.flat||candidates.flat.blank);
+  if(!chosen){
+    chosen=candidates.flat||candidates.split||candidates.mirror1||candidates.mirror2||null;
+    if(chosen)source=allBlank?(candidates.split?'split':candidates.mirror1?'mirror1':candidates.mirror2?'mirror2':'flat'):source;
+  }
+  return{
+    bytes:chosen?new Uint8Array(chosen.bytes):null,
+    offset:chosen?chosen.offset:null,
+    source:chosen?source:null,
+    inactiveBase,
+    candidates,
+    blank:allBlank,
+  };
+}
+
 function parseModule(data,filename,opts){
   const sz=data.length;let type='UNKNOWN';
   const forceType=opts&&opts.forceType;
@@ -439,7 +549,28 @@ function parseModule(data,filename,opts){
     }
     info.partialVins=[];
     for(const po of[0x4098,0x40B0]){if(po+10>sz)continue;let s='',ok=true;for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}if(ok&&s.length===8){const sc=(data[po+8]<<8)|data[po+9],cc=crc16(data.slice(po,po+8));info.partialVins.push({offset:po,tail:s,storedCrc:sc,calcCrc:cc,crcOk:sc===cc});}}
-    info.vehicleSecret={offset:0x40c9,bytes:data.slice(0x40c9,0x40d9),hex:extractHex(data,0x40c9,16),endian:"little"};
+    /* BCM SEC16 — resolved from split / mirror / flat (Task #380). The legacy
+     * flat slice at 0x40C9 holds residual garbage on synced Redeye dumps; the
+     * resolver consults the FEE-record table and falls back to the flat slice
+     * only when no record-table source is populated. `info.vehicleSecret`
+     * stays populated for backwards compatibility (callers like crossValidate
+     * / Key Prog wizard read .bytes / .hex), and `info.bcmSec16` exposes the
+     * full provenance (source, candidates, inactiveBase, blank flag). */
+    info.bcmSec16=resolveBcmSec16(data);
+    if(info.bcmSec16.bytes){
+      const off=info.bcmSec16.offset;
+      const endian=info.bcmSec16.source==='flat'?'little':'big';
+      info.vehicleSecret={
+        offset:off,
+        bytes:info.bcmSec16.bytes,
+        hex:Array.from(info.bcmSec16.bytes).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' '),
+        endian,
+        source:info.bcmSec16.source,
+        blank:info.bcmSec16.blank,
+      };
+    }else{
+      info.vehicleSecret=null;
+    }
     info.securityLock=sz>0x8028?{offset:0x8028,value:data[0x8028],locked:data[0x8028]===0x5a}:null;
     info.fobikCount=sz>0x5862?data[0x5862]:null;
     info.immoKeys=[0x81a4,0x81c4,0x81e4].map(o=>({offset:o,hex:extractHex(data,o,16)}));
@@ -470,4 +601,4 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey};
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16};
