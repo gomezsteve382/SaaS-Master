@@ -41,8 +41,13 @@ function loadDump(name) {
 
 // FIXTURES drives the per-dump test battery. `source` is metadata only:
 //   'synthetic-conformance' = built from the published layout (the seed set);
+//   'donor-style-synthetic' = hand-built donor variant exercising sparse
+//                             occupancy / per-VIN SEC16 secrets / unique
+//                             per-fob Autel IDs (Task #420 expansion;
+//                             generator: scripts/generate-rfhub-gen1-donor-fixtures.mjs);
 //   'real-sanitized'        = sanitized capture from a physical EEPROM
-//                             (drop in via the procedure in __golden__/README.md).
+//                             (drop in via the procedure in __golden__/README.md
+//                             — none yet, pending physical donor access).
 const FIXTURES = [
   {
     file: 'cherokee_xk_2010_2fobs.bin',
@@ -64,6 +69,30 @@ const FIXTURES = [
     source: 'synthetic-conformance',
     expectedFobikSlots: 1,
     expectedOccupied: [true, false, false, false],
+  },
+  // Task #420 expansion — donor-style variants exercising patterns the
+  // seed conformance set doesn't cover (sparse non-contiguous occupancy,
+  // distinct SEC16 secrets per VIN, distinct per-fob Autel IDs).
+  {
+    file: 'cherokee_xk_2009_partial.bin',
+    label: 'Cherokee XK 2009 (donor — slot 2 deprogrammed)',
+    source: 'donor-style-synthetic',
+    expectedFobikSlots: 3,
+    expectedOccupied: [true, true, false, true],
+  },
+  {
+    file: 'wk_grand_2011_3fobs.bin',
+    label: 'WK Grand 2011 (donor — 3 fobs paired, slot 3 factory empty)',
+    source: 'donor-style-synthetic',
+    expectedFobikSlots: 3,
+    expectedOccupied: [true, true, true, false],
+  },
+  {
+    file: 'lx_charger_2014_fullhouse.bin',
+    label: 'LX Charger 2014 (donor — all 4 slots populated)',
+    source: 'donor-style-synthetic',
+    expectedFobikSlots: 4,
+    expectedOccupied: [true, true, true, true],
   },
 ];
 
