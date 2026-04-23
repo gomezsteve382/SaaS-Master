@@ -68,6 +68,54 @@ const BCM_SLOT_TYPES = [0x46, 0x52, 0x53, 0x56, 0x57];
 const RFH_VIN_OFFSETS = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
 const VIN_LEN  = 17;
 
+/* ----------------------------------------------------------------------------
+ * chainBcmFlatRepairIfStale (Task #385)
+ *
+ * After any sync that updates the live BCM SEC16 split / mirror records, the
+ * legacy flat slice at 0x40C9..0x40D8 is stale by definition — pre-Redeye
+ * tools (CGDI, Autel, etc.) that still read the flat field would see the
+ * old secret. This helper inspects the post-write BCM buffer and, when the
+ * resolver picked a live record-table source (split / mirror1 / mirror2)
+ * AND the flat slice does not already contain reverse(resolved SEC16),
+ * repairs the flat slice in-place and returns the patched bytes.
+ *
+ * Returns:
+ *   { repaired:false, reason:'unresolved-or-blank' | 'flat-only' | 'already-in-sync',
+ *     resolver, bytes:<input>, oldFlatHex? }
+ *   { repaired:true,  reason:'stale', resolver, bytes:<patched>,
+ *     source, leHex, sec16Hex, oldFlatHex }
+ *
+ * Pure function — caller decides whether to log, download, or chain a row.
+ * ---------------------------------------------------------------------------- */
+export function chainBcmFlatRepairIfStale(bcmBytes) {
+  if (!bcmBytes || bcmBytes.length < 0x40D9) {
+    return { repaired: false, reason: 'buffer-too-small', resolver: null, bytes: bcmBytes };
+  }
+  const r = resolveBcmSec16(bcmBytes);
+  if (!r || !r.bytes || r.blank) {
+    return { repaired: false, reason: 'unresolved-or-blank', resolver: r, bytes: bcmBytes };
+  }
+  if (r.source === 'flat') {
+    return { repaired: false, reason: 'flat-only', resolver: r, bytes: bcmBytes };
+  }
+  const cur = bcmBytes.slice(0x40C9, 0x40D9);
+  const expectedLe = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) expectedLe[i] = r.bytes[15 - i];
+  let same = true;
+  for (let i = 0; i < 16; i++) if (cur[i] !== expectedLe[i]) { same = false; break; }
+  const oldFlatHex = Array.from(cur).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+  if (same) {
+    return { repaired: false, reason: 'already-in-sync', resolver: r, bytes: bcmBytes, oldFlatHex };
+  }
+  const wr = writeBcmFlatSec16(bcmBytes, r.bytes);
+  return {
+    repaired: true, reason: 'stale', resolver: r,
+    bytes: wr.bytes, source: r.source,
+    leHex: wr.leHex.toUpperCase(), sec16Hex: wr.sec16Hex.toUpperCase(),
+    oldFlatHex,
+  };
+}
+
 /* ==========================================================================
  * v2 ENGINE — SINCRO-verified algorithms
  * ========================================================================== */
@@ -1522,6 +1570,30 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         } else if (bcmHasSec16) {
           log('BCM SEC16: skipped (RFH not Gen2 or SEC16 virgin)', 'muted');
         }
+        /* Task #385: auto-chain the legacy flat 0x40C9 repair when the live
+         * SEC16 records were just rewritten — otherwise pre-Redeye CGDI/Autel
+         * tools would still see the old secret in the flat slice. */
+        if (sec16SyncOk && rfhSec16 && rfhSec16.length === 16) {
+          const fr = chainBcmFlatRepairIfStale(bcmFinal);
+          if (fr.repaired) {
+            bcmFinal = fr.bytes;
+            log(`✓ Auto-chained: flat 0x40C9 repaired from resolved SEC16 (source: ${fr.source}) — legacy CGDI/Autel readers will now see the live secret`, 'ok');
+            log(`  Old flat (LE): ${fr.oldFlatHex} → New flat (LE): ${fr.leHex}`, 'muted');
+            rows.push({
+              module: 'BCM', slot: '·', offset: '0x40C9',
+              oldVin: fr.oldFlatHex, newVin: fr.leHex,
+              checkLabel: 'src',
+              oldCheck: 'flat (legacy)', newCheck: `auto · ${fr.source}`,
+              oldPass: null, newPass: true,
+            });
+          } else if (fr.reason === 'already-in-sync') {
+            log('  Flat 0x40C9 auto-repair: already in sync with resolved SEC16 — no change needed', 'muted');
+          } else if (fr.reason === 'flat-only') {
+            log('  Flat 0x40C9 auto-repair skipped: only the legacy flat slice is populated (no live split/mirror records to copy from)', 'muted');
+          } else if (fr.reason === 'unresolved-or-blank') {
+            log('  Flat 0x40C9 auto-repair skipped: post-write SEC16 is blank or unresolvable', 'muted');
+          }
+        }
         downloadBin(bcmFinal, `BCM_SYNCED_${newVin}_${ts}.bin`);
         log(`Downloaded: BCM_SYNCED_${newVin}_${ts}.bin`, 'ok');
 
@@ -1575,7 +1647,29 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         const sr = engWriteBcmSec16Gen2(bcm.bytes, rfhSec16);
         log(`BCM SEC16 sync: ${sr.splitPatched} split record(s) + ${sr.mirrorPatched} mirror(s) written`, 'ok');
         log(`  Inactive bank: 0x${hex4(sr.inactiveBase)} · BCM SEC16: ${sr.bcmSec16Hex.toUpperCase()}`, 'muted');
-        downloadBin(sr.bytes, `BCM_SEC16_SYNCED_${ts}.bin`);
+        /* Task #385: auto-chain the legacy flat 0x40C9 repair so pre-Redeye
+         * tools that still read the flat field stop seeing the old secret. */
+        let bcmSec16Out = sr.bytes;
+        const fr = chainBcmFlatRepairIfStale(bcmSec16Out);
+        if (fr.repaired) {
+          bcmSec16Out = fr.bytes;
+          log(`✓ Auto-chained: flat 0x40C9 repaired from resolved SEC16 (source: ${fr.source}) — legacy CGDI/Autel readers will now see the live secret`, 'ok');
+          log(`  Old flat (LE): ${fr.oldFlatHex} → New flat (LE): ${fr.leHex}`, 'muted');
+          rows.push({
+            module: 'BCM', slot: '·', offset: '0x40C9',
+            oldVin: fr.oldFlatHex, newVin: fr.leHex,
+            checkLabel: 'src',
+            oldCheck: 'flat (legacy)', newCheck: `auto · ${fr.source}`,
+            oldPass: null, newPass: true,
+          });
+        } else if (fr.reason === 'already-in-sync') {
+          log('  Flat 0x40C9 auto-repair: already in sync with resolved SEC16 — no change needed', 'muted');
+        } else if (fr.reason === 'flat-only') {
+          log('  Flat 0x40C9 auto-repair skipped: only the legacy flat slice is populated (no live split/mirror records to copy from)', 'muted');
+        } else if (fr.reason === 'unresolved-or-blank') {
+          log('  Flat 0x40C9 auto-repair skipped: post-write SEC16 is blank or unresolvable', 'muted');
+        }
+        downloadBin(bcmSec16Out, `BCM_SEC16_SYNCED_${ts}.bin`);
         log(`Downloaded: BCM_SEC16_SYNCED_${ts}.bin`, 'ok');
         if (pcm.bytes && pcm.parsed && rfhSec16.length >= 6) {
           const snapP = new Uint8Array(pcm.bytes);

@@ -49,6 +49,24 @@ function crossValidate(modules){
       else issues.push("RFHUB ↔ BCM vehicle secret: MISMATCH — BCM("+bRes.source+")="+fmtHex(bRes.bytes)+" RFH="+fmtHex(rfhub.vehicleSecret.bytes));
     }
   }
+  /* BCM legacy flat 0x40C9 staleness (Task #385) — even on imported dumps the
+   * tech didn't sync themselves, surface a warning when the live record-table
+   * SEC16 (split / mirror) disagrees with the flat slice so legacy CGDI/Autel
+   * tools that still read the flat field stop seeing the old secret silently. */
+  if(bcm&&bcm.bcmSec16&&bcm.bcmSec16.bytes&&!bcm.bcmSec16.blank
+     &&bcm.bcmSec16.source&&bcm.bcmSec16.source!=='flat'
+     &&bcm.bcmSec16.candidates&&bcm.bcmSec16.candidates.flat
+     &&bcm.bcmSec16.candidates.flat.bytes){
+    const resolved=bcm.bcmSec16.bytes;
+    const flat=bcm.bcmSec16.candidates.flat.bytes;
+    const expectedLe=Array.from(resolved).reverse();
+    const flatArr=Array.from(flat);
+    let same=flatArr.length===16;
+    for(let i=0;i<16&&same;i++)if(flatArr[i]!==expectedLe[i])same=false;
+    if(!same){
+      warnings.push("BCM legacy flat 0x40C9 STALE — live SEC16 ("+bcm.bcmSec16.source+")="+fmtHex(resolved)+" but flat slice (LE)="+fmtHex(flat)+". Open Module Sync → 'Repair flat 0x40C9 from split records' so legacy CGDI/Autel readers see the live secret.");
+    }
+  }
   if(rfhub&&rfhub.sec16s){
     if(rfhub.sec16valid)passed.push("RFHUB SEC16: VALID — slots 1&2 match, non-blank");
     else if(rfhub.sec16s[0]?.blank)warnings.push("RFHUB SEC16: BLANK (all FF/00) — virgin module");
