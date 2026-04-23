@@ -160,8 +160,7 @@ describe('KeyProgTab UI (Task #343)', () => {
       const table = screen.getByTestId('keyprog-zip-summary-table');
       for (let i = 0; i < entryNames.length; i++) {
         const shaCell = within(table).getByTestId('keyprog-zip-summary-sha-' + i);
-        const rowName = within(table).getByTestId('keyprog-zip-summary-row-' + i)
-          .querySelector('td').textContent;
+        const rowName = within(table).getByTestId('keyprog-zip-summary-name-' + i).textContent;
         const expected = createHash('sha256').update(unpacked[rowName]).digest('hex');
         expect(shaCell.textContent.trim()).toBe(expected);
       }

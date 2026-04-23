@@ -72,6 +72,78 @@ function FileSlot({ role, file, onPick, onClear }) {
   );
 }
 
+/* Task #390 — extracted so the post-download summary card can be tested in
+ * isolation across split / flat / virgin BCM fixtures without driving the
+ * full wizard download flow (a virgin BCM has no derivable shared secret,
+ * so its real download path is blocked). */
+export function KeyProgZipSummaryCard({ zipSummary, onDismiss }) {
+  return (
+    <div data-testid="keyprog-zip-summary">
+      <Card style={{ marginBottom: 14, padding: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+          <Tag color={C.gn}>📦 ZIP DOWNLOADED</Tag>
+          <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono'", color: C.tx, fontWeight: 700 }}>
+            {zipSummary.zipName}
+          </span>
+          <span style={{ fontSize: 10, color: C.tm }}>
+            ({(zipSummary.zipSize / 1024).toFixed(1)} KB · {zipSummary.entries.length} entries)
+          </span>
+          <button
+            onClick={onDismiss}
+            data-testid="keyprog-zip-summary-dismiss"
+            style={{ marginLeft: 'auto', background: 'none', border: '1px solid ' + C.bd, color: C.tm, padding: '4px 10px', borderRadius: 6, fontSize: 10, cursor: 'pointer' }}>
+            ✕ Dismiss
+          </button>
+        </div>
+        <div style={{ fontSize: 11, color: C.ts, marginBottom: 8, lineHeight: 1.5 }}>
+          Verify these SHA-256 hashes against the bench tool after flashing.
+        </div>
+        <table
+          data-testid="keyprog-zip-summary-table"
+          style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: "'JetBrains Mono'" }}>
+          <thead>
+            <tr style={{ color: C.tm, textAlign: 'left' }}>
+              <th style={{ padding: '4px 6px' }}>File</th>
+              <th style={{ padding: '4px 6px', textAlign: 'right' }}>Bytes</th>
+              <th style={{ padding: '4px 6px' }}>SHA-256</th>
+            </tr>
+          </thead>
+          <tbody>
+            {zipSummary.entries.map((e, i) => (
+              <tr key={e.name} data-testid={'keyprog-zip-summary-row-' + i}>
+                <td style={{ padding: '3px 6px', color: C.tx, wordBreak: 'break-all' }}>
+                  <span data-testid={'keyprog-zip-summary-name-' + i}>{e.name}</span>
+                  {/* Task #390 — echo the SEC16 source/offset under the
+                      BCM filename so the post-download summary card
+                      carries the same provenance line VERIFY.txt does. */}
+                  {e.role === 'BCM' && zipSummary.bcmSec16 && (
+                    <div
+                      data-testid="keyprog-zip-summary-bcm-sec16"
+                      data-sec16-source={zipSummary.bcmSec16.source || 'none'}
+                      data-sec16-blank={zipSummary.bcmSec16.blank ? '1' : '0'}
+                      style={{ marginTop: 3, fontSize: 10, color: C.tm, fontWeight: 700 }}>
+                      BCM SEC16 source: {zipSummary.bcmSec16.label}
+                      {zipSummary.bcmSec16.blank ? '  [BLANK / virgin]' : ''}
+                    </div>
+                  )}
+                </td>
+                <td style={{ padding: '3px 6px', color: C.tm, textAlign: 'right' }}>
+                  {e.size.toLocaleString()}
+                </td>
+                <td
+                  data-testid={'keyprog-zip-summary-sha-' + i}
+                  style={{ padding: '3px 6px', color: C.a3, wordBreak: 'break-all' }}>
+                  {e.sha256}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+    </div>
+  );
+}
+
 export default function KeyProgTab() {
   const [files, setFiles] = useState({ BCM: null, RFH: null, PCM: null });
   const [vin, setVin] = useState('');
@@ -219,7 +291,7 @@ export default function KeyProgTab() {
       // SHA-256 over the actual bytes written into the archive
       // eslint-disable-next-line no-await-in-loop
       const hash = await sha256Hex(bytes);
-      summaryEntries.push({ name: f.name, size: bytes.length, sha256: hash });
+      summaryEntries.push({ role: f.role, name: f.name, size: bytes.length, sha256: hash });
     }
     const zipped = zipSync(entries, { level: 6 });
     const zipName = 'KEYPROG_' + vin + '.zip';
@@ -228,6 +300,11 @@ export default function KeyProgTab() {
       zipName,
       zipSize: zipped.length,
       entries: summaryEntries,
+      // Task #390 — echo the same SEC16 source label the wizard badge and
+      // VERIFY.txt both use so a locksmith comparing two saved ZIPs side by
+      // side can spot a split-vs-flat-vs-virgin mismatch without opening
+      // VERIFY.txt.
+      bcmSec16: bcmSec16Status,
       at: new Date().toISOString(),
     });
   };
@@ -722,54 +799,10 @@ export default function KeyProgTab() {
       )}
 
       {zipSummary && (
-        <div data-testid="keyprog-zip-summary">
-          <Card style={{ marginBottom: 14, padding: 18 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <Tag color={C.gn}>📦 ZIP DOWNLOADED</Tag>
-              <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono'", color: C.tx, fontWeight: 700 }}>
-                {zipSummary.zipName}
-              </span>
-              <span style={{ fontSize: 10, color: C.tm }}>
-                ({(zipSummary.zipSize / 1024).toFixed(1)} KB · {zipSummary.entries.length} entries)
-              </span>
-              <button
-                onClick={() => setZipSummary(null)}
-                data-testid="keyprog-zip-summary-dismiss"
-                style={{ marginLeft: 'auto', background: 'none', border: '1px solid ' + C.bd, color: C.tm, padding: '4px 10px', borderRadius: 6, fontSize: 10, cursor: 'pointer' }}>
-                ✕ Dismiss
-              </button>
-            </div>
-            <div style={{ fontSize: 11, color: C.ts, marginBottom: 8, lineHeight: 1.5 }}>
-              Verify these SHA-256 hashes against the bench tool after flashing.
-            </div>
-            <table
-              data-testid="keyprog-zip-summary-table"
-              style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: "'JetBrains Mono'" }}>
-              <thead>
-                <tr style={{ color: C.tm, textAlign: 'left' }}>
-                  <th style={{ padding: '4px 6px' }}>File</th>
-                  <th style={{ padding: '4px 6px', textAlign: 'right' }}>Bytes</th>
-                  <th style={{ padding: '4px 6px' }}>SHA-256</th>
-                </tr>
-              </thead>
-              <tbody>
-                {zipSummary.entries.map((e, i) => (
-                  <tr key={e.name} data-testid={'keyprog-zip-summary-row-' + i}>
-                    <td style={{ padding: '3px 6px', color: C.tx, wordBreak: 'break-all' }}>{e.name}</td>
-                    <td style={{ padding: '3px 6px', color: C.tm, textAlign: 'right' }}>
-                      {e.size.toLocaleString()}
-                    </td>
-                    <td
-                      data-testid={'keyprog-zip-summary-sha-' + i}
-                      style={{ padding: '3px 6px', color: C.a3, wordBreak: 'break-all' }}>
-                      {e.sha256}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
-        </div>
+        <KeyProgZipSummaryCard
+          zipSummary={zipSummary}
+          onDismiss={() => setZipSummary(null)}
+        />
       )}
 
       {!result && (
