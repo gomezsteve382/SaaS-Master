@@ -7,6 +7,7 @@ import {DownloadCounter} from "../lib/useDownloadCount.jsx";
 import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
 import {IMMO_VIN_REF} from "../lib/tabReferences.js";
 import {Tip} from "../lib/plainEnglish.jsx";
+import SamplePicker from "../lib/SamplePicker.jsx";
 
 const fO = n => "0x" + n.toString(16).toUpperCase().padStart(4, "0");
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
@@ -163,6 +164,7 @@ function RFHSection() {
 
       <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:8}}>PHASE 1 — INSPECT</div>
       <FileDropZone label="Drop 4KB RFHUB .bin file (24C32)" onFile={handleIFile} fileName={iFile?.name}/>
+      <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096,2048]} onFile={handleIFile} label="📦 Sample RFHUB EEE"/>
       {iErr && <div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:12,fontWeight:700}}>✗ {iErr}</div>}
       {iFile && !iErr && <div style={{marginTop:10}}><Btn onClick={()=>setIResult(parseRfhub(iData))} full color={C.sr}>🔍 Analyze File</Btn></div>}
 
@@ -224,6 +226,7 @@ function RFHSection() {
         <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY VIN</div>
         <div style={{fontSize:11,color:C.ts,marginBottom:8}}>Writes byte-reversed VIN to all 4 slots · Recalculates CRC8RF per slot</div>
         <FileDropZone label="Re-upload the same RFHUB .bin to patch (must be 4096B Gen2)" onFile={handleAFile} fileName={aFile?.name}/>
+        <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096]} onFile={handleAFile} label="📦 Sample RFHUB EEE"/>
         <div style={{marginTop:10}}>
           <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN (17 chars)</div>
           <input value={newVin} maxLength={17} placeholder="Enter 17-character VIN"
@@ -358,6 +361,7 @@ function GPECSection() {
 
       <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:8}}>PHASE 1 — INSPECT</div>
       <FileDropZone label="Drop 4KB GPEC2A .bin file (95320)" onFile={handleIFile} fileName={iFile?.name}/>
+      <SamplePicker kinds={['GPEC_EXT']} acceptSizes={[4096]} onFile={handleIFile} label="📦 Sample GPEC2A EXT"/>
       {iErr && <div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:12,fontWeight:700}}>✗ {iErr}</div>}
       {iFile && !iErr && <div style={{marginTop:10}}><Btn onClick={()=>setIResult(parseGpec2a(iData))} full color={C.sr}>🔍 Analyze File</Btn></div>}
 
@@ -429,6 +433,7 @@ function GPECSection() {
         <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY</div>
         <div style={{fontSize:11,color:C.ts,marginBottom:8}}>VIN written to all 3 slots (no CRC) · Key written to PRIMARY + MIRROR · Blank fields skipped</div>
         <FileDropZone label="Re-upload the same 4KB GPEC2A .bin to patch" onFile={handleAFile} fileName={aFile?.name}/>
+        <SamplePicker kinds={['GPEC_EXT']} acceptSizes={[4096]} onFile={handleAFile} label="📦 Sample GPEC2A EXT"/>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginTop:10}}>
           <div>
             <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN — optional</div>

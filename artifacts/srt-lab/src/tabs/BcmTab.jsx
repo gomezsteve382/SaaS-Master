@@ -16,6 +16,7 @@ import {createBridgeEngine} from "../lib/bridgeEngine.js";
 import {getRow} from "../lib/moduleRegistry.js";
 import {programVin} from "../lib/vinProgrammer.js";
 import {analyzeDumpPartNumber, generationForPartNumber} from "../lib/vehicles.js";
+import SamplePicker from "../lib/SamplePicker.jsx";
 
 const BCM_ALGOS={
   'CDA6':s=>cda6(s),
@@ -488,6 +489,7 @@ export default function BcmTab({vehicle}){
           <button onClick={closeInspect} style={{border:'none',background:'transparent',color:C.tm,cursor:'pointer',fontSize:14}} title="Remove from workspace">✕</button>
         </>}
       </div>
+      <SamplePicker kinds={['BCM']} acceptSizes={[65536,131072]} onFile={onInspectFile} compact label="📦 Sample BCM dump"/>
       {!inspectMod&&bcmDumps.length===0&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the FCA Analyzer tab show up here automatically.</div>}
       {inspectMod&&bcmDumps.length>0&&<div style={{marginTop:6,fontSize:10,color:C.gn,fontWeight:700}}>✓ Auto-loaded from shared workspace ({bcmDumps.length} BCM dump{bcmDumps.length===1?'':'s'} available)</div>}
       {inspectPnCheck&&vehicle&&(

@@ -2,6 +2,7 @@ import React, {useState, useCallback, useMemo, useRef} from "react";
 import {C} from "../lib/constants.js";
 import {Card, Tag, Btn} from "../lib/ui.jsx";
 import {parseRFH24C32, parsePCMGPEC, computeCompatibility, applyRfhToPcm} from "../lib/rfhPcmPair.js";
+import SamplePicker from "../lib/SamplePicker.jsx";
 
 const fO = n => "0x" + n.toString(16).toUpperCase().padStart(4, "0");
 
@@ -126,12 +127,14 @@ export default function RFHPCMTab() {
           <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:6}}>RFH 24C32 (.bin)</div>
           <FileDropZone label="Drop RFH 24C32 EEPROM (4096 B)" hint="Gen2 4KB · VIN @ 0x92 · SEC16 @ 0xAE/0xC0"
                         onFile={handleRfh} fileName={rfhFile?.name}/>
+          <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096]} onFile={handleRfh} label="📦 Sample RFH (paired with PCM below)"/>
           {rfhErr && <div style={{marginTop:6,padding:"6px 10px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:11,fontWeight:700}}>✗ {rfhErr}</div>}
         </div>
         <div>
           <div style={{fontSize:11,fontWeight:900,color:C.a4,letterSpacing:2,marginBottom:6}}>PCM GPEC (.bin / .eprom)</div>
           <FileDropZone label="Drop PCM GPEC2/GPEC2A/GPEC3 dump (4096 B)" hint="VIN @ 0x0000/0x01F0/0x0224 · SEC6 @ 0x03C8"
                         onFile={handlePcm} fileName={pcmFile?.name}/>
+          <SamplePicker kinds={['GPEC_EXT']} onFile={handlePcm} label="📦 Sample PCM (Mitchell 6.2 pairs with RFH)"/>
           {pcmErr && <div style={{marginTop:6,padding:"6px 10px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:11,fontWeight:700}}>✗ {pcmErr}</div>}
         </div>
       </div>

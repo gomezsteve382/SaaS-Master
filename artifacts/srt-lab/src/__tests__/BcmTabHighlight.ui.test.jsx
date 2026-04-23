@@ -249,7 +249,7 @@ describe('BcmTab dump-switcher dropdown highlight', () => {
 
     // After loading the second dump bcmDumps.length becomes 2 → dropdown appears.
     await waitFor(() => {
-      const sel = document.querySelector('select');
+      const sel = document.querySelector('select:not([data-sample-picker])');
       expect(sel, 'dump-switcher <select> should appear with two dumps').toBeTruthy();
       expect(sel.options.length, 'dropdown should list exactly two dumps').toBe(2);
     }, { timeout: 3000 });
@@ -268,7 +268,7 @@ describe('BcmTab dump-switcher dropdown highlight', () => {
     }, { timeout: 3000 });
 
     // Switch back to the first dump (lc2) via the dropdown.
-    const sel = document.querySelector('select');
+    const sel = document.querySelector('select:not([data-sample-picker])');
     const firstOption = sel.options[0];
     await act(async () => {
       fireEvent.change(sel, { target: { value: firstOption.value } });
@@ -323,7 +323,7 @@ describe('BcmTab dump-switcher dropdown highlight', () => {
     await loadFileViaInput(bytesUnknown, 'dump_unknown.bin');
 
     await waitFor(() => {
-      const sel = document.querySelector('select');
+      const sel = document.querySelector('select:not([data-sample-picker])');
       expect(sel, 'dropdown should appear once two dumps are loaded').toBeTruthy();
     }, { timeout: 3000 });
 
@@ -338,7 +338,7 @@ describe('BcmTab dump-switcher dropdown highlight', () => {
     }, { timeout: 3000 });
 
     // Switch back to the known-P/N dump via the dropdown → ✓ must reappear.
-    const sel = document.querySelector('select');
+    const sel = document.querySelector('select:not([data-sample-picker])');
     const knownOption = sel.options[0]; // first-loaded = known P/N dump
     await act(async () => {
       fireEvent.change(sel, { target: { value: knownOption.value } });
@@ -399,7 +399,7 @@ describe('BcmTab dump-switcher dropdown highlight', () => {
     // Load second dump (lc3) — dropdown should now be visible.
     await loadFileViaInput(bytesLc3, 'dump_lc3.bin');
     await waitFor(() => {
-      const sel = document.querySelector('select');
+      const sel = document.querySelector('select:not([data-sample-picker])');
       expect(sel, 'dropdown should appear after loading two dumps').toBeTruthy();
       expect(sel.options.length, 'dropdown should have exactly two options').toBe(2);
     }, { timeout: 3000 });
@@ -424,7 +424,7 @@ describe('BcmTab dump-switcher dropdown highlight', () => {
 
     // Dropdown must be gone (bcmDumps.length === 1 hides the <select>).
     await waitFor(() => {
-      const sel = document.querySelector('select');
+      const sel = document.querySelector('select:not([data-sample-picker])');
       expect(sel, '<select> must disappear after removing the non-active dump').toBeNull();
     }, { timeout: 3000 });
 

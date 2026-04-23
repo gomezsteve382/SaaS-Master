@@ -5,6 +5,7 @@ import { Card, Tag, Btn } from "../lib/ui.jsx";
 import { crc16, rfhSec16Cs, rfhGen2DetectMagic, rfhGen2VinCs, RFH_GEN2_VIN_CS_KNOWN_MAGICS } from "../lib/crc.js";
 import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
+import SamplePicker from "../lib/SamplePicker.jsx";
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
@@ -849,6 +850,7 @@ export default function TwinTab() {
               onFile={f => loadFile(f, setBcmFile, setBcmData)}
               fileName={bcmFile?.name}
             />
+            <SamplePicker kinds={['BCM']} acceptSizes={[65536]} onFile={f => loadFile(f, setBcmFile, setBcmData)} label="📦 Sample BCM"/>
           </div>
           <div>
             <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>RFH file (.bin/.eprom)</div>
@@ -859,6 +861,7 @@ export default function TwinTab() {
               onFile={f => loadFile(f, setRfhFile, setRfhData)}
               fileName={rfhFile?.name}
             />
+            <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096]} onFile={f => loadFile(f, setRfhFile, setRfhData)} label="📦 Sample RFH"/>
           </div>
           <div>
             <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>PCM file — optional (.bin)</div>
@@ -868,6 +871,7 @@ export default function TwinTab() {
               onFile={f => loadFile(f, setPcmFile, setPcmData)}
               fileName={pcmFile?.name}
             />
+            <SamplePicker kinds={['GPEC_EXT']} acceptSizes={[4096,8192,16384]} onFile={f => loadFile(f, setPcmFile, setPcmData)} label="📦 Sample PCM"/>
           </div>
         </div>
 

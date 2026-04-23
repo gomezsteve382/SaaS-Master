@@ -7,6 +7,7 @@ import {crossValidate,computeDiff,compareGpecBcmKey} from "../lib/crossValidate.
 import {crc16} from "../lib/crc.js";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import {statusBanner, loadAdvanced, saveAdvanced, Tip} from "../lib/plainEnglish.jsx";
+import SamplePicker from "../lib/SamplePicker.jsx";
 const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
 
 function SecurityTab(){
@@ -171,6 +172,13 @@ function SecurityTab(){
         <div style={{fontSize:11,color:C.ts}}><Tip word="BCM">BCM</Tip> · <Tip word="95640">95640</Tip> · <Tip word="RFHUB">RFHUB</Tip> EEE · <Tip word="GPEC2A">GPEC2A</Tip> — compare keys, sync <Tip word="VIN">VINs</Tip>, match security bytes</div>
         {mods.length>0&&<Tag color={C.a3}>{mods.length} loaded</Tag>}
       </Card>
+    </div>
+    <div onClick={e=>e.stopPropagation()} style={{marginBottom:16}}>
+      <SamplePicker
+        kinds={['BCM','95640','GPEC_EXT','RFH_EEE','SMARTBOX']}
+        onFile={f=>addF([f])}
+        label="📦 Load a sample dump from the fixture catalog"
+      />
     </div>
 
     {/* ─── Plain-English status banner + guided fix entry point ─── */}
