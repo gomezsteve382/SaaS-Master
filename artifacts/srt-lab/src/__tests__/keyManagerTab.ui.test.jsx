@@ -140,6 +140,158 @@ describe('KeyManagerTab UI (Task #407)', () => {
     expect(copyMasterB.disabled).toBe(true);
   });
 
+  it('writes a snapshot + enriched audit-log row per Add/Delete/Transfer/Copy-Master and surfaces them in View History (Task #410)', async () => {
+    /* Pre-clear the keymgr audit ring buffer so the assertions are stable
+     * across runs that share the jsdom localStorage instance. */
+    try { globalThis.localStorage?.removeItem('srt-lab.keymgr.audit.v1'); } catch {}
+    try { globalThis.localStorage?.removeItem('srtlab_backup_index'); } catch {}
+
+    /* Stub fetch so writeKeymgrSnapshot's POST /api/backups returns ok and
+     * we can count the per-edit snapshot writes. */
+    const fetchCalls = [];
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn(async (url, init) => {
+      fetchCalls.push({ url, body: init?.body ? JSON.parse(init.body) : null });
+      return { ok: true, status: 200, json: async () => ({}) };
+    });
+
+    try {
+      render(<KeyManagerTab />);
+
+      const aBytes = makeRfhubGen2({ fobikSlots: 2 });
+      const bBytes = makeRfhubGen2({ fobikSlots: 0 });
+      await uploadInto('keymgr-pane-A-input', bytesToFile('source_A.bin', aBytes));
+      await uploadInto('keymgr-pane-B-input', bytesToFile('target_B.bin', bBytes));
+      await waitFor(() => expect(screen.getByTestId('keymgr-pane-B-loaded')).toBeTruthy());
+
+      // Drive a successful transfer (Send A → B, slot 0). The pane state
+      // commits synchronously inside the React batch, but the snapshot POST
+      // + audit row land on the next microtask wave — so we wait for the
+      // audit ring buffer (the canonical record), not just data-occupied.
+      await act(async () => { fireEvent.click(screen.getByTestId('keymgr-slot-A-0-send')); });
+      await waitFor(() => {
+        expect(screen.getByTestId('keymgr-slot-B-0').getAttribute('data-occupied')).toBe('1');
+        const a = JSON.parse(globalThis.localStorage.getItem('srt-lab.keymgr.audit.v1') || '[]');
+        expect(a.some(e => e.op?.includes('transfer slot #0 from A') && e.ok === true)).toBe(true);
+      });
+
+      // Follow up with a delete on the freshly-occupied slot so the audit
+      // trail picks up an AA50 → FFFF transition row to assert against.
+      await act(async () => { fireEvent.click(screen.getByTestId('keymgr-slot-B-0-delete')); });
+      await waitFor(() => {
+        expect(screen.getByTestId('keymgr-slot-B-0').getAttribute('data-occupied')).toBe('0');
+        const a = JSON.parse(globalThis.localStorage.getItem('srt-lab.keymgr.audit.v1') || '[]');
+        expect(a.some(e => e.op?.includes('delete slot #0') && e.ok === true)).toBe(true);
+      });
+
+      // The audit log must now carry both rows (success + the prior load entry).
+      const audit = JSON.parse(globalThis.localStorage.getItem('srt-lab.keymgr.audit.v1') || '[]');
+      const transfer = audit.find(e => e.op?.includes('transfer slot #0 from A') && e.ok === true);
+      expect(transfer).toBeTruthy();
+      expect(transfer.slotIdx).toBe(0);
+      expect(transfer.markerBefore).toBe('FFFF');
+      expect(transfer.markerAfter).toBe('AA50');
+      expect(transfer.snapshotKey).toMatch(/^srtlab_backup_RFHUB_/);
+      expect(Array.isArray(transfer.sec16Cs)).toBe(true);
+      // file hash may be null in jsdom envs without crypto.subtle; if present
+      // it should be a 64-char hex string.
+      if (transfer.fileHash) expect(transfer.fileHash).toMatch(/^[0-9a-f]{64}$/);
+
+      const del = audit.find(e => e.op?.includes('delete slot #0') && e.ok === true);
+      expect(del).toBeTruthy();
+      expect(del.markerBefore).toBe('AA50');
+      expect(del.markerAfter).toBe('FFFF');
+
+      // Per-edit snapshots must POST through /api/backups (same store the
+      // rest of the app uses) — at least one keymgr-edit POST per success.
+      const editPosts = fetchCalls.filter(c =>
+        c.url === '/api/backups' && c.body?.snapshotKind === 'keymgr-edit');
+      expect(editPosts.length).toBeGreaterThanOrEqual(2);
+
+      // View History modal opens filtered for the loaded filename.
+      await act(async () => { fireEvent.click(screen.getByTestId('keymgr-pane-B-view-history')); });
+      const filterLine = screen.getByTestId('keymgr-history-filter');
+      expect(filterLine.textContent).toMatch(/target_B\.bin/);
+      const rows = screen.getAllByTestId(/^keymgr-history-row-/);
+      expect(rows.length).toBeGreaterThanOrEqual(2);
+      // Refusal rows render with data-ok="0".
+      const okRows = rows.filter(r => r.getAttribute('data-ok') === '1');
+      expect(okRows.length).toBeGreaterThanOrEqual(2);
+
+      // Closing the modal removes it.
+      await act(async () => { fireEvent.click(screen.getByTestId('keymgr-history-close')); });
+      expect(screen.queryByTestId('keymgr-history-modal')).toBeNull();
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('records refusals (ok:false) with op so a refused click is still in the trail (Task #410)', async () => {
+    try { globalThis.localStorage?.removeItem('srt-lab.keymgr.audit.v1'); } catch {}
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn(async () => ({ ok: true, status: 200, json: async () => ({}) }));
+    try {
+      render(<KeyManagerTab />);
+      await uploadInto('keymgr-pane-A-input', bytesToFile('full.bin', makeRfhubGen2({ fobikSlots: 4 })));
+      await waitFor(() => expect(screen.getByTestId('keymgr-pane-A-loaded')).toBeTruthy());
+      // All 4 slots occupied → Add Manually is refused with "no free slot".
+      await act(async () => { fireEvent.click(screen.getByTestId('keymgr-pane-A-add-manual')); });
+
+      const audit = JSON.parse(globalThis.localStorage.getItem('srt-lab.keymgr.audit.v1') || '[]');
+      const refusal = audit.find(e => e.ok === false && e.op?.includes('first-free'));
+      expect(refusal).toBeTruthy();
+      expect(refusal.error).toBe('no free slot');
+      expect(refusal.filename).toBe('full.bin');
+      expect(refusal.vin).toBeTruthy();
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('refuses an edit and leaves pane bytes untouched when both remote and local snapshot persistence fail (Task #410)', async () => {
+    try { globalThis.localStorage?.removeItem('srt-lab.keymgr.audit.v1'); } catch {}
+    /* Force remote persistence to fail (res.ok=false) AND local persistence
+     * to throw. The applied result must NOT mutate pane bytes — slot 0 must
+     * stay occupied — and the audit row must be ok:false. */
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn(async () => ({ ok: false, status: 500, json: async () => ({}) }));
+    const originalSetItem = Storage.prototype.setItem;
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (k, v) {
+      // Allow the audit ring write so the refusal row can be observed.
+      if (k === 'srt-lab.keymgr.audit.v1') {
+        return originalSetItem.call(this, k, v);
+      }
+      // Block backup snapshot writes (key + index) so persisted=false.
+      if (k.startsWith('srtlab_backup_')) {
+        throw new Error('quota exceeded (simulated)');
+      }
+      return originalSetItem.call(this, k, v);
+    });
+    try {
+      render(<KeyManagerTab />);
+      await uploadInto('keymgr-pane-A-input', bytesToFile('persist_fail.bin', makeRfhubGen2({ fobikSlots: 2 })));
+      await waitFor(() => expect(screen.getByTestId('keymgr-pane-A-loaded')).toBeTruthy());
+      // Slot 0 starts occupied because makeRfhubGen2 fills fobikSlots.
+      expect(screen.getByTestId('keymgr-slot-A-0').getAttribute('data-occupied')).toBe('1');
+
+      await act(async () => { fireEvent.click(screen.getByTestId('keymgr-slot-A-0-delete')); });
+      // Audit row must reflect a refusal — wait for it to land.
+      await waitFor(() => {
+        const a = JSON.parse(globalThis.localStorage.getItem('srt-lab.keymgr.audit.v1') || '[]');
+        expect(a.some(e => e.ok === false && e.error === 'snapshot persistence failed')).toBe(true);
+      });
+      // CRITICAL: pane bytes must NOT have been mutated — slot stays occupied.
+      expect(screen.getByTestId('keymgr-slot-A-0').getAttribute('data-occupied')).toBe('1');
+      const audit = JSON.parse(globalThis.localStorage.getItem('srt-lab.keymgr.audit.v1') || '[]');
+      const refusal = audit.find(e => e.ok === false && e.error === 'snapshot persistence failed');
+      expect(refusal.savedRemote).toBe(false);
+      expect(refusal.savedLocal).toBe(false);
+    } finally {
+      globalThis.fetch = originalFetch;
+      setItemSpy.mockRestore();
+    }
+  });
+
   it('logs KEYMOD REFUSED in red when adding to an already-occupied slot', async () => {
     render(<KeyManagerTab />);
     await uploadInto('keymgr-pane-A-input', bytesToFile('a.bin', makeRfhubGen2({ fobikSlots: 4 })));
