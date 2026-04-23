@@ -1,7 +1,7 @@
 import React, {useState, useMemo, useCallback, useContext} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn} from "../lib/ui.jsx";
-import {parseModule} from "../lib/parseModule.js";
+import {parseModule,moduleTooSmall} from "../lib/parseModule.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {SizeWarnBanner} from "../components/ModuleFieldsPanel.jsx";
 
@@ -15,6 +15,7 @@ function Gpec2aTab(){
   const [hash1,setHash1]=useState(null);
   const [hash2,setHash2]=useState(null);
   const [msg,setMsg]=useState('');
+  const [tooSmall,setTooSmall]=useState(null);
   const entry1=gpecDumps.find(d=>d.hash===hash1)||gpecDumps[0]||null;
   const entry2=gpecDumps.find(d=>d.hash===hash2&&d.hash!==entry1?.hash)||gpecDumps.find(d=>d.hash!==entry1?.hash)||null;
   const f=entry1?.mod||null;
@@ -25,11 +26,13 @@ function Gpec2aTab(){
     const r=new FileReader();
     r.onload=ev=>{
       const d=new Uint8Array(ev.target.result);
-      // Accept non-canonical sizes (oversized padded captures, truncated dumps)
-      // so users can still inspect them. parseModule will attach a sizeWarn
-      // banner explaining the discrepancy. Reject only sub-512B files where
-      // even the basic GPEC2A fields can't be read.
-      if(d.length<512){setMsg('File too small ('+d.length+' B) — needs at least 512 B to read GPEC2A fields');return;}
+      // Refuse anything smaller than a real GPEC2A image (4 KB) — partial
+      // dumps would yield a misleading "no SKIM / no keys" verdict and the
+      // user would think the file was good. Mirrors the BCM size guard
+      // added in Task #370 (Task #372).
+      const small=moduleTooSmall(d,'GPEC2A',fi.name);
+      if(small){setTooSmall(small);setMsg('');return;}
+      setTooSmall(null);
       const m=parseModule(d,fi.name,{forceType:'GPEC2A'});
       const entry=addDump(m);
       if(entry){if(slot===1)setHash1(entry.hash);else setHash2(entry.hash);}
@@ -92,6 +95,15 @@ function Gpec2aTab(){
       </Card></label>
     </div>
 
+    {tooSmall&&<div data-testid="gpec2a-too-small-card" style={{marginTop:12,marginBottom:12,padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
+      <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ This isn&apos;t a full GPEC2A dump</div>
+      <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts,lineHeight:1.7}}>
+        <div>File size: <strong style={{color:C.er}}>{tooSmall.size.toLocaleString()} bytes</strong></div>
+        <div>Required min: <strong>{tooSmall.min.toLocaleString()} bytes ({tooSmall.label})</strong></div>
+        <div>Detected ext: <strong>{tooSmall.ext||'(none)'}</strong></div>
+      </div>
+      <div style={{marginTop:8,fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>Re-read the GPEC2A in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module.</div>
+    </div>}
     {f&&f.sizeWarn&&<SizeWarnBanner warn={f.sizeWarn}/>}
     {f2&&f2.sizeWarn&&<SizeWarnBanner warn={f2.sizeWarn}/>}
 

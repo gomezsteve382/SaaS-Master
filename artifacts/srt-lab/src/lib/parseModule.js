@@ -30,14 +30,49 @@ const CANONICAL_SIZES_BY_TYPE={
 // BCM size guard used by parseModule + ModuleSync (Task #370).
 const BCM_MIN_SIZE=Math.min(...CANONICAL_SIZES_BY_TYPE.BCM);
 
+// Per-module canonical-minimum sizes derived from CANONICAL_SIZES_BY_TYPE.
+// Files smaller than these are EEPROM slices, fragments, or wrong-module
+// dumps; the inspector should refuse them with a structured "isn't a full
+// <module> dump" card rather than partial-parse and surface fake VIN /
+// security verdicts. 'PCM' aliases GPEC2A so callers using the ModuleSync
+// PCM slot label resolve to the same 4 KB floor (Task #372).
+const MODULE_MIN_SIZES={
+  BCM:Math.min(...CANONICAL_SIZES_BY_TYPE.BCM),
+  RFHUB:Math.min(...CANONICAL_SIZES_BY_TYPE.RFHUB),
+  GPEC2A:Math.min(...CANONICAL_SIZES_BY_TYPE.GPEC2A),
+  PCM:Math.min(...CANONICAL_SIZES_BY_TYPE.GPEC2A),
+  '95640':Math.min(...CANONICAL_SIZES_BY_TYPE['95640']),
+};
+
+// Human-readable hint shown in the "Required min" line of each tooSmall
+// card so techs know what kind of dump the slot actually expects.
+const MODULE_MIN_LABELS={
+  BCM:'64 KB MPC5605B/06B DFLASH',
+  RFHUB:'2 KB Yazaki FCM EEPROM (Gen1 24C16)',
+  GPEC2A:'4 KB Continental GPEC2A',
+  PCM:'4 KB Continental GPEC2A (smallest PCM image)',
+  '95640':'8 KB BCM-backup EEPROM (95640)',
+};
+
 function fileExt(filename){
   if(!filename)return '';
   const m=String(filename).match(/\.([A-Za-z0-9]+)$/);
   return m?'.'+m[1].toLowerCase():'';
 }
 
-// Check if a buffer is too small to be a real BCM dump. Returns a structured
-// result the inspector can render directly, or null if size is acceptable.
+// Generic per-type size guard (Task #372). Returns null when the buffer is
+// at or above the canonical minimum, or a structured tooSmall object the
+// inspector / standalone tab can render directly.
+function moduleTooSmall(bytes,type,filename){
+  const min=MODULE_MIN_SIZES[type];
+  if(min==null)return null;
+  const sz=bytes?bytes.length:0;
+  if(sz>=min)return null;
+  return{tooSmall:true,type,size:sz,min,ext:fileExt(filename),label:MODULE_MIN_LABELS[type]||type};
+}
+
+// BCM-specific shim — preserves the Task #370 result shape (no `type`/`label`
+// keys) so existing callers and tests stay green.
 function bcmTooSmall(bytes,filename){
   const sz=bytes?bytes.length:0;
   if(sz>=BCM_MIN_SIZE)return null;
@@ -387,4 +422,4 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall};
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall};

@@ -9,7 +9,7 @@ import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
-import {parseModule} from "../lib/parseModule.js";
+import {parseModule,moduleTooSmall} from "../lib/parseModule.js";
 import {vinHasSGW} from "../lib/vin.js";
 import {createBridgeEngine} from "../lib/bridgeEngine.js";
 import {getRow} from "../lib/moduleRegistry.js";
@@ -270,12 +270,26 @@ export default function RfhubTab({vehicle}){
   const rfhubDumps=getDumpsByType('RFHUB');
   const [inspectHash,setInspectHash]=useState(null);
   const [inspectMsg,setInspectMsg]=useState('');
+  const [inspectTooSmall,setInspectTooSmall]=useState(null);
   const inspectEntry=rfhubDumps.find(d=>d.hash===inspectHash)||rfhubDumps[0]||null;
   const inspectMod=inspectEntry?.mod||null;
   const onInspectFile=useCallback(file=>{
     const r=new FileReader();
     r.onload=ev=>{
-      const m=parseModule(new Uint8Array(ev.target.result),file.name);
+      const bytes=new Uint8Array(ev.target.result);
+      // Refuse undersized files up-front so techs see a structured "this
+      // isn't a full RFHUB dump" card rather than a partial parse with a
+      // bogus VIN / SEC16 verdict (Task #372, mirroring the BCM guard from
+      // Task #370). The fields panel hides whenever inspectTooSmall is set.
+      const small=moduleTooSmall(bytes,'RFHUB',file.name);
+      if(small){
+        setInspectHash(null);
+        setInspectTooSmall(small);
+        setInspectMsg('');
+        return;
+      }
+      setInspectTooSmall(null);
+      const m=parseModule(bytes,file.name);
       if(m.type!=='RFHUB'){setInspectMsg('Selected file is '+m.type+', not RFHUB — load a 4 KB RFHUB EEE dump.');return;}
       const entry=addDump(m);
       if(entry)setInspectHash(entry.hash);
@@ -285,7 +299,7 @@ export default function RfhubTab({vehicle}){
   },[addDump]);
   const closeInspect=useCallback(()=>{
     if(inspectEntry)removeDump(inspectEntry.hash);
-    setInspectHash(null);setInspectMsg('');
+    setInspectHash(null);setInspectMsg('');setInspectTooSmall(null);
   },[inspectEntry,removeDump]);
 
   const vinValid=masterVin.length===17;
@@ -442,7 +456,16 @@ export default function RfhubTab({vehicle}){
       {!inspectMod&&rfhubDumps.length===0&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the FCA Analyzer tab show up here automatically.</div>}
       {inspectMod&&rfhubDumps.length>0&&<div style={{marginTop:6,fontSize:10,color:C.gn,fontWeight:700}}>✓ Auto-loaded from shared workspace ({rfhubDumps.length} RFHUB dump{rfhubDumps.length===1?'':'s'} available)</div>}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.wn,fontWeight:700}}>{inspectMsg}</div>}
-      {inspectMod&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod}/></div>}
+      {inspectTooSmall&&<div data-testid="rfh-too-small-card" style={{marginTop:12,padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
+        <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ This isn&apos;t a full RFHUB dump</div>
+        <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts,lineHeight:1.7}}>
+          <div>File size: <strong style={{color:C.er}}>{inspectTooSmall.size.toLocaleString()} bytes</strong></div>
+          <div>Required min: <strong>{inspectTooSmall.min.toLocaleString()} bytes ({inspectTooSmall.label})</strong></div>
+          <div>Detected ext: <strong>{inspectTooSmall.ext||'(none)'}</strong></div>
+        </div>
+        <div style={{marginTop:8,fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>Re-read the RFHUB in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module.</div>
+      </div>}
+      {inspectMod&&!inspectTooSmall&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod}/></div>}
     </Card>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>

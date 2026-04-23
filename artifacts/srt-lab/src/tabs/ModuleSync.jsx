@@ -4,7 +4,7 @@ import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm } from "../lib/securityBytes.js";
-import { bcmTooSmall } from "../lib/parseModule.js";
+import { bcmTooSmall, moduleTooSmall } from "../lib/parseModule.js";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -211,7 +211,21 @@ export function engParseBcm(bytes, filename) {
   return r;
 }
 
-function engParseRfh(bytes) {
+export function engParseRfh(bytes, filename) {
+  /* Reject files smaller than a real Yazaki FCM EEPROM (Gen1 24C16, 2 KB).
+   * Without this short-circuit the inspector parses partial fragments and
+   * surfaces misleading "no VIN" / "SEC16 ✗" verdicts — Task #372 (mirror
+   * of the BCM guard added in Task #370). */
+  const small = moduleTooSmall(bytes, 'RFHUB', filename);
+  if (small) {
+    return {
+      ok: false, kind: 'RFHUB', size: bytes ? bytes.length : 0,
+      tooSmall: true, minSize: small.min, fileExt: small.ext, minLabel: small.label,
+      vinSlots: [], vin: null, vinConsistent: false,
+      sec16: null, format: 'unknown',
+      partNumbers: [], internalSerial: null, keyCount: 0,
+    };
+  }
   const r = {
     ok: false, kind: 'RFHUB', size: bytes.length,
     vinSlots: [], vin: null, vinConsistent: false,
@@ -281,7 +295,22 @@ function engParseRfh(bytes) {
   return r;
 }
 
-function engParsePcm(bytes) {
+export function engParsePcm(bytes, filename) {
+  /* Reject files smaller than a real GPEC2A image (4 KB). Partial PCM dumps
+   * would otherwise yield empty VIN slot lists and a fake "IMMO ✗" verdict
+   * — Task #372. */
+  const small = moduleTooSmall(bytes, 'PCM', filename);
+  if (small) {
+    return {
+      ok: false, kind: 'PCM', size: bytes ? bytes.length : 0,
+      tooSmall: true, minSize: small.min, fileExt: small.ext, minLabel: small.label,
+      vinSlots: [], vin: null, vinConsistent: false,
+      currentVin: null, originalVin: null,
+      sec6: null, immoOk: false, immoDamaged: false,
+      variant: 'GPEC2A',
+      continentalPn: null, osPn: null, bodyPn: null,
+    };
+  }
   const r = {
     ok: false, kind: 'PCM', size: bytes.length,
     vinSlots: [], vin: null, vinConsistent: false,
@@ -675,8 +704,30 @@ function BcmCard({ parsed, pnOverride }) {
   );
 }
 
+function TooSmallCard({ parsed, moduleLabel, testid }) {
+  /* Shared rendering for RFHUB / PCM / 95640 undersized dumps — mirrors the
+   * BcmCard branch added for Task #370 so techs see the same wording, the
+   * same fields (size · required min · detected ext), and the same recovery
+   * guidance regardless of which slot the bad file landed in. */
+  return (
+    <div data-testid={testid} style={{ background: 'rgba(255,23,68,0.05)', borderRadius: 12, padding: 16, border: `2px solid ${C.er}`, gridColumn: '1 / -1' }}>
+      <div style={{ fontWeight: 900, fontSize: 13, letterSpacing: 1.2, textTransform: 'uppercase', color: C.er, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+        ⛔ This isn&apos;t a full {moduleLabel} dump
+        <Badge text="REJECTED" color={C.er} />
+      </div>
+      <Kv k="File size"   v={`${parsed.size.toLocaleString()} bytes`} mono color={C.er} />
+      <Kv k="Required min" v={`${parsed.minSize.toLocaleString()} bytes${parsed.minLabel ? ` (${parsed.minLabel})` : ''}`} mono />
+      <Kv k="Detected ext" v={parsed.fileExt || '(none)'} mono />
+      <div style={{ marginTop: 10, padding: '10px 12px', background: 'rgba(255,23,68,0.08)', border: `1px solid ${C.er}55`, borderRadius: 8, fontSize: 12, color: C.tx, lineHeight: 1.5, fontWeight: 600 }}>
+        Re-read the {moduleLabel} in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module.
+      </div>
+    </div>
+  );
+}
+
 function RfhCard({ parsed, pnOverride }) {
   if (!parsed) return null;
+  if (parsed.tooSmall) return <TooSmallCard parsed={parsed} moduleLabel="RFHUB" testid="rfh-too-small-card" />;
   const isVirgin = parsed.sec16?.virgin;
   const isMatch  = parsed.sec16?.match;
   let status = 'READY', statusColor = C.gn;
@@ -727,6 +778,7 @@ function RfhCard({ parsed, pnOverride }) {
 
 function PcmCard({ parsed, pnOverride }) {
   if (!parsed) return null;
+  if (parsed.tooSmall) return <TooSmallCard parsed={parsed} moduleLabel="PCM" testid="pcm-too-small-card" />;
   let status = 'READY', statusColor = C.gn;
   if (!parsed.ok)         { status = 'UNKNOWN';     statusColor = C.wn; }
   if (!parsed.immoOk)     { status = 'IMMO ✗';      statusColor = C.er; }
@@ -868,7 +920,22 @@ function ActionBtn({ title, desc, enabled, onClick, color }) {
  * The 95640 stores the SEC16 byte-reversed compared to the RFHUB SEC16, which
  * is why "Re-key 95640 from RFHUB" reverses the RFH SEC16 before writing.
  */
-function engParseEep95640(bytes) {
+export function engParseEep95640(bytes, filename) {
+  /* Reject files smaller than a canonical 95640 backup chip (8 KB). A
+   * truncated dump would silently miss the SEC16 region (0x838) and the
+   * VIN slots, so the inspector should refuse it up front — Task #372. */
+  const small = moduleTooSmall(bytes, '95640', filename);
+  if (small) {
+    return {
+      ok: false, kind: '95640', size: bytes ? bytes.length : 0,
+      tooSmall: true, minSize: small.min, fileExt: small.ext, minLabel: small.label,
+      vinSlots: [], vin: null, vinConsistent: false,
+      secretKey: null, secretKeyHex: null, secretKeyBlank: true,
+      bcmSec16: null, bcmSec16Hex: null, bcmSec16Blank: true,
+      bcmSec16StoredCrc: null, bcmSec16CalcCrc: null, bcmSec16CrcOk: false,
+      bcmSec16ReversedHex: null,
+    };
+  }
   const r = {
     ok: false, kind: '95640', size: bytes.length,
     vinSlots: [], vin: null, vinConsistent: false,
@@ -1102,11 +1169,15 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   }, [log, dumpsFiles]);
 
   const handleRfh = useCallback((file, bytes) => {
-    const parsed = engParseRfh(bytes);
+    const parsed = engParseRfh(bytes, file.name);
     const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
     setRfh({ file, bytes, parsed, pnOverride });
     setDiffRows([]); setOriginals(prev => ({ ...prev, rfh: null }));
     log(`Loaded RFHUB: ${file.name} (${bytes.length} bytes)`, 'info');
+    if (parsed.tooSmall) {
+      log(`  ✗ RFHUB file too small (${bytes.length} B, need ≥ ${parsed.minSize.toLocaleString()} B). Re-read the RFHUB in full or load the correct file.`, 'err');
+      return;
+    }
     if (pnOverride) log('  ⚠ RFHUB was loaded with P/N OVERRIDE on the Dumps tab — bypassed registry check', 'warn');
     if (parsed.ok) {
       log(`  RFHUB VIN: ${parsed.vin} · format: ${parsed.format}`, 'ok');
@@ -1117,11 +1188,15 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   }, [log, dumpsFiles]);
 
   const handlePcm = useCallback((file, bytes) => {
-    const parsed = engParsePcm(bytes);
+    const parsed = engParsePcm(bytes, file.name);
     const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
     setPcm({ file, bytes, parsed, pnOverride });
     setDiffRows([]); setOriginals(prev => ({ ...prev, pcm: null }));
     log(`Loaded PCM: ${file.name} (${bytes.length} bytes) · ${parsed.variant}`, 'info');
+    if (parsed.tooSmall) {
+      log(`  ✗ PCM file too small (${bytes.length} B, need ≥ ${parsed.minSize.toLocaleString()} B). Re-read the PCM in full or load the correct file.`, 'err');
+      return;
+    }
     if (pnOverride) log('  ⚠ PCM was loaded with P/N OVERRIDE on the Dumps tab — bypassed registry check', 'warn');
     if (parsed.vin)  log(`  PCM VIN: ${parsed.currentVin}${parsed.originalVin && parsed.originalVin !== parsed.currentVin ? ` (orig: ${parsed.originalVin})` : ''}`, parsed.ok ? 'ok' : 'warn');
     if (parsed.sec6) log(`  SEC6: ${parsed.sec6.bytes.map(hex2).join('').toUpperCase()} (marker ${parsed.sec6.marker})`, 'muted');
@@ -1129,10 +1204,14 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   }, [log, dumpsFiles]);
 
   const handleEep = useCallback((file, bytes) => {
-    const parsed = engParseEep95640(bytes);
+    const parsed = engParseEep95640(bytes, file.name);
     setEep({ file, bytes, parsed });
     setDiffRows([]); setOriginals(prev => ({ ...prev, eep: null }));
     log(`Loaded 95640: ${file.name} (${bytes.length} bytes)`, 'info');
+    if (parsed.tooSmall) {
+      log(`  ✗ 95640 file too small (${bytes.length} B, need ≥ ${parsed.minSize.toLocaleString()} B). Re-read the 95640 in full or load the correct file.`, 'err');
+      return;
+    }
     if (parsed.vin) log(`  95640 VIN: ${parsed.vin} · ${parsed.vinSlots.length} slot(s)`, 'ok');
     if (parsed.bcmSec16) {
       if (parsed.bcmSec16Blank) log(`  95640 BCM-SEC16 @0x838: BLANK (virgin)`, 'warn');
