@@ -12,6 +12,7 @@
  * copy 0x40C0 → 0x2000.
  * ========================================================================== */
 import React, { useState, useMemo, useCallback } from 'react';
+import { zipSync } from 'fflate';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
 import { identifyModule, runKeyProgPatch } from '../lib/keyProgWizard.js';
@@ -113,7 +114,12 @@ export default function KeyProgTab() {
 
   const downloadAll = () => {
     if (!result?.ok) return;
-    for (const f of result.files) dl(f.data, f.name);
+    const entries = {};
+    for (const f of result.files) {
+      entries[f.name] = f.data instanceof Uint8Array ? f.data : new Uint8Array(f.data);
+    }
+    const zipped = zipSync(entries, { level: 6 });
+    dl(zipped, 'KEYPROG_' + vin + '.zip');
   };
 
   return (
@@ -291,7 +297,7 @@ export default function KeyProgTab() {
               onClick={downloadAll}
               disabled={!result.ok}
               style={{ padding: '10px 20px', borderRadius: 10, fontWeight: 800, fontSize: 12, border: 'none', cursor: result.ok ? 'pointer' : 'not-allowed', background: result.ok ? C.sr : '#E8E4DE', color: result.ok ? '#fff' : C.tm }}>
-              ⬇ Download all {result.ok ? '(3 bins + VERIFY)' : '(blocked)'}
+              ⬇ Download all {result.ok ? '(ZIP: 3 bins + VERIFY)' : '(blocked)'}
             </button>
             {result.files.map((f) => (
               <button
