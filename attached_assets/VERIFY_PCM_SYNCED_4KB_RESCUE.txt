@@ -1,0 +1,23 @@
+PCM_SYNCED 4 KB rescue — VERIFY report (Task #378)
+==================================================
+Generated:   2026-04-23T05:37:54.482Z
+Tool:        artifacts/srt-lab/scripts/trim-pcm-to-4kb.mjs
+Trim policy: keep first 4096 bytes; require upper 4 KB to be all 0xFF
+VIN slots verified at: 0x0000, 0x01F0, 0x0224, 0x0CE0
+
+-- INPUT  PCM_SYNCED_2C3CDXGJ9KH633754_20260423_001321_1776921918474.bin
+   size:        8192 bytes
+   sha256:      69660c056d3e26aa4aeaa3ec581b120710870ffc69f4bed6cdb3f416627f453c
+   upper 4 KB:  all 0xFF (verified 4096 bytes)
+   VIN slots:   all 4 slots = 2C3CDXGJ9KH633754 [OK]
+-- OUTPUT PCM_SYNCED_2C3CDXGJ9KH633754_4KB_20260423_053754.bin
+   size:        4096 bytes
+   sha256:      054cf9a0f8b7ba8bdd31628f07a77205b72bff7f8bc5eff5382a571f590b88f3
+   VIN slots:   all 4 slots = 2C3CDXGJ9KH633754 [OK]
+   parity:      byte-identical to input bytes 0x0000..0x0FFF [OK]
+
+Status: PASS — 1 file(s) trimmed and verified.
+
+Next step: load each *_4KB_*.bin into the CGDI as the EXT EEPROM
+write target. The programmer will accept a 4 KB file because it
+matches the 95320 chip on the bench.
