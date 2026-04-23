@@ -744,7 +744,7 @@ function ApplyPanel({ bcm, rfh, pcm, bcmData, rfhData, pcmData }) {
         )}
       </div>
       <div style={{ marginTop: 8 }}><DownloadCounter assetId={ASSET_IDS.twinPaired}/></div>
-      {applied && applied !== "bcm→pcm-fail" && (
+      {(applied === "rfh→bcm" || applied === "bcm→rfh" || applied === "bcm→pcm") && (
         <div style={{ marginTop: 12, padding: "8px 14px", borderRadius: 8, background: C.gn + "10", fontSize: 12, fontWeight: 700, color: C.gn, border: `1px solid ${C.gn}30` }}>
           ✓ Twinned file downloaded —{" "}
           {{
