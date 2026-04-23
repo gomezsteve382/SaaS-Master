@@ -12,10 +12,10 @@ export const ASSET_IDS = {
   quickRefPdf:      "quick-ref-pdf",        // Quick Reference PDF
   j2534Bridge:      "j2534-bridge",         // j2534_bridge.py (J2534 Scanner)
   gpecUnlockedFw:   "gpec-unlocked-fw",     // GPEC firmware unlock tab
-  dumpsPatchedVin:  "dumps-patched-vin",    // DumpsTab — Patch VIN + Download
-  dumpsVirgin:      "dumps-virgin",         // DumpsTab — Virginize
-  dumpsRaw:         "dumps-raw",            // DumpsTab — Raw / Download original
-  dumpsImmoSync:    "dumps-immo-sync",      // DumpsTab — IMMO sync
+  dumpsPatchedVin:  "dumps-patched-vin",    // Dumps tab — Patch VIN + Download
+  dumpsVirgin:      "dumps-virgin",         // Dumps tab — Virginize
+  dumpsRaw:         "dumps-raw",            // Dumps tab — Raw / Download original
+  dumpsImmoSync:    "dumps-immo-sync",      // Dumps tab — IMMO sync
   benchPatchedVin:  "bench-patched-vin",    // BenchTab — Patch + Download All
   benchVirginRfh:   "bench-virgin-rfhub",   // BenchTab — Virginize RFHUB
   benchImmoSync:    "bench-immo-sync",      // BenchTab — Sync IMMO Backup
