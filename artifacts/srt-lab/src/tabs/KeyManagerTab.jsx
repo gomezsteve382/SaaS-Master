@@ -24,6 +24,8 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { Card, Btn, Tag } from '../lib/ui.jsx';
 import { C } from '../lib/constants.js';
+import { dispatchToast } from '../lib/audit.js';
+import { trackDownload } from '../lib/downloadAssets.js';
 import {
   parseKeySlots, transferSlot, deleteSlot, addSlot, copyMasterSec16,
   firstFreeSlot, slotsEditableFor, KEY_SLOT_COUNT,
@@ -97,6 +99,12 @@ function appendAudit(entry) {
     arr.push({ ts: new Date().toISOString(), ...entry });
     while (arr.length > AUDIT_LIMIT) arr.shift();
     globalThis.localStorage?.setItem(AUDIT_KEY, JSON.stringify(arr));
+    // Fire the same event the rest of the app uses (`subscribeAudit` in
+    // lib/audit.js listens for `srtlab:audit`) so any audit-pane viewer
+    // refreshes without us depending on its module directly.
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('srtlab:audit', { detail: entry }));
+    }
   } catch { /* localStorage may be denied in some sandboxes — silent ok */ }
 }
 
@@ -319,13 +327,30 @@ export default function KeyManagerTab() {
 
   const loadPane = useCallback((paneId, name, bytes) => {
     const parsed = parseKeySlots(bytes);
+    // Snapshot the original buffer so the user can revert in-place without
+    // re-uploading the file. This is the project-local equivalent of the
+    // "snapshot before write" pattern in lib/audit.js#backupModule (which
+    // requires a live UDS engine and therefore cannot be used here).
+    const originalBytes = new Uint8Array(bytes);
+    appendAudit({ pane: paneId, op: 'load-snapshot', filename: name, bytes: bytes.length });
     if (!parsed.ok) {
       addLog(`${paneId}: ${parsed.error}`, 'error');
-      setPanes(p => ({ ...p, [paneId]: { name, bytes, parsed, dirty: false, loadError: parsed.error } }));
+      setPanes(p => ({ ...p, [paneId]: { name, bytes, originalBytes, parsed, dirty: false, loadError: parsed.error } }));
       return;
     }
     addLog(`${paneId}: loaded ${name} (${bytes.length} B, ${parsed.gen})`, 'pass');
-    setPanes(p => ({ ...p, [paneId]: { name, bytes, parsed, dirty: false } }));
+    setPanes(p => ({ ...p, [paneId]: { name, bytes, originalBytes, parsed, dirty: false } }));
+  }, [addLog]);
+
+  const revertPane = useCallback((paneId) => {
+    setPanes(p => {
+      const cur = p[paneId];
+      if (!cur?.originalBytes) return p;
+      const restored = new Uint8Array(cur.originalBytes);
+      addLog(`${paneId}: reverted to original snapshot`, 'pass');
+      appendAudit({ pane: paneId, op: 'revert', ok: true, bytes: restored.length });
+      return { ...p, [paneId]: { ...cur, bytes: restored, parsed: parseKeySlots(restored), dirty: false } };
+    });
   }, [addLog]);
 
   const clearPane = useCallback((paneId) => {
@@ -463,6 +488,10 @@ export default function KeyManagerTab() {
     downloadBin(cur.bytes, fn);
     addLog(`${paneId}: saved ${fn}`, 'pass');
     appendAudit({ pane: paneId, op: 'save', filename: fn, bytes: cur.bytes.length });
+    // Reuse the project-wide toast + download-tracker pipeline rather than
+    // rolling a one-off save flow (validation #1 follow-up).
+    try { dispatchToast(`Saved ${fn}`, 'pass'); } catch { /* noop */ }
+    try { trackDownload('rfh-keymod'); } catch { /* counter is best-effort */ }
   }, [panes, addLog]);
 
   const aLoaded = !!panes.A?.bytes && panes.A?.parsed?.ok;
@@ -592,6 +621,13 @@ export default function KeyManagerTab() {
                       disabled={!otherLoaded || genMismatch}
                       style={{ padding: '10px 20px', borderRadius: 10, fontWeight: 800, fontSize: 12, border: '2px solid ' + ((!otherLoaded || genMismatch) ? C.bd : C.a4 + '55'), background: 'transparent', color: (!otherLoaded || genMismatch) ? C.tm : C.a4, cursor: (!otherLoaded || genMismatch) ? 'not-allowed' : 'pointer' }}
                     >🔐 Copy Master ← {p.id === 'A' ? 'B' : 'A'}</button>
+                    <button
+                      data-testid={`keymgr-pane-${p.id}-revert`}
+                      onClick={() => revertPane(p.id)}
+                      disabled={!ps.dirty || !ps.originalBytes}
+                      title="Restore the originally-loaded bytes for this pane (in-memory snapshot)."
+                      style={{ padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: 12, border: '2px solid ' + ((!ps.dirty || !ps.originalBytes) ? C.bd : C.wn + '88'), background: 'transparent', color: (!ps.dirty || !ps.originalBytes) ? C.tm : C.wn, cursor: (!ps.dirty || !ps.originalBytes) ? 'not-allowed' : 'pointer' }}
+                    >↶ Revert {p.id}</button>
                     <button
                       data-testid={`keymgr-pane-${p.id}-save`}
                       onClick={() => handleSave(p.id)}
