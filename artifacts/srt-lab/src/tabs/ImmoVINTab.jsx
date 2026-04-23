@@ -111,7 +111,7 @@ function applyRfhub(data, newVin) {
   return out;
 }
 
-function RFHSection() {
+function RFHSection({samplePair, onSamplePairLoaded}) {
   const [iFile, setIFile] = useState(null);
   const [iData, setIData] = useState(null);
   const [iResult, setIResult] = useState(null);
@@ -164,7 +164,7 @@ function RFHSection() {
 
       <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:8}}>PHASE 1 — INSPECT</div>
       <FileDropZone label="Drop 4KB RFHUB .bin file (24C32)" onFile={handleIFile} fileName={iFile?.name}/>
-      <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096,2048]} onFile={handleIFile} label="📦 Sample RFHUB EEE"/>
+      <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096,2048]} onFile={handleIFile} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample RFHUB EEE"/>
       {iErr && <div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:12,fontWeight:700}}>✗ {iErr}</div>}
       {iFile && !iErr && <div style={{marginTop:10}}><Btn onClick={()=>setIResult(parseRfhub(iData))} full color={C.sr}>🔍 Analyze File</Btn></div>}
 
@@ -226,7 +226,7 @@ function RFHSection() {
         <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY VIN</div>
         <div style={{fontSize:11,color:C.ts,marginBottom:8}}>Writes byte-reversed VIN to all 4 slots · Recalculates CRC8RF per slot</div>
         <FileDropZone label="Re-upload the same RFHUB .bin to patch (must be 4096B Gen2)" onFile={handleAFile} fileName={aFile?.name}/>
-        <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096]} onFile={handleAFile} label="📦 Sample RFHUB EEE"/>
+        <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096]} onFile={handleAFile} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample RFHUB EEE"/>
         <div style={{marginTop:10}}>
           <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN (17 chars)</div>
           <input value={newVin} maxLength={17} placeholder="Enter 17-character VIN"
@@ -306,7 +306,7 @@ function applyGpec2a(data, newVin, newKeyHex) {
   return out;
 }
 
-function GPECSection() {
+function GPECSection({samplePair, onSamplePairLoaded}) {
   const [iFile, setIFile] = useState(null);
   const [iData, setIData] = useState(null);
   const [iResult, setIResult] = useState(null);
@@ -361,7 +361,7 @@ function GPECSection() {
 
       <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:8}}>PHASE 1 — INSPECT</div>
       <FileDropZone label="Drop 4KB GPEC2A .bin file (95320)" onFile={handleIFile} fileName={iFile?.name}/>
-      <SamplePicker kinds={['GPEC_EXT']} acceptSizes={[4096]} onFile={handleIFile} label="📦 Sample GPEC2A EXT"/>
+      <SamplePicker kinds={['GPEC_EXT']} acceptSizes={[4096]} onFile={handleIFile} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample GPEC2A EXT"/>
       {iErr && <div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:12,fontWeight:700}}>✗ {iErr}</div>}
       {iFile && !iErr && <div style={{marginTop:10}}><Btn onClick={()=>setIResult(parseGpec2a(iData))} full color={C.sr}>🔍 Analyze File</Btn></div>}
 
@@ -433,7 +433,7 @@ function GPECSection() {
         <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY</div>
         <div style={{fontSize:11,color:C.ts,marginBottom:8}}>VIN written to all 3 slots (no CRC) · Key written to PRIMARY + MIRROR · Blank fields skipped</div>
         <FileDropZone label="Re-upload the same 4KB GPEC2A .bin to patch" onFile={handleAFile} fileName={aFile?.name}/>
-        <SamplePicker kinds={['GPEC_EXT']} acceptSizes={[4096]} onFile={handleAFile} label="📦 Sample GPEC2A EXT"/>
+        <SamplePicker kinds={['GPEC_EXT']} acceptSizes={[4096]} onFile={handleAFile} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample GPEC2A EXT"/>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginTop:10}}>
           <div>
             <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN — optional</div>
@@ -466,6 +466,10 @@ function GPECSection() {
 
 export default function ImmoVINTab() {
   const [pdfBusy, setPdfBusy] = useState(false);
+  // Lifted to the tab root so that loading a paired sample in the RFH section
+  // surfaces a "Load matching pair" hint in the GPEC section, and vice versa.
+  const [samplePair, setSamplePair] = useState(null);
+  const onSamplePairLoaded = useCallback(f => setSamplePair(f?.pair || null), []);
   const onPdf = async () => {
     if (pdfBusy) return;
     setPdfBusy(true);
@@ -484,8 +488,8 @@ export default function ImmoVINTab() {
           {pdfBusy?'⏳ Building...':'🖨 Print Reference'}
         </button>
       </div>
-      <RFHSection/>
-      <GPECSection/>
+      <RFHSection samplePair={samplePair} onSamplePairLoaded={onSamplePairLoaded}/>
+      <GPECSection samplePair={samplePair} onSamplePairLoaded={onSamplePairLoaded}/>
     </div>
   );
 }

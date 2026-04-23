@@ -16,6 +16,8 @@ function SecurityTab(){
   const[tr,setTr]=useState(null);const[flashList,setFlashList]=useState([]);const[keySrc,setKeySrc]=useState(-1);
   const[advanced,setAdvancedState]=useState(()=>loadAdvanced('security'));
   const[wizardOpen,setWizardOpen]=useState(false);
+  const[samplePair,setSamplePair]=useState(null);
+  const onSamplePairLoaded=useCallback(f=>setSamplePair(f?.pair||null),[]);
   const setAdvanced=v=>{setAdvancedState(v);saveAdvanced('security',v);};
 
   const addF=useCallback(fl=>{
@@ -177,6 +179,8 @@ function SecurityTab(){
       <SamplePicker
         kinds={['BCM','95640','GPEC_EXT','RFH_EEE','SMARTBOX']}
         onFile={f=>addF([f])}
+        onLoaded={onSamplePairLoaded}
+        suggestedPair={samplePair}
         label="📦 Load a sample dump from the fixture catalog"
       />
     </div>

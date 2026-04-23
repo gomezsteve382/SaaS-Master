@@ -752,6 +752,11 @@ export default function TwinTab() {
   const [inspected, setInspected] = useState(false);
   const [previewPaired, setPreviewPaired] = useState(false);
 
+  // Track the `pair` key of the most recently loaded sample fixture so
+  // sibling SamplePickers can offer a one-click "Load matching pair" hint.
+  const [samplePair, setSamplePair] = useState(null);
+  const onSamplePairLoaded = useCallback(f => setSamplePair(f?.pair || null), []);
+
   const loadFile = useCallback((f, setter, dataSetter) => {
     const r = new FileReader();
     r.onload = ev => {
@@ -850,7 +855,7 @@ export default function TwinTab() {
               onFile={f => loadFile(f, setBcmFile, setBcmData)}
               fileName={bcmFile?.name}
             />
-            <SamplePicker kinds={['BCM']} acceptSizes={[65536]} onFile={f => loadFile(f, setBcmFile, setBcmData)} label="📦 Sample BCM"/>
+            <SamplePicker kinds={['BCM']} acceptSizes={[65536]} onFile={f => loadFile(f, setBcmFile, setBcmData)} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample BCM"/>
           </div>
           <div>
             <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>RFH file (.bin/.eprom)</div>
@@ -861,7 +866,7 @@ export default function TwinTab() {
               onFile={f => loadFile(f, setRfhFile, setRfhData)}
               fileName={rfhFile?.name}
             />
-            <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096]} onFile={f => loadFile(f, setRfhFile, setRfhData)} label="📦 Sample RFH"/>
+            <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096]} onFile={f => loadFile(f, setRfhFile, setRfhData)} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample RFH"/>
           </div>
           <div>
             <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>PCM file — optional (.bin)</div>
@@ -871,7 +876,7 @@ export default function TwinTab() {
               onFile={f => loadFile(f, setPcmFile, setPcmData)}
               fileName={pcmFile?.name}
             />
-            <SamplePicker kinds={['GPEC_EXT']} acceptSizes={[4096,8192,16384]} onFile={f => loadFile(f, setPcmFile, setPcmData)} label="📦 Sample PCM"/>
+            <SamplePicker kinds={['GPEC_EXT']} acceptSizes={[4096,8192,16384]} onFile={f => loadFile(f, setPcmFile, setPcmData)} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample PCM"/>
           </div>
         </div>
 
