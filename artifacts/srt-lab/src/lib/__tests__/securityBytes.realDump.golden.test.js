@@ -73,14 +73,20 @@ function expectBytesEqual(actual, expected, label) {
   // pair is missing from the manifest. That way a partial commit (e.g.
   // BCM triple only) still validates what's there.
 
+  // Each pair carries its own effective `rfhSec16` (per-pair override in
+  // the manifest, or the top-level default). That lets the manifest mix
+  // pairs from different captured vehicles (e.g. the primary BCM is from
+  // VIN A while the rfhub/pcm/secondary-BCM triple is from VIN B) without
+  // forcing a shared SEC16.
+
   const bcmDescribe = fixtures.bcm ? describe : describe.skip;
-  bcmDescribe('writeBcmSec16Gen2 — real BCM dump', () => {
+  bcmDescribe('writeBcmSec16Gen2 — real BCM dump (primary)', () => {
     if (!fixtures.bcm) {
       it.skip('no BCM before/after pair in manifest', () => {});
       return;
     }
     it('produces the captured "after" BCM bytes from the captured "before" BCM bytes', () => {
-      const r = writeBcmSec16Gen2(fixtures.bcm.before, fixtures.rfhSec16);
+      const r = writeBcmSec16Gen2(fixtures.bcm.before, fixtures.bcm.rfhSec16);
       expectBytesEqual(r.bytes, fixtures.bcm.after, 'BCM');
       // Sanity: the writer must have actually patched something — a no-op
       // would also satisfy bytewise equality only if before === after, in
@@ -92,6 +98,29 @@ function expectBytesEqual(actual, expected, label) {
     });
   });
 
+  // Secondary BCM pairs (different VIN than the primary). Each entry gets
+  // its own suite so a regression points at the specific pair.
+  const extraBcms = Array.isArray(fixtures.extraBcms) ? fixtures.extraBcms : [];
+  (extraBcms.length > 0 ? describe : describe.skip)(
+    'writeBcmSec16Gen2 — real BCM dump (secondary VINs)',
+    () => {
+      if (extraBcms.length === 0) {
+        it.skip('no secondary BCM pairs in manifest', () => {});
+        return;
+      }
+      extraBcms.forEach((pair, idx) => {
+        it(`extraBcm[${idx}]: round-trips byte-for-byte`, () => {
+          const r = writeBcmSec16Gen2(pair.before, pair.rfhSec16);
+          expectBytesEqual(r.bytes, pair.after, `BCM[${idx}]`);
+          expect(
+            r.splitPatched + r.mirrorPatched,
+            `extraBcm[${idx}] writer reported zero patches — fixture identical`,
+          ).toBeGreaterThan(0);
+        });
+      });
+    },
+  );
+
   const rfhubDescribe = fixtures.rfhub ? describe : describe.skip;
   rfhubDescribe('writeRfhSec16FromBcm — real RFHUB dump', () => {
     if (!fixtures.rfhub) {
@@ -102,7 +131,7 @@ function expectBytesEqual(actual, expected, label) {
       // BCM SEC16 = reverse(RFH SEC16). The writer expects the BCM-form
       // input (it reverses internally to recover the RFH form).
       const bcmSec16 = new Uint8Array(16);
-      for (let i = 0; i < 16; i++) bcmSec16[i] = fixtures.rfhSec16[15 - i];
+      for (let i = 0; i < 16; i++) bcmSec16[i] = fixtures.rfhub.rfhSec16[15 - i];
       const r = writeRfhSec16FromBcm(fixtures.rfhub.before, bcmSec16);
       expectBytesEqual(r.bytes, fixtures.rfhub.after, 'RFHUB');
       expect(
@@ -119,7 +148,7 @@ function expectBytesEqual(actual, expected, label) {
       return;
     }
     it('produces the captured "after" PCM bytes from the captured "before" PCM bytes', () => {
-      const r = writePcmSec6(fixtures.pcm.before, fixtures.rfhSec16);
+      const r = writePcmSec6(fixtures.pcm.before, fixtures.pcm.rfhSec16);
       expectBytesEqual(r.bytes, fixtures.pcm.after, 'PCM');
       expect(
         r.patched,

@@ -39,8 +39,10 @@ realDumps/
 
 ```jsonc
 {
-  // Hex string of the 16-byte RFH SEC16 captured for this bench run.
-  // This is the input fed into all three writers.
+  // Default 16-byte RFH SEC16 (hex). Used by any pair entry that does not
+  // carry its own `rfhSec16Hex` override. Required at the top level so
+  // the loader can validate the manifest even when only the primary BCM
+  // is wired.
   "rfhSec16Hex": "0123456789abcdef0123456789abcdef",
 
   // Optional human-readable provenance — anonymized vehicle/year/source so
@@ -49,10 +51,21 @@ realDumps/
 
   // For each module: the "before" dump fed into the writer, and the "after"
   // dump the writer's output is compared against. Paths are relative to
-  // this directory.
+  // this directory. Each entry MAY override `rfhSec16Hex` when the pair
+  // was captured from a different vehicle than the top-level default
+  // (e.g. the rfhub/pcm/extraBcms triple lives on a different VIN than
+  // the primary BCM pair).
   "bcm":   { "before": "bcm.before.bin",   "after": "bcm.after.bin"   },
-  "rfhub": { "before": "rfhub.before.bin", "after": "rfhub.after.bin" },
-  "pcm":   { "before": "pcm.before.bin",   "after": "pcm.after.bin"   }
+  "rfhub": { "before": "rfhub.before.bin", "after": "rfhub.after.bin", "rfhSec16Hex": "..." },
+  "pcm":   { "before": "pcm.before.bin",   "after": "pcm.after.bin",   "rfhSec16Hex": "..." },
+
+  // Optional list of additional BCM before/after pairs (different VINs
+  // than the primary). Each entry has the same shape as the top-level
+  // `bcm` slot. The securityBytes round-trip suite asserts each pair
+  // round-trips byte-for-byte through writeBcmSec16Gen2.
+  "extraBcms": [
+    { "before": "bcm2.before.bin", "after": "bcm2.after.bin", "rfhSec16Hex": "...", "source": "..." }
+  ]
 }
 ```
 
@@ -100,16 +113,48 @@ RFH form). If the writer ever drifts away from the algorithm an actual
 SINCRO/ArmandoQS sync used on this real bench, the comparison fails
 with a focused first-mismatch diff.
 
-### What's NOT yet committed (manifest skip slots)
+### Real-bench triple for VIN `2C3CDXCT1HH600000` (anonymized)
 
-- **RFHUB** (`writeRfhSec16FromBcm`): the only available real RFHUB
-  sample is `SAMPLE_RFH_SYNCED_VIRGIN_*` whose SEC16 slots are wiped to
-  `0xFF`. We have no captured "synced" RFHUB to compare against, so the
-  RFHUB pair is omitted from the manifest and that suite skips.
-- **PCM** (`writePcmSec6`): no real PCM dump is available in the
-  repository. Drop one in here (with the captured RFH SEC16 matching
-  the manifest's `rfhSec16Hex`) and add a `"pcm"` entry to the manifest
-  to activate that suite.
+Wired in Task #423 — a real-bench triple captured from a single 2020
+6.2 Charger Redeye sync run. The VIN was scrubbed everywhere it appears
+in plaintext (forward in BCM/PCM, byte-reversed in the RFHUB Gen2 slots
+@ 0xEA5/0xEB9/0xECD/0xEE1). Source filenames are recorded in
+`manifest.json#source` strings so provenance can be retraced.
+
+The captured RFH SEC16 (shared by all three modules of this triple) is
+`81 65 31 f7 cd e3 2e 33 c2 5a 41 5c 84 40 c7 2a`, recorded as the
+per-pair `rfhSec16Hex` override on the `rfhub`/`pcm`/`extraBcms[0]`
+entries. The pre-existing primary BCM pair keeps using the top-level
+`rfhSec16Hex` (`86fa72…ded`) since it was captured from a different
+vehicle (anonymized VIN `2C3CDXL90MH582899`).
+
+- **`rfhub.before.bin` / `rfhub.after.bin`** — Gen2 RFHUB (24C32, 4 KB)
+  from `attached_assets/RFH_20CHRGR6.2_KEYPROG_2C3CDXCT1HH652640.bin`.
+  `before` has the two Gen2 SEC16 slots @ 0x050E and 0x0522 (16 B SEC16
+  + 2 B CS each) erased to 0xFF; `after` is the captured synced image.
+  Test: `lib/__tests__/rfhubGen2.realDump.golden.test.js`
+  (closes follow-ups for #408 / #412).
+
+- **`pcm.before.bin` / `pcm.after.bin`** — Continental GPEC2A (95320,
+  4 KB) from
+  `attached_assets/PCM_FCA_CONTINENTAL_GPEC2A_4KB_KEYPROG_2C3CDXCT1HH652640.bin`.
+  `before` has the marker @ 0x3C4..0x3C7 and SEC6 @ 0x3C8..0x3CD erased
+  to 0xFF; `after` is the captured synced image with the canonical
+  `FF FF FF AA` marker + `81 65 31 f7 cd e3` SEC6.
+  Test: `lib/__tests__/pcmSec6.realDump.golden.test.js`
+  (closes follow-up for #406, complements `pcmSec6.fullFileRoundTrip`
+  which uses synthetic fixtures).
+
+- **`bcm2.before.bin` / `bcm2.after.bin`** — BCM (MPC5606B DFLASH, 64 KB)
+  from `attached_assets/BCM_22CHARGER_REDEYE_6.2_KEYPROG_2C3CDXCT1HH652640.bin`,
+  same vehicle as the rfhub/pcm pair above. `before` has the writer-
+  target bytes erased to 0xFF: split records @ 0x81A0/C0/E0
+  (+9..+15 prefix7, +20..+28 suffix9) and the inactive-bank mirror
+  records @ 0x40C0 (slot 0xEB / size 0x18) and 0x40E8 (slot 0xCA /
+  size 0x28) at +8..+31. Headers + separators left intact so the
+  writer's matchers fire. Wired through `extraBcms[0]` and asserted by
+  the existing `securityBytes.realDump.golden.test.js` suite (closes
+  the second-VIN gap for #420).
 
 ## Anonymization checklist
 

@@ -33,20 +33,27 @@ function hexToBytes(hex) {
 }
 
 /* Resolve and read a single before/after pair. Returns null if either file
- * is missing or unreadable. */
-function loadPair(entry) {
+ * is missing or unreadable. Each pair carries its own effective `rfhSec16`
+ * — either the per-pair `rfhSec16Hex` override from the manifest entry or,
+ * if absent, the top-level default (`fallbackSec16`). */
+function loadPair(entry, fallbackSec16) {
   if (!entry || typeof entry !== 'object') return null;
   const { before, after } = entry;
   if (typeof before !== 'string' || typeof after !== 'string') return null;
   const beforePath = join(HERE, before);
   const afterPath  = join(HERE, after);
   if (!existsSync(beforePath) || !existsSync(afterPath)) return null;
+  const perPairSec16 = hexToBytes(entry.rfhSec16Hex);
+  const rfhSec16 = (perPairSec16 && perPairSec16.length === 16) ? perPairSec16 : fallbackSec16;
+  if (!rfhSec16 || rfhSec16.length !== 16) return null;
   try {
     return {
       before: new Uint8Array(readFileSync(beforePath)),
       after:  new Uint8Array(readFileSync(afterPath)),
       beforePath,
       afterPath,
+      rfhSec16,
+      source: typeof entry.source === 'string' ? entry.source : undefined,
     };
   } catch {
     return null;
@@ -55,14 +62,17 @@ function loadPair(entry) {
 
 /* Public entry point. Returns:
  *   {
- *     rfhSec16: Uint8Array(16),
+ *     rfhSec16: Uint8Array(16),    // top-level default
  *     source: string | undefined,
- *     bcm:   { before, after, beforePath, afterPath } | null,
- *     rfhub: { before, after, beforePath, afterPath } | null,
- *     pcm:   { before, after, beforePath, afterPath } | null,
+ *     bcm:   { before, after, beforePath, afterPath, rfhSec16, source? } | null,
+ *     rfhub: { before, after, beforePath, afterPath, rfhSec16, source? } | null,
+ *     pcm:   { before, after, beforePath, afterPath, rfhSec16, source? } | null,
+ *     extraBcms: Array<{ before, after, beforePath, afterPath, rfhSec16, source? }>,
  *   }
  * or null if the manifest itself is missing / malformed / lacks a usable
- * 16-byte RFH SEC16. */
+ * 16-byte top-level RFH SEC16. Per-pair entries may carry their own
+ * `rfhSec16Hex` override (e.g. when the rfhub/pcm/extraBcm pair was
+ * captured from a different vehicle than the primary BCM pair). */
 export function loadRealDumpFixtures() {
   if (!existsSync(MANIFEST_PATH)) return null;
   let manifest;
@@ -74,11 +84,16 @@ export function loadRealDumpFixtures() {
   if (!manifest || typeof manifest !== 'object') return null;
   const rfhSec16 = hexToBytes(manifest.rfhSec16Hex);
   if (!rfhSec16 || rfhSec16.length !== 16) return null;
+  const extras = Array.isArray(manifest.extraBcms) ? manifest.extraBcms : [];
+  const extraBcms = extras
+    .map(e => loadPair(e, rfhSec16))
+    .filter(Boolean);
   return {
     rfhSec16,
     source: typeof manifest.source === 'string' ? manifest.source : undefined,
-    bcm:   loadPair(manifest.bcm),
-    rfhub: loadPair(manifest.rfhub),
-    pcm:   loadPair(manifest.pcm),
+    bcm:   loadPair(manifest.bcm,   rfhSec16),
+    rfhub: loadPair(manifest.rfhub, rfhSec16),
+    pcm:   loadPair(manifest.pcm,   rfhSec16),
+    extraBcms,
   };
 }
