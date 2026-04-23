@@ -79,8 +79,22 @@ export default function SampleLibraryTab({ onPreview }) {
     setBusy(f.file); setErr(""); setMsg("");
     try {
       const file = await loadFixtureAsFile(f.file);
-      if (onPreview) onPreview(file, KIND_TAB[f.kind] || "dumps", f);
-      setMsg("Loaded " + f.file + " into " + (KIND_LABEL[f.kind] || f.kind) + " workspace");
+      // The workspace `loadF` (Task #376) returns a structured result so
+      // we can surface the same "this isn't a full <module> dump" feedback
+      // inline whenever a fragment fixture is selected from the catalog,
+      // instead of silently switching tabs to an empty workspace.
+      const result = onPreview ? await onPreview(file, KIND_TAB[f.kind] || "dumps", f) : null;
+      if (result && result.rejected && result.rejected.length) {
+        const r = result.rejected[0];
+        setErr(
+          "⛔ This isn't a full " + r.type + " dump — " + r.name +
+          " is " + r.size.toLocaleString() + " bytes (need " +
+          r.min.toLocaleString() + " bytes, " + r.label +
+          "). The fixture was not loaded into the workspace."
+        );
+      } else {
+        setMsg("Loaded " + f.file + " into " + (KIND_LABEL[f.kind] || f.kind) + " workspace");
+      }
     } catch (ex) {
       setErr(ex.message || String(ex));
     } finally {

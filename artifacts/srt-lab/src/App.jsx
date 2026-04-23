@@ -33,7 +33,7 @@ import { writeBcmSec16Gen2, writePcmSec6 } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
 import KeyProgTab from "./tabs/KeyProgTab";
 import MismatchWizard from "./components/MismatchWizard.jsx";
-import {parseModule, typeFromFilename, moduleTooSmall} from "./lib/parseModule.js";
+import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType} from "./lib/parseModule.js";
 import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
 import {VEHICLES,VEHICLE_LIST,KNOWN_BCM_PN,vehiclesForPartNumber,analyzeDumpPartNumber,generationForPartNumber} from "./lib/vehicles.js";
@@ -1185,18 +1185,44 @@ function VehicleWorkspace({vehicleId, onBack}){
   const [files, setFiles] = useState([]);
   const [workspaceWizardOpen, setWorkspaceWizardOpen] = useState(false);
   const {addDump} = useContext(MasterVinContext);
-  const loadF = useCallback(fl=>{
-    Promise.all(Array.from(fl).map(f=>new Promise(r=>{
+  // Shared workspace upload entry point (Task #376). Every tab that hands
+  // the user a file — Dumps tab, Samples Library, future entry points —
+  // funnels through this `loadF`, which:
+  //   1. Reads the raw bytes off the File handle.
+  //   2. Detects the intended module via `detectModuleType` (slot context
+  //      first, then filename, then signature). `slotType` is optional and
+  //      authoritative when present.
+  //   3. Refuses anything `moduleTooSmall` would reject — fragments, EEPROM
+  //      slices, wrong-module dumps — so undersized files never land in
+  //      the workspace as ghost UNKNOWN entries.
+  // Returns a Promise resolving to `{acceptedFiles, rejected}` so callers
+  // (e.g. the Samples Library `onPreview` wrapper) can surface the same
+  // structured "this isn't a full <module> dump" feedback inline.
+  const loadF = useCallback((fl, slotType) => {
+    const fileList = Array.from(fl||[]);
+    if (fileList.length === 0) return Promise.resolve({acceptedFiles:[], rejected:[]});
+    return Promise.all(fileList.map(f=>new Promise(r=>{
       const rd=new FileReader();
-      rd.onload=e=>r({name:f.name,data:new Uint8Array(e.target.result)});
+      rd.onload=e=>r({name:f.name,file:f,data:new Uint8Array(e.target.result)});
       rd.readAsArrayBuffer(f);
-    }))).then(res=>{
-      const analyzed=res.map(x=>analyzeFile(x.data,x.name));
-      setFiles(p=>[...p,...analyzed]);
-      res.forEach(x=>{
-        const parsed=parseModule(x.data,x.name);
-        if(parsed&&parsed.type&&parsed.type.toUpperCase()!=='UNKNOWN')addDump(parsed);
-      });
+    }))).then(reads=>{
+      const accepted=[];
+      const rejected=[];
+      for (const x of reads) {
+        const t = detectModuleType(x.data, x.name, slotType);
+        const small = t ? moduleTooSmall(x.data, t, x.name) : null;
+        if (small) rejected.push({name:x.name, ...small});
+        else accepted.push(x);
+      }
+      if (accepted.length){
+        const analyzed=accepted.map(x=>analyzeFile(x.data,x.name));
+        setFiles(p=>[...p,...analyzed]);
+        accepted.forEach(x=>{
+          const parsed=parseModule(x.data,x.name);
+          if(parsed&&parsed.type&&parsed.type.toUpperCase()!=='UNKNOWN')addDump(parsed);
+        });
+      }
+      return {acceptedFiles: accepted.map(x=>x.file), rejected};
     });
   },[addDump]);
 
@@ -1250,7 +1276,18 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='obd'       && <LiveObdTab vehicle={vehicle}/>}
         {tab==='skim'      && <SkimTab vehicle={vehicle}/>}
         {tab==='info'      && <InfoTab vehicle={vehicle}/>}
-        {tab==='samples'   && <SampleLibraryTab onPreview={(file, targetTab)=>{ loadF([file]); setTab(targetTab || 'dumps'); }}/>}
+        {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
+          // Funnel through the shared workspace `loadF` so the same
+          // upload-time size guard that protects the Dumps tab also
+          // catches undersized fixtures here (Task #376). Only switch
+          // tabs when the fixture actually made it into the workspace —
+          // otherwise stay on the Samples Library so the user sees the
+          // structured rejection feedback inline.
+          const result = await loadF([file]);
+          if (result.rejected && result.rejected.length) return result;
+          setTab(targetTab || 'dumps');
+          return result;
+        }}/>}
       </div>
 
       {/* ── Workspace-level Mismatch Wizard ── */}
@@ -1277,47 +1314,33 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   const [err, setErr] = useState('');
   const [rejected, setRejected] = useState([]);
 
-  // Detect the intended module type for an upload-time size check. Slot
-  // context wins (each `UploadSlot` already names the module the user
-  // dropped the file into), then filename hints, then `parseModule`'s
-  // size-based detection. Slot context is required for fragments with
-  // generic names (e.g. `dump.bin`) that would otherwise be classified
-  // UNKNOWN and slip past `moduleTooSmall` (Task #373).
-  const detectIntendedType = useCallback((bytes, name, slotType) => {
-    if (slotType) return slotType;
-    const u = (name||'').toUpperCase();
-    if (/(?:^|[^A-Z])PCM(?:[^A-Z]|$)/.test(u)) return 'PCM';
-    const fn = typeFromFilename(name);
-    if (fn) return fn;
-    try { const p = parseModule(bytes, name); return p && p.type ? p.type : null; }
-    catch { return null; }
-  }, []);
-
-  // Shared upload gate: rejects undersized module files before they enter
-  // the workspace (and get auto-shared with per-tab inspectors). Accepted
-  // files still flow through the upstream `loadF`. `slotType` is the
-  // module the user dropped the file into (BCM / RFHUB / PCM) and is
-  // authoritative when present.
-  const gatedLoadF = useCallback((fl, slotType) => {
+  // Slot-aware upload gate. The `UploadSlot` controls below name the
+  // module the user dropped the file into (BCM / RFHUB / PCM); the
+  // workspace-level `loadF` also runs `detectModuleType` + `moduleTooSmall`
+  // for any path that omits slot context, but we still need the slot-aware
+  // pre-check here so a generic-named fragment (`dump.bin`) dropped into
+  // the RFHUB slot is rejected with the right module label and the
+  // standalone DumpsTabV2 test harness — which mocks `loadF` — keeps its
+  // upload-time guard (Task #373 + #376).
+  const gatedLoadF = useCallback(async (fl, slotType) => {
     const fileList = Array.from(fl||[]);
     if (fileList.length === 0) return;
-    Promise.all(fileList.map(f => new Promise(r => {
+    const reads = await Promise.all(fileList.map(f => new Promise(r => {
       const rd = new FileReader();
       rd.onload = e => r({name: f.name, file: f, bytes: new Uint8Array(e.target.result)});
       rd.readAsArrayBuffer(f);
-    }))).then(reads => {
-      const accepted = [];
-      const rejects = [];
-      for (const x of reads) {
-        const t = detectIntendedType(x.bytes, x.name, slotType);
-        const small = t ? moduleTooSmall(x.bytes, t, x.name) : null;
-        if (small) rejects.push({name: x.name, ...small});
-        else accepted.push(x.file);
-      }
-      if (rejects.length) setRejected(prev => [...prev, ...rejects]);
-      if (accepted.length) loadF(accepted);
-    });
-  }, [loadF, detectIntendedType]);
+    })));
+    const accepted = [];
+    const rejects = [];
+    for (const x of reads) {
+      const t = detectModuleType(x.bytes, x.name, slotType);
+      const small = t ? moduleTooSmall(x.bytes, t, x.name) : null;
+      if (small) rejects.push({name: x.name, ...small});
+      else accepted.push(x.file);
+    }
+    if (rejects.length) setRejected(prev => [...prev, ...rejects]);
+    if (accepted.length) loadF(accepted, slotType);
+  }, [loadF]);
   const vinBad = tv && !VIN_REGEX.test(tv);
   const vinGood = tv && VIN_REGEX.test(tv);
 

@@ -79,6 +79,23 @@ function bcmTooSmall(bytes,filename){
   return{tooSmall:true,size:sz,min:BCM_MIN_SIZE,ext:fileExt(filename)};
 }
 
+// Slot-aware module type detection used by every workspace upload entry
+// point (DumpsTabV2 slot uploads + the shared `loadF` that backs the
+// Samples Library and any future tab). Slot context wins, then explicit
+// PCM filename hints, then `typeFromFilename`, then `parseModule`'s
+// size/signature fallback. Centralized here so the upload-time size
+// guard stays consistent regardless of which tab triggered the upload
+// (Task #376).
+function detectModuleType(bytes,name,slotType){
+  if(slotType)return slotType;
+  const u=(name||'').toUpperCase();
+  if(/(?:^|[^A-Z])PCM(?:[^A-Z]|$)/.test(u))return'PCM';
+  const fn=typeFromFilename(name);
+  if(fn)return fn;
+  try{const p=parseModule(bytes,name);return p&&p.type?p.type:null;}
+  catch{return null;}
+}
+
 function typeFromFilename(name){
   if(!name)return null;
   const u=String(name).toUpperCase();
@@ -422,4 +439,4 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall};
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType};
