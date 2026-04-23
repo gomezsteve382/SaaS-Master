@@ -74,6 +74,7 @@ function buildVerifyText({
   bcmSrcSha, bcmOutSha, rfhSrcSha, rfhOutSha, pcmSrcSha, pcmOutSha,
   before, after, bcmAfterInfo, rfhAfterInfo, pcmAfterInfo,
   bcmPatched, promoteBank, ok, failedChecks = [],
+  pcmChip, pcmSliced,
 }) {
   const lines = [];
   lines.push('Cluster key-prog patch — VERIFY report');
@@ -120,9 +121,19 @@ function buildVerifyText({
     lines.push('   SEC16 slot1 (= shared secret BE): ' + rfhAfterInfo.sec16s[0].hex.toUpperCase());
   }
   lines.push('');
-  lines.push('-- PCM ' + pcmName + '  (PASS-THROUGH)');
+  // Task #379: surface the actual chip-mode resolution in the operator
+  // report. When the wizard sliced an 8 KB doubled capture down to 4 KB
+  // for a 95320 bench, the PCM output is NOT byte-identical to the source
+  // and the report must say so.
+  const pcmModeTag = pcmSliced
+    ? '  (SLICED 8KB → 4KB for ' + (pcmChip?.chip || '95320') + ')'
+    : pcmChip ? '  (PASS-THROUGH, ' + pcmChip.chip + ')' : '  (PASS-THROUGH)';
+  const pcmShaTag = pcmSliced
+    ? '  [first 4 KB of source]'
+    : '  [identical]';
+  lines.push('-- PCM ' + pcmName + pcmModeTag);
   lines.push('   src SHA-256: ' + pcmSrcSha);
-  lines.push('   out SHA-256: ' + pcmOutSha + '  [identical]');
+  lines.push('   out SHA-256: ' + pcmOutSha + pcmShaTag);
   if (pcmAfterInfo?.vins?.length) {
     lines.push('   Full VINs:');
     for (const v of pcmAfterInfo.vins) lines.push('     ' + fO(v.offset) + '  ' + v.vin);
@@ -377,6 +388,7 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
     after: { bcmFullVins: afterBcmFullVins, bcmPartials: afterBcmPartials },
     bcmAfterInfo, rfhAfterInfo, pcmAfterInfo, bcmPatched, promoteBank,
     ok: allOk, failedChecks: checks.filter((c) => !c.pass),
+    pcmChip: pcmRes.chip, pcmSliced: pcmRes.sliced,
   });
 
   return {
