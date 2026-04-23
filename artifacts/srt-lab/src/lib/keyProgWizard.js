@@ -76,6 +76,63 @@ function bytesEqualRange(a, b, start, end) {
   return { ok: true };
 }
 
+/* Task #386 — single source of truth for the BCM SEC16 provenance badge
+ * shown both in the Key Prog wizard UI (KeyProgTab.jsx) and in the
+ * downloadable VERIFY.txt report. Returns the badge label, raw offset, the
+ * blank flag, the BE hex string, and (for virgin dumps) the explainer
+ * paragraph. Returns null when no resolver result is available. */
+export function formatBcmSec16Provenance(bcmSec16) {
+  if (!bcmSec16) return null;
+  const off = bcmSec16.offset;
+  const offHex = (n) => (n == null
+    ? '0x????'
+    : '0x' + n.toString(16).toUpperCase().padStart(4, '0'));
+  let label;
+  if (bcmSec16.source === 'split') label = 'split @' + offHex(off);
+  else if (bcmSec16.source === 'mirror1') label = 'mirror1 0xEB @' + offHex(off);
+  else if (bcmSec16.source === 'mirror2') label = 'mirror2 0xCA @' + offHex(off);
+  else if (bcmSec16.source === 'flat') label = 'flat @0x40C9 (legacy)';
+  else label = '(no SEC16 source)';
+  const hex = bcmSec16.bytes
+    ? Array.from(bcmSec16.bytes).map(hex2).join(' ')
+    : null;
+  const beHex = bcmSec16.bytes
+    ? Array.from(bcmSec16.bytes).reverse().map(hex2).join('')
+    : null;
+  const virginExplainer = 'This BCM looks virgin — every SEC16 candidate '
+    + '(split records @0x81A0/0x81C0/0x81E0, mirror1 0xEB, mirror2 0xCA, '
+    + 'and the legacy flat slice @0x40C9) is all 0xFF / 0x00, so there\'s '
+    + 'no shared secret to derive. The download buttons stay disabled '
+    + 'until you load a BCM that has actually been paired to a vehicle. '
+    + '(A bench-fresh module dump will look like this.)';
+  return {
+    source: bcmSec16.source || null,
+    label,
+    offset: off ?? null,
+    offsetHex: off == null ? null : offHex(off),
+    blank: !!bcmSec16.blank,
+    hex,
+    beHex,
+    virginExplainer,
+  };
+}
+
+function wrapParagraph(text, indent, width = 78) {
+  const words = text.split(/\s+/);
+  const lines = [];
+  let line = indent;
+  for (const w of words) {
+    if (line.length + w.length + 1 > width && line.trim().length > 0) {
+      lines.push(line.trimEnd());
+      line = indent + w;
+    } else {
+      line += (line === indent ? '' : ' ') + w;
+    }
+  }
+  if (line.trim().length > 0) lines.push(line.trimEnd());
+  return lines;
+}
+
 function buildVerifyText({
   vin, sharedSecret, bcmName, rfhName, pcmName,
   bcmSrcSha, bcmOutSha, rfhSrcSha, rfhOutSha, pcmSrcSha, pcmOutSha,
@@ -124,6 +181,25 @@ function buildVerifyText({
   lines.push('   Bank0 seq @0x0002:           ' + hex2(bcmPatched[0x0002]) + ' ' + hex2(bcmPatched[0x0003]) + '  [unchanged]');
   lines.push('   Bank1 seq @0x4002:           ' + hex2(bcmPatched[0x4002]) + ' ' + hex2(bcmPatched[0x4003]) + '  [unchanged]');
   lines.push('');
+  // Task #386 — promote the SEC16 provenance badge from the wizard UI into
+  // the archived report so a locksmith opening a saved ZIP can see *why*
+  // the wizard derived a given shared secret without re-loading the BCM.
+  const prov = formatBcmSec16Provenance(bcmAfterInfo?.bcmSec16);
+  if (prov) {
+    lines.push('-- BCM SEC16 source');
+    lines.push('   Source:    ' + prov.label);
+    if (prov.offsetHex) lines.push('   Offset:    ' + prov.offsetHex);
+    lines.push('   Blank:     ' + (prov.blank ? 'yes  [BLANK / virgin]' : 'no'));
+    if (prov.blank) {
+      lines.push('');
+      for (const ln of wrapParagraph(prov.virginExplainer, '   ')) {
+        lines.push(ln);
+      }
+    } else if (prov.beHex) {
+      lines.push('   Bytes (BE): ' + prov.beHex);
+    }
+    lines.push('');
+  }
   lines.push('-- RFH ' + rfhName + '  (PASS-THROUGH)');
   lines.push('   src SHA-256: ' + rfhSrcSha);
   lines.push('   out SHA-256: ' + rfhOutSha + '  [identical]');
@@ -425,4 +501,4 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
   };
 }
 
-export { sha256Hex, BCM_FORBIDDEN, IMMO_BACKUP_SIZE, deriveSharedSecretBE };
+export { sha256Hex, BCM_FORBIDDEN, IMMO_BACKUP_SIZE, deriveSharedSecretBE, buildVerifyText };

@@ -15,7 +15,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { zipSync } from 'fflate';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
-import { identifyModule, runKeyProgPatch, sha256Hex } from '../lib/keyProgWizard.js';
+import { identifyModule, runKeyProgPatch, sha256Hex, formatBcmSec16Provenance } from '../lib/keyProgWizard.js';
 import {
   loadPresets, savePreset, deletePreset, hydratePreset,
 } from '../lib/keyProgPresets.js';
@@ -99,32 +99,10 @@ export default function KeyProgTab() {
     if (!files.BCM) return null;
     const id = identifyModule(files.BCM.data, files.BCM.name);
     if (id.role !== 'BCM') return null;
-    const res = id.info?.bcmSec16;
-    if (!res) return null;
-    const fO = (n) => (n == null
-      ? '0x????'
-      : '0x' + n.toString(16).toUpperCase().padStart(4, '0'));
-    let label;
-    if (res.source === 'split') {
-      label = 'split @' + fO(res.offset);
-    } else if (res.source === 'mirror1') {
-      label = 'mirror1 0xEB @' + fO(res.offset);
-    } else if (res.source === 'mirror2') {
-      label = 'mirror2 0xCA @' + fO(res.offset);
-    } else if (res.source === 'flat') {
-      label = 'flat @0x40C9 (legacy)';
-    } else {
-      label = '(no SEC16 source)';
-    }
-    return {
-      source: res.source,
-      offset: res.offset,
-      blank: !!res.blank,
-      label,
-      hex: res.bytes
-        ? Array.from(res.bytes).map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ')
-        : null,
-    };
+    // Task #386 — share the badge formatter with the VERIFY report so the
+    // archived ZIP and the live wizard never disagree on what the SEC16
+    // source / offset / blank flag was.
+    return formatBcmSec16Provenance(id.info?.bcmSec16);
   }, [files.BCM]);
 
   const handleLoadPreset = useCallback((id) => {
