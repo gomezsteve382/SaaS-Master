@@ -19,6 +19,9 @@ import { identifyModule, runKeyProgPatch, sha256Hex, formatBcmSec16Provenance } 
 import {
   loadPresets, savePreset, deletePreset, hydratePreset,
 } from '../lib/keyProgPresets.js';
+import {
+  loadArchives, recordArchive, deleteArchive, clearArchives,
+} from '../lib/keyProgArchiveHistory.js';
 
 const ROLE_LABEL = { BCM: 'BCM (D-FLASH)', RFH: 'RFHUB (EEE)', PCM: 'PCM (GPEC2A)' };
 const ROLE_ORDER = ['BCM', 'RFH', 'PCM'];
@@ -144,6 +147,100 @@ export function KeyProgZipSummaryCard({ zipSummary, onDismiss }) {
   );
 }
 
+/* Task #392 — saved-archive history card. Each row carries the BCM SEC16
+ * source line (split / mirror1 / mirror2 / flat / virgin) so a locksmith
+ * scanning past sessions can see how the shared secret was derived without
+ * re-opening each ZIP. Exported so the test suite can render it in
+ * isolation against seeded archive records. */
+export function KeyProgSavedArchivesCard({ archives, onDelete, onClear }) {
+  return (
+    <Card style={{ marginBottom: 14, padding: 18 }} data-testid="keyprog-archive-history-card">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <div style={{ fontSize: 10, fontWeight: 800, color: C.sr, letterSpacing: 2 }}>
+          SAVED ARCHIVES
+        </div>
+        <span style={{ fontSize: 10, color: C.tm }}>
+          history of every ZIP you've downloaded — newest first
+        </span>
+      </div>
+      {(!archives || archives.length === 0) ? (
+        <div
+          data-testid="keyprog-archive-history-empty"
+          style={{ fontSize: 11, color: C.tm, fontStyle: 'italic' }}>
+          No archives saved yet. Download a Key Prog ZIP and it will appear here.
+        </div>
+      ) : (
+        <div data-testid="keyprog-archive-history-list" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {archives.map((a) => {
+            const sec16 = a.bcmSec16;
+            const blank = !!sec16?.blank;
+            return (
+              <div
+                key={a.id}
+                data-testid={'keyprog-archive-row-' + a.id}
+                data-sec16-source={sec16?.source || 'none'}
+                data-sec16-blank={blank ? '1' : '0'}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+                  padding: '8px 12px', border: '1px solid ' + C.bd, borderRadius: 8,
+                  background: C.c2,
+                }}>
+                <div style={{ flex: 1, minWidth: 220 }}>
+                  <div
+                    data-testid={'keyprog-archive-row-name-' + a.id}
+                    style={{ fontSize: 12, fontWeight: 800, color: C.tx, fontFamily: "'JetBrains Mono'", wordBreak: 'break-all' }}>
+                    {a.zipName || '(unnamed.zip)'}
+                  </div>
+                  <div style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", marginTop: 2 }}>
+                    VIN <span data-testid={'keyprog-archive-row-vin-' + a.id} style={{ color: C.ts }}>{a.vin || '(unknown)'}</span>
+                    {' · '}
+                    <span data-testid={'keyprog-archive-row-time-' + a.id}>
+                      {a.savedAt ? new Date(a.savedAt).toLocaleString() : '(no timestamp)'}
+                    </span>
+                  </div>
+                  <div
+                    data-testid={'keyprog-archive-row-sec16-' + a.id}
+                    style={{
+                      marginTop: 4, fontSize: 10, fontWeight: 700,
+                      color: blank ? C.wn : (sec16?.source ? C.gn : C.tm),
+                    }}>
+                    BCM SEC16 source: {sec16?.label || '(no SEC16 source)'}
+                    {blank ? '  [BLANK / virgin]' : ''}
+                  </div>
+                </div>
+                <button
+                  data-testid={'keyprog-archive-row-delete-' + a.id}
+                  onClick={() => onDelete?.(a.id)}
+                  title="Remove this archive from history"
+                  style={{
+                    padding: '6px 12px', borderRadius: 6, fontSize: 11,
+                    border: '1px solid ' + C.bd, background: 'transparent',
+                    color: C.tm, cursor: 'pointer',
+                  }}>
+                  ✕
+                </button>
+              </div>
+            );
+          })}
+          {archives.length > 1 && onClear && (
+            <button
+              data-testid="keyprog-archive-history-clear"
+              onClick={onClear}
+              style={{
+                alignSelf: 'flex-end', marginTop: 4, padding: '4px 10px',
+                fontSize: 10, fontWeight: 800, color: C.er, background: 'transparent',
+                border: '1px solid ' + C.bd, borderRadius: 4, cursor: 'pointer',
+                letterSpacing: 1,
+              }}>
+              CLEAR HISTORY
+            </button>
+          )}
+        </div>
+      )}
+    </Card>
+  );
+}
+
 export default function KeyProgTab() {
   const [files, setFiles] = useState({ BCM: null, RFH: null, PCM: null });
   const [vin, setVin] = useState('');
@@ -155,8 +252,22 @@ export default function KeyProgTab() {
   const [presetMsg, setPresetMsg] = useState(null);
   const [loadedPreset, setLoadedPreset] = useState(null);
   const [dismissedPresetNote, setDismissedPresetNote] = useState(null);
+  const [archives, setArchives] = useState([]);
 
   useEffect(() => { setPresets(loadPresets()); }, []);
+  useEffect(() => { setArchives(loadArchives()); }, []);
+
+  const handleDeleteArchive = useCallback((id) => {
+    setArchives(deleteArchive(id));
+  }, []);
+
+  const handleClearArchives = useCallback(() => {
+    if (typeof window !== 'undefined' && window.confirm
+        && !window.confirm('Clear the entire saved-archive history? This cannot be undone.')) {
+      return;
+    }
+    setArchives(clearArchives());
+  }, []);
 
   const trioReady = !!(files.BCM && files.RFH && files.PCM);
 
@@ -296,6 +407,7 @@ export default function KeyProgTab() {
     const zipped = zipSync(entries, { level: 6 });
     const zipName = 'KEYPROG_' + vin + '.zip';
     dl(zipped, zipName);
+    const at = new Date().toISOString();
     setZipSummary({
       zipName,
       zipSize: zipped.length,
@@ -305,8 +417,16 @@ export default function KeyProgTab() {
       // side can spot a split-vs-flat-vs-virgin mismatch without opening
       // VERIFY.txt.
       bcmSec16: bcmSec16Status,
-      at: new Date().toISOString(),
+      at,
     });
+    // Task #392 — append to the saved-archive history so the per-row SEC16
+    // source line in the SAVED ARCHIVES card stays in sync with what was
+    // just downloaded. Newest first.
+    recordArchive({ vin, zipName, bcmSec16: bcmSec16Status, savedAt: at });
+    // Re-read from storage so the in-memory list always matches the
+    // persisted, MAX_ARCHIVES-capped log instead of growing unbounded
+    // during long bench sessions.
+    setArchives(loadArchives());
   };
 
   // Clear the post-download summary whenever inputs change so it always
@@ -596,6 +716,12 @@ export default function KeyProgTab() {
           )}
         </div>
       </Card>
+
+      <KeyProgSavedArchivesCard
+        archives={archives}
+        onDelete={handleDeleteArchive}
+        onClear={handleClearArchives}
+      />
 
       {dismissedPresetNote && (
         <div
