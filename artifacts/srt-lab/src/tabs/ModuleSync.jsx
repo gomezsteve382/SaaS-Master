@@ -2186,6 +2186,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           warnings={wizardWarnings}
           modules={wizardModules}
           hexSnippets={wizardHexSnippets}
+          bcmSec16Status={bcm.parsed?.bcmSec16 || null}
           onClose={() => setWizardOpen(false)}
           onAction={(actionId, _stepId, opts) => {
             return doSync(

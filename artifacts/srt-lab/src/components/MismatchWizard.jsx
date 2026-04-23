@@ -205,8 +205,82 @@ function parseSnippet(s) {
   return { label: s.slice(0, colon).trim(), hex: s.slice(colon + 2).trim() };
 }
 
+/* ─── BCM SEC16 provenance label (Task #383) ───────────────────────────────
+ * Mirrors the chip rendered by KeyProgTab so operators see the same source
+ * (split / mirror1 / mirror2 / flat / blank) wherever the wizard displays
+ * BCM SEC16 bytes. `status` is the resolved bcmSec16 record from
+ * parseModule (info.bcmSec16): { source, offset, blank, ... }. Returns
+ * null when there's no BCM loaded so callers can branch easily. */
+function formatBcmSec16SourceLabel(status) {
+  if (!status) return null;
+  const fO = (n) => (n == null
+    ? '0x????'
+    : '0x' + n.toString(16).toUpperCase().padStart(4, '0'));
+  let label;
+  if (status.source === 'split') label = 'split @' + fO(status.offset);
+  else if (status.source === 'mirror1') label = 'mirror1 0xEB @' + fO(status.offset);
+  else if (status.source === 'mirror2') label = 'mirror2 0xCA @' + fO(status.offset);
+  else if (status.source === 'flat') label = 'flat @0x40C9 (legacy)';
+  else label = '(no SEC16 source)';
+  return label;
+}
+
+/* Inline chip badge that surfaces SEC16 provenance next to BCM SEC16 hex
+ * rows inside the Mismatch Wizard. Yellow-toned when the BCM looks virgin
+ * (every candidate blank), green-toned for live records, neutral when
+ * nothing was resolved. Kept compact so it sits in line with field labels. */
+function BcmSec16SourceBadge({ status, testid }) {
+  const label = formatBcmSec16SourceLabel(status);
+  if (!label) return null;
+  const isBlank = !!status?.blank;
+  const color = isBlank ? W.wn : W.gn;
+  return (
+    <span
+      data-testid={testid || 'wizard-bcm-sec16-source-badge'}
+      data-sec16-source={status?.source || 'none'}
+      data-sec16-blank={isBlank ? '1' : '0'}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4,
+        fontFamily: W.sans, fontSize: 9, fontWeight: 800,
+        letterSpacing: 0.5, textTransform: 'uppercase',
+        color, background: color + '1A',
+        border: `1px solid ${color}55`,
+        borderRadius: 6, padding: '1px 6px',
+      }}>
+      SEC16 · {label}
+      {isBlank && (
+        <span style={{
+          background: W.wn, color: '#000', fontSize: 8, fontWeight: 800,
+          padding: '0 4px', borderRadius: 3, marginLeft: 2, letterSpacing: 0.5,
+        }}>BLANK</span>
+      )}
+    </span>
+  );
+}
+
+/* Plain-English explainer shown when the BCM is virgin / blank — mirrors
+ * the Key Prog wizard copy so operators understand that a "copy RFH SEC16
+ * → BCM SEC16" suggestion is writing into a virgin cluster. */
+function BcmSec16VirginExplainer({ testid }) {
+  return (
+    <div
+      data-testid={testid || 'wizard-bcm-sec16-virgin-explainer'}
+      style={{
+        marginTop: 8, padding: '8px 10px', borderRadius: 6,
+        border: `1px solid ${W.wn}55`, background: W.wn + '14',
+        fontSize: 11, color: W.tx, lineHeight: 1.5,
+      }}>
+      <strong style={{ color: W.wn }}>Virgin BCM:</strong> every SEC16 candidate
+      (split records @0x81A0/C0/E0, mirror1 0xEB, mirror2 0xCA, and the legacy
+      flat slice @0x40C9) is all 0xFF / 0x00. The wizard is about to write the
+      RFHUB secret into a blank cluster — that's expected for a bench-fresh BCM,
+      but verify the donor RFHUB is correct before flashing.
+    </div>
+  );
+}
+
 /* ─── Hex Diff Card ─── */
-function HexDiffCard({ step, hexSnippets }) {
+function HexDiffCard({ step, hexSnippets, bcmSec16Status }) {
   if (!hexSnippets || hexSnippets.length === 0) return null;
 
   const filters = step.hexFilter || [];
@@ -251,10 +325,14 @@ function HexDiffCard({ step, hexSnippets }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {[{ ...rfh, side: 'a' }, { ...bcm, side: 'b' }].map(({ label, hex, side }) => {
             const bytes = diffBytes(rfh.hex, bcm.hex);
+            const isBcmRow = label.toUpperCase().includes('BCM SEC16');
             return (
               <div key={side}>
-                <div style={{ fontSize: 10, color: side === 'a' ? W.a2 : W.a3, fontWeight: 800, marginBottom: 4 }}>
-                  {label}
+                <div style={{ fontSize: 10, color: side === 'a' ? W.a2 : W.a3, fontWeight: 800, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  <span>{label}</span>
+                  {isBcmRow && bcmSec16Status && (
+                    <BcmSec16SourceBadge status={bcmSec16Status} testid="wizard-hexdiff-bcm-sec16-source-badge" />
+                  )}
                 </div>
                 <div style={{
                   fontFamily: W.mono, fontSize: 9.5, lineHeight: 1.8,
@@ -277,21 +355,37 @@ function HexDiffCard({ step, hexSnippets }) {
           })}
         </div>
       ) : (
-        parsed.map((p, i) => (
-          <div key={i} style={{ marginBottom: 6 }}>
-            <div style={{ fontSize: 10, color: W.a2, fontWeight: 800, marginBottom: 3 }}>{p.label}</div>
-            <div style={{
-              fontFamily: W.mono, fontSize: 9.5, color: W.ts, lineHeight: 1.8,
-              wordBreak: 'break-all', letterSpacing: 1,
-            }}>{hexStr(p.hex)}</div>
-          </div>
-        ))
+        parsed.map((p, i) => {
+          const isBcmRow = p.label.toUpperCase().includes('BCM SEC16');
+          return (
+            <div key={i} style={{ marginBottom: 6 }}>
+              <div style={{ fontSize: 10, color: W.a2, fontWeight: 800, marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                <span>{p.label}</span>
+                {isBcmRow && bcmSec16Status && (
+                  <BcmSec16SourceBadge status={bcmSec16Status} testid="wizard-hexdiff-bcm-sec16-source-badge" />
+                )}
+              </div>
+              <div style={{
+                fontFamily: W.mono, fontSize: 9.5, color: W.ts, lineHeight: 1.8,
+                wordBreak: 'break-all', letterSpacing: 1,
+              }}>{hexStr(p.hex)}</div>
+            </div>
+          );
+        })
       )}
 
       {hasDiff && (
         <div style={{ fontSize: 10, color: W.er, marginTop: 6 }}>
           ● <span style={{ fontFamily: W.mono }}>red bytes</span> = mismatch between modules
         </div>
+      )}
+
+      {/* Task #383 — surface BCM virgin explainer when the wizard is about to
+       * write into a blank cluster. Only shows when the relevant rows
+       * actually include BCM SEC16 so we don't leak BCM context into
+       * unrelated VIN-only steps. */}
+      {bcmSec16Status?.blank && parsed.some(p => p.label.toUpperCase().includes('BCM SEC16')) && (
+        <BcmSec16VirginExplainer testid="wizard-hexdiff-bcm-virgin-explainer" />
       )}
     </div>
   );
@@ -969,7 +1063,7 @@ function formatRealRows(rows) {
 }
 
 /* ─── In-wizard action result banner with before/after diff ─── */
-function ActionResult({ actionId, hexSnippets, patchRows, onContinue }) {
+function ActionResult({ actionId, hexSnippets, patchRows, onContinue, bcmSec16Status }) {
   /* Prefer real rows from doSync; fall back to computed prediction */
   const diffs = useMemo(() => {
     const real = formatRealRows(patchRows);
@@ -987,9 +1081,16 @@ function ActionResult({ actionId, hexSnippets, patchRows, onContinue }) {
           <div style={{ fontSize: 10, fontWeight: 800, color: W.ts, letterSpacing: 1, marginBottom: 6 }}>
             BYTE DIFF — BEFORE → AFTER
           </div>
-          {diffs.map(d => (
+          {diffs.map(d => {
+            const isBcmRow = (d.field || '').toUpperCase().includes('BCM SEC16');
+            return (
             <div key={d.field} style={{ marginBottom: 8 }}>
-              <div style={{ fontSize: 10, color: W.a2, fontWeight: 800, marginBottom: 3 }}>{d.field}</div>
+              <div style={{ fontSize: 10, color: W.a2, fontWeight: 800, marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                <span>{d.field}</span>
+                {isBcmRow && bcmSec16Status && (
+                  <BcmSec16SourceBadge status={bcmSec16Status} testid="wizard-actionresult-bcm-sec16-source-badge" />
+                )}
+              </div>
               {d.type === 'str' ? (
                 <div style={{ fontFamily: W.mono, fontSize: 11 }}>
                   <div><span style={{ color: W.er }}>− </span><span style={{ color: W.er }}>{d.before}</span></div>
@@ -1016,7 +1117,11 @@ function ActionResult({ actionId, hexSnippets, patchRows, onContinue }) {
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
+          {bcmSec16Status?.blank && diffs.some(d => (d.field || '').toUpperCase().includes('BCM SEC16')) && (
+            <BcmSec16VirginExplainer testid="wizard-actionresult-bcm-virgin-explainer" />
+          )}
         </div>
       )}
 
@@ -1032,7 +1137,7 @@ function ActionResult({ actionId, hexSnippets, patchRows, onContinue }) {
 }
 
 /* ─── Step card ─── */
-function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onAction, done, skipped, onMarkDone, onSkip }) {
+function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onAction, done, skipped, onMarkDone, onSkip, bcmSec16Status }) {
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
   const [appliedAction, setAppliedAction] = useState(null);
   const [patchRows, setPatchRows] = useState(null);
@@ -1081,7 +1186,7 @@ function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onActi
       </div>
 
       {/* Hex diff card — shows byte context before any action */}
-      <HexDiffCard step={step} hexSnippets={hexSnippets} />
+      <HexDiffCard step={step} hexSnippets={hexSnippets} bcmSec16Status={bcmSec16Status} />
 
       <div style={{ fontSize: 12, color: W.ts, marginBottom: 12, lineHeight: 1.6 }}>{step.guidance}</div>
 
@@ -1119,7 +1224,7 @@ function WizardStepCard({ step, stepNum, total, stepActions, hexSnippets, onActi
         </div>
       )}
 
-      {appliedAction && !done && <ActionResult actionId={appliedAction} hexSnippets={hexSnippets} patchRows={patchRows} onContinue={() => onMarkDone(step.id)} />}
+      {appliedAction && !done && <ActionResult actionId={appliedAction} hexSnippets={hexSnippets} patchRows={patchRows} onContinue={() => onMarkDone(step.id)} bcmSec16Status={bcmSec16Status} />}
 
       {!appliedAction && !done && !skipped && (
         <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
@@ -1640,6 +1745,10 @@ export default function MismatchWizard({
   onAction,
   stepActions = [],
   sessionKey,
+  /* Task #383 — resolved BCM SEC16 provenance (info.bcmSec16 from
+   * parseModule). Used to render the same source chip / virgin explainer
+   * shown in KeyProgTab next to BCM SEC16 hex rows in the wizard. */
+  bcmSec16Status = null,
 }) {
   const [phase, setPhase] = useState('summary');
   const [currentStep, setCurrentStep] = useState(0);
@@ -1798,6 +1907,7 @@ export default function MismatchWizard({
                   total={steps.length}
                   stepActions={stepActions}
                   hexSnippets={hexSnippets}
+                  bcmSec16Status={bcmSec16Status}
                   onAction={handleAction}
                   done={doneSteps.has(steps[currentStep].id)}
                   skipped={skippedSteps.has(steps[currentStep].id)}
