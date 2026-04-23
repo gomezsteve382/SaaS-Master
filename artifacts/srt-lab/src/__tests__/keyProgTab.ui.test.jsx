@@ -113,6 +113,64 @@ describe('KeyProgTab UI (Task #343)', () => {
     expect(afterCells.length).toBeGreaterThanOrEqual(4);
   });
 
+  it('shows a ZIP summary (filenames, byte sizes, SHA-256) after Download all (Task #352)', async () => {
+    const { unzipSync } = await import('fflate');
+    const { createHash } = await import('node:crypto');
+
+    // Capture the bytes the dl() helper hands to the browser.
+    let capturedZip = null;
+    const realCreateObjectURL = globalThis.URL.createObjectURL;
+    globalThis.URL.createObjectURL = (blob) => {
+      blob.arrayBuffer().then((buf) => { capturedZip = new Uint8Array(buf); });
+      return 'blob:stub';
+    };
+    globalThis.URL.revokeObjectURL = () => {};
+    // Stub the anchor click so we don't try to actually navigate.
+    const realCreateElement = document.createElement.bind(document);
+    document.createElement = (tag) => {
+      const el = realCreateElement(tag);
+      if (tag === 'a') el.click = () => {};
+      return el;
+    };
+
+    try {
+      render(<KeyProgTab />);
+      await uploadInto('keyprog-slot-bcm-input', loadFile(SRC_BCM));
+      await uploadInto('keyprog-slot-rfh-input', loadFile(SRC_RFH));
+      await uploadInto('keyprog-slot-pcm-input', loadFile(SRC_PCM));
+      await setVin(TARGET_VIN);
+      await waitFor(() => expect(screen.getByTestId('keyprog-download-all')).toBeTruthy());
+
+      // No summary before clicking Download all.
+      expect(screen.queryByTestId('keyprog-zip-summary')).toBeNull();
+
+      const dlAll = screen.getByTestId('keyprog-download-all');
+      await act(async () => { fireEvent.click(dlAll); });
+
+      // Summary panel must appear with one row per ZIP entry.
+      await waitFor(() => expect(screen.getByTestId('keyprog-zip-summary')).toBeTruthy());
+
+      // Wait for the captured ZIP from the blob promise.
+      await waitFor(() => expect(capturedZip).not.toBeNull());
+      const unpacked = unzipSync(capturedZip);
+      const entryNames = Object.keys(unpacked);
+      expect(entryNames.length).toBeGreaterThan(0);
+
+      // Each row's SHA-256 must match the bytes actually packaged into the ZIP.
+      const table = screen.getByTestId('keyprog-zip-summary-table');
+      for (let i = 0; i < entryNames.length; i++) {
+        const shaCell = within(table).getByTestId('keyprog-zip-summary-sha-' + i);
+        const rowName = within(table).getByTestId('keyprog-zip-summary-row-' + i)
+          .querySelector('td').textContent;
+        const expected = createHash('sha256').update(unpacked[rowName]).digest('hex');
+        expect(shaCell.textContent.trim()).toBe(expected);
+      }
+    } finally {
+      globalThis.URL.createObjectURL = realCreateObjectURL;
+      document.createElement = realCreateElement;
+    }
+  });
+
   it('disables download when promoteBank is on (forbidden region check fails)', async () => {
     render(<KeyProgTab />);
     await uploadInto('keyprog-slot-bcm-input', loadFile(SRC_BCM));

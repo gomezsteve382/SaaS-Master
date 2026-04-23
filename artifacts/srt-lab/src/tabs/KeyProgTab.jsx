@@ -15,7 +15,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { zipSync } from 'fflate';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
-import { identifyModule, runKeyProgPatch } from '../lib/keyProgWizard.js';
+import { identifyModule, runKeyProgPatch, sha256Hex } from '../lib/keyProgWizard.js';
 import {
   loadPresets, savePreset, deletePreset, hydratePreset,
 } from '../lib/keyProgPresets.js';
@@ -77,6 +77,7 @@ export default function KeyProgTab() {
   const [vin, setVin] = useState('');
   const [promoteBank, setPromoteBank] = useState(false);
   const [unknownDrops, setUnknownDrops] = useState([]);
+  const [zipSummary, setZipSummary] = useState(null);
   const [presets, setPresets] = useState([]);
   const [presetName, setPresetName] = useState('');
   const [presetMsg, setPresetMsg] = useState(null);
@@ -150,15 +151,32 @@ export default function KeyProgTab() {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
 
-  const downloadAll = () => {
+  const downloadAll = async () => {
     if (!result?.ok) return;
     const entries = {};
+    const summaryEntries = [];
     for (const f of result.files) {
-      entries[f.name] = f.data instanceof Uint8Array ? f.data : new Uint8Array(f.data);
+      const bytes = f.data instanceof Uint8Array ? f.data : new Uint8Array(f.data);
+      entries[f.name] = bytes;
+      // SHA-256 over the actual bytes written into the archive
+      // eslint-disable-next-line no-await-in-loop
+      const hash = await sha256Hex(bytes);
+      summaryEntries.push({ name: f.name, size: bytes.length, sha256: hash });
     }
     const zipped = zipSync(entries, { level: 6 });
-    dl(zipped, 'KEYPROG_' + vin + '.zip');
+    const zipName = 'KEYPROG_' + vin + '.zip';
+    dl(zipped, zipName);
+    setZipSummary({
+      zipName,
+      zipSize: zipped.length,
+      entries: summaryEntries,
+      at: new Date().toISOString(),
+    });
   };
+
+  // Clear the post-download summary whenever inputs change so it always
+  // reflects the most recent ZIP the user actually downloaded.
+  useEffect(() => { setZipSummary(null); }, [files, vin, promoteBank]);
 
   return (
     <div data-testid="keyprog-wizard">
@@ -445,6 +463,57 @@ export default function KeyProgTab() {
             ))}
           </div>
         </Card></div>
+      )}
+
+      {zipSummary && (
+        <div data-testid="keyprog-zip-summary">
+          <Card style={{ marginBottom: 14, padding: 18 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <Tag color={C.gn}>📦 ZIP DOWNLOADED</Tag>
+              <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono'", color: C.tx, fontWeight: 700 }}>
+                {zipSummary.zipName}
+              </span>
+              <span style={{ fontSize: 10, color: C.tm }}>
+                ({(zipSummary.zipSize / 1024).toFixed(1)} KB · {zipSummary.entries.length} entries)
+              </span>
+              <button
+                onClick={() => setZipSummary(null)}
+                data-testid="keyprog-zip-summary-dismiss"
+                style={{ marginLeft: 'auto', background: 'none', border: '1px solid ' + C.bd, color: C.tm, padding: '4px 10px', borderRadius: 6, fontSize: 10, cursor: 'pointer' }}>
+                ✕ Dismiss
+              </button>
+            </div>
+            <div style={{ fontSize: 11, color: C.ts, marginBottom: 8, lineHeight: 1.5 }}>
+              Verify these SHA-256 hashes against the bench tool after flashing.
+            </div>
+            <table
+              data-testid="keyprog-zip-summary-table"
+              style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: "'JetBrains Mono'" }}>
+              <thead>
+                <tr style={{ color: C.tm, textAlign: 'left' }}>
+                  <th style={{ padding: '4px 6px' }}>File</th>
+                  <th style={{ padding: '4px 6px', textAlign: 'right' }}>Bytes</th>
+                  <th style={{ padding: '4px 6px' }}>SHA-256</th>
+                </tr>
+              </thead>
+              <tbody>
+                {zipSummary.entries.map((e, i) => (
+                  <tr key={e.name} data-testid={'keyprog-zip-summary-row-' + i}>
+                    <td style={{ padding: '3px 6px', color: C.tx, wordBreak: 'break-all' }}>{e.name}</td>
+                    <td style={{ padding: '3px 6px', color: C.tm, textAlign: 'right' }}>
+                      {e.size.toLocaleString()}
+                    </td>
+                    <td
+                      data-testid={'keyprog-zip-summary-sha-' + i}
+                      style={{ padding: '3px 6px', color: C.a3, wordBreak: 'break-all' }}>
+                      {e.sha256}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+        </div>
       )}
 
       {!result && (
