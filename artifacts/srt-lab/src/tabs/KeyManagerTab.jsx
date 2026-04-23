@@ -114,6 +114,7 @@ function bytesToHex(arr) { return Array.from(arr).map(hex2).join(' '); }
 
 function FileDropPane({ pane, paneState, onLoad, onClear }) {
   const inputRef = useRef(null);
+  const [hovering, setHovering] = useState(false);
   const onPick = useCallback((files) => {
     if (!files || !files[0]) return;
     const f = files[0];
@@ -125,15 +126,28 @@ function FileDropPane({ pane, paneState, onLoad, onClear }) {
     r.readAsArrayBuffer(f);
   }, [pane.id, onLoad]);
 
+  const onDragOver = useCallback((e) => { e.preventDefault(); e.stopPropagation(); setHovering(true); }, []);
+  const onDragLeave = useCallback((e) => { e.preventDefault(); e.stopPropagation(); setHovering(false); }, []);
+  const onDrop = useCallback((e) => {
+    e.preventDefault(); e.stopPropagation(); setHovering(false);
+    const dt = e.dataTransfer; if (!dt) return;
+    onPick(dt.files);
+  }, [onPick]);
+
   if (!paneState?.bytes) {
     return (
       <div
         data-testid={`keymgr-pane-${pane.id}-drop`}
         style={{
-          border: '2px dashed ' + C.bd, borderRadius: 12, padding: 22,
-          background: C.c2, textAlign: 'center', cursor: 'pointer',
+          border: '2px dashed ' + (hovering ? pane.color : C.bd), borderRadius: 12, padding: 22,
+          background: hovering ? '#FFFCF2' : C.c2, textAlign: 'center', cursor: 'pointer',
+          transition: 'border-color 0.15s, background 0.15s',
         }}
         onClick={() => inputRef.current?.click()}
+        onDragOver={onDragOver}
+        onDragEnter={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
       >
         <div style={{ fontSize: 11, fontWeight: 800, color: pane.color, letterSpacing: 1.5 }}>
           {pane.label}
@@ -366,14 +380,28 @@ export default function KeyManagerTab() {
       appendAudit({ pane: paneId, op: label, ok: false, error: result.error });
       return false;
     }
+    let actuallyChanged = false;
     setPanes(p => {
       const cur = p[paneId];
       if (!cur) return p;
+      // Tightened "dirty" gating — compare pre/post buffers byte-for-byte and
+      // only flip dirty (which enables the Save download) when the writer
+      // actually moved bytes. Stops a no-op AA-50 mark on an already-empty
+      // slot from enabling a meaningless download (validation #2 follow-up).
+      const same = cur.bytes.length === result.bytes.length
+        && cur.bytes.every((b, i) => b === result.bytes[i]);
+      actuallyChanged = !same;
+      if (same) return p;
       return { ...p, [paneId]: { ...cur, bytes: result.bytes, parsed: reparse(result.bytes), dirty: true } };
     });
-    addLog(`${paneId} · ${label} ok (patched=${result.patched ?? '?'})`, 'pass');
-    appendAudit({ pane: paneId, op: label, ok: true, patched: result.patched ?? 0 });
-    return true;
+    if (actuallyChanged) {
+      addLog(`${paneId} · ${label} ok (patched=${result.patched ?? '?'})`, 'pass');
+      appendAudit({ pane: paneId, op: label, ok: true, patched: result.patched ?? 0 });
+    } else {
+      addLog(`KEYMOD REFUSED · ${paneId} · ${label}: no-op (writer returned identical bytes)`, 'warn');
+      appendAudit({ pane: paneId, op: label, ok: false, error: 'no-op (identical bytes)' });
+    }
+    return actuallyChanged;
   }, [addLog, reparse]);
 
   const handleDelete = useCallback((paneId, idx) => {
@@ -393,6 +421,16 @@ export default function KeyManagerTab() {
     const src = panes[srcId]; const dst = panes[dstId];
     if (!src?.bytes || !dst?.bytes) {
       addLog(`KEYMOD REFUSED · ${srcId}→${dstId}: both panes must be loaded`, 'error');
+      appendAudit({ pane: dstId, op: `transfer slot #${idx} from ${srcId}`, ok: false, error: 'pane not loaded' });
+      return;
+    }
+    if (src.parsed?.gen !== dst.parsed?.gen) {
+      // Mixed-gen attempt: the buttons are already disabled in the UI for
+      // this case, but log a hard refusal here too so any code path (e.g.
+      // bulk transfer, future keyboard shortcut) emits a consistent audit
+      // entry instead of silently dropping the click.
+      addLog(`KEYMOD REFUSED · ${srcId}→${dstId} slot #${idx}: generation mismatch (${src.parsed?.gen} vs ${dst.parsed?.gen})`, 'error');
+      appendAudit({ pane: dstId, op: `transfer slot #${idx} from ${srcId}`, ok: false, error: 'gen mismatch' });
       return;
     }
     const r = transferSlot(src.bytes, dst.bytes, idx, idx);
@@ -471,25 +509,83 @@ export default function KeyManagerTab() {
     const src = panes[srcId]; const dst = panes[dstId];
     if (!src?.bytes || !dst?.bytes) {
       addLog(`KEYMOD REFUSED · master ${srcId}→${dstId}: both panes must be loaded`, 'error');
+      appendAudit({ pane: dstId, op: `copy master SEC16 from ${srcId}`, ok: false, error: 'pane not loaded' });
+      return;
+    }
+    if (src.parsed?.gen !== dst.parsed?.gen) {
+      addLog(`KEYMOD REFUSED · master ${srcId}→${dstId}: generation mismatch (${src.parsed?.gen} vs ${dst.parsed?.gen})`, 'error');
+      appendAudit({ pane: dstId, op: `copy master SEC16 from ${srcId}`, ok: false, error: 'gen mismatch' });
       return;
     }
     const r = copyMasterSec16(src.bytes, dst.bytes);
     applyResult(dstId, r, `copy master SEC16 from ${srcId}`);
   }, [panes, applyResult, addLog]);
 
+  /* Write a synthetic snapshot record into the same localStorage index
+   * BackupsTab consumes (`srtlab_backup_index` + `srtlab_backup_RFHUB_*`)
+   * so a saved keymgr edit is recoverable from the existing Backups pane —
+   * not just from this tab's in-memory revert. We can't call
+   * audit.js#backupModule (it requires a live UDS engine), so we mint a
+   * compatible record by hand and rely on getBackup()/getBackupList() to
+   * surface it. */
+  function writeKeymgrSnapshot(paneId, name, vin, originalBytes, patchedBytes) {
+    if (typeof localStorage === 'undefined') return null;
+    try {
+      const ts = Date.now();
+      const tsIso = new Date(ts).toISOString();
+      const key = `srtlab_backup_RFHUB_${vin}_${ts}_keymgr_${paneId}`;
+      const toHex = (arr) => Array.from(arr, b => b.toString(16).padStart(2, '0').toUpperCase()).join('');
+      const payload = {
+        module: 'RFHUB',
+        tx: 0x000, rx: 0x000,
+        timestamp: tsIso,
+        snapshotKind: 'keymgr-pre-save',
+        source: name,
+        dids: {
+          0xEEEE: { name: 'RFHUB EEPROM (original)', critical: true,
+                    hex: toHex(originalBytes), bytes: Array.from(originalBytes) },
+          0xEEEF: { name: 'RFHUB EEPROM (patched)', critical: true,
+                    hex: toHex(patchedBytes), bytes: Array.from(patchedBytes) },
+        },
+      };
+      localStorage.setItem(key, JSON.stringify(payload));
+      const idxRaw = localStorage.getItem('srtlab_backup_index') || '[]';
+      const idx = JSON.parse(idxRaw);
+      idx.unshift({
+        key, id: key, module: 'RFHUB', vin, timestamp: tsIso,
+        didCount: 2, tx: 0x000, rx: 0x000,
+        snapshotKind: 'keymgr-pre-save', preWriteKey: null,
+        source: 'keymgr', pane: paneId, filename: name,
+      });
+      localStorage.setItem('srtlab_backup_index', JSON.stringify(idx.slice(0, 50)));
+      // Notify subscribers (BackupsTab listens for the same audit event)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('srtlab:audit'));
+      }
+      return key;
+    } catch (e) {
+      return null;
+    }
+  }
+
   const handleSave = useCallback((paneId) => {
     const cur = panes[paneId];
     if (!cur?.bytes) return;
     if (!cur.dirty) {
-      addLog(`${paneId}: nothing to save (no edits)`, 'warn');
+      addLog(`KEYMOD REFUSED · ${paneId}: nothing to save (no edits applied)`, 'warn');
       return;
     }
     const fn = patchedName(cur, paneId);
+    const vin = extractRfhVin(cur.bytes, cur.parsed?.gen) || 'NOVIN';
+    // Persist a recoverable snapshot to the project-wide BackupsTab index
+    // BEFORE handing the file to the browser download — same "snapshot
+    // before write" ordering audit.js#backupModule uses.
+    const snapKey = writeKeymgrSnapshot(paneId, fn, vin, cur.originalBytes || cur.bytes, cur.bytes);
     downloadBin(cur.bytes, fn);
-    addLog(`${paneId}: saved ${fn}`, 'pass');
-    appendAudit({ pane: paneId, op: 'save', filename: fn, bytes: cur.bytes.length });
+    addLog(`${paneId}: saved ${fn}${snapKey ? ` (snapshot ${snapKey})` : ''}`, 'pass');
+    appendAudit({ pane: paneId, op: 'save', filename: fn, bytes: cur.bytes.length, snapshotKey: snapKey });
     // Reuse the project-wide toast + download-tracker pipeline rather than
-    // rolling a one-off save flow (validation #1 follow-up).
+    // rolling a one-off save flow.
     try { dispatchToast(`Saved ${fn}`, 'pass'); } catch { /* noop */ }
     try { trackDownload('rfh-keymod'); } catch { /* counter is best-effort */ }
   }, [panes, addLog]);
