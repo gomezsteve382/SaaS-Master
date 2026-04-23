@@ -33,7 +33,7 @@ import { writeBcmSec16Gen2, writePcmSec6 } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
 import KeyProgTab from "./tabs/KeyProgTab";
 import MismatchWizard from "./components/MismatchWizard.jsx";
-import {parseModule} from "./lib/parseModule.js";
+import {parseModule, typeFromFilename, moduleTooSmall} from "./lib/parseModule.js";
 import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
 import {VEHICLES,VEHICLE_LIST,KNOWN_BCM_PN,vehiclesForPartNumber,analyzeDumpPartNumber,generationForPartNumber} from "./lib/vehicles.js";
@@ -1365,6 +1365,49 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   const [tv, setTv] = useState('');
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
+  const [rejected, setRejected] = useState([]);
+
+  // Detect the intended module type for an upload-time size check. Slot
+  // context wins (each `UploadSlot` already names the module the user
+  // dropped the file into), then filename hints, then `parseModule`'s
+  // size-based detection. Slot context is required for fragments with
+  // generic names (e.g. `dump.bin`) that would otherwise be classified
+  // UNKNOWN and slip past `moduleTooSmall` (Task #373).
+  const detectIntendedType = useCallback((bytes, name, slotType) => {
+    if (slotType) return slotType;
+    const u = (name||'').toUpperCase();
+    if (/(?:^|[^A-Z])PCM(?:[^A-Z]|$)/.test(u)) return 'PCM';
+    const fn = typeFromFilename(name);
+    if (fn) return fn;
+    try { const p = parseModule(bytes, name); return p && p.type ? p.type : null; }
+    catch { return null; }
+  }, []);
+
+  // Shared upload gate: rejects undersized module files before they enter
+  // the workspace (and get auto-shared with per-tab inspectors). Accepted
+  // files still flow through the upstream `loadF`. `slotType` is the
+  // module the user dropped the file into (BCM / RFHUB / PCM) and is
+  // authoritative when present.
+  const gatedLoadF = useCallback((fl, slotType) => {
+    const fileList = Array.from(fl||[]);
+    if (fileList.length === 0) return;
+    Promise.all(fileList.map(f => new Promise(r => {
+      const rd = new FileReader();
+      rd.onload = e => r({name: f.name, file: f, bytes: new Uint8Array(e.target.result)});
+      rd.readAsArrayBuffer(f);
+    }))).then(reads => {
+      const accepted = [];
+      const rejects = [];
+      for (const x of reads) {
+        const t = detectIntendedType(x.bytes, x.name, slotType);
+        const small = t ? moduleTooSmall(x.bytes, t, x.name) : null;
+        if (small) rejects.push({name: x.name, ...small});
+        else accepted.push(x.file);
+      }
+      if (rejects.length) setRejected(prev => [...prev, ...rejects]);
+      if (accepted.length) loadF(accepted);
+    });
+  }, [loadF, detectIntendedType]);
   const vinBad = tv && !VIN_REGEX.test(tv);
   const vinGood = tv && VIN_REGEX.test(tv);
 
@@ -1502,10 +1545,25 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
     <Card>
       <div style={{fontSize:11,fontWeight:800,color:C.ts,letterSpacing:2,marginBottom:12}}>MODULE DUMPS</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:10}}>
-        <UploadSlot label="BCM" file={bcm} onLoad={loadF}/>
-        <UploadSlot label="RFHUB" file={rfh} onLoad={loadF}/>
-        <UploadSlot label="PCM / GPEC2A" file={pcm} onLoad={loadF}/>
+        <UploadSlot label="BCM" slotType="BCM" file={bcm} onLoad={gatedLoadF}/>
+        <UploadSlot label="RFHUB" slotType="RFHUB" file={rfh} onLoad={gatedLoadF}/>
+        <UploadSlot label="PCM / GPEC2A" slotType="PCM" file={pcm} onLoad={gatedLoadF}/>
       </div>
+      {rejected.length>0 && <div style={{marginTop:12,display:'flex',flexDirection:'column',gap:10}}>
+        {rejected.map((r,i)=>(
+          <div key={i} data-testid="dumps-too-small-card" style={{padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
+            <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ This isn&apos;t a full {r.type} dump</div>
+            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts,lineHeight:1.7}}>
+              <div>File: <strong>{r.name}</strong></div>
+              <div>File size: <strong style={{color:C.er}}>{r.size.toLocaleString()} bytes</strong></div>
+              <div>Required min: <strong>{r.min.toLocaleString()} bytes ({r.label})</strong></div>
+              <div>Detected ext: <strong>{r.ext||'(none)'}</strong></div>
+            </div>
+            <div style={{marginTop:8,fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>Re-read the {r.type} in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module. The file was not loaded into the workspace.</div>
+          </div>
+        ))}
+        <button onClick={()=>setRejected([])} style={{alignSelf:'flex-start',padding:'5px 12px',fontSize:10,background:'none',border:'1px solid '+C.bd,borderRadius:8,cursor:'pointer',color:C.ts,fontWeight:700,letterSpacing:1}}>DISMISS</button>
+      </div>}
       {blockers.map((b,i)=>(
         <div key={i} data-testid="dump-blocker" style={{marginTop:12,padding:'10px 14px',borderRadius:10,background:C.er+'12',border:'1px solid '+C.er+'44'}}>
           <div style={{fontSize:11,fontWeight:900,color:C.er,letterSpacing:1,marginBottom:4}}>⛔ INCOMPATIBLE DUMP BLOCKED</div>
@@ -1547,7 +1605,7 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   </div>;
 }
 
-function UploadSlot({label, file, onLoad}){
+function UploadSlot({label, slotType, file, onLoad}){
   return <div style={{padding:12,borderRadius:12,background:C.c2,border:'1.5px dashed '+C.bd,textAlign:'center',cursor:'pointer',transition:'all .2s'}} onClick={()=>document.getElementById('u-'+label).click()}>
     <div style={{fontSize:11,fontWeight:900,color:C.ts,letterSpacing:2,marginBottom:6}}>{label}</div>
     {file ? <div style={{fontFamily:'JetBrains Mono',fontSize:10,color:C.a2,wordBreak:'break-all'}}>
@@ -1555,7 +1613,7 @@ function UploadSlot({label, file, onLoad}){
       <div style={{color:C.tm,fontSize:9}}>{file.size} bytes</div>
       {file.pnOverride && <div data-testid="pn-override-pill" style={{display:'inline-block',marginTop:6,padding:'2px 8px',borderRadius:999,background:C.wn+'22',border:'1px solid '+C.wn+'66',color:C.wn,fontSize:9,fontWeight:800,letterSpacing:1}}>P/N OVERRIDE — NOT IN REGISTRY</div>}
     </div> : <div style={{fontSize:10,color:C.tm}}>drop / click to upload</div>}
-    <input id={'u-'+label} type="file" style={{display:'none'}} onChange={e=>onLoad(e.target.files)}/>
+    <input id={'u-'+label} type="file" style={{display:'none'}} onChange={e=>onLoad(e.target.files, slotType)}/>
   </div>;
 }
 
