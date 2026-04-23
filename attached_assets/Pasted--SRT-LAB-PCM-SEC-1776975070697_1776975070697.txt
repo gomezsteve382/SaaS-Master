@@ -1,0 +1,188 @@
+# ================================================================================
+SRT LAB — PCM SEC6 WRITE FIX
+For Replit / SRTLabJailbreakEdition_v2.jsx
+
+## PROBLEM
+
+When syncing a PCM dump, the output file is sometimes byte-for-byte identical
+to the input — SEC6 write appears to do nothing. Two root causes identified:
+
+1. engParsePcm() had a faulty FF FF FF FF fallback for 4KB GPEC2A files.
+   When a PCM had no FF FF FF AA marker (blank/virgin SEC6 area), the parser
+   would scan 0x0300-0x0400 for any FF FF FF FF sequence followed by non-FF
+   bytes, and mis-read random padding as the SEC6. One example: the parser
+   was reading “0000FFFFFFFF” at offset 0x03D8 as a valid SEC6 (displayed as
+   “8000030” garbage in the UI).
+1. engWritePcmSec6() had the same buggy fallback. When it fell through to the
+   FF FF FF FF path, it would write the new SEC6 bytes to the garbage offset,
+   which the PCM firmware never reads → PCM comes back appearing unchanged on
+   re-dump, or with SEC6 in the wrong spot.
+
+## ROOT-CAUSE ANALYSIS (from actual dumps)
+
+All populated 4KB GPEC2A PCMs we examined place SEC6 at exactly the same spot:
+0x03C0: FF FF FF FF FF FF FF AA [SEC6 6 bytes] FF FF
+
+Marker: bytes 0x03C4-0x03C7 = FF FF FF AA
+SEC6:   bytes 0x03C8-0x03CD = 6 bytes
+
+No populated 4KB GPEC2A file uses FF FF FF FF as its SEC6 marker. That pattern
+is only valid for 8KB GPEC5 files. The previous fallback was matching garbage
+in every virgin 4KB PCM.
+
+# ================================================================================
+FIX 1 — engParsePcm (around line 1588–1630)
+
+REPLACE the SEC6 detection block (after the VIN slot parsing) with:
+
+/* SEC6 detection strategy:
+- GPEC2A (4KB): SEC6 is ALWAYS at “FF FF FF AA” marker + 4 bytes, near 0x03C4-0x03C8.
+If no AA marker found → virgin/blank PCM. Never fall back to FF FF FF FF on 4KB
+files — there are no GPEC2A variants that use FF FF FF FF as their real marker,
+and the fallback produces false matches on random FF runs in config/padding areas.
+- GPEC5 (8KB): uses “FF FF FF FF” marker. Scan the known SEC6 region only. */
+for(let i=0;i<bytes.length-10;i++){
+if(bytes[i]===0xFF&&bytes[i+1]===0xFF&&bytes[i+2]===0xFF&&bytes[i+3]===0xAA){
+r.sec6={offset:i+4,bytes:bytes.slice(i+4,i+10),marker:‘FF FF FF AA’};
+break;
+}
+}
+if(!r.sec6&&r.variant===‘GPEC5’){
+/* GPEC5 only — scan backwards in the SEC6 region for FF FF FF FF + non-FF data */
+for(let i=bytes.length-10;i>=0x0780;i–){
+if(bytes[i]===0xFF&&bytes[i+1]===0xFF&&bytes[i+2]===0xFF&&bytes[i+3]===0xFF){
+const next6=bytes.slice(i+4,i+10);
+if(!next6.every(b=>b===0xFF)){
+r.sec6={offset:i+4,bytes:next6,marker:‘FF FF FF FF’};
+break;
+}
+}
+}
+}
+if(!r.sec6){
+/* No marker found — virgin or damaged PCM */
+r.immoDamaged=true;
+}
+
+# ================================================================================
+FIX 2 — engWritePcmSec6 (around line 1784)
+
+REPLACE the entire function with:
+
+function engWritePcmSec6(bytes,rfhSec16,knownOffset){
+/* Write first 6 bytes of RFH SEC16 as PCM SEC6.
+Priority:
+1. knownOffset — exact offset from parser (most reliable)
+2. FF FF FF AA marker scan — GPEC2A standard
+3. GPEC5 FF FF FF FF scan — 8KB files ONLY, bounded to 0x0780+
+4. GPEC2A hardcoded fallback at 0x03C8 — 4KB virgin PCMs (writes AA marker too) */
+if(!rfhSec16||rfhSec16.length!==16)throw new Error(‘RFH SEC16 must be 16 bytes’);
+const sec6=rfhSec16.slice(0,6);const out=new Uint8Array(bytes);let patched=0;let markerUsed=null;
+if(typeof knownOffset===‘number’&&knownOffset>=0&&knownOffset+6<=out.length){
+for(let k=0;k<6;k++)out[knownOffset+k]=sec6[k];
+patched=1;markerUsed=‘direct @0x’+knownOffset.toString(16).toUpperCase();
+}
+if(patched===0){
+for(let i=0;i<out.length-10;i++){
+if(out[i]===0xFF&&out[i+1]===0xFF&&out[i+2]===0xFF&&out[i+3]===0xAA){
+for(let k=0;k<6;k++)out[i+4+k]=sec6[k];
+patched++;markerUsed=‘FF FF FF AA’;
+}
+}
+}
+if(patched===0&&out.length>=8192){
+for(let i=out.length-10;i>=0x0780;i–){
+if(out[i]===0xFF&&out[i+1]===0xFF&&out[i+2]===0xFF&&out[i+3]===0xFF){
+let hasData=false;for(let k=0;k<6;k++)if(out[i+4+k]!==0xFF){hasData=true;break;}
+if(hasData){for(let k=0;k<6;k++)out[i+4+k]=sec6[k];patched++;markerUsed=‘FF FF FF FF’;break;}
+}
+}
+}
+if(patched===0&&out.length<=4096){
+out[0x03C7]=0xAA;
+for(let k=0;k<6;k++)out[0x03C8+k]=sec6[k];
+patched=1;markerUsed=‘GPEC2A hardcoded @0x03C8 (virgin — AA marker written)’;
+}
+return{bytes:out,patched,markerUsed,sec6Hex:[…sec6].map(b=>b.toString(16).padStart(2,‘0’)).join(’’)};
+}
+
+# ================================================================================
+FIX 3 — Add sync-flow logging (around line 2055)
+
+The SEC6 write is gated on (rfhP.format===‘gen2’ && rfhP.sec16). When the gate
+fails, the current code silently skips — no log entry, no way to tell why the
+PCM came out unpatched.
+
+REPLACE this block:
+
+```
+    if(rfh){
+      const rfhP = engParseRfh(rfh.data);
+      if(rfhP.format==='gen2' && rfhP.sec16){
+        const pcmP = engParsePcm(currentPcm);
+        const sec6Off = pcmP.sec6 ? pcmP.sec6.offset : undefined;
+        const sec6Res = engWritePcmSec6(currentPcm, rfhP.sec16.slot1, sec6Off);
+        currentPcm = sec6Res.bytes;
+        log.push(`PCM SEC6: ${sec6Res.patched} location(s) patched (first 6 of RFH SEC16: ${sec6Res.sec6Hex})`);
+      }
+    }
+```
+
+WITH this:
+
+```
+    if(rfh){
+      const rfhP = engParseRfh(rfh.data);
+      if(rfhP.format==='gen2' && rfhP.sec16){
+        const pcmP = engParsePcm(currentPcm);
+        const sec6Off = pcmP.sec6 ? pcmP.sec6.offset : undefined;
+        const sec6Res = engWritePcmSec6(currentPcm, rfhP.sec16.slot1, sec6Off);
+        currentPcm = sec6Res.bytes;
+        log.push(`PCM SEC6: ${sec6Res.patched} location(s) patched via ${sec6Res.markerUsed} (first 6 of RFH SEC16: ${sec6Res.sec6Hex})`);
+      } else if(rfhP.format!=='gen2'){
+        log.push(`PCM SEC6 skipped: RFH is ${rfhP.format} format (need gen2)`);
+      } else if(!rfhP.sec16){
+        log.push(`PCM SEC6 skipped: RFH SEC16 not readable`);
+      } else {
+        log.push(`PCM SEC6 skipped: unknown reason`);
+      }
+    } else {
+      log.push(`PCM SEC6 skipped: no RFH file loaded`);
+    }
+```
+
+# ================================================================================
+FIX 4 (OPTIONAL) — Show write marker in pairing panel
+
+Update the SummaryCard for PCM (around line 2169) to show the marker used:
+
+{pcmEng.sec6 && <Row k=“SEC6” v={hexStr(pcmEng.sec6.bytes)+’ @0x’+pcmEng.sec6.offset.toString(16).toUpperCase()} mono small/>}
+{pcmEng.sec6 && <Row k="Marker" v={pcmEng.sec6.marker}/>}
+
+(This is already present — no change needed, just confirming it shows.)
+
+# ================================================================================
+VERIFICATION TEST CASES
+
+After applying these fixes, the following should all work:
+
+1. Populated 4KB GPEC2A (with FF FF FF AA marker):
+   → Parser finds marker at 0x03C4, SEC6 at 0x03C8
+   → Writer uses knownOffset path (direct @0x3C8)
+   → markerUsed: “direct @0x3C8”
+1. Virgin/blank 4KB GPEC2A (no AA marker, all FF in 0x03C0 area):
+   → Parser returns immoDamaged=true
+   → Writer falls through to fallback 4: writes AA at 0x03C7 and SEC6 at 0x03C8
+   → markerUsed: “GPEC2A hardcoded @0x03C8 (virgin — AA marker written)”
+1. Populated 8KB GPEC5 (with FF FF FF FF marker in 0x0780-0x07FF):
+   → Parser finds FF FF FF FF followed by real SEC6 data
+   → Writer uses knownOffset path
+   → markerUsed: “direct @0x???”
+1. PCM loaded WITHOUT RFH loaded:
+   → SEC6 write skipped
+   → Log: “PCM SEC6 skipped: no RFH file loaded”
+1. PCM + gen1 RFH loaded:
+   → SEC6 write skipped
+   → Log: “PCM SEC6 skipped: RFH is gen1 format (need gen2)”
+
+================================================================================
