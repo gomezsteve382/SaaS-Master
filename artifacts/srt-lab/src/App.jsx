@@ -30,6 +30,7 @@ import RfhubTab from "./tabs/RfhubTab";
 import BackupsTab from "./tabs/BackupsTab";
 import { writeBcmSec16Gen2, writePcmSec6 } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
+import KeyProgTab from "./tabs/KeyProgTab";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import {parseModule} from "./lib/parseModule.js";
 import {Tip} from "./lib/plainEnglish.jsx";
@@ -1253,6 +1254,7 @@ function VehicleLanding({onSelect}){
 const WORKSPACE_TABS = [
   {id:'dumps',     i:'📂', l:'DUMPS',        s:'VIN · SEC16 · Unlocks · Hex'},
   {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
+  {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
   {id:'analyzer',  i:'🧪', l:'ANALYZER',     s:'Cross-validate · Mismatch'},
   {id:'jailbreak', i:'💀', l:'JAILBREAK',    s:'SRT · Demon · Hellcat · Redeye'},
   {id:'seed',      i:'🔑', l:'SEED→KEY',     s:'14 Algorithms'},
@@ -1325,6 +1327,7 @@ function VehicleWorkspace({vehicleId, onBack}){
       <div style={{maxWidth:1200,margin:'0 auto',padding:'22px 22px 60px'}}>
         {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
+        {tab==='keyprog'   && <KeyProgTab/>}
         {tab==='analyzer'  && <FcaAnalyzerTab vehicleId={vehicle.id}/>}
         {tab==='jailbreak' && <JailbreakTab vehicle={vehicle}/>}
         {tab==='seed'      && <SeedTab/>}
