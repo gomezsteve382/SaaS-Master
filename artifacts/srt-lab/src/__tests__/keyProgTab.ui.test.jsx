@@ -251,6 +251,78 @@ describe('KeyProgTab UI (Task #343)', () => {
     });
   });
 
+  it('shows a dismissed-preset note when inputs change after a Load (Task #371)', async () => {
+    window.localStorage.clear();
+    render(<KeyProgTab />);
+    await uploadInto('keyprog-slot-bcm-input', loadFile(SRC_BCM));
+    await uploadInto('keyprog-slot-rfh-input', loadFile(SRC_RFH));
+    await uploadInto('keyprog-slot-pcm-input', loadFile(SRC_PCM));
+    await setVin(TARGET_VIN);
+    await waitFor(() => expect(screen.getByTestId('keyprog-result')).toBeTruthy());
+
+    // Save a preset.
+    const nameInput = screen.getByTestId('keyprog-preset-name');
+    const user = userEvent.setup();
+    await user.type(nameInput, 'Cluster B trio');
+    const saveBtn = screen.getByTestId('keyprog-preset-save');
+    await waitFor(() => expect(saveBtn.disabled).toBe(false));
+    await act(async () => { fireEvent.click(saveBtn); });
+
+    // Load it back. Wait for green verification.
+    const loadBtn = document.querySelector('[data-testid^="keyprog-preset-load-"]');
+    await act(async () => { fireEvent.click(loadBtn); });
+    await waitFor(() => {
+      const banner = screen.getByTestId('keyprog-preset-verify-banner');
+      expect(banner.getAttribute('data-verify-status')).toBe('green');
+    });
+
+    // No dismissed-note yet.
+    expect(screen.queryByTestId('keyprog-preset-dismissed-note')).toBeNull();
+
+    // Mutate the inputs (clear the BCM slot) → banner should vanish AND a
+    // transient note should appear naming the preset that was discarded.
+    await act(async () => { fireEvent.click(screen.getByTestId('keyprog-slot-bcm-clear')); });
+    await waitFor(() => {
+      expect(screen.queryByTestId('keyprog-preset-verify-banner')).toBeNull();
+      const note = screen.getByTestId('keyprog-preset-dismissed-note');
+      expect(note.textContent).toMatch(/Cluster B trio/);
+    });
+
+    // The note's own dismiss button removes it.
+    await act(async () => { fireEvent.click(screen.getByTestId('keyprog-preset-dismissed-note-dismiss')); });
+    expect(screen.queryByTestId('keyprog-preset-dismissed-note')).toBeNull();
+  });
+
+  it('does NOT show a dismissed-preset note when the user clicks the banner dismiss button (Task #371)', async () => {
+    window.localStorage.clear();
+    render(<KeyProgTab />);
+    await uploadInto('keyprog-slot-bcm-input', loadFile(SRC_BCM));
+    await uploadInto('keyprog-slot-rfh-input', loadFile(SRC_RFH));
+    await uploadInto('keyprog-slot-pcm-input', loadFile(SRC_PCM));
+    await setVin(TARGET_VIN);
+    await waitFor(() => expect(screen.getByTestId('keyprog-result')).toBeTruthy());
+
+    const nameInput = screen.getByTestId('keyprog-preset-name');
+    const user = userEvent.setup();
+    await user.type(nameInput, 'Cluster B trio');
+    const saveBtn = screen.getByTestId('keyprog-preset-save');
+    await waitFor(() => expect(saveBtn.disabled).toBe(false));
+    await act(async () => { fireEvent.click(saveBtn); });
+
+    const loadBtn = document.querySelector('[data-testid^="keyprog-preset-load-"]');
+    await act(async () => { fireEvent.click(loadBtn); });
+    await waitFor(() => {
+      const banner = screen.getByTestId('keyprog-preset-verify-banner');
+      expect(banner.getAttribute('data-verify-status')).toBe('green');
+    });
+
+    // Clicking the banner's own Dismiss button is an explicit acknowledgement —
+    // we should NOT also surface the "inputs changed" toast.
+    await act(async () => { fireEvent.click(screen.getByTestId('keyprog-preset-verify-dismiss')); });
+    expect(screen.queryByTestId('keyprog-preset-verify-banner')).toBeNull();
+    expect(screen.queryByTestId('keyprog-preset-dismissed-note')).toBeNull();
+  });
+
   it('disables download when promoteBank is on (forbidden region check fails)', async () => {
     render(<KeyProgTab />);
     await uploadInto('keyprog-slot-bcm-input', loadFile(SRC_BCM));

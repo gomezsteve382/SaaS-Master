@@ -82,6 +82,7 @@ export default function KeyProgTab() {
   const [presetName, setPresetName] = useState('');
   const [presetMsg, setPresetMsg] = useState(null);
   const [loadedPreset, setLoadedPreset] = useState(null);
+  const [dismissedPresetNote, setDismissedPresetNote] = useState(null);
 
   useEffect(() => { setPresets(loadPresets()); }, []);
 
@@ -249,10 +250,19 @@ export default function KeyProgTab() {
   // files/vin, but we want to keep the banner through that transition).
   useEffect(() => {
     if (loadedPreset && loadedPreset.status !== 'verifying') {
+      setDismissedPresetNote({ name: loadedPreset.name, at: Date.now() });
       setLoadedPreset(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files, vin, promoteBank]);
+
+  // Auto-clear the "preset banner dismissed" note after a few seconds so it
+  // behaves like a transient toast and doesn't pile up between edits.
+  useEffect(() => {
+    if (!dismissedPresetNote) return undefined;
+    const t = setTimeout(() => setDismissedPresetNote(null), 6000);
+    return () => clearTimeout(t);
+  }, [dismissedPresetNote]);
 
   return (
     <div data-testid="keyprog-wizard">
@@ -450,6 +460,32 @@ export default function KeyProgTab() {
           )}
         </div>
       </Card>
+
+      {dismissedPresetNote && (
+        <div
+          data-testid="keyprog-preset-dismissed-note"
+          style={{
+            marginBottom: 14, padding: '10px 14px', borderRadius: 10,
+            border: '1px solid ' + C.tm + '40', background: C.c2,
+            display: 'flex', alignItems: 'center', gap: 10,
+            fontSize: 11, color: C.ts,
+          }}>
+          <span style={{ fontSize: 14 }}>ℹ</span>
+          <span style={{ flex: 1 }}>
+            Cleared the loaded preset banner for <strong style={{ color: C.tx }}>"{dismissedPresetNote.name}"</strong>{' '}
+            because you changed the modules, VIN, or promote-bank toggle. The current trio is no longer the saved preset.
+          </span>
+          <button
+            data-testid="keyprog-preset-dismissed-note-dismiss"
+            onClick={() => setDismissedPresetNote(null)}
+            style={{
+              background: 'none', border: '1px solid ' + C.bd, color: C.tm,
+              padding: '4px 10px', borderRadius: 6, fontSize: 10, cursor: 'pointer',
+            }}>
+            ✕
+          </button>
+        </div>
+      )}
 
       {loadedPreset && (() => {
         const isVerifying = loadedPreset.status === 'verifying';
