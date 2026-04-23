@@ -938,7 +938,20 @@ export function PcmCard({ parsed, bytes, pnOverride }) {
       {parsed.sec6 && (
         <>
           <Kv k="SEC6 marker" v={parsed.sec6.marker} mono />
+          {parsed.sec6.markerBytes && (
+            <Kv
+              k="Marker @0x3C4"
+              v={(parsed.sec6.markerOk ? '✓ ' : '✗ ') + bytesToHex(parsed.sec6.markerBytes).toUpperCase() + (parsed.sec6.markerOk ? ' (canonical FF FF FF AA)' : ' (expected FF FF FF AA)')}
+              mono
+              color={parsed.sec6.markerOk ? C.gn : C.er}
+            />
+          )}
           <Kv k="SEC6 bytes"  v={bytesToHex(parsed.sec6.bytes).toUpperCase()} mono />
+          {parsed.sec6.markerBytes && !parsed.sec6.markerOk && parsed.sec6Class && parsed.sec6Class.populated && (
+            <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 8, background: C.er + '14', border: '1px solid ' + C.er + '55', fontSize: 11, color: C.tx, lineHeight: 1.45 }}>
+              <span style={{ color: C.er, fontWeight: 800 }}>⚠ Secret bytes present but marker missing</span> — apply BCM→PCM SEC6 sync to restamp the canonical FF FF FF AA marker @ 0x3C4.
+            </div>
+          )}
         </>
       )}
       {parsed.continentalPn && <Kv k="Continental PN" v={parsed.continentalPn} mono />}

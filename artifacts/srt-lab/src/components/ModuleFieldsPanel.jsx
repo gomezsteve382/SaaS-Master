@@ -104,10 +104,18 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
           <Tag color={mod.zzzzTamper.intact?C.gn:C.er}>{mod.zzzzTamper.intact?'INTACT':'CLEARED'}</Tag>
           <span style={{marginLeft:6,fontSize:10,color:C.ts}}>{mod.zzzzTamper.hex}</span>
         </>:<Missing need={0x0C94}/>}</Row>
+        <Row label="PCM marker @0x03C4">{mod.pcmSec6?<>
+          <Hex muted={!mod.pcmSec6.markerOk}>{mod.pcmSec6.markerHex}</Hex>{' '}
+          <Tag color={mod.pcmSec6.markerOk?C.gn:C.er}>{mod.pcmSec6.markerOk?'✓ FF FF FF AA':'✗ MISSING'}</Tag>
+        </>:<Missing need={0x03C8}/>}</Row>
         <Row label="PCM SEC6 @0x03C8">{mod.pcmSec6?<>
           <Hex muted={mod.pcmSec6.blank}>{mod.pcmSec6.hex}</Hex>{' '}
           <Tag color={mod.pcmSec6.damaged?C.er:C.gn}>{mod.pcmSec6.immoState}</Tag>
         </>:<Missing need={0x03CE}/>}</Row>
+        {mod.pcmSec6&&!mod.pcmSec6.markerOk&&!mod.pcmSec6.blank&&mod.pcmSec6.classification?.populated&&
+          <div style={{gridColumn:'1 / -1',marginTop:6,padding:'8px 10px',borderRadius:8,background:C.er+'14',border:'1px solid '+C.er+'55',fontSize:11,color:C.tx,lineHeight:1.45}}>
+            <span style={{color:C.er,fontWeight:800}}>⚠ Secret bytes present but marker missing</span> — the 6 SEC bytes look populated, but the canonical <span style={{fontFamily:"'JetBrains Mono'",fontWeight:700}}>FF FF FF AA</span> marker @ 0x03C4 is absent, so the PCM bootloader still treats this dump as IMMO_DAMAGED. Apply a BCM→PCM SEC6 sync to restamp the marker.
+          </div>}
         <Row label="Part number @0x0FA1">{mod.partNumberStr||<Missing need={0x0FAE}/>}</Row>
       </Card>
 
