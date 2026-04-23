@@ -28,6 +28,7 @@ import JailbreakTab from "./tabs/JailbreakTab";
 import BcmTab from "./tabs/BcmTab";
 import RfhubTab from "./tabs/RfhubTab";
 import BackupsTab from "./tabs/BackupsTab";
+import SampleLibraryTab from "./tabs/SampleLibraryTab.jsx";
 import { writeBcmSec16Gen2, writePcmSec6 } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
 import KeyProgTab from "./tabs/KeyProgTab";
@@ -1265,6 +1266,7 @@ const WORKSPACE_TABS = [
   {id:'obd',       i:'📡', l:'LIVE OBD',     s:'UDS · Seed→Key · J2534 · Gould'},
   {id:'skim',      i:'🛡️', l:'SKIM',         s:'Keys · Immo'},
   {id:'info',      i:'ℹ️', l:'INFO',         s:'Reference'},
+  {id:'samples',   i:'📚', l:'SAMPLES',      s:'Fixture Library'},
 ];
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -1338,6 +1340,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='obd'       && <LiveObdTab vehicle={vehicle}/>}
         {tab==='skim'      && <SkimTab vehicle={vehicle}/>}
         {tab==='info'      && <InfoTab vehicle={vehicle}/>}
+        {tab==='samples'   && <SampleLibraryTab onPreview={(file, targetTab)=>{ loadF([file]); setTab(targetTab || 'dumps'); }}/>}
       </div>
 
       {/* ── Workspace-level Mismatch Wizard ── */}
