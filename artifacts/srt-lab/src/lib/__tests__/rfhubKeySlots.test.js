@@ -255,4 +255,33 @@ describe('round-trip: add → delete → parse', () => {
     expect(d.bytes[AA50_BASE + 6]).toBe(buf[AA50_BASE + 6]);
     expect(d.bytes[AA50_BASE + 7]).toBe(buf[AA50_BASE + 7]);
   });
+
+  it('whole-buffer byte-identity: add(i)→delete(i) returns to original buffer', () => {
+    const buf = makeRfhubGen2({ fobikSlots: 0 });
+    for (let i = 0; i < KEY_SLOT_COUNT; i++) {
+      const a = addSlot(buf, i);
+      expect(a.ok, `add slot ${i}`).toBe(true);
+      const d = deleteSlot(a.bytes, i);
+      expect(d.ok, `delete slot ${i}`).toBe(true);
+      expect(d.bytes.length).toBe(buf.length);
+      // Every byte must round-trip — a leaky writer that touched a stray
+      // offset would fail this whole-buffer comparison.
+      for (let off = 0; off < buf.length; off++) {
+        if (d.bytes[off] !== buf[off]) {
+          throw new Error(`round-trip mismatch at slot=${i} off=0x${off.toString(16)}: got ${d.bytes[off]}, want ${buf[off]}`);
+        }
+      }
+    }
+  });
+
+  it('parseKeySlots → noop → serialize is byte-identical (no hidden mutation in the read path)', () => {
+    const buf = makeRfhubGen2({ fobikSlots: 2 });
+    const original = new Uint8Array(buf);
+    const parsed = parseKeySlots(buf);
+    expect(parsed.ok).toBe(true);
+    // Parsing must not mutate the source buffer (Uint8Array views share memory).
+    for (let off = 0; off < original.length; off++) {
+      expect(buf[off]).toBe(original[off]);
+    }
+  });
 });

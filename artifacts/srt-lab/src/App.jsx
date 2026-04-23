@@ -1273,6 +1273,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='seed'      && <SeedTab/>}
         {tab==='bcm'       && <BcmTab vehicle={vehicle}/>}
         {tab==='rfhub'     && <RfhubTab vehicle={vehicle}/>}
+        {tab==='keymgr'    && <KeyManagerTab vehicle={vehicle}/>}
         {tab==='ecm'       && <EcmTab vehicle={vehicle}/>}
         {tab==='backups'   && <BackupsTab/>}
         {tab==='obd'       && <LiveObdTab vehicle={vehicle}/>}

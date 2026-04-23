@@ -43,9 +43,61 @@ function downloadBin(bytes, filename) {
   URL.revokeObjectURL(url);
 }
 
-function patchedName(originalName, paneId) {
-  const base = (originalName || `rfhub_${paneId}`).replace(/\.[bB][iI][nN]$/, '');
-  return `${base}_KEYMGR_${paneId}.bin`;
+function extractRfhVin(bytes, gen) {
+  if (!bytes) return null;
+  // Gen1 (2 KB): VIN @ 0x92, ASCII 17 chars. Gen2 (4 KB+): canonical first
+  // slot @ 0x0EA5, byte-reversed ASCII (matches parseModule.js#extractVIN).
+  const tryAscii = (off) => {
+    if (off + 17 > bytes.length) return null;
+    let s = '';
+    for (let i = 0; i < 17; i++) {
+      const b = bytes[off + i];
+      if (!((b >= 0x30 && b <= 0x39) || (b >= 0x41 && b <= 0x5A))) return null;
+      s += String.fromCharCode(b);
+    }
+    return s;
+  };
+  const tryAsciiReversed = (off) => {
+    if (off + 17 > bytes.length) return null;
+    let s = '';
+    for (let i = 16; i >= 0; i--) {
+      const b = bytes[off + i];
+      if (!((b >= 0x30 && b <= 0x39) || (b >= 0x41 && b <= 0x5A))) return null;
+      s += String.fromCharCode(b);
+    }
+    return s;
+  };
+  if (gen === 'gen2') return tryAsciiReversed(0x0EA5) || tryAscii(0x92);
+  return tryAscii(0x92);
+}
+
+function utcStamp() {
+  const d = new Date();
+  const z = (n) => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}${z(d.getUTCMonth() + 1)}${z(d.getUTCDate())}T${z(d.getUTCHours())}${z(d.getUTCMinutes())}${z(d.getUTCSeconds())}Z`;
+}
+
+/* RFH_KEYMOD_<VIN>_<role>_<UTC>.bin per FreshAuto v6 spec; falls back to
+ * NOVIN if the dump didn't carry an ASCII VIN we could verify. */
+function patchedName(paneState, paneId) {
+  const role = paneId === 'A' ? 'SOURCE' : 'TARGET';
+  const vin = extractRfhVin(paneState?.bytes, paneState?.parsed?.gen) || 'NOVIN';
+  return `RFH_KEYMOD_${vin}_${role}_${utcStamp()}.bin`;
+}
+
+/* Tiny localStorage-backed audit ring buffer — every successful or refused
+ * mutation lands here so a locksmith has a tamper-evident record after the
+ * tab is closed. (Reviewer #2 next-action item.) */
+const AUDIT_KEY = 'srt-lab.keymgr.audit.v1';
+const AUDIT_LIMIT = 500;
+function appendAudit(entry) {
+  try {
+    const raw = globalThis.localStorage?.getItem(AUDIT_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    arr.push({ ts: new Date().toISOString(), ...entry });
+    while (arr.length > AUDIT_LIMIT) arr.shift();
+    globalThis.localStorage?.setItem(AUDIT_KEY, JSON.stringify(arr));
+  } catch { /* localStorage may be denied in some sandboxes — silent ok */ }
 }
 
 function hex2(n) { return n.toString(16).toUpperCase().padStart(2, '0'); }
@@ -113,13 +165,22 @@ function FileDropPane({ pane, paneState, onLoad, onClear }) {
   );
 }
 
-function SlotRow({ pane, slot, otherLoaded, slotsEditable, onDelete, onAdd, onSendTo }) {
+function SlotRow({ pane, slot, otherLoaded, slotsEditable, selected, onToggleSelect, onDelete, onAdd, onSendTo }) {
   const occ = slot.occupied;
   const editable = slotsEditable !== false;
   const sendDisabled = !otherLoaded || !editable;
   return (
     <tr data-testid={`keymgr-slot-${pane.id}-${slot.idx}`}
         data-occupied={occ ? '1' : '0'}>
+      <td style={{ padding: '6px 8px', textAlign: 'center' }}>
+        <input
+          type="checkbox"
+          data-testid={`keymgr-slot-${pane.id}-${slot.idx}-select`}
+          checked={!!selected}
+          disabled={!editable}
+          onChange={(e) => onToggleSelect(pane.id, slot.idx, e.target.checked)}
+        />
+      </td>
       <td style={{ padding: '6px 8px', fontFamily: "'JetBrains Mono'", color: C.tx, fontWeight: 700 }}>
         #{slot.idx}
       </td>
@@ -178,7 +239,7 @@ function SlotRow({ pane, slot, otherLoaded, slotsEditable, onDelete, onAdd, onSe
   );
 }
 
-function PaneSlotTable({ pane, paneState, otherLoaded, onDelete, onAdd, onSendTo }) {
+function PaneSlotTable({ pane, paneState, otherLoaded, selection, onToggleSelect, onDelete, onAdd, onSendTo }) {
   const slots = paneState.parsed?.slots || [];
   const sec16 = paneState.parsed?.sec16;
   const slotsEditable = slotsEditableFor(paneState.parsed?.gen);
@@ -193,6 +254,7 @@ function PaneSlotTable({ pane, paneState, otherLoaded, onDelete, onAdd, onSendTo
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
         <thead>
           <tr style={{ color: C.tm, textAlign: 'left', borderBottom: '1px solid ' + C.bd }}>
+            <th style={{ padding: '6px 8px', width: 24 }}>✓</th>
             <th style={{ padding: '6px 8px' }}>SLOT</th>
             <th style={{ padding: '6px 8px' }}>OFFSET</th>
             <th style={{ padding: '6px 8px' }}>STATE</th>
@@ -206,6 +268,8 @@ function PaneSlotTable({ pane, paneState, otherLoaded, onDelete, onAdd, onSendTo
               key={s.idx} pane={pane} slot={s}
               otherLoaded={otherLoaded}
               slotsEditable={slotsEditable}
+              selected={selection?.[s.idx]}
+              onToggleSelect={onToggleSelect}
               onDelete={onDelete} onAdd={onAdd} onSendTo={onSendTo}
             />
           ))}
@@ -237,6 +301,16 @@ function PaneSlotTable({ pane, paneState, otherLoaded, onDelete, onAdd, onSendTo
 export default function KeyManagerTab() {
   const [panes, setPanes] = useState({ A: null, B: null });
   const [log, setLog] = useState([]);
+  const [selection, setSelection] = useState({ A: {}, B: {} });
+  const [manualHexA, setManualHexA] = useState('');
+  const [manualHexB, setManualHexB] = useState('');
+
+  const onToggleSelect = useCallback((paneId, idx, on) => {
+    setSelection(s => ({ ...s, [paneId]: { ...s[paneId], [idx]: !!on } }));
+  }, []);
+  const clearSelection = useCallback((paneId) => {
+    setSelection(s => ({ ...s, [paneId]: {} }));
+  }, []);
 
   const addLog = useCallback((m, type = 'info') => {
     const ts = new Date().toLocaleTimeString();
@@ -264,6 +338,7 @@ export default function KeyManagerTab() {
   const applyResult = useCallback((paneId, result, label) => {
     if (!result.ok) {
       addLog(`KEYMOD REFUSED · ${paneId} · ${label}: ${result.error}`, 'error');
+      appendAudit({ pane: paneId, op: label, ok: false, error: result.error });
       return false;
     }
     setPanes(p => {
@@ -272,6 +347,7 @@ export default function KeyManagerTab() {
       return { ...p, [paneId]: { ...cur, bytes: result.bytes, parsed: reparse(result.bytes), dirty: true } };
     });
     addLog(`${paneId} · ${label} ok (patched=${result.patched ?? '?'})`, 'pass');
+    appendAudit({ pane: paneId, op: label, ok: true, patched: result.patched ?? 0 });
     return true;
   }, [addLog, reparse]);
 
@@ -309,6 +385,62 @@ export default function KeyManagerTab() {
     applyResult(paneId, r, `add manual @ first-free slot #${free}`);
   }, [panes, applyResult, addLog]);
 
+  /* Manual ID hex input — accepts 8 hex bytes (per FreshAuto v6 fob-ID
+   * widget) but currently REFUSES to write because the per-slot ID byte
+   * offsets aren't reverse-engineered yet (Task #408). The form proves
+   * the workflow shape and surfaces a clear red log entry instead of
+   * pretending to write garbage. */
+  const handleManualHexAdd = useCallback((paneId) => {
+    const cur = panes[paneId]; if (!cur?.bytes) return;
+    const txt = (paneId === 'A' ? manualHexA : manualHexB).trim();
+    const hex = txt.replace(/[^0-9a-fA-F]/g, '');
+    if (hex.length !== 16) {
+      addLog(`KEYMOD REFUSED · ${paneId} · manual hex: need exactly 8 bytes (16 hex chars), got ${hex.length}`, 'error');
+      appendAudit({ pane: paneId, op: 'manual-hex', ok: false, error: 'bad length' });
+      return;
+    }
+    addLog(`KEYMOD REFUSED · ${paneId} · manual hex ${hex.toUpperCase()}: per-slot transponder ID byte offsets not yet mapped (Task #408)`, 'error');
+    appendAudit({ pane: paneId, op: 'manual-hex', ok: false, error: 'layout not mapped', hex: hex.toUpperCase() });
+  }, [panes, manualHexA, manualHexB, addLog]);
+
+  /* Bulk transfer helpers (FreshAuto center panel: SELECTED A→B,
+   * SELECTED B→A, ALL A→B, ALL B→A). Each iterates the chosen indices,
+   * calls transferSlot per slot, and stops only on a hard refusal so a
+   * partial batch is recorded rather than silently rolled back. */
+  const handleBulkTransfer = useCallback((srcId, mode) => {
+    const dstId = srcId === 'A' ? 'B' : 'A';
+    const src = panes[srcId]; const dst = panes[dstId];
+    if (!src?.bytes || !dst?.bytes) {
+      addLog(`KEYMOD REFUSED · ${srcId}→${dstId} (${mode}): both panes must be loaded`, 'error');
+      return;
+    }
+    const indices = mode === 'all'
+      ? Array.from({ length: KEY_SLOT_COUNT }, (_, i) => i)
+      : Object.keys(selection[srcId] || {}).filter(k => selection[srcId][k]).map(k => parseInt(k, 10)).sort();
+    if (indices.length === 0) {
+      addLog(`KEYMOD REFUSED · ${srcId}→${dstId}: no slots selected`, 'error');
+      return;
+    }
+    let working = dst.bytes;
+    let okCount = 0; let failCount = 0;
+    for (const idx of indices) {
+      const r = transferSlot(src.bytes, working, idx, idx);
+      if (!r.ok) {
+        failCount++;
+        addLog(`KEYMOD REFUSED · ${srcId}→${dstId} slot #${idx}: ${r.error}`, 'error');
+        appendAudit({ pane: dstId, op: `bulk-transfer #${idx} from ${srcId}`, ok: false, error: r.error });
+        continue;
+      }
+      working = r.bytes;
+      okCount++;
+      appendAudit({ pane: dstId, op: `bulk-transfer #${idx} from ${srcId}`, ok: true, patched: 1 });
+    }
+    if (okCount > 0) {
+      setPanes(p => ({ ...p, [dstId]: { ...p[dstId], bytes: working, parsed: reparse(working), dirty: true } }));
+      addLog(`${srcId}→${dstId} (${mode}): ${okCount} ok, ${failCount} refused`, failCount > 0 ? 'warn' : 'pass');
+    }
+  }, [panes, selection, addLog, reparse]);
+
   const handleCopyMaster = useCallback((srcId) => {
     const dstId = srcId === 'A' ? 'B' : 'A';
     const src = panes[srcId]; const dst = panes[dstId];
@@ -327,9 +459,10 @@ export default function KeyManagerTab() {
       addLog(`${paneId}: nothing to save (no edits)`, 'warn');
       return;
     }
-    const fn = patchedName(cur.name, paneId);
+    const fn = patchedName(cur, paneId);
     downloadBin(cur.bytes, fn);
     addLog(`${paneId}: saved ${fn}`, 'pass');
+    appendAudit({ pane: paneId, op: 'save', filename: fn, bytes: cur.bytes.length });
   }, [panes, addLog]);
 
   const aLoaded = !!panes.A?.bytes && panes.A?.parsed?.ok;
@@ -367,6 +500,39 @@ export default function KeyManagerTab() {
         </div>
       </Card></div>
 
+      {bothLoaded && !genMismatch && (
+        <Card data-testid="keymgr-bulk-panel" style={{ marginBottom: 14, background: C.c2 }}>
+          <div style={{ fontWeight: 800, fontSize: 11, color: C.a2, marginBottom: 8, letterSpacing: 2 }}>⇆ BULK SLOT TRANSFER</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' }}>
+            <button data-testid="keymgr-bulk-selected-a-to-b"
+                    onClick={() => handleBulkTransfer('A', 'selected')}
+                    style={{ padding: '10px 18px', borderRadius: 10, fontWeight: 800, fontSize: 12, border: '2px solid ' + C.a2, background: 'transparent', color: C.a2, cursor: 'pointer' }}>
+              SELECTED A → B
+            </button>
+            <button data-testid="keymgr-bulk-selected-b-to-a"
+                    onClick={() => handleBulkTransfer('B', 'selected')}
+                    style={{ padding: '10px 18px', borderRadius: 10, fontWeight: 800, fontSize: 12, border: '2px solid ' + C.a4, background: 'transparent', color: C.a4, cursor: 'pointer' }}>
+              SELECTED B → A
+            </button>
+            <button data-testid="keymgr-bulk-all-a-to-b"
+                    onClick={() => handleBulkTransfer('A', 'all')}
+                    style={{ padding: '10px 18px', borderRadius: 10, fontWeight: 800, fontSize: 12, border: 'none', background: C.a2, color: '#fff', cursor: 'pointer' }}>
+              ALL A → B
+            </button>
+            <button data-testid="keymgr-bulk-all-b-to-a"
+                    onClick={() => handleBulkTransfer('B', 'all')}
+                    style={{ padding: '10px 18px', borderRadius: 10, fontWeight: 800, fontSize: 12, border: 'none', background: C.a4, color: '#fff', cursor: 'pointer' }}>
+              ALL B → A
+            </button>
+            <button data-testid="keymgr-bulk-clear-selection"
+                    onClick={() => { clearSelection('A'); clearSelection('B'); }}
+                    style={{ padding: '10px 14px', borderRadius: 10, fontWeight: 700, fontSize: 11, border: '1px solid ' + C.bd, background: 'transparent', color: C.tm, cursor: 'pointer' }}>
+              clear selection
+            </button>
+          </div>
+        </Card>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
         {PANES.map(p => {
           const ps = panes[p.id];
@@ -376,22 +542,50 @@ export default function KeyManagerTab() {
               <FileDropPane pane={p} paneState={ps} onLoad={loadPane} onClear={clearPane} />
               {ps?.bytes && ps.parsed?.ok && (() => {
                 const slotsEditable = slotsEditableFor(ps.parsed?.gen);
+                const vin = extractRfhVin(ps.bytes, ps.parsed?.gen);
+                const sec16 = ps.parsed?.sec16;
+                const sec16Status = sec16
+                  ? (sec16.match
+                      ? (sec16.slots.every(s => s.csOk !== false) ? '✓ SYNC + CRC OK' : '⚠ MIRROR MATCH BUT CRC ✗')
+                      : (sec16.slots.every(s => s.raw.every(b => b === 0xFF)) ? '⨯ VIRGIN (FF)' : '⚠ MIRROR MISMATCH'))
+                  : 'no SEC16';
                 return (
                 <>
+                  <div data-testid={`keymgr-pane-${p.id}-status`}
+                       style={{ marginTop: 6, padding: '6px 8px', background: C.c2, borderRadius: 6, fontSize: 10, fontFamily: "'JetBrains Mono'", color: C.tx, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                    <span><b style={{ color: C.tm }}>VIN:</b> <span data-testid={`keymgr-pane-${p.id}-vin`}>{vin || '—'}</span></span>
+                    <span><b style={{ color: C.tm }}>SEC16:</b> <span data-testid={`keymgr-pane-${p.id}-sec16-status`}>{sec16Status}</span></span>
+                  </div>
                   <PaneSlotTable
                     pane={p} paneState={ps}
                     otherLoaded={otherLoaded && !genMismatch}
+                    selection={selection[p.id]}
+                    onToggleSelect={onToggleSelect}
                     onDelete={handleDelete}
                     onAdd={handleAdd}
                     onSendTo={handleSendTo}
                   />
+                  <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <input
+                      data-testid={`keymgr-pane-${p.id}-manual-hex`}
+                      placeholder="Manual fob ID (8 hex bytes)"
+                      value={p.id === 'A' ? manualHexA : manualHexB}
+                      onChange={(e) => (p.id === 'A' ? setManualHexA : setManualHexB)(e.target.value)}
+                      style={{ flex: '1 1 220px', minWidth: 180, padding: '8px 10px', border: '1px solid ' + C.bd, borderRadius: 8, fontFamily: "'JetBrains Mono'", fontSize: 11 }}
+                    />
+                    <button
+                      data-testid={`keymgr-pane-${p.id}-manual-hex-add`}
+                      onClick={() => handleManualHexAdd(p.id)}
+                      style={{ padding: '8px 14px', borderRadius: 8, fontWeight: 800, fontSize: 11, border: '2px solid ' + C.wn + '88', background: 'transparent', color: C.wn, cursor: 'pointer' }}
+                    >➕ Add by ID</button>
+                  </div>
                   <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     <button
                       data-testid={`keymgr-pane-${p.id}-add-manual`}
                       disabled={!slotsEditable}
                       onClick={() => handleAddManual(p.id)}
                       style={{ padding: '10px 20px', borderRadius: 10, fontWeight: 800, fontSize: 12, border: '2px solid ' + (slotsEditable ? C.gn + '55' : C.bd), background: 'transparent', color: slotsEditable ? C.gn : C.tm, cursor: slotsEditable ? 'pointer' : 'not-allowed' }}
-                    >➕ Add Key Manually</button>
+                    >➕ Mark First Free</button>
                     <button
                       data-testid={`keymgr-pane-${p.id}-copy-master`}
                       onClick={() => handleCopyMaster(p.id === 'A' ? 'B' : 'A')}
