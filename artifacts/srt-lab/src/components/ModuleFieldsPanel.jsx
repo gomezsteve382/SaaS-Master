@@ -340,12 +340,45 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
         </div>}
       </Card>
 
-      {mod.vehicleSecret&&<Card style={{marginBottom:14,padding:16}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔑 Vehicle Secret @0x40C9 <span style={{fontSize:10,color:C.tm,fontWeight:600}}>(LE)</span></div>
-        <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
-          <Hex muted={mod.skb}>{mod.vehicleSecret.hex}</Hex>
-        </div>
-      </Card>}
+      {(mod.vehicleSecret||mod.bcmSec16)&&(()=>{
+        /* Task #381 — surface SEC16 provenance (split/mirror1/mirror2/flat) and
+         * a clear BLANK / virgin badge so operators can see at a glance which
+         * record the resolver picked, instead of a bare "@0x40C9 (LE)" header
+         * that always implied the legacy flat slice. */
+        const res=mod.bcmSec16;
+        const src=res?.source;
+        const blank=!!res?.blank;
+        const offLabel=res?.offset!=null?fO(res.offset):'0x40C9';
+        const srcLabel=src==='split'?'split @'+offLabel
+          :src==='mirror1'?'mirror1 0xEB @'+offLabel
+          :src==='mirror2'?'mirror2 0xCA @'+offLabel
+          :src==='flat'?'flat @0x40C9 (legacy)'
+          :'unresolved';
+        const endian=mod.vehicleSecret?.endian||(src==='flat'?'little':'big');
+        return <Card style={{marginBottom:14,padding:16}}>
+          <div style={{fontSize:13,fontWeight:800,marginBottom:10,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+            <span>🔑 BCM SEC16 / Vehicle Secret</span>
+            <Tag color={blank?C.wn:src==='flat'?C.wn:C.gn}>{srcLabel}</Tag>
+            {blank&&<Tag color={C.wn}>BLANK / virgin</Tag>}
+            <span style={{fontSize:10,color:C.tm,fontWeight:600}}>({endian.toUpperCase()})</span>
+          </div>
+          {blank?(
+            <div style={{padding:10,borderRadius:8,background:C.wn+'10',border:'1px solid '+C.wn+'40',fontSize:11,color:C.tx,lineHeight:1.5}}>
+              Every SEC16 candidate (split records @0x81A0/C0/E0, mirror1 0xEB, mirror2 0xCA,
+              flat @0x40C9) is all 0xFF/0x00. This BCM has never been paired to a vehicle —
+              the Key Prog wizard will refuse to derive a shared secret from it.
+            </div>
+          ):mod.vehicleSecret?(
+            <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+              <Hex muted={mod.skb}>{mod.vehicleSecret.hex}</Hex>
+            </div>
+          ):(
+            <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd,fontSize:11,color:C.tm}}>
+              SEC16 not resolved.
+            </div>
+          )}
+        </Card>;
+      })()}
 
       {mod.immoKeys?.length>0&&<Card style={{marginBottom:14,padding:16}}>
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🗝️ SKIM Key Slots</div>

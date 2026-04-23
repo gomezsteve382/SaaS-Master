@@ -88,6 +88,45 @@ export default function KeyProgTab() {
 
   const trioReady = !!(files.BCM && files.RFH && files.PCM);
 
+  /* Task #381 — surface BCM SEC16 provenance (split / mirror1 / mirror2 /
+   * flat) in the wizard so operators can see at a glance whether the
+   * shared-secret derivation read the live split records or fell back to
+   * the legacy 0x40C9 flat slice. Also detect a virgin / BLANK cluster
+   * and explain that *that* is why the download buttons stay disabled,
+   * instead of the generic "missing secret" path. Computed only when a
+   * BCM file is loaded; no work for the empty state. */
+  const bcmSec16Status = useMemo(() => {
+    if (!files.BCM) return null;
+    const id = identifyModule(files.BCM.data, files.BCM.name);
+    if (id.role !== 'BCM') return null;
+    const res = id.info?.bcmSec16;
+    if (!res) return null;
+    const fO = (n) => (n == null
+      ? '0x????'
+      : '0x' + n.toString(16).toUpperCase().padStart(4, '0'));
+    let label;
+    if (res.source === 'split') {
+      label = 'split @' + fO(res.offset);
+    } else if (res.source === 'mirror1') {
+      label = 'mirror1 0xEB @' + fO(res.offset);
+    } else if (res.source === 'mirror2') {
+      label = 'mirror2 0xCA @' + fO(res.offset);
+    } else if (res.source === 'flat') {
+      label = 'flat @0x40C9 (legacy)';
+    } else {
+      label = '(no SEC16 source)';
+    }
+    return {
+      source: res.source,
+      offset: res.offset,
+      blank: !!res.blank,
+      label,
+      hex: res.bytes
+        ? Array.from(res.bytes).map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ')
+        : null,
+    };
+  }, [files.BCM]);
+
   const handleLoadPreset = useCallback((id) => {
     const p = loadPresets().find((x) => x.id === id);
     if (!p) { setPresetMsg({ kind: 'err', text: 'Preset not found.' }); return; }
@@ -293,6 +332,48 @@ export default function KeyProgTab() {
             />
           ))}
         </div>
+        {bcmSec16Status && (
+          <div
+            data-testid="keyprog-bcm-sec16-status"
+            data-sec16-source={bcmSec16Status.source || 'none'}
+            data-sec16-blank={bcmSec16Status.blank ? '1' : '0'}
+            style={{
+              marginTop: 12, padding: '10px 14px', borderRadius: 10,
+              border: '1px solid ' + (bcmSec16Status.blank ? C.wn + '60' : C.gn + '40'),
+              background: (bcmSec16Status.blank ? C.wn : C.gn) + '10',
+            }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <Tag color={bcmSec16Status.blank ? C.wn : C.gn}>
+                BCM SEC16 · {bcmSec16Status.label}
+              </Tag>
+              {bcmSec16Status.blank && (
+                <Tag color={C.wn}>BLANK / virgin</Tag>
+              )}
+              {!bcmSec16Status.blank && bcmSec16Status.hex && (
+                <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono'", color: C.ts }}>
+                  {bcmSec16Status.hex}
+                </span>
+              )}
+            </div>
+            {bcmSec16Status.blank ? (
+              <div
+                data-testid="keyprog-bcm-virgin-explainer"
+                style={{ fontSize: 11, color: C.tx, marginTop: 8, lineHeight: 1.5 }}>
+                This BCM looks <strong>virgin</strong> — every SEC16 candidate (split records
+                @0x81A0/C0/E0, mirror1 0xEB, mirror2 0xCA, and the legacy flat slice @0x40C9)
+                is all 0xFF / 0x00, so there's no shared secret to derive. The download
+                buttons stay disabled until you load a BCM that has actually been paired to
+                a vehicle. (A bench-fresh module dump will look like this.)
+              </div>
+            ) : (
+              <div style={{ fontSize: 10, color: C.tm, marginTop: 6, lineHeight: 1.4 }}>
+                {bcmSec16Status.source === 'flat'
+                  ? 'Falling back to the legacy flat slice — split / mirror records were not present or were all blank.'
+                  : 'Live SEC16 source — wizard derives the shared secret directly from this record.'}
+              </div>
+            )}
+          </div>
+        )}
         {unknownDrops.length > 0 && (
           <div style={{ marginTop: 10, fontSize: 11, color: C.wn }}>
             ⚠ Skipped {unknownDrops.length} unrecognized file(s):{' '}
