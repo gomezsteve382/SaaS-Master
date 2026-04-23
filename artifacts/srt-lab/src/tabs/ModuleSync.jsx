@@ -3,8 +3,8 @@ import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
-import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm } from "../lib/securityBytes.js";
-import { bcmTooSmall, moduleTooSmall, pcmChipFromSize } from "../lib/parseModule.js";
+import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
+import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, resolveBcmSec16 } from "../lib/parseModule.js";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -44,6 +44,7 @@ export const MODSYNC_ACTION_PARTICIPANTS = {
   'bcm-to-rfh':            ['BCM', 'RFHUB'],
   'target-both':           ['BCM', 'RFHUB'],
   'bcm-sec16-to-rfh':      ['BCM', 'RFHUB'],
+  'bcm-flat-from-resolved':['BCM'],
   'sec16-only':            ['BCM', 'RFHUB', 'PCM'],
   'sync-all':              ['BCM', 'RFHUB', 'PCM'],
   'full-sync':             ['BCM', 'RFHUB', 'PCM'],
@@ -1261,6 +1262,17 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const tvOk    = tv.length === VIN_LEN && VIN_RE.test(tv);
   const loaded  = (bcm.bytes ? 1 : 0) + (rfh.bytes ? 1 : 0) + (pcm.bytes ? 1 : 0) + (eep.bytes ? 1 : 0);
   const bothReady = !!(bcm.bytes && rfh.bytes && bcm.parsed?.ok && rfh.parsed?.ok);
+  /* Resolver lookup for the legacy-flat 0x40C9 repair button (Task #382).
+   * Only enable the repair when the resolver picked a live record-table
+   * source (split / mirror1 / mirror2) AND the SEC16 isn't blank — copying
+   * the flat slice onto itself, or copying garbage from a virgin BCM, would
+   * not help legacy CGDI/Autel readers and could mask a real problem. */
+  const flatRepairResolver = bcm.bytes && bcm.parsed?.ok ? resolveBcmSec16(bcm.bytes) : null;
+  const flatRepairOk = !!(flatRepairResolver
+    && flatRepairResolver.bytes
+    && !flatRepairResolver.blank
+    && flatRepairResolver.source
+    && flatRepairResolver.source !== 'flat');
   const vinMatch  = bothReady && bcm.parsed.vin === rfh.parsed.vin;
 
   /* SEC16 sync eligibility */
@@ -1597,6 +1609,41 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         downloadBin(wr.bytes, `EEP95640_REKEYED_${ts}.bin`);
         log(`Downloaded: EEP95640_REKEYED_${ts}.bin`, 'ok');
 
+      } else if (action === 'bcm-flat-from-resolved') {
+        /* Repair the legacy flat 0x40C9 slice from the resolved (split/mirror)
+         * SEC16 so third-party tools (CGDI, Autel, etc.) that still read the
+         * pre-Redeye flat field stop seeing residual garbage. Live FEE
+         * records (split @0x81A0/C0/E0 + inactive-bank mirrors) are left
+         * untouched. Gated on resolver.source !== 'flat' && !blank — the
+         * button itself is hidden otherwise, but we re-check defensively. */
+        const rs = resolveBcmSec16(bcm.bytes);
+        if (!rs || !rs.bytes || rs.blank) {
+          log('✗ BCM SEC16 is blank — nothing to copy into the legacy slice', 'err');
+          return null;
+        }
+        if (rs.source === 'flat') {
+          log('✗ Resolver picked the flat slice itself — split/mirror records are absent or virgin, refusing to copy garbage onto itself', 'err');
+          return null;
+        }
+        const oldFlat = Array.from(bcm.bytes.slice(0x40C9, 0x40D9))
+          .map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        const snapB = new Uint8Array(bcm.bytes);
+        setOriginals(prev => ({ ...prev, bcm: { bytes: snapB, filename: bcm.file?.name || 'BCM' } }));
+        const wr = writeBcmFlatSec16(bcm.bytes, rs.bytes);
+        log(`BCM flat 0x40C9 repaired from resolver source '${rs.source}' @0x${hex4(rs.offset)}`, 'ok');
+        log(`  Resolved SEC16 (BE): ${wr.sec16Hex.toUpperCase()}`, 'muted');
+        log(`  Written @0x40C9 (LE): ${wr.leHex.toUpperCase()}`, 'muted');
+        rows.push({
+          module: 'BCM', slot: 1, offset: '0x40C9',
+          oldVin: oldFlat, newVin: wr.leHex.toUpperCase(),
+          checkLabel: 'src',
+          oldCheck: 'flat (legacy)', newCheck: rs.source,
+          oldPass: null, newPass: true,
+        });
+        downloadBin(wr.bytes, `BCM_FLAT40C9_REPAIRED_${ts}.bin`);
+        log(`Downloaded: BCM_FLAT40C9_REPAIRED_${ts}.bin`, 'ok');
+        log('Legacy CGDI/Autel-style readers will now see the same SEC16 as the live split records.', 'ok');
+
       } else if (action === 'bcm-sec16-to-rfh') {
         /* BCM SEC16 → RFHUB Gen2 slots — use when RFHUB is from a different vehicle.
            BCM is master: reverse(BCM SEC16) is written to RFHUB 0x050E + 0x0522. */
@@ -1906,6 +1953,26 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         </Card>
       )}
 
+      {/* ── BCM-only: legacy 0x40C9 repair (Task #382) ──
+          Available whenever a BCM is loaded with a populated split/mirror
+          SEC16 — does not require RFH/PCM, since this only rewrites the
+          legacy flat slice from data already inside the BCM. */}
+      {bcm.bytes && bcm.parsed?.ok && !bothReady && flatRepairOk && (
+        <Card>
+          <H2>BCM legacy compatibility</H2>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.8, color: C.a3, marginBottom: 8, textTransform: 'uppercase' }}>
+            🩹 Flat 0x40C9 repair (BCM-only)
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
+            <ActionBtn title="🩹 Repair flat 0x40C9 from split records"
+              enabled={flatRepairOk}
+              color={C.a3}
+              desc={`Copy resolved SEC16 (source: ${flatRepairResolver.source} @0x${hex4(flatRepairResolver.offset)}) into legacy flat slice 0x40C9 (LE). Live split/mirror records untouched. For CGDI / Autel and other tools that still read the pre-Redeye flat field.`}
+              onClick={() => doSync('bcm-flat-from-resolved')} />
+          </div>
+        </Card>
+      )}
+
       {/* ── Sync Actions ── */}
       {bothReady && (
         <Card>
@@ -1974,6 +2041,17 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                     ? `Copy RFH SEC16 (reversed) into BCM split records + mirrors. Write first 6 bytes as PCM SEC6${pcm.bytes ? '' : ' (load PCM to also patch PCM)'}.`
                     : bcmHasSec16 ? 'RFHUB SEC16 is virgin or not detected' : 'BCM has no Gen2 SEC16 records'}
                   onClick={() => doSync('sec16-only')} />
+                <ActionBtn title="🩹 Repair flat 0x40C9 from split records"
+                  enabled={flatRepairOk}
+                  color={C.a3}
+                  desc={flatRepairOk
+                    ? `Copy resolved SEC16 (source: ${flatRepairResolver.source} @0x${hex4(flatRepairResolver.offset)}) into legacy flat slice 0x40C9 (LE). Live split/mirror records untouched. For CGDI / Autel and other tools that still read the pre-Redeye flat field.`
+                    : flatRepairResolver?.source === 'flat'
+                      ? 'Resolver fell back to the flat slice itself — no live split/mirror records to copy from'
+                      : flatRepairResolver?.blank
+                        ? 'BCM SEC16 is blank (virgin) — nothing to repair'
+                        : 'Requires a BCM with a populated SEC16 in split records or inactive-bank mirrors'}
+                  onClick={() => doSync('bcm-flat-from-resolved')} />
                 <ActionBtn title="🔄 BCM SEC16 → RFHUB"  enabled={bcmToRfhSec16Ok}
                   color={C.a2}
                   desc={bcmToRfhSec16Ok

@@ -142,6 +142,46 @@ export function writeBcmSec16Gen2(bytes, rfhSec16) {
 }
 
 /* ----------------------------------------------------------------------------
+ * writeBcmFlatSec16(bytes, resolvedSec16)
+ *
+ * Repair helper for legacy third-party tools (CGDI, Autel, etc.) that still
+ * read the BCM vehicle secret from the flat little-endian slice at
+ * 0x40C9..0x40D8. After Task #380, the resolver picks the canonical SEC16
+ * from split / mirror records and the flat slice is left holding residual
+ * garbage on synced Redeye dumps — so legacy tools see junk.
+ *
+ * This writer takes the resolved (canonical / big-endian) SEC16 and writes
+ * its byte-reversed (little-endian) form into 0x40C9..0x40D8 of a fresh
+ * buffer copy. Split records (0x81A0/C0/E0), mirror records in the inactive
+ * bank, and every other byte are left untouched — the live Redeye sources
+ * keep working, and the legacy slice now agrees with them.
+ *
+ * Input must be the canonical SEC16 (the bytes returned by
+ * resolveBcmSec16().bytes when source !== 'flat'). Caller is responsible
+ * for gating on resolver.source !== 'flat' && !blank — this function will
+ * happily write whatever 16 bytes it's handed.
+ * ---------------------------------------------------------------------------- */
+export function writeBcmFlatSec16(bytes, resolvedSec16) {
+  if (!resolvedSec16 || resolvedSec16.length !== 16) {
+    throw new Error('Resolved SEC16 must be 16 bytes');
+  }
+  if (!bytes || bytes.length < 0x40D9) {
+    throw new Error('BCM buffer too small for flat 0x40C9 slice (need ≥ 0x40D9 B)');
+  }
+  const out = new Uint8Array(bytes);
+  const le = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) le[i] = resolvedSec16[15 - i];
+  for (let i = 0; i < 16; i++) out[0x40C9 + i] = le[i];
+  return {
+    bytes: out,
+    offset: 0x40C9,
+    patched: 16,
+    sec16Hex: hexStr(resolvedSec16),
+    leHex: hexStr(le),
+  };
+}
+
+/* ----------------------------------------------------------------------------
  * writePcmSec6(bytes, rfhSec16)
  *
  * Writes the first 6 bytes of RFH SEC16 as PCM SEC6.
