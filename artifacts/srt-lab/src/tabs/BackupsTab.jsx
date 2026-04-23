@@ -351,7 +351,16 @@ export default function BackupsTab() {
       refresh();
       const parts = [r.imported + " imported", r.skipped + " skipped (duplicate)"];
       if (r.invalid > 0) parts.push(r.invalid + " invalid");
-      alert("Backup import complete: " + parts.join(", ") + ".");
+      // Task #394 — when the archive carries embedded Key Prog history, call
+      // it out so the tech knows their saved-archive list also moved across.
+      let kpSuffix = "";
+      if (r.keyProgArchives) {
+        const kp = r.keyProgArchives;
+        const kpParts = [kp.imported + " imported", kp.skipped + " skipped"];
+        if (kp.invalid > 0) kpParts.push(kp.invalid + " invalid");
+        kpSuffix = "\nKey Prog archive history: " + kpParts.join(", ") + ".";
+      }
+      alert("Backup import complete: " + parts.join(", ") + "." + kpSuffix);
     } catch (err) {
       alert("Import failed: " + err.message);
     }

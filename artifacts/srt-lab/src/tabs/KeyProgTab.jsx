@@ -21,6 +21,7 @@ import {
 } from '../lib/keyProgPresets.js';
 import {
   loadArchives, recordArchive, deleteArchive, clearArchives,
+  refreshArchivesFromServer, subscribeArchives,
 } from '../lib/keyProgArchiveHistory.js';
 
 const ROLE_LABEL = { BCM: 'BCM (D-FLASH)', RFH: 'RFHUB (EEE)', PCM: 'PCM (GPEC2A)' };
@@ -396,7 +397,31 @@ export default function KeyProgTab() {
   const [archives, setArchives] = useState([]);
 
   useEffect(() => { setPresets(loadPresets()); }, []);
-  useEffect(() => { setArchives(loadArchives()); }, []);
+
+  // Task #394 — saved archives round-trip through the database so history
+  // follows the locksmith from the shop laptop to the bench tablet. Hydrate
+  // synchronously from the local cache, then pull the canonical list from
+  // the server on mount + on every focus, plus listen for cross-tab events.
+  useEffect(() => {
+    setArchives(loadArchives());
+    let cancelled = false;
+    const pull = () => {
+      refreshArchivesFromServer()
+        .then((list) => { if (!cancelled && Array.isArray(list)) setArchives(list); })
+        .catch(() => { /* offline ok — local cache stays */ });
+    };
+    pull();
+    const onFocus = () => pull();
+    window.addEventListener('focus', onFocus);
+    const unsub = subscribeArchives(() => {
+      if (!cancelled) setArchives(loadArchives());
+    });
+    return () => {
+      cancelled = true;
+      window.removeEventListener('focus', onFocus);
+      unsub();
+    };
+  }, []);
 
   const handleDeleteArchive = useCallback((id) => {
     setArchives(deleteArchive(id));
@@ -566,7 +591,8 @@ export default function KeyProgTab() {
     recordArchive({ vin, zipName, bcmSec16: bcmSec16Status, savedAt: at });
     // Re-read from storage so the in-memory list always matches the
     // persisted, MAX_ARCHIVES-capped log instead of growing unbounded
-    // during long bench sessions.
+    // during long bench sessions. The server write inside recordArchive is
+    // fire-and-forget; the next focus refresh reconciles canonical ordering.
     setArchives(loadArchives());
   };
 

@@ -10,6 +10,10 @@
 // functional data needed by the Restore flow.
 
 import { sha256Hex, backupDidsToBytes } from "./checksum.js";
+import {
+  exportArchives as exportKeyProgArchives,
+  importArchives as importKeyProgArchives,
+} from "./keyProgArchiveHistory.js";
 
 const BACKUP_INDEX_KEY = "srtlab_backup_index";
 const BACKUP_KEY_PREFIX = "srtlab_backup_";
@@ -412,6 +416,11 @@ export function exportAllBackups() {
     const data = getBackup(entry.key);
     if (data) backups[entry.key] = data;
   }
+  /* Task #394 — embed the saved Key Prog archive history alongside module
+   * backups so a single export file moves all of a tech's bench history
+   * between machines. The keyProgArchives field is optional; importBackups
+   * tolerates older archives that don't include it. */
+  const keyProgBundle = exportKeyProgArchives();
   return {
     type: "srtlab_backup_archive",
     version: 1,
@@ -419,6 +428,7 @@ export function exportAllBackups() {
     count: Object.keys(backups).length,
     index: idx,
     backups,
+    keyProgArchives: Array.isArray(keyProgBundle?.archives) ? keyProgBundle.archives : [],
   };
 }
 
@@ -467,6 +477,18 @@ export function importBackups(archive) {
   }
   localStorage.setItem(BACKUP_INDEX_KEY, JSON.stringify(idx.slice(0, MAX_BACKUPS)));
   notify();
+
+  /* Task #394 — pull saved Key Prog archive history out of the same bundle.
+   * Counts are reported separately on `result.keyProgArchives` so the
+   * Backups tab toast can mention them when they're present, but the call
+   * is silent (no throw) when the archive predates the embedded history. */
+  try {
+    const kpResult = importKeyProgArchives(archive);
+    if (kpResult && (kpResult.imported || kpResult.skipped || kpResult.invalid)) {
+      result.keyProgArchives = kpResult;
+    }
+  } catch { /* malformed sub-bundle — ignore so backups still import */ }
+
   return result;
 }
 
