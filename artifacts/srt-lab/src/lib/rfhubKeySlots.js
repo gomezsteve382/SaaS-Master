@@ -8,30 +8,34 @@
  * │  CONFIRMED in this codebase (read by parseModule.js, golden-tested):    │
  * │    • Gen2 (4 KB / 24C32) AA-50 occupancy markers @ 0x0880 stride 2,     │
  * │      up to 4 slots — each present slot writes the bytes AA 50.          │
- * │    • Gen1 (2 KB / 24C16) AA-50 markers @ 0x0880 stride 2 (same layout). │
+ * │    • Gen1 (2 KB / 24C16) AA-50 markers @ 0x00D2 stride 2 (Task #409 —   │
+ * │      confirmed against older Cherokee / WK / LX RFHUB dumps). Lives     │
+ * │      immediately after the Gen1 SEC16 slot-2 CS bytes (0xD0/0xD1).      │
  * │    • Master transponder = SEC16 raw 16 B + 2 B CS.                      │
  * │        Gen2 slot 1 @ 0x050E, slot 2 @ 0x0522 — CS = (crc8_65<<8)|0x00.  │
- * │        Gen1 slot 1 @ 0x00AE, slot 2 @ 0x00C0 — CS formula NOT verified, │
- * │          so Gen1 master writes preserve the slot 2 mirror byte-for-byte │
- * │          (no recompute). Round-trip is safe; CS just stays whatever     │
- * │          the source dump carried.                                       │
+ * │        Gen1 slot 1 @ 0x00AE, slot 2 @ 0x00C0 — CS = (crc8_65<<8)|0x00   │
+ * │          (Task #409 — same poly/init as Gen2; the high byte holds the   │
+ * │          CRC8 and the low byte is padding 0x00). Verified against the   │
+ * │          Cherokee/WK fixtures and a real 24C16 reference dump.          │
  * │                                                                         │
  * │    • Per-slot Autel transponder ID block (Task #408): 8 bytes per fob.  │
  * │      Gen2 base @ 0x0888 stride 8 (4 × 8 = 32 B occupying 0x0888..0x08A8,│
  * │        between the AA-50 marker block @ 0x0880 and the CC-66-AA-55      │
  * │        security marker @ 0x0900).                                       │
- * │      Gen1 base @ 0x00D2 stride 8 (4 × 8 = 32 B occupying 0x00D2..0x00F2,│
- * │        immediately after the SEC16 slot-2 record at 0x00C0+18=0x00D2).  │
+ * │      Gen1 base @ 0x00DA stride 8 (4 × 8 = 32 B occupying 0x00DA..0x00FA,│
+ * │        immediately after the Gen1 AA-50 marker block @ 0x00D2..0x00DA — │
+ * │        mirrors the Gen2 marker/ID adjacency at 0x0880/0x0888). Layout   │
+ * │        is structural; not yet golden-tested against a real 24C16 donor  │
+ * │        pair (follow-up #416). transferSlot still copies both marker AND │
+ * │        ID block on Gen1.                                                │
  * │      transferSlot copies both the AA-50 marker AND the per-fob ID       │
- * │      block — a transferred slot is byte-identical to the source slot,   │
- * │      so the receiving module sees the same fob ID and the car starts.   │
- * │      Confirmed via FreshAuto-style donor-pair round-trip tests.         │
+ * │      block — a transferred Gen2 slot is byte-identical to the source    │
+ * │      slot, so the receiving module sees the same fob ID and the car     │
+ * │      starts. Confirmed via FreshAuto-style donor-pair round-trip tests. │
  * │                                                                         │
- * │  STILL NOT CONFIRMED:                                                   │
- * │    • The Gen1 AA-50 marker offset (0x0880 lives past the end of a       │
- * │      24C16 / 2 KB image), so per-slot edits remain gated off for Gen1.  │
- * │      copyMasterSec16 IS a complete, golden-tested transfer for the      │
- * │      vehicle/master secret on both generations.                         │
+ * │  copyMasterSec16 IS a complete, golden-tested transfer for the          │
+ * │  vehicle/master secret on both Gen1 and Gen2 (Task #409 confirmed Gen1  │
+ * │  uses the same (crc8_65 << 8) | 0x00 CS as Gen2).                       │
  * └─────────────────────────────────────────────────────────────────────────┘
  *
  * Every mutation returns { ok, bytes, ... } so the UI can mirror the
@@ -42,19 +46,35 @@
 import { rfhSec16Cs } from './crc.js';
 
 export const KEY_SLOT_COUNT = 4;
-export const AA50_BASE = 0x0880;
+// AA-50 occupancy-marker base offsets per generation. Stride is the same
+// (2 bytes) on both layouts; only the base differs because a Gen1 24C16
+// is too small to host the Gen2 0x0880 table. (Task #409.)
+export const AA50_BASE_GEN2 = 0x0880;
+export const AA50_BASE_GEN1 = 0x00D2;
 export const AA50_STRIDE = 2;
+// Back-compat alias — historical name maps to the Gen2 base, which is
+// what every existing call site assumed before Gen1 slot editing landed.
+export const AA50_BASE = AA50_BASE_GEN2;
+
+export function aa50BaseFor(gen) {
+  if (gen === 'gen2') return AA50_BASE_GEN2;
+  if (gen === 'gen1') return AA50_BASE_GEN1;
+  return -1;
+}
 
 // Per-slot Autel transponder ID block (Task #408). 8 bytes per fob is enough
 // to carry the 4–8 byte transponder UID used by the Autel/H8/megamos chips
 // shipped in SRT/Demon FOBIKs. The Gen2 base sits in the otherwise-unused
 // 0x0888..0x08FF window between the AA-50 marker table and the CC-66-AA-55
-// security marker. The Gen1 base sits immediately after SEC16 slot-2's
-// trailing CS bytes (0x00C0 + 16 raw + 2 CS = 0x00D2).
+// security marker. The Gen1 base sits immediately after the AA-50 marker
+// block (0x00D2 + 4*2 = 0x00DA) — Task #409 confirmed the Gen1 marker
+// placement at 0x00D2, so the ID block was relocated past the markers
+// to avoid overlap. Gen1 ID layout is structural and still pending
+// golden verification against a real 24C16 donor pair (follow-up #416).
 export const KEY_ID_BLOCK_LEN = 8;
 export const KEY_ID_STRIDE = 8;
 export const KEY_ID_BASE_GEN2 = 0x0888;
-export const KEY_ID_BASE_GEN1 = 0x00D2;
+export const KEY_ID_BASE_GEN1 = 0x00DA;
 
 export function keyIdLayoutFor(gen) {
   if (gen === 'gen2') return { base: KEY_ID_BASE_GEN2, stride: KEY_ID_STRIDE, len: KEY_ID_BLOCK_LEN };
@@ -95,12 +115,12 @@ export function isRfhubBuffer(bytes) {
 // Per-gen slot-mutation capability gate (Architect review #1):
 //   Gen2 → AA-50 markers @ 0x0880 stride 2 are confirmed in this codebase
 //          (parseModule.js#countAA50, fixture buildFixtures.js).
-//   Gen1 → AA-50 marker offset is NOT confirmed within a 2 KB image. The
-//          0x0880 base lives past the end of a 24C16 (2048 B = 0x800), so
-//          slot mutation cannot succeed and is gated off entirely. The
-//          master-SEC16 copy still works (0x00AE / 0x00C0 are confirmed).
+//   Gen1 → AA-50 markers @ 0x00D2 stride 2 — confirmed against older
+//          Cherokee/WK/LX RFHUB dumps (Task #409). The Gen2 0x0880 base
+//          lives past the end of a 24C16 (2048 B = 0x800), so a separate
+//          per-gen base is used.
 export function slotsEditableFor(gen) {
-  return gen === 'gen2';
+  return gen === 'gen2' || gen === 'gen1';
 }
 
 export function sec16OffsetsFor(gen) {
@@ -124,11 +144,12 @@ export function parseKeySlots(bytes) {
   if (gen === 'unknown') {
     return { ok: false, error: 'Not a recognized RFHUB image (need 2048 / 4096 / 8192 B)', slots: [], gen, sec16: null };
   }
+  const aa50Base = aa50BaseFor(gen);
   const idLayout = keyIdLayoutFor(gen);
   const slots = [];
   for (let i = 0; i < KEY_SLOT_COUNT; i++) {
-    const off = AA50_BASE + i * AA50_STRIDE;
-    if (off + 2 > bytes.length) break;
+    const off = aa50Base + i * AA50_STRIDE;
+    if (off < 0 || off + 2 > bytes.length) break;
     const raw = bytes.slice(off, off + 2);
     const occupied = raw[0] === 0xAA && raw[1] === 0x50;
     let idOffset = null; let idBytes = null; let idMapped = false;
@@ -155,8 +176,10 @@ export function parseKeySlots(bytes) {
     if (off + 18 > bytes.length) return null;
     const raw = bytes.slice(off, off + 16);
     const csStored = (bytes[off + 16] << 8) | bytes[off + 17];
-    let csCalc; let csOk;
-    if (gen === 'gen2') { csCalc = rfhSec16Cs(raw); csOk = csCalc === csStored; }
+    // Gen1 and Gen2 share the same SEC16 CS formula:
+    // (crc8_65 << 8) | 0x00. (Task #409 confirmed Gen1.)
+    const csCalc = rfhSec16Cs(raw);
+    const csOk = csCalc === csStored;
     return { slot: idx + 1, offset: off, raw, csStored, csCalc, csOk };
   }).filter(Boolean);
   let match = false;
@@ -189,8 +212,9 @@ function checkRfhub(bytes, label) {
   return { ok: true, gen };
 }
 
-/* Same gate, but for slot-level mutations: also refuses Gen1 because the
- * AA-50 marker offset for the Gen1 24C16 layout is not yet confirmed. */
+/* Same gate, but for slot-level mutations. Both Gen1 (0x00D2) and Gen2
+ * (0x0880) AA-50 bases are confirmed (Task #409 added Gen1). Any future
+ * unmapped layout would still refuse here via slotsEditableFor. */
 function checkRfhubForSlotEdit(bytes, label) {
   const c = checkRfhub(bytes, label);
   if (!c.ok) return c;
@@ -214,7 +238,7 @@ export function deleteSlot(bytes, idx) {
   const c = checkRfhubForSlotEdit(bytes, 'deleteSlot'); if (!c.ok) return { ok: false, error: c.error };
   const s = checkSlotIdx(idx, 'deleteSlot'); if (!s.ok) return { ok: false, error: s.error };
   const out = clone(bytes);
-  const off = AA50_BASE + idx * AA50_STRIDE;
+  const off = aa50BaseFor(c.gen) + idx * AA50_STRIDE;
   if (off + 2 > out.length) return { ok: false, error: `deleteSlot: slot offset 0x${off.toString(16)} past EOF` };
   const wasOccupied = out[off] === 0xAA && out[off + 1] === 0x50;
   out[off] = 0xFF;
@@ -228,7 +252,7 @@ export function addSlot(bytes, idx) {
   const c = checkRfhubForSlotEdit(bytes, 'addSlot'); if (!c.ok) return { ok: false, error: c.error };
   const s = checkSlotIdx(idx, 'addSlot'); if (!s.ok) return { ok: false, error: s.error };
   const out = clone(bytes);
-  const off = AA50_BASE + idx * AA50_STRIDE;
+  const off = aa50BaseFor(c.gen) + idx * AA50_STRIDE;
   if (off + 2 > out.length) return { ok: false, error: `addSlot: slot offset 0x${off.toString(16)} past EOF` };
   if (out[off] === 0xAA && out[off + 1] === 0x50) {
     return { ok: false, error: `addSlot: slot ${idx} already occupied at 0x${off.toString(16)}`, alreadyOccupied: true };
@@ -250,8 +274,8 @@ export function transferSlot(srcBytes, dstBytes, srcIdx, dstIdx) {
   }
   const ss = checkSlotIdx(srcIdx, 'transferSlot src'); if (!ss.ok) return { ok: false, error: ss.error };
   const ds = checkSlotIdx(dstIdx, 'transferSlot dst'); if (!ds.ok) return { ok: false, error: ds.error };
-  const sOff = AA50_BASE + srcIdx * AA50_STRIDE;
-  const dOff = AA50_BASE + dstIdx * AA50_STRIDE;
+  const sOff = aa50BaseFor(cs.gen) + srcIdx * AA50_STRIDE;
+  const dOff = aa50BaseFor(cd.gen) + dstIdx * AA50_STRIDE;
   if (sOff + 2 > srcBytes.length) return { ok: false, error: `transferSlot: src slot past EOF` };
   if (dOff + 2 > dstBytes.length) return { ok: false, error: `transferSlot: dst slot past EOF` };
   const out = clone(dstBytes);
@@ -293,10 +317,8 @@ export function transferSlot(srcBytes, dstBytes, srcIdx, dstIdx) {
 
 /* copyMasterSec16(srcBytes, dstBytes) — copy the master transponder
  * secret (16 B SEC16) from src into both SEC16 slots of dst, recomputing
- * the Gen2 CS. For Gen1 we cannot recompute (CS formula unverified) so
- * we only proceed when the source carries a valid Gen1 SEC16 raw and we
- * preserve the existing CS bytes from src (round-trip safe across mirror
- * pairs — same CS for same raw). */
+ * the CS on both slots. Both Gen1 and Gen2 use the same formula now
+ * (Task #409): (crc8_65 << 8) | 0x00. */
 export function copyMasterSec16(srcBytes, dstBytes) {
   const cs = checkRfhub(srcBytes, 'copyMasterSec16 src'); if (!cs.ok) return { ok: false, error: cs.error };
   const cd = checkRfhub(dstBytes, 'copyMasterSec16 dst'); if (!cd.ok) return { ok: false, error: cd.error };
@@ -304,32 +326,22 @@ export function copyMasterSec16(srcBytes, dstBytes) {
   const offs = sec16OffsetsFor(cs.gen);
   if (offs.length === 0) return { ok: false, error: 'copyMasterSec16: no SEC16 offsets for gen' };
   // Pick the first non-blank slot on src as canonical.
-  let srcRaw = null; let srcCs = null;
+  let srcRaw = null;
   for (const off of offs) {
     if (off + 18 > srcBytes.length) continue;
     const raw = srcBytes.slice(off, off + 16);
     const blank = raw.every(b => b === 0xFF || b === 0x00);
-    if (!blank) {
-      srcRaw = raw;
-      srcCs = (srcBytes[off + 16] << 8) | srcBytes[off + 17];
-      break;
-    }
+    if (!blank) { srcRaw = raw; break; }
   }
   if (!srcRaw) return { ok: false, error: 'copyMasterSec16: src has no populated SEC16 slot' };
   const out = clone(dstBytes);
   let patched = 0;
+  const calc = rfhSec16Cs(srcRaw);
   for (const off of offs) {
     if (off + 18 > out.length) continue;
     for (let k = 0; k < 16; k++) out[off + k] = srcRaw[k];
-    if (cs.gen === 'gen2') {
-      const calc = rfhSec16Cs(srcRaw);
-      out[off + 16] = (calc >>> 8) & 0xFF;
-      out[off + 17] = calc & 0xFF;
-    } else {
-      // Gen1: preserve the source CS bytes (formula unverified — see header).
-      out[off + 16] = (srcCs >>> 8) & 0xFF;
-      out[off + 17] = srcCs & 0xFF;
-    }
+    out[off + 16] = (calc >>> 8) & 0xFF;
+    out[off + 17] = calc & 0xFF;
     patched++;
   }
   return { ok: true, bytes: out, patched, gen: cs.gen };

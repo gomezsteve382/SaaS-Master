@@ -520,11 +520,16 @@ describe('RFHUB Gen1 (24C16, 2048 bytes)', () => {
     const slot2 = buf.slice(0xC0, 0xC0 + 16);
     expect(Array.from(slot1)).toEqual(Array.from(slot2));
     expect(slot1.every(b => b === 0xFF)).toBe(false);
-    // Sanity: Gen2 SEC16 CS formula must NOT match Gen1 stored bytes (Gen1
-    // CS formula is unconfirmed; the parser leaves csOk undefined).
-    const gen2Cs = rfhSec16Cs(slot1);
+    // Task #409: Gen1 CS formula is the same rfhSec16Cs as Gen2
+    // ((crc8_65 << 8) | 0x00). The fixture writes the calculated CS so
+    // both the parser and rfhubKeySlots parse it as csOk:true.
+    const calc = rfhSec16Cs(slot1);
     const stored = (buf[0xAE + 16] << 8) | buf[0xAE + 17];
-    expect(stored).not.toBe(gen2Cs);
+    expect(stored).toBe(calc);
+    const m = parseModule(buf, 'rfh-gen1.bin');
+    expect(m.sec16s[0].csOk).toBe(true);
+    expect(m.sec16s[1].csOk).toBe(true);
+    expect(m.sec16valid).toBe(true);
   });
 });
 

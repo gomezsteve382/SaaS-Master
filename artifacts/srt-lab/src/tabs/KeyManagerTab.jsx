@@ -323,7 +323,7 @@ function PaneSlotTable({ pane, paneState, otherLoaded, selection, onToggleSelect
               {' · CS '}
               <span data-testid={`keymgr-pane-${pane.id}-sec16-cs-${s.slot}`}
                     style={{ color: s.csOk === true ? C.gn : s.csOk === false ? C.er : C.tm, fontWeight: 800 }}>
-                {hex4(s.csStored)} {s.csOk === true ? '✓' : s.csOk === false ? '✗' : '(gen1 — formula not verified)'}
+                {hex4(s.csStored)} {s.csOk === true ? '✓' : s.csOk === false ? '✗' : ''}
               </span>
             </div>
           ))}
@@ -789,12 +789,17 @@ export default function KeyManagerTab() {
           per-fob Autel transponder ID block @ 0x0888 stride 8 (8 B per slot),
           and the master-transponder SEC16 mirror pair (CS = crc8_65 — golden-tested).
           <br />
-          <b>Confirmed (Gen1):</b> per-fob Autel transponder ID block @ 0x00D2
-          stride 8 (documented for parity), plus the SEC16 mirror pair @ 0x00AE / 0x00C0.
+          <b>Confirmed (Gen1):</b> AA-50 occupancy markers @ 0x00D2 stride 2 (just
+          past the SEC16 slot-2 CS bytes), and the master-transponder SEC16 mirror
+          pair @ 0x00AE / 0x00C0 (CS = crc8_65 — same formula as Gen2). Slot edits
+          and SEC16 copy are both permitted on Gen1 24C16 (older Cherokee/WK/LX) hubs.
           <br />
-          <b>Not confirmed (Gen1):</b> the AA-50 base offset @ 0x0880 lies past the
-          end of a 2 KB Gen1 image, so per-slot edits are gated off for Gen1; only
-          Master-SEC16 copy is permitted on Gen1.
+          <b>Provisional (Gen1):</b> per-fob Autel transponder ID block @ 0x00DA
+          stride 8 — placed immediately after the marker block to mirror Gen2's
+          adjacency, but not yet golden-tested against a real 24C16 donor pair.
+          A Gen1 → Gen1 transfer still copies marker + ID block; verification
+          against real dumps is tracked as a follow-up.
+
           <br />
           <b>“Send →” now copies marker + ID block</b> — the receiving module sees
           the same fob UID as the donor, so a transferred slot will start the car

@@ -7,7 +7,8 @@ import { describe, it, expect } from 'vitest';
 import {
   parseKeySlots, transferSlot, deleteSlot, addSlot,
   copyMasterSec16, firstFreeSlot, detectGen, keyIdLayoutFor,
-  KEY_SLOT_COUNT, AA50_BASE,
+  KEY_SLOT_COUNT, AA50_BASE, AA50_BASE_GEN1, AA50_BASE_GEN2,
+  aa50BaseFor, slotsEditableFor,
   KEY_ID_BASE_GEN2, KEY_ID_BASE_GEN1, KEY_ID_BLOCK_LEN, KEY_ID_STRIDE,
 } from '../rfhubKeySlots.js';
 import { makeRfhubGen2, makeRfhubGen1 } from '../__fixtures__/buildFixtures.js';
@@ -49,15 +50,39 @@ describe('parseKeySlots — Gen2 fixture', () => {
 });
 
 describe('parseKeySlots — Gen1 fixture', () => {
-  it('reads AA-50 markers and Gen1 SEC16 offsets', () => {
+  it('reads AA-50 markers @ 0x00D2 and Gen1 SEC16 offsets', () => {
     const buf = makeRfhubGen1();
     const r = parseKeySlots(buf);
     expect(r.ok).toBe(true);
     expect(r.gen).toBe('gen1');
     expect(r.sec16.offsets).toEqual([0x00AE, 0x00C0]);
     expect(r.sec16.match).toBe(true);
-    // Gen1 fixture has no AA-50 markers populated → all four slots empty.
+    // Task #409: Gen1 SEC16 CS now uses rfhSec16Cs and is golden.
+    expect(r.sec16.slots[0].csOk).toBe(true);
+    expect(r.sec16.slots[1].csOk).toBe(true);
+    // Default fixture has fobikSlots:0 → all four slots empty.
+    expect(r.slots).toHaveLength(KEY_SLOT_COUNT);
+    expect(r.slots[0].markerOffset).toBe(AA50_BASE_GEN1);
+    expect(r.slots[1].markerOffset).toBe(AA50_BASE_GEN1 + 2);
     for (const s of r.slots) expect(s.occupied).toBe(false);
+  });
+  it('detects populated Gen1 AA-50 markers when the fixture plants them', () => {
+    const buf = makeRfhubGen1({ fobikSlots: 3 });
+    const r = parseKeySlots(buf);
+    expect(r.slots[0].occupied).toBe(true);
+    expect(r.slots[1].occupied).toBe(true);
+    expect(r.slots[2].occupied).toBe(true);
+    expect(r.slots[3].occupied).toBe(false);
+  });
+});
+
+describe('aa50BaseFor / per-gen constants', () => {
+  it('returns the right base per generation', () => {
+    expect(aa50BaseFor('gen2')).toBe(AA50_BASE_GEN2);
+    expect(aa50BaseFor('gen1')).toBe(AA50_BASE_GEN1);
+    expect(aa50BaseFor('unknown')).toBe(-1);
+    // Back-compat: AA50_BASE alias still maps to Gen2.
+    expect(AA50_BASE).toBe(AA50_BASE_GEN2);
   });
 });
 
@@ -149,17 +174,15 @@ describe('transferSlot', () => {
     expect(r.occupiedAfter).toBe(false);
     expect(r.bytes[AA50_BASE]).toBe(0xFF);
   });
-  it('refuses Gen1 ↔ Gen2 mixing (Gen1 slot edit gate trips first)', () => {
-    const src = makeRfhubGen1();
-    const dst = makeRfhubGen2({});
-    const r = transferSlot(src, dst, 0, 0);
+  it('refuses Gen1 ↔ Gen2 mixing with a generation-mismatch error', () => {
+    // Task #409: Gen1 slot edits are now supported, so the gate no longer
+    // trips first — both directions surface the explicit gen-mismatch.
+    const r = transferSlot(makeRfhubGen1(), makeRfhubGen2({}), 0, 0);
     expect(r.ok).toBe(false);
-    // Gen1 trips the slot-edit gate before the gen-mismatch check; Gen2→Gen1
-    // would surface the explicit mismatch error. Either way: refused.
-    expect(r.error).toMatch(/not supported for gen1|generation mismatch/i);
+    expect(r.error).toMatch(/generation mismatch/i);
     const r2 = transferSlot(makeRfhubGen2({}), makeRfhubGen1(), 0, 0);
     expect(r2.ok).toBe(false);
-    expect(r2.error).toMatch(/not supported for gen1/i);
+    expect(r2.error).toMatch(/generation mismatch/i);
   });
   it('refuses out-of-range indices', () => {
     const src = makeRfhubGen2({});
@@ -197,20 +220,23 @@ describe('copyMasterSec16 — Gen2', () => {
 });
 
 describe('copyMasterSec16 — Gen1', () => {
-  it('copies SEC16 raw and preserves source CS bytes (formula unverified)', () => {
+  it('copies SEC16 raw and recomputes both slot CRCs (Task #409)', () => {
     const sec = new Uint8Array(16).map((_, i) => 0xA0 + i);
     const src = makeRfhubGen1({ sec16Bytes: sec });
     const dst = makeRfhubGen1({});
     const r = copyMasterSec16(src, dst);
     expect(r.ok).toBe(true);
     expect(r.patched).toBe(2);
+    const calc = rfhSec16Cs(sec);
     for (const off of [0x00AE, 0x00C0]) {
       for (let k = 0; k < 16; k++) expect(r.bytes[off + k]).toBe(sec[k]);
-      // Source CS bytes preserved (whatever the fixture wrote — both
-      // slots share the same raw, so the CS is identical too).
-      expect(r.bytes[off + 16]).toBe(src[0x00AE + 16]);
-      expect(r.bytes[off + 17]).toBe(src[0x00AE + 17]);
+      expect(((r.bytes[off + 16] << 8) | r.bytes[off + 17])).toBe(calc);
     }
+    // Round-trip parse → csOk:true on both slots.
+    const re = parseKeySlots(r.bytes);
+    expect(re.sec16.slots[0].csOk).toBe(true);
+    expect(re.sec16.slots[1].csOk).toBe(true);
+    expect(re.sec16.match).toBe(true);
   });
 });
 
@@ -222,17 +248,65 @@ describe('firstFreeSlot', () => {
   });
 });
 
-describe('Gen1 slot-edit gate (Architect review #1)', () => {
-  it('refuses addSlot / deleteSlot / transferSlot on Gen1 with a clear reason', () => {
-    const g1 = makeRfhubGen1();
-    const a = addSlot(g1, 0);
-    expect(a.ok).toBe(false);
-    expect(a.error).toMatch(/not supported for gen1/i);
-    const d = deleteSlot(g1, 0);
-    expect(d.ok).toBe(false);
-    expect(d.error).toMatch(/not supported for gen1/i);
+describe('Gen1 slot editing (Task #409 — AA-50 base 0x00D2 confirmed)', () => {
+  it('slotsEditableFor("gen1") is true', () => {
+    expect(slotsEditableFor('gen1')).toBe(true);
+    expect(slotsEditableFor('gen2')).toBe(true);
+    expect(slotsEditableFor('unknown')).toBe(false);
   });
-  it('still permits master-SEC16 copy on Gen1 (offsets confirmed)', () => {
+  it('addSlot writes AA 50 into a free Gen1 slot at the per-gen base', () => {
+    const buf = makeRfhubGen1({ fobikSlots: 0 });
+    const r = addSlot(buf, 1);
+    expect(r.ok).toBe(true);
+    expect(r.markerOffset).toBe(AA50_BASE_GEN1 + 2);
+    expect(r.bytes[AA50_BASE_GEN1 + 2]).toBe(0xAA);
+    expect(r.bytes[AA50_BASE_GEN1 + 3]).toBe(0x50);
+  });
+  it('deleteSlot clears AA 50 → FF FF on a populated Gen1 slot', () => {
+    const buf = makeRfhubGen1({ fobikSlots: 2 });
+    const r = deleteSlot(buf, 0);
+    expect(r.ok).toBe(true);
+    expect(r.patched).toBe(1);
+    expect(r.bytes[AA50_BASE_GEN1]).toBe(0xFF);
+    expect(r.bytes[AA50_BASE_GEN1 + 1]).toBe(0xFF);
+  });
+  it('transferSlot copies a Gen1 → Gen1 marker', () => {
+    const src = makeRfhubGen1({ fobikSlots: 4 });
+    const dst = makeRfhubGen1({ fobikSlots: 0 });
+    const r = transferSlot(src, dst, 2, 2);
+    expect(r.ok).toBe(true);
+    expect(r.occupiedAfter).toBe(true);
+    expect(r.bytes[AA50_BASE_GEN1 + 4]).toBe(0xAA);
+    expect(r.bytes[AA50_BASE_GEN1 + 5]).toBe(0x50);
+  });
+  it('Gen1 add → delete returns the buffer byte-identical (full round-trip)', () => {
+    const buf = makeRfhubGen1({ fobikSlots: 0 });
+    for (let i = 0; i < KEY_SLOT_COUNT; i++) {
+      const a = addSlot(buf, i);
+      expect(a.ok, `add gen1 slot ${i}`).toBe(true);
+      const d = deleteSlot(a.bytes, i);
+      expect(d.ok, `delete gen1 slot ${i}`).toBe(true);
+      expect(d.bytes.length).toBe(buf.length);
+      for (let off = 0; off < buf.length; off++) {
+        if (d.bytes[off] !== buf[off]) {
+          throw new Error(`gen1 round-trip mismatch at slot=${i} off=0x${off.toString(16)}: got ${d.bytes[off]}, want ${buf[off]}`);
+        }
+      }
+    }
+  });
+  it('Gen1 delete → add on a populated fixture restores byte-identical', () => {
+    const buf = makeRfhubGen1({ fobikSlots: 2 });
+    // slot 0 is occupied — delete it then re-add → buffer restored.
+    const d = deleteSlot(buf, 0);
+    expect(d.ok).toBe(true);
+    expect(d.patched).toBe(1);
+    const a = addSlot(d.bytes, 0);
+    expect(a.ok).toBe(true);
+    for (let off = 0; off < buf.length; off++) {
+      expect(a.bytes[off]).toBe(buf[off]);
+    }
+  });
+  it('still permits master-SEC16 copy on Gen1 (offsets + CS formula confirmed)', () => {
     const r = copyMasterSec16(makeRfhubGen1(), makeRfhubGen1());
     expect(r.ok).toBe(true);
   });
@@ -329,7 +403,9 @@ describe('Task #408 — per-fob ID block transfer (FreshAuto-style donor pair)',
 
   it('exposes a stable layout descriptor via keyIdLayoutFor', () => {
     expect(keyIdLayoutFor('gen2')).toEqual({ base: 0x0888, stride: 8, len: 8 });
-    expect(keyIdLayoutFor('gen1')).toEqual({ base: 0x00D2, stride: 8, len: 8 });
+    // Task #409 rebase: Gen1 ID block relocated from 0x00D2 to 0x00DA so it
+    // doesn't overlap the now-confirmed AA-50 marker block at 0x00D2.
+    expect(keyIdLayoutFor('gen1')).toEqual({ base: 0x00DA, stride: 8, len: 8 });
     expect(keyIdLayoutFor('unknown')).toBeNull();
   });
 });

@@ -513,7 +513,8 @@ function parseModule(data,filename,opts){
       else{info.vins=[];for(const o of knownOffsets){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);if(/^[1-9A-HJ-NPR-Z]/.test(s)){const sc=o+17<sz?data[o+17]:0,cc=crc8rf(st);info.vins.push({offset:o,vin:s,mirrored:true,sc,cc,crcOk:sc===cc});}}}
     }
     if(data.length>=0x051e)info.vehicleSecret={offset:0x050e,bytes:data.slice(0x050e,0x051e),hex:extractHex(data,0x050e,16),endian:"big"};
-    info.fobikSlots=countAA50(data,0x0880,10);
+    // AA-50 occupancy markers: Gen2 @ 0x0880, Gen1 @ 0x00D2 (Task #409).
+    info.fobikSlots=sz===2048?countAA50(data,0x00D2,4):countAA50(data,0x0880,10);
     info.securityMarkers=countPat(data,0xcc,0x66,0xaa,0x55);
     info.zzzzBlocks=countPat(data,0x5a,0x5a,0x5a,0x5a);
     info.partNumbers={};
@@ -549,17 +550,19 @@ function parseModule(data,filename,opts){
       const cs=(data[off+16]<<8)|data[off+17];
       const blank=raw.every(b=>b===0xFF||b===0x00);
       const hex=Array.from(raw).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-      // Gen2: CS = rfhSec16Cs (XOR^0x8B <<8 | 0x00). Gen1: formula not confirmed, csOk left undefined.
-      const csCalc=sec16IsGen2?rfhSec16Cs(raw):undefined;
-      const csOk=sec16IsGen2?(cs===csCalc):undefined;
+      // CS = rfhSec16Cs ((crc8_65 << 8) | 0x00) on both Gen1 and Gen2
+      // (Task #409 confirmed Gen1 uses the same formula).
+      const csCalc=rfhSec16Cs(raw);
+      const csOk=cs===csCalc;
       // BCM-endian (derived): byte-reversed version of the 16 raw bytes
       const bcmHex=Array.from(raw).reverse().map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
       info.sec16s.push({slot,offset:off,raw,hex,cs,csCalc,csOk,bcmHex,blank});
     }
     if(info.sec16s.length===2){
       info.sec16match=arrEq(Array.from(info.sec16s[0].raw),Array.from(info.sec16s[1].raw));
-      // Gen2: also require slot 1 CS is valid; Gen1: match + not blank is sufficient
-      info.sec16valid=!info.sec16s[0].blank&&info.sec16match&&(!sec16IsGen2||!!info.sec16s[0].csOk);
+      // Both Gen1 and Gen2 require slot 1 CS to be valid (Task #409
+      // confirmed Gen1's CS formula matches Gen2's).
+      info.sec16valid=!info.sec16s[0].blank&&info.sec16match&&!!info.sec16s[0].csOk;
     }
     info.sec16SourceSlot=1;
     info.rfhGen=sz===4096?'Gen2 (24C32)':sz===8192?'Gen2-x2 (8192B, unusual)':sz===2048?'Gen1 (24C16)':'Unknown';

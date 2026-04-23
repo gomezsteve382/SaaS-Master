@@ -178,11 +178,15 @@ function makeRfhubGen2({
 // the 0xEA5+ Gen2 slot table is past the end of a 24C16). SEC16 at 0x00AE
 // (slot 1) / 0x00C0 (slot 2). Task #365 wired sz===2048 → RFHUB into
 // parseModule and the Key Prog wizard; this fixture matches that layout.
+// Task #409: AA-50 occupancy markers live at 0x00D2 stride 2 (just past
+// the SEC16 slot-2 CS bytes), and SEC16 CS uses the same Gen2 formula
+// (rfhSec16Cs = (crc8_65 << 8) | 0x00).
 function makeRfhubGen1({
   vin = VIN_DEFAULT,
   vinCount = 4,
   sec16Bytes = null,
   fobIds = null,
+  fobikSlots = 0,
 } = {}) {
   const sz = 2048;
   const buf = new Uint8Array(sz).fill(0xFF);
@@ -195,15 +199,30 @@ function makeRfhubGen1({
     buf[off + 17] = crc8rf(vinAscii);
   }
   const sec = sec16Bytes || new Uint8Array(16).map((_, i) => 0xB0 + i);
-  fill(buf, 0x00AE, sec);
-  fill(buf, 0x00C0, sec);
-  // Per-fob Autel transponder ID block @ 0x00D2 stride 8 (Task #408).
-  // Documented for parity with Gen2; Gen1 slot edits are still gated off
-  // because the AA-50 marker offset is past EOF for a 24C16 image.
+  // Task #409: Gen1 SEC16 CS confirmed to use the same (crc8_65 << 8) | 0x00
+  // formula as Gen2. Stamp the CS at +16/+17 so a round-trip parse reports
+  // csOk:true on both mirror slots.
+  const secCs = rfhSec16Cs(sec);
+  for (const off of [0x00AE, 0x00C0]) {
+    fill(buf, off, sec);
+    buf[off + 16] = (secCs >>> 8) & 0xff;
+    buf[off + 17] = secCs & 0xff;
+  }
+  // AA-50 fobik occupancy markers (Task #409 confirmed): 4 slots × stride 2
+  // starting at 0x00D2, immediately after the SEC16 slot-2 CS bytes
+  // (0xD0/0xD1). Per-fob Autel transponder ID block (Task #408) follows at
+  // 0x00DA stride 8 — relocated past the marker block during the rebase
+  // since #408's original 0x00D2 placement collided with the confirmed
+  // marker offset. Layout is structural; pending real-dump verification
+  // (#416).
+  for (let i = 0; i < fobikSlots; i++) {
+    buf[0x00D2 + i * 2] = 0xAA;
+    buf[0x00D2 + i * 2 + 1] = 0x50;
+  }
   if (fobIds) {
     for (let i = 0; i < 4; i++) {
       if (!fobIds[i]) continue;
-      fill(buf, 0x00D2 + i * 8, fobIds[i]);
+      fill(buf, 0x00DA + i * 8, fobIds[i]);
     }
   }
   // VIN @ 0x92 with CRC16 (CCITT) BE at +17. The Gen1 24C16 image is too
