@@ -1,6 +1,6 @@
 import {crc16,crc8_42,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic} from './crc.js';
 import {IMMO_BLOCK,TR,WT,WMI,YR,TC,TL} from './constants.js';
-import {arrEq,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm} from './parseModule.js';
+import {arrEq,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn} from './parseModule.js';
 
 const IMMO_REC_=24,IMMO_KC_=8;
 const IMMO_BLK_=IMMO_REC_*IMMO_KC_;
@@ -40,6 +40,7 @@ function analyzeFile(buf,name){
     else if(type==='BCM'&&(_fnType==='GPEC2A'||_fnType==='95640')&&!looksLikeRealBcm(data))type=_fnType;
   }
   const sizeWarn=buildSizeWarn(type,sz);
+  const contentWarn=type==='BCM'?buildBcmContentWarn(data):null;
   const vins=[],partials=[];
   // Gen2 (24C32, 4096 B): CS = rfhGen2VinCs (XOR^0x87); Gen1 (24C16, 2048 B): CS = crc8rf
   if(type==='RFHUB'){const rfhIsGen2=sz===4096;let rfhMagic=0xDB;if(rfhIsGen2){for(const _o of[0xEA5,0xEB9,0xECD,0xEE1]){const _st=data.slice(_o,_o+17);const _sc=_o+17<sz?data[_o+17]:0;if(!_st.every(b=>b===0xFF||b===0)&&_sc!==0x00&&_sc!==0xFF){rfhMagic=rfhGen2DetectMagic(_st,_sc);break;}}}for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);const sc=data[off+17],cc=rfhIsGen2?rfhGen2VinCs(st,rfhMagic):crc8rf(st);vins.push({off,vin:s,algo:'c8',coff:off+17,sc,cc,ok:sc===cc,cv:_checkVin(s),mirrored:true});}}
@@ -53,7 +54,7 @@ function analyzeFile(buf,name){
   else if(type==='95640'){sec={t:'95640'};sec.key=data.slice(0x40,0x50);sec.kb=sec.key.every(b=>b===0xFF);sec.fob=data.slice(0x200,0x240);sec.fb=sec.fob.every(b=>b===0xFF);}
   else if(type==='RFHUB'){sec={t:'rfhub'};sec.key=data.slice(0x40,0x50);sec.kb=sec.key.every(b=>b===0xFF);}
   else if(type==='GPEC2A'){sec={t:'gpec2a'};sec.skim=data[0x0011];sec.on=data[0x0011]===0x80;sec.key=data.slice(0x0203,0x020B);sec.km=arrEq(data.slice(0x0203,0x020B),data.slice(0x0361,0x0369));sec.zz=data[0x0c8c]===0x5a;if(sz>0x3CE){const s6=data.slice(0x3C8,0x3CE);sec.pcmSec6={hex:Array.from(s6).map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' '),damaged:s6.every(b=>b===0xFF),raw:s6};}}
-  return{type,name:TL[type]||type,color:TC[type]||'#9E9E9E',size:sz,data,vins,partials,sec,hexOnly:type==='UNKNOWN',sizeWarn};
+  return{type,name:TL[type]||type,color:TC[type]||'#9E9E9E',size:sz,data,vins,partials,sec,hexOnly:type==='UNKNOWN',sizeWarn,contentWarn};
 }
 
 function patchFile(f,nv){const out=new Uint8Array(f.data);const vb=new TextEncoder().encode(nv.toUpperCase());const log=[];

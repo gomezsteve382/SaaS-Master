@@ -630,3 +630,72 @@ describe('sizeWarn — non-canonical capture sizes', () => {
     expect(buildSizeWarn('RFHUB', 4096)).toBeNull();
   });
 });
+
+describe('contentWarn — 64 KB capture that does not look like a BCM', () => {
+  // Two real captures in the test fixtures are 64 KB but are not actually
+  // BCM dumps. Without filename hints they would be auto-detected as BCM
+  // and surface garbage in the BCM panel. The contentWarn flags this so
+  // the user knows to re-load the file through the GPEC2A or 95640 tab.
+  const fs = require('fs');
+  const path = require('path');
+  const fxDir = path.resolve(__dirname, '../../__tests__/fixtures');
+  const load = (n) => new Uint8Array(fs.readFileSync(path.join(fxDir, n)));
+
+  it('populated real BCM has no contentWarn (VINs at canonical slots)', () => {
+    const m = parseModule(load('SAMPLE_BCM_SYNCED_2C3CDXL90MH582899.bin'), 'bcm.bin');
+    expect(m.type).toBe('BCM');
+    expect(m.contentWarn).toBeNull();
+  });
+
+  it('JOVENTINO 64 KB capture loaded with neutral filename triggers contentWarn', () => {
+    // Strip the filename hint so the auto-detect falls through to 'BCM' on
+    // size alone — exactly the situation the user hits with renamed files.
+    const m = parseModule(load('SAMPLE_GPEC2A_EXT_EEPROM_JOVENTINO_OG.bin'), 'module1.bin');
+    expect(m.type).toBe('BCM');
+    expect(m.contentWarn).not.toBeNull();
+    expect(m.contentWarn.kind).toBe('maybe-not-bcm');
+    expect(m.contentWarn.message).toMatch(/65,536.*BCM/);
+    expect(m.contentWarn.causes.some(c => /GPEC2A/.test(c))).toBe(true);
+    expect(m.contentWarn.causes.some(c => /95640/.test(c))).toBe(true);
+  });
+
+  it('FCA_DK 64 KB fixture is byte-identical to a real BCM dump — no warn', () => {
+    // The "FCA 95640 OG" fixture turns out to be byte-identical to
+    // SAMPLE_BCM_DFLASH_18TH_OG.bin (md5 73c9390aec8d870ddf1c56873f4438af).
+    // Its 0x2000 backup IMMO bank holds 8 populated records, so by content
+    // it really is a BCM image — the contentWarn correctly does NOT fire.
+    const m = parseModule(load('SAMPLE_95640_EXT_EEPROM_FCA_DK_OG.bin'), 'module2.bin');
+    expect(m.type).toBe('BCM');
+    expect(m.contentWarn).toBeNull();
+  });
+
+  it('virgin BCM with NO populated VINs/IMMO triggers contentWarn (defensive hint)', () => {
+    // A 64 KB blank/virgin buffer satisfies the size detector but has no
+    // BCM-defining structure. The warning steers the user toward
+    // double-checking that the dump is really a BCM (vs. a padded GPEC2A
+    // / 95640) before they trust the BCM panel fields.
+    const blank = new Uint8Array(65536).fill(0xFF);
+    const m = parseModule(blank, 'unknown_dump.bin');
+    expect(m.type).toBe('BCM');
+    expect(m.contentWarn).not.toBeNull();
+    expect(m.contentWarn.kind).toBe('maybe-not-bcm');
+  });
+
+  it('makeBcm fixture (synthetic populated BCM) has no contentWarn', () => {
+    const m = parseModule(makeBcm({ size: 65536 }), 'bcm.bin');
+    expect(m.type).toBe('BCM');
+    expect(m.contentWarn).toBeNull();
+  });
+
+  it('synthetic BCM at 128 KB also passes content sanity check', () => {
+    const m = parseModule(makeBcm({ size: 131072 }), 'bcm.bin');
+    expect(m.type).toBe('BCM');
+    expect(m.contentWarn).toBeNull();
+  });
+
+  it('non-BCM types never get a contentWarn', () => {
+    expect(parseModule(makeGpec2a(), 'g.bin').contentWarn).toBeNull();
+    expect(parseModule(make95640(), 's.bin').contentWarn).toBeNull();
+    expect(parseModule(makeRfhubGen2(), 'r.bin').contentWarn).toBeNull();
+  });
+});

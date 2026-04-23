@@ -85,6 +85,59 @@ function looksLikeRealBcm(data){
   return false;
 }
 
+// Content sanity check for a 64 KB / 128 KB capture that was auto-detected
+// as BCM purely on size. Returns a warn object describing why the content
+// does NOT look like a real BCM (no VINs in the canonical 0x5320..0x5380
+// slots, no immo records at 0x40C0 or backup at 0x2000), or null when at
+// least one BCM-defining structure is populated. Used to flag oversized
+// GPEC2A / 95640 captures that collide with the BCM size and would
+// otherwise be silently parsed as BCMs and surface garbage in the BCM panel.
+function buildBcmContentWarn(data){
+  if(data.length!==65536&&data.length!==131072)return null;
+  const sz=data.length;
+  // 1. VIN slot scan — both layouts (base+0 legacy, base+8 Redeye 2020+).
+  let vinHits=0;
+  for(const base of[0x5320,0x5340,0x5360,0x5380]){
+    if(extractVIN(data,base)||extractVIN(data,base+8))vinHits++;
+  }
+  // 2. Immo record scan — at least one populated 24-byte slot in the
+  //    primary (0x40C0) or backup (0x2000) bank.
+  const hasImmo=(base)=>{
+    if(base+IMMO_BLOCK>sz)return false;
+    for(let i=0;i<IMMO_KC;i++){
+      const o=base+i*IMMO_REC;
+      let nonblank=0;
+      for(let j=0;j<IMMO_REC;j++)if(data[o+j]!==0xFF&&data[o+j]!==0)nonblank++;
+      if(nonblank>2)return true;
+    }
+    return false;
+  };
+  const immoPrimary=hasImmo(0x40C0);
+  const immoBackup=hasImmo(0x2000);
+  // 3. Partial-VIN scan at 0x4098 / 0x40B0 — 8 ASCII chars + CRC16.
+  let partialHits=0;
+  for(const po of[0x4098,0x40B0]){
+    if(po+10>sz)continue;
+    let s='',ok=true;
+    for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}
+    if(ok&&s.length===8)partialHits++;
+  }
+  if(vinHits>0||immoPrimary||immoBackup||partialHits>0)return null;
+  return{
+    kind:'maybe-not-bcm',
+    sizeLabel:sz.toLocaleString()+' B',
+    message:'This '+sz.toLocaleString()+'-byte capture has no BCM-defining content — it may not actually be a BCM dump.',
+    causes:[
+      'No VINs found at the canonical BCM slots (0x5320, 0x5340, 0x5360, 0x5380).',
+      'No partial VINs found at 0x4098 / 0x40B0.',
+      'IMMO record bank at 0x40C0 and backup bank at 0x2000 are both blank.',
+      'If this is an oversized GPEC2A capture (real size 4 KB), re-load it through the GPEC2A tab.',
+      'If this is an oversized 95640 capture (real size 8 KB), re-load it through the 95640 tab.',
+      'A blank/virgin BCM is also possible — confirm with the source ECU before writing.',
+    ],
+  };
+}
+
 function detectBySignature(data){
   const sz=data.length;
   if(sz>=4096&&sz<=20480){
@@ -149,6 +202,7 @@ function parseModule(data,filename,opts){
 
   const info={type,filename,data,size:sz,name:TL[type]||type,color:TC[type]||'#9E9E9E'};
   info.sizeWarn=buildSizeWarn(type,sz);
+  info.contentWarn=type==='BCM'?buildBcmContentWarn(data):null;
   if(type==='UNKNOWN')info.hexOnly=true;
 
   if(type==='GPEC2A'){
@@ -300,4 +354,4 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm};
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn};

@@ -34,6 +34,25 @@ export function SizeWarnBanner({warn}){
   </Card>;
 }
 
+// Renders the "this 64 KB file doesn't look like a real BCM" banner. Fires
+// when a 64 KB / 128 KB capture was auto-detected as BCM purely on size but
+// has no VINs, no immo records and no partial VINs — i.e. the kind of
+// padded GPEC2A / 95640 capture that would otherwise surface garbage in
+// the BCM panel.
+export function ContentWarnBanner({warn}){
+  if(!warn)return null;
+  return <Card style={{marginBottom:12,padding:12,border:'1px solid '+C.wn+'66',background:C.wn+'14'}}>
+    <div style={{fontWeight:800,fontSize:12,color:C.wn,marginBottom:4,letterSpacing:.5}}>⚠ DOESN'T LOOK LIKE A BCM — {warn.message}</div>
+    <div style={{fontSize:11,color:C.tx,lineHeight:1.45,marginBottom:6}}>
+      The file is being parsed as a BCM because it is {warn.sizeLabel} (the same size as a real BCM image),
+      but none of the BCM-defining structures are present. The fields below may be misleading.
+    </div>
+    <ul style={{margin:'4px 0 0 18px',padding:0,fontSize:11,color:C.tx,lineHeight:1.5}}>
+      {warn.causes.map((c,i)=><li key={i}>{c}</li>)}
+    </ul>
+  </Card>;
+}
+
 export default function ModuleFieldsPanel({mod,onSyncImmo}){
   if(!mod||mod.type==='UNKNOWN')return <div style={{fontSize:11,color:C.tm,padding:10}}>
     {mod&&mod.sizeWarn&&<SizeWarnBanner warn={mod.sizeWarn}/>}
@@ -42,6 +61,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
 
   return <div>
     <SizeWarnBanner warn={mod.sizeWarn}/>
+    <ContentWarnBanner warn={mod.contentWarn}/>
     {/* GPEC2A ------------------------------------------------------------- */}
     {mod.type==='GPEC2A'&&(()=>{
       const rc=mod.runtimeCounters||{};
