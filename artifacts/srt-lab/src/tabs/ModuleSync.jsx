@@ -4,7 +4,7 @@ import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm } from "../lib/securityBytes.js";
-import { bcmTooSmall, moduleTooSmall } from "../lib/parseModule.js";
+import { bcmTooSmall, moduleTooSmall, pcmChipFromSize } from "../lib/parseModule.js";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -787,10 +787,16 @@ function PcmCard({ parsed, pnOverride }) {
 
   return (
     <div style={{ background: 'rgba(0,200,83,0.02)', borderRadius: 12, padding: 16, border: `1.5px solid ${statusColor}40` }}>
-      <div style={{ fontWeight: 900, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: C.tx, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+      {(() => null)()}
+      <div style={{ fontWeight: 900, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: C.tx, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
         ⚙️ PCM · Continental
         <Badge text={status} color={statusColor} />
         <Badge text={parsed.variant} color={C.a1} />
+        {(() => {
+          const chip = pcmChipFromSize(parsed.size);
+          if (chip) return <span data-testid="pcm-chip-badge" data-chip={chip.chip} data-chip-key={chip.chipKey}><Badge text={chip.label} color={C.a4} /></span>;
+          return <span data-testid="pcm-chip-badge" data-chip="UNKNOWN"><Badge text={`${parsed.size} B · UNKNOWN CHIP`} color={C.wn} /></span>;
+        })()}
         {pnOverride && <PnOverrideBadge />}
       </div>
       {pnOverride && (

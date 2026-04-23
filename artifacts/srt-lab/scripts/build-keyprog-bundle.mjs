@@ -46,7 +46,7 @@ import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
-import { parseModule } from '../src/lib/parseModule.js';
+import { parseModule, pcmChipFromKey, PCM_CHIPS } from '../src/lib/parseModule.js';
 import { crc16 } from '../src/lib/crc.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -60,13 +60,25 @@ const PARTIAL_VIN_OFFSETS = [0x4098, 0x40B0];
 
 const SRC_BCM = '22CHARGER_REDEYE_6.2_797BCM_DFLASH_VIRGIN_1776226962777.bin';
 const SRC_RFH = 'RFH_HERMANADO_20CHRGR6.2RFHUBFILE_EEE_OG_VIRGINSYCHNED_1776899205057.bin';
+// SRC_PCM is the 8 KB doubled "VIRGINSYNCHED" capture (first 4 KB = real
+// 95320-layout image carrying the target VIN; second 4 KB = 0xFF padding).
+// We always read the 8 KB source and slice or copy depending on --pcm-chip
+// (Task #379). 95320 (4 KB) is the default because the bench chip on the
+// target Charger is a 95320 — pre-#379 the bundler shipped an 8 KB output
+// that the CGDI flasher refused with "File different size."
 const SRC_PCM = 'FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGINSYNCHED_6.2_1776899205055.bin';
 
 const OUT_BCM = 'BCM_22CHARGER_REDEYE_6.2_KEYPROG_' + TARGET_VIN + '.bin';
 const OUT_RFH = 'RFH_20CHRGR6.2_KEYPROG_' + TARGET_VIN + '.bin';
-const OUT_PCM = 'PCM_FCA_CONTINENTAL_GPEC2A_KEYPROG_' + TARGET_VIN + '.bin';
-const OUT_VERIFY = 'VERIFY_KEYPROG_' + TARGET_VIN + '.txt';
-const OUT_ZIP = 'KEYPROG_' + TARGET_VIN + '.zip';
+function pcmOutName(chip) {
+  return 'PCM_FCA_CONTINENTAL_GPEC2A_' + chip.sizeLabel.replace(' ', '') + '_KEYPROG_' + TARGET_VIN + '.bin';
+}
+function verifyOutName(chip) {
+  return 'VERIFY_KEYPROG_' + TARGET_VIN + '_' + chip.sizeLabel.replace(' ', '') + '.txt';
+}
+function zipOutName(chip) {
+  return 'KEYPROG_' + TARGET_VIN + '_' + chip.sizeLabel.replace(' ', '') + '.zip';
+}
 
 /* Filename prefix → expected module type. Refusal patterns abort the run
  * unless --allow-mislabeled is passed; allow patterns are informational
@@ -117,9 +129,30 @@ if (!IS_ENTRYPOINT) {
   // Exported helpers above are enough for tests; skip the build pipeline.
 } else {
 
-const args = new Set(process.argv.slice(2));
+const argv = process.argv.slice(2);
+const args = new Set(argv);
 const ALLOW_MISLABELED = args.has('--allow-mislabeled');
 const SKIP_CLEANUP = args.has('--no-cleanup');
+
+// --pcm-chip <key> selects which EEPROM size the PCM output targets
+// (Task #379). Default 4kb (95320) — that's the chip on the bench for
+// the target Charger and the original "File different size" failure
+// mode. Pass --pcm-chip 8kb to ship the full doubled 95640 image.
+function parsePcmChipArg() {
+  const i = argv.indexOf('--pcm-chip');
+  if (i < 0) return pcmChipFromKey('4kb');
+  const v = argv[i + 1];
+  const c = pcmChipFromKey(v);
+  if (!c) {
+    const valid = PCM_CHIPS.map((p) => p.chipKey + '|' + p.chip).join(', ');
+    fail('Unknown --pcm-chip "' + v + '". Valid: ' + valid + '.');
+  }
+  return c;
+}
+const PCM_CHIP = parsePcmChipArg();
+const OUT_PCM = pcmOutName(PCM_CHIP);
+const OUT_VERIFY = verifyOutName(PCM_CHIP);
+const OUT_ZIP = zipOutName(PCM_CHIP);
 
 const sha256 = (buf) => crypto.createHash('sha256').update(buf).digest('hex');
 const hex2 = (b) => b.toString(16).toUpperCase().padStart(2, '0');
@@ -161,9 +194,10 @@ function patchPartialVin(buf, off, tail) {
   return { off, before, after, csHex: cs.toString(16).toUpperCase().padStart(4, '0') };
 }
 
-console.log('=== KEYPROG bundle builder (Task #366) ===');
+console.log('=== KEYPROG bundle builder (Task #366 / chip-aware via #379) ===');
 console.log('Target VIN:    ', TARGET_VIN);
 console.log('Shared secret: ', SHARED_SECRET_HEX);
+console.log('PCM chip:      ', PCM_CHIP.chip + ' (' + PCM_CHIP.sizeLabel + ', ' + PCM_CHIP.sizeBytes + ' B)');
 console.log('Allow mislabeled source filenames:', ALLOW_MISLABELED);
 console.log('');
 
@@ -273,9 +307,22 @@ const pcmSec6 = String(pcmInfo.pcmSec6?.hex || '').replace(/ /g, '');
 if (!SHARED_SECRET_HEX.startsWith(pcmSec6)) fail('PCM SEC6 ' + pcmSec6 + ' is not the prefix of the shared secret');
 
 const outRfh = new Uint8Array(rfhSrc);
-const outPcm = new Uint8Array(pcmSrc);
+// PCM output sizing (Task #379):
+//   --pcm-chip 4kb (default, 95320) → first 4 KB of the 8 KB virgin only.
+//                That half is the real GPEC2A image carrying the target VIN
+//                and SEC6; half-2 (verified all-0xFF above) is dropped.
+//   --pcm-chip 8kb (95640)          → byte-identical pass-through of the
+//                full doubled 8 KB capture.
+const outPcm = PCM_CHIP.sizeBytes === 4096
+  ? new Uint8Array(pcmSrc.slice(0, 4096))
+  : new Uint8Array(pcmSrc);
+if (outPcm.length !== PCM_CHIP.sizeBytes) {
+  fail('PCM output size ' + outPcm.length + ' B does not match selected chip ' + PCM_CHIP.chip + ' (' + PCM_CHIP.sizeBytes + ' B)');
+}
 if (sha256(outRfh) !== rfhSrcSha) fail('RFH output SHA differs from source after copy');
-if (sha256(outPcm) !== pcmSrcSha) fail('PCM output SHA differs from source after copy');
+if (PCM_CHIP.sizeBytes === 8192 && sha256(outPcm) !== pcmSrcSha) {
+  fail('PCM output SHA differs from source after 8 KB pass-through');
+}
 
 const outBcmSha = sha256(outBcm);
 const outRfhSha = sha256(outRfh);
@@ -335,11 +382,17 @@ lines.push('   SEC16 slot1 (= shared secret BE): ' + rfhSec);
 lines.push('   SEC16 slot1 csOk:                 ' + rfhInfo.sec16s[0].csOk);
 lines.push('   SEC16 slot1↔slot2 match:          ' + rfhInfo.sec16match);
 lines.push('');
-lines.push('-- PCM ' + OUT_PCM + '  (PASS-THROUGH)');
-lines.push('   module type:   ' + pcmInfo.type + '  (8 KB doubled capture; half-2 is 0xFF padding)');
-lines.push('   src filename:  ' + SRC_PCM);
+const pcmDispo = PCM_CHIP.sizeBytes === 4096
+  ? 'SLICED first 4 KB of 8 KB virgin (95320 / 4 KB target chip)'
+  : 'PASS-THROUGH (full 8 KB doubled capture; half-2 is 0xFF padding)';
+const pcmShaTag = PCM_CHIP.sizeBytes === 8192 ? '  [identical]' : '  [first 4 KB of source]';
+lines.push('-- PCM ' + OUT_PCM + '  (' + pcmDispo + ')');
+lines.push('   module type:   ' + pcmInfo.type);
+lines.push('   target chip:   ' + PCM_CHIP.chip + ' (' + PCM_CHIP.sizeLabel + ', ' + PCM_CHIP.sizeBytes + ' B)');
+lines.push('   src filename:  ' + SRC_PCM + '  (' + pcmSrc.length + ' B)');
 lines.push('   src SHA-256:   ' + pcmSrcSha);
-lines.push('   out SHA-256:   ' + outPcmSha + '  [identical]');
+lines.push('   out size:      ' + outPcm.length + ' B');
+lines.push('   out SHA-256:   ' + outPcmSha + pcmShaTag);
 lines.push('   Full VINs (in 4 KB GPEC2A half):');
 for (const v of pcmInfo.vins) lines.push('     ' + fO(v.offset) + '  ' + v.vin);
 lines.push('   PCM SEC6 (= first 6 bytes of shared secret): ' + pcmSec6);
@@ -351,8 +404,12 @@ lines.push('  - The BCM patch is the minimum byte-set required to bring the virg
 lines.push('    to the target VIN: 2 partial-VIN tail slots (8 ASCII bytes + 2-byte');
 lines.push('    big-endian CRC16 each). The source virgin already had the 4 full VINs,');
 lines.push('    SKIM secret, IMMO records, and bank sequence numbers correct.');
-lines.push('  - RFH and PCM outputs are byte-identical copies of their virgin sources;');
-lines.push('    SHA-256 equality is enforced.');
+lines.push('  - RFH output is a byte-identical copy of the virgin source.');
+lines.push('  - PCM output size depends on --pcm-chip (default 4kb / 95320):');
+lines.push('      4kb (95320) → first 4 KB of the 8 KB virgin (drops the 0xFF padding half);');
+lines.push('      8kb (95640) → byte-identical pass-through of the full 8 KB virgin.');
+lines.push('    The CGDI flasher rejects the wrong size with "File different size",');
+lines.push('    so the chip selection at build time matches the bench EEPROM.');
 lines.push('  - Output filenames start with the actual module type (BCM_/RFH_/PCM_) so');
 lines.push('    a flash-to-wrong-module mistake is impossible from naming alone.');
 lines.push('  - The bundler is idempotent: re-running yields byte-identical outputs and');
@@ -457,6 +514,11 @@ const OBSOLETE_OUTPUTS = [
   'RFH_HERMANADO_20CHRGR6.2RFHUBFILE_EEE_OG_VIRGINSYCHNED_1776899205057_KEYPROG_2C3CDXCT1HH652640.bin',
   'FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGINSYNCHED_6.2_1776899205055_KEYPROG_2C3CDXCT1HH652640.bin',
   'KEYPROG_2C3CDXCT1HH652640_1776903757676.zip',
+  // Pre-#379 un-suffixed PCM/VERIFY/zip outputs (now replaced by
+  // the chip-suffixed _4KB_/_8KB_ filenames).
+  'PCM_FCA_CONTINENTAL_GPEC2A_KEYPROG_2C3CDXCT1HH652640.bin',
+  'VERIFY_KEYPROG_2C3CDXCT1HH652640.txt',
+  'KEYPROG_2C3CDXCT1HH652640.zip',
 ];
 const PROTECTED_INPUTS = new Set([SRC_BCM, SRC_RFH, SRC_PCM]);
 if (!SKIP_CLEANUP) {

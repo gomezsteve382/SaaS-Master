@@ -53,16 +53,26 @@ const SRC_PCM = 'FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGINSYNCHED_6.2_17768992050
 
 const OUT_BCM = 'BCM_22CHARGER_REDEYE_6.2_KEYPROG_' + TARGET_VIN + '.bin';
 const OUT_RFH = 'RFH_20CHRGR6.2_KEYPROG_' + TARGET_VIN + '.bin';
-const OUT_PCM = 'PCM_FCA_CONTINENTAL_GPEC2A_KEYPROG_' + TARGET_VIN + '.bin';
-const OUT_VERIFY = 'VERIFY_KEYPROG_' + TARGET_VIN + '.txt';
-const OUT_ZIP = 'KEYPROG_' + TARGET_VIN + '.zip';
+// Task #379: PCM output filename now carries a chip-size suffix (4KB/8KB)
+// so the CGDI flasher can't pick the wrong sized image and refuse with
+// "File different size". Default --pcm-chip is 4kb (95320 bench chip).
+const OUT_PCM = 'PCM_FCA_CONTINENTAL_GPEC2A_4KB_KEYPROG_' + TARGET_VIN + '.bin';
+const OUT_VERIFY = 'VERIFY_KEYPROG_' + TARGET_VIN + '_4KB.txt';
+const OUT_ZIP = 'KEYPROG_' + TARGET_VIN + '_4KB.zip';
+const OUT_PCM_8KB = 'PCM_FCA_CONTINENTAL_GPEC2A_8KB_KEYPROG_' + TARGET_VIN + '.bin';
+const OUT_VERIFY_8KB = 'VERIFY_KEYPROG_' + TARGET_VIN + '_8KB.txt';
+const OUT_ZIP_8KB = 'KEYPROG_' + TARGET_VIN + '_8KB.zip';
 
 // Pinned SHA-256s for outputs (regression catch). Computed from the bundler
 // run against the virgin sources above.
 const PIN_BCM_SHA = '747e26a61909aa4dca72c91bbbb612149e923fdecd81c9cf6b037623a2cb0197';
-// RFH and PCM pins are the source SHAs — pass-through must preserve them.
+// RFH pin is the source SHA — pass-through preserves it.
 const PIN_RFH_SHA = '3cda6ee5dfc324fabc554d19d7b3fb987e53f29ec833130c11fc46dd276c1488';
-const PIN_PCM_SHA = '942dd1a267d2ad4c53b57d0d1f6292821cbd74c1599fb84e6a120b14703219db';
+// PCM 4KB pin = SHA of the first 4 KB slice of the 8 KB virgin (Task #379
+// default; the bench Charger uses a 95320 chip).
+const PIN_PCM_4KB_SHA = 'eab426c5990f6c1c260aa85d68d9236692143ea82e802edaa80e3b43cd73d4d2';
+// PCM 8KB pin = full source SHA (pass-through for 95640 chips).
+const PIN_PCM_8KB_SHA = '942dd1a267d2ad4c53b57d0d1f6292821cbd74c1599fb84e6a120b14703219db';
 
 const sha256 = (buf) => crypto.createHash('sha256').update(buf).digest('hex');
 function loadOrNull(name) {
@@ -136,9 +146,13 @@ d('Task #366 — KEYPROG bundle (golden, runs the bundler)', () => {
     expect(r.stdout).toMatch(/PASS — bundle ready/);
   });
 
-  it('RFH and PCM outputs are SHA-256-equal to their virgin source files', () => {
+  it('RFH output is SHA-256-equal to its virgin source file', () => {
     expect(sha256(rfhOut)).toBe(sha256(rfhSrc));
-    expect(sha256(pcmOut)).toBe(sha256(pcmSrc));
+  });
+
+  it('PCM 4KB default output is the SHA-256 of the first 4 KB slice of the 8 KB virgin (Task #379)', () => {
+    expect(pcmOut.length).toBe(4096);
+    expect(sha256(pcmOut)).toBe(sha256(pcmSrc.slice(0, 4096)));
   });
 
   it('BCM patch is minimal: ≤20 bytes changed, all inside partial-VIN windows', () => {
@@ -169,7 +183,7 @@ d('Task #366 — KEYPROG bundle (golden, runs the bundler)', () => {
   it('output SHA-256s match pinned values (regression catch for byte drift)', () => {
     expect(sha256(bcmOut)).toBe(PIN_BCM_SHA);
     expect(sha256(rfhOut)).toBe(PIN_RFH_SHA);
-    expect(sha256(pcmOut)).toBe(PIN_PCM_SHA);
+    expect(sha256(pcmOut)).toBe(PIN_PCM_4KB_SHA);
   });
 
   it('BCM output: 4 full + 2 partial VINs at target with valid CRCs; SKIM secret matches', () => {
@@ -206,11 +220,9 @@ d('Task #366 — KEYPROG bundle (golden, runs the bundler)', () => {
     expect(info.sec16s[0].csOk).toBe(true);
   });
 
-  it('PCM output is the 8 KB doubled capture; half-1 GPEC2A carries target VIN; half-2 is 0xFF padding', () => {
-    expect(pcmOut.length).toBe(8192);
-    const half2 = pcmOut.slice(4096);
-    expect(half2.every((b) => b === 0xFF)).toBe(true);
-    const info = parseModule(pcmOut.slice(0, 4096), OUT_PCM + '#half1');
+  it('PCM 4KB output is the GPEC2A half carrying target VIN + SEC6 (no padding tail)', () => {
+    expect(pcmOut.length).toBe(4096);
+    const info = parseModule(pcmOut, OUT_PCM);
     expect(info.type).toBe('GPEC2A');
     expect(info.vins.length).toBeGreaterThan(0);
     for (const v of info.vins) expect(v.vin).toBe(TARGET_VIN);
@@ -247,7 +259,7 @@ d('Task #366 — KEYPROG bundle (golden, runs the bundler)', () => {
     expect(byName[OUT_VERIFY].sha256).toBe(sha256(verifyOut));
     expect(byName[OUT_BCM].size).toBe(65536);
     expect(byName[OUT_RFH].size).toBe(4096);
-    expect(byName[OUT_PCM].size).toBe(8192);
+    expect(byName[OUT_PCM].size).toBe(4096);
   });
 
   it('bundler is idempotent: a second run produces byte-identical outputs', () => {
@@ -265,6 +277,51 @@ d('Task #366 — KEYPROG bundle (golden, runs the bundler)', () => {
     expect(loadOrNull(SRC_BCM)).not.toBeNull();
     expect(loadOrNull(SRC_RFH)).not.toBeNull();
     expect(loadOrNull(SRC_PCM)).not.toBeNull();
+  });
+});
+
+// Task #379 — explicit coverage for the `--pcm-chip 8kb` (95640) branch so a
+// future regression that breaks pass-through doesn't slip past the default
+// 4 KB suite above. We rebuild with --pcm-chip 8kb, then assert the suffixed
+// output names, the 8192-byte size, and SHA-equality to the source virgin.
+d('Task #379 — KEYPROG bundle, --pcm-chip 8kb (95640) branch', () => {
+  const r = runBundler(['--pcm-chip', '8kb']);
+  if (r.status !== 0) {
+    throw new Error('Bundler (8kb) failed (exit ' + r.status + ')\nSTDOUT:\n' + r.stdout + '\nSTDERR:\n' + r.stderr);
+  }
+
+  const pcmSrc = loadOrNull(SRC_PCM);
+  const pcm8 = loadOrNull(OUT_PCM_8KB);
+  const verify8 = loadOrNull(OUT_VERIFY_8KB);
+  const zip8 = loadOrNull(OUT_ZIP_8KB);
+
+  it('writes the 8 KB-suffixed PCM, VERIFY, and ZIP outputs', () => {
+    expect(pcm8).not.toBeNull();
+    expect(verify8).not.toBeNull();
+    expect(zip8).not.toBeNull();
+  });
+
+  it('PCM 8 KB output is byte-identical to the virgin source (pass-through, pinned SHA)', () => {
+    expect(pcm8.length).toBe(8192);
+    expect(sha256(pcm8)).toBe(sha256(pcmSrc));
+    expect(sha256(pcm8)).toBe(PIN_PCM_8KB_SHA);
+  });
+
+  it('VERIFY records target chip = 95640 / 8 KB and Status: PASS', () => {
+    const text = new TextDecoder().decode(verify8);
+    expect(text).toMatch(/Status:\s*PASS/);
+    expect(text).toMatch(/target chip:\s*95640/);
+    expect(text).toMatch(/8 KB/);
+  });
+
+  it('8 KB ZIP holds the _8KB-suffixed PCM/VERIFY entries with byte-identical contents', () => {
+    const entries = readZipEntries(zip8);
+    const byName = Object.fromEntries(entries.map((e) => [e.name, e]));
+    expect(Object.keys(byName).sort()).toEqual(
+      [OUT_BCM, OUT_RFH, OUT_PCM_8KB, OUT_VERIFY_8KB].sort()
+    );
+    expect(byName[OUT_PCM_8KB].size).toBe(8192);
+    expect(byName[OUT_PCM_8KB].sha256).toBe(sha256(pcm8));
   });
 });
 

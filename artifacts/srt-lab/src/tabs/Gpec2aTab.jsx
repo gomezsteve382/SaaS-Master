@@ -1,7 +1,7 @@
 import React, {useState, useMemo, useCallback, useContext} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn} from "../lib/ui.jsx";
-import {parseModule,moduleTooSmall} from "../lib/parseModule.js";
+import {parseModule,moduleTooSmall,pcmChipFromSize} from "../lib/parseModule.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {SizeWarnBanner} from "../components/ModuleFieldsPanel.jsx";
 
@@ -110,7 +110,14 @@ function Gpec2aTab(){
     {f&&<>
       {/* Hero status: SKIM + ZZZZ tamper */}
       <Card glow style={{marginBottom:14}}>
-        <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>⚙️ GPEC2A Analysis</div>
+        <div style={{fontSize:16,fontWeight:900,marginBottom:12,display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+          <span>⚙️ GPEC2A Analysis</span>
+          {(() => {
+            const chip = pcmChipFromSize(f.size);
+            if (chip) return <span data-testid="gpec2a-chip-badge" data-chip={chip.chip} data-chip-key={chip.chipKey}><Tag color={C.a4}>{chip.label}</Tag></span>;
+            return <span data-testid="gpec2a-chip-badge" data-chip="UNKNOWN"><Tag color={C.wn}>{`${f.size} B · UNKNOWN CHIP`}</Tag></span>;
+          })()}
+        </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
           <div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+(skimOn?C.gn+'40':C.wn+'40')}}>
             <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>SKIM @ 0x0011</div>

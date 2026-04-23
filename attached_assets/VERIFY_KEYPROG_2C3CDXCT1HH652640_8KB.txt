@@ -2,7 +2,7 @@ KEYPROG bundle — VERIFY report (Task #366)
 =========================================
 Target VIN:           2C3CDXCT1HH652640
 Shared secret (BE):   816531F7CDE32E33C25A415C8440C72A
-Generated:            2026-04-23T05:40:52.856Z
+Generated:            2026-04-23T05:53:01.348Z
 Bundler:              scripts/build-keyprog-bundle.mjs
 
 -- BCM BCM_22CHARGER_REDEYE_6.2_KEYPROG_2C3CDXCT1HH652640.bin
@@ -42,10 +42,12 @@ Bundler:              scripts/build-keyprog-bundle.mjs
    SEC16 slot1 csOk:                 true
    SEC16 slot1↔slot2 match:          true
 
--- PCM PCM_FCA_CONTINENTAL_GPEC2A_KEYPROG_2C3CDXCT1HH652640.bin  (PASS-THROUGH)
-   module type:   GPEC2A  (8 KB doubled capture; half-2 is 0xFF padding)
-   src filename:  FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGINSYNCHED_6.2_1776899205055.bin
+-- PCM PCM_FCA_CONTINENTAL_GPEC2A_8KB_KEYPROG_2C3CDXCT1HH652640.bin  (PASS-THROUGH (full 8 KB doubled capture; half-2 is 0xFF padding))
+   module type:   GPEC2A
+   target chip:   95640 (8 KB, 8192 B)
+   src filename:  FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGINSYNCHED_6.2_1776899205055.bin  (8192 B)
    src SHA-256:   942dd1a267d2ad4c53b57d0d1f6292821cbd74c1599fb84e6a120b14703219db
+   out size:      8192 B
    out SHA-256:   942dd1a267d2ad4c53b57d0d1f6292821cbd74c1599fb84e6a120b14703219db  [identical]
    Full VINs (in 4 KB GPEC2A half):
      0x0000  2C3CDXCT1HH652640
@@ -60,8 +62,12 @@ Notes:
     to the target VIN: 2 partial-VIN tail slots (8 ASCII bytes + 2-byte
     big-endian CRC16 each). The source virgin already had the 4 full VINs,
     SKIM secret, IMMO records, and bank sequence numbers correct.
-  - RFH and PCM outputs are byte-identical copies of their virgin sources;
-    SHA-256 equality is enforced.
+  - RFH output is a byte-identical copy of the virgin source.
+  - PCM output size depends on --pcm-chip (default 4kb / 95320):
+      4kb (95320) → first 4 KB of the 8 KB virgin (drops the 0xFF padding half);
+      8kb (95640) → byte-identical pass-through of the full 8 KB virgin.
+    The CGDI flasher rejects the wrong size with "File different size",
+    so the chip selection at build time matches the bench EEPROM.
   - Output filenames start with the actual module type (BCM_/RFH_/PCM_) so
     a flash-to-wrong-module mistake is impossible from naming alone.
   - The bundler is idempotent: re-running yields byte-identical outputs and

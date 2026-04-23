@@ -24,6 +24,37 @@ const CANONICAL_SIZES_BY_TYPE={
   RFHUB:[2048,4096],
 };
 
+// PCM EXT-EEPROM chip catalog (Task #379). The same Continental GPEC2A
+// firmware ships with either a 95320 (4 KB) or 95640 (8 KB) external
+// EEPROM depending on the PCM hardware revision — not by engine
+// displacement. Single source of truth used by:
+//   - the inspector chip badge (Sincro PcmCard, Gpec2aTab),
+//   - the SYNC-time size-mismatch guard,
+//   - the wizard virgin auto-pick,
+//   - the KEYPROG bundler's --pcm-chip flag and output-name suffix.
+// `chipKey` is the lower-case short form used on CLI / filenames
+// (e.g. `4kb`, `8kb`); `label` is the human-readable badge text.
+const PCM_CHIPS=[
+  {chip:'95320',sizeBytes:4096,chipKey:'4kb',label:'95320 · 4 KB',sizeLabel:'4 KB'},
+  {chip:'95640',sizeBytes:8192,chipKey:'8kb',label:'95640 · 8 KB',sizeLabel:'8 KB'},
+];
+
+// Resolve a PCM chip descriptor from a buffer length. Returns null when
+// the size doesn't match any known PCM chip — callers should treat that
+// as "unknown chip, surface size and let the user decide."
+function pcmChipFromSize(sizeBytes){
+  if(sizeBytes==null)return null;
+  return PCM_CHIPS.find(c=>c.sizeBytes===sizeBytes)||null;
+}
+
+// Resolve a PCM chip descriptor from a `--pcm-chip` style key
+// (case-insensitive, accepts `4kb`/`8kb` or the chip number `95320`/`95640`).
+function pcmChipFromKey(key){
+  if(!key)return null;
+  const k=String(key).toLowerCase();
+  return PCM_CHIPS.find(c=>c.chipKey===k||c.chip===k)||null;
+}
+
 // Minimum byte size for any file we will treat as a real BCM dump. Files
 // smaller than this are EEPROM slices, fragments, or wrong-module dumps —
 // not a usable MPC5605B/06B DFLASH image. Single source of truth for the
@@ -439,4 +470,4 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType};
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey};
