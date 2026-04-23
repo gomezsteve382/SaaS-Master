@@ -2,29 +2,42 @@
 /* ============================================================================
  * build-keyprog-bundle.mjs — Task #366 KEYPROG bundler.
  *
- * Replaces patch-cluster-b-vin.mjs's deliverable with a verification-only
- * (no writer) bundler that:
- *   1. Loads the BCM + RFH + PCM trio for the Cluster B vehicle (shared SKIM
- *      secret 816531F7CDE32E33C25A415C8440C72A, target VIN 2C3CDXCT1HH652640).
- *   2. Refuses to proceed unless every full + partial VIN already reads the
- *      target VIN with valid CRC and the shared SKIM secret appears in the
- *      expected fields of all three files.
- *   3. Refuses any source file whose name starts with a non-matching module
- *      type prefix (e.g. an "RFHUB"-named file fed in as the BCM input)
- *      unless the operator passes --allow-mislabeled.
- *   4. Writes 4 outputs to attached_assets/ under module-type-prefixed
- *      filenames (BCM_/RFH_/PCM_/VERIFY_) so the user can never confuse a
- *      BCM dump for an RFHUB dump again. Each bin is byte-identical to its
- *      source (SHA-256 match enforced).
- *   5. Bundles all 4 into KEYPROG_2C3CDXCT1HH652640.zip using a hand-rolled
- *      stored-only ZIP writer (no third-party deps).
+ * Builds the deliverable bundle for the Cluster B vehicle (target VIN
+ * 2C3CDXCT1HH652640, shared SKIM secret 816531F7CDE32E33C25A415C8440C72A)
+ * from the properly-named virgin sources living in attached_assets/:
  *
- * IMPORTANT: this script never calls writeModuleVIN. The whole point of the
- * task is to ship bytes that are already correct. If a source file fails any
- * check, the run aborts and nothing is written.
+ *   BCM  22CHARGER_REDEYE_6.2_797BCM_DFLASH_VIRGIN_1776226962777.bin
+ *   RFH  RFH_HERMANADO_20CHRGR6.2RFHUBFILE_EEE_OG_VIRGINSYCHNED_1776899205057.bin
+ *   PCM  FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGINSYNCHED_6.2_1776899205055.bin
+ *
+ * The virgin BCM already carries the target full VINs (4 slots, valid CRCs)
+ * and the correct SKIM secret @0x40C9. Its only gap vs the target is the
+ * two partial-VIN tails @0x4098 and @0x40B0, which still hold the legacy
+ * Hellcat tail "NH176487". The bundler patches ONLY those two 10-byte slots
+ * (8 ASCII tail bytes + 2-byte big-endian CRC16) and leaves every other byte
+ * untouched. The RFH and PCM are pure pass-through copies.
+ *
+ * Outputs (under module-type-prefixed filenames, so a flash-to-wrong-module
+ * mistake is impossible from naming alone):
+ *
+ *   BCM_22CHARGER_REDEYE_6.2_KEYPROG_2C3CDXCT1HH652640.bin
+ *   RFH_20CHRGR6.2_KEYPROG_2C3CDXCT1HH652640.bin
+ *   PCM_FCA_CONTINENTAL_GPEC2A_KEYPROG_2C3CDXCT1HH652640.bin
+ *   VERIFY_KEYPROG_2C3CDXCT1HH652640.txt
+ *   KEYPROG_2C3CDXCT1HH652640.zip      (stored, no compression, no deps)
+ *
+ * The script is idempotent: re-running it produces byte-identical outputs
+ * and never mutates or deletes its input source files. It only deletes
+ * obsolete OUTPUT files (old _KEYPROG_*.bin siblings shipped in earlier
+ * bundles) when --no-cleanup is not passed.
+ *
+ * Filename guards: each role refuses any source whose name starts with the
+ * wrong module-type prefix (e.g. an "RFHUB"-named file fed in as the BCM
+ * input) unless --allow-mislabeled is passed. With the proper-named virgin
+ * sources above, the override is never needed.
  *
  * Usage:
- *   node scripts/build-keyprog-bundle.mjs [--allow-mislabeled]
+ *   node scripts/build-keyprog-bundle.mjs [--allow-mislabeled] [--no-cleanup]
  * ============================================================================ */
 
 import fs from 'node:fs';
@@ -34,22 +47,18 @@ import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 import { parseModule } from '../src/lib/parseModule.js';
+import { crc16 } from '../src/lib/crc.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
 const ATTACHED = path.join(REPO_ROOT, 'attached_assets');
 
 const TARGET_VIN = '2C3CDXCT1HH652640';
-const TARGET_TAIL = TARGET_VIN.slice(9);
+const TARGET_TAIL = TARGET_VIN.slice(9);          // "HH652640"
 const SHARED_SECRET_HEX = '816531F7CDE32E33C25A415C8440C72A';
+const PARTIAL_VIN_OFFSETS = [0x4098, 0x40B0];
 
-/* The BCM bytes came from the previous patcher run — already correct on
- * every front (4 full VINs + 2 partial VINs at target with valid CRCs, SKIM
- * secret matches Cluster B). The original-VIRGIN BCM still carries the
- * stale Hellcat tail at 0x4098/0x40B0, so we cannot use it as a clean
- * pass-through. The RFH and PCM are untouched factory captures that
- * already carry the target VIN. */
-const SRC_BCM = '22CHARGER_REDEYE_6.2_797RFHUB_EEE_OGFILE_VIRGIN_1776900226655_KEYPROG_2C3CDXCT1HH652640.bin';
+const SRC_BCM = '22CHARGER_REDEYE_6.2_797BCM_DFLASH_VIRGIN_1776226962777.bin';
 const SRC_RFH = 'RFH_HERMANADO_20CHRGR6.2RFHUBFILE_EEE_OG_VIRGINSYCHNED_1776899205057.bin';
 const SRC_PCM = 'FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGINSYNCHED_6.2_1776899205055.bin';
 
@@ -59,19 +68,18 @@ const OUT_PCM = 'PCM_FCA_CONTINENTAL_GPEC2A_KEYPROG_' + TARGET_VIN + '.bin';
 const OUT_VERIFY = 'VERIFY_KEYPROG_' + TARGET_VIN + '.txt';
 const OUT_ZIP = 'KEYPROG_' + TARGET_VIN + '.zip';
 
-/* Filename prefix → expected module type. Anything matching the wrong slot
- * aborts unless --allow-mislabeled is passed. The BCM source for this
- * particular run carries an "RFHUB" prefix because it's the previous
- * patcher's output (whose name inherited the misleadingly-named virgin
- * source). We allow it explicitly via the override; in normal use the
- * guard would refuse this exact mistake. */
+/* Filename prefix → expected module type. Refusal patterns abort the run
+ * unless --allow-mislabeled is passed; allow patterns are informational
+ * only. With the proper-named virgin sources above the override is never
+ * required — the guard only fires when somebody points the script at a
+ * mis-prefixed file like "...797RFHUB...." for the BCM slot. */
 const FILENAME_PREFIX_RULES = {
-  BCM:   { allow: /^(BCM|22CHARGER|18TH_DFLASH|18TRACKHWK|18trackhwk|CARTMAN|BCM_HERMANADO)/i,
-           refuse: /^(RFH|RFHUB|PCM|GPEC2A|FCA_CONTINENTAL|FCA_95640|95640|CONTINENTAL)/i },
-  RFH:   { allow: /^(RFH|RFHUB|20CHRGR|2020_RFHUB|21RFHUB|DRAGRFHUB|CARTMAN.*RFHUB|FIXED_RFH)/i,
-           refuse: /^(BCM|22CHARGER|PCM|GPEC2A|FCA_CONTINENTAL|FCA_95640|95640|CONTINENTAL)/i },
-  PCM:   { allow: /^(PCM|GPEC2A|FCA_CONTINENTAL|CONTINENTAL_GPEC2A|95640|FCA_95640)/i,
-           refuse: /^(BCM|22CHARGER|RFH|RFHUB)/i },
+  BCM: { allow:  /^(BCM|22CHARGER|18TH_DFLASH|18TRACKHWK|18trackhwk|CARTMAN|BCM_HERMANADO)/i,
+         refuse: /^(RFH|RFHUB|PCM|GPEC2A|FCA_CONTINENTAL|FCA_95640|95640|CONTINENTAL)/i },
+  RFH: { allow:  /^(RFH|RFHUB|20CHRGR|2020_RFHUB|21RFHUB|DRAGRFHUB|CARTMAN.*RFHUB|FIXED_RFH)/i,
+         refuse: /^(BCM|22CHARGER|PCM|GPEC2A|FCA_CONTINENTAL|FCA_95640|95640|CONTINENTAL)/i },
+  PCM: { allow:  /^(PCM|GPEC2A|FCA_CONTINENTAL|CONTINENTAL_GPEC2A|95640|FCA_95640)/i,
+         refuse: /^(BCM|22CHARGER|RFH|RFHUB)/i },
 };
 
 const args = new Set(process.argv.slice(2));
@@ -91,7 +99,6 @@ function readBin(name) {
   if (!fs.existsSync(p)) fail('Missing source file: ' + name);
   return new Uint8Array(fs.readFileSync(p));
 }
-
 function checkFilenameGuard(role, name) {
   const rules = FILENAME_PREFIX_RULES[role];
   if (!rules) return;
@@ -110,13 +117,27 @@ function checkFilenameGuard(role, name) {
   }
 }
 
+/* Patch a single 10-byte partial-VIN slot in-place: 8 ASCII tail bytes
+ * followed by a big-endian CRC16 over those 8 bytes. Returns the slot's
+ * before/after byte snapshot for the VERIFY report. */
+function patchPartialVin(buf, off, tail) {
+  if (tail.length !== 8) throw new Error('partial-VIN tail must be 8 chars');
+  const before = Buffer.from(buf.slice(off, off + 10)).toString('hex').toUpperCase();
+  for (let i = 0; i < 8; i++) buf[off + i] = tail.charCodeAt(i);
+  const cs = crc16(buf.slice(off, off + 8));
+  buf[off + 8] = (cs >> 8) & 0xFF;
+  buf[off + 9] = cs & 0xFF;
+  const after = Buffer.from(buf.slice(off, off + 10)).toString('hex').toUpperCase();
+  return { off, before, after, csHex: cs.toString(16).toUpperCase().padStart(4, '0') };
+}
+
 console.log('=== KEYPROG bundle builder (Task #366) ===');
 console.log('Target VIN:    ', TARGET_VIN);
 console.log('Shared secret: ', SHARED_SECRET_HEX);
 console.log('Allow mislabeled source filenames:', ALLOW_MISLABELED);
 console.log('');
 
-// ─── Filename guard ───
+// ─── Filename guards ───
 checkFilenameGuard('BCM', SRC_BCM);
 checkFilenameGuard('RFH', SRC_RFH);
 checkFilenameGuard('PCM', SRC_PCM);
@@ -125,79 +146,117 @@ checkFilenameGuard('PCM', SRC_PCM);
 const bcmSrc = readBin(SRC_BCM);
 const rfhSrc = readBin(SRC_RFH);
 const pcmSrc = readBin(SRC_PCM);
-const bcmSha = sha256(bcmSrc);
-const rfhSha = sha256(rfhSrc);
-const pcmSha = sha256(pcmSrc);
+const bcmSrcSha = sha256(bcmSrc);
+const rfhSrcSha = sha256(rfhSrc);
+const pcmSrcSha = sha256(pcmSrc);
 
 console.log('Source files:');
-console.log('  BCM ' + SRC_BCM);
-console.log('      sz=' + bcmSrc.length + ' sha256=' + bcmSha);
-console.log('  RFH ' + SRC_RFH);
-console.log('      sz=' + rfhSrc.length + ' sha256=' + rfhSha);
-console.log('  PCM ' + SRC_PCM);
-console.log('      sz=' + pcmSrc.length + ' sha256=' + pcmSha);
+console.log('  BCM ' + SRC_BCM + '  sz=' + bcmSrc.length);
+console.log('      sha256 = ' + bcmSrcSha);
+console.log('  RFH ' + SRC_RFH + '  sz=' + rfhSrc.length);
+console.log('      sha256 = ' + rfhSrcSha);
+console.log('  PCM ' + SRC_PCM + '  sz=' + pcmSrc.length);
+console.log('      sha256 = ' + pcmSrcSha);
 
-// ─── Parse all three ───
-const bcmInfo = parseModule(bcmSrc, SRC_BCM);
-const rfhInfo = parseModule(rfhSrc, SRC_RFH);
-// PCM is a doubled 8 KB capture (two halves of 4 KB; half-2 is 0xFF padding).
-const pcmHalf2 = pcmSrc.slice(4096);
-const pcmInfo = parseModule(pcmSrc.slice(0, 4096), SRC_PCM + '#half1');
+// ─── Pre-patch source parses ───
+const bcmInfoIn = parseModule(bcmSrc, SRC_BCM);
+const rfhInfo   = parseModule(rfhSrc, SRC_RFH);
+const pcmHalf2  = pcmSrc.slice(4096);
+const pcmInfo   = parseModule(pcmSrc.slice(0, 4096), SRC_PCM + '#half1');
 
 // ─── Module type assertions ───
-if (bcmInfo.type !== 'BCM') fail('BCM source did not parse as BCM (got ' + bcmInfo.type + ')');
-if (rfhInfo.type !== 'RFHUB') fail('RFH source did not parse as RFHUB (got ' + rfhInfo.type + ')');
-if (pcmInfo.type !== 'GPEC2A') fail('PCM half-1 did not parse as GPEC2A (got ' + pcmInfo.type + ')');
+if (bcmInfoIn.type !== 'BCM')   fail('BCM source did not parse as BCM (got ' + bcmInfoIn.type + ')');
+if (rfhInfo.type   !== 'RFHUB') fail('RFH source did not parse as RFHUB (got ' + rfhInfo.type + ')');
+if (pcmInfo.type   !== 'GPEC2A') fail('PCM half-1 did not parse as GPEC2A (got ' + pcmInfo.type + ')');
 if (!pcmHalf2.every((b) => b === 0xFF)) fail('PCM half-2 is not all-0xFF padding (unexpected layout)');
 
-// ─── BCM full + partial VIN checks ───
-if (bcmInfo.vins.length !== 4) fail('Expected 4 BCM full VINs, got ' + bcmInfo.vins.length);
-for (const v of bcmInfo.vins) {
-  if (v.vin !== TARGET_VIN) fail('BCM full VIN at ' + fO(v.offset) + ' is ' + v.vin + ', expected ' + TARGET_VIN);
-  if (!v.crcOk) fail('BCM full VIN CRC bad at ' + fO(v.offset));
+// ─── BCM source preconditions: full VINs + SKIM already correct ───
+if (bcmInfoIn.vins.length !== 4) fail('Expected 4 BCM full VINs in source, got ' + bcmInfoIn.vins.length);
+for (const v of bcmInfoIn.vins) {
+  if (v.vin !== TARGET_VIN) fail('BCM source full VIN at ' + fO(v.offset) + ' is ' + v.vin + ', expected ' + TARGET_VIN);
+  if (!v.crcOk) fail('BCM source full VIN CRC bad at ' + fO(v.offset));
 }
-if (bcmInfo.partialVins.length !== 2) fail('Expected 2 BCM partial VINs, got ' + bcmInfo.partialVins.length);
-for (const p of bcmInfo.partialVins) {
-  if (p.tail !== TARGET_TAIL) fail('BCM partial VIN tail at ' + fO(p.offset) + ' is ' + p.tail + ', expected ' + TARGET_TAIL);
-  if (!p.crcOk) fail('BCM partial VIN CRC bad at ' + fO(p.offset));
+const bcmSecretBE = Array.from(bcmInfoIn.vehicleSecret.bytes).reverse().map(hex2).join('');
+if (bcmSecretBE !== SHARED_SECRET_HEX) fail('BCM source SKIM secret (BE) does not match Cluster B shared secret');
+
+// ─── BCM source partials: must be parseable + valid CRC, but tail is allowed
+//     to be EITHER stale (legacy "NH176487") OR already target. We always
+//     re-stamp them to the target tail so the script is idempotent. ───
+if (bcmInfoIn.partialVins.length !== 2) fail('Expected 2 BCM partial-VIN slots, got ' + bcmInfoIn.partialVins.length);
+for (const p of bcmInfoIn.partialVins) {
+  if (!p.crcOk) fail('BCM source partial VIN CRC bad at ' + fO(p.offset) + ' (refusing to patch a corrupt slot)');
+}
+for (const o of PARTIAL_VIN_OFFSETS) {
+  if (!bcmInfoIn.partialVins.some((p) => p.offset === o)) {
+    fail('BCM source missing expected partial-VIN slot at ' + fO(o));
+  }
 }
 
-// ─── BCM SKIM secret ───
-const bcmSecretBE = Array.from(bcmInfo.vehicleSecret.bytes).reverse().map(hex2).join('');
-if (bcmSecretBE !== SHARED_SECRET_HEX) fail('BCM SKIM secret (BE) does not match Cluster B shared secret');
+// ─── Build BCM output: copy source + minimal partial-VIN patch ───
+const outBcm = new Uint8Array(bcmSrc);
+const patchLog = [];
+for (const off of PARTIAL_VIN_OFFSETS) patchLog.push(patchPartialVin(outBcm, off, TARGET_TAIL));
 
-// ─── RFH VIN + SEC16 ───
+// Verify the patch was minimal (≤ 20 bytes changed; in practice 18 for this
+// VIN pair because tail[1]='H' coincides with stale tail[1]='H').
+let diffCount = 0;
+const diffOffsets = [];
+for (let i = 0; i < bcmSrc.length; i++) {
+  if (bcmSrc[i] !== outBcm[i]) {
+    diffCount++;
+    diffOffsets.push(i);
+    if (i < PARTIAL_VIN_OFFSETS[0] || i > PARTIAL_VIN_OFFSETS[1] + 9) {
+      fail('Patch touched a byte outside partial-VIN windows: ' + fO(i));
+    }
+  }
+}
+if (diffCount > 20) fail('Patch changed ' + diffCount + ' bytes (>20 max for two 10-byte slots)');
+
+// ─── Re-parse the patched BCM and re-assert ALL invariants on the OUTPUT ───
+const bcmInfoOut = parseModule(outBcm, OUT_BCM);
+if (bcmInfoOut.vins.length !== 4) fail('Output BCM lost a full-VIN slot');
+for (const v of bcmInfoOut.vins) {
+  if (v.vin !== TARGET_VIN || !v.crcOk) fail('Output BCM full VIN regressed at ' + fO(v.offset));
+}
+if (bcmInfoOut.partialVins.length !== 2) fail('Output BCM lost a partial-VIN slot');
+for (const p of bcmInfoOut.partialVins) {
+  if (p.tail !== TARGET_TAIL) fail('Output BCM partial-VIN tail at ' + fO(p.offset) + ' is ' + p.tail);
+  if (!p.crcOk) fail('Output BCM partial-VIN CRC bad at ' + fO(p.offset));
+}
+const outBcmSecretBE = Array.from(bcmInfoOut.vehicleSecret.bytes).reverse().map(hex2).join('');
+if (outBcmSecretBE !== SHARED_SECRET_HEX) fail('Output BCM SKIM secret regressed');
+
+// ─── RFH + PCM are pure pass-through ───
 if (!rfhInfo.vins?.length) fail('RFH carries no parseable VINs');
 for (const v of rfhInfo.vins) {
-  if (v.vin !== TARGET_VIN) fail('RFH VIN at ' + fO(v.offset) + ' is ' + v.vin + ', expected ' + TARGET_VIN);
-  if (!v.crcOk) fail('RFH VIN CRC bad at ' + fO(v.offset));
+  if (v.vin !== TARGET_VIN || !v.crcOk) fail('RFH VIN at ' + fO(v.offset) + ' invalid');
 }
 const rfhSec = String(rfhInfo.sec16s?.[0]?.hex || '').toUpperCase();
 if (rfhSec !== SHARED_SECRET_HEX) fail('RFH SEC16 slot1 ' + rfhSec + ' != shared secret');
 if (rfhInfo.sec16s[0].csOk !== true) fail('RFH SEC16 slot1 CS is not valid');
 
-// ─── PCM VIN + SEC6 ───
 if (!pcmInfo.vins?.length) fail('PCM carries no parseable VINs');
 for (const v of pcmInfo.vins) {
-  if (v.vin !== TARGET_VIN) fail('PCM VIN at ' + fO(v.offset) + ' is ' + v.vin + ', expected ' + TARGET_VIN);
+  if (v.vin !== TARGET_VIN) fail('PCM VIN at ' + fO(v.offset) + ' is ' + v.vin);
 }
 const pcmSec6 = String(pcmInfo.pcmSec6?.hex || '').replace(/ /g, '');
 if (!SHARED_SECRET_HEX.startsWith(pcmSec6)) fail('PCM SEC6 ' + pcmSec6 + ' is not the prefix of the shared secret');
 
-console.log('\n[OK] All source-file checks passed:');
-console.log('  - BCM 4 full + 2 partial VINs at target with valid CRCs.');
-console.log('  - BCM LE secret @0x40C9 → BE = shared secret.');
-console.log('  - RFH ' + rfhInfo.vins.length + ' VINs at target with valid CRCs; SEC16 slot1 = shared secret (csOk).');
-console.log('  - PCM ' + pcmInfo.vins.length + ' VINs at target; SEC6 = first 6 bytes of shared secret.');
-console.log('  - PCM half-2 is all-0xFF padding (preserved).');
-
-// ─── Build outputs (pure pass-through copies) ───
-const outBcm = new Uint8Array(bcmSrc);
 const outRfh = new Uint8Array(rfhSrc);
 const outPcm = new Uint8Array(pcmSrc);
-if (sha256(outBcm) !== bcmSha) fail('BCM output SHA differs from source after copy (impossible — file IO bug?)');
-if (sha256(outRfh) !== rfhSha) fail('RFH output SHA differs from source after copy');
-if (sha256(outPcm) !== pcmSha) fail('PCM output SHA differs from source after copy');
+if (sha256(outRfh) !== rfhSrcSha) fail('RFH output SHA differs from source after copy');
+if (sha256(outPcm) !== pcmSrcSha) fail('PCM output SHA differs from source after copy');
+
+const outBcmSha = sha256(outBcm);
+const outRfhSha = sha256(outRfh);
+const outPcmSha = sha256(outPcm);
+
+console.log('\n[OK] All source-file checks passed. BCM patched at offsets:');
+for (const p of patchLog) {
+  console.log('  ' + fO(p.off) + '  before=' + p.before + '  after=' + p.after + '  cs=0x' + p.csHex);
+}
+console.log('  Total bytes changed: ' + diffCount + ' (offsets: ' + diffOffsets.map(fO).join(', ') + ')');
+console.log('  RFH and PCM are byte-identical pass-through.');
 
 // ─── VERIFY.txt ───
 const lines = [];
@@ -206,33 +265,37 @@ lines.push('=========================================');
 lines.push('Target VIN:           ' + TARGET_VIN);
 lines.push('Shared secret (BE):   ' + SHARED_SECRET_HEX);
 lines.push('Generated:            ' + new Date().toISOString());
-lines.push('Mode:                 PASS-THROUGH (no writer ever called; every output is byte-identical to its source)');
+lines.push('Bundler:              scripts/build-keyprog-bundle.mjs');
 lines.push('');
-lines.push('-- BCM ' + OUT_BCM + '  (PASS-THROUGH)');
-lines.push('   module type:   ' + bcmInfo.type);
+lines.push('-- BCM ' + OUT_BCM);
+lines.push('   module type:   ' + bcmInfoOut.type);
 lines.push('   src filename:  ' + SRC_BCM);
-lines.push('   src SHA-256:   ' + bcmSha);
-lines.push('   out SHA-256:   ' + sha256(outBcm) + '  [identical]');
+lines.push('   src SHA-256:   ' + bcmSrcSha);
+lines.push('   out SHA-256:   ' + outBcmSha);
+lines.push('   patch:         partial-VIN-only (' + diffCount + ' bytes changed across the two 10-byte slots)');
+for (const p of patchLog) {
+  lines.push('     ' + fO(p.off) + '  before=' + p.before + '  after=' + p.after + '  cs=0x' + p.csHex);
+}
 lines.push('   Full VIN slots:');
-for (const v of bcmInfo.vins) {
+for (const v of bcmInfoOut.vins) {
   lines.push('     ' + fO(v.offset) + '  ' + v.vin + '  crcOk=' + v.crcOk);
 }
 lines.push('   Partial VIN tails:');
-for (const p of bcmInfo.partialVins) {
+for (const p of bcmInfoOut.partialVins) {
   lines.push('     ' + fO(p.offset) + '  ' + p.tail + '  crcOk=' + p.crcOk);
 }
-lines.push('   Vehicle secret (LE @0x40C9): ' + bcmInfo.vehicleSecret.hex);
-lines.push('   Vehicle secret (BE form):    ' + bcmSecretBE + '  [matches shared secret]');
-lines.push('   IMMO records (primary):      ' + bcmInfo.immoRecs);
-lines.push('   IMMO backup synced:          ' + bcmInfo.immoSynced);
-lines.push('   Bank0 seq @0x0002:           ' + hex2(bcmSrc[0x0002]) + ' ' + hex2(bcmSrc[0x0003]));
-lines.push('   Bank1 seq @0x4002:           ' + hex2(bcmSrc[0x4002]) + ' ' + hex2(bcmSrc[0x4003]));
+lines.push('   Vehicle secret (LE @0x40C9): ' + bcmInfoOut.vehicleSecret.hex);
+lines.push('   Vehicle secret (BE form):    ' + outBcmSecretBE + '  [matches shared secret]');
+lines.push('   IMMO records (primary):      ' + bcmInfoOut.immoRecs);
+lines.push('   IMMO backup synced:          ' + bcmInfoOut.immoSynced);
+lines.push('   Bank0 seq @0x0002:           ' + hex2(outBcm[0x0002]) + ' ' + hex2(outBcm[0x0003]));
+lines.push('   Bank1 seq @0x4002:           ' + hex2(outBcm[0x4002]) + ' ' + hex2(outBcm[0x4003]));
 lines.push('');
 lines.push('-- RFH ' + OUT_RFH + '  (PASS-THROUGH)');
 lines.push('   module type:   ' + rfhInfo.type + ' (' + rfhInfo.rfhGen + ')');
 lines.push('   src filename:  ' + SRC_RFH);
-lines.push('   src SHA-256:   ' + rfhSha);
-lines.push('   out SHA-256:   ' + sha256(outRfh) + '  [identical]');
+lines.push('   src SHA-256:   ' + rfhSrcSha);
+lines.push('   out SHA-256:   ' + outRfhSha + '  [identical]');
 lines.push('   Full VINs:');
 for (const v of rfhInfo.vins) {
   lines.push('     ' + fO(v.offset) + '  ' + v.vin + '  (cs=0x' + v.sc.toString(16).toUpperCase().padStart(2, '0')
@@ -245,8 +308,8 @@ lines.push('');
 lines.push('-- PCM ' + OUT_PCM + '  (PASS-THROUGH)');
 lines.push('   module type:   ' + pcmInfo.type + '  (8 KB doubled capture; half-2 is 0xFF padding)');
 lines.push('   src filename:  ' + SRC_PCM);
-lines.push('   src SHA-256:   ' + pcmSha);
-lines.push('   out SHA-256:   ' + sha256(outPcm) + '  [identical]');
+lines.push('   src SHA-256:   ' + pcmSrcSha);
+lines.push('   out SHA-256:   ' + outPcmSha + '  [identical]');
 lines.push('   Full VINs (in 4 KB GPEC2A half):');
 for (const v of pcmInfo.vins) lines.push('     ' + fO(v.offset) + '  ' + v.vin);
 lines.push('   PCM SEC6 (= first 6 bytes of shared secret): ' + pcmSec6);
@@ -254,12 +317,16 @@ lines.push('');
 lines.push('Status: PASS — three files ready to flash for key programming.');
 lines.push('');
 lines.push('Notes:');
-lines.push('  - Every output bin is a byte-identical copy of its source. SHA-256 equality is enforced by the bundler.');
-lines.push('  - Filenames now start with the actual module type (BCM_/RFH_/PCM_) so a flash-to-wrong-module mistake');
-lines.push('    is impossible from naming alone.');
-lines.push('  - The BCM bytes were originally produced by scripts/patch-cluster-b-vin.mjs from the misleadingly-');
-lines.push('    named "..._797RFHUB_EEE_OGFILE_VIRGIN_..." dump, which was actually a programmed BCM. Those bytes');
-lines.push('    are correct; only the filename was wrong. We re-ship them under the proper BCM_ name.');
+lines.push('  - The BCM patch is the minimum byte-set required to bring the virgin BCM');
+lines.push('    to the target VIN: 2 partial-VIN tail slots (8 ASCII bytes + 2-byte');
+lines.push('    big-endian CRC16 each). The source virgin already had the 4 full VINs,');
+lines.push('    SKIM secret, IMMO records, and bank sequence numbers correct.');
+lines.push('  - RFH and PCM outputs are byte-identical copies of their virgin sources;');
+lines.push('    SHA-256 equality is enforced.');
+lines.push('  - Output filenames start with the actual module type (BCM_/RFH_/PCM_) so');
+lines.push('    a flash-to-wrong-module mistake is impossible from naming alone.');
+lines.push('  - The bundler is idempotent: re-running yields byte-identical outputs and');
+lines.push('    never deletes its input source files.');
 const verifyText = lines.join('\n') + '\n';
 
 // ─── Write outputs to attached_assets/ ───
@@ -268,10 +335,10 @@ fs.writeFileSync(path.join(ATTACHED, OUT_RFH), Buffer.from(outRfh));
 fs.writeFileSync(path.join(ATTACHED, OUT_PCM), Buffer.from(outPcm));
 fs.writeFileSync(path.join(ATTACHED, OUT_VERIFY), verifyText);
 
-// Re-verify on-disk copies match source bytes exactly.
-for (const [name, src] of [[OUT_BCM, bcmSrc], [OUT_RFH, rfhSrc], [OUT_PCM, pcmSrc]]) {
+// Re-verify on-disk copies match in-memory bytes exactly.
+for (const [name, buf] of [[OUT_BCM, outBcm], [OUT_RFH, outRfh], [OUT_PCM, outPcm]]) {
   const onDisk = new Uint8Array(fs.readFileSync(path.join(ATTACHED, name)));
-  if (sha256(onDisk) !== sha256(src)) fail('On-disk SHA mismatch for ' + name);
+  if (sha256(onDisk) !== sha256(buf)) fail('On-disk SHA mismatch for ' + name);
 }
 
 // ─── Build a stored-only ZIP (no compression, no deps) ───
@@ -290,7 +357,6 @@ function buildZip(entries) {
     const nameBuf = Buffer.from(e.name, 'utf8');
     const data = Buffer.from(e.data);
     const crc = zlib.crc32 ? zlib.crc32(data) : (() => {
-      // Manual CRC32 for older Node where zlib.crc32 isn't exported.
       let c = 0xFFFFFFFF;
       for (let i = 0; i < data.length; i++) {
         c ^= data[i];
@@ -298,12 +364,11 @@ function buildZip(entries) {
       }
       return (c ^ 0xFFFFFFFF) >>> 0;
     })();
-    // Local file header
     const lfh = Buffer.alloc(30);
     lfh.writeUInt32LE(0x04034b50, 0);
-    lfh.writeUInt16LE(20, 4);          // version needed
-    lfh.writeUInt16LE(0, 6);           // flags
-    lfh.writeUInt16LE(0, 8);           // method = stored
+    lfh.writeUInt16LE(20, 4);
+    lfh.writeUInt16LE(0, 6);
+    lfh.writeUInt16LE(0, 8);
     lfh.writeUInt16LE(t, 10);
     lfh.writeUInt16LE(dt, 12);
     lfh.writeUInt32LE(crc, 14);
@@ -312,13 +377,12 @@ function buildZip(entries) {
     lfh.writeUInt16LE(nameBuf.length, 26);
     lfh.writeUInt16LE(0, 28);
     localChunks.push(lfh, nameBuf, data);
-    // Central directory entry
     const cd = Buffer.alloc(46);
     cd.writeUInt32LE(0x02014b50, 0);
-    cd.writeUInt16LE(20, 4);   // version made by
-    cd.writeUInt16LE(20, 6);   // version needed
+    cd.writeUInt16LE(20, 4);
+    cd.writeUInt16LE(20, 6);
     cd.writeUInt16LE(0, 8);
-    cd.writeUInt16LE(0, 10);   // method
+    cd.writeUInt16LE(0, 10);
     cd.writeUInt16LE(t, 12);
     cd.writeUInt16LE(dt, 14);
     cd.writeUInt32LE(crc, 16);
@@ -357,41 +421,29 @@ const zipBytes = buildZip([
 ]);
 fs.writeFileSync(path.join(ATTACHED, OUT_ZIP), zipBytes);
 
-// ─── Cleanup of old artifacts ───
-const OLD_FILES = [
+// ─── Cleanup of obsolete OUTPUT files only — never touches input sources. ───
+const OBSOLETE_OUTPUTS = [
   '22CHARGER_REDEYE_6.2_797RFHUB_EEE_OGFILE_VIRGIN_1776900226655_KEYPROG_2C3CDXCT1HH652640.bin',
   'RFH_HERMANADO_20CHRGR6.2RFHUBFILE_EEE_OG_VIRGINSYCHNED_1776899205057_KEYPROG_2C3CDXCT1HH652640.bin',
   'FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGINSYNCHED_6.2_1776899205055_KEYPROG_2C3CDXCT1HH652640.bin',
+  'KEYPROG_2C3CDXCT1HH652640_1776903757676.zip',
 ];
+const PROTECTED_INPUTS = new Set([SRC_BCM, SRC_RFH, SRC_PCM]);
 if (!SKIP_CLEANUP) {
-  for (const f of OLD_FILES) {
+  for (const f of OBSOLETE_OUTPUTS) {
+    if (PROTECTED_INPUTS.has(f)) continue; // never delete a current input
     const p = path.join(ATTACHED, f);
     if (fs.existsSync(p)) {
-      // Don't delete the BCM source we just used as input. We only want to
-      // delete the OTHER old _KEYPROG_* siblings (RFH/PCM patched outputs)
-      // because they were redundant pass-through copies under stale names.
-      if (f === SRC_BCM) {
-        // Keep it for now — it's our source. We'll delete it after the zip
-        // is on disk and we've verified the zip's BCM entry equals the bytes.
-        continue;
-      }
       fs.unlinkSync(p);
-      console.log('  deleted ' + f);
+      console.log('  deleted obsolete output ' + f);
     }
-  }
-  // Now delete the BCM source — its bytes are preserved in OUT_BCM and
-  // inside OUT_ZIP, so removal is safe.
-  const bcmSrcPath = path.join(ATTACHED, SRC_BCM);
-  if (fs.existsSync(bcmSrcPath)) {
-    fs.unlinkSync(bcmSrcPath);
-    console.log('  deleted ' + SRC_BCM + '  (bytes preserved in ' + OUT_BCM + ')');
   }
 }
 
 console.log('\n=== Wrote 5 files to attached_assets/ ===');
-console.log('  ' + OUT_BCM      + '   sha=' + sha256(outBcm).slice(0, 16) + '... (sz=' + outBcm.length + ')');
-console.log('  ' + OUT_RFH      + '   sha=' + sha256(outRfh).slice(0, 16) + '... (sz=' + outRfh.length + ')');
-console.log('  ' + OUT_PCM      + '   sha=' + sha256(outPcm).slice(0, 16) + '... (sz=' + outPcm.length + ')');
-console.log('  ' + OUT_VERIFY   + '   sz=' + verifyText.length);
-console.log('  ' + OUT_ZIP      + '   sz=' + zipBytes.length);
+console.log('  ' + OUT_BCM    + '   sha=' + outBcmSha.slice(0, 16) + '... (sz=' + outBcm.length + ')');
+console.log('  ' + OUT_RFH    + '   sha=' + outRfhSha.slice(0, 16) + '... (sz=' + outRfh.length + ')');
+console.log('  ' + OUT_PCM    + '   sha=' + outPcmSha.slice(0, 16) + '... (sz=' + outPcm.length + ')');
+console.log('  ' + OUT_VERIFY + '   sz=' + verifyText.length);
+console.log('  ' + OUT_ZIP    + '   sz=' + zipBytes.length);
 console.log('\nPASS — bundle ready.');

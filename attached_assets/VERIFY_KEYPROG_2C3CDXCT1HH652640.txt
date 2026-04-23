@@ -2,14 +2,17 @@ KEYPROG bundle — VERIFY report (Task #366)
 =========================================
 Target VIN:           2C3CDXCT1HH652640
 Shared secret (BE):   816531F7CDE32E33C25A415C8440C72A
-Generated:            2026-04-23T00:32:16.140Z
-Mode:                 PASS-THROUGH (no writer ever called; every output is byte-identical to its source)
+Generated:            2026-04-23T00:47:58.719Z
+Bundler:              scripts/build-keyprog-bundle.mjs
 
--- BCM BCM_22CHARGER_REDEYE_6.2_KEYPROG_2C3CDXCT1HH652640.bin  (PASS-THROUGH)
+-- BCM BCM_22CHARGER_REDEYE_6.2_KEYPROG_2C3CDXCT1HH652640.bin
    module type:   BCM
-   src filename:  22CHARGER_REDEYE_6.2_797RFHUB_EEE_OGFILE_VIRGIN_1776900226655_KEYPROG_2C3CDXCT1HH652640.bin
-   src SHA-256:   747e26a61909aa4dca72c91bbbb612149e923fdecd81c9cf6b037623a2cb0197
-   out SHA-256:   747e26a61909aa4dca72c91bbbb612149e923fdecd81c9cf6b037623a2cb0197  [identical]
+   src filename:  22CHARGER_REDEYE_6.2_797BCM_DFLASH_VIRGIN_1776226962777.bin
+   src SHA-256:   d44540b1aa166e0834c40d26aee82fe773aa88407441c2294da717e4aa79b676
+   out SHA-256:   747e26a61909aa4dca72c91bbbb612149e923fdecd81c9cf6b037623a2cb0197
+   patch:         partial-VIN-only (18 bytes changed across the two 10-byte slots)
+     0x4098  before=4E48313736343837CE35  after=48483635323634305327  cs=0x5327
+     0x40B0  before=4E48313736343837CE35  after=48483635323634305327  cs=0x5327
    Full VIN slots:
      0x5328  2C3CDXCT1HH652640  crcOk=true
      0x5348  2C3CDXCT1HH652640  crcOk=true
@@ -53,9 +56,13 @@ Mode:                 PASS-THROUGH (no writer ever called; every output is byte-
 Status: PASS — three files ready to flash for key programming.
 
 Notes:
-  - Every output bin is a byte-identical copy of its source. SHA-256 equality is enforced by the bundler.
-  - Filenames now start with the actual module type (BCM_/RFH_/PCM_) so a flash-to-wrong-module mistake
-    is impossible from naming alone.
-  - The BCM bytes were originally produced by scripts/patch-cluster-b-vin.mjs from the misleadingly-
-    named "..._797RFHUB_EEE_OGFILE_VIRGIN_..." dump, which was actually a programmed BCM. Those bytes
-    are correct; only the filename was wrong. We re-ship them under the proper BCM_ name.
+  - The BCM patch is the minimum byte-set required to bring the virgin BCM
+    to the target VIN: 2 partial-VIN tail slots (8 ASCII bytes + 2-byte
+    big-endian CRC16 each). The source virgin already had the 4 full VINs,
+    SKIM secret, IMMO records, and bank sequence numbers correct.
+  - RFH and PCM outputs are byte-identical copies of their virgin sources;
+    SHA-256 equality is enforced.
+  - Output filenames start with the actual module type (BCM_/RFH_/PCM_) so
+    a flash-to-wrong-module mistake is impossible from naming alone.
+  - The bundler is idempotent: re-running yields byte-identical outputs and
+    never deletes its input source files.
