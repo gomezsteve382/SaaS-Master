@@ -776,7 +776,7 @@ function RfhCard({ parsed, pnOverride }) {
   );
 }
 
-function PcmCard({ parsed, pnOverride }) {
+export function PcmCard({ parsed, bytes, pnOverride }) {
   if (!parsed) return null;
   if (parsed.tooSmall) return <TooSmallCard parsed={parsed} moduleLabel="PCM" testid="pcm-too-small-card" />;
   let status = 'READY', statusColor = C.gn;
@@ -787,7 +787,34 @@ function PcmCard({ parsed, pnOverride }) {
 
   return (
     <div style={{ background: 'rgba(0,200,83,0.02)', borderRadius: 12, padding: 16, border: `1.5px solid ${statusColor}40` }}>
-      {(() => null)()}
+      {(() => {
+        // Task #379: surface a structured mismatch-guard card when the loaded
+        // PCM is a doubled 8 KB capture whose half-2 is all 0xFF. The CGDI
+        // flasher rejects the wrong-sized image with "File different size,"
+        // so we tell the user up-front that SYNC will emit a 4 KB output for
+        // a 95320 bench (auto-slice happens in executeSync('sync-all')).
+        if (parsed.size === 8192) {
+          // engParsePcm doesn't carry the raw buffer in its result, so accept
+          // the bytes via prop (mirrors how downstream SYNC reads pcm.bytes).
+          const half2 = bytes && bytes.slice ? bytes.slice(4096) : null;
+          const halfPad = half2 && half2.every ? half2.every((b) => b === 0xFF) : false;
+          if (halfPad) {
+            return (
+              <div data-testid="pcm-doubled-mismatch-card" style={{ marginBottom: 10, padding: '10px 12px', background: C.wn + '14', border: '1px solid ' + C.wn + '55', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700, lineHeight: 1.5 }}>
+                ⚠ Doubled 8 KB capture detected (half-2 is 0xFF padding). On SYNC, only the first 4 KB will be written so it fits a 95320 bench chip and CGDI doesn&apos;t reject with &quot;File different size.&quot;
+              </div>
+            );
+          }
+        }
+        if (!pcmChipFromSize(parsed.size)) {
+          return (
+            <div data-testid="pcm-chip-mismatch-card" style={{ marginBottom: 10, padding: '10px 12px', background: C.er + '14', border: '1px solid ' + C.er + '55', borderRadius: 8, fontSize: 11, color: C.er, fontWeight: 700, lineHeight: 1.5 }}>
+              ⛔ This PCM is {parsed.size} bytes — neither 4 KB (95320) nor 8 KB (95640). The CGDI flasher will refuse it. Re-read the PCM in full or load the matching virgin before SYNC.
+            </div>
+          );
+        }
+        return null;
+      })()}
       <div style={{ fontWeight: 900, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: C.tx, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
         ⚙️ PCM · Continental
         <Badge text={status} color={statusColor} />
@@ -1504,8 +1531,27 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
             pcmFinal = sr.bytes;
             log(`PCM SEC6: ${sr.patched} location(s) written · ${sr.sec6Hex.toUpperCase()} (marker ${sr.markerUsed})`, 'ok');
           }
-          downloadBin(pcmFinal, `PCM_SYNCED_${newVin}_${ts}.bin`);
-          log(`Downloaded: PCM_SYNCED_${newVin}_${ts}.bin`, 'ok');
+          // Task #379: if the loaded PCM is a doubled 8 KB capture with a
+          // 0xFF-padded half-2, slice the SYNC output down to 4 KB so the
+          // CGDI flasher for a 95320 bench chip doesn't reject it with
+          // "File different size." The decision matches the bundler's
+          // default --pcm-chip 4kb path.
+          let pcmChipSuffix = '';
+          if (pcmFinal.length === 8192) {
+            const half2 = pcmFinal.slice(4096);
+            if (half2.every((b) => b === 0xFF)) {
+              pcmFinal = pcmFinal.slice(0, 4096);
+              pcmChipSuffix = '_4KB';
+              log('PCM auto-sliced 8 KB → 4 KB (half-2 was 0xFF padding; matches 95320 bench chip)', 'warn');
+            } else {
+              pcmChipSuffix = '_8KB';
+            }
+          } else if (pcmFinal.length === 4096) {
+            pcmChipSuffix = '_4KB';
+          }
+          const pcmName = `PCM_SYNCED${pcmChipSuffix}_${newVin}_${ts}.bin`;
+          downloadBin(pcmFinal, pcmName);
+          log(`Downloaded: ${pcmName}`, 'ok');
         }
 
       } else if (action === 'sec16-only') {
@@ -1774,7 +1820,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
             <BcmCard parsed={bcm.parsed} pnOverride={bcm.pnOverride} />
             <RfhCard parsed={rfh.parsed} pnOverride={rfh.pnOverride} />
-            {pcm.parsed && <PcmCard parsed={pcm.parsed} pnOverride={pcm.pnOverride} />}
+            {pcm.parsed && <PcmCard parsed={pcm.parsed} bytes={pcm.bytes} pnOverride={pcm.pnOverride} />}
           </div>
         </Card>
       )}

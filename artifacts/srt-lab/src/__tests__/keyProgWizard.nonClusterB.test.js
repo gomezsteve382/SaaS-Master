@@ -114,12 +114,19 @@ describe('Non-Cluster-B Key Prog wizard trios (Task #347)', () => {
     const out = Object.fromEntries(r.files.map((f) => [f.role, f]));
     expect(out.BCM.name).toBe('TRX_BCM_DFLASH_OG_KEYPROG_' + TARGET_VIN + '.bin');
     expect(out.RFH.name).toBe('TRX_RFH_EEE_OG_KEYPROG_' + TARGET_VIN + '.bin');
-    expect(out.PCM.name).toBe('TRX_GPEC2A_EXT_EEPROM_OG_KEYPROG_' + TARGET_VIN + '.bin');
-    expect(out.VERIFY.name).toBe('VERIFY_KEYPROG_' + TARGET_VIN + '.txt');
+    // Task #379: PCM filenames are now chip-suffixed; this 4 KB GPEC2A is
+    // a clean single image (NOT a doubled 8 KB capture), so chip = 95320.
+    expect(out.PCM.name).toBe('TRX_GPEC2A_EXT_EEPROM_OG_4KB_KEYPROG_' + TARGET_VIN + '.bin');
+    expect(out.VERIFY.name).toBe('VERIFY_KEYPROG_' + TARGET_VIN + '_4KB.txt');
 
-    // Pass-through guarantee: RFH and PCM bytes are identical to source.
+    // RFH stays pass-through. Task #379: PCM is the doubled-FF case, so the
+    // wizard slices to 4 KB to match the 95320 bench chip — assert the slice
+    // (not full source) for byte equality.
     expect(out.RFH.data).toEqual(rfh.data);
-    expect(out.PCM.data).toEqual(pcm.data);
+    expect(out.PCM.data.length).toBe(4096);
+    expect(out.PCM.data).toEqual(pcm.data.slice(0, 4096));
+    expect(r.pcmChip?.chip).toBe('95320');
+    expect(r.pcmSliced).toBe(true);
   });
 
   it('4-KB single GPEC2A PCM (NOT doubled) — full pass', () => {

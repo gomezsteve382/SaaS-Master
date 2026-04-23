@@ -78,14 +78,20 @@ d('Cluster B key-prog wizard (Task #343)', () => {
     }
   });
 
-  it('emits a BCM with all VINs+CRCs at target and RFH/PCM byte-identical to source', () => {
+  it('emits a BCM with all VINs+CRCs at target and RFH pass-through (PCM auto-sliced for #379)', () => {
     const r = runKeyProgPatch({ bcm, rfh, pcm, vin: TARGET_VIN });
     expect(r.ok).toBe(true);
     const out = Object.fromEntries(r.files.map((f) => [f.role, f]));
 
-    // RFH/PCM are pure pass-through, so SHA-256 must equal source.
+    // RFH stays pure pass-through.
     expect(sha(out.RFH.data)).toBe(sha(rfhSrc));
-    expect(sha(out.PCM.data)).toBe(sha(pcmSrc));
+    // Task #379: the doubled 8 KB virgin (half-2 = 0xFF) is auto-sliced to
+    // 4 KB so the CGDI flasher accepts it on a 95320 bench. SHA must equal
+    // the first 4 KB of the source, not the whole source.
+    expect(out.PCM.data.length).toBe(4096);
+    expect(sha(out.PCM.data)).toBe(sha(pcmSrc.slice(0, 4096)));
+    expect(r.pcmChip?.chip).toBe('95320');
+    expect(r.pcmSliced).toBe(true);
 
     // BCM was patched: re-parse and assert the property invariants directly
     // (replaces the old "must SHA-equal a reference output file" check).
@@ -115,8 +121,8 @@ d('Cluster B key-prog wizard (Task #343)', () => {
     // CLI bundler's static output, not the GUI wizard's per-upload outputs).
     expect(out.BCM.name).toBe(SRC_BCM.replace(/\.bin$/i, '_KEYPROG_' + TARGET_VIN + '.bin'));
     expect(out.RFH.name).toBe(SRC_RFH.replace(/\.bin$/i, '_KEYPROG_' + TARGET_VIN + '.bin'));
-    expect(out.PCM.name).toBe(SRC_PCM.replace(/\.bin$/i, '_KEYPROG_' + TARGET_VIN + '.bin'));
-    expect(out.VERIFY.name).toBe('VERIFY_KEYPROG_' + TARGET_VIN + '.txt');
+    expect(out.PCM.name).toBe(SRC_PCM.replace(/\.bin$/i, '_4KB_KEYPROG_' + TARGET_VIN + '.bin'));
+    expect(out.VERIFY.name).toBe('VERIFY_KEYPROG_' + TARGET_VIN + '_4KB.txt');
   });
 
   it('refuses to succeed when VIN is wrong length', () => {

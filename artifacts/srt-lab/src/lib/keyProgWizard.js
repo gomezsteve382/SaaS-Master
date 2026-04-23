@@ -19,7 +19,7 @@
  * don't promote the staged secret into the active bank — see Critical
  * Constraint #2 in the script.
  * ========================================================================== */
-import { parseModule } from './parseModule.js';
+import { parseModule, pcmChipFromSize, pcmChipFromKey, PCM_CHIPS } from './parseModule.js';
 import { writeModuleVIN } from './fileUtils.js';
 import { crc16 } from './crc.js';
 
@@ -153,7 +153,57 @@ async function sha256Hex(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
-export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false } = {}) {
+// Task #379 — auto-pick the PCM output size that matches the bench EEPROM
+// chip so the CGDI flasher doesn't reject the file with "File different
+// size." Resolution rules (single source of truth, mirrored by the bundler):
+//
+//   - When the caller passes an explicit `pcmChip` (4kb / 8kb / 95320 / 95640),
+//     honour it: slice or pad the output as needed, or surface an explicit
+//     error if the requested size cannot be produced from the loaded PCM.
+//   - Otherwise auto-pick: an 8 KB doubled GPEC2A capture (half-2 all 0xFF)
+//     defaults to 4 KB output (the 95320 case that triggered #379); a clean
+//     4 KB GPEC2A stays 4 KB; a real 8 KB image stays 8 KB.
+//
+// Returns {ok, bytes, chip, sliced, reason?}. `ok=false` means the wizard
+// must surface the `reason` to the user instead of producing a flash file.
+export function resolvePcmOutput(pcmInData, idP, requestedChip) {
+  const inSize = pcmInData?.length || 0;
+  const inChip = pcmChipFromSize(inSize);
+  const isDoubledFFPad = idP?.doubled === true && idP?.halfPad === true;
+
+  let target;
+  if (requestedChip != null) {
+    target = pcmChipFromKey(requestedChip);
+    if (!target) {
+      const valid = PCM_CHIPS.map((c) => c.chipKey + '|' + c.chip).join(', ');
+      return { ok: false, bytes: null, chip: null, sliced: false,
+        reason: 'Unknown pcmChip "' + requestedChip + '". Valid: ' + valid + '.' };
+    }
+  } else {
+    // Auto-pick: doubled-with-FF-padding 8 KB → 4 KB; otherwise pass-through.
+    target = isDoubledFFPad ? pcmChipFromKey('4kb') : (inChip || pcmChipFromKey('8kb'));
+  }
+
+  if (target.sizeBytes === inSize) {
+    // Pass through the original reference to preserve true byte-for-byte
+    // identity (incl. Buffer-vs-Uint8Array sameness for Node-side callers).
+    return { ok: true, bytes: pcmInData, chip: target, sliced: false };
+  }
+  if (target.sizeBytes === 4096 && inSize === 8192 && isDoubledFFPad) {
+    return { ok: true, bytes: new Uint8Array(pcmInData.slice(0, 4096)), chip: target, sliced: true };
+  }
+  if (target.sizeBytes === 8192 && inSize === 4096) {
+    return { ok: false, bytes: null, chip: target, sliced: false,
+      reason: 'Cannot produce an 8 KB (95640) PCM from a 4 KB source. '
+        + 'Load the matching 8 KB virgin or rerun with --pcm-chip 4kb.' };
+  }
+  return { ok: false, bytes: null, chip: target, sliced: false,
+    reason: 'PCM input size (' + inSize + ' B) cannot be reshaped to chip '
+      + target.chip + ' (' + target.sizeBytes + ' B) safely. '
+      + 'Load a matching virgin or rerun with --pcm-chip ' + (inChip?.chipKey || '4kb') + '.' };
+}
+
+export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmChip = null } = {}) {
   const checks = [];
   let allOk = true;
   const ok = (label, pass, detail = '') => {
@@ -280,11 +330,22 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false } = {}
   }
   ok('All BCM VIN-slot headers/trailers preserved', trailerFail === null, trailerFail || '');
 
-  // ── RFH + PCM pass-through ──
+  // ── RFH pass-through; PCM size resolution per --pcm-chip / auto-pick (#379) ──
   const rfhOut = new Uint8Array(rfh.data);
-  const pcmOut = new Uint8Array(pcm.data);
+  const pcmRes = resolvePcmOutput(pcm.data, idP, pcmChip);
+  ok('PCM output size matches selected chip',
+     pcmRes.ok, pcmRes.ok ? pcmRes.chip.chip + ' (' + pcmRes.chip.sizeLabel + ')'
+                          : (pcmRes.reason || 'unresolved'));
+  if (!pcmRes.ok) {
+    return {
+      ok: false, checks, sharedSecret, pcmChip: pcmRes.chip,
+      before: { bcmFullVins: beforeBcmFullVins, bcmPartials: beforeBcmPartials },
+      after: null, files: [], verifyText: '',
+    };
+  }
+  const pcmOut = pcmRes.bytes;
   const rfhAfterInfo = parseModule(rfhOut, rfh.name);
-  const pcmAfterInfo = idP.doubled
+  const pcmAfterInfo = pcmOut.length === 8192 && idP.doubled
     ? parseModule(pcmOut.slice(0, 4096), pcm.name + '#half1')
     : parseModule(pcmOut, pcm.name);
 
@@ -300,8 +361,11 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false } = {}
   const stem = (s) => String(s).replace(/\.bin$/i, '');
   const bcmOutName = stem(bcm.name) + '_KEYPROG_' + vin + '.bin';
   const rfhOutName = stem(rfh.name) + '_KEYPROG_' + vin + '.bin';
-  const pcmOutName = stem(pcm.name) + '_KEYPROG_' + vin + '.bin';
-  const verifyName = 'VERIFY_KEYPROG_' + vin + '.txt';
+  // Tag the PCM output filename with the chip suffix so the user (and CGDI)
+  // can never confuse a 4 KB and 8 KB image for the same VIN (Task #379).
+  const pcmChipSuffix = '_' + pcmRes.chip.sizeLabel.replace(' ', '');
+  const pcmOutName = stem(pcm.name) + pcmChipSuffix + '_KEYPROG_' + vin + '.bin';
+  const verifyName = 'VERIFY_KEYPROG_' + vin + pcmChipSuffix + '.txt';
 
   const verifyText = buildVerifyText({
     vin, sharedSecret,
@@ -319,6 +383,8 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false } = {}
     ok: allOk,
     checks,
     sharedSecret,
+    pcmChip: pcmRes.chip,
+    pcmSliced: pcmRes.sliced,
     before: { bcmFullVins: beforeBcmFullVins, bcmPartials: beforeBcmPartials },
     after: { bcmFullVins: afterBcmFullVins, bcmPartials: afterBcmPartials },
     files: [
