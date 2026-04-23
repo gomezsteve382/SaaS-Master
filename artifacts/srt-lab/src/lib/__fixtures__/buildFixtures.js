@@ -113,6 +113,11 @@ function makeRfhubGen2({
     buf[off + 17] = cs & 0xff;
   }
 
+  // Gen2 RFHUB header signature at 0x0500 (AA 55 31 01) — used by
+  // writeRfhSec16FromBcm and rfhubKeySlots writers to confirm the dump
+  // is actually an RFHUB image before mutating it.
+  fill(buf, 0x0500, new Uint8Array([0xAA, 0x55, 0x31, 0x01]));
+
   // Vehicle secret + SEC16 slot 1 share the same 16 bytes at 0x050E.
   const secret = vehicleSecret || new Uint8Array([
     0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,

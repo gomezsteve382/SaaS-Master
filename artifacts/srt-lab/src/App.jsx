@@ -32,6 +32,7 @@ import SampleLibraryTab from "./tabs/SampleLibraryTab.jsx";
 import { writeBcmSec16Gen2, writePcmSec6 } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
 import KeyProgTab from "./tabs/KeyProgTab";
+import KeyManagerTab from "./tabs/KeyManagerTab";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType} from "./lib/parseModule.js";
 import {Tip} from "./lib/plainEnglish.jsx";
@@ -1166,6 +1167,7 @@ const WORKSPACE_TABS = [
   {id:'dumps',     i:'📂', l:'DUMPS',        s:'VIN · SEC16 · Unlocks · Hex'},
   {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
   {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
+  {id:'keymgr',    i:'🗝️', l:'KEY MGR',      s:'Dual-file RFHUB fob transfer'},
   {id:'analyzer',  i:'🧪', l:'ANALYZER',     s:'Cross-validate · Mismatch'},
   {id:'jailbreak', i:'💀', l:'JAILBREAK',    s:'SRT · Demon · Hellcat · Redeye'},
   {id:'seed',      i:'🔑', l:'SEED→KEY',     s:'14 Algorithms'},
