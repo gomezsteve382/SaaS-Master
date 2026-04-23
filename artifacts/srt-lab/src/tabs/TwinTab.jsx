@@ -3,6 +3,7 @@ import chargerImg from "@assets/charger_1776312563310.png";
 import { C } from "../lib/constants.js";
 import { Card, Tag, Btn } from "../lib/ui.jsx";
 import { crc16, rfhSec16Cs, rfhGen2DetectMagic, rfhGen2VinCs, RFH_GEN2_VIN_CS_KNOWN_MAGICS } from "../lib/crc.js";
+import { writePcmSec6 } from "../lib/securityBytes.js";
 import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import SamplePicker from "../lib/SamplePicker.jsx";
@@ -210,8 +211,13 @@ function applyRfhFromBcm(rfhData, bcmInfo, magic = 0xDB) {
   return out;
 }
 
-/* ─── PCM / GPEC2A (4096 / 8192 / 16384 bytes) ───────────────────────────── */
-const PCM_VALID_SIZES = new Set([4096, 8192, 16384]);
+/* ─── PCM / GPEC2A (canonical 4096 / 8192 bytes) ─────────────────────────────
+ * Task #404 — only canonical Continental GPEC2A sizes are accepted. The
+ * shared engine writer (`writePcmSec6`) refuses anything else, so any
+ * other size would have produced a silent no-op download. There is no
+ * separate "GPEC5" 16 KB variant — the 8 KB image is just a larger
+ * GPEC2A. */
+const PCM_VALID_SIZES = new Set([4096, 8192]);
 function parsePcm(data, filename) {
   if (!PCM_VALID_SIZES.has(data.length)) return null;
   const vinRaw = data.slice(0, 17);
@@ -223,11 +229,16 @@ function parsePcm(data, filename) {
 }
 
 function applyPcmFromBcm(pcmData, bcmInfo) {
-  const out = new Uint8Array(pcmData);
-  const sec16Rev = [...bcmInfo.sec16Copies[0].raw].reverse();
-  const sec6 = sec16Rev.slice(0, 6);
-  for (let i = 0; i < 6; i++) out[0x3C8 + i] = sec6[i];
-  return out;
+  // Task #404 — delegate to the engine writer so the marker at 0x3C4
+  // (FF FF FF AA) gets stamped alongside the 6 secret bytes at 0x3C8.
+  // Without the marker, external tools (CGDI/Autel/AlfaOBD/SINCRO) and
+  // the PCM bootloader itself report IMMO_DAMAGED even when the 6
+  // secret bytes are correct. Returns `{bytes, ok}` so the caller can
+  // refuse the download on a non-canonical size instead of saving an
+  // unchanged file.
+  const sec16Rev = new Uint8Array([...bcmInfo.sec16Copies[0].raw].reverse());
+  const r = writePcmSec6(pcmData, sec16Rev);
+  return { bytes: r.bytes, ok: r.ok };
 }
 
 /* ─── UI sub-components ───────────────────────────────────────────────────── */
@@ -690,8 +701,14 @@ function ApplyPanel({ bcm, rfh, pcm, bcmData, rfhData, pcmData }) {
   function doBcmToPcm() {
     if (!pcm) return;
     const out = applyPcmFromBcm(pcmData, bcm);
+    if (!out.ok) {
+      // Engine writer refused — non-canonical PCM size. Surface a real
+      // error instead of silently downloading an unchanged file.
+      setApplied("bcm→pcm-fail");
+      return;
+    }
     const name = "PCM_SYCNED_" + pcm.filename;
-    dl(out, name);
+    dl(out.bytes, name);
     setApplied("bcm→pcm");
   }
 
@@ -714,14 +731,19 @@ function ApplyPanel({ bcm, rfh, pcm, bcmData, rfhData, pcmData }) {
         )}
       </div>
       <div style={{ marginTop: 8 }}><DownloadCounter assetId={ASSET_IDS.twinPaired}/></div>
-      {applied && (
+      {applied && applied !== "bcm→pcm-fail" && (
         <div style={{ marginTop: 12, padding: "8px 14px", borderRadius: 8, background: C.gn + "10", fontSize: 12, fontWeight: 700, color: C.gn, border: `1px solid ${C.gn}30` }}>
           ✓ Twinned file downloaded —{" "}
           {{
             "rfh→bcm": "BCM updated from RFH data",
             "bcm→rfh": "RFH updated from BCM data",
-            "bcm→pcm": "PCM SEC6 updated from BCM",
+            "bcm→pcm": "PCM SEC6 + marker (FF FF FF AA @ 0x3C4) updated from BCM",
           }[applied]}
+        </div>
+      )}
+      {applied === "bcm→pcm-fail" && (
+        <div style={{ marginTop: 12, padding: "8px 14px", borderRadius: 8, background: C.er + "10", fontSize: 12, fontWeight: 700, color: C.er, border: `1px solid ${C.er}55` }}>
+          ✗ PCM SEC6 sync refused — non-canonical PCM size {pcmData?.length} B (expected 4096 or 8192). No file was downloaded.
         </div>
       )}
       <div style={{ marginTop: 14, padding: "10px 14px", borderRadius: 8, background: C.c2, border: `1px solid ${C.bd}` }}>
@@ -776,7 +798,7 @@ export default function TwinTab() {
     if (!rfhData || rfhData.length !== 4096)
       errors.push("RFH must be a 4096-byte MC9S12X Gen2 EEPROM dump.");
     if (pcmData && !PCM_VALID_SIZES.has(pcmData.length))
-      errors.push("PCM must be a GPEC2A EEPROM dump (4096, 8192, or 16384 bytes).");
+      errors.push("PCM must be a canonical Continental GPEC2A EEPROM dump (4096 or 8192 bytes).");
 
     if (errors.length) { setErr(errors.join(" ")); return; }
 

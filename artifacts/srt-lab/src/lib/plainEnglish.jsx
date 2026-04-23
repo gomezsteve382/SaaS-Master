@@ -13,7 +13,7 @@ export const JARGON = {
   VIN:        { label: 'VIN',                   tip: 'Vehicle Identification Number — the 17-character chassis ID printed on the dashboard.' },
   BCM:        { label: 'BCM',                   tip: 'Body Control Module — runs lights, locks, key-fob pairing and stores the immobilizer token.' },
   RFHUB:      { label: 'Key receiver',          tip: 'RFHUB / FCM — the module that listens for the key fob and holds the master immobilizer secret.' },
-  PCM:        { label: 'Engine computer',       tip: 'PCM — engine computer (GPEC2A / GPEC5). Must hold a matching immobilizer token or the engine will not start.' },
+  PCM:        { label: 'Engine computer',       tip: 'PCM — engine computer (Continental GPEC2A, 4 KB or 8 KB EEPROM). Must hold a matching immobilizer token or the engine will not start.' },
   SEC16:      { label: 'Immobilizer token',     tip: 'SEC16 — the 16-byte secret BCM and key receiver share so the engine knows it is the right car.' },
   SEC6:       { label: 'Engine immobilizer key', tip: 'SEC6 — the first 6 bytes of the immobilizer token, copied into the engine computer.' },
   IMMO:       { label: 'Immobilizer',           tip: 'Immobilizer — the anti-theft system that blocks engine start until all modules agree on the secret.' },

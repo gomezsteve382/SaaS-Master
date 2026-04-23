@@ -536,16 +536,14 @@ describe('sizeWarn — non-canonical capture sizes', () => {
     expect(parseModule(makeRfhubGen2(), 'rfh.bin').sizeWarn).toBeNull();
   });
 
-  it('forced GPEC2A at 8 KB (Trackhawk-style oversized) gets oversized warn', () => {
+  it('forced GPEC2A at 8 KB (canonical larger GPEC2A — no warn after Task #404)', () => {
+    // Task #404: 8 KB is a canonical Continental GPEC2A size (95640
+    // EXT-EEPROM revision), not "oversized". The earlier "GPEC5"
+    // concept was wrong — purged in this task.
     const buf = new Uint8Array(8192);
-    const m = parseModule(buf, 'gpec_oversized.bin', { forceType: 'GPEC2A' });
+    const m = parseModule(buf, 'gpec_8k.bin', { forceType: 'GPEC2A' });
     expect(m.type).toBe('GPEC2A');
-    expect(m.sizeWarn).not.toBeNull();
-    expect(m.sizeWarn.kind).toBe('oversized');
-    expect(m.sizeWarn.expected).toBe(4096);
-    expect(m.sizeWarn.actual).toBe(8192);
-    expect(m.sizeWarn.message).toMatch(/8,192.*expected 4,096.*GPEC2A/);
-    expect(m.sizeWarn.causes.length).toBeGreaterThan(0);
+    expect(m.sizeWarn).toBeNull();
   });
 
   it('forced GPEC2A at 384 KB (Charger 6.2-style padded) gets oversized warn with multiplier hint', () => {
@@ -553,8 +551,11 @@ describe('sizeWarn — non-canonical capture sizes', () => {
     const m = parseModule(buf, 'pcm.bin', { forceType: 'GPEC2A' });
     expect(m.type).toBe('GPEC2A');
     expect(m.sizeWarn.kind).toBe('oversized');
-    expect(m.sizeWarn.expected).toBe(4096);
-    expect(m.sizeWarn.causes.some(c => /96×/.test(c))).toBe(true);
+    // After Task #404, GPEC2A canonical sizes are {4096, 8192}; the
+    // nearest canonical (and so the "expected" anchor for the warn) is
+    // now 8192 for any padded-multiple buffer ≥ 8 KB.
+    expect(m.sizeWarn.expected).toBe(8192);
+    expect(m.sizeWarn.causes.some(c => /\d+×/.test(c))).toBe(true);
   });
 
   it('forced 95640 at 64 KB (FCA-style padded) gets oversized warn', () => {
@@ -593,7 +594,9 @@ describe('sizeWarn — non-canonical capture sizes', () => {
     const m = parseModule(buf, 'JOVENTINO_GPEC2A_PCM_EEPROM_padded.bin');
     expect(m.type).toBe('GPEC2A');
     expect(m.sizeWarn.kind).toBe('oversized');
-    expect(m.sizeWarn.expected).toBe(4096);
+    // Task #404: nearest canonical for an oversized GPEC2A is now 8192
+    // (canonical set = {4096, 8192}).
+    expect(m.sizeWarn.expected).toBe(8192);
     expect(m.sizeWarn.actual).toBe(65536);
   });
 

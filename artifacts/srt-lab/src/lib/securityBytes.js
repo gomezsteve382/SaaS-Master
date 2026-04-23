@@ -182,23 +182,51 @@ export function writeBcmFlatSec16(bytes, resolvedSec16) {
 }
 
 /* ----------------------------------------------------------------------------
+ * Canonical GPEC2A SEC6 layout (verified Task #404 against the real-bench
+ * `FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGINSYNCHED_6.2` paired dump):
+ *
+ *   0x3C4..0x3C7: marker bytes  FF FF FF AA   (Continental "SEC6 next" tag)
+ *   0x3C8..0x3CD: the 6 secret bytes (= reverse(BCM SEC16)[0:6]
+ *                                    = RFH SEC16[0:6])
+ *   0x3CE+:       remains 0xFF
+ *
+ * Both 4 KB (95320) and 8 KB-doubled (95640) GPEC2A images carry the
+ * marker only at 0x3C4 — there is no second-half mirror. External
+ * locksmith tools (CGDI, Autel, AlfaOBD, Mitchell 6.x, SINCRO) all
+ * report `IMMO_DAMAGED` when 0x3C4..0x3C7 is `FF FF FF FF` even if the
+ * 6 secret bytes at 0x3C8 look correct, because the marker is what
+ * tells the PCM bootloader the slot is valid. */
+export const PCM_SEC6_MARKER = new Uint8Array([0xFF, 0xFF, 0xFF, 0xAA]);
+export const PCM_SEC6_MARKER_OFFSET = 0x3C4;
+export const PCM_SEC6_OFFSET = 0x3C8;
+const CANONICAL_PCM_SIZES = new Set([4096, 8192]);
+
+/* ----------------------------------------------------------------------------
  * writePcmSec6(bytes, rfhSec16)
  *
- * Writes the first 6 bytes of RFH SEC16 as PCM SEC6.
- *   GPEC2A: at every "FF FF FF AA" marker + 4.
- *   GPEC5:  at the first "FF FF FF FF" + 4 where the next 6 bytes are not
- *           all-FF (i.e. there's existing SEC6 data to overwrite).
- *   Canonical fallback (Task #399): when neither marker path fires AND
- *   the image is a canonical GPEC2A/PCM size (4096 or 8192 bytes), write
- *   the 6-byte secret at 0x3C8 — the same offset parseModule.js and the
- *   Task #396 classifier READ from. Before this fallback a virgin 4 KB
- *   GPEC2A (no FF FF FF AA marker, all-FF SEC6 region) silently returned
- *   patched=0 while the UI still downloaded the unchanged file, causing
- *   the locksmith to flash a "synced" PCM that was actually unmodified.
- * Only one of the three paths fires per call — AA-marker first, then
- * GPEC5, then canonical 0x3C8. Non-canonical image sizes that don't hit
- * either marker path return { patched: 0, ok: false } so the caller can
- * refuse the download.
+ * Single source of truth for PCM (GPEC2A) SEC6 patching — Task #404
+ * unified the three previously-divergent writers (engine + Twin tab
+ * inline write + RFH→PCM tab inline write) into this one function so
+ * the same input pair always produces a byte-identical output
+ * regardless of which UI path the user takes.
+ *
+ * Writes the first 6 bytes of `rfhSec16` as the PCM SEC6 secret AND
+ * stamps the canonical `FF FF FF AA` marker at 0x3C4..0x3C7 so the
+ * resulting file matches what a real BCM-paired GPEC2A would carry on
+ * disk — both bytes together are what makes external locksmith tools
+ * (CGDI, Autel, AlfaOBD, Mitchell 6.x, SINCRO) see the slot as paired
+ * instead of `IMMO_DAMAGED`.
+ *
+ * Only canonical GPEC2A sizes (4 KB 95320, 8 KB 95640) are accepted —
+ * the previous fallback that scanned for arbitrary FFFFFFFF runs (and
+ * was incorrectly labelled as a "GPEC5" path; there is no GPEC5 — the
+ * 8 KB image is just a larger GPEC2A) has been removed because it was
+ * misfiring on a virgin GPEC2A:
+ * a stray `00` byte at offset 0x19 (inside the part-number region)
+ * was matching the FFFFFFFF heuristic and stamping 6 stray bytes at
+ * 0x17, corrupting the part-number string while leaving the canonical
+ * 0x3C4 / 0x3C8 slot untouched. Non-canonical buffers return
+ * { patched: 0, ok: false } so the caller can refuse the download.
  * ---------------------------------------------------------------------------- */
 export function writePcmSec6(bytes, rfhSec16) {
   if (!rfhSec16 || rfhSec16.length < 6) throw new Error('Need at least 6 bytes of RFH SEC16');
@@ -206,44 +234,22 @@ export function writePcmSec6(bytes, rfhSec16) {
   const out = new Uint8Array(bytes);
   let patched = 0;
   let markerUsed = null;
+  let markerStamped = false;
 
-  /* Try GPEC2A marker first */
-  for (let i = 0; i < out.length - 10; i++) {
-    if (out[i] === 0xFF && out[i + 1] === 0xFF && out[i + 2] === 0xFF && out[i + 3] === 0xAA) {
-      for (let k = 0; k < 6; k++) out[i + 4 + k] = sec6[k];
-      patched++;
-      markerUsed = 'FF FF FF AA';
-    }
-  }
-  /* If no GPEC2A marker, try GPEC5 (FF FF FF FF followed by non-all-FF SEC6) */
-  if (patched === 0) {
-    for (let i = 0; i < out.length - 20; i++) {
-      if (out[i] === 0xFF && out[i + 1] === 0xFF && out[i + 2] === 0xFF && out[i + 3] === 0xFF) {
-        let hasData = false;
-        for (let k = 0; k < 6; k++) if (out[i + 4 + k] !== 0xFF) { hasData = true; break; }
-        if (hasData) {
-          for (let k = 0; k < 6; k++) out[i + 4 + k] = sec6[k];
-          patched++;
-          markerUsed = 'FF FF FF FF';
-          break; /* GPEC5 only has one location */
-        }
-      }
-    }
-  }
-  /* Task #399 — canonical 0x3C8 fallback for virgin GPEC2A/PCM images.
-   * Only engages on the exact canonical sizes (4 KB / 8 KB) so a
-   * misidentified non-PCM buffer can't get a stray 6-byte tattoo at
-   * 0x3C8. Matches the reader/classifier wired up by Task #396. */
-  if (patched === 0 && (out.length === 4096 || out.length === 8192) && out.length >= 0x3CE) {
-    for (let k = 0; k < 6; k++) out[0x3C8 + k] = sec6[k];
+  if (CANONICAL_PCM_SIZES.has(out.length) && out.length >= 0x3CE) {
+    for (let k = 0; k < 4; k++) out[PCM_SEC6_MARKER_OFFSET + k] = PCM_SEC6_MARKER[k];
+    for (let k = 0; k < 6; k++) out[PCM_SEC6_OFFSET + k] = sec6[k];
     patched = 1;
-    markerUsed = 'canonical 0x3C8';
+    markerUsed = 'FF FF FF AA';
+    markerStamped = true;
   }
+
   return {
     bytes: out,
     patched,
     ok: patched > 0,
     markerUsed,
+    markerStamped,
     sec6Hex: hexStr(sec6),
   };
 }

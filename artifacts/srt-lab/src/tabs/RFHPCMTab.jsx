@@ -100,6 +100,11 @@ export default function RFHPCMTab() {
     if (!compat.canApply) return;
     const result = applyRfhToPcm(rfh, pcm, pcmBuf, {repairImmo});
     if (!result) { setMsg("Apply failed — invalid inputs"); return; }
+    if (result.error) {
+      setPatched(null); setApplyLog([]);
+      setMsg("✗ " + result.errorMessage);
+      return;
+    }
     setPatched(result.data);
     setApplyLog(result.log);
     setMsg("✓ Patched in memory — click DOWNLOAD to save");
@@ -210,7 +215,7 @@ export default function RFHPCMTab() {
         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
           <span style={{fontSize:14,fontWeight:900,color:C.a4}}>PCM (GPEC2/GPEC3)</span>
           {pcm && <Tag color={C.tm}>{pcm.size} B</Tag>}
-          {pcm && <Tag color={pcm.writeCheck.ok ? C.gn : C.er}>{pcm.writeCheck.ok ? "writable ✓" : "too small"}</Tag>}
+          {pcm && <Tag color={pcm.writeCheck.ok ? C.gn : C.er}>{pcm.writeCheck.ok ? "writable ✓" : (pcm.writeCheck.canonical===false && pcm.size>=0x3CE ? "non-canonical size" : "too small")}</Tag>}
         </div>
         {!pcm && <div style={{fontSize:12,color:C.tm,padding:20,textAlign:"center"}}>Load a PCM file</div>}
         {pcm && <>
@@ -233,7 +238,7 @@ export default function RFHPCMTab() {
             </tbody>
           </table>
           <div style={{padding:"8px 12px",borderRadius:10,background:C.c2,border:"1px solid "+C.bd,fontSize:11,color:C.ts}}>
-            <b>Write-check:</b> need 0x03CE bytes · buf {pcm.writeCheck.buf} bytes · {pcm.writeCheck.ok ? <span style={{color:C.gn}}>OK ✓</span> : <span style={{color:C.er}}>too small</span>}
+            <b>Write-check:</b> canonical GPEC2A 4096 / 8192 B · buf {pcm.writeCheck.buf} bytes · {pcm.writeCheck.ok ? <span style={{color:C.gn}}>OK ✓</span> : <span style={{color:C.er}}>{pcm.writeCheck.reason || 'not writable'}</span>}
           </div>
         </>}
       </Card>

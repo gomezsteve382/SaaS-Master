@@ -62,7 +62,7 @@ function analyzeFile(buf,name){
   if(type==='BCM'){sec={t:'bcm'};sec.immoRecs=_countSkim(data,0x40C0);sec.b1=sec.immoRecs===0;sec.bakRecs=_countSkim(data,0x2000);sec.b2=sec.bakRecs===0;sec.immoSynced=sec.immoRecs>0&&sec.bakRecs>0&&arrEq(data.slice(0x40C0,0x40C0+IMMO_BLK_),data.slice(0x2000,0x2000+IMMO_BLK_));}
   else if(type==='95640'){sec={t:'95640'};sec.key=data.slice(0x40,0x50);sec.kb=sec.key.every(b=>b===0xFF);sec.fob=data.slice(0x200,0x240);sec.fb=sec.fob.every(b=>b===0xFF);}
   else if(type==='RFHUB'){sec={t:'rfhub'};sec.key=data.slice(0x40,0x50);sec.kb=sec.key.every(b=>b===0xFF);}
-  else if(type==='GPEC2A'){sec={t:'gpec2a'};sec.skim=data[0x0011];sec.on=data[0x0011]===0x80;sec.key=data.slice(0x0203,0x020B);sec.km=arrEq(data.slice(0x0203,0x020B),data.slice(0x0361,0x0369));sec.zz=data[0x0c8c]===0x5a;if(sz>=0x3CE){const s6=data.slice(0x3C8,0x3CE);const cls=classifyPcmSec6(s6);sec.pcmSec6={hex:Array.from(s6).map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' '),damaged:cls.damaged,populated:cls.populated,raw:s6};}}
+  else if(type==='GPEC2A'){sec={t:'gpec2a'};sec.skim=data[0x0011];sec.on=data[0x0011]===0x80;sec.key=data.slice(0x0203,0x020B);sec.km=arrEq(data.slice(0x0203,0x020B),data.slice(0x0361,0x0369));sec.zz=data[0x0c8c]===0x5a;if(sz>=0x3CE){const s6=data.slice(0x3C8,0x3CE);const m=data.slice(0x3C4,0x3C8);const markerOk=m[0]===0xFF&&m[1]===0xFF&&m[2]===0xFF&&m[3]===0xAA;const cls=classifyPcmSec6(s6);const populated=cls.populated&&markerOk;sec.pcmSec6={hex:Array.from(s6).map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' '),damaged:!populated,populated,markerOk,raw:s6};}}
   return{type,name:TL[type]||type,color:TC[type]||'#9E9E9E',size:sz,data,vins,partials,sec,hexOnly:type==='UNKNOWN',sizeWarn,contentWarn};
 }
 

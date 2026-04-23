@@ -5,6 +5,7 @@ import {parseModule,arrEq,fO,countSkimRecs,syncImmoBackup} from "../lib/parseMod
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crossValidate,computeDiff,compareGpecBcmKey} from "../lib/crossValidate.js";
 import {crc16} from "../lib/crc.js";
+import {writePcmSec6} from "../lib/securityBytes.js";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import {statusBanner, loadAdvanced, saveAdvanced, Tip} from "../lib/plainEnglish.jsx";
 import SamplePicker from "../lib/SamplePicker.jsx";
@@ -77,7 +78,11 @@ function SecurityTab(){
     if(keySrc>=0&&mods[keySrc]&&mods[keySrc].skey&&!mods[keySrc].skb){const sk=mods[keySrc];srcKey={data:sk.skey,type:sk.type,fn:sk.filename,endian:sk.skEndian};}
     else{for(const m of mods){if(m.skey&&!m.skb){srcKey={data:m.skey,type:m.type,fn:m.filename,endian:m.skEndian};break;}}}
     const rfhubForSec6=mods.find(mn=>mn.type==='RFHUB'&&mn.sec16valid&&mn.sec16s?.length);
-    mods.forEach((m,i)=>{
+    // Use an explicit for-loop (not .forEach) so we can actually abort
+    // the entire matchAll() flow on a hard SEC6-write refusal instead
+    // of silently completing the remaining iterations.
+    for(let i=0;i<mods.length;i++){
+      const m=mods[i];
       let patched=doVin?writeModuleVIN(m.data,m.type,tv,m.vins):null;
       if(!patched)patched=new Uint8Array(m.data);
       if(srcKey&&m.skoff!==undefined){
@@ -86,12 +91,25 @@ function SecurityTab(){
         if(!needsSync&&m.skey){for(let j=0;j<Math.min(adapted.length,m.skey.length);j++)if(adapted[j]!==m.skey[j]){needsSync=true;break;}}
         if(needsSync){for(let j=0;j<adapted.length;j++)patched[m.skoff+j]=adapted[j];if(m.type==='GPEC2A'&&m.skmoff!==undefined)for(let j=0;j<Math.min(adapted.length,8);j++)patched[m.skmoff+j]=adapted[j];}
       }
-      if(m.type==='GPEC2A'&&rfhubForSec6){const s16=rfhubForSec6.sec16s[0].raw;for(let i=0;i<6&&i<s16.length;i++)patched[0x3C8+i]=s16[i];}
+      if(m.type==='GPEC2A'&&rfhubForSec6){
+        const s16=rfhubForSec6.sec16s[0].raw;
+        const w=writePcmSec6(patched,s16);
+        if(!w.ok){
+          // Non-canonical PCM size — engine writer refused. Surface a
+          // hard failure so the user doesn't download a "matched" PCM
+          // whose SEC6 slot was never stamped (would still read as
+          // IMMO_DAMAGED in CGDI/Autel/AlfaOBD/SINCRO/Mitchell).
+          setMsg('PCM SEC6 sync refused for '+m.filename+' — non-canonical size '+m.data.length+' B (expected 4096 or 8192). Match aborted.');
+          setFlashList([]);
+          return {ok:false,patched:0,remainingIssues:1,issues:['PCM SEC6 write refused: non-canonical size for '+m.filename]};
+        }
+        patched=w.bytes;
+      }
       const fn='MATCHED_'+tv+'_'+m.filename;
       const flashNote=m.type==='BCM'?'Flash this BCM D-FLASH file':m.type==='RFHUB'?'Write this RFHUB to EEE chip':m.type==='GPEC2A'?'Write this GPEC2A to 95320 SPI chip':m.type==='95640'?'Write this 95640 EEPROM':'Flash this file';
       results.push({data:patched,fn,type:m.type,name:m.name,note:flashNote,original:m.filename});
       setMods(p=>{const u=[...p];u[i]=parseModule(patched,m.filename);return u;});
-    });
+    }
     const postCheck=crossValidate(results.map(r=>parseModule(r.data,r.fn)));
     const statusNote=postCheck.issues.length===0?' — all checks passed':' — '+postCheck.issues.length+' issue(s) remain';
     setFlashList(results);setMsg('All modules matched'+(doVin?' to '+tv:'')+(srcKey?' with key from '+srcKey.fn:'')+statusNote);setSub('tools');
@@ -108,10 +126,17 @@ function SecurityTab(){
     else if(action==='rfhPcmSync'&&m.type==='GPEC2A'){
       const rfh=mods.find(mn=>mn.type==='RFHUB');
       if(rfh&&rfh.sec16valid&&rfh.sec16s?.length){
-        const d=new Uint8Array(m.data);const s16=rfh.sec16s[0].raw;
-        for(let i=0;i<6&&i<s16.length;i++)d[0x3C8+i]=s16[i];
-        const hex6=Array.from(s16.slice(0,6)).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
-        res={data:d,desc:'PCM SEC6 @ 0x3C8 ← RFHUB SEC16[0:6]: '+hex6};
+        const s16=rfh.sec16s[0].raw;
+        const w=writePcmSec6(m.data,s16);
+        if(!w.ok){
+          // Hard-fail: refuse to produce a "synced" download whose
+          // SEC6 slot was never actually stamped (non-canonical PCM
+          // size). Same UX contract as RFHPCM/Twin tabs.
+          res={desc:'PCM SEC6 sync refused — non-canonical size '+m.data.length+' B (expected 4096 or 8192). No file produced.'};
+        }else{
+          const hex6=Array.from(s16.slice(0,6)).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+          res={data:w.bytes,desc:'PCM SEC6 @ 0x3C8 ← RFHUB SEC16[0:6]: '+hex6+' + marker FF FF FF AA @ 0x3C4'};
+        }
       }else res={desc:'RFHUB must be loaded with valid (non-blank, matching) SEC16 slots.'};
     }
     else if(action==='rfhBcmSync'&&m.type==='95640'){
@@ -142,9 +167,17 @@ function SecurityTab(){
     /* 1. Patch GPEC2A VINs (no CRC for GPEC2A) */
     let gd=writeModuleVIN(gm.data,'GPEC2A',tv,gm.vins);
     if(!gd)gd=new Uint8Array(gm.data);
-    /* 2. Write RFHUB SEC16[0:6] → GPEC2A PCM SEC6 @ 0x3C8 */
+    /* 2. Write RFHUB SEC16[0:6] → GPEC2A PCM SEC6 @ 0x3C8 + marker @ 0x3C4 (Task #404) */
     const s16=rm.sec16s[0].raw;
-    for(let i=0;i<6&&i<s16.length;i++)gd[0x3C8+i]=s16[i];
+    const w=writePcmSec6(gd,s16);
+    if(!w.ok){
+      // Non-canonical GPEC2A size — engine writer refused. Hard-fail
+      // the whole GPEC2A+RFHUB sync so we don't ship a "synced" pair
+      // whose PCM SEC6 slot was never actually stamped.
+      setMsg('GPEC2A+RFHUB sync refused — non-canonical PCM size '+gm.data.length+' B (expected 4096 or 8192). No files produced.');
+      return;
+    }
+    gd=w.bytes;
     const sec6hex=Array.from(s16.slice(0,6)).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
     /* 3. Patch RFHUB VINs (mirrored + CRC8RF per slot — writeModuleVIN handles this) */
     const rd=writeModuleVIN(rm.data,'RFHUB',tv,rm.vins)||new Uint8Array(rm.data);

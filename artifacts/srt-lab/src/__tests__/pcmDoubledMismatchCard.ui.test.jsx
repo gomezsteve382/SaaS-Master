@@ -50,9 +50,10 @@ describe("Task #379 — PcmCard mismatch-guard cards", () => {
   });
 
   it("renders the chip-mismatch (red) card for a non-canonical PCM size", () => {
-    // A 5000-byte buffer is below the 8 KB GPEC5 detection threshold but
-    // above PCM_MIN_SIZE, so engParsePcm returns ok=false rather than
-    // tooSmall. The chip-mismatch card must render in that branch.
+    // A 5000-byte buffer falls between the two canonical GPEC2A sizes
+    // (4 KB / 8 KB) but is above PCM_MIN_SIZE, so engParsePcm returns
+    // ok=false rather than tooSmall. The chip-mismatch card must render
+    // in that branch.
     const bytes = makeNonCanonical(5000);
     const parsed = engParsePcm(bytes, "PCM_NONCANONICAL.bin");
     if (parsed.tooSmall) {

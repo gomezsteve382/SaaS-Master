@@ -1,4 +1,6 @@
 import {crc16, crc8rf, rfhGen2VinCs, rfhGen2DetectMagic} from './crc.js';
+import {writePcmSec6} from './securityBytes.js';
+import {classifyPcmSec6} from './parseModule.js';
 
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
 
@@ -213,22 +215,30 @@ export function parseRFH24C32(buf) {
   return result;
 }
 
+// PCM IMMO state at 0x0011 (the IMMO enable/disable byte). Distinct
+// from SEC6 IMMO_DAMAGED status, which is gated on marker @0x3C4 +
+// secret bytes @0x3C8. The "(all-FF @ 0x0011)" qualifier disambiguates
+// the two: marker-missing PCMs also surface as IMMO_DAMAGED in the
+// SEC6 sense, but they are tracked through pcm.sec6 / classifyPcmSec6,
+// not this label.
 const PCM_IMMO_LABELS = {
-  IMMO_DAMAGED: 'IMMO_DAMAGED (all-FF)',
+  IMMO_DAMAGED: 'IMMO_DAMAGED (all-FF @ 0x0011)',
   ENABLED: 'ENABLED (0x80)',
   DISABLED: 'DISABLED (0x00)',
   UNKNOWN: 'UNKNOWN pattern'
 };
 
 /**
- * Parse PCM GPEC2/GPEC2A/GPEC3 dump. Expected size 4096.
+ * Parse PCM GPEC2/GPEC2A/GPEC3 dump. Expected canonical size 4096 or 8192 B.
  */
 export function parsePCMGPEC(buf) {
   const data = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
   const sz = data.length;
   const result = { size: sz };
 
-  result.sizeWarn = (sz !== 4096) ? 'Unexpected size ' + sz + ' B (expected 4096 B for GPEC2/GPEC3 PCM dump)' : null;
+  result.sizeWarn = (sz !== 4096 && sz !== 8192)
+    ? 'Unexpected size ' + sz + ' B (expected 4096 or 8192 B for canonical Continental GPEC2A PCM dump)'
+    : null;
 
   result.vinCurrent = readVin(data, 0x0000);
   result.vinOriginal = readVin(data, 0x01F0);
@@ -248,21 +258,50 @@ export function parsePCMGPEC(buf) {
     state: immoState, label: PCM_IMMO_LABELS[immoState]
   };
 
-  // SEC6 raw at 0x03C8
+  // SEC6 marker (FF FF FF AA at 0x03C4) + raw 6 bytes at 0x03C8 — Task #404.
+  // The marker is what tells the PCM bootloader the slot is valid; without
+  // it, even a populated 6-byte secret reads as IMMO_DAMAGED in external
+  // tools (CGDI / Autel / AlfaOBD / SINCRO / Mitchell 6.x).
   const need = 0x03CE;
   if (sz >= need) {
+    const marker = data.slice(0x03C4, 0x03C8);
+    const markerOk = marker[0] === 0xFF && marker[1] === 0xFF && marker[2] === 0xFF && marker[3] === 0xAA;
     const s6 = data.slice(0x03C8, 0x03CE);
-    const blank = s6.every(b => b === 0xFF || b === 0x00);
-    const damaged = s6.every(b => b === 0xFF);
+    // Use the shared classifier so the "populated" / "damaged" /
+    // "blank" rules match parseModule.js, fileUtils.js and
+    // crossValidate.js exactly. The pre-#404 simple `!allFF && !all00`
+    // rule diverged on mostly-FF SEC6 (e.g. FF FF 00 FF FF FF), which
+    // could yield a different verdict in the RFH→PCM tab vs the FCA
+    // Analyzer for the same dump.
+    const cls = classifyPcmSec6(s6);
+    const populated = cls.populated && markerOk;
     result.sec6 = {
       offset: 0x03C8, raw: Array.from(s6), hex: hexBytes(s6),
-      blank, damaged
+      markerOffset: 0x03C4, markerHex: hexBytes(marker), markerOk,
+      blank: cls.blank, populated,
+      // damaged = not a valid paired SEC6 from the PCM's POV. That
+      // includes "marker missing" (the user-reported regression), not
+      // just classifier-damaged secret bytes.
+      damaged: !populated,
+      classifier: cls,
     };
   } else {
     result.sec6 = null;
   }
 
-  result.writeCheck = { need, buf: sz, ok: sz >= need };
+  // Task #404 — only canonical GPEC2A sizes (4 KB / 8 KB) are accepted
+  // for write. The pre-#404 gate just required `sz >= 0x3CE`, which let
+  // arbitrary in-between buffers (e.g. 5000 B) reach the writer; the
+  // engine writer would then reject them silently. Hard-block here so
+  // the UI surfaces a clear "non-canonical PCM size" error instead.
+  const canonical = sz === 4096 || sz === 8192;
+  result.writeCheck = {
+    need, buf: sz, ok: canonical,
+    canonical, expectedSizes: [4096, 8192],
+    reason: canonical ? null
+          : (sz < need ? 'PCM file too small (need at least 0x03CE bytes, got ' + sz + ')'
+                       : 'PCM size ' + sz + ' B is not canonical GPEC2A (expected 4096 or 8192)'),
+  };
 
   return result;
 }
@@ -291,7 +330,7 @@ export function computeCompatibility(rfh, pcm) {
 
   if (rfh.sizeWarn) info.push('RFH: ' + rfh.sizeWarn);
   if (pcm.sizeWarn) info.push('PCM: ' + pcm.sizeWarn);
-  if (!pcm.writeCheck.ok) issues.push('PCM file too small for SEC6 write (need 0x03CE bytes, got ' + pcm.size + ')');
+  if (!pcm.writeCheck.ok) issues.push(pcm.writeCheck.reason || 'PCM not writable');
 
   if (!rfh.sec6) issues.push('RFH SEC16 is blank/invalid in both slots — cannot derive SEC6');
   if (!rfh.sec16Match) info.push('RFH SEC16 slots differ — using Slot ' + (rfh.sec16SourceSlot || '?'));
@@ -344,10 +383,27 @@ const PCM_IMMO_ENABLED_PATTERN = [0x80, 0x00, 0x00, 0x00];
  */
 export function applyRfhToPcm(rfh, pcm, pcmBuf, opts) {
   if (!rfh || !pcm || !rfh.sec6 || !pcm.writeCheck.ok) return null;
-  const out = new Uint8Array(pcmBuf);
+  // Task #404 — delegate the SEC6 + marker write to the engine writer
+  // so the canonical FF FF FF AA marker at 0x3C4 gets stamped alongside
+  // the 6 secret bytes at 0x3C8. Pre-#404 only the 6 bytes were written
+  // and external tools still flagged the resulting PCM as IMMO_DAMAGED.
+  const sec6Bytes = new Uint8Array(rfh.sec6.raw);
+  const writeRes = writePcmSec6(pcmBuf, sec6Bytes);
+  // Hard-fail if the engine writer refused (non-canonical PCM size).
+  // Returning a structured error lets the UI disable the download and
+  // show a real banner instead of silently writing VINs into a buffer
+  // whose SEC6 slot was never stamped.
+  if (!writeRes.ok) {
+    return {
+      data: null, log: [], error: true,
+      errorMessage: 'PCM SEC6 write refused — non-canonical PCM size ' + pcmBuf.length
+                  + ' B (expected 4096 or 8192). No bytes were written.',
+    };
+  }
+  const out = writeRes.bytes;
   const log = [];
-  for (let i = 0; i < 6; i++) out[PCM_SEC6_OFFSET + i] = rfh.sec6.raw[i];
   log.push('PCM SEC6 @ 0x03C8 ← ' + rfh.sec6.hex + ' (RFH SEC16 Slot ' + rfh.sec6.sourceSlot + '[0:6])');
+  log.push('PCM SEC6 marker @ 0x03C4 ← FF FF FF AA (canonical Continental tag)');
   const vin = rfh.vin?.value;
   if (vin && VIN_RE.test(vin)) {
     const enc = new TextEncoder().encode(vin);

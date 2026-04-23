@@ -20,7 +20,7 @@ function countPat(d,a,b,c2,d2){let c=0;for(let i=0;i<d.length-3;i++)if(d[i]===a&
 const CANONICAL_SIZES_BY_TYPE={
   BCM:[65536,131072],
   '95640':[8192],
-  GPEC2A:[4096],
+  GPEC2A:[4096,8192],
   RFHUB:[2048,4096],
 };
 
@@ -479,13 +479,22 @@ function parseModule(data,filename,opts){
     };
     if(sz>=0x3CE){
       const s6=data.slice(0x3C8,0x3CE);
+      const marker=data.slice(0x3C4,0x3C8);
+      const markerOk=marker[0]===0xFF&&marker[1]===0xFF&&marker[2]===0xFF&&marker[3]===0xAA;
       // Task #396 — share the classifier with engParsePcm so a mostly-FF
       // SEC6 (e.g. FF FF 00 FF FF FF on a 4 KB virgin) is correctly tagged
       // as IMMO_DAMAGED instead of slipping through as "SET".
+      // Task #404 — also gate on the canonical FF FF FF AA marker at 0x3C4.
+      // External tools (CGDI/Autel/AlfaOBD/SINCRO) and the PCM bootloader
+      // itself ignore the 6 secret bytes when the marker is missing, so a
+      // populated SEC6 + missing marker is effectively unpaired.
       const cls=classifyPcmSec6(s6);
+      const populated=cls.populated&&markerOk;
+      const damaged=!populated;
       info.pcmSec6={offset:0x3C8,raw:s6,hex:extractHex(data,0x3C8,6),
-        blank:cls.blank,damaged:cls.damaged,populated:cls.populated,
-        immoState:cls.populated?'SET':'IMMO_DAMAGED',classification:cls};
+        markerOffset:0x3C4,markerHex:extractHex(data,0x3C4,4),markerOk,
+        blank:cls.blank,damaged,populated,
+        immoState:populated?'SET':'IMMO_DAMAGED',classification:cls};
     }
   }else if(type==='RFHUB'){
     const knownOffsets=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];

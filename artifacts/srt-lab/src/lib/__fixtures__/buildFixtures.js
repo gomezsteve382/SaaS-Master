@@ -235,11 +235,20 @@ function makeGpec2a({
   writeBE32(buf, 0x0E6D, 0x0001E240);
   writeBE32(buf, 0x0E75, 0x00000050);
 
-  // PCM SEC6 @ 0x3C8 (6 bytes).
+  // PCM SEC6 @ 0x3C8 (6 bytes) + canonical FF FF FF AA marker @ 0x3C4.
+  // Task #404 — both the marker and the 6 secret bytes are required for
+  // the PCM bootloader to honor the SEC6 slot. The fixture stamps the
+  // marker whenever the SEC6 region is populated (i.e. not all-FF and
+  // not the explicit `pcmSec6Damaged` override) so test buffers match
+  // what a real BCM-paired GPEC2A carries on disk.
   const sec6 = pcmSec6Bytes || (pcmSec6Damaged
     ? new Uint8Array([0xFF,0xFF,0xFF,0xFF,0xFF,0xFF])
     : new Uint8Array([0x01,0x02,0x03,0x04,0x05,0x06]));
   fill(buf, 0x3C8, sec6);
+  const sec6IsAllFF = sec6.every(b => b === 0xFF);
+  if (!sec6IsAllFF) {
+    fill(buf, 0x3C4, new Uint8Array([0xFF, 0xFF, 0xFF, 0xAA]));
+  }
 
   return buf;
 }

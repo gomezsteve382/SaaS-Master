@@ -296,132 +296,105 @@ describe('writeBcmSec16Gen2 — golden vectors', () => {
 // writePcmSec6
 // ─────────────────────────────────────────────────────────────────────────────
 
-/* Build a 4096-byte PCM buffer (GPEC2A-shaped) with exactly ONE
- * "FF FF FF AA" marker at offset 0x100. Everything else is 0x55 so that
- * the GPEC5 fallback (which scans for FF FF FF FF) cannot also fire. */
-function buildSyntheticPcmGpec2a() {
-  const buf = new Uint8Array(4096).fill(0x55);
-  buf[0x100]     = 0xFF;
-  buf[0x100 + 1] = 0xFF;
-  buf[0x100 + 2] = 0xFF;
-  buf[0x100 + 3] = 0xAA;
-  // SEC6 region (0x104..0x109) — leave as 0x55 canaries; writer overwrites.
-  return buf;
-}
-
-/* Build a 4096-byte GPEC5-shaped buffer: one FF FF FF FF run followed
- * immediately by a non-all-FF "current SEC6" stub (so hasData triggers).
- * Outside this region everything is 0x55 to avoid spurious FF AA / FFFF
- * matches. */
-function buildSyntheticPcmGpec5() {
-  const buf = new Uint8Array(4096).fill(0x55);
-  buf[0x200]     = 0xFF;
-  buf[0x200 + 1] = 0xFF;
-  buf[0x200 + 2] = 0xFF;
-  buf[0x200 + 3] = 0xFF;
-  // Existing SEC6 must NOT be all-FF for the GPEC5 path to fire.
-  // Also: the byte at +4 must NOT be 0xAA — otherwise the writer's prior
-  // FF-FF-FF-AA scan would match at offset 0x201 and route us through the
-  // GPEC2A path instead.
-  buf[0x204] = 0x99; buf[0x205] = 0xBB; buf[0x206] = 0xCC;
-  buf[0x207] = 0xDD; buf[0x208] = 0xEE; buf[0x209] = 0xFE;
-  return buf;
-}
-
+/* Task #404 — the writer is a single canonical-GPEC2A path:
+ *   marker `FF FF FF AA` at 0x3C4..0x3C7 + 6 secret bytes at 0x3C8..0x3CD.
+ * Both 4 KB (95320) and 8 KB (95640) GPEC2A images carry exactly that
+ * layout when paired by a real bench. Non-canonical sizes are refused. */
 describe('writePcmSec6 — golden vectors', () => {
   it('refuses inputs shorter than 6 bytes', () => {
     expect(() => writePcmSec6(new Uint8Array(64), new Uint8Array(5))).toThrow(/6 bytes/);
     expect(() => writePcmSec6(new Uint8Array(64), null)).toThrow(/6 bytes/);
   });
 
-  it('writes the GPEC2A SEC6 (first 6 bytes of RFH SEC16) at marker+4', () => {
-    const buf = buildSyntheticPcmGpec2a();
-    const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
-    expect(r.patched).toBe(1);
-    expect(r.markerUsed).toBe('FF FF FF AA');
-    expect(r.sec6Hex).toBe('0123456789ab');
-    // Marker untouched
-    expect(Array.from(r.bytes.slice(0x100, 0x104))).toEqual([0xFF, 0xFF, 0xFF, 0xAA]);
-    // SEC6 patched at +4..+9 with PCM_SEC6_FROM_RFH
-    expect(Array.from(r.bytes.slice(0x104, 0x10A))).toEqual(Array.from(PCM_SEC6_FROM_RFH));
-    // Byte right after SEC6 untouched (canary 0x55)
-    expect(r.bytes[0x10A]).toBe(0x55);
-  });
-
-  it('falls back to the GPEC5 marker when no FF FF FF AA is present', () => {
-    const buf = buildSyntheticPcmGpec5();
-    const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
-    expect(r.patched).toBe(1);
-    expect(r.markerUsed).toBe('FF FF FF FF');
-    // Marker untouched, SEC6 region overwritten with PCM_SEC6_FROM_RFH.
-    expect(Array.from(r.bytes.slice(0x200, 0x204))).toEqual([0xFF, 0xFF, 0xFF, 0xFF]);
-    expect(Array.from(r.bytes.slice(0x204, 0x20A))).toEqual(Array.from(PCM_SEC6_FROM_RFH));
-  });
-
-  it('patches every FF FF FF AA marker in the buffer (GPEC2A multi-match)', () => {
-    const buf = buildSyntheticPcmGpec2a();
-    // Add a second marker.
-    buf[0x300] = 0xFF; buf[0x301] = 0xFF; buf[0x302] = 0xFF; buf[0x303] = 0xAA;
-    const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
-    expect(r.patched).toBe(2);
-    expect(r.markerUsed).toBe('FF FF FF AA');
-    expect(Array.from(r.bytes.slice(0x304, 0x30A))).toEqual(Array.from(PCM_SEC6_FROM_RFH));
-  });
-
-  it('returns patched=0 / ok=false / markerUsed=null when no marker is found on a non-canonical size', () => {
-    // 2 KB buffer: not a canonical GPEC2A/PCM size, so the Task #399
-    // canonical 0x3C8 fallback does NOT engage. Writer must refuse.
-    const buf = new Uint8Array(2048).fill(0x55);
-    const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
-    expect(r.patched).toBe(0);
-    expect(r.ok).toBe(false);
-    expect(r.markerUsed).toBeNull();
-    // Buffer is returned unchanged (writer is non-mutating and nothing fired).
-    expect(Array.from(r.bytes)).toEqual(Array.from(buf));
-  });
-
-  /* Task #399 — canonical 0x3C8 fallback for virgin PCM images.
-   * Before #399 a virgin 4 KB GPEC2A (no FF FF FF AA marker, all-FF
-   * SEC6 region) silently returned patched=0 while the UI still
-   * downloaded the unchanged file. The fallback now writes at the
-   * same offset the reader (parseModule.js / classifyPcmSec6) uses. */
-  it('writes at canonical 0x3C8 on a virgin 4 KB GPEC2A (no AA marker, all-FF)', () => {
+  it('stamps marker FF FF FF AA at 0x3C4 + SEC6 at 0x3C8 on a virgin 4 KB GPEC2A', () => {
     const buf = new Uint8Array(4096).fill(0xFF);
     const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
     expect(r.patched).toBe(1);
     expect(r.ok).toBe(true);
-    expect(r.markerUsed).toBe('canonical 0x3C8');
+    expect(r.markerUsed).toBe('FF FF FF AA');
+    expect(r.markerStamped).toBe(true);
+    expect(r.sec6Hex).toBe('0123456789ab');
+    // Marker bytes
+    expect(Array.from(r.bytes.slice(0x3C4, 0x3C8))).toEqual([0xFF, 0xFF, 0xFF, 0xAA]);
+    // SEC6 bytes
     expect(Array.from(r.bytes.slice(0x3C8, 0x3CE))).toEqual(Array.from(PCM_SEC6_FROM_RFH));
-    // Surrounding bytes untouched (still 0xFF).
-    expect(r.bytes[0x3C7]).toBe(0xFF);
+    // Byte right after SEC6 untouched (still 0xFF).
     expect(r.bytes[0x3CE]).toBe(0xFF);
   });
 
-  it('writes at canonical 0x3C8 on a virgin 8 KB PCM when no marker is present', () => {
+  it('stamps marker + SEC6 at the canonical offsets on a virgin 8 KB PCM', () => {
     const buf = new Uint8Array(8192).fill(0xFF);
     const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
     expect(r.patched).toBe(1);
-    expect(r.markerUsed).toBe('canonical 0x3C8');
+    expect(r.markerStamped).toBe(true);
+    expect(Array.from(r.bytes.slice(0x3C4, 0x3C8))).toEqual([0xFF, 0xFF, 0xFF, 0xAA]);
     expect(Array.from(r.bytes.slice(0x3C8, 0x3CE))).toEqual(Array.from(PCM_SEC6_FROM_RFH));
   });
 
-  it('does NOT engage canonical fallback when an AA marker already fired', () => {
-    // AA marker at 0x100 — SEC6 should be written THERE, not at 0x3C8.
-    const buf = buildSyntheticPcmGpec2a();
+  it('re-stamps the canonical slot when it is already paired (idempotent for matching SEC6)', () => {
+    // Pre-paired buffer: marker + a different SEC6 already present.
+    const buf = new Uint8Array(4096).fill(0xFF);
+    buf[0x3C4] = 0xFF; buf[0x3C5] = 0xFF; buf[0x3C6] = 0xFF; buf[0x3C7] = 0xAA;
+    for (let k = 0; k < 6; k++) buf[0x3C8 + k] = 0xAA;
     const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
-    expect(r.markerUsed).toBe('FF FF FF AA');
-    // Canonical slot must remain untouched (still 0x55 canary).
-    expect(r.bytes[0x3C8]).toBe(0x55);
+    expect(r.patched).toBe(1);
+    expect(Array.from(r.bytes.slice(0x3C4, 0x3C8))).toEqual([0xFF, 0xFF, 0xFF, 0xAA]);
+    expect(Array.from(r.bytes.slice(0x3C8, 0x3CE))).toEqual(Array.from(PCM_SEC6_FROM_RFH));
+  });
+
+  it('does NOT scan for stray FF FF FF AA elsewhere — only the canonical slot is touched', () => {
+    // Pre-#404 the writer scanned the whole buffer for AA markers and
+    // patched at every match, which corrupted unrelated regions on real
+    // PCM dumps that happened to contain `FF FF FF AA` byte sequences
+    // outside the canonical SEC6 slot. Now only 0x3C4 / 0x3C8 are written.
+    const buf = new Uint8Array(4096).fill(0x55);
+    // Plant a stray AA marker at 0x100 that the legacy scanner would match.
+    buf[0x100] = 0xFF; buf[0x101] = 0xFF; buf[0x102] = 0xFF; buf[0x103] = 0xAA;
+    const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
+    expect(r.patched).toBe(1);
+    // Stray-marker SEC6 region (0x104..0x109) MUST remain untouched (0x55 canary).
+    for (let k = 0; k < 6; k++) {
+      expect(r.bytes[0x104 + k]).toBe(0x55);
+    }
+    // Canonical slot stamped.
+    expect(Array.from(r.bytes.slice(0x3C4, 0x3C8))).toEqual([0xFF, 0xFF, 0xFF, 0xAA]);
+    expect(Array.from(r.bytes.slice(0x3C8, 0x3CE))).toEqual(Array.from(PCM_SEC6_FROM_RFH));
+  });
+
+  it('does NOT misfire on a stray 0x00 byte in the part-number region (the user-reported regression)', () => {
+    // The pre-#404 GPEC5 fallback scanned for FF FF FF FF + non-FF data
+    // and matched a stray `00` byte at offset 0x19 inside a virgin
+    // GPEC2A's part-number region — corrupting bytes 0x17..0x1C while
+    // leaving the canonical 0x3C8 slot empty. Verify that doesn't happen.
+    const buf = new Uint8Array(4096).fill(0xFF);
+    buf[0x19] = 0x00; // the stray byte from the real-bench virgin dump
+    const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
+    expect(r.patched).toBe(1);
+    // Part-number region (0x17..0x1C) MUST remain untouched.
+    expect(r.bytes[0x17]).toBe(0xFF);
+    expect(r.bytes[0x18]).toBe(0xFF);
+    expect(r.bytes[0x19]).toBe(0x00); // stray byte preserved
+    expect(r.bytes[0x1A]).toBe(0xFF);
+    expect(r.bytes[0x1B]).toBe(0xFF);
+    expect(r.bytes[0x1C]).toBe(0xFF);
+    // Canonical slot stamped correctly.
+    expect(Array.from(r.bytes.slice(0x3C4, 0x3C8))).toEqual([0xFF, 0xFF, 0xFF, 0xAA]);
+    expect(Array.from(r.bytes.slice(0x3C8, 0x3CE))).toEqual(Array.from(PCM_SEC6_FROM_RFH));
+  });
+
+  it('refuses non-canonical sizes — patched=0 / ok=false / buffer unchanged', () => {
+    for (const sz of [2048, 16384, 65536]) {
+      const buf = new Uint8Array(sz).fill(0x55);
+      const r = writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
+      expect(r.patched, `size ${sz}`).toBe(0);
+      expect(r.ok, `size ${sz}`).toBe(false);
+      expect(r.markerUsed, `size ${sz}`).toBeNull();
+      expect(r.markerStamped, `size ${sz}`).toBe(false);
+      expect(Array.from(r.bytes), `size ${sz}`).toEqual(Array.from(buf));
+    }
   });
 
   it('does not mutate the input buffer', () => {
-    const buf = buildSyntheticPcmGpec2a();
-    const snapshot = new Uint8Array(buf);
-    writePcmSec6(buf, RFH_SEC16_REAL_SLOT);
-    expect(Array.from(buf)).toEqual(Array.from(snapshot));
-  });
-
-  it('virgin 4 KB fallback does not mutate the input buffer either', () => {
     const buf = new Uint8Array(4096).fill(0xFF);
     const snapshot = new Uint8Array(buf);
     writePcmSec6(buf, RFH_SEC16_REAL_SLOT);

@@ -34,7 +34,7 @@ import EcmTab from "./tabs/EcmTab";
 import KeyProgTab from "./tabs/KeyProgTab";
 import KeyManagerTab from "./tabs/KeyManagerTab";
 import MismatchWizard from "./components/MismatchWizard.jsx";
-import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType} from "./lib/parseModule.js";
+import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType, classifyPcmSec6} from "./lib/parseModule.js";
 import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
 import {VEHICLES,VEHICLE_LIST,KNOWN_BCM_PN,vehiclesForPartNumber,analyzeDumpPartNumber,generationForPartNumber} from "./lib/vehicles.js";
@@ -956,9 +956,14 @@ function engParseRfh(bytes){const r={kind:'RFHUB',size:bytes.length,vinSlots:[],
 }
 
 function engParsePcm(bytes){
-  /* Supports GPEC2A (4KB, FF FF FF AA marker) and GPEC5 (8KB, FF FF FF FF marker). */
-  const r={kind:'PCM',size:bytes.length,vinSlots:[],sec6:null,currentVin:null,originalVin:null,variant:null};
-  r.variant = bytes.length >= 8192 ? 'GPEC5' : 'GPEC2A';
+  /* Continental GPEC2A — 4 KB or 8 KB EEPROM. The canonical immobilizer
+   * slot is `FF FF FF AA` @ 0x3C4 + 6 secret bytes @ 0x3C8 on every real
+   * BCM-paired dump (Task #404). There is no separate "GPEC5" variant —
+   * the 8 KB image is just a larger GPEC2A. The pre-#404 marker scan
+   * accepted any stray `FF FF FF FF` followed by a single non-FF byte
+   * (e.g. the 0x00 at offset 0x19 on a virgin GPEC2A) and fabricated a
+   * populated SEC6 from padding noise — that path is gone. */
+  const r={kind:'PCM',size:bytes.length,vinSlots:[],sec6:null,currentVin:null,originalVin:null,variant:'GPEC2A'};
   /* VIN slots at known offsets */
   for(const off of [0x0000,0x01F0,0x0224,0x0CE0]){if(off+17>bytes.length)continue;let vin='',valid=true;for(let k=0;k<17;k++){const b=bytes[off+k];if(b<0x20||b>0x7E){valid=false;break;}vin+=String.fromCharCode(b);}if(valid&&VIN_REGEX.test(vin))r.vinSlots.push({offset:off,vin});}
   if(r.vinSlots.length>0){r.vin=r.vinSlots[0].vin;r.vinConsistent=r.vinSlots.every(s=>s.vin===r.vin);
@@ -966,31 +971,36 @@ function engParsePcm(bytes){
     r.currentVin = r.vinSlots[0].vin;
     if(r.vinSlots.length>1) r.originalVin = r.vinSlots[r.vinSlots.length-1].vin;
   }
-  /* SEC6 marker — try FF FF FF AA first (GPEC2A), then FF FF FF FF (GPEC5) */
-  for(let i=0;i<bytes.length-10;i++){
-    if(bytes[i]===0xFF&&bytes[i+1]===0xFF&&bytes[i+2]===0xFF&&bytes[i+3]===0xAA){
-      r.sec6={offset:i+4,bytes:bytes.slice(i+4,i+10),marker:'FF FF FF AA'};
-      break;
-    }
+  /* SEC6 — canonical GPEC2A slot only. Both the marker AND the 6 secret
+   * bytes must be present for the slot to count as populated. */
+  if(bytes.length >= 0x3CE){
+    const markerOk = bytes[0x3C4]===0xFF && bytes[0x3C5]===0xFF && bytes[0x3C6]===0xFF && bytes[0x3C7]===0xAA;
+    const sec6 = bytes.slice(0x3C8, 0x3CE);
+    /* Use the shared classifyPcmSec6() classifier from parseModule.js
+     * as the single source of truth (Task #404 follow-up). The pre-#404
+     * inline rule (`!allFF && !all00`) diverged from the classifier on
+     * mostly-FF SEC6 (e.g. FF FF 00 FF FF FF: classifier → Virgin, but
+     * the inline rule falsely flagged it as populated). Aligning here
+     * keeps the FCA Analyzer overview consistent with parseModule and
+     * crossValidate. */
+    const cls = classifyPcmSec6(sec6);
+    const sec6Populated = cls.populated;
+    const paired = markerOk && sec6Populated;
+    r.sec6 = {
+      offset:0x3C8, bytes:sec6,
+      marker: markerOk ? 'FF FF FF AA' : 'FF FF FF FF',
+      markerOffset:0x3C4, markerOk,
+      populated: sec6Populated,
+    };
+    r.immoDamaged = !paired;
+  } else {
+    r.immoDamaged = true;
   }
-  if(!r.sec6){
-    /* GPEC5 variant — search for isolated FF FF FF FF followed by non-FF SEC6 bytes */
-    for(let i=0;i<bytes.length-20;i++){
-      if(bytes[i]===0xFF&&bytes[i+1]===0xFF&&bytes[i+2]===0xFF&&bytes[i+3]===0xFF){
-        const next6=bytes.slice(i+4,i+10);
-        /* Only accept if next 6 bytes are not all FF (real SEC6 data) */
-        if(!next6.every(b=>b===0xFF)){
-          r.sec6={offset:i+4,bytes:next6,marker:'FF FF FF FF'};
-          break;
-        }
-      }
-    }
-    if(!r.sec6){
-      /* Damaged/virgin PCM — SEC6 area all FF. Mark as damaged. */
-      r.immoDamaged = true;
-    }
-  }
-  r.immoOk = r.sec6 && !r.sec6.bytes.every(b=>b===0xFF);
+  /* immoOk and immoDamaged are strict logical inverses — `paired` from
+   * the block above is the single source of truth. Pre-#404 immoOk was
+   * derived independently from `!allFF`, which could yield contradictory
+   * states (e.g. all-00 SEC6 with marker → immoDamaged AND immoOk). */
+  r.immoOk = !!(r.sec6 && r.sec6.markerOk && r.sec6.populated);
   /* Continental PN (GPEC2A) */
   if(bytes.length>0x0FB0){const pnBytes=bytes.slice(0x0FA1,0x0FAE);const pn=new TextDecoder('latin1').decode(pnBytes);if(/^A2C\d/.test(pn))r.continentalPn=pn;}
   /* OS / PN / Serial strings — scan for ASCII patterns */
@@ -1575,7 +1585,13 @@ function ModuleSummary({vehicle, bcm, rfh, pcm, targetVin}){
   const expectedBcmSec16 = rfhEng && rfhEng.sec16 ? hexStr([...rfhEng.sec16.slot1].reverse()) : null;
   const expectedPcmSec6 = rfhEng && rfhEng.sec16 ? hexStr(rfhEng.sec16.slot1.slice(0,6)) : null;
   const bcmPaired = bcmEng && bcmEng.sec16Hex && expectedBcmSec16 && bcmEng.sec16Hex === expectedBcmSec16;
-  const pcmPaired = pcmEng && pcmEng.sec6 && expectedPcmSec6 && hexStr(pcmEng.sec6.bytes) === expectedPcmSec6;
+  /* Task #404 — PCM pairing requires BOTH the canonical FF FF FF AA marker
+   * @ 0x3C4 AND the 6 secret bytes @ 0x3C8 to match. Pre-#404 the summary
+   * compared only the 6 bytes, so a PCM with the correct secret but a
+   * missing marker (the user-reported regression) was shown as "PCM PAIRED"
+   * even though external locksmith tools still flagged it as IMMO_DAMAGED. */
+  const pcmPaired = pcmEng && pcmEng.sec6 && pcmEng.sec6.markerOk
+                 && expectedPcmSec6 && hexStr(pcmEng.sec6.bytes) === expectedPcmSec6;
 
   return <div>
     <div style={{fontSize:11,fontWeight:800,color:C.ts,letterSpacing:2,marginBottom:12}}>DETECTED</div>

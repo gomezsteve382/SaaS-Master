@@ -112,11 +112,11 @@ describe('engParsePcm uses the shared classifier (no drift between the two parse
     expect(r.sec6Class.populated).toBe(true);
   });
 
-  it('GPEC5/AA marker scan no longer fabricates a populated SEC6 from FF padding on a 4 KB GPEC2A virgin', () => {
+  it('AA marker scan no longer fabricates a populated SEC6 from FF padding on a 4 KB GPEC2A virgin', () => {
     // Pre-#396 the FF FF FF FF fallback would scan a 4 KB virgin's
     // padding and "find" some 6-byte slice immediately after the first
     // FF run that wasn't all-FF — yielding a bogus "Populated" pill.
-    // Now the canonical 0x3C8 read takes priority on any GPEC2A/GPEC5-
+    // Now the canonical 0x3C8 read takes priority on any GPEC2A-
     // sized image, so the FF padding around 0x3C8 is correctly read as
     // virgin instead of being replaced by a populated PN-string slice
     // elsewhere in the buffer.

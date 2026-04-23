@@ -18,7 +18,7 @@ import { crossValidate } from "../lib/crossValidate.js";
  *         Gen1 SEC16 at 0x0226/023A (18 bytes), Gen2 at 0x050E/0522 (16 bytes)
  *         Gen2 detected by AA 55 31 01 header at 0x0500.
  *
- * PCM:   Continental GPEC2A (4KB, FF FF FF AA marker) or GPEC5 (8KB)
+ * PCM:   Continental GPEC2A (4 KB or 8 KB EEPROM, FF FF FF AA marker @ 0x3C4 + SEC6 @ 0x3C8)
  *         VIN at 0x0000/01F0/0224/0CE0, SEC6 after the marker.
  *
  * SINCRO-verified: engWriteBcmSec16Gen2 produces byte-identical output to
@@ -366,7 +366,7 @@ export function engParsePcm(bytes, filename) {
     vinSlots: [], vin: null, vinConsistent: false,
     currentVin: null, originalVin: null,
     sec6: null, immoOk: false, immoDamaged: false,
-    variant: bytes.length >= 8192 ? 'GPEC5' : 'GPEC2A',
+    variant: 'GPEC2A',
     continentalPn: null, osPn: null, bodyPn: null,
   };
 
@@ -396,11 +396,20 @@ export function engParsePcm(bytes, filename) {
    *   3. FF FF FF FF marker scan, gated on the populated classifier
    *      so 4 KB virgin padding noise can no longer slip through. */
   if (bytes.length >= 0x3CE) {
-    // For any GPEC2A/GPEC5-sized image trust the canonical slot —
-    // matches parseModule.js so the wizard, the FCA Analyzer and the
-    // AI assistant never disagree about whether SEC6 is populated.
+    // For any GPEC2A-sized image trust the canonical slot — matches
+    // parseModule.js so the wizard, the FCA Analyzer and the AI
+    // assistant never disagree about whether SEC6 is populated.
+    // Task #404 — also read the FF FF FF AA marker at 0x3C4 so a
+    // populated 6-byte secret with a missing marker (the user-reported
+    // regression) is correctly flagged as IMMO_DAMAGED.
     const slot = bytes.slice(0x3C8, 0x3CE);
-    r.sec6 = { offset: 0x3C8, bytes: slot, marker: 'canonical 0x3C8' };
+    const markerBytes = bytes.slice(0x3C4, 0x3C8);
+    const markerOk = markerBytes[0] === 0xFF && markerBytes[1] === 0xFF
+                  && markerBytes[2] === 0xFF && markerBytes[3] === 0xAA;
+    r.sec6 = {
+      offset: 0x3C8, bytes: slot, marker: 'canonical 0x3C8',
+      markerOffset: 0x3C4, markerBytes, markerOk,
+    };
   } else {
     // Sub-canonical fragment — fall back to marker scans, gated on
     // the populated classifier so virgin padding noise can no longer
@@ -428,9 +437,17 @@ export function engParsePcm(bytes, filename) {
   }
   if (r.sec6) {
     r.sec6Class = classifyPcmSec6(r.sec6.bytes);
-    r.immoOk = r.sec6Class.populated;
-    r.immoDamaged = !r.sec6Class.populated;
-    r.immoLabel = r.sec6Class.label;
+    // Task #404 — populated 6 bytes alone is not enough; the canonical
+    // FF FF FF AA marker at 0x3C4 must also be present for the PCM
+    // bootloader (and CGDI/Autel/AlfaOBD/SINCRO) to honor the slot.
+    const markerOk = r.sec6.markerOk !== false;
+    r.immoOk = r.sec6Class.populated && markerOk;
+    r.immoDamaged = !r.immoOk;
+    if (r.sec6Class.populated && !markerOk) {
+      r.immoLabel = 'SEC6 marker missing (FF FF FF AA expected at 0x3C4)';
+    } else {
+      r.immoLabel = r.sec6Class.label;
+    }
   } else {
     r.sec6Class = classifyPcmSec6(null);
     r.immoOk = false;
@@ -1248,7 +1265,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   useEffect(() => { if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight; }, [logLines]);
   useEffect(() => {
     log('SRT Lab Module Sync v2 (SINCRO-verified engine) ready.', 'info');
-    log('Supports: BCM Gen1/Gen2 (SEC16 split records + mirrors) · RFHUB Gen1/Gen2 · PCM GPEC2A/GPEC5', 'muted');
+    log('Supports: BCM Gen1/Gen2 (SEC16 split records + mirrors) · RFHUB Gen1/Gen2 · PCM GPEC2A (4 KB / 8 KB)', 'muted');
   }, [log]);
 
   const handleBcm = useCallback((file, bytes) => {
@@ -1890,7 +1907,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                     file={bcm.file} onFile={handleBcm} />
           <DropZone label="RFHUB / FCM" icon="🔑" hint="Yazaki FCM EEPROM · Gen1 or Gen2 · drag .bin"
                     file={rfh.file} onFile={handleRfh} accent={C.a4} />
-          <DropZone label="PCM (optional)" icon="⚙️" hint="GPEC2A (4KB) or GPEC5 (8KB) · drag .bin"
+          <DropZone label="PCM (optional)" icon="⚙️" hint="GPEC2A (4 KB or 8 KB) · drag .bin"
                     file={pcm.file} onFile={handlePcm} accent={C.a1} />
           <DropZone label="95640 (optional)" icon="📟" hint="BCM-backup EEPROM · 8 / 16 KB · drag .bin"
                     file={eep.file} onFile={handleEep} accent={C.a4} />

@@ -36,17 +36,25 @@ function makeBcmModule(sec16Bytes, vin = '2C3CDXGJ9KH633754') {
   };
 }
 
-function makePcmModule(sec6Bytes, vin = '2C3CDXGJ9KH633754') {
+function makePcmModule(sec6Bytes, vin = '2C3CDXGJ9KH633754', { markerOk = true } = {}) {
+  // Task #404 — `populated` requires both the 6 secret bytes AND the
+  // canonical `FF FF FF AA` marker at 0x3C4. Test fixtures default to
+  // `markerOk: true` so existing populated-SEC6 cases still pass; pass
+  // `{ markerOk: false }` to simulate the user-reported regression
+  // (correct 6 bytes but missing marker → IMMO_DAMAGED).
   const cls = classifyPcmSec6(sec6Bytes);
   const hex = Array.from(sec6Bytes)
     .map(b => b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+  const populated = cls.populated && markerOk;
   return {
     type: 'GPEC2A',
     vins: [{ vin, offset: 0x0000 }],
     pcmSec6: {
       offset: 0x3C8, raw: sec6Bytes, hex,
-      blank: cls.blank, damaged: cls.damaged, populated: cls.populated,
-      immoState: cls.populated ? 'SET' : 'IMMO_DAMAGED',
+      markerOffset: 0x3C4, markerOk,
+      markerHex: markerOk ? 'FF FF FF AA' : 'FF FF FF FF',
+      blank: cls.blank, damaged: !populated, populated,
+      immoState: populated ? 'SET' : 'IMMO_DAMAGED',
     },
   };
 }
@@ -81,6 +89,22 @@ describe('crossValidate BCM SEC16 → SEC6 ↔ PCM SEC6 (Task #396 gate)', () =>
     ]);
     const mismatch = out.issues.find(s => /BCM SEC16.*PCM SEC6.*MISMATCH/i.test(s));
     expect(mismatch).toBeTruthy();
+  });
+
+  it('Task #404 — flags PCM as IMMO_DAMAGED when 6 secret bytes are correct but marker is missing', () => {
+    // The user-reported regression: BCM→PCM sync wrote the 6 bytes at
+    // 0x3C8 but never stamped the FF FF FF AA marker at 0x3C4, so the
+    // resulting PCM still read as IMMO_DAMAGED in CGDI/Autel/AlfaOBD.
+    // crossValidate must surface that the SEC6 secret matches BCM but
+    // the slot is still unpaired from the PCM bootloader's POV.
+    const out = crossValidate([
+      makeBcmModule(REAL_BCM_SEC16),
+      makePcmModule(PAIRED_PCM_SEC6, '2C3CDXGJ9KH633754', { markerOk: false }),
+    ]);
+    expect(out.passed.find(s => /BCM SEC16.*PCM SEC6.*MATCH/i.test(s))).toBeFalsy();
+    const issue = out.issues.find(s => /BCM SEC16.*PCM SEC6/i.test(s));
+    expect(issue).toBeTruthy();
+    expect(issue).toMatch(/never paired|IMMO_DAMAGED|marker/i);
   });
 
   it('also flags the standalone PCM SEC6 line as IMMO_DAMAGED for mostly-FF (so the FCA Analyzer surfaces both signals)', () => {
