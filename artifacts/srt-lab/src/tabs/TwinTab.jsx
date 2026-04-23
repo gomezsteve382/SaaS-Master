@@ -3,7 +3,7 @@ import chargerImg from "@assets/charger_1776312563310.png";
 import { C } from "../lib/constants.js";
 import { Card, Tag, Btn } from "../lib/ui.jsx";
 import { crc16, rfhSec16Cs, rfhGen2DetectMagic, rfhGen2VinCs, RFH_GEN2_VIN_CS_KNOWN_MAGICS } from "../lib/crc.js";
-import { writePcmSec6 } from "../lib/securityBytes.js";
+import { applyPcmFromBcm as applyPcmFromBcmShared } from "../lib/bcmPcmSync.js";
 import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import SamplePicker from "../lib/SamplePicker.jsx";
@@ -231,13 +231,13 @@ function parsePcm(data, filename) {
 function applyPcmFromBcm(pcmData, bcmInfo) {
   // Task #404 — delegate to the engine writer so the marker at 0x3C4
   // (FF FF FF AA) gets stamped alongside the 6 secret bytes at 0x3C8.
-  // Without the marker, external tools (CGDI/Autel/AlfaOBD/SINCRO) and
-  // the PCM bootloader itself report IMMO_DAMAGED even when the 6
-  // secret bytes are correct. Returns `{bytes, ok}` so the caller can
-  // refuse the download on a non-canonical size instead of saving an
-  // unchanged file.
-  const sec16Rev = new Uint8Array([...bcmInfo.sec16Copies[0].raw].reverse());
-  const r = writePcmSec6(pcmData, sec16Rev);
+  // Task #406 — the BCM-stored-SEC16 → reverse → writePcmSec6 transform
+  // moved into `lib/bcmPcmSync.js#applyPcmFromBcm` so the round-trip
+  // test binds to the same exported function this tab calls. Returns
+  // `{bytes, ok}` so the caller can refuse the download on a
+  // non-canonical PCM size instead of saving an unchanged file.
+  const bcmSec16Stored = new Uint8Array(bcmInfo.sec16Copies[0].raw);
+  const r = applyPcmFromBcmShared(pcmData, bcmSec16Stored);
   return { bytes: r.bytes, ok: r.ok };
 }
 

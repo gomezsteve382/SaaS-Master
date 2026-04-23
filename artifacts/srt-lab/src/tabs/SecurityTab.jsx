@@ -5,7 +5,7 @@ import {parseModule,arrEq,fO,countSkimRecs,syncImmoBackup} from "../lib/parseMod
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crossValidate,computeDiff,compareGpecBcmKey} from "../lib/crossValidate.js";
 import {crc16} from "../lib/crc.js";
-import {writePcmSec6} from "../lib/securityBytes.js";
+import {applyPcmSec6FromRfh, applyPcmFromRfhWithVin} from "../lib/bcmPcmSync.js";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import {statusBanner, loadAdvanced, saveAdvanced, Tip} from "../lib/plainEnglish.jsx";
 import SamplePicker from "../lib/SamplePicker.jsx";
@@ -93,7 +93,12 @@ function SecurityTab(){
       }
       if(m.type==='GPEC2A'&&rfhubForSec6){
         const s16=rfhubForSec6.sec16s[0].raw;
-        const w=writePcmSec6(patched,s16);
+        // Task #406 — delegate to the shared PCM SEC6 helper so the
+        // matchAll path stays byte-identical to the other RFH→PCM
+        // sync entry points (TwinTab, doTool('rfhPcmSync'),
+        // syncGpecRfh, rfhPcmPair.applyRfhToPcm). Pinned by
+        // `pcmSec6.fullFileRoundTrip.test.js`.
+        const w=applyPcmSec6FromRfh(patched,s16);
         if(!w.ok){
           // Non-canonical PCM size — engine writer refused. Surface a
           // hard failure so the user doesn't download a "matched" PCM
@@ -127,7 +132,10 @@ function SecurityTab(){
       const rfh=mods.find(mn=>mn.type==='RFHUB');
       if(rfh&&rfh.sec16valid&&rfh.sec16s?.length){
         const s16=rfh.sec16s[0].raw;
-        const w=writePcmSec6(m.data,s16);
+        // Task #406 — shared PCM SEC6 helper. Same engine writer as the
+        // matchAll/syncGpecRfh/TwinTab/RFHPCM paths; pinned by
+        // `pcmSec6.fullFileRoundTrip.test.js`.
+        const w=applyPcmSec6FromRfh(m.data,s16);
         if(!w.ok){
           // Hard-fail: refuse to produce a "synced" download whose
           // SEC6 slot was never actually stamped (non-canonical PCM
@@ -164,12 +172,12 @@ function SecurityTab(){
     const gm=mods.find(m=>m.type==='GPEC2A');
     const rm=mods.find(m=>m.type==='RFHUB'&&m.sec16valid);
     if(!gm||!rm||tv.length!==17)return;
-    /* 1. Patch GPEC2A VINs (no CRC for GPEC2A) */
-    let gd=writeModuleVIN(gm.data,'GPEC2A',tv,gm.vins);
-    if(!gd)gd=new Uint8Array(gm.data);
-    /* 2. Write RFHUB SEC16[0:6] → GPEC2A PCM SEC6 @ 0x3C8 + marker @ 0x3C4 (Task #404) */
+    /* 1+2. VIN patch + RFHUB SEC16[0:6] → GPEC2A PCM SEC6 @ 0x3C8 + marker @ 0x3C4
+     * delegated to the shared helper (Task #404 + #406) so this path is
+     * byte-identical to TwinTab / matchAll / rfhPcmSync / RFHPCM. Pinned
+     * by `pcmSec6.fullFileRoundTrip.test.js`. */
     const s16=rm.sec16s[0].raw;
-    const w=writePcmSec6(gd,s16);
+    const w=applyPcmFromRfhWithVin(gm.data,s16,tv,gm.vins);
     if(!w.ok){
       // Non-canonical GPEC2A size — engine writer refused. Hard-fail
       // the whole GPEC2A+RFHUB sync so we don't ship a "synced" pair
@@ -177,7 +185,7 @@ function SecurityTab(){
       setMsg('GPEC2A+RFHUB sync refused — non-canonical PCM size '+gm.data.length+' B (expected 4096 or 8192). No files produced.');
       return;
     }
-    gd=w.bytes;
+    const gd=w.bytes;
     const sec6hex=Array.from(s16.slice(0,6)).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
     /* 3. Patch RFHUB VINs (mirrored + CRC8RF per slot — writeModuleVIN handles this) */
     const rd=writeModuleVIN(rm.data,'RFHUB',tv,rm.vins)||new Uint8Array(rm.data);
