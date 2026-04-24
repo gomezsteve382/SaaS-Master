@@ -273,7 +273,28 @@ vehicle (anonymized VIN `2C3CDXL90MH582899`).
 > To make this run automatically on `git commit` whenever a file under
 > `src/lib/__fixtures__/realDumps/` is staged, install the bundled
 > hook helper as your pre-commit hook (it no-ops on commits that don't
-> touch this directory, so day-to-day commits aren't slowed down):
+> touch this directory, so day-to-day commits aren't slowed down).
+>
+> **Recommended — one-shot installer (Task #455):** from the repo root,
+>
+> ```sh
+> pnpm setup-hooks
+> ```
+>
+> That symlinks
+> `artifacts/srt-lab/scripts/fixtures-precommit.sh` into
+> `.git/hooks/pre-commit` so future edits to the helper propagate
+> automatically without re-running the installer. It refuses to clobber
+> an existing non-managed hook — pass `--force` to overwrite (a
+> timestamped `.bak` is kept) or `--copy` to install a tiny wrapper
+> instead of a symlink (Windows / no-symlink filesystems). Run
+> `pnpm setup-hooks --check` to confirm the managed hook is in place.
+>
+> The installer skips itself when `CI=1` (or `REPLIT_SETUP_HOOKS_SKIP=1`)
+> so build environments and isolated agents never self-modify their
+> local `.git/hooks`; pass `--force` to override.
+>
+> **Manual fallback (only if the installer can't run):**
 >
 > ```sh
 > ln -sf ../../artifacts/srt-lab/scripts/fixtures-precommit.sh \
