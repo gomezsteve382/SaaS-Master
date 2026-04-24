@@ -7,7 +7,7 @@ import {
   findBcmPartialVinSlots,
 } from '../../../scripts/anonymize-real-dump.mjs';
 import { loadRealDumpFixtures } from '../__fixtures__/realDumps/loader.js';
-import { parseModule, RFH_GEN1_VIN_OFFSET, EEP95640_VIN_OFFSETS } from '../parseModule.js';
+import { parseModule, RFH_GEN1_VIN_OFFSET, EEP95640_VIN_OFFSETS, SGW_VIN_OFFSETS } from '../parseModule.js';
 import { crc16 } from '../crc.js';
 import { BCM_PARTIAL_VIN_OFFSETS, BCM_PARTIAL_VIN_LEN } from '../donorLeakScan.js';
 
@@ -328,6 +328,120 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, rfhubg1: 1, pcm: 
         { label: '95640',   moduleType: '95640',   minSlots: 3, build: buildSynthetic95640,   scan: scan95640Vins },
       ];
 
+      // Task #450 — SGW (Secure Gateway) coverage. The slot table is
+      // intentionally EMPTY (see SGW_VIN_OFFSETS in parseModule.js /
+      // donorLeakScan.js) because no SGW dump byte offsets are documented
+      // anywhere in the codebase yet. The shape of the assertions below is
+      // therefore different from the rfhubg1 / 95640 synthetics:
+      //
+      //   1. A clean SGW buffer (no donor VIN anywhere) round-trips as a
+      //      no-op — the scrubber reports 0 slots and the buffer comes out
+      //      byte-for-byte identical.
+      //   2. A buffer that DOES contain the donor VIN at an undocumented
+      //      offset must throw — the post-scrub leak guard is the only
+      //      thing standing between us and a silent leak when SGW dumps
+      //      eventually start carrying VIN-shaped strings (audit logs,
+      //      future firmware revisions, etc.).
+      //
+      // When real SGW VIN slot offsets are documented, populate
+      // SGW_VIN_OFFSETS in donorLeakScan.js + parseModule.js, then promote
+      // SGW out of this special block into the standard synthetic loop
+      // above (its scrubber will start reporting slots automatically with
+      // no further changes here — single source of truth).
+      describe('sgw (synthetic, empty slot table)', () => {
+        // Use a 4 KB buffer — a plausible size for an SGW EEPROM slice.
+        // The exact size doesn't matter for these assertions; we just
+        // need something the leak guard can scan.
+        const SGW_BUF_SIZE = 4096;
+
+        it('exposes an empty SGW_VIN_OFFSETS export', () => {
+          // Pin the precondition the scrubber relies on. If this ever
+          // grows entries (i.e. real SGW slots get documented), the
+          // synthetic block above this one should be the one exercising
+          // SGW — promote it out of this special case.
+          expect(Array.isArray(SGW_VIN_OFFSETS)).toBe(true);
+          expect(SGW_VIN_OFFSETS.length).toBe(0);
+        });
+
+        it('no-op scrubs a clean SGW buffer (0 slots, buffer unchanged)', () => {
+          const buf = new Uint8Array(SGW_BUF_SIZE).fill(0xFF);
+          const result = anonymizeBuffer({
+            buffer: buf,
+            moduleType: 'sgw',
+            donorVin: STAND_IN_B,
+            anonVin:  STAND_IN_A,
+          });
+          expect(result.slots.length, 'sgw: scrubber reports zero slots (empty table)').toBe(0);
+          expect(result.buffer.length, 'sgw: buffer length preserved').toBe(buf.length);
+          // Byte-for-byte equality — empty slot table means no writes.
+          let firstDiff = -1;
+          for (let i = 0; i < buf.length; i++) {
+            if (buf[i] !== result.buffer[i]) { firstDiff = i; break; }
+          }
+          expect(firstDiff, 'sgw: clean buffer must round-trip unchanged').toBe(-1);
+        });
+
+        it('throws when the donor VIN appears verbatim at an undocumented offset', () => {
+          // Plant the donor VIN at an offset the scrubber doesn't know
+          // about (and never will, until SGW_VIN_OFFSETS gains entries).
+          // The post-scrub leak guard MUST fire — that's the only thing
+          // protecting future SGW fixtures from silent donor leaks.
+          const buf = new Uint8Array(SGW_BUF_SIZE).fill(0xFF);
+          const donorBytes = new TextEncoder().encode(STAND_IN_B);
+          const leakOff = 0x100;
+          for (let i = 0; i < donorBytes.length; i++) buf[leakOff + i] = donorBytes[i];
+
+          expect(() => anonymizeBuffer({
+            buffer: buf,
+            moduleType: 'sgw',
+            donorVin: STAND_IN_B,
+            anonVin:  STAND_IN_A,
+          })).toThrow(/post-scrub leak.*donor VIN.*still appears forward/);
+        });
+
+        it('throws when the donor VIN appears byte-reversed at an undocumented offset', () => {
+          const buf = new Uint8Array(SGW_BUF_SIZE).fill(0xFF);
+          const donorBytes = new TextEncoder().encode(STAND_IN_B);
+          const donorRev = new Uint8Array(donorBytes).reverse();
+          const leakOff = 0x200;
+          for (let i = 0; i < donorRev.length; i++) buf[leakOff + i] = donorRev[i];
+
+          expect(() => anonymizeBuffer({
+            buffer: buf,
+            moduleType: 'sgw',
+            donorVin: STAND_IN_B,
+            anonVin:  STAND_IN_A,
+          })).toThrow(/post-scrub leak.*byte-reversed/);
+        });
+
+        it('throws when the donor tail-6 serial appears at an undocumented offset', () => {
+          // With an empty slot-window table, ANY donor-tail occurrence is
+          // outside-the-windows by definition — there are no windows.
+          const buf = new Uint8Array(SGW_BUF_SIZE).fill(0xFF);
+          const tailBytes = new TextEncoder().encode(STAND_IN_B.slice(-6));
+          const leakOff = 0x300;
+          for (let i = 0; i < tailBytes.length; i++) buf[leakOff + i] = tailBytes[i];
+
+          expect(() => anonymizeBuffer({
+            buffer: buf,
+            moduleType: 'sgw',
+            donorVin: STAND_IN_B,
+            anonVin:  STAND_IN_A,
+          })).toThrow(/post-scrub leak.*donor VIN tail/);
+        });
+
+        it('refuses to scrub when donor and anon share the same last-6 serial (sgw)', () => {
+          const sharedTailAnon = STAND_IN_A.slice(0, 11) + STAND_IN_B.slice(-6);
+          if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(sharedTailAnon)) return;
+          expect(() => anonymizeBuffer({
+            buffer: new Uint8Array(SGW_BUF_SIZE).fill(0xFF),
+            moduleType: 'sgw',
+            donorVin: STAND_IN_B,
+            anonVin:  sharedTailAnon,
+          })).toThrow(/share the same last-6/);
+        });
+      });
+
       for (const { label, moduleType, minSlots, build, scan } of synthetics) {
         describe(`${label} (synthetic)`, () => {
           it(`re-anonymizes ${label} buffer to STAND_IN_A without leaking the donor VIN`, () => {
@@ -427,10 +541,13 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, rfhubg1: 1, pcm: 
     // header for the rationale.
     describe('coverage completeness', () => {
       const realFixtureFamilies = new Set(targets.map(t => t.moduleType));
-      // Task #449 — rfhubg1 graduated into the per-fixture loop, so the
-      // synthetic-only set is now just '95640' (the BCM-backup EEPROM
-      // family that doesn't yet have a committed real-bench dump).
-      const syntheticFamilies = new Set(['95640']);
+      // Task #449 — rfhubg1 graduated into the per-fixture loop, so it
+      // is no longer in the synthetic-only set.
+      // Task #450 — sgw is registered with an empty slot table; its
+      // round-trip is synthetic-only until a real SGW dump lands.
+      // '95640' remains synthetic because no real-bench dump is
+      // committed yet.
+      const syntheticFamilies = new Set(['95640', 'sgw']);
       const covered = new Set([...realFixtureFamilies, ...syntheticFamilies]);
 
       for (const mt of Object.keys(SCRUBBERS_BY_TYPE)) {

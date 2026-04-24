@@ -84,7 +84,32 @@ export const PCM_VIN_OFFSETS         = [0x0000, 0x01F0, 0x0224, 0x0CE0];
 export const RFH_GEN1_VIN_OFFSET     = 0x92;
 export const EEP95640_VIN_OFFSETS    = [0x275, 0x288, 0x1B82];
 
-export const SUPPORTED_MODULE_TYPES = ['bcm', 'rfhub', 'rfhubg1', 'pcm', '95640'];
+// Task #450 — SGW (Secure Gateway, CAN id 0x74F req / 0x76F resp) is the
+// 2018+ FCA security gateway module. Per `moduleRegistry.js`:
+//   "SGW authenticates other writes; it does not store a VIN slot.
+//    Excluded from Program-All."
+// `parseModule.js` does not yet carry an SGW parser path, and neither
+// `AutelSgwTab.jsx` (the seed/key 27 01/02 dance) nor `sgwAuth.js` (auth
+// state with TTL) exposes any documented dump byte offsets — the only
+// SGW-shaped reverse-engineering the codebase has is the XTEA key-derivation
+// algorithm in docs/SGW_XTEA_ALGORITHM.md, which is about live-bus
+// challenge/response, not stored EEPROM contents.
+//
+// We register the family with an EMPTY slot table (instead of waiting for
+// a parser to land) so the helper script accepts `--module sgw` today and
+// the post-scrub leak guard runs end-to-end on any real SGW dump a
+// maintainer hands the helper. If the dump genuinely contains no copy of
+// the donor VIN (the expected case — SGW stores keys, not VINs) the
+// helper emits an unmodified buffer and exits 0. If the dump DOES contain
+// the donor VIN at some undocumented offset (audit log, config table,
+// future firmware revision that started caching VINs, etc.) the leak
+// guard fires loudly with a "donor-vin-forward" / "donor-vin-reversed"
+// hit at the exact offset — the maintainer then knows where to dig and
+// can populate this array in one place to fix coverage everywhere
+// (parser, helper script, UI pre-share scanner) in lock-step.
+export const SGW_VIN_OFFSETS         = [];
+
+export const SUPPORTED_MODULE_TYPES = ['bcm', 'rfhub', 'rfhubg1', 'pcm', '95640', 'sgw'];
 
 // VIN-character set used by the partial-VIN auto-detector: ASCII letters
 // (A-Z) and digits (0-9), with the VIN-illegal letters I, O, Q rejected.
@@ -212,6 +237,17 @@ export function getDocumentedSlotWindows(moduleType /* , buffer */) {
     // 3 plaintext VIN slots, no CRC (BCM-backup EEPROM, 8 KB).
     for (const off of EEP95640_VIN_OFFSETS) {
       windows.push({ kind: '95640-full', offset: off, length: VIN_LEN });
+    }
+  } else if (mt === 'sgw') {
+    // Task #450 — SGW has no documented VIN slots yet (see SGW_VIN_OFFSETS
+    // above). Returns an empty window list, which means the donor-leak
+    // scanner runs with NO masking — any donor-VIN occurrence (even a
+    // tail-only one) anywhere in the buffer is reported as a leak. That's
+    // the right default for a family whose slot table is the empty set:
+    // we'd rather fail loudly on a real dump that turns out to contain
+    // the donor VIN than silently pass it through.
+    for (const off of SGW_VIN_OFFSETS) {
+      windows.push({ kind: 'sgw-full', offset: off, length: VIN_LEN });
     }
   } else {
     throw new Error(

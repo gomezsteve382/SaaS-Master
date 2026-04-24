@@ -155,6 +155,20 @@ describe('donorLeakScan — getDocumentedSlotWindows', () => {
     }
   });
 
+  it('returns an empty window list for SGW (Task #450 — no documented slots yet)', () => {
+    // SGW_VIN_OFFSETS is intentionally empty (see donorLeakScan.js
+    // header comment). The empty window list means the donor-leak
+    // scanner runs WITHOUT masking on SGW dumps — any donor-VIN
+    // occurrence anywhere in an SGW buffer is reported as a leak,
+    // which is the correct fail-loud default for a family whose slot
+    // table is the empty set. When real SGW slots get documented,
+    // this assertion should grow to cover them in the same shape as
+    // the BCM / RFHUB / PCM tests above.
+    const w = getDocumentedSlotWindows('sgw');
+    expect(Array.isArray(w)).toBe(true);
+    expect(w.length).toBe(0);
+  });
+
   it('throws on unsupported module type', () => {
     expect(() => getDocumentedSlotWindows('ecm')).toThrow(/unsupported module type/i);
     expect(() => getDocumentedSlotWindows(null)).toThrow(/unsupported module type/i);

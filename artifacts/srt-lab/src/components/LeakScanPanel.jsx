@@ -28,15 +28,19 @@ import { useMasterVin } from "../lib/masterVinContext.jsx";
 const VIN_RX = /^[A-HJ-NPR-Z0-9]{17}$/i;
 
 // `SUPPORTED_MODULE_TYPES` is the union of every family the scrubber
-// helper script supports — currently ['bcm','rfhub','rfhubg1','pcm','95640'];
-// render with the labels users see elsewhere in the app (BCM / RFHUB /
-// RFHUB G1 / PCM / 95640).
+// helper script supports — currently
+// ['bcm','rfhub','rfhubg1','pcm','95640','sgw']; render with the labels
+// users see elsewhere in the app (BCM / RFHUB / RFHUB G1 / PCM / 95640 /
+// SGW). SGW (Task #450) has no documented VIN slots yet, so its scan is
+// pure post-scrub leak detection — any donor VIN occurrence anywhere in
+// an SGW buffer fires the guard.
 const MODULE_TYPE_LABELS = {
   bcm: "BCM",
   rfhub: "RFHUB",
   rfhubg1: "RFHUB G1",
   pcm: "PCM",
   '95640': "95640",
+  sgw: "SGW",
 };
 
 function moduleTypeFromFilename(name) {

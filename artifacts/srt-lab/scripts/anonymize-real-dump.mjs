@@ -27,6 +27,14 @@
  *     CRC16 re-stamped at +17/+18 (matches parseModule's `rfhVin92` field).
  *   - 95640 BCM-backup EEPROM (8 KB) plain-VIN slots at 0x275/0x288/0x1B82
  *     — VIN overwritten (no CRC on these slots, mirroring the parser).
+ *   - SGW (Secure Gateway, 0x74F req / 0x76F resp on 2018+ FCA) — slot
+ *     table is intentionally EMPTY because no SGW dump byte offsets are
+ *     documented yet (see `SGW_VIN_OFFSETS` in donorLeakScan.js for the
+ *     full rationale). The scrubber writes nothing but the post-scrub
+ *     leak guard still runs — if a real SGW dump turns out to embed
+ *     the donor VIN at some undocumented offset the helper exits 1
+ *     with a "donor-vin-forward at 0x????" pointer telling the
+ *     maintainer where to dig (Task #450).
  *
  * Slot offsets are imported from `src/lib/parseModule.js` so this helper
  * and the parser share a single source of truth — when a new VIN slot is
@@ -54,7 +62,7 @@
  * Usage
  *
  *   node scripts/anonymize-real-dump.mjs <input.bin>           \
- *        --module <bcm|rfhub|rfhubg1|pcm|95640>                \
+ *        --module <bcm|rfhub|rfhubg1|pcm|95640|sgw>            \
  *        --donor-vin <17-char donor VIN>                       \
  *        --anon-vin  <17-char anonymized stand-in VIN>         \
  *        [--out <output path>]
@@ -91,6 +99,7 @@ import {
   RFH_GEN1_VIN_OFFSET,
   PCM_VIN_OFFSETS,
   EEP95640_VIN_OFFSETS,
+  SGW_VIN_OFFSETS,
   SUPPORTED_MODULE_TYPES,
   vinAsBytes,
   reverseBytes,
@@ -290,6 +299,35 @@ function anonymize95640(buf, anonBytes) {
   return { buffer: out, slots };
 }
 
+// SGW (Secure Gateway, 0x74F req / 0x76F resp on 2018+ FCA). Per
+// `moduleRegistry.js` SGW "authenticates other writes; it does not store
+// a VIN slot" — and `parseModule.js`'s `SGW_VIN_OFFSETS` is intentionally
+// EMPTY because no SGW dump byte offsets are documented anywhere in the
+// codebase yet (AutelSgwTab.jsx and sgwAuth.js cover the live-bus
+// 27 01/02 seed-key dance and the in-app auth-state TTL respectively;
+// neither exposes EEPROM offsets).
+//
+// The scrubber writes nothing — there are no documented slots — but the
+// post-scrub leak guard in `anonymizeBuffer` still runs. So if a real
+// SGW dump turns out to embed the donor VIN at some undocumented
+// location (audit log, config table, future firmware revision that
+// caches VINs, etc.) the helper exits 1 with a clear "donor-vin-forward
+// at 0x????" pointer telling the maintainer where to dig. Once an SGW
+// VIN slot is documented, populate `SGW_VIN_OFFSETS` in donorLeakScan.js
+// (mirrored in parseModule.js) and this scrubber automatically picks it
+// up — no edit needed here. Same one-stop extension story as the
+// rfhubg1 / 95640 families that landed in Task #441.
+function anonymizeSgw(buf, anonBytes) {
+  const out = new Uint8Array(buf);
+  const slots = [];
+  for (const off of SGW_VIN_OFFSETS) {
+    if (off + VIN_LEN > out.length) continue;
+    for (let i = 0; i < VIN_LEN; i++) out[off + i] = anonBytes[i];
+    slots.push({ kind: 'sgw-vin', offset: off, length: VIN_LEN });
+  }
+  return { buffer: out, slots };
+}
+
 // Per-module dispatch table. Adding a new family is a one-line edit here
 // PLUS appending its CLI alias to SUPPORTED_MODULE_TYPES; the test suite
 // iterates this map's keys so any new entry that lacks fixture coverage
@@ -300,6 +338,7 @@ const SCRUBBERS_BY_TYPE = {
   rfhubg1: anonymizeRfhubGen1,
   pcm:     anonymizePcm,
   '95640': anonymize95640,
+  sgw:     anonymizeSgw,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -427,6 +466,13 @@ function printUsage() {
     '  rfhubg1  — RFHUB Gen1 (24C16, 2 KB) — single plain-VIN slot at 0x92.',
     '  pcm      — Continental GPEC2A PCM (4 KB or 8 KB).',
     '  95640    — 95640 BCM-backup EEPROM (8 KB).',
+    '  sgw      — Secure Gateway (2018+ FCA, 0x74F req / 0x76F resp). No',
+    '             documented VIN slots yet — the scrubber writes nothing',
+    '             but the post-scrub leak guard still scans the buffer for',
+    '             the donor VIN. If a real SGW dump turns out to embed it',
+    '             at some undocumented offset the helper exits 1 with a',
+    '             pointer to the offset (see SGW_VIN_OFFSETS in',
+    '             src/lib/donorLeakScan.js).',
     '',
   ].join('\n'));
 }

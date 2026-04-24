@@ -59,14 +59,31 @@ const CANONICAL_SIZES_BY_TYPE={
  *   donor-VIN-leak bug).
  * EEP95640_VIN_OFFSETS: the 3 plaintext VIN slots in a 95640 BCM-backup
  *   EEPROM dump (8 KB).
+ * SGW_VIN_OFFSETS: intentionally EMPTY. SGW (Secure Gateway, 0x74F req /
+ *   0x76F resp on 2018+ FCA) authenticates other writes via the XTEA
+ *   seed/key dance documented in docs/SGW_XTEA_ALGORITHM.md but does
+ *   not, to our current knowledge, store the vehicle VIN in EEPROM —
+ *   `moduleRegistry.js` records it as kind:'unsupported' with the note
+ *   "SGW authenticates other writes; it does not store a VIN slot."
+ *   Parser support is not yet implemented; the constant is exported now
+ *   so the anonymizer (scripts/anonymize-real-dump.mjs) can register the
+ *   `sgw` CLI alias and rely on its post-scrub leak guard to surface any
+ *   real-world dump that turns out to contain the donor VIN at an
+ *   undocumented offset (audit log, config table, future firmware
+ *   revision). When such a slot is discovered, populate this array here
+ *   and the helper script + the in-app pre-share scanner pick it up
+ *   automatically (Task #450).
  */
 const BCM_FULL_VIN_BASES=[0x5300,0x5320,0x5340,0x5360,0x5380];
 const BCM_FULL_VIN_BASES_PARSED=[0x5320,0x5340,0x5360,0x5380];
-const BCM_PARTIAL_VIN_OFFSETS=[0x4098,0x40B0];
+// BCM_PARTIAL_VIN_OFFSETS is imported from ./donorLeakScan.js (see line 3) —
+// the leak-scan module is the single source of truth so the in-app pre-share
+// scanner, the anonymizer helper, and the parser all share one constant.
 const RFH_GEN2_VIN_OFFSETS=[0x0EA5,0x0EB9,0x0ECD,0x0EE1];
 const RFH_GEN1_VIN_OFFSET=0x92;
 const PCM_VIN_OFFSETS_GPEC2A=[0x0000,0x01F0,0x0224,0x0CE0];
 const EEP95640_VIN_OFFSETS=[0x275,0x288,0x1B82];
+const SGW_VIN_OFFSETS=[];
 
 // PCM EXT-EEPROM chip catalog (Task #379). The same Continental GPEC2A
 // firmware ships with either a 95320 (4 KB) or 95640 (8 KB) external
@@ -727,4 +744,4 @@ export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,det
   // rfhPcmPair.js and scripts/trim-pcm-to-4kb.mjs.
   BCM_FULL_VIN_BASES,BCM_FULL_VIN_BASES_PARSED,BCM_PARTIAL_VIN_OFFSETS,
   RFH_GEN2_VIN_OFFSETS,RFH_GEN1_VIN_OFFSET,
-  PCM_VIN_OFFSETS_GPEC2A,EEP95640_VIN_OFFSETS};
+  PCM_VIN_OFFSETS_GPEC2A,EEP95640_VIN_OFFSETS,SGW_VIN_OFFSETS};
