@@ -1,6 +1,6 @@
 import {crc16, crc8rf, rfhGen2VinCs, rfhGen2DetectMagic} from './crc.js';
 import {writePcmSec6} from './securityBytes.js';
-import {classifyPcmSec6} from './parseModule.js';
+import {classifyPcmSec6,PCM_VIN_OFFSETS_GPEC2A} from './parseModule.js';
 
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
 
@@ -370,7 +370,9 @@ export function computeCompatibility(rfh, pcm) {
   return { verdict, reason, issues, info, vinEqualBefore, sec6EqualBefore, sec6FromRfh, sec6PcmCurrent, canApply };
 }
 
-const PCM_VIN_OFFSETS = [0x0000, 0x01F0, 0x0224, 0x0CE0];
+// PCM_VIN_OFFSETS is re-exported from PCM_VIN_OFFSETS_GPEC2A in
+// parseModule.js (single source of truth — Task #443).
+const PCM_VIN_OFFSETS = PCM_VIN_OFFSETS_GPEC2A;
 const PCM_SEC6_OFFSET = 0x03C8;
 const PCM_IMMO_OFFSET = 0x0011;
 const PCM_IMMO_ENABLED_PATTERN = [0x80, 0x00, 0x00, 0x00];

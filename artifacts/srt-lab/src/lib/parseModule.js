@@ -24,6 +24,14 @@ const CANONICAL_SIZES_BY_TYPE={
   RFHUB:[2048,4096],
 };
 
+// Canonical GPEC2A PCM VIN slot offsets (Task #439 / #443). Continental
+// GPEC2A images carry the VIN at four plaintext slots — identical on the
+// 4 KB (95320) and 8 KB (95640) sibling captures. This is the single
+// source of truth; every read/write call site must import this constant
+// instead of inlining the literal array (which historically drifted as
+// 3 vs 4 slots and shipped the donor-VIN-leak bug).
+const PCM_VIN_OFFSETS_GPEC2A=[0x0000,0x01F0,0x0224,0x0CE0];
+
 // PCM EXT-EEPROM chip catalog (Task #379). The same Continental GPEC2A
 // firmware ships with either a 95320 (4 KB) or 95640 (8 KB) external
 // EEPROM depending on the PCM hardware revision — not by engine
@@ -455,7 +463,7 @@ function parseModule(data,filename,opts){
   if(type==='UNKNOWN')info.hexOnly=true;
 
   if(type==='GPEC2A'){
-    info.vins=[{offset:0x0000,vin:extractVIN(data,0x0000)},{offset:0x01f0,vin:extractVIN(data,0x01f0)},{offset:0x0224,vin:extractVIN(data,0x0224)},{offset:0x0ce0,vin:extractVIN(data,0x0ce0)}].filter(v=>v.vin);
+    info.vins=PCM_VIN_OFFSETS_GPEC2A.map(o=>({offset:o,vin:extractVIN(data,o)})).filter(v=>v.vin);
     if(sz>0x0011){
       info.skimByte=data[0x0011];
       info.skimStatus=SKIM_VALUES[info.skimByte]||"UNKNOWN (0x"+info.skimByte.toString(16).toUpperCase()+")";
@@ -646,4 +654,4 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6};
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,PCM_VIN_OFFSETS_GPEC2A};

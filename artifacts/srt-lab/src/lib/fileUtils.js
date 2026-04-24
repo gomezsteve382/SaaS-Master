@@ -1,6 +1,6 @@
 import {crc16,crc8_42,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic} from './crc.js';
 import {IMMO_BLOCK,TR,WT,WMI,YR,TC,TL} from './constants.js';
-import {arrEq,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,classifyPcmSec6} from './parseModule.js';
+import {arrEq,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,classifyPcmSec6,PCM_VIN_OFFSETS_GPEC2A} from './parseModule.js';
 
 const IMMO_REC_=24,IMMO_KC_=8;
 const IMMO_BLK_=IMMO_REC_*IMMO_KC_;
@@ -53,7 +53,7 @@ function analyzeFile(buf,name){
   if(type==='RFHUB'){const rfhIsGen2=sz===4096;let rfhMagic=0xDB;if(rfhIsGen2){for(const _o of[0xEA5,0xEB9,0xECD,0xEE1]){const _st=data.slice(_o,_o+17);const _sc=_o+17<sz?data[_o+17]:0;if(!_st.every(b=>b===0xFF||b===0)&&_sc!==0x00&&_sc!==0xFF){rfhMagic=rfhGen2DetectMagic(_st,_sc);break;}}}for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);const sc=data[off+17],cc=rfhIsGen2?rfhGen2VinCs(st,rfhMagic):crc8rf(st);vins.push({off,vin:s,algo:'c8',coff:off+17,sc,cc,ok:sc===cc,cv:_checkVin(s),mirrored:true});}
     // Gen1 (24C16, 2048 B): VIN @ 0x92 plain ASCII with CRC16 BE at +17.
     if(sz===2048&&vins.length===0&&sz>=0x92+19){const off=0x92;const st=data.slice(off,off+17);if(!st.every(b=>b===0xFF||b===0)){let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(st[j]);if(/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s)){const sc=(data[off+17]<<8)|data[off+18];const cc=crc16(st);vins.push({off,vin:s,algo:'c16',coff:off+17,sc,cc,ok:sc===cc,cv:_checkVin(s)});}}}}
-  else if(type==='GPEC2A'){for(const off of[0,0x1F0,0x224,0xCE0]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(v&&/^[1-9A-HJ-NPR-Z]/.test(s))vins.push({off,vin:s,algo:'none',coff:-1,ok:true,cv:_checkVin(s)});}}
+  else if(type==='GPEC2A'){for(const off of PCM_VIN_OFFSETS_GPEC2A){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(v&&/^[1-9A-HJ-NPR-Z]/.test(s))vins.push({off,vin:s,algo:'none',coff:-1,ok:true,cv:_checkVin(s)});}}
   else if(type==='95640'){for(const off of[0x275,0x288]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(!v||!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const sc=data[off-1],cc=crc8_42(data.slice(off,off+17));vins.push({off,vin:s,algo:'c8',coff:off-1,sc,cc,ok:sc===cc,cv:_checkVin(s)});}}
   else if(type==='BCM'||type==='FW'){for(let i=0;i<=sz-19;i++){let v=true;for(let j=0;j<17;j++)if(data[i+j]<0x20||data[i+j]>0x7E){v=false;break;}if(!v)continue;let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(data[i+j]);if(!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const cv=_checkVin(s);if(!cv.ok)continue;const sc=(data[i+17]<<8)|data[i+18],cc=crc16(data.slice(i,i+17));if(sc===cc){vins.push({off:i,vin:s,algo:'c16',coff:i+17,sc,cc,ok:true,cv});i+=16;}}
     if(type==='BCM'){for(const po of[0x4098,0x40B0]){if(po+10>sz)continue;let s='',ok=true;for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}if(!ok||s.length!==8)continue;const sc=(data[po+8]<<8)|data[po+9],cc=crc16(data.slice(po,po+8));partials.push({off:po,vin:s,algo:'c16',coff:po+8,sc,cc});}}
@@ -76,7 +76,7 @@ function virginizeFile(f){const out=new Uint8Array(f.data);const log=[];
   if(f.type==='BCM'){f.vins.forEach(v=>{for(let j=0;j<19;j++)out[v.off+j]=0;});f.partials?.forEach(v=>{for(let j=0;j<10;j++)out[v.off+j]=0;});[0x2000,0x40C0].forEach(o=>{for(let i=0;i<IMMO_BLOCK;i++)out[o+i]=0xFF;});log.push('VINs+CRC zeroed, SKIM cleared');}
   else if(f.type==='95640'){[0x275,0x288].forEach(o=>{for(let j=-1;j<17;j++)out[o+j]=0;});for(let i=0;i<16;i++)out[0x40+i]=0xFF;log.push('VINs+CRC+key cleared');}
   else if(f.type==='RFHUB'){[0xEA5,0xEB9,0xECD,0xEE1].forEach(o=>{for(let j=0;j<18;j++)out[o+j]=0;});for(let i=0;i<16;i++)out[0x40+i]=0xFF;for(let i=0;i<64;i++)out[0x200+i]=0xFF;log.push('VINs+key+fobs cleared');}
-  else if(f.type==='GPEC2A'){[0,0x1F0,0x224,0xCE0].filter(o=>o+17<=out.length).forEach(o=>{for(let j=0;j<17;j++)out[o+j]=0;});log.push('VINs cleared');}
+  else if(f.type==='GPEC2A'){PCM_VIN_OFFSETS_GPEC2A.filter(o=>o+17<=out.length).forEach(o=>{for(let j=0;j<17;j++)out[o+j]=0;});log.push('VINs cleared');}
   return{data:out,log};}
 
 function writeModuleVIN(data,type,vin,existingVins){
@@ -87,7 +87,7 @@ function writeModuleVIN(data,type,vin,existingVins){
   // size since the Gen2 slot table is past the end of a 2 KB image.
   const isGen1Rfhub=type==='RFHUB'&&data.length===2048;
   let offs;
-  if(type==='GPEC2A')offs=[0x0000,0x01f0,0x0224,0x0ce0].filter(o=>o+17<=out.length);
+  if(type==='GPEC2A')offs=PCM_VIN_OFFSETS_GPEC2A.filter(o=>o+17<=out.length);
   // BCM: prefer parsed offsets so we hit the actual VIN bytes on Redeye 2020+
   // dumps (which carry an 8-byte FEE record header — VIN at base+8 → CRC at
   // base+25 → 5-byte trailer). Fall back to the legacy header-less layout

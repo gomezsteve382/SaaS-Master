@@ -34,7 +34,7 @@ import EcmTab from "./tabs/EcmTab";
 import KeyProgTab from "./tabs/KeyProgTab";
 import KeyManagerTab from "./tabs/KeyManagerTab";
 import MismatchWizard from "./components/MismatchWizard.jsx";
-import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType, classifyPcmSec6} from "./lib/parseModule.js";
+import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A} from "./lib/parseModule.js";
 import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
 import {VEHICLES,VEHICLE_LIST,KNOWN_BCM_PN,vehiclesForPartNumber,analyzeDumpPartNumber,generationForPartNumber} from "./lib/vehicles.js";
@@ -804,7 +804,7 @@ function engParsePcm(bytes){
    * populated SEC6 from padding noise — that path is gone. */
   const r={kind:'PCM',size:bytes.length,vinSlots:[],sec6:null,currentVin:null,originalVin:null,variant:'GPEC2A'};
   /* VIN slots at known offsets */
-  for(const off of [0x0000,0x01F0,0x0224,0x0CE0]){if(off+17>bytes.length)continue;let vin='',valid=true;for(let k=0;k<17;k++){const b=bytes[off+k];if(b<0x20||b>0x7E){valid=false;break;}vin+=String.fromCharCode(b);}if(valid&&VIN_REGEX.test(vin))r.vinSlots.push({offset:off,vin});}
+  for(const off of PCM_VIN_OFFSETS_GPEC2A){if(off+17>bytes.length)continue;let vin='',valid=true;for(let k=0;k<17;k++){const b=bytes[off+k];if(b<0x20||b>0x7E){valid=false;break;}vin+=String.fromCharCode(b);}if(valid&&VIN_REGEX.test(vin))r.vinSlots.push({offset:off,vin});}
   if(r.vinSlots.length>0){r.vin=r.vinSlots[0].vin;r.vinConsistent=r.vinSlots.every(s=>s.vin===r.vin);
     /* SINCRO convention: first slot = CURRENT VIN, later slot = ORIGINAL VIN */
     r.currentVin = r.vinSlots[0].vin;
@@ -903,7 +903,7 @@ function engWriteRfhVin(bytes,newVin,virginize){if(!VIN_REGEX.test(newVin))throw
 
 const engWritePcmSec6 = writePcmSec6;
 
-function engWritePcmVin(bytes,newVin){if(!VIN_REGEX.test(newVin))throw new Error('Invalid VIN: '+newVin);const out=new Uint8Array(bytes);const vb=new TextEncoder().encode(newVin);let patched=0;for(const off of [0x0000,0x01F0,0x0224,0x0CE0]){if(off+17>out.length)continue;for(let k=0;k<17;k++)out[off+k]=vb[k];patched++;}return{bytes:out,patched};}
+function engWritePcmVin(bytes,newVin){if(!VIN_REGEX.test(newVin))throw new Error('Invalid VIN: '+newVin);const out=new Uint8Array(bytes);const vb=new TextEncoder().encode(newVin);let patched=0;for(const off of PCM_VIN_OFFSETS_GPEC2A){if(off+17>out.length)continue;for(let k=0;k<17;k++)out[off+k]=vb[k];patched++;}return{bytes:out,patched};}
 
 const hexStr=(arr)=>[...arr].map(b=>b.toString(16).padStart(2,'0')).join('');
 

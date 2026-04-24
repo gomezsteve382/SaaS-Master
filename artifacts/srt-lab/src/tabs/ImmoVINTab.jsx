@@ -8,6 +8,7 @@ import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
 import {IMMO_VIN_REF} from "../lib/tabReferences.js";
 import {Tip} from "../lib/plainEnglish.jsx";
 import SamplePicker from "../lib/SamplePicker.jsx";
+import {PCM_VIN_OFFSETS_GPEC2A} from "../lib/parseModule.js";
 
 const fO = n => "0x" + n.toString(16).toUpperCase().padStart(4, "0");
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
@@ -249,7 +250,12 @@ function RFHSection({samplePair, onSamplePairLoaded}) {
 
 /* ─── GPEC2A (95320 SPI) helpers ─────────────────────────────────────── */
 
-const GPEC_VIN_OFFSETS = [0x0000, 0x01F0, 0x0224];
+// Canonical four GPEC2A VIN slots — single source of truth in
+// lib/parseModule.js (Task #443). Pre-#443 this file inlined a
+// 3-slot list (0x0000/0x01F0/0x0224) which silently dropped the
+// 0x0CE0 slot that #439 pinned as canonical, matching the
+// "Write VIN to 4 slots" UI label.
+const GPEC_VIN_OFFSETS = PCM_VIN_OFFSETS_GPEC2A;
 
 function extractGpecVin(data, off) {
   if (off + 17 > data.length) return null;
@@ -268,7 +274,7 @@ function parseGpec2a(data) {
   const slots = GPEC_VIN_OFFSETS.map((off, idx) => ({
     idx: idx+1, offset: off, vin: extractGpecVin(data, off)
   }));
-  const consistent = slots.length === 3 && slots.every(s => s.vin) && slots.every(s => s.vin === slots[0].vin);
+  const consistent = slots.length === GPEC_VIN_OFFSETS.length && slots.every(s => s.vin) && slots.every(s => s.vin === slots[0].vin);
   const mainVin = consistent ? slots[0].vin : (slots.find(s => s.vin)?.vin || null);
 
   const keyPrimary = sz >= 0x020B ? Array.from(data.slice(0x0203, 0x020B)) : null;

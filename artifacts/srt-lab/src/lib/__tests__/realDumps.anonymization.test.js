@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 import { loadRealDumpFixtures } from '../__fixtures__/realDumps/loader.js';
+import { PCM_VIN_OFFSETS_GPEC2A } from '../parseModule.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Task #434 — anonymization sanity scan for every committed real-dump fixture.
@@ -166,7 +167,7 @@ const MODULE_SCANNERS = {
   // smaller GPEC variant ever lands.
   pcm(buf) {
     const slots = [];
-    for (const off of [0x0000, 0x01F0, 0x0224, 0x0CE0]) {
+    for (const off of PCM_VIN_OFFSETS_GPEC2A) {
       if (off + 17 > buf.length) continue;
       if (looksLikeVin(buf.slice(off, off + 17))) {
         slots.push({ offset: off, reversed: false });

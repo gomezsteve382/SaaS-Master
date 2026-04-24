@@ -4,7 +4,7 @@ import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
-import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, resolveBcmSec16, classifyPcmSec6, parseModule } from "../lib/parseModule.js";
+import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, resolveBcmSec16, classifyPcmSec6, parseModule, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
 import { crossValidate } from "../lib/crossValidate.js";
 
 /* ============================================================================
@@ -370,7 +370,7 @@ export function engParsePcm(bytes, filename) {
     continentalPn: null, osPn: null, bodyPn: null,
   };
 
-  for (const off of [0x0000, 0x01F0, 0x0224, 0x0CE0]) {
+  for (const off of PCM_VIN_OFFSETS_GPEC2A) {
     if (off + 17 > bytes.length) continue;
     let vin = '', valid = true;
     for (let k = 0; k < 17; k++) {
@@ -583,7 +583,7 @@ function engWritePcmVin(bytes, newVin) {
   const out = new Uint8Array(bytes);
   const vb  = new TextEncoder().encode(newVin);
   let patched = 0;
-  for (const off of [0x0000, 0x01F0, 0x0224, 0x0CE0]) {
+  for (const off of PCM_VIN_OFFSETS_GPEC2A) {
     if (off + 17 > out.length) continue;
     for (let k = 0; k < 17; k++) out[off + k] = vb[k];
     patched++;
