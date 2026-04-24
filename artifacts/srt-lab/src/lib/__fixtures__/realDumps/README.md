@@ -201,6 +201,17 @@ vehicle (anonymized VIN `2C3CDXL90MH582899`).
 
 ## Anonymization checklist
 
+> **One-shot helper:** instead of walking every offset by hand, run
+> `node scripts/anonymize-real-dump.mjs <input.bin> --module <bcm|rfhub|pcm> --donor-vin <donor> --anon-vin <stand-in> [--out <path>]`
+> from `artifacts/srt-lab/`. It rewrites every documented full-VIN
+> slot, the BCM partial-VIN records (the ones Task #436 missed), and
+> the RFHUB Gen2 reverse-VIN slots; re-stamps every parser CRC; and
+> aborts if the donor's full VIN or last-6 serial survives anywhere
+> outside the documented slot windows. The output drops in here and
+> passes `realDumps.anonymization.test.js` without further hand-editing.
+> Use this for any new capture; the manual checklist below stays as
+> the spec the script implements.
+
 Before committing any binary in this directory, scrub:
 
 - VIN bytes — replace the captured 17-character VIN everywhere it appears.
