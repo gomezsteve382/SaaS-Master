@@ -11,6 +11,7 @@ import {
 import { sha256Hex, backupDidsToBytes } from "../lib/checksum.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
+import LeakScanPanel from "../components/LeakScanPanel.jsx";
 import {
   listDiffReports, getDiffReport, getDiffReportAsync,
   deleteDiffReport, clearDiffReports,
@@ -545,6 +546,8 @@ export default function BackupsTab() {
           </div>
         )}
       </Card>
+
+      <LeakScanPanel style={{ marginBottom: 14 }} />
 
       <Card style={{ marginBottom: 14, padding: 0, overflow: "hidden" }} data-testid="diff-reports-history">
         <div style={{
