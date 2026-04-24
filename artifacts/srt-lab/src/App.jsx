@@ -35,6 +35,7 @@ import KeyProgTab from "./tabs/KeyProgTab";
 import KeyManagerTab from "./tabs/KeyManagerTab";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A} from "./lib/parseModule.js";
+import {analyzeFile} from "./lib/fileUtils.js";
 import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
 import {VEHICLES,VEHICLE_LIST,KNOWN_BCM_PN,vehiclesForPartNumber,analyzeDumpPartNumber,generationForPartNumber} from "./lib/vehicles.js";
@@ -370,33 +371,12 @@ const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).
 const TC={BCM:'#FF6D00','95640':'#AA00FF',RFHUB:'#2979FF',GPEC2A:'#00BFA5',FW:'#9E9E9E'};
 const TL={BCM:'BCM D-FLASH','95640':'FCA 95640',RFHUB:'RFHUB EEE',GPEC2A:'GPEC2A',FW:'Firmware'};
 
-/* ═══ File analysis ═══ */
-function analyzeFile(buf,name){const data=new Uint8Array(buf);const sz=data.length;let type='unknown';
-  if(sz===65536||sz===131072)type='BCM';else if(sz===8192||sz===16384)type='95640';else if(sz===4096){let a=true;for(let i=0;i<17&&i<sz;i++)if(data[i]<0x30||data[i]>0x5A){a=false;break;}type=a?'GPEC2A':'RFHUB';}else if(sz>131072)type='FW';
-  const vins=[],partials=[];
-  if(type==='RFHUB'){for(const off of[0xEA5,0xEB9,0xECD,0xEE1]){if(off+17>sz)continue;const st=data.slice(off,off+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(rev[j]);vins.push({off,vin:s,algo:'rfhub',coff:off+17,ok:true,cv:checkVin(s),mirrored:true});break;}}
-  else if(type==='GPEC2A'){for(const off of[0,0x1F0,0x224]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(v&&/^[1-9A-HJ-NPR-Z]/.test(s))vins.push({off,vin:s,algo:'none',coff:-1,ok:true,cv:checkVin(s)});}}
-  else if(type==='95640'){for(const off of[0x275,0x288]){if(off+17>sz)continue;let s='',v=true;for(let j=0;j<17;j++){const b=data[off+j];if(b<0x20||b>0x7E){v=false;break;}s+=String.fromCharCode(b);}if(!v||!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const sc=data[off-1],cc=crc8a(data.slice(off,off+17));vins.push({off,vin:s,algo:'c8',coff:off-1,sc,cc,ok:sc===cc,cv:checkVin(s)});}}
-  else if(type==='BCM'||type==='FW'){for(let i=0;i<=sz-19;i++){let v=true;for(let j=0;j<17;j++)if(data[i+j]<0x20||data[i+j]>0x7E){v=false;break;}if(!v)continue;let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(data[i+j]);if(!/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))continue;const cv=checkVin(s);if(!cv.ok)continue;const sc=(data[i+17]<<8)|data[i+18],cc=crc16(data.slice(i,i+17));if(sc===cc){vins.push({off:i,vin:s,algo:'c16',coff:i+17,sc,cc,ok:true,cv});i+=16;}}
-    if(vins.length>0){const tail=vins[0].vin.slice(9);const tc=[];for(let k=0;k<8;k++)tc.push(tail.charCodeAt(k));for(let i=0;i<=sz-10;i++){let m=true;for(let j=0;j<8;j++)if(data[i+j]!==tc[j]){m=false;break;}if(!m)continue;if(vins.some(fv=>i>=fv.off&&i<fv.off+17))continue;const sc=(data[i+8]<<8)|data[i+9],cc=crc16(data.slice(i,i+8));if(sc===cc)partials.push({off:i,vin:tail,algo:'c16',coff:i+8,sc,cc});}}}
-  let sec=null;
-  if(type==='BCM'){sec={t:'bcm'};const sb=data.slice(0x40C0,0x40E0);sec.b1=sb.every(b=>b===0xFF);if(!sec.b1){sec.immo=data.slice(0x40C8,0x40DA);sec.immoBak=data.slice(0x40F0,0x4102);sec.immoOk=true;for(let j=0;j<sec.immo.length;j++)if(sec.immo[j]!==sec.immoBak[j]){sec.immoOk=false;break;}}sec.b2=data.slice(0x2000,0x2020).every(b=>b===0xFF);if(!sec.b2)sec.bak=data.slice(0x2000,0x2020);}
-  else if(type==='95640'){sec={t:'95640'};sec.key=data.slice(0x40,0x50);sec.kb=sec.key.every(b=>b===0xFF);sec.fob=data.slice(0x200,0x240);sec.fb=sec.fob.every(b=>b===0xFF);}
-  else if(type==='RFHUB'){sec={t:'rfhub'};sec.key=data.slice(0x40,0x50);sec.kb=sec.key.every(b=>b===0xFF);}
-  else if(type==='GPEC2A'){sec={t:'gpec2a'};sec.skim=data[0x11];sec.on=data[0x11]===0x80;sec.key=data.slice(0x203,0x20B);sec.mir=data.slice(0x361,0x369);sec.km=true;for(let j=0;j<8;j++)if(sec.key[j]!==sec.mir[j]){sec.km=false;break;}sec.tr=[];for(let i=0;i<4;i++)sec.tr.push(data.slice(0x888+i*4,0x888+i*4+4));sec.zz=data[0xC8C]===0x5A;}
-  return{name,size:sz,type,data,vins,partials,sec};}
-
-function patchFile(f,nv){const out=new Uint8Array(f.data);const vb=new TextEncoder().encode(nv.toUpperCase());const log=[];
-  for(const s of f.vins){if(s.mirrored){const m=[...vb].reverse();for(let j=0;j<17;j++)out[s.off+j]=m[j];log.push('0x'+s.off.toString(16).toUpperCase()+' mirrored');}else{for(let j=0;j<17;j++)out[s.off+j]=vb[j];if(s.algo==='c16'){const c=crc16(vb);out[s.coff]=(c>>8)&0xFF;out[s.coff+1]=c&0xFF;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC16');}else if(s.algo==='c8'){const c=crc8a(vb);out[s.coff]=c;log.push('0x'+s.off.toString(16).toUpperCase()+' CRC8');}else log.push('0x'+s.off.toString(16).toUpperCase());}}
-  if(f.partials){const tb=new TextEncoder().encode(nv.toUpperCase().slice(9));for(const s of f.partials){for(let j=0;j<8;j++)out[s.off+j]=tb[j];const c=crc16(tb);out[s.coff]=(c>>8)&0xFF;out[s.coff+1]=c&0xFF;log.push('0x'+s.off.toString(16).toUpperCase()+' partial');}}
-  return{data:out,log};}
-
-function virginizeFile(f){const out=new Uint8Array(f.data);const log=[];
-  if(f.type==='BCM'){f.vins.forEach(v=>{for(let j=0;j<19;j++)out[v.off+j]=0;});f.partials?.forEach(v=>{for(let j=0;j<10;j++)out[v.off+j]=0;});[0x2000,0x40C0].forEach(o=>{for(let i=0;i<32;i++)out[o+i]=0xFF;});log.push('VINs+CRC zeroed, SKIM cleared');}
-  else if(f.type==='95640'){[0x275,0x288].forEach(o=>{for(let j=-1;j<17;j++)out[o+j]=0;});for(let i=0;i<16;i++)out[0x40+i]=0xFF;log.push('VINs+CRC+key cleared');}
-  else if(f.type==='RFHUB'){[0xEA5,0xEB9,0xECD,0xEE1].forEach(o=>{for(let j=0;j<18;j++)out[o+j]=0;});for(let i=0;i<16;i++)out[0x40+i]=0xFF;for(let i=0;i<64;i++)out[0x200+i]=0xFF;log.push('VINs+key+fobs cleared');}
-  else if(f.type==='GPEC2A'){[0,0x1F0,0x224].forEach(o=>{for(let j=0;j<17;j++)out[o+j]=0;});log.push('VINs cleared');}
-  return{data:out,log};}
+/* ═══ File analysis ═══
+ * The canonical analyzeFile / patchFile / virginizeFile live in
+ * ./lib/fileUtils.js (imported above). A duplicate copy used to live
+ * here and shipped a 3-slot GPEC2A VIN-offset literal that drifted
+ * from the canonical 4-slot PCM_VIN_OFFSETS_GPEC2A — see Task #443
+ * (donor-VIN-leak fix) and Task #445 (this dead-code removal). */
 
 /* ═══ DESIGN ═══ */
 const C={bg:'#F4F1EC',cd:'#FFF',c2:'#FAF9F7',sr:'#D32F2F',sl:'#FF5252',bk:'#1A1A1A',a1:'#FF6D00',a2:'#00BFA5',a3:'#2979FF',a4:'#AA00FF',tx:'#1A1A1A',ts:'#5A5A5A',tm:'#9E9E9E',bd:'#E8E4DE',gn:'#00C853',wn:'#FFB300',er:'#FF1744'};
@@ -415,7 +395,7 @@ function secAnalyze(data,fn){const sz=data.length;const m={fn,sz,type:'?',vins:[
     m.skey=data.slice(0x40,0x50);m.skoff=0x40;m.skb=m.skey.every(b=>b===0xFF);m.fobBlank=data.slice(0x200,0x240).every(b=>b===0xFF);
   }else if(sz===4096){
     const v0=extractVAt(data,0);
-    if(v0){m.type='gpec2a';m.vins.push({off:0,vin:v0});const v1=extractVAt(data,0x1F0);if(v1)m.vins.push({off:0x1F0,vin:v1});const v2=extractVAt(data,0x224);if(v2)m.vins.push({off:0x224,vin:v2});}
+    if(v0){m.type='gpec2a';for(const off of PCM_VIN_OFFSETS_GPEC2A){if(off===0)continue;const vN=extractVAt(data,off);if(vN)m.vins.push({off,vin:vN});}m.vins.unshift({off:0,vin:v0});}
     else{m.type='rfhub';for(const o of[0xEA5,0xEB9,0xECD,0xEE1]){if(o+17>sz)continue;const st=data.slice(o,o+17);if(st.every(b=>b===0xFF||b===0))continue;const rev=new Uint8Array(17);for(let j=0;j<17;j++)rev[j]=st[16-j];m.vins.push({off:o,vin:String.fromCharCode(...rev),mir:true});break;}
       m.skey=data.slice(0x40,0x50);m.skoff=0x40;m.skb=m.skey.every(b=>b===0xFF);}
   }return m;}
@@ -476,7 +456,7 @@ function SkimTab({vehicle}){
     if(m.type==='bcm'){m.vins.forEach(v=>{for(let j=0;j<17;j++)p[v.off+j]=vb[j];const c=crc16(vb);p[v.off+17]=(c>>8)&0xFF;p[v.off+18]=c&0xFF;});}
     else if(m.type==='95640'){[0x275,0x288].forEach(o=>{if(o+17>p.length)return;for(let j=0;j<17;j++)p[o+j]=vb[j];p[o-1]=crc8a(vb);});}
     else if(m.type==='rfhub'){const mr=[...vb].reverse();[0xEA5,0xEB9,0xECD,0xEE1].forEach(o=>{if(o+18>p.length)return;for(let j=0;j<17;j++)p[o+j]=mr[j];});}
-    else if(m.type==='gpec2a'){[0,0x1F0,0x224].forEach(o=>{if(o+17>p.length)return;for(let j=0;j<17;j++)p[o+j]=vb[j];});}
+    else if(m.type==='gpec2a'){PCM_VIN_OFFSETS_GPEC2A.forEach(o=>{if(o+17>p.length)return;for(let j=0;j<17;j++)p[o+j]=vb[j];});}
     dl(p,m.fn.replace(/\./,'_VIN_'+tv+'.'));setMsg('Patched '+SKLBL[m.type]+' → '+tv);}
 
   return<div>
@@ -539,123 +519,6 @@ function SkimTab({vehicle}){
   </div>;
 }
 
-/* ═══ GPEC2A TOOLS TAB (Piece 5) ═══ */
-function Gpec2aTab(){
-  const[f,setF]=useState(null);const[f2,setF2]=useState(null);const[msg,setMsg]=useState('');
-  const load=(e,slot)=>{const fi=e.target.files[0];if(!fi)return;const r=new FileReader();r.onload=ev=>{const d=new Uint8Array(ev.target.result);if(d.length!==4096){setMsg('GPEC2A must be 4096 bytes');return;}const a=analyzeFile(d.buffer,fi.name);if(a.type!=='GPEC2A'){setMsg('Not a GPEC2A file');return;}if(slot===1)setF(a);else setF2(a);setMsg('');};r.readAsArrayBuffer(fi);};
-  const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();};
-
-  function toggleSkim(){if(!f)return;const p=new Uint8Array(f.data);p[0x11]=p[0x11]===0x80?0x00:0x80;setF(analyzeFile(p.buffer,f.name));dl(p,'SKIM_'+(p[0x11]===0x80?'ENABLED':'DISABLED')+'_'+f.name);setMsg('SKIM toggled to 0x'+p[0x11].toString(16).toUpperCase());}
-
-  // Hex diff
-  const diff=useMemo(()=>{if(!f||!f2)return[];const r=[];for(let i=0;i<Math.min(f.data.length,f2.data.length);i++)if(f.data[i]!==f2.data[i])r.push({off:i,a:f.data[i],b:f2.data[i]});return r;},[f,f2]);
-
-  return<div>
-    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
-      <label style={{cursor:'pointer'}}><Card style={{textAlign:'center',padding:18}} onClick={()=>{}}>
-        <div style={{fontSize:28}}>📂</div><div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:4}}>Load GPEC2A File 1</div>
-        {f&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a2,marginTop:4}}>{f.name}</div>}
-        <input type="file" hidden onChange={e=>load(e,1)} accept=".bin,.BIN"/>
-      </Card></label>
-      <label style={{cursor:'pointer'}}><Card style={{textAlign:'center',padding:18}} onClick={()=>{}}>
-        <div style={{fontSize:28}}>📂</div><div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:4}}>Load File 2 (for diff)</div>
-        {f2&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a2,marginTop:4}}>{f2.name}</div>}
-        <input type="file" hidden onChange={e=>load(e,2)} accept=".bin,.BIN"/>
-      </Card></label>
-    </div>
-
-    {f&&f.sec?.t==='gpec2a'&&<>
-      {/* SKIM byte */}
-      <Card glow style={{marginBottom:14}}>
-        <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>⚙️ GPEC2A Analysis</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
-          <div style={{padding:14,borderRadius:12,background:C.c2,border:'1px solid '+C.bd}}>
-            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6}}>SKIM BYTE @ 0x0011</div>
-            <div style={{fontSize:28,fontWeight:900,color:f.sec.on?C.gn:C.wn,fontFamily:"'JetBrains Mono'"}}>{f.sec.on?'ENABLED':'DISABLED'}</div>
-            <div style={{fontSize:10,color:C.tm}}>0x{f.sec.skim.toString(16).toUpperCase().padStart(2,'0')}</div>
-            <div style={{marginTop:8}}><Btn onClick={toggleSkim} color={f.sec.on?C.wn:C.gn} outline>{f.sec.on?'Disable SKIM':'Enable SKIM'}</Btn></div>
-          </div>
-          <div style={{padding:14,borderRadius:12,background:C.c2,border:'1px solid '+C.bd}}>
-            <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6}}>ZZZZ TAMPER @ 0x0C8C</div>
-            <div style={{fontSize:28,fontWeight:900,color:f.sec.zz?C.gn:C.er}}>{f.sec.zz?'INTACT':'TAMPERED'}</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:C.ts,marginTop:4}}>{hxb(f.data.slice(0xC8C,0xC94))}</div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Secret key */}
-      <Card style={{marginBottom:14,padding:16}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔑 Secret Key</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
-          <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
-            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>Primary @ 0x0203 (8B)</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:f.sec.key.every(b=>b===0xFF)?'#D5D0C8':C.a4}}>{hxb(f.sec.key)}</div>
-          </div>
-          <div style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
-            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>Mirror @ 0x0361 (8B)</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:f.sec.mir.every(b=>b===0xFF)?'#D5D0C8':C.a4}}>{hxb(f.sec.mir)}</div>
-          </div>
-        </div>
-        <div style={{marginTop:6,fontSize:10}}><Tag color={f.sec.km?C.gn:C.er}>{f.sec.km?'Primary = Mirror ✓':'MISMATCH'}</Tag></div>
-      </Card>
-
-      {/* Transponder keys */}
-      <Card style={{marginBottom:14,padding:16}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔐 Transponder Keys @ 0x0888</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
-          {f.sec.tr.map((t,i)=>{const blank=t.every(b=>b===0xFF||b===0);return<div key={i} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(blank?C.bd:C.gn+'40'),textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:C.tm}}>KEY {i+1}</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:blank?'#D5D0C8':C.a4,marginTop:4}}>{hxb(t)}</div>
-            <Tag color={blank?C.tm:C.gn}>{blank?'—':'SET'}</Tag>
-          </div>;})}
-        </div>
-      </Card>
-
-      {/* Runtime counters */}
-      <Card style={{marginBottom:14,padding:16}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>📊 Runtime Counters</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
-          {[{n:'Counter 1',o:0xE61},{n:'Counter 2',o:0xE69},{n:'Counter 3',o:0xE6D},{n:'Counter 4',o:0xE75}].map(c=>{
-            const v=(f.data[c.o]<<24|f.data[c.o+1]<<16|f.data[c.o+2]<<8|f.data[c.o+3])>>>0;
-            return<div key={c.o} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
-              <div style={{fontSize:9,color:C.tm}}>{c.n}</div>
-              <div style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:800,color:C.a1,marginTop:2}}>{v.toLocaleString()}</div>
-              <div style={{fontSize:8,color:C.tm}}>0x{c.o.toString(16).toUpperCase()}</div>
-            </div>;})}
-        </div>
-      </Card>
-
-      {/* VINs */}
-      <Card style={{marginBottom:14,padding:16}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:8}}>VINs</div>
-        {f.vins.map((v,i)=><div key={i} style={{fontFamily:"'JetBrains Mono'",fontSize:12,marginBottom:4}}>
-          <span style={{color:C.tm}}>0x{v.off.toString(16).toUpperCase().padStart(4,'0')}: </span>
-          <span style={{fontWeight:800,color:C.a1}}>{v.vin}</span>
-        </div>)}
-      </Card>
-    </>}
-
-    {/* Hex diff */}
-    {f&&f2&&<Card style={{padding:16}}>
-      <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔀 Hex Diff — {diff.length} byte{diff.length!==1?'s':''} different</div>
-      {diff.length===0&&<div style={{fontSize:12,color:C.gn,fontWeight:700}}>✓ Files are identical</div>}
-      {diff.length>0&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,background:C.c2,borderRadius:8,padding:10,maxHeight:260,overflow:'auto',border:'1px solid '+C.bd}}>
-        <div style={{display:'grid',gridTemplateColumns:'70px 1fr 1fr',gap:4,marginBottom:4}}>
-          <span style={{fontWeight:700,color:C.tm}}>Offset</span><span style={{fontWeight:700,color:C.a1}}>File 1</span><span style={{fontWeight:700,color:C.a3}}>File 2</span>
-        </div>
-        {diff.slice(0,200).map((d,i)=><div key={i} style={{display:'grid',gridTemplateColumns:'70px 1fr 1fr',gap:4}}>
-          <span style={{color:C.tm}}>0x{d.off.toString(16).toUpperCase().padStart(4,'0')}</span>
-          <span style={{color:C.a1,fontWeight:700}}>0x{d.a.toString(16).toUpperCase().padStart(2,'0')}</span>
-          <span style={{color:C.a3,fontWeight:700}}>0x{d.b.toString(16).toUpperCase().padStart(2,'0')}</span>
-        </div>)}
-        {diff.length>200&&<div style={{color:C.tm,marginTop:4}}>...and {diff.length-200} more</div>}
-      </div>}
-    </Card>}
-
-    {msg&&<div style={{marginTop:10,padding:'8px 12px',borderRadius:8,background:C.gn+'10',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
-    {!f&&<div style={{textAlign:'center',padding:30,color:C.tm,fontSize:12}}>Load a GPEC2A 4KB .bin file above</div>}
-  </div>;
-}
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * SRT LAB v2 — VEHICLE-FIRST NAVIGATION
