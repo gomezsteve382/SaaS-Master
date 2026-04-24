@@ -410,7 +410,14 @@ export function applyRfhToPcm(rfh, pcm, pcmBuf, opts) {
   if (vin && VIN_RE.test(vin)) {
     const enc = new TextEncoder().encode(vin);
     for (const off of PCM_VIN_OFFSETS) {
-      if (off + 17 > out.length) continue;
+      // Task #446 — surface silent slot drops (pre-#446 a too-small PCM
+      // buffer would skip a canonical VIN slot without telling the UI;
+      // the donor VIN at that slot then survived the patch silently).
+      if (off + 17 > out.length) {
+        log.push('PCM VIN @ 0x' + off.toString(16).toUpperCase().padStart(4, '0')
+               + ' SKIPPED — slot needs 17 B, buffer is only ' + out.length + ' B');
+        continue;
+      }
       for (let i = 0; i < 17; i++) out[off + i] = enc[i];
       log.push('PCM VIN @ 0x' + off.toString(16).toUpperCase().padStart(4, '0') + ' ← ' + vin);
     }
