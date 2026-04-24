@@ -257,7 +257,7 @@ function RFHSection({samplePair, onSamplePairLoaded}) {
 // "Write VIN to 4 slots" UI label.
 const GPEC_VIN_OFFSETS = PCM_VIN_OFFSETS_GPEC2A;
 
-function extractGpecVin(data, off) {
+export function extractGpecVin(data, off) {
   if (off + 17 > data.length) return null;
   let s = "";
   for (let i = 0; i < 17; i++) {
@@ -268,7 +268,7 @@ function extractGpecVin(data, off) {
   return s;
 }
 
-function parseGpec2a(data) {
+export function parseGpec2a(data) {
   const sz = data.length;
   const validSz = sz === 4096;
   const slots = GPEC_VIN_OFFSETS.map((off, idx) => ({
@@ -294,7 +294,7 @@ function parseGpec2a(data) {
   return {sz, validSz, slots, consistent, mainVin, keyPrimary, keyMirror, keyConsistent, skimByte, skimStatus, pcmSec6};
 }
 
-function applyGpec2a(data, newVin, newKeyHex) {
+export function applyGpec2a(data, newVin, newKeyHex) {
   const out = new Uint8Array(data);
   if (newVin && newVin.length === 17) {
     const enc = new TextEncoder().encode(newVin.toUpperCase());
