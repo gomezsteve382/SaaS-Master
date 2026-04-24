@@ -203,17 +203,28 @@ vehicle (anonymized VIN `2C3CDXL90MH582899`).
 
 Before committing any binary in this directory, scrub:
 
-- VIN bytes — replace the captured 17-character VIN everywhere it appears
-  (BCM: 0x5320/0x5340/0x5360/0x5380 full-VIN slots **and** the partial-VIN
-  records at 0x4098 / 0x40B0 — the trailing 8 ASCII chars of the VIN
-  followed by a 2-byte CRC16 each; RFHUB Gen2 VIN slots at
-  0x0EA5/0x0EB9/0x0ECD/0x0EE1 stored byte-reversed; PCM VIN at
-  0x0000/0x01F0/0x0224/0x0CE0 — same four offsets on both 4 KB and 8 KB
-  GPEC2A captures). The replacement VIN must be valid-shaped (17 chars,
-  no I/O/Q) and the writer/parser CRCs must be re-stamped after the swap
-  (for the BCM partial-VIN records the trailing CRC16 at +8/+9 must be
-  recomputed after the 8-char body changes — the existing
-  `crc16(slice(po, po+8))` formula in `parseModule.js`).
+- VIN bytes — replace the captured 17-character VIN everywhere it appears.
+  Module-by-module slot map (these are the **VIN payload** offsets the
+  anonymization sanity test in `realDumps.anonymization.test.js` actually
+  reads — not the EEPROM record-header offsets one tier higher):
+    - **BCM** (Redeye 2020+ layout): VIN payload lives at +8 from each
+      EEPROM record header in the 0x5300..0x5380 base table (32 B
+      stride). Concretely:
+        - Primary BCM (anon `2C3CDXL90MH582899`): VINs at
+          **0x5308 / 0x5328 / 0x5348 / 0x5368** (record headers at
+          0x5300/0x5320/0x5340/0x5360).
+        - Secondary BCM (anon `2C3CDXCT1HH600000`, `extraBcms[0]`):
+          VINs at **0x5328 / 0x5348 / 0x5368 / 0x5388** (record headers
+          at 0x5320/0x5340/0x5360/0x5380).
+      Plus any partial-VIN slots elsewhere in the image. Older legacy
+      layouts can park the VIN at base+0 instead of base+8 — the
+      scanner tries both deltas per base.
+    - **RFHUB** (Gen2 4 KB): VIN slots at 0x0EA5 / 0x0EB9 / 0x0ECD /
+      0x0EE1, stored **byte-reversed**.
+    - **PCM** (GPEC2A): VIN slots at 0x0000 / 0x01F0 / 0x0224 / 0x0CE0
+      — same four offsets on both 4 KB and 8 KB captures.
+  The replacement VIN must be valid-shaped (17 chars, no I/O/Q) and the
+  writer/parser CRCs must be re-stamped after the swap.
 - FOBIK / immobilizer key data outside the SEC16 region under test — these
   vary per vehicle and aren't required for this regression.
 - Part-number ASCII fields if they reveal the donor.
