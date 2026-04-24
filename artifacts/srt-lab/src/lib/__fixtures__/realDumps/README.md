@@ -55,9 +55,27 @@ realDumps/
   // was captured from a different vehicle than the top-level default
   // (e.g. the rfhub/pcm/extraBcms triple lives on a different VIN than
   // the primary BCM pair).
-  "bcm":   { "before": "bcm.before.bin",   "after": "bcm.after.bin"   },
-  "rfhub": { "before": "rfhub.before.bin", "after": "rfhub.after.bin", "rfhSec16Hex": "..." },
-  "pcm":   { "before": "pcm.before.bin",   "after": "pcm.after.bin",   "rfhSec16Hex": "..." },
+  //
+  // Each entry SHOULD also declare its anonymization metadata so the
+  // anonymization sanity test (`realDumps.anonymization.test.js`) can
+  // enforce a per-fixture expected VIN and donor:
+  //   - `anonVin`  : the 17-char anonymized VIN this binary should
+  //                  contain at every documented VIN slot. Required
+  //                  for the per-fixture VIN equality check.
+  //   - `donorVin` : the 17-char original donor VIN that must NOT
+  //                  appear anywhere in this (or any other) binary.
+  //                  Optional — omit only when the original donor is
+  //                  genuinely unknown (e.g. fixture landed already
+  //                  anonymized upstream). The test always enforces
+  //                  the hardcoded baseline forbidden-donor list, so
+  //                  declaring `donorVin` here also extends that list
+  //                  for every other binary in the manifest.
+  "bcm":   { "before": "bcm.before.bin",   "after": "bcm.after.bin",
+             "anonVin": "2C3CDXL90MH582899" /* donorVin omitted: original unknown */ },
+  "rfhub": { "before": "rfhub.before.bin", "after": "rfhub.after.bin",
+             "rfhSec16Hex": "...", "anonVin": "...", "donorVin": "..." },
+  "pcm":   { "before": "pcm.before.bin",   "after": "pcm.after.bin",
+             "rfhSec16Hex": "...", "anonVin": "...", "donorVin": "..." },
 
   // Optional list of additional BCM before/after pairs (different VINs
   // than the primary). Each entry has the same shape as the top-level

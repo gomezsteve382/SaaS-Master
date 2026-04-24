@@ -54,6 +54,17 @@ function loadPair(entry, fallbackSec16) {
       afterPath,
       rfhSec16,
       source: typeof entry.source === 'string' ? entry.source : undefined,
+      // Optional anonymization metadata used by the
+      // `realDumps.anonymization.test.js` sanity scan:
+      //   anonVin  — the 17-char anonymized VIN that should appear at
+      //              every documented VIN slot in this binary.
+      //   donorVin — the 17-char original donor VIN that must NOT
+      //              appear anywhere in this (or any other) binary.
+      // Either may be omitted when not known; the test handles the
+      // omission gracefully (still enforces consistency + the
+      // global hardcoded forbidden-donor list).
+      anonVin:  typeof entry.anonVin  === 'string' && entry.anonVin.length  === 17 ? entry.anonVin  : null,
+      donorVin: typeof entry.donorVin === 'string' && entry.donorVin.length === 17 ? entry.donorVin : null,
     };
   } catch {
     return null;
@@ -64,12 +75,22 @@ function loadPair(entry, fallbackSec16) {
  *   {
  *     rfhSec16: Uint8Array(16),    // top-level default
  *     source: string | undefined,
- *     bcm:   { before, after, beforePath, afterPath, rfhSec16, source? } | null,
- *     rfhub: { before, after, beforePath, afterPath, rfhSec16, source? } | null,
- *     pcm:   { before, after, beforePath, afterPath, rfhSec16, source? } | null,
- *     extraBcms: Array<{ before, after, beforePath, afterPath, rfhSec16, source? }>,
- *     extraPcms: Array<{ before, after, beforePath, afterPath, rfhSec16, source? }>,
+ *     bcm:   PairEntry | null,
+ *     rfhub: PairEntry | null,
+ *     pcm:   PairEntry | null,
+ *     extraBcms: Array<PairEntry>,
+ *     extraPcms: Array<PairEntry>,
  *   }
+ *
+ * where PairEntry =
+ *   { before: Uint8Array,
+ *     after:  Uint8Array,
+ *     beforePath: string,
+ *     afterPath:  string,
+ *     rfhSec16: Uint8Array(16),
+ *     source: string | undefined,
+ *     anonVin:  string|null,   // 17-char anonymized VIN, optional
+ *     donorVin: string|null }  // 17-char original donor VIN, optional
  * or null if the manifest itself is missing / malformed / lacks a usable
  * 16-byte top-level RFH SEC16. Per-pair entries may carry their own
  * `rfhSec16Hex` override (e.g. when the rfhub/pcm/extraBcm/extraPcm pair
