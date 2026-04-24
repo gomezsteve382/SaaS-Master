@@ -32,6 +32,19 @@ import { loadRealDumpFixtures } from '../__fixtures__/realDumps/loader.js';
 //        - every `donorVin` field declared on any manifest entry
 //          (lets a fresh capture self-declare its donor for the
 //          test to enforce).
+//   6. NO forbidden donor VIN's last-6 character serial (the unique
+//      vehicle serial — e.g. `652640` for donor `2C3CDXCT1HH652640`)
+//      appears anywhere in the binary OUTSIDE the documented full-VIN
+//      slot windows. Catches the "scrubbed the WMI/VDS but forgot the
+//      tail" mistake — the surviving 6-char serial is enough to
+//      re-identify the donor when combined with module-type / part
+//      numbers that survive in the rest of the dump (e.g. BCM
+//      partial-VIN slots @ 0x4098 / 0x40B0). The full-VIN slot
+//      windows themselves are masked out because they legitimately
+//      hold the per-fixture anonymized 17-char VIN, whose own tail
+//      could collide with a donor tail if a maintainer ever chose
+//      to reuse the donor's serial as the anonymization stand-in;
+//      slot-internal leaks are already covered by checks (3) & (4).
 //
 // If the manifest or any fixture file is absent the suite skips
 // cleanly, matching the existing skip-instead-of-fail policy used by
@@ -300,6 +313,51 @@ const forbiddenDonorList = Array.from(forbiddenDonors);
                   at,
                   `${label}.${half} (${path}): original donor VIN '${donor}' (byte-reversed) ` +
                     `leaked at offset 0x${at >= 0 ? at.toString(16).toUpperCase().padStart(4, '0') : '????'}`,
+                ).toBe(-1);
+              });
+            }
+
+            // Partial-VIN tail scan — see check #6 in the file header.
+            // We mask the documented full-VIN slot windows (each 17 B
+            // starting at slot.offset) by overwriting them with 0x00 in
+            // a working copy. 0x00 is safe as a sentinel: every
+            // forbidden donor tail is ASCII alphanumeric (looksLikeVin
+            // confines slot bytes to 0x30..0x5A), so the masked region
+            // can never spuriously match a tail. Any remaining hit is a
+            // genuine leak in a non-slot region (e.g. a partial-VIN
+            // record, a part-number field, an audit log).
+            const maskedBuf = new Uint8Array(buf);
+            for (const s of slots) {
+              const end = Math.min(s.offset + 17, maskedBuf.length);
+              for (let i = s.offset; i < end; i++) maskedBuf[i] = 0x00;
+            }
+
+            for (const donor of forbiddenDonorList) {
+              const tailStr = donor.slice(-6);
+              const tailFwd = vinAsBytes(tailStr);
+              const tailRev = reverseBytes(tailFwd);
+
+              it(`donor VIN tail '${tailStr}' (last 6 of '${donor}') does NOT appear forward outside the documented VIN slot windows`, () => {
+                const at = findBytes(maskedBuf, tailFwd);
+                expect(
+                  at,
+                  `${label}.${half} (${path}): donor VIN tail '${tailStr}' (last 6 of donor ` +
+                    `'${donor}') leaked at offset 0x${at >= 0 ? at.toString(16).toUpperCase().padStart(4, '0') : '????'} ` +
+                    `outside the documented full-VIN slot windows. The donor's WMI/VDS appear ` +
+                    `scrubbed but the unique vehicle serial survived — combined with module / ` +
+                    `part numbers in the rest of the dump that's enough to re-identify the donor ` +
+                    `(common offender on BCM dumps: the partial-VIN records at 0x4098 / 0x40B0).`,
+                ).toBe(-1);
+              });
+
+              it(`donor VIN tail '${tailStr}' (last 6 of '${donor}') does NOT appear byte-reversed outside the documented VIN slot windows`, () => {
+                const at = findBytes(maskedBuf, tailRev);
+                expect(
+                  at,
+                  `${label}.${half} (${path}): donor VIN tail '${tailStr}' (last 6 of donor ` +
+                    `'${donor}', byte-reversed) leaked at offset ` +
+                    `0x${at >= 0 ? at.toString(16).toUpperCase().padStart(4, '0') : '????'} ` +
+                    `outside the documented full-VIN slot windows.`,
                 ).toBe(-1);
               });
             }

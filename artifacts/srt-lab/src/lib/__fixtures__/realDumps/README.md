@@ -204,14 +204,28 @@ vehicle (anonymized VIN `2C3CDXL90MH582899`).
 Before committing any binary in this directory, scrub:
 
 - VIN bytes — replace the captured 17-character VIN everywhere it appears
-  (BCM: 0x5320/0x5340/0x5360/0x5380 and partial-VIN slots; RFHUB Gen2 VIN
-  slots at 0x0EA5/0x0EB9/0x0ECD/0x0EE1 stored byte-reversed; PCM VIN at
+  (BCM: 0x5320/0x5340/0x5360/0x5380 full-VIN slots **and** the partial-VIN
+  records at 0x4098 / 0x40B0 — the trailing 8 ASCII chars of the VIN
+  followed by a 2-byte CRC16 each; RFHUB Gen2 VIN slots at
+  0x0EA5/0x0EB9/0x0ECD/0x0EE1 stored byte-reversed; PCM VIN at
   0x0000/0x01F0/0x0224/0x0CE0 — same four offsets on both 4 KB and 8 KB
   GPEC2A captures). The replacement VIN must be valid-shaped (17 chars,
-  no I/O/Q) and the writer/parser CRCs must be re-stamped after the swap.
+  no I/O/Q) and the writer/parser CRCs must be re-stamped after the swap
+  (for the BCM partial-VIN records the trailing CRC16 at +8/+9 must be
+  recomputed after the 8-char body changes — the existing
+  `crc16(slice(po, po+8))` formula in `parseModule.js`).
 - FOBIK / immobilizer key data outside the SEC16 region under test — these
   vary per vehicle and aren't required for this regression.
 - Part-number ASCII fields if they reveal the donor.
+
+Both the full 17-character VIN AND its trailing 6-character serial (the
+unique "vehicle serial" portion — e.g. `652640` in
+`2C3CDXCT1HH652640`) are enforced by `realDumps.anonymization.test.js`:
+the full VIN must not appear anywhere forward or byte-reversed, and the
+trailing 6-character serial must not appear anywhere outside the
+documented full-VIN slot windows. The latter check catches the
+"scrubbed the WMI/VDS but forgot the tail" mistake — see check #6 in
+that test's file header for details.
 
 The 16-byte RFH SEC16 region IS the value under test and stays as captured.
 
