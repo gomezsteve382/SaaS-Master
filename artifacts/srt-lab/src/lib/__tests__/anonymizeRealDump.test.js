@@ -26,11 +26,19 @@ import { loadRealDumpFixtures } from '../__fixtures__/realDumps/loader.js';
 //      longer appears anywhere.
 //   3. Re-anonymize the result back to the original anonVin and
 //      verify every documented VIN slot now reads the original
-//      anonVin again (functional round-trip). NB: byte-for-byte
-//      round-trip is intentionally NOT asserted because some
-//      committed fixtures were hand-anonymized with stale CRCs that
-//      `parseModule` tolerates — the script's correct behavior is to
-//      RE-STAMP those CRCs, which is a one-way fix, not a bug.
+//      anonVin again (functional round-trip).
+//   4. Task #448 — assert BYTE-FOR-BYTE equality between the original
+//      `after.bin` and the result of step 3. This is the only check
+//      that catches a fixture which never went through the helper
+//      at all (e.g. a maintainer hand-edited the full-VIN bytes but
+//      left the trailing CRC16 stale, or skipped the partial-VIN
+//      slots, or — for a future module-type variant — never told the
+//      leak scanner about a new slot the helper has since learned to
+//      cover). The functional round-trip in step 3 only checks the
+//      VIN bytes themselves; the byte-equality check in step 4 also
+//      pins every CRC the helper re-stamps. A failing test points
+//      the maintainer at the exact slot whose CRC differs, with
+//      guidance to re-run the helper on the original capture.
 //
 // If the manifest or any fixture file is absent the suite skips
 // cleanly, matching the same skip-instead-of-fail policy used by the
@@ -159,7 +167,7 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
           }
         });
 
-        it(`functionally round-trips ${label}.after.bin (anon → other → anon restores every slot's VIN)`, () => {
+        it(`byte-for-byte round-trips ${label}.after.bin (anon → other → anon reproduces the file exactly)`, () => {
           const buf = entry.after;
 
           // Step 1: anon → STAND_IN_A
@@ -183,8 +191,7 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
           expect(step2.buffer.length, `${label}: round-trip length`).toBe(buf.length);
 
           // Every documented full-VIN slot reads the original anonVin
-          // again. Byte-for-byte equality is intentionally NOT asserted
-          // — see the suite header for why (stale-CRC fixtures).
+          // again (functional round-trip).
           const slots = scanFullVins(step2.buffer, moduleType);
           expect(slots.length, `${label}: round-trip full-VIN slot count`).toBeGreaterThanOrEqual(4);
           for (const s of slots) {
@@ -192,6 +199,36 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
               s.vin,
               `${label}: full-VIN slot @ 0x${s.offset.toString(16).toUpperCase()} should restore to '${inputAnonVin}'`,
             ).toBe(inputAnonVin);
+          }
+
+          // Task #448 — byte-for-byte equality. This is the check that
+          // catches a fixture whose `after.bin` never went through the
+          // helper (hand-edited VIN bytes leave stale CRCs; skipped
+          // partial-VIN slots leave the donor tail intact; a future
+          // module-type variant might add a new slot the leak scanner
+          // doesn't yet know about). Two passes through `anonymizeBuffer`
+          // re-stamp every documented slot the helper covers; if the
+          // committed file was produced by the helper itself, those
+          // bytes are already canonical and the round-trip is a no-op.
+          // Any mismatch here means the fixture and the helper have
+          // drifted — re-run `node scripts/anonymize-real-dump.mjs` on
+          // the original captured `.bin` and re-commit the result.
+          const diffs = listDiffs(buf, step2.buffer, 5);
+          if (diffs.length > 0) {
+            const fmt = diffs.map(d =>
+              `  off=0x${d.offset.toString(16).toUpperCase().padStart(4, '0')} ` +
+              `committed=0x${d.committed.toString(16).padStart(2, '0')} ` +
+              `helper=0x${d.helper.toString(16).padStart(2, '0')}`,
+            ).join('\n');
+            throw new Error(
+              `${label}: round-trip through anonymizeBuffer changed bytes — ` +
+              `the committed fixture was not produced by the helper.\n` +
+              `First mismatching bytes (helper would re-stamp these):\n${fmt}\n` +
+              `Re-run \`node scripts/anonymize-real-dump.mjs <original-capture>.bin ` +
+              `--module ${moduleType} --donor-vin <donor> --anon-vin ${inputAnonVin}\` ` +
+              `against the ORIGINAL captured dump and re-commit ${label}.after.bin ` +
+              `(and the matching .before.bin if it touches the same offsets).`,
+            );
           }
         });
 
@@ -265,4 +302,17 @@ function indexOfBytes(buf, needle) {
     return i;
   }
   return -1;
+}
+
+// Return up to `cap` byte mismatches between two equal-length buffers, in
+// ascending offset order. Used by the byte-equality round-trip test to
+// surface a focused first-N diff in the failure message — exactly the
+// "exact slot whose CRC differs" pointer Task #448 calls for.
+function listDiffs(a, b, cap) {
+  const out = [];
+  const n = Math.min(a.length, b.length);
+  for (let i = 0; i < n && out.length < cap; i++) {
+    if (a[i] !== b[i]) out.push({ offset: i, committed: a[i], helper: b[i] });
+  }
+  return out;
 }

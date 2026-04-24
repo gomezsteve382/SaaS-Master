@@ -119,8 +119,22 @@ the real ECU sync that produced this dump only populated the SEC16
 records. To make this dump a faithful before/after pair for the writer,
 we neutralize those two writer-target mirror header marker bytes (set
 `+5` from `0x46` to `0x00`) so `findRec` skips them — matching the real
-ECU's actual behavior on this dump. Every other byte in `bcm.after.bin`
-is identical to the captured original.
+ECU's actual behavior on this dump.
+
+Then (Task #448) the buffer is round-tripped through
+`scripts/anonymize-real-dump.mjs` (donor=anonVin → stand-in → donor)
+to normalize the partial-VIN records at `0x4098` / `0x40B0`. The
+upstream sample left the donor's tail (`FH796320`) untouched at those
+offsets even though its full-VIN slots had been scrubbed; the helper
+re-stamps the partial-VIN tail to match the documented `anonVin`
+(`MH582899`) and refreshes the trailing CRC16. Every other byte
+remains identical to the captured original.
+
+**Do not hand-edit this file.** A round-trip through
+`anonymize-real-dump.mjs` is asserted byte-for-byte by
+`anonymizeRealDump.test.js` — any drift between this file and the
+helper's output will fail CI. To re-anonymize, re-run the helper on
+the original captured `.bin` rather than tweaking the bytes by hand.
 
 ### How `bcm.before.bin` is constructed
 
@@ -181,7 +195,12 @@ vehicle (anonymized VIN `2C3CDXL90MH582899`).
   size 0x28) at +8..+31. Headers + separators left intact so the
   writer's matchers fire. Wired through `extraBcms[0]` and asserted by
   the existing `securityBytes.realDump.golden.test.js` suite (closes
-  the second-VIN gap for #420).
+  the second-VIN gap for #420). Both files were also round-tripped
+  through `anonymize-real-dump.mjs` (Task #448) to refresh the
+  trailing CRC16 at four full-VIN slots (0x5328/0x5348/0x5368/0x5388
+  +17/+18) — the original hand-anonymization had left those CRC bytes
+  stale; the helper re-stamps them so the byte-equality round-trip
+  test passes.
 
 - **`pcm8kb.before.bin` / `pcm8kb.after.bin`** — Continental GPEC2A
   (95640, **8 KB**) from
