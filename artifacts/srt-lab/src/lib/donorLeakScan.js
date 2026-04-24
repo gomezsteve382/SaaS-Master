@@ -18,7 +18,26 @@
  *       → array of { kind, offset, length } describing the parser-recognised
  *         VIN slot windows the donor-tail mask should ignore. Used by the
  *         second-pass scan so a legitimate in-slot byte that happens to
- *         match the donor tail does not generate a false positive.
+ *         match the donor tail does not generate a false positive. The
+ *         BCM partial-VIN entry stays at the always-known registered
+ *         offsets (`BCM_PARTIAL_VIN_OFFSETS`) — the helper auto-detects
+ *         additional partial-VIN slots in the buffer it just scrubbed and
+ *         passes that combined list as an explicit `slotWindows` to the
+ *         post-scrub leak scan; the default mask deliberately stays narrow
+ *         so the pre-share UI can still flag a donor-tail leak at a
+ *         non-registered partial-VIN slot in a not-yet-scrubbed buffer.
+ *
+ *   - findBcmPartialVinSlots(buffer)
+ *       → array of { offset, tail, storedCrc, calcCrc, crcOk: true, length: 8 }
+ *         for every position in `buffer` where 8 VIN-character bytes are
+ *         followed by a big-endian CRC16 that matches the bytes. The CRC16
+ *         + tight VIN-character filter make false positives essentially
+ *         impossible (~1/65536 × (33/256)^8 per random position, ≈ 0
+ *         expected hits in a virgin 64 KB BCM). The single source of truth
+ *         for "what looks like a partial-VIN slot" — used by the helper
+ *         (to scrub every detected slot, not just the hard-coded two), the
+ *         parser (to surface variant slots in `info.partialVins`), and the
+ *         leak scanner (to extend the slot-window mask).
  *
  *   - scanBufferForDonorLeak({ buffer, donorVin, moduleType, slotWindows })
  *       → null when no donor leak is detected, or
@@ -32,17 +51,26 @@
  *
  * The slot-windows table here is the single source of truth for both the
  * helper script and the UI. Adding a new documented slot to a parser
- * means updating it here in exactly one place.
+ * means updating it here in exactly one place — for partial-VIN slots,
+ * auto-detection from the buffer means a NEW variant offset doesn't even
+ * need a code change (Task #452).
  * ============================================================================ */
+
+import { crc16 } from './crc.js';
 
 export const VIN_LEN = 17;
 
 // Documented VIN slot offsets per module type. Single source of truth; if a
 // new slot is ever added to the parser/writer, mirror it here so the scrub
 // helper AND the in-app pre-share scanner continue to cover every documented
-// location.
+// location. Note: `BCM_PARTIAL_VIN_OFFSETS` is the always-known fallback list
+// used when a buffer is unavailable (e.g. fixture-builder code) or virgin
+// (so partial slots don't yet carry a valid CRC). Real captures get the
+// auto-detected union via `findBcmPartialVinSlots(buffer)` — adding a brand-
+// new variant offset that already carries a valid CRC needs no edits.
 export const BCM_FULL_VIN_BASES      = [0x5300, 0x5320, 0x5340, 0x5360, 0x5380];
 export const BCM_PARTIAL_VIN_OFFSETS = [0x4098, 0x40B0];
+export const BCM_PARTIAL_VIN_LEN     = 8;
 export const RFH_GEN2_VIN_OFFSETS    = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
 export const PCM_VIN_OFFSETS         = [0x0000, 0x01F0, 0x0224, 0x0CE0];
 // Task #441 — additional families wired through the helper script's
@@ -57,6 +85,17 @@ export const RFH_GEN1_VIN_OFFSET     = 0x92;
 export const EEP95640_VIN_OFFSETS    = [0x275, 0x288, 0x1B82];
 
 export const SUPPORTED_MODULE_TYPES = ['bcm', 'rfhub', 'rfhubg1', 'pcm', '95640'];
+
+// VIN-character set used by the partial-VIN auto-detector: ASCII letters
+// (A-Z) and digits (0-9), with the VIN-illegal letters I, O, Q rejected.
+// Matches the same letter set that `parseModule.extractVIN` accepts and
+// that the `looksLikeVin`/`isValidVinAt` helpers in the anonymizer use.
+function isVinChar(b) {
+  if (b < 0x30 || b > 0x5A) return false;
+  if (b > 0x39 && b < 0x41) return false; // skip 0x3A..0x40 punctuation
+  if (b === 0x49 || b === 0x4F || b === 0x51) return false;
+  return true;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Small byte helpers — local, not pulled from parser code, so this module
@@ -94,7 +133,60 @@ export function fmtOff(n) {
 // Public API
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function getDocumentedSlotWindows(moduleType) {
+// Auto-detect every partial-VIN-shaped record in `buffer`: 8 VIN-character
+// bytes followed by a big-endian CRC16 that matches `crc16(buf[i..i+8])`.
+// The CRC16 + tight VIN-character filter make false positives essentially
+// impossible (the partial-VIN tail is always the last 8 chars of a VIN, all
+// of which are A-Z|0-9 minus I/O/Q). Order is ascending offset.
+//
+// Returns []  if `buffer` is not a Uint8Array or is shorter than the 10-byte
+// slot footprint. Each entry shape mirrors what `parseModule` currently
+// surfaces in `info.partialVins` so the parser can adopt this directly.
+export function findBcmPartialVinSlots(buffer) {
+  const out = [];
+  if (!(buffer instanceof Uint8Array)) return out;
+  const sz = buffer.length;
+  if (sz < BCM_PARTIAL_VIN_LEN + 2) return out;
+
+  let i = 0;
+  while (i + BCM_PARTIAL_VIN_LEN + 2 <= sz) {
+    let ok = true;
+    for (let j = 0; j < BCM_PARTIAL_VIN_LEN; j++) {
+      if (!isVinChar(buffer[i + j])) { ok = false; break; }
+    }
+    if (!ok) { i++; continue; }
+    const stored = (buffer[i + BCM_PARTIAL_VIN_LEN] << 8) | buffer[i + BCM_PARTIAL_VIN_LEN + 1];
+    const calc   = crc16(buffer.slice(i, i + BCM_PARTIAL_VIN_LEN));
+    if (stored !== calc) { i++; continue; }
+    let tail = '';
+    for (let j = 0; j < BCM_PARTIAL_VIN_LEN; j++) tail += String.fromCharCode(buffer[i + j]);
+    out.push({
+      offset:    i,
+      tail,
+      storedCrc: stored,
+      calcCrc:   calc,
+      crcOk:     true,
+      length:    BCM_PARTIAL_VIN_LEN,
+    });
+    // Advance past this slot's payload so we don't re-detect overlapping
+    // shifted matches inside the same record (8 ASCII tail bytes can't
+    // double as both the start of one slot and 1..7 bytes into another
+    // legitimate slot — they are 24 B apart in the documented layout).
+    i += BCM_PARTIAL_VIN_LEN + 2;
+  }
+  return out;
+}
+
+export function getDocumentedSlotWindows(moduleType /* , buffer */) {
+  // NOTE on the unused `buffer` parameter (Task #452): the helper's anonymizer
+  // also auto-detects partial-VIN slots (8 VIN-char bytes + valid CRC16) and
+  // scrubs every one it finds — but it passes its own `result.slots` list as
+  // the explicit `slotWindows` to the post-scrub `scanBufferForDonorLeak`,
+  // so the auto-detected slots are masked there. This default-mask path here
+  // intentionally stays at the always-known registered offsets so the
+  // pre-share UI scanner can still flag a donor-tail leak at a non-registered
+  // partial-VIN slot in a NOT-YET-SCRUBBED user buffer (auto-masking those
+  // would silently hide a real leak the user is asking us to find).
   const mt = String(moduleType || '').toLowerCase();
   const windows = [];
   if (mt === 'bcm') {
@@ -103,7 +195,7 @@ export function getDocumentedSlotWindows(moduleType) {
       windows.push({ kind: 'bcm-full-base+8', offset: base + 8, length: VIN_LEN });
     }
     for (const po of BCM_PARTIAL_VIN_OFFSETS) {
-      windows.push({ kind: 'bcm-partial', offset: po, length: 8 });
+      windows.push({ kind: 'bcm-partial', offset: po, length: BCM_PARTIAL_VIN_LEN });
     }
   } else if (mt === 'rfhub') {
     for (const off of RFH_GEN2_VIN_OFFSETS) {

@@ -86,6 +86,7 @@ import {
   VIN_LEN,
   BCM_FULL_VIN_BASES,
   BCM_PARTIAL_VIN_OFFSETS,
+  BCM_PARTIAL_VIN_LEN,
   RFH_GEN2_VIN_OFFSETS,
   RFH_GEN1_VIN_OFFSET,
   PCM_VIN_OFFSETS,
@@ -93,11 +94,14 @@ import {
   SUPPORTED_MODULE_TYPES,
   vinAsBytes,
   reverseBytes,
+  findBytes,
+  fmtOff,
+  findBcmPartialVinSlots,
   getDocumentedSlotWindows,
   scanBufferForDonorLeak,
 } from '../src/lib/donorLeakScan.js';
 
-export { getDocumentedSlotWindows, scanBufferForDonorLeak };
+export { findBcmPartialVinSlots, getDocumentedSlotWindows, scanBufferForDonorLeak };
 
 // VIN-illegal letters (matches parseModule.extractVIN + the
 // realDumps.anonymization.test.js looksLikeVin classifier).
@@ -183,15 +187,32 @@ function anonymizeBcm(buf, anonBytes) {
   // Partial-VIN records: 8-char trailing serial + CRC16 at +8/+9. THIS is
   // the field Task #436 missed — committed `bcm2.*.bin` had the donor's
   // last-6 serial leaking here even though the full-VIN records had been
-  // scrubbed. Always re-stamped, unconditionally, on every BCM scrub.
+  // scrubbed.
+  //
+  // Task #452 — the rewrite list is the UNION of:
+  //   (a) the always-known registered offsets in `BCM_PARTIAL_VIN_OFFSETS`
+  //       (so a virgin/blank capture, where the slot bytes haven't yet been
+  //       written and therefore can't be auto-detected by CRC, still gets
+  //       stamped to a valid anon tail),
+  //   (b) every partial-VIN-shaped record auto-detected in the buffer
+  //       (8 VIN-character bytes + valid CRC16 at +8/+9). 2020+ Redeye
+  //       BCMs may grow additional partial-VIN slots elsewhere (e.g. a
+  //       cluster-B mirror) — the CRC16 + tight VIN-character filter make
+  //       false positives essentially impossible, so the helper picks
+  //       those up automatically without any code change here.
+  // Every rewrite is recorded in `slots` so the post-scrub leak scan can
+  // mask the bytes that are LEGITIMATELY the anon tail (vs a leftover
+  // donor-tail leak elsewhere in the buffer).
   const tailBytes = anonBytes.slice(9);
-  for (const po of BCM_PARTIAL_VIN_OFFSETS) {
-    if (po + 10 > out.length) continue;
-    for (let i = 0; i < 8; i++) out[po + i] = tailBytes[i];
+  const partialOffsets = new Set(BCM_PARTIAL_VIN_OFFSETS);
+  for (const d of findBcmPartialVinSlots(out)) partialOffsets.add(d.offset);
+  for (const po of [...partialOffsets].sort((a, b) => a - b)) {
+    if (po + BCM_PARTIAL_VIN_LEN + 2 > out.length) continue;
+    for (let i = 0; i < BCM_PARTIAL_VIN_LEN; i++) out[po + i] = tailBytes[i];
     const c = crc16(tailBytes);
-    out[po + 8] = (c >> 8) & 0xFF;
-    out[po + 9] = c & 0xFF;
-    slots.push({ kind: 'bcm-partial', offset: po, length: 8 });
+    out[po + BCM_PARTIAL_VIN_LEN]     = (c >> 8) & 0xFF;
+    out[po + BCM_PARTIAL_VIN_LEN + 1] =  c       & 0xFF;
+    slots.push({ kind: 'bcm-partial', offset: po, length: BCM_PARTIAL_VIN_LEN });
   }
 
   return { buffer: out, slots };

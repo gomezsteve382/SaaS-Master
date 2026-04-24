@@ -1,5 +1,6 @@
 import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs} from './crc.js';
 import {TC,TL,SKIM_VALUES,IMMO_REC,IMMO_KC,IMMO_BLOCK,SKIM_OFF} from './constants.js';
+import {BCM_PARTIAL_VIN_OFFSETS,BCM_PARTIAL_VIN_LEN,findBcmPartialVinSlots} from './donorLeakScan.js';
 
 const fO=n=>"0x"+n.toString(16).toUpperCase().padStart(4,"0");
 
@@ -635,8 +636,32 @@ function parseModule(data,filename,opts){
       if(v8){info.vins.push({offset:base+8,vin:v8,slotBase:base,headerBytes:8,crcOk:false});continue;}
       if(v0){info.vins.push({offset:base,vin:v0,slotBase:base,headerBytes:0,crcOk:false});}
     }
+    // Partial-VIN scan (Task #452): always include the registered offsets in
+    // `BCM_PARTIAL_VIN_OFFSETS` (so a CRC mismatch still surfaces a slot
+    // entry with `crcOk:false`, matching the existing parser/test contract),
+    // then merge in any additional partial-VIN-shaped slot the helper
+    // auto-detects elsewhere in the buffer (8 VIN-character bytes + valid
+    // CRC16 at +8/+9). 2020+ Redeye BCMs may grow extra partial-VIN slots
+    // (cluster-B mirror etc.); the auto-detector picks them up without
+    // any code change here.
     info.partialVins=[];
-    for(const po of BCM_PARTIAL_VIN_OFFSETS){if(po+10>sz)continue;let s='',ok=true;for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}if(ok&&s.length===8){const sc=(data[po+8]<<8)|data[po+9],cc=crc16(data.slice(po,po+8));info.partialVins.push({offset:po,tail:s,storedCrc:sc,calcCrc:cc,crcOk:sc===cc});}}
+    const seenPartialOff=new Set();
+    for(const po of BCM_PARTIAL_VIN_OFFSETS){
+      if(po+BCM_PARTIAL_VIN_LEN+2>sz)continue;
+      let s='',ok=true;
+      for(let j=0;j<BCM_PARTIAL_VIN_LEN;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}
+      if(!ok||s.length!==BCM_PARTIAL_VIN_LEN)continue;
+      const sc=(data[po+BCM_PARTIAL_VIN_LEN]<<8)|data[po+BCM_PARTIAL_VIN_LEN+1];
+      const cc=crc16(data.slice(po,po+BCM_PARTIAL_VIN_LEN));
+      info.partialVins.push({offset:po,tail:s,storedCrc:sc,calcCrc:cc,crcOk:sc===cc});
+      seenPartialOff.add(po);
+    }
+    for(const d of findBcmPartialVinSlots(data)){
+      if(seenPartialOff.has(d.offset))continue;
+      info.partialVins.push({offset:d.offset,tail:d.tail,storedCrc:d.storedCrc,calcCrc:d.calcCrc,crcOk:true});
+      seenPartialOff.add(d.offset);
+    }
+    info.partialVins.sort((a,b)=>a.offset-b.offset);
     /* BCM SEC16 — resolved from split / mirror / flat (Task #380). The legacy
      * flat slice at 0x40C9 holds residual garbage on synced Redeye dumps; the
      * resolver consults the FEE-record table and falls back to the flat slice

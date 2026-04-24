@@ -1,9 +1,15 @@
 import { describe, it, expect } from 'vitest';
 
-import { anonymizeBuffer, SCRUBBERS_BY_TYPE, SUPPORTED_MODULE_TYPES } from '../../../scripts/anonymize-real-dump.mjs';
+import {
+  anonymizeBuffer,
+  SCRUBBERS_BY_TYPE,
+  SUPPORTED_MODULE_TYPES,
+  findBcmPartialVinSlots,
+} from '../../../scripts/anonymize-real-dump.mjs';
 import { loadRealDumpFixtures } from '../__fixtures__/realDumps/loader.js';
 import { parseModule, RFH_GEN1_VIN_OFFSET, EEP95640_VIN_OFFSETS } from '../parseModule.js';
 import { crc16 } from '../crc.js';
+import { BCM_PARTIAL_VIN_OFFSETS, BCM_PARTIAL_VIN_LEN } from '../donorLeakScan.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Task #438 — anonymize-real-dump.mjs sanity tests.
@@ -419,6 +425,112 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
         // accidentally exposes a scrubber as a CLI alias without
         // implementing the actual write path (or vice versa).
         expect(new Set(SUPPORTED_MODULE_TYPES)).toEqual(new Set(Object.keys(SCRUBBERS_BY_TYPE)));
+      });
+    });
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Task #452 — auto-detection: a partial-VIN-shaped slot at a NON-
+    // registered offset (e.g. a 2020+ Redeye cluster-B mirror) must be
+    // scrubbed AND restored by the helper without any code change to the
+    // slot table. The synthetic 64 KB BCM below plants exactly such a
+    // slot and asserts both halves of the contract:
+    //   1. After the first scrub, the donor's tail no longer appears at
+    //      the variant offset (the helper found it on its own).
+    //   2. The byte-for-byte round-trip restores the original buffer
+    //      (including the variant slot's CRC), which is the round-trip
+    //      check the task acceptance criterion calls for.
+    // ─────────────────────────────────────────────────────────────────────
+    describe('Task #452 auto-detection of non-registered partial-VIN slots', () => {
+      const VARIANT_OFF = 0x4200; // outside BCM_PARTIAL_VIN_OFFSETS
+
+      function buildSyntheticBcm(donorVin) {
+        // 64 KB BCM EEPROM: 0xFF baseline, donor VIN at every documented
+        // full-VIN base+8 slot (with CRC), donor's last 8 chars at both
+        // registered partial-VIN offsets AND at VARIANT_OFF (with CRC).
+        const buf = new Uint8Array(0x10000).fill(0xFF);
+        const vinBytes = new TextEncoder().encode(donorVin);
+        for (const base of [0x5300, 0x5320, 0x5340, 0x5360, 0x5380]) {
+          const off = base + 8;
+          for (let i = 0; i < 17; i++) buf[off + i] = vinBytes[i];
+          const c = crc16(buf.slice(off, off + 17));
+          buf[off + 17] = (c >> 8) & 0xFF;
+          buf[off + 18] =  c       & 0xFF;
+        }
+        const tail = vinBytes.slice(9);
+        const stamp = (po) => {
+          for (let i = 0; i < BCM_PARTIAL_VIN_LEN; i++) buf[po + i] = tail[i];
+          const c = crc16(tail);
+          buf[po + BCM_PARTIAL_VIN_LEN]     = (c >> 8) & 0xFF;
+          buf[po + BCM_PARTIAL_VIN_LEN + 1] =  c       & 0xFF;
+        };
+        for (const po of BCM_PARTIAL_VIN_OFFSETS) stamp(po);
+        stamp(VARIANT_OFF);
+        return buf;
+      }
+
+      const DONOR_VIN = '2C3CDXKT3FH796320';
+
+      it('helper auto-detects + scrubs a partial-VIN slot at a non-registered offset', () => {
+        expect(BCM_PARTIAL_VIN_OFFSETS.includes(VARIANT_OFF)).toBe(false);
+        const buf = buildSyntheticBcm(DONOR_VIN);
+
+        // Sanity: the helper sees the variant slot before the scrub.
+        const preDetected = findBcmPartialVinSlots(buf).map(d => d.offset);
+        expect(preDetected).toContain(VARIANT_OFF);
+
+        const result = anonymizeBuffer({
+          buffer: buf,
+          moduleType: 'bcm',
+          donorVin: DONOR_VIN,
+          anonVin:  STAND_IN_A,
+        });
+
+        // The helper must report the variant slot in its own slots[] list.
+        const scrubbedOffsets = result.slots
+          .filter(s => s.kind === 'bcm-partial')
+          .map(s => s.offset);
+        expect(scrubbedOffsets).toContain(VARIANT_OFF);
+
+        // The donor's tail bytes at VARIANT_OFF must now be the anon's tail.
+        const newTail = decodeAscii(result.buffer.slice(VARIANT_OFF, VARIANT_OFF + BCM_PARTIAL_VIN_LEN));
+        expect(newTail).toBe(STAND_IN_A.slice(-BCM_PARTIAL_VIN_LEN));
+
+        // And the helper's own post-scrub leak guard already throws if the
+        // donor's last-6 survived anywhere — getting here means it didn't.
+      });
+
+      it('byte-for-byte round-trip restores the variant slot (would fail if helper missed it)', () => {
+        const buf = buildSyntheticBcm(DONOR_VIN);
+
+        // Step 1: DONOR → STAND_IN_A. Auto-detection rewrites VARIANT_OFF.
+        const step1 = anonymizeBuffer({
+          buffer: buf,
+          moduleType: 'bcm',
+          donorVin: DONOR_VIN,
+          anonVin:  STAND_IN_A,
+        });
+        // Step 2: STAND_IN_A → DONOR. Auto-detection rewrites VARIANT_OFF
+        // again (the slot now holds STAND_IN_A's tail with valid CRC, so
+        // the detector picks it up), restoring the original bytes.
+        const step2 = anonymizeBuffer({
+          buffer: step1.buffer,
+          moduleType: 'bcm',
+          donorVin: STAND_IN_A,
+          anonVin:  DONOR_VIN,
+        });
+
+        expect(step2.buffer.length).toBe(buf.length);
+        for (let i = 0; i < buf.length; i++) {
+          if (buf[i] !== step2.buffer[i]) {
+            throw new Error(
+              `byte mismatch at 0x${i.toString(16).toUpperCase().padStart(4, '0')}: ` +
+              `original=0x${buf[i].toString(16).padStart(2, '0')} ` +
+              `round-trip=0x${step2.buffer[i].toString(16).padStart(2, '0')} — ` +
+              `auto-detection of the non-registered partial-VIN slot at ` +
+              `0x${VARIANT_OFF.toString(16).toUpperCase()} regressed.`,
+            );
+          }
+        }
       });
     });
 

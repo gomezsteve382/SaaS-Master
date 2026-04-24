@@ -3,17 +3,21 @@ import { describe, it, expect } from 'vitest';
 import {
   getDocumentedSlotWindows,
   scanBufferForDonorLeak,
+  findBcmPartialVinSlots,
   BCM_FULL_VIN_BASES,
   BCM_PARTIAL_VIN_OFFSETS,
+  BCM_PARTIAL_VIN_LEN,
   RFH_GEN2_VIN_OFFSETS,
   PCM_VIN_OFFSETS,
   vinAsBytes,
   reverseBytes,
   VIN_LEN,
 } from '../donorLeakScan.js';
+import { crc16 } from '../crc.js';
 import {
   scanBufferForDonorLeak as scanFromScript,
   getDocumentedSlotWindows as windowsFromScript,
+  findBcmPartialVinSlots as findFromScript,
 } from '../../../scripts/anonymize-real-dump.mjs';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -43,6 +47,81 @@ describe('donorLeakScan — module/script parity', () => {
   it('script re-exports the same callable references as this module', () => {
     expect(scanFromScript).toBe(scanBufferForDonorLeak);
     expect(windowsFromScript).toBe(getDocumentedSlotWindows);
+    expect(findFromScript).toBe(findBcmPartialVinSlots);
+  });
+});
+
+describe('donorLeakScan — findBcmPartialVinSlots (Task #452 auto-detection)', () => {
+  function plantPartialVinSlot(buf, off, tail8) {
+    const bytes = vinAsBytes(tail8);
+    for (let i = 0; i < BCM_PARTIAL_VIN_LEN; i++) buf[off + i] = bytes[i];
+    const c = crc16(bytes);
+    buf[off + BCM_PARTIAL_VIN_LEN]     = (c >> 8) & 0xFF;
+    buf[off + BCM_PARTIAL_VIN_LEN + 1] =  c       & 0xFF;
+  }
+
+  it('returns [] for non-Uint8Array or too-short buffers', () => {
+    expect(findBcmPartialVinSlots(null)).toEqual([]);
+    expect(findBcmPartialVinSlots('not-a-buffer')).toEqual([]);
+    expect(findBcmPartialVinSlots(new Uint8Array(8))).toEqual([]);
+  });
+
+  it('finds the two registered partial-VIN slots when they carry valid CRCs', () => {
+    const buf = new Uint8Array(0x10000).fill(0xFF);
+    for (const po of BCM_PARTIAL_VIN_OFFSETS) plantPartialVinSlot(buf, po, 'AB123456');
+
+    const hits = findBcmPartialVinSlots(buf);
+    const offs = hits.map(h => h.offset).sort((a, b) => a - b);
+    expect(offs).toEqual([...BCM_PARTIAL_VIN_OFFSETS].sort((a, b) => a - b));
+    for (const h of hits) {
+      expect(h.tail).toBe('AB123456');
+      expect(h.crcOk).toBe(true);
+      expect(h.length).toBe(BCM_PARTIAL_VIN_LEN);
+      expect(h.calcCrc).toBe(h.storedCrc);
+    }
+  });
+
+  it('auto-detects a partial-VIN slot at a NON-registered offset (e.g. cluster-B mirror)', () => {
+    const buf = new Uint8Array(0x10000).fill(0xFF);
+    // A plausible "future variant" offset well outside 0x4098 / 0x40B0.
+    const variantOff = 0x4200;
+    expect(BCM_PARTIAL_VIN_OFFSETS.includes(variantOff)).toBe(false);
+    plantPartialVinSlot(buf, variantOff, 'XY987654');
+
+    const hits = findBcmPartialVinSlots(buf);
+    const found = hits.find(h => h.offset === variantOff);
+    expect(found).toBeDefined();
+    expect(found.tail).toBe('XY987654');
+    expect(found.crcOk).toBe(true);
+  });
+
+  it('rejects 8 ASCII bytes whose trailing CRC16 does not match (no false positive)', () => {
+    const buf = new Uint8Array(0x10000).fill(0xFF);
+    const bytes = vinAsBytes('AB123456');
+    // Plant the tail but a STALE CRC (wrong checksum).
+    for (let i = 0; i < BCM_PARTIAL_VIN_LEN; i++) buf[0x4200 + i] = bytes[i];
+    buf[0x4208] = 0x00;
+    buf[0x4209] = 0x01;
+
+    const hits = findBcmPartialVinSlots(buf);
+    expect(hits.find(h => h.offset === 0x4200)).toBeUndefined();
+  });
+
+  it('rejects 8-byte runs that contain VIN-illegal letters I/O/Q', () => {
+    const buf = new Uint8Array(0x10000).fill(0xFF);
+    // Plant a run that contains 'O' — must not register even with a matching CRC.
+    const bytes = vinAsBytes('ABCOEFGH');
+    for (let i = 0; i < BCM_PARTIAL_VIN_LEN; i++) buf[0x4200 + i] = bytes[i];
+    const c = crc16(bytes);
+    buf[0x4208] = (c >> 8) & 0xFF;
+    buf[0x4209] =  c       & 0xFF;
+
+    const hits = findBcmPartialVinSlots(buf);
+    expect(hits.find(h => h.offset === 0x4200)).toBeUndefined();
+  });
+
+  it('returns [] on a virgin all-0xFF buffer (no false positives)', () => {
+    expect(findBcmPartialVinSlots(new Uint8Array(0x10000).fill(0xFF))).toEqual([]);
   });
 });
 
