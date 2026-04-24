@@ -243,11 +243,133 @@ function anonymizePcm(buf, anonBytes) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Public API: anonymizeBuffer(opts) → { buffer, slots, magic? }
+// Public API
 //
-// Throws Error on any validation or post-scrub leak. Callers that want a
-// non-throwing variant can wrap in try/catch — the CLI does exactly that.
+// `anonymizeBuffer(opts)` runs the full scrub-then-scan pipeline; throws
+// on validation or post-scrub leak. The CLI wraps it in try/catch.
+//
+// `scanBufferForDonorLeak(opts)` is the leak scanner alone — extracted so
+// `realDumps.helperLeakScan.test.js` can drive the same code against every
+// committed `after.bin` in the fixture manifest. Returns null when clean,
+// or `{ kind, offset, donorVin, message, ... }` describing the first leak
+// found. This guarantees the test and the helper script cannot drift —
+// any improvement to the scanner here is automatically picked up by CI.
+//
+// `getDocumentedSlotWindows(moduleType)` returns the documented VIN slot
+// windows used to mask the buffer before the donor-tail scan. For BCM,
+// the full-VIN windows include BOTH the legacy (base+0) and Redeye 2020+
+// (base+8) layouts so the mask is a safe superset regardless of which
+// layout a captured dump uses; the partial-VIN windows are also included.
 // ─────────────────────────────────────────────────────────────────────────────
+
+export function getDocumentedSlotWindows(moduleType) {
+  const mt = String(moduleType || '').toLowerCase();
+  const windows = [];
+  if (mt === 'bcm') {
+    for (const base of BCM_FULL_VIN_BASES) {
+      windows.push({ kind: 'bcm-full-base+0', offset: base,     length: VIN_LEN });
+      windows.push({ kind: 'bcm-full-base+8', offset: base + 8, length: VIN_LEN });
+    }
+    for (const po of BCM_PARTIAL_VIN_OFFSETS) {
+      windows.push({ kind: 'bcm-partial', offset: po, length: 8 });
+    }
+  } else if (mt === 'rfhub') {
+    for (const off of RFH_GEN2_VIN_OFFSETS) {
+      windows.push({ kind: 'rfh-rev-vin', offset: off, length: VIN_LEN });
+    }
+  } else if (mt === 'pcm') {
+    for (const off of PCM_VIN_OFFSETS) {
+      windows.push({ kind: 'pcm-full', offset: off, length: VIN_LEN });
+    }
+  } else {
+    throw new Error(`unsupported module type '${moduleType}' (expected one of: ${SUPPORTED_MODULE_TYPES.join(', ')})`);
+  }
+  return windows;
+}
+
+export function scanBufferForDonorLeak({ buffer, donorVin, moduleType, slotWindows }) {
+  if (!(buffer instanceof Uint8Array)) {
+    throw new Error('buffer must be a Uint8Array');
+  }
+  if (typeof donorVin !== 'string' || donorVin.length !== VIN_LEN) {
+    throw new Error(`donorVin must be a 17-character string (got ${donorVin == null ? 'null' : `'${donorVin}' (${donorVin.length} chars)`})`);
+  }
+  const donorUpper = donorVin.toUpperCase();
+  const windows = Array.isArray(slotWindows)
+    ? slotWindows
+    : getDocumentedSlotWindows(moduleType);
+
+  // 1. Donor VIN must not appear forward or byte-reversed anywhere.
+  const donorFwd = vinAsBytes(donorUpper);
+  const donorRev = reverseBytes(donorFwd);
+  const fwdAt = findBytes(buffer, donorFwd);
+  if (fwdAt !== -1) {
+    return {
+      kind: 'donor-vin-forward',
+      offset: fwdAt,
+      donorVin: donorUpper,
+      message:
+        `donor VIN '${donorUpper}' still appears forward at offset ${fmtOff(fwdAt)}. ` +
+        `The scrubber doesn't know about a VIN slot at that location — please scrub manually and ` +
+        `consider extending the slot table in this script.`,
+    };
+  }
+  const revAt = findBytes(buffer, donorRev);
+  if (revAt !== -1) {
+    return {
+      kind: 'donor-vin-reversed',
+      offset: revAt,
+      donorVin: donorUpper,
+      message:
+        `donor VIN '${donorUpper}' still appears byte-reversed at offset ${fmtOff(revAt)}. ` +
+        `The scrubber doesn't know about a reversed-VIN slot at that location — please scrub manually.`,
+    };
+  }
+
+  // 2. Donor's last-6 serial must not appear outside the documented slot
+  //    windows. Mask the windows we know about so legitimate in-slot bytes
+  //    (which may contain an anon VIN whose own tail might collide with
+  //    the donor's tail in a worst case) cannot generate false positives.
+  //    Sentinel 0x00 is safe here: every donor tail is ASCII alphanumeric
+  //    (0x30..0x5A), so the masked region cannot spuriously match a tail.
+  const masked = new Uint8Array(buffer);
+  for (const s of windows) {
+    const end = Math.min(s.offset + s.length, masked.length);
+    for (let i = s.offset; i < end; i++) masked[i] = 0x00;
+  }
+  const tail = donorUpper.slice(-6);
+  const tailFwd = vinAsBytes(tail);
+  const tailRev = reverseBytes(tailFwd);
+  const tFwdAt = findBytes(masked, tailFwd);
+  if (tFwdAt !== -1) {
+    return {
+      kind: 'donor-tail-forward',
+      offset: tFwdAt,
+      donorVin: donorUpper,
+      tail,
+      message:
+        `donor VIN tail '${tail}' (last 6 of '${donorUpper}') survived at offset ` +
+        `${fmtOff(tFwdAt)} OUTSIDE the documented VIN slot windows. Common offender on BCM dumps: ` +
+        `the partial-VIN records at 0x4098 / 0x40B0 — but if those were scrubbed and this still ` +
+        `fires, the donor's serial is leaking from a part-number / audit field this scrubber ` +
+        `doesn't yet know about. Hand-scrub that location and re-run.`,
+    };
+  }
+  const tRevAt = findBytes(masked, tailRev);
+  if (tRevAt !== -1) {
+    return {
+      kind: 'donor-tail-reversed',
+      offset: tRevAt,
+      donorVin: donorUpper,
+      tail,
+      message:
+        `donor VIN tail '${tail}' (byte-reversed) survived at offset ` +
+        `${fmtOff(tRevAt)} OUTSIDE the documented VIN slot windows.`,
+    };
+  }
+
+  return null;
+}
 
 export function anonymizeBuffer({ buffer, moduleType, donorVin, anonVin }) {
   if (!(buffer instanceof Uint8Array)) {
@@ -288,55 +410,20 @@ export function anonymizeBuffer({ buffer, moduleType, donorVin, anonVin }) {
   else                result = anonymizePcm(buffer, anonBytes);
 
   // ── Post-scrub sanity scan ────────────────────────────────────────────
-  // 1. Donor VIN must not appear forward or byte-reversed anywhere.
-  const donorFwd = vinAsBytes(donorUpper);
-  const donorRev = reverseBytes(donorFwd);
-  const fwdAt = findBytes(result.buffer, donorFwd);
-  if (fwdAt !== -1) {
-    throw new Error(
-      `post-scrub leak: donor VIN '${donorUpper}' still appears forward at offset ${fmtOff(fwdAt)}. ` +
-      `The scrubber doesn't know about a VIN slot at that location — please scrub manually and ` +
-      `consider extending the slot table in this script.`,
-    );
-  }
-  const revAt = findBytes(result.buffer, donorRev);
-  if (revAt !== -1) {
-    throw new Error(
-      `post-scrub leak: donor VIN '${donorUpper}' still appears byte-reversed at offset ${fmtOff(revAt)}. ` +
-      `The scrubber doesn't know about a reversed-VIN slot at that location — please scrub manually.`,
-    );
-  }
-
-  // 2. Donor's last-6 serial must not appear outside the documented slot
-  //    windows. Mask the windows we wrote so legitimate in-slot bytes
-  //    (which may contain the anon VIN's own tail) do not generate false
-  //    positives. Sentinel 0x00 is safe here: every donor tail is ASCII
-  //    alphanumeric (0x30..0x5A), so the masked region cannot spuriously
-  //    match a tail byte.
-  const masked = new Uint8Array(result.buffer);
-  for (const s of result.slots) {
-    const end = Math.min(s.offset + s.length, masked.length);
-    for (let i = s.offset; i < end; i++) masked[i] = 0x00;
-  }
-  const tail = donorUpper.slice(-6);
-  const tailFwd = vinAsBytes(tail);
-  const tailRev = reverseBytes(tailFwd);
-  const tFwdAt = findBytes(masked, tailFwd);
-  if (tFwdAt !== -1) {
-    throw new Error(
-      `post-scrub leak: donor VIN tail '${tail}' (last 6 of '${donorUpper}') survived at offset ` +
-      `${fmtOff(tFwdAt)} OUTSIDE the documented VIN slot windows. Common offender on BCM dumps: ` +
-      `the partial-VIN records at 0x4098 / 0x40B0 — but if those were scrubbed and this still ` +
-      `fires, the donor's serial is leaking from a part-number / audit field this scrubber ` +
-      `doesn't yet know about. Hand-scrub that location and re-run.`,
-    );
-  }
-  const tRevAt = findBytes(masked, tailRev);
-  if (tRevAt !== -1) {
-    throw new Error(
-      `post-scrub leak: donor VIN tail '${tail}' (byte-reversed) survived at offset ` +
-      `${fmtOff(tRevAt)} OUTSIDE the documented VIN slot windows.`,
-    );
+  // Delegate to the same `scanBufferForDonorLeak` exported function the
+  // CI test in `realDumps.helperLeakScan.test.js` calls — keeps the two
+  // call sites guaranteed to use the same scanner. We pass the actual
+  // slots that were just rewritten as `slotWindows` so the donor-tail
+  // masking is precise (tighter than the documented-window default,
+  // since here we know exactly which BCM full-VIN layout — base+0 vs
+  // base+8 — was used at each base).
+  const leak = scanBufferForDonorLeak({
+    buffer: result.buffer,
+    donorVin: donorUpper,
+    slotWindows: result.slots,
+  });
+  if (leak !== null) {
+    throw new Error(`post-scrub leak: ${leak.message}`);
   }
 
   return result;
