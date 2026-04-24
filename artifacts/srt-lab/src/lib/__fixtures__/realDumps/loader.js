@@ -75,9 +75,10 @@ function loadPair(entry, fallbackSec16) {
  *   {
  *     rfhSec16: Uint8Array(16),    // top-level default
  *     source: string | undefined,
- *     bcm:   PairEntry | null,
- *     rfhub: PairEntry | null,
- *     pcm:   PairEntry | null,
+ *     bcm:     PairEntry | null,
+ *     rfhub:   PairEntry | null,
+ *     rfhubg1: PairEntry | null,   // Task #449 — Gen1 24C16 (2 KB) RFHUB pair
+ *     pcm:     PairEntry | null,
  *     extraBcms: Array<PairEntry>,
  *     extraPcms: Array<PairEntry>,
  *   }
@@ -113,9 +114,10 @@ export function loadRealDumpFixtures() {
   return {
     rfhSec16,
     source: typeof manifest.source === 'string' ? manifest.source : undefined,
-    bcm:   loadPair(manifest.bcm,   rfhSec16),
-    rfhub: loadPair(manifest.rfhub, rfhSec16),
-    pcm:   loadPair(manifest.pcm,   rfhSec16),
+    bcm:     loadPair(manifest.bcm,     rfhSec16),
+    rfhub:   loadPair(manifest.rfhub,   rfhSec16),
+    rfhubg1: loadPair(manifest.rfhubg1, rfhSec16),
+    pcm:     loadPair(manifest.pcm,     rfhSec16),
     extraBcms,
     extraPcms,
   };

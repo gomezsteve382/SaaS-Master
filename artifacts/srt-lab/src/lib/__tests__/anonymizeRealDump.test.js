@@ -84,6 +84,13 @@ function scanFullVins(buf, moduleType) {
       const slice = reverseUint8(buf.slice(off, off + 17));
       if (looksLikeVinBytes(slice)) out.push({ offset: off, vin: decodeAscii(slice), reversed: true });
     }
+  } else if (moduleType === 'rfhubg1') {
+    // Gen1 (24C16, 2 KB) carries a single plain-VIN slot at 0x92.
+    const off = RFH_GEN1_VIN_OFFSET;
+    if (off + 17 <= buf.length) {
+      const slice = buf.slice(off, off + 17);
+      if (looksLikeVinBytes(slice)) out.push({ offset: off, vin: decodeAscii(slice) });
+    }
   } else if (moduleType === 'pcm') {
     for (const off of [0x0000, 0x01F0, 0x0224, 0x0CE0]) {
       if (off + 17 > buf.length) continue;
@@ -104,9 +111,10 @@ const fixtures = loadRealDumpFixtures();
 
 const targets = [];
 if (fixtures !== null) {
-  if (fixtures.bcm)   targets.push({ label: 'bcm',   moduleType: 'bcm',   entry: fixtures.bcm });
-  if (fixtures.rfhub) targets.push({ label: 'rfhub', moduleType: 'rfhub', entry: fixtures.rfhub });
-  if (fixtures.pcm)   targets.push({ label: 'pcm',   moduleType: 'pcm',   entry: fixtures.pcm });
+  if (fixtures.bcm)     targets.push({ label: 'bcm',     moduleType: 'bcm',     entry: fixtures.bcm });
+  if (fixtures.rfhub)   targets.push({ label: 'rfhub',   moduleType: 'rfhub',   entry: fixtures.rfhub });
+  if (fixtures.rfhubg1) targets.push({ label: 'rfhubg1', moduleType: 'rfhubg1', entry: fixtures.rfhubg1 });
+  if (fixtures.pcm)     targets.push({ label: 'pcm',     moduleType: 'pcm',     entry: fixtures.pcm });
   if (Array.isArray(fixtures.extraBcms)) {
     fixtures.extraBcms.forEach((entry, i) => {
       targets.push({ label: `extraBcms[${i}]`, moduleType: 'bcm', entry });
@@ -119,7 +127,7 @@ if (fixtures !== null) {
   }
 }
 
-const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
+const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, rfhubg1: 1, pcm: 4 };
 
 (targets.length > 0 ? describe : describe.skip)(
   'anonymize-real-dump.mjs',
@@ -165,8 +173,11 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
           // Every documented full-VIN slot should now read STAND_IN_A.
           // (BCM partial-VIN records are tail-only and covered separately
           // by the script's own post-scrub donor-tail guard.)
+          // Per-module floor: BCM/RFHUB Gen2/PCM each carry 4 full-VIN
+          // slots; RFHUB Gen1 (24C16) only carries the single 0x92 slot.
+          const minFullVinSlots = moduleType === 'rfhubg1' ? 1 : 4;
           const slots = scanFullVins(result.buffer, moduleType);
-          expect(slots.length, `${label}: post-scrub full-VIN slot count`).toBeGreaterThanOrEqual(4);
+          expect(slots.length, `${label}: post-scrub full-VIN slot count`).toBeGreaterThanOrEqual(minFullVinSlots);
           for (const s of slots) {
             expect(
               s.vin,
@@ -199,9 +210,12 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
           expect(step2.buffer.length, `${label}: round-trip length`).toBe(buf.length);
 
           // Every documented full-VIN slot reads the original anonVin
-          // again (functional round-trip).
+          // again (functional round-trip). Per-module floor: BCM/RFHUB
+          // Gen2/PCM each carry 4 full-VIN slots; RFHUB Gen1 (24C16)
+          // only carries the single 0x92 slot.
+          const minFullVinSlots = moduleType === 'rfhubg1' ? 1 : 4;
           const slots = scanFullVins(step2.buffer, moduleType);
-          expect(slots.length, `${label}: round-trip full-VIN slot count`).toBeGreaterThanOrEqual(4);
+          expect(slots.length, `${label}: round-trip full-VIN slot count`).toBeGreaterThanOrEqual(minFullVinSlots);
           for (const s of slots) {
             expect(
               s.vin,
@@ -303,8 +317,14 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
         return buf;
       }
 
+      // Task #449 — rfhubg1 graduated out of this synthetic round-trip
+      // iteration once `__fixtures__/realDumps/rfhubg1.{before,after}.bin`
+      // landed; it's now covered by the per-fixture loop above against an
+      // actual 2 KB image. The parseModule cross-check below stays — the
+      // real-fixture loop never calls parseModule, so the synthetic test
+      // is the cheapest way to keep proving parseModule classifies a 2 KB
+      // rfh buffer as RFHUB and surfaces the scrubbed 0x92 VIN.
       const synthetics = [
-        { label: 'rfhubg1', moduleType: 'rfhubg1', minSlots: 1, build: buildSyntheticRfhubGen1, scan: scanGen1Vin },
         { label: '95640',   moduleType: '95640',   minSlots: 3, build: buildSynthetic95640,   scan: scan95640Vins },
       ];
 
@@ -407,7 +427,10 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
     // header for the rationale.
     describe('coverage completeness', () => {
       const realFixtureFamilies = new Set(targets.map(t => t.moduleType));
-      const syntheticFamilies = new Set(['rfhubg1', '95640']);
+      // Task #449 — rfhubg1 graduated into the per-fixture loop, so the
+      // synthetic-only set is now just '95640' (the BCM-backup EEPROM
+      // family that doesn't yet have a committed real-bench dump).
+      const syntheticFamilies = new Set(['95640']);
       const covered = new Set([...realFixtureFamilies, ...syntheticFamilies]);
 
       for (const mt of Object.keys(SCRUBBERS_BY_TYPE)) {
@@ -574,17 +597,11 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
   },
 );
 
-// Synthetic-fixture VIN scanners — local, narrow analogs of scanFullVins
-// that read the single-slot Gen1 layout and the 3-slot 95640 layout.
-// Kept inline (rather than imported) to catch drift between the script's
-// slot table and the test's expectations.
-function scanGen1Vin(buf) {
-  const off = RFH_GEN1_VIN_OFFSET;
-  if (off + 17 > buf.length) return [];
-  const slice = buf.slice(off, off + 17);
-  if (!looksLikeVinBytes(slice)) return [];
-  return [{ offset: off, vin: decodeAscii(slice) }];
-}
+// Synthetic-fixture VIN scanner — local, narrow analog of scanFullVins
+// that reads the 3-slot 95640 layout. Kept inline (rather than imported)
+// to catch drift between the script's slot table and the test's
+// expectations. (Task #449 — the Gen1 analog `scanGen1Vin` was retired
+// when rfhubg1 graduated into the per-fixture loop above.)
 function scan95640Vins(buf) {
   const out = [];
   for (const off of EEP95640_VIN_OFFSETS) {

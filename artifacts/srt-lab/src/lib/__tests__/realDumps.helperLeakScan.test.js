@@ -49,9 +49,10 @@ const fixtures = loadRealDumpFixtures();
 
 const targets = [];
 if (fixtures !== null) {
-  if (fixtures.bcm)   targets.push({ label: 'bcm',   moduleType: 'bcm',   entry: fixtures.bcm });
-  if (fixtures.rfhub) targets.push({ label: 'rfhub', moduleType: 'rfhub', entry: fixtures.rfhub });
-  if (fixtures.pcm)   targets.push({ label: 'pcm',   moduleType: 'pcm',   entry: fixtures.pcm });
+  if (fixtures.bcm)     targets.push({ label: 'bcm',     moduleType: 'bcm',     entry: fixtures.bcm });
+  if (fixtures.rfhub)   targets.push({ label: 'rfhub',   moduleType: 'rfhub',   entry: fixtures.rfhub });
+  if (fixtures.rfhubg1) targets.push({ label: 'rfhubg1', moduleType: 'rfhubg1', entry: fixtures.rfhubg1 });
+  if (fixtures.pcm)     targets.push({ label: 'pcm',     moduleType: 'pcm',     entry: fixtures.pcm });
   if (Array.isArray(fixtures.extraBcms)) {
     fixtures.extraBcms.forEach((entry, i) => {
       targets.push({ label: `extraBcms[${i}]`, moduleType: 'bcm', entry });

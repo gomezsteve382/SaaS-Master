@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 import { loadRealDumpFixtures } from '../__fixtures__/realDumps/loader.js';
-import { PCM_VIN_OFFSETS_GPEC2A } from '../parseModule.js';
+import { PCM_VIN_OFFSETS_GPEC2A, RFH_GEN1_VIN_OFFSET } from '../parseModule.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Task #434 — anonymization sanity scan for every committed real-dump fixture.
@@ -124,7 +124,9 @@ function findBytes(buf, needle) {
 // the scanner doesn't yet know about. Either case warrants attention.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const MIN_SLOTS = { bcm: 4, rfhub: 4, pcm: 4 };
+// Task #449 — rfhubg1 (24C16, 2 KB Yazaki FCM EEPROM) carries a single
+// plain-VIN slot at 0x92, so its floor is 1 (everything else carries 4).
+const MIN_SLOTS = { bcm: 4, rfhub: 4, rfhubg1: 1, pcm: 4 };
 
 const MODULE_SCANNERS = {
   // BCM: EEPROM VIN-record bases at 0x5300..0x5380 (32 B apart). The VIN
@@ -162,6 +164,16 @@ const MODULE_SCANNERS = {
     return slots;
   },
 
+  // RFHUB Gen1 (24C16, 2 KB Yazaki FCM EEPROM): a single plain-VIN slot
+  // at 0x92 — no Gen2-style 0xEA5+ table. Mirrors `RFH_GEN1_VIN_OFFSET`
+  // in parseModule.js so a future layout change there fails this test.
+  rfhubg1(buf) {
+    const off = RFH_GEN1_VIN_OFFSET;
+    if (off + 17 > buf.length) return [];
+    if (!looksLikeVin(buf.slice(off, off + 17))) return [];
+    return [{ offset: off, reversed: false }];
+  },
+
   // PCM (GPEC2A): four canonical forward VIN slots, identical on both
   // 4 KB and 8 KB sibling captures. Filter by file size in case a
   // smaller GPEC variant ever lands.
@@ -187,9 +199,10 @@ const fixtures = loadRealDumpFixtures();
 
 const targets = [];
 if (fixtures !== null) {
-  if (fixtures.bcm)   targets.push({ label: 'bcm',   moduleType: 'bcm',   entry: fixtures.bcm });
-  if (fixtures.rfhub) targets.push({ label: 'rfhub', moduleType: 'rfhub', entry: fixtures.rfhub });
-  if (fixtures.pcm)   targets.push({ label: 'pcm',   moduleType: 'pcm',   entry: fixtures.pcm });
+  if (fixtures.bcm)     targets.push({ label: 'bcm',     moduleType: 'bcm',     entry: fixtures.bcm });
+  if (fixtures.rfhub)   targets.push({ label: 'rfhub',   moduleType: 'rfhub',   entry: fixtures.rfhub });
+  if (fixtures.rfhubg1) targets.push({ label: 'rfhubg1', moduleType: 'rfhubg1', entry: fixtures.rfhubg1 });
+  if (fixtures.pcm)     targets.push({ label: 'pcm',     moduleType: 'pcm',     entry: fixtures.pcm });
   if (Array.isArray(fixtures.extraBcms)) {
     fixtures.extraBcms.forEach((entry, i) => {
       targets.push({ label: `extraBcms[${i}]`, moduleType: 'bcm', entry });

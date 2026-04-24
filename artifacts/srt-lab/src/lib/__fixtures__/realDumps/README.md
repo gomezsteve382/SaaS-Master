@@ -202,6 +202,30 @@ vehicle (anonymized VIN `2C3CDXL90MH582899`).
   stale; the helper re-stamps them so the byte-equality round-trip
   test passes.
 
+- **`rfhubg1.before.bin` / `rfhubg1.after.bin`** — RFHUB **Gen1** (24C16,
+  **2 KB** Yazaki FCM EEPROM, anon `2C3CDXCT5EH600003`). Wired in
+  Task #449 as the first committed real-bench fixture for the Gen1
+  family (the per-fixture loop in `anonymizeRealDump.test.js` previously
+  only had a synthetic builder for Gen1). Source: round-tripped from
+  the existing real-anchored golden fixture
+  `src/lib/__tests__/__golden__/lx_charger_2014_fullhouse.bin` (donor
+  VIN `2C3CDXCT5EH500003`, captured RFH SEC16
+  `1bcf824733a570096ed144fb27995a8c`) through
+  `scripts/anonymize-real-dump.mjs --module rfhubg1
+  --donor-vin 2C3CDXCT5EH500003 --anon-vin 2C3CDXCT5EH600003`. The
+  donor VIN is recorded at the top level so the helper-leak scan and
+  the baseline forbidden-donor list both reject it everywhere.
+  Gen1 layout: a single forward plain-VIN slot @ 0x92 (no Gen2-style
+  0xEA5+ table) and two 18-byte SEC16-mirror records (16 B SEC16 +
+  2 B CS) @ 0x00AE / 0x00C0. `before` is `after` with both SEC16
+  mirrors erased to 0xFF; `after` is the helper-anonymized image. The
+  per-fixture iteration in `anonymizeRealDump.test.js` and the
+  donor-leak scan in `realDumps.helperLeakScan.test.js` /
+  `realDumps.anonymization.test.js` now exercise this pair, which let
+  Gen1 graduate out of the synthetic-fixture block in
+  `anonymizeRealDump.test.js` (the parseModule cross-check stays as
+  the cheapest way to keep the Gen1 → RFHUB classification proven).
+
 - **`pcm8kb.before.bin` / `pcm8kb.after.bin`** — Continental GPEC2A
   (95640, **8 KB**) from
   `attached_assets/PCM_FCA_CONTINENTAL_GPEC2A_8KB_KEYPROG_2C3CDXCT1HH652640.bin`.

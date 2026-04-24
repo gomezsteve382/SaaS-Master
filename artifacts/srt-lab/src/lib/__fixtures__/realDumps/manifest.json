@@ -15,6 +15,14 @@
     "donorVin": "2C3CDXCT1HH652640",
     "source": "Anonymized real-bench RFHUB Gen2 (24C32, 4 KB) capture from attached_assets/RFH_20CHRGR6.2_KEYPROG_2C3CDXCT1HH652640.bin — VIN scrubbed (652640→600000) at 4 reverse-VIN slots (0xEA5/0xEB9/0xECD/0xEE1). 'after' = captured synced RFHUB. 'before' = same buffer with the two Gen2 SEC16 slots @ 0x050E and 0x0522 erased to 0xFF (16B SEC16 + 2B CS each)."
   },
+  "rfhubg1": {
+    "before": "rfhubg1.before.bin",
+    "after": "rfhubg1.after.bin",
+    "rfhSec16Hex": "1bcf824733a570096ed144fb27995a8c",
+    "anonVin": "2C3CDXCT5EH600003",
+    "donorVin": "2C3CDXCT5EH500003",
+    "source": "Task #449 — first RFHUB Gen1 (24C16, 2 KB Yazaki FCM EEPROM) before/after pair. Derived from the donor-style synthetic golden fixture src/lib/__tests__/__golden__/lx_charger_2014_fullhouse.bin (FreshAuto-style placeholder VIN 2C3CDXCT5EH500003, full 4-fob occupancy, distinct master SEC16 1bcf82…5a8c) — no physical 24C16 capture has landed yet. The donor VIN was scrubbed via `node scripts/anonymize-real-dump.mjs --module rfhubg1 --donor-vin 2C3CDXCT5EH500003 --anon-vin 2C3CDXCT5EH600003` (rewrote the single 0x92 plain-VIN slot + re-stamped the trailing CRC16 BE @ +17/+18). 'after' = the helper output (synced state, SEC16 mirrors @ 0x00AE/0x00C0 populated with 16B secret + 2B (crc8_65<<8)|0x00 CS). 'before' = same buffer with both SEC16 mirrors (16B + 2B CS = 18B each) erased to 0xFF, modeling the pre-pair state where the BCM hasn't yet stamped its master secret into the Gen1 hub."
+  },
   "pcm": {
     "before": "pcm.before.bin",
     "after": "pcm.after.bin",
