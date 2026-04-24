@@ -99,6 +99,7 @@ export const IMMO_VIN_REF = {
           ['VIN slot 1', '0x0000', '17', 'Plain ASCII (no CRC)'],
           ['VIN slot 2', '0x01F0', '17', 'Plain ASCII (no CRC)'],
           ['VIN slot 3', '0x0224', '17', 'Plain ASCII (no CRC)'],
+          ['VIN slot 4', '0x0CE0', '17', 'Plain ASCII (no CRC) — 4 KB images skip (slot is past end of buffer)'],
           ['SKIM byte', '0x0011', '1', '0x80 = ENABLED, 0x00 = DISABLED'],
           ['GPEC vehicle/skim key', '0x0203', '8', 'GPEC-INTERNAL — NOT the BCM-pairing field. Mirror @0x0361'],
           ['PCM SEC6 (BCM pairing)', '0x03C8', '6', '= reverse(BCM SEC16)[0:6]. All 0xFF = IMMO_DAMAGED'],

@@ -140,7 +140,7 @@ export default function RFHPCMTab() {
         </div>
         <div>
           <div style={{fontSize:11,fontWeight:900,color:C.a4,letterSpacing:2,marginBottom:6}}>PCM GPEC (.bin / .eprom)</div>
-          <FileDropZone label="Drop PCM GPEC2/GPEC2A/GPEC3 dump (4096 B)" hint="VIN @ 0x0000/0x01F0/0x0224 · SEC6 @ 0x03C8"
+          <FileDropZone label="Drop PCM GPEC2/GPEC2A/GPEC3 dump (4096 B)" hint="VIN @ 0x0000/0x01F0/0x0224/0x0CE0 · SEC6 @ 0x03C8"
                         onFile={handlePcm} fileName={pcmFile?.name}/>
           <SamplePicker kinds={['GPEC_EXT']} onFile={handlePcm} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample PCM (Mitchell 6.2 pairs with RFH)"/>
           {pcmErr && <div style={{marginTop:6,padding:"6px 10px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:11,fontWeight:700}}>✗ {pcmErr}</div>}

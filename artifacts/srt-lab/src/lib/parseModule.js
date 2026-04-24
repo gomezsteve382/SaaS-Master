@@ -455,7 +455,7 @@ function parseModule(data,filename,opts){
   if(type==='UNKNOWN')info.hexOnly=true;
 
   if(type==='GPEC2A'){
-    info.vins=[{offset:0x0000,vin:extractVIN(data,0x0000)},{offset:0x01f0,vin:extractVIN(data,0x01f0)},{offset:0x0224,vin:extractVIN(data,0x0224)}].filter(v=>v.vin);
+    info.vins=[{offset:0x0000,vin:extractVIN(data,0x0000)},{offset:0x01f0,vin:extractVIN(data,0x01f0)},{offset:0x0224,vin:extractVIN(data,0x0224)},{offset:0x0ce0,vin:extractVIN(data,0x0ce0)}].filter(v=>v.vin);
     if(sz>0x0011){
       info.skimByte=data[0x0011];
       info.skimStatus=SKIM_VALUES[info.skimByte]||"UNKNOWN (0x"+info.skimByte.toString(16).toUpperCase()+")";

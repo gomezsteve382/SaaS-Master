@@ -69,9 +69,9 @@ describe('extractVIN', () => {
 
 describe('GPEC2A parser', () => {
   const m = parseModule(makeGpec2a(), 'gpec.bin');
-  it('extracts all three documented VIN offsets', () => {
+  it('extracts all four documented VIN offsets', () => {
     const offs = m.vins.map(v => v.offset).sort((a, b) => a - b);
-    expect(offs).toEqual([0x0000, 0x01F0, 0x0224]);
+    expect(offs).toEqual([0x0000, 0x01F0, 0x0224, 0x0CE0]);
     expect(m.vins.every(v => v.vin === VIN_DEFAULT)).toBe(true);
   });
   it('reports SKIM enabled (0x80)', () => {

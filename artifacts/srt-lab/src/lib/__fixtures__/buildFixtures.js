@@ -250,6 +250,7 @@ function makeGpec2a({
   fill(buf, 0x0000, vinAscii);
   fill(buf, 0x01F0, vinAscii);
   fill(buf, 0x0224, vinAscii);
+  fill(buf, 0x0CE0, vinAscii);
 
   buf[0x0011] = skim;
 

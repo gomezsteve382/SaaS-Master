@@ -370,7 +370,7 @@ export function computeCompatibility(rfh, pcm) {
   return { verdict, reason, issues, info, vinEqualBefore, sec6EqualBefore, sec6FromRfh, sec6PcmCurrent, canApply };
 }
 
-const PCM_VIN_OFFSETS = [0x0000, 0x01F0, 0x0224];
+const PCM_VIN_OFFSETS = [0x0000, 0x01F0, 0x0224, 0x0CE0];
 const PCM_SEC6_OFFSET = 0x03C8;
 const PCM_IMMO_OFFSET = 0x0011;
 const PCM_IMMO_ENABLED_PATTERN = [0x80, 0x00, 0x00, 0x00];
