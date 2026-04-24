@@ -231,6 +231,45 @@ vehicle (anonymized VIN `2C3CDXL90MH582899`).
 > Use this for any new capture; the manual checklist below stays as
 > the spec the script implements.
 
+> **Local pre-commit check (Task #451):** before pushing a new or
+> edited fixture, run the fast realDumps-only suite and let it catch a
+> bad edit the same minute it happens — instead of waiting 10 minutes
+> for CI to surface the failure. From the repo root:
+>
+> ```sh
+> pnpm --filter @workspace/srt-lab fixtures:check
+> ```
+>
+> That runs only the four suites that guard this directory:
+> `anonymizeRealDump.test.js`, `realDumps.anonymization.test.js`,
+> `realDumps.helperLeakScan.test.js`, and
+> `securityBytes.realDump.golden.test.js` (the ones #448 wired up to
+> assert byte-for-byte round-trip through `anonymize-real-dump.mjs`).
+>
+> To make this run automatically on `git commit` whenever a file under
+> `src/lib/__fixtures__/realDumps/` is staged, install the bundled
+> hook helper as your pre-commit hook (it no-ops on commits that don't
+> touch this directory, so day-to-day commits aren't slowed down):
+>
+> ```sh
+> ln -sf ../../artifacts/srt-lab/scripts/fixtures-precommit.sh \
+>   .git/hooks/pre-commit
+> chmod +x .git/hooks/pre-commit
+> ```
+>
+> If you already have a project-level pre-commit hook (husky,
+> lefthook, a hand-rolled `.git/hooks/pre-commit`, etc.), invoke the
+> helper from inside it instead:
+>
+> ```sh
+> sh artifacts/srt-lab/scripts/fixtures-precommit.sh || exit 1
+> # equivalent: pnpm --filter @workspace/srt-lab fixtures:precommit
+> ```
+>
+> The helper inspects `git diff --cached`, exits 0 when no realDumps
+> file is staged, and otherwise runs `pnpm fixtures:check` so the
+> commit fails on a stale fixture before it ever leaves your machine.
+
 Before committing any binary in this directory, scrub:
 
 - VIN bytes — replace the captured 17-character VIN everywhere it appears.
