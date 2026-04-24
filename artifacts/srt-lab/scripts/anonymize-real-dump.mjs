@@ -23,6 +23,17 @@
  *     detected from the existing populated slot, 0xDB / 0x87 / etc.).
  *   - PCM (GPEC2A 4 KB and 8 KB) full-VIN slots at 0x0000/0x01F0/0x0224/
  *     0x0CE0 — VIN overwritten (no CRC on these slots).
+ *   - RFHUB Gen1 (24C16, 2 KB) plain-VIN slot at 0x92 — VIN overwritten +
+ *     CRC16 re-stamped at +17/+18 (matches parseModule's `rfhVin92` field).
+ *   - 95640 BCM-backup EEPROM (8 KB) plain-VIN slots at 0x275/0x288/0x1B82
+ *     — VIN overwritten (no CRC on these slots, mirroring the parser).
+ *
+ * Slot offsets are imported from `src/lib/parseModule.js` so this helper
+ * and the parser share a single source of truth — when a new VIN slot is
+ * documented for an existing family, updating it in parseModule.js
+ * automatically extends scrubbing coverage in lock-step (no more "scrubber
+ * knew about 0x4098 but not the freshly-added partial slot at 0x4118"
+ * drift, the failure mode that surfaced as Task #436).
  *
  * After the writes, the script self-verifies the output:
  *   - The donor VIN must NOT appear forward or byte-reversed anywhere in
@@ -43,7 +54,7 @@
  * Usage
  *
  *   node scripts/anonymize-real-dump.mjs <input.bin>           \
- *        --module <bcm|rfhub|pcm>                              \
+ *        --module <bcm|rfhub|rfhubg1|pcm|95640>                \
  *        --donor-vin <17-char donor VIN>                       \
  *        --anon-vin  <17-char anonymized stand-in VIN>         \
  *        [--out <output path>]
@@ -65,19 +76,23 @@ import { crc16, rfhGen2VinCs, rfhGen2DetectMagic } from '../src/lib/crc.js';
 // Task #447 — the whole-buffer leak scanner + slot-window table moved into
 // `src/lib/donorLeakScan.js` so the in-app pre-share leak check (BackupsTab,
 // ModuleSync) can import it from a Vite-bundled file without dragging in the
-// `node:fs|path|url` imports this CLI uses below. Re-exported from this module
-// so existing tests that pin the script as the public surface keep working.
+// `node:fs|path|url` imports this CLI uses below. Re-exported from this
+// module so existing tests that pin the script as the public surface keep
+// working. Task #441 then extended donorLeakScan with the rfhubg1 / 95640
+// slot tables so this script and the in-app scanner stay in lock-step on
+// every documented family — adding a new family is a one-line edit there
+// plus a scrubber registration here, nothing more.
 import {
   VIN_LEN,
   BCM_FULL_VIN_BASES,
   BCM_PARTIAL_VIN_OFFSETS,
   RFH_GEN2_VIN_OFFSETS,
+  RFH_GEN1_VIN_OFFSET,
   PCM_VIN_OFFSETS,
+  EEP95640_VIN_OFFSETS,
   SUPPORTED_MODULE_TYPES,
   vinAsBytes,
   reverseBytes,
-  findBytes,
-  fmtOff,
   getDocumentedSlotWindows,
   scanBufferForDonorLeak,
 } from '../src/lib/donorLeakScan.js';
@@ -87,6 +102,7 @@ export { getDocumentedSlotWindows, scanBufferForDonorLeak };
 // VIN-illegal letters (matches parseModule.extractVIN + the
 // realDumps.anonymization.test.js looksLikeVin classifier).
 const VIN_DISALLOWED_BYTES = new Set([0x49 /* I */, 0x4F /* O */, 0x51 /* Q */]);
+
 
 // True iff `vin` is a well-formed 17-char VIN: ASCII alphanumeric, no I/O/Q.
 function looksLikeVin(vin) {
@@ -222,6 +238,49 @@ function anonymizePcm(buf, anonBytes) {
   return { buffer: out, slots };
 }
 
+// RFHUB Gen1 (24C16, 2 KB Yazaki FCM EEPROM). Only one VIN slot at 0x92,
+// stored plain, with a BE16 CRC16 at +17/+18 (parseModule's `rfhVin92`
+// field). The 0xEA5+ Gen2 slot table is past the end of a 24C16 image
+// so this family intentionally never touches those offsets.
+function anonymizeRfhubGen1(buf, anonBytes) {
+  const out = new Uint8Array(buf);
+  const slots = [];
+  const off = RFH_GEN1_VIN_OFFSET;
+  if (off + 19 <= out.length) {
+    for (let i = 0; i < VIN_LEN; i++) out[off + i] = anonBytes[i];
+    const c = crc16(anonBytes);
+    out[off + 17] = (c >> 8) & 0xFF;
+    out[off + 18] = c & 0xFF;
+    slots.push({ kind: 'rfh-gen1-vin', offset: off, length: VIN_LEN });
+  }
+  return { buffer: out, slots };
+}
+
+// 95640 BCM-backup EEPROM (8 KB). Three plaintext VIN slots; no CRC on
+// any of them in the parser, so write-only — same shape as PCM.
+function anonymize95640(buf, anonBytes) {
+  const out = new Uint8Array(buf);
+  const slots = [];
+  for (const off of EEP95640_VIN_OFFSETS) {
+    if (off + VIN_LEN > out.length) continue;
+    for (let i = 0; i < VIN_LEN; i++) out[off + i] = anonBytes[i];
+    slots.push({ kind: '95640-vin', offset: off, length: VIN_LEN });
+  }
+  return { buffer: out, slots };
+}
+
+// Per-module dispatch table. Adding a new family is a one-line edit here
+// PLUS appending its CLI alias to SUPPORTED_MODULE_TYPES; the test suite
+// iterates this map's keys so any new entry that lacks fixture coverage
+// surfaces as a missing-fixture failure (loud, not silent).
+const SCRUBBERS_BY_TYPE = {
+  bcm:     anonymizeBcm,
+  rfhub:   anonymizeRfhubGen2,
+  rfhubg1: anonymizeRfhubGen1,
+  pcm:     anonymizePcm,
+  '95640': anonymize95640,
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Public API
 //
@@ -234,6 +293,14 @@ function anonymizePcm(buf, anonBytes) {
 // remains the single public surface tests pin against, so they cannot
 // drift from the in-app scanner.
 // ─────────────────────────────────────────────────────────────────────────────
+
+// Re-export the module-type registry so the test suite can iterate it
+// (see the coverage-completeness sentinel in anonymizeRealDump.test.js)
+// and so future scrubber families can be added without changing call
+// sites elsewhere. `SUPPORTED_MODULE_TYPES` is re-exported from
+// `donorLeakScan.js` (single source of truth, also consumed by
+// LeakScanPanel) so the script and the in-app scanner stay in lock-step.
+export { SUPPORTED_MODULE_TYPES, SCRUBBERS_BY_TYPE };
 
 export function anonymizeBuffer({ buffer, moduleType, donorVin, anonVin }) {
   if (!(buffer instanceof Uint8Array)) {
@@ -268,10 +335,14 @@ export function anonymizeBuffer({ buffer, moduleType, donorVin, anonVin }) {
   }
 
   const anonBytes = vinAsBytes(anonUpper);
-  let result;
-  if (mt === 'bcm')   result = anonymizeBcm(buffer, anonBytes);
-  else if (mt === 'rfhub') result = anonymizeRfhubGen2(buffer, anonBytes);
-  else                result = anonymizePcm(buffer, anonBytes);
+  const scrubber = SCRUBBERS_BY_TYPE[mt];
+  if (!scrubber) {
+    // Should be unreachable — SUPPORTED_MODULE_TYPES is gate-checked
+    // above — but the guard avoids a confusing TypeError if the two
+    // tables ever drift.
+    throw new Error(`internal: no scrubber registered for module type '${mt}'`);
+  }
+  const result = scrubber(buffer, anonBytes);
 
   // ── Post-scrub sanity scan ────────────────────────────────────────────
   // Delegate to the same `scanBufferForDonorLeak` exported function the
@@ -320,7 +391,7 @@ function parseArgs(argv) {
 function printUsage() {
   process.stdout.write([
     'Usage: node scripts/anonymize-real-dump.mjs <input.bin> \\',
-    '         --module <bcm|rfhub|pcm> \\',
+    '         --module <' + SUPPORTED_MODULE_TYPES.join('|') + '> \\',
     '         --donor-vin <17-char donor VIN> \\',
     '         --anon-vin  <17-char anonymized stand-in VIN> \\',
     '         [--out <output path>]',
@@ -328,6 +399,13 @@ function printUsage() {
     'Scrubs the donor VIN out of an ECU dump and re-stamps every parser CRC',
     'so the result drops cleanly into src/lib/__fixtures__/realDumps/ and',
     'passes realDumps.anonymization.test.js without further hand-editing.',
+    '',
+    'Module families:',
+    '  bcm      — BCM MPC5605B/06B DFLASH (64 KB / 128 KB).',
+    '  rfhub    — RFHUB Gen2 (24C32, 4 KB) — VINs stored byte-reversed.',
+    '  rfhubg1  — RFHUB Gen1 (24C16, 2 KB) — single plain-VIN slot at 0x92.',
+    '  pcm      — Continental GPEC2A PCM (4 KB or 8 KB).',
+    '  95640    — 95640 BCM-backup EEPROM (8 KB).',
     '',
   ].join('\n'));
 }

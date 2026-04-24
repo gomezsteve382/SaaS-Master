@@ -45,8 +45,18 @@ export const BCM_FULL_VIN_BASES      = [0x5300, 0x5320, 0x5340, 0x5360, 0x5380];
 export const BCM_PARTIAL_VIN_OFFSETS = [0x4098, 0x40B0];
 export const RFH_GEN2_VIN_OFFSETS    = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
 export const PCM_VIN_OFFSETS         = [0x0000, 0x01F0, 0x0224, 0x0CE0];
+// Task #441 — additional families wired through the helper script's
+// `SCRUBBERS_BY_TYPE` dispatch map. Mirrored here so the UI pre-share
+// scanner and the script's `scanBufferForDonorLeak` share the same
+// documented-slot table for masking.
+//   - RFH_GEN1_VIN_OFFSET: single plain-VIN slot at 0x92 on Gen1
+//     RFHUB (24C16, 2 KB Yazaki FCM EEPROM); BE16 CRC at +17/+18.
+//   - EEP95640_VIN_OFFSETS: 3 plaintext VIN slots in a 95640 BCM-backup
+//     EEPROM dump (8 KB), no CRC.
+export const RFH_GEN1_VIN_OFFSET     = 0x92;
+export const EEP95640_VIN_OFFSETS    = [0x275, 0x288, 0x1B82];
 
-export const SUPPORTED_MODULE_TYPES = ['bcm', 'rfhub', 'pcm'];
+export const SUPPORTED_MODULE_TYPES = ['bcm', 'rfhub', 'rfhubg1', 'pcm', '95640'];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Small byte helpers — local, not pulled from parser code, so this module
@@ -99,9 +109,17 @@ export function getDocumentedSlotWindows(moduleType) {
     for (const off of RFH_GEN2_VIN_OFFSETS) {
       windows.push({ kind: 'rfh-rev-vin', offset: off, length: VIN_LEN });
     }
+  } else if (mt === 'rfhubg1') {
+    // Single plain-VIN slot at 0x92 (24C16, 2 KB Yazaki FCM EEPROM).
+    windows.push({ kind: 'rfh-gen1-vin', offset: RFH_GEN1_VIN_OFFSET, length: VIN_LEN });
   } else if (mt === 'pcm') {
     for (const off of PCM_VIN_OFFSETS) {
       windows.push({ kind: 'pcm-full', offset: off, length: VIN_LEN });
+    }
+  } else if (mt === '95640') {
+    // 3 plaintext VIN slots, no CRC (BCM-backup EEPROM, 8 KB).
+    for (const off of EEP95640_VIN_OFFSETS) {
+      windows.push({ kind: '95640-full', offset: off, length: VIN_LEN });
     }
   } else {
     throw new Error(

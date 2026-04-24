@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 
-import { anonymizeBuffer } from '../../../scripts/anonymize-real-dump.mjs';
+import { anonymizeBuffer, SCRUBBERS_BY_TYPE, SUPPORTED_MODULE_TYPES } from '../../../scripts/anonymize-real-dump.mjs';
 import { loadRealDumpFixtures } from '../__fixtures__/realDumps/loader.js';
+import { parseModule, RFH_GEN1_VIN_OFFSET, EEP95640_VIN_OFFSETS } from '../parseModule.js';
+import { crc16 } from '../crc.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Task #438 — anonymize-real-dump.mjs sanity tests.
@@ -253,6 +255,173 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
       });
     }
 
+    // ─────────────────────────────────────────────────────────────────
+    // Task #441 — synthetic-fixture coverage for module families that
+    // don't yet have a committed real-bench dump under
+    // __fixtures__/realDumps/. The script is correct but its slot tables
+    // grow as new families are documented; this block exercises the same
+    // round-trip + leak-scan asserts used for BCM/RFHUB/PCM against
+    // hand-built buffers so a regression in (e.g.) the rfhubg1 scrubber
+    // surfaces here even before the first real Gen1 dump is captured.
+    //
+    // When a real-bench fixture for one of these families lands, register
+    // it in manifest.json + extend loader.js, then promote the family out
+    // of this synthetic block into the per-fixture iteration above. The
+    // synthetic coverage can stay as a "minimum baseline" alongside.
+    //
+    // The coverage-completeness sentinel below asserts every entry in
+    // SCRUBBERS_BY_TYPE is exercised by either the real-fixture loop OR
+    // this synthetic block — so a future maintainer who adds a new
+    // family to the script (e.g. SGW) but forgets to add a matching test
+    // sees a loud failure here, not a silent gap.
+    // ─────────────────────────────────────────────────────────────────
+    describe('synthetic-fixture coverage (no committed real-bench dump yet)', () => {
+      // Helper: build a 2 KB Gen1 RFHUB buffer with the donor VIN + valid
+      // CRC16 at 0x92, and rfh part-number ASCII at the documented
+      // 0x0808/0x0812/0x082c slots so parseModule classifies it as RFHUB.
+      function buildSyntheticRfhubGen1(vin) {
+        const buf = new Uint8Array(2048).fill(0xFF);
+        for (let i = 0; i < 17; i++) buf[RFH_GEN1_VIN_OFFSET + i] = vin.charCodeAt(i);
+        const c = crc16(buf.slice(RFH_GEN1_VIN_OFFSET, RFH_GEN1_VIN_OFFSET + 17));
+        buf[RFH_GEN1_VIN_OFFSET + 17] = (c >> 8) & 0xFF;
+        buf[RFH_GEN1_VIN_OFFSET + 18] = c & 0xFF;
+        return buf;
+      }
+      // Helper: build an 8 KB 95640 buffer with the donor VIN at every
+      // documented plaintext slot.
+      function buildSynthetic95640(vin) {
+        const buf = new Uint8Array(8192).fill(0xFF);
+        for (const off of EEP95640_VIN_OFFSETS) {
+          for (let i = 0; i < 17; i++) buf[off + i] = vin.charCodeAt(i);
+        }
+        return buf;
+      }
+
+      const synthetics = [
+        { label: 'rfhubg1', moduleType: 'rfhubg1', minSlots: 1, build: buildSyntheticRfhubGen1, scan: scanGen1Vin },
+        { label: '95640',   moduleType: '95640',   minSlots: 3, build: buildSynthetic95640,   scan: scan95640Vins },
+      ];
+
+      for (const { label, moduleType, minSlots, build, scan } of synthetics) {
+        describe(`${label} (synthetic)`, () => {
+          it(`re-anonymizes ${label} buffer to STAND_IN_A without leaking the donor VIN`, () => {
+            const donor = STAND_IN_B; // arbitrary donor for the synthetic
+            const buf = build(donor);
+
+            const result = anonymizeBuffer({
+              buffer: buf,
+              moduleType,
+              donorVin: donor,
+              anonVin:  STAND_IN_A,
+            });
+
+            expect(result.slots.length, `${label}: scrubbed slot count`).toBeGreaterThanOrEqual(minSlots);
+
+            const donorBytes = new TextEncoder().encode(donor);
+            const donorRev   = new Uint8Array(donorBytes).reverse();
+            expect(indexOfBytes(result.buffer, donorBytes), `${label}: donor VIN must not appear forward`).toBe(-1);
+            expect(indexOfBytes(result.buffer, donorRev),   `${label}: donor VIN must not appear byte-reversed`).toBe(-1);
+
+            const slots = scan(result.buffer);
+            expect(slots.length, `${label}: post-scrub VIN slot count`).toBeGreaterThanOrEqual(minSlots);
+            for (const s of slots) {
+              expect(
+                s.vin,
+                `${label}: VIN slot @ 0x${s.offset.toString(16).toUpperCase()} should hold STAND_IN_A`,
+              ).toBe(STAND_IN_A);
+            }
+          });
+
+          it(`functionally round-trips ${label} buffer (donor → other → donor restores every slot's VIN)`, () => {
+            const donor = STAND_IN_B;
+            const buf = build(donor);
+
+            const step1 = anonymizeBuffer({
+              buffer: buf,
+              moduleType,
+              donorVin: donor,
+              anonVin:  STAND_IN_A,
+            });
+            const step2 = anonymizeBuffer({
+              buffer: step1.buffer,
+              moduleType,
+              donorVin: STAND_IN_A,
+              anonVin:  donor,
+            });
+
+            expect(step2.buffer.length, `${label}: round-trip length`).toBe(buf.length);
+
+            const slots = scan(step2.buffer);
+            expect(slots.length, `${label}: round-trip VIN slot count`).toBeGreaterThanOrEqual(minSlots);
+            for (const s of slots) {
+              expect(
+                s.vin,
+                `${label}: VIN slot @ 0x${s.offset.toString(16).toUpperCase()} should restore to '${donor}'`,
+              ).toBe(donor);
+            }
+          });
+
+          it(`refuses to scrub when donor and anon share the same last-6 serial (${label})`, () => {
+            const donor = STAND_IN_B;
+            const sharedTailAnon = STAND_IN_A.slice(0, 11) + donor.slice(-6);
+            if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(sharedTailAnon)) return;
+            expect(() => anonymizeBuffer({
+              buffer: build(donor),
+              moduleType,
+              donorVin: donor,
+              anonVin:  sharedTailAnon,
+            })).toThrow(/share the same last-6/);
+          });
+        });
+      }
+
+      it('synthetic Gen1 RFHUB buffer parses as RFHUB and surfaces the scrubbed VIN', () => {
+        // Sanity-cross-check: parseModule should agree the Gen1 buffer is
+        // a real RFHUB so the helper's "module=rfhubg1" CLI alias actually
+        // covers what the parser sees on disk. If parseModule ever stops
+        // recognizing 0x92 as the Gen1 VIN slot, this test catches it
+        // instead of letting the scrubber silently drift.
+        const donor = STAND_IN_B;
+        const result = anonymizeBuffer({
+          buffer: buildSyntheticRfhubGen1(donor),
+          moduleType: 'rfhubg1',
+          donorVin: donor,
+          anonVin:  STAND_IN_A,
+        });
+        const parsed = parseModule(result.buffer, 'rfh-gen1.bin');
+        expect(parsed.type, 'parseModule should classify a 2 KB rfh-named buffer as RFHUB').toBe('RFHUB');
+        const v92 = parsed.rfhVin92;
+        expect(v92, 'parseModule should expose the 0x92 Gen1 VIN field').toBeTruthy();
+        expect(v92.vin, 'Gen1 VIN should now read STAND_IN_A').toBe(STAND_IN_A);
+        expect(v92.csOk, 'Gen1 VIN CRC should re-stamp to a valid checksum').toBe(true);
+      });
+    });
+
+    // Coverage-completeness sentinel — see the synthetic-fixture block
+    // header for the rationale.
+    describe('coverage completeness', () => {
+      const realFixtureFamilies = new Set(targets.map(t => t.moduleType));
+      const syntheticFamilies = new Set(['rfhubg1', '95640']);
+      const covered = new Set([...realFixtureFamilies, ...syntheticFamilies]);
+
+      for (const mt of Object.keys(SCRUBBERS_BY_TYPE)) {
+        it(`module type '${mt}' has at least one round-trip test`, () => {
+          expect(
+            covered.has(mt),
+            `Scrubber '${mt}' is registered in SCRUBBERS_BY_TYPE but no test exercises it. ` +
+            `Add it to the synthetic-fixture block above (or commit a real-bench fixture).`,
+          ).toBe(true);
+        });
+      }
+
+      it('SUPPORTED_MODULE_TYPES and SCRUBBERS_BY_TYPE keys agree', () => {
+        // Drift between the two tables is the most common way a maintainer
+        // accidentally exposes a scrubber as a CLI alias without
+        // implementing the actual write path (or vice versa).
+        expect(new Set(SUPPORTED_MODULE_TYPES)).toEqual(new Set(Object.keys(SCRUBBERS_BY_TYPE)));
+      });
+    });
+
     describe('input validation', () => {
       it('rejects a non-Uint8Array buffer', () => {
         expect(() => anonymizeBuffer({
@@ -292,6 +461,27 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, pcm: 4 };
     });
   },
 );
+
+// Synthetic-fixture VIN scanners — local, narrow analogs of scanFullVins
+// that read the single-slot Gen1 layout and the 3-slot 95640 layout.
+// Kept inline (rather than imported) to catch drift between the script's
+// slot table and the test's expectations.
+function scanGen1Vin(buf) {
+  const off = RFH_GEN1_VIN_OFFSET;
+  if (off + 17 > buf.length) return [];
+  const slice = buf.slice(off, off + 17);
+  if (!looksLikeVinBytes(slice)) return [];
+  return [{ offset: off, vin: decodeAscii(slice) }];
+}
+function scan95640Vins(buf) {
+  const out = [];
+  for (const off of EEP95640_VIN_OFFSETS) {
+    if (off + 17 > buf.length) continue;
+    const slice = buf.slice(off, off + 17);
+    if (looksLikeVinBytes(slice)) out.push({ offset: off, vin: decodeAscii(slice) });
+  }
+  return out;
+}
 
 function indexOfBytes(buf, needle) {
   if (needle.length === 0 || needle.length > buf.length) return -1;

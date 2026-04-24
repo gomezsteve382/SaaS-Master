@@ -27,19 +27,26 @@ import { useMasterVin } from "../lib/masterVinContext.jsx";
 
 const VIN_RX = /^[A-HJ-NPR-Z0-9]{17}$/i;
 
-// `SUPPORTED_MODULE_TYPES` is ['bcm','rfhub','pcm']; render with the
-// labels users see elsewhere in the app (BCM / RFHUB / PCM).
+// `SUPPORTED_MODULE_TYPES` is the union of every family the scrubber
+// helper script supports — currently ['bcm','rfhub','rfhubg1','pcm','95640'];
+// render with the labels users see elsewhere in the app (BCM / RFHUB /
+// RFHUB G1 / PCM / 95640).
 const MODULE_TYPE_LABELS = {
   bcm: "BCM",
   rfhub: "RFHUB",
+  rfhubg1: "RFHUB G1",
   pcm: "PCM",
+  '95640': "95640",
 };
 
 function moduleTypeFromFilename(name) {
   if (!name) return null;
   const u = String(name).toUpperCase();
-  // Match the prefix ModuleSync uses on its `downloadBin` filenames; PCM
-  // first because some BCM/RFH exports also reference PCM in the name.
+  // Match the prefix ModuleSync uses on its `downloadBin` filenames; check
+  // the more specific tokens first so a generic `RFH_…` doesn't shadow a
+  // `RFH_G1_…` capture, and PCM before BCM/RFH so PCM-named bundles win.
+  if (/(^|[^A-Z0-9])95640([^A-Z0-9]|$)/.test(u)) return "95640";
+  if (/(^|[^A-Z])RFH(?:UB)?[_-]?G(?:EN)?1([^A-Z]|$)/.test(u)) return "rfhubg1";
   if (/(^|[^A-Z])PCM([^A-Z]|$)/.test(u)) return "pcm";
   if (/(^|[^A-Z])RFH(?:UB)?([^A-Z]|$)/.test(u)) return "rfhub";
   if (/(^|[^A-Z])BCM([^A-Z]|$)/.test(u)) return "bcm";

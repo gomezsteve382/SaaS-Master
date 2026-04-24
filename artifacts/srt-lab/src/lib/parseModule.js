@@ -24,13 +24,48 @@ const CANONICAL_SIZES_BY_TYPE={
   RFHUB:[2048,4096],
 };
 
-// Canonical GPEC2A PCM VIN slot offsets (Task #439 / #443). Continental
-// GPEC2A images carry the VIN at four plaintext slots — identical on the
-// 4 KB (95320) and 8 KB (95640) sibling captures. This is the single
-// source of truth; every read/write call site must import this constant
-// instead of inlining the literal array (which historically drifted as
-// 3 vs 4 slots and shipped the donor-VIN-leak bug).
+/* Canonical VIN slot offsets per module family — SINGLE SOURCE OF TRUTH.
+ *
+ * Both the parser (this file) and the anonymizer helper
+ * (`scripts/anonymize-real-dump.mjs`) MUST import these constants instead
+ * of repeating the literals inline. That way, when a new VIN slot is
+ * documented for a module family, updating it here automatically extends
+ * scrubbing coverage in lock-step with parsing — no more "scrubber knew
+ * about 0x4098 / 0x40B0 but not the freshly-added partial-VIN slot at
+ * 0x4118" drift (the failure mode that surfaced as Task #436).
+ *
+ * BCM_FULL_VIN_BASES:
+ *   The 5 documented full-VIN slot bases. Each base holds a 17-byte VIN
+ *   at base+0 (legacy layout) OR base+8 (Redeye 2020+ FEE-record
+ *   header), with a BE16 CRC16 at vinOff+17/+18. The parser only scans
+ *   the inner 4 bases (0x5320..0x5380) because those are the only ones
+ *   that have ever held a populated VIN on real captures; the
+ *   anonymizer is conservative and scrubs 0x5300 too, in case a future
+ *   firmware revision starts populating it.
+ * BCM_FULL_VIN_BASES_PARSED: the inner 4 actually scanned by the parser.
+ * BCM_PARTIAL_VIN_OFFSETS: the 8-char trailing-serial slots (the field
+ *   Task #436 missed).
+ * RFH_GEN2_VIN_OFFSETS: the 4 reverse-VIN slots on Gen2 RFHUB (24C32, 4 KB).
+ * RFH_GEN1_VIN_OFFSET: the single plain-VIN slot on Gen1 RFHUB (24C16,
+ *   2 KB) — the 0xEA5+ Gen2 table is past the end of a 24C16 image.
+ * PCM_VIN_OFFSETS_GPEC2A: the 4 plaintext VIN slots that appear in both the
+ *   4 KB (95320) and 8 KB (95640) sibling Continental GPEC2A PCM captures.
+ *   Per Task #439 / #443 this is the single source of truth; every PCM
+ *   read/write call site (parser, ImmoVINTab, ModuleSync, App.jsx,
+ *   fileUtils.js, rfhPcmPair.js, scripts/trim-pcm-to-4kb.mjs and the
+ *   anonymizer) imports this constant instead of inlining the literal
+ *   array (which historically drifted as 3 vs 4 slots and shipped the
+ *   donor-VIN-leak bug).
+ * EEP95640_VIN_OFFSETS: the 3 plaintext VIN slots in a 95640 BCM-backup
+ *   EEPROM dump (8 KB).
+ */
+const BCM_FULL_VIN_BASES=[0x5300,0x5320,0x5340,0x5360,0x5380];
+const BCM_FULL_VIN_BASES_PARSED=[0x5320,0x5340,0x5360,0x5380];
+const BCM_PARTIAL_VIN_OFFSETS=[0x4098,0x40B0];
+const RFH_GEN2_VIN_OFFSETS=[0x0EA5,0x0EB9,0x0ECD,0x0EE1];
+const RFH_GEN1_VIN_OFFSET=0x92;
 const PCM_VIN_OFFSETS_GPEC2A=[0x0000,0x01F0,0x0224,0x0CE0];
+const EEP95640_VIN_OFFSETS=[0x275,0x288,0x1B82];
 
 // PCM EXT-EEPROM chip catalog (Task #379). The same Continental GPEC2A
 // firmware ships with either a 95320 (4 KB) or 95640 (8 KB) external
@@ -213,7 +248,7 @@ function buildSizeWarn(type,sz){
 // 0x40C0; padded GPEC2A/95640 captures have neither.
 function looksLikeRealBcm(data){
   if(data.length<0x5400)return false;
-  for(const base of [0x5320,0x5340,0x5360,0x5380]){
+  for(const base of BCM_FULL_VIN_BASES_PARSED){
     if(extractVIN(data,base)||extractVIN(data,base+8))return true;
   }
   for(let i=0;i<8;i++){
@@ -238,7 +273,7 @@ function buildBcmContentWarn(data){
   const sz=data.length;
   // 1. VIN slot scan — both layouts (base+0 legacy, base+8 Redeye 2020+).
   let vinHits=0;
-  for(const base of[0x5320,0x5340,0x5360,0x5380]){
+  for(const base of BCM_FULL_VIN_BASES_PARSED){
     if(extractVIN(data,base)||extractVIN(data,base+8))vinHits++;
   }
   // 2. Immo record scan — at least one populated 24-byte slot in the
@@ -505,7 +540,7 @@ function parseModule(data,filename,opts){
         immoState:populated?'SET':'IMMO_DAMAGED',classification:cls};
     }
   }else if(type==='RFHUB'){
-    const knownOffsets=[0x0ea5,0x0eb9,0x0ecd,0x0ee1];
+    const knownOffsets=RFH_GEN2_VIN_OFFSETS;
     // Gen2 (24C32, 4096 B): VINs stored byte-reversed; CS = rfhGen2VinCs (XOR^0x87)
     // Gen1 (24C16, 2048 B): VINs stored plain or mirrored; CS = crc8rf
     const rfhIsGen2=sz===4096;
@@ -531,19 +566,19 @@ function parseModule(data,filename,opts){
     if(sw)info.partNumbers.sw=sw;else if(data.length>=0x081c)info.partNumbers.sw=extractHex(data,0x0812,10);
     if(cal)info.partNumbers.cal=cal;else if(data.length>=0x083a)info.partNumbers.cal=extractHex(data,0x082c,14);
     info.skey=data.slice(0x40,0x50);info.skoff=0x40;info.skb=info.skey.every(b=>b===0xFF);
-    if(sz>=0x92+19){
-      const raw17=data.slice(0x92,0x92+17);
+    if(sz>=RFH_GEN1_VIN_OFFSET+19){
+      const raw17=data.slice(RFH_GEN1_VIN_OFFSET,RFH_GEN1_VIN_OFFSET+17);
       const notBlank=!raw17.every(b=>b===0xFF||b===0x00);
       if(notBlank){let s='';for(let i=0;i<17;i++)s+=String.fromCharCode(raw17[i]);
-        const sc=(data[0x92+17]<<8)|data[0x92+18];const cc=crc16(raw17);
+        const sc=(data[RFH_GEN1_VIN_OFFSET+17]<<8)|data[RFH_GEN1_VIN_OFFSET+18];const cc=crc16(raw17);
         if(/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s)){
-          info.rfhVin92={offset:0x92,vin:s,storedCs:sc,calcCs:cc,csOk:sc===cc};
+          info.rfhVin92={offset:RFH_GEN1_VIN_OFFSET,vin:s,storedCs:sc,calcCs:cc,csOk:sc===cc};
           // Gen1 (2 KB) RFHUB stores its VIN here — the 0xEA5+ slot table
           // is past the end of a 24C16 image, so this is the only VIN the
           // module carries. Surface it through info.vins so the Key Prog
           // wizard's "RFH already carries target VIN" check can see it.
           if(sz===2048&&info.vins.length===0)
-            info.vins.push({offset:0x92,vin:s,sc,cc,crcOk:sc===cc,algo:'c16'});
+            info.vins.push({offset:RFH_GEN1_VIN_OFFSET,vin:s,sc,cc,crcOk:sc===cc,algo:'c16'});
         }
       }
     }
@@ -588,7 +623,7 @@ function parseModule(data,filename,opts){
     // (base+8 first, then base+0) when neither candidate has a valid CRC,
     // so legacy fixtures without trailing CRCs keep parsing.
     const crcAt=(off)=>{if(off+19>sz)return null;return(data[off+17]<<8)|data[off+18];};
-    for(const base of[0x5320,0x5340,0x5360,0x5380]){
+    for(const base of BCM_FULL_VIN_BASES_PARSED){
       const v8=extractVIN(data,base+8);
       const v0=extractVIN(data,base);
       const c8=v8?crcAt(base+8):null;
@@ -601,7 +636,7 @@ function parseModule(data,filename,opts){
       if(v0){info.vins.push({offset:base,vin:v0,slotBase:base,headerBytes:0,crcOk:false});}
     }
     info.partialVins=[];
-    for(const po of[0x4098,0x40B0]){if(po+10>sz)continue;let s='',ok=true;for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}if(ok&&s.length===8){const sc=(data[po+8]<<8)|data[po+9],cc=crc16(data.slice(po,po+8));info.partialVins.push({offset:po,tail:s,storedCrc:sc,calcCrc:cc,crcOk:sc===cc});}}
+    for(const po of BCM_PARTIAL_VIN_OFFSETS){if(po+10>sz)continue;let s='',ok=true;for(let j=0;j<8;j++){const b=data[po+j];if(b<0x20||b>0x7E){ok=false;break;}s+=String.fromCharCode(b);}if(ok&&s.length===8){const sc=(data[po+8]<<8)|data[po+9],cc=crc16(data.slice(po,po+8));info.partialVins.push({offset:po,tail:s,storedCrc:sc,calcCrc:cc,crcOk:sc===cc});}}
     /* BCM SEC16 — resolved from split / mirror / flat (Task #380). The legacy
      * flat slice at 0x40C9 holds residual garbage on synced Redeye dumps; the
      * resolver consults the FEE-record table and falls back to the flat slice
@@ -634,8 +669,13 @@ function parseModule(data,filename,opts){
     info.immoSynced=info.immoRecs>0&&info.bakRecs>0&&arrEq(data.slice(0x40C0,0x40C0+IMMO_BLOCK),data.slice(0x2000,0x2000+IMMO_BLOCK));
   }else if(type==='95640'){
     info.vins=[];
-    for(const off of[0x275,0x288]){const v=extractVIN(data,off);if(v)info.vins.push({offset:off,vin:v});}
-    if(sz>=0x1B95){const v=extractVIN(data,0x1B82);if(v)info.vins.push({offset:0x1B82,vin:v});}
+    for(const off of EEP95640_VIN_OFFSETS){
+      // 0x1B82 lives near the end of the 8 KB image — guard the read so
+      // a truncated capture doesn't false-positive past EOF.
+      if(off+17>sz)continue;
+      const v=extractVIN(data,off);
+      if(v)info.vins.push({offset:off,vin:v});
+    }
     info.skey=data.slice(0x40,0x50);info.skoff=0x40;info.skb=info.skey.every(b=>b===0xFF);
     info.fobBlank=data.slice(0x200,0x240).every(b=>b===0xFF);
     if(sz>=0x84A){
@@ -654,4 +694,12 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,PCM_VIN_OFFSETS_GPEC2A};
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,
+  // Canonical VIN slot tables (single source of truth shared with
+  // scripts/anonymize-real-dump.mjs — see the block-comment at the top
+  // of this file for the per-family explanation). PCM_VIN_OFFSETS_GPEC2A
+  // is also consumed by ImmoVINTab, ModuleSync, App.jsx, fileUtils.js,
+  // rfhPcmPair.js and scripts/trim-pcm-to-4kb.mjs.
+  BCM_FULL_VIN_BASES,BCM_FULL_VIN_BASES_PARSED,BCM_PARTIAL_VIN_OFFSETS,
+  RFH_GEN2_VIN_OFFSETS,RFH_GEN1_VIN_OFFSET,
+  PCM_VIN_OFFSETS_GPEC2A,EEP95640_VIN_OFFSETS};
