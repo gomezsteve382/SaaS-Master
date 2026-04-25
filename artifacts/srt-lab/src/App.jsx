@@ -382,7 +382,7 @@ const TL={BCM:'BCM D-FLASH','95640':'FCA 95640',RFHUB:'RFHUB EEE',GPEC2A:'GPEC2A
 const C={bg:'#F4F1EC',cd:'#FFF',c2:'#FAF9F7',sr:'#D32F2F',sl:'#FF5252',bk:'#1A1A1A',a1:'#FF6D00',a2:'#00BFA5',a3:'#2979FF',a4:'#AA00FF',tx:'#1A1A1A',ts:'#5A5A5A',tm:'#9E9E9E',bd:'#E8E4DE',gn:'#00C853',wn:'#FFB300',er:'#FF1744'};
 function Card({children,style={},glow,onClick}){const[h,setH]=useState(false);return<div onClick={onClick} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{background:C.cd,borderRadius:16,padding:22,border:`1.5px solid ${h&&onClick?C.sr:C.bd}`,boxShadow:h&&onClick?'0 8px 32px rgba(211,47,47,0.12)':'0 2px 16px rgba(0,0,0,0.06)',transition:'all 0.3s',transform:h&&onClick?'translateY(-2px)':'none',cursor:onClick?'pointer':'default',position:'relative',overflow:'hidden',...style}}>{glow&&<div style={{position:'absolute',top:-40,right:-40,width:120,height:120,borderRadius:'50%',background:'radial-gradient(circle,#FF525215,transparent 70%)',pointerEvents:'none'}}/>}<div style={{position:'relative',zIndex:1}}>{children}</div></div>;}
 function Tag({children,color=C.sr}){return<span style={{fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:8,background:color+'14',color,letterSpacing:.5,display:'inline-block',marginLeft:4}}>{children}</span>;}
-function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=useState(false);return<button onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#E8E4DE':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?C.tm:outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
+function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=useState(false);return<button onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#D5D0C8':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?'#3F3F3F':outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
 function PH({icon,title,sub}){return<Card style={{textAlign:'center',padding:'60px 24px'}}><div style={{fontSize:48,marginBottom:12,opacity:.3}}>{icon}</div><div style={{fontSize:20,fontWeight:900,color:C.tm}}>{title}</div><div style={{fontSize:13,color:C.tm,marginTop:4}}>{sub}</div></Card>;}/* ═══ SECURITY MATCHER TAB (Piece 4) ═══ */
 function extractVAt(d,o){if(o+17>d.length)return null;let s='';for(let i=0;i<17;i++){const b=d[o+i];if(b<0x20||b>0x7E)return null;s+=String.fromCharCode(b);}return/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s)?s:null;}
 function secAnalyze(data,fn){const sz=data.length;const m={fn,sz,type:'?',vins:[],skey:null,skoff:-1,skb:true,immo:null,immoBak:null,immoOk:true,immoBlank:true,bak:null,bakBlank:true,fobBlank:true,raw:data};
@@ -1191,7 +1191,7 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       <div style={{display:'flex',gap:14,alignItems:'center',flexWrap:'wrap'}}>
         <div style={{flex:'1 1 320px',minWidth:280}}>
           <div style={{fontSize:10,fontWeight:800,color:C.ts,marginBottom:6,letterSpacing:1.5}}>TARGET VIN · 17 CHARS</div>
-          <input value={tv} maxLength={17} placeholder={`Enter customer ${vehicle.name} VIN`} onChange={e=>setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+(vinBad?C.er:vinGood?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}}/>
+          <input className="vin-input" value={tv} maxLength={17} placeholder={`Enter customer ${vehicle.name} VIN`} onChange={e=>setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+(vinBad?C.er:vinGood?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}}/>
         </div>
         <div style={{display:'flex',flexDirection:'column',gap:8}}>
           <Btn onClick={runFullSync} color={vehicle.accent} disabled={!vinGood||!bcm||blockers.length>0}>▶ SYNC ALL MODULES</Btn>
@@ -1240,15 +1240,15 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
 
     {/* Go-to-Module-Sync CTA */}
     {files.length>0 && onGoSync && (
-      <div onClick={onGoSync} style={{cursor:'pointer',padding:'14px 20px',borderRadius:12,background:'linear-gradient(90deg,rgba(0,188,212,0.12),rgba(0,188,212,0.04))',border:'1.5px solid rgba(0,188,212,0.35)',display:'flex',alignItems:'center',gap:14,transition:'all .2s'}}
-        onMouseEnter={e=>{e.currentTarget.style.background='linear-gradient(90deg,rgba(0,188,212,0.22),rgba(0,188,212,0.08))';}}
-        onMouseLeave={e=>{e.currentTarget.style.background='linear-gradient(90deg,rgba(0,188,212,0.12),rgba(0,188,212,0.04))';}}>
+      <div onClick={onGoSync} style={{cursor:'pointer',padding:'14px 20px',borderRadius:12,background:'linear-gradient(90deg,rgba(0,131,143,0.18),rgba(0,131,143,0.07))',border:'1.5px solid rgba(0,131,143,0.55)',display:'flex',alignItems:'center',gap:14,transition:'all .2s'}}
+        onMouseEnter={e=>{e.currentTarget.style.background='linear-gradient(90deg,rgba(0,131,143,0.28),rgba(0,131,143,0.12))';}}
+        onMouseLeave={e=>{e.currentTarget.style.background='linear-gradient(90deg,rgba(0,131,143,0.18),rgba(0,131,143,0.07))';}}>
         <span style={{fontSize:24}}>🔄</span>
         <div style={{flex:1}}>
-          <div style={{fontWeight:900,fontSize:12,letterSpacing:1.5,color:'#00BCD4'}}>READY FOR MODULE SYNC</div>
-          <div style={{fontSize:11,color:'rgba(255,255,255,0.55)',marginTop:2}}>Open Module Sync to fix VIN mismatches, sync SEC16 security secrets, and download patched binaries.</div>
+          <div style={{fontWeight:900,fontSize:13,letterSpacing:1.5,color:'#00565E'}}>READY FOR MODULE SYNC</div>
+          <div style={{fontSize:12,fontWeight:600,color:C.tx,marginTop:3,lineHeight:1.4}}>Open Module Sync to fix VIN mismatches, sync SEC16 security secrets, and download patched binaries.</div>
         </div>
-        <div style={{fontSize:20,color:'#00BCD4',fontWeight:900}}>→</div>
+        <div style={{fontSize:22,color:'#00565E',fontWeight:900}}>→</div>
       </div>
     )}
 
@@ -1267,11 +1267,11 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
 function UploadSlot({label, slotType, file, onLoad}){
   return <div style={{padding:12,borderRadius:12,background:C.c2,border:'1.5px dashed '+C.bd,textAlign:'center',cursor:'pointer',transition:'all .2s'}} onClick={()=>document.getElementById('u-'+label).click()}>
     <div style={{fontSize:11,fontWeight:900,color:C.ts,letterSpacing:2,marginBottom:6}}>{label}</div>
-    {file ? <div style={{fontFamily:'JetBrains Mono',fontSize:10,color:C.a2,wordBreak:'break-all'}}>
+    {file ? <div style={{fontFamily:'JetBrains Mono',fontSize:11,fontWeight:700,color:'#00695C',wordBreak:'break-all'}}>
       {file.name}
-      <div style={{color:C.tm,fontSize:9}}>{file.size} bytes</div>
+      <div style={{color:C.ts,fontSize:11,fontWeight:600,marginTop:2}}>{file.size.toLocaleString()} bytes</div>
       {file.pnOverride && <div data-testid="pn-override-pill" style={{display:'inline-block',marginTop:6,padding:'2px 8px',borderRadius:999,background:C.wn+'22',border:'1px solid '+C.wn+'66',color:C.wn,fontSize:9,fontWeight:800,letterSpacing:1}}>P/N OVERRIDE — NOT IN REGISTRY</div>}
-    </div> : <div style={{fontSize:10,color:C.tm}}>drop / click to upload</div>}
+    </div> : <div style={{fontSize:11,color:C.ts,fontWeight:600}}>drop / click to upload</div>}
     <input id={'u-'+label} type="file" style={{display:'none'}} onChange={e=>onLoad(e.target.files, slotType)}/>
   </div>;
 }
