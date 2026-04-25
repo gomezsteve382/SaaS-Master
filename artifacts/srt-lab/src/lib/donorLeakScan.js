@@ -84,29 +84,48 @@ export const PCM_VIN_OFFSETS         = [0x0000, 0x01F0, 0x0224, 0x0CE0];
 export const RFH_GEN1_VIN_OFFSET     = 0x92;
 export const EEP95640_VIN_OFFSETS    = [0x275, 0x288, 0x1B82];
 
-// Task #450 — SGW (Secure Gateway, CAN id 0x74F req / 0x76F resp) is the
-// 2018+ FCA security gateway module. Per `moduleRegistry.js`:
-//   "SGW authenticates other writes; it does not store a VIN slot.
-//    Excluded from Program-All."
-// `parseModule.js` does not yet carry an SGW parser path, and neither
-// `AutelSgwTab.jsx` (the seed/key 27 01/02 dance) nor `sgwAuth.js` (auth
-// state with TTL) exposes any documented dump byte offsets — the only
-// SGW-shaped reverse-engineering the codebase has is the XTEA key-derivation
-// algorithm in docs/SGW_XTEA_ALGORITHM.md, which is about live-bus
-// challenge/response, not stored EEPROM contents.
+// Task #457 — SGW (Secure Gateway, CAN id 0x74F req / 0x76F resp on
+// 2018+ FCA) carries an EMPTY slot table BY DESIGN, not as a placeholder.
+// **No VIN slot — confirmed by bench trace on dump X = the cracked OEM
+// Chrysler diagnostic SWF (`attached_assets/CDA_1776448059516.swf`).**
+// The bench trace is automated in
+// `src/lib/__tests__/cdaSwfSgwBenchTrace.test.js`: it asserts the SGW
+// authentication / status / timeout API surface IS present in the
+// 8.7 MB inflated AS3 body (proves we're inspecting the SGW-aware OEM
+// tool, not some unrelated SWF) and asserts the SGW VIN read/write API
+// surface is ABSENT across 17 naming-convention variants plus the F190
+// UDS DID. The full rationale, evidence, and revisit procedure live in
+// `docs/SGW_VIN_STORAGE.md` §0; corroborating angles below:
 //
-// We register the family with an EMPTY slot table (instead of waiting for
-// a parser to land) so the helper script accepts `--module sgw` today and
-// the post-scrub leak guard runs end-to-end on any real SGW dump a
-// maintainer hands the helper. If the dump genuinely contains no copy of
-// the donor VIN (the expected case — SGW stores keys, not VINs) the
-// helper emits an unmodified buffer and exits 0. If the dump DOES contain
-// the donor VIN at some undocumented offset (audit log, config table,
-// future firmware revision that started caching VINs, etc.) the leak
-// guard fires loudly with a "donor-vin-forward" / "donor-vin-reversed"
-// hit at the exact offset — the maintainer then knows where to dig and
-// can populate this array in one place to fix coverage everywhere
-// (parser, helper script, UI pre-share scanner) in lock-step.
+//   - SGW is an authentication module, not a content module. Its only
+//     documented responsibility is the XTEA(32) seed/key handshake
+//     (`docs/SGW_XTEA_ALGORITHM.md`), a stateless block transform with
+//     no VIN-keyed material. `AutelSgwTab.jsx` (live-bus 27 01/02
+//     dance) and `sgwAuth.js` (in-memory TTL auth cache) together
+//     touch zero EEPROM bytes — there is no parser path to grow.
+//   - `moduleRegistry.js` records SGW as kind:'unsupported' with the
+//     note "SGW authenticates other writes; it does not store a VIN
+//     slot. Excluded from Program-All." That is the single source of
+//     truth every Program-All / module-batch flow already honors.
+//   - The repo's 30+ committed ECU captures under `attached_assets/`
+//     contain zero SGW dumps (the SGW firmware is signed and not
+//     exposed via UDS reads on the tooling SRT Lab targets).
+//
+// The CLI alias `--module sgw` is still accepted by
+// `scripts/anonymize-real-dump.mjs` so a maintainer who somehow
+// acquires an SGW dump can hand it to the helper. With an empty slot
+// table the scrubber is a no-op AND the post-scrub leak guard runs
+// WITHOUT MASKING (because `getDocumentedSlotWindows('sgw')` returns
+// []). The result is fail-loud: any donor-VIN occurrence anywhere in
+// the buffer — forward, byte-reversed, or as the trailing 6-character
+// serial — trips the guard at the exact offset. That is the only safe
+// way to revisit this design decision: if a real SGW dump ever
+// surfaces with a stored VIN at some undocumented offset (audit log,
+// config table, future firmware revision that began caching VINs)
+// the helper refuses to write the output and tells the maintainer
+// where to dig. Once a slot is documented, populate this array AND
+// the mirror in `parseModule.js` and the parser / helper / in-app
+// pre-share scanner all pick it up in lock-step.
 export const SGW_VIN_OFFSETS         = [];
 
 export const SUPPORTED_MODULE_TYPES = ['bcm', 'rfhub', 'rfhubg1', 'pcm', '95640', 'sgw'];

@@ -59,20 +59,50 @@ const CANONICAL_SIZES_BY_TYPE={
  *   donor-VIN-leak bug).
  * EEP95640_VIN_OFFSETS: the 3 plaintext VIN slots in a 95640 BCM-backup
  *   EEPROM dump (8 KB).
- * SGW_VIN_OFFSETS: intentionally EMPTY. SGW (Secure Gateway, 0x74F req /
- *   0x76F resp on 2018+ FCA) authenticates other writes via the XTEA
- *   seed/key dance documented in docs/SGW_XTEA_ALGORITHM.md but does
- *   not, to our current knowledge, store the vehicle VIN in EEPROM —
- *   `moduleRegistry.js` records it as kind:'unsupported' with the note
- *   "SGW authenticates other writes; it does not store a VIN slot."
- *   Parser support is not yet implemented; the constant is exported now
- *   so the anonymizer (scripts/anonymize-real-dump.mjs) can register the
- *   `sgw` CLI alias and rely on its post-scrub leak guard to surface any
- *   real-world dump that turns out to contain the donor VIN at an
- *   undocumented offset (audit log, config table, future firmware
- *   revision). When such a slot is discovered, populate this array here
- *   and the helper script + the in-app pre-share scanner pick it up
- *   automatically (Task #450).
+ * SGW_VIN_OFFSETS: intentionally EMPTY — DESIGN DECISION, not a TODO
+ *   (Task #457). SGW (Secure Gateway, 0x74F req / 0x76F resp on 2018+
+ *   FCA) does NOT store the vehicle VIN in any documented flash /
+ *   EEPROM slot. **No VIN slot — confirmed by bench trace on dump X =
+ *   the cracked OEM Chrysler diagnostic SWF
+ *   (`attached_assets/CDA_1776448059516.swf`, the same SWF that
+ *   produced the SGW XTEA key per `docs/SGW_XTEA_ALGORITHM.md`).**
+ *   The trace is automated in
+ *   `src/lib/__tests__/cdaSwfSgwBenchTrace.test.js`: it decompresses
+ *   the 8.7 MB AS3 body, asserts the SGW authentication / status /
+ *   timeout API surface IS present (so we know we're inspecting the
+ *   right binary), and asserts the SGW VIN read/write API surface is
+ *   ABSENT across 17 naming-convention variants plus the F190 UDS
+ *   DID. The OEM tool exposes no API to write a VIN to the SGW or
+ *   read one from it — and three corroborating angles all agree:
+ *     1. SGW is an authentication module, not a content module — its
+ *        only documented job is the XTEA(32) seed/key dance documented
+ *        in `docs/SGW_XTEA_ALGORITHM.md` (stateless block transform
+ *        keyed by the firmware-baked 128-bit constant, no VIN-keyed
+ *        material anywhere in the derivation). `src/lib/algos.js`
+ *        (`xtea_sgw`), `src/lib/sgwAuth.js` (in-memory TTL cache),
+ *        and `src/tabs/AutelSgwTab.jsx` (live-bus 27 01/02 dance)
+ *        between them touch zero EEPROM bytes.
+ *     2. `moduleRegistry.js` declares SGW as kind:'unsupported' with
+ *        the note "SGW authenticates other writes; it does not store a
+ *        VIN slot. Excluded from Program-All." — single source of
+ *        truth used by every Program-All / module-batch flow.
+ *     3. The repo's 30+ ECU dumps under `attached_assets/` carry zero
+ *        SGW captures (no SGW images surface from the field for the
+ *        workflows SRT Lab supports — SGW firmware is signed and not
+ *        exposed via UDS reads on Autel/AlfaOBD/Drew Tech tools).
+ *   Full rationale + escape hatch: `docs/SGW_VIN_STORAGE.md`.
+ *
+ *   The constant is still exported so the anonymizer
+ *   (`scripts/anonymize-real-dump.mjs`) accepts the `--module sgw`
+ *   CLI alias today: with an empty slot table the scrubber is a no-op
+ *   and the post-scrub leak guard runs WITHOUT MASKING — any donor-VIN
+ *   occurrence anywhere in a hypothetical SGW buffer (audit log,
+ *   config table, future firmware revision that started caching VINs)
+ *   trips the guard at the exact offset. That fail-loud behavior is
+ *   the only way the design decision can be revisited safely: if a
+ *   real SGW dump ever surfaces with an embedded VIN, the helper
+ *   refuses to write the output and tells the maintainer where to
+ *   dig. Until then, the empty array is the correct, intentional state.
  */
 const BCM_FULL_VIN_BASES=[0x5300,0x5320,0x5340,0x5360,0x5380];
 const BCM_FULL_VIN_BASES_PARSED=[0x5320,0x5340,0x5360,0x5380];

@@ -328,37 +328,53 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, rfhubg1: 1, pcm: 
         { label: '95640',   moduleType: '95640',   minSlots: 3, build: buildSynthetic95640,   scan: scan95640Vins },
       ];
 
-      // Task #450 — SGW (Secure Gateway) coverage. The slot table is
-      // intentionally EMPTY (see SGW_VIN_OFFSETS in parseModule.js /
-      // donorLeakScan.js) because no SGW dump byte offsets are documented
-      // anywhere in the codebase yet. The shape of the assertions below is
-      // therefore different from the rfhubg1 / 95640 synthetics:
+      // Task #457 — SGW (Secure Gateway) coverage. The slot table is
+      // intentionally EMPTY by DESIGN, not as a TODO (see
+      // SGW_VIN_OFFSETS in parseModule.js / donorLeakScan.js for the
+      // full rationale + the standalone design-decision doc at
+      // `docs/SGW_VIN_STORAGE.md`). SGW is an authentication module
+      // that does not store the vehicle VIN in any documented flash /
+      // EEPROM slot — the codebase carries no SGW captures, no parser
+      // path, and no EEPROM byte offsets anywhere. The shape of the
+      // assertions below therefore differs from the rfhubg1 / 95640
+      // synthetics on purpose:
       //
-      //   1. A clean SGW buffer (no donor VIN anywhere) round-trips as a
-      //      no-op — the scrubber reports 0 slots and the buffer comes out
-      //      byte-for-byte identical.
-      //   2. A buffer that DOES contain the donor VIN at an undocumented
-      //      offset must throw — the post-scrub leak guard is the only
-      //      thing standing between us and a silent leak when SGW dumps
-      //      eventually start carrying VIN-shaped strings (audit logs,
-      //      future firmware revisions, etc.).
+      //   1. A clean SGW buffer (no donor VIN anywhere) round-trips as
+      //      a no-op — the scrubber reports 0 slots and the buffer
+      //      comes out byte-for-byte identical.
+      //   2. A buffer that DOES contain the donor VIN at any offset
+      //      MUST throw — with an empty slot table, every offset is
+      //      "outside the documented windows" by definition, so the
+      //      post-scrub leak guard catches ALL donor-VIN occurrences
+      //      (forward, byte-reversed, and tail-6 serial). That
+      //      fail-loud behavior is the documented escape hatch: if a
+      //      real SGW dump ever surfaces with a stored VIN, the helper
+      //      refuses to scrub it and the maintainer learns at exactly
+      //      what offset, at which point `SGW_VIN_OFFSETS` can be
+      //      populated and SGW promoted into the standard synthetic
+      //      loop above (the synthetic scrubber + leak guard will
+      //      pick up the new offsets with no edit needed here —
+      //      single source of truth).
       //
-      // When real SGW VIN slot offsets are documented, populate
-      // SGW_VIN_OFFSETS in donorLeakScan.js + parseModule.js, then promote
-      // SGW out of this special block into the standard synthetic loop
-      // above (its scrubber will start reporting slots automatically with
-      // no further changes here — single source of truth).
-      describe('sgw (synthetic, empty slot table)', () => {
+      // Until and unless that day comes, these synthetic invariants ARE
+      // the SGW round-trip suite — and they pin the empty-slot
+      // contract the design decision relies on (assertion 1 below).
+      describe('sgw (synthetic, empty slot table by design)', () => {
         // Use a 4 KB buffer — a plausible size for an SGW EEPROM slice.
         // The exact size doesn't matter for these assertions; we just
         // need something the leak guard can scan.
         const SGW_BUF_SIZE = 4096;
 
-        it('exposes an empty SGW_VIN_OFFSETS export', () => {
-          // Pin the precondition the scrubber relies on. If this ever
-          // grows entries (i.e. real SGW slots get documented), the
-          // synthetic block above this one should be the one exercising
-          // SGW — promote it out of this special case.
+        it('exposes an empty SGW_VIN_OFFSETS export (design decision per docs/SGW_VIN_STORAGE.md)', () => {
+          // Pin the precondition the scrubber + leak guard rely on,
+          // and the precondition the design decision rests on. If
+          // this ever grows entries (i.e. a real SGW dump surfaced
+          // with a stored VIN slot and a maintainer documented the
+          // offset), update docs/SGW_VIN_STORAGE.md to reclassify
+          // SGW from "design decision" to "documented slot table"
+          // AND promote SGW out of this special-case block into the
+          // standard synthetic loop above (its scrubber will start
+          // reporting slots automatically — single source of truth).
           expect(Array.isArray(SGW_VIN_OFFSETS)).toBe(true);
           expect(SGW_VIN_OFFSETS.length).toBe(0);
         });

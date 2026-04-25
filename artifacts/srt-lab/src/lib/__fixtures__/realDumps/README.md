@@ -226,6 +226,53 @@ vehicle (anonymized VIN `2C3CDXL90MH582899`).
   `anonymizeRealDump.test.js` (the parseModule cross-check stays as
   the cheapest way to keep the Gen1 → RFHUB classification proven).
 
+- **SGW (Secure Gateway, 0x74F req / 0x76F resp on 2018+ FCA)** —
+  intentionally **fixture-less by design** (Task #457). Unlike every
+  other family in this directory, SGW does not (and is not expected
+  to ever) carry a `before.bin` / `after.bin` pair. The full
+  rationale lives in `artifacts/srt-lab/docs/SGW_VIN_STORAGE.md`;
+  the short version: SGW is an authentication module, not a content
+  module — it stores no VIN in any documented flash / EEPROM slot
+  (its only documented job is the live-bus XTEA(32) seed/key dance
+  in `docs/SGW_XTEA_ALGORITHM.md`). The repo's 30+ ECU captures
+  under `attached_assets/` carry zero SGW dumps because the SGW
+  firmware is signed and not exposed via UDS reads on the tooling
+  SRT Lab targets. SGW's slot table in
+  `src/lib/donorLeakScan.js` (`SGW_VIN_OFFSETS = []`) is therefore
+  permanently empty, and the synthetic SGW block in
+  `anonymizeRealDump.test.js` IS the SGW round-trip suite by
+  design (assertion 1 there pins the empty-slot contract).
+
+  **Acceptance-criteria note (Task #457).** The "real SGW
+  `before.bin` / `after.bin` fixture and round-trip loop" bullet on
+  the original task is **explicitly waived** under this design
+  decision: there is no real SGW EEPROM dump to anonymize because
+  no sanctioned OEM tooling reads the SGW EEPROM (the bench trace
+  cited below is what proves that). The bench trace runs every CI
+  invocation via `src/lib/__tests__/cdaSwfSgwBenchTrace.test.js`,
+  which inspects the cracked OEM Chrysler diagnostic SWF
+  (`attached_assets/CDA_1776448059516.swf`) and asserts the OEM
+  tool exposes the SGW authentication / status / timeout API
+  surface but ZERO SGW VIN read/write API surface (17 needles plus
+  the F190 UDS DID, all zero). That bench trace is the
+  **supporting evidence control** for the design decision — it is
+  not a substitute for a real SGW dump fixture. The day a genuine
+  SGW dump becomes available, the right move is unchanged from the
+  original task: drop a `sgw.before.bin` / `sgw.after.bin` pair
+  here, populate `SGW_VIN_OFFSETS` in `parseModule.js` and
+  `donorLeakScan.js` with the documented offsets, and graduate SGW
+  into the per-fixture loop alongside the other families. The
+  bench-trace test will then become a corroborating sanity check
+  rather than the primary evidence path.
+
+  Escape hatch: if a real SGW dump ever surfaces with a VIN at
+  some undocumented offset, hand it to
+  `scripts/anonymize-real-dump.mjs --module sgw …` and the
+  post-scrub leak guard (which runs WITHOUT MASKING for SGW
+  because there are no slot windows to mask) will exit 1 with
+  the exact offset; at that point the family graduates into this
+  directory like any other.
+
 - **`pcm8kb.before.bin` / `pcm8kb.after.bin`** — Continental GPEC2A
   (95640, **8 KB**) from
   `attached_assets/PCM_FCA_CONTINENTAL_GPEC2A_8KB_KEYPROG_2C3CDXCT1HH652640.bin`.

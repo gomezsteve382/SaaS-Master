@@ -67,7 +67,7 @@ const ROWS = [
 
   // ── Secure Gateway — never written to directly ────────────────────────
   {code:'SGW',   name:'Security Gateway',              tx:0x74F, rx:0x76F, kind:'unsupported', unlockId:'xtea_sgw',
-    notes:'SGW authenticates other writes; it does not store a VIN slot. Excluded from Program-All.'},
+    notes:'SGW authenticates other writes; it does not store a VIN slot. Excluded from Program-All. Design decision documented in docs/SGW_VIN_STORAGE.md (Task #457).'},
 
   // ── Passive / no-VIN-slot modules (rendered for reference) ────────────
   // These respond on the bus but do not own a F190 DID per AlfaOBD's
