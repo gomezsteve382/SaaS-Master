@@ -1270,7 +1270,7 @@ function UploadSlot({label, slotType, file, onLoad}){
     {file ? <div style={{fontFamily:'JetBrains Mono',fontSize:11,fontWeight:700,color:'#00695C',wordBreak:'break-all'}}>
       {file.name}
       <div style={{color:C.ts,fontSize:11,fontWeight:600,marginTop:2}}>{file.size.toLocaleString()} bytes</div>
-      {file.pnOverride && <div data-testid="pn-override-pill" style={{display:'inline-block',marginTop:6,padding:'2px 8px',borderRadius:999,background:C.wn+'22',border:'1px solid '+C.wn+'66',color:C.wn,fontSize:9,fontWeight:800,letterSpacing:1}}>P/N OVERRIDE — NOT IN REGISTRY</div>}
+      {file.pnOverride && <div data-testid="pn-override-pill" style={{display:'inline-block',marginTop:6,padding:'3px 10px',borderRadius:999,background:'#FFE8B0',border:'1px solid #8A5300',color:'#5C3700',fontSize:11,fontWeight:800,letterSpacing:0.5}}>P/N OVERRIDE — NOT IN REGISTRY</div>}
     </div> : <div style={{fontSize:11,color:C.ts,fontWeight:600}}>drop / click to upload</div>}
     <input id={'u-'+label} type="file" style={{display:'none'}} onChange={e=>onLoad(e.target.files, slotType)}/>
   </div>;
