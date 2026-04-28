@@ -3,7 +3,7 @@ import {C} from "../lib/constants.js";
 import {Card, Tag, Btn} from "../lib/ui.jsx";
 import {parseRFH24C32, parsePCMGPEC, computeCompatibility, applyRfhToPcm} from "../lib/rfhPcmPair.js";
 import SamplePicker from "../lib/SamplePicker.jsx";
-import {fmtOff} from "./ModuleSync.jsx";
+import {fmtOff, moduleSizeBadge} from "./ModuleSync.jsx";
 
 /* Task #466 — adopt the SINCRO-style `0xHHHH (D)` offset render exported
  * from ModuleSync so RFH/PCM offsets read identically to the rest of the
@@ -99,8 +99,23 @@ export default function RFHPCMTab() {
 
   const compat = useMemo(() => computeCompatibility(rfh, pcm), [rfh, pcm]);
 
+  /* Task #478 — mirror the Module Sync (Task #475) PCM file-size guard
+   * inside the OBD flashing wizard (this RFH→PCM tab is the second
+   * entry point that loads a PCM .bin and emits a patched image). The
+   * shared `moduleSizeBadge('pcm', N)` helper returns the same chip-
+   * variant badge (95320 / 95640 / OTHER) the Module Sync workspace
+   * shows; when the loaded PCM isn't 4 KB / 8 KB we surface the same
+   * red "Programmer says 'File different size'?" banner here AND block
+   * APPLY / DOWNLOAD so a tech can't ship a wrong-sized file that the
+   * CGDI / Xprog / Orange5 flasher will reject on the bench. */
+  const pcmSizeBadge = useMemo(
+    () => (pcmBuf ? moduleSizeBadge('pcm', pcmBuf.length) : null),
+    [pcmBuf]
+  );
+  const pcmSizeNonCanonical = !!(pcmSizeBadge && pcmSizeBadge.canonical === false);
+
   const doApply = () => {
-    if (!compat.canApply) return;
+    if (!compat.canApply || pcmSizeNonCanonical) return;
     const result = applyRfhToPcm(rfh, pcm, pcmBuf, {repairImmo});
     if (!result) { setMsg("Apply failed — invalid inputs"); return; }
     if (result.error) {
@@ -114,7 +129,7 @@ export default function RFHPCMTab() {
   };
 
   const doDownload = () => {
-    if (!patched) return;
+    if (!patched || pcmSizeNonCanonical) return;
     const vin = rfh?.vin?.value || "NOVIN";
     const base = (pcmFile?.name || "pcm.bin").replace(/(\.[^.]+)?$/, "");
     const fn = base + "_RFH-PCM_" + vin + ".bin";
@@ -148,6 +163,28 @@ export default function RFHPCMTab() {
           <SamplePicker kinds={['GPEC_EXT']} onFile={handlePcm} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample PCM (Mitchell 6.2 pairs with RFH)"/>
           {pcmErr && <div style={{marginTop:6,padding:"6px 10px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:11,fontWeight:700}}>✗ {pcmErr}</div>}
         </div>
+      </div>
+      {/* Task #478 — Same "Programmer says 'File different size'?" help
+          blurb the Module Sync workspace renders below its uploaders.
+          Sits directly under the PCM drop zone so a tech who already
+          loaded a wrong-sized PCM has the explanation in their sight-
+          line without leaving the OBD wizard. */}
+      <div data-testid="obdwiz-programmer-size-help" style={{
+        marginTop:14, padding:"10px 12px", borderRadius:10,
+        background:C.a3+"0E", border:`1px solid ${C.a3}40`,
+        color:C.tx, fontSize:11, fontWeight:600, lineHeight:1.5,
+      }}>
+        <div style={{fontWeight:800,fontSize:11,color:C.a3,letterSpacing:.5,marginBottom:4}}>
+          ❓ Programmer says &quot;File different size&quot;?
+        </div>
+        The CGDI / Xprog / Orange5 flasher refuses any image whose byte
+        count doesn&apos;t match the chip on the bench. The PCM EXT EEPROM
+        must be exactly <strong>4 KB (95320)</strong> or <strong>8 KB (95640)</strong>.
+        The badge on the PCM panel below shows the live byte count and
+        chip class — re-read the EXT EEPROM (not INT FLASH) if it shows
+        <span style={{color:C.er,fontWeight:800}}> OTHER</span>. APPLY and
+        DOWNLOAD stay disabled until the loaded file matches a canonical
+        GPEC2A chip size.
       </div>
     </Card>
 
@@ -215,14 +252,52 @@ export default function RFHPCMTab() {
 
       {/* PCM PANEL */}
       <Card style={{padding:18}}>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
           <span style={{fontSize:14,fontWeight:900,color:C.a4}}>PCM (GPEC2/GPEC3)</span>
           {pcm && <Tag color={C.tm}>{pcm.size} B</Tag>}
           {pcm && <Tag color={pcm.writeCheck.ok ? C.gn : C.er}>{pcm.writeCheck.ok ? "writable ✓" : (pcm.writeCheck.canonical===false && pcm.size>=0x3CE ? "non-canonical size" : "too small")}</Tag>}
+          {/* Task #478 — chip-variant badge mirroring the Module Sync
+              upload zone (`modsync-pcm-size-badge`). Same dataKey /
+              canonical attributes so future tooling can grep the badge
+              from either entry point. */}
+          {pcmSizeBadge && (
+            <span data-testid="obdwiz-pcm-size-badge"
+                  data-size-key={pcmSizeBadge.dataKey}
+                  data-size-canonical={pcmSizeBadge.canonical ? '1' : '0'}
+                  style={{
+                    fontSize:9, padding:"3px 8px", borderRadius:6, letterSpacing:.6,
+                    background:pcmSizeBadge.color, color:'#fff', fontWeight:800,
+                  }}>{pcm.size.toLocaleString()} B · {pcmSizeBadge.label}</span>
+          )}
         </div>
         {!pcm && <div style={{fontSize:12,color:C.tm,padding:20,textAlign:"center"}}>Load a PCM file</div>}
         {pcm && <>
           {pcm.sizeWarn && <div style={{padding:"6px 10px",borderRadius:8,background:C.wn+"15",color:C.wn,fontSize:11,fontWeight:700,marginBottom:8}}>⚠ {pcm.sizeWarn}</div>}
+          {/* Task #478 — red block banner. Mirrors the Module Sync
+              guard: when the loaded PCM isn't a canonical GPEC2A chip
+              size (4 KB / 8 KB) the bench programmer will refuse the
+              image with "File different size". APPLY + DOWNLOAD are
+              already wired to refuse the same way; this banner makes
+              the refusal visible so the tech doesn't hunt for a greyed-
+              out button. */}
+          {pcmSizeNonCanonical && (
+            <div data-testid="obdwiz-programmer-size-block" style={{
+              padding:"10px 12px", borderRadius:10, marginBottom:10,
+              background:C.er+"12", border:`1.5px solid ${C.er}66`,
+              color:C.er, fontSize:11, fontWeight:700, lineHeight:1.5,
+            }}>
+              <div style={{fontWeight:900,fontSize:12,letterSpacing:.5,marginBottom:4}}>
+                ⛔ Programmer says &quot;File different size&quot;?
+              </div>
+              <span style={{color:C.tx,fontWeight:600}}>
+                Loaded PCM is <strong>{pcm.size.toLocaleString()} B</strong> — not
+                a canonical GPEC2A chip (must be exactly 4 KB / 95320 or
+                8 KB / 95640). APPLY and DOWNLOAD are blocked until the
+                file matches the bench chip. Re-read the EXT EEPROM and
+                drop the new dump above.
+              </span>
+            </div>
+          )}
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginBottom:10}}>
             <tbody>
               <Row off={fmtOff(0x0000)} label="VIN current" value={pcm.vinCurrent || "(invalid)"} mono color={pcm.vinCurrent?C.gn:C.er}/>
@@ -290,8 +365,8 @@ export default function RFHPCMTab() {
       </div>
 
       <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-        <Btn onClick={doApply} disabled={!compat.canApply} color={C.a2}>⚡ APPLY — Patch PCM in memory</Btn>
-        <Btn onClick={doDownload} disabled={!patched} color={C.sr}>💾 DOWNLOAD patched PCM</Btn>
+        <Btn onClick={doApply} disabled={!compat.canApply || pcmSizeNonCanonical} color={C.a2}>⚡ APPLY — Patch PCM in memory</Btn>
+        <Btn onClick={doDownload} disabled={!patched || pcmSizeNonCanonical} color={C.sr}>💾 DOWNLOAD patched PCM</Btn>
       </div>
 
       {applyLog.length > 0 && <div style={{marginTop:12,padding:"10px 14px",borderRadius:10,background:C.c2,border:"1px solid "+C.bd}}>
