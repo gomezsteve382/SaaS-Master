@@ -36,6 +36,7 @@ import CFlashTab from "./tabs/CFlashTab.jsx";
 import EfdInspectorTab from "./tabs/EfdInspectorTab.jsx";
 import EcmFlasherTab from "./tabs/EcmFlasherTab.jsx";
 import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
+import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
@@ -898,6 +899,7 @@ const WORKSPACE_TABS = [
   {id:'efd',       i:'📦', l:'EFD',          s:'.webm/.efd inspector'},
   {id:'flasher',   i:'⚡', l:'ECM FLASHER',  s:'GPEC2A bench programmer'},
   {id:'cdasession',i:'🔐', l:'CDA6 SESSION', s:'9-step UDS walkthrough'},
+  {id:'vinprog',   i:'🪪', l:'VIN PROG',     s:'Single-file VIN + checksum'},
 ];
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -1045,6 +1047,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='efd'       && <EfdInspectorTab efdFile={efdFile} files={files} onLoad={loadF} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
         {tab==='flasher'   && <EcmFlasherTab selectedFile={selectedCflash} files={files} onSelectFile={setSelectedCflash}/>}
         {tab==='cdasession'&& <Cda6SessionTab/>}
+        {tab==='vinprog'   && <VinProgrammerTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also
