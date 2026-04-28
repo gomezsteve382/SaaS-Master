@@ -274,4 +274,95 @@ describe("ModuleSync — Reset clears multi-module workspace state (Task #464 / 
     expect(screen.queryByRole("button", { name: /Restore RFH original/i })).toBeNull();
     expect(screen.queryByRole("button", { name: /Restore PCM original/i })).toBeNull();
   });
+
+  /* Task #467 — Reset must really clear the per-module undo state.
+   *
+   * The end-to-end test above only drives `bcm-to-rfh`, which
+   * populates `originals.rfh` + `diffRows` but leaves `originals.bcm`
+   * null. That means the post-reset "Restore BCM original is gone"
+   * assertion in that test is vacuous for the BCM slot — there was
+   * never a BCM original to begin with, so a future refactor could
+   * partially break the originals clear and the test wouldn't notice
+   * for the BCM half.
+   *
+   * This test closes that gap two ways:
+   *
+   * 1. It drives `target-both` (the only single-action path that
+   *    sets BOTH `originals.bcm` AND `originals.rfh` in a single
+   *    `setOriginals` call, plus appends BCM and RFH `diffRows`),
+   *    so the pre-reset assertions for BOTH "⟲ Restore BCM
+   *    original" and "⟲ Restore RFH original" are non-vacuous.
+   *
+   * 2. After Reset it asserts that BOTH undo buttons AND the
+   *    "VIN Slot Diff" table header have disappeared, which is the
+   *    literal sentinel the task spec asks for. Because the
+   *    Restore-originals row and the VinDiffTable both live inside
+   *    the bothReady-gated Sync Actions card, clearing the BCM/RFH
+   *    parses (which Reset does first) is what unmounts them — but
+   *    the assertions still pin that gate behaviour: if a future
+   *    refactor moves the diff table or the Restore buttons OUT of
+   *    the bothReady block (e.g. into a persistent sidebar) without
+   *    also re-routing them through the cleared diffRows / originals
+   *    state, this test fires. */
+  it("clears originals.bcm + originals.rfh + diffRows after a real target-both sync", async () => {
+    const { container } = renderModuleSync();
+
+    /* Load just BCM + RFH (no PCM) — the minimum the task spec calls
+     * for, and enough to flip bothReady so the Sync Actions card with
+     * its Target VIN input + the target-both button mounts. */
+    await loadFixtureIntoSlot(container, 0, "bcm.bin",
+      realFixture("SAMPLE_BCM_SYNCED_2C3CDXL90MH582899.bin"));
+    await loadFixtureIntoSlot(container, 1, "rfh.bin",
+      realFixture("SAMPLE_RFH_SYNCED_VIRGIN_2C3CDXL90MH582899.bin"));
+
+    /* Type a Target VIN that satisfies VIN_RE — required to enable
+     * the "🎯 TARGET VIN → BCM + RFH" button (gated on `tvOk`). A VIN
+     * different from the loaded fixtures' VIN is fine; target-both
+     * happily over-writes both modules with whatever is typed in. */
+    const vinInput = await waitFor(() => {
+      const el = container.querySelector('input[placeholder="Enter 17-character VIN"]');
+      expect(el).toBeTruthy();
+      return el;
+    });
+    await act(async () => {
+      fireEvent.change(vinInput, { target: { value: "2C3CDXKT3FH796320" } });
+    });
+    /* The component normalises to upper-case + VIN-charset every
+     * keystroke; assert the input now holds the canonical 17-char form
+     * VIN_RE accepts so we know the target-both button will be enabled. */
+    expect(vinInput.value).toBe("2C3CDXKT3FH796320");
+
+    /* Click "🎯 TARGET VIN → BCM + RFH" — the only single-action path
+     * that sets BOTH originals.bcm AND originals.rfh (plus appends BCM
+     * and RFH diffRows) in one call. */
+    const targetBothBtn = await waitFor(() =>
+      screen.getByRole("button", { name: /TARGET VIN.*BCM.*RFH/i })
+    );
+    await act(async () => { fireEvent.click(targetBothBtn); });
+
+    /* Pre-reset: all three undo surfaces must be present. If any of
+     * these is missing, target-both didn't populate what the test
+     * relies on and the post-reset assertions would be vacuous —
+     * which is the very gap Task #467 is closing for the existing
+     * `bcm-to-rfh` test. The BCM assertion is the new coverage that
+     * the task explicitly asks for. */
+    expect(screen.getByText(/VIN Slot Diff/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Restore BCM original/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Restore RFH original/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId("modsync-reset-btn"));
+
+    /* Post-reset: the Target VIN input goes away (bothReady gate
+     * dropped), and so do BOTH Restore-original buttons and the
+     * "VIN Slot Diff" header — exactly the surfaces Task #467 wants
+     * the Reset gesture to make disappear after a real multi-module
+     * sync, where previously only the RFH-side undo had ever been
+     * populated and asserted-then-cleared. */
+    await waitFor(() => {
+      expect(container.querySelector('input[placeholder="Enter 17-character VIN"]')).toBeNull();
+    });
+    expect(screen.queryByText(/VIN Slot Diff/i)).toBeNull();
+    expect(screen.queryByRole("button", { name: /Restore BCM original/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Restore RFH original/i })).toBeNull();
+  });
 });
