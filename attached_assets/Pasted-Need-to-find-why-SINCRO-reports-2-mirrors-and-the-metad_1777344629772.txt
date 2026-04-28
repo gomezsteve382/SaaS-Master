@@ -1,0 +1,47 @@
+Need to find why SINCRO reports 2 mirrors and the metadata strings. Let me dig deeper:**Major discovery.** This is a different BCM layout from the KH633754 file. Let me decode what's actually here:**Now I have it.** The CRC algorithm is exactly what we documented: **CRC-16/CCITT over 20 bytes [idx + SEC16(16) + 0x8F + 0xFF + 0xFF]**. Both mirrors validate perfectly. SINCRO calls these "mirrors" — they live at **0x00C8 and 0x00F0**, not 0x82xx like I was checking. Let me also verify the metadata strings and check the active bank logic:One thing the wizard reports differently than SINCRO. Let me confirm:Now I have everything needed. Here's the complete verification:
+
+## ✅ EH219538 — FULLY MATCHED · KEY-READY
+
+**2014 Dodge Charger** · BCM PN **68396563AC** / **68396564AC** · Supplier **TYH07990**
+
+This file set is **byte-for-byte aligned with what SINCRO reports**. Every claim in their inspection panel checks out against the raw bytes.
+
+### Cross-reference vs SINCRO
+
+| SINCRO says | My check | Status |
+|---|---|---|
+| RFH SEC16 = `08A1C5E7BA303582C3821594793C2FC4` | @0x050E and @0x0522 | ✓ identical, PRI=BAK |
+| BCM SEC16 view = `C42F3C79941582C3823530BAE7C5A108` | reverse(RFH) — exact | ✓ |
+| BCM 4 VIN copies CS OK | @0x1328, 0x1348, 0x1368, 0x1388 — CRC-16 0x7753 each | ✓ |
+| BCM 3 SEC16 main records | @0x81A0, 0x81C0, 0x81E0 — frag `C42F3C7994158204` | ✓ |
+| BCM 2 SEC16 mirrors with CRC OK | @0x00C8 and @0x00F0 — CRC-16/CCITT 0x23C1 verified on both | ✓ |
+| RFH 4 VIN slots CS OK | @0xEA5/0xEB9/0xECD/0xEE1 — chk 0xE5 each | ✓ |
+| RFH 2 SEC16 slots match | identical | ✓ |
+| PCM SEC6 = `08 A1 C5 E7 BA 30` | @0x3C8 with FFFFFFAA marker @0x3C4 | ✓ |
+| PCM IMMO_SANO | matches RFH SEC16[0:6] | ✓ |
+| VIN consistent across all 3 modules | `2C3CDXHG5EH219538` everywhere | ✓ |
+
+### What's *new* compared to KH633754
+
+This file set taught us something important about **BCM mirror locations**. KH633754 (2019+ gen2-split BCM family 68525720) had its mirrors at the standard 0x82xx range. **This 2014 BCM (68396563) puts the SEC16 mirrors at 0x00C8 and 0x00F0** — early in flash, before the bank header. SINCRO calls these "off7 201" / "off7 241" in their UI but those are display labels, not byte offsets.
+
+The mirror format is identical though: **CRC-16/CCITT over 20 bytes [idx + SEC16(16) + 0x8F + 0xFF + 0xFF]**. Both mirrors here produce CRC `0x23C1` and that's what's stored — verified.
+
+### Differences from KH633754
+
+| | KH633754 (2019 Scat) | EH219538 (2014 Charger) |
+|---|---|---|
+| BCM PN | 68525720/21 | **68396563AC / 68396564AC** |
+| Year/Body | 2019 LD Scat Pack | **2014 LX Charger** |
+| Mirror offsets | 0x82xx (gen2-split standard) | **0x00C8 / 0x00F0 (early flash)** |
+| Mirror count | 1 populated | **2 populated** (with CRC verify) |
+| Flat 0x40C8 | populated forward | **populated reversed** (`FF 08A1C5E7BA30...`) |
+| PCM extra VIN | 0x224 only | + 0x1F0, 0x224, **0xCE0** |
+
+### Note on the wizard log saying "Security token issues detected"
+
+I don't see what the wizard was flagging — every security token validates clean. That warning may be the wizard's known false-positive on this older BCM family because it expects mirrors at 0x82xx (gen2-split layout) and finds them blank, when really the mirrors are at 0x00C8/0x00F0 for this 2014-era BCM. **Worth fixing in your wizard's mirror-detection logic** so it scans both locations.
+
+### Verdict
+
+**Cleared for key programming.** All three modules carry the same VIN, SEC16 chain is mathematically perfect (RFH ↔ reverse → BCM, RFH[0:6] = PCM SEC6), all CRCs validate, both mirror banks intact. This is a textbook clean trio — same quality as the KH633754 set you just did.

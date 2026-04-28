@@ -43,4 +43,52 @@ export const ADCM_MODULES=[
   {id:'ADCM_754',tx:0x754,rx:0x75C,n:'Active Damping (754)',veh:'Legacy ADCM address'},
 ];
 
+/* ──────────────────────────────────────────────────────────────────────────
+ * Programmer / bench-tool brands and per-module connection-guide URLs.
+ * Surfaced on the Module Sync workspace so a tech who already uses one of
+ * these benches can jump straight to the wiring guide for the chip they
+ * have in hand. URLs intentionally point at vendor wiki / product pages
+ * rather than shopping links — these are reference / how-to links, not
+ * affiliate redirects.
+ * ────────────────────────────────────────────────────────────────────────── */
+export const PROGRAMMERS = {
+  MULTIPROG: { id: 'MULTIPROG', label: 'MULTIPROG', vendor: 'XHorse',  homeUrl: 'https://www.xhorsevvdi.com/multiprog' },
+  UPA:       { id: 'UPA',       label: 'UPA',       vendor: 'UPA-USB', homeUrl: 'http://www.upa-usb.com/' },
+  GODIAG:    { id: 'GODIAG',    label: 'GODIAG',    vendor: 'GoDiag',  homeUrl: 'https://www.godiag.com/' },
+  OBDSTAR:   { id: 'OBDSTAR',   label: 'OBDSTAR',   vendor: 'OBDSTAR', homeUrl: 'https://en.obdstar.com/' },
+};
+
+/* Per-module Connection Guides for the LX (Charger / Challenger) workspace.
+ * `chip` is the silicon family the bench actually clips onto, not the FCA
+ * marketing name — that's what techs filter by when picking an adapter. */
+export const MODULE_CONNECTION_GUIDES = [
+  {
+    module: 'BCM',
+    chip:   'MPC560xB',
+    label:  'BCM (MPC560xB)',
+    guides: [
+      { programmer: 'MULTIPROG', url: 'https://www.xhorsevvdi.com/multiprog/mpc560xb' },
+      { programmer: 'UPA',       url: 'http://www.upa-usb.com/eng/adapters_mpc560xb.html' },
+    ],
+  },
+  {
+    module: 'PCM',
+    chip:   'GPEC2A',
+    label:  'PCM (GPEC2A)',
+    guides: [
+      { programmer: 'GODIAG',    url: 'https://www.godiag.com/godiag-gt107-dsg-gearbox-data-read-write-adapter.html' },
+    ],
+  },
+  {
+    module: 'RFH',
+    chip:   '9S12X',
+    label:  'RFH (9S12X)',
+    guides: [
+      { programmer: 'MULTIPROG', url: 'https://www.xhorsevvdi.com/multiprog/9s12x' },
+      { programmer: 'UPA',       url: 'http://www.upa-usb.com/eng/adapters_9s12x.html' },
+      { programmer: 'OBDSTAR',   url: 'https://en.obdstar.com/' },
+    ],
+  },
+];
+
 export {u32};

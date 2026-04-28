@@ -6,6 +6,8 @@ import MismatchWizard from "../components/MismatchWizard.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
 import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, resolveBcmSec16, classifyPcmSec6, parseModule, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
 import { crossValidate } from "../lib/crossValidate.js";
+import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
+import { scoreCandidate, fmtPick, CANONICAL_PATTERNS } from "../lib/bestPick.js";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -657,6 +659,19 @@ function bcmFamilyMismatch(parsedBcm, familyId) {
 function hex2(n)  { return n.toString(16).toUpperCase().padStart(2,  '0'); }
 function hex4(n)  { return n.toString(16).toUpperCase().padStart(4,  '0'); }
 function bytesToHex(b) { return Array.from(b).map(hex2).join(''); }
+
+/* fmtOff (Task #464) — combined hex + decimal offset render. Mirrors the
+ * FCA SINCRO reference tool's compact "0x1328 (4904)" notation so a tech
+ * reading the screen alongside a hex editor doesn't have to convert in
+ * their head. Centralised here so every place ModuleSync renders an
+ * offset stays identical, and reused by the offset-formatter unit test. */
+export function fmtOff(o) {
+  if (o == null || (typeof o === 'number' && !Number.isFinite(o))) return '—';
+  const n = Number(o);
+  if (Number.isNaN(n)) return '—';
+  const hex = n.toString(16).toUpperCase().padStart(4, '0');
+  return `0x${hex} (${n})`;
+}
 function timestamp() {
   const d = new Date(), p = n => n.toString().padStart(2, '0');
   return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
@@ -674,6 +689,55 @@ function downloadBin(bytes, filename) {
 /* ==========================================================================
  * UI COMPONENTS
  * ========================================================================== */
+
+/* ConnectionGuides (Task #464) — compact per-module link row for the bench
+ * tools / programmers a tech is most likely to be holding. Surfaces the
+ * MODULE_CONNECTION_GUIDES table from programmerData.js so a Charger /
+ * Challenger LX workflow shows: BCM (MPC560xB) → MULTIPROG · UPA, PCM
+ * (GPEC2A) → GODIAG, RFH (9S12X) → MULTIPROG · UPA · OBDSTAR. The row
+ * collapses to a vertical stack on narrow widths and is purely advisory —
+ * it never blocks any sync action. */
+function ConnectionGuides() {
+  return (
+    <div data-testid="modsync-connection-guides" style={{
+      display: 'flex', flexWrap: 'wrap', gap: 14,
+      padding: '10px 14px', marginBottom: 12,
+      background: C.c2, border: `1px solid ${C.bd}`, borderRadius: 10,
+      fontSize: 11,
+    }}>
+      <div style={{ fontWeight: 800, color: C.ts, letterSpacing: 0.6, textTransform: 'uppercase', alignSelf: 'center', whiteSpace: 'nowrap' }}>
+        🛠 Connection Guides
+      </div>
+      {MODULE_CONNECTION_GUIDES.map(group => (
+        <div key={group.module}
+             data-testid={`modsync-guides-${group.module.toLowerCase()}`}
+             style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          <span style={{ fontWeight: 800, color: C.tx }}>{group.label}</span>
+          <span style={{ color: C.tm }}>→</span>
+          {group.guides.map((g, idx) => {
+            const prog = PROGRAMMERS[g.programmer];
+            const label = prog?.label || g.programmer;
+            return (
+              <React.Fragment key={g.programmer}>
+                {idx > 0 && <span style={{ color: C.tm, fontSize: 10 }}>·</span>}
+                <a href={g.url} target="_blank" rel="noopener noreferrer"
+                   data-testid={`modsync-guide-link-${group.module.toLowerCase()}-${g.programmer.toLowerCase()}`}
+                   title={`${group.label} — ${label} (${prog?.vendor || ''}) connection guide`}
+                   style={{
+                     color: C.a3, textDecoration: 'none', fontWeight: 700,
+                     padding: '2px 6px', borderRadius: 4,
+                     border: `1px solid ${C.a3}30`, background: C.cd,
+                   }}>
+                  {label}
+                </a>
+              </React.Fragment>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function DropZone({ label, icon, hint, file, onFile, accent }) {
   const [over, setOver] = useState(false);
@@ -745,6 +809,53 @@ function PnOverrideBadge() {
   );
 }
 
+/* OffsetList (Task #464) — small dimmed mono row that lists each slot's
+ * canonical hex+decimal offset under a Kv summary line. Centralises the
+ * styling so BCM / RFH / PCM cards stay visually consistent. */
+function OffsetList({ offsets, testid }) {
+  if (!offsets || offsets.length === 0) return null;
+  return (
+    <div data-testid={testid} style={{
+      fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'",
+      marginTop: -2, marginBottom: 6, paddingLeft: 130, lineHeight: 1.5,
+      wordBreak: 'break-all',
+    }}>
+      {offsets.map(o => fmtOff(o)).join(' · ')}
+    </div>
+  );
+}
+
+/* PickBreakdown (Task #464) — dimmed one-liner under each module panel
+ * showing the SINCRO-style "PICK score X — useful Y, ratio Z, len N, pr R"
+ * scoring breakdown for a single field (PN / Serial / OS). The kind label
+ * lets a tech see at a glance which field the score belongs to without
+ * pushing the breakdown into a popup. */
+function PickBreakdown({ kind, value, breakdown, testid }) {
+  if (!value || !breakdown) return null;
+  return (
+    <div data-testid={testid} style={{
+      fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'",
+      marginTop: 2, lineHeight: 1.5, paddingLeft: 130,
+    }}>
+      <span style={{ color: C.ts, fontWeight: 700, marginRight: 6 }}>{kind}</span>
+      <span style={{ color: C.tx }}>{value}</span>
+      <span style={{ marginLeft: 6, color: C.tm }}>— {fmtPick(breakdown)}</span>
+    </div>
+  );
+}
+
+/* scoreModuleField — small wrapper that takes a field's chosen value plus
+ * the regex it should match, and returns the breakdown object the
+ * PickBreakdown component renders. precedenceRank defaults to 1.0 because
+ * every field surfaced on the BCM / RFH / PCM cards is sourced from the
+ * canonical-offset extractor in the per-module parser; fallback regex
+ * hits would call this with precedenceRank=0.5 to demote them. */
+function scoreModuleField(value, canonicalRegex, precedenceRank = 1.0) {
+  if (!value) return null;
+  const matchesCanonical = canonicalRegex ? canonicalRegex.test(value) : false;
+  return scoreCandidate({ value, precedenceRank, matchesCanonical });
+}
+
 function BcmCard({ parsed, pnOverride }) {
   if (!parsed) return null;
   if (parsed.tooSmall) {
@@ -786,6 +897,7 @@ function BcmCard({ parsed, pnOverride }) {
       )}
       <Kv k="Stored VIN"   v={parsed.vin} mono />
       <Kv k="VIN slots"    v={`${parsed.vinSlots.length} / 4 · ${parsed.vinConsistent ? 'all match' : 'MISMATCH'}`} />
+      <OffsetList offsets={parsed.vinSlots.map(s => s.offset)} testid="bcm-vin-slot-offsets" />
       <Kv k="File size"    v={`${parsed.size} bytes (${(parsed.size/1024).toFixed(1)} KB)`} mono />
       {parsed.vinSlots.length > 0 && (() => {
         const allOk = parsed.vinSlots.every(s => s.crcOk);
@@ -793,8 +905,24 @@ function BcmCard({ parsed, pnOverride }) {
         return <Kv k="VIN CRC-16" v={`0x${hex4(crc)} · ${allOk ? '✓ valid' : '✗ mismatch'}`} mono color={allOk ? C.gn : C.er} />;
       })()}
       {match && <Kv k="Vehicle"  v={match.name} />}
-      {parsed.partNumbers.length > 0 && <Kv k="Part numbers" v={parsed.partNumbers.join(', ')} mono />}
-      {parsed.supplierSerial && <Kv k="Supplier" v={parsed.supplierSerial} mono />}
+      {parsed.partNumbers.length > 0 && (
+        <>
+          <Kv k="Part numbers" v={parsed.partNumbers.join(', ')} mono />
+          {(() => {
+            const b = scoreModuleField(parsed.partNumbers[0], CANONICAL_PATTERNS.bcmPn);
+            return <PickBreakdown kind="PN"  value={parsed.partNumbers[0]} breakdown={b} testid="bcm-pn-pick" />;
+          })()}
+        </>
+      )}
+      {parsed.supplierSerial && (
+        <>
+          <Kv k="Supplier" v={parsed.supplierSerial} mono />
+          {(() => {
+            const b = scoreModuleField(parsed.supplierSerial, CANONICAL_PATTERNS.serial);
+            return <PickBreakdown kind="Serial" value={parsed.supplierSerial} breakdown={b} testid="bcm-serial-pick" />;
+          })()}
+        </>
+      )}
       {parsed.banks && (
         <Kv k="Active bank" v={`Bank ${parsed.banks.activeBank} (seq 0x${hex4(parsed.banks.activeBank === 0 ? parsed.banks.bank0Seq : parsed.banks.bank1Seq)})`} mono />
       )}
@@ -871,20 +999,47 @@ function RfhCard({ parsed, pnOverride }) {
       )}
       <Kv k="Stored VIN"  v={parsed.vin} mono />
       <Kv k="VIN slots"   v={`${parsed.vinSlots.length} / 4 · ${parsed.vinConsistent ? 'all match' : 'MISMATCH'}`} />
+      <OffsetList offsets={parsed.vinSlots.map(s => s.offset)} testid="rfh-vin-slot-offsets" />
       <Kv k="File size"   v={`${parsed.size} bytes`} mono />
       {parsed.vinSlots.length > 0 && (() => {
         const allOk = parsed.vinSlots.every(s => s.chkOk);
         const chk   = parsed.vinSlots[0].computedChk;
         return <Kv k="VIN checksum" v={`0x${hex2(chk)} · ${allOk ? '✓ valid' : '⚠ mismatch'}`} mono color={allOk ? C.gn : C.wn} />;
       })()}
-      {parsed.partNumbers.length > 0 && <Kv k="Part numbers" v={parsed.partNumbers.join(', ')} mono />}
-      {parsed.internalSerial && <Kv k="Serial" v={parsed.internalSerial} mono />}
+      {parsed.partNumbers.length > 0 && (
+        <>
+          <Kv k="Part numbers" v={parsed.partNumbers.join(', ')} mono />
+          {(() => {
+            const b = scoreModuleField(parsed.partNumbers[0], CANONICAL_PATTERNS.rfhPn);
+            return <PickBreakdown kind="PN"  value={parsed.partNumbers[0]} breakdown={b} testid="rfh-pn-pick" />;
+          })()}
+        </>
+      )}
+      {parsed.internalSerial && (
+        <>
+          <Kv k="Serial" v={parsed.internalSerial} mono />
+          {(() => {
+            const b = scoreModuleField(parsed.internalSerial, CANONICAL_PATTERNS.serial);
+            return <PickBreakdown kind="Serial" value={parsed.internalSerial} breakdown={b} testid="rfh-serial-pick" />;
+          })()}
+        </>
+      )}
       <Kv k="Keys stored"   v={`${parsed.keyCount} slot${parsed.keyCount === 1 ? '' : 's'} populated`} />
 
       {parsed.sec16 && (
         <div style={{ marginTop: 8, borderTop: `1px solid ${C.bd}`, paddingTop: 8 }}>
           <div style={{ fontWeight: 800, fontSize: 11, letterSpacing: 0.8, color: C.a4, marginBottom: 4 }}>
-            SEC16 · {parsed.format === 'gen2' ? `0x${hex4(0x050E)} / 0x${hex4(0x0522)}` : `0x${hex4(0x0226)} / 0x${hex4(0x023A)}`}
+            SEC16 · {parsed.format === 'gen2' ? `${fmtOff(0x050E)} / ${fmtOff(0x0522)}` : `${fmtOff(0x0226)} / ${fmtOff(0x023A)}`}
+          </div>
+          {/* Task #464 — surface the slot-pair agreement at the top of the
+              SEC16 panel so a tech can see at a glance whether the two RFH
+              SEC16 slots are byte-for-byte identical. The reference SINCRO
+              tool prints "Slots match: yes/no" before the slot bytes; we
+              mirror that ordering for parity. */}
+          <div data-testid="rfh-sec16-slots-match">
+            <Kv k="Slots match"
+                v={isVirgin ? 'n/a (virgin)' : (isMatch ? 'yes' : 'no')}
+                color={isVirgin ? C.wn : (isMatch ? C.gn : C.er)} />
           </div>
           <Kv k="Status"  v={isVirgin ? 'VIRGIN (all FF)' : isMatch ? '✓ MATCH' : '✗ MISMATCH'}
               color={isVirgin ? C.wn : isMatch ? C.gn : C.er} />
@@ -955,6 +1110,7 @@ export function PcmCard({ parsed, bytes, pnOverride }) {
       {parsed.originalVin && parsed.originalVin !== parsed.currentVin &&
         <Kv k="Original VIN" v={parsed.originalVin} mono color={C.wn} hint="← donor VIN" />}
       <Kv k="VIN slots"    v={`${parsed.vinSlots.length} found`} />
+      <OffsetList offsets={parsed.vinSlots.map(s => s.offset)} testid="pcm-vin-slot-offsets" />
       <Kv k="File size"    v={`${parsed.size} bytes (${(parsed.size/1024).toFixed(1)} KB)`} mono />
       <Kv k="Immo (SEC6)"  v={parsed.immoLabel || (parsed.immoDamaged ? 'DAMAGED / MISSING' : parsed.immoOk ? '✓ Populated' : 'Virgin (all FF)')}
           color={parsed.immoOk ? C.gn : (parsed.sec6Class && parsed.sec6Class.label === 'MISSING') ? C.er : C.wn} />
@@ -963,23 +1119,59 @@ export function PcmCard({ parsed, bytes, pnOverride }) {
           <Kv k="SEC6 marker" v={parsed.sec6.marker} mono />
           {parsed.sec6.markerBytes && (
             <Kv
-              k="Marker @0x3C4"
+              k={`Marker @${fmtOff(parsed.sec6.markerOffset ?? 0x3C4)}`}
               v={(parsed.sec6.markerOk ? '✓ ' : '✗ ') + bytesToHex(parsed.sec6.markerBytes).toUpperCase() + (parsed.sec6.markerOk ? ' (canonical FF FF FF AA)' : ' (expected FF FF FF AA)')}
               mono
               color={parsed.sec6.markerOk ? C.gn : C.er}
             />
           )}
-          <Kv k="SEC6 bytes"  v={bytesToHex(parsed.sec6.bytes).toUpperCase()} mono />
+          <Kv k={`SEC6 bytes @${fmtOff(parsed.sec6.offset ?? 0x3C8)}`}
+              v={bytesToHex(parsed.sec6.bytes).toUpperCase()} mono />
+          {/* Task #464 — explain in plain language how the SEC6 secret bytes
+              are derived from the BCM SEC16 so a tech who's never read the
+              SINCRO source still understands what BCM→PCM SEC6 sync does:
+              it byte-reverses the BCM SEC16 record and writes the first 6
+              bytes into the PCM at this offset. */}
+          <div data-testid="pcm-sec6-derived-rule" style={{
+            marginTop: 4, paddingLeft: 130, fontSize: 10, color: C.tm,
+            fontFamily: "'JetBrains Mono'", lineHeight: 1.5,
+          }}>
+            Derived rule: first 6 bytes of byte-reversed BCM SEC16
+          </div>
           {parsed.sec6.markerBytes && !parsed.sec6.markerOk && parsed.sec6Class && parsed.sec6Class.populated && (
             <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 8, background: C.er + '14', border: '1px solid ' + C.er + '55', fontSize: 11, color: C.tx, lineHeight: 1.45 }}>
-              <span style={{ color: C.er, fontWeight: 800 }}>⚠ Secret bytes present but marker missing</span> — apply BCM→PCM SEC6 sync to restamp the canonical FF FF FF AA marker @ 0x3C4.
+              <span style={{ color: C.er, fontWeight: 800 }}>⚠ Secret bytes present but marker missing</span> — apply BCM→PCM SEC6 sync to restamp the canonical FF FF FF AA marker @ {fmtOff(0x3C4)}.
             </div>
           )}
         </>
       )}
-      {parsed.continentalPn && <Kv k="Continental PN" v={parsed.continentalPn} mono />}
-      {parsed.osPn   && <Kv k="OS PN"   v={parsed.osPn}   mono />}
-      {parsed.bodyPn && <Kv k="Body PN" v={parsed.bodyPn} mono />}
+      {parsed.continentalPn && (
+        <>
+          <Kv k="Continental PN" v={parsed.continentalPn} mono />
+          {(() => {
+            const b = scoreModuleField(parsed.continentalPn, CANONICAL_PATTERNS.pcmContPn);
+            return <PickBreakdown kind="Cont" value={parsed.continentalPn} breakdown={b} testid="pcm-cont-pick" />;
+          })()}
+        </>
+      )}
+      {parsed.osPn && (
+        <>
+          <Kv k="OS PN"   v={parsed.osPn}   mono />
+          {(() => {
+            const b = scoreModuleField(parsed.osPn, CANONICAL_PATTERNS.pcmOsPn);
+            return <PickBreakdown kind="OS" value={parsed.osPn} breakdown={b} testid="pcm-os-pick" />;
+          })()}
+        </>
+      )}
+      {parsed.bodyPn && (
+        <>
+          <Kv k="Body PN" v={parsed.bodyPn} mono />
+          {(() => {
+            const b = scoreModuleField(parsed.bodyPn, CANONICAL_PATTERNS.pcmBodyPn);
+            return <PickBreakdown kind="PN" value={parsed.bodyPn} breakdown={b} testid="pcm-pn-pick" />;
+          })()}
+        </>
+      )}
     </div>
   );
 }
@@ -1273,7 +1465,7 @@ function OverrideConfirmModal({ modules, onConfirm, onCancel }) {
 }
 
 export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
-  const { vin: masterVin, vinValid: masterVinValid } = useMasterVin();
+  const { vin: masterVin, vinValid: masterVinValid, clearDumps } = useMasterVin();
 
   const [bcm, setBcm] = useState({ file: null, bytes: null, parsed: null, pnOverride: false });
   const [rfh, setRfh] = useState({ file: null, bytes: null, parsed: null, pnOverride: false });
@@ -1297,6 +1489,33 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
     setLogLines(p => [...p, { ts, msg, level }]);
   }, []);
+
+  /* handleReset (Task #464) — port of TwinTab's "Clean / Reset" so the
+   * Module Sync workspace gets the same fast clean-slate gesture. Clears:
+   *   - all four loaded module slots (BCM / RFH / PCM / 95640)
+   *   - the diff-rows table and the originals snapshots used for "Undo"
+   *   - the pre-filled target VIN field
+   *   - the on-screen log
+   * It also calls clearDumps() on the master-VIN context so the "Dumps"
+   * tab and the global Master VIN ribbon don't keep stale references to
+   * the files that just got removed from this tab. The vehicle family
+   * stays selected because that's a registry pick rather than per-file
+   * state, and a tech who's about to load a second car of the same
+   * family shouldn't have to re-pick it. Pure UI state — no engine,
+   * parser, or writer code is touched. */
+  const handleReset = useCallback(() => {
+    setBcm({ file: null, bytes: null, parsed: null, pnOverride: false });
+    setRfh({ file: null, bytes: null, parsed: null, pnOverride: false });
+    setPcm({ file: null, bytes: null, parsed: null, pnOverride: false });
+    setEep({ file: null, bytes: null, parsed: null, pnOverride: false });
+    setDiffRows([]);
+    setOriginals({ bcm: null, rfh: null, pcm: null, eep: null });
+    setTargetVin('');
+    setLogLines([]);
+    if (typeof clearDumps === 'function') clearDumps();
+    const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
+    setLogLines([{ ts, msg: 'Workspace cleared — all modules, diff rows, originals, and target VIN reset.', level: 'info' }]);
+  }, [clearDumps]);
 
   useEffect(() => { if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight; }, [logLines]);
   useEffect(() => {
@@ -1564,7 +1783,10 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     const addBcmRows = (parsedBcm, newVin, newCrc) => {
       parsedBcm.vinSlots.forEach((s, idx) => {
         rows.push({
-          module: 'BCM', slot: idx + 1, offset: `0x${hex4(s.offset)}`,
+          /* Task #464 — diff-table offsets render as "0x1328 (4904)" so
+           * a tech reading the on-screen status next to a hex editor
+           * doesn't have to convert from hex in their head. */
+          module: 'BCM', slot: idx + 1, offset: fmtOff(s.offset),
           oldVin: s.vin, newVin,
           checkLabel: 'CRC-16',
           oldCheck: s.storedCrc != null ? `0x${hex4(s.storedCrc)}` : '—',
@@ -1576,7 +1798,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     const addRfhRows = (parsedRfh, newVin, newChk) => {
       parsedRfh.vinSlots.forEach((s, idx) => {
         rows.push({
-          module: 'RFHUB', slot: idx + 1, offset: `0x${hex4(s.offset)}`,
+          module: 'RFHUB', slot: idx + 1, offset: fmtOff(s.offset),
           oldVin: s.vin, newVin,
           checkLabel: 'Chk',
           oldCheck: s.storedChk != null ? `0x${hex2(s.storedChk)}` : '—',
@@ -1588,7 +1810,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     const addPcmRows = (parsedPcm, newVin) => {
       parsedPcm.vinSlots.forEach((s, idx) => {
         rows.push({
-          module: 'PCM', slot: idx + 1, offset: `0x${hex4(s.offset)}`,
+          module: 'PCM', slot: idx + 1, offset: fmtOff(s.offset),
           oldVin: s.vin, newVin,
           checkLabel: '',
           oldCheck: '—', newCheck: '—',
@@ -1935,8 +2157,22 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   return (
     <div style={{ fontFamily: "'Nunito', system-ui, sans-serif", color: C.tx }}>
 
-      {/* ── Always-visible wizard launcher ── */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+      {/* Connection Guides — bench-tool quick links per module (Task #464). */}
+      <ConnectionGuides />
+
+      {/* ── Always-visible wizard launcher + Clean / Reset ── */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 10 }}>
+        <button
+          data-testid="modsync-reset-btn"
+          onClick={handleReset}
+          title="Clear all loaded modules, the diff table, the originals snapshots, the target VIN field, and the on-screen log. The vehicle family stays selected."
+          style={{
+            background: C.cd, border: `1px solid ${C.bd}`, borderRadius: 8,
+            padding: '8px 14px', color: C.tx, fontWeight: 800, fontSize: 12,
+            cursor: 'pointer', letterSpacing: 0.4, fontFamily: "'Nunito'",
+          }}>
+          🧹 Clean / Reset
+        </button>
         <button
           data-testid="open-wizard-btn-toolbar"
           onClick={() => setWizardOpen(true)}
@@ -1955,6 +2191,18 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
       {/* ── Load & Inspect ── */}
       <Card>
         <H2 badge={`${loaded} / 4`}>Load &amp; Inspect</H2>
+        {/* Task #464 — surface the SINCRO-style refresh-warning hint above the
+            uploaders. SRT Lab is fully client-side (no server-side persisted
+            session for module bytes), so a page refresh wipes the loaded
+            files. Telling the tech this up-front avoids the "where did my
+            files go?" question after a tab reload. */}
+        <div data-testid="modsync-refresh-hint" style={{
+          marginBottom: 10, padding: '6px 10px', borderRadius: 8,
+          background: C.wn + '14', border: `1px solid ${C.wn}55`,
+          color: C.wn, fontSize: 11, fontWeight: 700, lineHeight: 1.4,
+        }}>
+          ⚠ State is lost on page refresh — re-drop the .bin files if you reload the tab.
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
           <DropZone label="BCM"      icon="🧠" hint="MPC5606B DFLASH · Gen1 or Gen2 · drag .bin"
                     file={bcm.file} onFile={handleBcm} />
