@@ -14,6 +14,7 @@ import {vinHasSGW} from "../lib/vin.js";
 import {createBridgeEngine} from "../lib/bridgeEngine.js";
 import {getRow} from "../lib/moduleRegistry.js";
 import {programVin} from "../lib/vinProgrammer.js";
+import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 
 // VIN-specific RFHUB CRC algorithms (poly+init pairs derived from real dumps).
 // Used as a hint shown to the user; the actual write goes through UDS so the
@@ -380,6 +381,8 @@ export default function RfhubTab({vehicle}){
 
     <Card style={{marginBottom:14}}>
       <div style={{fontWeight:800,fontSize:11,color:C.a2,marginBottom:10,letterSpacing:2}}>🔑 VIN STATUS</div>
+      {/* Task #488 — Charger LD trim/HP subtitle for the master VIN. */}
+      {vinValid&&<VinChargerSubtitle vin={masterVin} dataTestId="rfhub-vin-decode" style={{marginBottom:10,marginTop:0}}/>}
       <div style={{padding:12,background:curVin===masterVin?'#E8F5E9':curVin?'#FFF8F0':'#F8F6F2',borderRadius:8,border:'1px solid '+(curVin===masterVin?C.gn:curVin?C.wn:C.bd)}}>
         <div style={{fontSize:10,color:C.ts,letterSpacing:1,fontWeight:700}}>Current VIN on RFHUB (DID 0xF190)</div>
         <div style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:700,marginTop:4}}>{curVin||'(not read)'}</div>

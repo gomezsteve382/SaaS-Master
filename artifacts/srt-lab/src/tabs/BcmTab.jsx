@@ -17,6 +17,7 @@ import {getRow} from "../lib/moduleRegistry.js";
 import {programVin} from "../lib/vinProgrammer.js";
 import {analyzeDumpPartNumber, generationForPartNumber} from "../lib/vehicles.js";
 import SamplePicker from "../lib/SamplePicker.jsx";
+import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 
 const BCM_ALGOS={
   'CDA6':s=>cda6(s),
@@ -450,6 +451,8 @@ export default function BcmTab({vehicle}){
 
     <Card style={{marginBottom:14}}>
       <div style={{fontWeight:800,fontSize:11,color:C.sr,marginBottom:10,letterSpacing:2}}>🔑 VIN STATUS</div>
+      {/* Task #488 — Charger LD trim/HP subtitle for the master VIN. */}
+      {vinValid&&<VinChargerSubtitle vin={masterVin} dataTestId="bcm-vin-decode" style={{marginBottom:10,marginTop:0}}/>}
       {!vinValid&&<div style={{padding:10,background:'#FFF8F0',border:'1px solid '+C.wn,borderRadius:8,fontSize:12,color:C.wn,marginBottom:10}}>
         ⚠ Enter a valid 17-char Master VIN at the top of the page
       </div>}

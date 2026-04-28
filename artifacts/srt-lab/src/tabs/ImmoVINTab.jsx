@@ -10,6 +10,7 @@ import {Tip} from "../lib/plainEnglish.jsx";
 import SamplePicker from "../lib/SamplePicker.jsx";
 import {PCM_VIN_OFFSETS_GPEC2A} from "../lib/parseModule.js";
 import {fmtOff} from "./ModuleSync.jsx";
+import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 
 /* Task #470 — local `fO` helper retired in favour of the shared `fmtOff`
  * exported from ModuleSync, so the Immo/VIN tab renders offsets in the
@@ -241,6 +242,8 @@ function RFHSection({samplePair, onSamplePairLoaded}) {
             <span style={{fontSize:11,fontWeight:800,color:newVin.length===17?C.gn:C.tm}}>{newVin.length}/17</span>
             {newVin.length===17&&!vinValid&&<span style={{fontSize:11,color:C.er}}>Invalid VIN characters</span>}
           </div>
+          {/* Task #488 — Charger LD trim/HP subtitle for the entered VIN. */}
+          {vinValid&&<VinChargerSubtitle vin={newVin} dataTestId="immo-vin-decode" style={{marginTop:6}}/>}
         </div>
         <div style={{marginTop:10}}>
           <Btn onClick={doApply} disabled={!aFile||!vinValid||newVin.length!==17} full color={C.a2}>⚡ APPLY — Write VIN to 4 slots + Download</Btn>

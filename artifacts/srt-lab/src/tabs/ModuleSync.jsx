@@ -9,6 +9,7 @@ import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBc
 import { crossValidate } from "../lib/crossValidate.js";
 import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
 import { scoreCandidate, pickBest, fmtPick, CANONICAL_PATTERNS } from "../lib/bestPick.js";
+import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -2821,6 +2822,10 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                 Session Master VIN: <span style={{ color: C.tx }}>{masterVin}</span>
               </div>
             )}
+            {/* Task #488 — surface the Charger LD trim/HP under the master
+                VIN so every tab that pulls the master VIN gets the same
+                visual cue. Renders nothing for non-Charger VINs. */}
+            <VinChargerSubtitle vin={masterVin} dataTestId="modulesync-vin-decode" />
           </div>
 
           {/* VIN sync buttons */}

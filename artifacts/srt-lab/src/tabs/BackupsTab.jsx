@@ -12,6 +12,7 @@ import { sha256Hex, backupDidsToBytes } from "../lib/checksum.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import LeakScanPanel from "../components/LeakScanPanel.jsx";
+import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 import {
   listDiffReports, getDiffReport, getDiffReportAsync,
   deleteDiffReport, clearDiffReports,
@@ -796,6 +797,8 @@ export default function BackupsTab() {
                       <div style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>{b.didCount} DIDs</div>
                     </div>
                     <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.ts, marginTop: 3 }}>{b.vin}</div>
+                    {/* Task #488 — Charger LD trim/HP under each backup VIN. */}
+                    <VinChargerSubtitle vin={b.vin} dataTestId={`backup-vin-decode-${b.hash || b.id || ""}`} style={{ marginTop: 2 }} />
                     <div style={{ fontSize: 10, color: C.tm, marginTop: 3 }}>{date.toLocaleString()}</div>
                   </div>
                 );

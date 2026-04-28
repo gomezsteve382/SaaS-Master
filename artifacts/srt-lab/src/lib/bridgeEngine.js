@@ -95,6 +95,11 @@ export async function createBridgeEngine({addLog, url}={}){
       adapter:'Autel J2534 ('+(st.vendor||'bridge')+')',
       readVoltage:async()=>null,
       isBridge:true,
+      // Task #488 — surface bridge vendor + firmware so the ECM
+      // flasher can render them in its bench banner.
+      vendor: st.vendor || null,
+      firmware: (st.versions && st.versions.firmware) || null,
+      versions: st.versions || null,
     },
   };
 }

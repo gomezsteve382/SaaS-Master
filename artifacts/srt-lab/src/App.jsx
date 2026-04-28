@@ -945,23 +945,19 @@ function VehicleWorkspace({vehicleId, onBack}){
       for (const x of reads) {
         // Task #488 — divert EFD/.webm calibration containers to the EFD
         // inspector instead of running them through the binary module
-        // detector. Either a `.webm`/`.efd` extension or the EBML magic
-        // header (1A 45 DF A3) flags it. Then we still confirm with
-        // parseEFD: if the parser does NOT return a valid EBML structure
-        // (i.e. the file just happened to start with the magic 4 bytes
-        // by coincidence and isn't an extension match), we fall through
-        // to the normal module detection path so a real ECM/BCM dump is
-        // never silently swallowed by the EFD inspector.
-        const lname=(x.name||'').toLowerCase();
-        const looksEfdExt=/\.(webm|efd)$/.test(lname);
+        // detector. Routing is gated on the EBML magic header
+        // (1A 45 DF A3) AND a successful parseEFD walk: extension alone
+        // is not enough, because user-renamed `.webm` files would shadow
+        // real ECM dumps. Renamed-extension files without the magic
+        // bytes always fall through to the normal module detector.
         const ebmlMagic=x.data && x.data.length>=4 && x.data[0]===0x1A && x.data[1]===0x45 && x.data[2]===0xDF && x.data[3]===0xA3;
-        if (looksEfdExt || ebmlMagic){
+        if (ebmlMagic){
           const parsed=parseEFD(x.data, x.name);
-          if (looksEfdExt || parsed.valid){
+          if (parsed.valid){
             setEfdFile({name:x.name, file:x.file, raw:x.data.buffer, data:parsed});
             continue;
           }
-          // EBML magic was a false positive — fall through.
+          // EBML magic was a false positive — fall through to module detect.
         }
         const t = detectModuleType(x.data, x.name, slotType);
         const small = t ? moduleTooSmall(x.data, t, x.name) : null;
