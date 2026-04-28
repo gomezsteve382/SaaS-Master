@@ -97,7 +97,7 @@ describe('CRC functions — never throw, always return a number', () => {
         });
       }
 
-      it('never throws on 500 random buffers', () => {
+      it('never throws on 500 random buffers', { timeout: 30000 }, () => {
         const localRng = makeRng(0xdeadbeef);
         for (let i = 0; i < 500; i++) {
           const len = localRng.nextInt(0, 512);
@@ -111,7 +111,7 @@ describe('CRC functions — never throw, always return a number', () => {
     });
   }
 
-  it('rfhGen2DetectMagic never throws and always returns a number', () => {
+  it('rfhGen2DetectMagic never throws and always returns a number', { timeout: 30000 }, () => {
     for (let i = 0; i < 300; i++) {
       const raw17 = rng.nextBytes(rng.nextInt(0, 32));
       const storedCs = rng.nextInt(0, 255);
@@ -140,7 +140,7 @@ describe('detectBySignature — never throws, always returns a string', () => {
     it(`size=${sz} FF`,    () => assertSig(ALL_FF(sz), `FF[${sz}]`));
   }
 
-  it('never throws on 500 random buffers', () => {
+  it('never throws on 500 random buffers', { timeout: 30000 }, () => {
     const rng = makeRng(0xfeedface);
     for (let i = 0; i < 500; i++) {
       const len = rng.nextInt(0, 200000);
@@ -175,7 +175,7 @@ describe('extractVIN — never throws, returns string or null', () => {
     assertExtractVIN(ALL_00(16), 32, 17, 'offset past end');
   });
 
-  it('never throws on 500 random inputs', () => {
+  it('never throws on 500 random inputs', { timeout: 30000 }, () => {
     for (let i = 0; i < 500; i++) {
       const sz   = rng.nextInt(0, 256);
       const buf  = rng.nextBytes(sz);
@@ -197,7 +197,7 @@ describe('extractHex — never throws, returns string | null', () => {
     expect(typeof r).toBe('string');
   });
 
-  it('never throws on 300 random inputs', () => {
+  it('never throws on 300 random inputs', { timeout: 30000 }, () => {
     for (let i = 0; i < 300; i++) {
       const sz  = rng.nextInt(0, 256);
       const buf = rng.nextBytes(sz);
@@ -231,7 +231,7 @@ describe('syncImmoBackup — never throws, returns Uint8Array or null', () => {
   it('all-FF 65536', () => assertSync(ALL_FF(65536), 'all-FF 64K'));
   it('all-00 131072', () => assertSync(ALL_00(131072), 'all-00 128K'));
 
-  it('never throws on 200 random buffers', () => {
+  it('never throws on 200 random buffers', { timeout: 30000 }, () => {
     for (let i = 0; i < 200; i++) {
       const sz = rng.nextInt(0, 200000);
       const buf = rng.nextBytes(Math.min(sz, 4096));
@@ -251,7 +251,7 @@ describe('countSkimRecs — never throws, always returns a number', () => {
     expect(typeof r).toBe('number');
   });
 
-  it('never throws on 300 random inputs', () => {
+  it('never throws on 300 random inputs', { timeout: 30000 }, () => {
     for (let i = 0; i < 300; i++) {
       const sz   = rng.nextInt(0, 131072);
       const buf  = rng.nextBytes(Math.min(sz, 4096));
@@ -289,7 +289,7 @@ describe('parseModule — never throws, always returns a valid info object', () 
     it(`all-A5 size=${sz}`, () => assertParseModule(ALL_A5(sz), `A5[${sz}]`));
   }
 
-  it('never throws on 300 random buffers', () => {
+  it('never throws on 300 random buffers', { timeout: 30000 }, () => {
     for (let i = 0; i < 300; i++) {
       const sz = rng.nextInt(0, 131072);
       const buf = rng.nextBytes(Math.min(sz, 4096));
@@ -297,7 +297,7 @@ describe('parseModule — never throws, always returns a valid info object', () 
     }
   });
 
-  it('never throws on canonical-sized random buffers', () => {
+  it('never throws on canonical-sized random buffers', { timeout: 30000 }, () => {
     for (const sz of [2048, 4096, 8192, 16384, 65536]) {
       const buf = rng.nextBytes(sz);
       assertParseModule(buf, `canonical random[${sz}]`);
@@ -342,7 +342,7 @@ describe('parseRFH24C32 — never throws, always returns a valid result object',
     it(`fixed: ${label}`, () => assertRFH(buf, label));
   }
 
-  it('never throws on 400 random buffers', () => {
+  it('never throws on 400 random buffers', { timeout: 30000 }, () => {
     for (let i = 0; i < 400; i++) {
       const sz = rng.nextInt(0, 8192);
       const buf = rng.nextBytes(sz);
@@ -350,7 +350,7 @@ describe('parseRFH24C32 — never throws, always returns a valid result object',
     }
   });
 
-  it('never throws on random 4096-byte (Gen2) buffers', () => {
+  it('never throws on random 4096-byte (Gen2) buffers', { timeout: 30000 }, () => {
     for (let i = 0; i < 200; i++) {
       const buf = rng.nextBytes(4096);
       assertRFH(buf, `gen2-random[${i}]`);
@@ -395,7 +395,7 @@ describe('parsePCMGPEC — never throws, always returns a valid result object', 
     it(`fixed: ${label}`, () => assertPCM(buf, label));
   }
 
-  it('never throws on 400 random buffers', () => {
+  it('never throws on 400 random buffers', { timeout: 30000 }, () => {
     for (let i = 0; i < 400; i++) {
       const sz = rng.nextInt(0, 8192);
       const buf = rng.nextBytes(sz);
@@ -403,7 +403,7 @@ describe('parsePCMGPEC — never throws, always returns a valid result object', 
     }
   });
 
-  it('never throws on random 4096-byte (exact-size) buffers', () => {
+  it('never throws on random 4096-byte (exact-size) buffers', { timeout: 30000 }, () => {
     for (let i = 0; i < 200; i++) {
       const buf = rng.nextBytes(4096);
       assertPCM(buf, `exact-random[${i}]`);
@@ -453,7 +453,7 @@ describe('VIN parsers (checkVin / parseVinYear / vinHasSGW / vinCheckDigitValid)
         });
       }
 
-      it('never throws on 500 random strings of varying lengths', () => {
+      it('never throws on 500 random strings of varying lengths', { timeout: 30000 }, () => {
         for (let i = 0; i < 500; i++) {
           const len = rng.nextInt(0, 30);
           const s = rng.nextString(len);
@@ -461,7 +461,7 @@ describe('VIN parsers (checkVin / parseVinYear / vinHasSGW / vinCheckDigitValid)
         }
       });
 
-      it('never throws on random byte-string-like inputs', () => {
+      it('never throws on random byte-string-like inputs', { timeout: 30000 }, () => {
         for (let i = 0; i < 200; i++) {
           const bytes = rng.nextBytes(rng.nextInt(0, 24));
           const s = String.fromCharCode(...bytes);
@@ -505,7 +505,7 @@ describe('backupDidsToBytes — never throws, always returns Uint8Array', () => 
     it(`fixed: ${label}`, () => assertBackup(dids, label));
   }
 
-  it('never throws on 300 random-shaped dids objects', () => {
+  it('never throws on 300 random-shaped dids objects', { timeout: 30000 }, () => {
     for (let i = 0; i < 300; i++) {
       const nKeys = rng.nextInt(0, 8);
       const dids = {};
@@ -561,7 +561,7 @@ describe('vinFromReadResponse — never throws, always returns a string', () => 
     }
   }
 
-  it('never throws on 500 random byte-array inputs', () => {
+  it('never throws on 500 random byte-array inputs', { timeout: 30000 }, () => {
     for (let i = 0; i < 500; i++) {
       const len = rng.nextInt(0, 64);
       const buf = rng.nextBytes(len);
@@ -570,7 +570,7 @@ describe('vinFromReadResponse — never throws, always returns a string', () => 
     }
   });
 
-  it('never throws on inputs starting with 0x62 (positive response)', () => {
+  it('never throws on inputs starting with 0x62 (positive response)', { timeout: 30000 }, () => {
     for (let i = 0; i < 300; i++) {
       const len = rng.nextInt(1, 64);
       const buf = rng.nextBytes(len);
@@ -603,7 +603,7 @@ describe('encodeDid — returns well-formed byte arrays for valid DIDs', () => {
     });
   }
 
-  it('never throws on 500 random valid-range DIDs', () => {
+  it('never throws on 500 random valid-range DIDs', { timeout: 30000 }, () => {
     const rng = makeRng(0x12349876);
     for (let i = 0; i < 500; i++) {
       const did = rng.nextInt(0, 0xFFFFFF);

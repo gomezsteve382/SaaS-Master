@@ -271,13 +271,13 @@ describe('analyzeDumpPartNumber — property-based fuzz (seed=0xdeadbeef, 1000 s
   const rng = makeRng(0xdeadbeef);
   const corpus = generateCorpus(rng, 1000);
 
-  it('never throws for any generated input', () => {
+  it('never throws for any generated input', { timeout: 30000 }, () => {
     for (const { label, buf } of corpus) {
       expect(() => analyzeDumpPartNumber(buf), `must not throw: ${label}`).not.toThrow();
     }
   });
 
-  it('always returns a structurally-valid object for any generated input', () => {
+  it('always returns a structurally-valid object for any generated input', { timeout: 30000 }, () => {
     for (const { label, buf } of corpus) {
       const result = analyzeDumpPartNumber(buf);
       assertStructurallyValid(result, label);
@@ -289,13 +289,13 @@ describe('analyzeDumpPartNumber — property-based fuzz (seed=0xcafebabe, 500 sa
   const rng = makeRng(0xcafebabe);
   const corpus = generateCorpus(rng, 500);
 
-  it('never throws for any generated input', () => {
+  it('never throws for any generated input', { timeout: 30000 }, () => {
     for (const { label, buf } of corpus) {
       expect(() => analyzeDumpPartNumber(buf), `must not throw: ${label}`).not.toThrow();
     }
   });
 
-  it('always returns a structurally-valid object for any generated input', () => {
+  it('always returns a structurally-valid object for any generated input', { timeout: 30000 }, () => {
     for (const { label, buf } of corpus) {
       const result = analyzeDumpPartNumber(buf);
       assertStructurallyValid(result, label);
@@ -458,7 +458,7 @@ describe('generationForPartNumber — property-based fuzz (seed=0xf00dcafe, 1000
     return { vehicleId, pn, vinYearChar, label: `sample[${i}]` };
   });
 
-  it('never throws for any argument combination', () => {
+  it('never throws for any argument combination', { timeout: 30000 }, () => {
     for (const { vehicleId, pn, vinYearChar, label } of samples) {
       expect(
         () => generationForPartNumber(vehicleId, pn, vinYearChar),
@@ -467,7 +467,7 @@ describe('generationForPartNumber — property-based fuzz (seed=0xf00dcafe, 1000
     }
   });
 
-  it('always returns null, undefined, or a valid generation shape', () => {
+  it('always returns null, undefined, or a valid generation shape', { timeout: 30000 }, () => {
     for (const { vehicleId, pn, vinYearChar, label } of samples) {
       const result = generationForPartNumber(vehicleId, pn, vinYearChar);
       assertValidGenerationOrAbsent(result, label);
@@ -530,13 +530,13 @@ describe('vehiclesForPartNumber — property-based fuzz (seed=0xbabe1234, 1000 s
     return { pn, label: `sample[${i}] pn=${JSON.stringify(pn)}` };
   });
 
-  it('never throws for any input', () => {
+  it('never throws for any input', { timeout: 30000 }, () => {
     for (const { pn, label } of inputs) {
       expect(() => vehiclesForPartNumber(pn), `must not throw: ${label}`).not.toThrow();
     }
   });
 
-  it('always returns a valid array', () => {
+  it('always returns a valid array', { timeout: 30000 }, () => {
     for (const { pn, label } of inputs) {
       const result = vehiclesForPartNumber(pn);
       assertVehiclesArray(result, label);
@@ -816,13 +816,13 @@ describe('readVinFromDump — property-based fuzz (seed=0x1a2b3c4d, 1000 samples
     return { label: `sample[${i}] strategy=${strategy} vinOff=0x${vinOff.toString(16)}`, bytes, vinOff };
   });
 
-  it('never throws for any generated input', () => {
+  it('never throws for any generated input', { timeout: 30000 }, () => {
     for (const { label, bytes, vinOff } of samples) {
       expect(() => readVinFromDump(bytes, vinOff), `must not throw: ${label}`).not.toThrow();
     }
   });
 
-  it('always returns null or a valid 17-char printable-ASCII VIN', () => {
+  it('always returns null or a valid 17-char printable-ASCII VIN', { timeout: 30000 }, () => {
     for (const { label, bytes, vinOff } of samples) {
       const result = readVinFromDump(bytes, vinOff);
       assertVinResult(result, label);

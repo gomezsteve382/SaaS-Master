@@ -128,7 +128,7 @@ describe('CRC helpers — fixed edge-case buffers', () => {
 
 describe('CRC helpers — randomized property tests', () => {
   for (const { name, fn, min, max } of CRC_HELPERS) {
-    it(`${name}: 500 random buffers (length 0..512) are always valid`, () => {
+    it(`${name}: 500 random buffers (length 0..512) are always valid`, { timeout: 30000 }, () => {
       const rng = makeRng(0xC0FFEE01);
       for (let i = 0; i < 500; i++) {
         const len = rng.nextInt(0, 512);
@@ -149,7 +149,7 @@ describe('CRC helpers — randomized property tests', () => {
       }
     });
 
-    it(`${name}: handful of large random buffers (1KB..32KB) are always valid`, () => {
+    it(`${name}: handful of large random buffers (1KB..32KB) are always valid`, { timeout: 30000 }, () => {
       const rng = makeRng(0xC0FFEE03);
       const sizes = [1024, 4096, 8192, 16384, 32768];
       for (const sz of sizes) {

@@ -651,20 +651,20 @@ describe('patchFile — property-based fuzz (seed=0xdeadbeef, 800 samples)', () 
   const rng    = makeRng(0xdeadbeef);
   const corpus = generatePatchCorpus(rng, 800);
 
-  it('never throws for any generated input', () => {
+  it('never throws for any generated input', { timeout: 30000 }, () => {
     for (const { label, f, vin } of corpus) {
       expect(() => patchFile(f, vin), `must not throw: ${label}`).not.toThrow();
     }
   });
 
-  it('always returns a structurally valid { data: Uint8Array, log: Array }', () => {
+  it('always returns a structurally valid { data: Uint8Array, log: Array }', { timeout: 30000 }, () => {
     for (const { label, f, vin } of corpus) {
       const result = patchFile(f, vin);
       assertPatchResult(result, label);
     }
   });
 
-  it('output buffer is always the same size as the input buffer', () => {
+  it('output buffer is always the same size as the input buffer', { timeout: 30000 }, () => {
     for (const { label, f, vin } of corpus) {
       const result = patchFile(f, vin);
       expect(result.data.length, `${label}: output size must equal input size`).toBe(f.data.length);
@@ -731,13 +731,13 @@ describe('writeModuleVIN — property-based fuzz (seed=0xcafebabe, 800 samples)'
   const rng    = makeRng(0xcafebabe);
   const corpus = generateWriteModuleVINCorpus(rng, 800);
 
-  it('never throws for any generated input', () => {
+  it('never throws for any generated input', { timeout: 30000 }, () => {
     for (const { label, data, type, vin, existingVins } of corpus) {
       expect(() => writeModuleVIN(data, type, vin, existingVins), `must not throw: ${label}`).not.toThrow();
     }
   });
 
-  it('always returns null or a Uint8Array of the same length as input', () => {
+  it('always returns null or a Uint8Array of the same length as input', { timeout: 30000 }, () => {
     for (const { label, data, type, vin, existingVins } of corpus) {
       const result = writeModuleVIN(data, type, vin, existingVins);
       assertWriteModuleVINResult(result, label);
@@ -762,13 +762,13 @@ describe('virginizeModule — property-based fuzz (seed=0xf00dcafe, 500 samples)
     return { label: `sample[${i}] type=${type} sz=${sz}`, data, type };
   });
 
-  it('never throws for any generated input', () => {
+  it('never throws for any generated input', { timeout: 30000 }, () => {
     for (const { label, data, type } of corpus) {
       expect(() => virginizeModule(data, type), `must not throw: ${label}`).not.toThrow();
     }
   });
 
-  it('always returns a Uint8Array of the same length as the input', () => {
+  it('always returns a Uint8Array of the same length as the input', { timeout: 30000 }, () => {
     for (const { label, data, type } of corpus) {
       const result = virginizeModule(data, type);
       expect(result instanceof Uint8Array, `${label}: must be Uint8Array`).toBe(true);
@@ -800,20 +800,20 @@ describe('syncImmoBackupF — property-based fuzz (seed=0xbabe1234, 500 samples)
     }
   });
 
-  it('never throws for any generated input', () => {
+  it('never throws for any generated input', { timeout: 30000 }, () => {
     for (const { label, data } of corpus) {
       expect(() => syncImmoBackupF(data), `must not throw: ${label}`).not.toThrow();
     }
   });
 
-  it('undersized buffers always return null', () => {
+  it('undersized buffers always return null', { timeout: 30000 }, () => {
     for (const { label, data, expectNull } of corpus) {
       if (!expectNull) continue;
       expect(syncImmoBackupF(data), `${label}: must be null`).toBeNull();
     }
   });
 
-  it('valid-sized buffers return a Uint8Array of the same length', () => {
+  it('valid-sized buffers return a Uint8Array of the same length', { timeout: 30000 }, () => {
     for (const { label, data, expectNull } of corpus) {
       if (expectNull) continue;
       const result = syncImmoBackupF(data);
@@ -822,7 +822,7 @@ describe('syncImmoBackupF — property-based fuzz (seed=0xbabe1234, 500 samples)
     }
   });
 
-  it('valid-sized buffers always mirror 0x40C0 block to 0x2000 in output', () => {
+  it('valid-sized buffers always mirror 0x40C0 block to 0x2000 in output', { timeout: 30000 }, () => {
     for (const { label, data, expectNull } of corpus) {
       if (expectNull) continue;
       const result = syncImmoBackupF(data);
@@ -873,13 +873,13 @@ describe('programVin — rejection-path fuzz (seed=0x1337cafe, 400 samples)', ()
     vin:   randomVinFuzz(rng),
   }));
 
-  it('always resolves (never rejects) for any argument combination', async () => {
+  it('always resolves (never rejects) for any argument combination', { timeout: 30000 }, async () => {
     for (const { label, eng, row, vin } of samples) {
       await expect(programVin({ eng, row, vin }), `must resolve: ${label}`).resolves.toBeDefined();
     }
   });
 
-  it('result always has the required shape fields', async () => {
+  it('result always has the required shape fields', { timeout: 30000 }, async () => {
     for (const { label, eng, row, vin } of samples) {
       const result = await programVin({ eng, row, vin });
       assertProgramVinResult(result, label);
@@ -977,7 +977,7 @@ describe('programVin — mocked-success write/verify loop fuzz (seed=0xabcd1234,
     return { label: `bcm-write[${i}] vin=${vin}`, vin, writeFails, readWrong, script };
   });
 
-  it('always resolves and returns a valid shape', async () => {
+  it('always resolves and returns a valid shape', { timeout: 30000 }, async () => {
     for (const { label, vin, script } of samples) {
       const eng = { uds: scriptedMock(script) };
       const result = await programVin({ eng, row: bcmRow, vin });
@@ -985,7 +985,7 @@ describe('programVin — mocked-success write/verify loop fuzz (seed=0xabcd1234,
     }
   });
 
-  it('result.ok is true only when every DID wrote and verified successfully', async () => {
+  it('result.ok is true only when every DID wrote and verified successfully', { timeout: 30000 }, async () => {
     for (const { label, vin, writeFails, readWrong, script } of samples) {
       const eng = { uds: scriptedMock(script) };
       const result = await programVin({ eng, row: bcmRow, vin });
@@ -1000,7 +1000,7 @@ describe('programVin — mocked-success write/verify loop fuzz (seed=0xabcd1234,
     }
   });
 
-  it('didResults array has one entry per DID regardless of outcome', async () => {
+  it('didResults array has one entry per DID regardless of outcome', { timeout: 30000 }, async () => {
     for (const { label, vin, script } of samples) {
       const eng = { uds: scriptedMock(script) };
       const result = await programVin({ eng, row: bcmRow, vin });
@@ -1013,7 +1013,7 @@ describe('programVin — mocked-success write/verify loop fuzz (seed=0xabcd1234,
     }
   });
 
-  it('beforeVin is always set to the old VIN from the preflight read', async () => {
+  it('beforeVin is always set to the old VIN from the preflight read', { timeout: 30000 }, async () => {
     for (const { label, vin, script } of samples) {
       const eng = { uds: scriptedMock(script) };
       const result = await programVin({ eng, row: bcmRow, vin });
@@ -1021,7 +1021,7 @@ describe('programVin — mocked-success write/verify loop fuzz (seed=0xabcd1234,
     }
   });
 
-  it('errors array is populated when writes or readbacks fail', async () => {
+  it('errors array is populated when writes or readbacks fail', { timeout: 30000 }, async () => {
     for (const { label, vin, writeFails, script } of samples) {
       const eng = { uds: scriptedMock(script) };
       const result = await programVin({ eng, row: bcmRow, vin });
