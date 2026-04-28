@@ -32,6 +32,11 @@ import { writeBcmSec16Gen2, writePcmSec6 } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
 import KeyProgTab from "./tabs/KeyProgTab";
 import KeyManagerTab from "./tabs/KeyManagerTab";
+import CFlashTab from "./tabs/CFlashTab.jsx";
+import EfdInspectorTab from "./tabs/EfdInspectorTab.jsx";
+import EcmFlasherTab from "./tabs/EcmFlasherTab.jsx";
+import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
+import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
 import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A} from "./lib/parseModule.js";
@@ -889,6 +894,10 @@ const WORKSPACE_TABS = [
   {id:'skim',      i:'🛡️', l:'SKIM',         s:'Keys · Immo'},
   {id:'info',      i:'ℹ️', l:'INFO',         s:'Reference'},
   {id:'samples',   i:'📚', l:'SAMPLES',      s:'Fixture Library'},
+  {id:'cflash',    i:'🔥', l:'C-FLASH',      s:'ECM image · Diff · Tuner sigs'},
+  {id:'efd',       i:'📦', l:'EFD',          s:'.webm/.efd inspector'},
+  {id:'flasher',   i:'⚡', l:'ECM FLASHER',  s:'GPEC2A bench programmer'},
+  {id:'cdasession',i:'🔐', l:'CDA6 SESSION', s:'9-step UDS walkthrough'},
 ];
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -902,6 +911,12 @@ function VehicleWorkspace({vehicleId, onBack}){
     setTabRaw(VALID_TAB_IDS.has(next) ? next : 'dumps');
   },[VALID_TAB_IDS]);
   const [files, setFiles] = useState([]);
+  // Task #488 — shared EFD container + selected C-Flash payload so the
+  // EFD inspector and the ECM Flasher tab can co-operate. The flasher's
+  // "FLASH THIS" button on a C-Flash card or an EFD payload sets
+  // `selectedCflash`; the workspace then auto-routes to the flasher tab.
+  const [efdFile, setEfdFile] = useState(null);
+  const [selectedCflash, setSelectedCflash] = useState(null);
   const [workspaceWizardOpen, setWorkspaceWizardOpen] = useState(false);
   const {addDump} = useContext(MasterVinContext);
   // Shared workspace upload entry point (Task #376). Every tab that hands
@@ -928,6 +943,26 @@ function VehicleWorkspace({vehicleId, onBack}){
       const accepted=[];
       const rejected=[];
       for (const x of reads) {
+        // Task #488 — divert EFD/.webm calibration containers to the EFD
+        // inspector instead of running them through the binary module
+        // detector. Either a `.webm`/`.efd` extension or the EBML magic
+        // header (1A 45 DF A3) flags it. Then we still confirm with
+        // parseEFD: if the parser does NOT return a valid EBML structure
+        // (i.e. the file just happened to start with the magic 4 bytes
+        // by coincidence and isn't an extension match), we fall through
+        // to the normal module detection path so a real ECM/BCM dump is
+        // never silently swallowed by the EFD inspector.
+        const lname=(x.name||'').toLowerCase();
+        const looksEfdExt=/\.(webm|efd)$/.test(lname);
+        const ebmlMagic=x.data && x.data.length>=4 && x.data[0]===0x1A && x.data[1]===0x45 && x.data[2]===0xDF && x.data[3]===0xA3;
+        if (looksEfdExt || ebmlMagic){
+          const parsed=parseEFD(x.data, x.name);
+          if (looksEfdExt || parsed.valid){
+            setEfdFile({name:x.name, file:x.file, raw:x.data.buffer, data:parsed});
+            continue;
+          }
+          // EBML magic was a false positive — fall through.
+        }
         const t = detectModuleType(x.data, x.name, slotType);
         const small = t ? moduleTooSmall(x.data, t, x.name) : null;
         if (small) rejected.push({name:x.name, ...small});
@@ -1000,6 +1035,10 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='obd'       && <LiveObdTab vehicle={vehicle}/>}
         {tab==='skim'      && <SkimTab vehicle={vehicle}/>}
         {tab==='info'      && <InfoTab vehicle={vehicle}/>}
+        {tab==='cflash'    && <CFlashTab files={files.filter(f=>f && (f.type==='CFLASH'||f.type==='FW'))} onLoad={loadF} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
+        {tab==='efd'       && <EfdInspectorTab efdFile={efdFile} files={files} onLoad={loadF} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
+        {tab==='flasher'   && <EcmFlasherTab selectedFile={selectedCflash} files={files} onSelectFile={setSelectedCflash}/>}
+        {tab==='cdasession'&& <Cda6SessionTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also

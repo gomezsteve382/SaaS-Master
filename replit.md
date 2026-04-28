@@ -80,6 +80,10 @@ A `↻ RESUMED` pill appears in the chat header whenever the panel was hydrated 
 16. **FCA ANALYZER** — multi-file cross-module audit (overview / security / diff / tools sub-tabs); virginize, writeVIN, SKIM toggle, extract key with downloadable .bin
 17. **SWARM** — CAN bus scan diagnostic *(SRT Lab addition, not in reference)*
 18. **J2534** — raw CAN PassThru via desktop driver *(SRT Lab addition, not in reference)*
+19. **C-FLASH** — calibration .bin analyzer (cal ID, build date, AES sbox, PPC reset, GPEC unlock byte at 0x2FFFC, tuner sigs: HPT/Diablo/SCT/Edge/JB4/COBB/MoTeC/Trifecta) with multi-image diff via inline Web Worker
+20. **EFD** — Mopar PowerCal `.webm`/`.efd` EBML container inspector (DS metadata + UP encrypted payload entropy)
+21. **ECM FLASHER** — bench-bridge GPEC2A flasher walking the FCA UDS programming session (10 02 → 27 01/02 CDA6 → 31 01 erase → 34 → 36* (seq wrap 0xFF→0x00) → 37 → 31 01 checksum → 11 01) with AbortSignal + NRC stop
+22. **CDA6 SESSION** — 10-step bench unlock walkthrough with inline CDA6 seed→key calculator
 
 ## Enhanced Module Parser
 

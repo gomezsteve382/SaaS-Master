@@ -1,5 +1,6 @@
 import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs} from './crc.js';
 import {TC,TL,SKIM_VALUES,IMMO_REC,IMMO_KC,IMMO_BLOCK,SKIM_OFF} from './constants.js';
+import {analyzeCflash} from './cflashAnalyzer.js';
 import {BCM_PARTIAL_VIN_OFFSETS,BCM_PARTIAL_VIN_LEN,findBcmPartialVinSlots,BCM_FULL_VIN_BASES_ALT} from './donorLeakScan.js';
 
 const fO=n=>"0x"+n.toString(16).toUpperCase().padStart(4,"0");
@@ -546,6 +547,7 @@ function parseModule(data,filename,opts){
   // these older vehicles instead of bailing out as UNKNOWN. TIPM signature
   // wins (it overlaps the 1024-10240 detection window).
   else if(sz===2048){const sig=detectBySignature(data);type=sig!=='UNKNOWN'?sig:'RFHUB';}
+  else if(sz>=1048576)type='CFLASH';
   else if(sz>131072)type='FW';
   if(type==='UNKNOWN'){
     const CANONICAL_SIZES=[65536,131072,8192,16384,4096];
@@ -566,9 +568,14 @@ function parseModule(data,filename,opts){
   // for an 8 KB file should pass {forceType:'GPEC2A'}.
   const fnType=typeFromFilename(filename);
   if(fnType&&fnType!==type){
-    if(type==='FW')type=fnType;
+    if(type==='FW'||type==='CFLASH')type=fnType;
     else if(type==='BCM'&&(fnType==='GPEC2A'||fnType==='95640')&&!looksLikeRealBcm(data))type=fnType;
   }
+  // Filename hint for C-flash captures regardless of size — anything
+  // matching CFLASH / C_FLASH / CAL_FLASH stays as CFLASH so it routes to
+  // the flasher tab instead of the generic FW bucket.
+  const u=(filename||'').toUpperCase();
+  if((type==='FW'||type==='UNKNOWN')&&/(C[_\- ]?FLASH|CAL[_\- ]?FLASH|ECU[_\- ]?FLASH)/.test(u))type='CFLASH';
   // Tab context (Gpec2aTab, BcmTab, etc.) can force a type when the user
   // explicitly loads a file under a known module type even if the size is
   // non-canonical. The size warning will then explain the discrepancy.
@@ -807,6 +814,20 @@ function parseModule(data,filename,opts){
       const reversed=new Uint8Array(16);for(let i=0;i<16;i++)reversed[i]=raw16[15-i];
       const reversedHex=Array.from(reversed).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
       info.bcmSec16={offset:0x838,raw:raw16,hex,reversed,reversedHex,storedCs,calcCs,csOk,blank};
+    }
+  }
+
+  // Firmware-class scan (Task #488). CFLASH (>=1 MB ECM dump) and FW
+  // (128 KB - 1 MB capture) both get the C-flash analyzer attached so the
+  // CFlashTab and the Dumps tab tuner-warning row can light up. Smaller
+  // EEPROM-class dumps (BCM/RFHUB/GPEC2A/95640/etc) are gated out so the
+  // tuner-sig sweep cannot misfire on them.
+  if(type==='CFLASH'||type==='FW'){
+    info.security=analyzeCflash(data);
+    if(info.security){
+      info.calId=info.security.calId||null;
+      info.buildDate=info.security.buildDate||null;
+      info.tunerSigs=info.security.tunerSigs||[];
     }
   }
 

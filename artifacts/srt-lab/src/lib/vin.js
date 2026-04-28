@@ -37,4 +37,31 @@ export function vinCheckDigitValid(vin){
   return checkVin(vin).ok===true;
 }
 
+/* Charger SRT trim & HP decoder for the 2C3CDX VIN family (LD-platform
+   Dodge Charger Hellcat / Redeye / Jailbreak / Scat Pack / R/T / SRT
+   392). Returns null for any non-Charger VIN so callers can render a
+   silent fallback. Pulled from the v3 reference (Task #488) and kept
+   here so every tab that already imports vin.js gets the same lookup. */
+export function decodeChargerVin(vin){
+  if(typeof vin!=='string'||vin.length!==17)return null;
+  const u=vin.toUpperCase();
+  if(!u.startsWith('2C3CDX'))return null;
+  const engine=u[6];
+  const trimByte=u[7];
+  const year=parseVinYear(u)||0;
+  let trim='';let hp='';
+  if(engine==='L'){
+    if(trimByte==='9'&&year>=2022){trim='SRT Hellcat Redeye Widebody Jailbreak';hp='807 HP / 707 lb-ft';}
+    else if(trimByte==='5'&&year>=2018){trim='SRT Hellcat Redeye / Widebody';hp='797 HP / 707 lb-ft';}
+    else if(trimByte==='7'||trimByte==='8'){trim='SRT Hellcat Redeye Widebody';hp='797 HP';}
+    else if(trimByte==='6'){trim='SRT Hellcat Widebody';hp='717 HP';}
+    else if(trimByte==='0'){trim='SRT Hellcat';hp=year>=2021?'717 HP':'707 HP';}
+    else {trim='SRT Hellcat (variant)';hp='707-797 HP';}
+  } else if(engine==='T'){trim='SRT 392 / Scat Pack';hp='485 HP / 475 lb-ft';}
+  else if(engine==='G'){trim='R/T 5.7L HEMI';hp='370 HP';}
+  else if(engine==='H'){trim='Scat Pack 6.4L';hp='485 HP';}
+  if(!trim)return null;
+  return{trim,hp,engine,trimByte,year,family:'Charger LD'};
+}
+
 export {VIN_RX};
