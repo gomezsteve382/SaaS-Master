@@ -165,11 +165,15 @@ describe("DumpsTabV2 — Task #481 PCM target-chip resize", () => {
   });
 
   it("renders the canonical 95320 / 95640 chip badge on the PCM upload tile", async () => {
+    /* Task #485 — pin the full chip-badge text for both canonical
+     * sizes so a regression in PCM_CHIPS labels (or a swap back to
+     * the old size-only badge) trips the test instead of silently
+     * shipping a less-informative tile. */
     const bcm = makeBcm("BCM_OK.bin", "68396563");
     const pcm4 = makePcm("PCM_4K.bin", 4096);
-    const { rerender } = render(<Harness vehicle={VEHICLES.charger} initialFiles={[bcm, pcm4]} />);
+    render(<Harness vehicle={VEHICLES.charger} initialFiles={[bcm, pcm4]} />);
     let badge = await screen.findByTestId("dumps-pcm-size-badge");
-    expect(badge.textContent).toMatch(/95320/);
+    expect(badge.textContent).toBe("95320 · 4 KB");
     expect(badge.getAttribute("data-size-canonical")).toBe("1");
     expect(badge.getAttribute("data-size-key")).toBe("4kb");
 
@@ -177,18 +181,25 @@ describe("DumpsTabV2 — Task #481 PCM target-chip resize", () => {
     const pcm8 = makePcm("PCM_8K.bin", 8192);
     render(<Harness vehicle={VEHICLES.charger} initialFiles={[bcm, pcm8]} />);
     badge = await screen.findByTestId("dumps-pcm-size-badge");
-    expect(badge.textContent).toMatch(/95640/);
+    expect(badge.textContent).toBe("95640 · 8 KB");
+    expect(badge.getAttribute("data-size-canonical")).toBe("1");
     expect(badge.getAttribute("data-size-key")).toBe("8kb");
   });
 
-  it("flags a non-canonical PCM size as OTHER on the upload tile badge", async () => {
+  it("flags a non-canonical PCM size as UNKNOWN CHIP with the actual byte count", async () => {
+    /* Task #485 — non-canonical sources (INT FLASH read, partial /
+     * padded EXT EEPROM dump, etc.) get an amber "UNKNOWN CHIP"
+     * badge that surfaces the raw byte count, so the tech sees at a
+     * glance that the source dump doesn't match either bench chip
+     * before clicking SYNC. */
     const bcm = makeBcm("BCM_OK.bin", "68396563");
     const pcm = makePcm("PCM_5K.bin", 5000);
     render(<Harness vehicle={VEHICLES.charger} initialFiles={[bcm, pcm]} />);
     const badge = await screen.findByTestId("dumps-pcm-size-badge");
-    expect(badge.textContent).toMatch(/OTHER/);
+    expect(badge.textContent).toMatch(/UNKNOWN CHIP/);
+    expect(badge.textContent).toMatch(/5,000 B/);
     expect(badge.getAttribute("data-size-canonical")).toBe("0");
-    expect(badge.getAttribute("data-size-key")).toBe("other");
+    expect(badge.getAttribute("data-size-key")).toBe("unknown");
   });
 });
 

@@ -39,7 +39,7 @@ import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
-import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A} from "./lib/parseModule.js";
+import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A, pcmChipFromSize} from "./lib/parseModule.js";
 import {analyzeFile} from "./lib/fileUtils.js";
 import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
@@ -1167,7 +1167,24 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
     else if (pcmSize === 8192) setTargetPcmChip('8kb');
   }, [pcmSize]);
 
-  const pcmBadge = pcm ? moduleSizeBadge('pcm', pcm.size) : null;
+  /* Task #485 — chip badge on the loaded PCM card. Sourced directly
+   * from pcmChipFromSize() / PCM_CHIPS so the upload tile mirrors
+   * the same canonical 95320 / 95640 catalogue the bench-resize path
+   * uses. Non-canonical sizes (INT FLASH dump, padded capture, etc.)
+   * fall back to an "UNKNOWN CHIP" amber badge that surfaces the raw
+   * byte count, so the tech can spot a mismatch before clicking SYNC. */
+  const pcmBadge = pcm ? (() => {
+    const chip = pcmChipFromSize(pcm.size);
+    if (chip) {
+      return { label: chip.label, color: C.a4, dataKey: chip.chipKey, canonical: true };
+    }
+    return {
+      label: `${pcm.size.toLocaleString()} B · UNKNOWN CHIP`,
+      color: C.wn,
+      dataKey: 'unknown',
+      canonical: false,
+    };
+  })() : null;
 
   const runFullSync = () => {
     setErr(''); setMsg('');
@@ -1424,10 +1441,13 @@ function UploadSlot({label, slotType, file, onLoad, badge}){
     {file ? <div style={{fontFamily:'JetBrains Mono',fontSize:11,fontWeight:700,color:'#00695C',wordBreak:'break-all'}}>
       {file.name}
       <div style={{color:C.ts,fontSize:11,fontWeight:600,marginTop:2}}>{file.size.toLocaleString()} bytes</div>
-      {/* Task #481 — optional chip-variant badge for the PCM slot.
-          Shows the same canonical 95320 / 95640 chip label that
-          Module Sync uses, or a red OTHER badge with the actual
-          byte count when the source size doesn't match a chip. */}
+      {/* Task #485 — chip badge for the loaded PCM. Shows the same
+          canonical 95320 · 4 KB / 95640 · 8 KB chip label that the
+          bench-resize selector + Module Sync inspector use, or an
+          amber "UNKNOWN CHIP" badge with the raw byte count when the
+          source size doesn't match a chip in PCM_CHIPS. Lets the tech
+          confirm the source dump matches the target-chip pick before
+          clicking SYNC ALL MODULES. */}
       {badge && <div data-testid={`dumps-${slotType.toLowerCase()}-size-badge`}
         data-size-key={badge.dataKey}
         data-size-canonical={badge.canonical?'1':'0'}
