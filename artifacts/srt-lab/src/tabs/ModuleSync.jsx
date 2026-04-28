@@ -4,7 +4,7 @@ import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
-import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, resolveBcmSec16, classifyPcmSec6, parseModule, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
+import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
 import { crossValidate } from "../lib/crossValidate.js";
 import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
 import { scoreCandidate, pickBest, fmtPick, CANONICAL_PATTERNS } from "../lib/bestPick.js";
@@ -70,6 +70,86 @@ export function computeMixedSyncParticipants(action, slots) {
 const BCM_SLOT_TYPES = [0x46, 0x52, 0x53, 0x56, 0x57];
 const RFH_VIN_OFFSETS = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
 const VIN_LEN  = 17;
+
+/* ----------------------------------------------------------------------------
+ * Task #475 — programmer file-size guard helpers.
+ *
+ * The CGDI / Xprog / Orange5 flashers reject a PCM EXT EEPROM image with
+ * "File different size" the instant the byte count doesn't match the
+ * physical chip on the bench (95320 = 4 KB / 95640 = 8 KB). These helpers
+ * give every load-and-generate path one shared way to:
+ *   - badge each loaded module with its byte size + canonical-size class
+ *   - resolve a `targetPcmChip` ('4kb' / '8kb') for the bundler output
+ *   - pad / slice the PCM output to match the target chip and append the
+ *     `_4KB` / `_8KB` suffix to the download filename so the tech sees
+ *     the real byte length both in the toast and on disk.
+ * Out of scope: changing sync math, programmer comms, re-validating
+ * already-saved files. These helpers are pure.
+ * ------------------------------------------------------------------------- */
+
+/* moduleSizeBadge — returns { label, color, dataKey } for a module's
+ * file size. PCM uses the canonical 95320 / 95640 chip catalog from
+ * parseModule.js; the other modules use the same canonical sizes the
+ * Sincro engine accepts. Falls back to "{N} KB · OTHER" in amber for
+ * any size that isn't in the canonical list, so the tech can spot a
+ * partial / oversize / wrong-chip dump at a glance.
+ */
+export function moduleSizeBadge(kind, sizeBytes) {
+  if (sizeBytes == null) return null;
+  const kb = (sizeBytes / 1024).toFixed(sizeBytes % 1024 === 0 ? 0 : 1);
+  if (kind === 'pcm') {
+    const chip = pcmChipFromSize(sizeBytes);
+    if (chip) return { label: chip.label, color: C.a4, dataKey: chip.chipKey, canonical: true };
+    return { label: `${kb} KB · OTHER`, color: C.er, dataKey: 'other', canonical: false };
+  }
+  if (kind === 'bcm') {
+    if (sizeBytes === 65536)  return { label: '64 KB',  color: C.a3, dataKey: '64kb',  canonical: true };
+    if (sizeBytes === 131072) return { label: '128 KB', color: C.a3, dataKey: '128kb', canonical: true };
+    return { label: `${kb} KB · OTHER`, color: C.wn, dataKey: 'other', canonical: false };
+  }
+  if (kind === 'rfh') {
+    if (sizeBytes === 2048) return { label: '2 KB', color: C.a4, dataKey: '2kb', canonical: true };
+    if (sizeBytes === 4096) return { label: '4 KB', color: C.a4, dataKey: '4kb', canonical: true };
+    return { label: `${kb} KB · OTHER`, color: C.wn, dataKey: 'other', canonical: false };
+  }
+  if (kind === 'eep') {
+    if (sizeBytes === 8192)  return { label: '8 KB',  color: C.a4, dataKey: '8kb',  canonical: true };
+    if (sizeBytes === 16384) return { label: '16 KB', color: C.a4, dataKey: '16kb', canonical: true };
+    return { label: `${kb} KB · OTHER`, color: C.wn, dataKey: 'other', canonical: false };
+  }
+  return { label: `${kb} KB`, color: C.tm, dataKey: 'unknown', canonical: false };
+}
+
+/* resizePcmForTargetChip — pad-with-FF or slice the PCM output buffer
+ * so the on-disk byte count matches the user's bench chip. Mirrors
+ * the bundler's --pcm-chip behaviour:
+ *   - target '4kb' + 8 KB input → slice to first 4 KB
+ *   - target '8kb' + 4 KB input → 0xFF-pad to 8 KB
+ * Returns { bytes, suffix } where `suffix` is `_4KB` / `_8KB` for use
+ * in the download filename. Unknown / matching sizes pass through.
+ */
+export function resizePcmForTargetChip(bytes, chipKey) {
+  if (!bytes) return { bytes, suffix: '' };
+  if (chipKey === '4kb') {
+    if (bytes.length === 8192) return { bytes: bytes.slice(0, 4096), suffix: '_4KB' };
+    if (bytes.length === 4096) return { bytes, suffix: '_4KB' };
+  }
+  if (chipKey === '8kb') {
+    if (bytes.length === 4096) {
+      const out = new Uint8Array(8192);
+      out.set(bytes, 0);
+      out.fill(0xFF, 4096);
+      return { bytes: out, suffix: '_8KB' };
+    }
+    if (bytes.length === 8192) return { bytes, suffix: '_8KB' };
+  }
+  /* Fallback — unknown chip key or input not 4/8 KB: keep bytes as-is
+   * but still emit a size suffix when the byte count happens to match
+   * a canonical chip, so the filename always describes the bytes. */
+  if (bytes.length === 4096) return { bytes, suffix: '_4KB' };
+  if (bytes.length === 8192) return { bytes, suffix: '_8KB' };
+  return { bytes, suffix: '' };
+}
 
 /* ----------------------------------------------------------------------------
  * chainBcmFlatRepairIfStale (Task #385)
@@ -797,7 +877,7 @@ function ConnectionGuides() {
   );
 }
 
-function DropZone({ label, icon, hint, file, onFile, accent }) {
+function DropZone({ label, icon, hint, file, onFile, accent, badge, badgeTestid }) {
   const [over, setOver] = useState(false);
   const fileRef = useRef(null);
   const loaded  = file != null;
@@ -823,9 +903,29 @@ function DropZone({ label, icon, hint, file, onFile, accent }) {
       <div style={{ fontFamily: "'Nunito'", fontWeight: 800, fontSize: 13, letterSpacing: 0.8 }}>{label}</div>
       <div style={{ fontSize: 11, color: C.tm, marginTop: 4 }}>{hint}</div>
       {loaded && (
-        <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, marginTop: 6, color: C.gn, fontWeight: 600, wordBreak: 'break-all' }}>
-          {file.name} · {(file.size / 1024).toFixed(1)} KB
-        </div>
+        <>
+          <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, marginTop: 6, color: C.gn, fontWeight: 600, wordBreak: 'break-all' }}>
+            {file.name}
+          </div>
+          {/* Task #475 — surface the exact byte count + chip-variant badge
+              so the tech can spot a wrong-sized PCM (or partial BCM/RFH/EEP
+              dump) before they hit Generate and the programmer rejects it
+              with "File different size." */}
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+            <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.ts, fontWeight: 600 }}>
+              {file.size.toLocaleString()} B · {(file.size / 1024).toFixed(file.size % 1024 === 0 ? 0 : 1)} KB
+            </span>
+            {badge && (
+              <span data-testid={badgeTestid}
+                    data-size-key={badge.dataKey}
+                    data-size-canonical={badge.canonical ? '1' : '0'}
+                    style={{
+                      fontSize: 9, padding: '2px 7px', borderRadius: 4, letterSpacing: 0.6,
+                      background: badge.color, color: '#fff', fontWeight: 800,
+                    }}>{badge.label}</span>
+            )}
+          </div>
+        </>
       )}
       <input ref={fileRef} type="file" accept=".bin,.BIN,.eprom" style={{ display: 'none' }}
              onChange={e => { if (e.target.files[0]) handle(e.target.files[0]); }} />
@@ -1556,6 +1656,11 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
 
   const [targetVin, setTargetVin] = useState('');
   const [virginize, setVirginize] = useState(false);
+  /* Task #475 — explicit target-chip selection for the PCM bundler output.
+   * `null` = "auto / match the donor chip"; '4kb' / '8kb' = user picked
+   * a different bench chip than the donor and acknowledges that the
+   * generated file will be padded or sliced to match. */
+  const [targetPcmChip, setTargetPcmChip] = useState(null);
   const [logLines,  setLogLines]  = useState([]);
   const [diffRows,  setDiffRows]  = useState([]);
   const [originals, setOriginals] = useState({ bcm: null, rfh: null, pcm: null, eep: null });
@@ -1592,6 +1697,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     setDiffRows([]);
     setOriginals({ bcm: null, rfh: null, pcm: null, eep: null });
     setTargetVin('');
+    setTargetPcmChip(null);
     setLogLines([]);
     if (typeof clearDumps === 'function') clearDumps();
     const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
@@ -1603,6 +1709,35 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     log('SRT Lab Module Sync v2 (SINCRO-verified engine) ready.', 'info');
     log('Supports: BCM Gen1/Gen2 (SEC16 split records + mirrors) · RFHUB Gen1/Gen2 · PCM GPEC2A (4 KB / 8 KB)', 'muted');
   }, [log]);
+
+  /* Task #475 — pick a sensible default target chip for the PCM bundler
+   * output whenever the loaded PCM changes. The default mirrors the
+   * source-chip detection so a tech who doesn't touch the selector
+   * still gets the right byte count for their bench, with one carve-out
+   * for the long-known "doubled 8 KB capture with 0xFF half-2" pattern
+   * (95320 chip read as 8 KB by some readers): we default that to 4 KB
+   * to preserve the pre-#475 auto-slice behaviour and avoid producing
+   * a file CGDI will reject. */
+  useEffect(() => {
+    if (!pcm.bytes || pcm.parsed?.tooSmall) {
+      setTargetPcmChip(null);
+      return;
+    }
+    const chip = pcmChipFromSize(pcm.parsed?.size);
+    if (!chip) {
+      /* Non-canonical donor — leave target unset; the action card will
+       * block Generate and surface the chip-mismatch help line. */
+      setTargetPcmChip(null);
+      return;
+    }
+    if (chip.chipKey === '8kb' && pcm.bytes.length === 8192) {
+      const half2 = pcm.bytes.slice(4096);
+      const halfPad = half2.every((b) => b === 0xFF);
+      setTargetPcmChip(halfPad ? '4kb' : '8kb');
+      return;
+    }
+    setTargetPcmChip(chip.chipKey);
+  }, [pcm.bytes, pcm.parsed?.size, pcm.parsed?.tooSmall]);
 
   const handleBcm = useCallback((file, bytes) => {
     const parsed = engParseBcm(bytes, file.name);
@@ -1713,6 +1848,20 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const sec16SyncOk      = bcmHasSec16 && rfhHasSec16;
   const bcmToRfhSec16Ok  = bcmHasSec16 && rfh.parsed?.format?.startsWith('gen2');
 
+  /* Task #475 — derived PCM chip state shared by the action card UI and
+   * the doSync() / executeSync() guards. `pcmSourceChip` is the chip
+   * descriptor inferred from the loaded donor's byte length (null when
+   * the file is non-canonical). `pcmHasNonCanonicalSize` blocks Generate
+   * for any sync action that would emit a PCM file. `targetChipDescriptor`
+   * resolves the user-picked / auto-default target chip, and
+   * `targetChipMismatch` triggers the confirm prompt + amber selector
+   * border so the tech sees that donor and target sizes diverge. */
+  const pcmSourceChip = pcm.parsed && !pcm.parsed.tooSmall ? pcmChipFromSize(pcm.parsed.size) : null;
+  const pcmHasNonCanonicalSize = !!(pcm.parsed && !pcm.parsed.tooSmall && !pcmSourceChip);
+  const effectiveTargetChipKey = targetPcmChip || pcmSourceChip?.chipKey || null;
+  const targetChipDescriptor = effectiveTargetChipKey ? pcmChipFromKey(effectiveTargetChipKey) : null;
+  const targetChipMismatch = !!(pcmSourceChip && targetPcmChip && targetPcmChip !== pcmSourceChip.chipKey);
+
   /* 95640 re-key eligibility — needs RFHUB SEC16 master + 95640 dump ≥0x84A bytes */
   const eep95640Loaded   = !!eep.bytes;
   const rekey95640Ok     = eep95640Loaded && rfhHasSec16 && eep.bytes.length >= 0x84A;
@@ -1805,6 +1954,38 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   ];
 
   const doSync = (action, overrideVin) => {
+    /* Task #475 — block any sync that emits a PCM file when the loaded
+     * PCM is non-canonical, so a tech can't get past the disabled
+     * button via a wizard step / programmatic call and end up with a
+     * file the bench programmer rejects. Stays in lock-step with the
+     * inline help line under the action grid. */
+    const writesPcm = action === 'sync-all' || action === 'full-sync' || action === 'sec16-only';
+    if (writesPcm && pcm.bytes && pcmHasNonCanonicalSize) {
+      log(`✗ ${action} blocked: loaded PCM is ${pcm.parsed?.size} B — neither 4 KB (95320) nor 8 KB (95640). Re-read the EXT EEPROM at the matching size before generating.`, 'err');
+      return;
+    }
+    /* Task #475 — when the picked target chip differs from the donor
+     * chip, ask the tech to confirm the resize so they explicitly own
+     * the byte-count change. Skipped when no PCM is loaded or for
+     * actions that don't emit a PCM file. */
+    if (writesPcm && pcm.bytes && targetChipMismatch && targetChipDescriptor && pcmSourceChip) {
+      const ok = typeof window !== 'undefined' && typeof window.confirm === 'function'
+        ? window.confirm(
+            'PCM target-chip change\n\n'
+            + `Donor:  ${pcmSourceChip.label} (${pcm.bytes.length.toLocaleString()} B)\n`
+            + `Target: ${targetChipDescriptor.label}\n\n`
+            + (targetPcmChip === '4kb'
+                ? 'The generated PCM file will be sliced to the first 4 KB so it matches a 95320 bench chip.\n\n'
+                : 'The generated PCM file will be 0xFF-padded to 8 KB so it matches a 95640 bench chip.\n\n')
+            + 'Continue and produce a file sized for the target chip?'
+          )
+        : true;
+      if (!ok) {
+        log(`Sync cancelled — target chip change to ${targetChipDescriptor.sizeLabel} declined.`, 'warn');
+        return;
+      }
+      log(`Tech acknowledged PCM target-chip change: ${pcmSourceChip.sizeLabel} donor → ${targetChipDescriptor.sizeLabel} target.`, 'warn');
+    }
     /* Gate: if any loaded module bypassed the registry check, ask the tech to
      * acknowledge before the sync proceeds. Per-session opt-out is honoured. */
     const overridden = [
@@ -2038,28 +2219,32 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           } else {
             log(`PCM SEC6 skipped: ${sec6Skip}`, 'muted');
           }
-          // Task #379: if the loaded PCM is a doubled 8 KB capture with a
-          // 0xFF-padded half-2, slice the SYNC output down to 4 KB so the
-          // CGDI flasher for a 95320 bench chip doesn't reject it with
-          // "File different size." The decision matches the bundler's
-          // default --pcm-chip 4kb path.
-          let pcmChipSuffix = '';
-          if (pcmFinal.length === 8192) {
-            const half2 = pcmFinal.slice(4096);
-            if (half2.every((b) => b === 0xFF)) {
-              pcmFinal = pcmFinal.slice(0, 4096);
-              pcmChipSuffix = '_4KB';
-              log('PCM auto-sliced 8 KB → 4 KB (half-2 was 0xFF padding; matches 95320 bench chip)', 'warn');
-            } else {
-              pcmChipSuffix = '_8KB';
+          // Task #475: pad / slice the SYNC output to match the user-
+          // picked target chip so the on-disk byte count matches the
+          // bench. Default target tracks the donor chip (set by the
+          // useEffect on PCM load), but the tech can override via the
+          // target-chip selector — the doSync wrapper has already shown
+          // a confirm dialog before we reach this point. Filename gets a
+          // _4KB / _8KB suffix from the same helper so the on-disk name
+          // always describes the actual byte length.
+          {
+            const beforeLen = pcmFinal.length;
+            const resized = resizePcmForTargetChip(pcmFinal, effectiveTargetChipKey);
+            pcmFinal = resized.bytes;
+            if (beforeLen !== pcmFinal.length) {
+              const op = pcmFinal.length < beforeLen ? 'sliced' : '0xFF-padded';
+              log(`PCM ${op} ${beforeLen.toLocaleString()} B → ${pcmFinal.length.toLocaleString()} B (matches ${targetChipDescriptor?.label || effectiveTargetChipKey} bench chip)`, 'warn');
             }
-          } else if (pcmFinal.length === 4096) {
-            pcmChipSuffix = '_4KB';
           }
+          const pcmChipSuffix = (() => {
+            if (pcmFinal.length === 4096) return '_4KB';
+            if (pcmFinal.length === 8192) return '_8KB';
+            return '';
+          })();
           if (pcmSec6Ok) {
             const pcmName = `PCM_SYNCED${pcmChipSuffix}_${newVin}_${ts}.bin`;
             downloadBin(pcmFinal, pcmName);
-            log(`Downloaded: ${pcmName}`, 'ok');
+            log(`Downloaded: ${pcmName} (${pcmFinal.length.toLocaleString()} bytes · ${targetChipDescriptor?.label || `${(pcmFinal.length/1024).toFixed(0)} KB`})`, 'ok');
           } else {
             log('PCM file withheld: SEC6 could not be written; flashing this file would leave the car with an unpaired PCM.', 'err');
           }
@@ -2112,8 +2297,22 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           const pr = engWritePcmSec6(pcm.bytes, rfhSec16);
           if (pr.ok) {
             log(`PCM SEC6: ${pr.patched} location(s) written · marker ${pr.markerUsed}`, 'ok');
-            downloadBin(pr.bytes, `PCM_SEC6_SYNCED_${ts}.bin`);
-            log(`Downloaded: PCM_SEC6_SYNCED_${ts}.bin`, 'ok');
+            /* Task #475 — pad / slice the SEC6-only PCM output to the
+             * target chip and stamp the byte-accurate _4KB / _8KB suffix
+             * onto the filename so CGDI accepts it on a 95320 / 95640
+             * bench. Toast also includes the byte count to match. */
+            let pcmOut = pr.bytes;
+            const beforeLen = pcmOut.length;
+            const resized = resizePcmForTargetChip(pcmOut, effectiveTargetChipKey);
+            pcmOut = resized.bytes;
+            if (beforeLen !== pcmOut.length) {
+              const op = pcmOut.length < beforeLen ? 'sliced' : '0xFF-padded';
+              log(`PCM ${op} ${beforeLen.toLocaleString()} B → ${pcmOut.length.toLocaleString()} B (matches ${targetChipDescriptor?.label || effectiveTargetChipKey} bench chip)`, 'warn');
+            }
+            const pcmChipSuffix = pcmOut.length === 4096 ? '_4KB' : pcmOut.length === 8192 ? '_8KB' : '';
+            const pcmName = `PCM_SEC6_SYNCED${pcmChipSuffix}_${ts}.bin`;
+            downloadBin(pcmOut, pcmName);
+            log(`Downloaded: ${pcmName} (${pcmOut.length.toLocaleString()} bytes · ${targetChipDescriptor?.label || `${(pcmOut.length/1024).toFixed(0)} KB`})`, 'ok');
           } else {
             /* Task #399 — preflight passed but writer still refused; refuse
              * to ship an unmodified PCM as "synced". */
@@ -2286,13 +2485,44 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
           <DropZone label="BCM"      icon="🧠" hint="MPC5606B DFLASH · Gen1 or Gen2 · drag .bin"
-                    file={bcm.file} onFile={handleBcm} />
+                    file={bcm.file} onFile={handleBcm}
+                    badge={bcm.bytes ? moduleSizeBadge('bcm', bcm.bytes.length) : null}
+                    badgeTestid="modsync-bcm-size-badge" />
           <DropZone label="RFHUB / FCM" icon="🔑" hint="Yazaki FCM EEPROM · Gen1 or Gen2 · drag .bin"
-                    file={rfh.file} onFile={handleRfh} accent={C.a4} />
+                    file={rfh.file} onFile={handleRfh} accent={C.a4}
+                    badge={rfh.bytes ? moduleSizeBadge('rfh', rfh.bytes.length) : null}
+                    badgeTestid="modsync-rfh-size-badge" />
           <DropZone label="PCM (optional)" icon="⚙️" hint="GPEC2A (4 KB or 8 KB) · drag .bin"
-                    file={pcm.file} onFile={handlePcm} accent={C.a1} />
+                    file={pcm.file} onFile={handlePcm} accent={C.a1}
+                    badge={pcm.bytes ? moduleSizeBadge('pcm', pcm.bytes.length) : null}
+                    badgeTestid="modsync-pcm-size-badge" />
           <DropZone label="95640 (optional)" icon="📟" hint="BCM-backup EEPROM · 8 / 16 KB · drag .bin"
-                    file={eep.file} onFile={handleEep} accent={C.a4} />
+                    file={eep.file} onFile={handleEep} accent={C.a4}
+                    badge={eep.bytes ? moduleSizeBadge('eep', eep.bytes.length) : null}
+                    badgeTestid="modsync-eep-size-badge" />
+        </div>
+        {/* Task #475 — "Programmer says 'File different size'?" help blurb.
+            Sits directly below the upload zones so a tech who's already
+            staring at a wrong-sized PCM has the explanation in their
+            sight-line. Same wording the on-bench programmer pop-ups use,
+            so the connection from the error toast on the flasher to the
+            chip badge above is obvious. */}
+        <div data-testid="modsync-programmer-size-help" style={{
+          marginTop: 14, padding: '10px 12px', borderRadius: 10,
+          background: C.a3 + '0E', border: `1px solid ${C.a3}40`,
+          color: C.tx, fontSize: 11, fontWeight: 600, lineHeight: 1.5,
+        }}>
+          <div style={{ fontWeight: 800, fontSize: 11, color: C.a3, letterSpacing: 0.5, marginBottom: 4 }}>
+            ❓ Programmer says &quot;File different size&quot;?
+          </div>
+          The CGDI / Xprog / Orange5 flasher refuses any image whose byte
+          count doesn&apos;t match the chip on the bench. The PCM EXT EEPROM
+          must be exactly <strong>4 KB (95320)</strong> or <strong>8 KB (95640)</strong>.
+          The badge above each loaded file shows the live byte count and
+          chip class — re-read the EXT EEPROM (not INT FLASH) if it shows
+          <span style={{ color: C.er, fontWeight: 800 }}> OTHER</span>, and
+          pick the correct target chip in Sync Actions before generating so
+          the saved file matches your bench.
         </div>
       </Card>
 
@@ -2598,13 +2828,77 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.8, color: C.a4, marginBottom: 8, textTransform: 'uppercase' }}>
                 🔐 SEC16 / IMMO Sync (SINCRO-verified · Gen2)
               </div>
+              {/* Task #475 — target-chip selector for the PCM bundler output.
+                  Default tracks the loaded donor's chip; the tech can pick
+                  the other one when the donor and bench chip differ (e.g.
+                  8 KB donor → 4 KB target). The doSync wrapper prompts
+                  for confirmation before generating a mismatched output so
+                  the explicit acknowledgement lives in one place. */}
+              {pcm.bytes && pcmSourceChip && (
+                <div data-testid="modsync-target-chip-selector"
+                     style={{
+                       marginBottom: 10, padding: '10px 12px', borderRadius: 10,
+                       background: targetChipMismatch ? C.wn + '14' : C.c2,
+                       border: `1.5px solid ${targetChipMismatch ? C.wn : C.bd}`,
+                     }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                      Target PCM chip
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      {[
+                        { key: '4kb', label: '4 KB · 95320' },
+                        { key: '8kb', label: '8 KB · 95640' },
+                      ].map(opt => {
+                        const active = (targetPcmChip || pcmSourceChip.chipKey) === opt.key;
+                        return (
+                          <button key={opt.key}
+                            data-testid={`modsync-target-chip-${opt.key}`}
+                            data-active={active ? '1' : '0'}
+                            onClick={() => setTargetPcmChip(opt.key)}
+                            style={{
+                              padding: '6px 12px', borderRadius: 8, cursor: 'pointer',
+                              border: `2px solid ${active ? C.a4 : C.bd}`,
+                              background: active ? C.a4 : C.cd,
+                              color: active ? '#fff' : C.tx,
+                              fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
+                              letterSpacing: 0.4,
+                            }}>{opt.label}</button>
+                        );
+                      })}
+                    </div>
+                    <div style={{ fontSize: 11, color: C.tm, fontFamily: "'JetBrains Mono'", fontWeight: 600 }}>
+                      donor: {pcmSourceChip.label} ({pcm.bytes.length.toLocaleString()} B)
+                    </div>
+                  </div>
+                  {targetChipMismatch && (
+                    <div data-testid="modsync-target-chip-mismatch-note"
+                         style={{ marginTop: 6, fontSize: 11, color: C.wn, fontWeight: 700, lineHeight: 1.5 }}>
+                      ⚠ Donor is {pcmSourceChip.sizeLabel} but target is {targetChipDescriptor?.sizeLabel || '—'}. Generated PCM file will be{' '}
+                      {targetPcmChip === '4kb' ? 'sliced to 4 KB' : '0xFF-padded to 8 KB'} so it matches your bench chip. You&apos;ll be asked to confirm before the file downloads.
+                    </div>
+                  )}
+                </div>
+              )}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
-                <ActionBtn title="🔐 SEC16 RFH → BCM (+ PCM SEC6)"  enabled={sec16SyncOk}
-                  color={C.a4}
-                  desc={sec16SyncOk
-                    ? `Copy RFH SEC16 (reversed) into BCM split records + mirrors. Write first 6 bytes as PCM SEC6${pcm.bytes ? '' : ' (load PCM to also patch PCM)'}.`
-                    : bcmHasSec16 ? 'RFHUB SEC16 is virgin or not detected' : 'BCM has no Gen2 SEC16 records'}
-                  onClick={() => doSync('sec16-only')} />
+                {(() => {
+                  /* Task #475 — hard-block SEC16-only when the loaded PCM
+                   * is non-canonical, mirroring SYNC ALL. The PCM SEC6
+                   * write is part of this action, so producing a wrong-
+                   * sized PCM here would also be rejected by CGDI. */
+                  const pcmBlocked = pcm.bytes && pcmHasNonCanonicalSize;
+                  const enabled = sec16SyncOk && !pcmBlocked;
+                  return (
+                    <ActionBtn title="🔐 SEC16 RFH → BCM (+ PCM SEC6)"  enabled={enabled}
+                      color={pcmBlocked ? C.er : C.a4}
+                      desc={pcmBlocked
+                        ? `⛔ Loaded PCM is ${pcm.parsed?.size} B — neither 4 KB (95320) nor 8 KB (95640). The PCM SEC6 step would emit a wrong-sized file. Re-read the EXT EEPROM (not INT FLASH) or load the matching virgin before generating.`
+                        : sec16SyncOk
+                        ? `Copy RFH SEC16 (reversed) into BCM split records + mirrors. Write first 6 bytes as PCM SEC6${pcm.bytes ? ` (output sized to ${targetChipDescriptor?.sizeLabel || pcmSourceChip?.sizeLabel || 'donor'})` : ' (load PCM to also patch PCM)'}.`
+                        : bcmHasSec16 ? 'RFHUB SEC16 is virgin or not detected' : 'BCM has no Gen2 SEC16 records'}
+                      onClick={() => doSync('sec16-only')} />
+                  );
+                })()}
                 <ActionBtn title="🩹 Repair flat 0x40C9 from split records"
                   enabled={flatRepairOk}
                   color={C.a3}
@@ -2623,20 +2917,18 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                     : 'Requires BCM with Gen2 split records + Gen2 RFHUB (AA 55 31 01 header at 0x0500)'}
                   onClick={() => doSync('bcm-sec16-to-rfh')} />
                 {(() => {
-                  // Task #379: hard-block SYNC ALL when the loaded PCM is a
+                  // Task #475 — hard-block SYNC ALL when the loaded PCM is a
                   // non-canonical size (neither 4 KB nor 8 KB). The CGDI
                   // flasher will refuse the output, so producing it would
                   // give the user a junk file and a wasted bench cycle.
-                  const pcmChip = pcm.parsed && !pcm.parsed.tooSmall
-                    ? pcmChipFromSize(pcm.parsed.size) : null;
-                  const pcmSizeBlocked = pcm.parsed && !pcm.parsed.tooSmall && !pcmChip;
+                  const pcmSizeBlocked = pcmHasNonCanonicalSize;
                   const baseEnabled = tvOk || !!(rfh.parsed.vin);
                   const enabled = baseEnabled && !pcmSizeBlocked;
                   const desc = pcmSizeBlocked
-                    ? `⛔ Loaded PCM is ${pcm.parsed.size} B — neither 4 KB (95320) nor 8 KB (95640). CGDI will reject. Re-read the PCM or load the matching virgin before SYNC.`
+                    ? `⛔ Loaded PCM is ${pcm.parsed.size} B — neither 4 KB (95320) nor 8 KB (95640). CGDI will reject. Re-read the EXT EEPROM (not INT FLASH) or load the matching virgin before SYNC.`
                     : tvOk
-                      ? `Write ${tv} + SEC16 to all loaded modules in one pass. SINCRO-verified output.`
-                      : `Write ${rfh.parsed.vin || bcm.parsed.vin} + SEC16 to all modules (no target VIN set).`;
+                      ? `Write ${tv} + SEC16 to all loaded modules in one pass. SINCRO-verified output${pcm.bytes && targetChipDescriptor ? ` · PCM sized to ${targetChipDescriptor.sizeLabel}` : ''}.`
+                      : `Write ${rfh.parsed.vin || bcm.parsed.vin} + SEC16 to all modules (no target VIN set)${pcm.bytes && targetChipDescriptor ? ` · PCM sized to ${targetChipDescriptor.sizeLabel}` : ''}.`;
                   return (
                     <ActionBtn title="⚡ SYNC ALL — BCM + RFH + PCM"
                       enabled={enabled}
@@ -2646,6 +2938,13 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                   );
                 })()}
               </div>
+              {pcmHasNonCanonicalSize && (
+                <div data-testid="modsync-pcm-size-blocked-help"
+                     style={{ marginTop: 8, padding: '8px 12px', background: C.er + '14', borderRadius: 8, fontSize: 11, color: C.er, fontWeight: 700, lineHeight: 1.5 }}>
+                  ⛔ Generate is blocked: the loaded PCM is {pcm.parsed?.size} bytes — not the 4 KB (95320) or 8 KB (95640) the CGDI / Xprog / Orange5 flasher accepts.
+                  Re-read the EXT EEPROM (not the INT FLASH) on your bench at the matching size, then drop the new file in to unlock SYNC.
+                </div>
+              )}
               {!sec16SyncOk && (
                 <div style={{ marginTop: 8, padding: '8px 12px', background: 'rgba(255,179,0,0.06)', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 600, lineHeight: 1.5 }}>
                   {bcmToRfhSec16Ok
