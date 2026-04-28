@@ -33,6 +33,7 @@ import EcmTab from "./tabs/EcmTab";
 import KeyProgTab from "./tabs/KeyProgTab";
 import KeyManagerTab from "./tabs/KeyManagerTab";
 import MismatchWizard from "./components/MismatchWizard.jsx";
+import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
 import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A} from "./lib/parseModule.js";
 import {analyzeFile} from "./lib/fileUtils.js";
 import {Tip} from "./lib/plainEnglish.jsx";
@@ -1298,12 +1299,16 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       {/* Task #481 — always-on programmer-error help blurb. Mirrors the
           wording used in the Module Sync workspace and the OBD wizard
           so techs see the same diagnosis-first message wherever they
-          hit it. The companion target-chip selector above guarantees
-          the SYNC ALL output will be 4 KB or 8 KB. */}
-      <div data-testid="dumps-programmer-size-help" style={{marginTop:12,padding:'10px 14px',borderRadius:10,background:'rgba(0,131,143,0.08)',border:'1px dashed rgba(0,131,143,0.45)',fontSize:11,lineHeight:1.5,color:C.tx}}>
-        <strong style={{color:'#00565E'}}>Programmer says &quot;File different size&quot;?</strong> {' '}
-        Multi-PROG / CGDI / Xhorse only accept exact 4 KB (95320) or 8 KB (95640) files. SYNC ALL writes the patched PCM at the chip you picked above; if the source dump came in at an odd size (e.g. INT FLASH instead of EXT EEPROM), the lower 4 KB of the patched buffer is kept and the file is padded or truncated to fit.
-      </div>
+          hit it. Wording centralised in <ProgrammerSizeHelp/> (Task
+          #482) so the three workspaces can't drift apart. The
+          companion target-chip selector above guarantees the SYNC ALL
+          output will be 4 KB or 8 KB; the dumps-specific tail below
+          explains the truncate/pad behaviour. */}
+      <ProgrammerSizeHelp
+        testId="dumps-programmer-size-help"
+        variant="teal"
+        tail={<>SYNC ALL writes the patched PCM at the chip you picked above; if the source dump came in at an odd size (e.g. INT FLASH instead of EXT EEPROM), the lower 4 KB of the patched buffer is kept and the file is padded or truncated to fit.</>}
+      />
       {rejected.length>0 && <div style={{marginTop:12,display:'flex',flexDirection:'column',gap:10}}>
         {rejected.map((r,i)=>(
           <div key={i} data-testid="dumps-too-small-card" style={{padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>

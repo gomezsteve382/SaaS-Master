@@ -3,6 +3,7 @@ import {C} from "../lib/constants.js";
 import {Card, Tag, Btn} from "../lib/ui.jsx";
 import {parseRFH24C32, parsePCMGPEC, computeCompatibility, applyRfhToPcm} from "../lib/rfhPcmPair.js";
 import SamplePicker from "../lib/SamplePicker.jsx";
+import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
 import {fmtOff, moduleSizeBadge} from "./ModuleSync.jsx";
 
 /* Task #466 — adopt the SINCRO-style `0xHHHH (D)` offset render exported
@@ -168,24 +169,15 @@ export default function RFHPCMTab() {
           blurb the Module Sync workspace renders below its uploaders.
           Sits directly under the PCM drop zone so a tech who already
           loaded a wrong-sized PCM has the explanation in their sight-
-          line without leaving the OBD wizard. */}
-      <div data-testid="obdwiz-programmer-size-help" style={{
-        marginTop:14, padding:"10px 12px", borderRadius:10,
-        background:C.a3+"0E", border:`1px solid ${C.a3}40`,
-        color:C.tx, fontSize:11, fontWeight:600, lineHeight:1.5,
-      }}>
-        <div style={{fontWeight:800,fontSize:11,color:C.a3,letterSpacing:.5,marginBottom:4}}>
-          ❓ Programmer says &quot;File different size&quot;?
-        </div>
-        The CGDI / Xprog / Orange5 flasher refuses any image whose byte
-        count doesn&apos;t match the chip on the bench. The PCM EXT EEPROM
-        must be exactly <strong>4 KB (95320)</strong> or <strong>8 KB (95640)</strong>.
-        The badge on the PCM panel below shows the live byte count and
-        chip class — re-read the EXT EEPROM (not INT FLASH) if it shows
-        <span style={{color:C.er,fontWeight:800}}> OTHER</span>. APPLY and
-        DOWNLOAD stay disabled until the loaded file matches a canonical
-        GPEC2A chip size.
-      </div>
+          line without leaving the OBD wizard. Wording centralised in
+          <ProgrammerSizeHelp/> (Task #482); the OBD-specific tail
+          points at the APPLY/DOWNLOAD gating below. */}
+      <ProgrammerSizeHelp
+        testId="obdwiz-programmer-size-help"
+        variant="accent"
+        style={{marginTop:14, padding:"10px 12px"}}
+        tail={<>APPLY and DOWNLOAD stay disabled until the loaded file matches a canonical GPEC2A chip size.</>}
+      />
     </Card>
 
     {(rfh || pcm) && <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}}>

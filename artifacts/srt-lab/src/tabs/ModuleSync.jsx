@@ -3,6 +3,7 @@ import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
+import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
 import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
 import { crossValidate } from "../lib/crossValidate.js";
@@ -2527,26 +2528,16 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         {/* Task #475 — "Programmer says 'File different size'?" help blurb.
             Sits directly below the upload zones so a tech who's already
             staring at a wrong-sized PCM has the explanation in their
-            sight-line. Same wording the on-bench programmer pop-ups use,
-            so the connection from the error toast on the flasher to the
-            chip badge above is obvious. */}
-        <div data-testid="modsync-programmer-size-help" style={{
-          marginTop: 14, padding: '10px 12px', borderRadius: 10,
-          background: C.a3 + '0E', border: `1px solid ${C.a3}40`,
-          color: C.tx, fontSize: 11, fontWeight: 600, lineHeight: 1.5,
-        }}>
-          <div style={{ fontWeight: 800, fontSize: 11, color: C.a3, letterSpacing: 0.5, marginBottom: 4 }}>
-            ❓ Programmer says &quot;File different size&quot;?
-          </div>
-          The CGDI / Xprog / Orange5 flasher refuses any image whose byte
-          count doesn&apos;t match the chip on the bench. The PCM EXT EEPROM
-          must be exactly <strong>4 KB (95320)</strong> or <strong>8 KB (95640)</strong>.
-          The badge above each loaded file shows the live byte count and
-          chip class — re-read the EXT EEPROM (not INT FLASH) if it shows
-          <span style={{ color: C.er, fontWeight: 800 }}> OTHER</span>, and
-          pick the correct target chip in Sync Actions before generating so
-          the saved file matches your bench.
-        </div>
+            sight-line. Wording is centralised in <ProgrammerSizeHelp/>
+            (see Task #482) so it can't drift from the OBD wizard or the
+            DumpsTabV2 copy. The site-specific tail points at this
+            workspace's Sync Actions selector. */}
+        <ProgrammerSizeHelp
+          testId="modsync-programmer-size-help"
+          variant="accent"
+          style={{ marginTop: 14, padding: '10px 12px' }}
+          tail={<>Pick the correct target chip in Sync Actions before generating so the saved file matches your bench.</>}
+        />
       </Card>
 
       {/* ── Inspection Results ── */}
