@@ -107,6 +107,39 @@ function buildCheckRoutine(checkRid){
   return [0x31, 0x01, (rid >> 8) & 0xFF, rid & 0xFF];
 }
 
+/**
+ * Validate a RoutineControl positive response and its routine status byte.
+ * ISO 14229 §9.4 reply shape for sub-function 0x01:
+ *   71 01 <RID hi> <RID lo> [routineStatusRecord ...]
+ * The first byte of the status record is the routine result/status. We reject
+ * any reply that does not echo (0x71, 0x01, RID_hi, RID_lo) AND we reject any
+ * non-zero status byte. A zero status (or, for ECMs that omit the status
+ * record, a bare positive echo) is the only thing we accept as success.
+ *
+ * Returns { ok: true, status } on success, { ok: false, reason } on failure.
+ */
+function checkRoutinePositive(resp, rid){
+  if (!resp || resp.length < 4){
+    return { ok: false, reason: `Truncated RoutineControl response (len=${resp ? resp.length : 0})` };
+  }
+  if (resp[0] !== 0x71 || resp[1] !== 0x01){
+    return { ok: false, reason: `Unexpected RoutineControl reply header 0x${hex(resp[0])} 0x${hex(resp[1])}` };
+  }
+  const ridHi = (rid >> 8) & 0xFF, ridLo = rid & 0xFF;
+  if (resp[2] !== ridHi || resp[3] !== ridLo){
+    return { ok: false, reason: `RoutineControl RID mismatch: got 0x${hex(resp[2])}${hex(resp[3])}, expected 0x${hex(ridHi)}${hex(ridLo)}` };
+  }
+  if (resp.length >= 5){
+    const status = resp[4];
+    if (status !== 0x00){
+      return { ok: false, reason: `RoutineControl reported non-zero status 0x${hex(status)}`, status };
+    }
+    return { ok: true, status };
+  }
+  // ECU returned a bare positive echo with no status record — accept it.
+  return { ok: true, status: null };
+}
+
 function abortError(){
   const e = new Error('Aborted by user');
   e.aborted = true;
@@ -285,7 +318,14 @@ export function flashEcm(opts){
       setPhase(PHASE.ERASE);
       const eAddr = (eraseAddress != null ? eraseAddress : address) >>> 0;
       const eLen  = (eraseLength  != null ? eraseLength  : data.length) >>> 0;
-      await call(buildEraseRoutine(eAddr, eLen, eraseRid), `RoutineControl erase 0x31 01 ${hex((eraseRid>>8)&0xFF)} ${hex(eraseRid&0xFF)}`);
+      const eraseRidEff = (eraseRid != null ? eraseRid : 0xFF00) & 0xFFFF;
+      const eraseResp = await call(buildEraseRoutine(eAddr, eLen, eraseRid), `RoutineControl erase 0x31 01 ${hex((eraseRidEff>>8)&0xFF)} ${hex(eraseRidEff&0xFF)}`);
+      const eraseChk = checkRoutinePositive(eraseResp, eraseRidEff);
+      if (!eraseChk.ok){
+        if (typeof eraseChk.status === 'number') result.eraseStatus = eraseChk.status;
+        throw new Error(`Erase routine failed: ${eraseChk.reason}`);
+      }
+      result.eraseStatus = eraseChk.status;
 
       // 5) Request download.
       setPhase(PHASE.REQUEST_DOWNLOAD);
@@ -337,7 +377,14 @@ export function flashEcm(opts){
 
       // 8) Verify checksum.
       setPhase(PHASE.CHECKSUM);
-      await call(buildCheckRoutine(checkRid), `RoutineControl checksum 0x31 01 ${hex((checkRid>>8)&0xFF)} ${hex(checkRid&0xFF)}`);
+      const checkRidEff = (checkRid != null ? checkRid : 0xFF01) & 0xFFFF;
+      const checkResp = await call(buildCheckRoutine(checkRid), `RoutineControl checksum 0x31 01 ${hex((checkRidEff>>8)&0xFF)} ${hex(checkRidEff&0xFF)}`);
+      const checkChk = checkRoutinePositive(checkResp, checkRidEff);
+      if (!checkChk.ok){
+        if (typeof checkChk.status === 'number') result.verifyStatus = checkChk.status;
+        throw new Error(`Verify routine failed: ${checkChk.reason}`);
+      }
+      result.verifyStatus = checkChk.status;
 
       // 9) ECU reset.
       setPhase(PHASE.RESET);

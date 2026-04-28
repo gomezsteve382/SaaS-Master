@@ -328,3 +328,85 @@ describe('flashEcm abort and NRC handling', () => {
     expect(r.nrc).toBe(0x35);
   });
 });
+
+describe('flashEcm RoutineControl status enforcement (Task #488 rework)', () => {
+  // Build a script that walks the entire happy path EXCEPT the final
+  // verify-routine status byte, which the caller controls via `verifyStatus`.
+  // If verifyStatus is null we omit the status byte entirely (some ECMs do
+  // not append one — should still pass).
+  function scriptThroughVerify(seed, expectedKey, payload, eraseStatus, verifyStatus){
+    const script = [
+      { ok: true, d: bytes(0x50, 0x03, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x50, 0x02, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x67, 0x09,
+          (seed >>> 24) & 0xFF, (seed >>> 16) & 0xFF, (seed >>> 8) & 0xFF, seed & 0xFF) },
+      (frame) => ({ ok: true, d: bytes(0x67, 0x0A) }),
+    ];
+    // Erase routine — status configurable.
+    if (eraseStatus === null) script.push({ ok: true, d: bytes(0x71, 0x01, 0xFF, 0x00) });
+    else script.push({ ok: true, d: bytes(0x71, 0x01, 0xFF, 0x00, eraseStatus & 0xFF) });
+    script.push({ ok: true, d: bytes(0x74, 0x10, 0x82) });
+    const chunks = Math.ceil(payload.length / 0x80);
+    for (let i = 0; i < chunks; i++) script.push((f) => ({ ok: true, d: bytes(0x76, f[1]) }));
+    script.push({ ok: true, d: bytes(0x77) });
+    if (verifyStatus === null) script.push({ ok: true, d: bytes(0x71, 0x01, 0xFF, 0x01) });
+    else script.push({ ok: true, d: bytes(0x71, 0x01, 0xFF, 0x01, verifyStatus & 0xFF) });
+    script.push({ ok: true, d: bytes(0x51, 0x01) });
+    return script;
+  }
+
+  test('verify status 0x00 -> success', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(64);
+    const script = scriptThroughVerify(seed, cda6(seed) >>> 0, payload, 0x00, 0x00);
+    const r = await flashEcm({ engine: makeEngine({ script }), payload, chunkSize: 0x80 }).start();
+    expect(r.ok).toBe(true);
+    expect(r.verifyStatus).toBe(0x00);
+    expect(r.eraseStatus).toBe(0x00);
+  });
+
+  test('verify status omitted (bare 71 01 FF 01 echo) -> success', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(64);
+    const script = scriptThroughVerify(seed, cda6(seed) >>> 0, payload, null, null);
+    const r = await flashEcm({ engine: makeEngine({ script }), payload, chunkSize: 0x80 }).start();
+    expect(r.ok).toBe(true);
+  });
+
+  test('verify status 0x01 -> hard fail at CHECKSUM phase, not DONE', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(64);
+    const script = scriptThroughVerify(seed, cda6(seed) >>> 0, payload, 0x00, 0x01);
+    const r = await flashEcm({ engine: makeEngine({ script }), payload, chunkSize: 0x80 }).start();
+    expect(r.ok).toBe(false);
+    expect(r.phase).toBe(FLASH_PHASES.CHECKSUM);
+    expect(r.error).toMatch(/Verify routine failed.*non-zero status 0x01/i);
+    expect(r.verifyStatus).toBe(0x01);
+  });
+
+  test('erase status 0xFF -> hard fail at ERASE phase, never reaches transfer', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(64);
+    const script = scriptThroughVerify(seed, cda6(seed) >>> 0, payload, 0xFF, 0x00);
+    const eng = makeEngine({ script });
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x80 }).start();
+    expect(r.ok).toBe(false);
+    expect(r.phase).toBe(FLASH_PHASES.ERASE);
+    expect(r.error).toMatch(/Erase routine failed.*non-zero status 0xFF/i);
+    expect(r.eraseStatus).toBe(0xFF);
+    // Transfer (0x36) must NOT have been attempted.
+    expect(eng.calls.some(c => Array.isArray(c.frame) && c.frame[0] === 0x36)).toBe(false);
+  });
+
+  test('verify response with wrong RID -> hard fail (RID mismatch)', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(64);
+    const script = scriptThroughVerify(seed, cda6(seed) >>> 0, payload, 0x00, 0x00);
+    // Replace the verify ack (second-to-last entry) with a bogus RID.
+    script[script.length - 2] = { ok: true, d: bytes(0x71, 0x01, 0xDE, 0xAD, 0x00) };
+    const r = await flashEcm({ engine: makeEngine({ script }), payload, chunkSize: 0x80 }).start();
+    expect(r.ok).toBe(false);
+    expect(r.phase).toBe(FLASH_PHASES.CHECKSUM);
+    expect(r.error).toMatch(/Verify routine failed.*RID mismatch/i);
+  });
+});

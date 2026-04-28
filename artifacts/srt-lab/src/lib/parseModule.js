@@ -531,7 +531,15 @@ function resolveBcmSec16(data){
 function parseModule(data,filename,opts){
   const sz=data.length;let type='UNKNOWN';
   const forceType=opts&&opts.forceType;
-  if(sz===65536||sz===131072){type='BCM';}
+  if(sz===65536){type='BCM';}
+  else if(sz===131072){
+    // 128 KB sits at the boundary between BCM and the firmware-class bucket
+    // (Task #488 spec: 128 KB / 256 KB / 384 KB classify as FW). Real BCMs
+    // have populated VIN slots / immo records; firmware-class captures at
+    // this size do not. Promote 128 KB files with no BCM-defining content
+    // to FW so the C-flash analyzer can scan them for tuner signatures.
+    type=looksLikeRealBcm(data)?'BCM':'FW';
+  }
   else if(sz===8192||sz===16384){
     const sig=detectBySignature(data);
     type=sig!=='UNKNOWN'?sig:'95640';

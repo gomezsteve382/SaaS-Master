@@ -1359,6 +1359,24 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
         ))}
         <button onClick={()=>setRejected([])} style={{alignSelf:'flex-start',padding:'5px 12px',fontSize:10,background:'none',border:'1px solid '+C.bd,borderRadius:8,cursor:'pointer',color:C.ts,fontWeight:700,letterSpacing:1}}>DISMISS</button>
       </div>}
+      {/* Task #488 step 7 — tuner-signature warning row for firmware-class
+          captures (FW / CFLASH). Surfaces hits from cflashAnalyzer's
+          scanTunerSigs so a tech sees the same warning here as on the
+          dedicated C-Flash tab. The check is gated on f.tunerSigs which
+          parseModule only attaches for FW / CFLASH files, so smaller
+          BCM/RFHUB/GPEC2A captures cannot trip a false positive. */}
+      {files.map((f,idx)=>{
+        if(!f || !Array.isArray(f.tunerSigs) || f.tunerSigs.length===0) return null;
+        const labels = f.tunerSigs.map(s=>s.label).join(', ');
+        return (
+          <div key={`tuner-${idx}`} data-testid="dumps-tuner-warn" style={{marginTop:12,padding:'10px 14px',borderRadius:10,background:C.wn+'15',border:'1px solid '+C.wn+'66'}}>
+            <div style={{fontSize:11,fontWeight:900,color:C.wn,letterSpacing:1,marginBottom:4}}>⚠ TUNER SIGNATURE FOUND</div>
+            <div style={{fontSize:11,color:C.tx,lineHeight:1.5}}>
+              <b>{f.name||f.filename||'firmware capture'}</b> contains marker(s) for <b>{labels}</b>. This file looks like an aftermarket-tuned firmware image — verify the source before flashing.
+            </div>
+          </div>
+        );
+      })}
       {blockers.map((b,i)=>(
         <div key={i} data-testid="dump-blocker" style={{marginTop:12,padding:'10px 14px',borderRadius:10,background:C.er+'12',border:'1px solid '+C.er+'44'}}>
           <div style={{fontSize:11,fontWeight:900,color:C.er,letterSpacing:1,marginBottom:4}}>⛔ INCOMPATIBLE DUMP BLOCKED</div>

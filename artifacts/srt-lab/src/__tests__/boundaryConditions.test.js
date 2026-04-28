@@ -262,7 +262,10 @@ describe('analyzeFile canonical-size detection', () => {
     [65535, 'UNKNOWN'],
     [65537, 'BCM'],      // > 131072 → FW; but 65537 → reach _detectBySignature → BCM-ish
     [2048,  'RFHUB'],
-    [131072,'BCM'],
+    // 128 KB blank captures now classify as FW (firmware-class bucket per
+    // Task #488). Real BCMs with VINs / immo records still classify as BCM
+    // — see the dedicated 128 KB test cases below.
+    [131072,'FW'],
   ])('size %s → type %s', (size, expectedType) => {
     const buf = new Uint8Array(size).fill(0xFF);
     if (size === 4096) {

@@ -26,7 +26,11 @@ function _countSkim(d,base){
 
 function analyzeFile(buf,name,slotType){
   const data=new Uint8Array(buf);const sz=data.length;let type='UNKNOWN';
-  if(sz===65536||sz===131072)type='BCM';
+  if(sz===65536)type='BCM';
+  // 128 KB sits at the boundary between BCM and the firmware-class bucket
+  // (Task #488). Mirrors parseModule.js: real BCMs have populated VIN slots /
+  // immo records; 128 KB captures with no BCM-defining content are firmware.
+  else if(sz===131072)type=looksLikeRealBcm(data)?'BCM':'FW';
   else if(sz===8192||sz===16384){const sig=_detectBySignature(data);type=sig!=='UNKNOWN'?sig:'95640';}
   else if(sz===4096){const sig4=_detectBySignature(data);if(sig4!=='UNKNOWN'){type=sig4;}else{let a=true;for(let i=0;i<17&&i<sz;i++)if(data[i]<0x30||data[i]>0x5A){a=false;break;}type=a?'GPEC2A':'RFHUB';}}
   else if(sz===2048){const sig=_detectBySignature(data);type=sig!=='UNKNOWN'?sig:'RFHUB';} // Gen1 RFHUB (24C16) — see parseModule.js
