@@ -57,7 +57,7 @@ describe("DumpsTabV2 — mixed-sync warning (Task #334)", () => {
 
     const vinInput = screen.getByPlaceholderText(/Enter customer .* VIN/i);
     await user.type(vinInput, VALID_VIN);
-    await user.click(screen.getByText(/SYNC ALL MODULES/));
+    await user.click(screen.getByRole("button", { name: /SYNC ALL MODULES/ }));
 
     expect(confirmSpy).not.toHaveBeenCalled();
   });
@@ -79,7 +79,7 @@ describe("DumpsTabV2 — mixed-sync warning (Task #334)", () => {
 
     const vinInput = screen.getByPlaceholderText(/Enter customer .* VIN/i);
     await user.type(vinInput, VALID_VIN);
-    await user.click(screen.getByText(/SYNC ALL MODULES/));
+    await user.click(screen.getByRole("button", { name: /SYNC ALL MODULES/ }));
 
     expect(confirmSpy).toHaveBeenCalledTimes(1);
     const promptText = confirmSpy.mock.calls[0][0];
@@ -103,7 +103,7 @@ describe("DumpsTabV2 — mixed-sync warning (Task #334)", () => {
 
     const vinInput = screen.getByPlaceholderText(/Enter customer .* VIN/i);
     await user.type(vinInput, VALID_VIN);
-    await user.click(screen.getByText(/SYNC ALL MODULES/));
+    await user.click(screen.getByRole("button", { name: /SYNC ALL MODULES/ }));
 
     expect(confirmSpy).toHaveBeenCalledTimes(1);
     // No "cancelled" message because the user accepted.
