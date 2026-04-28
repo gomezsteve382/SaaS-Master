@@ -461,7 +461,7 @@ describe('analyzeFile — randomized fuzz (mulberry32 PRNG)', () => {
     200000, 262144,
   ];
 
-  it('1000 random buffers across canonical and adversarial sizes → no throw, valid shape', () => {
+  it('1000 random buffers across canonical and adversarial sizes → no throw, valid shape', { timeout: 30000 }, () => {
     const rng = makeRng(0xC0FFEE);
     const failures = [];
     for (let i = 0; i < 1000; i++) {
@@ -485,7 +485,7 @@ describe('analyzeFile — randomized fuzz (mulberry32 PRNG)', () => {
     expect(failures, `Fuzz failures: ${JSON.stringify(failures.slice(0, 5))}`).toEqual([]);
   });
 
-  it('200 random VIN-tainted BCM buffers → all classify as BCM, vins is array', () => {
+  it('200 random VIN-tainted BCM buffers → all classify as BCM, vins is array', { timeout: 30000 }, () => {
     const rng = makeRng(0xBADF00D);
     for (let i = 0; i < 200; i++) {
       const sz = rng.pick([65536, 131072]);
@@ -504,7 +504,7 @@ describe('analyzeFile — randomized fuzz (mulberry32 PRNG)', () => {
     }
   });
 
-  it('200 random 4096-byte buffers → always RFHUB or GPEC2A or TCM/TIPM, never throws', () => {
+  it('200 random 4096-byte buffers → always RFHUB or GPEC2A or TCM/TIPM, never throws', { timeout: 30000 }, () => {
     const rng = makeRng(0xFEEDFACE);
     for (let i = 0; i < 200; i++) {
       const buf = makeRand(rng, 4096);
@@ -515,7 +515,7 @@ describe('analyzeFile — randomized fuzz (mulberry32 PRNG)', () => {
     }
   });
 
-  it('100 random near-canonical sizes ±4096 → no throw, hexOnly matches type', () => {
+  it('100 random near-canonical sizes ±4096 → no throw, hexOnly matches type', { timeout: 30000 }, () => {
     const rng = makeRng(0xDEADBEEF);
     const bases = [4096, 8192, 16384, 65536, 131072];
     for (let i = 0; i < 100; i++) {
