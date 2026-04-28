@@ -43,12 +43,18 @@ describe("Task #475 — moduleSizeBadge helper", () => {
     expect(b2.dataKey).toBe('8kb');
   });
 
-  it("flags a non-canonical PCM size in red as OTHER", () => {
+  it("flags a non-canonical PCM size as UNKNOWN CHIP with the raw byte count", () => {
+    /* Task #486 — Module Sync, RFH↔PCM, and Dumps tab now share the
+     * same chip-first wording for non-canonical PCM sizes ('UNKNOWN
+     * CHIP' + raw byte count, amber) instead of the older red
+     * '{kb} KB · OTHER' so techs don't second-guess whether 'OTHER'
+     * on one tab and 'UNKNOWN CHIP' on another mean different things. */
     const b = moduleSizeBadge('pcm', 5000);
     expect(b).toBeTruthy();
-    expect(b.label).toMatch(/OTHER/);
+    expect(b.label).toMatch(/UNKNOWN CHIP/);
+    expect(b.label).toMatch(/5,000 B/);
     expect(b.canonical).toBe(false);
-    expect(b.dataKey).toBe('other');
+    expect(b.dataKey).toBe('unknown');
   });
 
   it("recognises the canonical BCM / RFH / EEP sizes", () => {

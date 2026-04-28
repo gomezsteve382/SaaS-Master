@@ -104,8 +104,9 @@ export default function RFHPCMTab() {
    * inside the OBD flashing wizard (this RFH→PCM tab is the second
    * entry point that loads a PCM .bin and emits a patched image). The
    * shared `moduleSizeBadge('pcm', N)` helper returns the same chip-
-   * variant badge (95320 / 95640 / OTHER) the Module Sync workspace
-   * shows; when the loaded PCM isn't 4 KB / 8 KB we surface the same
+   * variant badge (95320 / 95640 / amber 'N B · UNKNOWN CHIP', the
+   * unified Task #486 wording) the Module Sync workspace shows; when
+   * the loaded PCM isn't 4 KB / 8 KB we surface the same
    * red "Programmer says 'File different size'?" banner here AND block
    * APPLY / DOWNLOAD so a tech can't ship a wrong-sized file that the
    * CGDI / Xprog / Orange5 flasher will reject on the bench. */

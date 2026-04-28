@@ -11,8 +11,13 @@
 // file matches a 95320 (4 KB) or 95640 (8 KB) bench chip.
 //
 // We exercise the rendered tab with a clean 4 KB PCM (canonical badge,
-// no block) and with a 5000-byte PCM (OTHER badge, red block, APPLY
-// disabled) so the wiring can't silently regress in the JSX.
+// no block) and with a 5000-byte PCM (UNKNOWN CHIP badge, red block,
+// APPLY disabled) so the wiring can't silently regress in the JSX.
+// Task #486 — non-canonical PCM badge wording was unified across the
+// Module Sync, RFH↔PCM, and per-vehicle Dumps surfaces; this tab now
+// reads the same "{N} B · UNKNOWN CHIP" amber badge the Dumps tab
+// already shipped, so a tech doesn't second-guess whether 'OTHER' on
+// one tab and 'UNKNOWN CHIP' on another mean different things.
 
 import React from 'react';
 import { describe, it, afterEach, expect } from 'vitest';
@@ -89,7 +94,7 @@ describe('Task #478 — RFH→PCM (OBD wizard) file-size guard', () => {
     expect(screen.queryByTestId('obdwiz-programmer-size-block')).toBeNull();
   });
 
-  it('shows the OTHER badge AND the red block banner for a non-canonical PCM size, and disables APPLY + DOWNLOAD', async () => {
+  it('shows the UNKNOWN CHIP badge AND the red block banner for a non-canonical PCM size, and disables APPLY + DOWNLOAD', async () => {
     const { container } = render(<RFHPCMTab />);
     const inputs = container.querySelectorAll('input[type="file"]');
 
@@ -97,9 +102,12 @@ describe('Task #478 — RFH→PCM (OBD wizard) file-size guard', () => {
 
     await waitFor(() => {
       const badge = screen.getByTestId('obdwiz-pcm-size-badge');
-      expect(badge.getAttribute('data-size-key')).toBe('other');
+      /* Task #486 — wording unified with the Dumps + Module Sync tabs:
+       * dataKey is now 'unknown' (not 'other') and the label reads
+       * "{N} B · UNKNOWN CHIP" instead of "{kb} KB · OTHER". */
+      expect(badge.getAttribute('data-size-key')).toBe('unknown');
       expect(badge.getAttribute('data-size-canonical')).toBe('0');
-      expect(badge.textContent).toMatch(/OTHER/);
+      expect(badge.textContent).toMatch(/UNKNOWN CHIP/);
       expect(badge.textContent).toMatch(/5,?000 B/);
     });
 

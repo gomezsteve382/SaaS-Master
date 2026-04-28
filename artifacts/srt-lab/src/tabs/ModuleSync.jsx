@@ -92,9 +92,11 @@ const VIN_LEN  = 17;
 /* moduleSizeBadge — returns { label, color, dataKey } for a module's
  * file size. PCM uses the canonical 95320 / 95640 chip catalog from
  * parseModule.js; the other modules use the same canonical sizes the
- * Sincro engine accepts. Falls back to "{N} KB · OTHER" in amber for
- * any size that isn't in the canonical list, so the tech can spot a
- * partial / oversize / wrong-chip dump at a glance.
+ * Sincro engine accepts. Non-canonical PCM sizes fall back to
+ * "{N} B · UNKNOWN CHIP" in amber — same wording the per-vehicle
+ * Dumps tab uses (Task #485) so the Module Sync, RFH↔PCM, and Dumps
+ * surfaces all read identically. Other modules fall back to
+ * "{N} KB · OTHER" in amber.
  */
 export function moduleSizeBadge(kind, sizeBytes) {
   if (sizeBytes == null) return null;
@@ -102,7 +104,12 @@ export function moduleSizeBadge(kind, sizeBytes) {
   if (kind === 'pcm') {
     const chip = pcmChipFromSize(sizeBytes);
     if (chip) return { label: chip.label, color: C.a4, dataKey: chip.chipKey, canonical: true };
-    return { label: `${kb} KB · OTHER`, color: C.er, dataKey: 'other', canonical: false };
+    return {
+      label: `${sizeBytes.toLocaleString()} B · UNKNOWN CHIP`,
+      color: C.wn,
+      dataKey: 'unknown',
+      canonical: false,
+    };
   }
   if (kind === 'bcm') {
     if (sizeBytes === 65536)  return { label: '64 KB',  color: C.a3, dataKey: '64kb',  canonical: true };
