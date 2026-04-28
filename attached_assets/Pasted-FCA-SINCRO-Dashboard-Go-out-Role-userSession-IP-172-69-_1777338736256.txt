@@ -1,0 +1,472 @@
+FCA SINCRO
+
+Dashboard
+
+Go out
+
+Role:userSession IP:172.69.127.155IP changed
+
+Charger — BCM → PCM (GPEC2A)
+
+Load BCM and PCM, validate VIN/SEC6 and generate the modified PCM when ready.
+
+Guides:BCM (MPC560XB)MULTIPROGBCM (MPC560XB)UPAPCM (GPEC2A)GODIAG
+
+1) Load files and filter (INSPECT)
+
+Upload BCM and PCM. The system detects VIN/SEC6 and validates compatibility.
+
+BCM file (MPC5606B/MPC5605B)
+
+Dump BCM (full flash).
+
+PCM file (GPEC2A)
+
+Dump PCM (.bin/.eprom).
+
+Inspect BCM / PCMClean / Reset
+
+Inspection Result: ✅ Ready to twin
+
+BCM (MPC5606B_05B)
+
+Data detected from the BCM.
+
+MPC5606B_05B65536 bytes
+
+VIN
+
+VIN detected: 2C3CDXHG5EH219538
+
+Total copies: 4
+
+
+
+
+
+VIN 1 – CS OK (offset 4904)
+
+
+
+VIN 2 – CS OK (offset 4936)
+
+
+
+VIN 3 – CS OK (offset 4968)
+
+
+
+VIN 4 – CS OK (offset 5000)
+
+SEC16 main
+
+SEC16 BCM: C42F3C79941582C3823530BAE7C5A108
+
+SEC16 RFH format: 08A1C5E7BA303582C3821594793C2FC4
+
+SEC6 derived for PCM: 08 A1 C5 E7 BA 30
+
+Main ones detected: 3
+
+SEC16 mirrors
+
+
+
+
+
+SEC16 MIRROR 1 – CS OK (off7 201)
+
+
+
+SEC16 MIRROR 2 – CS OK (off7 241)
+
+PCM (GPEC2A)
+
+Data detected from the PCM.
+
+GPEC4096 bytesIMMO: IMMO_SANO
+
+VIN
+
+Current VIN: 2C3CDXHG5EH219538
+
+Original VIN: 2C3CDXHG5EH219538
+
+PCM Security
+
+Pattern: FF FF FF AA
+
+SEC6 (PCM): 08 A1 C5 E7 BA 30
+
+Additional information
+
+OS: 68419038AE
+
+PN: 68331185AA
+
+Serial: T00EP2548GAC6D
+
+Comparison
+
+VIN validation (current/original) and derived SEC6 vs current SEC6.
+
+READY
+
+VIN
+
+VIN BCM: 2C3CDXHG5EH219538
+
+PCM VIN (current): 2C3CDXHG5EH219538 OK
+
+PCM VIN (original): 2C3CDXHG5EH219538 OK
+
+SEC6
+
+SEC6 derived BCM → PCM: 08 A1 C5 E7 BA 30
+
+SEC6 PCM (current): 08 A1 C5 E7 BA 30 OK
+
+Actions (APPLY)
+
+Apply BCM → PCM using the data already uploaded (without re-uploading files).
+
+APPLY enabled
+
+Import data from BCM → to PCM (download modified PCM)Re-filter / reload files  FCA SINCRO
+
+Dashboard
+
+Go out
+
+Role:userSession IP:172.69.127.155IP changed
+
+Charger/Challenguer — RFH ⇄ BCM (MC9S12X Gen2)
+
+It loads BCM (MPC5606B) and RFH (MC9S12X Type1 Gen2), validates VIN/SEC16 and checksums, and allows application in both directions without re-uploading files.
+
+Connection guides:BCM Guide (MPC560XB)MULTIPROGBCM Guide (MPC560XB)UPARFH Guide (9S12X)MULTIPROGRFH Guide (9S12X)UPARFH Guide (9S12X)OBDSTAR
+
+1) Load files and filter (INSPECT)
+
+Upload BCM and RFH. The system detects VIN/SEC16 and validates checksums.
+
+BCM file (.bin)
+
+Dump BCM (full flash).
+
+RFH File (MC9S12X Gen2) (.bin/.eprom)
+
+Dump RFH (Gen2: VIN 4 slots + SEC16 2 slots).
+
+Inspect BCM / RFHClean / Reset
+
+Tip: If you refresh the page or open it in another tab, the state will be lost. Run Inspect again.
+
+Inspection Result: ✅ Ready to apply
+
+BCM (MPC5606B - 05B)
+
+CHARGER_BCM_SYNCED_2C3CDXHG5EH219538_.bin
+
+MPC5606B_05B65536 bytes
+
+VIN (BCM)
+
+VIN: 2C3CDXHG5EH219538
+
+Copies: 4
+
+
+
+
+
+VIN 1 – CS OK
+
+
+
+VIN 2 – CS OK
+
+
+
+VIN 3 – CS OK
+
+
+
+VIN 4 – CS OK
+
+SEC16 (BCM)
+
+SEC16 BCM: C42F3C79941582C3823530BAE7C5A108
+
+SEC16 RFH (view): 08A1C5E7BA303582C3821594793C2FC4
+
+SEC16 main
+
+Total: 3
+
+SEC16 mirrors (with CRC)
+
+
+
+
+
+MIRROR 1 – CS OK
+
+
+
+MIRROR 2 – CS OK
+
+RFH (MC9S12X Type 1 — Gen 2)
+
+CHARGER_RFH_SYNCED_2C3CDXHG5EH219538_.bin
+
+MC9S12X4096 bytes
+
+VIN (RFH Gen2 — 4 slots + CHK after)
+
+
+
+
+
+SLOT 1 — CS OK
+
+VIN: 2C3CDXHG5EH219538
+
+
+
+SLOT 2 — CS OK
+
+VIN: 2C3CDXHG5EH219538
+
+
+
+SLOT 3 — CS OK
+
+VIN: 2C3CDXHG5EH219538
+
+
+
+SLOT 4 — CS OK
+
+VIN: 2C3CDXHG5EH219538
+
+SEC16 (RFH Gen2 — 2 slots + CHK after)
+
+Slots match: Yeah
+
+
+
+
+
+SLOT 1 — CS OK
+
+SEC16: 08A1C5E7BA303582C3821594793C2FC4
+
+
+
+SLOT 2 — CS OK
+
+SEC16: 08A1C5E7BA303582C3821594793C2FC4
+
+Derived (demo) — RFH → BCM
+
+Rule: reverse bytes of the entire block .
+
+SEC16 BCM (hex): C42F3C79941582C3823530BAE7C5A108
+
+OS / PN / SERIAL (Best Pick)
+
+YOU: score 120
+
+useful=10 ratio=1.00 len=10 pr=1.00
+
+PN: score 120
+
+useful=10 ratio=1.00 len=10 pr=1.00
+
+SERIAL: score 160
+
+useful=14 ratio=1.00 len=14 pr=1.00
+
+Actions
+
+It applies in both directions using the data already uploaded (without re-uploading files).
+
+APPLY enabled
+
+Import RFH data → to BCM (download twinned BCM)
+
+Import data from BCM → to RFH (download twinned RFH)
+
+Re-filter / reload files
+
+*Note:* If you refresh the page, the status will be lost. Run Inspect again. FCA SINCRO
+
+Dashboard
+
+Go out
+
+Role:userSession IP:172.69.127.155IP changed
+
+Charger/Challenguer — RFH ⇄ BCM (MC9S12X Gen2)
+
+It loads BCM (MPC5606B) and RFH (MC9S12X Type1 Gen2), validates VIN/SEC16 and checksums, and allows application in both directions without re-uploading files.
+
+Connection guides:BCM Guide (MPC560XB)MULTIPROGBCM Guide (MPC560XB)UPARFH Guide (9S12X)MULTIPROGRFH Guide (9S12X)UPARFH Guide (9S12X)OBDSTAR
+
+1) Load files and filter (INSPECT)
+
+Upload BCM and RFH. The system detects VIN/SEC16 and validates checksums.
+
+BCM file (.bin)
+
+Dump BCM (full flash).
+
+RFH File (MC9S12X Gen2) (.bin/.eprom)
+
+Dump RFH (Gen2: VIN 4 slots + SEC16 2 slots).
+
+Inspect BCM / RFHClean / Reset
+
+Tip: If you refresh the page or open it in another tab, the state will be lost. Run Inspect again.
+
+Inspection Result: ✅ Ready to apply
+
+BCM (MPC5606B - 05B)
+
+CHARGER_BCM_SYNCED_2C3CDXHG5EH219538_.bin
+
+MPC5606B_05B65536 bytes
+
+VIN (BCM)
+
+VIN: 2C3CDXHG5EH219538
+
+Copies: 4
+
+
+
+
+
+VIN 1 – CS OK
+
+
+
+VIN 2 – CS OK
+
+
+
+VIN 3 – CS OK
+
+
+
+VIN 4 – CS OK
+
+SEC16 (BCM)
+
+SEC16 BCM: C42F3C79941582C3823530BAE7C5A108
+
+SEC16 RFH (view): 08A1C5E7BA303582C3821594793C2FC4
+
+SEC16 main
+
+Total: 3
+
+SEC16 mirrors (with CRC)
+
+
+
+
+
+MIRROR 1 – CS OK
+
+
+
+MIRROR 2 – CS OK
+
+RFH (MC9S12X Type 1 — Gen 2)
+
+CHARGER_RFH_SYNCED_2C3CDXHG5EH219538_.bin
+
+MC9S12X4096 bytes
+
+VIN (RFH Gen2 — 4 slots + CHK after)
+
+
+
+
+
+SLOT 1 — CS OK
+
+VIN: 2C3CDXHG5EH219538
+
+
+
+SLOT 2 — CS OK
+
+VIN: 2C3CDXHG5EH219538
+
+
+
+SLOT 3 — CS OK
+
+VIN: 2C3CDXHG5EH219538
+
+
+
+SLOT 4 — CS OK
+
+VIN: 2C3CDXHG5EH219538
+
+SEC16 (RFH Gen2 — 2 slots + CHK after)
+
+Slots match: Yeah
+
+
+
+
+
+SLOT 1 — CS OK
+
+SEC16: 08A1C5E7BA303582C3821594793C2FC4
+
+
+
+SLOT 2 — CS OK
+
+SEC16: 08A1C5E7BA303582C3821594793C2FC4
+
+Derived (demo) — RFH → BCM
+
+Rule: reverse bytes of the entire block .
+
+SEC16 BCM (hex): C42F3C79941582C3823530BAE7C5A108
+
+OS / PN / SERIAL (Best Pick)
+
+YOU: score 120
+
+useful=10 ratio=1.00 len=10 pr=1.00
+
+PN: score 120
+
+useful=10 ratio=1.00 len=10 pr=1.00
+
+SERIAL: score 160
+
+useful=14 ratio=1.00 len=14 pr=1.00
+
+Actions
+
+It applies in both directions using the data already uploaded (without re-uploading files).
+
+APPLY enabled
+
+Import RFH data → to BCM (download twinned BCM)
+
+Import data from BCM → to RFH (download twinned RFH)
+
+Re-filter / reload files
+
+*Note:* If you refresh the page, the status will be lost. Run Inspect again.  GO through these files, and make sure they're the same as what we're doing, and add anything you see different 
+
