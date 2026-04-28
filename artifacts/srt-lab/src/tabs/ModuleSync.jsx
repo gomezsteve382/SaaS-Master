@@ -125,27 +125,50 @@ export function moduleSizeBadge(kind, sizeBytes) {
  * the bundler's --pcm-chip behaviour:
  *   - target '4kb' + 8 KB input → slice to first 4 KB
  *   - target '8kb' + 4 KB input → 0xFF-pad to 8 KB
+ *   - target '4kb' + non-canonical input → truncate (≥4 KB) or 0xFF-pad
+ *     (<4 KB) to exactly 4 KB. Same for '8kb' + non-canonical input.
+ *     This lets the per-vehicle Dumps tab always emit a chip-shaped
+ *     file even when the source dump came in at an odd size — bench
+ *     programmers (Multi-PROG / CGDI / Xhorse) only accept exact
+ *     4 KB or 8 KB files. The PCM VIN + SEC6 patches all live in the
+ *     lower 4 KB of the buffer so truncating to 4 KB keeps the
+ *     meaningful patches intact, and the upper half of a 95640 is
+ *     unused on these GPEC2A PCMs so 0xFF-padding is safe.
  * Returns { bytes, suffix } where `suffix` is `_4KB` / `_8KB` for use
- * in the download filename. Unknown / matching sizes pass through.
+ * in the download filename. Unknown chip key with canonical input
+ * still gets a size-suffixed filename; truly opaque calls pass through.
  */
 export function resizePcmForTargetChip(bytes, chipKey) {
   if (!bytes) return { bytes, suffix: '' };
+  const fitTo = (target) => {
+    if (bytes.length === target) return bytes;
+    const out = new Uint8Array(target);
+    if (bytes.length >= target) {
+      out.set(bytes.subarray(0, target), 0);
+    } else {
+      out.set(bytes, 0);
+      out.fill(0xFF, bytes.length);
+    }
+    return out;
+  };
   if (chipKey === '4kb') {
-    if (bytes.length === 8192) return { bytes: bytes.slice(0, 4096), suffix: '_4KB' };
     if (bytes.length === 4096) return { bytes, suffix: '_4KB' };
+    if (bytes.length === 8192) return { bytes: bytes.slice(0, 4096), suffix: '_4KB' };
+    return { bytes: fitTo(4096), suffix: '_4KB' };
   }
   if (chipKey === '8kb') {
+    if (bytes.length === 8192) return { bytes, suffix: '_8KB' };
     if (bytes.length === 4096) {
       const out = new Uint8Array(8192);
       out.set(bytes, 0);
       out.fill(0xFF, 4096);
       return { bytes: out, suffix: '_8KB' };
     }
-    if (bytes.length === 8192) return { bytes, suffix: '_8KB' };
+    return { bytes: fitTo(8192), suffix: '_8KB' };
   }
-  /* Fallback — unknown chip key or input not 4/8 KB: keep bytes as-is
-   * but still emit a size suffix when the byte count happens to match
-   * a canonical chip, so the filename always describes the bytes. */
+  /* Fallback — unknown chip key: keep bytes as-is but still emit a
+   * size suffix when the byte count happens to match a canonical chip,
+   * so the filename always describes the bytes. */
   if (bytes.length === 4096) return { bytes, suffix: '_4KB' };
   if (bytes.length === 8192) return { bytes, suffix: '_8KB' };
   return { bytes, suffix: '' };

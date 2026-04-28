@@ -106,9 +106,60 @@ describe("Task #475 — resizePcmForTargetChip helper", () => {
     expect(resizePcmForTargetChip(new Uint8Array(8192), null).suffix).toBe('_8KB');
   });
 
-  it("returns empty suffix for a non-canonical buffer", () => {
-    const r = resizePcmForTargetChip(new Uint8Array(5000), '4kb');
-    /* Non-canonical input does not match either branch — pass-through. */
+  it("truncates a non-canonical buffer to 4 KB when target chip is 4kb", () => {
+    /* Task #481 — the per-vehicle Dumps tab feeds non-canonical sources
+     * (e.g. a partial / oversize EXT EEPROM dump) through this helper
+     * so the on-disk file is always exactly 4 KB or 8 KB and bench
+     * programmers don't reject with "File different size". */
+    const inp = new Uint8Array(5000);
+    for (let i = 0; i < 5000; i++) inp[i] = i & 0xFF;
+    const r = resizePcmForTargetChip(inp, '4kb');
+    expect(r.bytes.length).toBe(4096);
+    expect(r.suffix).toBe('_4KB');
+    /* First 4 KB preserved byte-for-byte from the input. */
+    for (let i = 0; i < 4096; i++) expect(r.bytes[i]).toBe(i & 0xFF);
+  });
+
+  it("0xFF-pads a short non-canonical buffer to 8 KB when target chip is 8kb", () => {
+    const inp = new Uint8Array(3000);
+    for (let i = 0; i < 3000; i++) inp[i] = (i * 5) & 0xFF;
+    const r = resizePcmForTargetChip(inp, '8kb');
+    expect(r.bytes.length).toBe(8192);
+    expect(r.suffix).toBe('_8KB');
+    /* Original bytes preserved, tail filled with 0xFF. */
+    for (let i = 0; i < 3000; i++) expect(r.bytes[i]).toBe((i * 5) & 0xFF);
+    for (let i = 3000; i < 8192; i++) expect(r.bytes[i]).toBe(0xFF);
+  });
+
+  it("0xFF-pads a sub-4 KB buffer up to 4 KB when target chip is 4kb", () => {
+    /* Lock the small-source corner: a 2 KB partial dump headed for a
+     * 95320 chip must come out exactly 4096 bytes with the trailing
+     * gap filled with 0xFF (Multi-PROG accepts erased-state padding). */
+    const inp = new Uint8Array(2048);
+    for (let i = 0; i < 2048; i++) inp[i] = (i * 7) & 0xFF;
+    const r = resizePcmForTargetChip(inp, '4kb');
+    expect(r.bytes.length).toBe(4096);
+    expect(r.suffix).toBe('_4KB');
+    for (let i = 0; i < 2048; i++) expect(r.bytes[i]).toBe((i * 7) & 0xFF);
+    for (let i = 2048; i < 4096; i++) expect(r.bytes[i]).toBe(0xFF);
+  });
+
+  it("truncates an over-8 KB buffer down to 8 KB when target chip is 8kb", () => {
+    /* Lock the oversize corner: a 12 KB combined dump headed for a
+     * 95640 chip must come out exactly 8192 bytes, lower 8 KB preserved. */
+    const inp = new Uint8Array(12000);
+    for (let i = 0; i < 12000; i++) inp[i] = (i * 3) & 0xFF;
+    const r = resizePcmForTargetChip(inp, '8kb');
+    expect(r.bytes.length).toBe(8192);
+    expect(r.suffix).toBe('_8KB');
+    for (let i = 0; i < 8192; i++) expect(r.bytes[i]).toBe((i * 3) & 0xFF);
+  });
+
+  it("passes through with empty suffix when chipKey is null and input is non-canonical", () => {
+    /* No chip target picked + odd input — leave bytes untouched. The
+     * Module Sync workspace blocks Generate at this point, so this
+     * branch only matters as a defensive default for direct callers. */
+    const r = resizePcmForTargetChip(new Uint8Array(5000), null);
     expect(r.bytes.length).toBe(5000);
     expect(r.suffix).toBe('');
   });

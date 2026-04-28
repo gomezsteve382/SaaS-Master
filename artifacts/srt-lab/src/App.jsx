@@ -22,7 +22,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect, useContext } 
 import GpecTab from "./tabs/GpecTab";
 import OBDTab from "./tabs/OBDTab";
 import SeedTab from "./tabs/SeedTab";
-import ModuleSync from "./tabs/ModuleSync";
+import ModuleSync, { moduleSizeBadge, resizePcmForTargetChip } from "./tabs/ModuleSync";
 import JailbreakTab from "./tabs/JailbreakTab";
 import BcmTab from "./tabs/BcmTab";
 import RfhubTab from "./tabs/RfhubTab";
@@ -1032,6 +1032,30 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   const [err, setErr] = useState('');
   const [rejected, setRejected] = useState([]);
 
+  /* Task #481 — per-vehicle target-chip selector for the SYNC ALL
+   * MODULES PCM output. Bench programmers (Multi-PROG / CGDI / Xhorse)
+   * only accept files that are exactly 4 KB (95320) or exactly 8 KB
+   * (95640) — feeding them a patched dump at any other size yields
+   * the well-known "File different size / Data Writing failed!"
+   * rejection right after the 100 % read pass. The Module Sync
+   * workspace (#475) and the OBD wizard (#478) already resize their
+   * PCM output to a chosen chip; this state plus the resize call in
+   * runFullSync below brings the per-vehicle Dumps tab to the same
+   * contract. The selection is persisted per vehicle.id so a tech who
+   * works one chip variant all day doesn't have to re-pick it. */
+  const targetChipStorageKey = `srtlab:dumps:pcmTargetChip:${vehicle.id}`;
+  const [targetPcmChip, setTargetPcmChip] = useState(() => {
+    if (typeof window === 'undefined') return '4kb';
+    try {
+      const v = window.localStorage.getItem(targetChipStorageKey);
+      return v === '4kb' || v === '8kb' ? v : '4kb';
+    } catch { return '4kb'; }
+  });
+  const setAndPersistTargetChip = useCallback((key) => {
+    setTargetPcmChip(key);
+    try { window.localStorage.setItem(targetChipStorageKey, key); } catch { /* ignore */ }
+  }, [targetChipStorageKey]);
+
   // Slot-aware upload gate. The `UploadSlot` controls below name the
   // module the user dropped the file into (BCM / RFHUB / PCM); the
   // workspace-level `loadF` also runs `detectModuleType` + `moduleTooSmall`
@@ -1088,6 +1112,21 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   const bcm = files.find(f=>f && f.type==='BCM');
   const rfh = files.find(f=>f && f.type==='RFHUB');
   const pcm = files.find(f=>f && (f.type==='GPEC2A' || f.type==='PCM'));
+
+  /* Task #481 — when the loaded PCM is already exactly 4 KB or 8 KB,
+   * snap the in-memory target-chip selector to that size so a tech who
+   * just dropped in a clean source dump doesn't have to flip the
+   * selector before clicking SYNC. The persisted preference (set by
+   * an explicit click) is the fallback for non-canonical / no-PCM
+   * loads. We deliberately don't write the snap back into localStorage
+   * — only an explicit user click via setAndPersistTargetChip() does. */
+  const pcmSize = pcm?.size;
+  useEffect(() => {
+    if (pcmSize === 4096) setTargetPcmChip('4kb');
+    else if (pcmSize === 8192) setTargetPcmChip('8kb');
+  }, [pcmSize]);
+
+  const pcmBadge = pcm ? moduleSizeBadge('pcm', pcm.size) : null;
 
   const runFullSync = () => {
     setErr(''); setMsg('');
@@ -1175,10 +1214,27 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
           }
         }
         if(pcmSec6Ok){
-          const pcmBlob = new Blob([currentPcm],{type:'application/octet-stream'});
+          /* Task #481 — always emit a chip-shaped file (4096 or 8192 B)
+           * regardless of source size. Bench programmers (Multi-PROG /
+           * CGDI / Xhorse) only accept exact-size files; anything else
+           * is rejected with "File different size / Data Writing
+           * failed!" right after the read pass. The Module Sync helper
+           * handles all four input shapes (4 KB / 8 KB / undersized /
+           * oversized), preserves the SEC6 + VIN patches in the lower
+           * 4 KB, and returns the `_4KB` / `_8KB` filename suffix. */
+          const inSize = currentPcm.length;
+          const resized = resizePcmForTargetChip(currentPcm, targetPcmChip);
+          const outBytes = resized.bytes;
+          const sfx = resized.suffix || (targetPcmChip === '8kb' ? '_8KB' : '_4KB');
+          const pcmBlob = new Blob([outBytes],{type:'application/octet-stream'});
           const pcmUrl = URL.createObjectURL(pcmBlob);
-          const a3 = document.createElement('a'); a3.href=pcmUrl; a3.download=`${vehicle.id.toUpperCase()}_PCM_SYNCED_${tv}_${Date.now()}.bin`; a3.click();
+          const a3 = document.createElement('a'); a3.href=pcmUrl; a3.download=`${vehicle.id.toUpperCase()}_PCM_SYNCED${sfx}_${tv}_${Date.now()}.bin`; a3.click();
           URL.revokeObjectURL(pcmUrl);
+          if (outBytes.length !== inSize) {
+            log.push(`PCM output: ${outBytes.length} B (resized from ${inSize} B to fit ${targetPcmChip === '8kb' ? '95640 / 8 KB' : '95320 / 4 KB'} bench chip)`);
+          } else {
+            log.push(`PCM output: ${outBytes.length} B (${targetPcmChip === '8kb' ? '95640 / 8 KB' : '95320 / 4 KB'} bench chip)`);
+          }
         }
       }
 
@@ -1201,6 +1257,29 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
           <button onClick={()=>{setFiles([]);setMsg('');setErr('');}} style={{padding:'6px 14px',fontSize:10,background:'none',border:'1px solid '+C.bd,borderRadius:8,cursor:'pointer',color:C.ts,fontWeight:700,letterSpacing:1}}>CLEAR FILES</button>
         </div>
       </div>
+
+      {/* Task #481 — target-chip selector for the SYNC ALL PCM output.
+          Always visible (even before a PCM is loaded) so the tech can
+          set the bench chip up-front. Persisted per vehicle.id. */}
+      <div data-testid="dumps-pcm-target-chip-selector" style={{marginTop:12,padding:'10px 12px',borderRadius:10,background:C.c2,border:'1px solid '+C.bd,display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+        <div style={{fontSize:10,fontWeight:800,color:C.ts,letterSpacing:1.5,textTransform:'uppercase'}}>Target PCM chip</div>
+        <div style={{display:'flex',gap:6}}>
+          {[
+            {key:'4kb',label:'95320 · 4 KB'},
+            {key:'8kb',label:'95640 · 8 KB'},
+          ].map(opt=>{
+            const active = targetPcmChip === opt.key;
+            return <button key={opt.key}
+              data-testid={`dumps-pcm-target-chip-${opt.key}`}
+              data-active={active?'1':'0'}
+              onClick={()=>setAndPersistTargetChip(opt.key)}
+              style={{padding:'6px 12px',borderRadius:8,cursor:'pointer',border:`2px solid ${active?vehicle.accent:C.bd}`,background:active?vehicle.accent:C.cd,color:active?'#fff':C.tx,fontFamily:"'Nunito'",fontWeight:800,fontSize:11,letterSpacing:0.4}}>{opt.label}</button>;
+          })}
+        </div>
+        <div style={{fontSize:11,color:C.tm,fontWeight:600,lineHeight:1.4,flex:'1 1 240px',minWidth:200}}>
+          PCM is always emitted at exactly {targetPcmChip === '8kb' ? '8 KB (95640)' : '4 KB (95320)'} so Multi-PROG / CGDI / Xhorse will accept the file.
+        </div>
+      </div>
     </Card>
 
     {/* File uploads */}
@@ -1209,7 +1288,16 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:10}}>
         <UploadSlot label="BCM" slotType="BCM" file={bcm} onLoad={gatedLoadF}/>
         <UploadSlot label="RFHUB" slotType="RFHUB" file={rfh} onLoad={gatedLoadF}/>
-        <UploadSlot label="PCM / GPEC2A" slotType="PCM" file={pcm} onLoad={gatedLoadF}/>
+        <UploadSlot label="PCM / GPEC2A" slotType="PCM" file={pcm} onLoad={gatedLoadF} badge={pcmBadge}/>
+      </div>
+      {/* Task #481 — always-on programmer-error help blurb. Mirrors the
+          wording used in the Module Sync workspace and the OBD wizard
+          so techs see the same diagnosis-first message wherever they
+          hit it. The companion target-chip selector above guarantees
+          the SYNC ALL output will be 4 KB or 8 KB. */}
+      <div data-testid="dumps-programmer-size-help" style={{marginTop:12,padding:'10px 14px',borderRadius:10,background:'rgba(0,131,143,0.08)',border:'1px dashed rgba(0,131,143,0.45)',fontSize:11,lineHeight:1.5,color:C.tx}}>
+        <strong style={{color:'#00565E'}}>Programmer says &quot;File different size&quot;?</strong> {' '}
+        Multi-PROG / CGDI / Xhorse only accept exact 4 KB (95320) or 8 KB (95640) files. SYNC ALL writes the patched PCM at the chip you picked above; if the source dump came in at an odd size (e.g. INT FLASH instead of EXT EEPROM), the lower 4 KB of the patched buffer is kept and the file is padded or truncated to fit.
       </div>
       {rejected.length>0 && <div style={{marginTop:12,display:'flex',flexDirection:'column',gap:10}}>
         {rejected.map((r,i)=>(
@@ -1267,12 +1355,22 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   </div>;
 }
 
-function UploadSlot({label, slotType, file, onLoad}){
+function UploadSlot({label, slotType, file, onLoad, badge}){
   return <div style={{padding:12,borderRadius:12,background:C.c2,border:'1.5px dashed '+C.bd,textAlign:'center',cursor:'pointer',transition:'all .2s'}} onClick={()=>document.getElementById('u-'+label).click()}>
     <div style={{fontSize:11,fontWeight:900,color:C.ts,letterSpacing:2,marginBottom:6}}>{label}</div>
     {file ? <div style={{fontFamily:'JetBrains Mono',fontSize:11,fontWeight:700,color:'#00695C',wordBreak:'break-all'}}>
       {file.name}
       <div style={{color:C.ts,fontSize:11,fontWeight:600,marginTop:2}}>{file.size.toLocaleString()} bytes</div>
+      {/* Task #481 — optional chip-variant badge for the PCM slot.
+          Shows the same canonical 95320 / 95640 chip label that
+          Module Sync uses, or a red OTHER badge with the actual
+          byte count when the source size doesn't match a chip. */}
+      {badge && <div data-testid={`dumps-${slotType.toLowerCase()}-size-badge`}
+        data-size-key={badge.dataKey}
+        data-size-canonical={badge.canonical?'1':'0'}
+        style={{display:'inline-block',marginTop:6,padding:'3px 10px',borderRadius:999,background:badge.color+'22',border:'1px solid '+badge.color,color:badge.color,fontSize:11,fontWeight:800,letterSpacing:0.5}}>
+        {badge.label}
+      </div>}
       {file.pnOverride && <div data-testid="pn-override-pill" style={{display:'inline-block',marginTop:6,padding:'3px 10px',borderRadius:999,background:'#FFE8B0',border:'1px solid #8A5300',color:'#5C3700',fontSize:11,fontWeight:800,letterSpacing:0.5}}>P/N OVERRIDE — NOT IN REGISTRY</div>}
     </div> : <div style={{fontSize:11,color:C.ts,fontWeight:600}}>drop / click to upload</div>}
     <input id={'u-'+label} type="file" style={{display:'none'}} onChange={e=>onLoad(e.target.files, slotType)}/>
