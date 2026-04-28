@@ -7,10 +7,13 @@ import { applyPcmFromBcm as applyPcmFromBcmShared } from "../lib/bcmPcmSync.js";
 import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import SamplePicker from "../lib/SamplePicker.jsx";
+import { fmtOff } from "./ModuleSync.jsx";
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
-const fO  = n => "0x" + n.toString(16).toUpperCase().padStart(4,"0");
+/* Task #466 — offset rendering moved to the shared `fmtOff` helper from
+ * ModuleSync (SINCRO-style `0xHHHH (D)`) so VIN/SEC slot offsets across
+ * the Twin tab match the rest of the app. */
 const dl  = (data, name) => {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([data], {type:"application/octet-stream"}));
@@ -324,7 +327,7 @@ function BcmCard({ info }) {
         <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 8, textTransform: "uppercase", letterSpacing: .6 }}>VIN — 4 Primary Copies</div>
         {info.vins.map(v => (
           <div key={v.slot} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(v.offset)}</span>
+            <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fmtOff(v.offset)}</span>
             <MonoHex hex={v.vin} color={C.a1} />
             <CsBadge ok={v.csOk} small />
             <span style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
@@ -335,12 +338,12 @@ function BcmCard({ info }) {
         <Tag color={allCsOk ? C.gn : C.er}>{allCsOk ? "All CS OK" : "CS Errors Found"}</Tag>
       </div>
 
-      {/* Partial VINs (tail-only slots at 0x4098 / 0x40B0) */}
+      {/* Partial VINs (tail-only slots at 0x4098 / 0x40B0 — see BCM_VIN_PARTIAL above) */}
       <div style={{ marginBottom: 14 }}>
         <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 8, textTransform: "uppercase", letterSpacing: .6 }}>Partial VINs — Tail ×2</div>
         {info.partialVins.map(p => (
           <div key={p.slot} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(p.offset)}</span>
+            <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fmtOff(p.offset)}</span>
             <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.a2, letterSpacing: .3 }}>…{p.tail}</span>
             <CsBadge ok={p.csOk} small />
             <span style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
@@ -356,7 +359,7 @@ function BcmCard({ info }) {
         {info.sec16Copies.map(m => (
           <div key={m.offset} style={{ marginBottom: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(m.offset)}</span>
+              <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fmtOff(m.offset)}</span>
               <span style={{ fontSize: 10, color: C.tm }}>{m.label}</span>
               <CsBadge ok={m.csOk} small />
               <span style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
@@ -421,7 +424,7 @@ function RfhCard({ info }) {
         </div>
         {info.vins.map(v => (
           <div key={v.slot} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(v.offset)}</span>
+            <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fmtOff(v.offset)}</span>
             <MonoHex hex={v.vin} color={C.a1} />
             <CsBadge ok={v.csOk} small />
             <span style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
@@ -440,7 +443,7 @@ function RfhCard({ info }) {
         {info.sec16Slots.map(s => (
           <div key={s.slot} style={{ marginBottom: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-              <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fO(s.offset)}</span>
+              <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fmtOff(s.offset)}</span>
               <span style={{ fontSize: 10, color: C.tm }}>Slot {s.slot}</span>
               <CsBadge ok={s.csOk} small />
             </div>
@@ -474,7 +477,7 @@ function PcmCard({ info }) {
         <MonoHex hex={info.vin || "(none)"} color={C.a1} />
       </div>
       <div>
-        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>SEC6 @ 0x03C8</div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: "uppercase", letterSpacing: .6 }}>SEC6 @ {fmtOff(0x03C8)}</div>
         <MonoHex hex={info.sec6Hex} color={C.a2} />
       </div>
     </Card>
@@ -669,7 +672,7 @@ function CompareTable({ bcm, rfh, pcm, previewPaired }) {
               <MonoHex hex={bcm.pcmSec6Hex} color={C.a2} />
             </div>
             <div>
-              <div style={{ fontSize: 9, color: C.tm, marginBottom: 2 }}>PCM stored @ 0x03C8</div>
+              <div style={{ fontSize: 9, color: C.tm, marginBottom: 2 }}>PCM stored @ {fmtOff(0x03C8)}</div>
               <MonoHex hex={pcm.sec6Hex} color={C.a2} />
             </div>
             <MatchBadge ok={sec6Match} />
@@ -750,7 +753,7 @@ function ApplyPanel({ bcm, rfh, pcm, bcmData, rfhData, pcmData }) {
           {{
             "rfh→bcm": "BCM updated from RFH data",
             "bcm→rfh": "RFH updated from BCM data",
-            "bcm→pcm": "PCM SEC6 + marker (FF FF FF AA @ 0x3C4) updated from BCM",
+            "bcm→pcm": `PCM SEC6 + marker (FF FF FF AA @ ${fmtOff(0x03C4)}) updated from BCM`,
           }[applied]}
         </div>
       )}

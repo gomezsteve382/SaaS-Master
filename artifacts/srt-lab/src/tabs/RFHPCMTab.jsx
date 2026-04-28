@@ -3,8 +3,11 @@ import {C} from "../lib/constants.js";
 import {Card, Tag, Btn} from "../lib/ui.jsx";
 import {parseRFH24C32, parsePCMGPEC, computeCompatibility, applyRfhToPcm} from "../lib/rfhPcmPair.js";
 import SamplePicker from "../lib/SamplePicker.jsx";
+import {fmtOff} from "./ModuleSync.jsx";
 
-const fO = n => "0x" + n.toString(16).toUpperCase().padStart(4, "0");
+/* Task #466 — adopt the SINCRO-style `0xHHHH (D)` offset render exported
+ * from ModuleSync so RFH/PCM offsets read identically to the rest of the
+ * SRT Lab. The previous local `fO` helper only printed the hex form. */
 
 function Badge({ok, label}) {
   return <span style={{display:"inline-block",padding:"2px 8px",borderRadius:6,fontSize:10,fontWeight:800,letterSpacing:.5,background:ok?C.gn+"18":C.er+"18",color:ok?C.gn:C.er}}>{label||(ok?"OK":"FAIL")}</span>;
@@ -133,14 +136,14 @@ export default function RFHPCMTab() {
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
         <div>
           <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:6}}>RFH 24C32 (.bin)</div>
-          <FileDropZone label="Drop RFH 24C32 EEPROM (4096 B)" hint="Gen2 4KB · VIN @ 0x92 · SEC16 @ 0xAE/0xC0"
+          <FileDropZone label="Drop RFH 24C32 EEPROM (4096 B)" hint={`Gen2 4KB · VIN @ ${fmtOff(0x92)} · SEC16 @ ${fmtOff(0xAE)} / ${fmtOff(0xC0)}`}
                         onFile={handleRfh} fileName={rfhFile?.name}/>
           <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096]} onFile={handleRfh} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample RFH (paired with PCM below)"/>
           {rfhErr && <div style={{marginTop:6,padding:"6px 10px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:11,fontWeight:700}}>✗ {rfhErr}</div>}
         </div>
         <div>
           <div style={{fontSize:11,fontWeight:900,color:C.a4,letterSpacing:2,marginBottom:6}}>PCM GPEC (.bin / .eprom)</div>
-          <FileDropZone label="Drop PCM GPEC2/GPEC2A/GPEC3 dump (4096 B)" hint="VIN @ 0x0000/0x01F0/0x0224/0x0CE0 · SEC6 @ 0x03C8"
+          <FileDropZone label="Drop PCM GPEC2/GPEC2A/GPEC3 dump (4096 B)" hint={`VIN @ ${fmtOff(0x0000)} / ${fmtOff(0x01F0)} / ${fmtOff(0x0224)} / ${fmtOff(0x0CE0)} · SEC6 @ ${fmtOff(0x03C8)}`}
                         onFile={handlePcm} fileName={pcmFile?.name}/>
           <SamplePicker kinds={['GPEC_EXT']} onFile={handlePcm} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample PCM (Mitchell 6.2 pairs with RFH)"/>
           {pcmErr && <div style={{marginTop:6,padding:"6px 10px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:11,fontWeight:700}}>✗ {pcmErr}</div>}
@@ -162,11 +165,11 @@ export default function RFHPCMTab() {
           {rfh.sizeWarn && <div style={{padding:"6px 10px",borderRadius:8,background:C.wn+"15",color:C.wn,fontSize:11,fontWeight:700,marginBottom:8}}>⚠ {rfh.sizeWarn}</div>}
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginBottom:10}}>
             <tbody>
-              <Row off={fO(0x92)} label="VIN"
+              <Row off={fmtOff(0x92)} label="VIN"
                    value={<>{rfh.vin?.value || "(invalid)"} {rfh.vin && <Badge ok={rfh.vin.isValid && rfh.vin.csOk} label={rfh.vin.isValid ? (rfh.vin.csOk ? "VIN+CS ✓" : "CS ✗") : "INVALID"}/>}</>}
                    color={rfh.vin?.value ? C.gn : C.er} mono/>
-              <Row off={fO(0x808)} label="Part Number" value={rfh.partNumber || "—"} mono color={C.a3}/>
-              <Row off={fO(0x812)} label="Serial" value={rfh.serial || "—"} mono color={C.a3}/>
+              <Row off={fmtOff(0x808)} label="Part Number" value={rfh.partNumber || "—"} mono color={C.a3}/>
+              <Row off={fmtOff(0x812)} label="Serial" value={rfh.serial || "—"} mono color={C.a3}/>
             </tbody>
           </table>
 
@@ -179,7 +182,7 @@ export default function RFHPCMTab() {
               {[rfh.sec16Slot1, rfh.sec16Slot2].map((s,i)=>(
                 <tr key={i} style={{borderBottom:"1px solid "+C.bd+"60"}}>
                   <td style={{padding:"5px 6px",fontWeight:800,color:C.sr}}>S{i+1}</td>
-                  <td style={{padding:"5px 6px",fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a3}}>{s.present?fO(s.offset):"—"}</td>
+                  <td style={{padding:"5px 6px",fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a3}}>{s.present?fmtOff(s.offset):"—"}</td>
                   <td style={{padding:"5px 6px",fontFamily:"'JetBrains Mono'",fontSize:9,color:s.blank?C.tm:C.tx,wordBreak:"break-all"}}>{s.present?(s.blank?"(blank)":s.hex):"—"}</td>
                   <td style={{padding:"5px 6px",fontFamily:"'JetBrains Mono'",fontSize:9,color:s.blank?C.tm:C.a4,wordBreak:"break-all"}}>{s.present&&!s.blank?s.bcmHex:"—"}</td>
                   <td style={{padding:"5px 6px",fontFamily:"'JetBrains Mono'",fontSize:10,color:C.ts}}>{s.present?"0x"+s.csStored.toString(16).toUpperCase().padStart(4,"0"):"—"}</td>
@@ -222,14 +225,14 @@ export default function RFHPCMTab() {
           {pcm.sizeWarn && <div style={{padding:"6px 10px",borderRadius:8,background:C.wn+"15",color:C.wn,fontSize:11,fontWeight:700,marginBottom:8}}>⚠ {pcm.sizeWarn}</div>}
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,marginBottom:10}}>
             <tbody>
-              <Row off={fO(0x0000)} label="VIN current" value={pcm.vinCurrent || "(invalid)"} mono color={pcm.vinCurrent?C.gn:C.er}/>
-              <Row off={fO(0x01F0)} label="VIN original" value={pcm.vinOriginal || "(invalid)"} mono color={pcm.vinOriginal?C.gn:C.er}/>
-              <Row off={fO(0x0012)} label="Part Number" value={pcm.partNumber || "—"} mono color={C.a3}/>
-              <Row off={fO(0x001C)} label="Serial" value={pcm.serial || "—"} mono color={C.a3}/>
-              <Row off={fO(0x0011)} label="IMMO state"
+              <Row off={fmtOff(0x0000)} label="VIN current" value={pcm.vinCurrent || "(invalid)"} mono color={pcm.vinCurrent?C.gn:C.er}/>
+              <Row off={fmtOff(0x01F0)} label="VIN original" value={pcm.vinOriginal || "(invalid)"} mono color={pcm.vinOriginal?C.gn:C.er}/>
+              <Row off={fmtOff(0x0012)} label="Part Number" value={pcm.partNumber || "—"} mono color={C.a3}/>
+              <Row off={fmtOff(0x001C)} label="Serial" value={pcm.serial || "—"} mono color={C.a3}/>
+              <Row off={fmtOff(0x0011)} label="IMMO state"
                    value={<><span style={{fontFamily:"'JetBrains Mono'",marginRight:8}}>{pcm.immo.hex}</span>
                      <Tag color={pcm.immo.state==='ENABLED'?C.gn:pcm.immo.state==='IMMO_DAMAGED'?C.er:C.wn}>{pcm.immo.label}</Tag></>}/>
-              <Row off={fO(0x03C8)} label="SEC6 raw"
+              <Row off={fmtOff(0x03C8)} label="SEC6 raw"
                    value={pcm.sec6
                      ? <><span style={{fontFamily:"'JetBrains Mono'"}}>{pcm.sec6.hex}</span>
                          {pcm.sec6.damaged && <Tag color={C.er}>DAMAGED</Tag>}
@@ -276,7 +279,7 @@ export default function RFHPCMTab() {
                  style={{marginTop:3,width:16,height:16,accentColor:C.a2,cursor:"pointer"}}/>
           <div>
             <div style={{fontSize:12,fontWeight:900,color:repairImmo?C.a2:C.tx,letterSpacing:.5}}>
-              Repair PCM IMMO byte @ 0x0011 → ENABLED (80 00 00 00)
+              Repair PCM IMMO byte @ {fmtOff(0x0011)} → ENABLED (80 00 00 00)
             </div>
             <div style={{fontSize:10,color:C.tm,fontWeight:600,marginTop:2,lineHeight:1.4}}>
               Only writes when the PCM IMMO state is IMMO_DAMAGED (all-FF). Other states (ENABLED/DISABLED/UNKNOWN) are left untouched.

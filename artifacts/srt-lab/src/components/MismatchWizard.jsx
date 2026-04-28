@@ -5,6 +5,7 @@ import {
   Tip, translateIssue, pickRecommendedFix, detectCommonScenario,
   loadAdvanced, saveAdvanced,
 } from "../lib/plainEnglish.jsx";
+import { fmtOff } from "../tabs/ModuleSync.jsx";
 
 /* ============================================================================
  * MismatchWizard — Guided resolution wizard + Claude AI chat panel
@@ -163,7 +164,7 @@ function issueToStep(issue, fromIssue) {
     ...base, severity: 'error',
     icon: '⚠️', title: 'GPEC2A Key Inconsistency',
     hexFilter: ['GPEC2A', 'KEY'],
-    guidance: 'The GPEC2A secret key at 0x0203 and 0x0361 do not match — the PCM image may be corrupt or from a partial write.',
+    guidance: `The GPEC2A secret key at ${fmtOff(0x0203)} and ${fmtOff(0x0361)} do not match — the PCM image may be corrupt or from a partial write.`,
     steps: [
       'Obtain a verified GPEC2A dump for this vehicle.',
       'Run a full sync to re-write VIN and SEC6.',
@@ -213,6 +214,12 @@ function parseSnippet(s) {
  * null when there's no BCM loaded so callers can branch easily. */
 function formatBcmSec16SourceLabel(status) {
   if (!status) return null;
+  /* NB: this provenance label is a stable cross-component identity string
+   * (also produced by lib/keyProgWizard.js and ModuleFieldsPanel.jsx, and
+   * asserted verbatim by several tests including the `flat @0x40C9
+   * (legacy)` chip). Task #466 deliberately leaves the bare-hex form here
+   * — switching to fmtOff would break parity with those siblings and
+   * their tests. The free-form prose around the wizard does use fmtOff. */
   const fO = (n) => (n == null
     ? '0x????'
     : '0x' + n.toString(16).toUpperCase().padStart(4, '0'));
@@ -271,10 +278,11 @@ function BcmSec16VirginExplainer({ testid }) {
         fontSize: 11, color: W.tx, lineHeight: 1.5,
       }}>
       <strong style={{ color: W.wn }}>Virgin BCM:</strong> every SEC16 candidate
-      (split records @0x81A0/C0/E0, mirror1 0xEB, mirror2 0xCA, and the legacy
-      flat slice @0x40C9) is all 0xFF / 0x00. The wizard is about to write the
-      RFHUB secret into a blank cluster — that's expected for a bench-fresh BCM,
-      but verify the donor RFHUB is correct before flashing.
+      (split records @{fmtOff(0x81A0)} / {fmtOff(0x81C0)} / {fmtOff(0x81E0)},
+      mirror1 0xEB, mirror2 0xCA, and the legacy flat slice @{fmtOff(0x40C9)})
+      is all 0xFF / 0x00. The wizard is about to write the RFHUB secret into a
+      blank cluster — that's expected for a bench-fresh BCM, but verify the
+      donor RFHUB is correct before flashing.
     </div>
   );
 }
