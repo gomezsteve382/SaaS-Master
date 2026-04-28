@@ -7,7 +7,7 @@ import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec1
 import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, resolveBcmSec16, classifyPcmSec6, parseModule, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
 import { crossValidate } from "../lib/crossValidate.js";
 import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
-import { scoreCandidate, fmtPick, CANONICAL_PATTERNS } from "../lib/bestPick.js";
+import { scoreCandidate, pickBest, fmtPick, CANONICAL_PATTERNS } from "../lib/bestPick.js";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -361,6 +361,7 @@ export function engParsePcm(bytes, filename) {
       sec6: null, immoOk: false, immoDamaged: false,
       variant: 'GPEC2A',
       continentalPn: null, osPn: null, bodyPn: null,
+      continentalPnCandidates: [], osPnCandidates: [], bodyPnCandidates: [],
     };
   }
   const r = {
@@ -370,6 +371,11 @@ export function engParsePcm(bytes, filename) {
     sec6: null, immoOk: false, immoDamaged: false,
     variant: 'GPEC2A',
     continentalPn: null, osPn: null, bodyPn: null,
+    /* Task #464 — surface every candidate the regex finds (additive: the
+     * chosen value above is still the first match, byte-output unchanged)
+     * so the SINCRO-style PICK breakdown can rank a real candidate set
+     * instead of scoring a degenerate single-element list. */
+    continentalPnCandidates: [], osPnCandidates: [], bodyPnCandidates: [],
   };
 
   for (const off of PCM_VIN_OFFSETS_GPEC2A) {
@@ -463,8 +469,20 @@ export function engParsePcm(bytes, filename) {
     if (/^A2C\d/.test(pn)) r.continentalPn = pn.trim();
   }
   const text = new TextDecoder('latin1').decode(bytes);
-  const osM  = text.match(/\b0[0-9]{7}[A-Z]{2}\b/); if (osM) r.osPn = osM[0];
-  const bpM  = text.match(/\b68[0-9]{6}[A-Z]{2}\b/); if (bpM) r.bodyPn = bpM[0];
+  /* Gather every regex hit so the SINCRO-style PICK breakdown can rank
+   * the full candidate set (Task #464). The chosen value remains the
+   * first hit so the writer's input is unchanged. */
+  const osHits   = [...new Set([...text.matchAll(/\b0[0-9]{7}[A-Z]{2}\b/g)].map(m => m[0]))];
+  const bpHits   = [...new Set([...text.matchAll(/\b68[0-9]{6}[A-Z]{2}\b/g)].map(m => m[0]))];
+  const contHits = [...new Set([...text.matchAll(/\bA2C\d{6,12}\b/g)].map(m => m[0]))];
+  r.osPnCandidates   = osHits;
+  r.bodyPnCandidates = bpHits;
+  /* Prefer the canonical fixed-offset Continental hit when present. */
+  r.continentalPnCandidates = r.continentalPn
+    ? [r.continentalPn, ...contHits.filter(h => h !== r.continentalPn)]
+    : contHits;
+  if (osHits.length > 0) r.osPn = osHits[0];
+  if (bpHits.length > 0) r.bodyPn = bpHits[0];
 
   r.ok = r.vin !== null || r.sec6 !== null;
   return r;
@@ -856,6 +874,23 @@ function scoreModuleField(value, canonicalRegex, precedenceRank = 1.0) {
   return scoreCandidate({ value, precedenceRank, matchesCanonical });
 }
 
+/* buildCandidateList (Task #464) — turns the raw multi-candidate array
+ * the parser already gathered into the shape pickBest() expects, tagging
+ * each entry with its precedenceRank (1.0 for the canonical-offset hit
+ * sitting at index 0, 0.5 for fallback regex hits further down the list)
+ * and a matchesCanonical flag so the SINCRO-style +100 bonus fires for
+ * the right entries. The chosen winner the picker returns is what gets
+ * rendered in the PickBreakdown line, replacing the previous behaviour
+ * of "trust the parser's first hit, then score it after the fact". */
+function buildCandidateList(values, canonicalRegex) {
+  if (!Array.isArray(values) || values.length === 0) return [];
+  return values.map((v, idx) => ({
+    value: v,
+    precedenceRank: idx === 0 ? 1.0 : 0.5,
+    matchesCanonical: canonicalRegex ? canonicalRegex.test(String(v)) : false,
+  }));
+}
+
 function BcmCard({ parsed, pnOverride }) {
   if (!parsed) return null;
   if (parsed.tooSmall) {
@@ -909,8 +944,10 @@ function BcmCard({ parsed, pnOverride }) {
         <>
           <Kv k="Part numbers" v={parsed.partNumbers.join(', ')} mono />
           {(() => {
-            const b = scoreModuleField(parsed.partNumbers[0], CANONICAL_PATTERNS.bcmPn);
-            return <PickBreakdown kind="PN"  value={parsed.partNumbers[0]} breakdown={b} testid="bcm-pn-pick" />;
+            /* Real picker flow — rank every candidate the parser gathered, then render
+             * the winner with its breakdown so the chosen value is the actual top scorer. */
+            const { winner } = pickBest(buildCandidateList(parsed.partNumbers, CANONICAL_PATTERNS.bcmPn));
+            return <PickBreakdown kind="PN"  value={winner?.value} breakdown={winner} testid="bcm-pn-pick" />;
           })()}
         </>
       )}
@@ -918,8 +955,8 @@ function BcmCard({ parsed, pnOverride }) {
         <>
           <Kv k="Supplier" v={parsed.supplierSerial} mono />
           {(() => {
-            const b = scoreModuleField(parsed.supplierSerial, CANONICAL_PATTERNS.serial);
-            return <PickBreakdown kind="Serial" value={parsed.supplierSerial} breakdown={b} testid="bcm-serial-pick" />;
+            const { winner } = pickBest(buildCandidateList([parsed.supplierSerial], CANONICAL_PATTERNS.serial));
+            return <PickBreakdown kind="Serial" value={winner?.value} breakdown={winner} testid="bcm-serial-pick" />;
           })()}
         </>
       )}
@@ -934,14 +971,24 @@ function BcmCard({ parsed, pnOverride }) {
               <Badge text={`${parsed.sec16Records.length} found`} color={parsed.sec16Consistent ? C.gn : C.wn} />
             </div>
             <Kv k="Consistent" v={parsed.sec16Consistent ? '✓ All match' : '✗ MISMATCH'} color={parsed.sec16Consistent ? C.gn : C.er} />
+            {/* Task #464 — SINCRO-style hex+decimal offsets for every split record so
+                a tech can cross-reference the canonical 0x81A0/C0/E0 trio against the
+                raw dump in their hex viewer without reaching for a calculator. */}
+            <OffsetList offsets={parsed.sec16Records.map(x => x.offset)} testid="bcm-sec16-split-offsets" />
             {parsed.sec16Hex && <Kv k="SEC16 hex" v={parsed.sec16Hex.toUpperCase()} mono />}
           </div>
         </>
       )}
       {parsed.sec16Mirrors.length > 0 && (
-        <Kv k="Mirror recs"
-            v={`${parsed.mirrorsPopulated || 0} populated · ${parsed.sec16Mirrors.filter(m => m.crcOk).length} CRC OK`}
-            color={parsed.mirrorsPopulated > 0 ? C.gn : C.tm} />
+        <>
+          <Kv k="Mirror recs"
+              v={`${parsed.mirrorsPopulated || 0} populated · ${parsed.sec16Mirrors.filter(m => m.crcOk).length} CRC OK`}
+              color={parsed.mirrorsPopulated > 0 ? C.gn : C.tm} />
+          {/* Task #464 — mirror record offsets in the same hex+decimal format
+              so the bank-0 / bank-4000 mirror search results are visible at a
+              glance instead of being summarised behind a count. */}
+          <OffsetList offsets={parsed.sec16Mirrors.map(m => m.offset)} testid="bcm-sec16-mirror-offsets" />
+        </>
       )}
       {!hasSec16 && isGen2 && (
         <div style={{ marginTop: 6, padding: '6px 10px', background: 'rgba(255,179,0,0.08)', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700 }}>
@@ -1010,8 +1057,8 @@ function RfhCard({ parsed, pnOverride }) {
         <>
           <Kv k="Part numbers" v={parsed.partNumbers.join(', ')} mono />
           {(() => {
-            const b = scoreModuleField(parsed.partNumbers[0], CANONICAL_PATTERNS.rfhPn);
-            return <PickBreakdown kind="PN"  value={parsed.partNumbers[0]} breakdown={b} testid="rfh-pn-pick" />;
+            const { winner } = pickBest(buildCandidateList(parsed.partNumbers, CANONICAL_PATTERNS.rfhPn));
+            return <PickBreakdown kind="PN"  value={winner?.value} breakdown={winner} testid="rfh-pn-pick" />;
           })()}
         </>
       )}
@@ -1019,8 +1066,8 @@ function RfhCard({ parsed, pnOverride }) {
         <>
           <Kv k="Serial" v={parsed.internalSerial} mono />
           {(() => {
-            const b = scoreModuleField(parsed.internalSerial, CANONICAL_PATTERNS.serial);
-            return <PickBreakdown kind="Serial" value={parsed.internalSerial} breakdown={b} testid="rfh-serial-pick" />;
+            const { winner } = pickBest(buildCandidateList([parsed.internalSerial], CANONICAL_PATTERNS.serial));
+            return <PickBreakdown kind="Serial" value={winner?.value} breakdown={winner} testid="rfh-serial-pick" />;
           })()}
         </>
       )}
@@ -1149,8 +1196,10 @@ export function PcmCard({ parsed, bytes, pnOverride }) {
         <>
           <Kv k="Continental PN" v={parsed.continentalPn} mono />
           {(() => {
-            const b = scoreModuleField(parsed.continentalPn, CANONICAL_PATTERNS.pcmContPn);
-            return <PickBreakdown kind="Cont" value={parsed.continentalPn} breakdown={b} testid="pcm-cont-pick" />;
+            const list = parsed.continentalPnCandidates && parsed.continentalPnCandidates.length > 0
+              ? parsed.continentalPnCandidates : [parsed.continentalPn];
+            const { winner } = pickBest(buildCandidateList(list, CANONICAL_PATTERNS.pcmContPn));
+            return <PickBreakdown kind="Cont" value={winner?.value} breakdown={winner} testid="pcm-cont-pick" />;
           })()}
         </>
       )}
@@ -1158,8 +1207,10 @@ export function PcmCard({ parsed, bytes, pnOverride }) {
         <>
           <Kv k="OS PN"   v={parsed.osPn}   mono />
           {(() => {
-            const b = scoreModuleField(parsed.osPn, CANONICAL_PATTERNS.pcmOsPn);
-            return <PickBreakdown kind="OS" value={parsed.osPn} breakdown={b} testid="pcm-os-pick" />;
+            const list = parsed.osPnCandidates && parsed.osPnCandidates.length > 0
+              ? parsed.osPnCandidates : [parsed.osPn];
+            const { winner } = pickBest(buildCandidateList(list, CANONICAL_PATTERNS.pcmOsPn));
+            return <PickBreakdown kind="OS" value={winner?.value} breakdown={winner} testid="pcm-os-pick" />;
           })()}
         </>
       )}
@@ -1167,8 +1218,10 @@ export function PcmCard({ parsed, bytes, pnOverride }) {
         <>
           <Kv k="Body PN" v={parsed.bodyPn} mono />
           {(() => {
-            const b = scoreModuleField(parsed.bodyPn, CANONICAL_PATTERNS.pcmBodyPn);
-            return <PickBreakdown kind="PN" value={parsed.bodyPn} breakdown={b} testid="pcm-pn-pick" />;
+            const list = parsed.bodyPnCandidates && parsed.bodyPnCandidates.length > 0
+              ? parsed.bodyPnCandidates : [parsed.bodyPn];
+            const { winner } = pickBest(buildCandidateList(list, CANONICAL_PATTERNS.pcmBodyPn));
+            return <PickBreakdown kind="PN" value={winner?.value} breakdown={winner} testid="pcm-pn-pick" />;
           })()}
         </>
       )}
