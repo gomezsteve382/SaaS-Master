@@ -445,8 +445,8 @@ export function engParsePcm(bytes, filename) {
    *      so 4 KB virgin padding noise can no longer slip through. */
   if (bytes.length >= 0x3CE) {
     // For any GPEC2A-sized image trust the canonical slot — matches
-    // parseModule.js so the wizard, the FCA Analyzer and the AI
-    // assistant never disagree about whether SEC6 is populated.
+    // parseModule.js so the wizard and the AI assistant never disagree
+    // about whether SEC6 is populated.
     // Task #404 — also read the FF FF FF AA marker at 0x3C4 so a
     // populated 6-byte secret with a missing marker (the user-reported
     // regression) is correctly flagged as IMMO_DAMAGED.
@@ -1736,9 +1736,9 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   }, [bcm.bytes, rfh.bytes, pcm.bytes, eep.bytes, bcm.name, rfh.name, pcm.name, eep.name]);
 
   /* Wizard issue/warning arrays — start from crossValidate output so the
-   * wizard, FCA Analyzer drawer, and AI assistant all share one rule
-   * set. Hand-rolled rules below add wizard-specific context that
-   * crossValidate does not cover, with dedupe to avoid double-counting. */
+   * wizard and AI assistant all share one rule set. Hand-rolled rules
+   * below add wizard-specific context that crossValidate does not
+   * cover, with dedupe to avoid double-counting. */
   const wizardIssues = [...(cvResult.issues || [])];
   const wizardWarnings = [...(cvResult.warnings || [])];
   const _seenIssues = new Set(wizardIssues);

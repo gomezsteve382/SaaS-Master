@@ -18,8 +18,8 @@ function Hex({children,muted}){
 }
 
 /* Renders the byte-level fields exposed by parseModule for a single module.
-   Used by the FCA Analyzer tab and as an embedded "Module File Inspector"
-   in BCM / RFHUB / GPEC2A tabs. Read-only. */
+   Used as an embedded "Module File Inspector" in BCM / RFHUB / GPEC2A
+   tabs. Read-only. */
 export function SizeWarnBanner({warn}){
   if(!warn)return null;
   const isOver=warn.kind==='oversized';

@@ -23,7 +23,6 @@ import GpecTab from "./tabs/GpecTab";
 import OBDTab from "./tabs/OBDTab";
 import SeedTab from "./tabs/SeedTab";
 import ModuleSync from "./tabs/ModuleSync";
-import FcaAnalyzerTab from "./tabs/FcaAnalyzerTab";
 import JailbreakTab from "./tabs/JailbreakTab";
 import BcmTab from "./tabs/BcmTab";
 import RfhubTab from "./tabs/RfhubTab";
@@ -683,8 +682,7 @@ function engParsePcm(bytes){
      * inline rule (`!allFF && !all00`) diverged from the classifier on
      * mostly-FF SEC6 (e.g. FF FF 00 FF FF FF: classifier → Virgin, but
      * the inline rule falsely flagged it as populated). Aligning here
-     * keeps the FCA Analyzer overview consistent with parseModule and
-     * crossValidate. */
+     * keeps this overview consistent with parseModule and crossValidate. */
     const cls = classifyPcmSec6(sec6);
     const sec6Populated = cls.populated;
     const paired = markerOk && sec6Populated;
@@ -880,7 +878,6 @@ const WORKSPACE_TABS = [
   {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
   {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
   {id:'keymgr',    i:'🗝️', l:'KEY MGR',      s:'Dual-file RFHUB fob transfer'},
-  {id:'analyzer',  i:'🧪', l:'ANALYZER',     s:'Cross-validate · Mismatch'},
   {id:'jailbreak', i:'💀', l:'JAILBREAK',    s:'SRT · Demon · Hellcat · Redeye'},
   {id:'seed',      i:'🔑', l:'SEED→KEY',     s:'14 Algorithms'},
   {id:'bcm',       i:'🧠', l:'BCM',          s:'VIN · CRC · Features'},
@@ -895,7 +892,14 @@ const WORKSPACE_TABS = [
 
 function VehicleWorkspace({vehicleId, onBack}){
   const vehicle = VEHICLES[vehicleId];
-  const [tab, setTab] = useState('dumps');
+  // The FCA Analyzer tab was removed; if any persisted/deep-linked state
+  // still asks for it, fall back to the Dumps tab so the workspace never
+  // renders a blank screen.
+  const VALID_TAB_IDS = useMemo(()=>new Set(WORKSPACE_TABS.map(t=>t.id)),[]);
+  const [tab, setTabRaw] = useState('dumps');
+  const setTab = useCallback((next)=>{
+    setTabRaw(VALID_TAB_IDS.has(next) ? next : 'dumps');
+  },[VALID_TAB_IDS]);
   const [files, setFiles] = useState([]);
   const [workspaceWizardOpen, setWorkspaceWizardOpen] = useState(false);
   const {addDump} = useContext(MasterVinContext);
@@ -980,7 +984,6 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
         {tab==='keyprog'   && <KeyProgTab/>}
-        {tab==='analyzer'  && <FcaAnalyzerTab vehicleId={vehicle.id}/>}
         {tab==='jailbreak' && <JailbreakTab vehicle={vehicle}/>}
         {tab==='seed'      && <SeedTab/>}
         {tab==='bcm'       && <BcmTab vehicle={vehicle}/>}

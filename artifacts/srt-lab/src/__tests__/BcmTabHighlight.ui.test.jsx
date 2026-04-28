@@ -4,9 +4,9 @@
 //
 // Task #278 — Verifies that the generation-highlight badge in BcmTab is cleared
 // when the BCM dump is removed from the shared context via removeDump(), without
-// going through closeInspect().  This covers the external-removal path (e.g. the
-// FCA Analyzer tab calling removeDump on a shared dump) that bypasses the
-// manual X-button in BcmTab.
+// going through closeInspect().  This covers the external-removal path (any
+// caller invoking removeDump on a shared dump) that bypasses the manual
+// X-button in BcmTab.
 //
 // Task #282 — Extends coverage to the dump-switcher <select> dropdown.
 // When the user picks a different dump from the dropdown the badge must update
@@ -179,7 +179,7 @@ describe('BcmTab generation highlight', () => {
       ).toBe(true);
     }, { timeout: 3000 });
 
-    // Remove dump externally (simulating FCA Analyzer tab).
+    // Remove dump externally (simulating any other tab calling removeDump).
     await act(async () => {
       removeHelper.current?.();
       await new Promise(r => setTimeout(r, 50));

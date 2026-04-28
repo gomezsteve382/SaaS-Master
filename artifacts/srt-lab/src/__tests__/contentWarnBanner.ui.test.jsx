@@ -2,10 +2,10 @@
 //
 // Locks the visual surfacing of the "doesn't look like a BCM" content
 // warning. ModuleFieldsPanel is the embedded inspector used inside
-// BcmTab / FcaAnalyzerTab; whenever a 64 KB / 128 KB capture parses as
-// BCM but lacks any BCM-defining content, the banner must appear above
-// the regular field rows so the user sees the hint before trusting any
-// field values.
+// BcmTab; whenever a 64 KB / 128 KB capture parses as BCM but lacks
+// any BCM-defining content, the banner must appear above the regular
+// field rows so the user sees the hint before trusting any field
+// values.
 
 import React from "react";
 import { describe, it, afterEach, expect } from "vitest";

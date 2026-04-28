@@ -1,7 +1,7 @@
 // Task #396 — crossValidate gating for the BCM SEC16 → SEC6 ↔ PCM SEC6
 // rule. Pre-#396 the gate was `!gpec.pcmSec6.damaged`, so a paired BCM
 // against a virgin PCM (FF FF 00 FF FF FF on the incident trio) slipped
-// through with no message at all — the FCA Analyzer simply showed
+// through with no message at all — the cross-module audit simply showed
 // nothing for this pair. Now we surface a "PCM never paired with this
 // BCM" issue (not a warning) so the user is never silently told it's
 // safe to program a key on a never-paired PCM.
@@ -107,7 +107,7 @@ describe('crossValidate BCM SEC16 → SEC6 ↔ PCM SEC6 (Task #396 gate)', () =>
     expect(issue).toMatch(/never paired|IMMO_DAMAGED|marker/i);
   });
 
-  it('also flags the standalone PCM SEC6 line as IMMO_DAMAGED for mostly-FF (so the FCA Analyzer surfaces both signals)', () => {
+  it('also flags the standalone PCM SEC6 line as IMMO_DAMAGED for mostly-FF (so the cross-module audit surfaces both signals)', () => {
     const out = crossValidate([
       makeBcmModule(REAL_BCM_SEC16),
       makePcmModule(VIRGIN_PCM_SEC6),

@@ -271,8 +271,8 @@ export function parsePCMGPEC(buf) {
     // "blank" rules match parseModule.js, fileUtils.js and
     // crossValidate.js exactly. The pre-#404 simple `!allFF && !all00`
     // rule diverged on mostly-FF SEC6 (e.g. FF FF 00 FF FF FF), which
-    // could yield a different verdict in the RFH→PCM tab vs the FCA
-    // Analyzer for the same dump.
+    // could yield a different verdict in the RFH→PCM tab vs the
+    // shared cross-module checks for the same dump.
     const cls = classifyPcmSec6(s6);
     const populated = cls.populated && markerOk;
     result.sec6 = {

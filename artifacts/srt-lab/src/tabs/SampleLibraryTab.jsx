@@ -31,12 +31,12 @@ const KIND_COLOR = {
  * user can immediately see it parsed. */
 const KIND_TAB = {
   BCM: "bcm",
-  "95640": "analyzer",
+  "95640": "dumps",
   GPEC_EXT: "ecm",
   GPEC_INT: "ecm",
   RFH_EEE: "rfhub",
   RFH_PFLASH: "rfhub",
-  SMARTBOX: "analyzer",
+  SMARTBOX: "dumps",
 };
 
 function fmtSize(n) {

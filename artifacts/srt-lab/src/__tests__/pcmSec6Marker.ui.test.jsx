@@ -1,12 +1,11 @@
 // @vitest-environment jsdom
 //
 // Task #405 — locks the visual surfacing of the FF FF FF AA marker @ 0x3C4
-// in the FCA Analyzer / PCM card. When SEC6 hex matches the BCM but the
-// marker is missing, the operator must see a clear ✗ next to the marker
-// row plus a "secret bytes present but marker missing — apply BCM→PCM
-// SEC6 sync to restamp" hint. Without this the IMMO_DAMAGED diagnosis
-// looks identical to a true SEC6 mismatch and sends techs down the wrong
-// rabbit hole.
+// in the PCM card. When SEC6 hex matches the BCM but the marker is missing,
+// the operator must see a clear ✗ next to the marker row plus a "secret
+// bytes present but marker missing — apply BCM→PCM SEC6 sync to restamp"
+// hint. Without this the IMMO_DAMAGED diagnosis looks identical to a true
+// SEC6 mismatch and sends techs down the wrong rabbit hole.
 
 import React from "react";
 import { describe, it, afterEach, expect } from "vitest";

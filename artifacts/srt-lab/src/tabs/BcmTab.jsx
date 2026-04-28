@@ -281,8 +281,8 @@ export default function BcmTab({vehicle}){
   const inspectMod=inspectEntry?.mod||null;
 
   // Run part-number detection whenever the active dump changes — covers both
-  // manual file loads (via onInspectFile) and dumps auto-shared from the FCA
-  // Analyzer tab that bypass onInspectFile entirely.
+  // manual file loads (via onInspectFile) and dumps auto-shared via the
+  // master VIN context that bypass onInspectFile entirely.
   // When the dump disappears (external removeDump call), also clear the
   // generation highlight so the vehicle banner resets correctly.
   useEffect(()=>{
@@ -508,7 +508,7 @@ export default function BcmTab({vehicle}){
         </>}
       </div>
       <SamplePicker kinds={['BCM']} acceptSizes={[65536,131072]} onFile={onInspectFile} compact label="📦 Sample BCM dump"/>
-      {!inspectMod&&bcmDumps.length===0&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the FCA Analyzer tab show up here automatically.</div>}
+      {!inspectMod&&bcmDumps.length===0&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the Dumps tab show up here automatically.</div>}
       {inspectMod&&bcmDumps.length>0&&<div style={{marginTop:6,fontSize:10,color:C.gn,fontWeight:700}}>✓ Auto-loaded from shared workspace ({bcmDumps.length} BCM dump{bcmDumps.length===1?'':'s'} available)</div>}
       {inspectPnCheck&&vehicle&&(
         inspectPnCheck.compatible
