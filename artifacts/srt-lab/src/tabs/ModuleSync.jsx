@@ -862,18 +862,6 @@ function PickBreakdown({ kind, value, breakdown, testid }) {
   );
 }
 
-/* scoreModuleField — small wrapper that takes a field's chosen value plus
- * the regex it should match, and returns the breakdown object the
- * PickBreakdown component renders. precedenceRank defaults to 1.0 because
- * every field surfaced on the BCM / RFH / PCM cards is sourced from the
- * canonical-offset extractor in the per-module parser; fallback regex
- * hits would call this with precedenceRank=0.5 to demote them. */
-function scoreModuleField(value, canonicalRegex, precedenceRank = 1.0) {
-  if (!value) return null;
-  const matchesCanonical = canonicalRegex ? canonicalRegex.test(value) : false;
-  return scoreCandidate({ value, precedenceRank, matchesCanonical });
-}
-
 /* buildCandidateList (Task #464) — turns the raw multi-candidate array
  * the parser already gathered into the shape pickBest() expects, tagging
  * each entry with its precedenceRank (1.0 for the canonical-offset hit
