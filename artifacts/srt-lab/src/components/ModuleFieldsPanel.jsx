@@ -2,9 +2,12 @@ import React from "react";
 import {Card,Tag} from "../lib/ui.jsx";
 import {C} from "../lib/constants.js";
 import {formatBcmSec16SourceLabel} from "../lib/sec16SourceLabel.js";
+import {fmtOff} from "../tabs/ModuleSync.jsx";
 
 const hxArr=a=>Array.from(a).map(b=>b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
-const fO=n=>"0x"+n.toString(16).toUpperCase().padStart(4,"0");
+/* Task #470 — local `fO` helper retired; `fmtOff` (SINCRO-style
+ * "0xHHHH (D)" render) is now shared with the rest of the analyzer
+ * tabs so techs see one consistent offset grammar. */
 
 function Row({label,children}){
   return <div style={{display:"grid",gridTemplateColumns:"170px 1fr",gap:8,padding:"3px 0",fontSize:11,alignItems:"baseline"}}>
@@ -79,7 +82,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
       if(!rc.counterB)missing.push({n:'runtime counter B @0x0E69',need:0x0E6D});
       if(!rc.distance)missing.push({n:'runtime distance @0x0E6D',need:0x0E71});
       if(!rc.keyCycles)missing.push({n:'runtime keyCycles @0x0E75',need:0x0E79});
-      tks.forEach((k,i)=>{if(k.hex==null)missing.push({n:`transponder key ${i+1} @${fO(k.offset)}`,need:k.offset+4});});
+      tks.forEach((k,i)=>{if(k.hex==null)missing.push({n:`transponder key ${i+1} @${fmtOff(k.offset)}`,need:k.offset+4});});
       const undersized=missing.length>0;
       const Missing=({need})=><span title={need!=null?`needs ${need.toLocaleString()} bytes, got ${sz.toLocaleString()}`:undefined} style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.wn,fontWeight:700}}>buffer too small{need!=null?` (needs ${need.toLocaleString()} B, got ${sz.toLocaleString()})`:''}</span>;
       return <>
@@ -128,7 +131,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
             const blank=!unread&&Array.from(k.hex.split(' ').map(h=>parseInt(h,16))).every(b=>b===0xFF||b===0);
             const need=k.offset+4;
             return <div key={i} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+(unread?C.wn+'66':blank?C.bd:C.gn+'40'),textAlign:'center'}}>
-              <div style={{fontSize:9,color:C.tm,fontWeight:700}}>KEY {i+1} · {fO(k.offset)}</div>
+              <div style={{fontSize:9,color:C.tm,fontWeight:700}}>KEY {i+1} · {fmtOff(k.offset)}</div>
               <div title={unread?`needs ${need.toLocaleString()} bytes, got ${sz.toLocaleString()}`:undefined} style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:unread?C.wn:blank?'#D5D0C8':C.a4,marginTop:3}}>{unread?'buffer too small':k.hex}</div>
               {unread&&<div style={{fontSize:8,color:C.tm,marginTop:2}}>needs {need.toLocaleString()} B · got {sz.toLocaleString()}</div>}
               <Tag color={unread?C.wn:blank?C.tm:C.gn}>{unread?'N/A':blank?'—':'SET'}</Tag>
@@ -155,7 +158,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
             return <div key={x.n} style={{padding:8,borderRadius:8,background:C.c2,border:'1px solid '+C.bd,textAlign:'center'}}>
               <div style={{fontSize:9,color:C.tm}}>{x.n}</div>
               <div style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:800,color:C.a1,marginTop:2}}>{v.toLocaleString()}</div>
-              <div style={{fontSize:8,color:C.tm}}>{fO(x.c.offset)} · {x.c.hex}</div>
+              <div style={{fontSize:8,color:C.tm}}>{fmtOff(x.c.offset)} · {x.c.hex}</div>
             </div>;
           })}
         </div>
@@ -183,7 +186,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
       const sec16MissingSlots=[];
       for(const[slot,off,need]of expectedSec16){
         if(rfhSz<need&&!(mod.sec16s||[]).find(s=>s.slot===slot)){
-          rfhMissing.push({n:`sec16s slot${slot} @${fO(off)}`,need});
+          rfhMissing.push({n:`sec16s slot${slot} @${fmtOff(off)}`,need});
           sec16MissingSlots.push({slot,offset:off,need});
         }
       }
@@ -250,14 +253,14 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
           {(mod.sec16s||[]).map(s=><div key={'p'+s.slot} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(s.blank?C.bd:s.csOk===false?C.er+'40':C.gn+'40')}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-              <span style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>SLOT {s.slot} · {fO(s.offset)}</span>
+              <span style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>SLOT {s.slot} · {fmtOff(s.offset)}</span>
               {s.blank?<Tag color={C.tm}>BLANK</Tag>:s.csOk!==undefined&&<Tag color={s.csOk?C.gn:C.er}>CS {s.csOk?'✓':'✗'}</Tag>}
             </div>
             {!s.blank&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:C.a4,wordBreak:'break-all'}}>{s.hex}</div>}
           </div>)}
           {sec16MissingSlots.map(s=><div key={'m'+s.slot} title={`needs ${s.need.toLocaleString()} bytes, got ${rfhSz.toLocaleString()}`} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.wn+'66'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-              <span style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>SLOT {s.slot} · {fO(s.offset)}</span>
+              <span style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>SLOT {s.slot} · {fmtOff(s.offset)}</span>
               <Tag color={C.wn}>N/A</Tag>
             </div>
             <RfhMissing need={s.need}/>
@@ -276,10 +279,10 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
             {l:'SW',o:0x0812,v:mod.partNumbers.sw,miss:swMissing,need:0x081C},
             {l:'CAL',o:0x082C,v:mod.partNumbers.cal,miss:calMissing,need:0x083A},
           ].map(p=>p.v?<div key={p.l} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
-            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>{p.l} @{fO(p.o)}</div>
+            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>{p.l} @{fmtOff(p.o)}</div>
             <div style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:C.a3,letterSpacing:1}}>{p.v}</div>
           </div>:p.miss?<div key={p.l} title={`needs ${p.need.toLocaleString()} bytes, got ${rfhSz.toLocaleString()}`} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+C.wn+'66'}}>
-            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>{p.l} @{fO(p.o)}</div>
+            <div style={{fontSize:10,color:C.tm,marginBottom:4}}>{p.l} @{fmtOff(p.o)}</div>
             <RfhMissing need={p.need}/>
           </div>:null)}
         </div>
@@ -396,7 +399,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
             return <div key={i} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(blank?C.bd:C.gn+'40'),textAlign:'center'}}>
               <div style={{fontSize:10,fontWeight:800,color:C.tm}}>SLOT {i+1}</div>
               <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,fontWeight:700,color:blank?'#D5D0C8':C.a4,marginTop:4,wordBreak:'break-all'}}>{k.hex}</div>
-              <div style={{fontSize:9,color:C.tm,marginTop:2}}>{fO(k.offset)}</div>
+              <div style={{fontSize:9,color:C.tm,marginTop:2}}>{fmtOff(k.offset)}</div>
               <Tag color={blank?C.tm:C.gn}>{blank?'—':'SET'}</Tag>
             </div>;
           })}
@@ -408,7 +411,7 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
           {mod.partialVins.map((p,i)=><div key={i} style={{padding:10,borderRadius:8,background:C.c2,border:'1px solid '+(p.crcOk?C.gn+'40':C.er+'40')}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-              <span style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>{fO(p.offset)}</span>
+              <span style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:1}}>{fmtOff(p.offset)}</span>
               <Tag color={p.crcOk?C.gn:C.er}>CRC16 {p.crcOk?'✓':'✗'}</Tag>
             </div>
             <div style={{fontFamily:"'JetBrains Mono'",fontSize:14,fontWeight:900,color:C.a1,lineHeight:1.1}}>…{p.tail}</div>

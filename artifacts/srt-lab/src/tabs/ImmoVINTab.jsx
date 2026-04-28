@@ -9,8 +9,12 @@ import {IMMO_VIN_REF} from "../lib/tabReferences.js";
 import {Tip} from "../lib/plainEnglish.jsx";
 import SamplePicker from "../lib/SamplePicker.jsx";
 import {PCM_VIN_OFFSETS_GPEC2A} from "../lib/parseModule.js";
+import {fmtOff} from "./ModuleSync.jsx";
 
-const fO = n => "0x" + n.toString(16).toUpperCase().padStart(4, "0");
+/* Task #470 — local `fO` helper retired in favour of the shared `fmtOff`
+ * exported from ModuleSync, so the Immo/VIN tab renders offsets in the
+ * SINCRO-style "0xHHHH (D)" form used by Module Sync, RFH/PCM, Twin,
+ * Backups, and the Mismatch Wizard. */
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
 const dl = (data, name, assetId) => {
   const a = document.createElement("a");
@@ -186,7 +190,7 @@ function RFHSection({samplePair, onSamplePairLoaded}) {
                 {res.slots.map(row=>(
                   <tr key={row.idx} style={{borderBottom:"1px solid "+C.bd+"60"}}>
                     <td style={{padding:"7px 10px",fontWeight:800,color:C.sr}}>VIN {row.idx}</td>
-                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.a3}}>{fO(row.offset)}</td>
+                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.a3}}>{fmtOff(row.offset)}</td>
                     <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontWeight:700,fontSize:12,color:row.vin?C.gn:C.er}}>{row.vin||"(empty / invalid)"}</td>
                     <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>{row.csStored!==null?"0x"+row.csStored.toString(16).toUpperCase().padStart(2,"0"):"—"}</td>
                     <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts}}>{row.csCalc!==null?"0x"+row.csCalc.toString(16).toUpperCase().padStart(2,"0"):"—"}</td>
@@ -202,7 +206,7 @@ function RFHSection({samplePair, onSamplePairLoaded}) {
             {res.sec16s.map(s=>(
               <div key={s.slot} style={{padding:"10px 14px",borderRadius:10,background:C.c2,border:"1px solid "+C.bd}}>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                  <span style={{fontSize:11,fontWeight:800,color:C.a4}}>SEC16 Slot {s.slot} @ {fO(s.offset)}</span>
+                  <span style={{fontSize:11,fontWeight:800,color:C.a4}}>SEC16 Slot {s.slot} @ {fmtOff(s.offset)}</span>
                   {s.blank?<Tag color={C.tm}>BLANK</Tag>:<Badge ok={s.csOk}/>}
                   {!s.blank&&s.slot===1&&res.sec16valid&&<Tag color={C.gn}>VALID ✓</Tag>}
                 </div>
@@ -390,7 +394,7 @@ function GPECSection({samplePair, onSamplePairLoaded}) {
                 {res.slots.map(row=>(
                   <tr key={row.idx} style={{borderBottom:"1px solid "+C.bd+"60"}}>
                     <td style={{padding:"7px 10px",fontWeight:800,color:C.sr}}>VIN {row.idx}</td>
-                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.a3}}>{fO(row.offset)}</td>
+                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.a3}}>{fmtOff(row.offset)}</td>
                     <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontWeight:700,fontSize:12,color:row.vin?C.gn:C.er}}>{row.vin||"(empty / invalid)"}</td>
                     <td style={{padding:"7px 10px",fontSize:10,color:C.tm}}>—</td>
                     <td style={{padding:"7px 10px"}}>{row.vin?<Badge ok={true} label="READ OK"/>:<span style={{fontSize:10,color:C.er}}>EMPTY</span>}</td>
