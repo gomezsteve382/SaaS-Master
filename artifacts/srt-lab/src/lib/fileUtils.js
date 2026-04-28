@@ -24,7 +24,7 @@ function _countSkim(d,base){
   let c=0;for(let i=0;i<IMMO_KC_;i++){const o=base+i*IMMO_REC_;if(o+IMMO_REC_>d.length)break;const r=d.slice(o,o+IMMO_REC_);if(!r.every(b=>b===0xFF||b===0x00))c++;}return c;
 }
 
-function analyzeFile(buf,name){
+function analyzeFile(buf,name,slotType){
   const data=new Uint8Array(buf);const sz=data.length;let type='UNKNOWN';
   if(sz===65536||sz===131072)type='BCM';
   else if(sz===8192||sz===16384){const sig=_detectBySignature(data);type=sig!=='UNKNOWN'?sig:'95640';}
@@ -39,6 +39,24 @@ function analyzeFile(buf,name){
   if(_fnType&&_fnType!==type){
     if(type==='FW')type=_fnType;
     else if(type==='BCM'&&(_fnType==='GPEC2A'||_fnType==='95640')&&!looksLikeRealBcm(data))type=_fnType;
+  }
+  /* Task #483 — slot context override. The Dumps tab (and any future
+   * slot-aware uploader) names the intended module via `slotType`; that
+   * label is authoritative because the user explicitly dropped the file
+   * into that slot. Without this, an 8 KB GPEC2A PCM dropped into the
+   * PCM slot would be classified as `95640` by size alone and never
+   * reach the SYNC ALL MODULES PCM resize path. The 'PCM' slot label
+   * (used by DumpsTabV2) maps to GPEC2A — both 4 KB / 8 KB PCM captures
+   * are GPEC2A flash. The slot override only fires when the slot label
+   * resolves to a known module family AND the buffer size is canonical
+   * for that family, so e.g. a 64 KB file accidentally dropped into the
+   * PCM slot still gets caught by the upstream size-guard
+   * (`moduleTooSmall`) instead of being mis-labelled here. */
+  const _slotMap={PCM:'GPEC2A',GPEC2A:'GPEC2A',BCM:'BCM',RFHUB:'RFHUB','95640':'95640'};
+  const _slotType=slotType?_slotMap[slotType]:null;
+  if(_slotType&&_slotType!==type){
+    const _canon=CANONICAL_SIZES_BY_TYPE[_slotType];
+    if(_canon&&_canon.includes(sz))type=_slotType;
   }
   const sizeWarn=buildSizeWarn(type,sz);
   const contentWarn=type==='BCM'?buildBcmContentWarn(data):null;

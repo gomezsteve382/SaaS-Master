@@ -933,7 +933,12 @@ function VehicleWorkspace({vehicleId, onBack}){
         else accepted.push(x);
       }
       if (accepted.length){
-        const analyzed=accepted.map(x=>analyzeFile(x.data,x.name));
+        // Task #483 — forward `slotType` into analyzeFile so a file dropped
+        // into a named slot (e.g. PCM, BCM, RFHUB) is classified by the
+        // slot label rather than by size alone. Fixes the 8 KB GPEC2A PCM
+        // → "95640" misclassification that was silently bypassing the
+        // SYNC ALL MODULES PCM resize path.
+        const analyzed=accepted.map(x=>analyzeFile(x.data,x.name,slotType));
         setFiles(p=>[...p,...analyzed]);
         accepted.forEach(x=>{
           const parsed=parseModule(x.data,x.name);

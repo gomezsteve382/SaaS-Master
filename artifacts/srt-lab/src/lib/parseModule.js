@@ -275,6 +275,14 @@ function typeFromFilename(name){
   if(/RFH/.test(u))return'RFHUB';
   if(/95640/.test(u))return'95640';
   if(/\bBCM\b|DFLASH/.test(u))return'BCM';
+  // Task #483 — plain "PCM" in the filename means a Continental GPEC2A
+  // PCM capture (4 KB 95320 or 8 KB 95640 EXT EEPROM). Without this,
+  // an 8 KB file named "..._PCM.bin" would fall through to size-only
+  // detection and be misclassified as 95640 (BCM-backup EEPROM), which
+  // skips the SYNC ALL MODULES PCM resize path entirely. The
+  // word-boundary anchors prevent collisions with "PCMUPGRADE" /
+  // "BCMUPGRADE" / sub-strings inside other names.
+  if(/(?:^|[^A-Z])PCM(?:[^A-Z]|$)/.test(u))return'GPEC2A';
   return null;
 }
 
