@@ -7,6 +7,7 @@ import {
 } from "../lib/plainEnglish.jsx";
 import { fmtOff } from "../tabs/ModuleSync.jsx";
 import { formatBcmSec16SourceLabel } from "../lib/sec16SourceLabel.js";
+import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
 
 /* ============================================================================
  * MismatchWizard — Guided resolution wizard + Claude AI chat panel
@@ -267,6 +268,59 @@ function BcmSec16VirginExplainer({ testid }) {
       is all 0xFF / 0x00. The wizard is about to write the RFHUB secret into a
       blank cluster — that's expected for a bench-fresh BCM, but verify the
       donor RFHUB is correct before flashing.
+    </div>
+  );
+}
+
+/* WizardConnectionGuides (Task #468) — wizard-themed compact variant of the
+ * Module Sync workspace's ConnectionGuides row (added in #464). Renders the
+ * same per-module link group (BCM (MPC560xB) → MULTIPROG · UPA, PCM (GPEC2A)
+ * → GODIAG, RFH (9S12X) → MULTIPROG · UPA · OBDSTAR) so techs opening the
+ * Sync Wizard see which programmer to wire to which chip BEFORE they pick
+ * a tool. Sources data from MODULE_CONNECTION_GUIDES + PROGRAMMERS — the
+ * same registry the workspace uses, so any future registry change shows up
+ * in both surfaces with no duplication. Links keep target="_blank" +
+ * rel="noopener noreferrer" so the bench-tool vendor pages can't reach back
+ * into the workspace via window.opener (the same hardening #465 locks in
+ * for the workspace row). */
+function WizardConnectionGuides() {
+  return (
+    <div data-testid="wizard-connection-guides" style={{
+      display: 'flex', flexWrap: 'wrap', gap: 12,
+      padding: '8px 12px', marginBottom: 14,
+      background: W.s3, border: `1px solid ${W.bd}`, borderRadius: 10,
+      fontSize: 11,
+    }}>
+      <div style={{ fontWeight: 800, color: W.ts, letterSpacing: 0.6, textTransform: 'uppercase', alignSelf: 'center', whiteSpace: 'nowrap' }}>
+        🛠 Connection Guides
+      </div>
+      {MODULE_CONNECTION_GUIDES.map(group => (
+        <div key={group.module}
+             data-testid={`wizard-guides-${group.module.toLowerCase()}`}
+             style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          <span style={{ fontWeight: 800, color: W.tx }}>{group.label}</span>
+          <span style={{ color: W.tm }}>→</span>
+          {group.guides.map((g, idx) => {
+            const prog = PROGRAMMERS[g.programmer];
+            const label = prog?.label || g.programmer;
+            return (
+              <React.Fragment key={g.programmer}>
+                {idx > 0 && <span style={{ color: W.tm, fontSize: 10 }}>·</span>}
+                <a href={g.url} target="_blank" rel="noopener noreferrer"
+                   data-testid={`wizard-guide-link-${group.module.toLowerCase()}-${g.programmer.toLowerCase()}`}
+                   title={`${group.label} — ${label} (${prog?.vendor || ''}) connection guide`}
+                   style={{
+                     color: W.a3, textDecoration: 'none', fontWeight: 700,
+                     padding: '2px 6px', borderRadius: 4,
+                     border: `1px solid ${W.a3}55`, background: W.s2,
+                   }}>
+                  {label}
+                </a>
+              </React.Fragment>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }
@@ -1874,6 +1928,19 @@ export default function MismatchWizard({
         {/* Body */}
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           <div style={{ flex: '1 1 auto', overflowY: 'auto', padding: '16px 20px 0 20px' }}>
+            {/* Task #468 — surface the same per-module Connection Guides
+             * row that lives at the top of the Module Sync workspace
+             * (#464) so techs see which programmer to wire to which chip
+             * BEFORE picking a tool inside the wizard. Visible in the
+             * Simple flow (single-screen "what you have / what's wrong /
+             * what I'll do") and in the Advanced flow's pre-action
+             * phases (summary + per-issue step cards). Hidden on the
+             * post-action Final Checklist where the tech has already
+             * flashed and no longer needs to pick a programmer. */}
+            {(!advanced || phase === 'summary' || phase === 'steps') && (
+              <WizardConnectionGuides />
+            )}
+
             {!advanced && (
               <SimpleFlow
                 issues={issues}
