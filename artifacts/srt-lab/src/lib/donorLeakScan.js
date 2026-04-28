@@ -69,6 +69,17 @@ export const VIN_LEN = 17;
 // auto-detected union via `findBcmPartialVinSlots(buffer)` — adding a brand-
 // new variant offset that already carries a valid CRC needs no edits.
 export const BCM_FULL_VIN_BASES      = [0x5300, 0x5320, 0x5340, 0x5360, 0x5380];
+// Task #463 — alternate BCM VIN base zone observed on FCA SINCRO output
+// for some Charger BCMs (likely an MPC5605B-class smaller-flash variant
+// or an early-year LX firmware revision). Same 32-byte stride and same
+// per-record layout as the canonical zone (header @ base, VIN payload @
+// base+8, BE16 CRC16 @ vinOff+17/+18) — only the base address differs.
+// Inner four (`_PARSED` in parseModule.js) hold the live VINs at
+// 0x1328 / 0x1348 / 0x1368 / 0x1388; we keep 0x1300 in the outer scrub
+// list to mirror the canonical zone's defensive shape so a future
+// firmware revision that begins populating the leading slot is covered
+// without further churn.
+export const BCM_FULL_VIN_BASES_ALT  = [0x1300, 0x1320, 0x1340, 0x1360, 0x1380];
 export const BCM_PARTIAL_VIN_OFFSETS = [0x4098, 0x40B0];
 export const BCM_PARTIAL_VIN_LEN     = 8;
 export const RFH_GEN2_VIN_OFFSETS    = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
@@ -237,6 +248,14 @@ export function getDocumentedSlotWindows(moduleType /* , buffer */) {
     for (const base of BCM_FULL_VIN_BASES) {
       windows.push({ kind: 'bcm-full-base+0', offset: base,     length: VIN_LEN });
       windows.push({ kind: 'bcm-full-base+8', offset: base + 8, length: VIN_LEN });
+    }
+    // Task #463 — alternate 0x1328 base zone (same record layout, different
+    // base address). Mirroring the canonical zone's base+0/+8 mask covers
+    // both the legacy (VIN at base) and Redeye-style (VIN at base+8) layouts
+    // a future capture might surface there.
+    for (const base of BCM_FULL_VIN_BASES_ALT) {
+      windows.push({ kind: 'bcm-full-alt-base+0', offset: base,     length: VIN_LEN });
+      windows.push({ kind: 'bcm-full-alt-base+8', offset: base + 8, length: VIN_LEN });
     }
     for (const po of BCM_PARTIAL_VIN_OFFSETS) {
       windows.push({ kind: 'bcm-partial', offset: po, length: BCM_PARTIAL_VIN_LEN });

@@ -135,9 +135,17 @@ const MODULE_SCANNERS = {
   // bases — empty/zeroed records are skipped by the looksLikeVin filter.
   // The committed fixtures use base+8 and have 4 VIN-bearing records
   // (primary at 0x5308..0x5368, secondary at 0x5328..0x5388).
+  //
+  // Task #463 — also scan the alternate 0x1300-zone bases. Some Charger
+  // BCMs (FCA SINCRO output) carry the same record layout at 0x1320..
+  // 0x1380 instead of 0x5320..0x5380. A real fixture populates exactly
+  // one zone — the other zone's bases simply produce no slots.
   bcm(buf) {
     const slots = [];
-    for (const base of [0x5300, 0x5320, 0x5340, 0x5360, 0x5380]) {
+    for (const base of [
+      0x5300, 0x5320, 0x5340, 0x5360, 0x5380,
+      0x1300, 0x1320, 0x1340, 0x1360, 0x1380,
+    ]) {
       for (const delta of [0, 8]) {
         const off = base + delta;
         if (off + 17 > buf.length) continue;

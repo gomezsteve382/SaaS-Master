@@ -47,12 +47,20 @@
  *     fail-loud behavior is the documented escape hatch for revisiting
  *     the design decision if reality ever changes.
  *
- * Slot offsets are imported from `src/lib/parseModule.js` so this helper
- * and the parser share a single source of truth — when a new VIN slot is
- * documented for an existing family, updating it in parseModule.js
- * automatically extends scrubbing coverage in lock-step (no more "scrubber
- * knew about 0x4098 but not the freshly-added partial slot at 0x4118"
- * drift, the failure mode that surfaced as Task #436).
+ * Slot-offset constants (BCM_FULL_VIN_BASES / BCM_FULL_VIN_BASES_ALT /
+ * BCM_PARTIAL_VIN_OFFSETS / RFH_GEN2_VIN_OFFSETS / RFH_GEN1_VIN_OFFSET /
+ * PCM_VIN_OFFSETS / EEP95640_VIN_OFFSETS / SGW_VIN_OFFSETS) are imported
+ * from `src/lib/donorLeakScan.js` (Task #447 moved them out of
+ * parseModule.js so the in-app pre-share leak check can use them without
+ * the CLI's `node:fs|path|url` dependencies; parseModule.js now re-imports
+ * the BCM ones from there too — see the BCM_FULL_VIN_BASES_ALT import
+ * comment in parseModule.js, Task #463). This way this helper, the parser,
+ * and the in-app scrubber share a single source of truth — when a new VIN
+ * slot or alternate base is documented for an existing family, updating it
+ * in donorLeakScan.js automatically extends scrubbing coverage in lock-
+ * step (no more "scrubber knew about 0x4098 but not the freshly-added
+ * partial slot at 0x4118" drift, the failure mode that surfaced as
+ * Task #436; same reasoning for the alt-base zone added in Task #463).
  *
  * After the writes, the script self-verifies the output:
  *   - The donor VIN must NOT appear forward or byte-reversed anywhere in
@@ -104,6 +112,7 @@ import { crc16, rfhGen2VinCs, rfhGen2DetectMagic } from '../src/lib/crc.js';
 import {
   VIN_LEN,
   BCM_FULL_VIN_BASES,
+  BCM_FULL_VIN_BASES_ALT,
   BCM_PARTIAL_VIN_OFFSETS,
   BCM_PARTIAL_VIN_LEN,
   RFH_GEN2_VIN_OFFSETS,
@@ -185,7 +194,14 @@ function anonymizeBcm(buf, anonBytes) {
   // (Redeye 2020+ FEE-record header). Real captures use one layout per
   // record but the table can mix; check base+8 first (newer is more
   // common on dumps maintainers ship today) then fall back to base+0.
-  for (const base of BCM_FULL_VIN_BASES) {
+  //
+  // Task #463 — iterate the union of the canonical 0x5300-zone bases AND
+  // the alternate 0x1300-zone bases (FCA SINCRO output for some Charger
+  // BCMs). Both zones share the same per-record layout, so the same
+  // detect-and-rewrite loop covers them. Bases that hold no valid VIN
+  // are skipped silently — a real dump only populates one zone, so the
+  // other zone's bases simply produce no slots in the output.
+  for (const base of [...BCM_FULL_VIN_BASES, ...BCM_FULL_VIN_BASES_ALT]) {
     let off = null;
     if (isValidVinAt(out, base + 8)) off = base + 8;
     else if (isValidVinAt(out, base)) off = base;

@@ -70,7 +70,13 @@ function reverseUint8(b) { const o = new Uint8Array(b.length); for (let i = 0; i
 function scanFullVins(buf, moduleType) {
   const out = [];
   if (moduleType === 'bcm') {
-    for (const base of [0x5300, 0x5320, 0x5340, 0x5360, 0x5380]) {
+    // Task #463 — scan canonical 0x5300-zone AND alternate 0x1300-zone
+    // bases. Real captures populate exactly one zone, so the unused
+    // zone simply produces no slots in the output (no false positives).
+    for (const base of [
+      0x5300, 0x5320, 0x5340, 0x5360, 0x5380,
+      0x1300, 0x1320, 0x1340, 0x1360, 0x1380,
+    ]) {
       for (const delta of [8, 0]) {
         const off = base + delta;
         if (off + 17 > buf.length) continue;

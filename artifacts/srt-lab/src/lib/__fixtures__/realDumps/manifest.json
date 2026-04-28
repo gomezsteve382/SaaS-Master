@@ -39,6 +39,14 @@
       "anonVin": "2C3CDXCT1HH600000",
       "donorVin": "2C3CDXCT1HH652640",
       "source": "Second BCM VIN-write pair, distinct from the primary 2C3CDXL90MH582899 fixture. Anonymized real-bench BCM (MPC5606B DFLASH, 64 KB) capture from attached_assets/BCM_22CHARGER_REDEYE_6.2_KEYPROG_2C3CDXCT1HH652640.bin — VIN scrubbed (652640→600000) wherever the 17-char VIN appears in plaintext. Same anonymized vehicle as the rfhub/pcm slot above (real-bench triple). 'after' = captured synced BCM. 'before' = same buffer with the writer-target bytes erased to 0xFF: split records @ 0x81A0/C0/E0 (+9..+15 prefix7, +20..+28 suffix9) and the inactive-bank mirror records @ 0x40C0 (slot 0xEB / size 0x18) and 0x40E8 (slot 0xCA / size 0x28) at +8..+31. Headers + separators left intact so the writer's matchers fire."
+    },
+    {
+      "before": "charger-bcm-0x1328/bcm.before.bin",
+      "after": "charger-bcm-0x1328/bcm.after.bin",
+      "rfhSec16Hex": "08a1c5e7ba303582c3821594793c2fc4",
+      "anonVin": "2C3CDXHG5EH600000",
+      "donorVin": "2C3CDXHG5EH219538",
+      "source": "Task #463 — third BCM pair pinning the alternate 0x1328 VIN base zone (FCA SINCRO output for some Charger BCMs). Anonymized real-bench BCM (64 KB) capture from attached_assets/BCM_HERMANADO_CHARGER_BCM_SYNCED_2C3CDXHG5EH219538__1777338759178.bin — VIN scrubbed (219538→600000) at 4 full-VIN slots in the alternate zone (0x1328/0x1348/0x1368/0x1388, NOT the canonical 0x5328..0x5388 — the canonical zone is all 0xFF in this dump) and 4 partial-VIN slots auto-detected at 0x0098/0x00B0/0x4098/0x40B0. Same per-record layout as the canonical zone (header @ base, VIN @ base+8, BE16 CRC16 @ vinOff+17/+18). 'after' = captured synced BCM with split SEC16 records @ 0x81A0/C0/E0 populated and inactive-bank (bank0, since bank1Seq=0x30CE > bank0Seq=0x30CD) mirror records @ 0x00C0 (slot 0xEB / size 0x18) and 0x00E8 (slot 0xCA / size 0x28) populated. 'before' = same buffer with the writer-target bytes erased to 0xFF: split records @ 0x81A0/C0/E0 (+9..+15 prefix7, +20..+28 suffix9) and inactive-bank mirrors @ 0x00C0 / 0x00E8 (+8..+31). Headers + separators left intact so the writer's matchers fire. The securityBytes.realDump.golden.test pair-round-trip applies unchanged — writeBcmSec16Gen2(before, rfhSec16) == after byte-for-byte."
     }
   ],
   "extraPcms": [

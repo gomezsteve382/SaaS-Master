@@ -1,6 +1,6 @@
 import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs} from './crc.js';
 import {TC,TL,SKIM_VALUES,IMMO_REC,IMMO_KC,IMMO_BLOCK,SKIM_OFF} from './constants.js';
-import {BCM_PARTIAL_VIN_OFFSETS,BCM_PARTIAL_VIN_LEN,findBcmPartialVinSlots} from './donorLeakScan.js';
+import {BCM_PARTIAL_VIN_OFFSETS,BCM_PARTIAL_VIN_LEN,findBcmPartialVinSlots,BCM_FULL_VIN_BASES_ALT} from './donorLeakScan.js';
 
 const fO=n=>"0x"+n.toString(16).toUpperCase().padStart(4,"0");
 
@@ -106,6 +106,26 @@ const CANONICAL_SIZES_BY_TYPE={
  */
 const BCM_FULL_VIN_BASES=[0x5300,0x5320,0x5340,0x5360,0x5380];
 const BCM_FULL_VIN_BASES_PARSED=[0x5320,0x5340,0x5360,0x5380];
+// Task #463 — alternate BCM VIN base zone observed on FCA SINCRO output
+// for some Charger BCMs (a smaller-flash MPC5605B-class variant or an
+// early-year LX firmware revision keeps the same record layout but
+// places the four populated VIN slots at 0x1328 / 0x1348 / 0x1368 /
+// 0x1388 instead of 0x5328..0x5388 — same 32-byte stride, same per-
+// record header, same trailing CRC16). The parser prefers the canonical
+// zone; the alternate zone is consulted only when the canonical zone
+// yields zero VINs, so a normal LX BCM (always populated at 0x5320..)
+// can never silently switch to the alternate base. We mirror the
+// canonical zone's "outer five / inner four" split so the donor-leak
+// scrubber covers the leading 0x1300 slot defensively even though no
+// captured dump has yet populated it.
+// BCM_FULL_VIN_BASES_ALT (Task #463) is the alternate base zone — see line 4
+// import. Single source of truth lives in donorLeakScan.js so the in-app
+// scrubber, this parser, and the offline anonymizer stay in lock-step. The
+// _PARSED variant is the inner 4 bases the parser actually scans (the
+// outer base 0x1300, like canonical 0x5300, has historically held no VINs
+// in any captured dump and is masked only by the leak scanner as a safety
+// margin).
+const BCM_FULL_VIN_BASES_ALT_PARSED=BCM_FULL_VIN_BASES_ALT.slice(1);
 // BCM_PARTIAL_VIN_OFFSETS is imported from ./donorLeakScan.js (see line 3) —
 // the leak-scan module is the single source of truth so the in-app pre-share
 // scanner, the anonymizer helper, and the parser all share one constant.
@@ -296,7 +316,10 @@ function buildSizeWarn(type,sz){
 // 0x40C0; padded GPEC2A/95640 captures have neither.
 function looksLikeRealBcm(data){
   if(data.length<0x5400)return false;
-  for(const base of BCM_FULL_VIN_BASES_PARSED){
+  // Task #463 — accept either VIN base zone (canonical 0x5320..0x5380 or
+  // alternate 0x1320..0x1380) so the SINCRO-output Charger BCM variant
+  // is recognized as a real BCM during type detection / tiebreaking.
+  for(const base of [...BCM_FULL_VIN_BASES_PARSED,...BCM_FULL_VIN_BASES_ALT_PARSED]){
     if(extractVIN(data,base)||extractVIN(data,base+8))return true;
   }
   for(let i=0;i<8;i++){
@@ -319,9 +342,12 @@ function looksLikeRealBcm(data){
 function buildBcmContentWarn(data){
   if(data.length!==65536&&data.length!==131072)return null;
   const sz=data.length;
-  // 1. VIN slot scan — both layouts (base+0 legacy, base+8 Redeye 2020+).
+  // 1. VIN slot scan — both layouts (base+0 legacy, base+8 Redeye 2020+) and
+  //    both base zones (canonical 0x5320..0x5380, alternate 0x1320..0x1380
+  //    for the Task #463 Charger SINCRO variant). A hit at either zone
+  //    counts as BCM-defining content.
   let vinHits=0;
-  for(const base of BCM_FULL_VIN_BASES_PARSED){
+  for(const base of [...BCM_FULL_VIN_BASES_PARSED,...BCM_FULL_VIN_BASES_ALT_PARSED]){
     if(extractVIN(data,base)||extractVIN(data,base+8))vinHits++;
   }
   // 2. Immo record scan — at least one populated 24-byte slot in the
@@ -352,7 +378,7 @@ function buildBcmContentWarn(data){
     sizeLabel:sz.toLocaleString()+' B',
     message:'This '+sz.toLocaleString()+'-byte capture has no BCM-defining content — it may not actually be a BCM dump.',
     causes:[
-      'No VINs found at the canonical BCM slots (0x5320, 0x5340, 0x5360, 0x5380).',
+      'No VINs found at the canonical BCM slots (0x5320, 0x5340, 0x5360, 0x5380) or the alternate Charger-SINCRO slots (0x1320, 0x1340, 0x1360, 0x1380).',
       'No partial VINs found at 0x4098 / 0x40B0.',
       'IMMO record bank at 0x40C0 and backup bank at 0x2000 are both blank.',
       'If this is an oversized GPEC2A capture (real size 4 KB), re-load it through the GPEC2A tab.',
@@ -663,25 +689,38 @@ function parseModule(data,filename,opts){
     // 2-byte BE CRC16 → 5-byte trailer). Whichever yields a valid 17-byte
     // VIN is the slot's true VIN offset, so writers can target it precisely
     // without clobbering the header or trailer.
-    info.vins=[];
-    // Prefer the candidate (base+8 vs base+0) whose stored BE16 CRC at
-    // vinOff+17/+18 matches crc16(vin). This keeps a corrupted/mid-erase
-    // dump from picking a coincidental ASCII run at the wrong offset and
-    // misrouting a subsequent VIN write. Fall back to a CRC-less accept
-    // (base+8 first, then base+0) when neither candidate has a valid CRC,
-    // so legacy fixtures without trailing CRCs keep parsing.
+    //
+    // Task #463 — if the canonical 0x5320..0x5380 zone yields zero VINs,
+    // fall back to the alternate 0x1320..0x1380 zone (FCA SINCRO output
+    // for some Charger BCMs uses the same record layout at the lower
+    // base address). Canonical is tried first so a normal LX BCM never
+    // silently picks the alternate zone. `info.vinZone` records which
+    // zone was used so consumers (UI label, writers) can branch on it.
     const crcAt=(off)=>{if(off+19>sz)return null;return(data[off+17]<<8)|data[off+18];};
-    for(const base of BCM_FULL_VIN_BASES_PARSED){
-      const v8=extractVIN(data,base+8);
-      const v0=extractVIN(data,base);
-      const c8=v8?crcAt(base+8):null;
-      const c0=v0?crcAt(base):null;
-      const ok8=v8&&c8!==null&&c8===crc16(data.slice(base+8,base+8+17));
-      const ok0=v0&&c0!==null&&c0===crc16(data.slice(base,base+17));
-      if(ok8){info.vins.push({offset:base+8,vin:v8,slotBase:base,headerBytes:8,crcOk:true});continue;}
-      if(ok0){info.vins.push({offset:base,vin:v0,slotBase:base,headerBytes:0,crcOk:true});continue;}
-      if(v8){info.vins.push({offset:base+8,vin:v8,slotBase:base,headerBytes:8,crcOk:false});continue;}
-      if(v0){info.vins.push({offset:base,vin:v0,slotBase:base,headerBytes:0,crcOk:false});}
+    const scanVinBases=(bases)=>{
+      const vins=[];
+      for(const base of bases){
+        const v8=extractVIN(data,base+8);
+        const v0=extractVIN(data,base);
+        const c8=v8?crcAt(base+8):null;
+        const c0=v0?crcAt(base):null;
+        const ok8=v8&&c8!==null&&c8===crc16(data.slice(base+8,base+8+17));
+        const ok0=v0&&c0!==null&&c0===crc16(data.slice(base,base+17));
+        if(ok8){vins.push({offset:base+8,vin:v8,slotBase:base,headerBytes:8,crcOk:true});continue;}
+        if(ok0){vins.push({offset:base,vin:v0,slotBase:base,headerBytes:0,crcOk:true});continue;}
+        if(v8){vins.push({offset:base+8,vin:v8,slotBase:base,headerBytes:8,crcOk:false});continue;}
+        if(v0){vins.push({offset:base,vin:v0,slotBase:base,headerBytes:0,crcOk:false});}
+      }
+      return vins;
+    };
+    info.vins=scanVinBases(BCM_FULL_VIN_BASES_PARSED);
+    info.vinZone=info.vins.length>0?'canonical':null;
+    if(info.vins.length===0){
+      const altVins=scanVinBases(BCM_FULL_VIN_BASES_ALT_PARSED);
+      if(altVins.length>0){
+        info.vins=altVins;
+        info.vinZone='alt-0x1328';
+      }
     }
     // Partial-VIN scan (Task #452): always include the registered offsets in
     // `BCM_PARTIAL_VIN_OFFSETS` (so a CRC mismatch still surfaces a slot

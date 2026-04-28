@@ -5,6 +5,7 @@ import {
   scanBufferForDonorLeak,
   findBcmPartialVinSlots,
   BCM_FULL_VIN_BASES,
+  BCM_FULL_VIN_BASES_ALT,
   BCM_PARTIAL_VIN_OFFSETS,
   BCM_PARTIAL_VIN_LEN,
   RFH_GEN2_VIN_OFFSETS,
@@ -128,11 +129,21 @@ describe('donorLeakScan — findBcmPartialVinSlots (Task #452 auto-detection)', 
 describe('donorLeakScan — getDocumentedSlotWindows', () => {
   it('covers every documented BCM slot (full + partial)', () => {
     const w = getDocumentedSlotWindows('bcm');
-    // 5 full bases × 2 layouts (base+0, base+8) + 2 partial-VIN offsets
-    expect(w.length).toBe(BCM_FULL_VIN_BASES.length * 2 + BCM_PARTIAL_VIN_OFFSETS.length);
+    // 5 canonical full bases × 2 layouts + 5 alt full bases × 2 layouts +
+    // 2 partial-VIN offsets. Task #463 added the alt 0x1300-zone bases
+    // (FCA SINCRO Charger BCM variant) — every alt base is masked at
+    // both base+0 and base+8 to mirror the canonical zone's defense.
+    expect(w.length).toBe(
+      (BCM_FULL_VIN_BASES.length + BCM_FULL_VIN_BASES_ALT.length) * 2 +
+        BCM_PARTIAL_VIN_OFFSETS.length,
+    );
     for (const base of BCM_FULL_VIN_BASES) {
       expect(w).toContainEqual({ kind: 'bcm-full-base+0', offset: base,     length: VIN_LEN });
       expect(w).toContainEqual({ kind: 'bcm-full-base+8', offset: base + 8, length: VIN_LEN });
+    }
+    for (const base of BCM_FULL_VIN_BASES_ALT) {
+      expect(w).toContainEqual({ kind: 'bcm-full-alt-base+0', offset: base,     length: VIN_LEN });
+      expect(w).toContainEqual({ kind: 'bcm-full-alt-base+8', offset: base + 8, length: VIN_LEN });
     }
     for (const po of BCM_PARTIAL_VIN_OFFSETS) {
       expect(w).toContainEqual({ kind: 'bcm-partial', offset: po, length: 8 });

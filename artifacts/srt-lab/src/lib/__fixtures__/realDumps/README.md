@@ -202,6 +202,40 @@ vehicle (anonymized VIN `2C3CDXL90MH582899`).
   stale; the helper re-stamps them so the byte-equality round-trip
   test passes.
 
+- **`charger-bcm-0x1328/bcm.before.bin` / `charger-bcm-0x1328/bcm.after.bin`** —
+  BCM (64 KB) from
+  `attached_assets/BCM_HERMANADO_CHARGER_BCM_SYNCED_2C3CDXHG5EH219538__1777338759178.bin`,
+  donor VIN `2C3CDXHG5EH219538` → anon `2C3CDXHG5EH600000`. Wired through
+  `extraBcms[1]` (Task #463). This is the first committed fixture for
+  the **alternate 0x1328 VIN-base zone** that some Charger BCMs (FCA
+  SINCRO output, likely an early-LX or smaller-flash MPC5605B-class
+  variant) use instead of the canonical 0x5320..0x5380 zone. Per-record
+  layout is identical to the canonical zone (header @ base, VIN @
+  base+8, BE16 CRC16 @ vinOff+17/+18); only the four populated slot
+  bases shift to 0x1328 / 0x1348 / 0x1368 / 0x1388. The canonical
+  0x5320..0x5380 zone is all 0xFF in this dump — without the alt-zone
+  scan paths added in Task #463, `parseModule` would have returned
+  zero VINs, `looksLikeRealBcm` would have rejected the file as not-
+  a-BCM, and the donor-leak helper would have masked only the (empty)
+  canonical slots.
+
+  `after` = captured synced BCM with split SEC16 records @ 0x81A0/C0/E0
+  populated and inactive-bank (bank0, since `bank1Seq=0x30CE >
+  bank0Seq=0x30CD`) mirror records @ 0x00C0 (slot 0xEB / size 0x18)
+  and 0x00E8 (slot 0xCA / size 0x28) populated. `before` = same buffer
+  with the writer-target bytes erased to 0xFF: split records @
+  0x81A0/C0/E0 (+9..+15 prefix7, +20..+28 suffix9) and inactive-bank
+  mirrors @ 0x00C0 / 0x00E8 (+8..+31). Round-tripped through
+  `anonymize-real-dump.mjs` to scrub the four alt-zone full VINs at
+  0x1328/0x1348/0x1368/0x1388 plus four partial VIN slots auto-detected
+  at 0x0098/0x00B0/0x4098/0x40B0. Asserted byte-for-byte by both the
+  generic `securityBytes.realDump.golden.test.js` suite (which iterates
+  every `extraBcms[]` entry through `writeBcmSec16Gen2`) and the
+  Task #463-specific `bcmAltVinBase.realDump.test.js` (which pins the
+  parser's `info.vinZone === 'alt-0x1328'` tag, the four alt-zone VIN
+  slot offsets, and the writer round-trip with focused mirror/split
+  counters).
+
 - **`rfhubg1.before.bin` / `rfhubg1.after.bin`** — RFHUB **Gen1** (24C16,
   **2 KB** Yazaki FCM EEPROM, anon `2C3CDXCT5EH600003`). Wired in
   Task #449 as the first committed real-bench fixture for the Gen1
