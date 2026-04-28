@@ -22,6 +22,7 @@
 import { parseModule, pcmChipFromSize, pcmChipFromKey, PCM_CHIPS } from './parseModule.js';
 import { writeModuleVIN } from './fileUtils.js';
 import { crc16 } from './crc.js';
+import { formatBcmSec16SourceLabel } from './sec16SourceLabel.js';
 
 const IMMO_BACKUP_SIZE = 24 * 8; // 192 bytes (IMMO_REC × IMMO_KC)
 
@@ -87,12 +88,10 @@ export function formatBcmSec16Provenance(bcmSec16) {
   const offHex = (n) => (n == null
     ? '0x????'
     : '0x' + n.toString(16).toUpperCase().padStart(4, '0'));
-  let label;
-  if (bcmSec16.source === 'split') label = 'split @' + offHex(off);
-  else if (bcmSec16.source === 'mirror1') label = 'mirror1 0xEB @' + offHex(off);
-  else if (bcmSec16.source === 'mirror2') label = 'mirror2 0xCA @' + offHex(off);
-  else if (bcmSec16.source === 'flat') label = 'flat @0x40C9 (legacy)';
-  else label = '(no SEC16 source)';
+  /* Task #471 — defer the source/offset label to the shared helper so
+   * MismatchWizard, KeyProgTab, and ModuleFieldsPanel always render the
+   * exact same string for a given resolver result. */
+  const label = formatBcmSec16SourceLabel(bcmSec16);
   const hex = bcmSec16.bytes
     ? Array.from(bcmSec16.bytes).map(hex2).join(' ')
     : null;

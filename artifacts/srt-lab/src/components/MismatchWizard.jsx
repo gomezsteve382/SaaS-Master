@@ -6,6 +6,7 @@ import {
   loadAdvanced, saveAdvanced,
 } from "../lib/plainEnglish.jsx";
 import { fmtOff } from "../tabs/ModuleSync.jsx";
+import { formatBcmSec16SourceLabel } from "../lib/sec16SourceLabel.js";
 
 /* ============================================================================
  * MismatchWizard — Guided resolution wizard + Claude AI chat panel
@@ -209,28 +210,11 @@ function parseSnippet(s) {
 /* ─── BCM SEC16 provenance label (Task #383) ───────────────────────────────
  * Mirrors the chip rendered by KeyProgTab so operators see the same source
  * (split / mirror1 / mirror2 / flat / blank) wherever the wizard displays
- * BCM SEC16 bytes. `status` is the resolved bcmSec16 record from
- * parseModule (info.bcmSec16): { source, offset, blank, ... }. Returns
- * null when there's no BCM loaded so callers can branch easily. */
-function formatBcmSec16SourceLabel(status) {
-  if (!status) return null;
-  /* NB: this provenance label is a stable cross-component identity string
-   * (also produced by lib/keyProgWizard.js and ModuleFieldsPanel.jsx, and
-   * asserted verbatim by several tests including the `flat @0x40C9
-   * (legacy)` chip). Task #466 deliberately leaves the bare-hex form here
-   * — switching to fmtOff would break parity with those siblings and
-   * their tests. The free-form prose around the wizard does use fmtOff. */
-  const fO = (n) => (n == null
-    ? '0x????'
-    : '0x' + n.toString(16).toUpperCase().padStart(4, '0'));
-  let label;
-  if (status.source === 'split') label = 'split @' + fO(status.offset);
-  else if (status.source === 'mirror1') label = 'mirror1 0xEB @' + fO(status.offset);
-  else if (status.source === 'mirror2') label = 'mirror2 0xCA @' + fO(status.offset);
-  else if (status.source === 'flat') label = 'flat @0x40C9 (legacy)';
-  else label = '(no SEC16 source)';
-  return label;
-}
+ * BCM SEC16 bytes. The label itself is built by the shared helper
+ * `formatBcmSec16SourceLabel` (lib/sec16SourceLabel.js) — Task #471
+ * promoted that formatter into one place so MismatchWizard, KeyProgTab,
+ * and ModuleFieldsPanel can never drift again. The free-form prose around
+ * the wizard still uses fmtOff for non-canonical offsets. */
 
 /* Inline chip badge that surfaces SEC16 provenance next to BCM SEC16 hex
  * rows inside the Mismatch Wizard. Yellow-toned when the BCM looks virgin

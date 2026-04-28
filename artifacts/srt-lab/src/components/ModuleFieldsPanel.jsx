@@ -1,6 +1,7 @@
 import React from "react";
 import {Card,Tag} from "../lib/ui.jsx";
 import {C} from "../lib/constants.js";
+import {formatBcmSec16SourceLabel} from "../lib/sec16SourceLabel.js";
 
 const hxArr=a=>Array.from(a).map(b=>b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
 const fO=n=>"0x"+n.toString(16).toUpperCase().padStart(4,"0");
@@ -356,12 +357,10 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
         const res=mod.bcmSec16;
         const src=res?.source;
         const blank=!!res?.blank;
-        const offLabel=res?.offset!=null?fO(res.offset):'0x40C9';
-        const srcLabel=src==='split'?'split @'+offLabel
-          :src==='mirror1'?'mirror1 0xEB @'+offLabel
-          :src==='mirror2'?'mirror2 0xCA @'+offLabel
-          :src==='flat'?'flat @0x40C9 (legacy)'
-          :'unresolved';
+        /* Task #471 — share the provenance label with MismatchWizard and the
+         * Key Prog wizard via the canonical helper. Falls back to '(no SEC16
+         * source)' when bcmSec16 exists with no recognised source. */
+        const srcLabel=formatBcmSec16SourceLabel(res)||'unresolved';
         const endian=mod.vehicleSecret?.endian||(src==='flat'?'little':'big');
         return <Card style={{marginBottom:14,padding:16}}>
           <div style={{fontSize:13,fontWeight:800,marginBottom:10,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
