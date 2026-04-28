@@ -39,7 +39,7 @@ import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
-import {parseModule, typeFromFilename, moduleTooSmall, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A, pcmChipFromSize} from "./lib/parseModule.js";
+import {parseModule, typeFromFilename, moduleTooSmall, wrongModuleForSlot, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A, pcmChipFromSize} from "./lib/parseModule.js";
 import {analyzeFile} from "./lib/fileUtils.js";
 import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
@@ -959,6 +959,16 @@ function VehicleWorkspace({vehicleId, onBack}){
           }
           // EBML magic was a false positive — fall through to module detect.
         }
+        // Task #484 — wrong-module guard runs FIRST (after the EFD diversion
+        // above). A 64 KB BCM dropped into the PCM slot is the canonical
+        // mistake the slot-aware classifier (#483) misses, since 64 KB isn't
+        // a canonical PCM size so the slot override is a no-op AND
+        // `moduleTooSmall` only rejects undersized files. The wrong-module
+        // guard catches that case (and the symmetric 8 KB-into-BCM and
+        // 2 KB-into-PCM mistakes) with a "looks like a <X>, did you mean the
+        // <X> slot?" message.
+        const wrong = wrongModuleForSlot(x.data, slotType, x.name);
+        if (wrong) { rejected.push({name:x.name, ...wrong}); continue; }
         const t = detectModuleType(x.data, x.name, slotType);
         const small = t ? moduleTooSmall(x.data, t, x.name) : null;
         if (small) rejected.push({name:x.name, ...small});
@@ -1116,6 +1126,13 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
     const accepted = [];
     const rejects = [];
     for (const x of reads) {
+      // Task #484 — wrong-module guard runs FIRST. Catches the 64 KB BCM
+      // accidentally dropped into the PCM slot (and the symmetric 8 KB-into-
+      // BCM, 2 KB-into-PCM cases) that the slot override + moduleTooSmall
+      // both let through. See `loadF` in App.jsx for the matching workspace
+      // entry-point comment.
+      const wrong = wrongModuleForSlot(x.bytes, slotType, x.name);
+      if (wrong) { rejects.push({name: x.name, ...wrong}); continue; }
       const t = detectModuleType(x.bytes, x.name, slotType);
       const small = t ? moduleTooSmall(x.bytes, t, x.name) : null;
       if (small) rejects.push({name: x.name, ...small});
@@ -1363,16 +1380,32 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       />
       {rejected.length>0 && <div style={{marginTop:12,display:'flex',flexDirection:'column',gap:10}}>
         {rejected.map((r,i)=>(
-          <div key={i} data-testid="dumps-too-small-card" style={{padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
-            <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ This isn&apos;t a full {r.type} dump</div>
-            <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts,lineHeight:1.7}}>
-              <div>File: <strong>{r.name}</strong></div>
-              <div>File size: <strong style={{color:C.er}}>{r.size.toLocaleString()} bytes</strong></div>
-              <div>Required min: <strong>{r.min.toLocaleString()} bytes ({r.label})</strong></div>
-              <div>Detected ext: <strong>{r.ext||'(none)'}</strong></div>
+          r.wrongModule ? (
+            /* Task #484 — wrong-module rejection card. Distinct testid + copy
+               from the too-small card so QA can pin down which guard fired
+               and the user gets the "drop it in the right slot" hint. */
+            <div key={i} data-testid="dumps-wrong-module-card" data-detected-type={r.detectedType} data-slot-type={r.slotType} style={{padding:'14px 16px',borderRadius:10,background:'rgba(255,145,0,0.08)',border:'2px solid '+C.wn}}>
+              <div style={{fontWeight:900,fontSize:13,color:C.wn,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⚠ Wrong slot — this looks like a {r.detectedType}, not a {r.slotType}</div>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts,lineHeight:1.7}}>
+                <div>File: <strong>{r.name}</strong></div>
+                <div>File size: <strong style={{color:C.wn}}>{r.size.toLocaleString()} bytes</strong> — canonical for <strong>{r.detectedCandidates.join(' / ')}</strong>, not {r.slotType}</div>
+                <div>Slot family: <strong>{r.slotFamily}</strong> ({r.slotLabel})</div>
+                <div>Detected ext: <strong>{r.ext||'(none)'}</strong></div>
+              </div>
+              <div style={{marginTop:8,fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>Did you mean to drop this into the <strong>{r.detectedType}</strong> slot? The file was not loaded into the workspace — re-upload it through the matching slot to keep the workspace types straight.</div>
             </div>
-            <div style={{marginTop:8,fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>Re-read the {r.type} in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module. The file was not loaded into the workspace.</div>
-          </div>
+          ) : (
+            <div key={i} data-testid="dumps-too-small-card" style={{padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
+              <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ This isn&apos;t a full {r.type} dump</div>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts,lineHeight:1.7}}>
+                <div>File: <strong>{r.name}</strong></div>
+                <div>File size: <strong style={{color:C.er}}>{r.size.toLocaleString()} bytes</strong></div>
+                <div>Required min: <strong>{r.min.toLocaleString()} bytes ({r.label})</strong></div>
+                <div>Detected ext: <strong>{r.ext||'(none)'}</strong></div>
+              </div>
+              <div style={{marginTop:8,fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>Re-read the {r.type} in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module. The file was not loaded into the workspace.</div>
+            </div>
+          )
         ))}
         <button onClick={()=>setRejected([])} style={{alignSelf:'flex-start',padding:'5px 12px',fontSize:10,background:'none',border:'1px solid '+C.bd,borderRadius:8,cursor:'pointer',color:C.ts,fontWeight:700,letterSpacing:1}}>DISMISS</button>
       </div>}

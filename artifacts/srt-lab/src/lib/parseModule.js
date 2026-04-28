@@ -252,6 +252,75 @@ function bcmTooSmall(bytes,filename){
   return{tooSmall:true,size:sz,min:BCM_MIN_SIZE,ext:fileExt(filename)};
 }
 
+// Slot label → canonical module-family key. Mirrors the slot-override map in
+// `fileUtils.js#analyzeFile` so the wrong-module guard and the slot-aware
+// classifier resolve the same family for a given slot label. PCM is the
+// human-friendly slot name; the underlying family is GPEC2A (4 KB / 8 KB
+// Continental EXT EEPROM) — a 95640 BCM-backup chip would never be uploaded
+// through the PCM slot, so the two families do NOT collide here.
+const SLOT_TO_FAMILY={PCM:'GPEC2A',GPEC2A:'GPEC2A',BCM:'BCM',RFHUB:'RFHUB','95640':'95640'};
+
+// Task #484 — wrong-module guard. The slot-aware classifier added in #483
+// only flips the type when the buffer size is canonical for the slot's
+// family (e.g. 4 KB / 8 KB into the PCM slot). A 64 KB BCM dropped into
+// the PCM slot bypassed the slot override (64 KB isn't a canonical PCM
+// size) AND the size guard (`moduleTooSmall` only rejects undersized
+// files), so the file silently landed in workspace state typed as a BCM.
+//
+// This guard fires when:
+//   1. The slot label resolves to a known module family.
+//   2. The buffer size does NOT match any canonical size for that family.
+//   3. The buffer size DOES match a canonical size for some OTHER family.
+//
+// Returns a structured rejection that the upload card renders with a
+// "this looks like a <X>, did you mean to drop it in the <X> slot?"
+// message — surfaced BEFORE the file is added to workspace state.
+//
+// Cross-checked cases (covered by upload-time tests):
+//   - 64 KB BCM dropped into the PCM slot → detected as BCM
+//   - 64 KB BCM dropped into the RFHUB slot → detected as BCM
+//   - 8 KB 95640/GPEC2A dropped into the BCM slot → detected as 95640 (8 KB
+//     also matches GPEC2A canonically; we list both candidates)
+//   - 2 KB Gen1 RFHUB dropped into the PCM slot → detected as RFHUB
+//
+// The guard is paired with `moduleTooSmall` at the call sites — wrong-module
+// runs first so the user gets the more informative message; truly undersized
+// or unknown-size buffers fall through to the existing too-small card.
+function wrongModuleForSlot(bytes,slotType,filename){
+  if(!slotType||!bytes)return null;
+  const slotFamily=SLOT_TO_FAMILY[slotType];
+  if(!slotFamily)return null;
+  const sz=bytes.length;
+  const slotCanonical=CANONICAL_SIZES_BY_TYPE[slotFamily];
+  // Size matches the slot's family — not a wrong-module mistake.
+  if(slotCanonical&&slotCanonical.includes(sz))return null;
+  // Find every other family this exact size canonically matches.
+  const candidates=[];
+  for(const type of Object.keys(CANONICAL_SIZES_BY_TYPE)){
+    if(type===slotFamily)continue;
+    if(CANONICAL_SIZES_BY_TYPE[type].includes(sz))candidates.push(type);
+  }
+  if(candidates.length===0)return null;
+  // Pick the first candidate as the primary "this looks like…" hint.
+  // Object.keys preserves insertion order: BCM, 95640, GPEC2A, RFHUB —
+  // which gives the most distinctive family priority (e.g. 8 KB into
+  // BCM slot surfaces as 95640 first, even though GPEC2A also matches
+  // 8 KB canonically).
+  const detected=candidates[0];
+  return{
+    wrongModule:true,
+    slotType,
+    slotFamily,
+    detectedType:detected,
+    detectedCandidates:candidates,
+    size:sz,
+    ext:fileExt(filename),
+    slotLabel:MODULE_MIN_LABELS[slotFamily]||slotFamily,
+    detectedLabel:MODULE_MIN_LABELS[detected]||detected,
+    message:'This '+sz.toLocaleString()+'-byte file looks like a '+detected+' dump, not a '+slotType+'. Did you mean to upload it to the '+detected+' slot?',
+  };
+}
+
 // Slot-aware module type detection used by every workspace upload entry
 // point (DumpsTabV2 slot uploads + the shared `loadF` that backs the
 // Samples Library and any future tab). Slot context wins, then explicit
@@ -842,7 +911,7 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,wrongModuleForSlot,SLOT_TO_FAMILY,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,
   // Canonical VIN slot tables (single source of truth shared with
   // scripts/anonymize-real-dump.mjs — see the block-comment at the top
   // of this file for the per-family explanation). PCM_VIN_OFFSETS_GPEC2A
