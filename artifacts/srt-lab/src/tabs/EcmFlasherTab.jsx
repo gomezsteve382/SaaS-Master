@@ -259,8 +259,14 @@ export default function EcmFlasherTab({selectedFile, files = [], onSelectFile}){
     addLog({t: Date.now(), level: 'warn', msg: 'Stop requested · flasher will attempt clean 0x37 transfer exit'});
   }, [addLog]);
 
+  // Resume is offered for any non-success result that left a usable
+  // nextChunk affordance — both user-initiated aborts AND transfer-phase
+  // NRC failures (e.g. 0x36 negative response mid-flash). The state
+  // machine seeds result.nextChunk for both cases, so we just gate on
+  // "not ok and there is a next chunk to resume from".
+  const canResume = !!(result && !result.ok && (result.nextChunk | 0) > 0);
   const resumeFlash = useCallback(() => {
-    if (!result || !result.aborted) return;
+    if (!canResume) return;
     const next = result.nextChunk || 0;
     setResumeFromChunk(next);
     addLog({t: Date.now(), level: 'info', msg: `Resuming from chunk #${next}`});
@@ -444,7 +450,7 @@ export default function EcmFlasherTab({selectedFile, files = [], onSelectFile}){
                 {running ? 'FLASHING...' : 'FLASH ECM'}
               </Btn>
               {running && <Btn data-testid="flasher-stop" outline color={C.wn} onClick={stopFlash}>STOP</Btn>}
-              {!running && result && result.aborted && (
+              {!running && canResume && (
                 <Btn data-testid="flasher-resume" color={C.a3} onClick={resumeFlash}>RESUME FROM #{result.nextChunk}</Btn>
               )}
             </div>
