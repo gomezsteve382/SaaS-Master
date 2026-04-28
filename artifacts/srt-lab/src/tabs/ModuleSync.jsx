@@ -234,6 +234,46 @@ export function engParseBcm(bytes, filename) {
     findMirrorsInBank(0x4000, 0xCA, 0x28, 'mirror2');
   }
 
+  /* Legacy mirror format (older 2014-era BCM family — e.g. 68396563AC on a
+   * 2014 LX Charger). These BCMs predate the gen2-split layout and put two
+   * SEC16 mirror records at fixed early-flash offsets 0x00C8 and 0x00F0,
+   * BEFORE the bank header — none of the bank-scan signatures above will
+   * find them. The wizard previously reported "Security token issues
+   * detected" on this family because the gen2-split mirror scan came back
+   * empty even though both mirrors validate cleanly.
+   *
+   * Per-record layout (22 bytes, with the next mirror 0x28 bytes later):
+   *   +0       idx (1 byte)
+   *   +1..+16  SEC16 (16 bytes)
+   *   +17      tag 0x8F
+   *   +18..+19 padding 0xFF 0xFF
+   *   +20..+21 stored CRC-16/CCITT (big-endian) over the first 20 bytes
+   *
+   * We only push when the 0x8F/0xFF/0xFF tail matches AND the CRC validates,
+   * so all-zero or all-0xFF early flash never produces spurious mirrors. */
+  const findLegacyMirror = (off) => {
+    if (off + 22 > bytes.length) return;
+    if (bytes[off + 17] !== 0x8F || bytes[off + 18] !== 0xFF || bytes[off + 19] !== 0xFF) return;
+    const idx = bytes[off];
+    const sec16 = bytes.slice(off + 1, off + 17);
+    const allZero = sec16.every(b => b === 0x00);
+    const allFf   = sec16.every(b => b === 0xFF);
+    const storedCrc = (bytes[off + 20] << 8) | bytes[off + 21];
+    const crcInput = new Uint8Array(20);
+    crcInput[0] = idx;
+    for (let k = 0; k < 16; k++) crcInput[1 + k] = sec16[k];
+    crcInput[17] = 0x8F; crcInput[18] = 0xFF; crcInput[19] = 0xFF;
+    const computedCrc = engCrc16(crcInput);
+    if (computedCrc !== storedCrc) return;
+    r.sec16Mirrors.push({
+      offset: off, kind: 'mirror_legacy', slotType: null, sizeByte: null, idx, sec16,
+      populated: !allZero && !allFf, allZero, allFf,
+      storedCrc, computedCrc, crcOk: true, bank: 'bank0',
+    });
+  };
+  findLegacyMirror(0x00C8);
+  findLegacyMirror(0x00F0);
+
   /* Active / inactive banks */
   if (bytes.length >= 0x8000) {
     const bank0Seq = (bytes[0x0002] << 8) | bytes[0x0003];
