@@ -1497,6 +1497,64 @@ if __name__ == "__main__":
         ('venom_pcm', unlock_venom_pcm, [
             (1, 0x0705), (2, 0xDF65), (3, 0x0707), (4, 0xDF63), (5, 0x0701),
         ]),
+        # ── Task #547: vectors for the 10 ports added in Task #539. Generated
+        # by running the verified Python ports themselves on a fixed seed
+        # set; the lear_wcm row leads with the DLL's own self-test vector
+        # (0xF5377B24, 0xF5377B4B) → 0x57D0B3AC for an extra anchor.
+        ('sas', unlock_sas, [
+            (0x12345678, 0x94645CFC), (0xDEADBEEF, 0xA6187EBA), (0x00000001, 0x94000080),
+            (0x80000000, 0x80000064), (0xFFFFFFFF, 0xAE1818AE), (0xCAFEBABE, 0x845496B8),
+            (0xA5A5A5A5, 0x94301084), (0x5A5A5A5A, 0x84103094),
+        ]),
+        ('hidt', unlock_hidt, [
+            (0x12345678, 0x123387A4), (0xDEADBEEF, 0xDEAD3F54), (0x00000001, 0x0000AEF2),
+            (0x80000000, 0x80002BE9), (0xFFFFFFFF, 0xFFFFC9C3), (0xCAFEBABE, 0xCAFE54C7),
+            (0xA5A5A5A5, 0xA5A51B7A), (0x5A5A5A5A, 0x5A595026),
+        ]),
+        ('cvt', unlock_cvt, [
+            (0x12345678, 0x1D4E1135), (0xDEADBEEF, 0xD98D1E3F), (0x00000001, 0x0001445C),
+            (0x80000000, 0x000002E5), (0xFFFFFFFF, 0x9E57DDD5), (0xCAFEBABE, 0xB50A11C2),
+            (0xA5A5A5A5, 0x3CE4EF86), (0x5A5A5A5A, 0x33770A61),
+        ]),
+        ('peiker_hfm', unlock_peiker_hfm, [
+            (0x12345678, 0x1234DB93), (0xDEADBEEF, 0xDEADC33F), (0x00000001, 0x0000630E),
+            (0x80000000, 0x8000630F), (0xFFFFFFFF, 0xFFFF822F), (0xCAFEBABE, 0xCAFE143A),
+            (0xA5A5A5A5, 0xA5A522C7), (0x5A5A5A5A, 0x5A5A67EE),
+        ]),
+        ('visteon_amp', unlock_visteon_amp, [
+            (0x1234, 0x4379), (0xABCD, 0x1A1F), (0x0001, 0xB74C), (0x8000, 0x1DF2),
+            (0xFFFF, 0x7219), (0x5A5A, 0xF580), (0xDEAD, 0x05F2), (0xBEEF, 0x121A),
+        ]),
+        ('kicker_amp', unlock_kicker_amp, [
+            (0x1234, 0x8A61), (0xABCD, 0xA8A3), (0x0001, 0xA693), (0x8000, 0xE136),
+            (0xFFFF, 0x6266), (0x5A5A, 0xE7CD), (0xDEAD, 0xDF9B), (0xBEEF, 0x7776),
+        ]),
+        ('edc16c2', unlock_edc16c2, [
+            (0x12345678, 0x17F75F77), (0xDEADBEEF, 0x0FAA43CC), (0x00000001, 0xEDA32966),
+            (0x80000000, 0x3DB379F7), (0xFFFFFFFF, 0xD274CEF8), (0xCAFEBABE, 0xCB09E70D),
+            (0xA5A5A5A5, 0x708EE49A), (0x5A5A5A5A, 0x2FC9F315),
+        ]),
+        ('edc16cp31', unlock_edc16cp31, [
+            (0x12345678, 0x58538CFB), (0xDEADBEEF, 0xC11E5EB7), (0x00000001, 0xD60C0ED5),
+            (0x80000000, 0x0C371779), (0xFFFFFFFF, 0x2E8EE43E), (0xCAFEBABE, 0xBFC352B5),
+            (0xA5A5A5A5, 0x1AADA571), (0x5A5A5A5A, 0xD8B3C1AA),
+        ]),
+        ('edc16u31', unlock_edc16u31, [
+            (0x12345678, 0xFDDDE169), (0xDEADBEEF, 0xCDF8AD2A), (0x00000001, 0x5F71E798),
+            (0x80000000, 0xCF811729), (0xFFFFFFFF, 0xB0D698FE), (0xCAFEBABE, 0xA97B19CB),
+            (0xA5A5A5A5, 0x727C9A94), (0x5A5A5A5A, 0x0D1B6563),
+        ]),
+        # lear_wcm is 2-arg: each entry is ((seed1, seed2), expected_key).
+        ('lear_wcm', unlock_lear_wcm, [
+            ((0xF5377B24, 0xF5377B4B), 0x57D0B3AC),  # DLL self-test vector
+            ((0x00000000, 0x00000000), 0xDC34965C),
+            ((0x12345678, 0xDEADBEEF), 0x251E7C63),
+            ((0xFFFFFFFF, 0xFFFFFFFF), 0x7E62DA3E),
+            ((0xCAFEBABE, 0xA5A5A5A5), 0x55B8152C),
+            ((0x11223344, 0x55667788), 0x7ADA9D48),
+            ((0xAABBCCDD, 0xEEFF0011), 0x7FB59580),
+            ((0x80000000, 0x00000001), 0x6371758E),
+        ]),
     ]
 
     print("CANFLASH seed-key algorithms — self-test")
@@ -1506,7 +1564,12 @@ if __name__ == "__main__":
     total_pass = 0
     total = 0
     for name, fn, tvs in TEST_SUITE:
-        passed = sum(1 for s, k in tvs if fn(s) == k)
+        # tvs entries are (seed, expected) for 1-arg ports or
+        # ((seed1, seed2), expected) for the 2-arg lear_wcm port.
+        passed = sum(
+            1 for s, k in tvs
+            if (fn(*s) if isinstance(s, tuple) else fn(s)) == k
+        )
         total_pass += passed
         total += len(tvs)
         status = "✓" if passed == len(tvs) else "✗"
