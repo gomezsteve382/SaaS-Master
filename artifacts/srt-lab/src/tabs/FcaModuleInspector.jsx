@@ -57,6 +57,7 @@ import { Card, Btn, Tag, SLine } from "../lib/ui.jsx";
 import { parseModule, moduleTooSmall, detectModuleType } from "../lib/parseModule.js";
 import { MasterVinContext } from "../lib/masterVinContext.jsx";
 import { analyzeFile, patchFile } from "../lib/fileUtils.js";
+import { ContentWarnBanner } from "../components/ModuleFieldsPanel.jsx";
 
 // Module types the inspector cares about. Other types loaded into the
 // workspace (e.g. '95640' EEPROM backups, EFD payloads, C-Flash blobs)
@@ -429,6 +430,29 @@ export default function FcaModuleInspector() {
         fontFamily: "'Nunito'", letterSpacing: 0.5,
       }}>Clear All</button>
     </div>}
+
+    {/* Task #527 — content-warn banner for size-only auto-detects.
+        parseModule() classifies any 64 KB / 128 KB capture as BCM purely
+        on size. If the file has no BCM-defining content (no VINs at the
+        canonical 0x5320..0x5380 slots, no immo records at 0x40C0 / 0x2000,
+        no partial VINs at 0x4098 / 0x40B0) it populates `mod.contentWarn`
+        — i.e. the file is almost certainly a padded GPEC2A / 95640 capture
+        that collided with the BCM size, not a real BCM dump. The Module
+        Inspector has no slot context (it accepts any `.bin`) so it can't
+        use `wrongModuleForSlot`, but it shares the same failure mode:
+        without this banner the BCM panel would silently render garbage
+        VIN / IMMO / lock fields off random padding bytes. Surfacing the
+        same `ContentWarnBanner` the BCM tab uses tells the tech "this
+        64 KB file has no BCM VINs / immo records — it may not actually
+        be a BCM dump" before they trust any of the per-module output. */}
+    {modules.filter(m => m.contentWarn).map((m, i) => (
+      <div key={"cw-" + i} data-testid="inspector-content-warn">
+        <div style={{ fontSize: 11, color: C.tm, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>
+          {m.filename}
+        </div>
+        <ContentWarnBanner warn={m.contentWarn} />
+      </div>
+    ))}
 
     {/* OVERVIEW TAB */}
     {tab === "overview" && val && <div>

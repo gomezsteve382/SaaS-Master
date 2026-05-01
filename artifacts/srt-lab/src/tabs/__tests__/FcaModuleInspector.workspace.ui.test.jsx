@@ -185,6 +185,63 @@ async function loadFixtureInto(input, name, bytes, expectedModuleName) {
       }
     );
 
+    // Task #527 — a 64 KB capture that is NOT actually a BCM (no VINs at
+    // the canonical 0x5320..0x5380 slots, no immo records at 0x40C0 /
+    // 0x2000, no partial VINs at 0x4098 / 0x40B0) gets auto-detected as
+    // BCM purely on size. Without surfacing parseModule's contentWarn the
+    // inspector would silently render garbage VIN / IMMO / lock fields
+    // off random padding bytes. This test pins the UI contract: the
+    // inspector still parses the file (so existing diff / hex flows keep
+    // working) but renders the same `ContentWarnBanner` the BCM tab uses
+    // so the tech sees a "doesn't look like a BCM" hint before trusting
+    // any of the BCM-panel output.
+    it('64 KB blank/padded buffer renders the ContentWarnBanner before BCM-panel output', async () => {
+      render(<App/>);
+      const input = await openInspectorTab();
+      // 64 KB of 0xFF — same shape as a padded GPEC2A or 95640 capture
+      // that collided with the BCM size. Hits the BCM branch in
+      // parseModule (`sz===65536` → type='BCM') but populates
+      // `mod.contentWarn` because none of the BCM-defining structures
+      // are present.
+      const blank = new Uint8Array(65536).fill(0xff);
+      const file = bufferFile('padded.bin', blank);
+      await act(async () => {
+        fireEvent.change(input, { target: { files: [file] } });
+      });
+      // The module tile still appears (the file is still parsed) — the
+      // contract is "warn, don't reject".
+      await waitFor(() => expect(screen.getByText('BCM DFLASH')).toBeTruthy());
+      // The banner rendered by ContentWarnBanner carries the "DOESN'T
+      // LOOK LIKE A BCM" heading and names the file size in bytes.
+      const banner = await screen.findByTestId('inspector-content-warn');
+      expect(banner).toBeTruthy();
+      expect(within(banner).getByText(/DOESN'T LOOK LIKE A BCM/)).toBeTruthy();
+      // "65,536" appears in both the heading line and the body copy of
+      // the banner, so use getAllByText and assert at least one hit.
+      expect(within(banner).getAllByText(/65,536/).length).toBeGreaterThan(0);
+      expect(within(banner).getByText('padded.bin')).toBeTruthy();
+    });
+
+    // Task #527 — companion negative case: a real BCM dump must NOT
+    // show the content-warn banner. Pins that the warning is gated on
+    // parseModule's `contentWarn` (populated only when the BCM-defining
+    // structures are blank), not on file size or filename alone.
+    (fixtures.bcm ? it : it.skip)(
+      'real BCM fixture does NOT render the ContentWarnBanner',
+      async () => {
+        render(<App/>);
+        const input = await openInspectorTab();
+        await loadFixtureInto(
+          input,
+          'bcm.after.bin',
+          fixtures.bcm.after,
+          'BCM DFLASH',
+        );
+        expect(screen.queryByTestId('inspector-content-warn')).toBeNull();
+        expect(screen.queryByText(/DOESN'T LOOK LIKE A BCM/)).toBeNull();
+      }
+    );
+
     // Task #519 — undersized fragment is rejected with the structured
     // size-warn card instead of being silently parsed as an RFHUB. The
     // pre-#519 detector silently labeled anything 1..8192 B (except
