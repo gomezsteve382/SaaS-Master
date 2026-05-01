@@ -13,13 +13,21 @@ import React, {createContext, useContext, useState, useCallback, useMemo} from '
      updateStatus    — convenience: updateStatus('BCM','ok')
      setPg           — navigate to a different tab id from a tab
      resetStatus     — reset all four modules back to 'pending'
-     loadedDumps     — array of {hash,type,name,filename,size,mod,addedAt}
+     loadedDumps     — array of {hash,type,name,filename,size,mod,addedAt,source}
                        parsed dumps the user has loaded; survives tab switches.
-                       Keyed (de-duped) by file content hash.
-     addDump         — addDump(parsedMod) → returns the canonical entry (existing
-                       if duplicate). parsedMod must come from parseModule().
+                       Keyed (de-duped) by file content hash. `source` is a
+                       short, human-readable provenance label (e.g. "Dumps tab",
+                       "Samples", "Inspector", "BCM tab") so each tab can render
+                       a "loaded from …" chip and users can tell at a glance
+                       why a dump they didn't drop themselves is showing up
+                       (Task #531). Older callers that pass no source still
+                       work; entries without one render no chip.
+     addDump         — addDump(parsedMod, source?) → returns the canonical entry
+                       (existing if duplicate, leaving its original source
+                       intact). parsedMod must come from parseModule().
      replaceDump     — replaceDump(hash, parsedMod) swap an existing entry
-                       (e.g. after IMMO sync) preserving its slot.
+                       (e.g. after IMMO sync) preserving its slot AND its
+                       original source label.
      removeDump      — removeDump(hash) drop a single dump.
      clearDumps      — drop every loaded dump.
      getDumpsByType  — getDumpsByType('BCM') → array filtered by module type.
@@ -76,12 +84,17 @@ export function MasterVinProvider({setPg,children}){
     setModuleStatus({BCM:'pending',RFHUB:'pending',ECM:'pending',ADCM:'pending'});
   },[]);
 
-  const addDump=useCallback(parsed=>{
+  const addDump=useCallback((parsed,source)=>{
     if(!parsed||!parsed.data)return null;
     const hash=hashBytes(parsed.data);
     let canonical=null;
     setLoadedDumps(p=>{
       const existing=p.find(d=>d.hash===hash);
+      // Re-loading the same bytes from a different tab keeps the original
+      // provenance: whichever tab actually first put the file into the
+      // workspace is the one the chip should advertise. Otherwise a tech
+      // who drops a file in the Dumps tab and then opens the Inspector
+      // (which auto-shares it) would see the chip flip to "Inspector".
       if(existing){canonical=existing;return p;}
       canonical={
         hash,
@@ -91,6 +104,7 @@ export function MasterVinProvider({setPg,children}){
         size:parsed.size,
         mod:parsed,
         addedAt:Date.now(),
+        source:typeof source==='string'&&source?source:null,
       };
       return [...p,canonical];
     });
@@ -116,12 +130,16 @@ export function MasterVinProvider({setPg,children}){
         size:parsed.size,
         mod:parsed,
         addedAt:target.addedAt,
+        source:target.source||null,
       };
       canonical=replacement;
       if(collision){
         return p.flatMap(d=>{
           if(d.hash===hash)return [];
-          if(d.hash===newHash){canonical={...replacement,addedAt:d.addedAt};return [canonical];}
+          // Collision: keep the older slot's metadata (addedAt + source)
+          // so the chip the user sees doesn't flip just because the new
+          // bytes happened to match an existing entry.
+          if(d.hash===newHash){canonical={...replacement,addedAt:d.addedAt,source:d.source||target.source||null};return [canonical];}
           return [d];
         });
       }

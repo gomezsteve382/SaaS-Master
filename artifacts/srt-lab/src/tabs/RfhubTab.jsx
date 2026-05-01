@@ -292,7 +292,7 @@ export default function RfhubTab({vehicle}){
       setInspectTooSmall(null);
       const m=parseModule(bytes,file.name);
       if(m.type!=='RFHUB'){setInspectMsg('Selected file is '+m.type+', not RFHUB — load a 4 KB RFHUB EEE dump.');return;}
-      const entry=addDump(m);
+      const entry=addDump(m,'RFHUB tab');
       if(entry)setInspectHash(entry.hash);
       setInspectMsg('');
     };
@@ -453,6 +453,10 @@ export default function RfhubTab({vehicle}){
         </select>}
         {inspectMod&&<>
           <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.ts}}>{inspectMod.filename} · {(inspectMod.size/1024).toFixed(1)} KB</span>
+          {/* Provenance chip — Task #531. The shared workspace store
+              now feeds this inspector from any tab that loaded an
+              RFHUB dump; tell the user where it came from. */}
+          {inspectEntry?.source&&<span data-testid="rfhub-source-chip" style={{fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:6,background:C.c2,color:C.ts,border:'1px solid '+C.bd,letterSpacing:0.5,textTransform:'uppercase'}}>Loaded from {inspectEntry.source}</span>}
           <button onClick={closeInspect} style={{border:'none',background:'transparent',color:C.tm,cursor:'pointer',fontSize:14}} title="Remove from workspace">✕</button>
         </>}
       </div>

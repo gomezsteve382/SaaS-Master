@@ -34,7 +34,7 @@ function Gpec2aTab(){
       if(small){setTooSmall(small);setMsg('');return;}
       setTooSmall(null);
       const m=parseModule(d,fi.name,{forceType:'GPEC2A'});
-      const entry=addDump(m);
+      const entry=addDump(m,'GPEC2A tab');
       if(entry){if(slot===1)setHash1(entry.hash);else setHash2(entry.hash);}
       setMsg('');
     };
@@ -85,12 +85,18 @@ function Gpec2aTab(){
         <div style={{fontSize:28}}>📂</div>
         <div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:4}}>Load GPEC2A File 1</div>
         {f&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a2,marginTop:4}}>{f.filename}</div>}
+        {/* Provenance chip — Task #531. The same workspace store now feeds
+            this slot from anywhere a GPEC2A dump was loaded; tell the
+            user where it came from so an "I didn't drop that here" file
+            isn't a mystery. */}
+        {f&&entry1?.source&&<div data-testid="gpec2a-source-chip-1" style={{display:'inline-block',marginTop:6,fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:6,background:C.c2,color:C.ts,border:'1px solid '+C.bd,letterSpacing:0.5,textTransform:'uppercase'}}>Loaded from {entry1.source}</div>}
         <input type="file" hidden onChange={e=>load(e,1)} accept=".bin,.BIN"/>
       </Card></label>
       <label style={{cursor:'pointer'}}><Card style={{textAlign:'center',padding:18}}>
         <div style={{fontSize:28}}>📂</div>
         <div style={{fontSize:12,fontWeight:800,color:C.ts,marginTop:4}}>Load File 2 (for diff)</div>
         {f2&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.a2,marginTop:4}}>{f2.filename}</div>}
+        {f2&&entry2?.source&&<div data-testid="gpec2a-source-chip-2" style={{display:'inline-block',marginTop:6,fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:6,background:C.c2,color:C.ts,border:'1px solid '+C.bd,letterSpacing:0.5,textTransform:'uppercase'}}>Loaded from {entry2.source}</div>}
         <input type="file" hidden onChange={e=>load(e,2)} accept=".bin,.BIN"/>
       </Card></label>
     </div>

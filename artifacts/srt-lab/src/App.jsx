@@ -942,7 +942,15 @@ function VehicleWorkspace({vehicleId, onBack}){
   // Returns a Promise resolving to `{acceptedFiles, rejected}` so callers
   // (e.g. the Samples Library `onPreview` wrapper) can surface the same
   // structured "this isn't a full <module> dump" feedback inline.
-  const loadF = useCallback((fl, slotType) => {
+  // `source` is a short, human-readable provenance label (e.g. "Dumps tab",
+  // "Samples", "BCM tab") that gets attached to every workspace dump
+  // recorded by addDump below. The Inspector and the per-module tabs
+  // render it as a "loaded from …" chip so users can tell at a glance
+  // why a file they didn't drop themselves is showing up (Task #531).
+  // Defaults to "Dumps tab" because every existing caller (the per-vehicle
+  // DumpsTabV2 gatedLoadF) is the Dumps tab; the Samples Library wrapper
+  // overrides it to "Samples".
+  const loadF = useCallback((fl, slotType, source = 'Dumps tab') => {
     const fileList = Array.from(fl||[]);
     if (fileList.length === 0) return Promise.resolve({acceptedFiles:[], rejected:[]});
     return Promise.all(fileList.map(f=>new Promise(r=>{
@@ -994,7 +1002,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         setFiles(p=>[...p,...analyzed]);
         accepted.forEach(x=>{
           const parsed=parseModule(x.data,x.name);
-          if(parsed&&parsed.type&&parsed.type.toUpperCase()!=='UNKNOWN')addDump(parsed);
+          if(parsed&&parsed.type&&parsed.type.toUpperCase()!=='UNKNOWN')addDump(parsed,source);
         });
       }
       return {acceptedFiles: accepted.map(x=>x.file), rejected};
@@ -1067,7 +1075,7 @@ function VehicleWorkspace({vehicleId, onBack}){
           // tabs when the fixture actually made it into the workspace —
           // otherwise stay on the Samples Library so the user sees the
           // structured rejection feedback inline.
-          const result = await loadF([file]);
+          const result = await loadF([file], undefined, 'Samples');
           if (result.rejected && result.rejected.length) return result;
           setTab(targetTab || 'dumps');
           return result;

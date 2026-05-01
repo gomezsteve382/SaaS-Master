@@ -321,7 +321,7 @@ export default function BcmTab({vehicle}){
       setInspectTooSmall(null);
       const m=parseModule(bytes,file.name);
       if(m.type!=='BCM'){setInspectMsg('Selected file is '+m.type+', not BCM — load a 64 KB or 128 KB BCM dump.');setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);return;}
-      const entry=addDump(m);
+      const entry=addDump(m,'BCM tab');
       if(entry)setInspectHash(entry.hash);
       setInspectMsg('');
       // Auto-detect matching generation and highlight in the vehicle banner
@@ -507,6 +507,10 @@ export default function BcmTab({vehicle}){
         </select>}
         {inspectMod&&<>
           <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.ts}}>{inspectMod.filename} · {(inspectMod.size/1024).toFixed(0)} KB</span>
+          {/* Provenance chip — Task #531. The shared workspace store
+              now feeds this inspector from any tab that loaded a BCM
+              dump; tell the user where it came from. */}
+          {inspectEntry?.source&&<span data-testid="bcm-source-chip" style={{fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:6,background:C.c2,color:C.ts,border:'1px solid '+C.bd,letterSpacing:0.5,textTransform:'uppercase'}}>Loaded from {inspectEntry.source}</span>}
           <button onClick={closeInspect} style={{border:'none',background:'transparent',color:C.tm,cursor:'pointer',fontSize:14}} title="Remove from workspace">✕</button>
         </>}
       </div>
