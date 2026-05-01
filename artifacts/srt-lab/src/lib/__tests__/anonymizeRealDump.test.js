@@ -151,6 +151,19 @@ const MIN_SLOTS = { bcm: 4 + 2 /* full + partial */, rfhub: 4, rfhubg1: 1, pcm: 
         describe.skip(`${label} (${moduleType}) — manifest missing anonVin, skipping`, () => {});
         continue;
       }
+      // Task #491 — VIN-write-test fixtures (see loader.js docstring)
+      // intentionally hold a DIFFERENT 17-char VIN in `after.bin` than
+      // in `before.bin` (the after represents the post-SINCRO state).
+      // The anon→other→anon round-trip would byte-rewrite the after's
+      // full-VIN slots back to the before's VIN, producing a non-byte-
+      // equal result by design — so the manifest opts the entry out
+      // explicitly via `skipAnonymizationRoundTrip`. The realDumps
+      // anonymization sanity scan still covers the entry and pins
+      // both halves' slot VINs against `anonVin` / `anonVinAfter`.
+      if (entry.skipAnonymizationRoundTrip) {
+        describe.skip(`${label} (${moduleType}) — opted out of round-trip via skipAnonymizationRoundTrip (VIN-write fixture)`, () => {});
+        continue;
+      }
 
       describe(`${label} (${moduleType})`, () => {
         it(`re-anonymizes ${label}.after.bin to a different stand-in without leaking the original VIN`, () => {

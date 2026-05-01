@@ -109,7 +109,9 @@ function expectBytesEqual(actual, expected, label) {
         return;
       }
       extraBcms.forEach((pair, idx) => {
-        it(`extraBcm[${idx}]: round-trips byte-for-byte`, () => {
+        const skip = pair.skipSec16RoundTrip;
+        const itFn = skip ? it.skip : it;
+        itFn(`extraBcm[${idx}]: round-trips byte-for-byte` + (skip ? ' (skipped: skipSec16RoundTrip — VIN-write fixture)' : ''), () => {
           const r = writeBcmSec16Gen2(pair.before, pair.rfhSec16);
           expectBytesEqual(r.bytes, pair.after, `BCM[${idx}]`);
           expect(

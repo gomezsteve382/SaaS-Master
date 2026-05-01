@@ -25,6 +25,7 @@ export const ASSET_IDS = {
   securityKeySync:  "security-key-sync",    // SecurityTab — Sync key between modules
   immoRfhPatched:   "immo-rfh-patched",     // ImmoVINTab — RFHUB VIN apply
   immoGpecPatched:  "immo-gpec-patched",    // ImmoVINTab — GPEC2A VIN/key apply
+  immoBcmPatched:   "immo-bcm-patched",     // ImmoVINTab — BCM (MPC560XB) VIN/SEC16 apply
   gpec2aSkim:       "gpec2a-skim-toggled",  // Gpec2aTab — SKIM toggle download
   twinPaired:       "twin-paired",          // TwinTab — paired BCM/RFH/PCM files
   modSyncPatched:   "modsync-patched-bin", // ModuleSync — synced BCM or RFH bin download

@@ -65,6 +65,28 @@ function loadPair(entry, fallbackSec16) {
       // global hardcoded forbidden-donor list).
       anonVin:  typeof entry.anonVin  === 'string' && entry.anonVin.length  === 17 ? entry.anonVin  : null,
       donorVin: typeof entry.donorVin === 'string' && entry.donorVin.length === 17 ? entry.donorVin : null,
+      // Optional VIN-write-test extensions (Task #491). When the
+      // before/after pair represents an OG → SINCRO-EDIT VIN swap, the
+      // `after.bin` half necessarily holds a DIFFERENT 17-char VIN
+      // than `before.bin` at every full-VIN slot. The realDumps
+      // anonymization sanity scan then needs a per-half override
+      // (`anonVinAfter`) so check #3 (slot VIN == manifest anonVin)
+      // continues to fire on the right VIN string for each half, and
+      // the anonymizeRealDump round-trip test must skip the entry
+      // (`skipAnonymizationRoundTrip: true`) because the round-trip
+      // would byte-rewrite the after's full-VIN slots to the
+      // before's VIN, producing a non-byte-equal result by design.
+      anonVinAfter: typeof entry.anonVinAfter === 'string' && entry.anonVinAfter.length === 17 ? entry.anonVinAfter : null,
+      skipAnonymizationRoundTrip: entry.skipAnonymizationRoundTrip === true,
+      // Optional SEC16 golden round-trip skip (Task #491). VIN-write
+      // fixtures (where after.bin re-stamps the VIN slots, not the
+      // SEC16 records) cannot satisfy
+      // `writeBcmSec16Gen2(before, rfhSec16) == after` byte-for-byte
+      // because the SEC16 writer leaves VIN bytes untouched. Setting
+      // this flag opts the entry out of the
+      // securityBytes.realDump.golden suite so the VIN-write fixture
+      // can coexist with the SEC16-only fixtures in extraBcms[].
+      skipSec16RoundTrip: entry.skipSec16RoundTrip === true,
     };
   } catch {
     return null;

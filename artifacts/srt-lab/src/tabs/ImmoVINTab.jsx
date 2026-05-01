@@ -1,16 +1,33 @@
 import React, {useState, useCallback, useRef} from "react";
 import {C} from "../lib/constants.js";
 import {Card, Tag, Btn} from "../lib/ui.jsx";
-import {crc8rf} from "../lib/crc.js";
+import {crc16, rfhGen2VinCs, rfhGen2DetectMagic} from "../lib/crc.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {DownloadCounter} from "../lib/useDownloadCount.jsx";
 import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
 import {IMMO_VIN_REF} from "../lib/tabReferences.js";
 import {Tip} from "../lib/plainEnglish.jsx";
 import SamplePicker from "../lib/SamplePicker.jsx";
-import {PCM_VIN_OFFSETS_GPEC2A} from "../lib/parseModule.js";
+import {
+  PCM_VIN_OFFSETS_GPEC2A,
+  BCM_FULL_VIN_BASES_PARSED,
+  resolveBcmSec16,
+} from "../lib/parseModule.js";
+import {
+  BCM_FULL_VIN_BASES_ALT,
+  BCM_PARTIAL_VIN_OFFSETS,
+  BCM_PARTIAL_VIN_LEN,
+  findBcmPartialVinSlots,
+} from "../lib/donorLeakScan.js";
+import {writeBcmSec16Gen2} from "../lib/securityBytes.js";
 import {fmtOff} from "./ModuleSync.jsx";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
+
+/* Task #463 — alt zone bases live at indices 1..n of BCM_FULL_VIN_BASES_ALT
+ * (the 0x1300 entry holds a record header, not a VIN base). The PARSED
+ * mirror in parseModule.js trims index 0; we mirror that trim here so the
+ * auto-detect zone scan only iterates real VIN bases. */
+const BCM_FULL_VIN_BASES_ALT_PARSED = BCM_FULL_VIN_BASES_ALT.slice(1);
 
 /* Task #470 — local `fO` helper retired in favour of the shared `fmtOff`
  * exported from ModuleSync, so the Immo/VIN tab renders offsets in the
@@ -72,15 +89,38 @@ function decodeRfhVin(data, off) {
   return VIN_RE.test(vin) ? vin : null;
 }
 
-function parseRfhub(data) {
+/* Auto-detect the Gen2 VIN-CS magic byte from the first populated slot.
+ * Mirrors the helper used by scripts/anonymize-real-dump.mjs and
+ * lib/parseModule.js — different RFHUB Gen2 firmware revisions stamp a
+ * different XOR magic into the CS byte (0xDB on 2020+ Redeye, 0x87 on
+ * earlier Gen2, etc.). Returns 0xDB as the default when no slot is
+ * populated yet (a virgin EEPROM image). */
+function detectRfhMagic(data) {
+  for (const off of RFH_VIN_OFFSETS) {
+    if (off + 18 > data.length) continue;
+    const slice = data.slice(off, off + 17);
+    const cs = data[off + 17];
+    if (slice.every(b => b === 0xFF || b === 0x00)) continue;
+    if (cs === 0xFF || cs === 0x00) continue;
+    return rfhGen2DetectMagic(slice, cs);
+  }
+  return 0xDB;
+}
+
+export function parseRfhub(data) {
   const sz = data.length;
   const validSz = sz === 4096 || sz === 2048;
-  const slots = RFH_VIN_OFFSETS.map((off, idx) => {
+  /* Gen1 (≤2KB) doesn't carry the 0x0EA5+ Gen2 slot table — return an
+   * empty slot list so the UI surfaces "no Gen2 slots" rather than
+   * confusing CRC mismatches against random EEPROM bytes. */
+  const isGen2 = sz >= 0x0EE1 + 18;
+  const magic = isGen2 ? detectRfhMagic(data) : null;
+  const slots = !isGen2 ? [] : RFH_VIN_OFFSETS.map((off, idx) => {
     if (off + 18 > sz) return {idx:idx+1, offset:off, vin:null, csStored:null, csCalc:null, crcOk:false};
     const rawStored = data.slice(off, off+17);
     const vin = decodeRfhVin(data, off);
     const csStored = data[off + 17];
-    const csCalc = crc8rf(rawStored);
+    const csCalc = rfhGen2VinCs(rawStored, magic);
     return {idx:idx+1, offset:off, vin, csStored, csCalc, crcOk: csStored === csCalc};
   });
 
@@ -103,16 +143,186 @@ function parseRfhub(data) {
   return {sz, validSz, slots, sec16s, sec16valid, skey, skeyBlank};
 }
 
-function applyRfhub(data, newVin) {
+export function applyRfhub(data, newVin) {
   const out = new Uint8Array(data);
   const enc = new TextEncoder().encode(newVin.toUpperCase());
   const rev = new Uint8Array(17);
   for (let i = 0; i < 17; i++) rev[i] = enc[16 - i];
-  const cs = crc8rf(rev);
+  /* Use the magic byte detected from the existing slot data so we don't
+   * silently regress to a different Gen2 dialect when re-stamping. Falls
+   * back to 0xDB (2020+ Redeye) on a virgin image. Same algorithm
+   * parseModule.js and the anonymizer use. */
+  const magic = detectRfhMagic(out);
+  const cs = rfhGen2VinCs(rev, magic);
   for (const off of RFH_VIN_OFFSETS) {
     if (off + 18 > out.length) continue;
     for (let i = 0; i < 17; i++) out[off + i] = rev[i];
     out[off + 17] = cs;
+  }
+  return out;
+}
+
+/* ─── BCM (MPC560XB / MPC5606B_05B DFLASH, 64KB) helpers ─────────────── */
+
+/* Per-slot record layout (verified against attached real-bench dumps,
+ * Tasks #449 / #463 / #491):
+ *   base  +0..+7  : 8-byte FEE record header (00 02 SS QQ 00 46 II 00 etc.)
+ *         +8..+24 : 17-byte plaintext VIN (ASCII)
+ *         +25/+26 : BE16 CRC-16/CCITT-FALSE over the 17 VIN bytes
+ *         +27..+31: 5-byte trailer (slot id + footer)
+ * Bases live in two zones: canonical 0x5320..0x5380 (most LX BCMs) and
+ * alternate 0x1320..0x1380 (FCA SINCRO output for some Charger BCMs).
+ * Real captures populate exactly one zone — the auto-detect picks
+ * canonical first, falls back to alt if canonical is all 0xFF. */
+const BCM_VIN_HEADER_LEN = 8;
+
+/* Auto-detect the live VIN zone by scanning canonical first then alt.
+ * Returns { bases, vinOffsets, label } where vinOffsets is the per-slot
+ * VIN payload offset (base + 8). Falls back to the canonical zone when
+ * neither is populated so a virgin BCM still gets writes to a sensible
+ * default location. */
+export function detectBcmVinZone(data) {
+  const sz = data.length;
+  for (const [bases, label] of [
+    [BCM_FULL_VIN_BASES_PARSED, 'canonical-0x5328'],
+    [BCM_FULL_VIN_BASES_ALT_PARSED, 'alt-0x1328'],
+  ]) {
+    let populated = 0;
+    for (const base of bases) {
+      const vinOff = base + BCM_VIN_HEADER_LEN;
+      if (vinOff + 17 > sz) continue;
+      let allBlank = true;
+      for (let i = 0; i < 17; i++) {
+        const b = data[vinOff + i];
+        if (b !== 0xFF && b !== 0x00) { allBlank = false; break; }
+      }
+      if (!allBlank) populated++;
+    }
+    if (populated > 0) {
+      return {
+        bases: bases.slice(),
+        vinOffsets: bases.map(b => b + BCM_VIN_HEADER_LEN),
+        label,
+      };
+    }
+  }
+  // Virgin / blank — default to canonical so writes target the
+  // standard zone any production tool will look at first.
+  return {
+    bases: BCM_FULL_VIN_BASES_PARSED.slice(),
+    vinOffsets: BCM_FULL_VIN_BASES_PARSED.map(b => b + BCM_VIN_HEADER_LEN),
+    label: 'canonical-0x5328 (virgin)',
+  };
+}
+
+/* Decode a 17-byte VIN at `off`. Returns a string for the plain ASCII
+ * case (BCM full-VIN slot) or null when the bytes are not a well-formed
+ * VIN (lets the UI render an "(empty / invalid)" placeholder). */
+function decodeBcmVin(data, off) {
+  if (off + 17 > data.length) return null;
+  let s = '';
+  for (let i = 0; i < 17; i++) {
+    const b = data[off + i];
+    if (b < 0x30 || b > 0x5A) return null;
+    if (b > 0x39 && b < 0x41) return null;
+    if (b === 0x49 || b === 0x4F || b === 0x51) return null;
+    s += String.fromCharCode(b);
+  }
+  return s;
+}
+
+/* Auto-detect every BCM partial-VIN-shaped slot in the buffer (the
+ * always-known offsets in BCM_PARTIAL_VIN_OFFSETS plus any additional
+ * 8-VIN-byte+CRC16 records the helper finds — Task #436 / #452 / #491
+ * fixtures carry partial slots at 0x0098 / 0x00B0 in addition to the
+ * registered 0x4098 / 0x40B0 mirrors). Returns the union sorted by
+ * offset so the apply pass writes them all. */
+function detectBcmPartialOffsets(data) {
+  const out = new Set();
+  for (const po of BCM_PARTIAL_VIN_OFFSETS) {
+    if (po + BCM_PARTIAL_VIN_LEN + 2 <= data.length) out.add(po);
+  }
+  for (const d of findBcmPartialVinSlots(data)) out.add(d.offset);
+  return [...out].sort((a, b) => a - b);
+}
+
+export function parseBcmDflash(data) {
+  const sz = data.length;
+  const validSz = sz === 65536;
+  const zone = detectBcmVinZone(data);
+  const slots = zone.vinOffsets.map((vinOff, idx) => {
+    const base = zone.bases[idx];
+    if (vinOff + 19 > sz) {
+      return {idx:idx+1, base, vinOffset:vinOff, vin:null, csStored:null, csCalc:null, crcOk:false};
+    }
+    const vin = decodeBcmVin(data, vinOff);
+    const csStored = (data[vinOff + 17] << 8) | data[vinOff + 18];
+    const csCalc = crc16(data.slice(vinOff, vinOff + 17));
+    return {idx:idx+1, base, vinOffset:vinOff, vin, csStored, csCalc, crcOk: csStored === csCalc};
+  });
+
+  const partialOffs = detectBcmPartialOffsets(data);
+  const partials = partialOffs.map((off, idx) => {
+    if (off + BCM_PARTIAL_VIN_LEN + 2 > sz) {
+      return {idx:idx+1, offset:off, tail:null, csStored:null, csCalc:null, crcOk:false};
+    }
+    let tail = '', ok = true;
+    for (let j = 0; j < BCM_PARTIAL_VIN_LEN; j++) {
+      const b = data[off + j];
+      if (b < 0x20 || b > 0x7E) { ok = false; break; }
+      tail += String.fromCharCode(b);
+    }
+    if (!ok) tail = null;
+    const csStored = (data[off + BCM_PARTIAL_VIN_LEN] << 8) | data[off + BCM_PARTIAL_VIN_LEN + 1];
+    const csCalc = crc16(data.slice(off, off + BCM_PARTIAL_VIN_LEN));
+    return {idx:idx+1, offset:off, tail, csStored, csCalc, crcOk: csStored === csCalc};
+  });
+
+  /* SEC16 status lifted straight from the canonical resolver so this
+   * tab agrees byte-for-byte with the rest of the app on whether the
+   * BCM is paired or virgin (split records / mirror records / flat
+   * fallback all live in one place — lib/parseModule.js). */
+  const sec16 = sz >= 0x9000 ? resolveBcmSec16(data) : null;
+
+  const distinctVins = Array.from(new Set(slots.map(s => s.vin).filter(Boolean)));
+  const consistent = distinctVins.length === 1 && slots.every(s => s.vin === distinctVins[0]);
+  const mainVin = consistent ? distinctVins[0] : (slots.find(s => s.vin)?.vin || null);
+
+  return {sz, validSz, zone, slots, partials, sec16, consistent, mainVin};
+}
+
+/* applyBcmVin(data, newVin)
+ *
+ * Rewrites every full-VIN slot in the detected zone (4 records) AND every
+ * detected partial-VIN slot (last-8 tail + CRC16). Re-stamps every CRC16
+ * the parser validates. Returns a fresh Uint8Array — does not mutate the
+ * input. The new VIN's last 8 chars are written to the partials, matching
+ * the "rewrite all VIN copies + CRCs" promise the multi-target Immo/VIN
+ * spec makes (Task #491). This is intentionally MORE thorough than the
+ * real-bench SINCRO-EDIT swap (which left partial slots carrying the
+ * donor's tail and is the same partial-VIN donor-tail leak Task #436
+ * pinned in the anonymizer). */
+export function applyBcmVin(data, newVin) {
+  if (!newVin || newVin.length !== 17 || !VIN_RE.test(newVin)) {
+    throw new Error('newVin must be a valid 17-character VIN');
+  }
+  const out = new Uint8Array(data);
+  const enc = new TextEncoder().encode(newVin.toUpperCase());
+  const tail = enc.slice(9); // last 8 chars
+  const fullCrc = crc16(enc);
+  const tailCrc = crc16(tail);
+  const zone = detectBcmVinZone(out);
+  for (const vinOff of zone.vinOffsets) {
+    if (vinOff + 19 > out.length) continue;
+    for (let i = 0; i < 17; i++) out[vinOff + i] = enc[i];
+    out[vinOff + 17] = (fullCrc >> 8) & 0xFF;
+    out[vinOff + 18] = fullCrc & 0xFF;
+  }
+  for (const off of detectBcmPartialOffsets(out)) {
+    if (off + BCM_PARTIAL_VIN_LEN + 2 > out.length) continue;
+    for (let i = 0; i < BCM_PARTIAL_VIN_LEN; i++) out[off + i] = tail[i];
+    out[off + BCM_PARTIAL_VIN_LEN]     = (tailCrc >> 8) & 0xFF;
+    out[off + BCM_PARTIAL_VIN_LEN + 1] =  tailCrc       & 0xFF;
   }
   return out;
 }
@@ -477,6 +687,248 @@ function GPECSection({samplePair, onSamplePairLoaded}) {
   );
 }
 
+function BCMSection({samplePair, onSamplePairLoaded}) {
+  const [iFile, setIFile] = useState(null);
+  const [iData, setIData] = useState(null);
+  const [iResult, setIResult] = useState(null);
+  const [iErr, setIErr] = useState("");
+  const [aFile, setAFile] = useState(null);
+  const [aData, setAData] = useState(null);
+  const [newVin, setNewVin] = useState("");
+  const [newSec16, setNewSec16] = useState("");
+  const [aMsg, setAMsg] = useState("");
+
+  const handleIFile = useCallback(f => {
+    const r = new FileReader();
+    r.onload = ev => {
+      const d = new Uint8Array(ev.target.result);
+      if (d.length !== 65536) {
+        setIErr("Wrong size: " + d.length + " bytes (need exactly 65536 / 64KB DFLASH)");
+        setIFile(null); setIData(null); setIResult(null); return;
+      }
+      setIErr(""); setIFile(f); setIData(d); setIResult(null);
+    };
+    r.readAsArrayBuffer(f);
+  }, []);
+
+  const handleAFile = useCallback(f => {
+    const r = new FileReader();
+    r.onload = ev => {
+      const d = new Uint8Array(ev.target.result);
+      if (d.length !== 65536) { setAMsg("Wrong size: " + d.length + " bytes (need 65536)"); setAFile(null); setAData(null); return; }
+      setAFile(f); setAData(d); setAMsg("");
+    };
+    r.readAsArrayBuffer(f);
+  }, []);
+
+  const sec16Valid = newSec16.length === 0 || (newSec16.length === 32 && /^[0-9A-Fa-f]{32}$/.test(newSec16));
+  const vinValid = newVin.length === 0 || VIN_RE.test(newVin);
+
+  const doApply = () => {
+    if (!aData) return;
+    if (newVin.length !== 17 || !VIN_RE.test(newVin)) { setAMsg("Enter a valid 17-character VIN before applying."); return; }
+    let patched = applyBcmVin(aData, newVin);
+    let sec16Note = "";
+    if (newSec16.length === 32 && /^[0-9A-Fa-f]{32}$/.test(newSec16)) {
+      const sec16Bytes = new Uint8Array(16);
+      for (let i = 0; i < 16; i++) sec16Bytes[i] = parseInt(newSec16.slice(i*2, i*2+2), 16);
+      patched = writeBcmSec16Gen2(patched, sec16Bytes);
+      sec16Note = " + SEC16";
+    }
+    const fn = aFile.name.replace(/(\.[^.]+)?$/, "_BCM_"+newVin+".bin");
+    dl(patched, fn, ASSET_IDS.immoBcmPatched);
+    setAMsg("✓ Patched & downloaded: " + fn + " (VIN" + sec16Note + ")");
+  };
+
+  const res = iResult;
+
+  return (
+    <Card>
+      <SectionHeader icon="🚗" title={<><Tip word="BCM">BCM</Tip> — <Tip word="MPC560XB">MPC560XB</Tip> / MPC5606B_05B <Tip word="DFLASH">DFLASH</Tip> (64KB)</>} subtitle={<>4 full <Tip word="VIN">VIN</Tip> slots + <Tip word="CRC">CRC-16/CCITT-FALSE</Tip> · 4 partial-VIN slots (last 8 + CRC) · optional 16B <Tip word="SEC16">SEC16</Tip></>}/>
+
+      <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:2,marginBottom:8}}>PHASE 1 — INSPECT</div>
+      <FileDropZone label="Drop 64KB BCM .bin file (MPC560XB DFLASH)" onFile={handleIFile} fileName={iFile?.name}/>
+      <SamplePicker kinds={['BCM']} acceptSizes={[65536]} onFile={handleIFile} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample BCM"/>
+      {iErr && <div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:C.er+"10",color:C.er,fontSize:12,fontWeight:700}}>✗ {iErr}</div>}
+      {iFile && !iErr && <div style={{marginTop:10}}><Btn onClick={()=>setIResult(parseBcmDflash(iData))} full color={C.sr}>🔍 Analyze File</Btn></div>}
+
+      {res && (
+        <div style={{marginTop:14}}>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:12}}>
+            <Tag color={res.validSz?C.gn:C.wn}>{res.sz} bytes — {res.validSz?"64KB ✓":"SIZE WARN"}</Tag>
+            <Tag color={C.sr}>Zone: {res.zone.label}</Tag>
+            {res.mainVin && <Tag color={res.consistent?C.gn:C.wn}>{res.mainVin}</Tag>}
+            {res.consistent
+              ? <Tag color={C.gn}>VINs CONSISTENT ✓</Tag>
+              : <Tag color={C.er}>VIN MISMATCH ✗</Tag>}
+          </div>
+
+          {/* Full VIN slots */}
+          <div style={{overflowX:"auto",marginBottom:14}}>
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+              <thead><tr>{["Slot","Offset","VIN (17B ASCII)","Stored CRC","Calc CRC","Status"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",borderBottom:"1.5px solid "+C.bd,fontSize:10,fontWeight:800,color:C.tm,textTransform:"uppercase",letterSpacing:.5}}>{h}</th>)}</tr></thead>
+              <tbody>
+                {res.slots.map(row=>(
+                  <tr key={row.idx} style={{borderBottom:"1px solid "+C.bd+"60"}}>
+                    <td style={{padding:"7px 10px",fontWeight:800,color:C.sr}}>VIN {row.idx}</td>
+                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.a3}}>{fmtOff(row.vinOffset)}</td>
+                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontWeight:700,fontSize:12,color:row.vin?C.gn:C.er}}>{row.vin||"(empty / invalid)"}</td>
+                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.tm}}>{row.csStored!==null?"0x"+row.csStored.toString(16).toUpperCase().padStart(4,"0"):"—"}</td>
+                    <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.tm}}>{row.csCalc!==null?"0x"+row.csCalc.toString(16).toUpperCase().padStart(4,"0"):"—"}</td>
+                    <td style={{padding:"7px 10px"}}><Badge ok={row.crcOk} label={row.crcOk?"CRC OK":"CRC FAIL"}/></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Partial VIN slots */}
+          {res.partials.length>0 && (
+            <div style={{overflowX:"auto",marginBottom:14}}>
+              <div style={{fontSize:11,fontWeight:800,color:C.a4,marginBottom:6}}>Partial-VIN slots ({res.partials.length}) — last 8 chars + CRC16</div>
+              <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+                <thead><tr>{["#","Offset","Tail (8B)","Stored","Calc","Status"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",borderBottom:"1.5px solid "+C.bd,fontSize:10,fontWeight:800,color:C.tm,textTransform:"uppercase",letterSpacing:.5}}>{h}</th>)}</tr></thead>
+                <tbody>
+                  {res.partials.map(row=>(
+                    <tr key={row.idx} style={{borderBottom:"1px solid "+C.bd+"60"}}>
+                      <td style={{padding:"7px 10px",fontWeight:800,color:C.a4}}>P{row.idx}</td>
+                      <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.a3}}>{fmtOff(row.offset)}</td>
+                      <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontWeight:700,fontSize:12,color:row.tail?C.gn:C.er}}>{row.tail||"(invalid)"}</td>
+                      <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.tm}}>0x{row.csStored.toString(16).toUpperCase().padStart(4,"0")}</td>
+                      <td style={{padding:"7px 10px",fontFamily:"'JetBrains Mono'",fontSize:11,color:C.tm}}>0x{row.csCalc.toString(16).toUpperCase().padStart(4,"0")}</td>
+                      <td style={{padding:"7px 10px"}}><Badge ok={row.crcOk} label={row.crcOk?"CRC OK":"CRC FAIL"}/></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* SEC16 status */}
+          {res.sec16 && (
+            <div style={{padding:"10px 14px",borderRadius:10,background:C.c2,border:"1px solid "+C.bd}}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                <span style={{fontSize:11,fontWeight:800,color:C.a4}}>SEC16 (16B) — source: {res.sec16.source||"none"}</span>
+                {res.sec16.bytes
+                  ? <Badge ok={!res.sec16.blank} label={res.sec16.blank?"BLANK":"PRESENT ✓"}/>
+                  : <Tag color={C.er}>NOT FOUND</Tag>}
+              </div>
+              {res.sec16.bytes && <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:700,color:res.sec16.blank?C.tm:C.a4}}>{hxb(res.sec16.bytes)}</div>}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div style={{marginTop:20,borderTop:"1.5px solid "+C.bd,paddingTop:16}}>
+        <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY</div>
+        <div style={{fontSize:11,color:C.ts,marginBottom:8}}>VIN written to all 4 full slots + every detected partial slot · CRC-16/CCITT-FALSE re-stamped on each · optional SEC16 writes split (0x81A0/C0/E0) + mirror records</div>
+        <FileDropZone label="Re-upload the same 64KB BCM .bin to patch" onFile={handleAFile} fileName={aFile?.name}/>
+        <SamplePicker kinds={['BCM']} acceptSizes={[65536]} onFile={handleAFile} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample BCM"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginTop:10}}>
+          <div>
+            <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN (required)</div>
+            <input value={newVin} maxLength={17} placeholder="17-char VIN"
+              onChange={e=>setNewVin(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,""))}
+              style={{width:"100%",padding:"10px 12px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newVin.length===17&&vinValid?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:700,letterSpacing:2,textAlign:"center",outline:"none",color:C.tx}}/>
+            <div style={{fontSize:11,fontWeight:800,color:newVin.length===17?C.gn:C.tm,marginTop:2}}>{newVin.length}/17</div>
+          </div>
+          <div>
+            <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW SEC16 (32 hex digits = 16 bytes) — optional</div>
+            <input value={newSec16} maxLength={32} placeholder="Leave blank to skip"
+              onChange={e=>setNewSec16(e.target.value.toUpperCase().replace(/[^0-9A-F]/g,""))}
+              style={{width:"100%",padding:"10px 12px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newSec16.length===32&&sec16Valid?C.gn:newSec16.length>0&&!sec16Valid?C.er:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:700,letterSpacing:1,outline:"none",color:C.tx}}/>
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:2}}>
+              <span style={{fontSize:11,fontWeight:800,color:newSec16.length===32?C.gn:C.tm}}>{newSec16.length}/32</span>
+              <span style={{fontSize:10,color:C.ts}}>Split (0x81A0/C0/E0) + mirror</span>
+            </div>
+          </div>
+        </div>
+        <div style={{marginTop:12}}>
+          <Btn onClick={doApply} disabled={!aFile||newVin.length!==17||!vinValid||(newSec16.length>0&&!sec16Valid)} full color={C.a2}>⚡ APPLY — Rewrite all VIN copies + CRCs (+ SEC16)</Btn>
+          <div style={{marginTop:6,textAlign:"center"}}><DownloadCounter assetId={ASSET_IDS.immoBcmPatched}/></div>
+        </div>
+        {aMsg&&<div style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:aMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(aMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:aMsg.startsWith("✓")?C.gn:C.er}}>{aMsg}</div>}
+      </div>
+    </Card>
+  );
+}
+
+/* Auto-detect routing: classify a file by size + signature so the user can
+ * drop ANY supported binary into the top-level zone and the tab points
+ * them at the right inspect/apply panel. Returns one of:
+ *   { kind:'BCM',   label:'BCM (MPC560XB / MPC5606B_05B DFLASH, 64KB)' }
+ *   { kind:'GPEC',  label:'GPEC2A (PCM 95320 SPI EEPROM, 4KB)' }
+ *   { kind:'RFH2',  label:'RFHUB Gen2 (4KB EEPROM)' }
+ *   { kind:'RFH1',  label:'RFHUB Gen1 (2KB EEPROM)' }
+ *   { kind:null,    label:'Unknown size (… bytes) — supported: 2KB / 4KB / 64KB' }
+ *
+ * The 4KB GPEC vs 4KB RFH-Gen2 disambiguation reads the GPEC SKIM byte
+ * @ 0x0011 (a tightly-bounded 0x80 / 0x00 / unprogrammed value) and the
+ * RFH-Gen2 VIN slot population @ 0x0EA5; either signature wins, falling
+ * back to GPEC when neither pattern is convincing (the more common 4KB
+ * upload). 64KB always routes to BCM, 2KB always routes to RFH Gen1. */
+export function detectImmoFileKind(data) {
+  const sz = data.length;
+  if (sz === 65536) return { kind:'BCM', label:'BCM (MPC560XB / MPC5606B_05B DFLASH, 64KB)' };
+  if (sz === 2048)  return { kind:'RFH1', label:'RFHUB Gen1 (2KB EEPROM)' };
+  if (sz === 4096) {
+    /* RFH-Gen2 signature: at least one 0x0EA5+ slot carries a populated
+     * (non-0xFF/0x00) tail byte that decodes as a printable VIN char.
+     * The four slot offsets all sit > 0x0EA0, so a GPEC2A 4KB image
+     * (which has no records past ~0x03CE) leaves them all blank. */
+    let rfhPopulated = 0;
+    for (const off of RFH_VIN_OFFSETS) {
+      if (off + 17 > sz) continue;
+      let allBlank = true;
+      for (let i = 0; i < 17; i++) {
+        const b = data[off + i];
+        if (b !== 0xFF && b !== 0x00) { allBlank = false; break; }
+      }
+      if (!allBlank) rfhPopulated++;
+    }
+    if (rfhPopulated > 0) return { kind:'RFH2', label:'RFHUB Gen2 (4KB EEPROM)' };
+    /* GPEC2A signature: SKIM @ 0x0011 is 0x80 / 0x00, OR the 4 canonical
+     * VIN slots carry plausible ASCII. */
+    const skim = data[0x0011];
+    if (skim === 0x80 || skim === 0x00) return { kind:'GPEC', label:'GPEC2A (PCM 95320 SPI EEPROM, 4KB)' };
+    for (const off of PCM_VIN_OFFSETS_GPEC2A) {
+      if (off + 17 > sz) continue;
+      const b = data[off];
+      if (b >= 0x30 && b <= 0x5A) return { kind:'GPEC', label:'GPEC2A (PCM 95320 SPI EEPROM, 4KB)' };
+    }
+    /* Indeterminate 4KB image — default to GPEC2A (the more common case)
+     * and let the per-section validators surface any mismatch. */
+    return { kind:'GPEC', label:'GPEC2A (PCM 95320 SPI EEPROM, 4KB)' };
+  }
+  return { kind:null, label:'Unknown size (' + sz + ' bytes) — supported: 2KB RFH Gen1 / 4KB GPEC2A or RFH Gen2 / 64KB BCM' };
+}
+
+function AutoDetectZone() {
+  const [hit, setHit] = useState(null);
+  const onFile = useCallback(f => {
+    const r = new FileReader();
+    r.onload = ev => {
+      const d = new Uint8Array(ev.target.result);
+      const det = detectImmoFileKind(d);
+      setHit({ name: f.name, sz: d.length, ...det });
+    };
+    r.readAsArrayBuffer(f);
+  }, []);
+  return (
+    <Card>
+      <SectionHeader icon="🧭" title="Auto-Detect" subtitle={<>Drop any supported FCA <Tip word="EEPROM">EEPROM</Tip> dump (RFHUB Gen1/Gen2, GPEC2A PCM, or BCM <Tip word="DFLASH">DFLASH</Tip>) — this routes you to the matching inspect/apply panel below.</>}/>
+      <FileDropZone label="Drop any supported .bin (2KB / 4KB / 64KB) — auto-classified by size + signature" onFile={onFile} fileName={hit?.name}/>
+      {hit && (
+        <div data-testid="auto-detect-result" style={{marginTop:10,padding:"10px 14px",borderRadius:10,background:hit.kind?C.gn+"10":C.er+"10",border:"1px solid "+(hit.kind?C.gn+"25":C.er+"25"),fontSize:12,fontWeight:700,color:hit.kind?C.gn:C.er}}>
+          {hit.kind
+            ? <>✓ <span style={{fontWeight:900}}>{hit.label}</span> — use the <span style={{fontFamily:"'JetBrains Mono'"}}>{hit.kind === 'BCM' ? 'BCM' : hit.kind === 'GPEC' ? 'GPEC2A' : 'RFHUB'}</span> section below.</>
+            : <>✗ {hit.label}</>}
+        </div>
+      )}
+    </Card>
+  );
+}
+
 export default function ImmoVINTab() {
   const [pdfBusy, setPdfBusy] = useState(false);
   // Lifted to the tab root so that loading a paired sample in the RFH section
@@ -501,8 +953,10 @@ export default function ImmoVINTab() {
           {pdfBusy?'⏳ Building...':'🖨 Print Reference'}
         </button>
       </div>
+      <AutoDetectZone/>
       <RFHSection samplePair={samplePair} onSamplePairLoaded={onSamplePairLoaded}/>
       <GPECSection samplePair={samplePair} onSamplePairLoaded={onSamplePairLoaded}/>
+      <BCMSection samplePair={samplePair} onSamplePairLoaded={onSamplePairLoaded}/>
     </div>
   );
 }

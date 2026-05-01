@@ -171,8 +171,9 @@ describe("VIN Programmer tab", () => {
     await act(async () => {
       screen.getByTestId("vinprog-patch").click();
     });
-    const captured = await clickAndCaptureDownload("vinprog-download");
+    await waitFor(() => expect(screen.getByTestId("vinprog-result-card")).toBeTruthy());
     expect(screen.getByTestId("vinprog-result-vin").textContent).toBe(NEW_VIN);
+    const captured = await clickAndCaptureDownload("vinprog-download");
     expect(captured.lastFilename).toMatch(new RegExp(`_VIN_${NEW_VIN}\\.bin$`));
     // Re-analyze the downloaded bytes — every slot must now read NEW_VIN
     // (GPEC2A has no checksum, just plain ASCII, so all slots are "ok").

@@ -245,9 +245,17 @@ const forbiddenDonorList = Array.from(forbiddenDonors);
       describe(`${label} (${moduleType})`, () => {
         const scanner = MODULE_SCANNERS[moduleType];
         const minSlots = MIN_SLOTS[moduleType];
-        const expectedAnonVin = entry.anonVin; // may be null
 
         for (const half of ['before', 'after']) {
+          // Per-half expected anon VIN. Default is the manifest entry's
+          // single `anonVin` field (used by every fixture where both
+          // halves share the same anonymized VIN). VIN-write-test
+          // fixtures (Task #491) override the AFTER half via
+          // `anonVinAfter` because the after.bin holds the DIFFERENT
+          // 17-char VIN that the SINCRO-EDIT step produced.
+          const expectedAnonVin = (half === 'after' && typeof entry.anonVinAfter === 'string' && entry.anonVinAfter.length === 17)
+            ? entry.anonVinAfter
+            : entry.anonVin; // may be null
           describe(`${half}.bin`, () => {
             const buf = entry[half];
             const path = entry[`${half}Path`] ?? '?';
