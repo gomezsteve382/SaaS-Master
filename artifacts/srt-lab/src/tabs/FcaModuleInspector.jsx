@@ -1,3 +1,18 @@
+/* ============================================================================
+ * FcaModuleInspector — rescued from attached_assets/tsetup-x64.6.7.5_1776900458954.exe
+ *
+ * The original drop was misnamed with a `.exe` suffix and silently stranded;
+ * the file is actually a 33 KB React JSX component (UTF-8) implementing an
+ * FCA module-binary inspector. It auto-detects GPEC2A / RFHUB / BCM dumps,
+ * scans for valid VINs (with proper boundary checks and I/O/Q exclusion),
+ * reads the SKIM enable/disable byte at 0x0011 (GPEC2A), and produces a
+ * downloadable patched `.bin` for VIN/SKIM/virginize/key-extract operations.
+ *
+ * Task #496 rehomes the file under a clear name, exports the helper
+ * functions for unit tests, and wires the component into the SRT Lab tab
+ * registry. Detection logic is preserved verbatim so the behavior matches
+ * the original drop byte-for-byte.
+ * ========================================================================== */
 import { useState, useCallback, useMemo, useRef } from "react";
 
 const MODULE_TYPES = {
@@ -95,7 +110,7 @@ function u32(data, o) { return (data[o] << 24) | (data[o+1] << 16) | (data[o+2] 
 function countAA50(d, s, n) { let c=0; for(let i=0;i<n;i++) if(d[s+i*2]===0xaa&&d[s+i*2+1]===0x50) c++; return c; }
 function countPat(d, a, b, c2, d2) { let c=0; for(let i=0;i<d.length-3;i++) if(d[i]===a&&d[i+1]===b&&d[i+2]===c2&&d[i+3]===d2) c++; return c; }
 
-function parseModule(data, filename) {
+function parseInspectorModule(data, filename) {
   const type = detectModuleType(data);
   const mt = MODULE_TYPES[type];
   const info = { type, filename, data, size: data.length, name: mt.name, chip: mt.chip, color: mt.color };
@@ -246,7 +261,9 @@ function TBtn({ children, onClick, disabled, warn }) { return <button onClick={o
 
 const TABS = ["overview", "security", "diff", "tools"];
 
-export default function App() {
+export { MODULE_TYPES, SKIM_VALUES, detectModuleType, scanForVINs, extractVIN, parseInspectorModule };
+
+export default function FcaModuleInspector() {
   const [modules, setModules] = useState([]);
   const [tab, setTab] = useState("overview");
   const [dp, setDp] = useState([0, 1]);
@@ -258,7 +275,7 @@ export default function App() {
   const onFiles = useCallback(e => {
     Array.from(e.target.files).forEach(f => {
       const r = new FileReader();
-      r.onload = ev => { setModules(p => p.concat([parseModule(new Uint8Array(ev.target.result), f.name)])); };
+      r.onload = ev => { setModules(p => p.concat([parseInspectorModule(new Uint8Array(ev.target.result), f.name)])); };
       r.readAsArrayBuffer(f);
     });
     e.target.value = "";
