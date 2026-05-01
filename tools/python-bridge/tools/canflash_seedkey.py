@@ -344,13 +344,9 @@ def unlock_alpine_amp(seed_lo, seed_hi=0):
     """LCG-pair; reversed from alpine_amp.dll, Unicorn 25/25 ✓"""
     return _lcg_pair(seed_lo, seed_hi, 0x52D75F5C, 0x412B, 0x6473)
 
-def unlock_alpine_radio(seed_lo, seed_hi=0):
-    """LCG-pair; reversed from alpine_radio.dll, Unicorn 25/25 ✓"""
-    return _lcg_pair(seed_lo, seed_hi, 0x32A95B7F, 0x52D8, 0x58C2)
-
-def unlock_dcx_ptcm(seed_lo, seed_hi=0):
-    """LCG-pair; reversed from dcx_ptcm.dll, Unicorn 25/25 ✓"""
-    return _lcg_pair(seed_lo, seed_hi, 0x41C64E6D, 0x3039, 0xF3DD1133)
+# alpine_radio and dcx_ptcm are intentionally not defined here. Their canonical
+# Python ports live in srtlab_canflash_algos (alpine_radio_unlock, dcx_ptcm_unlock)
+# and the dispatcher in srtlab_unlock_catalog routes both modules there.
 
 def unlock_hella_acc(seed_lo, seed_hi=0):
     """LCG-pair; reversed from hella_acc.dll, Unicorn 25/25 ✓"""
@@ -584,8 +580,6 @@ COVERAGE = {
     'lrsm':             ('python', 't16_gf2'),
     'abs':              ('python', 'lcg_pair'),
     'alpine_amp':       ('python', 'lcg_pair'),
-    'alpine_radio':     ('python', 'lcg_pair'),
-    'dcx_ptcm':         ('python', 'lcg_pair'),
     'hella_acc':        ('python', 'lcg_pair'),
     'msmd':             ('python', 'lcg_pair'),
     'teves_abs':        ('python', 'lcg_pair'),
@@ -728,8 +722,6 @@ VERIFIED_ALGORITHMS = {
     'LRSM':             unlock_lrsm,
     'ABS':              unlock_abs,                 # 2-arg
     'AMP_ALPINE':       unlock_alpine_amp,          # 2-arg
-    'RADIO_ALPINE':     unlock_alpine_radio,        # 2-arg
-    'PTCM_DCX':         unlock_dcx_ptcm,            # 2-arg
     'ACC_HELLA':        unlock_hella_acc,           # 2-arg
     'MSMD':             unlock_msmd,                # 2-arg
     'ABS_TEVES':        unlock_teves_abs,           # 2-arg
@@ -776,8 +768,8 @@ _DLL_ALIASES = {
     'HB_ccn': unlock_HB_ccn, 'LX_ccn': unlock_LX_ccn, 'nippon_ccn': unlock_nippon_ccn,
     'ngc4_trans': unlock_ngc4_trans, 'ocm': unlock_ocm, 'trw_ocm': unlock_trw_ocm,
     'trw_orc': unlock_trw_orc, 'asbs': unlock_asbs, 'lrsm': unlock_lrsm,
-    'abs': unlock_abs, 'alpine_amp': unlock_alpine_amp, 'alpine_radio': unlock_alpine_radio,
-    'dcx_ptcm': unlock_dcx_ptcm, 'hella_acc': unlock_hella_acc, 'msmd': unlock_msmd,
+    'abs': unlock_abs, 'alpine_amp': unlock_alpine_amp,
+    'hella_acc': unlock_hella_acc, 'msmd': unlock_msmd,
     'teves_abs': unlock_teves_abs, 'valeo_scm': unlock_valeo_scm,
     'cummins_849': unlock_cummins_849, 'egs52': unlock_egs52,
     'mitsubishi_rar': unlock_mitsubishi_rar, 'mitsubishi_ves': unlock_mitsubishi_ves,

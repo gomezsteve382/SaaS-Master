@@ -3,7 +3,7 @@ Pinned per-module unlock-key test vectors for canflash_seedkey.py — Task #540.
 
 Each entry pins 8–16 (seed, expected_key) pairs harvested via Unicorn
 emulation of the original DLL in ``canflash_unlocks/``.  The vectors guard
-the 67 reverse-engineered ``unlock_<dll>`` ports against silent regressions:
+the reverse-engineered ``unlock_<dll>`` ports against silent regressions:
 if a future edit drifts even a single byte from the DLL, the corresponding
 vector flips a red test instead of going unnoticed.
 
@@ -14,14 +14,11 @@ Generated with::
 The vectors below are committed verbatim — the harvester does not run on
 every test invocation (no Unicorn dependency required at test time).
 
-Two ``unlock_<dll>`` ports are intentionally excluded:
-
-  * ``alpine_radio`` / ``dcx_ptcm`` — the 2-arg shells in canflash_seedkey.py
-    call a ``_lcg_pair`` helper whose signature is overwritten by a later
-    redefinition in the same file, leaving them as dead code.  The
-    dispatcher (``srtlab_unlock_catalog``) routes both modules to the
-    working ``srtlab_canflash_algos`` ports, which are pinned separately by
-    ``srtlab_canflash_algos._VECTORS``.
+The ``alpine_radio`` and ``dcx_ptcm`` modules are intentionally not pinned
+here.  Their canonical Python ports live in ``srtlab_canflash_algos``
+(``alpine_radio_unlock`` / ``dcx_ptcm_unlock``) and are pinned by
+``srtlab_canflash_algos._VECTORS``; the dispatcher in
+``srtlab_unlock_catalog`` routes both modules there.
 
 Run::
 
@@ -382,12 +379,6 @@ VECTORS = {
 }
 
 
-# Modules in the catalog whose canflash_seedkey port is dead code (tracked in
-# a follow-up task).  These are NOT pinned here; production routes them
-# through srtlab_canflash_algos which has its own _VECTORS coverage.
-EXCLUDED_DEAD_PORTS = frozenset({'alpine_radio', 'dcx_ptcm'})
-
-
 def _resolve_fn(module):
     """Return the canflash_seedkey unlock function for a module name.
 
@@ -445,10 +436,10 @@ class CanflashSeedkeyPinnedVectors(unittest.TestCase):
         """Guard against silent omission when new ports are added.
 
         The set of pinned modules must equal every catalog entry that
-        (a) is marked ``reversed``, (b) has its python_function defined in
-        ``canflash_seedkey``, and (c) is not in ``EXCLUDED_DEAD_PORTS``.
-        If a new port is added without re-running the harvester, this test
-        flips red and prints exactly which modules to add.
+        (a) is marked ``reversed`` and (b) has its python_function defined
+        in ``canflash_seedkey``.  If a new port is added without re-running
+        the harvester, this test flips red and prints exactly which modules
+        to add.
         """
         catalog_path = os.path.join(HERE, 'unlock_catalog.json')
         with open(catalog_path, 'r', encoding='utf-8') as f:
@@ -460,10 +451,7 @@ class CanflashSeedkeyPinnedVectors(unittest.TestCase):
             pyfn = entry.get('python_function')
             if not pyfn or not hasattr(canflash_seedkey, pyfn):
                 continue
-            module = entry['module']
-            if module in EXCLUDED_DEAD_PORTS:
-                continue
-            eligible.add(module)
+            eligible.add(entry['module'])
         pinned = set(VECTORS)
         missing = eligible - pinned
         extra = pinned - eligible
@@ -474,14 +462,6 @@ class CanflashSeedkeyPinnedVectors(unittest.TestCase):
             f'  Extra   (no catalog entry): {sorted(extra)}\n'
             f'Re-run _canflash_validate/harvest_seedkey_vectors.py.',
         )
-
-    def test_excluded_dead_ports_remain_excluded(self):
-        for mod in EXCLUDED_DEAD_PORTS:
-            self.assertNotIn(
-                mod, VECTORS,
-                f'{mod} is documented as dead-code in canflash_seedkey.py; '
-                f'pin its vectors via srtlab_canflash_algos._VECTORS instead.',
-            )
 
     def test_vectors_match_python_ports(self):
         """The core regression guard: every pinned vector must reproduce.
