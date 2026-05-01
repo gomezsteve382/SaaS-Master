@@ -1,0 +1,723 @@
+{
+  "HB_ccn": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 0,
+      "shifts": [
+        0,
+        4,
+        7,
+        10,
+        13
+      ],
+      "C": 37877,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        47671,
+        35883,
+        24873,
+        61216,
+        43161,
+        61499,
+        8880,
+        20393
+      ]
+    }
+  ],
+  "LX_ccn": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 0,
+      "shifts": [
+        0,
+        4,
+        7,
+        10,
+        13
+      ],
+      "C": 32351,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        9539,
+        60664,
+        25049,
+        6059,
+        16194,
+        51685,
+        32138,
+        38467
+      ]
+    }
+  ],
+  "abs": [
+    "lcg_pair",
+    {
+      "kind": "lcg_pair",
+      "A": 1103515245,
+      "B": 12345,
+      "C": 2887114614
+    }
+  ],
+  "ahbm": null,
+  "aisin_tcm": null,
+  "alpine_amp": [
+    "lcg_pair",
+    {
+      "kind": "lcg_pair",
+      "A": 1389846364,
+      "B": 16683,
+      "C": 25715
+    }
+  ],
+  "alpine_radio": [
+    "lcg_pair",
+    {
+      "kind": "lcg_pair",
+      "A": 849959807,
+      "B": 21208,
+      "C": 22722
+    }
+  ],
+  "alpine_rak": [
+    "lcg_pair",
+    {
+      "kind": "lcg_pair",
+      "A": 1103515245,
+      "B": 12345,
+      "C": 20011
+    }
+  ],
+  "asbs": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 0,
+      "shifts": [
+        0,
+        4,
+        10,
+        13
+      ],
+      "C": 60528,
+      "seed_xor_mode": 1,
+      "n_lookups": 4,
+      "table": [
+        46480,
+        63650,
+        44691,
+        6177,
+        56613,
+        50802,
+        63578,
+        18544
+      ]
+    }
+  ],
+  "awd_pm_mk": null,
+  "borg_awd": null,
+  "bosch_abs": [
+    "t16_gf2",
+    {
+      "kind": "t16_gf2",
+      "C": 0,
+      "T": [
+        40473,
+        24811,
+        64896,
+        56306,
+        17771,
+        37072,
+        60244,
+        48746,
+        13678,
+        30421,
+        57628,
+        44495,
+        6770,
+        2811,
+        37338,
+        19716
+      ]
+    }
+  ],
+  "bosch_cdm_win_ddm": null,
+  "bosch_cdm_win_pdm": null,
+  "bosch_ddm": null,
+  "bosch_mddm": null,
+  "bosch_mpdm": null,
+  "bosch_mwddm": null,
+  "bosch_mwpdm": null,
+  "bosch_orc": null,
+  "bosch_pdm": null,
+  "cmtc": null,
+  "cummins_849": [
+    "cummins_t16",
+    {
+      "kind": "cummins_t16",
+      "shift": 20,
+      "offsets": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "K": 1427182865,
+      "T": [
+        484649297,
+        2343734329,
+        1992743450,
+        3770063431,
+        4082500172,
+        1622115627,
+        1671506631,
+        1409256879,
+        2834817900,
+        1676223058,
+        752185316,
+        775877382,
+        1527420783,
+        3681352195,
+        432846244,
+        2165551669
+      ]
+    }
+  ],
+  "cvt": null,
+  "dcx_ptcm": [
+    "lcg_pair",
+    {
+      "kind": "lcg_pair",
+      "A": 1103515245,
+      "B": 12345,
+      "C": 4091351347
+    }
+  ],
+  "ddm": null,
+  "delphi_hvac": null,
+  "delphi_sdar": null,
+  "edc16c2": null,
+  "edc16cp31": null,
+  "edc16u31": null,
+  "egs52": [
+    "imul_xor",
+    {
+      "kind": "imul_xor",
+      "C": 1520805285,
+      "A": 1520805285
+    }
+  ],
+  "eom": null,
+  "esm": null,
+  "ewm": null,
+  "fdcm": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 0,
+      "shifts": [
+        0,
+        4,
+        10,
+        13
+      ],
+      "C": 60528,
+      "seed_xor_mode": 1,
+      "n_lookups": 4,
+      "table": [
+        46480,
+        63650,
+        44691,
+        6177,
+        56613,
+        50802,
+        63578,
+        18544
+      ]
+    }
+  ],
+  "gpec": null,
+  "harman_amp": null,
+  "hella_acc": [
+    "lcg_pair",
+    {
+      "kind": "lcg_pair",
+      "A": 1103515245,
+      "B": 12345,
+      "C": 2156073593
+    }
+  ],
+  "hfm": null,
+  "hidt": null,
+  "huntsville_bcm": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 0,
+      "shifts": [
+        0,
+        4,
+        7,
+        10,
+        13
+      ],
+      "C": 25809,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        40078,
+        19649,
+        54210,
+        59372,
+        24555,
+        51832,
+        17198,
+        8186
+      ]
+    }
+  ],
+  "huntsville_fcm": null,
+  "huntsville_fdcm": null,
+  "huntsville_radio": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 0,
+      "shifts": [
+        0,
+        4,
+        7,
+        10,
+        13
+      ],
+      "C": 51801,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        29023,
+        14013,
+        11781,
+        43576,
+        35154,
+        8156,
+        25173,
+        58233
+      ]
+    }
+  ],
+  "hvac": null,
+  "kicker_amp": null,
+  "lear_wcm": [
+    "t16_gf2",
+    {
+      "kind": "t16_gf2",
+      "C": 0,
+      "T": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "lrsm": [
+    "t16_gf2",
+    {
+      "kind": "t16_gf2",
+      "C": 8160,
+      "T": [
+        512,
+        1024,
+        2048,
+        4096,
+        8192,
+        16384,
+        32768,
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256
+      ]
+    }
+  ],
+  "may_scofield_itm": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 2,
+      "shifts": [
+        0,
+        3,
+        7,
+        10,
+        13
+      ],
+      "C": 9317,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        17304,
+        29729,
+        49579,
+        14045,
+        20618,
+        39926,
+        25486,
+        5129
+      ]
+    }
+  ],
+  "mitsubishi_rar": [
+    "simple",
+    {
+      "kind": "simple",
+      "X": 29544,
+      "A": 2,
+      "B": 42,
+      "C": 26996
+    }
+  ],
+  "mitsubishi_ves": [
+    "simple",
+    {
+      "kind": "simple",
+      "X": 17269,
+      "A": 2,
+      "B": 42,
+      "C": 28276
+    }
+  ],
+  "mitsubishi_ves3": null,
+  "motorola_tipm7": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 0,
+      "shifts": [
+        1,
+        4,
+        7,
+        10,
+        13
+      ],
+      "C": 38710,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        13282,
+        28400,
+        21805,
+        34394,
+        48079,
+        48994,
+        54510,
+        4735
+      ]
+    }
+  ],
+  "msmd": [
+    "lcg_pair",
+    {
+      "kind": "lcg_pair",
+      "A": 1103515245,
+      "B": 12345,
+      "C": 75
+    }
+  ],
+  "ngc4_trans": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 1,
+      "shifts": [
+        0,
+        3,
+        7,
+        10,
+        13
+      ],
+      "C": 21374,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        35407,
+        21061,
+        37640,
+        55703,
+        62709,
+        58148,
+        51055,
+        21813
+      ]
+    }
+  ],
+  "ngc_engine": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 1,
+      "shifts": [
+        0,
+        3,
+        7,
+        10,
+        13
+      ],
+      "C": 21374,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        35407,
+        21061,
+        37640,
+        55703,
+        62709,
+        58148,
+        51055,
+        21813
+      ]
+    }
+  ],
+  "ngc_transmission": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 1,
+      "shifts": [
+        0,
+        4,
+        7,
+        10,
+        13
+      ],
+      "C": 7844,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        40351,
+        52808,
+        45299,
+        55707,
+        42784,
+        64982,
+        33645,
+        28558
+      ]
+    }
+  ],
+  "nippon_ccn": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 0,
+      "shifts": [
+        0,
+        3,
+        6,
+        9,
+        12
+      ],
+      "C": 28904,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        36359,
+        35908,
+        20275,
+        40597,
+        8748,
+        3370,
+        14215,
+        21883
+      ]
+    }
+  ],
+  "ocm": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 2,
+      "shifts": [
+        0,
+        4,
+        7,
+        10,
+        13
+      ],
+      "C": 50775,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        36381,
+        60122,
+        6219,
+        17671,
+        46772,
+        30175,
+        50160,
+        41670
+      ]
+    }
+  ],
+  "pdm": null,
+  "peiker_hfm": null,
+  "plgm": null,
+  "ptim_lx": null,
+  "pts": null,
+  "sas": null,
+  "sunr": null,
+  "temic_ddm": null,
+  "temic_pdm": null,
+  "teves_abs": [
+    "lcg_pair",
+    {
+      "kind": "lcg_pair",
+      "A": 1103515245,
+      "B": 12345,
+      "C": 255
+    }
+  ],
+  "trw_abs": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 2,
+      "shifts": [
+        1,
+        4,
+        7,
+        10,
+        13
+      ],
+      "C": 42395,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        62338,
+        52893,
+        13743,
+        17004,
+        18531,
+        63809,
+        29981,
+        60127
+      ]
+    }
+  ],
+  "trw_hvac": null,
+  "trw_hvac_2": null,
+  "trw_ocm": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 2,
+      "shifts": [
+        0,
+        4,
+        7,
+        10,
+        13
+      ],
+      "C": 50775,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        36381,
+        60122,
+        6219,
+        17671,
+        46772,
+        30175,
+        50160,
+        41670
+      ]
+    }
+  ],
+  "trw_orc": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 2,
+      "shifts": [
+        0,
+        4,
+        7,
+        10,
+        13
+      ],
+      "C": 50775,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        29154,
+        5413,
+        59316,
+        47864,
+        18763,
+        35360,
+        15375,
+        23865
+      ]
+    }
+  ],
+  "trw_sas": null,
+  "valeo_scm": [
+    "lcg_pair",
+    {
+      "kind": "lcg_pair",
+      "A": 1103515245,
+      "B": 12345,
+      "C": 305419896
+    }
+  ],
+  "venom_pcm": [
+    "t8_xor",
+    {
+      "kind": "t8_xor",
+      "R": 1,
+      "shifts": [
+        2,
+        4,
+        8,
+        11,
+        13
+      ],
+      "C": 43862,
+      "seed_xor_mode": 1,
+      "n_lookups": 5,
+      "table": [
+        29745,
+        7789,
+        746,
+        63767,
+        44114,
+        14203,
+        8674,
+        51784
+      ]
+    }
+  ],
+  "visteon_amp": null,
+  "wcm": null,
+  "yazaki_fcm": null
+}
