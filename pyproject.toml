@@ -1,0 +1,12 @@
+[project]
+name = "repl-nix-workspace"
+version = "0.1.0"
+description = "Root Python manifest for the Replit container. Installed via `uv sync` on container build so CI workflows (notably `unlock-catalog-check`) have the Python deps they need."
+requires-python = ">=3.11"
+dependencies = [
+    # Required by tools/python-bridge/tools/srtlab_unlock_catalog_gen.py
+    # to introspect per-module unlock DLLs in the `unlock-catalog-check`
+    # validation workflow. Mirrored in tools/python-bridge/requirements.txt
+    # for the standalone Windows bridge install path.
+    "pefile>=2024.8.26",
+]
