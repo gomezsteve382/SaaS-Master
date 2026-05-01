@@ -1,0 +1,180 @@
+// @vitest-environment jsdom
+//
+// Task #503 — End-to-end UI coverage for the MODULE INSPECTOR tab inside the
+// SRT Lab vehicle workspace.
+//
+// Task #496 added the FcaModuleInspector component, registered it as the
+// `inspector` tab in the workspace tab registry, and pinned the helper
+// functions (`detectModuleType`, `scanForVINs`, `parseInspectorModule`,
+// SKIM byte read) against the three real-dump fixtures via
+// `FcaModuleInspector.fixtures.test.js`. What that suite does NOT exercise
+// is that the tab actually opens inside a workspace, accepts a loaded
+// fixture, and renders the parsed module info to the DOM — a regression in
+// the workspace tab routing or in the JSX rendering would not be caught
+// by the helper-only suite.
+//
+// This suite mounts the full <App/>, navigates to a vehicle workspace,
+// clicks the MODULE INSPECTOR tab, drops each of the three real-dump
+// fixtures into the inspector's file input, and asserts:
+//   1. The detected module name (e.g. "GPEC2A PCM" / "BCM DFLASH" /
+//      "RFHUB EEE") is rendered in the module tile.
+//   2. The first VIN row (`VIN: <17 chars>`) is rendered in the module
+//      tile.
+//   3. For the GPEC2A fixture only, the SKIM status string ("DISABLED")
+//      is rendered in the module tile.
+//
+// Skip-don't-fail: if the realDumps manifest is missing the suite
+// describe.skips so the build never breaks before fixtures are committed.
+
+import React from 'react';
+import { describe, it, beforeEach, afterEach, expect } from 'vitest';
+import { render, screen, cleanup, fireEvent, act, waitFor, within } from '@testing-library/react';
+
+import App from '../../App.jsx';
+import { loadRealDumpFixtures } from '../../lib/__fixtures__/realDumps/loader.js';
+
+const fixtures = loadRealDumpFixtures();
+
+function bufferFile(name, bytes) {
+  return new File([bytes], name, { type: 'application/octet-stream' });
+}
+
+// Walk into the workspace by clicking the first vehicle card on the
+// landing page, then click the MODULE INSPECTOR tab in the workspace tab
+// strip. Returns the inspector tab's hidden file <input> element so the
+// caller can drop a fixture into it.
+async function openInspectorTab() {
+  // Landing page → click the CHARGER card. VEHICLE_LIST starts with
+  // charger; the rendered card surfaces the vehicle name as visible
+  // text inside a clickable wrapper div.
+  const chargerLabel = await screen.findByText('CHARGER');
+  // The card itself is the closest ancestor with an onClick — walk up
+  // until we find an element whose role is implicitly clickable. The
+  // simplest reliable approach is to click the label's nearest div
+  // ancestor that has cursor:pointer. fireEvent.click bubbles, so
+  // clicking the label dispatches through the wrapper's onClick handler.
+  await act(async () => { fireEvent.click(chargerLabel); });
+
+  // Workspace mounted → click the MODULE INSPECTOR tab button.
+  const tabBtn = await screen.findByText('MODULE INSPECTOR');
+  await act(async () => { fireEvent.click(tabBtn); });
+
+  // The FcaModuleInspector header is rendered when the inspector tab
+  // is active. Wait for it as the readiness signal.
+  await screen.findByText('FCA Module Security Analyzer');
+
+  // The inspector's file input is a hidden <input type="file"
+  // accept=".bin"> rendered inside the tab body. Other workspace tabs
+  // are conditionally rendered (`{tab==='inspector' && ...}`), so when
+  // the inspector tab is active this is the only `input[type="file"]`
+  // in the DOM.
+  const inputs = document.querySelectorAll('input[type="file"]');
+  expect(inputs.length).toBeGreaterThan(0);
+  // Pick the one that accepts .bin uploads (the inspector input). Other
+  // file inputs in the workspace may match different accept patterns;
+  // be defensive in case one ever leaks into the same render tree.
+  const binInput = Array.from(inputs).find(i => (i.getAttribute('accept') || '').includes('.bin'));
+  expect(binInput).toBeTruthy();
+  return binInput;
+}
+
+// Drop a fixture into the inspector's hidden file input and wait for the
+// module tile to render. The tile is keyed on the module's `name`
+// (e.g. "GPEC2A PCM"), which only appears in the DOM after
+// FileReader → parseInspectorModule → setModules has resolved.
+async function loadFixtureInto(input, name, bytes, expectedModuleName) {
+  const file = bufferFile(name, bytes);
+  await act(async () => {
+    fireEvent.change(input, { target: { files: [file] } });
+  });
+  await waitFor(() => expect(screen.getByText(expectedModuleName)).toBeTruthy());
+  // Module tile is the element whose direct text is the module name.
+  // Walk up to the tile container so the caller can scope queries to it.
+  const nameEl = screen.getByText(expectedModuleName);
+  return nameEl.parentElement;
+}
+
+(fixtures ? describe : describe.skip)(
+  'Task #503 — MODULE INSPECTOR tab end-to-end UI flow inside workspace',
+  () => {
+    beforeEach(() => {
+      if (!fixtures) {
+        throw new Error('realDumps manifest missing — cannot run inspector UI suite');
+      }
+    });
+    afterEach(() => cleanup());
+
+    (fixtures.pcm ? it : it.skip)(
+      'GPEC2A PCM fixture: tab opens, fixture loads, module name + VIN + SKIM render',
+      async () => {
+        render(<App/>);
+        const input = await openInspectorTab();
+        const tile = await loadFixtureInto(
+          input,
+          'pcm.after.bin',
+          fixtures.pcm.after,
+          'GPEC2A PCM',
+        );
+
+        // (1) Detected module name — already asserted by loadFixtureInto's
+        //     getByText('GPEC2A PCM'), but pin it explicitly here too so
+        //     the assertion list reads top-to-bottom against the spec.
+        expect(within(tile).getByText('GPEC2A PCM')).toBeTruthy();
+
+        // (2) First VIN row — the tile renders "VIN: <17 chars>" for
+        //     m.vins[0]. The pcm.after.bin VIN at byte 0 is the
+        //     anonymized 2C3CDXCT1HH600000 per the fixtures suite.
+        expect(within(tile).getByText(/VIN:\s*2C3CDXCT1HH600000/)).toBeTruthy();
+
+        // (3) SKIM status — pcm.after.bin has SKIM=0x00 ("DISABLED")
+        //     per the manifest's anonymized capture. The tile renders
+        //     "SKIM: <status>" only for GPEC2A modules.
+        expect(within(tile).getByText(/SKIM:\s*DISABLED/)).toBeTruthy();
+      }
+    );
+
+    (fixtures.bcm ? it : it.skip)(
+      'BCM DFLASH fixture: tab opens, fixture loads, module name + VIN render',
+      async () => {
+        render(<App/>);
+        const input = await openInspectorTab();
+        const tile = await loadFixtureInto(
+          input,
+          'bcm.after.bin',
+          fixtures.bcm.after,
+          'BCM DFLASH',
+        );
+
+        expect(within(tile).getByText('BCM DFLASH')).toBeTruthy();
+        // bcm.after.bin's first VIN row (offset 0x5328) is the
+        // anonymized 2C3CDXL90MH582899 per the fixtures suite.
+        expect(within(tile).getByText(/VIN:\s*2C3CDXL90MH582899/)).toBeTruthy();
+        // BCM tiles have no SKIM line — only GPEC2A populates m.skimStatus.
+        expect(within(tile).queryByText(/SKIM:/)).toBeNull();
+      }
+    );
+
+    (fixtures.rfhub ? it : it.skip)(
+      'RFHUB EEE fixture: tab opens, fixture loads, module name + VIN render',
+      async () => {
+        render(<App/>);
+        const input = await openInspectorTab();
+        const tile = await loadFixtureInto(
+          input,
+          'rfhub.after.bin',
+          fixtures.rfhub.after,
+          'RFHUB EEE',
+        );
+
+        expect(within(tile).getByText('RFHUB EEE')).toBeTruthy();
+        // rfhub.after.bin stores VIN bytes in reversed order at
+        // 0x0EA5 — the inspector reads them verbatim per the original
+        // drop, so the first VIN row is the reversed 000006HH1TCXDC3C2
+        // (matches the helper-level fixtures suite).
+        expect(within(tile).getByText(/VIN:\s*000006HH1TCXDC3C2/)).toBeTruthy();
+        // RFHUB tiles have no SKIM line.
+        expect(within(tile).queryByText(/SKIM:/)).toBeNull();
+      }
+    );
+  }
+);
