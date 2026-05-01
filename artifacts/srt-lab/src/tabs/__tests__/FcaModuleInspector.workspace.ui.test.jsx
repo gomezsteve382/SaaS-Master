@@ -59,9 +59,12 @@ async function openInspectorTab() {
   const tabBtn = await screen.findByText('MODULE INSPECTOR');
   await act(async () => { fireEvent.click(tabBtn); });
 
-  // The FcaModuleInspector header is rendered when the inspector tab
-  // is active. Wait for it as the readiness signal.
-  await screen.findByText('FCA Module Security Analyzer');
+  // The FcaModuleInspector body is rendered when the inspector tab is
+  // active. The drop-card label ("Drop .bin files here or click to
+  // load") is unique to that body, so use it as the readiness signal —
+  // the previous heading text ("FCA Module Security Analyzer") was
+  // removed when the inspector adopted the workspace gradient header.
+  await screen.findByText(/Drop \.bin files here/);
 
   // The inspector's file input is a hidden <input type="file"
   // accept=".bin"> rendered inside the tab body. Other workspace tabs
@@ -167,11 +170,13 @@ async function loadFixtureInto(input, name, bytes, expectedModuleName) {
         );
 
         expect(within(tile).getByText('RFHUB EEE')).toBeTruthy();
-        // rfhub.after.bin stores VIN bytes in reversed order at
-        // 0x0EA5 — the inspector reads them verbatim per the original
-        // drop, so the first VIN row is the reversed 000006HH1TCXDC3C2
-        // (matches the helper-level fixtures suite).
-        expect(within(tile).getByText(/VIN:\s*000006HH1TCXDC3C2/)).toBeTruthy();
+        // rfhub.after.bin stores VIN bytes in reversed order at 0x0EA5.
+        // Task #518 routes inspector loads through the canonical
+        // `parseModule`, which matches every other tab and un-reverses
+        // the bytes for display, so the rendered first VIN is the
+        // decoded 2C3CDXCT1HH600000 (not the verbatim 000006HH1TCXDC3C2
+        // the legacy `parseInspectorModule` would have produced).
+        expect(within(tile).getByText(/VIN:\s*2C3CDXCT1HH600000/)).toBeTruthy();
         // RFHUB tiles have no SKIM line.
         expect(within(tile).queryByText(/SKIM:/)).toBeNull();
       }

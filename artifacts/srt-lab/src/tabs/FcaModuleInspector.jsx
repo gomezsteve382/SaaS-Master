@@ -21,9 +21,45 @@
  * untouched (the fixture tests in
  * `__tests__/FcaModuleInspector.fixtures.test.js` must still pass).
  * ========================================================================== */
-import { useState, useCallback, useMemo, useRef } from "react";
+import { useState, useCallback, useMemo, useRef, useContext } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn, Tag, SLine } from "../lib/ui.jsx";
+import { parseModule } from "../lib/parseModule.js";
+import { MasterVinContext } from "../lib/masterVinContext.jsx";
+
+/* Task #518 — the inspector is no longer a sandboxed island. Instead of
+ * keeping its own local `useState([])` of parsed dumps, it now reads from
+ * (and writes to) the workspace-wide MasterVinContext store the same way
+ * Gpec2aTab / RfhubTab / BcmTab do. Files dropped into the inspector
+ * appear in the per-module tabs immediately, and files loaded elsewhere
+ * (Dumps tab, Samples Library, etc.) appear in the inspector's module
+ * list without the user having to re-drop them.
+ *
+ * Files loaded via the inspector are now parsed by the canonical
+ * workspace `parseModule` (not the inspector-private `parseInspectorModule`)
+ * so the resulting dump shape matches what every other tab expects —
+ * size warnings, content warnings, RFHUB CRC verdicts, BCM SEC16
+ * resolution, etc. The legacy `parseInspectorModule` helper is still
+ * exported (and still used by the helper-only fixtures suite) for
+ * backwards compatibility, but the live UI no longer calls it. */
+
+// Module types the inspector cares about. Other types loaded into the
+// workspace (e.g. '95640' EEPROM backups, EFD payloads, C-Flash blobs)
+// are intentionally excluded — the inspector's UI panels assume one of
+// these three families.
+const INSPECTOR_TYPES = ["GPEC2A", "RFHUB", "BCM"];
+
+// Display-name overlay so the tile chrome keeps the inspector's
+// long-form labels (the rest of the workspace uses parseModule's
+// shorter labels — e.g. "BCM D-FLASH" — but the inspector predates
+// that and shipped with these). This only affects rendered text;
+// the underlying entry.mod.name (set by parseModule) is unchanged.
+const INSPECTOR_DISPLAY_NAMES = {
+  GPEC2A: "GPEC2A PCM",
+  RFHUB: "RFHUB EEE",
+  BCM: "BCM DFLASH",
+};
+const inspectorName = (m) => (m && INSPECTOR_DISPLAY_NAMES[m.type]) || (m && m.name) || "";
 
 const MODULE_TYPES = {
   GPEC2A: { name: "GPEC2A PCM", chip: "95320 SPI", size: 4096, color: C.a1 },
@@ -312,37 +348,106 @@ const TABS = [
 export { MODULE_TYPES, SKIM_VALUES, detectModuleType, scanForVINs, extractVIN, parseInspectorModule };
 
 export default function FcaModuleInspector() {
-  const [modules, setModules] = useState([]);
+  const { loadedDumps, addDump, removeDump } = useContext(MasterVinContext);
   const [tab, setTab] = useState("overview");
   const [dp, setDp] = useState([0, 1]);
   const [nv, setNv] = useState("");
   const [tt, setTt] = useState(0);
   const [tr, setTr] = useState(null);
+  const [loadMsg, setLoadMsg] = useState("");
   const fr = useRef();
 
-  const onFiles = useCallback(e => {
-    Array.from(e.target.files).forEach(f => {
-      const r = new FileReader();
-      r.onload = ev => { setModules(p => p.concat([parseInspectorModule(new Uint8Array(ev.target.result), f.name)])); };
-      r.readAsArrayBuffer(f);
-    });
-    e.target.value = "";
-  }, []);
+  // Pull every inspector-relevant dump out of the shared workspace store
+  // so files loaded in any tab (Dumps, Samples, Gpec2a/Rfhub/Bcm) appear
+  // here automatically, ordered by load time. Each entry's `mod` is the
+  // canonical `parseModule` output the rest of the workspace renders.
+  const entries = useMemo(
+    () =>
+      loadedDumps
+        .filter((d) => INSPECTOR_TYPES.includes(d.type))
+        .slice()
+        .sort((a, b) => a.addedAt - b.addedAt),
+    [loadedDumps]
+  );
+  const modules = useMemo(() => entries.map((e) => e.mod), [entries]);
 
-  const rmMod = i => setModules(p => p.filter((_, j) => j !== i));
-  const clr = () => { setModules([]); setTr(null); };
-  const val = useMemo(() => modules.length > 0 ? crossValidate(modules) : null, [modules]);
-  const diff = useMemo(() => { if (modules.length < 2) return null; const a = modules[dp[0]]?.data, b = modules[dp[1]]?.data; return a && b ? computeDiff(a, b) : null; }, [modules, dp]);
+  const onFiles = useCallback(
+    (e) => {
+      const files = Array.from(e.target.files);
+      e.target.value = "";
+      if (files.length === 0) return;
+      const skipped = [];
+      let pending = files.length;
+      files.forEach((f) => {
+        const r = new FileReader();
+        r.onload = (ev) => {
+          const bytes = new Uint8Array(ev.target.result);
+          const m = parseModule(bytes, f.name);
+          if (!m || !m.type || !INSPECTOR_TYPES.includes(m.type)) {
+            skipped.push(f.name + " (" + (m?.type || "UNKNOWN") + ")");
+          } else {
+            addDump(m);
+          }
+          pending -= 1;
+          if (pending === 0) {
+            setLoadMsg(
+              skipped.length
+                ? "Skipped " + skipped.length + ' file(s): only GPEC2A / RFHUB / BCM dumps load into the inspector — ' + skipped.join(", ")
+                : ""
+            );
+          }
+        };
+        r.readAsArrayBuffer(f);
+      });
+    },
+    [addDump]
+  );
+
+  // The × button on a tile and the Clear All button are explicit user
+  // actions: per the Task #518 contract, they DO drop the dump from the
+  // shared store (other tabs will fall through to whatever dump is next
+  // in their per-type list). Tab switches and unrelated UI churn never
+  // touch the store.
+  const rmMod = useCallback(
+    (i) => {
+      const entry = entries[i];
+      if (entry) removeDump(entry.hash);
+    },
+    [entries, removeDump]
+  );
+  const clr = useCallback(() => {
+    entries.forEach((e) => removeDump(e.hash));
+    setTr(null);
+    setLoadMsg("");
+  }, [entries, removeDump]);
+
+  const val = useMemo(() => (modules.length > 0 ? crossValidate(modules) : null), [modules]);
+  // Clamp the diff and tools target indices so removals (or auto-shared
+  // dumps appearing/disappearing) can't leave them pointing into thin
+  // air — we used to assume `modules` only grew, but it's now driven by
+  // the shared store and can shrink at any time.
+  const safeDp = useMemo(() => {
+    if (modules.length < 2) return [0, Math.min(1, modules.length - 1)];
+    const a = Math.min(Math.max(dp[0], 0), modules.length - 1);
+    const b = Math.min(Math.max(dp[1], 0), modules.length - 1);
+    return [a, b];
+  }, [modules, dp]);
+  const safeTt = useMemo(() => Math.min(Math.max(tt, 0), Math.max(modules.length - 1, 0)), [modules, tt]);
+  const diff = useMemo(() => {
+    if (modules.length < 2) return null;
+    const a = modules[safeDp[0]]?.data, b = modules[safeDp[1]]?.data;
+    return a && b ? computeDiff(a, b) : null;
+  }, [modules, safeDp]);
 
   const doTool = action => {
-    const m = modules[tt]; if (!m) return; let res = null;
+    const m = modules[safeTt]; if (!m) return; let res = null;
     if (action === "virginize" && m.type === "GPEC2A") res = { data: virginize(m.data), desc: "GPEC2A virginized: SKIM→0x00, keys cleared, ZZZZ zeroed." };
     else if (action === "writeVin" && nv.length === 17) { const d = writeVIN(m.data, m.type, nv, m.vins); if (d) res = { data: d, desc: "VIN updated to " + nv + " at " + (m.vins ? m.vins.length : 0) + " locations" }; }
     else if (action === "skimToggle" && m.type === "GPEC2A") { const d = new Uint8Array(m.data); d[0x0011] = m.skimByte === 0x80 ? 0x00 : 0x80; res = { data: d, desc: "SKIM: 0x" + m.skimByte.toString(16).toUpperCase() + " → 0x" + d[0x0011].toString(16).toUpperCase() }; }
     else if (action === "extractKey") { let k = m.secretKey ? m.secretKey.hex : m.vehicleSecret ? m.vehicleSecret.hex : ""; res = { keyHex: k, desc: "Extracted from " + m.type }; }
     setTr(res);
   };
-  const dl = () => { if (!tr?.data) return; const b = new Blob([tr.data], { type: "application/octet-stream" }); const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = "modified_" + (modules[tt]?.filename || "module.bin"); a.click(); URL.revokeObjectURL(u); };
+  const dl = () => { if (!tr?.data) return; const b = new Blob([tr.data], { type: "application/octet-stream" }); const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = "modified_" + (modules[safeTt]?.filename || "module.bin"); a.click(); URL.revokeObjectURL(u); };
 
   return <div>
     {/* Hero — matches the gradient title cards used by GPEC2A / RFHUB / BCM tabs */}
@@ -384,9 +489,13 @@ export default function FcaModuleInspector() {
           {modules.length === 0 ? "Drop .bin files here or click to load" : modules.length + " module(s) loaded — add more"}
         </div>
         <div style={{ fontSize: 10, color: C.tm, marginTop: 4, letterSpacing: 0.5 }}>GPEC2A EEPROM (4KB) · RFHUB EEE (4KB) · BCM DFLASH (64KB)</div>
+        <div style={{ fontSize: 10, color: C.tm, marginTop: 4, fontStyle: "italic" }}>
+          Files loaded in other tabs (Dumps, Samples, GPEC2A / RFHUB / BCM) appear here automatically.
+        </div>
         <input ref={fr} type="file" multiple accept=".bin,.BIN" hidden onChange={onFiles} />
       </Card>
     </label>
+    {loadMsg && <div style={{ marginBottom: 12, padding: "8px 12px", borderRadius: 8, background: C.wn + "15", border: "1px solid " + C.wn + "40", color: C.wn, fontSize: 11, fontWeight: 700 }}>⚠ {loadMsg}</div>}
 
     {/* Loaded module chips */}
     {modules.length > 0 && <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 18 }}>
@@ -400,7 +509,7 @@ export default function FcaModuleInspector() {
           position: "absolute", top: 8, right: 10, background: "none", border: "none",
           color: C.tm, cursor: "pointer", fontSize: 16, lineHeight: 1, fontWeight: 700,
         }}>×</button>
-        <div style={{ fontSize: 13, fontWeight: 900, color: m.color, marginBottom: 2 }}>{m.name}</div>
+        <div style={{ fontSize: 13, fontWeight: 900, color: m.color, marginBottom: 2 }}>{inspectorName(m)}</div>
         <div style={{ fontSize: 10, color: C.tm, marginBottom: 8, fontFamily: "'JetBrains Mono'" }}>{m.filename} · {m.size.toLocaleString()}B</div>
         {m.vins?.[0] && <div style={{ fontSize: 11, color: C.a1, fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>VIN: {m.vins[0].vin}</div>}
         {m.skimStatus && <div style={{ fontSize: 11, color: m.skimByte === 0x80 ? C.gn : C.er, fontWeight: 700, marginTop: 2 }}>SKIM: {m.skimStatus}</div>}
@@ -424,7 +533,7 @@ export default function FcaModuleInspector() {
         {val.passed.map((m, i) => <SLine key={"p"+i} type="pass" msg={m} />)}
       </Card>
       {modules.map((m, i) => <div key={i} style={{ marginTop: 14 }}>
-        <STitle color={m.color}>{m.name} — <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700, color: C.ts }}>{m.filename}</span></STitle>
+        <STitle color={m.color}>{inspectorName(m)} — <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700, color: C.ts }}>{m.filename}</span></STitle>
         <Card style={{ padding: 0, overflow: "hidden" }}>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
@@ -455,7 +564,7 @@ export default function FcaModuleInspector() {
       <STitle>Security Architecture</STitle>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 12 }}>
         {modules.map((m, i) => <Card key={i} style={{ padding: 16, borderLeft: "4px solid " + m.color }}>
-          <div style={{ fontWeight: 900, color: m.color, marginBottom: 10, fontSize: 14 }}>{m.name}</div>
+          <div style={{ fontWeight: 900, color: m.color, marginBottom: 10, fontSize: 14 }}>{inspectorName(m)}</div>
           {m.vins?.[0] && <div style={{ fontSize: 12, marginBottom: 5 }}>VIN: <span style={{ color: C.a1, fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{m.vins[0].vin}</span></div>}
           {m.skimStatus && <div style={{ fontSize: 12, marginBottom: 5 }}>SKIM: <span style={{ color: m.skimByte === 0x80 ? C.gn : C.er, fontWeight: 700 }}>{m.skimStatus}</span></div>}
           {m.secretKey && <div style={{ fontSize: 11, marginBottom: 5 }}>Secret: <span style={{ color: C.a4, fontFamily: "'JetBrains Mono'" }}>{m.secretKey.hex}</span> {m.keyConsistent ? "✓" : "✗"}</div>}
@@ -474,16 +583,16 @@ export default function FcaModuleInspector() {
       {modules.length < 2 ? <Card style={{ textAlign: "center", padding: 22, color: C.tm, fontSize: 12 }}>Load 2+ modules to compare.</Card> : <div>
         <Card style={{ padding: 12, marginBottom: 14 }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-            <select value={dp[0]} onChange={e => setDp([+e.target.value, dp[1]])} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename}</option>)}</select>
+            <select value={safeDp[0]} onChange={e => setDp([+e.target.value, dp[1]])} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename}</option>)}</select>
             <span style={{ color: C.tm, fontSize: 16 }}>↔</span>
-            <select value={dp[1]} onChange={e => setDp([dp[0], +e.target.value])} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename}</option>)}</select>
+            <select value={safeDp[1]} onChange={e => setDp([dp[0], +e.target.value])} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename}</option>)}</select>
           </div>
         </Card>
         {diff && <Card style={{ padding: 14 }}>
           <div style={{ fontSize: 12, color: C.wn, marginBottom: 10, fontWeight: 800 }}>{diff.totalChanged} bytes changed, {diff.groups.length} regions</div>
           <div style={{ background: C.c2, border: "1px solid " + C.bd, borderRadius: 10, padding: 12, maxHeight: 500, overflowY: "auto" }}>
             {diff.groups.slice(0, 50).map(([s, e], gi) => {
-              const a = modules[dp[0]].data, b = modules[dp[1]].data;
+              const a = modules[safeDp[0]].data, b = modules[safeDp[1]].data;
               const ls = s & ~0xf, le = (e | 0xf) + 1, lines = [];
               for (let o = ls; o < le && o < Math.max(a.length, b.length); o += 16) {
                 const ha = [], hb = [];
@@ -516,7 +625,7 @@ export default function FcaModuleInspector() {
       {modules.length === 0 ? <Card style={{ textAlign: "center", padding: 22, color: C.tm, fontSize: 12 }}>Load a module first.</Card> : <div>
         <Card style={{ padding: 12, marginBottom: 14, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <label style={{ fontSize: 11, color: C.tm, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase" }}>Target:</label>
-          <select value={tt} onChange={e => setTt(+e.target.value)} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename} ({m.name})</option>)}</select>
+          <select value={safeTt} onChange={e => setTt(+e.target.value)} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename} ({inspectorName(m)})</option>)}</select>
         </Card>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
@@ -531,16 +640,16 @@ export default function FcaModuleInspector() {
           <Card style={{ padding: 16, borderTop: "3px solid " + C.sr }}>
             <div style={{ fontSize: 13, fontWeight: 900, color: C.tx, marginBottom: 4 }}>SKIM Manager</div>
             <div style={{ fontSize: 10, color: C.tm, marginBottom: 12 }}>Toggle SKIM byte at 0x0011 (GPEC2A).</div>
-            {modules[tt]?.type==="GPEC2A" ? <div>
-              <div style={{ fontSize: 12, marginBottom: 10, fontFamily: "'JetBrains Mono'" }}>Current: <span style={{ color: modules[tt].skimByte===0x80?C.gn:C.er, fontWeight: 800 }}>0x{modules[tt].skimByte.toString(16).toUpperCase()}</span></div>
-              <Btn onClick={() => doTool("skimToggle")} color={modules[tt].skimByte===0x80?C.wn:C.gn} full>{modules[tt].skimByte===0x80?"Disable SKIM":"Enable SKIM"}</Btn>
+            {modules[safeTt]?.type==="GPEC2A" ? <div>
+              <div style={{ fontSize: 12, marginBottom: 10, fontFamily: "'JetBrains Mono'" }}>Current: <span style={{ color: modules[safeTt].skimByte===0x80?C.gn:C.er, fontWeight: 800 }}>0x{modules[safeTt].skimByte.toString(16).toUpperCase()}</span></div>
+              <Btn onClick={() => doTool("skimToggle")} color={modules[safeTt].skimByte===0x80?C.wn:C.gn} full>{modules[safeTt].skimByte===0x80?"Disable SKIM":"Enable SKIM"}</Btn>
             </div> : <div style={{ fontSize: 11, color: C.tm }}>Select a GPEC2A module.</div>}
           </Card>
 
           <Card style={{ padding: 16, borderTop: "3px solid " + C.wn }}>
             <div style={{ fontSize: 13, fontWeight: 900, color: C.tx, marginBottom: 4 }}>Virginize PCM</div>
             <div style={{ fontSize: 10, color: C.tm, marginBottom: 12 }}>Clear keys, SKIM, ZZZZ, transponder.</div>
-            {modules[tt]?.type==="GPEC2A" ? <Btn onClick={() => doTool("virginize")} color={C.wn} full>Virginize</Btn> : <div style={{ fontSize: 11, color: C.tm }}>Select a GPEC2A module.</div>}
+            {modules[safeTt]?.type==="GPEC2A" ? <Btn onClick={() => doTool("virginize")} color={C.wn} full>Virginize</Btn> : <div style={{ fontSize: 11, color: C.tm }}>Select a GPEC2A module.</div>}
           </Card>
 
           <Card style={{ padding: 16, borderTop: "3px solid " + C.a4 }}>
