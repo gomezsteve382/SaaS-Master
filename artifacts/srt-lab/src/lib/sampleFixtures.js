@@ -74,6 +74,20 @@ export const SAMPLE_FIXTURES = [
 
   { file:"SAMPLE_SMARTBOX_EEE_JOVENTINO_VIN_CRC.bin", kind:"SMARTBOX", size:4096, vin:null, role:"VIN_CRC",
     pair:"joventino", notes:"Joventino set — pairs with JOVENTINO GPEC EXT" },
+
+  // Task #497 — rescued from misnamed `.zip` files in attached_assets/.
+  // Two BCM/PCM pairs for the 2020 Charger SXT (VIN 2C3CDXL97LH237142).
+  // Both halves of each pair are byte-identical (same sha256 prefix in name);
+  // the trailing `_dup_<ts>` keeps the second copy traceable to its original
+  // upload timestamp. See RESCUED_DUMPS.md for full provenance.
+  { file:"SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2.bin", kind:"BCM", size:65536, vin:"2C3CDXL97LH237142", role:"VIN_CRC",
+    pair:"sxt-charger-237142", notes:"Rescued 2020 Charger SXT BCM (FEE1000 header @4, locked, 8 immo recs) — pairs with matching GPEC2A PCM" },
+  { file:"SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2_dup_1776900716171.bin", kind:"BCM", size:65536, vin:"2C3CDXL97LH237142", role:"VIN_CRC",
+    pair:"sxt-charger-237142", notes:"Rescued duplicate of the SXT Charger BCM (byte-identical, kept for parity with original upload pair)" },
+  { file:"SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa.bin", kind:"GPEC_EXT", size:8192, vin:"2C3CDXL97LH237142", role:"VIN_CRC",
+    pair:"sxt-charger-237142", notes:"Rescued 2020 Charger SXT PCM (Continental GPEC2A 8 KB, VIN @ offset 0) — pairs with matching BCM" },
+  { file:"SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa_dup_1776900716173.bin", kind:"GPEC_EXT", size:8192, vin:"2C3CDXL97LH237142", role:"VIN_CRC",
+    pair:"sxt-charger-237142", notes:"Rescued duplicate of the SXT Charger PCM (byte-identical, kept for parity with original upload pair)" },
 ];
 
 export function getFixturesByKind(kind) {

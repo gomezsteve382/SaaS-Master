@@ -51,6 +51,10 @@ against them.
 | SAMPLE_RFHUB_EEE_OG_2C3CDXCT1HH652640.bin | 2C3CDXCT1HH652640 | RFHUB EEE | 4096 | OG | Charger 6.2 RFHUB external EEPROM with VIN+CRC. |
 | SAMPLE_RFHUB_PFLASH_OG_2C3CDXCT1HH652640.bin | 2C3CDXCT1HH652640 | RFHUB P-FLASH | 4096 | OG | Charger 6.2 RFHUB program flash for the same VIN. |
 | SAMPLE_SMARTBOX_EEE_JOVENTINO_VIN_CRC.bin | (Joventino set) | SmartBox EEE (MC9S12XEG384) | 4096 | VIN_CRC | Dodge Journey SmartBox EEPROM with VIN+CRC. Pairs with the JOVENTINO GPEC2A EXT EEPROM. |
+| SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2.bin | 2C3CDXL97LH237142 | BCM DFLASH | 65536 | VIN_CRC | Task #497 — rescued from misnamed `attached_assets/Asset-Manager-Tool_1776900673446.zip`. 2020 Charger SXT, header `FEE1000` @ 0x04, locked, 8 immo recs. Pairs with the matching GPEC2A PCM below. |
+| SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2_dup_1776900716171.bin | 2C3CDXL97LH237142 | BCM DFLASH | 65536 | VIN_CRC | Task #497 — rescued duplicate (byte-identical sha256 to the BCM above). |
+| SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa.bin | 2C3CDXL97LH237142 | GPEC2A EXT EEPROM (8 KB) | 8192 | VIN_CRC | Task #497 — rescued from misnamed `attached_assets/files_(1)_1776900673449.zip`. 2020 Charger SXT, VIN at offset 0x00. Pairs with the matching BCM above. |
+| SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa_dup_1776900716173.bin | 2C3CDXL97LH237142 | GPEC2A EXT EEPROM (8 KB) | 8192 | VIN_CRC | Task #497 — rescued duplicate (byte-identical sha256 to the PCM above). |
 
 Two attachments in the source set were intentionally **not imported**:
 
@@ -92,6 +96,17 @@ verified against:
 ### Original synced pair — VIN `2C3CDXL90MH582899`
 - BCM:  `SAMPLE_BCM_SYNCED_2C3CDXL90MH582899.bin`
 - RFH:  `SAMPLE_RFH_SYNCED_VIRGIN_2C3CDXL90MH582899.bin`
+
+### 2020 Charger SXT — VIN `2C3CDXL97LH237142` (rescued, Task #497)
+Real BCM ↔ PCM pair rescued from four misnamed `.zip` files in
+`attached_assets/`. Each module has two byte-identical copies (suffixed
+`_dup_<original-timestamp>`) — see `RESCUED_DUMPS.md` for the original
+filename mapping and full smoke-check output.
+
+- BCM DFLASH: `SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2.bin`
+              `SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2_dup_1776900716171.bin`
+- PCM GPEC2A 8 KB: `SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa.bin`
+                   `SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa_dup_1776900716173.bin`
 
 ## Notes for test authors
 
