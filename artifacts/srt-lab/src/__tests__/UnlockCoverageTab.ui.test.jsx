@@ -56,6 +56,10 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   delete global.fetch;
+  // Reset URL state so the chip-filter URL sync from one test cannot leak
+  // into the initial state of the next test (the component seeds its
+  // algoFilter from window.location.search on mount).
+  try { window.history.replaceState(null, "", "/"); } catch { /* jsdom only */ }
 });
 
 describe("UnlockCoverageTab — UI", () => {
@@ -198,6 +202,177 @@ describe("UnlockCoverageTab — UI", () => {
     expect(
       screen.getByTestId("coverage-header").getAttribute("data-stats-source"),
     ).toBe("dispatcher");
+  });
+
+  it("renders an algorithm-family chip per distinct tag with module counts", async () => {
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+
+    // Compute the expected per-algorithm counts from the catalog.
+    const counts = new Map();
+    for (const e of CATALOG.entries) {
+      if (!e.algorithm) continue;
+      counts.set(e.algorithm, (counts.get(e.algorithm) || 0) + 1);
+    }
+    expect(counts.size).toBeGreaterThan(0);
+
+    // The "All" chip is always present and shows the sum of tagged modules.
+    const all = screen.getByTestId("algo-chip-all");
+    expect(all).toBeTruthy();
+    const totalTagged = Array.from(counts.values()).reduce((s, n) => s + n, 0);
+    expect(screen.getByTestId("algo-chip-all-count").textContent).toBe(
+      String(totalTagged),
+    );
+
+    // Each distinct algorithm tag becomes a chip with its count badge.
+    for (const [algo, n] of counts.entries()) {
+      const chip = screen.getByTestId(`algo-chip-${algo}`);
+      expect(chip).toBeTruthy();
+      expect(screen.getByTestId(`algo-chip-${algo}-count`).textContent).toBe(
+        String(n),
+      );
+    }
+  });
+
+  it("clicking an algorithm chip filters the table to just that family", async () => {
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+
+    // Pick an algorithm with at least one module and at least one *other*
+    // module that uses a different algorithm — so we can prove the filter
+    // both keeps in-family rows and removes out-of-family rows.
+    const inEntry = CATALOG.entries.find((e) => e.algorithm);
+    expect(inEntry).toBeTruthy();
+    const outEntry = CATALOG.entries.find(
+      (e) => e.algorithm && e.algorithm !== inEntry.algorithm,
+    );
+    expect(outEntry).toBeTruthy();
+
+    // Sanity: both rows are visible before filtering.
+    expect(screen.getByTestId(`row-${inEntry.module}`)).toBeTruthy();
+    expect(screen.getByTestId(`row-${outEntry.module}`)).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId(`algo-chip-${inEntry.algorithm}`));
+
+    // In-family row is still rendered, out-of-family row is gone.
+    expect(screen.getByTestId(`row-${inEntry.module}`)).toBeTruthy();
+    expect(screen.queryByTestId(`row-${outEntry.module}`)).toBeNull();
+
+    // The chip itself is marked active for visual emphasis.
+    expect(
+      screen
+        .getByTestId(`algo-chip-${inEntry.algorithm}`)
+        .getAttribute("data-active"),
+    ).toBe("true");
+    expect(
+      screen.getByTestId("algo-chip-all").getAttribute("data-active"),
+    ).toBe("false");
+  });
+
+  it("clicking the active chip again clears the filter", async () => {
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+
+    const inEntry = CATALOG.entries.find((e) => e.algorithm);
+    const outEntry = CATALOG.entries.find(
+      (e) => e.algorithm && e.algorithm !== inEntry.algorithm,
+    );
+
+    const chip = screen.getByTestId(`algo-chip-${inEntry.algorithm}`);
+    fireEvent.click(chip);
+    expect(screen.queryByTestId(`row-${outEntry.module}`)).toBeNull();
+
+    // Toggle off — full table comes back, chip is no longer active.
+    fireEvent.click(chip);
+    expect(screen.getByTestId(`row-${outEntry.module}`)).toBeTruthy();
+    expect(chip.getAttribute("data-active")).toBe("false");
+    expect(
+      screen.getByTestId("algo-chip-all").getAttribute("data-active"),
+    ).toBe("true");
+  });
+
+  it("the All chip resets an active filter", async () => {
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+
+    const inEntry = CATALOG.entries.find((e) => e.algorithm);
+    const outEntry = CATALOG.entries.find(
+      (e) => e.algorithm && e.algorithm !== inEntry.algorithm,
+    );
+
+    fireEvent.click(screen.getByTestId(`algo-chip-${inEntry.algorithm}`));
+    expect(screen.queryByTestId(`row-${outEntry.module}`)).toBeNull();
+
+    fireEvent.click(screen.getByTestId("algo-chip-all"));
+    expect(screen.getByTestId(`row-${outEntry.module}`)).toBeTruthy();
+    expect(
+      screen.getByTestId("algo-chip-all").getAttribute("data-active"),
+    ).toBe("true");
+  });
+
+  it("reflects the active chip in the URL via ?algo= and rehydrates from it", async () => {
+    // Seed the URL before mounting to verify the initial-state hydration.
+    const target = CATALOG.entries.find((e) => e.algorithm);
+    const other = CATALOG.entries.find(
+      (e) => e.algorithm && e.algorithm !== target.algorithm,
+    );
+    window.history.replaceState(null, "", `/?algo=${encodeURIComponent(target.algorithm)}`);
+
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+
+    // The chip pre-selected from the URL is active and the table is filtered.
+    expect(
+      screen
+        .getByTestId(`algo-chip-${target.algorithm}`)
+        .getAttribute("data-active"),
+    ).toBe("true");
+    expect(screen.queryByTestId(`row-${other.module}`)).toBeNull();
+
+    // Clicking another chip updates the URL.
+    fireEvent.click(screen.getByTestId(`algo-chip-${other.algorithm}`));
+    await waitFor(() => {
+      const sp = new URLSearchParams(window.location.search);
+      expect(sp.get("algo")).toBe(other.algorithm);
+    });
+
+    // Clicking "All" clears the URL parameter.
+    fireEvent.click(screen.getByTestId("algo-chip-all"));
+    await waitFor(() => {
+      const sp = new URLSearchParams(window.location.search);
+      expect(sp.get("algo")).toBeNull();
+    });
+
+    // Cleanup — leave the URL in a neutral state for sibling tests.
+    window.history.replaceState(null, "", "/");
+  });
+
+  it("the algorithm chip filter does not affect the 100% native banner counts", async () => {
+    const fullyNative =
+      CATALOG.dll_only_count === 0 &&
+      CATALOG.reversed_count === CATALOG.entry_count &&
+      CATALOG.entry_count > 0;
+    if (!fullyNative) return;
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+
+    const target = CATALOG.entries.find((e) => e.algorithm);
+    fireEvent.click(screen.getByTestId(`algo-chip-${target.algorithm}`));
+
+    // Banner still shows the full catalog counts even though the table is
+    // filtered. The chip filter is a view concern, not a coverage rollup.
+    expect(screen.getByTestId("native-count").textContent).toBe(
+      String(CATALOG.reversed_count),
+    );
+    expect(screen.getByTestId("emulated-count").textContent).toBe(
+      String(CATALOG.dll_only_count),
+    );
+    expect(screen.getByTestId("reversed-count").textContent).toBe(
+      String(CATALOG.reversed_count),
+    );
+    expect(screen.getByTestId("total-count").textContent).toBe(
+      String(CATALOG.entry_count),
+    );
   });
 
   it("falls back to catalog counts when the dispatcher endpoint is unavailable", async () => {

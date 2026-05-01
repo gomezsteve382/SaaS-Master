@@ -107,6 +107,50 @@ function AlgoBadge({algorithm}) {
   );
 }
 
+// Algorithm-family chip used in the row above the table. Active chips are
+// filled; inactive ones are outlined. The "All" chip clears the filter.
+function AlgoChip({label, count, active, onClick, testId, title}) {
+  return (
+    <button
+      type="button"
+      data-testid={testId}
+      data-active={active ? "true" : "false"}
+      title={title}
+      onClick={onClick}
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 6,
+        padding: "5px 10px", borderRadius: 999, cursor: "pointer",
+        border: `1.5px solid ${active ? "#0D47A1" : "#0D47A140"}`,
+        background: active ? "#0D47A1" : "#fff",
+        color: active ? "#fff" : "#0D47A1",
+        fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11, letterSpacing: 0.3,
+        transition: "background 0.15s, color 0.15s, border-color 0.15s",
+      }}
+    >
+      <span>{label}</span>
+      <span
+        data-testid={testId ? `${testId}-count` : undefined}
+        style={{
+          fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 800,
+          padding: "1px 6px", borderRadius: 999,
+          background: active ? "#ffffff22" : "#0D47A114",
+          color: active ? "#fff" : "#0D47A1",
+        }}
+      >{count}</span>
+    </button>
+  );
+}
+
+// Convert a URL ?algo=… value back into the canonical algorithm tag used
+// in component state. Encoding/decoding is handled by URLSearchParams
+// natively — we don't manually encodeURIComponent on the way out, since
+// URLSearchParams.set() already does that and stacking the two produces
+// double-encoded URLs (e.g. "+" → "%252B") for tags with reserved chars.
+function slugToAlgo(slug) {
+  if (slug === null || slug === undefined || slug === "") return "all";
+  return slug;
+}
+
 export default function UnlockCoverageTab() {
   const [catalog, setCatalog] = useState(null);
   // dispatcherStats holds the runtime view from /api/unlock-coverage/stats
@@ -121,6 +165,21 @@ export default function UnlockCoverageTab() {
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [familyFilter, setFamilyFilter] = useState("all");
+  // algoFilter is the active algorithm-family chip (or "all" when none).
+  // It's seeded once from the URL so a shared link like
+  //   /?algo=hitag2_lfsr48
+  // re-opens with that chip pre-selected. We intentionally read URL state
+  // lazily inside the initializer (not via useEffect) so the very first
+  // render is already filtered, avoiding a brief flash of the full table.
+  const [algoFilter, setAlgoFilter] = useState(() => {
+    if (typeof window === "undefined") return "all";
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      return slugToAlgo(sp.get("algo"));
+    } catch {
+      return "all";
+    }
+  });
   const [expanded, setExpanded] = useState(() => new Set());
 
   useEffect(() => {
@@ -181,17 +240,55 @@ export default function UnlockCoverageTab() {
     return Array.from(set).sort();
   }, [catalog]);
 
+  // algoCounts is the data behind the chip row: one entry per distinct
+  // non-empty algorithm tag, with its module count. Sorted by count desc
+  // so the high-volume families (t8_xor, lcg_pair, t8_chain) come first.
+  // Ties broken alphabetically by tag for a stable order across renders.
+  const algoCounts = useMemo(() => {
+    if (!catalog) return [];
+    const m = new Map();
+    for (const e of catalog.entries) {
+      if (!e.algorithm) continue;
+      m.set(e.algorithm, (m.get(e.algorithm) || 0) + 1);
+    }
+    return Array.from(m.entries())
+      .map(([algorithm, count]) => ({algorithm, count}))
+      .sort((a, b) => b.count - a.count || a.algorithm.localeCompare(b.algorithm));
+  }, [catalog]);
+
+  // Keep the URL in sync with the active chip so the filter is shareable.
+  // Uses replaceState (not pushState) so chip clicks don't pollute browser
+  // history. Skipped on the server / when there is no window.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const current = sp.get("algo") || "";
+      const next = algoFilter === "all" ? "" : algoFilter;
+      if (current === next) return;
+      if (next) sp.set("algo", next); else sp.delete("algo");
+      const qs = sp.toString();
+      const newUrl = window.location.pathname
+        + (qs ? `?${qs}` : "")
+        + (window.location.hash || "");
+      window.history.replaceState(null, "", newUrl);
+    } catch {
+      // URL bookkeeping is best-effort; never break the UI over it.
+    }
+  }, [algoFilter]);
+
   const filtered = useMemo(() => {
     if (!catalog) return [];
     const term = q.trim().toLowerCase();
     return catalog.entries.filter((e) => {
       if (statusFilter !== "all" && e.status !== statusFilter) return false;
       if (familyFilter !== "all" && e.family !== familyFilter) return false;
+      if (algoFilter !== "all" && e.algorithm !== algoFilter) return false;
       if (!term) return true;
       const blob = `${e.file} ${e.module} ${e.display_name} ${e.family} ${e.python_function || ""} ${e.algorithm || ""} ${e.ecu_info?.name || ""}`.toLowerCase();
       return blob.includes(term);
     });
-  }, [catalog, q, statusFilter, familyFilter]);
+  }, [catalog, q, statusFilter, familyFilter, algoFilter]);
 
   function toggle(module) {
     setExpanded((prev) => {
@@ -338,12 +435,48 @@ export default function UnlockCoverageTab() {
             <option value="all">All families</option>
             {families.map((f) => <option key={f} value={f}>{f}</option>)}
           </select>
-          <Btn outline onClick={() => { setQ(""); setStatusFilter("all"); setFamilyFilter("all"); }}>Reset</Btn>
+          <Btn outline onClick={() => { setQ(""); setStatusFilter("all"); setFamilyFilter("all"); setAlgoFilter("all"); }}>Reset</Btn>
         </div>
         <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, marginTop: 10}}>
           Showing <strong style={{color: C.tx}}>{filtered.length}</strong> of {catalog.entry_count} entries
         </div>
       </Card>
+
+      {algoCounts.length > 0 && (
+        <Card data-testid="algo-chip-row">
+          <div style={{display: "flex", alignItems: "baseline", gap: 10, marginBottom: 10, flexWrap: "wrap"}}>
+            <div style={{fontFamily: "'Nunito'", fontWeight: 900, fontSize: 13, color: C.tx, letterSpacing: 0.3}}>
+              Algorithm family
+            </div>
+            <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}>
+              {algoFilter === "all"
+                ? `${algoCounts.length} families across ${algoCounts.reduce((s, x) => s + x.count, 0)} modules — pick one to filter`
+                : <>Filtering by <strong style={{color: C.tx}}>{friendlyAlgo(algoFilter)}</strong> — click again or “All” to clear</>}
+            </div>
+          </div>
+          <div style={{display: "flex", flexWrap: "wrap", gap: 8}}>
+            <AlgoChip
+              label="All"
+              count={algoCounts.reduce((s, x) => s + x.count, 0)}
+              active={algoFilter === "all"}
+              onClick={() => setAlgoFilter("all")}
+              testId="algo-chip-all"
+              title="Show every algorithm family"
+            />
+            {algoCounts.map(({algorithm, count}) => (
+              <AlgoChip
+                key={algorithm}
+                label={friendlyAlgo(algorithm)}
+                count={count}
+                active={algoFilter === algorithm}
+                onClick={() => setAlgoFilter((cur) => cur === algorithm ? "all" : algorithm)}
+                testId={`algo-chip-${algorithm}`}
+                title={`algorithm tag: ${algorithm}`}
+              />
+            ))}
+          </div>
+        </Card>
+      )}
 
       <Card style={{padding: 0, overflow: "hidden"}}>
         <div style={{overflowX: "auto"}}>
