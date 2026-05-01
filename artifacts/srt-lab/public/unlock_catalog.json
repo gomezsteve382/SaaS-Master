@@ -3,8 +3,8 @@
   "generated_by": "srtlab_unlock_catalog_gen.py",
   "dll_dir": "tools/python-bridge/tools/canflash_unlocks",
   "entry_count": 81,
-  "reversed_count": 71,
-  "dll_only_count": 10,
+  "reversed_count": 81,
+  "dll_only_count": 0,
   "entries": [
     {
       "file": "HB_ccn.dll",
@@ -650,9 +650,9 @@
       "tx_can_id": 2017,
       "rx_can_id": 2025,
       "family": "tcm",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "transmission unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_cvt",
+      "reason": null
     },
     {
       "file": "dcx_ptcm.dll",
@@ -785,9 +785,9 @@
       "tx_can_id": 2016,
       "rx_can_id": 2024,
       "family": "pcm",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "Bosch EDC diesel-PCM unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_edc16c2",
+      "reason": null
     },
     {
       "file": "edc16cp31.dll",
@@ -812,9 +812,9 @@
       "tx_can_id": 2016,
       "rx_can_id": 2024,
       "family": "pcm",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "Bosch EDC diesel-PCM unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_edc16cp31",
+      "reason": null
     },
     {
       "file": "edc16u31.dll",
@@ -839,9 +839,9 @@
       "tx_can_id": 2016,
       "rx_can_id": 2024,
       "family": "pcm",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "Bosch EDC diesel-PCM unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_edc16u31",
+      "reason": null
     },
     {
       "file": "egs52.dll",
@@ -1109,9 +1109,9 @@
       "tx_can_id": 1992,
       "rx_can_id": 1337,
       "family": "lighting",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "lighting unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_hidt",
+      "reason": null
     },
     {
       "file": "huntsville_bcm.dll",
@@ -1271,9 +1271,9 @@
       "tx_can_id": 2032,
       "rx_can_id": 1342,
       "family": "amp",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "amplifier unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_kicker_amp",
+      "reason": null
     },
     {
       "file": "lear_wcm.dll",
@@ -1298,9 +1298,9 @@
       "tx_can_id": 1536,
       "rx_can_id": 1280,
       "family": "wcm",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "not yet reversed; runs under Unicorn DLL emulation"
+      "status": "reversed",
+      "python_function": "unlock_lear_wcm",
+      "reason": null
     },
     {
       "file": "lrsm.dll",
@@ -1676,9 +1676,9 @@
       "tx_can_id": 2040,
       "rx_can_id": 1343,
       "family": "hfm",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "handsfree-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_peiker_hfm",
+      "reason": null
     },
     {
       "file": "plgm.dll",
@@ -1784,9 +1784,9 @@
       "tx_can_id": 1570,
       "rx_can_id": 1156,
       "family": "sas",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "steering-column/angle unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_sas",
+      "reason": null
     },
     {
       "file": "sunr.dll",
@@ -2135,9 +2135,9 @@
       "tx_can_id": 2032,
       "rx_can_id": 1342,
       "family": "amp",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "amplifier unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_visteon_amp",
+      "reason": null
     },
     {
       "file": "wcm.dll",

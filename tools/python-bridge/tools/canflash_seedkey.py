@@ -541,11 +541,13 @@ def unlock_ahbm(seed):
 
 DLL_ONLY_MODULES = {
     # Crypto-grade or unfit-to-template; the live tool calls the DLL via Unicorn.
-    'aisin_tcm', 'bosch_orc', 'cvt', 'delphi_hvac', 'delphi_sdar',
-    'edc16c2', 'edc16cp31', 'edc16u31', 'esm', 'ewm', 'harman_amp',
-    'hfm', 'hidt', 'huntsville_fcm', 'huntsville_fdcm', 'kicker_amp',
-    'lear_wcm', 'mitsubishi_ves3', 'peiker_hfm', 'plgm', 'ptim_lx',
-    'pts', 'sas', 'trw_sas', 'visteon_amp',
+    # Task #539 reversed: sas, hidt, cvt, lear_wcm, peiker_hfm, kicker_amp,
+    # visteon_amp, edc16c2, edc16cp31, edc16u31.
+    'aisin_tcm', 'bosch_orc', 'delphi_hvac', 'delphi_sdar',
+    'esm', 'ewm', 'harman_amp',
+    'hfm', 'huntsville_fcm', 'huntsville_fdcm',
+    'mitsubishi_ves3', 'plgm', 'ptim_lx',
+    'pts', 'trw_sas',
 }
 
 
@@ -611,32 +613,33 @@ COVERAGE = {
     'awd_pm_mk':        ('python', 'lcg_halves'),
     'borg_awd':         ('python', 't8_xor+rotate'),
     'ahbm':             ('python', 'imul+t8'),
+    # Task #539 — final 10 hardest reversed (verified vs Unicorn ≥64 seeds)
+    'sas':              ('python', 'gf2_4x4_substitution'),
+    'hidt':             ('python', 't16x32_mixed_mul_xor'),
+    'cvt':              ('python', 'rol16_chain_2pass'),
+    'peiker_hfm':       ('python', 't8_5tap_chain_xor'),
+    'visteon_amp':      ('python', 'bit_driven_accum'),
+    'kicker_amp':       ('python', 'crc32_feistel_8round'),
+    'edc16c2':          ('python', 't32_8row_substitution'),
+    'edc16cp31':        ('python', 't32_8row_substitution'),
+    'edc16u31':         ('python', 't32_8row_substitution'),
+    'lear_wcm':         ('python', 'hitag2_lfsr48'),
     # DLL-only fallback (see DLL_ONLY_MODULES)
     'aisin_tcm':        ('dll-only', 'cummins-style?'),
     'bosch_orc':        ('dll-only', 't8_chain+crc'),
-    'cvt':              ('dll-only', 'crypto'),
     'delphi_hvac':      ('dll-only', 'unfit'),
     'delphi_sdar':      ('dll-only', 'unfit'),
-    'edc16c2':          ('dll-only', 'crypto'),
-    'edc16cp31':        ('dll-only', 'crypto'),
-    'edc16u31':         ('dll-only', 'crypto'),
     'esm':              ('dll-only', 'unfit'),
     'ewm':              ('dll-only', 'unfit'),
     'harman_amp':       ('dll-only', 't8_add+imul'),
     'hfm':              ('dll-only', 't8_xor (32-bit)'),
-    'hidt':             ('dll-only', 'crypto'),
     'huntsville_fcm':   ('dll-only', 'bitpack'),
     'huntsville_fdcm':  ('dll-only', 'bitpack'),
-    'kicker_amp':       ('dll-only', 'crc32-feistel'),
-    'lear_wcm':         ('dll-only', 'gf2-degenerate'),
     'mitsubishi_ves3':  ('dll-only', 'unfit'),
-    'peiker_hfm':       ('dll-only', 'unfit'),
     'plgm':             ('dll-only', 'bitpack'),
     'ptim_lx':          ('dll-only', 'unfit'),
     'pts':              ('dll-only', 't8_chain+rot'),
-    'sas':              ('dll-only', 'crypto'),
     'trw_sas':          ('dll-only', 'unfit'),
-    'visteon_amp':      ('dll-only', 'crypto'),
 }
 
 
@@ -784,6 +787,8 @@ _DLL_ALIASES = {
     'temic_ddm': unlock_temic_ddm, 'temic_pdm': unlock_temic_pdm,
     'sunr': unlock_sunr, 'awd_pm_mk': unlock_awd_pm_mk, 'borg_awd': unlock_borg_awd,
     'ahbm': unlock_ahbm,
+    # Task #539 final-10 entries are appended below, after the function
+    # definitions live further down in this file.
 }
 
 
@@ -1242,6 +1247,295 @@ def unlock_mitsubishi_ves3(seed):
     s = _u16(seed)
     val = T[s & 7] * (s + 1) - T[s % 6] + T[s % 7] + T[s % 5]
     return (val >> 1) & 0xFFFF
+
+
+# ============================================================
+# Task #539 — final 10 hardest FCA unlock DLLs
+# ----------------------------------------------------------------------------
+# Each function below is byte-identical to Unicorn DLL emulation across ≥64
+# random seed vectors. See _canflash_validate/draft_ports.py for the working
+# verifier (`from verify_ports import report; report('<name>', fn)`).
+# ============================================================
+
+# ----- sas.dll — TRW steering-angle sensor (4×4 GF(2) substitution) ----------
+
+def unlock_sas(seed):
+    T = (0x80, 0xCC, 0x7C, 0x7A)
+    b3 = (seed >> 24) & 0xFF
+    b2 = (seed >> 16) & 0xFF
+    b1 = (seed >>  8) & 0xFF
+    b0 = (seed      ) & 0xFF
+    M = ((7, 5, 3, 2),
+         (0x13, 0x11, 0xD, 0xB),
+         (0xB, 0xD, 0x11, 0x13),
+         (2, 3, 5, 7))
+    out = 0
+    for grp, shift in enumerate((0, 2, 4, 6)):
+        a = T[(b0 >> shift) & 3]
+        b = T[(b1 >> shift) & 3]
+        c = T[(b2 >> shift) & 3]
+        d = T[(b3 >> shift) & 3]
+        m = M[grp]
+        byte = (a * m[0]) ^ (b * m[1]) ^ (c * m[2]) ^ (d * m[3])
+        out |= (byte & 0xFF) << ((3 - grp) * 8)
+    return _u32(out)
+
+
+# ----- hidt.dll — adaptive-headlamp module (32-entry T16 / mixed mul-xor) ----
+
+def unlock_hidt(seed):
+    T = (0x2BE9, 0x8519, 0x23EC, 0x9BA7, 0x73B9, 0x001E, 0x93CD, 0x5E7A,
+         0x971A, 0x9476, 0x1B63, 0x73F3, 0x7F3B, 0x816A, 0xC983, 0x3800,
+         0x3726, 0x0AE1, 0x38BE, 0x9356, 0x1B43, 0xBE74, 0xEDAE, 0x3273,
+         0x6538, 0x8461, 0xBEBC, 0x0101, 0x1827, 0x9378, 0x192A, 0xCBE2)
+    seed = _u32(seed)
+    b0 = seed & 0xFF
+    b1 = (seed >> 8) & 0xFF
+    idx_a = (b1 >> 4) & 0x1F
+    idx_b = b1 & 0x1F
+    idx_c = (b0 >> 4) & 0x1F
+    idx_d = b0 & 0x1F
+    eax = (T[idx_a] + b0) & 0xFFFF
+    eax = _u32(eax | seed)
+    eax = _u32(eax - ((T[idx_b] ^ b1) & 0xFFFF))
+    eax = (eax & 0xFFFF0000) | ((eax + T[idx_d]) & 0xFFFF)
+    eax = _u32(eax + b1)
+    eax = _u32(eax ^ ((T[idx_c] * b0) & 0xFFFF))
+    return eax
+
+
+# ----- cvt.dll — Aisin CVT (16-bit ROL chain, 2-pass) ------------------------
+
+def unlock_cvt(seed):
+    seed = _u32(seed)
+    lo = seed & 0xFFFF
+    hi = (seed >> 16) & 0xFFFF
+    n0 = seed & 0xF
+    n1 = (seed >> 4) & 0xF
+    n2 = (seed >> 8) & 0xF
+
+    def _rol16(x, n):
+        x &= 0xFFFF
+        n &= 15
+        return ((x << n) | (x >> (16 - n))) & 0xFFFF if n else x
+
+    v1 = (lo - 0x3E8D) & 0xFFFF
+    s1 = ((v1 + _rol16(v1, n0) - 1) & 0xFFFF) ^ hi
+    v2 = (s1 + 0x4DA1) & 0xFFFF
+    s2 = (v2 + _rol16(v2, n1) - 1) & 0xFFFF
+    out_hi = (_rol16(s2, n2) ^ lo ^ s2) & 0xFFFF
+    return _u32((out_hi << 16) | s1)
+
+
+# ----- peiker_hfm.dll — handsfree-module (5-tap T8 chain XOR with seed) ------
+
+def unlock_peiker_hfm(seed):
+    T = (0xA62E, 0x579A, 0xCE23, 0x6BA5, 0xD173, 0x5D13, 0x1347, 0xB8F1)
+    seed = _u32(seed)
+    b0 = seed & 0xFF
+    b1 = (seed >> 8) & 0xFF
+    idx_a = ((b0 >> 3) & 1) | ((b0 >> 1) & 2) | ((b0 << 1) & 4)
+    idx_b = ((b1 >> 3) & 1) | ((b0 >> 6) & 2) | ((b0 >> 4) & 4)
+    idx_d = ((b1 >> 1) & 1) | ((b1 >> 1) & 2) | ((b1 >> 2) & 4)
+    idx_e = (b0 >> 3) & 7
+    idx_c = (b1 >> 5) & 7
+    return _u32(seed ^ 0xC521 ^ T[idx_a] ^ T[idx_b]
+                ^ T[idx_d] ^ T[idx_e] ^ T[idx_c])
+
+
+# ----- visteon_amp.dll — premium-audio amp (16-bit accumulator, bit-driven) --
+
+def unlock_visteon_amp(seed):
+    T = (0x374F, 0xD329, 0xB213, 0x7FEA, 0x1152, 0x6C63, 0x2545, 0x583D)
+    POS = (9, 6, 0xE, 8, 0xF, 0xC, 1, 0xB, 0, 2, 5, 3, 0xA, 4, 0xD, 7)
+    seed = _u32(seed)
+    ax = T[seed & 7]
+    for i in range(16):
+        bit = (seed >> i) & 1
+        if (i % 2 == 0 and bit == 0) or (i % 2 == 1 and bit == 1):
+            ax = (ax + (1 << POS[i])) & 0xFFFF
+    return ax
+
+
+# ----- kicker_amp.dll — Kicker amplifier (CRC-32 + 8-round Feistel/sbox) -----
+
+_KICKER_TAB1 = (0x2, 0x4, 0x3, 0x9, 0x1, 0xB, 0xA, 0xD,
+                0x5, 0x7, 0xE, 0xC, 0x0, 0x8, 0x6, 0xF)
+_KICKER_TAB2 = (0x3, 0x5, 0xB, 0xA, 0xF, 0xD, 0x9, 0xC,
+                0x6, 0x1, 0x8, 0x0, 0x4, 0xE, 0x7, 0x2)
+
+
+def _kicker_crc(edx, n):
+    for _ in range(n):
+        if edx & 0x80000000:
+            edx = ((edx << 1) ^ 0x4C11DB7) & 0xFFFFFFFF
+        else:
+            edx = (edx << 1) & 0xFFFFFFFF
+    return edx
+
+
+def unlock_kicker_amp(seed):
+    seed = _u32(seed)
+    al = seed & 0xFF
+    bl = (seed >> 8) & 0xFF
+    edx = _kicker_crc(0xFE0714B6, 37)
+    cl_prev = bl
+    cl_last = bl
+    for _ in range(8):
+        edx = _kicker_crc(edx, 8)
+        s_in = (al ^ (edx & 0xFF)) & 0xFF
+        sbox = ((_KICKER_TAB1[(s_in >> 4) & 0xF] << 4)
+                | _KICKER_TAB2[s_in & 0xF]) & 0xFF
+        rotated = ((sbox >> 1) | ((sbox & 1) << 7)) & 0xFF
+        cl_prev = cl_last
+        cl_last = rotated
+        al = (rotated ^ bl) & 0xFF
+        bl = rotated
+    return ((cl_last << 8) | (cl_last ^ cl_prev)) & 0xFFFF
+
+
+# ----- edc16 family — Bosch EDC16 diesel PCMs (8-row T32 substitution) -------
+
+def _edc16(seed, T):
+    seed = _u32(seed)
+    b0 = seed & 0xFF
+    b1 = (seed >> 8) & 0xFF
+    b2 = (seed >> 16) & 0xFF
+    b3 = (seed >> 24) & 0xFF
+    x23 = b2 ^ b3
+    idx0 = ((b1 >> 6) & 1) | (((x23 >> 2) & 1) << 1) | (((x23 >> 5) & 1) << 2)
+    dl_inter = (T[4 * idx0 + 2] ^ b1) & 0xFF
+    idx1 = ((b1 >> 1) & 1) | (((dl_inter >> 5) & 1) << 1) | (((x23 >> 7) & 1) << 2)
+    byte3 = (T[4 * idx0    ] ^ b3 ^ T[4 * idx1 + 3]) & 0xFF
+    byte2 = (T[4 * idx0 + 1] ^ b2 ^ T[4 * idx1    ]) & 0xFF
+    byte1 = (T[4 * idx0 + 2] ^ b1 ^ T[4 * idx1 + 1]) & 0xFF
+    byte0 = (T[4 * idx0 + 3] ^ b0 ^ T[4 * idx1 + 2]) & 0xFF
+    return (byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0
+
+
+_T_EDC16C2 = (0x9B, 0x38, 0x11, 0x76, 0x77, 0xE4, 0x4D, 0x02,
+              0x13, 0x50, 0x49, 0x4E, 0x6F, 0x7C, 0x05, 0x5A,
+              0x8B, 0x68, 0x81, 0x26, 0x67, 0x14, 0xBD, 0xB2,
+              0x03, 0x80, 0xB9, 0xFE, 0x5F, 0xAC, 0x75, 0x0A)
+_T_EDC16CP31 = (0x05, 0x09, 0x07, 0xD3, 0xA3, 0x4A, 0xD1, 0x21,
+                0x01, 0x07, 0x07, 0xBA, 0x3B, 0xCA, 0xE0, 0x72,
+                0x3E, 0x10, 0xAA, 0x89, 0xD8, 0x2F, 0x9A, 0x62,
+                0x54, 0x9E, 0xA2, 0xDA, 0x6B, 0xC4, 0x90, 0x52)
+_T_EDC16U31 = (0xCC, 0x15, 0x2A, 0x1B, 0xB8, 0x91, 0xF6, 0xF7,
+               0x64, 0xCD, 0x82, 0x93, 0xD0, 0xC9, 0xCE, 0xEF,
+               0xFC, 0x85, 0xDA, 0x0B, 0xE8, 0x01, 0xA6, 0xE7,
+               0x94, 0x3D, 0x32, 0x83, 0x00, 0x39, 0x7E, 0xDF)
+
+
+def unlock_edc16c2(seed):    return _edc16(seed, _T_EDC16C2)
+def unlock_edc16cp31(seed):  return _edc16(seed, _T_EDC16CP31)
+def unlock_edc16u31(seed):   return _edc16(seed, _T_EDC16U31)
+
+
+# ----- lear_wcm.dll — Lear wireless control module (Hitag2-style 48-bit LFSR)
+# Two-arg algorithm: seed1 → IV bytes[0..3], seed2 → ciphertext bytes[4..7].
+# State init = [0x42,0xF7,0x8E,0x11,0x6A,0x05]; key = [0x42,0xF7,0x8E,0x11].
+
+_LEAR_SBOX_A = (1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0)
+_LEAR_SBOX_B = (1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0)
+_LEAR_SBOX_F = (1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0,
+                1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0)
+_LEAR_FB_T   = (0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0)
+_LEAR_KEY    = (0x42, 0xF7, 0x8E, 0x11)
+
+
+def _lear_filter(s):
+    idx1 = ((s[1] >> 7) & 1) | (((s[1] >> 3) & 1) << 1) | (((s[1] >> 1) & 1) << 2) | (((s[1] >> 0) & 1) << 3)
+    idx2 = ((s[2] >> 6) & 1) | (((s[2] >> 2) & 1) << 1) | (((s[2] >> 0) & 1) << 2) | (((s[3] >> 5) & 1) << 3)
+    idx3 = ((s[4] >> 5) & 1) | (((s[5] >> 4) & 1) << 1) | (((s[5] >> 3) & 1) << 2) | (((s[5] >> 1) & 1) << 3)
+    idx4 = ((s[0] >> 5) & 1) | (((s[0] >> 4) & 1) << 1) | (((s[0] >> 2) & 1) << 2) | (((s[0] >> 1) & 1) << 3)
+    idx5 = ((s[3] >> 3) & 1) | (((s[3] >> 2) & 1) << 1) | (((s[3] >> 0) & 1) << 2) | (((s[4] >> 6) & 1) << 3)
+    o1 = _LEAR_SBOX_A[idx1]
+    o2 = _LEAR_SBOX_A[idx2]
+    o3 = _LEAR_SBOX_B[idx3]
+    o4 = _LEAR_SBOX_B[idx4]
+    o5 = _LEAR_SBOX_A[idx5]
+    return _LEAR_SBOX_F[o4 | (o1 << 1) | (o2 << 2) | (o5 << 3) | (o3 << 4)]
+
+
+def _lear_shift(state, new_bit):
+    for i in range(5):
+        state[i] = ((state[i] << 1) & 0xFF) | (state[i + 1] >> 7)
+    state[5] = ((state[5] << 1) & 0xFF) | (new_bit & 1)
+
+
+def unlock_lear_wcm(seed1, seed2=0):
+    bytes_in = bytearray((
+        (seed1 >> 24) & 0xFF, (seed1 >> 16) & 0xFF,
+        (seed1 >> 8) & 0xFF,  seed1 & 0xFF,
+        (seed2 >> 24) & 0xFF, (seed2 >> 16) & 0xFF,
+        (seed2 >> 8) & 0xFF,  seed2 & 0xFF,
+    ))
+    state = bytearray((0x42, 0xF7, 0x8E, 0x11, 0x6A, 0x05))
+    # KSA: 4 outer × 8 inner, mixing constant key + IV (first 4 input bytes)
+    for outer in range(4):
+        bm = 0x80
+        while bm:
+            al = _lear_filter(state)
+            al ^= 1 if (_LEAR_KEY[outer] & bm) else 0
+            al ^= 1 if (bytes_in[outer] & bm) else 0
+            _lear_shift(state, al)
+            bm >>= 1
+    # PRGA: encrypt remaining 4 bytes (32 bit-iterations) in place
+    buf = bytearray(bytes_in[4:8])
+    byte_idx = 0
+    bit_mask = 0x80
+    for _ in range(0x20):
+        if byte_idx >= 4:
+            break
+        b = buf[byte_idx]
+        ks = _lear_filter(state)
+        input_bit = 1 if (b & bit_mask) else 0
+        if (ks ^ input_bit) == 1:
+            buf[byte_idx] = b | bit_mask
+        else:
+            buf[byte_idx] = b & ((~bit_mask) & 0xFF)
+        # LFSR feedback: combine specific state bits via two table lookups
+        al = (state[1] & 0xFC) ^ state[2]
+        al = (al & 0xCF) ^ (state[3] & 0x22)
+        al ^= state[0]
+        al = (al & 0xB3) ^ (state[5] & 0x73)
+        fb = _LEAR_FB_T[(al >> 4) & 0xF] ^ _LEAR_FB_T[al & 0xF]
+        _lear_shift(state, fb)
+        bit_mask >>= 1
+        if bit_mask == 0:
+            byte_idx += 1
+            bit_mask = 0x80
+    return _u32((buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3])
+
+
+# ----- Register the final 10 with the dispatcher -----------------------------
+
+_DLL_ALIASES.update({
+    'sas':          unlock_sas,
+    'hidt':         unlock_hidt,
+    'cvt':          unlock_cvt,
+    'peiker_hfm':   unlock_peiker_hfm,
+    'visteon_amp':  unlock_visteon_amp,
+    'kicker_amp':   unlock_kicker_amp,
+    'edc16c2':      unlock_edc16c2,
+    'edc16cp31':    unlock_edc16cp31,
+    'edc16u31':     unlock_edc16u31,
+    'lear_wcm':     unlock_lear_wcm,
+})
+
+VERIFIED_ALGORITHMS.update({
+    'SAS':          unlock_sas,
+    'HIDT':         unlock_hidt,
+    'CVT':          unlock_cvt,
+    'HFM_PEIKER':   unlock_peiker_hfm,
+    'AMP_VISTEON':  unlock_visteon_amp,
+    'AMP_KICKER':   unlock_kicker_amp,
+    'EDC16C2':      unlock_edc16c2,
+    'EDC16CP31':    unlock_edc16cp31,
+    'EDC16U31':     unlock_edc16u31,
+    'WCM_LEAR':     unlock_lear_wcm,   # 2-arg
+})
 
 
 # ============================================================
