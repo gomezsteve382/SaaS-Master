@@ -121,6 +121,7 @@ Self-contained Node pipeline that converts a user-supplied `AlfaOBD.exe` (.NET 4
 - `pnpm --filter @workspace/srt-lab run manifest:check` — Fail if the manifest is out of sync with `srt_lab.py` (use as pre-commit / CI guard)
 - `pnpm --filter @workspace/srt-lab exec node scripts/update-manifest.mjs --bump <ver> --notes "<text>"` — Bump version and prepend a changelog entry in one command
 - `pnpm bundle` — Regenerate the offsite codebase package: `srt-lab-monorepo.tar.gz` + `srt-lab-monorepo-bundle.txt` at the repo root (see `scripts/README.md` → "Codebase packager")
+- `pnpm --filter @workspace/srt-lab assets:check` — Sniff `attached_assets/` for files whose contents don't match their extension (catches the Task #497 / #504 class of bug where a raw BCM dump arrives with a `.zip` suffix and silently goes unused). Runs automatically as `predev` and `prebuild`; emits `src/lib/attachedAssetMismatches.generated.json`, which the Sample Library tab reads to show a banner. Add `--check` for a CI-style nonzero exit on mismatches.
 
 ## BCM IMMO Backup Sync
 

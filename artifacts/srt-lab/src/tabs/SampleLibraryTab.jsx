@@ -5,6 +5,14 @@ import {
   loadFixtureAsFile,
   loadFixtureBytes,
 } from "../lib/sampleFixtures.js";
+/* Task #504 — generated at dev/build start by
+ * `scripts/check-attached-asset-extensions.mjs`. Lists files in
+ * `attached_assets/` whose contents do not match their extension (e.g. the
+ * Task #497 BCM dumps that arrived with a `.zip` suffix and sat unused
+ * for months). Shown as a banner above the catalog so a developer or
+ * agent reviewing project state spots the misnamed uploads without
+ * having to grep. */
+import attachedAssetMismatches from "../lib/attachedAssetMismatches.generated.json";
 
 const KIND_LABEL = {
   BCM: "BCM D-FLASH",
@@ -166,8 +174,48 @@ export default function SampleLibraryTab({ onPreview }) {
     note: { fontSize: 11, fontWeight: 700, padding: "8px 12px", borderRadius: 8 },
   };
 
+  const mismatches = (attachedAssetMismatches && attachedAssetMismatches.mismatches) || [];
+
   return (
     <div style={sty.wrap}>
+      {mismatches.length > 0 && (
+        <div
+          style={{
+            background: C.er + "1A",
+            border: "1.5px solid " + C.er,
+            borderRadius: 16,
+            padding: 16,
+            color: C.er,
+            fontSize: 12,
+            lineHeight: 1.5,
+          }}
+          data-testid="attached-asset-mismatch-banner"
+        >
+          <div style={{ fontWeight: 800, letterSpacing: 1.5, fontSize: 11, marginBottom: 6 }}>
+            ⚠ {mismatches.length} MISNAMED UPLOAD{mismatches.length === 1 ? "" : "S"} IN attached_assets/
+          </div>
+          <div style={{ color: C.tx, marginBottom: 8 }}>
+            These files were uploaded with the wrong extension — their contents
+            don't match what the name says, so the dump tools can't pick them up
+            (same class of bug as Task #497). Rescue / rename them by content
+            before they go unused.
+          </div>
+          <ul style={{ margin: 0, paddingLeft: 18, color: C.tx, fontFamily: "'JetBrains Mono'", fontSize: 11 }}>
+            {mismatches.map((m) => (
+              <li key={m.file} style={{ marginBottom: 4 }}>
+                <span style={{ fontWeight: 800 }}>{m.file}</span>
+                <span style={{ color: C.tm }}>
+                  {" "}— {m.size.toLocaleString()} B, claimed {m.claimedKind}
+                </span>
+                <div style={{ color: C.ts, marginTop: 2 }}>{m.hint}</div>
+              </li>
+            ))}
+          </ul>
+          <div style={{ color: C.tm, marginTop: 8, fontSize: 10 }}>
+            Detection runs at dev / build start (see <code>pnpm --filter @workspace/srt-lab assets:check</code>).
+          </div>
+        </div>
+      )}
       <div style={sty.head}>
         <div style={sty.title}>📚 SAMPLE LIBRARY</div>
         <div style={sty.sub}>
