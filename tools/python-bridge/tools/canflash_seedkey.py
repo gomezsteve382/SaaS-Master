@@ -536,111 +536,12 @@ def unlock_ahbm(seed):
 
 
 # ============================================================
-# DLL-only modules (not yet ported; fall back to Unicorn emulation)
+# Coverage tables (DLL_ONLY_MODULES, COVERAGE) used to live here as
+# hand-maintained dicts.  They were removed once unlock_catalog.json
+# became the single source of truth (see Task #548).  The CLI summary
+# block at the bottom of this file derives the same counts/lists from
+# the catalog at runtime via _load_coverage_from_catalog().
 # ============================================================
-
-DLL_ONLY_MODULES = {
-    # Crypto-grade or unfit-to-template; the live tool calls the DLL via Unicorn.
-    # Task #539 reversed: sas, hidt, cvt, lear_wcm, peiker_hfm, kicker_amp,
-    # visteon_amp, edc16c2, edc16cp31, edc16u31.
-    'aisin_tcm', 'bosch_orc', 'delphi_hvac', 'delphi_sdar',
-    'esm', 'ewm', 'harman_amp',
-    'hfm', 'huntsville_fcm', 'huntsville_fdcm',
-    'mitsubishi_ves3', 'plgm', 'ptim_lx',
-    'pts', 'trw_sas',
-}
-
-
-# ============================================================
-# Coverage table — every DLL in canflash_unlocks/, status, kind.
-# ============================================================
-
-COVERAGE = {
-    # 13 originally hand-ported in this file
-    'huntsville_bcm':   ('python', 't8_xor'),
-    'yazaki_fcm':       ('python', 't8_xor'),
-    'motorola_tipm7':   ('python', 't8_xor'),
-    'trw_abs':          ('python', 't8_xor'),
-    'bosch_abs':        ('python', 't8_xor'),
-    'ngc_engine':       ('python', 't8_xor'),
-    'ngc_transmission': ('python', 't8_xor'),
-    'venom_pcm':        ('python', 't8_xor'),
-    'gpec':             ('python', 'tea-feistel'),
-    'may_scofield_itm': ('python', 't8_xor'),
-    'huntsville_radio': ('python', 't8_xor'),
-    'alpine_rak':       ('python', 'lcg_pair'),
-    'wcm':              ('python', 't16_mul'),
-    # auto-fit (this commit)
-    'HB_ccn':           ('python', 't8_xor'),
-    'LX_ccn':           ('python', 't8_xor'),
-    'nippon_ccn':       ('python', 't8_xor'),
-    'ngc4_trans':       ('python', 't8_xor'),
-    'ocm':              ('python', 't8_xor'),
-    'trw_ocm':          ('python', 't8_xor'),
-    'trw_orc':          ('python', 't8_xor'),
-    'asbs':             ('python', 't8_xor'),
-    'lrsm':             ('python', 't16_gf2'),
-    'abs':              ('python', 'lcg_pair'),
-    'alpine_amp':       ('python', 'lcg_pair'),
-    'hella_acc':        ('python', 'lcg_pair'),
-    'msmd':             ('python', 'lcg_pair'),
-    'teves_abs':        ('python', 'lcg_pair'),
-    'valeo_scm':        ('python', 'lcg_pair'),
-    'cummins_849':      ('python', 'cummins_t16'),
-    'egs52':            ('python', 'imul_xor'),
-    'mitsubishi_rar':   ('python', 'simple'),
-    'mitsubishi_ves':   ('python', 'simple'),
-    # hand-ported (this commit)
-    'eom':              ('python', 't8_add+bitpack'),
-    'cmtc':             ('python', 't8_add+bitpack'),
-    'pdm':              ('python', 't8_xor+bitpack'),
-    'ddm':              ('python', 't8_xor+bitpack'),
-    'fdcm':             ('python', 't8_xor'),
-    'bosch_ddm':        ('python', 't8_chain'),
-    'bosch_pdm':        ('python', 't8_chain'),
-    'bosch_mddm':       ('python', 't8_chain'),
-    'bosch_mpdm':       ('python', 't8_chain'),
-    'bosch_mwddm':      ('python', 't8_chain'),
-    'bosch_mwpdm':      ('python', 't8_chain'),
-    'bosch_cdm_win_ddm':('python', 't8_chain'),
-    'bosch_cdm_win_pdm':('python', 't8_chain'),
-    'hvac':             ('python', 't8_mul_seed'),
-    'trw_hvac':         ('python', 't8_mul_seed'),
-    'trw_hvac_2':       ('python', 't8_mul_seed'),
-    'temic_ddm':        ('python', '~s*K'),
-    'temic_pdm':        ('python', '~s*K'),
-    'sunr':             ('python', 'inline'),
-    'awd_pm_mk':        ('python', 'lcg_halves'),
-    'borg_awd':         ('python', 't8_xor+rotate'),
-    'ahbm':             ('python', 'imul+t8'),
-    # Task #539 — final 10 hardest reversed (verified vs Unicorn ≥64 seeds)
-    'sas':              ('python', 'gf2_4x4_substitution'),
-    'hidt':             ('python', 't16x32_mixed_mul_xor'),
-    'cvt':              ('python', 'rol16_chain_2pass'),
-    'peiker_hfm':       ('python', 't8_5tap_chain_xor'),
-    'visteon_amp':      ('python', 'bit_driven_accum'),
-    'kicker_amp':       ('python', 'crc32_feistel_8round'),
-    'edc16c2':          ('python', 't32_8row_substitution'),
-    'edc16cp31':        ('python', 't32_8row_substitution'),
-    'edc16u31':         ('python', 't32_8row_substitution'),
-    'lear_wcm':         ('python', 'hitag2_lfsr48'),
-    # DLL-only fallback (see DLL_ONLY_MODULES)
-    'aisin_tcm':        ('dll-only', 'cummins-style?'),
-    'bosch_orc':        ('dll-only', 't8_chain+crc'),
-    'delphi_hvac':      ('dll-only', 'unfit'),
-    'delphi_sdar':      ('dll-only', 'unfit'),
-    'esm':              ('dll-only', 'unfit'),
-    'ewm':              ('dll-only', 'unfit'),
-    'harman_amp':       ('dll-only', 't8_add+imul'),
-    'hfm':              ('dll-only', 't8_xor (32-bit)'),
-    'huntsville_fcm':   ('dll-only', 'bitpack'),
-    'huntsville_fdcm':  ('dll-only', 'bitpack'),
-    'mitsubishi_ves3':  ('dll-only', 'unfit'),
-    'plgm':             ('dll-only', 'bitpack'),
-    'ptim_lx':          ('dll-only', 'unfit'),
-    'pts':              ('dll-only', 't8_chain+rot'),
-    'trw_sas':          ('dll-only', 'unfit'),
-}
 
 
 # ============================================================
@@ -799,9 +700,9 @@ def unlock_by_module(module_name, seed, seed_hi=None):
     'PCM_GPEC') or the raw DLL basename without `.dll` (e.g. 'huntsville_bcm',
     'bosch_ddm').
 
-    Returns None when the module's algorithm is not yet ported (see
-    `DLL_ONLY_MODULES`); the caller should fall back to Unicorn emulation in
-    that case.
+    Returns None when the module's algorithm is not yet ported (i.e. the
+    catalog marks it ``dll_only``); the caller should fall back to Unicorn
+    emulation in that case.
 
     For 2-arg algorithms (RAK, ABS, LCG-pair family) provide seed_hi as well.
     """
@@ -1543,7 +1444,29 @@ VERIFIED_ALGORITHMS.update({
 # ============================================================
 
 if __name__ == "__main__":
-    import os, sys, random
+    import json, os, sys, random
+
+    def _load_coverage_from_catalog():
+        """Return (ported, dll_only) lists derived from unlock_catalog.json.
+
+        unlock_catalog.json (generated by srtlab_unlock_catalog_gen.py) is the
+        single source of truth for which DLLs have a Python port.  Falling back
+        to the in-process `_DLL_ALIASES` keys keeps the CLI summary working
+        even when the catalog file is missing.
+        """
+        catalog_path = os.path.join(os.path.dirname(__file__), 'unlock_catalog.json')
+        try:
+            with open(catalog_path, 'r', encoding='utf-8') as f:
+                entries = json.load(f).get('entries', [])
+        except (OSError, ValueError):
+            return sorted(_DLL_ALIASES.keys()), []
+        ported   = sorted(e['module'] for e in entries
+                          if e.get('status') == 'reversed' and e.get('module'))
+        dll_only = sorted(e['module'] for e in entries
+                          if e.get('status') == 'dll_only' and e.get('module'))
+        return ported, dll_only
+
+    PORTED_MODULES, DLL_ONLY_MODULES_RUNTIME = _load_coverage_from_catalog()
 
     TEST_SUITE = [
         ('huntsville_bcm', unlock_huntsville_bcm, [
@@ -1591,7 +1514,7 @@ if __name__ == "__main__":
     print("-" * 70)
     print(f"  BUILT-IN DLL VECTORS: {total_pass}/{total}")
 
-    # ─── Unicorn cross-validation across all 'python' COVERAGE entries ────
+    # ─── Unicorn cross-validation across all reversed catalog entries ────
     print("\n[2/2] Cross-validate every Python port vs the actual DLL (Unicorn)")
     print("-" * 70)
     try:
@@ -1612,7 +1535,7 @@ if __name__ == "__main__":
                      [(random.randint(0, 0xFFFFFFFF), random.randint(0, 0xFFFFFFFF))
                       for _ in range(20)]
 
-        ported = sorted(n for n, (s, _) in COVERAGE.items() if s == 'python')
+        ported = PORTED_MODULES
         cross_total = 0
         cross_pass  = 0
         failures = []
@@ -1674,13 +1597,16 @@ if __name__ == "__main__":
     print("=" * 70)
     print("Coverage summary")
     print("-" * 70)
-    n_py  = sum(1 for s, _ in COVERAGE.values() if s == 'python')
-    n_dll = sum(1 for s, _ in COVERAGE.values() if s == 'dll-only')
+    n_py  = len(PORTED_MODULES)
+    n_dll = len(DLL_ONLY_MODULES_RUNTIME)
     print(f"  Python ports : {n_py}")
     print(f"  ⛔ DLL-only  : {n_dll}")
     print(f"  Total DLLs   : {n_py + n_dll}")
     print()
-    print("DLL-only modules (call via Unicorn fallback):")
-    for n in sorted(DLL_ONLY_MODULES):
-        print(f"  ⛔ {n}")
+    if DLL_ONLY_MODULES_RUNTIME:
+        print("DLL-only modules (call via Unicorn fallback):")
+        for n in DLL_ONLY_MODULES_RUNTIME:
+            print(f"  ⛔ {n}")
+    else:
+        print("DLL-only modules: none — every catalogued DLL has a Python port.")
     print("=" * 70)
