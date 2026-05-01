@@ -2,6 +2,7 @@ import React, {useEffect, useMemo, useState} from "react";
 import {C} from "../lib/constants.js";
 import {Card, Btn} from "../lib/ui.jsx";
 import {parseCatalog} from "../lib/unlockCatalogSchema.js";
+import {friendlyAlgo} from "../lib/algoFriendly.js";
 
 /**
  * Unlock Coverage tab — Task #499.
@@ -48,62 +49,34 @@ function StatusBadge({status}) {
   );
 }
 
-// Map raw algorithm-family tags from COVERAGE → friendly, mechanic-readable
-// labels. Anything not in this map is shown verbatim (still useful for bug
-// reports). Keep this conservative; the tag itself is the source of truth.
-const ALGO_FRIENDLY = {
-  t8_xor: "8-bit XOR table",
-  "t8_xor (32-bit)": "8-bit XOR table (32-bit)",
-  "t8_xor+bitpack": "8-bit XOR + bit-pack",
-  "t8_xor+rotate": "8-bit XOR + rotate",
-  "t8_add+bitpack": "8-bit add + bit-pack",
-  "t8_add+imul": "8-bit add + IMUL",
-  t8_chain: "8-bit chain",
-  "t8_chain+crc": "8-bit chain + CRC",
-  "t8_chain+rot": "8-bit chain + rotate",
-  t8_mul_seed: "8-bit MUL seed",
-  "t8_5tap_chain_xor": "8-bit 5-tap chain XOR",
-  t16_mul: "16-bit MUL",
-  t16_gf2: "16-bit GF(2)",
-  t16x32_mixed_mul_xor: "16×32 mixed MUL/XOR",
-  t32_8row_substitution: "32-bit 8-row substitution",
-  lcg_pair: "LCG pair (Park-Miller)",
-  lcg_halves: "LCG halves",
-  rol16_chain_2pass: "ROL16 2-pass chain",
-  gf2_4x4_substitution: "GF(2) 4×4 substitution",
-  hitag2_lfsr48: "Hitag2 LFSR-48",
-  crc32_feistel_8round: "CRC32 Feistel (8 rounds)",
-  "tea-feistel": "TEA Feistel",
-  cummins_t16: "Cummins 16-bit table",
-  "cummins-style?": "Cummins-style",
-  bit_driven_accum: "Bit-driven accumulator",
-  imul_xor: "IMUL + XOR",
-  "imul+t8": "IMUL + 8-bit table",
-  "~s*K": "~seed × K",
-  bitpack: "Bit-pack",
-  inline: "Inline",
-  simple: "Simple XOR",
-  unfit: "Bespoke",
-};
-
-function friendlyAlgo(tag) {
-  if (!tag) return null;
-  return ALGO_FRIENDLY[tag] || tag;
-}
+// Friendly-label + tooltip copy for algorithm-family tags lives in
+// ../lib/algoFriendly.js so the badge in the table cell, the expanded
+// details row, and the tests all read from the same source of truth.
 
 function AlgoBadge({algorithm}) {
   if (!algorithm) {
     return <span style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#9E9E9E"}}>—</span>;
   }
+  const friendly = friendlyAlgo(algorithm);
+  const isPlaceholder = !!friendly.placeholder;
+  // Placeholders ("unfit", "bitpack", "cummins-style?") get a muted neutral
+  // pill so the table reads consistently — they are not real algorithm
+  // families, just notes from the underlying coverage data.
+  const palette = isPlaceholder
+    ? {bg: "#9E9E9E1F", color: "#616161"}
+    : {bg: "#0D47A110", color: "#0D47A1"};
   return (
     <span
-      title={`algorithm tag: ${algorithm}`}
+      data-placeholder={isPlaceholder ? "true" : "false"}
+      data-algo-tag={algorithm}
+      title={`${friendly.description} (tag: ${algorithm})`}
       style={{
         display: "inline-block", padding: "2px 7px", borderRadius: 4,
-        background: "#0D47A110", color: "#0D47A1",
+        background: palette.bg, color: palette.color,
         fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
+        fontStyle: isPlaceholder ? "italic" : "normal",
       }}
-    >{friendlyAlgo(algorithm)}</span>
+    >{friendly.label}</span>
   );
 }
 
@@ -546,11 +519,21 @@ export default function UnlockCoverageTab() {
                             </div>
                             <div data-testid={`algo-detail-${e.module}`}>
                               <div style={{fontSize: 10, color: C.tm, letterSpacing: 1, fontWeight: 700}}>ALGORITHM</div>
-                              <div style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.tx, marginTop: 2}}>
-                                {e.algorithm
-                                  ? <>{friendlyAlgo(e.algorithm)} <span style={{color: C.tm}}>({e.algorithm})</span></>
-                                  : <span style={{color: C.tm}}>—</span>}
-                              </div>
+                              {e.algorithm ? (() => {
+                                const fa = friendlyAlgo(e.algorithm);
+                                return (
+                                  <>
+                                    <div style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.tx, marginTop: 2}}>
+                                      {fa.label} <span style={{color: C.tm}}>({e.algorithm})</span>
+                                    </div>
+                                    <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, marginTop: 4, lineHeight: 1.4}}>
+                                      {fa.description}
+                                    </div>
+                                  </>
+                                );
+                              })() : (
+                                <div style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.tm, marginTop: 2}}>—</div>
+                              )}
                             </div>
                             {e.status === "reversed" ? (
                               <div>

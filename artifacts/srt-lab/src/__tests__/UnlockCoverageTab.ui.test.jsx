@@ -13,6 +13,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import UnlockCoverageTab from "../tabs/UnlockCoverageTab.jsx";
+import { ALGO_FRIENDLY } from "../lib/algoFriendly.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CATALOG_PATH = resolve(__dirname, "..", "..", "public", "unlock_catalog.json");
@@ -140,15 +141,85 @@ describe("UnlockCoverageTab — UI", () => {
     }
   });
 
+  it("renders algorithm friendly badge for known tag", async () => {
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+
+    // Every algorithm tag actually present in the catalog must have a
+    // friendly mapping — the map and the catalog are kept in sync. This
+    // catches new tags being added to the python coverage tables without
+    // a matching entry in algoFriendly.js.
+    const tagsInCatalog = new Set(
+      CATALOG.entries.map((e) => e.algorithm).filter(Boolean),
+    );
+    for (const tag of tagsInCatalog) {
+      expect(ALGO_FRIENDLY[tag], `missing friendly entry for ${tag}`).toBeTruthy();
+      expect(ALGO_FRIENDLY[tag].label).toBeTruthy();
+      expect(ALGO_FRIENDLY[tag].description).toBeTruthy();
+    }
+
+    // Spot-check that known well-formed tags render the friendly LABEL on
+    // the badge — not the raw tag — and carry the description in the
+    // tooltip plus the raw tag in a data attribute for filing bug reports.
+    const wellFormed = ["hitag2_lfsr48", "crc32_feistel_8round", "lcg_pair", "t8_xor"];
+    for (const tag of wellFormed) {
+      const entry = CATALOG.entries.find((e) => e.algorithm === tag);
+      if (!entry) continue;
+      const cell = screen.getByTestId(`algo-${entry.module}`);
+      const badge = cell.querySelector(`[data-algo-tag="${tag}"]`);
+      expect(badge, `badge for ${tag}`).toBeTruthy();
+      expect(badge.textContent).toBe(ALGO_FRIENDLY[tag].label);
+      expect(badge.getAttribute("title")).toContain(ALGO_FRIENDLY[tag].description);
+      expect(badge.getAttribute("title")).toContain(tag);
+      expect(badge.getAttribute("data-placeholder")).toBe("false");
+      // raw tag must NOT be the visible label for these well-formed tags
+      expect(badge.textContent).not.toBe(tag);
+    }
+
+    // Placeholder tags ("unfit", "bitpack" alone, "cummins-style?",
+    // "~s*K", "imul+t8", "t8_xor (32-bit)") are the ones that previously
+    // looked cryptic. They must each have a friendly mapping; whichever
+    // ones happen to be in the catalog must render either as the muted
+    // "uncategorized" pill (for true placeholders) or with their friendly
+    // label (for ones that now have a real name).
+    const previouslyCryptic = [
+      "cummins-style?",
+      "unfit",
+      "bitpack",
+      "~s*K",
+      "imul+t8",
+      "t8_xor (32-bit)",
+    ];
+    for (const tag of previouslyCryptic) {
+      expect(ALGO_FRIENDLY[tag], `missing friendly entry for ${tag}`).toBeTruthy();
+      const entry = CATALOG.entries.find((e) => e.algorithm === tag);
+      if (!entry) continue;
+      const cell = screen.getByTestId(`algo-${entry.module}`);
+      const badge = cell.querySelector(`[data-algo-tag="${tag}"]`);
+      expect(badge, `badge for ${tag}`).toBeTruthy();
+      expect(badge.textContent).toBe(ALGO_FRIENDLY[tag].label);
+      // The raw cryptic tag must never be the visible label any more.
+      expect(badge.textContent).not.toBe(tag);
+      const expectedPlaceholder = ALGO_FRIENDLY[tag].placeholder ? "true" : "false";
+      expect(badge.getAttribute("data-placeholder")).toBe(expectedPlaceholder);
+    }
+  });
+
   it("expanding a reversed row also surfaces the algorithm tag in details", async () => {
     render(<UnlockCoverageTab />);
     await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
-    const e = CATALOG.entries.find((x) => x.status === "reversed" && x.algorithm);
+    const e = CATALOG.entries.find(
+      (x) => x.status === "reversed" && x.algorithm && ALGO_FRIENDLY[x.algorithm],
+    );
     expect(e).toBeTruthy();
     fireEvent.click(screen.getByTestId(`toggle-${e.module}`));
     const detail = await screen.findByTestId(`algo-detail-${e.module}`);
+    const friendly = ALGO_FRIENDLY[e.algorithm];
     // Raw tag shown in muted parens alongside the friendly label
     expect(detail.textContent).toContain(e.algorithm);
+    // Friendly label and full tooltip description are both visible
+    expect(detail.textContent).toContain(friendly.label);
+    expect(detail.textContent).toContain(friendly.description);
   });
 
   it("celebrates 100%-native milestone with a banner pulled from the catalog", async () => {
