@@ -272,5 +272,55 @@ async function loadFixtureInto(input, name, bytes, expectedModuleName) {
       expect(screen.queryByText('RFHUB EEE')).toBeNull();
       expect(screen.queryByText(/FOBIK:/)).toBeNull();
     });
+
+    // Task #526 — the mirror case of the Task #519 undersized guard.
+    // An OVERSIZED capture (e.g. a 64 KB padded read of a 4 KB GPEC2A
+    // PCM, surfaced in the wild as JOVENTINO_GPEC2A_PCM_EEPROM_padded.bin)
+    // is reclassified by parseModule via the filename hint into GPEC2A
+    // with a populated `sizeWarn` (see the parseModule.test.js case
+    // "64 KB padded GPEC2A (no BCM content) reclassifies via filename
+    // hint and warns"). Pre-#526 the inspector silently added the
+    // padded buffer to its module list without surfacing the size
+    // mismatch, so a tech reading the tile saw "✓ parsed" with no clue
+    // that the file was 16× the expected EEPROM image. This test pins
+    // the contract: the SizeWarnBanner is rendered with the standard
+    // re-dump guidance, and the file is still parsed and visible in
+    // the module list (the warning is informational, not a rejection).
+    it('64 KB padded GPEC2A capture renders the SizeWarnBanner but is still parsed', async () => {
+      render(<App/>);
+      const input = await openInspectorTab();
+      // 64 KB all-FF buffer with a GPEC2A filename hint — parseModule
+      // reclassifies this as GPEC2A (filename trumps the size-only BCM
+      // fallback when looksLikeRealBcm() returns false) and attaches a
+      // sizeWarn whose .expected is the nearest canonical size (8192).
+      const padded = new Uint8Array(65536).fill(0xFF);
+      const file = bufferFile('JOVENTINO_GPEC2A_PCM_EEPROM_padded.bin', padded);
+      await act(async () => {
+        fireEvent.change(input, { target: { files: [file] } });
+      });
+      // Banner present — same component the GPEC2A / BCM tabs use.
+      const warn = await screen.findByTestId('inspector-size-warn');
+      expect(warn).toBeTruthy();
+      // Standard banner copy: the headline calls out the oversized
+      // condition + the canonical "Unusual size" message from
+      // buildSizeWarn (got 65,536 B, expected 8,192 B for GPEC2A).
+      expect(within(warn).getByText(/OVERSIZED CAPTURE/i)).toBeTruthy();
+      expect(within(warn).getByText(/65,536 B/)).toBeTruthy();
+      expect(within(warn).getByText(/8,192 B/)).toBeTruthy();
+      // Standard re-dump guidance is one of the bullets in the banner.
+      expect(within(warn).getByText(/Re-dump.*real EEPROM size/i)).toBeTruthy();
+      // The originating filename is rendered in the banner header so
+      // the user can tell which capture is the oversized one when
+      // multiple modules are loaded.
+      expect(within(warn).getByText(/JOVENTINO_GPEC2A_PCM_EEPROM_padded\.bin/)).toBeTruthy();
+      // The module is STILL parsed and added to the inspector — the
+      // banner is informational, not a rejection. The module tile
+      // surfaces the GPEC2A name so the user can inspect what was
+      // recovered from the partial-but-usable payload.
+      expect(screen.getByText('GPEC2A PCM')).toBeTruthy();
+      // And the rejection card from Task #519 must NOT fire — this is
+      // an oversized warning, not an undersized rejection.
+      expect(screen.queryByTestId('inspector-too-small-card')).toBeNull();
+    });
   }
 );

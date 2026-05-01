@@ -50,14 +50,25 @@
  * patchFile-backed VIN writer) and `virginize` (the GPEC2A wipe
  * transform). They run on the canonical `parseModule` output, so the
  * inspector tabs and every other tab agree on the same module shape
- * end-to-end. */
+ * end-to-end.
+ *
+ * Task #526 — oversized captures (e.g. an 8 KB or 16 KB padded read for
+ * a module whose canonical size is 4 KB / 64 KB, or the GPEC2A 8 KB
+ * 95640 sibling fed into the wrong slot) are parsed by parseModule from
+ * offset 0 and get a `sizeWarn` attached to the resulting module record
+ * (see `buildSizeWarn` in parseModule.js). Every loaded module tile that
+ * has a populated `sizeWarn` now renders the shared `SizeWarnBanner`
+ * (the same component the GPEC2A / BCM tabs use) so techs see "padded
+ * capture: only the first N bytes are the real image" and "re-dump with
+ * the right read length" guidance instead of the file landing in the
+ * workspace with a misleading "✓ parsed" appearance. */
 import { useState, useCallback, useMemo, useRef, useContext } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn, Tag, SLine } from "../lib/ui.jsx";
 import { parseModule, moduleTooSmall, detectModuleType } from "../lib/parseModule.js";
 import { MasterVinContext } from "../lib/masterVinContext.jsx";
 import { analyzeFile, patchFile } from "../lib/fileUtils.js";
-import { ContentWarnBanner } from "../components/ModuleFieldsPanel.jsx";
+import { SizeWarnBanner, ContentWarnBanner } from "../components/ModuleFieldsPanel.jsx";
 
 // Module types the inspector cares about. Other types loaded into the
 // workspace (e.g. '95640' EEPROM backups, EFD payloads, C-Flash blobs)
@@ -394,6 +405,25 @@ export default function FcaModuleInspector() {
       </Card>
     </label>
     {loadMsg && <div style={{ marginBottom: 12, padding: "8px 12px", borderRadius: 8, background: C.wn + "15", border: "1px solid " + C.wn + "40", color: C.wn, fontSize: 11, fontWeight: 700 }}>⚠ {loadMsg}</div>}
+
+    {/* Task #526 — oversized / non-canonical capture warnings. parseModule
+        attaches a `sizeWarn` to every module whose buffer length doesn't
+        match a canonical size for its family (e.g. an 8 KB / 16 KB padded
+        BCM read, an 8 KB padded RFHUB, a 16 KB padded GPEC2A). The
+        SizeWarnBanner is the same component the GPEC2A / BCM tabs use,
+        but those tabs only see one or two files at a time — the inspector
+        can hold many, so each banner is prefixed with the originating
+        filename / module type so the user can tell which capture is the
+        oversized one. The module is still parsed and shown below; the
+        banner just makes the non-standard size impossible to miss. */}
+    {modules.some(m => m && m.sizeWarn) && <div data-testid="inspector-size-warn-list" style={{ marginBottom: 18 }}>
+      {modules.map((m, i) => m && m.sizeWarn ? <div key={"sw"+i} data-testid="inspector-size-warn">
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.tm, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4, fontFamily: "'JetBrains Mono'" }}>
+          {inspectorName(m)} · <span style={{ color: C.ts }}>{m.filename}</span>
+        </div>
+        <SizeWarnBanner warn={m.sizeWarn} />
+      </div> : null)}
+    </div>}
 
     {/* Loaded module chips */}
     {modules.length > 0 && <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 18 }}>
