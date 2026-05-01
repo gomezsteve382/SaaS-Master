@@ -1,0 +1,14 @@
+{
+  "name": "@workspace/alfaobd-extractor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Extract ECUTYPE_* families, Process*Data handlers, transports, resources, and embedded media from a user-supplied AlfaOBD.exe build into structured JSON the SRT Lab can consume.",
+  "bin": {
+    "alfaobd-extract": "./extract.mjs"
+  },
+  "scripts": {
+    "extract": "node ./extract.mjs",
+    "test": "node --test ./tests/*.mjs"
+  }
+}

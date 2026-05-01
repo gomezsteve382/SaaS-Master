@@ -28,6 +28,7 @@ import BcmTab from "./tabs/BcmTab";
 import RfhubTab from "./tabs/RfhubTab";
 import BackupsTab from "./tabs/BackupsTab";
 import SampleLibraryTab from "./tabs/SampleLibraryTab.jsx";
+import AlfaObdTablesTab from "./tabs/AlfaObdTablesTab.jsx";
 import { writeBcmSec16Gen2, writePcmSec6 } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
 import KeyProgTab from "./tabs/KeyProgTab";
@@ -904,6 +905,7 @@ const WORKSPACE_TABS = [
   {id:'vinprog',   i:'🪪', l:'VIN PROG',     s:'Single-file VIN + checksum'},
   {id:'inspector', i:'🔍', l:'MODULE INSPECTOR', s:'GPEC2A · RFHUB · BCM auto-detect'},
   {id:'unlockcov', i:'🗝️', l:'UNLOCK COV',   s:'81 DLLs · reversed vs dll_only'},
+  {id:'alfaobd',   i:'🧾', l:'ALFAOBD',      s:'ECUTYPE · Handlers · Transports'},
 ];
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -1054,6 +1056,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='vinprog'   && <VinProgrammerTab/>}
         {tab==='inspector' && <FcaModuleInspector/>}
         {tab==='unlockcov' && <UnlockCoverageTab/>}
+        {tab==='alfaobd'   && <AlfaObdTablesTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also

@@ -85,6 +85,17 @@ A `↻ RESUMED` pill appears in the chat header whenever the panel was hydrated 
 21. **ECM FLASHER** — bench-bridge GPEC2A flasher walking the FCA UDS programming session (10 02 → 27 01/02 CDA6 → 31 01 erase → 34 → 36* (seq wrap 0xFF→0x00) → 37 → 31 01 checksum → 11 01) with AbortSignal + NRC stop
 22. **CDA6 SESSION** — 10-step bench unlock walkthrough with inline CDA6 seed→key calculator
 23. **UNLOCK COVERAGE** — coverage view over the 81 FCA seed→key DLLs in `tools/python-bridge/tools/canflash_unlocks/`. Reads `public/unlock_catalog.json` (validated against `src/lib/unlockCatalogSchema.js`), shows per-DLL ecu_info (CAN tx/rx, decoded name, raw 12-byte hex), family tag, and a `reversed` vs `dll_only` status badge with the python_function name (when reversed) or the reason text (when emulated). The catalog is the single source of truth: `python3 tools/python-bridge/tools/srtlab_unlock_catalog_gen.py` regenerates it; `srtlab_unlock_catalog.py` (python-bridge dispatcher) and the SRT Lab UI both load from it. `scripts/copy-unlock-catalog.mjs` copies the JSON into `public/` as a `prebuild`/`predev` step. Tests: `tools/python-bridge/tools/test_unlock_catalog.py` (12 cases — coverage / function importability / reason presence / 11-bit CAN id range / dispatcher integration) plus `src/__tests__/unlockCatalog.test.mjs` (6 cases) and `src/__tests__/UnlockCoverageTab.ui.test.jsx` (5 cases).
+24. **ALFAOBD** — read-only browser of the JSON emitted by `tools/alfaobd-extractor` (ECUTYPE families, Process*Data handlers, transports, resource bundles + carved media). Renders an explicit empty state when no extraction has been run.
+
+## AlfaOBD extraction pipeline (`tools/alfaobd-extractor/`)
+
+Self-contained Node pipeline that converts a user-supplied `AlfaOBD.exe` (.NET 4 GUI app) into structured JSON the SRT Lab can consume.
+- **Refuses to run without the binary.** Default path `attached_assets/AlfaOBD.exe`. No transcript scraping; no invented data.
+- **Decompiler:** `ilspycmd` (override with `--decompiler` or `EXTRACTOR_DECOMPILE_CMD`).
+- **Outputs (under `artifacts/srt-lab/public/alfaobd-tables/`):** `manifest.json` (schema_version, hashes, decompiler info, file inventory with sha256s), `ecutypes/ECUTYPE_*.json` (one per family), `handlers.json`, `transports.json`, `resources.json` + carved `media/`.
+- **`shfolder(1).dll`:** fingerprinted only (Safengine Shielden v2.3.9.0). Manifest records `protected_skip: true`. Never unpacked.
+- **Schema** lives in `tools/alfaobd-extractor/src/schema.mjs`; every output is validated before write.
+- **Tests:** `node --test tools/alfaobd-extractor/tests/*.mjs` — synthetic decompiled tree round-trip + skip-gracefully validation of any real extracted output.
 
 ## Enhanced Module Parser
 
