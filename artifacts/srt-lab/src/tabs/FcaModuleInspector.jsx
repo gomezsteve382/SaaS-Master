@@ -17,15 +17,28 @@
  * `../lib/ui.jsx`) so it stops looking like a stranded standalone app.
  * Detection logic is preserved verbatim — `detectModuleType`,
  * `scanForVINs`, `parseInspectorModule`, `extractVIN`, `extractHex`,
- * `crossValidate`, `computeDiff`, `writeVIN`, and `virginize` are
- * untouched (the fixture tests in
- * `__tests__/FcaModuleInspector.fixtures.test.js` must still pass).
+ * `crossValidate`, `computeDiff`, and `virginize` are untouched (the
+ * fixture tests in `__tests__/FcaModuleInspector.fixtures.test.js`
+ * must still pass).
+ *
+ * Task #517 replaces the inspector's local `writeVIN()` with
+ * `inspectorWriteVin()`, a thin shim that delegates to the
+ * workspace-shared `analyzeFile()` + `patchFile()` pipeline in
+ * `../lib/fileUtils.js`. The old writer only stamped VIN bytes at
+ * hard-coded offsets and applied a sum-mod-256 byte for RFHUB; the
+ * shared pipeline recomputes every per-slot CRC the workspace knows
+ * about (Gen2 mirrored crc8rf, Gen1 crc16, BCM crc16, 95640 crc8/42),
+ * handles BCM partial 8-char tails, and syncs the BCM IMMO backup
+ * block — so a `modified_*.bin` from the inspector is now flashable
+ * and byte-identical to what `VinProgrammerTab` produces for the same
+ * input/VIN.
  * ========================================================================== */
 import { useState, useCallback, useMemo, useRef, useContext } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn, Tag, SLine } from "../lib/ui.jsx";
 import { parseModule } from "../lib/parseModule.js";
 import { MasterVinContext } from "../lib/masterVinContext.jsx";
+import { analyzeFile, patchFile } from "../lib/fileUtils.js";
 
 /* Task #518 — the inspector is no longer a sandboxed island. Instead of
  * keeping its own local `useState([])` of parsed dumps, it now reads from
@@ -267,19 +280,36 @@ function computeDiff(a, b) {
   return { totalChanged: changes.length, groups, changedSet: new Set(changes) };
 }
 
-function writeVIN(data, type, vin, existingVins) {
-  if (vin.length !== 17) return null;
-  const out = new Uint8Array(data);
-  const vb = new TextEncoder().encode(vin);
-  var offs;
-  if (type === "GPEC2A") offs = [0x0000, 0x01f0, 0x0224];
-  else if (type === "BCM") offs = [0x5328, 0x5348, 0x5368, 0x5388];
-  else if (type === "RFHUB" && existingVins && existingVins.length > 0) offs = existingVins.map(v => v.offset);
-  else if (type === "RFHUB") offs = [0x0ea5, 0x0eb9, 0x0ecd, 0x0ee1];
-  else offs = [];
-  offs.forEach(o => { for (let i = 0; i < 17; i++) out[o + i] = vb[i]; });
-  if (type === "RFHUB") offs.forEach(o => { let s=0; for(let i=0;i<17;i++) s=(s+out[o+i])&0xff; out[o+17]=s; });
-  return out;
+/* Task #517 — VIN Writer now routes through the workspace-shared
+ * patchFile() pipeline (see ../lib/fileUtils.js) instead of the
+ * inspector's old local writeVIN(). The local writer only stamped VIN
+ * bytes at hard-coded offsets and applied a naive sum-mod-256 byte for
+ * RFHUB; it did NOT recompute the per-slot CRCs every module family
+ * actually uses (Gen2 mirrored crc8rf, Gen1 crc16, BCM crc16, 95640
+ * crc8/42), did NOT reverse VIN bytes for Gen2 RFHUB mirrored slots,
+ * did NOT touch BCM partial 8-char tail slots at 0x4098 / 0x40B0, and
+ * did NOT sync the BCM IMMO backup block. A patched .bin from the
+ * inspector therefore failed module-side integrity checks at boot.
+ *
+ * Delegating to patchFile(analyzeFile(...)) gives the inspector the
+ * exact same flashable output as VinProgrammerTab for the same
+ * input/VIN, and the structured `log` array is surfaced in the result
+ * card so the user can see every offset that was touched. */
+function inspectorWriteVin(data, filename, vin) {
+  if (typeof vin !== "string" || vin.length !== 17) return null;
+  const info = analyzeFile(data, filename);
+  if (!info || (info.vins.length === 0 && (!info.partials || info.partials.length === 0))) {
+    return { data: null, log: [], info, slotCount: 0, partialCount: 0, unsupported: true };
+  }
+  const { data: out, log } = patchFile(info, vin);
+  return {
+    data: out,
+    log,
+    info,
+    slotCount: info.vins.length,
+    partialCount: info.partials ? info.partials.length : 0,
+    unsupported: false,
+  };
 }
 
 function virginize(data) {
@@ -345,7 +375,7 @@ const TABS = [
   { id: "tools",    label: "Tools",    icon: "🛠️" },
 ];
 
-export { MODULE_TYPES, SKIM_VALUES, detectModuleType, scanForVINs, extractVIN, parseInspectorModule };
+export { MODULE_TYPES, SKIM_VALUES, detectModuleType, scanForVINs, extractVIN, parseInspectorModule, inspectorWriteVin };
 
 export default function FcaModuleInspector() {
   const { loadedDumps, addDump, removeDump } = useContext(MasterVinContext);
@@ -442,7 +472,19 @@ export default function FcaModuleInspector() {
   const doTool = action => {
     const m = modules[safeTt]; if (!m) return; let res = null;
     if (action === "virginize" && m.type === "GPEC2A") res = { data: virginize(m.data), desc: "GPEC2A virginized: SKIM→0x00, keys cleared, ZZZZ zeroed." };
-    else if (action === "writeVin" && nv.length === 17) { const d = writeVIN(m.data, m.type, nv, m.vins); if (d) res = { data: d, desc: "VIN updated to " + nv + " at " + (m.vins ? m.vins.length : 0) + " locations" }; }
+    else if (action === "writeVin" && nv.length === 17) {
+      // Task #517 — route through the workspace-shared patchFile pipeline
+      // so every per-slot CRC is recomputed (Gen2 mirrored crc8rf, Gen1
+      // crc16, BCM crc16+IMMO sync, 95640 crc8/42). The old local
+      // writeVIN() only stamped VIN bytes and produced unflashable bins.
+      const r = inspectorWriteVin(m.data, m.filename, nv);
+      if (r && r.unsupported) {
+        res = { data: null, desc: "VIN write skipped — analyzer found no patchable VIN slots in " + (r.info ? (r.info.name || r.info.type) : m.type) + ". File type may be unsupported for VIN programming." };
+      } else if (r && r.data) {
+        const slotsTxt = r.slotCount + " slot" + (r.slotCount === 1 ? "" : "s") + (r.partialCount > 0 ? " + " + r.partialCount + " partial" + (r.partialCount === 1 ? "" : "s") : "");
+        res = { data: r.data, desc: "VIN updated to " + nv + " — " + slotsTxt + ", checksums recomputed via shared pipeline.", log: r.log };
+      }
+    }
     else if (action === "skimToggle" && m.type === "GPEC2A") { const d = new Uint8Array(m.data); d[0x0011] = m.skimByte === 0x80 ? 0x00 : 0x80; res = { data: d, desc: "SKIM: 0x" + m.skimByte.toString(16).toUpperCase() + " → 0x" + d[0x0011].toString(16).toUpperCase() }; }
     else if (action === "extractKey") { let k = m.secretKey ? m.secretKey.hex : m.vehicleSecret ? m.vehicleSecret.hex : ""; res = { keyHex: k, desc: "Extracted from " + m.type }; }
     setTr(res);
@@ -659,10 +701,13 @@ export default function FcaModuleInspector() {
           </Card>
         </div>
 
-        {tr && <Card style={{ padding: 16, marginTop: 14, border: "1.5px solid " + C.gn }}>
-          <div style={{ fontSize: 13, fontWeight: 900, color: C.gn, marginBottom: 8, letterSpacing: 0.5 }}>✓ Result</div>
+        {tr && <Card style={{ padding: 16, marginTop: 14, border: "1.5px solid " + (tr.data ? C.gn : C.wn) }}>
+          <div style={{ fontSize: 13, fontWeight: 900, color: tr.data ? C.gn : C.wn, marginBottom: 8, letterSpacing: 0.5 }}>{tr.data ? "✓ Result" : "⚠ Result"}</div>
           <div style={{ fontSize: 12, color: C.tx, marginBottom: 10 }}>{tr.desc}</div>
           {tr.keyHex && <div style={{ background: C.c2, border: "1px solid " + C.bd, padding: 12, borderRadius: 8, fontSize: 14, fontWeight: 800, color: C.a4, letterSpacing: 1, marginBottom: 10, fontFamily: "'JetBrains Mono'", wordBreak: "break-all" }}>{tr.keyHex}</div>}
+          {tr.log && tr.log.length > 0 && <div data-testid="inspector-vinwrite-log" style={{ background: "#1A1A1A", color: "#A0FFA0", padding: 10, borderRadius: 8, fontFamily: "'JetBrains Mono'", fontSize: 11, maxHeight: 200, overflowY: "auto", marginBottom: 10 }}>
+            {tr.log.map((line, i) => <div key={i} style={{ padding: "1px 0" }}>{line}</div>)}
+          </div>}
           {tr.data && <Btn onClick={dl} color={C.gn}>Download Modified .bin</Btn>}
         </Card>}
       </div>}
