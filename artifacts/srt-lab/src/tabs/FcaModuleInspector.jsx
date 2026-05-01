@@ -8,18 +8,28 @@
  * reads the SKIM enable/disable byte at 0x0011 (GPEC2A), and produces a
  * downloadable patched `.bin` for VIN/SKIM/virginize/key-extract operations.
  *
- * Task #496 rehomes the file under a clear name, exports the helper
- * functions for unit tests, and wires the component into the SRT Lab tab
- * registry. Detection logic is preserved verbatim so the behavior matches
- * the original drop byte-for-byte.
+ * Task #496 rehomed the file under a clear name, exported the helper
+ * functions for unit tests, and wired the component into the SRT Lab tab
+ * registry.
+ *
+ * Task #502 re-skins the UI to use the workspace-wide design tokens
+ * (`C` from `../lib/constants.js`, `Card`/`Btn`/`Tag`/`SLine` from
+ * `../lib/ui.jsx`) so it stops looking like a stranded standalone app.
+ * Detection logic is preserved verbatim — `detectModuleType`,
+ * `scanForVINs`, `parseInspectorModule`, `extractVIN`, `extractHex`,
+ * `crossValidate`, `computeDiff`, `writeVIN`, and `virginize` are
+ * untouched (the fixture tests in
+ * `__tests__/FcaModuleInspector.fixtures.test.js` must still pass).
  * ========================================================================== */
 import { useState, useCallback, useMemo, useRef } from "react";
+import { C } from "../lib/constants.js";
+import { Card, Btn, Tag, SLine } from "../lib/ui.jsx";
 
 const MODULE_TYPES = {
-  GPEC2A: { name: "GPEC2A PCM", chip: "95320 SPI", size: 4096, color: "#ff6b35" },
-  RFHUB: { name: "RFHUB EEE", chip: "Internal EEPROM", size: 4096, color: "#00d4aa" },
-  BCM: { name: "BCM DFLASH", chip: "FEE Emulation", size: 65536, color: "#5b8cff" },
-  UNKNOWN: { name: "Unknown Module", chip: "\u2014", size: 0, color: "#7a8194" },
+  GPEC2A: { name: "GPEC2A PCM", chip: "95320 SPI", size: 4096, color: C.a1 },
+  RFHUB: { name: "RFHUB EEE", chip: "Internal EEPROM", size: 4096, color: C.a2 },
+  BCM: { name: "BCM DFLASH", chip: "FEE Emulation", size: 65536, color: C.a3 },
+  UNKNOWN: { name: "Unknown Module", chip: "\u2014", size: 0, color: C.tm },
 };
 
 const SKIM_VALUES = { 0x80: "ENABLED", 0x00: "DISABLED", 0x02: "DISABLED (alt)" };
@@ -246,20 +256,58 @@ function virginize(data) {
   return o;
 }
 
-const C = { bg:"#06080c", surface:"#0e1117", surface2:"#161b24", border:"#1e2530", text:"#cdd4e0", dim:"#5a6478", red:"#ff3b3b", green:"#00d4aa", blue:"#4d8aff", warn:"#f5a623", key:"#ff6b9d", crypto:"#b07cff", orange:"#ff6b35" };
+/* ── UI helpers (workspace-themed) ──────────────────────────────────────────
+ * Map the rescued tool's semantic colors onto the shared SRT Lab palette so
+ * the inspector visually matches Gpec2aTab / VinProgrammerTab / RfhubTab.
+ *   crypto secrets → C.a4 (purple)   key/transponder → C.a4
+ *   VINs           → C.a1 (orange)   offsets/hex     → C.a3 (blue)
+ *   pass/warn/err  → C.gn / C.wn / C.er
+ */
 const fO = n => "0x" + n.toString(16).toUpperCase().padStart(4, "0");
-const selSt = { background: C.surface2, color: C.text, border: "1px solid " + C.border, borderRadius: 6, padding: "6px 12px", fontSize: 12, fontFamily: "inherit" };
-const inpSt = { background: C.bg, color: C.text, border: "1px solid " + C.border, borderRadius: 6, padding: "8px 12px", fontSize: 13, fontFamily: "inherit", letterSpacing: 1 };
 
-function STag({ bg, children }) { return <span style={{ display:"inline-block", padding:"1px 7px", borderRadius:3, fontSize:10, fontWeight:700, background:bg+"22", color:bg, textTransform:"uppercase", letterSpacing:0.5 }}>{children}</span>; }
-function STh({ children }) { return <th style={{ textAlign:"left", color:C.dim, fontWeight:600, padding:"6px 10px", borderBottom:"1px solid "+C.border, fontSize:10, textTransform:"uppercase", letterSpacing:0.5 }}>{children}</th>; }
-function STd({ c, bold, children }) { return <td style={{ padding:"5px 10px", color:c, fontWeight:bold?700:400, fontSize:12 }}>{children}</td>; }
-function SLine({ type, msg }) { const col={error:C.red,warn:C.warn,pass:C.green}; const ico={error:"\u2717",warn:"\u26A0",pass:"\u2713"}; return <div style={{ fontSize:12, color:col[type], padding:"4px 0", display:"flex", gap:8 }}><span style={{ fontWeight:700, minWidth:14 }}>{ico[type]}</span><span>{msg}</span></div>; }
-function STitle({ children, color }) { return <div style={{ fontFamily:"'Chakra Petch',sans-serif", fontSize:16, fontWeight:700, color:color||"#fff", margin:"24px 0 12px", display:"flex", alignItems:"center", gap:8 }}><span style={{ color:C.red }}>{"\u25B6"}</span>{children}</div>; }
-function TCard({ title, desc, color, children }) { return <div style={{ background:C.surface, border:"1px solid "+C.border, borderRadius:8, padding:16, borderTop:"2px solid "+color }}><div style={{ fontSize:14, fontWeight:700, color:"#fff", marginBottom:4 }}>{title}</div><div style={{ fontSize:11, color:C.dim, marginBottom:12 }}>{desc}</div>{children}</div>; }
-function TBtn({ children, onClick, disabled, warn }) { return <button onClick={onClick} disabled={disabled} style={{ background:disabled?C.surface2:warn?"linear-gradient(135deg,"+C.warn+",#d48800)":"linear-gradient(135deg,"+C.blue+",#3a6fd8)", color:disabled?C.dim:"#fff", border:"none", padding:"8px 16px", borderRadius:6, cursor:disabled?"not-allowed":"pointer", fontWeight:700, fontSize:12, fontFamily:"inherit", width:"100%", opacity:disabled?0.5:1 }}>{children}</button>; }
+const selSt = {
+  background: C.cd,
+  color: C.tx,
+  border: "1.5px solid " + C.bd,
+  borderRadius: 8,
+  padding: "8px 12px",
+  fontSize: 12,
+  fontFamily: "'Nunito',sans-serif",
+  fontWeight: 700,
+  cursor: "pointer",
+};
 
-const TABS = ["overview", "security", "diff", "tools"];
+const inpSt = {
+  background: C.cd,
+  color: C.tx,
+  border: "1.5px solid " + C.bd,
+  borderRadius: 8,
+  padding: "10px 12px",
+  fontSize: 13,
+  fontFamily: "'JetBrains Mono',monospace",
+  letterSpacing: 1,
+  outline: "none",
+};
+
+function STh({ children }) {
+  return <th style={{ textAlign: "left", color: C.tm, fontWeight: 800, padding: "8px 10px", borderBottom: "1px solid " + C.bd, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>{children}</th>;
+}
+function STd({ c, bold, mono, children }) {
+  return <td style={{ padding: "6px 10px", color: c || C.tx, fontWeight: bold ? 800 : 500, fontSize: 12, fontFamily: mono ? "'JetBrains Mono',monospace" : "'Nunito',sans-serif" }}>{children}</td>;
+}
+
+function STitle({ children, color }) {
+  return <div style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 900, color: color || C.tx, margin: "20px 0 10px", display: "flex", alignItems: "center", gap: 8, letterSpacing: 0.5 }}>
+    <span style={{ color: C.sr, fontSize: 12 }}>▶</span>{children}
+  </div>;
+}
+
+const TABS = [
+  { id: "overview", label: "Overview", icon: "📋" },
+  { id: "security", label: "Security", icon: "🔒" },
+  { id: "diff",     label: "Hex Diff", icon: "🔀" },
+  { id: "tools",    label: "Tools",    icon: "🛠️" },
+];
 
 export { MODULE_TYPES, SKIM_VALUES, detectModuleType, scanForVINs, extractVIN, parseInspectorModule };
 
@@ -288,178 +336,233 @@ export default function FcaModuleInspector() {
 
   const doTool = action => {
     const m = modules[tt]; if (!m) return; let res = null;
-    if (action === "virginize" && m.type === "GPEC2A") res = { data: virginize(m.data), desc: "GPEC2A virginized: SKIM->0x00, keys cleared, ZZZZ zeroed." };
+    if (action === "virginize" && m.type === "GPEC2A") res = { data: virginize(m.data), desc: "GPEC2A virginized: SKIM→0x00, keys cleared, ZZZZ zeroed." };
     else if (action === "writeVin" && nv.length === 17) { const d = writeVIN(m.data, m.type, nv, m.vins); if (d) res = { data: d, desc: "VIN updated to " + nv + " at " + (m.vins ? m.vins.length : 0) + " locations" }; }
-    else if (action === "skimToggle" && m.type === "GPEC2A") { const d = new Uint8Array(m.data); d[0x0011] = m.skimByte === 0x80 ? 0x00 : 0x80; res = { data: d, desc: "SKIM: 0x" + m.skimByte.toString(16).toUpperCase() + " -> 0x" + d[0x0011].toString(16).toUpperCase() }; }
+    else if (action === "skimToggle" && m.type === "GPEC2A") { const d = new Uint8Array(m.data); d[0x0011] = m.skimByte === 0x80 ? 0x00 : 0x80; res = { data: d, desc: "SKIM: 0x" + m.skimByte.toString(16).toUpperCase() + " → 0x" + d[0x0011].toString(16).toUpperCase() }; }
     else if (action === "extractKey") { let k = m.secretKey ? m.secretKey.hex : m.vehicleSecret ? m.vehicleSecret.hex : ""; res = { keyHex: k, desc: "Extracted from " + m.type }; }
     setTr(res);
   };
   const dl = () => { if (!tr?.data) return; const b = new Blob([tr.data], { type: "application/octet-stream" }); const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = "modified_" + (modules[tt]?.filename || "module.bin"); a.click(); URL.revokeObjectURL(u); };
 
-  return (
-    <div style={{ background: C.bg, color: C.text, fontFamily: "'IBM Plex Mono','Fira Code',monospace", fontSize: 13, minHeight: "100vh" }}>
-      <div style={{ background: "linear-gradient(135deg," + C.surface + ",#0a0e16)", borderBottom: "1px solid " + C.border, padding: "20px 24px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg," + C.red + "," + C.orange + ")", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 900, color: "#fff" }}>S</div>
-          <div>
-            <div style={{ fontFamily: "'Chakra Petch',sans-serif", fontSize: 22, fontWeight: 700, color: "#fff", letterSpacing: -0.5 }}>FCA Module Security Analyzer</div>
-            <div style={{ fontSize: 11, color: C.dim }}>THE SRT LAB &middot; GPEC2A / RFHUB / BCM &middot; Security Byte Engine</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 2, marginTop: 16 }}>
-          {TABS.map(t => <button key={t} onClick={() => setTab(t)} style={{ background: tab === t ? C.surface2 : "transparent", color: tab === t ? "#fff" : C.dim, border: "1px solid " + (tab === t ? C.border : "transparent"), borderBottom: tab === t ? "2px solid " + C.red : "2px solid transparent", padding: "8px 18px", borderRadius: "6px 6px 0 0", cursor: "pointer", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.8, fontFamily: "inherit" }}>{t}</button>)}
+  return <div>
+    {/* Hero — matches the gradient title cards used by GPEC2A / RFHUB / BCM tabs */}
+    <Card style={{ background: "linear-gradient(135deg,#1A0A2E 0%,#2E0A4D 40%,#AA00FF 100%)", color: "#fff", marginBottom: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ fontSize: 32 }}>🔍</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: "'Righteous'", fontSize: 24, letterSpacing: 2 }}>MODULE INSPECTOR</div>
+          <div style={{ fontSize: 10, opacity: .75, letterSpacing: 3, fontWeight: 700 }}>GPEC2A · RFHUB · BCM · CROSS-MODULE VALIDATION</div>
         </div>
       </div>
+    </Card>
 
-      <div style={{ padding: "20px 24px", maxWidth: 1300, margin: "0 auto" }}>
-        <div style={{ border: "2px dashed " + (modules.length ? C.border : C.dim), borderRadius: 10, padding: 20, textAlign: "center", marginBottom: 20, cursor: "pointer", background: C.surface }} onClick={() => fr.current?.click()}>
-          <input ref={fr} type="file" multiple accept=".bin" style={{ display: "none" }} onChange={onFiles} />
-          <div style={{ fontSize: 14, color: C.dim, marginBottom: 4 }}>{modules.length === 0 ? "Drop .bin files here or click to load" : modules.length + " module(s) loaded"}</div>
-          <div style={{ fontSize: 11, color: C.dim }}>GPEC2A EEPROM (4KB) &middot; RFHUB EEE (4KB) &middot; BCM DFLASH (64KB)</div>
+    {/* Sub-tab strip — borrows the workspace tab-bar styling at a slightly smaller scale */}
+    <Card style={{ marginBottom: 14, padding: 6 }}>
+      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+        {TABS.map(t => {
+          const a = tab === t.id;
+          return <button key={t.id} onClick={() => setTab(t.id)} style={{
+            padding: "9px 16px", border: "none", cursor: "pointer",
+            background: a ? C.sr : "transparent",
+            borderRadius: 10, color: a ? "#fff" : C.ts,
+            fontFamily: "'Nunito'", fontWeight: a ? 900 : 700, fontSize: 11,
+            letterSpacing: 1.2, transition: "all 0.2s",
+          }}><span style={{ fontSize: 13, marginRight: 6 }}>{t.icon}</span>{t.label.toUpperCase()}</button>;
+        })}
+      </div>
+    </Card>
+
+    {/* File drop / loader — matches the upload card style used by Gpec2aTab */}
+    <label style={{ cursor: "pointer", display: "block" }}>
+      <Card style={{
+        textAlign: "center", padding: 22, marginBottom: 16,
+        border: "2px dashed " + (modules.length ? C.bd : C.tm),
+        background: modules.length ? C.cd : C.c2,
+      }}>
+        <div style={{ fontSize: 28 }}>📂</div>
+        <div style={{ fontSize: 13, fontWeight: 800, color: C.ts, marginTop: 6 }}>
+          {modules.length === 0 ? "Drop .bin files here or click to load" : modules.length + " module(s) loaded — add more"}
+        </div>
+        <div style={{ fontSize: 10, color: C.tm, marginTop: 4, letterSpacing: 0.5 }}>GPEC2A EEPROM (4KB) · RFHUB EEE (4KB) · BCM DFLASH (64KB)</div>
+        <input ref={fr} type="file" multiple accept=".bin,.BIN" hidden onChange={onFiles} />
+      </Card>
+    </label>
+
+    {/* Loaded module chips */}
+    {modules.length > 0 && <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 18 }}>
+      {modules.map((m, i) => <div key={i} style={{
+        background: C.cd, border: "1.5px solid " + C.bd, borderRadius: 12,
+        padding: "12px 14px 12px 16px", borderLeft: "4px solid " + m.color,
+        flex: "1 1 280px", position: "relative", minWidth: 260,
+        boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+      }}>
+        <button onClick={() => rmMod(i)} aria-label="Remove module" style={{
+          position: "absolute", top: 8, right: 10, background: "none", border: "none",
+          color: C.tm, cursor: "pointer", fontSize: 16, lineHeight: 1, fontWeight: 700,
+        }}>×</button>
+        <div style={{ fontSize: 13, fontWeight: 900, color: m.color, marginBottom: 2 }}>{m.name}</div>
+        <div style={{ fontSize: 10, color: C.tm, marginBottom: 8, fontFamily: "'JetBrains Mono'" }}>{m.filename} · {m.size.toLocaleString()}B</div>
+        {m.vins?.[0] && <div style={{ fontSize: 11, color: C.a1, fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>VIN: {m.vins[0].vin}</div>}
+        {m.skimStatus && <div style={{ fontSize: 11, color: m.skimByte === 0x80 ? C.gn : C.er, fontWeight: 700, marginTop: 2 }}>SKIM: {m.skimStatus}</div>}
+        {m.vehicleSecret && <div style={{ fontSize: 10, color: C.a4, fontFamily: "'JetBrains Mono'", marginTop: 2 }}>Secret: {m.vehicleSecret.hex.slice(0, 23)}…</div>}
+        {m.securityLock && <div style={{ fontSize: 11, color: m.securityLock.locked ? C.gn : C.wn, fontWeight: 700, marginTop: 2 }}>{m.securityLock.locked ? "LOCKED" : "UNLOCKED"}</div>}
+      </div>)}
+      <button onClick={clr} style={{
+        background: C.cd, border: "1.5px dashed " + C.bd, borderRadius: 12,
+        padding: 12, color: C.ts, cursor: "pointer", fontSize: 11, fontWeight: 800,
+        flex: "0 0 100px", display: "flex", alignItems: "center", justifyContent: "center",
+        fontFamily: "'Nunito'", letterSpacing: 0.5,
+      }}>Clear All</button>
+    </div>}
+
+    {/* OVERVIEW TAB */}
+    {tab === "overview" && val && <div>
+      <STitle>Cross-Module Validation</STitle>
+      <Card style={{ padding: 14 }}>
+        {val.issues.map((m, i) => <SLine key={"i"+i} type="error" msg={m} />)}
+        {val.warnings.map((m, i) => <SLine key={"w"+i} type="warn" msg={m} />)}
+        {val.passed.map((m, i) => <SLine key={"p"+i} type="pass" msg={m} />)}
+      </Card>
+      {modules.map((m, i) => <div key={i} style={{ marginTop: 14 }}>
+        <STitle color={m.color}>{m.name} — <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700, color: C.ts }}>{m.filename}</span></STitle>
+        <Card style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+              <thead><tr><STh>Offset</STh><STh>Category</STh><STh>Value</STh><STh>Detail</STh></tr></thead>
+              <tbody>
+                {m.vins?.map((v, j) => <tr key={"v"+j}><STd c={C.a3} mono>{fO(v.offset)}</STd><STd><Tag color={C.a1}>VIN {j+1}</Tag></STd><STd c={C.a1} bold mono>{v.vin}</STd><STd c={C.tm}>17B ASCII</STd></tr>)}
+                {m.skimStatus && <tr><STd c={C.a3} mono>0x0011</STd><STd><Tag color={C.sr}>SKIM</Tag></STd><STd c={m.skimByte===0x80?C.gn:C.er} bold mono>0x{m.skimByte.toString(16).toUpperCase()} — {m.skimStatus}</STd><STd c={C.tm}>Immobilizer byte</STd></tr>}
+                {m.secretKey && <tr><STd c={C.a3} mono>{fO(m.secretKey.offset)}</STd><STd><Tag color={C.a4}>SECRET</Tag></STd><STd c={C.a4} bold mono>{m.secretKey.hex}</STd><STd c={C.tm}>8B sync key {m.keyConsistent ? "✓" : "✗"}</STd></tr>}
+                {m.vehicleSecret && <tr><STd c={C.a3} mono>{fO(m.vehicleSecret.offset)}</STd><STd><Tag color={C.a4}>SECRET</Tag></STd><STd c={C.a4} bold mono>{m.vehicleSecret.hex}</STd><STd c={C.tm}>{m.vehicleSecret.endian}-endian 16B</STd></tr>}
+                {m.transponderKeys?.map((tk, j) => <tr key={"t"+j}><STd c={C.a3} mono>{fO(tk.offset)}</STd><STd><Tag color={C.a4}>FOBIK {j+1}</Tag></STd><STd c={C.a4} mono>{tk.hex}</STd><STd c={C.tm}>Transponder</STd></tr>)}
+                {m.immoKeys?.map((ik, j) => <tr key={"k"+j}><STd c={C.a3} mono>{fO(ik.offset)}</STd><STd><Tag color={C.a4}>IMMO {j+1}</Tag></STd><STd c={C.a4} mono>{ik.hex}</STd><STd c={C.tm}>IMMO entry</STd></tr>)}
+                {m.zzzzTamper && <tr><STd c={C.a3} mono>{fO(m.zzzzTamper.offset)}</STd><STd><Tag color={C.wn}>TAMPER</Tag></STd><STd c={m.zzzzTamper.intact?C.gn:C.wn} mono>{m.zzzzTamper.hex} — {m.zzzzTamper.intact?"INTACT":"CLEARED"}</STd><STd c={C.tm}>ZZZZ</STd></tr>}
+                {m.securityLock && <tr><STd c={C.a3} mono>0x8028</STd><STd><Tag color={C.sr}>LOCK</Tag></STd><STd c={m.securityLock.locked?C.gn:C.wn} bold mono>0x{m.securityLock.value.toString(16).toUpperCase()}</STd><STd c={C.tm}>{m.securityLock.locked?"LOCKED":"UNLOCKED"}</STd></tr>}
+                {m.fobikSlots !== undefined && <tr><STd c={C.a3} mono>0x0880</STd><STd><Tag color={C.a4}>FOBIK</Tag></STd><STd c={C.a4} bold>{m.fobikSlots} slots</STd><STd c={C.tm}>AA50</STd></tr>}
+                {m.fobikCount !== undefined && <tr><STd c={C.a3} mono>0x5862</STd><STd><Tag color={C.a4}>FOBIK</Tag></STd><STd c={C.a4} bold>{m.fobikCount} keys</STd><STd c={C.tm}>BCM count</STd></tr>}
+                {m.partNumbers && Object.entries(m.partNumbers).map(([k, v]) => <tr key={k}><STd c={C.a3} mono>—</STd><STd><Tag color={C.a3}>PN-{k.toUpperCase()}</Tag></STd><STd mono>{v}</STd><STd c={C.tm}>Part#</STd></tr>)}
+                {m.partNumberStr && <tr><STd c={C.a3} mono>0x0FA1</STd><STd><Tag color={C.a3}>SRI</Tag></STd><STd mono>{m.partNumberStr}</STd><STd c={C.tm}>SW Release</STd></tr>}
+                {m.runtimeCounters && Object.entries(m.runtimeCounters).map(([k, v]) => <tr key={k}><STd c={C.a3} mono>{fO(v.offset)}</STd><STd><Tag color={C.tm}>CTR</Tag></STd><STd mono>{v.hex} ({v.value.toLocaleString()})</STd><STd c={C.tm}>{k}</STd></tr>)}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>)}
+    </div>}
+
+    {/* SECURITY TAB */}
+    {tab === "security" && modules.length > 0 && <div>
+      <STitle>Security Architecture</STitle>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 12 }}>
+        {modules.map((m, i) => <Card key={i} style={{ padding: 16, borderLeft: "4px solid " + m.color }}>
+          <div style={{ fontWeight: 900, color: m.color, marginBottom: 10, fontSize: 14 }}>{m.name}</div>
+          {m.vins?.[0] && <div style={{ fontSize: 12, marginBottom: 5 }}>VIN: <span style={{ color: C.a1, fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{m.vins[0].vin}</span></div>}
+          {m.skimStatus && <div style={{ fontSize: 12, marginBottom: 5 }}>SKIM: <span style={{ color: m.skimByte === 0x80 ? C.gn : C.er, fontWeight: 700 }}>{m.skimStatus}</span></div>}
+          {m.secretKey && <div style={{ fontSize: 11, marginBottom: 5 }}>Secret: <span style={{ color: C.a4, fontFamily: "'JetBrains Mono'" }}>{m.secretKey.hex}</span> {m.keyConsistent ? "✓" : "✗"}</div>}
+          {m.vehicleSecret && <div style={{ fontSize: 11, marginBottom: 5 }}>Secret ({m.vehicleSecret.endian}): <span style={{ color: C.a4, fontFamily: "'JetBrains Mono'" }}>{m.vehicleSecret.hex}</span></div>}
+          {m.fobikSlots !== undefined && <div style={{ fontSize: 11, marginBottom: 3 }}>FOBIK: <span style={{ color: C.a4, fontWeight: 700 }}>{m.fobikSlots} slots</span> · CC66AA55: {m.securityMarkers} · ZZZZ: {m.zzzzBlocks}</div>}
+          {m.fobikCount !== undefined && <div style={{ fontSize: 11, marginBottom: 3 }}>FOBIK: <span style={{ color: C.a4, fontWeight: 700 }}>{m.fobikCount} keys</span></div>}
+          {m.securityLock && <div style={{ fontSize: 11, marginBottom: 3 }}>Lock: <span style={{ color: m.securityLock.locked ? C.gn : C.wn, fontWeight: 700 }}>{m.securityLock.locked ? "0x5A LOCKED" : "UNLOCKED"}</span></div>}
+          {m.zzzzTamper && <div style={{ fontSize: 11 }}>Tamper: <span style={{ color: m.zzzzTamper.intact ? C.gn : C.wn, fontWeight: 700 }}>{m.zzzzTamper.intact ? "INTACT" : "CLEARED"}</span></div>}
+        </Card>)}
+      </div>
+    </div>}
+
+    {/* DIFF TAB */}
+    {tab === "diff" && <div>
+      <STitle>Hex Diff</STitle>
+      {modules.length < 2 ? <Card style={{ textAlign: "center", padding: 22, color: C.tm, fontSize: 12 }}>Load 2+ modules to compare.</Card> : <div>
+        <Card style={{ padding: 12, marginBottom: 14 }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <select value={dp[0]} onChange={e => setDp([+e.target.value, dp[1]])} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename}</option>)}</select>
+            <span style={{ color: C.tm, fontSize: 16 }}>↔</span>
+            <select value={dp[1]} onChange={e => setDp([dp[0], +e.target.value])} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename}</option>)}</select>
+          </div>
+        </Card>
+        {diff && <Card style={{ padding: 14 }}>
+          <div style={{ fontSize: 12, color: C.wn, marginBottom: 10, fontWeight: 800 }}>{diff.totalChanged} bytes changed, {diff.groups.length} regions</div>
+          <div style={{ background: C.c2, border: "1px solid " + C.bd, borderRadius: 10, padding: 12, maxHeight: 500, overflowY: "auto" }}>
+            {diff.groups.slice(0, 50).map(([s, e], gi) => {
+              const a = modules[dp[0]].data, b = modules[dp[1]].data;
+              const ls = s & ~0xf, le = (e | 0xf) + 1, lines = [];
+              for (let o = ls; o < le && o < Math.max(a.length, b.length); o += 16) {
+                const ha = [], hb = [];
+                for (let j = 0; j < 16 && o+j < Math.max(a.length, b.length); j++) {
+                  const idx = o+j, va = a[idx]||0, vb = b[idx]||0, ch = diff.changedSet.has(idx);
+                  ha.push({ v: va.toString(16).padStart(2,"0").toUpperCase(), c: ch });
+                  hb.push({ v: vb.toString(16).padStart(2,"0").toUpperCase(), c: ch });
+                }
+                lines.push({ o, ha, hb });
+              }
+              return <div key={gi} style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'" }}>{fO(s)}–{fO(e)} ({e-s+1}B)</div>
+                {lines.map((l, li) => <div key={li} style={{ display: "flex", gap: 16, fontSize: 11, lineHeight: 1.6, fontFamily: "'JetBrains Mono'" }}>
+                  <span style={{ color: C.a3, minWidth: 40 }}>{l.o.toString(16).toUpperCase().padStart(4,"0")}</span>
+                  <span style={{ minWidth: 200 }}>{l.ha.map((h, hi) => <span key={hi} style={{ color: h.c ? C.er : C.tm, marginRight: 4, fontWeight: h.c ? 700 : 400 }}>{h.v}</span>)}</span>
+                  <span style={{ color: C.tm }}>→</span>
+                  <span>{l.hb.map((h, hi) => <span key={hi} style={{ color: h.c ? C.gn : C.tm, marginRight: 4, fontWeight: h.c ? 700 : 400 }}>{h.v}</span>)}</span>
+                </div>)}
+              </div>;
+            })}
+            {diff.groups.length > 50 && <div style={{ color: C.tm, fontSize: 11, marginTop: 6 }}>+{diff.groups.length - 50} more regions</div>}
+          </div>
+        </Card>}
+      </div>}
+    </div>}
+
+    {/* TOOLS TAB */}
+    {tab === "tools" && <div>
+      <STitle>Module Programming Tools</STitle>
+      {modules.length === 0 ? <Card style={{ textAlign: "center", padding: 22, color: C.tm, fontSize: 12 }}>Load a module first.</Card> : <div>
+        <Card style={{ padding: 12, marginBottom: 14, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <label style={{ fontSize: 11, color: C.tm, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase" }}>Target:</label>
+          <select value={tt} onChange={e => setTt(+e.target.value)} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename} ({m.name})</option>)}</select>
+        </Card>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
+          <Card style={{ padding: 16, borderTop: "3px solid " + C.gn }}>
+            <div style={{ fontSize: 13, fontWeight: 900, color: C.tx, marginBottom: 4 }}>VIN Writer</div>
+            <div style={{ fontSize: 10, color: C.tm, marginBottom: 12 }}>Update VIN at all detected locations.</div>
+            <input value={nv} onChange={e => setNv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"").slice(0,17))} placeholder="Enter 17-char VIN" maxLength={17} style={{ ...inpSt, marginBottom: 6, width: "100%", boxSizing: "border-box" }} />
+            <div style={{ fontSize: 10, color: nv.length===17?C.gn:C.tm, marginBottom: 10, fontWeight: 700 }}>{nv.length}/17</div>
+            <Btn onClick={() => doTool("writeVin")} disabled={nv.length!==17} color={C.gn} full>Write VIN</Btn>
+          </Card>
+
+          <Card style={{ padding: 16, borderTop: "3px solid " + C.sr }}>
+            <div style={{ fontSize: 13, fontWeight: 900, color: C.tx, marginBottom: 4 }}>SKIM Manager</div>
+            <div style={{ fontSize: 10, color: C.tm, marginBottom: 12 }}>Toggle SKIM byte at 0x0011 (GPEC2A).</div>
+            {modules[tt]?.type==="GPEC2A" ? <div>
+              <div style={{ fontSize: 12, marginBottom: 10, fontFamily: "'JetBrains Mono'" }}>Current: <span style={{ color: modules[tt].skimByte===0x80?C.gn:C.er, fontWeight: 800 }}>0x{modules[tt].skimByte.toString(16).toUpperCase()}</span></div>
+              <Btn onClick={() => doTool("skimToggle")} color={modules[tt].skimByte===0x80?C.wn:C.gn} full>{modules[tt].skimByte===0x80?"Disable SKIM":"Enable SKIM"}</Btn>
+            </div> : <div style={{ fontSize: 11, color: C.tm }}>Select a GPEC2A module.</div>}
+          </Card>
+
+          <Card style={{ padding: 16, borderTop: "3px solid " + C.wn }}>
+            <div style={{ fontSize: 13, fontWeight: 900, color: C.tx, marginBottom: 4 }}>Virginize PCM</div>
+            <div style={{ fontSize: 10, color: C.tm, marginBottom: 12 }}>Clear keys, SKIM, ZZZZ, transponder.</div>
+            {modules[tt]?.type==="GPEC2A" ? <Btn onClick={() => doTool("virginize")} color={C.wn} full>Virginize</Btn> : <div style={{ fontSize: 11, color: C.tm }}>Select a GPEC2A module.</div>}
+          </Card>
+
+          <Card style={{ padding: 16, borderTop: "3px solid " + C.a4 }}>
+            <div style={{ fontSize: 13, fontWeight: 900, color: C.tx, marginBottom: 4 }}>Extract Secret Key</div>
+            <div style={{ fontSize: 10, color: C.tm, marginBottom: 12 }}>Extract immobilizer sync key.</div>
+            <Btn onClick={() => doTool("extractKey")} color={C.a4} full>Extract</Btn>
+          </Card>
         </div>
 
-        {modules.length > 0 && <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
-          {modules.map((m, i) => <div key={i} style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 8, padding: "12px 16px", borderLeft: "3px solid " + m.color, flex: "1 1 280px", position: "relative", minWidth: 260 }}>
-            <button onClick={() => rmMod(i)} style={{ position: "absolute", top: 8, right: 8, background: "none", border: "none", color: C.dim, cursor: "pointer", fontSize: 14 }}>&times;</button>
-            <div style={{ fontSize: 14, fontWeight: 700, color: m.color, marginBottom: 4 }}>{m.name}</div>
-            <div style={{ fontSize: 11, color: C.dim, marginBottom: 6 }}>{m.filename} &middot; {m.size.toLocaleString()}B</div>
-            {m.vins?.[0] && <div style={{ fontSize: 12, color: C.green }}>VIN: {m.vins[0].vin}</div>}
-            {m.skimStatus && <div style={{ fontSize: 11, color: m.skimByte === 0x80 ? C.green : C.red }}>SKIM: {m.skimStatus}</div>}
-            {m.vehicleSecret && <div style={{ fontSize: 11, color: C.crypto }}>Secret: {m.vehicleSecret.hex.slice(0, 23)}...</div>}
-            {m.securityLock && <div style={{ fontSize: 11, color: m.securityLock.locked ? C.green : C.warn }}>{m.securityLock.locked ? "LOCKED" : "UNLOCKED"}</div>}
-          </div>)}
-          <button onClick={clr} style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 8, padding: 12, color: C.dim, cursor: "pointer", fontSize: 11, flex: "0 0 80px", display: "flex", alignItems: "center", justifyContent: "center" }}>Clear All</button>
-        </div>}
+        {tr && <Card style={{ padding: 16, marginTop: 14, border: "1.5px solid " + C.gn }}>
+          <div style={{ fontSize: 13, fontWeight: 900, color: C.gn, marginBottom: 8, letterSpacing: 0.5 }}>✓ Result</div>
+          <div style={{ fontSize: 12, color: C.tx, marginBottom: 10 }}>{tr.desc}</div>
+          {tr.keyHex && <div style={{ background: C.c2, border: "1px solid " + C.bd, padding: 12, borderRadius: 8, fontSize: 14, fontWeight: 800, color: C.a4, letterSpacing: 1, marginBottom: 10, fontFamily: "'JetBrains Mono'", wordBreak: "break-all" }}>{tr.keyHex}</div>}
+          {tr.data && <Btn onClick={dl} color={C.gn}>Download Modified .bin</Btn>}
+        </Card>}
+      </div>}
+    </div>}
 
-        {tab === "overview" && val && <div>
-          <STitle>Cross-Module Validation</STitle>
-          <div style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 8, padding: 16 }}>
-            {val.issues.map((m, i) => <SLine key={"i"+i} type="error" msg={m} />)}
-            {val.warnings.map((m, i) => <SLine key={"w"+i} type="warn" msg={m} />)}
-            {val.passed.map((m, i) => <SLine key={"p"+i} type="pass" msg={m} />)}
-          </div>
-          {modules.map((m, i) => <div key={i} style={{ marginTop: 20 }}>
-            <STitle color={m.color}>{m.name} &mdash; {m.filename}</STitle>
-            <div style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 8, padding: 16, overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                <thead><tr><STh>Offset</STh><STh>Category</STh><STh>Value</STh><STh>Detail</STh></tr></thead>
-                <tbody>
-                  {m.vins?.map((v, j) => <tr key={"v"+j}><STd c={C.blue}>{fO(v.offset)}</STd><STd><STag bg={C.green}>VIN {j+1}</STag></STd><STd c={C.green} bold>{v.vin}</STd><STd c={C.dim}>17B ASCII</STd></tr>)}
-                  {m.skimStatus && <tr><STd c={C.blue}>0x0011</STd><STd><STag bg={C.red}>SKIM</STag></STd><STd c={m.skimByte===0x80?C.green:C.red} bold>0x{m.skimByte.toString(16).toUpperCase()} &mdash; {m.skimStatus}</STd><STd c={C.dim}>Immobilizer byte</STd></tr>}
-                  {m.secretKey && <tr><STd c={C.blue}>{fO(m.secretKey.offset)}</STd><STd><STag bg={C.crypto}>SECRET</STag></STd><STd c={C.crypto} bold>{m.secretKey.hex}</STd><STd c={C.dim}>8B sync key {m.keyConsistent ? "\u2713" : "\u2717"}</STd></tr>}
-                  {m.vehicleSecret && <tr><STd c={C.blue}>{fO(m.vehicleSecret.offset)}</STd><STd><STag bg={C.crypto}>SECRET</STag></STd><STd c={C.crypto} bold>{m.vehicleSecret.hex}</STd><STd c={C.dim}>{m.vehicleSecret.endian}-endian 16B</STd></tr>}
-                  {m.transponderKeys?.map((tk, j) => <tr key={"t"+j}><STd c={C.blue}>{fO(tk.offset)}</STd><STd><STag bg={C.key}>FOBIK {j+1}</STag></STd><STd c={C.key}>{tk.hex}</STd><STd c={C.dim}>Transponder</STd></tr>)}
-                  {m.immoKeys?.map((ik, j) => <tr key={"k"+j}><STd c={C.blue}>{fO(ik.offset)}</STd><STd><STag bg={C.key}>IMMO {j+1}</STag></STd><STd c={C.key}>{ik.hex}</STd><STd c={C.dim}>IMMO entry</STd></tr>)}
-                  {m.zzzzTamper && <tr><STd c={C.blue}>{fO(m.zzzzTamper.offset)}</STd><STd><STag bg={C.warn}>TAMPER</STag></STd><STd c={m.zzzzTamper.intact?C.green:C.warn}>{m.zzzzTamper.hex} &mdash; {m.zzzzTamper.intact?"INTACT":"CLEARED"}</STd><STd c={C.dim}>ZZZZ</STd></tr>}
-                  {m.securityLock && <tr><STd c={C.blue}>0x8028</STd><STd><STag bg={C.red}>LOCK</STag></STd><STd c={m.securityLock.locked?C.green:C.warn} bold>0x{m.securityLock.value.toString(16).toUpperCase()}</STd><STd c={C.dim}>{m.securityLock.locked?"LOCKED":"UNLOCKED"}</STd></tr>}
-                  {m.fobikSlots !== undefined && <tr><STd c={C.blue}>0x0880</STd><STd><STag bg={C.key}>FOBIK</STag></STd><STd c={C.key} bold>{m.fobikSlots} slots</STd><STd c={C.dim}>AA50</STd></tr>}
-                  {m.fobikCount !== undefined && <tr><STd c={C.blue}>0x5862</STd><STd><STag bg={C.key}>FOBIK</STag></STd><STd c={C.key} bold>{m.fobikCount} keys</STd><STd c={C.dim}>BCM count</STd></tr>}
-                  {m.partNumbers && Object.entries(m.partNumbers).map(([k, v]) => <tr key={k}><STd c={C.blue}>&mdash;</STd><STd><STag bg={C.blue}>PN-{k.toUpperCase()}</STag></STd><STd>{v}</STd><STd c={C.dim}>Part#</STd></tr>)}
-                  {m.partNumberStr && <tr><STd c={C.blue}>0x0FA1</STd><STd><STag bg={C.blue}>SRI</STag></STd><STd>{m.partNumberStr}</STd><STd c={C.dim}>SW Release</STd></tr>}
-                  {m.runtimeCounters && Object.entries(m.runtimeCounters).map(([k, v]) => <tr key={k}><STd c={C.blue}>{fO(v.offset)}</STd><STd><STag bg={C.dim}>CTR</STag></STd><STd>{v.hex} ({v.value.toLocaleString()})</STd><STd c={C.dim}>{k}</STd></tr>)}
-                </tbody>
-              </table>
-            </div>
-          </div>)}
-        </div>}
-
-        {tab === "security" && modules.length > 0 && <div>
-          <STitle>Security Architecture</STitle>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 12 }}>
-            {modules.map((m, i) => <div key={i} style={{ background: C.surface2, border: "1px solid " + C.border, borderRadius: 8, padding: 16, borderLeft: "3px solid " + m.color }}>
-              <div style={{ fontWeight: 700, color: m.color, marginBottom: 8, fontSize: 14 }}>{m.name}</div>
-              {m.vins?.[0] && <div style={{ fontSize: 12, marginBottom: 4 }}>VIN: <span style={{ color: C.green }}>{m.vins[0].vin}</span></div>}
-              {m.skimStatus && <div style={{ fontSize: 12, marginBottom: 4 }}>SKIM: <span style={{ color: m.skimByte===0x80?C.green:C.red }}>{m.skimStatus}</span></div>}
-              {m.secretKey && <div style={{ fontSize: 11, marginBottom: 4 }}>Secret: <span style={{ color: C.crypto }}>{m.secretKey.hex}</span> {m.keyConsistent ? "\u2713" : "\u2717"}</div>}
-              {m.vehicleSecret && <div style={{ fontSize: 11, marginBottom: 4 }}>Secret ({m.vehicleSecret.endian}): <span style={{ color: C.crypto }}>{m.vehicleSecret.hex}</span></div>}
-              {m.fobikSlots !== undefined && <div style={{ fontSize: 11 }}>FOBIK: <span style={{ color: C.key }}>{m.fobikSlots} slots</span> &middot; CC66AA55: {m.securityMarkers} &middot; ZZZZ: {m.zzzzBlocks}</div>}
-              {m.fobikCount !== undefined && <div style={{ fontSize: 11 }}>FOBIK: <span style={{ color: C.key }}>{m.fobikCount} keys</span></div>}
-              {m.securityLock && <div style={{ fontSize: 11 }}>Lock: <span style={{ color: m.securityLock.locked?C.green:C.warn }}>{m.securityLock.locked?"0x5A LOCKED":"UNLOCKED"}</span></div>}
-              {m.zzzzTamper && <div style={{ fontSize: 11 }}>Tamper: <span style={{ color: m.zzzzTamper.intact?C.green:C.warn }}>{m.zzzzTamper.intact?"INTACT":"CLEARED"}</span></div>}
-            </div>)}
-          </div>
-        </div>}
-
-        {tab === "diff" && <div>
-          <STitle>Hex Diff</STitle>
-          {modules.length < 2 ? <div style={{ color: C.dim, padding: 20, textAlign: "center" }}>Load 2+ modules to compare.</div> : <div>
-            <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center" }}>
-              <select value={dp[0]} onChange={e => setDp([+e.target.value, dp[1]])} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename}</option>)}</select>
-              <span style={{ color: C.dim }}>&harr;</span>
-              <select value={dp[1]} onChange={e => setDp([dp[0], +e.target.value])} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename}</option>)}</select>
-            </div>
-            {diff && <div>
-              <div style={{ fontSize: 12, color: C.warn, marginBottom: 12 }}>{diff.totalChanged} bytes changed, {diff.groups.length} regions</div>
-              <div style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 8, padding: 16, maxHeight: 500, overflowY: "auto" }}>
-                {diff.groups.slice(0, 50).map(([s, e], gi) => {
-                  const a = modules[dp[0]].data, b = modules[dp[1]].data;
-                  const ls = s & ~0xf, le = (e | 0xf) + 1, lines = [];
-                  for (let o = ls; o < le && o < Math.max(a.length, b.length); o += 16) {
-                    const ha = [], hb = [];
-                    for (let j = 0; j < 16 && o+j < Math.max(a.length, b.length); j++) {
-                      const idx = o+j, va = a[idx]||0, vb = b[idx]||0, ch = diff.changedSet.has(idx);
-                      ha.push({ v: va.toString(16).padStart(2,"0").toUpperCase(), c: ch });
-                      hb.push({ v: vb.toString(16).padStart(2,"0").toUpperCase(), c: ch });
-                    }
-                    lines.push({ o, ha, hb });
-                  }
-                  return <div key={gi} style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: 10, color: C.dim }}>{fO(s)}&ndash;{fO(e)} ({e-s+1}B)</div>
-                    {lines.map((l, li) => <div key={li} style={{ display: "flex", gap: 16, fontSize: 11, lineHeight: 1.6 }}>
-                      <span style={{ color: C.blue, minWidth: 40 }}>{l.o.toString(16).toUpperCase().padStart(4,"0")}</span>
-                      <span style={{ minWidth: 200 }}>{l.ha.map((h, hi) => <span key={hi} style={{ color: h.c ? C.red : C.dim, marginRight: 4 }}>{h.v}</span>)}</span>
-                      <span style={{ color: C.dim }}>&rarr;</span>
-                      <span>{l.hb.map((h, hi) => <span key={hi} style={{ color: h.c ? C.green : C.dim, marginRight: 4 }}>{h.v}</span>)}</span>
-                    </div>)}
-                  </div>;
-                })}
-                {diff.groups.length > 50 && <div style={{ color: C.dim, fontSize: 11 }}>+{diff.groups.length - 50} more</div>}
-              </div>
-            </div>}
-          </div>}
-        </div>}
-
-        {tab === "tools" && <div>
-          <STitle>Module Programming Tools</STitle>
-          {modules.length === 0 ? <div style={{ color: C.dim, padding: 20, textAlign: "center" }}>Load a module first.</div> : <div>
-            <div style={{ display: "flex", gap: 12, marginBottom: 20, alignItems: "center" }}>
-              <label style={{ fontSize: 12, color: C.dim }}>Target:</label>
-              <select value={tt} onChange={e => setTt(+e.target.value)} style={selSt}>{modules.map((m, i) => <option key={i} value={i}>{m.filename} ({m.name})</option>)}</select>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
-              <TCard title="VIN Writer" desc="Update VIN at all locations." color={C.green}>
-                <input value={nv} onChange={e => setNv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,"").slice(0,17))} placeholder="Enter 17-char VIN" maxLength={17} style={{...inpSt, marginBottom:8, width:"100%"}} />
-                <div style={{ fontSize: 10, color: nv.length===17?C.green:C.dim, marginBottom: 8 }}>{nv.length}/17</div>
-                <TBtn onClick={() => doTool("writeVin")} disabled={nv.length!==17}>Write VIN</TBtn>
-              </TCard>
-              <TCard title="SKIM Manager" desc="Toggle SKIM byte at 0x0011 (GPEC2A)." color={C.red}>
-                {modules[tt]?.type==="GPEC2A" ? <div>
-                  <div style={{ fontSize:12, marginBottom:8 }}>Current: <span style={{ color:modules[tt].skimByte===0x80?C.green:C.red, fontWeight:700 }}>0x{modules[tt].skimByte.toString(16).toUpperCase()}</span></div>
-                  <TBtn onClick={() => doTool("skimToggle")}>{modules[tt].skimByte===0x80?"Disable SKIM":"Enable SKIM"}</TBtn>
-                </div> : <div style={{ fontSize:11, color:C.dim }}>Select GPEC2A.</div>}
-              </TCard>
-              <TCard title="Virginize PCM" desc="Clear keys, SKIM, ZZZZ, transponder." color={C.warn}>
-                {modules[tt]?.type==="GPEC2A" ? <TBtn onClick={() => doTool("virginize")} warn>Virginize</TBtn> : <div style={{ fontSize:11, color:C.dim }}>Select GPEC2A.</div>}
-              </TCard>
-              <TCard title="Extract Secret Key" desc="Extract immobilizer sync key." color={C.crypto}>
-                <TBtn onClick={() => doTool("extractKey")}>Extract</TBtn>
-              </TCard>
-            </div>
-            {tr && <div style={{ background: C.surface, border: "1px solid " + C.green, borderRadius: 8, padding: 16, marginTop: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: C.green, marginBottom: 8 }}>Result</div>
-              <div style={{ fontSize: 12, marginBottom: 8 }}>{tr.desc}</div>
-              {tr.keyHex && <div style={{ background: C.bg, padding: 12, borderRadius: 6, fontSize: 14, fontWeight: 700, color: C.crypto, letterSpacing: 1, marginBottom: 8 }}>{tr.keyHex}</div>}
-              {tr.data && <button onClick={dl} style={{ background: "linear-gradient(135deg," + C.green + ",#00a88a)", color: "#000", border: "none", padding: "10px 20px", borderRadius: 6, cursor: "pointer", fontWeight: 700, fontSize: 12 }}>Download Modified .bin</button>}
-            </div>}
-          </div>}
-        </div>}
-
-        {modules.length === 0 && <div style={{ textAlign: "center", padding: "60px 20px" }}>
-          <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.15 }}>{"\uD83D\uDD10"}</div>
-          <div style={{ fontSize: 16, color: C.dim, marginBottom: 8 }}>Drop FCA module binary files to begin</div>
-          <div style={{ fontSize: 12, color: C.dim }}>Auto-detects GPEC2A, RFHUB, BCM</div>
-        </div>}
-      </div>
-    </div>
-  );
+    {modules.length === 0 && <Card style={{ textAlign: "center", padding: "44px 20px", marginTop: 14 }}>
+      <div style={{ fontSize: 44, marginBottom: 12, opacity: 0.25 }}>🔐</div>
+      <div style={{ fontSize: 14, color: C.ts, fontWeight: 800, marginBottom: 6 }}>Drop FCA module binary files to begin</div>
+      <div style={{ fontSize: 11, color: C.tm }}>Auto-detects GPEC2A · RFHUB · BCM</div>
+    </Card>}
+  </div>;
 }
