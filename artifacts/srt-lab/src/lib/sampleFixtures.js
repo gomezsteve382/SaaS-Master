@@ -88,6 +88,23 @@ export const SAMPLE_FIXTURES = [
     pair:"sxt-charger-237142", notes:"Rescued 2020 Charger SXT PCM (Continental GPEC2A 8 KB, VIN @ offset 0) — pairs with matching BCM" },
   { file:"SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa_dup_1776900716173.bin", kind:"GPEC_EXT", size:8192, vin:"2C3CDXL97LH237142", role:"VIN_CRC",
     pair:"sxt-charger-237142", notes:"Rescued duplicate of the SXT Charger PCM (byte-identical, kept for parity with original upload pair)" },
+
+  // Task #514 — second-wave rescues from misnamed files in attached_assets/
+  // (the new content-sniffing scanner from Task #504 flagged them).
+  // - Two byte-identical 64 KB BCM DFLASH dumps for the same SXT Charger
+  //   (VIN 2C3CDXL97LH237142) as the Task #497 pair, but a different bench
+  //   capture (84-byte delta from the _0d3593f2 BCM); originally uploaded as
+  //   `charger_*.png`.
+  // - One 4 KB GPEC2A EXT EEPROM PCM dump for a 2018 Jeep Grand Cherokee SRT
+  //   (VIN 1C4RJFN9XJC309165, Continental part `A2C7628120000`); originally
+  //   uploaded as `fca_module_analyzer_*.jsx`.
+  // See RESCUED_DUMPS.md for full provenance.
+  { file:"SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1.bin", kind:"BCM", size:65536, vin:"2C3CDXL97LH237142", role:"VIN_CRC",
+    pair:"sxt-charger-237142", notes:"Rescued 2020 Charger SXT BCM (different bench capture vs the _0d3593f2 BCM, 84-byte delta; same FEE1000 header @4, same partial-VIN tail NH176487, same security lock 0x5A) — pairs with sxt-charger-237142 set" },
+  { file:"SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1_dup_1776900716172.bin", kind:"BCM", size:65536, vin:"2C3CDXL97LH237142", role:"VIN_CRC",
+    pair:"sxt-charger-237142", notes:"Rescued duplicate of the SXT Charger BCM second-bench capture (byte-identical to ba26d1c1, kept for parity with original upload pair)" },
+  { file:"SAMPLE_GPEC2A_EXT_EEPROM_4KB_RESCUED_VIN_CRC_1C4RJFN9XJC309165_628f7b3c.bin", kind:"GPEC_EXT", size:4096, vin:"1C4RJFN9XJC309165", role:"VIN_CRC",
+    pair:"wk2-grand-cherokee-srt-309165", notes:"Rescued 2018 Jeep Grand Cherokee SRT 6.4 PCM (Continental GPEC2A 4 KB EXT EEPROM, part A2C7628120000, VIN @ offset 0)" },
 ];
 
 export function getFixturesByKind(kind) {

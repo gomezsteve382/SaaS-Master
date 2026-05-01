@@ -55,8 +55,11 @@ against them.
 | SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2_dup_1776900716171.bin | 2C3CDXL97LH237142 | BCM DFLASH | 65536 | VIN_CRC | Task #497 — rescued duplicate (byte-identical sha256 to the BCM above). |
 | SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa.bin | 2C3CDXL97LH237142 | GPEC2A EXT EEPROM (8 KB) | 8192 | VIN_CRC | Task #497 — rescued from misnamed `attached_assets/files_(1)_1776900673449.zip`. 2020 Charger SXT, VIN at offset 0x00. Pairs with the matching BCM above. |
 | SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa_dup_1776900716173.bin | 2C3CDXL97LH237142 | GPEC2A EXT EEPROM (8 KB) | 8192 | VIN_CRC | Task #497 — rescued duplicate (byte-identical sha256 to the PCM above). |
+| SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1.bin | 2C3CDXL97LH237142 | BCM DFLASH | 65536 | VIN_CRC | Task #514 — rescued from misnamed `attached_assets/charger_1776900673447.png`. Second-bench capture of the same 2020 Charger SXT as the `_0d3593f2` BCM, but a different sha256 (84-byte delta). Same `FEE1000` header @ 0x04, same partial-VIN tail `NH176487` @ 0x4098/0x40B0, same security lock 0x5A (LOCKED). |
+| SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1_dup_1776900716172.bin | 2C3CDXL97LH237142 | BCM DFLASH | 65536 | VIN_CRC | Task #514 — rescued duplicate (byte-identical sha256 to the BCM above). |
+| SAMPLE_GPEC2A_EXT_EEPROM_4KB_RESCUED_VIN_CRC_1C4RJFN9XJC309165_628f7b3c.bin | 1C4RJFN9XJC309165 | GPEC2A EXT EEPROM (4 KB) | 4096 | VIN_CRC | Task #514 — rescued from misnamed `attached_assets/fca_module_analyzer_1776900458950.jsx`. 2018 Jeep Grand Cherokee SRT 6.4L PCM, VIN at offset 0x00, Continental part number `A2C7628120000` visible in the dump. |
 
-Two attachments in the source set were intentionally **not imported**:
+Several attachments in the source set were intentionally **not imported**:
 
 - `attached_assets/VIN_1C4RJFDJXEC365477_18TRACKHAWKDFLASHBCM_DRAGKAT_OG_1776900458956.bin`
   is a 52 MB Windows PE executable (DragKat tool binary), not a BCM dump,
@@ -97,16 +100,29 @@ verified against:
 - BCM:  `SAMPLE_BCM_SYNCED_2C3CDXL90MH582899.bin`
 - RFH:  `SAMPLE_RFH_SYNCED_VIRGIN_2C3CDXL90MH582899.bin`
 
-### 2020 Charger SXT — VIN `2C3CDXL97LH237142` (rescued, Task #497)
-Real BCM ↔ PCM pair rescued from four misnamed `.zip` files in
-`attached_assets/`. Each module has two byte-identical copies (suffixed
-`_dup_<original-timestamp>`) — see `RESCUED_DUMPS.md` for the original
-filename mapping and full smoke-check output.
+### 2020 Charger SXT — VIN `2C3CDXL97LH237142` (rescued, Tasks #497 and #514)
+Real BCM ↔ PCM pair rescued from misnamed files in `attached_assets/`. The
+Task #497 BCM (`_0d3593f2`) and the Task #514 BCM (`_ba26d1c1`) are two
+different bench captures of the same SXT Charger BCM (84-byte delta — same
+VIN, same partial-VIN tail, same security lock). Each capture has a
+byte-identical duplicate (suffixed `_dup_<original-timestamp>`) — see
+`RESCUED_DUMPS.md` for the original filename mapping and full smoke-check
+output.
 
-- BCM DFLASH: `SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2.bin`
-              `SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2_dup_1776900716171.bin`
-- PCM GPEC2A 8 KB: `SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa.bin`
-                   `SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa_dup_1776900716173.bin`
+- BCM DFLASH (capture #1, Task #497): `SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2.bin`
+                                       `SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2_dup_1776900716171.bin`
+- BCM DFLASH (capture #2, Task #514): `SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1.bin`
+                                       `SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1_dup_1776900716172.bin`
+- PCM GPEC2A 8 KB (Task #497): `SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa.bin`
+                                `SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa_dup_1776900716173.bin`
+
+### 2018 Jeep Grand Cherokee SRT — VIN `1C4RJFN9XJC309165` (rescued, Task #514)
+Standalone PCM dump rescued from a misnamed `.jsx` file in
+`attached_assets/`. The Continental part number `A2C7628120000` is visible
+inside the dump, confirming GPEC2A 4 KB EXT EEPROM. No matching BCM in the
+attachment set; this is a PCM-only single-module sample.
+
+- PCM GPEC2A 4 KB: `SAMPLE_GPEC2A_EXT_EEPROM_4KB_RESCUED_VIN_CRC_1C4RJFN9XJC309165_628f7b3c.bin`
 
 ## Notes for test authors
 

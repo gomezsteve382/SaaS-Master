@@ -31,6 +31,21 @@ checksum verification work (Tasks #47, #48, #103).
 | `attached_assets/Asset-Manager-Tool_1776900716171.zip` | `SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_0d3593f2_dup_1776900716171.bin` | BCM | 65536 | `2C3CDXL97LH237142` | `FEE1000` @ 0x04 | Rescued from misnamed `.zip`. Byte-identical (sha256) to the BCM above; kept under a `_dup_<ts>` suffix so the original pair stays traceable. |
 | `attached_assets/files_(1)_1776900673449.zip` | `SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa.bin` | PCM (Continental GPEC2A 8 KB) | 8192 | `2C3CDXL97LH237142` | VIN @ 0x00 | Rescued from misnamed `.zip`. 8 KB GPEC2A 95640-style EXT EEPROM. Detected as `GPEC2A` via the filename hint in `detectModuleType` (raw size-only detection returns `95640`, so the in-tab loader must keep its filename hint). |
 | `attached_assets/files_(1)_1776900716173.zip` | `SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa_dup_1776900716173.bin` | PCM (Continental GPEC2A 8 KB) | 8192 | `2C3CDXL97LH237142` | VIN @ 0x00 | Rescued from misnamed `.zip`. Byte-identical (sha256) to the PCM above; kept under a `_dup_<ts>` suffix so the original pair stays traceable. |
+| `attached_assets/charger_1776900673447.png` | `SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1.bin` | BCM | 65536 | `2C3CDXL97LH237142` | `FEE1000` @ 0x04 | **Task #514** rescue. 64 KB binary uploaded with a `.png` extension. Same SXT Charger VIN, same partial-VIN tail `NH176487` @ 0x4098/0x40B0, same security lock 0x5A as the `_0d3593f2` BCM, but a different bench capture (84-byte delta — kept as a separate sample, not a duplicate of `_0d3593f2`). |
+| `attached_assets/charger_1776900716172.png` | `SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1_dup_1776900716172.bin` | BCM | 65536 | `2C3CDXL97LH237142` | `FEE1000` @ 0x04 | **Task #514** rescue. Byte-identical (sha256 `ba26d1c1…`) to the BCM above; kept under a `_dup_<ts>` suffix so the original upload pair stays traceable. |
+| `attached_assets/fca_module_analyzer_1776900458950.jsx` | `SAMPLE_GPEC2A_EXT_EEPROM_4KB_RESCUED_VIN_CRC_1C4RJFN9XJC309165_628f7b3c.bin` | PCM (Continental GPEC2A 4 KB) | 4096 | `1C4RJFN9XJC309165` | VIN @ 0x00 | **Task #514** rescue. 4 KB binary uploaded with a `.jsx` extension. 2018 Jeep Grand Cherokee SRT 6.4L. Continental EEPROM part number `A2C7628120000` visible in the dump confirms 4 KB GPEC2A EXT EEPROM (vs the 4 KB RFHUB EEE alternative the scanner couldn't disambiguate from size alone). |
+
+The Task #514 list above does not include the four other files the scanner
+flagged in the same scan — they were rescued by deletion (see
+`attached_assets/RESCUED_DUMPS_NOTE.md`):
+- `MITCH_PFLASH_1776900673451.bin` / `MITCH_PFLASH_1776900716175.bin` — 18,683-byte
+  Python source (a copy of the J2534 bridge daemon `zip_j2534_bridge.py` already
+  present in `attached_assets/`), uploaded with the wrong filename and the wrong
+  extension. Not vehicle data.
+- `j2534_bridge_1776900673450.py` / `j2534_bridge_1776900716174.py` — 242,502-byte
+  ZIP archives of stale source bundles (`RFHUBVirginizer.tsx`, `BCMConfiguration.tsx`,
+  …) for components that no longer exist anywhere in the SRT Lab artifact. Not
+  vehicle data.
 
 ## Smoke check (Task #497 step 5)
 
@@ -58,6 +73,28 @@ SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa.bin
 
 SAMPLE_GPEC2A_EXT_EEPROM_8KB_RESCUED_VIN_CRC_2C3CDXL97LH237142_566b18fa_dup_1776900716173.bin
   (identical to the entry above — byte-for-byte)
+
+SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1.bin   (Task #514)
+  type=BCM size=65536  header @4..11 = "FEE1000"
+  VINs : 2C3CDXL97LH237142 @ 0x5328 / 0x5348 / 0x5368 / 0x5388  (all 4 CRCs OK)
+  partials: NH176487 @ 0x4098 (CRC OK), 0x40B0 (CRC OK)
+  securityLock @ 0x8028 = 0x5A (LOCKED)
+  immoRecs=8 bakRecs=0
+  → matches the _0d3593f2 BCM on every parser-visible field; the only
+    difference is 84 bytes elsewhere in the image (different bench capture
+    of the same vehicle, kept as a separate sample on purpose).
+
+SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1_dup_1776900716172.bin   (Task #514)
+  (identical to the entry above — byte-for-byte)
+
+SAMPLE_GPEC2A_EXT_EEPROM_4KB_RESCUED_VIN_CRC_1C4RJFN9XJC309165_628f7b3c.bin   (Task #514)
+  type (filename-hinted) = GPEC2A
+  type (parseModule)     = GPEC2A
+  size = 4096
+  VIN @ offset 0x0000 = 1C4RJFN9XJC309165   (primary)
+  VIN @ offset 0x01F0 = 1C4RJFN9XJC309165   (mirror)
+  VIN @ offset 0x0224 = 1C4RJFN9XJC309165   (mirror)
+  Continental EEPROM part-number string `A2C7628120000` visible in the dump.
 ```
 
 The BCM partial-VIN tail (`NH176487`) is the same legacy Hellcat tail
