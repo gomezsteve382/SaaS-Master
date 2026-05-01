@@ -3,8 +3,8 @@
   "generated_by": "srtlab_unlock_catalog_gen.py",
   "dll_dir": "tools/python-bridge/tools/canflash_unlocks",
   "entry_count": 81,
-  "reversed_count": 21,
-  "dll_only_count": 60,
+  "reversed_count": 71,
+  "dll_only_count": 10,
   "entries": [
     {
       "file": "HB_ccn.dll",
@@ -29,9 +29,9 @@
       "tx_can_id": 1696,
       "rx_can_id": 1300,
       "family": "ccn",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "center-console nav unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_HB_ccn",
+      "reason": null
     },
     {
       "file": "LX_ccn.dll",
@@ -56,9 +56,9 @@
       "tx_can_id": 1696,
       "rx_can_id": 1300,
       "family": "ccn",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "center-console nav unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_LX_ccn",
+      "reason": null
     },
     {
       "file": "abs.dll",
@@ -83,9 +83,9 @@
       "tx_can_id": 1924,
       "rx_can_id": 1925,
       "family": "abs",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "not yet reversed; runs under Unicorn DLL emulation"
+      "status": "reversed",
+      "python_function": "unlock_abs",
+      "reason": null
     },
     {
       "file": "ahbm.dll",
@@ -110,9 +110,9 @@
       "tx_can_id": 1808,
       "rx_can_id": 1314,
       "family": "brakes_aux",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "auxiliary-brakes unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_ahbm",
+      "reason": null
     },
     {
       "file": "aisin_tcm.dll",
@@ -164,9 +164,9 @@
       "tx_can_id": 2032,
       "rx_can_id": 1342,
       "family": "amp",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "amplifier unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_alpine_amp",
+      "reason": null
     },
     {
       "file": "alpine_radio.dll",
@@ -192,7 +192,7 @@
       "rx_can_id": 1302,
       "family": "radio_rak",
       "status": "reversed",
-      "python_function": "alpine_radio_unlock",
+      "python_function": "unlock_alpine_radio",
       "reason": null
     },
     {
@@ -245,9 +245,9 @@
       "tx_can_id": 1977,
       "rx_can_id": 1978,
       "family": "brakes_aux",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "auxiliary-brakes unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_asbs",
+      "reason": null
     },
     {
       "file": "awd_pm_mk.dll",
@@ -272,9 +272,9 @@
       "tx_can_id": 1974,
       "rx_can_id": 1975,
       "family": "awd",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "AWD/transfer-case unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_awd_pm_mk",
+      "reason": null
     },
     {
       "file": "borg_awd.dll",
@@ -299,9 +299,9 @@
       "tx_can_id": 1974,
       "rx_can_id": 1975,
       "family": "awd",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "AWD/transfer-case unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_borg_awd",
+      "reason": null
     },
     {
       "file": "bosch_abs.dll",
@@ -353,9 +353,9 @@
       "tx_can_id": 1600,
       "rx_can_id": 1288,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_bosch_cdm_win_ddm",
+      "reason": null
     },
     {
       "file": "bosch_cdm_win_pdm.dll",
@@ -380,9 +380,9 @@
       "tx_can_id": 1616,
       "rx_can_id": 1290,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_bosch_cdm_win_pdm",
+      "reason": null
     },
     {
       "file": "bosch_ddm.dll",
@@ -407,9 +407,9 @@
       "tx_can_id": 1600,
       "rx_can_id": 1288,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_bosch_ddm",
+      "reason": null
     },
     {
       "file": "bosch_mddm.dll",
@@ -434,9 +434,9 @@
       "tx_can_id": 1600,
       "rx_can_id": 1288,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_bosch_mddm",
+      "reason": null
     },
     {
       "file": "bosch_mpdm.dll",
@@ -461,9 +461,9 @@
       "tx_can_id": 1616,
       "rx_can_id": 1290,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_bosch_mpdm",
+      "reason": null
     },
     {
       "file": "bosch_mwddm.dll",
@@ -488,9 +488,9 @@
       "tx_can_id": 1600,
       "rx_can_id": 1288,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_bosch_mwddm",
+      "reason": null
     },
     {
       "file": "bosch_mwpdm.dll",
@@ -515,9 +515,9 @@
       "tx_can_id": 1616,
       "rx_can_id": 1290,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_bosch_mwpdm",
+      "reason": null
     },
     {
       "file": "bosch_orc.dll",
@@ -542,9 +542,9 @@
       "tx_can_id": 1760,
       "rx_can_id": 1308,
       "family": "orc_airbag",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "airbag/occupant-restraint unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_bosch_orc",
+      "reason": null
     },
     {
       "file": "bosch_pdm.dll",
@@ -569,9 +569,9 @@
       "tx_can_id": 1616,
       "rx_can_id": 1290,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_bosch_pdm",
+      "reason": null
     },
     {
       "file": "cmtc.dll",
@@ -596,9 +596,9 @@
       "tx_can_id": 1776,
       "rx_can_id": 1310,
       "family": "comfort_misc",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "comfort-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_cmtc",
+      "reason": null
     },
     {
       "file": "cummins_849.dll",
@@ -624,7 +624,7 @@
       "rx_can_id": 2024,
       "family": "diesel_pcm",
       "status": "reversed",
-      "python_function": "cummins_849_unlock",
+      "python_function": "unlock_cummins_849",
       "reason": null
     },
     {
@@ -678,7 +678,7 @@
       "rx_can_id": 1318,
       "family": "ptcm",
       "status": "reversed",
-      "python_function": "dcx_ptcm_unlock",
+      "python_function": "unlock_dcx_ptcm",
       "reason": null
     },
     {
@@ -704,9 +704,9 @@
       "tx_can_id": 1600,
       "rx_can_id": 1288,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_ddm",
+      "reason": null
     },
     {
       "file": "delphi_hvac.dll",
@@ -731,9 +731,9 @@
       "tx_can_id": 1672,
       "rx_can_id": 1297,
       "family": "hvac",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "HVAC unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_delphi_hvac",
+      "reason": null
     },
     {
       "file": "delphi_sdar.dll",
@@ -758,9 +758,9 @@
       "tx_can_id": 2008,
       "rx_can_id": 1339,
       "family": "sat_radio",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "satellite-radio unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_delphi_sdar",
+      "reason": null
     },
     {
       "file": "edc16c2.dll",
@@ -867,7 +867,7 @@
       "rx_can_id": 2025,
       "family": "tcm",
       "status": "reversed",
-      "python_function": "egs52_unlock",
+      "python_function": "unlock_egs52",
       "reason": null
     },
     {
@@ -893,9 +893,9 @@
       "tx_can_id": 1776,
       "rx_can_id": 1310,
       "family": "comfort_misc",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "comfort-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_eom",
+      "reason": null
     },
     {
       "file": "esm.dll",
@@ -920,9 +920,9 @@
       "tx_can_id": 1928,
       "rx_can_id": 1929,
       "family": "seat",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "seat-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_esm",
+      "reason": null
     },
     {
       "file": "ewm.dll",
@@ -947,9 +947,9 @@
       "tx_can_id": 1928,
       "rx_can_id": 1929,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_ewm",
+      "reason": null
     },
     {
       "file": "fdcm.dll",
@@ -974,9 +974,9 @@
       "tx_can_id": 1974,
       "rx_can_id": 1975,
       "family": "awd",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "AWD/transfer-case unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_fdcm",
+      "reason": null
     },
     {
       "file": "gpec.dll",
@@ -1028,9 +1028,9 @@
       "tx_can_id": 2032,
       "rx_can_id": 1342,
       "family": "amp",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "amplifier unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_harman_amp",
+      "reason": null
     },
     {
       "file": "hella_acc.dll",
@@ -1055,9 +1055,9 @@
       "tx_can_id": 1962,
       "rx_can_id": 1963,
       "family": "adaptive_cruise",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "adaptive-cruise unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_hella_acc",
+      "reason": null
     },
     {
       "file": "hfm.dll",
@@ -1082,9 +1082,9 @@
       "tx_can_id": 2040,
       "rx_can_id": 1343,
       "family": "hfm",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "handsfree-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_hfm",
+      "reason": null
     },
     {
       "file": "hidt.dll",
@@ -1163,9 +1163,9 @@
       "tx_can_id": 1568,
       "rx_can_id": 1284,
       "family": "bcm_fcm_tipm",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "not yet reversed; runs under Unicorn DLL emulation"
+      "status": "reversed",
+      "python_function": "unlock_huntsville_fcm",
+      "reason": null
     },
     {
       "file": "huntsville_fdcm.dll",
@@ -1190,9 +1190,9 @@
       "tx_can_id": 1974,
       "rx_can_id": 1975,
       "family": "awd",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "AWD/transfer-case unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_huntsville_fdcm",
+      "reason": null
     },
     {
       "file": "huntsville_radio.dll",
@@ -1244,9 +1244,9 @@
       "tx_can_id": 1672,
       "rx_can_id": 1297,
       "family": "hvac",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "HVAC unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_hvac",
+      "reason": null
     },
     {
       "file": "kicker_amp.dll",
@@ -1325,9 +1325,9 @@
       "tx_can_id": 1800,
       "rx_can_id": 1313,
       "family": "seat",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "seat-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_lrsm",
+      "reason": null
     },
     {
       "file": "may_scofield_itm.dll",
@@ -1380,7 +1380,7 @@
       "rx_can_id": 1302,
       "family": "radio_rak",
       "status": "reversed",
-      "python_function": "mitsubishi_rar_unlock",
+      "python_function": "unlock_mitsubishi_rar",
       "reason": null
     },
     {
@@ -1406,9 +1406,9 @@
       "tx_can_id": 2000,
       "rx_can_id": 1338,
       "family": "video",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "VES rear-seat-video unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_mitsubishi_ves",
+      "reason": null
     },
     {
       "file": "mitsubishi_ves3.dll",
@@ -1433,9 +1433,9 @@
       "tx_can_id": 1920,
       "rx_can_id": 1328,
       "family": "video",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "VES rear-seat-video unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_mitsubishi_ves3",
+      "reason": null
     },
     {
       "file": "motorola_tipm7.dll",
@@ -1487,9 +1487,9 @@
       "tx_can_id": 1632,
       "rx_can_id": 1292,
       "family": "seat",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "seat-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_msmd",
+      "reason": null
     },
     {
       "file": "ngc4_trans.dll",
@@ -1515,7 +1515,7 @@
       "rx_can_id": 2025,
       "family": "tcm",
       "status": "reversed",
-      "python_function": "ngc4_trans_unlock",
+      "python_function": "unlock_ngc4_trans",
       "reason": null
     },
     {
@@ -1595,9 +1595,9 @@
       "tx_can_id": 1696,
       "rx_can_id": 1300,
       "family": "ccn",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "center-console nav unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_nippon_ccn",
+      "reason": null
     },
     {
       "file": "ocm.dll",
@@ -1622,9 +1622,9 @@
       "tx_can_id": 1768,
       "rx_can_id": 1309,
       "family": "ocm_airbag",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "airbag/occupant-restraint unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_ocm",
+      "reason": null
     },
     {
       "file": "pdm.dll",
@@ -1649,9 +1649,9 @@
       "tx_can_id": 1616,
       "rx_can_id": 1290,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_pdm",
+      "reason": null
     },
     {
       "file": "peiker_hfm.dll",
@@ -1703,9 +1703,9 @@
       "tx_can_id": 1832,
       "rx_can_id": 1317,
       "family": "liftgate",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "power-liftgate unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_plgm",
+      "reason": null
     },
     {
       "file": "ptim_lx.dll",
@@ -1757,9 +1757,9 @@
       "tx_can_id": 1688,
       "rx_can_id": 1299,
       "family": "parktronic",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "parktronic unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_pts",
+      "reason": null
     },
     {
       "file": "sas.dll",
@@ -1811,9 +1811,9 @@
       "tx_can_id": 1592,
       "rx_can_id": 1287,
       "family": "sunroof",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "sunroof unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_sunr",
+      "reason": null
     },
     {
       "file": "temic_ddm.dll",
@@ -1838,9 +1838,9 @@
       "tx_can_id": 1600,
       "rx_can_id": 1288,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_temic_ddm",
+      "reason": null
     },
     {
       "file": "temic_pdm.dll",
@@ -1865,9 +1865,9 @@
       "tx_can_id": 1616,
       "rx_can_id": 1290,
       "family": "doors",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "door-module unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_temic_pdm",
+      "reason": null
     },
     {
       "file": "teves_abs.dll",
@@ -1892,9 +1892,9 @@
       "tx_can_id": 1924,
       "rx_can_id": 1925,
       "family": "abs",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "not yet reversed; runs under Unicorn DLL emulation"
+      "status": "reversed",
+      "python_function": "unlock_teves_abs",
+      "reason": null
     },
     {
       "file": "trw_abs.dll",
@@ -1946,9 +1946,9 @@
       "tx_can_id": 1672,
       "rx_can_id": 1297,
       "family": "hvac",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "HVAC unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_trw_hvac",
+      "reason": null
     },
     {
       "file": "trw_hvac_2.dll",
@@ -1973,9 +1973,9 @@
       "tx_can_id": 1672,
       "rx_can_id": 1297,
       "family": "hvac",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "HVAC unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_trw_hvac_2",
+      "reason": null
     },
     {
       "file": "trw_ocm.dll",
@@ -2000,9 +2000,9 @@
       "tx_can_id": 1768,
       "rx_can_id": 1309,
       "family": "ocm_airbag",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "airbag/occupant-restraint unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_trw_ocm",
+      "reason": null
     },
     {
       "file": "trw_orc.dll",
@@ -2027,9 +2027,9 @@
       "tx_can_id": 1760,
       "rx_can_id": 1308,
       "family": "orc_airbag",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "airbag/occupant-restraint unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_trw_orc",
+      "reason": null
     },
     {
       "file": "trw_sas.dll",
@@ -2054,9 +2054,9 @@
       "tx_can_id": 1570,
       "rx_can_id": 1156,
       "family": "sas",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "steering-column/angle unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_trw_sas",
+      "reason": null
     },
     {
       "file": "valeo_scm.dll",
@@ -2081,9 +2081,9 @@
       "tx_can_id": 1704,
       "rx_can_id": 1301,
       "family": "scm",
-      "status": "dll_only",
-      "python_function": null,
-      "reason": "steering-column/angle unlock not yet reversed; runs under Unicorn"
+      "status": "reversed",
+      "python_function": "unlock_valeo_scm",
+      "reason": null
     },
     {
       "file": "venom_pcm.dll",
