@@ -14,6 +14,8 @@ tags:
     description: Download counter operations
   - name: anthropic
     description: Anthropic AI chat operations
+  - name: vehicleJobs
+    description: Vehicle Job + Module Swap workflow operations
 paths:
   /healthz:
     get:
@@ -203,6 +205,167 @@ paths:
           description: SSE stream of assistant response chunks
           content:
             text/event-stream: {}
+  /vehicle-jobs:
+    get:
+      operationId: listVehicleJobs
+      tags: [vehicleJobs]
+      summary: List vehicle jobs
+      parameters:
+        - name: vin
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of vehicle jobs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/VehicleJob"
+                required:
+                  - jobs
+    post:
+      operationId: createVehicleJob
+      tags: [vehicleJobs]
+      summary: Create or upsert a vehicle job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleJobUpsert"
+      responses:
+        "200":
+          description: Created/updated job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VehicleJob"
+  /vehicle-jobs/{id}:
+    get:
+      operationId: getVehicleJob
+      tags: [vehicleJobs]
+      summary: Get a vehicle job (with recent events)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Vehicle job + events
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VehicleJobWithEvents"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicError"
+    patch:
+      operationId: updateVehicleJob
+      tags: [vehicleJobs]
+      summary: Patch a vehicle job's mutable fields
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleJobPatch"
+      responses:
+        "200":
+          description: Updated job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VehicleJob"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicError"
+    delete:
+      operationId: deleteVehicleJob
+      tags: [vehicleJobs]
+      summary: Delete a vehicle job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+  /vehicle-jobs/{id}/events:
+    get:
+      operationId: listVehicleJobEvents
+      tags: [vehicleJobs]
+      summary: List events for a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/VehicleJobEvent"
+                required:
+                  - events
+    post:
+      operationId: appendVehicleJobEvent
+      tags: [vehicleJobs]
+      summary: Append a workflow event to a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleJobEventInput"
+      responses:
+        "201":
+          description: Created event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VehicleJobEvent"
 components:
   schemas:
     HealthStatus:
@@ -327,6 +490,186 @@ components:
           type: string
       required:
         - error
+    VehicleJob:
+      type: object
+      properties:
+        id:
+          type: string
+        vin:
+          type: string
+        title:
+          type: string
+          nullable: true
+        vehicle:
+          type: object
+          additionalProperties: true
+          nullable: true
+        status:
+          type: string
+        census:
+          type: object
+          additionalProperties: true
+          nullable: true
+        fixPlan:
+          type: object
+          additionalProperties: true
+          nullable: true
+        signOff:
+          type: object
+          additionalProperties: true
+          nullable: true
+        owner:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - vin
+        - status
+        - createdAt
+        - updatedAt
+    VehicleJobUpsert:
+      type: object
+      properties:
+        id:
+          type: string
+        vin:
+          type: string
+        title:
+          type: string
+          nullable: true
+        vehicle:
+          type: object
+          additionalProperties: true
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        owner:
+          type: string
+          nullable: true
+      required:
+        - id
+        - vin
+    VehicleJobPatch:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        vehicle:
+          type: object
+          additionalProperties: true
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        census:
+          type: object
+          additionalProperties: true
+          nullable: true
+        fixPlan:
+          type: object
+          additionalProperties: true
+          nullable: true
+        signOff:
+          type: object
+          additionalProperties: true
+          nullable: true
+        owner:
+          type: string
+          nullable: true
+    VehicleJobEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: string
+        ts:
+          type: string
+          format: date-time
+        kind:
+          type: string
+        module:
+          type: string
+          nullable: true
+        payload:
+          type: object
+          additionalProperties: true
+          nullable: true
+      required:
+        - id
+        - jobId
+        - ts
+        - kind
+    VehicleJobEventInput:
+      type: object
+      properties:
+        kind:
+          type: string
+        module:
+          type: string
+          nullable: true
+        payload:
+          type: object
+          additionalProperties: true
+          nullable: true
+      required:
+        - kind
+    VehicleJobWithEvents:
+      type: object
+      properties:
+        id:
+          type: string
+        vin:
+          type: string
+        title:
+          type: string
+          nullable: true
+        vehicle:
+          type: object
+          additionalProperties: true
+          nullable: true
+        status:
+          type: string
+        census:
+          type: object
+          additionalProperties: true
+          nullable: true
+        fixPlan:
+          type: object
+          additionalProperties: true
+          nullable: true
+        signOff:
+          type: object
+          additionalProperties: true
+          nullable: true
+        owner:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/VehicleJobEvent"
+      required:
+        - id
+        - vin
+        - status
+        - createdAt
+        - updatedAt
+        - events
     ModuleAssistantChatBody:
       type: object
       properties:

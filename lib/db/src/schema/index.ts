@@ -4,3 +4,5 @@ export * from "./diffReports";
 export * from "./keyProgArchives";
 export * from "./conversations";
 export * from "./messages";
+export * from "./vehicleJobs";
+export * from "./vehicleJobEvents";

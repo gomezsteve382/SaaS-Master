@@ -49,6 +49,10 @@ export const MasterVinContext=createContext({
   removeDump:()=>{},
   clearDumps:()=>{},
   getDumpsByType:()=>[],
+  // Task #501 — Vehicle Job hydration. Optional, backward-compatible.
+  jobId:null,
+  setJobId:()=>{},
+  hydrateFromJob:()=>{},
 });
 
 export function useMasterVin(){return useContext(MasterVinContext);}
@@ -57,6 +61,7 @@ export function MasterVinProvider({setPg,children}){
   const[vin,setVinRaw]=useState('');
   const[moduleStatus,setModuleStatus]=useState({BCM:'pending',RFHUB:'pending',ECM:'pending',ADCM:'pending'});
   const[loadedDumps,setLoadedDumps]=useState([]);
+  const[jobId,setJobIdRaw]=useState(null);
 
   const setVin=useCallback(v=>{
     if(typeof v!=='string')return;
@@ -135,13 +140,36 @@ export function MasterVinProvider({setPg,children}){
 
   const vinValid=vin.length===17&&VIN_RX.test(vin);
 
+  const setJobId=useCallback(id=>{
+    setJobIdRaw(id||null);
+  },[]);
+
+  /* hydrateFromJob — Task #501. Used by the Workflow Runner when the user
+     opens a saved job: pulls the persisted VIN into context (so every tab
+     sees the same target VIN) and clears the per-module status so the run
+     starts from a fresh "pending" state. We deliberately do NOT touch
+     loadedDumps; those are bytes-on-disk that the user re-loads each
+     session. */
+  const hydrateFromJob=useCallback(job=>{
+    if(!job||typeof job!=='object')return;
+    if(typeof job.vin==='string'&&job.vin.length===17){
+      setVinRaw(job.vin.toUpperCase());
+    }
+    if(typeof job.id==='string'){
+      setJobIdRaw(job.id);
+    }
+    setModuleStatus({BCM:'pending',RFHUB:'pending',ECM:'pending',ADCM:'pending'});
+  },[]);
+
   const value=useMemo(()=>({
     vin,setVin,vinValid,
     moduleStatus,setModuleStatus,updateStatus,resetStatus,
     setPg:setPg||(()=>{}),
     loadedDumps,addDump,replaceDump,removeDump,clearDumps,getDumpsByType,
+    jobId,setJobId,hydrateFromJob,
   }),[vin,setVin,vinValid,moduleStatus,updateStatus,resetStatus,setPg,
-      loadedDumps,addDump,replaceDump,removeDump,clearDumps,getDumpsByType]);
+      loadedDumps,addDump,replaceDump,removeDump,clearDumps,getDumpsByType,
+      jobId,setJobId,hydrateFromJob]);
 
   return <MasterVinContext.Provider value={value}>{children}</MasterVinContext.Provider>;
 }

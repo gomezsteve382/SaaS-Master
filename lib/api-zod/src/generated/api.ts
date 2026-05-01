@@ -159,3 +159,157 @@ export const ModuleAssistantChatBody = zod.object({
     hexSnippets: zod.array(zod.string()).optional(),
   }),
 });
+
+/**
+ * @summary List vehicle jobs
+ */
+export const ListVehicleJobsQueryParams = zod.object({
+  vin: zod.coerce.string().optional(),
+  status: zod.coerce.string().optional(),
+});
+
+export const ListVehicleJobsResponse = zod.object({
+  jobs: zod.array(
+    zod.object({
+      id: zod.string(),
+      vin: zod.string(),
+      title: zod.string().nullish(),
+      vehicle: zod.record(zod.string(), zod.unknown()).nullish(),
+      status: zod.string(),
+      census: zod.record(zod.string(), zod.unknown()).nullish(),
+      fixPlan: zod.record(zod.string(), zod.unknown()).nullish(),
+      signOff: zod.record(zod.string(), zod.unknown()).nullish(),
+      owner: zod.string().nullish(),
+      createdAt: zod.coerce.date(),
+      updatedAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Create or upsert a vehicle job
+ */
+export const CreateVehicleJobBody = zod.object({
+  id: zod.string(),
+  vin: zod.string(),
+  title: zod.string().nullish(),
+  vehicle: zod.record(zod.string(), zod.unknown()).nullish(),
+  status: zod.string().nullish(),
+  owner: zod.string().nullish(),
+});
+
+export const CreateVehicleJobResponse = zod.object({
+  id: zod.string(),
+  vin: zod.string(),
+  title: zod.string().nullish(),
+  vehicle: zod.record(zod.string(), zod.unknown()).nullish(),
+  status: zod.string(),
+  census: zod.record(zod.string(), zod.unknown()).nullish(),
+  fixPlan: zod.record(zod.string(), zod.unknown()).nullish(),
+  signOff: zod.record(zod.string(), zod.unknown()).nullish(),
+  owner: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Get a vehicle job (with recent events)
+ */
+export const GetVehicleJobParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetVehicleJobResponse = zod.object({
+  id: zod.string(),
+  vin: zod.string(),
+  title: zod.string().nullish(),
+  vehicle: zod.record(zod.string(), zod.unknown()).nullish(),
+  status: zod.string(),
+  census: zod.record(zod.string(), zod.unknown()).nullish(),
+  fixPlan: zod.record(zod.string(), zod.unknown()).nullish(),
+  signOff: zod.record(zod.string(), zod.unknown()).nullish(),
+  owner: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+  events: zod.array(
+    zod.object({
+      id: zod.number(),
+      jobId: zod.string(),
+      ts: zod.coerce.date(),
+      kind: zod.string(),
+      module: zod.string().nullish(),
+      payload: zod.record(zod.string(), zod.unknown()).nullish(),
+    }),
+  ),
+});
+
+/**
+ * @summary Patch a vehicle job's mutable fields
+ */
+export const UpdateVehicleJobParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateVehicleJobBody = zod.object({
+  title: zod.string().nullish(),
+  vehicle: zod.record(zod.string(), zod.unknown()).nullish(),
+  status: zod.string().nullish(),
+  census: zod.record(zod.string(), zod.unknown()).nullish(),
+  fixPlan: zod.record(zod.string(), zod.unknown()).nullish(),
+  signOff: zod.record(zod.string(), zod.unknown()).nullish(),
+  owner: zod.string().nullish(),
+});
+
+export const UpdateVehicleJobResponse = zod.object({
+  id: zod.string(),
+  vin: zod.string(),
+  title: zod.string().nullish(),
+  vehicle: zod.record(zod.string(), zod.unknown()).nullish(),
+  status: zod.string(),
+  census: zod.record(zod.string(), zod.unknown()).nullish(),
+  fixPlan: zod.record(zod.string(), zod.unknown()).nullish(),
+  signOff: zod.record(zod.string(), zod.unknown()).nullish(),
+  owner: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete a vehicle job
+ */
+export const DeleteVehicleJobParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+/**
+ * @summary List events for a job
+ */
+export const ListVehicleJobEventsParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListVehicleJobEventsResponse = zod.object({
+  events: zod.array(
+    zod.object({
+      id: zod.number(),
+      jobId: zod.string(),
+      ts: zod.coerce.date(),
+      kind: zod.string(),
+      module: zod.string().nullish(),
+      payload: zod.record(zod.string(), zod.unknown()).nullish(),
+    }),
+  ),
+});
+
+/**
+ * @summary Append a workflow event to a job
+ */
+export const AppendVehicleJobEventParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AppendVehicleJobEventBody = zod.object({
+  kind: zod.string(),
+  module: zod.string().nullish(),
+  payload: zod.record(zod.string(), zod.unknown()).nullish(),
+});

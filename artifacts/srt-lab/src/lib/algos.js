@@ -382,48 +382,106 @@ async function tryUnlock(uds, tx, rx, code, addLog, label, accessLevel) {
 // 0x01 mirrors the historical behavior — every existing call site that
 // doesn't pass a level still gets level-1 seed/key, so behavior is
 // unchanged for the dozens of CDA6/Alfa rows that use level 1.
-async function tryUnlockWithChain(uds, tx, rx, chain, addLog, label, accessLevel) {
+//
+// NRC handling (Task #501):
+// • 0x36 exceededNumberOfAttempts — the ECU has locked the security
+//   access state machine. Trying another algorithm is pointless until the
+//   module power-cycles or the lockout timer expires; we stop the chain
+//   immediately and surface the lockout to the caller.
+// • 0x37 requiredTimeDelayNotExpired — the ECU is rate-limiting after a
+//   bad key. Spec lets the response carry an extended-record byte holding
+//   the remaining delay in seconds (some FCA modules do, others don't).
+//   When present we sleep that long and retry the SAME algorithm exactly
+//   once; otherwise we retry once after a conservative default delay.
+function nrcLabel(n) {
+  if (n === 0x35) return 'invalidKey';
+  if (n === 0x36) return 'exceededNumberOfAttempts';
+  if (n === 0x37) return 'requiredTimeDelayNotExpired';
+  return 'NRC';
+}
+
+async function tryUnlockWithChain(uds, tx, rx, chain, addLog, label, accessLevel, opts) {
   const lbl = label || ('0x' + tx.toString(16).toUpperCase());
   const seedSF = (typeof accessLevel === 'number' && accessLevel >= 1 && accessLevel <= 0x3D)
     ? (accessLevel | 1) // force odd, in case a caller passes the key sub-function by mistake
     : 0x01;
   const keySF = seedSF + 1;
+  // Tests can inject a synchronous sleeper; production uses real setTimeout.
+  const sleep = (opts && typeof opts.sleep === 'function')
+    ? opts.sleep
+    : (ms) => new Promise(r => setTimeout(r, ms));
+  const defaultRetryMs = (opts && typeof opts.defaultRetryMs === 'number')
+    ? opts.defaultRetryMs
+    : 1500;
 
   for (let i = 0; i < chain.length; i++) {
     const aid = chain[i];
-    const sr = await uds(tx, rx, [0x27, seedSF]);
-    if (!(sr && sr.ok && sr.d && sr.d.length >= 2)) {
-      addLog && addLog(lbl + ' seed read failed', 'error');
-      return false;
+
+    // Inner retry loop for NRC 0x37 — at most one extra attempt of the
+    // same algorithm so a slow-but-recoverable module gets a chance.
+    let retriesLeft = 1;
+
+    while (true) {
+      const sr = await uds(tx, rx, [0x27, seedSF]);
+      if (!(sr && sr.ok && sr.d && sr.d.length >= 2)) {
+        addLog && addLog(lbl + ' seed read failed', 'error');
+        return false;
+      }
+      if (sr.d[0] === 0x7F) {
+        const nrc = sr.d[2];
+        if (nrc === 0x36) {
+          addLog && addLog(lbl + ' seed NRC 0x36 (' + nrcLabel(nrc) + ') — module lockout, stopping chain', 'error');
+          return false;
+        }
+        if (nrc === 0x37 && retriesLeft > 0) {
+          const delayMs = (sr.d.length >= 4 ? sr.d[3] * 1000 : 0) || defaultRetryMs;
+          addLog && addLog(lbl + ' seed NRC 0x37 — waiting ' + delayMs + ' ms then retry-after', 'warn');
+          retriesLeft--;
+          await sleep(delayMs);
+          continue;
+        }
+        addLog && addLog(lbl + ' seed NRC 0x' + (nrc || 0).toString(16).toUpperCase() + ' (' + nrcLabel(nrc) + ')', 'error');
+        return false;
+      }
+      if (sr.d[0] !== 0x67 || sr.d.length < 6) {
+        addLog && addLog(lbl + ' seed bad framing: ' + Array.from(sr.d).slice(0, 6).map(b => b.toString(16)).join(' '), 'error');
+        return false;
+      }
+      const sb = Array.from(sr.d).slice(2);
+      if (!sb.some(b => b !== 0)) {
+        addLog && addLog(lbl + ' already unlocked (zero seed)', 'rx');
+        return true;
+      }
+      const kb = unlockKeyBytes(aid, sb);
+      if (kb === null) { break; } // skip this algo, advance the chain
+      const kr = await uds(tx, rx, [0x27, keySF, ...kb]);
+      if (kr && kr.ok && kr.d && kr.d[0] === 0x67) {
+        addLog && addLog(lbl + ' UNLOCKED via ' + aid + ' (' + kb.length + 'B key, level 0x' + seedSF.toString(16).toUpperCase().padStart(2, '0') + ')', 'rx');
+        return aid;
+      }
+      const nrc = (kr && kr.ok && kr.d && kr.d[0] === 0x7F) ? kr.d[2] : null;
+      addLog && addLog(lbl + ' ' + aid + ' rejected' + (nrc != null ? (' (NRC 0x' + nrc.toString(16).toUpperCase() + ' ' + nrcLabel(nrc) + ')') : ''), 'warn');
+
+      if (nrc === 0x36) {
+        // Hard lockout — abort everything; another algorithm won't fare
+        // any better until the module is power-cycled.
+        addLog && addLog(lbl + ' lockout until module reset (NRC 0x36)', 'error');
+        return false;
+      }
+      if (nrc === 0x37 && retriesLeft > 0) {
+        // Mirror the seed-side spec: byte after the NRC is delay-in-seconds
+        // when the ECU reports it. Sleep that long, then retry the same
+        // algorithm exactly once.
+        const delayMs = (kr.d.length >= 4 ? kr.d[3] * 1000 : 0) || defaultRetryMs;
+        addLog && addLog(lbl + ' ' + aid + ' retry-after ' + delayMs + ' ms', 'warn');
+        retriesLeft--;
+        await sleep(delayMs);
+        continue;
+      }
+      // Any other NRC (0x35 invalidKey, 0x33 securityAccessDenied, etc) —
+      // walk to the next algorithm in the chain.
+      break;
     }
-    if (sr.d[0] === 0x7F) {
-      const nrc = sr.d[2];
-      addLog && addLog(lbl + ' seed NRC 0x' + (nrc || 0).toString(16).toUpperCase(), 'error');
-      return false;
-    }
-    if (sr.d[0] !== 0x67 || sr.d.length < 6) {
-      addLog && addLog(lbl + ' seed bad framing: ' + Array.from(sr.d).slice(0, 6).map(b => b.toString(16)).join(' '), 'error');
-      return false;
-    }
-    const sb = Array.from(sr.d).slice(2);
-    if (!sb.some(b => b !== 0)) {
-      addLog && addLog(lbl + ' already unlocked (zero seed)', 'rx');
-      return true;
-    }
-    const kb = unlockKeyBytes(aid, sb);
-    if (kb === null) { continue; }
-    const kr = await uds(tx, rx, [0x27, keySF, ...kb]);
-    if (kr && kr.ok && kr.d && kr.d[0] === 0x67) {
-      addLog && addLog(lbl + ' UNLOCKED via ' + aid + ' (' + kb.length + 'B key, level 0x' + seedSF.toString(16).toUpperCase().padStart(2, '0') + ')', 'rx');
-      return aid;
-    }
-    const nrc = (kr && kr.ok && kr.d && kr.d[0] === 0x7F) ? kr.d[2] : null;
-    addLog && addLog(lbl + ' ' + aid + ' rejected' + (nrc != null ? (' (NRC 0x' + nrc.toString(16).toUpperCase() + ')') : ''), 'warn');
-    // Walk the entire fallback chain regardless of NRC. Bench rigs that
-    // don't enforce attempt counts will simply fail the next 27 02 the
-    // same way; production ECUs that returned 0x36/0x37 will surface the
-    // condition on the next 27 01. Only after every algorithm has been
-    // tried do we declare a hard unlock failure.
   }
   addLog && addLog(lbl + ' all unlock algorithms exhausted', 'error');
   return false;

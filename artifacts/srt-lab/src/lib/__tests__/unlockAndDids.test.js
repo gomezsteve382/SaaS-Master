@@ -141,17 +141,25 @@ describe('tryUnlock', () => {
     expect(m.calls.length).toBe(1);
   });
 
-  it('continues fallback chain on any NRC, hard-fails only after exhaustion', async () => {
+  it('continues fallback chain on chain-continuing NRCs, hard-fails only after exhaustion', async () => {
     // BCM chain: cda6 → gpec2 → gpec3 → gpec2a → gpec15 (5 algos).
-    // Every key is rejected with a mix of NRCs (0x36, 0x37, 0x35, 0x33,
-    // 0x35) and the loop must walk every algo before giving up. We script
-    // 10 calls (seed + key per algo) and expect all of them consumed.
+    // Every key is rejected with chain-continuing NRCs (0x35 invalidKey,
+    // 0x33 securityAccessDenied, 0x31 outOfRange, 0x12 subFunctionNotSupported)
+    // and the loop must walk every algo before giving up. We script 10
+    // calls (seed + key per algo) and expect all of them consumed.
+    //
+    // Task #501 added two terminating NRCs:
+    //   0x36 (exceededNumberOfAttempts) → abort chain immediately
+    //   0x37 (requiredTimeDelayNotExpired) → sleep + retry SAME algo once
+    // Those paths are exercised in nrc36_37.test.mjs and intentionally
+    // excluded here so this test still asserts the "walk the whole chain"
+    // contract for the conventional NRCs.
     const keyBytesFor = (aid) => {
       const k = unlockKey(aid, seedU32);
       return [(k >>> 24) & 0xFF, (k >>> 16) & 0xFF, (k >>> 8) & 0xFF, k & 0xFF];
     };
     const chain = pickUnlockChain(0x750, 'BCM');
-    const nrcs  = [0x36, 0x37, 0x35, 0x33, 0x35];
+    const nrcs  = [0x35, 0x33, 0x31, 0x12, 0x35];
     const script = [];
     chain.forEach((aid, i) => {
       script.push({ req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seed]) } });

@@ -59,6 +59,99 @@ export interface AnthropicError {
   error: string;
 }
 
+export type VehicleJobVehicle = { [key: string]: unknown } | null;
+
+export type VehicleJobCensus = { [key: string]: unknown } | null;
+
+export type VehicleJobFixPlan = { [key: string]: unknown } | null;
+
+export type VehicleJobSignOff = { [key: string]: unknown } | null;
+
+export interface VehicleJob {
+  id: string;
+  vin: string;
+  title?: string | null;
+  vehicle?: VehicleJobVehicle;
+  status: string;
+  census?: VehicleJobCensus;
+  fixPlan?: VehicleJobFixPlan;
+  signOff?: VehicleJobSignOff;
+  owner?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type VehicleJobUpsertVehicle = { [key: string]: unknown } | null;
+
+export interface VehicleJobUpsert {
+  id: string;
+  vin: string;
+  title?: string | null;
+  vehicle?: VehicleJobUpsertVehicle;
+  status?: string | null;
+  owner?: string | null;
+}
+
+export type VehicleJobPatchVehicle = { [key: string]: unknown } | null;
+
+export type VehicleJobPatchCensus = { [key: string]: unknown } | null;
+
+export type VehicleJobPatchFixPlan = { [key: string]: unknown } | null;
+
+export type VehicleJobPatchSignOff = { [key: string]: unknown } | null;
+
+export interface VehicleJobPatch {
+  title?: string | null;
+  vehicle?: VehicleJobPatchVehicle;
+  status?: string | null;
+  census?: VehicleJobPatchCensus;
+  fixPlan?: VehicleJobPatchFixPlan;
+  signOff?: VehicleJobPatchSignOff;
+  owner?: string | null;
+}
+
+export type VehicleJobEventPayload = { [key: string]: unknown } | null;
+
+export interface VehicleJobEvent {
+  id: number;
+  jobId: string;
+  ts: string;
+  kind: string;
+  module?: string | null;
+  payload?: VehicleJobEventPayload;
+}
+
+export type VehicleJobEventInputPayload = { [key: string]: unknown } | null;
+
+export interface VehicleJobEventInput {
+  kind: string;
+  module?: string | null;
+  payload?: VehicleJobEventInputPayload;
+}
+
+export type VehicleJobWithEventsVehicle = { [key: string]: unknown } | null;
+
+export type VehicleJobWithEventsCensus = { [key: string]: unknown } | null;
+
+export type VehicleJobWithEventsFixPlan = { [key: string]: unknown } | null;
+
+export type VehicleJobWithEventsSignOff = { [key: string]: unknown } | null;
+
+export interface VehicleJobWithEvents {
+  id: string;
+  vin: string;
+  title?: string | null;
+  vehicle?: VehicleJobWithEventsVehicle;
+  status: string;
+  census?: VehicleJobWithEventsCensus;
+  fixPlan?: VehicleJobWithEventsFixPlan;
+  signOff?: VehicleJobWithEventsSignOff;
+  owner?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  events: VehicleJobEvent[];
+}
+
 export type ModuleAssistantChatBodyMessagesItem = {
   role: string;
   content: string;
@@ -81,4 +174,17 @@ export type ListAnthropicConversationsParams = {
    * Optional scope key — when set, only conversations created with this scope are returned.
    */
   scope?: string;
+};
+
+export type ListVehicleJobsParams = {
+  vin?: string;
+  status?: string;
+};
+
+export type ListVehicleJobs200 = {
+  jobs: VehicleJob[];
+};
+
+export type ListVehicleJobEvents200 = {
+  events: VehicleJobEvent[];
 };

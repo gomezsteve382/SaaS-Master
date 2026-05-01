@@ -25,8 +25,17 @@ import type {
   DownloadCount,
   HealthStatus,
   ListAnthropicConversationsParams,
+  ListVehicleJobEvents200,
+  ListVehicleJobs200,
+  ListVehicleJobsParams,
   ModuleAssistantChatBody,
   SendAnthropicMessageBody,
+  VehicleJob,
+  VehicleJobEvent,
+  VehicleJobEventInput,
+  VehicleJobPatch,
+  VehicleJobUpsert,
+  VehicleJobWithEvents,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -920,4 +929,617 @@ export const useModuleAssistantChat = <
   TContext
 > => {
   return useMutation(getModuleAssistantChatMutationOptions(options));
+};
+
+/**
+ * @summary List vehicle jobs
+ */
+export const getListVehicleJobsUrl = (params?: ListVehicleJobsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/vehicle-jobs?${stringifiedParams}`
+    : `/api/vehicle-jobs`;
+};
+
+export const listVehicleJobs = async (
+  params?: ListVehicleJobsParams,
+  options?: RequestInit,
+): Promise<ListVehicleJobs200> => {
+  return customFetch<ListVehicleJobs200>(getListVehicleJobsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListVehicleJobsQueryKey = (params?: ListVehicleJobsParams) => {
+  return [`/api/vehicle-jobs`, ...(params ? [params] : [])] as const;
+};
+
+export const getListVehicleJobsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listVehicleJobs>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListVehicleJobsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listVehicleJobs>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListVehicleJobsQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listVehicleJobs>>> = ({
+    signal,
+  }) => listVehicleJobs(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listVehicleJobs>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListVehicleJobsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listVehicleJobs>>
+>;
+export type ListVehicleJobsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List vehicle jobs
+ */
+
+export function useListVehicleJobs<
+  TData = Awaited<ReturnType<typeof listVehicleJobs>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListVehicleJobsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listVehicleJobs>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListVehicleJobsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create or upsert a vehicle job
+ */
+export const getCreateVehicleJobUrl = () => {
+  return `/api/vehicle-jobs`;
+};
+
+export const createVehicleJob = async (
+  vehicleJobUpsert: VehicleJobUpsert,
+  options?: RequestInit,
+): Promise<VehicleJob> => {
+  return customFetch<VehicleJob>(getCreateVehicleJobUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(vehicleJobUpsert),
+  });
+};
+
+export const getCreateVehicleJobMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createVehicleJob>>,
+    TError,
+    { data: BodyType<VehicleJobUpsert> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createVehicleJob>>,
+  TError,
+  { data: BodyType<VehicleJobUpsert> },
+  TContext
+> => {
+  const mutationKey = ["createVehicleJob"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createVehicleJob>>,
+    { data: BodyType<VehicleJobUpsert> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createVehicleJob(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateVehicleJobMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createVehicleJob>>
+>;
+export type CreateVehicleJobMutationBody = BodyType<VehicleJobUpsert>;
+export type CreateVehicleJobMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create or upsert a vehicle job
+ */
+export const useCreateVehicleJob = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createVehicleJob>>,
+    TError,
+    { data: BodyType<VehicleJobUpsert> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createVehicleJob>>,
+  TError,
+  { data: BodyType<VehicleJobUpsert> },
+  TContext
+> => {
+  return useMutation(getCreateVehicleJobMutationOptions(options));
+};
+
+/**
+ * @summary Get a vehicle job (with recent events)
+ */
+export const getGetVehicleJobUrl = (id: string) => {
+  return `/api/vehicle-jobs/${id}`;
+};
+
+export const getVehicleJob = async (
+  id: string,
+  options?: RequestInit,
+): Promise<VehicleJobWithEvents> => {
+  return customFetch<VehicleJobWithEvents>(getGetVehicleJobUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetVehicleJobQueryKey = (id: string) => {
+  return [`/api/vehicle-jobs/${id}`] as const;
+};
+
+export const getGetVehicleJobQueryOptions = <
+  TData = Awaited<ReturnType<typeof getVehicleJob>>,
+  TError = ErrorType<AnthropicError>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getVehicleJob>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetVehicleJobQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getVehicleJob>>> = ({
+    signal,
+  }) => getVehicleJob(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getVehicleJob>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetVehicleJobQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getVehicleJob>>
+>;
+export type GetVehicleJobQueryError = ErrorType<AnthropicError>;
+
+/**
+ * @summary Get a vehicle job (with recent events)
+ */
+
+export function useGetVehicleJob<
+  TData = Awaited<ReturnType<typeof getVehicleJob>>,
+  TError = ErrorType<AnthropicError>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getVehicleJob>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetVehicleJobQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Patch a vehicle job's mutable fields
+ */
+export const getUpdateVehicleJobUrl = (id: string) => {
+  return `/api/vehicle-jobs/${id}`;
+};
+
+export const updateVehicleJob = async (
+  id: string,
+  vehicleJobPatch: VehicleJobPatch,
+  options?: RequestInit,
+): Promise<VehicleJob> => {
+  return customFetch<VehicleJob>(getUpdateVehicleJobUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(vehicleJobPatch),
+  });
+};
+
+export const getUpdateVehicleJobMutationOptions = <
+  TError = ErrorType<AnthropicError>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateVehicleJob>>,
+    TError,
+    { id: string; data: BodyType<VehicleJobPatch> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateVehicleJob>>,
+  TError,
+  { id: string; data: BodyType<VehicleJobPatch> },
+  TContext
+> => {
+  const mutationKey = ["updateVehicleJob"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateVehicleJob>>,
+    { id: string; data: BodyType<VehicleJobPatch> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateVehicleJob(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateVehicleJobMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateVehicleJob>>
+>;
+export type UpdateVehicleJobMutationBody = BodyType<VehicleJobPatch>;
+export type UpdateVehicleJobMutationError = ErrorType<AnthropicError>;
+
+/**
+ * @summary Patch a vehicle job's mutable fields
+ */
+export const useUpdateVehicleJob = <
+  TError = ErrorType<AnthropicError>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateVehicleJob>>,
+    TError,
+    { id: string; data: BodyType<VehicleJobPatch> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateVehicleJob>>,
+  TError,
+  { id: string; data: BodyType<VehicleJobPatch> },
+  TContext
+> => {
+  return useMutation(getUpdateVehicleJobMutationOptions(options));
+};
+
+/**
+ * @summary Delete a vehicle job
+ */
+export const getDeleteVehicleJobUrl = (id: string) => {
+  return `/api/vehicle-jobs/${id}`;
+};
+
+export const deleteVehicleJob = async (
+  id: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteVehicleJobUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteVehicleJobMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteVehicleJob>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteVehicleJob>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteVehicleJob"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteVehicleJob>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteVehicleJob(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteVehicleJobMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteVehicleJob>>
+>;
+
+export type DeleteVehicleJobMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a vehicle job
+ */
+export const useDeleteVehicleJob = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteVehicleJob>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteVehicleJob>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteVehicleJobMutationOptions(options));
+};
+
+/**
+ * @summary List events for a job
+ */
+export const getListVehicleJobEventsUrl = (id: string) => {
+  return `/api/vehicle-jobs/${id}/events`;
+};
+
+export const listVehicleJobEvents = async (
+  id: string,
+  options?: RequestInit,
+): Promise<ListVehicleJobEvents200> => {
+  return customFetch<ListVehicleJobEvents200>(getListVehicleJobEventsUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListVehicleJobEventsQueryKey = (id: string) => {
+  return [`/api/vehicle-jobs/${id}/events`] as const;
+};
+
+export const getListVehicleJobEventsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listVehicleJobEvents>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listVehicleJobEvents>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListVehicleJobEventsQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listVehicleJobEvents>>
+  > = ({ signal }) => listVehicleJobEvents(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listVehicleJobEvents>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListVehicleJobEventsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listVehicleJobEvents>>
+>;
+export type ListVehicleJobEventsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List events for a job
+ */
+
+export function useListVehicleJobEvents<
+  TData = Awaited<ReturnType<typeof listVehicleJobEvents>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listVehicleJobEvents>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListVehicleJobEventsQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Append a workflow event to a job
+ */
+export const getAppendVehicleJobEventUrl = (id: string) => {
+  return `/api/vehicle-jobs/${id}/events`;
+};
+
+export const appendVehicleJobEvent = async (
+  id: string,
+  vehicleJobEventInput: VehicleJobEventInput,
+  options?: RequestInit,
+): Promise<VehicleJobEvent> => {
+  return customFetch<VehicleJobEvent>(getAppendVehicleJobEventUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(vehicleJobEventInput),
+  });
+};
+
+export const getAppendVehicleJobEventMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof appendVehicleJobEvent>>,
+    TError,
+    { id: string; data: BodyType<VehicleJobEventInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof appendVehicleJobEvent>>,
+  TError,
+  { id: string; data: BodyType<VehicleJobEventInput> },
+  TContext
+> => {
+  const mutationKey = ["appendVehicleJobEvent"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof appendVehicleJobEvent>>,
+    { id: string; data: BodyType<VehicleJobEventInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return appendVehicleJobEvent(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AppendVehicleJobEventMutationResult = NonNullable<
+  Awaited<ReturnType<typeof appendVehicleJobEvent>>
+>;
+export type AppendVehicleJobEventMutationBody = BodyType<VehicleJobEventInput>;
+export type AppendVehicleJobEventMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Append a workflow event to a job
+ */
+export const useAppendVehicleJobEvent = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof appendVehicleJobEvent>>,
+    TError,
+    { id: string; data: BodyType<VehicleJobEventInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof appendVehicleJobEvent>>,
+  TError,
+  { id: string; data: BodyType<VehicleJobEventInput> },
+  TContext
+> => {
+  return useMutation(getAppendVehicleJobEventMutationOptions(options));
 };

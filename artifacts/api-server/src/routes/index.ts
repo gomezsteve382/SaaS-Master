@@ -5,6 +5,7 @@ import backupsRouter from "./backups";
 import diffReportsRouter from "./diffReports";
 import keyProgArchivesRouter from "./keyProgArchives";
 import anthropicRouter from "./anthropic";
+import vehicleJobsRouter from "./vehicleJobs";
 
 const router: IRouter = Router();
 
@@ -13,6 +14,7 @@ router.use(downloadsRouter);
 router.use(backupsRouter);
 router.use(diffReportsRouter);
 router.use(keyProgArchivesRouter);
+router.use(vehicleJobsRouter);
 router.use("/anthropic", anthropicRouter);
 
 export default router;

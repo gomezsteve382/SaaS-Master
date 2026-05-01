@@ -25,8 +25,14 @@ app.use(
     },
   }),
 );
+// Replit dev/prod domains are multi-label hostnames like
+//   <repl-id>-<port>.<region>.replit.dev
+// or  <slug>.<owner>.repl.co. The previous regex only allowed a single
+// label before the suffix, which incorrectly rejected every modern dev
+// preview origin (Task #501). Allow any number of dot/hyphen-separated
+// labels in the prefix.
 const allowedOriginRe =
-  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$|^https:\/\/[a-z0-9-]+\.(repl\.co|replit\.app|replit\.dev)(\/.*)?$/i;
+  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$|^https:\/\/[a-z0-9.-]+\.(repl\.co|replit\.app|replit\.dev)(\/.*)?$/i;
 app.use(
   cors({
     origin: (origin, cb) => {

@@ -14,11 +14,13 @@ export const moduleBackupsTable = pgTable(
     checksum: text("checksum"),
     snapshotKind: text("snapshot_kind"),
     preWriteKey: text("pre_write_key"),
+    jobId: text("job_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({
     moduleIdx: index("module_backups_module_idx").on(t.module),
     timestampIdx: index("module_backups_timestamp_idx").on(t.timestamp),
+    jobIdIdx: index("module_backups_job_id_idx").on(t.jobId),
   }),
 );
 

@@ -15,10 +15,12 @@ export const diffReportsTable = pgTable(
     changedCount: integer("changed_count").notNull().default(0),
     sameCount: integer("same_count").notNull().default(0),
     payload: jsonb("payload").notNull(),
+    jobId: text("job_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({
     generatedAtIdx: index("diff_reports_generated_at_idx").on(t.generatedAt),
+    jobIdIdx: index("diff_reports_job_id_idx").on(t.jobId),
   }),
 );
 

@@ -40,6 +40,7 @@ import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
 import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
 import FcaModuleInspector from "./tabs/FcaModuleInspector.jsx";
 import UnlockCoverageTab from "./tabs/UnlockCoverageTab.jsx";
+import WorkflowTab from "./tabs/WorkflowTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
@@ -906,6 +907,7 @@ const WORKSPACE_TABS = [
   {id:'inspector', i:'🔍', l:'MODULE INSPECTOR', s:'GPEC2A · RFHUB · BCM auto-detect'},
   {id:'unlockcov', i:'🗝️', l:'UNLOCK COV',   s:'81 DLLs · reversed vs dll_only'},
   {id:'alfaobd',   i:'🧾', l:'ALFAOBD',      s:'ECUTYPE · Handlers · Transports'},
+  {id:'workflow',  i:'🛠️', l:'WORKFLOW',     s:'Vehicle Job · Census · Fix Plan · Sign-Off'},
 ];
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -1057,6 +1059,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='inspector' && <FcaModuleInspector/>}
         {tab==='unlockcov' && <UnlockCoverageTab/>}
         {tab==='alfaobd'   && <AlfaObdTablesTab/>}
+        {tab==='workflow'  && <WorkflowTab onOpenTab={setTab}/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also
