@@ -6,7 +6,7 @@
  * shows an explicit empty state pointing the tech at the command —
  * never any silent placeholder data.
  */
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 const BASE = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.BASE_URL) || "/";
 const TABLES_BASE = BASE.replace(/\/$/, "") + "/alfaobd-tables";
@@ -206,49 +206,189 @@ function Header({ manifest }) {
 }
 
 function EcutypesView({ families, activeFamily, setActiveFamily, search, setSearch, activeFam }) {
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [pendingScrollRow, setPendingScrollRow] = useState(null); // {family, key}
+  const globalQ = globalSearch.trim().toLowerCase();
+
+  const { familyHitCounts, flatHits, visibleFamilies } = useMemo(() => {
+    if (!globalQ) {
+      return { familyHitCounts: new Map(), flatHits: [], visibleFamilies: families };
+    }
+    const counts = new Map();
+    const flat = [];
+    for (const f of families) {
+      const matches = (f.modules || []).filter(m => moduleMatches(m, globalQ));
+      if (matches.length) {
+        counts.set(f.family, matches.length);
+        for (const m of matches) flat.push({ family: f.family, module: m });
+      }
+    }
+    return {
+      familyHitCounts: counts,
+      flatHits: flat,
+      visibleFamilies: families.filter(f => counts.has(f.family)),
+    };
+  }, [families, globalQ]);
+
   const filteredModules = useMemoFilter(activeFam?.modules || [], search);
+
   if (!families.length) {
     return <div style={{ color: "#888" }}>No ECUTYPE_* families discovered.</div>;
   }
+
+  function handleHitClick(family, m) {
+    if (family !== activeFamily) setActiveFamily(family);
+    // Clear the per-family search so the row is guaranteed to be visible.
+    if (search) setSearch("");
+    setPendingScrollRow({ family, key: rowKey(m) });
+  }
+
+  const HIT_LIMIT = 50;
+  const shownHits = flatHits.slice(0, HIT_LIMIT);
+
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: 16 }}>
-      <aside style={{ background: "#0F0F0F", border: "1px solid #2A2A2A", borderRadius: 10, padding: 8, maxHeight: 600, overflowY: "auto" }}>
-        {families.map(f => (
-          <button
-            key={f.family}
-            data-testid={`alfaobd-family-${f.family}`}
-            onClick={() => setActiveFamily(f.family)}
-            style={{
-              display: "block", width: "100%", textAlign: "left",
-              padding: "8px 10px", marginBottom: 4, borderRadius: 6,
-              background: f.family === activeFamily ? "#FF6D0033" : "transparent",
-              color: f.family === activeFamily ? "#FF6D00" : "#ddd",
-              border: "1px solid " + (f.family === activeFamily ? "#FF6D00" : "transparent"),
-              fontFamily: "JetBrains Mono, monospace", fontSize: 11, cursor: "pointer",
-            }}>
-            {f.family} <span style={{ color: "#666", marginLeft: 6 }}>({f.modules.length})</span>
-          </button>
-        ))}
-      </aside>
-      <div>
+    <div>
+      <div style={{ marginBottom: 12 }}>
         <input
-          data-testid="alfaobd-module-search"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search modules in this family (name, id, address)…"
+          data-testid="alfaobd-global-search"
+          value={globalSearch}
+          onChange={e => setGlobalSearch(e.target.value)}
+          placeholder={`Search across all ${families.length} families (name, id, address)…`}
           style={INPUT_STYLE}
         />
-        {!activeFam ? (
-          <div style={{ color: "#888", marginTop: 12 }}>Select a family to inspect.</div>
-        ) : (
-          <ModulesTable family={activeFam} rows={filteredModules} />
+        {globalQ && (
+          <div
+            data-testid="alfaobd-global-results"
+            style={{
+              background: "#0F0F0F", border: "1px solid #2A2A2A", borderRadius: 8,
+              padding: 8, marginTop: -4, marginBottom: 4,
+              maxHeight: 220, overflowY: "auto",
+            }}
+          >
+            {flatHits.length === 0 ? (
+              <div style={{ color: "#888", padding: "6px 8px", fontSize: 12 }}>
+                No matches across {families.length} families.
+              </div>
+            ) : (
+              <>
+                <div style={{ color: "#888", fontSize: 11, padding: "4px 8px", letterSpacing: 0.5 }}>
+                  {flatHits.length} match{flatHits.length === 1 ? "" : "es"} in {visibleFamilies.length} famil{visibleFamilies.length === 1 ? "y" : "ies"}
+                  {flatHits.length > HIT_LIMIT && ` (showing first ${HIT_LIMIT})`}
+                </div>
+                {shownHits.map((h, i) => (
+                  <button
+                    key={`${h.family}-${rowKey(h.module)}-${i}`}
+                    data-testid={`alfaobd-global-hit-${h.family}-${h.module.ecu_type_id}`}
+                    onClick={() => handleHitClick(h.family, h.module)}
+                    style={{
+                      display: "block", width: "100%", textAlign: "left",
+                      padding: "6px 8px", marginBottom: 2, borderRadius: 4,
+                      background: "transparent", color: "#ddd",
+                      border: "1px solid transparent",
+                      fontFamily: "JetBrains Mono, monospace", fontSize: 11, cursor: "pointer",
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "#1A1A1A"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                  >
+                    <span style={{ color: "#FF6D00" }}>{h.family}</span>
+                    <span style={{ color: "#666" }}> · </span>
+                    <span>{h.module.ecu_type_id}</span>
+                    <span style={{ color: "#666" }}> · </span>
+                    <span>{h.module.name}</span>
+                    {h.module.display_name && (
+                      <span style={{ color: "#888" }}> — {h.module.display_name}</span>
+                    )}
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
         )}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: 16 }}>
+        <aside style={{ background: "#0F0F0F", border: "1px solid #2A2A2A", borderRadius: 10, padding: 8, maxHeight: 600, overflowY: "auto" }}>
+          {visibleFamilies.length === 0 ? (
+            <div style={{ color: "#888", fontSize: 11, padding: 6 }}>
+              No families match this search.
+            </div>
+          ) : (
+            visibleFamilies.map(f => {
+              const hits = familyHitCounts.get(f.family);
+              return (
+                <button
+                  key={f.family}
+                  data-testid={`alfaobd-family-${f.family}`}
+                  onClick={() => setActiveFamily(f.family)}
+                  style={{
+                    display: "block", width: "100%", textAlign: "left",
+                    padding: "8px 10px", marginBottom: 4, borderRadius: 6,
+                    background: f.family === activeFamily ? "#FF6D0033" : "transparent",
+                    color: f.family === activeFamily ? "#FF6D00" : "#ddd",
+                    border: "1px solid " + (f.family === activeFamily ? "#FF6D00" : "transparent"),
+                    fontFamily: "JetBrains Mono, monospace", fontSize: 11, cursor: "pointer",
+                  }}>
+                  {f.family} <span style={{ color: "#666", marginLeft: 6 }}>({f.modules.length})</span>
+                  {hits != null && (
+                    <span
+                      data-testid={`alfaobd-family-hits-${f.family}`}
+                      style={{
+                        marginLeft: 6, padding: "1px 6px", borderRadius: 8,
+                        background: "#FF6D0022", color: "#FF6D00",
+                        fontSize: 10, fontWeight: 700,
+                      }}>
+                      {hits} hit{hits === 1 ? "" : "s"}
+                    </span>
+                  )}
+                </button>
+              );
+            })
+          )}
+        </aside>
+        <div>
+          <input
+            data-testid="alfaobd-module-search"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search modules in this family (name, id, address)…"
+            style={INPUT_STYLE}
+          />
+          {!activeFam ? (
+            <div style={{ color: "#888", marginTop: 12 }}>Select a family to inspect.</div>
+          ) : (
+            <ModulesTable
+              family={activeFam}
+              rows={filteredModules}
+              pendingScrollRow={pendingScrollRow}
+              clearPendingScrollRow={() => setPendingScrollRow(null)}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-function ModulesTable({ family, rows }) {
+function ModulesTable({ family, rows, pendingScrollRow, clearPendingScrollRow }) {
+  const rowRefs = useRef(new Map());
+
+  useEffect(() => {
+    if (!pendingScrollRow || pendingScrollRow.family !== family.family) return;
+    const el = rowRefs.current.get(pendingScrollRow.key);
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    const prevBg = el.style.backgroundColor;
+    const prevTrans = el.style.transition;
+    el.style.transition = "background-color 0.6s";
+    el.style.backgroundColor = "#FF6D0044";
+    const t = setTimeout(() => {
+      el.style.backgroundColor = prevBg;
+      el.style.transition = prevTrans;
+      if (clearPendingScrollRow) clearPendingScrollRow();
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [pendingScrollRow, family.family, rows, clearPendingScrollRow]);
+
   if (!rows.length) {
     return <div style={{ color: "#888", marginTop: 12 }}>No modules match your search in {family.family}.</div>;
   }
@@ -265,16 +405,26 @@ function ModulesTable({ family, rows }) {
         </tr>
       </thead>
       <tbody>
-        {rows.map(m => (
-          <tr key={`${m.ecu_type_id}-${m.name}`}>
-            <td style={TD_MONO}>{m.ecu_type_id}</td>
-            <td style={TD_MONO}>{m.name}</td>
-            <td style={TD}>{m.display_name || ""}</td>
-            <td style={TD}>{(m.protocols || []).join(", ")}</td>
-            <td style={TD_MONO}>{m.tx_address && m.rx_address ? `${m.tx_address} → ${m.rx_address}` : ""}</td>
-            <td style={{ ...TD_MONO, color: "#666" }}>{m.source || ""}</td>
-          </tr>
-        ))}
+        {rows.map(m => {
+          const k = rowKey(m);
+          return (
+            <tr
+              key={k}
+              data-testid={`alfaobd-module-row-${family.family}-${m.ecu_type_id}`}
+              ref={el => {
+                if (el) rowRefs.current.set(k, el);
+                else rowRefs.current.delete(k);
+              }}
+            >
+              <td style={TD_MONO}>{m.ecu_type_id}</td>
+              <td style={TD_MONO}>{m.name}</td>
+              <td style={TD}>{m.display_name || ""}</td>
+              <td style={TD}>{(m.protocols || []).join(", ")}</td>
+              <td style={TD_MONO}>{m.tx_address && m.rx_address ? `${m.tx_address} → ${m.rx_address}` : ""}</td>
+              <td style={{ ...TD_MONO, color: "#666" }}>{m.source || ""}</td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
@@ -368,17 +518,26 @@ function ResourcesView({ resources }) {
 }
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
+function moduleMatches(m, t) {
+  if (!t) return true;
+  return (
+    (m.name || "").toLowerCase().includes(t) ||
+    (m.display_name || "").toLowerCase().includes(t) ||
+    (m.ecu_type_id || "").toLowerCase().includes(t) ||
+    (m.tx_address || "").toLowerCase().includes(t) ||
+    (m.rx_address || "").toLowerCase().includes(t)
+  );
+}
+
+function rowKey(m) {
+  return `${m.ecu_type_id}-${m.name}`;
+}
+
 function useMemoFilter(rows, q) {
   return useMemo(() => {
     if (!q) return rows;
     const t = q.toLowerCase();
-    return rows.filter(r =>
-      (r.name || "").toLowerCase().includes(t) ||
-      (r.display_name || "").toLowerCase().includes(t) ||
-      (r.ecu_type_id || "").toLowerCase().includes(t) ||
-      (r.tx_address || "").toLowerCase().includes(t) ||
-      (r.rx_address || "").toLowerCase().includes(t)
-    );
+    return rows.filter(r => moduleMatches(r, t));
   }, [rows, q]);
 }
 
