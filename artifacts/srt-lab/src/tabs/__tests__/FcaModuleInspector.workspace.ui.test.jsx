@@ -3,15 +3,17 @@
 // Task #503 — End-to-end UI coverage for the MODULE INSPECTOR tab inside the
 // SRT Lab vehicle workspace.
 //
-// Task #496 added the FcaModuleInspector component, registered it as the
-// `inspector` tab in the workspace tab registry, and pinned the helper
-// functions (`detectModuleType`, `scanForVINs`, `parseInspectorModule`,
-// SKIM byte read) against the three real-dump fixtures via
-// `FcaModuleInspector.fixtures.test.js`. What that suite does NOT exercise
-// is that the tab actually opens inside a workspace, accepts a loaded
-// fixture, and renders the parsed module info to the DOM — a regression in
-// the workspace tab routing or in the JSX rendering would not be caught
-// by the helper-only suite.
+// Task #496 added the FcaModuleInspector component and registered it as the
+// `inspector` tab in the workspace tab registry. Task #530 retired the
+// inspector-private parser (`parseInspectorModule` + helpers) so the live
+// UI now runs entirely on the canonical `parseModule`; the realDumps ×
+// parser coverage that used to live next to the inspector now asserts
+// against `parseModule` directly in
+// `src/lib/__tests__/parseModule.realDumps.test.js`. What that
+// parser-only suite does NOT exercise is that the tab actually opens
+// inside a workspace, accepts a loaded fixture, and renders the parsed
+// module info to the DOM — a regression in the workspace tab routing or
+// in the JSX rendering would not be caught by a parser-only suite.
 //
 // This suite mounts the full <App/>, navigates to a vehicle workspace,
 // clicks the MODULE INSPECTOR tab, drops each of the three real-dump
@@ -85,7 +87,7 @@ async function openInspectorTab() {
 // Drop a fixture into the inspector's hidden file input and wait for the
 // module tile to render. The tile is keyed on the module's `name`
 // (e.g. "GPEC2A PCM"), which only appears in the DOM after
-// FileReader → parseInspectorModule → setModules has resolved.
+// FileReader → parseModule → addDump has resolved.
 async function loadFixtureInto(input, name, bytes, expectedModuleName) {
   const file = bufferFile(name, bytes);
   await act(async () => {
@@ -176,7 +178,7 @@ async function loadFixtureInto(input, name, bytes, expectedModuleName) {
         // `parseModule`, which matches every other tab and un-reverses
         // the bytes for display, so the rendered first VIN is the
         // decoded 2C3CDXCT1HH600000 (not the verbatim 000006HH1TCXDC3C2
-        // the legacy `parseInspectorModule` would have produced).
+        // the now-retired legacy inspector parser would have produced).
         expect(within(tile).getByText(/VIN:\s*2C3CDXCT1HH600000/)).toBeTruthy();
         // RFHUB tiles have no SKIM line.
         expect(within(tile).queryByText(/SKIM:/)).toBeNull();

@@ -4,24 +4,15 @@
  * The original drop was misnamed with a `.exe` suffix and silently stranded;
  * the file is actually a 33 KB React JSX component (UTF-8) implementing an
  * FCA module-binary inspector. It auto-detects GPEC2A / RFHUB / BCM dumps,
- * scans for valid VINs (with proper boundary checks and I/O/Q exclusion),
- * reads the SKIM enable/disable byte at 0x0011 (GPEC2A), and produces a
- * downloadable patched `.bin` for VIN/SKIM/virginize/key-extract operations.
+ * surfaces VINs / SKIM byte / cross-module validation results, and produces
+ * a downloadable patched `.bin` for VIN/SKIM/virginize/key-extract.
  *
- * Task #496 rehomed the file under a clear name, exported the helper
- * functions for unit tests, and wired the component into the SRT Lab tab
- * registry.
+ * Task #496 rehomed the file under a clear name and wired it into the SRT
+ * Lab tab registry. Task #502 re-skinned the UI to use the workspace-wide
+ * design tokens (`C` from `../lib/constants.js`, `Card`/`Btn`/`Tag`/`SLine`
+ * from `../lib/ui.jsx`).
  *
- * Task #502 re-skins the UI to use the workspace-wide design tokens
- * (`C` from `../lib/constants.js`, `Card`/`Btn`/`Tag`/`SLine` from
- * `../lib/ui.jsx`) so it stops looking like a stranded standalone app.
- * Detection logic is preserved verbatim — `detectModuleType`,
- * `scanForVINs`, `parseInspectorModule`, `extractVIN`, `extractHex`,
- * `crossValidate`, `computeDiff`, and `virginize` are untouched (the
- * fixture tests in `__tests__/FcaModuleInspector.fixtures.test.js`
- * must still pass).
- *
- * Task #517 replaces the inspector's local `writeVIN()` with
+ * Task #517 replaced the inspector's local `writeVIN()` with
  * `inspectorWriteVin()`, a thin shim that delegates to the
  * workspace-shared `analyzeFile()` + `patchFile()` pipeline in
  * `../lib/fileUtils.js`. The old writer only stamped VIN bytes at
@@ -32,29 +23,40 @@
  * block — so a `modified_*.bin` from the inspector is now flashable
  * and byte-identical to what `VinProgrammerTab` produces for the same
  * input/VIN.
- * ========================================================================== */
+ *
+ * Task #518 retired the inspector-local `useState([])` dump store in favor
+ * of the workspace-wide MasterVinContext, and switched file loads to the
+ * canonical `parseModule` (so the dump shape matches what every other tab
+ * expects — size warnings, content warnings, RFHUB CRC verdicts, BCM
+ * SEC16 resolution, etc).
+ *
+ * Task #519 added a `moduleTooSmall` size guard at file-drop time (the
+ * same one Gpec2aTab / BcmTab use). Undersized fragments are pushed to a
+ * local `rejects` list and rendered as a structured banner card instead
+ * of being silently parsed as a real EEPROM (which previously surfaced
+ * fake VIN/key output for partial captures).
+ *
+ * Task #530 finishes the parser migration: the legacy inspector-private
+ * parser (`parseInspectorModule` plus its `MODULE_TYPES` / `SKIM_VALUES`
+ * / `detectModuleType` / `scanForVINs` / `extractVIN` helpers) has been
+ * deleted outright. There is now exactly one parser of record
+ * (`../lib/parseModule.js`); the realDumps × parser coverage that used
+ * to live next to the inspector now asserts against `parseModule`
+ * directly in `src/lib/__tests__/parseModule.realDumps.test.js`.
+ *
+ * What remains in this file are the inspector's UI-side helpers that no
+ * other tab consumes: `crossValidate` (cross-module verdict assembler),
+ * `computeDiff` (hex-diff grouping), `inspectorWriteVin` (the
+ * patchFile-backed VIN writer) and `virginize` (the GPEC2A wipe
+ * transform). They run on the canonical `parseModule` output, so the
+ * inspector tabs and every other tab agree on the same module shape
+ * end-to-end. */
 import { useState, useCallback, useMemo, useRef, useContext } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn, Tag, SLine } from "../lib/ui.jsx";
-import { parseModule, moduleTooSmall } from "../lib/parseModule.js";
+import { parseModule, moduleTooSmall, detectModuleType } from "../lib/parseModule.js";
 import { MasterVinContext } from "../lib/masterVinContext.jsx";
 import { analyzeFile, patchFile } from "../lib/fileUtils.js";
-
-/* Task #518 — the inspector is no longer a sandboxed island. Instead of
- * keeping its own local `useState([])` of parsed dumps, it now reads from
- * (and writes to) the workspace-wide MasterVinContext store the same way
- * Gpec2aTab / RfhubTab / BcmTab do. Files dropped into the inspector
- * appear in the per-module tabs immediately, and files loaded elsewhere
- * (Dumps tab, Samples Library, etc.) appear in the inspector's module
- * list without the user having to re-drop them.
- *
- * Files loaded via the inspector are now parsed by the canonical
- * workspace `parseModule` (not the inspector-private `parseInspectorModule`)
- * so the resulting dump shape matches what every other tab expects —
- * size warnings, content warnings, RFHUB CRC verdicts, BCM SEC16
- * resolution, etc. The legacy `parseInspectorModule` helper is still
- * exported (and still used by the helper-only fixtures suite) for
- * backwards compatibility, but the live UI no longer calls it. */
 
 // Module types the inspector cares about. Other types loaded into the
 // workspace (e.g. '95640' EEPROM backups, EFD payloads, C-Flash blobs)
@@ -74,165 +76,14 @@ const INSPECTOR_DISPLAY_NAMES = {
 };
 const inspectorName = (m) => (m && INSPECTOR_DISPLAY_NAMES[m.type]) || (m && m.name) || "";
 
-const MODULE_TYPES = {
-  GPEC2A: { name: "GPEC2A PCM", chip: "95320 SPI", size: 4096, color: C.a1 },
-  RFHUB: { name: "RFHUB EEE", chip: "Internal EEPROM", size: 4096, color: C.a2 },
-  BCM: { name: "BCM DFLASH", chip: "FEE Emulation", size: 65536, color: C.a3 },
-  UNKNOWN: { name: "Unknown Module", chip: "\u2014", size: 0, color: C.tm },
-};
-
-const SKIM_VALUES = { 0x80: "ENABLED", 0x00: "DISABLED", 0x02: "DISABLED (alt)" };
-
-function detectModuleType(data) {
-  if (!data) return "UNKNOWN";
-  if (data.length === 65536) {
-    const hdr = String.fromCharCode.apply(null, data.slice(4, 11));
-    if (hdr === "FEE1000") return "BCM";
-    // Some BCMs might not start at offset 4; scan first 256 bytes
-    for (let i = 0; i < 256; i++) {
-      if (data[i] === 0x46 && String.fromCharCode.apply(null, data.slice(i, i + 7)) === "FEE1000") return "BCM";
-    }
-    return "BCM"; // 64KB is almost certainly BCM
-  }
-  if (data.length === 4096) {
-    // GPEC: VIN starts at byte 0 (first 17 bytes are alphanumeric ASCII)
-    let vinAtZero = true;
-    for (let i = 0; i < 17; i++) {
-      const b = data[i];
-      if (!((b >= 0x30 && b <= 0x39) || (b >= 0x41 && b <= 0x5a))) { vinAtZero = false; break; }
-    }
-    if (vinAtZero) {
-      // Additional GPEC confirmation: SKIM byte at 0x0011 or VIN repeat at 0x01F0/0x0224
-      const skimVal = data[0x0011];
-      if (skimVal === 0x80 || skimVal === 0x00 || skimVal === 0x02) return "GPEC2A";
-      // Check for VIN copy at 0x01F0
-      if (extractVIN(data, 0x01f0)) return "GPEC2A";
-      return "GPEC2A"; // VIN at byte 0 is strong GPEC indicator
-    }
-    // Not GPEC — it's an RFHUB/EEE (starts with FF padding or other non-VIN data)
-    return "RFHUB";
-  }
-  // Other sizes: try to detect by content
-  if (data.length > 0 && data.length <= 8192) return "RFHUB"; // Small EEPROMs likely EEE/RFHUB
-  return "UNKNOWN";
-}
-
-// Scan entire binary for valid VIN patterns (17-char alphanumeric, no I/O/Q)
-function scanForVINs(data) {
-  const found = [];
-  const seen = new Set();
-  for (let i = 0; i <= data.length - 17; i++) {
-    let valid = true;
-    for (let j = 0; j < 17; j++) {
-      const b = data[i + j];
-      if (!((b >= 0x30 && b <= 0x39) || (b >= 0x41 && b <= 0x5a))) { valid = false; break; }
-      // VIN excludes I, O, Q
-      if (b === 0x49 || b === 0x4f || b === 0x51) { valid = false; break; }
-    }
-    if (!valid) continue;
-    // Check boundaries: byte before/after should NOT be alphanumeric (avoid substring matches)
-    if (i > 0 && data[i-1] >= 0x30 && data[i-1] <= 0x5a) continue;
-    if (i + 17 < data.length && data[i+17] >= 0x30 && data[i+17] <= 0x5a) continue;
-    const vin = String.fromCharCode.apply(null, data.slice(i, i + 17));
-    // Basic VIN validation: position 9 is check digit (0-9 or X), starts with region code
-    const key = i + ":" + vin;
-    if (!seen.has(key)) {
-      seen.add(key);
-      found.push({ offset: i, vin: vin });
-    }
-  }
-  return found;
-}
-
-function extractVIN(data, offset, len) {
-  if (!len) len = 17;
-  if (offset + len > data.length) return null;
-  const bytes = data.slice(offset, offset + len);
-  for (let i = 0; i < bytes.length; i++) { if (bytes[i] < 0x30 || bytes[i] > 0x5a) return null; }
-  return String.fromCharCode.apply(null, bytes);
-}
-
-function extractHex(data, offset, len) {
-  const r = [];
-  for (let i = 0; i < len; i++) r.push(data[offset + i].toString(16).padStart(2, "0").toUpperCase());
-  return r.join(" ");
-}
-
+// Byte-array equality used by `crossValidate` (RFHUB <-> BCM secret
+// match check + GPEC2A secret-key consistency check). The legacy
+// inspector parser used to reuse this for its own internal checks; now
+// only the cross-module validator needs it.
 function arrEq(a, b) {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
   return true;
-}
-
-function u32(data, o) { return (data[o] << 24) | (data[o+1] << 16) | (data[o+2] << 8) | data[o+3]; }
-
-function countAA50(d, s, n) { let c=0; for(let i=0;i<n;i++) if(d[s+i*2]===0xaa&&d[s+i*2+1]===0x50) c++; return c; }
-function countPat(d, a, b, c2, d2) { let c=0; for(let i=0;i<d.length-3;i++) if(d[i]===a&&d[i+1]===b&&d[i+2]===c2&&d[i+3]===d2) c++; return c; }
-
-function parseInspectorModule(data, filename) {
-  const type = detectModuleType(data);
-  const mt = MODULE_TYPES[type];
-  const info = { type, filename, data, size: data.length, name: mt.name, chip: mt.chip, color: mt.color };
-
-  if (type === "GPEC2A") {
-    info.vins = [
-      { offset: 0x0000, vin: extractVIN(data, 0x0000) },
-      { offset: 0x01f0, vin: extractVIN(data, 0x01f0) },
-      { offset: 0x0224, vin: extractVIN(data, 0x0224) },
-    ].filter(v => v.vin);
-    info.skimByte = data[0x0011];
-    info.skimStatus = SKIM_VALUES[data[0x0011]] || "UNKNOWN (0x" + data[0x0011].toString(16).toUpperCase() + ")";
-    info.secretKey = { offset: 0x0203, bytes: data.slice(0x0203, 0x020b), hex: extractHex(data, 0x0203, 8) };
-    info.secretKeyMirror = { offset: 0x0361, bytes: data.slice(0x0361, 0x0369), hex: extractHex(data, 0x0361, 8) };
-    info.extendedKey = { offset: 0x0361, hex: extractHex(data, 0x0361, 26) };
-    info.transponderKeys = [];
-    for (let i = 0; i < 4; i++) { const o = 0x0888 + i * 4; info.transponderKeys.push({ offset: o, hex: extractHex(data, o, 4) }); }
-    info.zzzzTamper = { offset: 0x0c8c, hex: extractHex(data, 0x0c8c, 8), intact: data[0x0c8c] === 0x5a };
-    info.partNumberStr = extractVIN(data, 0x0fa1, 13) || extractHex(data, 0x0fa1, 13);
-    info.keyConsistent = arrEq(data.slice(0x0203, 0x020b), data.slice(0x0361, 0x0369));
-    info.runtimeCounters = {
-      counterA: { offset: 0x0e61, value: u32(data, 0x0e61), hex: extractHex(data, 0x0e61, 4) },
-      counterB: { offset: 0x0e69, value: u32(data, 0x0e69), hex: extractHex(data, 0x0e69, 4) },
-      distance: { offset: 0x0e6d, value: u32(data, 0x0e6d), hex: extractHex(data, 0x0e6d, 4) },
-      keyCycles: { offset: 0x0e75, value: u32(data, 0x0e75), hex: extractHex(data, 0x0e75, 4) },
-    };
-  } else if (type === "RFHUB") {
-    // Try known RFHUB VIN offsets first, then fall back to full scan
-    var knownOffsets = [0x0ea5, 0x0eb9, 0x0ecd, 0x0ee1];
-    var knownVins = knownOffsets.map(o => ({ offset: o, vin: extractVIN(data, o) })).filter(v => v.vin);
-    if (knownVins.length > 0) {
-      info.vins = knownVins;
-    } else {
-      // Full scan for VINs anywhere in the file
-      info.vins = scanForVINs(data);
-    }
-    // Try known secret key offset, fall back to scanning for high-entropy blocks
-    if (data.length >= 0x051e) {
-      info.vehicleSecret = { offset: 0x050e, bytes: data.slice(0x050e, 0x051e), hex: extractHex(data, 0x050e, 16), endian: "big" };
-    }
-    info.fobikSlots = countAA50(data, 0x0880, 10);
-    info.securityMarkers = countPat(data, 0xcc, 0x66, 0xaa, 0x55);
-    info.zzzzBlocks = countPat(data, 0x5a, 0x5a, 0x5a, 0x5a);
-    // Try to extract part numbers from known locations
-    info.partNumbers = {};
-    var hw = extractVIN(data, 0x0808, 10);
-    var sw = extractVIN(data, 0x0812, 10);
-    var cal = extractVIN(data, 0x082c, 14);
-    if (hw) info.partNumbers.hw = hw;
-    else if (data.length >= 0x0812) info.partNumbers.hw = extractHex(data, 0x0808, 10);
-    if (sw) info.partNumbers.sw = sw;
-    else if (data.length >= 0x081c) info.partNumbers.sw = extractHex(data, 0x0812, 10);
-    if (cal) info.partNumbers.cal = cal;
-    else if (data.length >= 0x083a) info.partNumbers.cal = extractHex(data, 0x082c, 14);
-  } else if (type === "BCM") {
-    info.vins = [0x5328, 0x5348, 0x5368, 0x5388].map(o => ({ offset: o, vin: extractVIN(data, o) })).filter(v => v.vin);
-    info.vehicleSecret = { offset: 0x40c9, bytes: data.slice(0x40c9, 0x40d9), hex: extractHex(data, 0x40c9, 16), endian: "little" };
-    info.securityLock = { offset: 0x8028, value: data[0x8028], locked: data[0x8028] === 0x5a };
-    info.fobikCount = data[0x5862];
-    info.immoKeys = [0x81a4, 0x81c4, 0x81e4].map(o => ({ offset: o, hex: extractHex(data, o, 16) }));
-    info.fobikParts = extractVIN(data, 0x5818, 10) || extractHex(data, 0x5818, 10);
-  }
-  return info;
 }
 
 function crossValidate(modules) {
@@ -375,7 +226,7 @@ const TABS = [
   { id: "tools",    label: "Tools",    icon: "🛠️" },
 ];
 
-export { MODULE_TYPES, SKIM_VALUES, detectModuleType, scanForVINs, extractVIN, parseInspectorModule, inspectorWriteVin };
+export { inspectorWriteVin };
 
 export default function FcaModuleInspector() {
   const { loadedDumps, addDump, removeDump } = useContext(MasterVinContext);
