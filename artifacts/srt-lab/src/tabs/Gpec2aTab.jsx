@@ -3,7 +3,7 @@ import {C} from "../lib/constants.js";
 import {Card,Tag,Btn} from "../lib/ui.jsx";
 import {parseModule,moduleTooSmall,pcmChipFromSize} from "../lib/parseModule.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
-import {SizeWarnBanner} from "../components/ModuleFieldsPanel.jsx";
+import {SizeWarnBanner,ContentWarnBanner} from "../components/ModuleFieldsPanel.jsx";
 
 const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();URL.revokeObjectURL(a.href);};
 const offHex=o=>'0x'+o.toString(16).toUpperCase().padStart(4,'0');
@@ -112,6 +112,14 @@ function Gpec2aTab(){
     </div>}
     {f&&f.sizeWarn&&<SizeWarnBanner warn={f.sizeWarn}/>}
     {f2&&f2.sizeWarn&&<SizeWarnBanner warn={f2.sizeWarn}/>}
+    {/* Task #542 — content-warn banner for 4 KB GPEC2A captures whose
+        defining structures are blank (no VINs at the canonical PCM slots,
+        no secret key / mirror, no PCM SEC6 marker). Mirrors the BCM
+        content warn (Task #527/#538) for the 4 KB family: a virgin RFHUB
+        EEE collapsed into the GPEC2A bucket would otherwise render fake
+        VIN / SKIM / SECRET KEY verdicts off random padding bytes. */}
+    {f&&f.contentWarn&&<ContentWarnBanner warn={f.contentWarn}/>}
+    {f2&&f2.contentWarn&&<ContentWarnBanner warn={f2.contentWarn}/>}
 
     {f&&<>
       {/* Hero status: SKIM + ZZZZ tamper */}

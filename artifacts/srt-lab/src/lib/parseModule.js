@@ -453,6 +453,7 @@ function buildBcmContentWarn(data){
   if(vinHits>0||immoPrimary||immoBackup||partialHits>0)return null;
   return{
     kind:'maybe-not-bcm',
+    family:'BCM',
     sizeLabel:sz.toLocaleString()+' B',
     message:'This '+sz.toLocaleString()+'-byte capture has no BCM-defining content — it may not actually be a BCM dump.',
     causes:[
@@ -462,6 +463,115 @@ function buildBcmContentWarn(data){
       'If this is an oversized GPEC2A capture (real size 4 KB), re-load it through the GPEC2A tab.',
       'If this is an oversized 95640 capture (real size 8 KB), re-load it through the 95640 tab.',
       'A blank/virgin BCM is also possible — confirm with the source ECU before writing.',
+    ],
+  };
+}
+
+// Content sanity check for a 4 KB capture that was classified as GPEC2A
+// (PCM EEPROM). Returns a warn object describing why the content does NOT
+// look like a real GPEC2A — no VINs at the canonical PCM slots, secret
+// key + mirror both blank, PCM SEC6 marker missing — or null when at
+// least one GPEC2A-defining structure is populated. Mirrors the BCM
+// content-sanity check (Task #527/#538) for the 4 KB family: a padded
+// GPEC2A capture and a blank RFHUB EEE share the same size, so a
+// signature/size-only classification can mis-label one as the other and
+// then surface garbage VIN / SKIM / FOBIK verdicts off random padding.
+function buildGpecContentWarn(data){
+  if(data.length!==4096)return null;
+  const sz=data.length;
+  // 1. VIN slot scan at canonical PCM_VIN_OFFSETS_GPEC2A.
+  let vinHits=0;
+  for(const o of PCM_VIN_OFFSETS_GPEC2A){
+    if(o+17>sz)continue;
+    if(extractVIN(data,o))vinHits++;
+  }
+  // 2. Secret key at 0x0203 (8 bytes) — non-blank.
+  let skNonblank=false;
+  if(sz>=0x020B){
+    for(let j=0;j<8;j++){const b=data[0x0203+j];if(b!==0xFF&&b!==0x00){skNonblank=true;break;}}
+  }
+  // 3. Secret key mirror at 0x0361 (8 bytes) — non-blank.
+  let skmNonblank=false;
+  if(sz>=0x0369){
+    for(let j=0;j<8;j++){const b=data[0x0361+j];if(b!==0xFF&&b!==0x00){skmNonblank=true;break;}}
+  }
+  // 4. PCM SEC6 marker (FF FF FF AA at 0x03C4) AND non-blank SEC6 at 0x03C8.
+  let sec6Populated=false;
+  if(sz>=0x3CE){
+    const markerOk=data[0x3C4]===0xFF&&data[0x3C5]===0xFF&&data[0x3C6]===0xFF&&data[0x3C7]===0xAA;
+    if(markerOk){
+      for(let j=0;j<6;j++){const b=data[0x3C8+j];if(b!==0xFF&&b!==0x00){sec6Populated=true;break;}}
+    }
+  }
+  if(vinHits>0||skNonblank||skmNonblank||sec6Populated)return null;
+  return{
+    kind:'maybe-not-gpec2a',
+    family:'GPEC2A',
+    sizeLabel:sz.toLocaleString()+' B',
+    message:'This '+sz.toLocaleString()+'-byte capture has no GPEC2A-defining content — it may not actually be a GPEC2A dump.',
+    causes:[
+      'No VINs found at the canonical GPEC2A slots (0x0000, 0x01F0, 0x0224, 0x0CE0).',
+      'Secret key at 0x0203 and its mirror at 0x0361 are both blank.',
+      'PCM SEC6 marker (FF FF FF AA at 0x03C4) is missing or its 6-byte secret at 0x03C8 is blank.',
+      'If this is actually an RFHUB capture (also 4 KB), re-load it through the RFHUB tab.',
+      'A blank/virgin GPEC2A is also possible — confirm with the source ECU before writing.',
+    ],
+  };
+}
+
+// Content sanity check for a 4 KB capture that was classified as RFHUB
+// (Gen2 24C32 EEE). Returns a warn object describing why the content does
+// NOT look like a real Gen2 RFHUB — no reverse-encoded VINs at the
+// canonical 0x0EA5+ slots, header signature missing at 0x0500, vehicle
+// secret + SEC16 mirror both blank, no AA-50 fobik markers — or null
+// when at least one RFHUB-defining structure is populated. Mirror of
+// buildGpecContentWarn for the RFHUB side of the 4 KB family.
+function buildRfhubContentWarn(data){
+  if(data.length!==4096)return null;
+  const sz=data.length;
+  // 1. VIN slot scan at byte-reversed RFH_GEN2_VIN_OFFSETS — at least one
+  //    slot decodes to a valid VIN-shaped 17-char string after reversal.
+  let vinHits=0;
+  for(const o of RFH_GEN2_VIN_OFFSETS){
+    if(o+17>sz)continue;
+    const st=data.slice(o,o+17);
+    if(st.every(b=>b===0xFF||b===0))continue;
+    let s='';for(let j=0;j<17;j++)s+=String.fromCharCode(st[16-j]);
+    if(/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s))vinHits++;
+  }
+  // 2. Gen2 RFHUB header signature at 0x0500 = AA 55 31 01.
+  const headerOk=sz>=0x0504&&data[0x0500]===0xAA&&data[0x0501]===0x55&&data[0x0502]===0x31&&data[0x0503]===0x01;
+  // 3. Vehicle secret / SEC16 slot 1 at 0x050E (16 bytes) — non-blank.
+  let sec1Nonblank=false;
+  if(sz>=0x051E){
+    for(let j=0;j<16;j++){const b=data[0x050E+j];if(b!==0xFF&&b!==0x00){sec1Nonblank=true;break;}}
+  }
+  // 4. SEC16 slot 2 at 0x0522 (16 bytes) — non-blank.
+  let sec2Nonblank=false;
+  if(sz>=0x0532){
+    for(let j=0;j<16;j++){const b=data[0x0522+j];if(b!==0xFF&&b!==0x00){sec2Nonblank=true;break;}}
+  }
+  // 5. AA-50 fobik occupancy markers at 0x0880 (Gen2 stride 2, up to 10 slots).
+  let aa50Hits=0;
+  if(sz>=0x0894){
+    for(let i=0;i<10;i++){
+      const o=0x0880+i*2;
+      if(data[o]===0xAA&&data[o+1]===0x50)aa50Hits++;
+    }
+  }
+  if(vinHits>0||headerOk||sec1Nonblank||sec2Nonblank||aa50Hits>0)return null;
+  return{
+    kind:'maybe-not-rfhub',
+    family:'RFHUB',
+    sizeLabel:sz.toLocaleString()+' B',
+    message:'This '+sz.toLocaleString()+'-byte capture has no RFHUB-defining content — it may not actually be an RFHUB dump.',
+    causes:[
+      'No reverse-encoded VINs found at the canonical Gen2 RFHUB slots (0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1).',
+      'Gen2 RFHUB header signature (AA 55 31 01 at 0x0500) is missing.',
+      'Vehicle secret / SEC16 mirror slots at 0x050E and 0x0522 are both blank.',
+      'No AA 50 fobik occupancy markers found at 0x0880.',
+      'If this is actually a GPEC2A capture (also 4 KB), re-load it through the GPEC2A tab.',
+      'A blank/virgin RFHUB is also possible — confirm with the source ECU before writing.',
     ],
   };
 }
@@ -660,7 +770,18 @@ function parseModule(data,filename,opts){
 
   const info={type,filename,data,size:sz,name:TL[type]||type,color:TC[type]||'#9E9E9E'};
   info.sizeWarn=buildSizeWarn(type,sz);
-  info.contentWarn=type==='BCM'?buildBcmContentWarn(data):null;
+  // Content sanity check — fires when size-only / signature classification
+  // routes a buffer to a family whose defining structures are all blank.
+  // Task #527/#538: 64 KB / 128 KB BCM mis-classifications. Task #542: the
+  // mirror failure on the 4 KB family — GPEC2A and Gen2 RFHUB share the
+  // same image size, so a padded GPEC2A or a virgin RFHUB can land in the
+  // wrong family without this guard and surface garbage VIN / SKIM / FOBIK
+  // verdicts off random padding bytes.
+  info.contentWarn=
+    type==='BCM'?buildBcmContentWarn(data)
+    :type==='GPEC2A'?buildGpecContentWarn(data)
+    :type==='RFHUB'?buildRfhubContentWarn(data)
+    :null;
   if(type==='UNKNOWN')info.hexOnly=true;
 
   if(type==='GPEC2A'){
@@ -911,7 +1032,7 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,wrongModuleForSlot,SLOT_TO_FAMILY,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,
+export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,buildGpecContentWarn,buildRfhubContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,wrongModuleForSlot,SLOT_TO_FAMILY,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,
   // Canonical VIN slot tables (single source of truth shared with
   // scripts/anonymize-real-dump.mjs — see the block-comment at the top
   // of this file for the per-family explanation). PCM_VIN_OFFSETS_GPEC2A

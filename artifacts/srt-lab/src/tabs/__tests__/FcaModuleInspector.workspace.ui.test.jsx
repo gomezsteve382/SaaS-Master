@@ -388,5 +388,106 @@ async function loadFixtureInto(input, name, bytes, expectedModuleName) {
       // Same for the undersized rejection card.
       expect(screen.queryByTestId('inspector-too-small-card')).toBeNull();
     });
+
+    // Task #542 — mirror failure mode in the 4 KB family. GPEC2A EEPROMs
+    // (PCM) and Gen2 RFHUB EEEs are both 4 KB, so a padded GPEC2A
+    // capture (or a virgin/blank 4 KB buffer) can be silently mis-routed
+    // to the wrong family by parseModule's signature/size detection.
+    // For an all-FF 4 KB buffer the va loop fails (0xFF is not a valid
+    // VIN char), so parseModule lands the file as RFHUB — the inspector
+    // would otherwise render fake VIN / FOBIK output off the padding.
+    // This test pins the contract mirroring Task #538's BCM case: the
+    // file IS still parsed and added as an RFHUB module tile (so existing
+    // diff / hex flows keep working), but the shared `ContentWarnBanner`
+    // is rendered with the standard "DOESN'T LOOK LIKE A RFHUB" copy and
+    // the same module-type / filename header the size-warn list uses.
+    it('4 KB all-FF buffer lands as RFHUB, surfaces the DOESN\'T LOOK LIKE A RFHUB banner with module-type header, and is still parsed', async () => {
+      render(<App/>);
+      const input = await openInspectorTab();
+      // 4 KB of 0xFF — the canonical "blank/padded" buffer for both
+      // GPEC2A and Gen2 RFHUB. parseModule's 4 KB branch tries the
+      // signature detector first (returns UNKNOWN here), then falls back
+      // to the va loop on bytes 0..16. 0xFF is not in 0x30..0x39 or
+      // 0x41..0x5A, so va=false and type='RFHUB'. None of the Gen2
+      // RFHUB defining structures are populated, so contentWarn fires.
+      const blank = new Uint8Array(4096).fill(0xff);
+      const file = bufferFile('mystery.bin', blank);
+      await act(async () => {
+        fireEvent.change(input, { target: { files: [file] } });
+      });
+
+      // (1) Still parsed/visible in the module list — the contract is
+      //     "warn, don't reject", so the RFHUB tile must render.
+      await waitFor(() => expect(screen.getByText('RFHUB EEE')).toBeTruthy());
+
+      // (2) ContentWarnBanner rendered for this dump — wrapped in the
+      //     `inspector-content-warn` testid the inspector emits per
+      //     warning entry (same wrapper the BCM case uses).
+      const banner = await screen.findByTestId('inspector-content-warn');
+      expect(banner).toBeTruthy();
+
+      // (3) Family-aware headline copy from the shared ContentWarnBanner —
+      //     names RFHUB (not BCM) so the user knows which family the
+      //     mis-classification landed in.
+      expect(within(banner).getByText(/DOESN'T LOOK LIKE A RFHUB/)).toBeTruthy();
+      // The body copy explains the file is being parsed as an RFHUB
+      // because of its size.
+      expect(within(banner).getByText(/being parsed as a RFHUB/i)).toBeTruthy();
+      // The "if this is actually a GPEC2A capture" hint is one of the
+      // bullets — confirms the mirror-family hint surfaces in the cause
+      // list (steers the user toward re-loading through the GPEC2A tab).
+      expect(within(banner).getByText(/GPEC2A capture/i)).toBeTruthy();
+
+      // (4) The header above the banner uses the same `module-type ·
+      //     filename` shape the sizeWarn list uses, so multi-module loads
+      //     stay disambiguated. inspectorName('RFHUB') → 'RFHUB EEE'.
+      expect(within(banner).getByText('RFHUB EEE', { exact: false })).toBeTruthy();
+      expect(within(banner).getByText('mystery.bin')).toBeTruthy();
+
+      // (5) Sanity: the wrapper list testid is present, mirroring the
+      //     sizeWarn list's `inspector-size-warn-list` wrapper.
+      expect(screen.getByTestId('inspector-content-warn-list')).toBeTruthy();
+
+      // (6) The size-warn block must NOT fire here — 4,096 B is the
+      //     canonical RFHUB size, so there is no sizeWarn to surface.
+      expect(screen.queryByTestId('inspector-size-warn')).toBeNull();
+      // Same for the undersized rejection card.
+      expect(screen.queryByTestId('inspector-too-small-card')).toBeNull();
+    });
+
+    // Task #542 — companion negative case: real GPEC2A and RFHUB fixtures
+    // must NOT trigger the new 4 KB content warn. Pins the gating logic
+    // (any populated family-defining structure suppresses the warn).
+    (fixtures.pcm ? it : it.skip)(
+      'real GPEC2A fixture does NOT render the ContentWarnBanner',
+      async () => {
+        render(<App/>);
+        const input = await openInspectorTab();
+        await loadFixtureInto(
+          input,
+          'pcm.after.bin',
+          fixtures.pcm.after,
+          'GPEC2A PCM',
+        );
+        expect(screen.queryByTestId('inspector-content-warn')).toBeNull();
+        expect(screen.queryByText(/DOESN'T LOOK LIKE A GPEC2A/)).toBeNull();
+      }
+    );
+
+    (fixtures.rfhub ? it : it.skip)(
+      'real RFHUB fixture does NOT render the ContentWarnBanner',
+      async () => {
+        render(<App/>);
+        const input = await openInspectorTab();
+        await loadFixtureInto(
+          input,
+          'rfhub.after.bin',
+          fixtures.rfhub.after,
+          'RFHUB EEE',
+        );
+        expect(screen.queryByTestId('inspector-content-warn')).toBeNull();
+        expect(screen.queryByText(/DOESN'T LOOK LIKE A RFHUB/)).toBeNull();
+      }
+    );
   }
 );
