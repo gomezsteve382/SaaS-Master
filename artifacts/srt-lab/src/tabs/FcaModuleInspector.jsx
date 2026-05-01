@@ -461,7 +461,7 @@ export default function FcaModuleInspector() {
       }}>Clear All</button>
     </div>}
 
-    {/* Task #527 — content-warn banner for size-only auto-detects.
+    {/* Task #527 / Task #538 — content-warn banner for size-only auto-detects.
         parseModule() classifies any 64 KB / 128 KB capture as BCM purely
         on size. If the file has no BCM-defining content (no VINs at the
         canonical 0x5320..0x5380 slots, no immo records at 0x40C0 / 0x2000,
@@ -474,15 +474,24 @@ export default function FcaModuleInspector() {
         VIN / IMMO / lock fields off random padding bytes. Surfacing the
         same `ContentWarnBanner` the BCM tab uses tells the tech "this
         64 KB file has no BCM VINs / immo records — it may not actually
-        be a BCM dump" before they trust any of the per-module output. */}
-    {modules.filter(m => m.contentWarn).map((m, i) => (
-      <div key={"cw-" + i} data-testid="inspector-content-warn">
-        <div style={{ fontSize: 11, color: C.tm, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>
-          {m.filename}
+        be a BCM dump" before they trust any of the per-module output.
+
+        Task #538 — each banner is prefixed with the module-type / filename
+        header used by the size-warn list above, so when multiple modules
+        are loaded in the inspector the user can tell which capture
+        triggered the warning at a glance (the size-warn list and the
+        content-warn list both use the same `inspectorName(m) · filename`
+        header for visual symmetry). */}
+    {modules.some(m => m && m.contentWarn) && <div data-testid="inspector-content-warn-list" style={{ marginBottom: 18 }}>
+      {modules.map((m, i) => m && m.contentWarn ? (
+        <div key={"cw-" + i} data-testid="inspector-content-warn">
+          <div style={{ fontSize: 11, fontWeight: 800, color: C.tm, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4, fontFamily: "'JetBrains Mono'" }}>
+            {inspectorName(m)} · <span style={{ color: C.ts }}>{m.filename}</span>
+          </div>
+          <ContentWarnBanner warn={m.contentWarn} />
         </div>
-        <ContentWarnBanner warn={m.contentWarn} />
-      </div>
-    ))}
+      ) : null)}
+    </div>}
 
     {/* OVERVIEW TAB */}
     {tab === "overview" && val && <div>

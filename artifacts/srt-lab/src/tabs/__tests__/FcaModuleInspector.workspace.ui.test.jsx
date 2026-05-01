@@ -322,5 +322,71 @@ async function loadFixtureInto(input, name, bytes, expectedModuleName) {
       // an oversized warning, not an undersized rejection.
       expect(screen.queryByTestId('inspector-too-small-card')).toBeNull();
     });
+
+    // Task #538 — companion to the Task #526 sizeWarn case above. A 64 KB
+    // capture with no filename hint that lets parseModule reclassify
+    // (e.g. a padded GPEC2A / 95640 capture saved as `dump.bin`) lands in
+    // the inspector typed as BCM purely on size, because parseModule's
+    // size-only fallback maps the 64 KB / 128 KB family to BCM. Without
+    // surfacing the contentWarn block, the BCM panel below would render
+    // garbage VIN / IMMO / lock verdicts off random padding bytes and the
+    // tech would have no warning attached. This test pins the contract
+    // mirroring Task #526's sizeWarn assertion: the file IS still parsed
+    // and added as a BCM module tile (so existing diff / hex flows keep
+    // working), but the shared `ContentWarnBanner` is rendered with the
+    // standard "DOESN'T LOOK LIKE A BCM" copy AND prefixed with the
+    // inspector's module-type / filename header, the same way the
+    // sizeWarn list above is, so users can tell which capture triggered
+    // the warning when multiple modules are loaded.
+    it('64 KB all-FF buffer (no filename hint) lands as BCM, surfaces the DOESN\'T LOOK LIKE A BCM banner with module-type header, and is still parsed', async () => {
+      render(<App/>);
+      const input = await openInspectorTab();
+      // 64 KB of 0xFF with a neutral filename — no `gpec2a` / `95640`
+      // hint that parseModule's filename trump could use to reclassify.
+      // parseModule maps 65,536 B → BCM purely on size, then attaches
+      // contentWarn because none of the BCM-defining structures are
+      // present (VIN slots all 0xFF, immo bank blank, partial slots blank).
+      const blank = new Uint8Array(65536).fill(0xff);
+      const file = bufferFile('dump.bin', blank);
+      await act(async () => {
+        fireEvent.change(input, { target: { files: [file] } });
+      });
+
+      // (1) Still parsed/visible in the module list — the contract is
+      //     "warn, don't reject", so the BCM tile must render.
+      await waitFor(() => expect(screen.getByText('BCM DFLASH')).toBeTruthy());
+
+      // (2) ContentWarnBanner is rendered for this dump — wrapped in the
+      //     `inspector-content-warn` testid the inspector emits per
+      //     warning entry.
+      const banner = await screen.findByTestId('inspector-content-warn');
+      expect(banner).toBeTruthy();
+
+      // (3) Standard "DOESN'T LOOK LIKE A BCM" headline copy from the
+      //     shared ContentWarnBanner component — same wording the BCM
+      //     tab surfaces so the inspector matches the rest of the app.
+      expect(within(banner).getByText(/DOESN'T LOOK LIKE A BCM/)).toBeTruthy();
+      // The body copy explains the file is being parsed as a BCM purely
+      // because of its size — confirms the size-only auto-detect path.
+      expect(within(banner).getByText(/being parsed as a BCM/i)).toBeTruthy();
+
+      // (4) The header above the banner uses the same `module-type ·
+      //     filename` shape the sizeWarn list uses, so multi-module loads
+      //     stay disambiguated. inspectorName('BCM') → 'BCM DFLASH'.
+      expect(within(banner).getByText('BCM DFLASH', { exact: false })).toBeTruthy();
+      expect(within(banner).getByText('dump.bin')).toBeTruthy();
+
+      // (5) Sanity: the wrapper list testid is present, mirroring the
+      //     sizeWarn list's `inspector-size-warn-list` wrapper. Pins the
+      //     visual symmetry between the two warning families.
+      expect(screen.getByTestId('inspector-content-warn-list')).toBeTruthy();
+
+      // (6) The size-warn block must NOT fire here — 65,536 B is the
+      //     canonical BCM size, so there is no sizeWarn to surface; the
+      //     warning is content-only, not size-related.
+      expect(screen.queryByTestId('inspector-size-warn')).toBeNull();
+      // Same for the undersized rejection card.
+      expect(screen.queryByTestId('inspector-too-small-card')).toBeNull();
+    });
   }
 );
