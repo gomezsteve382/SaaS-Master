@@ -65,7 +65,7 @@
 import { useState, useCallback, useMemo, useRef, useContext } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn, Tag, SLine } from "../lib/ui.jsx";
-import { parseModule, moduleTooSmall, detectModuleType } from "../lib/parseModule.js";
+import { parseModule, moduleTooSmall, detectModuleType, MODULE_MIN_SIZES, MODULE_MIN_LABELS } from "../lib/parseModule.js";
 import { MasterVinContext } from "../lib/masterVinContext.jsx";
 import { analyzeFile, patchFile } from "../lib/fileUtils.js";
 import { SizeWarnBanner, ContentWarnBanner } from "../components/ModuleFieldsPanel.jsx";
@@ -75,6 +75,24 @@ import { SizeWarnBanner, ContentWarnBanner } from "../components/ModuleFieldsPan
 // are intentionally excluded — the inspector's UI panels assume one of
 // these three families.
 const INSPECTOR_TYPES = ["GPEC2A", "RFHUB", "BCM"];
+
+// Smallest canonical image any inspector-supported family expects (RFHUB
+// Gen1 24C16 at 2 KB). Files smaller than this can't possibly be a real
+// GPEC2A / RFHUB / BCM dump — they're slices, fragments, or accidental
+// drops. Surfaced through the `inspector-too-small-card` rejection so the
+// user sees WHY the file didn't load instead of the inspector silently
+// swallowing the drop. The accompanying label tells the tech what the
+// minimum-size dump (an RFHUB Gen1 EEPROM) actually is, so they can
+// recognize the mismatch at a glance.
+const INSPECTOR_MIN_SIZE = Math.min(
+  ...INSPECTOR_TYPES.map((t) => MODULE_MIN_SIZES[t])
+);
+const INSPECTOR_MIN_LABEL =
+  MODULE_MIN_LABELS[
+    INSPECTOR_TYPES.reduce((acc, t) =>
+      MODULE_MIN_SIZES[t] < MODULE_MIN_SIZES[acc] ? t : acc
+    )
+  ] || "smallest supported module";
 
 // Display-name overlay so the tile chrome keeps the inspector's
 // long-form labels (the rest of the workspace uses parseModule's
@@ -248,6 +266,17 @@ export default function FcaModuleInspector() {
   const [tt, setTt] = useState(0);
   const [tr, setTr] = useState(null);
   const [loadMsg, setLoadMsg] = useState("");
+  // Task #543 — undersized fragment rejections. parseModule classifies a
+  // sub-2 KB drop as UNKNOWN (no canonical family fits), so the per-type
+  // `moduleTooSmall` guard in `onFiles` returns null and the file used to
+  // fall through to the generic `loadMsg` skip line. That hid WHY nothing
+  // appeared in the inspector — particularly bad for 1 KB fragments,
+  // since the pre-#519 detector silently labeled those as RFHUB and
+  // surfaced fake VIN / FOBIK output. Tracking these in their own list
+  // lets us render a structured `inspector-too-small-card` per drop with
+  // the file name, actual byte count, and required minimum, matching the
+  // warm/orange visual language of the size-warn / content-warn lists.
+  const [tooSmallRejects, setTooSmallRejects] = useState([]);
   const fr = useRef();
 
   // Pull every inspector-relevant dump out of the shared workspace store
@@ -270,11 +299,38 @@ export default function FcaModuleInspector() {
       e.target.value = "";
       if (files.length === 0) return;
       const skipped = [];
+      const tooSmall = [];
       let pending = files.length;
       files.forEach((f) => {
         const r = new FileReader();
         r.onload = (ev) => {
           const bytes = new Uint8Array(ev.target.result);
+          // Task #543 — refuse anything below the smallest inspector-supported
+          // module size before parseModule even gets to classify it. A sub-2 KB
+          // buffer can't be a real GPEC2A / RFHUB / BCM dump, and parseModule
+          // would type it as UNKNOWN (so the per-type `moduleTooSmall` guard
+          // below would no-op). Surface the rejection in its own structured
+          // card instead of letting the file vanish into the generic skip line.
+          if (bytes.length < INSPECTOR_MIN_SIZE) {
+            tooSmall.push({
+              filename: f.name,
+              size: bytes.length,
+              min: INSPECTOR_MIN_SIZE,
+              label: INSPECTOR_MIN_LABEL,
+            });
+            pending -= 1;
+            if (pending === 0) {
+              setLoadMsg(
+                skipped.length
+                  ? "Skipped " + skipped.length + " file(s): only valid GPEC2A / RFHUB / BCM dumps load into the inspector — " + skipped.join(", ")
+                  : ""
+              );
+              if (tooSmall.length) {
+                setTooSmallRejects((prev) => [...prev, ...tooSmall]);
+              }
+            }
+            return;
+          }
           const m = parseModule(bytes, f.name);
           const small = m?.type ? moduleTooSmall(bytes, m.type, f.name) : null;
 
@@ -292,6 +348,9 @@ export default function FcaModuleInspector() {
                 ? "Skipped " + skipped.length + " file(s): only valid GPEC2A / RFHUB / BCM dumps load into the inspector — " + skipped.join(", ")
                 : ""
             );
+            if (tooSmall.length) {
+              setTooSmallRejects((prev) => [...prev, ...tooSmall]);
+            }
           }
         };
         r.readAsArrayBuffer(f);
@@ -316,7 +375,14 @@ export default function FcaModuleInspector() {
     entries.forEach((e) => removeDump(e.hash));
     setTr(null);
     setLoadMsg("");
+    setTooSmallRejects([]);
   }, [entries, removeDump]);
+  // Per-card dismissal for the too-small rejection list, so a tech who
+  // has read the warning can clear it without dropping the rest of the
+  // workspace state.
+  const dismissTooSmall = useCallback((idx) => {
+    setTooSmallRejects((prev) => prev.filter((_, i) => i !== idx));
+  }, []);
 
   const val = useMemo(() => (modules.length > 0 ? crossValidate(modules) : null), [modules]);
   // Clamp the diff and tools target indices so removals (or auto-shared
@@ -405,6 +471,41 @@ export default function FcaModuleInspector() {
       </Card>
     </label>
     {loadMsg && <div style={{ marginBottom: 12, padding: "8px 12px", borderRadius: 8, background: C.wn + "15", border: "1px solid " + C.wn + "40", color: C.wn, fontSize: 11, fontWeight: 700 }}>⚠ {loadMsg}</div>}
+
+    {/* Task #543 — undersized fragment rejection cards. Files smaller than
+        the smallest inspector-supported family (RFHUB Gen1 24C16 at 2 KB)
+        can't be a real dump — historically they fell through to the
+        generic skip line and the inspector silently swallowed them. Each
+        rejected fragment renders its own card with the file name, the
+        actual byte count, and the required minimum so techs immediately
+        see WHY the drop didn't load. The card uses the same warm/orange
+        palette (C.wn) as the size-warn / content-warn banners so it
+        visually clusters with the other inspector warnings. */}
+    {tooSmallRejects.length > 0 && <div data-testid="inspector-too-small-list" style={{ marginBottom: 18 }}>
+      {tooSmallRejects.map((rej, i) => (
+        <Card key={"ts-" + i} data-testid="inspector-too-small-card" style={{
+          marginBottom: 12, padding: 14,
+          border: "1px solid " + C.wn + "66",
+          background: C.wn + "14",
+          position: "relative",
+        }}>
+          <button onClick={() => dismissTooSmall(i)} aria-label="Dismiss too-small rejection" style={{
+            position: "absolute", top: 8, right: 10, background: "none", border: "none",
+            color: C.tm, cursor: "pointer", fontSize: 16, lineHeight: 1, fontWeight: 700,
+          }}>×</button>
+          <div style={{ fontWeight: 800, fontSize: 12, color: C.wn, marginBottom: 6, letterSpacing: 0.5 }}>
+            ⚠ TOO SMALL — <span style={{ fontFamily: "'JetBrains Mono'" }}>{rej.filename}</span> isn&apos;t a full module dump
+          </div>
+          <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.tx, lineHeight: 1.7 }}>
+            <div>File size: <strong style={{ color: C.wn }}>{rej.size.toLocaleString()} bytes</strong></div>
+            <div>Required min: <strong>{rej.min.toLocaleString()} bytes ({rej.label})</strong></div>
+          </div>
+          <div style={{ marginTop: 8, fontSize: 11, color: C.tx, lineHeight: 1.5 }}>
+            Re-read the module in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong capture. The Module Inspector only accepts full GPEC2A / RFHUB / BCM dumps.
+          </div>
+        </Card>
+      ))}
+    </div>}
 
     {/* Task #526 — oversized / non-canonical capture warnings. parseModule
         attaches a `sizeWarn` to every module whose buffer length doesn't
