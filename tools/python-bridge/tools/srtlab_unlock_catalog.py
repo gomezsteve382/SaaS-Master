@@ -269,7 +269,41 @@ def emulated_count():
 # CLI / demo
 # ═══════════════════════════════════════════════════════════════════════
 
+def _algo_family_count():
+    """Count distinct algorithm-family tags across catalogued entries."""
+    return len({
+        e.get('algorithm') for e in CATALOG.get('entries', [])
+        if e.get('algorithm')
+    })
+
+
+def stats():
+    """Runtime dispatcher view of unlock coverage.
+
+    Returns the *live* counts (computed by walking MODULE_INFO and the
+    NATIVE callable table at this moment), not just the cached
+    reversed_count / dll_only_count fields baked into the JSON. The two
+    are kept in sync by test_native_count_matches_catalog_reversed,
+    so under normal operation they agree — but the runtime view is the
+    authoritative source for ''how many ports actually resolve right now''.
+    """
+    return {
+        'schema_version': CATALOG.get('schema_version', 1),
+        'entry_count': len(MODULE_INFO),
+        'native_count': native_count(),
+        'emulated_count': emulated_count(),
+        'algo_family_count': _algo_family_count(),
+        'source': 'dispatcher',
+    }
+
+
 if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == '--stats':
+        # Machine-readable JSON for the SRT Lab UI (consumed via the
+        # /api/unlock-coverage/stats Express endpoint).
+        print(json.dumps(stats()))
+        sys.exit(0)
+
     print(f'SRT Lab unlock catalog — {len(MODULE_INFO)} FCA modules')
     print(f'  {native_count()} with catalog-resolved Python (verified byte-exact)')
     print(f'  {emulated_count()} via on-demand DLL emulation via Unicorn')

@@ -114,6 +114,22 @@ class CatalogShape(unittest.TestCase):
                 f'{e["module"]} dll_only but reason is empty',
             )
 
+    def test_reversed_entries_have_algorithm_tag(self):
+        # Surfaced in the SRT Lab UI so mechanics can see which crypto family
+        # each native port implements. Sourced from COVERAGE in
+        # canflash_seedkey.py with the small _EXTRA_ALGORITHMS fallback.
+        missing = []
+        for e in self.entries:
+            if e['status'] != 'reversed':
+                continue
+            algo = e.get('algorithm')
+            if not isinstance(algo, str) or not algo.strip():
+                missing.append(e['module'])
+        self.assertEqual(
+            missing, [],
+            f'{len(missing)} reversed entries lack an algorithm tag: {missing}',
+        )
+
     def test_ecu_info_decoded_for_all(self):
         failed = [e['module'] for e in self.entries if e['ecu_info'].get('decode_failed')]
         self.assertEqual(failed, [], f'{len(failed)} entries failed ecu_info decode: {failed}')

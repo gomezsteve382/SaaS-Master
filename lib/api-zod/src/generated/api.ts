@@ -282,6 +282,44 @@ export const DeleteVehicleJobParams = zod.object({
 });
 
 /**
+ * Spawns the SRT Lab Python dispatcher (srtlab_unlock_catalog) and
+returns the live native_count / emulated_count / entry_count /
+algo_family_count it computes by walking MODULE_INFO and the
+NATIVE callable table at request time. The SRT Lab UI prefers
+these dispatcher numbers over the cached counts in
+unlock_catalog.json so the milestone banner reflects what
+actually resolves at runtime, not what was true when the catalog
+was generated. Result is cached in-process for 60s.
+
+ * @summary Live unlock-coverage stats from the Python dispatcher
+ */
+
+export const getUnlockCoverageStatsResponseEntryCountMin = 0;
+
+export const getUnlockCoverageStatsResponseNativeCountMin = 0;
+
+export const getUnlockCoverageStatsResponseEmulatedCountMin = 0;
+
+export const getUnlockCoverageStatsResponseAlgoFamilyCountMin = 0;
+
+export const GetUnlockCoverageStatsResponse = zod
+  .object({
+    schema_version: zod.number().min(1),
+    entry_count: zod.number().min(getUnlockCoverageStatsResponseEntryCountMin),
+    native_count: zod
+      .number()
+      .min(getUnlockCoverageStatsResponseNativeCountMin),
+    emulated_count: zod
+      .number()
+      .min(getUnlockCoverageStatsResponseEmulatedCountMin),
+    algo_family_count: zod
+      .number()
+      .min(getUnlockCoverageStatsResponseAlgoFamilyCountMin),
+    source: zod.enum(["dispatcher"]),
+  })
+  .describe("Runtime unlock-coverage stats from the Python dispatcher.");
+
+/**
  * @summary List events for a job
  */
 export const ListVehicleJobEventsParams = zod.object({

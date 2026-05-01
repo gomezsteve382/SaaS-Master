@@ -33,7 +33,7 @@ function fmtBytes(n) {
 }
 
 const STATUS_STYLES = {
-  reversed: {bg: "#1B5E2010", color: "#1B5E20", label: "REVERSED"},
+  reversed: {bg: "#1B5E2010", color: "#1B5E20", label: "NATIVE"},
   dll_only: {bg: "#E65100" + "10", color: "#E65100", label: "DLL ONLY"},
 };
 
@@ -48,8 +48,74 @@ function StatusBadge({status}) {
   );
 }
 
+// Map raw algorithm-family tags from COVERAGE → friendly, mechanic-readable
+// labels. Anything not in this map is shown verbatim (still useful for bug
+// reports). Keep this conservative; the tag itself is the source of truth.
+const ALGO_FRIENDLY = {
+  t8_xor: "8-bit XOR table",
+  "t8_xor (32-bit)": "8-bit XOR table (32-bit)",
+  "t8_xor+bitpack": "8-bit XOR + bit-pack",
+  "t8_xor+rotate": "8-bit XOR + rotate",
+  "t8_add+bitpack": "8-bit add + bit-pack",
+  "t8_add+imul": "8-bit add + IMUL",
+  t8_chain: "8-bit chain",
+  "t8_chain+crc": "8-bit chain + CRC",
+  "t8_chain+rot": "8-bit chain + rotate",
+  t8_mul_seed: "8-bit MUL seed",
+  "t8_5tap_chain_xor": "8-bit 5-tap chain XOR",
+  t16_mul: "16-bit MUL",
+  t16_gf2: "16-bit GF(2)",
+  t16x32_mixed_mul_xor: "16×32 mixed MUL/XOR",
+  t32_8row_substitution: "32-bit 8-row substitution",
+  lcg_pair: "LCG pair (Park-Miller)",
+  lcg_halves: "LCG halves",
+  rol16_chain_2pass: "ROL16 2-pass chain",
+  gf2_4x4_substitution: "GF(2) 4×4 substitution",
+  hitag2_lfsr48: "Hitag2 LFSR-48",
+  crc32_feistel_8round: "CRC32 Feistel (8 rounds)",
+  "tea-feistel": "TEA Feistel",
+  cummins_t16: "Cummins 16-bit table",
+  "cummins-style?": "Cummins-style",
+  bit_driven_accum: "Bit-driven accumulator",
+  imul_xor: "IMUL + XOR",
+  "imul+t8": "IMUL + 8-bit table",
+  "~s*K": "~seed × K",
+  bitpack: "Bit-pack",
+  inline: "Inline",
+  simple: "Simple XOR",
+  unfit: "Bespoke",
+};
+
+function friendlyAlgo(tag) {
+  if (!tag) return null;
+  return ALGO_FRIENDLY[tag] || tag;
+}
+
+function AlgoBadge({algorithm}) {
+  if (!algorithm) {
+    return <span style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#9E9E9E"}}>—</span>;
+  }
+  return (
+    <span
+      title={`algorithm tag: ${algorithm}`}
+      style={{
+        display: "inline-block", padding: "2px 7px", borderRadius: 4,
+        background: "#0D47A110", color: "#0D47A1",
+        fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
+      }}
+    >{friendlyAlgo(algorithm)}</span>
+  );
+}
+
 export default function UnlockCoverageTab() {
   const [catalog, setCatalog] = useState(null);
+  // dispatcherStats holds the runtime view from /api/unlock-coverage/stats
+  // (the Python dispatcher's *live* native_count / emulated_count). When
+  // available, it is the authoritative source for the milestone banner so
+  // the UI reflects "what actually resolves right now", not just the cached
+  // counts in the on-disk catalog. Falls back to catalog values if the
+  // endpoint is offline or returns an error (logged via console.warn).
+  const [dispatcherStats, setDispatcherStats] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
@@ -79,6 +145,36 @@ export default function UnlockCoverageTab() {
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/unlock-coverage/stats", {cache: "no-cache"})
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status} from /api/unlock-coverage/stats`);
+        return r.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        // Light validation; full validation is enforced server-side by Zod.
+        if (
+          data && typeof data === "object"
+          && typeof data.native_count === "number"
+          && typeof data.emulated_count === "number"
+          && typeof data.entry_count === "number"
+        ) {
+          setDispatcherStats(data);
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          console.warn(
+            "unlock-coverage stats endpoint unavailable; falling back to catalog counts:",
+            e.message,
+          );
+        }
+      });
+    return () => { cancelled = true; };
+  }, []);
+
   const families = useMemo(() => {
     if (!catalog) return [];
     const set = new Set(catalog.entries.map((e) => e.family));
@@ -92,7 +188,7 @@ export default function UnlockCoverageTab() {
       if (statusFilter !== "all" && e.status !== statusFilter) return false;
       if (familyFilter !== "all" && e.family !== familyFilter) return false;
       if (!term) return true;
-      const blob = `${e.file} ${e.module} ${e.display_name} ${e.family} ${e.python_function || ""} ${e.ecu_info?.name || ""}`.toLowerCase();
+      const blob = `${e.file} ${e.module} ${e.display_name} ${e.family} ${e.python_function || ""} ${e.algorithm || ""} ${e.ecu_info?.name || ""}`.toLowerCase();
       return blob.includes(term);
     });
   }, [catalog, q, statusFilter, familyFilter]);
@@ -123,12 +219,63 @@ export default function UnlockCoverageTab() {
   }
   if (!catalog) return null;
 
-  const pctReversed = catalog.entry_count > 0
-    ? Math.round((catalog.reversed_count / catalog.entry_count) * 100)
+  // Prefer the live dispatcher view; fall back to catalog static fields
+  // when the /api/unlock-coverage/stats endpoint is unavailable. The two
+  // are kept in sync by test_native_count_matches_catalog_reversed in the
+  // python-bridge tests, so under normal operation they agree.
+  const statsSource = dispatcherStats ? "dispatcher" : "catalog";
+  const nativeCount = dispatcherStats
+    ? dispatcherStats.native_count
+    : catalog.reversed_count;
+  const emulatedCount = dispatcherStats
+    ? dispatcherStats.emulated_count
+    : catalog.dll_only_count;
+  const totalCount = dispatcherStats
+    ? dispatcherStats.entry_count
+    : catalog.entry_count;
+  const pctReversed = totalCount > 0
+    ? Math.round((nativeCount / totalCount) * 100)
     : 0;
+  const fullyNative = totalCount > 0
+    && emulatedCount === 0
+    && nativeCount === totalCount;
+  const algoFamilyCount = dispatcherStats?.algo_family_count ?? new Set(
+    catalog.entries.map((e) => e.algorithm).filter(Boolean),
+  ).size;
 
   return (
     <div data-testid="unlock-coverage-tab" style={{display: "flex", flexDirection: "column", gap: 14}}>
+      {fullyNative && (
+        <Card glow data-testid="all-native-banner" data-stats-source={statsSource} style={{
+          background: "linear-gradient(90deg, #1B5E2010, #43A04710)",
+          borderColor: "#1B5E20",
+        }}>
+          <div style={{display: "flex", flexWrap: "wrap", gap: 14, alignItems: "center"}}>
+            <div style={{
+              fontFamily: "'JetBrains Mono', monospace", fontWeight: 900,
+              fontSize: 16, color: "#1B5E20", letterSpacing: 1,
+              padding: "4px 10px", border: "2px solid #1B5E20", borderRadius: 6,
+            }}>100% NATIVE</div>
+            <div style={{flex: 1, minWidth: 220}}>
+              <div style={{fontFamily: "'Nunito'", fontWeight: 900, fontSize: 16, color: C.tx}}>
+                Every FCA unlock now runs as a pure-Python port — zero Unicorn fallback.
+              </div>
+              <div style={{fontFamily: "'Nunito'", fontSize: 12, color: C.tm, marginTop: 2}}>
+                <span data-testid="native-count">{nativeCount}</span> / {totalCount} modules native ·{" "}
+                <span data-testid="emulated-count">{emulatedCount}</span> emulated · spans{" "}
+                <span data-testid="algo-family-count">{algoFamilyCount}</span> algorithm families
+              </div>
+              <div data-testid="stats-source" style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
+                color: C.tm, marginTop: 4, letterSpacing: 0.5,
+              }}>source: {statsSource === "dispatcher"
+                ? "live python dispatcher"
+                : "catalog (dispatcher offline — using cached counts)"}</div>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <Card glow>
         <div style={{display: "flex", flexWrap: "wrap", gap: 18, alignItems: "baseline"}}>
           <div>
@@ -138,15 +285,15 @@ export default function UnlockCoverageTab() {
             </div>
           </div>
           <div style={{flex: 1}}/>
-          <div style={{textAlign: "right"}}>
+          <div style={{textAlign: "right"}} data-testid="coverage-header" data-stats-source={statsSource}>
             <div style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 28, fontWeight: 800, color: C.tx, letterSpacing: -0.5}}>
-              <span data-testid="reversed-count">{catalog.reversed_count}</span>
+              <span data-testid="reversed-count">{nativeCount}</span>
               <span style={{color: C.tm, fontSize: 18, fontWeight: 700}}> / </span>
-              <span data-testid="total-count">{catalog.entry_count}</span>
+              <span data-testid="total-count">{totalCount}</span>
             </div>
             <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}>
-              reversed Python ports · {pctReversed}% coverage ·{" "}
-              <span data-testid="dll-only-count">{catalog.dll_only_count}</span> dll_only
+              native Python ports · {pctReversed}% coverage ·{" "}
+              <span data-testid="dll-only-count">{emulatedCount}</span> emulated
             </div>
           </div>
         </div>
@@ -206,6 +353,7 @@ export default function UnlockCoverageTab() {
                 <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}>FILE</th>
                 <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}>DISPLAY NAME</th>
                 <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}>FAMILY</th>
+                <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}>ALGO</th>
                 <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}>TX</th>
                 <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}>RX</th>
                 <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}>SIZE</th>
@@ -223,6 +371,9 @@ export default function UnlockCoverageTab() {
                       <td style={{padding: "10px 12px", color: C.tx}}>{e.display_name}</td>
                       <td style={{padding: "10px 12px"}}>
                         <span style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.tm, background: "#0001", padding: "2px 6px", borderRadius: 4}}>{e.family}</span>
+                      </td>
+                      <td style={{padding: "10px 12px"}} data-testid={`algo-${e.module}`}>
+                        <AlgoBadge algorithm={e.algorithm}/>
                       </td>
                       <td style={{padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", color: C.tx}}>{fmtCanId(e.tx_can_id)}</td>
                       <td style={{padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", color: C.tx}}>{fmtCanId(e.rx_can_id)}</td>
@@ -242,7 +393,7 @@ export default function UnlockCoverageTab() {
                     </tr>
                     {open && (
                       <tr style={{background: "#0000000A", borderTop: `1px solid ${C.bd}`}}>
-                        <td colSpan={8} style={{padding: "12px 18px"}}>
+                        <td colSpan={9} style={{padding: "12px 18px"}}>
                           <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14}}>
                             <div>
                               <div style={{fontSize: 10, color: C.tm, letterSpacing: 1, fontWeight: 700}}>MODULE KEY</div>
@@ -258,6 +409,14 @@ export default function UnlockCoverageTab() {
                               <div style={{fontSize: 10, color: C.tm, letterSpacing: 1, fontWeight: 700}}>ECU_INFO RAW (12 B)</div>
                               <div style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.tx, marginTop: 2, wordBreak: "break-all"}}>
                                 {e.ecu_info?.raw_hex || <span style={{color: C.tm}}>—</span>}
+                              </div>
+                            </div>
+                            <div data-testid={`algo-detail-${e.module}`}>
+                              <div style={{fontSize: 10, color: C.tm, letterSpacing: 1, fontWeight: 700}}>ALGORITHM</div>
+                              <div style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.tx, marginTop: 2}}>
+                                {e.algorithm
+                                  ? <>{friendlyAlgo(e.algorithm)} <span style={{color: C.tm}}>({e.algorithm})</span></>
+                                  : <span style={{color: C.tm}}>—</span>}
                               </div>
                             </div>
                             {e.status === "reversed" ? (
@@ -280,7 +439,7 @@ export default function UnlockCoverageTab() {
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} style={{padding: "24px 12px", textAlign: "center", color: C.tm, fontFamily: "'Nunito'"}}>
+                  <td colSpan={9} style={{padding: "24px 12px", textAlign: "center", color: C.tm, fontFamily: "'Nunito'"}}>
                     No entries match the current filter.
                   </td>
                 </tr>

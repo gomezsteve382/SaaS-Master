@@ -169,6 +169,38 @@ export interface ModuleAssistantChatBody {
   moduleContext: ModuleAssistantChatBodyModuleContext;
 }
 
+export type UnlockCoverageStatsSource =
+  (typeof UnlockCoverageStatsSource)[keyof typeof UnlockCoverageStatsSource];
+
+export const UnlockCoverageStatsSource = {
+  dispatcher: "dispatcher",
+} as const;
+
+/**
+ * Runtime unlock-coverage stats from the Python dispatcher.
+ */
+export interface UnlockCoverageStats {
+  /** @minimum 1 */
+  schema_version: number;
+  /** @minimum 0 */
+  entry_count: number;
+  /** @minimum 0 */
+  native_count: number;
+  /** @minimum 0 */
+  emulated_count: number;
+  /** @minimum 0 */
+  algo_family_count: number;
+  source: UnlockCoverageStatsSource;
+}
+
+/**
+ * Returned when the Python dispatcher cannot be queried.
+ */
+export interface UnlockCoverageStatsError {
+  error: string;
+  detail?: string | null;
+}
+
 export type ListAnthropicConversationsParams = {
   /**
    * Optional scope key — when set, only conversations created with this scope are returned.

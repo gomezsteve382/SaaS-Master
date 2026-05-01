@@ -16,6 +16,8 @@ tags:
     description: Anthropic AI chat operations
   - name: vehicleJobs
     description: Vehicle Job + Module Swap workflow operations
+  - name: unlockCoverage
+    description: SRT Lab unlock-coverage runtime stats from the Python dispatcher
 paths:
   /healthz:
     get:
@@ -318,6 +320,33 @@ paths:
       responses:
         "204":
           description: Deleted
+  /unlock-coverage/stats:
+    get:
+      operationId: getUnlockCoverageStats
+      tags: [unlockCoverage]
+      summary: Live unlock-coverage stats from the Python dispatcher
+      description: |
+        Spawns the SRT Lab Python dispatcher (srtlab_unlock_catalog) and
+        returns the live native_count / emulated_count / entry_count /
+        algo_family_count it computes by walking MODULE_INFO and the
+        NATIVE callable table at request time. The SRT Lab UI prefers
+        these dispatcher numbers over the cached counts in
+        unlock_catalog.json so the milestone banner reflects what
+        actually resolves at runtime, not what was true when the catalog
+        was generated. Result is cached in-process for 60s.
+      responses:
+        "200":
+          description: Live dispatcher stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnlockCoverageStats"
+        "503":
+          description: Dispatcher unavailable (Python missing, import failed, or timeout)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnlockCoverageStatsError"
   /vehicle-jobs/{id}/events:
     get:
       operationId: listVehicleJobEvents
@@ -711,3 +740,43 @@ components:
       required:
         - messages
         - moduleContext
+    UnlockCoverageStats:
+      type: object
+      description: Runtime unlock-coverage stats from the Python dispatcher.
+      properties:
+        schema_version:
+          type: integer
+          minimum: 1
+        entry_count:
+          type: integer
+          minimum: 0
+        native_count:
+          type: integer
+          minimum: 0
+        emulated_count:
+          type: integer
+          minimum: 0
+        algo_family_count:
+          type: integer
+          minimum: 0
+        source:
+          type: string
+          enum: [dispatcher]
+      required:
+        - schema_version
+        - entry_count
+        - native_count
+        - emulated_count
+        - algo_family_count
+        - source
+    UnlockCoverageStatsError:
+      type: object
+      description: Returned when the Python dispatcher cannot be queried.
+      properties:
+        error:
+          type: string
+        detail:
+          type: string
+          nullable: true
+      required:
+        - error

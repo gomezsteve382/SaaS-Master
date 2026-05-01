@@ -30,6 +30,8 @@ import type {
   ListVehicleJobsParams,
   ModuleAssistantChatBody,
   SendAnthropicMessageBody,
+  UnlockCoverageStats,
+  UnlockCoverageStatsError,
   VehicleJob,
   VehicleJobEvent,
   VehicleJobEventInput,
@@ -1368,6 +1370,92 @@ export const useDeleteVehicleJob = <
 > => {
   return useMutation(getDeleteVehicleJobMutationOptions(options));
 };
+
+/**
+ * Spawns the SRT Lab Python dispatcher (srtlab_unlock_catalog) and
+returns the live native_count / emulated_count / entry_count /
+algo_family_count it computes by walking MODULE_INFO and the
+NATIVE callable table at request time. The SRT Lab UI prefers
+these dispatcher numbers over the cached counts in
+unlock_catalog.json so the milestone banner reflects what
+actually resolves at runtime, not what was true when the catalog
+was generated. Result is cached in-process for 60s.
+
+ * @summary Live unlock-coverage stats from the Python dispatcher
+ */
+export const getGetUnlockCoverageStatsUrl = () => {
+  return `/api/unlock-coverage/stats`;
+};
+
+export const getUnlockCoverageStats = async (
+  options?: RequestInit,
+): Promise<UnlockCoverageStats> => {
+  return customFetch<UnlockCoverageStats>(getGetUnlockCoverageStatsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetUnlockCoverageStatsQueryKey = () => {
+  return [`/api/unlock-coverage/stats`] as const;
+};
+
+export const getGetUnlockCoverageStatsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUnlockCoverageStats>>,
+  TError = ErrorType<UnlockCoverageStatsError>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUnlockCoverageStats>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetUnlockCoverageStatsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUnlockCoverageStats>>
+  > = ({ signal }) => getUnlockCoverageStats({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUnlockCoverageStats>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUnlockCoverageStatsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUnlockCoverageStats>>
+>;
+export type GetUnlockCoverageStatsQueryError =
+  ErrorType<UnlockCoverageStatsError>;
+
+/**
+ * @summary Live unlock-coverage stats from the Python dispatcher
+ */
+
+export function useGetUnlockCoverageStats<
+  TData = Awaited<ReturnType<typeof getUnlockCoverageStats>>,
+  TError = ErrorType<UnlockCoverageStatsError>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUnlockCoverageStats>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUnlockCoverageStatsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * @summary List events for a job

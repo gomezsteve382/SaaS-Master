@@ -95,6 +95,26 @@ test("module names are unique and file basenames line up", () => {
   }
 });
 
+test("every reversed entry carries an algorithm-family tag", () => {
+  // Surfaced in the SRT Lab UI so mechanics can see which crypto family each
+  // native port implements (handy when filing bug reports). The tag itself
+  // comes from COVERAGE in canflash_seedkey.py + the small _EXTRA_ALGORITHMS
+  // fallback in srtlab_unlock_catalog_gen.py.
+  const cat = loadCatalog(PUBLIC_PATH);
+  const missing = [];
+  for (const e of cat.entries) {
+    if (e.status !== "reversed") continue;
+    if (typeof e.algorithm !== "string" || e.algorithm.trim() === "") {
+      missing.push(e.module);
+    }
+  }
+  assert.deepEqual(
+    missing,
+    [],
+    `${missing.length} reversed entries lack an algorithm tag: ${missing.join(", ")}`,
+  );
+});
+
 test("ecu_info is present and decoded for every catalogued DLL", () => {
   const cat = loadCatalog(PUBLIC_PATH);
   let decoded = 0;

@@ -37,6 +37,7 @@ export const UnlockCatalogEntrySchema = z.object({
   family: z.string().min(1),
   status: z.enum(["reversed", "dll_only"]),
   python_function: z.string().nullable(),
+  algorithm: z.string().nullable().optional(),
   reason: z.string().nullable(),
 }).superRefine((entry, ctx) => {
   if (entry.status === "reversed") {

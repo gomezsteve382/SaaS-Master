@@ -31,6 +31,7 @@
       "family": "ccn",
       "status": "reversed",
       "python_function": "unlock_HB_ccn",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -58,6 +59,7 @@
       "family": "ccn",
       "status": "reversed",
       "python_function": "unlock_LX_ccn",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -85,6 +87,7 @@
       "family": "abs",
       "status": "reversed",
       "python_function": "unlock_abs",
+      "algorithm": "lcg_pair",
       "reason": null
     },
     {
@@ -112,6 +115,7 @@
       "family": "brakes_aux",
       "status": "reversed",
       "python_function": "unlock_ahbm",
+      "algorithm": "imul+t8",
       "reason": null
     },
     {
@@ -139,6 +143,7 @@
       "family": "tcm",
       "status": "reversed",
       "python_function": "aisin_tcm_unlock",
+      "algorithm": "cummins-style?",
       "reason": null
     },
     {
@@ -166,6 +171,7 @@
       "family": "amp",
       "status": "reversed",
       "python_function": "unlock_alpine_amp",
+      "algorithm": "lcg_pair",
       "reason": null
     },
     {
@@ -193,6 +199,7 @@
       "family": "radio_rak",
       "status": "reversed",
       "python_function": "alpine_radio_unlock",
+      "algorithm": "lcg_pair",
       "reason": null
     },
     {
@@ -220,6 +227,7 @@
       "family": "radio_rak",
       "status": "reversed",
       "python_function": "unlock_alpine_rak",
+      "algorithm": "lcg_pair",
       "reason": null
     },
     {
@@ -247,6 +255,7 @@
       "family": "brakes_aux",
       "status": "reversed",
       "python_function": "unlock_asbs",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -274,6 +283,7 @@
       "family": "awd",
       "status": "reversed",
       "python_function": "unlock_awd_pm_mk",
+      "algorithm": "lcg_halves",
       "reason": null
     },
     {
@@ -301,6 +311,7 @@
       "family": "awd",
       "status": "reversed",
       "python_function": "unlock_borg_awd",
+      "algorithm": "t8_xor+rotate",
       "reason": null
     },
     {
@@ -328,6 +339,7 @@
       "family": "abs",
       "status": "reversed",
       "python_function": "unlock_bosch_abs",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -355,6 +367,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_bosch_cdm_win_ddm",
+      "algorithm": "t8_chain",
       "reason": null
     },
     {
@@ -382,6 +395,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_bosch_cdm_win_pdm",
+      "algorithm": "t8_chain",
       "reason": null
     },
     {
@@ -409,6 +423,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_bosch_ddm",
+      "algorithm": "t8_chain",
       "reason": null
     },
     {
@@ -436,6 +451,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_bosch_mddm",
+      "algorithm": "t8_chain",
       "reason": null
     },
     {
@@ -463,6 +479,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_bosch_mpdm",
+      "algorithm": "t8_chain",
       "reason": null
     },
     {
@@ -490,6 +507,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_bosch_mwddm",
+      "algorithm": "t8_chain",
       "reason": null
     },
     {
@@ -517,6 +535,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_bosch_mwpdm",
+      "algorithm": "t8_chain",
       "reason": null
     },
     {
@@ -544,6 +563,7 @@
       "family": "orc_airbag",
       "status": "reversed",
       "python_function": "unlock_bosch_orc",
+      "algorithm": "t8_chain+crc",
       "reason": null
     },
     {
@@ -571,6 +591,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_bosch_pdm",
+      "algorithm": "t8_chain",
       "reason": null
     },
     {
@@ -598,6 +619,7 @@
       "family": "comfort_misc",
       "status": "reversed",
       "python_function": "unlock_cmtc",
+      "algorithm": "t8_add+bitpack",
       "reason": null
     },
     {
@@ -625,6 +647,7 @@
       "family": "diesel_pcm",
       "status": "reversed",
       "python_function": "unlock_cummins_849",
+      "algorithm": "cummins_t16",
       "reason": null
     },
     {
@@ -652,6 +675,7 @@
       "family": "tcm",
       "status": "reversed",
       "python_function": "unlock_cvt",
+      "algorithm": "rol16_chain_2pass",
       "reason": null
     },
     {
@@ -679,6 +703,7 @@
       "family": "ptcm",
       "status": "reversed",
       "python_function": "dcx_ptcm_unlock",
+      "algorithm": "lcg_pair",
       "reason": null
     },
     {
@@ -706,6 +731,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_ddm",
+      "algorithm": "t8_xor+bitpack",
       "reason": null
     },
     {
@@ -733,6 +759,7 @@
       "family": "hvac",
       "status": "reversed",
       "python_function": "unlock_delphi_hvac",
+      "algorithm": "unfit",
       "reason": null
     },
     {
@@ -760,6 +787,7 @@
       "family": "sat_radio",
       "status": "reversed",
       "python_function": "unlock_delphi_sdar",
+      "algorithm": "unfit",
       "reason": null
     },
     {
@@ -787,6 +815,7 @@
       "family": "pcm",
       "status": "reversed",
       "python_function": "unlock_edc16c2",
+      "algorithm": "t32_8row_substitution",
       "reason": null
     },
     {
@@ -814,6 +843,7 @@
       "family": "pcm",
       "status": "reversed",
       "python_function": "unlock_edc16cp31",
+      "algorithm": "t32_8row_substitution",
       "reason": null
     },
     {
@@ -841,6 +871,7 @@
       "family": "pcm",
       "status": "reversed",
       "python_function": "unlock_edc16u31",
+      "algorithm": "t32_8row_substitution",
       "reason": null
     },
     {
@@ -868,6 +899,7 @@
       "family": "tcm",
       "status": "reversed",
       "python_function": "unlock_egs52",
+      "algorithm": "imul_xor",
       "reason": null
     },
     {
@@ -895,6 +927,7 @@
       "family": "comfort_misc",
       "status": "reversed",
       "python_function": "unlock_eom",
+      "algorithm": "t8_add+bitpack",
       "reason": null
     },
     {
@@ -922,6 +955,7 @@
       "family": "seat",
       "status": "reversed",
       "python_function": "unlock_esm",
+      "algorithm": "unfit",
       "reason": null
     },
     {
@@ -949,6 +983,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_ewm",
+      "algorithm": "unfit",
       "reason": null
     },
     {
@@ -976,6 +1011,7 @@
       "family": "awd",
       "status": "reversed",
       "python_function": "unlock_fdcm",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -1003,6 +1039,7 @@
       "family": "pcm",
       "status": "reversed",
       "python_function": "unlock_gpec",
+      "algorithm": "tea-feistel",
       "reason": null
     },
     {
@@ -1030,6 +1067,7 @@
       "family": "amp",
       "status": "reversed",
       "python_function": "unlock_harman_amp",
+      "algorithm": "t8_add+imul",
       "reason": null
     },
     {
@@ -1057,6 +1095,7 @@
       "family": "adaptive_cruise",
       "status": "reversed",
       "python_function": "unlock_hella_acc",
+      "algorithm": "lcg_pair",
       "reason": null
     },
     {
@@ -1084,6 +1123,7 @@
       "family": "hfm",
       "status": "reversed",
       "python_function": "unlock_hfm",
+      "algorithm": "t8_xor (32-bit)",
       "reason": null
     },
     {
@@ -1111,6 +1151,7 @@
       "family": "lighting",
       "status": "reversed",
       "python_function": "unlock_hidt",
+      "algorithm": "t16x32_mixed_mul_xor",
       "reason": null
     },
     {
@@ -1138,6 +1179,7 @@
       "family": "bcm_fcm_tipm",
       "status": "reversed",
       "python_function": "unlock_huntsville_bcm",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -1165,6 +1207,7 @@
       "family": "bcm_fcm_tipm",
       "status": "reversed",
       "python_function": "unlock_huntsville_fcm",
+      "algorithm": "bitpack",
       "reason": null
     },
     {
@@ -1192,6 +1235,7 @@
       "family": "awd",
       "status": "reversed",
       "python_function": "unlock_huntsville_fdcm",
+      "algorithm": "bitpack",
       "reason": null
     },
     {
@@ -1219,6 +1263,7 @@
       "family": "radio_rak",
       "status": "reversed",
       "python_function": "unlock_huntsville_radio",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -1246,6 +1291,7 @@
       "family": "hvac",
       "status": "reversed",
       "python_function": "unlock_hvac",
+      "algorithm": "t8_mul_seed",
       "reason": null
     },
     {
@@ -1273,6 +1319,7 @@
       "family": "amp",
       "status": "reversed",
       "python_function": "unlock_kicker_amp",
+      "algorithm": "crc32_feistel_8round",
       "reason": null
     },
     {
@@ -1300,6 +1347,7 @@
       "family": "wcm",
       "status": "reversed",
       "python_function": "unlock_lear_wcm",
+      "algorithm": "hitag2_lfsr48",
       "reason": null
     },
     {
@@ -1327,6 +1375,7 @@
       "family": "seat",
       "status": "reversed",
       "python_function": "unlock_lrsm",
+      "algorithm": "t16_gf2",
       "reason": null
     },
     {
@@ -1354,6 +1403,7 @@
       "family": "itm",
       "status": "reversed",
       "python_function": "unlock_may_scofield_itm",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -1381,6 +1431,7 @@
       "family": "radio_rak",
       "status": "reversed",
       "python_function": "unlock_mitsubishi_rar",
+      "algorithm": "simple",
       "reason": null
     },
     {
@@ -1408,6 +1459,7 @@
       "family": "video",
       "status": "reversed",
       "python_function": "unlock_mitsubishi_ves",
+      "algorithm": "simple",
       "reason": null
     },
     {
@@ -1435,6 +1487,7 @@
       "family": "video",
       "status": "reversed",
       "python_function": "unlock_mitsubishi_ves3",
+      "algorithm": "unfit",
       "reason": null
     },
     {
@@ -1462,6 +1515,7 @@
       "family": "bcm_fcm_tipm",
       "status": "reversed",
       "python_function": "unlock_motorola_tipm7",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -1489,6 +1543,7 @@
       "family": "seat",
       "status": "reversed",
       "python_function": "unlock_msmd",
+      "algorithm": "lcg_pair",
       "reason": null
     },
     {
@@ -1516,6 +1571,7 @@
       "family": "tcm",
       "status": "reversed",
       "python_function": "unlock_ngc4_trans",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -1543,6 +1599,7 @@
       "family": "pcm",
       "status": "reversed",
       "python_function": "unlock_ngc_engine",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -1570,6 +1627,7 @@
       "family": "tcm",
       "status": "reversed",
       "python_function": "unlock_ngc_transmission",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -1597,6 +1655,7 @@
       "family": "ccn",
       "status": "reversed",
       "python_function": "unlock_nippon_ccn",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -1624,6 +1683,7 @@
       "family": "ocm_airbag",
       "status": "reversed",
       "python_function": "unlock_ocm",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -1651,6 +1711,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_pdm",
+      "algorithm": "t8_xor+bitpack",
       "reason": null
     },
     {
@@ -1678,6 +1739,7 @@
       "family": "hfm",
       "status": "reversed",
       "python_function": "unlock_peiker_hfm",
+      "algorithm": "t8_5tap_chain_xor",
       "reason": null
     },
     {
@@ -1705,6 +1767,7 @@
       "family": "liftgate",
       "status": "reversed",
       "python_function": "unlock_plgm",
+      "algorithm": "bitpack",
       "reason": null
     },
     {
@@ -1732,6 +1795,7 @@
       "family": "ptim",
       "status": "reversed",
       "python_function": "ptim_lx_unlock",
+      "algorithm": "unfit",
       "reason": null
     },
     {
@@ -1759,6 +1823,7 @@
       "family": "parktronic",
       "status": "reversed",
       "python_function": "unlock_pts",
+      "algorithm": "t8_chain+rot",
       "reason": null
     },
     {
@@ -1786,6 +1851,7 @@
       "family": "sas",
       "status": "reversed",
       "python_function": "unlock_sas",
+      "algorithm": "gf2_4x4_substitution",
       "reason": null
     },
     {
@@ -1813,6 +1879,7 @@
       "family": "sunroof",
       "status": "reversed",
       "python_function": "unlock_sunr",
+      "algorithm": "inline",
       "reason": null
     },
     {
@@ -1840,6 +1907,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_temic_ddm",
+      "algorithm": "~s*K",
       "reason": null
     },
     {
@@ -1867,6 +1935,7 @@
       "family": "doors",
       "status": "reversed",
       "python_function": "unlock_temic_pdm",
+      "algorithm": "~s*K",
       "reason": null
     },
     {
@@ -1894,6 +1963,7 @@
       "family": "abs",
       "status": "reversed",
       "python_function": "unlock_teves_abs",
+      "algorithm": "lcg_pair",
       "reason": null
     },
     {
@@ -1921,6 +1991,7 @@
       "family": "abs",
       "status": "reversed",
       "python_function": "unlock_trw_abs",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -1948,6 +2019,7 @@
       "family": "hvac",
       "status": "reversed",
       "python_function": "unlock_trw_hvac",
+      "algorithm": "t8_mul_seed",
       "reason": null
     },
     {
@@ -1975,6 +2047,7 @@
       "family": "hvac",
       "status": "reversed",
       "python_function": "unlock_trw_hvac_2",
+      "algorithm": "t8_mul_seed",
       "reason": null
     },
     {
@@ -2002,6 +2075,7 @@
       "family": "ocm_airbag",
       "status": "reversed",
       "python_function": "unlock_trw_ocm",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -2029,6 +2103,7 @@
       "family": "orc_airbag",
       "status": "reversed",
       "python_function": "unlock_trw_orc",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -2056,6 +2131,7 @@
       "family": "sas",
       "status": "reversed",
       "python_function": "unlock_trw_sas",
+      "algorithm": "unfit",
       "reason": null
     },
     {
@@ -2083,6 +2159,7 @@
       "family": "scm",
       "status": "reversed",
       "python_function": "unlock_valeo_scm",
+      "algorithm": "lcg_pair",
       "reason": null
     },
     {
@@ -2110,6 +2187,7 @@
       "family": "pcm",
       "status": "reversed",
       "python_function": "unlock_venom_pcm",
+      "algorithm": "t8_xor",
       "reason": null
     },
     {
@@ -2137,6 +2215,7 @@
       "family": "amp",
       "status": "reversed",
       "python_function": "unlock_visteon_amp",
+      "algorithm": "bit_driven_accum",
       "reason": null
     },
     {
@@ -2164,6 +2243,7 @@
       "family": "wcm",
       "status": "reversed",
       "python_function": "unlock_wcm",
+      "algorithm": "t16_mul",
       "reason": null
     },
     {
@@ -2191,6 +2271,7 @@
       "family": "bcm_fcm_tipm",
       "status": "reversed",
       "python_function": "unlock_yazaki_fcm",
+      "algorithm": "t8_xor",
       "reason": null
     }
   ]

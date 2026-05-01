@@ -128,6 +128,10 @@ def family_tag(ecu_name, tx, rx):
 
 _FN_DEF_RE = re.compile(r"^def\s+(unlock_[a-zA-Z0-9_]+)\s*\(", re.MULTILINE)
 _ALGOS_KEY_RE = re.compile(r"^\s*'([a-zA-Z0-9_]+)'\s*:\s*\{\s*'fn'\s*:\s*([a-zA-Z0-9_]+)", re.MULTILINE)
+_COVERAGE_BLOCK_RE = re.compile(r"^COVERAGE\s*=\s*\{(.*?)^\}", re.MULTILINE | re.DOTALL)
+_COVERAGE_ENTRY_RE = re.compile(
+    r"'([a-zA-Z0-9_]+)'\s*:\s*\(\s*'([^']+)'\s*,\s*'([^']*)'\s*\)"
+)
 
 
 def _read(path):
@@ -162,6 +166,46 @@ def discover_python_ports():
             ports.setdefault(key, fn)
 
     return ports
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Algorithm-family discovery — surface the per-module "what makes this unlock
+# tick" tag (e.g. 't8_xor', 'lcg_pair', 'hitag2_lfsr48', 'crc32_feistel_8round')
+# so the SRT Lab UI can show users exactly which crypto family each native port
+# implements. Useful when filing bug reports against a specific algorithm.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Modules ported in srtlab_canflash_algos.py rather than canflash_seedkey.py
+# (and therefore absent from COVERAGE) get their algorithm tag here. Keep this
+# list short — it should only ever cover gaps in COVERAGE.
+_EXTRA_ALGORITHMS = {
+    "dcx_ptcm": "lcg_pair",
+    "alpine_radio": "lcg_pair",
+}
+
+
+def discover_algorithm_tags():
+    """Return {dll_basename: algorithm_tag} parsed from COVERAGE.
+
+    COVERAGE in canflash_seedkey.py maps each module to a (kind, algorithm)
+    tuple. We surface the algorithm string regardless of kind — even
+    historically-stale 'dll-only' entries carry useful tags like
+    'cummins-style?' or 't8_chain+crc'. Modules that aren't in COVERAGE fall
+    back to ``_EXTRA_ALGORITHMS``.
+    """
+    tags = {}
+    seedkey = os.path.join(HERE, "canflash_seedkey.py")
+    if os.path.isfile(seedkey):
+        text = _read(seedkey)
+        m = _COVERAGE_BLOCK_RE.search(text)
+        if m:
+            for em in _COVERAGE_ENTRY_RE.finditer(m.group(1)):
+                key, _kind, algo = em.group(1), em.group(2), em.group(3)
+                if algo:
+                    tags.setdefault(key, algo)
+    for k, v in _EXTRA_ALGORITHMS.items():
+        tags.setdefault(k, v)
+    return tags
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -313,6 +357,7 @@ def build_catalog():
 
     ports = discover_python_ports()
     labels = discover_display_labels()
+    algo_tags = discover_algorithm_tags()
 
     files = sorted(f for f in os.listdir(DLL_DIR) if f.lower().endswith(".dll"))
     entries = []
@@ -341,6 +386,7 @@ def build_catalog():
             "family": family,
             "status": status,
             "python_function": py_fn,
+            "algorithm": algo_tags.get(basename),
             "reason": reason,
         })
 
