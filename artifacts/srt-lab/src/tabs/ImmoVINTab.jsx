@@ -59,11 +59,11 @@ function SectionHeader({icon, title, subtitle}) {
   );
 }
 
-function FileDropZone({label, onFile, fileName}) {
+function FileDropZone({label, onFile, fileName, inputTestId}) {
   const inputRef = useRef();
   return (
     <div onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)onFile(f);}} onDragOver={e=>e.preventDefault()} onClick={()=>inputRef.current.click()} style={{border:"2px dashed "+C.sr+"30",borderRadius:10,padding:"14px 16px",cursor:"pointer",textAlign:"center",background:C.c2}}>
-      <input ref={inputRef} type="file" accept=".bin,.BIN" style={{display:"none"}} onChange={e=>e.target.files[0]&&onFile(e.target.files[0])}/>
+      <input ref={inputRef} type="file" accept=".bin,.BIN" data-testid={inputTestId} style={{display:"none"}} onChange={e=>e.target.files[0]&&onFile(e.target.files[0])}/>
       <div style={{fontSize:22,marginBottom:4}}>📂</div>
       {fileName ? <div style={{fontSize:12,fontWeight:800,color:C.sr}}>{fileName}</div>
                 : <div style={{fontSize:12,color:C.ts}}>{label}</div>}
@@ -441,11 +441,11 @@ function RFHSection({samplePair, onSamplePairLoaded}) {
       <div style={{marginTop:20,borderTop:"1.5px solid "+C.bd,paddingTop:16}}>
         <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY VIN</div>
         <div style={{fontSize:11,color:C.ts,marginBottom:8}}>Writes byte-reversed VIN to all 4 slots · Recalculates CRC8RF per slot</div>
-        <FileDropZone label="Re-upload the same RFHUB .bin to patch (must be 4096B Gen2)" onFile={handleAFile} fileName={aFile?.name}/>
+        <FileDropZone label="Re-upload the same RFHUB .bin to patch (must be 4096B Gen2)" onFile={handleAFile} fileName={aFile?.name} inputTestId="rfh-apply-input"/>
         <SamplePicker kinds={['RFH_EEE']} acceptSizes={[4096]} onFile={handleAFile} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample RFHUB EEE"/>
         <div style={{marginTop:10}}>
           <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN (17 chars)</div>
-          <input value={newVin} maxLength={17} placeholder="Enter 17-character VIN"
+          <input value={newVin} maxLength={17} placeholder="Enter 17-character VIN" data-testid="rfh-apply-vin"
             onChange={e=>setNewVin(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,""))}
             style={{width:"100%",padding:"10px 14px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newVin.length===17&&vinValid?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:"center",outline:"none",color:C.tx}}/>
           <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
@@ -456,10 +456,10 @@ function RFHSection({samplePair, onSamplePairLoaded}) {
           {vinValid&&<VinChargerSubtitle vin={newVin} dataTestId="immo-vin-decode" style={{marginTop:6}}/>}
         </div>
         <div style={{marginTop:10}}>
-          <Btn onClick={doApply} disabled={!aFile||!vinValid||newVin.length!==17} full color={C.a2}>⚡ APPLY — Write VIN to 4 slots + Download</Btn>
+          <Btn onClick={doApply} disabled={!aFile||!vinValid||newVin.length!==17} full color={C.a2} data-testid="rfh-apply-btn">⚡ APPLY — Write VIN to 4 slots + Download</Btn>
           <div style={{marginTop:6,textAlign:"center"}}><DownloadCounter assetId={ASSET_IDS.immoRfhPatched}/></div>
         </div>
-        {aMsg&&<div style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:aMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(aMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:aMsg.startsWith("✓")?C.gn:C.er}}>{aMsg}</div>}
+        {aMsg&&<div data-testid="rfh-apply-msg" style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:aMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(aMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:aMsg.startsWith("✓")?C.gn:C.er}}>{aMsg}</div>}
       </div>
     </Card>
   );
@@ -655,12 +655,12 @@ function GPECSection({samplePair, onSamplePairLoaded}) {
       <div style={{marginTop:20,borderTop:"1.5px solid "+C.bd,paddingTop:16}}>
         <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY</div>
         <div style={{fontSize:11,color:C.ts,marginBottom:8}}>VIN written to all 3 slots (no CRC) · Key written to PRIMARY + MIRROR · Blank fields skipped</div>
-        <FileDropZone label="Re-upload the same 4KB GPEC2A .bin to patch" onFile={handleAFile} fileName={aFile?.name}/>
+        <FileDropZone label="Re-upload the same 4KB GPEC2A .bin to patch" onFile={handleAFile} fileName={aFile?.name} inputTestId="gpec-apply-input"/>
         <SamplePicker kinds={['GPEC_EXT']} acceptSizes={[4096]} onFile={handleAFile} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample GPEC2A EXT"/>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginTop:10}}>
           <div>
             <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN — optional</div>
-            <input value={newVin} maxLength={17} placeholder="Leave blank to skip"
+            <input value={newVin} maxLength={17} placeholder="Leave blank to skip" data-testid="gpec-apply-vin"
               onChange={e=>setNewVin(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,""))}
               style={{width:"100%",padding:"10px 12px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newVin.length===17&&vinValid?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:700,letterSpacing:2,textAlign:"center",outline:"none",color:C.tx}}/>
             <div style={{fontSize:11,fontWeight:800,color:newVin.length===17?C.gn:C.tm,marginTop:2}}>{newVin.length}/17</div>
@@ -677,11 +677,11 @@ function GPECSection({samplePair, onSamplePairLoaded}) {
           </div>
         </div>
         <div style={{marginTop:12}}>
-          <Btn onClick={doApply} disabled={!aFile||(newVin.length>0&&!vinValid)||(newKey.length>0&&!keyValid)} full color={C.a2}>⚡ APPLY — Patch non-empty fields + Download</Btn>
+          <Btn onClick={doApply} disabled={!aFile||(newVin.length>0&&!vinValid)||(newKey.length>0&&!keyValid)} full color={C.a2} data-testid="gpec-apply-btn">⚡ APPLY — Patch non-empty fields + Download</Btn>
           <div style={{fontSize:10,color:C.ts,marginTop:4,textAlign:"center"}}>Blank fields are not modified in the output file.</div>
           <div style={{marginTop:6,textAlign:"center"}}><DownloadCounter assetId={ASSET_IDS.immoGpecPatched}/></div>
         </div>
-        {aMsg&&<div style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:aMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(aMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:aMsg.startsWith("✓")?C.gn:C.er}}>{aMsg}</div>}
+        {aMsg&&<div data-testid="gpec-apply-msg" style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:aMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(aMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:aMsg.startsWith("✓")?C.gn:C.er}}>{aMsg}</div>}
       </div>
     </Card>
   );
@@ -732,7 +732,12 @@ function BCMSection({samplePair, onSamplePairLoaded}) {
     if (newSec16.length === 32 && /^[0-9A-Fa-f]{32}$/.test(newSec16)) {
       const sec16Bytes = new Uint8Array(16);
       for (let i = 0; i < 16; i++) sec16Bytes[i] = parseInt(newSec16.slice(i*2, i*2+2), 16);
-      patched = writeBcmSec16Gen2(patched, sec16Bytes);
+      // writeBcmSec16Gen2 returns {bytes, splitPatched, ...} — keep just the
+      // patched buffer so the subsequent dl() call hands a real Uint8Array
+      // to the Blob constructor instead of stringifying the result object
+      // (which would produce "[object Object]" — caught by the Task #493
+      // auto-detect UI test).
+      patched = writeBcmSec16Gen2(patched, sec16Bytes).bytes;
       sec16Note = " + SEC16";
     }
     const fn = aFile.name.replace(/(\.[^.]+)?$/, "_BCM_"+newVin+".bin");
@@ -822,19 +827,19 @@ function BCMSection({samplePair, onSamplePairLoaded}) {
       <div style={{marginTop:20,borderTop:"1.5px solid "+C.bd,paddingTop:16}}>
         <div style={{fontSize:11,fontWeight:900,color:C.a2,letterSpacing:2,marginBottom:8}}>PHASE 2 — APPLY</div>
         <div style={{fontSize:11,color:C.ts,marginBottom:8}}>VIN written to all 4 full slots + every detected partial slot · CRC-16/CCITT-FALSE re-stamped on each · optional SEC16 writes split (0x81A0/C0/E0) + mirror records</div>
-        <FileDropZone label="Re-upload the same 64KB BCM .bin to patch" onFile={handleAFile} fileName={aFile?.name}/>
+        <FileDropZone label="Re-upload the same 64KB BCM .bin to patch" onFile={handleAFile} fileName={aFile?.name} inputTestId="bcm-apply-input"/>
         <SamplePicker kinds={['BCM']} acceptSizes={[65536]} onFile={handleAFile} onLoaded={onSamplePairLoaded} suggestedPair={samplePair} label="📦 Sample BCM"/>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginTop:10}}>
           <div>
             <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW VIN (required)</div>
-            <input value={newVin} maxLength={17} placeholder="17-char VIN"
+            <input value={newVin} maxLength={17} placeholder="17-char VIN" data-testid="bcm-apply-vin"
               onChange={e=>setNewVin(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,""))}
               style={{width:"100%",padding:"10px 12px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newVin.length===17&&vinValid?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:700,letterSpacing:2,textAlign:"center",outline:"none",color:C.tx}}/>
             <div style={{fontSize:11,fontWeight:800,color:newVin.length===17?C.gn:C.tm,marginTop:2}}>{newVin.length}/17</div>
           </div>
           <div>
             <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:4,letterSpacing:1}}>NEW SEC16 (32 hex digits = 16 bytes) — optional</div>
-            <input value={newSec16} maxLength={32} placeholder="Leave blank to skip"
+            <input value={newSec16} maxLength={32} placeholder="Leave blank to skip" data-testid="bcm-apply-sec16"
               onChange={e=>setNewSec16(e.target.value.toUpperCase().replace(/[^0-9A-F]/g,""))}
               style={{width:"100%",padding:"10px 12px",borderRadius:10,boxSizing:"border-box",border:"2px solid "+(newSec16.length===32&&sec16Valid?C.gn:newSec16.length>0&&!sec16Valid?C.er:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:700,letterSpacing:1,outline:"none",color:C.tx}}/>
             <div style={{display:"flex",justifyContent:"space-between",marginTop:2}}>
@@ -844,10 +849,10 @@ function BCMSection({samplePair, onSamplePairLoaded}) {
           </div>
         </div>
         <div style={{marginTop:12}}>
-          <Btn onClick={doApply} disabled={!aFile||newVin.length!==17||!vinValid||(newSec16.length>0&&!sec16Valid)} full color={C.a2}>⚡ APPLY — Rewrite all VIN copies + CRCs (+ SEC16)</Btn>
+          <Btn onClick={doApply} disabled={!aFile||newVin.length!==17||!vinValid||(newSec16.length>0&&!sec16Valid)} full color={C.a2} data-testid="bcm-apply-btn">⚡ APPLY — Rewrite all VIN copies + CRCs (+ SEC16)</Btn>
           <div style={{marginTop:6,textAlign:"center"}}><DownloadCounter assetId={ASSET_IDS.immoBcmPatched}/></div>
         </div>
-        {aMsg&&<div style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:aMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(aMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:aMsg.startsWith("✓")?C.gn:C.er}}>{aMsg}</div>}
+        {aMsg&&<div data-testid="bcm-apply-msg" style={{marginTop:8,padding:"9px 12px",borderRadius:10,background:aMsg.startsWith("✓")?C.gn+"10":C.er+"10",border:"1px solid "+(aMsg.startsWith("✓")?C.gn+"25":C.er+"25"),fontSize:11,fontWeight:700,color:aMsg.startsWith("✓")?C.gn:C.er}}>{aMsg}</div>}
       </div>
     </Card>
   );
@@ -903,7 +908,7 @@ export function detectImmoFileKind(data) {
   return { kind:null, label:'Unknown size (' + sz + ' bytes) — supported: 2KB RFH Gen1 / 4KB GPEC2A or RFH Gen2 / 64KB BCM' };
 }
 
-function AutoDetectZone() {
+function AutoDetectZone({onDetect}) {
   const [hit, setHit] = useState(null);
   const onFile = useCallback(f => {
     const r = new FileReader();
@@ -911,22 +916,45 @@ function AutoDetectZone() {
       const d = new Uint8Array(ev.target.result);
       const det = detectImmoFileKind(d);
       setHit({ name: f.name, sz: d.length, ...det });
+      if (onDetect) onDetect(det.kind);
     };
     r.readAsArrayBuffer(f);
-  }, []);
+  }, [onDetect]);
+  const onClear = useCallback(() => {
+    setHit(null);
+    if (onDetect) onDetect(null);
+  }, [onDetect]);
   return (
     <Card>
       <SectionHeader icon="🧭" title="Auto-Detect" subtitle={<>Drop any supported FCA <Tip word="EEPROM">EEPROM</Tip> dump (RFHUB Gen1/Gen2, GPEC2A PCM, or BCM <Tip word="DFLASH">DFLASH</Tip>) — this routes you to the matching inspect/apply panel below.</>}/>
-      <FileDropZone label="Drop any supported .bin (2KB / 4KB / 64KB) — auto-classified by size + signature" onFile={onFile} fileName={hit?.name}/>
+      <FileDropZone label="Drop any supported .bin (2KB / 4KB / 64KB) — auto-classified by size + signature" onFile={onFile} fileName={hit?.name} inputTestId="auto-detect-input"/>
       {hit && (
-        <div data-testid="auto-detect-result" style={{marginTop:10,padding:"10px 14px",borderRadius:10,background:hit.kind?C.gn+"10":C.er+"10",border:"1px solid "+(hit.kind?C.gn+"25":C.er+"25"),fontSize:12,fontWeight:700,color:hit.kind?C.gn:C.er}}>
-          {hit.kind
-            ? <>✓ <span style={{fontWeight:900}}>{hit.label}</span> — use the <span style={{fontFamily:"'JetBrains Mono'"}}>{hit.kind === 'BCM' ? 'BCM' : hit.kind === 'GPEC' ? 'GPEC2A' : 'RFHUB'}</span> section below.</>
-            : <>✗ {hit.label}</>}
+        <div data-testid="auto-detect-result" style={{marginTop:10,padding:"10px 14px",borderRadius:10,background:hit.kind?C.gn+"10":C.er+"10",border:"1px solid "+(hit.kind?C.gn+"25":C.er+"25"),fontSize:12,fontWeight:700,color:hit.kind?C.gn:C.er,display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
+          <div>
+            {hit.kind
+              ? <>✓ <span style={{fontWeight:900}}>{hit.label}</span> — routed to the <span style={{fontFamily:"'JetBrains Mono'"}}>{hit.kind === 'BCM' ? 'BCM' : hit.kind === 'GPEC' ? 'GPEC2A' : 'RFHUB'}</span> section below.</>
+              : <>✗ {hit.label}</>}
+          </div>
+          <button data-testid="auto-detect-clear" onClick={onClear} style={{background:"transparent",border:"1px solid "+(hit.kind?C.gn:C.er)+"55",color:hit.kind?C.gn:C.er,borderRadius:8,padding:"4px 10px",fontSize:10,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap"}}>SHOW ALL</button>
         </div>
       )}
     </Card>
   );
+}
+
+/* Map the auto-detect kind to the section keys that should remain mounted.
+ * When the AutoDetectZone has not been used yet (kind === null) all three
+ * sections render so the tab still works as a manual three-section browser.
+ * Once a file is classified, only the matching section is mounted — both
+ * a workflow win (the user lands on the right panel) and a routing
+ * regression guard (Task #493 UI test asserts the other section testids
+ * disappear). The "SHOW ALL" button in the AutoDetectZone resets the kind
+ * back to null so the user can switch sections without re-uploading. */
+function visibleSectionsForKind(kind) {
+  if (kind === 'BCM') return { rfh: false, gpec: false, bcm: true };
+  if (kind === 'GPEC') return { rfh: false, gpec: true, bcm: false };
+  if (kind === 'RFH1' || kind === 'RFH2') return { rfh: true, gpec: false, bcm: false };
+  return { rfh: true, gpec: true, bcm: true };
 }
 
 export default function ImmoVINTab() {
@@ -934,6 +962,7 @@ export default function ImmoVINTab() {
   // Lifted to the tab root so that loading a paired sample in the RFH section
   // surfaces a "Load matching pair" hint in the GPEC section, and vice versa.
   const [samplePair, setSamplePair] = useState(null);
+  const [detectedKind, setDetectedKind] = useState(null);
   const onSamplePairLoaded = useCallback(f => setSamplePair(f?.pair || null), []);
   const onPdf = async () => {
     if (pdfBusy) return;
@@ -942,6 +971,7 @@ export default function ImmoVINTab() {
     catch (e) { console.error(e); alert('PDF build failed: ' + e.message); }
     finally { setPdfBusy(false); }
   };
+  const visible = visibleSectionsForKind(detectedKind);
   return (
     <div>
       <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,marginBottom:20}}>
@@ -953,10 +983,22 @@ export default function ImmoVINTab() {
           {pdfBusy?'⏳ Building...':'🖨 Print Reference'}
         </button>
       </div>
-      <AutoDetectZone/>
-      <RFHSection samplePair={samplePair} onSamplePairLoaded={onSamplePairLoaded}/>
-      <GPECSection samplePair={samplePair} onSamplePairLoaded={onSamplePairLoaded}/>
-      <BCMSection samplePair={samplePair} onSamplePairLoaded={onSamplePairLoaded}/>
+      <AutoDetectZone onDetect={setDetectedKind}/>
+      {visible.rfh && (
+        <div data-testid="rfh-section">
+          <RFHSection samplePair={samplePair} onSamplePairLoaded={onSamplePairLoaded}/>
+        </div>
+      )}
+      {visible.gpec && (
+        <div data-testid="gpec-section">
+          <GPECSection samplePair={samplePair} onSamplePairLoaded={onSamplePairLoaded}/>
+        </div>
+      )}
+      {visible.bcm && (
+        <div data-testid="bcm-section">
+          <BCMSection samplePair={samplePair} onSamplePairLoaded={onSamplePairLoaded}/>
+        </div>
+      )}
     </div>
   );
 }
