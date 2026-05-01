@@ -23,6 +23,7 @@ import { fileURLToPath } from "node:url";
 
 import { OUTPUT_LAYOUT, SCHEMA_VERSION, validate } from "../src/schema.mjs";
 import { parseDecompiled } from "../src/parseDecompiled.mjs";
+import { parseDecompilerVersion, PINNED_DECOMPILER_VERSION } from "../src/extract.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "../../..");
@@ -160,6 +161,90 @@ test("schema rejects malformed manifest", () => {
   const errors = validate("manifest", bad);
   assert.ok(errors.length >= 3, `expected multiple errors, got ${errors.length}`);
   assert.ok(errors.some(e => e.includes("schema_version")));
+});
+
+test("parseDecompilerVersion picks the longest dotted-numeric token", () => {
+  // Typical ilspycmd output.
+  assert.equal(parseDecompilerVersion("ilspycmd 9.0.0.7833"), "9.0.0.7833");
+  // Extra prose / commit hash.
+  assert.equal(
+    parseDecompilerVersion("ilspycmd 9.0.0.7833 (build abc123)"),
+    "9.0.0.7833");
+  // 3-segment version.
+  assert.equal(parseDecompilerVersion("decomp v8.1.2"), "8.1.2");
+  // No version present.
+  assert.equal(parseDecompilerVersion("usage: decomp [options]"), null);
+  assert.equal(parseDecompilerVersion(""), null);
+  assert.equal(parseDecompilerVersion(null), null);
+});
+
+test("PINNED_DECOMPILER_VERSION is a real dotted version", () => {
+  assert.match(PINNED_DECOMPILER_VERSION, /^\d+(?:\.\d+){1,3}$/);
+});
+
+test("schema accepts a manifest with the new pin fields", () => {
+  const ok = {
+    schema_version: SCHEMA_VERSION,
+    tool: {
+      name: "@workspace/alfaobd-extractor",
+      version: "0.1.0",
+      decompiler: {
+        name: "ilspycmd",
+        version_command: "ilspycmd --version",
+        version_output: `ilspycmd ${PINNED_DECOMPILER_VERSION}`,
+        version_resolved: PINNED_DECOMPILER_VERSION,
+        version_pinned: PINNED_DECOMPILER_VERSION,
+        version_pin_enforced: true,
+      },
+    },
+    generated_at: new Date().toISOString(),
+    alfaobd: {
+      sha256: "0".repeat(64),
+      size_bytes: 1,
+      file_version: "2.5.7.0",
+      is_dotnet: true,
+      clr_version: "v4.0.30319",
+    },
+    shfolder: {
+      sha256: "0".repeat(64),
+      size_bytes: 1,
+      protected_skip: true,
+      protector: "Safengine Shielden v2.3.9.0",
+      exports: [], imports: [],
+    },
+    inputs: { alfaobd_path: "x", shfolder_path: "y" },
+    outputs: { files: [] },
+  };
+  assert.deepEqual(validate("manifest", ok), []);
+});
+
+test("schema rejects a non-string version_resolved", () => {
+  const bad = {
+    schema_version: SCHEMA_VERSION,
+    tool: {
+      name: "@workspace/alfaobd-extractor",
+      version: "0.1.0",
+      decompiler: {
+        name: "ilspycmd",
+        version_command: "ilspycmd --version",
+        version_resolved: 9, // wrong type
+      },
+    },
+    generated_at: "x",
+    alfaobd: {
+      sha256: "0".repeat(64), size_bytes: 1, file_version: "x",
+      is_dotnet: true, clr_version: "x",
+    },
+    shfolder: {
+      sha256: "0".repeat(64), size_bytes: 1, protected_skip: true,
+      protector: "x", exports: [], imports: [],
+    },
+    inputs: { alfaobd_path: "x", shfolder_path: "y" },
+    outputs: { files: [] },
+  };
+  const errors = validate("manifest", bad);
+  assert.ok(errors.some(e => e.includes("version_resolved")),
+    `expected version_resolved error, got: ${JSON.stringify(errors)}`);
 });
 
 test("schema accepts a complete minimal manifest", () => {

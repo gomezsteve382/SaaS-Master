@@ -47,15 +47,23 @@ fails loudly instead of producing a half-broken contract.
 1. **The AlfaOBD binary.** Drop it at `attached_assets/AlfaOBD.exe`.
    Optionally drop `attached_assets/shfolder(1).dll` so the manifest
    captures its identity.
-2. **A .NET decompiler.** Default is `ilspycmd` (a `dotnet` global tool).
-   Install once:
+2. **A .NET decompiler — pinned version.** Default is `ilspycmd` (a
+   `dotnet` global tool). The pipeline pins to **`ilspycmd 9.0.0.7833`**
+   so re-runs against the same `AlfaOBD.exe` produce byte-identical
+   JSON and `manifest.json` sha256s. Install exactly that version:
    ```bash
-   dotnet tool install -g ilspycmd
+   dotnet tool install -g ilspycmd --version 9.0.0.7833
+   ```
+   If you already have a different version installed:
+   ```bash
+   dotnet tool uninstall -g ilspycmd
+   dotnet tool install   -g ilspycmd --version 9.0.0.7833
    ```
    The pipeline calls `ilspycmd <exe> -p -o <out_dir>` to produce a C#
    project. To plug in a different decompiler, set
    `EXTRACTOR_DECOMPILE_CMD` (e.g. `"--out {{OUT}} --in {{INPUT}}"`)
-   and pass the binary name with `--decompiler`.
+   and pass the binary name with `--decompiler`. With a custom decompiler
+   the pin is skipped unless you explicitly pass `--decompiler-version`.
 
 ## Run it
 
@@ -67,20 +75,56 @@ Useful flags:
 
 | Flag | Default | Purpose |
 | --- | --- | --- |
-| `--binary <path>`     | `attached_assets/AlfaOBD.exe`               | source PE |
-| `--shfolder <path>`   | `attached_assets/shfolder(1).dll`           | optional DLL to fingerprint |
-| `--out <dir>`         | `artifacts/srt-lab/public/alfaobd-tables`   | output root |
-| `--decompiler <cmd>`  | `ilspycmd`                                  | overrides decompiler |
+| `--binary <path>`             | `attached_assets/AlfaOBD.exe`             | source PE |
+| `--shfolder <path>`           | `attached_assets/shfolder(1).dll`         | optional DLL to fingerprint |
+| `--out <dir>`                 | `artifacts/srt-lab/public/alfaobd-tables` | output root |
+| `--decompiler <cmd>`          | `ilspycmd`                                | overrides decompiler binary |
+| `--decompiler-version <ver>`  | `9.0.0.7833` (the pin)                    | require an exact decompiler version |
+| `--allow-decompiler-version-mismatch` | (off)                             | skip the pin check (NOT recommended for committed output) |
+
+Equivalent env vars: `EXTRACTOR_DECOMPILER_VERSION`,
+`EXTRACTOR_ALLOW_DECOMPILER_VERSION_MISMATCH=1`,
+`EXTRACTOR_DECOMPILE_CMD` (custom decompiler invocation template).
 
 Failure modes you will actually see:
 
 | Exit | Reason | Fix |
 | --- | --- | --- |
-| `missing_binary`     | `AlfaOBD.exe` not at the configured path | drop the file in `attached_assets/` |
-| `missing_decompiler` | `ilspycmd` not on `$PATH`                | `dotnet tool install -g ilspycmd` |
-| `not_dotnet`         | The PE has no COR20 directory            | wrong file — must be the managed `.exe`, not a packed wrapper |
-| `decompile_failed`   | Decompiler exited non-zero               | check `stderr` from the decompiler output |
-| `schema_failed`      | Output didn't match `src/schema.mjs`     | indicates a parser regression — see the failing field path |
+| `missing_binary`               | `AlfaOBD.exe` not at the configured path        | drop the file in `attached_assets/` |
+| `missing_decompiler`           | `ilspycmd` not on `$PATH`                       | `dotnet tool install -g ilspycmd --version 9.0.0.7833` |
+| `decompiler_version_mismatch`  | Resolved decompiler version ≠ pinned version    | install the pinned version (see error message), or pass `--decompiler-version <X.Y.Z>` to bump the pin for this run |
+| `not_dotnet`                   | The PE has no COR20 directory                   | wrong file — must be the managed `.exe`, not a packed wrapper |
+| `decompile_failed`             | Decompiler exited non-zero                      | check `stderr` from the decompiler output |
+| `schema_failed`                | Output didn't match `src/schema.mjs`            | indicates a parser regression — see the failing field path |
+
+## Upgrading the pinned decompiler
+
+The pin is intentional: bumping it can change whitespace, member
+ordering, or even structural choices in the generated C#, which then
+changes the parsed JSON and every downstream sha256 in
+`manifest.json`. Treat an upgrade like a contract change:
+
+1. Decide on the new version (e.g. `9.1.0.7984`).
+2. Edit `PINNED_DECOMPILER_VERSION` in
+   [`src/extract.mjs`](./src/extract.mjs).
+3. Update the install command + version reference in this README
+   (search for the old version string).
+4. Reinstall locally:
+   ```bash
+   dotnet tool uninstall -g ilspycmd
+   dotnet tool install   -g ilspycmd --version <new-version>
+   ```
+5. Re-run the pipeline against the same `AlfaOBD.exe`. Diff
+   `manifest.json` and the per-family ECUTYPE files vs. the previous
+   pin so the impact of the bump is documented.
+6. Commit the pin change *and* the freshly regenerated outputs in the
+   same commit so consumers stay in sync.
+
+For a one-off run against a non-pinned version (e.g. you are evaluating
+a candidate upgrade), use `--decompiler-version <X.Y.Z>` instead of
+editing the source. The manifest will record `version_pin_enforced: true`
+with that one-off version — which is *not* what you want to commit as
+the canonical output.
 
 ## Test it
 

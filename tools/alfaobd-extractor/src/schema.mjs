@@ -41,9 +41,18 @@ export const SCHEMAS = {
             type: "object",
             required: ["name", "version_command"],
             fields: {
-              name:            { type: "string" },
-              version_command: { type: "string" },
-              version_output:  { type: "string", optional: true },
+              name:                 { type: "string" },
+              version_command:      { type: "string" },
+              version_output:       { type: "string",  optional: true },
+              /* Resolved version parsed from the decompiler's --version
+               * output (e.g. "9.0.0.7833"). The string the pipeline pinned
+               * against. Whether the pin was actually enforced for this run
+               * (false when the user passed --allow-decompiler-version-mismatch
+               * or used a custom decompiler with no explicit pin). Together
+               * these three fields are what makes the pin auditable. */
+              version_resolved:     { type: "string",  optional: true },
+              version_pinned:       { type: "string",  optional: true },
+              version_pin_enforced: { type: "boolean", optional: true },
             },
           },
         },

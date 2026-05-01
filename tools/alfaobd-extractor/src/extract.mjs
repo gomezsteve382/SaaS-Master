@@ -41,12 +41,24 @@ const REPO_ROOT = resolve(TOOL_DIR, "../..");
 const TOOL_VERSION = "0.1.0";
 const TOOL_NAME    = "@workspace/alfaobd-extractor";
 
+/* The decompiler version we pin against. Any change here is a
+ * deliberate upgrade — see README "Upgrading the pinned decompiler".
+ * The pipeline refuses to run unless the resolved decompiler reports
+ * exactly this version (or the user explicitly overrides with the
+ * --decompiler-version flag, EXTRACTOR_DECOMPILER_VERSION env var, or
+ * --allow-decompiler-version-mismatch). This is what makes re-runs of
+ * the same AlfaOBD.exe produce byte-identical JSON / sha256s. */
+const PINNED_DECOMPILER_VERSION = "9.0.0.7833";
+const DEFAULT_DECOMPILER        = "ilspycmd";
+
 const DEFAULTS = {
   binary:     join(REPO_ROOT, "attached_assets", "AlfaOBD.exe"),
   shfolder:   join(REPO_ROOT, "attached_assets", "shfolder(1).dll"),
   out:        join(REPO_ROOT, "artifacts", "srt-lab", "public", "alfaobd-tables"),
-  decompiler: "ilspycmd",
+  decompiler: DEFAULT_DECOMPILER,
 };
+
+export { PINNED_DECOMPILER_VERSION, DEFAULT_DECOMPILER };
 
 const MISSING_BINARY_HELP = `
 AlfaOBD.exe was not found.
@@ -64,13 +76,36 @@ data — without the .exe present there is nothing to extract.
 const MISSING_DECOMPILER_HELP = (cmd) => `
 The .NET decompiler '${cmd}' was not found on PATH.
 
-Install ilspycmd (one-time, requires the .NET 8+ SDK):
-  dotnet tool install -g ilspycmd
+Install ilspycmd at the pinned version (one-time, requires the .NET 8+ SDK):
+  dotnet tool install -g ilspycmd --version ${PINNED_DECOMPILER_VERSION}
 
 Or pass another decompiler with: --decompiler <command>
 The decompiler must support 'ilspycmd <exe> -o <out_dir>' to produce a
 C# project, or '<cmd> --help' must succeed (custom adapters can be
 plugged in by setting EXTRACTOR_DECOMPILE_CMD).
+`;
+
+const VERSION_MISMATCH_HELP = (cmd, expected, got) => `
+Decompiler version mismatch.
+
+  expected: ${expected}
+  got:      ${got || "(could not parse a version from '${cmd} --version' output)"}
+
+This pipeline pins the decompiler so re-runs produce byte-identical
+JSON / sha256s in manifest.json. To fix, install the pinned version:
+
+  dotnet tool uninstall -g ${cmd}
+  dotnet tool install   -g ${cmd} --version ${expected}
+
+To deliberately override (e.g. you are bumping the pin), pass:
+  --decompiler-version ${got || "<resolved-version>"}     # accept this version for this run
+or set EXTRACTOR_DECOMPILER_VERSION=${got || "<resolved-version>"}
+
+To bypass the check entirely (NOT recommended for committing output):
+  --allow-decompiler-version-mismatch
+
+To upgrade the pin permanently, edit PINNED_DECOMPILER_VERSION in
+tools/alfaobd-extractor/src/extract.mjs and update the README.
 `;
 
 export function extract(opts = {}) {
@@ -83,6 +118,44 @@ export function extract(opts = {}) {
   const decompilerInfo = probeDecompiler(o.decompiler);
   if (!decompilerInfo.available) {
     throw new ExtractorError(MISSING_DECOMPILER_HELP(o.decompiler), "missing_decompiler");
+  }
+
+  /* Decide which version we expect and whether to enforce it.
+   *
+   * Rules:
+   *   - Default decompiler (ilspycmd) and no custom EXTRACTOR_DECOMPILE_CMD:
+   *     enforce PINNED_DECOMPILER_VERSION unless overridden.
+   *   - User passed --decompiler-version or set EXTRACTOR_DECOMPILER_VERSION:
+   *     enforce that version (lets you intentionally bump the pin per-run).
+   *   - User passed --allow-decompiler-version-mismatch (or the env var
+   *     EXTRACTOR_ALLOW_DECOMPILER_VERSION_MISMATCH=1): the resolved
+   *     version is still recorded in manifest, but no failure.
+   *   - Custom decompiler command (different from default) and no explicit
+   *     pin: skip the check (we have no idea what version scheme they use)
+   *     but still record the resolved version. */
+  const usingDefaultDecompiler = (o.decompiler === DEFAULT_DECOMPILER) && !process.env.EXTRACTOR_DECOMPILE_CMD;
+  const explicitPin = o["decompiler-version"] || opts.decompilerVersion || process.env.EXTRACTOR_DECOMPILER_VERSION || null;
+  const allowMismatch = !!(o["allow-decompiler-version-mismatch"] || opts.allowDecompilerVersionMismatch ||
+                           process.env.EXTRACTOR_ALLOW_DECOMPILER_VERSION_MISMATCH === "1");
+
+  let pinnedVersion = null;
+  let pinEnforced   = false;
+  if (explicitPin) {
+    pinnedVersion = explicitPin;
+    pinEnforced   = true;
+  } else if (usingDefaultDecompiler) {
+    pinnedVersion = PINNED_DECOMPILER_VERSION;
+    pinEnforced   = true;
+  }
+
+  const resolvedVersion = decompilerInfo.versionResolved;
+
+  if (pinEnforced && !allowMismatch) {
+    if (!resolvedVersion || resolvedVersion !== pinnedVersion) {
+      throw new ExtractorError(
+        VERSION_MISMATCH_HELP(o.decompiler, pinnedVersion, resolvedVersion),
+        "decompiler_version_mismatch");
+    }
   }
 
   prepareOutputDir(o.out);
@@ -171,6 +244,9 @@ export function extract(opts = {}) {
           name: o.decompiler,
           version_command: `${o.decompiler} --version`,
           version_output: decompilerInfo.versionOutput,
+          version_resolved: resolvedVersion || "(unparsed)",
+          version_pinned: pinnedVersion || "(unpinned)",
+          version_pin_enforced: pinEnforced && !allowMismatch,
         },
       },
       generated_at: new Date().toISOString(),
@@ -218,7 +294,31 @@ function probeDecompiler(cmd) {
   if (r.error || (r.status !== 0 && !r.stdout && !r.stderr)) {
     return { available: false };
   }
-  return { available: true, versionOutput: (r.stdout || r.stderr || "").trim().slice(0, 200) };
+  const raw = (r.stdout || r.stderr || "").trim();
+  return {
+    available: true,
+    versionOutput: raw.slice(0, 200),
+    versionResolved: parseDecompilerVersion(raw),
+  };
+}
+
+/* Pull a dotted version (e.g. "9.0.0.7833" or "9.0.0") out of the
+ * --version output. ilspycmd prints something like:
+ *   ilspycmd 9.0.0.7833
+ * but other decompilers (or future ilspycmd builds) might add a
+ * commit hash, build label, or extra prose. We take the LONGEST
+ * dotted-numeric token so a 4-segment version wins over a 3-segment
+ * substring of itself. Returns null if nothing matches. */
+export function parseDecompilerVersion(text) {
+  if (!text) return null;
+  /* Use `(?<![\d.])` / `(?![\d.])` instead of `\b` so a leading 'v'
+   * (e.g. "v8.1.2") doesn't fuse the boundary and chop the leading
+   * version segment. */
+  const matches = String(text).match(/(?<![\d.])\d+(?:\.\d+){1,3}(?![\d.])/g);
+  if (!matches || matches.length === 0) return null;
+  matches.sort((a, b) => b.split(".").length - a.split(".").length ||
+                         b.length - a.length);
+  return matches[0];
 }
 
 function runDecompile(cmd, exe, outDir) {
