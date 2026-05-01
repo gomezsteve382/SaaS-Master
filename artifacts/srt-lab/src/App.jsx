@@ -38,6 +38,7 @@ import EcmFlasherTab from "./tabs/EcmFlasherTab.jsx";
 import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
 import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
 import FcaModuleInspector from "./tabs/FcaModuleInspector.jsx";
+import UnlockCoverageTab from "./tabs/UnlockCoverageTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
@@ -902,6 +903,7 @@ const WORKSPACE_TABS = [
   {id:'cdasession',i:'🔐', l:'CDA6 SESSION', s:'9-step UDS walkthrough'},
   {id:'vinprog',   i:'🪪', l:'VIN PROG',     s:'Single-file VIN + checksum'},
   {id:'inspector', i:'🔍', l:'MODULE INSPECTOR', s:'GPEC2A · RFHUB · BCM auto-detect'},
+  {id:'unlockcov', i:'🗝️', l:'UNLOCK COV',   s:'81 DLLs · reversed vs dll_only'},
 ];
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -1051,6 +1053,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='cdasession'&& <Cda6SessionTab/>}
         {tab==='vinprog'   && <VinProgrammerTab/>}
         {tab==='inspector' && <FcaModuleInspector/>}
+        {tab==='unlockcov' && <UnlockCoverageTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also

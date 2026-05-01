@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --config vite.config.ts --host 0.0.0.0",
-    "prebuild": "node scripts/update-manifest.mjs && node scripts/generate-quickref-data.mjs",
-    "predev": "node scripts/generate-quickref-data.mjs",
+    "prebuild": "node scripts/update-manifest.mjs && node scripts/generate-quickref-data.mjs && node scripts/copy-unlock-catalog.mjs",
+    "predev": "node scripts/generate-quickref-data.mjs && node scripts/copy-unlock-catalog.mjs",
     "build": "vite build --config vite.config.ts",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",

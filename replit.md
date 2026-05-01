@@ -84,6 +84,7 @@ A `↻ RESUMED` pill appears in the chat header whenever the panel was hydrated 
 20. **EFD** — Mopar PowerCal `.webm`/`.efd` EBML container inspector (DS metadata + UP encrypted payload entropy)
 21. **ECM FLASHER** — bench-bridge GPEC2A flasher walking the FCA UDS programming session (10 02 → 27 01/02 CDA6 → 31 01 erase → 34 → 36* (seq wrap 0xFF→0x00) → 37 → 31 01 checksum → 11 01) with AbortSignal + NRC stop
 22. **CDA6 SESSION** — 10-step bench unlock walkthrough with inline CDA6 seed→key calculator
+23. **UNLOCK COVERAGE** — coverage view over the 81 FCA seed→key DLLs in `tools/python-bridge/tools/canflash_unlocks/`. Reads `public/unlock_catalog.json` (validated against `src/lib/unlockCatalogSchema.js`), shows per-DLL ecu_info (CAN tx/rx, decoded name, raw 12-byte hex), family tag, and a `reversed` vs `dll_only` status badge with the python_function name (when reversed) or the reason text (when emulated). The catalog is the single source of truth: `python3 tools/python-bridge/tools/srtlab_unlock_catalog_gen.py` regenerates it; `srtlab_unlock_catalog.py` (python-bridge dispatcher) and the SRT Lab UI both load from it. `scripts/copy-unlock-catalog.mjs` copies the JSON into `public/` as a `prebuild`/`predev` step. Tests: `tools/python-bridge/tools/test_unlock_catalog.py` (12 cases — coverage / function importability / reason presence / 11-bit CAN id range / dispatcher integration) plus `src/__tests__/unlockCatalog.test.mjs` (6 cases) and `src/__tests__/UnlockCoverageTab.ui.test.jsx` (5 cases).
 
 ## Enhanced Module Parser
 
