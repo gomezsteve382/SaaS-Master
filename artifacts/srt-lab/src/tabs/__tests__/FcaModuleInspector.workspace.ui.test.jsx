@@ -59,12 +59,13 @@ async function openInspectorTab() {
   const tabBtn = await screen.findByText('MODULE INSPECTOR');
   await act(async () => { fireEvent.click(tabBtn); });
 
-  // The FcaModuleInspector body is rendered when the inspector tab is
-  // active. The drop-card label ("Drop .bin files here or click to
-  // load") is unique to that body, so use it as the readiness signal —
-  // the previous heading text ("FCA Module Security Analyzer") was
-  // removed when the inspector adopted the workspace gradient header.
-  await screen.findByText(/Drop \.bin files here/);
+  // The FcaModuleInspector body renders the file-drop card prompt
+  // ("Drop .bin files here or click to load") only when the inspector
+  // tab is active — wait for it as the readiness signal. (The earlier
+  // fixture text "FCA Module Security Analyzer" no longer exists in
+  // the rescued component; using the drop-card prompt is robust to
+  // future copy changes in the hero.)
+  await screen.findByText(/Drop \.bin files here/i);
 
   // The inspector's file input is a hidden <input type="file"
   // accept=".bin"> rendered inside the tab body. Other workspace tabs
@@ -181,5 +182,36 @@ async function loadFixtureInto(input, name, bytes, expectedModuleName) {
         expect(within(tile).queryByText(/SKIM:/)).toBeNull();
       }
     );
+
+    // Task #519 — undersized fragment is rejected with the structured
+    // size-warn card instead of being silently parsed as an RFHUB. The
+    // pre-#519 detector silently labeled anything 1..8192 B (except
+    // 4096) as RFHUB and surfaced fake VIN/key output for partial
+    // captures; the new component-level guard pairs the detected type
+    // with `moduleTooSmall` from parseModule.js so the upload is
+    // refused at the entry point. This test pins the UI-level contract
+    // (banner present, no module tile added, no RFHUB-derived fields
+    // shown) so the fix can't silently regress.
+    it('1 KB fragment is rejected with the size-warn card and never parsed as RFHUB', async () => {
+      render(<App/>);
+      const input = await openInspectorTab();
+      const frag = new Uint8Array(1024); // all-zero 1 KB slice
+      const file = bufferFile('fragment.bin', frag);
+      await act(async () => {
+        fireEvent.change(input, { target: { files: [file] } });
+      });
+      // The reject card carries a stable testid for this exact case.
+      const card = await screen.findByTestId('inspector-too-small-card');
+      expect(card).toBeTruthy();
+      // The banner names the fragment, the actual size, and the required
+      // minimum — same shape as the GPEC2A tab's too-small card.
+      expect(within(card).getByText(/fragment\.bin/)).toBeTruthy();
+      expect(within(card).getByText(/1,024 bytes/)).toBeTruthy();
+      expect(within(card).getByText(/2,048 bytes/)).toBeTruthy();
+      // No module tile rendered → the inspector did NOT silently label
+      // the fragment as an RFHUB EEE and never produced fake VIN output.
+      expect(screen.queryByText('RFHUB EEE')).toBeNull();
+      expect(screen.queryByText(/FOBIK:/)).toBeNull();
+    });
   }
 );

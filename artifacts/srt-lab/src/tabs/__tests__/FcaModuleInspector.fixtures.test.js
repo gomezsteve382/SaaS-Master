@@ -19,7 +19,40 @@ import {
   scanForVINs,
   parseInspectorModule,
 } from '../FcaModuleInspector.jsx';
+import { moduleTooSmall } from '../../lib/parseModule.js';
 import { loadRealDumpFixtures } from '../../lib/__fixtures__/realDumps/loader.js';
+
+// Task #519 — undersized fragments must be rejected by the inspector.
+// The detector still labels small (<8 KB, non-4 KB) buffers as RFHUB
+// for backward compatibility, but the component-level guard pairs the
+// detected type with `moduleTooSmall` from parseModule.js so the
+// upload is refused with a structured size-warn card instead of being
+// partial-parsed into fake VIN/key output. This suite pins the helper
+// contract the component relies on.
+describe('Task #519 — undersized fragment guard mirrors GPEC2A tab', () => {
+  it('detectModuleType still labels a 1 KB slice as RFHUB (preserved behavior)', () => {
+    const frag = new Uint8Array(1024);
+    expect(detectModuleType(frag)).toBe('RFHUB');
+  });
+  it('moduleTooSmall flags the 1 KB RFHUB-detected fragment with the expected shape', () => {
+    const frag = new Uint8Array(1024);
+    const detected = detectModuleType(frag);
+    const small = moduleTooSmall(frag, detected, 'fragment.bin');
+    expect(small).toBeTruthy();
+    expect(small.tooSmall).toBe(true);
+    expect(small.type).toBe('RFHUB');
+    expect(small.size).toBe(1024);
+    expect(small.min).toBe(2048);
+    expect(small.ext).toBe('.bin');
+    expect(typeof small.label).toBe('string');
+  });
+  it('moduleTooSmall is null for a canonical 4 KB RFHUB image (no false positive)', () => {
+    const ok = new Uint8Array(4096);
+    const detected = detectModuleType(ok);
+    expect(detected).toBe('RFHUB');
+    expect(moduleTooSmall(ok, detected, 'rfhub.bin')).toBeNull();
+  });
+});
 
 const fixtures = loadRealDumpFixtures();
 

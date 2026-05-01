@@ -36,7 +36,7 @@
 import { useState, useCallback, useMemo, useRef, useContext } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn, Tag, SLine } from "../lib/ui.jsx";
-import { parseModule } from "../lib/parseModule.js";
+import { parseModule, moduleTooSmall } from "../lib/parseModule.js";
 import { MasterVinContext } from "../lib/masterVinContext.jsx";
 import { analyzeFile, patchFile } from "../lib/fileUtils.js";
 
@@ -54,7 +54,14 @@ import { analyzeFile, patchFile } from "../lib/fileUtils.js";
  * size warnings, content warnings, RFHUB CRC verdicts, BCM SEC16
  * resolution, etc. The legacy `parseInspectorModule` helper is still
  * exported (and still used by the helper-only fixtures suite) for
- * backwards compatibility, but the live UI no longer calls it. */
+ * backwards compatibility, but the live UI no longer calls it.
+ *
+ * Task #519 — before handing the file to parseModule/addDump, the
+ * inspector also runs the shared `moduleTooSmall` size guard (the same
+ * one Gpec2aTab / BcmTab use). Undersized fragments are pushed to a
+ * local `rejects` list and rendered as a structured banner card
+ * instead of being silently parsed as a real EEPROM (which previously
+ * surfaced fake VIN/key output for partial captures). */
 
 // Module types the inspector cares about. Other types loaded into the
 // workspace (e.g. '95640' EEPROM backups, EFD payloads, C-Flash blobs)
@@ -379,6 +386,7 @@ export { MODULE_TYPES, SKIM_VALUES, detectModuleType, scanForVINs, extractVIN, p
 
 export default function FcaModuleInspector() {
   const { loadedDumps, addDump, removeDump } = useContext(MasterVinContext);
+  const [rejects, setRejects] = useState([]);
   const [tab, setTab] = useState("overview");
   const [dp, setDp] = useState([0, 1]);
   const [nv, setNv] = useState("");
@@ -401,6 +409,15 @@ export default function FcaModuleInspector() {
   );
   const modules = useMemo(() => entries.map((e) => e.mod), [entries]);
 
+  // Task #519 — before parsing the file canonically (parseModule) and
+  // pushing it into the shared store via addDump, run the size guard:
+  // if the inspector's own detector pegs the buffer as one of the three
+  // module families but the buffer is below the canonical minimum for
+  // that family, push the file to the local `rejects` list (rendered
+  // as a banner card below) instead of letting parseModule produce a
+  // misleading partial dump. UNKNOWN buffers fall through to parseModule
+  // — it'll classify them and the INSPECTOR_TYPES gate below will skip
+  // anything that isn't GPEC2A / RFHUB / BCM with a loadMsg.
   const onFiles = useCallback(
     (e) => {
       const files = Array.from(e.target.files);
@@ -412,11 +429,17 @@ export default function FcaModuleInspector() {
         const r = new FileReader();
         r.onload = (ev) => {
           const bytes = new Uint8Array(ev.target.result);
-          const m = parseModule(bytes, f.name);
-          if (!m || !m.type || !INSPECTOR_TYPES.includes(m.type)) {
-            skipped.push(f.name + " (" + (m?.type || "UNKNOWN") + ")");
+          const detected = detectModuleType(bytes);
+          const small = detected !== "UNKNOWN" ? moduleTooSmall(bytes, detected, f.name) : null;
+          if (small) {
+            setRejects((p) => p.concat([{ ...small, filename: f.name }]));
           } else {
-            addDump(m);
+            const m = parseModule(bytes, f.name);
+            if (!m || !m.type || !INSPECTOR_TYPES.includes(m.type)) {
+              skipped.push(f.name + " (" + (m?.type || "UNKNOWN") + ")");
+            } else {
+              addDump(m);
+            }
           }
           pending -= 1;
           if (pending === 0) {
@@ -445,8 +468,12 @@ export default function FcaModuleInspector() {
     },
     [entries, removeDump]
   );
+  // Reject cards live in local state only (they were never accepted into
+  // the shared store), so dismissing/clearing them is a pure local op.
+  const rmRej = useCallback((i) => setRejects((p) => p.filter((_, j) => j !== i)), []);
   const clr = useCallback(() => {
     entries.forEach((e) => removeDump(e.hash));
+    setRejects([]);
     setTr(null);
     setLoadMsg("");
   }, [entries, removeDump]);
@@ -538,6 +565,35 @@ export default function FcaModuleInspector() {
       </Card>
     </label>
     {loadMsg && <div style={{ marginBottom: 12, padding: "8px 12px", borderRadius: 8, background: C.wn + "15", border: "1px solid " + C.wn + "40", color: C.wn, fontSize: 11, fontWeight: 700 }}>⚠ {loadMsg}</div>}
+
+    {/* Task #519 — too-small fragment rejection cards. Mirrors the
+        Gpec2aTab "this isn't a full <module> dump" banner so partial
+        captures surface a structured size warning instead of being
+        silently parsed as a real EEPROM. */}
+    {rejects.length > 0 && <div style={{ marginBottom: 18 }}>
+      {rejects.map((rj, i) => <div key={i} data-testid="inspector-too-small-card" style={{
+        marginBottom: 10, padding: '14px 16px', borderRadius: 10,
+        background: 'rgba(255,23,68,0.07)', border: '2px solid ' + C.er,
+        position: 'relative',
+      }}>
+        <button onClick={() => rmRej(i)} aria-label="Dismiss rejected file" style={{
+          position: "absolute", top: 8, right: 10, background: "none", border: "none",
+          color: C.tm, cursor: "pointer", fontSize: 16, lineHeight: 1, fontWeight: 700,
+        }}>×</button>
+        <div style={{ fontWeight: 900, fontSize: 13, color: C.er, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 8 }}>
+          ⛔ This isn&apos;t a full {rj.type} dump
+        </div>
+        <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.ts, lineHeight: 1.7 }}>
+          <div>File: <strong>{rj.filename}</strong></div>
+          <div>File size: <strong style={{ color: C.er }}>{rj.size.toLocaleString()} bytes</strong></div>
+          <div>Required min: <strong>{rj.min.toLocaleString()} bytes ({rj.label})</strong></div>
+          <div>Detected ext: <strong>{rj.ext || '(none)'}</strong></div>
+        </div>
+        <div style={{ marginTop: 8, fontSize: 12, color: C.ts, fontWeight: 600, lineHeight: 1.5 }}>
+          Re-read the {rj.type} in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module.
+        </div>
+      </div>)}
+    </div>}
 
     {/* Loaded module chips */}
     {modules.length > 0 && <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 18 }}>
