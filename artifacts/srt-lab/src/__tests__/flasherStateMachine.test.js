@@ -567,6 +567,52 @@ describe('flashEcm pre/post-flash etiquette (Task #563)', () => {
     expect(calls.some(c => c.frame[0] === 0x36)).toBe(false);
   });
 
+  test('partial pre-flash failure (0x85 OK, 0x28 NRC) still triggers finally restore', async () => {
+    // Engine where 0x85 0x02 succeeds but 0x28 0x03 0x03 returns NRC.
+    // The finally block must still attempt BOTH restore frames so DTC
+    // logging and bus comms come back up — even though `etiquetteApplied`
+    // would have been false if it were guarded on "both pre frames OK".
+    const calls = [];
+    const etiquette = [];
+    let chunkIdx = 0;
+    const eng = {
+      isBridge: true,
+      etiquette,
+      async uds(tx, rx, frame) {
+        const arr = frame instanceof Uint8Array ? Array.from(frame) : [...frame];
+        if (arr[0] === 0x3E) return { ok: true, d: new Uint8Array(0) };
+        if (arr[0] === 0x85 || arr[0] === 0x28) {
+          etiquette.push({ tx, rx, frame: arr });
+          // 0x85 0x02 succeeds (positive response).
+          if (arr[0] === 0x85 && arr[1] === 0x02) return { ok: true, d: bytes(0xC5, 0x02) };
+          // 0x28 0x03 0x03 fails with conditionsNotCorrect.
+          if (arr[0] === 0x28 && arr[1] === 0x03) return { ok: true, d: bytes(0x7F, 0x28, 0x22) };
+          // Restore frames in finally — return positive responses.
+          return { ok: true, d: new Uint8Array(0) };
+        }
+        calls.push({ tx, rx, frame: arr });
+        // Only the extended session is reachable before the 0x28 NRC.
+        if (arr[0] === 0x10 && arr[1] === 0x03) return { ok: true, d: bytes(0x50, 0x03, 0x00, 0x32, 0x01, 0xF4) };
+        throw new Error('flasher should never reach here');
+      },
+    };
+    const r = await flashEcm({ engine: eng, payload: new Uint8Array(64), chunkSize: 0x80 }).start();
+    expect(r.ok).toBe(false);
+    expect(r.nrc).toBe(0x22);
+    expect(r.error).toMatch(/CommunicationControl.*negative response/i);
+    // Pre 0x85 + pre 0x28 + finally restore 0x28 + finally restore 0x85 = 4 frames.
+    expect(etiquette).toHaveLength(4);
+    expect(etiquette[0].frame).toEqual([0x85, 0x02]);
+    expect(etiquette[1].frame).toEqual([0x28, 0x03, 0x03]);
+    expect(etiquette[2].frame).toEqual([0x28, 0x00, 0x00]);
+    expect(etiquette[3].frame).toEqual([0x85, 0x01]);
+    // Erase / RequestDownload / TransferData were never reached.
+    expect(calls.some(c => c.frame[0] === 0x10 && c.frame[1] === 0x02)).toBe(false);
+    expect(calls.some(c => c.frame[0] === 0x31)).toBe(false);
+    expect(calls.some(c => c.frame[0] === 0x34)).toBe(false);
+    expect(calls.some(c => c.frame[0] === 0x36)).toBe(false);
+  });
+
   test('etiquettePost runs exactly once on the success path (no double restore)', async () => {
     const seed = 0;
     const payload = new Uint8Array(8);

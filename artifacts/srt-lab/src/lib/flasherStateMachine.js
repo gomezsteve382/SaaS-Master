@@ -287,12 +287,16 @@ export function flashEcm(opts){
   let etiquettePostRan = false;
   async function etiquettePre(){
     log('Pre-flash etiquette · suppressing DTC logging and silencing bus chatter', 'info');
+    // Mark restore-needed BEFORE the first frame goes out. If the first
+    // frame succeeds and the second one fails, the finally block still
+    // needs to attempt both restores — guarding on "both pre frames
+    // succeeded" would leave DTC logging suppressed on the bus.
+    etiquetteApplied = true;
     // 0x85 0x02 = ControlDTCSetting OFF on the target ECU.
     await call([0x85, 0x02], 'ControlDTCSetting 0x85 02 (DTC logging suppressed)');
     // 0x28 0x03 0x03 = CommunicationControl disableRxAndTx for normal +
     // network management messages, addressed functionally to broadcast.
     await callOn(broadcastTx, addr.rx, [0x28, 0x03, 0x03], `CommunicationControl 0x28 03 03 (Bus chatter silenced) → 0x${hex(broadcastTx, 3)}`);
-    etiquetteApplied = true;
   }
   async function etiquettePost(){
     if (!etiquetteApplied || etiquettePostRan) return;
