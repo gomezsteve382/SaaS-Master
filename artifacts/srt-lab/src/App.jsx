@@ -903,7 +903,7 @@ const WORKSPACE_TABS = [
   {id:'efd',       i:'📦', l:'EFD',          s:'.webm/.efd inspector'},
   {id:'flasher',   i:'⚡', l:'ECM FLASHER',  s:'GPEC2A bench programmer'},
   {id:'cdasession',i:'🔐', l:'CDA6 SESSION', s:'9-step UDS walkthrough'},
-  {id:'vinprog',   i:'🪪', l:'VIN PROG',     s:'Single-file VIN + checksum'},
+  {id:'vinprog',   i:'🪪', l:'VIN + CHECKSUM', s:'Single-file VIN write + CRC patcher'},
   {id:'inspector', i:'🔍', l:'MODULE INSPECTOR', s:'GPEC2A · RFHUB · BCM auto-detect'},
   {id:'unlockcov', i:'🗝️', l:'UNLOCK COV',   s:'81 DLLs · reversed vs dll_only'},
   {id:'alfaobd',   i:'🧾', l:'ALFAOBD',      s:'ECUTYPE · Handlers · Transports'},

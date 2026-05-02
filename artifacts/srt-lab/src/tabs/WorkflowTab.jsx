@@ -182,7 +182,7 @@ function StepRow({ step, result, onMark, onOpenTab }) {
         </Btn>
         {step.action === "vinWrite" && (
           <Btn color={C.a3} outline onClick={() => onOpenTab("vinprog")}>
-            OPEN VIN PROG →
+            OPEN VIN + CHECKSUM →
           </Btn>
         )}
         {step.action === "sec16Patch" && (
