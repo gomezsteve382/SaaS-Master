@@ -22,9 +22,13 @@ import {
   EXTENDED_VERIFICATION,
 } from "../lib/extendedAlgorithms.generated.js";
 
-test("ships at least one ported algorithm", () => {
-  assert.ok(EXTENDED_ALGORITHMS.length > 0,
-    "expected EXTENDED_ALGORITHMS to be non-empty");
+test("EXTENDED_ALGORITHMS is a (possibly-empty) array", () => {
+  // Once every port has been promoted into the live unlock chain
+  // (artifacts/srt-lab/src/lib/algos.js & friends), the auto-generated
+  // EXTENDED_ALGORITHMS catalog is empty by design — pinned vectors for
+  // promoted entries live in `algos.assetSweepPromotions.test.mjs`.
+  assert.ok(Array.isArray(EXTENDED_ALGORITHMS),
+    "expected EXTENDED_ALGORITHMS to be an array");
 });
 
 test("captured a successful self-test report at sweep time", () => {

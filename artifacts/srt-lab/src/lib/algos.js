@@ -147,6 +147,119 @@ function alfaW6ByU32(name){
   };
 }
 
+// ─── Asset-sweep ports (promoted into the live unlock chain) ─────────────
+// Hand-ported from canonical Python in srtlab_canflash_algos.py and
+// srt_lab.py via tools/asset-sweep. Each function is named to match its
+// canonical tag (so the asset-sweep comparator marks the corresponding
+// Python source as `coverageStatus: "already-implemented"` on the next
+// run and the EXTENDED_ALGORITHMS catalog auto-shrinks). Vector-verified
+// against the original Python expressions — see ports.mjs git history
+// for the original 8-vector pinned tables.
+
+// Aisin AS68RC/AS69RC TCM — 3-stage sub/add/imul/not chain, indexed by seed&7.
+function aisin_tcm(seed){
+  seed=seed>>>0;
+  const STACK=[
+    0x2345,0x6789,0xabc7,0xcdef,0x0123,0x2345,0x6789,0xabcd,
+    0x2345,0x6789,0xabc7,0xcdef,0x0123,0x2345,0x6789,0xabcd,
+  ];
+  const idx=seed&7;
+  let eax=seed;
+  const mod_ax=(v)=>{eax=((eax&0xFFFF0000)|(v&0xFFFF))>>>0;};
+  mod_ax((eax&0xFFFF)-STACK[idx+0]);
+  eax=(eax+0x7E55)>>>0;
+  mod_ax(((eax&0xFFFF)*STACK[idx+1])&0xFFFF);
+  eax=(~eax)>>>0;
+  mod_ax((eax&0xFFFF)-STACK[idx+3]);
+  mod_ax((eax&0xFFFF)+STACK[idx+2]);
+  mod_ax(((eax&0xFFFF)*STACK[idx+4])&0xFFFF);
+  eax=(~eax)>>>0;
+  mod_ax((eax&0xFFFF)-STACK[idx+6]);
+  mod_ax((eax&0xFFFF)+STACK[idx+5]);
+  mod_ax(((eax&0xFFFF)*STACK[idx+7])&0xFFFF);
+  eax=(~eax)>>>0;
+  return eax;
+}
+
+// Alpine RA3/RA4 radio — LCG pair (mul=0x32A95B7F, add=0x52D8) ^ 0x58C2.
+// arg2 always 0 in every Chrysler dispatcher path.
+function alpine_radio(seed){
+  const a=(Math.imul(seed>>>0,0x32A95B7F|0)+0x52D8)>>>0;
+  const b=(Math.imul(0,0x32A95B7F|0)+0x52D8)>>>0;
+  return (a^b^0x58C2)>>>0;
+}
+
+// BCM FCA (BCM 2016+, srt_lab.py) — ((seed ^ 0xABCDEF12) * 0x4D + 0x5678).
+// Distinct from cfBCM (huntsville_bcm.dll) above — different transform.
+function bcm_fca(seed){
+  return (Math.imul((seed^0xABCDEF12)>>>0,0x4D)+0x5678)>>>0;
+}
+
+// BCM Standard (BCM 2007-2015, srt_lab.py) — seed * 0x9D + 0x1234.
+function bcm_standard(seed){
+  return (Math.imul(seed>>>0,0x9D)+0x1234)>>>0;
+}
+
+// Cummins ISB 6.7L (CM2100/CM2200) — 16-entry table, 4 rotating XORs +
+// (seed + 0x55111511). Index = (seed >>> 20) & 0xF.
+function cummins_849(seed){
+  seed=seed>>>0;
+  const T=[
+    0x1ce32951,0x8bb28c39,0x76c6da1a,0xe0b69a47,
+    0xf356024c,0x60af852b,0x63a12ac7,0x53ff8daf,
+    0xa8f7e36c,0x63e92252,0x2cd56fe4,0x2e3ef306,
+    0x5b0a976f,0xdb6cfa03,0x19ccb5a4,0x8113b235,
+  ];
+  const idx=(seed>>>20)&0xF;
+  let k=T[(idx+2)&0xF];
+  k=(k^T[(idx+3)&0xF])>>>0;
+  k=(k^T[(idx+1)&0xF])>>>0;
+  k=(k^T[(idx+0)&0xF])>>>0;
+  const edx=(seed+0x55111511)>>>0;
+  return (k^edx)>>>0;
+}
+
+// DCX PowerTrain Control Module — Park-Miller LCG pair ^ 0xF3DD1133.
+// Same multiplier as alpine_rak but distinct mixing constant.
+function dcx_ptcm(seed){
+  const a=(Math.imul(seed>>>0,0x41C64E6D|0)+0x3039)>>>0;
+  const b=(Math.imul(0,0x41C64E6D|0)+0x3039)>>>0;
+  return (a^b^0xF3DD1133)>>>0;
+}
+
+// Mercedes EGS52 (7G-Tronic) — (seed ^ 0x5AA5A5A5) * 0x5AA5A5A5.
+// Product exceeds 2^53 — Math.imul mandatory.
+function egs52(seed){
+  return Math.imul((seed^0x5AA5A5A5)>>>0,0x5AA5A5A5|0)>>>0;
+}
+
+// Mitsubishi RAR (5" UConnect 3) — ((seed ^ 0x7368) * 2 + 0x2A) ^ 0x6974.
+function mitsubishi_rar(seed){
+  const eax=(seed^0x7368)>>>0;
+  const ecx=((eax<<1)+0x2A)>>>0;
+  return (ecx^0x6974)>>>0;
+}
+
+// PowerTrain Integrated Module (LX) — 5 table XORs over a 8-entry u16 table.
+// i2 packing intentionally drops bit 7 then OR's bit 6 of seed back in
+// (matches the Python source byte-for-byte).
+function ptim_lx(seed){
+  seed=seed>>>0;
+  const T=[0xd785,0xd95b,0x68e7,0x8a4f,0x7f8b,0x8ae8,0x6f21,0x9a69];
+  const i0=(seed>>>13)&7;
+  const i1=(seed>>>10)&7;
+  const i2=((seed>>>7)&6)|((seed>>>6)&1);
+  const i3=(seed>>>3)&7;
+  const i4=seed&7;
+  let k=T[i0];
+  k=(k^T[i1])>>>0;
+  k=(k^T[i2])>>>0;
+  k=(k^T[i3])>>>0;
+  k=(k^T[i4])>>>0;
+  k=(k^(seed&0xFFFF))>>>0;
+  return ((seed&0xFFFF0000)|(k&0xFFFF))>>>0;
+}
+
 const ALGOS=[
   {id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},
   {id:'gpec2',n:'GPEC2',h:'Continental',fn:s=>sxor(s,0xE72E3799)},
@@ -175,6 +288,19 @@ const ALGOS=[
   {id:'alfa_w6_tu',n:'AlfaOBD w6/tu',h:'family 27 / level 3',fn:alfaW6ByU32('tu')},
   {id:'alfa_w6_tv',n:'AlfaOBD w6/tv',h:'family 27 / level 1',fn:alfaW6ByU32('tv')},
   {id:'alfa_w6_ez',n:'AlfaOBD w6/ez',h:'family 66 / level 3',fn:alfaW6ByU32('ez')},
+  // ── Asset-sweep promotions (formerly EXTENDED_ALGORITHMS) ──
+  // Each id matches the canonical tag stripped from the original Python
+  // name so loadKnownAlgorithmTags() picks them up and the next sweep
+  // marks the asset finding as `already-implemented`.
+  {id:'aisin_tcm',     n:'Aisin AS68/69 TCM',          h:'AS68RC/AS69RC TCM',                   fn:s=>aisin_tcm(s)},
+  {id:'alpine_radio',  n:'Alpine RA3/RA4',             h:'mid-spec UConnect 4 radio',           fn:s=>alpine_radio(s)},
+  {id:'bcm_fca',       n:'BCM FCA',                    h:'BCM 2016+ (srt_lab.py)',              fn:s=>bcm_fca(s)},
+  {id:'bcm_standard',  n:'BCM Standard',               h:'BCM 2007-2015 (srt_lab.py)',          fn:s=>bcm_standard(s)},
+  {id:'cummins_849',   n:'Cummins ISB 6.7L',           h:'CM2100/CM2200',                       fn:s=>cummins_849(s)},
+  {id:'dcx_ptcm',      n:'DCX PTCM',                   h:'PowerTrain Control Module',           fn:s=>dcx_ptcm(s)},
+  {id:'egs52',         n:'Mercedes EGS52',             h:'7G-Tronic transmission',              fn:s=>egs52(s)},
+  {id:'mitsubishi_rar',n:'Mitsubishi RAR',             h:'5" UConnect 3 radio',                 fn:s=>mitsubishi_rar(s)},
+  {id:'ptim_lx',       n:'PTIM (LX)',                  h:'PowerTrain Integrated Module',        fn:s=>ptim_lx(s)},
   // Catch-all picker entry: SeedTab special-cases this id and shows
   // (a) a wrapper-name input (auto-resolves through AOBD_W6) and
   // (b) a manual (r, s) hex input pair so the operator can try any of
