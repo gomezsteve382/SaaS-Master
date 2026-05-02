@@ -218,6 +218,34 @@ export default function UnlockCoverageTab() {
     return () => { cancelled = true; };
   }, []);
 
+  // Sweep-only delta promoted to canonical-row shape; empty when the sweep
+  // adds no new DLLs. Prefer `extension_entries` to avoid double-counting
+  // the canonical 81 rows that `entries` (the superset) also contains.
+  // Declared before `mergedEntries` so the TDZ doesn't trip useMemo's
+  // dependency capture (would otherwise throw "Cannot access 'extEntries'
+  // before initialization" on first render).
+  const extEntries = useMemo(() => {
+    if (!extCatalog) return [];
+    const sweepDelta = Array.isArray(extCatalog.extension_entries)
+      ? extCatalog.extension_entries
+      : (Array.isArray(extCatalog.entries) ? extCatalog.entries : []);
+    return sweepDelta.map((e) => ({
+      file: e.file,
+      module: `ext_${e.file}`,
+      display_name: e.file.replace(/\.dll$/i, ""),
+      family: "asset_sweep",
+      algorithm: null,
+      tx_can_id: null,
+      rx_can_id: null,
+      ecu_info: null,
+      size_bytes: e.size_bytes,
+      status: e.status || "dll_only",
+      python_function: null,
+      reason: e.reason,
+      provenance: e.provenance || extCatalog.provenance || "asset_sweep",
+    }));
+  }, [extCatalog]);
+
   // Computed from merged rows so families/algoCounts/totals stay
   // consistent when the asset-sweep extension contributes new entries.
   const mergedEntries = useMemo(
@@ -261,31 +289,6 @@ export default function UnlockCoverageTab() {
       // URL bookkeeping is best-effort; never break the UI over it.
     }
   }, [algoFilter]);
-
-  // Sweep-only delta promoted to canonical-row shape; empty when the sweep
-  // adds no new DLLs. Prefer `extension_entries` to avoid double-counting
-  // the canonical 81 rows that `entries` (the superset) also contains.
-  const extEntries = useMemo(() => {
-    if (!extCatalog) return [];
-    const sweepDelta = Array.isArray(extCatalog.extension_entries)
-      ? extCatalog.extension_entries
-      : (Array.isArray(extCatalog.entries) ? extCatalog.entries : []);
-    return sweepDelta.map((e) => ({
-      file: e.file,
-      module: `ext_${e.file}`,
-      display_name: e.file.replace(/\.dll$/i, ""),
-      family: "asset_sweep",
-      algorithm: null,
-      tx_can_id: null,
-      rx_can_id: null,
-      ecu_info: null,
-      size_bytes: e.size_bytes,
-      status: e.status || "dll_only",
-      python_function: null,
-      reason: e.reason,
-      provenance: e.provenance || extCatalog.provenance || "asset_sweep",
-    }));
-  }, [extCatalog]);
 
   const filtered = useMemo(() => {
     if (!catalog) return [];

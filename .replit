@@ -24,6 +24,10 @@ args = "srt-lab-test"
 task = "workflow.run"
 args = "unlock-catalog-check"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "asset-sweep-check"
+
 [[workflows.workflow]]
 name = "srt-lab-test"
 author = "agent"
@@ -42,6 +46,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python3 tools/python-bridge/tools/srtlab_unlock_catalog_gen.py --check && node artifacts/srt-lab/scripts/copy-unlock-catalog.mjs --check"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "asset-sweep-check"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm sweep:assets:check"
 
 [workflows.workflow.metadata]
 isValidation = true
