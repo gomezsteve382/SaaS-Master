@@ -1,7 +1,7 @@
 [project]
 name = "repl-nix-workspace"
 version = "0.1.0"
-description = "Root Python manifest for the Replit container. Installed via `uv sync` on container build so CI workflows (notably `unlock-catalog-check`) have the Python deps they need."
+description = "Python manifest for the python-bridge tooling (kept out of repo root so Replit's deployer does not auto-run `uv lock` against an empty .pythonlibs stub during Cloud Run builds — see Task #558 / replit.md). Dev/CI containers install these deps via the post-merge `pip install -r requirements.txt` block in scripts/post-merge.sh."
 requires-python = ">=3.11"
 dependencies = [
     # Required by tools/python-bridge/tools/srtlab_unlock_catalog_gen.py

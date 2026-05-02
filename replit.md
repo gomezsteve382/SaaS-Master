@@ -35,6 +35,8 @@ Processing helpers live in `src/lib/`:
 
 A desktop J2534 driver (Python, separate package) handles raw CAN PassThru when Web Serial is insufficient. The reference implementation of that driver — the localhost HTTP daemon `bridgeClient.js`/`bridgeEngine.js` talk to, plus 16 operational helper scripts and the per-module unlock DLL catalog — lives at `tools/python-bridge/` (sibling to `artifacts/`, **not** a pnpm package, not built or tested by CI). See `tools/python-bridge/README.md` for the wire protocol, Windows prerequisites, and per-script purpose.
 
+Python provisioning: `pyproject.toml` and `uv.lock` live at `tools/python-bridge/`, **not** at the repo root. Keeping them out of root prevents Replit's deployer from auto-running `uv lock` against an empty `.pythonlibs` stub in the build container (which was breaking `Publish` — see Task #558). Dev/CI containers get `pefile` via the post-merge `pip install -r tools/python-bridge/requirements.txt` step in `scripts/post-merge.sh`.
+
 The API server (`artifacts/api-server/`) is used for download counters, module backups, diff reports, and the **Anthropic AI module assistant**:
 
 - **Stateless one-shot** — `/api/anthropic/module-assistant` (SSE) — accepts module context and streams a single Claude reply. Used by code paths that don't persist a chat.
