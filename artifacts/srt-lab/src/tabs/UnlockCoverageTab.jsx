@@ -424,7 +424,7 @@ export default function UnlockCoverageTab() {
             <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}>
               {algoFilter === "all"
                 ? `${algoCounts.length} families across ${algoCounts.reduce((s, x) => s + x.count, 0)} modules — pick one to filter`
-                : <>Filtering by <strong style={{color: C.tx}}>{friendlyAlgo(algoFilter)}</strong> — click again or “All” to clear</>}
+                : <>Filtering by <strong style={{color: C.tx}}>{friendlyAlgo(algoFilter).label}</strong> — click again or “All” to clear</>}
             </div>
           </div>
           <div style={{display: "flex", flexWrap: "wrap", gap: 8}}>
@@ -439,7 +439,7 @@ export default function UnlockCoverageTab() {
             {algoCounts.map(({algorithm, count}) => (
               <AlgoChip
                 key={algorithm}
-                label={friendlyAlgo(algorithm)}
+                label={friendlyAlgo(algorithm).label}
                 count={count}
                 active={algoFilter === algorithm}
                 onClick={() => setAlgoFilter((cur) => cur === algorithm ? "all" : algorithm)}

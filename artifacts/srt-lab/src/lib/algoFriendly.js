@@ -10,7 +10,9 @@
 //   placeholder — true if the underlying tag is a freeform note rather than
 //                 a real algorithm family ("unfit", "bitpack", "cummins-style?").
 //                 The badge renders these in a muted "uncategorized" pill so
-//                 the table reads consistently.
+//                 the table reads consistently. As of Task #553 the catalog
+//                 no longer ships any placeholder tags — they are kept here
+//                 only as defensive fallbacks for future stray entries.
 //
 // New algorithm tags should be added here as soon as they appear in COVERAGE
 // or _EXTRA_ALGORITHMS in tools/python-bridge/tools/srtlab_unlock_catalog_gen.py.
@@ -106,6 +108,30 @@ export const ALGO_FRIENDLY = {
   cummins_t16: {
     label: "Cummins 16-bit table",
     description: "Verified Cummins-style 16-entry table, as used on the 6.7L diesel ECMs.",
+  },
+  aisin_t16_3pass: {
+    label: "Aisin 16-entry 3-pass chain",
+    description: "Three-pass sub/imul/add/not chain over a 16-entry stack table — Aisin AS68RC/AS69RC TCM signature.",
+  },
+  t16_chain: {
+    label: "16-bit chained table",
+    description: "16-entry table where each round's output indexes into the next — sister to t8_chain (4-round XOR/ADD accumulator).",
+  },
+  t8_xor_8tap: {
+    label: "8-bit XOR (8-tap loop)",
+    description: "Eight-shift loop XORing the seed through an 8-entry table at staggered bit offsets — Delphi HVAC signature.",
+  },
+  t8_add_4tap: {
+    label: "8-bit ADD 4-tap",
+    description: "Four-tap chained ADD over an 8-entry table, finished with an XOR against the original seed.",
+  },
+  t8_mod_imul: {
+    label: "8-bit MUL + modulo index",
+    description: "8-entry table multiplied against (seed+1) plus three modulo-indexed adds — Mitsubishi VES3 signature.",
+  },
+  byte_lane_mux: {
+    label: "Per-byte lane mux",
+    description: "Each seed byte is XORed and ADDed with fixed constants in its own lane, then ORed back together — ESM seat module.",
   },
   bit_driven_accum: {
     label: "Bit-driven accumulator",
