@@ -446,15 +446,15 @@ describe('flashEcm pre/post-flash etiquette (Task #563)', () => {
     expect(r.ok).toBe(true);
     // Exactly four etiquette frames: pre-0x85, pre-0x28, post-0x28, post-0x85.
     expect(eng.etiquette).toHaveLength(4);
-    // Pre-half: 0x85 0x82 on target, then 0x28 0x83 0x03 on broadcast.
-    expect(eng.etiquette[0].frame).toEqual([0x85, 0x82]);
+    // Pre-half: 0x85 0x02 on target, then 0x28 0x03 0x03 on broadcast.
+    expect(eng.etiquette[0].frame).toEqual([0x85, 0x02]);
     expect(eng.etiquette[0].tx).toBe(0x7E0);
-    expect(eng.etiquette[1].frame).toEqual([0x28, 0x83, 0x03]);
+    expect(eng.etiquette[1].frame).toEqual([0x28, 0x03, 0x03]);
     expect(eng.etiquette[1].tx).toBe(0x7DF);
-    // Post-half: 0x28 0x80 0x00 on broadcast, then 0x85 0x81 on target.
-    expect(eng.etiquette[2].frame).toEqual([0x28, 0x80, 0x00]);
+    // Post-half: 0x28 0x00 0x00 on broadcast, then 0x85 0x01 on target.
+    expect(eng.etiquette[2].frame).toEqual([0x28, 0x00, 0x00]);
     expect(eng.etiquette[2].tx).toBe(0x7DF);
-    expect(eng.etiquette[3].frame).toEqual([0x85, 0x81]);
+    expect(eng.etiquette[3].frame).toEqual([0x85, 0x01]);
     expect(eng.etiquette[3].tx).toBe(0x7E0);
     // Plain-language log lines must appear.
     const msgs = r.log.map(l => l.msg).join('\n');
@@ -481,12 +481,12 @@ describe('flashEcm pre/post-flash etiquette (Task #563)', () => {
     const r = await flashEcm({ engine: eng, payload, chunkSize: 0x80 }).start();
     expect(r.ok).toBe(true);
     const idxExt   = order.findIndex(a => a[0] === 0x10 && a[1] === 0x03);
-    const idx85Pre = order.findIndex(a => a[0] === 0x85 && a[1] === 0x82);
-    const idx28Pre = order.findIndex(a => a[0] === 0x28 && a[1] === 0x83);
+    const idx85Pre = order.findIndex(a => a[0] === 0x85 && a[1] === 0x02);
+    const idx28Pre = order.findIndex(a => a[0] === 0x28 && a[1] === 0x03);
     const idxProg  = order.findIndex(a => a[0] === 0x10 && a[1] === 0x02);
     const idxReset = order.findIndex(a => a[0] === 0x11 && a[1] === 0x01);
-    const idx28Post= order.findIndex(a => a[0] === 0x28 && a[1] === 0x80);
-    const idx85Post= order.findIndex(a => a[0] === 0x85 && a[1] === 0x81);
+    const idx28Post= order.findIndex(a => a[0] === 0x28 && a[1] === 0x00);
+    const idx85Post= order.findIndex(a => a[0] === 0x85 && a[1] === 0x01);
     expect(idxExt).toBeLessThan(idx85Pre);
     expect(idx85Pre).toBeLessThan(idx28Pre);
     expect(idx28Pre).toBeLessThan(idxProg);
@@ -512,8 +512,8 @@ describe('flashEcm pre/post-flash etiquette (Task #563)', () => {
     // Pre etiquette ran (2 frames), and post etiquette MUST also run
     // from the finally block (2 more frames) — total 4.
     expect(eng.etiquette).toHaveLength(4);
-    expect(eng.etiquette[2].frame).toEqual([0x28, 0x80, 0x00]);
-    expect(eng.etiquette[3].frame).toEqual([0x85, 0x81]);
+    expect(eng.etiquette[2].frame).toEqual([0x28, 0x00, 0x00]);
+    expect(eng.etiquette[3].frame).toEqual([0x85, 0x01]);
   });
 
   test('failure before etiquettePre completes still leaves the bus untouched', async () => {
@@ -530,35 +530,41 @@ describe('flashEcm pre/post-flash etiquette (Task #563)', () => {
     expect(eng.etiquette).toHaveLength(0);
   });
 
-  test('etiquette is best-effort — pre-half hiccup never fails the flash', async () => {
-    // Engine where 0x85 + 0x28 throw, but everything else works. The
-    // flasher must still complete successfully because etiquette is
-    // explicitly best-effort.
+  test('NRC on pre-flash 0x85 aborts the flash before erase/transfer', async () => {
+    // Engine that returns a 0x7F NRC on the very first 0x85 etiquette
+    // frame. With the strict NRC handling the task requires, the flash
+    // must abort here — never reaching 0x10 02 or any 0x36 transfer.
     const seed = 0;
-    const payload = new Uint8Array(8);
-    const script = [...happyPrefix(seed, cda6(seed) >>> 0), ...happyTail(payload)];
-    let i = 0;
+    const payload = new Uint8Array(64);
     const calls = [];
+    let etiquetteSeen = 0;
     const eng = {
       isBridge: true,
+      calls,
       async uds(tx, rx, frame) {
         const arr = frame instanceof Uint8Array ? Array.from(frame) : [...frame];
         if (arr[0] === 0x3E) return { ok: true, d: new Uint8Array(0) };
-        if (arr[0] === 0x85 || arr[0] === 0x28) {
-          throw new Error('simulated bus hiccup');
+        if (arr[0] === 0x85) {
+          etiquetteSeen++;
+          // 0x7F 0x85 0x22 = conditionsNotCorrect on ControlDTCSetting.
+          return { ok: true, d: bytes(0x7F, 0x85, 0x22) };
         }
         calls.push({ tx, rx, frame: arr });
-        const next = script[i++];
-        if (typeof next === 'function') return next(arr, calls.length - 1);
-        if (next) return next;
-        return { ok: true, d: new Uint8Array(0) };
+        // Only the extended session (first call) should be reachable.
+        if (calls.length === 1) return { ok: true, d: bytes(0x50, 0x03, 0x00, 0x32, 0x01, 0xF4) };
+        throw new Error('flasher should never reach here');
       },
     };
     const r = await flashEcm({ engine: eng, payload, chunkSize: 0x80 }).start();
-    expect(r.ok).toBe(true);
-    // Hiccup was logged plainly, not raised.
-    const msgs = r.log.map(l => l.msg).join('\n');
-    expect(msgs).toMatch(/hiccup.*simulated bus hiccup/i);
+    expect(r.ok).toBe(false);
+    expect(r.nrc).toBe(0x22);
+    expect(r.error).toMatch(/ControlDTCSetting.*negative response/i);
+    expect(etiquetteSeen).toBe(1); // 0x28 was never attempted
+    // Programming session, erase, RequestDownload, TransferData all skipped.
+    expect(calls.some(c => c.frame[0] === 0x10 && c.frame[1] === 0x02)).toBe(false);
+    expect(calls.some(c => c.frame[0] === 0x31)).toBe(false);
+    expect(calls.some(c => c.frame[0] === 0x34)).toBe(false);
+    expect(calls.some(c => c.frame[0] === 0x36)).toBe(false);
   });
 
   test('etiquettePost runs exactly once on the success path (no double restore)', async () => {

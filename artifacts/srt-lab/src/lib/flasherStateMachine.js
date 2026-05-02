@@ -2,14 +2,11 @@
 //
 // `flashEcm()` walks the FCA UDS programming session per Task #488 spec:
 //   1. Diagnostic Session Control 0x10 0x03 (extended)
-//   2. Pre-flash etiquette (Task #563):
-//        - ControlDTCSetting   0x85 0x82          on target ECU
-//        - CommunicationControl 0x28 0x83 0x03   on broadcast 0x7DF
-//      Both use the suppressPositiveResponse bit (high bit on the
-//      subfunction byte). The literal task spec calls for 0x85 0x02
-//      and 0x28 0x03 0x03; the suppress bit is added because broadcast
-//      0x28 must not generate per-ECU replies and we want etiquette to
-//      stay best-effort regardless of bus state.
+//   2. Pre-flash etiquette (Task #563), with the SAME NRC handling as
+//      the rest of the flash (a 0x7F NRC or transport failure aborts
+//      the run before erase/transfer ever begin):
+//        - ControlDTCSetting   0x85 0x02         on target ECU
+//        - CommunicationControl 0x28 0x03 0x03  on broadcast 0x7DF
 //   3. Diagnostic Session Control 0x10 0x02 (programming)
 //   4. (background) Tester Present keep-alive 0x3E 0x80 every keepAliveIntervalMs
 //   5. Security Access seed request — subfunction defaults to 0x09 per
@@ -27,9 +24,13 @@
 //  11. Request Transfer Exit 0x37.
 //  12. RoutineControl checksum/verify 0x31 0x01 0xFF 0x01 (RID overridable).
 //  13. ECU Reset 0x11 0x01.
-//  14. Post-flash etiquette (Task #563): restore both controls.
-//        - ControlDTCSetting   0x85 0x81          on target ECU
-//        - CommunicationControl 0x28 0x80 0x00   on broadcast 0x7DF
+//  14. Post-flash etiquette (Task #563): restore both controls. On the
+//      success path these use the same strict NRC handling as the rest
+//      of the flow. On the failure/abort path the finally block also
+//      attempts the restore, but tolerates errors so it does not mask
+//      the original abort/failure reason.
+//        - ControlDTCSetting   0x85 0x01         on target ECU
+//        - CommunicationControl 0x28 0x00 0x00  on broadcast 0x7DF
 //
 // On stop (AbortSignal), if the machine is mid-transfer or past the
 // RequestDownload phase, it makes one best-effort attempt to send 0x37
@@ -232,9 +233,9 @@ export function flashEcm(opts){
 
   function setPhase(p){ result.phase = p; progress({}); }
 
-  async function rawCall(bytes, label, expectResp=true){
+  async function rawCallOn(tx, rx, bytes, label, expectResp=true){
     log(`TX ${label}: ${bytes.map(b => hex(b)).join(' ')}`, 'tx');
-    const r = await engine.uds(addr.tx, addr.rx, bytes);
+    const r = await engine.uds(tx, rx, bytes);
     if (!r || !r.ok){
       if (!expectResp) return null;
       const err = new Error(`${label} failed: ${(r && r.error) || 'no response'}`);
@@ -256,58 +257,61 @@ export function flashEcm(opts){
     return arr;
   }
 
+  async function rawCall(bytes, label, expectResp=true){
+    return rawCallOn(addr.tx, addr.rx, bytes, label, expectResp);
+  }
+
   async function call(bytes, label){
     checkAborted(signal);
     return rawCall(bytes, label, true);
+  }
+
+  async function callOn(tx, rx, bytes, label){
+    checkAborted(signal);
+    return rawCallOn(tx, rx, bytes, label, true);
   }
 
   // Background TesterPresent keep-alive loop. Sends `0x3E 0x80` (suppress
   // positive response per ISO 14229) every keepAliveIntervalMs. Errors
   // are logged but never throw — we never want keep-alive to abort the
   // primary flow.
-  // Pre/post-flash etiquette (Task #563). Both halves are best-effort:
-  // they log warnings on hiccup but never throw, because failing to
-  // silence the bus must not block a flash and failing to restore must
-  // not mask the real flash result. `etiquetteApplied` guards the post
-  // half so the finally block does not double-restore after the success
-  // path already ran it.
+  // Pre/post-flash etiquette (Task #563). On the primary success path
+  // both halves use the same strict call()/NRC handling as the rest of
+  // the flow — a negative response or transport failure aborts the run.
+  // The finally block calls etiquettePostSafe() instead, which still
+  // attempts the restore frames but tolerates errors so a restore
+  // failure cannot mask the real abort/failure reason. The
+  // `etiquetteApplied` flag guards the post half so the finally block
+  // never double-restores after the success path already ran it.
   let etiquetteApplied = false;
   let etiquettePostRan = false;
-  async function bestEffortSend(tx, rx, bytes, label){
-    log(`TX ${label}: ${bytes.map(b => hex(b)).join(' ')}`, 'tx');
-    try {
-      const r = await engine.uds(tx, rx, bytes);
-      const d = r && (r.d || r.data);
-      if (d && d.length){
-        const arr = d instanceof Uint8Array ? d : new Uint8Array(d);
-        log(`RX ${label}: ${Array.from(arr).map(b => hex(b)).join(' ')}`, 'rx');
-        if (arr[0] === 0x7F){
-          const meta = explainNrc(arr);
-          log(`${label} NRC ${meta ? meta.text : '0x' + hex(arr[2] || 0)} — continuing`, 'warn');
-        }
-      }
-    } catch (e) {
-      log(`${label} hiccup: ${e && e.message ? e.message : e} — continuing`, 'warn');
-    }
-  }
   async function etiquettePre(){
     log('Pre-flash etiquette · suppressing DTC logging and silencing bus chatter', 'info');
-    // 0x85 0x82 = ControlDTCSetting OFF, suppress positive response.
-    await bestEffortSend(addr.tx, addr.rx, [0x85, 0x82], 'ControlDTCSetting 0x85 82 (DTC logging suppressed)');
-    // 0x28 0x83 0x03 = CommunicationControl disableRxAndTx, suppress
-    // positive response, normal + network management messages.
-    await bestEffortSend(broadcastTx, addr.rx, [0x28, 0x83, 0x03], `CommunicationControl 0x28 83 03 (Bus chatter silenced) → 0x${hex(broadcastTx, 3)}`);
+    // 0x85 0x02 = ControlDTCSetting OFF on the target ECU.
+    await call([0x85, 0x02], 'ControlDTCSetting 0x85 02 (DTC logging suppressed)');
+    // 0x28 0x03 0x03 = CommunicationControl disableRxAndTx for normal +
+    // network management messages, addressed functionally to broadcast.
+    await callOn(broadcastTx, addr.rx, [0x28, 0x03, 0x03], `CommunicationControl 0x28 03 03 (Bus chatter silenced) → 0x${hex(broadcastTx, 3)}`);
     etiquetteApplied = true;
   }
   async function etiquettePost(){
     if (!etiquetteApplied || etiquettePostRan) return;
     etiquettePostRan = true;
     log('Post-flash etiquette · restoring DTC logging and bus comms', 'info');
-    // 0x28 0x80 0x00 = CommunicationControl enableRxAndTx (normal
-    // messages), suppress positive response.
-    await bestEffortSend(broadcastTx, addr.rx, [0x28, 0x80, 0x00], `CommunicationControl 0x28 80 00 (Bus chatter restored) → 0x${hex(broadcastTx, 3)}`);
-    // 0x85 0x81 = ControlDTCSetting ON, suppress positive response.
-    await bestEffortSend(addr.tx, addr.rx, [0x85, 0x81], 'ControlDTCSetting 0x85 81 (DTC logging restored)');
+    // Restore frames intentionally use rawCallOn (no abort check) so
+    // that an aborted run still gets DTC + bus comms back. NRC/transport
+    // failures still throw — the finally-path wrapper catches them.
+    // 0x28 0x00 0x00 = CommunicationControl enableRxAndTx (normal), broadcast.
+    await rawCallOn(broadcastTx, addr.rx, [0x28, 0x00, 0x00], `CommunicationControl 0x28 00 00 (Bus chatter restored) → 0x${hex(broadcastTx, 3)}`, true);
+    // 0x85 0x01 = ControlDTCSetting ON on the target ECU.
+    await rawCallOn(addr.tx, addr.rx, [0x85, 0x01], 'ControlDTCSetting 0x85 01 (DTC logging restored)', true);
+  }
+  async function etiquettePostSafe(){
+    if (!etiquetteApplied || etiquettePostRan) return;
+    try { await etiquettePost(); }
+    catch (e) {
+      log(`Post-flash etiquette restore did not complete cleanly: ${e && e.message ? e.message : e} — continuing teardown`, 'warn');
+    }
   }
 
   let keepAliveTimer = null;
@@ -355,7 +359,7 @@ export function flashEcm(opts){
       // 1a) Pre-flash etiquette (Task #563). Runs in extended session
       // because 0x85 typically requires a non-default session, and we
       // want both controls in place before 0x10 0x02 starts erasing.
-      checkAborted(signal);
+      // Uses the standard NRC handling — a 0x7F here aborts the run.
       await etiquettePre();
 
       setPhase(PHASE.SESSION);
@@ -501,10 +505,11 @@ export function flashEcm(opts){
       return result;
     } finally {
       // Always try to restore etiquette before tearing down keep-alive.
-      // If etiquettePre never ran (early failure) etiquettePost no-ops,
-      // and if the success path already ran it the guard prevents a
-      // double restore. Errors here are swallowed by bestEffortSend.
-      try { await etiquettePost(); } catch {}
+      // If etiquettePre never ran (early failure) the post helper
+      // no-ops, and if the success path already ran it the guard
+      // prevents a double restore. The Safe variant tolerates errors
+      // here so a restore hiccup cannot mask the real abort/failure.
+      await etiquettePostSafe();
       stopKeepAlive();
     }
   }
