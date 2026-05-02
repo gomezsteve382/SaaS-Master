@@ -126,24 +126,16 @@ function slugToAlgo(slug) {
 
 export default function UnlockCoverageTab() {
   const [catalog, setCatalog] = useState(null);
-  // dispatcherStats holds the runtime view from /api/unlock-coverage/stats
-  // (the Python dispatcher's *live* native_count / emulated_count). When
-  // available, it is the authoritative source for the milestone banner so
-  // the UI reflects "what actually resolves right now", not just the cached
-  // counts in the on-disk catalog. Falls back to catalog values if the
-  // endpoint is offline or returns an error (logged via console.warn).
+  // Optional extended catalog from tools/asset-sweep (DLLs + UDS tables).
+  const [extCatalog, setExtCatalog] = useState(null);
+  // Live dispatcher stats; falls back to on-disk catalog counts if offline.
   const [dispatcherStats, setDispatcherStats] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [familyFilter, setFamilyFilter] = useState("all");
-  // algoFilter is the active algorithm-family chip (or "all" when none).
-  // It's seeded once from the URL so a shared link like
-  //   /?algo=hitag2_lfsr48
-  // re-opens with that chip pre-selected. We intentionally read URL state
-  // lazily inside the initializer (not via useEffect) so the very first
-  // render is already filtered, avoiding a brief flash of the full table.
+  // Active algorithm-family chip; seeded from ?algo=… so shared links open pre-filtered.
   const [algoFilter, setAlgoFilter] = useState(() => {
     if (typeof window === "undefined") return "all";
     try {
@@ -179,6 +171,25 @@ export default function UnlockCoverageTab() {
 
   useEffect(() => {
     let cancelled = false;
+    const url = `${import.meta.env.BASE_URL || "/"}unlock_catalog_extended.json`;
+    fetch(url, {cache: "no-cache"})
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        // Light shape check; the asset-sweep tool guarantees the schema but
+        // we keep the UI defensive so a corrupted file doesn't blank the tab.
+        if (
+          data && typeof data === "object"
+          && Array.isArray(data.entries)
+          && data.uds && typeof data.uds === "object"
+        ) setExtCatalog(data);
+      })
+      .catch(() => { /* extended catalog is optional */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
     fetch("/api/unlock-coverage/stats", {cache: "no-cache"})
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status} from /api/unlock-coverage/stats`);
@@ -207,27 +218,28 @@ export default function UnlockCoverageTab() {
     return () => { cancelled = true; };
   }, []);
 
-  const families = useMemo(() => {
-    if (!catalog) return [];
-    const set = new Set(catalog.entries.map((e) => e.family));
-    return Array.from(set).sort();
-  }, [catalog]);
+  // Computed from merged rows so families/algoCounts/totals stay
+  // consistent when the asset-sweep extension contributes new entries.
+  const mergedEntries = useMemo(
+    () => (catalog ? [...catalog.entries, ...extEntries] : []),
+    [catalog, extEntries],
+  );
 
-  // algoCounts is the data behind the chip row: one entry per distinct
-  // non-empty algorithm tag, with its module count. Sorted by count desc
-  // so the high-volume families (t8_xor, lcg_pair, t8_chain) come first.
-  // Ties broken alphabetically by tag for a stable order across renders.
+  const families = useMemo(() => {
+    const set = new Set(mergedEntries.map((e) => e.family));
+    return Array.from(set).sort();
+  }, [mergedEntries]);
+
   const algoCounts = useMemo(() => {
-    if (!catalog) return [];
     const m = new Map();
-    for (const e of catalog.entries) {
+    for (const e of mergedEntries) {
       if (!e.algorithm) continue;
       m.set(e.algorithm, (m.get(e.algorithm) || 0) + 1);
     }
     return Array.from(m.entries())
       .map(([algorithm, count]) => ({algorithm, count}))
       .sort((a, b) => b.count - a.count || a.algorithm.localeCompare(b.algorithm));
-  }, [catalog]);
+  }, [mergedEntries]);
 
   // Keep the URL in sync with the active chip so the filter is shareable.
   // Uses replaceState (not pushState) so chip clicks don't pollute browser
@@ -250,10 +262,35 @@ export default function UnlockCoverageTab() {
     }
   }, [algoFilter]);
 
+  // Sweep-only delta promoted to canonical-row shape; empty when the sweep
+  // adds no new DLLs. Prefer `extension_entries` to avoid double-counting
+  // the canonical 81 rows that `entries` (the superset) also contains.
+  const extEntries = useMemo(() => {
+    if (!extCatalog) return [];
+    const sweepDelta = Array.isArray(extCatalog.extension_entries)
+      ? extCatalog.extension_entries
+      : (Array.isArray(extCatalog.entries) ? extCatalog.entries : []);
+    return sweepDelta.map((e) => ({
+      file: e.file,
+      module: `ext_${e.file}`,
+      display_name: e.file.replace(/\.dll$/i, ""),
+      family: "asset_sweep",
+      algorithm: null,
+      tx_can_id: null,
+      rx_can_id: null,
+      ecu_info: null,
+      size_bytes: e.size_bytes,
+      status: e.status || "dll_only",
+      python_function: null,
+      reason: e.reason,
+      provenance: e.provenance || extCatalog.provenance || "asset_sweep",
+    }));
+  }, [extCatalog]);
+
   const filtered = useMemo(() => {
     if (!catalog) return [];
     const term = q.trim().toLowerCase();
-    return catalog.entries.filter((e) => {
+    return mergedEntries.filter((e) => {
       if (statusFilter !== "all" && e.status !== statusFilter) return false;
       if (familyFilter !== "all" && e.family !== familyFilter) return false;
       if (algoFilter !== "all" && e.algorithm !== algoFilter) return false;
@@ -261,7 +298,7 @@ export default function UnlockCoverageTab() {
       const blob = `${e.file} ${e.module} ${e.display_name} ${e.family} ${e.python_function || ""} ${e.algorithm || ""} ${e.ecu_info?.name || ""}`.toLowerCase();
       return blob.includes(term);
     });
-  }, [catalog, q, statusFilter, familyFilter, algoFilter]);
+  }, [catalog, q, statusFilter, familyFilter, algoFilter, mergedEntries]);
 
   function toggle(module) {
     setExpanded((prev) => {
@@ -411,7 +448,7 @@ export default function UnlockCoverageTab() {
           <Btn outline onClick={() => { setQ(""); setStatusFilter("all"); setFamilyFilter("all"); setAlgoFilter("all"); }}>Reset</Btn>
         </div>
         <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, marginTop: 10}}>
-          Showing <strong style={{color: C.tx}}>{filtered.length}</strong> of {catalog.entry_count} entries
+          Showing <strong style={{color: C.tx}}>{filtered.length}</strong> of {mergedEntries.length} entries
         </div>
       </Card>
 
@@ -475,8 +512,18 @@ export default function UnlockCoverageTab() {
                 const open = expanded.has(e.module);
                 return (
                   <React.Fragment key={e.module}>
-                    <tr data-testid={`row-${e.module}`} style={{borderTop: `1px solid ${C.bd}`, background: open ? "#0000000A" : "transparent"}}>
-                      <td style={{padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.tx}}>{e.file}</td>
+                    <tr data-testid={`row-${e.module}`} data-provenance={e.provenance || "catalog"} style={{borderTop: `1px solid ${C.bd}`, background: open ? "#0000000A" : "transparent"}}>
+                      <td style={{padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.tx}}>
+                        {e.file}
+                        {e.provenance === "asset_sweep" && (
+                          <span data-testid={`provenance-chip-${e.module}`} title="Surfaced by tools/asset-sweep — re-run with `pnpm sweep:assets`" style={{
+                            marginLeft: 8, fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: 8, fontWeight: 800, letterSpacing: 1,
+                            padding: "1px 5px", borderRadius: 3,
+                            background: "#9C27B014", color: "#6A1B9A",
+                          }}>SWEEP</span>
+                        )}
+                      </td>
                       <td style={{padding: "10px 12px", color: C.tx}}>{e.display_name}</td>
                       <td style={{padding: "10px 12px"}}>
                         <span style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.tm, background: "#0001", padding: "2px 6px", borderRadius: 4}}>{e.family}</span>
@@ -567,6 +614,139 @@ export default function UnlockCoverageTab() {
           </table>
         </div>
       </Card>
+
+      {/* Extended catalog appendix — asset sweep provenance.
+          Always rendered (even when DLL-only is empty) because the UDS
+          service / NRC / DID dictionaries are useful on their own and
+          replace what used to be hand-maintained in srtlab_uds_errors.py. */}
+      {extCatalog && (
+        <Card data-testid="asset-sweep-appendix">
+          <div style={{display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 10}}>
+            <div style={{fontFamily: "'Nunito'", fontWeight: 900, fontSize: 16, color: C.tx}}>
+              Asset sweep appendix
+            </div>
+            <span style={{
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 800,
+              padding: "2px 7px", borderRadius: 999,
+              background: "#9C27B014", color: "#6A1B9A", letterSpacing: 1,
+            }}>provenance: {extCatalog.provenance || "asset_sweep"}</span>
+            <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}>
+              Re-run with <code style={{padding: "1px 5px", background: "#0001", borderRadius: 3, fontSize: 10}}>pnpm sweep:assets</code>.
+            </div>
+          </div>
+
+          {/* Extended DLL entries (status: dll_only) — the sweep-side
+              delta from `extension_entries`. Currently zero, but when a
+              future drop adds a new canflash unlock DLL it shows up here
+              without needing to touch the python catalog. */}
+          {(() => {
+            const sweepDelta = Array.isArray(extCatalog.extension_entries)
+              ? extCatalog.extension_entries
+              : (Array.isArray(extCatalog.entries) ? extCatalog.entries : []);
+            if (sweepDelta.length === 0) return null;
+            return (
+              <div style={{marginBottom: 14}}>
+                <div style={{fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, color: C.tx, marginBottom: 6}}>
+                  New DLLs found in attached_assets/ ({sweepDelta.length})
+                </div>
+                <table data-testid="ext-dll-table" style={{width: "100%", borderCollapse: "collapse", fontFamily: "'JetBrains Mono', monospace", fontSize: 11}}>
+                  <thead style={{background: "#0000000A"}}>
+                    <tr>
+                      <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm}}>FILE</th>
+                      <th style={{textAlign: "right", padding: "6px 10px", fontSize: 10, color: C.tm}}>SIZE</th>
+                      <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm}}>SHA256 (8)</th>
+                      <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm}}>WHY</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sweepDelta.map((e) => (
+                      <tr key={e.file} style={{borderTop: `1px solid ${C.bd}`}}>
+                        <td style={{padding: "6px 10px", color: C.tx}}>{e.file}</td>
+                        <td style={{padding: "6px 10px", textAlign: "right", color: C.tm}}>{e.size_bytes}</td>
+                        <td style={{padding: "6px 10px", color: C.tm}}>{(e.sha256 || "").slice(0, 8)}…</td>
+                        <td style={{padding: "6px 10px", fontFamily: "'Nunito'", fontSize: 11, color: C.tx}}>{e.reason}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })()}
+
+          <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14}}>
+            {extCatalog.uds.services && (
+              <UdsCodeList
+                title="UDS Services (ISO 14229-1)"
+                source={extCatalog.uds.services.sourcePath}
+                codes={extCatalog.uds.services.codes}
+                testId="uds-services"
+              />
+            )}
+            {extCatalog.uds.negative_response_codes && (
+              <UdsCodeList
+                title="Negative Response Codes"
+                source={extCatalog.uds.negative_response_codes.sourcePath}
+                codes={extCatalog.uds.negative_response_codes.codes}
+                testId="uds-nrcs"
+              />
+            )}
+            {extCatalog.uds.sessions && (
+              <UdsCodeList
+                title="Diagnostic Sessions"
+                source={extCatalog.uds.sessions.sourcePath}
+                codes={extCatalog.uds.sessions.codes}
+                testId="uds-sessions"
+              />
+            )}
+          </div>
+
+          {extCatalog.uds.did_maps && extCatalog.uds.did_maps.length > 0 && (
+            <div style={{marginTop: 14}}>
+              <div style={{fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, color: C.tx, marginBottom: 4}}>
+                DID maps ({extCatalog.uds.did_maps.length} source files)
+              </div>
+              <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}>
+                {extCatalog.uds.did_maps.reduce((s, m) => s + (m.count || 0), 0)} DID definitions across the
+                AlfaOBD database dumps. Largest:{" "}
+                <strong style={{color: C.tx}}>
+                  {Math.max(...extCatalog.uds.did_maps.map((m) => m.count || 0))} entries
+                </strong>.
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// Compact UDS code-table renderer used inside the asset-sweep appendix.
+// The data shape is `{ "0xNN": "(Name, Description)" | "name" }` straight
+// out of the python source — we display it as-is since the value strings
+// are already operator-readable.
+function UdsCodeList({title, source, codes, testId}) {
+  const entries = Object.entries(codes || {}).sort(([a], [b]) =>
+    parseInt(a, 16) - parseInt(b, 16));
+  return (
+    <div data-testid={testId}>
+      <div style={{fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, color: C.tx, marginBottom: 4}}>
+        {title} <span style={{fontWeight: 600, color: C.tm}}>({entries.length})</span>
+      </div>
+      <div style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.tm, marginBottom: 6, wordBreak: "break-all"}}>
+        from {source}
+      </div>
+      <div style={{maxHeight: 220, overflow: "auto", border: `1px solid ${C.bd}`, borderRadius: 6, background: "#0000000A"}}>
+        <table style={{width: "100%", borderCollapse: "collapse", fontFamily: "'JetBrains Mono', monospace", fontSize: 10}}>
+          <tbody>
+            {entries.map(([code, value]) => (
+              <tr key={code} style={{borderTop: `1px solid ${C.bd}80`}}>
+                <td style={{padding: "3px 8px", color: C.a3, fontWeight: 700, whiteSpace: "nowrap"}}>{code}</td>
+                <td style={{padding: "3px 8px", color: C.tx}}>{value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

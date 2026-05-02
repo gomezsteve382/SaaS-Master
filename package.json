@@ -8,7 +8,9 @@
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
     "bundle": "node scripts/build-codebase-bundle.mjs",
-    "setup-hooks": "node scripts/setup-hooks.mjs"
+    "setup-hooks": "node scripts/setup-hooks.mjs",
+    "sweep:assets": "node tools/asset-sweep/src/sweep.mjs",
+    "sweep:assets:check": "node tools/asset-sweep/src/sweep.mjs --check"
   },
   "private": true,
   "devDependencies": {

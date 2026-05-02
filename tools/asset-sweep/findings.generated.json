@@ -1,0 +1,3416 @@
+{
+  "schema_version": 1,
+  "generated_by": "tools/asset-sweep/src/sweep.mjs",
+  "description": "Normalized findings — one record per detection. `coverageStatus` is one of 'already-implemented' / 'partial-match' / 'new' (the unlock-coverage contract). The orthogonal `ported` boolean marks entries this sweep ships an executable JS port for in extendedAlgorithms.generated.js (joined by `tag`).",
+  "counts": {
+    "algorithms": {
+      "already-implemented": 26,
+      "partial-match": 0,
+      "new": 12,
+      "ported_in_sweep": 9
+    },
+    "dlls": {
+      "already-implemented": 81,
+      "new": 0
+    },
+    "decompiled_strings_hits": 4
+  },
+  "algorithms": [
+    {
+      "tag": "aisin_tcm",
+      "coverageStatus": "new",
+      "ported": true,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "Aisin AS68RC/AS69RC TCM — 3-stage sub/add/imul/not chain, indexed by seed & 7.",
+      "signatures": [
+        "PTIM_LX_TABLE_HEAD"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "aisin_tcm_unlock",
+          "shape": "f49fed081d4c4c02"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "aisin_tcm_unlock",
+          "shape": "f49fed081d4c4c02"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "aisin_tcm_unlock",
+          "shape": "f49fed081d4c4c02"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "aisin_tcm_unlock",
+          "shape": "f49fed081d4c4c02"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "aisin_tcm_unlock",
+          "shape": "f49fed081d4c4c02"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "aisin_tcm_unlock",
+          "shape": "f49fed081d4c4c02"
+        }
+      ],
+      "port": {
+        "label": "Aisin AS68/69 TCM",
+        "vectorCount": 8,
+        "verified": true,
+        "failed": []
+      }
+    },
+    {
+      "tag": "alpine_radio",
+      "coverageStatus": "new",
+      "ported": true,
+      "partialMatchOf": null,
+      "params": "seed, arg2=0",
+      "docstring": "Alpine RA3/RA4 radio — different LCG constants, XOR 0x58C2.\n    \n    Used by: mid-spec 7\" UConnect 4 Alpine head units.",
+      "signatures": [
+        "ALPINE_RADIO_CONST",
+        "DCX_PTCM_CONST"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_radio_unlock",
+          "shape": "83c9aea5479da15e"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_radio_unlock",
+          "shape": "83c9aea5479da15e"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_radio_unlock",
+          "shape": "83c9aea5479da15e"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_radio_unlock",
+          "shape": "83c9aea5479da15e"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_radio_unlock",
+          "shape": "83c9aea5479da15e"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_radio_unlock",
+          "shape": "83c9aea5479da15e"
+        }
+      ],
+      "port": {
+        "label": "Alpine RA3/RA4 radio (mid-spec UConnect 4)",
+        "vectorCount": 8,
+        "verified": true,
+        "failed": []
+      }
+    },
+    {
+      "tag": "alpine_rak",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed, arg2=0",
+      "docstring": "Alpine Radio Amplifier Kit — LCG pair XOR 0x4E2B.\n    \n    Used by: early UConnect 4 RA4 low-spec head units.",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_rak_unlock",
+          "shape": "f2733f307cad940c"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_rak_unlock",
+          "shape": "f2733f307cad940c"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_rak_unlock",
+          "shape": "f2733f307cad940c"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_rak_unlock",
+          "shape": "f2733f307cad940c"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_rak_unlock",
+          "shape": "f2733f307cad940c"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "alpine_rak_unlock",
+          "shape": "f2733f307cad940c"
+        }
+      ]
+    },
+    {
+      "tag": "ao",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "XTEA-based seed-key. Seed packed big-endian.\n    Triggered for UCONNECT (0x149) or RADIO_FGA (0x14E) at access level 5.",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "06ee97de051248d1"
+        },
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "ao",
+          "shape": "6eba6cbb6f584af8"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573163345.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "696ec679703956a3"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573163346.js",
+          "lang": "javascript",
+          "pythonName": "ao",
+          "shape": "6eba6cbb6f584af8"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.js",
+          "lang": "javascript",
+          "pythonName": "ao",
+          "shape": "6eba6cbb6f584af8"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "06ee97de051248d1"
+        },
+        {
+          "sourcePath": "attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "ao",
+          "shape": "6eba6cbb6f584af8"
+        },
+        {
+          "sourcePath": "attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "696ec679703956a3"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "06ee97de051248d1"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "ao",
+          "shape": "6eba6cbb6f584af8"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573163345.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "696ec679703956a3"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573163346.js",
+          "lang": "javascript",
+          "pythonName": "ao",
+          "shape": "6eba6cbb6f584af8"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573875649.js",
+          "lang": "javascript",
+          "pythonName": "ao",
+          "shape": "6eba6cbb6f584af8"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "06ee97de051248d1"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "ao",
+          "shape": "6eba6cbb6f584af8"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "696ec679703956a3"
+        }
+      ]
+    },
+    {
+      "tag": "bcm_fca",
+      "coverageStatus": "new",
+      "ported": true,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "",
+      "signatures": [
+        "BCM_FCA_CONST"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_fca",
+          "shape": "e74733b6e7a4cbac"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_fca",
+          "shape": "e74733b6e7a4cbac"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_fca",
+          "shape": "e74733b6e7a4cbac"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_fca",
+          "shape": "e74733b6e7a4cbac"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_fca",
+          "shape": "eb2e26715b53f723"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_fca",
+          "shape": "e74733b6e7a4cbac"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_fca",
+          "shape": "e74733b6e7a4cbac"
+        }
+      ],
+      "port": {
+        "label": "BCM FCA (BCM 2016+, srt_lab.py)",
+        "vectorCount": 8,
+        "verified": true,
+        "failed": []
+      }
+    },
+    {
+      "tag": "bcm_standard",
+      "coverageStatus": "new",
+      "ported": true,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "",
+      "signatures": [
+        "BCM_STANDARD_CONST"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_standard",
+          "shape": "d2b1d3ec82ed9036"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_standard",
+          "shape": "d2b1d3ec82ed9036"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_standard",
+          "shape": "d2b1d3ec82ed9036"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_standard",
+          "shape": "d2b1d3ec82ed9036"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_bcm_standard",
+          "shape": "fb01044fe2ecc523"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_standard",
+          "shape": "d2b1d3ec82ed9036"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "bcm_standard",
+          "shape": "d2b1d3ec82ed9036"
+        }
+      ],
+      "port": {
+        "label": "BCM Standard (BCM 2007-2015, srt_lab.py)",
+        "vectorCount": 8,
+        "verified": true,
+        "failed": []
+      }
+    },
+    {
+      "tag": "bosch_abs",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "bosch_abs.dll — Bosch ABS.  GF(2) bit-indexed. Self-test 16/16, emu 5/5 ✓",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_bosch_abs",
+          "shape": "a01c043efc670037"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_bosch_abs",
+          "shape": "a01c043efc670037"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_bosch_abs",
+          "shape": "a01c043efc670037"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_bosch_abs",
+          "shape": "a01c043efc670037"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_bosch_abs",
+          "shape": "a01c043efc670037"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_bosch_abs",
+          "shape": "a01c043efc670037"
+        }
+      ]
+    },
+    {
+      "tag": "cda6",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "CDA6 — BCM/ABS/IPC primary",
+      "signatures": [
+        "CDA6_MAGIC",
+        "GPEC_KEY_DAIM"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "cda6",
+          "shape": "0f642ea20fa9cee6"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "cda6",
+          "shape": "0f642ea20fa9cee6"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "cda6",
+          "shape": "0f642ea20fa9cee6"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "cda6",
+          "shape": "0f642ea20fa9cee6"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_cda6",
+          "shape": "5b3fa4ed9ab372df"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "cda6",
+          "shape": "0f642ea20fa9cee6"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "cda6",
+          "shape": "0f642ea20fa9cee6"
+        }
+      ]
+    },
+    {
+      "tag": "check_trivial_transforms",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed, key",
+      "docstring": "Check if key is a simple function of seed (XOR, byte-rev, etc).",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_seedkey_capture.py",
+          "lang": "python",
+          "pythonName": "check_trivial_transforms",
+          "shape": "e5de6a9eba281cb2"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_seedkey_capture.py",
+          "lang": "python",
+          "pythonName": "check_trivial_transforms",
+          "shape": "e5de6a9eba281cb2"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_seedkey_capture.py",
+          "lang": "python",
+          "pythonName": "check_trivial_transforms",
+          "shape": "e5de6a9eba281cb2"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_seedkey_capture.py",
+          "lang": "python",
+          "pythonName": "check_trivial_transforms",
+          "shape": "e5de6a9eba281cb2"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_seedkey_capture.py",
+          "lang": "python",
+          "pythonName": "check_trivial_transforms",
+          "shape": "e5de6a9eba281cb2"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_seedkey_capture.py",
+          "lang": "python",
+          "pythonName": "check_trivial_transforms",
+          "shape": "e5de6a9eba281cb2"
+        }
+      ],
+      "rationale": "Diagnostic helper — checks if a captured (seed, key) pair matches a trivial transform (identity, byte-reverse, NOT, ROL/ROR…). Not a unlock cipher; lives in srtlab_seedkey_capture.py for offline forensics. The corresponding helper already lives in the in-repo python toolchain — no JS port needed."
+    },
+    {
+      "tag": "cummins_849",
+      "coverageStatus": "new",
+      "ported": true,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "Cummins ISB 6.7L — 16-entry 32-bit table, 4 rotating XORs + seed + 0x55111511.",
+      "signatures": [
+        "HUNTSVILLE_RADIO_TABLE_HEAD"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "cummins_849_unlock",
+          "shape": "6b4d19771871ffd2"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "cummins_849_unlock",
+          "shape": "6b4d19771871ffd2"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "cummins_849_unlock",
+          "shape": "6b4d19771871ffd2"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "cummins_849_unlock",
+          "shape": "6b4d19771871ffd2"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "cummins_849_unlock",
+          "shape": "6b4d19771871ffd2"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "cummins_849_unlock",
+          "shape": "6b4d19771871ffd2"
+        }
+      ],
+      "port": {
+        "label": "Cummins ISB 6.7L (CM2100/CM2200)",
+        "vectorCount": 8,
+        "verified": true,
+        "failed": []
+      }
+    },
+    {
+      "tag": "dcx_ptcm",
+      "coverageStatus": "new",
+      "ported": true,
+      "partialMatchOf": null,
+      "params": "seed, arg2=0",
+      "docstring": "DCX PTCM — LCG(0x41C64E6D, 0x3039) pair ^ 0xF3DD1133.",
+      "signatures": [
+        "DCX_PTCM_CONST"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "dcx_ptcm_unlock",
+          "shape": "4be49d30be14692e"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "dcx_ptcm_unlock",
+          "shape": "4be49d30be14692e"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "dcx_ptcm_unlock",
+          "shape": "4be49d30be14692e"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "dcx_ptcm_unlock",
+          "shape": "4be49d30be14692e"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "dcx_ptcm_unlock",
+          "shape": "4be49d30be14692e"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "dcx_ptcm_unlock",
+          "shape": "4be49d30be14692e"
+        }
+      ],
+      "port": {
+        "label": "DCX PowerTrain Control Module",
+        "vectorCount": 8,
+        "verified": true,
+        "failed": []
+      }
+    },
+    {
+      "tag": "dispatch",
+      "coverageStatus": "new",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": {
+        "variants": 10
+      },
+      "docstring": "AlfaOBD algorithm-catalog row 'dispatch' (10 variants).",
+      "signatures": [
+        "family_17",
+        "family_21",
+        "family_22",
+        "family_27",
+        "family_31",
+        "family_37",
+        "family_39",
+        "family_66"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_algorithm_catalog.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "dispatch",
+          "shape": "59ac2996dd138f53"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_algorithm_catalog_1776573875648.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "dispatch",
+          "shape": "59ac2996dd138f53"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_algorithm_catalog.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "dispatch",
+          "shape": "59ac2996dd138f53"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_algorithm_catalog_1776573875648.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "dispatch",
+          "shape": "59ac2996dd138f53"
+        }
+      ]
+    },
+    {
+      "tag": "egs52",
+      "coverageStatus": "new",
+      "ported": true,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "Mercedes EGS52 — (seed ^ 0x5AA5A5A5) * 0x5AA5A5A5.",
+      "signatures": [
+        "AISIN_STACK_HEAD",
+        "EGS52_CONST"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "egs52_unlock",
+          "shape": "ed7aa76b97155e2f"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "egs52_unlock",
+          "shape": "ed7aa76b97155e2f"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "egs52_unlock",
+          "shape": "ed7aa76b97155e2f"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "egs52_unlock",
+          "shape": "ed7aa76b97155e2f"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "egs52_unlock",
+          "shape": "ed7aa76b97155e2f"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "egs52_unlock",
+          "shape": "ed7aa76b97155e2f"
+        }
+      ],
+      "port": {
+        "label": "Mercedes EGS52 (7G-Tronic)",
+        "vectorCount": 8,
+        "verified": true,
+        "failed": []
+      }
+    },
+    {
+      "tag": "f",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "XTEA-based seed-key. Seed packed little-endian.\n    Triggered when af::ix=true AND af::ge=51 AND af::aj=5.",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        },
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "f",
+          "shape": "f4c0921935e05e89"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573163345.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573163346.js",
+          "lang": "javascript",
+          "pythonName": "f",
+          "shape": "f4c0921935e05e89"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.js",
+          "lang": "javascript",
+          "pythonName": "f",
+          "shape": "f4c0921935e05e89"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        },
+        {
+          "sourcePath": "attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "f",
+          "shape": "f4c0921935e05e89"
+        },
+        {
+          "sourcePath": "attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "f",
+          "shape": "f4c0921935e05e89"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573163345.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573163346.js",
+          "lang": "javascript",
+          "pythonName": "f",
+          "shape": "f4c0921935e05e89"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573875649.js",
+          "lang": "javascript",
+          "pythonName": "f",
+          "shape": "f4c0921935e05e89"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "f",
+          "shape": "f4c0921935e05e89"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        }
+      ]
+    },
+    {
+      "tag": "gpec",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "GPEC — 16-round XTEA-style Feistel using DAIMLERCHRYSLER3 as key.",
+      "signatures": [
+        "GPEC_KEY_DAIM"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "gpec_unlock",
+          "shape": "9e456efdfda39d88"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "gpec_unlock",
+          "shape": "9e456efdfda39d88"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "gpec_unlock",
+          "shape": "9e456efdfda39d88"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "gpec_unlock",
+          "shape": "9e456efdfda39d88"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "gpec_unlock",
+          "shape": "9e456efdfda39d88"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "gpec_unlock",
+          "shape": "9e456efdfda39d88"
+        }
+      ]
+    },
+    {
+      "tag": "ht",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "Simple bit-shuffle seed-key (AlfaOBD ad::ht).",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        },
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "ht",
+          "shape": "d16383878b296e95"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573163345.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573163346.js",
+          "lang": "javascript",
+          "pythonName": "ht",
+          "shape": "d16383878b296e95"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.js",
+          "lang": "javascript",
+          "pythonName": "ht",
+          "shape": "d16383878b296e95"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        },
+        {
+          "sourcePath": "attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "ht",
+          "shape": "d16383878b296e95"
+        },
+        {
+          "sourcePath": "attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "ht",
+          "shape": "d16383878b296e95"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573163345.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573163346.js",
+          "lang": "javascript",
+          "pythonName": "ht",
+          "shape": "d16383878b296e95"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573875649.js",
+          "lang": "javascript",
+          "pythonName": "ht",
+          "shape": "d16383878b296e95"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "ht",
+          "shape": "d16383878b296e95"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphafiles_1776573088557.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        }
+      ]
+    },
+    {
+      "tag": "huntsville_bcm",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "huntsville_bcm.dll — Chrysler BCM/FCM.  Self-test 10/10, emu 5/5 ✓",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_bcm",
+          "shape": "a32a38b4e7b7d183"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_bcm",
+          "shape": "a32a38b4e7b7d183"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_bcm",
+          "shape": "a32a38b4e7b7d183"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_bcm",
+          "shape": "a32a38b4e7b7d183"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_bcm",
+          "shape": "a32a38b4e7b7d183"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_bcm",
+          "shape": "a32a38b4e7b7d183"
+        }
+      ]
+    },
+    {
+      "tag": "huntsville_radio",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "Harman Huntsville radio — 8-entry table, 5 XORs shifts (13,10,7,4,0), xor 0xCA59.\n    \n    Used by: 8.4\" UConnect 4/4C RA3/RA4 head units.",
+      "signatures": [
+        "HUNTSVILLE_RADIO_TABLE_HEAD"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "huntsville_radio_unlock",
+          "shape": "941753ef6b911ef5"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_radio",
+          "shape": "f9c3a6ec1b084583"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "huntsville_radio_unlock",
+          "shape": "941753ef6b911ef5"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_radio",
+          "shape": "f9c3a6ec1b084583"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "huntsville_radio_unlock",
+          "shape": "941753ef6b911ef5"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_radio",
+          "shape": "f9c3a6ec1b084583"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "huntsville_radio_unlock",
+          "shape": "941753ef6b911ef5"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_radio",
+          "shape": "f9c3a6ec1b084583"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "huntsville_radio_unlock",
+          "shape": "941753ef6b911ef5"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_radio",
+          "shape": "f9c3a6ec1b084583"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "huntsville_radio_unlock",
+          "shape": "941753ef6b911ef5"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_huntsville_radio",
+          "shape": "f9c3a6ec1b084583"
+        }
+      ]
+    },
+    {
+      "tag": "may_scofield_itm",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "may_scofield_itm.dll — ITM.  Self-test 8/8, emu 5/5 ✓",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_may_scofield_itm",
+          "shape": "bb56926ca36a58be"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_may_scofield_itm",
+          "shape": "bb56926ca36a58be"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_may_scofield_itm",
+          "shape": "bb56926ca36a58be"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_may_scofield_itm",
+          "shape": "bb56926ca36a58be"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_may_scofield_itm",
+          "shape": "bb56926ca36a58be"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_may_scofield_itm",
+          "shape": "bb56926ca36a58be"
+        }
+      ]
+    },
+    {
+      "tag": "meta",
+      "coverageStatus": "new",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": {
+        "variants": 3
+      },
+      "docstring": "AlfaOBD algorithm-catalog row 'meta' (3 variants).",
+      "signatures": [
+        "notes",
+        "w6_count",
+        "w7_count"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_algorithm_catalog.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "meta",
+          "shape": "a6339d198d3c83c2"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_algorithm_catalog_1776573875648.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "meta",
+          "shape": "a6339d198d3c83c2"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_algorithm_catalog.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "meta",
+          "shape": "a6339d198d3c83c2"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_algorithm_catalog_1776573875648.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "meta",
+          "shape": "a6339d198d3c83c2"
+        }
+      ]
+    },
+    {
+      "tag": "mitsubishi_rar",
+      "coverageStatus": "new",
+      "ported": true,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "Mitsubishi RAR — ((seed ^ 0x7368) * 2 + 0x2A) ^ 0x6974.\n    \n    Used by: 5\" UConnect 3 RA1/RA2 head units.",
+      "signatures": [
+        "MITSUBISHI_RAR_CONST"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "mitsubishi_rar_unlock",
+          "shape": "51c6784eef0e3583"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "mitsubishi_rar_unlock",
+          "shape": "51c6784eef0e3583"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "mitsubishi_rar_unlock",
+          "shape": "51c6784eef0e3583"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "mitsubishi_rar_unlock",
+          "shape": "51c6784eef0e3583"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "mitsubishi_rar_unlock",
+          "shape": "51c6784eef0e3583"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "mitsubishi_rar_unlock",
+          "shape": "51c6784eef0e3583"
+        }
+      ],
+      "port": {
+        "label": "Mitsubishi RAR (5\" UConnect 3)",
+        "vectorCount": 8,
+        "verified": true,
+        "failed": []
+      }
+    },
+    {
+      "tag": "motorola_tipm7",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "motorola_tipm7.dll — TIPM_7.  Self-test 10/10, emu 5/5 ✓",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_motorola_tipm7",
+          "shape": "fe43f1d98c598c12"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_motorola_tipm7",
+          "shape": "fe43f1d98c598c12"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_motorola_tipm7",
+          "shape": "fe43f1d98c598c12"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_motorola_tipm7",
+          "shape": "fe43f1d98c598c12"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_motorola_tipm7",
+          "shape": "fe43f1d98c598c12"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_motorola_tipm7",
+          "shape": "fe43f1d98c598c12"
+        }
+      ]
+    },
+    {
+      "tag": "ngc",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "",
+      "signatures": [
+        "GPEC_KEY_DAIM"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "ngc",
+          "shape": "5425cb694c5aec18"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "ngc",
+          "shape": "5425cb694c5aec18"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "ngc",
+          "shape": "5425cb694c5aec18"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "ngc",
+          "shape": "5425cb694c5aec18"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_ngc",
+          "shape": "9bb074d4d8d6529d"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "ngc",
+          "shape": "5425cb694c5aec18"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "ngc",
+          "shape": "5425cb694c5aec18"
+        }
+      ]
+    },
+    {
+      "tag": "ngc_engine",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "NGC gas engine — 1 right-rotate, 5 table XORs, xor 0x537E.",
+      "signatures": [
+        "NGC_ENGINE_TABLE_HEAD"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_engine_unlock",
+          "shape": "bb926ba4dc5e70fa"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_engine",
+          "shape": "78b0fbcfb8d57e59"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_engine_unlock",
+          "shape": "bb926ba4dc5e70fa"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_engine",
+          "shape": "78b0fbcfb8d57e59"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_engine_unlock",
+          "shape": "bb926ba4dc5e70fa"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_engine",
+          "shape": "78b0fbcfb8d57e59"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_engine_unlock",
+          "shape": "bb926ba4dc5e70fa"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_engine",
+          "shape": "78b0fbcfb8d57e59"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_engine_unlock",
+          "shape": "bb926ba4dc5e70fa"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_engine",
+          "shape": "78b0fbcfb8d57e59"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_engine_unlock",
+          "shape": "bb926ba4dc5e70fa"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_engine",
+          "shape": "78b0fbcfb8d57e59"
+        }
+      ]
+    },
+    {
+      "tag": "ngc_transmission",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "NGC transmission — 4 right-rotates, different shifts and table, xor 0x1EA4.",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_transmission_unlock",
+          "shape": "1f9587407e1cf74c"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_transmission",
+          "shape": "3a13d49c680d7b6f"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_transmission_unlock",
+          "shape": "1f9587407e1cf74c"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_transmission",
+          "shape": "3a13d49c680d7b6f"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_transmission_unlock",
+          "shape": "1f9587407e1cf74c"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_transmission",
+          "shape": "3a13d49c680d7b6f"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_transmission_unlock",
+          "shape": "1f9587407e1cf74c"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_transmission",
+          "shape": "3a13d49c680d7b6f"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_transmission_unlock",
+          "shape": "1f9587407e1cf74c"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_transmission",
+          "shape": "3a13d49c680d7b6f"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ngc_transmission_unlock",
+          "shape": "1f9587407e1cf74c"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_ngc_transmission",
+          "shape": "3a13d49c680d7b6f"
+        }
+      ]
+    },
+    {
+      "tag": "ptim_lx",
+      "coverageStatus": "new",
+      "ported": true,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "PowerTrain Integrated Module (LX) — 5 table XORs with unusual i2 packing.",
+      "signatures": [
+        "CUMMINS_849_TABLE_HEAD"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ptim_lx_unlock",
+          "shape": "5b5eb97321630673"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ptim_lx_unlock",
+          "shape": "5b5eb97321630673"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ptim_lx_unlock",
+          "shape": "5b5eb97321630673"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ptim_lx_unlock",
+          "shape": "5b5eb97321630673"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ptim_lx_unlock",
+          "shape": "5b5eb97321630673"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "ptim_lx_unlock",
+          "shape": "5b5eb97321630673"
+        }
+      ],
+      "port": {
+        "label": "PowerTrain Integrated Module (LX)",
+        "vectorCount": 8,
+        "verified": true,
+        "failed": []
+      }
+    },
+    {
+      "tag": "sbec",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "",
+      "signatures": [
+        "GPEC_KEY_DAIM"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sbec",
+          "shape": "1b9e8c0e4f60cf15"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sbec",
+          "shape": "1b9e8c0e4f60cf15"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sbec",
+          "shape": "1b9e8c0e4f60cf15"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sbec",
+          "shape": "1b9e8c0e4f60cf15"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_sbec",
+          "shape": "f1199e80d05c5df5"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sbec",
+          "shape": "1b9e8c0e4f60cf15"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sbec",
+          "shape": "1b9e8c0e4f60cf15"
+        }
+      ]
+    },
+    {
+      "tag": "sxor",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed, const",
+      "docstring": "GPEC shift-XOR — 5 rounds",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sxor",
+          "shape": "41cb6a94abc3e96e"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sxor",
+          "shape": "41cb6a94abc3e96e"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sxor",
+          "shape": "41cb6a94abc3e96e"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sxor",
+          "shape": "41cb6a94abc3e96e"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_sxor",
+          "shape": "de211c38b04f32fb"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sxor",
+          "shape": "41cb6a94abc3e96e"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "sxor",
+          "shape": "41cb6a94abc3e96e"
+        }
+      ]
+    },
+    {
+      "tag": "tipm",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed, variant='a'",
+      "docstring": "",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440410257.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alphabcm_1776440430460.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444315264.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/files3_1776444340595.zip!/srt_lab.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "tipm",
+          "shape": "b7e376dfa76b55e8"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "tipm",
+          "shape": "b7e376dfa76b55e8"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "tipm",
+          "shape": "b7e376dfa76b55e8"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "tipm",
+          "shape": "b7e376dfa76b55e8"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776444434001.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/srt_lab_1776462206286.py",
+          "lang": "python",
+          "pythonName": "algo_tipm",
+          "shape": "b9bba8ba52f42dcc"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "tipm",
+          "shape": "b7e376dfa76b55e8"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "tipm",
+          "shape": "b7e376dfa76b55e8"
+        }
+      ]
+    },
+    {
+      "tag": "trw_abs",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "trw_abs.dll — TRW ABS.  Self-test 10/10, emu 5/5 ✓",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_trw_abs",
+          "shape": "2081ced580ad8124"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_trw_abs",
+          "shape": "2081ced580ad8124"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_trw_abs",
+          "shape": "2081ced580ad8124"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_trw_abs",
+          "shape": "2081ced580ad8124"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_trw_abs",
+          "shape": "2081ced580ad8124"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_trw_abs",
+          "shape": "2081ced580ad8124"
+        }
+      ]
+    },
+    {
+      "tag": "venom_pcm",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "Venom PCM — cascading shift-derived indices, xor 0xAB56.",
+      "signatures": [
+        "GPEC_KEY_DAIM"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "venom_pcm_unlock",
+          "shape": "cecdbfc438fdc662"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_venom_pcm",
+          "shape": "d6ce072bc21fd894"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "venom_pcm_unlock",
+          "shape": "cecdbfc438fdc662"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_venom_pcm",
+          "shape": "d6ce072bc21fd894"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "venom_pcm_unlock",
+          "shape": "cecdbfc438fdc662"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_venom_pcm",
+          "shape": "d6ce072bc21fd894"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "venom_pcm_unlock",
+          "shape": "cecdbfc438fdc662"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_venom_pcm",
+          "shape": "d6ce072bc21fd894"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "venom_pcm_unlock",
+          "shape": "cecdbfc438fdc662"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_venom_pcm",
+          "shape": "d6ce072bc21fd894"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_canflash_algos.py",
+          "lang": "python",
+          "pythonName": "venom_pcm_unlock",
+          "shape": "cecdbfc438fdc662"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_venom_pcm",
+          "shape": "d6ce072bc21fd894"
+        }
+      ]
+    },
+    {
+      "tag": "w6",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed, r, s",
+      "docstring": "Parameterized linear cipher (matches AlfaOBD ad::w6).\n\n    Each per-ECU wrapper is just this function with specific (r, s) constants.",
+      "signatures": [
+        "v7",
+        "v9",
+        "wg",
+        "wi",
+        "wk",
+        "wm",
+        "wo",
+        "wq"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "w6",
+          "shape": "4299087c95b3fc0e"
+        },
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_algorithm_catalog.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "w6",
+          "shape": "3a61a94aacb6e93d"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_algorithm_catalog_1776573875648.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "w6",
+          "shape": "3a61a94aacb6e93d"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "w6",
+          "shape": "4299087c95b3fc0e"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "w6",
+          "shape": "4299087c95b3fc0e"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_algorithm_catalog.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "w6",
+          "shape": "3a61a94aacb6e93d"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_algorithm_catalog_1776573875648.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "w6",
+          "shape": "3a61a94aacb6e93d"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "w6",
+          "shape": "4299087c95b3fc0e"
+        }
+      ]
+    },
+    {
+      "tag": "w6_by_name",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed, name",
+      "docstring": "Compute w6 key using a pre-catalogued wrapper's parameters.",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "w6_by_name",
+          "shape": "76d1d6908259032c"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "w6_by_name",
+          "shape": "76d1d6908259032c"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "w6_by_name",
+          "shape": "76d1d6908259032c"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "w6_by_name",
+          "shape": "76d1d6908259032c"
+        }
+      ],
+      "rationale": "Dispatcher wrapper — looks up (r, s) from AOBD_W6_TABLE and forwards to `w6(seed, r, s)`. The cipher itself (`w6`) is already in algos.js as `alfaW6` / `alfaW6By`, surfaced in SeedTab via the AlfaOBD lookup row and `alfa_w6_*` ALGOS entries."
+    },
+    {
+      "tag": "w7",
+      "coverageStatus": "new",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": {
+        "variants": 360
+      },
+      "docstring": "AlfaOBD algorithm-catalog row 'w7' (360 variants).",
+      "signatures": [
+        "aa",
+        "ab",
+        "ac",
+        "ae",
+        "ap",
+        "aq",
+        "au",
+        "aw"
+      ],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_algorithm_catalog.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "w7",
+          "shape": "0c4033d3f60b009d"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_algorithm_catalog_1776573875648.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "w7",
+          "shape": "0c4033d3f60b009d"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfa_files_part_2_1776573839905.zip!/alfaobd_algorithm_catalog.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "w7",
+          "shape": "0c4033d3f60b009d"
+        },
+        {
+          "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_algorithm_catalog_1776573875648.json",
+          "lang": "alfaobd_catalog_json",
+          "pythonName": "w7",
+          "shape": "0c4033d3f60b009d"
+        }
+      ]
+    },
+    {
+      "tag": "wcm",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "wcm.dll — Wireless Control Module.  emu 20/20 ✓",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_wcm",
+          "shape": "b538172f4d16c067"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_wcm",
+          "shape": "b538172f4d16c067"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_wcm",
+          "shape": "b538172f4d16c067"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_wcm",
+          "shape": "b538172f4d16c067"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_wcm",
+          "shape": "b538172f4d16c067"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_wcm",
+          "shape": "b538172f4d16c067"
+        }
+      ]
+    },
+    {
+      "tag": "xtea_sgw",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "Legacy 4-byte SGW seed → 4-byte key (high word of XTEA block).\n    \n    Loads seed into v0, (~seed) into v1, one XTEA(32) block with SGW key.\n    Returns the high 32 bits as the 4-byte UDS 27 02 key.",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw",
+          "shape": "f86233d9b084db4c"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw",
+          "shape": "f86233d9b084db4c"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw",
+          "shape": "f86233d9b084db4c"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw",
+          "shape": "f86233d9b084db4c"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw",
+          "shape": "f86233d9b084db4c"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw",
+          "shape": "f86233d9b084db4c"
+        }
+      ]
+    },
+    {
+      "tag": "xtea_sgw_full",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "8-byte SGW variant — flexible seed input.\n    \n    seed may be:\n      - int             → v0=seed, v1=~seed (matches xtea_sgw legacy path)\n      - bytes of len 4  → v0=seed bytes, v1=~v0\n      - bytes of len 8  → v0=bytes[0:4], v1=bytes[4:8] (raw from UDS 67 01)\n    \n    Returns 8 bytes big-endian (v0_cipher || v1_cipher). Some 2018+ SGWs \n    issue an 8-byte seed where v1 is chosen INDEPENDENTLY (not the \n    complement), which is why the bytes-of-8 path exists.",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw_full",
+          "shape": "7e7970ebaa0655d1"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw_full",
+          "shape": "7e7970ebaa0655d1"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw_full",
+          "shape": "7e7970ebaa0655d1"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw_full",
+          "shape": "7e7970ebaa0655d1"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw_full",
+          "shape": "7e7970ebaa0655d1"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/srtlab_algos.py",
+          "lang": "python",
+          "pythonName": "xtea_sgw_full",
+          "shape": "7e7970ebaa0655d1"
+        }
+      ]
+    },
+    {
+      "tag": "yazaki_fcm",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "yazaki_fcm.dll — BCM on LX platform (Scat Pack/Hellcat).  emu 20/20 ✓",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_yazaki_fcm",
+          "shape": "8346eb60b2b65061"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_yazaki_fcm",
+          "shape": "8346eb60b2b65061"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_complete.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_yazaki_fcm",
+          "shape": "8346eb60b2b65061"
+        },
+        {
+          "sourcePath": "attached_assets/files_(3)_1776703229326.zip!/srtlab_tools_only.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_yazaki_fcm",
+          "shape": "8346eb60b2b65061"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_complete_1776703301344.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_yazaki_fcm",
+          "shape": "8346eb60b2b65061"
+        },
+        {
+          "sourcePath": "attached_assets/srtlab_tools_only_1776703301345.zip!/canflash_seedkey.py",
+          "lang": "python",
+          "pythonName": "unlock_yazaki_fcm",
+          "shape": "8346eb60b2b65061"
+        }
+      ]
+    }
+  ],
+  "decompiled_strings": [
+    {
+      "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/Pasted--usr-bin-env-python3-SRT-LAB-v2-Direct-J2534-BCM-VIN-Pr_1776429789407.txt",
+      "tag": "bcm_fca",
+      "coverageStatus": "new",
+      "evidence": [
+        "algo_bcm_fca",
+        "0xABCDEF12"
+      ]
+    },
+    {
+      "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/Pasted--usr-bin-env-python3-SRT-LAB-v2-Direct-J2534-BCM-VIN-Pr_1776429789407.txt",
+      "tag": "bcm_standard",
+      "coverageStatus": "new",
+      "evidence": [
+        "algo_bcm_standard",
+        "0x9D",
+        "0x1234"
+      ]
+    },
+    {
+      "sourcePath": "attached_assets/Pasted--usr-bin-env-python3-SRT-LAB-v2-Direct-J2534-BCM-VIN-Pr_1776429789407.txt",
+      "tag": "bcm_fca",
+      "coverageStatus": "new",
+      "evidence": [
+        "algo_bcm_fca",
+        "0xABCDEF12"
+      ]
+    },
+    {
+      "sourcePath": "attached_assets/Pasted--usr-bin-env-python3-SRT-LAB-v2-Direct-J2534-BCM-VIN-Pr_1776429789407.txt",
+      "tag": "bcm_standard",
+      "coverageStatus": "new",
+      "evidence": [
+        "algo_bcm_standard",
+        "0x9D",
+        "0x1234"
+      ]
+    }
+  ],
+  "unlock_dlls": [
+    {
+      "file": "abs.dll",
+      "sha256": "ce37944d16eb2c3fc384836c3ffdcc205f8ab3749567ddcfc39a5cc7360e390c",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "lcg_pair"
+    },
+    {
+      "file": "ahbm.dll",
+      "sha256": "c7878d12ca1b0b3c9bb8c10841ac0cd75518a3fdf11e95ee8a41ec8e7ec2ea18",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "imul+t8"
+    },
+    {
+      "file": "aisin_tcm.dll",
+      "sha256": "89196fdef18980fa32e1470f156de671c07bfb90d1127eaa1974713e9d024728",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "aisin_t16_3pass"
+    },
+    {
+      "file": "alpine_amp.dll",
+      "sha256": "f6cfb220cea194a7bbe75e2622a76c5ee7773c36d8438fd55f627c2262c9b991",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "lcg_pair"
+    },
+    {
+      "file": "alpine_radio.dll",
+      "sha256": "9244d7b2371f90b486b138e46c218988a1a73b166ce68d7bdb32fc6d1efe1bfb",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "lcg_pair"
+    },
+    {
+      "file": "alpine_rak.dll",
+      "sha256": "a1deb4578af30b3e323697e02bfcafdec2ec00de8fb074813e43b9fe1525e279",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "lcg_pair"
+    },
+    {
+      "file": "asbs.dll",
+      "sha256": "6c9d573c2aabb0027b0b398df2f83c69a9528d8e2fdaa5cd88539bfae0099831",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "awd_pm_mk.dll",
+      "sha256": "801f5fe1621fbee11f5afa2767dfc64b7a9818dc4f33373dff06ceaa6763edbc",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "lcg_halves"
+    },
+    {
+      "file": "borg_awd.dll",
+      "sha256": "16748791908a061366f65dd9cec58973012d610b51a9e6d498cf5facfb105d55",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor+rotate"
+    },
+    {
+      "file": "bosch_abs.dll",
+      "sha256": "d28214145b913506dc8c37d76d45fc1b42d6964737b4f6de75345c428d12bcea",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "bosch_cdm_win_ddm.dll",
+      "sha256": "c09b80ab3b9e143d7b1aa5d1f825d7be827ff8b43e85b32bf58cb27a9ec125fb",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_chain"
+    },
+    {
+      "file": "bosch_cdm_win_pdm.dll",
+      "sha256": "95cf3e8b1fb967f7da8403383a0fff83f35b8201351110ffc731d011bb9864fa",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_chain"
+    },
+    {
+      "file": "bosch_ddm.dll",
+      "sha256": "d78a37cebe6eaa3732593e9235650f4750880fd3ce42d87a50226ae2cd95e798",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_chain"
+    },
+    {
+      "file": "bosch_mddm.dll",
+      "sha256": "36d0fe546586da2561e8f77b174a6f0bb4f5089ff6545289fc7b6cb37ff7b23c",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_chain"
+    },
+    {
+      "file": "bosch_mpdm.dll",
+      "sha256": "a78445ac6f0643a3672a6f1a21d2e8b8cdb35d963cb177c437629e562bda16fa",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_chain"
+    },
+    {
+      "file": "bosch_mwddm.dll",
+      "sha256": "13c81e7966c067b7a7099ecfdc17214fa895fcaf48c4877d970b55c899bedba9",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_chain"
+    },
+    {
+      "file": "bosch_mwpdm.dll",
+      "sha256": "13389a734aed13551458e955546021db817cb7467276556465f3e2d38e7ec583",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_chain"
+    },
+    {
+      "file": "bosch_orc.dll",
+      "sha256": "5f7bbb35c22611c9d378f9e9f8da433fbad6bf091e8a364fa6594432e1a6b561",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_chain+crc"
+    },
+    {
+      "file": "bosch_pdm.dll",
+      "sha256": "74f339d78c1839aaa6b949b0bc2a752703a68ffc0f2b8e667d1a626179bccee4",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_chain"
+    },
+    {
+      "file": "cmtc.dll",
+      "sha256": "e30fad1912b5a6aaf8bc4b8c9af0c1ba626e3447d7835eff3cff48b95bf25e15",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_add+bitpack"
+    },
+    {
+      "file": "cummins_849.dll",
+      "sha256": "d00e3cbef519f3648c8819ff98f3571d167bfb91aab0aa913b280cc62003d545",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "cummins_t16"
+    },
+    {
+      "file": "cvt.dll",
+      "sha256": "f8dee41f5be8a3a1bf76178aba73b087c8dcc90874dd568eb37eafc002596dd1",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "rol16_chain_2pass"
+    },
+    {
+      "file": "dcx_ptcm.dll",
+      "sha256": "422c3ece796ec8ce5b9b899d8cc10700e844eee47bd7f475839e9a8a527cf8b3",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "lcg_pair"
+    },
+    {
+      "file": "ddm.dll",
+      "sha256": "a08c740f419844778c8ccd3d596156cc9ad4869f0248db43f7df94f5d05e2fdc",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor+bitpack"
+    },
+    {
+      "file": "delphi_hvac.dll",
+      "sha256": "e66b9fb91e87ab53bc5d68dff393043b626ee5e2c631d71fd1bc6f6e16275a8e",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor_8tap"
+    },
+    {
+      "file": "delphi_sdar.dll",
+      "sha256": "36eceffc20193d86446cd5601c87347316ff433a2b98395357f78ba2ca5fc914",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_add_4tap"
+    },
+    {
+      "file": "edc16c2.dll",
+      "sha256": "9115a51c1f6152ab34b535eb2d9c4b35c05bdc76a7b4e1d592f1490032053b6f",
+      "size_bytes": 45056,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t32_8row_substitution"
+    },
+    {
+      "file": "edc16cp31.dll",
+      "sha256": "9ab24fae0889ebc6a4291241267211a56a4ef102e9232219bd31a23767406e17",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t32_8row_substitution"
+    },
+    {
+      "file": "edc16u31.dll",
+      "sha256": "f3ba870ee2a17ec0d4d022c13d30259cea3bc0f02b31935012301cfd9421407e",
+      "size_bytes": 45056,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t32_8row_substitution"
+    },
+    {
+      "file": "egs52.dll",
+      "sha256": "ff327c2a44cbb1e8fcf9c3eaf7210950516919024434920e2e9d26220fb4140b",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "imul_xor"
+    },
+    {
+      "file": "eom.dll",
+      "sha256": "ae9b7e6cb1043bc5eaa8c73bf175634e6716458020b7457d85f148d5e016c8cc",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_add+bitpack"
+    },
+    {
+      "file": "esm.dll",
+      "sha256": "c6279d8db888d6fb781c132331d329705509b24c1f1606fd72f0639bf41a4141",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "byte_lane_mux"
+    },
+    {
+      "file": "ewm.dll",
+      "sha256": "a569b9e99b6d425d9206ecb026f5134e9de836c6609a199caefbc25e956b65d7",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t16_chain"
+    },
+    {
+      "file": "fdcm.dll",
+      "sha256": "44e23f78e7fc26ba88e92d3d854e655b6b6f6f9564ca760a5354d92dedc09e83",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "gpec.dll",
+      "sha256": "55adfa53218e9f2e54beb5e5291a395755bb0aaf9a12c00b3ddcb19ceb584d1d",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "tea-feistel"
+    },
+    {
+      "file": "harman_amp.dll",
+      "sha256": "abe43e5d8ee3d73678491389725d504bb62e8477026d0e7253cc8fc3c0e6921c",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_add+imul"
+    },
+    {
+      "file": "HB_ccn.dll",
+      "sha256": "d22c37e92089ed6c49c046492653b0497c4284c121af4eceae63f2ca901149b7",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "hella_acc.dll",
+      "sha256": "de11180b626ee121dd50163d231b276b5414caf1e7556291efeae18416a08f14",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "lcg_pair"
+    },
+    {
+      "file": "hfm.dll",
+      "sha256": "aa3270ce24625efa8c276bdc4c4815591fbf787ad9bbb89a57c491266cfb99af",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor (32-bit)"
+    },
+    {
+      "file": "hidt.dll",
+      "sha256": "241bff5e532e4265479b209d81912891bd01cdd04878902af2d920369c0ccaf3",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t16x32_mixed_mul_xor"
+    },
+    {
+      "file": "huntsville_bcm.dll",
+      "sha256": "b4eb3227cede8bcd2151b53a5f375232c0731d6ac415e6d34f8c74b5c0c9fdc4",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "huntsville_fcm.dll",
+      "sha256": "16fe967a476d2e499b0430ebf3ff24841eae59637a95a7d61bf071894426ce97",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "huntsville_fdcm.dll",
+      "sha256": "8b1cd95dbeedd36671e0a72f679561b1b61dafaf624acb3ed667ce26900018bf",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "huntsville_radio.dll",
+      "sha256": "6e30bef441a49328b5ab726152d06a6ba8d99e49f05612c466dabe0a7c4793d2",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "hvac.dll",
+      "sha256": "77390bd26f656460e5381d88d4e4644dd962e40cbb37bb5601b0d85ffaef7b8f",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_mul_seed"
+    },
+    {
+      "file": "kicker_amp.dll",
+      "sha256": "24cfcffe511b07af14234bb560ff48369e8182e5eff1c69672bc3ca0e38d0618",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "crc32_feistel_8round"
+    },
+    {
+      "file": "lear_wcm.dll",
+      "sha256": "de7352ea3f74755d075cb757a163ad18ed26185d58aaa97f65395a868f3bc68a",
+      "size_bytes": 45056,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "hitag2_lfsr48"
+    },
+    {
+      "file": "lrsm.dll",
+      "sha256": "80af90bc4199c53fe94ac751f3370eb04cdddcc9ed87748fa3a54193593d016c",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t16_gf2"
+    },
+    {
+      "file": "LX_ccn.dll",
+      "sha256": "de82d81bc6cbcd39535b8d7a9586d0c95836a0fb00894d4803b39664a24de8c5",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "may_scofield_itm.dll",
+      "sha256": "a06f8be94304837836615f61df8f99bed76d46c1edfea12af3ce6e49c30242c1",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "mitsubishi_rar.dll",
+      "sha256": "7e01629dadeb3bc8c9ea28ed1d8bc53a06b03f83e4fe51aa39aef7b06216e4ae",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "simple"
+    },
+    {
+      "file": "mitsubishi_ves.dll",
+      "sha256": "5db87dadf8a8299089684249a0c133270885d18698318844fd42b68bbcf1798d",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "simple"
+    },
+    {
+      "file": "mitsubishi_ves3.dll",
+      "sha256": "b8b6ebb073e476152c4639d5bd3a82c69809107b4b03dd877ee92ef31c4713f6",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_mod_imul"
+    },
+    {
+      "file": "motorola_tipm7.dll",
+      "sha256": "209eab57ed3e15cdb6b95c8f323866d0098ec8f5b989efa1be21b5229ec77b5d",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "msmd.dll",
+      "sha256": "b33104eb480d494ee34a8914effa186f37815a5285e4590c085879e92d881a05",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "lcg_pair"
+    },
+    {
+      "file": "ngc_engine.dll",
+      "sha256": "2024cec38791e47de9854d7f9553fed2c2487a7a650a8de9df7d0590f84917b6",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "ngc_transmission.dll",
+      "sha256": "02423095058dc3b939c4215ef33722f1c6e6ec3849caf499fa4e0c10e4f3089f",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "ngc4_trans.dll",
+      "sha256": "da151da885404ab20bbc137be50a68add432c708195b127958fe4658975b8314",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "nippon_ccn.dll",
+      "sha256": "f8ffef4881f42e5383a7d9af9f18b389c9c21901b3a084a6c95b30b53525d64b",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "ocm.dll",
+      "sha256": "95249bb953b4d3817bcd069f4fed5feec9a20d129046d14999c9bc5fca7f7941",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "pdm.dll",
+      "sha256": "f8a61a1e17178bd4c93976bdbecba89b3199d9c19b68ba56b3be85a1161db14a",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor+bitpack"
+    },
+    {
+      "file": "peiker_hfm.dll",
+      "sha256": "5c97c04f55460e73e0b30bf0de67bda195f70f207d2ecf978c0b07ec7d49fc23",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_5tap_chain_xor"
+    },
+    {
+      "file": "plgm.dll",
+      "sha256": "530ab57d1d024847340bc12da99cd9a074c1536080b4dbeee1f67483b623e408",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "ptim_lx.dll",
+      "sha256": "f8cd5e85c5464cda4a3fc73fd8cdd8c56e2ff9150746486ea848a5c8cc22f24a",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "pts.dll",
+      "sha256": "26f16ce279a2f0d1a40e665a15b91a8cf791fc0bf0204d3e32b788e60184e757",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_chain+rot"
+    },
+    {
+      "file": "sas.dll",
+      "sha256": "6508f663f43c15c9526015bd021e97ae1a880aed6ea03d581eb01ddd7b5d0b0f",
+      "size_bytes": 45056,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "gf2_4x4_substitution"
+    },
+    {
+      "file": "sunr.dll",
+      "sha256": "8d4a3d65f3c50aa2feb727b9bd5d10b5bed765ccd803c740f6e41d83d1c36000",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "inline"
+    },
+    {
+      "file": "temic_ddm.dll",
+      "sha256": "ef9bacf9cdeb57fc1f3a3887186aebeb070d5ede488c33c6424cac6a303195c6",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "~s*K"
+    },
+    {
+      "file": "temic_pdm.dll",
+      "sha256": "58a7e8c576e2ec061381c3401e629fdbdf4a8993c56bdf594779045abe57e926",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "~s*K"
+    },
+    {
+      "file": "teves_abs.dll",
+      "sha256": "db56258860c775de1c57ae165b6e6451c3e1d5c5bac4d4cba4217f43ac79927f",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "lcg_pair"
+    },
+    {
+      "file": "trw_abs.dll",
+      "sha256": "c078da315421a115b39e498cc73389a28bbdc82a177297e50fcd4451c18b1b35",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "trw_hvac_2.dll",
+      "sha256": "828b0bb1129956ab218154358534aee160ce24a51efe66a393d28e3199165030",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_mul_seed"
+    },
+    {
+      "file": "trw_hvac.dll",
+      "sha256": "85f20631fc9d7fffce7f402047796b57a5d0d510b6760158c89147ec0691dc6a",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_mul_seed"
+    },
+    {
+      "file": "trw_ocm.dll",
+      "sha256": "c39feb7201fa44f3f6b22535e16357b68c539dcbf60afc39b656976208b7181a",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "trw_orc.dll",
+      "sha256": "cae9df4d0618bfd944ce6530bc95a3145e1fe2f43aaf3f08d39043140f263921",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "trw_sas.dll",
+      "sha256": "01e3abb364faaea772ec70105974bcfc914aa5f927b5dacba69e5a0e0e41837c",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "valeo_scm.dll",
+      "sha256": "df9f1e968910c651cdc8848c8c84c9e7ca3147753585dc8d8a032792e8d0346c",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "lcg_pair"
+    },
+    {
+      "file": "venom_pcm.dll",
+      "sha256": "cee196492093487a89ebdccb478d65e3d776ed11045698e3f950668a4e4ddce7",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    },
+    {
+      "file": "visteon_amp.dll",
+      "sha256": "283274912e7756e9ad276dfc530c913afcdb5174dc85dd491ba039a4a1ca6cfc",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "bit_driven_accum"
+    },
+    {
+      "file": "wcm.dll",
+      "sha256": "5bf06c0af75d917c15f711a039d260a3f9b0cab0d757321a4147377fdb97c2d4",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t16_mul"
+    },
+    {
+      "file": "yazaki_fcm.dll",
+      "sha256": "c506f34d957185ed6e0cdce85f44710d802059609e0082b2142cff8777d12ec4",
+      "size_bytes": 40960,
+      "coverageStatus": "already-implemented",
+      "existing_status": "reversed",
+      "existing_algorithm": "t8_xor"
+    }
+  ]
+}

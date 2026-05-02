@@ -1,0 +1,11 @@
+{
+  "name": "@workspace/asset-sweep",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "One-shot exhaustive sweep of attached_assets/. Recursively unpacks every zip, inventories every file, and extracts seed-key algorithms, CRCs, UDS service/NRC/DID dictionaries, and unlock-DLL coverage that are not yet wired into the SRT Lab artifact. Emits inventory.json, REPORT.md, and three append-only catalogs under artifacts/srt-lab/.",
+  "scripts": {
+    "sweep": "node ./src/sweep.mjs",
+    "sweep:check": "node ./src/sweep.mjs --check"
+  }
+}

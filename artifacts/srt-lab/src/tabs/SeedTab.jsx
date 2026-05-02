@@ -3,10 +3,31 @@ import {C} from "../lib/constants.js";
 import {Card,Btn} from "../lib/ui.jsx";
 import {ALGOS, xtea_sgw_full, alfaW6, alfaW6By, u32} from "../lib/algos.js";
 import {AOBD_W6, AOBD_W7, AOBD_DISPATCH} from "../lib/alfaobdAlgorithms.generated.js";
+import {EXTENDED_ALGORITHMS} from "../lib/extendedAlgorithms.generated.js";
 import {mergeDispatch, STATUS_BRANCH_KNOWN} from "../lib/alfaobdDispatchAuxiliary.js";
 import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
 import {SEED_KEY_REF} from "../lib/tabReferences.js";
 
+// Asset-sweep ports surfaced in the picker. Each extended entry maps to
+// the same {id, n, h, fn} shape as ALGOS so the existing calc/render
+// code dispatches them with no special-casing — the only addition is an
+// `extended: true` flag the picker uses to draw a small purple chip so
+// the operator can see at a glance that the algorithm came from
+// tools/asset-sweep rather than the curated `algos.js` set. Frozen so
+// nothing downstream can mutate the picker list out from under React.
+const EXT_PICKER_ALGOS = Object.freeze(
+  EXTENDED_ALGORITHMS
+    .filter((a) => typeof a.fn === "function")
+    .map((a) => Object.freeze({
+      id: "ext_" + a.tag,
+      n: a.label,
+      h: "asset sweep · " + (a.signatures[0] || a.tag),
+      fn: a.fn,
+      extended: true,
+      tag: a.tag,
+      docstring: a.docstring,
+    })),
+);
 function SeedTab(){
   const[al,setAl]=useState('gpec2');const[sh,setSh]=useState('');const[res,setRes]=useState(null);const[all,setAll]=useState(false);
   const[pdfBusy,setPdfBusy]=useState(false);
@@ -83,6 +104,12 @@ function SeedTab(){
   };
   const seedToBytes=(v)=>[(v>>>24)&0xFF,(v>>>16)&0xFF,(v>>>8)&0xFF,v&0xFF];
 
+  // Picker dispatcher fallback: ALGOS first (curated, in-app catalog),
+  // then EXT_PICKER_ALGOS (executable hand-ports surfaced by the asset
+  // sweep). Both share the same {id, n, h, fn} shape so the lookup
+  // below treats them identically.
+  const PICKER_ALGOS=useMemo(()=>[...ALGOS,...EXT_PICKER_ALGOS],[]);
+
   const calc=useCallback(()=>{
     const raw=sh.replace(/\s/g,'');const v=parseInt(raw,16);if(isNaN(v)||!raw)return;
     const sb=seedToBytes(u32(v));
@@ -102,31 +129,37 @@ function SeedTab(){
       return {via:'',key:'enter (r, s) above OR a wrapper name in the AlfaOBD lookup'};
     };
     if(all){
+      // "Run all" includes both the curated ALGOS and the executable
+      // extended ports — the latter were verified against pinned
+      // vectors at sweep time so they're safe to fire alongside the
+      // canonical entries.
       setRes({multi:true,seed:v.toString(16).toUpperCase().padStart(8,'0'),
-        results:ALGOS.map(a=>({id:a.id,n:a.n,h:a.h,
+        results:PICKER_ALGOS.map(a=>({id:a.id,n:a.n,h:a.h,extended:!!a.extended,
           k:a.id==='alfa_w6_custom'?(computeCustom().key||'—'):a.fn(v).toString(16).toUpperCase().padStart(8,'0'),
           k8:a.id==='xtea_sgw'?sgwFull():null})),
         wrapResult,dispResult});
     } else {
-      const a=ALGOS.find(x=>x.id===al);if(!a)return;
+      const a=PICKER_ALGOS.find(x=>x.id===al);if(!a)return;
       const isCustom=a.id==='alfa_w6_custom';
       const customRes=isCustom?computeCustom():null;
       setRes({multi:false,id:a.id,n:a.n,seed:v.toString(16).toUpperCase().padStart(8,'0'),
         key:isCustom?(customRes.key||'—'):a.fn(v).toString(16).toUpperCase().padStart(8,'0'),
         key8:a.id==='xtea_sgw'?sgwFull():null,
         customVia:isCustom?customRes.via:null,
+        extended:!!a.extended,
         wrapResult,dispResult});
     }
-  },[al,sh,all,wrapName,dispatchedName,dispatchedIsW6,famKey,lvlKey,customR,customS]);
+  },[al,sh,all,wrapName,dispatchedName,dispatchedIsW6,famKey,lvlKey,customR,customS,PICKER_ALGOS]);
 
   const totalAlgoCount=ALGOS.length;
+  const extendedAlgoCount=EXT_PICKER_ALGOS.length;
 
   return<div style={{maxWidth:880}}>
     <Card glow>
       <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,marginBottom:4}}>
         <div>
           <div style={{fontSize:18,fontWeight:900,marginBottom:4}}>🔑 Seed → Key Calculator</div>
-          <div style={{fontSize:12,color:C.ts,marginBottom:16}}>{totalAlgoCount} algorithms + AlfaOBD w6 catalog (380 wrappers) + w7 staged (360 wrappers, cipher pending)</div>
+          <div style={{fontSize:12,color:C.ts,marginBottom:16}}>{totalAlgoCount} algorithms{extendedAlgoCount?` + ${extendedAlgoCount} from asset sweep`:''} + AlfaOBD w6 catalog (380 wrappers) + w7 staged (360 wrappers, cipher pending)</div>
         </div>
         <button onClick={onPdf} disabled={pdfBusy} style={{cursor:pdfBusy?'wait':'pointer',border:'2px solid '+C.sr,padding:'8px 14px',borderRadius:10,background:'#fff',color:C.sr,fontWeight:800,fontSize:11,letterSpacing:.5,fontFamily:"'Nunito'",whiteSpace:'nowrap'}}>
           {pdfBusy?'⏳ Building...':'🖨 Print Reference'}
@@ -134,15 +167,16 @@ function SeedTab(){
       </div>
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(130px,1fr))',gap:6,marginBottom:16}}>
-        {ALGOS.map(a=><div key={a.id} onClick={()=>{setAl(a.id);setAll(false);}} style={{
-          padding:'9px 11px',borderRadius:10,cursor:'pointer',transition:'all 0.2s',
+        {PICKER_ALGOS.map(a=><div key={a.id} title={a.extended?(a.docstring||a.tag):a.h} onClick={()=>{setAl(a.id);setAll(false);}} style={{
+          padding:'9px 11px',borderRadius:10,cursor:'pointer',transition:'all 0.2s',position:'relative',
           background:al===a.id&&!all?C.sr+'12':C.c2,border:`1.5px solid ${al===a.id&&!all?C.sr:C.bd}`}}>
           <div style={{fontSize:11,fontWeight:800,color:al===a.id&&!all?C.sr:C.tx}}>{a.n}</div>
           <div style={{fontSize:8,color:C.tm}}>{a.h}</div>
+          {a.extended&&<span data-testid={`ext-chip-${a.tag}`} style={{position:'absolute',top:4,right:4,fontSize:7,fontWeight:800,letterSpacing:.5,padding:'1px 4px',borderRadius:3,background:'#9C27B014',color:'#6A1B9A'}}>EXT</span>}
         </div>)}
         <div onClick={()=>setAll(true)} style={{padding:'9px 11px',borderRadius:10,cursor:'pointer',background:all?C.a4+'12':C.c2,border:`1.5px solid ${all?C.a4:C.bd}`}}>
           <div style={{fontSize:11,fontWeight:800,color:all?C.a4:C.tx}}>ALL</div>
-          <div style={{fontSize:8,color:C.tm}}>Run all {totalAlgoCount}</div>
+          <div style={{fontSize:8,color:C.tm}}>Run all {totalAlgoCount + extendedAlgoCount}</div>
         </div>
       </div>
 
@@ -266,6 +300,54 @@ function SeedTab(){
         </div>}
       </div>}
     </Card>
+
+    {/* Extended catalog provenance panel — every entry below is wired
+        into the picker above with a small purple "EXT" chip. This card
+        documents the source so the operator can audit which python file
+        each port came from and which signatures fired. The catalog
+        auto-shrinks the moment one is promoted into the in-app source
+        — see tools/asset-sweep/README.md. */}
+    {EXTENDED_ALGORITHMS.length>0 && <Card style={{marginTop:16}}>
+      <div style={{display:'flex',alignItems:'baseline',gap:8,flexWrap:'wrap',marginBottom:4}}>
+        <div style={{fontSize:14,fontWeight:900}}>🧪 Extended catalog (asset sweep)</div>
+        <span style={{fontFamily:"'JetBrains Mono'",fontSize:9,fontWeight:800,padding:'2px 7px',borderRadius:999,background:'#9C27B014',color:'#6A1B9A',letterSpacing:1}}>provenance: asset_sweep</span>
+      </div>
+      <div style={{fontSize:11,color:C.ts,marginBottom:10}}>
+        {EXTENDED_ALGORITHMS.length} algorithm{EXTENDED_ALGORITHMS.length===1?'':'s'} hand-ported from
+        <code style={{margin:'0 4px',padding:'1px 4px',background:'#0001',borderRadius:3,fontSize:10}}>attached_assets/</code>,
+        each verified against pinned vectors at sweep time.
+        <strong> Available in the picker above</strong> — look for the small purple <span style={{fontSize:9,fontWeight:800,padding:'1px 4px',borderRadius:3,background:'#9C27B014',color:'#6A1B9A'}}>EXT</span> chip.
+        Re-run with
+        <code style={{margin:'0 4px',padding:'1px 4px',background:'#0001',borderRadius:3,fontSize:10}}>pnpm sweep:assets</code>.
+      </div>
+      <div style={{maxHeight:240,overflow:'auto',border:'1px solid '+C.bd,borderRadius:8,background:C.c2}}>
+        <table data-testid="extended-algos-table" style={{width:'100%',borderCollapse:'collapse',fontFamily:"'JetBrains Mono'",fontSize:10}}>
+          <thead style={{position:'sticky',top:0,background:C.c2,borderBottom:'1px solid '+C.bd}}>
+            <tr>
+              <th style={{textAlign:'left',padding:'6px 10px',fontWeight:800,color:C.tm}}>tag</th>
+              <th style={{textAlign:'left',padding:'6px 10px',fontWeight:800,color:C.tm}}>python def</th>
+              <th style={{textAlign:'left',padding:'6px 10px',fontWeight:800,color:C.tm}}>doc</th>
+              <th style={{textAlign:'right',padding:'6px 10px',fontWeight:800,color:C.tm}}>status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {EXTENDED_ALGORITHMS.map(a=>{
+              const ported=a.ported===true&&typeof a.fn==='function';
+              return <tr key={a.tag} data-testid={`ext-row-${a.tag}`} style={{borderTop:'1px solid '+C.bd+'80'}}>
+                <td style={{padding:'4px 10px',fontWeight:700}}>{a.tag}</td>
+                <td style={{padding:'4px 10px'}}>{a.pythonName}({a.params})</td>
+                <td style={{padding:'4px 10px',fontFamily:"'Nunito'",fontSize:10,color:C.tm,maxWidth:380}}>
+                  {a.docstring?a.docstring.split('\n')[0].slice(0,140):<span style={{opacity:.6}}>—</span>}
+                </td>
+                <td style={{padding:'4px 10px',textAlign:'right',fontSize:9,color:ported?'#1B5E20':C.a4}}>
+                  {ported?`✓ ported · ${a.vectors.length} vectors`:a.coverageStatus}
+                </td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
+      </div>
+    </Card>}
 
     {/* w7 read-only catalog panel — staged data, no cipher yet */}
     <Card style={{marginTop:16}}>
