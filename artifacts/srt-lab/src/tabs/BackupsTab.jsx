@@ -13,6 +13,7 @@ import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import LeakScanPanel from "../components/LeakScanPanel.jsx";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
+import {getDidDescription} from "../lib/dids.js";
 import {
   listDiffReports, getDiffReport, getDiffReportAsync,
   deleteDiffReport, clearDiffReports,
@@ -915,7 +916,7 @@ export default function BackupsTab() {
                     }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div style={{ fontSize: 11, fontWeight: 800, color: data.critical ? C.sr : C.tx }}>
-                          {data.critical && "🔴 "}0x{hx(parseInt(did, 10), 4)} · {data.name}
+                          {data.critical && "🔴 "}0x{hx(parseInt(did, 10), 4)} · {data.name || getDidDescription(parseInt(did, 10)) || "Unknown DID"}
                         </div>
                         {data.missing && <div style={{ fontSize: 9, color: C.er, fontWeight: 700 }}>NOT READABLE</div>}
                       </div>
@@ -994,7 +995,7 @@ export default function BackupsTab() {
                             >
                               <div style={{ fontSize: 10, fontWeight: 800, color: C.tx, marginBottom: 5 }}>
                                 {(before?.critical || after?.critical) && "🔴 "}
-                                0x{hx(parseInt(did, 10), 4)} · {before?.name || after?.name}
+                                0x{hx(parseInt(did, 10), 4)} · {before?.name || after?.name || getDidDescription(parseInt(did, 10)) || "Unknown DID"}
                               </div>
                               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                                 <div style={{
@@ -1058,7 +1059,7 @@ export default function BackupsTab() {
                                   0x{hx(parseInt(did, 10), 4)}
                                 </span>
                                 <span style={{ fontSize: 10, color: C.tm, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                  {before?.name || after?.name}
+                                  {before?.name || after?.name || getDidDescription(parseInt(did, 10)) || "Unknown DID"}
                                 </span>
                                 {(before || after)?.ascii && (
                                   <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 9, color: C.ts }}>
@@ -1104,7 +1105,7 @@ export default function BackupsTab() {
             <>
               {Object.entries(selectedData.dids).map(([did, data]) => (
                 <div key={did} style={{ marginBottom: 4 }}>
-                  0x{hx(parseInt(did, 10), 4)} · {data.name}
+                  0x{hx(parseInt(did, 10), 4)} · {data.name || getDidDescription(parseInt(did, 10)) || "Unknown DID"}
                   {data.ascii ? '  "' + data.ascii + '"' : data.hex ? "  " + data.hex : "  (empty)"}
                 </div>
               ))}

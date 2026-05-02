@@ -5,6 +5,7 @@ import {initAdapter} from "../lib/initAdapter.js";
 import {decodeNRC} from "../lib/nrc.js";
 import {runDtcRead} from "../lib/dtc.js";
 import DtcDetailPanel from "../lib/DtcDetailPanel.jsx";
+import {getDidDescription} from "../lib/dids.js";
 
 const MODULE_PRESETS={
   BCM:{tx:0x750,rx:0x758},RFHUB:{tx:0x75F,rx:0x767},
@@ -84,7 +85,9 @@ export default function UdsTab(){
   const readDid=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     const did=parseInt(didHex,16);
-    setBusy('Reading DID 0x'+hx(did,4)+'...');
+    const didDesc=getDidDescription(did);
+    const didLabel='0x'+hx(did,4)+(didDesc?' ('+didDesc+')':'');
+    setBusy('Reading DID '+didLabel+'...');
     const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
     const r=await eng.current.uds(tx,rx,[0x22,(did>>8)&0xFF,did&0xFF]);
     let success=false,asciiOut='';
@@ -93,8 +96,8 @@ export default function UdsTab(){
         const data=Array.from(r.d).slice(3);
         const ascii=data.filter(b=>b>=0x20&&b<=0x7E).map(b=>String.fromCharCode(b)).join('');
         const hexOut=data.map(b=>hx(b)).join(' ');
-        addLog('DID 0x'+hx(did,4)+' HEX: '+hexOut,'rx');
-        if(ascii.length>=3){addLog('DID 0x'+hx(did,4)+' ASCII: '+ascii,'rx');asciiOut=ascii;}
+        addLog('DID '+didLabel+' HEX: '+hexOut,'rx');
+        if(ascii.length>=3){addLog('DID '+didLabel+' ASCII: '+ascii,'rx');asciiOut=ascii;}
         success=true;
       }else if(r.d[0]===0x7F)addLog('NRC: '+decodeNRC(r.d[2]||0),'warn');
     }else addLog('No response','error');
@@ -107,12 +110,14 @@ export default function UdsTab(){
     const did=parseInt(writeDid,16);
     const data=hexToBytes(writeData);
     if(!data.length){addLog('Enter data bytes','error');return;}
-    setBusy('Writing DID 0x'+hx(did,4)+'...');
+    const didDesc=getDidDescription(did);
+    const didLabel='0x'+hx(did,4)+(didDesc?' ('+didDesc+')':'');
+    setBusy('Writing DID '+didLabel+'...');
     const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
     const r=await eng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...data]);
     let success=false;
     if(r.ok&&r.d){
-      if(r.d[0]===0x6E){addLog('✓ Written','rx');success=true;}
+      if(r.d[0]===0x6E){addLog('✓ Written '+didLabel,'rx');success=true;}
       else if(r.d[0]===0x7F)addLog('NRC: '+decodeNRC(r.d[2]||0),'warn');
     }else addLog('No response','error');
     recordPaper('Write DID',{success,dids:[{did:'0x'+hx(did,4),value:data.map(b=>hx(b)).join(' ')}]});
@@ -246,6 +251,9 @@ export default function UdsTab(){
             <input value={didHex} onChange={e=>setDidHex(e.target.value)} placeholder="F190" style={{flex:1,padding:8,fontFamily:"'JetBrains Mono'",fontSize:13,border:'1px solid '+C.bd,borderRadius:6}}/>
             <Btn onClick={readDid} disabled={!!busy||!conn} color={C.a2}>Read</Btn>
           </div>
+          {(() => { const d=getDidDescription(didHex); return d ? (
+            <div data-testid="uds-read-did-label" style={{marginTop:4,fontSize:10,color:C.tm,fontStyle:'italic'}}>{d}</div>
+          ) : null; })()}
         </div>
         <div style={{padding:10,background:'#F8F6F2',borderRadius:8}}>
           <div style={{fontSize:10,color:C.ts,marginBottom:6,fontWeight:700}}>WRITE DID (0x2E)</div>
@@ -254,6 +262,9 @@ export default function UdsTab(){
             <Btn onClick={writeDidAction} disabled={!!busy||!conn} color={C.sr}>Write</Btn>
           </div>
           <input value={writeData} onChange={e=>setWriteData(e.target.value)} placeholder="data bytes (hex)" style={{width:'100%',padding:8,fontFamily:"'JetBrains Mono'",fontSize:13,border:'1px solid '+C.bd,borderRadius:6}}/>
+          {(() => { const d=getDidDescription(writeDid); return d ? (
+            <div data-testid="uds-write-did-label" style={{marginTop:4,fontSize:10,color:C.tm,fontStyle:'italic'}}>{d}</div>
+          ) : null; })()}
         </div>
         <div style={{padding:10,background:'#F8F6F2',borderRadius:8}}>
           <div style={{fontSize:10,color:C.ts,marginBottom:6,fontWeight:700}}>DIAG SESSION (0x10)</div>

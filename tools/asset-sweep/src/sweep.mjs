@@ -758,14 +758,18 @@ function renderExtendedCatalog({newDlls, verified, udsServiceTables, udsNrcTable
 
   const didMapList = [...didMaps.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([sourcePath, list]) => ({
-      sourcePath,
-      count: list.length,
-      sample: list.slice(0, 8).map((d) => ({
+    .map(([sourcePath, list]) => {
+      const entries = list.map((d) => ({
         did: "0x" + d.did.toString(16).toUpperCase().padStart(4, "0"),
         value: d.value,
-      })),
-    }));
+      }));
+      return {
+        sourcePath,
+        count: list.length,
+        sample: entries.slice(0, 8),
+        entries,
+      };
+    });
 
   return JSON.stringify({
     schema_version: 1,
