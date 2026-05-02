@@ -1,28 +1,41 @@
-// GPEC2A bench-flasher state machine (Task #488).
+// GPEC2A bench-flasher state machine (Task #488, etiquette in #563).
 //
 // `flashEcm()` walks the FCA UDS programming session per Task #488 spec:
 //   1. Diagnostic Session Control 0x10 0x03 (extended)
-//   2. Diagnostic Session Control 0x10 0x02 (programming)
-//   3. (background) Tester Present keep-alive 0x3E 0x80 every keepAliveIntervalMs
-//   4. Security Access seed request — subfunction defaults to 0x09 per
+//   2. Pre-flash etiquette (Task #563):
+//        - ControlDTCSetting   0x85 0x82          on target ECU
+//        - CommunicationControl 0x28 0x83 0x03   on broadcast 0x7DF
+//      Both use the suppressPositiveResponse bit (high bit on the
+//      subfunction byte). The literal task spec calls for 0x85 0x02
+//      and 0x28 0x03 0x03; the suppress bit is added because broadcast
+//      0x28 must not generate per-ECU replies and we want etiquette to
+//      stay best-effort regardless of bus state.
+//   3. Diagnostic Session Control 0x10 0x02 (programming)
+//   4. (background) Tester Present keep-alive 0x3E 0x80 every keepAliveIntervalMs
+//   5. Security Access seed request — subfunction defaults to 0x09 per
 //      spec (programming-session CDA6 / GPEC TEA), overridable to 0x01.
-//   5. Compute key with the caller-supplied `algoFn(seedU32) -> keyU32`.
-//   6. Security Access send key — subfunction 0x0A (paired with 0x09)
+//   6. Compute key with the caller-supplied `algoFn(seedU32) -> keyU32`.
+//   7. Security Access send key — subfunction 0x0A (paired with 0x09)
 //      or 0x02 (paired with 0x01).
-//   7. RoutineControl erase memory 0x31 0x01 0xFF 0x00 (RID overridable).
-//   8. Request Download 0x34 dataFormatIdentifier addressAndLengthFormatIdentifier
+//   8. RoutineControl erase memory 0x31 0x01 0xFF 0x00 (RID overridable).
+//   9. Request Download 0x34 dataFormatIdentifier addressAndLengthFormatIdentifier
 //      addr len. Default ALFID 0x00 (no compression / no encryption — the
 //      ECM bootloader decrypts PowerCal payloads in-place during 0x36).
-//   9. Transfer Data 0x36 chunked, sequence counter wraps 0xFF -> 0x00
+//  10. Transfer Data 0x36 chunked, sequence counter wraps 0xFF -> 0x00
 //      per ISO 14229. Resume from a saved chunk index is supported via
 //      `resumeFromChunk`.
-//  10. Request Transfer Exit 0x37.
-//  11. RoutineControl checksum/verify 0x31 0x01 0xFF 0x01 (RID overridable).
-//  12. ECU Reset 0x11 0x01.
+//  11. Request Transfer Exit 0x37.
+//  12. RoutineControl checksum/verify 0x31 0x01 0xFF 0x01 (RID overridable).
+//  13. ECU Reset 0x11 0x01.
+//  14. Post-flash etiquette (Task #563): restore both controls.
+//        - ControlDTCSetting   0x85 0x81          on target ECU
+//        - CommunicationControl 0x28 0x80 0x00   on broadcast 0x7DF
 //
 // On stop (AbortSignal), if the machine is mid-transfer or past the
 // RequestDownload phase, it makes one best-effort attempt to send 0x37
-// to close the transfer cleanly before reporting `aborted`.
+// to close the transfer cleanly before reporting `aborted`. Pre-flash
+// etiquette restores are also fired in the finally block so DTC
+// logging and bus comms always come back up, even on failure paths.
 //
 // The function returns a controller `{start, result}` whose `start()`
 // resolves to the `result` record. Progress and log events are emitted
@@ -35,6 +48,7 @@ import { decodeNRC } from './nrc.js';
 
 const ECM_ADDR = { tx: 0x7E0, rx: 0x7E8 };
 const DEFAULT_CHUNK = 0x80; // 128 bytes — conservative for ISO-TP.
+const BROADCAST_TX = 0x7DF; // ISO 15765 functional broadcast.
 
 const PHASE = {
   CONNECT: 'connect',
@@ -184,6 +198,7 @@ export function flashEcm(opts){
     onLog = () => {},
     signal,
     addr = ECM_ADDR,
+    broadcastTx = BROADCAST_TX,
   } = opts || {};
 
   const startedAt = Date.now();
@@ -250,6 +265,51 @@ export function flashEcm(opts){
   // positive response per ISO 14229) every keepAliveIntervalMs. Errors
   // are logged but never throw — we never want keep-alive to abort the
   // primary flow.
+  // Pre/post-flash etiquette (Task #563). Both halves are best-effort:
+  // they log warnings on hiccup but never throw, because failing to
+  // silence the bus must not block a flash and failing to restore must
+  // not mask the real flash result. `etiquetteApplied` guards the post
+  // half so the finally block does not double-restore after the success
+  // path already ran it.
+  let etiquetteApplied = false;
+  let etiquettePostRan = false;
+  async function bestEffortSend(tx, rx, bytes, label){
+    log(`TX ${label}: ${bytes.map(b => hex(b)).join(' ')}`, 'tx');
+    try {
+      const r = await engine.uds(tx, rx, bytes);
+      const d = r && (r.d || r.data);
+      if (d && d.length){
+        const arr = d instanceof Uint8Array ? d : new Uint8Array(d);
+        log(`RX ${label}: ${Array.from(arr).map(b => hex(b)).join(' ')}`, 'rx');
+        if (arr[0] === 0x7F){
+          const meta = explainNrc(arr);
+          log(`${label} NRC ${meta ? meta.text : '0x' + hex(arr[2] || 0)} — continuing`, 'warn');
+        }
+      }
+    } catch (e) {
+      log(`${label} hiccup: ${e && e.message ? e.message : e} — continuing`, 'warn');
+    }
+  }
+  async function etiquettePre(){
+    log('Pre-flash etiquette · suppressing DTC logging and silencing bus chatter', 'info');
+    // 0x85 0x82 = ControlDTCSetting OFF, suppress positive response.
+    await bestEffortSend(addr.tx, addr.rx, [0x85, 0x82], 'ControlDTCSetting 0x85 82 (DTC logging suppressed)');
+    // 0x28 0x83 0x03 = CommunicationControl disableRxAndTx, suppress
+    // positive response, normal + network management messages.
+    await bestEffortSend(broadcastTx, addr.rx, [0x28, 0x83, 0x03], `CommunicationControl 0x28 83 03 (Bus chatter silenced) → 0x${hex(broadcastTx, 3)}`);
+    etiquetteApplied = true;
+  }
+  async function etiquettePost(){
+    if (!etiquetteApplied || etiquettePostRan) return;
+    etiquettePostRan = true;
+    log('Post-flash etiquette · restoring DTC logging and bus comms', 'info');
+    // 0x28 0x80 0x00 = CommunicationControl enableRxAndTx (normal
+    // messages), suppress positive response.
+    await bestEffortSend(broadcastTx, addr.rx, [0x28, 0x80, 0x00], `CommunicationControl 0x28 80 00 (Bus chatter restored) → 0x${hex(broadcastTx, 3)}`);
+    // 0x85 0x81 = ControlDTCSetting ON, suppress positive response.
+    await bestEffortSend(addr.tx, addr.rx, [0x85, 0x81], 'ControlDTCSetting 0x85 81 (DTC logging restored)');
+  }
+
   let keepAliveTimer = null;
   function startKeepAlive(){
     if (!keepAlive) return;
@@ -291,6 +351,12 @@ export function flashEcm(opts){
       // 1) Extended diagnostic session, then programming session.
       setPhase(PHASE.SESSION_EXT);
       await call([0x10, 0x03], 'DiagnosticSessionControl 0x10 03 (extended)');
+
+      // 1a) Pre-flash etiquette (Task #563). Runs in extended session
+      // because 0x85 typically requires a non-default session, and we
+      // want both controls in place before 0x10 0x02 starts erasing.
+      checkAborted(signal);
+      await etiquettePre();
 
       setPhase(PHASE.SESSION);
       await call([0x10, 0x02], 'DiagnosticSessionControl 0x10 02 (programming)');
@@ -390,6 +456,11 @@ export function flashEcm(opts){
       setPhase(PHASE.RESET);
       await call([0x11, 0x01], 'ECUReset 0x11 01');
 
+      // 9a) Post-flash etiquette (Task #563). Restore DTC + bus comms
+      // before returning success. The finally block will not re-run
+      // this thanks to etiquettePostRan.
+      await etiquettePost();
+
       setPhase(PHASE.DONE);
       result.ok = true;
       result.elapsedMs = Date.now() - startedAt;
@@ -429,6 +500,11 @@ export function flashEcm(opts){
       result.elapsedMs = Date.now() - startedAt;
       return result;
     } finally {
+      // Always try to restore etiquette before tearing down keep-alive.
+      // If etiquettePre never ran (early failure) etiquettePost no-ops,
+      // and if the success path already ran it the guard prevents a
+      // double restore. Errors here are swallowed by bestEffortSend.
+      try { await etiquettePost(); } catch {}
       stopKeepAlive();
     }
   }

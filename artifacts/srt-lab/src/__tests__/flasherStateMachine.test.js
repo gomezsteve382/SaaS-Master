@@ -14,18 +14,29 @@ function bytes(...args) { return new Uint8Array(args); }
 
 // Build a fake bench bridge engine that records every UDS call and
 // answers per the canned script the test sets up. 0x3E 0x80 keep-alive
-// frames (if the caller turned keep-alive on) are answered with an
-// empty positive response so they never disrupt the scripted flow.
+// frames and Task #563 etiquette frames (0x85 ControlDTCSetting,
+// 0x28 CommunicationControl) are out-of-band: they answer with an
+// empty positive response, do NOT consume a script entry, and are
+// recorded into a separate `etiquette` array so existing scripted
+// tests keep counting only the primary UDS flow while #563 tests can
+// still assert on order and content of the etiquette frames.
 function makeEngine({ isBridge = true, script = [] } = {}) {
   const calls = [];
+  const etiquette = [];
   let i = 0;
   const eng = {
     isBridge,
     calls,
+    etiquette,
     async uds(tx, rx, frame) {
       const arr = frame instanceof Uint8Array ? Array.from(frame) : [...frame];
       if (arr[0] === 0x3E) {
         // Tester present — out-of-band, not consumed from the script.
+        return { ok: true, d: new Uint8Array(0) };
+      }
+      if (arr[0] === 0x85 || arr[0] === 0x28) {
+        // Pre/post-flash etiquette — out-of-band, recorded separately.
+        etiquette.push({ tx, rx, frame: arr });
         return { ok: true, d: new Uint8Array(0) };
       }
       calls.push({ tx, rx, frame: arr });
@@ -408,5 +419,156 @@ describe('flashEcm RoutineControl status enforcement (Task #488 rework)', () => 
     expect(r.ok).toBe(false);
     expect(r.phase).toBe(FLASH_PHASES.CHECKSUM);
     expect(r.error).toMatch(/Verify routine failed.*RID mismatch/i);
+  });
+});
+
+describe('flashEcm pre/post-flash etiquette (Task #563)', () => {
+  // Reuse happyPrefix + a minimal trailer to get a successful flash.
+  function happyTail(payload, chunkSize = 0x80){
+    const out = [];
+    out.push({ ok: true, d: bytes(0x74, 0x10, 0x82) });
+    const chunks = Math.ceil(payload.length / chunkSize);
+    for (let i = 0; i < chunks; i++){
+      out.push((f) => ({ ok: true, d: bytes(0x76, f[1]) }));
+    }
+    out.push({ ok: true, d: bytes(0x77) });
+    out.push({ ok: true, d: bytes(0x71, 0x01, 0xFF, 0x01, 0x00) });
+    out.push({ ok: true, d: bytes(0x51, 0x01) });
+    return out;
+  }
+
+  test('happy path fires 0x85 + 0x28 pre and post in the right order', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(64);
+    const script = [...happyPrefix(seed, cda6(seed) >>> 0), ...happyTail(payload)];
+    const eng = makeEngine({ script });
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x80 }).start();
+    expect(r.ok).toBe(true);
+    // Exactly four etiquette frames: pre-0x85, pre-0x28, post-0x28, post-0x85.
+    expect(eng.etiquette).toHaveLength(4);
+    // Pre-half: 0x85 0x82 on target, then 0x28 0x83 0x03 on broadcast.
+    expect(eng.etiquette[0].frame).toEqual([0x85, 0x82]);
+    expect(eng.etiquette[0].tx).toBe(0x7E0);
+    expect(eng.etiquette[1].frame).toEqual([0x28, 0x83, 0x03]);
+    expect(eng.etiquette[1].tx).toBe(0x7DF);
+    // Post-half: 0x28 0x80 0x00 on broadcast, then 0x85 0x81 on target.
+    expect(eng.etiquette[2].frame).toEqual([0x28, 0x80, 0x00]);
+    expect(eng.etiquette[2].tx).toBe(0x7DF);
+    expect(eng.etiquette[3].frame).toEqual([0x85, 0x81]);
+    expect(eng.etiquette[3].tx).toBe(0x7E0);
+    // Plain-language log lines must appear.
+    const msgs = r.log.map(l => l.msg).join('\n');
+    expect(msgs).toMatch(/DTC logging suppressed/);
+    expect(msgs).toMatch(/Bus chatter silenced/);
+    expect(msgs).toMatch(/DTC logging restored/);
+    expect(msgs).toMatch(/Bus chatter restored/);
+  });
+
+  test('etiquette pre runs after extended session and before programming session', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(8);
+    const script = [...happyPrefix(seed, cda6(seed) >>> 0), ...happyTail(payload)];
+    const eng = makeEngine({ script });
+    // Wrap engine.uds to capture a global ordering across both
+    // primary calls and etiquette frames.
+    const order = [];
+    const real = eng.uds.bind(eng);
+    eng.uds = async (tx, rx, frame) => {
+      const arr = frame instanceof Uint8Array ? Array.from(frame) : [...frame];
+      if (arr[0] !== 0x3E) order.push(arr); // ignore keep-alive noise
+      return real(tx, rx, frame);
+    };
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x80 }).start();
+    expect(r.ok).toBe(true);
+    const idxExt   = order.findIndex(a => a[0] === 0x10 && a[1] === 0x03);
+    const idx85Pre = order.findIndex(a => a[0] === 0x85 && a[1] === 0x82);
+    const idx28Pre = order.findIndex(a => a[0] === 0x28 && a[1] === 0x83);
+    const idxProg  = order.findIndex(a => a[0] === 0x10 && a[1] === 0x02);
+    const idxReset = order.findIndex(a => a[0] === 0x11 && a[1] === 0x01);
+    const idx28Post= order.findIndex(a => a[0] === 0x28 && a[1] === 0x80);
+    const idx85Post= order.findIndex(a => a[0] === 0x85 && a[1] === 0x81);
+    expect(idxExt).toBeLessThan(idx85Pre);
+    expect(idx85Pre).toBeLessThan(idx28Pre);
+    expect(idx28Pre).toBeLessThan(idxProg);
+    expect(idxReset).toBeLessThan(idx28Post);
+    expect(idx28Post).toBeLessThan(idx85Post);
+  });
+
+  test('abort mid-transfer still restores etiquette via finally', async () => {
+    const ac = new AbortController();
+    const payload = new Uint8Array(40);
+    const seed = 0;
+    const script = [...happyPrefix(seed, cda6(seed) >>> 0)];
+    script.push({ ok: true, d: bytes(0x74, 0x10, 0x0C) });
+    // First chunk OK, then abort during second.
+    script.push((f) => ({ ok: true, d: bytes(0x76, f[1]) }));
+    script.push((f) => { ac.abort(); return { ok: true, d: bytes(0x76, f[1]) }; });
+    // Best-effort 0x37 close.
+    script.push((f) => ({ ok: true, d: bytes(0x77) }));
+    const eng = makeEngine({ script });
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 10, signal: ac.signal }).start();
+    expect(r.ok).toBe(false);
+    expect(r.aborted).toBe(true);
+    // Pre etiquette ran (2 frames), and post etiquette MUST also run
+    // from the finally block (2 more frames) — total 4.
+    expect(eng.etiquette).toHaveLength(4);
+    expect(eng.etiquette[2].frame).toEqual([0x28, 0x80, 0x00]);
+    expect(eng.etiquette[3].frame).toEqual([0x85, 0x81]);
+  });
+
+  test('failure before etiquettePre completes still leaves the bus untouched', async () => {
+    // Fail at the very first call (extended session NRC) so etiquettePre
+    // never runs and there is nothing to restore.
+    const script = [
+      { ok: true, d: bytes(0x7F, 0x10, 0x22) }, // conditionsNotCorrect
+    ];
+    const eng = makeEngine({ script });
+    const r = await flashEcm({ engine: eng, payload: new Uint8Array(8) }).start();
+    expect(r.ok).toBe(false);
+    expect(r.phase).toBe(FLASH_PHASES.SESSION_EXT);
+    // No etiquette frames in either direction — nothing to restore.
+    expect(eng.etiquette).toHaveLength(0);
+  });
+
+  test('etiquette is best-effort — pre-half hiccup never fails the flash', async () => {
+    // Engine where 0x85 + 0x28 throw, but everything else works. The
+    // flasher must still complete successfully because etiquette is
+    // explicitly best-effort.
+    const seed = 0;
+    const payload = new Uint8Array(8);
+    const script = [...happyPrefix(seed, cda6(seed) >>> 0), ...happyTail(payload)];
+    let i = 0;
+    const calls = [];
+    const eng = {
+      isBridge: true,
+      async uds(tx, rx, frame) {
+        const arr = frame instanceof Uint8Array ? Array.from(frame) : [...frame];
+        if (arr[0] === 0x3E) return { ok: true, d: new Uint8Array(0) };
+        if (arr[0] === 0x85 || arr[0] === 0x28) {
+          throw new Error('simulated bus hiccup');
+        }
+        calls.push({ tx, rx, frame: arr });
+        const next = script[i++];
+        if (typeof next === 'function') return next(arr, calls.length - 1);
+        if (next) return next;
+        return { ok: true, d: new Uint8Array(0) };
+      },
+    };
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x80 }).start();
+    expect(r.ok).toBe(true);
+    // Hiccup was logged plainly, not raised.
+    const msgs = r.log.map(l => l.msg).join('\n');
+    expect(msgs).toMatch(/hiccup.*simulated bus hiccup/i);
+  });
+
+  test('etiquettePost runs exactly once on the success path (no double restore)', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(8);
+    const script = [...happyPrefix(seed, cda6(seed) >>> 0), ...happyTail(payload)];
+    const eng = makeEngine({ script });
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x80 }).start();
+    expect(r.ok).toBe(true);
+    // 4 frames total = 2 pre + 2 post (NOT 2 + 4).
+    expect(eng.etiquette).toHaveLength(4);
   });
 });
