@@ -436,17 +436,20 @@ export default function UnlockCoverageTab() {
               testId="algo-chip-all"
               title="Show every algorithm family"
             />
-            {algoCounts.map(({algorithm, count}) => (
-              <AlgoChip
-                key={algorithm}
-                label={friendlyAlgo(algorithm).label}
-                count={count}
-                active={algoFilter === algorithm}
-                onClick={() => setAlgoFilter((cur) => cur === algorithm ? "all" : algorithm)}
-                testId={`algo-chip-${algorithm}`}
-                title={`algorithm tag: ${algorithm}`}
-              />
-            ))}
+            {algoCounts.map(({algorithm, count}) => {
+              const f = friendlyAlgo(algorithm);
+              return (
+                <AlgoChip
+                  key={algorithm}
+                  label={f.label}
+                  count={count}
+                  active={algoFilter === algorithm}
+                  onClick={() => setAlgoFilter((cur) => cur === algorithm ? "all" : algorithm)}
+                  testId={`algo-chip-${algorithm}`}
+                  title={`${f.description} (tag: ${algorithm})`}
+                />
+              );
+            })}
           </div>
         </Card>
       )}

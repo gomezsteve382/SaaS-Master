@@ -446,6 +446,60 @@ describe("UnlockCoverageTab — UI", () => {
     );
   });
 
+  it("active-chip status text renders the friendly LABEL string (not [object Object])", async () => {
+    // Regression test for the Task #551/#552 merge bug where the chip-row
+    // status line and the chip label both rendered the friendlyAlgo()
+    // return object directly as a React child, crashing every test in
+    // this file with "Objects are not valid as a React child". The
+    // contract: "Filtering by …" must show the friendly *label string*
+    // and the underlying tag must NOT appear as visible text there.
+    const target = CATALOG.entries.find(
+      (e) => e.algorithm && ALGO_FRIENDLY[e.algorithm] && !ALGO_FRIENDLY[e.algorithm].placeholder,
+    );
+    expect(target, "need a real-family entry to test against").toBeTruthy();
+    const friendly = ALGO_FRIENDLY[target.algorithm];
+
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+
+    // Default state shows the "N families across M modules" hint.
+    const chipRow = screen.getByTestId("algo-chip-row");
+    expect(chipRow.textContent).toMatch(/families across/);
+
+    fireEvent.click(screen.getByTestId(`algo-chip-${target.algorithm}`));
+
+    // After activation the status line must read "Filtering by <label>"
+    // and must NOT contain the cursed [object Object] string nor the
+    // raw algorithm tag (which would mean we lost the friendly mapping).
+    expect(chipRow.textContent).toContain(`Filtering by ${friendly.label}`);
+    expect(chipRow.textContent).not.toContain("[object Object]");
+    expect(chipRow.textContent).not.toMatch(
+      new RegExp(`Filtering by ${target.algorithm}\\b`),
+    );
+  });
+
+  it("each algorithm chip exposes the friendly description as its tooltip", async () => {
+    // Parity with the AlgoBadge tooltip behaviour (Task #551): hovering an
+    // inactive chip should show a one-sentence explanation of the family,
+    // not just the raw tag. This locks the contract so tooltip copy can't
+    // silently regress to the bare "algorithm tag: foo" string.
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+
+    const sample = CATALOG.entries
+      .filter((e) => e.algorithm && ALGO_FRIENDLY[e.algorithm])
+      .slice(0, 4);
+    expect(sample.length).toBeGreaterThan(0);
+
+    for (const e of sample) {
+      const chip = screen.getByTestId(`algo-chip-${e.algorithm}`);
+      const title = chip.getAttribute("title") || "";
+      const friendly = ALGO_FRIENDLY[e.algorithm];
+      expect(title, `chip title for ${e.algorithm}`).toContain(friendly.description);
+      expect(title).toContain(e.algorithm);
+    }
+  });
+
   it("falls back to catalog counts when the dispatcher endpoint is unavailable", async () => {
     setupFetch({ stats: null });
     render(<UnlockCoverageTab />);
