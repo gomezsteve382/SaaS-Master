@@ -213,6 +213,55 @@ export async function reUnlockSeedKey(engine,tx,rx,algoFn,{addLog,hx,auth29Strat
   return {ok:false,error:'bridge 27 02 no response: '+(r?.raw||'')};
 }
 
+// ─── MicroPod II adapter stub (Task #599) ────────────────────────────────
+// createMicroPodEngine() returns a UDS engine with the same {ok, d, raw}
+// contract that createBridgeEngine() exposes. The wiTECH MicroPod II is
+// the OEM Mopar transport; this stub is the minimum surface needed to
+// route flasherStateMachine.flashEcuOffline() through MicroPod-shaped
+// transports without touching the rest of the stack. The actual USB I/O
+// lives behind a future native bridge — this stub returns a clear
+// "transport not implemented" error from every uds() call so callers fail
+// loudly instead of silently appearing to flash a module.
+//
+// Wiring (when the real driver lands):
+//   - implement uds(tx, rx, data, timeoutMs) → ISO 15765 round-trip via
+//     the MicroPod II's IOControl + WriteMessages + ReadMessages JSON-RPC
+//   - keep setNegotiatedTiming/clearNegotiatedTiming/getNegotiatedTiming
+//     so the same Task #566 0x83 path works
+//   - keep isBridge:true so flasherStateMachine accepts the engine
+//
+// sourced from CDA SWF MicroPodII / com.chrysler.cda.domain.discovery.device
+// :MicroPodII class enumeration (harvested into
+// tools/cda-extractor/out/harvestedStrings.generated.json#microPodSurface).
+export function createMicroPodEngine({ addLog, deviceUrl } = {}){
+  const log = (m, t='info') => { try { addLog && addLog(m, t); } catch {} };
+  log('MicroPod II adapter stub initialised — UDS calls will return "not implemented"', 'warn');
+  let negotiatedTiming = null;
+  const NOT_IMPL = { ok:false, raw:'micropod: transport not implemented (stub)' };
+  return {
+    ok: true,
+    engine: {
+      uds: async () => NOT_IMPL,
+      adapter: 'wiTECH MicroPod II (stub)',
+      readVoltage: async () => null,
+      isBridge: true,
+      setNegotiatedTiming: (t) => {
+        if (!t){ negotiatedTiming = null; return; }
+        const p2 = Number(t.p2Ms) || 0;
+        const p2s = Number(t.p2StarMs) || 0;
+        negotiatedTiming = (p2 > 0 || p2s > 0) ? { p2Ms: p2, p2StarMs: p2s } : null;
+      },
+      clearNegotiatedTiming: () => { negotiatedTiming = null; },
+      getNegotiatedTiming: () => negotiatedTiming ? { ...negotiatedTiming } : null,
+      vendor: 'Chrysler / wiTECH',
+      firmware: null,
+      versions: null,
+      deviceUrl: deviceUrl || null,
+      stub: true,
+    },
+  };
+}
+
 /* Re-run an ADCM-style routine unlock (Routine 0x0312) on the bridge channel,
    with SBEC seed/key fallback that matches AdcmTab.startRoutine(). */
 export async function reUnlockAdcmRoutine(engine,tx,rx,{addLog,hx}={}){

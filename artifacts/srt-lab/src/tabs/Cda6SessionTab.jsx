@@ -2,24 +2,54 @@ import React, {useMemo, useState} from "react";
 import {Card, Tag, SLine} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import {cda6} from '../lib/algos.js';
+import {CDA_FLASH_CATALOG, getOfflineFlashSequence} from '../lib/cdaCatalog.js';
 
-// CDA6 9-step UDS programming-session walkthrough (Task #488). Mirrors
-// the v3 reference's SessionTab with the SRT Lab Nunito theme. Inline
-// seed-to-key calculator below the walkthrough so a tester can paste a
-// `67 01 [SEED]` response and read back the `27 02 [KEY]` request.
+// CDA6 UDS programming-session walkthrough (Task #488 + Task #599). The
+// step list is now driven by the per-module catalog mined out of the
+// cracked CDA SWF (tools/cda-extractor) instead of being hand-coded, so
+// the operator can pick a target module (ECM / BCM / RFHUB / SGW / …)
+// and see the exact UDS phase ladder the offline-flash mode will walk.
+// Seed-to-key calculator below the walkthrough still lets a tester paste
+// a `67 01 [SEED]` response and read back the `27 02 [KEY]` request.
 
-const STEPS = [
-  {step: 1, name: 'Diagnostic Session Control',  service: '0x10', subfn: '0x02', desc: 'Programming session', tx: '10 02', expected: '50 02 ...'},
-  {step: 2, name: 'Security Access Seed Request', service: '0x27', subfn: '0x01', desc: 'Request seed from ECM', tx: '27 01', expected: '67 01 [SEED 4B]'},
-  {step: 3, name: 'Calculate Key (CDA6)',         service: '—',     subfn: '—',    desc: 'Apply CDA6 to seed', tx: 'host calc', expected: '4-byte key', highlight: true},
-  {step: 4, name: 'Send Key',                     service: '0x27', subfn: '0x02', desc: 'Send computed key', tx: '27 02 [KEY 4B]', expected: '67 02'},
-  {step: 5, name: 'Erase Memory (Routine)',       service: '0x31', subfn: '0x01', desc: 'Routine 0xFF00 erase block', tx: '31 01 FF 00 [addr][len]', expected: '71 01 FF 00 [status]'},
-  {step: 6, name: 'Request Download',             service: '0x34', subfn: '—',    desc: 'Setup block transfer', tx: '34 [fmt][addr][len]', expected: '74 [maxblk]'},
-  {step: 7, name: 'Transfer Data',                service: '0x36', subfn: '—',    desc: 'Stream EFD payload blocks', tx: '36 [seq][block]', expected: '76 [seq]'},
-  {step: 8, name: 'Request Transfer Exit',        service: '0x37', subfn: '—',    desc: 'End block transfer', tx: '37', expected: '77'},
-  {step: 9, name: 'Routine Control (Checksum)',   service: '0x31', subfn: '0x01', desc: 'Routine 0xFF01 verify image', tx: '31 01 FF 01', expected: '71 01 FF 01 [status]'},
-  {step: 10, name: 'ECU Reset',                   service: '0x11', subfn: '0x01', desc: 'Hard reset to apply', tx: '11 01', expected: '51 01'},
-];
+// Map catalog phase ids → display rows. The phase ids come straight out
+// of cdaFlashSequences.generated.json so any future SWF extraction shows
+// up here without further code changes.
+const PHASE_PRETTY = {
+  session_extended:   {name: 'Diagnostic Session Control',  desc: 'Extended diagnostic session'},
+  etiquette_dtc_off:  {name: 'ControlDTCSetting (suppress)',desc: 'Stop DTC logging during flash'},
+  etiquette_comm_off: {name: 'CommunicationControl (off)',  desc: 'Silence non-flash bus chatter'},
+  session_program:    {name: 'Diagnostic Session Control',  desc: 'Programming session'},
+  timing_p2:          {name: 'AccessTimingParameter',       desc: 'Negotiate extended P2 / P2*'},
+  seed:               {name: 'SecurityAccess Seed Request', desc: 'Request seed (per module algo)'},
+  key:                {name: 'SecurityAccess Send Key',     desc: 'Send computed key', highlight: true},
+  erase:              {name: 'RoutineControl (Erase)',      desc: 'Routine 0xFF00 erase block'},
+  request_download:   {name: 'Request Download',            desc: 'Setup block transfer'},
+  transfer:           {name: 'Transfer Data',               desc: 'Stream payload blocks'},
+  transfer_exit:      {name: 'Request Transfer Exit',       desc: 'End block transfer'},
+  checksum:           {name: 'RoutineControl (Checksum)',   desc: 'Routine 0xFF01 verify image'},
+  reset:              {name: 'ECU Reset',                   desc: 'Hard reset to apply'},
+  etiquette_comm_on:  {name: 'CommunicationControl (on)',   desc: 'Restore bus comms'},
+  etiquette_dtc_on:   {name: 'ControlDTCSetting (restore)', desc: 'Re-enable DTC logging'},
+};
+
+function catalogStepsFor(code){
+  const seq = getOfflineFlashSequence(code) || [];
+  return seq.map((s, i) => {
+    const pp = PHASE_PRETTY[s.phase] || {name: s.swfClass || s.phase, desc: ''};
+    return {
+      step: i + 1,
+      name: pp.name,
+      desc: pp.desc || s.swfClass || '',
+      service: '0x' + (s.sid || 0).toString(16).toUpperCase().padStart(2, '0'),
+      subfn: s.sub != null ? '0x' + s.sub.toString(16).toUpperCase().padStart(2, '0') : '—',
+      tx: s.tx,
+      expected: s.expects,
+      highlight: !!pp.highlight,
+      swfClass: s.swfClass,
+    };
+  });
+}
 
 const TOOLS = [
   {name: 'Autel Elite J2534 + bridge', desc: 'Bench-only path. Connect via the local bridge daemon (this app). CDA6, GPEC2A, BCM, RFHUB all driven from here.', cost: '$$ (already owned)'},
@@ -43,6 +73,10 @@ function Section({title, color, children}){
 
 export default function Cda6SessionTab(){
   const [seedHex, setSeedHex] = useState('');
+  const moduleCodes = useMemo(() => Object.keys(CDA_FLASH_CATALOG?.modules || {}).sort(), []);
+  const [moduleCode, setModuleCode] = useState(moduleCodes.includes('ECM') ? 'ECM' : (moduleCodes[0] || 'ECM'));
+  const STEPS = useMemo(() => catalogStepsFor(moduleCode), [moduleCode]);
+  const modMeta = CDA_FLASH_CATALOG?.modules?.[moduleCode];
 
   const calc = useMemo(() => {
     const raw = seedHex.replace(/\s/g, '');
@@ -66,6 +100,31 @@ export default function Cda6SessionTab(){
           wiTECH/AlfaOBD or to plan your bench flash sequence before pulling the trigger in the ECM Flasher tab.
         </div>
       </Card>
+
+      <Section title="OFFLINE-FLASH MODULE" color={C.gn}>
+        <Card>
+          <div style={{display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap'}}>
+            <span style={{fontSize: 10, color: C.tm, letterSpacing: 1.4}}>MODULE</span>
+            <select
+              data-testid="cda-catalog-module"
+              value={moduleCode}
+              onChange={e => setModuleCode(e.target.value)}
+              style={{padding: '6px 10px', borderRadius: 8, border: `1px solid ${C.bd}`, background: C.c2, color: C.tx, fontFamily: 'JetBrains Mono', fontSize: 12}}
+            >
+              {moduleCodes.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            {modMeta && (
+              <>
+                <Tag color={C.a1}>tx {modMeta.tx}</Tag>
+                <Tag color={C.a3}>rx {modMeta.rx}</Tag>
+                <Tag color={C.sr}>algo {modMeta.unlockAlgo}</Tag>
+              </>
+            )}
+            <span style={{flex: 1}}/>
+            <span style={{fontSize: 9, color: C.ts, fontFamily: 'JetBrains Mono'}}>catalog · CDA SWF sha256 {(CDA_FLASH_CATALOG?._meta?.sha256 || '').slice(0, 12)}…</span>
+          </div>
+        </Card>
+      </Section>
 
       <Section title="SESSION SEQUENCE" color={C.a3}>
         <Card>

@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "abcStringPoolSize": 58469,
+    "abcTagCount": 2,
+    "extractedAt": "deterministic",
+    "inflatedBytes": 8716982,
+    "sha256": "d8b08bd85cf1a7f83ac560dab1fdbfc50ada701e767e290229e66d9cc5c6560f",
+    "sourceSwf": "attached_assets/CDA_1776448059516.swf",
+    "swfSignature": "CWS",
+    "swfVersion": 11
+  },
+  "_provenance": "softReset / hardReset symbols harvested from ECUResetOptionsCommand and ResetECUCommand classes. UDS sub-functions per ISO 14229 §11 (EcuReset).",
+  "swfSymbolCount": 16,
+  "variants": {
+    "hardReset": {
+      "expects": "51 01",
+      "sid": 17,
+      "sub": 1,
+      "swfSymbol": "hardReset / onGetAlignmentInformationResultForHardReset",
+      "tx": "11 01"
+    },
+    "keyOffOnReset": {
+      "expects": "51 02",
+      "sid": 17,
+      "sub": 2,
+      "swfSymbol": "(implicit via ResetECUCommand)",
+      "tx": "11 02"
+    },
+    "softReset": {
+      "expects": "51 03",
+      "sid": 17,
+      "sub": 3,
+      "swfSymbol": "softReset / onGetAlignmentInformationResultForSoftReset",
+      "tx": "11 03"
+    }
+  }
+}

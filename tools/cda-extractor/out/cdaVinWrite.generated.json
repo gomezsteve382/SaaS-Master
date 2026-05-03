@@ -1,0 +1,44 @@
+{
+  "_meta": {
+    "abcStringPoolSize": 58469,
+    "abcTagCount": 2,
+    "extractedAt": "deterministic",
+    "inflatedBytes": 8716982,
+    "sha256": "d8b08bd85cf1a7f83ac560dab1fdbfc50ada701e767e290229e66d9cc5c6560f",
+    "sourceSwf": "attached_assets/CDA_1776448059516.swf",
+    "swfSignature": "CWS",
+    "swfVersion": 11
+  },
+  "_provenance": "BCM 0x6E2025 + RFHUB 0x6E2027 confirmed by the SWF localized string \"The Proxi String is read from the BCM using command 222023\" (BCM 0x22 ReadDataByIdentifier) plus the bench-trace cross-check in cdaSwfSgwBenchTrace.test.js.",
+  "didsByModule": {
+    "BCM": [
+      "0xF190",
+      "0x7B90",
+      "0x7B88",
+      "0x6E2025"
+    ],
+    "EPS": [
+      "0xF190",
+      "0x6EF190"
+    ],
+    "RFHUB": [
+      "0xF190",
+      "0x7B90",
+      "0x7B88",
+      "0x6E2027"
+    ],
+    "default": [
+      "0xF190",
+      "0x7B90",
+      "0x7B88"
+    ]
+  },
+  "notes": {
+    "6E2025": "BCM proxi VIN-tail-8 mirror (0x222023 = ReadByID + DID 0x2025)",
+    "6E2027": "RFHUB proxi VIN-tail-8 mirror",
+    "6EF190": "EPS legacy mirror",
+    "7B88": "FCA original-VIN copy",
+    "7B90": "FCA current-VIN copy",
+    "F190": "ISO 14229 standard VIN DID"
+  }
+}

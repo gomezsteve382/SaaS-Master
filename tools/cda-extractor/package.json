@@ -1,0 +1,11 @@
+{
+  "name": "@workspace/cda-extractor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Decompresses the CDA SWF, walks every DoABC / DefineBinaryData tag, decodes the AS3 constant pool and method bodies, and emits machine-readable JSON catalogs of UDS service sequences, routine IDs, DID maps, security-access seed/key variants, transport profiles, calibration-file container layouts, and module-reset sequences.",
+  "scripts": {
+    "extract": "node ./src/extract.mjs",
+    "extract:check": "node ./src/extract.mjs --check"
+  }
+}

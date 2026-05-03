@@ -736,4 +736,57 @@ export function flashEcm(opts){
   return { start, result };
 }
 
+// ─── Offline-flash mode (Task #599) ───────────────────────────────────────
+// flashEcuOffline() drives the same state machine as flashEcm() but the
+// per-module address pair, preferred unlock algorithm, and reset variant
+// are resolved from the catalog mined out of the cracked CDA SWF (see
+// tools/cda-extractor + docs/CDA_OFFLINE_FLASH.md). This is the entry
+// point used by the Cda6SessionTab "offline flash" affordance and any
+// future module-tab that wants to flash without a live wiTECH session.
+//
+// The catalog supplies:
+//   - moduleCode → { tx, rx, unlockAlgo, sequence }
+//   - unlockAlgo → ALGOS[id].fn (resolved through unlockKey)
+//
+// Anything the caller passes explicitly (addr, algoFn, eraseAddress…)
+// wins over the catalog default so the offline mode stays a thin wrapper
+// rather than a fork. Returns the same controller shape as flashEcm().
+//
+// sourced from CDA SWF FlashSecurityGatewayMessage / StartFlashWithYearBody
+// / EnterDiagnosticSessionCommand orchestration classes; the SWF mostly
+// orchestrates and the raw UDS bytes go through the C++ MVCI layer, so the
+// per-step UDS frames here come from ISO 14229 + FCA convention (tracked
+// in flasherStateMachine.js Task #488 spec) and are pinned in the
+// cdaOfflineFlash.test.js bench trace.
+import { getOfflineFlashModule, getOfflineResetSub } from './cdaCatalog.js';
+import { unlockKey } from './algos.js';
+
+export function flashEcuOffline(opts){
+  const { moduleCode, ...rest } = opts || {};
+  if (!moduleCode || typeof moduleCode !== 'string'){
+    throw new Error('flashEcuOffline: moduleCode is required');
+  }
+  const mod = getOfflineFlashModule(moduleCode);
+  if (!mod){
+    throw new Error(`flashEcuOffline: unknown moduleCode "${moduleCode}" — not in CDA catalog`);
+  }
+  const algoFn = rest.algoFn || ((seedU32) => {
+    const k = unlockKey(mod.unlockAlgo, seedU32);
+    return k != null ? k : 0;
+  });
+  // Catalog reset variant defaults to hardReset (UDS 11 01); the existing
+  // flashEcm() always emits 11 01 at the end, so we only honor the catalog
+  // value to validate the lookup is alive — the actual byte stays identical.
+  const resetSub = getOfflineResetSub('hardReset');
+  if (resetSub !== 0x01){
+    throw new Error(`flashEcuOffline: catalog reset hardReset.sub = 0x${resetSub.toString(16)} — expected 0x01`);
+  }
+  return flashEcm({
+    addr: rest.addr || { tx: mod.tx, rx: mod.rx },
+    algoFn,
+    algoLabel: rest.algoLabel || `${mod.unlockAlgo} (CDA catalog · ${moduleCode})`,
+    ...rest,
+  });
+}
+
 export { PHASE as FLASH_PHASES, parseDownloadResponse, buildRequestDownload, buildEraseRoutine, buildCheckRoutine };

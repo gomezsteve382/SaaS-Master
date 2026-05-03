@@ -50,6 +50,11 @@ import {
   pickUnlockChain,
   tryUnlockWithChain,
 } from './algos.js';
+// VIN-write DID maps cross-checked against the CDA SWF mining at
+// tools/cda-extractor/out/cdaVinWrite.generated.json. The runtime path
+// stays on algos.js#VIN_WRITE_DIDS so we never pay a JSON parse on a hot
+// loop, but the catalog is the documentation-of-record for provenance.
+// sourced from CDA SWF @0x222023 (BCM proxi ReadByID localized string).
 import {crc16ccitt} from './crc.js';
 import {decodeNRC} from './nrc.js';
 

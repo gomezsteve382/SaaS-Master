@@ -1,0 +1,81 @@
+KEYPROG bundle — VERIFY report (Task #366)
+=========================================
+Target VIN:           2C3CDXCT1HH652640
+Shared secret (BE):   816531F7CDE32E33C25A415C8440C72A
+Generated:            2026-05-03T05:19:35.358Z
+Bundler:              scripts/build-keyprog-bundle.mjs
+
+-- BCM BCM_22CHARGER_REDEYE_6.2_KEYPROG_2C3CDXCT1HH652640.bin
+   module type:   BCM
+   src filename:  22CHARGER_REDEYE_6.2_797BCM_DFLASH_VIRGIN_1776226962777.bin
+   src SHA-256:   d44540b1aa166e0834c40d26aee82fe773aa88407441c2294da717e4aa79b676
+   out SHA-256:   747e26a61909aa4dca72c91bbbb612149e923fdecd81c9cf6b037623a2cb0197
+   patch:         partial-VIN-only (18 bytes changed across the two 10-byte slots)
+     0x4098  before=4E48313736343837CE35  after=48483635323634305327  cs=0x5327
+     0x40B0  before=4E48313736343837CE35  after=48483635323634305327  cs=0x5327
+   Full VIN slots:
+     0x5328  2C3CDXCT1HH652640  crcOk=true
+     0x5348  2C3CDXCT1HH652640  crcOk=true
+     0x5368  2C3CDXCT1HH652640  crcOk=true
+     0x5388  2C3CDXCT1HH652640  crcOk=true
+   Partial VIN tails:
+     0x4098  HH652640  crcOk=true
+     0x40B0  HH652640  crcOk=true
+   Vehicle secret (LE @0x40C9): 2A C7 40 84 5C 41 5A C2 33 2E E3 CD F7 31 65 81
+   Vehicle secret (BE form):    816531F7CDE32E33C25A415C8440C72A  [matches shared secret]
+   IMMO records (primary):      8
+   IMMO backup synced:          false
+   Bank0 seq @0x0002:           1A 0F
+   Bank1 seq @0x4002:           1A 0E
+
+-- BCM SEC16 source
+   Source:    split @0x81A0
+   Offset:    0x81A0
+   Blank:     no
+   Bytes (BE): 816531F7CDE32E33C25A415C8440C72A
+
+-- RFH RFH_20CHRGR6.2_KEYPROG_2C3CDXCT1HH652640.bin  (PASS-THROUGH)
+   module type:   RFHUB (Gen2 (24C32))
+   src filename:  RFH_HERMANADO_20CHRGR6.2RFHUBFILE_EEE_OG_VIRGINSYCHNED_1776899205057.bin
+   src SHA-256:   3cda6ee5dfc324fabc554d19d7b3fb987e53f29ec833130c11fc46dd276c1488
+   out SHA-256:   3cda6ee5dfc324fabc554d19d7b3fb987e53f29ec833130c11fc46dd276c1488  [identical]
+   Full VINs:
+     0x0EA5  2C3CDXCT1HH652640  (cs=0xE3 calc=0xE3 crcOk=true)
+     0x0EB9  2C3CDXCT1HH652640  (cs=0xE3 calc=0xE3 crcOk=true)
+     0x0ECD  2C3CDXCT1HH652640  (cs=0xE3 calc=0xE3 crcOk=true)
+     0x0EE1  2C3CDXCT1HH652640  (cs=0xE3 calc=0xE3 crcOk=true)
+   SEC16 slot1 (= shared secret BE): 816531F7CDE32E33C25A415C8440C72A
+   SEC16 slot1 csOk:                 true
+   SEC16 slot1↔slot2 match:          true
+
+-- PCM PCM_FCA_CONTINENTAL_GPEC2A_8KB_KEYPROG_2C3CDXCT1HH652640.bin  (PASS-THROUGH (full 8 KB doubled capture; half-2 is 0xFF padding))
+   module type:   GPEC2A
+   target chip:   95640 (8 KB, 8192 B)
+   src filename:  FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGINSYNCHED_6.2_1776899205055.bin  (8192 B)
+   src SHA-256:   942dd1a267d2ad4c53b57d0d1f6292821cbd74c1599fb84e6a120b14703219db
+   out size:      8192 B
+   out SHA-256:   942dd1a267d2ad4c53b57d0d1f6292821cbd74c1599fb84e6a120b14703219db  [identical]
+   Full VINs (in 4 KB GPEC2A half):
+     0x0000  2C3CDXCT1HH652640
+     0x01F0  2C3CDXCT1HH652640
+     0x0224  2C3CDXCT1HH652640
+     0x0CE0  2C3CDXCT1HH652640
+   PCM SEC6 (= first 6 bytes of shared secret): 816531F7CDE3
+
+Status: PASS — three files ready to flash for key programming.
+
+Notes:
+  - The BCM patch is the minimum byte-set required to bring the virgin BCM
+    to the target VIN: 2 partial-VIN tail slots (8 ASCII bytes + 2-byte
+    big-endian CRC16 each). The source virgin already had the 4 full VINs,
+    SKIM secret, IMMO records, and bank sequence numbers correct.
+  - RFH output is a byte-identical copy of the virgin source.
+  - PCM output size depends on --pcm-chip (default 4kb / 95320):
+      4kb (95320) → first 4 KB of the 8 KB virgin (drops the 0xFF padding half);
+      8kb (95640) → byte-identical pass-through of the full 8 KB virgin.
+    The CGDI flasher rejects the wrong size with "File different size",
+    so the chip selection at build time matches the bench EEPROM.
+  - Output filenames start with the actual module type (BCM_/RFH_/PCM_) so
+    a flash-to-wrong-module mistake is impossible from naming alone.
+  - The bundler is idempotent: re-running yields byte-identical outputs and
+    never deletes its input source files.

@@ -1,0 +1,1047 @@
+{
+  "_meta": {
+    "abcStringPoolSize": 58469,
+    "abcTagCount": 2,
+    "extractedAt": "deterministic",
+    "inflatedBytes": 8716982,
+    "sha256": "d8b08bd85cf1a7f83ac560dab1fdbfc50ada701e767e290229e66d9cc5c6560f",
+    "sourceSwf": "attached_assets/CDA_1776448059516.swf",
+    "swfSignature": "CWS",
+    "swfVersion": 11
+  },
+  "_provenance": "Sequence shape mirrors flasherStateMachine.js (Task #488). SWF orchestration classes recorded per step are sourced from the harvested string buckets (see harvestedStrings.generated.json).",
+  "modules": {
+    "ABS": {
+      "rx": "0x74F",
+      "sequence": [
+        {
+          "expects": "50 03",
+          "phase": "session_extended",
+          "sid": 16,
+          "sub": 3,
+          "swfClass": "EnterDiagnosticSessionCommand",
+          "tx": "10 03"
+        },
+        {
+          "expects": "85 02",
+          "phase": "etiquette_dtc_off",
+          "sid": 133,
+          "sub": 2,
+          "swfClass": "ControlDTCSetting (suppress)",
+          "tx": "85 02"
+        },
+        {
+          "expects": "68 03",
+          "phase": "etiquette_comm_off",
+          "sid": 40,
+          "sub": 3,
+          "swfClass": "CommunicationControl",
+          "tx": "28 03 03 (7DF)"
+        },
+        {
+          "expects": "50 02",
+          "phase": "session_program",
+          "sid": 16,
+          "sub": 2,
+          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "tx": "10 02"
+        },
+        {
+          "expects": "C3 03",
+          "phase": "timing_p2",
+          "sid": 131,
+          "sub": 3,
+          "swfClass": "AccessTimingParameter",
+          "tx": "83 03 [P2 hi lo P2* hi lo]"
+        },
+        {
+          "expects": "67 09 [SEED 4B]",
+          "phase": "seed",
+          "sid": 39,
+          "sub": 9,
+          "swfClass": "SecurityGatewayCommand → seed",
+          "tx": "27 09",
+          "unlockAlgo": "cda6"
+        },
+        {
+          "expects": "67 0A",
+          "phase": "key",
+          "sid": 39,
+          "sub": 10,
+          "swfClass": "SecurityGatewayCommand → key",
+          "tx": "27 0A [KEY 4B]",
+          "unlockAlgo": "cda6"
+        },
+        {
+          "expects": "71 01 FF 00 [status]",
+          "phase": "erase",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "StartFlashCommand → erase",
+          "tx": "31 01 FF 00 [addr][len]"
+        },
+        {
+          "expects": "74 [LFID][maxBlock]",
+          "phase": "request_download",
+          "sid": 52,
+          "sub": null,
+          "swfClass": "StartFlashWithYearBodyMessage",
+          "tx": "34 [dfi][alfid][addr][len]"
+        },
+        {
+          "expects": "76 [seq]",
+          "phase": "transfer",
+          "sid": 54,
+          "sub": null,
+          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "tx": "36 [seq][block]"
+        },
+        {
+          "expects": "77",
+          "phase": "transfer_exit",
+          "sid": 55,
+          "sub": null,
+          "swfClass": "StopFlashStatusMessage",
+          "tx": "37"
+        },
+        {
+          "expects": "71 01 FF 01 [status]",
+          "phase": "checksum",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "tx": "31 01 FF 01"
+        },
+        {
+          "expects": "51 01",
+          "phase": "reset",
+          "sid": 17,
+          "sub": 1,
+          "swfClass": "ResetECUCommand (hardReset)",
+          "tx": "11 01"
+        },
+        {
+          "expects": "68 00",
+          "phase": "etiquette_comm_on",
+          "sid": 40,
+          "sub": 0,
+          "swfClass": "CommunicationControl (restore)",
+          "tx": "28 00 00 (7DF)"
+        },
+        {
+          "expects": "85 01",
+          "phase": "etiquette_dtc_on",
+          "sid": 133,
+          "sub": 1,
+          "swfClass": "ControlDTCSetting (restore)",
+          "tx": "85 01"
+        }
+      ],
+      "tx": "0x747",
+      "unlockAlgo": "cda6"
+    },
+    "ADCM": {
+      "rx": "0x7B0",
+      "sequence": [
+        {
+          "expects": "50 03",
+          "phase": "session_extended",
+          "sid": 16,
+          "sub": 3,
+          "swfClass": "EnterDiagnosticSessionCommand",
+          "tx": "10 03"
+        },
+        {
+          "expects": "85 02",
+          "phase": "etiquette_dtc_off",
+          "sid": 133,
+          "sub": 2,
+          "swfClass": "ControlDTCSetting (suppress)",
+          "tx": "85 02"
+        },
+        {
+          "expects": "68 03",
+          "phase": "etiquette_comm_off",
+          "sid": 40,
+          "sub": 3,
+          "swfClass": "CommunicationControl",
+          "tx": "28 03 03 (7DF)"
+        },
+        {
+          "expects": "50 02",
+          "phase": "session_program",
+          "sid": 16,
+          "sub": 2,
+          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "tx": "10 02"
+        },
+        {
+          "expects": "C3 03",
+          "phase": "timing_p2",
+          "sid": 131,
+          "sub": 3,
+          "swfClass": "AccessTimingParameter",
+          "tx": "83 03 [P2 hi lo P2* hi lo]"
+        },
+        {
+          "expects": "67 09 [SEED 4B]",
+          "phase": "seed",
+          "sid": 39,
+          "sub": 9,
+          "swfClass": "SecurityGatewayCommand → seed",
+          "tx": "27 09",
+          "unlockAlgo": "gpec2"
+        },
+        {
+          "expects": "67 0A",
+          "phase": "key",
+          "sid": 39,
+          "sub": 10,
+          "swfClass": "SecurityGatewayCommand → key",
+          "tx": "27 0A [KEY 4B]",
+          "unlockAlgo": "gpec2"
+        },
+        {
+          "expects": "71 01 FF 00 [status]",
+          "phase": "erase",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "StartFlashCommand → erase",
+          "tx": "31 01 FF 00 [addr][len]"
+        },
+        {
+          "expects": "74 [LFID][maxBlock]",
+          "phase": "request_download",
+          "sid": 52,
+          "sub": null,
+          "swfClass": "StartFlashWithYearBodyMessage",
+          "tx": "34 [dfi][alfid][addr][len]"
+        },
+        {
+          "expects": "76 [seq]",
+          "phase": "transfer",
+          "sid": 54,
+          "sub": null,
+          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "tx": "36 [seq][block]"
+        },
+        {
+          "expects": "77",
+          "phase": "transfer_exit",
+          "sid": 55,
+          "sub": null,
+          "swfClass": "StopFlashStatusMessage",
+          "tx": "37"
+        },
+        {
+          "expects": "71 01 FF 01 [status]",
+          "phase": "checksum",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "tx": "31 01 FF 01"
+        },
+        {
+          "expects": "51 01",
+          "phase": "reset",
+          "sid": 17,
+          "sub": 1,
+          "swfClass": "ResetECUCommand (hardReset)",
+          "tx": "11 01"
+        },
+        {
+          "expects": "68 00",
+          "phase": "etiquette_comm_on",
+          "sid": 40,
+          "sub": 0,
+          "swfClass": "CommunicationControl (restore)",
+          "tx": "28 00 00 (7DF)"
+        },
+        {
+          "expects": "85 01",
+          "phase": "etiquette_dtc_on",
+          "sid": 133,
+          "sub": 1,
+          "swfClass": "ControlDTCSetting (restore)",
+          "tx": "85 01"
+        }
+      ],
+      "tx": "0x7A8",
+      "unlockAlgo": "gpec2"
+    },
+    "BCM": {
+      "rx": "0x758",
+      "sequence": [
+        {
+          "expects": "50 03",
+          "phase": "session_extended",
+          "sid": 16,
+          "sub": 3,
+          "swfClass": "EnterDiagnosticSessionCommand",
+          "tx": "10 03"
+        },
+        {
+          "expects": "85 02",
+          "phase": "etiquette_dtc_off",
+          "sid": 133,
+          "sub": 2,
+          "swfClass": "ControlDTCSetting (suppress)",
+          "tx": "85 02"
+        },
+        {
+          "expects": "68 03",
+          "phase": "etiquette_comm_off",
+          "sid": 40,
+          "sub": 3,
+          "swfClass": "CommunicationControl",
+          "tx": "28 03 03 (7DF)"
+        },
+        {
+          "expects": "50 02",
+          "phase": "session_program",
+          "sid": 16,
+          "sub": 2,
+          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "tx": "10 02"
+        },
+        {
+          "expects": "C3 03",
+          "phase": "timing_p2",
+          "sid": 131,
+          "sub": 3,
+          "swfClass": "AccessTimingParameter",
+          "tx": "83 03 [P2 hi lo P2* hi lo]"
+        },
+        {
+          "expects": "67 09 [SEED 4B]",
+          "phase": "seed",
+          "sid": 39,
+          "sub": 9,
+          "swfClass": "SecurityGatewayCommand → seed",
+          "tx": "27 09",
+          "unlockAlgo": "cda6"
+        },
+        {
+          "expects": "67 0A",
+          "phase": "key",
+          "sid": 39,
+          "sub": 10,
+          "swfClass": "SecurityGatewayCommand → key",
+          "tx": "27 0A [KEY 4B]",
+          "unlockAlgo": "cda6"
+        },
+        {
+          "expects": "71 01 FF 00 [status]",
+          "phase": "erase",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "StartFlashCommand → erase",
+          "tx": "31 01 FF 00 [addr][len]"
+        },
+        {
+          "expects": "74 [LFID][maxBlock]",
+          "phase": "request_download",
+          "sid": 52,
+          "sub": null,
+          "swfClass": "StartFlashWithYearBodyMessage",
+          "tx": "34 [dfi][alfid][addr][len]"
+        },
+        {
+          "expects": "76 [seq]",
+          "phase": "transfer",
+          "sid": 54,
+          "sub": null,
+          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "tx": "36 [seq][block]"
+        },
+        {
+          "expects": "77",
+          "phase": "transfer_exit",
+          "sid": 55,
+          "sub": null,
+          "swfClass": "StopFlashStatusMessage",
+          "tx": "37"
+        },
+        {
+          "expects": "71 01 FF 01 [status]",
+          "phase": "checksum",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "tx": "31 01 FF 01"
+        },
+        {
+          "expects": "51 01",
+          "phase": "reset",
+          "sid": 17,
+          "sub": 1,
+          "swfClass": "ResetECUCommand (hardReset)",
+          "tx": "11 01"
+        },
+        {
+          "expects": "68 00",
+          "phase": "etiquette_comm_on",
+          "sid": 40,
+          "sub": 0,
+          "swfClass": "CommunicationControl (restore)",
+          "tx": "28 00 00 (7DF)"
+        },
+        {
+          "expects": "85 01",
+          "phase": "etiquette_dtc_on",
+          "sid": 133,
+          "sub": 1,
+          "swfClass": "ControlDTCSetting (restore)",
+          "tx": "85 01"
+        }
+      ],
+      "tx": "0x750",
+      "unlockAlgo": "cda6"
+    },
+    "ECM": {
+      "rx": "0x7E8",
+      "sequence": [
+        {
+          "expects": "50 03",
+          "phase": "session_extended",
+          "sid": 16,
+          "sub": 3,
+          "swfClass": "EnterDiagnosticSessionCommand",
+          "tx": "10 03"
+        },
+        {
+          "expects": "85 02",
+          "phase": "etiquette_dtc_off",
+          "sid": 133,
+          "sub": 2,
+          "swfClass": "ControlDTCSetting (suppress)",
+          "tx": "85 02"
+        },
+        {
+          "expects": "68 03",
+          "phase": "etiquette_comm_off",
+          "sid": 40,
+          "sub": 3,
+          "swfClass": "CommunicationControl",
+          "tx": "28 03 03 (7DF)"
+        },
+        {
+          "expects": "50 02",
+          "phase": "session_program",
+          "sid": 16,
+          "sub": 2,
+          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "tx": "10 02"
+        },
+        {
+          "expects": "C3 03",
+          "phase": "timing_p2",
+          "sid": 131,
+          "sub": 3,
+          "swfClass": "AccessTimingParameter",
+          "tx": "83 03 [P2 hi lo P2* hi lo]"
+        },
+        {
+          "expects": "67 09 [SEED 4B]",
+          "phase": "seed",
+          "sid": 39,
+          "sub": 9,
+          "swfClass": "SecurityGatewayCommand → seed",
+          "tx": "27 09",
+          "unlockAlgo": "gpec2"
+        },
+        {
+          "expects": "67 0A",
+          "phase": "key",
+          "sid": 39,
+          "sub": 10,
+          "swfClass": "SecurityGatewayCommand → key",
+          "tx": "27 0A [KEY 4B]",
+          "unlockAlgo": "gpec2"
+        },
+        {
+          "expects": "71 01 FF 00 [status]",
+          "phase": "erase",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "StartFlashCommand → erase",
+          "tx": "31 01 FF 00 [addr][len]"
+        },
+        {
+          "expects": "74 [LFID][maxBlock]",
+          "phase": "request_download",
+          "sid": 52,
+          "sub": null,
+          "swfClass": "StartFlashWithYearBodyMessage",
+          "tx": "34 [dfi][alfid][addr][len]"
+        },
+        {
+          "expects": "76 [seq]",
+          "phase": "transfer",
+          "sid": 54,
+          "sub": null,
+          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "tx": "36 [seq][block]"
+        },
+        {
+          "expects": "77",
+          "phase": "transfer_exit",
+          "sid": 55,
+          "sub": null,
+          "swfClass": "StopFlashStatusMessage",
+          "tx": "37"
+        },
+        {
+          "expects": "71 01 FF 01 [status]",
+          "phase": "checksum",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "tx": "31 01 FF 01"
+        },
+        {
+          "expects": "51 01",
+          "phase": "reset",
+          "sid": 17,
+          "sub": 1,
+          "swfClass": "ResetECUCommand (hardReset)",
+          "tx": "11 01"
+        },
+        {
+          "expects": "68 00",
+          "phase": "etiquette_comm_on",
+          "sid": 40,
+          "sub": 0,
+          "swfClass": "CommunicationControl (restore)",
+          "tx": "28 00 00 (7DF)"
+        },
+        {
+          "expects": "85 01",
+          "phase": "etiquette_dtc_on",
+          "sid": 133,
+          "sub": 1,
+          "swfClass": "ControlDTCSetting (restore)",
+          "tx": "85 01"
+        }
+      ],
+      "tx": "0x7E0",
+      "unlockAlgo": "gpec2"
+    },
+    "IPC": {
+      "rx": "0x748",
+      "sequence": [
+        {
+          "expects": "50 03",
+          "phase": "session_extended",
+          "sid": 16,
+          "sub": 3,
+          "swfClass": "EnterDiagnosticSessionCommand",
+          "tx": "10 03"
+        },
+        {
+          "expects": "85 02",
+          "phase": "etiquette_dtc_off",
+          "sid": 133,
+          "sub": 2,
+          "swfClass": "ControlDTCSetting (suppress)",
+          "tx": "85 02"
+        },
+        {
+          "expects": "68 03",
+          "phase": "etiquette_comm_off",
+          "sid": 40,
+          "sub": 3,
+          "swfClass": "CommunicationControl",
+          "tx": "28 03 03 (7DF)"
+        },
+        {
+          "expects": "50 02",
+          "phase": "session_program",
+          "sid": 16,
+          "sub": 2,
+          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "tx": "10 02"
+        },
+        {
+          "expects": "C3 03",
+          "phase": "timing_p2",
+          "sid": 131,
+          "sub": 3,
+          "swfClass": "AccessTimingParameter",
+          "tx": "83 03 [P2 hi lo P2* hi lo]"
+        },
+        {
+          "expects": "67 09 [SEED 4B]",
+          "phase": "seed",
+          "sid": 39,
+          "sub": 9,
+          "swfClass": "SecurityGatewayCommand → seed",
+          "tx": "27 09",
+          "unlockAlgo": "cda6"
+        },
+        {
+          "expects": "67 0A",
+          "phase": "key",
+          "sid": 39,
+          "sub": 10,
+          "swfClass": "SecurityGatewayCommand → key",
+          "tx": "27 0A [KEY 4B]",
+          "unlockAlgo": "cda6"
+        },
+        {
+          "expects": "71 01 FF 00 [status]",
+          "phase": "erase",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "StartFlashCommand → erase",
+          "tx": "31 01 FF 00 [addr][len]"
+        },
+        {
+          "expects": "74 [LFID][maxBlock]",
+          "phase": "request_download",
+          "sid": 52,
+          "sub": null,
+          "swfClass": "StartFlashWithYearBodyMessage",
+          "tx": "34 [dfi][alfid][addr][len]"
+        },
+        {
+          "expects": "76 [seq]",
+          "phase": "transfer",
+          "sid": 54,
+          "sub": null,
+          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "tx": "36 [seq][block]"
+        },
+        {
+          "expects": "77",
+          "phase": "transfer_exit",
+          "sid": 55,
+          "sub": null,
+          "swfClass": "StopFlashStatusMessage",
+          "tx": "37"
+        },
+        {
+          "expects": "71 01 FF 01 [status]",
+          "phase": "checksum",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "tx": "31 01 FF 01"
+        },
+        {
+          "expects": "51 01",
+          "phase": "reset",
+          "sid": 17,
+          "sub": 1,
+          "swfClass": "ResetECUCommand (hardReset)",
+          "tx": "11 01"
+        },
+        {
+          "expects": "68 00",
+          "phase": "etiquette_comm_on",
+          "sid": 40,
+          "sub": 0,
+          "swfClass": "CommunicationControl (restore)",
+          "tx": "28 00 00 (7DF)"
+        },
+        {
+          "expects": "85 01",
+          "phase": "etiquette_dtc_on",
+          "sid": 133,
+          "sub": 1,
+          "swfClass": "ControlDTCSetting (restore)",
+          "tx": "85 01"
+        }
+      ],
+      "tx": "0x740",
+      "unlockAlgo": "cda6"
+    },
+    "RFHUB": {
+      "rx": "0x768",
+      "sequence": [
+        {
+          "expects": "50 03",
+          "phase": "session_extended",
+          "sid": 16,
+          "sub": 3,
+          "swfClass": "EnterDiagnosticSessionCommand",
+          "tx": "10 03"
+        },
+        {
+          "expects": "85 02",
+          "phase": "etiquette_dtc_off",
+          "sid": 133,
+          "sub": 2,
+          "swfClass": "ControlDTCSetting (suppress)",
+          "tx": "85 02"
+        },
+        {
+          "expects": "68 03",
+          "phase": "etiquette_comm_off",
+          "sid": 40,
+          "sub": 3,
+          "swfClass": "CommunicationControl",
+          "tx": "28 03 03 (7DF)"
+        },
+        {
+          "expects": "50 02",
+          "phase": "session_program",
+          "sid": 16,
+          "sub": 2,
+          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "tx": "10 02"
+        },
+        {
+          "expects": "C3 03",
+          "phase": "timing_p2",
+          "sid": 131,
+          "sub": 3,
+          "swfClass": "AccessTimingParameter",
+          "tx": "83 03 [P2 hi lo P2* hi lo]"
+        },
+        {
+          "expects": "67 09 [SEED 4B]",
+          "phase": "seed",
+          "sid": 39,
+          "sub": 9,
+          "swfClass": "SecurityGatewayCommand → seed",
+          "tx": "27 09",
+          "unlockAlgo": "cda6"
+        },
+        {
+          "expects": "67 0A",
+          "phase": "key",
+          "sid": 39,
+          "sub": 10,
+          "swfClass": "SecurityGatewayCommand → key",
+          "tx": "27 0A [KEY 4B]",
+          "unlockAlgo": "cda6"
+        },
+        {
+          "expects": "71 01 FF 00 [status]",
+          "phase": "erase",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "StartFlashCommand → erase",
+          "tx": "31 01 FF 00 [addr][len]"
+        },
+        {
+          "expects": "74 [LFID][maxBlock]",
+          "phase": "request_download",
+          "sid": 52,
+          "sub": null,
+          "swfClass": "StartFlashWithYearBodyMessage",
+          "tx": "34 [dfi][alfid][addr][len]"
+        },
+        {
+          "expects": "76 [seq]",
+          "phase": "transfer",
+          "sid": 54,
+          "sub": null,
+          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "tx": "36 [seq][block]"
+        },
+        {
+          "expects": "77",
+          "phase": "transfer_exit",
+          "sid": 55,
+          "sub": null,
+          "swfClass": "StopFlashStatusMessage",
+          "tx": "37"
+        },
+        {
+          "expects": "71 01 FF 01 [status]",
+          "phase": "checksum",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "tx": "31 01 FF 01"
+        },
+        {
+          "expects": "51 01",
+          "phase": "reset",
+          "sid": 17,
+          "sub": 1,
+          "swfClass": "ResetECUCommand (hardReset)",
+          "tx": "11 01"
+        },
+        {
+          "expects": "68 00",
+          "phase": "etiquette_comm_on",
+          "sid": 40,
+          "sub": 0,
+          "swfClass": "CommunicationControl (restore)",
+          "tx": "28 00 00 (7DF)"
+        },
+        {
+          "expects": "85 01",
+          "phase": "etiquette_dtc_on",
+          "sid": 133,
+          "sub": 1,
+          "swfClass": "ControlDTCSetting (restore)",
+          "tx": "85 01"
+        }
+      ],
+      "tx": "0x760",
+      "unlockAlgo": "cda6"
+    },
+    "SGW": {
+      "rx": "0x76F",
+      "sequence": [
+        {
+          "expects": "50 03",
+          "phase": "session_extended",
+          "sid": 16,
+          "sub": 3,
+          "swfClass": "EnterDiagnosticSessionCommand",
+          "tx": "10 03"
+        },
+        {
+          "expects": "85 02",
+          "phase": "etiquette_dtc_off",
+          "sid": 133,
+          "sub": 2,
+          "swfClass": "ControlDTCSetting (suppress)",
+          "tx": "85 02"
+        },
+        {
+          "expects": "68 03",
+          "phase": "etiquette_comm_off",
+          "sid": 40,
+          "sub": 3,
+          "swfClass": "CommunicationControl",
+          "tx": "28 03 03 (7DF)"
+        },
+        {
+          "expects": "50 02",
+          "phase": "session_program",
+          "sid": 16,
+          "sub": 2,
+          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "tx": "10 02"
+        },
+        {
+          "expects": "C3 03",
+          "phase": "timing_p2",
+          "sid": 131,
+          "sub": 3,
+          "swfClass": "AccessTimingParameter",
+          "tx": "83 03 [P2 hi lo P2* hi lo]"
+        },
+        {
+          "expects": "67 09 [SEED 4B]",
+          "phase": "seed",
+          "sid": 39,
+          "sub": 9,
+          "swfClass": "SecurityGatewayCommand → seed",
+          "tx": "27 09",
+          "unlockAlgo": "xtea_sgw"
+        },
+        {
+          "expects": "67 0A",
+          "phase": "key",
+          "sid": 39,
+          "sub": 10,
+          "swfClass": "SecurityGatewayCommand → key",
+          "tx": "27 0A [KEY 4B]",
+          "unlockAlgo": "xtea_sgw"
+        },
+        {
+          "expects": "71 01 FF 00 [status]",
+          "phase": "erase",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "StartFlashCommand → erase",
+          "tx": "31 01 FF 00 [addr][len]"
+        },
+        {
+          "expects": "74 [LFID][maxBlock]",
+          "phase": "request_download",
+          "sid": 52,
+          "sub": null,
+          "swfClass": "StartFlashWithYearBodyMessage",
+          "tx": "34 [dfi][alfid][addr][len]"
+        },
+        {
+          "expects": "76 [seq]",
+          "phase": "transfer",
+          "sid": 54,
+          "sub": null,
+          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "tx": "36 [seq][block]"
+        },
+        {
+          "expects": "77",
+          "phase": "transfer_exit",
+          "sid": 55,
+          "sub": null,
+          "swfClass": "StopFlashStatusMessage",
+          "tx": "37"
+        },
+        {
+          "expects": "71 01 FF 01 [status]",
+          "phase": "checksum",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "tx": "31 01 FF 01"
+        },
+        {
+          "expects": "51 01",
+          "phase": "reset",
+          "sid": 17,
+          "sub": 1,
+          "swfClass": "ResetECUCommand (hardReset)",
+          "tx": "11 01"
+        },
+        {
+          "expects": "68 00",
+          "phase": "etiquette_comm_on",
+          "sid": 40,
+          "sub": 0,
+          "swfClass": "CommunicationControl (restore)",
+          "tx": "28 00 00 (7DF)"
+        },
+        {
+          "expects": "85 01",
+          "phase": "etiquette_dtc_on",
+          "sid": 133,
+          "sub": 1,
+          "swfClass": "ControlDTCSetting (restore)",
+          "tx": "85 01"
+        }
+      ],
+      "tx": "0x74F",
+      "unlockAlgo": "xtea_sgw"
+    },
+    "TCM": {
+      "rx": "0x7E9",
+      "sequence": [
+        {
+          "expects": "50 03",
+          "phase": "session_extended",
+          "sid": 16,
+          "sub": 3,
+          "swfClass": "EnterDiagnosticSessionCommand",
+          "tx": "10 03"
+        },
+        {
+          "expects": "85 02",
+          "phase": "etiquette_dtc_off",
+          "sid": 133,
+          "sub": 2,
+          "swfClass": "ControlDTCSetting (suppress)",
+          "tx": "85 02"
+        },
+        {
+          "expects": "68 03",
+          "phase": "etiquette_comm_off",
+          "sid": 40,
+          "sub": 3,
+          "swfClass": "CommunicationControl",
+          "tx": "28 03 03 (7DF)"
+        },
+        {
+          "expects": "50 02",
+          "phase": "session_program",
+          "sid": 16,
+          "sub": 2,
+          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "tx": "10 02"
+        },
+        {
+          "expects": "C3 03",
+          "phase": "timing_p2",
+          "sid": 131,
+          "sub": 3,
+          "swfClass": "AccessTimingParameter",
+          "tx": "83 03 [P2 hi lo P2* hi lo]"
+        },
+        {
+          "expects": "67 09 [SEED 4B]",
+          "phase": "seed",
+          "sid": 39,
+          "sub": 9,
+          "swfClass": "SecurityGatewayCommand → seed",
+          "tx": "27 09",
+          "unlockAlgo": "gpec2"
+        },
+        {
+          "expects": "67 0A",
+          "phase": "key",
+          "sid": 39,
+          "sub": 10,
+          "swfClass": "SecurityGatewayCommand → key",
+          "tx": "27 0A [KEY 4B]",
+          "unlockAlgo": "gpec2"
+        },
+        {
+          "expects": "71 01 FF 00 [status]",
+          "phase": "erase",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "StartFlashCommand → erase",
+          "tx": "31 01 FF 00 [addr][len]"
+        },
+        {
+          "expects": "74 [LFID][maxBlock]",
+          "phase": "request_download",
+          "sid": 52,
+          "sub": null,
+          "swfClass": "StartFlashWithYearBodyMessage",
+          "tx": "34 [dfi][alfid][addr][len]"
+        },
+        {
+          "expects": "76 [seq]",
+          "phase": "transfer",
+          "sid": 54,
+          "sub": null,
+          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "tx": "36 [seq][block]"
+        },
+        {
+          "expects": "77",
+          "phase": "transfer_exit",
+          "sid": 55,
+          "sub": null,
+          "swfClass": "StopFlashStatusMessage",
+          "tx": "37"
+        },
+        {
+          "expects": "71 01 FF 01 [status]",
+          "phase": "checksum",
+          "sid": 49,
+          "sub": 1,
+          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "tx": "31 01 FF 01"
+        },
+        {
+          "expects": "51 01",
+          "phase": "reset",
+          "sid": 17,
+          "sub": 1,
+          "swfClass": "ResetECUCommand (hardReset)",
+          "tx": "11 01"
+        },
+        {
+          "expects": "68 00",
+          "phase": "etiquette_comm_on",
+          "sid": 40,
+          "sub": 0,
+          "swfClass": "CommunicationControl (restore)",
+          "tx": "28 00 00 (7DF)"
+        },
+        {
+          "expects": "85 01",
+          "phase": "etiquette_dtc_on",
+          "sid": 133,
+          "sub": 1,
+          "swfClass": "ControlDTCSetting (restore)",
+          "tx": "85 01"
+        }
+      ],
+      "tx": "0x7E1",
+      "unlockAlgo": "gpec2"
+    }
+  }
+}

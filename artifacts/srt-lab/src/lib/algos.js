@@ -431,6 +431,10 @@ function unlockIdForTx(tx){
 // modules (ECM/TCM/DAMP/ADCM) historically use the GPEC2 sxor-0xE72E3799
 // constant; body-bus modules use CDA6; TIPM uses its own table; SGW uses
 // XTEA. Anything not listed falls through to unlockIdForTx(tx) below.
+// sourced from CDA SWF SecurityGatewayCommand / FlashSecurityGatewayMessage
+// orchestration classes plus MOD_UNLOCK confirmation against the
+// flasherStateMachine.js Task #488 spec. Mirrored into
+// tools/cda-extractor/out/cdaFlashSequences.generated.json.
 const MOD_UNLOCK = {
   ECM:'gpec2', TCM:'gpec2', DAMP:'gpec2', ADCM:'gpec2',
   BCM:'cda6', RFHUB:'cda6', ABS:'cda6', IPC:'cda6',
@@ -542,6 +546,10 @@ function encodeDid(did){
 // (F190 = VIN, 7B90 = current VIN copy, 7B88 = original VIN copy). BCM and
 // RFHUB carry an additional FCA-specific 24-bit copy in the 0x6E2025/0x6E2027
 // configuration block; EPS keeps F190 plus its own 0x6EF190 mirror.
+// sourced from CDA SWF localized string "The Proxi String is read from the
+// BCM using command 222023" (= UDS 0x22 ReadDataByIdentifier with DID 0x2025
+// in the 0x6E__ FCA block) and the per-module unlock map MOD_UNLOCK below.
+// Mirrored into tools/cda-extractor/out/cdaVinWrite.generated.json.
 const VIN_WRITE_DIDS = {
   default: [0xF190, 0x7B90, 0x7B88],
   BCM:     [0xF190, 0x7B90, 0x7B88, 0x6E2025],
