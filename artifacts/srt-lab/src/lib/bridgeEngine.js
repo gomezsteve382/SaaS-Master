@@ -5,9 +5,24 @@
    RFHUB / ECM / ADCM tabs route their writes through this engine so the Autel
    MaxiFlash cable performs SGW authentication. If the bridge daemon is not
    reachable, createBridgeEngine() returns null with an error message logged
-   via addLog and the caller MUST abort the write. */
+   via addLog and the caller MUST abort the write.
 
-import {getStatus, open as openBridge, connect as bridgeConnect, setFilter, sendMsg, readMsg, getAutelState} from './bridgeClient.js';
+   Transport selector (Task #613)
+   ──────────────────────────────
+   Two transport backends are available and share the same JSON-RPC surface:
+
+     J2534 Pass-Thru  — Autel MaxiFlash / any J2534 DLL, port 8765 (default)
+     MicroPod II      — wiTECH MicroPod II USB bridge,    port 8766 (default)
+
+   The choice is persisted per-session in localStorage under
+   'srtlab_transport' and can be changed at any time from the External Tools
+   tab transport selector. All existing callers (offline-flash, VIN-write,
+   module-reset, SGW re-unlock) flow through whichever engine is active —
+   no tab-level code changes are needed.
+
+   // transport: micropod-ii  ← provenance comment for MicroPod II paths */
+
+import {getStatus, open as openBridge, connect as bridgeConnect, setFilter, sendMsg, readMsg, getAutelState, getMicroPodUrl} from './bridgeClient.js';
 
 const PROTOCOL_ISO15765 = 6;
 const ISO15765_FRAME_PAD = 0x40;
@@ -27,110 +42,239 @@ function bytesToHex(arr){
   return Array.from(arr).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
 }
 
-/* Build a uds-compatible engine on top of the bridge daemon.
+// ─── Transport selector (Task #613) ──────────────────────────────────────────
+// Persisted in localStorage so the operator's choice survives page refreshes
+// and is shared between all tabs without prop-drilling.
+
+const LS_TRANSPORT_KEY = 'srtlab_transport';
+
+export const TRANSPORT_J2534    = 'j2534';
+export const TRANSPORT_MICROPOD = 'micropod-ii';
+
+export function getActiveTransport(){
+  try {
+    const v = localStorage.getItem(LS_TRANSPORT_KEY);
+    if (v === TRANSPORT_MICROPOD) return TRANSPORT_MICROPOD;
+    return TRANSPORT_J2534;
+  } catch {
+    return TRANSPORT_J2534;
+  }
+}
+
+export function setActiveTransport(t){
+  try {
+    const val = t === TRANSPORT_MICROPOD ? TRANSPORT_MICROPOD : TRANSPORT_J2534;
+    localStorage.setItem(LS_TRANSPORT_KEY, val);
+    return val;
+  } catch {
+    return TRANSPORT_J2534;
+  }
+}
+
+// Build a UDS engine from any bridge URL that speaks the standard surface
+// (open / connect / setfilter / sendmsg / readmsg).
+// Returns { ok:true, engine } or { ok:false, error }.
+async function _buildUdsEngineFromUrl({ addLog, url, transportLabel, adapterLabel, isMicroPod }) {
+  const log = (m, t='info') => { try { addLog && addLog(m, t); } catch {} };
+
+  log(`${transportLabel} → routing UDS through ${adapterLabel} (${url})`, 'info');
+
+  const st = await getStatus(url);
+  if (!st || !st.ok) {
+    return { ok: false, error: `${transportLabel} not reachable: ${st?.error || 'no response'}` };
+  }
+
+  // MicroPod II pre-flight checks.
+  // pyusbAvailable is checked first: if pyusb is missing the pod will also
+  // appear absent, so reporting "pyusb not installed" is the more actionable
+  // diagnosis and avoids a misleading POD_NOT_FOUND when the real issue is
+  // a missing Python dependency.
+  if (isMicroPod && st.pyusbAvailable === false) {
+    return {
+      ok: false,
+      error: 'pyusb not installed on bridge host — run: pip install pyusb',
+    };
+  }
+  if (isMicroPod && st.podPresent === false) {
+    return {
+      ok: false,
+      error: 'POD_NOT_FOUND: MicroPod II not detected on USB bus. Check cable and driver.',
+    };
+  }
+
+  const isOpen      = st.opened || st.deviceOpen;
+  const isConnected = st.connected || st.channelConnected;
+
+  if (!isOpen) {
+    log(`Opening ${adapterLabel} device…`, 'info');
+    const o = await openBridge(url);
+    if (!o.ok) {
+      // Surface friendly MicroPod error codes
+      const code = o.code || '';
+      if (code === 'POD_NOT_FOUND')     return { ok: false, error: 'POD_NOT_FOUND: MicroPod II not detected — check USB cable and driver.' };
+      if (code === 'PERMISSION_DENIED') return { ok: false, error: 'PERMISSION_DENIED: cannot claim MicroPod II — add udev rule or run bridge as root (see docs/MICROPOD_II_TRANSPORT.md).' };
+      if (code === 'FIRMWARE_TOO_OLD') return { ok: false, error: 'FIRMWARE_TOO_OLD: update MicroPod II firmware via wiTECH 2.0 before using this bridge.' };
+      return { ok: false, error: `${transportLabel} /open failed: ${o.error || 'unknown'}` };
+    }
+  }
+
+  if (!isConnected) {
+    log(`Connecting ISO15765 channel @ 500 kbit/s…`, 'info');
+    const c = await bridgeConnect({ protocol: PROTOCOL_ISO15765, flags: 0, baudrate: 500000 }, url);
+    if (!c.ok) return { ok: false, error: `${transportLabel} /connect failed: ${c.error || 'unknown'}` };
+  }
+
+  const fwStr = st.versions?.firmware ? ` fw ${st.versions.firmware}` : '';
+  log(`✓ ${adapterLabel} ready${fwStr}`, 'rx');
+
+  let lastTx = -1, lastRx = -1;
+  let negotiatedTiming = null;
+  const computeDefaultTimeout = (dataLen) => {
+    if (negotiatedTiming) {
+      const a = Number(negotiatedTiming.p2StarMs) || 0;
+      const b = Number(negotiatedTiming.p2Ms) || 0;
+      const v = Math.max(a, b);
+      if (v > 0) return v;
+    }
+    return dataLen > 7 ? 8000 : 4000;
+  };
+
+  const uds = async (tx, rx, data, timeoutMs) => {
+    const tm = timeoutMs || computeDefaultTimeout(data.length);
+    if (tx !== lastTx || rx !== lastRx) {
+      const f = await setFilter({ txId: tx, rxId: rx }, url);
+      if (!f.ok) return { ok: false, raw: `${transportLabel} setFilter: ${f.error || 'failed'}` };
+      lastTx = tx; lastRx = rx;
+    }
+    const dataHex = bytesToHex(data);
+    const sm = await sendMsg({ txId: tx, data: dataHex, flags: ISO15765_FRAME_PAD, timeoutMs: 1000 }, url);
+    if (!sm.ok) return { ok: false, raw: `${transportLabel} sendMsg: ${sm.error || 'failed'}` };
+    const deadline = Date.now() + tm;
+    while (Date.now() < deadline) {
+      const remaining = deadline - Date.now();
+      const slice = Math.min(1500, Math.max(150, remaining));
+      const r = await readMsg({ timeoutMs: slice }, url);
+      if (!r || !r.ok) return { ok: false, raw: `${transportLabel} readMsg: ${r?.error || 'failed'}` };
+      const m = r.msg;
+      if (!m || !m.data) continue;
+      if (typeof m.canId === 'number' && rx && m.canId !== rx) continue;
+      const bytes = hexToBytes(m.data);
+      if (!bytes.length) continue;
+      if (bytes.length >= 3 && bytes[0] === 0x7F && bytes[2] === 0x78) continue;
+      return { ok: true, d: new Uint8Array(bytes), raw: m.data };
+    }
+    return { ok: false, raw: `${transportLabel}: timeout after ${tm}ms` };
+  };
+
+  const setNegotiatedTiming = (t) => {
+    if (!t) { negotiatedTiming = null; return; }
+    const p2  = Number(t.p2Ms)     || 0;
+    const p2s = Number(t.p2StarMs) || 0;
+    if (p2 <= 0 && p2s <= 0) { negotiatedTiming = null; return; }
+    negotiatedTiming = { p2Ms: p2, p2StarMs: p2s };
+  };
+  const clearNegotiatedTiming = () => { negotiatedTiming = null; };
+  const getNegotiatedTiming   = () => negotiatedTiming ? { ...negotiatedTiming } : null;
+
+  return {
+    ok: true,
+    engine: {
+      uds,
+      adapter:  adapterLabel,
+      transport: isMicroPod ? TRANSPORT_MICROPOD : TRANSPORT_J2534,
+      readVoltage: async () => null,
+      isBridge: true,
+      setNegotiatedTiming,
+      clearNegotiatedTiming,
+      getNegotiatedTiming,
+      vendor:   st.vendor   || null,
+      firmware: st.versions?.firmware || null,
+      versions: st.versions || null,
+      deviceUrl: url,
+    },
+  };
+}
+
+// ─── J2534 Pass-Thru engine ───────────────────────────────────────────────────
+
+/* Build a uds-compatible engine honoring the operator's transport selection.
+
+   When `url` is provided explicitly (e.g. AutelSgwTab or proxiBridge pass a
+   specific URL), the call always routes to the J2534 daemon at that address —
+   the explicit URL overrides the transport selector.
+
+   When no `url` is given (all bench-flash tabs — EcmTab, BcmTab, AdcmTab,
+   ProgramAllTab, RfhubTab, EcmFlasherTab, Cda6SessionTab, GpecObdVinPanel,
+   LiveKeyTab), the function reads getActiveTransport() and delegates to either
+   createMicroPodEngine() or the J2534 daemon, so every existing caller
+   automatically honours the transport the operator selected in External Tools
+   without any tab-level code changes.  // transport: micropod-ii
+
    Returns { ok:true, engine } on success or { ok:false, error } on failure.
    The caller is expected to:
      - check sgwReq before calling
      - log the error and abort the write when ok===false */
-export async function createBridgeEngine({addLog, url}={}){
-  const bridgeUrl=url||getAutelState().url;
-  const log=(m,t='info')=>{try{addLog&&addLog(m,t);}catch{}};
-
-  log('SGW required → routing UDS through Autel J2534 bridge ('+bridgeUrl+')','info');
-  const st=await getStatus(bridgeUrl);
-  if(!st||!st.ok){
-    return {ok:false,error:'J2534 bridge not reachable: '+(st?.error||'no response')};
+export async function createBridgeEngine({ addLog, url } = {}) {
+  // transport: micropod-ii
+  // When no explicit URL is provided, honour the operator's transport choice.
+  if (!url && getActiveTransport() === TRANSPORT_MICROPOD) {
+    return createMicroPodEngine({ addLog });
   }
-  const isOpen=st.opened||st.deviceOpen;
-  const isConnected=st.connected||st.channelConnected;
-  if(!isOpen){
-    log('Opening bridge device...','info');
-    const o=await openBridge(bridgeUrl);
-    if(!o.ok)return {ok:false,error:'Bridge /open failed: '+(o.error||'unknown')};
+  const bridgeUrl = url || getAutelState().url;
+  return _buildUdsEngineFromUrl({
+    addLog,
+    url: bridgeUrl,
+    transportLabel: 'J2534 bridge',
+    adapterLabel: 'Autel J2534',
+    isMicroPod: false,
+  });
+}
+
+// ─── MicroPod II engine (Task #613) ──────────────────────────────────────────
+// // transport: micropod-ii
+//
+// createMicroPodEngine() returns the same {ok, d, raw} UDS engine contract
+// that createBridgeEngine() exposes. Offline flash, VIN-write, module-reset
+// and all SGW re-unlock paths work through this engine without code changes —
+// they go through the same bridgeClient HTTP surface, but the URL points at
+// micropod_bridge.py (default port 8766) instead of j2534_bridge.py (8765).
+//
+// Wiring: the MicroPod II bridge daemon (tools/python-bridge/bridge/micropod_bridge.py)
+// must be running on the bench machine before this engine can be created.
+// The daemon enumerates the pod via USB (pyusb), handles claim/release, framing
+// and keepalive, and exposes the same RPC surface the J2534 daemon already does.
+//
+// Provenance: sourced from CDA SWF MicroPodII /
+//   com.chrysler.cda.domain.discovery.device:MicroPodII class enumeration
+//   (harvested into tools/cda-extractor/out/harvestedStrings.generated.json
+//   #microPodSurface).
+
+export async function createMicroPodEngine({ addLog, deviceUrl } = {}) {
+  // transport: micropod-ii
+  const url = deviceUrl || getMicroPodUrl();
+  return _buildUdsEngineFromUrl({
+    addLog,
+    url,
+    transportLabel: 'MicroPod II',
+    adapterLabel: 'wiTECH MicroPod II',
+    isMicroPod: true,
+  });
+}
+
+// ─── Active-transport factory (Task #613) ─────────────────────────────────────
+// createEngineForActiveTransport() reads the persisted transport choice and
+// delegates to the appropriate factory. Use this as the single entry point for
+// any tab that wants to use whatever transport the operator selected; the
+// operator does not need to restart the app when switching between J2534 and
+// MicroPod II.
+
+export async function createEngineForActiveTransport({ addLog, url, deviceUrl } = {}) {
+  // transport: micropod-ii
+  const transport = getActiveTransport();
+  if (transport === TRANSPORT_MICROPOD) {
+    return createMicroPodEngine({ addLog, deviceUrl: deviceUrl || url });
   }
-  if(!isConnected){
-    log('Connecting ISO15765 channel @ 500 kbit/s...','info');
-    const c=await bridgeConnect({protocol:PROTOCOL_ISO15765,flags:0,baudrate:500000},bridgeUrl);
-    if(!c.ok)return {ok:false,error:'Bridge /connect failed: '+(c.error||'unknown')};
-  }
-  log('✓ Bridge ready — vendor: '+(st.vendor||'unknown')+(st.versions?.firmware?' fw '+st.versions.firmware:''),'rx');
-
-  let lastTx=-1,lastRx=-1;
-  // Negotiated UDS timing for the current run. When the bench flasher
-  // pushes the module's P2/P2* up via 0x83 0x03 (Task #566), it calls
-  // setNegotiatedTiming() so subsequent uds() calls without an explicit
-  // timeoutMs use the extended P2* instead of the legacy 4 s / 8 s
-  // ceiling. clearNegotiatedTiming() reverts to the legacy behaviour
-  // before the run tears down.
-  let negotiatedTiming=null;
-  const computeDefaultTimeout=(dataLen)=>{
-    if(negotiatedTiming){
-      const a=Number(negotiatedTiming.p2StarMs)||0;
-      const b=Number(negotiatedTiming.p2Ms)||0;
-      const v=Math.max(a,b);
-      if(v>0)return v;
-    }
-    return dataLen>7?8000:4000;
-  };
-
-  const uds=async(tx,rx,data,timeoutMs)=>{
-    const tm=timeoutMs||computeDefaultTimeout(data.length);
-    if(tx!==lastTx||rx!==lastRx){
-      const f=await setFilter({txId:tx,rxId:rx},bridgeUrl);
-      if(!f.ok)return {ok:false,raw:'bridge setFilter: '+(f.error||'failed')};
-      lastTx=tx;lastRx=rx;
-    }
-    const dataHex=bytesToHex(data);
-    const sm=await sendMsg({txId:tx,data:dataHex,flags:ISO15765_FRAME_PAD,timeoutMs:1000},bridgeUrl);
-    if(!sm.ok)return {ok:false,raw:'bridge sendMsg: '+(sm.error||'failed')};
-    const deadline=Date.now()+tm;
-    while(Date.now()<deadline){
-      const remaining=deadline-Date.now();
-      const slice=Math.min(1500,Math.max(150,remaining));
-      const r=await readMsg({timeoutMs:slice},bridgeUrl);
-      if(!r||!r.ok)return {ok:false,raw:'bridge readMsg: '+(r?.error||'failed')};
-      const m=r.msg;
-      if(!m||!m.data)continue;
-      if(typeof m.canId==='number'&&rx&&m.canId!==rx){
-        // Drop TX echoes / messages from other modules
-        continue;
-      }
-      const bytes=hexToBytes(m.data);
-      if(!bytes.length)continue;
-      // 0x7F xx 0x78 = response pending — keep waiting
-      if(bytes.length>=3&&bytes[0]===0x7F&&bytes[2]===0x78)continue;
-      return {ok:true,d:new Uint8Array(bytes),raw:m.data};
-    }
-    return {ok:false,raw:'bridge: timeout after '+tm+'ms'};
-  };
-
-  const setNegotiatedTiming=(t)=>{
-    if(!t){negotiatedTiming=null;return;}
-    const p2=Number(t.p2Ms)||0;
-    const p2s=Number(t.p2StarMs)||0;
-    if(p2<=0&&p2s<=0){negotiatedTiming=null;return;}
-    negotiatedTiming={p2Ms:p2,p2StarMs:p2s};
-  };
-  const clearNegotiatedTiming=()=>{negotiatedTiming=null;};
-  const getNegotiatedTiming=()=>negotiatedTiming?{...negotiatedTiming}:null;
-
-  return {
-    ok:true,
-    engine:{
-      uds,
-      adapter:'Autel J2534 ('+(st.vendor||'bridge')+')',
-      readVoltage:async()=>null,
-      isBridge:true,
-      setNegotiatedTiming,
-      clearNegotiatedTiming,
-      getNegotiatedTiming,
-      // Task #488 — surface bridge vendor + firmware so the ECM
-      // flasher can render them in its bench banner.
-      vendor: st.vendor || null,
-      firmware: (st.versions && st.versions.firmware) || null,
-      versions: st.versions || null,
-    },
-  };
+  return createBridgeEngine({ addLog, url });
 }
 
 import {
@@ -211,55 +355,6 @@ export async function reUnlockSeedKey(engine,tx,rx,algoFn,{addLog,hx,auth29Strat
     return {ok:false,nrc,error:'bridge 27 02 NRC 0x'+_hx(nrc)};
   }
   return {ok:false,error:'bridge 27 02 no response: '+(r?.raw||'')};
-}
-
-// ─── MicroPod II adapter stub (Task #599) ────────────────────────────────
-// createMicroPodEngine() returns a UDS engine with the same {ok, d, raw}
-// contract that createBridgeEngine() exposes. The wiTECH MicroPod II is
-// the OEM Mopar transport; this stub is the minimum surface needed to
-// route flasherStateMachine.flashEcuOffline() through MicroPod-shaped
-// transports without touching the rest of the stack. The actual USB I/O
-// lives behind a future native bridge — this stub returns a clear
-// "transport not implemented" error from every uds() call so callers fail
-// loudly instead of silently appearing to flash a module.
-//
-// Wiring (when the real driver lands):
-//   - implement uds(tx, rx, data, timeoutMs) → ISO 15765 round-trip via
-//     the MicroPod II's IOControl + WriteMessages + ReadMessages JSON-RPC
-//   - keep setNegotiatedTiming/clearNegotiatedTiming/getNegotiatedTiming
-//     so the same Task #566 0x83 path works
-//   - keep isBridge:true so flasherStateMachine accepts the engine
-//
-// sourced from CDA SWF MicroPodII / com.chrysler.cda.domain.discovery.device
-// :MicroPodII class enumeration (harvested into
-// tools/cda-extractor/out/harvestedStrings.generated.json#microPodSurface).
-export function createMicroPodEngine({ addLog, deviceUrl } = {}){
-  const log = (m, t='info') => { try { addLog && addLog(m, t); } catch {} };
-  log('MicroPod II adapter stub initialised — UDS calls will return "not implemented"', 'warn');
-  let negotiatedTiming = null;
-  const NOT_IMPL = { ok:false, raw:'micropod: transport not implemented (stub)' };
-  return {
-    ok: true,
-    engine: {
-      uds: async () => NOT_IMPL,
-      adapter: 'wiTECH MicroPod II (stub)',
-      readVoltage: async () => null,
-      isBridge: true,
-      setNegotiatedTiming: (t) => {
-        if (!t){ negotiatedTiming = null; return; }
-        const p2 = Number(t.p2Ms) || 0;
-        const p2s = Number(t.p2StarMs) || 0;
-        negotiatedTiming = (p2 > 0 || p2s > 0) ? { p2Ms: p2, p2StarMs: p2s } : null;
-      },
-      clearNegotiatedTiming: () => { negotiatedTiming = null; },
-      getNegotiatedTiming: () => negotiatedTiming ? { ...negotiatedTiming } : null,
-      vendor: 'Chrysler / wiTECH',
-      firmware: null,
-      versions: null,
-      deviceUrl: deviceUrl || null,
-      stub: true,
-    },
-  };
 }
 
 /* Re-run an ADCM-style routine unlock (Routine 0x0312) on the bridge channel,

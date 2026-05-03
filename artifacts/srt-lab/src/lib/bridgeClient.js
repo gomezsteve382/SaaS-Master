@@ -4,15 +4,24 @@ import {useEffect, useRef, useState, useCallback} from 'react';
    shipped from public/. The daemon listens on http://127.0.0.1:8765 by
    default; the user can override the URL from the AUTEL SGW tab.
 
-   Persisted config lives in localStorage under 'srtlab_autel':
-     { url, autoOpen, lastOk, lastChecked, vendor, dllPath } */
+   Also provides helpers for the MicroPod II bridge daemon (Task #613),
+   which exposes the identical JSON-RPC surface on port 8766 by default.
 
-const LS_KEY='srtlab_autel';
-export const DEFAULT_BRIDGE_URL='http://localhost:8765';
+   Persisted config lives in localStorage:
+     'srtlab_autel'    { url, autoOpen, lastOk, lastChecked, vendor, dllPath }
+     'srtlab_micropod' { url, lastOk, lastChecked, firmware, serial }         */
+
+const LS_KEY_AUTEL    = 'srtlab_autel';
+const LS_KEY_MICROPOD = 'srtlab_micropod';
+
+export const DEFAULT_BRIDGE_URL  = 'http://localhost:8765';
+export const DEFAULT_MICROPOD_URL = 'http://localhost:8766';
+
+// ─── J2534 Autel state ───────────────────────────────────────────────────────
 
 export function getAutelState(){
   try{
-    const raw=localStorage.getItem(LS_KEY);
+    const raw=localStorage.getItem(LS_KEY_AUTEL);
     if(!raw)return {url:DEFAULT_BRIDGE_URL,autoOpen:true};
     const parsed=JSON.parse(raw);
     return {url:DEFAULT_BRIDGE_URL,autoOpen:true,...parsed};
@@ -23,10 +32,35 @@ export function setAutelState(patch){
   try{
     const cur=getAutelState();
     const next={...cur,...patch};
-    localStorage.setItem(LS_KEY,JSON.stringify(next));
+    localStorage.setItem(LS_KEY_AUTEL,JSON.stringify(next));
     return next;
   }catch{return patch;}
 }
+
+// ─── MicroPod II state (Task #613) ───────────────────────────────────────────
+
+export function getMicroPodState(){
+  try{
+    const raw=localStorage.getItem(LS_KEY_MICROPOD);
+    if(!raw)return {url:DEFAULT_MICROPOD_URL};
+    return {url:DEFAULT_MICROPOD_URL,...JSON.parse(raw)};
+  }catch{return {url:DEFAULT_MICROPOD_URL};}
+}
+
+export function setMicroPodState(patch){
+  try{
+    const cur=getMicroPodState();
+    const next={...cur,...patch};
+    localStorage.setItem(LS_KEY_MICROPOD,JSON.stringify(next));
+    return next;
+  }catch{return patch;}
+}
+
+export function getMicroPodUrl(){
+  return getMicroPodState().url || DEFAULT_MICROPOD_URL;
+}
+
+// ─── HTTP helper ─────────────────────────────────────────────────────────────
 
 function trimUrl(u){return (u||DEFAULT_BRIDGE_URL).replace(/\/+$/,'');}
 
@@ -46,7 +80,7 @@ async function call(url,path,method='GET',body=null,timeoutMs=4000){
     if(!res.ok&&!json.error)json.error='HTTP '+res.status;
     return json;
   }catch(e){
-    if(e.name==='AbortError')return {ok:false,error:'Bridge timed out (is j2534_bridge.py running?)'};
+    if(e.name==='AbortError')return {ok:false,error:'Bridge timed out (is the bridge daemon running?)'};
     return {ok:false,error:e.message||String(e)};
   }finally{clearTimeout(tm);}
 }
@@ -88,7 +122,9 @@ export const bridgeClient={
 };
 
 /* React hook — polls /status at the given interval, returns the latest
-   snapshot plus a `refresh()` to force an immediate poll. */
+   snapshot plus a `refresh()` to force an immediate poll.
+   Works for both the J2534 bridge and the MicroPod II bridge since both
+   expose the same /status endpoint. */
 export function useBridgeStatus(intervalMs=4000){
   const[state,setState]=useState({loading:true,connected:false,status:null,error:null,url:getAutelState().url});
   const mounted=useRef(true);
@@ -102,6 +138,52 @@ export function useBridgeStatus(intervalMs=4000){
       setAutelState({url,lastOk:Date.now(),vendor:res.vendor,dllPath:res.dllPath});
     }else{
       setState({loading:false,connected:false,status:null,error:res?.error||'unreachable',url});
+    }
+    return res;
+  },[]);
+
+  useEffect(()=>{
+    mounted.current=true;
+    refresh();
+    if(!intervalMs)return ()=>{mounted.current=false;};
+    const t=setInterval(()=>refresh(),intervalMs);
+    return ()=>{mounted.current=false;clearInterval(t);};
+  },[intervalMs,refresh]);
+
+  return {...state,refresh};
+}
+
+// ─── MicroPod II status hook (Task #613) ─────────────────────────────────────
+// Polls the MicroPod II bridge (/status) at the same cadence as useBridgeStatus.
+// Returns: { loading, podPresent, connected, status, error, url, refresh }
+
+export function useMicroPodStatus(intervalMs=4000){
+  const[state,setState]=useState({
+    loading:true,podPresent:false,connected:false,status:null,error:null,url:getMicroPodUrl(),
+  });
+  const mounted=useRef(true);
+
+  const refresh=useCallback(async(overrideUrl)=>{
+    const url=overrideUrl||getMicroPodUrl();
+    const res=await call(url,'/status','GET',null,3000);
+    if(!mounted.current)return res;
+    if(res&&res.ok){
+      setState({
+        loading:false,
+        podPresent:!!res.podPresent,
+        connected:!!(res.connected||res.channelConnected),
+        status:res,
+        error:null,
+        url,
+      });
+      setMicroPodState({
+        url,
+        lastOk:Date.now(),
+        firmware:res.versions?.firmware||null,
+        serial:res.serial||null,
+      });
+    }else{
+      setState({loading:false,podPresent:false,connected:false,status:null,error:res?.error||'unreachable',url});
     }
     return res;
   },[]);

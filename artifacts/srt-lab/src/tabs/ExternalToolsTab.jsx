@@ -3,18 +3,21 @@
  * GPEC Unlocker) and lets the user launch or reveal them via the local
  * J2534 bridge.
  *
- * The bridge endpoint POST /tools/launch verifies the manifest (size +
- * SHA-256), then spawns the EXE with cwd set to the vendor folder so the
- * DLL side-load and .key lookup resolve correctly.
- *
- * POST /tools/reveal opens an Explorer window at the vendor folder.
+ * Also shows live status for both the J2534 Pass-Thru bridge and the
+ * MicroPod II bridge, and lets the operator switch the active transport
+ * (Task #613).
  */
 import React, { useState, useCallback, useEffect } from 'react';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
-import { getAutelState } from '../lib/bridgeClient.js';
+import { getAutelState, useMicroPodStatus } from '../lib/bridgeClient.js';
+import {
+  getActiveTransport, setActiveTransport,
+  TRANSPORT_J2534, TRANSPORT_MICROPOD,
+} from '../lib/bridgeEngine.js';
 
-const BRIDGE_DEFAULT = 'http://localhost:8765';
+const BRIDGE_DEFAULT   = 'http://localhost:8765';
+const MICROPOD_DEFAULT = 'http://localhost:8766';
 
 const TOOLS = [
   {
@@ -69,6 +72,131 @@ function StatusBadge({ status, expectedHwid, liveHwid }) {
   );
 }
 
+// ─── MicroPod II live status panel ───────────────────────────────────────────
+
+function MicroPodStatusPanel({ activeTransport, onTransportChange }) {
+  const mp = useMicroPodStatus(5000);
+
+  const daemonReachable = !mp.loading && !mp.error;
+  const podPresent      = daemonReachable && mp.podPresent;
+  const channelUp       = daemonReachable && mp.connected;
+  const fw              = mp.status?.versions?.firmware || null;
+  const serial          = mp.status?.serial || null;
+  const pyusbOk         = mp.status?.pyusbAvailable !== false;
+
+  let podBadgeColor = C.tm;
+  let podBadgeLabel = '— Not detected';
+  if (!daemonReachable)       { podBadgeColor = C.er;  podBadgeLabel = '✗ Daemon offline'; }
+  else if (!pyusbOk)          { podBadgeColor = C.er;  podBadgeLabel = '✗ pyusb missing';  }
+  else if (podPresent && channelUp) { podBadgeColor = C.gn; podBadgeLabel = '✓ Connected'; }
+  else if (podPresent)        { podBadgeColor = C.wn;  podBadgeLabel = '⚡ Present (idle)'; }
+
+  const isMicroPodActive = activeTransport === TRANSPORT_MICROPOD;
+
+  return (
+    <Card style={{ marginBottom: 16, borderColor: isMicroPodActive ? C.a3 : C.bd }}>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <div style={{ fontSize: 28 }}>🔌</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 4 }}>
+            <span style={{ fontWeight: 900, fontSize: 14, color: C.tx }}>wiTECH MicroPod II</span>
+            <Tag color={podBadgeColor}>{podBadgeLabel}</Tag>
+            {isMicroPodActive && <Tag color={C.a3}>ACTIVE TRANSPORT</Tag>}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto) 1fr', gap: '4px 18px', marginBottom: 8 }}>
+            <div>
+              <div style={{ fontSize: 8, color: C.tm, letterSpacing: 1.2 }}>DAEMON</div>
+              <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: daemonReachable ? C.gn : C.er }}>
+                {daemonReachable ? mp.status?.url || MICROPOD_DEFAULT : 'offline'}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 8, color: C.tm, letterSpacing: 1.2 }}>FIRMWARE</div>
+              <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: fw ? C.tx : C.ts }}>
+                {fw || (daemonReachable ? '—' : '—')}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 8, color: C.tm, letterSpacing: 1.2 }}>SERIAL</div>
+              <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: serial ? C.tx : C.ts }}>
+                {serial || '—'}
+              </div>
+            </div>
+            {!pyusbOk && (
+              <div style={{ gridColumn: '1 / -1', marginTop: 4 }}>
+                <span style={{ fontSize: 11, color: C.er }}>
+                  ⚠ pyusb not installed on bridge host —{' '}
+                  <code style={{ fontFamily: 'monospace' }}>pip install pyusb</code>
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div style={{ fontSize: 11, color: C.ts, marginBottom: 8, lineHeight: 1.5 }}>
+            OEM Mopar transport. Runs via{' '}
+            <code style={{ fontFamily: 'monospace', fontSize: 10 }}>micropod_bridge.py</code> on{' '}
+            <code style={{ fontFamily: 'monospace', fontSize: 10 }}>{MICROPOD_DEFAULT}</code>.
+            All offline-flash / VIN-write / reset flows route through this adapter when selected.
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Btn
+              onClick={() => onTransportChange(TRANSPORT_MICROPOD)}
+              color={isMicroPodActive ? C.a3 : C.tm}
+              disabled={isMicroPodActive}
+            >
+              {isMicroPodActive ? '✓ Selected' : 'Use MicroPod II'}
+            </Btn>
+            <Btn onClick={() => mp.refresh()} color={C.tm} outline>
+              ↺ Refresh
+            </Btn>
+            {!daemonReachable && (
+              <span style={{ fontSize: 10, color: C.ts }}>
+                Start daemon: <code style={{ fontFamily: 'monospace' }}>python3 micropod_bridge.py</code>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// ─── J2534 status panel ───────────────────────────────────────────────────────
+
+function J2534StatusPanel({ activeTransport, onTransportChange, bridgeUrl }) {
+  const isJ2534Active = activeTransport === TRANSPORT_J2534;
+
+  return (
+    <Card style={{ marginBottom: 16, borderColor: isJ2534Active ? C.gn : C.bd }}>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <div style={{ fontSize: 28 }}>⚡</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 4 }}>
+            <span style={{ fontWeight: 900, fontSize: 14, color: C.tx }}>Autel MaxiFlash J2534</span>
+            {isJ2534Active && <Tag color={C.gn}>ACTIVE TRANSPORT</Tag>}
+          </div>
+          <div style={{ fontSize: 11, color: C.ts, marginBottom: 8 }}>
+            SGW-capable J2534 Pass-Thru via{' '}
+            <code style={{ fontFamily: 'monospace', fontSize: 10 }}>j2534_bridge.py</code> on{' '}
+            <code style={{ fontFamily: 'monospace', fontSize: 10 }}>{bridgeUrl}</code>.
+          </div>
+          <Btn
+            onClick={() => onTransportChange(TRANSPORT_J2534)}
+            color={isJ2534Active ? C.gn : C.tm}
+            disabled={isJ2534Active}
+          >
+            {isJ2534Active ? '✓ Selected' : 'Use J2534 Pass-Thru'}
+          </Btn>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// ─── Main tab ─────────────────────────────────────────────────────────────────
+
 export default function ExternalToolsTab() {
   const [bridgeUrl, setBridgeUrl] = useState(BRIDGE_DEFAULT);
   const [toolStatus, setToolStatus] = useState(() =>
@@ -77,6 +205,14 @@ export default function ExternalToolsTab() {
   const [launching, setLaunching] = useState({});
   const [revealing, setRevealing] = useState({});
   const [messages, setMessages] = useState({});
+
+  // Transport selector state (Task #613)
+  const [activeTransport, setActiveTransportState] = useState(getActiveTransport);
+
+  const handleTransportChange = useCallback((t) => {
+    const next = setActiveTransport(t);
+    setActiveTransportState(next);
+  }, []);
 
   const bridgeUrl_ = useCallback(() => {
     try {
@@ -202,7 +338,7 @@ export default function ExternalToolsTab() {
             </div>
             <div style={{ fontSize: 12, color: '#7A3800', marginTop: 4, lineHeight: 1.6 }}>
               These vendored binaries are pre-staged with their license bypass intact in{' '}
-              <code style={{ fontFamily: 'monospace', fontSize: 11 }}>artifacts/srt-lab/vendor/</code>. 
+              <code style={{ fontFamily: 'monospace', fontSize: 11 }}>artifacts/srt-lab/vendor/</code>.
               Launch requires the local J2534 bridge (
               <code style={{ fontFamily: 'monospace', fontSize: 11 }}>j2534_bridge.py</code>) running on{' '}
               <code style={{ fontFamily: 'monospace', fontSize: 11 }}>{bridgeUrl}</code>.
@@ -212,10 +348,29 @@ export default function ExternalToolsTab() {
         </div>
       </Card>
 
+      {/* ── Transport selector (Task #613) ── */}
+      <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontSize: 10, color: C.tm, letterSpacing: 1.8, fontFamily: 'JetBrains Mono' }}>
+          UDS TRANSPORT
+        </span>
+        <span style={{ flex: 1, height: 1, background: `linear-gradient(to right, ${C.a3}55, transparent)` }} />
+      </div>
+
+      <J2534StatusPanel
+        activeTransport={activeTransport}
+        onTransportChange={handleTransportChange}
+        bridgeUrl={bridgeUrl}
+      />
+
+      <MicroPodStatusPanel
+        activeTransport={activeTransport}
+        onTransportChange={handleTransportChange}
+      />
+
       {bridgeOffline && (
         <Card style={{ marginBottom: 16, background: '#FCE4EC', borderColor: C.er }}>
           <div style={{ fontSize: 12, color: C.er, fontWeight: 700 }}>
-            ⚠ Bridge offline — Launch and Reveal require the local bridge daemon. Run{' '}
+            ⚠ J2534 bridge offline — Launch and Reveal require the local bridge daemon. Run{' '}
             <code style={{ fontFamily: 'monospace' }}>python3 j2534_bridge.py</code> on the bench machine, then{' '}
             <span
               onClick={checkTools}
@@ -228,7 +383,12 @@ export default function ExternalToolsTab() {
         </Card>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+      {/* ── Tool launch / reveal section ── */}
+      <div style={{ marginBottom: 8, marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontSize: 10, color: C.tm, letterSpacing: 1.8, fontFamily: 'JetBrains Mono' }}>
+          VENDORED TOOLS
+        </span>
+        <span style={{ flex: 1, height: 1, background: `linear-gradient(to right, ${C.tm}55, transparent)` }} />
         <Btn onClick={checkTools} color={C.tm} outline>
           ↺ Refresh status
         </Btn>
