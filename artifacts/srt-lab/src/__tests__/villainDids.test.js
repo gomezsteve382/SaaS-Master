@@ -197,6 +197,15 @@ describe("dids.js consumer path — VILLAIN DIDs reachable via getDidDescription
     expect(label).toBe("EPS VIN");
   });
 
+  it("getDidDescription resolves shared-only DID 0xDE00 via @workspace/uds delegation", async () => {
+    // 0xDE00 is in lib/uds DID_CATALOG (BCM configuration window) but is
+    // not in CRITICAL_DIDS — so resolving it proves the seedFromShared-
+    // Catalog() delegation path is wired up correctly.
+    const { _resetDidDescriptionsForTests, getDidDescription } = await import("../lib/dids.js");
+    _resetDidDescriptionsForTests();
+    expect(getDidDescription(0xDE00)).toBe("BCM Configuration Block 00");
+  });
+
   it("getDidDescriptions returns all distinct labels for SKIM State DID", async () => {
     const { getDidDescriptions } = await import("../lib/dids.js");
     const labels = getDidDescriptions(0x6E9EB0);

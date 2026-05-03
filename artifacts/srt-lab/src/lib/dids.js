@@ -19,6 +19,7 @@
  */
 
 import {CRITICAL_DIDS} from "./backups.js";
+import {DID_CATALOG} from "@workspace/uds";
 
 const lookup = new Map();      // did(number) → first description
 const allDescriptions = new Map(); // did(number) → string[]
@@ -36,6 +37,25 @@ function seedFromCritical() {
       const arr = allDescriptions.get(row.did);
       if (!arr.includes(row.name)) arr.push(row.name);
     }
+  }
+}
+
+/**
+ * Seed from the shared @workspace/uds DID catalog. Runs after
+ * seedFromCritical() so that the FCA-flavoured CRITICAL_DIDS labels
+ * (e.g. "Software Version" for 0xF189) win over the strict ISO names
+ * from the shared catalog. The shared catalog still contributes every
+ * DID it knows that is not already covered locally — including the
+ * 24-bit FCA scoped block (0x6E2025, 0x6E9EB0, 0x6EF190, …), the BCM
+ * 0xDExx configuration window, and the 32-bit SCI-B flag 0xF79EB045.
+ */
+function seedFromSharedCatalog() {
+  for (const e of DID_CATALOG) {
+    if (typeof e?.did !== "number" || !e.name) continue;
+    if (!lookup.has(e.did)) lookup.set(e.did, e.name);
+    if (!allDescriptions.has(e.did)) allDescriptions.set(e.did, []);
+    const arr = allDescriptions.get(e.did);
+    if (!arr.includes(e.name)) arr.push(e.name);
   }
 }
 
@@ -58,6 +78,7 @@ export function loadDidDescriptions() {
   if (loaded) return Promise.resolve(lookup.size);
   if (loadingPromise) return loadingPromise;
   seedFromCritical();
+  seedFromSharedCatalog();
   const base =
     (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.BASE_URL) || "/";
   const url = `${base}unlock_catalog_extended.json`;
@@ -131,7 +152,7 @@ function normalise(did) {
  * BackupsTab baseline when the JSON has not yet been fetched.
  */
 export function getDidDescription(did) {
-  if (!loaded && lookup.size === 0) seedFromCritical();
+  if (!loaded && lookup.size === 0) { seedFromCritical(); seedFromSharedCatalog(); }
   const n = normalise(did);
   if (!Number.isFinite(n)) return "";
   return lookup.get(n) || "";
@@ -143,7 +164,7 @@ export function getDidDescription(did) {
  * (e.g. 0x04C9 = ["Emode Present", "Auto Highbeam"]).
  */
 export function getDidDescriptions(did) {
-  if (!loaded && lookup.size === 0) seedFromCritical();
+  if (!loaded && lookup.size === 0) { seedFromCritical(); seedFromSharedCatalog(); }
   const n = normalise(did);
   if (!Number.isFinite(n)) return [];
   return allDescriptions.get(n) ? [...allDescriptions.get(n)] : [];
@@ -155,7 +176,7 @@ export function getDidDescriptions(did) {
  * was indexed for the DID. Useful for tooltips and protocol-scope chips.
  */
 export function getDidOperations(did) {
-  if (!loaded && lookup.size === 0) seedFromCritical();
+  if (!loaded && lookup.size === 0) { seedFromCritical(); seedFromSharedCatalog(); }
   const n = normalise(did);
   if (!Number.isFinite(n)) return [];
   return operations.get(n) ? [...operations.get(n)] : [];
