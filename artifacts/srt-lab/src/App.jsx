@@ -29,6 +29,7 @@ import RfhubTab from "./tabs/RfhubTab";
 import BackupsTab from "./tabs/BackupsTab";
 import SampleLibraryTab from "./tabs/SampleLibraryTab.jsx";
 import AlfaObdTablesTab from "./tabs/AlfaObdTablesTab.jsx";
+import LiveKeyTab from "./tabs/LiveKeyTab.jsx";
 import { writeBcmSec16Gen2, writePcmSec6 } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
 import KeyProgTab from "./tabs/KeyProgTab";
@@ -890,6 +891,7 @@ const WORKSPACE_TABS = [
   {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
   {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
   {id:'keymgr',    i:'🗝️', l:'KEY MGR',      s:'Dual-file RFHUB fob transfer'},
+  {id:'livekey',   i:'🔑', l:'LIVE KEYS',    s:'OBD PIN extract · key prog · SKREEM'},
   {id:'jailbreak', i:'💀', l:'JAILBREAK',    s:'SRT · Demon · Hellcat · Redeye'},
   {id:'seed',      i:'🔑', l:'SEED→KEY',     s:'14 Algorithms'},
   {id:'bcm',       i:'🧠', l:'BCM',          s:'VIN · CRC · Features'},
@@ -1056,6 +1058,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='bcm'       && <BcmTab vehicle={vehicle}/>}
         {tab==='rfhub'     && <RfhubTab vehicle={vehicle}/>}
         {tab==='keymgr'    && <KeyManagerTab vehicle={vehicle}/>}
+        {tab==='livekey'   && <LiveKeyTab/>}
         {tab==='ecm'       && <EcmTab vehicle={vehicle}/>}
         {tab==='backups'   && <BackupsTab/>}
         {tab==='obd'       && <LiveObdTab vehicle={vehicle}/>}

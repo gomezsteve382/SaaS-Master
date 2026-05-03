@@ -886,6 +886,35 @@ export default function KeyManagerTab() {
                       style={{ padding: '8px 14px', borderRadius: 8, fontWeight: 800, fontSize: 11, border: '2px solid ' + C.wn + '88', background: 'transparent', color: C.wn, cursor: 'pointer' }}
                     >➕ Add by ID</button>
                   </div>
+                  {/* Push PIN/SEC16 to Live Keys tab ─ only shown when SEC16 is populated */}
+                  {sec16 && sec16.slots && sec16.slots.some(s => !s.raw.every(b => b === 0xFF || b === 0x00)) && (() => {
+                    const validSlot = sec16.slots.find(s => !s.raw.every(b => b === 0xFF || b === 0x00));
+                    const rawArr = validSlot ? Array.from(validSlot.raw) : null;
+                    const pinDec = rawArr && rawArr.length >= 16
+                      ? (((rawArr[14] << 8) | rawArr[15]) & 0xFFFF).toString().padStart(5, '0')
+                      : null;
+                    const sec16HexStr = rawArr ? rawArr.map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' ') : null;
+                    if (!pinDec) return null;
+                    return (
+                      <div style={{ marginTop: 8, padding: '8px 12px', borderRadius: 8, background: '#E8F5E9', border: '1.5px solid #A5D6A7', display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 13, fontWeight: 900, color: C.gn, letterSpacing: 4 }}>{pinDec}</span>
+                        <span style={{ fontSize: 10, color: C.ts, flex: 1 }}>PIN from SEC16</span>
+                        <button
+                          data-testid={`keymgr-pane-${p.id}-push-pin-live`}
+                          onClick={() => {
+                            if (typeof window !== 'undefined') {
+                              window.dispatchEvent(new CustomEvent('srtlab:livekey:pinpush', {
+                                detail: { pin: pinDec, sec16Hex: sec16HexStr, sec16Raw: rawArr },
+                              }));
+                            }
+                            addLog(`${p.id}: PIN ${pinDec} pushed to Live Keys tab`, 'pass');
+                          }}
+                          style={{ padding: '6px 14px', borderRadius: 8, fontWeight: 800, fontSize: 11, border: '2px solid ' + C.gn + '77', background: 'transparent', color: C.gn, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                        >📤 Use PIN for Live Programming →</button>
+                      </div>
+                    );
+                  })()}
+
                   <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     <button
                       data-testid={`keymgr-pane-${p.id}-add-manual`}
