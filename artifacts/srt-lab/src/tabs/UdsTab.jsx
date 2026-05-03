@@ -6,6 +6,11 @@ import {decodeNRC} from "../lib/nrc.js";
 import {runDtcRead} from "../lib/dtc.js";
 import DtcDetailPanel from "../lib/DtcDetailPanel.jsx";
 import {getDidDescription} from "../lib/dids.js";
+import {
+  buildReadMemoryByAddress, parseReadMemoryResponse,
+  buildWriteMemoryByAddress, parseWriteMemoryResponse,
+  buildRoutineResult, parseRoutineResponse,
+} from "../lib/uds.js";
 
 const MODULE_PRESETS={
   BCM:{tx:0x750,rx:0x758},RFHUB:{tx:0x75F,rx:0x767},
@@ -32,6 +37,9 @@ export default function UdsTab(){
   const[routineCtrl,setRoutineCtrl]=useState('01');
   const[routineId,setRoutineId]=useState('0312');
   const[routineData,setRoutineData]=useState('');
+  const[memAddr,setMemAddr]=useState('0x100');
+  const[memLen,setMemLen]=useState('8');
+  const[memData,setMemData]=useState('');
   const[selectedModule,setSelectedModule]=useState('BCM');
   const[dtcDetail,setDtcDetail]=useState(null);
   const eng=useRef(null);
@@ -144,6 +152,88 @@ export default function UdsTab(){
     else addLog('No TesterPresent response','warn');
     recordPaper('Tester Present',{success});
   },[txAddr,rxAddr,addLog,recordPaper]);
+
+  const readMemory=useCallback(async()=>{
+    if(!eng.current){addLog('Connect first','error');return;}
+    const addr=parseAddr(memAddr);
+    const len=parseInt(String(memLen).replace(/^0x/i,''),/0x/i.test(memLen)?16:10);
+    if(!Number.isFinite(addr)||!Number.isFinite(len)||len<=0){addLog('Memory: bad address or length','error');return;}
+    setBusy('ReadMemory 0x'+hx(addr,8)+'/'+len+'...');
+    const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
+    const cmd=buildReadMemoryByAddress(addr>>>0,len>>>0);
+    addLog('ReadMemoryByAddress: '+cmd.map(b=>hx(b)).join(' '),'info');
+    const r=await eng.current.uds(tx,rx,cmd);
+    let success=false;
+    if(r.ok&&r.d){
+      const parsed=parseReadMemoryResponse(r.d);
+      if(parsed.ok){
+        const hexOut=parsed.data.map(b=>hx(b)).join(' ');
+        const ascii=parsed.data.map(b=>(b>=0x20&&b<=0x7E)?String.fromCharCode(b):'.').join('');
+        addLog('Memory @0x'+hx(addr,8)+' HEX: '+hexOut,'rx');
+        addLog('Memory @0x'+hx(addr,8)+' ASCII: '+ascii,'rx');
+        success=true;
+      }else if(parsed.nrc!=null) addLog('NRC: '+decodeNRC(parsed.nrc),'warn');
+      else addLog('Unexpected reply: '+Array.from(r.d).map(b=>hx(b)).join(' '),'error');
+    }else addLog('No response','error');
+    recordPaper('Read Memory',{success,request:cmd.map(b=>hx(b)).join(' ')});
+    setBusy('');
+  },[memAddr,memLen,txAddr,rxAddr,addLog,recordPaper]);
+
+  const writeMemory=useCallback(async()=>{
+    if(!eng.current){addLog('Connect first','error');return;}
+    const addr=parseAddr(memAddr);
+    const data=hexToBytes(memData);
+    if(!Number.isFinite(addr)){addLog('Memory: bad address','error');return;}
+    if(!data.length){addLog('Memory: enter data bytes (hex)','error');return;}
+    /* WriteMemoryByAddress is a destructive write — gate it behind an
+       explicit confirm() so a mis-typed address (or a stray paste into
+       the data box) can't silently overwrite an EEPROM byte. */
+    const ok=window.confirm(
+      'WriteMemoryByAddress 0x3D — DESTRUCTIVE\n\n'+
+      'Address: 0x'+hx(addr,8)+'\n'+
+      'Length: '+data.length+' byte(s)\n'+
+      'Data: '+data.map(b=>hx(b)).join(' ')+'\n\n'+
+      'Continue?'
+    );
+    if(!ok){addLog('WriteMemory cancelled by user','warn');return;}
+    setBusy('WriteMemory 0x'+hx(addr,8)+'/'+data.length+'...');
+    const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
+    const cmd=buildWriteMemoryByAddress(addr>>>0,data);
+    addLog('WriteMemoryByAddress: '+cmd.map(b=>hx(b)).join(' '),'info');
+    const r=await eng.current.uds(tx,rx,cmd);
+    let success=false;
+    if(r.ok&&r.d){
+      const parsed=parseWriteMemoryResponse(r.d);
+      if(parsed.ok){addLog('✓ Wrote '+data.length+' byte(s) @0x'+hx(addr,8),'rx');success=true;}
+      else if(parsed.nrc!=null) addLog('NRC: '+decodeNRC(parsed.nrc),'warn');
+      else addLog('Unexpected reply: '+Array.from(r.d).map(b=>hx(b)).join(' '),'error');
+    }else addLog('No response','error');
+    recordPaper('Write Memory',{success,request:cmd.map(b=>hx(b)).join(' ')});
+    setBusy('');
+  },[memAddr,memData,txAddr,rxAddr,addLog,recordPaper]);
+
+  const routineGetResult=useCallback(async()=>{
+    if(!eng.current){addLog('Connect first','error');return;}
+    const rid=parseInt(routineId,16);
+    if(!Number.isFinite(rid)){addLog('Routine: bad routine id','error');return;}
+    const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
+    setBusy('Routine 0x'+hx(rid,4)+' result...');
+    const cmd=buildRoutineResult(rid);
+    addLog('Routine Get Result: '+cmd.map(b=>hx(b)).join(' '),'info');
+    const r=await eng.current.uds(tx,rx,cmd);
+    let success=false;
+    if(r.ok&&r.d){
+      const parsed=parseRoutineResponse(r.d);
+      if(parsed.ok){
+        const status=parsed.statusRecord.length?parsed.statusRecord.map(b=>hx(b)).join(' '):'(empty)';
+        addLog('✓ Routine 0x'+hx(parsed.rid,4)+' result: '+status,'rx');
+        success=true;
+      }else if(parsed.nrc!=null) addLog('NRC: '+decodeNRC(parsed.nrc),'warn');
+      else addLog('Unexpected reply: '+Array.from(r.d).map(b=>hx(b)).join(' '),'error');
+    }else addLog('No response','error');
+    recordPaper('Routine Get Result',{success,request:cmd.map(b=>hx(b)).join(' ')});
+    setBusy('');
+  },[routineId,txAddr,rxAddr,addLog,recordPaper]);
 
   const routine=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
@@ -308,6 +398,32 @@ export default function UdsTab(){
           <input value={routineData} onChange={e=>setRoutineData(e.target.value)} placeholder="hex" style={{width:'100%',padding:8,fontFamily:"'JetBrains Mono'",fontSize:13,border:'1px solid '+C.bd,borderRadius:6}}/>
         </div>
         <Btn onClick={routine} disabled={!!busy||!conn} color={C.a4}>Execute</Btn>
+        <Btn data-testid="uds-routine-result" onClick={routineGetResult} disabled={!!busy||!conn} color={C.a3} outline>📊 Get Result</Btn>
+      </div>
+    </Card>
+
+    <Card style={{marginBottom:14}}>
+      <div style={{fontWeight:800,fontSize:11,color:C.a4,marginBottom:10,letterSpacing:2}}>🧠 MEMORY BY ADDRESS (0x23 / 0x3D)</div>
+      <div style={{fontSize:10,color:C.tm,marginBottom:8,fontStyle:'italic'}}>
+        AEMT EEPROM offsets reachable directly: 0x100, 0x108, 0x220, 0x230, 0x240, 0x510, 0x518. ALFID fixed at 0x44 (4-byte addr + 4-byte length). Writes ask before sending.
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}>
+        <div>
+          <div style={{fontSize:10,color:C.ts,marginBottom:4}}>ADDRESS (hex)</div>
+          <input data-testid="uds-mem-addr" value={memAddr} onChange={e=>setMemAddr(e.target.value)} placeholder="0x100" style={{width:'100%',padding:8,fontFamily:"'JetBrains Mono'",fontSize:13,border:'1px solid '+C.bd,borderRadius:6}}/>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:C.ts,marginBottom:4}}>LENGTH (decimal or 0x…)</div>
+          <input data-testid="uds-mem-len" value={memLen} onChange={e=>setMemLen(e.target.value)} placeholder="8" style={{width:'100%',padding:8,fontFamily:"'JetBrains Mono'",fontSize:13,border:'1px solid '+C.bd,borderRadius:6}}/>
+        </div>
+      </div>
+      <div style={{display:'flex',gap:10,alignItems:'end'}}>
+        <div style={{flex:1}}>
+          <div style={{fontSize:10,color:C.ts,marginBottom:4}}>WRITE DATA (hex bytes — only used by Write)</div>
+          <input data-testid="uds-mem-data" value={memData} onChange={e=>setMemData(e.target.value)} placeholder="DE AD BE EF" style={{width:'100%',padding:8,fontFamily:"'JetBrains Mono'",fontSize:13,border:'1px solid '+C.bd,borderRadius:6}}/>
+        </div>
+        <Btn data-testid="uds-mem-read" onClick={readMemory} disabled={!!busy||!conn} color={C.a2}>📖 Read</Btn>
+        <Btn data-testid="uds-mem-write" onClick={writeMemory} disabled={!!busy||!conn} color={C.sr}>✍️ Write…</Btn>
       </div>
     </Card>
 

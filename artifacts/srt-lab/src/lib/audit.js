@@ -10,6 +10,7 @@
 // functional data needed by the Restore flow.
 
 import { sha256Hex, backupDidsToBytes } from "./checksum.js";
+import { readDidsBatched } from "./uds.js";
 import {
   exportArchives as exportKeyProgArchives,
   importArchives as importKeyProgArchives,
@@ -208,11 +209,18 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
     timestamp: new Date().toISOString(),
     dids: {},
   };
+  /* Multi-DID 0x22 batching: collapses ~10–11 single-DID round trips
+   * per profile into ~1 chunked read. readDidsBatched silently falls
+   * back to per-DID 0x22 requests for any chunk a module rejects (some
+   * early FCA BCMs return NRC 0x13 on multi-DID), so the per-DID log
+   * shape and "missing" semantics below stay identical. */
+  const didNumbers = dids.map(d => d.did);
+  const readMap = await readDidsBatched(engUds, tx, rx, didNumbers);
   let successCount = 0;
   for (const d of dids) {
-    const r = await engUds(tx, rx, [0x22, (d.did >> 8) & 0xFF, d.did & 0xFF]);
-    if (r && r.ok && r.d && r.d[0] === 0x62) {
-      const raw = Array.from(r.d).slice(3);
+    const got = readMap.get(d.did);
+    if (got && got.ok && got.data) {
+      const raw = got.data;
       const hex = raw.map(b => hx(b)).join("");
       const ascii = raw.filter(b => b >= 0x20 && b <= 0x7E).map(b => String.fromCharCode(b)).join("");
       backup.dids[d.did] = {
