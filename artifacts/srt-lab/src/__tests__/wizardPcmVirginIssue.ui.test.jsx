@@ -66,6 +66,13 @@ describe('Task #396 — Mismatch Wizard surfaces virgin PCM SEC6 against a paire
   it('PcmCard pill reads virgin (mostly-FF), wizard reports ≥1 error and BCM↔PCM SEC6 row', async () => {
     const bcmBytes = new Uint8Array(fs.readFileSync(path.join(FIXTURE_DIR, SYNCED_BCM)));
     const pcmBytes = makeGpec2a({ vin: SYNCED_VIN, pcmSec6Bytes: VIRGIN_SEC6 });
+    // Wipe the IMMO byte slot @0x0011..0x0014 to virgin (FF FF FF FF) so
+    // the PCM is truly unpaired — engParsePcm now treats the canonical
+    // 0x80 00 00 00 pattern (the makeGpec2a default) as a positive
+    // pairing signal that overrides sparse SEC6, which would otherwise
+    // mask the wizard error this test exists to surface.
+    pcmBytes[0x0011] = 0xFF; pcmBytes[0x0012] = 0xFF;
+    pcmBytes[0x0013] = 0xFF; pcmBytes[0x0014] = 0xFF;
     const rfhBytes = makeRfhubGen2({ vin: SYNCED_VIN });
 
     render(

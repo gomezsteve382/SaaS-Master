@@ -108,7 +108,12 @@ describe('engParsePcm uses the shared classifier (no drift between the two parse
     expect(r.immoUnpaired).toBe(false);
     expect(r.sec6Class).toBeTruthy();
     expect(r.sec6Class.populated).toBe(false);
-    expect(r.immoLabel).toMatch(/no SEC6 fingerprint/i);
+    // makeGpec2a defaults stamp the canonical IMMO ENABLED pattern at
+    // 0x0011 (matches a real paired bench dump), so engParsePcm now
+    // reports the positive ENABLED signal instead of staying silently
+    // neutral. SEC6 sparseness alone is still NOT a damage signal.
+    expect(r.immoByte.state).toBe('ENABLED');
+    expect(r.immoLabel).toMatch(/IMMO ENABLED/);
   });
 
   it('real populated SEC6 agrees with parseModule: populated', () => {
@@ -167,14 +172,13 @@ describe('engParsePcm uses the shared classifier (no drift between the two parse
     expect(r.immoLabel).toMatch(/marker missing/i);
   });
 
-  it('regression: a running-and-driving car (4 KB GPEC2A, valid VIN slots, all-FF SEC6, no marker) shows NO ISSUES', () => {
+  it('regression: a running-and-driving car (4 KB GPEC2A, valid VIN slots, all-FF SEC6) is detected as IMMO ENABLED', () => {
     // Real-world dump: 2C3CCABG1KH539430. Car runs, drives, and is
-    // paired. The PCM-side IMMO secret is not stored at 0x3C8 on this
-    // variant (PATS-bypass / IMMO disabled / different bank). Pre-fix
-    // the inspection card painted a red DAMAGED chip; a follow-up
-    // split painted yellow UNPAIRED — both wrong per the user. With
-    // no positive damage signal we stay neutral so the card reports
-    // READY (immoOk=true, no UNPAIRED, no DAMAGED).
+    // paired. SEC6 @0x3C8 is left blank on this variant — pairing
+    // lives in the IMMO byte slot at 0x0011..0x0014, which carries
+    // the canonical ENABLED pattern 0x80 00 00 00. The PcmCard now
+    // reports READY with an explicit "IMMO ENABLED" label instead
+    // of staying silently neutral.
     const buf = makeGpec2a({
       vin: '2C3CCABG1KH539430',
       pcmSec6Bytes: u8(0xFF,0xFF,0xFF,0xFF,0xFF,0xFF),
@@ -184,8 +188,42 @@ describe('engParsePcm uses the shared classifier (no drift between the two parse
     expect(r.vinSlots.length).toBeGreaterThanOrEqual(3);
     expect(r.sec6.markerOk).toBe(false);
     expect(r.sec6Class.allFF).toBe(true);
+    expect(r.immoByte).toBeTruthy();
+    expect(r.immoByte.state).toBe('ENABLED');
+    expect(Array.from(r.immoByte.bytes)).toEqual([0x80, 0x00, 0x00, 0x00]);
     expect(r.immoOk).toBe(true);
     expect(r.immoUnpaired).toBe(false);
     expect(r.immoDamaged).toBe(false);
+    expect(r.immoLabel).toMatch(/IMMO ENABLED/);
+  });
+
+  it('IMMO byte @0x0011 = 00 00 00 00 is reported as DISABLED, not damaged', () => {
+    const buf = makeGpec2a({
+      vin: '2C3CCABG1KH539430',
+      skim: 0x00,
+      pcmSec6Bytes: u8(0xFF,0xFF,0xFF,0xFF,0xFF,0xFF),
+    });
+    // skim only writes 0x0011; force the rest of the slot to 00 too.
+    buf[0x0012] = 0x00; buf[0x0013] = 0x00; buf[0x0014] = 0x00;
+    const r = engParsePcm(buf, 'GPEC2A_PATS_OFF.bin');
+    expect(r.immoByte.state).toBe('DISABLED');
+    expect(r.immoOk).toBe(true);
+    expect(r.immoDamaged).toBe(false);
+    expect(r.immoLabel).toMatch(/IMMO DISABLED/);
+  });
+
+  it('IMMO byte @0x0011 = FF FF FF FF is reported as VIRGIN (no positive ENABLED label)', () => {
+    const buf = makeGpec2a({
+      vin: '2C3CCABG1KH539430',
+      pcmSec6Bytes: u8(0xFF,0xFF,0xFF,0xFF,0xFF,0xFF),
+    });
+    // Wipe the IMMO slot back to virgin FF FF FF FF.
+    buf[0x0011] = 0xFF; buf[0x0012] = 0xFF; buf[0x0013] = 0xFF; buf[0x0014] = 0xFF;
+    const r = engParsePcm(buf, 'GPEC2A_VIRGIN_IMMO.bin');
+    expect(r.immoByte.state).toBe('VIRGIN');
+    // No positive ENABLED signal and no marker → stay neutral, NOT damaged.
+    expect(r.immoOk).toBe(true);
+    expect(r.immoDamaged).toBe(false);
+    expect(r.immoLabel).toMatch(/no SEC6 fingerprint/i);
   });
 });

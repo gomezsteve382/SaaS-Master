@@ -252,7 +252,15 @@ function makeGpec2a({
   fill(buf, 0x0224, vinAscii);
   fill(buf, 0x0CE0, vinAscii);
 
+  // IMMO byte slot @0x0011..0x0014. Real paired GPEC2A dumps carry the
+  // canonical "ENABLED" pattern 0x80 00 00 00 (verified against a 2008
+  // Charger SRT bench dump in attached_assets/). The fixture defaults
+  // mirror that so engParsePcm sees ENABLED and the PcmCard surfaces
+  // the positive pairing signal even when SEC6 @0x3C8 is left blank.
   buf[0x0011] = skim;
+  if (skim === 0x80) {
+    buf[0x0012] = 0x00; buf[0x0013] = 0x00; buf[0x0014] = 0x00;
+  }
 
   const sk = secret || new Uint8Array([0xDE,0xAD,0xBE,0xEF,0x12,0x34,0x56,0x78]);
   fill(buf, 0x0203, sk);

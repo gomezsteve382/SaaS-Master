@@ -548,6 +548,23 @@ export function engParsePcm(bytes, filename) {
     if (r.vinSlots.length > 1) r.originalVin = r.vinSlots[r.vinSlots.length - 1].vin;
   }
 
+  /* IMMO byte @0x0011..0x0014 — primary positive pairing signal on
+   * 4 KB GPEC2A. Present on every variant including MY2019 builds
+   * where SEC6 @0x3C8 is left blank. The bootloader keys off this
+   * 32-bit slot:
+   *   80 00 00 00 = ENABLED  (paired and active)
+   *   00 00 00 00 = DISABLED (intentionally bypassed / PATS-off)
+   *   FF FF FF FF = VIRGIN   (uninitialized / damaged)
+   * anything else = OTHER    (unknown layout — stay neutral). */
+  if (bytes.length > 0x14) {
+    const ib = bytes.slice(0x0011, 0x0015);
+    let state = 'OTHER';
+    if (ib[0] === 0x80 && ib[1] === 0x00 && ib[2] === 0x00 && ib[3] === 0x00) state = 'ENABLED';
+    else if (ib[0] === 0x00 && ib[1] === 0x00 && ib[2] === 0x00 && ib[3] === 0x00) state = 'DISABLED';
+    else if (ib[0] === 0xFF && ib[1] === 0xFF && ib[2] === 0xFF && ib[3] === 0xFF) state = 'VIRGIN';
+    r.immoByte = { offset: 0x0011, bytes: ib, state };
+  }
+
   /* SEC6 detection (hardened in Task #396).
    *   1. Canonical 0x3C8 read on 4 KB / 8 KB images — this is the same
    *      offset parseModule.js uses, so a virgin GPEC2A (e.g. the
@@ -603,34 +620,58 @@ export function engParsePcm(bytes, filename) {
     // bootloader (and CGDI/Autel/AlfaOBD/SINCRO) to honor the slot.
     const markerOk = r.sec6.markerOk !== false;
     const populated = r.sec6Class.populated;
-    /* Only the Task #404 case is a positive damage signal: the 6 secret
-     * bytes are populated but the canonical FF FF FF AA marker @ 0x3C4
-     * is missing, so the bootloader and external locksmith tools
-     * (CGDI/Autel/AlfaOBD/SINCRO) reject the slot. The all-FF / mostly-FF
-     * / all-zero SEC6 case is NOT damage and NOT necessarily unpaired —
-     * a real running-and-driving car can show all-FF at 0x3C8 because
-     * the pairing data lives elsewhere on that PCM variant or the
-     * canonical offset just isn't populated for this build. Treat the
-     * blank case as "no fingerprint at this offset" — informational,
-     * not a problem. The Repair CTA in ModuleSync still keys off
-     * `immoDamaged` (positive damage only), so a clean blank dump
-     * never triggers a false repair offer. */
+    /* Two independent pairing signals on a 4 KB GPEC2A:
+     *
+     *   A. IMMO byte @0x0011..0x0014 (primary, present on every variant
+     *      including the MY2019 builds where SEC6 isn't populated):
+     *        80 00 00 00 = IMMO ENABLED  (positive pairing signal)
+     *        00 00 00 00 = IMMO DISABLED (intentionally bypassed)
+     *        FF FF FF FF = IMMO VIRGIN/DAMAGED
+     *
+     *   B. SEC6 secret @0x3C8 + FF FF FF AA marker @0x3C4 (legacy
+     *      Continental scheme, only populated on some builds): if the
+     *      6 bytes look populated, the marker MUST also be present —
+     *      that's the Task #404 damage case.
+     *
+     * We trust whichever signal speaks. ENABLED IMMO byte is enough
+     * to call the dump paired even when SEC6 is all-FF (the running-
+     * car case the user reported). The only red DAMAGED verdict is
+     * the explicit Task #404 case (populated SEC6 with stripped
+     * marker) — every other "missing" pattern stays neutral. */
     r.immoDamaged = populated && !markerOk;
-    r.immoOk = !r.immoDamaged;
-    r.immoUnpaired = false;
-    if (r.immoDamaged) {
-      r.immoLabel = 'SEC6 marker missing (FF FF FF AA expected at 0x3C4)';
-    } else if (populated && markerOk) {
+    if (populated && markerOk) {
+      r.immoOk = true;
       r.immoLabel = r.sec6Class.label;
+    } else if (r.immoDamaged) {
+      r.immoOk = false;
+      r.immoLabel = 'SEC6 marker missing (FF FF FF AA expected at 0x3C4)';
+    } else if (r.immoByte && r.immoByte.state === 'ENABLED') {
+      r.immoOk = true;
+      r.immoLabel = `IMMO ENABLED @0x0011 (80 00 00 00) \u2014 SEC6 not used on this variant`;
+    } else if (r.immoByte && r.immoByte.state === 'DISABLED') {
+      r.immoOk = true;
+      r.immoLabel = `IMMO DISABLED @0x0011 (00 00 00 00) \u2014 PATS-bypass, no pairing required`;
     } else {
+      r.immoOk = true;
       r.immoLabel = `${r.sec6Class.label} \u2014 no SEC6 fingerprint at canonical offset`;
     }
+    r.immoUnpaired = false;
   } else {
     r.sec6Class = classifyPcmSec6(null);
-    r.immoOk = false;
-    r.immoDamaged = true;
     r.immoUnpaired = false;
-    r.immoLabel = 'DAMAGED / MISSING';
+    if (r.immoByte && r.immoByte.state === 'ENABLED') {
+      r.immoOk = true;
+      r.immoDamaged = false;
+      r.immoLabel = `IMMO ENABLED @0x0011 (80 00 00 00) \u2014 SEC6 region absent`;
+    } else if (r.immoByte && r.immoByte.state === 'DISABLED') {
+      r.immoOk = true;
+      r.immoDamaged = false;
+      r.immoLabel = `IMMO DISABLED @0x0011 (00 00 00 00) \u2014 PATS-bypass, no pairing required`;
+    } else {
+      r.immoOk = false;
+      r.immoDamaged = true;
+      r.immoLabel = 'DAMAGED / MISSING';
+    }
   }
 
   if (bytes.length > 0x0FB0) {
@@ -1372,6 +1413,17 @@ export function PcmCard({ parsed, bytes, pnOverride, onRepair, repairAvailable, 
       <Kv k="File size"    v={`${parsed.size} bytes (${(parsed.size/1024).toFixed(1)} KB)`} mono />
       <Kv k="Immo (SEC6)"  v={parsed.immoLabel || (parsed.immoDamaged ? 'DAMAGED / MISSING' : parsed.immoOk ? '✓ Populated' : 'Virgin (all FF)')}
           color={parsed.immoDamaged ? C.er : (parsed.sec6Class && parsed.sec6Class.label === 'MISSING') ? C.er : parsed.immoOk ? C.gn : C.wn} />
+      {parsed.immoByte && (
+        <Kv
+          k={`IMMO byte @${fmtOff(parsed.immoByte.offset)}`}
+          v={bytesToHex(parsed.immoByte.bytes).toUpperCase() + ' \u2014 ' + parsed.immoByte.state}
+          mono
+          color={parsed.immoByte.state === 'ENABLED' ? C.gn
+            : parsed.immoByte.state === 'DISABLED' ? C.wn
+            : parsed.immoByte.state === 'VIRGIN' ? C.er
+            : C.ts}
+        />
+      )}
       {parsed.sec6 && (
         <>
           <Kv k="SEC6 marker" v={parsed.sec6.marker} mono />
