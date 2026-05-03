@@ -1,20 +1,21 @@
-import React, {useMemo, useState} from "react";
-import {Card, Tag, SLine} from '../lib/ui.jsx';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {Card, Tag, SLine, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import {cda6} from '../lib/algos.js';
 import {CDA_FLASH_CATALOG, getOfflineFlashSequence} from '../lib/cdaCatalog.js';
+import {flashEcuOffline, FLASH_PHASES} from '../lib/flasherStateMachine.js';
+import {createBridgeEngine} from '../lib/bridgeEngine.js';
 
 // CDA6 UDS programming-session walkthrough (Task #488 + Task #599). The
 // step list is now driven by the per-module catalog mined out of the
 // cracked CDA SWF (tools/cda-extractor) instead of being hand-coded, so
 // the operator can pick a target module (ECM / BCM / RFHUB / SGW / …)
 // and see the exact UDS phase ladder the offline-flash mode will walk.
-// Seed-to-key calculator below the walkthrough still lets a tester paste
-// a `67 01 [SEED]` response and read back the `27 02 [KEY]` request.
+// Task #608 adds a "Run offline flash" affordance that executes
+// flashEcuOffline() directly from this tab with a file-picker for the
+// calibration payload, so the operator never has to switch to ECM Flasher.
 
-// Map catalog phase ids → display rows. The phase ids come straight out
-// of cdaFlashSequences.generated.json so any future SWF extraction shows
-// up here without further code changes.
+// Map catalog phase ids → display rows.
 const PHASE_PRETTY = {
   session_extended:   {name: 'Diagnostic Session Control',  desc: 'Extended diagnostic session'},
   etiquette_dtc_off:  {name: 'ControlDTCSetting (suppress)',desc: 'Stop DTC logging during flash'},
@@ -33,12 +34,54 @@ const PHASE_PRETTY = {
   etiquette_dtc_on:   {name: 'ControlDTCSetting (restore)', desc: 'Re-enable DTC logging'},
 };
 
+// Map catalog phase id → the FLASH_PHASES value that represents it being
+// "active". Used to light up phase rows green/red during a live flash run.
+const CATALOG_PHASE_TO_SM = {
+  session_extended:   FLASH_PHASES.SESSION_EXT,
+  etiquette_dtc_off:  FLASH_PHASES.SESSION_EXT,
+  etiquette_comm_off: FLASH_PHASES.SESSION_EXT,
+  session_program:    FLASH_PHASES.SESSION,
+  timing_p2:          FLASH_PHASES.TIMING,
+  seed:               FLASH_PHASES.SEED,
+  key:                FLASH_PHASES.KEY,
+  erase:              FLASH_PHASES.ERASE,
+  request_download:   FLASH_PHASES.REQUEST_DOWNLOAD,
+  transfer:           FLASH_PHASES.TRANSFER,
+  transfer_exit:      FLASH_PHASES.TRANSFER_EXIT,
+  checksum:           FLASH_PHASES.CHECKSUM,
+  reset:              FLASH_PHASES.RESET,
+  etiquette_comm_on:  FLASH_PHASES.DONE,
+  etiquette_dtc_on:   FLASH_PHASES.DONE,
+};
+
+// Ordered list of state-machine phases so we can determine whether a
+// catalog phase is "before", "at", or "after" the current flash phase.
+const SM_PHASE_ORDER = [
+  FLASH_PHASES.CONNECT,
+  FLASH_PHASES.SESSION_EXT,
+  FLASH_PHASES.SESSION,
+  FLASH_PHASES.TIMING,
+  FLASH_PHASES.SEED,
+  FLASH_PHASES.KEY,
+  FLASH_PHASES.ERASE,
+  FLASH_PHASES.REQUEST_DOWNLOAD,
+  FLASH_PHASES.TRANSFER,
+  FLASH_PHASES.TRANSFER_EXIT,
+  FLASH_PHASES.CHECKSUM,
+  FLASH_PHASES.RESET,
+  FLASH_PHASES.DONE,
+];
+
+function smPhaseIndex(p){ return SM_PHASE_ORDER.indexOf(p); }
+
 function catalogStepsFor(code){
   const seq = getOfflineFlashSequence(code) || [];
   return seq.map((s, i) => {
     const pp = PHASE_PRETTY[s.phase] || {name: s.swfClass || s.phase, desc: ''};
     return {
       step: i + 1,
+      phase: s.phase,
+      smPhase: CATALOG_PHASE_TO_SM[s.phase] || null,
       name: pp.name,
       desc: pp.desc || s.swfClass || '',
       service: '0x' + (s.sid || 0).toString(16).toUpperCase().padStart(2, '0'),
@@ -71,12 +114,199 @@ function Section({title, color, children}){
   );
 }
 
+function ProgressBar({pct, color}){
+  const v = Math.max(0, Math.min(1, pct || 0));
+  return (
+    <div style={{position: 'relative', height: 10, borderRadius: 6, background: C.c2, border: `1px solid ${C.bd}`, overflow: 'hidden'}}>
+      <div style={{position: 'absolute', inset: 0, width: (v * 100).toFixed(2) + '%', background: color || C.gn, transition: 'width 0.15s'}}/>
+    </div>
+  );
+}
+
+function LogLine({entry}){
+  const colorMap = {tx: C.a3, rx: C.gn, info: C.tx, warn: C.wn, error: C.er};
+  const c = colorMap[entry.level] || C.tx;
+  return <div style={{fontFamily: 'JetBrains Mono', fontSize: 10, color: c, padding: '2px 0', lineHeight: 1.4}}>{entry.msg}</div>;
+}
+
+// Determine the row tint for a step given the current flash state.
+// Returns 'active' | 'done' | 'failed' | 'idle'
+//
+// FAILED and ABORTED are terminal states not in SM_PHASE_ORDER, so we use
+// `lastActivePhase` (the last non-terminal phase seen via onProgress) to
+// resolve which step failed and which prior steps completed successfully.
+function stepStatus(step, flashPhase, lastActivePhase){
+  if (!flashPhase) return 'idle';
+  const smPhase = step.smPhase;
+  if (!smPhase) return 'idle';
+
+  const isDone   = flashPhase === FLASH_PHASES.DONE;
+  const isFailed = flashPhase === FLASH_PHASES.FAILED || flashPhase === FLASH_PHASES.ABORTED;
+  const stepIdx  = smPhaseIndex(smPhase);
+
+  if (isDone) return 'done';
+
+  if (isFailed){
+    // Use lastActivePhase to determine where the machine stopped.
+    const failedIdx = smPhaseIndex(lastActivePhase || FLASH_PHASES.CONNECT);
+    if (stepIdx < failedIdx) return 'done';
+    if (stepIdx === failedIdx) return 'failed';
+    return 'idle';
+  }
+
+  const currentIdx = smPhaseIndex(flashPhase);
+  if (stepIdx < currentIdx) return 'done';
+  if (stepIdx === currentIdx) return 'active';
+  return 'idle';
+}
+
+const STATUS_STYLE = {
+  active: {bg: '#2979FF12', border: C.a3 + '60', dot: C.a3,  dotLabel: '▶'},
+  done:   {bg: '#00C85312', border: C.gn + '60',  dot: C.gn,  dotLabel: '✓'},
+  failed: {bg: '#FF174412', border: C.er + '60',  dot: C.er,  dotLabel: '✗'},
+  idle:   {bg: null,        border: null,           dot: null,  dotLabel: null},
+};
+
 export default function Cda6SessionTab(){
   const [seedHex, setSeedHex] = useState('');
   const moduleCodes = useMemo(() => Object.keys(CDA_FLASH_CATALOG?.modules || {}).sort(), []);
   const [moduleCode, setModuleCode] = useState(moduleCodes.includes('ECM') ? 'ECM' : (moduleCodes[0] || 'ECM'));
   const STEPS = useMemo(() => catalogStepsFor(moduleCode), [moduleCode]);
   const modMeta = CDA_FLASH_CATALOG?.modules?.[moduleCode];
+
+  // Bridge / flash state
+  const [conn, setConn] = useState(false);
+  const [bridgeInfo, setBridgeInfo] = useState({vendor: null, firmware: null});
+  const [running, setRunning] = useState(false);
+  const [flashPhase, setFlashPhase] = useState(null);
+  const [flashResult, setFlashResult] = useState(null);
+  const [flashError, setFlashError] = useState(null);
+  const [flashLog, setFlashLog] = useState([]);
+  const [pct, setPct] = useState(0);
+  const [payloadFile, setPayloadFile] = useState(null);
+
+  // Track the last *operational* (non-terminal) phase so that after a
+  // failure or abort we can still show which steps completed (green) and
+  // which step was active when the machine stopped (red).
+  const [lastActivePhase, setLastActivePhase] = useState(null);
+
+  const engineRef = useRef(null);
+  const abortRef  = useRef(null);
+  const logBoxRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (logBoxRef.current) logBoxRef.current.scrollTop = logBoxRef.current.scrollHeight;
+  }, [flashLog.length]);
+
+  const addLog = useCallback((entry) => setFlashLog(prev => [...prev.slice(-400), entry]), []);
+
+  const connect = useCallback(async () => {
+    setFlashError(null);
+    addLog({t: Date.now(), level: 'info', msg: 'Opening bench bridge…'});
+    try {
+      const res = await createBridgeEngine({
+        addLog: (m, t) => addLog({t: Date.now(), level: t || 'info', msg: m}),
+      });
+      if (!res || res.ok !== true || !res.engine){
+        const why = (res && res.error) || 'Bridge unreachable — start j2534_bridge.py on localhost:8765';
+        setFlashError(why);
+        addLog({t: Date.now(), level: 'error', msg: why});
+        return;
+      }
+      const eng = res.engine;
+      if (eng.isBridge !== true){
+        const why = 'Engine is not the bench bridge — flasher refuses to run';
+        setFlashError(why);
+        addLog({t: Date.now(), level: 'error', msg: why});
+        return;
+      }
+      engineRef.current = eng;
+      setBridgeInfo({vendor: eng.vendor || 'unknown', firmware: eng.firmware || null});
+      setConn(true);
+      addLog({t: Date.now(), level: 'info', msg: `Connected · vendor=${eng.vendor || 'unknown'}${eng.firmware ? ' fw=' + eng.firmware : ''}`});
+    } catch (err) {
+      const msg = err && err.message ? err.message : String(err);
+      setFlashError(msg);
+      addLog({t: Date.now(), level: 'error', msg});
+    }
+  }, [addLog]);
+
+  const disconnect = useCallback(() => {
+    engineRef.current = null;
+    setConn(false);
+    setBridgeInfo({vendor: null, firmware: null});
+    addLog({t: Date.now(), level: 'info', msg: 'Disconnected'});
+  }, [addLog]);
+
+  const handleFileChange = useCallback((e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setPayloadFile({name: f.name, size: f.size, data: new Uint8Array(ev.target.result)});
+      setFlashResult(null);
+      setFlashError(null);
+    };
+    reader.readAsArrayBuffer(f);
+    // reset so same file can be re-picked
+    e.target.value = '';
+  }, []);
+
+  const runFlash = useCallback(async () => {
+    if (!payloadFile) { setFlashError('Pick a .bin / .efd payload first'); return; }
+    if (!engineRef.current) { setFlashError('Connect to the bench bridge first'); return; }
+    setFlashError(null);
+    setFlashResult(null);
+    setFlashLog([]);
+    setPct(0);
+    setFlashPhase(FLASH_PHASES.CONNECT);
+    setLastActivePhase(FLASH_PHASES.CONNECT);
+    setRunning(true);
+
+    const ac = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    abortRef.current = ac;
+
+    try {
+      const ctrl = flashEcuOffline({
+        moduleCode,
+        engine: engineRef.current,
+        payload: payloadFile.data,
+        keepAlive: true,
+        onLog: (entry) => addLog(entry),
+        onProgress: (p) => {
+          if (p.phase) {
+            setFlashPhase(p.phase);
+            // Only record operational phases — never overwrite with a terminal
+            // state so stepStatus() can determine which step failed after abort.
+            if (p.phase !== FLASH_PHASES.DONE &&
+                p.phase !== FLASH_PHASES.FAILED &&
+                p.phase !== FLASH_PHASES.ABORTED){
+              setLastActivePhase(p.phase);
+            }
+          }
+          if (typeof p.pct === 'number') setPct(p.pct);
+        },
+        signal: ac ? ac.signal : undefined,
+      });
+      const r = await ctrl.start();
+      setFlashResult(r);
+      setFlashPhase(r.ok ? FLASH_PHASES.DONE : (r.aborted ? FLASH_PHASES.ABORTED : FLASH_PHASES.FAILED));
+      if (!r.ok) setFlashError(r.error || 'Flash failed');
+    } catch (err) {
+      const msg = err && err.message ? err.message : String(err);
+      setFlashError(msg);
+      setFlashPhase(FLASH_PHASES.FAILED);
+      addLog({t: Date.now(), level: 'error', msg});
+    } finally {
+      setRunning(false);
+    }
+  }, [moduleCode, payloadFile, addLog]);
+
+  const stopFlash = useCallback(() => {
+    if (abortRef.current) abortRef.current.abort();
+    addLog({t: Date.now(), level: 'warn', msg: 'Stop requested — will attempt clean 0x37 exit'});
+  }, [addLog]);
 
   const calc = useMemo(() => {
     const raw = seedHex.replace(/\s/g, '');
@@ -88,6 +318,10 @@ export default function Cda6SessionTab(){
     };
   }, [seedHex]);
 
+  const flashDone    = flashPhase === FLASH_PHASES.DONE;
+  const flashFailed  = flashPhase === FLASH_PHASES.FAILED || flashPhase === FLASH_PHASES.ABORTED;
+  const overallColor = flashDone ? C.gn : flashFailed ? C.er : C.a3;
+
   return (
     <div style={{maxWidth: 980}}>
       <Card>
@@ -97,7 +331,7 @@ export default function Cda6SessionTab(){
         </div>
         <div style={{fontSize: 12, color: C.ts, lineHeight: 1.6}}>
           Walk-through for the standard FCA ECM programming session. Use this to verify J2534 trace logs from
-          wiTECH/AlfaOBD or to plan your bench flash sequence before pulling the trigger in the ECM Flasher tab.
+          wiTECH/AlfaOBD, or run the offline flash directly from this tab using the affordance below.
         </div>
       </Card>
 
@@ -108,7 +342,8 @@ export default function Cda6SessionTab(){
             <select
               data-testid="cda-catalog-module"
               value={moduleCode}
-              onChange={e => setModuleCode(e.target.value)}
+              onChange={e => { setModuleCode(e.target.value); setFlashResult(null); setFlashPhase(null); setLastActivePhase(null); setFlashError(null); }}
+              disabled={running}
               style={{padding: '6px 10px', borderRadius: 8, border: `1px solid ${C.bd}`, background: C.c2, color: C.tx, fontFamily: 'JetBrains Mono', fontSize: 12}}
             >
               {moduleCodes.map(c => <option key={c} value={c}>{c}</option>)}
@@ -126,31 +361,152 @@ export default function Cda6SessionTab(){
         </Card>
       </Section>
 
+      {/* ─── ONE-CLICK OFFLINE FLASH (Task #608) ─────────────────────────── */}
+      <Section title="RUN OFFLINE FLASH" color={C.sr}>
+        <Card>
+          {/* Bridge connect row */}
+          <div style={{display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap'}}>
+            <Tag color={conn ? C.gn : C.tm}>{conn ? '● CONNECTED' : '○ OFFLINE'}</Tag>
+            <span style={{fontSize: 11, color: C.ts}}>Autel Elite J2534 bench bridge</span>
+            {conn && bridgeInfo.vendor && <Tag color={C.a3}>{bridgeInfo.vendor}</Tag>}
+            {conn && bridgeInfo.firmware && <Tag color={C.a4}>fw {bridgeInfo.firmware}</Tag>}
+            <span style={{flex: 1}}/>
+            {!conn && <Btn onClick={connect} disabled={running} color={C.a3}>CONNECT</Btn>}
+            {conn  && <Btn outline onClick={disconnect} disabled={running} color={C.tm}>DISCONNECT</Btn>}
+          </div>
+
+          {/* Payload picker */}
+          <div style={{display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap'}}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".bin,.efd"
+              style={{display: 'none'}}
+              onChange={handleFileChange}
+            />
+            <Btn
+              color={C.a4}
+              outline
+              disabled={running}
+              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+            >
+              {payloadFile ? '⊕ CHANGE PAYLOAD' : '⊕ PICK .BIN / .EFD'}
+            </Btn>
+            {payloadFile ? (
+              <div style={{display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap'}}>
+                <span style={{fontFamily: 'JetBrains Mono', fontSize: 11, color: C.tx, fontWeight: 700}}>{payloadFile.name}</span>
+                <Tag color={C.a3}>{(payloadFile.size / 1024).toFixed(0)} KB</Tag>
+              </div>
+            ) : (
+              <span style={{fontSize: 11, color: C.tm, fontStyle: 'italic'}}>No payload selected</span>
+            )}
+          </div>
+
+          {/* Run / stop button */}
+          <div style={{display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10}}>
+            {!running && (
+              <Btn
+                data-testid="cda-run-offline-flash"
+                color={C.sr}
+                disabled={!conn || !payloadFile}
+                onClick={runFlash}
+              >
+                ▶ RUN OFFLINE FLASH
+              </Btn>
+            )}
+            {running && (
+              <Btn color={C.wn} onClick={stopFlash}>■ STOP</Btn>
+            )}
+            {running && (
+              <span style={{fontSize: 11, color: C.a3, fontFamily: 'JetBrains Mono', fontWeight: 700}}>
+                {flashPhase || '…'}
+              </span>
+            )}
+            {flashDone && !running && (
+              <Tag color={C.gn}>FLASH COMPLETE</Tag>
+            )}
+            {flashFailed && !running && (
+              <Tag color={C.er}>{flashPhase === FLASH_PHASES.ABORTED ? 'ABORTED' : 'FAILED'}</Tag>
+            )}
+          </div>
+
+          {/* Progress bar — only shown while running or after completion */}
+          {(running || flashResult) && (
+            <div style={{marginBottom: 10}}>
+              <ProgressBar pct={pct} color={flashDone ? C.gn : flashFailed ? C.er : C.a3}/>
+            </div>
+          )}
+
+          {/* Inline error / NRC */}
+          {flashError && <SLine type="error" msg={flashError}/>}
+          {flashResult && flashResult.nrc != null && (
+            <SLine type="error" msg={`NRC 0x${flashResult.nrc.toString(16).toUpperCase().padStart(2,'0')} at phase ${flashResult.phase}`}/>
+          )}
+          {flashDone && flashResult && (
+            <SLine type="pass" msg={`Done · ${flashResult.bytesSent} B · ${flashResult.chunksSent} chunks · ${flashResult.elapsedMs} ms · ${(flashResult.throughputKBs || 0).toFixed(2)} KB/s`}/>
+          )}
+
+          {/* Compact log console */}
+          {flashLog.length > 0 && (
+            <div
+              ref={logBoxRef}
+              style={{
+                marginTop: 10,
+                maxHeight: 140,
+                overflowY: 'auto',
+                background: '#111',
+                borderRadius: 8,
+                padding: '8px 10px',
+                border: `1px solid ${C.bd}`,
+              }}
+            >
+              {flashLog.map((e, i) => <LogLine key={i} entry={e}/>)}
+            </div>
+          )}
+        </Card>
+      </Section>
+
+      {/* ─── SESSION SEQUENCE with live phase lighting ────────────────────── */}
       <Section title="SESSION SEQUENCE" color={C.a3}>
         <Card>
-          {STEPS.map(s => (
-            <div key={s.step} style={{
-              padding: '10px 12px', marginBottom: 6, borderRadius: 10,
-              background: s.highlight ? '#FF174410' : C.c2,
-              border: `1px solid ${s.highlight ? C.er + '40' : C.bd}`,
-              display: 'grid', gridTemplateColumns: '36px 1fr 130px 180px', alignItems: 'center', gap: 10,
-            }}>
-              <div style={{fontSize: 18, fontWeight: 900, color: s.highlight ? C.er : C.a3, textAlign: 'center', fontFamily: 'JetBrains Mono'}}>{s.step}</div>
-              <div>
-                <div style={{fontSize: 12, fontWeight: 800, color: C.tx}}>{s.name}</div>
-                <div style={{fontSize: 10, color: C.ts, marginTop: 2}}>{s.desc}</div>
+          {STEPS.map(s => {
+            const status = stepStatus(s, flashPhase, lastActivePhase);
+            const ss = STATUS_STYLE[status];
+            const isActive = status === 'active';
+            return (
+              <div key={s.step} style={{
+                padding: '10px 12px', marginBottom: 6, borderRadius: 10,
+                background: ss.bg || (s.highlight ? '#FF174410' : C.c2),
+                border: `1px solid ${ss.border || (s.highlight ? C.er + '40' : C.bd)}`,
+                display: 'grid', gridTemplateColumns: '36px 16px 1fr 130px 180px', alignItems: 'center', gap: 10,
+                transition: 'background 0.25s, border-color 0.25s',
+              }}>
+                {/* Step number */}
+                <div style={{fontSize: 18, fontWeight: 900, color: ss.dot || (s.highlight ? C.er : C.a3), textAlign: 'center', fontFamily: 'JetBrains Mono'}}>{s.step}</div>
+                {/* Status dot */}
+                <div style={{textAlign: 'center', fontSize: 12, color: ss.dot || C.tm, fontWeight: 900, opacity: ss.dotLabel ? 1 : 0.3}}>
+                  {ss.dotLabel || '·'}
+                  {isActive && <span style={{display: 'inline-block', animation: 'pulse 1s ease-in-out infinite'}}/>}
+                </div>
+                {/* Name / desc */}
+                <div>
+                  <div style={{fontSize: 12, fontWeight: 800, color: ss.dot || C.tx}}>{s.name}</div>
+                  <div style={{fontSize: 10, color: C.ts, marginTop: 2}}>{s.desc}</div>
+                </div>
+                {/* Service / sub */}
+                <div>
+                  <div style={{fontSize: 8, color: C.tm, letterSpacing: 1.2}}>SVC / SUB</div>
+                  <div style={{fontSize: 11, fontFamily: 'JetBrains Mono', color: C.a1, fontWeight: 700}}>{s.service} / {s.subfn}</div>
+                </div>
+                {/* TX → RX */}
+                <div>
+                  <div style={{fontSize: 8, color: C.tm, letterSpacing: 1.2}}>TX → RX</div>
+                  <div style={{fontSize: 10, fontFamily: 'JetBrains Mono', color: C.gn}}>{s.tx}</div>
+                  <div style={{fontSize: 10, fontFamily: 'JetBrains Mono', color: C.a3}}>{s.expected}</div>
+                </div>
               </div>
-              <div>
-                <div style={{fontSize: 8, color: C.tm, letterSpacing: 1.2}}>SVC / SUB</div>
-                <div style={{fontSize: 11, fontFamily: 'JetBrains Mono', color: C.a1, fontWeight: 700}}>{s.service} / {s.subfn}</div>
-              </div>
-              <div>
-                <div style={{fontSize: 8, color: C.tm, letterSpacing: 1.2}}>TX → RX</div>
-                <div style={{fontSize: 10, fontFamily: 'JetBrains Mono', color: C.gn}}>{s.tx}</div>
-                <div style={{fontSize: 10, fontFamily: 'JetBrains Mono', color: C.a3}}>{s.expected}</div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </Card>
       </Section>
 
