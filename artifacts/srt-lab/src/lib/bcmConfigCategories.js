@@ -9,6 +9,10 @@
  */
 
 import perfImg from '../assets/bcm-cat/perf-srt.png';
+import perfLaunchImg from '../assets/bcm-cat/perf-launch.png';
+import perfDynoImg from '../assets/bcm-cat/perf-dyno.png';
+import perfModesImg from '../assets/bcm-cat/perf-modes.png';
+import perfEngineImg from '../assets/bcm-cat/perf-engine.png';
 import identityImg from '../assets/bcm-cat/identity.png';
 import lightingImg from '../assets/bcm-cat/lighting.png';
 import doorsImg from '../assets/bcm-cat/doors.png';
@@ -206,7 +210,127 @@ export const CATEGORY_DID_MAP = {
   0x05D4: 'towing',
 };
 
+/**
+ * Performance & SRT sub-groups — buckets the 42 fields of DE0A
+ * "Performance & SRT Configuration" into themed sub-panels, each with
+ * its own Pixar hero image, accent gradient and blurb. Used by the
+ * special PerfShowcase renderer in BcmConfigTab.
+ *
+ * Anything not listed in any sub-group's `fields` set falls into the
+ * "MORE" sub-panel at the bottom so we never silently drop a field.
+ */
+export const PERF_SUBGROUPS = [
+  {
+    id: 'perf-pages',
+    label: 'PERFORMANCE PAGES',
+    tag: 'CLUSTER · GAUGES · TIMERS · DYNO · G-FORCE',
+    accent: '#FF1744',
+    image: perfDynoImg,
+    glyph: '📊',
+    blurb: 'On-screen Performance Pages — toggle the Gauges, Timers, Dyno, G-Force meter, reaction time, 0-60 / 1/8 / 1/4 mile timers and the Performance Data Recorder.',
+    fields: [
+      'SRT Performance Pages', 'SRT Gauges Page', 'SRT Timers Page', 'SRT Dyno Page',
+      'G-Force Meter', 'Reaction Time Display',
+      '0-60 Timer', '1/8 Mile Timer', '1/4 Mile Timer',
+      'Performance Data Recorder',
+    ],
+  },
+  {
+    id: 'perf-drag',
+    label: 'DRAG STRIP',
+    tag: 'LAUNCH CTRL · LINE LOCK · TRANS BRAKE · TORQUE RES',
+    accent: '#FF3D00',
+    image: perfLaunchImg,
+    glyph: '🏁',
+    blurb: 'Christmas-tree weaponry — Launch Control with target RPM, Launch Assist & Warning, Line Lock duration, Trans Brake target RPM, Torque Reserve level and the dedicated Drag Mode profile.',
+    fields: [
+      'Launch Control', 'Launch Control RPM', 'Launch Assist', 'Launch Warning',
+      'Line Lock', 'Line Lock Duration',
+      'Trans Brake', 'Trans Brake RPM',
+      'Torque Reserve', 'Torque Reserve Level',
+      'Drag Mode', 'Drag Mode Suspension',
+    ],
+  },
+  {
+    id: 'perf-modes',
+    label: 'DRIVE MODES & RACE OPTIONS',
+    tag: 'TRACK · CUSTOM · POWER · RACE MENU · WIDEBODY',
+    accent: '#D500F9',
+    image: perfModesImg,
+    glyph: '🎛',
+    blurb: 'Master drive-mode rotary plumbing — Track / Custom presence, Drive Mode Memory, Race Options Menu unlock, available Power Modes (Eco/Sport/Track/Snow/Tow…) and the Widebody chassis flag.',
+    fields: [
+      'Custom Mode', 'Track Mode', 'Drive Mode Memory',
+      'Race Options Menu', 'Power Modes Available', 'Widebody Enabled',
+    ],
+  },
+  {
+    id: 'perf-dyn',
+    label: 'CHASSIS DYNAMICS',
+    tag: 'PADDLES · EXHAUST · SUSP · STEER · TC · MDS',
+    accent: '#7C4DFF',
+    image: perfEngineImg,
+    glyph: '⚙',
+    blurb: 'How the car *feels* — paddle, exhaust, suspension, steering, throttle and traction-control mapping, ESC Sport unlock and Cylinder Deactivation (MDS) strategy.',
+    fields: [
+      'Paddle Shifter Mode', 'Exhaust Mode', 'Suspension Mode', 'Steering Mode',
+      'Throttle Response', 'Traction Control Mode', 'ESC Sport Mode',
+      'Cylinder Deactivation (MDS)',
+    ],
+  },
+  {
+    id: 'perf-tells',
+    label: 'TELLTALES & TEMPERATURES',
+    tag: 'SHIFT LIGHT · REV MATCH · S/C · IC · BRAKE TEMP',
+    accent: '#FFB300',
+    image: perfImg,
+    glyph: '🌡',
+    blurb: 'Cluster telltales — Rev Match, Shift Light with target RPM, Supercharger and Intercooler temp readouts, Brake Temperature warning.',
+    fields: [
+      'Rev Match', 'Shift Light', 'Shift Light RPM',
+      'Supercharger Temp Display', 'Intercooler Temp Display',
+      'Brake Temperature Warning',
+    ],
+  },
+];
+
 const _byId = new Map(BCM_CATEGORIES.map((c) => [c.id, c]));
+
+/**
+ * Bucket DE0A decoded rows into the PERF_SUBGROUPS above.
+ * `decodedRows` is the output of decodeBcmDid(0xDE0A, payload).
+ * Returns [{ group, rows }, ...] in PERF_SUBGROUPS order, plus an
+ * extra { group: PERF_MORE, rows } at the end for any unbucketed
+ * fields so we never silently drop a row.
+ */
+export const PERF_MORE_GROUP = {
+  id: 'perf-more',
+  label: 'MORE PERFORMANCE FIELDS',
+  tag: 'UNCATEGORISED',
+  accent: '#9E9E9E',
+  image: null,
+  glyph: '➕',
+  blurb: 'Additional DE0A fields not yet hand-bucketed into a perf sub-panel.',
+  fields: [],
+};
+
+export function bucketPerfRows(decodedRows) {
+  if (!Array.isArray(decodedRows)) return [];
+  const seen = new Set();
+  const out = PERF_SUBGROUPS.map((group) => {
+    const set = new Set(group.fields);
+    const rows = decodedRows.filter((r) => {
+      const name = r?.field?.name;
+      if (!name || !set.has(name) || seen.has(name)) return false;
+      seen.add(name);
+      return true;
+    });
+    return { group, rows };
+  });
+  const leftover = decodedRows.filter((r) => r?.field?.name && !seen.has(r.field.name));
+  if (leftover.length > 0) out.push({ group: PERF_MORE_GROUP, rows: leftover });
+  return out;
+}
 
 export function categoryForDid(did) {
   const id = CATEGORY_DID_MAP[did];

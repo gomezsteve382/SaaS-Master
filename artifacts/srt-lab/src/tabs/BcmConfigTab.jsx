@@ -32,7 +32,7 @@ import {
   BCM_TX_DEFAULT,
   BCM_RX_DEFAULT,
 } from '../lib/bcmConfigBridge.js';
-import { bucketDids, categoryForDid } from '../lib/bcmConfigCategories.js';
+import { bucketDids, categoryForDid, PERF_SUBGROUPS, bucketPerfRows } from '../lib/bcmConfigCategories.js';
 
 /* ───────── helpers ───────── */
 
@@ -469,22 +469,42 @@ export default function BcmConfigTab({ vehicle }) {
       {/* SECTIONS */}
       <div style={{ padding: '18px 22px 22px' }}>
         {buckets.map(({ category, dids }) => (
-          <CategorySection
-            key={category.id}
-            ref={(el) => { sectionRefs.current[category.id] = el; }}
-            category={category}
-            dids={dids}
-            counts={counts[category.id]}
-            grouped={grouped}
-            payloads={payloads}
-            edits={edits}
-            busy={busy !== ''}
-            search={lcSearch}
-            onReadOne={onReadOne}
-            onWriteOne={onWriteOne}
-            onResetEdits={onResetEdits}
-            onEdit={onEdit}
-          />
+          category.id === 'perf' ? (
+            <PerfShowcase
+              key={category.id}
+              ref={(el) => { sectionRefs.current[category.id] = el; }}
+              category={category}
+              dids={dids}
+              counts={counts[category.id]}
+              grouped={grouped}
+              payloads={payloads}
+              edits={edits}
+              busy={busy !== ''}
+              search={lcSearch}
+              vehicle={vehicle}
+              onReadOne={onReadOne}
+              onWriteOne={onWriteOne}
+              onResetEdits={onResetEdits}
+              onEdit={onEdit}
+            />
+          ) : (
+            <CategorySection
+              key={category.id}
+              ref={(el) => { sectionRefs.current[category.id] = el; }}
+              category={category}
+              dids={dids}
+              counts={counts[category.id]}
+              grouped={grouped}
+              payloads={payloads}
+              edits={edits}
+              busy={busy !== ''}
+              search={lcSearch}
+              onReadOne={onReadOne}
+              onWriteOne={onWriteOne}
+              onResetEdits={onResetEdits}
+              onEdit={onEdit}
+            />
+          )
         ))}
       </div>
 
@@ -610,6 +630,400 @@ const CategorySection = React.forwardRef(function CategorySection({
     </section>
   );
 });
+
+/* ───────── PERFORMANCE SHOWCASE (special render for category 'perf') ───────── */
+
+const DE0A = 0xDE0A;
+
+const PerfShowcase = React.forwardRef(function PerfShowcase({
+  category, dids, counts, grouped, payloads, edits, busy, search, vehicle,
+  onReadOne, onWriteOne, onResetEdits, onEdit,
+}, ref) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  // The DE0A "Performance & SRT Configuration" payload powers the
+  // showcase sub-panels. Everything else in this category (0x0503,
+  // 0x04F4, 0x04F8) renders below as standard DidCards.
+  const de0aSlot = payloads[DE0A];
+  const de0aRows = useMemo(() => {
+    if (!de0aSlot || !de0aSlot.ok) return null;
+    try { return decodeBcmDid(DE0A, de0aSlot.payload); } catch { return null; }
+  }, [de0aSlot]);
+  const de0aEdits = edits[DE0A] || {};
+  const de0aPending = Object.keys(de0aEdits).length;
+
+  const subPanels = useMemo(() => bucketPerfRows(de0aRows || []), [de0aRows]);
+
+  // Filter sub-panels by search — keep the panel if its label matches
+  // OR any of its rows' field names match.
+  const visibleSubPanels = useMemo(() => {
+    if (!search) return subPanels;
+    return subPanels
+      .map(({ group, rows }) => ({
+        group,
+        rows: rows.filter((r) => (r.field?.name || '').toLowerCase().includes(search)),
+      }))
+      .filter(({ group, rows }) => group.label.toLowerCase().includes(search) || rows.length > 0);
+  }, [subPanels, search]);
+
+  const extraDids = dids.filter((d) => d !== DE0A);
+
+  // Live "POWER MODES" preview from decoded rows (for the hero strip).
+  const liveModeChips = useMemo(() => {
+    if (!de0aRows) return null;
+    const want = [
+      'Track Mode', 'Drag Mode', 'Custom Mode', 'ESC Sport Mode',
+      'Race Options Menu', 'Performance Data Recorder', 'Widebody Enabled',
+    ];
+    return want
+      .map((n) => de0aRows.find((r) => r.field?.name === n))
+      .filter(Boolean)
+      .map((r) => ({
+        name: r.field.name,
+        on: !!(de0aEdits[r.field.name] != null ? de0aEdits[r.field.name] : r.raw),
+        pending: Object.prototype.hasOwnProperty.call(de0aEdits, r.field.name),
+      }));
+  }, [de0aRows, de0aEdits]);
+
+  // Hide the section entirely if the search hides everything.
+  const anyExtraVisible = extraDids.some((did) => {
+    if (!search) return true;
+    if (hxDid(did).toLowerCase().includes(search)) return true;
+    if ((bcmDidName(did) || '').toLowerCase().includes(search)) return true;
+    const fields = grouped.get(did) || [];
+    return fields.some((f) => (f.name || '').toLowerCase().includes(search));
+  });
+  const anyDe0aVisible = visibleSubPanels.length > 0 || (!de0aRows && (!search ||
+    'performance & srt'.includes(search) || hxDid(DE0A).toLowerCase().includes(search)));
+  if (search && !anyExtraVisible && !anyDe0aVisible) return <div ref={ref} />;
+
+  return (
+    <section ref={ref} style={{ marginBottom: 28, scrollMarginTop: 220 }}>
+      {/* TALL CINEMATIC HERO */}
+      <div
+        role="button" tabIndex={0}
+        aria-expanded={!collapsed}
+        aria-label={`Performance showcase — ${collapsed ? 'expand' : 'collapse'}`}
+        onClick={() => setCollapsed((v) => !v)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCollapsed((v) => !v); } }}
+        style={{
+          position: 'relative', height: 280, borderRadius: 18, overflow: 'hidden',
+          cursor: 'pointer', marginBottom: 14,
+          border: `1px solid ${T.red}66`,
+          background: `url(${category.image}) center/cover no-repeat`,
+          boxShadow: `0 16px 48px rgba(255,23,68,0.22), 0 8px 32px rgba(0,0,0,0.6)`,
+        }}
+      >
+        {/* heavy left-to-right cinematic gradient */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: `
+            radial-gradient(ellipse 70% 80% at 0% 50%, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.55) 45%, rgba(10,10,10,0.05) 75%),
+            linear-gradient(180deg, rgba(10,10,10,0.45) 0%, rgba(10,10,10,0.2) 40%, rgba(10,10,10,0.85) 100%)
+          `,
+        }} />
+        {/* red scanline glow at top */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+          background: `linear-gradient(90deg, transparent, ${T.red}, transparent)`,
+          boxShadow: `0 0 12px ${T.red}AA`,
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0, padding: '22px 26px',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+        }}>
+          {/* TOP ROW: badges + collapse */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <span style={{
+              padding: '5px 11px', borderRadius: 6,
+              background: T.red, color: '#0A0A0A',
+              fontSize: 10, fontWeight: 900, letterSpacing: 1.6,
+              boxShadow: `0 4px 14px ${T.red}66`,
+            }}>{category.glyph} {category.label}</span>
+            <span style={{
+              padding: '4px 9px', borderRadius: 6,
+              border: `1px solid ${T.red}66`, color: T.red,
+              fontSize: 9, fontWeight: 900, letterSpacing: 1.4,
+            }}>SHOWCASE</span>
+            <span style={{ fontSize: 10, color: T.textMid, fontWeight: 800, letterSpacing: 1 }}>
+              {category.tag}
+            </span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: T.textMid, fontWeight: 800, letterSpacing: 0.5 }}>
+              {collapsed ? '▾ EXPAND' : '▴ COLLAPSE'}
+            </span>
+          </div>
+
+          {/* MIDDLE: huge headline */}
+          <div>
+            <div style={{
+              fontSize: 44, fontWeight: 900, color: '#fff',
+              letterSpacing: -1.2, lineHeight: 0.95,
+              textShadow: `0 4px 24px rgba(0,0,0,0.8), 0 0 24px ${T.red}33`,
+            }}>
+              UNLOCK THE BEAST.
+            </div>
+            <div style={{ fontSize: 13, color: T.textMid, marginTop: 8, maxWidth: 620, lineHeight: 1.5 }}>
+              {category.blurb}
+              {vehicle?.name ? <> · <strong style={{ color: '#fff' }}>{vehicle.name}</strong></> : null}
+            </div>
+          </div>
+
+          {/* BOTTOM: stat strip + live mode chips */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, flexWrap: 'wrap' }}>
+            <PerfStat value={counts.dids} label="DIDs" accent={T.red} />
+            <PerfStat value={counts.fields} label="TOGGLES" accent={T.amber} />
+            <PerfStat value={counts.read} label="READ" accent={counts.read > 0 ? T.green : T.textLow} />
+            <PerfStat value={counts.pending} label="PENDING" accent={counts.pending > 0 ? T.amber : T.textLow} />
+            {liveModeChips && liveModeChips.length > 0 && (
+              <div style={{
+                marginLeft: 'auto', display: 'flex', gap: 5, flexWrap: 'wrap',
+                maxWidth: '60%', justifyContent: 'flex-end',
+              }} onClick={(e) => e.stopPropagation()}>
+                {liveModeChips.map((chip) => (
+                  <span key={chip.name} style={{
+                    padding: '3px 8px', borderRadius: 999, fontSize: 9, fontWeight: 900,
+                    letterSpacing: 0.8, whiteSpace: 'nowrap',
+                    background: chip.on ? T.red + '33' : 'rgba(255,255,255,0.05)',
+                    color: chip.on ? '#fff' : T.textLow,
+                    border: `1px solid ${chip.on ? T.red : T.border}`,
+                    boxShadow: chip.on ? `0 0 8px ${T.red}44` : 'none',
+                  }}>
+                    {chip.on ? '●' : '○'} {chip.name.toUpperCase()}
+                    {chip.pending && <span style={{ color: T.amber, marginLeft: 4 }}>⚡</span>}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {!collapsed && (
+        <>
+          {/* DE0A SUB-PANELS */}
+          {!de0aSlot && (
+            <div style={{
+              padding: '24px 22px', borderRadius: 14,
+              background: T.cardLow, border: `1px dashed ${T.red}66`,
+              color: T.textMid, fontSize: 13, marginBottom: 14,
+              textAlign: 'center', fontWeight: 700,
+            }}>
+              📡 Click <strong style={{ color: T.red }}>READ ALL</strong> in the toolbar (or{' '}
+              <strong style={{ color: T.amber }}>SYNTHETIC DUMP</strong> for an offline preview) to populate the Performance & SRT Showcase.
+              <div style={{ marginTop: 10 }} onClick={(e) => e.stopPropagation()}>
+                <Btn onClick={() => onReadOne(DE0A)} disabled={busy} accent={T.red} size="sm">
+                  📖 READ DE0A ONLY
+                </Btn>
+              </div>
+            </div>
+          )}
+          {de0aSlot && !de0aSlot.ok && (
+            <div style={{
+              padding: '14px 18px', borderRadius: 12, marginBottom: 14,
+              background: T.red + '14', border: `1px solid ${T.red}66`,
+              color: T.red, fontSize: 12, fontWeight: 800,
+            }}>
+              ✗ DE0A read failed: {de0aSlot.error || 'unknown'}
+            </div>
+          )}
+          {de0aRows && (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
+              gap: 12, marginBottom: 14,
+            }}>
+              {visibleSubPanels.map(({ group, rows }) => (
+                <PerfSubPanel
+                  key={group.id} group={group} rows={rows} edits={de0aEdits}
+                  busy={busy}
+                  onEdit={(name, v) => onEdit(DE0A, name, v)}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* DE0A WRITE/REVERT BAR */}
+          {de0aRows && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+              padding: '10px 14px', borderRadius: 10, marginBottom: 18,
+              background: de0aPending > 0 ? T.amber + '14' : 'rgba(255,255,255,0.02)',
+              border: `1px solid ${de0aPending > 0 ? T.amber + '88' : T.border}`,
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: 1.5, color: T.text }}>
+                <span style={{ color: T.red, fontFamily: 'JetBrains Mono, monospace' }}>{hxDid(DE0A)}</span>{' '}
+                · {(grouped.get(DE0A) || []).length} FIELDS
+                {de0aPending > 0 && (
+                  <span style={{ color: T.amber, marginLeft: 10 }}>● {de0aPending} PENDING</span>
+                )}
+              </div>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+                <Btn onClick={() => onReadOne(DE0A)} disabled={busy} ghost accent={T.red} size="sm">📖 RE-READ</Btn>
+                {de0aPending > 0 && (
+                  <Btn onClick={() => onResetEdits(DE0A)} disabled={busy} ghost accent={T.textMid} size="sm">✕ REVERT</Btn>
+                )}
+                <Btn onClick={() => onWriteOne(DE0A)} disabled={busy || de0aPending === 0 || !de0aSlot?.ok} accent={T.red} size="sm">
+                  💾 WRITE DE0A
+                </Btn>
+              </div>
+            </div>
+          )}
+
+          {/* EXTRAS DIDs (0x0503, 0x04F4, 0x04F8) — standard DidCards */}
+          {extraDids.length > 0 && (
+            <>
+              <div style={{
+                fontSize: 10, fontWeight: 900, letterSpacing: 2, color: T.textLow,
+                margin: '18px 0 8px', paddingLeft: 4,
+              }}>
+                ▸ ADDITIONAL PERFORMANCE-RELATED BODY DIDs
+              </div>
+              <div style={{ display: 'grid', gap: 10 }}>
+                {extraDids
+                  .filter((did) => {
+                    if (!search) return true;
+                    if (hxDid(did).toLowerCase().includes(search)) return true;
+                    if ((bcmDidName(did) || '').toLowerCase().includes(search)) return true;
+                    const fields = grouped.get(did) || [];
+                    return fields.some((f) => (f.name || '').toLowerCase().includes(search));
+                  })
+                  .map((did) => (
+                    <DidCard
+                      key={did} did={did} category={category}
+                      fields={grouped.get(did) || []}
+                      slot={payloads[did]}
+                      edits={edits[did] || {}}
+                      busy={busy} search={search}
+                      onReadOne={() => onReadOne(did)}
+                      onWriteOne={() => onWriteOne(did)}
+                      onResetEdits={() => onResetEdits(did)}
+                      onEdit={(name, v) => onEdit(did, name, v)}
+                    />
+                  ))}
+              </div>
+            </>
+          )}
+        </>
+      )}
+    </section>
+  );
+});
+
+function PerfStat({ value, label, accent }) {
+  return (
+    <div style={{ lineHeight: 1 }}>
+      <div style={{
+        fontSize: 32, fontWeight: 900, color: accent, letterSpacing: -1,
+        fontFamily: 'JetBrains Mono, monospace',
+        textShadow: `0 0 12px ${accent}55`,
+      }}>{value}</div>
+      <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: 2, color: T.textLow, marginTop: 4 }}>
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function PerfSubPanel({ group, rows, edits, busy, onEdit }) {
+  const [open, setOpen] = useState(true);
+  const pendingInPanel = rows.filter((r) =>
+    Object.prototype.hasOwnProperty.call(edits, r.field?.name)
+  ).length;
+
+  return (
+    <div style={{
+      borderRadius: 14, overflow: 'hidden',
+      background: T.card,
+      border: `1px solid ${pendingInPanel > 0 ? group.accent + 'AA' : T.border}`,
+      boxShadow: `0 6px 22px rgba(0,0,0,0.35)`,
+    }}>
+      {/* mini hero */}
+      <div
+        role="button" tabIndex={0}
+        aria-expanded={open}
+        aria-label={`${group.label} sub-panel — ${open ? 'collapse' : 'expand'}`}
+        onClick={() => setOpen((v) => !v)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen((v) => !v); } }}
+        style={{
+          position: 'relative', height: 110, cursor: 'pointer',
+          background: group.image
+            ? `url(${group.image}) center/cover no-repeat`
+            : `linear-gradient(135deg, ${group.accent}33, transparent)`,
+        }}
+      >
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: `linear-gradient(90deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.55) 60%, rgba(10,10,10,0.15) 100%)`,
+        }} />
+        <div style={{
+          position: 'absolute', top: 0, left: 0, height: 2, right: 0,
+          background: `linear-gradient(90deg, ${group.accent}, transparent)`,
+          boxShadow: `0 0 8px ${group.accent}88`,
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0, padding: '12px 16px',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{
+              padding: '3px 8px', borderRadius: 5,
+              background: group.accent, color: '#0A0A0A',
+              fontSize: 9, fontWeight: 900, letterSpacing: 1.3,
+            }}>{group.glyph} {group.label}</span>
+            {pendingInPanel > 0 && (
+              <span style={{
+                padding: '2px 7px', borderRadius: 5,
+                background: T.amber + '33', color: T.amber,
+                fontSize: 9, fontWeight: 900, letterSpacing: 1,
+              }}>● {pendingInPanel}</span>
+            )}
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: T.textMid, fontWeight: 800 }}>
+              {open ? '▴' : '▾'} {rows.length}
+            </span>
+          </div>
+          <div>
+            <div style={{ fontSize: 9, fontWeight: 800, color: group.accent, letterSpacing: 1.2 }}>
+              {group.tag}
+            </div>
+            <div style={{ fontSize: 11, color: T.textMid, marginTop: 4, lineHeight: 1.4, maxWidth: 460 }}>
+              {group.blurb}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {open && (
+        <div style={{
+          padding: 12, display: 'grid', gap: 8,
+          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+        }}>
+          {rows.length === 0 && (
+            <div style={{ color: T.textLow, fontSize: 11, fontStyle: 'italic', padding: 6 }}>
+              No fields match the current search.
+            </div>
+          )}
+          {rows.map((row, i) => {
+            const f = row.field;
+            const editVal = Object.prototype.hasOwnProperty.call(edits, f.name) ? edits[f.name] : null;
+            const effective = editVal != null ? editVal : (row.raw ?? 0);
+            const changed = editVal != null && editVal !== row.raw;
+            return (
+              <FieldRow
+                key={i}
+                field={f} value={effective}
+                raw={row.raw} label={row.label}
+                changed={changed}
+                accent={group.accent}
+                onChange={(v) => onEdit(f.name, v)}
+                disabled={busy}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /* ───────── DID card ───────── */
 
