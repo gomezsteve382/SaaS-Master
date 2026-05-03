@@ -603,26 +603,27 @@ export function engParsePcm(bytes, filename) {
     // bootloader (and CGDI/Autel/AlfaOBD/SINCRO) to honor the slot.
     const markerOk = r.sec6.markerOk !== false;
     const populated = r.sec6Class.populated;
-    r.immoOk = populated && markerOk;
-    /* Split "DAMAGED" from "UNPAIRED". Pre-fix the parser collapsed both
-     * into immoDamaged=true, which painted a clean virgin/never-paired
-     * 4 KB GPEC2A (all-FF SEC6, no marker, valid VIN slots, valid PN)
-     * with a red DAMAGED chip — even on cars that run and drive. The
-     * truly "damaged" case is the Task #404 regression: the 6 secret
-     * bytes look populated but the canonical FF FF FF AA marker @ 0x3C4
+    /* Only the Task #404 case is a positive damage signal: the 6 secret
+     * bytes are populated but the canonical FF FF FF AA marker @ 0x3C4
      * is missing, so the bootloader and external locksmith tools
-     * (CGDI/Autel/AlfaOBD/SINCRO) reject the slot. Everything else
-     * (all-FF / mostly-FF / all-zero SEC6, no marker) is just unpaired
-     * — informational, not alarming. The wizard gate (`!immoOk` blocks
-     * "safe to program a key") is preserved either way. */
+     * (CGDI/Autel/AlfaOBD/SINCRO) reject the slot. The all-FF / mostly-FF
+     * / all-zero SEC6 case is NOT damage and NOT necessarily unpaired —
+     * a real running-and-driving car can show all-FF at 0x3C8 because
+     * the pairing data lives elsewhere on that PCM variant or the
+     * canonical offset just isn't populated for this build. Treat the
+     * blank case as "no fingerprint at this offset" — informational,
+     * not a problem. The Repair CTA in ModuleSync still keys off
+     * `immoDamaged` (positive damage only), so a clean blank dump
+     * never triggers a false repair offer. */
     r.immoDamaged = populated && !markerOk;
-    r.immoUnpaired = !r.immoOk && !r.immoDamaged;
+    r.immoOk = !r.immoDamaged;
+    r.immoUnpaired = false;
     if (r.immoDamaged) {
       r.immoLabel = 'SEC6 marker missing (FF FF FF AA expected at 0x3C4)';
-    } else if (r.immoUnpaired) {
-      r.immoLabel = `${r.sec6Class.label} \u2014 IMMO not paired in PCM`;
-    } else {
+    } else if (populated && markerOk) {
       r.immoLabel = r.sec6Class.label;
+    } else {
+      r.immoLabel = `${r.sec6Class.label} \u2014 no SEC6 fingerprint at canonical offset`;
     }
   } else {
     r.sec6Class = classifyPcmSec6(null);
@@ -1281,7 +1282,6 @@ export function PcmCard({ parsed, bytes, pnOverride, onRepair, repairAvailable, 
   let status = 'READY', statusColor = C.gn;
   if (!parsed.ok)              { status = 'UNKNOWN';  statusColor = C.wn; }
   else if (parsed.immoDamaged) { status = 'DAMAGED';  statusColor = C.er; }
-  else if (parsed.immoUnpaired){ status = 'UNPAIRED'; statusColor = C.wn; }
   else if (!parsed.immoOk)     { status = 'IMMO ✗';   statusColor = C.er; }
   else                         { status = 'READY';    statusColor = C.gn; }
 
@@ -1370,8 +1370,8 @@ export function PcmCard({ parsed, bytes, pnOverride, onRepair, repairAvailable, 
       <Kv k="VIN slots"    v={`${parsed.vinSlots.length} found`} />
       <OffsetList offsets={parsed.vinSlots.map(s => s.offset)} testid="pcm-vin-slot-offsets" />
       <Kv k="File size"    v={`${parsed.size} bytes (${(parsed.size/1024).toFixed(1)} KB)`} mono />
-      <Kv k="Immo (SEC6)"  v={parsed.immoLabel || (parsed.immoDamaged ? 'DAMAGED / MISSING' : parsed.immoUnpaired ? 'Virgin (not paired)' : parsed.immoOk ? '✓ Populated' : 'Virgin (all FF)')}
-          color={parsed.immoOk ? C.gn : parsed.immoDamaged ? C.er : (parsed.sec6Class && parsed.sec6Class.label === 'MISSING') ? C.er : C.wn} />
+      <Kv k="Immo (SEC6)"  v={parsed.immoLabel || (parsed.immoDamaged ? 'DAMAGED / MISSING' : parsed.immoOk ? '✓ Populated' : 'Virgin (all FF)')}
+          color={parsed.immoDamaged ? C.er : (parsed.sec6Class && parsed.sec6Class.label === 'MISSING') ? C.er : parsed.immoOk ? C.gn : C.wn} />
       {parsed.sec6 && (
         <>
           <Kv k="SEC6 marker" v={parsed.sec6.marker} mono />

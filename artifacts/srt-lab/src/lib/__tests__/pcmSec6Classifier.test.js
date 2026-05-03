@@ -89,23 +89,26 @@ describe('parseModule.js info.pcmSec6 uses the shared classifier', () => {
 });
 
 describe('engParsePcm uses the shared classifier (no drift between the two parsers)', () => {
-  it('FFFF00FFFFFF (mostly-FF) is unpaired, not damaged', () => {
-    // The user-reported "car runs and drives" case: SEC6 is virgin /
-    // mostly-FF and the canonical FF FF FF AA marker is missing. The
-    // PCM is unpaired but structurally fine — engParsePcm now reports
-    // immoUnpaired=true and immoDamaged=false so the inspection card
-    // shows a yellow UNPAIRED chip instead of a red DAMAGED chip.
+  it('FFFF00FFFFFF (mostly-FF) is informational, not a damage signal', () => {
+    // Real-world dump where SEC6 @0x3C8 looks blank/mostly-FF and the
+    // FF FF FF AA marker is missing. Pre-fix this painted red DAMAGED;
+    // a follow-up split painted yellow UNPAIRED — but the user
+    // confirmed those dumps are from running, paired vehicles where
+    // the pairing data simply isn't at this offset. With no positive
+    // damage signal we stay neutral: immoOk=true, immoDamaged=false,
+    // immoUnpaired=false. The Repair CTA only triggers on positive
+    // damage so a clean blank dump never gets a false offer.
     const bytes = makeGpec2a({
       pcmSec6Bytes: u8(0xFF,0xFF,0x00,0xFF,0xFF,0xFF),
     });
     const r = engParsePcm(bytes, 'GPEC2A_VIRGIN.bin');
     expect(r.sec6).toBeTruthy();
-    expect(r.immoOk).toBe(false);
-    expect(r.immoUnpaired).toBe(true);
+    expect(r.immoOk).toBe(true);
     expect(r.immoDamaged).toBe(false);
+    expect(r.immoUnpaired).toBe(false);
     expect(r.sec6Class).toBeTruthy();
     expect(r.sec6Class.populated).toBe(false);
-    expect(r.immoLabel).toMatch(/not paired/i);
+    expect(r.immoLabel).toMatch(/no SEC6 fingerprint/i);
   });
 
   it('real populated SEC6 agrees with parseModule: populated', () => {
@@ -139,9 +142,9 @@ describe('engParsePcm uses the shared classifier (no drift between the two parse
     expect(r.sec6).toBeTruthy();
     expect(r.sec6.offset).toBe(0x3C8);
     expect(r.sec6Class.allFF).toBe(true);
-    expect(r.immoOk).toBe(false);
-    // All-FF SEC6 with no marker is unpaired (informational), not damaged.
-    expect(r.immoUnpaired).toBe(true);
+    // All-FF SEC6 with no marker has no positive damage signal — stay neutral.
+    expect(r.immoOk).toBe(true);
+    expect(r.immoUnpaired).toBe(false);
     expect(r.immoDamaged).toBe(false);
   });
 
@@ -164,12 +167,14 @@ describe('engParsePcm uses the shared classifier (no drift between the two parse
     expect(r.immoLabel).toMatch(/marker missing/i);
   });
 
-  it('regression: a running-and-driving car (4 KB GPEC2A, valid VIN slots, valid PN, all-FF SEC6, no marker) is unpaired, not damaged', () => {
-    // Real-world dump: 2C3CCABG1KH539430. Car runs and drives. The
-    // PCM-side IMMO secret is not stored at 0x3C8 (PATS-bypass / IMMO
-    // disabled / different bank). Pre-fix the inspection card painted
-    // a red DAMAGED chip on this perfectly intact dump; this test
-    // pins the corrected verdict.
+  it('regression: a running-and-driving car (4 KB GPEC2A, valid VIN slots, all-FF SEC6, no marker) shows NO ISSUES', () => {
+    // Real-world dump: 2C3CCABG1KH539430. Car runs, drives, and is
+    // paired. The PCM-side IMMO secret is not stored at 0x3C8 on this
+    // variant (PATS-bypass / IMMO disabled / different bank). Pre-fix
+    // the inspection card painted a red DAMAGED chip; a follow-up
+    // split painted yellow UNPAIRED — both wrong per the user. With
+    // no positive damage signal we stay neutral so the card reports
+    // READY (immoOk=true, no UNPAIRED, no DAMAGED).
     const buf = makeGpec2a({
       vin: '2C3CCABG1KH539430',
       pcmSec6Bytes: u8(0xFF,0xFF,0xFF,0xFF,0xFF,0xFF),
@@ -177,12 +182,10 @@ describe('engParsePcm uses the shared classifier (no drift between the two parse
     const r = engParsePcm(buf, 'GPEC2A_RUNNING_CAR.bin');
     expect(r.ok).toBe(true);
     expect(r.vinSlots.length).toBeGreaterThanOrEqual(3);
-    // PN parser is exercised separately; the regression here is the
-    // immo flag conflation that painted a clean dump as DAMAGED.
     expect(r.sec6.markerOk).toBe(false);
     expect(r.sec6Class.allFF).toBe(true);
-    expect(r.immoOk).toBe(false);
-    expect(r.immoUnpaired).toBe(true);
+    expect(r.immoOk).toBe(true);
+    expect(r.immoUnpaired).toBe(false);
     expect(r.immoDamaged).toBe(false);
   });
 });
