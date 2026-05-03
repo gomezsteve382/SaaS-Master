@@ -514,6 +514,60 @@ def _live_hwid() -> str | None:
         return None
 
 
+def _decrypt_keyfile(keyfile_path: str, candidate_hwid: str) -> bool | None:
+    """Attempt to decrypt a chichitoworkshop.key blob using a candidate HWID.
+
+    Mirrors `tools/fca-proxi-extract/src/license_check.load_key_file`:
+      0x00  4   Magic: b'KEYF'
+      0x04  4   Format version (LE uint32, must be 1)
+      0x08  16  AES-CBC IV
+      0x18  N   PKCS7-padded ciphertext
+    The AES key is PBKDF2-HMAC-SHA256(hwid, salt=b'FCAProxiToolSalt',
+    iterations=100_000, length=32).
+
+    Returns:
+      True   — header + version OK and the ciphertext decrypts with valid
+               PKCS7 padding, i.e. the candidate HWID matches the binding.
+      False  — header / version OK but PKCS7 unpad failed, i.e. the candidate
+               HWID does NOT match the binding.
+      None   — could not perform the check (file unreadable, malformed
+               header, or `cryptography` package not installed). Caller
+               should fall back to a manifest string compare.
+    """
+    try:
+        with open(keyfile_path, "rb") as f:
+            data = f.read()
+    except Exception:
+        return None
+    if len(data) < 0x18 + 16 or data[:4] != b"KEYF":
+        return None
+    import struct as _struct
+    if _struct.unpack_from("<I", data, 4)[0] != 1:
+        return None
+    try:
+        from cryptography.hazmat.primitives import hashes as _h, padding as _pad
+        from cryptography.hazmat.primitives.ciphers import (
+            Cipher as _Cipher, algorithms as _alg, modes as _modes,
+        )
+        from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC as _PBKDF2
+    except Exception:
+        return None
+    iv = data[8:24]
+    ciphertext = data[24:]
+    try:
+        aes_key = _PBKDF2(
+            algorithm=_h.SHA256(), length=32,
+            salt=b"FCAProxiToolSalt", iterations=100_000,
+        ).derive(candidate_hwid.encode("ascii"))
+        dec = _Cipher(_alg.AES(aes_key), _modes.CBC(iv)).decryptor()
+        padded = dec.update(ciphertext) + dec.finalize()
+        unp = _pad.PKCS7(128).unpadder()
+        unp.update(padded) + unp.finalize()
+        return True
+    except Exception:
+        return False
+
+
 def _verify_manifest_files(vendor_dir: str, manifest: dict, required_files: list[str]) -> list[str]:
     """
     Verify each required file against the manifest: check presence, byte size,
@@ -572,19 +626,42 @@ def _check_tool_status(tool_id: str) -> dict:
     }
 
     # HWID check — only meaningful for fca-proxi which embeds a HWID binding
+    # in its chichitoworkshop.key file. We:
+    #   1. Compute the live machine HWID via the same 4-segment algorithm
+    #      that hwid.get_hwid() uses inside the tool itself.
+    #   2. Try AES-CBC decrypting the .key blob with a key derived from the
+    #      live HWID. Valid PKCS7 padding => the live HWID matches the
+    #      binding embedded in the .key file. (See _decrypt_keyfile.)
+    #   3. Report expectedHwid (from manifest) and liveHwid alongside the
+    #      status so the UI can render a tooltip.
     manifest_hwid = manifest.get("hwid")
     if manifest_hwid:
         live_hwid = _live_hwid()
-        if live_hwid is not None:
-            if live_hwid.upper() != manifest_hwid.upper():
-                result["status"] = "wrong-hwid"
-                result["expectedHwid"] = manifest_hwid
-                result["liveHwid"] = live_hwid
-            else:
-                result["hwidMatch"] = True
-        else:
+        if live_hwid is None:
             # Non-Windows or WMI unavailable — cannot verify HWID; report present
             result["hwidCheckSkipped"] = True
+            result["expectedHwid"] = manifest_hwid
+        else:
+            result["liveHwid"] = live_hwid
+            result["expectedHwid"] = manifest_hwid
+            keyfile_path = os.path.join(vendor_dir, "chichitoworkshop.key")
+            keyfile_match = _decrypt_keyfile(keyfile_path, live_hwid)
+            if keyfile_match is True:
+                result["hwidMatch"] = True
+                result["hwidSource"] = "keyfile-decrypt"
+            elif keyfile_match is False:
+                # AES decrypt produced invalid PKCS7 padding → HWID definitely
+                # does not match the binding stored in the .key file.
+                result["status"] = "wrong-hwid"
+                result["hwidSource"] = "keyfile-decrypt"
+            else:
+                # cryptography unavailable or .key unreadable — fall back to
+                # comparing the manifest's documented HWID against the live one.
+                if live_hwid.upper() != manifest_hwid.upper():
+                    result["status"] = "wrong-hwid"
+                else:
+                    result["hwidMatch"] = True
+                result["hwidSource"] = "manifest-compare"
 
     return result
 

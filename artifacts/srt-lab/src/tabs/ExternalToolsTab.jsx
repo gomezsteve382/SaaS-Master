@@ -47,7 +47,7 @@ const TOOLS = [
   },
 ];
 
-function StatusBadge({ status }) {
+function StatusBadge({ status, expectedHwid, liveHwid }) {
   const map = {
     present: { color: C.gn, label: '✓ Present' },
     missing: { color: C.er, label: '✗ Missing' },
@@ -56,13 +56,23 @@ function StatusBadge({ status }) {
     'bridge-offline': { color: C.tm, label: '— Bridge offline' },
   };
   const { color, label } = map[status] ?? map['bridge-offline'];
-  return <Tag color={color}>{label}</Tag>;
+  let title;
+  if (status === 'wrong-hwid' && expectedHwid && liveHwid) {
+    title = `Activation key is bound to HWID:\n  ${expectedHwid}\nLive machine HWID:\n  ${liveHwid}\n\nFCA PROXI Tool will refuse to start until the HWIDs match (or the shfolder.dll bypass intervenes).`;
+  } else if (status === 'present' && expectedHwid && liveHwid) {
+    title = `HWID match — bound to ${expectedHwid}`;
+  }
+  return (
+    <span title={title}>
+      <Tag color={color}>{label}</Tag>
+    </span>
+  );
 }
 
 export default function ExternalToolsTab() {
   const [bridgeUrl, setBridgeUrl] = useState(BRIDGE_DEFAULT);
   const [toolStatus, setToolStatus] = useState(() =>
-    Object.fromEntries(TOOLS.map((t) => [t.id, 'checking']))
+    Object.fromEntries(TOOLS.map((t) => [t.id, { status: 'checking' }]))
   );
   const [launching, setLaunching] = useState({});
   const [revealing, setRevealing] = useState({});
@@ -90,9 +100,14 @@ export default function ExternalToolsTab() {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-        statuses[tool.id] = json.status ?? 'missing';
+        statuses[tool.id] = {
+          status: json.status ?? 'missing',
+          expectedHwid: json.expectedHwid,
+          liveHwid: json.liveHwid,
+          hwidSource: json.hwidSource,
+        };
       } catch {
-        statuses[tool.id] = 'bridge-offline';
+        statuses[tool.id] = { status: 'bridge-offline' };
       }
     }
     setToolStatus(statuses);
@@ -174,7 +189,7 @@ export default function ExternalToolsTab() {
     [bridgeUrl]
   );
 
-  const bridgeOffline = Object.values(toolStatus).every((s) => s === 'bridge-offline');
+  const bridgeOffline = Object.values(toolStatus).every((s) => (s?.status ?? s) === 'bridge-offline');
 
   return (
     <div>
@@ -220,7 +235,10 @@ export default function ExternalToolsTab() {
       </div>
 
       {TOOLS.map((tool) => {
-        const status = toolStatus[tool.id] ?? 'checking';
+        const ts = toolStatus[tool.id] ?? { status: 'checking' };
+        const status = ts.status ?? 'checking';
+        const expectedHwid = ts.expectedHwid ?? tool.hwid;
+        const liveHwid = ts.liveHwid;
         const msg = messages[tool.id];
         const isLaunching = !!launching[tool.id];
         const isRevealing = !!revealing[tool.id];
@@ -234,7 +252,7 @@ export default function ExternalToolsTab() {
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 4 }}>
                   <span style={{ fontWeight: 900, fontSize: 15, color: C.tx }}>{tool.name}</span>
                   <Tag color={C.tm}>v{tool.version}</Tag>
-                  <StatusBadge status={status} />
+                  <StatusBadge status={status} expectedHwid={expectedHwid} liveHwid={liveHwid} />
                 </div>
                 <div style={{ fontSize: 12, color: C.ts, lineHeight: 1.6, marginBottom: 8 }}>
                   {tool.description}
@@ -244,7 +262,20 @@ export default function ExternalToolsTab() {
                 </div>
                 {tool.hwid && (
                   <div style={{ fontSize: 11, color: C.tm, fontFamily: 'monospace', marginBottom: 4 }}>
-                    <strong>HWID:</strong> {tool.hwid}
+                    <strong>HWID (expected):</strong> {expectedHwid || tool.hwid}
+                  </div>
+                )}
+                {tool.hwid && liveHwid && (
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: status === 'wrong-hwid' ? C.er : C.gn,
+                      fontFamily: 'monospace',
+                      marginBottom: 4,
+                    }}
+                  >
+                    <strong>HWID (live):</strong> {liveHwid}{' '}
+                    {status === 'wrong-hwid' ? '— mismatch' : '— match'}
                   </div>
                 )}
                 <div style={{ fontSize: 11, color: C.tm, marginBottom: 4 }}>
