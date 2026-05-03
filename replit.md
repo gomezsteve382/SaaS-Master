@@ -20,6 +20,7 @@ An API server (`artifacts/api-server/`) provides functionalities like download c
 
 Key features and modules include:
 - **Module Programming:** Dedicated tabs for BCM, RFHUB, ECM, and ADCM, handling VIN read/write, key programming, and module-specific unlocks.
+- **Proxi Decoder (read-only):** `ProxiTab` decodes the BCM 0x2023 proxi blob (16 B from `BODY_PN_CONFIG` via `cgwConfig.decodeBcmConfig`) plus the curated DEnn family (`DE00`–`DE0C`, 155 fields) sourced from `bcmFeatureCatalog.generated.js` (extracted from the user-supplied `BCMConfiguration.tsx`). Two input modes — upload a BCM `.bin` (16 B sliced at offset `0x2023`) or paste hex for any DID with optional `62 DD DD` UDS header strip. UI shows a category sidebar (15 buckets, regex match order mirrors the source TSX), search, and grouped/expand-collapse rows. Intentionally no write path; encoder + UDS programmer ship in a follow-up once labels are ground-truthed against a real bench dump. Decoder + tests live in `src/lib/proxiDecoder.js` + `src/lib/__tests__/proxiDecoder.test.js`.
 - **UDS Programmer:** A universal raw UDS console.
 - **Data Management:** Tabs for viewing backups, session logs, and managing module dumps (load, auto-detect, VIN patch, hex viewer, virginizer).
 - **Diagnostics:** Live OBD-II scanning, bench diagnostics, and a comprehensive FCA Analyzer for multi-file, cross-module audits.

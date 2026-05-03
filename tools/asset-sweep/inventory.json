@@ -1,38 +1,128 @@
 {
   "schema_version": 1,
   "generated_by": "tools/asset-sweep/src/sweep.mjs",
-  "file_count": 3357,
+  "file_count": 3387,
   "counts_by_kind": {
     "alfaobd_algorithm_catalog": 4,
     "asm": 4,
     "bin": 245,
-    "config": 109,
+    "config": 111,
     "crc_source": 7,
     "csv": 7,
     "decompiled_strings": 180,
     "did_map_json": 6,
     "did_map_text": 6,
+    "dll": 4,
     "document": 11,
     "ecu_modules": 7,
     "ecu_types": 6,
+    "exe": 4,
     "html": 17,
     "image": 54,
     "javascript": 137,
     "markdown": 171,
-    "other": 105,
+    "other": 122,
     "python": 165,
     "seedkey_source": 32,
     "seedkey_source_js": 8,
     "spreadsheet": 2,
     "sqlite": 8,
     "swf": 2,
-    "text": 38,
+    "text": 41,
     "typescript": 1448,
     "uds_source": 13,
     "unlock_dll": 486,
     "zip": 79
   },
   "files": [
+    {
+      "path": "attached_assets/_bz2_1777782073130.pyd",
+      "size": 79744,
+      "sha256": "d114ea7932e7a8db2093d8e1385863d944ab223e2f5c22ad4b56382d9d95cd36",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/_bz2_1777782073130.pyd"
+    },
+    {
+      "path": "attached_assets/_cffi_backend_1777782073131.pyd",
+      "size": 155648,
+      "sha256": "0f26beb359f2987c77335f28fb2b96060b893f780bb2ff30cea3e857b6b01792",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/_cffi_backend_1777782073131.pyd"
+    },
+    {
+      "path": "attached_assets/_ctypes_1777782073131.pyd",
+      "size": 106368,
+      "sha256": "b05ee8b49320e820271fe2c4c7d15dd92bd69a71bbbff58d45412127bcf4f46a",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/_ctypes_1777782073131.pyd"
+    },
+    {
+      "path": "attached_assets/_decimal_1777782073133.pyd",
+      "size": 196992,
+      "sha256": "14d4cb55812371d02d8a5636c236baf93738364301a924cd9b1886ed87e115cf",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/_decimal_1777782073133.pyd"
+    },
+    {
+      "path": "attached_assets/_elementtree_1777782073134.pyd",
+      "size": 114560,
+      "sha256": "6f10876e444fe1061b6fe3ba5592ab539c8bf505e51c09d44b47ea70718c86d7",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/_elementtree_1777782073134.pyd"
+    },
+    {
+      "path": "attached_assets/_hashlib_1777782073135.pyd",
+      "size": 48000,
+      "sha256": "cb988f8a751011d55b4cbbc45214c6217670812f351f30473b718fa0cfa06cf6",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/_hashlib_1777782073135.pyd"
+    },
+    {
+      "path": "attached_assets/_lzma_1777782073137.pyd",
+      "size": 148352,
+      "sha256": "7578d4478af6de7e52b9e9993bd63708b99d50c5ab6fd0c872703fedca46e97c",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/_lzma_1777782073137.pyd"
+    },
+    {
+      "path": "attached_assets/_queue_1777782073139.pyd",
+      "size": 27008,
+      "sha256": "3f2cab58e705d498c2a4640bbfa42886a8a9a9f5ae9b8345419614f9acf6c1e0",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/_queue_1777782073139.pyd"
+    },
+    {
+      "path": "attached_assets/_socket_1777782073141.pyd",
+      "size": 69504,
+      "sha256": "66ebafdf5781404596f8afcfba264afcd49feef31dafee5eca80a06ae7f4dae3",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/_socket_1777782073141.pyd"
+    },
+    {
+      "path": "attached_assets/_ssl_1777782073141.pyd",
+      "size": 140160,
+      "sha256": "3c6b7ed64f40d09f70ceb13f077a16c4989f42d4686b2b01f3ea890430fa7181",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/_ssl_1777782073141.pyd"
+    },
+    {
+      "path": "attached_assets/_uuid_1777782073142.pyd",
+      "size": 21888,
+      "sha256": "3918403cbfb053f1e7937cbc2f9902212a1314bc0ef7e18046cd5fc15fada73f",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/_uuid_1777782073142.pyd"
+    },
     {
       "path": "attached_assets/.cache/alfao_bd.recovered.db",
       "size": 35288064,
@@ -304,6 +394,14 @@
       "kind": "bin",
       "depth": 0,
       "cachePath": "attached_assets/22CHARGER_REDEYE_6.2_797RFHUB_EEE_OGFILE_VIRGIN_1776900226655.bin"
+    },
+    {
+      "path": "attached_assets/aemt_1777782073143.exe",
+      "size": 16909824,
+      "sha256": "4e0a328eed9110db1d5f8e7ea46d1be9f7b277f7d96b17effbf7033ad4988dc8",
+      "kind": "exe",
+      "depth": 0,
+      "cachePath": "attached_assets/aemt_1777782073143.exe"
     },
     {
       "path": "attached_assets/alfa_files_part_2_1776573839905.zip",
@@ -12044,6 +12142,22 @@
       "cachePath": "attached_assets/CHARGER_PCM_SYNCED_2C3CDXHG5EH219538_ramtrx_1777338752428.bin"
     },
     {
+      "path": "attached_assets/chichitoworkshop_-_Copy_1777781976994.key",
+      "size": 6649,
+      "sha256": "91532b15b452a3f927fb83c8d4df6ab58bc8a48c6797f4abd12337d99b36b58d",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/chichitoworkshop_-_Copy_1777781976994.key"
+    },
+    {
+      "path": "attached_assets/chichitoworkshop_1777781976997.key",
+      "size": 6649,
+      "sha256": "91532b15b452a3f927fb83c8d4df6ab58bc8a48c6797f4abd12337d99b36b58d",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/chichitoworkshop_1777781976997.key"
+    },
+    {
       "path": "attached_assets/CLAUDE_1776573163347.md",
       "size": 7949,
       "sha256": "dc18fa725c0f2b99fb5613459aead0d70c4b7bc9bfc527cf2dbfa4761d819d11",
@@ -12434,6 +12548,22 @@
       "kind": "javascript",
       "depth": 0,
       "cachePath": "attached_assets/fca_module_analyzer_1776900458950.jsx"
+    },
+    {
+      "path": "attached_assets/FCA_PROXI_Tool_-_Copy_1777781976998.exe",
+      "size": 21763077,
+      "sha256": "4aeb893514f1ff56b386da9181e40384b5370c85309cba901d756918c49e2ebc",
+      "kind": "exe",
+      "depth": 0,
+      "cachePath": "attached_assets/FCA_PROXI_Tool_-_Copy_1777781976998.exe"
+    },
+    {
+      "path": "attached_assets/FCA_PROXI_Tool_1777781976999.exe",
+      "size": 21763077,
+      "sha256": "4aeb893514f1ff56b386da9181e40384b5370c85309cba901d756918c49e2ebc",
+      "kind": "exe",
+      "depth": 0,
+      "cachePath": "attached_assets/FCA_PROXI_Tool_1777781976999.exe"
     },
     {
       "path": "attached_assets/FCATOOl_1776011539130.zip",
@@ -18222,6 +18352,38 @@
       "cachePath": "attached_assets/flyers/srt_lab_flyer.svg"
     },
     {
+      "path": "attached_assets/GPEC_Unlocker_1777782039446.exe",
+      "size": 11879936,
+      "sha256": "300be2d302ca28eb058d840671527493b40db4d7503f65db03e5169047d04d03",
+      "kind": "exe",
+      "depth": 0,
+      "cachePath": "attached_assets/GPEC_Unlocker_1777782039446.exe"
+    },
+    {
+      "path": "attached_assets/GPEC_Unlocker_1777782039451.pdb",
+      "size": 71168,
+      "sha256": "d00d0a35dc37f7e05c4e0e2e87bf93d4caf09f34eacf313b3105e1ecc31519e3",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/GPEC_Unlocker_1777782039451.pdb"
+    },
+    {
+      "path": "attached_assets/GPEC_Unlocker.exe_1777782039448.config",
+      "size": 189,
+      "sha256": "a16bbbe33bcfcb4bf77c1f9c13454cd6789cc9f0344ef00d522ab2f144a89161",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/GPEC_Unlocker.exe_1777782039448.config"
+    },
+    {
+      "path": "attached_assets/GPEC_Unlocker.exe_1777782039449.log",
+      "size": 1901,
+      "sha256": "584e906f07db4edbc736b971fa098f3f8b04e38fa82a0fc3323e261e80cefb1f",
+      "kind": "text",
+      "depth": 0,
+      "cachePath": "attached_assets/GPEC_Unlocker.exe_1777782039449.log"
+    },
+    {
       "path": "attached_assets/image_1776875107846.png",
       "size": 175346,
       "sha256": "74ce9b433bfa647837929c865926296be5c9986b8e5bfd99d67980f9cc2ba98d",
@@ -18532,6 +18694,38 @@
       "kind": "text",
       "depth": 1,
       "cachePath": "attached_assets/KEYPROG_2C3CDXCT1HH652640_8KB.zip__zip__/VERIFY_KEYPROG_2C3CDXCT1HH652640_8KB.txt"
+    },
+    {
+      "path": "attached_assets/license_-_Copy_1777781977001.json",
+      "size": 189,
+      "sha256": "f09eb46e67b1b307e8ad80da1200a9c0388b457001b6d7b8ac0cb002a7f384cf",
+      "kind": "config",
+      "depth": 0,
+      "cachePath": "attached_assets/license_-_Copy_1777781977001.json"
+    },
+    {
+      "path": "attached_assets/license_1777781977002.json",
+      "size": 189,
+      "sha256": "f09eb46e67b1b307e8ad80da1200a9c0388b457001b6d7b8ac0cb002a7f384cf",
+      "kind": "config",
+      "depth": 0,
+      "cachePath": "attached_assets/license_1777781977002.json"
+    },
+    {
+      "path": "attached_assets/Microsoft.Bcl.AsyncInterfaces_1777782039453.dll",
+      "size": 27944,
+      "sha256": "bc1419d8d97d73e031294b8d04a89717798066e4e5316cc17cb14eded714ff65",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/Microsoft.Bcl.AsyncInterfaces_1777782039453.dll"
+    },
+    {
+      "path": "attached_assets/Microsoft.Bcl.AsyncInterfaces_1777782039454.xml",
+      "size": 31652,
+      "sha256": "082f17e7fadceec2a28ea565ea04388be4bd928a7216b98c6e95c6abd6129efe",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/Microsoft.Bcl.AsyncInterfaces_1777782039454.xml"
     },
     {
       "path": "attached_assets/MITCH_PFLASH_1776900673451.bin",
@@ -19118,6 +19312,22 @@
       "cachePath": "attached_assets/PCM_SYNCED_4KB_2C3CCABG1KH539430_20260502_195833_1777770277083.bin"
     },
     {
+      "path": "attached_assets/Readme_-_Copy_1777781977003.txt",
+      "size": 168,
+      "sha256": "277cdf4a128ed1fecf72af75cbfe550a38559b6dd38b9587dcf1055d4b9583b9",
+      "kind": "text",
+      "depth": 0,
+      "cachePath": "attached_assets/Readme_-_Copy_1777781977003.txt"
+    },
+    {
+      "path": "attached_assets/Readme_1777781977004.txt",
+      "size": 168,
+      "sha256": "277cdf4a128ed1fecf72af75cbfe550a38559b6dd38b9587dcf1055d4b9583b9",
+      "kind": "text",
+      "depth": 0,
+      "cachePath": "attached_assets/Readme_1777781977004.txt"
+    },
+    {
       "path": "attached_assets/README_J2534_BRIDGE_1776462206286.md",
       "size": 6915,
       "sha256": "0c74ecfc47e6c25708615fb50190d27c0cb30fe52670c66ecb5b91fc3e4d4550",
@@ -19132,6 +19342,14 @@
       "kind": "markdown",
       "depth": 0,
       "cachePath": "attached_assets/README.md"
+    },
+    {
+      "path": "attached_assets/regkey_1777782039456.dat",
+      "size": 449,
+      "sha256": "78ec37ce453e9f83b2fb0af1caf7d0672800245bacacdbe8d535fb11ccf3cc31",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/regkey_1777782039456.dat"
     },
     {
       "path": "attached_assets/replit_1776657087352.md",
@@ -19268,6 +19486,22 @@
       "kind": "python",
       "depth": 0,
       "cachePath": "attached_assets/serve_ui_1776703301344.py"
+    },
+    {
+      "path": "attached_assets/shfolder_-_Copy_1777781977004.dll",
+      "size": 10161664,
+      "sha256": "9eae2bd892376367379d0083c1d0eb9d237a2644e330e5c7d3cf1dce06ce4822",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/shfolder_-_Copy_1777781977004.dll"
+    },
+    {
+      "path": "attached_assets/shfolder_1777781977005.dll",
+      "size": 10161664,
+      "sha256": "9eae2bd892376367379d0083c1d0eb9d237a2644e330e5c7d3cf1dce06ce4822",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/shfolder_1777781977005.dll"
     },
     {
       "path": "attached_assets/srt_lab_1776444434001.py",
@@ -21100,6 +21334,14 @@
       "kind": "javascript",
       "depth": 0,
       "cachePath": "attached_assets/SRTLabJailbreakEdition_1776703301341.jsx"
+    },
+    {
+      "path": "attached_assets/System.Buffers_1777782039457.dll",
+      "size": 23816,
+      "sha256": "2d78d770c9cb997199154ae8c018b9f1d1efbc86729f7264dde6dbad2a12cac3",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/System.Buffers_1777782039457.dll"
     },
     {
       "path": "attached_assets/the-srt-lab_1777749637454.zip",
