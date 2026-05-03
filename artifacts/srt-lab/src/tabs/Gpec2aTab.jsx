@@ -4,6 +4,7 @@ import {Card,Tag,Btn} from "../lib/ui.jsx";
 import {parseModule,moduleTooSmall,pcmChipFromSize} from "../lib/parseModule.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {SizeWarnBanner,ContentWarnBanner} from "../components/ModuleFieldsPanel.jsx";
+import GpecObdVinPanel from "../components/GpecObdVinPanel.jsx";
 
 const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();URL.revokeObjectURL(a.href);};
 const offHex=o=>'0x'+o.toString(16).toUpperCase().padStart(4,'0');
@@ -79,6 +80,10 @@ function Gpec2aTab(){
         </div>
       </div>
     </Card>
+
+    {/* OBD VIN write — original + current — over OBD-II without
+        de-soldering the GPEC2A. Reads & writes F190, 7B90, 7B88. */}
+    <GpecObdVinPanel platform="GPEC2A"/>
 
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
       <label style={{cursor:'pointer'}}><Card style={{textAlign:'center',padding:18}}>

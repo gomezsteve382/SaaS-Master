@@ -3,6 +3,7 @@ import {C} from "../lib/constants.js";
 import {Card,Btn} from "../lib/ui.jsx";
 import {ASSET_IDS} from "../lib/downloadAssets.js";
 import {useDownloadCount, DownloadCounter} from "../lib/useDownloadCount.jsx";
+import GpecObdVinPanel from "../components/GpecObdVinPanel.jsx";
 
 function GpecTab(){
   const[fw,setFw]=useState(null);const[res,setRes]=useState(null);
@@ -25,6 +26,10 @@ function GpecTab(){
   },[res,fw,trackUnlocked]);
 
   return<div style={{maxWidth:640}}>
+    {/* OBD VIN write — original + current — without opening the GPEC2.
+        Same engine as the GPEC2A tab; PCM lives at TX 0x7E0 / RX 0x7E8. */}
+    <GpecObdVinPanel platform="GPEC2"/>
+
     <Card glow>
       <div style={{fontSize:18,fontWeight:900,marginBottom:4}}>🔓 GPEC Firmware Unlock</div>
       <div style={{fontSize:12,color:C.ts,marginBottom:20}}>Sets byte at offset 0x2FFFC to 0x96 — cracked from .NET IL disassembly</div>
