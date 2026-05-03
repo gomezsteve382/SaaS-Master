@@ -546,6 +546,9 @@ importers:
       '@workspace/api-client-react':
         specifier: workspace:*
         version: link:../../lib/api-client-react
+      '@workspace/uds':
+        specifier: workspace:*
+        version: link:../../lib/uds
       better-sqlite3:
         specifier: ^12.9.0
         version: 12.9.0
@@ -682,6 +685,12 @@ importers:
       p-retry:
         specifier: ^7.1.1
         version: 7.1.1
+
+  lib/uds:
+    devDependencies:
+      vitest:
+        specifier: ^4.1.4
+        version: 4.1.4(@types/node@25.3.5)(jsdom@29.0.2)(vite@7.3.1(@types/node@25.3.5)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))
 
   scripts:
     devDependencies:

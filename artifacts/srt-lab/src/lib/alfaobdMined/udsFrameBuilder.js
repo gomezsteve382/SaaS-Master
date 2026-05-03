@@ -1,5 +1,5 @@
 /* ======================================================================
- * UDS Frame Builder — BCM configuration (Task #588)
+ * UDS Frame Builder — BCM configuration (Task #588, refactored Task #609)
  * ======================================================================
  *
  * Builds WDBI (0x2E) and RoutineControl (0x31) frames from the mined
@@ -8,7 +8,7 @@
  * The core operation is read-modify-write:
  *   1. Caller supplies the current DID payload bytes (from a prior RDBI).
  *   2. buildWdbiFrame() modifies the target bitfield and wraps the result
- *      in a complete WriteDataByIdentifier frame.
+ *      in a complete WriteDataByIdentifier frame via @workspace/uds.
  *   3. getPostWriteSteps() returns the ordered list of follow-up service
  *      calls AlfaOBD performs after the write (proxiAlign, ecuReset, …).
  *
@@ -16,6 +16,12 @@
  */
 
 import { getBcmGroups, getBcmUdsSequence } from "./index.js";
+import {
+  writeDataByIdentifier,
+  routineControl,
+  clearDiagnosticInformation,
+  ecuReset,
+} from "@workspace/uds";
 
 /* ---------------------------------------------------------------------- */
 /* Bit helpers (MSB-first, same convention as cgwConfig.js readBits)       */
@@ -68,7 +74,7 @@ export function writeBits(bytes, bitOffset, bitLength, value) {
 /* DID helpers                                                              */
 /* ---------------------------------------------------------------------- */
 
-/** Parse a DID string ("0xDE00", "DE00", 0xDE00) → { hi, lo }. */
+/** Parse a DID string ("0xDE00", "DE00", 0xDE00) → { hi, lo, n }. */
 function parseDid(did) {
   const n = typeof did === "number" ? did : parseInt(String(did).replace(/^0x/i, ""), 16);
   if (!Number.isFinite(n) || n < 0 || n > 0xFFFF) {
@@ -99,6 +105,9 @@ function minPayloadLength(did) {
 /**
  * Build a complete WDBI (0x2E) frame using a read-modify-write approach.
  *
+ * Delegates frame encoding to @workspace/uds writeDataByIdentifier, keeping
+ * all bit-level read-modify-write logic in this file where it belongs.
+ *
  * @param {string|number} did        - DID to write (e.g. "0xDE07" or 0xDE07)
  * @param {Uint8Array}    currentPayload - Full current DID payload from a prior RDBI.
  *                                        Must NOT include the "62 hi lo" header.
@@ -111,13 +120,13 @@ export function buildWdbiFrame(did, currentPayload, bitOffset, bitLength, newVal
   if (!(currentPayload instanceof Uint8Array)) {
     throw new TypeError("currentPayload must be a Uint8Array (full DID payload, no 62-header)");
   }
-  const { hi, lo } = parseDid(did);
+  const { n } = parseDid(did);
   const minLen = minPayloadLength(did);
   const payloadLen = Math.max(currentPayload.length, minLen);
   const modified = new Uint8Array(payloadLen);
   modified.set(currentPayload.slice(0, Math.min(currentPayload.length, payloadLen)));
   writeBits(modified, bitOffset, bitLength, newValue);
-  return [0x2E, hi, lo, ...Array.from(modified)];
+  return Array.from(writeDataByIdentifier({ did: n, data: modified }));
 }
 
 /**
@@ -144,24 +153,27 @@ export function buildWdbiFrameByName(did, optionName, currentPayload, newValue) 
 }
 
 /**
- * Build a RoutineControl (0x31) startRoutine frame.
+ * Build a RoutineControl (0x31) startRoutine or other post-write UDS frame.
  *
- * @param {string} routineType - One of "proxiAlign" | "clearDtc"
+ * Delegates to @workspace/uds routineControl / clearDiagnosticInformation /
+ * ecuReset for correct frame encoding per ISO 14229-1.
+ *
+ * @param {string} routineType - One of "proxiAlign" | "clearDtc" | "ecuReset"
  * @returns {number[]}          UDS frame bytes
  */
 export function buildRoutineControlFrame(routineType) {
-  const seq = getBcmUdsSequence();
   switch (routineType) {
     case "proxiAlign": {
+      const seq = getBcmUdsSequence();
       const r = seq.writeConfig.postWriteRoutines.proxiAlign;
       const id = parseInt(r.routineId.replace(/^0x/i, ""), 16);
-      return [0x31, 0x01, (id >> 8) & 0xFF, id & 0xFF];
+      return Array.from(routineControl({ type: 'startRoutine', routineIdentifier: id }));
     }
     case "clearDtc": {
-      return [0x14, 0xFF, 0xFF, 0xFF];
+      return Array.from(clearDiagnosticInformation());
     }
     case "ecuReset": {
-      return [0x11, 0x01];
+      return Array.from(ecuReset({ resetType: 'hardReset' }));
     }
     default:
       throw new Error(`Unknown post-write routine type: ${routineType}`);

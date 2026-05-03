@@ -46,6 +46,23 @@ The **native PROXI JS module** (`src/lib/fcaProxi.js`) provides: `parseProxi()`,
 
 Decompiled Python source from the PyInstaller bundle is in `tools/fca-proxi-extract/src/` (hwid.py, license_check.py, proxi_record.py, uds_transport.py). The full reverse-engineering reference is in `artifacts/srt-lab/docs/fca-proxi-reference.md`.
 
+## `@workspace/uds` Library (`lib/uds/`)
+
+A complete ISO 14229-1 UDS (Unified Diagnostic Services) TypeScript library, registered as a composite pnpm workspace lib. Covers:
+
+- **services.ts** — full ISO 14229 service table (0x10–0x87) with sub-functions
+- **nrc.ts** — complete NRC table (0x10–0x93) with shortName, description, isPending flag
+- **constants.ts** — sessions, resetTypes, securityLevels, routineControlTypes, dtcStatusMask, commCtrlTypes, ioControlParams, dtcSettingTypes, linkControlBaudrates
+- **build.ts** — pure frame builders for every standard UDS service (all return Uint8Array)
+- **parse.ts** — generic parseResponse + service-specific parsers (RDBI, SecurityAccess, RoutineControl, RequestDownload)
+- **dids.ts** — 0xF1xx standard identification block + common DID catalog with decode functions
+- **isotp.ts** — SF/FF/CF/FC encode+decode + segmentPayload for ISO 15765-2 framing
+- **index.ts** — barrel with named exports and `build.*`/`parse.*`/`nrc.*`/`services.*`/`dids.*`/`isotp.*` namespaces
+- **54 unit tests** in `src/__tests__/uds.test.ts` covering all builders, NRC round-trip, ISO-TP segmentation, and parsers
+- **README.md** with 5 worked examples (Read VIN, Write VIN, SecurityAccess handshake, RoutineControl, flash download)
+
+The existing BCM frame builder (`artifacts/srt-lab/src/lib/alfaobdMined/udsFrameBuilder.js`) was refactored to delegate WDBI frame assembly to `build.writeDataByIdentifier` and routine/reset frames to `build.routineControl`, `build.clearDiagnosticInformation`, and `build.ecuReset`. Public API and read-modify-write bit logic are unchanged.
+
 ## External Dependencies
 
 - **Node.js**: Version 24
