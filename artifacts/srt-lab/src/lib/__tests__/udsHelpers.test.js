@@ -5,7 +5,7 @@ import {
   buildWriteMemoryByAddress, parseWriteMemoryResponse,
   buildRoutineResult, parseRoutineResponse,
   buildMultiDidRead, splitMultiDidResponse, chunkDidsForRequest,
-  readDidsBatched,
+  multiDidSliceIsAmbiguous, readDidsBatched,
 } from '../uds.js';
 
 const u8 = (...b) => new Uint8Array(b);
@@ -151,16 +151,13 @@ describe('Multi-DID 0x22 batching', () => {
     expect(r.results.length).toBe(2);
     expect(r.results.every(x => !x.found)).toBe(true);
   });
-  it('is greedy on the next-DID marker (forward scan, no overlap)', () => {
-    // The splitter has no per-DID length and can't tell payload bytes
-    // from DID markers. Documented behaviour: scan forward, first
-    // match wins. So if a real F187 record follows F190 directly,
-    // F190 gets an empty data slice and F187 captures the whole
-    // remainder. The Critical-DID profiles in BackupsTab pick DID
-    // sets where ambiguity isn't a real risk; for tabs that mix
-    // unbounded payloads with overlapping prefixes, the per-DID
-    // fallback in readDidsBatched re-reads via 0x22 single-DID
-    // requests instead.
+  it('is forward-greedy on the next-DID marker (low-level primitive contract)', () => {
+    // splitMultiDidResponse on its own has no per-DID length and
+    // can't tell payload bytes from DID markers — by contract it
+    // scans forward, first match wins. The integration-level
+    // safety net lives in readDidsBatched (next describe block),
+    // which detects ambiguous slices and re-reads them via
+    // single-DID 0x22 so backups never persist a misaligned cut.
     const resp = u8(
       0x62,
       0xF1, 0x90,
@@ -172,6 +169,21 @@ describe('Multi-DID 0x22 batching', () => {
     expect(r.results[0].data).toEqual([]);
     expect(r.results[1].found).toBe(true);
     expect(r.results[1].data).toEqual([0xCA, 0xFE]);
+  });
+});
+
+describe('multiDidSliceIsAmbiguous (corruption guard)', () => {
+  it('flags a slice whose payload contains another requested DID marker', () => {
+    expect(multiDidSliceIsAmbiguous([0x12, 0xF1, 0x87, 0xAA], [0xF190, 0xF187])).toBe(true);
+  });
+  it("flags a slice that contains the DID's OWN marker (splitter could have mis-cut)", () => {
+    expect(multiDidSliceIsAmbiguous([0xCA, 0xFE, 0xF1, 0x87, 0x42], [0xF187])).toBe(true);
+  });
+  it('flags an empty slice (real critical-DID payloads are never zero-length)', () => {
+    expect(multiDidSliceIsAmbiguous([], [0xF190])).toBe(true);
+  });
+  it('passes a clean slice that has no requested-DID marker bytes inside it', () => {
+    expect(multiDidSliceIsAmbiguous([0x12, 0x34, 0x56], [0xF190, 0xF187])).toBe(false);
   });
 });
 
@@ -225,5 +237,53 @@ describe('readDidsBatched (engine-driven)', () => {
     expect(eng.calls.length).toBe(2);
     expect(r.get(0xF190).ok).toBe(true);
     expect(r.get(0xF187)).toEqual({ ok: false, data: null, nrc: 0x31 });
+  });
+
+  it('CORRUPTION GUARD: re-reads single-DID when an adversarial payload contains another DID marker', async () => {
+    // F190's payload happens to contain 0xF1 0x87 (the next requested
+    // DID's marker) somewhere in the middle. The forward-greedy
+    // splitter would mis-cut F190's slice and shove the trailing
+    // bytes into F187 — silently corrupting both. readDidsBatched
+    // must spot the ambiguity and re-read BOTH DIDs single-DID so
+    // the persisted bytes are exactly what the module returned.
+    const dids = [0xF190, 0xF187];
+    // Multi-DID response intentionally crafted so a naive splitter
+    // would assign F190 = [] and F187 = [0xCA, 0xFE]. The TRUE
+    // intent (proven by the single-DID re-reads below) is
+    // F190 = [0xF1, 0x87, 0xCA, 0xFE, 0x99] and F187 = [0x42].
+    const eng = makeEngine({
+      '22 f1 90 f1 87': { ok: true, d: u8(
+        0x62,
+        0xF1, 0x90, 0xF1, 0x87, 0xCA, 0xFE, 0x99, // F190's REAL payload contains the F1 87 byte pair
+        0xF1, 0x87, 0x42,                          // F187's actual record
+      ) },
+      '22 f1 90': { ok: true, d: u8(0x62, 0xF1, 0x90, 0xF1, 0x87, 0xCA, 0xFE, 0x99) },
+      '22 f1 87': { ok: true, d: u8(0x62, 0xF1, 0x87, 0x42) },
+    });
+    const r = await readDidsBatched(eng.uds, 0x750, 0x758, dids);
+    // Both DIDs were re-read on their own (1 batch + 2 single-DID).
+    expect(eng.calls.length).toBe(3);
+    expect(r.get(0xF190)).toEqual({ ok: true, data: [0xF1, 0x87, 0xCA, 0xFE, 0x99], nrc: null });
+    expect(r.get(0xF187)).toEqual({ ok: true, data: [0x42], nrc: null });
+  });
+
+  it('CORRUPTION GUARD: keeps clean slices and only re-reads ambiguous ones (partial re-read)', async () => {
+    // 3-DID chunk where the splitter cleanly carves all three slices
+    // and none contains marker bytes for any requested DID. Expect
+    // ZERO re-reads — just the one batch call.
+    const dids = [0xF190, 0xF187, 0xF189];
+    const eng = makeEngine({
+      '22 f1 90 f1 87 f1 89': { ok: true, d: u8(
+        0x62,
+        0xF1, 0x90, 0x01, 0x02,
+        0xF1, 0x87, 0x03, 0x04,
+        0xF1, 0x89, 0x05, 0x06,
+      ) },
+    });
+    const r = await readDidsBatched(eng.uds, 0x750, 0x758, dids);
+    expect(eng.calls.length).toBe(1);
+    expect(r.get(0xF190)).toEqual({ ok: true, data: [0x01, 0x02], nrc: null });
+    expect(r.get(0xF187)).toEqual({ ok: true, data: [0x03, 0x04], nrc: null });
+    expect(r.get(0xF189)).toEqual({ ok: true, data: [0x05, 0x06], nrc: null });
   });
 });

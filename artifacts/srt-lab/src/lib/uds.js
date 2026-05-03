@@ -206,15 +206,56 @@ export function splitMultiDidResponse(d, expectedDids){
 }
 
 /**
- * High-level: read a list of 16-bit DIDs over one or more multi-DID
- * 0x22 requests, falling back to single-DID reads for any DID a chunk
- * couldn't deliver (NRC on the chunk, or DID missing from the split
- * response). Returns a Map keyed by DID number with shape:
- *   { ok: bool, data: number[] | null, nrc: number | null }
+ * Detect whether a parsed DID slice could have been mis-cut by the
+ * forward-cursor splitter. The splitter has no per-DID length, so if
+ * a DID's payload happens to contain the marker bytes of any OTHER
+ * DID in the same chunk, the slice boundary is ambiguous: real
+ * payload bytes may have been pushed into the next DID, or this
+ * DID's slice may have been prematurely terminated.
  *
- * The fallback is what makes this safe to drop into existing code:
- * even on modules that reject multi-DID requests (some early FCA
- * BCMs do, with NRC 0x13), every DID still gets a chance.
+ * Used by readDidsBatched to decide which DIDs need a clean-room
+ * single-DID re-read. We also flag any slice that ALSO ends exactly
+ * where the next DID begins as still ambiguous — the only way to
+ * know for sure is to ask for it on its own.
+ */
+export function multiDidSliceIsAmbiguous(slice, requestedDids){
+  // Empty slice means the splitter cut at the very next marker — that's
+  // only "real" if the DID has zero payload, which never happens for the
+  // Critical-DID profiles. Treat as ambiguous and re-read.
+  if (!slice || slice.length === 0) return true;
+  // If the slice contains the marker bytes for ANY requested DID
+  // (including the DID itself — its own marker should never appear
+  // inside its payload), the cut boundary can't be trusted: real
+  // payload bytes may have been pushed across the boundary, or this
+  // slice may have absorbed bytes that belong to a neighbour.
+  for (const did of requestedDids){
+    const hi = (did >> 8) & 0xFF;
+    const lo = did & 0xFF;
+    for (let i = 0; i + 1 < slice.length; i++){
+      if (slice[i] === hi && slice[i + 1] === lo) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * High-level: read a list of 16-bit DIDs over one or more multi-DID
+ * 0x22 requests, falling back to single-DID reads for:
+ *   1. any chunk the module rejects with an NRC,
+ *   2. any DID missing from a parsed multi-DID response, AND
+ *   3. any DID whose parsed slice could have been mis-cut because it
+ *      contains the marker bytes of another DID in the same chunk.
+ *
+ * Case 3 is the silent-corruption guard. Without per-DID lengths,
+ * `splitMultiDidResponse` is forward-greedy and can wrongly assign
+ * payload bytes to the next DID; for a backup system that's a
+ * functional blocker. Re-reading via the unambiguous single-DID 0x22
+ * (whose 0x62 response runs to end-of-frame for exactly one DID)
+ * fixes it deterministically. The cost is one extra round trip per
+ * affected DID, never a wrong byte persisted.
+ *
+ * Returns a Map keyed by DID number with shape:
+ *   { ok: bool, data: number[] | null, nrc: number | null }
  */
 export async function readDidsBatched(engUds, tx, rx, dids, opts = {}){
   const results = new Map();
@@ -222,30 +263,34 @@ export async function readDidsBatched(engUds, tx, rx, dids, opts = {}){
   for (const chunk of chunks){
     const req = buildMultiDidRead(chunk);
     const r = await engUds(tx, rx, req);
+    const needsReread = new Set(); // DIDs in this chunk that need single-DID re-read
     let chunkOk = false;
     if (r && r.ok && r.d){
       const split = splitMultiDidResponse(r.d, chunk);
       if (split.ok){
         chunkOk = true;
         for (const item of split.results){
-          if (item.found){
+          if (!item.found){
+            needsReread.add(item.did);
+            continue;
+          }
+          // Check the slice for marker bytes of any DID in this chunk
+          // (including the DID itself — its own marker should never
+          // appear inside its payload either) and for empty slices.
+          // If ambiguous, schedule a clean single-DID re-read.
+          if (multiDidSliceIsAmbiguous(item.data, chunk)){
+            needsReread.add(item.did);
+          } else {
             results.set(item.did, { ok: true, data: item.data, nrc: null });
-          } else if (!results.has(item.did)){
-            // Mark as needing the per-DID fallback below.
-            results.set(item.did, { ok: false, data: null, nrc: null });
           }
         }
       }
     }
     if (!chunkOk){
-      for (const did of chunk){
-        if (!results.has(did)) results.set(did, { ok: false, data: null, nrc: null });
-      }
+      for (const did of chunk) needsReread.add(did);
     }
-    // Per-DID fallback for any DID still marked failed in this chunk.
-    for (const did of chunk){
-      const cur = results.get(did);
-      if (cur && cur.ok) continue;
+    // Single-DID re-reads for everything we don't fully trust yet.
+    for (const did of needsReread){
       const single = await engUds(tx, rx, [0x22, (did >> 8) & 0xFF, did & 0xFF]);
       if (single && single.ok && single.d){
         if (single.d[0] === 0x62){
@@ -258,6 +303,11 @@ export async function readDidsBatched(engUds, tx, rx, dids, opts = {}){
       } else {
         results.set(did, { ok: false, data: null, nrc: null });
       }
+    }
+    // Defensive: any DID in the chunk we never wrote (shouldn't happen,
+    // but make the contract total) gets marked failed.
+    for (const did of chunk){
+      if (!results.has(did)) results.set(did, { ok: false, data: null, nrc: null });
     }
   }
   return results;
