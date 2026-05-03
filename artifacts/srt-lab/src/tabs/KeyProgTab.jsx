@@ -11,18 +11,21 @@
  * "Promote bank" toggle only if you intentionally want writeModuleVIN to
  * copy 0x40C0 → 0x2000.
  * ========================================================================== */
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { zipSync } from 'fflate';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
 import { identifyModule, runKeyProgPatch, sha256Hex, formatBcmSec16Provenance } from '../lib/keyProgWizard.js';
 import {
-  loadPresets, savePreset, deletePreset, hydratePreset,
+  loadPresets, savePreset, deletePreset, hydratePreset, saveRawPreset,
 } from '../lib/keyProgPresets.js';
 import {
   loadArchives, recordArchive, deleteArchive, clearArchives,
   refreshArchivesFromServer, subscribeArchives,
 } from '../lib/keyProgArchiveHistory.js';
+import { importAemtBundle, AemtImportError } from '../lib/aemtImporter.js';
+import { saveAemtPlaceholders } from '../lib/audit.js';
+import AemtImportModal from '../components/AemtImportModal.jsx';
 
 const ROLE_LABEL = { BCM: 'BCM (D-FLASH)', RFH: 'RFHUB (EEE)', PCM: 'PCM (GPEC2A)' };
 const ROLE_ORDER = ['BCM', 'RFH', 'PCM'];
@@ -395,6 +398,10 @@ export default function KeyProgTab() {
   const [loadedPreset, setLoadedPreset] = useState(null);
   const [dismissedPresetNote, setDismissedPresetNote] = useState(null);
   const [archives, setArchives] = useState([]);
+  const [aemtModal, setAemtModal] = useState(null);
+  const [aemtBusy, setAemtBusy] = useState(false);
+  const aemtImportInputRef = useRef(null);
+  const aemtVinResolveRef = useRef(null);
 
   useEffect(() => { setPresets(loadPresets()); }, []);
 
@@ -529,6 +536,76 @@ export default function KeyProgTab() {
   } else if (presetName.trim().length === 0) {
     saveDisabledReason = 'Name the preset before saving.';
   }
+
+  /* ── AEMT import handlers ── */
+  const handleAemtImportClick = useCallback(() => {
+    aemtImportInputRef.current?.click();
+  }, []);
+
+  const handleAemtImportFiles = useCallback(async (e) => {
+    const fileList = e.target.files;
+    e.target.value = '';
+    if (!fileList || fileList.length === 0) return;
+
+    setAemtBusy(true);
+    setAemtModal(null);
+
+    const rawFiles = await Promise.all(
+      Array.from(fileList).map(
+        (f) => new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = (ev) => res({ name: f.name, data: new Uint8Array(ev.target.result) });
+          r.onerror = () => rej(new Error('Could not read ' + f.name));
+          r.readAsArrayBuffer(f);
+        }),
+      ),
+    );
+
+    const promptVin = (info) => new Promise((resolve) => {
+      aemtVinResolveRef.current = resolve;
+      setAemtModal({ mode: 'vin', warnings: info.warnings || [] });
+    });
+
+    let importResult;
+    try {
+      importResult = await importAemtBundle(rawFiles, { promptVin });
+    } catch (err) {
+      /* Swallow silent user-cancellation; surface real errors. */
+      if (err?.cancelled) { setAemtBusy(false); return; }
+      setAemtBusy(false);
+      setAemtModal({
+        mode: 'error',
+        error: err instanceof AemtImportError ? err : new AemtImportError(
+          err.message || 'Unexpected import error',
+          [String(err.message || err)],
+        ),
+      });
+      return;
+    }
+
+    const { preset, backupStubs, vin: importedVin, roles, warnings, checksAllGreen, checksPassed, checksTotal } = importResult;
+
+    try {
+      saveRawPreset(preset);
+      setPresets(loadPresets());
+    } catch (err) {
+      setAemtBusy(false);
+      setAemtModal({
+        mode: 'error',
+        error: new AemtImportError('Could not save preset: ' + err.message, [err.message]),
+      });
+      return;
+    }
+
+    /* Use the shared audit pipeline instead of duplicating write logic. */
+    await saveAemtPlaceholders(backupStubs);
+
+    setAemtBusy(false);
+    setAemtModal({
+      mode: 'summary',
+      result: { vin: importedVin, roles, warnings, checksPassed, checksTotal, checksAllGreen, backupStubs },
+    });
+  }, []);
 
   const handleSavePreset = useCallback(() => {
     if (!checksAllGreen) {
@@ -800,6 +877,30 @@ export default function KeyProgTab() {
             }}>
             ＋ Save preset
           </button>
+          <button
+            data-testid="keyprog-aemt-import"
+            onClick={handleAemtImportClick}
+            disabled={aemtBusy}
+            title="Import an AEMT job bundle (.zip or loose files) as a Key Prog preset"
+            style={{
+              padding: '8px 16px', borderRadius: 8, fontWeight: 800, fontSize: 11,
+              border: '2px solid ' + C.a1 + '55',
+              cursor: aemtBusy ? 'wait' : 'pointer',
+              background: 'transparent', color: C.a1,
+            }}>
+            {aemtBusy ? '⏳ Importing…' : '📂 Import from AEMT'}
+          </button>
+          <input
+            ref={aemtImportInputRef}
+            type="file"
+            accept=".zip,.bin,.json,.aemt"
+            multiple
+            // @ts-ignore — webkitdirectory is non-standard but widely supported
+            webkitdirectory=""
+            onChange={handleAemtImportFiles}
+            style={{ display: 'none' }}
+            data-testid="keyprog-aemt-import-input"
+          />
         </div>
         {trioReady && vin.length === 17 && result && !checksAllGreen && (
           <div
@@ -1097,6 +1198,28 @@ export default function KeyProgTab() {
           onDismiss={() => setZipSummary(null)}
         />
       )}
+
+      <AemtImportModal
+        mode={aemtModal?.mode || null}
+        result={aemtModal?.result}
+        error={aemtModal?.error}
+        warnings={aemtModal?.warnings}
+        onClose={() => { setAemtModal(null); setAemtBusy(false); }}
+        onConfirmVin={(v) => {
+          const resolve = aemtVinResolveRef.current;
+          aemtVinResolveRef.current = null;
+          setAemtModal(null);
+          if (resolve) resolve(v);
+        }}
+        onCancelVin={() => {
+          const resolve = aemtVinResolveRef.current;
+          aemtVinResolveRef.current = null;
+          setAemtModal(null);
+          /* resolve(null) → importAemtBundle throws a cancelled AemtImportError
+           * which the handler catches silently — no error modal shown. */
+          if (resolve) resolve(null);
+        }}
+      />
 
       {!result && (
         <Card style={{ padding: 18, textAlign: 'center', color: C.tm, fontSize: 12 }}>

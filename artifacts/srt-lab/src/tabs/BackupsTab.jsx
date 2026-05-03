@@ -6,13 +6,16 @@ import {
   restoreModule, subscribeAudit, refreshBackupsFromServer,
   getBackupStorageUsage, pruneNonCriticalBackups,
   subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
-  exportAllBackups, importBackups,
+  exportAllBackups, importBackups, saveAemtPlaceholders,
 } from "../lib/audit.js";
 import { sha256Hex, backupDidsToBytes } from "../lib/checksum.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import LeakScanPanel from "../components/LeakScanPanel.jsx";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
+import { importAemtBundle, AemtImportError } from "../lib/aemtImporter.js";
+import { saveRawPreset } from "../lib/keyProgPresets.js";
+import AemtImportModal from "../components/AemtImportModal.jsx";
 import {getDidDescription} from "../lib/dids.js";
 import {
   listDiffReports, getDiffReport, getDiffReportAsync,
@@ -44,9 +47,14 @@ export default function BackupsTab() {
   const [restoreLog, setRestoreLog] = useState([]);
   const [verifyStates, setVerifyStates] = useState({});
   const [pairedData, setPairedData] = useState(null);
+  const [aemtModal, setAemtModal] = useState(null);
+  const [aemtBusy, setAemtBusy] = useState(false);
   const eng = useRef(null);
   const importInputRef = useRef(null);
   const diffImportInputRef = useRef(null);
+  const aemtImportInputRef = useRef(null);
+  /* Pending VIN resolution for the AEMT vin-prompt flow. */
+  const aemtVinResolveRef = useRef(null);
 
   const handleVerify = useCallback(async (key, dids, storedChecksum) => {
     if (!storedChecksum) return;
@@ -343,13 +351,182 @@ export default function BackupsTab() {
     importInputRef.current?.click();
   }, []);
 
-  const handleImportFile = useCallback(async (e) => {
-    const file = e.target.files?.[0];
+  /* ── AEMT import handlers ── */
+  const handleAemtImportClick = useCallback(() => {
+    aemtImportInputRef.current?.click();
+  }, []);
+
+  const handleAemtImportFiles = useCallback(async (e) => {
+    const fileList = e.target.files;
     e.target.value = "";
-    if (!file) return;
+    if (!fileList || fileList.length === 0) return;
+
+    setAemtBusy(true);
+    setAemtModal(null);
+
+    const rawFiles = await Promise.all(
+      Array.from(fileList).map(
+        (f) => new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = (ev) => res({ name: f.name, data: new Uint8Array(ev.target.result) });
+          r.onerror = () => rej(new Error("Could not read " + f.name));
+          r.readAsArrayBuffer(f);
+        }),
+      ),
+    );
+
+    /* promptVin: resolve(null) signals cancel; throw only on unrecoverable error. */
+    const promptVin = (info) => new Promise((resolve) => {
+      aemtVinResolveRef.current = resolve;
+      setAemtModal({ mode: "vin", warnings: info.warnings || [] });
+    });
+
+    let importResult;
+    try {
+      importResult = await importAemtBundle(rawFiles, { promptVin });
+    } catch (err) {
+      /* Swallow silent user-cancellation; surface real errors. */
+      if (err?.cancelled) { setAemtBusy(false); return; }
+      setAemtBusy(false);
+      setAemtModal({
+        mode: "error",
+        error: err instanceof AemtImportError ? err : new AemtImportError(
+          err.message || "Unexpected import error",
+          [String(err.message || err)],
+        ),
+      });
+      return;
+    }
+
+    const { preset, backupStubs, vin: importedVin, roles, warnings, checksAllGreen, checksPassed, checksTotal } = importResult;
+
+    try {
+      saveRawPreset(preset);
+    } catch (err) {
+      setAemtBusy(false);
+      setAemtModal({
+        mode: "error",
+        error: new AemtImportError("Could not save preset: " + err.message, [err.message]),
+      });
+      return;
+    }
+
+    /* Use the shared audit pipeline — same as saveScanPlaceholders. */
+    await saveAemtPlaceholders(backupStubs);
+    refresh();
+    setAemtBusy(false);
+    setAemtModal({
+      mode: "summary",
+      result: { vin: importedVin, roles, warnings, checksPassed, checksTotal, checksAllGreen, backupStubs },
+    });
+  }, [refresh]);
+
+  const handleImportFile = useCallback(async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (files.length === 0) return;
+
+    /* Auto-detect AEMT bundles — route .zip / .bin / .aemt files to the AEMT
+     * importer instead of the backup-archive JSON path. */
+    const isAemtFile = (f) => {
+      const lower = f.name.toLowerCase();
+      return lower.endsWith(".zip") || lower.endsWith(".bin") || lower.endsWith(".aemt");
+    };
+    const hasAemtFile = files.some(isAemtFile);
+
+    /* If any selected file looks like an AEMT bundle, delegate to the AEMT
+     * importer flow so a single Import button handles both archive types. */
+    if (hasAemtFile) {
+      const rawFiles = await Promise.all(
+        files.map(
+          (f) => new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = (ev) => res({ name: f.name, data: new Uint8Array(ev.target.result) });
+            r.onerror = () => rej(new Error("Could not read " + f.name));
+            r.readAsArrayBuffer(f);
+          }),
+        ),
+      );
+      setAemtBusy(true);
+      setAemtModal(null);
+      const promptVin = (info) => new Promise((resolve) => {
+        aemtVinResolveRef.current = resolve;
+        setAemtModal({ mode: "vin", warnings: info.warnings || [] });
+      });
+      let importResult;
+      try {
+        importResult = await importAemtBundle(rawFiles, { promptVin });
+      } catch (err) {
+        /* Swallow silent user-cancellation; surface real errors. */
+        if (err?.cancelled) { setAemtBusy(false); return; }
+        setAemtBusy(false);
+        setAemtModal({
+          mode: "error",
+          error: err instanceof AemtImportError ? err : new AemtImportError(
+            err.message || "Unexpected import error",
+            [String(err.message || err)],
+          ),
+        });
+        return;
+      }
+      const { preset, backupStubs, vin: importedVin, roles, warnings, checksAllGreen, checksPassed, checksTotal } = importResult;
+      try { saveRawPreset(preset); } catch (err) {
+        setAemtBusy(false);
+        setAemtModal({
+          mode: "error",
+          error: new AemtImportError("Could not save preset: " + err.message, [err.message]),
+        });
+        return;
+      }
+      const { created: savedCount } = await saveAemtPlaceholders(backupStubs);
+      refresh();
+      setAemtBusy(false);
+      setAemtModal({
+        mode: "summary",
+        result: { vin: importedVin, roles, warnings, checksPassed, checksTotal, checksAllGreen, backupStubs: backupStubs.slice(0, savedCount) },
+      });
+      return;
+    }
+
+    /* Standard path — JSON backup archive. */
+    const file = files[0];
     try {
       const text = await file.text();
       const archive = JSON.parse(text);
+      /* If the JSON lacks the backup-archive type marker but has AEMT-style
+       * fields (vin + no type field), try the AEMT importer as a fallback. */
+      if (!archive.type && (archive.vin || archive.vehicle || archive.job)) {
+        const data = new Uint8Array(await file.arrayBuffer());
+        const rawFiles2 = [{ name: file.name, data }];
+        const promptVin2 = (info) => new Promise((resolve) => {
+          aemtVinResolveRef.current = resolve;
+          setAemtModal({ mode: "vin", warnings: info.warnings || [] });
+        });
+        setAemtBusy(true);
+        setAemtModal(null);
+        let importResult2;
+        try {
+          importResult2 = await importAemtBundle(rawFiles2, { promptVin: promptVin2 });
+        } catch (err) {
+          /* Swallow silent cancellations; surface real errors. */
+          if (err?.cancelled) { setAemtBusy(false); return; }
+          setAemtBusy(false);
+          setAemtModal({
+            mode: "error",
+            error: err instanceof AemtImportError ? err : new AemtImportError(err.message || "Import error", [String(err.message || err)]),
+          });
+          return;
+        }
+        try { saveRawPreset(importResult2.preset); } catch {}
+        await saveAemtPlaceholders(importResult2.backupStubs);
+        refresh();
+        setAemtBusy(false);
+        setAemtModal({
+          mode: "summary",
+          result: { vin: importResult2.vin, roles: importResult2.roles, warnings: importResult2.warnings, checksPassed: importResult2.checksPassed, checksTotal: importResult2.checksTotal, checksAllGreen: importResult2.checksAllGreen, backupStubs: importResult2.backupStubs },
+        });
+        return;
+      }
       const r = importBackups(archive);
       refresh();
       const parts = [r.imported + " imported", r.skipped + " skipped (duplicate)"];
@@ -527,10 +704,31 @@ export default function BackupsTab() {
             <input
               ref={importInputRef}
               type="file"
-              accept="application/json,.json"
+              accept="application/json,.json,.zip,.bin,.aemt"
+              multiple
               onChange={handleImportFile}
               style={{ display: "none" }}
               data-testid="import-backups-input"
+            />
+            <Btn
+              onClick={handleAemtImportClick}
+              color={C.a1}
+              outline
+              disabled={aemtBusy}
+              data-testid="aemt-import-backups"
+            >
+              {aemtBusy ? "⏳ Importing…" : "📂 Import from AEMT"}
+            </Btn>
+            <input
+              ref={aemtImportInputRef}
+              type="file"
+              accept=".zip,.bin,.json,.aemt"
+              multiple
+              // @ts-ignore — webkitdirectory is non-standard but widely supported
+              webkitdirectory=""
+              onChange={handleAemtImportFiles}
+              style={{ display: "none" }}
+              data-testid="aemt-import-backups-input"
             />
             {backups.length > 0 && <Btn onClick={handleClearAll} color={C.er} outline>🗑️ Clear All</Btn>}
           </div>
@@ -818,7 +1016,14 @@ export default function BackupsTab() {
                   <div style={{ fontFamily: "'Righteous'", fontSize: 16, letterSpacing: 1 }}>{selectedData.module}</div>
                 </div>
                 <div style={{ display: "flex", gap: 6 }}>
-                  <button onClick={handleRestore} disabled={busy === "Restoring..."} style={chip("#fff3", "#fff")}>
+                  <button
+                    onClick={handleRestore}
+                    disabled={busy === "Restoring..." || selectedData?.tx == null}
+                    title={selectedData?.tx == null
+                      ? "No CAN address recorded — OBD restore unavailable for this snapshot."
+                      : undefined}
+                    style={chip("#fff3", "#fff")}
+                  >
                     ↩ Restore
                   </button>
                   <button onClick={() => downloadBackup(selected)} style={chip("rgba(255,255,255,0.1)", "#fff")}>⬇ Download</button>
@@ -900,11 +1105,20 @@ export default function BackupsTab() {
                 </div>
 
                 <div style={{
-                  padding: 10, background: "#FFF8F0", border: "1px solid " + C.wn,
-                  borderRadius: 6, fontSize: 11, color: C.ts, marginBottom: 14, lineHeight: 1.5,
+                  padding: 10,
+                  background: selectedData.source === "aemt-import" ? "#F0F4FF" : "#FFF8F0",
+                  border: "1px solid " + (selectedData.source === "aemt-import" ? "#90A4AE" : C.wn),
+                  borderRadius: 6, fontSize: 11, color: selectedData.source === "aemt-import" ? "#3A4A5A" : C.ts,
+                  marginBottom: 14, lineHeight: 1.5,
                 }}>
-                  <b>⚠ Restore writes the DIDs below back to the module via UDS 0x2E.</b>{" "}
-                  Connect to the adapter, then click Restore — you'll be asked to confirm via the Read-First check.
+                  {selectedData.source === "aemt-import" ? (
+                    <><b>ℹ️ AEMT import — pre-write snapshot.</b>{" "}
+                    Imported from an AEMT bundle. Connect to the adapter and click Restore to write the captured
+                    DIDs back via UDS 0x2E. Also use the Key Prog tab to apply the matching VIN preset.</>
+                  ) : (
+                    <><b>⚠ Restore writes the DIDs below back to the module via UDS 0x2E.</b>{" "}
+                    Connect to the adapter, then click Restore — you'll be asked to confirm via the Read-First check.</>
+                  )}
                 </div>
 
                 <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, letterSpacing: 2, marginBottom: 8 }}>DID SNAPSHOT</div>
@@ -1091,11 +1305,33 @@ export default function BackupsTab() {
         </div>
       )}
 
+      <AemtImportModal
+        mode={aemtModal?.mode || null}
+        result={aemtModal?.result}
+        error={aemtModal?.error}
+        warnings={aemtModal?.warnings}
+        onClose={() => { setAemtModal(null); setAemtBusy(false); }}
+        onConfirmVin={(vin) => {
+          const resolve = aemtVinResolveRef.current;
+          aemtVinResolveRef.current = null;
+          setAemtModal(null);
+          if (resolve) resolve(vin);
+        }}
+        onCancelVin={() => {
+          const resolve = aemtVinResolveRef.current;
+          aemtVinResolveRef.current = null;
+          setAemtModal(null);
+          /* resolve(null) → importAemtBundle throws a cancelled AemtImportError
+           * which the handler catches silently — no error modal shown. */
+          if (resolve) resolve(null);
+        }}
+      />
+
       {modalOpen && selectedData && (
         <ReadFirstModal
           title={"Restore " + selectedData.module + " from backup"}
           subtitle={"Snapshot taken " + new Date(selectedData.timestamp).toLocaleString()}
-          module={selectedData.module + "  (TX 0x" + hx(selectedData.tx, 3) + " / RX 0x" + hx(selectedData.rx, 3) + ")"}
+          module={selectedData.module + (selectedData.tx != null ? "  (TX 0x" + hx(selectedData.tx, 3) + " / RX 0x" + hx(selectedData.rx, 3) + ")" : "")}
           summary={
             "This will write " +
             Object.values(selectedData.dids).filter(d => d.bytes && d.bytes.length).length +

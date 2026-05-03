@@ -691,6 +691,74 @@ export async function saveScanPlaceholders(scanModules, { source = "j2534-scan",
   };
 }
 
+/**
+ * saveAemtPlaceholders — persists AEMT-import backup stubs through the shared
+ * audit write-through pipeline (localStorage index → /api/backups), matching
+ * the semantics of saveScanPlaceholders.
+ *
+ * @param stubs  {key, meta, payload}[] — output of buildAemtBackupStubs()
+ * @returns      { created, keys, skipped, duplicates, serverFailures }
+ */
+export async function saveAemtPlaceholders(stubs) {
+  if (!Array.isArray(stubs) || stubs.length === 0) {
+    return { created: 0, keys: [], skipped: 0, duplicates: [], serverFailures: 0 };
+  }
+  const idx = readLocalIndex();
+  const existingKeys = new Set(idx.map(b => b.key));
+  const createdKeys = [];
+  const duplicateKeys = [];
+  const createdMetas = [];
+  let skipped = 0;
+
+  for (const stub of stubs) {
+    const { key, meta, payload } = stub;
+    if (!key || !meta || !payload) { skipped++; continue; }
+    if (existingKeys.has(key)) { duplicateKeys.push(key); skipped++; continue; }
+    if (!setLocalPayload(key, payload)) { skipped++; continue; }
+    idx.unshift(meta);
+    existingKeys.add(key);
+    createdKeys.push(key);
+    createdMetas.push({ meta, payload });
+  }
+
+  if (createdKeys.length === 0) {
+    return { created: 0, keys: [], skipped, duplicates: duplicateKeys, serverFailures: 0 };
+  }
+
+  if (idx.length > MAX_BACKUPS) {
+    idx.slice(MAX_BACKUPS).forEach(b => removeLocalPayload(b.key));
+  }
+  writeLocalIndex(idx);
+  notify();
+
+  let serverFailures = 0;
+  await Promise.all(createdMetas.map(async ({ meta, payload }) => {
+    try {
+      const res = await fetch(API_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: meta.key,
+          module: meta.module,
+          vin: meta.vin,
+          didCount: meta.didCount,
+          tx: meta.tx ?? null,
+          rx: meta.rx ?? null,
+          timestamp: meta.timestamp,
+          payload,
+          snapshotKind: meta.snapshotKind ?? "pre-write",
+          preWriteKey: meta.preWriteKey ?? null,
+        }),
+      });
+      if (!res.ok) serverFailures++;
+    } catch {
+      serverFailures++;
+    }
+  }));
+
+  return { created: createdKeys.length, keys: createdKeys, skipped, duplicates: duplicateKeys, serverFailures };
+}
+
 /* React hook helper: triggers a re-render when audit storage changes. */
 export function subscribeAudit(handler) {
   const listener = () => handler();

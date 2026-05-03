@@ -123,6 +123,23 @@ export function savePreset({ name, vin, files, checks }) {
   return preset;
 }
 
+/* Save an already-serialized preset object (e.g. produced by buildAemtPreset)
+ * directly into storage without re-running serializePreset. Used by the AEMT
+ * importer so it can store presets with partial checks and AEMT-sourced files
+ * without hitting the "checks must be green" UI guard in handleSavePreset. */
+export function saveRawPreset(preset) {
+  if (!preset || !preset.id || !preset.name || !preset.vin || !preset.files) {
+    throw new Error('Invalid preset object passed to saveRawPreset');
+  }
+  const presets = loadPresets();
+  if (presets.some((p) => p.id === preset.id)) return preset; // idempotent
+  presets.unshift(preset);
+  if (!writePresets(presets)) {
+    throw new Error('Could not save preset (storage full or unavailable)');
+  }
+  return preset;
+}
+
 export function deletePreset(id) {
   const presets = loadPresets().filter((p) => p.id !== id);
   writePresets(presets);
