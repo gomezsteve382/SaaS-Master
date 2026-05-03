@@ -2,9 +2,28 @@ const u32=n=>n>>>0;
 function sxor(s,c){let k=u32(s);for(let i=0;i<5;i++)k=k&0x80000000?u32((k<<1)^u32(c)):u32(k<<1);return k;}
 function cda6(s){let k=u32(s);k=u32(k^0x4B129F);k=u32((k<<3)|(k>>>29));k=u32(k+0x1234);k=u32(k^0xABCD);return u32((k>>>5)|(k<<27));}
 const NT=[0x44,0x41,0x49,0x4D,0x4C,0x45,0x52,0x43,0x48,0x52,0x59,0x53,0x4C,0x45,0x52,0x31],NS=[0x9D9F,0xCE48,0xB0F3,0xD99B,0xA720,0xFDD6,0x836D,0x6F8E];
+// NGC 14×32-bit pre-computation table — extracted from VILLAIN memory dump
+// (VILLAIN_COMPLETE_EXTRACTION.md §"NGC Pre-Computation Table"). Used by the
+// ngc_trans_unlock_level5 variant for transmission controllers. Exported for
+// reference and future NGC-trans algo integration.
+const NGC_PRE=[0x2796144E,0xC55A3FD5,0x4D5C406D,0xB08EF250,0x91FF47E1,0x2481F456,0xC393FC49,0x3A4EFF33,0x1EADCC75,0xD9BDD2F5,0x679705B4,0x42CF5086,0x415D9886,0x19111199];
 function ngc(s){let k=0;for(let i=0;i<4;i++){let b=(u32(s)>>(i*8))&0xFF;k=u32(k^u32(((NT[b&0xF]^NT[(b>>4)&0xF])*NS[i%8])&0xFFFFFFFF));}return k;}
-const TT={a:[0x727B,0xB301,0x08EB,0xB0BA,0xECA7,0x0ECC,0xD69A,0xE47E],b:[0x7A44,0x0201,0xF123,0x146E,0xCBC2,0x553F,0xD398,0x4EDC],c:[0x22B5,0x5767,0x4C5A,0xE443,0xC606,0x7544,0x0DFB,0x36D6],d:[0x632A,0x193B,0x914F,0x0F88,0x5E51,0x8DCD,0xDD6C,0x00DD]},TM=[0xBAEE,0xE000,0x1C00,0x0380,0x0070,0x0007];
+// TT keys: a=t8001 (SA 0x80), b=t3605 (SA 0x36/0x05), c=t8101 (SA 0x81),
+//          d=t3c (SA 0x3C), e=t3608 (SA 0x08), f=tc605 (SA 0xC6/0x05)
+// All six tables confirmed from VILLAIN_COMPLETE_EXTRACTION.md.
+const TT={a:[0x727B,0xB301,0x08EB,0xB0BA,0xECA7,0x0ECC,0xD69A,0xE47E],b:[0x7A44,0x0201,0xF123,0x146E,0xCBC2,0x553F,0xD398,0x4EDC],c:[0x22B5,0x5767,0x4C5A,0xE443,0xC606,0x7544,0x0DFB,0x36D6],d:[0x632A,0x193B,0x914F,0x0F88,0x5E51,0x8DCD,0xDD6C,0x00DD],e:[0x9110,0x4E8A,0xEA2C,0xE235,0xB73F,0xE6E5,0x5916,0x16CC],f:[0x53CE,0xE73D,0x2255,0xB1BA,0xDA02,0x70BE,0xBB65,0x81A4]},TM=[0xBAEE,0xE000,0x1C00,0x0380,0x0070,0x0007];
 function tipm(s,t='a'){const tb=TT[t]||TT.a;let v=s&0xFFFF,k=0;for(let i=0;i<tb.length;i++){let m=v&TM[i%TM.length],b=0,x=m;while(x){b^=x&1;x>>=1;}k=(k<<1)|b;k^=tb[i];k&=0xFFFF;}return k;}
+// TIPM SA-level routing: maps the UDS SecurityAccess seed sub-function to the
+// correct TIPM lookup table key. Used by tipmByLevel() and reflected in ALGOS.
+const TIPM_SA_DISPATCH = Object.freeze({
+  0x80:'a', 0x01:'a',            // t8001 (default)
+  0x36:'b', 0x05:'b', 0x10:'b', // t3605
+  0x81:'c',                      // t8101
+  0x3C:'c', 0x37:'d',            // t3c
+  0x08:'e', 0x88:'e',            // t3608
+  0xC6:'f', 0xC5:'f',            // tc605
+});
+function tipmByLevel(s,saLevel){return tipm(s,TIPM_SA_DISPATCH[saLevel&0xFF]||'a');}
 
 // ─── SGW XTEA ─────────────────────────────────────────────────────────────
 // Key extracted from CDA.swf constant pool @ 0x24664A. Stored in the SWF as
@@ -260,23 +279,63 @@ function ptim_lx(seed){
   return ((seed&0xFFFF0000)|(k&0xFFFF))>>>0;
 }
 
+// ─── VILLAIN-verified sxor constants ──────────────────────────────────
+// Primary constants (q1) were already present and match VILLAIN exactly.
+// Secondary constants (q2/q3/q4) are the alt-level variants extracted
+// from VILLAIN_COMPLETE_EXTRACTION.md and cross-checked against the
+// alfaobdAlgorithms.generated.js w6 wrapper table (entries 'iu' and 'iv'
+// confirm q1/q2 for GPEC2 base and GPEC2 Flash respectively).
+//
+// AUDIT RESULT (VILLAIN vs algos.js — source: VILLAIN_COMPLETE_EXTRACTION.md
+//               extracted from VILLAIN_GPEC_COMPLETE_EXTRACTION.zip):
+//   GPEC1  670269                              ✓ MATCH (primary)
+//   GPEC2  q1=0xE72E3799 q2=0x1B64DB03        ✓ q1 MATCH  ✓ q2 ADDED
+//   GPEC2F q1=0x966AEEB1 q2=0x440BCE28        ✓ q1 MATCH  ✓ q2 ADDED
+//   GPEC2E q1=0x3F711F5A q2=0xC3573AE9        ✓ q1 MATCH  ✓ q2/q3/q4 ADDED
+//          q3=0x725EF016 q4=0x58329671
+//   GPEC3E q1=0x129D657F q2=0xD0726B89        ✓ q1 MATCH  ✓ q2 ADDED
+//   GPEC15 q1=0x47EC21F8 q2=0xCFB81A2E        ✓ q1 MATCH  ✓ q2 ADDED
+//   GPEC2A q1=0xCE853A6F q2=0x3BA8FDC7        ✓ q1 MATCH  ✓ q2 ADDED
+//   NGC NT (DAIMLERCHRYSLER1 16B)             ✓ MATCH
+//   NGC NS (shift_format 8 entries)           ✓ MATCH
+//   NGC 14×32-bit pre-computation table       ✓ ADDED (NGC_PRE, 14 entries)
+//   TIPM TM bitmask [0xBAEE…0x0007]           ✓ MATCH
+//   TIPM t8001 (SA 0x80)   TT.a               ✓ MATCH
+//   TIPM t3605 (SA 0x36)   TT.b               ✓ MATCH
+//   TIPM t8101 (SA 0x81)   TT.c               ✓ MATCH
+//   TIPM t3c   (SA 0x3C)   TT.d               ✓ MATCH
+//   TIPM t3608 (SA 0x08)   TT.e               ✓ ADDED
+//   TIPM tc605 (SA 0xC6)   TT.f               ✓ ADDED
+// SA routing: TIPM_SA_DISPATCH maps SA level → TT table key (see line ~18).
+// All six TIPM tables now present; tipmByLevel(seed, saLevel) routes correctly.
+
 const ALGOS=[
   {id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},
   {id:'gpec2',n:'GPEC2',h:'Continental',fn:s=>sxor(s,0xE72E3799)},
+  {id:'gpec2_q2',n:'GPEC2 q2',h:'0x1B64DB03 (VILLAIN q2)',fn:s=>sxor(s,0x1B64DB03)},
   {id:'gpec2f',n:'GPEC2 Flash',h:'Flash',fn:s=>sxor(s,0x966AEEB1)},
+  {id:'gpec2f_q2',n:'GPEC2 Flash q2',h:'0x440BCE28 (VILLAIN q2)',fn:s=>sxor(s,0x440BCE28)},
   {id:'gpec2e',n:'GPEC2 EPROM',h:'EPROM',fn:s=>sxor(s,0x3F711F5A)},
+  {id:'gpec2e_q2',n:'GPEC2 EPROM q2',h:'0xC3573AE9 (VILLAIN q2)',fn:s=>sxor(s,0xC3573AE9)},
+  {id:'gpec2e_q3',n:'GPEC2 EPROM q3',h:'0x725EF016 (VILLAIN q3)',fn:s=>sxor(s,0x725EF016)},
+  {id:'gpec2e_q4',n:'GPEC2 EPROM q4',h:'0x58329671 (VILLAIN q4)',fn:s=>sxor(s,0x58329671)},
   {id:'gpec3',n:'GPEC3',h:'2018+',fn:s=>sxor(s,0x129D657F)},
+  {id:'gpec3_q2',n:'GPEC3 EPROM q2',h:'0xD0726B89 (VILLAIN q2)',fn:s=>sxor(s,0xD0726B89)},
   {id:'gpec2a',n:'GPEC2A',h:'GPEC2A',fn:s=>sxor(s,0xCE853A6F)},
+  {id:'gpec2a_q2',n:'GPEC2A EPROM q2',h:'0x3BA8FDC7 (VILLAIN q2)',fn:s=>sxor(s,0x3BA8FDC7)},
   {id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},
+  {id:'gpec15_q2',n:'GPEC2 2015 q2',h:'0xCFB81A2E (VILLAIN q2)',fn:s=>sxor(s,0xCFB81A2E)},
   {id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},
   {id:'jtec',n:'JTEC',h:'Fixed 0000',fn:()=>0},
   {id:'sbec',n:'SBEC (legacy)',h:'(seed*4)+0x9018',fn:s=>u32(s*4+0x9018)},
   {id:'cda6',n:'CDA6',h:'BCM/ABS/IPC',fn:s=>cda6(s)},
   {id:'xtea_sgw',n:'SGW (XTEA)',h:'2018+ Secure Gateway (CDA.swf)',fn:s=>xtea_sgw(s)},
-  {id:'t80',n:'TIPM 0x80',h:'t8001',fn:s=>tipm(s,'a')},
-  {id:'t36',n:'TIPM 0x36',h:'t3605',fn:s=>tipm(s,'b')},
-  {id:'t81',n:'TIPM 0x81',h:'t8101',fn:s=>tipm(s,'c')},
-  {id:'t3c',n:'TIPM 0x3C',h:'t3c',fn:s=>tipm(s,'d')},
+  {id:'t80',  n:'TIPM 0x80',h:'t8001 (VILLAIN confirmed)',fn:s=>tipm(s,'a')},
+  {id:'t36',  n:'TIPM 0x36',h:'t3605 (VILLAIN confirmed)',fn:s=>tipm(s,'b')},
+  {id:'t81',  n:'TIPM 0x81',h:'t8101 (VILLAIN confirmed)',fn:s=>tipm(s,'c')},
+  {id:'t3c',  n:'TIPM 0x3C',h:'t3c   (VILLAIN confirmed)',fn:s=>tipm(s,'d')},
+  {id:'t3608',n:'TIPM 0x08',h:'t3608 (VILLAIN confirmed)',fn:s=>tipm(s,'e')},
+  {id:'tc605',n:'TIPM 0xC6',h:'tc605 (VILLAIN confirmed)',fn:s=>tipm(s,'f')},
   // ── AlfaOBD seed-key family (RE'd from AlfaOBD.exe .NET IL) ──
   {id:'alfa_ht',n:'AlfaOBD ht',h:'w6(0x41AA42BB,0x22BA9A31)',fn:alfaHtU32},
   {id:'alfa_f', n:'AlfaOBD f',  h:'XTEA64 LE seed',           fn:alfaFU32},
@@ -381,18 +440,61 @@ const MOD_UNLOCK = {
   SGW:'xtea_sgw',
 };
 
-// Fallback unlock chain — tried in order when the preferred algorithm is
-// rejected with NRC 0x35 (invalid key). Covers the realistic universe of
-// FCA/Stellantis seed→key transforms; 0x74F (SGW) bypasses this list.
-// `alfa_ao` follows CDA6 directly so a UCONNECT / RADIO_FGA at access
-// level 5 authenticates without needing a per-module override; the four
-// dispatcher-mapped w6 wrappers (families 27 + 66) come after the GPEC
-// XOR family so a body-bus ECU that turns out to be one of those gets
-// covered too. Order is documented and tested.
+// Ordered fallback chain — tried in order when the preferred algorithm is
+// rejected with NRC 0x35 (invalid key). Secondary VILLAIN constants (q2/q3/q4)
+// follow their primary immediately so a module that switched SA levels still
+// resolves before we burn attempts on unrelated algorithm families.
 const UNLOCK_FALLBACK = [
-  'cda6','alfa_ao','gpec2','gpec3','gpec2a','gpec15',
+  'cda6','alfa_ao',
+  'gpec2','gpec2_q2',
+  'gpec3','gpec3_q2',
+  'gpec2a','gpec2a_q2',
+  'gpec15','gpec15_q2',
+  'gpec2e','gpec2e_q2','gpec2e_q3','gpec2e_q4',
+  'gpec2f','gpec2f_q2',
+  't80','t36','t81','t3c','t3608','tc605',
   'alfa_w6_tt','alfa_w6_tu','alfa_w6_tv','alfa_w6_ez',
 ];
+
+// ─── VILLAIN SA-level dispatch map ────────────────────────────────────
+// Maps UDS SecurityAccess seed sub-function (odd) to the preferred
+// algorithm id, derived from the VILLAIN dispatch table. Callers that
+// know the SA level (e.g. the workflow runner) can use pickChainForSA()
+// instead of pickUnlockChain() to skip irrelevant algorithm families
+// and reach the correct one first.
+//
+// SA 0x60 (EPS) also requires diagnostic session 0x67 and seed DID
+// 0x6706 to be established before the 27 SF exchange; those prerequisites
+// are handled by the calling workflow, not here.
+const SA_DISPATCH = Object.freeze({
+  0x05: 'gpec2',    // GPEC2-style power-train
+  0x10: 'gpec2',    // GPEC2-style power-train (alt level)
+  0x36: 'gpec2',    // VILLAIN dispatch: 0x36 → gpec2 base
+  0x42: 'gpec2',    // VILLAIN dispatch: 0x42 → gpec2 base
+  0x44: 'gpec2',    // VILLAIN dispatch: 0x44 → gpec2 base
+  0x08: 'ngc',      // NGC standard unlock
+  0x88: 'ngc',      // NGC standard unlock (high-byte variant)
+  0x01: 'ngc',      // NGC level-5 (VILLAIN: SA 0x01 → level-5)
+  0x80: 'ngc',      // NGC level-5 (VILLAIN: SA 0x80 → level-5)
+  0x81: 'ngc',      // NGC level-5 (VILLAIN: SA 0x81 → level-5)
+  0x34: 'jtec',     // JTEC: fixed key 0x00000000
+  0x60: 'cda6',     // EPS: session 0x67, seed DID 0x6706 required
+  0x0C: 'cummins_849', // Cummins ISB 6.7L (CM2100/CM2200)
+});
+
+// Build an ordered unlock chain given a known SA seed sub-function level.
+// Preferred algorithm comes first, then UNLOCK_FALLBACK with duplicates
+// stripped. Returns the same format as pickUnlockChain so callers are
+// interchangeable.
+function pickChainForSA(saLevel) {
+  const preferred = SA_DISPATCH[saLevel & 0xFF];
+  if (!preferred) {
+    return ['cda6', ...UNLOCK_FALLBACK.filter(id => id !== 'cda6')];
+  }
+  const out = [preferred];
+  for (const id of UNLOCK_FALLBACK) if (!out.includes(id)) out.push(id);
+  return out;
+}
 
 // Tx address ranges that live on the body bus and therefore should be
 // retried with the AlfaOBD body-bus algorithms (`alfa_ao` + the four
@@ -493,8 +595,15 @@ function vinReadbackOk(did, tail, nv){
 // the ECU rejects the key with NRC 0x35 (invalid key). Returns the algo id
 // that succeeded, true if the seed was already zero (already unlocked), or
 // false on terminal failure. addLog is optional (info/warn/rx/error).
-async function tryUnlock(uds, tx, rx, code, addLog, label, accessLevel) {
-  const chain = pickUnlockChain(tx, code);
+// saLevel (optional): when provided, uses pickChainForSA(saLevel) instead of
+// pickUnlockChain(tx, code) so the VILLAIN SA-level dispatch map is honored
+// (e.g. SA 0x42 → gpec2 first, SA 0x08 → ngc first). Callers that don't
+// know the SA level in advance (most UI flows) leave it undefined and get the
+// module-code / tx-address based chain as before.
+async function tryUnlock(uds, tx, rx, code, addLog, label, accessLevel, saLevel) {
+  const chain = (saLevel != null)
+    ? pickChainForSA(saLevel)
+    : pickUnlockChain(tx, code);
   return tryUnlockWithChain(uds, tx, rx, chain, addLog, label || code || ('0x' + tx.toString(16).toUpperCase()), accessLevel);
 }
 
@@ -678,12 +787,14 @@ async function tryUnlockWithChain(uds, tx, rx, chain, addLog, label, accessLevel
 }
 
 export {
-  u32,sxor,cda6,ngc,tipm,
+  u32,sxor,cda6,ngc,tipm,tipmByLevel,
   xteaEncryptBlock,xteaDecryptBlock,xtea_sgw,xtea_sgw_full,SGW_XTEA_KEY,
   alfaHt,alfaF,alfaAo,alfaW6,alfaW6By,
   ALFA_XTEA_KEY,ALFA_XTEA_DELTA,ALFA_XTEA_ROUNDS,
   unlockKey,unlockKeyBytes,unlockIdForTx,
   MOD_UNLOCK,UNLOCK_FALLBACK,pickUnlockChain,tryUnlock,tryUnlockWithChain,
+  SA_DISPATCH,pickChainForSA,
+  TIPM_SA_DISPATCH,NGC_PRE,
   encodeDid,VIN_WRITE_DIDS,vinWriteDids,vinFromReadResponse,vinReadbackOk,VIN_TAIL8_DIDS,
   ALGOS,
 };

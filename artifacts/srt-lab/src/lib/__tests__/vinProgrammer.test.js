@@ -114,9 +114,11 @@ describe('programVin', () => {
     ];
     // tryUnlock walks the entire chain — every key is rejected with NRC 0x35.
     // pickUnlockChain('BCM',0x750) under the engine's MOD_UNLOCK override is
-    // [cda6, alfa_ao, gpec2, gpec3, gpec2a, gpec15, alfa_w6_tt, alfa_w6_tu,
-    //  alfa_w6_tv, alfa_w6_ez] — 10 attempts.
-    const chainLen = 10;
+    // [cda6, alfa_ao, gpec2, gpec2_q2, gpec3, gpec3_q2, gpec2a, gpec2a_q2,
+    //  gpec15, gpec15_q2, gpec2e, gpec2e_q2, gpec2e_q3, gpec2e_q4,
+    //  gpec2f, gpec2f_q2, t80, t36, t81, t3c, t3608, tc605,
+    //  alfa_w6_tt, alfa_w6_tu, alfa_w6_tv, alfa_w6_ez] — 26 attempts.
+    const chainLen = 26;
     for (let i = 0; i < chainLen; i++) {
       script.push({ req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seedBytes]) } });
       // We don't validate the key bytes — the loop must just walk all of them.
