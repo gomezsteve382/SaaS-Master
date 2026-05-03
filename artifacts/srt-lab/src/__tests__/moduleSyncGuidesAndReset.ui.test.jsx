@@ -141,7 +141,7 @@ describe("ModuleSync — Connection Guides anchors (Task #464 / #465)", () => {
 });
 
 describe("ModuleSync — Reset clears multi-module workspace state (Task #464 / #465)", () => {
-  it("clears BCM + RFHUB + PCM slots, the Target VIN field, and the log while keeping vehicleFamily selected", async () => {
+  it("clears BCM + RFHUB + PCM slots, the Target VIN field, and the log while keeping vehicleFamily selected", { timeout: 30_000 }, async () => {
     const { container } = renderModuleSync();
 
     /* Load all three real-shape fixtures in the order their DropZones

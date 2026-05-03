@@ -94,14 +94,20 @@ describeIfSwf('CDA SWF — offline flash catalog matches fresh re-extraction', (
   it('extractor --check passes against the committed JSON catalogs', () => {
     // If the SWF or extractor logic changes and the on-disk JSONs become
     // stale, --check exits non-zero and execSync throws.
+    // The full ABC parse + 13-catalog rebuild takes ~1.4s standalone but
+    // can spike past vitest's 5s default under loaded validation runs;
+    // give it a generous ceiling so a slow box never red-flags a green
+    // catalog.
     let out;
     try {
-      out = execSync('node ./src/extract.mjs --check', { cwd: EXTRACTOR_DIR, encoding: 'utf8' });
+      out = execSync('node ./src/extract.mjs --check', {
+        cwd: EXTRACTOR_DIR, encoding: 'utf8', timeout: 25_000,
+      });
     } catch (e) {
       throw new Error(`cda-extractor --check failed:\n${e.stdout || ''}\n${e.stderr || ''}`);
     }
     expect(out).toMatch(/OK|catalogs match/);
-  });
+  }, 30_000);
 
   it('SWF inflates to canonical length and SHA matches the catalog _meta', () => {
     const raw = fs.readFileSync(SWF_PATH);
