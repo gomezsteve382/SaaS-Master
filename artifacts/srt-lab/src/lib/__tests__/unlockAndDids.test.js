@@ -165,10 +165,15 @@ describe('tryUnlock', () => {
       script.push({ req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seed]) } });
       script.push({ req: [0x27, 0x02, ...keyBytesFor(aid)], resp: { ok: true, d: new Uint8Array([0x7F, 0x27, nrcs[i % nrcs.length]]) } });
     });
+    // Task #567 — a 0x33 in the chain triggers ONE post-exhaustion 0x29
+    // Authentication probe. Reply with NRC 0x11 (serviceNotSupported) so
+    // the loop falls through to the regular "exhausted" failure.
+    script.push({ req: [0x29, 0x00], resp: { ok: true, d: new Uint8Array([0x7F, 0x29, 0x11]) } });
     const m = mockUds(script);
     const result = await tryUnlock(m.uds, 0x750, 0x758, 'BCM', null, 'BCM');
     expect(result).toBe(false);
-    expect(m.calls.length).toBe(chain.length * 2);
+    // chain.length * 2 (seed+key per algo) + 1 post-exhaustion 0x29 probe.
+    expect(m.calls.length).toBe(chain.length * 2 + 1);
   });
 
   it('writer pattern: when tryUnlock returns false, no 0x2E is issued', async () => {
@@ -193,6 +198,38 @@ describe('tryUnlock', () => {
     }
     expect(wroteAnything).toBe(false);
     // confirm no 0x2E ever hit the bus
+    expect(m.calls.some(c => c.data[0] === 0x2E)).toBe(false);
+  });
+
+  it('Task #567 — 0x29 detection returns plain false so writers stay gated', async () => {
+    // Walk the BCM chain (5 algos) and reject every key with NRC 0x33
+    // (securityAccessDenied → triggers the post-exhaustion 0x29 probe).
+    // Probe answers with a positive 0x69 echo → module supports 0x29.
+    // Contract: tryUnlock must return strict `false` (NOT an object), so
+    // every existing writer-side `=== false` gate skips its 0x2E writes.
+    const keyBytesFor = (aid) => {
+      const k = unlockKey(aid, seedU32);
+      return [(k >>> 24) & 0xFF, (k >>> 16) & 0xFF, (k >>> 8) & 0xFF, k & 0xFF];
+    };
+    const chain = pickUnlockChain(0x750, 'BCM');
+    const script = [];
+    chain.forEach((aid) => {
+      script.push({ req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seed]) } });
+      script.push({ req: [0x27, 0x02, ...keyBytesFor(aid)], resp: { ok: true, d: new Uint8Array([0x7F, 0x27, 0x33]) } });
+    });
+    // Module supports 0x29 (positive echo).
+    script.push({ req: [0x29, 0x00], resp: { ok: true, d: new Uint8Array([0x69, 0x00]) } });
+    const m = mockUds(script);
+    const ur = await tryUnlock(m.uds, 0x750, 0x758, 'BCM', null, 'BCM');
+    expect(ur).toBe(false);              // STRICT — not an object
+    expect(ur).not.toBe(true);
+    // Mirror the writer-side gating — `if (ur !== false)` MUST skip writes.
+    let wroteAnything = false;
+    if (ur !== false) {
+      await m.uds(0x750, 0x758, [0x2E, 0xF1, 0x90, 0x41]);
+      wroteAnything = true;
+    }
+    expect(wroteAnything).toBe(false);
     expect(m.calls.some(c => c.data[0] === 0x2E)).toBe(false);
   });
 

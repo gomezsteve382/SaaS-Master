@@ -540,6 +540,10 @@ async function tryUnlockWithChain(uds, tx, rx, chain, addLog, label, accessLevel
     ? opts.defaultRetryMs
     : 1500;
 
+  // Task #567 — track whether any algorithm in the chain hit a 0x33/0x34
+  // NRC, so we can probe for UDS 0x29 once after the chain is exhausted.
+  let sawAuthDenialNrc = null;
+
   for (let i = 0; i < chain.length; i++) {
     const aid = chain[i];
 
@@ -605,27 +609,39 @@ async function tryUnlockWithChain(uds, tx, rx, chain, addLog, label, accessLevel
         continue;
       }
       // Any other NRC (0x35 invalidKey, 0x33 securityAccessDenied, etc) —
-      // walk to the next algorithm in the chain. Before walking on a
-      // 0x33/0x34, check whether the module is actually asking for UDS
-      // 0x29 Authentication (Task #567) so we can flag and abort instead
-      // of cycling through every wrapper in the catalog for nothing.
+      // walk to the next algorithm in the chain. We remember whether we
+      // saw a 0x33/0x34 along the way so we can probe for UDS 0x29
+      // Authentication once after the chain is exhausted, instead of
+      // probing mid-chain (which would burn cycles when the next wrapper
+      // would have unlocked the module anyway).
       if (nrc === 0x33 || nrc === 0x34){
-        try {
-          const { detect0x29, auth29RefusalMessage } = await import('./auth29.js');
-          const { flagAuth29Detected } = await import('./auth29State.js');
-          const probe = await detect0x29({ uds }, tx, rx);
-          addLog && addLog(lbl + ' 0x29 probe → ' + probe.classification + (probe.nrc != null ? (' (NRC 0x' + probe.nrc.toString(16).toUpperCase() + ')') : ''), 'info');
-          if (probe.supports){
-            try { flagAuth29Detected({ tx, rx, label: lbl, nrc }); } catch {}
-            addLog && addLog(lbl + ' ' + auth29RefusalMessage(), 'error');
-            return { auth29: true, nrc };
-          }
-        } catch (e) {
-          // Probe machinery should never break the unlock loop.
-          addLog && addLog(lbl + ' 0x29 probe error: ' + (e && e.message ? e.message : e), 'warn');
-        }
+        sawAuthDenialNrc = nrc;
       }
       break;
+    }
+  }
+  // Task #567 — chain exhausted with at least one 0x33/0x34 along the way.
+  // Probe 0x29 once. If the module supports it, flag the detection and
+  // surface the canonical refusal so the operator sees WHY no algorithm
+  // could unlock it. If not, fall through to the standard exhausted log.
+  if (sawAuthDenialNrc != null){
+    try {
+      const { detect0x29, auth29RefusalMessage } = await import('./auth29.js');
+      const { flagAuth29Detected } = await import('./auth29State.js');
+      const probe = await detect0x29({ uds }, tx, rx);
+      addLog && addLog(lbl + ' 0x29 probe → ' + probe.classification + (probe.nrc != null ? (' (NRC 0x' + probe.nrc.toString(16).toUpperCase() + ')') : ''), 'info');
+      if (probe.supports){
+        try { flagAuth29Detected({ tx, rx, label: lbl, nrc: sawAuthDenialNrc }); } catch {}
+        addLog && addLog(lbl + ' ' + auth29RefusalMessage(), 'error');
+        // Return `false` (not an object) so every existing caller that
+        // gates writes on `=== false` (vinProgrammer, OBDTab, BenchTab,
+        // etc.) treats this as a hard unlock failure. The detection is
+        // still surfaced to the operator via the auth29State flag (UI
+        // banners) and the canonical refusal log line above.
+        return false;
+      }
+    } catch (e) {
+      addLog && addLog(lbl + ' 0x29 probe error: ' + (e && e.message ? e.message : e), 'warn');
     }
   }
   addLog && addLog(lbl + ' all unlock algorithms exhausted', 'error');
