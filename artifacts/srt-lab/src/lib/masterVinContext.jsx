@@ -1,4 +1,5 @@
-import React, {createContext, useContext, useState, useCallback, useMemo} from 'react';
+import React, {createContext, useContext, useState, useCallback, useMemo, useEffect} from 'react';
+import {setCurrentBenchVin} from './auth29State.js';
 
 /* MasterVinContext — single source of truth for the in-progress job VIN,
    the per-module write status (BCM / RFHUB / ECM / ADCM), AND the set of
@@ -157,6 +158,16 @@ export function MasterVinProvider({setPg,children}){
   const getDumpsByType=useCallback(type=>loadedDumps.filter(d=>d.type===type),[loadedDumps]);
 
   const vinValid=vin.length===17&&VIN_RX.test(vin);
+
+  /* Auth29 detections want a VIN scope so the fleet-wide map records
+     "this VIN's ECM moved to 0x29" rather than dropping every
+     observation under empty VIN. We push the current VIN into the
+     auth29State module-scope whenever it changes (only when valid)
+     so every detection callsite — including ones that don't have
+     React context — auto-inherits it. Empty VIN clears the scope. */
+  useEffect(()=>{
+    setCurrentBenchVin(vinValid?vin:'');
+  },[vin,vinValid]);
 
   const setJobId=useCallback(id=>{
     setJobIdRaw(id||null);

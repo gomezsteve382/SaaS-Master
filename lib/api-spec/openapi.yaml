@@ -18,6 +18,8 @@ tags:
     description: Vehicle Job + Module Swap workflow operations
   - name: unlockCoverage
     description: SRT Lab unlock-coverage runtime stats from the Python dispatcher
+  - name: auth29Detections
+    description: UDS 0x29 (Authentication) detection records — modules confirmed to require 0x29 instead of 0x27
 paths:
   /healthz:
     get:
@@ -347,6 +349,103 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UnlockCoverageStatsError"
+  /auth29-detections:
+    get:
+      operationId: listAuth29Detections
+      tags: [auth29Detections]
+      summary: List UDS 0x29 detections (newest first)
+      parameters:
+        - name: vin
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional VIN filter — when set, only detections recorded against this VIN are returned.
+      responses:
+        "200":
+          description: List of detections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detections:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Auth29Detection"
+                required:
+                  - detections
+    post:
+      operationId: upsertAuth29Detection
+      tags: [auth29Detections]
+      summary: Record (upsert) a UDS 0x29 detection
+      description: |
+        Upserts by (vin, tx); the youngest record per ECU per VIN wins.
+        VIN is optional — detections that fire from contexts without a
+        VIN bound (initAdapter probes, bench warm-ups) are stored under
+        the empty-string key so the banner still surfaces them.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Auth29DetectionInput"
+      responses:
+        "200":
+          description: Stored detection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  detection:
+                    $ref: "#/components/schemas/Auth29Detection"
+                required:
+                  - ok
+                  - detection
+    delete:
+      operationId: deleteAuth29Detections
+      tags: [auth29Detections]
+      summary: Clear UDS 0x29 detections
+      description: |
+        Always scoped — `vin` is required so a single user dismissing
+        a local banner can never wipe the fleet-wide map. Optionally
+        pass `tx` to scope to one address, and `rx` (with `tx`) to
+        clear a single (vin, tx, rx) record.
+      parameters:
+        - name: vin
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tx
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 65535
+        - name: rx
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 65535
+      responses:
+        "200":
+          description: Cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                required:
+                  - ok
   /vehicle-jobs/{id}/events:
     get:
       operationId: listVehicleJobEvents
@@ -769,6 +868,60 @@ components:
         - emulated_count
         - algo_family_count
         - source
+    Auth29Detection:
+      type: object
+      properties:
+        vin:
+          type: string
+        tx:
+          type: integer
+          minimum: 0
+          maximum: 65535
+        rx:
+          type: integer
+          minimum: 0
+          maximum: 65535
+          nullable: true
+        label:
+          type: string
+          nullable: true
+        nrc:
+          type: integer
+          minimum: 0
+          maximum: 255
+          nullable: true
+        detectedAt:
+          type: string
+          format: date-time
+      required:
+        - vin
+        - tx
+        - detectedAt
+    Auth29DetectionInput:
+      type: object
+      properties:
+        vin:
+          type: string
+          nullable: true
+        tx:
+          type: integer
+          minimum: 0
+          maximum: 65535
+        rx:
+          type: integer
+          minimum: 0
+          maximum: 65535
+          nullable: true
+        label:
+          type: string
+          nullable: true
+        nrc:
+          type: integer
+          minimum: 0
+          maximum: 255
+          nullable: true
+      required:
+        - tx
     UnlockCoverageStatsError:
       type: object
       description: Returned when the Python dispatcher cannot be queried.

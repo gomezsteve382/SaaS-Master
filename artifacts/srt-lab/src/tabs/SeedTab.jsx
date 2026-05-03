@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useMemo, useEffect} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Btn} from "../lib/ui.jsx";
-import {getAuth29Detections, subscribeAuth29, clearAuth29Detections, getAuth29Unlocks, clearAuth29Unlocks} from "../lib/auth29State.js";
+import {getAuth29Detections, subscribeAuth29, clearAuth29Detections, loadAuth29Detections, getAuth29Unlocks, clearAuth29Unlocks} from "../lib/auth29State.js";
 import {ALGOS, xtea_sgw_full, alfaW6, alfaW6By, u32} from "../lib/algos.js";
 import {AOBD_W6, AOBD_W7, AOBD_DISPATCH} from "../lib/alfaobdAlgorithms.generated.js";
 import {EXTENDED_ALGORITHMS} from "../lib/extendedAlgorithms.generated.js";
@@ -165,6 +165,10 @@ function SeedTab(){
     const off=subscribeAuth29(refresh);
     const onStorage=(e)=>{ if(!e||e.key==='srtlab.auth29.detections'||e.key==='srtlab.auth29.unlocks') refresh(); };
     if(typeof window!=='undefined') window.addEventListener('storage',onStorage);
+    // Task #573 — pull the server-side detection set so the bench
+    // remembers across browsers / machines. Refresh fires from the
+    // subscriber once the merged list is written to localStorage.
+    loadAuth29Detections().then(()=>refresh()).catch(()=>{});
     return ()=>{ off(); if(typeof window!=='undefined') window.removeEventListener('storage',onStorage); };
   },[]);
 

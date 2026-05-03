@@ -193,6 +193,47 @@ export interface UnlockCoverageStats {
   source: UnlockCoverageStatsSource;
 }
 
+export interface Auth29Detection {
+  vin: string;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  tx: number;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  rx?: number | null;
+  label?: string | null;
+  /**
+   * @minimum 0
+   * @maximum 255
+   */
+  nrc?: number | null;
+  detectedAt: string;
+}
+
+export interface Auth29DetectionInput {
+  vin?: string | null;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  tx: number;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  rx?: number | null;
+  label?: string | null;
+  /**
+   * @minimum 0
+   * @maximum 255
+   */
+  nrc?: number | null;
+}
+
 /**
  * Returned when the Python dispatcher cannot be queried.
  */
@@ -215,6 +256,40 @@ export type ListVehicleJobsParams = {
 
 export type ListVehicleJobs200 = {
   jobs: VehicleJob[];
+};
+
+export type ListAuth29DetectionsParams = {
+  /**
+   * Optional VIN filter — when set, only detections recorded against this VIN are returned.
+   */
+  vin?: string;
+};
+
+export type ListAuth29Detections200 = {
+  detections: Auth29Detection[];
+};
+
+export type UpsertAuth29Detection200 = {
+  ok: boolean;
+  detection: Auth29Detection;
+};
+
+export type DeleteAuth29DetectionsParams = {
+  vin: string;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  tx?: number;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  rx?: number;
+};
+
+export type DeleteAuth29Detections200 = {
+  ok: boolean;
 };
 
 export type ListVehicleJobEvents200 = {

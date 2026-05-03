@@ -3,7 +3,7 @@ import {C} from "../lib/constants.js";
 import {Card, Btn} from "../lib/ui.jsx";
 import {parseCatalog} from "../lib/unlockCatalogSchema.js";
 import {friendlyAlgo} from "../lib/algoFriendly.js";
-import {getAuth29Detections, subscribeAuth29, clearAuth29Detections, getAuth29Unlocks, clearAuth29Unlocks} from "../lib/auth29State.js";
+import {getAuth29Detections, subscribeAuth29, clearAuth29Detections, loadAuth29Detections, getAuth29Unlocks, clearAuth29Unlocks} from "../lib/auth29State.js";
 
 /**
  * Unlock Coverage tab — Task #499.
@@ -151,13 +151,30 @@ export default function UnlockCoverageTab() {
   // subscription so a probe firing in either tab lights both up.
   const [auth29, setAuth29] = useState(() => getAuth29Detections());
   const [auth29Ok, setAuth29Ok] = useState(() => getAuth29Unlocks());
+  // Task #573 — when set, the table is filtered to only modules whose
+  // tx address has a confirmed 0x29 detection on file (server-side or
+  // locally cached). Surfaced as a toggle chip in the search row so an
+  // operator can pull up "what does this fleet need 0x29 for?" with one
+  // click rather than scrolling the catalog.
+  const [needs29Only, setNeeds29Only] = useState(false);
   useEffect(() => {
     const refresh = () => { setAuth29(getAuth29Detections()); setAuth29Ok(getAuth29Unlocks()); };
     const off = subscribeAuth29(refresh);
     const onStorage = (e) => { if (!e || e.key === 'srtlab.auth29.detections' || e.key === 'srtlab.auth29.unlocks') refresh(); };
     if (typeof window !== 'undefined') window.addEventListener('storage', onStorage);
+    // Task #573 — hydrate from the API so the coverage banner reflects
+    // server-side history, not just this browser's localStorage.
+    loadAuth29Detections().then(() => refresh()).catch(() => {});
     return () => { off(); if (typeof window !== 'undefined') window.removeEventListener('storage', onStorage); };
   }, []);
+
+  // Set of tx addresses that require 0x29, used by the table column /
+  // filter below. Built from `auth29` so it tracks live updates.
+  const auth29TxSet = useMemo(() => {
+    const s = new Set();
+    for (const d of auth29) if (Number.isFinite(d.tx)) s.add(d.tx | 0);
+    return s;
+  }, [auth29]);
 
   useEffect(() => {
     let cancelled = false;
@@ -309,11 +326,21 @@ export default function UnlockCoverageTab() {
       if (statusFilter !== "all" && e.status !== statusFilter) return false;
       if (familyFilter !== "all" && e.family !== familyFilter) return false;
       if (algoFilter !== "all" && e.algorithm !== algoFilter) return false;
+      if (needs29Only && !auth29TxSet.has(e.tx_can_id | 0)) return false;
       if (!term) return true;
       const blob = `${e.file} ${e.module} ${e.display_name} ${e.family} ${e.python_function || ""} ${e.algorithm || ""} ${e.ecu_info?.name || ""}`.toLowerCase();
       return blob.includes(term);
     });
-  }, [catalog, q, statusFilter, familyFilter, algoFilter, mergedEntries]);
+  }, [catalog, q, statusFilter, familyFilter, algoFilter, mergedEntries, needs29Only, auth29TxSet]);
+
+  // Quick count for the filter chip — how many catalog entries match a
+  // tx address that we've confirmed (locally or server-side) requires
+  // 0x29. Computed off mergedEntries so the asset-sweep delta is
+  // included on equal footing.
+  const needs29Count = useMemo(
+    () => mergedEntries.filter((e) => auth29TxSet.has(e.tx_can_id | 0)).length,
+    [mergedEntries, auth29TxSet],
+  );
 
   function toggle(module) {
     setExpanded((prev) => {
@@ -492,7 +519,33 @@ export default function UnlockCoverageTab() {
             <option value="all">All families</option>
             {families.map((f) => <option key={f} value={f}>{f}</option>)}
           </select>
-          <Btn outline onClick={() => { setQ(""); setStatusFilter("all"); setFamilyFilter("all"); setAlgoFilter("all"); }}>Reset</Btn>
+          <button
+            type="button"
+            data-testid="needs-29-filter"
+            data-active={needs29Only ? "true" : "false"}
+            onClick={() => setNeeds29Only((v) => !v)}
+            disabled={auth29TxSet.size === 0}
+            title={auth29TxSet.size === 0
+              ? "No 0x29 detections recorded yet — flag one from the bench to enable this filter"
+              : `Show only modules whose tx address has a confirmed 0x29 detection (${needs29Count} match)`}
+            style={{
+              padding: "8px 12px", borderRadius: 8, cursor: auth29TxSet.size === 0 ? "not-allowed" : "pointer",
+              border: `1.5px solid ${needs29Only ? "#E65100" : (auth29TxSet.size === 0 ? C.bd : "#E6510080")}`,
+              background: needs29Only ? "#E65100" : "#fff",
+              color: needs29Only ? "#fff" : (auth29TxSet.size === 0 ? C.tm : "#E65100"),
+              fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11, letterSpacing: 0.5,
+              opacity: auth29TxSet.size === 0 ? 0.55 : 1, whiteSpace: "nowrap",
+            }}
+          >
+            Needs 0x29
+            <span data-testid="needs-29-filter-count" style={{
+              marginLeft: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 800,
+              padding: "1px 6px", borderRadius: 999,
+              background: needs29Only ? "#ffffff22" : "#E6510014",
+              color: needs29Only ? "#fff" : "#E65100",
+            }}>{needs29Count}</span>
+          </button>
+          <Btn outline onClick={() => { setQ(""); setStatusFilter("all"); setFamilyFilter("all"); setAlgoFilter("all"); setNeeds29Only(false); }}>Reset</Btn>
         </div>
         <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, marginTop: 10}}>
           Showing <strong style={{color: C.tx}}>{filtered.length}</strong> of {mergedEntries.length} entries
@@ -551,6 +604,7 @@ export default function UnlockCoverageTab() {
                 <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}>RX</th>
                 <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}>SIZE</th>
                 <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}>STATUS</th>
+                <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}>0x29</th>
                 <th style={{padding: "10px 12px", fontSize: 10, letterSpacing: 1, color: C.tm}}></th>
               </tr>
             </thead>
@@ -582,6 +636,22 @@ export default function UnlockCoverageTab() {
                       <td style={{padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", color: C.tx}}>{fmtCanId(e.rx_can_id)}</td>
                       <td style={{padding: "10px 12px", color: C.tm}}>{fmtBytes(e.size_bytes)}</td>
                       <td style={{padding: "10px 12px"}}><StatusBadge status={e.status}/></td>
+                      <td style={{padding: "10px 12px"}} data-testid={`auth29-cell-${e.module}`}>
+                        {auth29TxSet.has(e.tx_can_id | 0) ? (
+                          <span
+                            data-testid={`auth29-required-${e.module}`}
+                            title="Confirmed 0x29 detection on this tx address"
+                            style={{
+                              display: "inline-block", padding: "3px 8px", borderRadius: 6,
+                              background: "#E6510014", color: "#E65100",
+                              fontFamily: "'JetBrains Mono', monospace",
+                              fontWeight: 900, fontSize: 10, letterSpacing: 1,
+                            }}
+                          >REQ 0x29</span>
+                        ) : (
+                          <span style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.tm}}>—</span>
+                        )}
+                      </td>
                       <td style={{padding: "10px 12px", textAlign: "right"}}>
                         <button
                           onClick={() => toggle(e.module)}
@@ -596,7 +666,7 @@ export default function UnlockCoverageTab() {
                     </tr>
                     {open && (
                       <tr style={{background: "#0000000A", borderTop: `1px solid ${C.bd}`}}>
-                        <td colSpan={9} style={{padding: "12px 18px"}}>
+                        <td colSpan={10} style={{padding: "12px 18px"}}>
                           <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14}}>
                             <div>
                               <div style={{fontSize: 10, color: C.tm, letterSpacing: 1, fontWeight: 700}}>MODULE KEY</div>
@@ -652,7 +722,7 @@ export default function UnlockCoverageTab() {
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={9} style={{padding: "24px 12px", textAlign: "center", color: C.tm, fontFamily: "'Nunito'"}}>
+                  <td colSpan={10} style={{padding: "24px 12px", textAlign: "center", color: C.tm, fontFamily: "'Nunito'"}}>
                     No entries match the current filter.
                   </td>
                 </tr>

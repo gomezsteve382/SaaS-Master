@@ -21,10 +21,15 @@ import type {
   AnthropicConversationWithMessages,
   AnthropicError,
   AnthropicMessage,
+  Auth29DetectionInput,
   CreateAnthropicConversationBody,
+  DeleteAuth29Detections200,
+  DeleteAuth29DetectionsParams,
   DownloadCount,
   HealthStatus,
   ListAnthropicConversationsParams,
+  ListAuth29Detections200,
+  ListAuth29DetectionsParams,
   ListVehicleJobEvents200,
   ListVehicleJobs200,
   ListVehicleJobsParams,
@@ -32,6 +37,7 @@ import type {
   SendAnthropicMessageBody,
   UnlockCoverageStats,
   UnlockCoverageStatsError,
+  UpsertAuth29Detection200,
   VehicleJob,
   VehicleJobEvent,
   VehicleJobEventInput,
@@ -1456,6 +1462,306 @@ export function useGetUnlockCoverageStats<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary List UDS 0x29 detections (newest first)
+ */
+export const getListAuth29DetectionsUrl = (
+  params?: ListAuth29DetectionsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/auth29-detections?${stringifiedParams}`
+    : `/api/auth29-detections`;
+};
+
+export const listAuth29Detections = async (
+  params?: ListAuth29DetectionsParams,
+  options?: RequestInit,
+): Promise<ListAuth29Detections200> => {
+  return customFetch<ListAuth29Detections200>(
+    getListAuth29DetectionsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListAuth29DetectionsQueryKey = (
+  params?: ListAuth29DetectionsParams,
+) => {
+  return [`/api/auth29-detections`, ...(params ? [params] : [])] as const;
+};
+
+export const getListAuth29DetectionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAuth29Detections>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListAuth29DetectionsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAuth29Detections>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListAuth29DetectionsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listAuth29Detections>>
+  > = ({ signal }) =>
+    listAuth29Detections(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAuth29Detections>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListAuth29DetectionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAuth29Detections>>
+>;
+export type ListAuth29DetectionsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List UDS 0x29 detections (newest first)
+ */
+
+export function useListAuth29Detections<
+  TData = Awaited<ReturnType<typeof listAuth29Detections>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListAuth29DetectionsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAuth29Detections>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListAuth29DetectionsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Upserts by (vin, tx); the youngest record per ECU per VIN wins.
+VIN is optional — detections that fire from contexts without a
+VIN bound (initAdapter probes, bench warm-ups) are stored under
+the empty-string key so the banner still surfaces them.
+
+ * @summary Record (upsert) a UDS 0x29 detection
+ */
+export const getUpsertAuth29DetectionUrl = () => {
+  return `/api/auth29-detections`;
+};
+
+export const upsertAuth29Detection = async (
+  auth29DetectionInput: Auth29DetectionInput,
+  options?: RequestInit,
+): Promise<UpsertAuth29Detection200> => {
+  return customFetch<UpsertAuth29Detection200>(getUpsertAuth29DetectionUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(auth29DetectionInput),
+  });
+};
+
+export const getUpsertAuth29DetectionMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof upsertAuth29Detection>>,
+    TError,
+    { data: BodyType<Auth29DetectionInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof upsertAuth29Detection>>,
+  TError,
+  { data: BodyType<Auth29DetectionInput> },
+  TContext
+> => {
+  const mutationKey = ["upsertAuth29Detection"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof upsertAuth29Detection>>,
+    { data: BodyType<Auth29DetectionInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return upsertAuth29Detection(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpsertAuth29DetectionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof upsertAuth29Detection>>
+>;
+export type UpsertAuth29DetectionMutationBody = BodyType<Auth29DetectionInput>;
+export type UpsertAuth29DetectionMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Record (upsert) a UDS 0x29 detection
+ */
+export const useUpsertAuth29Detection = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof upsertAuth29Detection>>,
+    TError,
+    { data: BodyType<Auth29DetectionInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof upsertAuth29Detection>>,
+  TError,
+  { data: BodyType<Auth29DetectionInput> },
+  TContext
+> => {
+  return useMutation(getUpsertAuth29DetectionMutationOptions(options));
+};
+
+/**
+ * Always scoped — `vin` is required so a single user dismissing
+a local banner can never wipe the fleet-wide map. Optionally
+pass `tx` to scope to one address, and `rx` (with `tx`) to
+clear a single (vin, tx, rx) record.
+
+ * @summary Clear UDS 0x29 detections
+ */
+export const getDeleteAuth29DetectionsUrl = (
+  params: DeleteAuth29DetectionsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/auth29-detections?${stringifiedParams}`
+    : `/api/auth29-detections`;
+};
+
+export const deleteAuth29Detections = async (
+  params: DeleteAuth29DetectionsParams,
+  options?: RequestInit,
+): Promise<DeleteAuth29Detections200> => {
+  return customFetch<DeleteAuth29Detections200>(
+    getDeleteAuth29DetectionsUrl(params),
+    {
+      ...options,
+      method: "DELETE",
+    },
+  );
+};
+
+export const getDeleteAuth29DetectionsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteAuth29Detections>>,
+    TError,
+    { params: DeleteAuth29DetectionsParams },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteAuth29Detections>>,
+  TError,
+  { params: DeleteAuth29DetectionsParams },
+  TContext
+> => {
+  const mutationKey = ["deleteAuth29Detections"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteAuth29Detections>>,
+    { params: DeleteAuth29DetectionsParams }
+  > = (props) => {
+    const { params } = props ?? {};
+
+    return deleteAuth29Detections(params, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteAuth29DetectionsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteAuth29Detections>>
+>;
+
+export type DeleteAuth29DetectionsMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Clear UDS 0x29 detections
+ */
+export const useDeleteAuth29Detections = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteAuth29Detections>>,
+    TError,
+    { params: DeleteAuth29DetectionsParams },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteAuth29Detections>>,
+  TError,
+  { params: DeleteAuth29DetectionsParams },
+  TContext
+> => {
+  return useMutation(getDeleteAuth29DetectionsMutationOptions(options));
+};
 
 /**
  * @summary List events for a job

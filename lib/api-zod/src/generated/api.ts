@@ -320,6 +320,151 @@ export const GetUnlockCoverageStatsResponse = zod
   .describe("Runtime unlock-coverage stats from the Python dispatcher.");
 
 /**
+ * @summary List UDS 0x29 detections (newest first)
+ */
+export const ListAuth29DetectionsQueryParams = zod.object({
+  vin: zod.coerce
+    .string()
+    .optional()
+    .describe(
+      "Optional VIN filter — when set, only detections recorded against this VIN are returned.",
+    ),
+});
+
+export const listAuth29DetectionsResponseDetectionsItemTxMin = 0;
+export const listAuth29DetectionsResponseDetectionsItemTxMax = 65535;
+
+export const listAuth29DetectionsResponseDetectionsItemRxMin = 0;
+export const listAuth29DetectionsResponseDetectionsItemRxMax = 65535;
+
+export const listAuth29DetectionsResponseDetectionsItemNrcMin = 0;
+export const listAuth29DetectionsResponseDetectionsItemNrcMax = 255;
+
+export const ListAuth29DetectionsResponse = zod.object({
+  detections: zod.array(
+    zod.object({
+      vin: zod.string(),
+      tx: zod
+        .number()
+        .min(listAuth29DetectionsResponseDetectionsItemTxMin)
+        .max(listAuth29DetectionsResponseDetectionsItemTxMax),
+      rx: zod
+        .number()
+        .min(listAuth29DetectionsResponseDetectionsItemRxMin)
+        .max(listAuth29DetectionsResponseDetectionsItemRxMax)
+        .nullish(),
+      label: zod.string().nullish(),
+      nrc: zod
+        .number()
+        .min(listAuth29DetectionsResponseDetectionsItemNrcMin)
+        .max(listAuth29DetectionsResponseDetectionsItemNrcMax)
+        .nullish(),
+      detectedAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * Upserts by (vin, tx); the youngest record per ECU per VIN wins.
+VIN is optional — detections that fire from contexts without a
+VIN bound (initAdapter probes, bench warm-ups) are stored under
+the empty-string key so the banner still surfaces them.
+
+ * @summary Record (upsert) a UDS 0x29 detection
+ */
+export const upsertAuth29DetectionBodyTxMin = 0;
+export const upsertAuth29DetectionBodyTxMax = 65535;
+
+export const upsertAuth29DetectionBodyRxMin = 0;
+export const upsertAuth29DetectionBodyRxMax = 65535;
+
+export const upsertAuth29DetectionBodyNrcMin = 0;
+export const upsertAuth29DetectionBodyNrcMax = 255;
+
+export const UpsertAuth29DetectionBody = zod.object({
+  vin: zod.string().nullish(),
+  tx: zod
+    .number()
+    .min(upsertAuth29DetectionBodyTxMin)
+    .max(upsertAuth29DetectionBodyTxMax),
+  rx: zod
+    .number()
+    .min(upsertAuth29DetectionBodyRxMin)
+    .max(upsertAuth29DetectionBodyRxMax)
+    .nullish(),
+  label: zod.string().nullish(),
+  nrc: zod
+    .number()
+    .min(upsertAuth29DetectionBodyNrcMin)
+    .max(upsertAuth29DetectionBodyNrcMax)
+    .nullish(),
+});
+
+export const upsertAuth29DetectionResponseDetectionTxMin = 0;
+export const upsertAuth29DetectionResponseDetectionTxMax = 65535;
+
+export const upsertAuth29DetectionResponseDetectionRxMin = 0;
+export const upsertAuth29DetectionResponseDetectionRxMax = 65535;
+
+export const upsertAuth29DetectionResponseDetectionNrcMin = 0;
+export const upsertAuth29DetectionResponseDetectionNrcMax = 255;
+
+export const UpsertAuth29DetectionResponse = zod.object({
+  ok: zod.boolean(),
+  detection: zod.object({
+    vin: zod.string(),
+    tx: zod
+      .number()
+      .min(upsertAuth29DetectionResponseDetectionTxMin)
+      .max(upsertAuth29DetectionResponseDetectionTxMax),
+    rx: zod
+      .number()
+      .min(upsertAuth29DetectionResponseDetectionRxMin)
+      .max(upsertAuth29DetectionResponseDetectionRxMax)
+      .nullish(),
+    label: zod.string().nullish(),
+    nrc: zod
+      .number()
+      .min(upsertAuth29DetectionResponseDetectionNrcMin)
+      .max(upsertAuth29DetectionResponseDetectionNrcMax)
+      .nullish(),
+    detectedAt: zod.coerce.date(),
+  }),
+});
+
+/**
+ * Always scoped — `vin` is required so a single user dismissing
+a local banner can never wipe the fleet-wide map. Optionally
+pass `tx` to scope to one address, and `rx` (with `tx`) to
+clear a single (vin, tx, rx) record.
+
+ * @summary Clear UDS 0x29 detections
+ */
+export const deleteAuth29DetectionsQueryTxMin = 0;
+export const deleteAuth29DetectionsQueryTxMax = 65535;
+
+export const deleteAuth29DetectionsQueryRxMin = 0;
+export const deleteAuth29DetectionsQueryRxMax = 65535;
+
+export const DeleteAuth29DetectionsQueryParams = zod.object({
+  vin: zod.coerce.string(),
+  tx: zod.coerce
+    .number()
+    .min(deleteAuth29DetectionsQueryTxMin)
+    .max(deleteAuth29DetectionsQueryTxMax)
+    .optional(),
+  rx: zod.coerce
+    .number()
+    .min(deleteAuth29DetectionsQueryRxMin)
+    .max(deleteAuth29DetectionsQueryRxMax)
+    .optional(),
+});
+
+export const DeleteAuth29DetectionsResponse = zod.object({
+  ok: zod.boolean(),
+});
+
+/**
  * @summary List events for a job
  */
 export const ListVehicleJobEventsParams = zod.object({
