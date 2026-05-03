@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useRef, useContext, useEffect} from "react";
+import React, {useState, useCallback, useRef, useContext, useEffect, useMemo} from "react";
 import {Card, Btn} from "../lib/ui.jsx";
 import {C} from "../lib/constants.js";
 import {cda6, u32} from "../lib/algos.js";
@@ -18,12 +18,328 @@ import {programVin} from "../lib/vinProgrammer.js";
 import {analyzeDumpPartNumber, generationForPartNumber} from "../lib/vehicles.js";
 import SamplePicker from "../lib/SamplePicker.jsx";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
+import {getBcmGroups, getDid} from "../lib/alfaobdMined/index.js";
+import {buildWdbiFrame, readBits as minedReadBits, buildRoutineControlFrame} from "../lib/alfaobdMined/udsFrameBuilder.js";
 
 const BCM_ALGOS={
   'CDA6':s=>cda6(s),
   'BCM Standard':s=>(s*0x9D+0x1234)&0xFFFFFFFF,
   'BCM FCA':s=>((s^0xABCDEF12)*0x4D+0x5678)&0xFFFFFFFF,
 };
+
+/* ======================================================================
+ * MinedBcmConfigPanel — live UDS BCM feature read/write (Task #588)
+ * ======================================================================
+ * Drives the DE00..DE0C DID family from bcmConfigTab.generated.json.
+ * The BodyPN/BODY_PN_CONFIG decode (FeatureMatrixPanel below) is kept for
+ * offline flash-dump labeling ONLY; it must not drive live UDS writes.
+ *
+ * UI shape: collapsible group cards · search · pending-change highlighting
+ *           · batched multi-DID writes → proxiAlign → optional ECU reset.
+ */
+const MINED_GROUPS = getBcmGroups();
+
+function MinedBcmConfigPanel({engRef, bcmAddr, unlocked, addLog, busy, setBusy}) {
+  const [expanded, setExpanded] = useState(() => new Set());
+  const [search, setSearch] = useState('');
+  const [didPayloads, setDidPayloads] = useState({});
+  const [pending, setPending] = useState({});
+  const [reading, setReading] = useState(false);
+  const [writing, setWriting] = useState(false);
+  const [open, setOpen] = useState(false);
+  const hx = (n, w=2) => n.toString(16).toUpperCase().padStart(w, '0');
+
+  const filteredGroups = useMemo(() => {
+    if (!search.trim()) return MINED_GROUPS;
+    const q = search.toLowerCase();
+    return MINED_GROUPS.map(g => ({
+      ...g,
+      options: g.options.filter(o => o.name.toLowerCase().includes(q)),
+    })).filter(g => g.options.length > 0);
+  }, [search]);
+
+  const pendingCount = useMemo(() => {
+    let n = 0;
+    for (const did of Object.keys(pending)) {
+      n += Object.keys(pending[did]).length;
+    }
+    return n;
+  }, [pending]);
+
+  const needsReset = useMemo(() => {
+    for (const did of Object.keys(pending)) {
+      const group = MINED_GROUPS.find(g => g.did.toUpperCase() === did.toUpperCase());
+      if (!group) continue;
+      for (const name of Object.keys(pending[did])) {
+        const opt = group.options.find(o => o.name === name);
+        if (opt?.requiresReset) return true;
+      }
+    }
+    return false;
+  }, [pending]);
+
+  const readAllDids = useCallback(async () => {
+    if (!engRef.current) { addLog('Connect first', 'error'); return; }
+    setReading(true);
+    addLog('═══ BCM CONFIG READ (DE00..DE0C) ═══', 'info');
+    await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x10, 0x03]);
+    const payloads = {};
+    for (const g of MINED_GROUPS) {
+      const didN = parseInt(g.did.replace(/^0x/i, ''), 16);
+      const r = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x22, (didN >> 8) & 0xFF, didN & 0xFF]);
+      if (r.ok && r.d && r.d[0] === 0x62) {
+        payloads[g.did] = new Uint8Array(Array.from(r.d).slice(3));
+        addLog('DID ' + g.did + ' (' + g.groupName + '): ' + payloads[g.did].length + ' bytes', 'rx');
+      } else {
+        addLog('DID ' + g.did + ': no response', 'warn');
+      }
+    }
+    setDidPayloads(payloads);
+    setPending({});
+    setReading(false);
+    addLog('BCM config read complete', 'info');
+  }, [engRef, bcmAddr, addLog]);
+
+  const writeBatch = useCallback(async () => {
+    if (!engRef.current) { addLog('Connect first', 'error'); return; }
+    if (!unlocked) { addLog('Unlock BCM first', 'error'); return; }
+    if (pendingCount === 0) { addLog('No pending changes', 'warn'); return; }
+    setWriting(true);
+    setBusy('Writing BCM config...');
+    addLog('═══ BCM CONFIG WRITE BATCH (' + pendingCount + ' change' + (pendingCount === 1 ? '' : 's') + ') ═══', 'info');
+    await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x10, 0x03]);
+
+    let anyReset = false;
+    for (const [did, changes] of Object.entries(pending)) {
+      if (Object.keys(changes).length === 0) continue;
+      const didN = parseInt(did.replace(/^0x/i, ''), 16);
+      const group = MINED_GROUPS.find(g => g.did.toUpperCase() === did.toUpperCase());
+      if (!group) continue;
+
+      addLog('Writing DID ' + did + ' (' + group.groupName + ')...', 'info');
+      const rRead = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x22, (didN >> 8) & 0xFF, didN & 0xFF]);
+      if (!rRead.ok || !rRead.d || rRead.d[0] !== 0x62) {
+        addLog('DID ' + did + ': read failed before write', 'error');
+        continue;
+      }
+      let payload = new Uint8Array(Array.from(rRead.d).slice(3));
+
+      for (const [name, newVal] of Object.entries(changes)) {
+        const opt = group.options.find(o => o.name === name);
+        if (!opt) continue;
+        addLog('  ' + name + ': set to ' + newVal + ' (bit ' + opt.bit + ' length ' + opt.length + ')', 'info');
+        const frame = buildWdbiFrame(did, payload, opt.bit, opt.length, newVal);
+        payload = new Uint8Array(frame.slice(3));
+        if (opt.requiresReset) anyReset = true;
+      }
+
+      const wdbiFrame = [0x2E, (didN >> 8) & 0xFF, didN & 0xFF, ...Array.from(payload)];
+      addLog('  WDBI frame: ' + wdbiFrame.map(b => hx(b)).join(' '), 'tx');
+      const rWrite = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, wdbiFrame);
+      if (!rWrite.ok || !rWrite.d || rWrite.d[0] !== 0x6E) {
+        addLog('  DID ' + did + ': write failed (NRC: ' + (rWrite.d ? hx(rWrite.d[2] || 0) : 'no response') + ')', 'error');
+        continue;
+      }
+      const rBack = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x22, (didN >> 8) & 0xFF, didN & 0xFF]);
+      if (rBack.ok && rBack.d && rBack.d[0] === 0x62) {
+        const readback = new Uint8Array(Array.from(rBack.d).slice(3));
+        setDidPayloads(p => ({...p, [did]: readback}));
+        addLog('  DID ' + did + ': readback OK', 'rx');
+      }
+    }
+
+    addLog('ProxiAlign (31 01 02 02)...', 'info');
+    const paFrame = buildRoutineControlFrame('proxiAlign');
+    const rPa = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, paFrame);
+    addLog('  ProxiAlign: ' + (rPa.ok && rPa.d && rPa.d[0] === 0x71 ? 'OK' : 'no positive response — check manually'), rPa.ok ? 'rx' : 'warn');
+
+    if (anyReset) {
+      addLog('ECU reset required by one or more changed options — sending (11 01)...', 'warn');
+      await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, buildRoutineControlFrame('ecuReset'));
+      addLog('Reset sent — wait ~3 s for BCM to boot', 'info');
+    }
+
+    setPending({});
+    setBusy('');
+    setWriting(false);
+    addLog('═══ BCM CONFIG WRITE COMPLETE ═══', 'info');
+  }, [engRef, bcmAddr, unlocked, pending, pendingCount, addLog, setBusy]);
+
+  const setPendingOption = useCallback((did, name, value) => {
+    setPending(p => {
+      const existing = {...(p[did] || {})};
+      existing[name] = value;
+      return {...p, [did]: existing};
+    });
+  }, []);
+
+  const clearPendingOption = useCallback((did, name) => {
+    setPending(p => {
+      const existing = {...(p[did] || {})};
+      delete existing[name];
+      const next = {...p};
+      if (Object.keys(existing).length === 0) delete next[did];
+      else next[did] = existing;
+      return next;
+    });
+  }, []);
+
+  return (
+    <Card style={{marginBottom: 14, border: '1.5px solid ' + C.sr + '33', background: '#FFF8F6'}}>
+      <div onClick={() => setOpen(o => !o)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10}}>
+        <div style={{fontSize: 18}}>⚙️</div>
+        <div style={{flex: 1}}>
+          <div style={{fontWeight: 800, fontSize: 12, color: C.sr, letterSpacing: 1.5}}>
+            BCM LIVE CONFIGURATION (MINED CATALOG)
+          </div>
+          <div style={{fontSize: 10, color: C.tm, marginTop: 2}}>
+            {MINED_GROUPS.length} groups · {MINED_GROUPS.reduce((n, g) => n + g.options.length, 0)} options · DE00..DE0C · AlfaOBD-mined UDS sequences
+            {pendingCount > 0 && <span style={{marginLeft: 8, fontWeight: 800, color: C.wn}}>● {pendingCount} pending change{pendingCount === 1 ? '' : 's'}</span>}
+          </div>
+        </div>
+        <div style={{fontSize: 14, color: C.tm}}>{open ? '▾' : '▸'}</div>
+      </div>
+
+      {open && (
+        <div style={{marginTop: 12}}>
+          <div style={{fontSize: 10, color: C.a2, padding: '5px 10px', background: C.a2 + '11', borderRadius: 6, marginBottom: 10, border: '1px solid ' + C.a2 + '33'}}>
+            ℹ Reads/writes use UDS RDBI (0x22) + WDBI (0x2E) against the live BCM. BCM must be connected and unlocked to write. BODY_PN_CONFIG (BodyPN/Delphi catalog) is preserved separately for offline flash-dump decode only.
+          </div>
+
+          <div style={{display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10}}>
+            <Btn onClick={readAllDids} disabled={!engRef.current || reading || writing || !!busy} color={C.a3}>
+              {reading ? '⏳ Reading…' : '📖 Read All DIDs'}
+            </Btn>
+            {pendingCount > 0 && (
+              <Btn onClick={writeBatch} disabled={!unlocked || writing || !!busy} color={C.sr}>
+                {writing ? '⏳ Writing…' : '💾 Write ' + pendingCount + ' change' + (pendingCount === 1 ? '' : 's')}
+                {needsReset ? ' + Reset' : ''}
+              </Btn>
+            )}
+            {pendingCount > 0 && (
+              <Btn onClick={() => setPending({})} color={C.tm} outline>✕ Clear Pending</Btn>
+            )}
+          </div>
+
+          <input
+            placeholder="🔍 Search options…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{width: '100%', padding: '6px 10px', borderRadius: 7, border: '1px solid ' + C.bd, fontSize: 11, marginBottom: 10, boxSizing: 'border-box'}}
+          />
+
+          {filteredGroups.map(group => {
+            const isExpanded = expanded.has(group.did);
+            const payload = didPayloads[group.did];
+            const groupPending = pending[group.did] || {};
+            const hasPending = Object.keys(groupPending).length > 0;
+            const didInfo = getDid(group.did);
+
+            return (
+              <div key={group.did} style={{marginBottom: 6, borderRadius: 8, border: '1px solid ' + (hasPending ? C.wn + '88' : C.bd), overflow: 'hidden'}}>
+                <div
+                  onClick={() => setExpanded(s => {
+                    const next = new Set(s);
+                    if (next.has(group.did)) next.delete(group.did);
+                    else next.add(group.did);
+                    return next;
+                  })}
+                  style={{padding: '8px 12px', background: hasPending ? C.wn + '11' : C.c2, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8}}
+                >
+                  <span style={{fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.a3, fontWeight: 800}}>{group.did}</span>
+                  <span style={{flex: 1, fontWeight: 700, fontSize: 11}}>{group.groupName}</span>
+                  <span style={{fontSize: 10, color: C.tm}}>{group.options.length} options</span>
+                  {hasPending && <span style={{fontSize: 10, fontWeight: 800, color: C.wn}}>● {Object.keys(groupPending).length} pending</span>}
+                  {didInfo && didInfo.canWrite && <span style={{fontSize: 9, color: C.gn, fontWeight: 700}}>RW</span>}
+                  <span style={{fontSize: 12, color: C.tm}}>{isExpanded ? '▾' : '▸'}</span>
+                </div>
+
+                {isExpanded && (
+                  <div style={{padding: '8px 12px', background: '#fff'}}>
+                    {!payload && (
+                      <div style={{fontSize: 10, color: C.tm, fontStyle: 'italic', marginBottom: 6}}>
+                        No live data — click "Read All DIDs" to fetch current BCM values.
+                      </div>
+                    )}
+                    {group.options.map(opt => {
+                      const isPending = opt.name in groupPending;
+                      const liveRaw = payload ? minedReadBits(payload, opt.bit, opt.length) : null;
+                      const pendingRaw = groupPending[opt.name];
+                      const displayRaw = isPending ? pendingRaw : liveRaw;
+                      const hasOptions = opt.valueMap && Object.keys(opt.valueMap).length > 0;
+
+                      return (
+                        <div key={opt.name} style={{
+                          display: 'flex', alignItems: 'center', gap: 8,
+                          padding: '5px 4px',
+                          borderBottom: '1px dotted ' + C.bd,
+                          background: isPending ? C.wn + '0D' : 'transparent',
+                        }}>
+                          <div style={{flex: 1, fontSize: 11, color: C.tx}}>
+                            {opt.name}
+                            {opt.requiresReset && <span style={{marginLeft: 4, fontSize: 9, color: C.er, fontWeight: 700}}>⟳reset</span>}
+                            {isPending && <span style={{marginLeft: 4, fontSize: 9, color: C.wn, fontWeight: 700}}>● pending</span>}
+                          </div>
+                          <span style={{fontFamily: "'JetBrains Mono'", fontSize: 9, color: C.ts}}>bit{opt.bit}/+{opt.length}</span>
+                          {hasOptions ? (
+                            <select
+                              value={displayRaw === null || displayRaw === undefined ? '' : String(displayRaw)}
+                              onChange={e => {
+                                const v = parseInt(e.target.value, 10);
+                                if (!isNaN(v) && payload && v === liveRaw) {
+                                  clearPendingOption(group.did, opt.name);
+                                } else if (!isNaN(v)) {
+                                  setPendingOption(group.did, opt.name, v);
+                                }
+                              }}
+                              style={{
+                                fontSize: 10, padding: '2px 4px', borderRadius: 4,
+                                border: '1px solid ' + (isPending ? C.wn : C.bd),
+                                background: isPending ? C.wn + '18' : '#fff',
+                                minWidth: 120,
+                              }}
+                            >
+                              {displayRaw === null || displayRaw === undefined ? (
+                                <option value="">(not read)</option>
+                              ) : null}
+                              {Object.entries(opt.valueMap).map(([val, label]) => (
+                                <option key={val} value={val}>{label}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <input
+                              type="number"
+                              min={0}
+                              max={(1 << opt.length) - 1}
+                              value={displayRaw === null || displayRaw === undefined ? '' : displayRaw}
+                              placeholder="(not read)"
+                              onChange={e => {
+                                const v = parseInt(e.target.value, 10);
+                                if (!isNaN(v)) {
+                                  if (payload && v === liveRaw) clearPendingOption(group.did, opt.name);
+                                  else setPendingOption(group.did, opt.name, v);
+                                }
+                              }}
+                              style={{
+                                fontSize: 10, padding: '2px 6px', width: 70, borderRadius: 4,
+                                border: '1px solid ' + (isPending ? C.wn : C.bd),
+                                background: isPending ? C.wn + '18' : '#fff',
+                              }}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Card>
+  );
+}
 
 const BCM_CANDIDATES=[
   {tx:0x750,rx:0x758,name:'CDA6 primary (2017 Scat Pack)'},
@@ -548,6 +864,15 @@ export default function BcmTab({vehicle}){
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.gn,fontWeight:700}}>{inspectMsg}</div>}
       {inspectMod&&!inspectTooSmall&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
     </Card>
+
+    <MinedBcmConfigPanel
+      engRef={eng}
+      bcmAddr={bcmAddr}
+      unlocked={unlocked}
+      addLog={addLog}
+      busy={busy}
+      setBusy={setBusy}
+    />
 
     {inspectMod&&!inspectTooSmall&&<FeatureMatrixPanel mod={inspectMod}/>}
 

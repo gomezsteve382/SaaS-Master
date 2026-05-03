@@ -6,7 +6,8 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "scan-witech-dump": "tsx ./src/scan-witech-dump.ts",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "mine:alfaobd": "node src/mine-alfaobd.mjs"
   },
   "devDependencies": {
     "@types/node": "catalog:",

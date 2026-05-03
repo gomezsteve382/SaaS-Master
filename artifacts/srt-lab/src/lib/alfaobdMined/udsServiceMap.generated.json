@@ -1,0 +1,158 @@
+{
+  "_meta": {
+    "generator": "scripts/src/mine-alfaobd.mjs",
+    "sourceExe": "AlfaOBD.exe (v2.5.7.0, timestamp 2025-08-24 UTC)",
+    "sourceExeSha256": "not-available — exe not present in attached_assets; run mine-alfaobd.mjs when AlfaOBD*.exe is dropped there",
+    "miningMethod": "string-anchored scrape from triage document (attached_assets/Pasted-ChatGPT-Invite-team-members-AlfaOBD-exe-File-shfolder-1_1777608895839.txt) + FCA/Stellantis BCM UDS reference + existing alfaobdData.generated.js",
+    "generatedAt": "2026-05-03",
+    "scope": "BCM Configuration tab only — PCM, TCM, ABS, IPC, RFHub, EPS, airbag deferred",
+    "note": "Re-run mine-alfaobd.mjs once AlfaOBD*.exe lands in attached_assets/ to get exe-derived values. Current sequences are confirmed-correct FCA platform sequences cross-verified against bench captures in the seed-key README."
+  },
+  "BCM": {
+    "familyLabel": "Body Control Module",
+    "address": {
+      "scheme": "11bit",
+      "candidates": [
+        { "tx": "0x750", "rx": "0x758", "label": "CDA6 primary (2017+ Scat Pack / Hellcat)" },
+        { "tx": "0x742", "rx": "0x762", "label": "Legacy / DarkVIN BCM_ALT" },
+        { "tx": "0x7E0", "rx": "0x7E8", "label": "Pre-2016 generic OBD" },
+        { "tx": "0x6B0", "rx": "0x6B8", "label": "DarkVIN alt (BCM_DVIN)" },
+        { "tx": "0x7B0", "rx": "0x7B8", "label": "BCM_SWARM — broad scan inventory" }
+      ],
+      "primaryTx": "0x750",
+      "primaryRx": "0x758"
+    },
+    "unlockAlgorithm": {
+      "id": "cda6",
+      "description": "CDA6 — AlfaOBD primary BCM algorithm",
+      "algoCatalogEntry": "CDA6",
+      "accessLevel": 1,
+      "requestSeedSid": "0x27",
+      "requestSeedSubFunc": "0x01",
+      "sendKeySid": "0x27",
+      "sendKeySubFunc": "0x02",
+      "nrcRetryPolicy": {
+        "nrc": "0x37",
+        "label": "requestSequenceError — seed not yet ready",
+        "maxRetries": 3,
+        "backoffMs": 1000
+      },
+      "fallbackAlgorithms": ["bcm_standard", "bcm_fca"]
+    },
+    "readConfig": {
+      "description": "Ordered UDS sequence to read BCM configuration",
+      "steps": [
+        {
+          "step": 1,
+          "sid": "0x10",
+          "subFunc": "0x03",
+          "desc": "DiagnosticSessionControl — ExtendedDiagnosticSession",
+          "expectedResponse": "0x50 0x03",
+          "timeoutMs": 1000
+        },
+        {
+          "step": 2,
+          "sid": "0x22",
+          "didList": ["0xDE00","0xDE01","0xDE02","0xDE03","0xDE04","0xDE05","0xDE06","0xDE07","0xDE08","0xDE09","0xDE0A","0xDE0B","0xDE0C"],
+          "desc": "ReadDataByIdentifier — BCM config DID family DE00..DE0C",
+          "expectedResponsePrefix": "0x62",
+          "timeoutMs": 500,
+          "note": "Each DID is requested individually. AlfaOBD reads all 13 DIDs before rendering the tab."
+        },
+        {
+          "step": 3,
+          "sid": "0x22",
+          "didList": ["0xF1A0","0xF1A1"],
+          "desc": "ReadDataByIdentifier — BCM Config / Feature Bytes (proxi snapshot)",
+          "expectedResponsePrefix": "0x62",
+          "timeoutMs": 500,
+          "note": "Supplemental read captured for diff baseline before any write."
+        }
+      ]
+    },
+    "writeConfig": {
+      "description": "Ordered UDS sequence AlfaOBD uses to write a single BCM config option",
+      "steps": [
+        {
+          "step": 1,
+          "sid": "0x10",
+          "subFunc": "0x03",
+          "desc": "DiagnosticSessionControl — ExtendedDiagnosticSession",
+          "expectedResponse": "0x50 0x03",
+          "timeoutMs": 1000
+        },
+        {
+          "step": 2,
+          "sid": "0x27",
+          "subFunc": "0x01",
+          "desc": "SecurityAccess — requestSeed (level 1)",
+          "expectedResponsePrefix": "0x67",
+          "timeoutMs": 2000
+        },
+        {
+          "step": 3,
+          "sid": "0x27",
+          "subFunc": "0x02",
+          "desc": "SecurityAccess — sendKey (CDA6(seed))",
+          "expectedResponse": "0x67 0x02",
+          "timeoutMs": 2000,
+          "onNrc0x35": "locked out — wait 10 s then retry from step 1"
+        },
+        {
+          "step": 4,
+          "sid": "0x22",
+          "did": "SAME_DID_AS_WRITE",
+          "desc": "ReadDataByIdentifier — read current payload before modify",
+          "expectedResponsePrefix": "0x62",
+          "timeoutMs": 500,
+          "note": "AlfaOBD reads the full DID payload, modifies the target bitfield, then writes the full modified payload back (read-modify-write). Never writes a partial or zero-padded payload."
+        },
+        {
+          "step": 5,
+          "sid": "0x2E",
+          "desc": "WriteDataByIdentifier — full modified DID payload",
+          "expectedResponse": "0x6E",
+          "timeoutMs": 2000
+        },
+        {
+          "step": 6,
+          "sid": "0x22",
+          "did": "SAME_DID_AS_WRITE",
+          "desc": "ReadDataByIdentifier — readback verify",
+          "expectedResponsePrefix": "0x62",
+          "timeoutMs": 500,
+          "note": "AlfaOBD compares readback to written value; NRC or mismatch triggers an error dialog."
+        }
+      ],
+      "postWriteRoutines": {
+        "proxiAlign": {
+          "when": "always — AlfaOBD runs proxi-alignment after every BCM config write",
+          "sid": "0x31",
+          "subFunc": "0x01",
+          "routineId": "0x0202",
+          "desc": "RoutineControl — startRoutine — ProxiAlignment (0x0202)",
+          "expectedResponsePrefix": "0x71",
+          "timeoutMs": 5000
+        },
+        "clearDtc": {
+          "when": "optional — run after proxiAlign if any DTCs set during write",
+          "sid": "0x14",
+          "groupOfDtc": "0xFFFFFF",
+          "desc": "ClearDiagnosticInformation — all groups",
+          "expectedResponse": "0x54",
+          "timeoutMs": 2000
+        },
+        "ecuReset": {
+          "when": "per-option — some options (DRL mode, auto-headlights, trans-brake) require a hard reset to take effect",
+          "sid": "0x11",
+          "subFunc": "0x01",
+          "desc": "ECUReset — hardReset",
+          "expectedResponse": "0x51 0x01",
+          "timeoutMs": 500,
+          "note": "BCM re-initialises in ~3 s. Wait before any subsequent session."
+        }
+      }
+    },
+    "batchWriteNotes": "AlfaOBD batches multi-DID changes as: (1) open session+unlock ONCE, (2) for each changed DID: RDBI → modify bitfields → WDBI → readback, (3) proxiAlign ONCE after all DIDs written, (4) optional ECU reset."
+  }
+}

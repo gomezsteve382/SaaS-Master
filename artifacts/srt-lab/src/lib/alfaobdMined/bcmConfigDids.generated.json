@@ -1,0 +1,244 @@
+{
+  "_meta": {
+    "generator": "scripts/src/mine-alfaobd.mjs",
+    "sourceExe": "AlfaOBD.exe (v2.5.7.0, timestamp 2025-08-24 UTC)",
+    "miningMethod": "string-anchored scrape + alfaobdData.generated.js CRITICAL_DIDS + bcmFeatureCatalog.generated.js DE_FEATURE_CATALOG + backups.js CRITICAL_DIDS[BCM]",
+    "generatedAt": "2026-05-03"
+  },
+  "dids": {
+    "0xDE00": {
+      "name": "Lighting Configuration",
+      "group": "BCM Configuration — Lighting",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 9,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE01": {
+      "name": "Door Lock Configuration",
+      "group": "BCM Configuration — Door Lock",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 7,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE02": {
+      "name": "Horn & Sound Configuration",
+      "group": "BCM Configuration — Horn & Sound",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 4,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE03": {
+      "name": "Comfort & Convenience",
+      "group": "BCM Configuration — Comfort",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 4,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE04": {
+      "name": "Window & Sunroof Configuration",
+      "group": "BCM Configuration — Windows",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 2,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE05": {
+      "name": "Mirror Configuration",
+      "group": "BCM Configuration — Mirrors",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 1,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE06": {
+      "name": "Wiper Configuration",
+      "group": "BCM Configuration — Wipers",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 1,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE07": {
+      "name": "Engine & Start Configuration",
+      "group": "BCM Configuration — Engine & Start",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 2,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE08": {
+      "name": "Display & Cluster Configuration",
+      "group": "BCM Configuration — Display",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 2,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE09": {
+      "name": "Security & Alarm Configuration",
+      "group": "BCM Configuration — Security",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 1,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE0A": {
+      "name": "Performance & SRT Configuration",
+      "group": "BCM Configuration — Performance",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 12,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE0B": {
+      "name": "Vehicle Configuration",
+      "group": "BCM Configuration — Vehicle",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 2,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xDE0C": {
+      "name": "TPMS Configuration",
+      "group": "BCM Configuration — TPMS",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 2,
+      "source": "DE_FEATURE_CATALOG"
+    },
+    "0xF190": {
+      "name": "VIN",
+      "group": "Module Identity",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 17,
+      "source": "CRITICAL_DIDS_BCM"
+    },
+    "0xF187": {
+      "name": "Part Number",
+      "group": "Module Identity",
+      "canRead": true,
+      "canWrite": false,
+      "sessionRequired": "default",
+      "securityLevelRequired": 0,
+      "source": "CRITICAL_DIDS_BCM"
+    },
+    "0xF189": {
+      "name": "Software Version",
+      "group": "Module Identity",
+      "canRead": true,
+      "canWrite": false,
+      "sessionRequired": "default",
+      "securityLevelRequired": 0,
+      "source": "CRITICAL_DIDS_BCM"
+    },
+    "0xF191": {
+      "name": "Hardware Version",
+      "group": "Module Identity",
+      "canRead": true,
+      "canWrite": false,
+      "sessionRequired": "default",
+      "securityLevelRequired": 0,
+      "source": "CRITICAL_DIDS_BCM"
+    },
+    "0xF18C": {
+      "name": "Serial Number",
+      "group": "Module Identity",
+      "canRead": true,
+      "canWrite": false,
+      "sessionRequired": "default",
+      "securityLevelRequired": 0,
+      "source": "CRITICAL_DIDS_BCM"
+    },
+    "0xF1A0": {
+      "name": "BCM Config",
+      "group": "Module Identity",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "source": "CRITICAL_DIDS_BCM",
+      "note": "Low-level proxi blob — prefer DE_FEATURE_CATALOG DIDs for user-configurable options"
+    },
+    "0xF1A1": {
+      "name": "BCM Feature Bytes",
+      "group": "Module Identity",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "source": "CRITICAL_DIDS_BCM",
+      "note": "Supplemental proxi — prefer DE_FEATURE_CATALOG DIDs for user-configurable options"
+    },
+    "0xF1D0": {
+      "name": "Key Fob Data",
+      "group": "Security",
+      "canRead": true,
+      "canWrite": false,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "source": "CRITICAL_DIDS_BCM"
+    },
+    "0xF1D1": {
+      "name": "SKIM Data",
+      "group": "Security",
+      "canRead": true,
+      "canWrite": false,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "source": "CRITICAL_DIDS_BCM"
+    },
+    "0x7B90": {
+      "name": "Current VIN",
+      "group": "VIN Mirror",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 17,
+      "source": "CRITICAL_DIDS_BCM"
+    },
+    "0x7B88": {
+      "name": "Original VIN",
+      "group": "VIN Mirror",
+      "canRead": true,
+      "canWrite": true,
+      "sessionRequired": "extended",
+      "securityLevelRequired": 1,
+      "payloadLengthBytes": 17,
+      "source": "CRITICAL_DIDS_BCM"
+    }
+  }
+}
