@@ -42,11 +42,14 @@ describe('bcmConfigCodec — bit primitives', () => {
 });
 
 describe('bcmConfigCodec — catalog grouping', () => {
-  it('exposes the 13 DEnn DIDs plus hand-curated extras', () => {
+  it('exposes the 13 DEnn DIDs plus the BCM body extras catalog', () => {
     expect(BCM_CONFIG_DIDS.length).toBeGreaterThanOrEqual(14);
     expect(BCM_CONFIG_DIDS[0]).toBe(0xDE00);
     expect(BCM_CONFIG_DIDS).toContain(0xDE0C);
     expect(BCM_CONFIG_DIDS).toContain(0x05AE);
+    // Sample of additional BCM body DIDs picked up by the extras catalog
+    expect(BCM_CONFIG_DIDS).toContain(0x04E0); // Sport Mode / FCW / Auto Park
+    expect(BCM_CONFIG_DIDS).toContain(0x0536); // Vehicle Class / Fleet
   });
 
   it('groups every catalog row under exactly one DID', () => {
@@ -56,8 +59,30 @@ describe('bcmConfigCodec — catalog grouping', () => {
       expect(grouped.has(did)).toBe(true);
       total += grouped.get(did).length;
     }
-    // 155 from DE_FEATURE_CATALOG + 6 from BCM_CONFIG_EXTRA_CATALOG (0x05AE)
-    expect(total).toBe(161);
+    // 155 from DE_FEATURE_CATALOG + everything in BCM_CONFIG_EXTRA_CATALOG.
+    // Lower bound is what we know is present today (155 DEnn fields + 6 on
+    // 0x05AE); we deliberately avoid pinning the exact extras count so
+    // regenerating the extras catalog does not require a test edit.
+    expect(total).toBeGreaterThanOrEqual(161);
+  });
+
+  it('surfaces the AlfaOBD-equivalent BCM categories', () => {
+    const grouped = groupCatalogByDid();
+    const allNames = [...grouped.values()].flat().map((f) => f.name);
+    // Things the user explicitly named: Sport(s) Pages, Vehicle Brand /
+    // Class, Track Mode, plus other AlfaOBD staples
+    expect(allNames).toContain('Red Key Feature Present');
+    expect(allNames).toContain('Sport Mode Present');
+    expect(allNames).toContain('Off-Road Pages Present');
+    expect(allNames).toContain('Vehicle Brand');
+    expect(allNames).toContain('Vehicle Class');
+    expect(allNames).toContain('Vehicle Package');
+    expect(allNames).toContain('Sunroof Present');
+    expect(allNames).toContain('Power Lift Gate Present');
+    expect(allNames).toContain('Forward Collision Warning Present');
+    expect(allNames).toContain('Hill Start Assist Customer Setting Option Present');
+    // Track Mode lives in the auto-mined DEnn catalog (DE0A)
+    expect(allNames.some((n) => /track mode/i.test(n))).toBe(true);
   });
 
   it('exposes Red Key Feature Present on DID 0x05AE', () => {
