@@ -37,6 +37,7 @@ import {
   proxiSectionCatalogRows,
   PROXI_VARIANTS,
 } from "../lib/proxiDecoder.js";
+import ProxiEditor from "./ProxiEditor.jsx";
 
 const PROXI_OFFSET = 0x2023;
 const PROXI_LENGTH = 16;
@@ -88,6 +89,14 @@ export default function ProxiTab() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [expanded, setExpanded] = useState(() => new Set());
+  // Visible log sink for the live PROXI editor — every UDS step / NRC /
+  // outcome from ProxiEditor is appended here so the tech has full
+  // traceability without opening the browser console.
+  const [proxiLog, setProxiLog] = useState([]);
+  const addProxiLog = useCallback((m, t = "info") => {
+    const ts = new Date().toLocaleTimeString();
+    setProxiLog((p) => [...p.slice(-300), { ts, m, t }]);
+  }, []);
   const fileRef = useRef(null);
 
   // Decode whatever bytes we have. When nothing is loaded for a DID,
@@ -201,25 +210,62 @@ export default function ProxiTab() {
 
   return (
     <div>
-      {/* Read-only banner — the most important UI element on this tab */}
+      {/* Banner — clarifies that THIS TAB now has TWO panels with very
+       * different write semantics. The DEnn / 0x2023 decoder below is
+       * still read-only (curated label map, not ground-truthed). The
+       * Live PROXI Editor immediately below this banner DOES write to
+       * the BCM via 0x2E 0xFD01 with cfBCM seed/key. */}
       <Card style={{ marginBottom: 16, background: "#FFF8E1", borderColor: "#F0C13B" }}>
         <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
           <div style={{ fontSize: 24 }}>📋</div>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 900, fontSize: 13, color: "#7A5300", letterSpacing: 0.5 }}>
-              READ-ONLY DECODER
+              TWO PANELS — DIFFERENT WRITE SEMANTICS
             </div>
             <div style={{ fontSize: 12, color: "#7A5300", marginTop: 4, lineHeight: 1.5 }}>
-              This tab decodes BCM proxi (0x2023) and the DEnn feature DID family (DE00–DE0C, 155
-              fields curated from BCMConfiguration.tsx) using AlfaOBD's recovered field map. There
-              is no write path here on purpose: the labels are best-effort and need to be
-              ground-truthed against a known-good dump for your platform before any 0x2E lands on
-              a live BCM. Use this to verify the field map first; the encoder + programmer ship in
-              a follow-up.
+              <strong>Below this banner:</strong> the Live PROXI Editor — reads and writes the
+              128-byte PROXI record (DID 0xFD01 / 0xFD20) over the J2534 bridge with cfBCM
+              seed/key. Write is real (0x2E) and ECU-resets the BCM.{" "}
+              <strong>Further down:</strong> the DEnn / 0x2023 decoder is still read-only — its
+              labels are best-effort from AlfaOBD's recovered map and need to be ground-truthed
+              against a known-good dump for your platform before any future 0x2E to those DIDs.
             </div>
           </div>
         </div>
       </Card>
+
+      {/* Live read/edit/write panel — drives UDS 0x22/0x2E 0xFD01 over the
+       * J2534 bridge with cfBCM seed/key. This is the native browser
+       * replacement for the FCA PROXI Tool EXE. */}
+      <ProxiEditor addLog={addProxiLog} />
+
+      {/* Visible log panel for the editor — every UDS step, NRC, and
+       * write outcome is appended here so the tech has full traceability
+       * without opening the browser console. */}
+      {proxiLog.length > 0 && (
+        <Card style={{ marginBottom: 16, background: "#0F0F0F", color: "#E8E8E8", padding: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+            <div style={{ fontWeight: 900, fontSize: 11, color: "#FFB300", letterSpacing: 1.2, flex: 1 }}>
+              PROXI EDITOR LOG ({proxiLog.length})
+            </div>
+            <Btn onClick={() => setProxiLog([])} color={C.tm} outline>✕ Clear</Btn>
+          </div>
+          <div style={{ maxHeight: 200, overflowY: "auto", fontFamily: "monospace", fontSize: 10, lineHeight: 1.6 }}>
+            {proxiLog.map((row, i) => (
+              <div key={i} style={{
+                color:
+                  row.t === "error" ? "#FF6B6B" :
+                  row.t === "warn" ? "#FFB300" :
+                  row.t === "rx" ? "#69F0AE" :
+                  row.t === "tx" ? "#69B7FF" :
+                  "#E8E8E8",
+              }}>
+                <span style={{ color: "#666" }}>{row.ts}</span> {row.m}
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Input panel */}
       <Card style={{ marginBottom: 16 }}>
