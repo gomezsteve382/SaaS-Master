@@ -42,10 +42,11 @@ describe('bcmConfigCodec — bit primitives', () => {
 });
 
 describe('bcmConfigCodec — catalog grouping', () => {
-  it('exposes 13 DEnn DIDs', () => {
-    expect(BCM_CONFIG_DIDS.length).toBe(13);
+  it('exposes the 13 DEnn DIDs plus hand-curated extras', () => {
+    expect(BCM_CONFIG_DIDS.length).toBeGreaterThanOrEqual(14);
     expect(BCM_CONFIG_DIDS[0]).toBe(0xDE00);
-    expect(BCM_CONFIG_DIDS[12]).toBe(0xDE0C);
+    expect(BCM_CONFIG_DIDS).toContain(0xDE0C);
+    expect(BCM_CONFIG_DIDS).toContain(0x05AE);
   });
 
   it('groups every catalog row under exactly one DID', () => {
@@ -55,7 +56,28 @@ describe('bcmConfigCodec — catalog grouping', () => {
       expect(grouped.has(did)).toBe(true);
       total += grouped.get(did).length;
     }
-    expect(total).toBe(155);
+    // 155 from DE_FEATURE_CATALOG + 6 from BCM_CONFIG_EXTRA_CATALOG (0x05AE)
+    expect(total).toBe(161);
+  });
+
+  it('exposes Red Key Feature Present on DID 0x05AE', () => {
+    const fields = groupCatalogByDid().get(0x05AE) || [];
+    const names = fields.map((f) => f.name);
+    expect(names).toContain('Red Key Feature Present');
+    expect(names).toContain('Active Blind Spot Present');
+    // bit-0..5 boolean layout
+    expect(fields.every((f) => f.length === 1)).toBe(true);
+  });
+
+  it('encoding Red Key Feature Present=1 yields a payload with bit 4 of byte 0 set', () => {
+    const did = 0x05AE;
+    const out = encodeBcmDid(did, { 'Red Key Feature Present': 1 }, null);
+    // Catalog uses MSB-first global bit indexing — bit 4 → bitmask 0b00001000.
+    expect(out[0] & 0b00001000).toBe(0b00001000);
+    const decoded = decodeBcmDid(did, out);
+    const row = decoded.find((r) => r.field.name === 'Red Key Feature Present');
+    expect(row.raw).toBe(1);
+    expect(row.label).toMatch(/Red Key recognised/i);
   });
 
   it('Performance & SRT group is DE0A and contains the SRT toggles', () => {

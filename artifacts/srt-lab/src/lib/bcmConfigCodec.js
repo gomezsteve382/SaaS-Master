@@ -24,15 +24,23 @@
  */
 
 import { DE_FEATURE_CATALOG } from './bcmFeatureCatalog.generated.js';
+import {
+  BCM_CONFIG_EXTRA_CATALOG,
+  BCM_CONFIG_EXTRA_DIDS,
+} from './bcmFeatureCatalogExtra.js';
 
-/* DE00..DE0C as numeric DIDs. */
+/* DE00..DE0C plus hand-curated extras (e.g. 0x05AE — Red Key Feature
+ * Present and the rest of the BCM Body presence flags). */
 export const BCM_CONFIG_DIDS = [
   0xDE00, 0xDE01, 0xDE02, 0xDE03, 0xDE04, 0xDE05, 0xDE06,
   0xDE07, 0xDE08, 0xDE09, 0xDE0A, 0xDE0B, 0xDE0C,
+  ...BCM_CONFIG_EXTRA_DIDS,
 ];
 
 function didKey(did) {
-  return 'DE' + (did & 0xFF).toString(16).toUpperCase().padStart(2, '0');
+  const hi = (did >> 8) & 0xFF;
+  if (hi === 0xDE) return 'DE' + (did & 0xFF).toString(16).toUpperCase().padStart(2, '0');
+  return did.toString(16).toUpperCase().padStart(4, '0');
 }
 
 let _grouped = null;
@@ -42,9 +50,16 @@ export function groupCatalogByDid() {
   for (const did of BCM_CONFIG_DIDS) {
     m.set(did, []);
   }
-  for (const f of DE_FEATURE_CATALOG) {
-    const num = parseInt(f.request.replace(/^DE/i, ''), 16);
-    const did = 0xDE00 | num;
+  // request strings of the form "DEnn" map to 0xDE00|nn. Extra rows use
+  // a 4-hex-char request like "05AE" — map directly.
+  for (const f of [...DE_FEATURE_CATALOG, ...BCM_CONFIG_EXTRA_CATALOG]) {
+    let did;
+    if (/^DE/i.test(f.request)) {
+      const num = parseInt(f.request.replace(/^DE/i, ''), 16);
+      did = 0xDE00 | num;
+    } else {
+      did = parseInt(f.request, 16);
+    }
     if (!m.has(did)) m.set(did, []);
     m.get(did).push(f);
   }
