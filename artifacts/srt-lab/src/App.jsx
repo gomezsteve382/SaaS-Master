@@ -40,6 +40,7 @@ import EcmFlasherTab from "./tabs/EcmFlasherTab.jsx";
 import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
 import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
 import ProxiTab from "./tabs/ProxiTab.jsx";
+import BcmConfigTab from "./tabs/BcmConfigTab.jsx";
 import FcaModuleInspector from "./tabs/FcaModuleInspector.jsx";
 import UnlockCoverageTab from "./tabs/UnlockCoverageTab.jsx";
 import WorkflowTab from "./tabs/WorkflowTab.jsx";
@@ -910,6 +911,7 @@ const WORKSPACE_TABS = [
   {id:'cdasession',i:'🔐', l:'CDA6 SESSION', s:'9-step UDS walkthrough'},
   {id:'vinprog',   i:'🪪', l:'VIN + CHECKSUM', s:'Single-file VIN write + CRC patcher'},
   {id:'proxi',     i:'📋', l:'PROXI',        s:'BCM 0x2023 + DEnn feature decoder · read-only'},
+  {id:'bcmconfig', i:'⚙️', l:'BCM CONFIG',   s:'DE00..DE0C · 155 toggles · SRT/Perf/Track'},
   {id:'inspector', i:'🔍', l:'MODULE INSPECTOR', s:'GPEC2A · RFHUB · BCM auto-detect'},
   {id:'unlockcov', i:'🗝️', l:'UNLOCK COV',   s:'81 DLLs · reversed vs dll_only'},
   {id:'alfaobd',   i:'🧾', l:'ALFAOBD',      s:'ECUTYPE · Handlers · Transports'},
@@ -1074,6 +1076,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='cdasession'&& <Cda6SessionTab/>}
         {tab==='vinprog'   && <VinProgrammerTab/>}
         {tab==='proxi'     && <ProxiTab/>}
+        {tab==='bcmconfig' && <BcmConfigTab vehicle={vehicle}/>}
         {tab==='inspector' && <FcaModuleInspector/>}
         {tab==='unlockcov' && <UnlockCoverageTab/>}
         {tab==='alfaobd'   && <AlfaObdTablesTab/>}
