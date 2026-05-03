@@ -89,17 +89,23 @@ describe('parseModule.js info.pcmSec6 uses the shared classifier', () => {
 });
 
 describe('engParsePcm uses the shared classifier (no drift between the two parsers)', () => {
-  it('FFFF00FFFFFF agrees with parseModule: not populated, marked damaged', () => {
+  it('FFFF00FFFFFF (mostly-FF) is unpaired, not damaged', () => {
+    // The user-reported "car runs and drives" case: SEC6 is virgin /
+    // mostly-FF and the canonical FF FF FF AA marker is missing. The
+    // PCM is unpaired but structurally fine — engParsePcm now reports
+    // immoUnpaired=true and immoDamaged=false so the inspection card
+    // shows a yellow UNPAIRED chip instead of a red DAMAGED chip.
     const bytes = makeGpec2a({
       pcmSec6Bytes: u8(0xFF,0xFF,0x00,0xFF,0xFF,0xFF),
     });
     const r = engParsePcm(bytes, 'GPEC2A_VIRGIN.bin');
     expect(r.sec6).toBeTruthy();
     expect(r.immoOk).toBe(false);
-    expect(r.immoDamaged).toBe(true);
+    expect(r.immoUnpaired).toBe(true);
+    expect(r.immoDamaged).toBe(false);
     expect(r.sec6Class).toBeTruthy();
     expect(r.sec6Class.populated).toBe(false);
-    expect(r.immoLabel).toMatch(/mostly FF/i);
+    expect(r.immoLabel).toMatch(/not paired/i);
   });
 
   it('real populated SEC6 agrees with parseModule: populated', () => {
@@ -109,6 +115,7 @@ describe('engParsePcm uses the shared classifier (no drift between the two parse
     const r = engParsePcm(bytes, 'GPEC2A_PAIRED.bin');
     expect(r.immoOk).toBe(true);
     expect(r.immoDamaged).toBe(false);
+    expect(r.immoUnpaired).toBe(false);
     expect(r.sec6Class.populated).toBe(true);
   });
 
@@ -132,7 +139,50 @@ describe('engParsePcm uses the shared classifier (no drift between the two parse
     expect(r.sec6).toBeTruthy();
     expect(r.sec6.offset).toBe(0x3C8);
     expect(r.sec6Class.allFF).toBe(true);
-    expect(r.immoDamaged).toBe(true);
     expect(r.immoOk).toBe(false);
+    // All-FF SEC6 with no marker is unpaired (informational), not damaged.
+    expect(r.immoUnpaired).toBe(true);
+    expect(r.immoDamaged).toBe(false);
+  });
+
+  it('populated SEC6 with marker stripped is the genuine DAMAGED case (Task #404)', () => {
+    // 6 secret bytes look real (≥3 non-FF) but the canonical
+    // FF FF FF AA marker @ 0x3C4 is missing — the PCM bootloader and
+    // CGDI/Autel/AlfaOBD/SINCRO will reject the slot. This is the only
+    // case that should still show the red DAMAGED chip.
+    const buf = makeGpec2a({
+      pcmSec6Bytes: u8(0x08,0xA1,0xC5,0xE7,0xBA,0x30),
+    });
+    // Strip the marker the fixture stamped for the populated SEC6.
+    buf[0x3C4] = 0xFF; buf[0x3C5] = 0xFF; buf[0x3C6] = 0xFF; buf[0x3C7] = 0xFF;
+    const r = engParsePcm(buf, 'GPEC2A_MARKER_STRIPPED.bin');
+    expect(r.sec6Class.populated).toBe(true);
+    expect(r.sec6.markerOk).toBe(false);
+    expect(r.immoOk).toBe(false);
+    expect(r.immoDamaged).toBe(true);
+    expect(r.immoUnpaired).toBe(false);
+    expect(r.immoLabel).toMatch(/marker missing/i);
+  });
+
+  it('regression: a running-and-driving car (4 KB GPEC2A, valid VIN slots, valid PN, all-FF SEC6, no marker) is unpaired, not damaged', () => {
+    // Real-world dump: 2C3CCABG1KH539430. Car runs and drives. The
+    // PCM-side IMMO secret is not stored at 0x3C8 (PATS-bypass / IMMO
+    // disabled / different bank). Pre-fix the inspection card painted
+    // a red DAMAGED chip on this perfectly intact dump; this test
+    // pins the corrected verdict.
+    const buf = makeGpec2a({
+      vin: '2C3CCABG1KH539430',
+      pcmSec6Bytes: u8(0xFF,0xFF,0xFF,0xFF,0xFF,0xFF),
+    });
+    const r = engParsePcm(buf, 'GPEC2A_RUNNING_CAR.bin');
+    expect(r.ok).toBe(true);
+    expect(r.vinSlots.length).toBeGreaterThanOrEqual(3);
+    // PN parser is exercised separately; the regression here is the
+    // immo flag conflation that painted a clean dump as DAMAGED.
+    expect(r.sec6.markerOk).toBe(false);
+    expect(r.sec6Class.allFF).toBe(true);
+    expect(r.immoOk).toBe(false);
+    expect(r.immoUnpaired).toBe(true);
+    expect(r.immoDamaged).toBe(false);
   });
 });
