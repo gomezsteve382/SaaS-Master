@@ -22,6 +22,7 @@ import {CRITICAL_DIDS} from "./backups.js";
 
 const lookup = new Map();      // did(number) → first description
 const allDescriptions = new Map(); // did(number) → string[]
+const operations = new Map();  // did(number) → [{ protocol, group, id, label, service, value, notes }]
 let loaded = false;
 let loadingPromise = null;
 
@@ -74,6 +75,33 @@ export function loadDidDescriptions() {
           ingestEntry(n, e.value);
         }
       }
+      const villain = cat && cat.villain_operations;
+      if (villain && Array.isArray(villain.groups)) {
+        for (const g of villain.groups) {
+          const groupName = g?.name || "";
+          const protocol = g?.protocol || "";
+          for (const op of (g?.operations || [])) {
+            if (!op || typeof op.did === "undefined") continue;
+            const n = typeof op.did === "number"
+              ? op.did
+              : parseInt(String(op.did).replace(/^0x/i, ""), 16);
+            if (!Number.isFinite(n)) continue;
+            // Use the operation label minus the leading verb ("Read", "Write",
+            // "Enable", "Disable") as a fallback DID description so the bench
+            // log can render "Bus-Transmitted VIN" instead of raw hex.
+            const label = (op.label || "").replace(
+              /^(Read|Write|Get|Enable|Disable)\s+/i, ""
+            ).trim();
+            if (label) ingestEntry(n, label);
+            if (!operations.has(n)) operations.set(n, []);
+            operations.get(n).push({
+              protocol, group: groupName,
+              id: op.id, label: op.label,
+              service: op.service, value: op.value, notes: op.notes,
+            });
+          }
+        }
+      }
       loaded = true;
       return lookup.size;
     })
@@ -121,10 +149,23 @@ export function getDidDescriptions(did) {
   return allDescriptions.get(n) ? [...allDescriptions.get(n)] : [];
 }
 
+/**
+ * Return the VILLAIN operation metadata for a DID — protocol scope, group
+ * name, service byte, optional value/notes. Returns `[]` if no operation
+ * was indexed for the DID. Useful for tooltips and protocol-scope chips.
+ */
+export function getDidOperations(did) {
+  if (!loaded && lookup.size === 0) seedFromCritical();
+  const n = normalise(did);
+  if (!Number.isFinite(n)) return [];
+  return operations.get(n) ? [...operations.get(n)] : [];
+}
+
 /** Test/diagnostic helper — reset the in-memory cache. */
 export function _resetDidDescriptionsForTests() {
   lookup.clear();
   allDescriptions.clear();
+  operations.clear();
   loaded = false;
   loadingPromise = null;
 }

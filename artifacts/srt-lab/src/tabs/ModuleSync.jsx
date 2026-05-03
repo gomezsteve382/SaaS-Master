@@ -11,6 +11,7 @@ import { crossValidate } from "../lib/crossValidate.js";
 import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
 import { scoreCandidate, pickBest, fmtPick, CANONICAL_PATTERNS } from "../lib/bestPick.js";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
+import { getDidDescription, getDidOperations } from "../lib/dids.js";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -1489,6 +1490,94 @@ export function PcmCard({ parsed, bytes, pnOverride, onRepair, repairAvailable, 
         </>
       )}
     </div>
+  );
+}
+
+/* VillainOpsReference (Task #589) — quick-reference panel listing every
+ * VILLAIN-documented DID that the bench/sync log might emit, alongside its
+ * human label and protocol-scope chip (e.g. "CHRYSLER ECU CAN 11-BIT").
+ * Sourced from `getDidOperations()` which indexes
+ * `unlock_catalog_extended.json → villain_operations.groups[*].operations[*]`.
+ *
+ * Falls back to `getDidDescription()` when an op record is missing the
+ * scope so a tech still sees a label rather than a raw hex code.
+ *
+ * Pure-display: no side-effects, no engine calls. */
+const VILLAIN_REFERENCE_DIDS = [
+  0x7B90, 0x7B88, 0x6E2025, 0x6E2027,
+  0x6E9EB0, 0x6EF190, 0xF79EB045,
+];
+function VillainOpsReference({ Card, H2 }) {
+  const rows = VILLAIN_REFERENCE_DIDS.map(did => {
+    const ops = getDidOperations(did);
+    const protocols = Array.from(new Set(ops.map(o => o.protocol).filter(Boolean)));
+    const groups = Array.from(new Set(ops.map(o => o.group).filter(Boolean)));
+    const label = (ops[0] && ops[0].label) || getDidDescription(did) || 'Unlabeled';
+    const notes = ops.find(o => o.notes)?.notes || '';
+    const wide = did > 0xFFFF;
+    return { did, label, protocols, groups, notes, wide };
+  });
+  return (
+    <Card>
+      <H2 badge={`${rows.length} DIDs`}>VILLAIN Operations Reference</H2>
+      <div style={{ fontSize: 11, color: C.ts, marginBottom: 10, lineHeight: 1.5 }}>
+        Decoded from <code style={{ fontFamily: "'JetBrains Mono'" }}>villain_operations</code> +
+        <code style={{ fontFamily: "'JetBrains Mono'" }}> uds.did_maps</code>.
+        Hover a row for the protocol scope and any value notes.
+      </div>
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: 8,
+      }}>
+        {rows.map(r => (
+          <div
+            key={r.did}
+            data-testid={`villain-op-${r.did.toString(16)}`}
+            title={[
+              r.groups.length ? 'Group: ' + r.groups.join(', ') : '',
+              r.protocols.length ? 'Protocol: ' + r.protocols.join(' · ') : '',
+              r.notes ? 'Notes: ' + r.notes : '',
+              r.wide ? 'Wide DID — cannot fit a 2-byte 0x22 read' : '',
+            ].filter(Boolean).join('\n')}
+            style={{
+              padding: '10px 12px', borderRadius: 8, background: C.c2,
+              border: `1px solid ${C.bd}`, display: 'flex',
+              flexDirection: 'column', gap: 4,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{
+                fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 800,
+                color: C.tx,
+              }}>0x{r.did.toString(16).toUpperCase()}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.tx }}>{r.label}</span>
+              {r.wide && (
+                <span style={{
+                  marginLeft: 'auto', fontSize: 9, fontWeight: 800, letterSpacing: 0.5,
+                  padding: '1px 6px', borderRadius: 4,
+                  background: C.wn + '22', color: C.wn,
+                }}>WIDE</span>
+              )}
+            </div>
+            {r.protocols.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {r.protocols.map(p => (
+                  <span key={p} style={{
+                    fontSize: 9, fontWeight: 700, letterSpacing: 0.5,
+                    padding: '2px 6px', borderRadius: 4,
+                    background: C.a3 + '22', color: C.a3,
+                    fontFamily: "'JetBrains Mono'",
+                  }}>{p}</span>
+                ))}
+              </div>
+            )}
+            {r.notes && (
+              <div style={{ fontSize: 10, color: C.ts, fontStyle: 'italic' }}>{r.notes}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }
 
@@ -3265,6 +3354,13 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           <VinDiffTable rows={diffRows} />
         </Card>
       )}
+
+      {/* ── VILLAIN Operations Reference (Task #589) ──
+           Surfaces the catalog's villain_operations DID labels and protocol
+           scope chips so a tech reading the bench/sync log can decode raw
+           hex DIDs without leaving the tab. Sourced from getDidOperations()
+           which indexes unlock_catalog_extended.json → villain_operations. */}
+      <VillainOpsReference Card={Card} H2={H2} />
 
       {/* ── P/N Override confirm dialog ── */}
       {overrideConfirm && (

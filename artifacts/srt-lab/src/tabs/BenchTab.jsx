@@ -6,6 +6,20 @@ import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crc16,crc8_42,crc8rf} from "../lib/crc.js";
 import {MODS} from "../lib/mods.js";
 import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse, vinReadbackOk} from "../lib/algos.js";
+import {getDidDescription, getDidOperations} from "../lib/dids.js";
+
+/* Render a DID hex code with its human-readable VILLAIN/uds label,
+   plus the protocol scope (e.g. "CHRYSLER ECU CAN 11-BIT") so the bench
+   tech sees "Bus-Transmitted VIN [CAN 29-BIT]" instead of raw 0x6E2025. */
+function fmtDidLabel(didNum){
+  const hex='0x'+didNum.toString(16).toUpperCase();
+  const desc=getDidDescription(didNum);
+  const ops=getDidOperations(didNum);
+  const proto=ops.length>0&&ops[0].protocol?ops[0].protocol:'';
+  if(!desc&&!proto) return hex;
+  const tail=[desc,proto?'['+proto+']':''].filter(Boolean).join(' ');
+  return hex+(tail?' ('+tail+')':'');
+}
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {DownloadCounter} from "../lib/useDownloadCount.jsx";
 import {openSerialPort, onPortDisconnect, cleanupPort} from "../lib/serialErrors.js";
@@ -184,7 +198,7 @@ function BenchTab(){
         const dh=encodeDid(did);
         const r=await benchEng.current.uds(tx,rx,[0x2E,...dh,...vb]);
         const ok=!!(r.ok&&r.d&&r.d[0]===0x6E);
-        addLog(label+' DID 0x'+did.toString(16).toUpperCase()+' ('+dh.length+'B): '+(ok?'OK':'FAIL'+(r.d&&r.d[0]===0x7F?' NRC 0x'+r.d[2].toString(16).toUpperCase():'')),ok?'rx':'error');
+        addLog(label+' DID '+fmtDidLabel(did)+' ('+dh.length+'B): '+(ok?'OK':'FAIL'+(r.d&&r.d[0]===0x7F?' NRC 0x'+r.d[2].toString(16).toUpperCase():'')),ok?'rx':'error');
       }
       await benchEng.current.uds(tx,rx,[0x11,0x01]);
       addLog(label+' reset sent — settling 1500ms','info');
@@ -194,7 +208,7 @@ function BenchTab(){
         const rb=await benchEng.current.uds(tx,rx,[0x22,...dh]);
         const tail=rb.ok?vinFromReadResponse(rb.d,did):'';
         const ok=vinReadbackOk(did,tail,nv);
-        addLog(label+' read-back 0x'+did.toString(16).toUpperCase()+': '+(tail||'(no data)')+' '+(ok?'✓':'✗ MISMATCH'),ok?'rx':'error');
+        addLog(label+' read-back '+fmtDidLabel(did)+': '+(tail||'(no data)')+' '+(ok?'✓':'✗ MISMATCH'),ok?'rx':'error');
       }
     }catch(e){addLog(label+' error: '+e.message,'error');}finally{setBenchBusy('');}
   },[nv]);
@@ -248,7 +262,7 @@ function BenchTab(){
         <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>Quick Tools (Bench)</div>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
           <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}addLog('BCM Proxi @0x2023: '+extractHex(bcm.data,0x2023,16),'rx');}} disabled={!bcm} color={C.a3} outline>📋 Read BCM Proxi</Btn>
-          <Btn onClick={()=>{if(!gpec){addLog('No GPEC2A loaded','error');return;}addLog('SKIM State: '+(gpec.skimByte===0x80?'ENABLED':'DISABLED')+' (0x'+gpec.skimByte.toString(16).toUpperCase()+')','rx');}} disabled={!gpec} color={C.a2} outline>🛡️ Read SKIM State</Btn>
+          <Btn onClick={()=>{if(!gpec){addLog('No GPEC2A loaded','error');return;}addLog('SKIM State '+fmtDidLabel(0x6E9EB0)+': '+(gpec.skimByte===0x80?'ENABLED':'DISABLED')+' (0x'+gpec.skimByte.toString(16).toUpperCase()+')','rx');}} disabled={!gpec} color={C.a2} outline>🛡️ Read SKIM State</Btn>
           <Btn onClick={doVirginRfhub} disabled={!mods.find(m=>m.type==='RFHUB')} color={C.er} outline>💀 Virginize RFHUB</Btn>
           <Btn onClick={()=>{if(!bcm){addLog('No BCM loaded','error');return;}if(bcm.immoBlank){addLog('BCM IMMO is blank — nothing to sync','warn');return;}const d=syncImmoBackup(bcm.data);if(!d){addLog('BCM file too small for IMMO sync','error');return;}dl(d,'IMMO_SYNCED_'+bcm.filename,ASSET_IDS.benchImmoSync);addLog('IMMO backup synced: '+bcm.immoRecs+' keys → 0x2000','rx');setMods(p=>{const u=[...p];const idx=u.findIndex(m=>m.type==='BCM');u[idx]=parseModule(d,bcm.filename);return u;});setMsg('IMMO backup synced');}} disabled={!bcm} color={C.a1} outline>🔄 Sync IMMO Backup</Btn>
           <Btn onClick={doCrcPatch} disabled={!mods.length} color={C.sr}>🔧 CRC Patch All</Btn>
