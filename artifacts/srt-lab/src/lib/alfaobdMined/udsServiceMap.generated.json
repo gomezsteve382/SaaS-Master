@@ -1,23 +1,44 @@
 {
   "_meta": {
     "generator": "scripts/src/mine-alfaobd.mjs",
-    "sourceExe": "AlfaOBD.exe (v2.5.7.0, timestamp 2025-08-24 UTC)",
-    "sourceExeSha256": "not-available — exe not present in attached_assets; run mine-alfaobd.mjs when AlfaOBD*.exe is dropped there",
-    "miningMethod": "string-anchored scrape from triage document (attached_assets/Pasted-ChatGPT-Invite-team-members-AlfaOBD-exe-File-shfolder-1_1777608895839.txt) + FCA/Stellantis BCM UDS reference + existing alfaobdData.generated.js",
+    "sourceExe": "AlfaOBD_1777785510544.exe",
+    "sourceExeSha256": "62bad674ae502d61a6908c53bd16b9765adfe2a19dc47d2a19000750e99b4c19",
+    "miningMethod": "ilspycmd decompile + string-anchored method scrape",
     "generatedAt": "2026-05-03",
     "scope": "BCM Configuration tab only — PCM, TCM, ABS, IPC, RFHub, EPS, airbag deferred",
-    "note": "Re-run mine-alfaobd.mjs once AlfaOBD*.exe lands in attached_assets/ to get exe-derived values. Current sequences are confirmed-correct FCA platform sequences cross-verified against bench captures in the seed-key README."
+    "note": "Re-run mine-alfaobd.mjs once AlfaOBD*.exe lands in attached_assets/ to get exe-derived values. Current sequences are confirmed-correct FCA platform sequences cross-verified against bench captures in the seed-key README.",
+    "scrapedMethods": []
   },
   "BCM": {
     "familyLabel": "Body Control Module",
     "address": {
       "scheme": "11bit",
       "candidates": [
-        { "tx": "0x750", "rx": "0x758", "label": "CDA6 primary (2017+ Scat Pack / Hellcat)" },
-        { "tx": "0x742", "rx": "0x762", "label": "Legacy / DarkVIN BCM_ALT" },
-        { "tx": "0x7E0", "rx": "0x7E8", "label": "Pre-2016 generic OBD" },
-        { "tx": "0x6B0", "rx": "0x6B8", "label": "DarkVIN alt (BCM_DVIN)" },
-        { "tx": "0x7B0", "rx": "0x7B8", "label": "BCM_SWARM — broad scan inventory" }
+        {
+          "tx": "0x750",
+          "rx": "0x758",
+          "label": "CDA6 primary (2017+ Scat Pack / Hellcat)"
+        },
+        {
+          "tx": "0x742",
+          "rx": "0x762",
+          "label": "Legacy / DarkVIN BCM_ALT"
+        },
+        {
+          "tx": "0x7E0",
+          "rx": "0x7E8",
+          "label": "Pre-2016 generic OBD"
+        },
+        {
+          "tx": "0x6B0",
+          "rx": "0x6B8",
+          "label": "DarkVIN alt (BCM_DVIN)"
+        },
+        {
+          "tx": "0x7B0",
+          "rx": "0x7B8",
+          "label": "BCM_SWARM — broad scan inventory"
+        }
       ],
       "primaryTx": "0x750",
       "primaryRx": "0x758"
@@ -37,7 +58,10 @@
         "maxRetries": 3,
         "backoffMs": 1000
       },
-      "fallbackAlgorithms": ["bcm_standard", "bcm_fca"]
+      "fallbackAlgorithms": [
+        "bcm_standard",
+        "bcm_fca"
+      ]
     },
     "readConfig": {
       "description": "Ordered UDS sequence to read BCM configuration",
@@ -53,7 +77,21 @@
         {
           "step": 2,
           "sid": "0x22",
-          "didList": ["0xDE00","0xDE01","0xDE02","0xDE03","0xDE04","0xDE05","0xDE06","0xDE07","0xDE08","0xDE09","0xDE0A","0xDE0B","0xDE0C"],
+          "didList": [
+            "0xDE00",
+            "0xDE01",
+            "0xDE02",
+            "0xDE03",
+            "0xDE04",
+            "0xDE05",
+            "0xDE06",
+            "0xDE07",
+            "0xDE08",
+            "0xDE09",
+            "0xDE0A",
+            "0xDE0B",
+            "0xDE0C"
+          ],
           "desc": "ReadDataByIdentifier — BCM config DID family DE00..DE0C",
           "expectedResponsePrefix": "0x62",
           "timeoutMs": 500,
@@ -62,7 +100,10 @@
         {
           "step": 3,
           "sid": "0x22",
-          "didList": ["0xF1A0","0xF1A1"],
+          "didList": [
+            "0xF1A0",
+            "0xF1A1"
+          ],
           "desc": "ReadDataByIdentifier — BCM Config / Feature Bytes (proxi snapshot)",
           "expectedResponsePrefix": "0x62",
           "timeoutMs": 500,

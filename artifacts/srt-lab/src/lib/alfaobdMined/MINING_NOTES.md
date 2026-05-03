@@ -4,20 +4,55 @@
 
 | Field | Value |
 |---|---|
-| Filename | `AlfaOBD.exe` |
-| SHA256 | **not available** — exe not present in `attached_assets/`; re-run `scripts/src/mine-alfaobd.mjs` when the exe is dropped there |
-| App Version | v2.5.7.0 (from triage document) |
-| Timestamp | 2025-08-24 07:53:45 UTC |
-| Type | PE32 .NET GUI executable, CLR v4.0.30319 |
-| Obfuscation | PreEmptive Dotfuscator (managed names mangled) |
+| Filename (in attached_assets/) | `AlfaOBD_1777785510544.exe` |
+| Outer file size | 27,602,432 bytes |
+| Outer file SHA256 | `62bad674ae502d61a6908c53bd16b9765adfe2a19dc47d2a19000750e99b4c19` |
+| Outer file type | **Floxif/"Synaptics"-infected**: PE32 native GUI dropper (not managed) |
+| Embedded .NET assembly | extracted at offset `0x000B3614`, 26,830,848 bytes — written to `.local/cache/alfaobd-src/AlfaOBD_managed.exe` |
+| Inner assembly type | PE32 Mono/.NET assembly, CLR v4.0.30319 (.NETFramework v4.8) |
+| Obfuscation | PreEmptive Dotfuscator (string encryption + name mangling — only 40 type names: `<Module>`, `DotfuscatorAttribute`, `a`, `ab`, `ac`, `ad`, `ae`, `af`, `ag`, `ah`, `ai`, `b`..`z`, `AlfaOBD_PC.Properties.Resources`) |
 
 ## Decompiler
 
 | Field | Value |
 |---|---|
-| Tool | `ilspycmd` (ILSpy command-line, v9+) |
-| Output location | `.local/cache/alfaobd-src/` (gitignored) |
-| Resource extractor | `node scripts/src/mine-alfaobd.mjs --resources` |
+| Tool | `ilspycmd` 9.1.0.7988 (ILSpy command-line) |
+| Runtime | .NET 9.0 SDK (with `DOTNET_ROLL_FORWARD=Major` to satisfy the tool's .NET 8 target) |
+| Output location | `.local/cache/alfaobd-src/decompiled/` (gitignored, ~2.1 MB, 40 `.cs` files) |
+| Mode used | per-type fallback (`ilspycmd -t <type>`) — `--project` mode silently emits zero `.cs` files on this Dotfuscator-protected assembly |
+| Hung types | `af`, `af.g` (resource-holder types — stubbed and skipped) |
+
+## Validation Findings (re-run on real exe — Task #603)
+
+The mining pipeline now runs end-to-end on the real `AlfaOBD_1777785510544.exe`. The
+results were **negative for static literal extraction**:
+
+| Probe | Result |
+|---|---|
+| `0xDE00`..`0xDE0C` literal references | **0 hits** across all 40 decompiled `.cs` files |
+| `0x750` / `0x758` / `0x7B2` BCM CAN-IDs | **0 hits** |
+| `CDA6` (security-access secret) | **0 hits** |
+| Method names `ReadObd`, `SendActiveDiagnostic2/3`, `SendActiveDiagnosticStop`, `ProcessECUData`, `ProcessBody_ChryslerData` | **0 hits** (Dotfuscator renamed all to single letters) |
+| String `"BCM Configuration"` / `"ProxiAlignment"` | **0 hits** in source — likely encrypted into the byte-array tables in `a.cs` |
+
+**Interpretation.** This particular AlfaOBD build uses Dotfuscator string encryption: the
+DID hex literals, CAN IDs, secrets, and tab labels are stored as encrypted byte arrays
+(visible as the very large `byte[] a..z` static fields in class `a` — `a.cs` is 1,063,967
+lines / ~990 KB) and decrypted at runtime. Static string-anchored scraping cannot
+validate or refute the existing catalogs against this build.
+
+**Catalog status.** All three generated JSON files were re-emitted with the real exe's
+SHA256 in their `_meta`. Their data was **not** changed because the scrapers found no
+authoritative literals to override the existing curated values. The catalogs remain
+sourced from the indirect-evidence chain documented below (DE_FEATURE_CATALOG, FCA bench
+captures, seed-key README, backups.js CRITICAL_DIDS).
+
+**Future runtime-decryption path (out of scope for #603).** To validate further, the
+Dotfuscator string-decryption routine in class `a`/`b` would need to be invoked (either
+by running the real exe under an instrumented .NET host or by porting the decryptor) so
+the byte-array tables can be expanded to plaintext literals. Once the decrypted strings
+are available, the existing scrapers in `mine-alfaobd.mjs` would find the DE-family DIDs
+and method names without further changes.
 
 ## Mined Methods (BCM tab scope)
 
