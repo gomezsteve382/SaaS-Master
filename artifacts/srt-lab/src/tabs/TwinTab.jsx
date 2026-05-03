@@ -8,6 +8,20 @@ import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import SamplePicker from "../lib/SamplePicker.jsx";
 import { fmtOff } from "./ModuleSync.jsx";
+// Task #47 — parseBcm / applyBcmFromRfh moved to a pure-logic helper module
+// (lib/twinBcmHelpers.js) so test suites can import them without pulling in
+// TwinTab.jsx's @assets image import, which is unresolvable in the vitest
+// Node environment. All logic is identical; this file re-exports the helpers
+// as named exports so existing in-tab call sites and the test suite use the
+// same canonical implementations.
+import {
+  parseBcm,
+  applyBcmFromRfh,
+  BCM_VIN_PRIMARY,
+  BCM_SEC16_OFFSETS,
+  BCM_SEC16_SPLIT_COPIES,
+} from "../lib/twinBcmHelpers.js";
+export { parseBcm, applyBcmFromRfh };
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2,"0")).join(" ");
@@ -20,124 +34,6 @@ const dl  = (data, name) => {
   a.download = name; a.click(); URL.revokeObjectURL(a.href);
   trackDownload(ASSET_IDS.twinPaired);
 };
-
-/* ─── BCM (MPC5606B_05B, 65536 bytes) ────────────────────────────────────── */
-const BCM_VIN_PRIMARY    = [0x5328, 0x5348, 0x5368, 0x5388];
-const BCM_VIN_SECONDARY  = [0x0698, 0x06B8, 0x06D8, 0x06F8, 0x0718, 0x0738];
-const BCM_VIN_PARTIAL    = [0x4098, 0x40B0];   // 8-byte tail + CRC16
-const BCM_SEC16_OFFSETS  = [0x40C9, 0x40F1];
-// BCM 0x81xx split copies (bytes 0-6 at copy+0..6, gap copy+7..10 untouched, bytes 7-15 at copy+11..19)
-const BCM_SEC16_SPLIT_COPIES = [0x81A9, 0x81C9, 0x81E9];
-
-function parseBcm(data, filename) {
-  if (data.length !== 65536) return null;
-
-  const vins = BCM_VIN_PRIMARY.map((off, i) => {
-    const raw = data.slice(off, off + 17);
-    const vin = Array.from(raw).map(b => String.fromCharCode(b)).join("");
-    const csStored = (data[off + 17] << 8) | data[off + 18];
-    const csCalc   = crc16(raw);
-    return { slot: i + 1, offset: off, vin, csStored, csCalc, csOk: csStored === csCalc };
-  });
-
-  // Partial VINs: 8-byte tail (chars 10–17 of VIN) + 2-byte CRC16
-  const partialVins = BCM_VIN_PARTIAL.map((off, i) => {
-    const raw = data.slice(off, off + 8);
-    let tail = "", ok = true;
-    for (let j = 0; j < 8; j++) {
-      const b = raw[j];
-      if (b < 0x20 || b > 0x7E) { ok = false; break; }
-      tail += String.fromCharCode(b);
-    }
-    const csStored = (data[off + 8] << 8) | data[off + 9];
-    const csCalc   = crc16(raw);
-    return { slot: i + 1, offset: off, tail: ok ? tail : "(invalid)", raw: Array.from(raw), csStored, csCalc, csOk: ok && csStored === csCalc };
-  });
-
-  const sec16Copies = BCM_SEC16_OFFSETS.map((off, i) => {
-    const raw = data.slice(off, off + 16);
-    const hex = hxb(raw);
-    // CRC stored at off+19/off+20 (bytes off+16..+18 are fixed gap 8F FF FF)
-    const csStored = (data[off + 19] << 8) | data[off + 20];
-    // CRC16 CCITT over 20 bytes: [data[off-1], data[off..off+15], data[off+16], data[off+17], data[off+18]]
-    const crcInput = Array.from(data.slice(off - 1, off + 19));
-    const csCalc   = crc16(crcInput);
-    const csOk     = csStored === csCalc;
-    return { label: `Mirror ${i + 1}`, offset: off, raw: Array.from(raw), hex, csStored, csCalc, csOk };
-  });
-
-  const secMatch    = sec16Copies.length > 1 && sec16Copies[0].hex === sec16Copies[1].hex;
-  const secAllCsOk  = sec16Copies.every(m => m.csOk);
-
-  const sec16Raw    = sec16Copies[0].raw;
-  const sec16Hex    = hxb(sec16Raw);
-  const sec16RfhRaw = [...sec16Raw].reverse();
-  const sec16RfhHex = hxb(sec16RfhRaw);
-  const pcmSec6Hex  = hxb(sec16RfhRaw.slice(0, 6));
-
-  return {
-    type: "MPC5606B_05B", filename, size: data.length,
-    vins, partialVins, sec16Copies, secMatch, secAllCsOk,
-    sec16Hex, sec16RfhHex, pcmSec6Hex,
-  };
-}
-
-function applyBcmFromRfh(bcmData, rfhInfo) {
-  const out = new Uint8Array(bcmData);
-  const vin = rfhInfo.vins[0].vin;
-  const enc = Array.from(vin).map(c => c.charCodeAt(0));
-
-  // compute CRC16 of VIN bytes
-  const cs = crc16(enc);
-  const csHi = (cs >> 8) & 0xFF;
-  const csLo = cs & 0xFF;
-
-  // Write to primary slots
-  for (const off of BCM_VIN_PRIMARY) {
-    for (let i = 0; i < 17; i++) out[off + i] = enc[i];
-    out[off + 17] = csHi;
-    out[off + 18] = csLo;
-  }
-  // Write to secondary slots (only overwrite bytes 0..18, preserve 19..31)
-  for (const off of BCM_VIN_SECONDARY) {
-    for (let i = 0; i < 17; i++) out[off + i] = enc[i];
-    out[off + 17] = csHi;
-    out[off + 18] = csLo;
-  }
-  // Write to partial VIN slots (8-byte tail + CRC16)
-  const tail8 = enc.slice(9); // last 8 chars of 17-char VIN
-  const tailCs = crc16(tail8);
-  for (const off of BCM_VIN_PARTIAL) {
-    for (let i = 0; i < 8; i++) out[off + i] = tail8[i];
-    out[off + 8] = (tailCs >> 8) & 0xFF;
-    out[off + 9] = tailCs & 0xFF;
-  }
-
-  // SEC16: reverse RFH_SEC16 → BCM_SEC16
-  // Structure: off+0..+15 = 16 data bytes; off+16..+18 = fixed gap (8F FF FF, do NOT overwrite);
-  //            off+19/+20 = CRC16 CCITT of 20 bytes starting at off-1
-  const rfhSec16 = rfhInfo.sec16Slots[0].raw;
-  const bcmSec16 = [...rfhSec16].reverse();
-  for (const off of BCM_SEC16_OFFSETS) {
-    for (let i = 0; i < 16; i++) out[off + i] = bcmSec16[i];
-    // keep gap bytes at off+16..+18 as-is (read from existing file)
-    const crcInput = Array.from(out.slice(off - 1, off + 19));
-    const bcmSec16Crc = crc16(crcInput);
-    out[off + 19] = (bcmSec16Crc >> 8) & 0xFF;
-    out[off + 20] = bcmSec16Crc & 0xFF;
-  }
-
-  // Write 3 additional 0x81xx split copies (no CRC bytes):
-  //   bytes 0-6 → copy_off + 0..6
-  //   bytes 7-15 → copy_off + 11..19
-  //   copy_off + 7..10 (fixed gap 04 04 00 14) is NOT touched
-  for (const copyOff of BCM_SEC16_SPLIT_COPIES) {
-    for (let i = 0; i <= 6; i++) out[copyOff + i] = bcmSec16[i];
-    for (let i = 7; i <= 15; i++) out[copyOff + 4 + i] = bcmSec16[i]; // +4 = offset past the 4-byte gap
-  }
-
-  return out;
-}
 
 /* ─── RFH Gen2 (MC9S12X Type 1, 4096 bytes) ──────────────────────────────── */
 const RFH_VIN_OFFSETS  = [0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1];
@@ -338,9 +234,10 @@ function BcmCard({ info }) {
         <Tag color={allCsOk ? C.gn : C.er}>{allCsOk ? "All CS OK" : "CS Errors Found"}</Tag>
       </div>
 
-      {/* Partial VINs (tail-only slots at 0x4098 / 0x40B0 — see BCM_VIN_PARTIAL above) */}
+      {/* Partial VINs — auto-detected tail-only slots (0x0098/0x00B0/0x4098/0x40B0 and any
+           additional slots found in the buffer — see Task #47 / donorLeakScan.findBcmPartialVinSlots) */}
       <div style={{ marginBottom: 14 }}>
-        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 8, textTransform: "uppercase", letterSpacing: .6 }}>Partial VINs — Tail ×2</div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 8, textTransform: "uppercase", letterSpacing: .6 }}>Partial VINs — Tail ×{info.partialVins.length} (auto-detected)</div>
         {info.partialVins.map(p => (
           <div key={p.slot} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
             <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'", minWidth: 58 }}>{fmtOff(p.offset)}</span>
