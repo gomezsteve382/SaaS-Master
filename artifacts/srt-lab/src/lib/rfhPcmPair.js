@@ -439,3 +439,136 @@ export function applyRfhToPcm(rfh, pcm, pcmBuf, opts) {
 }
 
 export const RFH_PCM_CONST = { PCM_VIN_OFFSETS, PCM_SEC6_OFFSET, PCM_IMMO_OFFSET, PCM_IMMO_ENABLED_PATTERN };
+
+/* ----------------------------------------------------------------------------
+ * planPcmRepair({ pcmBytes, targetVin, secret6 })  — Task #574
+ *
+ * Pure planner for a "Repair PCM" download. Given a known-good target
+ * VIN (from BCM, which has been confirmed to match the RFHUB) and the
+ * 6-byte pairing secret (first 6 bytes of the trusted RFHUB SEC16),
+ * produces a patched copy of the PCM buffer with ONLY the offsets that
+ * were genuinely off rewritten:
+ *   - VIN slots @ PCM_VIN_OFFSETS_GPEC2A (only slots that differ)
+ *   - SEC6 marker FF FF FF AA @ 0x03C4 (only when missing/wrong)
+ *   - SEC6 secret bytes @ 0x03C8 (only when they differ from secret6)
+ *   - IMMO byte @ 0x0011 → 0x80 (whenever the byte is NOT already
+ *     0x80/ENABLED — covers both the all-FF IMMO_DAMAGED state and the
+ *     0x00/DISABLED state, per task spec "IMMO byte not enabled")
+ *
+ * Refuses (returns ok:false with a plain-English reason) when:
+ *   - PCM size is not 4096 or 8192
+ *   - target VIN is missing/invalid
+ *   - secret6 length != 6 or is blank (all-FF or all-00)
+ *
+ * Returns { ok, patchedBytes, edits, reason }.
+ * Each edit: { offset, length, before, after, label } with hex strings.
+ * The patched buffer is byte-identical to the input at every offset
+ * NOT listed in edits.
+ * ---------------------------------------------------------------------------- */
+export function planPcmRepair({ pcmBytes, targetVin, secret6 }) {
+  const SEC6_MARKER_OFFSET = 0x03C4;
+  const SEC6_OFFSET = 0x03C8;
+  const IMMO_OFFSET = 0x0011;
+  const SEC6_MARKER = [0xFF, 0xFF, 0xFF, 0xAA];
+
+  if (!pcmBytes || (!(pcmBytes instanceof Uint8Array) && !Array.isArray(pcmBytes))) {
+    return { ok: false, reason: 'PCM bytes missing or not a byte array.' };
+  }
+  const sz = pcmBytes.length;
+  if (sz !== 4096 && sz !== 8192) {
+    return { ok: false, reason: 'PCM size ' + sz + ' B is not canonical GPEC2A. Repair only supports 4096 B (95320) or 8192 B (95640) dumps.' };
+  }
+  if (!targetVin || !VIN_RE.test(targetVin)) {
+    return { ok: false, reason: 'Target VIN missing or not a valid 17-character VIN.' };
+  }
+  const sec = secret6 instanceof Uint8Array ? secret6 : Uint8Array.from(secret6 || []);
+  if (sec.length !== 6) {
+    return { ok: false, reason: 'Pairing secret must be 6 bytes (got ' + sec.length + ').' };
+  }
+  const allFF = sec.every(b => b === 0xFF);
+  const all00 = sec.every(b => b === 0x00);
+  if (allFF || all00) {
+    return { ok: false, reason: 'Pairing secret is blank (' + (allFF ? 'all 0xFF' : 'all 0x00') + ') — refusing to write a virgin SEC6 into the PCM.' };
+  }
+
+  const patched = new Uint8Array(pcmBytes);
+  const edits = [];
+  const fmtOff = (o) => '0x' + o.toString(16).toUpperCase().padStart(4, '0');
+
+  const enc = new TextEncoder().encode(targetVin);
+  for (const off of PCM_VIN_OFFSETS_GPEC2A) {
+    if (off + 17 > patched.length) continue;
+    const beforeArr = patched.slice(off, off + 17);
+    let differs = false;
+    for (let i = 0; i < 17; i++) if (beforeArr[i] !== enc[i]) { differs = true; break; }
+    if (!differs) continue;
+    let beforeAscii = '';
+    for (let i = 0; i < 17; i++) {
+      const b = beforeArr[i];
+      beforeAscii += (b >= 0x20 && b <= 0x7E) ? String.fromCharCode(b) : '.';
+    }
+    for (let i = 0; i < 17; i++) patched[off + i] = enc[i];
+    edits.push({
+      offset: off, length: 17,
+      before: hexBytes(beforeArr),
+      after: hexBytes(enc),
+      beforeAscii, afterAscii: targetVin,
+      label: 'VIN slot @' + fmtOff(off),
+    });
+  }
+
+  const beforeMarker = patched.slice(SEC6_MARKER_OFFSET, SEC6_MARKER_OFFSET + 4);
+  const markerOk = beforeMarker[0] === 0xFF && beforeMarker[1] === 0xFF && beforeMarker[2] === 0xFF && beforeMarker[3] === 0xAA;
+  if (!markerOk) {
+    const beforeHex = hexBytes(beforeMarker);
+    for (let i = 0; i < 4; i++) patched[SEC6_MARKER_OFFSET + i] = SEC6_MARKER[i];
+    edits.push({
+      offset: SEC6_MARKER_OFFSET, length: 4,
+      before: beforeHex,
+      after: 'FF FF FF AA',
+      label: 'SEC6 marker @' + fmtOff(SEC6_MARKER_OFFSET) + ' (canonical FF FF FF AA tag)',
+    });
+  }
+
+  const beforeSec6 = patched.slice(SEC6_OFFSET, SEC6_OFFSET + 6);
+  let sec6Differs = false;
+  for (let i = 0; i < 6; i++) if (beforeSec6[i] !== sec[i]) { sec6Differs = true; break; }
+  if (sec6Differs) {
+    edits.push({
+      offset: SEC6_OFFSET, length: 6,
+      before: hexBytes(beforeSec6),
+      after: hexBytes(sec),
+      label: 'SEC6 secret @' + fmtOff(SEC6_OFFSET) + ' (first 6 B of trusted RFHUB SEC16)',
+    });
+    for (let i = 0; i < 6; i++) patched[SEC6_OFFSET + i] = sec[i];
+  }
+
+  /* IMMO repair: rewrite to ENABLED (0x80 00 00 00) whenever the
+   * current 4-byte IMMO pattern at 0x0011 is not already exactly that.
+   * Per task #574 spec, "IMMO byte not enabled" is a repairable
+   * condition, which covers both IMMO_DAMAGED (all-FF) and DISABLED
+   * (0x00 00 00 00) states. */
+  const immoBefore = patched.slice(IMMO_OFFSET, IMMO_OFFSET + 4);
+  const immoAlreadyEnabled =
+    immoBefore[0] === PCM_IMMO_ENABLED_PATTERN[0] &&
+    immoBefore[1] === PCM_IMMO_ENABLED_PATTERN[1] &&
+    immoBefore[2] === PCM_IMMO_ENABLED_PATTERN[2] &&
+    immoBefore[3] === PCM_IMMO_ENABLED_PATTERN[3];
+  if (!immoAlreadyEnabled) {
+    const wasAllFF = immoBefore.every(b => b === 0xFF);
+    const wasAll00 = immoBefore.every(b => b === 0x00);
+    const stateLabel = wasAllFF ? 'IMMO_DAMAGED all-FF'
+                     : wasAll00 ? 'DISABLED 00 00 00 00'
+                     : 'NOT_ENABLED ' + hexBytes(immoBefore);
+    const beforeHex = hexBytes(immoBefore);
+    for (let i = 0; i < 4; i++) patched[IMMO_OFFSET + i] = PCM_IMMO_ENABLED_PATTERN[i];
+    edits.push({
+      offset: IMMO_OFFSET, length: 4,
+      before: beforeHex,
+      after: hexBytes(PCM_IMMO_ENABLED_PATTERN),
+      label: 'IMMO byte @' + fmtOff(IMMO_OFFSET) + ' (was ' + stateLabel + ' → ENABLED 0x80)',
+    });
+  }
+
+  return { ok: true, patchedBytes: patched, edits };
+}

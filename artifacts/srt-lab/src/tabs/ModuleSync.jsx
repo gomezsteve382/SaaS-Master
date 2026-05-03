@@ -3,6 +3,7 @@ import { ASSET_IDS, trackDownload } from "../lib/downloadAssets.js";
 import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
+import PcmRepairWizard from "../components/PcmRepairWizard.jsx";
 import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
 import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
@@ -1274,7 +1275,7 @@ function RfhCard({ parsed, pnOverride }) {
   );
 }
 
-export function PcmCard({ parsed, bytes, pnOverride }) {
+export function PcmCard({ parsed, bytes, pnOverride, onRepair, repairAvailable, repairReasons }) {
   if (!parsed) return null;
   if (parsed.tooSmall) return <TooSmallCard parsed={parsed} moduleLabel="PCM" testid="pcm-too-small-card" />;
   let status = 'READY', statusColor = C.gn;
@@ -1328,6 +1329,39 @@ export function PcmCard({ parsed, bytes, pnOverride }) {
       {pnOverride && (
         <div style={{ marginBottom: 8, padding: '6px 10px', background: C.wn + '14', border: '1px solid ' + C.wn + '55', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700 }}>
           ⚠ P/N override active — this PCM bypassed the registry compatibility check on the Dumps tab.
+        </div>
+      )}
+      {repairAvailable && (
+        <div
+          data-testid="pcm-repair-cta"
+          style={{
+            marginBottom: 10, padding: '10px 12px', borderRadius: 10,
+            background: C.er + '12', border: '1.5px solid ' + C.er + '88',
+            display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+          }}>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: C.er, letterSpacing: 1, marginBottom: 3 }}>
+              ⚠ PCM DAMAGED — REPAIRABLE
+            </div>
+            <div style={{ fontSize: 11, color: C.tx, lineHeight: 1.5 }}>
+              BCM and RFHUB agree on the VIN and pairing secret. The damaged offsets in this PCM
+              dump can be rewritten from that trusted source.
+              {repairReasons && repairReasons.length > 0 && (
+                <span style={{ color: C.ts }}> · {repairReasons.join(' · ')}</span>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={onRepair}
+            data-testid="pcm-repair-open-btn"
+            style={{
+              padding: '8px 14px', borderRadius: 8, border: 'none',
+              background: C.er, color: '#1A1A1A',
+              fontWeight: 800, fontSize: 12, letterSpacing: 0.5,
+              cursor: 'pointer', whiteSpace: 'nowrap',
+            }}>
+            🩹 Repair PCM
+          </button>
         </div>
       )}
       <Kv k="Current VIN"  v={parsed.currentVin || parsed.vin} mono />
@@ -1714,6 +1748,11 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const [diffRows,  setDiffRows]  = useState([]);
   const [originals, setOriginals] = useState({ bcm: null, rfh: null, pcm: null, eep: null });
   const [wizardOpen, setWizardOpen] = useState(false);
+  /* Task #574 — PCM repair wizard modal open state. Strictly gated by
+   * the `pcmRepairable` derived flag below; on a working/drivable PCM
+   * (VINs match BCM, SEC6 populated + marker OK, IMMO byte 0x80) the
+   * CTA never appears so the wizard cannot be opened. */
+  const [pcmRepairOpen, setPcmRepairOpen] = useState(false);
   /* Confirm dialog shown before a sync proceeds when one or more loaded
    * modules carry pnOverride (registry compatibility check was bypassed). */
   const [overrideConfirm, setOverrideConfirm] = useState(null); /* { action, overrideVin, modules } */
@@ -1910,6 +1949,76 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const effectiveTargetChipKey = targetPcmChip || pcmSourceChip?.chipKey || null;
   const targetChipDescriptor = effectiveTargetChipKey ? pcmChipFromKey(effectiveTargetChipKey) : null;
   const targetChipMismatch = !!(pcmSourceChip && targetPcmChip && targetPcmChip !== pcmSourceChip.chipKey);
+
+  /* Task #574 — PCM repair eligibility. STRICT guards so a working,
+   * drivable PCM (VINs match BCM, SEC6 marker present + secret bytes
+   * populated, IMMO byte at 0x0011 not all-FF) NEVER surfaces the
+   * Repair CTA. Required preconditions:
+   *   - BCM and RFHUB are both parsed and agree on VIN (vinMatch)
+   *   - RFHUB carries a non-virgin SEC16 (rfhHasSec16) — the trusted
+   *     source of the 6-byte pairing secret
+   *   - PCM is loaded with canonical GPEC2A size (4096 or 8192 B)
+   *   - BCM VIN is valid
+   *   - At least one genuine damage signal is present:
+   *       a) parsed.immoDamaged (SEC6 marker missing OR class !populated)
+   *       b) any PCM VIN slot doesn't match the trusted BCM VIN
+   *          (or no VIN slots decoded at all on a canonical-sized dump)
+   *       c) IMMO byte at 0x0011..0x0014 is all-FF (IMMO_DAMAGED state) */
+  const pcmCanonicalSize = !!(pcm.bytes && (pcm.bytes.length === 4096 || pcm.bytes.length === 8192));
+  const pcmVinSlotMismatch = !!(pcm.parsed && bcm.parsed?.vin && (
+    (Array.isArray(pcm.parsed.vinSlots) && pcm.parsed.vinSlots.length === 0)
+    || (Array.isArray(pcm.parsed.vinSlots) && pcm.parsed.vinSlots.some(s => s.vin !== bcm.parsed.vin))
+  ));
+  /* IMMO byte at 0x0011 is repairable when it is NOT the canonical
+   * ENABLED pattern (0x80 00 00 00). Spec calls out "IMMO byte not
+   * enabled" — that includes both DISABLED (0x00 00 00 00) and the
+   * IMMO_DAMAGED virgin state (FF FF FF FF). A drivable file with the
+   * exact ENABLED pattern is intentionally NOT a damage signal. */
+  const pcmImmoNotEnabled = !!(pcm.bytes && pcm.bytes.length > 0x14 && (
+    pcm.bytes[0x0011] !== 0x80 || pcm.bytes[0x0012] !== 0x00
+    || pcm.bytes[0x0013] !== 0x00 || pcm.bytes[0x0014] !== 0x00
+  ));
+  const pcmImmoLabel = pcmImmoNotEnabled
+    ? (pcm.bytes && pcm.bytes[0x0011] === 0xFF
+        ? 'IMMO byte all-FF @0x0011'
+        : pcm.bytes && pcm.bytes[0x0011] === 0x00
+          ? 'IMMO byte DISABLED @0x0011'
+          : 'IMMO byte not enabled @0x0011')
+    : null;
+  const pcmDamageSignals = [];
+  if (pcm.parsed?.immoDamaged) pcmDamageSignals.push('SEC6 marker/secret damaged');
+  if (pcmVinSlotMismatch)      pcmDamageSignals.push('VIN slots ≠ BCM VIN');
+  if (pcmImmoLabel)            pcmDamageSignals.push(pcmImmoLabel);
+
+  /* Resolve the trusted 6-byte pairing secret from RFHUB SEC16. The
+   * secret is only "resolved" when the source is canonical:
+   *   - both SEC16 slots present, non-virgin, and slot1 ≡ slot2
+   *   - first 6 bytes are not blank (all-FF or all-00)
+   * If RFHUB SEC16 slots disagree we refuse to produce a repair —
+   * better to keep the user in MismatchWizard land than write a
+   * possibly-wrong secret into the PCM. */
+  const _rfhSec16 = rfh.parsed?.sec16;
+  const rfhSec16Resolved = !!(
+    _rfhSec16 && !_rfhSec16.virgin && _rfhSec16.match
+    && _rfhSec16.slot1 && _rfhSec16.slot1.length >= 6
+  );
+  const _candidateSec6 = rfhSec16Resolved
+    ? new Uint8Array(_rfhSec16.slot1.slice(0, 6))
+    : null;
+  const _sec6Blank = _candidateSec6
+    ? (_candidateSec6.every(b => b === 0xFF) || _candidateSec6.every(b => b === 0x00))
+    : true;
+  const pcmRepairSecretOk = rfhSec16Resolved && !_sec6Blank;
+  const pcmRepairSecret6 = pcmRepairSecretOk ? _candidateSec6 : null;
+
+  const pcmRepairable = !!(
+    bothReady && vinMatch && rfhHasSec16
+    && pcmRepairSecretOk
+    && pcm.bytes && pcm.parsed && !pcm.parsed.tooSmall
+    && pcmCanonicalSize
+    && bcm.parsed?.vin && VIN_RE.test(bcm.parsed.vin)
+    && pcmDamageSignals.length > 0
+  );
 
   /* 95640 re-key eligibility — needs RFHUB SEC16 master + 95640 dump ≥0x84A bytes */
   const eep95640Loaded   = !!eep.bytes;
@@ -2673,6 +2782,38 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
             </div>
           )}
 
+          {/* Task #574 — secondary "Repair PCM" CTA in the banner area
+           * (mirrors the per-card button) so the user sees the offer even
+           * if the PCM card is scrolled out of view. Same strict gating. */}
+          {pcmRepairable && (
+            <div
+              data-testid="pcm-repair-banner-cta"
+              style={{
+                padding: '10px 16px', borderRadius: 10, marginBottom: 14,
+                background: 'rgba(255,23,68,0.08)', border: '1.5px solid rgba(255,23,68,0.35)',
+                display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+              }}>
+              <span style={{ fontSize: 12, color: '#a00025', flex: 1, fontWeight: 700 }}>
+                ⚠ PCM dump is damaged but repairable — BCM and RFHUB agree on the VIN and pairing
+                secret, so SRT Lab can rewrite the bad offsets and produce a fixed file.
+                {pcmDamageSignals.length > 0 && (
+                  <span style={{ fontWeight: 500, color: C.ts }}> · {pcmDamageSignals.join(' · ')}</span>
+                )}
+              </span>
+              <button
+                data-testid="pcm-repair-banner-btn"
+                onClick={() => setPcmRepairOpen(true)}
+                style={{
+                  background: 'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+                  border: 'none', borderRadius: 8, padding: '6px 14px',
+                  color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
+                  letterSpacing: 0.5, fontFamily: "'Nunito'", whiteSpace: 'nowrap',
+                }}>
+                🩹 Repair PCM →
+              </button>
+            </div>
+          )}
+
           {/* Standalone wizard trigger when no VIN mismatch but SEC16 issues */}
           {bothReady && vinMatch && (wizardIssues.length > 0 || wizardWarnings.length > 0) && (
             <div style={{
@@ -2700,7 +2841,16 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
             <BcmCard parsed={bcm.parsed} pnOverride={bcm.pnOverride} />
             <RfhCard parsed={rfh.parsed} pnOverride={rfh.pnOverride} />
-            {pcm.parsed && <PcmCard parsed={pcm.parsed} bytes={pcm.bytes} pnOverride={pcm.pnOverride} />}
+            {pcm.parsed && (
+              <PcmCard
+                parsed={pcm.parsed}
+                bytes={pcm.bytes}
+                pnOverride={pcm.pnOverride}
+                repairAvailable={pcmRepairable}
+                repairReasons={pcmDamageSignals}
+                onRepair={() => setPcmRepairOpen(true)}
+              />
+            )}
           </div>
         </Card>
       )}
@@ -3082,6 +3232,23 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
             setOverrideConfirm(null);
             executeSync(action, overrideVin);
           }}
+        />
+      )}
+
+      {/* ── PCM Repair Wizard modal (Task #574) ── */}
+      {pcmRepairOpen && pcmRepairable && (
+        <PcmRepairWizard
+          pcmBytes={pcm.bytes}
+          pcmFilename={pcm.file?.name || 'pcm.bin'}
+          targetVin={bcm.parsed.vin}
+          secret6={pcmRepairSecret6}
+          bcmVin={bcm.parsed.vin}
+          rfhVin={rfh.parsed.vin}
+          rfhSec16Hex={Array.from(rfh.parsed.sec16.slot1)
+            .map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' ')}
+          damageReasons={pcmDamageSignals}
+          onClose={() => setPcmRepairOpen(false)}
+          onLog={(msg, level) => log(msg, level)}
         />
       )}
 
