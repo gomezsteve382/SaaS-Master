@@ -817,6 +817,10 @@ export default function UnlockCoverageTab() {
             )}
           </div>
 
+          {extCatalog.villain_operations && Array.isArray(extCatalog.villain_operations.groups) && extCatalog.villain_operations.groups.length > 0 && (
+            <VillainOperations vops={extCatalog.villain_operations}/>
+          )}
+
           {extCatalog.uds.did_maps && extCatalog.uds.did_maps.length > 0 && (
             <div style={{marginTop: 14}}>
               <div style={{fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, color: C.tx, marginBottom: 4}}>
@@ -833,6 +837,149 @@ export default function UnlockCoverageTab() {
           )}
         </Card>
       )}
+    </div>
+  );
+}
+
+// VILLAIN operations panel — renders the named operation groups extracted
+// from VILLAIN_GPEC for Chrysler/FCA ECU programming. Each group is an
+// expandable accordion row showing its protocol scope and the underlying
+// operations (DID + service byte). The SRI Mileage group flags the 0xE2
+// prefix quirk inline so an operator browsing the catalog notices it
+// before trying to drive that op.
+function VillainOperations({vops}) {
+  const [open, setOpen] = useState(() => new Set());
+  const toggle = (name) => setOpen((prev) => {
+    const next = new Set(prev);
+    if (next.has(name)) next.delete(name); else next.add(name);
+    return next;
+  });
+  const totalOps = (vops.groups || []).reduce(
+    (s, g) => s + (Array.isArray(g.operations) ? g.operations.length : 0), 0);
+  return (
+    <div data-testid="villain-operations" style={{marginTop: 14}}>
+      <div style={{display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 8}}>
+        <div style={{fontFamily: "'Nunito'", fontWeight: 800, fontSize: 13, color: C.tx}}>
+          VILLAIN Operations
+        </div>
+        <span style={{
+          fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 800,
+          padding: "2px 7px", borderRadius: 999,
+          background: "#1B5E2014", color: "#1B5E20", letterSpacing: 1,
+        }}>provenance: {vops.provenance || "VILLAIN_GPEC extraction"}</span>
+        <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}>
+          {vops.groups.length} groups · {totalOps} operations
+        </div>
+      </div>
+      {vops.description && (
+        <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, marginBottom: 8, lineHeight: 1.4}}>
+          {vops.description}
+        </div>
+      )}
+      <div style={{display: "flex", flexDirection: "column", gap: 6}}>
+        {vops.groups.map((g) => {
+          const isOpen = open.has(g.name);
+          const isSri = /SRI/i.test(g.name);
+          const opCount = Array.isArray(g.operations) ? g.operations.length : 0;
+          return (
+            <div
+              key={g.name}
+              data-testid={`villain-group-${g.name}`}
+              style={{border: `1px solid ${C.bd}`, borderRadius: 6, background: "#fff"}}
+            >
+              <button
+                type="button"
+                data-testid={`villain-group-toggle-${g.name}`}
+                onClick={() => toggle(g.name)}
+                style={{
+                  width: "100%", display: "flex", alignItems: "center", gap: 10,
+                  padding: "8px 12px", background: "transparent", border: "none",
+                  cursor: "pointer", textAlign: "left",
+                }}
+              >
+                <span style={{
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.tm,
+                  width: 12, display: "inline-block",
+                }}>{isOpen ? "▾" : "▸"}</span>
+                <span style={{fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, color: C.tx, flex: "0 0 auto"}}>
+                  {g.name}
+                </span>
+                <span
+                  data-testid={`villain-protocol-${g.name}`}
+                  title={`Protocol scope: ${g.protocol}`}
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 800,
+                    padding: "2px 7px", borderRadius: 999, letterSpacing: 0.5,
+                    background: "#0D47A114", color: "#0D47A1",
+                  }}
+                >{g.protocol}</span>
+                {isSri && (
+                  <span
+                    data-testid={`villain-sri-quirk-${g.name}`}
+                    title="SRI ops require a 0xE2 prefix byte before the DID"
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 800,
+                      padding: "2px 7px", borderRadius: 999, letterSpacing: 0.5,
+                      background: "#E6510014", color: "#E65100",
+                    }}
+                  >⚠ 0xE2 PREFIX REQUIRED</span>
+                )}
+                <span style={{flex: 1}}/>
+                <span style={{
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.tm,
+                  padding: "1px 6px", borderRadius: 999, background: "#0001",
+                }}>{opCount} op{opCount === 1 ? "" : "s"}</span>
+              </button>
+              {isOpen && (
+                <div style={{borderTop: `1px solid ${C.bd}`, padding: "8px 12px", background: "#0000000A"}}>
+                  {isSri && (
+                    <div
+                      data-testid={`villain-sri-note-${g.name}`}
+                      style={{
+                        fontFamily: "'Nunito'", fontSize: 11, color: "#E65100",
+                        background: "#FFF3E0", border: "1px solid #E6510040",
+                        borderRadius: 4, padding: "6px 10px", marginBottom: 8, lineHeight: 1.4,
+                      }}
+                    >
+                      <strong>SRI quirk:</strong> these ops require a <code style={{fontFamily: "'JetBrains Mono', monospace"}}>0xE2</code> prefix byte sent before the DID. Forgetting it yields an NRC.
+                    </div>
+                  )}
+                  <table style={{width: "100%", borderCollapse: "collapse", fontFamily: "'JetBrains Mono', monospace", fontSize: 10}}>
+                    <thead>
+                      <tr style={{textAlign: "left", color: C.tm}}>
+                        <th style={{padding: "4px 8px", fontSize: 9, letterSpacing: 1}}>OPERATION</th>
+                        <th style={{padding: "4px 8px", fontSize: 9, letterSpacing: 1}}>SERVICE</th>
+                        <th style={{padding: "4px 8px", fontSize: 9, letterSpacing: 1}}>DID</th>
+                        <th style={{padding: "4px 8px", fontSize: 9, letterSpacing: 1}}>NOTES</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(g.operations || []).map((op) => (
+                        <tr key={op.id} data-testid={`villain-op-${op.id}`} style={{borderTop: `1px solid ${C.bd}80`}}>
+                          <td style={{padding: "4px 8px", color: C.tx}}>
+                            <div style={{fontFamily: "'Nunito'", fontWeight: 700, fontSize: 11}}>{op.label}</div>
+                            <div style={{fontSize: 9, color: C.tm}}>{op.id}</div>
+                          </td>
+                          <td style={{padding: "4px 8px", color: op.service ? C.a3 : C.tm, fontWeight: 700}}>
+                            {op.service || "—"}
+                          </td>
+                          <td style={{padding: "4px 8px", color: op.did ? C.tx : C.tm}}>
+                            {op.did || "—"}
+                            {op.value && <span style={{color: C.tm}}> = {op.value}</span>}
+                          </td>
+                          <td style={{padding: "4px 8px", color: C.tm, fontFamily: "'Nunito'", fontSize: 10}}>
+                            {op.notes || ""}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
