@@ -3,7 +3,7 @@ import {C} from "../lib/constants.js";
 import {Card, Btn} from "../lib/ui.jsx";
 import {parseCatalog} from "../lib/unlockCatalogSchema.js";
 import {friendlyAlgo} from "../lib/algoFriendly.js";
-import {getAuth29Detections, subscribeAuth29, clearAuth29Detections} from "../lib/auth29State.js";
+import {getAuth29Detections, subscribeAuth29, clearAuth29Detections, getAuth29Unlocks, clearAuth29Unlocks} from "../lib/auth29State.js";
 
 /**
  * Unlock Coverage tab — Task #499.
@@ -150,10 +150,11 @@ export default function UnlockCoverageTab() {
   // Task #567 — UDS 0x29 detection banner state. Mirrors SeedTab's
   // subscription so a probe firing in either tab lights both up.
   const [auth29, setAuth29] = useState(() => getAuth29Detections());
+  const [auth29Ok, setAuth29Ok] = useState(() => getAuth29Unlocks());
   useEffect(() => {
-    const refresh = () => setAuth29(getAuth29Detections());
+    const refresh = () => { setAuth29(getAuth29Detections()); setAuth29Ok(getAuth29Unlocks()); };
     const off = subscribeAuth29(refresh);
-    const onStorage = (e) => { if (!e || e.key === 'srtlab.auth29.detections') refresh(); };
+    const onStorage = (e) => { if (!e || e.key === 'srtlab.auth29.detections' || e.key === 'srtlab.auth29.unlocks') refresh(); };
     if (typeof window !== 'undefined') window.addEventListener('storage', onStorage);
     return () => { off(); if (typeof window !== 'undefined') window.removeEventListener('storage', onStorage); };
   }, []);
@@ -366,6 +367,22 @@ export default function UnlockCoverageTab() {
 
   return (
     <div data-testid="unlock-coverage-tab" style={{display: "flex", flexDirection: "column", gap: 14}}>
+      {auth29Ok.length > 0 && (
+        <Card data-testid="auth29-unlocked-banner" style={{background: "#E8F5E9", borderColor: "#1B5E20"}}>
+          <div style={{display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12}}>
+            <div>
+              <div style={{fontFamily: "'Nunito'", fontSize: 12, fontWeight: 900, color: "#1B5E20", letterSpacing: 1, marginBottom: 4}}>UDS 0x29 UNLOCKED</div>
+              <div style={{fontFamily: "'Nunito'", fontSize: 12, color: C.tx, marginBottom: 4}}>
+                {auth29Ok.length === 1 ? "A module" : `${auth29Ok.length} modules`} on this bench unlocked via the UDS 0x29 Authentication challenge/response handshake.
+              </div>
+              <div style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.tm}}>
+                {auth29Ok.map(d => `tx=0x${(d.tx >>> 0).toString(16).toUpperCase().padStart(3, "0")}${d.label ? ` (${d.label})` : ""}${d.statusInfo != null ? ` · statusInfo 0x${d.statusInfo.toString(16).toUpperCase().padStart(2, "0")}` : ""}`).join(" · ")}
+              </div>
+            </div>
+            <button onClick={clearAuth29Unlocks} data-testid="auth29-unlocked-banner-clear" style={{cursor: "pointer", border: "1.5px solid #1B5E20", padding: "4px 10px", borderRadius: 6, background: "#fff", color: "#1B5E20", fontWeight: 800, fontSize: 10, letterSpacing: 1, whiteSpace: "nowrap"}}>DISMISS</button>
+          </div>
+        </Card>
+      )}
       {auth29.length > 0 && (
         <Card data-testid="auth29-banner" style={{background: "#FFF3E0", borderColor: "#E65100"}}>
           <div style={{display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12}}>

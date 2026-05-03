@@ -133,8 +133,12 @@ export async function createBridgeEngine({addLog, url}={}){
   };
 }
 
-import { detect0x29, shouldProbe0x29ForNrc, auth29RefusalMessage } from './auth29.js';
-import { flagAuth29Detected } from './auth29State.js';
+import {
+  detect0x29, shouldProbe0x29ForNrc,
+  auth29RefusalMessage, auth29UnlockedMessage,
+  attemptAuth29Unlock, getAuth29Strategy,
+} from './auth29.js';
+import { flagAuth29Detected, flagAuth29Unlocked } from './auth29State.js';
 
 /* Re-issue the extended-session + seed/key unlock on a freshly-routed engine
    (typically the bridge engine returned by createBridgeEngine). The unlock the
@@ -146,7 +150,7 @@ import { flagAuth29Detected } from './auth29State.js';
    same algorithm that succeeded on the sim channel.
 
    Returns {ok:true} on success or {ok:false, error, nrc?} on failure. */
-export async function reUnlockSeedKey(engine,tx,rx,algoFn,{addLog,hx}={}){
+export async function reUnlockSeedKey(engine,tx,rx,algoFn,{addLog,hx,auth29Strategy,auth29Options}={}){
   const log=(m,t='info')=>{try{addLog&&addLog(m,t);}catch{}};
   const _hx=hx||((n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0'));
   if(!engine||typeof engine.uds!=='function')return {ok:false,error:'no engine'};
@@ -171,6 +175,23 @@ export async function reUnlockSeedKey(engine,tx,rx,algoFn,{addLog,hx}={}){
       const probe=await detect0x29(engine,tx,rx);
       log('0x29 probe → '+probe.classification+(probe.nrc!=null?' (NRC 0x'+_hx(probe.nrc)+')':'')+(probe.error?' ['+probe.error+']':''),'info');
       if (probe.supports){
+        // Task #572 — attempt the real challenge/response handshake when
+        // a strategy is registered (or passed in). On success the bridge
+        // is authenticated and the caller can proceed with writes; on
+        // failure or no-strategy we fall back to the canonical refusal.
+        const strategy = (typeof auth29Strategy === 'function') ? auth29Strategy : getAuth29Strategy(tx);
+        if (strategy){
+          log('Running 0x29 challenge/response handshake on bridge…','info');
+          const hs = await attemptAuth29Unlock(engine, tx, rx, { strategy, deauth:false, ...(auth29Options||{}) });
+          if (hs.authenticated){
+            try { flagAuth29Unlocked({ tx, rx, label: 'reUnlockSeedKey', statusInfo: hs.statusInfo }); } catch {}
+            log('✓ '+auth29UnlockedMessage()+' · statusInfo=0x'+_hx(hs.statusInfo|0),'rx');
+            return { ok:true, auth29:true, statusInfo: hs.statusInfo };
+          }
+          try { flagAuth29Detected({ tx, rx, label: 'reUnlockSeedKey', nrc }); } catch {}
+          log('0x29 handshake failed at '+hs.phase+': '+(hs.error||'unknown'),'error');
+          return { ok:false, nrc, auth29:true, error: '0x29 handshake failed: '+(hs.error||'unknown') };
+        }
         try { flagAuth29Detected({ tx, rx, label: 'reUnlockSeedKey', nrc }); } catch {}
         return { ok:false, nrc, auth29:true, error: auth29RefusalMessage() };
       }

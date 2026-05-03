@@ -626,11 +626,40 @@ async function tryUnlockWithChain(uds, tx, rx, chain, addLog, label, accessLevel
   // could unlock it. If not, fall through to the standard exhausted log.
   if (sawAuthDenialNrc != null){
     try {
-      const { detect0x29, auth29RefusalMessage } = await import('./auth29.js');
-      const { flagAuth29Detected } = await import('./auth29State.js');
+      const {
+        detect0x29, auth29RefusalMessage, auth29UnlockedMessage,
+        attemptAuth29Unlock, getAuth29Strategy,
+      } = await import('./auth29.js');
+      const { flagAuth29Detected, flagAuth29Unlocked } = await import('./auth29State.js');
       const probe = await detect0x29({ uds }, tx, rx);
       addLog && addLog(lbl + ' 0x29 probe → ' + probe.classification + (probe.nrc != null ? (' (NRC 0x' + probe.nrc.toString(16).toUpperCase() + ')') : ''), 'info');
       if (probe.supports){
+        // Task #572 — if the operator (or a vendor preset) registered a
+        // 0x29 strategy for this tx-id, run the real challenge/response
+        // handshake instead of refusing. Successful handshake returns
+        // the special string 'auth29' so writer-side `=== false` gates
+        // still skip the chain-driven seed/key path while exposing the
+        // unlock to callers that want to proceed (the flasher does this
+        // directly; the unlock-chain callers treat any non-false return
+        // as success and proceed to their own writes).
+        const strategy = (opts && typeof opts.auth29Strategy === 'function')
+          ? opts.auth29Strategy
+          : getAuth29Strategy(tx);
+        if (strategy){
+          addLog && addLog(lbl + ' running 0x29 challenge/response handshake', 'info');
+          const hs = await attemptAuth29Unlock({ uds }, tx, rx, {
+            strategy, deauth: false,
+            ...((opts && opts.auth29Options) || {}),
+          });
+          if (hs.authenticated){
+            try { flagAuth29Unlocked({ tx, rx, label: lbl, statusInfo: hs.statusInfo }); } catch {}
+            addLog && addLog(lbl + ' ' + auth29UnlockedMessage() + ' · statusInfo=0x' + ((hs.statusInfo|0).toString(16).toUpperCase()), 'rx');
+            return 'auth29';
+          }
+          try { flagAuth29Detected({ tx, rx, label: lbl, nrc: sawAuthDenialNrc }); } catch {}
+          addLog && addLog(lbl + ' 0x29 handshake failed at ' + hs.phase + ': ' + (hs.error || 'unknown'), 'error');
+          return false;
+        }
         try { flagAuth29Detected({ tx, rx, label: lbl, nrc: sawAuthDenialNrc }); } catch {}
         addLog && addLog(lbl + ' ' + auth29RefusalMessage(), 'error');
         // Return `false` (not an object) so every existing caller that

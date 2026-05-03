@@ -53,7 +53,13 @@ function makeEngine({ isBridge = true, script = [], timingDefaults = { p2Ms: 50,
         // is NRC 0x11 (serviceNotSupported); tests that need the
         // module to "support 0x29" pass `auth29Reply`.
         auth29.push({ tx, rx, frame: arr });
-        if (auth29Reply) return auth29Reply;
+        if (auth29Reply){
+          // Allow tests to drive the multi-step 0x29 handshake by
+          // passing a function that gets the request frame and the
+          // running auth29 list and returns a reply.
+          if (typeof auth29Reply === 'function') return auth29Reply(arr, auth29);
+          return auth29Reply;
+        }
         return { ok: true, d: new Uint8Array([0x7F, 0x29, 0x11]) };
       }
       if (arr[0] === 0x83) {
@@ -940,6 +946,73 @@ describe('flashEcm UDS 0x83 timing negotiation (Task #566)', () => {
     expect(r.error).toMatch(/Authentication \(0x29\)/);
     expect(r.error).toMatch(/not yet supported/);
     expect(eng.auth29).toHaveLength(1);
+  });
+
+  test('Task #572 — NRC 0x33 + module supports 0x29 + inline strategy → handshake succeeds and flasher proceeds', async () => {
+    const payload = new Uint8Array(8);
+    const script = [
+      { ok: true, d: bytes(0x50, 0x03, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x50, 0x02, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x7F, 0x27, 0x33) },                   // seed → 0x33 → triggers 0x29
+      // After the 0x29 handshake the flasher MUST skip directly to the
+      // erase routine without re-issuing 0x27. Tail script mirrors
+      // happyTail() but inlined for clarity.
+      { ok: true, d: bytes(0x71, 0x01, 0xFF, 0x00, 0x00) },        // erase
+      { ok: true, d: bytes(0x74, 0x10, 0x82) },                    // requestDownload
+      { ok: true, d: bytes(0x76, 0x01) },                          // transferData chunk 1
+      { ok: true, d: bytes(0x37) },                                // requestTransferExit
+      { ok: true, d: bytes(0x71, 0x01, 0xFF, 0x01, 0x00) },        // checkRoutine
+      { ok: true, d: bytes(0x51, 0x01) },                          // ECU reset
+    ];
+    // 3-step 0x29 dispatch: 0x29 0x00 (probe) → supports;
+    //                       0x29 0x05 → 4-byte challenge;
+    //                       0x29 0x06 → ownershipVerified.
+    const auth29Reply = (frame) => {
+      if (frame[1] === 0x00) return { ok: true, d: new Uint8Array([0x69, 0x00]) };
+      if (frame[1] === 0x05) return { ok: true, d: new Uint8Array([0x69, 0x05, 0x00, 0xDE, 0xAD, 0xBE, 0xEF]) };
+      if (frame[1] === 0x06) return { ok: true, d: new Uint8Array([0x69, 0x06, 0x10]) };
+      return { ok: true, d: new Uint8Array([0x7F, 0x29, 0x11]) };
+    };
+    const eng = makeEngine({ script, auth29Reply, extendedP2Ms: 0 });
+    const strategy = async (challenge) => challenge.map((b) => b ^ 0x55);
+    const r = await flashEcm({
+      engine: eng, payload, chunkSize: 0x80,
+      extendedP2Ms: 0, extendedP2StarMs: 0,
+      auth29Strategy: strategy,
+    }).start();
+    expect(r.ok).toBe(true);
+    expect(r.auth29).toEqual({ ok: true, statusInfo: 0x10 });
+    // Probe + RequestChallenge + VerifyProof = 3 0x29 frames.
+    expect(eng.auth29).toHaveLength(3);
+    expect(eng.auth29[0].frame).toEqual([0x29, 0x00]);
+    expect(eng.auth29[1].frame).toEqual([0x29, 0x05, 0x00]);
+    expect(eng.auth29[2].frame).toEqual([0x29, 0x06, 0xDE ^ 0x55, 0xAD ^ 0x55, 0xBE ^ 0x55, 0xEF ^ 0x55]);
+    // Crucial: the flasher must NOT have issued a second 0x27 after the
+    // handshake — it should skip seed/key entirely.
+    const post27 = eng.calls.filter((c) => c.frame[0] === 0x27);
+    expect(post27).toHaveLength(1); // only the original failed seed
+  });
+
+  test('Task #572 — handshake failure (VerifyProof NRC) aborts with "0x29 handshake failed"', async () => {
+    const script = [
+      { ok: true, d: bytes(0x50, 0x03, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x50, 0x02, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x7F, 0x27, 0x33) },
+    ];
+    const auth29Reply = (frame) => {
+      if (frame[1] === 0x00) return { ok: true, d: new Uint8Array([0x69, 0x00]) };
+      if (frame[1] === 0x05) return { ok: true, d: new Uint8Array([0x69, 0x05, 0x00, 0xCA, 0xFE]) };
+      if (frame[1] === 0x06) return { ok: true, d: new Uint8Array([0x7F, 0x29, 0x35]) }; // invalidKey
+      return { ok: true, d: new Uint8Array([0x7F, 0x29, 0x11]) };
+    };
+    const eng = makeEngine({ script, auth29Reply });
+    const r = await flashEcm({
+      engine: eng, payload: new Uint8Array(64), chunkSize: 0x80,
+      extendedP2Ms: 0, extendedP2StarMs: 0,
+      auth29Strategy: async (ch) => ch.map((b) => b ^ 0xFF),
+    }).start();
+    expect(r.ok).toBe(false);
+    expect(r.error).toMatch(/0x29 handshake failed/);
   });
 
   test('NRC 0x33 + module supports 0x29 via NRC 0x12 sub-not-supported also triggers refusal', async () => {

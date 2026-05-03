@@ -47,8 +47,12 @@
 import { cda6 } from './algos.js';
 import { decodeNRC } from './nrc.js';
 import { buildReadTimingCurrent, buildSetTimingValues, parseTimingResponse } from './timing.js';
-import { detect0x29, shouldProbe0x29ForNrc, auth29RefusalMessage } from './auth29.js';
-import { flagAuth29Detected } from './auth29State.js';
+import {
+  detect0x29, shouldProbe0x29ForNrc,
+  auth29RefusalMessage, auth29UnlockedMessage,
+  attemptAuth29Unlock, getAuth29Strategy,
+} from './auth29.js';
+import { flagAuth29Detected, flagAuth29Unlocked } from './auth29State.js';
 
 const ECM_ADDR = { tx: 0x7E0, rx: 0x7E8 };
 const DEFAULT_CHUNK = 0x80; // 128 bytes — conservative for ISO-TP.
@@ -207,6 +211,15 @@ export function flashEcm(opts){
     // entirely and run on the module's defaults.
     extendedP2Ms = 5000,
     extendedP2StarMs = 30000,
+    // Task #572 — optional 0x29 Authentication strategy. When the seed
+    // request comes back with NRC 0x33/0x34 and the module supports
+    // 0x29, we run the challenge/response handshake instead of refusing.
+    // If a strategy is registered for `addr.tx` via
+    // registerAuth29Strategy(), the registry takes precedence over the
+    // default-undefined option here so callers can wire vendor-specific
+    // recipes globally without threading them through every call site.
+    auth29Strategy = undefined,
+    auth29Options = undefined,
     onProgress = () => {},
     onLog = () => {},
     signal,
@@ -492,8 +505,10 @@ export function flashEcm(opts){
       // We have to call the seed step directly (not via call()) because
       // a 0x33/0x34 NRC is not a hard error — it is the trigger to probe
       // for UDS 0x29 Authentication (Task #567). If the module insists
-      // on 0x29 we abort with a clear refusal; if not, we re-throw the
-      // original NRC so the operator still sees it.
+      // on 0x29 we either run the real challenge/response handshake when
+      // a strategy is registered (Task #572) or abort with the canonical
+      // refusal when no strategy is available; on any other NRC we
+      // re-throw so the operator still sees it.
       let seedResp;
       try {
         seedResp = await call([0x27, seedSubfn & 0xFF], `SecurityAccess seed 0x27 ${hex(seedSubfn & 0xFF)}`);
@@ -503,27 +518,57 @@ export function flashEcm(opts){
           const probe = await detect0x29(engine, addr.tx, addr.rx);
           log(`0x29 probe → ${probe.classification}` + (probe.nrc != null ? ` (NRC 0x${hex(probe.nrc)})` : '') + (probe.error ? ` [${probe.error}]` : ''), 'info');
           if (probe.supports){
-            try { flagAuth29Detected({ tx: addr.tx, rx: addr.rx, label: 'flasher', nrc: seedErr.nrc }); } catch {}
-            const refusal = new Error(auth29RefusalMessage());
-            refusal.nrc = seedErr.nrc;
-            refusal.auth29 = true;
-            throw refusal;
+            // Resolve strategy: explicit option first, then global registry.
+            const strategy = (typeof auth29Strategy === 'function')
+              ? auth29Strategy
+              : getAuth29Strategy(addr.tx);
+            if (strategy){
+              log(`Running 0x29 challenge/response handshake (strategy: ${typeof auth29Strategy === 'function' ? 'inline' : 'registry'})`, 'info');
+              const hs = await attemptAuth29Unlock(engine, addr.tx, addr.rx, {
+                strategy, deauth: false, ...(auth29Options || {}),
+              });
+              if (hs.authenticated){
+                try { flagAuth29Unlocked({ tx: addr.tx, rx: addr.rx, label: 'flasher', statusInfo: hs.statusInfo }); } catch {}
+                log(auth29UnlockedMessage() + ` · statusInfo=0x${hex(hs.statusInfo)}`, 'rx');
+                result.auth29 = { ok: true, statusInfo: hs.statusInfo };
+                seedResp = null; // signal "skip seed/key path"
+              } else {
+                try { flagAuth29Detected({ tx: addr.tx, rx: addr.rx, label: 'flasher', nrc: seedErr.nrc }); } catch {}
+                const reason = hs.error || 'handshake failed';
+                log(`0x29 handshake failed at ${hs.phase}: ${reason}` + (hs.nrc != null ? ` (NRC 0x${hex(hs.nrc)})` : ''), 'error');
+                const fail = new Error(`0x29 handshake failed: ${reason}`);
+                fail.nrc = seedErr.nrc;
+                fail.auth29 = true;
+                throw fail;
+              }
+            } else {
+              try { flagAuth29Detected({ tx: addr.tx, rx: addr.rx, label: 'flasher', nrc: seedErr.nrc }); } catch {}
+              const refusal = new Error(auth29RefusalMessage());
+              refusal.nrc = seedErr.nrc;
+              refusal.auth29 = true;
+              throw refusal;
+            }
+          } else {
+            throw seedErr;
           }
+        } else {
+          throw seedErr;
         }
-        throw seedErr;
       }
-      if (seedResp.length < 6 || seedResp[0] !== 0x67 || seedResp[1] !== (seedSubfn & 0xFF)){
-        throw new Error('Malformed seed response');
-      }
-      const seedBytes = seedResp.subarray(2, 6);
-      const seed = ((seedBytes[0] << 24) | (seedBytes[1] << 16) | (seedBytes[2] << 8) | seedBytes[3]) >>> 0;
-      result.seed = '0x' + hex(seed, 8);
-      const key = (algoFn(seed) >>> 0);
-      result.key = '0x' + hex(key, 8);
-      log(`${algoLabel} seed=${result.seed} key=${result.key}`, 'info');
+      if (seedResp){
+        if (seedResp.length < 6 || seedResp[0] !== 0x67 || seedResp[1] !== (seedSubfn & 0xFF)){
+          throw new Error('Malformed seed response');
+        }
+        const seedBytes = seedResp.subarray(2, 6);
+        const seed = ((seedBytes[0] << 24) | (seedBytes[1] << 16) | (seedBytes[2] << 8) | seedBytes[3]) >>> 0;
+        result.seed = '0x' + hex(seed, 8);
+        const key = (algoFn(seed) >>> 0);
+        result.key = '0x' + hex(key, 8);
+        log(`${algoLabel} seed=${result.seed} key=${result.key}`, 'info');
 
-      setPhase(PHASE.KEY);
-      await call([0x27, keySubfn & 0xFF, (key >>> 24) & 0xFF, (key >>> 16) & 0xFF, (key >>> 8) & 0xFF, key & 0xFF], `SecurityAccess key 0x27 ${hex(keySubfn & 0xFF)}`);
+        setPhase(PHASE.KEY);
+        await call([0x27, keySubfn & 0xFF, (key >>> 24) & 0xFF, (key >>> 16) & 0xFF, (key >>> 8) & 0xFF, key & 0xFF], `SecurityAccess key 0x27 ${hex(keySubfn & 0xFF)}`);
+      }
 
       // 3) Start TesterPresent keep-alive now that we have unlock.
       startKeepAlive();
