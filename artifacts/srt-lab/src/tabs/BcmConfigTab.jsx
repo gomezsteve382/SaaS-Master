@@ -1,26 +1,21 @@
-/* BcmConfigTab — live BCM Configuration editor for DIDs 0xDE00..0xDE0C.
+/* BcmConfigTab — live BCM Configuration editor with hero category
+ * banners and a dark SRT-style layout.
  *
- * Surfaces the 155-field DE_FEATURE_CATALOG as toggle switches, dropdowns
- * and integer inputs grouped by DID. Drives the same read/unlock/write
- * pattern as ProxiEditor:
+ * 61 DIDs (13 DE00..DE0C + 48 BCM body extras) are bucketed by
+ * `bcmConfigCategories.js` into ten themed sections. Each section
+ * shows a Pixar-style 16:9 hero image, the category accent colour,
+ * and a row of DID cards — every card collapses to a header and
+ * expands into a table of pill toggles, dropdowns, and integer inputs.
  *
- *   1. "Read All" → 10 03 then 22 DEnn for each of 13 DIDs.
+ * Read / unlock / write flow is unchanged from the original tab:
+ *   1. "READ ALL" → 10 03 then 22 DEnn for each DID.
  *   2. tech edits per-field controls; encoded payload diffs the read.
- *   3. "Write Selected DID" → cfBCM unlock → 2E DEnn [encoded bytes],
- *      optionally followed by 11 01 ECU reset.
- *
- * Per-field encoding preserves bits the catalog does not name — every
- * write starts from the freshly-read payload and only overlays the
- * fields whose values changed.
- *
- * Includes "Load synthetic" for offline round-trip demos and an
- * SRT-only filter checkbox so the Performance & SRT card jumps to the
- * top of the screen for the user's primary workflow (Red Key /
- * Performance Pages / Track Mode / Drag Mode etc).
+ *   3. "WRITE" on a card → cfBCM unlock → 2E DEnn [bytes], optional
+ *      11 01 reset.
  */
+
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { C } from '../lib/constants.js';
-import { Card, Tag, Btn } from '../lib/ui.jsx';
 import {
   BCM_CONFIG_DIDS,
   groupCatalogByDid,
@@ -37,19 +32,16 @@ import {
   BCM_TX_DEFAULT,
   BCM_RX_DEFAULT,
 } from '../lib/bcmConfigBridge.js';
+import { bucketDids, categoryForDid } from '../lib/bcmConfigCategories.js';
+
+/* ───────── helpers ───────── */
 
 function hxDid(did) {
   return '0x' + did.toString(16).toUpperCase().padStart(4, '0');
 }
-
 function bytesToHex(bytes) {
-  return Array.from(bytes)
-    .map((b) => b.toString(16).toUpperCase().padStart(2, '0'))
-    .join(' ');
+  return Array.from(bytes).map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
 }
-
-/* Synthetic payload for a DID: deterministic non-zero pattern so every
- * field has a visible value without a live BCM. */
 function syntheticPayload(did) {
   const len = didPayloadByteLength(did);
   const out = new Uint8Array(len);
@@ -57,21 +49,127 @@ function syntheticPayload(did) {
   return out;
 }
 
+/* ───────── theme ─────────
+ * Dark SRT palette overrides — the rest of the app uses the light C
+ * theme but this tab is intentionally a dark hero surface.
+ */
+const T = {
+  bg: '#0A0A0A',
+  card: 'rgba(20,20,22,0.92)',
+  cardLow: 'rgba(28,28,32,0.92)',
+  border: 'rgba(255,255,255,0.08)',
+  borderHi: 'rgba(255,255,255,0.18)',
+  text: '#F5F5F5',
+  textMid: 'rgba(255,255,255,0.62)',
+  textLow: 'rgba(255,255,255,0.42)',
+  red: '#FF1744',
+  green: '#00E676',
+  amber: '#FFB300',
+};
+
+/* ───────── tiny styled primitives (local to this tab) ───────── */
+
+function Pill({ on, label, sub, onToggle, disabled, accent = T.red }) {
+  return (
+    <button
+      type="button"
+      onClick={() => !disabled && onToggle(!on)}
+      disabled={disabled}
+      aria-pressed={on}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 8,
+        padding: '6px 12px 6px 6px', borderRadius: 999,
+        background: on ? accent + '22' : 'rgba(255,255,255,0.04)',
+        border: `1px solid ${on ? accent : T.border}`,
+        color: on ? accent : T.textMid,
+        fontFamily: "'Nunito', system-ui, sans-serif",
+        fontSize: 12, fontWeight: 800, letterSpacing: 0.4,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1, transition: 'all 0.18s',
+        minWidth: 110,
+      }}
+      title={sub || ''}
+    >
+      <span style={{
+        width: 22, height: 22, borderRadius: '50%',
+        background: on ? accent : 'rgba(255,255,255,0.08)',
+        boxShadow: on ? `0 0 10px ${accent}` : 'none',
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        color: on ? '#0A0A0A' : T.textLow, fontSize: 12, fontWeight: 900,
+        transition: 'all 0.18s',
+      }}>{on ? '✓' : '○'}</span>
+      <span style={{ textAlign: 'left' }}>
+        {label}
+        {sub && <div style={{ fontSize: 9, color: T.textLow, marginTop: 1, fontWeight: 600, letterSpacing: 0.6 }}>{sub}</div>}
+      </span>
+    </button>
+  );
+}
+
+function Btn({ onClick, disabled, children, accent = T.red, ghost, full, size = 'md' }) {
+  const pad = size === 'sm' ? '6px 12px' : '10px 18px';
+  const fsz = size === 'sm' ? 11 : 12;
+  return (
+    <button
+      type="button" onClick={onClick} disabled={disabled}
+      style={{
+        padding: pad, borderRadius: 10,
+        border: ghost ? `1px solid ${accent}55` : `1px solid ${accent}`,
+        background: ghost ? 'transparent' : accent,
+        color: ghost ? accent : '#0A0A0A',
+        fontFamily: "'Nunito', system-ui, sans-serif",
+        fontSize: fsz, fontWeight: 900, letterSpacing: 1,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.4 : 1,
+        width: full ? '100%' : undefined,
+        transition: 'all 0.15s',
+        textTransform: 'uppercase',
+      }}
+    >{children}</button>
+  );
+}
+
+function HexInput({ label, value, onChange, disabled }) {
+  return (
+    <label style={{ fontSize: 10, color: T.textLow, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, letterSpacing: 1 }}>
+      {label}
+      <input
+        value={'0x' + value.toString(16).toUpperCase()}
+        onChange={(e) => {
+          const v = e.target.value.replace(/^0x/i, '');
+          const n = parseInt(v, 16);
+          if (!isNaN(n)) onChange(n);
+        }}
+        disabled={disabled}
+        style={{
+          width: 84, padding: '6px 8px', borderRadius: 7,
+          background: 'rgba(255,255,255,0.04)',
+          border: `1px solid ${T.border}`, color: T.text,
+          fontFamily: 'JetBrains Mono, monospace', fontSize: 12,
+        }}
+      />
+    </label>
+  );
+}
+
+/* ───────── main ───────── */
+
 export default function BcmConfigTab({ vehicle }) {
   const grouped = useMemo(() => groupCatalogByDid(), []);
+  const buckets = useMemo(() => bucketDids(BCM_CONFIG_DIDS), []);
   const [tx, setTx] = useState(BCM_TX_DEFAULT);
   const [rx, setRx] = useState(BCM_RX_DEFAULT);
   const [resetAfterWrite, setResetAfterWrite] = useState(true);
-  const [srtFirst, setSrtFirst] = useState(true);
+  const [search, setSearch] = useState('');
+  const [activeCat, setActiveCat] = useState('perf');
 
-  // payloads[did] = { ok, payload?, error? }
   const [payloads, setPayloads] = useState({});
-  // edits[did] = { [fieldName]: number }
   const [edits, setEdits] = useState({});
-  const [busy, setBusy] = useState(''); // '' | 'reading' | 'writing'
+  const [busy, setBusy] = useState('');
   const [status, setStatus] = useState(null);
   const [logLines, setLogLines] = useState([]);
   const engineRef = useRef(null);
+  const sectionRefs = useRef({});
 
   const log = useCallback((m, t = 'info') => {
     setLogLines((arr) => {
@@ -82,11 +180,9 @@ export default function BcmConfigTab({ vehicle }) {
 
   const onReadAll = useCallback(async () => {
     setBusy('reading');
-    setStatus({ kind: 'info', msg: 'Reading all 13 BCM Configuration DIDs…' });
-    log('Read All BCM config (13 DIDs)');
-    const r = await readAllBcmConfigDids({
-      addLog: log, tx, rx, engine: engineRef.current,
-    });
+    setStatus({ kind: 'info', msg: `Reading all ${BCM_CONFIG_DIDS.length} BCM Configuration DIDs…` });
+    log(`Read All BCM config (${BCM_CONFIG_DIDS.length} DIDs)`);
+    const r = await readAllBcmConfigDids({ addLog: log, tx, rx, engine: engineRef.current });
     if (r.engine) engineRef.current = r.engine;
     if (!r.ok) {
       setStatus({ kind: 'err', msg: r.error || 'Read failed' });
@@ -106,9 +202,7 @@ export default function BcmConfigTab({ vehicle }) {
   const onReadOne = useCallback(async (did) => {
     setBusy('reading');
     setStatus({ kind: 'info', msg: `Reading ${hxDid(did)}…` });
-    const r = await readBcmConfigDid({
-      addLog: log, tx, rx, did, engine: engineRef.current,
-    });
+    const r = await readBcmConfigDid({ addLog: log, tx, rx, did, engine: engineRef.current });
     if (r.engine) engineRef.current = r.engine;
     setPayloads((p) => ({
       ...p,
@@ -128,7 +222,7 @@ export default function BcmConfigTab({ vehicle }) {
     }
     setPayloads(next);
     setEdits({});
-    setStatus({ kind: 'info', msg: 'Loaded synthetic dump (offline demo) — all 13 DIDs populated' });
+    setStatus({ kind: 'info', msg: `Loaded synthetic dump (offline demo) — all ${BCM_CONFIG_DIDS.length} DIDs populated` });
     log('Loaded synthetic BCM config dump');
   }, [log]);
 
@@ -169,7 +263,7 @@ export default function BcmConfigTab({ vehicle }) {
       return;
     }
     setBusy('writing');
-    setStatus({ kind: 'info', msg: `Unlocking BCM (cfBCM seed→key)…` });
+    setStatus({ kind: 'info', msg: 'Unlocking BCM (cfBCM seed→key)…' });
     const u = await unlockBcmForConfig(engineRef.current, { addLog: log, tx, rx });
     if (!u.ok) {
       setStatus({ kind: 'err', msg: 'Unlock failed: ' + (u.error || 'unknown') });
@@ -177,9 +271,7 @@ export default function BcmConfigTab({ vehicle }) {
       return;
     }
     setStatus({ kind: 'info', msg: `Writing ${hxDid(did)}…` });
-    const w = await writeBcmConfigDid(engineRef.current, did, encoded, {
-      addLog: log, tx, rx, reset: resetAfterWrite,
-    });
+    const w = await writeBcmConfigDid(engineRef.current, did, encoded, { addLog: log, tx, rx, reset: resetAfterWrite });
     if (!w.ok) {
       setStatus({ kind: 'err', msg: 'Write failed: ' + (w.error || 'unknown') });
       setBusy('');
@@ -191,229 +283,517 @@ export default function BcmConfigTab({ vehicle }) {
     setBusy('');
   }, [payloads, edits, resetAfterWrite, tx, rx, log]);
 
-  // Order DIDs: Performance & SRT (DE0A) first if user asked, then the rest.
-  const orderedDids = useMemo(() => {
-    if (!srtFirst) return BCM_CONFIG_DIDS;
-    return [0xDE0A, ...BCM_CONFIG_DIDS.filter((d) => d !== 0xDE0A)];
-  }, [srtFirst]);
+  /* derived counts per category */
+  const counts = useMemo(() => {
+    const m = {};
+    for (const { category, dids } of buckets) {
+      let fields = 0, pending = 0, read = 0;
+      for (const did of dids) {
+        fields += (grouped.get(did) || []).length;
+        if (payloads[did]?.ok) read += 1;
+        pending += Object.keys(edits[did] || {}).length;
+      }
+      m[category.id] = { fields, dids: dids.length, pending, read };
+    }
+    return m;
+  }, [buckets, grouped, payloads, edits]);
+
+  const totalFields = useMemo(
+    () => Object.values(counts).reduce((a, b) => a + b.fields, 0),
+    [counts],
+  );
+  const totalPending = useMemo(
+    () => Object.values(counts).reduce((a, b) => a + b.pending, 0),
+    [counts],
+  );
+
+  const scrollTo = useCallback((catId) => {
+    setActiveCat(catId);
+    const el = sectionRefs.current[catId];
+    if (el && typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []);
+
+  const lcSearch = search.trim().toLowerCase();
 
   return (
-    <div>
-      <Card style={{ marginBottom: 12, border: `1.5px solid ${C.sr}33`, background: '#FFFAF8' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-          <div style={{ fontSize: 22 }}>⚙️</div>
+    <div style={{
+      borderRadius: 16, overflow: 'hidden',
+      background: T.bg, color: T.text,
+      fontFamily: "'Nunito', system-ui, sans-serif",
+    }}>
+      {/* HERO HEADER */}
+      <div style={{
+        position: 'relative', padding: '28px 28px 22px',
+        background: `
+          radial-gradient(ellipse 80% 60% at 0% 0%, ${T.red}22, transparent 60%),
+          radial-gradient(ellipse 60% 50% at 100% 100%, ${T.amber}18, transparent 60%),
+          linear-gradient(180deg, #15080A 0%, #0A0A0A 100%)
+        `,
+        borderBottom: `1px solid ${T.border}`,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, marginBottom: 4 }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 11,
+            background: `linear-gradient(135deg, ${T.red}, #B71C1C)`,
+            boxShadow: `0 6px 24px ${T.red}66`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 22, fontWeight: 900, color: '#0A0A0A',
+          }}>⚙</div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 900, fontSize: 13, color: C.sr, letterSpacing: 1.2 }}>
-              BCM CONFIGURATION (DIDs 0xDE00..0xDE0C · 155 fields)
+            <div style={{ fontSize: 11, color: T.red, fontWeight: 900, letterSpacing: 3 }}>
+              SRT LAB · BCM CONFIGURATION
             </div>
-            <div style={{ fontSize: 11, color: C.tm, marginTop: 2 }}>
-              SRT Performance Pages · Launch Control · Line Lock · Trans Brake · Track Mode · Drag Mode ·
-              Valet · Lighting · Door Lock · Horn · Comfort · Windows · Mirrors · Wipers · Engine ·
-              Display · Security · Vehicle · TPMS — read · edit · cfBCM unlock · write · reset.
-              {vehicle?.name ? ` Vehicle: ${vehicle.name}.` : ''}
+            <div style={{ fontSize: 28, fontWeight: 900, lineHeight: 1, marginTop: 4, letterSpacing: -0.5 }}>
+              {BCM_CONFIG_DIDS.length} DIDs · {totalFields} TOGGLES
+              <span style={{ color: T.red, marginLeft: 6 }}>.</span>
+            </div>
+            <div style={{ fontSize: 11, color: T.textMid, marginTop: 8, maxWidth: 720, lineHeight: 1.55 }}>
+              Live BCM body parameters across DE00..DE0C and 0x04C0..0x05DF, bucketed into ten themed
+              categories. Read · edit · cfBCM unlock · WriteDataByIdentifier · optional ECU reset.
+              {vehicle?.name ? <> Vehicle: <strong style={{ color: T.text }}>{vehicle.name}</strong>.</> : null}
             </div>
           </div>
         </div>
+      </div>
 
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 10 }}>
-          <Field label="BCM TX" value={tx} onChange={setTx} disabled={busy !== ''} />
-          <Field label="BCM RX" value={rx} onChange={setRx} disabled={busy !== ''} />
-          <label style={{ fontSize: 11, color: C.tm, display: 'flex', alignItems: 'center', gap: 6 }}>
+      {/* STICKY TOOLBAR */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 5,
+        padding: '14px 22px',
+        background: 'rgba(10,10,10,0.95)',
+        borderBottom: `1px solid ${T.border}`,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+      }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Btn onClick={onReadAll} disabled={busy !== ''}>
+            {busy === 'reading' ? 'READING…' : `📖 READ ALL`}
+          </Btn>
+          <Btn onClick={onLoadSynthetic} disabled={busy !== ''} ghost accent={T.amber}>
+            🧪 SYNTHETIC DUMP
+          </Btn>
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="🔍  Search field, DID or category…"
+              style={{
+                width: '100%', padding: '9px 14px', borderRadius: 10,
+                background: 'rgba(255,255,255,0.05)',
+                border: `1px solid ${T.border}`, color: T.text,
+                fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
+                outline: 'none',
+              }}
+            />
+          </div>
+          <HexInput label="TX" value={tx} onChange={setTx} disabled={busy !== ''} />
+          <HexInput label="RX" value={rx} onChange={setRx} disabled={busy !== ''} />
+          <label style={{ fontSize: 10, color: T.textLow, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, letterSpacing: 1 }}>
             <input type="checkbox" checked={resetAfterWrite} onChange={(e) => setResetAfterWrite(e.target.checked)} disabled={busy !== ''} />
-            ECU reset after write (11 01)
-          </label>
-          <label style={{ fontSize: 11, color: C.tm, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <input type="checkbox" checked={srtFirst} onChange={(e) => setSrtFirst(e.target.checked)} />
-            Performance & SRT first
+            RESET AFTER WRITE
           </label>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-          <Btn onClick={onReadAll} disabled={busy !== ''} color={C.a3}>
-            {busy === 'reading' ? '⏳ Reading…' : '📖 Read All (13 DIDs)'}
-          </Btn>
-          <Btn onClick={onLoadSynthetic} color={C.tm} outline disabled={busy !== ''}>
-            🧪 Load synthetic dump
-          </Btn>
+        {/* category chips */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
+          {buckets.map(({ category }) => {
+            const k = counts[category.id] || { dids: 0, fields: 0, pending: 0 };
+            const active = activeCat === category.id;
+            return (
+              <button
+                key={category.id} type="button" onClick={() => scrollTo(category.id)}
+                style={{
+                  padding: '6px 12px', borderRadius: 999,
+                  border: `1px solid ${active ? category.accent : T.border}`,
+                  background: active ? category.accent + '22' : 'rgba(255,255,255,0.03)',
+                  color: active ? category.accent : T.textMid,
+                  fontSize: 10, fontWeight: 900, letterSpacing: 1,
+                  cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6,
+                }}
+              >
+                <span style={{ fontSize: 12 }}>{category.glyph}</span>
+                {category.label}
+                <span style={{
+                  marginLeft: 4, padding: '1px 6px', borderRadius: 6,
+                  background: category.accent + '33', color: category.accent,
+                  fontSize: 9, fontWeight: 900,
+                }}>{k.dids}</span>
+                {k.pending > 0 && (
+                  <span style={{
+                    marginLeft: 2, padding: '1px 6px', borderRadius: 6,
+                    background: T.amber + '33', color: T.amber,
+                    fontSize: 9, fontWeight: 900,
+                  }}>{k.pending}●</span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {status && (
           <div style={{
-            marginTop: 10,
-            padding: '8px 12px',
-            borderRadius: 8,
-            fontSize: 12,
-            fontWeight: 700,
+            marginTop: 10, padding: '8px 12px', borderRadius: 8,
+            fontSize: 12, fontWeight: 800, letterSpacing: 0.4,
             background:
-              status.kind === 'ok' ? C.gn + '14' :
-              status.kind === 'err' ? C.er + '14' :
-              C.a3 + '14',
+              status.kind === 'ok' ? T.green + '14' :
+              status.kind === 'err' ? T.red + '14' :
+              'rgba(41,121,255,0.14)',
             color:
-              status.kind === 'ok' ? C.gn :
-              status.kind === 'err' ? C.er :
-              C.a3,
+              status.kind === 'ok' ? T.green :
+              status.kind === 'err' ? T.red :
+              '#82B1FF',
             border: `1px solid ${
-              status.kind === 'ok' ? C.gn :
-              status.kind === 'err' ? C.er :
-              C.a3
+              status.kind === 'ok' ? T.green :
+              status.kind === 'err' ? T.red :
+              '#82B1FF'
             }44`,
           }}>
             {status.kind === 'ok' ? '✓ ' : status.kind === 'err' ? '✗ ' : 'ℹ '}{status.msg}
           </div>
         )}
-      </Card>
 
-      {orderedDids.map((did) => (
-        <DidCard
-          key={did}
-          did={did}
-          fields={grouped.get(did) || []}
-          slot={payloads[did]}
-          edits={edits[did] || {}}
-          busy={busy !== ''}
-          onReadOne={() => onReadOne(did)}
-          onWriteOne={() => onWriteOne(did)}
-          onResetEdits={() => onResetEdits(did)}
-          onEdit={(name, v) => onEdit(did, name, v)}
-        />
-      ))}
+        {totalPending > 0 && (
+          <div style={{
+            marginTop: 8, padding: '6px 12px', borderRadius: 8,
+            fontSize: 11, fontWeight: 800, letterSpacing: 0.5,
+            background: T.amber + '18', color: T.amber,
+            border: `1px solid ${T.amber}44`,
+          }}>
+            ⚡ {totalPending} pending field edit{totalPending === 1 ? '' : 's'} across the body
+          </div>
+        )}
+      </div>
+
+      {/* SECTIONS */}
+      <div style={{ padding: '18px 22px 22px' }}>
+        {buckets.map(({ category, dids }) => (
+          <CategorySection
+            key={category.id}
+            ref={(el) => { sectionRefs.current[category.id] = el; }}
+            category={category}
+            dids={dids}
+            counts={counts[category.id]}
+            grouped={grouped}
+            payloads={payloads}
+            edits={edits}
+            busy={busy !== ''}
+            search={lcSearch}
+            onReadOne={onReadOne}
+            onWriteOne={onWriteOne}
+            onResetEdits={onResetEdits}
+            onEdit={onEdit}
+          />
+        ))}
+      </div>
 
       {logLines.length > 0 && (
-        <Card style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 11, color: C.tm, fontWeight: 700, marginBottom: 6, letterSpacing: 1 }}>
-            BRIDGE LOG (last {logLines.length})
+        <div style={{ padding: '0 22px 22px' }}>
+          <div style={{
+            background: T.cardLow, border: `1px solid ${T.border}`,
+            borderRadius: 12, padding: 14,
+          }}>
+            <div style={{ fontSize: 10, color: T.textLow, fontWeight: 900, marginBottom: 8, letterSpacing: 1.5 }}>
+              BRIDGE LOG · LAST {logLines.length}
+            </div>
+            <div style={{ maxHeight: 200, overflowY: 'auto', fontFamily: 'JetBrains Mono, monospace', fontSize: 10 }}>
+              {logLines.slice().reverse().map((l, i) => (
+                <div key={i} style={{
+                  color: l.t === 'err' ? T.red : l.t === 'warn' ? T.amber : l.t === 'rx' ? T.green : T.textMid,
+                  padding: '1px 0',
+                }}>
+                  <span style={{ color: T.textLow }}>{new Date(l.ts).toISOString().slice(11, 19)}</span> {l.m}
+                </div>
+              ))}
+            </div>
           </div>
-          <div style={{ maxHeight: 180, overflowY: 'auto', fontFamily: 'monospace', fontSize: 10, color: C.tx }}>
-            {logLines.slice().reverse().map((l, i) => (
-              <div key={i} style={{ color: l.t === 'err' ? C.er : l.t === 'warn' ? C.wn : l.t === 'rx' ? C.gn : C.tm }}>
-                {new Date(l.ts).toISOString().slice(11, 19)} {l.m}
-              </div>
-            ))}
-          </div>
-        </Card>
+        </div>
       )}
     </div>
   );
 }
 
-function DidCard({ did, fields, slot, edits, busy, onReadOne, onWriteOne, onResetEdits, onEdit }) {
-  const [open, setOpen] = useState(did === 0xDE0A);
-  const isSrt = did === 0xDE0A;
-  const decoded = useMemo(() => {
-    if (!slot || !slot.ok) return null;
-    return decodeBcmDid(did, slot.payload);
-  }, [slot, did]);
-  const pendingCount = Object.keys(edits).length;
+/* ───────── category section ───────── */
+
+const CategorySection = React.forwardRef(function CategorySection({
+  category, dids, counts, grouped, payloads, edits, busy, search,
+  onReadOne, onWriteOne, onResetEdits, onEdit,
+}, ref) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  // search filter — keep DIDs whose category, DID hex, name or any field
+  // name matches.
+  const visibleDids = useMemo(() => {
+    if (!search) return dids;
+    return dids.filter((did) => {
+      if (category.label.toLowerCase().includes(search)) return true;
+      if (hxDid(did).toLowerCase().includes(search)) return true;
+      if ((bcmDidName(did) || '').toLowerCase().includes(search)) return true;
+      const fields = grouped.get(did) || [];
+      return fields.some((f) => (f.name || '').toLowerCase().includes(search));
+    });
+  }, [dids, search, grouped, category.label]);
+
+  if (visibleDids.length === 0) return <div ref={ref} />;
 
   return (
-    <Card style={{
-      marginBottom: 10,
-      border: `1.5px solid ${isSrt ? C.sr : C.bd}`,
-      background: isSrt ? '#FFFAF8' : '#fff',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => setOpen((v) => !v)}>
-        <div style={{ fontSize: 16 }}>{open ? '▾' : '▸'}</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 900, fontSize: 13, color: isSrt ? C.sr : C.tx }}>
-            {hxDid(did)} · {bcmDidName(did)}
-            {isSrt && <span style={{ marginLeft: 8, fontSize: 10, color: C.sr, letterSpacing: 1 }}>★ SRT</span>}
+    <section ref={ref} style={{ marginBottom: 24, scrollMarginTop: 220 }}>
+      {/* hero banner */}
+      <div
+        role="button" tabIndex={0}
+        aria-expanded={!collapsed}
+        aria-label={`${category.label} category — ${collapsed ? 'expand' : 'collapse'}`}
+        onClick={() => setCollapsed((v) => !v)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCollapsed((v) => !v); } }}
+        style={{
+          position: 'relative', height: 150, borderRadius: 14, overflow: 'hidden',
+          cursor: 'pointer', marginBottom: 12,
+          border: `1px solid ${T.border}`,
+          background: category.image
+            ? `url(${category.image}) center/cover no-repeat`
+            : `linear-gradient(135deg, ${category.accent}33, transparent 60%)`,
+          boxShadow: `0 8px 32px rgba(0,0,0,0.4)`,
+        }}
+      >
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: `linear-gradient(90deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.55) 50%, rgba(10,10,10,0.2) 100%)`,
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0, padding: '18px 22px',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{
+              padding: '4px 10px', borderRadius: 6,
+              background: category.accent, color: '#0A0A0A',
+              fontSize: 10, fontWeight: 900, letterSpacing: 1.5,
+            }}>{category.glyph} {category.label}</span>
+            <span style={{ fontSize: 10, color: T.textMid, fontWeight: 800, letterSpacing: 1 }}>
+              {category.tag}
+            </span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: T.textMid, fontWeight: 800, letterSpacing: 0.5 }}>
+              {collapsed ? '▾ EXPAND' : '▴ COLLAPSE'}
+            </span>
           </div>
-          <div style={{ fontSize: 10, color: C.tm, marginTop: 2 }}>
-            {fields.length} fields · {didPayloadByteLength(did)} B payload
-            {slot?.ok ? ` · read OK` : slot ? ` · ${slot.error || 'not read'}` : ' · not read'}
-            {pendingCount > 0 && <span style={{ color: C.wn, marginLeft: 6 }}>· {pendingCount} pending edit{pendingCount === 1 ? '' : 's'}</span>}
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', letterSpacing: -0.3, lineHeight: 1.1 }}>
+              {counts.dids} DIDs · {counts.fields} fields
+              {counts.read > 0 && <span style={{ color: T.green, marginLeft: 8, fontSize: 13 }}>✓ {counts.read} read</span>}
+              {counts.pending > 0 && <span style={{ color: T.amber, marginLeft: 8, fontSize: 13 }}>● {counts.pending} pending</span>}
+            </div>
+            <div style={{ fontSize: 11, color: T.textMid, marginTop: 4, maxWidth: 760, lineHeight: 1.45 }}>
+              {category.blurb}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {!collapsed && (
+        <div style={{ display: 'grid', gap: 10 }}>
+          {visibleDids.map((did) => (
+            <DidCard
+              key={did} did={did} category={category}
+              fields={grouped.get(did) || []}
+              slot={payloads[did]}
+              edits={edits[did] || {}}
+              busy={busy} search={search}
+              onReadOne={() => onReadOne(did)}
+              onWriteOne={() => onWriteOne(did)}
+              onResetEdits={() => onResetEdits(did)}
+              onEdit={(name, v) => onEdit(did, name, v)}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+});
+
+/* ───────── DID card ───────── */
+
+function DidCard({ did, category, fields, slot, edits, busy, search, onReadOne, onWriteOne, onResetEdits, onEdit }) {
+  const [open, setOpen] = useState(false);
+  const decoded = useMemo(() => {
+    if (!slot || !slot.ok) return null;
+    try { return decodeBcmDid(did, slot.payload); } catch { return null; }
+  }, [slot, did]);
+  const pendingCount = Object.keys(edits).length;
+  const visibleRows = useMemo(() => {
+    if (!decoded) return null;
+    if (!search) return decoded;
+    return decoded.filter((row) => (row.field?.name || '').toLowerCase().includes(search));
+  }, [decoded, search]);
+
+  return (
+    <div style={{
+      background: T.card, borderRadius: 12,
+      border: `1px solid ${pendingCount > 0 ? T.amber + 'AA' : T.border}`,
+      overflow: 'hidden', transition: 'all 0.18s',
+    }}>
+      <div
+        role="button" tabIndex={0}
+        aria-expanded={open}
+        aria-label={`${hxDid(did)} ${bcmDidName(did)} — ${open ? 'collapse' : 'expand'}`}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '12px 14px', cursor: 'pointer',
+        }}
+        onClick={() => setOpen((v) => !v)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen((v) => !v); } }}
+      >
+        <div style={{
+          width: 40, height: 40, borderRadius: 8,
+          background: category.accent + '22', color: category.accent,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 18, fontWeight: 900, flexShrink: 0,
+        }}>{open ? '▾' : '▸'}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 900, color: T.text, letterSpacing: 0.3 }}>
+            <span style={{ color: category.accent, fontFamily: 'JetBrains Mono, monospace', marginRight: 8 }}>
+              {hxDid(did)}
+            </span>
+            {bcmDidName(did)}
+          </div>
+          <div style={{ fontSize: 10, color: T.textLow, marginTop: 2, fontWeight: 700, letterSpacing: 0.6 }}>
+            {fields.length} FIELDS · {didPayloadByteLength(did)} B
+            {slot?.ok ? <span style={{ color: T.green }}> · ✓ READ</span> :
+              slot ? <span style={{ color: T.red }}> · {slot.error || 'NOT READ'}</span> :
+              <span> · NOT READ</span>}
+            {pendingCount > 0 && (
+              <span style={{ color: T.amber, marginLeft: 8 }}>
+                ● {pendingCount} PENDING
+              </span>
+            )}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 6 }} onClick={(e) => e.stopPropagation()}>
-          <Btn onClick={onReadOne} disabled={busy} color={C.a3} outline>📖 Read</Btn>
-          <Btn onClick={onWriteOne} disabled={busy || pendingCount === 0 || !slot?.ok} color={C.sr}>💾 Write</Btn>
+          <Btn onClick={onReadOne} disabled={busy} ghost accent={category.accent} size="sm">📖 READ</Btn>
+          <Btn onClick={onWriteOne} disabled={busy || pendingCount === 0 || !slot?.ok} accent={category.accent} size="sm">💾 WRITE</Btn>
           {pendingCount > 0 && (
-            <Btn onClick={onResetEdits} disabled={busy} color={C.tm} outline>✕ Revert</Btn>
+            <Btn onClick={onResetEdits} disabled={busy} ghost accent={T.textMid} size="sm">✕ REVERT</Btn>
           )}
         </div>
       </div>
 
       {open && (
-        <div style={{ marginTop: 10 }}>
+        <div style={{
+          padding: '0 14px 14px',
+          borderTop: `1px solid ${T.border}`,
+        }}>
           {slot?.ok && (
-            <div style={{ fontFamily: 'monospace', fontSize: 10, color: C.tm, marginBottom: 8, wordBreak: 'break-all' }}>
-              <strong>Payload:</strong> {bytesToHex(slot.payload)}
+            <div style={{
+              fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+              color: T.textLow, padding: '10px 0', wordBreak: 'break-all',
+            }}>
+              <span style={{ color: T.textMid, fontWeight: 700, letterSpacing: 1 }}>PAYLOAD:</span>{' '}
+              {bytesToHex(slot.payload)}
             </div>
           )}
           {!slot && (
-            <div style={{ padding: 12, color: C.tm, fontStyle: 'italic', fontSize: 12 }}>
-              Click Read to pull this DID, or "Read All" / "Load synthetic" above.
+            <div style={{ padding: '14px 0', color: T.textMid, fontSize: 12, fontStyle: 'italic' }}>
+              Click READ to pull this DID, or use READ ALL / SYNTHETIC DUMP in the toolbar.
             </div>
           )}
           {slot && !slot.ok && (
-            <div style={{ padding: 8, color: C.er, fontSize: 12, fontWeight: 700 }}>
+            <div style={{ padding: '10px 0', color: T.red, fontSize: 12, fontWeight: 800 }}>
               ✗ {slot.error}
             </div>
           )}
-          {decoded && (
-            <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ color: C.tm, fontSize: 10, letterSpacing: 0.8, textAlign: 'left', borderBottom: `1px solid ${C.bd}` }}>
-                  <th style={{ padding: '6px 4px' }}>FIELD</th>
-                  <th style={{ padding: '6px 4px', width: 70 }}>BIT/LEN</th>
-                  <th style={{ padding: '6px 4px', width: 280 }}>VALUE</th>
-                </tr>
-              </thead>
-              <tbody>
-                {decoded.map((row, i) => {
-                  const f = row.field;
-                  const editVal = Object.prototype.hasOwnProperty.call(edits, f.name) ? edits[f.name] : null;
-                  const effective = editVal != null ? editVal : (row.raw ?? 0);
-                  const changed = editVal != null && editVal !== row.raw;
-                  return (
-                    <tr key={i} style={{ borderTop: `1px solid ${C.bd}55`, background: changed ? C.wn + '11' : 'transparent' }}>
-                      <td style={{ padding: '5px 4px' }}>
-                        <div style={{ fontWeight: 600 }}>{f.name}</div>
-                      </td>
-                      <td style={{ padding: '5px 4px', fontFamily: 'monospace', color: C.tm }}>
-                        {f.bit}/{f.length}
-                      </td>
-                      <td style={{ padding: '5px 4px' }}>
-                        <FieldControl
-                          field={f}
-                          value={effective}
-                          onChange={(v) => onEdit(f.name, v)}
-                          disabled={busy}
-                        />
-                        {changed && (
-                          <span style={{ marginLeft: 8, fontSize: 10, color: C.wn, fontWeight: 700 }}>
-                            (was {row.label})
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          {visibleRows && visibleRows.length === 0 && (
+            <div style={{ padding: '10px 0', color: T.textLow, fontSize: 11, fontStyle: 'italic' }}>
+              No fields match the current search.
+            </div>
+          )}
+          {visibleRows && visibleRows.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 8 }}>
+              {visibleRows.map((row, i) => {
+                const f = row.field;
+                const editVal = Object.prototype.hasOwnProperty.call(edits, f.name) ? edits[f.name] : null;
+                const effective = editVal != null ? editVal : (row.raw ?? 0);
+                const changed = editVal != null && editVal !== row.raw;
+                return (
+                  <FieldRow
+                    key={i}
+                    field={f} value={effective}
+                    raw={row.raw} label={row.label}
+                    changed={changed}
+                    accent={category.accent}
+                    onChange={(v) => onEdit(f.name, v)}
+                    disabled={busy}
+                  />
+                );
+              })}
+            </div>
           )}
         </div>
       )}
-    </Card>
+    </div>
   );
 }
 
-function FieldControl({ field, value, onChange, disabled }) {
+/* ───────── field row ───────── */
+
+function FieldRow({ field, value, raw, label, changed, accent, onChange, disabled }) {
   const hasOptions = field.options && field.options.length > 0;
+  return (
+    <div style={{
+      padding: '10px 12px', borderRadius: 10,
+      background: changed ? '#FFB30015' : 'rgba(255,255,255,0.02)',
+      border: `1px solid ${changed ? T.amber + '88' : T.border}`,
+    }}>
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+        marginBottom: 8, gap: 8,
+      }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: T.text, lineHeight: 1.3 }}>
+          {field.name}
+        </div>
+        <div style={{
+          fontFamily: 'JetBrains Mono, monospace', fontSize: 9,
+          color: T.textLow, whiteSpace: 'nowrap', fontWeight: 700,
+        }}>
+          bit {field.bit}/{field.length}
+        </div>
+      </div>
+      <FieldControl
+        field={field} value={value} accent={accent}
+        onChange={onChange} disabled={disabled}
+      />
+      {changed && (
+        <div style={{ fontSize: 10, color: T.amber, fontWeight: 800, marginTop: 6, letterSpacing: 0.5 }}>
+          ● PENDING — was {label} ({raw})
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FieldControl({ field, value, accent, onChange, disabled }) {
+  const hasOptions = field.options && field.options.length > 0;
+
   if (field.length === 1 && !hasOptions) {
-    // bare boolean
     return (
-      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
-        <input
-          type="checkbox"
-          checked={!!value}
-          onChange={(e) => onChange(e.target.checked ? 1 : 0)}
-          disabled={disabled}
-        />
-        <span>{value ? 'Enabled' : 'Disabled'}</span>
-      </label>
+      <Pill
+        on={!!value} label={value ? 'Enabled' : 'Disabled'}
+        onToggle={(v) => onChange(v ? 1 : 0)} disabled={disabled} accent={accent}
+      />
     );
   }
+
+  // 1-bit boolean with explicit options — show two pills
+  if (field.length === 1 && hasOptions && field.options.length === 2) {
+    const off = field.options.find((o) => o.value === 0) || field.options[0];
+    const on = field.options.find((o) => o.value === 1) || field.options[1];
+    return (
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <Pill on={value === off.value} label={off.label} onToggle={() => onChange(off.value)} disabled={disabled} accent="#9E9E9E" />
+        <Pill on={value === on.value} label={on.label} onToggle={() => onChange(on.value)} disabled={disabled} accent={accent} />
+      </div>
+    );
+  }
+
   if (hasOptions) {
     const present = field.options.some((o) => o.value === value);
     return (
@@ -421,47 +801,39 @@ function FieldControl({ field, value, onChange, disabled }) {
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value, 10))}
         disabled={disabled}
-        style={{ padding: '5px 8px', borderRadius: 6, border: `1.5px solid ${C.bd}`, fontSize: 12, fontFamily: 'monospace', minWidth: 200 }}
+        style={{
+          width: '100%', padding: '8px 10px', borderRadius: 8,
+          background: 'rgba(255,255,255,0.05)', color: T.text,
+          border: `1px solid ${T.border}`,
+          fontFamily: 'JetBrains Mono, monospace', fontSize: 12, fontWeight: 700,
+        }}
       >
-        {!present && <option value={value}>{`${value} (raw — not in catalog)`}</option>}
+        {!present && <option value={value} style={{ background: T.bg, color: T.amber }}>{`${value} — raw, not in catalog`}</option>}
         {field.options.map((o) => (
-          <option key={o.value} value={o.value}>{o.value} — {o.label}</option>
+          <option key={o.value} value={o.value} style={{ background: T.bg, color: T.text }}>
+            {o.value} — {o.label}
+          </option>
         ))}
       </select>
     );
   }
+
   // free integer
   const max = field.length >= 31 ? 0xFFFFFFFF : ((1 << field.length) - 1);
   return (
     <input
-      type="number"
-      min={0}
-      max={max}
-      value={value}
+      type="number" min={0} max={max} value={value}
       onChange={(e) => {
         const n = parseInt(e.target.value, 10);
         if (!isNaN(n) && n >= 0 && n <= max) onChange(n);
       }}
       disabled={disabled}
-      style={{ width: 100, padding: '5px 8px', borderRadius: 6, border: `1.5px solid ${C.bd}`, fontSize: 12, fontFamily: 'monospace' }}
+      style={{
+        width: '100%', padding: '8px 10px', borderRadius: 8,
+        background: 'rgba(255,255,255,0.05)', color: T.text,
+        border: `1px solid ${T.border}`,
+        fontFamily: 'JetBrains Mono, monospace', fontSize: 12, fontWeight: 700,
+      }}
     />
-  );
-}
-
-function Field({ label, value, onChange, disabled }) {
-  return (
-    <label style={{ fontSize: 11, color: C.tm, display: 'flex', alignItems: 'center', gap: 6 }}>
-      {label}
-      <input
-        value={'0x' + value.toString(16).toUpperCase()}
-        onChange={(e) => {
-          const v = e.target.value.replace(/^0x/i, '');
-          const n = parseInt(v, 16);
-          if (!isNaN(n)) onChange(n);
-        }}
-        disabled={disabled}
-        style={{ width: 80, padding: '6px 8px', borderRadius: 7, border: `1.5px solid ${C.bd}`, fontFamily: 'monospace', fontSize: 12 }}
-      />
-    </label>
   );
 }
