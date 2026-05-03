@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "abcClassTotal": 3945,
+    "abcDoublePoolTotal": 756,
+    "abcIntPoolTotal": 1135,
+    "abcMethodBodyTotal": 54820,
+    "abcMethodTotal": 57605,
+    "abcMultinameTotal": 57903,
+    "abcNamespaceTotal": 10234,
+    "abcStringPoolSize": 58469,
+    "abcTagCount": 2,
+    "abcUintPoolTotal": 2,
+    "extractedAt": "deterministic",
+    "inflatedBytes": 8716982,
+    "sha256": "d8b08bd85cf1a7f83ac560dab1fdbfc50ada701e767e290229e66d9cc5c6560f",
+    "sourceSwf": "attached_assets/CDA_1776448059516.swf",
+    "swfSignature": "CWS",
+    "swfVersion": 11
+  },
+  "_provenance": "Every URL path string under vehicle/, service/, cda/, flash/, diagnostic/, rest/, api/ found in HOT classes. The SWF talks to a local helper service over HTTP for flash file transfer, vehicle context, and bus log streaming — these are those endpoints.",
+  "count": 1,
+  "endpoints": [
+    {
+      "path": "vehicle/flash/start/",
+      "refCount": 2,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "method": "hideEcuIdentificationView"
+        },
+        {
+          "class": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "method": "showSessionsAndMessageView"
+        }
+      ]
+    }
+  ]
+}

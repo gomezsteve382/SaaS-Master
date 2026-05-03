@@ -1,0 +1,2768 @@
+{
+  "_meta": {
+    "abcClassTotal": 3945,
+    "abcDoublePoolTotal": 756,
+    "abcIntPoolTotal": 1135,
+    "abcMethodBodyTotal": 54820,
+    "abcMethodTotal": 57605,
+    "abcMultinameTotal": 57903,
+    "abcNamespaceTotal": 10234,
+    "abcStringPoolSize": 58469,
+    "abcTagCount": 2,
+    "abcUintPoolTotal": 2,
+    "extractedAt": "deterministic",
+    "inflatedBytes": 8716982,
+    "sha256": "d8b08bd85cf1a7f83ac560dab1fdbfc50ada701e767e290229e66d9cc5c6560f",
+    "sourceSwf": "attached_assets/CDA_1776448059516.swf",
+    "swfSignature": "CWS",
+    "swfVersion": 11
+  },
+  "_provenance": "Scoped to HOT classes only. For every UDS SID, every diagnostic-tree AS3 class+method that pushes that byte is recorded with its co-pushed bytes (likely sub-functions). SIDs 0x83/0x85/0x86/0x87 show 0 refs because the SWF UI never authors those higher SIDs as raw bytes — they live in the native MVCI/J2534 layer that the SWF talks to via REST/IPC.",
+  "services": [
+    {
+      "hex": "0x10",
+      "name": "DiagnosticSessionControl",
+      "refCount": 51,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.application.license::AuthenticateCommand",
+          "method": "_ReadWriteData_ClassFactory2_c",
+          "otherBytes": [
+            255
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl",
+          "method": "indicesToItemRenderer",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.uplift::UpliftLoginImplementation",
+          "method": "_CloseButtonSkin_BitmapImage3",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::ECUDiagnosticsControlBarContent",
+          "method": "_2019984978radioButtonNo",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsRibbon",
+          "method": "_SGWHelp_VGroup1_c",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogConfigurationComponent",
+          "method": "com.chrysler.core.util:Packet",
+          "otherBytes": [
+            0,
+            1,
+            2
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogFilebackedList",
+          "method": "_implodeShannonFanoTrees",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogFilebackedList",
+          "method": "uncompress",
+          "otherBytes": [
+            0
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogGeneratorConfigurationComponentInnerClass0",
+          "method": "calcUBoundsToFitTBounds",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLitePM",
+          "method": "intialize",
+          "otherBytes": [
+            0
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteData",
+          "method": "toggleCustomizations",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteMemory",
+          "method": "_270443153caretIndicatorFill",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationImpl",
+          "method": "cachedPaddingBottomInvalid",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::WriteCalibrationImpl",
+          "method": "getCellsAt",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.dtcs::DTC",
+          "method": "onBuslogGet",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.identification::EcuIdentification",
+          "method": "MoveOutEcuIdentification",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceAction",
+          "method": "resolveNCName",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceActionItem",
+          "method": "leadingModelProperty",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::IoControl",
+          "method": "onOpenCustomDisplayCreateEditInit",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::IdenticalConversionSupport",
+          "method": "static::Insira um novo nome para a configuração ou selecione uma configuração existente para sobrescrevê-la.",
+          "otherBytes": [
+            0,
+            2
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::IdenticalDDEWrite",
+          "method": "_ReadCalibrationImpl_Label1_i",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging",
+          "method": "drawRowBackground",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.unlock::ECUUnlock",
+          "method": "DeviceTypes",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecuList::ECUListItemRenderer",
+          "method": "_unresolvedValue",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.flash::Flash",
+          "method": "clearDuplicates",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.flash::Flash",
+          "method": "onSelection",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManager",
+          "method": "org.spicefactory.parsley.core.errors",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            10,
+            12
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.functionalMessages::Broadcast",
+          "method": "ScanReportsProcessor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.vehicleWideDTCs::VehicleWideDTC",
+          "method": "_UpdateOS_bindingsSetup",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 16
+    },
+    {
+      "hex": "0x11",
+      "name": "EcuReset",
+      "refCount": 27,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "method": "startWithTesterPresent",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "method": "showSessionsAndMessageView",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl",
+          "method": "indicesToItemRenderer",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.uplift::UpliftLoginImplementation",
+          "method": "_CloseButtonSkin_BitmapImage3",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::ECUDiagnosticsControlBarContent",
+          "method": "_2019984978radioButtonNo",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsRibbon",
+          "method": "_SGWHelp_VGroup1_c",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogGeneratorConfigurationComponentInnerClass0",
+          "method": "calcUBoundsToFitTBounds",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteData",
+          "method": "toggleCustomizations",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationImpl",
+          "method": "cachedPaddingBottomInvalid",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::WriteCalibrationImpl",
+          "method": "getCellsAt",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.dtcs::DTC",
+          "method": "onBuslogGet",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.identification::EcuIdentification",
+          "method": "MoveOutEcuIdentification",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceAction",
+          "method": "resolveNCName",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceActionItem",
+          "method": "leadingModelProperty",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::IdenticalDDEWrite",
+          "method": "_ReadCalibrationImpl_Label1_i",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging",
+          "method": "drawRowBackground",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.unlock::ECUUnlock",
+          "method": "DeviceTypes",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.flash::Flash",
+          "method": "onSelection",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.functionalMessages::Broadcast",
+          "method": "ScanReportsProcessor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.vehicleWideDTCs::VehicleWideDTC",
+          "method": "_UpdateOS_bindingsSetup",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentImpl",
+          "method": "com.chrysler.cda.presentation.component.jira.create.popover.pending:PendingPopoverImpl",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi.viewer::ProxiFileViewerImpl",
+          "method": "_1609594047enabled",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 17
+    },
+    {
+      "hex": "0x14",
+      "name": "ClearDtcInformation",
+      "refCount": 41,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl",
+          "method": "indicesToItemRenderer",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl",
+          "method": "initiateSelectionTracking",
+          "otherBytes": [
+            0,
+            3,
+            9
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.uplift::UpliftLoginImplementation",
+          "method": "_CloseButtonSkin_BitmapImage3",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.uplift::UpliftLoginImplementation",
+          "method": "spark.skins.spark.windowChrome:RestoreButtonSkin",
+          "otherBytes": [
+            0,
+            3,
+            9
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::ECUDiagnosticsControlBarContent",
+          "method": "_2019984978radioButtonNo",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsRibbon",
+          "method": "_SGWHelp_VGroup1_c",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsRibbon",
+          "method": "ddeElements",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsRibbon",
+          "method": "vin",
+          "otherBytes": [
+            0,
+            3,
+            9
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogConfigurationComponentEcuSelector",
+          "method": "FLAG_WORD_WRAP",
+          "otherBytes": [
+            0
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogConfigurationComponentEcuSelector",
+          "method": "PADDING_TOP",
+          "otherBytes": [
+            0,
+            5,
+            90
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogGeneratorConfigurationComponentInnerClass0",
+          "method": "calcUBoundsToFitTBounds",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::ConfigurationStoreSaveWindow",
+          "method": "_1669602930_ButtonBarMiddleButtonSkin_GradientEntry7",
+          "otherBytes": [
+            10
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetInnerClass0",
+          "method": "_228035862_FDDeviceConfigurationRadioButtonSkin_Group1",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteData",
+          "method": "toggleCustomizations",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteDataInnerClass3",
+          "method": "getIUIComponent",
+          "otherBytes": [
+            0
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationImpl",
+          "method": "cachedPaddingBottomInvalid",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::WriteCalibrationImpl",
+          "method": "getCellsAt",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceAction",
+          "method": "resolveNCName",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ResultContentInnerClass0",
+          "method": "HANGUL",
+          "otherBytes": [
+            5
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ResultContentInnerClass1",
+          "method": "LOWER_GREEK",
+          "otherBytes": [
+            5
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ResultContentInnerClass2",
+          "method": "IDEOGRAPHIC_CENTER_UP",
+          "otherBytes": [
+            5
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::IdenticalDDEWrite",
+          "method": "_ReadCalibrationImpl_Label1_i",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging",
+          "method": "drawRowBackground",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.unlock::ECUUnlock",
+          "method": "DeviceTypes",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecuList::EcuListBase",
+          "method": "_ButtonBarFirstButtonSkin_Rect4_i",
+          "otherBytes": [
+            7,
+            10,
+            100
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecuList::ECUListItemRenderer",
+          "method": "com.hurlant.util.der:DER",
+          "otherBytes": [
+            21
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecuList::ECUListItemRenderer",
+          "method": "DER",
+          "otherBytes": [
+            21
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecuList::ECUListItemRenderer",
+          "method": "setString",
+          "otherBytes": [
+            21
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecuList::ECUListItemRenderer",
+          "method": "str",
+          "otherBytes": [
+            3,
+            9,
+            21
+          ]
+        }
+      ],
+      "sid": 20
+    },
+    {
+      "hex": "0x19",
+      "name": "ReadDtcInformation",
+      "refCount": 18,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.uplift::UpliftLoginImplementation",
+          "method": "_CloseButtonSkin_BitmapImage3",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::ECUDiagnosticsControlBarContent",
+          "method": "_2019984978radioButtonNo",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogGeneratorConfigurationComponentInnerClass0",
+          "method": "calcUBoundsToFitTBounds",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "_CustomDisplayCreateEdit_DataGridColumn2_i",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteData",
+          "method": "toggleCustomizations",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteMemory",
+          "method": "isSortIndicatorVisible",
+          "otherBytes": [
+            2,
+            4
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationImpl",
+          "method": "cachedPaddingBottomInvalid",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::IdenticalDDEWrite",
+          "method": "_ReadCalibrationImpl_Label1_i",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging",
+          "method": "drawRowBackground",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.unlock::ECUUnlock",
+          "method": "DeviceTypes",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecuList::EcuListBase",
+          "method": "_ButtonBarFirstButtonSkin_GradientEntry13_c",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.flash::Flash",
+          "method": "onSelection",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.functionalMessages::Broadcast",
+          "method": "ScanReportsProcessor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 25
+    },
+    {
+      "hex": "0x22",
+      "name": "ReadDataByIdentifier",
+      "refCount": 8,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogGeneratorConfigurationComponentInnerClass0",
+          "method": "lastModuleFactory",
+          "otherBytes": [
+            0,
+            1,
+            10,
+            120
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteData",
+          "method": "toggleCustomizations",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationImpl",
+          "method": "cachedPaddingBottomInvalid",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 34
+    },
+    {
+      "hex": "0x23",
+      "name": "ReadMemoryByAddress",
+      "refCount": 13,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogGeneratorConfigurationComponentInnerClass0",
+          "method": "getQBezierSegmentBBox",
+          "otherBytes": [
+            1
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "addDDEButton",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "refreshLegacySession",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteData",
+          "method": "toggleCustomizations",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationImpl",
+          "method": "cachedPaddingBottomInvalid",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ResultContent",
+          "method": "whenActive",
+          "otherBytes": [
+            0
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.unlock::ECUUnlockInnerClass0",
+          "method": "_ComServiceActionItem_NavigatorContent2",
+          "otherBytes": [
+            23
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.flash::Flash",
+          "method": "extendedDiagnosticModeSuccess",
+          "otherBytes": [
+            100
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 35
+    },
+    {
+      "hex": "0x24",
+      "name": "ReadScalingDataByIdentifier",
+      "refCount": 8,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "engFileButton",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteData",
+          "method": "toggleCustomizations",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationImpl",
+          "method": "cachedPaddingBottomInvalid",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 36
+    },
+    {
+      "hex": "0x27",
+      "name": "SecurityAccess",
+      "refCount": 7,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteData",
+          "method": "toggleCustomizations",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationImpl",
+          "method": "cachedPaddingBottomInvalid",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 39
+    },
+    {
+      "hex": "0x28",
+      "name": "CommunicationControl",
+      "refCount": 24,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl",
+          "method": "measureWidthOfItems",
+          "otherBytes": [
+            0,
+            6,
+            13,
+            45
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteData",
+          "method": "com.chrysler.cda.presentation.component.file:EditConfiguration",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteData",
+          "method": "toggleCustomizations",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationImpl",
+          "method": "cachedPaddingBottomInvalid",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.dtcs::DTC",
+          "method": "postService",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.dtcs::EnvironmentalDataAction",
+          "method": "readUnsignedByte",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecuList::EcuListBase",
+          "method": "_ButtonBarFirstButtonSkin_LinearGradient2_c",
+          "otherBytes": [
+            0,
+            2
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecuList::ECUListItemRenderer",
+          "method": "org.spicefactory.parsley.processor.core:PropertyProcessor",
+          "otherBytes": [
+            21
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.vehicleWideDTCs::VehicleWideDTC",
+          "method": "_UpdateOS_Label3",
+          "otherBytes": [
+            100
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.vehicleWideDTCs::VehicleWideDTC",
+          "method": "_UpdateOS_Panel1_i",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "choicePrompt",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "choices",
+          "otherBytes": [
+            6
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "com.chrysler.core.infrastructure.communication:IErrorResolver",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "isAuthenticatedDiagnosticsRequired",
+          "otherBytes": [
+            2,
+            100
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "queue",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "versionUrl",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationImpl",
+          "method": "_1580400086cjdServicesDescriptor",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesImpl",
+          "method": "_LicenseVerification_TitledBorderBox1_i",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesImpl",
+          "method": "removeViewRoot",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 40
+    },
+    {
+      "hex": "0x29",
+      "name": "Authentication",
+      "refCount": 5,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 41
+    },
+    {
+      "hex": "0x2A",
+      "name": "ReadDataByPeriodicIdentifier",
+      "refCount": 5,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 42
+    },
+    {
+      "hex": "0x2C",
+      "name": "DynamicallyDefineDataIdentifier",
+      "refCount": 5,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::DDEDetailsPopup",
+          "method": "onPhoneNumberCreationComplete",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 44
+    },
+    {
+      "hex": "0x2E",
+      "name": "WriteDataByIdentifier",
+      "refCount": 5,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.presentation.component.diagnostic.ecu:PidEditor",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_StateSelector_Label1",
+          "otherBytes": [
+            16,
+            48
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 46
+    },
+    {
+      "hex": "0x2F",
+      "name": "InputOutputControlByIdentifier",
+      "refCount": 3,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 47
+    },
+    {
+      "hex": "0x31",
+      "name": "RoutineControl",
+      "refCount": 3,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+          "method": "separator_mouseDragHandler",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 49
+    },
+    {
+      "hex": "0x34",
+      "name": "RequestDownload",
+      "refCount": 3,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite",
+          "method": "com.chrysler.cda.domain.diagnostic.procedures:LegacySession",
+          "otherBytes": []
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 52
+    },
+    {
+      "hex": "0x35",
+      "name": "RequestUpload",
+      "refCount": 2,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 53
+    },
+    {
+      "hex": "0x36",
+      "name": "TransferData",
+      "refCount": 2,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 54
+    },
+    {
+      "hex": "0x37",
+      "name": "RequestTransferExit",
+      "refCount": 3,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManager",
+          "method": "WrappedConfigurationProcessor",
+          "otherBytes": [
+            100
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 55
+    },
+    {
+      "hex": "0x38",
+      "name": "RequestFileTransfer",
+      "refCount": 2,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 56
+    },
+    {
+      "hex": "0x3D",
+      "name": "WriteMemoryByAddress",
+      "refCount": 2,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 61
+    },
+    {
+      "hex": "0x3E",
+      "name": "TesterPresent",
+      "refCount": 2,
+      "refs": [
+        {
+          "class": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation",
+          "method": "_872417838blockSize",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "class": "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation",
+          "method": "headerItem",
+          "otherBytes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "sid": 62
+    },
+    {
+      "hex": "0x83",
+      "name": "AccessTimingParameter",
+      "refCount": 0,
+      "refs": [],
+      "sid": 131
+    },
+    {
+      "hex": "0x84",
+      "name": "SecuredDataTransmission",
+      "refCount": 0,
+      "refs": [],
+      "sid": 132
+    },
+    {
+      "hex": "0x85",
+      "name": "ControlDtcSetting",
+      "refCount": 0,
+      "refs": [],
+      "sid": 133
+    },
+    {
+      "hex": "0x86",
+      "name": "ResponseOnEvent",
+      "refCount": 0,
+      "refs": [],
+      "sid": 134
+    },
+    {
+      "hex": "0x87",
+      "name": "LinkControl",
+      "refCount": 0,
+      "refs": [],
+      "sid": 135
+    }
+  ]
+}

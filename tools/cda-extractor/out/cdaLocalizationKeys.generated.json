@@ -1,0 +1,2090 @@
+{
+  "_meta": {
+    "abcClassTotal": 3945,
+    "abcDoublePoolTotal": 756,
+    "abcIntPoolTotal": 1135,
+    "abcMethodBodyTotal": 54820,
+    "abcMethodTotal": 57605,
+    "abcMultinameTotal": 57903,
+    "abcNamespaceTotal": 10234,
+    "abcStringPoolSize": 58469,
+    "abcTagCount": 2,
+    "abcUintPoolTotal": 2,
+    "extractedAt": "deterministic",
+    "inflatedBytes": 8716982,
+    "sha256": "d8b08bd85cf1a7f83ac560dab1fdbfc50ada701e767e290229e66d9cc5c6560f",
+    "sourceSwf": "attached_assets/CDA_1776448059516.swf",
+    "swfSignature": "CWS",
+    "swfVersion": 11
+  },
+  "_provenance": "Every dotted-lower-case localization bundle key found in HOT classes. Useful for matching CDA UI text against our own SRT Lab UI strings.",
+  "count": 294,
+  "keys": [
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.license::AuthenticateCommand"
+      ],
+      "key": "access.is.denied"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.diagnostic.ecu::WriteDDECommand"
+      ],
+      "key": "an.error.has.occurred"
+    },
+    {
+      "classCount": 3,
+      "classes": [
+        "com.chrysler.cda.application.diagnostic.ecu::WriteDDECommand",
+        "com.chrysler.cda.application.tools::CustomDisplayWriteDDECommand",
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteDataPM"
+      ],
+      "key": "an.unknown.error.has.occurred"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand"
+      ],
+      "key": "authenticatedDiagnosticsLoginPopup.status.message.unlocking"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand"
+      ],
+      "key": "authenticatedDiagnosticsLoginPopup.unlock.error.message"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.license::AuthenticateCommand"
+      ],
+      "key": "authentication.failed.due.to.unexpected.error"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.functionalMessages::BroadcastPM"
+      ],
+      "key": "broadcastmessages.an.error.occurred.during.tester.present.execution"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.functionalMessages::BroadcastPM"
+      ],
+      "key": "broadcastmessages.command.failed.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.functionalMessages::BroadcastPM"
+      ],
+      "key": "broadcastmessages.command.successfully.sent"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.functionalMessages::BroadcastPM"
+      ],
+      "key": "broadcastmessages.command.successfully.sent.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.functionalMessages::BroadcastPM"
+      ],
+      "key": "broadcastmessages.unable.to.get.broadcast.and.protocol.information.cda.will.be.unable.to.send.broadcast.messages"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.functionalMessages::BroadcastPM"
+      ],
+      "key": "broadcastmessages.unable.to.get.sessions.for.this.configuration.please.try.another.configuration"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLitePM"
+      ],
+      "key": "bus.logger.error.starting.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLitePM"
+      ],
+      "key": "bus.logger.error.starting.stream"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLitePM"
+      ],
+      "key": "bus.logger.error.stopping.stream"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLitePM"
+      ],
+      "key": "bus.logger.lite.error.failed.to.get.filter.information"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLitePM"
+      ],
+      "key": "bus.logger.lite.error.getting.channel.information"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.error.getting.filters"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.error.getting.periodic.messages"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.error.removing.filter"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogExportCommand"
+      ],
+      "key": "buslog.error.error.saving.file.to"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.event.or.filter.is.not.specified"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.event.or.message.is.not.specified"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.failed.to.add.filter"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.failed.to.add.periodic.message.0.1.to.channel.2"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.failed.to.disable.channel"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.failed.to.enable.channel"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.failed.to.get.filters"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.failed.to.get.periodic.messages"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.failed.to.remove.filter"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.failed.to.remove.periodic.message"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogExportCommand"
+      ],
+      "key": "buslog.error.failed.to.save.file.to"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.error.failed.to.send.message"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.stream.error.error.closing.stream"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.stream.error.error.opening.stream"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.stream.error.failed.to.close.stream"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "buslog.stream.error.failed.to.open.stream"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLitePM"
+      ],
+      "key": "busloggerlite.filterName.latest.active"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationController"
+      ],
+      "key": "calibration.file.has.been.created"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "cda.unable.to.identify.ecu.or.database"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogGeneratorConfigurationComponent"
+      ],
+      "key": "channels.not.defined"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayWriteBackCommand"
+      ],
+      "key": "checking.xmit.0.1.name.2.ecu.3.position.4.len.5"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteDataPM"
+      ],
+      "key": "checksum.calculation.failed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceAction"
+      ],
+      "key": "comserviceitem.poll.result"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceAction"
+      ],
+      "key": "comserviceitem.poll.result.tooltip.iocontrol"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceAction"
+      ],
+      "key": "comserviceitem.poll.result.tooltip.onboard"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteDataPM"
+      ],
+      "key": "conversion.type.is.invalid.for.dde"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.start::StartCDAVehicleModeCommand"
+      ],
+      "key": "device.config.details"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "device.flash.config.warning"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.start::StartCDAVehicleModeCommand"
+      ],
+      "key": "device.verification.fatal"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.start::StartCDAVehicleModeCommand"
+      ],
+      "key": "device.verification.warning"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.start::StartCDAVehicleModeCommand"
+      ],
+      "key": "device.verification.warning.for.popup"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.discover::ConnectToDeviceCommand"
+      ],
+      "key": "discovery.new.cannot.conntect.to"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayWriteBackCommand"
+      ],
+      "key": "ecu.0.unavailable.xmit.1.2.name.3.position.4.len.5"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecu.diagnostics.arg.diagnostics"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecu.identification.failed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecuDiagnostics.menu.calibrationWriter"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecuDiagnostics.menu.dtcs"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecuDiagnostics.menu.ecuReset"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecuDiagnostics.menu.ecuUnlock"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecuDiagnostics.menu.ioControl"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecuDiagnostics.menu.offboardRoutines"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecuDiagnostics.menu.onBoardRoutines"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecuDiagnostics.menu.pidEditor"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecuDiagnostics.menu.readWriteData"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "key": "ecuDiagnostics.menu.readWriteMemory"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::Calibration"
+      ],
+      "key": "ecuDiagnostics.view.calibrationWriter"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.dtcs::DTC"
+      ],
+      "key": "ecuDiagnostics.view.dtcs"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuReset"
+      ],
+      "key": "ecuDiagnostics.view.ecuReset"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.unlock::ECUUnlock"
+      ],
+      "key": "ecuDiagnostics.view.ecuUnlock"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::IoControl"
+      ],
+      "key": "ecuDiagnostics.view.ioControl"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.offBoardRoutines::OffboardRoutines"
+      ],
+      "key": "ecuDiagnostics.view.offboardRoutines"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.onBoardRoutines::OnBoardRoutines"
+      ],
+      "key": "ecuDiagnostics.view.onBoardRoutines"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::PidEditor"
+      ],
+      "key": "ecuDiagnostics.view.pidEditor"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteData"
+      ],
+      "key": "ecuDiagnostics.view.readWriteData"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteMemory"
+      ],
+      "key": "ecuDiagnostics.view.readWriteMemory"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteMemoryPM"
+      ],
+      "key": "ecuDiagnostics.view.readWriteMemory.readfailed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::ReadWriteMemoryPM"
+      ],
+      "key": "ecuDiagnostics.view.readWriteMemory.writefailed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetPM"
+      ],
+      "key": "ecuReset.options.error"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetPM"
+      ],
+      "key": "ecuReset.result.failure"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetPM"
+      ],
+      "key": "ecuReset.result.success"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetPM"
+      ],
+      "key": "ecuReset.type.disableRapidPowerShutdown"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetPM"
+      ],
+      "key": "ecuReset.type.enableRapidPowerShutdown"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetPM"
+      ],
+      "key": "ecuReset.type.enableRapidPowerShutdownNoResp"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetPM"
+      ],
+      "key": "ecuReset.type.hard"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetPM"
+      ],
+      "key": "ecuReset.type.hardNoResp"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetPM"
+      ],
+      "key": "ecuReset.type.keyOffOnReset"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetPM"
+      ],
+      "key": "ecuReset.type.soft"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuResetPM"
+      ],
+      "key": "ecuReset.type.softNoResp"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand"
+      ],
+      "key": "engineering.file.download.failed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationController"
+      ],
+      "key": "entry.has.been.added.to.selected"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationController"
+      ],
+      "key": "entry.has.been.moved.from.available.to.selected"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationController"
+      ],
+      "key": "entry.is.already.available.no.action.was.taken"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.start::StartCDAVehicleModeCommand"
+      ],
+      "key": "error.bad.device.config"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.license::AuthenticateCommand"
+      ],
+      "key": "error.communicating.with.wde"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.dtcs::EnvironmentalDataSlotPM"
+      ],
+      "key": "error.getting.environmental.data"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayWriteBackCommand"
+      ],
+      "key": "error.xmit.0.1.not.available.name.2.ecu.3.position.4.len.5"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogExportCommand"
+      ],
+      "key": "export.bus.log.as.asc"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand"
+      ],
+      "key": "extreme.file.size.please.check.for.your.file"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayWriteDDECommand"
+      ],
+      "key": "failed.xmit.write.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.device.configuration.warning"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.error.unable.to.send.message.to.flash.service"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.failed.to.start.flash"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.file.cannot.be.found.please.re.select.file.to.begin.flash.process"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.flash.complete"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.flash.failed"
+    },
+    {
+      "classCount": 2,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::Flash",
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.flash.percent.complete"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.flash.percent.upload"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application::ExitCommand"
+      ],
+      "key": "flash.in.progress.exit.warning"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.please.select.flash.file"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.unable.to.flash.unable.to.copy.file.to.temporary.directory"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.unable.to.flash.year.body.info.missing"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.unlock.fca.creds.required"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.user.choice.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "key": "flash.user.response.required"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManagerPM"
+      ],
+      "key": "flashlogmanager.save.flash.log.as"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManagerPM"
+      ],
+      "key": "flashlogmanager.unable.to.find.flash.logs"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManagerPM"
+      ],
+      "key": "flashlogmanager.unable.to.load.log.contents.invalid.xml"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::IdenticalDDEWrite"
+      ],
+      "key": "identicalddewrite.note.the.text.has.0.trailing.spaces"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.popup::IdenticalDDEWrite"
+      ],
+      "key": "identicalddewrite.note.the.text.has.trailing.spaces"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceActionPM"
+      ],
+      "key": "interrupted.service.will.stop.shortly"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "io.error.on.buslog.stream"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.license::AuthenticateCommand"
+      ],
+      "key": "login.failed.try.again"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application::MenuCommand"
+      ],
+      "key": "menuCommand.changeConnection.confirm.message"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application::MenuCommand"
+      ],
+      "key": "menuCommand.changeConnection.confirm.title"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application::MenuCommand"
+      ],
+      "key": "menuCommand.editConfiguration.confirm.message"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application::MenuCommand"
+      ],
+      "key": "menuCommand.editConfiguration.confirm.title"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.offBoardRoutines::OffboardRoutines"
+      ],
+      "key": "model.webServiceModel.dealerCode"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "new.buslogger.message"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "new.buslogger.message.external"
+    },
+    {
+      "classCount": 2,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationController",
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::WriteCalibrationController"
+      ],
+      "key": "no.positive.response"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceActionPM"
+      ],
+      "key": "no.results.to.report"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.offBoardRoutines::OffboardRoutinesPM"
+      ],
+      "key": "offboardroutines.cda6.encountered.an.unsupported.operation.during.routine.execution"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.offBoardRoutines::OffboardRoutinesPM"
+      ],
+      "key": "offboardroutines.during.routine.execution.cda6.encountered.a.request.for.a.dealer.connect.service"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.offBoardRoutines::OffboardRoutinesPM"
+      ],
+      "key": "offboardroutines.during.routine.execution.cda6.encountered.a.request.to.flash.the.vehicle"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.offBoardRoutines::OffboardRoutinesPM"
+      ],
+      "key": "offboardroutines.present.executing.off.board.routine.had.an.error.and.is.exiting"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.offBoardRoutines::OffboardRoutinesPM"
+      ],
+      "key": "offboardroutines.unable.to.start.the.following.diagnostic.procedure"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.offBoardRoutines::OffboardRoutinesPM"
+      ],
+      "key": "offboradroutines.offboard.routine.operation.not.supported"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::ConfigurationStoreCommand"
+      ],
+      "key": "overwrite.filter.question"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::PidEditor"
+      ],
+      "key": "pidEditor.message.restricted"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::WriteCalibrationController"
+      ],
+      "key": "please.selecta.file.before.continuing"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.0.1.2"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.0.analyzing.com.service"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.0.eol.elements.added"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.0.eol.elements.to.add.2"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.0.failed.to.align"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.0.failure.details"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.0.is.aligned"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.0.sent.1.resulted.with.2.w.details.3"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.0.unable.to.read.eol.data.elements"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.102A.information.retrieved"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.102A.read.failure"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.a.summary.of.the.results.are.provided.above"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.alignment.action.required"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.alignment.complete"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.alignment.error.occurred"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.alignment.failures"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.alignment.information.retrieved"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.an.unknown.error.has.occured"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.tabs::EditorNavigatorContent"
+      ],
+      "key": "proxi.commit.0.1.2.to.3"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi::ProxiViewController"
+      ],
+      "key": "proxi.conversion.data.error"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi::ProxiViewController"
+      ],
+      "key": "proxi.conversion.not.recognized.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.crc.checksum.calculation.failed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.crc.checksum.calculation.failed.please.see.the.error.details.below"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.elements.added"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.elements.to.add.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesController"
+      ],
+      "key": "proxi.eol.data.read.failed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi::ProxiViewController"
+      ],
+      "key": "proxi.eol.display"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesController"
+      ],
+      "key": "proxi.eol.elements.processed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesController"
+      ],
+      "key": "proxi.eol.elements.to.add.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.error.details"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.tabs::EditorNavigatorContent"
+      ],
+      "key": "proxi.failed.update.validation.error"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.failures.occurred.while.preparing.102A.checksum.eol.data.errors.are.in.the.list.below"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.fetching.alignment.information"
+    },
+    {
+      "classCount": 2,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController",
+        "com.chrysler.cda.presentation.component.proxi::ProxiViewController"
+      ],
+      "key": "proxi.fetching.bcm"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.fetching.com.service.details"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.fetching.supported.ecus"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.popovers.file.load::ImportPopoverController"
+      ],
+      "key": "proxi.file.type.not.supported"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.looking.for.22.20.23"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesController"
+      ],
+      "key": "proxi.looking.for.22.40.A2"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi::ProxiViewController"
+      ],
+      "key": "proxi.lookup.identical"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi::ProxiViewController"
+      ],
+      "key": "proxi.lookup.linear"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi::ProxiViewController"
+      ],
+      "key": "proxi.lookup.tabular"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.no.ecus.were.aligned"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.no.errors.to.report"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi::ProxiViewController"
+      ],
+      "key": "proxi.pid.editor"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.preparing.102A.information"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.preparing.alignment.information"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.proxi.dde.read.error"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.reading.eol.data.elements"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesController"
+      ],
+      "key": "proxi.reading.eol.data.elements.from.vehicle"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.reading.proxi.data.elements.from.vehicle"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.repopulating.using.hard.reset"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.repopulating.using.soft.reset"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.retrieving.0.eol.22102A.elements"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesController"
+      ],
+      "key": "proxi.retrieving.eol.2240A2.elements"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.retrieving.proxi.222023.elements"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.popovers.file.load::ImportPopoverController"
+      ],
+      "key": "proxi.select.import.file"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.viewer::ProxiFileViewerController"
+      ],
+      "key": "proxi.select.proxi.file"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.popovers.file.out::ExportPopoverController"
+      ],
+      "key": "proxi.select.store.location"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.pideditor::ProxiPidEditorController"
+      ],
+      "key": "proxi.sending.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.sending.1003.extended.session"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.pideditor::ProxiPidEditorController"
+      ],
+      "key": "proxi.sending.1003.request.ahead.of.pid.entry"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.sending.elements"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.successfully.aligned"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.the.crc.checksum.calculation.failed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.the.following.errors.occurred.when.attempting.the.transaction.against.the.vehicle"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.the.ignition.must.be.cycled.in.order.for.the.view.to.reflect.the.current.alignment.state.altered"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.the.proxi.write.was.written.successfully.to.the.vehicle"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.there.was.an.unexpected.error.when.attempting.to.write.proxi"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.pideditor::ProxiPidEditorController"
+      ],
+      "key": "proxi.transaction.complete.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.pideditor::ProxiPidEditorController"
+      ],
+      "key": "proxi.transaction.error.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.unable.to.align.bcm.is.not.properly.identified"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.unable.to.calculate.checksum"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.unable.to.calculate.checksum.unknown.reason"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.unable.to.find.22.10.2A.service.for.ecu"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.unable.to.find.22.20.23.service.for.ecu"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesController"
+      ],
+      "key": "proxi.unable.to.find.22.40.A2.service.for.ECU"
+    },
+    {
+      "classCount": 2,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesController",
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.unable.to.find.proxi.ecu"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.unable.to.get.data.elements.for.22.10.2A"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.unable.to.get.data.elements.for.22.20.23"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesController"
+      ],
+      "key": "proxi.unable.to.get.data.elements.for.22.40.A2"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.viewer::ProxiFileViewerController"
+      ],
+      "key": "proxi.unable.to.open.proxi.file"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesController"
+      ],
+      "key": "proxi.unable.to.read.22.40.A2.eol.data"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay::EOLDDEEntriesController"
+      ],
+      "key": "proxi.unable.to.read.eol.data.elements"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.popovers.file.load::ImportPopoverController"
+      ],
+      "key": "proxi.unable.to.read.file"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.unable.to.read.proxi.data.element"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.unable.to.read.proxi.ddes"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.unable.to.retrieve.102A.information"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.unable.to.retrieve.alignment.information"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.unexpected.error"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.popovers.file.load::ImportPopoverController"
+      ],
+      "key": "proxi.unexpected.exception.parsing.file"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.unknown.error.please.see.console"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.vci.timeout"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.write.complete"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.write.failed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.write.proxi.error.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.write.proxi.error.unknown"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.write.proxi.failed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.proxiDataDisplay::DDEEntriesController"
+      ],
+      "key": "proxi.write.successful"
+    },
+    {
+      "classCount": 2,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController",
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay::CheckEOLConfigurationController"
+      ],
+      "key": "proxi.year.0.body.1.ecus.2"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.alignment::ProxiAlignmentController"
+      ],
+      "key": "proxi.you.may.need.to.cycle.your.ignition.and.press.refresh.to.view.results.altered"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.rawdiagnostics.validators::BroadcastIdValidator"
+      ],
+      "key": "rawdiagnostics.broadcastid.empty"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.rawdiagnostics.validators::ChannelValidator"
+      ],
+      "key": "rawdiagnostics.channel.empty"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.rawdiagnostics.validators::Nrc78ToleranceValidator"
+      ],
+      "key": "rawdiagnostics.counter78.empty"
+    },
+    {
+      "classCount": 2,
+      "classes": [
+        "com.chrysler.cda.presentation.component.rawdiagnostics.validators::RequestIdValidator",
+        "com.chrysler.cda.presentation.component.rawdiagnostics.validators::ResponseIdValidator"
+      ],
+      "key": "rawdiagnostics.requestid.empty"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.rawdiagnostics.validators::TimeoutValidator"
+      ],
+      "key": "rawdiagnostics.timeout.empty"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.dtcs::DTCPM"
+      ],
+      "key": "request.for.dtcs.failed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.rawdiagnostics.presentation::RawDiagnosticsImplementation"
+      ],
+      "key": "required.fields.must.be.completed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceActionPM"
+      ],
+      "key": "reset.to.default.successful"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand"
+      ],
+      "key": "save.engineering.ddt.file"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.buslog::BuslogStreamCommand"
+      ],
+      "key": "security.error.on.buslog.stream"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::ReadCalibrationController"
+      ],
+      "key": "select.directory.to.save.calibration.file"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessagingPM"
+      ],
+      "key": "sessions.preparing.session"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessagingPM"
+      ],
+      "key": "sessions.session.request.failed"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessagingPM"
+      ],
+      "key": "sessions.session.request.successful"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.views::AvailableECUsCommand"
+      ],
+      "key": "sgw.is.not.built"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.start::StartWDECommand"
+      ],
+      "key": "syncLogin.sync.error.invalid.token"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogConfigurationComponent"
+      ],
+      "key": "text.entered.is.not.valid.can.message"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogGeneratorConfigurationComponentInnerClass0"
+      ],
+      "key": "text.entered.is.not.valid.can.message.id"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.license::AuthenticateCommand"
+      ],
+      "key": "unable.to.access.license"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.license::AuthenticateCommand"
+      ],
+      "key": "unable.to.authenticate.internet"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.license::AuthenticateCommand"
+      ],
+      "key": "unable.to.authenticate.internet.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.dtcs::DTCPM"
+      ],
+      "key": "unable.to.clear.dtcs"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.license::ReconnectToServerCommand"
+      ],
+      "key": "unable.to.communicate.with.server"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.discover::SessionPreperationCommand"
+      ],
+      "key": "unable.to.determine.year.bod.please.use.benchtop.mode.or.try.selecting.another.device"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.license::AuthenticateCommand"
+      ],
+      "key": "unable.to.download.certificate"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceActionPM"
+      ],
+      "key": "unable.to.get.results.for.service"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.feedback::FeedbackCommand"
+      ],
+      "key": "unable.to.get.session.id"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::WriteCalibrationController"
+      ],
+      "key": "unable.to.get.unlocks.prior.to.calibration.write.trying.calibration.file.write.anyway"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayLookupDdesCommand"
+      ],
+      "key": "unable.to.identify.ecu.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayLookupDdesCommand"
+      ],
+      "key": "unable.to.identify.ecu.0.and.eng.file.1"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayLookupDdesCommand"
+      ],
+      "key": "unable.to.identify.ecu.0.partial.1"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayLookupDdesCommand"
+      ],
+      "key": "unable.to.lookup.diagnostic.element.definitions.for.ecu.0.and.eng.file.1"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::WriteCalibrationController"
+      ],
+      "key": "unable.to.open.selected.file."
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.start::StartCDAVehicleModeCommand"
+      ],
+      "key": "unable.to.read.year.body"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.diagnostic.ecu.offBoardRoutines::RequestOffboardRoutineQualificationCommand"
+      ],
+      "key": "unable.to.request.offboard.routines"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceActionPM"
+      ],
+      "key": "unable.to.reset.to.default"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceActionPM"
+      ],
+      "key": "unable.to.start.service"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceActionPM"
+      ],
+      "key": "unable.to.stop.service"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite"
+      ],
+      "key": "unknown.subtype.of.event.of.message.generator.component"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration::WriteCalibrationController"
+      ],
+      "key": "unlock.failed.trying.write.anyway.trying.calibration.file.write.anyway"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.unlock::ECUUnlockPM"
+      ],
+      "key": "unlock.unable.to.get.available.unlocks"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.controller::UpliftController"
+      ],
+      "key": "uplift.login.error.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.controller::UpliftController"
+      ],
+      "key": "uplift.notification.instruction"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.controller::UpliftController"
+      ],
+      "key": "uplift.notification.instruction.offline"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.controller::UpliftController"
+      ],
+      "key": "uplift.session.upgrade"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.vehicleWideDTCs::VehicleWideDTCPM"
+      ],
+      "key": "vehiclewidedtcs.failed.to.clear.dtcs.for.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.vehicleWideDTCs::VehicleWideDTCPM"
+      ],
+      "key": "vehiclewidedtcs.request.for.dtcs.failed.for.the.following.ecus.0"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayWriteDDECommand"
+      ],
+      "key": "write.failed.caps"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayWriteBackCommand"
+      ],
+      "key": "xmit.0.1.name.2.ecu.3.position.4.len.5.not.available"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayWriteBackCommand"
+      ],
+      "key": "xmit.0.1.name.2.ecu.3.position.4.len.5.raw.6.converted.7.to.queue"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayWriteBackCommand"
+      ],
+      "key": "xmit.0.at.ecu.1.position.2.len.3"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayWriteBackCommand"
+      ],
+      "key": "xmit.0.ecu.1.position.2.len.3"
+    }
+  ]
+}

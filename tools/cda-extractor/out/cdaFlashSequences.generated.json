@@ -9,7 +9,7 @@
     "swfSignature": "CWS",
     "swfVersion": 11
   },
-  "_provenance": "Sequence shape mirrors flasherStateMachine.js (Task #488). SWF orchestration classes recorded per step are sourced from the harvested string buckets (see harvestedStrings.generated.json).",
+  "_provenance": "Sequence is the canonical FCA flash ladder. Each step carries (a) swfClass — a representative *Command/*Message orchestrator class picked from the Commands catalog by simple-name regex, and (b) swfRef — a class+method that pushes the raw SID byte, picked from the (HOT-scoped) cdaSidIndex. swfRef may be \"<unmapped>\" for SIDs the SWF UI never authors as raw bytes (notably 0x83 timing_p2 and 0x85 dtc-etiquette, which are emitted by the native MVCI/J2534 layer). swfClass is best-effort — if no matching Command class exists in the SWF it is also \"<unmapped>\".",
   "modules": {
     "ABS": {
       "rx": "0x74F",
@@ -19,7 +19,8 @@
           "phase": "session_extended",
           "sid": 16,
           "sub": 3,
-          "swfClass": "EnterDiagnosticSessionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu.sessions::EnterDiagnosticSessionCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 03"
         },
         {
@@ -27,7 +28,8 @@
           "phase": "etiquette_dtc_off",
           "sid": 133,
           "sub": 2,
-          "swfClass": "ControlDTCSetting (suppress)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 02"
         },
         {
@@ -35,7 +37,8 @@
           "phase": "etiquette_comm_off",
           "sid": 40,
           "sub": 3,
-          "swfClass": "CommunicationControl",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 03 03 (7DF)"
         },
         {
@@ -43,7 +46,8 @@
           "phase": "session_program",
           "sid": 16,
           "sub": 2,
-          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 02"
         },
         {
@@ -51,7 +55,8 @@
           "phase": "timing_p2",
           "sid": 131,
           "sub": 3,
-          "swfClass": "AccessTimingParameter",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "83 03 [P2 hi lo P2* hi lo]"
         },
         {
@@ -59,7 +64,8 @@
           "phase": "seed",
           "sid": 39,
           "sub": 9,
-          "swfClass": "SecurityGatewayCommand → seed",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 09",
           "unlockAlgo": "cda6"
         },
@@ -68,7 +74,8 @@
           "phase": "key",
           "sid": 39,
           "sub": 10,
-          "swfClass": "SecurityGatewayCommand → key",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 0A [KEY 4B]",
           "unlockAlgo": "cda6"
         },
@@ -77,7 +84,8 @@
           "phase": "erase",
           "sid": 49,
           "sub": 1,
-          "swfClass": "StartFlashCommand → erase",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 00 [addr][len]"
         },
         {
@@ -85,7 +93,8 @@
           "phase": "request_download",
           "sid": 52,
           "sub": null,
-          "swfClass": "StartFlashWithYearBodyMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite#com.chrysler.cda.domain.diagnostic.procedures:LegacySession",
           "tx": "34 [dfi][alfid][addr][len]"
         },
         {
@@ -93,7 +102,8 @@
           "phase": "transfer",
           "sid": 54,
           "sub": null,
-          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::CheckFlashFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation#_872417838blockSize",
           "tx": "36 [seq][block]"
         },
         {
@@ -101,7 +111,8 @@
           "phase": "transfer_exit",
           "sid": 55,
           "sub": null,
-          "swfClass": "StopFlashStatusMessage",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManager#WrappedConfigurationProcessor",
           "tx": "37"
         },
         {
@@ -109,7 +120,8 @@
           "phase": "checksum",
           "sid": 49,
           "sub": 1,
-          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 01"
         },
         {
@@ -117,7 +129,8 @@
           "phase": "reset",
           "sid": 17,
           "sub": 1,
-          "swfClass": "ResetECUCommand (hardReset)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::ECUResetOptionsCommand",
+          "swfRef": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand#startWithTesterPresent",
           "tx": "11 01"
         },
         {
@@ -125,7 +138,8 @@
           "phase": "etiquette_comm_on",
           "sid": 40,
           "sub": 0,
-          "swfClass": "CommunicationControl (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 00 00 (7DF)"
         },
         {
@@ -133,7 +147,8 @@
           "phase": "etiquette_dtc_on",
           "sid": 133,
           "sub": 1,
-          "swfClass": "ControlDTCSetting (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 01"
         }
       ],
@@ -148,7 +163,8 @@
           "phase": "session_extended",
           "sid": 16,
           "sub": 3,
-          "swfClass": "EnterDiagnosticSessionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu.sessions::EnterDiagnosticSessionCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 03"
         },
         {
@@ -156,7 +172,8 @@
           "phase": "etiquette_dtc_off",
           "sid": 133,
           "sub": 2,
-          "swfClass": "ControlDTCSetting (suppress)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 02"
         },
         {
@@ -164,7 +181,8 @@
           "phase": "etiquette_comm_off",
           "sid": 40,
           "sub": 3,
-          "swfClass": "CommunicationControl",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 03 03 (7DF)"
         },
         {
@@ -172,7 +190,8 @@
           "phase": "session_program",
           "sid": 16,
           "sub": 2,
-          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 02"
         },
         {
@@ -180,7 +199,8 @@
           "phase": "timing_p2",
           "sid": 131,
           "sub": 3,
-          "swfClass": "AccessTimingParameter",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "83 03 [P2 hi lo P2* hi lo]"
         },
         {
@@ -188,7 +208,8 @@
           "phase": "seed",
           "sid": 39,
           "sub": 9,
-          "swfClass": "SecurityGatewayCommand → seed",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 09",
           "unlockAlgo": "gpec2"
         },
@@ -197,7 +218,8 @@
           "phase": "key",
           "sid": 39,
           "sub": 10,
-          "swfClass": "SecurityGatewayCommand → key",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 0A [KEY 4B]",
           "unlockAlgo": "gpec2"
         },
@@ -206,7 +228,8 @@
           "phase": "erase",
           "sid": 49,
           "sub": 1,
-          "swfClass": "StartFlashCommand → erase",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 00 [addr][len]"
         },
         {
@@ -214,7 +237,8 @@
           "phase": "request_download",
           "sid": 52,
           "sub": null,
-          "swfClass": "StartFlashWithYearBodyMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite#com.chrysler.cda.domain.diagnostic.procedures:LegacySession",
           "tx": "34 [dfi][alfid][addr][len]"
         },
         {
@@ -222,7 +246,8 @@
           "phase": "transfer",
           "sid": 54,
           "sub": null,
-          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::CheckFlashFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation#_872417838blockSize",
           "tx": "36 [seq][block]"
         },
         {
@@ -230,7 +255,8 @@
           "phase": "transfer_exit",
           "sid": 55,
           "sub": null,
-          "swfClass": "StopFlashStatusMessage",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManager#WrappedConfigurationProcessor",
           "tx": "37"
         },
         {
@@ -238,7 +264,8 @@
           "phase": "checksum",
           "sid": 49,
           "sub": 1,
-          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 01"
         },
         {
@@ -246,7 +273,8 @@
           "phase": "reset",
           "sid": 17,
           "sub": 1,
-          "swfClass": "ResetECUCommand (hardReset)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::ECUResetOptionsCommand",
+          "swfRef": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand#startWithTesterPresent",
           "tx": "11 01"
         },
         {
@@ -254,7 +282,8 @@
           "phase": "etiquette_comm_on",
           "sid": 40,
           "sub": 0,
-          "swfClass": "CommunicationControl (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 00 00 (7DF)"
         },
         {
@@ -262,7 +291,8 @@
           "phase": "etiquette_dtc_on",
           "sid": 133,
           "sub": 1,
-          "swfClass": "ControlDTCSetting (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 01"
         }
       ],
@@ -277,7 +307,8 @@
           "phase": "session_extended",
           "sid": 16,
           "sub": 3,
-          "swfClass": "EnterDiagnosticSessionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu.sessions::EnterDiagnosticSessionCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 03"
         },
         {
@@ -285,7 +316,8 @@
           "phase": "etiquette_dtc_off",
           "sid": 133,
           "sub": 2,
-          "swfClass": "ControlDTCSetting (suppress)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 02"
         },
         {
@@ -293,7 +325,8 @@
           "phase": "etiquette_comm_off",
           "sid": 40,
           "sub": 3,
-          "swfClass": "CommunicationControl",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 03 03 (7DF)"
         },
         {
@@ -301,7 +334,8 @@
           "phase": "session_program",
           "sid": 16,
           "sub": 2,
-          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 02"
         },
         {
@@ -309,7 +343,8 @@
           "phase": "timing_p2",
           "sid": 131,
           "sub": 3,
-          "swfClass": "AccessTimingParameter",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "83 03 [P2 hi lo P2* hi lo]"
         },
         {
@@ -317,7 +352,8 @@
           "phase": "seed",
           "sid": 39,
           "sub": 9,
-          "swfClass": "SecurityGatewayCommand → seed",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 09",
           "unlockAlgo": "cda6"
         },
@@ -326,7 +362,8 @@
           "phase": "key",
           "sid": 39,
           "sub": 10,
-          "swfClass": "SecurityGatewayCommand → key",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 0A [KEY 4B]",
           "unlockAlgo": "cda6"
         },
@@ -335,7 +372,8 @@
           "phase": "erase",
           "sid": 49,
           "sub": 1,
-          "swfClass": "StartFlashCommand → erase",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 00 [addr][len]"
         },
         {
@@ -343,7 +381,8 @@
           "phase": "request_download",
           "sid": 52,
           "sub": null,
-          "swfClass": "StartFlashWithYearBodyMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite#com.chrysler.cda.domain.diagnostic.procedures:LegacySession",
           "tx": "34 [dfi][alfid][addr][len]"
         },
         {
@@ -351,7 +390,8 @@
           "phase": "transfer",
           "sid": 54,
           "sub": null,
-          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::CheckFlashFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation#_872417838blockSize",
           "tx": "36 [seq][block]"
         },
         {
@@ -359,7 +399,8 @@
           "phase": "transfer_exit",
           "sid": 55,
           "sub": null,
-          "swfClass": "StopFlashStatusMessage",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManager#WrappedConfigurationProcessor",
           "tx": "37"
         },
         {
@@ -367,7 +408,8 @@
           "phase": "checksum",
           "sid": 49,
           "sub": 1,
-          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 01"
         },
         {
@@ -375,7 +417,8 @@
           "phase": "reset",
           "sid": 17,
           "sub": 1,
-          "swfClass": "ResetECUCommand (hardReset)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::ECUResetOptionsCommand",
+          "swfRef": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand#startWithTesterPresent",
           "tx": "11 01"
         },
         {
@@ -383,7 +426,8 @@
           "phase": "etiquette_comm_on",
           "sid": 40,
           "sub": 0,
-          "swfClass": "CommunicationControl (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 00 00 (7DF)"
         },
         {
@@ -391,7 +435,8 @@
           "phase": "etiquette_dtc_on",
           "sid": 133,
           "sub": 1,
-          "swfClass": "ControlDTCSetting (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 01"
         }
       ],
@@ -406,7 +451,8 @@
           "phase": "session_extended",
           "sid": 16,
           "sub": 3,
-          "swfClass": "EnterDiagnosticSessionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu.sessions::EnterDiagnosticSessionCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 03"
         },
         {
@@ -414,7 +460,8 @@
           "phase": "etiquette_dtc_off",
           "sid": 133,
           "sub": 2,
-          "swfClass": "ControlDTCSetting (suppress)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 02"
         },
         {
@@ -422,7 +469,8 @@
           "phase": "etiquette_comm_off",
           "sid": 40,
           "sub": 3,
-          "swfClass": "CommunicationControl",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 03 03 (7DF)"
         },
         {
@@ -430,7 +478,8 @@
           "phase": "session_program",
           "sid": 16,
           "sub": 2,
-          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 02"
         },
         {
@@ -438,7 +487,8 @@
           "phase": "timing_p2",
           "sid": 131,
           "sub": 3,
-          "swfClass": "AccessTimingParameter",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "83 03 [P2 hi lo P2* hi lo]"
         },
         {
@@ -446,7 +496,8 @@
           "phase": "seed",
           "sid": 39,
           "sub": 9,
-          "swfClass": "SecurityGatewayCommand → seed",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 09",
           "unlockAlgo": "gpec2"
         },
@@ -455,7 +506,8 @@
           "phase": "key",
           "sid": 39,
           "sub": 10,
-          "swfClass": "SecurityGatewayCommand → key",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 0A [KEY 4B]",
           "unlockAlgo": "gpec2"
         },
@@ -464,7 +516,8 @@
           "phase": "erase",
           "sid": 49,
           "sub": 1,
-          "swfClass": "StartFlashCommand → erase",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 00 [addr][len]"
         },
         {
@@ -472,7 +525,8 @@
           "phase": "request_download",
           "sid": 52,
           "sub": null,
-          "swfClass": "StartFlashWithYearBodyMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite#com.chrysler.cda.domain.diagnostic.procedures:LegacySession",
           "tx": "34 [dfi][alfid][addr][len]"
         },
         {
@@ -480,7 +534,8 @@
           "phase": "transfer",
           "sid": 54,
           "sub": null,
-          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::CheckFlashFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation#_872417838blockSize",
           "tx": "36 [seq][block]"
         },
         {
@@ -488,7 +543,8 @@
           "phase": "transfer_exit",
           "sid": 55,
           "sub": null,
-          "swfClass": "StopFlashStatusMessage",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManager#WrappedConfigurationProcessor",
           "tx": "37"
         },
         {
@@ -496,7 +552,8 @@
           "phase": "checksum",
           "sid": 49,
           "sub": 1,
-          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 01"
         },
         {
@@ -504,7 +561,8 @@
           "phase": "reset",
           "sid": 17,
           "sub": 1,
-          "swfClass": "ResetECUCommand (hardReset)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::ECUResetOptionsCommand",
+          "swfRef": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand#startWithTesterPresent",
           "tx": "11 01"
         },
         {
@@ -512,7 +570,8 @@
           "phase": "etiquette_comm_on",
           "sid": 40,
           "sub": 0,
-          "swfClass": "CommunicationControl (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 00 00 (7DF)"
         },
         {
@@ -520,7 +579,8 @@
           "phase": "etiquette_dtc_on",
           "sid": 133,
           "sub": 1,
-          "swfClass": "ControlDTCSetting (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 01"
         }
       ],
@@ -535,7 +595,8 @@
           "phase": "session_extended",
           "sid": 16,
           "sub": 3,
-          "swfClass": "EnterDiagnosticSessionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu.sessions::EnterDiagnosticSessionCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 03"
         },
         {
@@ -543,7 +604,8 @@
           "phase": "etiquette_dtc_off",
           "sid": 133,
           "sub": 2,
-          "swfClass": "ControlDTCSetting (suppress)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 02"
         },
         {
@@ -551,7 +613,8 @@
           "phase": "etiquette_comm_off",
           "sid": 40,
           "sub": 3,
-          "swfClass": "CommunicationControl",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 03 03 (7DF)"
         },
         {
@@ -559,7 +622,8 @@
           "phase": "session_program",
           "sid": 16,
           "sub": 2,
-          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 02"
         },
         {
@@ -567,7 +631,8 @@
           "phase": "timing_p2",
           "sid": 131,
           "sub": 3,
-          "swfClass": "AccessTimingParameter",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "83 03 [P2 hi lo P2* hi lo]"
         },
         {
@@ -575,7 +640,8 @@
           "phase": "seed",
           "sid": 39,
           "sub": 9,
-          "swfClass": "SecurityGatewayCommand → seed",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 09",
           "unlockAlgo": "cda6"
         },
@@ -584,7 +650,8 @@
           "phase": "key",
           "sid": 39,
           "sub": 10,
-          "swfClass": "SecurityGatewayCommand → key",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 0A [KEY 4B]",
           "unlockAlgo": "cda6"
         },
@@ -593,7 +660,8 @@
           "phase": "erase",
           "sid": 49,
           "sub": 1,
-          "swfClass": "StartFlashCommand → erase",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 00 [addr][len]"
         },
         {
@@ -601,7 +669,8 @@
           "phase": "request_download",
           "sid": 52,
           "sub": null,
-          "swfClass": "StartFlashWithYearBodyMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite#com.chrysler.cda.domain.diagnostic.procedures:LegacySession",
           "tx": "34 [dfi][alfid][addr][len]"
         },
         {
@@ -609,7 +678,8 @@
           "phase": "transfer",
           "sid": 54,
           "sub": null,
-          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::CheckFlashFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation#_872417838blockSize",
           "tx": "36 [seq][block]"
         },
         {
@@ -617,7 +687,8 @@
           "phase": "transfer_exit",
           "sid": 55,
           "sub": null,
-          "swfClass": "StopFlashStatusMessage",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManager#WrappedConfigurationProcessor",
           "tx": "37"
         },
         {
@@ -625,7 +696,8 @@
           "phase": "checksum",
           "sid": 49,
           "sub": 1,
-          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 01"
         },
         {
@@ -633,7 +705,8 @@
           "phase": "reset",
           "sid": 17,
           "sub": 1,
-          "swfClass": "ResetECUCommand (hardReset)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::ECUResetOptionsCommand",
+          "swfRef": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand#startWithTesterPresent",
           "tx": "11 01"
         },
         {
@@ -641,7 +714,8 @@
           "phase": "etiquette_comm_on",
           "sid": 40,
           "sub": 0,
-          "swfClass": "CommunicationControl (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 00 00 (7DF)"
         },
         {
@@ -649,7 +723,8 @@
           "phase": "etiquette_dtc_on",
           "sid": 133,
           "sub": 1,
-          "swfClass": "ControlDTCSetting (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 01"
         }
       ],
@@ -664,7 +739,8 @@
           "phase": "session_extended",
           "sid": 16,
           "sub": 3,
-          "swfClass": "EnterDiagnosticSessionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu.sessions::EnterDiagnosticSessionCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 03"
         },
         {
@@ -672,7 +748,8 @@
           "phase": "etiquette_dtc_off",
           "sid": 133,
           "sub": 2,
-          "swfClass": "ControlDTCSetting (suppress)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 02"
         },
         {
@@ -680,7 +757,8 @@
           "phase": "etiquette_comm_off",
           "sid": 40,
           "sub": 3,
-          "swfClass": "CommunicationControl",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 03 03 (7DF)"
         },
         {
@@ -688,7 +766,8 @@
           "phase": "session_program",
           "sid": 16,
           "sub": 2,
-          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 02"
         },
         {
@@ -696,7 +775,8 @@
           "phase": "timing_p2",
           "sid": 131,
           "sub": 3,
-          "swfClass": "AccessTimingParameter",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "83 03 [P2 hi lo P2* hi lo]"
         },
         {
@@ -704,7 +784,8 @@
           "phase": "seed",
           "sid": 39,
           "sub": 9,
-          "swfClass": "SecurityGatewayCommand → seed",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 09",
           "unlockAlgo": "cda6"
         },
@@ -713,7 +794,8 @@
           "phase": "key",
           "sid": 39,
           "sub": 10,
-          "swfClass": "SecurityGatewayCommand → key",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 0A [KEY 4B]",
           "unlockAlgo": "cda6"
         },
@@ -722,7 +804,8 @@
           "phase": "erase",
           "sid": 49,
           "sub": 1,
-          "swfClass": "StartFlashCommand → erase",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 00 [addr][len]"
         },
         {
@@ -730,7 +813,8 @@
           "phase": "request_download",
           "sid": 52,
           "sub": null,
-          "swfClass": "StartFlashWithYearBodyMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite#com.chrysler.cda.domain.diagnostic.procedures:LegacySession",
           "tx": "34 [dfi][alfid][addr][len]"
         },
         {
@@ -738,7 +822,8 @@
           "phase": "transfer",
           "sid": 54,
           "sub": null,
-          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::CheckFlashFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation#_872417838blockSize",
           "tx": "36 [seq][block]"
         },
         {
@@ -746,7 +831,8 @@
           "phase": "transfer_exit",
           "sid": 55,
           "sub": null,
-          "swfClass": "StopFlashStatusMessage",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManager#WrappedConfigurationProcessor",
           "tx": "37"
         },
         {
@@ -754,7 +840,8 @@
           "phase": "checksum",
           "sid": 49,
           "sub": 1,
-          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 01"
         },
         {
@@ -762,7 +849,8 @@
           "phase": "reset",
           "sid": 17,
           "sub": 1,
-          "swfClass": "ResetECUCommand (hardReset)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::ECUResetOptionsCommand",
+          "swfRef": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand#startWithTesterPresent",
           "tx": "11 01"
         },
         {
@@ -770,7 +858,8 @@
           "phase": "etiquette_comm_on",
           "sid": 40,
           "sub": 0,
-          "swfClass": "CommunicationControl (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 00 00 (7DF)"
         },
         {
@@ -778,7 +867,8 @@
           "phase": "etiquette_dtc_on",
           "sid": 133,
           "sub": 1,
-          "swfClass": "ControlDTCSetting (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 01"
         }
       ],
@@ -793,7 +883,8 @@
           "phase": "session_extended",
           "sid": 16,
           "sub": 3,
-          "swfClass": "EnterDiagnosticSessionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu.sessions::EnterDiagnosticSessionCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 03"
         },
         {
@@ -801,7 +892,8 @@
           "phase": "etiquette_dtc_off",
           "sid": 133,
           "sub": 2,
-          "swfClass": "ControlDTCSetting (suppress)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 02"
         },
         {
@@ -809,7 +901,8 @@
           "phase": "etiquette_comm_off",
           "sid": 40,
           "sub": 3,
-          "swfClass": "CommunicationControl",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 03 03 (7DF)"
         },
         {
@@ -817,7 +910,8 @@
           "phase": "session_program",
           "sid": 16,
           "sub": 2,
-          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 02"
         },
         {
@@ -825,7 +919,8 @@
           "phase": "timing_p2",
           "sid": 131,
           "sub": 3,
-          "swfClass": "AccessTimingParameter",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "83 03 [P2 hi lo P2* hi lo]"
         },
         {
@@ -833,7 +928,8 @@
           "phase": "seed",
           "sid": 39,
           "sub": 9,
-          "swfClass": "SecurityGatewayCommand → seed",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 09",
           "unlockAlgo": "xtea_sgw"
         },
@@ -842,7 +938,8 @@
           "phase": "key",
           "sid": 39,
           "sub": 10,
-          "swfClass": "SecurityGatewayCommand → key",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 0A [KEY 4B]",
           "unlockAlgo": "xtea_sgw"
         },
@@ -851,7 +948,8 @@
           "phase": "erase",
           "sid": 49,
           "sub": 1,
-          "swfClass": "StartFlashCommand → erase",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 00 [addr][len]"
         },
         {
@@ -859,7 +957,8 @@
           "phase": "request_download",
           "sid": 52,
           "sub": null,
-          "swfClass": "StartFlashWithYearBodyMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite#com.chrysler.cda.domain.diagnostic.procedures:LegacySession",
           "tx": "34 [dfi][alfid][addr][len]"
         },
         {
@@ -867,7 +966,8 @@
           "phase": "transfer",
           "sid": 54,
           "sub": null,
-          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::CheckFlashFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation#_872417838blockSize",
           "tx": "36 [seq][block]"
         },
         {
@@ -875,7 +975,8 @@
           "phase": "transfer_exit",
           "sid": 55,
           "sub": null,
-          "swfClass": "StopFlashStatusMessage",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManager#WrappedConfigurationProcessor",
           "tx": "37"
         },
         {
@@ -883,7 +984,8 @@
           "phase": "checksum",
           "sid": 49,
           "sub": 1,
-          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 01"
         },
         {
@@ -891,7 +993,8 @@
           "phase": "reset",
           "sid": 17,
           "sub": 1,
-          "swfClass": "ResetECUCommand (hardReset)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::ECUResetOptionsCommand",
+          "swfRef": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand#startWithTesterPresent",
           "tx": "11 01"
         },
         {
@@ -899,7 +1002,8 @@
           "phase": "etiquette_comm_on",
           "sid": 40,
           "sub": 0,
-          "swfClass": "CommunicationControl (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 00 00 (7DF)"
         },
         {
@@ -907,7 +1011,8 @@
           "phase": "etiquette_dtc_on",
           "sid": 133,
           "sub": 1,
-          "swfClass": "ControlDTCSetting (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 01"
         }
       ],
@@ -922,7 +1027,8 @@
           "phase": "session_extended",
           "sid": 16,
           "sub": 3,
-          "swfClass": "EnterDiagnosticSessionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu.sessions::EnterDiagnosticSessionCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 03"
         },
         {
@@ -930,7 +1036,8 @@
           "phase": "etiquette_dtc_off",
           "sid": 133,
           "sub": 2,
-          "swfClass": "ControlDTCSetting (suppress)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 02"
         },
         {
@@ -938,7 +1045,8 @@
           "phase": "etiquette_comm_off",
           "sid": 40,
           "sub": 3,
-          "swfClass": "CommunicationControl",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 03 03 (7DF)"
         },
         {
@@ -946,7 +1054,8 @@
           "phase": "session_program",
           "sid": 16,
           "sub": 2,
-          "swfClass": "EnterDiagnosticSessionCommand (programming)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.ecu.sessions::SessionsAndMessaging#drawRowBackground",
           "tx": "10 02"
         },
         {
@@ -954,7 +1063,8 @@
           "phase": "timing_p2",
           "sid": 131,
           "sub": 3,
-          "swfClass": "AccessTimingParameter",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "83 03 [P2 hi lo P2* hi lo]"
         },
         {
@@ -962,7 +1072,8 @@
           "phase": "seed",
           "sid": 39,
           "sub": 9,
-          "swfClass": "SecurityGatewayCommand → seed",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 09",
           "unlockAlgo": "gpec2"
         },
@@ -971,7 +1082,8 @@
           "phase": "key",
           "sid": 39,
           "sub": 10,
-          "swfClass": "SecurityGatewayCommand → key",
+          "swfClass": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "27 0A [KEY 4B]",
           "unlockAlgo": "gpec2"
         },
@@ -980,7 +1092,8 @@
           "phase": "erase",
           "sid": 49,
           "sub": 1,
-          "swfClass": "StartFlashCommand → erase",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 00 [addr][len]"
         },
         {
@@ -988,7 +1101,8 @@
           "phase": "request_download",
           "sid": 52,
           "sub": null,
-          "swfClass": "StartFlashWithYearBodyMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.busLog::BusLoggerLite#com.chrysler.cda.domain.diagnostic.procedures:LegacySession",
           "tx": "34 [dfi][alfid][addr][len]"
         },
         {
@@ -996,7 +1110,8 @@
           "phase": "transfer",
           "sid": 54,
           "sub": null,
-          "swfClass": "SendFlashInputCommand · FlashProgressMessage",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::CheckFlashFileCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.proxi::ProxiViewImplementation#_872417838blockSize",
           "tx": "36 [seq][block]"
         },
         {
@@ -1004,7 +1119,8 @@
           "phase": "transfer_exit",
           "sid": 55,
           "sub": null,
-          "swfClass": "StopFlashStatusMessage",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager::FlashLogManager#WrappedConfigurationProcessor",
           "tx": "37"
         },
         {
@@ -1012,7 +1128,8 @@
           "phase": "checksum",
           "sid": 49,
           "sub": 1,
-          "swfClass": "GetFlashStatusCommand · GetVRFlashVersionCommand",
+          "swfClass": "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand",
+          "swfRef": "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics#separator_mouseDragHandler",
           "tx": "31 01 FF 01"
         },
         {
@@ -1020,7 +1137,8 @@
           "phase": "reset",
           "sid": 17,
           "sub": 1,
-          "swfClass": "ResetECUCommand (hardReset)",
+          "swfClass": "com.chrysler.cda.application.diagnostic.ecu::ECUResetOptionsCommand",
+          "swfRef": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand#startWithTesterPresent",
           "tx": "11 01"
         },
         {
@@ -1028,7 +1146,8 @@
           "phase": "etiquette_comm_on",
           "sid": 40,
           "sub": 0,
-          "swfClass": "CommunicationControl (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupImpl#measureWidthOfItems",
           "tx": "28 00 00 (7DF)"
         },
         {
@@ -1036,7 +1155,8 @@
           "phase": "etiquette_dtc_on",
           "sid": 133,
           "sub": 1,
-          "swfClass": "ControlDTCSetting (restore)",
+          "swfClass": "<unmapped>",
+          "swfRef": "<unmapped>",
           "tx": "85 01"
         }
       ],

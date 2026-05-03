@@ -1,0 +1,266 @@
+{
+  "_meta": {
+    "abcClassTotal": 3945,
+    "abcDoublePoolTotal": 756,
+    "abcIntPoolTotal": 1135,
+    "abcMethodBodyTotal": 54820,
+    "abcMethodTotal": 57605,
+    "abcMultinameTotal": 57903,
+    "abcNamespaceTotal": 10234,
+    "abcStringPoolSize": 58469,
+    "abcTagCount": 2,
+    "abcUintPoolTotal": 2,
+    "extractedAt": "deterministic",
+    "inflatedBytes": 8716982,
+    "sha256": "d8b08bd85cf1a7f83ac560dab1fdbfc50ada701e767e290229e66d9cc5c6560f",
+    "sourceSwf": "attached_assets/CDA_1776448059516.swf",
+    "swfSignature": "CWS",
+    "swfVersion": 11
+  },
+  "_provenance": "Every \"on*\" callback name found in HOT classes, with the list of HOT classes that mention it. Approximates the SWF call graph: a command issues an event, observers handle the event.",
+  "count": 34,
+  "events": [
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.license::AuthenticateCommand"
+      ],
+      "event": "onAuthenticateResult"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::AutoProxyCommand"
+      ],
+      "event": "onAutoProxyCheckConfiguration"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::TestProxyConfigCommand"
+      ],
+      "event": "onAutoProxyResult"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::ComServiceActionItem"
+      ],
+      "event": "onBoardRoutineHeader"
+    },
+    {
+      "classCount": 3,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.onBoardRoutines::OnBoardRoutinesPM",
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnostics",
+        "com.chrysler.cda.presentation.component.diagnostic::EcuDiagnosticsPM"
+      ],
+      "event": "onBoardRoutines"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.sync::SyncCredentialsCommand"
+      ],
+      "event": "onClearSyncCredentials"
+    },
+    {
+      "classCount": 2,
+      "classes": [
+        "com.chrysler.cda.application.proxy::AutoProxyCommand",
+        "com.chrysler.cda.event.message.feedback::FeedbackUploadLogFilesCompleteMessage"
+      ],
+      "event": "onExit"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayLiveDDELookupStatusMessage"
+      ],
+      "event": "onFailure"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand"
+      ],
+      "event": "onFetchDdtDocument"
+    },
+    {
+      "classCount": 2,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.iocontrol::IoControl",
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.onBoardRoutines::OnBoardRoutines"
+      ],
+      "event": "onFirstView"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand"
+      ],
+      "event": "onGetFlashStatus"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::FlashPM"
+      ],
+      "event": "onGetFlashStatusResult"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.sync::SyncCredentialsCommand"
+      ],
+      "event": "onGetSyncCredentials"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.help::GetVersionCommand"
+      ],
+      "event": "onGetVersion"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.flash::Flash"
+      ],
+      "event": "onOptimizedFrame"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu::EcuDiagnosticsNavigatorContent"
+      ],
+      "event": "onSetDiagnosticContext"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand"
+      ],
+      "event": "onStartFlashStatus"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.sync::StartSyncCommand"
+      ],
+      "event": "onStartSync"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.event.message.feedback::FeedbackUploadLogFilesCompleteMessage"
+      ],
+      "event": "onStartUp"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.start::StartWDECommand"
+      ],
+      "event": "onStartWDE"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand"
+      ],
+      "event": "onStopFlashStatus"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.tools::CustomDisplayLiveDDELookupStatusMessage"
+      ],
+      "event": "onSuccess"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.sync::StartSyncCommand"
+      ],
+      "event": "onSyncLogin"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::TestConnectionCommand"
+      ],
+      "event": "onTestConnection"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::TestProxyConfigCommand"
+      ],
+      "event": "onTestProxyConfigAutoToDirect"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::TestProxyConfigCommand"
+      ],
+      "event": "onTestProxyConfigAutoToPac"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::TestProxyConfigCommand"
+      ],
+      "event": "onTestProxyConfigAutoToServer"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::TestProxyConfigCommand"
+      ],
+      "event": "onTestProxyConfigCredentials"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::TestProxyConfigCommand"
+      ],
+      "event": "onTestProxyConfigDetect"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::TestProxyConfigCommand"
+      ],
+      "event": "onTestProxyConfigDirect"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::TestProxyConfigCommand"
+      ],
+      "event": "onTestProxyConfigNoProxy"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::TestProxyConfigCommand"
+      ],
+      "event": "onTestProxyConfigServer"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application.proxy::TestProxyConfigCommand"
+      ],
+      "event": "onTestProxyConfigStart"
+    },
+    {
+      "classCount": 1,
+      "classes": [
+        "com.chrysler.cda.application::DraftDBCommand"
+      ],
+      "event": "onUploadDraftDb"
+    }
+  ]
+}

@@ -1,0 +1,4677 @@
+{
+  "_meta": {
+    "abcClassTotal": 3945,
+    "abcDoublePoolTotal": 756,
+    "abcIntPoolTotal": 1135,
+    "abcMethodBodyTotal": 54820,
+    "abcMethodTotal": 57605,
+    "abcMultinameTotal": 57903,
+    "abcNamespaceTotal": 10234,
+    "abcStringPoolSize": 58469,
+    "abcTagCount": 2,
+    "abcUintPoolTotal": 2,
+    "extractedAt": "deterministic",
+    "inflatedBytes": 8716982,
+    "sha256": "d8b08bd85cf1a7f83ac560dab1fdbfc50ada701e767e290229e66d9cc5c6560f",
+    "sourceSwf": "attached_assets/CDA_1776448059516.swf",
+    "swfSignature": "CWS",
+    "swfVersion": 11
+  },
+  "_provenance": "Every AS3 class whose simple-name ends in Command/Message/Event (regardless of namespace, so generic framework Event classes appear here too — filter by className.startsWith(\"com.chrysler.cda\") for the diagnostic-orchestration subset). Records the observer methods, \"on*\" event names, REST paths, and dotted localization keys each command carries.",
+  "commands": [
+    {
+      "className": "com.adobe.protocols.dict.events::ErrorEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ErrorEvent"
+    },
+    {
+      "className": "com.chrysler.cda.application::ConfirmConfigurationCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 9,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ConfirmConfigurationCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application::DeviceDataCollectionCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DeviceDataCollectionCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application::DraftDBCommand",
+      "eventNames": [
+        "onUploadDraftDb"
+      ],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 12,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DraftDBCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application::ExitCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "flash.in.progress.exit.warning"
+      ],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ExitCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application::LocaleCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [
+        "onRequestBroadcastCommands",
+        "onRequestBroadcastIdsAndProtocolIds"
+      ],
+      "restPaths": [],
+      "simpleName": "LocaleCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application::MenuCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 48,
+      "observerMethods": [
+        "_DiscoveryWindowImpl_Button1_c",
+        "onConnectDeviceMessage",
+        "onConnetDeviceMessageAnyResult"
+      ],
+      "restPaths": [],
+      "simpleName": "MenuCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application::QuickBarCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "QuickBarCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application::VehicleArchitectureCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [
+        "_DTC_Button1_i"
+      ],
+      "restPaths": [],
+      "simpleName": "VehicleArchitectureCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.authenticatedDiagnostics::ADARolesCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ADARolesCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 17,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SecurityGatewayCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.authenticatedDiagnostics::SecurityGatewayOfflineDongleServiceAPIVersionCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 12,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SecurityGatewayOfflineDongleServiceAPIVersionCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.buslog::BuslogExportCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "buslog.error.error.saving.file.to",
+        "buslog.error.failed.to.save.file.to",
+        "export.bus.log.as.asc"
+      ],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "BuslogExportCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.buslog::BuslogGetChannelsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "BuslogGetChannelsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.buslog::BuslogStreamCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "buslog.error.error.getting.filters",
+        "buslog.error.error.getting.periodic.messages",
+        "buslog.error.error.removing.filter",
+        "buslog.error.event.or.filter.is.not.specified",
+        "buslog.error.event.or.message.is.not.specified",
+        "buslog.error.failed.to.add.filter",
+        "buslog.error.failed.to.add.periodic.message.0.1.to.channel.2",
+        "buslog.error.failed.to.disable.channel",
+        "buslog.error.failed.to.enable.channel",
+        "buslog.error.failed.to.get.filters",
+        "buslog.error.failed.to.get.periodic.messages",
+        "buslog.error.failed.to.remove.filter",
+        "buslog.error.failed.to.remove.periodic.message",
+        "buslog.error.failed.to.send.message",
+        "buslog.stream.error.error.closing.stream",
+        "buslog.stream.error.error.opening.stream",
+        "buslog.stream.error.failed.to.close.stream",
+        "buslog.stream.error.failed.to.open.stream",
+        "io.error.on.buslog.stream",
+        "new.buslogger.message",
+        "new.buslogger.message.external",
+        "security.error.on.buslog.stream"
+      ],
+      "methodCount": 52,
+      "observerMethods": [
+        "onFindDTCs",
+        "onFindReportDTCs",
+        "onGetComServicesByType",
+        "onGotComServicesFailure",
+        "onGotComServicesSuccess",
+        "onGotConversionDataFailure",
+        "onGotConversionDataSuccess",
+        "onGotMetaDataFailure",
+        "onGotMetaDataSuccess",
+        "onGotQualificationsFailure",
+        "onGotQualificationsSuccess",
+        "onWriteDDE"
+      ],
+      "restPaths": [],
+      "simpleName": "BuslogStreamCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.buslog::ConfigurationStoreCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "overwrite.filter.question"
+      ],
+      "methodCount": 8,
+      "observerMethods": [
+        "onCreate"
+      ],
+      "restPaths": [],
+      "simpleName": "ConfigurationStoreCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.cdaservices::UuidCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UuidCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.cdaservices::VersionCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "VersionCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.broadcastMessages::BroadcastMessagesCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [
+        "_DDEDetailsPopup_Label10",
+        "_DDEDetailsPopup_Label11",
+        "_DDEDetailsPopup_Label12",
+        "_DDEDetailsPopup_Label13",
+        "_DDEDetailsPopup_Label14"
+      ],
+      "restPaths": [],
+      "simpleName": "BroadcastMessagesCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::ComServiceCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [
+        "_FlashLogManager_Button1",
+        "_FlashLogManager_Label2"
+      ],
+      "restPaths": [],
+      "simpleName": "ComServiceCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::DownloadEngineeringFileCommand",
+      "eventNames": [
+        "onFetchDdtDocument"
+      ],
+      "kind": "command",
+      "locKeys": [
+        "engineering.file.download.failed",
+        "extreme.file.size.please.check.for.your.file",
+        "save.engineering.ddt.file"
+      ],
+      "methodCount": 9,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DownloadEngineeringFileCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::ECUResetOptionsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [
+        "_DDEDetailsPopup_Label15"
+      ],
+      "restPaths": [],
+      "simpleName": "ECUResetOptionsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::FindConversionDataCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindConversionDataCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::FindDataDisplayDDEDataCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDataDisplayDDEDataCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::FindDDEDataCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDDEDataCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::FindQualificationCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindQualificationCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::FindReadWriteComServicesCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindReadWriteComServicesCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::GetComServiceDDEDataCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetComServiceDDEDataCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::GetComServicesByTypeCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 17,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetComServicesByTypeCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::GetProxiDDECommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetProxiDDECommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::PIDEditorWriteCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [
+        "onTestSyncStatusResult",
+        "onTestSyncedResult"
+      ],
+      "restPaths": [],
+      "simpleName": "PIDEditorWriteCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::ReadMemoryCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ReadMemoryCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::ResetECUCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [
+        "onTestProxyConfigServer"
+      ],
+      "restPaths": [],
+      "simpleName": "ResetECUCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::UpdateEcuInstanceIdCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UpdateEcuInstanceIdCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::WriteDDECommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "an.error.has.occurred",
+        "an.unknown.error.has.occurred"
+      ],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "WriteDDECommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu::WriteMemoryCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "WriteMemoryCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.dtcs::ClearDTCsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ClearDTCsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.dtcs::FindDTCEnvironmentalCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDTCEnvironmentalCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.dtcs::FindDTCsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDTCsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.dtcs::FindDTCSnapshotDataCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDTCSnapshotDataCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.dtcs::FindDTCSnapshotDataForScanReportCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [
+        "_FlashLogManager_Button1_i"
+      ],
+      "restPaths": [],
+      "simpleName": "FindDTCSnapshotDataForScanReportCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.iocontrol::SendActuatorStateCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SendActuatorStateCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.offBoardRoutines::RequestOffboardRoutineQualificationCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "unable.to.request.offboard.routines"
+      ],
+      "methodCount": 8,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "RequestOffboardRoutineQualificationCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.sessions::DisableDTCSettingCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DisableDTCSettingCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.sessions::DisableNormalMessagingCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DisableNormalMessagingCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.sessions::EnableDTCSettingCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "EnableDTCSettingCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.sessions::EnableNormalMessagingCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "EnableNormalMessagingCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.sessions::EnterDiagnosticSessionCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [
+        "observeCommand"
+      ],
+      "restPaths": [],
+      "simpleName": "EnterDiagnosticSessionCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.sessions::FindDiagnosticSessionsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [
+        "_IdenticalDDEWrite_Label4"
+      ],
+      "restPaths": [],
+      "simpleName": "FindDiagnosticSessionsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.unlock::DoECUUnlockCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [
+        "onRestore"
+      ],
+      "restPaths": [],
+      "simpleName": "DoECUUnlockCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.ecu.unlock::FindECUUnlockInformationCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindECUUnlockInformationCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.flash::CheckFlashFileCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CheckFlashFileCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.flash::GetFlashStatusCommand",
+      "eventNames": [
+        "onGetFlashStatus",
+        "onStartFlashStatus",
+        "onStopFlashStatus"
+      ],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 9,
+      "observerMethods": [
+        "_Flash_Button2_i",
+        "_Flash_RadioButton1_i",
+        "_Flash_RadioButton2_i"
+      ],
+      "restPaths": [],
+      "simpleName": "GetFlashStatusCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.flash::SendFlashInputCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SendFlashInputCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.diagnostic.flash::StartFlashCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [
+        "vehicle/flash/start/"
+      ],
+      "simpleName": "StartFlashCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.discover::ConfigureDeviceCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ConfigureDeviceCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.discover::ConnectToDeviceCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "discovery.new.cannot.conntect.to"
+      ],
+      "methodCount": 17,
+      "observerMethods": [
+        "_RawDiagnosticsImplementation_Button1_i",
+        "_RawDiagnosticsImplementation_Button2_i",
+        "_RawDiagnosticsImplementation_Label1_i"
+      ],
+      "restPaths": [],
+      "simpleName": "ConnectToDeviceCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.discover::FindBusesCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindBusesCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.discover::FindDeviceInterfacesCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDeviceInterfacesCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.discover::PrepareConfigurationMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "PrepareConfigurationMessage"
+    },
+    {
+      "className": "com.chrysler.cda.application.discover::RequestDiscoveredDevicesCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "RequestDiscoveredDevicesCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.discover::SessionPreperationCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "unable.to.determine.year.bod.please.use.benchtop.mode.or.try.selecting.another.device"
+      ],
+      "methodCount": 11,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SessionPreperationCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.discover::StartDiscoveryAgentsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartDiscoveryAgentsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.ecuconfig::ECUConfigsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ECUConfigsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.edit::GetTransportLayerSettingsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetTransportLayerSettingsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.edit::SetTransportLayerSettingsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SetTransportLayerSettingsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.feedback::FeedbackCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "unable.to.get.session.id"
+      ],
+      "methodCount": 13,
+      "observerMethods": [
+        "_ImportFilePopoverImpl_Button2_i",
+        "_ImportFilePopoverImpl_Button3_i"
+      ],
+      "restPaths": [],
+      "simpleName": "FeedbackCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.feedback::UploadFeedbackCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UploadFeedbackCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.help::GetVersionCommand",
+      "eventNames": [
+        "onGetVersion"
+      ],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetVersionCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.help::GetVRFlashVersionCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 11,
+      "observerMethods": [
+        "onRequestBroadcastIdsAndProtocolIds"
+      ],
+      "restPaths": [],
+      "simpleName": "GetVRFlashVersionCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.jira.create::CreateJiraCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CreateJiraCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.license::AuthenticateCommand",
+      "eventNames": [
+        "onAuthenticateResult"
+      ],
+      "kind": "command",
+      "locKeys": [
+        "access.is.denied",
+        "authentication.failed.due.to.unexpected.error",
+        "error.communicating.with.wde",
+        "login.failed.try.again",
+        "unable.to.access.license",
+        "unable.to.authenticate.internet",
+        "unable.to.authenticate.internet.0",
+        "unable.to.download.certificate"
+      ],
+      "methodCount": 9,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AuthenticateCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.license::GetHostIDCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetHostIDCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.license::ReconnectToServerCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "unable.to.communicate.with.server"
+      ],
+      "methodCount": 8,
+      "observerMethods": [
+        "_RawDiagnosticsImplementation_Button3"
+      ],
+      "restPaths": [],
+      "simpleName": "ReconnectToServerCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.proxy::AutoProxyCommand",
+      "eventNames": [
+        "onAutoProxyCheckConfiguration",
+        "onExit"
+      ],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 8,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AutoProxyCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.proxy::TestConnectionCommand",
+      "eventNames": [
+        "onTestConnection"
+      ],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TestConnectionCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.proxy::TestProxyConfigCommand",
+      "eventNames": [
+        "onAutoProxyResult",
+        "onTestProxyConfigAutoToDirect",
+        "onTestProxyConfigAutoToPac",
+        "onTestProxyConfigAutoToServer",
+        "onTestProxyConfigCredentials",
+        "onTestProxyConfigDetect",
+        "onTestProxyConfigDirect",
+        "onTestProxyConfigNoProxy",
+        "onTestProxyConfigServer",
+        "onTestProxyConfigStart"
+      ],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 29,
+      "observerMethods": [
+        "_IdenticalDDEWrite_Button1_i",
+        "_IdenticalDDEWrite_Button2_i",
+        "_IdenticalDDEWrite_Label1_i",
+        "_IdenticalDDEWrite_Label2_i",
+        "_IdenticalDDEWrite_Label3_i",
+        "_IdenticalDDEWrite_Label4_i",
+        "_IdenticalDDEWrite_Label5_i",
+        "_IdenticalDDEWrite_Label6_i",
+        "_IdenticalDDEWrite_Label7_i",
+        "_IdenticalDDEWrite_Label8_i"
+      ],
+      "restPaths": [],
+      "simpleName": "TestProxyConfigCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.report::OdometerCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "OdometerCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.reports::GetECUScanReportDataForRowCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetECUScanReportDataForRowCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.start::StartCDAVehicleModeCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "device.config.details",
+        "device.verification.fatal",
+        "device.verification.warning",
+        "device.verification.warning.for.popup",
+        "error.bad.device.config",
+        "unable.to.read.year.body"
+      ],
+      "methodCount": 32,
+      "observerMethods": [
+        "onBoardRoutineSelected"
+      ],
+      "restPaths": [],
+      "simpleName": "StartCDAVehicleModeCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.start::StartWDECommand",
+      "eventNames": [
+        "onStartWDE"
+      ],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartWDECommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.state::CredentialsStateCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CredentialsStateCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.state::ECUInstanceIDStateCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ECUInstanceIDStateCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.state::ResetStateCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [
+        "_FilterDataGrid_Button1_i"
+      ],
+      "restPaths": [],
+      "simpleName": "ResetStateCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.state::RoleStateCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "RoleStateCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.state::StartTesterPresentCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartTesterPresentCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.state::StateReportCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 11,
+      "observerMethods": [
+        "_Flash_Button1_i"
+      ],
+      "restPaths": [],
+      "simpleName": "StateReportCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.state::StopTesterPresentCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StopTesterPresentCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.state::UnlockStateCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UnlockStateCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.state.vehicle::VehicleStateCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [
+        "_SaveConfiguration_Label1_i"
+      ],
+      "restPaths": [],
+      "simpleName": "VehicleStateCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.sync::MessageOfTheDayCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 8,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "MessageOfTheDayCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.sync::StartSyncCommand",
+      "eventNames": [
+        "onStartSync",
+        "onSyncLogin"
+      ],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartSyncCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.sync::SyncCredentialsCommand",
+      "eventNames": [
+        "onClearSyncCredentials",
+        "onGetSyncCredentials"
+      ],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SyncCredentialsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.sync::TestSyncStatusCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TestSyncStatusCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.systemVariables::SystemVariablesCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 12,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SystemVariablesCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.tools::CustomDisplayComServiceMetadataStatusMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomDisplayComServiceMetadataStatusMessage"
+    },
+    {
+      "className": "com.chrysler.cda.application.tools::CustomDisplayLiveDDELookupStatusMessage",
+      "eventNames": [
+        "onFailure",
+        "onSuccess"
+      ],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomDisplayLiveDDELookupStatusMessage"
+    },
+    {
+      "className": "com.chrysler.cda.application.tools::CustomDisplayLookupDdesCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "unable.to.identify.ecu.0",
+        "unable.to.identify.ecu.0.and.eng.file.1",
+        "unable.to.identify.ecu.0.partial.1",
+        "unable.to.lookup.diagnostic.element.definitions.for.ecu.0.and.eng.file.1"
+      ],
+      "methodCount": 16,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomDisplayLookupDdesCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.tools::CustomDisplayWriteBackCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "checking.xmit.0.1.name.2.ecu.3.position.4.len.5",
+        "ecu.0.unavailable.xmit.1.2.name.3.position.4.len.5",
+        "error.xmit.0.1.not.available.name.2.ecu.3.position.4.len.5",
+        "xmit.0.1.name.2.ecu.3.position.4.len.5.not.available",
+        "xmit.0.1.name.2.ecu.3.position.4.len.5.raw.6.converted.7.to.queue",
+        "xmit.0.at.ecu.1.position.2.len.3",
+        "xmit.0.ecu.1.position.2.len.3"
+      ],
+      "methodCount": 8,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomDisplayWriteBackCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.tools::CustomDisplayWriteDDECommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "an.unknown.error.has.occurred",
+        "failed.xmit.write.0",
+        "write.failed.caps"
+      ],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomDisplayWriteDDECommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.tracer::TracerSupportedCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 12,
+      "observerMethods": [
+        "handlePageUpKey",
+        "handlePageUpKey"
+      ],
+      "restPaths": [],
+      "simpleName": "TracerSupportedCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.tracer::TracerSupportInformationCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 12,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TracerSupportInformationCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.tracer::TracerUrlCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 12,
+      "observerMethods": [
+        "handlePageUpKey",
+        "handlePageUpKey"
+      ],
+      "restPaths": [],
+      "simpleName": "TracerUrlCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.util::FindOSUpdateCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindOSUpdateCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.util::StartOSUpdateCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [
+        "_DDEDetailsPopup_Label22_i"
+      ],
+      "restPaths": [],
+      "simpleName": "StartOSUpdateCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.views::AvailableECUsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [
+        "sgw.is.not.built"
+      ],
+      "methodCount": 18,
+      "observerMethods": [
+        "_CustomDisplayWriteBack_Label1",
+        "onAnalysisUpdate",
+        "onSomeResult",
+        "onWriteComplete",
+        "onWriteUpdate"
+      ],
+      "restPaths": [],
+      "simpleName": "AvailableECUsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.views::CustomizationContextCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomizationContextCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.views::ECUInstanceIdCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 11,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ECUInstanceIdCommand"
+    },
+    {
+      "className": "com.chrysler.cda.application.views::EngineeringFilesCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "EngineeringFilesCommand"
+    },
+    {
+      "className": "com.chrysler.cda.domain.diagnostic.procedures::CDAExclusiveAccessCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CDAExclusiveAccessCommand"
+    },
+    {
+      "className": "com.chrysler.cda.domain.diagnostic.procedures::CDAManualSessionControlCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CDAManualSessionControlCommand"
+    },
+    {
+      "className": "com.chrysler.cda.domain.discovery.device.event::DiscoveredDeviceEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DiscoveredDeviceEvent"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::CDAPopupWindowMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CDAPopupWindowMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::CDAWindowMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CDAWindowMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::ConfirmConfigurationMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ConfirmConfigurationMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::ConsoleMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 13,
+      "observerMethods": [
+        "_MainHeader_Label5"
+      ],
+      "restPaths": [],
+      "simpleName": "ConsoleMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::DisplayApplicationPleaseWaitMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DisplayApplicationPleaseWaitMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::DisplayCustomizationWindowsMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DisplayCustomizationWindowsMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::ECUContextMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ECUContextMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::LinkableMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "LinkableMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::MenuMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "MenuMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::QuickBarEnabledStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "QuickBarEnabledStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::QuickBarMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "QuickBarMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::ResetHeaderMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ResetHeaderMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::TriggerDataCollectionMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TriggerDataCollectionMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message::VehicleArchitectureMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "VehicleArchitectureMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog::BuslogExportMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "BuslogExportMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog::BuslogStreamMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 28,
+      "observerMethods": [
+        "_HScrollBarSkin_Button3_i",
+        "_HScrollBarSkin_Button3_i"
+      ],
+      "restPaths": [],
+      "simpleName": "BuslogStreamMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog::ConfigurationStoreRequestMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 13,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ConfigurationStoreRequestMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog::ExternalAppFailureMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ExternalAppFailureMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog::ExternalAppLoggerConsoleMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ExternalAppLoggerConsoleMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog::ExternalAppNotPresentMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ExternalAppNotPresentMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog::StartBusLoggerMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartBusLoggerMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.calibrationwriter::GetComServicesForCalibrationReaderMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetComServicesForCalibrationReaderMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.cdaservices::CdaServicesUuidMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CdaServicesUuidMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.cdaservices::CdaServicesVersionMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CdaServicesVersionMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic::CloseECUDiagnosticWindowMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CloseECUDiagnosticWindowMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic::GetComServicesByTypeMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 10,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetComServicesByTypeMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic::IssueComServiceMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 45,
+      "observerMethods": [
+        "_PasswordDialog_Button1_i",
+        "_UpliftLoginImplementation_Label2_i"
+      ],
+      "restPaths": [],
+      "simpleName": "IssueComServiceMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic::ProxyComServiceMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 9,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ProxyComServiceMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic::ProxyConversionDataMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ProxyConversionDataMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::ClearViewPartMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ClearViewPartMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::CloseEngFileDownloadMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CloseEngFileDownloadMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::ConsolidatedDDEMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ConsolidatedDDEMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::ConsolidatedReadWriteDataComServicesMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ConsolidatedReadWriteDataComServicesMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::DownloadEngineeringFileMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DownloadEngineeringFileMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::ECUDiagnosticsClosedMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ECUDiagnosticsClosedMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::ECUDiagnosticsOpenedMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ECUDiagnosticsOpenedMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::ExtendedDiagnosticModeMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [
+        "_EnvironmentalDataActionInnerClass0_Label1",
+        "_EnvironmentalDataActionInnerClass0_Label1"
+      ],
+      "restPaths": [],
+      "simpleName": "ExtendedDiagnosticModeMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::FindConversionDataForReadWriteMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindConversionDataForReadWriteMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::FindDDEDataMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDDEDataMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::GetComServiceDDEMetaDataMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 12,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetComServiceDDEMetaDataMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::GetProxiDDEMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 15,
+      "observerMethods": [
+        "_ECUUnlockInnerClass0_Button1"
+      ],
+      "restPaths": [],
+      "simpleName": "GetProxiDDEMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::PIDEditorWriteMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 10,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "PIDEditorWriteMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::ReadMemoryMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 11,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ReadMemoryMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::ScanReportPidMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ScanReportPidMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::SendExtendedSessionMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SendExtendedSessionMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::TesterPresentMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 22,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TesterPresentMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::UpdateEcuInstanceIdMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 13,
+      "observerMethods": [
+        "onMoveAreaMouseMove",
+        "onMoveAreaMouseMove"
+      ],
+      "restPaths": [],
+      "simpleName": "UpdateEcuInstanceIdMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::WriteBackCustomDisplayDataMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "WriteBackCustomDisplayDataMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::WriteDDEMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "WriteDDEMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::WriteMemoryMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 13,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "WriteMemoryMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu::WriteRawCalibrationDataMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 10,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "WriteRawCalibrationDataMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.datadisplay::PollDataDisplayDDEValuesMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "PollDataDisplayDDEValuesMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.datadisplay::PollDDEDataValueUpdateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "PollDDEDataValueUpdateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs::ClearDTCsMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ClearDTCsMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs::FindDtcCompontentQualificationDataMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDtcCompontentQualificationDataMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs::FindDTCEnvironmentalMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDTCEnvironmentalMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs::FindDTCsMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDTCsMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs::FindDTCSnapshotDataMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 8,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDTCSnapshotDataMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.iocontrol::SendActuatorStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 11,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SendActuatorStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.offBoardRoutines::ClearOffBoardRoutinesMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ClearOffBoardRoutinesMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.offBoardRoutines::GetOffboardRoutinesMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetOffboardRoutinesMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.sessions::DisableDTCSettingMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DisableDTCSettingMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.sessions::DisableNormalMessagingMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DisableNormalMessagingMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.sessions::EnableDTCSettingMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "EnableDTCSettingMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.sessions::EnableNormalMessagingMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "EnableNormalMessagingMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.sessions::EnterDiagnosticSessionMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "EnterDiagnosticSessionMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.unlock::DoEcuUnlockMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DoEcuUnlockMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.ecu.unlock::FindECUUnlockInformationMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindECUUnlockInformationMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.flash::CheckFlashFileMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CheckFlashFileMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.flash::FlashProgressMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FlashProgressMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.flash::GetFlashStatusMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetFlashStatusMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.flash::SendFlashInputMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SendFlashInputMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.flash::StartFlashStatusMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartFlashStatusMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.flash::StartFlashWithDeviceConfigMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 8,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartFlashWithDeviceConfigMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.flash::StartFlashWithYearBodyMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 14,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartFlashWithYearBodyMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.functionalMessages::SendBroadcastCommandMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SendBroadcastCommandMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.functionalMessages::SendBroadcastMessageMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SendBroadcastMessageMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.functionalMessages::SendTesterPresentBroadcastCommandMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SendTesterPresentBroadcastCommandMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.diagnostic.vehicleWideDTCs::FindVehicleWideDTCProgressMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindVehicleWideDTCProgressMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.discover::AddUserSpecifiedPodMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AddUserSpecifiedPodMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.discover::ConfigureDeviceMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ConfigureDeviceMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.discover::ConnectDeviceMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ConnectDeviceMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.discover::DiscoveryTransitionMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DiscoveryTransitionMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.discover::FindBusesMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 11,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindBusesMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.discover::PopupDiscoveryWindowMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "PopupDiscoveryWindowMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.discover::RemoveUserSpecifiedPodMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "RemoveUserSpecifiedPodMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.discover::SetChannelPanelRadioButtonSelectionMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SetChannelPanelRadioButtonSelectionMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.discover::StartDiscoveryAgentsMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartDiscoveryAgentsMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.ecuconfig::GetECUConfigsMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetECUConfigsMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.ecuconfig::SetECUConfigsMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SetECUConfigsMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.feedback::FeedbackMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 21,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FeedbackMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.feedback::FeedbackUploadLogFilesCompleteMessage",
+      "eventNames": [
+        "onExit",
+        "onStartUp"
+      ],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FeedbackUploadLogFilesCompleteMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.feedback::FeedbackUploadLogFilesMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FeedbackUploadLogFilesMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.file::DeleteDraftFileMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DeleteDraftFileMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.file::UploadDraftFilesMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UploadDraftFilesMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.file::UploadDraftProgressMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UploadDraftProgressMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.help::GetVersionMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetVersionMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.jira.create::CreateJiraCommandMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CreateJiraCommandMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.jira.create::CreateJiraForTracerCommandMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CreateJiraForTracerCommandMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.license::AuthenticateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AuthenticateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.proxi::GetComServicesForProxiViewMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetComServicesForProxiViewMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.proxy::AutoProxyCheckConfigurationMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AutoProxyCheckConfigurationMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.proxy::AutoProxyResultMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AutoProxyResultMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.proxy::TestProxyConfigMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TestProxyConfigMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.report::FindDTCSnapshotDataForScanReportMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindDTCSnapshotDataForScanReportMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.report::GetDtcComponentQualificationDataForScanReportMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetDtcComponentQualificationDataForScanReportMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.report::GetDtcEnvironmentalDataForScanReportMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetDtcEnvironmentalDataForScanReportMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.report::GetDtcSnapshotDataForScanReportMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetDtcSnapshotDataForScanReportMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.report::GetECUScanReportDataForRowMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetECUScanReportDataForRowMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.report::RequestDTCEnvironmentalDataForReportMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "RequestDTCEnvironmentalDataForReportMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.report::RequestDTCForReportMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "RequestDTCForReportMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.report::RequestOdometerMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "RequestOdometerMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.securitygateway::DongleSecurityGatewayMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DongleSecurityGatewayMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.securitygateway::SecurityGatewayMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SecurityGatewayMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.setup::SyncMonitorMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SyncMonitorMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.setup::UnitOfMeasureChangeMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UnitOfMeasureChangeMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.start::ShowWdeStartingMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ShowWdeStartingMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.start::StartCDAMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 14,
+      "observerMethods": [
+        "_1050340506_IoControlInnerClass0_Label1",
+        "_IoControlInnerClass0_Label1",
+        "_IoControlInnerClass0_Label1",
+        "_IoControlInnerClass0_Label1_i"
+      ],
+      "restPaths": [],
+      "simpleName": "StartCDAMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.start::StartWDEMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartWDEMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.start::YBListSelectionEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "YBListSelectionEvent"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::CommandCredentialsStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CommandCredentialsStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::CommandECUInstanceIDStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CommandECUInstanceIDStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::CommandForceStateReportForSGWMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CommandForceStateReportForSGWMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::CommandStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [
+        "_IoControlInnerClass0_Label1"
+      ],
+      "restPaths": [],
+      "simpleName": "CommandStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::CommandStateReportMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CommandStateReportMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::CredentialsStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CredentialsStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::ECUInstanceIDStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ECUInstanceIDStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::ForceStateReportForSGWMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ForceStateReportForSGWMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::RoleStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "RoleStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::StartTesterPresentMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartTesterPresentMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::StopAllTesterPresentMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StopAllTesterPresentMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::StopSingleTesterPresentMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StopSingleTesterPresentMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::UnlockStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UnlockStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state::UpdateDropdownStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UpdateDropdownStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state.vehicle::CommandVehicleStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CommandVehicleStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.state.vehicle::VehicleStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "VehicleStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.sync::ClearSyncMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ClearSyncMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.sync::StartSyncMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StartSyncMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.sync::TestSyncedMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TestSyncedMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.sync::TestSyncStatusMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TestSyncStatusMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::BenchtopEcuInstanceIdCustomDisplayMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "BenchtopEcuInstanceIdCustomDisplayMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::CustomDisplayConsoleMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomDisplayConsoleMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::CustomDisplayCreateEditInitMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomDisplayCreateEditInitMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::CustomDisplayLookupDdesMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 9,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomDisplayLookupDdesMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::CustomDisplaySpinnerStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomDisplaySpinnerStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::CustomDisplayStateChangeMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomDisplayStateChangeMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::CustomDisplayWriteBackProgressMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 8,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomDisplayWriteBackProgressMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::EngineeringFilesCustomDisplayMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "EngineeringFilesCustomDisplayMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::FindComServiceForCustomDisplayMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FindComServiceForCustomDisplayMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::FindECUServiceValuesCustomDisplayMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [
+        "_VehicleWideDTC_Button1"
+      ],
+      "restPaths": [],
+      "simpleName": "FindECUServiceValuesCustomDisplayMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::SnapshotFileSelectionMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SnapshotFileSelectionMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::UpdateEcuInstanceIdCustomDisplayMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 13,
+      "observerMethods": [
+        "onMoveAreaMouseMove",
+        "onMoveAreaMouseMove"
+      ],
+      "restPaths": [],
+      "simpleName": "UpdateEcuInstanceIdCustomDisplayMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tools::WriteCustomDisplayDDEMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "WriteCustomDisplayDDEMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tracer::GetTracerUrlMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetTracerUrlMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.tracer::TracerUrlRequestKoMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TracerUrlRequestKoMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.util::UpdatePodOSMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UpdatePodOSMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.view::AvailableBenchtopECUsMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AvailableBenchtopECUsMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.view::AvailableECUsMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 11,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AvailableECUsMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.view::EngineeringFilesMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "EngineeringFilesMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.view::LoadCustomizationContextMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "LoadCustomizationContextMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.view::SystemNotificationLogMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SystemNotificationLogMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.view::SystemNotificationMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SystemNotificationMessage"
+    },
+    {
+      "className": "com.chrysler.cda.event.message.view::UpdateEcuInContextMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UpdateEcuInContextMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.authenticatedDiagnostics::AuthenticatedDiagnosticsLoginPopupEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AuthenticatedDiagnosticsLoginPopupEvent"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.command::SessionStatusCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 13,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SessionStatusCommand"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.command::UpliftSessionCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 12,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UpliftSessionCommand"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging::AuthenticateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AuthenticateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging::AuthenticationFailedMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AuthenticationFailedMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging.abstract::ChangePropertiesMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ChangePropertiesMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.devices.messages::GetAvailableDeviceUpdateErrorMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetAvailableDeviceUpdateErrorMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.devices.messages::UpdateAvailableMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UpdateAvailableMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog::BuslogGeneratorConfigurationEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "BuslogGeneratorConfigurationEvent"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog::ConfigurationStoreEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ConfigurationStoreEvent"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.ecu::ResetECUMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ResetECUMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.ecuList::EcuListBaseSelectionEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "EcuListBaseSelectionEvent"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.functionalMessages::BroadcastCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "BroadcastCommand"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.functionalMessages::BroadcastMessageEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "BroadcastMessageEvent"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.ecuconfig.messages::ECUConfigGlobalMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ECUConfigGlobalMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.jira.create.messages::CreateJiraMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CreateJiraMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.jira.create.renderer::FileRendererEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FileRendererEvent"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.proxi.commands::GetAlignmentInformationCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [
+        "onMaximize"
+      ],
+      "restPaths": [],
+      "simpleName": "GetAlignmentInformationCommand"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.proxi.commands::PerformAlignmentCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [
+        "onMaximize"
+      ],
+      "restPaths": [],
+      "simpleName": "PerformAlignmentCommand"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.proxi.components.home.alignment.renderers::AlignmentEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AlignmentEvent"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.proxi.messages::FileSupportMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 10,
+      "observerMethods": [
+        "onJiraCreationSuccessful"
+      ],
+      "restPaths": [],
+      "simpleName": "FileSupportMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.proxi.messages::GetAlignmentInformationMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 9,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetAlignmentInformationMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.proxi.messages::NotifyValueCommitMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "NotifyValueCommitMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.proxi.messages::PerformAlignmentMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "PerformAlignmentMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.proxi.messages::ProxiGlobalStateMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 21,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ProxiGlobalStateMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.proxi.messages::SetConvertedViewModeMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SetConvertedViewModeMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.proxi.messages::WriteToConsoleMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 16,
+      "observerMethods": [
+        "_MainHeader_Label5"
+      ],
+      "restPaths": [],
+      "simpleName": "WriteToConsoleMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.rawdiagnostics.commands::GetBroadcastIdsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [
+        "_DDEDetailsPopup_Label10"
+      ],
+      "restPaths": [],
+      "simpleName": "GetBroadcastIdsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.rawdiagnostics.commands::GetChannelsCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GetChannelsCommand"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.rawdiagnostics.commands::SendRawMessageCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [
+        "onEditConfiguration"
+      ],
+      "restPaths": [],
+      "simpleName": "SendRawMessageCommand"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.rawdiagnostics.messages::EcuAddedMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "EcuAddedMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.rawdiagnostics.messages::SendRawMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 11,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SendRawMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.reports::ScanReportMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 11,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ScanReportMessage"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.reports.customdisplay::RemoveReportEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "RemoveReportEvent"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.tracer.components.support.report.eshd.events::CreateCdaJiraEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 10,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CreateCdaJiraEvent"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.discover.events::ConnectionSelectionEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ConnectionSelectionEvent"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.discover.events::UserSpecifiedPodEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UserSpecifiedPodEvent"
+    },
+    {
+      "className": "com.chrysler.cda.presentation.util::CustomButtonBarSelectionChangedEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CustomButtonBarSelectionChangedEvent"
+    },
+    {
+      "className": "com.chrysler.core.component::FilterDataGridSelectionEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FilterDataGridSelectionEvent"
+    },
+    {
+      "className": "com.chrysler.core.component::SystemNotificationEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SystemNotificationEvent"
+    },
+    {
+      "className": "com.chrysler.core.infrastructure.communication::StreamEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StreamEvent"
+    },
+    {
+      "className": "com.chrysler.core.logging.targets::FileLogTargetEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FileLogTargetEvent"
+    },
+    {
+      "className": "com.chrysler.core.window.event::WindowEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "WindowEvent"
+    },
+    {
+      "className": "com.diagnosticProcedures.command::ExclusiveAccessCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ExclusiveAccessCommand"
+    },
+    {
+      "className": "com.diagnosticProcedures.command::ManualSessionControlCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ManualSessionControlCommand"
+    },
+    {
+      "className": "com.diagnosticProcedures.event::BundleLoadedEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "BundleLoadedEvent"
+    },
+    {
+      "className": "com.diagnosticProcedures.event::DiagnosticProcedureFlashEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DiagnosticProcedureFlashEvent"
+    },
+    {
+      "className": "com.diagnosticProcedures.event::DiagnosticProcedureFlashNotSupportedEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DiagnosticProcedureFlashNotSupportedEvent"
+    },
+    {
+      "className": "com.diagnosticProcedures.event::DiagnosticProcedureLibraryEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DiagnosticProcedureLibraryEvent"
+    },
+    {
+      "className": "com.diagnosticProcedures.event::DiagnosticProcedureLoginEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DiagnosticProcedureLoginEvent"
+    },
+    {
+      "className": "com.diagnosticProcedures.event::DiagnosticProcedurePopupEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DiagnosticProcedurePopupEvent"
+    },
+    {
+      "className": "com.diagnosticProcedures.event::DiagnosticProcedureWebNodeNotSupportEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DiagnosticProcedureWebNodeNotSupportEvent"
+    },
+    {
+      "className": "com.diagnosticProcedures.event::OperationNotSupportedEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "OperationNotSupportedEvent"
+    },
+    {
+      "className": "com.diagnosticProcedures.event::QueueDiagnosticProcedureEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "QueueDiagnosticProcedureEvent"
+    },
+    {
+      "className": "com.diagnosticProcedures.view.event::ScreenEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ScreenEvent"
+    },
+    {
+      "className": "com.hurlant.crypto.tls::TLSEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TLSEvent"
+    },
+    {
+      "className": "com.hurlant.crypto.tls::TLSSocketEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TLSSocketEvent"
+    },
+    {
+      "className": "deng.fzip::FZipErrorEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FZipErrorEvent"
+    },
+    {
+      "className": "deng.fzip::FZipEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FZipEvent"
+    },
+    {
+      "className": "flashx.textLayout.events::CompositionCompleteEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 9,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CompositionCompleteEvent"
+    },
+    {
+      "className": "flashx.textLayout.events::DamageEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DamageEvent"
+    },
+    {
+      "className": "flashx.textLayout.events::FlowElementMouseEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FlowElementMouseEvent"
+    },
+    {
+      "className": "flashx.textLayout.events::FlowOperationEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 9,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FlowOperationEvent"
+    },
+    {
+      "className": "flashx.textLayout.events::ScrollEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ScrollEvent"
+    },
+    {
+      "className": "flashx.textLayout.events::SelectionEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SelectionEvent"
+    },
+    {
+      "className": "flashx.textLayout.events::StatusChangeEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 9,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StatusChangeEvent"
+    },
+    {
+      "className": "flashx.textLayout.events::TextLayoutEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TextLayoutEvent"
+    },
+    {
+      "className": "flashx.textLayout.events::UpdateCompleteEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "UpdateCompleteEvent"
+    },
+    {
+      "className": "mx.events::AdvancedDataGridEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AdvancedDataGridEvent"
+    },
+    {
+      "className": "mx.events::AIREvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AIREvent"
+    },
+    {
+      "className": "mx.events::BrowserChangeEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "BrowserChangeEvent"
+    },
+    {
+      "className": "mx.events::ChildExistenceChangedEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ChildExistenceChangedEvent"
+    },
+    {
+      "className": "mx.events::CloseEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CloseEvent"
+    },
+    {
+      "className": "mx.events::CollectionEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CollectionEvent"
+    },
+    {
+      "className": "mx.events::DataGridEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DataGridEvent"
+    },
+    {
+      "className": "mx.events::DividerEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DividerEvent"
+    },
+    {
+      "className": "mx.events::DragEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DragEvent"
+    },
+    {
+      "className": "mx.events::DynamicEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DynamicEvent"
+    },
+    {
+      "className": "mx.events::EffectEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "EffectEvent"
+    },
+    {
+      "className": "mx.events::FlexChangeEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FlexChangeEvent"
+    },
+    {
+      "className": "mx.events::FlexEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FlexEvent"
+    },
+    {
+      "className": "mx.events::FlexMouseEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FlexMouseEvent"
+    },
+    {
+      "className": "mx.events::FlexNativeMenuEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FlexNativeMenuEvent"
+    },
+    {
+      "className": "mx.events::FlexNativeWindowBoundsEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FlexNativeWindowBoundsEvent"
+    },
+    {
+      "className": "mx.events::IndexChangedEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "IndexChangedEvent"
+    },
+    {
+      "className": "mx.events::InterDragManagerEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "InterDragManagerEvent"
+    },
+    {
+      "className": "mx.events::ItemClickEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ItemClickEvent"
+    },
+    {
+      "className": "mx.events::ListEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ListEvent"
+    },
+    {
+      "className": "mx.events::ModuleEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ModuleEvent"
+    },
+    {
+      "className": "mx.events::MoveEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "MoveEvent"
+    },
+    {
+      "className": "mx.events::PropertyChangeEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "PropertyChangeEvent"
+    },
+    {
+      "className": "mx.events::ResizeEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ResizeEvent"
+    },
+    {
+      "className": "mx.events::ResourceEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ResourceEvent"
+    },
+    {
+      "className": "mx.events::RSLEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "RSLEvent"
+    },
+    {
+      "className": "mx.events::SandboxMouseEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SandboxMouseEvent"
+    },
+    {
+      "className": "mx.events::ScrollEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ScrollEvent"
+    },
+    {
+      "className": "mx.events::StateChangeEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StateChangeEvent"
+    },
+    {
+      "className": "mx.events::StyleEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "StyleEvent"
+    },
+    {
+      "className": "mx.events::SWFBridgeEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SWFBridgeEvent"
+    },
+    {
+      "className": "mx.events::ToolTipEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ToolTipEvent"
+    },
+    {
+      "className": "mx.events::TouchInteractionEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TouchInteractionEvent"
+    },
+    {
+      "className": "mx.events::TweenEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TweenEvent"
+    },
+    {
+      "className": "mx.events::ValidationResultEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ValidationResultEvent"
+    },
+    {
+      "className": "mx.events::WindowExistenceEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "WindowExistenceEvent"
+    },
+    {
+      "className": "mx.logging::LogEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "LogEvent"
+    },
+    {
+      "className": "mx.messaging.events::ChannelEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ChannelEvent"
+    },
+    {
+      "className": "mx.messaging.events::ChannelFaultEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ChannelFaultEvent"
+    },
+    {
+      "className": "mx.messaging.events::MessageAckEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "MessageAckEvent"
+    },
+    {
+      "className": "mx.messaging.events::MessageEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "MessageEvent"
+    },
+    {
+      "className": "mx.messaging.events::MessageFaultEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 9,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "MessageFaultEvent"
+    },
+    {
+      "className": "mx.messaging.messages::AbstractMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 24,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AbstractMessage"
+    },
+    {
+      "className": "mx.messaging.messages::AcknowledgeMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AcknowledgeMessage"
+    },
+    {
+      "className": "mx.messaging.messages::AsyncMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 8,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AsyncMessage"
+    },
+    {
+      "className": "mx.messaging.messages::CommandMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 8,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CommandMessage"
+    },
+    {
+      "className": "mx.messaging.messages::ErrorMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ErrorMessage"
+    },
+    {
+      "className": "mx.messaging.messages::HTTPRequestMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "HTTPRequestMessage"
+    },
+    {
+      "className": "mx.messaging.messages::SOAPMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SOAPMessage"
+    },
+    {
+      "className": "mx.rpc.events::AbstractEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AbstractEvent"
+    },
+    {
+      "className": "mx.rpc.events::FaultEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 11,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FaultEvent"
+    },
+    {
+      "className": "mx.rpc.events::HeaderEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "HeaderEvent"
+    },
+    {
+      "className": "mx.rpc.events::InvokeEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "InvokeEvent"
+    },
+    {
+      "className": "mx.rpc.events::ResultEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 11,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ResultEvent"
+    },
+    {
+      "className": "mx.rpc.events::SchemaLoadEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SchemaLoadEvent"
+    },
+    {
+      "className": "mx.rpc.events::WSDLLoadEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "WSDLLoadEvent"
+    },
+    {
+      "className": "mx.rpc.events::XMLLoadEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "XMLLoadEvent"
+    },
+    {
+      "className": "mx.rpc.soap::LoadEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "LoadEvent"
+    },
+    {
+      "className": "mx.rpc.wsdl::WSDLMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "WSDLMessage"
+    },
+    {
+      "className": "org.httpclient.events::HttpDataEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "HttpDataEvent"
+    },
+    {
+      "className": "org.httpclient.events::HttpErrorEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 1,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "HttpErrorEvent"
+    },
+    {
+      "className": "org.httpclient.events::HttpRequestEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "HttpRequestEvent"
+    },
+    {
+      "className": "org.httpclient.events::HttpResponseEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "HttpResponseEvent"
+    },
+    {
+      "className": "org.httpclient.events::HttpStatusEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "HttpStatusEvent"
+    },
+    {
+      "className": "org.spicefactory.lib.events::CompoundErrorEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CompoundErrorEvent"
+    },
+    {
+      "className": "org.spicefactory.lib.events::NestedErrorEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "NestedErrorEvent"
+    },
+    {
+      "className": "org.spicefactory.parsley.core.events::ContextConfigurationEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ContextConfigurationEvent"
+    },
+    {
+      "className": "org.spicefactory.parsley.core.events::ContextCreationEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ContextCreationEvent"
+    },
+    {
+      "className": "org.spicefactory.parsley.core.events::ContextEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ContextEvent"
+    },
+    {
+      "className": "org.spicefactory.parsley.core.events::ContextLookupEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 7,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ContextLookupEvent"
+    },
+    {
+      "className": "org.spicefactory.parsley.core.events::ObjectDefinitionRegistryEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ObjectDefinitionRegistryEvent"
+    },
+    {
+      "className": "org.spicefactory.parsley.core.events::ViewConfigurationEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 10,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ViewConfigurationEvent"
+    },
+    {
+      "className": "org.spicefactory.parsley.core.events::ViewLifecycleEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ViewLifecycleEvent"
+    },
+    {
+      "className": "org.spicefactory.parsley.core.messaging.command.impl::AbstractCommand",
+      "eventNames": [],
+      "kind": "command",
+      "locKeys": [],
+      "methodCount": 19,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "AbstractCommand"
+    },
+    {
+      "className": "org.spicefactory.parsley.core.messaging.impl::DefaultMessage",
+      "eventNames": [],
+      "kind": "message",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DefaultMessage"
+    },
+    {
+      "className": "org.spicefactory.parsley.flex.tag.builder::ContextBuilderSyncEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 6,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ContextBuilderSyncEvent"
+    },
+    {
+      "className": "org.spicefactory.parsley.flex.tag.builder::FlexContextEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "FlexContextEvent"
+    },
+    {
+      "className": "org.spicefactory.parsley.tag.resources::ResourceBindingEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ResourceBindingEvent"
+    },
+    {
+      "className": "spark.events::CaretBoundsChangeEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CaretBoundsChangeEvent"
+    },
+    {
+      "className": "spark.events::DisplayLayerObjectExistenceEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DisplayLayerObjectExistenceEvent"
+    },
+    {
+      "className": "spark.events::DropDownEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "DropDownEvent"
+    },
+    {
+      "className": "spark.events::ElementExistenceEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ElementExistenceEvent"
+    },
+    {
+      "className": "spark.events::GridCaretEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GridCaretEvent"
+    },
+    {
+      "className": "spark.events::GridEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GridEvent"
+    },
+    {
+      "className": "spark.events::GridItemEditorEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GridItemEditorEvent"
+    },
+    {
+      "className": "spark.events::GridSelectionEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 4,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GridSelectionEvent"
+    },
+    {
+      "className": "spark.events::GridSortEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 5,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "GridSortEvent"
+    },
+    {
+      "className": "spark.events::IndexChangeEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "IndexChangeEvent"
+    },
+    {
+      "className": "spark.events::ListEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "ListEvent"
+    },
+    {
+      "className": "spark.events::LoaderInvalidationEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "LoaderInvalidationEvent"
+    },
+    {
+      "className": "spark.events::RendererExistenceEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "RendererExistenceEvent"
+    },
+    {
+      "className": "spark.events::SkinPartEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "SkinPartEvent"
+    },
+    {
+      "className": "spark.events::TextOperationEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TextOperationEvent"
+    },
+    {
+      "className": "spark.events::TitleWindowBoundsEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TitleWindowBoundsEvent"
+    },
+    {
+      "className": "spark.events::TrackBaseEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 2,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "TrackBaseEvent"
+    },
+    {
+      "className": "wde.common.services.cache::CacheEvent",
+      "eventNames": [],
+      "kind": "event",
+      "locKeys": [],
+      "methodCount": 3,
+      "observerMethods": [],
+      "restPaths": [],
+      "simpleName": "CacheEvent"
+    }
+  ],
+  "count": 439
+}

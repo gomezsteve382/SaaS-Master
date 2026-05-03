@@ -10,12 +10,34 @@
 // See tools/cda-extractor/src/extract.mjs and the
 // cdaOfflineFlash.test.js bench trace for the full audit chain.
 
-import CDA_FLASH_CATALOG  from '../../../../tools/cda-extractor/out/cdaFlashSequences.generated.json';
-import CDA_VIN_CATALOG    from '../../../../tools/cda-extractor/out/cdaVinWrite.generated.json';
-import CDA_RESET_CATALOG  from '../../../../tools/cda-extractor/out/cdaResets.generated.json';
-import CDA_HARVESTED      from '../../../../tools/cda-extractor/out/harvestedStrings.generated.json';
+import CDA_FLASH_CATALOG       from '../../../../tools/cda-extractor/out/cdaFlashSequences.generated.json';
+import CDA_VIN_CATALOG         from '../../../../tools/cda-extractor/out/cdaVinWrite.generated.json';
+import CDA_RESET_CATALOG       from '../../../../tools/cda-extractor/out/cdaResets.generated.json';
+import CDA_HARVESTED           from '../../../../tools/cda-extractor/out/harvestedStrings.generated.json';
+import CDA_SID_INDEX           from '../../../../tools/cda-extractor/out/cdaSidIndex.generated.json';
+import CDA_DID_INDEX           from '../../../../tools/cda-extractor/out/cdaDidIndex.generated.json';
+import CDA_ROUTINE_INDEX       from '../../../../tools/cda-extractor/out/cdaRoutineIndex.generated.json';
+import CDA_BINARY_DATA         from '../../../../tools/cda-extractor/out/cdaBinaryData.generated.json';
+import CDA_COMMANDS_CATALOG    from '../../../../tools/cda-extractor/out/cdaCommands.generated.json';
+import CDA_EVENTS_CATALOG      from '../../../../tools/cda-extractor/out/cdaEvents.generated.json';
+import CDA_ENDPOINTS_CATALOG   from '../../../../tools/cda-extractor/out/cdaEndpoints.generated.json';
+import CDA_LOCALIZATION_KEYS   from '../../../../tools/cda-extractor/out/cdaLocalizationKeys.generated.json';
 
-export { CDA_FLASH_CATALOG, CDA_VIN_CATALOG, CDA_RESET_CATALOG, CDA_HARVESTED };
+export {
+  CDA_FLASH_CATALOG,
+  CDA_VIN_CATALOG,
+  CDA_RESET_CATALOG,
+  CDA_HARVESTED,
+  // Super-mine catalogs (added by the deep AS3 ABC mine):
+  CDA_SID_INDEX,
+  CDA_DID_INDEX,
+  CDA_ROUTINE_INDEX,
+  CDA_BINARY_DATA,
+  CDA_COMMANDS_CATALOG,
+  CDA_EVENTS_CATALOG,
+  CDA_ENDPOINTS_CATALOG,
+  CDA_LOCALIZATION_KEYS,
+};
 
 // Resolve the offline-flash UDS sequence for a module by its short code
 // (ECM / BCM / RFHUB / SGW / etc.). Returns null for unknown modules so
