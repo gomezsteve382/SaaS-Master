@@ -43,6 +43,7 @@ import ProxiTab from "./tabs/ProxiTab.jsx";
 import FcaModuleInspector from "./tabs/FcaModuleInspector.jsx";
 import UnlockCoverageTab from "./tabs/UnlockCoverageTab.jsx";
 import WorkflowTab from "./tabs/WorkflowTab.jsx";
+import Gpec2aUnlockTab from "./tabs/Gpec2aUnlockTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
@@ -912,6 +913,7 @@ const WORKSPACE_TABS = [
   {id:'unlockcov', i:'🗝️', l:'UNLOCK COV',   s:'81 DLLs · reversed vs dll_only'},
   {id:'alfaobd',   i:'🧾', l:'ALFAOBD',      s:'ECUTYPE · Handlers · Transports'},
   {id:'workflow',  i:'🛠️', l:'WORKFLOW',     s:'Vehicle Job · Census · Fix Plan · Sign-Off'},
+  {id:'gpecunlock',i:'🔓', l:'GPEC2A UNLOCK',s:'Firmware file patcher · no OBD'},
 ];
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -1074,6 +1076,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='unlockcov' && <UnlockCoverageTab/>}
         {tab==='alfaobd'   && <AlfaObdTablesTab/>}
         {tab==='workflow'  && <WorkflowTab onOpenTab={setTab}/>}
+        {tab==='gpecunlock'&& <Gpec2aUnlockTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also
