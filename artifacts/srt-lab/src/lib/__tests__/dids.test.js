@@ -9,7 +9,7 @@ import {
   getDidDescriptionCount,
   _resetDidDescriptionsForTests,
 } from '../dids.js';
-import { backupModule, CRITICAL_DIDS } from '../backups.js';
+import { backupModule, CRITICAL_DIDS } from '../audit.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CATALOG_PATH = resolve(__dirname, '..', '..', '..', 'public', 'unlock_catalog_extended.json');
@@ -178,14 +178,26 @@ describe('backupModule wide-DID guard (defensive: VILLAIN_EXT carries 24/32-bit 
     const addLog = (msg, level) => logs.push({ msg, level });
     const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, '0');
 
-    await backupModule(engUds, 0x7E0, 0x7E8, 'VILLAIN_EXT', addLog, hx);
+    await backupModule(engUds, 0x7E0, 0x7E8, 'VILLAIN_EXT', addLog);
 
-    // Every UDS frame issued must be exactly 3 bytes (0x10 0x03 session
-    // is the only 2-byte frame, all DID reads are 0x22 hi lo). No frame
-    // should be a truncated wide-DID read where the upper bytes were lost.
+    // Every 0x22 frame must be well-formed: 0x22 + pairs of DID bytes.
+    // With batched multi-DID reads, frames may be 3, 5, 7, ... bytes long
+    // (1 service byte + N×2 DID bytes). None of the DID byte-pairs inside
+    // any frame may be the truncated lower 2 bytes of a wide DID.
     const didReads = sent.filter((f) => f[0] === 0x22);
+    // Build the set of 16-bit values that are the LOW 2 bytes of wide DIDs.
+    const wideDidLowWords = new Set(
+      CRITICAL_DIDS.VILLAIN_EXT.filter((d) => d.did > 0xFFFF).map((d) => d.did & 0xFFFF)
+    );
     for (const f of didReads) {
-      expect(f.length).toBe(3);
+      // Frame must be 0x22 + at least one DID pair, and only full DID pairs.
+      expect(f.length % 2).toBe(1);  // 1 (service byte) + 2*N
+      expect(f.length).toBeGreaterThanOrEqual(3);
+      // No 2-byte slot inside the frame may match a truncated wide DID.
+      for (let i = 1; i + 1 < f.length; i += 2) {
+        const slot = (f[i] << 8) | f[i + 1];
+        expect(wideDidLowWords.has(slot), `frame slot 0x${slot.toString(16)} matches truncated wide DID`).toBe(false);
+      }
     }
 
     // Each wide DID must have produced a "Skipping wide DID" warn log.
@@ -197,9 +209,20 @@ describe('backupModule wide-DID guard (defensive: VILLAIN_EXT carries 24/32-bit 
       expect(skipped, `expected a skip-warn log for wide DID ${hexLabel}`).toBe(true);
     }
 
-    // The number of 0x22 frames sent must equal the number of NARROW DIDs
-    // — i.e. the 16-bit ones — confirming wide DIDs never made it to engUds.
+    // Every narrow (16-bit) DID must have been sent in at least one 0x22
+    // frame, confirming each narrow DID was attempted and no wide DID slot
+    // snuck in as a replacement.
     const narrow = CRITICAL_DIDS.VILLAIN_EXT.filter((d) => d.did <= 0xFFFF);
-    expect(didReads.length).toBe(narrow.length);
+    for (const d of narrow) {
+      const hi = (d.did >> 8) & 0xFF;
+      const lo = d.did & 0xFF;
+      const wasRead = didReads.some((f) => {
+        for (let i = 1; i + 1 < f.length; i += 2) {
+          if (f[i] === hi && f[i + 1] === lo) return true;
+        }
+        return false;
+      });
+      expect(wasRead, `narrow DID 0x${d.did.toString(16)} was never read`).toBe(true);
+    }
   });
 });

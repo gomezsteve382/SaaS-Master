@@ -40,7 +40,7 @@ vi.mock('../lib/obdEngine.js', () => ({
   decodeDTC:       () => 'P0000',
   decodeDTCStatus: () => ({}),
 }));
-vi.mock('../lib/backups.js', () => ({
+vi.mock('../lib/audit.js', () => ({
   backupModule: vi.fn(async () => ({ key: 'bcm-snap-1', dids: {} })),
   CRITICAL_DIDS: { BCM: [0xF190] },
 }));

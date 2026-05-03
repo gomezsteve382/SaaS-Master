@@ -7,7 +7,7 @@ import {isSgwAuthenticated} from '../lib/sgwAuth.js';
 import {vinHasSGW} from '../lib/vin.js';
 import {getRow} from '../lib/moduleRegistry.js';
 import {programVin, readDid} from '../lib/vinProgrammer.js';
-import {backupModule} from '../lib/backups.js';
+import {backupModule} from '../lib/audit.js';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 
@@ -145,7 +145,7 @@ export default function GpecObdVinPanel({platform}) {
       eng: activeEng, row, vin: masterVin,
       addLog: (m, t) => addLog(m, t),
       makeBackup: async ({uds, snapshotKind, preWriteKey}) =>
-        backupModule(uds, PCM_TX, PCM_RX, platform, addLog, hx, snapshotKind, preWriteKey),
+        backupModule(uds, PCM_TX, PCM_RX, platform, addLog, snapshotKind, preWriteKey),
     });
     setWriteResult(r);
     updateStatus(platform, r.ok ? 'ok' : 'fail');

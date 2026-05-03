@@ -3,7 +3,7 @@ import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
 import {decodeNRC} from '../lib/nrc.js';
-import {backupModule} from '../lib/backups.js';
+import {backupModule} from '../lib/audit.js';
 import {ReadFirstModal} from '../lib/readFirstModal.jsx';
 import {useMasterVin} from '../lib/masterVinContext.jsx';
 import {ECM_ALGOS, u32} from '../lib/programmerData.js';
@@ -152,7 +152,7 @@ export default function EcmTab({vehicle}){
     const r=await programVin({
       eng:activeEng, row, vin:masterVin,
       addLog:(m,t)=>addLog(m,t),
-      makeBackup: async ({uds,snapshotKind,preWriteKey})=>backupModule(uds,ecmAddr.tx,ecmAddr.rx,'ECM',addLog,hx,snapshotKind,preWriteKey),
+      makeBackup: async ({uds,snapshotKind,preWriteKey})=>backupModule(uds,ecmAddr.tx,ecmAddr.rx,'ECM',addLog,snapshotKind,preWriteKey),
     });
     const f190=r.didResults.find(d=>d.did===0xF190);
     setCurVin(f190?.readback||null);

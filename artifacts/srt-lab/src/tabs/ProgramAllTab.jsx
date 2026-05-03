@@ -9,7 +9,7 @@ import {useSgwAuth, isSgwAuthenticated} from "../lib/sgwAuth.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {partitionForVin, getRow} from "../lib/moduleRegistry.js";
 import {programVin} from "../lib/vinProgrammer.js";
-import {backupModule} from "../lib/backups.js";
+import {backupModule} from "../lib/audit.js";
 import {build} from "@workspace/uds";
 
 /* Dev-only test hook: when the dev server URL carries
@@ -331,7 +331,7 @@ export default function ProgramAllTab(){
         vin: vinForThisRow,
         addLog: rowLog,
         makeBackup: async ({uds,snapshotKind,preWriteKey}) =>
-          backupModule(uds, row.tx, row.rx, row.code, rowLog, hx, snapshotKind, preWriteKey),
+          backupModule(uds, row.tx, row.rx, row.code, rowLog, snapshotKind, preWriteKey),
       });
       // Refresh currentVins from the verification read — keeps the per-row
       // display in sync after every batch.

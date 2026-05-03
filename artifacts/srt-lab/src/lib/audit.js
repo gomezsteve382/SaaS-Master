@@ -45,6 +45,9 @@ export const CRITICAL_DIDS = {
     { did: 0xF1D1, name: "SKIM Data", critical: true },
     { did: 0x7B90, name: "Current VIN", critical: true },
     { did: 0x7B88, name: "Original VIN", critical: true },
+    { did: 0x6E2025, name: "Bus-Transmitted VIN" },
+    { did: 0x6E2027, name: "WCM Configured VIN" },
+    { did: 0x6E9EB0, name: "SKIM State" },
   ],
   RFHUB: [
     { did: 0xF190, name: "VIN", critical: true },
@@ -75,6 +78,28 @@ export const CRITICAL_DIDS = {
     { did: 0xDE11, name: "Variant Code" },
     { did: 0x7B90, name: "Current VIN", critical: true },
     { did: 0x7B88, name: "Original VIN", critical: true },
+  ],
+  EPS: [
+    { did: 0xF190, name: "VIN", critical: true },
+    { did: 0xF187, name: "Part Number" },
+    { did: 0xF189, name: "Software Version" },
+    { did: 0x6EF190, name: "EPS VIN", critical: true },
+  ],
+  /* VILLAIN-extracted Chrysler/FCA DIDs. Source:
+     /tmp/villain_gpec/villain_extraction/VILLAIN_COMPLETE_EXTRACTION.md (lines 70-77, 88-103).
+     This group is LABEL-ONLY — it is NOT a real moduleType. dids.js seeds
+     from every value in this map, so the labels show up in the UI regardless
+     of whether anyone calls backupModule() with this key. The 24-bit and
+     32-bit DIDs cannot be issued via a standard 0x22 two-byte read frame;
+     backupModule() guards against accidental wide-DID requests. */
+  VILLAIN_EXT: [
+    { did: 0x7B90, name: "Current VIN" },
+    { did: 0x7B88, name: "Original VIN" },
+    { did: 0x6E2025, name: "Bus-Transmitted VIN" },
+    { did: 0x6E2027, name: "WCM Configured VIN" },
+    { did: 0x6E9EB0, name: "SKIM State" },
+    { did: 0x6EF190, name: "EPS VIN" },
+    { did: 0xF79EB045, name: "SKIM state flag (SCI-B)" },
   ],
 };
 
@@ -213,11 +238,25 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
    * per profile into ~1 chunked read. readDidsBatched silently falls
    * back to per-DID 0x22 requests for any chunk a module rejects (some
    * early FCA BCMs return NRC 0x13 on multi-DID), so the per-DID log
-   * shape and "missing" semantics below stay identical. */
-  const didNumbers = dids.map(d => d.did);
+   * shape and "missing" semantics below stay identical.
+   *
+   * Wide DIDs (> 0xFFFF) cannot be expressed in a standard 2-byte 0x22
+   * read frame. They are stored in the profile for label/reference
+   * purposes only (VILLAIN_EXT, EPS VIN, SKIM state flags) and must be
+   * skipped here to avoid malformed frames. */
+  const standardDids = dids.filter(d => d.did <= 0xFFFF);
+  const wideDids = dids.filter(d => d.did > 0xFFFF);
+  for (const d of wideDids) {
+    addLog(
+      "  Skipping wide DID 0x" + d.did.toString(16).toUpperCase() +
+      " (" + d.name + "): cannot fit a standard 2-byte 0x22 read",
+      "warn",
+    );
+  }
+  const didNumbers = standardDids.map(d => d.did);
   const readMap = await readDidsBatched(engUds, tx, rx, didNumbers);
   let successCount = 0;
-  for (const d of dids) {
+  for (const d of standardDids) {
     const got = readMap.get(d.did);
     if (got && got.ok && got.data) {
       const raw = got.data;
@@ -234,7 +273,7 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
       addLog("  0x" + hx(d.did, 4) + " (" + d.name + "): not readable", "warn");
     }
   }
-  addLog("Backup complete: " + successCount + "/" + dids.length + " DIDs captured", "info");
+  addLog("Backup complete: " + successCount + "/" + standardDids.length + " DIDs captured", "info");
   const checksum = await sha256Hex(backupDidsToBytes(backup.dids)).catch(() => null);
   backup.checksum = checksum;
   backup.snapshotKind = snapshotKind;

@@ -18,7 +18,7 @@
  * for callers that want to show the full set.
  */
 
-import {CRITICAL_DIDS} from "./backups.js";
+import {CRITICAL_DIDS} from "./audit.js";
 import {DID_CATALOG} from "@workspace/uds";
 
 const lookup = new Map();      // did(number) → first description

@@ -3,7 +3,7 @@ import {C} from "../lib/constants.js";
 import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
 import {MODS} from "../lib/mods.js";
 import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse, vinReadbackOk} from "../lib/algos.js";
-import {backupModule,CRITICAL_DIDS} from "../lib/backups.js";
+import {backupModule,CRITICAL_DIDS} from "../lib/audit.js";
 import {openSerialPort, onPortDisconnect, cleanupPort} from "../lib/serialErrors.js";
 import {build} from "@workspace/uds";
 
@@ -197,7 +197,7 @@ function OBDTab(){
       let backupKey=null;
       if(bt){
         addLog('Snapshotting '+bt+' before write...','info');
-        const b=await backupModule(eng.current.uds,m.tx,m.rx,bt,addLog,hx);
+        const b=await backupModule(eng.current.uds,m.tx,m.rx,bt,addLog);
         backupKey=b?.key||null;
       }else addLog('No backup profile for '+m.c+' — write proceeds without snapshot','warn');
       const vb=[...new TextEncoder().encode(nv)];
@@ -262,7 +262,7 @@ function OBDTab(){
       const bt=backupTypeFor(label);
       if(bt){
         addLog('Snapshotting '+label+' before write...','info');
-        const b=await backupModule(eng.current.uds,tx,rx,bt,addLog,hx);
+        const b=await backupModule(eng.current.uds,tx,rx,bt,addLog);
         backupKey=b?.key||null;
         const vinDid=b?.dids?.[0xF190]; if(vinDid?.ascii)oldVin=vinDid.ascii.slice(-17);
       }else addLog('No backup profile for '+label+' — write proceeds without snapshot','warn');
@@ -308,7 +308,7 @@ function OBDTab(){
         setBusy('');return;
       }
       addLog('Snapshotting RFHUB before virginize...','info');
-      const b=await backupModule(eng.current.uds,0x75F,0x767,'RFHUB',addLog,hx);
+      const b=await backupModule(eng.current.uds,0x75F,0x767,'RFHUB',addLog);
       backupKey=b?.key||null;
       const vinDid=b?.dids?.[0xF190]; if(vinDid?.ascii)oldVin=vinDid.ascii.slice(-17);
       const blank=new Array(17).fill(0x00);

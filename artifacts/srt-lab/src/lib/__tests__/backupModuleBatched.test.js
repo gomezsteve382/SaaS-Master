@@ -34,12 +34,17 @@ describe('backupModule with multi-DID batching (corruption guard end-to-end)', (
     const profile = CRITICAL_DIDS.BCM;
     expect(profile.length).toBeGreaterThan(0);
 
-    // Truth table — what the module REALLY holds for each critical DID.
+    // Only standard (≤ 0xFFFF) DIDs can appear in a 0x22 read frame.
+    // Wide DIDs in the profile are label-only and are skipped by backupModule.
+    const standardProfile = profile.filter(d => d.did <= 0xFFFF);
+    expect(standardProfile.length).toBeGreaterThan(0);
+
+    // Truth table — what the module REALLY holds for each standard DID.
     // F1A0 (BCM Config) is the adversarial one: its real payload contains
     // 0xF1 0x87 (the marker bytes for F187) which would silently corrupt
     // the greedy splitter without the corruption-guard re-read.
     const truth = new Map();
-    for (const d of profile){
+    for (const d of standardProfile){
       // Default: 4 boring bytes per DID.
       truth.set(d.did, [0x01, 0x02, 0x03, 0x04]);
     }
@@ -48,9 +53,9 @@ describe('backupModule with multi-DID batching (corruption guard end-to-end)', (
     truth.set(0xF1A0, [0xAA, 0xF1, 0x87, 0xBB, 0xCC, 0xF1, 0xA1]); // ADVERSARIAL — contains F187 + F1A1 markers
 
     // Build a multi-DID 0x62 response that the module would send for
-    // every DID in the profile, in order.
+    // every standard DID in the profile, in order.
     const multiBody = [0x62];
-    for (const d of profile){
+    for (const d of standardProfile){
       multiBody.push((d.did >> 8) & 0xFF, d.did & 0xFF, ...truth.get(d.did));
     }
     const multiResp = new Uint8Array(multiBody);
@@ -75,9 +80,10 @@ describe('backupModule with multi-DID batching (corruption guard end-to-end)', (
     const backup = await backupModule(eng, 0x750, 0x758, 'BCM', () => {}, 'pre-write', null);
     expect(backup).toBeTruthy();
 
-    // Every critical DID's persisted bytes must equal the truth bytes —
+    // Every standard DID's persisted bytes must equal the truth bytes —
     // proving the corruption guard kicked in for F1A0 and re-read it.
-    for (const d of profile){
+    // Wide DIDs (> 0xFFFF) are label-only and are not read or stored.
+    for (const d of standardProfile){
       const got = backup.dids[d.did];
       expect(got, 'missing DID 0x' + d.did.toString(16)).toBeTruthy();
       expect(got.bytes, 'wrong bytes for DID 0x' + d.did.toString(16)).toEqual(truth.get(d.did));

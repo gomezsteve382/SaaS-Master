@@ -9,7 +9,7 @@ import {
   PROFILES, MODULE_TARGETS, ROUTINE_PRESETS, getVehicleBcmDefaults,
   decodeVinInfo, isProfileCompatibleWithRange,
 } from "../lib/jailbreakFeatures.js";
-import { backupModule, CRITICAL_DIDS } from "../lib/backups.js";
+import { backupModule, CRITICAL_DIDS } from "../lib/audit.js";
 import { build } from "@workspace/uds";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
@@ -316,7 +316,7 @@ function JailbreakTab({ vehicle }) {
     let backupKey = null, oldVin = null;
     if (backupType) {
       addLog("Snapshotting " + backupType + " before feature write...", "info");
-      const b = await backupModule(eng.current.uds, target.tx, target.rx, backupType, addLog, hx);
+      const b = await backupModule(eng.current.uds, target.tx, target.rx, backupType, addLog);
       backupKey = b?.key || null;
       const vinDid = b?.dids?.[0xF190]; if (vinDid?.ascii) oldVin = vinDid.ascii.slice(-17);
     } else {

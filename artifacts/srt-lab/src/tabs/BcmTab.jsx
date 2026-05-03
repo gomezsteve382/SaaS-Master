@@ -3,7 +3,7 @@ import {Card, Btn} from "../lib/ui.jsx";
 import {C} from "../lib/constants.js";
 import {cda6, u32} from "../lib/algos.js";
 import {initAdapter, parseVinFromResponse} from "../lib/initAdapter.js";
-import {backupModule, getBackupList} from "../lib/backups.js";
+import {backupModule, getBackupList} from "../lib/audit.js";
 import {decodeNRC, nrcMsg} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
@@ -616,7 +616,7 @@ export default function BcmTab({vehicle}){
   const backupBcm=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Backing up BCM...');
-    const backup=await backupModule(eng.current.uds,bcmAddr.tx,bcmAddr.rx,'BCM',addLog,hx);
+    const backup=await backupModule(eng.current.uds,bcmAddr.tx,bcmAddr.rx,'BCM',addLog);
     if(backup){setBackupCount(getBackupList('BCM').length);addLog('✓ BCM backup saved — can restore if write fails','info');}
     setBusy('');
   },[bcmAddr,addLog]);
@@ -702,7 +702,7 @@ export default function BcmTab({vehicle}){
       eng:activeEng, row, vin:masterVin,
       addLog:(m,t)=>addLog(m,t),
       makeBackup: async ({uds,snapshotKind,preWriteKey})=>{
-        const b=await backupModule(uds,bcmAddr.tx,bcmAddr.rx,'BCM',addLog,hx,snapshotKind,preWriteKey);
+        const b=await backupModule(uds,bcmAddr.tx,bcmAddr.rx,'BCM',addLog,snapshotKind,preWriteKey);
         if(b)setBackupCount(getBackupList('BCM').length);
         return b;
       },

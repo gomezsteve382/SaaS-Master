@@ -3,7 +3,7 @@ import {Card, Btn} from "../lib/ui.jsx";
 import {C} from "../lib/constants.js";
 import {u32} from "../lib/algos.js";
 import {initAdapter, parseVinFromResponse} from "../lib/initAdapter.js";
-import {backupModule} from "../lib/backups.js";
+import {backupModule} from "../lib/audit.js";
 import {decodeNRC} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
@@ -184,7 +184,7 @@ export default function RfhubTab({vehicle}){
     const r=await programVin({
       eng:activeEng, row, vin:masterVin,
       addLog:(m,t)=>addLog(m,t),
-      makeBackup: async ({uds,snapshotKind,preWriteKey})=>backupModule(uds,rfhubAddr.tx,rfhubAddr.rx,'RFHUB',addLog,hx,snapshotKind,preWriteKey),
+      makeBackup: async ({uds,snapshotKind,preWriteKey})=>backupModule(uds,rfhubAddr.tx,rfhubAddr.rx,'RFHUB',addLog,snapshotKind,preWriteKey),
     });
     const f190=r.didResults.find(d=>d.did===0xF190);
     setCurVin(f190?.readback||null);

@@ -213,9 +213,9 @@ describe("dids.js consumer path — VILLAIN DIDs reachable via getDidDescription
   });
 });
 
-describe("CRITICAL_DIDS baseline in backups.js", () => {
-  it("backups.js CRITICAL_DIDS contains new VILLAIN BCM DIDs", async () => {
-    const { CRITICAL_DIDS } = await import("../lib/backups.js");
+describe("CRITICAL_DIDS baseline in audit.js", () => {
+  it("audit.js CRITICAL_DIDS contains new VILLAIN BCM DIDs", async () => {
+    const { CRITICAL_DIDS } = await import("../lib/audit.js");
     const bcm = CRITICAL_DIDS?.BCM ?? [];
     const dids = bcm.map((e) => e.did);
     expect(dids).toContain(0x6E2025);
@@ -223,8 +223,8 @@ describe("CRITICAL_DIDS baseline in backups.js", () => {
     expect(dids).toContain(0x6E9EB0);
   });
 
-  it("backups.js CRITICAL_DIDS has EPS module with EPS VIN DID", async () => {
-    const { CRITICAL_DIDS } = await import("../lib/backups.js");
+  it("audit.js CRITICAL_DIDS has EPS module with EPS VIN DID", async () => {
+    const { CRITICAL_DIDS } = await import("../lib/audit.js");
     const eps = CRITICAL_DIDS?.EPS ?? [];
     const dids = eps.map((e) => e.did);
     expect(dids).toContain(0x6EF190);

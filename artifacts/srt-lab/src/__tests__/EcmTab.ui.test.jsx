@@ -47,7 +47,7 @@ vi.mock('../lib/initAdapter.js', async () => {
     },
   };
 });
-vi.mock('../lib/backups.js', () => ({
+vi.mock('../lib/audit.js', () => ({
   backupModule: vi.fn(async () => ({ key: 'ecm-snap', dids: {} })),
   CRITICAL_DIDS: { ECM: [0xF190] },
 }));

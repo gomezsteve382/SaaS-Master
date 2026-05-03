@@ -2,7 +2,7 @@
  *
  * Thin fetch wrapper over /api/vehicle-jobs so the WorkflowTab can stay
  * focused on UI. Mirrors the patterns used by lib/diffReports.js and
- * lib/backups.js: server is the source of truth, but every list/get
+ * lib/audit.js: server is the source of truth, but every list/get
  * resolves a JSON payload directly without a localStorage cache layer
  * (jobs are small and the runner is always online by definition — a
  * job that can't reach the server can't actually drive J2534 anyway).
