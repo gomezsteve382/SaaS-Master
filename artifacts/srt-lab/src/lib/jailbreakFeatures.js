@@ -166,6 +166,10 @@ export const CATEGORY_ORDER = [
 export const PROFILES = {
   "srt-full": {
     label: "SRT Full",
+    // vehicle_trim_level values this profile is fully valid for (Scat Pack and above)
+    compatibleTrims: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+    // VIN position-8 engine codes for which this is the recommended profile
+    recommendedEngines: ["G"],
     changes: {
       srt_performance_pages: 1, srt_pages_timers: 2, srt_pages_gauges: 4, srt_pages_dyno: 8,
       launch_control: 1, track_mode: 1, drag_mode: 2, race_options_menu: 1,
@@ -175,6 +179,12 @@ export const PROFILES = {
   },
   "demon": {
     label: "Demon Package",
+    // Only valid on Demon / Demon 170 (trim values 15 and 16) — trans brake, power chiller etc.
+    // require Demon-specific hardware and cannot be confirmed from the VIN alone.
+    compatibleTrims: [15, 16],
+    // Never auto-recommended from VIN: VIN engine code T covers both Redeye AND Demon
+    // and we cannot tell them apart without reading the trim DID. User must select manually.
+    recommendedEngines: [],
     changes: {
       vehicle_trim_level: 15, engine_variant: 6, widebody_enabled: 1,
       power_chiller: 1, after_run_chiller: 5, trans_brake: 1, torque_reserve: 1, torque_reserve_level: 4,
@@ -186,6 +196,10 @@ export const PROFILES = {
   },
   "hellcat": {
     label: "Hellcat",
+    // All supercharged models: Hellcat, Hellcat WB, Redeye, Redeye WB, Jailbreak, Super Stock, Demon
+    compatibleTrims: [9, 10, 11, 12, 13, 14, 15, 16],
+    // Recommended for both Hellcat (R) and Redeye/Demon (T) — the safe baseline for all SC cars
+    recommendedEngines: ["R", "T"],
     changes: {
       vehicle_trim_level: 9, engine_variant: 4,
       srt_performance_pages: 1, srt_pages_timers: 2, srt_pages_gauges: 4,
@@ -195,6 +209,9 @@ export const PROFILES = {
   },
   "track": {
     label: "Track Mode",
+    // Scat Pack and above — any car that can actually use launch control / performance pages
+    compatibleTrims: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+    recommendedEngines: [],
     changes: {
       track_mode: 1, launch_control: 1, shift_light: 1, race_options_menu: 1,
       performance_data_recorder: 1, srt_performance_pages: 1, srt_pages_gauges: 4,
@@ -202,6 +219,129 @@ export const PROFILES = {
     },
   },
 };
+
+// ─── VIN decode tables ───────────────────────────────────────────────────────
+// WMI → make label
+const VIN_WMI = {
+  "1C3": "Chrysler", "1C4": "Chrysler", "1C6": "RAM", "2C3": "Dodge",
+  "2C4": "Chrysler", "1J4": "Jeep", "1B3": "Dodge", "2B3": "Dodge", "1J8": "Jeep",
+};
+// VIN position 10 → model year
+const VIN_YR = {
+  A: 2010, B: 2011, C: 2012, D: 2013, E: 2014, F: 2015, G: 2016, H: 2017,
+  J: 2018, K: 2019, L: 2020, M: 2021, N: 2022, P: 2023, R: 2024, S: 2025, T: 2026,
+};
+// VIN position 5 → Dodge/Chrysler model name (best-effort — most common FCA CAN-bus vehicles)
+const VIN_MODEL_POS5 = { D: "Charger", H: "Challenger", X: "Durango" };
+
+// VIN position 8 → engine info.
+// minTrim/maxTrim are the vehicle_trim_level values this engine code can represent.
+// This range is used to determine profile compatibility: if NO trim in [minTrim..maxTrim]
+// appears in a profile's compatibleTrims, the profile is definitively incompatible.
+const VIN_ENGINE = {
+  // Engine T covers Redeye (trims 11-14) AND Demon/Demon 170 (trims 15-16).
+  // We cannot distinguish them from VIN alone, so we use the full range (11-16).
+  T: { desc: "6.2L SC V8 (Redeye / Demon)", trimLabel: "SRT Redeye / Demon",  minTrim: 11, maxTrim: 16 },
+  R: { desc: "6.2L SC V8 (Hellcat 707hp)",  trimLabel: "SRT Hellcat",          minTrim: 9,  maxTrim: 10 },
+  G: { desc: "6.4L HEMI V8 SRT 392",        trimLabel: "SRT 392",              minTrim: 8,  maxTrim: 8  },
+  H: { desc: "5.7L HEMI V8",                trimLabel: "R/T",                  minTrim: 4,  maxTrim: 5  },
+  E: { desc: "5.7L HEMI V8",                trimLabel: "R/T",                  minTrim: 4,  maxTrim: 5  },
+  F: { desc: "3.6L Pentastar V6",           trimLabel: "SXT / Base",           minTrim: 0,  maxTrim: 3  },
+  S: { desc: "3.6L Pentastar V6+",          trimLabel: "SXT / Base",           minTrim: 0,  maxTrim: 3  },
+};
+
+/**
+ * Decode the key fields from a 17-character VIN string.
+ * Returns null if the VIN is malformed or not 17 chars.
+ *
+ * @param {string} vin
+ * @returns {{
+ *   year: number|null, make: string, model: string,
+ *   engineDesc: string, trimLabel: string,
+ *   minTrim: number, maxTrim: number,
+ *   engineCode: string, recommendedProfile: string|null,
+ *   ambiguous: boolean
+ * } | null}
+ */
+export function decodeVinInfo(vin) {
+  if (!vin || vin.length !== 17) return null;
+  const v = vin.toUpperCase();
+  const wmi = v.slice(0, 3);
+  const make = VIN_WMI[wmi] || "Unknown";
+  const model = VIN_MODEL_POS5[v[4]] || "";
+  const year = VIN_YR[v[9]] || null;
+  const engineCode = v[7];
+  const engineInfo = VIN_ENGINE[engineCode] || {
+    desc: "Unknown engine (" + engineCode + ")",
+    trimLabel: "Unknown",
+    minTrim: 0, maxTrim: 0,
+  };
+
+  // Find the best recommended profile for this engine code.
+  // Profiles opt in via recommendedEngines — demon never opts in (ambiguous with Redeye).
+  let recommendedProfile = null;
+  for (const [key, prof] of Object.entries(PROFILES)) {
+    if (prof.recommendedEngines && prof.recommendedEngines.includes(engineCode)) {
+      recommendedProfile = key;
+      break;
+    }
+  }
+
+  // Engine code T spans Redeye AND Demon — flag as ambiguous so the UI can warn
+  const ambiguous = engineCode === "T";
+
+  return {
+    year,
+    make,
+    model,
+    engineDesc: engineInfo.desc,
+    trimLabel: engineInfo.trimLabel,
+    minTrim: engineInfo.minTrim,
+    maxTrim: engineInfo.maxTrim,
+    engineCode,
+    recommendedProfile,
+    ambiguous,
+  };
+}
+
+/**
+ * Check whether a profile is compatible with a detected VIN engine range.
+ * Returns false only when NO trim in [minTrim..maxTrim] appears in the
+ * profile's compatibleTrims — meaning the profile is definitively incompatible
+ * with this vehicle regardless of exact trim.
+ *
+ * Returns true if no range information is available (minTrim/maxTrim are null).
+ *
+ * @param {string}      profileKey
+ * @param {number|null} minTrim   — lowest vehicle_trim_level value the detected engine maps to
+ * @param {number|null} maxTrim   — highest vehicle_trim_level value the detected engine maps to
+ * @returns {boolean}
+ */
+export function isProfileCompatibleWithRange(profileKey, minTrim, maxTrim) {
+  if (minTrim == null || maxTrim == null) return true;
+  const prof = PROFILES[profileKey];
+  if (!prof?.compatibleTrims) return true;
+  for (let t = minTrim; t <= maxTrim; t++) {
+    if (prof.compatibleTrims.includes(t)) return true;
+  }
+  return false;
+}
+
+/**
+ * Given a detected vehicle_trim_level value (0-16) and a profile key,
+ * return whether the profile is compatible with that exact trim value.
+ * Returns true when no trim has been detected (undefined/null).
+ *
+ * @param {string} profileKey
+ * @param {number|null|undefined} trimValue
+ * @returns {boolean}
+ */
+export function isProfileCompatible(profileKey, trimValue) {
+  if (trimValue == null) return true;
+  const prof = PROFILES[profileKey];
+  if (!prof || !prof.compatibleTrims) return true;
+  return prof.compatibleTrims.includes(trimValue);
+}
 
 // Pre-defined module targets for the workshop.
 export const MODULE_TARGETS = [

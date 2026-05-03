@@ -7,6 +7,7 @@ import { dtcLookup } from "../lib/dtc.js";
 import {
   JAILBREAK_FEATURES, FEATURE_CATEGORY, CATEGORY_ORDER,
   PROFILES, MODULE_TARGETS, ROUTINE_PRESETS, getVehicleBcmDefaults,
+  decodeVinInfo, isProfileCompatibleWithRange,
 } from "../lib/jailbreakFeatures.js";
 import { backupModule, CRITICAL_DIDS } from "../lib/backups.js";
 import { build } from "@workspace/uds";
@@ -30,6 +31,7 @@ function JailbreakTab({ vehicle }) {
   const [dtcs, setDtcs] = useState([]);
   const [routineRid, setRoutineRid] = useState(0x0312);
   const [routineCustom, setRoutineCustom] = useState("");
+  const [detectedCar, setDetectedCar] = useState(null); // { vin, year, make, model, engineDesc, engineTier, engineCode, recommendedProfile }
   const eng = useRef(null);
   const logEndRef = useRef(null);
 
@@ -154,6 +156,36 @@ function JailbreakTab({ vehicle }) {
     addLog("BCM not found on any known address", "error");
     setBusy("");
   }, [addLog]);
+
+  const detectCar = useCallback(async () => {
+    if (!eng.current) { addLog("Connect first", "error"); return; }
+    setBusy("Reading VIN from BCM...");
+    addLog("Reading VIN (22 F1 90) → " + target.label, "info");
+    const r = await eng.current.uds(target.tx, target.rx, [0x22, 0xF1, 0x90]);
+    if (!r.ok || !r.d) {
+      addLog("VIN read failed: " + (r.err || "no response"), "error");
+      setBusy(""); return;
+    }
+    // Response: 62 F1 90 [17 VIN bytes]
+    const d = Array.from(r.d);
+    // Strip the UDS positive response prefix (62 F1 90) if present
+    const vinBytes = d[0] === 0x62 ? d.slice(3) : d;
+    const vin = vinBytes.slice(0, 17).map(b => String.fromCharCode(b)).join("").replace(/[^\x20-\x7E]/g, "?");
+    addLog("VIN: " + vin, "rx");
+    const info = decodeVinInfo(vin);
+    if (!info) {
+      addLog("VIN decode failed — got: " + vin, "warn");
+      setDetectedCar({ vin, year: null, make: "", model: "", engineDesc: "", engineTier: "base", engineCode: "", recommendedProfile: null });
+      setBusy(""); return;
+    }
+    setDetectedCar({ vin, ...info });
+    addLog(
+      "Detected: " + [info.year, info.make, info.model, info.engineDesc].filter(Boolean).join(" ") +
+      (info.recommendedProfile ? " → recommended profile: " + PROFILES[info.recommendedProfile]?.label : ""),
+      "rx"
+    );
+    setBusy("");
+  }, [target, addLog]);
 
   const unlock = useCallback(async () => {
     if (!eng.current) { addLog("Connect first", "error"); return; }
@@ -394,6 +426,7 @@ function JailbreakTab({ vehicle }) {
           ? <Btn onClick={connect} color="#1976D2">CONNECT OBDLink</Btn>
           : <Btn onClick={disconnect} color="#666" outline>DISCONNECT</Btn>}
         <Btn onClick={findBCM} disabled={!conn || busy} color="#7B1FA2">AUTO-FIND BCM</Btn>
+        <Btn onClick={detectCar} disabled={!conn || busy} color="#00838F">DETECT CAR</Btn>
         {target.needsUnlock && <Btn onClick={unlock} disabled={!conn || busy} color="#D32F2F">
           {unlocked ? "RE-UNLOCK" : "UNLOCK"}
         </Btn>}
@@ -461,6 +494,47 @@ function JailbreakTab({ vehicle }) {
       )}
     </Card>
 
+    {/* DETECTED CAR BANNER */}
+    {detectedCar && (
+      <Card style={{ marginBottom: 16, background: "linear-gradient(90deg,#0A1929 0%,#0D2744 100%)", border: "1px solid #1565C0" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          <div style={{ fontSize: 28 }}>🚗</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#90CAF9", letterSpacing: 1, marginBottom: 2 }}>
+              {[detectedCar.year, detectedCar.make, detectedCar.model].filter(Boolean).join(" ") || "Vehicle detected"}
+            </div>
+            <div style={{ fontSize: 11, color: "#64B5F6", display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 2 }}>
+              {detectedCar.trimLabel && (
+                <span><span style={{ opacity: .6 }}>Trim:</span> <strong>{detectedCar.trimLabel}</strong></span>
+              )}
+              {detectedCar.engineDesc && (
+                <span><span style={{ opacity: .6 }}>Engine:</span> {detectedCar.engineDesc}</span>
+              )}
+              {detectedCar.vin && (
+                <span style={{ fontFamily: "monospace", opacity: .55 }}>{detectedCar.vin}</span>
+              )}
+            </div>
+            {detectedCar.recommendedProfile && (
+              <div style={{ fontSize: 11, color: "#A5D6A7" }}>
+                ✅ Recommended profile: <strong>{PROFILES[detectedCar.recommendedProfile]?.label}</strong>
+              </div>
+            )}
+            {detectedCar.ambiguous && (
+              <div style={{ marginTop: 3, fontSize: 10, color: "#FFB74D", fontStyle: "italic" }}>
+                ⚠ Engine code T covers both Redeye and Demon — select Demon Package manually if this is a Demon.
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => setDetectedCar(null)}
+            style={{ fontSize: 10, padding: "3px 8px", borderRadius: 4, border: "1px solid #1976D2", background: "transparent", color: "#64B5F6", cursor: "pointer", fontFamily: "'Nunito'", fontWeight: 700 }}
+          >
+            Clear
+          </button>
+        </div>
+      </Card>
+    )}
+
     {/* DIAGNOSTIC SERVICES ROW */}
     <Card style={{ marginBottom: 16, background: "#FFF8E1" }}>
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, color: "#5D4037", marginBottom: 10 }}>
@@ -519,9 +593,35 @@ function JailbreakTab({ vehicle }) {
           </Btn>
           <span style={{ width: 1, height: 24, background: C.bd }} />
           <span style={{ fontSize: 11, fontWeight: 700, color: C.tm }}>QUICK PROFILES:</span>
-          {Object.entries(PROFILES).map(([k, p]) => (
-            <Btn key={k} onClick={() => applyProfile(k)} disabled={busy} color="#8B0000" outline>{p.label.toUpperCase()}</Btn>
-          ))}
+          {Object.entries(PROFILES).map(([k, p]) => {
+            const isRecommended = detectedCar && detectedCar.recommendedProfile === k;
+            // A profile is definitively incompatible when NO vehicle_trim_level value
+            // in the detected engine's trim range falls within the profile's compatibleTrims.
+            const incompatible = detectedCar != null
+              && !isProfileCompatibleWithRange(k, detectedCar.minTrim, detectedCar.maxTrim);
+            return (
+              <div key={k} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                {isRecommended && (
+                  <span style={{ fontSize: 9, fontWeight: 800, color: "#4CAF50", letterSpacing: .5, textAlign: "center" }}>
+                    ★ BEST MATCH
+                  </span>
+                )}
+                {incompatible && (
+                  <span style={{ fontSize: 9, fontWeight: 800, color: "#B71C1C", letterSpacing: .5, textAlign: "center" }}>
+                    ✕ INCOMPATIBLE
+                  </span>
+                )}
+                <Btn
+                  onClick={() => applyProfile(k)}
+                  disabled={busy || incompatible}
+                  color={isRecommended ? "#2E7D32" : incompatible ? "#9E9E9E" : "#8B0000"}
+                  outline={!isRecommended}
+                >
+                  {isRecommended ? "★ " : ""}{p.label.toUpperCase()}
+                </Btn>
+              </div>
+            );
+          })}
         </div>
         <input
           value={search}
