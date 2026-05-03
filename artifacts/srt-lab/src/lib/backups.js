@@ -51,6 +51,22 @@ export const CRITICAL_DIDS={
     {did:0x7B90,name:'Current VIN',critical:true},
     {did:0x7B88,name:'Original VIN',critical:true},
   ],
+  /* VILLAIN-extracted Chrysler/FCA DIDs. Source:
+     /tmp/villain_gpec/villain_extraction/VILLAIN_COMPLETE_EXTRACTION.md (lines 70-77, 88-103).
+     This group is LABEL-ONLY — it is NOT a real moduleType. dids.js seeds
+     from every value in this map, so the labels show up in the UI regardless
+     of whether anyone calls backupModule() with this key. The 24-bit and
+     32-bit DIDs cannot be issued via a standard 0x22 two-byte read frame;
+     backupModule() guards against accidental wide-DID requests. */
+  VILLAIN_EXT:[
+    {did:0x7B90,name:'Current VIN'},
+    {did:0x7B88,name:'Original VIN'},
+    {did:0x6E2025,name:'Bus Transmitted VIN'},
+    {did:0x6E2027,name:'WCM Configured VIN'},
+    {did:0x6E9EB0,name:'SKIM State (0x80=Enabled, 0x00=Disabled)'},
+    {did:0x6EF190,name:'EPS VIN'},
+    {did:0xF79EB045,name:'SKIM state flag (SCI-B)'},
+  ],
 };
 
 /* Read all critical DIDs from a module and persist to localStorage.
@@ -64,6 +80,7 @@ export async function backupModule(engUds,tx,rx,moduleType,addLog,hxFn,snapshotK
   const backup={module:moduleType,tx,rx,timestamp:new Date().toISOString(),dids:{}};
   let successCount=0;
   for(const d of dids){
+    if(d.did>0xFFFF){addLog('  Skipping wide DID 0x'+d.did.toString(16).toUpperCase()+' ('+d.name+'): cannot fit a standard 2-byte 0x22 read','warn');continue;}
     const r=await engUds(tx,rx,[0x22,(d.did>>8)&0xFF,d.did&0xFF]);
     if(r.ok&&r.d&&r.d[0]===0x62){
       const raw=Array.from(r.d).slice(3);

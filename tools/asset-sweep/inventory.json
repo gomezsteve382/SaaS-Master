@@ -1,38 +1,38 @@
 {
   "schema_version": 1,
   "generated_by": "tools/asset-sweep/src/sweep.mjs",
-  "file_count": 3387,
+  "file_count": 3433,
   "counts_by_kind": {
     "alfaobd_algorithm_catalog": 4,
-    "asm": 4,
+    "asm": 5,
     "bin": 245,
-    "config": 111,
+    "config": 113,
     "crc_source": 7,
     "csv": 7,
-    "decompiled_strings": 180,
+    "decompiled_strings": 202,
     "did_map_json": 6,
     "did_map_text": 6,
-    "dll": 4,
+    "dll": 12,
     "document": 11,
     "ecu_modules": 7,
     "ecu_types": 6,
-    "exe": 4,
+    "exe": 7,
     "html": 17,
     "image": 54,
     "javascript": 137,
-    "markdown": 171,
-    "other": 122,
+    "markdown": 173,
+    "other": 126,
     "python": 165,
     "seedkey_source": 32,
     "seedkey_source_js": 8,
     "spreadsheet": 2,
     "sqlite": 8,
     "swf": 2,
-    "text": 41,
+    "text": 44,
     "typescript": 1448,
     "uds_source": 13,
     "unlock_dll": 486,
-    "zip": 79
+    "zip": 80
   },
   "files": [
     {
@@ -402,6 +402,14 @@
       "kind": "exe",
       "depth": 0,
       "cachePath": "attached_assets/aemt_1777782073143.exe"
+    },
+    {
+      "path": "attached_assets/aemt_1777782760454.exe",
+      "size": 16909824,
+      "sha256": "4e0a328eed9110db1d5f8e7ea46d1be9f7b277f7d96b17effbf7033ad4988dc8",
+      "kind": "exe",
+      "depth": 0,
+      "cachePath": "attached_assets/aemt_1777782760454.exe"
     },
     {
       "path": "attached_assets/alfa_files_part_2_1776573839905.zip",
@@ -12150,12 +12158,28 @@
       "cachePath": "attached_assets/chichitoworkshop_-_Copy_1777781976994.key"
     },
     {
+      "path": "attached_assets/chichitoworkshop_-_Copy_1777782879445.key",
+      "size": 6649,
+      "sha256": "91532b15b452a3f927fb83c8d4df6ab58bc8a48c6797f4abd12337d99b36b58d",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/chichitoworkshop_-_Copy_1777782879445.key"
+    },
+    {
       "path": "attached_assets/chichitoworkshop_1777781976997.key",
       "size": 6649,
       "sha256": "91532b15b452a3f927fb83c8d4df6ab58bc8a48c6797f4abd12337d99b36b58d",
       "kind": "other",
       "depth": 0,
       "cachePath": "attached_assets/chichitoworkshop_1777781976997.key"
+    },
+    {
+      "path": "attached_assets/chichitoworkshop_1777782879446.key",
+      "size": 6649,
+      "sha256": "91532b15b452a3f927fb83c8d4df6ab58bc8a48c6797f4abd12337d99b36b58d",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/chichitoworkshop_1777782879446.key"
     },
     {
       "path": "attached_assets/CLAUDE_1776573163347.md",
@@ -12558,12 +12582,28 @@
       "cachePath": "attached_assets/FCA_PROXI_Tool_-_Copy_1777781976998.exe"
     },
     {
+      "path": "attached_assets/FCA_PROXI_Tool_-_Copy_1777782879447.exe",
+      "size": 21763077,
+      "sha256": "4aeb893514f1ff56b386da9181e40384b5370c85309cba901d756918c49e2ebc",
+      "kind": "exe",
+      "depth": 0,
+      "cachePath": "attached_assets/FCA_PROXI_Tool_-_Copy_1777782879447.exe"
+    },
+    {
       "path": "attached_assets/FCA_PROXI_Tool_1777781976999.exe",
       "size": 21763077,
       "sha256": "4aeb893514f1ff56b386da9181e40384b5370c85309cba901d756918c49e2ebc",
       "kind": "exe",
       "depth": 0,
       "cachePath": "attached_assets/FCA_PROXI_Tool_1777781976999.exe"
+    },
+    {
+      "path": "attached_assets/FCA_PROXI_Tool_1777782879449.exe",
+      "size": 21763077,
+      "sha256": "4aeb893514f1ff56b386da9181e40384b5370c85309cba901d756918c49e2ebc",
+      "kind": "exe",
+      "depth": 0,
+      "cachePath": "attached_assets/FCA_PROXI_Tool_1777782879449.exe"
     },
     {
       "path": "attached_assets/FCATOOl_1776011539130.zip",
@@ -18384,6 +18424,14 @@
       "cachePath": "attached_assets/GPEC_Unlocker.exe_1777782039449.log"
     },
     {
+      "path": "attached_assets/HWID_1777782781186.txt",
+      "size": 32,
+      "sha256": "e0d0083e3155a866e7eb6f93145b1bb1a380b412782faee6d850afd53c240008",
+      "kind": "text",
+      "depth": 0,
+      "cachePath": "attached_assets/HWID_1777782781186.txt"
+    },
+    {
       "path": "attached_assets/image_1776875107846.png",
       "size": 175346,
       "sha256": "74ce9b433bfa647837929c865926296be5c9986b8e5bfd99d67980f9cc2ba98d",
@@ -18696,6 +18744,38 @@
       "cachePath": "attached_assets/KEYPROG_2C3CDXCT1HH652640_8KB.zip__zip__/VERIFY_KEYPROG_2C3CDXCT1HH652640_8KB.txt"
     },
     {
+      "path": "attached_assets/libcrypto-1_1_1777782781187.dll",
+      "size": 2268512,
+      "sha256": "239d518dd67d8c2bbf6aeaded86ed464865e914db6bf3b115973d525ebd7d367",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/libcrypto-1_1_1777782781187.dll"
+    },
+    {
+      "path": "attached_assets/libeay32_1777782781188.dll",
+      "size": 1297408,
+      "sha256": "c28eb9e000a4232f918a88159fcf376fd4ebe706024de86de4e371433859d320",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/libeay32_1777782781188.dll"
+    },
+    {
+      "path": "attached_assets/libffi-7_1777782781188.dll",
+      "size": 29208,
+      "sha256": "0c7ec6de19c246a23756b8550e6178ac2394b1093e96d0f43789124149486f57",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/libffi-7_1777782781188.dll"
+    },
+    {
+      "path": "attached_assets/libssl-1_1_1777782781189.dll",
+      "size": 549216,
+      "sha256": "52224881670ced6419a3e68731e5e3d0b1d224d5816619dccf6161f91ec78021",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/libssl-1_1_1777782781189.dll"
+    },
+    {
       "path": "attached_assets/license_-_Copy_1777781977001.json",
       "size": 189,
       "sha256": "f09eb46e67b1b307e8ad80da1200a9c0388b457001b6d7b8ac0cb002a7f384cf",
@@ -18704,12 +18784,28 @@
       "cachePath": "attached_assets/license_-_Copy_1777781977001.json"
     },
     {
+      "path": "attached_assets/license_-_Copy_1777782879450.json",
+      "size": 189,
+      "sha256": "f09eb46e67b1b307e8ad80da1200a9c0388b457001b6d7b8ac0cb002a7f384cf",
+      "kind": "config",
+      "depth": 0,
+      "cachePath": "attached_assets/license_-_Copy_1777782879450.json"
+    },
+    {
       "path": "attached_assets/license_1777781977002.json",
       "size": 189,
       "sha256": "f09eb46e67b1b307e8ad80da1200a9c0388b457001b6d7b8ac0cb002a7f384cf",
       "kind": "config",
       "depth": 0,
       "cachePath": "attached_assets/license_1777781977002.json"
+    },
+    {
+      "path": "attached_assets/license_1777782879451.json",
+      "size": 189,
+      "sha256": "f09eb46e67b1b307e8ad80da1200a9c0388b457001b6d7b8ac0cb002a7f384cf",
+      "kind": "config",
+      "depth": 0,
+      "cachePath": "attached_assets/license_1777782879451.json"
     },
     {
       "path": "attached_assets/Microsoft.Bcl.AsyncInterfaces_1777782039453.dll",
@@ -18798,6 +18894,22 @@
       "kind": "bin",
       "depth": 0,
       "cachePath": "attached_assets/MPC5606B_DFLASH_20260422130530_1776959958761.bin"
+    },
+    {
+      "path": "attached_assets/msvcp140_1_1777782781190.dll",
+      "size": 29168,
+      "sha256": "b8cafc52b903ed0824882365b0a0d438460260b4ddf2487849eb3bd2241f7e8d",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/msvcp140_1_1777782781190.dll"
+    },
+    {
+      "path": "attached_assets/msvcp140_1777782781190.dll",
+      "size": 454128,
+      "sha256": "265591a709a5db413d73c95b538da321edeacb40059bdceb142f997a3d458b49",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/msvcp140_1777782781190.dll"
     },
     {
       "path": "attached_assets/OBDSwarmDiagnostic_1776061278022.jsx",
@@ -19312,6 +19424,14 @@
       "cachePath": "attached_assets/PCM_SYNCED_4KB_2C3CCABG1KH539430_20260502_195833_1777770277083.bin"
     },
     {
+      "path": "attached_assets/pyexpat_1777782781191.pyd",
+      "size": 169856,
+      "sha256": "73cf8c3b7d5843cb2253d139c25fcd15314e9a61d0014aab325d681eef3061cf",
+      "kind": "other",
+      "depth": 0,
+      "cachePath": "attached_assets/pyexpat_1777782781191.pyd"
+    },
+    {
       "path": "attached_assets/Readme_-_Copy_1777781977003.txt",
       "size": 168,
       "sha256": "277cdf4a128ed1fecf72af75cbfe550a38559b6dd38b9587dcf1055d4b9583b9",
@@ -19320,12 +19440,28 @@
       "cachePath": "attached_assets/Readme_-_Copy_1777781977003.txt"
     },
     {
+      "path": "attached_assets/Readme_-_Copy_1777782879451.txt",
+      "size": 168,
+      "sha256": "277cdf4a128ed1fecf72af75cbfe550a38559b6dd38b9587dcf1055d4b9583b9",
+      "kind": "text",
+      "depth": 0,
+      "cachePath": "attached_assets/Readme_-_Copy_1777782879451.txt"
+    },
+    {
       "path": "attached_assets/Readme_1777781977004.txt",
       "size": 168,
       "sha256": "277cdf4a128ed1fecf72af75cbfe550a38559b6dd38b9587dcf1055d4b9583b9",
       "kind": "text",
       "depth": 0,
       "cachePath": "attached_assets/Readme_1777781977004.txt"
+    },
+    {
+      "path": "attached_assets/Readme_1777782879452.txt",
+      "size": 168,
+      "sha256": "277cdf4a128ed1fecf72af75cbfe550a38559b6dd38b9587dcf1055d4b9583b9",
+      "kind": "text",
+      "depth": 0,
+      "cachePath": "attached_assets/Readme_1777782879452.txt"
     },
     {
       "path": "attached_assets/README_J2534_BRIDGE_1776462206286.md",
@@ -19496,12 +19632,28 @@
       "cachePath": "attached_assets/shfolder_-_Copy_1777781977004.dll"
     },
     {
+      "path": "attached_assets/shfolder_-_Copy_1777782879453.dll",
+      "size": 10161664,
+      "sha256": "9eae2bd892376367379d0083c1d0eb9d237a2644e330e5c7d3cf1dce06ce4822",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/shfolder_-_Copy_1777782879453.dll"
+    },
+    {
       "path": "attached_assets/shfolder_1777781977005.dll",
       "size": 10161664,
       "sha256": "9eae2bd892376367379d0083c1d0eb9d237a2644e330e5c7d3cf1dce06ce4822",
       "kind": "dll",
       "depth": 0,
       "cachePath": "attached_assets/shfolder_1777781977005.dll"
+    },
+    {
+      "path": "attached_assets/shfolder_1777782879453.dll",
+      "size": 10161664,
+      "sha256": "9eae2bd892376367379d0083c1d0eb9d237a2644e330e5c7d3cf1dce06ce4822",
+      "kind": "dll",
+      "depth": 0,
+      "cachePath": "attached_assets/shfolder_1777782879453.dll"
     },
     {
       "path": "attached_assets/srt_lab_1776444434001.py",
@@ -27078,6 +27230,222 @@
       "kind": "text",
       "depth": 0,
       "cachePath": "attached_assets/VERIFY_PCM_SYNCED_4KB_RESCUE.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip",
+      "size": 26232228,
+      "sha256": "d113fc620390e181510cdcf92eaebf0e4dd63c8365a5b4d57640de8310fd09f2",
+      "kind": "zip",
+      "depth": 0,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/AutoJ2534___init___strings.txt",
+      "size": 2532,
+      "sha256": "d42574dc4c9cd9bb503066db971f9ef35a9b48d70ade739543ea78fed53f32aa",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/AutoJ2534___init___strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/AutoJ2534_EcuParameters_strings.txt",
+      "size": 38460,
+      "sha256": "fa489dcf694b28be8f4a3204d71cb4d00d6b205914189eb70218c4bcdb026e86",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/AutoJ2534_EcuParameters_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/AutoJ2534_Interface_strings.txt",
+      "size": 9451,
+      "sha256": "57ececfd2a64ed1ca617843ed89858bbc65f124e78b49bdebce417e1ecdc9b53",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/AutoJ2534_Interface_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/ECU_Functions___init___strings.txt",
+      "size": 641,
+      "sha256": "58358ea630a35ddd631adbea80b62dd58c281bea8d980fb988bb44dd84c27aa0",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/ECU_Functions___init___strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/ECU_Functions_CAN_ECU_strings.txt",
+      "size": 47474,
+      "sha256": "2c868bfbc452a4b21214ccb26df982e19ea30eac2db73fc741bab9d02c504426",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/ECU_Functions_CAN_ECU_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/ECU_Functions_EPS_strings.txt",
+      "size": 3725,
+      "sha256": "d164095e7c9e152e0ff7767da6493fc46590c6072c71a6f6a54349e6ce249d32",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/ECU_Functions_EPS_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/ECU_Functions_SCI_A_ECU_strings.txt",
+      "size": 1505,
+      "sha256": "bf294254ba11485fdeb1f3f8e18d02d19a9be392cae290aef54323c52179a94a",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/ECU_Functions_SCI_A_ECU_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/ECU_Functions_SCI_B_ECU_strings.txt",
+      "size": 5567,
+      "sha256": "3654248397f7d768e9e626999756766017a7a7743815950c2bba3a5969e07a90",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/ECU_Functions_SCI_B_ECU_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/ECU_Functions_TIPM_strings.txt",
+      "size": 16285,
+      "sha256": "421e3609c14499f00942cd87ff50781d48dd935a08668975f5fe1aa406c5c772",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/ECU_Functions_TIPM_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/GPEC_Unlocker_Cracked/GPEC_UNLOCK_ALGORITHM.md",
+      "size": 6664,
+      "sha256": "580ac4dc34e52b4e5ecfd72d1e1b1500b9dcb801fab5a73861907a49cc4633d4",
+      "kind": "markdown",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/GPEC_Unlocker_Cracked/GPEC_UNLOCK_ALGORITHM.md"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/header_strings.txt",
+      "size": 418767,
+      "sha256": "3d4c2ae32ac176f2f9e1b753daf814286a4094ee1586169d66995c9470485855",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/header_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/J2534___init___strings.txt",
+      "size": 2165,
+      "sha256": "4110652d65039fee1841b2a6ecf29ac93b29fadbe6dfb590eee0d5f551284e94",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/J2534___init___strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/J2534_Define_strings.txt",
+      "size": 3248,
+      "sha256": "b7bfc9cd6385b204f5278648947c9c9ac10ad4b83d70e7f27177fcf635139344",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/J2534_Define_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/J2534_dll_strings.txt",
+      "size": 2564,
+      "sha256": "11b9acf8f3164ee8e7c1defc84aa228905ef81d8a9ffdac748b9395cb79377cb",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/J2534_dll_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/J2534_Registry_strings.txt",
+      "size": 1969,
+      "sha256": "941aaa265723b67b3a1718a78a0a27174c243ab2c230e4168f83fdfcbbb81fa8",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/J2534_Registry_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/J2534_wrapper_strings.txt",
+      "size": 6146,
+      "sha256": "86cdd591ff60fad50e95da5ea431d596797d5c6671755312845881e8261099e2",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/J2534_wrapper_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/Unlocks___init___strings.txt",
+      "size": 2224,
+      "sha256": "e27624326cd9d95e1b2559b4e8a49260f88e354a0cd8a2bfaf23311d0a13c6b5",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/Unlocks___init___strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/Unlocks_EcuUnlocks_strings.txt",
+      "size": 4534,
+      "sha256": "9ba7d2c0b7aaf3b40e6bfe323f451727361115bd21eefdc16584ed31073c0dcc",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/Unlocks_EcuUnlocks_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/Unlocks_EPSUnlocks_strings.txt",
+      "size": 5605,
+      "sha256": "61e859c0e5d920669ec5c9ddf72b0433d59358f6519e6fba6a17ae2870bec0e1",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/Unlocks_EPSUnlocks_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/Unlocks_TIPMUnlocks_strings.txt",
+      "size": 3416,
+      "sha256": "286174274b829f689241835763210fbb9faea4f0a850eea2e63bdb8dd3f05ef5",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/Unlocks_TIPMUnlocks_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/Utilitys___init___strings.txt",
+      "size": 874,
+      "sha256": "fd33697b5eca7ce2fa787c9759c27fd875d6d4ae5d60328800e4945b82e8b8dd",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/Utilitys___init___strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/Utilitys_utility_strings.txt",
+      "size": 1563,
+      "sha256": "41472918ca86b405a8f942a27b8855bc5f32610c7cf5a738111d90fe58ecd067",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/Utilitys_utility_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/VILLAIN_COMPLETE_EXTRACTION.md",
+      "size": 10109,
+      "sha256": "b026d0fa6a05146cad55a2051d701a84f5f8846a42a58082eca82e1fcb4e5cf1",
+      "kind": "markdown",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/VILLAIN_COMPLETE_EXTRACTION.md"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/VILLAIN_strings.txt",
+      "size": 31647,
+      "sha256": "d3e023f9277d5e7b4bf969d47483d7bc6863297d6b295bfbbaa55de5e8636f5e",
+      "kind": "decompiled_strings",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/VILLAIN_strings.txt"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/villain_extraction/X86_SEED_KEY_NATIVE.asm",
+      "size": 36572,
+      "sha256": "aee29055e5d28fdf1e406e2402d7cfffde4fc615cd9b931b76add983ec53336b",
+      "kind": "asm",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/villain_extraction/X86_SEED_KEY_NATIVE.asm"
+    },
+    {
+      "path": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip!/wiTECH_wde.DMP",
+      "size": 77072602,
+      "sha256": "79705dccc4183acdccb736afc12fcca9c6baf8deeebe7e6eb186324477fdaf94",
+      "kind": "other",
+      "depth": 1,
+      "cachePath": "attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip__zip__/wiTECH_wde.DMP"
     },
     {
       "path": "attached_assets/VIN_1C4RJFDJXEC365477_18TRACKHAWKDFLASHBCM_DRAGKAT_OG_1776900458956.bin",
