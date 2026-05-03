@@ -71,8 +71,10 @@ describe('bcmConfigBridge.readAllBcmConfigDids', () => {
   it('walks every DID and only enters extended session once', async () => {
     const programmed = { '10': [0x50, 0x03, 0, 0, 0, 0] };
     for (const did of BCM_CONFIG_DIDS) {
-      const k = '22:de' + (did & 0xFF).toString(16).padStart(2, '0');
-      programmed[k] = [0x62, 0xDE, did & 0xFF, 0x00];
+      const hi = (did >> 8) & 0xFF;
+      const lo = did & 0xFF;
+      const k = '22:' + hi.toString(16).padStart(2, '0') + lo.toString(16).padStart(2, '0');
+      programmed[k] = [0x62, hi, lo, 0x00];
     }
     const eng = fakeEngine(programmed);
     const r = await readAllBcmConfigDids({ engine: eng });
