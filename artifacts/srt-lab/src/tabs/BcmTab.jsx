@@ -4,7 +4,7 @@ import {C} from "../lib/constants.js";
 import {cda6, u32} from "../lib/algos.js";
 import {initAdapter, parseVinFromResponse} from "../lib/initAdapter.js";
 import {backupModule, getBackupList} from "../lib/backups.js";
-import {decodeNRC} from "../lib/nrc.js";
+import {decodeNRC, nrcMsg} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
@@ -19,7 +19,7 @@ import {analyzeDumpPartNumber, generationForPartNumber} from "../lib/vehicles.js
 import SamplePicker from "../lib/SamplePicker.jsx";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 import {getBcmGroups, getDid} from "../lib/alfaobdMined/index.js";
-import {buildWdbiFrame, readBits as minedReadBits, buildRoutineControlFrame} from "../lib/alfaobdMined/udsFrameBuilder.js";
+import {readBits as minedReadBits, buildRoutineControlFrame, buildOptionWriteSequence} from "../lib/alfaobdMined/udsFrameBuilder.js";
 
 const BCM_ALGOS={
   'CDA6':s=>cda6(s),
@@ -47,7 +47,23 @@ function MinedBcmConfigPanel({engRef, bcmAddr, unlocked, addLog, busy, setBusy})
   const [reading, setReading] = useState(false);
   const [writing, setWriting] = useState(false);
   const [open, setOpen] = useState(false);
+  // Per-option live status keyed as `${did}|${name}`:
+  //   { state: 'pending' | 'writing' | 'confirmed' | 'error', nrc?: number, msg?: string }
+  const [optStatus, setOptStatus] = useState({});
   const hx = (n, w=2) => n.toString(16).toUpperCase().padStart(w, '0');
+  const statusKey = (did, name) => did + '|' + name;
+  const setStatus = useCallback((did, name, s) => {
+    setOptStatus(p => ({...p, [statusKey(did, name)]: s}));
+  }, []);
+  const decodeUdsError = useCallback((resp) => {
+    if (!resp) return {nrc: null, label: 'no response'};
+    if (resp.d && resp.d[0] === 0x7F && resp.d.length >= 3) {
+      const nrc = resp.d[2];
+      return {nrc, label: 'NRC 0x' + hx(nrc) + ' — ' + nrcMsg(nrc)};
+    }
+    if (!resp.ok) return {nrc: null, label: resp.raw || 'no response'};
+    return {nrc: null, label: 'unexpected response'};
+  }, []);
 
   const filteredGroups = useMemo(() => {
     if (!search.trim()) return MINED_GROUPS;
@@ -91,14 +107,16 @@ function MinedBcmConfigPanel({engRef, bcmAddr, unlocked, addLog, busy, setBusy})
         payloads[g.did] = new Uint8Array(Array.from(r.d).slice(3));
         addLog('DID ' + g.did + ' (' + g.groupName + '): ' + payloads[g.did].length + ' bytes', 'rx');
       } else {
-        addLog('DID ' + g.did + ': no response', 'warn');
+        const e = decodeUdsError(r);
+        addLog('DID ' + g.did + ': ' + e.label, e.nrc ? 'error' : 'warn');
       }
     }
     setDidPayloads(payloads);
     setPending({});
+    setOptStatus({});
     setReading(false);
     addLog('BCM config read complete', 'info');
-  }, [engRef, bcmAddr, addLog]);
+  }, [engRef, bcmAddr, addLog, decodeUdsError]);
 
   const writeBatch = useCallback(async () => {
     if (!engRef.current) { addLog('Connect first', 'error'); return; }
@@ -107,9 +125,38 @@ function MinedBcmConfigPanel({engRef, bcmAddr, unlocked, addLog, busy, setBusy})
     setWriting(true);
     setBusy('Writing BCM config...');
     addLog('═══ BCM CONFIG WRITE BATCH (' + pendingCount + ' change' + (pendingCount === 1 ? '' : 's') + ') ═══', 'info');
-    await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x10, 0x03]);
+    // Mark all pending options as "writing" up front so the UI animates
+    // before the first WDBI lands on the wire.
+    for (const [did, changes] of Object.entries(pending)) {
+      for (const name of Object.keys(changes)) {
+        setStatus(did, name, {state: 'writing'});
+      }
+    }
+    // Hard-stop on session-entry NRC: every WDBI below would be rejected
+    // anyway and the post-write routines must NOT run if we never made it
+    // into the programming session.
+    const dsr = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x10, 0x03]);
+    const dsrOk = dsr && dsr.ok && dsr.d && dsr.d[0] === 0x50;
+    if (!dsrOk) {
+      const e = decodeUdsError(dsr);
+      addLog('DiagSession 10 03 refused: ' + e.label + ' — aborting write batch', 'error');
+      for (const [did, changes] of Object.entries(pending)) {
+        for (const name of Object.keys(changes)) {
+          setStatus(did, name, {state: 'error', nrc: e.nrc, msg: '10 03 refused: ' + e.label});
+        }
+      }
+      setBusy('');
+      setWriting(false);
+      addLog('═══ BCM CONFIG WRITE ABORTED ═══', 'error');
+      return;
+    }
 
-    let anyReset = false;
+    // Track which post-write routines are required by SUCCESSFULLY written
+    // options only, so a failed write never causes a stray proxiAlign or
+    // ecuReset to be issued (review feedback #2).
+    const routinesNeeded = new Set();
+    let successfulWrites = 0;
+
     for (const [did, changes] of Object.entries(pending)) {
       if (Object.keys(changes).length === 0) continue;
       const didN = parseInt(did.replace(/^0x/i, ''), 16);
@@ -119,57 +166,123 @@ function MinedBcmConfigPanel({engRef, bcmAddr, unlocked, addLog, busy, setBusy})
       addLog('Writing DID ' + did + ' (' + group.groupName + ')...', 'info');
       const rRead = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x22, (didN >> 8) & 0xFF, didN & 0xFF]);
       if (!rRead.ok || !rRead.d || rRead.d[0] !== 0x62) {
-        addLog('DID ' + did + ': read failed before write', 'error');
+        const e = decodeUdsError(rRead);
+        addLog('DID ' + did + ': read failed before write — ' + e.label, 'error');
+        for (const name of Object.keys(changes)) {
+          setStatus(did, name, {state: 'error', nrc: e.nrc, msg: 'pre-read failed: ' + e.label});
+        }
         continue;
       }
       let payload = new Uint8Array(Array.from(rRead.d).slice(3));
 
+      // Build one read-modify-write WDBI frame per option via the catalog
+      // helper (review feedback #1: use buildOptionWriteSequence). Each
+      // call returns the frame for the option *and* the option's ordered
+      // post-write routines so we can attribute them only to writes that
+      // actually succeed.
+      const seqsForDid = [];
       for (const [name, newVal] of Object.entries(changes)) {
-        const opt = group.options.find(o => o.name === name);
-        if (!opt) continue;
-        addLog('  ' + name + ': set to ' + newVal + ' (bit ' + opt.bit + ' length ' + opt.length + ')', 'info');
-        const frame = buildWdbiFrame(did, payload, opt.bit, opt.length, newVal);
-        payload = new Uint8Array(frame.slice(3));
-        if (opt.requiresReset) anyReset = true;
+        const seq = buildOptionWriteSequence(did, name, payload, newVal);
+        if (!seq) {
+          addLog('  ' + name + ': not in catalog — skipping', 'warn');
+          setStatus(did, name, {state: 'error', msg: 'not in mined catalog'});
+          continue;
+        }
+        addLog('  ' + name + ': set to ' + newVal + ' (bit ' + seq.option.bit + ' length ' + seq.option.length + ')', 'info');
+        addLog('  WDBI frame: ' + seq.wdbiFrame.map(b => hx(b)).join(' '), 'tx');
+        const rWrite = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, seq.wdbiFrame);
+        if (!rWrite.ok || !rWrite.d || rWrite.d[0] !== 0x6E) {
+          const e = decodeUdsError(rWrite);
+          addLog('  ' + name + ': write failed — ' + e.label, 'error');
+          setStatus(did, name, {state: 'error', nrc: e.nrc, msg: e.label});
+          continue;
+        }
+        // WDBI accepted — advance the working payload (modified bytes are
+        // the WDBI frame body minus the 2E + DID header) so the next
+        // option's read-modify-write starts from the updated state.
+        payload = new Uint8Array(seq.wdbiFrame.slice(3));
+        seqsForDid.push({name, newVal, opt: seq.option, postWrite: seq.postWrite});
+        successfulWrites++;
       }
 
-      const wdbiFrame = [0x2E, (didN >> 8) & 0xFF, didN & 0xFF, ...Array.from(payload)];
-      addLog('  WDBI frame: ' + wdbiFrame.map(b => hx(b)).join(' '), 'tx');
-      const rWrite = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, wdbiFrame);
-      if (!rWrite.ok || !rWrite.d || rWrite.d[0] !== 0x6E) {
-        addLog('  DID ' + did + ': write failed (NRC: ' + (rWrite.d ? hx(rWrite.d[2] || 0) : 'no response') + ')', 'error');
-        continue;
-      }
+      if (seqsForDid.length === 0) continue;
+
+      // Verify each successfully-written bitfield landed at the requested
+      // value via a single readback for the DID.
       const rBack = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x22, (didN >> 8) & 0xFF, didN & 0xFF]);
       if (rBack.ok && rBack.d && rBack.d[0] === 0x62) {
         const readback = new Uint8Array(Array.from(rBack.d).slice(3));
         setDidPayloads(p => ({...p, [did]: readback}));
         addLog('  DID ' + did + ': readback OK', 'rx');
+        for (const s of seqsForDid) {
+          const actual = minedReadBits(readback, s.opt.bit, s.opt.length);
+          if (actual === s.newVal) {
+            setStatus(did, s.name, {state: 'confirmed'});
+            for (const step of s.postWrite) routinesNeeded.add(step.label);
+          } else {
+            setStatus(did, s.name, {state: 'error', msg: 'readback ' + actual + ' ≠ requested ' + s.newVal});
+            addLog('  ' + s.name + ': readback mismatch (got ' + actual + ', wanted ' + s.newVal + ')', 'error');
+          }
+        }
+      } else {
+        // 6E was positive but readback unavailable — still credit the
+        // post-write routines from this DID's confirmed-by-6E options.
+        for (const s of seqsForDid) {
+          setStatus(did, s.name, {state: 'confirmed', msg: 'no readback (assumed OK from 6E)'});
+          for (const step of s.postWrite) routinesNeeded.add(step.label);
+        }
       }
     }
 
-    addLog('ProxiAlign (31 01 02 02)...', 'info');
-    const paFrame = buildRoutineControlFrame('proxiAlign');
-    const rPa = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, paFrame);
-    addLog('  ProxiAlign: ' + (rPa.ok && rPa.d && rPa.d[0] === 0x71 ? 'OK' : 'no positive response — check manually'), rPa.ok ? 'rx' : 'warn');
-
-    if (anyReset) {
-      addLog('ECU reset required by one or more changed options — sending (11 01)...', 'warn');
-      await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, buildRoutineControlFrame('ecuReset'));
-      addLog('Reset sent — wait ~3 s for BCM to boot', 'info');
+    // Post-write routines only run when at least one option was written
+    // successfully AND that option's catalog row asked for the routine.
+    if (successfulWrites === 0) {
+      addLog('No options written successfully — skipping post-write routines', 'warn');
+    } else {
+      if (routinesNeeded.has('proxiAlign')) {
+        addLog('ProxiAlign (31 01 02 02)...', 'info');
+        const paFrame = buildRoutineControlFrame('proxiAlign');
+        const rPa = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, paFrame);
+        if (rPa.ok && rPa.d && rPa.d[0] === 0x71) {
+          addLog('  ProxiAlign: OK', 'rx');
+        } else {
+          const e = decodeUdsError(rPa);
+          addLog('  ProxiAlign: ' + e.label, e.nrc ? 'error' : 'warn');
+        }
+      }
+      if (routinesNeeded.has('clearDtc')) {
+        addLog('ClearDTC (14 FF FF FF)...', 'info');
+        const rCd = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, buildRoutineControlFrame('clearDtc'));
+        if (rCd.ok && rCd.d && rCd.d[0] === 0x54) addLog('  ClearDTC: OK', 'rx');
+        else { const e = decodeUdsError(rCd); addLog('  ClearDTC: ' + e.label, e.nrc ? 'error' : 'warn'); }
+      }
+      if (routinesNeeded.has('ecuReset')) {
+        addLog('ECU reset required by catalog (11 01)...', 'warn');
+        await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, buildRoutineControlFrame('ecuReset'));
+        addLog('Reset sent — wait ~3 s for BCM to boot', 'info');
+      }
     }
 
     setPending({});
     setBusy('');
     setWriting(false);
-    addLog('═══ BCM CONFIG WRITE COMPLETE ═══', 'info');
-  }, [engRef, bcmAddr, unlocked, pending, pendingCount, addLog, setBusy]);
+    addLog('═══ BCM CONFIG WRITE COMPLETE (' + successfulWrites + '/' + pendingCount + ' option' + (pendingCount === 1 ? '' : 's') + ' written) ═══', successfulWrites === pendingCount ? 'info' : 'warn');
+  }, [engRef, bcmAddr, unlocked, pending, pendingCount, addLog, setBusy, setStatus, decodeUdsError]);
 
   const setPendingOption = useCallback((did, name, value) => {
     setPending(p => {
       const existing = {...(p[did] || {})};
       existing[name] = value;
       return {...p, [did]: existing};
+    });
+    // Clear any stale write status from a previous batch so the user sees
+    // a clean "pending" state on a freshly edited option.
+    setOptStatus(p => {
+      const k = statusKey(did, name);
+      if (!(k in p)) return p;
+      const next = {...p};
+      delete next[k];
+      return next;
     });
   }, []);
 
@@ -267,6 +380,13 @@ function MinedBcmConfigPanel({engRef, bcmAddr, unlocked, addLog, busy, setBusy})
                       const pendingRaw = groupPending[opt.name];
                       const displayRaw = isPending ? pendingRaw : liveRaw;
                       const hasOptions = opt.valueMap && Object.keys(opt.valueMap).length > 0;
+                      const status = optStatus[statusKey(group.did, opt.name)];
+                      const statusBadge = status ? (
+                        status.state === 'writing' ? {label: '⏳ writing', color: C.a3} :
+                        status.state === 'confirmed' ? {label: '✓ confirmed', color: C.gn} :
+                        status.state === 'error' ? {label: '✕ ' + (status.msg || 'error'), color: C.er} :
+                        null
+                      ) : null;
 
                       return (
                         <div key={opt.name} style={{
@@ -281,6 +401,21 @@ function MinedBcmConfigPanel({engRef, bcmAddr, unlocked, addLog, busy, setBusy})
                             {isPending && <span style={{marginLeft: 4, fontSize: 9, color: C.wn, fontWeight: 700}}>● pending</span>}
                           </div>
                           <span style={{fontFamily: "'JetBrains Mono'", fontSize: 9, color: C.ts}}>bit{opt.bit}/+{opt.length}</span>
+                          {statusBadge && (
+                            <span
+                              data-testid={'opt-status-' + group.did + '-' + opt.name.replace(/\s+/g, '_')}
+                              title={status?.msg || ''}
+                              style={{
+                                fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4,
+                                background: statusBadge.color + '22',
+                                color: statusBadge.color,
+                                border: '1px solid ' + statusBadge.color + '66',
+                                whiteSpace: 'nowrap', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis',
+                              }}
+                            >
+                              {statusBadge.label}
+                            </span>
+                          )}
                           {hasOptions ? (
                             <select
                               value={displayRaw === null || displayRaw === undefined ? '' : String(displayRaw)}
