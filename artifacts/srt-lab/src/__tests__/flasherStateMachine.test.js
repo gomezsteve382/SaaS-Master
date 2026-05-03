@@ -20,14 +20,20 @@ function bytes(...args) { return new Uint8Array(args); }
 // recorded into a separate `etiquette` array so existing scripted
 // tests keep counting only the primary UDS flow while #563 tests can
 // still assert on order and content of the etiquette frames.
-function makeEngine({ isBridge = true, script = [] } = {}) {
+function makeEngine({ isBridge = true, script = [], timingDefaults = { p2Ms: 50, p2StarMs: 500 } } = {}) {
   const calls = [];
   const etiquette = [];
+  const timing = [];
+  let negotiated = null;
   let i = 0;
   const eng = {
     isBridge,
     calls,
     etiquette,
+    timing,
+    setNegotiatedTiming(t){ negotiated = t ? { ...t } : null; },
+    clearNegotiatedTiming(){ negotiated = null; },
+    getNegotiatedTiming(){ return negotiated ? { ...negotiated } : null; },
     async uds(tx, rx, frame) {
       const arr = frame instanceof Uint8Array ? Array.from(frame) : [...frame];
       if (arr[0] === 0x3E) {
@@ -37,6 +43,27 @@ function makeEngine({ isBridge = true, script = [] } = {}) {
       if (arr[0] === 0x85 || arr[0] === 0x28) {
         // Pre/post-flash etiquette — out-of-band, recorded separately.
         etiquette.push({ tx, rx, frame: arr });
+        return { ok: true, d: new Uint8Array(0) };
+      }
+      if (arr[0] === 0x83) {
+        // 0x83 AccessTimingParameter (Task #566) — out-of-band like
+        // 0x3E / 0x85 / 0x28 so the existing scripted flows keep
+        // working unchanged. Sub 0x02 echoes back `timingDefaults`,
+        // sub 0x03 echoes the values it just received.
+        timing.push({ tx, rx, frame: arr });
+        if (arr[1] === 0x02) {
+          const p2  = timingDefaults.p2Ms     & 0xFFFF;
+          const p2s = timingDefaults.p2StarMs & 0xFFFF;
+          return { ok: true, d: new Uint8Array([0xC3, 0x02, (p2>>8)&0xFF, p2&0xFF, (p2s>>8)&0xFF, p2s&0xFF]) };
+        }
+        if (arr[1] === 0x03) {
+          return { ok: true, d: new Uint8Array([0xC3, 0x03, arr[2], arr[3], arr[4], arr[5]]) };
+        }
+        if (arr[1] === 0x01) {
+          const p2  = timingDefaults.p2Ms     & 0xFFFF;
+          const p2s = timingDefaults.p2StarMs & 0xFFFF;
+          return { ok: true, d: new Uint8Array([0xC3, 0x01, (p2>>8)&0xFF, p2&0xFF, (p2s>>8)&0xFF, p2s&0xFF]) };
+        }
         return { ok: true, d: new Uint8Array(0) };
       }
       calls.push({ tx, rx, frame: arr });
@@ -740,5 +767,140 @@ describe('flashEcm pre/post-flash etiquette (Task #563)', () => {
     expect(r.ok).toBe(true);
     // 4 frames total = 2 pre + 2 post (NOT 2 + 4).
     expect(eng.etiquette).toHaveLength(4);
+  });
+});
+
+describe('flashEcm UDS 0x83 timing negotiation (Task #566)', () => {
+  function happyTail(payload, chunkSize = 0x80){
+    const out = [];
+    out.push({ ok: true, d: bytes(0x74, 0x10, 0x82) });
+    const chunks = Math.ceil(payload.length / chunkSize);
+    for (let i = 0; i < chunks; i++){
+      out.push((f) => ({ ok: true, d: bytes(0x76, f[1]) }));
+    }
+    out.push({ ok: true, d: bytes(0x77) });
+    out.push({ ok: true, d: bytes(0x71, 0x01, 0xFF, 0x01, 0x00) });
+    out.push({ ok: true, d: bytes(0x51, 0x01) });
+    return out;
+  }
+
+  test('happy path reads current timing, sets extended values, restores defaults before reset', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(64);
+    const script = [...happyPrefix(seed, cda6(seed) >>> 0), ...happyTail(payload)];
+    const eng = makeEngine({ script, timingDefaults: { p2Ms: 50, p2StarMs: 500 } });
+    // Track ordering of 0x83 frames against 0x10 02, the long phases, and 0x11 01.
+    const order = [];
+    const real = eng.uds.bind(eng);
+    eng.uds = async (tx, rx, frame) => {
+      const arr = frame instanceof Uint8Array ? Array.from(frame) : [...frame];
+      if (arr[0] !== 0x3E) order.push(arr);
+      return real(tx, rx, frame);
+    };
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x80, extendedP2Ms: 5000, extendedP2StarMs: 30000 }).start();
+    expect(r.ok).toBe(true);
+    // Three 0x83 frames recorded: read-current, set-extended, restore.
+    expect(eng.timing).toHaveLength(3);
+    expect(eng.timing[0].frame).toEqual([0x83, 0x02]);
+    expect(eng.timing[1].frame).toEqual([0x83, 0x03, 0x13, 0x88, 0x75, 0x30]); // 5000 / 30000 ms BE
+    expect(eng.timing[2].frame).toEqual([0x83, 0x03, 0x00, 0x32, 0x01, 0xF4]); // restore 50 / 500 ms
+    // Ordering: 10 02 < read < set < (erase/transfer/checksum) < restore < 11 01
+    const idxProg     = order.findIndex(a => a[0] === 0x10 && a[1] === 0x02);
+    const idxRead     = order.findIndex(a => a[0] === 0x83 && a[1] === 0x02);
+    const idxSet      = order.findIndex((a, i) => a[0] === 0x83 && a[1] === 0x03 && i > idxRead);
+    const idxErase    = order.findIndex(a => a[0] === 0x31 && a[2] === 0xFF && a[3] === 0x00);
+    const idxChecksum = order.findIndex(a => a[0] === 0x31 && a[2] === 0xFF && a[3] === 0x01);
+    const idxRestore  = order.findIndex((a, i) => a[0] === 0x83 && a[1] === 0x03 && i > idxSet);
+    const idxReset    = order.findIndex(a => a[0] === 0x11 && a[1] === 0x01);
+    expect(idxProg).toBeLessThan(idxRead);
+    expect(idxRead).toBeLessThan(idxSet);
+    expect(idxSet).toBeLessThan(idxErase);
+    expect(idxChecksum).toBeLessThan(idxRestore);
+    expect(idxRestore).toBeLessThan(idxReset);
+    // Wrapper-side negotiation should be cleared by run end.
+    expect(eng.getNegotiatedTiming()).toBeNull();
+  });
+
+  test('extended timing is pushed into the bridge wrapper for the long phases', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(8);
+    const script = [...happyPrefix(seed, cda6(seed) >>> 0), ...happyTail(payload)];
+    const eng = makeEngine({ script });
+    // Snapshot the wrapper's negotiated timing the moment 0x36 is sent —
+    // it must reflect the extended values, not be null.
+    let timingDuringTransfer = null;
+    const real = eng.uds.bind(eng);
+    eng.uds = async (tx, rx, frame) => {
+      const arr = frame instanceof Uint8Array ? Array.from(frame) : [...frame];
+      if (arr[0] === 0x36 && timingDuringTransfer === null){
+        timingDuringTransfer = eng.getNegotiatedTiming();
+      }
+      return real(tx, rx, frame);
+    };
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x80, extendedP2Ms: 5000, extendedP2StarMs: 30000 }).start();
+    expect(r.ok).toBe(true);
+    expect(timingDuringTransfer).toEqual({ p2Ms: 5000, p2StarMs: 30000 });
+    // After the run, restore + clear must have run.
+    expect(eng.getNegotiatedTiming()).toBeNull();
+  });
+
+  test('abort mid-transfer still restores module timing via finally', async () => {
+    const ac = new AbortController();
+    const payload = new Uint8Array(40);
+    const seed = 0;
+    const script = [...happyPrefix(seed, cda6(seed) >>> 0)];
+    script.push({ ok: true, d: bytes(0x74, 0x10, 0x0C) });
+    script.push((f) => ({ ok: true, d: bytes(0x76, f[1]) }));
+    script.push((f) => { ac.abort(); return { ok: true, d: bytes(0x76, f[1]) }; });
+    script.push((f) => ({ ok: true, d: bytes(0x77) })); // best-effort 0x37
+    const eng = makeEngine({ script, timingDefaults: { p2Ms: 50, p2StarMs: 500 } });
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 10, signal: ac.signal, extendedP2Ms: 5000, extendedP2StarMs: 30000 }).start();
+    expect(r.ok).toBe(false);
+    expect(r.aborted).toBe(true);
+    // Three 0x83 frames: read, extend, restore (from finally).
+    expect(eng.timing).toHaveLength(3);
+    expect(eng.timing[0].frame).toEqual([0x83, 0x02]);
+    expect(eng.timing[1].frame).toEqual([0x83, 0x03, 0x13, 0x88, 0x75, 0x30]);
+    expect(eng.timing[2].frame).toEqual([0x83, 0x03, 0x00, 0x32, 0x01, 0xF4]);
+    expect(eng.getNegotiatedTiming()).toBeNull();
+  });
+
+  test('failure at SEED restores module timing via finally', async () => {
+    const seed = 0;
+    const script = [
+      { ok: true, d: bytes(0x50, 0x03, 0x00, 0x32, 0x01, 0xF4) }, // 10 03
+      { ok: true, d: bytes(0x50, 0x02, 0x00, 0x32, 0x01, 0xF4) }, // 10 02
+      // Seed request → NRC 0x33 securityAccessDenied. Timing read +
+      // set already happened, so restore must still fire.
+      { ok: true, d: bytes(0x7F, 0x27, 0x33) },
+    ];
+    const eng = makeEngine({ script, timingDefaults: { p2Ms: 50, p2StarMs: 500 } });
+    const r = await flashEcm({ engine: eng, payload: new Uint8Array(64), chunkSize: 0x80, extendedP2Ms: 5000, extendedP2StarMs: 30000 }).start();
+    expect(r.ok).toBe(false);
+    expect(r.phase).toBe(FLASH_PHASES.SEED);
+    expect(eng.timing).toHaveLength(3);
+    expect(eng.timing[2].frame).toEqual([0x83, 0x03, 0x00, 0x32, 0x01, 0xF4]);
+    expect(eng.getNegotiatedTiming()).toBeNull();
+  });
+
+  test('timing restore runs exactly once on the success path (no double restore)', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(8);
+    const script = [...happyPrefix(seed, cda6(seed) >>> 0), ...happyTail(payload)];
+    const eng = makeEngine({ script });
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x80, extendedP2Ms: 5000, extendedP2StarMs: 30000 }).start();
+    expect(r.ok).toBe(true);
+    // Read + extend + ONE restore = 3 (not 4).
+    expect(eng.timing).toHaveLength(3);
+  });
+
+  test('extendedP2Ms=0 and extendedP2StarMs=0 disables the whole 0x83 negotiation', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(8);
+    const script = [...happyPrefix(seed, cda6(seed) >>> 0), ...happyTail(payload)];
+    const eng = makeEngine({ script });
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x80, extendedP2Ms: 0, extendedP2StarMs: 0 }).start();
+    expect(r.ok).toBe(true);
+    expect(eng.timing).toHaveLength(0);
   });
 });

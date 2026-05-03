@@ -46,6 +46,7 @@
 
 import { cda6 } from './algos.js';
 import { decodeNRC } from './nrc.js';
+import { buildReadTimingCurrent, buildSetTimingValues, parseTimingResponse } from './timing.js';
 
 const ECM_ADDR = { tx: 0x7E0, rx: 0x7E8 };
 const DEFAULT_CHUNK = 0x80; // 128 bytes — conservative for ISO-TP.
@@ -55,6 +56,7 @@ const PHASE = {
   CONNECT: 'connect',
   SESSION_EXT: 'session_extended',
   SESSION: 'session',
+  TIMING: 'timing',
   SEED: 'seed',
   KEY: 'key',
   ERASE: 'erase',
@@ -197,6 +199,12 @@ export function flashEcm(opts){
     resumeFromChunk = 0,
     keepAlive = false,
     keepAliveIntervalMs = 2000,
+    // Task #566: extended UDS P2/P2* applied for the long phases
+    // (erase, transfer, checksum). Capped to uint16 ms in the
+    // builder. Set either to 0/null to skip the 0x83 negotiation
+    // entirely and run on the module's defaults.
+    extendedP2Ms = 5000,
+    extendedP2StarMs = 30000,
     onProgress = () => {},
     onLog = () => {},
     signal,
@@ -320,6 +328,94 @@ export function flashEcm(opts){
     }
   }
 
+  // Task #566 — UDS 0x83 AccessTimingParameter negotiation. We cache
+  // the original P2/P2* read at session start so the success path AND
+  // the finally block can restore them. `timingApplied` mirrors the
+  // etiquette pattern: it is set BEFORE the first 0x83 0x03 frame
+  // goes out so a partial failure (set succeeds, response is dropped,
+  // etc.) still triggers the restore. `timingRestored` prevents a
+  // double restore between the success path and the finally block.
+  let originalTiming = null;       // { p2Ms, p2StarMs }
+  let timingApplied = false;
+  let timingRestored = false;
+
+  async function timingNegotiate(){
+    if (!extendedP2Ms && !extendedP2StarMs) return; // explicitly disabled
+    setPhase(PHASE.TIMING);
+    // Read currently active timing. Tolerate failure — modules that
+    // don't implement 0x83 should not abort the flash; we just stay
+    // on the bridge wrapper's legacy 4 s / 8 s ceiling.
+    let cur;
+    try {
+      cur = await rawCall(buildReadTimingCurrent(), 'AccessTimingParameter 0x83 02 (read current)');
+    } catch (e) {
+      log(`0x83 read-current failed: ${e && e.message ? e.message : e} — running on factory timing`, 'warn');
+      return;
+    }
+    const parsed = parseTimingResponse(cur);
+    if (!parsed){
+      log('0x83 read-current returned an unrecognized payload — running on factory timing', 'warn');
+      return;
+    }
+    originalTiming = { p2Ms: parsed.p2Ms, p2StarMs: parsed.p2StarMs };
+    log(`Module timing · P2=${parsed.p2Ms} ms, P2*=${parsed.p2StarMs} ms`, 'info');
+    // Mark restore-needed BEFORE pushing new values so a dropped
+    // response on 0x83 0x03 doesn't leave the module pinned to
+    // extended timing without us realizing.
+    timingApplied = true;
+    try {
+      await rawCall(buildSetTimingValues(extendedP2Ms, extendedP2StarMs),
+        `AccessTimingParameter 0x83 03 (P2=${extendedP2Ms} ms, P2*=${extendedP2StarMs} ms)`);
+    } catch (e) {
+      log(`0x83 set-values failed: ${e && e.message ? e.message : e} — restoring originals and continuing`, 'warn');
+      // Best-effort restore right here so the module is not left
+      // half-configured. The finally-path safe wrapper will no-op
+      // because timingRestored flips true inside timingRestoreSafe.
+      try { await timingRestoreSafe(); } catch {}
+      return;
+    }
+    // Push the negotiated timing into the bridge wrapper so its
+    // per-call deadline honours P2*/P2 instead of the legacy ceiling.
+    if (engine && typeof engine.setNegotiatedTiming === 'function'){
+      try { engine.setNegotiatedTiming({ p2Ms: extendedP2Ms, p2StarMs: extendedP2StarMs }); } catch {}
+    }
+  }
+
+  async function timingRestore(){
+    if (!timingApplied || timingRestored || !originalTiming) {
+      // Even when nothing was applied, drop any wrapper-side timing
+      // so a long-lived engine doesn't leak state across runs.
+      if (engine && typeof engine.clearNegotiatedTiming === 'function'){
+        try { engine.clearNegotiatedTiming(); } catch {}
+      }
+      return;
+    }
+    timingRestored = true;
+    log(`Restoring module timing · P2=${originalTiming.p2Ms} ms, P2*=${originalTiming.p2StarMs} ms`, 'info');
+    // Restore frames intentionally use rawCall (no abort check) so
+    // that an aborted run still puts the module back on its defaults.
+    await rawCall(buildSetTimingValues(originalTiming.p2Ms, originalTiming.p2StarMs),
+      'AccessTimingParameter 0x83 03 (restore defaults)');
+    if (engine && typeof engine.clearNegotiatedTiming === 'function'){
+      try { engine.clearNegotiatedTiming(); } catch {}
+    }
+  }
+  async function timingRestoreSafe(){
+    if (!timingApplied || timingRestored) {
+      if (engine && typeof engine.clearNegotiatedTiming === 'function'){
+        try { engine.clearNegotiatedTiming(); } catch {}
+      }
+      return;
+    }
+    try { await timingRestore(); }
+    catch (e) {
+      log(`Timing restore did not complete cleanly: ${e && e.message ? e.message : e} — continuing teardown`, 'warn');
+      if (engine && typeof engine.clearNegotiatedTiming === 'function'){
+        try { engine.clearNegotiatedTiming(); } catch {}
+      }
+    }
+  }
+
   let keepAliveTimer = null;
   function startKeepAlive(){
     if (!keepAlive) return;
@@ -370,6 +466,20 @@ export function flashEcm(opts){
 
       setPhase(PHASE.SESSION);
       await call([0x10, 0x02], 'DiagnosticSessionControl 0x10 02 (programming)');
+
+      // 1b) Negotiate UDS timing (Task #566). Read the module's
+      // currently active P2/P2* via 0x83 0x02 and cache the bytes
+      // verbatim so we can restore them before reset. Then push the
+      // timing up via 0x83 0x03 so the bench tolerates the long erase
+      // and checksum phases instead of falsely flagging "no response".
+      // Restoration runs both on the success path (before 0x11 01)
+      // and from the finally block on abort/failure paths. If the
+      // caller passes 0/null for both extended values we skip the
+      // whole negotiation; if the module rejects 0x83 with an NRC we
+      // log a warning and continue on factory defaults rather than
+      // killing the run — the legacy 4 s / 8 s ceiling is still in
+      // effect in that case.
+      await timingNegotiate();
 
       // 2) Security access (seed/key).
       setPhase(PHASE.SEED);
@@ -482,6 +592,12 @@ export function flashEcm(opts){
       }
       result.verifyStatus = checkChk.status;
 
+      // 8a) Restore timing (Task #566) before reset so the module
+      // wakes up on the bus with its factory defaults. Uses the
+      // strict NRC handling on the success path; the finally block
+      // calls timingRestoreSafe() to tolerate any failure on abort.
+      await timingRestore();
+
       // 9) ECU reset.
       setPhase(PHASE.RESET);
       await call([0x11, 0x01], 'ECUReset 0x11 01');
@@ -530,11 +646,15 @@ export function flashEcm(opts){
       result.elapsedMs = Date.now() - startedAt;
       return result;
     } finally {
-      // Always try to restore etiquette before tearing down keep-alive.
-      // If etiquettePre never ran (early failure) the post helper
-      // no-ops, and if the success path already ran it the guard
-      // prevents a double restore. The Safe variant tolerates errors
-      // here so a restore hiccup cannot mask the real abort/failure.
+      // Restore UDS timing first so the module is back on its
+      // factory P2/P2* before the bus quietens. Then restore
+      // etiquette (DTC + bus comms). The keep-alive timer is the
+      // last thing we tear down so any in-flight 3E 80 frames don't
+      // race with the restore frames. All three helpers tolerate
+      // the case where they were never armed in the first place,
+      // and the Safe variants swallow restore-time errors so they
+      // cannot mask the real abort/failure reason.
+      await timingRestoreSafe();
       await etiquettePostSafe();
       stopKeepAlive();
     }

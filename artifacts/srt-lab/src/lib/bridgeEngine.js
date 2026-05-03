@@ -56,9 +56,25 @@ export async function createBridgeEngine({addLog, url}={}){
   log('✓ Bridge ready — vendor: '+(st.vendor||'unknown')+(st.versions?.firmware?' fw '+st.versions.firmware:''),'rx');
 
   let lastTx=-1,lastRx=-1;
+  // Negotiated UDS timing for the current run. When the bench flasher
+  // pushes the module's P2/P2* up via 0x83 0x03 (Task #566), it calls
+  // setNegotiatedTiming() so subsequent uds() calls without an explicit
+  // timeoutMs use the extended P2* instead of the legacy 4 s / 8 s
+  // ceiling. clearNegotiatedTiming() reverts to the legacy behaviour
+  // before the run tears down.
+  let negotiatedTiming=null;
+  const computeDefaultTimeout=(dataLen)=>{
+    if(negotiatedTiming){
+      const a=Number(negotiatedTiming.p2StarMs)||0;
+      const b=Number(negotiatedTiming.p2Ms)||0;
+      const v=Math.max(a,b);
+      if(v>0)return v;
+    }
+    return dataLen>7?8000:4000;
+  };
 
   const uds=async(tx,rx,data,timeoutMs)=>{
-    const tm=timeoutMs||(data.length>7?8000:4000);
+    const tm=timeoutMs||computeDefaultTimeout(data.length);
     if(tx!==lastTx||rx!==lastRx){
       const f=await setFilter({txId:tx,rxId:rx},bridgeUrl);
       if(!f.ok)return {ok:false,raw:'bridge setFilter: '+(f.error||'failed')};
@@ -88,6 +104,16 @@ export async function createBridgeEngine({addLog, url}={}){
     return {ok:false,raw:'bridge: timeout after '+tm+'ms'};
   };
 
+  const setNegotiatedTiming=(t)=>{
+    if(!t){negotiatedTiming=null;return;}
+    const p2=Number(t.p2Ms)||0;
+    const p2s=Number(t.p2StarMs)||0;
+    if(p2<=0&&p2s<=0){negotiatedTiming=null;return;}
+    negotiatedTiming={p2Ms:p2,p2StarMs:p2s};
+  };
+  const clearNegotiatedTiming=()=>{negotiatedTiming=null;};
+  const getNegotiatedTiming=()=>negotiatedTiming?{...negotiatedTiming}:null;
+
   return {
     ok:true,
     engine:{
@@ -95,6 +121,9 @@ export async function createBridgeEngine({addLog, url}={}){
       adapter:'Autel J2534 ('+(st.vendor||'bridge')+')',
       readVoltage:async()=>null,
       isBridge:true,
+      setNegotiatedTiming,
+      clearNegotiatedTiming,
+      getNegotiatedTiming,
       // Task #488 — surface bridge vendor + firmware so the ECM
       // flasher can render them in its bench banner.
       vendor: st.vendor || null,
