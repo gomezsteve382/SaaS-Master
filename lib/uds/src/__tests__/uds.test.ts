@@ -25,6 +25,11 @@ import {
   encodeFlowControl,
   decodeFlowControl,
   frameType,
+  reassembleFrames,
+  IsoTpReceiver,
+  encodeSingleFrame,
+  encodeFirstFrame,
+  encodeConsecutiveFrame,
 } from '../index.js';
 
 // ── 1. Frame Builders ─────────────────────────────────────────────────
@@ -625,5 +630,130 @@ describe('parse.parseRequestDownloadResponse', () => {
     const r = parse.parseRequestDownloadResponse(new Uint8Array([0x74, 0x20, 0x04, 0x00]));
     expect(r.ok).toBe(true);
     expect(r.maxBlockLength).toBe(0x0400); // 1024
+  });
+});
+
+// ── 6. ISO-TP reassembly ──────────────────────────────────────────────
+
+describe('reassembleFrames', () => {
+  it('single-frame pass-through returns the original payload', () => {
+    const payload = new Uint8Array([0x62, 0xF1, 0x90, 0xAA, 0xBB]);
+    const sf = encodeSingleFrame(payload);
+    const out = reassembleFrames([sf]);
+    expect(Array.from(out)).toEqual(Array.from(payload));
+  });
+
+  it('round-trips a 100-byte payload through segment + reassemble', () => {
+    const payload = new Uint8Array(100);
+    for (let i = 0; i < payload.length; i++) payload[i] = i & 0xFF;
+    const { frames } = segmentPayload(payload);
+    const out = reassembleFrames(frames);
+    expect(out.length).toBe(100);
+    expect(Array.from(out)).toEqual(Array.from(payload));
+  });
+
+  it('strips ISO-TP padding bytes from the final CF', () => {
+    // 10-byte payload → FF (6 bytes) + 1 CF (4 bytes + 3 padding bytes)
+    const payload = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    const { frames } = segmentPayload(payload, { padding: 0xCC });
+    expect(frames.length).toBe(2);
+    // Last frame should contain padding bytes after the 4 real bytes
+    expect(frames[1][5]).toBe(0xCC);
+    const out = reassembleFrames(frames);
+    expect(out.length).toBe(10);
+    expect(Array.from(out)).toEqual(Array.from(payload));
+  });
+
+  it('handles SN wrap-around 0x0F → 0x00 correctly', () => {
+    // A payload that spans more than 15 CFs forces SN wrap.
+    // 6 + 16*7 = 118 bytes → FF + 16 CFs (SNs 1..15, 0)
+    const payload = new Uint8Array(6 + 16 * 7);
+    for (let i = 0; i < payload.length; i++) payload[i] = i & 0xFF;
+    const { frames } = segmentPayload(payload);
+    expect(frames.length).toBe(17);
+    // CF #16 should carry SN 0
+    expect(frames[16][0] & 0x0F).toBe(0);
+    const out = reassembleFrames(frames);
+    expect(out.length).toBe(payload.length);
+    expect(Array.from(out)).toEqual(Array.from(payload));
+  });
+
+  it('handles SN wrap across multiple cycles', () => {
+    // 6 + 32*7 = 230 bytes → FF + 32 CFs, SN wraps twice
+    const payload = new Uint8Array(6 + 32 * 7);
+    for (let i = 0; i < payload.length; i++) payload[i] = (i * 3) & 0xFF;
+    const { frames } = segmentPayload(payload);
+    const out = reassembleFrames(frames);
+    expect(Array.from(out)).toEqual(Array.from(payload));
+  });
+
+  it('throws on out-of-order CF sequence number', () => {
+    const payload = new Uint8Array(20);
+    const { frames } = segmentPayload(payload);
+    // Swap CF1 and CF2 to force out-of-order SN
+    const broken = [frames[0], frames[2], frames[1]];
+    expect(() => reassembleFrames(broken)).toThrow(/out-of-order/);
+  });
+
+  it('throws when first frame is a stray CF', () => {
+    const cf = encodeConsecutiveFrame([0xAA, 0xBB], 1);
+    expect(() => reassembleFrames([cf])).toThrow(/expected SF or FF/);
+  });
+
+  it('throws when frames run out before message is complete', () => {
+    const payload = new Uint8Array(20);
+    const { frames } = segmentPayload(payload);
+    expect(() => reassembleFrames([frames[0]])).toThrow(/ran out of frames/);
+  });
+
+  it('throws on empty frames array', () => {
+    expect(() => reassembleFrames([])).toThrow();
+  });
+
+  it('throws when extra frames are supplied after completion', () => {
+    const sf = encodeSingleFrame([0x01, 0x02]);
+    expect(() => reassembleFrames([sf, sf])).toThrow(/extra frame/);
+  });
+});
+
+describe('IsoTpReceiver (streaming)', () => {
+  it('emits SF payload on first push', () => {
+    const rx = new IsoTpReceiver();
+    const r = rx.push(encodeSingleFrame([0x62, 0xF1, 0x90]));
+    expect(r.done).toBe(true);
+    expect(rx.done).toBe(true);
+    expect(Array.from(r.payload!)).toEqual([0x62, 0xF1, 0x90]);
+  });
+
+  it('accumulates FF + CFs and signals done on the last frame', () => {
+    const payload = new Uint8Array(50);
+    for (let i = 0; i < payload.length; i++) payload[i] = i;
+    const { frames } = segmentPayload(payload);
+    const rx = new IsoTpReceiver();
+    let final: Uint8Array | null = null;
+    for (let i = 0; i < frames.length; i++) {
+      const r = rx.push(frames[i]);
+      if (i < frames.length - 1) {
+        expect(r.done).toBe(false);
+        expect(r.payload).toBeNull();
+      } else {
+        expect(r.done).toBe(true);
+        final = r.payload;
+      }
+    }
+    expect(final).not.toBeNull();
+    expect(Array.from(final!)).toEqual(Array.from(payload));
+  });
+
+  it('throws when push() is called after completion', () => {
+    const rx = new IsoTpReceiver();
+    rx.push(encodeSingleFrame([0x01]));
+    expect(() => rx.push(encodeSingleFrame([0x02]))).toThrow(/already complete/);
+  });
+
+  it('throws on out-of-order SN', () => {
+    const rx = new IsoTpReceiver();
+    rx.push(encodeFirstFrame([1, 2, 3, 4, 5, 6], 20));
+    expect(() => rx.push(encodeConsecutiveFrame([7, 8, 9, 10, 11, 12, 13], 2))).toThrow(/out-of-order/);
   });
 });

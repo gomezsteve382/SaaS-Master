@@ -227,6 +227,121 @@ export function extractConsecutiveFramePayload(frame: Uint8Array | number[]): { 
   return { sequenceNumber: d[0] & 0x0F, data: d.slice(1) };
 }
 
+// ─── RX-side reassembly ───────────────────────────────────────────────
+
+/**
+ * Stateful ISO-TP receiver.  Feed CAN frames one at a time via `push()`.
+ * On a Single Frame, the payload is available immediately (`done === true`).
+ * On a First Frame + Consecutive Frame sequence, the receiver accumulates
+ * payload bytes and reports `done === true` once `totalLength` bytes have
+ * been collected.
+ *
+ * Throws on:
+ *   - frames before a SF/FF (stray CF/FC)
+ *   - out-of-order CF sequence numbers (expected SN wraps 1→…→0x0F→0x00→…)
+ *   - calls to `push()` after the message is already complete
+ *
+ * Excess padding bytes from the final CF are stripped via `totalLength`.
+ */
+export class IsoTpReceiver {
+  private buf: number[] = [];
+  private expectedLength: number | null = null;
+  private nextSn = 1;
+  private finished = false;
+
+  /** True once a complete payload has been assembled. */
+  get done(): boolean {
+    return this.finished;
+  }
+
+  /**
+   * Feed a single 8-byte CAN frame into the receiver.
+   * Returns `{ done, payload }`.  When `done` is true, `payload` is the
+   * fully-reassembled UDS payload (with padding stripped).
+   */
+  push(frame: Uint8Array | number[]): { done: boolean; payload: Uint8Array | null } {
+    if (this.finished) {
+      throw new Error('IsoTpReceiver.push: message already complete; create a new receiver');
+    }
+    const d = frame instanceof Uint8Array ? frame : new Uint8Array(frame);
+    if (d.length === 0) throw new TypeError('IsoTpReceiver.push: frame is empty');
+    const type = frameType(d[0]);
+
+    if (this.expectedLength === null) {
+      // Awaiting an initial frame (SF or FF).
+      if (type === 'SF') {
+        const len = d[0] & 0x0F;
+        if (len === 0 || len > 7) {
+          throw new Error(`IsoTpReceiver: invalid SF length ${len}`);
+        }
+        const payload = d.slice(1, 1 + len);
+        this.finished = true;
+        return { done: true, payload };
+      }
+      if (type === 'FF') {
+        const total = ((d[0] & 0x0F) << 8) | d[1];
+        if (total <= 7) {
+          throw new Error(`IsoTpReceiver: FF totalLength ${total} must be > 7 (use SF)`);
+        }
+        if (total > 0xFFF) {
+          throw new RangeError(`IsoTpReceiver: FF totalLength ${total} exceeds 4095`);
+        }
+        this.expectedLength = total;
+        for (let i = 2; i < d.length && this.buf.length < total; i++) this.buf.push(d[i]);
+        return { done: false, payload: null };
+      }
+      throw new Error(`IsoTpReceiver: expected SF or FF, got ${type}`);
+    }
+
+    // We are mid-message; only CFs are valid.
+    if (type !== 'CF') {
+      throw new Error(`IsoTpReceiver: expected CF, got ${type}`);
+    }
+    const sn = d[0] & 0x0F;
+    if (sn !== this.nextSn) {
+      throw new Error(`IsoTpReceiver: out-of-order CF; expected SN ${this.nextSn}, got ${sn}`);
+    }
+    this.nextSn = (this.nextSn + 1) & 0x0F;
+    const remaining = this.expectedLength - this.buf.length;
+    const take = Math.min(remaining, d.length - 1);
+    for (let i = 0; i < take; i++) this.buf.push(d[1 + i]);
+
+    if (this.buf.length >= this.expectedLength) {
+      this.finished = true;
+      return { done: true, payload: new Uint8Array(this.buf.slice(0, this.expectedLength)) };
+    }
+    return { done: false, payload: null };
+  }
+}
+
+/**
+ * Reassemble an ordered array of ISO-TP CAN frames into the original
+ * UDS payload.  Accepts either a Single Frame on its own, or a First
+ * Frame followed by the matching Consecutive Frames.
+ *
+ * Throws if frames are out of order, missing, or surplus.
+ */
+export function reassembleFrames(frames: (Uint8Array | number[])[]): Uint8Array {
+  if (!frames || frames.length === 0) {
+    throw new TypeError('reassembleFrames: frames array is empty');
+  }
+  const rx = new IsoTpReceiver();
+  let payload: Uint8Array | null = null;
+  for (let i = 0; i < frames.length; i++) {
+    const result = rx.push(frames[i]);
+    if (result.done) {
+      if (i !== frames.length - 1) {
+        throw new Error(`reassembleFrames: message complete at frame ${i} but ${frames.length - i - 1} extra frame(s) supplied`);
+      }
+      payload = result.payload;
+    }
+  }
+  if (!payload) {
+    throw new Error('reassembleFrames: ran out of frames before message was complete');
+  }
+  return payload;
+}
+
 // ─── CAN ID addressing helpers ────────────────────────────────────────
 //
 // ISO 15765-4 defines two CAN addressing conventions for UDS:

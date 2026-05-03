@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "generated_by": "tools/asset-sweep/src/sweep.mjs",
-  "file_count": 3433,
+  "file_count": 3437,
   "counts_by_kind": {
     "alfaobd_algorithm_catalog": 4,
     "asm": 5,
-    "bin": 245,
+    "bin": 246,
     "config": 113,
     "crc_source": 7,
     "csv": 7,
@@ -16,7 +16,7 @@
     "document": 11,
     "ecu_modules": 7,
     "ecu_types": 6,
-    "exe": 7,
+    "exe": 9,
     "html": 17,
     "image": 54,
     "javascript": 137,
@@ -26,7 +26,7 @@
     "seedkey_source": 32,
     "seedkey_source_js": 8,
     "spreadsheet": 2,
-    "sqlite": 8,
+    "sqlite": 9,
     "swf": 2,
     "text": 44,
     "typescript": 1448,
@@ -74,6 +74,22 @@
       "kind": "other",
       "depth": 0,
       "cachePath": "attached_assets/_elementtree_1777782073134.pyd"
+    },
+    {
+      "path": "attached_assets/_extracted/AlfaOBD_managed.exe",
+      "size": 26830848,
+      "sha256": "df3f437d8c9ac031a446b3181b32edc38d573348cdc871373ffbdb86cbba6fd8",
+      "kind": "exe",
+      "depth": 0,
+      "cachePath": "attached_assets/_extracted/AlfaOBD_managed.exe"
+    },
+    {
+      "path": "attached_assets/_extracted/AlfaOBD_payload2.bin",
+      "size": 15360,
+      "sha256": "b9eae90f8e942cc4586d31dc484f29079651ad64c49f90d99f86932630c66af2",
+      "kind": "bin",
+      "depth": 0,
+      "cachePath": "attached_assets/_extracted/AlfaOBD_payload2.bin"
     },
     {
       "path": "attached_assets/_hashlib_1777782073135.pyd",
@@ -498,6 +514,22 @@
       "kind": "text",
       "depth": 0,
       "cachePath": "attached_assets/alfao_bd.xor_key.hex_1776573163350.txt"
+    },
+    {
+      "path": "attached_assets/alfao.bd_1777785518504.db",
+      "size": 68224000,
+      "sha256": "33f211fb8123db86191695c3e338e8646790f630e58b1d72be016da9673a1bbc",
+      "kind": "sqlite",
+      "depth": 0,
+      "cachePath": "attached_assets/alfao.bd_1777785518504.db"
+    },
+    {
+      "path": "attached_assets/AlfaOBD_1777785510544.exe",
+      "size": 27602432,
+      "sha256": "62bad674ae502d61a6908c53bd16b9765adfe2a19dc47d2a19000750e99b4c19",
+      "kind": "exe",
+      "depth": 0,
+      "cachePath": "attached_assets/AlfaOBD_1777785510544.exe"
     },
     {
       "path": "attached_assets/alfaobd_algorithm_catalog_1776573875648.json",

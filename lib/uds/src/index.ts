@@ -156,6 +156,8 @@ export {
   extractSingleFramePayload,
   extractFirstFramePayload,
   extractConsecutiveFramePayload,
+  reassembleFrames,
+  IsoTpReceiver,
   txCanId,
   rxCanId,
   functionalCanId,
