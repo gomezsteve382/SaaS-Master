@@ -376,8 +376,12 @@ export function flashEcm(opts){
     }
     // Push the negotiated timing into the bridge wrapper so its
     // per-call deadline honours P2*/P2 instead of the legacy ceiling.
+    // Mirror the uint16 clamp used by buildSetTimingValues so the
+    // wrapper deadline stays in lockstep with the bytes the module
+    // actually saw.
     if (engine && typeof engine.setNegotiatedTiming === 'function'){
-      try { engine.setNegotiatedTiming({ p2Ms: extendedP2Ms, p2StarMs: extendedP2StarMs }); } catch {}
+      const clampU16 = (n) => Math.max(0, Math.min(0xFFFF, Math.round(Number(n) || 0)));
+      try { engine.setNegotiatedTiming({ p2Ms: clampU16(extendedP2Ms), p2StarMs: clampU16(extendedP2StarMs) }); } catch {}
     }
   }
 
