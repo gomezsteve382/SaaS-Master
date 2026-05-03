@@ -20,9 +20,9 @@ export const CRITICAL_DIDS={
     {did:0xF1D1,name:'SKIM Data',critical:true},
     {did:0x7B90,name:'Current VIN',critical:true},
     {did:0x7B88,name:'Original VIN',critical:true},
-    {did:0x6E2025,name:'Bus-Transmitted VIN'},
+    {did:0x6E2025,name:'Bus Transmitted VIN'},
     {did:0x6E2027,name:'WCM Configured VIN'},
-    {did:0x6E9EB0,name:'SKIM State'},
+    {did:0x6E9EB0,name:'SKIM State (0x80=Enabled, 0x00=Disabled)'},
   ],
   RFHUB:[
     {did:0xF190,name:'VIN',critical:true},

@@ -1,0 +1,21 @@
+{
+  "tool": "GPEC Unlocker",
+  "version": "1.0",
+  "runtime": ".NET Framework 4.8.1 / WinLicense 2.4.6.30 protected",
+  "protection": {
+    "packer": "WinLicense 2.4.6.30",
+    "anti_debug": "Advanced",
+    "anti_dump": true,
+    "entry_point_obfuscation": true,
+    "resource_encryption": true,
+    "api_wrapping_level": 2,
+    "memory_guard": true
+  },
+  "files": {
+    "GPEC_Unlocker.exe": {
+      "sha256": "300be2d302ca28eb058d840671527493b40db4d7503f65db03e5169047d04d03",
+      "size": 11879936,
+      "description": "WinLicense-protected .NET binary for GPEC (Continental GPEC2A) unlock workflow"
+    }
+  }
+}

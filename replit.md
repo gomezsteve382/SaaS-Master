@@ -31,6 +31,21 @@ The `parseModule()` function merges original analysis with richer `fca_module_an
 
 File type detection is based on file size and content patterns to identify BCM D-FLASH, 95640 EEPROM, GPEC2A, RFHUB EEE, and general firmware files.
 
+## Vendored External Tools (`artifacts/srt-lab/vendor/`)
+
+Two Windows binaries are pre-staged with their license bypass intact for internal bench use:
+
+- **FCA PROXI Tool v1.2.0.1** (`vendor/fca-proxi/`): PyInstaller bundle of Stellantis' PROXI configuration tool. Uses a Safengine-Shielden DLL sideload (`shfolder.dll`) to bypass the license check. Activated against HWID `2899614-B9E65D4-73F1D98-D6D5DCB`. The EXE must be launched with CWD set to the vendor folder so the sideload resolves before `%SYSTEM32%`.
+- **GPEC Unlocker v1.0** (`vendor/gpec-unlocker/`): WinLicense-protected .NET binary for Continental GPEC2A unlock. No separate license file required.
+
+Each vendor directory contains `manifest.json` (SHA-256 + byte-size for every file) and `README.md`.
+
+The **External Tools tab** (`src/tabs/ExternalToolsTab.jsx`, id `exttools`) lists both tools with status (present/missing/bridge-offline), a Launch button, and a Reveal in Folder button. Launch and Reveal are handled by three new J2534 bridge endpoints: `POST /tools/status`, `POST /tools/launch`, `POST /tools/reveal`.
+
+The **native PROXI JS module** (`src/lib/fcaProxi.js`) provides: `parseProxi()`, `serializeProxi()`, `buildProxi()`, `validateLicenseJson()`, `verifyManifest()`. All functions are covered by 22 Vitest tests in `src/tabs/__tests__/fcaProxi.test.js`.
+
+Decompiled Python source from the PyInstaller bundle is in `tools/fca-proxi-extract/src/` (hwid.py, license_check.py, proxi_record.py, uds_transport.py). The full reverse-engineering reference is in `artifacts/srt-lab/docs/fca-proxi-reference.md`.
+
 ## External Dependencies
 
 - **Node.js**: Version 24

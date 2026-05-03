@@ -1,0 +1,35 @@
+{
+  "tool": "FCA PROXI Tool",
+  "version": "1.2.0.1",
+  "hwid": "2899614-B9E65D4-73F1D98-D6D5DCB",
+  "activation_key": "BS4JTT2G2AYR86KZ545HAEXTAHXZYNBP95U6GSBZZBC8PMDHT23YZEKXRQN6LG7PQCSJ2Z93GRD8Z3RM3R",
+  "runtime": "Python 3.12 / PyInstaller / pythonnet / WebView2 / cryptography 46.0.3",
+  "license_bypass": "shfolder.dll (Safengine-Shielden sideload — patches license signature check so 'chichitoworkshop' strings are accepted)",
+  "files": {
+    "FCA_PROXI_Tool.exe": {
+      "sha256": "4aeb893514f1ff56b386da9181e40384b5370c85309cba901d756918c49e2ebc",
+      "size": 21763077,
+      "description": "PyInstaller bundle of Stellantis PROXI configuration tool v1.2.0.1"
+    },
+    "shfolder.dll": {
+      "sha256": "9eae2bd892376367379d0083c1d0eb9d237a2644e330e5c7d3cf1dce06ce4822",
+      "size": 10161664,
+      "description": "Safengine-Shielden license bypass sideload — must be in the same folder as the EXE so Windows loads it instead of the system copy"
+    },
+    "chichitoworkshop.key": {
+      "sha256": "91532b15b452a3f927fb83c8d4df6ab58bc8a48c6797f4abd12337d99b36b58d",
+      "size": 6649,
+      "description": "80-character base32-ish activation key blob encrypted with AES, bound to the HWID above"
+    },
+    "license.json": {
+      "sha256": "f09eb46e67b1b307e8ad80da1200a9c0388b457001b6d7b8ac0cb002a7f384cf",
+      "size": 189,
+      "description": "License envelope — all fields set to 'chichitoworkshop'; signature check bypassed by shfolder.dll"
+    },
+    "Readme.txt": {
+      "sha256": "277cdf4a128ed1fecf72af75cbfe550a38559b6dd38b9587dcf1055d4b9583b9",
+      "size": 168,
+      "description": "Original activation readme containing HWID and key"
+    }
+  }
+}

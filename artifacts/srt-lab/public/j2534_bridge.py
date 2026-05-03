@@ -34,10 +34,13 @@ from __future__ import annotations
 
 import argparse
 import ctypes
+import hashlib
 import json
 import os
 import platform
+import shutil
 import socket
+import subprocess
 import sys
 import threading
 import time
@@ -413,6 +416,274 @@ class J2534Bridge:
         }
 
 
+# ─── Vendored-tool launcher ──────────────────────────────────────────────────
+
+# Resolve the vendor directory relative to this script so it works both when
+# run from within artifacts/srt-lab/public/ and from any other cwd.
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_VENDOR_ROOT = os.path.normpath(os.path.join(_SCRIPT_DIR, "..", "vendor"))
+
+TOOL_DEFS: dict[str, dict] = {
+    "fca-proxi": {
+        "name": "FCA PROXI Tool",
+        "exe": "FCA_PROXI_Tool.exe",
+        "vendor_dir": os.path.join(_VENDOR_ROOT, "fca-proxi"),
+        "required_files": [
+            "FCA_PROXI_Tool.exe",
+            "shfolder.dll",
+            "chichitoworkshop.key",
+            "license.json",
+        ],
+    },
+    "gpec-unlocker": {
+        "name": "GPEC Unlocker",
+        "exe": "GPEC_Unlocker.exe",
+        "vendor_dir": os.path.join(_VENDOR_ROOT, "gpec-unlocker"),
+        "required_files": ["GPEC_Unlocker.exe"],
+    },
+}
+
+
+def _load_manifest(vendor_dir: str) -> dict | None:
+    path = os.path.join(vendor_dir, "manifest.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+
+def _sha256_file(path: str) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _live_hwid() -> str | None:
+    """
+    Compute the live machine HWID (Windows only) using the same 4-segment
+    algorithm documented in tools/fca-proxi-extract/src/hwid.py.
+    Returns None on non-Windows platforms or on any error.
+    """
+    if sys.platform != "win32":
+        return None
+    import binascii
+    import struct
+    import uuid
+
+    def _segment(raw: bytes) -> str:
+        crc = binascii.crc32(raw) & 0x0FFFFFFF
+        return format(crc, "07X")
+
+    try:
+        import ctypes as _ct
+        import wmi  # type: ignore
+        segs: list[str] = []
+
+        # Seg 1: CPU ProcessorId
+        cpu_id = b""
+        for cpu in wmi.WMI().Win32_Processor():
+            cpu_id = (cpu.ProcessorId or "").strip().encode("ascii", "replace")
+            break
+        segs.append(_segment(cpu_id))
+
+        # Seg 2: Motherboard SerialNumber
+        mb = b""
+        for board in wmi.WMI().Win32_BaseBoard():
+            s = (board.SerialNumber or "").strip()
+            if s.lower() not in ("to be filled by o.e.m.", "none", ""):
+                mb = s.encode("ascii", "replace")
+            break
+        segs.append(_segment(mb))
+
+        # Seg 3: Primary MAC (lowest-numbered NIC)
+        mac_int = uuid.getnode()
+        segs.append(_segment(struct.pack(">Q", mac_int)[2:]))
+
+        # Seg 4: Volume serial of C:\
+        vol_serial = _ct.c_ulong(0)
+        _ct.windll.kernel32.GetVolumeInformationW(
+            "C:\\", None, 0, _ct.byref(vol_serial), None, None, None, 0
+        )
+        segs.append(_segment(struct.pack(">I", vol_serial.value)))
+
+        return "-".join(segs)
+    except Exception:
+        return None
+
+
+def _verify_manifest_files(vendor_dir: str, manifest: dict, required_files: list[str]) -> list[str]:
+    """
+    Verify each required file against the manifest: check presence, byte size,
+    AND SHA-256 hash. Returns a list of failure strings (empty = all good).
+    """
+    failures: list[str] = []
+    file_infos = manifest.get("files", {})
+    for fname in required_files:
+        fpath = os.path.join(vendor_dir, fname)
+        if not os.path.exists(fpath):
+            failures.append(f"{fname}: not found")
+            continue
+        info = file_infos.get(fname, {})
+        # Size check
+        actual_size = os.path.getsize(fpath)
+        expected_size = info.get("size")
+        if expected_size is not None and actual_size != expected_size:
+            failures.append(f"{fname}: size mismatch (expected {expected_size} B, got {actual_size} B)")
+            continue  # don't bother hashing if size is wrong
+        # SHA-256 check
+        expected_sha256 = info.get("sha256")
+        if expected_sha256:
+            actual_sha256 = _sha256_file(fpath)
+            if actual_sha256.lower() != expected_sha256.lower():
+                failures.append(
+                    f"{fname}: SHA-256 mismatch (expected {expected_sha256[:12]}…, got {actual_sha256[:12]}…)"
+                )
+    return failures
+
+
+def _check_tool_status(tool_id: str) -> dict:
+    """Return status dict for a vendored tool.
+
+    Possible values of result["status"]:
+      "present"    — all required files present, sizes + SHA-256 match manifest
+      "missing"    — one or more files absent or corrupt
+      "wrong-hwid" — files OK, but the tool's activation HWID doesn't match
+                     the live machine HWID (Windows only, fca-proxi only)
+    """
+    if tool_id not in TOOL_DEFS:
+        return {"status": "missing", "error": f"Unknown tool id: {tool_id}"}
+    td = TOOL_DEFS[tool_id]
+    vendor_dir = td["vendor_dir"]
+    manifest = _load_manifest(vendor_dir)
+    if manifest is None:
+        return {"status": "missing", "error": "manifest.json not found"}
+
+    failures = _verify_manifest_files(vendor_dir, manifest, td["required_files"])
+    if failures:
+        return {"status": "missing", "failures": failures}
+
+    result: dict = {
+        "status": "present",
+        "name": manifest.get("tool", td["name"]),
+        "version": manifest.get("version"),
+    }
+
+    # HWID check — only meaningful for fca-proxi which embeds a HWID binding
+    manifest_hwid = manifest.get("hwid")
+    if manifest_hwid:
+        live_hwid = _live_hwid()
+        if live_hwid is not None:
+            if live_hwid.upper() != manifest_hwid.upper():
+                result["status"] = "wrong-hwid"
+                result["expectedHwid"] = manifest_hwid
+                result["liveHwid"] = live_hwid
+            else:
+                result["hwidMatch"] = True
+        else:
+            # Non-Windows or WMI unavailable — cannot verify HWID; report present
+            result["hwidCheckSkipped"] = True
+
+    return result
+
+
+def _launch_tool(tool_id: str) -> dict:
+    """
+    Verify manifest (size + SHA-256) and spawn the tool EXE with CWD set to
+    the vendor folder so the DLL sideload and .key lookup resolve correctly.
+
+    stdout/stderr are captured via pipe. We wait up to 600 ms for any
+    immediate output or early crash, then return whatever was collected.
+    The process continues running in the background (detached) if it does
+    not exit in that window.
+    """
+    if tool_id not in TOOL_DEFS:
+        return {"ok": False, "error": f"Unknown tool id: {tool_id}"}
+    td = TOOL_DEFS[tool_id]
+    vendor_dir = td["vendor_dir"]
+    status = _check_tool_status(tool_id)
+    if status["status"] not in ("present", "wrong-hwid"):
+        return {"ok": False, "error": "Tool files missing or corrupt", "details": status}
+    exe_path = os.path.join(vendor_dir, td["exe"])
+    if not os.path.exists(exe_path):
+        return {"ok": False, "error": f"EXE not found: {exe_path}"}
+    try:
+        proc = subprocess.Popen(
+            [exe_path],
+            cwd=vendor_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            close_fds=True,
+        )
+        # Collect any immediate output / detect fast crash within 600 ms
+        try:
+            stdout_bytes, stderr_bytes = proc.communicate(timeout=0.6)
+            # Process exited within the window — report it
+            return {
+                "ok": proc.returncode == 0,
+                "pid": proc.pid,
+                "exe": exe_path,
+                "exitCode": proc.returncode,
+                "stdout": stdout_bytes.decode("utf-8", "replace").strip(),
+                "stderr": stderr_bytes.decode("utf-8", "replace").strip(),
+            }
+        except subprocess.TimeoutExpired:
+            # Still running (normal for a GUI app) — detach and return
+            # Read whatever is buffered without blocking
+            stdout_preview = b""
+            stderr_preview = b""
+            try:
+                import selectors
+                sel = selectors.DefaultSelector()
+                sel.register(proc.stdout, selectors.EVENT_READ)  # type: ignore
+                sel.register(proc.stderr, selectors.EVENT_READ)  # type: ignore
+                for key, _ in sel.select(timeout=0):
+                    data = key.fileobj.read(4096)  # type: ignore
+                    if key.fileobj is proc.stdout:
+                        stdout_preview = data
+                    else:
+                        stderr_preview = data
+                sel.close()
+            except Exception:
+                pass
+            return {
+                "ok": True,
+                "pid": proc.pid,
+                "exe": exe_path,
+                "running": True,
+                "stdout": stdout_preview.decode("utf-8", "replace").strip(),
+                "stderr": stderr_preview.decode("utf-8", "replace").strip(),
+            }
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+def _reveal_tool(tool_id: str) -> dict:
+    """Open an Explorer / Finder window at the vendor folder."""
+    if tool_id not in TOOL_DEFS:
+        return {"ok": False, "error": f"Unknown tool id: {tool_id}"}
+    vendor_dir = TOOL_DEFS[tool_id]["vendor_dir"]
+    if not os.path.isdir(vendor_dir):
+        return {"ok": False, "error": f"Vendor dir not found: {vendor_dir}"}
+    try:
+        if sys.platform == "win32":
+            exe = TOOL_DEFS[tool_id]["exe"]
+            exe_path = os.path.join(vendor_dir, exe)
+            if os.path.exists(exe_path):
+                subprocess.Popen(["explorer", "/select,", exe_path])
+            else:
+                subprocess.Popen(["explorer", vendor_dir])
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", vendor_dir])
+        else:
+            subprocess.Popen(["xdg-open", vendor_dir])
+        return {"ok": True, "path": vendor_dir}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
 # ─── HTTP handler ────────────────────────────────────────────────────────────
 BRIDGE: J2534Bridge | None = None
 
@@ -565,6 +836,18 @@ class Handler(BaseHTTPRequestHandler):
                 # Return both shapes so callers written to either spec keep working:
                 # legacy spec wants `messages: [...]`; shipped client wants `msg: {...}`.
                 self._json({"ok": True, "msg": msgs[0] if msgs else None, "messages": msgs})
+            elif path == "/tools/status":
+                tool_id = body.get("toolId", body.get("tool_id", ""))
+                result = _check_tool_status(tool_id)
+                self._json({"ok": True, **result})
+            elif path == "/tools/launch":
+                tool_id = body.get("toolId", body.get("tool_id", ""))
+                result = _launch_tool(tool_id)
+                self._json(result, 200 if result.get("ok") else 500)
+            elif path == "/tools/reveal":
+                tool_id = body.get("toolId", body.get("tool_id", ""))
+                result = _reveal_tool(tool_id)
+                self._json(result, 200 if result.get("ok") else 500)
             else:
                 self._json({"ok": False, "error": f"unknown endpoint {path}"}, 404)
         except FileNotFoundError as e:
