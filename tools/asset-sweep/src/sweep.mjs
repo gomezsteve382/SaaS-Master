@@ -771,6 +771,133 @@ function renderExtendedCatalog({newDlls, verified, udsServiceTables, udsNrcTable
       };
     });
 
+  // VILLAIN-sourced DID labels (VIN / SKIM / SRI / EPS) — embedded in the
+  // sweep renderer so they survive catalog regeneration without manual edits.
+  // Source: VILLAIN_GPEC_WITECH_COMPLETE villain_extraction strings dumps.
+  const VILLAIN_DID_ENTRIES = [
+    {did: "0x7B90",     value: "Current VIN"},
+    {did: "0x7B88",     value: "Original VIN"},
+    {did: "0x6E2025",   value: "Bus-Transmitted VIN"},
+    {did: "0x6E2027",   value: "WCM Configured VIN"},
+    {did: "0x6E9EB0",   value: "SKIM State (0x80=Enabled, 0x00=Disabled)"},
+    {did: "0x6EF190",   value: "EPS VIN"},
+    {did: "0xF79EB045", value: "SKIM State Flag (SCI-B)"},
+  ];
+  didMapList.push({
+    sourcePath: "VILLAIN_GPEC_WITECH_COMPLETE / villain_extraction strings (VIN/SKIM/SRI/EPS)",
+    name: "VILLAIN VIN/SKIM/SRI/EPS DIDs",
+    count: VILLAIN_DID_ENTRIES.length,
+    sample: VILLAIN_DID_ENTRIES.slice(0, 8),
+    entries: VILLAIN_DID_ENTRIES,
+  });
+
+  // VILLAIN Operations catalog — named operations grouped by protocol scope.
+  // Source: VILLAIN_GPEC extraction strings (Unlocks_* / ECU_Functions_*).
+  const VILLAIN_OPERATIONS = {
+    provenance: "VILLAIN_GPEC extraction",
+    description: "Named operations extracted from VILLAIN for Chrysler/FCA ECU programming. Protocol scope is recorded per group.",
+    groups: [
+      {
+        name: "VIN Read/Write",
+        protocol: "CHRYSLER ECU CAN 11-BIT",
+        operations: [
+          {id: "vin_read_current",   label: "Read Current VIN",  did: "0x7B90", service: "0x22"},
+          {id: "vin_write_current",  label: "Write Current VIN", did: "0x7B90", service: "0x2E"},
+          {id: "vin_read_original",  label: "Read Original VIN", did: "0x7B88", service: "0x22"},
+          {id: "vin_write_original", label: "Write Original VIN",did: "0x7B88", service: "0x2E"},
+        ],
+      },
+      {
+        name: "VIN Read/Write (Extended CAN)",
+        protocol: "CAN 29-BIT",
+        operations: [
+          {id: "vin_read_bus_transmitted",  label: "Read Bus-Transmitted VIN",  did: "0x6E2025", service: "0x22"},
+          {id: "vin_write_bus_transmitted", label: "Write Bus-Transmitted VIN", did: "0x6E2025", service: "0x2E"},
+          {id: "vin_read_wcm_configured",   label: "Read WCM Configured VIN",   did: "0x6E2027", service: "0x22"},
+          {id: "vin_write_wcm_configured",  label: "Write WCM Configured VIN",  did: "0x6E2027", service: "0x2E"},
+        ],
+      },
+      {
+        name: "SKIM State",
+        protocol: "CHRYSLER ECU CAN 11-BIT",
+        operations: [
+          {id: "skim_state_read", label: "Read SKIM State", did: "0x6E9EB0", service: "0x22", notes: "0x80=Enabled, 0x00=Disabled"},
+          {id: "skim_enable",     label: "Enable SKIM",     did: "0x6E9EB0", service: "0x2E", value: "0x80"},
+          {id: "skim_disable",    label: "Disable SKIM",    did: "0x6E9EB0", service: "0x2E", value: "0x00"},
+          {id: "skim_key_slot_1", label: "SKIM Key Slot 1", service: "0x27"},
+          {id: "skim_key_slot_2", label: "SKIM Key Slot 2", service: "0x27"},
+          {id: "skim_key_slot_3", label: "SKIM Key Slot 3", service: "0x27"},
+          {id: "skim_key_slot_4", label: "SKIM Key Slot 4", service: "0x27"},
+          {id: "skim_key_slot_5", label: "SKIM Key Slot 5", service: "0x27"},
+          {id: "skim_key_slot_6", label: "SKIM Key Slot 6", service: "0x27"},
+        ],
+      },
+      {
+        name: "SKIM State Flag (SCI-B)",
+        protocol: "SCI B ENGINE",
+        operations: [
+          {id: "skim_state_flag_sci_b", label: "SKIM State Flag", did: "0xF79EB045", service: "0x22", notes: "SCI-B protocol variant of SKIM state read"},
+        ],
+      },
+      {
+        name: "IMMO Keys",
+        protocol: "CHRYSLER ECU CAN 11-BIT",
+        operations: [
+          {id: "immo_key_slot_1", label: "IMMO Key Slot 1"},
+          {id: "immo_key_slot_2", label: "IMMO Key Slot 2"},
+          {id: "immo_key_slot_3", label: "IMMO Key Slot 3"},
+          {id: "immo_key_slot_4", label: "IMMO Key Slot 4"},
+          {id: "immo_key_slot_5", label: "IMMO Key Slot 5"},
+          {id: "immo_key_slot_6", label: "IMMO Key Slot 6"},
+        ],
+      },
+      {
+        name: "SRI Mileage",
+        protocol: "SCI A ENGINE",
+        operations: [
+          {id: "sri_mileage_read",  label: "Read SRI Mileage",  notes: "Requires 0xE2 prefix byte before DID"},
+          {id: "sri_mileage_write", label: "Write SRI Mileage", notes: "Requires 0xE2 prefix byte before DID"},
+        ],
+      },
+      {
+        name: "EPS VIN",
+        protocol: "EPS",
+        operations: [
+          {id: "eps_vin_read",  label: "Read EPS VIN",  did: "0x6EF190", service: "0x22"},
+          {id: "eps_vin_write", label: "Write EPS VIN", did: "0x6EF190", service: "0x2E"},
+        ],
+      },
+      {
+        name: "EPROM",
+        protocol: "SCI A ENGINE",
+        operations: [
+          {id: "eprom_read",  label: "Read EPROM"},
+          {id: "eprom_write", label: "Write EPROM"},
+          {id: "eprom_save",  label: "Save EPROM"},
+        ],
+      },
+      {
+        name: "Tuner",
+        protocol: "CHRYSLER ECU CAN 11-BIT",
+        operations: [
+          {id: "tuner_unlock_boot",  label: "Unlock Boot"},
+          {id: "tuner_write_ecu",    label: "Write ECU"},
+          {id: "tuner_read_ecu",     label: "Read ECU"},
+          {id: "tuner_write_eprom",  label: "Write EPROM"},
+          {id: "tuner_read_eprom",   label: "Read EPROM"},
+        ],
+      },
+      {
+        name: "TIPM VIN",
+        protocol: "CHRYSLER TIPM",
+        operations: [
+          {id: "tipm_vin_read",  label: "Read TIPM VIN",  did: "0xF190", service: "0x22"},
+          {id: "tipm_vin_write", label: "Write TIPM VIN", did: "0xF190", service: "0x2E"},
+        ],
+      },
+    ],
+  };
+
   return JSON.stringify({
     schema_version: 1,
     generated_by: "tools/asset-sweep/src/sweep.mjs",
@@ -796,6 +923,7 @@ function renderExtendedCatalog({newDlls, verified, udsServiceTables, udsNrcTable
       sessions: dictify(sessions),
       did_maps: didMapList,
     },
+    villain_operations: VILLAIN_OPERATIONS,
     ecu_type_dumps: [...ecuTypes.entries()]
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([path, size]) => ({sourcePath: path, size_bytes: size})),

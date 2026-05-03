@@ -20,6 +20,9 @@ export const CRITICAL_DIDS={
     {did:0xF1D1,name:'SKIM Data',critical:true},
     {did:0x7B90,name:'Current VIN',critical:true},
     {did:0x7B88,name:'Original VIN',critical:true},
+    {did:0x6E2025,name:'Bus-Transmitted VIN'},
+    {did:0x6E2027,name:'WCM Configured VIN'},
+    {did:0x6E9EB0,name:'SKIM State'},
   ],
   RFHUB:[
     {did:0xF190,name:'VIN',critical:true},
@@ -50,6 +53,12 @@ export const CRITICAL_DIDS={
     {did:0xDE11,name:'Variant Code'},
     {did:0x7B90,name:'Current VIN',critical:true},
     {did:0x7B88,name:'Original VIN',critical:true},
+  ],
+  EPS:[
+    {did:0xF190,name:'VIN',critical:true},
+    {did:0xF187,name:'Part Number'},
+    {did:0xF189,name:'Software Version'},
+    {did:0x6EF190,name:'EPS VIN',critical:true},
   ],
   /* VILLAIN-extracted Chrysler/FCA DIDs. Source:
      /tmp/villain_gpec/villain_extraction/VILLAIN_COMPLETE_EXTRACTION.md (lines 70-77, 88-103).
