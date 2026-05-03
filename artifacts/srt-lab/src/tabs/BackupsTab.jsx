@@ -7,6 +7,7 @@ import {
   getBackupStorageUsage, pruneNonCriticalBackups,
   subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
   exportAllBackups, importBackups, saveAemtPlaceholders,
+  encryptArchive, decryptArchive, ENCRYPTED_ARCHIVE_TYPE,
 } from "../lib/audit.js";
 import { sha256Hex, backupDidsToBytes } from "../lib/checksum.js";
 import { createObdEngine } from "../lib/obdEngine.js";
@@ -49,6 +50,8 @@ export default function BackupsTab() {
   const [pairedData, setPairedData] = useState(null);
   const [aemtModal, setAemtModal] = useState(null);
   const [aemtBusy, setAemtBusy] = useState(false);
+  const [exportDialog, setExportDialog] = useState(null);
+  const [importPassphraseDialog, setImportPassphraseDialog] = useState(null);
   const eng = useRef(null);
   const importInputRef = useRef(null);
   const diffImportInputRef = useRef(null);
@@ -337,15 +340,39 @@ export default function BackupsTab() {
       alert("No backups to export.");
       return;
     }
-    const blob = new Blob([JSON.stringify(archive, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-    a.download = "srtlab_backups_archive_" + stamp + ".json";
-    a.click();
-    URL.revokeObjectURL(url);
+    setExportDialog({ archive, passphrase: "", confirm: "", busy: false, error: "" });
   }, []);
+
+  const handleExportDialogConfirm = useCallback(async () => {
+    if (!exportDialog) return;
+    const { archive, passphrase, confirm } = exportDialog;
+    if (passphrase && passphrase !== confirm) {
+      setExportDialog(d => ({ ...d, error: "Passphrases do not match." }));
+      return;
+    }
+    setExportDialog(d => ({ ...d, busy: true, error: "" }));
+    try {
+      let payload;
+      let suffix = "";
+      if (passphrase) {
+        payload = await encryptArchive(archive, passphrase);
+        suffix = "_enc";
+      } else {
+        payload = archive;
+      }
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      a.download = "srtlab_backups_archive_" + stamp + suffix + ".json";
+      a.click();
+      URL.revokeObjectURL(url);
+      setExportDialog(null);
+    } catch (e) {
+      setExportDialog(d => ({ ...d, busy: false, error: "Encryption failed: " + e.message }));
+    }
+  }, [exportDialog]);
 
   const handleImportClick = useCallback(() => {
     importInputRef.current?.click();
@@ -527,6 +554,11 @@ export default function BackupsTab() {
         });
         return;
       }
+      /* Encrypted archive — open passphrase dialog before importing. */
+      if (archive.type === ENCRYPTED_ARCHIVE_TYPE) {
+        setImportPassphraseDialog({ envelope: archive, busy: false, passphrase: "", error: "" });
+        return;
+      }
       const r = importBackups(archive);
       refresh();
       const parts = [r.imported + " imported", r.skipped + " skipped (duplicate)"];
@@ -545,6 +577,34 @@ export default function BackupsTab() {
       alert("Import failed: " + err.message);
     }
   }, [refresh]);
+
+  const handleImportPassphraseConfirm = useCallback(async () => {
+    if (!importPassphraseDialog) return;
+    const { envelope, passphrase } = importPassphraseDialog;
+    if (!passphrase) {
+      setImportPassphraseDialog(d => ({ ...d, error: "Passphrase is required to decrypt this archive." }));
+      return;
+    }
+    setImportPassphraseDialog(d => ({ ...d, busy: true, error: "" }));
+    try {
+      const archive = await decryptArchive(envelope, passphrase);
+      setImportPassphraseDialog(null);
+      const r = importBackups(archive);
+      refresh();
+      const parts = [r.imported + " imported", r.skipped + " skipped (duplicate)"];
+      if (r.invalid > 0) parts.push(r.invalid + " invalid");
+      let kpSuffix = "";
+      if (r.keyProgArchives) {
+        const kp = r.keyProgArchives;
+        const kpParts = [kp.imported + " imported", kp.skipped + " skipped"];
+        if (kp.invalid > 0) kpParts.push(kp.invalid + " invalid");
+        kpSuffix = "\nKey Prog archive history: " + kpParts.join(", ") + ".";
+      }
+      alert("Backup import complete (encrypted archive): " + parts.join(", ") + "." + kpSuffix);
+    } catch (e) {
+      setImportPassphraseDialog(d => ({ ...d, busy: false, error: e.message }));
+    }
+  }, [importPassphraseDialog, refresh]);
 
   const downloadBackup = useCallback(async (key) => {
     const data = await getBackupAsync(key); if (!data) return;
@@ -1326,6 +1386,134 @@ export default function BackupsTab() {
           if (resolve) resolve(null);
         }}
       />
+
+      {exportDialog && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 9999,
+          background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <div style={{
+            background: "#fff", borderRadius: 12, padding: 28, width: 380, maxWidth: "90vw",
+            boxShadow: "0 8px 40px rgba(0,0,0,0.25)",
+          }}>
+            <div style={{ fontFamily: "'Righteous'", fontSize: 18, color: "#0A3D1A", marginBottom: 6, letterSpacing: 1 }}>
+              📦 Export All Backups
+            </div>
+            <div style={{ fontSize: 12, color: C.ts, marginBottom: 18, lineHeight: 1.6 }}>
+              Optionally protect this archive with a passphrase. The file will be encrypted with AES-256-GCM — you'll need the same passphrase to import it later.
+              <br /><br />
+              Leave the passphrase blank to export as plain JSON (no encryption).
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>
+                PASSPHRASE (optional)
+              </label>
+              <input
+                type="password"
+                autoComplete="new-password"
+                placeholder="Leave blank for unencrypted export"
+                value={exportDialog.passphrase}
+                onChange={e => setExportDialog(d => ({ ...d, passphrase: e.target.value, error: "" }))}
+                style={{
+                  width: "100%", boxSizing: "border-box", padding: "8px 10px",
+                  border: "1.5px solid " + C.bd, borderRadius: 6, fontSize: 13, fontFamily: "inherit",
+                }}
+              />
+            </div>
+            {exportDialog.passphrase && (
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>
+                  CONFIRM PASSPHRASE
+                </label>
+                <input
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Repeat passphrase"
+                  value={exportDialog.confirm}
+                  onChange={e => setExportDialog(d => ({ ...d, confirm: e.target.value, error: "" }))}
+                  style={{
+                    width: "100%", boxSizing: "border-box", padding: "8px 10px",
+                    border: "1.5px solid " + (exportDialog.error ? "#CC0000" : C.bd),
+                    borderRadius: 6, fontSize: 13, fontFamily: "inherit",
+                  }}
+                />
+              </div>
+            )}
+            {exportDialog.error && (
+              <div style={{ fontSize: 11, color: "#CC0000", marginBottom: 10, fontWeight: 700 }}>
+                ✗ {exportDialog.error}
+              </div>
+            )}
+            {exportDialog.passphrase && (
+              <div style={{
+                fontSize: 11, color: "#1E6F3A", marginBottom: 14, padding: "8px 10px",
+                background: "#e6f9ed", borderRadius: 6, display: "flex", alignItems: "center", gap: 6,
+              }}>
+                🔒 Archive will be encrypted with AES-256-GCM
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <Btn onClick={() => setExportDialog(null)} color={C.ts} outline disabled={exportDialog.busy}>
+                Cancel
+              </Btn>
+              <Btn onClick={handleExportDialogConfirm} color={C.a2} disabled={exportDialog.busy}>
+                {exportDialog.busy ? "⏳ Encrypting…" : exportDialog.passphrase ? "🔒 Encrypt & Download" : "⬇ Download"}
+              </Btn>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {importPassphraseDialog && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 9999,
+          background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <div style={{
+            background: "#fff", borderRadius: 12, padding: 28, width: 360, maxWidth: "90vw",
+            boxShadow: "0 8px 40px rgba(0,0,0,0.25)",
+          }}>
+            <div style={{ fontFamily: "'Righteous'", fontSize: 18, color: "#0A3D1A", marginBottom: 6, letterSpacing: 1 }}>
+              🔒 Encrypted Archive
+            </div>
+            <div style={{ fontSize: 12, color: C.ts, marginBottom: 18, lineHeight: 1.6 }}>
+              This archive is encrypted. Enter the passphrase that was used when it was exported.
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>
+                PASSPHRASE
+              </label>
+              <input
+                type="password"
+                autoComplete="current-password"
+                autoFocus
+                placeholder="Enter passphrase"
+                value={importPassphraseDialog.passphrase}
+                onChange={e => setImportPassphraseDialog(d => ({ ...d, passphrase: e.target.value, error: "" }))}
+                onKeyDown={e => { if (e.key === "Enter") handleImportPassphraseConfirm(); }}
+                style={{
+                  width: "100%", boxSizing: "border-box", padding: "8px 10px",
+                  border: "1.5px solid " + (importPassphraseDialog.error ? "#CC0000" : C.bd),
+                  borderRadius: 6, fontSize: 13, fontFamily: "inherit",
+                }}
+              />
+            </div>
+            {importPassphraseDialog.error && (
+              <div style={{ fontSize: 11, color: "#CC0000", marginBottom: 10, fontWeight: 700 }}>
+                ✗ {importPassphraseDialog.error}
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <Btn onClick={() => setImportPassphraseDialog(null)} color={C.ts} outline disabled={importPassphraseDialog.busy}>
+                Cancel
+              </Btn>
+              <Btn onClick={handleImportPassphraseConfirm} color={C.a2} disabled={importPassphraseDialog.busy}>
+                {importPassphraseDialog.busy ? "⏳ Decrypting…" : "🔓 Decrypt & Import"}
+              </Btn>
+            </div>
+          </div>
+        </div>
+      )}
 
       {modalOpen && selectedData && (
         <ReadFirstModal

@@ -453,6 +453,80 @@ export function deleteBackup(key) {
     .catch(() => { /* best-effort */ });
 }
 
+/* ─── ARCHIVE ENCRYPTION (AES-GCM + PBKDF2-SHA256) ─── */
+
+export const ENCRYPTED_ARCHIVE_TYPE = "srtlab_backup_archive_encrypted";
+const PBKDF2_ITERATIONS = 100_000;
+
+function _toB64(buf) {
+  const bytes = new Uint8Array(buf);
+  const CHUNK = 8192;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+  }
+  return btoa(binary);
+}
+
+function _fromB64(b64) {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+async function _deriveKey(passphrase, salt) {
+  const raw = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(passphrase), "PBKDF2", false, ["deriveKey"]
+  );
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, hash: "SHA-256", iterations: PBKDF2_ITERATIONS },
+    raw,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"],
+  );
+}
+
+/* Encrypt a plain backup archive object with a passphrase.
+ * Returns a compact envelope that importBackups / the import UI can detect. */
+export async function encryptArchive(archive, passphrase) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));
+  const key  = await _deriveKey(passphrase, salt);
+  const plain = new TextEncoder().encode(JSON.stringify(archive));
+  const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plain);
+  return {
+    type: ENCRYPTED_ARCHIVE_TYPE,
+    version: 1,
+    algorithm: "AES-GCM",
+    kdf: "PBKDF2-SHA256",
+    iterations: PBKDF2_ITERATIONS,
+    salt: _toB64(salt),
+    iv:   _toB64(iv),
+    ciphertext: _toB64(cipher),
+  };
+}
+
+/* Decrypt an archive produced by encryptArchive.
+ * Throws with a human-readable message on wrong passphrase or corruption. */
+export async function decryptArchive(envelope, passphrase) {
+  if (envelope?.type !== ENCRYPTED_ARCHIVE_TYPE) {
+    throw new Error("Not an encrypted SRT Lab archive");
+  }
+  const salt      = _fromB64(envelope.salt);
+  const iv        = _fromB64(envelope.iv);
+  const ciphertext = _fromB64(envelope.ciphertext);
+  const key = await _deriveKey(passphrase, salt);
+  let plain;
+  try {
+    plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
+  } catch {
+    throw new Error("Incorrect passphrase or corrupted archive");
+  }
+  return JSON.parse(new TextDecoder().decode(plain));
+}
+
 /* Build a single archive containing every backup currently in localStorage,
  * along with the index. Used by the Backups tab "Export all" button so users
  * can archive history before pruning or move it between machines. */
