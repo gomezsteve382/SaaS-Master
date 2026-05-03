@@ -23,6 +23,15 @@
  */
 import { decodeBcmConfig, readBits } from "./cgwConfig.js";
 import { DE_FEATURE_CATALOG, DE_GROUPS } from "./bcmFeatureCatalog.generated.js";
+import { parseProxi } from "./fcaProxi.js";
+import {
+  PROXI_VARIANTS,
+  PROXI_SECTION_NAMES,
+  decodeProxiSection,
+  getProxiFields,
+} from "./proxiFieldCatalog.generated.js";
+
+export { PROXI_VARIANTS, PROXI_SECTION_NAMES };
 
 export const CATEGORY_DEFS = [
   { id: "lighting",    label: "Lighting" },
@@ -106,6 +115,81 @@ export function decodeDeDid(request, bytes) {
       category: categorizeField(r.name, r.groupName),
     };
   });
+}
+
+/* Decode an entire native FCA PROXI binary (DID 0xFD01 / 0xFD20).
+ * Walks every parsed section, runs `decodeProxiSection` against the
+ * catalog for the requested variant, and returns rows in the same
+ * shape as `decodeDeDid` so the panel can mix them with DEnn rows.
+ *
+ *   bytes   — raw PROXI binary (Uint8Array or ArrayBuffer)
+ *   variant — module variant id, e.g. "GPEC2A". Wildcard "*" rows
+ *             always apply.
+ *
+ * Returns { ok, rows, sections, error? } where:
+ *   ok       — parseProxi succeeded
+ *   rows     — flat array of decoded rows (empty when ok=false)
+ *   sections — [{id, name, payload, decodedCount}] for the section
+ *              header strip in the UI
+ *   error    — set when ok=false (CRC mismatch, short buffer, etc.) */
+export function decodeFcaProxiRecord(bytes, variant = "GPEC2A") {
+  const parsed = parseProxi(bytes);
+  if (!parsed.ok) {
+    return { ok: false, error: parsed.error, rows: [], sections: [] };
+  }
+  const rows = [];
+  const sections = [];
+  for (const s of parsed.sections) {
+    const decoded = decodeProxiSection(s.id, variant, s.payload);
+    sections.push({
+      id: s.id,
+      name: s.name,
+      payload: s.payload,
+      decodedCount: decoded.length,
+    });
+    const sectionHex = s.id.toString(16).toUpperCase().padStart(2, "0");
+    for (const d of decoded) {
+      rows.push({
+        source: "FD01",
+        request: `S${sectionHex}`,                  // groups by section in the panel
+        groupName: `${s.name} (PROXI section 0x${sectionHex})`,
+        name: d.name,
+        bit: d.byte * 8 + d.bit,                    // bit offset within payload
+        length: d.length,
+        raw: d.raw,
+        label: d.label,
+        category: categorizeField(d.name, s.name),
+      });
+    }
+  }
+  return { ok: true, rows, sections, parsed };
+}
+
+/* Catalog-only browse rows for the native PROXI sections — used by
+ * the panel before any FD01 dump has been pasted, so the field map
+ * is still visible as a reference (raw=null, label="—"). */
+export function proxiSectionCatalogRows(variant = "GPEC2A") {
+  const rows = [];
+  for (const sectionId of Object.keys(PROXI_SECTION_NAMES).map(Number)) {
+    const fields = getProxiFields(sectionId, variant);
+    if (fields.length === 0) continue;
+    const sectionHex = sectionId.toString(16).toUpperCase().padStart(2, "0");
+    const sectionName = PROXI_SECTION_NAMES[sectionId];
+    for (const f of fields) {
+      rows.push({
+        source: "FD01",
+        request: `S${sectionHex}`,
+        groupName: `${sectionName} (PROXI section 0x${sectionHex})`,
+        name: f.name,
+        bit: f.byte * 8 + f.bit,
+        length: f.length,
+        raw: null,
+        label: "—",
+        category: categorizeField(f.name, sectionName),
+      });
+    }
+  }
+  return rows;
 }
 
 /* The full DE catalog as decode rows, with no bytes supplied — used by

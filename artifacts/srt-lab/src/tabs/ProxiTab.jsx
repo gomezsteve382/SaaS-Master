@@ -33,6 +33,9 @@ import {
   groupByRequest,
   CATEGORY_DEFS,
   DE_DIDS,
+  decodeFcaProxiRecord,
+  proxiSectionCatalogRows,
+  PROXI_VARIANTS,
 } from "../lib/proxiDecoder.js";
 
 const PROXI_OFFSET = 0x2023;
@@ -76,6 +79,9 @@ export default function ProxiTab() {
   const [proxi2023Bytes, setProxi2023Bytes] = useState(null); // Uint8Array | null
   const [proxi2023Source, setProxi2023Source] = useState(null); // human label
   const [deBytes, setDeBytes] = useState({});  // { "DE00": Uint8Array, ... }
+  const [fd01Bytes, setFd01Bytes] = useState(null); // Uint8Array | null
+  const [fd01Source, setFd01Source] = useState(null);
+  const [proxiVariant, setProxiVariant] = useState("GPEC2A");
   const [pasteHex, setPasteHex] = useState("");
   const [pasteTarget, setPasteTarget] = useState("0x2023");
   const [parseError, setParseError] = useState(null);
@@ -98,12 +104,17 @@ export default function ProxiTab() {
         rows.push(...decodeDeDid(d.did, buf));
       }
     }
+    if (fd01Bytes) {
+      const result = decodeFcaProxiRecord(fd01Bytes, proxiVariant);
+      if (result.ok) rows.push(...result.rows);
+    }
     if (rows.length === 0) {
-      // catalog-only browse mode
+      // catalog-only browse mode — show DEnn AND native PROXI section maps.
       rows.push(...deCatalogRows());
+      rows.push(...proxiSectionCatalogRows(proxiVariant));
     }
     return rows;
-  }, [proxi2023Bytes, deBytes]);
+  }, [proxi2023Bytes, deBytes, fd01Bytes, proxiVariant]);
 
   const categoryCounts = useMemo(() => countByCategory(allRows), [allRows]);
 
@@ -141,8 +152,8 @@ export default function ProxiTab() {
 
   const onPasteApply = useCallback(() => {
     setParseError(null);
-    const target = pasteTarget; // "0x2023" or "DE00"..."DE0C"
-    const expectedDid = target === "0x2023" ? "2023" : target;
+    const target = pasteTarget; // "0x2023" | "FD01" | "DE00"..."DE0C"
+    const expectedDid = target === "0x2023" ? "2023" : (target === "FD01" ? "FD01" : target);
     const { bytes, error } = parseHex(pasteHex, expectedDid);
     if (error) { setParseError(error); return; }
     if (bytes.length === 0) { setParseError("No hex bytes parsed from input."); return; }
@@ -153,16 +164,24 @@ export default function ProxiTab() {
       }
       setProxi2023Bytes(bytes.slice(0, PROXI_LENGTH));
       setProxi2023Source(`Pasted hex (${bytes.length} bytes)`);
+    } else if (target === "FD01") {
+      // Validate via decoder so a CRC/length error surfaces immediately.
+      const result = decodeFcaProxiRecord(bytes, proxiVariant);
+      if (!result.ok) { setParseError(`FD01 PROXI parse failed: ${result.error}`); return; }
+      setFd01Bytes(bytes);
+      setFd01Source(`Pasted hex (${bytes.length} bytes, ${result.sections.length} sections)`);
     } else {
       setDeBytes((prev) => ({ ...prev, [target]: bytes }));
     }
     setPasteHex("");
-  }, [pasteHex, pasteTarget]);
+  }, [pasteHex, pasteTarget, proxiVariant]);
 
   const onClear = useCallback(() => {
     setProxi2023Bytes(null);
     setProxi2023Source(null);
     setDeBytes({});
+    setFd01Bytes(null);
+    setFd01Source(null);
     setParseError(null);
   }, []);
 
@@ -178,7 +197,7 @@ export default function ProxiTab() {
   const expandAll = () => setExpanded(new Set(grouped.keys()));
   const collapseAll = () => setExpanded(new Set());
 
-  const hasAnyBytes = !!proxi2023Bytes || Object.keys(deBytes).length > 0;
+  const hasAnyBytes = !!proxi2023Bytes || Object.keys(deBytes).length > 0 || !!fd01Bytes;
 
   return (
     <div>
@@ -231,10 +250,21 @@ export default function ProxiTab() {
             style={{ padding: "8px 12px", borderRadius: 8, border: `1.5px solid ${C.bd}`, fontSize: 12, fontFamily: "'Nunito'" }}
           >
             <option value="0x2023">0x2023 — BCM Proxi (16 bytes)</option>
+            <option value="FD01">0xFD01 — Native PROXI Record (sectioned)</option>
             {DE_DIDS.map((d) => (
               <option key={d.did} value={d.did}>
                 0x{d.did} — {d.groupName} ({d.count} fields)
               </option>
+            ))}
+          </select>
+          <select
+            value={proxiVariant}
+            onChange={(e) => setProxiVariant(e.target.value)}
+            title="PROXI variant — applies to FD01 section field labels"
+            style={{ padding: "8px 12px", borderRadius: 8, border: `1.5px solid ${C.bd}`, fontSize: 12, fontFamily: "'Nunito'" }}
+          >
+            {PROXI_VARIANTS.map((v) => (
+              <option key={v.id} value={v.id}>{v.label}</option>
             ))}
           </select>
           <textarea
@@ -270,6 +300,7 @@ export default function ProxiTab() {
               <div>
                 <strong>Loaded:</strong>{" "}
                 {proxi2023Bytes && <Tag color={C.gn}>0x2023 ({proxi2023Source})</Tag>}
+                {fd01Bytes && <Tag color={C.gn}>0xFD01 ({fd01Source})</Tag>}
                 {Object.keys(deBytes).map((d) => (
                   <Tag key={d} color={C.gn}>
                     0x{d} ({deBytes[d].length}B)
@@ -351,7 +382,9 @@ export default function ProxiTab() {
           )}
           {Array.from(grouped.entries()).map(([req, rows]) => {
             const isOpen = expanded.has(req);
-            const isLoaded = req === "2023" ? !!proxi2023Bytes : !!deBytes[req];
+            const isLoaded = req === "2023"
+              ? !!proxi2023Bytes
+              : (req.startsWith("S") ? !!fd01Bytes : !!deBytes[req]);
             return (
               <Card key={req} style={{ marginBottom: 10, padding: 0, overflow: "hidden" }}>
                 <div
