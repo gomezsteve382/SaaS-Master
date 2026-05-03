@@ -81,6 +81,13 @@ function explainNrc(d){
 
 // Decode the 0x74 RequestDownload positive response. The high nibble of
 // byte 1 (LFID) tells us how many bytes encode `maxNumberOfBlockLength`.
+// Per ISO 14229, that value is the size of the WHOLE TransferData frame
+// (SID 0x36 + sequence counter + data), so the per-frame payload is
+// max - 2. We return the raw advertised max along with the derived
+// payload size — including unusable values (0/1/2) — and let the caller
+// decide whether to honor it or fall back, because Task #564 requires a
+// 128-byte fallback (with a warning) when the module reports an
+// unusable value rather than aborting outright.
 function parseDownloadResponse(d){
   if (!d || d.length < 2 || d[0] !== 0x74) return null;
   const lfid = (d[1] >> 4) & 0x0F;
@@ -88,12 +95,7 @@ function parseDownloadResponse(d){
   if (d.length < 2 + lfid) return null;
   let max = 0;
   for (let i=0;i<lfid;i++) max = (max * 256) + d[2 + i];
-  // `maxNumberOfBlockLength` includes the SID + sequence counter, so the
-  // payload-per-frame is max - 2. Refuse anything below 3 (1 SID + 1 seq
-  // + at least 1 data byte) so the caller never enters a zero-length
-  // transfer loop.
-  if (max < 3) return null;
-  const payload = max - 2;
+  const payload = max > 2 ? max - 2 : 0;
   return { maxNumberOfBlockLength: max, payloadPerFrame: payload };
 }
 
@@ -406,11 +408,31 @@ export function flashEcm(opts){
       const dlResp = await call(buildRequestDownload(address >>> 0, data.length >>> 0, dataFormatIdentifier, addressAndLengthFormatIdentifier), 'RequestDownload 0x34');
       const dl = parseDownloadResponse(dlResp);
       if (!dl){
-        throw new Error('Could not parse RequestDownload response (malformed LFID or maxNumberOfBlockLength < 3)');
+        throw new Error('Could not parse RequestDownload response (malformed LFID or truncated body)');
       }
       result.maxNumberOfBlockLength = dl.maxNumberOfBlockLength;
-      const negotiated = Math.max(1, Math.min(chunkSize, dl.payloadPerFrame));
-      log(`maxNumberOfBlockLength=${dl.maxNumberOfBlockLength} (payload=${dl.payloadPerFrame}); using chunk=${negotiated}`, 'info');
+      // Task #564: honor the advertised maxNumberOfBlockLength.
+      // ISO 14229 says payloadPerFrame = max - 2 (SID 0x36 + sequence
+      // counter overhead). If the module advertises an unusable value
+      // (max < 3, so payloadPerFrame < 1) we fall back to the 128-byte
+      // default rather than aborting — the bench has historically shown
+      // a few modules return 0 on first power-up. Otherwise the
+      // effective chunk is min(advertised payload size, configured
+      // ceiling = `chunkSize`), which lets a caller cap throughput
+      // without forcing the legacy 128 limit when the module can do
+      // more (modern FCA modules advertise up to ~0xFF0 → 8x faster).
+      let negotiated;
+      let usedFallback = false;
+      if (dl.payloadPerFrame < 1){
+        negotiated = DEFAULT_CHUNK;
+        usedFallback = true;
+        log(`maxNumberOfBlockLength=0x${hex(dl.maxNumberOfBlockLength)} is unusable (< 3 bytes total); falling back to default chunk=${DEFAULT_CHUNK}`, 'warn');
+      } else {
+        negotiated = Math.min(chunkSize, dl.payloadPerFrame);
+      }
+      result.negotiatedChunkSize = negotiated;
+      result.negotiationFellBack = usedFallback;
+      log(`Negotiated transfer chunk: ${negotiated} bytes (advertised maxNumberOfBlockLength=0x${hex(dl.maxNumberOfBlockLength)} → payload ${dl.payloadPerFrame}; ceiling ${chunkSize})`, 'info');
 
       // 6) Transfer data.
       setPhase(PHASE.TRANSFER);

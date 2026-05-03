@@ -90,11 +90,20 @@ describe('parseDownloadResponse', () => {
   test('rejects LFID=0 in the high nibble', () => {
     expect(parseDownloadResponse(bytes(0x74, 0x00, 0x80))).toBeNull();
   });
-  test('rejects an absurdly small maxNumberOfBlockLength (< 3)', () => {
-    // max=1 or 2 is smaller than SID + seq overhead — would lock the
-    // transfer loop into zero-length frames.
-    expect(parseDownloadResponse(bytes(0x74, 0x10, 0x01))).toBeNull();
-    expect(parseDownloadResponse(bytes(0x74, 0x10, 0x02))).toBeNull();
+  test('returns absurdly small max values verbatim — caller decides fallback', () => {
+    // Per Task #564, parseDownloadResponse no longer rejects unusable
+    // values (max=0/1/2). The caller (flashEcm) is expected to detect
+    // payloadPerFrame < 1 and fall back to the default chunk so a
+    // module that briefly mis-advertises does not abort the flash.
+    expect(parseDownloadResponse(bytes(0x74, 0x10, 0x00))).toEqual({ maxNumberOfBlockLength: 0,    payloadPerFrame: 0 });
+    expect(parseDownloadResponse(bytes(0x74, 0x10, 0x01))).toEqual({ maxNumberOfBlockLength: 0x01, payloadPerFrame: 0 });
+    expect(parseDownloadResponse(bytes(0x74, 0x10, 0x02))).toEqual({ maxNumberOfBlockLength: 0x02, payloadPerFrame: 0 });
+  });
+  test('decodes a modern 0xFF0 advertisement (LFID-2, ~8x our legacy 128)', () => {
+    expect(parseDownloadResponse(bytes(0x74, 0x20, 0x0F, 0xF0))).toEqual({
+      maxNumberOfBlockLength: 0x0FF0,
+      payloadPerFrame: 0x0FEE,
+    });
   });
 });
 
@@ -247,6 +256,115 @@ describe('flashEcm full UDS programming session', () => {
     const eng = makeEngine({ script });
     const r = await flashEcm({ engine: eng, payload, seedSubfn: 0x01, keySubfn: 0x02 }).start();
     expect(r.ok).toBe(true);
+  });
+});
+
+describe('flashEcm maxNumberOfBlockLength negotiation (Task #564)', () => {
+  test('advertised 0xFF0 raises the chunk size to ~0xFEE when the caller ceiling permits', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(0x2000); // 8 KB
+    for (let i = 0; i < payload.length; i++) payload[i] = i & 0xFF;
+    const seenChunkSizes = [];
+    const script = happyPrefix(seed, cda6(seed) >>> 0);
+    // ECM advertises 0xFF0 → payloadPerFrame 0xFEE.
+    script.push({ ok: true, d: bytes(0x74, 0x20, 0x0F, 0xF0) });
+    // 8192 / 4078 = 3 chunks (4078 + 4078 + 36).
+    const expectedChunks = Math.ceil(payload.length / 0x0FEE);
+    for (let i = 0; i < expectedChunks; i++){
+      script.push((frame) => {
+        seenChunkSizes.push(frame.length - 2);
+        return { ok: true, d: bytes(0x76, frame[1]) };
+      });
+    }
+    script.push({ ok: true, d: bytes(0x77) });
+    script.push({ ok: true, d: bytes(0x71, 0x01, 0xFF, 0x01, 0x00) });
+    script.push({ ok: true, d: bytes(0x51, 0x01) });
+    const eng = makeEngine({ script });
+    // Caller ceiling well above advertised — must clamp to 0xFEE, not 0x80.
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x4000 }).start();
+    expect(r.ok).toBe(true);
+    expect(r.maxNumberOfBlockLength).toBe(0x0FF0);
+    expect(r.negotiatedChunkSize).toBe(0x0FEE);
+    expect(r.negotiationFellBack).toBe(false);
+    expect(r.chunksSent).toBe(expectedChunks);
+    // First two chunks at the negotiated cap, last is the remainder.
+    expect(seenChunkSizes[0]).toBe(0x0FEE);
+    expect(seenChunkSizes[1]).toBe(0x0FEE);
+    expect(seenChunkSizes[2]).toBe(payload.length - 2 * 0x0FEE);
+    // Banner log surfaces the negotiated chunk size for the run.
+    const msgs = r.log.map(l => l.msg).join('\n');
+    expect(msgs).toMatch(/Negotiated transfer chunk: 4078 bytes/);
+    expect(msgs).toMatch(/maxNumberOfBlockLength=0x(0?)FF0/i);
+  });
+
+  test('caller ceiling caps the negotiated chunk size below the advertised max', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(256);
+    const script = happyPrefix(seed, cda6(seed) >>> 0);
+    // ECM advertises 0xFF0 but caller wants to stay at 64-byte chunks.
+    script.push({ ok: true, d: bytes(0x74, 0x20, 0x0F, 0xF0) });
+    const expectedChunks = Math.ceil(payload.length / 64);
+    for (let i = 0; i < expectedChunks; i++){
+      script.push((frame) => {
+        expect(frame.length - 2).toBeLessThanOrEqual(64);
+        return { ok: true, d: bytes(0x76, frame[1]) };
+      });
+    }
+    script.push({ ok: true, d: bytes(0x77) });
+    script.push({ ok: true, d: bytes(0x71, 0x01, 0xFF, 0x01, 0x00) });
+    script.push({ ok: true, d: bytes(0x51, 0x01) });
+    const eng = makeEngine({ script });
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 64 }).start();
+    expect(r.ok).toBe(true);
+    expect(r.negotiatedChunkSize).toBe(64);
+    expect(r.negotiationFellBack).toBe(false);
+  });
+
+  test('unusable advertised value (max=0) falls back to the 128-byte default with a warning', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(300);
+    const script = happyPrefix(seed, cda6(seed) >>> 0);
+    // ECM mis-advertises max=0 — flasher must NOT abort, it must
+    // fall back to the legacy 128-byte default.
+    script.push({ ok: true, d: bytes(0x74, 0x10, 0x00) });
+    const expectedChunks = Math.ceil(payload.length / 128);
+    for (let i = 0; i < expectedChunks; i++){
+      script.push((frame) => {
+        expect(frame.length - 2).toBeLessThanOrEqual(128);
+        return { ok: true, d: bytes(0x76, frame[1]) };
+      });
+    }
+    script.push({ ok: true, d: bytes(0x77) });
+    script.push({ ok: true, d: bytes(0x71, 0x01, 0xFF, 0x01, 0x00) });
+    script.push({ ok: true, d: bytes(0x51, 0x01) });
+    const eng = makeEngine({ script });
+    // Caller ceiling is high — irrelevant, fallback wins because
+    // advertised value is unusable.
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x1000 }).start();
+    expect(r.ok).toBe(true);
+    expect(r.maxNumberOfBlockLength).toBe(0);
+    expect(r.negotiatedChunkSize).toBe(128);
+    expect(r.negotiationFellBack).toBe(true);
+    expect(r.chunksSent).toBe(expectedChunks);
+    // Warning log explicitly mentions the fallback.
+    const warns = r.log.filter(l => l.level === 'warn').map(l => l.msg).join('\n');
+    expect(warns).toMatch(/unusable.*falling back to default chunk=128/i);
+  });
+
+  test('unusable advertised value (max=1) also falls back to default', async () => {
+    const seed = 0;
+    const payload = new Uint8Array(8);
+    const script = happyPrefix(seed, cda6(seed) >>> 0);
+    script.push({ ok: true, d: bytes(0x74, 0x10, 0x01) });
+    script.push((frame) => ({ ok: true, d: bytes(0x76, frame[1]) }));
+    script.push({ ok: true, d: bytes(0x77) });
+    script.push({ ok: true, d: bytes(0x71, 0x01, 0xFF, 0x01, 0x00) });
+    script.push({ ok: true, d: bytes(0x51, 0x01) });
+    const eng = makeEngine({ script });
+    const r = await flashEcm({ engine: eng, payload, chunkSize: 0x1000 }).start();
+    expect(r.ok).toBe(true);
+    expect(r.negotiatedChunkSize).toBe(128);
+    expect(r.negotiationFellBack).toBe(true);
   });
 });
 
