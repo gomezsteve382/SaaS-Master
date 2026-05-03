@@ -13,6 +13,7 @@ import {createBridgeEngine} from '../lib/bridgeEngine.js';
 import {getRow} from '../lib/moduleRegistry.js';
 import {programVin} from '../lib/vinProgrammer.js';
 import {parseDtcResponse, formatDtcLogLine, buildDtcDetail} from '../lib/dtc.js';
+import {build} from '@workspace/uds';
 
 export default function AdcmTab(){
   const{vin:masterVin,updateStatus}=useMasterVin();
@@ -47,7 +48,7 @@ export default function AdcmTab(){
 
   const readVinDid=useCallback(async(did,label)=>{
     if(!eng.current)return null;
-    const r=await eng.current.uds(mod.tx,mod.rx,[0x22,(did>>8)&0xFF,did&0xFF]);
+    const r=await eng.current.uds(mod.tx,mod.rx,build.readDataByIdentifier({dids:[did]}));
     if(r.ok&&r.d&&r.d.length>=3){
       const v=parseVinFromResponse(r.d);
       if(v){addLog(label+' = '+v,'rx');return v;}
@@ -59,7 +60,7 @@ export default function AdcmTab(){
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Reading VINs...');
     addLog('Entering extended session (10 03)...','info');
-    await eng.current.uds(mod.tx,mod.rx,[0x10,0x03]);
+    await eng.current.uds(mod.tx,mod.rx,build.diagnosticSessionControl({session:0x03}));
     addLog('─── Reading VINs from '+mod.id+' ───','info');
     const v1=await readVinDid(0xF190,'DID 0xF190 (Primary VIN)');
     const v2=await readVinDid(0x7B90,'DID 0x7B90 (Current VIN)');
@@ -72,17 +73,17 @@ export default function AdcmTab(){
     setBusy('Testing connection...');
     addLog('═══ ADCM CONNECTION TEST ═══','info');
     addLog('1. TesterPresent (3E 00)...','info');
-    const tp=await eng.current.uds(mod.tx,mod.rx,[0x3E,0x00]);
+    const tp=await eng.current.uds(mod.tx,mod.rx,build.testerPresent({subFunction:0x00}));
     if(tp.ok&&tp.d&&tp.d[0]===0x7E)addLog('✓ Module is alive','rx');
     else{addLog('✗ TesterPresent failed — module not responding on 0x'+hx(mod.tx,3),'error');setBusy('');return;}
     addLog('2. Read VIN 0xF190 (22 F1 90)...','info');
-    const v1=await eng.current.uds(mod.tx,mod.rx,[0x22,0xF1,0x90]);
+    const v1=await eng.current.uds(mod.tx,mod.rx,build.readDataByIdentifier({dids:[0xF190]}));
     if(v1.ok&&v1.d&&v1.d[0]===0x62){
       const vinStr=parseVinFromResponse(v1.d);
       if(vinStr){addLog('✓ VIN readable: '+vinStr,'rx');setCurVinF190(vinStr);}
     }else addLog('✗ VIN read failed — DID 0xF190 not supported or session needed','warn');
     addLog('3. Extended session (10 03)...','info');
-    const ds=await eng.current.uds(mod.tx,mod.rx,[0x10,0x03]);
+    const ds=await eng.current.uds(mod.tx,mod.rx,build.diagnosticSessionControl({session:0x03}));
     if(ds.ok&&ds.d&&ds.d[0]===0x50)addLog('✓ Extended session OK','rx');
     else addLog('✗ Session failed','warn');
     addLog('═══ TEST COMPLETE ═══','info');
@@ -94,21 +95,21 @@ export default function AdcmTab(){
     setBusy('Starting routine 0x0312...');
     addLog('─── ADCM Unlock Sequence ───','info');
     addLog('Extended session (10 03)...','info');
-    await eng.current.uds(mod.tx,mod.rx,[0x10,0x03]);
+    await eng.current.uds(mod.tx,mod.rx,build.diagnosticSessionControl({session:0x03}));
     addLog('TesterPresent (3E 80)...','info');
-    await eng.current.uds(mod.tx,mod.rx,[0x3E,0x80]);
+    await eng.current.uds(mod.tx,mod.rx,build.testerPresent({subFunction:0x80}));
     addLog('Start Routine 0x0312 (31 01 03 12)...','info');
-    const r=await eng.current.uds(mod.tx,mod.rx,[0x31,0x01,0x03,0x12]);
+    const r=await eng.current.uds(mod.tx,mod.rx,build.routineControl({type:'startRoutine',routineIdentifier:0x0312}));
     if(r.ok&&r.d&&r.d[0]===0x71){
       addLog('✓ Routine 0x0312 accepted — '+mod.id+' config unlocked','rx');setUnlocked(true);
     }else{
       addLog('Routine 0x0312 rejected — trying SBEC seed-key fallback','warn');
-      const s=await eng.current.uds(mod.tx,mod.rx,[0x27,0x01]);
+      const s=await eng.current.uds(mod.tx,mod.rx,build.securityAccess({subFunction:0x01}));
       if(s.ok&&s.d&&s.d.length>=4){
         const sb=Array.from(s.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
         addLog('Seed: 0x'+hx(sv,8),'info');
         const k=sbecKey(sv);addLog('SBEC Key: 0x'+hx(k,8)+' [(seed*4)+0x9018]','info');
-        const kr=await eng.current.uds(mod.tx,mod.rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);
+        const kr=await eng.current.uds(mod.tx,mod.rx,build.securityAccess({subFunction:0x02,data:[(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]}));
         if(kr.ok&&kr.d&&kr.d[0]===0x67){addLog('✓ SBEC unlock succeeded','rx');setUnlocked(true);}
         else addLog('Both routine and SBEC failed — check CAN address','error');
       }
@@ -118,8 +119,8 @@ export default function AdcmTab(){
 
   const refreshUnlock=useCallback(async()=>{
     addLog('Refreshing session (3E 00 + 31 01 03 12)...','info');
-    await eng.current.uds(mod.tx,mod.rx,[0x3E,0x00]);
-    const r=await eng.current.uds(mod.tx,mod.rx,[0x31,0x01,0x03,0x12]);
+    await eng.current.uds(mod.tx,mod.rx,build.testerPresent({subFunction:0x00}));
+    const r=await eng.current.uds(mod.tx,mod.rx,build.routineControl({type:'startRoutine',routineIdentifier:0x0312}));
     if(r.ok&&r.d&&r.d[0]===0x71){addLog('✓ Session refreshed','rx');return true;}
     addLog('Session refresh failed','warn');return false;
   },[mod,addLog]);
@@ -128,7 +129,7 @@ export default function AdcmTab(){
     if(!vin||vin.length!==17){addLog('Enter valid 17-char VIN first','error');return false;}
     const vb=Array.from(vin.toUpperCase()).map(c=>c.charCodeAt(0));
     addLog('Writing '+label+' (2E '+hx((did>>8)&0xFF)+' '+hx(did&0xFF)+' + 17 VIN bytes)...','info');
-    let r=await eng.current.uds(mod.tx,mod.rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);
+    let r=await eng.current.uds(mod.tx,mod.rx,build.writeDataByIdentifier({did,data:vb}));
     if(r.ok&&r.d&&r.d[0]===0x7F){
       const nrc=r.d.length>2?r.d[2]:0;
       addLog('✗ '+label+' NRC: '+decodeNRC(nrc),'error');
@@ -137,7 +138,7 @@ export default function AdcmTab(){
         if(await refreshUnlock()){
           await new Promise(r=>setTimeout(r,300));
           addLog('Retry '+label+'...','info');
-          r=await eng.current.uds(mod.tx,mod.rx,[0x2E,(did>>8)&0xFF,did&0xFF,...vb]);
+          r=await eng.current.uds(mod.tx,mod.rx,build.writeDataByIdentifier({did,data:vb}));
         }
       }
     }
@@ -216,7 +217,7 @@ export default function AdcmTab(){
     ];
     for(const c of cfgDids){
       addLog('Writing '+c.label+' (DID 0x'+hx(c.did,4)+')='+c.val.map(b=>'0x'+hx(b)).join(' ')+'...','info');
-      const r=await eng.current.uds(mod.tx,mod.rx,[0x2E,(c.did>>8)&0xFF,c.did&0xFF,...c.val]);
+      const r=await eng.current.uds(mod.tx,mod.rx,build.writeDataByIdentifier({did:c.did,data:c.val}));
       if(r.ok&&r.d&&r.d[0]===0x6E)addLog('✓ '+c.label+' written','rx');
       else if(r.ok&&r.d&&r.d[0]===0x7F)addLog('  '+c.label+' NRC: '+decodeNRC(r.d[2]||0),'warn');
       else addLog('  '+c.label+' not supported / no response','warn');
@@ -230,7 +231,7 @@ export default function AdcmTab(){
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Reading DTCs...');
     addLog('ReadDTCInformation (19 02 08)...','info');
-    const r=await eng.current.uds(mod.tx,mod.rx,[0x19,0x02,0x08]);
+    const r=await eng.current.uds(mod.tx,mod.rx,build.readDtcInformation({subFunction:0x02,dtcStatusMask:0x08}));
     if(r.ok&&r.d){
       /* Shared parser/log formatter from ../lib/dtc.js — same plain-
          English overlay as the UDS Programmer tab. Description is
@@ -249,7 +250,7 @@ export default function AdcmTab(){
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Clearing DTCs...');
     addLog('ClearDiagnosticInformation (14 FF FF FF)...','info');
-    const r=await eng.current.uds(mod.tx,mod.rx,[0x14,0xFF,0xFF,0xFF]);
+    const r=await eng.current.uds(mod.tx,mod.rx,build.clearDiagnosticInformation());
     if(r.ok&&r.d&&r.d[0]===0x54){addLog('✓ DTCs cleared','rx');setDtcs([]);}
     else addLog('Clear failed: '+(r.raw||'no response'),'error');
     setBusy('');
@@ -259,7 +260,7 @@ export default function AdcmTab(){
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Resetting ECU...');
     addLog('ECUReset hard (11 01)...','info');
-    const r=await eng.current.uds(mod.tx,mod.rx,[0x11,0x01]);
+    const r=await eng.current.uds(mod.tx,mod.rx,build.ecuReset({resetType:'hardReset'}));
     if(r.ok&&r.d&&r.d[0]===0x51)addLog('✓ ECU reset accepted','rx');
     else addLog('Reset: '+(r.raw||'no response'),'warn');
     setUnlocked(false);setBusy('');

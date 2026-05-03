@@ -5,6 +5,7 @@ import {MODS} from "../lib/mods.js";
 import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse, vinReadbackOk} from "../lib/algos.js";
 import {backupModule,CRITICAL_DIDS} from "../lib/backups.js";
 import {openSerialPort, onPortDisconnect, cleanupPort} from "../lib/serialErrors.js";
+import {build} from "@workspace/uds";
 
 const hx=(n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0');
 /* Map OBD scan code → backup profile name. Modules without a profile skip
@@ -115,10 +116,10 @@ function OBDTab(){
     for(const m of canC){
       let responded=false;
       for(const addr of m.addrs){try{
-        const r=await eng.current.uds(addr.tx,addr.rx,[0x3E,0x00]);
+        const r=await eng.current.uds(addr.tx,addr.rx,build.testerPresent({subFunction:0x00}));
         if(r.ok){
           addLog(m.c+' alive @ 0x'+addr.tx.toString(16).toUpperCase(),'rx');
-          const vr=await eng.current.uds(addr.tx,addr.rx,[0x22,0xF1,0x90]);
+          const vr=await eng.current.uds(addr.tx,addr.rx,build.readDataByIdentifier({dids:[0xF190]}));
           if(vr.ok&&vr.d?.length>3){const vc=Array.from(vr.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
             if(vin.length>=10){setFound(p=>[...p,{...m,tx:addr.tx,rx:addr.rx,vin}]);addLog(m.c+': '+vin,'rx');}
             else{setFound(p=>[...p,{...m,tx:addr.tx,rx:addr.rx,vin:'(present)'}]);addLog(m.c+': VIN unreadable','warn');}}
@@ -147,7 +148,7 @@ function OBDTab(){
           for(const addr of m.addrs){
             if(ihsAbort)break;
             try{
-              const r=await eng.current.uds(addr.tx,addr.rx,[0x3E,0x00]);
+              const r=await eng.current.uds(addr.tx,addr.rx,build.testerPresent({subFunction:0x00}));
               /* Fast-fail: CAN ERROR = transceiver not wired to pins 3/11 */
               if(r.raw&&/CAN ERROR/.test(r.raw)){
                 addLog('CAN ERROR on IHS bus — OBDLink EX transceiver is only wired to pins 6/14. Body module scan aborted. A physical Y-cable to pins 3/11 is required.','error');
@@ -155,7 +156,7 @@ function OBDTab(){
               }
               if(r.ok){
                 addLog(m.c+' alive @ 0x'+addr.tx.toString(16).toUpperCase(),'rx');
-                const vr=await eng.current.uds(addr.tx,addr.rx,[0x22,0xF1,0x90]);
+                const vr=await eng.current.uds(addr.tx,addr.rx,build.readDataByIdentifier({dids:[0xF190]}));
                 if(vr.ok&&vr.d?.length>3){const vc=Array.from(vr.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);
                   if(vin.length>=10){setFound(p=>[...p,{...m,tx:addr.tx,rx:addr.rx,vin}]);addLog(m.c+': '+vin,'rx');}
                   else{setFound(p=>[...p,{...m,tx:addr.tx,rx:addr.rx,vin:'(present)'}]);addLog(m.c+': VIN unreadable','warn');}}
@@ -183,7 +184,7 @@ function OBDTab(){
   const writeAll=useCallback(async()=>{
     if(!eng.current||nv.length!==17)return;setBusy('Writing...');setProg(0);
     for(let i=0;i<found.length;i++){const m=found[i];
-      await eng.current.uds(m.tx,m.rx,[0x10,0x03]);
+      await eng.current.uds(m.tx,m.rx,build.diagnosticSessionControl({session:0x03}));
       const unlockResult=await tryUnlock(eng.current.uds,m.tx,m.rx,m.c,addLog,m.c);
       if(unlockResult===false){
         addLog(m.c+' UNLOCK FAILED — skipping VIN writes for this module','error');
@@ -204,11 +205,11 @@ function OBDTab(){
       const writeResults=[];
       for(const did of dids){
         const dh=encodeDid(did);
-        const r=await eng.current.uds(m.tx,m.rx,[0x2E,...dh,...vb]);
+        const r=await eng.current.uds(m.tx,m.rx,build.writeDataByIdentifier({did,data:vb}));
         writeResults.push({did,ok:!!(r.ok&&r.d&&r.d[0]===0x6E)});
         addLog(m.c+' DID 0x'+did.toString(16).toUpperCase()+' ('+dh.length+'B): '+(r.ok&&r.d&&r.d[0]===0x6E?'OK':'FAIL'+(r.d&&r.d[0]===0x7F?' NRC 0x'+r.d[2].toString(16).toUpperCase():'')),(r.ok&&r.d&&r.d[0]===0x6E)?'rx':'error');
       }
-      await eng.current.uds(m.tx,m.rx,[0x11,0x01]);addLog(m.c+' reset sent — settling 1500ms','info');
+      await eng.current.uds(m.tx,m.rx,build.ecuReset({resetType:'hardReset'}));addLog(m.c+' reset sent — settling 1500ms','info');
       await new Promise(r=>setTimeout(r,1500));
       /* Per-DID read-back: re-read every DID we wrote and tail-compare to
          the new VIN. F190/7B90/7B88 are universally readable without
@@ -219,7 +220,7 @@ function OBDTab(){
       let allReadbackOk=true;
       for(const did of dids){
         const dh=encodeDid(did);
-        const rb=await eng.current.uds(m.tx,m.rx,[0x22,...dh]);
+        const rb=await eng.current.uds(m.tx,m.rx,build.readDataByIdentifier({dids:[did]}));
         const tail=rb.ok?vinFromReadResponse(rb.d,did):'';
         const ok=vinReadbackOk(did,tail,nv);
         readResults[did]={tail,ok};
@@ -235,14 +236,14 @@ function OBDTab(){
 
   const readProxi=useCallback(async()=>{
     if(!eng.current)return;setBusy('Reading proxi...');
-    const r=await eng.current.uds(0x750,0x758,[0x22,0x20,0x23]);
+    const r=await eng.current.uds(0x750,0x758,build.readDataByIdentifier({dids:[0x2023]}));
     if(r.ok)addLog('BCM Proxi: '+hxb(r.d),'rx');else addLog('Proxi read failed','error');
     setBusy('');
   },[]);
 
   const readSkim=useCallback(async()=>{
     if(!eng.current)return;setBusy('Reading SKIM...');
-    const r=await eng.current.uds(0x750,0x758,[0x22,0x6E,0x9E,0xB0]);
+    const r=await eng.current.uds(0x750,0x758,Uint8Array.from([0x22,0x6E,0x9E,0xB0]));
     if(r.ok){const v=r.d?.length>0?r.d[r.d.length-1]:null;addLog('SKIM State: '+(v===0x80?'ENABLED':'DISABLED')+' (0x'+(v?.toString(16).toUpperCase()||'??')+')','rx');}
     else addLog('SKIM read failed','error');setBusy('');
   },[]);
@@ -252,7 +253,7 @@ function OBDTab(){
     let backupKey=null,oldVin=null,allOk=false;
     let unlockResult=null;
     try{
-      await eng.current.uds(tx,rx,[0x10,0x03]);
+      await eng.current.uds(tx,rx,build.diagnosticSessionControl({session:0x03}));
       unlockResult=await tryUnlock(eng.current.uds,tx,rx,label,addLog,label);
       if(unlockResult===false){
         addLog(label+' UNLOCK FAILED — skipping VIN writes','error');
@@ -270,19 +271,19 @@ function OBDTab(){
       const writeResults=[];
       for(const did of dids){
         const dh=encodeDid(did);
-        const r=await eng.current.uds(tx,rx,[0x2E,...dh,...vb]);
+        const r=await eng.current.uds(tx,rx,build.writeDataByIdentifier({did,data:vb}));
         const ok=!!(r.ok&&r.d&&r.d[0]===0x6E);
         writeResults.push({did,ok});
         addLog(label+' DID 0x'+did.toString(16).toUpperCase()+' ('+dh.length+'B): '+(ok?'OK':'FAIL'+(r.d&&r.d[0]===0x7F?' NRC 0x'+r.d[2].toString(16).toUpperCase():'')),ok?'rx':'error');
       }
-      await eng.current.uds(tx,rx,[0x11,0x01]);
+      await eng.current.uds(tx,rx,build.ecuReset({resetType:'hardReset'}));
       addLog(label+' reset sent — settling 1500ms','info');
       await new Promise(r=>setTimeout(r,1500));
       const readResults={};
       let allReadbackOk=true;
       for(const did of dids){
         const dh=encodeDid(did);
-        const rb=await eng.current.uds(tx,rx,[0x22,...dh]);
+        const rb=await eng.current.uds(tx,rx,build.readDataByIdentifier({dids:[did]}));
         const tail=rb.ok?vinFromReadResponse(rb.d,did):'';
         const ok=vinReadbackOk(did,tail,nv);
         readResults[did]={tail,ok};
@@ -300,7 +301,7 @@ function OBDTab(){
     if(!eng.current)return;setBusy('Virginizing RFHUB...');
     let backupKey=null,oldVin=null,ok=false;
     try{
-      await eng.current.uds(0x75F,0x767,[0x10,0x03]);
+      await eng.current.uds(0x75F,0x767,build.diagnosticSessionControl({session:0x03}));
       const ur=await tryUnlock(eng.current.uds,0x75F,0x767,'RFHUB',addLog,'RFHUB');
       if(ur===false){
         addLog('RFHUB UNLOCK FAILED — virginize aborted','error');
@@ -312,8 +313,8 @@ function OBDTab(){
       const vinDid=b?.dids?.[0xF190]; if(vinDid?.ascii)oldVin=vinDid.ascii.slice(-17);
       const blank=new Array(17).fill(0x00);
       const results=[];
-      for(const did of[0xF190,0x7B90]){const r=await eng.current.uds(0x75F,0x767,[0x2E,(did>>8)&0xFF,did&0xFF,...blank]);results.push({did,ok:!!r.ok});}
-      await eng.current.uds(0x75F,0x767,[0x11,0x01]);
+      for(const did of[0xF190,0x7B90]){const r=await eng.current.uds(0x75F,0x767,build.writeDataByIdentifier({did,data:blank}));results.push({did,ok:!!r.ok});}
+      await eng.current.uds(0x75F,0x767,build.ecuReset({resetType:'hardReset'}));
       ok=results.every(w=>w.ok);
       void backupKey; void oldVin; void ok;
       addLog('RFHUB virginized over OBD','rx');

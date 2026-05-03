@@ -7,6 +7,7 @@ import {crc16,crc8_42,crc8rf} from "../lib/crc.js";
 import {MODS} from "../lib/mods.js";
 import {tryUnlock, encodeDid, vinWriteDids, vinFromReadResponse, vinReadbackOk} from "../lib/algos.js";
 import {getDidDescription, getDidOperations} from "../lib/dids.js";
+import {build} from "@workspace/uds";
 
 /* Render a DID hex code with its human-readable VILLAIN/uds label,
    plus the protocol scope (e.g. "CHRYSLER ECU CAN 11-BIT") so the bench
@@ -186,7 +187,7 @@ function BenchTab(){
   const benchWriteModule=useCallback(async(tx,rx,label)=>{
     if(!benchEng.current||nv.length!==17)return;setBenchBusy('Writing '+label+'...');
     try{
-      await benchEng.current.uds(tx,rx,[0x10,0x03]);
+      await benchEng.current.uds(tx,rx,build.diagnosticSessionControl({session:0x03}));
       const ur=await tryUnlock(benchEng.current.uds,tx,rx,label,addLog,label);
       if(ur===false){
         addLog(label+' UNLOCK FAILED — bench writes skipped','error');
@@ -196,16 +197,16 @@ function BenchTab(){
       const dids=vinWriteDids(label);
       for(const did of dids){
         const dh=encodeDid(did);
-        const r=await benchEng.current.uds(tx,rx,[0x2E,...dh,...vb]);
+        const r=await benchEng.current.uds(tx,rx,build.writeDataByIdentifier({did,data:vb}));
         const ok=!!(r.ok&&r.d&&r.d[0]===0x6E);
         addLog(label+' DID '+fmtDidLabel(did)+' ('+dh.length+'B): '+(ok?'OK':'FAIL'+(r.d&&r.d[0]===0x7F?' NRC 0x'+r.d[2].toString(16).toUpperCase():'')),ok?'rx':'error');
       }
-      await benchEng.current.uds(tx,rx,[0x11,0x01]);
+      await benchEng.current.uds(tx,rx,build.ecuReset({resetType:'hardReset'}));
       addLog(label+' reset sent — settling 1500ms','info');
       await new Promise(r=>setTimeout(r,1500));
       for(const did of dids){
         const dh=encodeDid(did);
-        const rb=await benchEng.current.uds(tx,rx,[0x22,...dh]);
+        const rb=await benchEng.current.uds(tx,rx,build.readDataByIdentifier({dids:[did]}));
         const tail=rb.ok?vinFromReadResponse(rb.d,did):'';
         const ok=vinReadbackOk(did,tail,nv);
         addLog(label+' read-back '+fmtDidLabel(did)+': '+(tail||'(no data)')+' '+(ok?'✓':'✗ MISMATCH'),ok?'rx':'error');
@@ -216,7 +217,7 @@ function BenchTab(){
   const benchReadVin=useCallback(async(tx,rx,label)=>{
     if(!benchEng.current)return;setBenchBusy('Reading '+label+'...');
     try{
-      const r=await benchEng.current.uds(tx,rx,[0x22,0xF1,0x90]);
+      const r=await benchEng.current.uds(tx,rx,build.readDataByIdentifier({dids:[0xF190]}));
       if(r.ok&&r.d?.length>3){const vc=Array.from(r.d).filter(b=>b>=0x20&&b<=0x7E);const vin=String.fromCharCode(...vc).slice(-17);addLog(label+' VIN: '+vin,'rx');}
       else addLog(label+' read failed','error');
     }catch(e){addLog(label+' error: '+e.message,'error');}finally{setBenchBusy('');}

@@ -15,6 +15,7 @@ import {createBridgeEngine} from "../lib/bridgeEngine.js";
 import {getRow} from "../lib/moduleRegistry.js";
 import {programVin} from "../lib/vinProgrammer.js";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
+import {build} from "@workspace/uds";
 
 // VIN-specific RFHUB CRC algorithms (poly+init pairs derived from real dumps).
 // Used as a hint shown to the user; the actual write goes through UDS so the
@@ -63,7 +64,7 @@ export default function RfhubTab({vehicle}){
     setBusy('Finding RFHUB...');
     for(const c of RFHUB_CANDIDATES){
       addLog('Probing '+c.name+' TX:0x'+hx(c.tx,3)+'...','info');
-      const r=await eng.current.uds(c.tx,c.rx,[0x22,0xF1,0x90]);
+      const r=await eng.current.uds(c.tx,c.rx,build.readDataByIdentifier({dids:[0xF190]}));
       if(r.ok){setRfhubAddr(c);addLog('✓ RFHUB found at '+c.name,'rx');setBusy('');return c;}
     }
     addLog('RFHUB not found','error');setBusy('');return null;
@@ -72,8 +73,8 @@ export default function RfhubTab({vehicle}){
   const readVin=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Reading VIN...');
-    await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x10,0x03]);
-    const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x22,0xF1,0x90]);
+    await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.diagnosticSessionControl({session:0x03}));
+    const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.readDataByIdentifier({dids:[0xF190]}));
     const v=r.ok?parseVinFromResponse(r.d):null;
     setCurVin(v);addLog('RFHUB VIN: '+(v||'(no response)'),v?'rx':'warn');
     setBusy('');
@@ -82,14 +83,14 @@ export default function RfhubTab({vehicle}){
   const unlockRfhub=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Unlocking RFHUB...');
-    await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x10,0x03]);
-    const s=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x27,0x01]);
+    await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.diagnosticSessionControl({session:0x03}));
+    const s=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.securityAccess({subFunction:0x01}));
     if(!s.ok||!s.d||s.d.length<4){addLog('Seed request failed','error');setBusy('');return;}
     const sb=Array.from(s.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
     addLog('Seed: 0x'+hx(sv,8),'info');
     const k=sbecKey(sv);
     addLog('SBEC Key: 0x'+hx(k,8)+' [(seed*4)+0x9018]','info');
-    const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);
+    const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.securityAccess({subFunction:0x02,data:[(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]}));
     if(r.ok&&r.d&&r.d[0]===0x67){setUnlocked(true);addLog('✓ RFHUB UNLOCKED','rx');}
     else addLog('Unlock failed','error');
     setBusy('');
@@ -99,11 +100,11 @@ export default function RfhubTab({vehicle}){
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Extracting PIN from RFHUB...');
     addLog('═══ PIN EXTRACTION ═══','info');
-    await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x10,0x03]);
+    await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.diagnosticSessionControl({session:0x03}));
     const pinDids=[0xF18C,0xF18D,0xF1A0];
     for(const did of pinDids){
       addLog('Reading DID 0x'+hx(did,4)+'...','info');
-      const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x22,(did>>8)&0xFF,did&0xFF]);
+      const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.readDataByIdentifier({dids:[did]}));
       if(!r.ok||!r.d||r.d[0]!==0x62){
         if(r.ok&&r.d&&r.d[0]===0x7F)addLog('  DID 0x'+hx(did,4)+' NRC: '+decodeNRC(r.d[2]||0),'warn');
         continue;
@@ -207,7 +208,7 @@ export default function RfhubTab({vehicle}){
     ];
     let accepted=null;
     for(const fmt of pinFormats){
-      const cmdBytes=[0x31,0x01,0x04,0x01,...fmt.bytes];
+      const cmdBytes=Array.from(build.routineControl({type:'startRoutine',routineIdentifier:0x0401,routineOptionRecord:fmt.bytes}));
       addLog('Trying '+fmt.name+': '+cmdBytes.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' '),'info');
       const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,cmdBytes);
       if(r.ok&&r.d&&r.d[0]===0x71){accepted=fmt;break;}
@@ -224,7 +225,7 @@ export default function RfhubTab({vehicle}){
       addLog('Waiting 12 seconds...','info');
       await new Promise(r=>setTimeout(r,12000));
       addLog('Checking routine results (31 03 04 01)...','info');
-      const status=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x31,0x03,0x04,0x01]);
+      const status=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.routineControl({type:'requestRoutineResults',routineIdentifier:0x0401}));
       if(status.ok&&status.d&&status.d[0]===0x71){
         addLog('✓ Routine results: '+Array.from(status.d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' '),'rx');
         setPinAttempts(0);
@@ -246,7 +247,7 @@ export default function RfhubTab({vehicle}){
   const locateKeys=useCallback(async()=>{
     if(!eng.current||!unlocked){addLog('Unlock RFHUB first','error');return;}
     setBusy('Locating programmed keys...');
-    const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x31,0x01,0x04,0x03]);
+    const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.routineControl({type:'startRoutine',routineIdentifier:0x0403}));
     if(r.ok&&r.d&&r.d[0]===0x71){
       const slots=r.d.length>5?Array.from(r.d).slice(5):[];
       const count=slots.filter(b=>b!==0).length;
@@ -262,7 +263,7 @@ export default function RfhubTab({vehicle}){
     if(!window.confirm('Erase ALL programmed keys from RFHUB? You will need to re-program at least one key to start the vehicle.'))return;
     setBusy('Erasing all keys...');
     addLog('Routine 0x0404 Erase All Keys...','info');
-    const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,[0x31,0x01,0x04,0x04]);
+    const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.routineControl({type:'startRoutine',routineIdentifier:0x0404}));
     if(r.ok&&r.d&&r.d[0]===0x71){addLog('✓ All keys erased','rx');setKeysProgrammed(0);}
     else addLog('Erase failed','error');
     setBusy('');

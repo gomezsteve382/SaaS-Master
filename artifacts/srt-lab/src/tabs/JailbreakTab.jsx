@@ -9,6 +9,7 @@ import {
   PROFILES, MODULE_TARGETS, ROUTINE_PRESETS, getVehicleBcmDefaults,
 } from "../lib/jailbreakFeatures.js";
 import { backupModule, CRITICAL_DIDS } from "../lib/backups.js";
+import { build } from "@workspace/uds";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
 
@@ -141,7 +142,7 @@ function JailbreakTab({ vehicle }) {
     const cands = MODULE_TARGETS.filter(m => m.id.startsWith("bcm-"));
     for (const c of cands) {
       addLog("Trying " + c.label + " @ TX 0x" + hx(c.tx, 3), "info");
-      const r = await eng.current.uds(c.tx, c.rx, [0x22, 0xF1, 0x90]);
+      const r = await eng.current.uds(c.tx, c.rx, build.readDataByIdentifier({dids:[0xF190]}));
       if (r.ok) {
         setTargetId(c.id); setUseCustom(false);
         addLog("BCM found @ " + c.label + " (TX 0x" + hx(c.tx, 3) + " / RX 0x" + hx(c.rx, 3) + ")", "rx");
@@ -158,10 +159,10 @@ function JailbreakTab({ vehicle }) {
     if (!eng.current) { addLog("Connect first", "error"); return; }
     setBusy("Unlocking " + target.label + "...");
     addLog("Entering extended session (10 03)...", "info");
-    let r = await eng.current.uds(target.tx, target.rx, [0x10, 0x03]);
+    let r = await eng.current.uds(target.tx, target.rx, build.diagnosticSessionControl({session:0x03}));
     if (!r.ok) { addLog("Session failed", "error"); setBusy(""); return; }
     addLog("Requesting seed (27 01)...", "info");
-    r = await eng.current.uds(target.tx, target.rx, [0x27, 0x01]);
+    r = await eng.current.uds(target.tx, target.rx, build.securityAccess({subFunction:0x01}));
     if (!r.ok || !r.d) {
       addLog("Seed request failed: " + (r.err || "no data"), "error"); setBusy(""); return;
     }
@@ -177,7 +178,7 @@ function JailbreakTab({ vehicle }) {
     const kb = unlockKeyBytes(algoId, sb);
     if (kb === null) { addLog("Unknown unlock algorithm: " + algoId, "error"); setBusy(""); return; }
     addLog(algoId.toUpperCase() + " key (" + kb.length + "B): " + kb.map(b => hx(b)).join(" "), "info");
-    r = await eng.current.uds(target.tx, target.rx, [0x27, 0x02, ...kb]);
+    r = await eng.current.uds(target.tx, target.rx, build.securityAccess({subFunction:0x02, data:kb}));
     if (r.ok) { setUnlocked(true); addLog(target.label + " UNLOCKED", "rx"); }
     else addLog("Key rejected — try a different module/algorithm", "error");
     setBusy("");
@@ -187,7 +188,7 @@ function JailbreakTab({ vehicle }) {
     if (!eng.current) { addLog("Connect first", "error"); return; }
     setBusy("Sending ECU reset...");
     addLog("ECU reset (11 01) → " + target.label, "info");
-    const r = await eng.current.uds(target.tx, target.rx, [0x11, 0x01]);
+    const r = await eng.current.uds(target.tx, target.rx, build.ecuReset({resetType:'hardReset'}));
     addLog(r.ok ? "Reset acknowledged" : "Reset failed", r.ok ? "rx" : "error");
     setBusy("");
   }, [target, addLog]);
@@ -195,9 +196,9 @@ function JailbreakTab({ vehicle }) {
   const readDTCs = useCallback(async () => {
     if (!eng.current) { addLog("Connect first", "error"); return; }
     setBusy("Reading DTCs...");
-    await eng.current.uds(target.tx, target.rx, [0x10, 0x03]);
+    await eng.current.uds(target.tx, target.rx, build.diagnosticSessionControl({session:0x03}));
     addLog("ReadDTCByStatusMask (19 02 08) → " + target.label, "info");
-    const r = await eng.current.uds(target.tx, target.rx, [0x19, 0x02, 0x08]);
+    const r = await eng.current.uds(target.tx, target.rx, build.readDtcInformation({subFunction:0x02, dtcStatusMask:0x08}));
     if (!r.ok || !r.d || r.d.length < 3) {
       addLog("DTC read failed: " + (r.err || "no data"), "error"); setBusy(""); setDtcs([]); return;
     }
@@ -223,7 +224,7 @@ function JailbreakTab({ vehicle }) {
     if (!eng.current) { addLog("Connect first", "error"); return; }
     setBusy("Clearing DTCs...");
     addLog("ClearDiagnosticInformation (14 FF FF FF) → " + target.label, "info");
-    const r = await eng.current.uds(target.tx, target.rx, [0x14, 0xFF, 0xFF, 0xFF]);
+    const r = await eng.current.uds(target.tx, target.rx, build.clearDiagnosticInformation());
     addLog(r.ok ? "DTCs cleared" : "Clear failed: " + (r.err || ""), r.ok ? "rx" : "error");
     if (r.ok) setDtcs([]);
     setBusy("");
@@ -232,9 +233,9 @@ function JailbreakTab({ vehicle }) {
   const runRoutine = useCallback(async (rid) => {
     if (!eng.current) { addLog("Connect first", "error"); return; }
     setBusy("Running routine 0x" + hx(rid, 4) + "...");
-    await eng.current.uds(target.tx, target.rx, [0x10, 0x03]);
+    await eng.current.uds(target.tx, target.rx, build.diagnosticSessionControl({session:0x03}));
     addLog("RoutineControl start (31 01 " + hx((rid >> 8) & 0xFF) + " " + hx(rid & 0xFF) + ") → " + target.label, "info");
-    const r = await eng.current.uds(target.tx, target.rx, [0x31, 0x01, (rid >> 8) & 0xFF, rid & 0xFF]);
+    const r = await eng.current.uds(target.tx, target.rx, build.routineControl({type:'startRoutine', routineIdentifier:rid}));
     addLog(r.ok ? "Routine accepted: " + (r.d ? Array.from(r.d).map(b => hx(b)).join(" ") : "") : "Routine failed: " + (r.err || ""), r.ok ? "rx" : "error");
     setBusy("");
   }, [target, addLog]);
@@ -247,7 +248,7 @@ function JailbreakTab({ vehicle }) {
     const newVals = {};
     for (const did of dids) {
       addLog("Reading DID 0x" + hx(did, 4) + "...", "info");
-      const r = await eng.current.uds(target.tx, target.rx, [0x22, (did >> 8) & 0xFF, did & 0xFF]);
+      const r = await eng.current.uds(target.tx, target.rx, build.readDataByIdentifier({dids:[did]}));
       if (r.ok && r.d) {
         // Positive response: 62 DID_HI DID_LO [data...]
         const d = Array.from(r.d);
@@ -322,7 +323,7 @@ function JailbreakTab({ vehicle }) {
       if (outOfRange && cur.every((b, i) => b === orig[i])) continue;
       addLog("Writing DID 0x" + hx(did, 4) + " (" + cur.length + " bytes)...", "info");
       const r = await eng.current.uds(target.tx, target.rx,
-        [0x2E, (did >> 8) & 0xFF, did & 0xFF, ...cur]);
+        build.writeDataByIdentifier({did, data: cur}));
       if (r.ok) {
         addLog("DID 0x" + hx(did, 4) + " written", "rx");
         setValues(v => ({ ...v, [did]: cur }));
@@ -336,7 +337,7 @@ function JailbreakTab({ vehicle }) {
       setBusy(""); return;
     }
     addLog("Sending ECU reset (11 01)...", "info");
-    await eng.current.uds(target.tx, target.rx, [0x11, 0x01]);
+    await eng.current.uds(target.tx, target.rx, build.ecuReset({resetType:'hardReset'}));
     const featureSummary = keys.map(k => pending[k].feat.id + "=0x" + hx(pending[k].value));
     addLog(writes + " DID(s) written: " + featureSummary.join(", "), "info");
     void backupKey; void oldVin;

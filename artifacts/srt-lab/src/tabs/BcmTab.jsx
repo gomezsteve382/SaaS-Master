@@ -20,6 +20,7 @@ import SamplePicker from "../lib/SamplePicker.jsx";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 import {getBcmGroups, getDid} from "../lib/alfaobdMined/index.js";
 import {readBits as minedReadBits, buildRoutineControlFrame, buildOptionWriteSequence} from "../lib/alfaobdMined/udsFrameBuilder.js";
+import { build } from "@workspace/uds";
 
 const BCM_ALGOS={
   'CDA6':s=>cda6(s),
@@ -98,11 +99,11 @@ function MinedBcmConfigPanel({engRef, bcmAddr, unlocked, addLog, busy, setBusy})
     if (!engRef.current) { addLog('Connect first', 'error'); return; }
     setReading(true);
     addLog('═══ BCM CONFIG READ (DE00..DE0C) ═══', 'info');
-    await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x10, 0x03]);
+    await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, build.diagnosticSessionControl({session: 0x03}));
     const payloads = {};
     for (const g of MINED_GROUPS) {
       const didN = parseInt(g.did.replace(/^0x/i, ''), 16);
-      const r = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x22, (didN >> 8) & 0xFF, didN & 0xFF]);
+      const r = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, build.readDataByIdentifier({dids: [didN]}));
       if (r.ok && r.d && r.d[0] === 0x62) {
         payloads[g.did] = new Uint8Array(Array.from(r.d).slice(3));
         addLog('DID ' + g.did + ' (' + g.groupName + '): ' + payloads[g.did].length + ' bytes', 'rx');
@@ -135,7 +136,7 @@ function MinedBcmConfigPanel({engRef, bcmAddr, unlocked, addLog, busy, setBusy})
     // Hard-stop on session-entry NRC: every WDBI below would be rejected
     // anyway and the post-write routines must NOT run if we never made it
     // into the programming session.
-    const dsr = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x10, 0x03]);
+    const dsr = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, build.diagnosticSessionControl({session: 0x03}));
     const dsrOk = dsr && dsr.ok && dsr.d && dsr.d[0] === 0x50;
     if (!dsrOk) {
       const e = decodeUdsError(dsr);
@@ -164,7 +165,7 @@ function MinedBcmConfigPanel({engRef, bcmAddr, unlocked, addLog, busy, setBusy})
       if (!group) continue;
 
       addLog('Writing DID ' + did + ' (' + group.groupName + ')...', 'info');
-      const rRead = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x22, (didN >> 8) & 0xFF, didN & 0xFF]);
+      const rRead = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, build.readDataByIdentifier({dids: [didN]}));
       if (!rRead.ok || !rRead.d || rRead.d[0] !== 0x62) {
         const e = decodeUdsError(rRead);
         addLog('DID ' + did + ': read failed before write — ' + e.label, 'error');
@@ -209,7 +210,7 @@ function MinedBcmConfigPanel({engRef, bcmAddr, unlocked, addLog, busy, setBusy})
 
       // Verify each successfully-written bitfield landed at the requested
       // value via a single readback for the DID.
-      const rBack = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, [0x22, (didN >> 8) & 0xFF, didN & 0xFF]);
+      const rBack = await engRef.current.uds(bcmAddr.tx, bcmAddr.rx, build.readDataByIdentifier({dids: [didN]}));
       if (rBack.ok && rBack.d && rBack.d[0] === 0x62) {
         const readback = new Uint8Array(Array.from(rBack.d).slice(3));
         setDidPayloads(p => ({...p, [did]: readback}));
@@ -592,7 +593,7 @@ export default function BcmTab({vehicle}){
     setBusy('Finding BCM...');
     for(const c of BCM_CANDIDATES){
       addLog('Probing '+c.name+' TX:0x'+hx(c.tx,3)+'...','info');
-      const r=await eng.current.uds(c.tx,c.rx,[0x22,0xF1,0x90]);
+      const r=await eng.current.uds(c.tx,c.rx,build.readDataByIdentifier({dids:[0xF190]}));
       if(r.ok){setBcmAddr(c);addLog('✓ BCM found at '+c.name,'rx');setBusy('');return c;}
     }
     addLog('BCM not found on any address','error');setBusy('');return null;
@@ -601,10 +602,10 @@ export default function BcmTab({vehicle}){
   const readVins=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Reading VINs...');
-    await eng.current.uds(bcmAddr.tx,bcmAddr.rx,[0x10,0x03]);
+    await eng.current.uds(bcmAddr.tx,bcmAddr.rx,build.diagnosticSessionControl({session:0x03}));
     const vins={};
     for(const did of [0xF190,0x7B90,0x7B88]){
-      const r=await eng.current.uds(bcmAddr.tx,bcmAddr.rx,[0x22,(did>>8)&0xFF,did&0xFF]);
+      const r=await eng.current.uds(bcmAddr.tx,bcmAddr.rx,build.readDataByIdentifier({dids:[did]}));
       const v=r.ok?parseVinFromResponse(r.d):null;
       vins[did]=v;
       addLog('DID 0x'+hx(did,4)+': '+(v||'(no response)'),v?'rx':'warn');
@@ -624,9 +625,9 @@ export default function BcmTab({vehicle}){
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Unlocking BCM...');
     addLog('Entering extended session (10 03)...','info');
-    await eng.current.uds(bcmAddr.tx,bcmAddr.rx,[0x10,0x03]);
+    await eng.current.uds(bcmAddr.tx,bcmAddr.rx,build.diagnosticSessionControl({session:0x03}));
     addLog('Requesting seed (27 01)...','info');
-    const s=await eng.current.uds(bcmAddr.tx,bcmAddr.rx,[0x27,0x01]);
+    const s=await eng.current.uds(bcmAddr.tx,bcmAddr.rx,build.securityAccess({subFunction:0x01}));
     if(!s.ok||!s.d||s.d.length<4){addLog('Seed request failed','error');setBusy('');return;}
     const sb=Array.from(s.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
     addLog('Seed: 0x'+hx(sv,8),'info');
@@ -634,7 +635,7 @@ export default function BcmTab({vehicle}){
     for(const a of algosToTry){
       const k=a.fn(sv);
       addLog('Trying '+a.n+' key 0x'+hx(k,8)+'...','info');
-      const r=await eng.current.uds(bcmAddr.tx,bcmAddr.rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);
+      const r=await eng.current.uds(bcmAddr.tx,bcmAddr.rx,build.securityAccess({subFunction:0x02,data:[(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]}));
       if(r.ok&&r.d&&r.d[0]===0x67){addLog('✓ UNLOCKED with '+a.n,'rx');setUnlocked(true);setAlgo(a.n);setBusy('');return;}
     }
     addLog('All algorithms failed','error');setBusy('');
@@ -717,7 +718,7 @@ export default function BcmTab({vehicle}){
   const ecuReset=useCallback(async()=>{
     if(!eng.current)return;
     addLog('Sending ECU reset (11 01)...','info');
-    await eng.current.uds(bcmAddr.tx,bcmAddr.rx,[0x11,0x01]);
+    await eng.current.uds(bcmAddr.tx,bcmAddr.rx,build.ecuReset({resetType:'hardReset'}));
     addLog('Reset sent — wait ~3 sec for BCM to come back','info');
     setUnlocked(false);
   },[bcmAddr,addLog]);

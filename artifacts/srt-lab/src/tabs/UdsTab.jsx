@@ -11,6 +11,7 @@ import {
   buildWriteMemoryByAddress, parseWriteMemoryResponse,
   buildRoutineResult, parseRoutineResponse,
 } from "../lib/uds.js";
+import { build } from "@workspace/uds";
 
 const MODULE_PRESETS={
   BCM:{tx:0x750,rx:0x758},RFHUB:{tx:0x75F,rx:0x767},
@@ -97,7 +98,7 @@ export default function UdsTab(){
     const didLabel='0x'+hx(did,4)+(didDesc?' ('+didDesc+')':'');
     setBusy('Reading DID '+didLabel+'...');
     const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
-    const r=await eng.current.uds(tx,rx,[0x22,(did>>8)&0xFF,did&0xFF]);
+    const r=await eng.current.uds(tx,rx,build.readDataByIdentifier({dids:[did]}));
     let success=false,asciiOut='';
     if(r.ok&&r.d){
       if(r.d[0]===0x62){
@@ -122,7 +123,7 @@ export default function UdsTab(){
     const didLabel='0x'+hx(did,4)+(didDesc?' ('+didDesc+')':'');
     setBusy('Writing DID '+didLabel+'...');
     const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
-    const r=await eng.current.uds(tx,rx,[0x2E,(did>>8)&0xFF,did&0xFF,...data]);
+    const r=await eng.current.uds(tx,rx,build.writeDataByIdentifier({did,data}));
     let success=false;
     if(r.ok&&r.d){
       if(r.d[0]===0x6E){addLog('✓ Written '+didLabel,'rx');success=true;}
@@ -136,7 +137,7 @@ export default function UdsTab(){
     if(!eng.current){addLog('Connect first','error');return;}
     const s=parseInt(session,16);
     const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
-    const r=await eng.current.uds(tx,rx,[0x10,s]);
+    const r=await eng.current.uds(tx,rx,build.diagnosticSessionControl({session:s}));
     const success=!!(r.ok&&r.d&&r.d[0]===0x50);
     if(success)addLog('✓ Session 0x'+hx(s)+' active','rx');
     else addLog('Session failed','error');
@@ -146,7 +147,7 @@ export default function UdsTab(){
   const testerPresent=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
-    const r=await eng.current.uds(tx,rx,[0x3E,0x00]);
+    const r=await eng.current.uds(tx,rx,build.testerPresent());
     const success=!!(r.ok&&r.d&&r.d[0]===0x7E);
     if(success)addLog('✓ Module alive','rx');
     else addLog('No TesterPresent response','warn');
@@ -242,7 +243,7 @@ export default function UdsTab(){
     const data=hexToBytes(routineData);
     const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
     setBusy('Routine...');
-    const cmd=[0x31,ctrl,(rid>>8)&0xFF,rid&0xFF,...data];
+    const cmd=Array.from(build.routineControl({type:ctrl,routineIdentifier:rid,routineOptionRecord:data}));
     addLog('Routine: '+cmd.map(b=>hx(b)).join(' '),'info');
     const r=await eng.current.uds(tx,rx,cmd);
     let success=false;
@@ -270,7 +271,7 @@ export default function UdsTab(){
   const clearDtcs=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
-    const r=await eng.current.uds(tx,rx,[0x14,0xFF,0xFF,0xFF]);
+    const r=await eng.current.uds(tx,rx,build.clearDiagnosticInformation());
     const success=!!(r.ok&&r.d&&r.d[0]===0x54);
     if(success)addLog('✓ DTCs cleared','rx');
     else addLog('Clear failed','error');
@@ -280,7 +281,7 @@ export default function UdsTab(){
   const reset=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     const tx=parseAddr(txAddr),rx=parseAddr(rxAddr);
-    const r=await eng.current.uds(tx,rx,[0x11,0x01]);
+    const r=await eng.current.uds(tx,rx,build.ecuReset({resetType:'hardReset'}));
     const success=!!(r.ok&&r.d&&r.d[0]===0x51);
     if(success)addLog('✓ ECU reset','rx');
     else addLog('Reset failed','warn');

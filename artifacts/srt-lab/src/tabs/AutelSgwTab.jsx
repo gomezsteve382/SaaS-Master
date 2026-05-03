@@ -8,6 +8,7 @@ import {
 import {createBridgeEngine} from '../lib/bridgeEngine.js';
 import {unlockKeyBytes} from '../lib/algos.js';
 import {setSgwAuthenticated, clearSgwAuth, useSgwAuth, setSgwBypass} from '../lib/sgwAuth.js';
+import {build} from '@workspace/uds';
 
 const SGW_TX = 0x74F;
 const SGW_RX = 0x76F;
@@ -121,7 +122,7 @@ export default function AutelSgwTab(){
     // Diagnostic session 0x03 (extended) — required before the SGW
     // accepts a 27 01.
     log('→ 10 03 (extended diagnostic session)','info');
-    const ds=await eng.uds(SGW_TX,SGW_RX,[0x10,0x03]);
+    const ds=await eng.uds(SGW_TX,SGW_RX,build.diagnosticSessionControl({session:0x03}));
     if(!ds.ok||!ds.d||ds.d[0]!==0x50){
       const nrc=ds.d&&ds.d[0]===0x7F?ds.d[2]:null;
       log(`🛑 SGW 10 03 ${nrc!=null?`NRC 0x${nrc.toString(16).toUpperCase()}`:'no response'}`,'error');
@@ -130,7 +131,7 @@ export default function AutelSgwTab(){
       return;
     }
     log('→ 27 01 (request SGW seed)','info');
-    const sr=await eng.uds(SGW_TX,SGW_RX,[0x27,0x01]);
+    const sr=await eng.uds(SGW_TX,SGW_RX,build.securityAccess({subFunction:0x01}));
     if(!sr.ok||!sr.d||sr.d.length<6||sr.d[0]!==0x67){
       const nrc=sr.d&&sr.d[0]===0x7F?sr.d[2]:null;
       log(`🛑 SGW 27 01 ${nrc!=null?`NRC 0x${nrc.toString(16).toUpperCase()}`:'no/short response'}`,'error');
@@ -148,7 +149,7 @@ export default function AutelSgwTab(){
       return;
     }
     log(`→ 27 02 + key (${keyBytes.length}B): ${keyBytes.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ')}`,'info');
-    const kr=await eng.uds(SGW_TX,SGW_RX,[0x27,0x02,...keyBytes]);
+    const kr=await eng.uds(SGW_TX,SGW_RX,build.securityAccess({subFunction:0x02,data:keyBytes}));
     if(kr.ok&&kr.d&&kr.d[0]===0x67){
       log(`✓ SGW UNLOCKED — auth valid for ${vin} (10 min)`,'pass');
       setSgwAuthenticated(vin);

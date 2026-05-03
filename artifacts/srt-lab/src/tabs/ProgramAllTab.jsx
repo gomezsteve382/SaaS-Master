@@ -10,6 +10,7 @@ import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {partitionForVin, getRow} from "../lib/moduleRegistry.js";
 import {programVin} from "../lib/vinProgrammer.js";
 import {backupModule} from "../lib/backups.js";
+import {build} from "@workspace/uds";
 
 /* Dev-only test hook: when the dev server URL carries
    `?testEngine=stop-on-fail-ecm`, install a deterministic stub uds engine
@@ -226,7 +227,7 @@ export default function ProgramAllTab(){
       if (!eng) { blog('Adapter init failed — aborting scan', 'error'); setScanBusy(false); return; }
     }
     for (const row of targets) {
-      const r = await eng.uds(row.tx, row.rx, [0x22, 0xF1, 0x90]);
+      const r = await eng.uds(row.tx, row.rx, build.readDataByIdentifier({dids:[0xF190]}));
       if (r.ok && r.d && r.d[0] === 0x62) {
         const data = Array.from(r.d).slice(3);
         const ascii = data.filter(b => b >= 0x20 && b <= 0x7E).map(b => String.fromCharCode(b)).join('').trim();

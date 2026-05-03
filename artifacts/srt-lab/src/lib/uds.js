@@ -1,11 +1,12 @@
 /**
- * UDS service helpers — pure builders/parsers for services that the
- * UdsTab and BackupsTab need but don't yet have first-class wrappers
- * for. Keeping these as standalone, dependency-free functions makes
- * them straightforward to unit-test (no DOM, no engine mock) and lets
- * other tabs reuse them without dragging UI state along.
+ * UDS service helpers — thin wrappers around `@workspace/uds` builders
+ * (Task #610) plus parsers and high-level multi-DID batching that the
+ * shared lib does not yet provide. The builders here delegate to
+ * `@workspace/uds` so byte-order encoding lives in exactly one place;
+ * the parsers and `readDidsBatched` flow remain here because they are
+ * srt-lab–specific (silent-corruption guard, engine-driven retries).
  *
- * Services covered (Task #565):
+ * Services covered:
  *   - 0x23 ReadMemoryByAddress  / 0x63 positive response
  *   - 0x3D WriteMemoryByAddress / 0x7D positive response
  *   - 0x31 0x03 RoutineControl: requestRoutineResults
@@ -13,9 +14,11 @@
  *     response splitter, plus the chunking budget used by BackupsTab
  *     to collapse ~40 single-DID round trips into a handful.
  *
- * No imports: every helper is byte-in / byte-out so tests stay fast
- * and these can be tree-shaken out of bundles that don't use them.
+ * Builders return plain `number[]` (not `Uint8Array`) for backward
+ * compatibility with existing call sites and unit tests.
  */
+
+import { build } from "@workspace/uds";
 
 // ─── ReadMemoryByAddress 0x23 / WriteMemoryByAddress 0x3D ────────────
 
@@ -26,6 +29,10 @@
  * count. We default to 0x44 (4-byte addr + 4-byte size) because it's
  * what the FCA flasher already uses and matches AEMT EEPROM offsets
  * (0x100/0x108/0x220/0x230/0x240/0x510/0x518) cleanly.
+ *
+ * Kept here (not delegated) because `@workspace/uds` does not export
+ * its internal `encodeAddressAndLength` helper, and the existing tests
+ * exercise this surface directly.
  */
 export function encodeAddressAndLength(addr, length, alfid = 0x44){
   const addrLen = alfid & 0x0F;
@@ -42,10 +49,9 @@ export function encodeAddressAndLength(addr, length, alfid = 0x44){
   return { addrBytes, lenBytes, alfid };
 }
 
-/** Build a 0x23 ReadMemoryByAddress request frame. */
+/** Build a 0x23 ReadMemoryByAddress request frame (delegates to @workspace/uds). */
 export function buildReadMemoryByAddress(addr, length, alfid = 0x44){
-  const { addrBytes, lenBytes } = encodeAddressAndLength(addr, length, alfid);
-  return [0x23, alfid, ...addrBytes, ...lenBytes];
+  return Array.from(build.readMemoryByAddress({ address: addr >>> 0, length: length >>> 0, alfid }));
 }
 
 /**
@@ -61,11 +67,10 @@ export function parseReadMemoryResponse(d){
   return { ok: true, data: Array.from(d).slice(1), nrc: null };
 }
 
-/** Build a 0x3D WriteMemoryByAddress request frame. */
+/** Build a 0x3D WriteMemoryByAddress request frame (delegates to @workspace/uds). */
 export function buildWriteMemoryByAddress(addr, data, alfid = 0x44){
   if (!data || !data.length) throw new Error('buildWriteMemoryByAddress: data is empty');
-  const { addrBytes, lenBytes } = encodeAddressAndLength(addr, data.length, alfid);
-  return [0x3D, alfid, ...addrBytes, ...lenBytes, ...Array.from(data)];
+  return Array.from(build.writeMemoryByAddress({ address: addr >>> 0, data: Array.from(data), alfid }));
 }
 
 /**
@@ -84,9 +89,9 @@ export function parseWriteMemoryResponse(d){
 
 // ─── RoutineControl 0x31 0x03 (requestRoutineResults) ────────────────
 
-/** Build a 0x31 0x03 routine-result request for a 16-bit routine id. */
+/** Build a 0x31 0x03 routine-result request for a 16-bit routine id (delegates to @workspace/uds). */
 export function buildRoutineResult(rid){
-  return [0x31, 0x03, (rid >> 8) & 0xFF, rid & 0xFF];
+  return Array.from(build.routineControl({ type: 'requestRoutineResults', routineIdentifier: rid & 0xFFFF }));
 }
 
 /**
@@ -118,14 +123,14 @@ export function parseRoutineResponse(d){
  */
 export function buildMultiDidRead(dids){
   if (!dids || !dids.length) throw new Error('buildMultiDidRead: empty list');
-  const frame = [0x22];
+  // Validate up front (matches legacy error message) so a bad DID is
+  // rejected with a stable error before reaching the shared builder.
   for (const did of dids){
     if (typeof did !== 'number' || did < 0 || did > 0xFFFF){
       throw new Error('buildMultiDidRead: DID out of 16-bit range: ' + did);
     }
-    frame.push((did >> 8) & 0xFF, did & 0xFF);
   }
-  return frame;
+  return Array.from(build.readDataByIdentifier({ dids }));
 }
 
 /**

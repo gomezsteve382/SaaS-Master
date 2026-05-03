@@ -12,6 +12,7 @@ import {vinHasSGW} from '../lib/vin.js';
 import {createBridgeEngine} from '../lib/bridgeEngine.js';
 import {getRow} from '../lib/moduleRegistry.js';
 import {programVin} from '../lib/vinProgrammer.js';
+import {build} from '@workspace/uds';
 
 export default function EcmTab({vehicle}){
   const{vin:masterVin,updateStatus}=useMasterVin();
@@ -36,11 +37,11 @@ export default function EcmTab({vehicle}){
     setBusy('Testing connection...');
     addLog('═══ ECM CONNECTION TEST ═══','info');
     addLog('TesterPresent (3E 00)...','info');
-    const tp=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x3E,0x00]);
+    const tp=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,build.testerPresent({subFunction:0x00}));
     if(tp.ok&&tp.d&&tp.d[0]===0x7E)addLog('✓ ECM is alive','rx');
     else addLog('✗ ECM not responding on 0x'+hx(ecmAddr.tx,3),'error');
     addLog('Read VIN 0xF190 (22 F1 90)...','info');
-    const v1=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x22,0xF1,0x90]);
+    const v1=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,build.readDataByIdentifier({dids:[0xF190]}));
     if(v1.ok&&v1.d&&v1.d[0]===0x62){
       const v=parseVinFromResponse(v1.d);if(v){setCurVin(v);addLog('✓ VIN readable: '+v,'rx');}
     }else addLog('VIN read failed — try Read ECM Info','warn');
@@ -51,7 +52,7 @@ export default function EcmTab({vehicle}){
   const readInfo=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Reading ECM info...');
-    await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x10,0x03]);
+    await eng.current.uds(ecmAddr.tx,ecmAddr.rx,build.diagnosticSessionControl({session:0x03}));
     const info={};
     const reads=[
       {did:0xF190,label:'VIN'},{did:0xF187,label:'Part Number'},
@@ -60,7 +61,7 @@ export default function EcmTab({vehicle}){
       {did:0xF195,label:'Cal ID'},
     ];
     for(const r of reads){
-      const res=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x22,(r.did>>8)&0xFF,r.did&0xFF]);
+      const res=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,build.readDataByIdentifier({dids:[r.did]}));
       if(res.ok&&res.d&&res.d[0]===0x62){
         const data=Array.from(res.d).slice(3);
         const ascii=data.filter(b=>b>=0x20&&b<=0x7E).map(b=>String.fromCharCode(b)).join('').trim();
@@ -76,8 +77,8 @@ export default function EcmTab({vehicle}){
   const readVin=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Reading VIN...');
-    await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x10,0x03]);
-    const r=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x22,0xF1,0x90]);
+    await eng.current.uds(ecmAddr.tx,ecmAddr.rx,build.diagnosticSessionControl({session:0x03}));
+    const r=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,build.readDataByIdentifier({dids:[0xF190]}));
     if(r.ok){const v=parseVinFromResponse(r.d);if(v){setCurVin(v);addLog('VIN: '+v,'rx');}else addLog('VIN parse failed','warn');}
     else addLog('VIN read failed','error');
     setBusy('');
@@ -86,8 +87,8 @@ export default function EcmTab({vehicle}){
   const unlockEcm=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
     setBusy('Unlocking ECM (auto-trying all algos)...');
-    await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x10,0x03]);
-    let s=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x27,0x01]);
+    await eng.current.uds(ecmAddr.tx,ecmAddr.rx,build.diagnosticSessionControl({session:0x03}));
+    let s=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,build.securityAccess({subFunction:0x01}));
     if(!s.ok||!s.d||s.d.length<4){addLog('Seed request failed','error');setBusy('');return;}
     let sb=Array.from(s.d).slice(-4);let sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);
     addLog('Seed: 0x'+hx(sv,8),'info');
@@ -96,7 +97,7 @@ export default function EcmTab({vehicle}){
       idx++;
       const k=a.fn(sv);
       addLog('['+idx+'/'+ECM_ALGOS.length+'] Try '+a.n+' key=0x'+hx(k,8)+'...','info');
-      const r=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x27,0x02,(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]);
+      const r=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,build.securityAccess({subFunction:0x02,data:[(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]}));
       if(r.ok&&r.d&&r.d[0]===0x67){
         addLog('✓ UNLOCKED with '+a.n+' (algo '+idx+'/'+ECM_ALGOS.length+')','rx');
         setUnlocked(true);setAlgo(a.n);setBusy('');return;
@@ -104,7 +105,7 @@ export default function EcmTab({vehicle}){
       if(r.ok&&r.d&&r.d[0]===0x7F)addLog('   '+a.n+' rejected: '+decodeNRC(r.d[2]||0),'warn');
       else addLog('   '+a.n+' no response','warn');
       await new Promise(r=>setTimeout(r,300));
-      s=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,[0x27,0x01]);
+      s=await eng.current.uds(ecmAddr.tx,ecmAddr.rx,build.securityAccess({subFunction:0x01}));
       if(s.ok&&s.d&&s.d.length>=4){sb=Array.from(s.d).slice(-4);sv=0;for(const b of sb)sv=(sv<<8)|b;sv=u32(sv);}
       else{addLog('Re-seed failed — module may be timed-out','warn');break;}
     }
