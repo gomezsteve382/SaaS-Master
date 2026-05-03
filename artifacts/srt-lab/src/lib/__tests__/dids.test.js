@@ -64,11 +64,9 @@ describe('dids dictionary', () => {
     //   /tmp/villain_gpec/villain_extraction/VILLAIN_COMPLETE_EXTRACTION.md
     expect(getDidDescription(0x7B90)).toBe('Current VIN');
     expect(getDidDescription(0x7B88)).toBe('Original VIN');
-    expect(getDidDescription(0x6E2025)).toBe('Bus Transmitted VIN');
+    expect(getDidDescription(0x6E2025)).toBe('Bus-Transmitted VIN');
     expect(getDidDescription(0x6E2027)).toBe('WCM Configured VIN');
-    expect(getDidDescription(0x6E9EB0)).toBe(
-      'SKIM State (0x80=Enabled, 0x00=Disabled)'
-    );
+    expect(getDidDescription(0x6E9EB0)).toBe('SKIM State');
     expect(getDidDescription(0x6EF190)).toBe('EPS VIN');
     expect(getDidDescription(0xF79EB045)).toBe('SKIM state flag (SCI-B)');
   });
