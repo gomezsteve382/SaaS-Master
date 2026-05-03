@@ -1,6 +1,7 @@
-import React, {useState, useCallback, useMemo} from "react";
+import React, {useState, useCallback, useMemo, useEffect} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Btn} from "../lib/ui.jsx";
+import {getAuth29Detections, subscribeAuth29, clearAuth29Detections} from "../lib/auth29State.js";
 import {ALGOS, xtea_sgw_full, alfaW6, alfaW6By, u32} from "../lib/algos.js";
 import {AOBD_W6, AOBD_W7, AOBD_DISPATCH} from "../lib/alfaobdAlgorithms.generated.js";
 import {EXTENDED_ALGORITHMS} from "../lib/extendedAlgorithms.generated.js";
@@ -154,7 +155,33 @@ function SeedTab(){
   const totalAlgoCount=ALGOS.length;
   const extendedAlgoCount=EXT_PICKER_ALGOS.length;
 
+  // Task #567 — UDS 0x29 Authentication detection banner. Subscribes
+  // to in-tab updates from the detector and to cross-tab storage events
+  // so a probe fired from the flasher or unlock chain lights this up.
+  const [auth29,setAuth29]=useState(()=>getAuth29Detections());
+  useEffect(()=>{
+    const refresh=()=>setAuth29(getAuth29Detections());
+    const off=subscribeAuth29(refresh);
+    const onStorage=(e)=>{ if(!e||e.key==='srtlab.auth29.detections') refresh(); };
+    if(typeof window!=='undefined') window.addEventListener('storage',onStorage);
+    return ()=>{ off(); if(typeof window!=='undefined') window.removeEventListener('storage',onStorage); };
+  },[]);
+
   return<div style={{maxWidth:880}}>
+    {auth29.length>0&&<Card data-testid="auth29-banner" style={{marginBottom:12,background:'#FFF3E0',borderColor:'#E65100'}}>
+      <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12}}>
+        <div>
+          <div style={{fontSize:12,fontWeight:900,color:'#E65100',letterSpacing:1,marginBottom:4}}>UDS 0x29 DETECTED</div>
+          <div style={{fontSize:12,color:C.tx,marginBottom:4}}>
+            {auth29.length===1?'A module':`${auth29.length} modules`} on this bench answered the 0x29 probe — they require Authentication (0x29) instead of SecurityAccess (0x27). Seed/key unlock will not run for {auth29.length===1?'it':'them'} until 0x29 is implemented.
+          </div>
+          <div style={{fontSize:10,fontFamily:"'JetBrains Mono', monospace",color:C.tm}}>
+            {auth29.map(d=>`tx=0x${(d.tx>>>0).toString(16).toUpperCase().padStart(3,'0')}${d.label?` (${d.label})`:''}${d.nrc!=null?` · seed NRC 0x${d.nrc.toString(16).toUpperCase().padStart(2,'0')}`:''}`).join(' · ')}
+          </div>
+        </div>
+        <button onClick={clearAuth29Detections} data-testid="auth29-banner-clear" style={{cursor:'pointer',border:'1.5px solid #E65100',padding:'4px 10px',borderRadius:6,background:'#fff',color:'#E65100',fontWeight:800,fontSize:10,letterSpacing:1,whiteSpace:'nowrap'}}>DISMISS</button>
+      </div>
+    </Card>}
     <Card glow>
       <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,marginBottom:4}}>
         <div>

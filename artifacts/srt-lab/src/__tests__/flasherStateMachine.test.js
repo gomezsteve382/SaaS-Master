@@ -20,10 +20,11 @@ function bytes(...args) { return new Uint8Array(args); }
 // recorded into a separate `etiquette` array so existing scripted
 // tests keep counting only the primary UDS flow while #563 tests can
 // still assert on order and content of the etiquette frames.
-function makeEngine({ isBridge = true, script = [], timingDefaults = { p2Ms: 50, p2StarMs: 500 } } = {}) {
+function makeEngine({ isBridge = true, script = [], timingDefaults = { p2Ms: 50, p2StarMs: 500 }, auth29Reply = null } = {}) {
   const calls = [];
   const etiquette = [];
   const timing = [];
+  const auth29 = [];
   let negotiated = null;
   let i = 0;
   const eng = {
@@ -34,6 +35,7 @@ function makeEngine({ isBridge = true, script = [], timingDefaults = { p2Ms: 50,
     setNegotiatedTiming(t){ negotiated = t ? { ...t } : null; },
     clearNegotiatedTiming(){ negotiated = null; },
     getNegotiatedTiming(){ return negotiated ? { ...negotiated } : null; },
+    auth29,
     async uds(tx, rx, frame) {
       const arr = frame instanceof Uint8Array ? Array.from(frame) : [...frame];
       if (arr[0] === 0x3E) {
@@ -44,6 +46,15 @@ function makeEngine({ isBridge = true, script = [], timingDefaults = { p2Ms: 50,
         // Pre/post-flash etiquette — out-of-band, recorded separately.
         etiquette.push({ tx, rx, frame: arr });
         return { ok: true, d: new Uint8Array(0) };
+      }
+      if (arr[0] === 0x29) {
+        // UDS 0x29 Authentication probe (Task #567) — out-of-band so
+        // the existing scripted flows are not disturbed. Default reply
+        // is NRC 0x11 (serviceNotSupported); tests that need the
+        // module to "support 0x29" pass `auth29Reply`.
+        auth29.push({ tx, rx, frame: arr });
+        if (auth29Reply) return auth29Reply;
+        return { ok: true, d: new Uint8Array([0x7F, 0x29, 0x11]) };
       }
       if (arr[0] === 0x83) {
         // 0x83 AccessTimingParameter (Task #566) — out-of-band like
@@ -892,6 +903,70 @@ describe('flashEcm UDS 0x83 timing negotiation (Task #566)', () => {
     expect(r.ok).toBe(true);
     // Read + extend + ONE restore = 3 (not 4).
     expect(eng.timing).toHaveLength(3);
+  });
+
+  test('NRC 0x33 at SEED triggers a 0x29 probe (rejected → re-throws original NRC)', async () => {
+    const script = [
+      { ok: true, d: bytes(0x50, 0x03, 0x00, 0x32, 0x01, 0xF4) }, // 10 03
+      { ok: true, d: bytes(0x50, 0x02, 0x00, 0x32, 0x01, 0xF4) }, // 10 02
+      { ok: true, d: bytes(0x7F, 0x27, 0x33) },                   // seed → 0x33
+    ];
+    // Default auth29Reply rejects 0x29 with NRC 0x11.
+    const eng = makeEngine({ script, extendedP2Ms: 0 });
+    const r = await flashEcm({ engine: eng, payload: new Uint8Array(64), chunkSize: 0x80, extendedP2Ms: 0, extendedP2StarMs: 0 }).start();
+    expect(r.ok).toBe(false);
+    expect(r.phase).toBe(FLASH_PHASES.SEED);
+    expect(r.nrc).toBe(0x33);
+    expect(eng.auth29).toHaveLength(1);
+    expect(eng.auth29[0].frame).toEqual([0x29, 0x00]);
+    // Re-thrown original message — not the auth29 refusal.
+    expect(r.error).not.toMatch(/Authentication \(0x29\)/);
+  });
+
+  test('NRC 0x34 + module supports 0x29 → flasher aborts with "Authentication (0x29)" refusal', async () => {
+    const script = [
+      { ok: true, d: bytes(0x50, 0x03, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x50, 0x02, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x7F, 0x27, 0x34) },                   // seed → 0x34 authenticationRequired
+    ];
+    const eng = makeEngine({
+      script,
+      auth29Reply: { ok: true, d: new Uint8Array([0x69, 0x00]) }, // module supports 0x29
+    });
+    const r = await flashEcm({ engine: eng, payload: new Uint8Array(64), chunkSize: 0x80, extendedP2Ms: 0, extendedP2StarMs: 0 }).start();
+    expect(r.ok).toBe(false);
+    expect(r.phase).toBe(FLASH_PHASES.SEED);
+    expect(r.nrc).toBe(0x34);
+    expect(r.error).toMatch(/Authentication \(0x29\)/);
+    expect(r.error).toMatch(/not yet supported/);
+    expect(eng.auth29).toHaveLength(1);
+  });
+
+  test('NRC 0x33 + module supports 0x29 via NRC 0x12 sub-not-supported also triggers refusal', async () => {
+    const script = [
+      { ok: true, d: bytes(0x50, 0x03, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x50, 0x02, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x7F, 0x27, 0x33) },
+    ];
+    const eng = makeEngine({
+      script,
+      auth29Reply: { ok: true, d: new Uint8Array([0x7F, 0x29, 0x12]) }, // sub not supported = service exists
+    });
+    const r = await flashEcm({ engine: eng, payload: new Uint8Array(64), chunkSize: 0x80, extendedP2Ms: 0, extendedP2StarMs: 0 }).start();
+    expect(r.ok).toBe(false);
+    expect(r.error).toMatch(/Authentication \(0x29\)/);
+  });
+
+  test('non-0x33/0x34 NRCs do not trigger a 0x29 probe', async () => {
+    const script = [
+      { ok: true, d: bytes(0x50, 0x03, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x50, 0x02, 0x00, 0x32, 0x01, 0xF4) },
+      { ok: true, d: bytes(0x7F, 0x27, 0x35) }, // invalidKey
+    ];
+    const eng = makeEngine({ script });
+    const r = await flashEcm({ engine: eng, payload: new Uint8Array(64), chunkSize: 0x80, extendedP2Ms: 0, extendedP2StarMs: 0 }).start();
+    expect(r.ok).toBe(false);
+    expect(eng.auth29).toHaveLength(0);
   });
 
   test('extendedP2Ms=0 and extendedP2StarMs=0 disables the whole 0x83 negotiation', async () => {

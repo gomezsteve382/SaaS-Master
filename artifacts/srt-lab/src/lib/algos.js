@@ -605,7 +605,26 @@ async function tryUnlockWithChain(uds, tx, rx, chain, addLog, label, accessLevel
         continue;
       }
       // Any other NRC (0x35 invalidKey, 0x33 securityAccessDenied, etc) —
-      // walk to the next algorithm in the chain.
+      // walk to the next algorithm in the chain. Before walking on a
+      // 0x33/0x34, check whether the module is actually asking for UDS
+      // 0x29 Authentication (Task #567) so we can flag and abort instead
+      // of cycling through every wrapper in the catalog for nothing.
+      if (nrc === 0x33 || nrc === 0x34){
+        try {
+          const { detect0x29, auth29RefusalMessage } = await import('./auth29.js');
+          const { flagAuth29Detected } = await import('./auth29State.js');
+          const probe = await detect0x29({ uds }, tx, rx);
+          addLog && addLog(lbl + ' 0x29 probe → ' + probe.classification + (probe.nrc != null ? (' (NRC 0x' + probe.nrc.toString(16).toUpperCase() + ')') : ''), 'info');
+          if (probe.supports){
+            try { flagAuth29Detected({ tx, rx, label: lbl, nrc }); } catch {}
+            addLog && addLog(lbl + ' ' + auth29RefusalMessage(), 'error');
+            return { auth29: true, nrc };
+          }
+        } catch (e) {
+          // Probe machinery should never break the unlock loop.
+          addLog && addLog(lbl + ' 0x29 probe error: ' + (e && e.message ? e.message : e), 'warn');
+        }
+      }
       break;
     }
   }

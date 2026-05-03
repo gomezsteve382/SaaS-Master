@@ -133,6 +133,9 @@ export async function createBridgeEngine({addLog, url}={}){
   };
 }
 
+import { detect0x29, shouldProbe0x29ForNrc, auth29RefusalMessage } from './auth29.js';
+import { flagAuth29Detected } from './auth29State.js';
+
 /* Re-issue the extended-session + seed/key unlock on a freshly-routed engine
    (typically the bridge engine returned by createBridgeEngine). The unlock the
    tech ran on the simulator/ELM channel does not carry over once SGW routing
@@ -160,6 +163,18 @@ export async function reUnlockSeedKey(engine,tx,rx,algoFn,{addLog,hx}={}){
   if(!s||!s.ok||!s.d||s.d.length===0)return {ok:false,error:'bridge 27 01 failed: '+(s?.raw||'no response')};
   if(s.d[0]===0x7F){
     const nrc=s.d.length>2?s.d[2]:0;
+    // Task #567: if the seed NRC is 0x33/0x34, probe for 0x29 before
+    // giving up. A confirmed 0x29-required module gets a clear refusal
+    // instead of leaving the operator to guess at why 0x27 keeps failing.
+    if (shouldProbe0x29ForNrc(nrc)){
+      log('Seed rejected with NRC 0x'+_hx(nrc)+' — probing for UDS 0x29 Authentication','warn');
+      const probe=await detect0x29(engine,tx,rx);
+      log('0x29 probe → '+probe.classification+(probe.nrc!=null?' (NRC 0x'+_hx(probe.nrc)+')':'')+(probe.error?' ['+probe.error+']':''),'info');
+      if (probe.supports){
+        try { flagAuth29Detected({ tx, rx, label: 'reUnlockSeedKey', nrc }); } catch {}
+        return { ok:false, nrc, auth29:true, error: auth29RefusalMessage() };
+      }
+    }
     return {ok:false,nrc,error:'bridge 27 01 NRC 0x'+_hx(nrc)};
   }
   if(s.d.length<4)return {ok:false,error:'bridge 27 01 short response: '+(s.raw||'')};
