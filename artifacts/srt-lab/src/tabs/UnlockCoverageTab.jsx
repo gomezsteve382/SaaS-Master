@@ -129,6 +129,11 @@ export default function UnlockCoverageTab() {
   const [catalog, setCatalog] = useState(null);
   // Optional extended catalog from tools/asset-sweep (DLLs + UDS tables).
   const [extCatalog, setExtCatalog] = useState(null);
+  // Hand-curated task-634 competitor-parity additions (XC2268 RFHUB,
+  // Mopar radio codes, dealer-lockout bypass, ZF-8HP TCU). Kept in its
+  // own public/task634_entries.json so the asset-sweep regenerator
+  // never clobbers the hand edits.
+  const [task634, setTask634] = useState(null);
   // Live dispatcher stats; falls back to on-disk catalog counts if offline.
   const [dispatcherStats, setDispatcherStats] = useState(null);
   const [error, setError] = useState(null);
@@ -219,6 +224,23 @@ export default function UnlockCoverageTab() {
 
   useEffect(() => {
     let cancelled = false;
+    const url = `${import.meta.env.BASE_URL || "/"}task634_entries.json`;
+    fetch(url, {cache: "no-cache"})
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data || typeof data !== "object") return;
+        // Defensive shape check — we only merge files that explicitly
+        // self-identify as the task-634 hand-curated catalog so a stray
+        // fetch returning unlock_catalog.json never gets double-counted.
+        if (data.provenance !== "task-634" || !Array.isArray(data.entries)) return;
+        setTask634(data);
+      })
+      .catch(() => { /* hand-curated catalog is optional */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
     fetch("/api/unlock-coverage/stats", {cache: "no-cache"})
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status} from /api/unlock-coverage/stats`);
@@ -275,11 +297,46 @@ export default function UnlockCoverageTab() {
     }));
   }, [extCatalog]);
 
+  // Hand-curated task-634 entries promoted to canonical-row shape so
+  // they slot into the same table / chip / filter machinery. These are
+  // bench-tool capabilities (not seed→key DLLs) so they have no CAN id
+  // or ECU info; status is mapped to `dll_only` because the unlocks
+  // exist in srt-lab itself rather than as a reversed Python port of
+  // someone else's DLL — that lets the table's expanded "WHY DLL-ONLY"
+  // slot render the synthesised reason / impl pointer below.
+  const task634Entries = useMemo(() => {
+    if (!task634 || !Array.isArray(task634.entries)) return [];
+    return task634.entries.map((e) => {
+      const reason = [
+        `Hand-curated competitor-parity addition (task #${e.task ?? 634}).`,
+        e.lib ? `Implementation: ${e.lib}.` : null,
+        e.ui ? `UI: ${e.ui}.` : null,
+        e.status ? `Status: ${e.status}.` : null,
+      ].filter(Boolean).join(" ");
+      return {
+        file: e.id,
+        module: `task634_${e.id}`,
+        display_name: e.label || e.id,
+        family: e.category ? `task634_${e.category}` : "task634",
+        algorithm: e.algorithm || null,
+        tx_can_id: null,
+        rx_can_id: null,
+        ecu_info: null,
+        size_bytes: 0,
+        status: "dll_only",
+        python_function: null,
+        reason,
+        provenance: task634.provenance || "task-634",
+      };
+    });
+  }, [task634]);
+
   // Computed from merged rows so families/algoCounts/totals stay
-  // consistent when the asset-sweep extension contributes new entries.
+  // consistent when the asset-sweep extension or task-634 hand-curated
+  // additions contribute new entries.
   const mergedEntries = useMemo(
-    () => (catalog ? [...catalog.entries, ...extEntries] : []),
-    [catalog, extEntries],
+    () => (catalog ? [...catalog.entries, ...extEntries, ...task634Entries] : []),
+    [catalog, extEntries, task634Entries],
   );
 
   const families = useMemo(() => {
@@ -623,6 +680,14 @@ export default function UnlockCoverageTab() {
                             padding: "1px 5px", borderRadius: 3,
                             background: "#9C27B014", color: "#6A1B9A",
                           }}>SWEEP</span>
+                        )}
+                        {e.provenance === "task-634" && (
+                          <span data-testid={`provenance-chip-${e.module}`} title="Hand-curated task #634 competitor-parity addition — see public/task634_entries.json" style={{
+                            marginLeft: 8, fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: 8, fontWeight: 800, letterSpacing: 1,
+                            padding: "1px 5px", borderRadius: 3,
+                            background: "#D32F2F14", color: "#B71C1C",
+                          }}>TASK 634</span>
                         )}
                       </td>
                       <td style={{padding: "10px 12px", color: C.tx}}>{e.display_name}</td>

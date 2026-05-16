@@ -19,6 +19,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const CATALOG_PATH = resolve(__dirname, "..", "..", "public", "unlock_catalog.json");
 const CATALOG_RAW = readFileSync(CATALOG_PATH, "utf8");
 const CATALOG = JSON.parse(CATALOG_RAW);
+const TASK634_PATH = resolve(__dirname, "..", "..", "public", "task634_entries.json");
+const TASK634 = JSON.parse(readFileSync(TASK634_PATH, "utf8"));
 
 // The component now hits two endpoints:
 //   1. ${BASE_URL}unlock_catalog.json  (static catalog, parsed by Zod)
@@ -38,13 +40,19 @@ const DEFAULT_DISPATCHER_STATS = {
   source: "dispatcher",
 };
 
-function setupFetch({ catalog = CATALOG, stats = DEFAULT_DISPATCHER_STATS } = {}) {
+function setupFetch({ catalog = CATALOG, stats = DEFAULT_DISPATCHER_STATS, task634 = null } = {}) {
   global.fetch = vi.fn(async (url) => {
     if (typeof url === "string" && url.includes("/api/unlock-coverage/stats")) {
       if (stats === null) {
         return { ok: false, status: 503, json: async () => ({ error: "x" }) };
       }
       return { ok: true, status: 200, json: async () => stats };
+    }
+    if (typeof url === "string" && url.includes("task634_entries.json")) {
+      if (task634 === null) {
+        return { ok: false, status: 404, json: async () => ({}) };
+      }
+      return { ok: true, status: 200, json: async () => task634 };
     }
     return { ok: true, status: 200, json: async () => catalog };
   });
@@ -498,6 +506,92 @@ describe("UnlockCoverageTab — UI", () => {
       expect(title, `chip title for ${e.algorithm}`).toContain(friendly.description);
       expect(title).toContain(e.algorithm);
     }
+  });
+
+  it("merges task634_entries.json on top of the generated catalog (task #635)", async () => {
+    // Smoke test: with the hand-curated task-634 file fetched alongside
+    // the generated catalog, every task-634 entry must surface as its
+    // own table row AND the canonical catalog rows must still render —
+    // i.e. the merge is additive, not a replacement.
+    setupFetch({ task634: TASK634 });
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+
+    // One row per hand-curated entry, tagged with the TASK 634 chip.
+    expect(TASK634.entries.length).toBeGreaterThan(0);
+    await waitFor(() => {
+      for (const e of TASK634.entries) {
+        const row = screen.getByTestId(`row-task634_${e.id}`);
+        expect(row).toBeTruthy();
+        expect(row.getAttribute("data-provenance")).toBe("task-634");
+      }
+    });
+    expect(
+      screen.getByTestId(`provenance-chip-task634_${TASK634.entries[0].id}`),
+    ).toBeTruthy();
+
+    // Canonical catalog row is still there — additive merge, not a swap.
+    const canonical = CATALOG.entries[0];
+    expect(screen.getByTestId(`row-${canonical.module}`)).toBeTruthy();
+
+    // Total merged count = canonical + task-634 (no asset-sweep delta in
+    // the test mock since the extended catalog mock returns the
+    // canonical catalog, which fails the {entries, uds} shape check).
+    const expectedTotal = CATALOG.entries.length + TASK634.entries.length;
+    // "Showing X of Y entries" — Y is in a separate text node from the
+    // surrounding chrome because filtered.length is wrapped in <strong>,
+    // so match against the combined textContent of the counter line.
+    const counter = screen.getByText(/of\s+\d+\s+entries/i);
+    expect(counter.textContent.replace(/\s+/g, " ")).toContain(
+      `of ${expectedTotal} entries`,
+    );
+  });
+
+  it("task-634 entries are filterable by family and search (task #635)", async () => {
+    setupFetch({ task634: TASK634 });
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+
+    // Family dropdown should expose every task634_<category> bucket.
+    const familySelect = screen.getByTestId("family-filter");
+    const familyOptions = Array.from(familySelect.querySelectorAll("option")).map(
+      (o) => o.getAttribute("value"),
+    );
+    for (const e of TASK634.entries) {
+      const expected = e.category ? `task634_${e.category}` : "task634";
+      expect(familyOptions).toContain(expected);
+    }
+
+    // Search picks up the label text from a hand-curated entry.
+    const labelTarget = TASK634.entries.find((e) => e.label);
+    fireEvent.change(screen.getByTestId("catalog-search"), {
+      target: { value: labelTarget.label.slice(0, 8) },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId(`row-task634_${labelTarget.id}`)).toBeTruthy();
+    });
+
+    // The expanded row surfaces the synthesized "lib:" pointer so a
+    // bench operator can jump straight to the implementation file.
+    fireEvent.click(screen.getByTestId(`toggle-task634_${labelTarget.id}`));
+    if (labelTarget.lib) {
+      expect(
+        await screen.findByText(new RegExp(labelTarget.lib.replace(/\//g, "\\/"))),
+      ).toBeTruthy();
+    }
+  });
+
+  it("ignores task634 fetch failures without breaking the canonical catalog (task #635)", async () => {
+    // Defensive: a 404 / network failure on the optional hand-curated
+    // file must never blank out the main coverage tab.
+    setupFetch({ task634: null });
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+    expect(screen.getByTestId("total-count").textContent).toBe(
+      String(CATALOG.entry_count),
+    );
+    // No task634 rows surfaced.
+    expect(screen.queryByTestId(`row-task634_${TASK634.entries[0].id}`)).toBeNull();
   });
 
   it("falls back to catalog counts when the dispatcher endpoint is unavailable", async () => {
