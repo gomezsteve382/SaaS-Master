@@ -15,6 +15,12 @@ import {
   getActiveTransport, setActiveTransport,
   TRANSPORT_J2534, TRANSPORT_MICROPOD,
 } from '../lib/bridgeEngine.js';
+import RelatedCanUniversePanel from '../components/RelatedCanUniversePanel.jsx';
+
+const EXTTOOLS_CAN_FILTERS = [
+  { category: 'Protocols', subcategory: 'J2534 Tools' },
+  { category: 'Hacking and Reverse Engineering tools' },
+];
 
 const BRIDGE_DEFAULT   = 'http://localhost:8765';
 const MICROPOD_DEFAULT = 'http://localhost:8766';
@@ -197,7 +203,7 @@ function J2534StatusPanel({ activeTransport, onTransportChange, bridgeUrl }) {
 
 // ─── Main tab ─────────────────────────────────────────────────────────────────
 
-export default function ExternalToolsTab() {
+export default function ExternalToolsTab({ onOpenTab }) {
   const [bridgeUrl, setBridgeUrl] = useState(BRIDGE_DEFAULT);
   const [toolStatus, setToolStatus] = useState(() =>
     Object.fromEntries(TOOLS.map((t) => [t.id, { status: 'checking' }]))
@@ -347,6 +353,8 @@ export default function ExternalToolsTab() {
           </div>
         </div>
       </Card>
+
+      <RelatedCanUniversePanel panelId="exttools" filters={EXTTOOLS_CAN_FILTERS} onOpenTab={onOpenTab} />
 
       {/* ── Transport selector (Task #613) ── */}
       <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>

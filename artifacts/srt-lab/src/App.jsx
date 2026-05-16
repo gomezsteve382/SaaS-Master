@@ -48,6 +48,7 @@ import Gpec2aUnlockTab from "./tabs/Gpec2aUnlockTab.jsx";
 import ExternalToolsTab from "./tabs/ExternalToolsTab.jsx";
 import SignalDiscoveryTab from "./tabs/SignalDiscoveryTab.jsx";
 import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
+import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
@@ -934,6 +935,15 @@ function VehicleWorkspace({vehicleId, onBack}){
   const setTab = useCallback((next)=>{
     setTabRaw(VALID_TAB_IDS.has(next) ? next : 'dumps');
   },[VALID_TAB_IDS]);
+  /* Window-level "open this tab" channel so deeply-nested components
+   * (e.g. the inline CAN Universe panel rendered on tabs that don't
+   * thread an onOpenTab prop) can request a tab switch without us
+   * having to wire setTab through every host. */
+  useEffect(()=>{
+    const h=(e)=>{ if(typeof e.detail==='string') setTab(e.detail); };
+    window.addEventListener('srtlab:openTab', h);
+    return ()=>window.removeEventListener('srtlab:openTab', h);
+  },[setTab]);
   const [files, setFiles] = useState([]);
   // Task #488 — shared EFD container + selected C-Flash payload so the
   // EFD inspector and the ECM Flasher tab can co-operate. The flasher's
@@ -1071,7 +1081,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='livekey'   && <LiveKeyTab/>}
         {tab==='ecm'       && <EcmTab vehicle={vehicle}/>}
         {tab==='backups'   && <BackupsTab/>}
-        {tab==='obd'       && <LiveObdTab vehicle={vehicle}/>}
+        {tab==='obd'       && <LiveObdTab vehicle={vehicle} onOpenTab={setTab}/>}
         {tab==='skim'      && <SkimTab vehicle={vehicle}/>}
         {tab==='info'      && <InfoTab vehicle={vehicle}/>}
         {tab==='cflash'    && <CFlashTab files={files.filter(f=>f && (f.type==='CFLASH'||f.type==='FW'))} onLoad={loadF} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
@@ -1086,7 +1096,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='alfaobd'   && <AlfaObdTablesTab/>}
         {tab==='workflow'  && <WorkflowTab onOpenTab={setTab}/>}
         {tab==='gpecunlock'&& <Gpec2aUnlockTab/>}
-        {tab==='exttools'  && <ExternalToolsTab/>}
+        {tab==='exttools'  && <ExternalToolsTab onOpenTab={setTab}/>}
         {tab==='sigdisc'   && <SignalDiscoveryTab/>}
         {tab==='canuniverse' && <CanUniverseTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
@@ -1673,7 +1683,12 @@ function UnlocksSection({vehicle}){
 }
 
 /* ═══ LIVE OBD TAB — UDS + Seed/Key + J2534 (Gould) ═══ */
-function LiveObdTab({vehicle}){
+const LIVEOBD_CAN_FILTERS = [
+  { category: "Protocols", subcategory: "OBD-II tools" },
+  { category: "Protocols", subcategory: "UDS" },
+  { category: "Protocols", subcategory: "ISO-TP" },
+];
+function LiveObdTab({vehicle, onOpenTab}){
   const [section, setSection] = useState('uds');
   const sections = [
     {id:'uds',  l:<><Tip word="UDS">UDS</Tip> · <Tip word="J2534">J2534</Tip></>,     s:<><Tip word="MAXIFLASH">MaxiFlash</Tip> Elite · <Tip word="GOULD">Gould</Tip></>},
@@ -1681,6 +1696,7 @@ function LiveObdTab({vehicle}){
     {id:'seed', l:'SEED→KEY',        s:'All algorithms'},
   ];
   return <div>
+    <RelatedCanUniversePanel panelId="liveobd" filters={LIVEOBD_CAN_FILTERS} onOpenTab={onOpenTab} />
     <div style={{display:'flex',gap:6,marginBottom:14}}>
       {sections.map(s=>{const a=section===s.id;return <button key={s.id} onClick={()=>setSection(s.id)} style={{padding:'10px 16px',borderRadius:10,border:'1px solid '+(a?vehicle.accent:C.bd),background:a?vehicle.accent+'15':C.cd,color:a?vehicle.accent:C.ts,fontFamily:"'Nunito'",fontWeight:a?900:700,fontSize:11,letterSpacing:1.5,cursor:'pointer'}}>
         {s.l}<div style={{fontSize:8,opacity:.6,letterSpacing:1,marginTop:2}}>{s.s}</div>

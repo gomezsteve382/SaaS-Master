@@ -2,6 +2,13 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { buildOnePagerPDF } from "./lib/buildOnePagerPDF.js";
 import { SWARM_REF } from "./lib/tabReferences.js";
 import { openSerialPort, onPortDisconnect, cleanupPort } from "./lib/serialErrors.js";
+import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
+
+const SWARM_CAN_FILTERS = [
+  { category: "CAN Database" },
+  { category: "Utils", subcategory: "GUI Tools" },
+  { category: "Hacking and Reverse Engineering tools" },
+];
 
 const ALL_KNOWN_ADDRS = [
   {tx:0x7E0,rx:0x7E8,src:'CDA6',name:'ECM/PCM'},
@@ -567,6 +574,8 @@ export default function OBDSwarmDiagnostic() {
             </button>
           </div>
         </div>
+
+        <RelatedCanUniversePanel panelId="swarm" filters={SWARM_CAN_FILTERS} />
 
         {connErr && status==='disconnected' && (
           <div style={{marginBottom:12,padding:'12px 14px',borderRadius:8,background:'#2A1A1A',border:'1.5px solid '+S.red,color:'#FFCDD2',fontSize:12,lineHeight:1.5}}>

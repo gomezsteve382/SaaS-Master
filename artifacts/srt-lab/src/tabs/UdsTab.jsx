@@ -12,6 +12,12 @@ import {
   buildRoutineResult, parseRoutineResponse,
 } from "../lib/uds.js";
 import { build } from "@workspace/uds";
+import RelatedCanUniversePanel from "../components/RelatedCanUniversePanel.jsx";
+
+const UDS_CAN_FILTERS = [
+  { category: "Protocols", subcategory: "UDS" },
+  { category: "Protocols", subcategory: "ISO-TP" },
+];
 
 const MODULE_PRESETS={
   BCM:{tx:0x750,rx:0x758},RFHUB:{tx:0x75F,rx:0x767},
@@ -427,6 +433,8 @@ export default function UdsTab(){
         <Btn data-testid="uds-mem-write" onClick={writeMemory} disabled={!!busy||!conn} color={C.sr}>✍️ Write…</Btn>
       </div>
     </Card>
+
+    <RelatedCanUniversePanel panelId="uds" filters={UDS_CAN_FILTERS} />
 
     <Card style={{marginBottom:14}}>
       <div style={{fontWeight:800,fontSize:11,color:C.a4,marginBottom:10,letterSpacing:2}}>⚠️ DIAGNOSTICS</div>
