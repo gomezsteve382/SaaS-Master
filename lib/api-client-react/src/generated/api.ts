@@ -28,6 +28,7 @@ import type {
   AppendDiscoveryExperimentSamples200,
   AppendDiscoveryExperimentSamplesBody,
   Auth29DetectionInput,
+  BulkUpsertIntegrationTasks200,
   CreateAnthropicConversationBody,
   DeleteAuth29Detections200,
   DeleteAuth29DetectionsParams,
@@ -45,6 +46,9 @@ import type {
   DiscoverySweepUpdate,
   DownloadCount,
   HealthStatus,
+  IntegrationTask,
+  IntegrationTaskBulkInput,
+  IntegrationTaskUpdate,
   ListAnthropicConversationsParams,
   ListAuth29Detections200,
   ListAuth29DetectionsParams,
@@ -54,6 +58,7 @@ import type {
   ListDiscoveryExperimentsParams,
   ListDiscoverySweeps200,
   ListDiscoverySweepsParams,
+  ListIntegrationTasks200,
   ListVehicleJobEvents200,
   ListVehicleJobs200,
   ListVehicleJobsParams,
@@ -1785,6 +1790,347 @@ export const useDeleteAuth29Detections = <
   TContext
 > => {
   return useMutation(getDeleteAuth29DetectionsMutationOptions(options));
+};
+
+/**
+ * @summary List integration tasks (newest activity first)
+ */
+export const getListIntegrationTasksUrl = () => {
+  return `/api/integration-tasks`;
+};
+
+export const listIntegrationTasks = async (
+  options?: RequestInit,
+): Promise<ListIntegrationTasks200> => {
+  return customFetch<ListIntegrationTasks200>(getListIntegrationTasksUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListIntegrationTasksQueryKey = () => {
+  return [`/api/integration-tasks`] as const;
+};
+
+export const getListIntegrationTasksQueryOptions = <
+  TData = Awaited<ReturnType<typeof listIntegrationTasks>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listIntegrationTasks>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListIntegrationTasksQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listIntegrationTasks>>
+  > = ({ signal }) => listIntegrationTasks({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listIntegrationTasks>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListIntegrationTasksQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listIntegrationTasks>>
+>;
+export type ListIntegrationTasksQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List integration tasks (newest activity first)
+ */
+
+export function useListIntegrationTasks<
+  TData = Awaited<ReturnType<typeof listIntegrationTasks>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listIntegrationTasks>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListIntegrationTasksQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Upserts one row per submitted entry keyed by `tool:<toolId>` so
+re-running this from the CAN Universe tab refreshes the
+catalog-derived fields without clobbering the operator-set
+`status` or `notes`.
+
+ * @summary Convert a shortlist of catalog entries into backlog tasks
+ */
+export const getBulkUpsertIntegrationTasksUrl = () => {
+  return `/api/integration-tasks/bulk-upsert`;
+};
+
+export const bulkUpsertIntegrationTasks = async (
+  integrationTaskBulkInput: IntegrationTaskBulkInput,
+  options?: RequestInit,
+): Promise<BulkUpsertIntegrationTasks200> => {
+  return customFetch<BulkUpsertIntegrationTasks200>(
+    getBulkUpsertIntegrationTasksUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(integrationTaskBulkInput),
+    },
+  );
+};
+
+export const getBulkUpsertIntegrationTasksMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bulkUpsertIntegrationTasks>>,
+    TError,
+    { data: BodyType<IntegrationTaskBulkInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof bulkUpsertIntegrationTasks>>,
+  TError,
+  { data: BodyType<IntegrationTaskBulkInput> },
+  TContext
+> => {
+  const mutationKey = ["bulkUpsertIntegrationTasks"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof bulkUpsertIntegrationTasks>>,
+    { data: BodyType<IntegrationTaskBulkInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return bulkUpsertIntegrationTasks(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type BulkUpsertIntegrationTasksMutationResult = NonNullable<
+  Awaited<ReturnType<typeof bulkUpsertIntegrationTasks>>
+>;
+export type BulkUpsertIntegrationTasksMutationBody =
+  BodyType<IntegrationTaskBulkInput>;
+export type BulkUpsertIntegrationTasksMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Convert a shortlist of catalog entries into backlog tasks
+ */
+export const useBulkUpsertIntegrationTasks = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bulkUpsertIntegrationTasks>>,
+    TError,
+    { data: BodyType<IntegrationTaskBulkInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof bulkUpsertIntegrationTasks>>,
+  TError,
+  { data: BodyType<IntegrationTaskBulkInput> },
+  TContext
+> => {
+  return useMutation(getBulkUpsertIntegrationTasksMutationOptions(options));
+};
+
+/**
+ * @summary Update status / notes / target of an integration task
+ */
+export const getUpdateIntegrationTaskUrl = (id: string) => {
+  return `/api/integration-tasks/${id}`;
+};
+
+export const updateIntegrationTask = async (
+  id: string,
+  integrationTaskUpdate: IntegrationTaskUpdate,
+  options?: RequestInit,
+): Promise<IntegrationTask> => {
+  return customFetch<IntegrationTask>(getUpdateIntegrationTaskUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(integrationTaskUpdate),
+  });
+};
+
+export const getUpdateIntegrationTaskMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateIntegrationTask>>,
+    TError,
+    { id: string; data: BodyType<IntegrationTaskUpdate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateIntegrationTask>>,
+  TError,
+  { id: string; data: BodyType<IntegrationTaskUpdate> },
+  TContext
+> => {
+  const mutationKey = ["updateIntegrationTask"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateIntegrationTask>>,
+    { id: string; data: BodyType<IntegrationTaskUpdate> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateIntegrationTask(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateIntegrationTaskMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateIntegrationTask>>
+>;
+export type UpdateIntegrationTaskMutationBody = BodyType<IntegrationTaskUpdate>;
+export type UpdateIntegrationTaskMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update status / notes / target of an integration task
+ */
+export const useUpdateIntegrationTask = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateIntegrationTask>>,
+    TError,
+    { id: string; data: BodyType<IntegrationTaskUpdate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateIntegrationTask>>,
+  TError,
+  { id: string; data: BodyType<IntegrationTaskUpdate> },
+  TContext
+> => {
+  return useMutation(getUpdateIntegrationTaskMutationOptions(options));
+};
+
+/**
+ * @summary Remove an integration task
+ */
+export const getDeleteIntegrationTaskUrl = (id: string) => {
+  return `/api/integration-tasks/${id}`;
+};
+
+export const deleteIntegrationTask = async (
+  id: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteIntegrationTaskUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteIntegrationTaskMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteIntegrationTask>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteIntegrationTask>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteIntegrationTask"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteIntegrationTask>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteIntegrationTask(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteIntegrationTaskMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteIntegrationTask>>
+>;
+
+export type DeleteIntegrationTaskMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Remove an integration task
+ */
+export const useDeleteIntegrationTask = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteIntegrationTask>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteIntegrationTask>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteIntegrationTaskMutationOptions(options));
 };
 
 /**

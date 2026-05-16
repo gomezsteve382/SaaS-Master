@@ -465,6 +465,98 @@ export const DeleteAuth29DetectionsResponse = zod.object({
 });
 
 /**
+ * @summary List integration tasks (newest activity first)
+ */
+export const ListIntegrationTasksResponse = zod.object({
+  tasks: zod.array(
+    zod.object({
+      id: zod.string(),
+      toolId: zod.string(),
+      toolName: zod.string(),
+      toolUrl: zod.string().nullish(),
+      category: zod.string().nullish(),
+      target: zod.string().nullish(),
+      status: zod.string(),
+      notes: zod.string().nullish(),
+      createdAt: zod.coerce.date(),
+      updatedAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * Upserts one row per submitted entry keyed by `tool:<toolId>` so
+re-running this from the CAN Universe tab refreshes the
+catalog-derived fields without clobbering the operator-set
+`status` or `notes`.
+
+ * @summary Convert a shortlist of catalog entries into backlog tasks
+ */
+export const BulkUpsertIntegrationTasksBody = zod.object({
+  entries: zod.array(
+    zod.object({
+      toolId: zod.string(),
+      toolName: zod.string(),
+      toolUrl: zod.string().nullish(),
+      category: zod.string().nullish(),
+      target: zod.string().nullish(),
+    }),
+  ),
+});
+
+export const BulkUpsertIntegrationTasksResponse = zod.object({
+  ok: zod.boolean(),
+  upserted: zod.number(),
+  tasks: zod.array(
+    zod.object({
+      id: zod.string(),
+      toolId: zod.string(),
+      toolName: zod.string(),
+      toolUrl: zod.string().nullish(),
+      category: zod.string().nullish(),
+      target: zod.string().nullish(),
+      status: zod.string(),
+      notes: zod.string().nullish(),
+      createdAt: zod.coerce.date(),
+      updatedAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Update status / notes / target of an integration task
+ */
+export const UpdateIntegrationTaskParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateIntegrationTaskBody = zod.object({
+  status: zod.string().nullish(),
+  notes: zod.string().nullish(),
+  target: zod.string().nullish(),
+});
+
+export const UpdateIntegrationTaskResponse = zod.object({
+  id: zod.string(),
+  toolId: zod.string(),
+  toolName: zod.string(),
+  toolUrl: zod.string().nullish(),
+  category: zod.string().nullish(),
+  target: zod.string().nullish(),
+  status: zod.string(),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Remove an integration task
+ */
+export const DeleteIntegrationTaskParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+/**
  * @summary List events for a job
  */
 export const ListVehicleJobEventsParams = zod.object({

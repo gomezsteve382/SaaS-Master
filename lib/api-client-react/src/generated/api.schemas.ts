@@ -465,6 +465,37 @@ export interface DiscoveryDidCatalogEntryInput {
   notes?: string | null;
 }
 
+export interface IntegrationTask {
+  id: string;
+  toolId: string;
+  toolName: string;
+  toolUrl?: string | null;
+  category?: string | null;
+  target?: string | null;
+  status: string;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IntegrationTaskBulkInputEntry {
+  toolId: string;
+  toolName: string;
+  toolUrl?: string | null;
+  category?: string | null;
+  target?: string | null;
+}
+
+export interface IntegrationTaskBulkInput {
+  entries: IntegrationTaskBulkInputEntry[];
+}
+
+export interface IntegrationTaskUpdate {
+  status?: string | null;
+  notes?: string | null;
+  target?: string | null;
+}
+
 /**
  * Returned when the Python dispatcher cannot be queried.
  */
@@ -521,6 +552,16 @@ export type DeleteAuth29DetectionsParams = {
 
 export type DeleteAuth29Detections200 = {
   ok: boolean;
+};
+
+export type ListIntegrationTasks200 = {
+  tasks: IntegrationTask[];
+};
+
+export type BulkUpsertIntegrationTasks200 = {
+  ok: boolean;
+  upserted: number;
+  tasks: IntegrationTask[];
 };
 
 export type ListVehicleJobEvents200 = {

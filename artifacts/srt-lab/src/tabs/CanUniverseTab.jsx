@@ -32,6 +32,46 @@ const INTEGRATION_HINTS = [
   { kind: "J1939 stacks", target: "Future heavy-duty truck workflow" },
 ];
 
+/* Catalog category → integration target hint. Used by "Convert shortlist
+ * to tasks" so each backlog row is pre-tagged with the SRT Lab tab it's
+ * most likely to land in. Categories with no obvious target stay null
+ * and the operator picks one later. */
+const CATEGORY_TARGET = {
+  "Automotive Software": "Live OBD tab",
+  "CAN Database": "SWARM · Bench",
+  "Development (Tools)": "Reference for SWARM UI work",
+  "Hacking and Reverse Engineering tools": "Bench · Module Inspector",
+  "Hardware": "J2534 Bridge · External Tools",
+  "Open Hardware": "J2534 Bridge · External Tools",
+  "Protocols": "@workspace/uds + UDS Programmer",
+  "Test equipment and simulators": "SWARM · Bench",
+  "Utils": "Reference for SWARM UI work",
+};
+
+function targetForEntry(entry) {
+  const tags = new Set(entry.tags || []);
+  if (tags.has("j1939")) return "Future heavy-duty truck workflow";
+  if (tags.has("uds") || tags.has("iso-tp") || tags.has("isotp")) return "@workspace/uds + UDS Programmer";
+  if (tags.has("obd") || tags.has("obd-ii") || tags.has("elm327")) return "Live OBD tab";
+  if (tags.has("dbc") || tags.has("kcd")) return "SWARM · Bench";
+  if (tags.has("j2534")) return "J2534 Bridge · External Tools";
+  return CATEGORY_TARGET[entry.category] || null;
+}
+
+const STATUS_LABELS = {
+  open: "Open",
+  in_progress: "In progress",
+  done: "Done",
+  skipped: "Skipped",
+};
+const STATUS_ORDER = ["open", "in_progress", "done", "skipped"];
+const STATUS_COLOR = {
+  open: "#1976D2",
+  in_progress: "#FFB300",
+  done: "#2E7D32",
+  skipped: "#757575",
+};
+
 /* ── localStorage helpers ────────────────────────────────────────────── */
 function loadStars() {
   try {
@@ -74,6 +114,98 @@ const SOURCE_BY_ID = Object.fromEntries(CATALOG_SOURCES.map(s => [s.id, s]));
 /* ── tab ─────────────────────────────────────────────────────────────── */
 export default function CanUniverseTab() {
   const [stars, setStars] = useState(loadStars);
+  const [tasks, setTasks] = useState([]);
+  const [tasksLoaded, setTasksLoaded] = useState(false);
+  const [tasksError, setTasksError] = useState(null);
+  const [converting, setConverting] = useState(false);
+  const [showTasks, setShowTasks] = useState(false);
+  const [lastConvertMsg, setLastConvertMsg] = useState(null);
+
+  // Pull the existing backlog once on mount. We don't poll — operators
+  // refresh via the "Convert shortlist to tasks" action, which returns
+  // the freshly upserted rows.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/integration-tasks");
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const j = await r.json();
+        if (!cancelled) {
+          setTasks(Array.isArray(j.tasks) ? j.tasks : []);
+          setTasksLoaded(true);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setTasksError(String(e?.message || e));
+          setTasksLoaded(true);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const convertShortlistToTasks = useCallback(async () => {
+    const starred = CATALOG_ENTRIES.filter(e => stars.has(e.id));
+    if (starred.length === 0) return;
+    setConverting(true);
+    setTasksError(null);
+    setLastConvertMsg(null);
+    try {
+      const entries = starred.map(e => ({
+        toolId: e.id,
+        toolName: e.name,
+        toolUrl: e.url || null,
+        category: e.category || null,
+        target: targetForEntry(e),
+      }));
+      const r = await fetch("/api/integration-tasks/bulk-upsert", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entries }),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json();
+      // Refetch the full list so we see any pre-existing tasks alongside
+      // the newly upserted ones, sorted by recent activity.
+      const list = await fetch("/api/integration-tasks").then(x => x.json());
+      setTasks(Array.isArray(list.tasks) ? list.tasks : []);
+      setShowTasks(true);
+      setLastConvertMsg(`Upserted ${j.upserted ?? entries.length} task${entries.length === 1 ? "" : "s"} from shortlist.`);
+    } catch (e) {
+      setTasksError(String(e?.message || e));
+    } finally {
+      setConverting(false);
+    }
+  }, [stars]);
+
+  const updateTaskStatus = useCallback(async (id, status) => {
+    // Optimistic — the patch is cheap and a stale row never causes harm.
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, status } : t));
+    try {
+      const r = await fetch(`/api/integration-tasks/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const row = await r.json();
+      setTasks(prev => prev.map(t => t.id === id ? row : t));
+    } catch (e) {
+      setTasksError(String(e?.message || e));
+    }
+  }, []);
+
+  const deleteTask = useCallback(async (id) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
+    try {
+      const r = await fetch(`/api/integration-tasks/${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (!r.ok && r.status !== 204) throw new Error(`HTTP ${r.status}`);
+    } catch (e) {
+      setTasksError(String(e?.message || e));
+    }
+  }, []);
+
   const [search, setSearch] = useState("");
   // `activeCategory` is either "all", a category name, or "<cat>::<sub>".
   const [activeCategory, setActiveCategory] = useState("all");
@@ -257,7 +389,41 @@ export default function CanUniverseTab() {
         <Btn onClick={exportShortlist} color={C.a3} outline disabled={stars.size === 0}>
           ⬇ Export shortlist (JSON)
         </Btn>
+        <Btn
+          onClick={convertShortlistToTasks}
+          color={C.sr}
+          disabled={stars.size === 0 || converting}
+          title={stars.size === 0 ? "Star at least one entry first" : "Create one integration backlog task per starred tool"}
+        >
+          {converting ? "Converting…" : `⚙ Convert shortlist to tasks (${stars.size})`}
+        </Btn>
+        <Btn
+          onClick={() => setShowTasks(s => !s)}
+          color={C.tm}
+          outline={!showTasks}
+          title="Show / hide the integration task backlog"
+        >
+          {showTasks ? "▾ Backlog" : "▸ Backlog"} ({tasks.length})
+        </Btn>
       </div>
+      {lastConvertMsg && (
+        <div style={{ fontSize: 11, color: C.gn, marginBottom: 8, fontFamily: "JetBrains Mono" }}>
+          ✓ {lastConvertMsg}
+        </div>
+      )}
+      {tasksError && (
+        <div style={{ fontSize: 11, color: C.sr, marginBottom: 8, fontFamily: "JetBrains Mono" }}>
+          ⚠ Backlog error: {tasksError}
+        </div>
+      )}
+      {showTasks && (
+        <IntegrationBacklog
+          tasks={tasks}
+          loaded={tasksLoaded}
+          onStatus={updateTaskStatus}
+          onDelete={deleteTask}
+        />
+      )}
 
       {/* iDoka vs ajouatom facet (Task #622) — orthogonal to the
           per-source toggles below; lets the user isolate fork-only
@@ -481,6 +647,92 @@ export default function CanUniverseTab() {
         </div>
       </Card>
     </div>
+  );
+}
+
+function IntegrationBacklog({ tasks, loaded, onStatus, onDelete }) {
+  const counts = useMemo(() => {
+    const c = { open: 0, in_progress: 0, done: 0, skipped: 0 };
+    for (const t of tasks) if (c[t.status] != null) c[t.status]++;
+    return c;
+  }, [tasks]);
+  return (
+    <Card style={{ marginBottom: 12, padding: 0, overflow: "hidden" }} data-testid="integration-backlog">
+      <div style={{
+        padding: "10px 16px", background: C.bg, borderBottom: `1px solid ${C.bd}`,
+        display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
+      }}>
+        <span style={{ fontWeight: 900, fontSize: 12, color: C.tx, flex: 1 }}>
+          INTEGRATION BACKLOG
+        </span>
+        {STATUS_ORDER.map(s => (
+          <span key={s} style={{
+            fontSize: 10, fontFamily: "JetBrains Mono",
+            padding: "2px 8px", borderRadius: 4,
+            background: STATUS_COLOR[s] + "18", color: STATUS_COLOR[s], fontWeight: 700,
+          }}>
+            {STATUS_LABELS[s]} {counts[s]}
+          </span>
+        ))}
+      </div>
+      {!loaded && (
+        <div style={{ padding: 16, color: C.tm, fontSize: 12 }}>Loading backlog…</div>
+      )}
+      {loaded && tasks.length === 0 && (
+        <div style={{ padding: 16, color: C.tm, fontSize: 12, textAlign: "center" }}>
+          No backlog entries yet. Star tools above and click <strong>Convert shortlist to tasks</strong>.
+        </div>
+      )}
+      {tasks.map(t => (
+        <div key={t.id} style={{
+          padding: "10px 16px", borderTop: `1px solid ${C.bd}33`,
+          display: "flex", gap: 12, alignItems: "flex-start",
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "baseline", flexWrap: "wrap" }}>
+              {t.toolUrl ? (
+                <a href={t.toolUrl} target="_blank" rel="noreferrer"
+                  style={{ fontWeight: 800, fontSize: 13, color: C.a3, textDecoration: "none" }}>
+                  {t.toolName}
+                </a>
+              ) : (
+                <span style={{ fontWeight: 800, fontSize: 13, color: C.tx }}>{t.toolName}</span>
+              )}
+              {t.target && (
+                <span title="Pre-tagged integration target hint" style={{
+                  fontSize: 9, fontFamily: "JetBrains Mono", padding: "1px 6px",
+                  borderRadius: 4, background: C.a3 + "14", color: C.a3, fontWeight: 700,
+                }}>→ {t.target}</span>
+              )}
+              {t.category && (
+                <span style={{
+                  fontSize: 9, fontFamily: "JetBrains Mono", padding: "1px 6px",
+                  borderRadius: 4, background: C.tm + "14", color: C.tm,
+                }}>{t.category}</span>
+              )}
+            </div>
+          </div>
+          <select
+            value={t.status}
+            onChange={e => onStatus(t.id, e.target.value)}
+            style={{
+              fontSize: 11, fontFamily: "JetBrains Mono", padding: "3px 6px",
+              borderRadius: 6, border: `1px solid ${STATUS_COLOR[t.status] || C.bd}`,
+              color: STATUS_COLOR[t.status] || C.tx, fontWeight: 700,
+              background: "transparent", cursor: "pointer",
+            }}>
+            {STATUS_ORDER.map(s => (
+              <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+            ))}
+          </select>
+          <button onClick={() => onDelete(t.id)} title="Remove task"
+            style={{
+              background: "transparent", border: "none", cursor: "pointer",
+              color: C.tm, fontSize: 14, padding: "2px 6px",
+            }}>✕</button>
+        </div>
+      ))}
+    </Card>
   );
 }
 

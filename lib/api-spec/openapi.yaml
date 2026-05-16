@@ -20,6 +20,13 @@ tags:
     description: SRT Lab unlock-coverage runtime stats from the Python dispatcher
   - name: auth29Detections
     description: UDS 0x29 (Authentication) detection records — modules confirmed to require 0x29 instead of 0x27
+  - name: integrationTasks
+    description: |
+      Integration Tasks (Task #620) — backlog of "should we integrate this
+      tool?" decisions, one row per CAN Universe shortlisted entry. The
+      CAN Universe tab bulk-upserts starred entries and tracks status
+      (open / in_progress / done / skipped) here so discovery turns into
+      action without a parallel tracker.
   - name: signalDiscovery
     description: |
       Signal Discovery (Task #625) — ports the TUMFTM "Holistic Approach for
@@ -453,6 +460,90 @@ paths:
                     type: boolean
                 required:
                   - ok
+  /integration-tasks:
+    get:
+      operationId: listIntegrationTasks
+      tags: [integrationTasks]
+      summary: List integration tasks (newest activity first)
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/IntegrationTask"
+                required: [tasks]
+  /integration-tasks/bulk-upsert:
+    post:
+      operationId: bulkUpsertIntegrationTasks
+      tags: [integrationTasks]
+      summary: Convert a shortlist of catalog entries into backlog tasks
+      description: |
+        Upserts one row per submitted entry keyed by `tool:<toolId>` so
+        re-running this from the CAN Universe tab refreshes the
+        catalog-derived fields without clobbering the operator-set
+        `status` or `notes`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntegrationTaskBulkInput"
+      responses:
+        "200":
+          description: Upsert result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  upserted: { type: integer }
+                  tasks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/IntegrationTask"
+                required: [ok, upserted, tasks]
+  /integration-tasks/{id}:
+    patch:
+      operationId: updateIntegrationTask
+      tags: [integrationTasks]
+      summary: Update status / notes / target of an integration task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntegrationTaskUpdate"
+      responses:
+        "200":
+          description: Updated task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationTask"
+    delete:
+      operationId: deleteIntegrationTask
+      tags: [integrationTasks]
+      summary: Remove an integration task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: Deleted
   /vehicle-jobs/{id}/events:
     get:
       operationId: listVehicleJobEvents
@@ -1486,6 +1577,43 @@ components:
         confirmed: { type: boolean, nullable: true }
         notes: { type: string, nullable: true }
       required: [tx, did, label]
+    IntegrationTask:
+      type: object
+      properties:
+        id: { type: string }
+        toolId: { type: string }
+        toolName: { type: string }
+        toolUrl: { type: string, nullable: true }
+        category: { type: string, nullable: true }
+        target: { type: string, nullable: true }
+        status: { type: string }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, toolId, toolName, status, createdAt, updatedAt]
+    IntegrationTaskBulkInputEntry:
+      type: object
+      properties:
+        toolId: { type: string }
+        toolName: { type: string }
+        toolUrl: { type: string, nullable: true }
+        category: { type: string, nullable: true }
+        target: { type: string, nullable: true }
+      required: [toolId, toolName]
+    IntegrationTaskBulkInput:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/IntegrationTaskBulkInputEntry"
+      required: [entries]
+    IntegrationTaskUpdate:
+      type: object
+      properties:
+        status: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        target: { type: string, nullable: true }
     UnlockCoverageStatsError:
       type: object
       description: Returned when the Python dispatcher cannot be queried.
