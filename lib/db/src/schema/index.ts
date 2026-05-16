@@ -7,3 +7,4 @@ export * from "./messages";
 export * from "./vehicleJobs";
 export * from "./vehicleJobEvents";
 export * from "./auth29Detections";
+export * from "./signalDiscovery";

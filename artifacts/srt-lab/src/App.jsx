@@ -46,6 +46,7 @@ import UnlockCoverageTab from "./tabs/UnlockCoverageTab.jsx";
 import WorkflowTab from "./tabs/WorkflowTab.jsx";
 import Gpec2aUnlockTab from "./tabs/Gpec2aUnlockTab.jsx";
 import ExternalToolsTab from "./tabs/ExternalToolsTab.jsx";
+import SignalDiscoveryTab from "./tabs/SignalDiscoveryTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
@@ -918,6 +919,7 @@ const WORKSPACE_TABS = [
   {id:'workflow',  i:'🛠️', l:'WORKFLOW',     s:'Vehicle Job · Census · Fix Plan · Sign-Off'},
   {id:'gpecunlock',i:'🔓', l:'GPEC2A UNLOCK',s:'Firmware file patcher · no OBD'},
   {id:'exttools',  i:'🧰', l:'EXT TOOLS',   s:'FCA PROXI Tool · GPEC Unlocker'},
+  {id:'sigdisc',   i:'🛰️', l:'SIGNAL DISC', s:'TUMFTM sweep · record · match'},
 ];
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -1083,6 +1085,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='workflow'  && <WorkflowTab onOpenTab={setTab}/>}
         {tab==='gpecunlock'&& <Gpec2aUnlockTab/>}
         {tab==='exttools'  && <ExternalToolsTab/>}
+        {tab==='sigdisc'   && <SignalDiscoveryTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also

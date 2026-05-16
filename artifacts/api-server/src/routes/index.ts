@@ -8,6 +8,7 @@ import anthropicRouter from "./anthropic";
 import vehicleJobsRouter from "./vehicleJobs";
 import unlockCoverageRouter from "./unlockCoverage";
 import auth29DetectionsRouter from "./auth29Detections";
+import signalDiscoveryRouter from "./signalDiscovery";
 
 const router: IRouter = Router();
 
@@ -19,6 +20,7 @@ router.use(keyProgArchivesRouter);
 router.use(vehicleJobsRouter);
 router.use(unlockCoverageRouter);
 router.use(auth29DetectionsRouter);
+router.use(signalDiscoveryRouter);
 router.use("/anthropic", anthropicRouter);
 
 export default router;

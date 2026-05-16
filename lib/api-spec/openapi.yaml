@@ -20,6 +20,13 @@ tags:
     description: SRT Lab unlock-coverage runtime stats from the Python dispatcher
   - name: auth29Detections
     description: UDS 0x29 (Authentication) detection records — modules confirmed to require 0x29 instead of 0x27
+  - name: signalDiscovery
+    description: |
+      Signal Discovery (Task #625) — ports the TUMFTM "Holistic Approach for
+      Automated Reverse Engineering of UDS Data" methodology (DOI
+      10.3390/wevj16070384, Apache-2.0). Persists ECU/DID sweeps, recorded
+      experiments tying DIDs to ground-truth OBD-II PIDs, and the resulting
+      labelled DID catalog — all scoped per VIN.
 paths:
   /healthz:
     get:
@@ -494,6 +501,357 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VehicleJobEvent"
+  /signal-discovery/sweeps:
+    get:
+      operationId: listDiscoverySweeps
+      tags: [signalDiscovery]
+      summary: List discovery sweeps (newest first)
+      parameters:
+        - name: vin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of sweeps
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sweeps:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DiscoverySweep"
+                required: [sweeps]
+    post:
+      operationId: createDiscoverySweep
+      tags: [signalDiscovery]
+      summary: Create a new sweep
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscoverySweepInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscoverySweep"
+  /signal-discovery/sweeps/{id}:
+    get:
+      operationId: getDiscoverySweep
+      tags: [signalDiscovery]
+      summary: Get a sweep with discovered ECUs and DIDs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Sweep with results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscoverySweepDetail"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateDiscoverySweep
+      tags: [signalDiscovery]
+      summary: Update sweep status / cursor / summary
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscoverySweepUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscoverySweep"
+    delete:
+      operationId: deleteDiscoverySweep
+      tags: [signalDiscovery]
+      summary: Delete a sweep and its discovered rows
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                required: [ok]
+  /signal-discovery/sweeps/{id}/ecus:
+    post:
+      operationId: appendDiscoveredEcus
+      tags: [signalDiscovery]
+      summary: Append discovered ECUs (upsert)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ecus:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/DiscoveredEcuInput"
+              required: [ecus]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  inserted: { type: integer }
+                required: [ok, inserted]
+  /signal-discovery/sweeps/{id}/dids:
+    post:
+      operationId: appendDiscoveredDids
+      tags: [signalDiscovery]
+      summary: Append discovered DIDs (upsert)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dids:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/DiscoveredDidInput"
+              required: [dids]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  inserted: { type: integer }
+                required: [ok, inserted]
+  /signal-discovery/experiments:
+    get:
+      operationId: listDiscoveryExperiments
+      tags: [signalDiscovery]
+      summary: List experiments (newest first)
+      parameters:
+        - name: vin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiments:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DiscoveryExperiment"
+                required: [experiments]
+    post:
+      operationId: createDiscoveryExperiment
+      tags: [signalDiscovery]
+      summary: Create a new experiment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscoveryExperimentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscoveryExperiment"
+  /signal-discovery/experiments/{id}:
+    get:
+      operationId: getDiscoveryExperiment
+      tags: [signalDiscovery]
+      summary: Get an experiment with all samples
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscoveryExperimentDetail"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateDiscoveryExperiment
+      tags: [signalDiscovery]
+      summary: Update experiment status / timestamps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscoveryExperimentUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscoveryExperiment"
+    delete:
+      operationId: deleteDiscoveryExperiment
+      tags: [signalDiscovery]
+      summary: Delete an experiment and its samples
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                required: [ok]
+  /signal-discovery/experiments/{id}/samples:
+    post:
+      operationId: appendDiscoveryExperimentSamples
+      tags: [signalDiscovery]
+      summary: Append samples (batch)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                samples:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/DiscoveryExperimentSampleInput"
+              required: [samples]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  inserted: { type: integer }
+                required: [ok, inserted]
+  /signal-discovery/catalog:
+    get:
+      operationId: listDiscoveryCatalog
+      tags: [signalDiscovery]
+      summary: List catalog entries
+      parameters:
+        - name: vin
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entries:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DiscoveryDidCatalogEntry"
+                required: [entries]
+    post:
+      operationId: upsertDiscoveryCatalogEntry
+      tags: [signalDiscovery]
+      summary: Upsert a catalog entry (PK is vin+tx+did)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscoveryDidCatalogEntryInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscoveryDidCatalogEntry"
 components:
   schemas:
     HealthStatus:
@@ -922,6 +1280,212 @@ components:
           nullable: true
       required:
         - tx
+    DiscoverySweep:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        vin: { type: string }
+        label: { type: string, nullable: true }
+        status: { type: string }
+        cursor: { nullable: true }
+        config: { nullable: true }
+        summary: { nullable: true }
+        startedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time, nullable: true }
+      required: [id, vin, status, startedAt]
+    DiscoverySweepInput:
+      type: object
+      properties:
+        vin: { type: string, nullable: true }
+        label: { type: string, nullable: true }
+        config: { nullable: true }
+      required: []
+    DiscoverySweepUpdate:
+      type: object
+      properties:
+        status: { type: string, nullable: true }
+        cursor: { nullable: true }
+        summary: { nullable: true }
+        finishedAt: { type: string, format: date-time, nullable: true }
+    DiscoveredEcu:
+      type: object
+      properties:
+        sweepId: { type: string, format: uuid }
+        tx: { type: integer, minimum: 0, maximum: 65535 }
+        rx: { type: integer, minimum: 0, maximum: 65535 }
+        label: { type: string, nullable: true }
+        sessions: { nullable: true }
+        detectedAt: { type: string, format: date-time }
+      required: [sweepId, tx, rx, detectedAt]
+    DiscoveredEcuInput:
+      type: object
+      properties:
+        tx: { type: integer, minimum: 0, maximum: 65535 }
+        rx: { type: integer, minimum: 0, maximum: 65535 }
+        label: { type: string, nullable: true }
+        sessions: { nullable: true }
+      required: [tx, rx]
+    DiscoveredDid:
+      type: object
+      properties:
+        sweepId: { type: string, format: uuid }
+        tx: { type: integer, minimum: 0, maximum: 65535 }
+        rx: { type: integer, minimum: 0, maximum: 65535 }
+        did: { type: integer, minimum: 0, maximum: 65535 }
+        session: { type: integer, minimum: 0, maximum: 255 }
+        length: { type: integer, nullable: true }
+        sample: { type: string, nullable: true }
+        nrc: { type: integer, nullable: true }
+        label: { type: string, nullable: true }
+        detectedAt: { type: string, format: date-time }
+      required: [sweepId, tx, rx, did, session, detectedAt]
+    DiscoveredDidInput:
+      type: object
+      properties:
+        tx: { type: integer, minimum: 0, maximum: 65535 }
+        rx: { type: integer, minimum: 0, maximum: 65535 }
+        did: { type: integer, minimum: 0, maximum: 65535 }
+        session: { type: integer, minimum: 0, maximum: 255 }
+        length: { type: integer, nullable: true }
+        sample: { type: string, nullable: true }
+        nrc: { type: integer, nullable: true }
+        label: { type: string, nullable: true }
+      required: [tx, rx, did]
+    DiscoverySweepDetail:
+      type: object
+      properties:
+        sweep: { $ref: "#/components/schemas/DiscoverySweep" }
+        ecus:
+          type: array
+          items: { $ref: "#/components/schemas/DiscoveredEcu" }
+        dids:
+          type: array
+          items: { $ref: "#/components/schemas/DiscoveredDid" }
+      required: [sweep, ecus, dids]
+    DiscoveryExperiment:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        vin: { type: string }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        targetTx: { type: integer }
+        targetRx: { type: integer }
+        didList:
+          type: array
+          items: { type: integer }
+        pidList:
+          type: array
+          items: { type: integer }
+        pollIntervalMs: { type: integer }
+        sampleCount: { type: integer }
+        status: { type: string }
+        startedAt: { type: string, format: date-time, nullable: true }
+        finishedAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+      required:
+        - id
+        - vin
+        - name
+        - targetTx
+        - targetRx
+        - didList
+        - pidList
+        - pollIntervalMs
+        - sampleCount
+        - status
+        - createdAt
+    DiscoveryExperimentInput:
+      type: object
+      properties:
+        vin: { type: string, nullable: true }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        targetTx: { type: integer, minimum: 0, maximum: 65535 }
+        targetRx: { type: integer, minimum: 0, maximum: 65535 }
+        didList:
+          type: array
+          items: { type: integer }
+        pidList:
+          type: array
+          items: { type: integer }
+        pollIntervalMs: { type: integer, nullable: true }
+      required: [name, targetTx, targetRx, didList, pidList]
+    DiscoveryExperimentUpdate:
+      type: object
+      properties:
+        status: { type: string, nullable: true }
+        startedAt: { type: string, format: date-time, nullable: true }
+        finishedAt: { type: string, format: date-time, nullable: true }
+    DiscoveryExperimentSample:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        experimentId: { type: string, format: uuid }
+        tMs: { type: integer }
+        didValues:
+          type: object
+          additionalProperties: { type: string }
+        pidValues:
+          type: object
+          additionalProperties: { type: number }
+      required: [id, experimentId, tMs, didValues, pidValues]
+    DiscoveryExperimentSampleInput:
+      type: object
+      properties:
+        tMs: { type: integer }
+        didValues:
+          type: object
+          additionalProperties: { type: string }
+        pidValues:
+          type: object
+          additionalProperties: { type: number }
+      required: [tMs, didValues, pidValues]
+    DiscoveryExperimentDetail:
+      type: object
+      properties:
+        experiment: { $ref: "#/components/schemas/DiscoveryExperiment" }
+        samples:
+          type: array
+          items: { $ref: "#/components/schemas/DiscoveryExperimentSample" }
+      required: [experiment, samples]
+    DiscoveryDidCatalogEntry:
+      type: object
+      properties:
+        vin: { type: string }
+        tx: { type: integer }
+        did: { type: integer }
+        label: { type: string }
+        decoder: { type: string, nullable: true }
+        byteOffset: { type: integer, nullable: true }
+        scale: { type: number, nullable: true }
+        offset: { type: number, nullable: true }
+        units: { type: string, nullable: true }
+        sourceExperimentId: { type: string, format: uuid, nullable: true }
+        sourcePid: { type: string, nullable: true }
+        rSquared: { type: number, nullable: true }
+        confirmed: { type: boolean }
+        notes: { type: string, nullable: true }
+        updatedAt: { type: string, format: date-time }
+      required: [vin, tx, did, label, confirmed, updatedAt]
+    DiscoveryDidCatalogEntryInput:
+      type: object
+      properties:
+        vin: { type: string, nullable: true }
+        tx: { type: integer, minimum: 0, maximum: 65535 }
+        did: { type: integer, minimum: 0, maximum: 65535 }
+        label: { type: string }
+        decoder: { type: string, nullable: true }
+        byteOffset: { type: integer, nullable: true }
+        scale: { type: number, nullable: true }
+        offset: { type: number, nullable: true }
+        units: { type: string, nullable: true }
+        sourceExperimentId: { type: string, format: uuid, nullable: true }
+        sourcePid: { type: string, nullable: true }
+        rSquared: { type: number, nullable: true }
+        confirmed: { type: boolean, nullable: true }
+        notes: { type: string, nullable: true }
+      required: [tx, did, label]
     UnlockCoverageStatsError:
       type: object
       description: Returned when the Python dispatcher cannot be queried.

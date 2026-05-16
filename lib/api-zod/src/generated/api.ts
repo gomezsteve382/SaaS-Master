@@ -496,3 +496,471 @@ export const AppendVehicleJobEventBody = zod.object({
   module: zod.string().nullish(),
   payload: zod.record(zod.string(), zod.unknown()).nullish(),
 });
+
+/**
+ * @summary List discovery sweeps (newest first)
+ */
+export const ListDiscoverySweepsQueryParams = zod.object({
+  vin: zod.coerce.string().optional(),
+});
+
+export const ListDiscoverySweepsResponse = zod.object({
+  sweeps: zod.array(
+    zod.object({
+      id: zod.string().uuid(),
+      vin: zod.string(),
+      label: zod.string().nullish(),
+      status: zod.string(),
+      cursor: zod.unknown().nullish(),
+      config: zod.unknown().nullish(),
+      summary: zod.unknown().nullish(),
+      startedAt: zod.coerce.date(),
+      finishedAt: zod.coerce.date().nullish(),
+    }),
+  ),
+});
+
+/**
+ * @summary Create a new sweep
+ */
+export const CreateDiscoverySweepBody = zod.object({
+  vin: zod.string().nullish(),
+  label: zod.string().nullish(),
+  config: zod.unknown().nullish(),
+});
+
+/**
+ * @summary Get a sweep with discovered ECUs and DIDs
+ */
+export const GetDiscoverySweepParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const getDiscoverySweepResponseEcusItemTxMin = 0;
+export const getDiscoverySweepResponseEcusItemTxMax = 65535;
+
+export const getDiscoverySweepResponseEcusItemRxMin = 0;
+export const getDiscoverySweepResponseEcusItemRxMax = 65535;
+
+export const getDiscoverySweepResponseDidsItemTxMin = 0;
+export const getDiscoverySweepResponseDidsItemTxMax = 65535;
+
+export const getDiscoverySweepResponseDidsItemRxMin = 0;
+export const getDiscoverySweepResponseDidsItemRxMax = 65535;
+
+export const getDiscoverySweepResponseDidsItemDidMin = 0;
+export const getDiscoverySweepResponseDidsItemDidMax = 65535;
+
+export const getDiscoverySweepResponseDidsItemSessionMin = 0;
+export const getDiscoverySweepResponseDidsItemSessionMax = 255;
+
+export const GetDiscoverySweepResponse = zod.object({
+  sweep: zod.object({
+    id: zod.string().uuid(),
+    vin: zod.string(),
+    label: zod.string().nullish(),
+    status: zod.string(),
+    cursor: zod.unknown().nullish(),
+    config: zod.unknown().nullish(),
+    summary: zod.unknown().nullish(),
+    startedAt: zod.coerce.date(),
+    finishedAt: zod.coerce.date().nullish(),
+  }),
+  ecus: zod.array(
+    zod.object({
+      sweepId: zod.string().uuid(),
+      tx: zod
+        .number()
+        .min(getDiscoverySweepResponseEcusItemTxMin)
+        .max(getDiscoverySweepResponseEcusItemTxMax),
+      rx: zod
+        .number()
+        .min(getDiscoverySweepResponseEcusItemRxMin)
+        .max(getDiscoverySweepResponseEcusItemRxMax),
+      label: zod.string().nullish(),
+      sessions: zod.unknown().nullish(),
+      detectedAt: zod.coerce.date(),
+    }),
+  ),
+  dids: zod.array(
+    zod.object({
+      sweepId: zod.string().uuid(),
+      tx: zod
+        .number()
+        .min(getDiscoverySweepResponseDidsItemTxMin)
+        .max(getDiscoverySweepResponseDidsItemTxMax),
+      rx: zod
+        .number()
+        .min(getDiscoverySweepResponseDidsItemRxMin)
+        .max(getDiscoverySweepResponseDidsItemRxMax),
+      did: zod
+        .number()
+        .min(getDiscoverySweepResponseDidsItemDidMin)
+        .max(getDiscoverySweepResponseDidsItemDidMax),
+      session: zod
+        .number()
+        .min(getDiscoverySweepResponseDidsItemSessionMin)
+        .max(getDiscoverySweepResponseDidsItemSessionMax),
+      length: zod.number().nullish(),
+      sample: zod.string().nullish(),
+      nrc: zod.number().nullish(),
+      label: zod.string().nullish(),
+      detectedAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Update sweep status / cursor / summary
+ */
+export const UpdateDiscoverySweepParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateDiscoverySweepBody = zod.object({
+  status: zod.string().nullish(),
+  cursor: zod.unknown().nullish(),
+  summary: zod.unknown().nullish(),
+  finishedAt: zod.coerce.date().nullish(),
+});
+
+export const UpdateDiscoverySweepResponse = zod.object({
+  id: zod.string().uuid(),
+  vin: zod.string(),
+  label: zod.string().nullish(),
+  status: zod.string(),
+  cursor: zod.unknown().nullish(),
+  config: zod.unknown().nullish(),
+  summary: zod.unknown().nullish(),
+  startedAt: zod.coerce.date(),
+  finishedAt: zod.coerce.date().nullish(),
+});
+
+/**
+ * @summary Delete a sweep and its discovered rows
+ */
+export const DeleteDiscoverySweepParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const DeleteDiscoverySweepResponse = zod.object({
+  ok: zod.boolean(),
+});
+
+/**
+ * @summary Append discovered ECUs (upsert)
+ */
+export const AppendDiscoveredEcusParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const appendDiscoveredEcusBodyEcusItemTxMin = 0;
+export const appendDiscoveredEcusBodyEcusItemTxMax = 65535;
+
+export const appendDiscoveredEcusBodyEcusItemRxMin = 0;
+export const appendDiscoveredEcusBodyEcusItemRxMax = 65535;
+
+export const AppendDiscoveredEcusBody = zod.object({
+  ecus: zod.array(
+    zod.object({
+      tx: zod
+        .number()
+        .min(appendDiscoveredEcusBodyEcusItemTxMin)
+        .max(appendDiscoveredEcusBodyEcusItemTxMax),
+      rx: zod
+        .number()
+        .min(appendDiscoveredEcusBodyEcusItemRxMin)
+        .max(appendDiscoveredEcusBodyEcusItemRxMax),
+      label: zod.string().nullish(),
+      sessions: zod.unknown().nullish(),
+    }),
+  ),
+});
+
+export const AppendDiscoveredEcusResponse = zod.object({
+  ok: zod.boolean(),
+  inserted: zod.number(),
+});
+
+/**
+ * @summary Append discovered DIDs (upsert)
+ */
+export const AppendDiscoveredDidsParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const appendDiscoveredDidsBodyDidsItemTxMin = 0;
+export const appendDiscoveredDidsBodyDidsItemTxMax = 65535;
+
+export const appendDiscoveredDidsBodyDidsItemRxMin = 0;
+export const appendDiscoveredDidsBodyDidsItemRxMax = 65535;
+
+export const appendDiscoveredDidsBodyDidsItemDidMin = 0;
+export const appendDiscoveredDidsBodyDidsItemDidMax = 65535;
+
+export const appendDiscoveredDidsBodyDidsItemSessionMin = 0;
+export const appendDiscoveredDidsBodyDidsItemSessionMax = 255;
+
+export const AppendDiscoveredDidsBody = zod.object({
+  dids: zod.array(
+    zod.object({
+      tx: zod
+        .number()
+        .min(appendDiscoveredDidsBodyDidsItemTxMin)
+        .max(appendDiscoveredDidsBodyDidsItemTxMax),
+      rx: zod
+        .number()
+        .min(appendDiscoveredDidsBodyDidsItemRxMin)
+        .max(appendDiscoveredDidsBodyDidsItemRxMax),
+      did: zod
+        .number()
+        .min(appendDiscoveredDidsBodyDidsItemDidMin)
+        .max(appendDiscoveredDidsBodyDidsItemDidMax),
+      session: zod
+        .number()
+        .min(appendDiscoveredDidsBodyDidsItemSessionMin)
+        .max(appendDiscoveredDidsBodyDidsItemSessionMax)
+        .optional(),
+      length: zod.number().nullish(),
+      sample: zod.string().nullish(),
+      nrc: zod.number().nullish(),
+      label: zod.string().nullish(),
+    }),
+  ),
+});
+
+export const AppendDiscoveredDidsResponse = zod.object({
+  ok: zod.boolean(),
+  inserted: zod.number(),
+});
+
+/**
+ * @summary List experiments (newest first)
+ */
+export const ListDiscoveryExperimentsQueryParams = zod.object({
+  vin: zod.coerce.string().optional(),
+});
+
+export const ListDiscoveryExperimentsResponse = zod.object({
+  experiments: zod.array(
+    zod.object({
+      id: zod.string().uuid(),
+      vin: zod.string(),
+      name: zod.string(),
+      description: zod.string().nullish(),
+      targetTx: zod.number(),
+      targetRx: zod.number(),
+      didList: zod.array(zod.number()),
+      pidList: zod.array(zod.number()),
+      pollIntervalMs: zod.number(),
+      sampleCount: zod.number(),
+      status: zod.string(),
+      startedAt: zod.coerce.date().nullish(),
+      finishedAt: zod.coerce.date().nullish(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Create a new experiment
+ */
+export const createDiscoveryExperimentBodyTargetTxMin = 0;
+export const createDiscoveryExperimentBodyTargetTxMax = 65535;
+
+export const createDiscoveryExperimentBodyTargetRxMin = 0;
+export const createDiscoveryExperimentBodyTargetRxMax = 65535;
+
+export const CreateDiscoveryExperimentBody = zod.object({
+  vin: zod.string().nullish(),
+  name: zod.string(),
+  description: zod.string().nullish(),
+  targetTx: zod
+    .number()
+    .min(createDiscoveryExperimentBodyTargetTxMin)
+    .max(createDiscoveryExperimentBodyTargetTxMax),
+  targetRx: zod
+    .number()
+    .min(createDiscoveryExperimentBodyTargetRxMin)
+    .max(createDiscoveryExperimentBodyTargetRxMax),
+  didList: zod.array(zod.number()),
+  pidList: zod.array(zod.number()),
+  pollIntervalMs: zod.number().nullish(),
+});
+
+/**
+ * @summary Get an experiment with all samples
+ */
+export const GetDiscoveryExperimentParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetDiscoveryExperimentResponse = zod.object({
+  experiment: zod.object({
+    id: zod.string().uuid(),
+    vin: zod.string(),
+    name: zod.string(),
+    description: zod.string().nullish(),
+    targetTx: zod.number(),
+    targetRx: zod.number(),
+    didList: zod.array(zod.number()),
+    pidList: zod.array(zod.number()),
+    pollIntervalMs: zod.number(),
+    sampleCount: zod.number(),
+    status: zod.string(),
+    startedAt: zod.coerce.date().nullish(),
+    finishedAt: zod.coerce.date().nullish(),
+    createdAt: zod.coerce.date(),
+  }),
+  samples: zod.array(
+    zod.object({
+      id: zod.string().uuid(),
+      experimentId: zod.string().uuid(),
+      tMs: zod.number(),
+      didValues: zod.record(zod.string(), zod.string()),
+      pidValues: zod.record(zod.string(), zod.number()),
+    }),
+  ),
+});
+
+/**
+ * @summary Update experiment status / timestamps
+ */
+export const UpdateDiscoveryExperimentParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateDiscoveryExperimentBody = zod.object({
+  status: zod.string().nullish(),
+  startedAt: zod.coerce.date().nullish(),
+  finishedAt: zod.coerce.date().nullish(),
+});
+
+export const UpdateDiscoveryExperimentResponse = zod.object({
+  id: zod.string().uuid(),
+  vin: zod.string(),
+  name: zod.string(),
+  description: zod.string().nullish(),
+  targetTx: zod.number(),
+  targetRx: zod.number(),
+  didList: zod.array(zod.number()),
+  pidList: zod.array(zod.number()),
+  pollIntervalMs: zod.number(),
+  sampleCount: zod.number(),
+  status: zod.string(),
+  startedAt: zod.coerce.date().nullish(),
+  finishedAt: zod.coerce.date().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete an experiment and its samples
+ */
+export const DeleteDiscoveryExperimentParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const DeleteDiscoveryExperimentResponse = zod.object({
+  ok: zod.boolean(),
+});
+
+/**
+ * @summary Append samples (batch)
+ */
+export const AppendDiscoveryExperimentSamplesParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AppendDiscoveryExperimentSamplesBody = zod.object({
+  samples: zod.array(
+    zod.object({
+      tMs: zod.number(),
+      didValues: zod.record(zod.string(), zod.string()),
+      pidValues: zod.record(zod.string(), zod.number()),
+    }),
+  ),
+});
+
+export const AppendDiscoveryExperimentSamplesResponse = zod.object({
+  ok: zod.boolean(),
+  inserted: zod.number(),
+});
+
+/**
+ * @summary List catalog entries
+ */
+export const ListDiscoveryCatalogQueryParams = zod.object({
+  vin: zod.coerce.string().optional(),
+});
+
+export const ListDiscoveryCatalogResponse = zod.object({
+  entries: zod.array(
+    zod.object({
+      vin: zod.string(),
+      tx: zod.number(),
+      did: zod.number(),
+      label: zod.string(),
+      decoder: zod.string().nullish(),
+      byteOffset: zod.number().nullish(),
+      scale: zod.number().nullish(),
+      offset: zod.number().nullish(),
+      units: zod.string().nullish(),
+      sourceExperimentId: zod.string().uuid().nullish(),
+      sourcePid: zod.string().nullish(),
+      rSquared: zod.number().nullish(),
+      confirmed: zod.boolean(),
+      notes: zod.string().nullish(),
+      updatedAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Upsert a catalog entry (PK is vin+tx+did)
+ */
+export const upsertDiscoveryCatalogEntryBodyTxMin = 0;
+export const upsertDiscoveryCatalogEntryBodyTxMax = 65535;
+
+export const upsertDiscoveryCatalogEntryBodyDidMin = 0;
+export const upsertDiscoveryCatalogEntryBodyDidMax = 65535;
+
+export const UpsertDiscoveryCatalogEntryBody = zod.object({
+  vin: zod.string().nullish(),
+  tx: zod
+    .number()
+    .min(upsertDiscoveryCatalogEntryBodyTxMin)
+    .max(upsertDiscoveryCatalogEntryBodyTxMax),
+  did: zod
+    .number()
+    .min(upsertDiscoveryCatalogEntryBodyDidMin)
+    .max(upsertDiscoveryCatalogEntryBodyDidMax),
+  label: zod.string(),
+  decoder: zod.string().nullish(),
+  byteOffset: zod.number().nullish(),
+  scale: zod.number().nullish(),
+  offset: zod.number().nullish(),
+  units: zod.string().nullish(),
+  sourceExperimentId: zod.string().uuid().nullish(),
+  sourcePid: zod.string().nullish(),
+  rSquared: zod.number().nullish(),
+  confirmed: zod.boolean().nullish(),
+  notes: zod.string().nullish(),
+});
+
+export const UpsertDiscoveryCatalogEntryResponse = zod.object({
+  vin: zod.string(),
+  tx: zod.number(),
+  did: zod.number(),
+  label: zod.string(),
+  decoder: zod.string().nullish(),
+  byteOffset: zod.number().nullish(),
+  scale: zod.number().nullish(),
+  offset: zod.number().nullish(),
+  units: zod.string().nullish(),
+  sourceExperimentId: zod.string().uuid().nullish(),
+  sourcePid: zod.string().nullish(),
+  rSquared: zod.number().nullish(),
+  confirmed: zod.boolean(),
+  notes: zod.string().nullish(),
+  updatedAt: zod.coerce.date(),
+});

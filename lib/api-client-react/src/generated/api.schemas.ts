@@ -234,6 +234,237 @@ export interface Auth29DetectionInput {
   nrc?: number | null;
 }
 
+export interface DiscoverySweep {
+  id: string;
+  vin: string;
+  label?: string | null;
+  status: string;
+  cursor?: unknown | null;
+  config?: unknown | null;
+  summary?: unknown | null;
+  startedAt: string;
+  finishedAt?: string | null;
+}
+
+export interface DiscoverySweepInput {
+  vin?: string | null;
+  label?: string | null;
+  config?: unknown | null;
+}
+
+export interface DiscoverySweepUpdate {
+  status?: string | null;
+  cursor?: unknown | null;
+  summary?: unknown | null;
+  finishedAt?: string | null;
+}
+
+export interface DiscoveredEcu {
+  sweepId: string;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  tx: number;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  rx: number;
+  label?: string | null;
+  sessions?: unknown | null;
+  detectedAt: string;
+}
+
+export interface DiscoveredEcuInput {
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  tx: number;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  rx: number;
+  label?: string | null;
+  sessions?: unknown | null;
+}
+
+export interface DiscoveredDid {
+  sweepId: string;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  tx: number;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  rx: number;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  did: number;
+  /**
+   * @minimum 0
+   * @maximum 255
+   */
+  session: number;
+  length?: number | null;
+  sample?: string | null;
+  nrc?: number | null;
+  label?: string | null;
+  detectedAt: string;
+}
+
+export interface DiscoveredDidInput {
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  tx: number;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  rx: number;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  did: number;
+  /**
+   * @minimum 0
+   * @maximum 255
+   */
+  session?: number;
+  length?: number | null;
+  sample?: string | null;
+  nrc?: number | null;
+  label?: string | null;
+}
+
+export interface DiscoverySweepDetail {
+  sweep: DiscoverySweep;
+  ecus: DiscoveredEcu[];
+  dids: DiscoveredDid[];
+}
+
+export interface DiscoveryExperiment {
+  id: string;
+  vin: string;
+  name: string;
+  description?: string | null;
+  targetTx: number;
+  targetRx: number;
+  didList: number[];
+  pidList: number[];
+  pollIntervalMs: number;
+  sampleCount: number;
+  status: string;
+  startedAt?: string | null;
+  finishedAt?: string | null;
+  createdAt: string;
+}
+
+export interface DiscoveryExperimentInput {
+  vin?: string | null;
+  name: string;
+  description?: string | null;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  targetTx: number;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  targetRx: number;
+  didList: number[];
+  pidList: number[];
+  pollIntervalMs?: number | null;
+}
+
+export interface DiscoveryExperimentUpdate {
+  status?: string | null;
+  startedAt?: string | null;
+  finishedAt?: string | null;
+}
+
+export type DiscoveryExperimentSampleDidValues = { [key: string]: string };
+
+export type DiscoveryExperimentSamplePidValues = { [key: string]: number };
+
+export interface DiscoveryExperimentSample {
+  id: string;
+  experimentId: string;
+  tMs: number;
+  didValues: DiscoveryExperimentSampleDidValues;
+  pidValues: DiscoveryExperimentSamplePidValues;
+}
+
+export type DiscoveryExperimentSampleInputDidValues = { [key: string]: string };
+
+export type DiscoveryExperimentSampleInputPidValues = { [key: string]: number };
+
+export interface DiscoveryExperimentSampleInput {
+  tMs: number;
+  didValues: DiscoveryExperimentSampleInputDidValues;
+  pidValues: DiscoveryExperimentSampleInputPidValues;
+}
+
+export interface DiscoveryExperimentDetail {
+  experiment: DiscoveryExperiment;
+  samples: DiscoveryExperimentSample[];
+}
+
+export interface DiscoveryDidCatalogEntry {
+  vin: string;
+  tx: number;
+  did: number;
+  label: string;
+  decoder?: string | null;
+  byteOffset?: number | null;
+  scale?: number | null;
+  offset?: number | null;
+  units?: string | null;
+  sourceExperimentId?: string | null;
+  sourcePid?: string | null;
+  rSquared?: number | null;
+  confirmed: boolean;
+  notes?: string | null;
+  updatedAt: string;
+}
+
+export interface DiscoveryDidCatalogEntryInput {
+  vin?: string | null;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  tx: number;
+  /**
+   * @minimum 0
+   * @maximum 65535
+   */
+  did: number;
+  label: string;
+  decoder?: string | null;
+  byteOffset?: number | null;
+  scale?: number | null;
+  offset?: number | null;
+  units?: string | null;
+  sourceExperimentId?: string | null;
+  sourcePid?: string | null;
+  rSquared?: number | null;
+  confirmed?: boolean | null;
+  notes?: string | null;
+}
+
 /**
  * Returned when the Python dispatcher cannot be queried.
  */
@@ -294,4 +525,63 @@ export type DeleteAuth29Detections200 = {
 
 export type ListVehicleJobEvents200 = {
   events: VehicleJobEvent[];
+};
+
+export type ListDiscoverySweepsParams = {
+  vin?: string;
+};
+
+export type ListDiscoverySweeps200 = {
+  sweeps: DiscoverySweep[];
+};
+
+export type DeleteDiscoverySweep200 = {
+  ok: boolean;
+};
+
+export type AppendDiscoveredEcusBody = {
+  ecus: DiscoveredEcuInput[];
+};
+
+export type AppendDiscoveredEcus200 = {
+  ok: boolean;
+  inserted: number;
+};
+
+export type AppendDiscoveredDidsBody = {
+  dids: DiscoveredDidInput[];
+};
+
+export type AppendDiscoveredDids200 = {
+  ok: boolean;
+  inserted: number;
+};
+
+export type ListDiscoveryExperimentsParams = {
+  vin?: string;
+};
+
+export type ListDiscoveryExperiments200 = {
+  experiments: DiscoveryExperiment[];
+};
+
+export type DeleteDiscoveryExperiment200 = {
+  ok: boolean;
+};
+
+export type AppendDiscoveryExperimentSamplesBody = {
+  samples: DiscoveryExperimentSampleInput[];
+};
+
+export type AppendDiscoveryExperimentSamples200 = {
+  ok: boolean;
+  inserted: number;
+};
+
+export type ListDiscoveryCatalogParams = {
+  vin?: string;
+};
+
+export type ListDiscoveryCatalog200 = {
+  entries: DiscoveryDidCatalogEntry[];
 };

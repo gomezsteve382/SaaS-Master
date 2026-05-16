@@ -21,15 +21,39 @@ import type {
   AnthropicConversationWithMessages,
   AnthropicError,
   AnthropicMessage,
+  AppendDiscoveredDids200,
+  AppendDiscoveredDidsBody,
+  AppendDiscoveredEcus200,
+  AppendDiscoveredEcusBody,
+  AppendDiscoveryExperimentSamples200,
+  AppendDiscoveryExperimentSamplesBody,
   Auth29DetectionInput,
   CreateAnthropicConversationBody,
   DeleteAuth29Detections200,
   DeleteAuth29DetectionsParams,
+  DeleteDiscoveryExperiment200,
+  DeleteDiscoverySweep200,
+  DiscoveryDidCatalogEntry,
+  DiscoveryDidCatalogEntryInput,
+  DiscoveryExperiment,
+  DiscoveryExperimentDetail,
+  DiscoveryExperimentInput,
+  DiscoveryExperimentUpdate,
+  DiscoverySweep,
+  DiscoverySweepDetail,
+  DiscoverySweepInput,
+  DiscoverySweepUpdate,
   DownloadCount,
   HealthStatus,
   ListAnthropicConversationsParams,
   ListAuth29Detections200,
   ListAuth29DetectionsParams,
+  ListDiscoveryCatalog200,
+  ListDiscoveryCatalogParams,
+  ListDiscoveryExperiments200,
+  ListDiscoveryExperimentsParams,
+  ListDiscoverySweeps200,
+  ListDiscoverySweepsParams,
   ListVehicleJobEvents200,
   ListVehicleJobs200,
   ListVehicleJobsParams,
@@ -1936,4 +1960,1375 @@ export const useAppendVehicleJobEvent = <
   TContext
 > => {
   return useMutation(getAppendVehicleJobEventMutationOptions(options));
+};
+
+/**
+ * @summary List discovery sweeps (newest first)
+ */
+export const getListDiscoverySweepsUrl = (
+  params?: ListDiscoverySweepsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/signal-discovery/sweeps?${stringifiedParams}`
+    : `/api/signal-discovery/sweeps`;
+};
+
+export const listDiscoverySweeps = async (
+  params?: ListDiscoverySweepsParams,
+  options?: RequestInit,
+): Promise<ListDiscoverySweeps200> => {
+  return customFetch<ListDiscoverySweeps200>(
+    getListDiscoverySweepsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListDiscoverySweepsQueryKey = (
+  params?: ListDiscoverySweepsParams,
+) => {
+  return [`/api/signal-discovery/sweeps`, ...(params ? [params] : [])] as const;
+};
+
+export const getListDiscoverySweepsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listDiscoverySweeps>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListDiscoverySweepsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listDiscoverySweeps>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListDiscoverySweepsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listDiscoverySweeps>>
+  > = ({ signal }) =>
+    listDiscoverySweeps(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listDiscoverySweeps>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListDiscoverySweepsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listDiscoverySweeps>>
+>;
+export type ListDiscoverySweepsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List discovery sweeps (newest first)
+ */
+
+export function useListDiscoverySweeps<
+  TData = Awaited<ReturnType<typeof listDiscoverySweeps>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListDiscoverySweepsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listDiscoverySweeps>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListDiscoverySweepsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a new sweep
+ */
+export const getCreateDiscoverySweepUrl = () => {
+  return `/api/signal-discovery/sweeps`;
+};
+
+export const createDiscoverySweep = async (
+  discoverySweepInput: DiscoverySweepInput,
+  options?: RequestInit,
+): Promise<DiscoverySweep> => {
+  return customFetch<DiscoverySweep>(getCreateDiscoverySweepUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(discoverySweepInput),
+  });
+};
+
+export const getCreateDiscoverySweepMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createDiscoverySweep>>,
+    TError,
+    { data: BodyType<DiscoverySweepInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createDiscoverySweep>>,
+  TError,
+  { data: BodyType<DiscoverySweepInput> },
+  TContext
+> => {
+  const mutationKey = ["createDiscoverySweep"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createDiscoverySweep>>,
+    { data: BodyType<DiscoverySweepInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createDiscoverySweep(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateDiscoverySweepMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createDiscoverySweep>>
+>;
+export type CreateDiscoverySweepMutationBody = BodyType<DiscoverySweepInput>;
+export type CreateDiscoverySweepMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a new sweep
+ */
+export const useCreateDiscoverySweep = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createDiscoverySweep>>,
+    TError,
+    { data: BodyType<DiscoverySweepInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createDiscoverySweep>>,
+  TError,
+  { data: BodyType<DiscoverySweepInput> },
+  TContext
+> => {
+  return useMutation(getCreateDiscoverySweepMutationOptions(options));
+};
+
+/**
+ * @summary Get a sweep with discovered ECUs and DIDs
+ */
+export const getGetDiscoverySweepUrl = (id: string) => {
+  return `/api/signal-discovery/sweeps/${id}`;
+};
+
+export const getDiscoverySweep = async (
+  id: string,
+  options?: RequestInit,
+): Promise<DiscoverySweepDetail> => {
+  return customFetch<DiscoverySweepDetail>(getGetDiscoverySweepUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetDiscoverySweepQueryKey = (id: string) => {
+  return [`/api/signal-discovery/sweeps/${id}`] as const;
+};
+
+export const getGetDiscoverySweepQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDiscoverySweep>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getDiscoverySweep>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetDiscoverySweepQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDiscoverySweep>>
+  > = ({ signal }) => getDiscoverySweep(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDiscoverySweep>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetDiscoverySweepQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDiscoverySweep>>
+>;
+export type GetDiscoverySweepQueryError = ErrorType<void>;
+
+/**
+ * @summary Get a sweep with discovered ECUs and DIDs
+ */
+
+export function useGetDiscoverySweep<
+  TData = Awaited<ReturnType<typeof getDiscoverySweep>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getDiscoverySweep>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetDiscoverySweepQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update sweep status / cursor / summary
+ */
+export const getUpdateDiscoverySweepUrl = (id: string) => {
+  return `/api/signal-discovery/sweeps/${id}`;
+};
+
+export const updateDiscoverySweep = async (
+  id: string,
+  discoverySweepUpdate: DiscoverySweepUpdate,
+  options?: RequestInit,
+): Promise<DiscoverySweep> => {
+  return customFetch<DiscoverySweep>(getUpdateDiscoverySweepUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(discoverySweepUpdate),
+  });
+};
+
+export const getUpdateDiscoverySweepMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateDiscoverySweep>>,
+    TError,
+    { id: string; data: BodyType<DiscoverySweepUpdate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateDiscoverySweep>>,
+  TError,
+  { id: string; data: BodyType<DiscoverySweepUpdate> },
+  TContext
+> => {
+  const mutationKey = ["updateDiscoverySweep"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateDiscoverySweep>>,
+    { id: string; data: BodyType<DiscoverySweepUpdate> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateDiscoverySweep(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateDiscoverySweepMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateDiscoverySweep>>
+>;
+export type UpdateDiscoverySweepMutationBody = BodyType<DiscoverySweepUpdate>;
+export type UpdateDiscoverySweepMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update sweep status / cursor / summary
+ */
+export const useUpdateDiscoverySweep = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateDiscoverySweep>>,
+    TError,
+    { id: string; data: BodyType<DiscoverySweepUpdate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateDiscoverySweep>>,
+  TError,
+  { id: string; data: BodyType<DiscoverySweepUpdate> },
+  TContext
+> => {
+  return useMutation(getUpdateDiscoverySweepMutationOptions(options));
+};
+
+/**
+ * @summary Delete a sweep and its discovered rows
+ */
+export const getDeleteDiscoverySweepUrl = (id: string) => {
+  return `/api/signal-discovery/sweeps/${id}`;
+};
+
+export const deleteDiscoverySweep = async (
+  id: string,
+  options?: RequestInit,
+): Promise<DeleteDiscoverySweep200> => {
+  return customFetch<DeleteDiscoverySweep200>(getDeleteDiscoverySweepUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteDiscoverySweepMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteDiscoverySweep>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteDiscoverySweep>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteDiscoverySweep"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteDiscoverySweep>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteDiscoverySweep(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteDiscoverySweepMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteDiscoverySweep>>
+>;
+
+export type DeleteDiscoverySweepMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a sweep and its discovered rows
+ */
+export const useDeleteDiscoverySweep = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteDiscoverySweep>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteDiscoverySweep>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteDiscoverySweepMutationOptions(options));
+};
+
+/**
+ * @summary Append discovered ECUs (upsert)
+ */
+export const getAppendDiscoveredEcusUrl = (id: string) => {
+  return `/api/signal-discovery/sweeps/${id}/ecus`;
+};
+
+export const appendDiscoveredEcus = async (
+  id: string,
+  appendDiscoveredEcusBody: AppendDiscoveredEcusBody,
+  options?: RequestInit,
+): Promise<AppendDiscoveredEcus200> => {
+  return customFetch<AppendDiscoveredEcus200>(getAppendDiscoveredEcusUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(appendDiscoveredEcusBody),
+  });
+};
+
+export const getAppendDiscoveredEcusMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof appendDiscoveredEcus>>,
+    TError,
+    { id: string; data: BodyType<AppendDiscoveredEcusBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof appendDiscoveredEcus>>,
+  TError,
+  { id: string; data: BodyType<AppendDiscoveredEcusBody> },
+  TContext
+> => {
+  const mutationKey = ["appendDiscoveredEcus"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof appendDiscoveredEcus>>,
+    { id: string; data: BodyType<AppendDiscoveredEcusBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return appendDiscoveredEcus(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AppendDiscoveredEcusMutationResult = NonNullable<
+  Awaited<ReturnType<typeof appendDiscoveredEcus>>
+>;
+export type AppendDiscoveredEcusMutationBody =
+  BodyType<AppendDiscoveredEcusBody>;
+export type AppendDiscoveredEcusMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Append discovered ECUs (upsert)
+ */
+export const useAppendDiscoveredEcus = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof appendDiscoveredEcus>>,
+    TError,
+    { id: string; data: BodyType<AppendDiscoveredEcusBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof appendDiscoveredEcus>>,
+  TError,
+  { id: string; data: BodyType<AppendDiscoveredEcusBody> },
+  TContext
+> => {
+  return useMutation(getAppendDiscoveredEcusMutationOptions(options));
+};
+
+/**
+ * @summary Append discovered DIDs (upsert)
+ */
+export const getAppendDiscoveredDidsUrl = (id: string) => {
+  return `/api/signal-discovery/sweeps/${id}/dids`;
+};
+
+export const appendDiscoveredDids = async (
+  id: string,
+  appendDiscoveredDidsBody: AppendDiscoveredDidsBody,
+  options?: RequestInit,
+): Promise<AppendDiscoveredDids200> => {
+  return customFetch<AppendDiscoveredDids200>(getAppendDiscoveredDidsUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(appendDiscoveredDidsBody),
+  });
+};
+
+export const getAppendDiscoveredDidsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof appendDiscoveredDids>>,
+    TError,
+    { id: string; data: BodyType<AppendDiscoveredDidsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof appendDiscoveredDids>>,
+  TError,
+  { id: string; data: BodyType<AppendDiscoveredDidsBody> },
+  TContext
+> => {
+  const mutationKey = ["appendDiscoveredDids"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof appendDiscoveredDids>>,
+    { id: string; data: BodyType<AppendDiscoveredDidsBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return appendDiscoveredDids(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AppendDiscoveredDidsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof appendDiscoveredDids>>
+>;
+export type AppendDiscoveredDidsMutationBody =
+  BodyType<AppendDiscoveredDidsBody>;
+export type AppendDiscoveredDidsMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Append discovered DIDs (upsert)
+ */
+export const useAppendDiscoveredDids = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof appendDiscoveredDids>>,
+    TError,
+    { id: string; data: BodyType<AppendDiscoveredDidsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof appendDiscoveredDids>>,
+  TError,
+  { id: string; data: BodyType<AppendDiscoveredDidsBody> },
+  TContext
+> => {
+  return useMutation(getAppendDiscoveredDidsMutationOptions(options));
+};
+
+/**
+ * @summary List experiments (newest first)
+ */
+export const getListDiscoveryExperimentsUrl = (
+  params?: ListDiscoveryExperimentsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/signal-discovery/experiments?${stringifiedParams}`
+    : `/api/signal-discovery/experiments`;
+};
+
+export const listDiscoveryExperiments = async (
+  params?: ListDiscoveryExperimentsParams,
+  options?: RequestInit,
+): Promise<ListDiscoveryExperiments200> => {
+  return customFetch<ListDiscoveryExperiments200>(
+    getListDiscoveryExperimentsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListDiscoveryExperimentsQueryKey = (
+  params?: ListDiscoveryExperimentsParams,
+) => {
+  return [
+    `/api/signal-discovery/experiments`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getListDiscoveryExperimentsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listDiscoveryExperiments>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListDiscoveryExperimentsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listDiscoveryExperiments>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListDiscoveryExperimentsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listDiscoveryExperiments>>
+  > = ({ signal }) =>
+    listDiscoveryExperiments(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listDiscoveryExperiments>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListDiscoveryExperimentsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listDiscoveryExperiments>>
+>;
+export type ListDiscoveryExperimentsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List experiments (newest first)
+ */
+
+export function useListDiscoveryExperiments<
+  TData = Awaited<ReturnType<typeof listDiscoveryExperiments>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListDiscoveryExperimentsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listDiscoveryExperiments>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListDiscoveryExperimentsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a new experiment
+ */
+export const getCreateDiscoveryExperimentUrl = () => {
+  return `/api/signal-discovery/experiments`;
+};
+
+export const createDiscoveryExperiment = async (
+  discoveryExperimentInput: DiscoveryExperimentInput,
+  options?: RequestInit,
+): Promise<DiscoveryExperiment> => {
+  return customFetch<DiscoveryExperiment>(getCreateDiscoveryExperimentUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(discoveryExperimentInput),
+  });
+};
+
+export const getCreateDiscoveryExperimentMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createDiscoveryExperiment>>,
+    TError,
+    { data: BodyType<DiscoveryExperimentInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createDiscoveryExperiment>>,
+  TError,
+  { data: BodyType<DiscoveryExperimentInput> },
+  TContext
+> => {
+  const mutationKey = ["createDiscoveryExperiment"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createDiscoveryExperiment>>,
+    { data: BodyType<DiscoveryExperimentInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createDiscoveryExperiment(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateDiscoveryExperimentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createDiscoveryExperiment>>
+>;
+export type CreateDiscoveryExperimentMutationBody =
+  BodyType<DiscoveryExperimentInput>;
+export type CreateDiscoveryExperimentMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a new experiment
+ */
+export const useCreateDiscoveryExperiment = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createDiscoveryExperiment>>,
+    TError,
+    { data: BodyType<DiscoveryExperimentInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createDiscoveryExperiment>>,
+  TError,
+  { data: BodyType<DiscoveryExperimentInput> },
+  TContext
+> => {
+  return useMutation(getCreateDiscoveryExperimentMutationOptions(options));
+};
+
+/**
+ * @summary Get an experiment with all samples
+ */
+export const getGetDiscoveryExperimentUrl = (id: string) => {
+  return `/api/signal-discovery/experiments/${id}`;
+};
+
+export const getDiscoveryExperiment = async (
+  id: string,
+  options?: RequestInit,
+): Promise<DiscoveryExperimentDetail> => {
+  return customFetch<DiscoveryExperimentDetail>(
+    getGetDiscoveryExperimentUrl(id),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetDiscoveryExperimentQueryKey = (id: string) => {
+  return [`/api/signal-discovery/experiments/${id}`] as const;
+};
+
+export const getGetDiscoveryExperimentQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDiscoveryExperiment>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getDiscoveryExperiment>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetDiscoveryExperimentQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDiscoveryExperiment>>
+  > = ({ signal }) => getDiscoveryExperiment(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDiscoveryExperiment>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetDiscoveryExperimentQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDiscoveryExperiment>>
+>;
+export type GetDiscoveryExperimentQueryError = ErrorType<void>;
+
+/**
+ * @summary Get an experiment with all samples
+ */
+
+export function useGetDiscoveryExperiment<
+  TData = Awaited<ReturnType<typeof getDiscoveryExperiment>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getDiscoveryExperiment>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetDiscoveryExperimentQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update experiment status / timestamps
+ */
+export const getUpdateDiscoveryExperimentUrl = (id: string) => {
+  return `/api/signal-discovery/experiments/${id}`;
+};
+
+export const updateDiscoveryExperiment = async (
+  id: string,
+  discoveryExperimentUpdate: DiscoveryExperimentUpdate,
+  options?: RequestInit,
+): Promise<DiscoveryExperiment> => {
+  return customFetch<DiscoveryExperiment>(getUpdateDiscoveryExperimentUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(discoveryExperimentUpdate),
+  });
+};
+
+export const getUpdateDiscoveryExperimentMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateDiscoveryExperiment>>,
+    TError,
+    { id: string; data: BodyType<DiscoveryExperimentUpdate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateDiscoveryExperiment>>,
+  TError,
+  { id: string; data: BodyType<DiscoveryExperimentUpdate> },
+  TContext
+> => {
+  const mutationKey = ["updateDiscoveryExperiment"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateDiscoveryExperiment>>,
+    { id: string; data: BodyType<DiscoveryExperimentUpdate> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateDiscoveryExperiment(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateDiscoveryExperimentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateDiscoveryExperiment>>
+>;
+export type UpdateDiscoveryExperimentMutationBody =
+  BodyType<DiscoveryExperimentUpdate>;
+export type UpdateDiscoveryExperimentMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update experiment status / timestamps
+ */
+export const useUpdateDiscoveryExperiment = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateDiscoveryExperiment>>,
+    TError,
+    { id: string; data: BodyType<DiscoveryExperimentUpdate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateDiscoveryExperiment>>,
+  TError,
+  { id: string; data: BodyType<DiscoveryExperimentUpdate> },
+  TContext
+> => {
+  return useMutation(getUpdateDiscoveryExperimentMutationOptions(options));
+};
+
+/**
+ * @summary Delete an experiment and its samples
+ */
+export const getDeleteDiscoveryExperimentUrl = (id: string) => {
+  return `/api/signal-discovery/experiments/${id}`;
+};
+
+export const deleteDiscoveryExperiment = async (
+  id: string,
+  options?: RequestInit,
+): Promise<DeleteDiscoveryExperiment200> => {
+  return customFetch<DeleteDiscoveryExperiment200>(
+    getDeleteDiscoveryExperimentUrl(id),
+    {
+      ...options,
+      method: "DELETE",
+    },
+  );
+};
+
+export const getDeleteDiscoveryExperimentMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteDiscoveryExperiment>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteDiscoveryExperiment>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteDiscoveryExperiment"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteDiscoveryExperiment>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteDiscoveryExperiment(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteDiscoveryExperimentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteDiscoveryExperiment>>
+>;
+
+export type DeleteDiscoveryExperimentMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete an experiment and its samples
+ */
+export const useDeleteDiscoveryExperiment = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteDiscoveryExperiment>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteDiscoveryExperiment>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteDiscoveryExperimentMutationOptions(options));
+};
+
+/**
+ * @summary Append samples (batch)
+ */
+export const getAppendDiscoveryExperimentSamplesUrl = (id: string) => {
+  return `/api/signal-discovery/experiments/${id}/samples`;
+};
+
+export const appendDiscoveryExperimentSamples = async (
+  id: string,
+  appendDiscoveryExperimentSamplesBody: AppendDiscoveryExperimentSamplesBody,
+  options?: RequestInit,
+): Promise<AppendDiscoveryExperimentSamples200> => {
+  return customFetch<AppendDiscoveryExperimentSamples200>(
+    getAppendDiscoveryExperimentSamplesUrl(id),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(appendDiscoveryExperimentSamplesBody),
+    },
+  );
+};
+
+export const getAppendDiscoveryExperimentSamplesMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof appendDiscoveryExperimentSamples>>,
+    TError,
+    { id: string; data: BodyType<AppendDiscoveryExperimentSamplesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof appendDiscoveryExperimentSamples>>,
+  TError,
+  { id: string; data: BodyType<AppendDiscoveryExperimentSamplesBody> },
+  TContext
+> => {
+  const mutationKey = ["appendDiscoveryExperimentSamples"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof appendDiscoveryExperimentSamples>>,
+    { id: string; data: BodyType<AppendDiscoveryExperimentSamplesBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return appendDiscoveryExperimentSamples(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AppendDiscoveryExperimentSamplesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof appendDiscoveryExperimentSamples>>
+>;
+export type AppendDiscoveryExperimentSamplesMutationBody =
+  BodyType<AppendDiscoveryExperimentSamplesBody>;
+export type AppendDiscoveryExperimentSamplesMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Append samples (batch)
+ */
+export const useAppendDiscoveryExperimentSamples = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof appendDiscoveryExperimentSamples>>,
+    TError,
+    { id: string; data: BodyType<AppendDiscoveryExperimentSamplesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof appendDiscoveryExperimentSamples>>,
+  TError,
+  { id: string; data: BodyType<AppendDiscoveryExperimentSamplesBody> },
+  TContext
+> => {
+  return useMutation(
+    getAppendDiscoveryExperimentSamplesMutationOptions(options),
+  );
+};
+
+/**
+ * @summary List catalog entries
+ */
+export const getListDiscoveryCatalogUrl = (
+  params?: ListDiscoveryCatalogParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/signal-discovery/catalog?${stringifiedParams}`
+    : `/api/signal-discovery/catalog`;
+};
+
+export const listDiscoveryCatalog = async (
+  params?: ListDiscoveryCatalogParams,
+  options?: RequestInit,
+): Promise<ListDiscoveryCatalog200> => {
+  return customFetch<ListDiscoveryCatalog200>(
+    getListDiscoveryCatalogUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListDiscoveryCatalogQueryKey = (
+  params?: ListDiscoveryCatalogParams,
+) => {
+  return [
+    `/api/signal-discovery/catalog`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getListDiscoveryCatalogQueryOptions = <
+  TData = Awaited<ReturnType<typeof listDiscoveryCatalog>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListDiscoveryCatalogParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listDiscoveryCatalog>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListDiscoveryCatalogQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listDiscoveryCatalog>>
+  > = ({ signal }) =>
+    listDiscoveryCatalog(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listDiscoveryCatalog>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListDiscoveryCatalogQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listDiscoveryCatalog>>
+>;
+export type ListDiscoveryCatalogQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List catalog entries
+ */
+
+export function useListDiscoveryCatalog<
+  TData = Awaited<ReturnType<typeof listDiscoveryCatalog>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListDiscoveryCatalogParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listDiscoveryCatalog>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListDiscoveryCatalogQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Upsert a catalog entry (PK is vin+tx+did)
+ */
+export const getUpsertDiscoveryCatalogEntryUrl = () => {
+  return `/api/signal-discovery/catalog`;
+};
+
+export const upsertDiscoveryCatalogEntry = async (
+  discoveryDidCatalogEntryInput: DiscoveryDidCatalogEntryInput,
+  options?: RequestInit,
+): Promise<DiscoveryDidCatalogEntry> => {
+  return customFetch<DiscoveryDidCatalogEntry>(
+    getUpsertDiscoveryCatalogEntryUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(discoveryDidCatalogEntryInput),
+    },
+  );
+};
+
+export const getUpsertDiscoveryCatalogEntryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof upsertDiscoveryCatalogEntry>>,
+    TError,
+    { data: BodyType<DiscoveryDidCatalogEntryInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof upsertDiscoveryCatalogEntry>>,
+  TError,
+  { data: BodyType<DiscoveryDidCatalogEntryInput> },
+  TContext
+> => {
+  const mutationKey = ["upsertDiscoveryCatalogEntry"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof upsertDiscoveryCatalogEntry>>,
+    { data: BodyType<DiscoveryDidCatalogEntryInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return upsertDiscoveryCatalogEntry(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpsertDiscoveryCatalogEntryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof upsertDiscoveryCatalogEntry>>
+>;
+export type UpsertDiscoveryCatalogEntryMutationBody =
+  BodyType<DiscoveryDidCatalogEntryInput>;
+export type UpsertDiscoveryCatalogEntryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Upsert a catalog entry (PK is vin+tx+did)
+ */
+export const useUpsertDiscoveryCatalogEntry = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof upsertDiscoveryCatalogEntry>>,
+    TError,
+    { data: BodyType<DiscoveryDidCatalogEntryInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof upsertDiscoveryCatalogEntry>>,
+  TError,
+  { data: BodyType<DiscoveryDidCatalogEntryInput> },
+  TContext
+> => {
+  return useMutation(getUpsertDiscoveryCatalogEntryMutationOptions(options));
 };
