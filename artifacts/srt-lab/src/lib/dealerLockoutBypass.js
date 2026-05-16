@@ -127,9 +127,9 @@ export async function runDealerLockoutBypass(cfg) {
   /* 3. Clear-lockout routine ───────────────────────────────────────────── */
   {
     const req = build.routineControl({
-      sub: 0x01,                           // startRoutine
-      rid: BYPASS_ROUTINE_ID,
-      data: BYPASS_PAYLOAD,
+      type: 0x01,                          // startRoutine
+      routineIdentifier: BYPASS_ROUTINE_ID,
+      routineOptionRecord: BYPASS_PAYLOAD,
     });
     log(`→ 31 01 FF 00 A5 5A C3 3C (clear lockout)`, 'info');
     const r = await uds(tx, rx, req);
@@ -146,7 +146,7 @@ export async function runDealerLockoutBypass(cfg) {
 
   /* 4. ECU reset ───────────────────────────────────────────────────────── */
   {
-    const req = build.ecuReset({ sub: BYPASS_RESET_TYPE });
+    const req = build.ecuReset({ resetType: BYPASS_RESET_TYPE });
     log(`→ 11 01 (hard reset)`, 'info');
     const r = await uds(tx, rx, req);
     const nrc = parseNrc(r.d);
@@ -163,7 +163,7 @@ export async function runDealerLockoutBypass(cfg) {
 
   /* 5. Re-probe standard SA to confirm lockout cleared ─────────────────── */
   {
-    const req = build.securityAccess({ sub: 0x01 });
+    const req = build.securityAccess({ subFunction: 0x01 });
     log(`→ 27 01 (re-probe)`, 'info');
     const r = await uds(tx, rx, req);
     const nrc = parseNrc(r.d);

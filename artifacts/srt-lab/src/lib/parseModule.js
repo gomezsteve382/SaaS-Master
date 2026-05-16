@@ -26,6 +26,12 @@ const CANONICAL_SIZES_BY_TYPE={
   '95640':[8192],
   GPEC2A:[4096,8192],
   RFHUB:[2048,4096],
+  // Task #634 — XC2268-class RFHUB internal flash dump is 64 KB; ZF-8HP TCU
+  // images are 256 KB / 512 KB / 1 MB depending on variant (845RE / 8HP70 /
+  // 8HP90). Listed here so MODULE_MIN_SIZES / MODULE_MIN_LABELS computes a
+  // valid floor for the inspector's tooSmall guard.
+  XC2268_RFHUB:[65536],
+  ZF_8HP_TCU:[262144,524288,1048576],
 };
 
 /* Canonical VIN slot offsets per module family — SINGLE SOURCE OF TRUTH.
@@ -217,6 +223,8 @@ const MODULE_MIN_SIZES={
   GPEC2A:Math.min(...CANONICAL_SIZES_BY_TYPE.GPEC2A),
   PCM:Math.min(...CANONICAL_SIZES_BY_TYPE.GPEC2A),
   '95640':Math.min(...CANONICAL_SIZES_BY_TYPE['95640']),
+  XC2268_RFHUB:Math.min(...CANONICAL_SIZES_BY_TYPE.XC2268_RFHUB),
+  ZF_8HP_TCU:Math.min(...CANONICAL_SIZES_BY_TYPE.ZF_8HP_TCU),
 };
 
 // Human-readable hint shown in the "Required min" line of each tooSmall
@@ -227,6 +235,8 @@ const MODULE_MIN_LABELS={
   GPEC2A:'4 KB Continental GPEC2A',
   PCM:'4 KB Continental GPEC2A (smallest PCM image)',
   '95640':'8 KB BCM-backup EEPROM (95640)',
+  XC2268_RFHUB:'64 KB Infineon XC2268 internal flash (2019+ RFHUB)',
+  ZF_8HP_TCU:'256 KB / 512 KB / 1 MB ZF-8HP TCU image (845RE / 8HP70 / 8HP90)',
 };
 
 function fileExt(filename){
@@ -296,10 +306,22 @@ function wrongModuleForSlot(bytes,slotType,filename){
   const slotCanonical=CANONICAL_SIZES_BY_TYPE[slotFamily];
   // Size matches the slot's family — not a wrong-module mistake.
   if(slotCanonical&&slotCanonical.includes(sz))return null;
-  // Find every other family this exact size canonically matches.
+  // Find every other family this exact size canonically matches. Header-
+  // signature-required families (Task #634: XC2268_RFHUB needs "XC22"/"RFHUB"
+  // at 0x0000/0x0010, ZF_8HP_TCU needs "ZF8HP" header) are intentionally
+  // excluded from this size-only sweep — including them would make every
+  // 64 KB BCM look like an XC2268 candidate, which is a regression in the
+  // wrong-module hint quality.
+  const HEADER_REQUIRED_TYPES=new Set(['XC2268_RFHUB','ZF_8HP_TCU']);
   const candidates=[];
   for(const type of Object.keys(CANONICAL_SIZES_BY_TYPE)){
     if(type===slotFamily)continue;
+    if(HEADER_REQUIRED_TYPES.has(type)){
+      // Only surface as a candidate if the buffer actually carries the header.
+      if(type==='XC2268_RFHUB'&&isXc2268Rfhub(bytes))candidates.push(type);
+      else if(type==='ZF_8HP_TCU'&&isZf8hpImage(bytes))candidates.push(type);
+      continue;
+    }
     if(CANONICAL_SIZES_BY_TYPE[type].includes(sz))candidates.push(type);
   }
   if(candidates.length===0)return null;

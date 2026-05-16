@@ -55,6 +55,27 @@ describe('dealerLockoutBypass — happy path', () => {
     expect(r.steps.every((s) => s.ok)).toBe(true);
     expect(r.steps.find((s) => s.id === 'alt-sa').note).toContain('rfhub-alt');
   });
+
+  it('builds correct UDS request bytes for each driven step', async () => {
+    const uds = makeStubUds({
+      0x10: posResp(0x10, 0x03),
+      0x31: posResp(0x31, 0x01, 0xFF, 0x00, 0x00),
+      0x11: posResp(0x11, 0x01),
+      0x27: posResp(0x27, 0x01, 0xAA, 0xBB, 0xCC, 0xDD),
+    });
+    const sa = FakeSecurityAccessSource({ default: { ok: true } });
+    await runDealerLockoutBypass({
+      tx: 0x6FF, rx: 0x707, uds, securityAccess: sa, delay: async () => {},
+    });
+    // 0x10 0x03 — extended session
+    expect(uds.calls[0].bytes).toEqual([0x10, 0x03]);
+    // 0x31 0x01 0xFF 0x00 + 4-byte payload — start routine to clear lockout
+    expect(uds.calls[1].bytes).toEqual([0x31, 0x01, 0xFF, 0x00, 0xA5, 0x5A, 0xC3, 0x3C]);
+    // 0x11 0x01 — hard reset
+    expect(uds.calls[2].bytes).toEqual([0x11, 0x01]);
+    // 0x27 0x01 — re-probe standard SA
+    expect(uds.calls[3].bytes).toEqual([0x27, 0x01]);
+  });
 });
 
 describe('dealerLockoutBypass — failure paths', () => {

@@ -74,7 +74,11 @@ import { SizeWarnBanner, ContentWarnBanner } from "../components/ModuleFieldsPan
 // workspace (e.g. '95640' EEPROM backups, EFD payloads, C-Flash blobs)
 // are intentionally excluded — the inspector's UI panels assume one of
 // these three families.
-const INSPECTOR_TYPES = ["GPEC2A", "RFHUB", "BCM"];
+// Task #634: XC2268_RFHUB (2019+ internal-flash RFHUB) and ZF_8HP_TCU (845RE
+// / 8HP70 / 8HP90 transmission images) are first-class inspector families
+// alongside the original three. Their parseModule branches surface VIN
+// slots + CRC status the inspector panels already know how to render.
+const INSPECTOR_TYPES = ["GPEC2A", "RFHUB", "BCM", "XC2268_RFHUB", "ZF_8HP_TCU"];
 
 // Smallest canonical image any inspector-supported family expects (RFHUB
 // Gen1 24C16 at 2 KB). Files smaller than this can't possibly be a real
