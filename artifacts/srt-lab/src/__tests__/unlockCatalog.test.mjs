@@ -24,11 +24,22 @@ function loadCatalog(p) {
 }
 
 test("public/unlock_catalog.json is in sync with the canonical generator output", () => {
-  const a = readFileSync(PUBLIC_PATH, "utf8");
-  const b = readFileSync(REPO_PATH, "utf8");
-  assert.equal(
-    a,
-    b,
+  // Task #634 — the copy step merges hand-curated extension entries
+  // (task634_entries) into public/unlock_catalog.json without touching the
+  // python-bridge source (per project preference: no edits to
+  // tools/python-bridge/). The drift check therefore compares the canonical
+  // fields and ignores the additive `task634_*` keys.
+  const pub = JSON.parse(readFileSync(PUBLIC_PATH, "utf8"));
+  const repo = JSON.parse(readFileSync(REPO_PATH, "utf8"));
+  const stripExt = (o) => {
+    const c = { ...o };
+    delete c.task634_entries;
+    delete c.task634_provenance;
+    return c;
+  };
+  assert.deepStrictEqual(
+    stripExt(pub),
+    stripExt(repo),
     "public/unlock_catalog.json drifted from tools/python-bridge/tools/unlock_catalog.json — run `node artifacts/srt-lab/scripts/copy-unlock-catalog.mjs`",
   );
 });

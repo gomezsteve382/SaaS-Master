@@ -1,6 +1,8 @@
 import {crc16,crc8_42,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic} from './crc.js';
 import {IMMO_BLOCK,TR,WT,WMI,YR,TC,TL} from './constants.js';
 import {arrEq,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,classifyPcmSec6,PCM_VIN_OFFSETS_GPEC2A} from './parseModule.js';
+import {isXc2268Rfhub,parseXc2268Image,patchXc2268Vin} from './xc2268Rfhub.js';
+import {isZf8hpImage,parseZf8hpImage,patchZf8hpVin} from './zf8hp.js';
 
 const IMMO_REC_=24,IMMO_KC_=8;
 const IMMO_BLK_=IMMO_REC_*IMMO_KC_;
@@ -26,6 +28,20 @@ function _countSkim(d,base){
 
 function analyzeFile(buf,name,slotType){
   const data=new Uint8Array(buf);const sz=data.length;let type='UNKNOWN';
+  // Task #634 — header-signature override for header-bearing families
+  // BEFORE the size buckets. Without this, a 64 KB XC2268 RFHUB dump
+  // would be classified as BCM by size alone and the patchFile pipeline
+  // would write at BCM offsets instead of the XC2268 VIN slots — a
+  // direct image-corruption path. The family parser carries its own
+  // write-safety gate (`writeSafe`/`banners`), which patchFile honours.
+  if(isXc2268Rfhub(data)){
+    const parsed=parseXc2268Image(data);
+    return{type:'XC2268_RFHUB',name:TL.XC2268_RFHUB||'XC2268 RFHUB',color:TC.XC2268_RFHUB||'#9E9E9E',size:sz,data,vins:[],partials:[],sec:null,hexOnly:false,sizeWarn:null,contentWarn:null,xc2268:parsed,writeSafe:!!parsed.writeSafe,banners:parsed.banners||[]};
+  }
+  if(isZf8hpImage(data)){
+    const parsed=parseZf8hpImage(data);
+    return{type:'ZF_8HP_TCU',name:TL.ZF_8HP_TCU||'ZF-8HP TCU',color:TC.ZF_8HP_TCU||'#9E9E9E',size:sz,data,vins:[],partials:[],sec:null,hexOnly:false,sizeWarn:null,contentWarn:null,zf8hp:parsed,writeSafe:!!parsed.writeSafe,banners:parsed.banners||[]};
+  }
   if(sz===65536)type='BCM';
   // 128 KB sits at the boundary between BCM and the firmware-class bucket
   // (Task #488). Mirrors parseModule.js: real BCMs have populated VIN slots /
@@ -88,7 +104,23 @@ function analyzeFile(buf,name,slotType){
   return{type,name:TL[type]||type,color:TC[type]||'#9E9E9E',size:sz,data,vins,partials,sec,hexOnly:type==='UNKNOWN',sizeWarn,contentWarn};
 }
 
-function patchFile(f,nv){const out=new Uint8Array(f.data);const vb=new TextEncoder().encode(nv.toUpperCase());const log=[];
+function patchFile(f,nv){
+  // Task #634 — route header-bearing families through their own patchers.
+  // These parsers carry CRC16/CCITT + image-wide / per-block CRC32 logic
+  // that the generic BCM/RFHUB write paths do not implement. Refuses when
+  // the family parser fails its `writeSafe` gate (unknown variant, size
+  // mismatch, broken header) — the safety net the validator asked for.
+  if(f.type==='XC2268_RFHUB'){
+    const r=patchXc2268Vin(f.data,(nv||'').toUpperCase());
+    if(!r.ok)return{data:new Uint8Array(f.data),log:['XC2268 write refused: '+(r.reason||'unknown')]};
+    return{data:r.bytes,log:r.log};
+  }
+  if(f.type==='ZF_8HP_TCU'){
+    const r=patchZf8hpVin(f.data,(nv||'').toUpperCase());
+    if(!r.ok)return{data:new Uint8Array(f.data),log:['ZF-8HP write refused: '+(r.reason||'unknown')]};
+    return{data:r.bytes,log:r.log};
+  }
+  const out=new Uint8Array(f.data);const vb=new TextEncoder().encode(nv.toUpperCase());const log=[];
   // Task #446 — surface silent slot drops. Pre-#446, a parsed VIN slot
   // whose CRC bytes overhang an undersized buffer would silently skip
   // the CRC write while still patching the 17 VIN bytes; the file would

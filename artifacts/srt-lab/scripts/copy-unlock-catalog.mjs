@@ -21,6 +21,12 @@ const ROOT = resolve(__dirname, "..");
 const REPO = resolve(ROOT, "..", "..");
 const SRC = resolve(REPO, "tools/python-bridge/tools/unlock_catalog.json");
 const DST = resolve(ROOT, "public/unlock_catalog.json");
+// Task #634 — hand-curated extension entries are merged in after the
+// canonical copy. Keeps the python-bridge source untouched (per project
+// preference) while still surfacing the new XC2268 / Mopar radio /
+// dealer-lockout / ZF-8HP capabilities in the canonical
+// public/unlock_catalog.json that the frontend fetches.
+const TASK634 = resolve(ROOT, "public/task634_entries.json");
 
 const CHECK = process.argv.includes("--check");
 
@@ -32,7 +38,19 @@ if (!existsSync(SRC)) {
   process.exit(1);
 }
 
-const src = readFileSync(SRC, "utf8");
+function buildMerged() {
+  const base = JSON.parse(readFileSync(SRC, "utf8"));
+  if (existsSync(TASK634)) {
+    const ext = JSON.parse(readFileSync(TASK634, "utf8"));
+    if (ext && Array.isArray(ext.entries) && ext.entries.length) {
+      base.task634_entries = ext.entries;
+      base.task634_provenance = ext.provenance || "task-634";
+    }
+  }
+  return JSON.stringify(base, null, 2) + "\n";
+}
+
+const src = buildMerged();
 const dst = existsSync(DST) ? readFileSync(DST, "utf8") : "";
 
 if (CHECK) {

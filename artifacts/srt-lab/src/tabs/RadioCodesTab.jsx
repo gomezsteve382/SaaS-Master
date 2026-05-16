@@ -9,8 +9,22 @@ import { deriveMoparRadioCode, moparRadioFamilies } from '../lib/moparRadioCode.
 
 export default function RadioCodesTab() {
   const [serial, setSerial] = useState('');
+  const [copied, setCopied] = useState(false);
   const families = useMemo(() => moparRadioFamilies(), []);
   const result = useMemo(() => (serial.trim() ? deriveMoparRadioCode(serial) : null), [serial]);
+
+  const copyPin = async (pin) => {
+    try {
+      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(pin);
+      else {
+        const ta = document.createElement('textarea');
+        ta.value = pin; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch { setCopied(false); }
+  };
 
   return <div style={{ padding: 16, maxWidth: 880 }}>
     <Card style={{ marginBottom: 14 }}>
@@ -40,6 +54,9 @@ export default function RadioCodesTab() {
     {result && result.ok && <Card style={{ marginBottom: 14, background: '#E8F5E9', border: '2px solid ' + C.gn }}>
       <div style={{ fontSize: 11, color: C.gn, fontWeight: 800, letterSpacing: 1.5, marginBottom: 6 }}>✓ PIN DERIVED</div>
       <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 36, fontWeight: 900, color: C.gn, letterSpacing: 8 }}>{result.pin}</div>
+      <div style={{ marginTop: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
+        <Btn onClick={() => copyPin(result.pin)} color={C.gn}>{copied ? 'Copied ✓' : 'Copy PIN'}</Btn>
+      </div>
       <div style={{ marginTop: 8, fontSize: 11, color: C.ts, fontFamily: "'JetBrains Mono'" }}>
         Serial: <b>{result.serial}</b> · Family: <b>{result.family}</b> ({result.label}) · Numeric: <b>{result.numeric}</b>
       </div>
