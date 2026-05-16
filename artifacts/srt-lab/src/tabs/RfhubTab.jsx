@@ -16,6 +16,8 @@ import {getRow} from "../lib/moduleRegistry.js";
 import {programVin} from "../lib/vinProgrammer.js";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 import {build} from "@workspace/uds";
+import {LocalAlgoOverJ2534} from "../lib/securityAccessSource.js";
+import {runDealerLockoutBypass,dealerLockoutBypassSteps} from "../lib/dealerLockoutBypass.js";
 
 // VIN-specific RFHUB CRC algorithms (poly+init pairs derived from real dumps).
 // Used as a hint shown to the user; the actual write goes through UDS so the
@@ -40,6 +42,7 @@ export default function RfhubTab({vehicle}){
   const {vin:masterVin,setModuleStatus,getDumpsByType,addDump,removeDump}=useContext(MasterVinContext);
   const [conn,setConn]=useState(false);
   const [unlocked,setUnlocked]=useState(false);
+  const [lockoutNrc,setLockoutNrc]=useState(null);
   const [busy,setBusy]=useState('');
   const [log,setLog]=useState([]);
   const [curVin,setCurVin]=useState(null);
@@ -91,7 +94,13 @@ export default function RfhubTab({vehicle}){
     const k=sbecKey(sv);
     addLog('SBEC Key: 0x'+hx(k,8)+' [(seed*4)+0x9018]','info');
     const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.securityAccess({subFunction:0x02,data:[(k>>24)&0xFF,(k>>16)&0xFF,(k>>8)&0xFF,k&0xFF]}));
-    if(r.ok&&r.d&&r.d[0]===0x67){setUnlocked(true);addLog('✓ RFHUB UNLOCKED','rx');}
+    if(r.ok&&r.d&&r.d[0]===0x67){setUnlocked(true);setLockoutNrc(null);addLog('✓ RFHUB UNLOCKED','rx');}
+    else if(r.d&&r.d[0]===0x7F&&(r.d[2]===0x36||r.d[2]===0x37)){
+      // Task #634 — surface lockout evidence so the Dealer Lockout Bypass CTA
+      // can enable itself only after the documented trigger NRCs are seen.
+      setLockoutNrc(r.d[2]);
+      addLog('⚠ RFHUB locked out — NRC 0x'+r.d[2].toString(16).toUpperCase()+' ('+(r.d[2]===0x36?'exceededNumberOfAttempts':'requiredTimeDelayNotExpired')+')','warn');
+    }
     else addLog('Unlock failed','error');
     setBusy('');
   },[rfhubAddr,addLog]);
@@ -391,6 +400,18 @@ export default function RfhubTab({vehicle}){
       </div>
     </Card>
 
+    <DealerLockoutBypassCard
+      conn={conn}
+      addr={rfhubAddr}
+      eng={eng}
+      addLog={addLog}
+      busy={busy}
+      setBusy={setBusy}
+      lockoutNrc={lockoutNrc}
+      onCleared={()=>setLockoutNrc(null)}
+      moduleHint={inspectMod}
+    />
+
     <Card style={{marginBottom:14,background:'linear-gradient(135deg,#FFF8F0 0%,#FFE0B2 100%)',border:'2px solid '+C.a1}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
         <div style={{fontWeight:800,fontSize:13,color:C.a1,letterSpacing:1}}>🔑 KEY FOB PROGRAMMING</div>
@@ -489,3 +510,90 @@ export default function RfhubTab({vehicle}){
 }
 
 export {RFHUB_KNOWN_ALGOS};
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * DealerLockoutBypassCard — 2019+ internal-flash RFHUB lockout recovery.
+ * Drives the 5-step machine in dealerLockoutBypass.js using the active
+ * bridge engine + LocalAlgoOverJ2534 source. Surfaces each step's request /
+ * response / NRC inline so the user can see exactly where the chain stops.
+ * The CTA is gated on `conn` — the runner itself returns a clean error
+ * with NRC visibility against legacy Gen1/Gen2 modules that don't expose
+ * alt-level SA, so we don't try to pre-detect internal-flash here.
+ * ────────────────────────────────────────────────────────────────────────── */
+function DealerLockoutBypassCard({ conn, addr, eng, addLog, busy, setBusy, lockoutNrc, onCleared, moduleHint }) {
+  const [report, setReport] = useState(null);
+  const [overrideGate, setOverrideGate] = useState(false);
+  const steps = dealerLockoutBypassSteps();
+  // Trigger policy from Task #634: only enable Run once the standard
+  // unlock has actually surfaced NRC 0x36 or 0x37 AND we have evidence
+  // the connected RFHUB is the internal-flash family (loaded XC2268
+  // dump in the inspector). Bench operators can force-enable with the
+  // override checkbox — UI still records they bypassed the gate.
+  const hasLockoutEvidence = lockoutNrc === 0x36 || lockoutNrc === 0x37;
+  const internalFlashHint = moduleHint && moduleHint.type === 'XC2268_RFHUB';
+  const gateOk = hasLockoutEvidence && (internalFlashHint || overrideGate);
+  const canRun = conn && !busy && (gateOk || overrideGate);
+
+  const onRun = useCallback(async () => {
+    if (!eng.current) { addLog('Connect first', 'error'); return; }
+    setBusy('Running dealer lockout bypass…');
+    setReport(null);
+    try {
+      const uds = (tx, rx, bytes) => eng.current.uds(tx, rx, bytes);
+      const sa = LocalAlgoOverJ2534({ uds, addLog });
+      const r = await runDealerLockoutBypass({
+        tx: addr.tx, rx: addr.rx, uds, securityAccess: sa,
+        delay: (ms) => new Promise((res) => setTimeout(res, ms)),
+        addLog,
+      });
+      setReport(r);
+      if (r.cleared && typeof onCleared === 'function') onCleared();
+      addLog(r.cleared ? '✓ Lockout cleared' : '✗ Bypass did not clear lockout', r.cleared ? 'rx' : 'warn');
+    } catch (e) {
+      addLog('Bypass error: ' + (e && e.message || e), 'error');
+    } finally {
+      setBusy('');
+    }
+  }, [eng, addr, addLog, setBusy, onCleared]);
+
+  return <Card style={{marginBottom:14,background:'#FFF3E0',border:'2px solid '+C.a1}}>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+      <div style={{fontWeight:800,fontSize:13,color:C.a1,letterSpacing:1}}>🛡️ DEALER LOCKOUT BYPASS (2019+ internal-flash RFHUB)</div>
+      <div style={{fontSize:9,fontWeight:800,padding:'3px 8px',background:C.wn+'22',color:C.wn,borderRadius:4,letterSpacing:1,border:'1px solid '+C.wn+'55'}}>⚠ BENCH-PENDING</div>
+    </div>
+    <div style={{padding:10,background:'#FFFDE7',border:'1px solid '+C.wn+'55',borderRadius:6,fontSize:11,color:C.ts,marginBottom:10,lineHeight:1.5}}>
+      Use only when the standard unlock returns <b>NRC 0x36</b> (attempts exceeded) or <b>NRC 0x37</b> (time delay).
+      Runs: extended session → alt-level security access (0x{0x0B.toString(16).toUpperCase()}) → RoutineControl 0xFF00 → ECU reset → re-probe.
+      No-op (returns a visible NRC) on legacy Gen1/Gen2 RFHUBs.
+    </div>
+    <div data-testid="bypass-gate" style={{padding:10,background:'#F8F6F2',border:'1px solid '+C.bd,borderRadius:6,fontSize:11,marginBottom:10,lineHeight:1.6}}>
+      <div style={{fontWeight:800,color:C.ts,marginBottom:4}}>Trigger policy</div>
+      <div>{hasLockoutEvidence ? <span style={{color:C.gn}}>✓ Lockout NRC 0x{lockoutNrc.toString(16).toUpperCase()} observed</span> : <span style={{color:C.tm}}>○ Awaiting NRC 0x36 / 0x37 from standard unlock</span>}</div>
+      <div>{internalFlashHint ? <span style={{color:C.gn}}>✓ Inspector shows XC2268 internal-flash RFHUB</span> : <span style={{color:C.tm}}>○ Load an XC2268 RFHUB dump (or use override below)</span>}</div>
+      <label style={{display:'block',marginTop:6,color:C.tm}}>
+        <input type="checkbox" checked={overrideGate} onChange={(e)=>setOverrideGate(e.target.checked)} style={{marginRight:6}}/>
+        Bench override — run anyway (logs the bypass).
+      </label>
+    </div>
+    <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+      <Btn onClick={onRun} disabled={!canRun} color={C.a1}>▶ Run Bypass</Btn>
+      <span style={{fontSize:10,color:C.tm,fontFamily:"'JetBrains Mono'"}}>Target: TX 0x{addr.tx.toString(16).toUpperCase()} · RX 0x{addr.rx.toString(16).toUpperCase()}</span>
+    </div>
+    <ol style={{marginTop:10,paddingLeft:18,fontSize:11,color:C.ts,lineHeight:1.6}}>
+      {steps.map((s, i) => {
+        const r = report && report.steps[i];
+        const color = !r ? C.tm : (r.ok ? C.gn : C.er);
+        return <li key={s.id} style={{color}}>
+          <b>{s.title}</b>
+          {r && r.request && <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.tm}}>→ {r.request}</div>}
+          {r && r.response && <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.tm}}>← {r.response}</div>}
+          {r && r.reason && <div style={{fontSize:10,color:C.er}}>{r.reason}</div>}
+          {r && r.note && <div style={{fontSize:10,color:C.gn}}>{r.note}</div>}
+        </li>;
+      })}
+    </ol>
+    {report && <div style={{marginTop:8,padding:8,background:report.cleared?'#E8F5E9':'#FFEBEE',borderRadius:6,fontWeight:800,fontSize:12,color:report.cleared?C.gn:C.er}}>
+      {report.cleared ? '✓ Lockout cleared — standard 0x27 0x01 chain can run again' : '✗ Lockout NOT cleared — see step details above'}
+    </div>}
+  </Card>;
+}

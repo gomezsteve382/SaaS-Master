@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "provenance": "task-634",
+  "description": "Competitor-parity additions surfaced for #634. Kept in a dedicated file so the asset-sweep regenerator (which fully rewrites unlock_catalog_extended.json) does not clobber hand-maintained entries. UnlockCoverageTab can optionally fetch this alongside the canonical catalog.",
+  "entries": [
+    {
+      "id": "xc2268_rfhub",
+      "task": 634,
+      "category": "rfhub",
+      "label": "XC2268-class RFHUB (Infineon dealer-tool image)",
+      "module_type": "XC2268_RFHUB",
+      "algorithm": "crc16_ccitt_per_vin_slot",
+      "image_checksum": "crc32_image_wide",
+      "vin_slot_count": 4,
+      "status": "bench-pending",
+      "lib": "src/lib/xc2268Rfhub.js"
+    },
+    {
+      "id": "mopar_radio_code",
+      "task": 634,
+      "category": "radio",
+      "label": "Mopar head-unit PIN deriver",
+      "families": ["RBZ", "RHB", "REJ", "REC", "RAQ", "RA2", "RA3", "RA4"],
+      "algorithm": "per_family_mul_add_mod_10000",
+      "status": "bench-pending",
+      "lib": "src/lib/moparRadioCode.js",
+      "ui": "src/tabs/RadioCodesTab.jsx"
+    },
+    {
+      "id": "dealer_lockout_bypass",
+      "task": 634,
+      "category": "rfhub",
+      "label": "2019+ internal-flash RFHUB dealer lockout bypass",
+      "trigger_nrcs": ["0x36", "0x37"],
+      "alt_security_level": "0x0B",
+      "clear_routine_id": "0xFF00",
+      "reset_type": "0x01",
+      "steps": ["ext-session", "alt-sa", "clear", "reset", "re-probe"],
+      "status": "bench-pending",
+      "lib": "src/lib/dealerLockoutBypass.js",
+      "ui": "src/tabs/RfhubTab.jsx"
+    },
+    {
+      "id": "zf_8hp_tcu",
+      "task": 634,
+      "category": "tcu",
+      "label": "ZF 8HP TCU image (845RE / 8HP70 / 8HP90)",
+      "module_type": "ZF_8HP_TCU",
+      "algorithm": "per_block_crc32_zlib",
+      "block_size_bytes": 65536,
+      "status": "bench-pending",
+      "lib": "src/lib/zf8hp.js"
+    }
+  ]
+}

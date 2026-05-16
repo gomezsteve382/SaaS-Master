@@ -1,4 +1,6 @@
 import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs} from './crc.js';
+import {isXc2268Rfhub,parseXc2268Image} from './xc2268Rfhub.js';
+import {isZf8hpImage,parseZf8hpImage} from './zf8hp.js';
 import {TC,TL,SKIM_VALUES,IMMO_REC,IMMO_KC,IMMO_BLOCK,SKIM_OFF} from './constants.js';
 import {analyzeCflash} from './cflashAnalyzer.js';
 import {BCM_PARTIAL_VIN_OFFSETS,BCM_PARTIAL_VIN_LEN,findBcmPartialVinSlots,BCM_FULL_VIN_BASES_ALT} from './donorLeakScan.js';
@@ -736,6 +738,13 @@ function parseModule(data,filename,opts){
   else if(sz===2048){const sig=detectBySignature(data);type=sig!=='UNKNOWN'?sig:'RFHUB';}
   else if(sz>=1048576)type='CFLASH';
   else if(sz>131072)type='FW';
+  // Task #634 — XC2268-class RFHUB (newer Ram dealer tool image). Header
+  // signature wins over the size bucket so an XC2268 64 KB read isn't
+  // misclassified as BCM. ZF-8HP TCU image (845RE / 8HP70 / 8HP90) is
+  // checked against its own header so 1 MB TCU dumps don't fall through
+  // to the generic CFLASH/FW bucket.
+  if(isXc2268Rfhub(data))type='XC2268_RFHUB';
+  else if(isZf8hpImage(data))type='ZF_8HP_TCU';
   if(type==='UNKNOWN'){
     const CANONICAL_SIZES=[65536,131072,8192,16384,4096];
     const nearCanonical=CANONICAL_SIZES.some(s=>Math.abs(sz-s)<=4096&&sz!==s);
@@ -896,6 +905,53 @@ function parseModule(data,filename,opts){
     }
     info.sec16SourceSlot=1;
     info.rfhGen=sz===4096?'Gen2 (24C32)':sz===8192?'Gen2-x2 (8192B, unusual)':sz===2048?'Gen1 (24C16)':'Unknown';
+  }else if(type==='XC2268_RFHUB'){
+    // Task #634 — Infineon XC2268-class RFHUB. Surface VIN slots + CRC16/CCITT
+    // status + image-wide checksum so the inspector renders bench-ready data
+    // and Diff/Mismatch wizards can cross-check VIN against BCM/ECM.
+    // Field names mirror parseXc2268Image() exactly so a schema drift trips
+    // the new types' tests instead of surfacing as silent undefineds.
+    const x=parseXc2268Image(data);
+    if(!x.ok){info.xc2268={ok:false,reason:x.reason||'parse failed'};info.vins=[];}
+    else{
+      info.xc2268={
+        ok:true,
+        variant:x.variant,
+        variantByte:x.variantByte,
+        variantLabel:x.variantLabel,
+        variantSupported:x.variantSupported,
+        vinSlots:x.vinSlots,
+        imageChecksum:x.imageChecksum,
+        writeSafe:x.writeSafe,
+        banners:x.banners||[],
+      };
+      info.vins=x.vinSlots.filter(v=>v.vin).map(v=>({offset:v.offset,vin:v.vin,sc:v.csStored,cc:v.csCalc,crcOk:v.csOk}));
+    }
+  }else if(type==='ZF_8HP_TCU'){
+    // Task #634 — ZF 8HP TCU image (845RE / 8HP70 / 8HP90). Per-64KB-block
+    // CRC32 (zlib polynomial) is exposed so a VIN patch + re-CRC step has
+    // ground-truth block boundaries to write back into. Field names mirror
+    // parseZf8hpImage() so a schema drift surfaces in tests, not at runtime.
+    const z=parseZf8hpImage(data);
+    if(!z.ok){info.zf8hp={ok:false,reason:z.reason||'parse failed'};info.vins=[];}
+    else{
+      info.zf8hp={
+        ok:true,
+        variant:z.variant,
+        variantLabel:z.variantLabel,
+        variantTag:z.variantTag,
+        variantSupported:z.variantSupported,
+        sizeSupported:z.sizeSupported,
+        vinSlots:z.vinSlots,
+        vin:z.vin,
+        vinAllSlotsMatch:z.vinAllSlotsMatch,
+        blocks:z.blocks,
+        blocksOk:z.blocksOk,
+        writeSafe:z.writeSafe,
+        banners:z.banners||[],
+      };
+      info.vins=z.vinSlots.filter(v=>v.vin).map(v=>({offset:v.offset,vin:v.vin,sc:v.csStored,cc:v.csCalc,crcOk:v.csOk}));
+    }
   }else if(type==='BCM'){
     // Scan canonical slot bases at both base+0 (legacy/no-header layout) and
     // base+8 (Redeye 2020+ layout: 8-byte FEE record header → 17-byte VIN →
