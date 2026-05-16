@@ -1,0 +1,89 @@
+name: Refresh CAN Universe catalog
+
+on:
+  schedule:
+    # Mondays at 06:17 UTC — weekly cadence, off-peak minute
+    - cron: "17 6 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: refresh-can-catalog
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Re-run fetch:can-catalogs and open a PR on diff
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Install dependencies (scripts package only)
+        # The fetcher only uses Node stdlib, so a full workspace install
+        # isn't required. We still install the scripts package so the
+        # `pnpm -F` invocation resolves cleanly.
+        run: pnpm install --filter @workspace/scripts... --frozen-lockfile
+
+      - name: Run the catalog fetcher
+        env:
+          # Optional: GitHub token raises the unauthenticated rate limit
+          # for the per-source commit lookups the fetcher does.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm -F @workspace/scripts run fetch:can-catalogs
+
+      - name: Detect changes
+        id: diff
+        run: |
+          if git diff --quiet -- artifacts/srt-lab/src/lib/awesomeCanbus.generated.js; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No catalog changes — nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Catalog drifted from upstream — opening PR."
+            git --no-pager diff --stat -- artifacts/srt-lab/src/lib/awesomeCanbus.generated.js
+          fi
+
+      - name: Open / update PR
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/refresh-can-catalog
+          base: ${{ github.event.repository.default_branch }}
+          commit-message: "chore(can-universe): refresh upstream catalog"
+          title: "chore(can-universe): refresh upstream catalog"
+          body: |
+            Automated weekly refresh of the CAN Universe catalog.
+
+            Regenerated via `pnpm -F @workspace/scripts run fetch:can-catalogs`
+            from the three upstream sources (iDoka/awesome-canbus,
+            eclipse-sdv-landscape/the-automotive-collection, and
+            ariexi/the-automotive-collection) plus the curated EXTRAS block.
+
+            The CAN Universe tab footer surfaces the new `CATALOG_GENERATED_AT`
+            so users can see when the catalog was last refreshed.
+
+            Review the diff, then merge to roll the change forward. If nothing
+            material changed upstream this PR will simply update timestamps.
+          labels: |
+            automation
+            can-universe
+          add-paths: |
+            artifacts/srt-lab/src/lib/awesomeCanbus.generated.js
+          delete-branch: true
