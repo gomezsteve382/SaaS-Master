@@ -3,19 +3,20 @@
  * Aggregated CAN bus / automotive OSS catalog used by the "CAN Universe"
  * tab (Task #618). Sources:
  *   - iDoka/awesome-canbus  (CC0-1.0)  commit=c1fcc0c71237d474edbee6de82a01786e94ba0d7
+ *   - ajouatom/canbus-tools (fork of iDoka/awesome-canbus)  (CC0-1.0)  commit=fdb062448c6c8f1cd61a94ca9936a51938961fb0
  *   - eclipse-sdv-landscape/the-automotive-collection  (CC-BY-SA-4.0)  commit=a172a6efdd59b41348cea734c9ec7de8a8fc20f9
  *   - ariexi/the-automotive-collection (legacy)  (CC-BY-SA-4.0)  commit=62d24162142445f5d5d01b8f0442ef9dfa4e6ef7
  *   - User-curated additions  (various)  commit=n/a
  *
- * Fetched: 2026-05-16T03:57:02.624Z
- * Total entries (deduped by URL): 485
+ * Fetched: 2026-05-16T13:11:33.385Z
+ * Total entries (deduped by URL): 486
  *
  * Regenerate with:  pnpm -F @workspace/scripts run fetch:can-catalogs
  *
  * Upstream licenses are preserved per-entry via `sources`. The user-facing
  * tab footer credits each source repo with its commit + license. */
 
-export const CATALOG_GENERATED_AT = "2026-05-16T03:57:02.624Z";
+export const CATALOG_GENERATED_AT = "2026-05-16T13:11:33.385Z";
 
 export const CATALOG_SOURCES = [
   {
@@ -24,8 +25,17 @@ export const CATALOG_SOURCES = [
     "license": "CC0-1.0",
     "url": "https://github.com/iDoka/awesome-canbus",
     "commit": "c1fcc0c71237d474edbee6de82a01786e94ba0d7",
-    "fetchedAt": "2026-05-16T03:57:02.624Z",
+    "fetchedAt": "2026-05-16T13:11:33.385Z",
     "entryCount": 244
+  },
+  {
+    "id": "ajouatom",
+    "label": "ajouatom/canbus-tools (fork of iDoka/awesome-canbus)",
+    "license": "CC0-1.0",
+    "url": "https://github.com/ajouatom/canbus-tools",
+    "commit": "fdb062448c6c8f1cd61a94ca9936a51938961fb0",
+    "fetchedAt": "2026-05-16T13:11:33.385Z",
+    "entryCount": 152
   },
   {
     "id": "automotive-collection",
@@ -33,7 +43,7 @@ export const CATALOG_SOURCES = [
     "license": "CC-BY-SA-4.0",
     "url": "https://github.com/eclipse-sdv-landscape/the-automotive-collection",
     "commit": "a172a6efdd59b41348cea734c9ec7de8a8fc20f9",
-    "fetchedAt": "2026-05-16T03:57:02.624Z",
+    "fetchedAt": "2026-05-16T13:11:33.385Z",
     "entryCount": 250
   },
   {
@@ -42,7 +52,7 @@ export const CATALOG_SOURCES = [
     "license": "CC-BY-SA-4.0",
     "url": "https://github.com/ariexi/the-automotive-collection",
     "commit": "62d24162142445f5d5d01b8f0442ef9dfa4e6ef7",
-    "fetchedAt": "2026-05-16T03:57:02.624Z",
+    "fetchedAt": "2026-05-16T13:11:33.385Z",
     "entryCount": 250
   },
   {
@@ -51,7 +61,7 @@ export const CATALOG_SOURCES = [
     "license": "various",
     "url": null,
     "commit": null,
-    "fetchedAt": "2026-05-16T03:57:02.624Z",
+    "fetchedAt": "2026-05-16T13:11:33.385Z",
     "entryCount": 1
   }
 ];
@@ -59,7 +69,7 @@ export const CATALOG_SOURCES = [
 export const CATALOG_CATEGORIES = [
   {
     "name": "Automotive Software",
-    "count": 159,
+    "count": 158,
     "subcategories": [
       {
         "name": "(uncategorized)",
@@ -87,7 +97,7 @@ export const CATALOG_CATEGORIES = [
       },
       {
         "name": "Battery Management System",
-        "count": 6
+        "count": 5
       },
       {
         "name": "Brake System Development",
@@ -233,7 +243,7 @@ export const CATALOG_CATEGORIES = [
   },
   {
     "name": "Hardware",
-    "count": 91,
+    "count": 92,
     "subcategories": [
       {
         "name": "Arduino",
@@ -241,7 +251,7 @@ export const CATALOG_CATEGORIES = [
       },
       {
         "name": "ARM",
-        "count": 7
+        "count": 8
       },
       {
         "name": "ARM · STM32",
@@ -367,7 +377,7 @@ export const CATALOG_CATEGORIES = [
   },
   {
     "name": "Utils",
-    "count": 73,
+    "count": 74,
     "subcategories": [
       {
         "name": "CAN-over-IP",
@@ -383,7 +393,7 @@ export const CATALOG_CATEGORIES = [
       },
       {
         "name": "GUI Tools",
-        "count": 25
+        "count": 26
       },
       {
         "name": "Libraries",
@@ -423,10 +433,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://source.android.com/docs/automotive",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:8f809dc1f2",
+    "id": "automotive-collection:64a2a17d04",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -440,6 +451,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": "automotive-collection: Automotive Grade Linux is a collaborative open source project that is bringing together automakers, suppliers and technology companies to accelerate the development and adoption of a fully open software stack for the connected car.",
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -455,6 +467,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://git.codelinaro.org/clo",
     "description": "a lot of different automotive (I guess) related repos",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -470,6 +483,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/TechNexion/qcacld-2.0",
     "description": "Maybe usable, but has to be checked - The qcacld-2.0 is Qualcomm WIFI module out-of-tree driver.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -485,6 +499,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/ArduPilot",
     "description": "License: mainly GPL-3.0, but also repos with LGPL-3.0, LGPL-2.1, GPL-2.0 MIT, Apache-2.0, BSD 3-Clause, EPL-1.0 - ArduPilot is a trusted, versatile, and open source autopilot system supporting many vehicle types: multi-copters, traditional helicopters, fixed wing aircraft, boats, submarines, rovers and more.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -500,6 +515,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://ardupilot.org/dev/index.html",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -515,10 +531,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.eclipse.org/eclipse/ambientlight/ambient-light-services",
     "description": "Realizes a new interactive lighting concept",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:aacabbd304",
+    "id": "automotive-collection:fd79e8ab53",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -532,6 +549,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -547,6 +565,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://ardupilot.org/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -562,6 +581,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://autocore.ai/index.html",
     "description": "AutoCore is one of the world’s leading high-performance, intelligent mobility software and automotive electrical and electronic architecture (EEA) solution providers. The company focuses on automotive middleware, tailored for different EEA computing platforms of next-generation vehicles.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -577,6 +597,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/autowarefoundation/autoware",
     "description": "the world's leading open-source software project for autonomous driving",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -592,6 +613,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.com/autowarefoundation/autoware_reference_design/-/blob/main/docs/index.md",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -607,6 +629,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-adore/adore",
     "description": "License: EPL-2.0 - Eclipse ADORe provides a modular software library and toolkit for decision making, planning, control and simulation of automated vehicles",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -622,6 +645,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-muto",
     "description": "License: EPL-2.0 - Eclipse Muto provides an adaptive framework and a runtime platform for dynamically composable model-driven ROS software stacks on autonomous vehicles and robots in general.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -637,6 +661,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse-muto.github.io/docs/docs",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -652,6 +677,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/autowarefoundation/openadkit",
     "description": "License: Apache-2.0 - Open AD Kit aims to democratize autonomous drive (AD) systems by bringing the cloud and edge closer together. In doing so, Open AD Kit will lower the threshold for developing and deploying the Autoware software stack by providing an efficient and modernized CI-CD approach.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -667,6 +693,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://autowarefoundation.github.io/open-ad-kit-docs/latest/version-2.0/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -682,10 +709,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/openAUTOSAR/classic-platform",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:27e2d9060d",
+    "id": "automotive-collection:867f8dafad",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -697,6 +725,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse-openbsw.github.io/openbsw/sphinx_docs/doc/index.html#",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -712,6 +741,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-canought",
     "description": "License: Apache-2.0, EPL-2.0 - Eclipse CANought offers the automotive-specific capabilities to enhance the Eclipse Kanto project to offer a comprehensive solution focused on the automotive industry. Eclipse CANought provides extensions to the Eclipse Kanto project focused on automotive market segment capabilities by standardizing and securing CAN communications.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -727,6 +757,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-chariott",
     "description": "License: MIT - The Eclipse Chariott project aims to simplify and enhance in-vehicle software developer productivity by providing a metadata-driven middleware/abstraction layer that allows modern application programming models to target in-vehicle functions through a digital representation of vehicle state and capabilities and provides an extensible and dynamic architecture to access the vehicle hardware and sensors.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -742,6 +773,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-ecal",
     "description": "License: Apache-2.0 - Eclipse eCAL (enhanced Communication Abstraction Layer) is a fast publish-subscribe middleware that can manage inter-process data exchange, as well as inter-host communication.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -757,6 +789,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse-ecal.github.io/ecal/stable/index.html",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -772,6 +805,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-ibeji",
     "description": "License: MIT - Eclipse Ibeji aims to provide the capability to express a digital representation of the vehicle state and its capabilities through an extensible, open and dynamic architecture that provides access to the vehicle hardware, sensors and capabilities.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -787,6 +821,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://iceoryx.io/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -804,6 +839,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "rust"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -819,6 +855,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-kanto",
     "description": "License: Apache-2.0, EPL-2.0 - Eclipse Kanto is a modular IoT edge software stack for devices that enables them for AIoT with all the essentials - cloud connectivity and digital twins, local messaging, container management and software updates - all configurable and remotely manageable by an IoT cloud ecosystem of choice.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -834,6 +871,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse.dev/kanto/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -852,6 +890,7 @@ export const CATALOG_ENTRIES = [
       "c",
       "c++"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -867,6 +906,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-p3com/p3com",
     "description": "License: Apache-2.0 - Eclipse p3com - portable pluggable publish/subscribe communication",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -882,6 +922,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-uprotocol",
     "description": "License: Apache-2.0 - Eclipse uProtocol provides a transport agnostic, layered communication protocol that is deployment, OS, and device (vehicle, cloud, mobile phone, charging station, etc...) agnostic, leveraging well-known existing automotive and Internet standards.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -897,6 +938,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://uprotocol.org/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -912,6 +954,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-zenoh",
     "description": "License: Apache-2.0, EPL-2.0 - Zenoh (Zero Overhead Network Protocol) is a pub/sub/query protocol unifying data in motion, data at rest and computations.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -927,6 +970,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://zenoh.io/docs/overview/what-is-zenoh/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -942,6 +986,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/iDoka/awesome-canbus",
     "description": "This curated list helps a reverse engineering CAN bus devices with lightly specializing in automotive embedded controller software and communication understanding.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -957,6 +1002,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-cyclonedds/cyclonedds",
     "description": "License: EPL-2.0 - Eclipse Cyclone DDS is a very performant and robust open-source implementation of the OMG DDS specification.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -972,6 +1018,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/doip/doip",
     "description": "License: LGPL-3.0 - Diagnostics over IP",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -989,6 +1036,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c++"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1006,6 +1054,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "rust"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1021,6 +1070,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-opensovd",
     "description": "License: Apache-2.0 - This Github organization contains artifacts developed by the Eclipse OpenSOVD Project.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1036,6 +1086,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/some-ip-com/open-someip-spec",
     "description": "License: Community Specification License 1.0 - The Open SOME/IP Specification enables Open-Source SOME/IP implementations as well as defining a central specification anchor for different SOME/IP standards.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1051,6 +1102,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/COVESA/Open1722",
     "description": "Open1722 is an implementation of the IEEE 1722 protocol, for streaming audio/video, tunneling CAN/LIN messages and enabling remote access to peripheral bus systems.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1066,6 +1118,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/shreaker/OpenXCP",
     "description": "License: MIT, GPL-2.0, GPL-3.0 - An open source XCP based measurement and calibration system for automotive ECUs",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1081,6 +1134,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/vtz/opensomeip",
     "description": "License: Apache-2.0 - An implementation of the Scalable service-Oriented MiddlewarE over IP (SOME/IP) protocol for automotive and embedded systems. Safety alignment work is ongoing; no safety certification is claimed.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1096,6 +1150,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/COVESA/vsomeip",
     "description": "License: MPL-2.0 - vSomeIP - The vSomeIP stack implements the http://some-ip.com/ (Scalable service-Oriented MiddlewarE over IP (SOME/IP)) Protocol.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1113,6 +1168,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "windows"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1128,6 +1184,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://enaccess.org/materials/battery-management-system/",
     "description": "Save time and money by using an Open Source Battery Management System (BMS), suitable for various applications.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1143,10 +1200,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/EnnoidMe/ENNOID-BMS",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:7aae4259f7",
+    "id": "automotive-collection:3f3246a764",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -1158,6 +1216,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/LibreSolar/bms-c1#features",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1173,21 +1232,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/LibreSolar/bms-firmware",
     "description": "",
     "tags": [],
-    "license": "CC-BY-SA-4.0"
-  },
-  {
-    "id": "automotive-collection:3f3246a764",
-    "source": "automotive-collection",
-    "sources": [
-      "automotive-collection",
-      "ariexi-automotive"
-    ],
-    "category": "Automotive Software",
-    "subcategory": "Battery Management System",
-    "name": "Hardware",
-    "url": "https://github.com/LibreSolar/bms-c1",
-    "description": "",
-    "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1203,6 +1248,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://blog.ennoid.me/2020/02/ennoid-bms-setup.html",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1218,6 +1264,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/NguyenTuChung01/AntilockBrakingSystemInCarsim",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1233,6 +1280,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-ecsp",
     "description": "License: Apache-2.0 - Eclipse Connected Services Platform (CSP) offers a comprehensive platform with all the essential components needed by automotive OEMs to develop end-to-end connected vehicle software solutions",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1248,6 +1296,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse-ecsp.github.io/ecsp-website/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1263,6 +1312,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-ankaios/ankaios",
     "description": "License: Apache-2.0 - Eclipse Ankaios provides workload and container orchestration for automotive High Performance Computing (HPC) software.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1278,6 +1328,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-ankaios-dashboard/ankaios-dashboard",
     "description": "License: MIT - The Ankaios Dashboard ist the ui interface for Eclipse Ankaios project.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1293,6 +1344,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse-ankaios.github.io/ankaios/latest/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1308,6 +1360,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-bluechi",
     "description": "License: LGPL-2.1-or-later - Eclipse BlueChi is a deterministic multi-node service controller. BlueChi can manage the states of different services across multiple nodes with a focus on highly regulated industries, such as those requiring functional safety.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1323,6 +1376,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://bluechi.readthedocs.io/en/latest/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1338,6 +1392,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-pullpiri",
     "description": "License: Apache-2.0 - The main goal of Eclipse Pullpiri project is to develop an efficient vehicle service orchestrator framework to realize the potential benefits of cloud native technologies for in-vehicle services and...",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1353,6 +1408,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-symphony",
     "description": "License: MIT - Project Symphony is an Eclipse Foundation open-source orchestration platform that simplifies workload management across diverse devices and service vendors. It integrates existing systems without modification, delivering a unified, consistent workflow for seamless operations.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1368,6 +1424,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-symphony/symphony/tree/main/docs",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1383,6 +1440,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/bosch-engineering/automotive_data_transformer_support",
     "description": "License: MIT - The Automotive Data Transformer is a cloud-native measurement data processor to convert MDF files to Parquet, CSV or JSON formats, just with easy API requests.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1398,6 +1456,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://dataspace.eclipse.org/",
     "description": "provide a forum for individuals and organisations to build and promote open source software, specifications, and open collaboration models needed to create scalable, modular, extensible, industry-ready open source components based on open standards for dataspaces.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1413,6 +1472,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://openmdm.org/",
     "description": "openMDM® 5 is a kit of components and concepts, which can be used to compose applications for measured data management systems.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1428,6 +1488,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-tractusx",
     "description": "License: Apache-2.0 - The Eclipse Tractus-X™ project is the official open-source project in the Catena-X ecosystem under the umbrella of the Eclipse Foundation. The Catena-X Automotive Network e.V. promotes, sponsors, and coordinates the overlying requirements of the Eclipse Tractus-X Project. Catena-X is the first open and collaborative data ecosystem.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1443,6 +1504,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse-tractusx.github.io/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1458,6 +1520,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.eclipse.org/eclipse/mdmbl",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1473,6 +1536,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/YangModels/yang",
     "description": "License: EPL-1.0, IEEE, IETF Trust, Broadband Forum, Vendor specific - Yet Another Next Generation (YANG) is a data modeling language for the definition of data sent over network management protocols such as the NETCONF and RESTCONF. Developed and maintained by the NETMOD working group in the Internet Engineering Task Force (IETF), YANG was initially published as RFC 6020 in October 2010, with a significant update to version 1.1 in August 2016 (RFC 7950).",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1490,6 +1554,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1505,6 +1570,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse-leda.github.io/leda/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1520,6 +1586,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-leda/leda-contrib-cloud-connector",
     "description": "License: Apache-2.0 - The repository contains the cloud connector component used in the Eclipse Leda stack.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1535,6 +1602,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-leda/leda-contrib-self-update-agent",
     "description": "License: Apache-2.0 - The self update agent (SUA) is a component responsible for the OS Update process.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1550,6 +1618,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-leda/leda-contrib-vehicle-update-manager",
     "description": "License: Apache-2.0 - This repository contains the vehicle update manager component used in the Software Defined Vehicle EDGE stack.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1565,6 +1634,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://openems.github.io/openems.io/openems/latest/introduction.html",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1580,6 +1650,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/OpenEMS/openems",
     "description": "License: EPL-2.0, AGPL-3.0 - OpenEMS - the Open Source Energy Management System - is a modular platform for energy management applications. It was developed around the requirements of monitoring, controlling, and integrating energy storage together with renewable energy sources and complementary devices and services like electric vehicle charging stations, heat-pumps, electrolysers, time-of-use electricity tariffs and more.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1595,6 +1666,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/evcc-io/evcc",
     "description": "is an extensible EV Charge Controller and home energy management system.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1610,6 +1682,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://everest.github.io/nightly/",
     "description": "is an open source modular framework for setting up a full stack environment for EV charging.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1625,6 +1698,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://lfenergy.org/projects/everest/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1640,6 +1714,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/COVESA",
     "description": "Connected Vehicle Systems Alliance",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1655,6 +1730,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-kuksa",
     "description": "License: Apache-2.0 - The open Eclipse KUKSA™ project aims to provide shared building blocks for the Software Defined Vehicles that can be shared across the industry.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1670,6 +1746,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse-kuksa.github.io/kuksa-website/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1685,6 +1762,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-archived/kuksa.val",
     "description": "License: Apache-2.0 - archived",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1700,6 +1778,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/COVESA/ifex-viewer/",
     "description": "License: Apache-2.0 - The IFEX Viewer is a web component designed to display API specifications created with the Interface Exchange Framework (IFEX) and is capable of rendering all elements specified in the IFEX Core IDL.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1715,6 +1794,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://swagger.io/",
     "description": "Simplify your API development with our open‑source and professional tools, built to help you and your team efficiently design and document APIs at scale.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1732,6 +1812,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "qt"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1747,6 +1828,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/okcar-os/android",
     "description": "OkcarOS is an open-source system built on top of LineageOS/Android 13, specifically customized for automotive use.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1764,6 +1846,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "qt"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1779,6 +1862,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://docs.pilot.auto/reference-design/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1794,6 +1878,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://hackaday.io/project/191356-pilot-drive-an-open-source-headunit",
     "description": "an open source headunit - A free and open source software & hardware vehicle headunit",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1809,6 +1894,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://pilot-drive.readthedocs.io/en/latest/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1824,6 +1910,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/lamemakes/pilot-drive-HAT",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1839,6 +1926,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/lamemakes/pilot-drive",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1854,6 +1942,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://odr.chalmers.se/server/api/core/bitstreams/fed5b418-2a21-4177-b0db-4f449bf5ac5c/content",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1869,6 +1958,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://docs.web.auto/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1888,10 +1978,11 @@ export const CATALOG_ENTRIES = [
       "windows",
       "gui"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:8df24085d3",
+    "id": "automotive-collection:1f901590a3",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -1905,6 +1996,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1920,6 +2012,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://wayland.freedesktop.org/",
     "description": "Wayland is a replacement for the X11 window system protocol and architecture with the aim to be easier to develop, extend, and maintain.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1935,6 +2028,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.freedesktop.org/wayland/weston",
     "description": "Weston is a Wayland compositor designed for correctness, reliability, predictability, and performance. It is tailored for desktop use cases.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1952,6 +2046,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1967,6 +2062,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/apache/nuttx",
     "description": "Apache NuttX is a real-time operating system (RTOS) with an emphasis on standards compliance and small footprint. Scalable from 8-bit to 64-bit microcontroller environments, the primary governing standards in NuttX are POSIX and ANSI standards.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1982,6 +2078,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/glen-mac/DreamyOS-seL4-Operating-System-AOS",
     "description": "A Simple Operating System for the seL4 Micro Kernel",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -1997,6 +2094,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-oniro4openharmony",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2012,6 +2110,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-oniro-mirrors/",
     "description": "Welcome to the Eclipse Oniro Mirrors - This space mirrors all repositories from the OpenHarmony organization at gitee. These mirrored repositories are read-only and consumed by Eclipse Oniro build system.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2027,6 +2126,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://docs.oniroproject.org/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2042,6 +2142,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitee.com/organizations/haloos/projects",
     "description": "License: Apache-2.0 - HaloOS is an open-source alternative to AUTOSAR Classic and Adaptive for both microcontrollers (µC) and microprocessors (µP). (based on NuttX)",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2057,6 +2158,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitee.com/haloos/docs",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2072,6 +2174,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/oxidecomputer/hubris",
     "description": "License: MPL-2.0 - Hubris is a microcontroller operating environment designed for deeply-embedded systems with reliability requirements. Its design was initially proposed in RFD41, but has evolved considerably since then.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2087,6 +2190,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://hubris.oxide.computer/reference/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2102,6 +2206,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/kernkonzept/manifest",
     "description": "The L4Re Runtime Environment is an operating system framework for building systems with real-time, security, safety and virtualization requirements.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2117,6 +2222,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://micro.ros.org/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2132,6 +2238,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://nuttx.apache.org/docs/latest/index.html",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2147,6 +2254,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/OpenAMP/open-amp",
     "description": "License: BSD-3-Clause. BSD-2-Clause, Apache-2.0, GPL-2.0 - The main OpenAMP library implementing RPMSG, Virtio, and Remoteproc for RTOS etc.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2162,6 +2270,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://openamp.readthedocs.io/en/latest/index.html",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2177,6 +2286,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitee.com/openharmony/docs/tree/master/en/application-dev",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2192,6 +2302,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/openharmony",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2207,10 +2318,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitee.com/openharmony",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:2ec19eae28",
+    "id": "automotive-collection:ffd35a7385",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -2225,6 +2337,7 @@ export const CATALOG_ENTRIES = [
       "rust",
       "linux"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2240,6 +2353,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/seL4",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2255,6 +2369,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://sel4.discourse.group/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2270,6 +2385,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/mskordal/SeL4-hello-world",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2285,6 +2401,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://systemd.io/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2300,6 +2417,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-threadx/rtos-docs",
     "description": "Eclipse ThreadX is a real time operating system (RTOS) for Internet of Things (IoT) and edge devices powered by microcontroller units (MCUs).",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2315,6 +2433,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/tock/tock",
     "description": "License: Apache-2.0, MIT - Tock is an embedded operating system designed for running multiple concurrent, mutually distrustful applications on Cortex-M and RISC-V based embedded platforms.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2332,6 +2451,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "rust"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2347,6 +2467,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://veecle.github.io/veecle-os/user-manual/introduction.html",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2362,10 +2483,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/zephyrproject-rtos",
     "description": "The Zephyr Project is a scalable real-time operating system (RTOS) supporting multiple hardware architectures, optimized for resource constrained devices, and built with security in mind.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:f5ab29e26c",
+    "id": "automotive-collection:b69f226e4d",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -2377,6 +2499,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://docs.zephyrproject.org/latest/introduction/index.html#",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2392,6 +2515,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://esyncalliance.org/",
     "description": "Standardizing Automotive OTA",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2407,6 +2531,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/esync-alliance",
     "description": "containing",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2422,6 +2547,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/esync-alliance/meta-ewaol-esync",
     "description": "License: venmdor specific",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2437,6 +2563,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://mender.io",
     "description": "Mender provides a complete over-the-air (OTA) update infrastructure for developers and support teams. Whether in the field or the factory, remotely and easily manage device software without the need for manual labor.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2454,6 +2581,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "cli"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2471,6 +2599,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2488,6 +2617,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2503,6 +2633,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/CSA-FEDERATE/Proposed-BuildingBlocks",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2518,6 +2649,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://federate-sdv.eu/",
     "description": "European Software-Defined Vehicle of the Future (SDVoF) Initiative",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2533,6 +2665,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/CSA-FEDERATE",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2548,6 +2681,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/iavofficial/IAV_quantumSAR",
     "description": "License: Apache-2.0 - IAV quantumSAR is planned as an AUTOSAR Cryptodriver with a collection of post-quantum cryptographic algorithms for microcontroller presented by IAV GmbH.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2565,6 +2699,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2580,6 +2715,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://architecture.docs.soafee.io/en/latest/index.html",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2595,10 +2731,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse-automotive-processes.readthedocs.io/en/latest/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:92593526fb",
+    "id": "automotive-collection:4ef8608985",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -2610,6 +2747,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://www.digital.auto/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2625,6 +2763,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://docs.digital.auto/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2640,6 +2779,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://playground.digital.auto/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2655,6 +2795,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-autowrx",
     "description": "License: MIT- Eclipse AutoWRX is the open source implementation of digital.auto, an industry-wide initiative enabling the automotive industry to establish a new, digital-first approach for the creation of next-generation customer experiences and data-driven mobility services.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2670,6 +2811,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse-score.github.io/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2685,6 +2827,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-score",
     "description": "License: Apache-2.0 - The Eclipse Safe Open Vehicle Core project aims to develop an open-source core stack for Software Defined Vehicles (SDVs), specifically targeting embedded high-performance Electronic Control Units (ECUs).",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2700,6 +2843,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-sdv-blueprints",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2715,6 +2859,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-sdv-lvl/sdv-lvl",
     "description": "License: Creative Commons Attribution-ShareAlike 4.0 International - Eclipse SDV-LVL (Eclipse Software-Defined Vehicle Levels of Value & Lifecycle) provides a vendor-neutral framework for assessing the maturity of software-defined vehicles.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2730,10 +2875,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.com/soafee/ewaol/meta-ewaol",
     "description": "Edge Workload Abstraction and Orchestration Layer",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:4bd3c42ad2",
+    "id": "automotive-collection:26d0512f75",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -2745,10 +2891,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://www.sdv.guide/",
     "description": "The SDV Guide offers a comprehensive introduction to Software-Defined Vehicles (SDVs).",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:bb15575692",
+    "id": "automotive-collection:2a542b3a7d",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -2760,6 +2907,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://www.soafee.io/",
     "description": "Scalable Open Architecture for Embedded Edge (SOAFEE)",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2775,6 +2923,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.com/soafee",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2790,6 +2939,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/quarterbit/SoftwareDefinedCarMap",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2805,6 +2955,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://link.springer.com/content/pdf/10.1007/978-3-030-88221-1.pdf",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2822,6 +2973,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "dart"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -2843,13 +2995,15 @@ export const CATALOG_ENTRIES = [
       "windows",
       "qt"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
     "id": "awesome-canbus:59b4019042",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "Converters and Parsers",
@@ -2857,13 +3011,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/julietkilo/CANBabel",
     "description": "Translator for several CAN description formats (supports KCD r/w and DBC read).",
     "tags": [],
+    "notes": "ajouatom: Translator for several CAN description formats (supports KCD r/w and DBC read)",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:f377be6de9",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "Converters and Parsers",
@@ -2871,13 +3027,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/skysky97/Candb",
     "description": "Generate CAN dbc file with OEM defined CAN matrix (xls).",
     "tags": [],
+    "notes": "ajouatom: Generate CAN dbc file with OEM defined CAN matrix (xls)",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:8e4d14c50a",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "Converters and Parsers",
@@ -2885,13 +3043,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/ebroecker/canmatrix",
     "description": "Converting CAN Database Formats .arxml .dbc .dbf .kcd.",
     "tags": [],
+    "notes": "ajouatom: Converting CAN Database Formats .arxml .dbc .dbf .kcd",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:54f511e72c",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "Converters and Parsers",
@@ -2901,13 +3061,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "cli"
     ],
+    "notes": "ajouatom: a set of libraries and command line tools for handling ASC, BLF, CLG, VSB, MDF, and DBC files",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:7bec4c99a8",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "Converters and Parsers",
@@ -2917,6 +3079,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": "ajouatom: CAN BUS tools in Python; ajouatom: CAN tools in python for DBC, KCD, SYM, ARXML 4 and CDD file parsing",
     "license": "CC0-1.0"
   },
   {
@@ -2933,13 +3096,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c++"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:b377873983",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "Converters and Parsers",
@@ -2947,13 +3112,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/howerj/dbcc",
     "description": "DBC to C (and CSV, JSON and XML) compiler using the mpc parser combinator library.",
     "tags": [],
+    "notes": "ajouatom: DBC to C (and CSV, JSON and XML) compiler using the mpc parser combinator library",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:9d97cf45aa",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "DBC only",
@@ -2961,6 +3128,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/CSS-Electronics/can_decoder",
     "description": "API module for decoding raw CAN bus data to physical values using a DBC CAN database.",
     "tags": [],
+    "notes": "ajouatom: API module for decoding raw CAN bus data to physical values using a DBC CAN database",
     "license": "CC0-1.0"
   },
   {
@@ -2977,13 +3145,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "gui"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:0cfc6d71e8",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "DBC only",
@@ -2991,6 +3161,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/GENIVI/CANdb",
     "description": "Library for parsing DBC - CAN bus database description formats.",
     "tags": [],
+    "notes": "ajouatom: Library for parsing DBC - CAN bus database description formats",
     "license": "CC0-1.0"
   },
   {
@@ -3007,13 +3178,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:8f796df913",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "DBC only",
@@ -3021,13 +3194,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/msalau/dbc-parser",
     "description": "A Flex/Bison/Lemon parser/scanner for DBC files.",
     "tags": [],
+    "notes": "ajouatom: A Flex/Bison/Lemon parser/scanner for DBC files",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:41038f8cb1",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "DBC only",
@@ -3037,6 +3212,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c++"
     ],
+    "notes": "ajouatom: C/C++ DBC file parser/tool",
     "license": "CC0-1.0"
   },
   {
@@ -3051,6 +3227,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/driftregion/dbcview",
     "description": "DBC visualization tool - plots a graph of sending and receiving nodes linked by messages.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -3065,6 +3242,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Sauci/pydbc",
     "description": "AST generator for dbc format.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -3079,13 +3257,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/christoph2/pydbc",
     "description": "Process vehicle network descriptions (CAN .dbc files).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:2ec345e612",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "DBC only",
@@ -3093,13 +3273,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/kdschlosser/vector_dbc",
     "description": "Modified version of the dbc file parser of eerimoq.",
     "tags": [],
+    "notes": "ajouatom: modified version of the dbc file parser of eerimoq",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:ef0fda64d6",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "DBC only",
@@ -3107,6 +3289,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://bitbucket.org/tobylorenz/vector_dbc",
     "description": "Library to access CAN Databases (aka CANdb, aka DBC files) from Vector Informatik.",
     "tags": [],
+    "notes": "ajouatom: library to access CAN Databases (aka CANdb, aka DBC files) from Vector Informatik",
     "license": "CC0-1.0"
   },
   {
@@ -3124,6 +3307,7 @@ export const CATALOG_ENTRIES = [
       "python",
       "gui"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -3138,13 +3322,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/commaai/cabana",
     "description": "CAN visualizer and DBC maker (a tool developed to view raw CAN data; one use for this is creating and editing CAN Dictionaries (DBC files)).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
-    "id": "awesome-canbus:b55fef3700",
+    "id": "awesome-canbus:7b76d22bfe",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "Formats (DBC, KCD) · DBC",
@@ -3152,13 +3338,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://www.csselectronics.com/screen/page/can-dbc-file-database-intro/language/en",
     "description": "A Simple Intro to DCB file format.",
     "tags": [],
+    "notes": "ajouatom: A Simple Intro to DCB file format",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:14acbac64f",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "Formats (DBC, KCD) · DBC",
@@ -3166,13 +3354,15 @@ export const CATALOG_ENTRIES = [
     "url": "http://socialledge.com/sjsu/index.php/DBC_Format",
     "description": "Brief explanations about various sections, many examples and explains multiplexed signals well.",
     "tags": [],
+    "notes": "ajouatom: Brief explanations about various sections, many examples and explains multiplexed signals well",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:dd9bd1ae15",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "Formats (DBC, KCD) · DBC",
@@ -3180,13 +3370,15 @@ export const CATALOG_ENTRIES = [
     "url": "http://read.pudn.com/downloads766/ebook/3041455/DBC_File_Format_Documentation.pdf",
     "description": "Leaked DBC file format specification v1.0 (the obsolete specification).",
     "tags": [],
+    "notes": "ajouatom: Leaked DBC file format specification v1.0 (the obsolete specification)",
     "license": "CC0-1.0"
   },
   {
-    "id": "awesome-canbus:0603590f19",
+    "id": "awesome-canbus:6b221a7be8",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "Formats (DBC, KCD) · DBC",
@@ -3194,13 +3386,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://www.kvaser.com/developer-blog/an-introduction-j1939-and-dbc-files/",
     "description": "An Introduction to J1939 and DBC files.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:aeb1b72874",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "CAN Database",
     "subcategory": "Formats (DBC, KCD) · DBC · KCD",
@@ -3208,6 +3402,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/julietkilo/kcd",
     "description": "An open format to describe communication relationships in CAN. similar to DBC format but written in XML.",
     "tags": [],
+    "notes": "ajouatom: An open format to describe communication relationships in CAN. similar to DBC format but written in XML",
     "license": "CC0-1.0"
   },
   {
@@ -3223,6 +3418,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/opencloud-eu",
     "description": "Self-Hosted File Sharing - Secure, Simple and Reliable",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3238,6 +3434,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/hynesconnor/formula1-telemetry-tool",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3253,6 +3450,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.eclipse.org/eclipse/sphinx",
     "description": "License: EPL-2.0 - Eclipse Sphinx™ provides a modeling tool platform for Eclipse that eases the development of IDE-like tool support for modeling languages used in software and systems development.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3270,6 +3468,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "gui"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3285,10 +3484,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://winery.readthedocs.io/en/latest/index.html",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:eb9f8ad994",
+    "id": "automotive-collection:2b86867901",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -3300,6 +3500,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://www.planttext.com/",
     "description": "The expert's design tool. PlantText is a fast, online UML diagram generator powered by PlantUML.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3315,6 +3516,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse.dev/sirius/sirius-web.html",
     "description": "An open-source low-code platform for defining custom web applications that support your specific visual languages",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3330,6 +3532,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://mbse-syson.org/",
     "description": "The NextGen SysML Modeling Tool",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3345,6 +3548,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.eclipse.org/eclipse/app4mc",
     "description": "License: EPL-2.0 - Eclipse APP4MC is a platform for engineering embedded multi- and many-core software systems. The platform enables the creation and management of complex tool chains including simulation and validation.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3360,6 +3564,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.eclipse.org/eclipse/autoapiframework",
     "description": "License: Apache-2.0 - Decoupling of the application logic from the basic software stack enables automotive suppliers (no matter if Tier-1 or in-house teams at an OEM) to contribute with building blocks to Software-defined Vehicle (SDV) projects. The Eclipse Automotive API Framework provides a stable application-facing interface, thereby minimizing the prevalence of proprietary solutions throughout the automotive sector.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3375,6 +3580,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-theia/theia",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3390,6 +3596,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://theia-ide.org/docs/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3405,6 +3612,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-velocitas",
     "description": "License: Apache-2.0 - Eclipse Velocitas provides a development toolchain to create containerized in-vehicle applications (Vehicle Apps) that offers a comfortable, fast and efficient development experience to increase the velocity of a development team.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3420,6 +3628,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse.dev/velocitas/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3435,10 +3644,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/aesc-silicon/elements-sdk",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:8bea38b84c",
+    "id": "automotive-collection:8482c35012",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -3452,6 +3662,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "rust"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3467,6 +3678,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://plane.so/",
     "description": "An open-source project management tool.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3482,6 +3694,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/makeplane/plane",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3497,6 +3710,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/microsoft/AirSim",
     "description": "AirSim is a simulator for drones, cars and more, built on Unreal Engine (we now also have an experimental Unity release). It is open-source, cross platform, and supports software-in-the-loop simulation with popular flight controllers such as PX4 & ArduPilot and hardware-in-loop with PX4 for physically and visually realistic simulations.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3512,10 +3726,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://microsoft.github.io/AirSim/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:7742e94a9a",
+    "id": "automotive-collection:2730cf7c40",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -3529,10 +3744,11 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:7b95c7efea",
+    "id": "automotive-collection:1a33a05fa2",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -3546,10 +3762,11 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:7daf4fab36",
+    "id": "automotive-collection:2a2daf2994",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -3563,10 +3780,11 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:6e9f4381d3",
+    "id": "automotive-collection:5b99dc8f12",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -3580,10 +3798,11 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:3ad88973cd",
+    "id": "automotive-collection:a074081978",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -3597,10 +3816,11 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:94aa77e954",
+    "id": "automotive-collection:9160a86e6c",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -3614,10 +3834,11 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:fdf977d688",
+    "id": "automotive-collection:cc99060b0a",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -3631,6 +3852,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3646,6 +3868,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://carla.readthedocs.io/en/latest/",
     "description": "CARLA is an open-source autonomous driving simulator. It was built from scratch to serve as a modular and flexible API to address a range of tasks involved in the problem of autonomous driving.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3661,10 +3884,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://boschglobal.github.io/dse.doc/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:99b8faa6d5",
+    "id": "automotive-collection:b3e6207c14",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -3676,6 +3900,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/boschglobal?q=dse&type=all",
     "description": "License: Apache-2.0 - The Dynamic Simulation Environment is a message based distributed simulation platform which defines the interface between models as signal vectors. Signal vectors are a logical grouping of either scalar or binary data which are exchanged between models at discrete points in time. Models may be developed in any programming language and may run on any operating system or hardware platform.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3691,6 +3916,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse/cloe",
     "description": "License: Apache-2.0 - Eclipse Cloe™ provides an enhanced middleware solution for closed-loop simulations, with a focus on functional software tests on system level.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3706,6 +3932,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-mosaic",
     "description": "License: EPL-2.0 - Eclipse MOSAIC™ provides a multi-domain/multi-scale co-simulation environment for virtual testing of connected and automated driving and mobility solutions.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3721,6 +3948,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse.dev/mosaic/docs/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3736,6 +3964,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-openmcx/openmcx",
     "description": "License: Apache-2.0 - Eclipse OpenMCx™ is an open, tool-neutral co-simulation middleware based upon Modelica simulation standards, such as Functional Mock-up Interface (FMI) and Distributed-Co-Simulation-Protocol (DCP) , aiming to support advanced simulation applications with a heterogenous toolchain in a distributed collaborative development process.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3751,6 +3980,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.eclipse.org/eclipse/openpass",
     "description": "License: EPL-2.0 - Eclipse openPASS™ (open Platform for Assessment of Safety Systems) tool is a developed framework for the simulation of interaction between traffic participants to evaluate and parametrize active safety systems.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3766,6 +3996,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://openpass.eclipse.org/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3781,6 +4012,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.eclipse.org/eclipse/scm",
     "description": "License: EPL-2.0 - The Stochastic Cognitive Model (SCM) is a driver behavior model for the use in multi-agent highway traffic simulations",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3796,6 +4028,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.eclipse.org/eclipse/dco/developer-console",
     "description": "License: Apache-2.0 - Eclipse SDV Developer Console (DCO) integrates necessary sources for software lifecycle management and there by optimizes the complete process from development to release of software.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3811,6 +4044,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-sumo",
     "description": "License: EPL-2.0, GPL-2.0-or-later - Eclipse Simulation of Urban Mobility (Eclipse SUMO™) is a free and open traffic simulation toolsuite.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3826,6 +4060,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse.dev/sumo/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3841,6 +4076,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/esmini/",
     "description": "License: MPL2.0 - Environment Simulator Minimalistic (esmini) - esmini is a basic OpenSCENARIO XML player",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3856,6 +4092,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/LLNL/GridDyn",
     "description": "(maybe adaptable to vehicles)",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3871,6 +4108,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Lichtblick-Suite/lichtblick",
     "description": "License: MPL2.0 - Lichtblick is an open-source application designed to streamline the workflow of automotive engineers and robotics users, helping them achieve engineering excellence with ease. Built as a fork of Foxglove Studio, Lichtblick simplifies data visualization and debugging for robotics and automotive applications.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3886,6 +4124,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://lichtblick-suite.github.io/docs/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3901,6 +4140,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/karthagokul/openroadsim/",
     "description": "License: MIT - OpenRoadSim is a proposed open-source simulation framework for integrated validation of automotive infotainment systems and signal-level domains. Built for accessibility and extensibility, OpenRoadSim enables developers to simulate and test complex, cross-domain vehicle interactions—including GPS, CAN bus, media playback, ADAS, and voice interaction—on standard laptops.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3916,6 +4156,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/DLR-TS/OSTAR-Quickstart",
     "description": "The scientific project OSTAR is a set of software tools for automotive simulation. OSTAR enables a simulation where vehicles in CARLA are controlled by external models. Theses models are packaged with FMI and use OSI messages for communication. The integration of theses models to CARLA is given by the GroundTruth, SensorView and TrafficUpdate messages.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3931,10 +4172,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.com/qemu-project/qemu",
     "description": "License: LGPL-2.1 - A generic and open source machine emulator and virtualizer",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:5efa4f50bc",
+    "id": "automotive-collection:c52e37cd0e",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -3946,6 +4188,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://www.qemu.org/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3961,6 +4204,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/soda-auto/soda-sim",
     "description": "SODA.Sim is designed for seamless software validation of any vehicle, covering the entire process from initial concept through certification to aftermarket updates. (commercial version is also available)",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3976,6 +4220,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://vectorgrp.github.io/sil-kit-docs/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -3991,6 +4236,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-opendut",
     "description": "License: Apache-2.0 - Eclipse openDuT automates the testing and validation process for automotive software and applications.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -4006,6 +4252,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://opendut.eclipse.dev/book/index.html",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -4021,6 +4268,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/eclipse-openxilenv",
     "description": "License: Apache-2.0 - Eclipse OpenXilEnv is a lightweight SIL/HIL environment that allows running embedded software functions on a PC without a target platform and compiler.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -4036,6 +4284,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.eclipse.org/eclipse/skybt",
     "description": "License: Apache-2.0 - Eclipse SKyBT (Smart Keyword Based Testing) - The core idea of Eclipse SKyBT: Based on our experience from numerous projects, the success factor of testing lies in the test design, everything else can and should be automated as much as possible.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -4053,10 +4302,11 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:b6fef3b89c",
+    "id": "automotive-collection:53cb4d1848",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -4068,6 +4318,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://www.lavasoftware.org",
     "description": "Linaro Automated Validation Architecture (LAVA) is a continuous integration system for deploying operating systems onto physical and virtual hardware for running tests. LAVA is also used to managed and share boards among teams.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -4085,6 +4336,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -4100,6 +4352,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Open-CMSIS-Pack",
     "description": "License: Apache-2.0 - The Open-CMSIS-Pack project offers a flexible and easy to use end to end development flow for embedded software - from project creation to software execution on real or virtual hardware.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -4115,6 +4368,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://open-cmsis-pack.github.io/landing/",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -4130,6 +4384,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://scapy.readthedocs.io/en/latest/index.html",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -4147,6 +4402,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -4162,6 +4418,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/vectorgrp/sil-kit",
     "description": "License: MIT - Vector SIL Kit – Open-Source Library for Connecting Software-in-the-Loop Environments",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -4176,6 +4433,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Tbruno25/can-explorer",
     "description": "A CAN bus visualization tool to aid in reverse engineering.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -4190,13 +4448,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/openvehicles/CAN-RE-Tool",
     "description": "Reverse engineering tool for systems based on CAN bus communications.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:74233fb1ed",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4204,13 +4464,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/KartheekLade/CANalyse",
     "description": "A vehicle network analysis and attack tool.",
     "tags": [],
+    "notes": "ajouatom: a vehicle network analysis and attack tool",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:775a556843",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4218,6 +4480,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/schutzwerk/CANalyzat0r",
     "description": "Security analysis toolkit for proprietary car protocols.",
     "tags": [],
+    "notes": "ajouatom: Security analysis toolkit for proprietary car protocols",
     "license": "CC0-1.0"
   },
   {
@@ -4232,6 +4495,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/renault/cananalyze",
     "description": "This framework can be used to interact with automotive protocols like CAN/ISOTP/UDS.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -4246,6 +4510,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/adamtheone/canDrive",
     "description": "Tools for hacking your car.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -4260,13 +4525,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/souravbaghz/CANghost",
     "description": "Automated Script For Hacking Into CAN Bus.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:6710bce678",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4274,13 +4541,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/kentindell/canhack",
     "description": "A low-level CAN protocol hacking library.",
     "tags": [],
+    "notes": "ajouatom: A low-level CAN protocol hacking library",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:95cf3b0380",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4288,13 +4557,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/brent-stone/CAN_Reverse_Engineering",
     "description": "Automated Payload Reverse Engineering Pipeline for the Controller Area Network (CAN) protocol.",
     "tags": [],
+    "notes": "ajouatom: Automated Payload Reverse Engineering Pipeline for the Controller Area Network (CAN) protocol",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:0f43a88a4a",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4302,6 +4573,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/CANToolz/CANToolz",
     "description": "Black-box CAN network analysis framework.",
     "tags": [],
+    "notes": "ajouatom: Black-box CAN network analysis framework",
     "license": "CC0-1.0"
   },
   {
@@ -4316,13 +4588,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/shipcod3/canTot",
     "description": "Quick and dirty canbus h4xing framework.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:df8c289d98",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4330,13 +4604,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/daedalus/carhacking",
     "description": "Car hacking scripts and docs collection.",
     "tags": [],
+    "notes": "ajouatom: Car hacking scripts and docs collection",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:7b2b81a3fd",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4344,13 +4620,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/jgamblin/CarHackingTools",
     "description": "Collection of Common Car Hacking Tools a scripts collection to help jump start car research and hacking.",
     "tags": [],
+    "notes": "ajouatom: Collection of Common Car Hacking Tools a scripts collection to help jump start car research and hacking",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:a1c810b607",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4358,6 +4636,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/CaringCaribou/caringcaribou",
     "description": "A friendly car security exploration tool for the CAN bus.",
     "tags": [],
+    "notes": "ajouatom: A friendly car security exploration tool for the CAN bus",
     "license": "CC0-1.0"
   },
   {
@@ -4372,13 +4651,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/souravbaghz/Carpunk",
     "description": "CAN injection toolkit and successor of CANghost.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:bb9f2ba653",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4388,6 +4669,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Generalized Electric Vehicle Reverse Engineering Tool (Arduino FW)",
     "license": "CC0-1.0"
   },
   {
@@ -4405,13 +4687,15 @@ export const CATALOG_ENTRIES = [
       "rust",
       "obd-ii"
     ],
+    "notes": null,
     "license": "various"
   },
   {
     "id": "awesome-canbus:32457cf1fa",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4419,13 +4703,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/v-ivanyshyn/parse_can_logs",
     "description": "Parse CAN logs and visualize data streams on plot.",
     "tags": [],
+    "notes": "ajouatom: Parse CAN logs and visualize data streams on plot",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:4a83aa2a02",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4433,13 +4719,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Cyberdefence-Lab-Murcia/ReCAN",
     "description": "Reverse engineering of Controller Area Networks.",
     "tags": [],
+    "notes": "ajouatom: Reverse engineering of Controller Area Networks",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:71e18bf52f",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4447,6 +4735,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/linklayer/reversegear",
     "description": "Offline Reverse Engineering Tools for Automotive Networks.",
     "tags": [],
+    "notes": "ajouatom: Offline Reverse Engineering Tools for Automotive Networks",
     "license": "CC0-1.0"
   },
   {
@@ -4465,13 +4754,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": "automotive-collection: License: GPL-2.0 - Scapy is a powerful Python-based interactive packet manipulation program and library.",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:cab654fd29",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4479,13 +4770,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/zombieCraig/uds-server",
     "description": "CAN UDS Simulator and Fuzzer.",
     "tags": [],
+    "notes": "ajouatom: CAN UDS Simulator and Fuzzer",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:312bb34984",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hacking and Reverse Engineering tools",
     "subcategory": null,
@@ -4493,13 +4786,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/zombieCraig/UDSim",
     "description": "Unified Diagnostic Services Simulator and Fuzzer (successor of uds-server).",
     "tags": [],
+    "notes": "ajouatom: Unified Diagnostic Services Simulator and Fuzzer",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:0147600d3d",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4509,13 +4804,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Arduino script to log CAN bus information to SD card. Mainly focused on J1939",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:35c8ccd2d0",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4525,13 +4822,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Can bus monitoring tool based on arduino and can bus shield. Implements CAN ASCII/SLCAN protocol compatible with Lawicel CAN232/CANUSB",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:28880dca78",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4541,6 +4840,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: CanHacker (lawicel) CAN adapter on Arduino + MCP2515",
     "license": "CC0-1.0"
   },
   {
@@ -4557,13 +4857,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:25bbacdcd6",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4573,6 +4875,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Arduino MCP2515 CAN interface library",
     "license": "CC0-1.0"
   },
   {
@@ -4589,13 +4892,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:43bf908b9c",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4605,13 +4910,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Arduino sketch to operate new PSA (Peugeot, Citroen, DS, Opel) comfort devices (CAN2010) on old BSI CAN-BUS (CAN2004)",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:e4aafead53",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4619,13 +4926,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/CANBus-Triple/CANBus-Triple-Hardware",
     "description": "The car hacking platform based on AVR and MCP2515 works with [this firmware](https://github.com/CANBus-Triple/CANBus-Triple).",
     "tags": [],
+    "notes": "ajouatom: The car hacking platform based on AVR and MCP2515 works with [this firmware](https://github.com/CANBus-Triple/CANBus-Triple)",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:fa2b1bda52",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4635,6 +4944,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Arduino based Automotive performance computer with Megasquirt integration",
     "license": "CC0-1.0"
   },
   {
@@ -4651,13 +4961,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:26c0b64ba8",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4667,13 +4979,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Arduino based Speed sensitive electric power steering for automobiles Speed sensitive electric power steering for automobiles",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:0ba1287240",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4681,13 +4995,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://bitbucket.org/emile_nijssen/open-source-can-bridge",
     "description": "Gateway with several CAN interfaces based on Xmega.",
     "tags": [],
+    "notes": "ajouatom: gateway with several CAN interfaces based on Xmega",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:8448925022",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4695,13 +5011,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/fabiobaltieri/open-usb-can",
     "description": "CAN-to-USB dongle based on ATMega32U and MCP2515.",
     "tags": [],
+    "notes": "ajouatom: CAN-to-USB dongle based on ATMega32U and MCP2515",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:a5e0124394",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4712,13 +5030,15 @@ export const CATALOG_ENTRIES = [
       "arduino",
       "linux"
     ],
+    "notes": "ajouatom: USB-CAN (SocketCAN) sketch for Arduino CAN-BUS shield",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:8cffb90eb8",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Arduino",
@@ -4728,13 +5048,30 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Arduino project for W211/W219 W203/W209 Mercedes (bluetooth audio control and more)",
+    "license": "CC0-1.0"
+  },
+  {
+    "id": "ajouatom:af4fab1c41",
+    "source": "ajouatom",
+    "sources": [
+      "ajouatom"
+    ],
+    "category": "Hardware",
+    "subcategory": "ARM",
+    "name": "BudgetCANv2",
+    "url": "https://github.com/ryedwards/BudgetCANv2",
+    "description": "FW for use on STM32G4 microcontroller to implement FDCAN and USB using the STM32 HAL. Tested on [BudgetCANv2-HW](https://github.com/ryedwards/BudgetCANv2-HW)",
+    "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:cb36001190",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM",
@@ -4745,13 +5082,15 @@ export const CATALOG_ENTRIES = [
       "qt",
       "gui"
     ],
+    "notes": "ajouatom: GUI + CAN booloader protocol",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:01a10b7f07",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM",
@@ -4759,13 +5098,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/ObdDiag-Net/allpro",
     "description": "Open-source ELM327 OBD adapter based on LPC1517JDB48.",
     "tags": [],
+    "notes": "ajouatom: Open-source ELM327 OBD adapter based on LPC1517JDB48",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:37cb320474",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM",
@@ -4775,6 +5116,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Arduino library for CAN on Teensy 3.1, 3.2, 3.5, and 3.6",
     "license": "CC0-1.0"
   },
   {
@@ -4791,6 +5133,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "js"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -4805,13 +5148,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Alia5/PiCCANTE",
     "description": "Open-source CAN hacking tool based on Raspberry Pi Pico (1|2|W) - Up to 3x CAN interfaces, includes ELM327 emulator.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:61c96bb3db",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM",
@@ -4819,13 +5164,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/jgressmann/supercan",
     "description": "An open source USB to CAN-FD protocol firmware (ATSAME51).",
     "tags": [],
+    "notes": "ajouatom: An open source USB to CAN-FD protocol firmware for ATSAME51",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:9c63ea6d11",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM",
@@ -4833,13 +5180,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/RudolphRiedel/USB_CAN-FD",
     "description": "This is an Open Source Hardware USB to CAN-FD Interface (ATSAME51J).",
     "tags": [],
+    "notes": "ajouatom: This is an Open Source Hardware USB to CAN-FD Interface",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:6b320a69c7",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -4849,6 +5198,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Can communication example for Arduino Core STM32",
     "license": "CC0-1.0"
   },
   {
@@ -4863,6 +5213,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/ryedwards/budgetcan_fw",
     "description": "FW for use on STM32 microcontroller to implement FDCAN and USB using the STM32 HAL. Tested on [BudgetCANv2-HW](https://github.com/ryedwards/BUDGETCANFD_G0-Hardware).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -4877,13 +5228,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/zjlywjh001/CAN_OMEGA",
     "description": "Ultimate CAN Bus hardware for Car hacking based on STM32F411. Full Featured [firmware](https://github.com/zjlywjh001/CANOmegaFirmware) & [software](https://github.com/zjlywjh001/CANOMEGATools).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:3f85d5da7a",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -4893,13 +5246,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Lowlevel CanBUS Example for Arduino Core STM32",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:1345a877cb",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -4907,13 +5262,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/damienmaguire/CAN-BUS-Man-In-The-Middle",
     "description": "Dual CAN MitM-device based on STM32F105.",
     "tags": [],
+    "notes": "ajouatom: Dual CAN MitM-device based on STM32F105",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:509407fee3",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -4921,6 +5278,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/YuriyLogvin/CAN-RS485-adapter",
     "description": "CAN-RS485 Adapter (STM32F103).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -4935,13 +5293,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/kolyandex/CAN-to-USB-lawicel-for-stm32",
     "description": "CAN to USB adapter using Lawicel/Canhacker protocol based on STM32F103.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:057c6e9491",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -4949,6 +5309,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/cvra/CAN-USB-dongle-fw",
     "description": "A slcan firmware for the CVRA CAN to USB dongle (STM32F302).",
     "tags": [],
+    "notes": "ajouatom: slcan firmware for the CVRA CAN to USB dongle",
     "license": "CC0-1.0"
   },
   {
@@ -4963,6 +5324,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Oktay97/Canbus_Uart",
     "description": "CANBUS to UART for STM32F1 (BluePill and Nucleo boards).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -4977,13 +5339,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/DDolphin/CANCAN",
     "description": "CAN recorder based on STM32F407ZGTx.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:366eb08ada",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -4991,13 +5355,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/IntergatedCircuits/CanDybugFW",
     "description": "Embedded firmware of the CanDybug, a CAN bus traffic analyzer which uses a custom protocol over a USB serial port emulation (STM32F302/STM32F042).",
     "tags": [],
+    "notes": "ajouatom: Embedded firmware of the CanDybug, a CAN bus traffic analyzer which uses a custom protocol over a USB serial port emulation",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:f33ca27ae7",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -5005,13 +5371,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/mxcd/CANnon",
     "description": "A versatile CAN bootloader for the STM32 and friends.",
     "tags": [],
+    "notes": "ajouatom: A versatile CAN bootloader for the STM32 and friends",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:0718a0e33f",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -5019,13 +5387,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/linklayer/cantact-pro-hw",
     "description": "Hardware for the CANtact Pro, use [cantact-pro-fw](https://github.com/linklayer/cantact-pro-fw) as firmware.",
     "tags": [],
+    "notes": "ajouatom: Hardware for the CANtact Pro, use [cantact-pro-fw](https://github.com/linklayer/cantact-pro-fw) as firmware",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:f716d5271f",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -5033,13 +5403,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/MikhailBerezhanov/cncu-01",
     "description": "Based on STM32F407.",
     "tags": [],
+    "notes": "ajouatom: based on STM32F407",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:2e64f7862d",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -5047,13 +5419,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/exothink/eXoCAN",
     "description": "CAN Library for the STM32F103 aka Blue Pill.",
     "tags": [],
+    "notes": "ajouatom: CAN Library for the STM32F103 aka Blue Pill",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:6d019e409c",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -5061,6 +5435,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/suburbanembedded/hadoucan-fw",
     "description": "Firmware for SM-1301 USB-CAN FD adapter based on.",
     "tags": [],
+    "notes": "ajouatom: Firmware for SM-1301 USB-CAN FD adapter based on",
     "license": "CC0-1.0"
   },
   {
@@ -5075,13 +5450,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/commaai/panda",
     "description": "It supports 3x CAN, 2x LIN, and 1x GMLAN (and it has J2534 over USB on host side). It uses an STM32F413 (Using a panda with cabana provides the best RE and development suites for CANBUS).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:91c94bd1c2",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -5089,13 +5466,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/moonglow/pcan_pro_x",
     "description": "PEAK PCAN PRO/PRO FD firmware for STM32F4 based boards.",
     "tags": [],
+    "notes": "ajouatom: PEAK PCAN PRO/PRO FD firmware for STM32F4 based boards",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:a6b2236a46",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -5103,13 +5482,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/timsonater/stm32-CAN-bus-example-HAL-API",
     "description": "A simple example of CAN bus communications between two STM32 microcontrollers using the updated HAL API functions.",
     "tags": [],
+    "notes": "ajouatom: A simple example of CAN bus communications between two STM32 microcontrollers using the updated HAL API functions",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:6ec45ea360",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -5117,6 +5498,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/IvanDev2018/STM32-CAN-Busadapter",
     "description": "CAN adapter on MCU stm32f303cb.",
     "tags": [],
+    "notes": "ajouatom: CAN adapter on MCU stm32f303cb",
     "license": "CC0-1.0"
   },
   {
@@ -5131,6 +5513,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/walmis/stm32-slcan",
     "description": "SLCAN compatible firmware for BluePill based on STM32f103C8T6.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5145,6 +5528,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/adamczykpiotr/STM32duino_CAN_Library",
     "description": "CanBus library for STM32F103 running on STM32duino.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5159,13 +5543,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/moonglow/vector_can",
     "description": "Vector VN1610 protocol implementation for cheap STM32F407/405 hardware (Two CAN channel).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:3ef3621e81",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32",
@@ -5173,13 +5559,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Zubax/zubax_babel",
     "description": "High performance CAN-USB/CAN-UART adapter + UAVCAN devboard (STM32F37x).",
     "tags": [],
+    "notes": "ajouatom: High performance CAN-USB/CAN-UART adapter + UAVCAN devboard",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:53dd53d162",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32 · STM32F0x2 based HW",
@@ -5189,13 +5577,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": "ajouatom: an open source, native CAN interface for Linux that can be built entirely using open source tools, use [canalyze-fw](https://github.com/kkuchera/canalyze-fw) as firmware source",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:c6d10080b4",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32 · STM32F0x2 based HW",
@@ -5203,13 +5593,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/HubertD/candleLight",
     "description": "KiCAD project of usb-can adapter based on STM32F0.",
     "tags": [],
+    "notes": "ajouatom: KiCAD project of usb-can adapter based on STM32F0",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:fcdd1dc3ec",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32 · STM32F0x2 based HW",
@@ -5217,13 +5609,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/candle-usb/candleLight_fw",
     "description": "Compatible firmware for candleLight, cantact, canable, CANAlyze, VulCAN.",
     "tags": [],
+    "notes": "ajouatom: compatible firmware for candleLight, cantact, canable, CANAlyze, VulCAN",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:2ae628dacd",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32 · STM32F0x2 based HW",
@@ -5231,13 +5625,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/majbthrd/CANsniffer",
     "description": "CANbus sniffer less complicated than existing commercial products.",
     "tags": [],
+    "notes": "ajouatom: CANbus sniffer less complicated than existing commercial products",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:a29344a63a",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32 · STM32F0x2 based HW",
@@ -5247,13 +5643,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "cli"
     ],
+    "notes": "ajouatom: Drivers and Command Line Interface for CANtact tools",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:7a11ad8fae",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32 · STM32F0x2 based HW",
@@ -5261,13 +5659,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/x893/cantact-fw",
     "description": "Cantact FirmWare by x893.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:8ec90eb46d",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32 · STM32F0x2 based HW",
@@ -5275,13 +5675,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/linklayer/cantact-hw",
     "description": "Hardware design files for the CANtact tool, use [cantact-fw](https://github.com/linklayer/cantact-fw) as firmware source.",
     "tags": [],
+    "notes": "ajouatom: Hardware design files for the CANtact tool, use [cantact-fw](https://github.com/linklayer/cantact-fw) as firmware source",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:a2fd6e8012",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32 · STM32F0x2 based HW",
@@ -5289,6 +5691,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/ObdDiag-Net/elm329",
     "description": "Open-source ELM329 OBD adapter based on STM32F042.",
     "tags": [],
+    "notes": "ajouatom: Open-source ELM329 OBD adapter based on STM32F042",
     "license": "CC0-1.0"
   },
   {
@@ -5303,6 +5706,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/moonglow/kvaser_cantact",
     "description": "Xvaser LL v2 firmware for CANtact/CANable or any other similar boards based on STM32F042.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5317,13 +5721,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/autosportlabs/OBD2CAN",
     "description": "Bridge between any OBD2 compliant vehicle and the CAN bus interface (firmware is targeted for the STM32F072, and uses ChibiOS as a RTOS).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:0c59fa0f88",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32 · STM32F0x2 based HW",
@@ -5331,13 +5737,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/moonglow/pcan_cantact",
     "description": "XCAN firmware for CANtact ( CANable ) or any other similar boards based on STM32F042.",
     "tags": [],
+    "notes": "ajouatom: PCAN firmware for CANtact ( CANable ) or any other similar boards",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:233d599c83",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "ARM · STM32 · STM32F0x2 based HW",
@@ -5345,6 +5753,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/roboterclubaachen/usb2can",
     "description": "Compact and isolated USB-to-CAN Adapter.",
     "tags": [],
+    "notes": "ajouatom: Compact and isolated USB-to-CAN Adapter",
     "license": "CC0-1.0"
   },
   {
@@ -5361,13 +5770,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:12bd95fd64",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Espressif Systems (ESP8266, ESP32)",
@@ -5375,6 +5786,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/marmotton/connected-car",
     "description": "Connecting a Nissan e-NV200 (or Leaf) to MQTT.",
     "tags": [],
+    "notes": "ajouatom: Connecting a Nissan e-NV200 (or Leaf) to MQTT",
     "license": "CC0-1.0"
   },
   {
@@ -5391,13 +5803,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:5f5df86948",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Espressif Systems (ESP8266, ESP32)",
@@ -5407,6 +5821,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": "ajouatom: Monitor Canbus traffic ESP32",
     "license": "CC0-1.0"
   },
   {
@@ -5423,6 +5838,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5440,13 +5856,15 @@ export const CATALOG_ENTRIES = [
       "arduino",
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:4987197b10",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Espressif Systems (ESP8266, ESP32)",
@@ -5457,6 +5875,7 @@ export const CATALOG_ENTRIES = [
       "arduino",
       "esp32"
     ],
+    "notes": "ajouatom: Arduino CAN-Bus library for ESP32",
     "license": "CC0-1.0"
   },
   {
@@ -5473,6 +5892,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5489,6 +5909,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5505,13 +5926,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:34e0ba08fb",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Espressif Systems (ESP8266, ESP32)",
@@ -5521,6 +5944,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": "ajouatom: ESP32 slcan compatible device",
     "license": "CC0-1.0"
   },
   {
@@ -5537,6 +5961,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5553,6 +5978,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5569,13 +5995,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:8cfab72fd0",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Espressif Systems (ESP8266, ESP32)",
@@ -5585,6 +6013,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": "ajouatom: CAN Reverse engineering tool for ESP32 based boards",
     "license": "CC0-1.0"
   },
   {
@@ -5601,6 +6030,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5617,13 +6047,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:d028c25a16",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Espressif Systems (ESP8266, ESP32)",
@@ -5633,6 +6065,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": "ajouatom: ESP32 based steering wheel adapter for Peugeot and Citroen cars",
     "license": "CC0-1.0"
   },
   {
@@ -5649,6 +6082,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5665,6 +6099,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "esp32"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5679,13 +6114,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://kvaser.com/support/calculators/can-fd-bit-timing-calculator/",
     "description": "Online tool to calculate detailed bit timing parameters for general CAN FD devices.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
-    "id": "awesome-canbus:2a46b5cade",
+    "id": "awesome-canbus:27e5f58710",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Hardware related tools",
@@ -5693,13 +6130,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://www.kvaser.com/support/calculators/bit-timing-calculator/",
     "description": "Online tool for obsolete SJA1000 and MCP2510 (probably it works for MCP2515).",
     "tags": [],
+    "notes": "ajouatom: online tool for obsolete SJA1000 and MCP2510 (probably it works for MCP2515)",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:a8b82be59b",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Hardware related tools",
@@ -5707,6 +6146,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/iDoka/STM8S208-CAN-Speed-Calculator",
     "description": "CAN Speed Calculator for STM8 (perhaps it also works for STM32 family).",
     "tags": [],
+    "notes": "ajouatom: CAN Speed Calculator for STM8 (perhaps it also works for STM32 family)",
     "license": "CC0-1.0"
   },
   {
@@ -5721,6 +6161,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://phryniszak.github.io/stm32g-fdcan/",
     "description": "Online tool to calculate bit timing parameters for STM32G4 (likely compatible with STM32G0).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5735,6 +6176,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://opencores.org/projects/can",
     "description": "IP core for classic CAN Protocol Controller (VHDL).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -5749,13 +6191,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Logic-Design-Services/CTU-CAN-FD",
     "description": "CAN FD IP Core, ISO 11898-1:2015 compliant (VHDL).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:c180b40e88",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Others HW",
@@ -5763,6 +6207,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/mvollrath/canbus_bbone_stm32",
     "description": "LED sync between BeagleBone Black and STM32F4 Discovery Board.",
     "tags": [],
+    "notes": "ajouatom: LED sync between BeagleBone Black and STM32F4 Discovery Board",
     "license": "CC0-1.0"
   },
   {
@@ -5777,13 +6222,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/darkspr1te/elm327_clone",
     "description": "ELM327 firmware for pic18f25k80 chip from china clone OBD2.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:55adc63845",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Others HW",
@@ -5793,13 +6240,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": "ajouatom: Linux kernel driver for Microchip CAN BUS Analyzer Tool",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:bcf08868c9",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "Others HW",
@@ -5807,13 +6256,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/rkollataj/mcba_firmware",
     "description": "Microchip CAN BUS Analyzer firmware.",
     "tags": [],
+    "notes": "ajouatom: Michrochip CAN BUS Analyzer firmware",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:7c11fcb541",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "SBC",
@@ -5823,13 +6274,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": "ajouatom: How to get access to the CAN bus on a BeagleBone Black via socketcan interface",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:bcc10e5917",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "SBC",
@@ -5837,13 +6290,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/SushiBits/CANoPi",
     "description": "CAN interface for Raspberry Pi Zero.",
     "tags": [],
+    "notes": "ajouatom: CAN interface for Raspberry Pi Zero",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:ce8cb464bc",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Hardware",
     "subcategory": "SBC",
@@ -5851,6 +6306,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/JonnoFTW/rpi-can-logger",
     "description": "Project to log CAN bus data from a PiCAN2 and a GPS module.",
     "tags": [],
+    "notes": "ajouatom: Project to log CAN bus data from a PiCAN2 and a GPS module",
     "license": "CC0-1.0"
   },
   {
@@ -5866,6 +6322,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/bosch-engineering/corner_radar_driver",
     "description": "License: Apache-2.0 - This project provides ROS drivers for Bosch Corner Radar LGU sensors. These packages are developed for ROS 2 Humble on Ubuntu 22.04.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -5881,6 +6338,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/bosch-engineering/off_highway_sensor_drivers",
     "description": "License: Apache-2.0, MIT - This project provides ROS drivers for Bosch Off-Highway sensor systems. The offhighwaysensor_drivers package is developed for ROS 2 Humble on Ubuntu 22.04.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -5898,6 +6356,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "rust"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -5913,6 +6372,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eprocessor.eu/",
     "description": "European, extendable, energy-efficient, extreme-scale, extensible, Processor Ecosystem",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -5928,6 +6388,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/github/github-ospo",
     "description": "Helping open source program offices (OSPOs) get started",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -5943,10 +6404,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://abacus.ai/opensource",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:f92c7d21c3",
+    "id": "automotive-collection:2dbc3d1c28",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -5958,6 +6420,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://www.bigcode-project.org/docs/about/mission/",
     "description": "is an open scientific collaboration working on the responsible development and use of large language models for code (Code LLMs), empowering the machine learning and open source communities through open governance.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -5973,6 +6436,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/deepseek-ai",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -5988,6 +6452,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse.dev/aidge/",
     "description": "is an open-source deep learning platform specialized in the design of deep neural networks intended to operate in systems constrained by power consumption or dissipation, latency, form factor (dimensions, size, etc.), and/or cost criteria.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6003,6 +6468,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://eclipse.dev/lmos/",
     "description": "The name LMOS stands for Language Model Operating System. Just as an operating system abstracts hardware and manages software applications, LMOS abstracts reduces the complexity to develop AI Agents by providing APIs and libraries to interact with infrastructure and tools to manage the lifecycle of AI Agents.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6018,6 +6484,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/BandarLabs/gitpodcast",
     "description": "License: MIT - Turn any GitHub repository into an engaging podcast in seconds. You can just replace hub with podcast in any Github URL to access its podcast.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6033,6 +6500,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/huggingface",
     "description": "The AI community building the future.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6048,6 +6516,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/noi-techpark/stuart-chatbot",
     "description": "Super Talkative Understanding Artificial Response Technology",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6063,6 +6532,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://opensource.org/ai",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6078,6 +6548,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://openchainproject.org/news/2025/12/09/openchain-and-friends-2026",
     "description": "An Open Source Management and Community Event",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6093,6 +6564,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/microsoft/MS-DOS/tree/main",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6111,6 +6583,7 @@ export const CATALOG_ENTRIES = [
       "linux",
       "windows"
     ],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6126,6 +6599,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Eclipse-SDV-Hackathon-Chapter-Two",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6141,10 +6615,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://mapyourgrid.org/",
     "description": "Help Map the World's Electricity Grids to Power a Fossil-Free Future",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
-    "id": "automotive-collection:177fd93699",
+    "id": "automotive-collection:891855aaa4",
     "source": "automotive-collection",
     "sources": [
       "automotive-collection",
@@ -6156,6 +6631,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://openinframap.org/#2/26/12",
     "description": "Open Infrastructure Map is a view of the world's infrastructure mapped in the OpenStreetMap database.",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6171,6 +6647,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://gitlab.opencode.de/bmi/opendesk",
     "description": "",
     "tags": [],
+    "notes": null,
     "license": "CC-BY-SA-4.0"
   },
   {
@@ -6187,6 +6664,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -6203,13 +6681,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Sauci/CanTp",
     "description": "Implementation of the CanTp module (ISO 15765-2), according to AUTOSAR specification v4.4.0.",
     "tags": [],
+    "notes": "automotive-collection: License: BSD-3-Clause - Implementation of the CanTp module (ISO 15765-2), according to AUTOSAR specification v4.4.0",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:189a13739b",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "ISO-TP",
@@ -6219,6 +6699,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c"
     ],
+    "notes": "ajouatom: An implementation of the ISO-TP (ISO 15765-2) Support Library in C",
     "license": "CC0-1.0"
   },
   {
@@ -6235,13 +6716,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:03c3fbb170",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "J1939 Tools",
@@ -6249,6 +6732,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/kurt-vd/can-utils/tree/j1939-v6",
     "description": "Fork of can-utils with a few additional tools for J1939.",
     "tags": [],
+    "notes": "ajouatom: Fork of can-utils with a few additional tools for J1939",
     "license": "CC0-1.0"
   },
   {
@@ -6263,13 +6747,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/malachi-iot/j1939",
     "description": "Lean, portable J1939 library for embedded MCUs.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:70e1411143",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "J1939 Tools",
@@ -6277,13 +6763,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/taha842/J1939-CANBUS",
     "description": "Supported Engines CAT, Perkins, Wartsalla, MTU, VOLVO.",
     "tags": [],
+    "notes": "ajouatom: Supported Engines CAT, Perkins, Wartsalla, MTU, VOLVO",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:f5d1c0cb2b",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "J1939 Tools",
@@ -6291,6 +6779,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/famez/J1939-Framework",
     "description": "Framework to work with J1939 Frames used in CAN bus in bus, car and trucks industries.",
     "tags": [],
+    "notes": "ajouatom: Framework to work with J1939 Frames used in CAN bus in bus, car and trucks industries",
     "license": "CC0-1.0"
   },
   {
@@ -6305,6 +6794,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/paoloteti/libj1939",
     "description": "Library to work with J1939 Frames (intended to be used in microcontrollers).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -6319,6 +6809,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/DanielMartensson/Open-SAE-J1939",
     "description": "SAE J1939 protocol free to use for embedded systems or PC with CAN-bus.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -6335,6 +6826,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -6351,13 +6843,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:256e04f6a6",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "J1939 Tools",
@@ -6367,13 +6861,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": "ajouatom: SAE J1939 support dependent on python-can package. Provides codec and filtering by PGN but not full SPN decoding",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:51f202fd50",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "J1939 Tools",
@@ -6383,6 +6879,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": "ajouatom: how to use CAN J1939 on linux",
     "license": "CC0-1.0"
   },
   {
@@ -6397,6 +6894,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/LittleBlondeDevil/TruckDevil",
     "description": "A tool and framework for interacting with and assessing ECUs that use J1939 for communications on the CANBUS.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -6411,6 +6909,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/roffe/gocanflasher",
     "description": "Trionic 5/7/8 CANbus flasher with J2534 support.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -6425,6 +6924,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/brandonros/j2534-tcp",
     "description": "Virtual J2534 driver over TCP/IP.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -6439,13 +6939,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/MEAT-Inc/SharpWrap2534",
     "description": "The Ultimate J2534 Wrapper Suite.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:d72c2ce09c",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "OBD-II tools",
@@ -6455,13 +6957,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: Arduino OBD library with asynchronous data requesting",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:337935b93f",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "OBD-II tools",
@@ -6471,13 +6975,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "arduino"
     ],
+    "notes": "ajouatom: working with OBD PIDs from Arduino + MCP2515 shield",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:94d8212a85",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "OBD-II tools",
@@ -6485,13 +6991,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/cedricp/ddt4all",
     "description": "Tool to create your own ECU parameters screens and connect to a CAN network with a cheap ELM327 interface.",
     "tags": [],
+    "notes": "ajouatom: tool to create your own ECU parameters screens and connect to a CAN network with a cheap ELM327 interface",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:308724bcb0",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "OBD-II tools",
@@ -6499,13 +7007,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/qnx425/ELM327SLCAN",
     "description": "ELM327 based vehicle's CAN bus sniffer.",
     "tags": [],
+    "notes": "ajouatom: ELM327 based vehicle's CAN bus sniffer",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:02234966ef",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "OBD-II tools",
@@ -6513,13 +7023,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/fenugrec/freediag",
     "description": "Free diagnostic software for OBD-II compliant motor vehicles.",
     "tags": [],
+    "notes": "ajouatom: Free diagnostic software for OBD-II compliant motor vehicles",
     "license": "CC0-1.0"
   },
   {
-    "id": "awesome-canbus:54032df5a9",
+    "id": "awesome-canbus:7eb356ebe6",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "OBD-II tools",
@@ -6527,13 +7039,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://www.vanheusden.com/O2OO/",
     "description": "OBD-II compliant car diagnostic tool. It reads sensor data from a car into an SQLite database.",
     "tags": [],
+    "notes": "ajouatom: OBD-II compliant car diagnostic tool. It reads sensor data from a car into an sqlite database",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:5017a07170",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "OBD-II tools",
@@ -6543,13 +7057,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": "ajouatom: A python scantool to read OBD2 info from cars",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:cd02396b27",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "OBD-II tools",
@@ -6559,6 +7075,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": "ajouatom: Python Vehicle Interface Toolkit",
     "license": "CC0-1.0"
   },
   {
@@ -6573,13 +7090,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/driftregion/iso14229",
     "description": "C implementation of UDS ISO-14229 server and client for embedded systems.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:496d4c0f68",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Protocols",
     "subcategory": "UDS",
@@ -6589,6 +7108,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": "ajouatom: Python implementation of UDS ISO-14229 standard",
     "license": "CC0-1.0"
   },
   {
@@ -6607,6 +7127,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c"
     ],
+    "notes": "automotive-collection: License: BSD-3-Clause - Unified Diagnostic Services (UDS) Support Library in C - This is a platform agnostic C library that implements the Unified Diagnostics Services protocol for automotive electronics. UDS is documented in ISO 14229 and is the underpinning for the more well-known On-board Diagnostics (OBD) standard. The library currently supports UDS running over CAN (ISO 15765-4), which uses the ISO-TP (ISO 15765-2) protocol for message framing.",
     "license": "CC0-1.0"
   },
   {
@@ -6621,6 +7142,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/lbenthins/ecu-simulator",
     "description": "Tool that simulates some vehicle diagnostic services. It can be used to test OBD-II dongles or tester tools that support the UDS (ISO 14229) and ISO-TP (ISO 15765-2) protocols.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -6635,13 +7157,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Ircama/ELM327-emulator",
     "description": "ELM327 Emulator for testing software interfacing OBDII via ELM327 adapter supporting multi-ECU simulation.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:4aaa9fada9",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "CAN-over-IP",
@@ -6651,13 +7175,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": "ajouatom: SocketCAN over Ethernet tunnel",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:9f5a4d9fe3",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "CAN-over-IP",
@@ -6665,13 +7191,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/m10k/canny",
     "description": "Simple CAN-over-IP gateway.",
     "tags": [],
+    "notes": "ajouatom: Simple CAN-over-IP gateway",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:fd2d7e19d0",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "CAN-over-IP",
@@ -6679,13 +7207,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/ovravna/pican",
     "description": "TCP CAN reader.",
     "tags": [],
+    "notes": "ajouatom: TCP CAN reader",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:f96381b78a",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "CAN-over-IP",
@@ -6693,13 +7223,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/mwkpe/tincan",
     "description": "Visualization of CAN bus traffic via UDP interface.",
     "tags": [],
+    "notes": "ajouatom: Visualization of CAN bus traffic via UDP interface",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:eec97fe8d8",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Common",
@@ -6707,13 +7239,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/rbei-etas/busmaster",
     "description": "An Open Source Software tool to simulate, analyze and test data bus systems such as CAN.",
     "tags": [],
+    "notes": "ajouatom: an Open Source Software tool to simulate, analyze and test data bus systems such as CAN",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:8d35345d95",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Common",
@@ -6721,6 +7255,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/Hive13/CANiBUS/",
     "description": "CAN Device Vehicle Research Server (OpenGarages.org).",
     "tags": [],
+    "notes": "ajouatom: CAN Device Vehicle Research Server (OpenGarages.org)",
     "license": "CC0-1.0"
   },
   {
@@ -6735,13 +7270,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/CANopenTerm/CANopenTerm",
     "description": "Tool for developing, testing and analyzing CANopen CC & CAN CC networks and devices.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:7180bbb099",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Common",
@@ -6751,13 +7288,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "cli"
     ],
+    "notes": "ajouatom: collection of CLI tools for the CAN bus network",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:1870059717",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Common",
@@ -6765,13 +7304,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/AleksandarFilipov/signalbroker-server",
     "description": "Tool to read and write CAN/LIN/flexray and other buses using gRPC which allows usage of preferred language.",
     "tags": [],
+    "notes": "ajouatom: Tool to read and write CAN/LIN/flexray and other buses using gRPC which allows usage of preferred language",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:e94392f387",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Examples",
@@ -6781,13 +7322,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": "ajouatom: Example C code for CAN Sockets on Linux",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:c97aa16b40",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Examples",
@@ -6797,6 +7340,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": "ajouatom: set of example programs which highlight how to make use of SocketCAN on Linux",
     "license": "CC0-1.0"
   },
   {
@@ -6811,13 +7355,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/friessssss/bootCAN",
     "description": "Allows monitoring, tracing, and plotting of messages, as well as .SYM decoding and message transmitting.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:7c9b1c0df3",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -6827,13 +7373,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "qt"
     ],
+    "notes": "ajouatom: universal CAN bus monitoring program",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:28c0c87c28",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -6843,6 +7391,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": "ajouatom: C# CAN bus analyzer software",
     "license": "CC0-1.0"
   },
   {
@@ -6859,13 +7408,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "windows"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:5a235d458c",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -6876,6 +7427,7 @@ export const CATALOG_ENTRIES = [
       "qt",
       "gui"
     ],
+    "notes": "ajouatom: Qt GUI for TouCAN USB to CAN bus converter",
     "license": "CC0-1.0"
   },
   {
@@ -6890,6 +7442,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/amund7/CANBUS-Analyzer",
     "description": "Development tool/companion software for graphs, displays and analyzes both known and unknown CANBUS packets.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -6904,13 +7457,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/MHS-Elektronik/CANcool",
     "description": "CAN bus Analyser and Simulation Software with CAN-FD support.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:3d894a6609",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -6920,13 +7475,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "gui"
     ],
+    "notes": "ajouatom: CAN simulation software using a drag-and-drop style GUI with interconnected functional blocks",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:3822d3c628",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -6936,13 +7493,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "qt"
     ],
+    "notes": "ajouatom: Qt-based CAN bus analyzer software",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:4ec1e94d5c",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -6950,13 +7509,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/olegel/CANLogger",
     "description": "CAN bus logger and analyzer tool.",
     "tags": [],
+    "notes": "ajouatom: CAN bus logger and analyzer tool",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:e62892129d",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -6964,6 +7525,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/linklayer/cantact-app",
     "description": "Desktop application for CANtact hardware interface.",
     "tags": [],
+    "notes": "ajouatom: Desktop application for CANtact hardware interface",
     "license": "CC0-1.0"
   },
   {
@@ -6978,13 +7540,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/ecubus/EcuBus-Pro",
     "description": "A powerful automotive ECU development tool. UDS, CAN-TP, DOIP, LIN , Script(TS) like CAPL.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:0d732bd466",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -6994,13 +7558,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": "ajouatom: Instrument Cluster Simulator for SocketCAN by OpenGarages",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:0358941481",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -7011,6 +7577,7 @@ export const CATALOG_ENTRIES = [
       "java",
       "gui"
     ],
+    "notes": "ajouatom: Java-based CAN traffic GUI analysis tool",
     "license": "CC0-1.0"
   },
   {
@@ -7025,13 +7592,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/reymor/novobusanalyzer",
     "description": "Fork of BUSMASTER (BUSMASTER is an Open Source Software tool to simulate, analyze and test data bus systems such as CAN).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:e92c31cc07",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -7039,6 +7608,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/sebi2k1/openCanSuite",
     "description": "Set of tools for analyzing, simulating and visualizing a CAN system.",
     "tags": [],
+    "notes": "ajouatom: Set of tools for analyzing, simulating and visualizing a CAN system",
     "license": "CC0-1.0"
   },
   {
@@ -7053,6 +7623,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/DanielMartensson/OpenSourceLogger",
     "description": "Data acquisition software that can collect measurement, analyze CAN-messages and send SAE-J1939 messages to other ECUs.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -7067,6 +7638,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/facontidavide/PlotJuggler",
     "description": "The Powerful Time Series Visualization Tool (With panda hardware, cabana and plotjuggler, you can quickly RE the entire car in a few days).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -7081,13 +7653,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/PlotJuggler/plotjuggler-CAN-dbs",
     "description": "Plugin to visualize CAN .dbs (or .dbc?) files in PlotJuggler.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:355c8c0491",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -7097,6 +7671,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "qt"
     ],
+    "notes": "ajouatom: scanning and visualizing tool for automotive systems",
     "license": "CC0-1.0"
   },
   {
@@ -7115,13 +7690,34 @@ export const CATALOG_ENTRIES = [
       "qt",
       "gui"
     ],
+    "notes": null,
+    "license": "CC0-1.0"
+  },
+  {
+    "id": "ajouatom:e39eb622ee",
+    "source": "ajouatom",
+    "sources": [
+      "ajouatom"
+    ],
+    "category": "Utils",
+    "subcategory": "GUI Tools",
+    "name": "SavvyCAN",
+    "url": "http://www.savvycan.com/",
+    "description": "Cross-platform Qt based GUI analysis tool. Supports SocketCAN compatible interfaces.",
+    "tags": [
+      "linux",
+      "qt",
+      "gui"
+    ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:ec9d09c5bd",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -7129,6 +7725,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/SeeedDocument/USB-CAN-Analyzer/",
     "description": "Closed source binary for noname Chinese USB-CAN adapter.",
     "tags": [],
+    "notes": "ajouatom: Closed source binary for noname Chinese USB-CAN adapter",
     "license": "CC0-1.0"
   },
   {
@@ -7145,6 +7742,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "windows"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -7159,13 +7757,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/TOSUN-Shanghai/TSMaster",
     "description": "Powerful open environment for automotive bus monitoring, simulation, testing, diagnostics, calibration and so on (Closed source).",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:1209fc7180",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "GUI Tools",
@@ -7173,6 +7773,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/KruFFT/wxCAN-Sniffer",
     "description": "CAN bus sniffer (PC side) with animation and chart.",
     "tags": [],
+    "notes": "ajouatom: CAN bus sniffer (PC side) with animation and chart",
     "license": "CC0-1.0"
   },
   {
@@ -7189,6 +7790,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -7206,13 +7808,15 @@ export const CATALOG_ENTRIES = [
       "linux",
       "windows"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:40a0f69407",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Libraries",
@@ -7223,13 +7827,15 @@ export const CATALOG_ENTRIES = [
       "go",
       "linux"
     ],
+    "notes": "ajouatom: Golang library for SocketCAN",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:99656f1265",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Libraries",
@@ -7237,6 +7843,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/tonton81/IMCTFD",
     "description": "Improved Microchip CAN Teensy FlexData Library MCP2517FD.",
     "tags": [],
+    "notes": "ajouatom: Improved Microchip CAN Teensy FlexData Library MCP2517FD",
     "license": "CC0-1.0"
   },
   {
@@ -7253,6 +7860,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -7270,13 +7878,15 @@ export const CATALOG_ENTRIES = [
       "java",
       "linux"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:9794c3a705",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Libraries",
@@ -7284,6 +7894,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/nisennenmondai/libwecan",
     "description": "Header only lib to encode and decode CAN signal.",
     "tags": [],
+    "notes": "ajouatom: header only lib to encode and decode CAN signal",
     "license": "CC0-1.0"
   },
   {
@@ -7302,13 +7913,15 @@ export const CATALOG_ENTRIES = [
       "linux",
       "qt"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:28b8932555",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Libraries",
@@ -7318,10 +7931,11 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c"
     ],
+    "notes": "ajouatom: a tiny virtual CAN and CAN-FD bus library in C",
     "license": "CC0-1.0"
   },
   {
-    "id": "awesome-canbus:8e39a2c3c7",
+    "id": "awesome-canbus:c211db5d7f",
     "source": "awesome-canbus",
     "sources": [
       "awesome-canbus"
@@ -7334,6 +7948,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -7350,6 +7965,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -7366,6 +7982,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -7383,6 +8000,7 @@ export const CATALOG_ENTRIES = [
       "linux",
       "windows"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -7399,13 +8017,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:f6bc159ebc",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Linux related",
@@ -7415,6 +8035,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": "ajouatom: Linux-CAN / SocketCAN user space useful utils",
     "license": "CC0-1.0"
   },
   {
@@ -7431,13 +8052,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:8ddfc45db6",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Other Utils",
@@ -7445,13 +8068,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/zombieCraig/c0f/",
     "description": "CAN bus fingerprinting tool is designed to analyze CAN bus traffic and fingerprint the Maker and Model.",
     "tags": [],
+    "notes": "ajouatom: CAN bus fingerprinting tool is designed to analyze CAN bus traffic and fingerprint the Maker and Model",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:515a0de918",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Other Utils",
@@ -7461,13 +8086,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "c#"
     ],
+    "notes": "ajouatom: .NET wrapper for the Candle API for candlelight CAN bus gateways/analysers (e.g. CANable, CANtact, etc)",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:fbc0aad225",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Other Utils",
@@ -7475,13 +8102,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/kurt-vd/canqv",
     "description": "Quick CAN frame inspection using CAN_RAW.",
     "tags": [],
+    "notes": "ajouatom: Quick CAN frame inspection using CAN_RAW",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:65a52ca418",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Other Utils",
@@ -7489,13 +8118,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/zainahm3d/canSerializer",
     "description": "Lib for serializing and deserializing CAN frames for transmission over a non CAN transport layer (Can be used to transport CAN frames over UART, SPI, etc).",
     "tags": [],
+    "notes": "ajouatom: lib for serializing and deserializing CAN frames for transmission over a non CAN transport layer (Can be used to transport CAN frames over UART, SPI, etc)",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:b8e0f2d482",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Other Utils",
@@ -7503,13 +8134,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/chalmers-revere/opendlv-device-can-replay",
     "description": "OpenDLV Microservice to replay captured CAN frames to a CAN interface.",
     "tags": [],
+    "notes": "ajouatom: OpenDLV Microservice to replay captured CAN frames to a CAN interface",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:f543a52cec",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Other Utils",
@@ -7520,13 +8153,15 @@ export const CATALOG_ENTRIES = [
       "linux",
       "cli"
     ],
+    "notes": "ajouatom: CLI Linux Support for noname Chinese USB-CAN adapter",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:c76c72ce13",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Python Tools",
@@ -7536,13 +8171,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": "awesome-canbus: A useful package for showing the contents of KCD files (also those converted from DBC files).; ajouatom: A package for handling CAN bus signals on Linux SocketCAN. Useful for showing the contents of KCD files (also those converted from DBC files)",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:da7c37fca1",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Python Tools",
@@ -7550,6 +8187,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/atlas0fd00m/CanCat",
     "description": "Swiss army knife of CAN often used in cars and building automation, etc.",
     "tags": [],
+    "notes": "ajouatom: Swiss army knife of CAN often used in cars and building automation, etc",
     "license": "CC0-1.0"
   },
   {
@@ -7567,6 +8205,7 @@ export const CATALOG_ENTRIES = [
       "python",
       "gui"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -7583,13 +8222,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:ee18c772a6",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Python Tools",
@@ -7599,6 +8240,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "gui"
     ],
+    "notes": "ajouatom: GUI program that allows the inspection of incoming can-bus messages, either from recorder can-bus data or live data",
     "license": "CC0-1.0"
   },
   {
@@ -7615,13 +8257,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:5377b9ca2d",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Python Tools",
@@ -7629,13 +8273,15 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/bhass1/pyfuzz_can",
     "description": "May be used in research to inject messages into a truck and cause acceleration, cluster spoofing, and degrade brake performance.",
     "tags": [],
+    "notes": "ajouatom: may be used in research to inject messages into a truck and cause acceleration, cluster spoofing, and degrade brake performance",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:1cb6174643",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Python Tools",
@@ -7645,13 +8291,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": "ajouatom: CAN package provides controller area network support for Python developers; ajouatom: the can package provides controller area network support for Python developers",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:6037a2cdc3",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Python Tools",
@@ -7662,13 +8310,15 @@ export const CATALOG_ENTRIES = [
       "python",
       "linux"
     ],
+    "notes": "ajouatom: script to display data from a CAN bus over network interfaces",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:86429cae61",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Python Tools",
@@ -7678,6 +8328,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": "ajouatom: Control Vector CANoe API by Python",
     "license": "CC0-1.0"
   },
   {
@@ -7695,13 +8346,15 @@ export const CATALOG_ENTRIES = [
       "python",
       "windows"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:58e293e28e",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Python Tools",
@@ -7711,13 +8364,15 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "python"
     ],
+    "notes": "ajouatom: Python program for Robotell USB-CAN Adapter",
     "license": "CC0-1.0"
   },
   {
     "id": "awesome-canbus:e2b45223d4",
     "source": "awesome-canbus",
     "sources": [
-      "awesome-canbus"
+      "awesome-canbus",
+      "ajouatom"
     ],
     "category": "Utils",
     "subcategory": "Python Tools",
@@ -7725,10 +8380,11 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/jmscslgroup/strym",
     "description": "Real time CAN data logging and visualization tool to work with USB-CAN Interface.",
     "tags": [],
+    "notes": "ajouatom: real time CAN data logging and visualization tool to work with USB-CAN Interface",
     "license": "CC0-1.0"
   },
   {
-    "id": "awesome-canbus:2dba12edd3",
+    "id": "awesome-canbus:0b3eebd533",
     "source": "awesome-canbus",
     "sources": [
       "awesome-canbus"
@@ -7739,6 +8395,7 @@ export const CATALOG_ENTRIES = [
     "url": "https://github.com/OlegShishlyannikov/canscope.git",
     "description": "CAN bus inspection and reverse-engineering tool.",
     "tags": [],
+    "notes": null,
     "license": "CC0-1.0"
   },
   {
@@ -7755,6 +8412,7 @@ export const CATALOG_ENTRIES = [
     "tags": [
       "linux"
     ],
+    "notes": null,
     "license": "CC0-1.0"
   }
 ];

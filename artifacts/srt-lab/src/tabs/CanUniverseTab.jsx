@@ -81,6 +81,11 @@ export default function CanUniverseTab() {
   // open/closed AND selects it. Click a subcategory to drill in.
   const [openCats, setOpenCats] = useState(() => new Set());
   const [activeSources, setActiveSources] = useState(() => new Set(CATALOG_SOURCES.map(s => s.id)));
+  // Task #622: small iDoka-vs-ajouatom facet. "all" = no extra filter;
+  // "idoka" / "ajouatom" = entries listed by that fork ONLY; "both" =
+  // entries listed in both feeds. Layered on top of the per-source chips
+  // above so it acts purely as a filter.
+  const [forkFacet, setForkFacet] = useState("all");
   const [activeTags, setActiveTags] = useState(() => new Set());
   const [activeLicenses, setActiveLicenses] = useState(() => new Set());
   const [shortlistOnly, setShortlistOnly] = useState(false);
@@ -151,7 +156,15 @@ export default function CanUniverseTab() {
         const sub = e.subcategory || "(uncategorized)";
         if (sub !== selSub) return false;
       }
-      if (!(e.sources || [e.source]).some(s => activeSources.has(s))) return false;
+      const srcs = e.sources || [e.source];
+      if (!srcs.some(s => activeSources.has(s))) return false;
+      if (forkFacet !== "all") {
+        const hasIdoka    = srcs.includes("awesome-canbus");
+        const hasAjouatom = srcs.includes("ajouatom");
+        if (forkFacet === "idoka"    && !(hasIdoka && !hasAjouatom)) return false;
+        if (forkFacet === "ajouatom" && !(hasAjouatom && !hasIdoka)) return false;
+        if (forkFacet === "both"     && !(hasIdoka &&  hasAjouatom)) return false;
+      }
       if (activeLicenses.size > 0 && !activeLicenses.has(e.license)) return false;
       if (activeTags.size > 0) {
         const tg = new Set(e.tags || []);
@@ -163,7 +176,7 @@ export default function CanUniverseTab() {
       }
       return true;
     });
-  }, [search, selCat, selSub, activeSources, activeLicenses, activeTags, shortlistOnly, stars]);
+  }, [search, selCat, selSub, activeSources, forkFacet, activeLicenses, activeTags, shortlistOnly, stars]);
 
   const grouped = useMemo(() => {
     const m = new Map();
@@ -246,9 +259,36 @@ export default function CanUniverseTab() {
         </Btn>
       </div>
 
+      {/* iDoka vs ajouatom facet (Task #622) — orthogonal to the
+          per-source toggles below; lets the user isolate fork-only
+          entries to see what ajouatom actually adds on top of upstream. */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap", alignItems: "center" }}>
+        <span style={{ fontSize: 10, color: C.tm, letterSpacing: 1.2, fontFamily: "JetBrains Mono", marginRight: 6 }}>SOURCE:</span>
+        {[
+          { v: "all",      l: "All" },
+          { v: "idoka",    l: "iDoka only" },
+          { v: "ajouatom", l: "ajouatom only" },
+          { v: "both",     l: "Both" },
+        ].map(opt => {
+          const active = forkFacet === opt.v;
+          return (
+            <button key={opt.v} onClick={() => setForkFacet(opt.v)}
+              style={{
+                fontSize: 10, fontFamily: "JetBrains Mono", padding: "4px 10px",
+                borderRadius: 8, cursor: "pointer",
+                border: `1.5px solid ${active ? C.sr : C.bd}`,
+                background: active ? C.sr + "18" : "transparent",
+                color: active ? C.sr : C.tm, fontWeight: 800,
+              }}>
+              {opt.l}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Source filter chips */}
       <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap", alignItems: "center" }}>
-        <span style={{ fontSize: 10, color: C.tm, letterSpacing: 1.2, fontFamily: "JetBrains Mono", marginRight: 6 }}>SOURCES:</span>
+        <span style={{ fontSize: 10, color: C.tm, letterSpacing: 1.2, fontFamily: "JetBrains Mono", marginRight: 6 }}>FEEDS:</span>
         {CATALOG_SOURCES.map(s => {
           const active = activeSources.has(s.id);
           return (
@@ -469,8 +509,19 @@ function CategoryButton({ active, onClick, label, count, total, small }) {
 }
 
 function EntryRow({ entry, starred, onToggleStar }) {
-  const sourceLabels = (entry.sources || [entry.source])
-    .map(s => SOURCE_BY_ID[s]?.id || s);
+  const srcs = entry.sources || [entry.source];
+  const sourceLabels = srcs.map(s => SOURCE_BY_ID[s]?.id || s);
+  // Task #622: when an entry is listed in EXACTLY ONE feed (i.e. no
+  // other curated list also carries it), show a tiny coloured badge so
+  // the single-source provenance is obvious at a glance. We deliberately
+  // require true single-source membership (not just iDoka-XOR-ajouatom)
+  // so the badge can't mislead when the entry also appears in
+  // automotive-collection or another feed.
+  const onlySource = srcs.length === 1 ? srcs[0] : null;
+  const forkBadge =
+    onlySource === "awesome-canbus" ? { l: "iDoka", c: "#1976D2" } :
+    onlySource === "ajouatom"       ? { l: "ajouatom", c: "#7B1FA2" } :
+    null;
   return (
     <div style={{
       padding: "10px 16px", borderTop: `1px solid ${C.bd}33`,
@@ -510,6 +561,13 @@ function EntryRow({ entry, starred, onToggleStar }) {
               borderRadius: 4, background: C.tm + "14", color: C.tm,
             }}>{s}</span>
           ))}
+          {forkBadge && (
+            <span title={`Listed only in the ${forkBadge.l} feed`} style={{
+              fontSize: 9, fontFamily: "JetBrains Mono", padding: "1px 6px",
+              borderRadius: 4, background: forkBadge.c + "1F", color: forkBadge.c,
+              fontWeight: 700,
+            }}>{forkBadge.l}-only</span>
+          )}
         </div>
         {(entry.category || entry.subcategory) && (
           <div style={{ fontSize: 10, fontFamily: "JetBrains Mono", color: C.tm, marginTop: 2 }}>
@@ -519,6 +577,12 @@ function EntryRow({ entry, starred, onToggleStar }) {
         {entry.description && (
           <div style={{ fontSize: 12, color: C.ts, marginTop: 4, lineHeight: 1.5 }}>
             {entry.description}
+          </div>
+        )}
+        {entry.notes && (
+          <div title="Alternate description from a secondary source"
+            style={{ fontSize: 11, color: C.tm, marginTop: 3, lineHeight: 1.5, fontStyle: "italic" }}>
+            {entry.notes}
           </div>
         )}
       </div>

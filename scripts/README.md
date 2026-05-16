@@ -228,6 +228,47 @@ the run.
 
 ---
 
+## `fetch-can-catalogs.mjs` — CAN Universe catalog refresh
+
+Pulls upstream curated CAN bus / OSS automotive lists, parses them into a
+single deduplicated index, and writes
+`artifacts/srt-lab/src/lib/awesomeCanbus.generated.js` (consumed by the
+**CAN Universe** tab).
+
+Run:
+
+```bash
+pnpm -F @workspace/scripts run fetch:can-catalogs
+pnpm -F @workspace/scripts run test:can-catalogs   # pure merge/dedupe tests
+```
+
+### Sources
+
+Four upstream feeds plus a small hand-curated `EXTRAS` block:
+
+| ID                       | Repo                                                      | License        |
+| ------------------------ | --------------------------------------------------------- | -------------- |
+| `awesome-canbus`         | [iDoka/awesome-canbus](https://github.com/iDoka/awesome-canbus) (canonical CAN bus list) | CC0-1.0        |
+| `ajouatom`               | [ajouatom/canbus-tools](https://github.com/ajouatom/canbus-tools) (fork of iDoka — Task #622) | CC0-1.0        |
+| `automotive-collection`  | [eclipse-sdv-landscape/the-automotive-collection](https://github.com/eclipse-sdv-landscape/the-automotive-collection) | CC-BY-SA-4.0   |
+| `ariexi-automotive`      | [ariexi/the-automotive-collection](https://github.com/ariexi/the-automotive-collection) (legacy snapshot) | CC-BY-SA-4.0   |
+
+Dedupe rule (see `canCatalogMerge.mjs`): entries are merged by a
+canonical repo URL — lowercased host, leading `www.` stripped, trailing
+`/` and `.git` dropped — so `https://github.com/Foo/Bar`,
+`https://github.com/foo/bar/`, `https://github.com/foo/bar.git`, and
+`https://www.github.com/foo/bar` all collapse onto the same record. The
+**first** source listed in `SOURCES` wins the visible `name` and
+`description`; any meaningfully-different description from a secondary
+source is preserved verbatim in a `notes` field so the fork's wording
+isn't silently dropped; `tags` are unioned; and every contributing feed
+is recorded in `sources[]`. After each run the script prints a
+self-describing one-liner such as
+`iDoka 242 + ajouatom 147 → 244 unique (2 ajouatom-only, 97 iDoka-only)`
+so it's obvious how much the fork adds on this refresh.
+
+---
+
 ## `artifacts/srt-lab/scripts/extract-alfaobd-algorithms.mjs` — AlfaOBD seed-key catalog codegen
 
 Reads `attached_assets/alfaobd_algorithm_catalog*.json` and emits

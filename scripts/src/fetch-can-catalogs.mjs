@@ -24,13 +24,17 @@
  * Run:  pnpm -F @workspace/scripts run fetch:can-catalogs
  */
 
-import { createHash } from "crypto";
 import { writeFileSync } from "fs";
 import { resolve } from "path";
+import { mergeEntries, summarizePairMerge } from "./canCatalogMerge.mjs";
 
 const ROOT    = resolve(new URL("../..", import.meta.url).pathname);
 const OUT     = resolve(ROOT, "artifacts/srt-lab/src/lib/awesomeCanbus.generated.js");
 
+/* Named source feeds. iDoka is the canonical CAN bus list; ajouatom is a
+ * fork (Task #622) that occasionally carries entries / edits that haven't
+ * landed upstream. iDoka is listed first so the merger prefers iDoka's
+ * visible name + description; ajouatom's extra text falls into `notes`. */
 const SOURCES = [
   {
     id: "awesome-canbus",
@@ -39,6 +43,15 @@ const SOURCES = [
     url: "https://github.com/iDoka/awesome-canbus",
     raw: "https://raw.githubusercontent.com/iDoka/awesome-canbus/main/README.md",
     api: "https://api.github.com/repos/iDoka/awesome-canbus/commits?per_page=1",
+  },
+  {
+    id: "ajouatom",
+    label: "ajouatom/canbus-tools (fork of iDoka/awesome-canbus)",
+    license: "CC0-1.0",
+    url: "https://github.com/ajouatom/canbus-tools",
+    // Fork's default branch is `master`, not `main` (Task #622).
+    raw: "https://raw.githubusercontent.com/ajouatom/canbus-tools/master/README.md",
+    api: "https://api.github.com/repos/ajouatom/canbus-tools/commits?per_page=1",
   },
   {
     id: "automotive-collection",
@@ -170,10 +183,6 @@ function inferTags(name, desc, url) {
   return [...tags];
 }
 
-function shortHash(s) {
-  return createHash("sha1").update(s).digest("hex").slice(0, 10);
-}
-
 /** Parse one README into a list of entries. */
 function parseReadme(md, sourceId) {
   const lines = md.split(/\r?\n/);
@@ -253,46 +262,27 @@ async function main() {
   });
   for (const e of EXTRAS) allEntries.push({ ...e, tags: e.tags || inferTags(e.name, e.description, e.url) });
 
-  // Dedupe by URL — first occurrence wins, but record every source that listed it.
-  const byUrl = new Map();
-  for (const e of allEntries) {
-    const key = e.url.replace(/\/+$/, "").toLowerCase();
-    const prev = byUrl.get(key);
-    if (prev) {
-      if (!prev.sources.includes(e.source)) prev.sources.push(e.source);
-      // Prefer a non-empty description if the first one was blank.
-      if (!prev.description && e.description) prev.description = e.description;
-      // Union tags.
-      for (const t of e.tags) if (!prev.tags.includes(t)) prev.tags.push(t);
-      continue;
-    }
-    byUrl.set(key, {
-      id: `${e.source}:${shortHash(key)}`,
-      source: e.source,
-      sources: [e.source],
-      category: e.category,
-      subcategory: e.subcategory,
-      name: e.name,
-      url: e.url,
-      description: e.description,
-      tags: [...e.tags],
-      license: null, // populated below from the originating source meta
-    });
-  }
+  // Merge + dedupe by canonical repo URL (see scripts/src/canCatalogMerge.mjs).
+  // Source order in SOURCES (iDoka first, ajouatom second) determines which
+  // entry wins the visible name/description; the fork's secondary text falls
+  // into `notes` and tags are unioned so nothing is silently dropped.
+  const entries = mergeEntries(allEntries);
+
   // Hydrate per-entry license from the FIRST source that listed it.
   // Per-entry license metadata isn't available in the upstream READMEs
   // (each is a curated list, not a SPDX index), so the best we can do is
   // record which curated list's license terms apply to that listing.
   const sourceLicense = Object.fromEntries(sourceMeta.map(s => [s.id, s.license]));
-  for (const e of byUrl.values()) {
+  for (const e of entries) {
     e.license = sourceLicense[e.sources[0]] || null;
   }
 
-  const entries = [...byUrl.values()].sort((a, b) => {
-    return (a.category || "").localeCompare(b.category || "")
-        || (a.subcategory || "").localeCompare(b.subcategory || "")
-        || a.name.localeCompare(b.name);
+  // Self-describing one-liner so a refresh tells us how much ajouatom added.
+  const pairLine = summarizePairMerge(entries, "awesome-canbus", "ajouatom", {
+    "awesome-canbus": "iDoka",
+    "ajouatom": "ajouatom",
   });
+  console.error(pairLine);
 
   // Categories with counts, in first-seen order from the primary source.
   const catOrder = [];

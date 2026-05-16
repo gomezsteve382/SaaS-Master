@@ -8,8 +8,8 @@
  * single mounted-component test for the search/filter behaviour.
  */
 import React from "react";
-import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen, fireEvent, within } from "@testing-library/react";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent, within, cleanup } from "@testing-library/react";
 import {
   CATALOG_ENTRIES,
   CATALOG_CATEGORIES,
@@ -22,8 +22,21 @@ describe("awesomeCanbus.generated.js — structural invariants", () => {
   it("ships a healthy number of entries and categories", () => {
     expect(CATALOG_ENTRIES.length).toBeGreaterThan(300);
     expect(CATALOG_CATEGORIES.length).toBeGreaterThan(5);
-    expect(CATALOG_SOURCES.length).toBeGreaterThanOrEqual(3);
+    // Task #622 adds ajouatom alongside the original three feeds + the
+    // user-curated pseudo-source, so the catalog now has at least 5.
+    expect(CATALOG_SOURCES.length).toBeGreaterThanOrEqual(4);
     expect(typeof CATALOG_GENERATED_AT).toBe("string");
+  });
+
+  it("includes the ajouatom fork feed (Task #622)", () => {
+    const ajou = CATALOG_SOURCES.find(s => s.id === "ajouatom");
+    expect(ajou).toBeTruthy();
+    expect(ajou.label).toMatch(/ajouatom/i);
+    expect(ajou.license).toBe("CC0-1.0");
+    // At least a handful of entries should carry ajouatom in their
+    // sources array, even if the fork is mostly a subset of upstream.
+    const fromAjouatom = CATALOG_ENTRIES.filter(e => (e.sources || []).includes("ajouatom"));
+    expect(fromAjouatom.length).toBeGreaterThan(0);
   });
 
   it("every entry has a non-empty name and a well-formed http(s) URL", () => {
@@ -77,6 +90,36 @@ describe("awesomeCanbus.generated.js — structural invariants", () => {
 
 describe("CanUniverseTab — smoke", () => {
   beforeEach(() => { localStorage.clear(); });
+  afterEach(() => { cleanup(); });
+
+  it("Source facet toggles iDoka/ajouatom-only and Both immediately", () => {
+    render(<CanUniverseTab />);
+    const results = screen.getByTestId("canuniverse-results");
+    const baselineCount = within(results).getAllByRole("link").length;
+    expect(baselineCount).toBeGreaterThan(20);
+
+    const idokaOnly = screen.getByRole("button", { name: /iDoka only/i });
+    const ajouatomOnly = screen.getByRole("button", { name: /ajouatom only/i });
+    const both = screen.getByRole("button", { name: /^Both$/ });
+    const all = screen.getByRole("button", { name: /^All$/ });
+
+    fireEvent.click(idokaOnly);
+    const afterIdoka = within(results).getAllByRole("link").length;
+    expect(afterIdoka).toBeLessThan(baselineCount);
+    expect(afterIdoka).toBeGreaterThan(0);
+
+    fireEvent.click(ajouatomOnly);
+    const afterAjouatom = within(results).queryAllByRole("link").length;
+    // Should differ from the iDoka-only view (different entry membership).
+    expect(afterAjouatom).not.toBe(afterIdoka);
+
+    fireEvent.click(both);
+    const afterBoth = within(results).queryAllByRole("link").length;
+    expect(afterBoth).toBeLessThanOrEqual(baselineCount);
+
+    fireEvent.click(all);
+    expect(within(results).getAllByRole("link").length).toBe(baselineCount);
+  });
 
   it("mounts, lists entries, and filters by search", () => {
     render(<CanUniverseTab />);

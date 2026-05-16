@@ -8,7 +8,8 @@
     "scan-witech-dump": "tsx ./src/scan-witech-dump.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "mine:alfaobd": "node src/mine-alfaobd.mjs",
-    "fetch:can-catalogs": "node src/fetch-can-catalogs.mjs"
+    "fetch:can-catalogs": "node src/fetch-can-catalogs.mjs",
+    "test:can-catalogs": "node --test src/__tests__/canCatalogMerge.test.mjs"
   },
   "devDependencies": {
     "@types/node": "catalog:",
