@@ -509,7 +509,7 @@ export default function RfhubTab({vehicle}){
   </div>;
 }
 
-export {RFHUB_KNOWN_ALGOS};
+export {RFHUB_KNOWN_ALGOS, DealerLockoutBypassCard};
 
 /* ────────────────────────────────────────────────────────────────────────────
  * DealerLockoutBypassCard — 2019+ internal-flash RFHUB lockout recovery.
