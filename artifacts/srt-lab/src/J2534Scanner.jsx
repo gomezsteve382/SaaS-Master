@@ -3,6 +3,7 @@ import { ASSET_IDS } from "./lib/downloadAssets.js";
 import { useDownloadCount } from "./lib/useDownloadCount.jsx";
 import { buildOnePagerPDF } from "./lib/buildOnePagerPDF.js";
 import { J2534_REF } from "./lib/tabReferences.js";
+import { useCanRecorder } from "./lib/canRecorder.js";
 
 /**
  * J2534 Module Scanner — HTTP version
@@ -134,6 +135,9 @@ const parseMsgData = (msgData) => {
 };
 
 export default function J2534Scanner() {
+  const recorder = useCanRecorder({iface: 'j2534'});
+  const recorderRef = useRef(null);
+  useEffect(() => { recorderRef.current = recorder; }, [recorder]);
   const [status, setStatus] = useState("disconnected");
   const [logs, setLogs] = useState([]);
   const [found, setFound] = useState([]);
@@ -358,6 +362,9 @@ export default function J2534Scanner() {
     const rxHex = mod.rx.toString(16).toUpperCase().padStart(3, "0");
     const fmtHex = s => ((s || "").match(/.{1,2}/g) || []).join(" ");
     if (verbose) log(`TX [${mod.name}] → 0x${txHex}: ${fmtHex(dataHex)}`);
+    // Tap the optional candump recorder before/after the bus round-trip.
+    const txBytes = new Uint8Array((dataHex.match(/.{1,2}/g) || []).map(h => parseInt(h, 16)));
+    recorderRef.current?.addFrame({ id: mod.tx, ext: mod.tx > 0x7FF, data: txBytes });
     try {
       await bridgeCall("/sendmsg", { txId: mod.tx, data: dataHex, flags: ISO15765_FRAME_PAD, timeoutMs: 1000 });
     } catch (e) {
@@ -365,6 +372,7 @@ export default function J2534Scanner() {
     }
     const result = await readUntilMatch(mod.rx, [expectedPositivePrefix, [0x7F, expectedServiceId]], timeoutMs);
     if (verbose && result) log(`RX [${mod.name}] ← 0x${rxHex}: ${fmtHex(result.msg?.data)}`);
+    if (result?.data) recorderRef.current?.addFrame({ id: mod.rx, ext: mod.rx > 0x7FF, data: result.data });
     return result;
   }, [readUntilMatch, log]);
 
@@ -561,6 +569,18 @@ export default function J2534Scanner() {
           <button onClick={onPdf} disabled={pdfBusy} style={{marginLeft:8,padding:'6px 12px',background:pdfBusy?'#333':'#fff',color:pdfBusy?'#666':S.red,border:'2px solid '+S.red,borderRadius:6,cursor:pdfBusy?'wait':'pointer',fontFamily:S.font,fontWeight:700,fontSize:11,letterSpacing:.5}}>
             {pdfBusy?'⏳ Building...':'🖨 Print Reference'}
           </button>
+        </div>
+
+        {/* ─── LIVE CAN RECORDER (Task #617) ───────────────────────────── */}
+        <div data-testid="j2534-recorder-card" style={{marginBottom:14,padding:'10px 12px',background:'#0D1A0D',border:'1px solid #2E7D32',borderRadius:8,display:'flex',gap:10,alignItems:'center',flexWrap:'wrap',fontSize:11}}>
+          <span style={{fontSize:10,fontWeight:800,letterSpacing:1.5,color:recorder.recording?S.red:S.dim}}>{recorder.recording?'● REC':'○ REC IDLE'}</span>
+          <span style={{color:S.dim}}>captures every raw-CAN UDS request/response into a candump buffer for the Log Analyser</span>
+          <span style={{flex:1}}/>
+          <span style={{fontFamily:'monospace',color:S.dim}}>{recorder.count} frames{recorder.overflowed?' (overflow)':''}</span>
+          <button data-testid="j2534-rec-start" onClick={recorder.start} disabled={recorder.recording} style={{padding:'5px 10px',background:S.red,color:'#fff',border:'none',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.recording?0.4:1}}>● START</button>
+          <button data-testid="j2534-rec-stop" onClick={recorder.stop} disabled={!recorder.recording} style={{padding:'5px 10px',background:'#333',color:'#fff',border:'1px solid #555',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.recording?1:0.4}}>■ STOP</button>
+          <button data-testid="j2534-rec-download" onClick={()=>recorder.download()} disabled={!recorder.count} style={{padding:'5px 10px',background:'#333',color:'#fff',border:'1px solid #555',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>📥 .log</button>
+          <button data-testid="j2534-rec-open-analyser" onClick={()=>recorder.openInAnalyser()} disabled={!recorder.count} style={{padding:'5px 10px',background:'#1B5E20',color:'#fff',border:'none',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>📜 OPEN IN ANALYSER</button>
         </div>
 
         <div style={{ background: "#0D1A0D", border: "1px solid #2E7D32", borderRadius: 8, padding: 14, marginBottom: 14, fontSize: 12 }}>

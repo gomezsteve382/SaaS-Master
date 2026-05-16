@@ -6,6 +6,7 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "scan-witech-dump": "tsx ./src/scan-witech-dump.ts",
+    "can-recorder": "tsx ./src/can-recorder.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "mine:alfaobd": "node src/mine-alfaobd.mjs",
     "fetch:can-catalogs": "node src/fetch-can-catalogs.mjs",
@@ -13,6 +14,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@workspace/uds": "workspace:*",
     "tsx": "catalog:"
   }
 }

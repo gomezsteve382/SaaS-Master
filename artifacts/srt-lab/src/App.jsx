@@ -49,6 +49,7 @@ import ExternalToolsTab from "./tabs/ExternalToolsTab.jsx";
 import SignalDiscoveryTab from "./tabs/SignalDiscoveryTab.jsx";
 import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
+import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
@@ -923,6 +924,7 @@ const WORKSPACE_TABS = [
   {id:'exttools',  i:'🧰', l:'EXT TOOLS',   s:'FCA PROXI Tool · GPEC Unlocker'},
   {id:'sigdisc',   i:'🛰️', l:'SIGNAL DISC', s:'TUMFTM sweep · record · match'},
   {id:'canuniverse',i:'🌐', l:'CAN UNIVERSE', s:'awesome-canbus + Eclipse SDV catalog'},
+  {id:'loganalyser',i:'📜',l:'LOG ANALYSER',s:'candump · UDS · iddiff · catalog growth'},
 ];
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -944,6 +946,14 @@ function VehicleWorkspace({vehicleId, onBack}){
     window.addEventListener('srtlab:openTab', h);
     return ()=>window.removeEventListener('srtlab:openTab', h);
   },[setTab]);
+  // Task #617 — RECORD cards in J2534/SWARM/CDA6 dispatch this event when
+  // the user clicks "OPEN IN ANALYSER" so the app can switch tabs without
+  // each host having to thread a callback prop down to the recorder hook.
+  useEffect(() => {
+    const onOpen = () => setTab('loganalyser');
+    window.addEventListener('srtlab:open-analyser', onOpen);
+    return () => window.removeEventListener('srtlab:open-analyser', onOpen);
+  }, [setTab]);
   const [files, setFiles] = useState([]);
   // Task #488 — shared EFD container + selected C-Flash payload so the
   // EFD inspector and the ECM Flasher tab can co-operate. The flasher's
@@ -1099,6 +1109,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='exttools'  && <ExternalToolsTab onOpenTab={setTab}/>}
         {tab==='sigdisc'   && <SignalDiscoveryTab/>}
         {tab==='canuniverse' && <CanUniverseTab/>}
+        {tab==='loganalyser' && <LogAnalyserTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also

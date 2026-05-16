@@ -700,6 +700,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.3.5
+      '@workspace/uds':
+        specifier: workspace:*
+        version: link:../lib/uds
       tsx:
         specifier: 'catalog:'
         version: 4.21.0

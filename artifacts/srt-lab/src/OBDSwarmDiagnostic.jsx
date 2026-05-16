@@ -3,6 +3,7 @@ import { buildOnePagerPDF } from "./lib/buildOnePagerPDF.js";
 import { SWARM_REF } from "./lib/tabReferences.js";
 import { openSerialPort, onPortDisconnect, cleanupPort } from "./lib/serialErrors.js";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
+import { useCanRecorder } from "./lib/canRecorder.js";
 
 const SWARM_CAN_FILTERS = [
   { category: "CAN Database" },
@@ -234,6 +235,9 @@ export default function OBDSwarmDiagnostic() {
   const eng = useRef(null);
   const logRef = useRef(null);
   const attemptsRef = useRef(0);
+  const recorder = useCanRecorder({iface: 'swarm'});
+  const recorderRef = useRef(recorder);
+  useEffect(() => { recorderRef.current = recorder; }, [recorder]);
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
@@ -334,7 +338,15 @@ export default function OBDSwarmDiagnostic() {
       await send('ATSP6'); await send('ATAT2'); await send('ATST96'); await send('ATCAF1');
       if (isSTN) { await send('ATFCSH7E0'); await send('ATFCSD300000'); await send('ATFCSM1'); }
 
-      eng.current = { send, uds, isSTN };
+      // Wrap uds() so the optional recorder, when armed, captures every
+      // request/response pair as candump frames at the chosen tx/rx.
+      const wrappedUds = async (tx, rx, data) => {
+        recorderRef.current?.addFrame({id: tx, ext: tx > 0x7FF, data});
+        const r = await uds(tx, rx, data);
+        if (r && r.ok && r.d) recorderRef.current?.addFrame({id: rx, ext: rx > 0x7FF, data: r.d});
+        return r;
+      };
+      eng.current = { send, uds: wrappedUds, isSTN };
       try { detachRef.current?.(); } catch {}
       detachRef.current = onPortDisconnect(port, () => {
         addLog('SYSTEM', 'Adapter unplugged — connection lost. Plug the cable back in and click Retry.', '#FF1744');
@@ -576,6 +588,18 @@ export default function OBDSwarmDiagnostic() {
         </div>
 
         <RelatedCanUniversePanel panelId="swarm" filters={SWARM_CAN_FILTERS} />
+
+        {/* ─── LIVE CAN RECORDER (Task #617) ───────────────────────────── */}
+        <div data-testid="swarm-recorder-card" style={{marginBottom:12,padding:'10px 12px',background:S.card,border:`1px solid ${S.border}`,borderRadius:8,display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+          <span style={{fontSize:10,fontWeight:800,letterSpacing:1.5,color:recorder.recording?S.red:S.dim}}>{recorder.recording?'● REC':'○ REC IDLE'}</span>
+          <span style={{fontSize:10,color:S.dim}}>captures every UDS req/resp from the swarm into a candump buffer</span>
+          <span style={{flex:1}}/>
+          <span style={{fontSize:10,fontFamily:'monospace',color:S.dim}}>{recorder.count} frames{recorder.overflowed?' (overflow)':''}</span>
+          <button data-testid="swarm-rec-start" onClick={recorder.start} disabled={recorder.recording} style={{padding:'5px 10px',background:S.red,color:'#fff',border:'none',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.recording?0.4:1}}>● START</button>
+          <button data-testid="swarm-rec-stop" onClick={recorder.stop} disabled={!recorder.recording} style={{padding:'5px 10px',background:'#333',color:'#fff',border:'1px solid #555',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.recording?1:0.4}}>■ STOP</button>
+          <button data-testid="swarm-rec-download" onClick={()=>recorder.download()} disabled={!recorder.count} style={{padding:'5px 10px',background:'#333',color:'#fff',border:'1px solid #555',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>📥 .log</button>
+          <button data-testid="swarm-rec-open-analyser" onClick={()=>recorder.openInAnalyser()} disabled={!recorder.count} style={{padding:'5px 10px',background:'#1B5E20',color:'#fff',border:'none',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>📜 OPEN IN ANALYSER</button>
+        </div>
 
         {connErr && status==='disconnected' && (
           <div style={{marginBottom:12,padding:'12px 14px',borderRadius:8,background:'#2A1A1A',border:'1.5px solid '+S.red,color:'#FFCDD2',fontSize:12,lineHeight:1.5}}>

@@ -5,6 +5,7 @@ import {cda6} from '../lib/algos.js';
 import {CDA_FLASH_CATALOG, getOfflineFlashSequence} from '../lib/cdaCatalog.js';
 import {flashEcuOffline, FLASH_PHASES} from '../lib/flasherStateMachine.js';
 import {createBridgeEngine} from '../lib/bridgeEngine.js';
+import {useCanRecorder} from '../lib/canRecorder.js';
 
 // CDA6 UDS programming-session walkthrough (Task #488 + Task #599). The
 // step list is now driven by the per-module catalog mined out of the
@@ -195,6 +196,10 @@ export default function Cda6SessionTab(){
   const logBoxRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  const recorder = useCanRecorder({iface: 'cda6'});
+  const recorderRef = useRef(recorder);
+  useEffect(() => { recorderRef.current = recorder; }, [recorder]);
+
   useEffect(() => {
     if (logBoxRef.current) logBoxRef.current.scrollTop = logBoxRef.current.scrollHeight;
   }, [flashLog.length]);
@@ -220,6 +225,17 @@ export default function Cda6SessionTab(){
         setFlashError(why);
         addLog({t: Date.now(), level: 'error', msg: why});
         return;
+      }
+      // Wrap eng.uds so every request/response can be tapped into the
+      // optional candump recorder when the user has it armed.
+      const origUds = eng.uds && eng.uds.bind(eng);
+      if (origUds) {
+        eng.uds = async (tx, rx, data) => {
+          recorderRef.current?.addFrame({id: tx, ext: tx > 0x7FF, data});
+          const r = await origUds(tx, rx, data);
+          if (r && r.ok && r.d) recorderRef.current?.addFrame({id: rx, ext: rx > 0x7FF, data: r.d});
+          return r;
+        };
       }
       engineRef.current = eng;
       setBridgeInfo({vendor: eng.vendor || 'unknown', firmware: eng.firmware || null});
@@ -357,6 +373,25 @@ export default function Cda6SessionTab(){
             )}
             <span style={{flex: 1}}/>
             <span style={{fontSize: 9, color: C.ts, fontFamily: 'JetBrains Mono'}}>catalog · CDA SWF sha256 {(CDA_FLASH_CATALOG?._meta?.sha256 || '').slice(0, 12)}…</span>
+          </div>
+        </Card>
+      </Section>
+
+      {/* ─── LIVE CAN RECORDER (Task #617) ───────────────────────────────── */}
+      <Section title="LIVE CAN RECORDER" color={C.a4}>
+        <Card>
+          <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+            <Tag color={recorder.recording ? C.sr : C.tm}>{recorder.recording ? '● REC' : '○ IDLE'}</Tag>
+            <span style={{fontSize:11,color:C.ts}}>captures every UDS request/response on this CDA6 session into a candump-format buffer</span>
+            <span style={{flex:1}}/>
+            <span style={{fontSize:10,fontFamily:'JetBrains Mono',color:C.tm}}>{recorder.count} frames{recorder.overflowed ? ' (ring overflow)' : ''}</span>
+          </div>
+          <div style={{display:'flex',gap:8,marginTop:10,flexWrap:'wrap'}}>
+            <Btn data-testid="cda6-rec-start" onClick={recorder.start} disabled={recorder.recording} color={C.sr}>● START</Btn>
+            <Btn data-testid="cda6-rec-stop" onClick={recorder.stop} disabled={!recorder.recording} outline>■ STOP</Btn>
+            <Btn data-testid="cda6-rec-clear" onClick={recorder.clear} outline>CLEAR</Btn>
+            <Btn data-testid="cda6-rec-download" onClick={() => recorder.download()} disabled={!recorder.count}>📥 DOWNLOAD .log</Btn>
+            <Btn data-testid="cda6-rec-open-analyser" onClick={() => recorder.openInAnalyser()} disabled={!recorder.count} color={C.a4}>📜 OPEN IN LOG ANALYSER</Btn>
           </div>
         </Card>
       </Section>

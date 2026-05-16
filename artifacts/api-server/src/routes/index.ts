@@ -10,6 +10,7 @@ import unlockCoverageRouter from "./unlockCoverage";
 import auth29DetectionsRouter from "./auth29Detections";
 import signalDiscoveryRouter from "./signalDiscovery";
 import integrationTasksRouter from "./integrationTasks";
+import bcmCatalogProposalsRouter from "./bcmCatalogProposals";
 
 const router: IRouter = Router();
 
@@ -23,6 +24,7 @@ router.use(unlockCoverageRouter);
 router.use(auth29DetectionsRouter);
 router.use(signalDiscoveryRouter);
 router.use(integrationTasksRouter);
+router.use(bcmCatalogProposalsRouter);
 router.use("/anthropic", anthropicRouter);
 
 export default router;

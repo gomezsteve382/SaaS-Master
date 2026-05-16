@@ -172,3 +172,25 @@ export * as nrc from './nrc.js';
 
 // ── Re-export services table as `services` namespace ─────────────────
 export * as services from './services.js';
+
+// ── candump log parser/writer + iddiff ────────────────────────────────
+export type { CandumpFrame, IdStat, IddiffEntry, IddiffResult } from './candump.js';
+export {
+  parseCandumpLine, parseCandumpLog,
+  writeCandumpLine, writeCandumpLog,
+  idStats, iddiff,
+} from './candump.js';
+export * as candump from './candump.js';
+
+// ── Log-stream UDS reassembly + decode ────────────────────────────────
+export type {
+  ReassembledPdu, ReassembleOptions,
+  DecodedRequest, DecodedResponse, DecodedUdsEvent,
+  BcmProposal,
+} from './logSession.js';
+export {
+  reassembleIsoTp, decodeUdsSession,
+  COMMON_ID_PAIRS, suggestIdPairs,
+  bcmDiffToProposals,
+} from './logSession.js';
+export * as logSession from './logSession.js';
