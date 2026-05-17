@@ -37,12 +37,16 @@ function fmtBytes(n) {
 const STATUS_STYLES = {
   reversed: {bg: "#1B5E2010", color: "#1B5E20", label: "NATIVE"},
   dll_only: {bg: "#E65100" + "10", color: "#E65100", label: "DLL ONLY"},
+  // Task #641 — task-634 hand-curated rows surface as bench-pending
+  // until an operator marks them verified against a real car.
+  "bench-pending": {bg: "#E6510010", color: "#E65100", label: "BENCH-PENDING"},
+  verified: {bg: "#1B5E2010", color: "#1B5E20", label: "VERIFIED"},
 };
 
 function StatusBadge({status}) {
   const s = STATUS_STYLES[status] || {bg: "#9E9E9E20", color: "#616161", label: String(status).toUpperCase()};
   return (
-    <span style={{
+    <span data-status={status} style={{
       display: "inline-block", padding: "3px 9px", borderRadius: 6,
       background: s.bg, color: s.color, fontFamily: "'Nunito'",
       fontWeight: 900, fontSize: 10, letterSpacing: 1,
@@ -134,6 +138,21 @@ export default function UnlockCoverageTab() {
   // own public/task634_entries.json so the asset-sweep regenerator
   // never clobbers the hand edits.
   const [task634, setTask634] = useState(null);
+  // Task #641 — which task-634 entry ids have been marked bench-verified.
+  // Hydrated from the API server first; falls back to localStorage when
+  // the bench is offline. Writes propagate to both so a verification
+  // made on one machine shows up on every other bench.
+  const [verifiedIds, setVerifiedIds] = useState(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const raw = window.localStorage.getItem("srtlab.task634.verified.v1");
+      if (!raw) return new Set();
+      const arr = JSON.parse(raw);
+      return new Set(Array.isArray(arr) ? arr.filter((x) => typeof x === "string") : []);
+    } catch {
+      return new Set();
+    }
+  });
   // Live dispatcher stats; falls back to on-disk catalog counts if offline.
   const [dispatcherStats, setDispatcherStats] = useState(null);
   const [error, setError] = useState(null);
@@ -239,6 +258,30 @@ export default function UnlockCoverageTab() {
     return () => { cancelled = true; };
   }, []);
 
+  // Task #641 — hydrate verifications from the API so a flag set on
+  // another bench shows up here. Server is authoritative; if it's
+  // reachable we replace the localStorage seed with its view.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/task634-verifications", {cache: "no-cache"})
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data || !Array.isArray(data.verifications)) return;
+        const ids = data.verifications
+          .map((v) => v && typeof v.entryId === "string" ? v.entryId : null)
+          .filter(Boolean);
+        setVerifiedIds(new Set(ids));
+        try {
+          window.localStorage.setItem(
+            "srtlab.task634.verified.v1",
+            JSON.stringify(ids),
+          );
+        } catch { /* storage is best-effort */ }
+      })
+      .catch(() => { /* server is optional — localStorage seed stands */ });
+    return () => { cancelled = true; };
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     fetch("/api/unlock-coverage/stats", {cache: "no-cache"})
@@ -307,11 +350,12 @@ export default function UnlockCoverageTab() {
   const task634Entries = useMemo(() => {
     if (!task634 || !Array.isArray(task634.entries)) return [];
     return task634.entries.map((e) => {
+      const verified = verifiedIds.has(e.id);
       const reason = [
         `Hand-curated competitor-parity addition (task #${e.task ?? 634}).`,
         e.lib ? `Implementation: ${e.lib}.` : null,
         e.ui ? `UI: ${e.ui}.` : null,
-        e.status ? `Status: ${e.status}.` : null,
+        e.status ? `Source status: ${e.status}.` : null,
       ].filter(Boolean).join(" ");
       return {
         file: e.id,
@@ -323,13 +367,21 @@ export default function UnlockCoverageTab() {
         rx_can_id: null,
         ecu_info: null,
         size_bytes: 0,
-        status: "dll_only",
+        // Task #641 — task-634 rows have their own bench-verified
+        // lifecycle (bench-pending → verified) rather than the
+        // python-port lifecycle (dll_only → reversed) used by the
+        // generated DLL rows.
+        status: verified ? "verified" : "bench-pending",
         python_function: null,
         reason,
         provenance: task634.provenance || "task-634",
+        // Carry the raw id + verified flag through to the renderer so
+        // the expand panel can offer a Mark verified / Unmark button.
+        task634Id: e.id,
+        verified,
       };
     });
-  }, [task634]);
+  }, [task634, verifiedIds]);
 
   // Computed from merged rows so families/algoCounts/totals stay
   // consistent when the asset-sweep extension or task-634 hand-curated
@@ -398,6 +450,35 @@ export default function UnlockCoverageTab() {
     () => mergedEntries.filter((e) => auth29TxSet.has(e.tx_can_id | 0)).length,
     [mergedEntries, auth29TxSet],
   );
+
+  // Task #641 — flip a task-634 entry between bench-pending and verified.
+  // Optimistically updates local state (+ localStorage) so the badge
+  // changes instantly, then mirrors to the API server. If the server
+  // call fails the row still flips locally — re-hydration on the next
+  // mount will reconcile.
+  function markVerified(entryId, verified) {
+    setVerifiedIds((prev) => {
+      const next = new Set(prev);
+      if (verified) next.add(entryId); else next.delete(entryId);
+      try {
+        window.localStorage.setItem(
+          "srtlab.task634.verified.v1",
+          JSON.stringify(Array.from(next)),
+        );
+      } catch { /* storage is best-effort */ }
+      return next;
+    });
+    const req = verified
+      ? fetch("/api/task634-verifications", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({entryId}),
+        })
+      : fetch(`/api/task634-verifications/${encodeURIComponent(entryId)}`, {
+          method: "DELETE",
+        });
+    req.catch(() => { /* offline → localStorage holds the line */ });
+  }
 
   function toggle(module) {
     setExpanded((prev) => {
@@ -774,8 +855,43 @@ export default function UnlockCoverageTab() {
                               </div>
                             ) : (
                               <div style={{gridColumn: "1 / -1"}}>
-                                <div style={{fontSize: 10, color: C.tm, letterSpacing: 1, fontWeight: 700}}>WHY DLL-ONLY</div>
+                                <div style={{fontSize: 10, color: C.tm, letterSpacing: 1, fontWeight: 700}}>
+                                  {e.provenance === "task-634" ? "IMPLEMENTATION" : "WHY DLL-ONLY"}
+                                </div>
                                 <div style={{fontFamily: "'Nunito'", fontSize: 12, color: C.tx, marginTop: 2, lineHeight: 1.5}}>{e.reason}</div>
+                              </div>
+                            )}
+                            {e.provenance === "task-634" && e.task634Id && (
+                              <div
+                                data-testid={`verify-panel-${e.task634Id}`}
+                                style={{gridColumn: "1 / -1", marginTop: 4, paddingTop: 10, borderTop: `1px dashed ${C.bd}`}}
+                              >
+                                <div style={{fontSize: 10, color: C.tm, letterSpacing: 1, fontWeight: 700, marginBottom: 6}}>
+                                  BENCH VERIFICATION
+                                </div>
+                                <div style={{display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap"}}>
+                                  <button
+                                    type="button"
+                                    data-testid={`verify-btn-${e.task634Id}`}
+                                    data-verified={e.verified ? "true" : "false"}
+                                    onClick={() => markVerified(e.task634Id, !e.verified)}
+                                    style={{
+                                      cursor: "pointer",
+                                      border: `1.5px solid ${e.verified ? "#1B5E20" : "#E65100"}`,
+                                      background: e.verified ? "#1B5E20" : "#fff",
+                                      color: e.verified ? "#fff" : "#E65100",
+                                      fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
+                                      letterSpacing: 0.5, padding: "5px 12px", borderRadius: 6,
+                                    }}
+                                  >
+                                    {e.verified ? "✓ Verified — click to unmark" : "Mark verified"}
+                                  </button>
+                                  <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, lineHeight: 1.4}}>
+                                    {e.verified
+                                      ? "Bench-confirmed against a real vehicle. Synced to the API server so other benches see the same flag."
+                                      : "Flip this once you've run the capability on a real car. Persists across reloads (localStorage + API server)."}
+                                  </div>
+                                </div>
                               </div>
                             )}
                           </div>

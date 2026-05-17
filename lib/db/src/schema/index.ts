@@ -9,3 +9,4 @@ export * from "./vehicleJobEvents";
 export * from "./auth29Detections";
 export * from "./signalDiscovery";
 export * from "./integrationTasks";
+export * from "./task634Verifications";

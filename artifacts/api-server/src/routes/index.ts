@@ -11,6 +11,7 @@ import auth29DetectionsRouter from "./auth29Detections";
 import signalDiscoveryRouter from "./signalDiscovery";
 import integrationTasksRouter from "./integrationTasks";
 import bcmCatalogProposalsRouter from "./bcmCatalogProposals";
+import task634VerificationsRouter from "./task634Verifications";
 
 const router: IRouter = Router();
 
@@ -25,6 +26,7 @@ router.use(auth29DetectionsRouter);
 router.use(signalDiscoveryRouter);
 router.use(integrationTasksRouter);
 router.use(bcmCatalogProposalsRouter);
+router.use(task634VerificationsRouter);
 router.use("/anthropic", anthropicRouter);
 
 export default router;
