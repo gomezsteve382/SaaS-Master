@@ -337,6 +337,282 @@ export async function eraseAllKeys(engine, { tx, rx } = DEFAULT_ADDR, {
   return { ok: true };
 }
 
+/* ─── SEC16 live-write recipes (Task #678) ─────────────────────────────────
+ * Each recipe describes how a specific module family accepts a SEC16
+ * write over UDS. The `build(sec16)` callback assembles the request
+ * frame; `verify` (optional) builds a read-back request and `extract`
+ * pulls the 16-byte SEC16 out of the positive response so writeSec16()
+ * can confirm the new bytes are actually live on the module before
+ * declaring success. The recipes are listed here (not inline in
+ * writeSec16) so the UI can offer the operator an explicit picker —
+ * we never want to auto-guess a recipe and write the wrong frame to a
+ * production ECU.
+ *
+ *   RFHUB_GEN2_DID_F102      Gen2 24C32 RFHUB — WriteDataByIdentifier
+ *                            0x2E F1 02 + 16 bytes. Read-back via 0x22.
+ *   RFHUB_XC2268_ROUTINE     2019+ Ram XC2268N RFHUB — RoutineControl
+ *                            0x31 01 02 10 + 16 bytes. No standard
+ *                            read-back DID; pre/post compare not done
+ *                            here (caller must verify via key-program
+ *                            attempt).
+ *   BCM_DID_5320             BCM split-record SEC16 — WriteDataByIdentifier
+ *                            0x2E 53 20 + 16 bytes BCM-form (reverse of
+ *                            RFHUB SEC16). Read-back via 0x22 53 20.
+ *   E95640_BLOCK_0838        95640 external EEPROM SEC16 @ 0x838 —
+ *                            WriteMemoryByAddress 0x3D <addr...> + 16
+ *                            bytes BCM-form. Read-back via 0x23.
+ *
+ * These payloads are derived from the existing offline writers in
+ * securityBytes.js + the standard FCA UDS/0x27 vocabulary. They are
+ * NOT bench-verified end-to-end; the writeSec16() flow surfaces every
+ * tx/rx byte so a tech can pause before committing and the
+ * `bench-override` UI gate is the second line of defence. */
+
+function reverse16(arr) {
+  const out = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) out[i] = arr[15 - i];
+  return out;
+}
+
+export const SEC16_WRITE_RECIPES = {
+  RFHUB_GEN2_DID_F102: {
+    id: 'RFHUB_GEN2_DID_F102',
+    label: 'RFHUB Gen2 — DID 0xF102 (WriteDataByIdentifier)',
+    target: 'RFHUB',
+    sec16Form: 'rfh',
+    build(sec16) {
+      return new Uint8Array([0x2E, 0xF1, 0x02, ...sec16]);
+    },
+    verify: {
+      build() { return new Uint8Array([0x22, 0xF1, 0x02]); },
+      extract(resp) {
+        if (!resp || resp.length < 19 || resp[0] !== 0x62) return null;
+        return Array.from(resp).slice(3, 19);
+      },
+    },
+  },
+  RFHUB_XC2268_ROUTINE: {
+    id: 'RFHUB_XC2268_ROUTINE',
+    label: '2019+ Ram XC2268 RFHUB — Routine 0x0210 (live-only platform)',
+    target: 'RFHUB',
+    sec16Form: 'rfh',
+    build(sec16) {
+      return new Uint8Array([0x31, 0x01, 0x02, 0x10, ...sec16]);
+    },
+    verify: null,
+  },
+  BCM_DID_5320: {
+    id: 'BCM_DID_5320',
+    label: 'BCM — DID 0x5320 (WriteDataByIdentifier, BCM-form)',
+    target: 'BCM',
+    sec16Form: 'bcm',
+    build(sec16) {
+      const bcmForm = reverse16(sec16);
+      return new Uint8Array([0x2E, 0x53, 0x20, ...bcmForm]);
+    },
+    verify: {
+      build() { return new Uint8Array([0x22, 0x53, 0x20]); },
+      extract(resp) {
+        if (!resp || resp.length < 19 || resp[0] !== 0x62) return null;
+        /* BCM returns BCM-form; reverse back to RFH-form for compare. */
+        const bcm = Array.from(resp).slice(3, 19);
+        return reverse16(new Uint8Array(bcm));
+      },
+    },
+  },
+  E95640_BLOCK_0838: {
+    id: 'E95640_BLOCK_0838',
+    label: '95640 EEPROM — WriteMemoryByAddress @ 0x0838 (BCM-form)',
+    target: '95640',
+    sec16Form: 'bcm',
+    build(sec16) {
+      const bcmForm = reverse16(sec16);
+      /* AddressAndLengthFormatIdentifier 0x14 = 1-byte length, 4-byte address. */
+      return new Uint8Array([0x3D, 0x14, 0x00, 0x00, 0x08, 0x38, 0x10, ...bcmForm]);
+    },
+    verify: {
+      build() { return new Uint8Array([0x23, 0x14, 0x00, 0x00, 0x08, 0x38, 0x10]); },
+      extract(resp) {
+        if (!resp || resp.length < 17 || resp[0] !== 0x63) return null;
+        const bcm = Array.from(resp).slice(1, 17);
+        return reverse16(new Uint8Array(bcm));
+      },
+    },
+  },
+};
+
+function bytesEqual16(a, b) {
+  if (!a || !b || a.length !== 16 || b.length !== 16) return false;
+  for (let i = 0; i < 16; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
+
+import { logSec16Sync } from './sec16SyncLog.js';
+import { classifyPlatform } from './sec16Platforms.js';
+
+/* ─── writeSec16 ────────────────────────────────────────────────────────────
+ * Task #678 — live SEC16 writer with module-specific recipe.
+ *
+ * Flow:
+ *   1. Connect (extended session) on the supplied address.
+ *   2. Security access at write level (0x03/0x04) with the supplied algo.
+ *   3. Optional read-back BEFORE the write so the caller can audit the
+ *      pre-state ("before").
+ *   4. Send the recipe-built write frame; surface raw tx/rx bytes + NRC.
+ *   5. Optional read-back AFTER the write; compare against the requested
+ *      SEC16 (in RFH-form). If the recipe has no verify, returns
+ *      `verified:'unverified'` so the caller can decide whether to trust
+ *      the positive write response or require a separate bench check.
+ *
+ * Inputs
+ *   engine        — bridge engine with .uds(tx,rx,bytes,timeout)
+ *   { tx, rx }    — module address pair
+ *   {
+ *     sec16        Uint8Array(16) — target SEC16 in RFH form
+ *     recipe       SEC16_WRITE_RECIPES[*] (or its id string)
+ *     algoFn       seed→key function for 0x27 0x03/0x04
+ *     timeoutMs    per-frame timeout (default 5000)
+ *   }
+ *
+ * Returns
+ *   {
+ *     ok, error?, nrc?,
+ *     recipeId,
+ *     before:   Uint8Array(16)|null,
+ *     written:  Uint8Array(16),
+ *     after:    Uint8Array(16)|null,
+ *     verified: 'match'|'mismatch'|'unverified'|'read-error',
+ *     txFrame:  Uint8Array,
+ *     rxFrame:  Uint8Array,
+ *   }
+ */
+export async function writeSec16(engine, { tx, rx } = DEFAULT_ADDR, {
+  sec16,
+  recipe,
+  algoFn = sbecAlgo,
+  timeoutMs = 5000,
+  vin = null,
+  operator = null,
+  notes = null,
+} = {}) {
+  if (!sec16 || sec16.length !== 16) {
+    return { ok: false, error: 'sec16 must be a 16-byte Uint8Array (RFH form).' };
+  }
+  const target = sec16 instanceof Uint8Array ? sec16 : new Uint8Array(sec16);
+  const r = (typeof recipe === 'string') ? SEC16_WRITE_RECIPES[recipe] : recipe;
+  if (!r || typeof r.build !== 'function') {
+    return { ok: false, error: 'Unknown SEC16 write recipe — pick one from SEC16_WRITE_RECIPES.' };
+  }
+
+  /* Task #678 — fire-and-forget audit on EVERY attempt (success or
+   * failure). Pre-bound so each early return below can call it. */
+  const auditFail = (stage, extra = {}) => logSec16Sync({
+    vin,
+    platform: vin ? classifyPlatform({ vin }).platform : null,
+    actionId: 'live-sec16-write',
+    target: r.target || 'RFHUB',
+    recipeId: r.id,
+    verified: 'read-error',
+    operator,
+    notes: notes ? `${notes} | failed @ ${stage}` : `failed @ ${stage}`,
+    detail: { stage, ...extra },
+  });
+
+  const conn = await connectImmoModule(engine, { tx, rx });
+  if (!conn.ok) { void auditFail('connect', { error: conn.error || null }); return { ...conn, recipeId: r.id }; }
+
+  const sa = await performSecurityAccess(engine, { tx, rx }, { level: 3, algoFn });
+  if (!sa.ok) { void auditFail('security-access', { error: sa.error || null, nrc: sa.nrc ?? null }); return { ...sa, recipeId: r.id }; }
+
+  /* Pre-write read-back (best-effort — failures here do not abort). */
+  let before = null;
+  if (r.verify) {
+    const rbReq = r.verify.build();
+    const rb = await engine.uds(tx, rx, Array.from(rbReq), timeoutMs);
+    if (rb.ok && rb.d) {
+      const extracted = r.verify.extract(rb.d);
+      if (extracted) before = new Uint8Array(extracted);
+    }
+  }
+
+  /* Write. */
+  const txFrame = r.build(target);
+  const w = await engine.uds(tx, rx, Array.from(txFrame), timeoutMs);
+  const rxFrame = (w && w.d) ? new Uint8Array(w.d) : new Uint8Array();
+  if (!w.ok) {
+    void auditFail('write-timeout', { txFrame: Array.from(txFrame) });
+    return {
+      ok: false,
+      error: `SEC16 write timed out — ${IMMO_ERR.TIMEOUT}`,
+      recipeId: r.id, before, written: target, after: null,
+      verified: 'read-error', txFrame, rxFrame,
+    };
+  }
+  const nrc = nrcFrom(rxFrame);
+  if (nrc !== null) {
+    void auditFail('write-nrc', { nrc, txFrame: Array.from(txFrame), rxFrame: Array.from(rxFrame) });
+    return {
+      ok: false, nrc,
+      error: `SEC16 write refused: ${immoNrcMsg(nrc)}`,
+      recipeId: r.id, before, written: target, after: null,
+      verified: 'read-error', txFrame, rxFrame,
+    };
+  }
+
+  /* Post-write read-back + compare. */
+  let after = null;
+  let verified = 'unverified';
+  if (r.verify) {
+    const rbReq = r.verify.build();
+    const rb = await engine.uds(tx, rx, Array.from(rbReq), timeoutMs);
+    if (rb.ok && rb.d) {
+      const extracted = r.verify.extract(rb.d);
+      if (extracted) {
+        after = new Uint8Array(extracted);
+        verified = bytesEqual16(after, target) ? 'match' : 'mismatch';
+      } else {
+        verified = 'read-error';
+      }
+    } else {
+      verified = 'read-error';
+    }
+  }
+
+  /* Task #678 — fire-and-forget audit log. Never blocks the writer
+   * result; the helper swallows all errors. */
+  void logSec16Sync({
+    vin,
+    platform: vin ? classifyPlatform({ vin }).platform : null,
+    actionId: 'live-sec16-write',
+    target: r.target || 'RFHUB',
+    recipeId: r.id,
+    verified,
+    operator,
+    notes,
+    detail: {
+      txFrame: Array.from(txFrame),
+      rxFrame: Array.from(rxFrame),
+      written: Array.from(target),
+      before: before ? Array.from(before) : null,
+      after: after ? Array.from(after) : null,
+    },
+  });
+
+  return {
+    ok: verified !== 'mismatch',
+    recipeId: r.id,
+    before,
+    written: target,
+    after,
+    verified,
+    txFrame,
+    rxFrame,
+    error: verified === 'mismatch'
+      ? 'SEC16 write returned a positive response but read-back does not match the target bytes.'
+      : undefined,
+  };
+}
+
 /* ─── Shared PIN-from-SEC16 helper ─────────────────────────────────────────
  * Accepts a raw 16-byte array (same layout as rfhPcmPair.js parseSec16) and
  * returns the 5-digit PIN string. Exported so both dump-based and live paths

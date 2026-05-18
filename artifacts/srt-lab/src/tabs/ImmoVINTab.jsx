@@ -20,6 +20,8 @@ import {
   findBcmPartialVinSlots,
 } from "../lib/donorLeakScan.js";
 import {writeBcmSec16Gen2} from "../lib/securityBytes.js";
+import {logSec16Sync} from "../lib/sec16SyncLog.js";
+import {classifyPlatform} from "../lib/sec16Platforms.js";
 import {fmtOff} from "./ModuleSync.jsx";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 
@@ -739,6 +741,15 @@ function BCMSection({samplePair, onSamplePairLoaded}) {
       // auto-detect UI test).
       patched = writeBcmSec16Gen2(patched, sec16Bytes).bytes;
       sec16Note = " + SEC16";
+      void logSec16Sync({
+        vin: newVin || null,
+        platform: newVin ? classifyPlatform({ vin: newVin }).platform : null,
+        actionId: 'rfh-bcm-sec16-sync',
+        target: 'BCM',
+        verified: 'offline',
+        notes: 'offline ImmoVINTab BCM patch (Gen2 split records)',
+        detail: { sec16Hex: Array.from(sec16Bytes).map(b => b.toString(16).padStart(2,'0')).join('').toUpperCase() },
+      });
     }
     const fn = aFile.name.replace(/(\.[^.]+)?$/, "_BCM_"+newVin+".bin");
     dl(patched, fn, ASSET_IDS.immoBcmPatched);

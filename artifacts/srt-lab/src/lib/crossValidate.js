@@ -34,6 +34,16 @@ function crossValidate(modules){
   const bcm=modules.find(m=>m.type==="BCM");
   const gpec=modules.find(m=>m.type==="GPEC2A");
   const e95=modules.find(m=>m.type==="95640");
+  /* Task #678 — XC2268 (2019+ Ram) RFHUB has no offline SEC16 in flash.
+   * Previously crossValidate silently produced no SEC16 verdict for these
+   * dumps, which let the Mismatch Wizard report "0 errors" on a Ram dump
+   * even though the platform is unverifiable offline. Surface the
+   * live-only nature explicitly so sec16Preflight + the GO/NO-GO panel
+   * can flip to LIVE_ONLY instead of mis-rendering GO. */
+  const xcRfhub=modules.find(m=>m.type==='XC2268_RFHUB');
+  if(xcRfhub){
+    warnings.push("XC2268 RFHUB detected — offline SEC16 not stored in flash; read and write SEC16 live over OBD only.");
+  }
 
   /* RFHUB ↔ BCM SEC16 (Task #380) — uses the resolved SEC16 instead of
    * the flat 0x40C9 slice so synced Redeye dumps stop firing false

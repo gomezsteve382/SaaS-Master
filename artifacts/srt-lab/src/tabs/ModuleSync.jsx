@@ -12,6 +12,8 @@ import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js"
 import { scoreCandidate, pickBest, fmtPick, CANONICAL_PATTERNS } from "../lib/bestPick.js";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 import { getDidDescription, getDidOperations } from "../lib/dids.js";
+import { logSec16Sync } from "../lib/sec16SyncLog.js";
+import { classifyPlatform } from "../lib/sec16Platforms.js";
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -225,6 +227,14 @@ export function chainBcmFlatRepairIfStale(bcmBytes) {
     return { repaired: false, reason: 'already-in-sync', resolver: r, bytes: bcmBytes, oldFlatHex };
   }
   const wr = writeBcmFlatSec16(bcmBytes, r.bytes);
+  /* Task #678 — fire-and-forget audit log for offline flat-40C9 repair. */
+  void logSec16Sync({
+    actionId: 'flat-40c9-repair',
+    target: 'BCM',
+    verified: 'offline',
+    notes: `resolver source: ${r.source}`,
+    detail: { oldFlatHex, newFlatHex: wr.leHex.toUpperCase(), sec16Hex: wr.sec16Hex.toUpperCase() },
+  });
   return {
     repaired: true, reason: 'stale', resolver: r,
     bytes: wr.bytes, source: r.source,
@@ -2666,6 +2676,15 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         const snapB = new Uint8Array(bcm.bytes);
         setOriginals(prev => ({ ...prev, bcm: { bytes: snapB, filename: bcm.file?.name || 'BCM' } }));
         const wr = writeBcmFlatSec16(bcm.bytes, rs.bytes);
+        void logSec16Sync({
+          vin: bcm.vin || null,
+          platform: bcm.vin ? classifyPlatform({ vin: bcm.vin }).platform : null,
+          actionId: 'flat-40c9-repair',
+          target: 'BCM',
+          verified: 'offline',
+          notes: `resolver source: ${rs.source} @0x${hex4(rs.offset)}`,
+          detail: { oldFlatHex: oldFlat, newFlatHex: wr.leHex.toUpperCase(), sec16Hex: wr.sec16Hex.toUpperCase() },
+        });
         log(`BCM flat 0x40C9 repaired from resolver source '${rs.source}' @0x${hex4(rs.offset)}`, 'ok');
         log(`  Resolved SEC16 (BE): ${wr.sec16Hex.toUpperCase()}`, 'muted');
         log(`  Written @0x40C9 (LE): ${wr.leHex.toUpperCase()}`, 'muted');

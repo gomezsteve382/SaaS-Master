@@ -10,3 +10,4 @@ export * from "./auth29Detections";
 export * from "./signalDiscovery";
 export * from "./integrationTasks";
 export * from "./task634Verifications";
+export * from "./sec16SyncEvents";

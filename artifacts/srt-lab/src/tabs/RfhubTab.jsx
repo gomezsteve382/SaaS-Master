@@ -18,6 +18,7 @@ import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 import {build} from "@workspace/uds";
 import {LocalAlgoOverJ2534} from "../lib/securityAccessSource.js";
 import {runDealerLockoutBypass,dealerLockoutBypassSteps} from "../lib/dealerLockoutBypass.js";
+import Sec16PreflightCard from "../components/Sec16PreflightCard.jsx";
 
 // VIN-specific RFHUB CRC algorithms (poly+init pairs derived from real dumps).
 // Used as a hint shown to the user; the actual write goes through UDS so the
@@ -52,6 +53,21 @@ export default function RfhubTab({vehicle}){
   const [pinExtractInfo,setPinExtractInfo]=useState('');
   const [showConfirmModal,setShowConfirmModal]=useState(false);
   const [rfhubAddr,setRfhubAddr]=useState(RFHUB_CANDIDATES[0]);
+  /* Task #678 — SEC16 pre-flight verdict + bench-override flag plumbed
+   * up from <Sec16PreflightCard/>. Program New Key is gated on
+   * (canProgramKey || benchOverride) so the operator sees a clear GO
+   * before keys go onto the bus, but a tech who knows what they're
+   * doing on a real car can override. */
+  const [sec16Verdict,setSec16Verdict]=useState(null);
+  const [sec16Override,setSec16Override]=useState(false);
+  const onSec16Change=useCallback((v,o)=>{setSec16Verdict(v);setSec16Override(!!o);},[]);
+  /* Fail-closed: until the pre-flight card mounts and posts its first
+   * verdict, Program New Key is disabled even on a clean dump set. The
+   * card's first useEffect fires synchronously after mount, so the
+   * latency is invisible to the operator but the closed default avoids
+   * a one-frame window where the button is clickable without a
+   * computed verdict. */
+  const sec16Cleared=!!sec16Verdict&&(sec16Verdict.canProgramKey||sec16Override);
   const eng=useRef(null);
   const addLog=useCallback((m,t='info')=>{const ts=new Date().toLocaleTimeString();setLog(p=>[...p.slice(-300),{t:ts,m,type:t}]);},[]);
   const hx=(n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0');
@@ -400,6 +416,8 @@ export default function RfhubTab({vehicle}){
       </div>
     </Card>
 
+    <Sec16PreflightCard onChange={onSec16Change}/>
+
     <DealerLockoutBypassCard
       conn={conn}
       addr={rfhubAddr}
@@ -441,7 +459,7 @@ export default function RfhubTab({vehicle}){
         ⚠ CRITICAL: {3-pinAttempts} attempt{3-pinAttempts===1?'':'s'} remaining. 3 wrong PINs = PERMANENT RFHUB LOCKOUT requiring dealer unlock.
       </div>}
       <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-        <Btn onClick={programNewKey} disabled={!!busy||!unlocked||pin.length!==4||pinAttempts>=3} color={C.a1}>➕ Program New Key (0x0401)</Btn>
+        <Btn onClick={programNewKey} disabled={!!busy||!unlocked||pin.length!==4||pinAttempts>=3||!sec16Cleared} color={C.a1} data-testid="rfhub-program-new-key">➕ Program New Key (0x0401)</Btn>
         <Btn onClick={locateKeys} disabled={!!busy||!unlocked} color={C.a3} outline>📍 Locate Keys (0x0403)</Btn>
         <Btn onClick={eraseAllKeys} disabled={!!busy||!unlocked} color={C.er} outline>🗑️ Erase All (0x0404)</Btn>
       </div>
