@@ -5,6 +5,7 @@ import {parseCatalog} from "../lib/unlockCatalogSchema.js";
 import {friendlyAlgo} from "../lib/algoFriendly.js";
 import {getAuth29Detections, subscribeAuth29, clearAuth29Detections, loadAuth29Detections, getAuth29Unlocks, clearAuth29Unlocks} from "../lib/auth29State.js";
 import {useMasterVin} from "../lib/masterVinContext.jsx";
+import {OUTBOX_KEY, coalesceOutbox, replayOutbox} from "../lib/task634Outbox.js";
 
 // Task #643 — format a verifiedAt ISO string for the tooltip / panel.
 // Falls back to the raw string if parsing fails so the UI never blanks.
@@ -359,7 +360,6 @@ export default function UnlockCoverageTab() {
   // clientVerifiedAt is the operator-perceived "saved at" time — the
   // server uses it to detect a stale write (somebody verified the same
   // row on a different machine after this op was queued).
-  const OUTBOX_KEY = "srtlab.task634.outbox.v1";
   const [outbox, setOutbox] = useState(() => {
     if (typeof window === "undefined") return [];
     try {
@@ -386,11 +386,7 @@ export default function UnlockCoverageTab() {
 
   const enqueueOp = useCallback((op) => {
     setOutbox((prev) => {
-      // Coalesce: if the queue already has an op for this entryId, the
-      // newer op wins (older one is dropped). Keeps the queue compact
-      // when a tech taps Save → Clear → Save while offline.
-      const filtered = prev.filter((o) => o.entryId !== op.entryId);
-      const next = [...filtered, op];
+      const next = coalesceOutbox(prev, op);
       persistOutbox(next);
       return next;
     });
@@ -459,113 +455,75 @@ export default function UnlockCoverageTab() {
     setOutbox((prev) => { pending = prev; return prev; });
     if (!pending || pending.length === 0) return {ok: true, drained: 0};
     setOutboxFlushing(true);
-    const remaining = [...pending];
-    const newConflicts = [];
-    let drained = 0;
     try {
-      while (remaining.length > 0) {
-        const op = remaining[0];
-        try {
-          if (op.kind === "verify") {
-            const r = await fetch("/api/task634-verifications", {
-              method: "POST",
-              headers: {"Content-Type": "application/json"},
-              body: JSON.stringify({
-                entryId: op.entryId,
-                operator: op.payload?.operator ?? null,
-                vin: op.payload?.vin ?? null,
-                notes: op.payload?.notes ?? null,
-                clientVerifiedAt: op.clientVerifiedAt,
-              }),
-            });
-            if (r.status === 409) {
-              const data = await r.json().catch(() => null);
-              if (data && data.conflict) newConflicts.push({entryId: op.entryId, ...data.conflict});
-              remaining.shift();
-              drained += 1;
-              continue;
-            }
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            const data = await r.json().catch(() => null);
-            if (data && data.verification) {
-              const v = data.verification;
-              setVerifications((prev) => {
-                const next = {
-                  ...prev,
-                  [op.entryId]: {
-                    operator: v.operator ?? null,
-                    vin: v.vin ?? null,
-                    notes: v.notes ?? null,
-                    verifiedAt: v.verifiedAt ?? op.clientVerifiedAt,
-                  },
-                };
-                try {
-                  window.localStorage.setItem(
-                    "srtlab.task634.verifications.v1",
-                    JSON.stringify(next),
-                  );
-                } catch { /* best-effort */ }
-                return next;
-              });
-            }
-            // Reconcile badge state — a server refresh that ran before
-            // the flush may have evicted this id; re-add it now that
-            // the write is durable.
-            setVerifiedIds((prev) => {
-              if (prev.has(op.entryId)) return prev;
-              const next = new Set(prev);
-              next.add(op.entryId);
-              try {
-                window.localStorage.setItem(
-                  "srtlab.task634.verified.v1",
-                  JSON.stringify(Array.from(next)),
-                );
-              } catch { /* best-effort */ }
-              return next;
-            });
-          } else if (op.kind === "clear") {
-            const r = await fetch(
-              `/api/task634-verifications/${encodeURIComponent(op.entryId)}`,
-              {method: "DELETE"},
+      const onApplyVerification = (entryId, v, clientVerifiedAt) => {
+        setVerifications((prev) => {
+          const next = {
+            ...prev,
+            [entryId]: {
+              operator: v.operator ?? null,
+              vin: v.vin ?? null,
+              notes: v.notes ?? null,
+              verifiedAt: v.verifiedAt ?? clientVerifiedAt,
+            },
+          };
+          try {
+            window.localStorage.setItem(
+              "srtlab.task634.verifications.v1",
+              JSON.stringify(next),
             );
-            if (!r.ok && r.status !== 404) throw new Error(`HTTP ${r.status}`);
-            // Successful clear (or 404 = already gone) — make sure the
-            // local badge + metadata reflect that. A pre-flush refresh
-            // could have reintroduced a stale row from the server.
-            setVerifiedIds((prev) => {
-              if (!prev.has(op.entryId)) return prev;
-              const next = new Set(prev);
-              next.delete(op.entryId);
-              try {
-                window.localStorage.setItem(
-                  "srtlab.task634.verified.v1",
-                  JSON.stringify(Array.from(next)),
-                );
-              } catch { /* best-effort */ }
-              return next;
-            });
-            setVerifications((prev) => {
-              if (!(op.entryId in prev)) return prev;
-              const next = {...prev};
-              delete next[op.entryId];
-              try {
-                window.localStorage.setItem(
-                  "srtlab.task634.verifications.v1",
-                  JSON.stringify(next),
-                );
-              } catch { /* best-effort */ }
-              return next;
-            });
-          }
-          remaining.shift();
-          drained += 1;
-        } catch (e) {
-          // Network or server fault — stop draining; the op stays at
-          // the head of the queue for the next flush.
-          remaining[0] = {...op, lastError: e?.message || "send failed"};
-          break;
-        }
-      }
+          } catch { /* best-effort */ }
+          return next;
+        });
+        // Reconcile badge state — a server refresh that ran before
+        // the flush may have evicted this id; re-add it now that
+        // the write is durable.
+        setVerifiedIds((prev) => {
+          if (prev.has(entryId)) return prev;
+          const next = new Set(prev);
+          next.add(entryId);
+          try {
+            window.localStorage.setItem(
+              "srtlab.task634.verified.v1",
+              JSON.stringify(Array.from(next)),
+            );
+          } catch { /* best-effort */ }
+          return next;
+        });
+      };
+      const onApplyClear = (entryId) => {
+        // Successful clear (or 404 = already gone) — make sure the
+        // local badge + metadata reflect that. A pre-flush refresh
+        // could have reintroduced a stale row from the server.
+        setVerifiedIds((prev) => {
+          if (!prev.has(entryId)) return prev;
+          const next = new Set(prev);
+          next.delete(entryId);
+          try {
+            window.localStorage.setItem(
+              "srtlab.task634.verified.v1",
+              JSON.stringify(Array.from(next)),
+            );
+          } catch { /* best-effort */ }
+          return next;
+        });
+        setVerifications((prev) => {
+          if (!(entryId in prev)) return prev;
+          const next = {...prev};
+          delete next[entryId];
+          try {
+            window.localStorage.setItem(
+              "srtlab.task634.verifications.v1",
+              JSON.stringify(next),
+            );
+          } catch { /* best-effort */ }
+          return next;
+        });
+      };
+      const {remaining, drained, conflicts: newConflicts} = await replayOutbox(
+        pending,
+        {fetchImpl: fetch, onApplyVerification, onApplyClear},
+      );
       setOutbox(() => {
         persistOutbox(remaining);
         return remaining;
