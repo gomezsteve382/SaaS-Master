@@ -917,6 +917,63 @@ describe("UnlockCoverageTab — UI", () => {
       expect(screen.getByTestId("verifications-log-to").value).toBe(ymd);
     });
 
+    it("persists filters across remount and clears the stored payload on CLEAR (task #661)", async () => {
+      const e0 = TASK634.entries[0].id;
+      const e1 = TASK634.entries[1].id;
+      setupFetchWithVerifications([
+        { entryId: e0, operator: "K. Pierce", vin: "VIN_A", notes: "alpha", verifiedAt: "2026-05-15T18:00:00.000Z" },
+        { entryId: e1, operator: "M. Wong",   vin: "VIN_B", notes: "beta",  verifiedAt: "2026-05-17T09:30:00.000Z" },
+      ]);
+      const KEY = "srtlab.task661.verificationsLogFilters.v1";
+
+      const first = render(<UnlockCoverageTab />);
+      await waitFor(() => screen.getByTestId("verifications-log-table"));
+
+      fireEvent.change(screen.getByTestId("verifications-log-operator"), {
+        target: { value: "M. Wong" },
+      });
+      fireEvent.change(screen.getByTestId("verifications-log-search"), {
+        target: { value: "beta" },
+      });
+      fireEvent.change(screen.getByTestId("verifications-log-from"), {
+        target: { value: "2026-05-16" },
+      });
+      fireEvent.change(screen.getByTestId("verifications-log-to"), {
+        target: { value: "2026-05-18" },
+      });
+
+      // localStorage was updated synchronously through the effect.
+      await waitFor(() => {
+        const raw = window.localStorage.getItem(KEY);
+        expect(raw).toBeTruthy();
+        const v = JSON.parse(raw);
+        expect(v.operatorFilter).toBe("M. Wong");
+        expect(v.notesQ).toBe("beta");
+        expect(v.fromDate).toBe("2026-05-16");
+        expect(v.toDate).toBe("2026-05-18");
+      });
+
+      // Unmount + remount = simulates the user switching tabs or
+      // reloading the page. The filter inputs come back populated.
+      first.unmount();
+      render(<UnlockCoverageTab />);
+      await waitFor(() => screen.getByTestId("verifications-log-table"));
+      expect(screen.getByTestId("verifications-log-operator").value).toBe("M. Wong");
+      expect(screen.getByTestId("verifications-log-search").value).toBe("beta");
+      expect(screen.getByTestId("verifications-log-from").value).toBe("2026-05-16");
+      expect(screen.getByTestId("verifications-log-to").value).toBe("2026-05-18");
+
+      // CLEAR drops every field and the stored payload follows.
+      fireEvent.click(screen.getByTestId("verifications-log-clear"));
+      await waitFor(() => {
+        const v = JSON.parse(window.localStorage.getItem(KEY));
+        expect(v).toEqual({
+          operatorFilter: "all", vinFilter: "all", notesQ: "",
+          fromDate: "", toDate: "",
+        });
+      });
+    });
+
     it("CSV export honors the active date range", async () => {
       const e0 = TASK634.entries[0].id;
       const e1 = TASK634.entries[1].id;

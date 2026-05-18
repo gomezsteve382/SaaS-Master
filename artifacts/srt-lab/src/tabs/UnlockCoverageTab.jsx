@@ -1779,6 +1779,7 @@ function VillainOperations({vops}) {
 // owner can scan a week's worth of bench work without round-tripping the
 // server. CSV export honors the active filter so the downloaded report
 // matches what's on screen.
+
 // Task #652 — small status strip rendered at the top of the verifications
 // log. Three visual states so an operator can tell at a glance whether
 // the rows are trustworthy:
@@ -1880,14 +1881,50 @@ function VerificationsLogCard({
   source = "pending", syncedAt = null, error = null,
   refreshing = false, onRefresh,
 }) {
-  const [operatorFilter, setOperatorFilter] = useState("all");
-  const [vinFilter, setVinFilter] = useState("all");
-  const [notesQ, setNotesQ] = useState("");
+  // Task #661 — persist the verifications-log filters across reloads
+  // and tab switches. A shop owner doing daily billing or weekly
+  // compliance reviews keeps re-picking the same range; remembering
+  // it removes that papercut. Stored as one JSON blob under a single
+  // srtlab.* key so an unknown / partial payload simply falls back
+  // to the defaults instead of crashing the tab.
+  const FILTERS_KEY = "srtlab.task661.verificationsLogFilters.v1";
+  function readStoredFilters() {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(FILTERS_KEY);
+      if (!raw) return null;
+      const v = JSON.parse(raw);
+      if (!v || typeof v !== "object") return null;
+      return v;
+    } catch { return null; }
+  }
+  const stored = readStoredFilters();
+  const [operatorFilter, setOperatorFilter] = useState(
+    typeof stored?.operatorFilter === "string" ? stored.operatorFilter : "all");
+  const [vinFilter, setVinFilter] = useState(
+    typeof stored?.vinFilter === "string" ? stored.vinFilter : "all");
+  const [notesQ, setNotesQ] = useState(
+    typeof stored?.notesQ === "string" ? stored.notesQ : "");
   // Date range filter — inclusive on both ends. Inputs are HTML date
   // strings (YYYY-MM-DD) interpreted in the user's local timezone so
   // "May 18" means the operator's local May 18, not UTC.
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [fromDate, setFromDate] = useState(
+    typeof stored?.fromDate === "string" ? stored.fromDate : "");
+  const [toDate, setToDate] = useState(
+    typeof stored?.toDate === "string" ? stored.toDate : "");
+
+  // Mirror the filter state to localStorage whenever any field
+  // changes. CLEAR drops every input to its empty default, so the
+  // stored payload is correspondingly reset — there is no separate
+  // "wipe" branch needed.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(FILTERS_KEY, JSON.stringify({
+        operatorFilter, vinFilter, notesQ, fromDate, toDate,
+      }));
+    } catch { /* localStorage may be unavailable / full */ }
+  }, [operatorFilter, vinFilter, notesQ, fromDate, toDate]);
 
   // Convert a local YYYY-MM-DD string into a numeric ms timestamp at the
   // start (00:00:00.000) or end (23:59:59.999) of that local day. Returns
