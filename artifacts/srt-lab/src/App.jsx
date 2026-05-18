@@ -47,6 +47,7 @@ import WorkflowTab from "./tabs/WorkflowTab.jsx";
 import Gpec2aUnlockTab from "./tabs/Gpec2aUnlockTab.jsx";
 import ExternalToolsTab from "./tabs/ExternalToolsTab.jsx";
 import RadioCodesTab from "./tabs/RadioCodesTab.jsx";
+import BinaryIntelTab from "./tabs/BinaryIntelTab.jsx";
 import SignalDiscoveryTab from "./tabs/SignalDiscoveryTab.jsx";
 import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
@@ -924,6 +925,7 @@ const WORKSPACE_TABS = [
   {id:'gpecunlock',i:'🔓', l:'GPEC2A UNLOCK',s:'Firmware file patcher · no OBD'},
   {id:'exttools',  i:'🧰', l:'EXT TOOLS',   s:'FCA PROXI Tool · GPEC Unlocker'},
   {id:'radiocodes',i:'📻', l:'RADIO CODES', s:'Mopar PIN deriver'},
+  {id:'binintel',  i:'🧪', l:'BINARY INTEL',s:'External report cross-ref'},
   {id:'sigdisc',   i:'🛰️', l:'SIGNAL DISC', s:'TUMFTM sweep · record · match'},
   {id:'canuniverse',i:'🌐', l:'CAN UNIVERSE', s:'awesome-canbus + Eclipse SDV catalog'},
   {id:'loganalyser',i:'📜',l:'LOG ANALYSER',s:'candump · UDS · iddiff · catalog growth'},
@@ -1110,6 +1112,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='gpecunlock'&& <Gpec2aUnlockTab/>}
         {tab==='exttools'  && <ExternalToolsTab onOpenTab={setTab}/>}
         {tab==='radiocodes'&& <RadioCodesTab/>}
+        {tab==='binintel'  && <BinaryIntelTab/>}
         {tab==='sigdisc'   && <SignalDiscoveryTab/>}
         {tab==='canuniverse' && <CanUniverseTab/>}
         {tab==='loganalyser' && <LogAnalyserTab/>}
