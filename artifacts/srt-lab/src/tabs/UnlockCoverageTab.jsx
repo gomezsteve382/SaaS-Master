@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {C} from "../lib/constants.js";
 import {Card, Btn} from "../lib/ui.jsx";
 import {parseCatalog} from "../lib/unlockCatalogSchema.js";
@@ -328,40 +328,82 @@ export default function UnlockCoverageTab() {
   // Task #641 — hydrate verifications from the API so a flag set on
   // another bench shows up here. Server is authoritative; if it's
   // reachable we replace the localStorage seed with its view.
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/task634-verifications", {cache: "no-cache"})
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (cancelled || !data || !Array.isArray(data.verifications)) return;
-        const ids = [];
-        const meta = {};
-        for (const v of data.verifications) {
-          if (!v || typeof v.entryId !== "string") continue;
-          ids.push(v.entryId);
-          meta[v.entryId] = {
-            operator: v.operator ?? null,
-            vin: v.vin ?? null,
-            notes: v.notes ?? null,
-            verifiedAt: v.verifiedAt ?? null,
-          };
-        }
-        setVerifiedIds(new Set(ids));
-        setVerifications(meta);
-        try {
-          window.localStorage.setItem(
-            "srtlab.task634.verified.v1",
-            JSON.stringify(ids),
-          );
-          window.localStorage.setItem(
-            "srtlab.task634.verifications.v1",
-            JSON.stringify(meta),
-          );
-        } catch { /* storage is best-effort */ }
-      })
-      .catch(() => { /* server is optional — localStorage seed stands */ });
-    return () => { cancelled = true; };
+  // Task #652 — surface whether the displayed rows came from a live API
+  // GET or are stale localStorage cache so a bench tablet operator can
+  // tell the audit log is trustworthy. `verificationsSource` is one of
+  // 'pending' (initial mount, no fetch settled yet), 'live' (last GET
+  // succeeded), or 'cache' (last GET failed — rows shown are from the
+  // last successful sync persisted to localStorage, plus any local
+  // edits made since). `verificationsSyncedAt` records when the
+  // last successful GET landed so the banner can show "last synced
+  // 5 min ago" instead of just "offline".
+  const [verificationsSource, setVerificationsSource] = useState("pending");
+  const [verificationsError, setVerificationsError] = useState(null);
+  const [verificationsSyncedAt, setVerificationsSyncedAt] = useState(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem("srtlab.task634.verifications.syncedAt.v1");
+      return typeof raw === "string" && raw ? raw : null;
+    } catch {
+      return null;
+    }
+  });
+  const [verificationsRefreshing, setVerificationsRefreshing] = useState(false);
+
+  const refreshVerifications = useCallback(async () => {
+    setVerificationsRefreshing(true);
+    try {
+      const r = await fetch("/api/task634-verifications", {cache: "no-cache"});
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      if (!data || !Array.isArray(data.verifications)) {
+        throw new Error("malformed payload");
+      }
+      const ids = [];
+      const meta = {};
+      for (const v of data.verifications) {
+        if (!v || typeof v.entryId !== "string") continue;
+        ids.push(v.entryId);
+        meta[v.entryId] = {
+          operator: v.operator ?? null,
+          vin: v.vin ?? null,
+          notes: v.notes ?? null,
+          verifiedAt: v.verifiedAt ?? null,
+        };
+      }
+      setVerifiedIds(new Set(ids));
+      setVerifications(meta);
+      const stamp = new Date().toISOString();
+      setVerificationsSyncedAt(stamp);
+      setVerificationsSource("live");
+      setVerificationsError(null);
+      try {
+        window.localStorage.setItem(
+          "srtlab.task634.verified.v1",
+          JSON.stringify(ids),
+        );
+        window.localStorage.setItem(
+          "srtlab.task634.verifications.v1",
+          JSON.stringify(meta),
+        );
+        window.localStorage.setItem(
+          "srtlab.task634.verifications.syncedAt.v1",
+          stamp,
+        );
+      } catch { /* storage is best-effort */ }
+      return {ok: true};
+    } catch (e) {
+      setVerificationsSource("cache");
+      setVerificationsError(e?.message || "fetch failed");
+      return {ok: false, error: e?.message || "fetch failed"};
+    } finally {
+      setVerificationsRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    refreshVerifications().catch(() => {});
+  }, [refreshVerifications]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1086,6 +1128,11 @@ export default function UnlockCoverageTab() {
       <VerificationsLogCard
         verifications={verifications}
         task634Entries={task634Entries}
+        source={verificationsSource}
+        syncedAt={verificationsSyncedAt}
+        error={verificationsError}
+        refreshing={verificationsRefreshing}
+        onRefresh={refreshVerifications}
       />
 
       {/* Extended catalog appendix — asset sweep provenance.
@@ -1732,7 +1779,107 @@ function VillainOperations({vops}) {
 // owner can scan a week's worth of bench work without round-tripping the
 // server. CSV export honors the active filter so the downloaded report
 // matches what's on screen.
-function VerificationsLogCard({verifications, task634Entries}) {
+// Task #652 — small status strip rendered at the top of the verifications
+// log. Three visual states so an operator can tell at a glance whether
+// the rows are trustworthy:
+//   - 'pending'  → muted strip ("Syncing…") on initial mount
+//   - 'live'     → green strip ("Live — synced 12:34:56") when the last
+//                  GET against /api/task634-verifications succeeded
+//   - 'cache'    → red/amber strip ("Offline — showing cached audit log
+//                  from <last sync>") with a manual retry button so a
+//                  bench tablet that just regained connectivity can pull
+//                  fresh history without reloading the tab
+function VerificationsLogSourceBanner({source, syncedAt, error, refreshing, onRefresh}) {
+  const isLive = source === "live";
+  const isCache = source === "cache";
+  const isPending = source === "pending";
+  const bg = isLive ? "#1B5E2010" : isCache ? "#C6282810" : "#0000000A";
+  const bd = isLive ? "#1B5E2055" : isCache ? "#C6282855" : C.bd;
+  const fg = isLive ? "#1B5E20" : isCache ? "#9A1F1F" : C.tm;
+  const label = isLive ? "LIVE" : isCache ? "OFFLINE" : "SYNCING";
+  const syncedLabel = syncedAt ? fmtVerifiedAt(syncedAt) : null;
+  let msg;
+  if (isLive) {
+    msg = syncedLabel
+      ? `Showing the live shop audit log from the API server. Last synced ${syncedLabel}.`
+      : "Showing the live shop audit log from the API server.";
+  } else if (isCache) {
+    msg = syncedLabel
+      ? `API server unreachable — showing the cached audit log from the last successful sync (${syncedLabel}). Any new verifications you record while offline will save to this device only and will NOT reach the shop's authoritative log until the API is reachable again.`
+      : "API server unreachable and no cached audit log on this device yet. Plug back in and retry to pull the shop's history. Verifications recorded right now will save to this device only.";
+  } else {
+    msg = "Syncing the shop audit log from the API server…";
+  }
+  return (
+    <div
+      data-testid="verifications-log-source-banner"
+      data-source={source}
+      style={{
+        display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
+        padding: "8px 12px", marginBottom: 10,
+        border: `1px solid ${bd}`, background: bg, borderRadius: 6,
+        fontFamily: "'Nunito'", fontSize: 11, color: fg, lineHeight: 1.4,
+      }}
+    >
+      <span
+        data-testid="verifications-log-source-label"
+        style={{
+          fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 800,
+          letterSpacing: 1, padding: "2px 7px", borderRadius: 999,
+          background: isLive ? "#1B5E20" : isCache ? "#9A1F1F" : "#00000033",
+          color: "#fff",
+        }}
+      >{label}</span>
+      <span style={{flex: 1, minWidth: 200}} data-testid="verifications-log-source-msg">
+        {msg}
+        {isCache && error && (
+          <span style={{display: "block", fontSize: 10, color: C.tm, marginTop: 2, fontFamily: "'JetBrains Mono', monospace"}}>
+            last error: {error}
+          </span>
+        )}
+      </span>
+      {(isCache || isPending) && typeof onRefresh === "function" && (
+        <button
+          type="button"
+          data-testid="verifications-log-source-retry"
+          onClick={() => { onRefresh().catch(() => {}); }}
+          disabled={refreshing}
+          style={{
+            cursor: refreshing ? "wait" : "pointer",
+            border: `1.5px solid ${isCache ? "#9A1F1F" : C.bd}`,
+            background: refreshing ? "#00000010" : "transparent",
+            color: isCache ? "#9A1F1F" : C.tm,
+            fontFamily: "'Nunito'", fontWeight: 800,
+            fontSize: 11, letterSpacing: 0.5, padding: "5px 12px",
+            borderRadius: 6,
+          }}
+        >{refreshing ? "RETRYING…" : "RETRY SYNC"}</button>
+      )}
+      {isLive && typeof onRefresh === "function" && (
+        <button
+          type="button"
+          data-testid="verifications-log-source-refresh"
+          onClick={() => { onRefresh().catch(() => {}); }}
+          disabled={refreshing}
+          style={{
+            cursor: refreshing ? "wait" : "pointer",
+            border: `1px solid ${C.bd}`,
+            background: "transparent", color: C.tm,
+            fontFamily: "'Nunito'", fontWeight: 700,
+            fontSize: 10, letterSpacing: 1, padding: "4px 10px",
+            borderRadius: 6,
+          }}
+        >{refreshing ? "SYNCING…" : "REFRESH"}</button>
+      )}
+    </div>
+  );
+}
+
+function VerificationsLogCard({
+  verifications, task634Entries,
+  source = "pending", syncedAt = null, error = null,
+  refreshing = false, onRefresh,
+}) {
   const [operatorFilter, setOperatorFilter] = useState("all");
   const [vinFilter, setVinFilter] = useState("all");
   const [notesQ, setNotesQ] = useState("");
@@ -1929,6 +2076,20 @@ function VerificationsLogCard({verifications, task634Entries}) {
       <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, marginBottom: 10, lineHeight: 1.4}}>
         Chronological audit of every bench verification recorded for the competitor-parity capabilities — operator, VIN, capability, when, free-form notes. Filter or search, then export CSV for compliance / billing.
       </div>
+
+      {/* Task #652 — source-of-truth banner. Tells the operator whether
+          the rows on screen are from a live API GET (server is reachable
+          and authoritative) or from the local cache (last successful
+          sync persisted to localStorage). The cache state offers a
+          manual retry so an operator who just plugged back in can pull
+          fresh history without reloading the whole tab. */}
+      <VerificationsLogSourceBanner
+        source={source}
+        syncedAt={syncedAt}
+        error={error}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+      />
 
       {!hasAny && (
         <div

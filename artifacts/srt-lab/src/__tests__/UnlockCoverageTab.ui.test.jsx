@@ -743,6 +743,81 @@ describe("UnlockCoverageTab — UI", () => {
       expect(screen.getByTestId("verifications-log-export").hasAttribute("disabled")).toBe(true);
     });
 
+    // Task #652 — banner reflects whether the rows came from the API or
+    // the local cache, and offers a manual retry when the GET fails.
+    it("shows a LIVE banner when the verifications GET succeeds", async () => {
+      setupFetchWithVerifications([]);
+      render(<UnlockCoverageTab />);
+      const banner = await screen.findByTestId("verifications-log-source-banner");
+      await waitFor(() => {
+        expect(banner.getAttribute("data-source")).toBe("live");
+      });
+      expect(screen.getByTestId("verifications-log-source-label").textContent).toBe("LIVE");
+      expect(screen.queryByTestId("verifications-log-source-retry")).toBeNull();
+      expect(screen.getByTestId("verifications-log-source-refresh")).toBeTruthy();
+    });
+
+    it("shows an OFFLINE banner with retry when the GET fails, and recovers on retry", async () => {
+      // Seed localStorage with a previous successful sync so the cached
+      // audit log is non-empty even though the API is offline.
+      const e0 = TASK634.entries[0].id;
+      window.localStorage.setItem(
+        "srtlab.task634.verified.v1",
+        JSON.stringify([e0]),
+      );
+      window.localStorage.setItem(
+        "srtlab.task634.verifications.v1",
+        JSON.stringify({
+          [e0]: {operator: "K. Pierce", vin: "VIN_AAA", notes: "cached row", verifiedAt: "2026-05-15T18:00:00.000Z"},
+        }),
+      );
+      window.localStorage.setItem(
+        "srtlab.task634.verifications.syncedAt.v1",
+        "2026-05-15T18:00:00.000Z",
+      );
+
+      let call = 0;
+      global.fetch = vi.fn(async (url) => {
+        if (typeof url === "string" && url.includes("/api/task634-verifications")) {
+          call += 1;
+          if (call === 1) throw new Error("network down");
+          return {ok: true, status: 200, json: async () => ({verifications: [
+            {entryId: e0, operator: "K. Pierce", vin: "VIN_AAA", notes: "fresh", verifiedAt: "2026-05-18T10:00:00.000Z"},
+          ]})};
+        }
+        if (typeof url === "string" && url.includes("/api/unlock-coverage/stats")) {
+          return {ok: true, status: 200, json: async () => DEFAULT_DISPATCHER_STATS};
+        }
+        if (typeof url === "string" && url.includes("task634_entries.json")) {
+          return {ok: true, status: 200, json: async () => TASK634};
+        }
+        return {ok: true, status: 200, json: async () => CATALOG};
+      });
+
+      render(<UnlockCoverageTab />);
+      const banner = await screen.findByTestId("verifications-log-source-banner");
+      await waitFor(() => {
+        expect(banner.getAttribute("data-source")).toBe("cache");
+      });
+      expect(screen.getByTestId("verifications-log-source-label").textContent).toBe("OFFLINE");
+      // Cached row is still shown so the bench operator can see history
+      // even when the API is unreachable.
+      expect(screen.getByTestId(`verifications-log-row-${e0}`)).toBeTruthy();
+      // The banner must not promise behavior the code doesn't implement
+      // (there is no deferred-write queue yet — see follow-up #663).
+      const offlineMsg = screen.getByTestId("verifications-log-source-msg").textContent || "";
+      expect(offlineMsg).not.toMatch(/queue|re-?sync|auto-?sync|automatically/i);
+      expect(offlineMsg).toMatch(/device only/i);
+
+      // Manual retry now succeeds and the banner flips to LIVE.
+      fireEvent.click(screen.getByTestId("verifications-log-source-retry"));
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("verifications-log-source-banner").getAttribute("data-source"),
+        ).toBe("live");
+      });
+    });
+
     it("lists rows sorted desc by verifiedAt and supports operator + VIN + notes filters", async () => {
       const e0 = TASK634.entries[0].id;
       const e1 = TASK634.entries[1].id;
