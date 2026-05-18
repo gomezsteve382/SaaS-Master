@@ -1736,6 +1736,52 @@ function VerificationsLogCard({verifications, task634Entries}) {
   const [operatorFilter, setOperatorFilter] = useState("all");
   const [vinFilter, setVinFilter] = useState("all");
   const [notesQ, setNotesQ] = useState("");
+  // Date range filter — inclusive on both ends. Inputs are HTML date
+  // strings (YYYY-MM-DD) interpreted in the user's local timezone so
+  // "May 18" means the operator's local May 18, not UTC.
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
+  // Convert a local YYYY-MM-DD string into a numeric ms timestamp at the
+  // start (00:00:00.000) or end (23:59:59.999) of that local day. Returns
+  // null for an empty / malformed string so callers can short-circuit.
+  function localDayBounds(ymd, edge) {
+    if (!ymd) return null;
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd);
+    if (!m) return null;
+    const y = Number(m[1]); const mo = Number(m[2]) - 1; const d = Number(m[3]);
+    const dt = edge === "end"
+      ? new Date(y, mo, d, 23, 59, 59, 999)
+      : new Date(y, mo, d, 0, 0, 0, 0);
+    const t = dt.getTime();
+    return Number.isFinite(t) ? t : null;
+  }
+
+  function fmtLocalYmd(date) {
+    const y = date.getFullYear();
+    const mo = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${mo}-${d}`;
+  }
+  function applyPresetToday() {
+    const today = fmtLocalYmd(new Date());
+    setFromDate(today); setToDate(today);
+  }
+  function applyPresetThisWeek() {
+    // Week = Monday → Sunday in the operator's local timezone. JS getDay
+    // returns 0 (Sun)…6 (Sat), so shift so Monday is index 0.
+    const now = new Date();
+    const dow = (now.getDay() + 6) % 7;
+    const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dow);
+    const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
+    setFromDate(fmtLocalYmd(monday)); setToDate(fmtLocalYmd(sunday));
+  }
+  function applyPresetThisMonth() {
+    const now = new Date();
+    const first = new Date(now.getFullYear(), now.getMonth(), 1);
+    const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    setFromDate(fmtLocalYmd(first)); setToDate(fmtLocalYmd(last));
+  }
 
   // Index task-634 entries by id so we can resolve a friendly capability
   // label for each verification row. Falls back to the raw entryId when
@@ -1787,15 +1833,29 @@ function VerificationsLogCard({verifications, task634Entries}) {
     return Array.from(s).sort();
   }, [rows]);
 
+  const fromTs = useMemo(() => localDayBounds(fromDate, "start"), [fromDate]);
+  const toTs = useMemo(() => localDayBounds(toDate, "end"), [toDate]);
+
   const filtered = useMemo(() => {
     const term = notesQ.trim().toLowerCase();
     return rows.filter((r) => {
       if (operatorFilter !== "all" && r.operator !== operatorFilter) return false;
       if (vinFilter !== "all" && r.vin !== vinFilter) return false;
       if (term && !r.notes.toLowerCase().includes(term)) return false;
+      if (fromTs !== null || toTs !== null) {
+        // Rows missing a timestamp can't satisfy a date filter — exclude
+        // them so the count + CSV stay consistent with what's visible.
+        const t = r.verifiedAt ? Date.parse(r.verifiedAt) : NaN;
+        if (!Number.isFinite(t)) return false;
+        if (fromTs !== null && t < fromTs) return false;
+        if (toTs !== null && t > toTs) return false;
+      }
       return true;
     });
-  }, [rows, operatorFilter, vinFilter, notesQ]);
+  }, [rows, operatorFilter, vinFilter, notesQ, fromTs, toTs]);
+
+  const hasActiveFilter =
+    operatorFilter !== "all" || vinFilter !== "all" || notesQ || fromDate || toDate;
 
   function exportCsv() {
     // RFC 4180-ish CSV: wrap every field in double quotes, escape embedded
@@ -1918,11 +1978,14 @@ function VerificationsLogCard({verifications, task634Entries}) {
               placeholder="Search notes…"
               style={{...inputStyle, flex: 1, minWidth: 180, fontFamily: "'Nunito'"}}
             />
-            {(operatorFilter !== "all" || vinFilter !== "all" || notesQ) && (
+            {hasActiveFilter && (
               <button
                 type="button"
                 data-testid="verifications-log-clear"
-                onClick={() => { setOperatorFilter("all"); setVinFilter("all"); setNotesQ(""); }}
+                onClick={() => {
+                  setOperatorFilter("all"); setVinFilter("all"); setNotesQ("");
+                  setFromDate(""); setToDate("");
+                }}
                 style={{
                   cursor: "pointer", border: `1px solid ${C.bd}`,
                   background: "transparent", color: C.tm,
@@ -1931,6 +1994,51 @@ function VerificationsLogCard({verifications, task634Entries}) {
                 }}
               >CLEAR</button>
             )}
+          </div>
+
+          <div style={{display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 10, alignItems: "center"}}>
+            <label style={{display: "flex", alignItems: "center", gap: 6, fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}>
+              From
+              <input
+                type="date"
+                data-testid="verifications-log-from"
+                value={fromDate}
+                max={toDate || undefined}
+                onChange={(ev) => setFromDate(ev.target.value)}
+                style={inputStyle}
+              />
+            </label>
+            <label style={{display: "flex", alignItems: "center", gap: 6, fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}>
+              To
+              <input
+                type="date"
+                data-testid="verifications-log-to"
+                value={toDate}
+                min={fromDate || undefined}
+                onChange={(ev) => setToDate(ev.target.value)}
+                style={inputStyle}
+              />
+            </label>
+            <div style={{display: "flex", gap: 4, alignItems: "center"}}>
+              {[
+                {id: "today", label: "Today", apply: applyPresetToday},
+                {id: "week", label: "This week", apply: applyPresetThisWeek},
+                {id: "month", label: "This month", apply: applyPresetThisMonth},
+              ].map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  data-testid={`verifications-log-preset-${p.id}`}
+                  onClick={p.apply}
+                  style={{
+                    cursor: "pointer", border: `1px solid ${C.bd}`,
+                    background: "transparent", color: C.tx,
+                    fontFamily: "'Nunito'", fontWeight: 700, fontSize: 10,
+                    letterSpacing: 0.5, padding: "5px 8px", borderRadius: 6,
+                  }}
+                >{p.label}</button>
+              ))}
+            </div>
           </div>
 
           <div style={{overflowX: "auto", border: `1px solid ${C.bd}`, borderRadius: 6}}>

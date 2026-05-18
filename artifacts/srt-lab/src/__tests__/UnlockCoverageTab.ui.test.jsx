@@ -789,6 +789,90 @@ describe("UnlockCoverageTab — UI", () => {
       expect(screen.getByTestId(`verifications-log-row-${e1}`)).toBeTruthy();
     });
 
+    it("filters by From/To date range and CLEAR resets the range", async () => {
+      const e0 = TASK634.entries[0].id;
+      const e1 = TASK634.entries[1].id;
+      const e2 = TASK634.entries[2].id;
+      setupFetchWithVerifications([
+        { entryId: e0, operator: "K. Pierce", vin: "VIN_A", notes: "alpha", verifiedAt: "2026-05-15T18:00:00.000Z" },
+        { entryId: e1, operator: "M. Wong",   vin: "VIN_B", notes: "beta",  verifiedAt: "2026-05-17T09:30:00.000Z" },
+        { entryId: e2, operator: "K. Pierce", vin: "VIN_A", notes: "gamma", verifiedAt: "2026-05-10T12:00:00.000Z" },
+      ]);
+      render(<UnlockCoverageTab />);
+      await waitFor(() => screen.getByTestId("verifications-log-table"));
+
+      // From-only narrows to rows on/after the date
+      fireEvent.change(screen.getByTestId("verifications-log-from"), {
+        target: { value: "2026-05-15" },
+      });
+      expect(screen.queryByTestId(`verifications-log-row-${e2}`)).toBeNull();
+      expect(screen.getByTestId(`verifications-log-row-${e0}`)).toBeTruthy();
+      expect(screen.getByTestId(`verifications-log-row-${e1}`)).toBeTruthy();
+      expect(screen.getByTestId("verifications-log-count").textContent).toBe("2 of 3");
+
+      // Add To upper bound — inclusive on the same day
+      fireEvent.change(screen.getByTestId("verifications-log-to"), {
+        target: { value: "2026-05-15" },
+      });
+      expect(screen.getAllByTestId(/^verifications-log-row-/).length).toBe(1);
+      expect(screen.getByTestId(`verifications-log-row-${e0}`)).toBeTruthy();
+
+      // CLEAR resets date range alongside the other filters
+      fireEvent.click(screen.getByTestId("verifications-log-clear"));
+      expect(screen.getByTestId("verifications-log-from").value).toBe("");
+      expect(screen.getByTestId("verifications-log-to").value).toBe("");
+      expect(screen.getAllByTestId(/^verifications-log-row-/).length).toBe(3);
+    });
+
+    it("'Today' preset sets both From and To to today's local date", async () => {
+      const e0 = TASK634.entries[0].id;
+      setupFetchWithVerifications([
+        { entryId: e0, operator: "K. Pierce", vin: "VIN_A", notes: "alpha", verifiedAt: "2026-05-15T18:00:00.000Z" },
+      ]);
+      render(<UnlockCoverageTab />);
+      await waitFor(() => screen.getByTestId("verifications-log-table"));
+
+      fireEvent.click(screen.getByTestId("verifications-log-preset-today"));
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, "0");
+      const d = String(today.getDate()).padStart(2, "0");
+      const ymd = `${y}-${m}-${d}`;
+      expect(screen.getByTestId("verifications-log-from").value).toBe(ymd);
+      expect(screen.getByTestId("verifications-log-to").value).toBe(ymd);
+    });
+
+    it("CSV export honors the active date range", async () => {
+      const e0 = TASK634.entries[0].id;
+      const e1 = TASK634.entries[1].id;
+      setupFetchWithVerifications([
+        { entryId: e0, operator: "K. Pierce", vin: "VIN_A", notes: "alpha", verifiedAt: "2026-05-15T18:00:00.000Z" },
+        { entryId: e1, operator: "M. Wong",   vin: "VIN_B", notes: "beta",  verifiedAt: "2026-05-17T09:30:00.000Z" },
+      ]);
+      let capturedBlob = null;
+      const origCreate = URL.createObjectURL;
+      const origRevoke = URL.revokeObjectURL;
+      URL.createObjectURL = vi.fn((blob) => { capturedBlob = blob; return "blob:mock"; });
+      URL.revokeObjectURL = vi.fn();
+      try {
+        render(<UnlockCoverageTab />);
+        await waitFor(() => screen.getByTestId("verifications-log-table"));
+        fireEvent.change(screen.getByTestId("verifications-log-from"), {
+          target: { value: "2026-05-16" },
+        });
+        fireEvent.click(screen.getByTestId("verifications-log-export"));
+        expect(capturedBlob).toBeTruthy();
+        const csv = await capturedBlob.text();
+        const lines = csv.split("\r\n");
+        expect(lines.length).toBe(2);
+        expect(lines[1]).toContain("M. Wong");
+        expect(lines[1]).not.toContain("K. Pierce");
+      } finally {
+        URL.createObjectURL = origCreate;
+        URL.revokeObjectURL = origRevoke;
+      }
+    });
+
     it("CSV export builds a blob whose contents honor the active filter", async () => {
       const e0 = TASK634.entries[0].id;
       const e1 = TASK634.entries[1].id;
