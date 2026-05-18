@@ -5,7 +5,9 @@ describe('sec16Platforms — WMI classification matrix', () => {
   const cases = [
     ['1C6RR7LT5KS123456', 'dt-ram-2019plus', true],
     ['3C6UR5GL0KG123456', 'dt-ram-2019plus', true],
-    ['1D7HW48N75S123456', 'dt-ram-2019plus', true],
+    ['1D7HW48NKS5123456', 'dt-ram-2019plus', true], // 2019 (model year char 'K')
+    ['1C6RR7LT5JS123456', 'unknown',         false], // 2018 DT Ram — pre-XC2268, must NOT be live-only
+    ['1C6RR7LT5NS123456', 'dt-ram-2019plus', true], // 2022 (model year char 'N')
     ['1C4RJFDJ7DC513874', 'wk2-jeep',        false], // Trackhawk WK2
     ['1J4HR58N75C123456', 'wk2-jeep',        false],
     ['1C4SDHCT6KC123456', 'wd-durango',      false], // Durango SRT

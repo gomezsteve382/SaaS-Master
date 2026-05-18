@@ -379,6 +379,7 @@ export const SEC16_WRITE_RECIPES = {
     id: 'RFHUB_GEN2_DID_F102',
     label: 'RFHUB Gen2 — DID 0xF102 (WriteDataByIdentifier)',
     target: 'RFHUB',
+    securityLevel: 3, /* standard 0x27 0x03/0x04 */
     sec16Form: 'rfh',
     build(sec16) {
       return new Uint8Array([0x2E, 0xF1, 0x02, ...sec16]);
@@ -395,6 +396,7 @@ export const SEC16_WRITE_RECIPES = {
     id: 'RFHUB_XC2268_ROUTINE',
     label: '2019+ Ram XC2268 RFHUB — Routine 0x0210 (live-only platform)',
     target: 'RFHUB',
+    securityLevel: 3, /* XC2268N uses the same 0x27 0x03/0x04 pair */
     sec16Form: 'rfh',
     build(sec16) {
       return new Uint8Array([0x31, 0x01, 0x02, 0x10, ...sec16]);
@@ -405,6 +407,7 @@ export const SEC16_WRITE_RECIPES = {
     id: 'BCM_DID_5320',
     label: 'BCM — DID 0x5320 (WriteDataByIdentifier, BCM-form)',
     target: 'BCM',
+    securityLevel: 3, /* BCM SEC16 write is a level-3 protected DID */
     sec16Form: 'bcm',
     build(sec16) {
       const bcmForm = reverse16(sec16);
@@ -424,6 +427,10 @@ export const SEC16_WRITE_RECIPES = {
     id: 'E95640_BLOCK_0838',
     label: '95640 EEPROM — WriteMemoryByAddress @ 0x0838 (BCM-form)',
     target: '95640',
+    /* 95640 raw block uses the alternate level 0x27 0x0B / 0x0C
+     * unlock — this is the path required by the WK2/WD service-port
+     * write tools when the BCM is in its programming session. */
+    securityLevel: 0x0B,
     sec16Form: 'bcm',
     build(sec16) {
       const bcmForm = reverse16(sec16);
@@ -521,8 +528,11 @@ export async function writeSec16(engine, { tx, rx } = DEFAULT_ADDR, {
   const conn = await connectImmoModule(engine, { tx, rx });
   if (!conn.ok) { void auditFail('connect', { error: conn.error || null }); return { ...conn, recipeId: r.id }; }
 
-  const sa = await performSecurityAccess(engine, { tx, rx }, { level: 3, algoFn });
-  if (!sa.ok) { void auditFail('security-access', { error: sa.error || null, nrc: sa.nrc ?? null }); return { ...sa, recipeId: r.id }; }
+  /* Per-recipe security level — falls back to 3 for legacy recipes that
+   * predate the field. 95640 uses the 0x0B/0x0C alternate level. */
+  const saLevel = (typeof r.securityLevel === 'number') ? r.securityLevel : 3;
+  const sa = await performSecurityAccess(engine, { tx, rx }, { level: saLevel, algoFn });
+  if (!sa.ok) { void auditFail('security-access', { error: sa.error || null, nrc: sa.nrc ?? null, level: saLevel }); return { ...sa, recipeId: r.id }; }
 
   /* Pre-write read-back (best-effort — failures here do not abort). */
   let before = null;

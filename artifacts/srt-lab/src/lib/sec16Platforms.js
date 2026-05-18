@@ -35,7 +35,13 @@ const WMI_TABLE = [
    * it ships the same RFHUB). Live-only because the 2019+ RFHUB stores
    * its vehicle-pairing block in internal flash (XC2268N) and does
    * NOT expose it as a flat SEC16 in any field-readable EEPROM image. */
-  { re: /^(1C6|3C6|1D7|3D7|1D6|3D6|2C6)/, platform: 'dt-ram-2019plus' },
+  /* Year discrimination: VIN position 10 (index 9) is the ISO 3779 model
+   * year. 2019 = 'K', 2020 = 'L', … (excluded letters I/O/Q/U/Z). The
+   * XC2268N RFHUB only ships on 2019+ DT/DS Ram; older DS Ram (2009-2018)
+   * uses the same family WMI but a legacy RFHUB with flat SEC16, so it
+   * must NOT be misclassified as LIVE_ONLY. */
+  { re: /^(1C6|3C6|1D7|3D7|1D6|3D6|2C6)/, platform: 'dt-ram-2019plus',
+    yearGate: (v) => 'KLMNPRSTVWXY'.includes(v[9]) },
   /* WK2 Jeep Grand Cherokee (incl Trackhawk SRT) — WMI 1C4RJF / 1C4RJE
    * / 1J4 / 1J8. */
   { re: /^(1C4RJ[EF]|1J[48])/, platform: 'wk2-jeep' },
@@ -137,7 +143,9 @@ export function classifyPlatform({ vin = null, modules = [] } = {}) {
     platform = 'dt-ram-2019plus';
   } else if (vinSeen) {
     for (const row of WMI_TABLE) {
-      if (row.re.test(vinSeen)) { platform = row.platform; break; }
+      if (!row.re.test(vinSeen)) continue;
+      if (row.yearGate && !row.yearGate(vinSeen)) continue;
+      platform = row.platform; break;
     }
   }
   if (!platform) platform = 'unknown';
