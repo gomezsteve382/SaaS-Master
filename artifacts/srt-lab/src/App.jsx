@@ -26,6 +26,7 @@ import ModuleSync, { moduleSizeBadge, resizePcmForTargetChip } from "./tabs/Modu
 import JailbreakTab from "./tabs/JailbreakTab";
 import BcmTab from "./tabs/BcmTab";
 import RfhubTab from "./tabs/RfhubTab";
+import SkimTab from "./tabs/SkimTab";
 import BackupsTab from "./tabs/BackupsTab";
 import SampleLibraryTab from "./tabs/SampleLibraryTab.jsx";
 import AlfaObdTablesTab from "./tabs/AlfaObdTablesTab.jsx";
@@ -463,7 +464,7 @@ function SkimVehicleBanner({vehicle}){
   );
 }
 
-function SkimTab({vehicle}){
+function SkimSecurityTab({vehicle}){
   const[mods,setMods]=useState([]);const[tv,setTv]=useState('');const[msg,setMsg]=useState('');
   const addF=useCallback(fl=>{Promise.all(Array.from(fl).map(f=>new Promise(r=>{const rd=new FileReader();rd.onload=e=>{const d=new Uint8Array(e.target.result);const m=secAnalyze(d,f.name);r(m.type!=='?'?m:null);};rd.readAsArrayBuffer(f);}))).then(res=>{const v=res.filter(Boolean);setMods(p=>{const u=[...p,...v];if(!tv&&u.length)for(const m of u)if(m.vins.length){setTv(m.vins[0].vin);break;}return u;});});},[tv]);
   const allV=useMemo(()=>{const s=new Set();mods.forEach(m=>m.vins.forEach(v=>s.add(v.vin)));return[...s];},[mods]);
@@ -904,6 +905,7 @@ const WORKSPACE_TABS = [
   {id:'jailbreak', i:'💀', l:'JAILBREAK',    s:'SRT · Demon · Hellcat · Redeye'},
   {id:'seed',      i:'🔑', l:'SEED→KEY',     s:'14 Algorithms'},
   {id:'bcm',       i:'🧠', l:'BCM',          s:'VIN · CRC · Features'},
+  {id:'skimlive',  i:'🛡️', l:'SKIM LIVE',    s:'Immo · Key Count · Learning'},
   {id:'rfhub',     i:'📡', l:'RFHUB',        s:'VIN · Key Fobs'},
   {id:'ecm',       i:'⚡', l:'ECM',          s:'VIN · 10 Algorithms'},
   {id:'backups',   i:'💾', l:'BACKUPS',      s:'History · Restore'},
@@ -1090,13 +1092,14 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='jailbreak' && <JailbreakTab vehicle={vehicle}/>}
         {tab==='seed'      && <SeedTab/>}
         {tab==='bcm'       && <BcmTab vehicle={vehicle}/>}
+        {tab==='skimlive'  && <SkimTab/>}
         {tab==='rfhub'     && <RfhubTab vehicle={vehicle}/>}
         {tab==='keymgr'    && <KeyManagerTab vehicle={vehicle}/>}
         {tab==='livekey'   && <LiveKeyTab/>}
         {tab==='ecm'       && <EcmTab vehicle={vehicle}/>}
         {tab==='backups'   && <BackupsTab/>}
         {tab==='obd'       && <LiveObdTab vehicle={vehicle} onOpenTab={setTab}/>}
-        {tab==='skim'      && <SkimTab vehicle={vehicle}/>}
+        {tab==='skim'      && <SkimSecurityTab vehicle={vehicle}/>}
         {tab==='info'      && <InfoTab vehicle={vehicle}/>}
         {tab==='cflash'    && <CFlashTab files={files.filter(f=>f && (f.type==='CFLASH'||f.type==='FW'))} onLoad={loadF} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
         {tab==='efd'       && <EfdInspectorTab efdFile={efdFile} files={files} onLoad={loadF} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
