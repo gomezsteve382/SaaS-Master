@@ -143,6 +143,36 @@ function alfaAo(seedBytes){
 // generated module isn't pulled into the algos.js import graph for
 // callers that only need the SGW XTEA bits.
 import { AOBD_W6 } from "./alfaobdAlgorithms.generated.js";
+import { calculateSecurityKey_0x61 as _villain_0x61 } from "./villain27_61.js";
+
+// ─── Feature flag: FCA 0x27 0x61 ──────────────────────────────────────────
+// Gates surfacing of the promoted villain27_61 algorithm in ALGOS / the
+// seed calculator. Default false because the embedded S-box is still the
+// identity-permutation placeholder; flipping this true before the real
+// 256-byte FCA_SBox is in place will produce keys that the ECU rejects
+// with NRC 0x35. See docs/villain-unpack-workflow.md §Phase 3.
+export const ENABLE_VILLAIN_0x61 = false;
+
+// 8-byte seed/key wrapper for the u32-shaped ALGOS.fn signature used by
+// the seed calculator picker. The villain 0x61 algorithm is natively
+// 8-byte in / 8-byte out; the picker only renders the high u32 of the
+// resulting key block, so we expand the u32 seed by repeating it twice
+// and return key[0..3] as a u32. This adapter is intentionally
+// SeedTab-only — there is no unlockKeyBytes('villain_0x61') branch
+// because (a) the embedded S-box is still the identity placeholder, so
+// any live unlock attempt would produce keys the ECU rejects with
+// NRC 0x35, and (b) until that's resolved we don't want the algorithm
+// in the fallback chain. Wire the byte-native path in the same PR that
+// flips ENABLE_VILLAIN_0x61 true.
+function villain27_61U32(seedU32){
+  const s = u32(seedU32);
+  const seed8 = new Uint8Array([
+    (s>>>24)&0xFF,(s>>>16)&0xFF,(s>>>8)&0xFF,s&0xFF,
+    (s>>>24)&0xFF,(s>>>16)&0xFF,(s>>>8)&0xFF,s&0xFF,
+  ]);
+  const k = _villain_0x61(seed8);
+  return u32((k[0]<<24)|(k[1]<<16)|(k[2]<<8)|k[3]);
+}
 function alfaW6By(seedBytes,name){
   const rs=AOBD_W6[name];
   if(!rs) return null;
@@ -368,6 +398,16 @@ const ALGOS=[
   // The bare `fn` returns 0; the SeedTab interaction is the source of
   // truth for what gets computed.
   {id:'alfa_w6_custom',n:'AlfaOBD w6 (custom)',h:'wrapper name or manual (r, s)',fn:()=>0,custom:'alfa_w6'},
+  // ── FCA 0x27 0x61 (VILLAIN-extracted, S-box pending) ──
+  // Gated behind ENABLE_VILLAIN_0x61 (default false) — the embedded S-box
+  // is still the identity-permutation placeholder, so the entry is only
+  // pushed into the picker when the flag is flipped true after the real
+  // 256-byte FCA_SBox has been substituted in villain27_61.js. The fn
+  // adapts the 8-byte-native algorithm onto the u32 ALGOS signature; the
+  // byte-native path lives in unlockKeyBytes().
+  ...(ENABLE_VILLAIN_0x61 ? [
+    {id:'villain_0x61',n:'FCA 0x27 0x61',h:'VILLAIN — 8-byte (flag-gated)',fn:villain27_61U32},
+  ] : []),
 ];
 
 // Look up an unlock algorithm by the id used in MODULE_TARGETS.unlock.

@@ -177,7 +177,7 @@ _No new DLLs. The 81-entry unlock catalog is exhaustive for this corpus._
 
 ## Already-in-app sanity check
 
-Algorithm tags currently known to SRT Lab: **849**
+Algorithm tags currently known to SRT Lab: **851**
 CRC signatures currently known to SRT Lab: **10**
 
 If the Reuse counts above ever drop, that means a generated catalog

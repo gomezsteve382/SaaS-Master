@@ -266,13 +266,13 @@ what is already covered and what is net-new.
 | CRC-16/CCITT-FALSE (poly `0x1021`, init `0xFFFF`) | `crc16ccitt()` confirmed matching | `src/lib/crc.js` |
 | SecurityAccess for various GPEC/TIPM levels | Multiple `sxor` / `tipm` variants | `src/lib/algos.js` |
 | SGW security access (`0x27 0x01` XTEA) | `xtea_sgw()`, `xtea_sgw_full()` | `src/lib/algos.js` |
+| `0x27 0x61` security access (Steps 1–4) | `calculateSecurityKey_0x61()` promoted from `_unverified/`, gated behind `ENABLE_VILLAIN_0x61` (default false). Step 5 S-box still placeholder — flip the flag only after the real 256-byte `FCA_SBox` is substituted in `villain27_61.js`. | `src/lib/villain27_61.js`, `src/lib/algos.js` |
 
 ### 8.2 Net-new gaps from this intel
 
 | VILLAIN intel item | Gap description | Priority |
 |-------------------|-----------------|----------|
-| `0x27 0x61` security access level | No existing algo for this specific sub-function; needs bench seed→key pair first | High — blocked on S-box extraction |
-| `FCA_SBox` (256-byte S-box) | Not present anywhere in codebase; must be extracted from unpacked binary | Blocker for `0x27 0x61` |
+| `FCA_SBox` (256-byte S-box) | Algorithm scaffolding promoted; still using identity placeholder. Must be extracted from unpacked binary before `ENABLE_VILLAIN_0x61` can be flipped true. | Blocker for activating `0x27 0x61` |
 | 8-byte seed format for `0x27 0x61` | Existing `unlockKeyBytes()` handles 4-byte and 8-byte seeds; framing may need extension | Medium |
 | SKIM DIDs `0xDE01`–`0xDE03` | Not in `dids.ts` catalog (only `0xDE00`–`0xDE0C` generic BCM blocks) | Low |
 | RFHUB DIDs `0xAB01`–`0xAB02` | Not in `dids.ts` catalog | Low |
