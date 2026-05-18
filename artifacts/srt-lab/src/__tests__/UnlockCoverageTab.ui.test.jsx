@@ -1048,6 +1048,205 @@ describe("UnlockCoverageTab — UI", () => {
     });
   });
 
+  // Task #674 — side-by-side merge dialog for offline-vs-server conflicts.
+  describe("Conflict merge dialog (task #674)", () => {
+    // Helper: prime localStorage with a queued outbox op and an offline
+    // banner, then return a fetch mock that serves a 409 on POST flush.
+    function primeOutbox(entryId, payload, clientVerifiedAt) {
+      window.localStorage.setItem(
+        "srtlab.task634.outbox.v1",
+        JSON.stringify([{
+          id: "op_test_1",
+          kind: "verify",
+          entryId,
+          payload,
+          clientVerifiedAt,
+          queuedAt: clientVerifiedAt,
+        }]),
+      );
+    }
+    function buildConflictFetch(entryId, {serverRow, postOk = null}) {
+      let postCalls = 0;
+      const fn = vi.fn(async (url, opts) => {
+        if (typeof url === "string" && url.includes("/api/task634-verifications")) {
+          const method = (opts && opts.method) || "GET";
+          if (method === "GET") {
+            return {ok: true, status: 200, json: async () => ({verifications: []})};
+          }
+          if (method === "POST") {
+            postCalls += 1;
+            if (postOk) {
+              return {
+                ok: true, status: 200,
+                json: async () => ({ok: true, verification: postOk}),
+              };
+            }
+            return {
+              ok: false, status: 409,
+              json: async () => ({
+                error: "conflict",
+                conflict: {
+                  clientVerifiedAt: JSON.parse(opts.body).clientVerifiedAt,
+                  server: serverRow,
+                },
+              }),
+            };
+          }
+        }
+        if (typeof url === "string" && url.includes("/api/unlock-coverage/stats")) {
+          return {ok: true, status: 200, json: async () => DEFAULT_DISPATCHER_STATS};
+        }
+        if (typeof url === "string" && url.includes("task634_entries.json")) {
+          return {ok: true, status: 200, json: async () => TASK634};
+        }
+        return {ok: true, status: 200, json: async () => CATALOG};
+      });
+      // Expose the call counter for assertions.
+      fn.getPostCalls = () => postCalls;
+      return fn;
+    }
+
+    it("REVIEW opens a dialog with side-by-side local vs server values", async () => {
+      const entryId = TASK634.entries[0].id;
+      primeOutbox(entryId, {operator: "K. Pierce", vin: "VINLOCAL", notes: "local note"}, "2026-05-18T10:00:00.000Z");
+      global.fetch = buildConflictFetch(entryId, {
+        serverRow: {entryId, operator: "M. Wong", vin: "VINSERVER", notes: "server note", verifiedAt: "2026-05-18T10:05:00.000Z"},
+      });
+
+      render(<UnlockCoverageTab />);
+      await waitFor(() => screen.getByTestId(`verifications-log-conflict-review-${entryId}`), { timeout: 3000 });
+      fireEvent.click(screen.getByTestId(`verifications-log-conflict-review-${entryId}`));
+
+      const dialog = await screen.findByTestId("verifications-conflict-merge-dialog");
+      expect(dialog).toBeTruthy();
+      // Local cells render the queued payload; server cells render the row from the 409 response.
+      expect(screen.getByTestId("verifications-conflict-merge-pick-operator-local").textContent).toContain("K. Pierce");
+      expect(screen.getByTestId("verifications-conflict-merge-pick-operator-server").textContent).toContain("M. Wong");
+      expect(screen.getByTestId("verifications-conflict-merge-pick-vin-local").textContent).toContain("VINLOCAL");
+      expect(screen.getByTestId("verifications-conflict-merge-pick-vin-server").textContent).toContain("VINSERVER");
+      expect(screen.getByTestId("verifications-conflict-merge-pick-notes-local").textContent).toContain("local note");
+      expect(screen.getByTestId("verifications-conflict-merge-pick-notes-server").textContent).toContain("server note");
+    });
+
+    it("KEEP MINE & OVERWRITE re-POSTs the merged payload with a fresh clientVerifiedAt", async () => {
+      const entryId = TASK634.entries[0].id;
+      primeOutbox(entryId, {operator: "K. Pierce", vin: "VINLOCAL", notes: "local note"}, "2026-05-18T10:00:00.000Z");
+
+      let lastBody = null;
+      let phase = "conflict";
+      const fn = vi.fn(async (url, opts) => {
+        if (typeof url === "string" && url.includes("/api/task634-verifications")) {
+          const method = (opts && opts.method) || "GET";
+          if (method === "GET") {
+            return {ok: true, status: 200, json: async () => ({verifications: []})};
+          }
+          if (method === "POST") {
+            lastBody = JSON.parse(opts.body);
+            if (phase === "conflict") {
+              phase = "ok";
+              return {
+                ok: false, status: 409,
+                json: async () => ({
+                  conflict: {
+                    clientVerifiedAt: lastBody.clientVerifiedAt,
+                    server: {entryId, operator: "M. Wong", vin: "VINSERVER", notes: "server note", verifiedAt: "2026-05-18T10:05:00.000Z"},
+                  },
+                }),
+              };
+            }
+            return {
+              ok: true, status: 200,
+              json: async () => ({ok: true, verification: {
+                entryId, operator: lastBody.operator, vin: lastBody.vin, notes: lastBody.notes,
+                verifiedAt: "2026-05-18T10:10:00.000Z",
+              }}),
+            };
+          }
+        }
+        if (typeof url === "string" && url.includes("/api/unlock-coverage/stats")) {
+          return {ok: true, status: 200, json: async () => DEFAULT_DISPATCHER_STATS};
+        }
+        if (typeof url === "string" && url.includes("task634_entries.json")) {
+          return {ok: true, status: 200, json: async () => TASK634};
+        }
+        return {ok: true, status: 200, json: async () => CATALOG};
+      });
+      global.fetch = fn;
+
+      render(<UnlockCoverageTab />);
+      await waitFor(() => screen.getByTestId(`verifications-log-conflict-review-${entryId}`));
+      fireEvent.click(screen.getByTestId(`verifications-log-conflict-review-${entryId}`));
+      await screen.findByTestId("verifications-conflict-merge-dialog");
+
+      // Flip VIN field to server, keep operator+notes local.
+      fireEvent.click(screen.getByTestId("verifications-conflict-merge-pick-vin-server"));
+      const firstClientVerifiedAt = lastBody?.clientVerifiedAt;
+      fireEvent.click(screen.getByTestId("verifications-conflict-merge-keep-mine"));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("verifications-conflict-merge-dialog")).toBeNull();
+      });
+      // The follow-up POST must carry the merged payload + a strictly newer clientVerifiedAt.
+      expect(lastBody.operator).toBe("K. Pierce");
+      expect(lastBody.vin).toBe("VINSERVER");
+      expect(lastBody.notes).toBe("local note");
+      expect(lastBody.entryId).toBe(entryId);
+      expect(typeof lastBody.clientVerifiedAt).toBe("string");
+      expect(lastBody.clientVerifiedAt).not.toBe(firstClientVerifiedAt);
+      // Conflict is cleared from the banner once the overwrite succeeds.
+      expect(screen.queryByTestId(`verifications-log-conflict-${entryId}`)).toBeNull();
+    });
+
+    it("REVIEW ALL appears when 2+ conflicts queue, and walks through each", async () => {
+      const e0 = TASK634.entries[0].id;
+      const e1 = TASK634.entries[1].id;
+      window.localStorage.setItem(
+        "srtlab.task634.outbox.v1",
+        JSON.stringify([
+          {id: "op_1", kind: "verify", entryId: e0, payload: {operator: "K. Pierce", vin: null, notes: null}, clientVerifiedAt: "2026-05-18T10:00:00.000Z", queuedAt: "2026-05-18T10:00:00.000Z"},
+          {id: "op_2", kind: "verify", entryId: e1, payload: {operator: "K. Pierce", vin: null, notes: null}, clientVerifiedAt: "2026-05-18T10:01:00.000Z", queuedAt: "2026-05-18T10:01:00.000Z"},
+        ]),
+      );
+      global.fetch = vi.fn(async (url, opts) => {
+        if (typeof url === "string" && url.includes("/api/task634-verifications")) {
+          const method = (opts && opts.method) || "GET";
+          if (method === "GET") return {ok: true, status: 200, json: async () => ({verifications: []})};
+          if (method === "POST") {
+            const body = JSON.parse(opts.body);
+            return {
+              ok: false, status: 409,
+              json: async () => ({conflict: {
+                clientVerifiedAt: body.clientVerifiedAt,
+                server: {entryId: body.entryId, operator: "M. Wong", vin: "VINSRV", notes: "srv", verifiedAt: "2026-05-18T10:05:00.000Z"},
+              }}),
+            };
+          }
+        }
+        if (typeof url === "string" && url.includes("/api/unlock-coverage/stats")) return {ok: true, status: 200, json: async () => DEFAULT_DISPATCHER_STATS};
+        if (typeof url === "string" && url.includes("task634_entries.json")) return {ok: true, status: 200, json: async () => TASK634};
+        return {ok: true, status: 200, json: async () => CATALOG};
+      });
+
+      render(<UnlockCoverageTab />);
+      const reviewAll = await screen.findByTestId("verifications-log-conflicts-review-all");
+      fireEvent.click(reviewAll);
+      const dialog = await screen.findByTestId("verifications-conflict-merge-dialog");
+      expect(dialog).toBeTruthy();
+      // Bulk progress indicator + both bulk-resolve buttons are present.
+      expect(screen.getByTestId("verifications-conflict-merge-bulk-progress").textContent).toMatch(/of 2/);
+      expect(screen.getByTestId("verifications-conflict-merge-use-server-all")).toBeTruthy();
+      expect(screen.getByTestId("verifications-conflict-merge-keep-mine-all")).toBeTruthy();
+
+      // Click USE SERVER FOR ALL — both conflicts should clear and the dialog close.
+      fireEvent.click(screen.getByTestId("verifications-conflict-merge-use-server-all"));
+      await waitFor(() => {
+        expect(screen.queryByTestId("verifications-conflict-merge-dialog")).toBeNull();
+      });
+      expect(screen.queryByTestId(`verifications-log-conflict-${e0}`)).toBeNull();
+      expect(screen.queryByTestId(`verifications-log-conflict-${e1}`)).toBeNull();
+    });
+  });
+
   it("falls back to catalog counts when the dispatcher endpoint is unavailable", async () => {
     setupFetch({ stats: null });
     render(<UnlockCoverageTab />);

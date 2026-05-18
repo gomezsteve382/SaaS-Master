@@ -80,7 +80,20 @@ export async function replayOutbox(queue, opts = {}) {
           let data = null;
           try { data = await r.json(); } catch { /* ignore */ }
           if (data && data.conflict) {
-            conflicts.push({ entryId: op.entryId, ...data.conflict });
+            // Preserve the operator's local payload alongside the server
+            // row so the ConflictMergeDialog (task #674) can render a
+            // true side-by-side local-vs-server picker without having
+            // to re-fetch / re-derive what the tech originally typed.
+            conflicts.push({
+              entryId: op.entryId,
+              ...data.conflict,
+              local: {
+                operator: op.payload?.operator ?? null,
+                vin: op.payload?.vin ?? null,
+                notes: op.payload?.notes ?? null,
+                verifiedAt: op.clientVerifiedAt,
+              },
+            });
           }
           remaining.shift();
           drained += 1;

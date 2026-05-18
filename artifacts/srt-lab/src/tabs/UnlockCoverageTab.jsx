@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {C} from "../lib/constants.js";
 import {Card, Btn} from "../lib/ui.jsx";
 import {parseCatalog} from "../lib/unlockCatalogSchema.js";
@@ -377,6 +377,16 @@ export default function UnlockCoverageTab() {
   const [outboxConflicts, setOutboxConflicts] = useState([]);
   const [outboxFlushing, setOutboxFlushing] = useState(false);
 
+  // Mirror the outbox state into a ref so async callbacks (flushOutbox,
+  // bulk resolvers) can read the latest queue synchronously without
+  // depending on React 18's eager-state optimization, which silently
+  // skips the updater function when the fiber has pending lanes (e.g.
+  // a refreshVerifications() that just dispatched four setState calls).
+  const outboxRef = useRef(outbox);
+  useEffect(() => { outboxRef.current = outbox; }, [outbox]);
+  const outboxConflictsRef = useRef([]);
+  useEffect(() => { outboxConflictsRef.current = outboxConflicts; }, [outboxConflicts]);
+
   const persistOutbox = useCallback((next) => {
     if (typeof window === "undefined") return;
     try {
@@ -451,8 +461,7 @@ export default function UnlockCoverageTab() {
   // them. Network failures leave the op in place so the next flush
   // retries from where we stopped.
   const flushOutbox = useCallback(async () => {
-    let pending;
-    setOutbox((prev) => { pending = prev; return prev; });
+    const pending = outboxRef.current;
     if (!pending || pending.length === 0) return {ok: true, drained: 0};
     setOutboxFlushing(true);
     try {
@@ -541,6 +550,69 @@ export default function UnlockCoverageTab() {
     setOutboxConflicts((prev) => prev.filter((c) => c.entryId !== entryId));
   }, []);
 
+  // Task #674 — open the side-by-side merge dialog for one specific
+  // conflict, or "all" to walk every queued conflict in turn (bulk
+  // resolve). Setting to null closes the dialog.
+  const [mergeConflictId, setMergeConflictId] = useState(null);
+
+  // Task #674 — operator chose to keep their local payload (optionally
+  // with merged fields from the server) and clobber whatever the
+  // server now has. Re-POSTs with a fresh clientVerifiedAt so the
+  // server's optimistic-concurrency check (gt verifiedAt) passes.
+  // Updates local state from the server's authoritative response.
+  const keepMineOverwrite = useCallback(async (entryId, mergedPayload) => {
+    const operator = mergedPayload?.operator ?? null;
+    const vin = mergedPayload?.vin ?? null;
+    const notes = mergedPayload?.notes ?? null;
+    const verifiedAt = new Date().toISOString();
+    try {
+      const r = await fetch("/api/task634-verifications", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({entryId, operator, vin, notes, clientVerifiedAt: verifiedAt}),
+      });
+      if (!r.ok) return {ok: false, status: r.status};
+      const data = await r.json().catch(() => null);
+      const v = data?.verification;
+      if (v) {
+        setVerifications((prev) => {
+          const next = {
+            ...prev,
+            [entryId]: {
+              operator: v.operator ?? null,
+              vin: v.vin ?? null,
+              notes: v.notes ?? null,
+              verifiedAt: v.verifiedAt ?? verifiedAt,
+            },
+          };
+          try {
+            window.localStorage.setItem(
+              "srtlab.task634.verifications.v1",
+              JSON.stringify(next),
+            );
+          } catch { /* best-effort */ }
+          return next;
+        });
+        setVerifiedIds((prev) => {
+          if (prev.has(entryId)) return prev;
+          const next = new Set(prev);
+          next.add(entryId);
+          try {
+            window.localStorage.setItem(
+              "srtlab.task634.verified.v1",
+              JSON.stringify(Array.from(next)),
+            );
+          } catch { /* best-effort */ }
+          return next;
+        });
+      }
+      setOutboxConflicts((prev) => prev.filter((c) => c.entryId !== entryId));
+      return {ok: true};
+    } catch (e) {
+      return {ok: false, error: e?.message || "send failed"};
+    }
+  }, []);
+
   const acceptConflictServer = useCallback((entryId) => {
     // Adopt the server's view of this entry — replaces our local
     // verification metadata with what the server returned, then drops
@@ -581,6 +653,62 @@ export default function UnlockCoverageTab() {
       return prev.filter((x) => x.entryId !== entryId);
     });
   }, []);
+
+  // Task #674 — bulk resolvers used by the merge dialog footer.
+  // "Use server for all" adopts every queued server-side row.
+  // "Keep mine for all" re-POSTs every queued local payload.
+  const acceptConflictAllServer = useCallback(() => {
+    setOutboxConflicts((prev) => {
+      for (const c of prev) {
+        if (!c.server) continue;
+        const entryId = c.entryId;
+        const server = c.server;
+        setVerifications((mv) => {
+          const next = {
+            ...mv,
+            [entryId]: {
+              operator: server.operator ?? null,
+              vin: server.vin ?? null,
+              notes: server.notes ?? null,
+              verifiedAt: server.verifiedAt ?? null,
+            },
+          };
+          try {
+            window.localStorage.setItem(
+              "srtlab.task634.verifications.v1",
+              JSON.stringify(next),
+            );
+          } catch { /* best-effort */ }
+          return next;
+        });
+        setVerifiedIds((ids) => {
+          if (ids.has(entryId)) return ids;
+          const next = new Set(ids);
+          next.add(entryId);
+          try {
+            window.localStorage.setItem(
+              "srtlab.task634.verified.v1",
+              JSON.stringify(Array.from(next)),
+            );
+          } catch { /* best-effort */ }
+          return next;
+        });
+      }
+      return [];
+    });
+  }, []);
+
+  const keepMineAllOverwrite = useCallback(async () => {
+    // Snapshot the current conflicts from the ref (see outboxRef note —
+    // setOutboxConflicts((prev) => …) is not a reliable synchronous
+    // read in React 18) and resolve each sequentially so we never race
+    // the same entry against itself.
+    const snapshot = outboxConflictsRef.current;
+    for (const c of snapshot) {
+      // eslint-disable-next-line no-await-in-loop
+      await keepMineOverwrite(c.entryId, c.local || {});
+    }
+  }, [keepMineOverwrite]);
 
   // Initial hydrate + auto-flush. We refresh first to learn whether
   // the API is reachable, then drain any queue we have. Re-flushes on
@@ -850,7 +978,16 @@ export default function UnlockCoverageTab() {
           if (data && data.conflict) {
             setOutboxConflicts((prev) => {
               const without = prev.filter((c) => c.entryId !== entryId);
-              return [...without, {entryId, ...data.conflict}];
+              return [...without, {
+                entryId,
+                ...data.conflict,
+                local: {
+                  operator: cleanOperator,
+                  vin: cleanVin,
+                  notes: cleanNotes,
+                  verifiedAt,
+                },
+              }];
             });
           }
           return null;
@@ -1424,7 +1561,32 @@ export default function UnlockCoverageTab() {
         conflicts={outboxConflicts}
         onDismissConflict={dismissConflict}
         onAcceptConflict={acceptConflictServer}
+        onReviewConflict={(id) => setMergeConflictId(id)}
+        onReviewAllConflicts={() => setMergeConflictId("all")}
       />
+
+      {/* Task #674 — side-by-side merge dialog. Opens for one conflict
+          when the operator clicks REVIEW, or in bulk-walk mode when
+          they click REVIEW ALL. */}
+      {mergeConflictId && outboxConflicts.length > 0 && (
+        <ConflictMergeDialog
+          conflicts={outboxConflicts}
+          selectedId={mergeConflictId}
+          onClose={() => setMergeConflictId(null)}
+          onUseServer={(id) => {
+            acceptConflictServer(id);
+          }}
+          onKeepMine={(id, merged) => keepMineOverwrite(id, merged)}
+          onUseServerAll={() => {
+            acceptConflictAllServer();
+            setMergeConflictId(null);
+          }}
+          onKeepMineAll={async () => {
+            await keepMineAllOverwrite();
+            setMergeConflictId(null);
+          }}
+        />
+      )}
 
       {/* Extended catalog appendix — asset sweep provenance.
           Always rendered (even when DLL-only is empty) because the UDS
@@ -2084,6 +2246,7 @@ function VillainOperations({vops}) {
 function VerificationsLogSourceBanner({
   source, syncedAt, error, refreshing, onRefresh,
   pendingCount = 0, conflicts = [], onDismissConflict, onAcceptConflict,
+  onReviewConflict, onReviewAllConflicts,
 }) {
   const isLive = source === "live";
   const isCache = source === "cache";
@@ -2191,8 +2354,23 @@ function VerificationsLogSourceBanner({
           fontFamily: "'Nunito'", fontSize: 11, color: "#9A1F1F",
         }}
       >
-        <div style={{fontWeight: 900, fontSize: 11, letterSpacing: 0.5, marginBottom: 6}}>
-          {conflicts.length} CONFLICT{conflicts.length === 1 ? "" : "S"} — server has a newer verification
+        <div style={{display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6}}>
+          <div style={{fontWeight: 900, fontSize: 11, letterSpacing: 0.5, flex: 1}}>
+            {conflicts.length} CONFLICT{conflicts.length === 1 ? "" : "S"} — server has a newer verification
+          </div>
+          {conflicts.length > 1 && typeof onReviewAllConflicts === "function" && (
+            <button
+              type="button"
+              data-testid="verifications-log-conflicts-review-all"
+              onClick={() => onReviewAllConflicts()}
+              style={{
+                cursor: "pointer", border: "1.5px solid #9A1F1F",
+                background: "#9A1F1F", color: "#fff",
+                fontFamily: "'Nunito'", fontWeight: 800, fontSize: 10,
+                letterSpacing: 0.5, padding: "4px 10px", borderRadius: 5,
+              }}
+            >REVIEW ALL</button>
+          )}
         </div>
         {conflicts.map((c) => (
           <div
@@ -2210,6 +2388,19 @@ function VerificationsLogSourceBanner({
               {c.server?.vin ? ` (VIN ${c.server.vin})` : ""}
             </span>
             <span style={{flex: 1}}/>
+            {typeof onReviewConflict === "function" && (
+              <button
+                type="button"
+                data-testid={`verifications-log-conflict-review-${c.entryId}`}
+                onClick={() => onReviewConflict(c.entryId)}
+                style={{
+                  cursor: "pointer", border: "1.5px solid #9A1F1F",
+                  background: "#9A1F1F", color: "#fff",
+                  fontFamily: "'Nunito'", fontWeight: 800, fontSize: 10,
+                  letterSpacing: 0.5, padding: "3px 9px", borderRadius: 5,
+                }}
+              >REVIEW</button>
+            )}
             {typeof onAcceptConflict === "function" && (
               <button
                 type="button"
@@ -2244,11 +2435,279 @@ function VerificationsLogSourceBanner({
   );
 }
 
+// Task #674 — side-by-side merge dialog for offline-vs-server conflicts.
+// Opens for a single entryId (operator clicked REVIEW on that row) or
+// in bulk-walk mode (operator clicked REVIEW ALL — we step through
+// every conflict one at a time). For each conflict the operator picks
+// per field whether the local or server value wins, then decides:
+//   - USE SERVER       → adopts the server row verbatim (no POST)
+//   - KEEP MINE & OVERWRITE → re-POSTs the merged payload with a
+//                            fresh clientVerifiedAt so the server's
+//                            optimistic-concurrency check passes
+// Bulk footer also offers USE SERVER FOR ALL / KEEP MINE FOR ALL so a
+// tech coming back from a long offline session can resolve everything
+// without clicking through each row.
+function ConflictMergeDialog({
+  conflicts, selectedId, onClose,
+  onUseServer, onKeepMine,
+  onUseServerAll, onKeepMineAll,
+}) {
+  const isBulk = selectedId === "all";
+  const [cursor, setCursor] = useState(0);
+
+  // When the upstream conflicts list shrinks (operator resolved one),
+  // clamp the cursor so we don't fall off the end and re-render with a
+  // missing conflict. Closing happens automatically once the list is
+  // empty (parent guards on conflicts.length > 0).
+  useEffect(() => {
+    if (cursor >= conflicts.length && conflicts.length > 0) {
+      setCursor(conflicts.length - 1);
+    }
+  }, [conflicts.length, cursor]);
+
+  const conflict = isBulk
+    ? conflicts[Math.min(cursor, conflicts.length - 1)]
+    : conflicts.find((c) => c.entryId === selectedId);
+
+  // Per-field picks: 'local' | 'server'. Defaults to 'local' (operator
+  // explicitly opened this dialog to defend their queued write); they
+  // can flip any field to 'server' before saving. Resets when the
+  // active conflict changes (bulk walk between rows).
+  const [picks, setPicks] = useState({operator: "local", vin: "local", notes: "local"});
+  useEffect(() => {
+    setPicks({operator: "local", vin: "local", notes: "local"});
+  }, [conflict?.entryId]);
+
+  const [busy, setBusy] = useState(false);
+
+  if (!conflict) return null;
+
+  const local = conflict.local || {};
+  const server = conflict.server || {};
+  const fields = [
+    {key: "operator", label: "Operator"},
+    {key: "vin", label: "VIN"},
+    {key: "notes", label: "Notes"},
+  ];
+  const merged = {
+    operator: picks.operator === "server" ? (server.operator ?? null) : (local.operator ?? null),
+    vin: picks.vin === "server" ? (server.vin ?? null) : (local.vin ?? null),
+    notes: picks.notes === "server" ? (server.notes ?? null) : (local.notes ?? null),
+  };
+
+  const advanceOrClose = () => {
+    if (isBulk) {
+      // In bulk mode, walk forward. The resolved conflict was just
+      // removed by the parent, so the same cursor index now points at
+      // the next conflict — but if we're at the last one, close.
+      if (conflicts.length <= 1) onClose();
+    } else {
+      onClose();
+    }
+  };
+
+  const handleUseServer = () => {
+    onUseServer(conflict.entryId);
+    advanceOrClose();
+  };
+
+  const handleKeepMine = async () => {
+    setBusy(true);
+    try {
+      const r = await onKeepMine(conflict.entryId, merged);
+      if (r && r.ok === false) {
+        setBusy(false);
+        return;
+      }
+      advanceOrClose();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const fmt = (v) => (v == null || v === "" ? <em style={{color: "#888"}}>(empty)</em> : String(v));
+  const cellStyle = (active) => ({
+    flex: 1, padding: "8px 10px", borderRadius: 6,
+    border: `1.5px solid ${active ? "#1B5E20" : "#00000022"}`,
+    background: active ? "#1B5E2010" : "#fff",
+    cursor: "pointer", fontFamily: "'Nunito'", fontSize: 12,
+    color: "#1A1A1A", textAlign: "left", lineHeight: 1.4,
+  });
+
+  return (
+    <div
+      data-testid="verifications-conflict-merge-dialog"
+      role="dialog"
+      aria-modal="true"
+      style={{
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "rgba(0,0,0,0.55)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}
+    >
+      <div style={{
+        background: "#fff", borderRadius: 12, padding: 24, width: 720, maxWidth: "94vw",
+        maxHeight: "90vh", overflowY: "auto",
+        boxShadow: "0 8px 40px rgba(0,0,0,0.3)",
+      }}>
+        <div style={{display: "flex", alignItems: "baseline", gap: 10, marginBottom: 6}}>
+          <div style={{fontFamily: "'Righteous'", fontSize: 18, color: "#9A1F1F", letterSpacing: 1, flex: 1}}>
+            ⚠ Merge offline conflict
+          </div>
+          {isBulk && (
+            <div
+              data-testid="verifications-conflict-merge-bulk-progress"
+              style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#666"}}
+            >
+              {Math.min(cursor + 1, conflicts.length)} of {conflicts.length}
+            </div>
+          )}
+        </div>
+        <div style={{fontFamily: "'Nunito'", fontSize: 12, color: "#444", marginBottom: 14, lineHeight: 1.5}}>
+          Another bench saved <strong>{conflict.entryId}</strong> after your tablet queued its
+          write. Pick the value you want to keep for each field, then decide whether to
+          adopt the server's row or overwrite it with the merged payload.
+        </div>
+
+        <div style={{
+          display: "grid", gridTemplateColumns: "100px 1fr 1fr",
+          gap: 8, alignItems: "center", marginBottom: 14,
+          fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
+          color: "#666", letterSpacing: 1,
+        }}>
+          <div/>
+          <div data-testid="verifications-conflict-merge-col-local">
+            YOURS — saved {fmtVerifiedAt(local.verifiedAt || conflict.clientVerifiedAt)}
+          </div>
+          <div data-testid="verifications-conflict-merge-col-server">
+            SERVER — {server.operator || "another bench"} at {fmtVerifiedAt(server.verifiedAt)}
+          </div>
+        </div>
+
+        {fields.map((f) => (
+          <div
+            key={f.key}
+            data-testid={`verifications-conflict-merge-row-${f.key}`}
+            style={{
+              display: "grid", gridTemplateColumns: "100px 1fr 1fr",
+              gap: 8, alignItems: "stretch", marginBottom: 8,
+            }}
+          >
+            <div style={{
+              fontFamily: "'Nunito'", fontSize: 12, fontWeight: 800,
+              color: "#1A1A1A", letterSpacing: 0.5, paddingTop: 8,
+            }}>{f.label}</div>
+            <button
+              type="button"
+              data-testid={`verifications-conflict-merge-pick-${f.key}-local`}
+              data-active={picks[f.key] === "local" ? "true" : "false"}
+              onClick={() => setPicks((p) => ({...p, [f.key]: "local"}))}
+              style={cellStyle(picks[f.key] === "local")}
+            >{fmt(local[f.key])}</button>
+            <button
+              type="button"
+              data-testid={`verifications-conflict-merge-pick-${f.key}-server`}
+              data-active={picks[f.key] === "server" ? "true" : "false"}
+              onClick={() => setPicks((p) => ({...p, [f.key]: "server"}))}
+              style={cellStyle(picks[f.key] === "server")}
+            >{fmt(server[f.key])}</button>
+          </div>
+        ))}
+
+        <div style={{
+          marginTop: 16, padding: "10px 12px", borderRadius: 6,
+          background: "#F4F1EC", border: "1px solid #00000015",
+          fontFamily: "'Nunito'", fontSize: 11, color: "#444", lineHeight: 1.5,
+        }}>
+          <div style={{fontWeight: 800, fontSize: 10, letterSpacing: 1, marginBottom: 4, color: "#1A1A1A"}}>
+            MERGED PAYLOAD (used by KEEP MINE & OVERWRITE)
+          </div>
+          <div data-testid="verifications-conflict-merge-preview">
+            operator: {fmt(merged.operator)} · vin: {fmt(merged.vin)} · notes: {fmt(merged.notes)}
+          </div>
+        </div>
+
+        <div style={{
+          display: "flex", flexWrap: "wrap", gap: 8, marginTop: 18,
+          alignItems: "center",
+        }}>
+          {isBulk && (
+            <>
+              <button
+                type="button"
+                data-testid="verifications-conflict-merge-use-server-all"
+                onClick={() => { onUseServerAll(); }}
+                disabled={busy}
+                style={{
+                  cursor: busy ? "wait" : "pointer", border: "1.5px solid #1B5E20",
+                  background: "transparent", color: "#1B5E20",
+                  fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
+                  letterSpacing: 0.5, padding: "6px 12px", borderRadius: 5,
+                }}
+              >USE SERVER FOR ALL</button>
+              <button
+                type="button"
+                data-testid="verifications-conflict-merge-keep-mine-all"
+                onClick={() => { onKeepMineAll(); }}
+                disabled={busy}
+                style={{
+                  cursor: busy ? "wait" : "pointer", border: "1.5px solid #9A1F1F",
+                  background: "transparent", color: "#9A1F1F",
+                  fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
+                  letterSpacing: 0.5, padding: "6px 12px", borderRadius: 5,
+                }}
+              >KEEP MINE FOR ALL</button>
+            </>
+          )}
+          <span style={{flex: 1}}/>
+          <button
+            type="button"
+            data-testid="verifications-conflict-merge-cancel"
+            onClick={onClose}
+            disabled={busy}
+            style={{
+              cursor: busy ? "wait" : "pointer", border: "1px solid #00000033",
+              background: "transparent", color: "#444",
+              fontFamily: "'Nunito'", fontWeight: 700, fontSize: 11,
+              letterSpacing: 0.5, padding: "6px 12px", borderRadius: 5,
+            }}
+          >CANCEL</button>
+          <button
+            type="button"
+            data-testid="verifications-conflict-merge-use-server"
+            onClick={handleUseServer}
+            disabled={busy}
+            style={{
+              cursor: busy ? "wait" : "pointer", border: "1.5px solid #1B5E20",
+              background: "#1B5E20", color: "#fff",
+              fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
+              letterSpacing: 0.5, padding: "6px 14px", borderRadius: 5,
+            }}
+          >USE SERVER</button>
+          <button
+            type="button"
+            data-testid="verifications-conflict-merge-keep-mine"
+            onClick={handleKeepMine}
+            disabled={busy}
+            style={{
+              cursor: busy ? "wait" : "pointer", border: "1.5px solid #9A1F1F",
+              background: "#9A1F1F", color: "#fff",
+              fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
+              letterSpacing: 0.5, padding: "6px 14px", borderRadius: 5,
+            }}
+          >{busy ? "SAVING…" : "KEEP MINE & OVERWRITE"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function VerificationsLogCard({
   verifications, task634Entries,
   source = "pending", syncedAt = null, error = null,
   refreshing = false, onRefresh,
   pendingCount = 0, conflicts = [], onDismissConflict, onAcceptConflict,
+  onReviewConflict, onReviewAllConflicts,
 }) {
   // Task #661 — persist the verifications-log filters across reloads
   // and tab switches. A shop owner doing daily billing or weekly
@@ -2519,6 +2978,8 @@ function VerificationsLogCard({
         conflicts={conflicts}
         onDismissConflict={onDismissConflict}
         onAcceptConflict={onAcceptConflict}
+        onReviewConflict={onReviewConflict}
+        onReviewAllConflicts={onReviewAllConflicts}
       />
 
       {!hasAny && (
