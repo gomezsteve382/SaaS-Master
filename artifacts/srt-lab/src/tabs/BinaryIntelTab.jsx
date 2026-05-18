@@ -169,6 +169,7 @@ const DID_CATEGORY_LABELS = {
   skim: "SKIM / Immobilizer (0xDExx)",
   rfhub: "RFHUB (0xABxx)",
   pcm: "PCM (0xCDxx)",
+  bcm_proxi: "BCM PROXI (0xFD01 / 0xFD20)",
 };
 
 function DidsTable({ entries, q }) {

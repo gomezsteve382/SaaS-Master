@@ -191,6 +191,103 @@ export const BINARY_INTEL_REPORTS = [
       ],
     },
   },
+
+  {
+    id: "fca-proxi-tool-v1201",
+    source: "Internal bench reverse-engineering (decompiled PyInstaller bundle + bench UDS traces)",
+    file: "FCA_PROXI_Tool.exe (v1.2.0.1)",
+    sizeBytes: 18_452_736,
+    verified: true,
+    summary:
+      "In-house RE notes for Stellantis' official FCA PROXI Tool v1.2.0.1, the dealer " +
+      "utility used to read and write the 128-byte PROXI configuration record on the BCM. " +
+      "Findings come from the decompiled Python sources under tools/fca-proxi-extract/src/ " +
+      "and from bench-captured UDS traces against real 2017–2024 BCMs — they are NOT " +
+      "third-party intel. Covers the BCM PROXI CAN addressing (pre-SGW 0x790/0x798), " +
+      "the UDS sequence the tool issues for a read/write cycle, the PROXI DIDs for both " +
+      "pre-SGW (0xFD01) and SGW (0xFD20) platforms, and the standard-level seed/key " +
+      "handshake the tool uses before any 0x2E. The native JS counterpart already lives " +
+      "in src/lib/fcaProxi.js (parse/serialize/build/round-trip).",
+    referenceDoc: "artifacts/srt-lab/docs/fca-proxi-reference.md",
+
+    findings: {
+      canIds: [
+        {
+          module: "BCM (PROXI read/write — pre-SGW)",
+          txId: 0x790,
+          rxId: 0x798,
+          notes: "Chrysler BCM PROXI CAN pair used by FCA PROXI Tool for 0x22/0x2E FD01. Distinct from the 0x640/0x648 diagnostic pair used elsewhere in SRT Lab.",
+        },
+        {
+          module: "SGW (Secure Gateway — request)",
+          txId: 0x74F,
+          rxId: 0x76F,
+          notes: "Required on 2019+ SGW-protected vehicles before any 0x2E FD20 PROXI write is accepted. Handled by AutelSgwTab + sgwAuth.js.",
+        },
+      ],
+
+      udsServices: [
+        { sid: 0x10, name: "DiagnosticSessionControl", usageNote: "Enter Extended (0x03) before SecurityAccess + PROXI read/write" },
+        { sid: 0x27, name: "SecurityAccess",          usageNote: "RequestSeed 0x01 → SendKey 0x02 (standard BCM level) before any 0x2E" },
+        { sid: 0x22, name: "ReadDataByIdentifier",    usageNote: "Read PROXI record (DID 0xFD01 pre-SGW / 0xFD20 SGW)" },
+        { sid: 0x2E, name: "WriteDataByIdentifier",   usageNote: "Write modified PROXI record back to BCM after edits" },
+        { sid: 0x11, name: "ECUReset",                usageNote: "Hard reset (0x01) issued after PROXI write to commit configuration" },
+        { sid: 0x3E, name: "TesterPresent",           usageNote: "Keepalive during PROXI editing — session times out in ~5 s without it" },
+      ],
+
+      dids: [
+        {
+          did: 0xFD01,
+          name: "PROXI Configuration Record (pre-SGW BCM)",
+          category: "bcm_proxi",
+          notes: "128-byte vehicle-specific config blob. SRT Lab parses/serialises this via src/lib/fcaProxi.js with full CRC-16/CCITT-FALSE round-trip.",
+        },
+        {
+          did: 0xFD20,
+          name: "PROXI Configuration Record (SGW platforms, 2019+)",
+          category: "bcm_proxi",
+          notes: "Same 128-byte format as 0xFD01 but gated behind the Secure Gateway. Not catalogued in lib/uds/src/dids.ts.",
+        },
+        {
+          did: 0xF190,
+          name: "VIN (Vehicle Identification Number)",
+          category: "identification",
+          notes: "Read by the tool during PROXI session to confirm it is talking to the correct vehicle.",
+        },
+        {
+          did: 0xF187,
+          name: "Vehicle Manufacturer Spare Part Number (BCM)",
+          category: "identification",
+          notes: "Displayed in the tool's status bar; standard ISO 14229 0xF1xx identification block.",
+        },
+      ],
+
+      routineControls: [
+        {
+          routineId: 0x0203,
+          name: "Commit PROXI Section (BCM)",
+          targetModule: "BCM (0x790)",
+          notes: "Optional per-section commit routine some BCM firmwares require after a 0x2E FD01 write. No dedicated wrapper — operator must invoke build.routineControl() manually.",
+        },
+      ],
+
+      securityLevels: [
+        {
+          requestSeed: 0x01,
+          sendKey: 0x02,
+          seedLen: 4,
+          notes: "Standard BCM unlock used by FCA PROXI Tool — covered by sxor / cda6 / xtea_sgw families in algos.js depending on platform. No FCA-proprietary level required for the pre-SGW PROXI path.",
+        },
+      ],
+
+      notes: [
+        "The PROXI record itself is parsed and round-trip-verified by src/lib/fcaProxi.js (covered by 22 Vitest cases in src/tabs/__tests__/fcaProxi.test.js).",
+        "On SGW vehicles the tool uses DID 0xFD20 and requires the AutelSgwTab handshake (CAN 0x74F/0x76F) before the 0x2E is accepted.",
+        "The tool's Windows license check is bypassed by a Safengine-Shielden shfolder.dll sideload (see docs/fca-proxi-reference.md §2) — irrelevant to ECU-side coverage but documented for completeness.",
+        "BCM CAN pair 0x790/0x798 is distinct from the 0x640/0x648 pair used by BcmTab — both pairs are referenced in unlock_catalog_extended.json and both are now classified as COVERED by binaryIntelCoverage.classifyCanId.",
+      ],
+    },
+  },
 ];
 
 export const BINARY_INTEL_GENERATED_AT = "2026-05-18T00:00:00.000Z";

@@ -231,6 +231,8 @@ export function classifyCanId(finding) {
     0x640: "BCM — referenced in BcmTab.jsx, unlock_catalog.json",
     0x6B0: "SKIM — referenced in SkimTab.jsx, unlock_catalog.json",
     0x740: "RFHUB — referenced in RfhubTab.jsx, unlock_catalog.json",
+    0x74F: "SGW (Secure Gateway) request ID — SGW_TX in AutelSgwTab.jsx, xtea_sgw in algos.js, MODULE_TARGETS in unlockCatalog",
+    0x790: "BCM PROXI request ID — used by src/lib/fcaProxi.js for 0x22/0x2E FD01, referenced in unlock_catalog_extended.json",
   };
 
   const txId = finding.txId;

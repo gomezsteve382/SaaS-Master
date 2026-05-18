@@ -70,6 +70,17 @@ describe("classifyDid", () => {
     const result = classifyDid({ did: 0xCD02 });
     expect(result.status).toBe("gap");
   });
+
+  it("marks PROXI DID 0xFD01 as covered (BCM ECM block in catalog)", () => {
+    const result = classifyDid({ did: 0xFD01 });
+    expect(result.status).toBe("covered");
+  });
+
+  it("marks SGW PROXI DID 0xFD20 as gap (not catalogued)", () => {
+    const result = classifyDid({ did: 0xFD20 });
+    expect(result.status).toBe("gap");
+    expect(result.evidence).toMatch(/0xFD20/i);
+  });
 });
 
 // ── RoutineControl classification ─────────────────────────────────────
@@ -132,6 +143,18 @@ describe("classifyCanId", () => {
     const result = classifyCanId({ txId: 0x555, module: "Unknown ECU" });
     expect(result.status).toBe("gap");
     expect(result.evidence).toMatch(/0x555/i);
+  });
+
+  it("marks SGW TX ID 0x74F as covered (AutelSgwTab + xtea_sgw)", () => {
+    const result = classifyCanId({ txId: 0x74F, module: "SGW" });
+    expect(result.status).toBe("covered");
+    expect(result.evidence).toMatch(/SGW|AutelSgwTab|xtea_sgw/i);
+  });
+
+  it("marks BCM PROXI TX ID 0x790 as covered (fcaProxi.js)", () => {
+    const result = classifyCanId({ txId: 0x790, module: "BCM PROXI" });
+    expect(result.status).toBe("covered");
+    expect(result.evidence).toMatch(/fcaProxi|PROXI/i);
   });
 });
 
