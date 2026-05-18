@@ -673,12 +673,13 @@ describe("UnlockCoverageTab — UI", () => {
 
     // POST went out with the right body (VIN uppercased + stripped).
     await waitFor(() => expect(postBodies.length).toBe(1));
-    expect(postBodies[0]).toEqual({
+    expect(postBodies[0]).toMatchObject({
       entryId,
       operator: "K. Pierce",
       vin: "2C3CDZC97KH123456",
       notes: "Demon, ran clean on second seed",
     });
+    expect(typeof postBodies[0].clientVerifiedAt).toBe("string");
 
     // Form closes, summary now surfaces operator + VIN + a formatted time.
     await waitFor(() => {

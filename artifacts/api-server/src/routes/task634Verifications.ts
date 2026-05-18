@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, gt } from "drizzle-orm";
 import {
   db,
   task634VerificationsTable,
@@ -80,6 +80,46 @@ router.post("/task634-verifications", async (req, res, next) => {
         ? body.operator.trim().slice(0, MAX_OPERATOR_LEN)
         : null;
     const verifiedAt = new Date();
+
+    // Task #663 — optimistic-concurrency check for queued/offline writes.
+    // The client passes `clientVerifiedAt` (the ISO timestamp it stamped
+    // locally when the operator hit Save) for any operation that was
+    // queued while the API was unreachable. If the server already has a
+    // row with a strictly newer verifiedAt, somebody else verified the
+    // same entry after this op was queued — we refuse to clobber and
+    // return 409 with the authoritative row so the UI can surface it.
+    const clientVerifiedAtRaw =
+      typeof body.clientVerifiedAt === "string" ? body.clientVerifiedAt : null;
+    const clientVerifiedAt = clientVerifiedAtRaw
+      ? new Date(clientVerifiedAtRaw)
+      : null;
+    if (clientVerifiedAt && !Number.isFinite(clientVerifiedAt.getTime())) {
+      res.status(400).json({ error: "invalid clientVerifiedAt" });
+      return;
+    }
+    if (clientVerifiedAt) {
+      const existing = await db
+        .select()
+        .from(task634VerificationsTable)
+        .where(
+          and(
+            eq(task634VerificationsTable.entryId, entryId),
+            gt(task634VerificationsTable.verifiedAt, clientVerifiedAt),
+          ),
+        )
+        .limit(1);
+      if (existing.length > 0) {
+        const row = existing[0]!;
+        res.status(409).json({
+          error: "conflict",
+          conflict: {
+            clientVerifiedAt: clientVerifiedAt.toISOString(),
+            server: rowToJson(row),
+          },
+        });
+        return;
+      }
+    }
 
     await db
       .insert(task634VerificationsTable)

@@ -350,6 +350,52 @@ export default function UnlockCoverageTab() {
   });
   const [verificationsRefreshing, setVerificationsRefreshing] = useState(false);
 
+  // Task #663 — offline outbox. Any verify/clear POST/DELETE that is
+  // attempted while the API is unreachable lands here, persisted to
+  // localStorage so it survives a tab reload. flushOutbox() drains it
+  // in queued order whenever the server comes back. Each entry shape:
+  //   { id: string, kind: "verify"|"clear", entryId, payload?,
+  //     clientVerifiedAt: ISO, queuedAt: ISO, lastError?: string }
+  // clientVerifiedAt is the operator-perceived "saved at" time — the
+  // server uses it to detect a stale write (somebody verified the same
+  // row on a different machine after this op was queued).
+  const OUTBOX_KEY = "srtlab.task634.outbox.v1";
+  const [outbox, setOutbox] = useState(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = window.localStorage.getItem(OUTBOX_KEY);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr.filter((o) => o && typeof o.id === "string" && typeof o.kind === "string" && typeof o.entryId === "string") : [];
+    } catch {
+      return [];
+    }
+  });
+  // Surfaced conflicts from the last flush attempt — array of
+  //   { entryId, clientVerifiedAt, server: {operator, vin, notes, verifiedAt} }
+  // Cleared by the operator dismissing them from the banner.
+  const [outboxConflicts, setOutboxConflicts] = useState([]);
+  const [outboxFlushing, setOutboxFlushing] = useState(false);
+
+  const persistOutbox = useCallback((next) => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(OUTBOX_KEY, JSON.stringify(next));
+    } catch { /* best-effort */ }
+  }, []);
+
+  const enqueueOp = useCallback((op) => {
+    setOutbox((prev) => {
+      // Coalesce: if the queue already has an op for this entryId, the
+      // newer op wins (older one is dropped). Keeps the queue compact
+      // when a tech taps Save → Clear → Save while offline.
+      const filtered = prev.filter((o) => o.entryId !== op.entryId);
+      const next = [...filtered, op];
+      persistOutbox(next);
+      return next;
+    });
+  }, [persistOutbox]);
+
   const refreshVerifications = useCallback(async () => {
     setVerificationsRefreshing(true);
     try {
@@ -401,9 +447,223 @@ export default function UnlockCoverageTab() {
     }
   }, []);
 
+  // Task #663 — drain the offline outbox. Each op is replayed in queue
+  // order; the server's optimistic-concurrency check (clientVerifiedAt)
+  // may return 409 if another bench beat us to a write — those land in
+  // `outboxConflicts` and stay queued-but-resolved (we drop the op so
+  // we don't keep blocking the queue) until the operator dismisses
+  // them. Network failures leave the op in place so the next flush
+  // retries from where we stopped.
+  const flushOutbox = useCallback(async () => {
+    let pending;
+    setOutbox((prev) => { pending = prev; return prev; });
+    if (!pending || pending.length === 0) return {ok: true, drained: 0};
+    setOutboxFlushing(true);
+    const remaining = [...pending];
+    const newConflicts = [];
+    let drained = 0;
+    try {
+      while (remaining.length > 0) {
+        const op = remaining[0];
+        try {
+          if (op.kind === "verify") {
+            const r = await fetch("/api/task634-verifications", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({
+                entryId: op.entryId,
+                operator: op.payload?.operator ?? null,
+                vin: op.payload?.vin ?? null,
+                notes: op.payload?.notes ?? null,
+                clientVerifiedAt: op.clientVerifiedAt,
+              }),
+            });
+            if (r.status === 409) {
+              const data = await r.json().catch(() => null);
+              if (data && data.conflict) newConflicts.push({entryId: op.entryId, ...data.conflict});
+              remaining.shift();
+              drained += 1;
+              continue;
+            }
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            const data = await r.json().catch(() => null);
+            if (data && data.verification) {
+              const v = data.verification;
+              setVerifications((prev) => {
+                const next = {
+                  ...prev,
+                  [op.entryId]: {
+                    operator: v.operator ?? null,
+                    vin: v.vin ?? null,
+                    notes: v.notes ?? null,
+                    verifiedAt: v.verifiedAt ?? op.clientVerifiedAt,
+                  },
+                };
+                try {
+                  window.localStorage.setItem(
+                    "srtlab.task634.verifications.v1",
+                    JSON.stringify(next),
+                  );
+                } catch { /* best-effort */ }
+                return next;
+              });
+            }
+            // Reconcile badge state — a server refresh that ran before
+            // the flush may have evicted this id; re-add it now that
+            // the write is durable.
+            setVerifiedIds((prev) => {
+              if (prev.has(op.entryId)) return prev;
+              const next = new Set(prev);
+              next.add(op.entryId);
+              try {
+                window.localStorage.setItem(
+                  "srtlab.task634.verified.v1",
+                  JSON.stringify(Array.from(next)),
+                );
+              } catch { /* best-effort */ }
+              return next;
+            });
+          } else if (op.kind === "clear") {
+            const r = await fetch(
+              `/api/task634-verifications/${encodeURIComponent(op.entryId)}`,
+              {method: "DELETE"},
+            );
+            if (!r.ok && r.status !== 404) throw new Error(`HTTP ${r.status}`);
+            // Successful clear (or 404 = already gone) — make sure the
+            // local badge + metadata reflect that. A pre-flush refresh
+            // could have reintroduced a stale row from the server.
+            setVerifiedIds((prev) => {
+              if (!prev.has(op.entryId)) return prev;
+              const next = new Set(prev);
+              next.delete(op.entryId);
+              try {
+                window.localStorage.setItem(
+                  "srtlab.task634.verified.v1",
+                  JSON.stringify(Array.from(next)),
+                );
+              } catch { /* best-effort */ }
+              return next;
+            });
+            setVerifications((prev) => {
+              if (!(op.entryId in prev)) return prev;
+              const next = {...prev};
+              delete next[op.entryId];
+              try {
+                window.localStorage.setItem(
+                  "srtlab.task634.verifications.v1",
+                  JSON.stringify(next),
+                );
+              } catch { /* best-effort */ }
+              return next;
+            });
+          }
+          remaining.shift();
+          drained += 1;
+        } catch (e) {
+          // Network or server fault — stop draining; the op stays at
+          // the head of the queue for the next flush.
+          remaining[0] = {...op, lastError: e?.message || "send failed"};
+          break;
+        }
+      }
+      setOutbox(() => {
+        persistOutbox(remaining);
+        return remaining;
+      });
+      if (newConflicts.length > 0) {
+        setOutboxConflicts((prev) => [...prev, ...newConflicts]);
+      }
+      return {ok: remaining.length === 0, drained, conflicts: newConflicts.length};
+    } finally {
+      setOutboxFlushing(false);
+    }
+  }, [persistOutbox]);
+
+  const dismissConflict = useCallback((entryId) => {
+    setOutboxConflicts((prev) => prev.filter((c) => c.entryId !== entryId));
+  }, []);
+
+  const acceptConflictServer = useCallback((entryId) => {
+    // Adopt the server's view of this entry — replaces our local
+    // verification metadata with what the server returned, then drops
+    // the conflict from the banner.
+    setOutboxConflicts((prev) => {
+      const c = prev.find((x) => x.entryId === entryId);
+      if (c && c.server) {
+        setVerifications((mv) => {
+          const next = {
+            ...mv,
+            [entryId]: {
+              operator: c.server.operator ?? null,
+              vin: c.server.vin ?? null,
+              notes: c.server.notes ?? null,
+              verifiedAt: c.server.verifiedAt ?? null,
+            },
+          };
+          try {
+            window.localStorage.setItem(
+              "srtlab.task634.verifications.v1",
+              JSON.stringify(next),
+            );
+          } catch { /* best-effort */ }
+          return next;
+        });
+        setVerifiedIds((ids) => {
+          const next = new Set(ids);
+          next.add(entryId);
+          try {
+            window.localStorage.setItem(
+              "srtlab.task634.verified.v1",
+              JSON.stringify(Array.from(next)),
+            );
+          } catch { /* best-effort */ }
+          return next;
+        });
+      }
+      return prev.filter((x) => x.entryId !== entryId);
+    });
+  }, []);
+
+  // Initial hydrate + auto-flush. We refresh first to learn whether
+  // the API is reachable, then drain any queue we have. Re-flushes on
+  // the browser `online` event so a tablet that just regained Wi-Fi
+  // catches up without an explicit click.
   useEffect(() => {
-    refreshVerifications().catch(() => {});
-  }, [refreshVerifications]);
+    (async () => {
+      const r = await refreshVerifications();
+      if (!r.ok) return;
+      const f = await flushOutbox().catch(() => null);
+      // If we actually drained writes, the server view we just fetched
+      // is now stale (it predates the flushed POST/DELETE). Refresh
+      // again so verifiedIds/verifications reflect the authoritative
+      // post-flush state.
+      if (f && f.drained > 0) refreshVerifications().catch(() => {});
+    })();
+  }, [refreshVerifications, flushOutbox]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = async () => {
+      const r = await refreshVerifications().catch(() => ({ok: false}));
+      if (!r.ok) return;
+      const f = await flushOutbox().catch(() => null);
+      if (f && f.drained > 0) refreshVerifications().catch(() => {});
+    };
+    window.addEventListener("online", handler);
+    return () => window.removeEventListener("online", handler);
+  }, [refreshVerifications, flushOutbox]);
+
+  // Wrap RETRY SYNC so the banner button both refreshes the GET and
+  // drains any queued writes in one operator gesture. After a non-empty
+  // drain we refresh again to land on the authoritative post-flush
+  // state (otherwise the initial GET could leave stale rows visible).
+  const retrySync = useCallback(async () => {
+    const r = await refreshVerifications();
+    if (!r.ok) return r;
+    const f = await flushOutbox();
+    if (f && f.drained > 0) await refreshVerifications();
+    return r;
+  }, [refreshVerifications, flushOutbox]);
 
   useEffect(() => {
     let cancelled = false;
@@ -558,6 +818,12 @@ export default function UnlockCoverageTab() {
     const cleanNotes = (notes || "").trim() || null;
     const verifiedAt = new Date().toISOString();
     const meta = {operator: cleanOperator, vin: cleanVin, notes: cleanNotes, verifiedAt};
+    // Task #663 — when the source banner is showing OFFLINE we must
+    // not silently drop the write. Queue it locally and wait for the
+    // operator to RETRY SYNC or for the browser `online` event to
+    // trigger an auto-flush. The optimistic local-state writes below
+    // still run so the row flips to VERIFIED instantly.
+    const isOffline = verificationsSource === "cache";
 
     // Persist the operator name for next time so the tech doesn't retype it.
     if (cleanOperator) {
@@ -595,6 +861,20 @@ export default function UnlockCoverageTab() {
       return next;
     });
 
+    const queueOp = () => enqueueOp({
+      id: `op_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      kind: "verify",
+      entryId,
+      payload: {operator: cleanOperator, vin: cleanVin, notes: cleanNotes},
+      clientVerifiedAt: verifiedAt,
+      queuedAt: verifiedAt,
+    });
+
+    if (isOffline) {
+      queueOp();
+      return;
+    }
+
     fetch("/api/task634-verifications", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
@@ -603,9 +883,31 @@ export default function UnlockCoverageTab() {
         operator: cleanOperator,
         vin: cleanVin,
         notes: cleanNotes,
+        clientVerifiedAt: verifiedAt,
       }),
     })
-      .then((r) => (r.ok ? r.json() : null))
+      .then(async (r) => {
+        if (r.status === 409) {
+          const data = await r.json().catch(() => null);
+          if (data && data.conflict) {
+            setOutboxConflicts((prev) => {
+              const without = prev.filter((c) => c.entryId !== entryId);
+              return [...without, {entryId, ...data.conflict}];
+            });
+          }
+          return null;
+        }
+        if (!r.ok) {
+          // Server failure while the banner says LIVE — degrade to
+          // queued so the write isn't lost and flip the banner so the
+          // pending pill becomes visible.
+          queueOp();
+          setVerificationsSource("cache");
+          setVerificationsError(`HTTP ${r.status}`);
+          return null;
+        }
+        return r.json();
+      })
       .then((data) => {
         // Replace the optimistic verifiedAt with the server-issued one.
         if (!data || !data.verification) return;
@@ -629,7 +931,13 @@ export default function UnlockCoverageTab() {
           return next;
         });
       })
-      .catch(() => { /* offline → optimistic state stands */ });
+      .catch(() => {
+        // Network failure → queue the write and flip to OFFLINE so the
+        // pending pill + banner reflect the lost connection.
+        queueOp();
+        setVerificationsSource("cache");
+        setVerificationsError("network error");
+      });
   }
 
   function clearVerification(entryId) {
@@ -656,9 +964,30 @@ export default function UnlockCoverageTab() {
       } catch { /* storage is best-effort */ }
       return next;
     });
+    const isOffline = verificationsSource === "cache";
+    const queueOp = () => enqueueOp({
+      id: `op_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      kind: "clear",
+      entryId,
+      clientVerifiedAt: new Date().toISOString(),
+      queuedAt: new Date().toISOString(),
+    });
+    if (isOffline) { queueOp(); return; }
     fetch(`/api/task634-verifications/${encodeURIComponent(entryId)}`, {
       method: "DELETE",
-    }).catch(() => { /* offline → localStorage holds the line */ });
+    })
+      .then((r) => {
+        if (!r.ok && r.status !== 404) {
+          queueOp();
+          setVerificationsSource("cache");
+          setVerificationsError(`HTTP ${r.status}`);
+        }
+      })
+      .catch(() => {
+        queueOp();
+        setVerificationsSource("cache");
+        setVerificationsError("network error");
+      });
   }
 
   function openVerifyDraft(entryId) {
@@ -1131,8 +1460,12 @@ export default function UnlockCoverageTab() {
         source={verificationsSource}
         syncedAt={verificationsSyncedAt}
         error={verificationsError}
-        refreshing={verificationsRefreshing}
-        onRefresh={refreshVerifications}
+        refreshing={verificationsRefreshing || outboxFlushing}
+        onRefresh={retrySync}
+        pendingCount={outbox.length}
+        conflicts={outboxConflicts}
+        onDismissConflict={dismissConflict}
+        onAcceptConflict={acceptConflictServer}
       />
 
       {/* Extended catalog appendix — asset sweep provenance.
@@ -1790,10 +2123,15 @@ function VillainOperations({vops}) {
 //                  from <last sync>") with a manual retry button so a
 //                  bench tablet that just regained connectivity can pull
 //                  fresh history without reloading the tab
-function VerificationsLogSourceBanner({source, syncedAt, error, refreshing, onRefresh}) {
+function VerificationsLogSourceBanner({
+  source, syncedAt, error, refreshing, onRefresh,
+  pendingCount = 0, conflicts = [], onDismissConflict, onAcceptConflict,
+}) {
   const isLive = source === "live";
   const isCache = source === "cache";
   const isPending = source === "pending";
+  const hasPending = pendingCount > 0;
+  const hasConflicts = Array.isArray(conflicts) && conflicts.length > 0;
   const bg = isLive ? "#1B5E2010" : isCache ? "#C6282810" : "#0000000A";
   const bd = isLive ? "#1B5E2055" : isCache ? "#C6282855" : C.bd;
   const fg = isLive ? "#1B5E20" : isCache ? "#9A1F1F" : C.tm;
@@ -1812,12 +2150,13 @@ function VerificationsLogSourceBanner({source, syncedAt, error, refreshing, onRe
     msg = "Syncing the shop audit log from the API server…";
   }
   return (
+    <div data-testid="verifications-log-source-banner-wrap" data-source={source} data-pending-count={pendingCount} data-conflict-count={conflicts?.length || 0}>
     <div
       data-testid="verifications-log-source-banner"
       data-source={source}
       style={{
         display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
-        padding: "8px 12px", marginBottom: 10,
+        padding: "8px 12px", marginBottom: hasConflicts ? 6 : 10,
         border: `1px solid ${bd}`, background: bg, borderRadius: 6,
         fontFamily: "'Nunito'", fontSize: 11, color: fg, lineHeight: 1.4,
       }}
@@ -1831,6 +2170,18 @@ function VerificationsLogSourceBanner({source, syncedAt, error, refreshing, onRe
           color: "#fff",
         }}
       >{label}</span>
+      {hasPending && (
+        <span
+          data-testid="verifications-log-pending-pill"
+          data-pending-count={pendingCount}
+          title={`${pendingCount} verification ${pendingCount === 1 ? "write" : "writes"} queued locally — they will sync when the API is reachable.`}
+          style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 800,
+            letterSpacing: 0.5, padding: "2px 7px", borderRadius: 999,
+            background: "#E65100", color: "#fff", whiteSpace: "nowrap",
+          }}
+        >{pendingCount} PENDING</span>
+      )}
       <span style={{flex: 1, minWidth: 200}} data-testid="verifications-log-source-msg">
         {msg}
         {isCache && error && (
@@ -1873,6 +2224,65 @@ function VerificationsLogSourceBanner({source, syncedAt, error, refreshing, onRe
         >{refreshing ? "SYNCING…" : "REFRESH"}</button>
       )}
     </div>
+    {hasConflicts && (
+      <div
+        data-testid="verifications-log-conflicts"
+        style={{
+          marginBottom: 10, padding: "8px 12px", borderRadius: 6,
+          border: "1px solid #C6282855", background: "#FFF3E0",
+          fontFamily: "'Nunito'", fontSize: 11, color: "#9A1F1F",
+        }}
+      >
+        <div style={{fontWeight: 900, fontSize: 11, letterSpacing: 0.5, marginBottom: 6}}>
+          {conflicts.length} CONFLICT{conflicts.length === 1 ? "" : "S"} — server has a newer verification
+        </div>
+        {conflicts.map((c) => (
+          <div
+            key={c.entryId}
+            data-testid={`verifications-log-conflict-${c.entryId}`}
+            style={{
+              display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center",
+              padding: "6px 0", borderTop: "1px dashed #C6282833",
+            }}
+          >
+            <span style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.tx}}>{c.entryId}</span>
+            <span style={{color: C.tm, fontSize: 10}}>
+              your queued save ({fmtVerifiedAt(c.clientVerifiedAt)}) was beaten by{" "}
+              <strong style={{color: "#9A1F1F"}}>{c.server?.operator || "another bench"}</strong> at {fmtVerifiedAt(c.server?.verifiedAt)}
+              {c.server?.vin ? ` (VIN ${c.server.vin})` : ""}
+            </span>
+            <span style={{flex: 1}}/>
+            {typeof onAcceptConflict === "function" && (
+              <button
+                type="button"
+                data-testid={`verifications-log-conflict-accept-${c.entryId}`}
+                onClick={() => onAcceptConflict(c.entryId)}
+                style={{
+                  cursor: "pointer", border: "1.5px solid #1B5E20",
+                  background: "transparent", color: "#1B5E20",
+                  fontFamily: "'Nunito'", fontWeight: 800, fontSize: 10,
+                  letterSpacing: 0.5, padding: "3px 9px", borderRadius: 5,
+                }}
+              >USE SERVER</button>
+            )}
+            {typeof onDismissConflict === "function" && (
+              <button
+                type="button"
+                data-testid={`verifications-log-conflict-dismiss-${c.entryId}`}
+                onClick={() => onDismissConflict(c.entryId)}
+                style={{
+                  cursor: "pointer", border: "1px solid #9A1F1F",
+                  background: "transparent", color: "#9A1F1F",
+                  fontFamily: "'Nunito'", fontWeight: 700, fontSize: 10,
+                  letterSpacing: 0.5, padding: "3px 9px", borderRadius: 5,
+                }}
+              >DISMISS</button>
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+    </div>
   );
 }
 
@@ -1880,6 +2290,7 @@ function VerificationsLogCard({
   verifications, task634Entries,
   source = "pending", syncedAt = null, error = null,
   refreshing = false, onRefresh,
+  pendingCount = 0, conflicts = [], onDismissConflict, onAcceptConflict,
 }) {
   // Task #661 — persist the verifications-log filters across reloads
   // and tab switches. A shop owner doing daily billing or weekly
@@ -2146,6 +2557,10 @@ function VerificationsLogCard({
         error={error}
         refreshing={refreshing}
         onRefresh={onRefresh}
+        pendingCount={pendingCount}
+        conflicts={conflicts}
+        onDismissConflict={onDismissConflict}
+        onAcceptConflict={onAcceptConflict}
       />
 
       {!hasAny && (
