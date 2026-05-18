@@ -508,90 +508,105 @@ describe("UnlockCoverageTab — UI", () => {
     }
   });
 
-  it("merges task634_entries.json on top of the generated catalog (task #635)", async () => {
-    // Smoke test: with the hand-curated task-634 file fetched alongside
-    // the generated catalog, every task-634 entry must surface as its
-    // own table row AND the canonical catalog rows must still render —
-    // i.e. the merge is additive, not a replacement.
+  it("renders task634 entries in their own dedicated card (task #640)", async () => {
+    // The hand-curated task-634 entries now live in a dedicated
+    // "Competitor-parity additions" card with its own count badge,
+    // separate from the main DLL coverage table. This keeps the DLL
+    // coverage percentage from being skewed by non-DLL rows.
     setupFetch({ task634: TASK634 });
     render(<UnlockCoverageTab />);
     await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
 
-    // One row per hand-curated entry, tagged with the TASK 634 chip.
+    // Card is present with a count badge reflecting the entry count.
     expect(TASK634.entries.length).toBeGreaterThan(0);
     await waitFor(() => {
-      for (const e of TASK634.entries) {
-        const row = screen.getByTestId(`row-task634_${e.id}`);
-        expect(row).toBeTruthy();
-        expect(row.getAttribute("data-provenance")).toBe("task-634");
-      }
+      expect(screen.getByTestId("task634-card")).toBeTruthy();
     });
-    expect(
-      screen.getByTestId(`provenance-chip-task634_${TASK634.entries[0].id}`),
-    ).toBeTruthy();
+    expect(screen.getByTestId("task634-count").textContent).toContain(
+      String(TASK634.entries.length),
+    );
 
-    // Canonical catalog row is still there — additive merge, not a swap.
+    // One row per hand-curated entry inside the card.
+    for (const e of TASK634.entries) {
+      const row = screen.getByTestId(`task634-row-${e.id}`);
+      expect(row).toBeTruthy();
+      expect(row.getAttribute("data-provenance")).toBe("task-634");
+    }
+
+    // Task-634 entries must NOT appear in the main coverage table any
+    // more — they are intentionally excluded so the DLL stats stay clean.
+    for (const e of TASK634.entries) {
+      expect(screen.queryByTestId(`row-task634_${e.id}`)).toBeNull();
+    }
+
+    // Canonical catalog row is still in the main table.
     const canonical = CATALOG.entries[0];
     expect(screen.getByTestId(`row-${canonical.module}`)).toBeTruthy();
 
-    // Total merged count = canonical + task-634 (no asset-sweep delta in
-    // the test mock since the extended catalog mock returns the
-    // canonical catalog, which fails the {entries, uds} shape check).
-    const expectedTotal = CATALOG.entries.length + TASK634.entries.length;
-    // "Showing X of Y entries" — Y is in a separate text node from the
-    // surrounding chrome because filtered.length is wrapped in <strong>,
-    // so match against the combined textContent of the counter line.
+    // The "Showing X of Y entries" counter reflects only the canonical
+    // DLL catalog, not the task-634 additions.
     const counter = screen.getByText(/of\s+\d+\s+entries/i);
     expect(counter.textContent.replace(/\s+/g, " ")).toContain(
-      `of ${expectedTotal} entries`,
+      `of ${CATALOG.entries.length} entries`,
+    );
+
+    // Headline stats remain pinned to the DLL catalog rollup.
+    expect(screen.getByTestId("total-count").textContent).toBe(
+      String(CATALOG.entry_count),
     );
   });
 
-  it("task-634 entries are filterable by family and search (task #635)", async () => {
+  it("task634 card is collapsible and surfaces lib/ui source links (task #640)", async () => {
     setupFetch({ task634: TASK634 });
     render(<UnlockCoverageTab />);
     await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+    await waitFor(() => screen.getByTestId("task634-card"));
 
-    // Family dropdown should expose every task634_<category> bucket.
-    const familySelect = screen.getByTestId("family-filter");
-    const familyOptions = Array.from(familySelect.querySelectorAll("option")).map(
-      (o) => o.getAttribute("value"),
-    );
+    // Each entry with a `lib` field exposes it as a clickable link
+    // pointing at the source path.
     for (const e of TASK634.entries) {
-      const expected = e.category ? `task634_${e.category}` : "task634";
-      expect(familyOptions).toContain(expected);
+      if (e.lib) {
+        const link = screen.getByTestId(`task634-lib-${e.id}`);
+        expect(link.tagName).toBe("A");
+        expect(link.getAttribute("href")).toBe(`/${e.lib}`);
+        expect(link.textContent).toBe(e.lib);
+      }
+      if (e.ui) {
+        const link = screen.getByTestId(`task634-ui-${e.id}`);
+        expect(link.tagName).toBe("A");
+        expect(link.getAttribute("href")).toBe(`/${e.ui}`);
+        expect(link.textContent).toBe(e.ui);
+      }
     }
 
-    // Search picks up the label text from a hand-curated entry.
-    const labelTarget = TASK634.entries.find((e) => e.label);
-    fireEvent.change(screen.getByTestId("catalog-search"), {
-      target: { value: labelTarget.label.slice(0, 8) },
-    });
-    await waitFor(() => {
-      expect(screen.getByTestId(`row-task634_${labelTarget.id}`)).toBeTruthy();
-    });
-
-    // The expanded row surfaces the synthesized "lib:" pointer so a
-    // bench operator can jump straight to the implementation file.
-    fireEvent.click(screen.getByTestId(`toggle-task634_${labelTarget.id}`));
-    if (labelTarget.lib) {
-      expect(
-        await screen.findByText(new RegExp(labelTarget.lib.replace(/\//g, "\\/"))),
-      ).toBeTruthy();
-    }
+    // Toggle button collapses the body, hiding the rows.
+    const firstId = TASK634.entries[0].id;
+    expect(screen.getByTestId(`task634-row-${firstId}`)).toBeTruthy();
+    fireEvent.click(screen.getByTestId("task634-toggle"));
+    expect(screen.queryByTestId(`task634-row-${firstId}`)).toBeNull();
+    // Count badge stays visible while collapsed.
+    expect(screen.getByTestId("task634-count").textContent).toContain(
+      String(TASK634.entries.length),
+    );
+    // Re-expanding brings the rows back.
+    fireEvent.click(screen.getByTestId("task634-toggle"));
+    expect(screen.getByTestId(`task634-row-${firstId}`)).toBeTruthy();
   });
 
-  it("ignores task634 fetch failures without breaking the canonical catalog (task #635)", async () => {
+  it("does not render the task634 card when the fetch fails (task #640)", async () => {
     // Defensive: a 404 / network failure on the optional hand-curated
-    // file must never blank out the main coverage tab.
+    // file must never blank out the main coverage tab and must not
+    // render an empty competitor-parity card.
     setupFetch({ task634: null });
     render(<UnlockCoverageTab />);
     await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
     expect(screen.getByTestId("total-count").textContent).toBe(
       String(CATALOG.entry_count),
     );
-    // No task634 rows surfaced.
-    expect(screen.queryByTestId(`row-task634_${TASK634.entries[0].id}`)).toBeNull();
+    expect(screen.queryByTestId("task634-card")).toBeNull();
+    for (const e of TASK634.entries) {
+      expect(screen.queryByTestId(`task634-row-${e.id}`)).toBeNull();
+    }
   });
 
   it("falls back to catalog counts when the dispatcher endpoint is unavailable", async () => {

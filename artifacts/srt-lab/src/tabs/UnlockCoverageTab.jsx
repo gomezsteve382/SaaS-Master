@@ -340,55 +340,27 @@ export default function UnlockCoverageTab() {
     }));
   }, [extCatalog]);
 
-  // Hand-curated task-634 entries promoted to canonical-row shape so
-  // they slot into the same table / chip / filter machinery. These are
-  // bench-tool capabilities (not seed→key DLLs) so they have no CAN id
-  // or ECU info; status is mapped to `dll_only` because the unlocks
-  // exist in srt-lab itself rather than as a reversed Python port of
-  // someone else's DLL — that lets the table's expanded "WHY DLL-ONLY"
-  // slot render the synthesised reason / impl pointer below.
+  // Hand-curated task-634 entries kept in raw shape. These bench-tool
+  // capabilities live in their own collapsible "Competitor-parity
+  // additions" card below the main coverage table (task #640) so they
+  // do not get rolled into the DLL coverage percentage, the family
+  // dropdown, the algorithm chips, or the "Showing X of Y" counter.
+  // Rebase resolution (task #640 + #641): keep raw entries (task #640's
+  // separate card consumes them directly) and annotate each one with a
+  // `verified` flag derived from #641's verifiedIds set so the dedicated
+  // Task634Row can flip its badge between BENCH-PENDING and VERIFIED.
   const task634Entries = useMemo(() => {
     if (!task634 || !Array.isArray(task634.entries)) return [];
-    return task634.entries.map((e) => {
-      const verified = verifiedIds.has(e.id);
-      const reason = [
-        `Hand-curated competitor-parity addition (task #${e.task ?? 634}).`,
-        e.lib ? `Implementation: ${e.lib}.` : null,
-        e.ui ? `UI: ${e.ui}.` : null,
-        e.status ? `Source status: ${e.status}.` : null,
-      ].filter(Boolean).join(" ");
-      return {
-        file: e.id,
-        module: `task634_${e.id}`,
-        display_name: e.label || e.id,
-        family: e.category ? `task634_${e.category}` : "task634",
-        algorithm: e.algorithm || null,
-        tx_can_id: null,
-        rx_can_id: null,
-        ecu_info: null,
-        size_bytes: 0,
-        // Task #641 — task-634 rows have their own bench-verified
-        // lifecycle (bench-pending → verified) rather than the
-        // python-port lifecycle (dll_only → reversed) used by the
-        // generated DLL rows.
-        status: verified ? "verified" : "bench-pending",
-        python_function: null,
-        reason,
-        provenance: task634.provenance || "task-634",
-        // Carry the raw id + verified flag through to the renderer so
-        // the expand panel can offer a Mark verified / Unmark button.
-        task634Id: e.id,
-        verified,
-      };
-    });
+    return task634.entries.map((e) => ({...e, verified: verifiedIds.has(e.id)}));
   }, [task634, verifiedIds]);
 
   // Computed from merged rows so families/algoCounts/totals stay
-  // consistent when the asset-sweep extension or task-634 hand-curated
-  // additions contribute new entries.
+  // consistent when the asset-sweep extension contributes new entries.
+  // Task-634 hand-curated additions intentionally live outside this
+  // merge so the DLL-catalog coverage stats stay clean.
   const mergedEntries = useMemo(
-    () => (catalog ? [...catalog.entries, ...extEntries, ...task634Entries] : []),
-    [catalog, extEntries, task634Entries],
+    () => (catalog ? [...catalog.entries, ...extEntries] : []),
+    [catalog, extEntries],
   );
 
   const families = useMemo(() => {
@@ -762,14 +734,6 @@ export default function UnlockCoverageTab() {
                             background: "#9C27B014", color: "#6A1B9A",
                           }}>SWEEP</span>
                         )}
-                        {e.provenance === "task-634" && (
-                          <span data-testid={`provenance-chip-${e.module}`} title="Hand-curated task #634 competitor-parity addition — see public/task634_entries.json" style={{
-                            marginLeft: 8, fontFamily: "'JetBrains Mono', monospace",
-                            fontSize: 8, fontWeight: 800, letterSpacing: 1,
-                            padding: "1px 5px", borderRadius: 3,
-                            background: "#D32F2F14", color: "#B71C1C",
-                          }}>TASK 634</span>
-                        )}
                       </td>
                       <td style={{padding: "10px 12px", color: C.tx}}>{e.display_name}</td>
                       <td style={{padding: "10px 12px"}}>
@@ -913,6 +877,10 @@ export default function UnlockCoverageTab() {
         </div>
       </Card>
 
+      {task634Entries.length > 0 && (
+        <Task634Card entries={task634Entries} onMarkVerified={markVerified}/>
+      )}
+
       {/* Extended catalog appendix — asset sweep provenance.
           Always rendered (even when DLL-only is empty) because the UDS
           service / NRC / DID dictionaries are useful on their own and
@@ -1017,6 +985,141 @@ export default function UnlockCoverageTab() {
             </div>
           )}
         </Card>
+      )}
+    </div>
+  );
+}
+
+// Competitor-parity additions card (task #640). Renders the hand-curated
+// task-634 bench-tool entries in their own collapsible section with a
+// count badge, so they show up at a glance without being merged into
+// the DLL coverage table or its rollup stats. Each entry exposes its
+// lib/UI source paths as clickable links so an operator can jump
+// straight from the catalog to the implementation file.
+function Task634Card({entries, onMarkVerified}) {
+  const [open, setOpen] = useState(true);
+  return (
+    <Card data-testid="task634-card">
+      <div style={{display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap"}}>
+        <div style={{fontFamily: "'Nunito'", fontWeight: 900, fontSize: 16, color: C.tx}}>
+          Competitor-parity additions
+        </div>
+        <span
+          data-testid="task634-count"
+          style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 800,
+            letterSpacing: 1, padding: "2px 7px", borderRadius: 999,
+            background: "#D32F2F14", color: "#B71C1C",
+          }}
+        >{entries.length} {entries.length === 1 ? "ENTRY" : "ENTRIES"}</span>
+        <span style={{
+          fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 800,
+          padding: "2px 7px", borderRadius: 999,
+          background: "#D32F2F14", color: "#B71C1C", letterSpacing: 1,
+        }}>provenance: task-634</span>
+        <div style={{flex: 1}}/>
+        <button
+          type="button"
+          data-testid="task634-toggle"
+          onClick={() => setOpen((v) => !v)}
+          style={{
+            background: "transparent", border: `1px solid ${C.bd}`, color: C.tm,
+            fontFamily: "'Nunito'", fontWeight: 700, fontSize: 10, letterSpacing: 1,
+            padding: "4px 10px", borderRadius: 6, cursor: "pointer",
+          }}
+        >{open ? "HIDE" : "SHOW"}</button>
+      </div>
+      <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, marginTop: 6, lineHeight: 1.4}}>
+        Bench-tool capabilities that ship outside the FCA seed→key DLL pipeline.
+        Tracked separately so they do not skew the headline DLL coverage percentage above.
+      </div>
+      {open && (
+        <div style={{marginTop: 12, display: "flex", flexDirection: "column", gap: 8}}>
+          {entries.map((e) => (
+            <Task634Row key={e.id} entry={e} onMarkVerified={onMarkVerified}/>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function Task634Row({entry, onMarkVerified}) {
+  return (
+    <div
+      data-testid={`task634-row-${entry.id}`}
+      data-provenance="task-634"
+      style={{
+        border: `1px solid ${C.bd}`, borderRadius: 8, padding: "10px 12px",
+        background: "#fff",
+      }}
+    >
+      <div style={{display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap"}}>
+        <div style={{fontFamily: "'Nunito'", fontWeight: 800, fontSize: 13, color: C.tx}}>
+          {entry.label || entry.id}
+        </div>
+        {entry.category && (
+          <span style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.tm, background: "#0001", padding: "2px 6px", borderRadius: 4}}>
+            {entry.category}
+          </span>
+        )}
+        {entry.algorithm && (
+          <span style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#0D47A1", background: "#0D47A114", padding: "2px 6px", borderRadius: 4}}>
+            {entry.algorithm}
+          </span>
+        )}
+        {/* Rebase resolution (task #641): bench-verified lifecycle badge.
+            Replaces the previous static source-status pill — the original
+            JSON `status` field is now surfaced inside the lib/ui block
+            below as plain text so no information is lost. */}
+        <StatusBadge status={entry.verified ? "verified" : "bench-pending"}/>
+        <div style={{flex: 1}}/>
+        {onMarkVerified && (
+          <button
+            type="button"
+            data-testid={`task634-verify-btn-${entry.id}`}
+            data-verified={entry.verified ? "true" : "false"}
+            onClick={() => onMarkVerified(entry.id, !entry.verified)}
+            style={{
+              cursor: "pointer",
+              border: `1.5px solid ${entry.verified ? "#1B5E20" : "#E65100"}`,
+              background: entry.verified ? "#1B5E20" : "#fff",
+              color: entry.verified ? "#fff" : "#E65100",
+              fontFamily: "'Nunito'", fontWeight: 800, fontSize: 10,
+              letterSpacing: 0.5, padding: "3px 9px", borderRadius: 6,
+            }}
+          >{entry.verified ? "✓ Verified — unmark" : "Mark verified"}</button>
+        )}
+      </div>
+      {(entry.lib || entry.ui) && (
+        <div style={{marginTop: 8, display: "flex", flexWrap: "wrap", gap: 14, fontFamily: "'JetBrains Mono', monospace", fontSize: 11}}>
+          {entry.lib && (
+            <div>
+              <span style={{color: C.tm, fontWeight: 700, letterSpacing: 0.5}}>lib: </span>
+              <a
+                data-testid={`task634-lib-${entry.id}`}
+                href={`/${entry.lib}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Open ${entry.lib}`}
+                style={{color: "#0D47A1", textDecoration: "underline"}}
+              >{entry.lib}</a>
+            </div>
+          )}
+          {entry.ui && (
+            <div>
+              <span style={{color: C.tm, fontWeight: 700, letterSpacing: 0.5}}>ui: </span>
+              <a
+                data-testid={`task634-ui-${entry.id}`}
+                href={`/${entry.ui}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Open ${entry.ui}`}
+                style={{color: "#0D47A1", textDecoration: "underline"}}
+              >{entry.ui}</a>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
