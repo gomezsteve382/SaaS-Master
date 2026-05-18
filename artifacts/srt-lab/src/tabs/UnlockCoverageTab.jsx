@@ -1078,6 +1078,16 @@ export default function UnlockCoverageTab() {
         />
       )}
 
+      {/* Task #646 — single-screen audit log of every bench verification
+          recorded for the task-634 capabilities. Pulls from the same
+          verifications state the per-row VerifyPanel writes to, joined
+          with the task634 entry labels so a shop owner can scan a week
+          of bench work in one place and export it for billing. */}
+      <VerificationsLogCard
+        verifications={verifications}
+        task634Entries={task634Entries}
+      />
+
       {/* Extended catalog appendix — asset sweep provenance.
           Always rendered (even when DLL-only is empty) because the UDS
           service / NRC / DID dictionaries are useful on their own and
@@ -1709,6 +1719,273 @@ function VillainOperations({vops}) {
         })}
       </div>
     </div>
+  );
+}
+
+// Task #646 — single-screen audit log of every bench verification.
+//
+// Joins the live `verifications` map (keyed by entryId — written by the
+// per-row VerifyPanel and hydrated from /api/task634-verifications) with
+// the task-634 entry labels so each row shows the human-readable
+// capability name instead of just the slug. Filtering happens client-side
+// (operator dropdown, VIN dropdown, free-text notes search) so a shop
+// owner can scan a week's worth of bench work without round-tripping the
+// server. CSV export honors the active filter so the downloaded report
+// matches what's on screen.
+function VerificationsLogCard({verifications, task634Entries}) {
+  const [operatorFilter, setOperatorFilter] = useState("all");
+  const [vinFilter, setVinFilter] = useState("all");
+  const [notesQ, setNotesQ] = useState("");
+
+  // Index task-634 entries by id so we can resolve a friendly capability
+  // label for each verification row. Falls back to the raw entryId when
+  // the verification references a row that's been removed from the
+  // hand-curated catalog (defensive — should not happen in practice).
+  const labelById = useMemo(() => {
+    const m = new Map();
+    for (const e of task634Entries || []) {
+      if (e && typeof e.id === "string") m.set(e.id, e.label || e.id);
+    }
+    return m;
+  }, [task634Entries]);
+
+  // Flatten the verifications dict into an array of rows sorted by
+  // verifiedAt desc. Rows missing a verifiedAt sort last so they don't
+  // jump to the top with epoch-0 NaN comparisons.
+  const rows = useMemo(() => {
+    const out = [];
+    for (const [entryId, meta] of Object.entries(verifications || {})) {
+      if (!meta) continue;
+      out.push({
+        entryId,
+        capability: labelById.get(entryId) || entryId,
+        operator: meta.operator || "",
+        vin: meta.vin || "",
+        notes: meta.notes || "",
+        verifiedAt: meta.verifiedAt || "",
+      });
+    }
+    out.sort((a, b) => {
+      const ta = a.verifiedAt ? Date.parse(a.verifiedAt) : -Infinity;
+      const tb = b.verifiedAt ? Date.parse(b.verifiedAt) : -Infinity;
+      return tb - ta;
+    });
+    return out;
+  }, [verifications, labelById]);
+
+  // Distinct operator + VIN values for the filter dropdowns. Sorted
+  // case-insensitively so the dropdown reads alphabetically regardless
+  // of how the tech typed their initials.
+  const operators = useMemo(() => {
+    const s = new Set();
+    for (const r of rows) if (r.operator) s.add(r.operator);
+    return Array.from(s).sort((a, b) => a.localeCompare(b, undefined, {sensitivity: "base"}));
+  }, [rows]);
+  const vins = useMemo(() => {
+    const s = new Set();
+    for (const r of rows) if (r.vin) s.add(r.vin);
+    return Array.from(s).sort();
+  }, [rows]);
+
+  const filtered = useMemo(() => {
+    const term = notesQ.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (operatorFilter !== "all" && r.operator !== operatorFilter) return false;
+      if (vinFilter !== "all" && r.vin !== vinFilter) return false;
+      if (term && !r.notes.toLowerCase().includes(term)) return false;
+      return true;
+    });
+  }, [rows, operatorFilter, vinFilter, notesQ]);
+
+  function exportCsv() {
+    // RFC 4180-ish CSV: wrap every field in double quotes, escape embedded
+    // quotes by doubling them. Keeps newlines inside notes intact since the
+    // surrounding quotes make that legal.
+    const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const header = ["verifiedAt", "operator", "vin", "capability", "entryId", "notes"];
+    const lines = [header.map(esc).join(",")];
+    for (const r of filtered) {
+      lines.push([
+        r.verifiedAt, r.operator, r.vin, r.capability, r.entryId, r.notes,
+      ].map(esc).join(","));
+    }
+    const csv = lines.join("\r\n");
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+    try {
+      const blob = new Blob([csv], {type: "text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `bench-verifications-${stamp}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      // Defer revoke so Safari finishes the download dialog before we
+      // pull the rug out from under the blob URL.
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      /* download is best-effort */
+    }
+  }
+
+  const hasAny = rows.length > 0;
+  const inputStyle = {
+    fontFamily: "'Nunito'", fontSize: 11,
+    padding: "5px 8px", border: `1px solid ${C.bd}`, borderRadius: 4,
+    background: "#fff", color: C.tx,
+  };
+
+  return (
+    <Card data-testid="verifications-log-card">
+      <div style={{display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 8}}>
+        <div style={{fontFamily: "'Nunito'", fontWeight: 900, fontSize: 16, color: C.tx}}>
+          Verifications log
+        </div>
+        <span
+          data-testid="verifications-log-count"
+          style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 800,
+            letterSpacing: 1, padding: "2px 7px", borderRadius: 999,
+            background: "#1B5E2014", color: "#1B5E20",
+          }}
+        >{filtered.length} of {rows.length}</span>
+        <div style={{flex: 1}}/>
+        <button
+          type="button"
+          data-testid="verifications-log-export"
+          onClick={exportCsv}
+          disabled={filtered.length === 0}
+          style={{
+            cursor: filtered.length === 0 ? "not-allowed" : "pointer",
+            border: "1.5px solid #0D47A1",
+            background: filtered.length === 0 ? "#0D47A140" : "#0D47A1",
+            color: "#fff", fontFamily: "'Nunito'", fontWeight: 800,
+            fontSize: 11, letterSpacing: 0.5, padding: "5px 12px",
+            borderRadius: 6, opacity: filtered.length === 0 ? 0.7 : 1,
+          }}
+        >Export CSV</button>
+      </div>
+      <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, marginBottom: 10, lineHeight: 1.4}}>
+        Chronological audit of every bench verification recorded for the competitor-parity capabilities — operator, VIN, capability, when, free-form notes. Filter or search, then export CSV for compliance / billing.
+      </div>
+
+      {!hasAny && (
+        <div
+          data-testid="verifications-log-empty"
+          style={{fontFamily: "'Nunito'", fontSize: 12, color: C.tm, padding: "12px 8px", fontStyle: "italic"}}
+        >
+          No verifications recorded yet. Mark a capability verified in the Competitor-parity additions card above and it will show up here.
+        </div>
+      )}
+
+      {hasAny && (
+        <>
+          <div style={{display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 10, alignItems: "center"}}>
+            <label style={{display: "flex", alignItems: "center", gap: 6, fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}>
+              Operator
+              <select
+                data-testid="verifications-log-operator"
+                value={operatorFilter}
+                onChange={(ev) => setOperatorFilter(ev.target.value)}
+                style={inputStyle}
+              >
+                <option value="all">All ({operators.length})</option>
+                {operators.map((op) => (
+                  <option key={op} value={op}>{op}</option>
+                ))}
+              </select>
+            </label>
+            <label style={{display: "flex", alignItems: "center", gap: 6, fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}>
+              VIN
+              <select
+                data-testid="verifications-log-vin"
+                value={vinFilter}
+                onChange={(ev) => setVinFilter(ev.target.value)}
+                style={inputStyle}
+              >
+                <option value="all">All ({vins.length})</option>
+                {vins.map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            </label>
+            <input
+              type="search"
+              data-testid="verifications-log-search"
+              value={notesQ}
+              onChange={(ev) => setNotesQ(ev.target.value)}
+              placeholder="Search notes…"
+              style={{...inputStyle, flex: 1, minWidth: 180, fontFamily: "'Nunito'"}}
+            />
+            {(operatorFilter !== "all" || vinFilter !== "all" || notesQ) && (
+              <button
+                type="button"
+                data-testid="verifications-log-clear"
+                onClick={() => { setOperatorFilter("all"); setVinFilter("all"); setNotesQ(""); }}
+                style={{
+                  cursor: "pointer", border: `1px solid ${C.bd}`,
+                  background: "transparent", color: C.tm,
+                  fontFamily: "'Nunito'", fontWeight: 700, fontSize: 10,
+                  letterSpacing: 1, padding: "5px 10px", borderRadius: 6,
+                }}
+              >CLEAR</button>
+            )}
+          </div>
+
+          <div style={{overflowX: "auto", border: `1px solid ${C.bd}`, borderRadius: 6}}>
+            <table data-testid="verifications-log-table" style={{width: "100%", borderCollapse: "collapse", fontFamily: "'Nunito'", fontSize: 11}}>
+              <thead style={{background: "#0000000A"}}>
+                <tr>
+                  <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm, letterSpacing: 1}}>WHEN</th>
+                  <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm, letterSpacing: 1}}>OPERATOR</th>
+                  <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm, letterSpacing: 1}}>VIN</th>
+                  <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm, letterSpacing: 1}}>CAPABILITY</th>
+                  <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm, letterSpacing: 1}}>NOTES</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((r) => (
+                  <tr
+                    key={r.entryId}
+                    data-testid={`verifications-log-row-${r.entryId}`}
+                    style={{borderTop: `1px solid ${C.bd}`}}
+                  >
+                    <td style={{padding: "6px 10px", color: C.tx, whiteSpace: "nowrap", fontFamily: "'JetBrains Mono', monospace", fontSize: 10}}>
+                      {fmtVerifiedAt(r.verifiedAt)}
+                    </td>
+                    <td style={{padding: "6px 10px", color: C.tx, fontWeight: 700}}>
+                      {r.operator || <span style={{color: C.tm, fontStyle: "italic", fontWeight: 400}}>—</span>}
+                    </td>
+                    <td style={{padding: "6px 10px", color: C.tx, fontFamily: "'JetBrains Mono', monospace", fontSize: 10}}>
+                      {r.vin || <span style={{color: C.tm, fontStyle: "italic", fontFamily: "'Nunito'"}}>—</span>}
+                    </td>
+                    <td style={{padding: "6px 10px", color: C.tx}}>
+                      {r.capability}
+                      <div style={{fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.tm}}>{r.entryId}</div>
+                    </td>
+                    <td style={{padding: "6px 10px", color: C.tx, whiteSpace: "pre-wrap", lineHeight: 1.4}}>
+                      {r.notes || <span style={{color: C.tm, fontStyle: "italic"}}>—</span>}
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      data-testid="verifications-log-no-match"
+                      style={{padding: "16px 10px", textAlign: "center", color: C.tm, fontStyle: "italic"}}
+                    >
+                      No verifications match the current filter.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </Card>
   );
 }
 

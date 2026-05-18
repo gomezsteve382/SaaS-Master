@@ -718,6 +718,119 @@ describe("UnlockCoverageTab — UI", () => {
     ).toBe(false);
   });
 
+  // Task #646 — single-screen audit log of every bench verification.
+  describe("Verifications log (task #646)", () => {
+    function setupFetchWithVerifications(verifications) {
+      global.fetch = vi.fn(async (url) => {
+        if (typeof url === "string" && url.includes("/api/task634-verifications")) {
+          return { ok: true, status: 200, json: async () => ({ verifications }) };
+        }
+        if (typeof url === "string" && url.includes("/api/unlock-coverage/stats")) {
+          return { ok: true, status: 200, json: async () => DEFAULT_DISPATCHER_STATS };
+        }
+        if (typeof url === "string" && url.includes("task634_entries.json")) {
+          return { ok: true, status: 200, json: async () => TASK634 };
+        }
+        return { ok: true, status: 200, json: async () => CATALOG };
+      });
+    }
+
+    it("renders empty-state copy when no verifications exist", async () => {
+      render(<UnlockCoverageTab />);
+      await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+      expect(screen.getByTestId("verifications-log-card")).toBeTruthy();
+      expect(screen.getByTestId("verifications-log-empty")).toBeTruthy();
+      expect(screen.getByTestId("verifications-log-export").hasAttribute("disabled")).toBe(true);
+    });
+
+    it("lists rows sorted desc by verifiedAt and supports operator + VIN + notes filters", async () => {
+      const e0 = TASK634.entries[0].id;
+      const e1 = TASK634.entries[1].id;
+      const e2 = TASK634.entries[2].id;
+      setupFetchWithVerifications([
+        { entryId: e0, operator: "K. Pierce", vin: "2C3CDZC97KH123456", notes: "Demon, clean", verifiedAt: "2026-05-15T18:00:00.000Z" },
+        { entryId: e1, operator: "M. Wong",   vin: "1C4RJFAG7LC000000", notes: "Hellcat seed retry", verifiedAt: "2026-05-17T09:30:00.000Z" },
+        { entryId: e2, operator: "K. Pierce", vin: "2C3CDZC97KH123456", notes: "Redeye, no issues", verifiedAt: "2026-05-10T12:00:00.000Z" },
+      ]);
+      render(<UnlockCoverageTab />);
+      await waitFor(() => screen.getByTestId("verifications-log-table"));
+      // Sorted desc by verifiedAt: e1 (May 17), e0 (May 15), e2 (May 10)
+      const rows = screen.getAllByTestId(/^verifications-log-row-/);
+      expect(rows.map((r) => r.getAttribute("data-testid"))).toEqual([
+        `verifications-log-row-${e1}`,
+        `verifications-log-row-${e0}`,
+        `verifications-log-row-${e2}`,
+      ]);
+      expect(screen.getByTestId("verifications-log-count").textContent).toBe("3 of 3");
+
+      // Filter by operator
+      fireEvent.change(screen.getByTestId("verifications-log-operator"), {
+        target: { value: "K. Pierce" },
+      });
+      expect(screen.queryByTestId(`verifications-log-row-${e1}`)).toBeNull();
+      expect(screen.getByTestId("verifications-log-count").textContent).toBe("2 of 3");
+
+      // Add notes search
+      fireEvent.change(screen.getByTestId("verifications-log-search"), {
+        target: { value: "redeye" },
+      });
+      expect(screen.queryByTestId(`verifications-log-row-${e0}`)).toBeNull();
+      expect(screen.getByTestId(`verifications-log-row-${e2}`)).toBeTruthy();
+
+      // Clear restores everything
+      fireEvent.click(screen.getByTestId("verifications-log-clear"));
+      expect(screen.getAllByTestId(/^verifications-log-row-/).length).toBe(3);
+
+      // VIN filter narrows down
+      fireEvent.change(screen.getByTestId("verifications-log-vin"), {
+        target: { value: "1C4RJFAG7LC000000" },
+      });
+      expect(screen.getAllByTestId(/^verifications-log-row-/).length).toBe(1);
+      expect(screen.getByTestId(`verifications-log-row-${e1}`)).toBeTruthy();
+    });
+
+    it("CSV export builds a blob whose contents honor the active filter", async () => {
+      const e0 = TASK634.entries[0].id;
+      const e1 = TASK634.entries[1].id;
+      setupFetchWithVerifications([
+        { entryId: e0, operator: "K. Pierce", vin: "VIN_AAA", notes: "alpha", verifiedAt: "2026-05-15T18:00:00.000Z" },
+        { entryId: e1, operator: "M. Wong",   vin: "VIN_BBB", notes: 'has "quote" and,comma', verifiedAt: "2026-05-17T09:30:00.000Z" },
+      ]);
+
+      // Capture the Blob handed to URL.createObjectURL so we can assert on
+      // the CSV body without round-tripping a real download.
+      let capturedBlob = null;
+      const origCreate = URL.createObjectURL;
+      const origRevoke = URL.revokeObjectURL;
+      URL.createObjectURL = vi.fn((blob) => { capturedBlob = blob; return "blob:mock"; });
+      URL.revokeObjectURL = vi.fn();
+
+      try {
+        render(<UnlockCoverageTab />);
+        await waitFor(() => screen.getByTestId("verifications-log-table"));
+        fireEvent.change(screen.getByTestId("verifications-log-operator"), {
+          target: { value: "M. Wong" },
+        });
+        fireEvent.click(screen.getByTestId("verifications-log-export"));
+
+        expect(capturedBlob).toBeTruthy();
+        const csv = await capturedBlob.text();
+        const lines = csv.split("\r\n");
+        expect(lines[0]).toBe('"verifiedAt","operator","vin","capability","entryId","notes"');
+        // Only M. Wong row remains after filter — and embedded quote is
+        // doubled per RFC 4180.
+        expect(lines.length).toBe(2);
+        expect(lines[1]).toContain('"M. Wong"');
+        expect(lines[1]).toContain('"VIN_BBB"');
+        expect(lines[1]).toContain('"has ""quote"" and,comma"');
+        expect(lines[1]).not.toContain("K. Pierce");
+      } finally {
+        URL.createObjectURL = origCreate;
+        URL.revokeObjectURL = origRevoke;
+      }
+    });
+  });
+
   it("falls back to catalog counts when the dispatcher endpoint is unavailable", async () => {
     setupFetch({ stats: null });
     render(<UnlockCoverageTab />);
