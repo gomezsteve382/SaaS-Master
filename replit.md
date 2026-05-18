@@ -45,7 +45,7 @@ The **External Tools tab** (`src/tabs/ExternalToolsTab.jsx`, id `exttools`) list
 
 The **native PROXI JS module** (`src/lib/fcaProxi.js`) provides: `parseProxi()`, `serializeProxi()`, `buildProxi()`, `validateLicenseJson()`, `verifyManifest()`. All functions are covered by 22 Vitest tests in `src/tabs/__tests__/fcaProxi.test.js`.
 
-Decompiled Python source from the PyInstaller bundle is in `tools/fca-proxi-extract/src/` (hwid.py, license_check.py, proxi_record.py, uds_transport.py). The full reverse-engineering reference is in `artifacts/srt-lab/docs/fca-proxi-reference.md`.
+Decompiled Python source from the PyInstaller bundle is in `tools/fca-proxi-extract/src/` (hwid.py, license_check.py, proxi_record.py, uds_transport.py). The full reverse-engineering reference is in `artifacts/srt-lab/docs/fca-proxi-reference.md`. SGW protocol and UDS function map is in `artifacts/srt-lab/docs/sgw-and-uds-reference.md`. Third-party binary intel for `VILLAIN_protected.exe` (CAN IDs, UDS service map, FCA DIDs, RoutineControl IDs, claimed `0x27 0x61` seed-to-key algorithm — all unverified) is in `artifacts/srt-lab/docs/villain-binary-intel.md`.
 
 ## `@workspace/uds` Library (`lib/uds/`)
 
