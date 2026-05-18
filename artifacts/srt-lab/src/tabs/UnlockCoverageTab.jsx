@@ -2004,6 +2004,26 @@ function VerificationsLogCard({
   const hasActiveFilter =
     operatorFilter !== "all" || vinFilter !== "all" || notesQ || fromDate || toDate;
 
+  // Earliest / latest verifiedAt across the full (unfiltered) dataset, so
+  // the empty-state hint can tell the operator where the data actually
+  // lives when their date range excludes everything. Rows without a
+  // parseable verifiedAt are ignored.
+  const verifiedBounds = useMemo(() => {
+    let min = null; let max = null;
+    for (const r of rows) {
+      if (!r.verifiedAt) continue;
+      const t = Date.parse(r.verifiedAt);
+      if (!Number.isFinite(t)) continue;
+      if (min === null || t < min) min = t;
+      if (max === null || t > max) max = t;
+    }
+    const fmt = (ms) => fmtLocalYmd(new Date(ms));
+    return {
+      earliest: min !== null ? fmt(min) : null,
+      latest: max !== null ? fmt(max) : null,
+    };
+  }, [rows]);
+
   function exportCsv() {
     // RFC 4180-ish CSV: wrap every field in double quotes, escape embedded
     // quotes by doubling them. Keeps newlines inside notes intact since the
@@ -2245,7 +2265,33 @@ function VerificationsLogCard({
                       data-testid="verifications-log-no-match"
                       style={{padding: "16px 10px", textAlign: "center", color: C.tm, fontStyle: "italic"}}
                     >
-                      No verifications match the current filter.
+                      {(fromDate || toDate) ? (
+                        <>
+                          <div data-testid="verifications-log-no-match-range">
+                            {(() => {
+                              if (fromDate && toDate) {
+                                return `No verifications between ${fromDate} and ${toDate}.`;
+                              }
+                              if (fromDate) {
+                                return `No verifications on or after ${fromDate}.`;
+                              }
+                              return `No verifications on or before ${toDate}.`;
+                            })()}
+                          </div>
+                          {(verifiedBounds.earliest || verifiedBounds.latest) && (
+                            <div
+                              data-testid="verifications-log-no-match-bounds"
+                              style={{marginTop: 4, fontStyle: "normal", fontSize: 10, color: C.tm}}
+                            >
+                              {verifiedBounds.earliest === verifiedBounds.latest
+                                ? `Only verification on file is ${verifiedBounds.earliest}.`
+                                : `Earliest on file is ${verifiedBounds.earliest}, latest is ${verifiedBounds.latest}.`}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        "No verifications match the current filter."
+                      )}
                     </td>
                   </tr>
                 )}
