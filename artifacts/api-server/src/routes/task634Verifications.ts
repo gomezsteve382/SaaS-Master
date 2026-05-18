@@ -17,13 +17,14 @@ const router: IRouter = Router();
  * reload AND show up on other bench machines.
  *
  *   GET    /api/task634-verifications          → list every verification
- *   POST   /api/task634-verifications          → upsert one (body: {entryId, vin?, notes?})
+ *   POST   /api/task634-verifications          → upsert one (body: {entryId, vin?, notes?, operator?})
  *   DELETE /api/task634-verifications/:entryId → un-verify a single entry
  */
 
 const MAX_ENTRY_ID_LEN = 64;
 const MAX_VIN_LEN = 32;
 const MAX_NOTES_LEN = 2000;
+const MAX_OPERATOR_LEN = 120;
 const ENTRY_ID_RE = /^[a-z0-9_]+$/;
 
 function rowToJson(row: Task634Verification) {
@@ -31,6 +32,7 @@ function rowToJson(row: Task634Verification) {
     entryId: row.entryId,
     vin: row.vin ?? null,
     notes: row.notes ?? null,
+    operator: row.operator ?? null,
     verifiedAt:
       row.verifiedAt instanceof Date
         ? row.verifiedAt.toISOString()
@@ -70,17 +72,21 @@ router.post("/task634-verifications", async (req, res, next) => {
         ? body.vin.toUpperCase().replace(/\s+/g, "").slice(0, MAX_VIN_LEN)
         : null;
     const notes =
-      typeof body.notes === "string" && body.notes
-        ? body.notes.slice(0, MAX_NOTES_LEN)
+      typeof body.notes === "string" && body.notes.trim()
+        ? body.notes.trim().slice(0, MAX_NOTES_LEN)
+        : null;
+    const operator =
+      typeof body.operator === "string" && body.operator.trim()
+        ? body.operator.trim().slice(0, MAX_OPERATOR_LEN)
         : null;
     const verifiedAt = new Date();
 
     await db
       .insert(task634VerificationsTable)
-      .values({ entryId, vin, notes, verifiedAt })
+      .values({ entryId, vin, notes, operator, verifiedAt })
       .onConflictDoUpdate({
         target: task634VerificationsTable.entryId,
-        set: { vin, notes, verifiedAt },
+        set: { vin, notes, operator, verifiedAt },
       });
 
     res.json({
@@ -89,6 +95,7 @@ router.post("/task634-verifications", async (req, res, next) => {
         entryId,
         vin,
         notes,
+        operator,
         verifiedAt: verifiedAt.toISOString(),
       },
     });

@@ -4,6 +4,35 @@ import {Card, Btn} from "../lib/ui.jsx";
 import {parseCatalog} from "../lib/unlockCatalogSchema.js";
 import {friendlyAlgo} from "../lib/algoFriendly.js";
 import {getAuth29Detections, subscribeAuth29, clearAuth29Detections, loadAuth29Detections, getAuth29Unlocks, clearAuth29Unlocks} from "../lib/auth29State.js";
+import {useMasterVin} from "../lib/masterVinContext.jsx";
+
+// Task #643 — format a verifiedAt ISO string for the tooltip / panel.
+// Falls back to the raw string if parsing fails so the UI never blanks.
+function fmtVerifiedAt(iso) {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleString();
+  } catch {
+    return String(iso);
+  }
+}
+
+// Task #643 — single-line provenance summary suitable for a tooltip /
+// title attribute. Mirrors what the panel renders so the badge hover
+// matches the expanded card.
+function verificationTooltip(meta) {
+  if (!meta) return "";
+  const parts = [];
+  if (meta.operator) parts.push(`by ${meta.operator}`);
+  if (meta.verifiedAt) parts.push(`on ${fmtVerifiedAt(meta.verifiedAt)}`);
+  if (meta.vin) parts.push(`VIN ${meta.vin}`);
+  if (meta.notes) parts.push(`notes: ${meta.notes}`);
+  return parts.length === 0
+    ? "Bench-verified (no operator metadata recorded)"
+    : `Verified ${parts.join(" · ")}`;
+}
 
 /**
  * Unlock Coverage tab — Task #499.
@@ -43,14 +72,19 @@ const STATUS_STYLES = {
   verified: {bg: "#1B5E2010", color: "#1B5E20", label: "VERIFIED"},
 };
 
-function StatusBadge({status}) {
+function StatusBadge({status, title}) {
   const s = STATUS_STYLES[status] || {bg: "#9E9E9E20", color: "#616161", label: String(status).toUpperCase()};
   return (
-    <span data-status={status} style={{
-      display: "inline-block", padding: "3px 9px", borderRadius: 6,
-      background: s.bg, color: s.color, fontFamily: "'Nunito'",
-      fontWeight: 900, fontSize: 10, letterSpacing: 1,
-    }}>{s.label}</span>
+    <span
+      data-status={status}
+      title={title || undefined}
+      style={{
+        display: "inline-block", padding: "3px 9px", borderRadius: 6,
+        background: s.bg, color: s.color, fontFamily: "'Nunito'",
+        fontWeight: 900, fontSize: 10, letterSpacing: 1,
+        cursor: title ? "help" : "default",
+      }}
+    >{s.label}</span>
   );
 }
 
@@ -130,6 +164,17 @@ function slugToAlgo(slug) {
 }
 
 export default function UnlockCoverageTab() {
+  const masterVin = useMasterVin();
+  const benchVin = masterVin?.vin || "";
+  // Task #643 — last operator name typed into a verify form. Remembered
+  // per-browser so the tech doesn't have to retype their initials on
+  // every row. Stored as a plain string (no PII guardrails — same as
+  // localStorage VIN history elsewhere in the app).
+  const [operatorName, setOperatorName] = useState(() => {
+    if (typeof window === "undefined") return "";
+    try { return window.localStorage.getItem("srtlab.task634.operator.v1") || ""; }
+    catch { return ""; }
+  });
   const [catalog, setCatalog] = useState(null);
   // Optional extended catalog from tools/asset-sweep (DLLs + UDS tables).
   const [extCatalog, setExtCatalog] = useState(null);
@@ -153,6 +198,28 @@ export default function UnlockCoverageTab() {
       return new Set();
     }
   });
+  // Task #643 — full verification metadata keyed by entry id. Holds the
+  // operator name, VIN, free-form notes, and verifiedAt timestamp the
+  // API returned. Drives both the expanded verify panel and the badge
+  // tooltip. localStorage seed runs first so the panel paints with the
+  // last known values when the API is offline; the GET refresh below
+  // replaces it with the server's view when reachable.
+  const [verifications, setVerifications] = useState(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      const raw = window.localStorage.getItem("srtlab.task634.verifications.v1");
+      if (!raw) return {};
+      const obj = JSON.parse(raw);
+      return obj && typeof obj === "object" ? obj : {};
+    } catch {
+      return {};
+    }
+  });
+  // Which task-634 rows currently have their inline edit form open
+  // ("Mark verified" or "Edit" clicked but Save not yet pressed). Map
+  // of entryId → {operator, vin, notes} draft so each row remembers
+  // what was typed when toggling other rows.
+  const [verifyDrafts, setVerifyDrafts] = useState({});
   // Live dispatcher stats; falls back to on-disk catalog counts if offline.
   const [dispatcherStats, setDispatcherStats] = useState(null);
   const [error, setError] = useState(null);
@@ -267,14 +334,28 @@ export default function UnlockCoverageTab() {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (cancelled || !data || !Array.isArray(data.verifications)) return;
-        const ids = data.verifications
-          .map((v) => v && typeof v.entryId === "string" ? v.entryId : null)
-          .filter(Boolean);
+        const ids = [];
+        const meta = {};
+        for (const v of data.verifications) {
+          if (!v || typeof v.entryId !== "string") continue;
+          ids.push(v.entryId);
+          meta[v.entryId] = {
+            operator: v.operator ?? null,
+            vin: v.vin ?? null,
+            notes: v.notes ?? null,
+            verifiedAt: v.verifiedAt ?? null,
+          };
+        }
         setVerifiedIds(new Set(ids));
+        setVerifications(meta);
         try {
           window.localStorage.setItem(
             "srtlab.task634.verified.v1",
             JSON.stringify(ids),
+          );
+          window.localStorage.setItem(
+            "srtlab.task634.verifications.v1",
+            JSON.stringify(meta),
           );
         } catch { /* storage is best-effort */ }
       })
@@ -423,15 +504,29 @@ export default function UnlockCoverageTab() {
     [mergedEntries, auth29TxSet],
   );
 
-  // Task #641 — flip a task-634 entry between bench-pending and verified.
-  // Optimistically updates local state (+ localStorage) so the badge
-  // changes instantly, then mirrors to the API server. If the server
-  // call fails the row still flips locally — re-hydration on the next
-  // mount will reconcile.
-  function markVerified(entryId, verified) {
+  // Task #641 + #643 — record (or un-record) a bench verification for a
+  // task-634 entry. Optimistically flips local state + localStorage so
+  // the badge and verify panel update instantly, then mirrors the call
+  // to the API server. The server response (with its authoritative
+  // verifiedAt timestamp) replaces the optimistic metadata when it
+  // arrives so the panel never drifts from what was persisted.
+  function verifyEntry(entryId, {operator, vin, notes}) {
+    const cleanOperator = (operator || "").trim() || null;
+    const cleanVin = (vin || "").toUpperCase().replace(/\s+/g, "") || null;
+    const cleanNotes = (notes || "").trim() || null;
+    const verifiedAt = new Date().toISOString();
+    const meta = {operator: cleanOperator, vin: cleanVin, notes: cleanNotes, verifiedAt};
+
+    // Persist the operator name for next time so the tech doesn't retype it.
+    if (cleanOperator) {
+      setOperatorName(cleanOperator);
+      try { window.localStorage.setItem("srtlab.task634.operator.v1", cleanOperator); }
+      catch { /* best-effort */ }
+    }
+
     setVerifiedIds((prev) => {
       const next = new Set(prev);
-      if (verified) next.add(entryId); else next.delete(entryId);
+      next.add(entryId);
       try {
         window.localStorage.setItem(
           "srtlab.task634.verified.v1",
@@ -440,16 +535,116 @@ export default function UnlockCoverageTab() {
       } catch { /* storage is best-effort */ }
       return next;
     });
-    const req = verified
-      ? fetch("/api/task634-verifications", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({entryId}),
-        })
-      : fetch(`/api/task634-verifications/${encodeURIComponent(entryId)}`, {
-          method: "DELETE",
+    setVerifications((prev) => {
+      const next = {...prev, [entryId]: meta};
+      try {
+        window.localStorage.setItem(
+          "srtlab.task634.verifications.v1",
+          JSON.stringify(next),
+        );
+      } catch { /* storage is best-effort */ }
+      return next;
+    });
+    // Close any open draft form for this row — Save just took effect.
+    setVerifyDrafts((prev) => {
+      if (!(entryId in prev)) return prev;
+      const next = {...prev};
+      delete next[entryId];
+      return next;
+    });
+
+    fetch("/api/task634-verifications", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        entryId,
+        operator: cleanOperator,
+        vin: cleanVin,
+        notes: cleanNotes,
+      }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        // Replace the optimistic verifiedAt with the server-issued one.
+        if (!data || !data.verification) return;
+        const v = data.verification;
+        setVerifications((prev) => {
+          const next = {
+            ...prev,
+            [entryId]: {
+              operator: v.operator ?? null,
+              vin: v.vin ?? null,
+              notes: v.notes ?? null,
+              verifiedAt: v.verifiedAt ?? verifiedAt,
+            },
+          };
+          try {
+            window.localStorage.setItem(
+              "srtlab.task634.verifications.v1",
+              JSON.stringify(next),
+            );
+          } catch { /* storage is best-effort */ }
+          return next;
         });
-    req.catch(() => { /* offline → localStorage holds the line */ });
+      })
+      .catch(() => { /* offline → optimistic state stands */ });
+  }
+
+  function clearVerification(entryId) {
+    setVerifiedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(entryId);
+      try {
+        window.localStorage.setItem(
+          "srtlab.task634.verified.v1",
+          JSON.stringify(Array.from(next)),
+        );
+      } catch { /* storage is best-effort */ }
+      return next;
+    });
+    setVerifications((prev) => {
+      if (!(entryId in prev)) return prev;
+      const next = {...prev};
+      delete next[entryId];
+      try {
+        window.localStorage.setItem(
+          "srtlab.task634.verifications.v1",
+          JSON.stringify(next),
+        );
+      } catch { /* storage is best-effort */ }
+      return next;
+    });
+    fetch(`/api/task634-verifications/${encodeURIComponent(entryId)}`, {
+      method: "DELETE",
+    }).catch(() => { /* offline → localStorage holds the line */ });
+  }
+
+  function openVerifyDraft(entryId) {
+    const existing = verifications[entryId] || {};
+    setVerifyDrafts((prev) => ({
+      ...prev,
+      [entryId]: {
+        operator: existing.operator || operatorName || "",
+        vin: existing.vin || benchVin || "",
+        notes: existing.notes || "",
+      },
+    }));
+  }
+
+  function closeVerifyDraft(entryId) {
+    setVerifyDrafts((prev) => {
+      if (!(entryId in prev)) return prev;
+      const next = {...prev};
+      delete next[entryId];
+      return next;
+    });
+  }
+
+  function updateVerifyDraft(entryId, patch) {
+    setVerifyDrafts((prev) => ({
+      ...prev,
+      [entryId]: {...(prev[entryId] || {}), ...patch},
+    }));
   }
 
   function toggle(module) {
@@ -745,7 +940,16 @@ export default function UnlockCoverageTab() {
                       <td style={{padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", color: C.tx}}>{fmtCanId(e.tx_can_id)}</td>
                       <td style={{padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", color: C.tx}}>{fmtCanId(e.rx_can_id)}</td>
                       <td style={{padding: "10px 12px", color: C.tm}}>{fmtBytes(e.size_bytes)}</td>
-                      <td style={{padding: "10px 12px"}}><StatusBadge status={e.status}/></td>
+                      <td style={{padding: "10px 12px"}}>
+                        <StatusBadge
+                          status={e.status}
+                          title={
+                            e.status === "verified" && e.task634Id
+                              ? verificationTooltip(verifications[e.task634Id])
+                              : undefined
+                          }
+                        />
+                      </td>
                       <td style={{padding: "10px 12px"}} data-testid={`auth29-cell-${e.module}`}>
                         {auth29TxSet.has(e.tx_can_id | 0) ? (
                           <span
@@ -826,37 +1030,19 @@ export default function UnlockCoverageTab() {
                               </div>
                             )}
                             {e.provenance === "task-634" && e.task634Id && (
-                              <div
-                                data-testid={`verify-panel-${e.task634Id}`}
-                                style={{gridColumn: "1 / -1", marginTop: 4, paddingTop: 10, borderTop: `1px dashed ${C.bd}`}}
-                              >
-                                <div style={{fontSize: 10, color: C.tm, letterSpacing: 1, fontWeight: 700, marginBottom: 6}}>
-                                  BENCH VERIFICATION
-                                </div>
-                                <div style={{display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap"}}>
-                                  <button
-                                    type="button"
-                                    data-testid={`verify-btn-${e.task634Id}`}
-                                    data-verified={e.verified ? "true" : "false"}
-                                    onClick={() => markVerified(e.task634Id, !e.verified)}
-                                    style={{
-                                      cursor: "pointer",
-                                      border: `1.5px solid ${e.verified ? "#1B5E20" : "#E65100"}`,
-                                      background: e.verified ? "#1B5E20" : "#fff",
-                                      color: e.verified ? "#fff" : "#E65100",
-                                      fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
-                                      letterSpacing: 0.5, padding: "5px 12px", borderRadius: 6,
-                                    }}
-                                  >
-                                    {e.verified ? "✓ Verified — click to unmark" : "Mark verified"}
-                                  </button>
-                                  <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, lineHeight: 1.4}}>
-                                    {e.verified
-                                      ? "Bench-confirmed against a real vehicle. Synced to the API server so other benches see the same flag."
-                                      : "Flip this once you've run the capability on a real car. Persists across reloads (localStorage + API server)."}
-                                  </div>
-                                </div>
-                              </div>
+                              <VerifyPanel
+                                entryId={e.task634Id}
+                                verified={e.verified}
+                                meta={verifications[e.task634Id]}
+                                draft={verifyDrafts[e.task634Id]}
+                                benchVin={benchVin}
+                                lastOperator={operatorName}
+                                onOpenDraft={openVerifyDraft}
+                                onCloseDraft={closeVerifyDraft}
+                                onUpdateDraft={updateVerifyDraft}
+                                onSave={verifyEntry}
+                                onClear={clearVerification}
+                              />
                             )}
                           </div>
                         </td>
@@ -878,7 +1064,18 @@ export default function UnlockCoverageTab() {
       </Card>
 
       {task634Entries.length > 0 && (
-        <Task634Card entries={task634Entries} onMarkVerified={markVerified}/>
+        <Task634Card
+          entries={task634Entries}
+          verifications={verifications}
+          verifyDrafts={verifyDrafts}
+          benchVin={benchVin}
+          operatorName={operatorName}
+          onOpenDraft={openVerifyDraft}
+          onCloseDraft={closeVerifyDraft}
+          onUpdateDraft={updateVerifyDraft}
+          onSave={verifyEntry}
+          onClear={clearVerification}
+        />
       )}
 
       {/* Extended catalog appendix — asset sweep provenance.
@@ -990,13 +1187,19 @@ export default function UnlockCoverageTab() {
   );
 }
 
-// Competitor-parity additions card (task #640). Renders the hand-curated
-// task-634 bench-tool entries in their own collapsible section with a
-// count badge, so they show up at a glance without being merged into
-// the DLL coverage table or its rollup stats. Each entry exposes its
-// lib/UI source paths as clickable links so an operator can jump
-// straight from the catalog to the implementation file.
-function Task634Card({entries, onMarkVerified}) {
+// Competitor-parity additions card (task #640 + #643). Renders the
+// hand-curated task-634 bench-tool entries in their own collapsible
+// section with a count badge, so they show up at a glance without being
+// merged into the DLL coverage table or its rollup stats. Each entry
+// exposes its lib/UI source paths as clickable links so an operator can
+// jump straight from the catalog to the implementation file, and embeds
+// the task #643 VerifyPanel behind a per-row Details toggle so the full
+// operator / VIN / notes provenance can be captured against the same
+// entries that live in this dedicated card.
+function Task634Card({
+  entries, verifications, verifyDrafts, benchVin, operatorName,
+  onOpenDraft, onCloseDraft, onUpdateDraft, onSave, onClear,
+}) {
   const [open, setOpen] = useState(true);
   return (
     <Card data-testid="task634-card">
@@ -1036,7 +1239,19 @@ function Task634Card({entries, onMarkVerified}) {
       {open && (
         <div style={{marginTop: 12, display: "flex", flexDirection: "column", gap: 8}}>
           {entries.map((e) => (
-            <Task634Row key={e.id} entry={e} onMarkVerified={onMarkVerified}/>
+            <Task634Row
+              key={e.id}
+              entry={e}
+              meta={verifications?.[e.id]}
+              draft={verifyDrafts?.[e.id]}
+              benchVin={benchVin}
+              operatorName={operatorName}
+              onOpenDraft={onOpenDraft}
+              onCloseDraft={onCloseDraft}
+              onUpdateDraft={onUpdateDraft}
+              onSave={onSave}
+              onClear={onClear}
+            />
           ))}
         </div>
       )}
@@ -1044,7 +1259,12 @@ function Task634Card({entries, onMarkVerified}) {
   );
 }
 
-function Task634Row({entry, onMarkVerified}) {
+function Task634Row({
+  entry, meta, draft, benchVin, operatorName,
+  onOpenDraft, onCloseDraft, onUpdateDraft, onSave, onClear,
+}) {
+  const [open, setOpen] = useState(false);
+  const verified = !!entry.verified;
   return (
     <div
       data-testid={`task634-row-${entry.id}`}
@@ -1068,28 +1288,24 @@ function Task634Row({entry, onMarkVerified}) {
             {entry.algorithm}
           </span>
         )}
-        {/* Rebase resolution (task #641): bench-verified lifecycle badge.
-            Replaces the previous static source-status pill — the original
-            JSON `status` field is now surfaced inside the lib/ui block
-            below as plain text so no information is lost. */}
-        <StatusBadge status={entry.verified ? "verified" : "bench-pending"}/>
+        {/* Rebase resolution (task #641 + #643): bench-verified lifecycle
+            badge with a tooltip echoing the operator / when / VIN /
+            notes provenance captured by the task #643 verify panel. */}
+        <StatusBadge
+          status={verified ? "verified" : "bench-pending"}
+          title={verified ? verificationTooltip(meta) : undefined}
+        />
         <div style={{flex: 1}}/>
-        {onMarkVerified && (
-          <button
-            type="button"
-            data-testid={`task634-verify-btn-${entry.id}`}
-            data-verified={entry.verified ? "true" : "false"}
-            onClick={() => onMarkVerified(entry.id, !entry.verified)}
-            style={{
-              cursor: "pointer",
-              border: `1.5px solid ${entry.verified ? "#1B5E20" : "#E65100"}`,
-              background: entry.verified ? "#1B5E20" : "#fff",
-              color: entry.verified ? "#fff" : "#E65100",
-              fontFamily: "'Nunito'", fontWeight: 800, fontSize: 10,
-              letterSpacing: 0.5, padding: "3px 9px", borderRadius: 6,
-            }}
-          >{entry.verified ? "✓ Verified — unmark" : "Mark verified"}</button>
-        )}
+        <button
+          type="button"
+          data-testid={`toggle-task634_${entry.id}`}
+          onClick={() => setOpen((v) => !v)}
+          style={{
+            background: "transparent", border: `1px solid ${C.bd}`,
+            color: C.tm, fontFamily: "'Nunito'", fontWeight: 700,
+            fontSize: 10, padding: "4px 10px", borderRadius: 6, cursor: "pointer",
+          }}
+        >{open ? "Hide" : "Details"}</button>
       </div>
       {(entry.lib || entry.ui) && (
         <div style={{marginTop: 8, display: "flex", flexWrap: "wrap", gap: 14, fontFamily: "'JetBrains Mono', monospace", fontSize: 11}}>
@@ -1120,6 +1336,234 @@ function Task634Row({entry, onMarkVerified}) {
             </div>
           )}
         </div>
+      )}
+      {open && (
+        <VerifyPanel
+          entryId={entry.id}
+          verified={verified}
+          meta={meta}
+          draft={draft}
+          benchVin={benchVin}
+          lastOperator={operatorName}
+          onOpenDraft={onOpenDraft}
+          onCloseDraft={onCloseDraft}
+          onUpdateDraft={onUpdateDraft}
+          onSave={onSave}
+          onClear={onClear}
+        />
+      )}
+    </div>
+  );
+}
+
+// Task #643 — bench-verification panel for a single task-634 entry.
+// Renders one of three states:
+//   1. Not verified, draft closed → "Mark verified" button + hint copy.
+//   2. Draft open (verifying or editing) → operator / VIN / notes form.
+//   3. Verified, draft closed → who-verified-it / when / VIN / notes
+//      summary + Edit / Unmark buttons.
+function VerifyPanel({
+  entryId, verified, meta, draft,
+  benchVin, lastOperator,
+  onOpenDraft, onCloseDraft, onUpdateDraft, onSave, onClear,
+}) {
+  const isEditing = !!draft;
+  const operatorVal = draft?.operator ?? "";
+  const vinVal = draft?.vin ?? "";
+  const notesVal = draft?.notes ?? "";
+  const canSave = operatorVal.trim().length > 0;
+  const inputStyle = {
+    fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+    padding: "5px 8px", border: `1px solid ${C.bd}`, borderRadius: 4,
+    background: "#fff", color: C.tx, width: "100%", boxSizing: "border-box",
+  };
+  const labelStyle = {
+    fontSize: 9, color: C.tm, letterSpacing: 1, fontWeight: 700,
+    marginBottom: 3, fontFamily: "'Nunito'",
+  };
+  return (
+    <div
+      data-testid={`verify-panel-${entryId}`}
+      style={{gridColumn: "1 / -1", marginTop: 4, paddingTop: 10, borderTop: `1px dashed ${C.bd}`}}
+    >
+      <div style={{display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, marginBottom: 8, flexWrap: "wrap"}}>
+        <div style={{fontSize: 10, color: C.tm, letterSpacing: 1, fontWeight: 700}}>
+          BENCH VERIFICATION
+        </div>
+        {verified && meta?.verifiedAt && !isEditing && (
+          <div
+            data-testid={`verify-summary-${entryId}`}
+            style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}
+          >
+            verified <span data-testid={`verify-when-${entryId}`} style={{color: C.tx, fontWeight: 700}}>{fmtVerifiedAt(meta.verifiedAt)}</span>
+            {meta.operator && (
+              <>
+                {" by "}
+                <span data-testid={`verify-operator-${entryId}`} style={{color: C.tx, fontWeight: 700}}>{meta.operator}</span>
+              </>
+            )}
+            {meta.vin && (
+              <>
+                {" against VIN "}
+                <span data-testid={`verify-vin-${entryId}`} style={{fontFamily: "'JetBrains Mono', monospace", color: C.tx, fontWeight: 700}}>{meta.vin}</span>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {!isEditing && !verified && (
+        <div style={{display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap"}}>
+          <button
+            type="button"
+            data-testid={`verify-btn-${entryId}`}
+            data-verified="false"
+            onClick={() => onOpenDraft(entryId)}
+            style={{
+              cursor: "pointer",
+              border: "1.5px solid #E65100", background: "#fff", color: "#E65100",
+              fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
+              letterSpacing: 0.5, padding: "5px 12px", borderRadius: 6,
+            }}
+          >Mark verified</button>
+          <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, lineHeight: 1.4}}>
+            Flip this once you've run the capability on a real car. Records who / when / which VIN so other techs can see the provenance.
+          </div>
+        </div>
+      )}
+
+      {!isEditing && verified && (
+        <div style={{display: "flex", flexDirection: "column", gap: 8}}>
+          {meta?.notes && (
+            <div
+              data-testid={`verify-notes-${entryId}`}
+              style={{
+                fontFamily: "'Nunito'", fontSize: 11, color: C.tx,
+                background: "#1B5E2010", border: "1px solid #1B5E2040",
+                borderRadius: 4, padding: "6px 10px", lineHeight: 1.4,
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              <span style={{fontWeight: 800, color: "#1B5E20", marginRight: 6, letterSpacing: 0.5}}>NOTES:</span>
+              {meta.notes}
+            </div>
+          )}
+          <div style={{display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap"}}>
+            <button
+              type="button"
+              data-testid={`verify-btn-${entryId}`}
+              data-verified="true"
+              onClick={() => onOpenDraft(entryId)}
+              style={{
+                cursor: "pointer",
+                border: "1.5px solid #1B5E20", background: "#1B5E20", color: "#fff",
+                fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
+                letterSpacing: 0.5, padding: "5px 12px", borderRadius: 6,
+              }}
+            >✓ Verified — edit</button>
+            <button
+              type="button"
+              data-testid={`verify-unmark-${entryId}`}
+              onClick={() => onClear(entryId)}
+              style={{
+                cursor: "pointer",
+                border: `1px solid ${C.bd}`, background: "transparent", color: C.tm,
+                fontFamily: "'Nunito'", fontWeight: 700, fontSize: 11,
+                padding: "5px 10px", borderRadius: 6,
+              }}
+            >Unmark</button>
+            {!meta?.operator && (
+              <span style={{fontFamily: "'Nunito'", fontSize: 11, color: "#E65100", fontStyle: "italic"}}>
+                (no operator recorded — click Edit to add)
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {isEditing && (
+        <form
+          data-testid={`verify-form-${entryId}`}
+          onSubmit={(ev) => {
+            ev.preventDefault();
+            if (!canSave) return;
+            onSave(entryId, {operator: operatorVal, vin: vinVal, notes: notesVal});
+          }}
+          style={{display: "flex", flexDirection: "column", gap: 8}}
+        >
+          <div style={{display: "grid", gridTemplateColumns: "minmax(160px, 1fr) minmax(160px, 1fr)", gap: 10}}>
+            <div>
+              <div style={labelStyle}>OPERATOR <span style={{color: "#E65100"}}>*</span></div>
+              <input
+                type="text"
+                data-testid={`verify-operator-input-${entryId}`}
+                value={operatorVal}
+                placeholder={lastOperator ? `e.g. ${lastOperator}` : "tech initials / name"}
+                onChange={(ev) => onUpdateDraft(entryId, {operator: ev.target.value})}
+                maxLength={120}
+                style={inputStyle}
+                autoFocus
+              />
+            </div>
+            <div>
+              <div style={labelStyle}>VIN</div>
+              <input
+                type="text"
+                data-testid={`verify-vin-input-${entryId}`}
+                value={vinVal}
+                placeholder={benchVin || "17-char VIN (optional)"}
+                onChange={(ev) => onUpdateDraft(entryId, {vin: ev.target.value.toUpperCase()})}
+                maxLength={17}
+                spellCheck={false}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+          <div>
+            <div style={labelStyle}>NOTES (optional)</div>
+            <textarea
+              data-testid={`verify-notes-input-${entryId}`}
+              value={notesVal}
+              placeholder="Anything worth flagging for the next tech — caveats, vehicle, NRC seen, etc."
+              onChange={(ev) => onUpdateDraft(entryId, {notes: ev.target.value})}
+              rows={2}
+              maxLength={2000}
+              style={{...inputStyle, fontFamily: "'Nunito'", resize: "vertical", minHeight: 44}}
+            />
+          </div>
+          <div style={{display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap"}}>
+            <button
+              type="submit"
+              data-testid={`verify-save-${entryId}`}
+              disabled={!canSave}
+              style={{
+                cursor: canSave ? "pointer" : "not-allowed",
+                border: "1.5px solid #1B5E20",
+                background: canSave ? "#1B5E20" : "#1B5E2040",
+                color: "#fff",
+                fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
+                letterSpacing: 0.5, padding: "5px 12px", borderRadius: 6,
+                opacity: canSave ? 1 : 0.7,
+              }}
+            >{verified ? "Update verification" : "Save verification"}</button>
+            <button
+              type="button"
+              data-testid={`verify-cancel-${entryId}`}
+              onClick={() => onCloseDraft(entryId)}
+              style={{
+                cursor: "pointer",
+                border: `1px solid ${C.bd}`, background: "transparent", color: C.tm,
+                fontFamily: "'Nunito'", fontWeight: 700, fontSize: 11,
+                padding: "5px 10px", borderRadius: 6,
+              }}
+            >Cancel</button>
+            {!canSave && (
+              <span style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, fontStyle: "italic"}}>
+                Operator is required so we can audit who confirmed the unlock.
+              </span>
+            )}
+          </div>
+        </form>
       )}
     </div>
   );

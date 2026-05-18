@@ -21,6 +21,10 @@ export const task634VerificationsTable = pgTable("task634_verifications", {
     .defaultNow(),
   vin: text("vin"),
   notes: text("notes"),
+  // Task #643 — who actually ran the capability against the car. Free-form
+  // string (tech initials, name, badge number — whatever the shop uses).
+  // Optional so legacy verifications without an operator stay valid.
+  operator: text("operator"),
 });
 
 export type Task634Verification =

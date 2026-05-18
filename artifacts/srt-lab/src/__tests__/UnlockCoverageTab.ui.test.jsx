@@ -69,6 +69,9 @@ afterEach(() => {
   // into the initial state of the next test (the component seeds its
   // algoFilter from window.location.search on mount).
   try { window.history.replaceState(null, "", "/"); } catch { /* jsdom only */ }
+  // Task #643 — clear the remembered operator/verifications between tests
+  // so one test's POST doesn't pre-fill the next test's form.
+  try { window.localStorage.clear(); } catch { /* jsdom only */ }
 });
 
 describe("UnlockCoverageTab — UI", () => {
@@ -607,6 +610,112 @@ describe("UnlockCoverageTab — UI", () => {
     for (const e of TASK634.entries) {
       expect(screen.queryByTestId(`task634-row-${e.id}`)).toBeNull();
     }
+  });
+
+  it("verify panel captures operator, VIN, notes and surfaces them on the badge + summary (task #643)", async () => {
+    // Override fetch so we can capture the POST body the form sends and
+    // simulate the server's authoritative response.
+    const postBodies = [];
+    global.fetch = vi.fn(async (url, init) => {
+      if (typeof url === "string" && url.includes("/api/unlock-coverage/stats")) {
+        return { ok: true, status: 200, json: async () => DEFAULT_DISPATCHER_STATS };
+      }
+      if (typeof url === "string" && url.includes("task634_entries.json")) {
+        return { ok: true, status: 200, json: async () => TASK634 };
+      }
+      if (typeof url === "string" && url.includes("/api/task634-verifications")) {
+        if (init && init.method === "POST") {
+          const body = JSON.parse(init.body);
+          postBodies.push(body);
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              ok: true,
+              verification: {
+                entryId: body.entryId,
+                vin: body.vin,
+                notes: body.notes,
+                operator: body.operator,
+                verifiedAt: "2026-05-17T12:34:56.000Z",
+              },
+            }),
+          };
+        }
+        // GET — start with nothing verified.
+        return { ok: true, status: 200, json: async () => ({ verifications: [] }) };
+      }
+      return { ok: true, status: 200, json: async () => CATALOG };
+    });
+
+    const target = TASK634.entries[0];
+    const entryId = target.id;
+
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+    fireEvent.click(screen.getByTestId(`toggle-task634_${entryId}`));
+
+    // Initial state: button visible, no form, no summary.
+    const openBtn = await screen.findByTestId(`verify-btn-${entryId}`);
+    expect(openBtn.getAttribute("data-verified")).toBe("false");
+    expect(screen.queryByTestId(`verify-form-${entryId}`)).toBeNull();
+
+    // Open the form, type in metadata, save.
+    fireEvent.click(openBtn);
+    const opInput = await screen.findByTestId(`verify-operator-input-${entryId}`);
+    const vinInput = screen.getByTestId(`verify-vin-input-${entryId}`);
+    const notesInput = screen.getByTestId(`verify-notes-input-${entryId}`);
+    fireEvent.change(opInput, { target: { value: "K. Pierce" } });
+    fireEvent.change(vinInput, { target: { value: "2c3cdzc97kh123456" } });
+    fireEvent.change(notesInput, { target: { value: "Demon, ran clean on second seed" } });
+
+    fireEvent.click(screen.getByTestId(`verify-save-${entryId}`));
+
+    // POST went out with the right body (VIN uppercased + stripped).
+    await waitFor(() => expect(postBodies.length).toBe(1));
+    expect(postBodies[0]).toEqual({
+      entryId,
+      operator: "K. Pierce",
+      vin: "2C3CDZC97KH123456",
+      notes: "Demon, ran clean on second seed",
+    });
+
+    // Form closes, summary now surfaces operator + VIN + a formatted time.
+    await waitFor(() => {
+      expect(screen.queryByTestId(`verify-form-${entryId}`)).toBeNull();
+      expect(screen.getByTestId(`verify-operator-${entryId}`).textContent).toBe("K. Pierce");
+      expect(screen.getByTestId(`verify-vin-${entryId}`).textContent).toBe("2C3CDZC97KH123456");
+      expect(screen.getByTestId(`verify-notes-${entryId}`).textContent).toMatch(
+        /Demon, ran clean on second seed/,
+      );
+    });
+
+    // Status badge in the row tooltip echoes the same provenance.
+    const badge = screen
+      .getByTestId(`task634-row-${entryId}`)
+      .querySelector('[data-status="verified"]');
+    expect(badge).toBeTruthy();
+    const title = badge.getAttribute("title") || "";
+    expect(title).toMatch(/K\. Pierce/);
+    expect(title).toMatch(/2C3CDZC97KH123456/);
+    expect(title).toMatch(/Demon, ran clean/);
+  });
+
+  it("verify form refuses to save without an operator name (task #643)", async () => {
+    setupFetch({ task634: TASK634 });
+    const entryId = TASK634.entries[0].id;
+    render(<UnlockCoverageTab />);
+    await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
+    fireEvent.click(screen.getByTestId(`toggle-task634_${entryId}`));
+    fireEvent.click(await screen.findByTestId(`verify-btn-${entryId}`));
+    const saveBtn = await screen.findByTestId(`verify-save-${entryId}`);
+    expect(saveBtn.hasAttribute("disabled")).toBe(true);
+    fireEvent.change(screen.getByTestId(`verify-operator-input-${entryId}`), {
+      target: { value: "tech-1" },
+    });
+    expect(
+      screen.getByTestId(`verify-save-${entryId}`).hasAttribute("disabled"),
+    ).toBe(false);
   });
 
   it("falls back to catalog counts when the dispatcher endpoint is unavailable", async () => {
