@@ -111,6 +111,60 @@ describe('DID_CATALOG: RFHUB tire-sensor / secret-key DIDs', () => {
   });
 });
 
+// ── Task #657: SKIM / RFHUB / PCM scoped DIDs from VILLAIN report ────
+
+describe('DID_CATALOG: SKIM 0xDE01–0xDE03 carry module-specific labels', () => {
+  it('0xDE01 → SKIM Immobilizer Status, decodes 0x80/0x00 to Enabled/Disabled', () => {
+    const e = didEntry(0xDE01)!;
+    expect(e.name).toMatch(/SKIM Immobilizer Status/);
+    expect(decodeDid(0xDE01, [0x80])).toMatch(/Enabled/);
+    expect(decodeDid(0xDE01, [0x00])).toMatch(/Disabled/);
+  });
+
+  it('0xDE02 → SKIM Key Count, decodes as uint', () => {
+    const e = didEntry(0xDE02)!;
+    expect(e.name).toMatch(/SKIM Key Count/);
+    expect(e.encoding).toBe('uint');
+    expect(decodeDid(0xDE02, [0x04])).toBe('4');
+  });
+
+  it('0xDE03 → SKIM Key Learning Status, decodes enumerated states', () => {
+    const e = didEntry(0xDE03)!;
+    expect(e.name).toMatch(/SKIM Key Learning Status/);
+    expect(decodeDid(0xDE03, [0x00])).toMatch(/Idle/);
+    expect(decodeDid(0xDE03, [0x01])).toMatch(/In Progress/);
+    expect(decodeDid(0xDE03, [0x02])).toMatch(/Complete/);
+    expect(decodeDid(0xDE03, [0xFF])).toMatch(/Failed/);
+    expect(decodeDid(0xDE03, [0x42])).toBe('42');
+  });
+});
+
+describe('DID_CATALOG: RFHUB 0xABxx and PCM 0xCDxx (VILLAIN)', () => {
+  it('0xAB01 → RFHUB Remote Start, decodes 0x01/0x00 as Enabled/Disabled', () => {
+    expect(didEntry(0xAB01)?.name).toMatch(/Remote Start.*RFHUB/);
+    expect(decodeDid(0xAB01, [0x01])).toMatch(/Enabled/);
+    expect(decodeDid(0xAB01, [0x00])).toMatch(/Disabled/);
+    // Unknown byte falls back to hex
+    expect(decodeDid(0xAB01, [0x7F])).toBe('7F');
+  });
+
+  it('0xAB02 → RFHUB Key Fob Configuration Data (hex)', () => {
+    const e = didEntry(0xAB02)!;
+    expect(e.name).toMatch(/Key Fob Configuration Data.*RFHUB/);
+    expect(e.encoding).toBe('hex');
+  });
+
+  it('0xCD01 → PCM Injector Flow Rates (hex)', () => {
+    const e = didEntry(0xCD01)!;
+    expect(e.name).toMatch(/Injector Flow Rates.*PCM/);
+    expect(e.encoding).toBe('hex');
+  });
+
+  it('0xCD02 → PCM Transmission Adaptives (hex)', () => {
+    expect(didEntry(0xCD02)?.name).toMatch(/Transmission Adaptives.*PCM/);
+  });
+});
+
 // ── ECM 0xFDxx + odometer/runtime ────────────────────────────────────
 
 describe('DID_CATALOG: ECM 0xFDxx family and runtime DIDs', () => {

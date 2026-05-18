@@ -79,6 +79,36 @@ function decodeSkimState(d: Uint8Array | number[]): string {
   return decodeHex(bytes);
 }
 
+/**
+ * Single-byte enable/disable flag: 0x01 → Enabled, 0x00 → Disabled.
+ * Used by RFHUB 0xAB01 Remote Start. Falls back to hex on unknown values.
+ */
+function decodeEnableDisable(d: Uint8Array | number[]): string {
+  const bytes = asBytes(d);
+  if (bytes.length === 0) return '(no data)';
+  const b = bytes[0];
+  if (b === 0x01) return 'Enabled (0x01)';
+  if (b === 0x00) return 'Disabled (0x00)';
+  return decodeHex(bytes);
+}
+
+/**
+ * SKIM key-learning status byte. The VILLAIN report enumerates 4 states;
+ * unknown values fall through to hex.
+ */
+function decodeKeyLearningStatus(d: Uint8Array | number[]): string {
+  const bytes = asBytes(d);
+  if (bytes.length === 0) return '(no data)';
+  const b = bytes[0];
+  switch (b) {
+    case 0x00: return 'Idle (0x00)';
+    case 0x01: return 'Learning In Progress (0x01)';
+    case 0x02: return 'Learning Complete (0x02)';
+    case 0xFF: return 'Learning Failed (0xFF)';
+    default:   return decodeHex(bytes);
+  }
+}
+
 function makeAscii(did: number, name: string, length: number | null): DidEntry {
   return { did, name, length, encoding: 'ascii', decode: decodeAscii };
 }
@@ -188,9 +218,32 @@ export const DID_CATALOG: readonly DidEntry[] = [
   // 0xDE10 (Vehicle Config) and 0xDE11 (Variant Code) — kept here so
   // the catalog covers the full module-specific family.
   makeHex  (0xDE00, 'BCM Configuration Block 00',                  null),
-  makeHex  (0xDE01, 'BCM Configuration Block 01',                  null),
-  makeHex  (0xDE02, 'BCM Configuration Block 02',                  null),
-  makeHex  (0xDE03, 'BCM Configuration Block 03',                  null),
+  // 0xDE01–0xDE03 carry SKIM-specific semantics in the VILLAIN report
+  // (Immobilizer Status / Key Count / Key Learning Status) while still
+  // sitting inside the BCM 0xDExx configuration window. Labels prefix
+  // with "BCM Configuration Block" so the family invariant tests keep
+  // passing.
+  {
+    did: 0xDE01,
+    name: 'BCM Configuration Block 01 (SKIM Immobilizer Status)',
+    length: 1,
+    encoding: 'hex',
+    decode: decodeSkimState,
+  },
+  {
+    did: 0xDE02,
+    name: 'BCM Configuration Block 02 (SKIM Key Count)',
+    length: 1,
+    encoding: 'uint',
+    decode: decodeUint,
+  },
+  {
+    did: 0xDE03,
+    name: 'BCM Configuration Block 03 (SKIM Key Learning Status)',
+    length: 1,
+    encoding: 'hex',
+    decode: decodeKeyLearningStatus,
+  },
   makeHex  (0xDE04, 'BCM Configuration Block 04',                  null),
   makeHex  (0xDE05, 'BCM Configuration Block 05',                  null),
   makeHex  (0xDE06, 'BCM Configuration Block 06',                  null),
@@ -202,6 +255,20 @@ export const DID_CATALOG: readonly DidEntry[] = [
   makeHex  (0xDE0C, 'BCM Configuration Block 0C',                  null),
   makeHex  (0xDE10, 'Vehicle Config',                              null),
   makeHex  (0xDE11, 'Variant Code',                                null),
+
+  // ── RFHUB proprietary 0xABxx (VILLAIN report) ────────────────────────
+  {
+    did: 0xAB01,
+    name: 'Remote Start Enable/Disable (RFHUB)',
+    length: 1,
+    encoding: 'hex',
+    decode: decodeEnableDisable,
+  },
+  makeHex  (0xAB02, 'Key Fob Configuration Data (RFHUB)',          null),
+
+  // ── PCM proprietary 0xCDxx (VILLAIN report) ──────────────────────────
+  makeHex  (0xCD01, 'Injector Flow Rates (PCM)',                   null),
+  makeHex  (0xCD02, 'Transmission Adaptives (PCM)',                null),
 
   // ── VILLAIN VIN block (16-bit Chrysler ECU CAN 11-bit) ───────────────
   makeAscii(0x7B88, 'Original VIN',                                17),

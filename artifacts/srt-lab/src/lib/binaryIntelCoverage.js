@@ -72,9 +72,13 @@ const CATALOGUED_DIDS = new Set([
   0x0100, 0x0120, 0x012F, 0x0142, 0x0146, 0x014D,
   // ECM 0xFDxx
   0xFD01, 0xFD31, 0xFDFD, 0xF400,
-  // BCM configuration 0xDExx
+  // BCM configuration 0xDExx (0xDE01–0xDE03 also carry SKIM-specific labels)
   0xDE00, 0xDE01, 0xDE02, 0xDE03, 0xDE04, 0xDE05, 0xDE06, 0xDE07, 0xDE08,
   0xDE09, 0xDE0A, 0xDE0B, 0xDE0C, 0xDE10, 0xDE11,
+  // RFHUB proprietary 0xABxx
+  0xAB01, 0xAB02,
+  // PCM proprietary 0xCDxx
+  0xCD01, 0xCD02,
   // VILLAIN VIN block
   0x7B88, 0x7B90,
   // FCA scoped 24-bit DIDs
@@ -85,14 +89,13 @@ const CATALOGUED_DIDS = new Set([
 
 /**
  * DIDs that are in the catalog but whose reported module-specific semantic
- * label differs from the generic BCM block label (partial coverage).
+ * label differs from the generic catalog label (partial coverage).
  * Key = DID hex value, value = explanation.
+ *
+ * Empty after Task #657 — 0xDE01–0xDE03 now carry SKIM-specific labels and
+ * decoders in dids.ts, so they classify as COVERED instead of PARTIAL.
  */
-const PARTIAL_DIDS = {
-  0xDE01: "Catalogued as generic 'BCM Configuration Block 01' — report assigns SKIM-specific label 'Immobilizer Status'",
-  0xDE02: "Catalogued as generic 'BCM Configuration Block 02' — report assigns SKIM-specific label 'Key Count'",
-  0xDE03: "Catalogued as generic 'BCM Configuration Block 03' — report assigns SKIM-specific label 'Key Learning Status'",
-};
+const PARTIAL_DIDS = {};
 
 /** RoutineControl IDs with a dedicated implementation in SRT Lab. */
 const COVERED_ROUTINE_IDS = new Set([

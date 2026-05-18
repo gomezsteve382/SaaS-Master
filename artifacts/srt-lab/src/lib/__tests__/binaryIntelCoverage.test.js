@@ -54,21 +54,46 @@ describe("classifyDid", () => {
     expect(result.status).toBe("covered");
   });
 
-  it("marks 0xDE01 as partial (SKIM-specific label vs generic BCM block)", () => {
+  it("marks SKIM DID 0xDE01 (Immobilizer Status) as covered (Task #657)", () => {
     const result = classifyDid({ did: 0xDE01 });
-    expect(result.status).toBe("partial");
-    expect(result.evidence).toMatch(/SKIM/i);
+    expect(result.status).toBe("covered");
   });
 
-  it("marks unknown DID 0xAB01 as gap", () => {
+  it("marks SKIM DID 0xDE02 (Key Count) as covered (Task #657)", () => {
+    const result = classifyDid({ did: 0xDE02 });
+    expect(result.status).toBe("covered");
+  });
+
+  it("marks SKIM DID 0xDE03 (Key Learning Status) as covered (Task #657)", () => {
+    const result = classifyDid({ did: 0xDE03 });
+    expect(result.status).toBe("covered");
+  });
+
+  it("marks RFHUB DID 0xAB01 (Remote Start) as covered (Task #657)", () => {
     const result = classifyDid({ did: 0xAB01 });
-    expect(result.status).toBe("gap");
-    expect(result.evidence).toMatch(/0xAB01/i);
+    expect(result.status).toBe("covered");
+    expect(result.evidence).toMatch(/dids\.ts/);
   });
 
-  it("marks unknown DID 0xCD02 as gap", () => {
+  it("marks RFHUB DID 0xAB02 (Key Fob Config) as covered (Task #657)", () => {
+    const result = classifyDid({ did: 0xAB02 });
+    expect(result.status).toBe("covered");
+  });
+
+  it("marks PCM DID 0xCD01 (Injector Flow Rates) as covered (Task #657)", () => {
+    const result = classifyDid({ did: 0xCD01 });
+    expect(result.status).toBe("covered");
+  });
+
+  it("marks PCM DID 0xCD02 (Transmission Adaptives) as covered (Task #657)", () => {
     const result = classifyDid({ did: 0xCD02 });
+    expect(result.status).toBe("covered");
+  });
+
+  it("marks an unknown DID 0xBE01 as gap", () => {
+    const result = classifyDid({ did: 0xBE01 });
     expect(result.status).toBe("gap");
+    expect(result.evidence).toMatch(/0xBE01/i);
   });
 
   it("marks PROXI DID 0xFD01 as covered (BCM ECM block in catalog)", () => {
@@ -167,7 +192,7 @@ describe("classifyFinding", () => {
   });
 
   it("dispatches 'did' type correctly", () => {
-    const r = classifyFinding("did", { did: 0xAB01 });
+    const r = classifyFinding("did", { did: 0xBE01 });
     expect(r.status).toBe("gap");
   });
 
