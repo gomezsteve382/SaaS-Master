@@ -1,4 +1,21 @@
-import { pgTable, text, timestamp, serial, jsonb } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import {
+  pgTable,
+  text,
+  timestamp,
+  serial,
+  jsonb,
+  check,
+  index,
+} from "drizzle-orm/pg-core";
+
+export const SEC16_VERIFIED_VALUES = [
+  "match",
+  "mismatch",
+  "unverified",
+  "offline",
+] as const;
+export type Sec16Verified = (typeof SEC16_VERIFIED_VALUES)[number];
 
 /* Task #678 — append-only log of SEC16 sync operations.
  *
@@ -29,20 +46,30 @@ import { pgTable, text, timestamp, serial, jsonb } from "drizzle-orm/pg-core";
  *               audit log)
  *   createdAt   server-side timestamp
  */
-export const sec16SyncEventsTable = pgTable("sec16_sync_events", {
-  id: serial("id").primaryKey(),
-  vin: text("vin"),
-  platform: text("platform"),
-  actionId: text("action_id").notNull(),
-  target: text("target").notNull(),
-  recipeId: text("recipe_id"),
-  verified: text("verified").notNull(),
-  operator: text("operator"),
-  notes: text("notes"),
-  detail: jsonb("detail"),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const sec16SyncEventsTable = pgTable(
+  "sec16_sync_events",
+  {
+    id: serial("id").primaryKey(),
+    vin: text("vin"),
+    platform: text("platform"),
+    actionId: text("action_id").notNull(),
+    target: text("target").notNull(),
+    recipeId: text("recipe_id"),
+    verified: text("verified").notNull(),
+    operator: text("operator"),
+    notes: text("notes"),
+    detail: jsonb("detail"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    check(
+      "sec16_sync_events_verified_check",
+      sql`${table.verified} IN ('match', 'mismatch', 'unverified', 'offline')`,
+    ),
+    index("sec16_sync_events_vin_idx").on(table.vin),
+  ],
+);
 
 export type Sec16SyncEvent = typeof sec16SyncEventsTable.$inferSelect;
