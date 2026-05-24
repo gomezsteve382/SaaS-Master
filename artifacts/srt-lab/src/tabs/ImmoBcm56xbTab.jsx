@@ -15,6 +15,8 @@ import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
 import { parseMpc5606bBcm, applyMpc5606bBcm } from '../lib/mpc5606bBcm.js';
+import { logSec16Sync } from '../lib/sec16SyncLog.js';
+import { classifyPlatform } from '../lib/sec16Platforms.js';
 
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
 
@@ -112,6 +114,30 @@ export default function ImmoBcm56xbTab() {
       const r = applyMpc5606bBcm(file.bytes, parsed, { newVin, newSec16Hex: sec16Arg });
       const outName = file.name.replace(/\.bin$/i, '') + '_PATCHED_' + newVin + '.bin';
       setApplied({ bytes: r.bytes, name: outName, result: r });
+      /* Fire-and-forget audit when SEC16 was actually programmed. The
+       * helper never throws, never blocks — keeps the apply path
+       * authoritative even when the API server is offline. */
+      if (r.sec16 && (r.sec16.splitPatched + r.sec16.mirrorPatched) > 0) {
+        const platform = classifyPlatform({ vin: newVin, modules: [{ type: 'BCM' }] });
+        logSec16Sync({
+          vin:       newVin,
+          platform:  platform && platform.platform ? platform.platform : 'unknown',
+          actionId:  'immo-bcm-56xb-sec16-write',
+          target:    'BCM',
+          verified:  'unverified',
+          operator:  'immo-bcm-56xb-tab',
+          notes:     'file-in / file-out · no live ECU readback',
+          detail: {
+            sourceFile:     file.name,
+            splitPatched:   r.sec16.splitPatched,
+            mirrorPatched:  r.sec16.mirrorPatched,
+            mirror1Offset:  r.sec16.mirror1Offset,
+            mirror2Offset:  r.sec16.mirror2Offset,
+            bcmSec16Hex:    r.sec16.bcmSec16Hex,
+            newVin,
+          },
+        });
+      }
     } catch (e) {
       setErr(e && e.message ? e.message : String(e));
     }
@@ -218,20 +244,53 @@ export default function ImmoBcm56xbTab() {
         </Card>
       )}
 
-      {parsed && parsed.sec16.bytes && (
+      {parsed && parsed.sec16 && (
         <Card>
           <div style={{ fontSize: 14, fontWeight: 900, color: C.tx, marginBottom: 8 }}>
-            SEC16 secret
+            SEC16 secret · main + mirrors
           </div>
-          <div style={{ fontSize: 12, color: C.ts, marginBottom: 6 }}>
-            Source: <b>{parsed.sec16.source}</b> at {fmtOff(parsed.sec16.offset)} ·
-            {' '}{parsed.sec16.blank ? <span style={{ color: C.wn }}>blank (FF / 00)</span>
-                                     : <span style={{ color: C.gn }}>populated</span>}
+          <div style={{ fontSize: 11, color: C.ts, marginBottom: 10 }}>
+            Inactive bank base:{' '}
+            {parsed.sec16.inactiveBase != null
+              ? fmtOff(parsed.sec16.inactiveBase)
+              : 'not resolved'} ·
+            Resolver winner:{' '}
+            {parsed.sec16.source
+              ? <b style={{ color: parsed.sec16.blank ? C.wn : C.gn }}>
+                  {parsed.sec16.source}{parsed.sec16.blank ? ' (blank)' : ''}
+                </b>
+              : 'none'}
           </div>
-          <div style={{
-            fontFamily: "'JetBrains Mono'", fontSize: 12, padding: 10,
-            background: C.c2, borderRadius: 8, color: C.tx, wordBreak: 'break-all',
-          }}>{hexLine(parsed.sec16.bytes)}</div>
+          {['split', 'mirror1', 'mirror2', 'flat'].map(key => {
+            const c = parsed.sec16.candidates ? parsed.sec16.candidates[key] : null;
+            return (
+              <div key={key} data-testid={'sec16-row-' + key}
+                style={{ marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid ' + C.bd }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: C.tx, minWidth: 70 }}>
+                    {key.toUpperCase()}
+                  </span>
+                  {!c && <Tag color={C.tm}>not present</Tag>}
+                  {c && c.blank && <Tag color={C.wn}>blank (FF / 00)</Tag>}
+                  {c && !c.blank && <Tag color={C.gn}>populated</Tag>}
+                  {c && c.offset != null && (
+                    <span style={{ fontSize: 11, color: C.ts }}>at {fmtOff(c.offset)}</span>
+                  )}
+                  {key === 'split' && c && c.recordCount != null && (
+                    <span style={{ fontSize: 11, color: c.consistent ? C.gn : C.er }}>
+                      · {c.recordCount} record(s) · {c.consistent ? 'consistent' : 'inconsistent'}
+                    </span>
+                  )}
+                </div>
+                {c && (
+                  <div style={{
+                    fontFamily: "'JetBrains Mono'", fontSize: 11, padding: 8,
+                    background: C.c2, borderRadius: 6, color: C.tx, wordBreak: 'break-all',
+                  }}>{hexLine(c.bytes)}</div>
+                )}
+              </div>
+            );
+          })}
         </Card>
       )}
 
@@ -254,22 +313,29 @@ export default function ImmoBcm56xbTab() {
                   borderRadius: 8, color: C.tx, background: C.cd,
                 }} />
             </label>
-            {parsed.mode === 'FULL' && (
-              <label style={{ fontSize: 11, color: C.ts, fontWeight: 800 }}>
-                NEW SEC16 (32 hex chars, BCM display order — leave blank to keep existing)
-                <input
-                  type="text"
-                  value={newSec16}
-                  onChange={e => setNewSec16(e.target.value)}
-                  placeholder="optional · 00 11 22 ... or 00112233..."
-                  style={{
-                    display: 'block', width: '100%', marginTop: 4, padding: '8px 10px',
-                    fontFamily: "'JetBrains Mono'", fontSize: 12,
-                    border: '1.5px solid ' + C.bd, borderRadius: 8,
-                    color: C.tx, background: C.cd,
-                  }} />
-              </label>
-            )}
+            <label style={{ fontSize: 11, color: C.ts, fontWeight: 800 }}>
+              NEW SEC16 (32 hex chars, BCM display order — leave blank to keep existing)
+              <input
+                type="text"
+                data-testid="new-sec16-input"
+                value={newSec16}
+                disabled={parsed.mode !== 'FULL'}
+                title={parsed.mode === 'FULL'
+                  ? 'Optional · only written when this field is non-empty'
+                  : 'SEC16 writes are only allowed on FULL dumps. This dump is ' + parsed.mode + '.'}
+                onChange={e => setNewSec16(e.target.value)}
+                placeholder={parsed.mode === 'FULL'
+                  ? 'optional · 00 11 22 ... or 00112233...'
+                  : 'disabled — dump is ' + parsed.mode}
+                style={{
+                  display: 'block', width: '100%', marginTop: 4, padding: '8px 10px',
+                  fontFamily: "'JetBrains Mono'", fontSize: 12,
+                  border: '1.5px solid ' + C.bd, borderRadius: 8,
+                  color: parsed.mode === 'FULL' ? C.tx : C.tm,
+                  background: parsed.mode === 'FULL' ? C.cd : C.c2,
+                  cursor: parsed.mode === 'FULL' ? 'text' : 'not-allowed',
+                }} />
+            </label>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <Btn onClick={doApply} disabled={!canApply}>
                 Apply &amp; build patched file

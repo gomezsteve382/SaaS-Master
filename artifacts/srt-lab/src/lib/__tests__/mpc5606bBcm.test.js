@@ -13,9 +13,31 @@ import {
 const FIX = path.resolve(__dirname, '../../__tests__/fixtures');
 const load = name => new Uint8Array(fs.readFileSync(path.join(FIX, name)));
 
+// Module-scoped helper — zero out the split-record band, both possible
+// inactive banks, and the flat-fallback slot, then re-stamp VIN slots.
+// Synthesises a guaranteed-VIN_ONLY dump from the 18TH fixture (the
+// fixture itself carries stale SEC16 in its inactive-bank mirrors, so
+// the unmodified file classifies as FULL).
+function blankSec16(buf) {
+  const out = new Uint8Array(buf);
+  for (let i = 0x81A0; i < 0x8200; i++) out[i] = 0xFF;
+  for (let i = 0x0000; i < 0x4000; i++) out[i] = 0xFF;
+  for (let i = 0x4000; i < 0x8000; i++) out[i] = 0xFF;
+  for (let i = 0x40C9; i < 0x40D9; i++) out[i] = 0xFF;
+  const vin = '1C4RJFN9XJC309165';
+  const vinBytes = new TextEncoder().encode(vin);
+  const vinCrc = crc16(vinBytes);
+  for (const base of [0x1320, 0x1340, 0x1360, 0x1380]) {
+    out.set(vinBytes, base);
+    out[base + 17] = (vinCrc >> 8) & 0xFF;
+    out[base + 18] = vinCrc & 0xFF;
+  }
+  return out;
+}
+
 describe('mpc5606bBcm — parser + classifier', () => {
-  it('classifies the 18TH OG BCM as VIN_ONLY with 4 verified slots', () => {
-    const buf = load('SAMPLE_BCM_DFLASH_18TH_OG.bin');
+  it('classifies the 18TH OG BCM (mirror-stripped) as VIN_ONLY with 4 verified slots', () => {
+    const buf = blankSec16(load('SAMPLE_BCM_DFLASH_18TH_OG.bin'));
     const r = parseMpc5606bBcm(buf);
     expect(r.ok).toBe(true);
     expect(r.sizeOk).toBe(true);
@@ -23,6 +45,18 @@ describe('mpc5606bBcm — parser + classifier', () => {
     expect(r.validSlots.length).toBe(4);
     expect(r.dominantVin).toBe('1C4RJFN9XJC309165');
     expect(r.sec16.blank).toBe(true);
+  });
+
+  it('classifies the 18TH OG BCM as FULL because inactive-bank mirrors carry SEC16', () => {
+    // The raw 18TH fixture has stale-but-non-blank SEC16 in its inactive
+    // bank mirrors. The thorough resolver (split + mirror1 + mirror2 +
+    // flat) catches this and the classifier promotes the dump to FULL —
+    // matching parseModule.js#resolveBcmSec16 behaviour.
+    const r = parseMpc5606bBcm(load('SAMPLE_BCM_DFLASH_18TH_OG.bin'));
+    expect(r.mode).toBe('FULL');
+    expect(r.sec16.bytes).not.toBeNull();
+    expect(r.sec16.blank).toBe(false);
+    expect(['split', 'mirror1', 'mirror2', 'flat']).toContain(r.sec16.source);
   });
 
   it('classifies the synced 2C3CDXL90 BCM as FULL', () => {
@@ -42,6 +76,45 @@ describe('mpc5606bBcm — parser + classifier', () => {
     expect(r.mode).toBe('LOCKED');
     expect(r.validSlots.length).toBe(0);
     expect(r.reasons[0]).toMatch(/No printable VIN/);
+  });
+
+  it('classifies inconsistent VIN copies as LOCKED', () => {
+    const buf = blankSec16(load('SAMPLE_BCM_DFLASH_18TH_OG.bin'));
+    // Overwrite one verified slot's VIN with a different valid VIN +
+    // recompute its CRC so the slot still verifies on its own.
+    const target = 0x1340;
+    const otherVin = '1C4RJFDJ7DC513874';
+    for (let i = 0; i < 17; i++) buf[target + i] = otherVin.charCodeAt(i);
+    const otherCrc = crc16(new TextEncoder().encode(otherVin));
+    buf[target + 17] = (otherCrc >> 8) & 0xFF;
+    buf[target + 18] = otherCrc & 0xFF;
+    const r = parseMpc5606bBcm(buf);
+    expect(r.mode).toBe('LOCKED');
+    expect(r.reasons.some(x => /inconsistent/i.test(x))).toBe(true);
+  });
+
+  it('classifies a populated-but-CRC-failing slot as LOCKED', () => {
+    const buf = blankSec16(load('SAMPLE_BCM_DFLASH_18TH_OG.bin'));
+    // Corrupt the CRC of one slot — slot stays printable VIN, but the
+    // trailing CRC no longer matches.
+    buf[0x1340 + 17] ^= 0xFF;
+    buf[0x1340 + 18] ^= 0xFF;
+    const r = parseMpc5606bBcm(buf);
+    expect(r.mode).toBe('LOCKED');
+    expect(r.reasons.some(x => /fails CRC|failed CRC/i.test(x))).toBe(true);
+  });
+
+  it('resolves SEC16 across split + mirror1 + mirror2 + flat candidates', () => {
+    const r = parseMpc5606bBcm(load('SAMPLE_BCM_SYNCED_2C3CDXL90MH582899.bin'));
+    expect(r.sec16.candidates).toBeDefined();
+    // The synced fixture must surface at least the split candidate
+    // (records at 0x81A0..0x81E0 are populated in the fixture).
+    expect(r.sec16.candidates.split).not.toBeNull();
+    expect(r.sec16.candidates.split.blank).toBe(false);
+    expect(r.sec16.candidates.split.recordCount).toBeGreaterThan(0);
+    expect(r.sec16.source).toBe('split');
+    // flat candidate is always probed when sz >= 0x40D9.
+    expect(r.sec16.candidates.flat).not.toBeNull();
   });
 
   it('flags unexpected file size in reasons but still tries to classify', () => {
@@ -65,7 +138,7 @@ describe('mpc5606bBcm — parser + classifier', () => {
 
 describe('mpc5606bBcm — apply (file-in / file-out round-trip)', () => {
   it('rewrites every verified VIN slot and re-computes CRC (VIN_ONLY)', () => {
-    const buf = load('SAMPLE_BCM_DFLASH_18TH_OG.bin');
+    const buf = blankSec16(load('SAMPLE_BCM_DFLASH_18TH_OG.bin'));
     const parsed = parseMpc5606bBcm(buf);
     const newVin = '1C4RJFDJ7DC513874';
     const r = applyMpc5606bBcm(buf, parsed, { newVin });
@@ -92,14 +165,14 @@ describe('mpc5606bBcm — apply (file-in / file-out round-trip)', () => {
   });
 
   it('refuses an invalid VIN', () => {
-    const buf = load('SAMPLE_BCM_DFLASH_18TH_OG.bin');
+    const buf = blankSec16(load('SAMPLE_BCM_DFLASH_18TH_OG.bin'));
     const parsed = parseMpc5606bBcm(buf);
     expect(() => applyMpc5606bBcm(buf, parsed, { newVin: 'INVALID-VIN' }))
       .toThrow(/VIN must be 17/);
   });
 
   it('refuses to write SEC16 unless mode is FULL', () => {
-    const buf = load('SAMPLE_BCM_DFLASH_18TH_OG.bin');
+    const buf = blankSec16(load('SAMPLE_BCM_DFLASH_18TH_OG.bin'));
     const parsed = parseMpc5606bBcm(buf);
     expect(() => applyMpc5606bBcm(buf, parsed, {
       newVin: '1C4RJFDJ7DC513874',
