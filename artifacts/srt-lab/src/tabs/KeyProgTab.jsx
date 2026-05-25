@@ -26,6 +26,7 @@ import {
 import { importAemtBundle, AemtImportError } from '../lib/aemtImporter.js';
 import { saveAemtPlaceholders } from '../lib/audit.js';
 import AemtImportModal from '../components/AemtImportModal.jsx';
+import Charger62BenchPanel from '../components/Charger62BenchPanel.jsx';
 
 const ROLE_LABEL = { BCM: 'BCM (D-FLASH)', RFH: 'RFHUB (EEE)', PCM: 'PCM (GPEC2A)' };
 const ROLE_ORDER = ['BCM', 'RFH', 'PCM'];
@@ -1198,6 +1199,8 @@ export default function KeyProgTab() {
           onDismiss={() => setZipSummary(null)}
         />
       )}
+
+      <Charger62BenchPanel />
 
       <AemtImportModal
         mode={aemtModal?.mode || null}

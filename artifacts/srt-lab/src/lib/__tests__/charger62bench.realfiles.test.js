@@ -1,0 +1,441 @@
+/* ============================================================================
+ * charger62bench.realfiles.test.js — Vitest integration test for the
+ * 6.2 Charger bench-set cross-check report (Task #769).
+ *
+ * Loads the four real binary fixtures from attached_assets/, runs parseModule
+ * + buildCharger62Report + runKeyProgPatch, and asserts the expected shapes.
+ * ============================================================================ */
+import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { parseModule } from '../parseModule.js';
+import { crossValidate } from '../crossValidate.js';
+import { runKeyProgPatch } from '../keyProgWizard.js';
+import { buildCharger62Report } from '../charger62BenchReport.js';
+
+/* ── Fixture paths ── */
+const ASSETS = resolve(__dirname, '../../../../..', 'attached_assets');
+
+function loadBin(name) {
+  return new Uint8Array(readFileSync(join(ASSETS, name)));
+}
+
+const PCM_FILE      = '6.2CHARGER_NEEDTOUSE_immoFix_1779733593578.bin';
+const RFH_EEE_FILE  = '19charger6,2_rfhubeee_1779733960311.bin';
+const RFH_PFL_FILE  = '19charger6.2_rfhubP-flash_1779733960317.bin';
+const BCM_FILE      = '196.2charger_BCMDFLASH_NEWVIN_1779734554788.bin';
+
+/* ── Load + parse once per describe block ── */
+let pcmData, rfhEeeData, rfhPflashData, bcmData;
+let pcmInfo, rfhEeeInfo, rfhPflashInfo, bcmInfo;
+let report;
+
+function ensureLoaded() {
+  if (pcmInfo) return;
+  pcmData       = loadBin(PCM_FILE);
+  rfhEeeData    = loadBin(RFH_EEE_FILE);
+  rfhPflashData = loadBin(RFH_PFL_FILE);
+  bcmData       = loadBin(BCM_FILE);
+
+  pcmInfo       = parseModule(pcmData,       PCM_FILE);
+  rfhEeeInfo    = parseModule(rfhEeeData,    RFH_EEE_FILE);
+  rfhPflashInfo = parseModule(rfhPflashData, RFH_PFL_FILE);
+  bcmInfo       = parseModule(bcmData,       BCM_FILE);
+
+  report = buildCharger62Report({ bcmInfo, rfhEeeInfo, rfhPflashInfo, pcmInfo });
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 1. File sizes
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('File sizes', () => {
+  it('PCM is 4096 bytes (95320 chip)', () => {
+    ensureLoaded();
+    expect(pcmData.length).toBe(4096);
+  });
+  it('RFHUB EEE is 4096 bytes (Gen2 24C32)', () => {
+    ensureLoaded();
+    expect(rfhEeeData.length).toBe(4096);
+  });
+  it('RFHUB P-flash is 393216 bytes (384 KB)', () => {
+    ensureLoaded();
+    expect(rfhPflashData.length).toBe(393216);
+  });
+  it('BCM D-Flash is 65536 bytes (64 KB)', () => {
+    ensureLoaded();
+    expect(bcmData.length).toBe(65536);
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 2. parseModule — module type classification
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('parseModule — type classification', () => {
+  it('PCM → GPEC2A', () => {
+    ensureLoaded();
+    expect(pcmInfo.type).toBe('GPEC2A');
+  });
+  it('RFHUB EEE → RFHUB', () => {
+    ensureLoaded();
+    expect(rfhEeeInfo.type).toBe('RFHUB');
+  });
+  it('RFHUB P-flash → XC2268_RFHUB, RFHUB, FW, or CFLASH (size/header-dependent)', () => {
+    ensureLoaded();
+    // 384 KB: no XC22/RFHUB internal banner → filename hint promotes FW to RFHUB
+    expect(['XC2268_RFHUB', 'RFHUB', 'FW', 'CFLASH']).toContain(rfhPflashInfo.type);
+  });
+  it('BCM → BCM', () => {
+    ensureLoaded();
+    expect(bcmInfo.type).toBe('BCM');
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 3. VIN extraction
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('VIN extraction', () => {
+  it('PCM has at least one VIN slot', () => {
+    ensureLoaded();
+    expect(pcmInfo.vins.length).toBeGreaterThan(0);
+    expect(pcmInfo.vins[0].vin).toMatch(/^[A-Z0-9]{17}$/);
+  });
+  it('RFHUB EEE has at least one VIN slot', () => {
+    ensureLoaded();
+    expect(rfhEeeInfo.vins.length).toBeGreaterThan(0);
+    expect(rfhEeeInfo.vins[0].vin).toMatch(/^[A-Z0-9]{17}$/);
+  });
+  it('BCM has at least one VIN slot', () => {
+    ensureLoaded();
+    expect(bcmInfo.vins.length).toBeGreaterThan(0);
+    expect(bcmInfo.vins[0].vin).toMatch(/^[A-Z0-9]{17}$/);
+  });
+  it('BCM VIN and RFHUB EEE VIN are valid and report captures divergence flag', () => {
+    ensureLoaded();
+    // The BCM filename says NEWVIN — however the bench set BCM was already
+    // re-VIN'd to the same target VIN as the RFHUB, so vinDivergent may be
+    // false.  We just verify both are valid 17-char VINs and the flag is boolean.
+    const bcmVin = bcmInfo.vins[0].vin;
+    const rfhVin = rfhEeeInfo.vins[0].vin;
+    expect(typeof bcmVin).toBe('string');
+    expect(bcmVin).toMatch(/^[A-Z0-9]{17}$/);
+    expect(typeof rfhVin).toBe('string');
+    expect(rfhVin).toMatch(/^[A-Z0-9]{17}$/);
+    expect(typeof report.vinDivergent).toBe('boolean');
+  });
+  it('VIN matrix has entries from at least 3 modules', () => {
+    ensureLoaded();
+    const moduleNames = new Set(report.vinMatrix.map((r) => r.module));
+    expect(moduleNames.size).toBeGreaterThanOrEqual(3);
+  });
+  it('donorVin is the RFHUB EEE VIN', () => {
+    ensureLoaded();
+    expect(report.donorVin).toBe(rfhEeeInfo.vins[0].vin);
+  });
+  it('targetVin is the BCM VIN', () => {
+    ensureLoaded();
+    expect(report.targetVin).toBe(bcmInfo.vins[0].vin);
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 4. RFHUB EEE SEC16
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('RFHUB EEE SEC16', () => {
+  it('has two SEC16 slots', () => {
+    ensureLoaded();
+    expect(rfhEeeInfo.sec16s).toBeDefined();
+    expect(rfhEeeInfo.sec16s.length).toBe(2);
+  });
+  it('SEC16 slot 1 is at Gen2 offset 0x050E', () => {
+    ensureLoaded();
+    expect(rfhEeeInfo.sec16s[0].offset).toBe(0x050e);
+  });
+  it('SEC16 slot 1 raw is 16 bytes', () => {
+    ensureLoaded();
+    expect(rfhEeeInfo.sec16s[0].raw.length).toBe(16);
+  });
+  it('SEC16 slot 1 has a hex string', () => {
+    ensureLoaded();
+    expect(typeof rfhEeeInfo.sec16s[0].hex).toBe('string');
+    expect(rfhEeeInfo.sec16s[0].hex.length).toBeGreaterThan(0);
+  });
+  it('vehicleSecret is defined with 16 bytes if SEC16 non-blank', () => {
+    ensureLoaded();
+    if (!rfhEeeInfo.sec16s[0].blank) {
+      expect(rfhEeeInfo.vehicleSecret).toBeDefined();
+      expect(rfhEeeInfo.vehicleSecret.bytes.length).toBe(16);
+    }
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 5. BCM SEC16
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('BCM SEC16', () => {
+  it('bcmSec16 resolver returns a result', () => {
+    ensureLoaded();
+    expect(bcmInfo.bcmSec16).toBeDefined();
+  });
+  it('bcmSec16.bytes is null or a 16-byte Uint8Array', () => {
+    ensureLoaded();
+    if (bcmInfo.bcmSec16.bytes) {
+      expect(bcmInfo.bcmSec16.bytes.length).toBe(16);
+    }
+  });
+  it('fobikCount is a number', () => {
+    ensureLoaded();
+    expect(typeof bcmInfo.fobikCount).toBe('number');
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 6. PCM SEC6
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('PCM SEC6', () => {
+  it('pcmSec6 is defined', () => {
+    ensureLoaded();
+    expect(pcmInfo.pcmSec6).toBeDefined();
+  });
+  it('pcmSec6.raw is 6 bytes', () => {
+    ensureLoaded();
+    expect(pcmInfo.pcmSec6.raw.length).toBe(6);
+  });
+  it('pcmSec6.markerHex is a string (FF FF FF AA on a real PCM)', () => {
+    ensureLoaded();
+    expect(typeof pcmInfo.pcmSec6.markerHex).toBe('string');
+    // Real PCM: marker at 0x3C4 = FF FF FF AA
+    expect(pcmInfo.pcmSec6.markerHex).toBe('FF FF FF AA');
+  });
+  it('pcmSec6.markerOk is true (marker present)', () => {
+    ensureLoaded();
+    expect(pcmInfo.pcmSec6.markerOk).toBe(true);
+  });
+  it('pcmSec6.hex is a hex string (17 chars = 6 bytes space-separated)', () => {
+    ensureLoaded();
+    expect(typeof pcmInfo.pcmSec6.hex).toBe('string');
+    expect(pcmInfo.pcmSec6.hex.length).toBe(17); // "XX XX XX XX XX XX"
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 7. buildCharger62Report — structure
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('buildCharger62Report — structure', () => {
+  it('returns expected top-level keys', () => {
+    ensureLoaded();
+    expect(report).toHaveProperty('vinMatrix');
+    expect(report).toHaveProperty('securityMatrix');
+    expect(report).toHaveProperty('keyMaterial');
+    expect(report).toHaveProperty('blockingErrors');
+    expect(report).toHaveProperty('donorVin');
+    expect(report).toHaveProperty('targetVin');
+    expect(report).toHaveProperty('vinDivergent');
+  });
+
+  it('vinMatrix is a non-empty array', () => {
+    ensureLoaded();
+    expect(Array.isArray(report.vinMatrix)).toBe(true);
+    expect(report.vinMatrix.length).toBeGreaterThan(0);
+  });
+
+  it('every vinMatrix row has required shape', () => {
+    ensureLoaded();
+    for (const row of report.vinMatrix) {
+      expect(row).toHaveProperty('module');
+      expect(row).toHaveProperty('role');
+      expect(row).toHaveProperty('offsetHex');
+      expect(row).toHaveProperty('verdict');
+    }
+  });
+
+  it('securityMatrix has at least 4 rows', () => {
+    ensureLoaded();
+    expect(report.securityMatrix.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it('keyMaterial has pin, skimSecret, fobikSlotsBcm fields', () => {
+    ensureLoaded();
+    expect(report.keyMaterial).toHaveProperty('pin');
+    expect(report.keyMaterial).toHaveProperty('skimSecret');
+    expect(report.keyMaterial).toHaveProperty('fobikSlotsBcm');
+    expect(report.keyMaterial).toHaveProperty('fobikSlotsRfh');
+  });
+
+  it('blockingErrors is an array', () => {
+    ensureLoaded();
+    expect(Array.isArray(report.blockingErrors)).toBe(true);
+  });
+
+  it('keyMaterial.fobikSlotsBcm matches BCM fobikCount', () => {
+    ensureLoaded();
+    expect(report.keyMaterial.fobikSlotsBcm).toBe(bcmInfo.fobikCount);
+  });
+
+  it('keyMaterial.fobikSlotsRfh matches RFHUB EEE fobikSlots', () => {
+    ensureLoaded();
+    expect(report.keyMaterial.fobikSlotsRfh).toBe(rfhEeeInfo.fobikSlots);
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 8. Security-byte cross-checks
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('Security-byte cross-checks', () => {
+  it('BCM↔RFHUB match verdict is present in security matrix', () => {
+    ensureLoaded();
+    const matchRow = report.securityMatrix.find((r) => r.label.includes('reverse check'));
+    expect(matchRow).toBeDefined();
+    expect(['PASS', 'MISMATCH', 'RFHUB SEC16 BLANK', 'BCM SEC16 BLANK']).toContain(matchRow.verdict);
+  });
+
+  it('SEC6 security matrix row is present', () => {
+    ensureLoaded();
+    const sec6Row = report.securityMatrix.find((r) => r.label.includes('SEC6 (first 6'));
+    expect(sec6Row).toBeDefined();
+  });
+
+  it('PIN derivation: if SEC16 is non-blank, pin is a 5-digit string', () => {
+    ensureLoaded();
+    const slot1 = rfhEeeInfo.sec16s?.[0];
+    if (slot1 && !slot1.blank) {
+      expect(report.keyMaterial.pin).toMatch(/^\d{5}$/);
+    } else {
+      // Blank SEC16 → pin is null
+      expect(report.keyMaterial.pin).toBeNull();
+    }
+  });
+
+  it('SEC6 matches RFHUB SEC16[0:6] when SEC16 is non-blank', () => {
+    ensureLoaded();
+    const sec6Row = report.securityMatrix.find((r) => r.label.includes('SEC6 (first 6'));
+    const slot1 = rfhEeeInfo.sec16s?.[0];
+    if (slot1 && !slot1.blank) {
+      const expectedSec6 = Array.from(slot1.raw).slice(0, 6)
+        .map((b) => b.toString(16).toUpperCase().padStart(2, '0'))
+        .join(' ');
+      expect(sec6Row.value).toBe(expectedSec6);
+    }
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 9. RFHUB P-Flash
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('RFHUB P-Flash (384 KB)', () => {
+  it('is 393216 bytes', () => {
+    ensureLoaded();
+    expect(rfhPflashData.length).toBe(393216);
+  });
+  it('parseModule classifies it without throwing', () => {
+    ensureLoaded();
+    expect(rfhPflashInfo.type).toBeTruthy();
+    expect(rfhPflashInfo.size).toBe(393216);
+  });
+  it('report tracks the P-flash type correctly', () => {
+    ensureLoaded();
+    expect(report.rfhPflashType).toBe(rfhPflashInfo.type);
+    expect(report.rfhPflashSize).toBe(393216);
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 10. crossValidate on the trio (BCM + RFHUB EEE + PCM)
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('crossValidate — BCM + RFHUB EEE + PCM trio', () => {
+  it('returns an object with issues, warnings, passed keys', () => {
+    ensureLoaded();
+    const cv = crossValidate([bcmInfo, rfhEeeInfo, pcmInfo]);
+    expect(typeof cv).toBe('object');
+    expect(cv).toHaveProperty('issues');
+    expect(cv).toHaveProperty('warnings');
+    expect(cv).toHaveProperty('passed');
+  });
+  it('issues is an array', () => {
+    ensureLoaded();
+    const cv = crossValidate([bcmInfo, rfhEeeInfo, pcmInfo]);
+    expect(Array.isArray(cv.issues)).toBe(true);
+  });
+  it('passed is an array of passing-check strings', () => {
+    ensureLoaded();
+    const cv = crossValidate([bcmInfo, rfhEeeInfo, pcmInfo]);
+    // crossValidate returns passed as a string[] (one entry per passing rule)
+    expect(Array.isArray(cv.passed)).toBe(true);
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 11. runKeyProgPatch — virgin-key payload staging
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('runKeyProgPatch — payload staging', () => {
+  it('returns a result with ok, checks, and files', () => {
+    ensureLoaded();
+    const vin = report.targetVin || report.donorVin || bcmInfo.vins?.[0]?.vin;
+    if (!vin || vin.length !== 17) {
+      console.warn('No usable VIN for runKeyProgPatch test — skipping payload assertion');
+      return;
+    }
+    const patchResult = runKeyProgPatch({
+      bcm: { name: BCM_FILE, data: bcmData },
+      rfh: { name: RFH_EEE_FILE, data: rfhEeeData },
+      pcm: { name: PCM_FILE, data: pcmData },
+      vin,
+    });
+    expect(patchResult).toHaveProperty('ok');
+    expect(patchResult).toHaveProperty('checks');
+    expect(patchResult).toHaveProperty('files');
+    expect(Array.isArray(patchResult.checks)).toBe(true);
+    expect(Array.isArray(patchResult.files)).toBe(true);
+  });
+
+  it('PCM output is 4096 bytes (4 KB chip)', () => {
+    ensureLoaded();
+    const vin = report.targetVin || report.donorVin || bcmInfo.vins?.[0]?.vin;
+    if (!vin || vin.length !== 17) return;
+    const patchResult = runKeyProgPatch({
+      bcm: { name: BCM_FILE, data: bcmData },
+      rfh: { name: RFH_EEE_FILE, data: rfhEeeData },
+      pcm: { name: PCM_FILE, data: pcmData },
+      vin,
+    });
+    const pcmOut = patchResult.files?.find((f) => f.role === 'PCM');
+    if (pcmOut) {
+      // 4096-byte PCM → 95320 chip → output must stay 4096 B
+      expect(pcmOut.data.length).toBe(4096);
+    }
+  });
+
+  it('every output file has role, name, and data', () => {
+    ensureLoaded();
+    const vin = report.targetVin || report.donorVin || bcmInfo.vins?.[0]?.vin;
+    if (!vin || vin.length !== 17) return;
+    const patchResult = runKeyProgPatch({
+      bcm: { name: BCM_FILE, data: bcmData },
+      rfh: { name: RFH_EEE_FILE, data: rfhEeeData },
+      pcm: { name: PCM_FILE, data: pcmData },
+      vin,
+    });
+    for (const f of patchResult.files || []) {
+      expect(f).toHaveProperty('role');
+      expect(f).toHaveProperty('name');
+      expect(f.data).toBeInstanceOf(Uint8Array);
+    }
+  });
+
+  it('BCM output carries the target VIN', () => {
+    ensureLoaded();
+    const vin = report.targetVin || report.donorVin || bcmInfo.vins?.[0]?.vin;
+    if (!vin || vin.length !== 17) return;
+    const patchResult = runKeyProgPatch({
+      bcm: { name: BCM_FILE, data: bcmData },
+      rfh: { name: RFH_EEE_FILE, data: rfhEeeData },
+      pcm: { name: PCM_FILE, data: pcmData },
+      vin,
+    });
+    const bcmOut = patchResult.files?.find((f) => f.role === 'BCM');
+    if (bcmOut && bcmOut.data) {
+      const bcmParsed = parseModule(bcmOut.data, 'output_bcm.bin');
+      const vins = (bcmParsed.vins || []).map((v) => v.vin);
+      expect(vins.some((v) => v === vin)).toBe(true);
+    }
+  });
+});

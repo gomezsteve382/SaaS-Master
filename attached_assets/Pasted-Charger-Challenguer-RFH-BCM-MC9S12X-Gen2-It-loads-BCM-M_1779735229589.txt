@@ -1,0 +1,122 @@
+Charger/Challenguer — RFH ⇄ BCM (MC9S12X Gen2)
+It loads BCM (MPC5606B) and RFH (MC9S12X Type1 Gen2), validates VIN/SEC16 and checksums, and allows application in both directions without re-uploading files.
+Connection guides:
+BCM Guide (MPC560XB)
+MULTIPROG
+BCM Guide (MPC560XB)
+UPA
+RFH Guide (9S12X)
+MULTIPROG
+RFH Guide (9S12X)
+UPA
+RFH Guide (9S12X)
+OBDSTAR
+1) Load files and filter (INSPECT)
+Upload BCM and RFH. The system detects VIN/SEC16 and validates checksums.
+BCM file (.bin)No file chosen
+Dump BCM (full flash).
+RFH File (MC9S12X Gen2) (.bin/.eprom)No file chosen
+Dump RFH (Gen2: VIN 4 slots + SEC16 2 slots).
+
+Inspect BCM / RFH
+Clean / Reset
+Tip: If you refresh the page or open it in another tab, the state will be lost. Run Inspect again.
+
+Inspection Result: 
+✅ Ready to apply
+Warnings
+Core messages about conditions detected during INSPECT.
+RFH: SEC16 slots do not match (slot1 != slot2).
+BCM: SEC16 health=ALERT_NO_SECURITY.
+BCM (MPC5606B - 05B)
+196.2charger_BCMDFLASH_NEWVIN.bin
+MPC5606B_05B
+65536 bytes
+VIN (BCM)
+VIN: 2C3CCABG1KH539430
+
+Copies: 4
+
+VIN 1 – 
+CS OK
+VIN 2 – 
+CS OK
+VIN 3 – 
+CS OK
+VIN 4 – 
+CS OK
+SEC16 (BCM)
+SEC16 BCM:
+-
+
+SEC16 RFH (view):
+-
+
+SEC16 main
+Total: 0
+
+SEC16 mirrors (with CRC)
+No SEC16 mirrors were detected.
+
+Grades
+ALERT: SEC16 security was not found in this module. Recommended edition: VIN only.
+RFH (MC9S12X Type 1 — Gen 2)
+19charger6,2_rfhubeee.bin
+MC9S12X
+4096 bytes
+VIN (RFH Gen2 — 4 slots + CHK after)
+SLOT 1 — 
+Checksum ERROR
+VIN: 2C3CCABG1KH539430
+SLOT 2 — 
+Checksum ERROR
+VIN: 2C3CCABG1KH539430
+SLOT 3 — 
+Checksum ERROR
+VIN: 2C3CCABG1KH539430
+SLOT 4 — 
+Checksum ERROR
+VIN: 2C3CCABG1KH539430
+SEC16 (RFH Gen2 — 2 slots + CHK after)
+Slots match: 
+No / review
+
+SLOT 1 — 
+CS OK
+SEC16:
+0000000000000001FC01FFFF00000000
+SLOT 2 — 
+Checksum ERROR
+SEC16:
+FC011B04F7031B012ECF1B010DF0FFFF
+Derived (demo) — RFH → BCM
+Rule: reverse bytes of the entire block .
+
+SEC16 BCM (hex):
+00000000FFFF01FC0100000000000000
+
+OS / PN / SERIAL (Best Pick)
+YOU: 
+score 120
+
+useful=10 ratio=1.00 len=10 pr=1.00
+
+PN: 
+score 120
+
+useful=10 ratio=1.00 len=10 pr=1.00
+
+SERIAL: 
+score 160
+
+useful=14 ratio=1.00 len=14 pr=1.00
+
+Actions
+It applies in both directions using the data already uploaded (without re-uploading files).
+APPLY enabled
+
+Import RFH data → to BCM (download twinned BCM)
+
+Import data from BCM → to RFH (download twinned RFH)
+Re-filter / reload files
+*Note:* If you refresh the page, the status will be lost. Run Inspect again.
