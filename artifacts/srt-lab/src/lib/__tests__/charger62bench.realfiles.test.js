@@ -6,7 +6,7 @@
  * + buildCharger62Report + runKeyProgPatch, and asserts the expected shapes.
  * ============================================================================ */
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parseModule } from '../parseModule.js';
 import { crossValidate } from '../crossValidate.js';
@@ -559,58 +559,72 @@ describe('RFHUB P-Flash identity — legacy 4 KB RFHUB EEPROM (RFH_SCAT_OG)', ()
  * asserting.
  * ───────────────────────────────────────────────────────────────────────────── */
 describe('RFHUB P-Flash identity — sibling legacy 4 KB RFHUB EEPROM fixtures', () => {
-  const SIBLINGS = [
-    {
-      file: 'RFH_SCAT_OG_1776883397469.bin',
-      expected: {
-        os:     { value: 'AA30712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
-        pn:     { value: '30712804CA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
-        serial: { value: '7161A9870IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
-      },
-    },
-    {
-      file: 'RFH_SCAT_OG__1776953366762.bin',
-      expected: {
-        os:     { value: 'AA30712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
-        pn:     { value: '30712804CA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
-        serial: { value: '7161A9870IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
-      },
-    },
-    {
-      file: 'RFH_SCAT_OG_1776953518379.bin',
-      expected: {
-        os:     { value: 'AA30712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
-        pn:     { value: '30712804CA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
-        serial: { value: '7161A9870IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
-      },
-    },
-    {
-      file: 'RFH_SCAT_OG_1776959969103.bin',
-      expected: {
-        os:     { value: 'AA30712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
-        pn:     { value: '30712804CA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
-        serial: { value: '7161A9870IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
-      },
-    },
-    {
-      file: 'CARTMAN21CHARGER6.2RFHUBOG_1776135438588.bin',
-      expected: {
-        os:     { value: 'AA40712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
-        pn:     { value: '40712804AA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
-        serial: { value: '3280D2211IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
-      },
-    },
-    {
-      file: 'CARTMAN21CHARGER6.2RFHUBOG_1776135460754.bin',
-      expected: {
-        os:     { value: 'AA40712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
-        pn:     { value: '40712804AA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
-        serial: { value: '3280D2211IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
-      },
-    },
-  ];
+  /* ── Pinned ground-truth registry ──────────────────────────────────────────
+   * Keyed by exact filename in attached_assets/. Add a new entry here once
+   * the extractor's best pick has been bench-confirmed. Any 4 KB RFHUB-shaped
+   * fixture in attached_assets/ NOT present in this map is auto-discovered
+   * below and surfaced as a "TODO — add me to the registry" test that logs
+   * the extractor's current best pick (without failing) so the regression
+   * net stays self-extending. */
+  const SCAT_EXPECTED = {
+    os:     { value: 'AA30712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
+    pn:     { value: '30712804CA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
+    serial: { value: '7161A9870IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
+  };
+  const CARTMAN_EXPECTED = {
+    os:     { value: 'AA40712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
+    pn:     { value: '40712804AA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
+    serial: { value: '3280D2211IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
+  };
+  const PINNED = {
+    // §9c primary fixture — kept in the registry so the auto-enumerator
+    // exercises it alongside the explicit single-fixture block above.
+    'RFH_SCAT_OG_1776883386715.bin': SCAT_EXPECTED,
+    'RFH_SCAT_OG_1776883397469.bin': SCAT_EXPECTED,
+    'RFH_SCAT_OG__1776953366762.bin': SCAT_EXPECTED,
+    'RFH_SCAT_OG_1776953518379.bin': SCAT_EXPECTED,
+    'RFH_SCAT_OG_1776959969103.bin': SCAT_EXPECTED,
+    'CARTMAN21CHARGER6.2RFHUBOG_1776135438588.bin': CARTMAN_EXPECTED,
+    'CARTMAN21CHARGER6.2RFHUBOG_1776135460754.bin': CARTMAN_EXPECTED,
+  };
 
-  for (const { file, expected } of SIBLINGS) {
+  /* Auto-discover any 4 KB RFHUB-shaped fixture in attached_assets/. The
+   * filename pattern matches the two competitor-tool naming conventions
+   * called out in the task: `RFH*.bin` (RFH_ prefix) and `*RFHUB*.bin`
+   * (RFHUB token anywhere). Synchronous fs reads are fine here — Vitest
+   * resolves describe blocks before test execution and the directory is
+   * always present in the workspace. */
+  const RFH_4K_PATTERN = /^(?:RFH|.*RFHUB).*\.bin$/i;
+  function discoverLegacy4kRfhubFixtures() {
+    let entries;
+    try {
+      entries = readdirSync(ASSETS);
+    } catch {
+      return [];
+    }
+    const hits = [];
+    for (const name of entries) {
+      if (!RFH_4K_PATTERN.test(name)) continue;
+      let size;
+      try { size = statSync(join(ASSETS, name)).size; } catch { continue; }
+      if (size !== 4096) continue;
+      hits.push(name);
+    }
+    hits.sort();
+    return hits;
+  }
+  const DISCOVERED = discoverLegacy4kRfhubFixtures();
+
+  it('discovers at least the known pinned legacy fixtures', () => {
+    // Sanity check: the enumerator must surface every filename we've pinned
+    // (otherwise the assertion loop below would silently skip them).
+    for (const pinnedName of Object.keys(PINNED)) {
+      expect(DISCOVERED).toContain(pinnedName);
+    }
+  });
+
+  for (const file of DISCOVERED) {
+    const expected = PINNED[file] || null;
     describe(file, () => {
       let data;
       let id;
@@ -626,14 +640,25 @@ describe('RFHUB P-Flash identity — sibling legacy 4 KB RFHUB EEPROM fixtures',
       });
 
       if (!expected) {
-        it('TODO — confirm expected OS / PN / SERIAL (best pick logged)', () => {
+        it('TODO — add to PINNED registry once OS / PN / SERIAL confirmed (best pick logged)', () => {
           load();
+          const snap = (f) => f && {
+            value: f.value,
+            len: f.len,
+            offset: `0x${f.offset.toString(16).toUpperCase()}`,
+            score: f.score,
+            matchesCanonical: f.matchesCanonical,
+            supplierBonus: f.supplierBonus,
+          };
           // eslint-disable-next-line no-console
-          console.log(`[task-786] ${file} best pick:`, {
-            os: id.os && { value: id.os.value, len: id.os.len, offset: id.os.offset, score: id.os.score, matchesCanonical: id.os.matchesCanonical, supplierBonus: id.os.supplierBonus },
-            pn: id.pn && { value: id.pn.value, len: id.pn.len, offset: id.pn.offset, score: id.pn.score, matchesCanonical: id.pn.matchesCanonical, supplierBonus: id.pn.supplierBonus },
-            serial: id.serial && { value: id.serial.value, len: id.serial.len, offset: id.serial.offset, score: id.serial.score, matchesCanonical: id.serial.matchesCanonical, supplierBonus: id.serial.supplierBonus },
+          console.log(`[rfhub-auto-discover] ${file} — not yet pinned, extractor best pick:`, {
+            os: snap(id.os),
+            pn: snap(id.pn),
+            serial: snap(id.serial),
           });
+          // Still assert the extractor produced a usable shape — a brand-new
+          // fixture that crashes the extractor should fail the suite even
+          // before someone pins its expected values.
           expect(id).toHaveProperty('os');
           expect(id).toHaveProperty('pn');
           expect(id).toHaveProperty('serial');
