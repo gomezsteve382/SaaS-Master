@@ -51,6 +51,8 @@ import ExternalToolsTab from "./tabs/ExternalToolsTab.jsx";
 import RadioCodesTab from "./tabs/RadioCodesTab.jsx";
 import BinaryIntelTab from "./tabs/BinaryIntelTab.jsx";
 import UdsAnalyzerTab from "./tabs/UdsAnalyzerTab.jsx";
+import PatternLibraryTab from "./tabs/PatternLibraryTab.jsx";
+import KnowledgeGraphTab from "./tabs/KnowledgeGraphTab.jsx";
 import SignalDiscoveryTab from "./tabs/SignalDiscoveryTab.jsx";
 import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
@@ -932,6 +934,8 @@ const WORKSPACE_TABS = [
   {id:'radiocodes',i:'📻', l:'RADIO CODES', s:'Mopar PIN deriver'},
   {id:'binintel',  i:'🧪', l:'BINARY INTEL',s:'External report cross-ref'},
   {id:'udsanalyzer',i:'🔎',l:'UDS ANALYZER',s:'trace → NRC decode · diagnosis'},
+  {id:'patterns',  i:'🧬', l:'PATTERNS',    s:'Cross-binary signature library'},
+  {id:'kg',        i:'🕸️', l:'KNOW. GRAPH', s:'Module relationship map'},
   {id:'sigdisc',   i:'🛰️', l:'SIGNAL DISC', s:'TUMFTM sweep · record · match'},
   {id:'canuniverse',i:'🌐', l:'CAN UNIVERSE', s:'awesome-canbus + Eclipse SDV catalog'},
   {id:'loganalyser',i:'📜',l:'LOG ANALYSER',s:'candump · UDS · iddiff · catalog growth'},
@@ -980,7 +984,30 @@ function VehicleWorkspace({vehicleId, onBack}){
   const [efdFile, setEfdFile] = useState(null);
   const [selectedCflash, setSelectedCflash] = useState(null);
   const [workspaceWizardOpen, setWorkspaceWizardOpen] = useState(false);
+  const [patternToast, setPatternToast] = useState(null); // {count, total} | null
   const {addDump} = useContext(MasterVinContext);
+
+  // Auto-dismiss pattern discovery toast after 7 s.
+  useEffect(() => {
+    if (!patternToast) return;
+    const t = setTimeout(() => setPatternToast(null), 7000);
+    return () => clearTimeout(t);
+  }, [patternToast]);
+
+  // When the Mismatch Wizard opens, fire extraction for all currently loaded modules
+  // so any modules that bypassed the main upload path are still indexed.
+  useEffect(() => {
+    if (!workspaceWizardOpen) return;
+    files.forEach(f => {
+      if (!f || !f.type || f.type.toUpperCase() === 'UNKNOWN') return;
+      const {data: _d, ...mSerial} = f;
+      fetch('/api/patterns/extract', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({...mSerial, analysisId:`wizard:${f.name||f.type}:${Date.now()}`}),
+      }).catch(() => {});
+    });
+  }, [workspaceWizardOpen]); // eslint-disable-line react-hooks/exhaustive-deps
   // Shared workspace upload entry point (Task #376). Every tab that hands
   // the user a file — Dumps tab, Samples Library, future entry points —
   // funnels through this `loadF`, which:
@@ -1052,9 +1079,32 @@ function VehicleWorkspace({vehicleId, onBack}){
         // SYNC ALL MODULES PCM resize path.
         const analyzed=accepted.map(x=>analyzeFile(x.data,x.name,slotType));
         setFiles(p=>[...p,...analyzed]);
+        // Fire-and-forget pattern + KG extraction for every accepted module.
+        // The `data` field is a Uint8Array — strip it before JSON serialisation.
+        // Resolved counts are accumulated across all files then surfaced as a toast.
+        let toastInserted = 0;
+        let toastTotal = 0;
+        const extractionSettled = () => {
+          toastTotal += 1;
+          if (toastTotal === accepted.length) {
+            if (toastInserted > 0) setPatternToast({ count: toastInserted });
+          }
+        };
         accepted.forEach(x=>{
           const parsed=parseModule(x.data,x.name);
-          if(parsed&&parsed.type&&parsed.type.toUpperCase()!=='UNKNOWN')addDump(parsed,source);
+          if(parsed&&parsed.type&&parsed.type.toUpperCase()!=='UNKNOWN'){
+            addDump(parsed,source);
+            const {data:_d,...mSerial}=parsed;
+            const extractPayload={...mSerial,analysisId:`file:${x.name}:${Date.now()}`};
+            fetch('/api/patterns/extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(extractPayload)})
+              .then(r=>r.ok?r.json():null)
+              .then(j=>{ if(j&&j.inserted) toastInserted+=j.inserted; })
+              .catch(()=>{})
+              .finally(extractionSettled);
+            fetch('/api/kg/extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(extractPayload)}).catch(()=>{});
+          } else {
+            extractionSettled();
+          }
         });
       }
       return {acceptedFiles: accepted.map(x=>x.file), rejected};
@@ -1065,6 +1115,28 @@ function VehicleWorkspace({vehicleId, onBack}){
   return (
     <div style={{minHeight:'100vh',background:C.bg,color:C.tx,fontFamily:"'Nunito',sans-serif"}}>
       <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&family=Righteous&display=swap" rel="stylesheet"/>
+
+      {/* Pattern discovery toast — fires after module upload extracts new patterns */}
+      {patternToast && (
+        <div style={{position:'fixed',bottom:24,right:24,zIndex:9999,background:'#1A1A1A',border:'1px solid #7B1FA2',borderRadius:12,padding:'12px 18px',display:'flex',alignItems:'center',gap:12,boxShadow:'0 8px 32px rgba(123,31,162,0.35)',maxWidth:340,animation:'slideInRight 0.3s ease'}}>
+          <span style={{fontSize:18}}>🔬</span>
+          <div style={{flex:1}}>
+            <div style={{color:'#E1BEE7',fontFamily:"'Righteous'",fontSize:12,marginBottom:2}}>Pattern Library Updated</div>
+            <div style={{color:'rgba(255,255,255,0.7)',fontFamily:"'Nunito'",fontSize:11}}>
+              Discovered {patternToast.count} new pattern{patternToast.count!==1?'s':''} from this module
+            </div>
+          </div>
+          <button
+            onClick={()=>{
+              setTab('patterns');
+              setPatternToast(null);
+            }}
+            style={{background:'#7B1FA2',border:'none',borderRadius:8,color:'#fff',padding:'5px 12px',cursor:'pointer',fontFamily:"'Nunito'",fontWeight:800,fontSize:11,whiteSpace:'nowrap'}}
+          >View</button>
+          <button onClick={()=>setPatternToast(null)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.4)',cursor:'pointer',fontSize:16,lineHeight:1,padding:'0 2px'}}>✕</button>
+        </div>
+      )}
+
       {/* Header with vehicle banner */}
       <div style={{background:`linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 40%, ${accent} 100%)`,position:'relative',overflow:'hidden'}}>
         <div style={{position:'absolute',inset:0,background:`radial-gradient(ellipse at 80% 50%, ${accent}44, transparent 60%)`,pointerEvents:'none'}}/>
@@ -1130,6 +1202,8 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='radiocodes'&& <RadioCodesTab/>}
         {tab==='binintel'  && <BinaryIntelTab/>}
         {tab==='udsanalyzer' && <UdsAnalyzerTab/>}
+        {tab==='patterns'  && <PatternLibraryTab/>}
+        {tab==='kg'        && <KnowledgeGraphTab/>}
         {tab==='sigdisc'   && <SignalDiscoveryTab/>}
         {tab==='canuniverse' && <CanUniverseTab/>}
         {tab==='loganalyser' && <LogAnalyserTab/>}

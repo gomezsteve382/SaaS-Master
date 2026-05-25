@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { sql, desc, eq } from "drizzle-orm";
-import { db, moduleBackupsTable } from "@workspace/db";
+import { db, moduleBackupsTable, patternLibraryTable, kgNodesTable, kgEdgesTable } from "@workspace/db";
+import { extractFromAnalysis } from "../lib/patternExtractor";
 
 const router: IRouter = Router();
 
@@ -180,6 +181,89 @@ router.post("/backups", async (req, res, next) => {
       });
 
     res.json({ id, key: id, ok: true });
+
+    // Fire-and-forget: extract patterns + KG nodes/edges from the saved backup.
+    // Runs after the response is sent so it never delays the client.
+    setImmediate(async () => {
+      try {
+        const { patterns, nodes, edges } = extractFromAnalysis(
+          { module: moduleType, vin, tx: tx ?? undefined, rx: rx ?? undefined, ...(payload as Record<string, unknown>) },
+          id,
+        );
+
+        // Upsert patterns (dedup on category + signatureHash)
+        const sourceIds = [id];
+        for (const p of patterns) {
+          await db
+            .insert(patternLibraryTable)
+            .values({
+              category: p.category,
+              label: p.label,
+              signatureBytes: p.signatureBytes,
+              signatureHash: p.signatureHash,
+              confidence: p.confidence,
+              notes: p.notes,
+              sourceAnalysisIds: sourceIds,
+            })
+            .onConflictDoUpdate({
+              target: [patternLibraryTable.category, patternLibraryTable.signatureHash],
+              set: {
+                confidence: p.confidence,
+                updatedAt: new Date(),
+                sourceAnalysisIds: sql`
+                  (SELECT jsonb_agg(DISTINCT elem)
+                   FROM jsonb_array_elements(
+                     ${patternLibraryTable.sourceAnalysisIds}::jsonb || ${JSON.stringify(sourceIds)}::jsonb
+                   ) AS elem)
+                `,
+              },
+            });
+        }
+
+        // Upsert KG nodes and build a label→id map for edge insertion
+        const nodeMap = new Map<string, string>();
+        for (const n of nodes) {
+          const existing = await db
+            .select()
+            .from(kgNodesTable)
+            .where(sql`${kgNodesTable.nodeType} = ${n.nodeType} AND ${kgNodesTable.label} = ${n.label}`)
+            .limit(1);
+          let nodeId: string;
+          if (existing.length > 0) {
+            nodeId = existing[0]!.id;
+          } else {
+            const [ins] = await db
+              .insert(kgNodesTable)
+              .values({ nodeType: n.nodeType, label: n.label, metadata: n.metadata ?? {} })
+              .returning();
+            nodeId = ins!.id;
+          }
+          nodeMap.set(`${n.nodeType}:${n.label}`, nodeId);
+        }
+
+        // Insert KG edges (skip if either node wasn't upserted)
+        for (const e of edges) {
+          const fromId = nodeMap.get(`${e.fromType}:${e.fromLabel}`);
+          const toId = nodeMap.get(`${e.toType}:${e.toLabel}`);
+          if (!fromId || !toId) continue;
+          const prior = await db
+            .select()
+            .from(kgEdgesTable)
+            .where(eq(kgEdgesTable.fromNodeId, fromId))
+            .limit(50);
+          const dup = prior.some(
+            (x) => x.toNodeId === toId && x.edgeType === e.edgeType,
+          );
+          if (!dup) {
+            await db
+              .insert(kgEdgesTable)
+              .values({ fromNodeId: fromId, toNodeId: toId, edgeType: e.edgeType, meta: e.meta ?? {} });
+          }
+        }
+      } catch (_err) {
+        // Extraction errors must never affect the backup save response
+      }
+    });
   } catch (err) {
     next(err);
   }

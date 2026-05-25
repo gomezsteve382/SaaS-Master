@@ -12,3 +12,4 @@ export * from "./integrationTasks";
 export * from "./task634Verifications";
 export * from "./sec16SyncEvents";
 export * from "./conversationToolCalls";
+export * from "./patternLibrary";

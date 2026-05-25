@@ -557,6 +557,72 @@ export const TOOL_REGISTRY: Record<string, ToolDefinition> = {
     },
     handler: handleHexDiff,
   },
+
+  pattern_library_lookup: {
+    schema: {
+      name: "pattern_library_lookup",
+      description:
+        "Search the Pattern Library for byte-level signatures the bench has actually observed across real module dumps. " +
+        "Returns matching patterns with category, label, signature bytes, confidence, source analysis IDs, and notes. " +
+        "Use this when the user asks about a specific VIN, calibration ID, security bytes, or algorithm seen in past dumps.",
+      input_schema: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description:
+              "Search string — can be a VIN, hex bytes, calibration ID, algorithm name, or any label fragment.",
+          },
+        },
+        required: ["query"],
+      },
+    },
+    handler: async (_primary, _binaries, args) => {
+      const query = typeof args.query === "string" ? args.query.trim() : "";
+      if (!query) return "Error: query is required.";
+      try {
+        // Dynamic import to avoid circular deps — toolRegistry has no DB dep otherwise
+        const { db } = await import("@workspace/db");
+        const { patternLibraryTable } = await import("@workspace/db");
+        const { or, ilike } = await import("drizzle-orm");
+
+        const rows = await db
+          .select()
+          .from(patternLibraryTable)
+          .where(
+            or(
+              ilike(patternLibraryTable.label, "%" + query + "%"),
+              ilike(patternLibraryTable.notes, "%" + query + "%"),
+              ilike(patternLibraryTable.signatureBytes, "%" + query + "%"),
+            ),
+          )
+          .limit(10);
+
+        if (rows.length === 0) {
+          return `No patterns found in the library matching "${query}". This may be a novel signature not yet observed by the bench.`;
+        }
+
+        const summary = rows
+          .map((r) => {
+            const srcCount = Array.isArray(r.sourceAnalysisIds)
+              ? (r.sourceAnalysisIds as unknown[]).length
+              : 0;
+            return (
+              `• [${r.category}] ${r.label}\n` +
+              `  Confidence: ${Math.round((r.confidence ?? 1) * 100)}%` +
+              (r.signatureBytes ? `  Bytes: ${r.signatureBytes.slice(0, 48)}${r.signatureBytes.length > 48 ? "…" : ""}` : "") +
+              (srcCount > 0 ? `  Seen in ${srcCount} analysis/analyses` : "") +
+              (r.notes ? `  Notes: ${r.notes}` : "")
+            );
+          })
+          .join("\n");
+
+        return `Found ${rows.length} pattern(s) matching "${query}":\n${summary}`;
+      } catch (err) {
+        return `Pattern lookup failed: ${err instanceof Error ? err.message : String(err)}`;
+      }
+    },
+  },
 };
 
 /** All tool schemas in the format Anthropic messages.create expects. */

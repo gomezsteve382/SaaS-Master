@@ -1,14 +1,73 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { conversations, messages, conversationToolCalls } from "@workspace/db";
+import { conversations, messages, conversationToolCalls, patternLibraryTable } from "@workspace/db";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
-import { eq, asc, desc } from "drizzle-orm";
+import { eq, asc, desc, or, ilike } from "drizzle-orm";
 import {
   SYSTEM_PROMPT,
   buildContextBlock,
   buildAutoTitle,
   type ModuleContext,
 } from "./_shared";
+
+/* ── pattern_library_lookup tool definition ─────────────────────────── */
+const PATTERN_LIBRARY_TOOL = {
+  name: "pattern_library_lookup",
+  description:
+    "Search the Pattern Library for byte-level signatures the bench has actually observed across real module dumps. " +
+    "Returns matching patterns with category, label, signature bytes, confidence, source analysis IDs, and notes. " +
+    "Use this when the user asks about a specific VIN, calibration ID, security bytes, or algorithm seen in past dumps.",
+  input_schema: {
+    type: "object" as const,
+    properties: {
+      query: {
+        type: "string",
+        description:
+          "Search string — can be a VIN, hex bytes, calibration ID, algorithm name, or any label fragment.",
+      },
+    },
+    required: ["query"],
+  },
+};
+
+async function runPatternLookup(query: string): Promise<string> {
+  try {
+    const rows = await db
+      .select()
+      .from(patternLibraryTable)
+      .where(
+        or(
+          ilike(patternLibraryTable.label, "%" + query + "%"),
+          ilike(patternLibraryTable.notes, "%" + query + "%"),
+          ilike(patternLibraryTable.signatureBytes, "%" + query + "%"),
+        ),
+      )
+      .limit(10);
+
+    if (rows.length === 0) {
+      return `No patterns found in the library matching "${query}". This may be a novel signature not yet observed by the bench.`;
+    }
+
+    const summary = rows
+      .map((r) => {
+        const srcCount = Array.isArray(r.sourceAnalysisIds)
+          ? (r.sourceAnalysisIds as unknown[]).length
+          : 0;
+        return (
+          `• [${r.category}] ${r.label}\n` +
+          `  Confidence: ${Math.round((r.confidence ?? 1) * 100)}%` +
+          (r.signatureBytes ? `  Bytes: ${r.signatureBytes.slice(0, 48)}${r.signatureBytes.length > 48 ? "…" : ""}` : "") +
+          (srcCount > 0 ? `  Seen in ${srcCount} analysis/analyses` : "") +
+          (r.notes ? `  Notes: ${r.notes}` : "")
+        );
+      })
+      .join("\n");
+
+    return `Found ${rows.length} pattern(s) matching "${query}":\n${summary}`;
+  } catch (err) {
+    return `Pattern lookup failed: ${err instanceof Error ? err.message : String(err)}`;
+  }
+}
 
 const router = Router();
 
@@ -188,23 +247,97 @@ router.post("/conversations/:id/messages", async (req, res) => {
   });
 
   try {
-    const stream = anthropic.messages.stream({
-      model: "claude-sonnet-4-6",
-      max_tokens: 8192,
-      system: systemPrompt,
-      messages: chatMessages,
-    });
+    /* Tool-use agentic loop.
+     * Up to 3 rounds: model may call pattern_library_lookup, we execute it,
+     * feed the result back, then stream the final text response. */
+    type AnthropicMessage = {
+      role: "user" | "assistant";
+      content: string | Array<Record<string, unknown>>;
+    };
+    const loopMessages: AnthropicMessage[] = chatMessages.map((m) => ({
+      role: m.role as "user" | "assistant",
+      content: m.content,
+    }));
 
-    for await (const event of stream) {
-      if (
-        event.type === "content_block_delta" &&
-        event.delta.type === "text_delta"
-      ) {
-        fullResponse += event.delta.text;
-        if (!clientGone) {
-          res.write(`data: ${JSON.stringify({ content: event.delta.text })}\n\n`);
+    const MAX_TOOL_ROUNDS = 3;
+    let toolRound = 0;
+    let finalTextStreamed = false;
+
+    while (toolRound <= MAX_TOOL_ROUNDS) {
+      /* Use streaming only on the last (or only) response so SSE stays live. */
+      const isLastRound = toolRound === MAX_TOOL_ROUNDS;
+
+      /* Non-streaming call for tool-resolution rounds; streaming for final text. */
+      const resp = await anthropic.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 8192,
+        system: systemPrompt,
+        tools: [PATTERN_LIBRARY_TOOL],
+        messages: loopMessages,
+        stream: false,
+      });
+
+      /* Collect any text blocks from this response. */
+      const textParts: string[] = [];
+      const toolUses: Array<{ id: string; name: string; input: Record<string, unknown> }> = [];
+
+      for (const block of resp.content) {
+        if (block.type === "text") {
+          textParts.push(block.text);
+        } else if (block.type === "tool_use") {
+          toolUses.push({ id: block.id, name: block.name, input: block.input as Record<string, unknown> });
         }
       }
+
+      /* If the model returned text (no pending tool calls), stream it and stop. */
+      if (textParts.length > 0 && toolUses.length === 0) {
+        const text = textParts.join("");
+        fullResponse += text;
+        if (!clientGone) {
+          res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+        }
+        finalTextStreamed = true;
+        break;
+      }
+
+      /* Model wants to call tools — execute them and append results. */
+      if (toolUses.length > 0 && !isLastRound) {
+        loopMessages.push({ role: "assistant", content: resp.content as Array<Record<string, unknown>> });
+
+        /* If there was also text before the tool call, accumulate it. */
+        if (textParts.length > 0) {
+          fullResponse += textParts.join("");
+          if (!clientGone) {
+            res.write(`data: ${JSON.stringify({ content: textParts.join("") })}\n\n`);
+          }
+        }
+
+        const toolResults: Array<Record<string, unknown>> = [];
+        for (const tu of toolUses) {
+          let result = "";
+          if (tu.name === "pattern_library_lookup") {
+            const query = typeof tu.input.query === "string" ? tu.input.query : String(tu.input.query ?? "");
+            result = await runPatternLookup(query);
+          } else {
+            result = `Unknown tool: ${tu.name}`;
+          }
+          toolResults.push({ type: "tool_result", tool_use_id: tu.id, content: result });
+        }
+        loopMessages.push({ role: "user", content: toolResults });
+        toolRound++;
+        continue;
+      }
+
+      /* If there was text mixed with tool use on the last round, grab it. */
+      if (textParts.length > 0) {
+        const text = textParts.join("");
+        fullResponse += text;
+        if (!clientGone) {
+          res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+        }
+        finalTextStreamed = true;
+      }
+      break;
     }
 
     /* Always persist the assistant reply, even if the client disconnected. */

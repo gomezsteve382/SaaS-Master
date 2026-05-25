@@ -703,6 +703,15 @@ export default function FcaModuleInspector() {
             skipped.push(f.name + " (TOO SMALL: " + small.expected + ")");
           } else {
             addDump(m, "Inspector");
+            // Fire-and-forget: send parsed analysis to the pattern library + KG.
+            // The `data` field is a Uint8Array and cannot be JSON-serialised — strip it.
+            const { data: _binData, ...mSerial } = m;
+            const extractPayload = { ...mSerial, analysisId: `inspector:${f.name}:${Date.now()}` };
+            fetch("/api/patterns/extract", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(extractPayload),
+            }).catch(() => {});
           }
           pending -= 1;
           if (pending === 0) {
