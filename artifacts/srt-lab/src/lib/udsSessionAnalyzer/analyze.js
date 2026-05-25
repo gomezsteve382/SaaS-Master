@@ -60,6 +60,86 @@ function getSubFunction(bytes) {
   return HAS_SUBFUNC_SIDS.has(bytes[0]) ? bytes[1] : null;
 }
 
+/**
+ * Pull the ordered list of 16-bit DIDs from a 0x22 ReadDataByIdentifier
+ * request. Returns null for non-0x22, malformed, or odd-length payloads.
+ * Single-DID requests come back as a 1-element array.
+ */
+function getRequestedDids(reqBytes) {
+  if (reqBytes[0] !== 0x22) return null;
+  if (reqBytes.length < 3 || (reqBytes.length - 1) % 2 !== 0) return null;
+  const dids = [];
+  for (let i = 1; i + 1 < reqBytes.length; i += 2) {
+    dids.push((reqBytes[i] << 8) | reqBytes[i + 1]);
+  }
+  return dids;
+}
+
+function didRow(did, decoded) {
+  const entry = didEntry(did);
+  return {
+    did,
+    label: `0x${hx((did >> 8) & 0xFF)}${hx(did & 0xFF)}`,
+    name: entry ? entry.name : null,
+    encoding: entry ? entry.encoding : null,
+    decoded,
+  };
+}
+
+/**
+ * Split a 0x62 positive ReadDataByIdentifier response into one row per
+ * requested DID. The response stream is `62 <DID hi> <DID lo> <data> ...`
+ * concatenated for each requested DID. Fixed-length DIDs use the catalog
+ * `length` hint; variable-length DIDs are bounded by scanning forward for
+ * the next requested DID identifier (the last DID consumes the remainder).
+ *
+ * Returns null when alignment fails, so callers can fall back to a raw-hex
+ * verdict instead of producing misleading sub-rows.
+ *
+ * @param {number[]} requestedDids  Ordered list of DIDs from the request
+ * @param {number[]} payload        Response bytes after the 0x62 SID echo
+ */
+function splitMultiDidResponse(requestedDids, payload) {
+  const rows = [];
+  let offset = 0;
+  for (let i = 0; i < requestedDids.length; i++) {
+    const did = requestedDids[i];
+    const hi = (did >> 8) & 0xFF;
+    const lo = did & 0xFF;
+    if (offset + 2 > payload.length || payload[offset] !== hi || payload[offset + 1] !== lo) {
+      return null;
+    }
+    offset += 2;
+    const entry = didEntry(did);
+    let dataLen;
+    if (entry && typeof entry.length === 'number') {
+      dataLen = entry.length;
+    } else if (i + 1 < requestedDids.length) {
+      const nextDid = requestedDids[i + 1];
+      const nHi = (nextDid >> 8) & 0xFF;
+      const nLo = nextDid & 0xFF;
+      let found = -1;
+      for (let k = offset; k + 1 < payload.length; k++) {
+        if (payload[k] === nHi && payload[k + 1] === nLo) {
+          found = k;
+          break;
+        }
+      }
+      if (found < 0) return null;
+      dataLen = found - offset;
+    } else {
+      dataLen = payload.length - offset;
+    }
+    if (dataLen < 0 || offset + dataLen > payload.length) return null;
+    const data = payload.slice(offset, offset + dataLen);
+    offset += dataLen;
+    const decoded = data.length ? decodeDid(did, data) : '(empty)';
+    rows.push(didRow(did, decoded));
+  }
+  if (offset !== payload.length) return null;
+  return rows;
+}
+
 function isTesterPresentSuppressed(bytes) {
   return bytes[0] === 0x3E && bytes.length >= 2 && (bytes[1] & 0x80) !== 0;
 }
@@ -71,6 +151,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
   const reqBytes = fmtBytes(reqLine.bytes);
 
   let didInfo = null;
+  const requestedDids = sid === 0x22 ? getRequestedDids(reqLine.bytes) : null;
   if ((sid === 0x22 || sid === 0x2E) && reqLine.bytes.length >= 3) {
     const num = (reqLine.bytes[1] << 8) | reqLine.bytes[2];
     const entry = didEntry(num);
@@ -82,6 +163,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
       decoded: null,
     };
   }
+  let dids = null;
 
   if (!respLine) {
     if (isTesterPresentSuppressed(reqLine.bytes)) {
@@ -90,8 +172,11 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
         severity: 'OK', service: svcName, subFunction,
         requestBytes: reqBytes, responseBytes: '',
         verdict: 'TesterPresent with suppress-positive-response bit set — no response expected.',
-        type: 'suppress', nrcCode: null, did: didInfo,
+        type: 'suppress', nrcCode: null, did: didInfo, dids,
       };
+    }
+    if (requestedDids && requestedDids.length > 1) {
+      dids = requestedDids.map(d => didRow(d, null));
     }
     if (hadPending) {
       return {
@@ -99,7 +184,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
         severity: 'FAIL', service: svcName, subFunction,
         requestBytes: reqBytes, responseBytes: '',
         verdict: `ResponsePending (NRC 0x78) received ${pendingCount} time(s) but no final response arrived — ECU timed out mid-operation. Increase the P2-star timeout, ensure TesterPresent keep-alive is running, and retry.`,
-        type: 'pending_timeout', nrcCode: null, did: didInfo,
+        type: 'pending_timeout', nrcCode: null, did: didInfo, dids,
       };
     }
     return {
@@ -107,7 +192,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
       severity: 'WARN', service: svcName, subFunction,
       requestBytes: reqBytes, responseBytes: '',
       verdict: 'No response received — possible CAN addressing mismatch, ECU not present on bus, or module sleeping. Verify TX/RX CAN IDs and module power/ground.',
-      type: 'no_response', nrcCode: null, did: didInfo,
+      type: 'no_response', nrcCode: null, did: didInfo, dids,
     };
   }
 
@@ -125,13 +210,16 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
     if (cause) parts.push(cause);
     if (hadPending) parts.push(`Preceded by ${pendingCount} ResponsePending (0x78) frame(s).`);
 
+    if (requestedDids && requestedDids.length > 1) {
+      dids = requestedDids.map(d => didRow(d, null));
+    }
     return {
       request: reqLine, response: respLine,
       severity: isPending ? 'WARN' : 'FAIL',
       service: svcName, subFunction,
       requestBytes: reqBytes, responseBytes: fmtBytes(respBytes),
       verdict: parts.join(' '),
-      type: 'nrc', nrcCode, nrcName, did: didInfo,
+      type: 'nrc', nrcCode, nrcName, did: didInfo, dids,
     };
   }
 
@@ -148,14 +236,35 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
     }
   } else if (sid === 0x10) {
     parts.push(`Session 0x${hx(reqLine.bytes[1] ?? 0)} confirmed.`);
-  } else if (sid === 0x22 && reqLine.bytes.length >= 3 && didInfo) {
-    const payload = respBytes.slice(3);
-    const decoded = payload.length ? decodeDid(didInfo.did, payload) : '(empty)';
-    didInfo.decoded = decoded;
-    if (didInfo.name) {
-      parts.push(`DID ${didInfo.label} ${didInfo.name}: ${decoded}`);
+  } else if (sid === 0x22 && reqLine.bytes.length >= 3 && didInfo && requestedDids) {
+    const payloadAfterSid = respBytes[0] === 0x62 ? respBytes.slice(1) : null;
+    const split = payloadAfterSid ? splitMultiDidResponse(requestedDids, payloadAfterSid) : null;
+    if (split && split.length >= 1) {
+      dids = split;
+      didInfo.decoded = split[0].decoded;
+      if (split.length === 1) {
+        const row = split[0];
+        if (row.name) parts.push(`DID ${row.label} ${row.name}: ${row.decoded}`);
+        else parts.push(`DID ${row.label}: ${row.decoded}`);
+      } else {
+        const lines = split.map(r => r.name
+          ? `${r.label} ${r.name}: ${r.decoded}`
+          : `${r.label}: ${r.decoded}`);
+        parts.push(`Multi-DID read (${split.length} DIDs): ${lines.join(' | ')}`);
+      }
     } else {
-      parts.push(`DID ${didInfo.label}: ${decoded}`);
+      const payload = respBytes.slice(3);
+      const decoded = payload.length ? decodeDid(didInfo.did, payload) : '(empty)';
+      didInfo.decoded = decoded;
+      if (requestedDids.length > 1) {
+        dids = requestedDids.map(d => didRow(d, null));
+        const labels = dids.map(r => r.name ? `${r.label} ${r.name}` : r.label).join(', ');
+        parts.push(`Multi-DID read response could not be split (${labels}); raw payload: ${fmtBytes(respBytes.slice(1))}`);
+      } else if (didInfo.name) {
+        parts.push(`DID ${didInfo.label} ${didInfo.name}: ${decoded}`);
+      } else {
+        parts.push(`DID ${didInfo.label}: ${decoded}`);
+      }
     }
   } else if (sid === 0x2E && reqLine.bytes.length >= 3 && didInfo) {
     parts.push(didInfo.name
@@ -179,7 +288,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
     severity: 'OK', service: svcName, subFunction,
     requestBytes: reqBytes, responseBytes: fmtBytes(respBytes),
     verdict: parts.join(' '),
-    type: 'ok', nrcCode: null, did: didInfo,
+    type: 'ok', nrcCode: null, did: didInfo, dids,
   };
 }
 

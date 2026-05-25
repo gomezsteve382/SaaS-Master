@@ -518,6 +518,131 @@ describe('TesterPresent suppress bit', () => {
   });
 });
 
+// ─── Multi-DID 0x22 batch reads ──────────────────────────────────────────────
+
+describe('analyzeSession — 0x22 multi-DID batch reads', () => {
+  it('splits a single-frame multi-DID response into one row per DID', () => {
+    // Request:  22 F19F F1A6 F1A9            (three fixed-length DIDs, all 1 byte)
+    // F19F = Number of Valid Calibration Files (uint), F1A6/F1A9 = hex.
+    // Response: 62 F19F 03 F1A6 02 F1A9 00
+    const { exchanges } = analyze([
+      '[Req] 22 F1 9F F1 A6 F1 A9',
+      '[Resp] 62 F1 9F 03 F1 A6 02 F1 A9 00',
+    ]);
+    expect(exchanges).toHaveLength(1);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.service).toBe('ReadDataByIdentifier');
+    expect(ex.dids).toHaveLength(3);
+    expect(ex.dids[0].did).toBe(0xF19F);
+    expect(ex.dids[0].decoded).toBe('3');
+    expect(ex.dids[1].did).toBe(0xF1A6);
+    expect(ex.dids[1].decoded).toMatch(/^02$/i);
+    expect(ex.dids[2].did).toBe(0xF1A9);
+    expect(ex.dids[2].decoded).toMatch(/^00$/i);
+    expect(ex.verdict).toMatch(/Multi-DID read \(3 DIDs\)/);
+    expect(ex.verdict).toMatch(/0xF19F/);
+    expect(ex.verdict).toMatch(/0xF1A6/);
+    expect(ex.verdict).toMatch(/0xF1A9/);
+  });
+
+  it('handles a mix of fixed-length and variable-length DIDs by scanning for the next DID id', () => {
+    // Request:  22 F190 F186 F1A6
+    //   F190 = VIN (17 bytes ASCII fixed)
+    //   F186 = Active Diagnostic Session (1 byte fixed)
+    //   F1A6 = Active Security Level (1 byte fixed)
+    // VIN bytes: "1C3CDZAG5KR123456" → 31 43 33 43 44 5A 41 47 35 4B 52 31 32 33 34 35 36
+    // Response total length: 1 (62) + 2+17 + 2+1 + 2+1 = 26 bytes → FF + 3 CFs.
+    //   FF : 10 1A 62 F1 90 31 43 33                  (PCI 0x101A, len=26, 6 data bytes)
+    //   CF1: 21 43 44 5A 41 47 35 4B                  (SN=1, 7 bytes)
+    //   CF2: 22 52 31 32 33 34 35 36                  (SN=2, 7 bytes)
+    //   CF3: 23 F1 86 03 F1 A6 02 CC                  (SN=3, 6 bytes + 1 padding)
+    const { exchanges } = analyze([
+      '(0.000) can0 7E0#0722F190F186F1A6',
+      '(0.010) can0 7E8#101A62F190314333',
+      '(0.020) can0 7E8#2143445A4147354B',
+      '(0.030) can0 7E8#2252313233343536',
+      '(0.040) can0 7E8#23F18603F1A602CC',
+    ]);
+    expect(exchanges).toHaveLength(1);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.dids).toHaveLength(3);
+    expect(ex.dids[0].did).toBe(0xF190);
+    expect(ex.dids[0].decoded).toBe('1C3CDZAG5KR123456');
+    expect(ex.dids[1].did).toBe(0xF186);
+    expect(ex.dids[2].did).toBe(0xF1A6);
+    expect(ex.verdict).toMatch(/1C3CDZAG5KR123456/);
+  });
+
+  it('falls back to raw hex labels per DID when alignment fails (no decoded values)', () => {
+    // Request three DIDs but respond with only two — splitter must reject and
+    // fall back to a labeled-but-undecoded list rather than misalign.
+    const { exchanges } = analyze([
+      '[Req] 22 F1 86 F1 A6 F1 A9',
+      '[Resp] 62 F1 86 03 F1 A6 02',
+    ]);
+    expect(exchanges).toHaveLength(1);
+    const ex = exchanges[0];
+    expect(ex.dids).toHaveLength(3);
+    expect(ex.dids.every(r => r.decoded === null)).toBe(true);
+    expect(ex.verdict).toMatch(/could not be split/i);
+  });
+
+  it('labels unknown DIDs by hex and decodes them as raw hex bytes', () => {
+    // Request:  22 F1 90 AB CD            (second DID is not in the catalog)
+    // Response: 62 F1 90 <17 VIN bytes> AB CD DE AD BE EF
+    // total 1 + 2+17 + 2+4 = 26 bytes → FF + CFs.
+    //   FF : 10 1A 62 F1 90 31 43 33
+    //   CF1: 21 43 44 5A 41 47 35 4B
+    //   CF2: 22 52 31 32 33 34 35 36
+    //   CF3: 23 AB CD DE AD BE EF CC
+    const { exchanges } = analyze([
+      '(0.000) can0 7E0#0522F190ABCDCCCC',
+      '(0.010) can0 7E8#101A62F190314333',
+      '(0.020) can0 7E8#2143445A4147354B',
+      '(0.030) can0 7E8#2252313233343536',
+      '(0.040) can0 7E8#23ABCDDEADBEEFCC',
+    ]);
+    expect(exchanges).toHaveLength(1);
+    const ex = exchanges[0];
+    expect(ex.dids).toHaveLength(2);
+    expect(ex.dids[0].did).toBe(0xF190);
+    expect(ex.dids[0].name).toMatch(/VIN/i);
+    expect(ex.dids[0].decoded).toBe('1C3CDZAG5KR123456');
+    expect(ex.dids[1].did).toBe(0xABCD);
+    expect(ex.dids[1].name).toBeNull();
+    expect(ex.dids[1].decoded).toMatch(/DE AD BE EF/);
+  });
+
+  it('keeps single-DID 0x22 reads working with one-element dids array', () => {
+    const { exchanges } = analyze([
+      '[Req] 22 F1 9F',
+      '[Resp] 62 F1 9F 03',
+    ]);
+    expect(exchanges).toHaveLength(1);
+    const ex = exchanges[0];
+    expect(ex.dids).toHaveLength(1);
+    expect(ex.dids[0].did).toBe(0xF19F);
+    expect(ex.did.did).toBe(0xF19F);
+    expect(ex.did.decoded).toBe('3');
+    expect(ex.verdict).not.toMatch(/Multi-DID/);
+  });
+
+  it('surfaces requested DID labels even when the multi-DID request gets an NRC', () => {
+    const { exchanges } = analyze([
+      '[Req] 22 F1 90 F1 86 F1 A6',
+      '[Resp] 7F 22 31',
+    ]);
+    expect(exchanges).toHaveLength(1);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('FAIL');
+    expect(ex.nrcCode).toBe(0x31);
+    expect(ex.dids).toHaveLength(3);
+    expect(ex.dids.map(r => r.did)).toEqual([0xF190, 0xF186, 0xF1A6]);
+  });
+});
+
 // ─── example_session.log fixture ─────────────────────────────────────────────
 
 describe('example_session.log fixture', () => {
