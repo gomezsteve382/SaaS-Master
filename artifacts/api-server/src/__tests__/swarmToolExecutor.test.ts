@@ -5,7 +5,12 @@ import {
   __test,
 } from "../routes/anthropic/investigationSwarm/toolExecutor";
 
-const { handleUdsStaticDecode, handlePatternLookup, handleKgQuery } = __test;
+const {
+  handleUdsStaticDecode,
+  handlePatternLookup,
+  handleKgQuery,
+  handleDecodeBcmFeature,
+} = __test;
 
 describe("uds_static_decode", () => {
   it("requires the bytes argument", () => {
@@ -140,6 +145,97 @@ describe("kg_query", () => {
     expect(Number(m![1])).toBeGreaterThan(0);
     expect(Number(m![2])).toBeGreaterThan(0);
     expect(out).not.toMatch(/WARNING: catalog data/);
+  });
+});
+
+describe("decode_bcm_feature", () => {
+  it("errors when called with no name and no did", async () => {
+    const out = await handleDecodeBcmFeature({}, Buffer.alloc(0));
+    expect(out).toMatch(/provide either `name` .* or `did`/);
+  });
+
+  it("returns NRC when the catalog matches but no BCM dump is loaded (0x2023)", async () => {
+    // DID 0x2023 rows live in BODY_PN_CONFIG (BCM proxi blob).
+    const out = await handleDecodeBcmFeature({ did: "2023" }, Buffer.alloc(0));
+    expect(out).toMatch(/NRC: no BCM dump loaded/);
+    expect(out).toMatch(/offset 0x2023/);
+  });
+
+  it("returns NRC when the loaded buffer is too small for DID 0x2023", async () => {
+    const tiny = Buffer.alloc(0x100); // way smaller than 0x2033
+    const out = await handleDecodeBcmFeature({ did: "2023" }, tiny);
+    expect(out).toMatch(/NRC: loaded buffer is only/);
+    expect(out).toMatch(/too small to contain DID 0x2023/);
+  });
+
+  it("returns NRC for a DEnn field when no `bytes` payload is supplied", async () => {
+    const out = await handleDecodeBcmFeature(
+      { did: "DE00", bit: 3, length: 7 }, // DRL Intensity
+      Buffer.alloc(0),
+    );
+    expect(out).toMatch(/NRC: DID DE00 is not in the BCM flash dump/);
+    expect(out).toMatch(/0x22 DE 00/);
+  });
+
+  it("decodes an OPTION-valued field by name (DE01 'Auto Lock Speed' = 15 mph)", async () => {
+    // bit=0, length=8 → first payload byte is the raw value.
+    // 15 == option "15 mph"
+    const out = await handleDecodeBcmFeature(
+      { name: "Auto Lock Speed", bytes: "0F" },
+      Buffer.alloc(0),
+    );
+    expect(out).toMatch(/DE01/);
+    expect(out).toMatch(/Auto Lock Speed/);
+    expect(out).toMatch(/value=15/);
+    expect(out).toMatch(/15 mph/);
+  });
+
+  it("strips a `62 DD DD` UDS positive-response header before decoding", async () => {
+    // Same field, but caller pastes the raw UDS response (62 DE 01 0F).
+    const out = await handleDecodeBcmFeature(
+      { did: "DE01", bit: 0, length: 8, bytes: "62 DE 01 0F" },
+      Buffer.alloc(0),
+    );
+    expect(out).toMatch(/value=15/);
+    expect(out).toMatch(/15 mph/);
+  });
+
+  it("decodes an INTEGER-valued field by did+bit+length (DE00 'DRL Intensity' = 42)", async () => {
+    // bit=3, length=7. Value 42 (0b0101010) packs as byte0=0x0A, byte1=0x80.
+    const out = await handleDecodeBcmFeature(
+      { did: "DE00", bit: 3, length: 7, bytes: "0A 80" },
+      Buffer.alloc(0),
+    );
+    expect(out).toMatch(/DE00/);
+    expect(out).toMatch(/DRL Intensity/);
+    expect(out).toMatch(/value=42/);
+    expect(out).toMatch(/\(integer\)/);
+  });
+
+  it("returns NRC when the supplied payload is too short for the field", async () => {
+    // DE00 bit=66 length=1 needs ≥ 9 bytes; supply only 1.
+    const out = await handleDecodeBcmFeature(
+      { did: "DE00", bit: 66, length: 1, bytes: "00" },
+      Buffer.alloc(0),
+    );
+    expect(out).toMatch(/NRC: 1-byte payload too short/);
+  });
+
+  it("lists candidates when a name matches too many rows to decode at once", async () => {
+    // "Mode" appears in many DEnn rows across multiple DIDs.
+    const out = await handleDecodeBcmFeature({ name: "mode" }, Buffer.alloc(0));
+    expect(out).toMatch(/Ambiguous: \d+ catalog rows matched/);
+    expect(out).toMatch(/Narrow with `did`/);
+  });
+
+  it("returns a no-match NRC for a feature name that doesn't exist", async () => {
+    const out = await handleDecodeBcmFeature(
+      { name: "definitely-not-a-real-bcm-feature-zzz" },
+      Buffer.alloc(0),
+    );
+    expect(out).toMatch(/NRC: no catalog match/);
+    expect(out).toMatch(/DEnn rows/);
+    expect(out).toMatch(/BODY_PN \(0x2023\) rows/);
   });
 });
 

@@ -160,7 +160,7 @@ describe("Agent definitions", () => {
   });
 
   it("each agent's allowedTools exist in TOOL_REGISTRY or swarm-only tools", async () => {
-    const swarmOnly = ["uds_static_decode", "pattern_lookup", "kg_query"];
+    const swarmOnly = ["uds_static_decode", "pattern_lookup", "kg_query", "decode_bcm_feature"];
     for (const [agentId, def] of Object.entries(AGENT_DEFS)) {
       for (const tool of def.allowedTools) {
         const exists =

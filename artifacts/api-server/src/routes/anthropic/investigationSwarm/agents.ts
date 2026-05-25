@@ -23,6 +23,7 @@ export const READ_ONLY_TOOLS = [
   "uds_static_decode",
   "pattern_lookup",
   "kg_query",
+  "decode_bcm_feature",
 ] as const;
 
 export type ReadOnlyTool = (typeof READ_ONLY_TOOLS)[number];
@@ -156,7 +157,7 @@ ${COMMON_GUARDRAILS}`,
   CROSS_REF: {
     id: "CROSS_REF",
     label: "Cross-Ref Agent",
-    allowedTools: ["kg_query", "pattern_lookup", "eeprom_layout_scan"],
+    allowedTools: ["kg_query", "pattern_lookup", "eeprom_layout_scan", "decode_bcm_feature"],
     maxIterations: 6,
     systemPrompt: `You are CROSS_REF, a forensic specialist agent for FCA/Stellantis ECU dumps.
 Your mission: cross-reference findings against the SRT Lab pattern library and knowledge graph
