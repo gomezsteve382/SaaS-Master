@@ -2,6 +2,7 @@ import React, {useState, useCallback, useMemo, useRef, useEffect} from "react";
 import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import IdentityCard from '../components/IdentityCard.jsx';
+import DumpDropZone, {DumpDropArea} from '../components/DumpDropZone.jsx';
 import {parseModule,moduleTooSmall,MODULE_MIN_SIZES} from '../lib/parseModule.js';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
 import {decodeNRC} from '../lib/nrc.js';
@@ -463,13 +464,11 @@ export default function AdcmTab(){
       </Btn>
     </Card>
 
-    <Card style={{marginBottom:14}}>
+    <DumpDropArea onFile={onInspectFile} accent={C.a3} hint="⬇ Drop ADCM .bin anywhere on this card" style={{marginBottom:14}}>
+    <Card>
       <div style={{fontWeight:800,fontSize:11,color:C.sr,marginBottom:10,letterSpacing:2}}>🔍 ADCM DUMP INSPECTOR</div>
       <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
-        <label style={{padding:'10px 16px',borderRadius:10,border:'2px dashed '+C.a3+'40',background:C.c2,cursor:'pointer',fontSize:12,fontWeight:800,color:C.a3}}>
-          📂 Load ADCM .bin
-          <input type="file" accept=".bin,.BIN" hidden onChange={e=>e.target.files[0]&&onInspectFile(e.target.files[0])}/>
-        </label>
+        <DumpDropZone onFile={onInspectFile} accent={C.a3} label="📂 Load ADCM .bin (or drop here)"/>
         {adcmDumps.length>1&&<select value={inspectEntry?.hash||''} onChange={e=>setInspectHash(e.target.value)}
           style={{padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:11}}>
           {adcmDumps.map(d=><option key={d.hash} value={d.hash}>{d.filename}</option>)}
@@ -494,6 +493,7 @@ export default function AdcmTab(){
         <IdentityCard bytes={adcmInspectMod.data}/>
       </div>}
     </Card>
+    </DumpDropArea>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
