@@ -46,7 +46,11 @@ app.use(
     credentials: true,
   }),
 );
-app.use(express.json());
+/* Task #694 — raise the JSON body limit so the AI assistant's tool-use
+ * endpoint can accept loaded module binaries (a 128KB BCM dump base64s
+ * to ~170KB, and the multi-binary payload bundles several modules). The
+ * old ~100KB default rejected real bench dumps with a 413. */
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);

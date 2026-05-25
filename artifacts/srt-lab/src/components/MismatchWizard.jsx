@@ -485,6 +485,7 @@ function useChatStream(sessionKey) {
   const [resumed, setResumed] = useState(false); /* true ⇢ we loaded a prior chat */
   const abortRef = useRef(null);
   const contextRef = useRef(null);
+  const binaryRef = useRef(null);  /* { binaryBase64?, binaries? } — Task #694 */
   const messagesRef = useRef([]);
   const convIdRef = useRef(null);
 
@@ -493,6 +494,14 @@ function useChatStream(sessionKey) {
 
   const updateContext = useCallback((ctx) => {
     contextRef.current = ctx;
+  }, []);
+
+  /* Task #694 — optional: callers can hand in the actual loaded binary
+   * bytes (base64) so the assistant can call read_hex / extract_strings /
+   * etc. against the real file. When `binaryBase64` is present, sendMessage
+   * targets the tool-use SSE endpoint instead of the plain text endpoint. */
+  const updateBinaryData = useCallback((data) => {
+    binaryRef.current = data || null;
   }, []);
 
   /* Manually re-run the hydrate effect against the same saved pointer.
@@ -536,7 +545,30 @@ function useChatStream(sessionKey) {
         const data = await res.json();
         if (cancelled) return;
         setConversationId(data.id);
-        setMessages((data.messages || []).map(m => ({ role: m.role, content: m.content })));
+        /* Task #694 — also rehydrate persisted tool traces so a resumed
+         * session shows the same "🔧 N tool calls" disclosure that was
+         * rendered live during the original conversation. The server
+         * returns each persisted entry as { toolName, args, resultPreview,
+         * bytesReturned, durationMs }; the disclosure expects the live
+         * shape { toolName, args, status, result, bytesReturned,
+         * durationMs }, so we normalize here. */
+        setMessages((data.messages || []).map(m => ({
+          role: m.role,
+          content: m.content,
+          ...(Array.isArray(m.toolTrace) && m.toolTrace.length > 0
+            ? {
+                toolTrace: m.toolTrace.map((t, i) => ({
+                  id: `hydrated-${m.id}-${i}`,
+                  toolName: t.toolName,
+                  args: t.args,
+                  status: 'done',
+                  result: t.result ?? t.resultPreview ?? '',
+                  bytesReturned: t.bytesReturned ?? 0,
+                  durationMs: t.durationMs ?? 0,
+                })),
+              }
+            : {}),
+        })));
         /* Hydrated successfully from a saved pointer ⇢ this is a resumed chat,
          * even if the prior session had no messages yet. */
         setResumed(true);
@@ -558,11 +590,17 @@ function useChatStream(sessionKey) {
   const sendMessage = useCallback(async (userText) => {
     if (streaming) return;
 
-    /* Optimistic UI */
+    /* Optimistic UI — assistant placeholder gets a toolTrace array attached
+     * so we can append tool_call/tool_result events as they stream in. */
     const userMsg = { role: 'user', content: userText };
-    setMessages(prev => [...prev, userMsg, { role: 'assistant', content: '' }]);
+    setMessages(prev => [...prev, userMsg, { role: 'assistant', content: '', toolTrace: [] }]);
     setStreaming(true);
     setError(null);
+
+    /* Task #694 — when caller has supplied loaded binary bytes, target the
+     * tool-use SSE endpoint so the assistant can actually inspect the file. */
+    const binaryData = binaryRef.current;
+    const useTools = !!(binaryData && binaryData.binaryBase64);
 
     try {
       /* Lazily create the server conversation on first send. */
@@ -584,13 +622,26 @@ function useChatStream(sessionKey) {
       const controller = new AbortController();
       abortRef.current = controller;
 
-      const res = await fetch(`${API_BASE}/anthropic/conversations/${convId}/messages`, {
+      const endpoint = useTools
+        ? `${API_BASE}/anthropic/conversations/${convId}/tool-messages`
+        : `${API_BASE}/anthropic/conversations/${convId}/messages`;
+
+      const body = useTools
+        ? {
+            content: userText,
+            moduleContext: contextRef.current || undefined,
+            binaryBase64: binaryData.binaryBase64,
+            binaries: binaryData.binaries || undefined,
+          }
+        : {
+            content: userText,
+            moduleContext: contextRef.current || undefined,
+          };
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: userText,
-          moduleContext: contextRef.current || undefined,
-        }),
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
 
@@ -622,13 +673,46 @@ function useChatStream(sessionKey) {
            * empty assistant placeholder is rolled back and the user sees
            * the failure instead of a silent dead reply. */
           if (parsed.error) throw new Error(parsed.error);
-          if (parsed.content) {
+          /* Tool-use endpoint frames (Task #694):
+           *   type=text          → streaming text delta (same as plain content)
+           *   type=tool_call     → assistant is calling a tool
+           *   type=tool_result   → result returned for a tool call
+           *   type=done          → final marker (may carry full toolTrace)
+           * Plain-text endpoint frames just use `content`. Both flow through here. */
+          const isText = parsed.content || parsed.type === 'text';
+          const textDelta = parsed.type === 'text' ? parsed.content : parsed.content;
+          if (isText && textDelta) {
             setMessages(prev => {
               const updated = [...prev];
               updated[updated.length - 1] = {
                 ...updated[updated.length - 1],
-                content: updated[updated.length - 1].content + parsed.content,
+                content: updated[updated.length - 1].content + textDelta,
               };
+              return updated;
+            });
+          } else if (parsed.type === 'tool_call') {
+            setMessages(prev => {
+              const updated = [...prev];
+              const last = updated[updated.length - 1];
+              const trace = [...(last.toolTrace || []), {
+                id: parsed.id,
+                toolName: parsed.toolName,
+                args: parsed.args,
+                status: 'running',
+              }];
+              updated[updated.length - 1] = { ...last, toolTrace: trace };
+              return updated;
+            });
+          } else if (parsed.type === 'tool_result') {
+            setMessages(prev => {
+              const updated = [...prev];
+              const last = updated[updated.length - 1];
+              const trace = (last.toolTrace || []).map(t =>
+                t.id === parsed.id
+                  ? { ...t, status: 'done', result: parsed.result, durationMs: parsed.durationMs, bytesReturned: parsed.bytesReturned }
+                  : t
+              );
+              updated[updated.length - 1] = { ...last, toolTrace: trace };
               return updated;
             });
           }
@@ -670,7 +754,14 @@ function useChatStream(sessionKey) {
       const data = await res.json();
       setConversationId(data.id);
       convIdRef.current = data.id;
-      setMessages((data.messages || []).map(m => ({ role: m.role, content: m.content })));
+      /* Task #694 — also rehydrate persisted tool traces so a resumed
+       * session shows the same "🔧 N tool calls" disclosure that was
+       * rendered live during the original conversation. */
+      setMessages((data.messages || []).map(m => ({
+        role: m.role,
+        content: m.content,
+        ...(Array.isArray(m.toolTrace) && m.toolTrace.length > 0 ? { toolTrace: m.toolTrace } : {}),
+      })));
       setResumed(true);
       try { localStorage.setItem(LAST_CONV_KEY(sessionKey), String(data.id)); } catch {}
     } catch (e) {
@@ -697,16 +788,16 @@ function useChatStream(sessionKey) {
 
   return {
     messages, streaming, error, hydrateError, conversationId, hydrated, resumed,
-    sendMessage, updateContext, retryHydrate,
+    sendMessage, updateContext, updateBinaryData, retryHydrate,
     startNewSession, switchToSession, listSessions, deleteSession,
   };
 }
 
 /* ─── Chat Panel ─── */
-function ChatPanel({ moduleContext, autoGreet, sessionKey }) {
+function ChatPanel({ moduleContext, autoGreet, sessionKey, binaryData }) {
   const {
     messages, streaming, error, hydrateError, conversationId, hydrated, resumed,
-    sendMessage, updateContext, retryHydrate,
+    sendMessage, updateContext, updateBinaryData, retryHydrate,
     startNewSession, switchToSession, listSessions, deleteSession,
   } = useChatStream(sessionKey);
   const [input, setInput] = useState('');
@@ -732,6 +823,12 @@ function ChatPanel({ moduleContext, autoGreet, sessionKey }) {
   useEffect(() => {
     updateContext(moduleContext);
   }, [moduleContext, updateContext]);
+
+  /* Task #694 — feed loaded binary bytes into the chat hook so the assistant
+   * can call read_hex / extract_strings / etc. against the actual file. */
+  useEffect(() => {
+    updateBinaryData(binaryData);
+  }, [binaryData, updateBinaryData]);
 
   /* Auto-brief on first open of a brand-new session (only if hydration
    * found nothing). Don't re-greet a resumed conversation. */
@@ -978,16 +1075,21 @@ function ChatPanel({ moduleContext, autoGreet, sessionKey }) {
                   background: msg.role === 'user' ? W.a3 + '30' : W.a2 + '30',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>{msg.role === 'user' ? '👤' : '🤖'}</div>
-                <div style={{
-                  maxWidth: '80%', padding: '8px 12px', borderRadius: 10,
-                  background: msg.role === 'user' ? W.a3 + '18' : W.s3,
-                  border: `1px solid ${msg.role === 'user' ? W.a3 + '30' : W.bd}`,
-                  fontSize: 12, color: W.tx, lineHeight: 1.6,
-                  fontFamily: W.sans, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-                }}>
-                  {msg.content || (streaming && i === messages.length - 1
-                    ? <span style={{ opacity: 0.5, fontFamily: W.mono }}>▌</span>
-                    : null)}
+                <div style={{ maxWidth: '80%', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{
+                    padding: '8px 12px', borderRadius: 10,
+                    background: msg.role === 'user' ? W.a3 + '18' : W.s3,
+                    border: `1px solid ${msg.role === 'user' ? W.a3 + '30' : W.bd}`,
+                    fontSize: 12, color: W.tx, lineHeight: 1.6,
+                    fontFamily: W.sans, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                  }}>
+                    {msg.content || (streaming && i === messages.length - 1
+                      ? <span style={{ opacity: 0.5, fontFamily: W.mono }}>▌</span>
+                      : null)}
+                  </div>
+                  {msg.role === 'assistant' && msg.toolTrace && msg.toolTrace.length > 0 && (
+                    <ToolTraceDisclosure trace={msg.toolTrace} />
+                  )}
                 </div>
               </div>
             ))}
@@ -1023,6 +1125,69 @@ function ChatPanel({ moduleContext, autoGreet, sessionKey }) {
             </button>
           </div>
         </>
+      )}
+    </div>
+  );
+}
+
+/* ─── Tool-use trace disclosure (Task #694) ────────────────────────────── *
+ * Surfaces every read_hex / extract_strings / parse_module / hex_diff call
+ * the assistant made while drafting this reply, with their args, byte size,
+ * latency, and a short result preview. Collapsed by default — operators who
+ * trust the assistant don't see it; operators who want to audit it can. */
+function ToolTraceDisclosure({ trace }) {
+  const [open, setOpen] = useState(false);
+  const runningCount = trace.filter(t => t.status === 'running').length;
+  const doneCount = trace.filter(t => t.status === 'done').length;
+  const totalBytes = trace.reduce((sum, t) => sum + (t.bytesReturned || 0), 0);
+
+  return (
+    <div style={{
+      fontFamily: W.mono, fontSize: 10, color: W.ts,
+      background: W.s2, border: `1px solid ${W.bd}`, borderRadius: 8,
+      overflow: 'hidden',
+    }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', textAlign: 'left', background: 'transparent', border: 'none',
+          padding: '6px 10px', color: W.ts, cursor: 'pointer', fontFamily: W.mono,
+          fontSize: 10, display: 'flex', alignItems: 'center', gap: 6,
+        }}
+      >
+        <span>{open ? '▼' : '▶'}</span>
+        <span style={{ color: W.a2, fontWeight: 700 }}>🔧 {trace.length} tool call{trace.length === 1 ? '' : 's'}</span>
+        <span style={{ opacity: 0.6 }}>
+          {runningCount > 0 ? `(${runningCount} running, ${doneCount} done)` : `(${totalBytes.toLocaleString()} bytes)`}
+        </span>
+      </button>
+      {open && (
+        <div style={{ padding: '6px 10px 8px 10px', borderTop: `1px solid ${W.bd}`, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {trace.map((t, idx) => (
+            <div key={t.id || idx} style={{ borderLeft: `2px solid ${t.status === 'done' ? W.a2 : W.wn}`, paddingLeft: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
+                <span style={{ color: W.tx, fontWeight: 700 }}>{t.toolName}</span>
+                <span style={{ opacity: 0.6 }}>
+                  {t.status === 'done'
+                    ? `${t.durationMs}ms · ${(t.bytesReturned || 0).toLocaleString()}B`
+                    : '…'}
+                </span>
+              </div>
+              {t.args && (
+                <div style={{ opacity: 0.7, marginTop: 2, wordBreak: 'break-all' }}>
+                  args: {typeof t.args === 'string' ? t.args : JSON.stringify(t.args)}
+                </div>
+              )}
+              {t.result && (
+                <pre style={{
+                  margin: '4px 0 0 0', padding: '4px 6px', background: W.s3,
+                  borderRadius: 4, fontSize: 9, color: W.tx, whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-all', maxHeight: 140, overflow: 'auto',
+                }}>{t.result}</pre>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
@@ -1795,6 +1960,10 @@ export default function MismatchWizard({
    * parseModule). Used to render the same source chip / virgin explainer
    * shown in KeyProgTab next to BCM SEC16 hex rows in the wizard. */
   bcmSec16Status = null,
+  /* Task #694 — raw bytes per module ({ BCM: Uint8Array, RFH: Uint8Array, ... }).
+   * When supplied, the AI chat panel will base64-encode them and call the
+   * tool-use endpoint instead of the plain-text one. */
+  moduleBytes = null,
 }) {
   const [phase, setPhase] = useState('summary');
   const [currentStep, setCurrentStep] = useState(0);
@@ -1836,6 +2005,24 @@ export default function MismatchWizard({
       remainingSteps: steps.filter(s => !doneSteps.has(s.id) && !skippedSteps.has(s.id)).map(s => s.title),
     },
   }), [modules, issues, warnings, hexSnippets, phase, currentStep, steps, doneSteps, skippedSteps]);
+
+  /* Task #694 — build the {binaryBase64, binaries} payload for the chat
+   * panel from the raw module bytes the caller passed in. Pick the first
+   * available module as "primary" (the implicit binary for tools that
+   * don't specify binaryName) and expose every loaded module by name. */
+  const chatBinaryData = useMemo(() => {
+    if (!moduleBytes) return null;
+    const entries = Object.entries(moduleBytes).filter(([, b]) => b && b.length > 0);
+    if (entries.length === 0) return null;
+    const toB64 = (bytes) => {
+      let s = '';
+      for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+      return typeof btoa === 'function' ? btoa(s) : Buffer.from(s, 'binary').toString('base64');
+    };
+    const binaries = {};
+    for (const [name, bytes] of entries) binaries[name] = toB64(bytes);
+    return { binaryBase64: binaries[entries[0][0]], binaries };
+  }, [moduleBytes]);
 
   const autoGreet = issues.length > 0
     ? `I'm diagnosing modules: ${modules.join(', ')}. Found ${issues.length} issue(s): ${issues.slice(0, 2).join('; ')}${issues.length > 2 ? ` and ${issues.length - 2} more` : ''}. Please summarize what's wrong and what I should do first.`
@@ -2010,7 +2197,7 @@ export default function MismatchWizard({
           {/* Claude chat — Advanced mode only */}
           {advanced && (
             <div style={{ flexShrink: 0, padding: '10px 20px 16px 20px' }}>
-              <ChatPanel moduleContext={moduleContext} autoGreet={autoGreet} sessionKey={sessionKey} />
+              <ChatPanel moduleContext={moduleContext} autoGreet={autoGreet} sessionKey={sessionKey} binaryData={chatBinaryData} />
             </div>
           )}
         </div>

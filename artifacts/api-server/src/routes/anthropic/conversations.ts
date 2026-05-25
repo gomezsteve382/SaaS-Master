@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { conversations, messages } from "@workspace/db";
+import { conversations, messages, conversationToolCalls } from "@workspace/db";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { eq, asc, desc } from "drizzle-orm";
 import {
@@ -59,7 +59,36 @@ router.get("/conversations/:id", async (req, res) => {
     .from(messages)
     .where(eq(messages.conversationId, id))
     .orderBy(asc(messages.createdAt));
-  res.json({ ...conv, messages: msgs });
+
+  /* Task #694 — join persisted tool traces grouped by messageId so a
+   * resumed conversation shows the same per-message tool-call disclosure
+   * that streamed live. Tool calls without a messageId (orphans from
+   * mid-stream failures) are dropped. */
+  const toolCalls = await db
+    .select()
+    .from(conversationToolCalls)
+    .where(eq(conversationToolCalls.conversationId, id))
+    .orderBy(asc(conversationToolCalls.createdAt));
+  const tracesByMessageId = new Map<number, Array<Record<string, unknown>>>();
+  for (const tc of toolCalls) {
+    if (tc.messageId == null) continue;
+    let bucket = tracesByMessageId.get(tc.messageId);
+    if (!bucket) { bucket = []; tracesByMessageId.set(tc.messageId, bucket); }
+    let parsedArgs: unknown = {};
+    try { parsedArgs = JSON.parse(tc.toolArgs); } catch { parsedArgs = { raw: tc.toolArgs }; }
+    bucket.push({
+      toolName: tc.toolName,
+      args: parsedArgs,
+      resultPreview: tc.resultPreview,
+      bytesReturned: tc.bytesReturned,
+      durationMs: tc.durationMs,
+    });
+  }
+  const msgsWithTraces = msgs.map((m) => {
+    const trace = tracesByMessageId.get(m.id);
+    return trace && trace.length > 0 ? { ...m, toolTrace: trace } : m;
+  });
+  res.json({ ...conv, messages: msgsWithTraces });
 });
 
 /* DELETE /anthropic/conversations/:id */

@@ -3426,6 +3426,17 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           warnings={wizardWarnings}
           modules={wizardModules}
           hexSnippets={wizardHexSnippets}
+          /* Task #694 — feed loaded raw bytes into the AI assistant so it
+           * can call read_hex / extract_strings / parse_module against
+           * the actual file content. Only modules with bytes loaded are
+           * included; the wizard converts to base64 before sending. */
+          moduleBytes={(() => {
+            const out = {};
+            if (bcm?.bytes) out.BCM = bcm.bytes;
+            if (rfh?.bytes) out.RFH = rfh.bytes;
+            if (pcm?.bytes) out.PCM = pcm.bytes;
+            return out;
+          })()}
           bcmSec16Status={bcm.parsed?.bcmSec16 || null}
           onClose={() => setWizardOpen(false)}
           onAction={(actionId, _stepId, opts) => {
