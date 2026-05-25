@@ -572,18 +572,17 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
       const r1 = writeBcmSec16Gen2(bcm.data, rfhSec16);
       const bcmSec16BE = new Uint8Array(16);
       for (let i = 0; i < 16; i++) bcmSec16BE[i] = rfhSec16[15 - i];
-      // Skip the flat 0x40C9 LE writer when mirror1 sits at 0x40C0 — its
-      // SEC16 payload occupies bytes 0x40C9..0x40D8 directly, and writing
-      // the LE-reversed copy on top would clobber the freshly-written mirror.
-      const skipFlat = r1.mirror1Offset === 0x40C0;
-      bcmPatched = skipFlat ? r1.bytes : writeBcmFlatSec16(r1.bytes, bcmSec16BE).bytes;
+      // writeBcmFlatSec16 self-guards against an overlapping mirror1 at
+      // 0x40C0 (see securityBytes.js) — no caller-side skip needed.
+      const flat = writeBcmFlatSec16(r1.bytes, bcmSec16BE);
+      bcmPatched = flat.bytes;
       ok('BCM split records patched (0x81A0/C0/E0)',
         r1.splitPatched > 0 || r1.mirrorPatched > 0,
         r1.splitPatched + ' of 3');
       ok('BCM mirror records patched (CRC16/CCITT recomputed)', r1.mirrorPatched > 0,
         'm1=' + (r1.mirror1Offset != null ? '0x' + r1.mirror1Offset.toString(16).toUpperCase() : 'none')
         + ' m2=' + (r1.mirror2Offset != null ? '0x' + r1.mirror2Offset.toString(16).toUpperCase() : 'none'));
-      ok('BCM legacy flat 0x40C9 (LE) ' + (skipFlat ? 'covered by mirror1 (skipped)' : 'repaired'), true);
+      ok('BCM legacy flat 0x40C9 (LE) ' + (flat.skipped ? 'covered by mirror1 (skipped)' : 'repaired'), true);
     } catch (e) {
       return { ok: false, direction, checks: [...checks, { label: 'BCM SEC16 writer threw', pass: false, detail: String(e?.message || e) }], files: [] };
     }

@@ -585,26 +585,35 @@ describe('Writer round-trips', () => {
   });
 
   describe('writeBcmFlatSec16 — write canonical SEC16 into flat 0x40C9 slice', () => {
-    it('flat slice after write = byte-reversed canonical SEC16', () => {
+    /* The SYNCED_BCM22 real-bench fixture has a mirror1 record header at
+     * 0x40C0, whose 16-byte SEC16 payload occupies exactly 0x40C9..0x40D8
+     * — the same slice the flat repair writer targets. Per Task #779 the
+     * writer self-guards against this overlap and skips the write so a
+     * chained `writeBcmSec16Gen2` → `writeBcmFlatSec16` run cannot
+     * silently clobber the mirror's freshly-written canonical SEC16. */
+    it('skips write on SYNCED_BCM22 (mirror1 at 0x40C0 overlaps flat slice)', () => {
       const sec16 = bcmSplitSec16(F.SYNCED_BCM22);
       const result = writeBcmFlatSec16(F.SYNCED_BCM22, sec16);
-      const flat = Array.from(result.bytes.slice(0x40C9, 0x40D9));
-      const expected = Array.from(sec16).reverse();
-      expect(flat).toEqual(expected);
+      expect(result.skipped).toBe(true);
+      expect(result.patched).toBe(0);
+      expect(result.skipReason).toMatch(/mirror1/);
     });
 
-    it('offset field reports 0x40C9', () => {
+    it('offset field still reports 0x40C9 even when skipped', () => {
       const sec16 = bcmSplitSec16(F.SYNCED_BCM22);
       const result = writeBcmFlatSec16(F.SYNCED_BCM22, sec16);
       expect(result.offset).toBe(0x40C9);
-      expect(result.patched).toBe(16);
     });
 
-    it('bytes outside 0x40C9..0x40D8 are untouched', () => {
+    it('returns input bytes verbatim when the overlap guard fires', () => {
       const sec16 = bcmSplitSec16(F.SYNCED_BCM22);
       const result = writeBcmFlatSec16(F.SYNCED_BCM22, sec16);
-      expect(result.bytes[0x40C8]).toBe(F.SYNCED_BCM22[0x40C8]);
-      expect(result.bytes[0x40D9]).toBe(F.SYNCED_BCM22[0x40D9]);
+      // Every byte — including the flat slice itself — is unchanged.
+      for (let i = 0; i < F.SYNCED_BCM22.length; i++) {
+        if (result.bytes[i] !== F.SYNCED_BCM22[i]) {
+          throw new Error('Buffer mutated at 0x' + i.toString(16).toUpperCase());
+        }
+      }
     });
   });
 

@@ -148,4 +148,66 @@ describe('writeBcmFlatSec16 — flat 0x40C9 repair from resolved SEC16', () => {
     const tiny = new Uint8Array(0x4000).fill(0xFF);
     expect(() => writeBcmFlatSec16(tiny, SEC16)).toThrow(/too small/);
   });
+
+  /* Task #779 — on some older BCM dumps mirror1 (slot 0xEB, size 0x18)
+   * lands at 0x40C0, which puts its 16-byte SEC16 payload at exactly
+   * 0x40C9..0x40D8 — the same slice the flat repair writer targets.
+   * The writer must detect that header and skip the write so a chained
+   * "mirror writer then flat writer" run does not silently clobber the
+   * mirror's freshly-written canonical SEC16 with the reversed copy. */
+  describe('overlap guard — mirror1 at 0x40C0', () => {
+    /* Build a BCM with the mirror1 header sitting at 0x40C0 and the
+     * mirror's SEC16 payload already populated at 0x40C9..0x40D8. The
+     * resolved-canonical SEC16 (passed to the writer) is the BE form of
+     * that same payload, so the LE write — if it ran — would overwrite
+     * the payload with reverse(BE) = reverse(reverse(payload)) which
+     * differs from the payload whenever the SEC16 is not a palindrome. */
+    function makeOverlapFixtureBcm(payload16) {
+      const buf = new Uint8Array(65536).fill(0xFF);
+      buf[0x0002] = 0x09; buf[0x0003] = 0xFB;
+      buf[0x4002] = 0x09; buf[0x4003] = 0xFA;
+      // Mirror1 record header at 0x40C0: 00 00 00 18 00 46 EB 00
+      const m1 = 0x40C0;
+      buf[m1] = 0x00; buf[m1 + 1] = 0x00; buf[m1 + 2] = 0x00;
+      buf[m1 + 3] = 0x18; buf[m1 + 4] = 0x00; buf[m1 + 5] = 0x46;
+      buf[m1 + 6] = 0xEB; buf[m1 + 7] = 0x00; buf[m1 + 8] = 0x02;
+      // SEC16 payload occupies 0x40C9..0x40D8
+      for (let k = 0; k < 16; k++) buf[m1 + 9 + k] = payload16[k];
+      buf[m1 + 25] = 0x8F; buf[m1 + 26] = 0xFF; buf[m1 + 27] = 0xFF;
+      // CRC bytes + EB 00 footer at m1+28..m1+31 — left as written above (0xFF)
+      return { buf, mirror1Off: m1 };
+    }
+
+    it('skips the write when mirror1 sits at 0x40C0 — mirror payload untouched', () => {
+      // Non-palindrome SEC16 so reverse() ≠ payload
+      const payload = hexToBytes('00112233445566778899AABBCCDDEEFF');
+      // The mirror's payload is the canonical (BE) SEC16 in this fixture,
+      // so the caller would hand the same bytes back as `resolvedSec16`.
+      const resolvedBE = payload;
+      const { buf, mirror1Off } = makeOverlapFixtureBcm(payload);
+
+      const r = writeBcmFlatSec16(buf, resolvedBE);
+
+      expect(r.skipped).toBe(true);
+      expect(r.patched).toBe(0);
+      expect(r.skipReason).toMatch(/mirror1/);
+      // The 16 mirror-payload bytes at 0x40C9..0x40D8 must equal the
+      // original payload, NOT the reversed (LE) copy.
+      expect(hex(r.bytes.slice(0x40C9, 0x40D9))).toBe(hex(payload));
+      // And the mirror1 record as a whole is byte-identical.
+      expect(hex(r.bytes.slice(mirror1Off, mirror1Off + 32)))
+        .toBe(hex(buf.slice(mirror1Off, mirror1Off + 32)));
+    });
+
+    it('still writes when no mirror1 header is present at 0x40C0', () => {
+      // Standard fixture has mirror1 at 0x4200, so 0x40C0 carries no header
+      const { buf } = makeFixtureBcm(SEC16);
+      const r = writeBcmFlatSec16(buf, SEC16);
+      expect(r.skipped).toBe(false);
+      expect(r.patched).toBe(16);
+      const expectedLe = new Uint8Array(16);
+      for (let i = 0; i < 16; i++) expectedLe[i] = SEC16[15 - i];
+      expect(hex(r.bytes.slice(0x40C9, 0x40D9))).toBe(hex(expectedLe));
+    });
+  });
 });

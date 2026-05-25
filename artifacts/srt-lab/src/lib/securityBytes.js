@@ -171,11 +171,40 @@ export function writeBcmFlatSec16(bytes, resolvedSec16) {
   const out = new Uint8Array(bytes);
   const le = new Uint8Array(16);
   for (let i = 0; i < 16; i++) le[i] = resolvedSec16[15 - i];
+
+  /* Overlap guard — on some older BCM dumps a mirror1 record (slot 0xEB,
+   * size 0x18) lands at 0x40C0, which puts its 16-byte SEC16 payload at
+   * exactly 0x40C9..0x40D8 — the legacy flat slice this writer targets.
+   * Writing the LE-reversed copy on top would silently clobber the
+   * mirror's freshly-written canonical SEC16. Detect the mirror1 header
+   * `00 00 00 18 00 46 EB 00` at 0x40C0 and skip the write so every
+   * call site is safe by construction (no caller-side guard required). */
+  const mirror1OverlapsFlat = (
+    out.length >= 0x40C8 &&
+    out[0x40C0] === 0x00 && out[0x40C1] === 0x00 && out[0x40C2] === 0x00 &&
+    out[0x40C3] === 0x18 && out[0x40C4] === 0x00 && out[0x40C5] === 0x46 &&
+    out[0x40C6] === 0xEB && out[0x40C7] === 0x00
+  );
+
+  if (mirror1OverlapsFlat) {
+    return {
+      bytes: out,
+      offset: 0x40C9,
+      patched: 0,
+      skipped: true,
+      skipReason: 'mirror1 at 0x40C0 overlaps flat 0x40C9 slice',
+      sec16Hex: hexStr(resolvedSec16),
+      leHex: hexStr(le),
+    };
+  }
+
   for (let i = 0; i < 16; i++) out[0x40C9 + i] = le[i];
   return {
     bytes: out,
     offset: 0x40C9,
     patched: 16,
+    skipped: false,
+    skipReason: null,
     sec16Hex: hexStr(resolvedSec16),
     leHex: hexStr(le),
   };
