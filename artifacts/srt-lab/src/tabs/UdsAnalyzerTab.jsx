@@ -234,10 +234,23 @@ export default function UdsAnalyzerTab() {
     e.target.value = '';
   }, [analyze]);
 
-  const handlePaste = useCallback((e) => {
+  const handleChange = useCallback((e) => {
     const t = e.target.value;
     setText(t);
   }, []);
+
+  const handlePaste = useCallback((e) => {
+    const pasted = e.clipboardData?.getData('text') ?? '';
+    if (!pasted) return;
+    const el = e.target;
+    const start = el.selectionStart ?? text.length;
+    const end = el.selectionEnd ?? text.length;
+    const next = text.slice(0, start) + pasted + text.slice(end);
+    e.preventDefault();
+    setText(next);
+    setFileName('pasted trace');
+    analyze(next);
+  }, [text, analyze]);
 
   const handleAnalyze = useCallback(() => analyze(text), [analyze, text]);
   const handleClear = useCallback(() => { setText(''); setFileName(''); setResult(null); setFilterSev('ALL'); setFilterText(''); }, []);
@@ -328,8 +341,9 @@ export default function UdsAnalyzerTab() {
         <textarea
           data-testid="uds-analyzer-paste"
           value={text}
-          onChange={handlePaste}
-          placeholder={`Paste a UDS trace here, or open a file — supports:\n  • candump: (0.000) can0 7E0#0322F190CC\n  • TX/RX:   [0.050] TX 7E0 22 F1 90\n  • Req/Resp: [Req] 10 03  /  [Resp] 50 03 00 19 01 F4\n  • Bare hex: 10 03  /  50 03 00 19 01 F4`}
+          onChange={handleChange}
+          onPaste={handlePaste}
+          placeholder={`Paste a UDS trace here (auto-analyzes on paste) or open a file — supports:\n  • candump: (0.000) can0 7E0#0322F190CC\n  • TX/RX:   [0.050] TX 7E0 22 F1 90\n  • Req/Resp: [Req] 10 03  /  [Resp] 50 03 00 19 01 F4\n  • Bare hex: 10 03  /  50 03 00 19 01 F4`}
           style={{
             width: '100%',
             height: 120,
