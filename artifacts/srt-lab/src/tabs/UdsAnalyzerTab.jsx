@@ -116,7 +116,41 @@ function ExchangeRow({ ex, idx }) {
               <code style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: ex.nrcCode ? C.er : C.gn }}>{ex.responseBytes}</code>
             </div>
           )}
-          {ex.did && (
+          {ex.dids && ex.dids.length >= 2 ? (
+            <div style={{ marginTop: 6, marginBottom: 4 }}>
+              <div style={{ fontSize: 9, color: C.tm, fontWeight: 800, letterSpacing: 1, marginBottom: 4 }}>
+                {ex.dids.length} DIDs IN THIS EXCHANGE
+              </div>
+              {ex.dids.map((row, i) => (
+                <div key={i} style={{
+                  padding: '6px 8px',
+                  background: `${C.a4}10`,
+                  borderLeft: `2px solid ${C.a4}`,
+                  borderRadius: 4,
+                  marginBottom: 4,
+                }}>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', flexWrap: 'wrap' }}>
+                    <code style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.a4, fontWeight: 700 }}>{row.label}</code>
+                    <span style={{ color: C.tx, fontWeight: 600 }}>
+                      {row.name || 'Unknown DID (no catalog entry)'}
+                    </span>
+                  </div>
+                  {row.decoded != null && (
+                    <div style={{ marginTop: 4, display: 'flex', gap: 6, alignItems: 'baseline' }}>
+                      <span style={{ color: C.tm, fontWeight: 700, fontSize: 10 }}>DECODED:</span>
+                      <code style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.gn, wordBreak: 'break-all' }}>{row.decoded}</code>
+                    </div>
+                  )}
+                  {row.bytes && (
+                    <div style={{ marginTop: 2, display: 'flex', gap: 6, alignItems: 'baseline' }}>
+                      <span style={{ color: C.tm, fontWeight: 700, fontSize: 10 }}>BYTES:</span>
+                      <code style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.ts, wordBreak: 'break-all' }}>{row.bytes}</code>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : ex.did && (
             <div style={{ marginTop: 6, marginBottom: 4, padding: '6px 8px', background: `${C.a4}10`, borderLeft: `2px solid ${C.a4}`, borderRadius: 4 }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', flexWrap: 'wrap' }}>
                 <span style={{ color: C.tm, fontWeight: 700 }}>DID:</span>

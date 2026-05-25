@@ -75,7 +75,7 @@ function getRequestedDids(reqBytes) {
   return dids;
 }
 
-function didRow(did, decoded) {
+function didRow(did, decoded, dataBytes) {
   const entry = didEntry(did);
   return {
     did,
@@ -83,6 +83,7 @@ function didRow(did, decoded) {
     name: entry ? entry.name : null,
     encoding: entry ? entry.encoding : null,
     decoded,
+    bytes: dataBytes ? fmtBytes(dataBytes) : null,
   };
 }
 
@@ -134,7 +135,7 @@ function splitMultiDidResponse(requestedDids, payload) {
     const data = payload.slice(offset, offset + dataLen);
     offset += dataLen;
     const decoded = data.length ? decodeDid(did, data) : '(empty)';
-    rows.push(didRow(did, decoded));
+    rows.push(didRow(did, decoded, data));
   }
   if (offset !== payload.length) return null;
   return rows;
