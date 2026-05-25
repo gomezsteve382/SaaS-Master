@@ -54,6 +54,7 @@ export const MODSYNC_ACTION_PARTICIPANTS = {
   'target-both':           ['BCM', 'RFHUB'],
   'bcm-sec16-to-rfh':      ['BCM', 'RFHUB'],
   'bcm-flat-from-resolved':['BCM'],
+  'bcm-flat-from-resolved-both':['BCM'],
   'sec16-only':            ['BCM', 'RFHUB', 'PCM'],
   'sync-all':              ['BCM', 'RFHUB', 'PCM'],
   'full-sync':             ['BCM', 'RFHUB', 'PCM'],
@@ -2306,6 +2307,12 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     && !flatRepairResolver.blank
     && flatRepairResolver.source
     && flatRepairResolver.source !== 'flat');
+  /* Task #800 — overlap = mirror1 record at 0x40C0 collides with the
+   * flat 0x40C9 slice, which is the only condition under which the
+   * canonical and legacy-flat outputs differ. The "Download both copies"
+   * action only makes sense on overlap dumps; otherwise the two outputs
+   * are byte-identical. */
+  const flatRepairOverlap = flatRepairResolver?.candidates?.mirror1?.offset === 0x40C0;
   const vinMatch  = bothReady && bcm.parsed.vin === rfh.parsed.vin;
 
   /* SEC16 sync eligibility */
@@ -2992,6 +2999,93 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           log('Legacy CGDI/Autel-style readers will now see the same SEC16 as the live split records.', 'ok');
         }
 
+      } else if (action === 'bcm-flat-from-resolved-both') {
+        /* Task #800 — one-click double emission. On overlap dumps the
+         * canonical and legacy-flat modes produce different bytes (canonical
+         * skips the LE write to preserve mirror1; legacy-flat forces it).
+         * The bench tech needs both copies: the canonical for modern tools
+         * + SRT Lab, and the LEGACYFLAT for CGDI / Autel / AlfaOBD /
+         * SINCRO. This branch runs both writers in a single click and
+         * downloads two files, labeling each in the session log.
+         *
+         * The UI gates the button on overlap-detected (otherwise both
+         * outputs are byte-identical and the second file adds no value).
+         * If this branch is invoked programmatically without overlap we
+         * still emit both files for symmetry and flag in the session log
+         * that the two downloads are byte-identical so the tech knows
+         * they can keep just one. */
+        const rs = resolveBcmSec16(bcm.bytes);
+        if (!rs || !rs.bytes || rs.blank) {
+          log('✗ BCM SEC16 is blank — nothing to copy into the legacy slice', 'err');
+          return null;
+        }
+        if (rs.source === 'flat') {
+          log('✗ Resolver picked the flat slice itself — split/mirror records are absent or virgin, refusing to copy garbage onto itself', 'err');
+          return null;
+        }
+        const oldFlat = Array.from(bcm.bytes.slice(0x40C9, 0x40D9))
+          .map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        const snapB = new Uint8Array(bcm.bytes);
+        setOriginals(prev => ({ ...prev, bcm: { bytes: snapB, filename: bcm.file?.name || 'BCM' } }));
+
+        const wrCanon = writeBcmFlatSec16(bcm.bytes, rs.bytes, { mode: 'canonical' });
+        const wrLegacy = writeBcmFlatSec16(bcm.bytes, rs.bytes, { mode: 'legacy-flat' });
+        const overlap = !!(wrCanon.mirror1Overlap || wrLegacy.mirror1Overlap);
+
+        log(`BCM flat 0x40C9 double-emit from resolver source '${rs.source}' @0x${hex4(rs.offset)}${overlap ? ' (overlap detected — two distinct files)' : ' (no overlap — both files identical)'}`, 'ok');
+        log(`  Resolved SEC16 (BE): ${wrCanon.sec16Hex.toUpperCase()}`, 'muted');
+
+        /* Copy #1 — CANONICAL: for modern tools + SRT Lab. */
+        void logSec16Sync({
+          vin: bcm.vin || null,
+          platform: bcm.vin ? classifyPlatform({ vin: bcm.vin }).platform : null,
+          actionId: 'flat-40c9-repair-both',
+          target: 'BCM',
+          verified: 'offline',
+          notes: `double-emit · canonical copy · resolver: ${rs.source} @0x${hex4(rs.offset)} · overlap: ${overlap ? 'yes' : 'no'}`,
+          detail: { oldFlatHex: oldFlat, newFlatHex: wrCanon.leHex.toUpperCase(), sec16Hex: wrCanon.sec16Hex.toUpperCase(), mode: 'canonical', mirror1Overlap: !!wrCanon.mirror1Overlap, skipped: !!wrCanon.skipped },
+        });
+        if (wrCanon.skipped) {
+          log(`  • CANONICAL copy: flat 0x40C9 write skipped to preserve mirror1 at 0x40C0 (overlap dump). For modern tools + SRT Lab — these read the mirror as BE.`, 'muted');
+        } else {
+          log(`  • CANONICAL copy: flat 0x40C9 (LE) = ${wrCanon.leHex.toUpperCase()}. For modern tools + SRT Lab.`, 'muted');
+        }
+        downloadBin(wrCanon.bytes, `BCM_FLAT40C9_REPAIRED_CANONICAL_${ts}.bin`);
+        log(`Downloaded: BCM_FLAT40C9_REPAIRED_CANONICAL_${ts}.bin`, 'ok');
+
+        /* Copy #2 — LEGACYFLAT: for CGDI / Autel / AlfaOBD / SINCRO. */
+        void logSec16Sync({
+          vin: bcm.vin || null,
+          platform: bcm.vin ? classifyPlatform({ vin: bcm.vin }).platform : null,
+          actionId: 'flat-40c9-repair-both',
+          target: 'BCM',
+          verified: 'offline',
+          notes: `double-emit · legacy-flat copy · resolver: ${rs.source} @0x${hex4(rs.offset)} · overlap: ${overlap ? 'yes' : 'no'}`,
+          detail: { oldFlatHex: oldFlat, newFlatHex: wrLegacy.leHex.toUpperCase(), sec16Hex: wrLegacy.sec16Hex.toUpperCase(), mode: 'legacy-flat', mirror1Overlap: !!wrLegacy.mirror1Overlap, mirror1ClobberedAt: wrLegacy.mirror1ClobberedAt ?? null },
+        });
+        log(`  • LEGACYFLAT copy: flat 0x40C9 (LE) = ${wrLegacy.leHex.toUpperCase()}. For legacy CGDI / Autel / AlfaOBD / SINCRO that read the flat slice as LE.`, 'muted');
+        if (wrLegacy.mirror1Overlap) {
+          log(`    ⚠ Mirror1 record at 0x40C0 was clobbered by the LE write in this copy. Split records (0x81A0/C0/E0) and mirror2 (slot 0xCA) remain canonical — only hand this copy to legacy bench tools.`, 'warn');
+        }
+        downloadBin(wrLegacy.bytes, `BCM_FLAT40C9_REPAIRED_LEGACYFLAT_${ts}.bin`);
+        log(`Downloaded: BCM_FLAT40C9_REPAIRED_LEGACYFLAT_${ts}.bin`, 'ok');
+
+        rows.push({
+          module: 'BCM', slot: 1, offset: '0x40C9',
+          oldVin: oldFlat,
+          newVin: `${wrCanon.skipped ? oldFlat : wrCanon.leHex.toUpperCase()} | ${wrLegacy.leHex.toUpperCase()}`,
+          checkLabel: 'mode',
+          oldCheck: 'flat (legacy)',
+          newCheck: `both · canonical${wrCanon.skipped ? ' (skipped)' : ''} + legacy-flat`,
+          oldPass: null, newPass: true,
+        });
+
+        if (!overlap) {
+          log('No overlap was detected on this dump — the two downloaded files are byte-identical. Keep one; the second is for parity with overlap dumps.', 'muted');
+        } else {
+          log('Vault the CANONICAL copy. Hand the LEGACYFLAT copy only to legacy bench tools.', 'ok');
+        }
+
       } else if (action === 'bcm-sec16-to-rfh') {
         /* BCM SEC16 → RFHUB Gen2 slots — use when RFHUB is from a different vehicle.
            BCM is master: reverse(BCM SEC16) is written to RFHUB 0x050E + 0x0522. */
@@ -3410,6 +3504,13 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
               color={C.a3}
               desc={`Copy resolved SEC16 (source: ${flatRepairResolver.source} @0x${hex4(flatRepairResolver.offset)}) into legacy flat slice 0x40C9 (${flatRepairMode === 'legacy-flat' ? 'forces LE write even on overlap dumps' : 'preserves mirror1 on overlap dumps'}). For CGDI / Autel / AlfaOBD / SINCRO that still read the pre-Redeye flat field.`}
               onClick={() => doSync('bcm-flat-from-resolved')} />
+            <ActionBtn title="⬇⬇ Download both copies (modern + legacy)"
+              enabled={flatRepairOk && flatRepairOverlap}
+              color={C.a3}
+              desc={flatRepairOverlap
+                ? 'One-click double emission: writes CANONICAL (for modern tools + SRT Lab) and LEGACYFLAT (for CGDI / Autel / AlfaOBD / SINCRO) copies in the same run. Use on overlap dumps so one click covers every downstream bench tool.'
+                : 'Only enabled when an overlap dump is detected (mirror1 record at 0x40C0). Without overlap, canonical and legacy-flat outputs are byte-identical.'}
+              onClick={() => doSync('bcm-flat-from-resolved-both')} />
           </div>
         </Card>
       )}
@@ -3569,6 +3670,13 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                           ? 'BCM SEC16 is blank (virgin) — nothing to repair'
                           : 'Requires a BCM with a populated SEC16 in split records or inactive-bank mirrors'}
                     onClick={() => doSync('bcm-flat-from-resolved')} />
+                  <ActionBtn title="⬇⬇ Download both copies (modern + legacy)"
+                    enabled={flatRepairOk && flatRepairOverlap}
+                    color={C.a3}
+                    desc={flatRepairOverlap
+                      ? 'One-click double emission: writes CANONICAL (for modern tools + SRT Lab) and LEGACYFLAT (for CGDI / Autel / AlfaOBD / SINCRO) copies in the same run. Use on overlap dumps so one click covers every downstream bench tool.'
+                      : 'Only enabled when an overlap dump is detected (mirror1 record at 0x40C0). Without overlap, canonical and legacy-flat outputs are byte-identical.'}
+                    onClick={() => doSync('bcm-flat-from-resolved-both')} />
                 </div>
                 <ActionBtn title="🔄 BCM SEC16 → RFHUB"  enabled={bcmToRfhSec16Ok}
                   color={C.a2}
