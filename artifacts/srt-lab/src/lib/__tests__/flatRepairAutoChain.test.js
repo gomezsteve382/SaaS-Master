@@ -11,8 +11,21 @@
  *      so the issue is visible even when the user did not just sync.
  */
 import { describe, it, expect } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 import { chainBcmFlatRepairIfStale } from '../../tabs/ModuleSync.jsx';
 import { writeBcmSec16Gen2, writeBcmFlatSec16 } from '../securityBytes.js';
+
+/* Local helper — split-record SEC16 assembly for the BCM_DFLASH layout.
+ * Mirrors the helper used in checksum.fixtures.test.js so this file
+ * stays self-contained and does not couple to that test's internals. */
+function readSplitSec16(data) {
+  const out = new Uint8Array(16);
+  const base = 0x81A0;
+  for (let k = 0; k < 7; k++) out[k] = data[base + 9 + k];
+  for (let k = 0; k < 9; k++) out[7 + k] = data[base + 20 + k];
+  return out;
+}
 import { resolveBcmSec16, parseModule } from '../parseModule.js';
 import { crossValidate } from '../crossValidate.js';
 
@@ -113,6 +126,71 @@ describe('chainBcmFlatRepairIfStale — ModuleSync auto-chain (Task #385)', () =
     const r = chainBcmFlatRepairIfStale(new Uint8Array(0x100));
     expect(r.repaired).toBe(false);
     expect(r.reason).toBe('buffer-too-small');
+  });
+
+  /* Task #794 — synced-output path coverage on a real overlap dump.
+   * The SYNCED_BCM22 fixture has mirror1 sitting at 0x40C0, which
+   * overlaps the flat 0x40C9..0x40D8 slice. The chain helper must:
+   *   · In canonical mode: refuse to clobber mirror1 and return
+   *     repaired:false / reason:'overlap-canonical-skip' so the caller
+   *     stops claiming the file was repaired.
+   *   · In legacy-flat mode: force the write and report mirror1Overlap.
+   * Split records stay canonical in both modes — that is the invariant
+   * that lets SRT Lab keep resolving the live secret even on the
+   * legacy-flat copy. */
+  const ATTACHED = path.resolve(__dirname, '../../../../../attached_assets');
+  const SYNCED_BCM22_PATH = path.join(
+    ATTACHED,
+    'BCM_22CHARGER_REDEYE_6.2_797BCM_DFLASH_VIRGIN_SYNC_1776840027540.bin'
+  );
+  const hasFixture = fs.existsSync(SYNCED_BCM22_PATH);
+  const fixtureDescribe = hasFixture ? describe : describe.skip;
+
+  fixtureDescribe('synced-output overlap path (SYNCED_BCM22)', () => {
+    let SYNCED_BCM22;
+    if (hasFixture) SYNCED_BCM22 = new Uint8Array(fs.readFileSync(SYNCED_BCM22_PATH));
+
+    it('canonical mode returns overlap-canonical-skip and leaves bytes unchanged', () => {
+      const buf = new Uint8Array(SYNCED_BCM22);
+      const before = buf.slice(0x40C9, 0x40D9);
+      const r = chainBcmFlatRepairIfStale(buf, { mode: 'canonical' });
+      expect(r.repaired).toBe(false);
+      expect(r.reason).toBe('overlap-canonical-skip');
+      expect(r.mirror1Overlap).toBe(true);
+      expect(r.mode).toBe('canonical');
+      expect(hex(r.bytes.slice(0x40C9, 0x40D9))).toBe(hex(before));
+    });
+
+    it('legacy-flat mode forces the write and patches the flat slice', () => {
+      const buf = new Uint8Array(SYNCED_BCM22);
+      const sec16 = readSplitSec16(buf);
+      const r = chainBcmFlatRepairIfStale(buf, { mode: 'legacy-flat' });
+      expect(r.repaired).toBe(true);
+      expect(r.reason).toBe('stale');
+      expect(r.mode).toBe('legacy-flat');
+      expect(r.mirror1Overlap).toBe(true);
+      expect(r.mirror1ClobberedAt).toBe(0x40C0);
+      const expectedLe = new Uint8Array(16);
+      for (let i = 0; i < 16; i++) expectedLe[i] = sec16[15 - i];
+      expect(hex(r.bytes.slice(0x40C9, 0x40D9))).toBe(hex(expectedLe));
+    });
+
+    it('legacy-flat-patched buffer still resolves SEC16 from split records', () => {
+      const buf = new Uint8Array(SYNCED_BCM22);
+      const sec16 = readSplitSec16(buf);
+      const r = chainBcmFlatRepairIfStale(buf, { mode: 'legacy-flat' });
+      const info = parseModule(r.bytes, 'SYNCED_BCM22.bin');
+      expect(info.bcmSec16.source).toBe('split');
+      expect(hex(info.bcmSec16.bytes)).toBe(hex(sec16));
+    });
+
+    it('default mode (no opts) behaves like canonical', () => {
+      const buf = new Uint8Array(SYNCED_BCM22);
+      const r = chainBcmFlatRepairIfStale(buf);
+      expect(r.repaired).toBe(false);
+      expect(r.reason).toBe('overlap-canonical-skip');
+      expect(r.mode).toBe('canonical');
+    });
   });
 
   it('end-to-end: writeBcmSec16Gen2 + chain leaves flat reverse-matching the new SEC16', () => {

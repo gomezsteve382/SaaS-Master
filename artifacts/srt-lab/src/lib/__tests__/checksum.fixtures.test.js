@@ -615,6 +615,58 @@ describe('Writer round-trips', () => {
         }
       }
     });
+
+    /* Task #794 — legacy-flat compatibility mode. On the overlap dump the
+     * writer forces the LE write so a downstream legacy locksmith tool
+     * (CGDI / AlfaOBD / SINCRO) parsing the flat slice as little-endian
+     * sees the correct vehicle secret. The mirror1 record's SEC16 payload
+     * is clobbered as a side-effect; the split records at 0x81A0/C0/E0
+     * remain canonical and the resolver still recovers the right secret. */
+    describe('legacy-flat mode — SYNCED_BCM22 round-trip', () => {
+      it('forces the LE write even when mirror1 overlaps the flat slice', () => {
+        const sec16 = bcmSplitSec16(F.SYNCED_BCM22);
+        const result = writeBcmFlatSec16(F.SYNCED_BCM22, sec16, { mode: 'legacy-flat' });
+        expect(result.skipped).toBe(false);
+        expect(result.patched).toBe(16);
+        expect(result.mode).toBe('legacy-flat');
+        expect(result.mirror1Overlap).toBe(true);
+        expect(result.mirror1ClobberedAt).toBe(0x40C0);
+        const expectedLe = new Uint8Array(16);
+        for (let i = 0; i < 16; i++) expectedLe[i] = sec16[15 - i];
+        expect(hexOf(result.bytes, 0x40C9, 16)).toBe(H(expectedLe));
+      });
+
+      it('split records (0x81A0/C0/E0) remain canonical after the legacy-flat write', () => {
+        const sec16 = bcmSplitSec16(F.SYNCED_BCM22);
+        const result = writeBcmFlatSec16(F.SYNCED_BCM22, sec16, { mode: 'legacy-flat' });
+        for (const off of [0x81A0, 0x81C0, 0x81E0]) {
+          for (let k = 0; k < 30; k++) {
+            expect(result.bytes[off + k]).toBe(F.SYNCED_BCM22[off + k]);
+          }
+        }
+      });
+
+      it('parseModule still resolves the canonical SEC16 from split records', () => {
+        const sec16 = bcmSplitSec16(F.SYNCED_BCM22);
+        const result = writeBcmFlatSec16(F.SYNCED_BCM22, sec16, { mode: 'legacy-flat' });
+        const info = parseModule(result.bytes, 'SYNCED_BCM22.bin');
+        expect(info.bcmSec16.source).toBe('split');
+        expect(hexOf(info.bcmSec16.bytes, 0, 16)).toBe(H(sec16));
+      });
+
+      it('canonical mode default is unchanged when options omitted', () => {
+        const sec16 = bcmSplitSec16(F.SYNCED_BCM22);
+        const result = writeBcmFlatSec16(F.SYNCED_BCM22, sec16);
+        expect(result.mode).toBe('canonical');
+        expect(result.skipped).toBe(true);
+      });
+
+      it('rejects unknown mode values', () => {
+        const sec16 = bcmSplitSec16(F.SYNCED_BCM22);
+        expect(() => writeBcmFlatSec16(F.SYNCED_BCM22, sec16, { mode: 'bogus' }))
+          .toThrow(/Unknown writeBcmFlatSec16 mode/);
+      });
+    });
   });
 
   describe('writePcmSec6 — write RFH SEC16 first-6 into GPEC2A image', () => {

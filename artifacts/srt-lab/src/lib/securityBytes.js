@@ -206,43 +206,78 @@ export function writeBcmSec16Gen2(bytes, rfhSec16) {
 }
 
 /* ----------------------------------------------------------------------------
- * writeBcmFlatSec16(bytes, resolvedSec16)
+ * writeBcmFlatSec16(bytes, resolvedSec16, { mode } = {})
  *
- * Repair helper for legacy third-party tools (CGDI, Autel, etc.) that still
- * read the BCM vehicle secret from the flat little-endian slice at
- * 0x40C9..0x40D8. After Task #380, the resolver picks the canonical SEC16
- * from split / mirror records and the flat slice is left holding residual
- * garbage on synced Redeye dumps — so legacy tools see junk.
+ * Repair helper for legacy third-party tools (CGDI, Autel, AlfaOBD,
+ * Mitchell 6.x, SINCRO) that still read the BCM vehicle secret from the
+ * flat little-endian slice at 0x40C9..0x40D8. After Task #380, the
+ * resolver picks the canonical SEC16 from split / mirror records and the
+ * flat slice is left holding residual garbage on synced Redeye dumps —
+ * so legacy tools see junk.
  *
- * This writer takes the resolved (canonical / big-endian) SEC16 and writes
- * its byte-reversed (little-endian) form into 0x40C9..0x40D8 of a fresh
- * buffer copy. Split records (0x81A0/C0/E0), mirror records in the inactive
- * bank, and every other byte are left untouched — the live Redeye sources
- * keep working, and the legacy slice now agrees with them.
+ * This writer takes the resolved (canonical / big-endian) SEC16 and
+ * writes its byte-reversed (little-endian) form into 0x40C9..0x40D8 of a
+ * fresh buffer copy. Split records (0x81A0/C0/E0), mirror records in the
+ * inactive bank, and every other byte are left untouched in the common
+ * case — the live Redeye sources keep working, and the legacy slice now
+ * agrees with them.
  *
  * Input must be the canonical SEC16 (the bytes returned by
  * resolveBcmSec16().bytes when source !== 'flat'). Caller is responsible
- * for gating on resolver.source !== 'flat' && !blank — this function will
- * happily write whatever 16 bytes it's handed.
+ * for gating on resolver.source !== 'flat' && !blank — this function
+ * will happily write whatever 16 bytes it's handed.
+ *
+ * --- Overlap handling (older BCM dumps) ---
+ *
+ * On some older BCM layouts a mirror1 record (slot 0xEB, size 0x18) sits
+ * at 0x40C0, which puts its 16-byte SEC16 payload at exactly
+ * 0x40C9..0x40D8 — the same slice this writer targets. The two views
+ * disagree: the mirror stores the canonical SEC16 (big-endian), the
+ * legacy flat slice expects the little-endian reverse. Whichever copy
+ * lives in those 16 bytes is "wrong" for the other reader.
+ *
+ * `mode` controls which view wins:
+ *
+ *   - 'canonical' (default) — Safe for SRT Lab + modern tools that read
+ *     the mirror as BE. The writer detects the overlap header
+ *     `00 00 00 18 00 46 EB 00` at 0x40C0 and SKIPS the LE write so the
+ *     mirror payload stays intact. Legacy tools that still parse the
+ *     flat LE slice will see the canonical bytes reversed and report
+ *     IMMO_DAMAGED — that's the trade-off.
+ *
+ *   - 'legacy-flat' — Safe for legacy tools (CGDI / Autel / AlfaOBD /
+ *     Mitchell 6.x / SINCRO) that read the flat slice as LE. The writer
+ *     forces the LE write even on overlap dumps, clobbering the mirror1
+ *     SEC16 payload. SRT Lab's own resolver still recovers the correct
+ *     secret from the split records at 0x81A0/C0/E0 (highest priority)
+ *     or the slot-0xCA mirror2 record (lower priority), so a freshly
+ *     synced dump is still self-consistent under SRT Lab's parser; only
+ *     the slot-0xEB mirror1 record becomes inconsistent in this mode.
+ *     Use this for the "legacy-tool-compatible" copy you hand to a
+ *     locksmith bench tool — keep the canonical copy in your vault.
+ *
+ * Return shape (extended for Task #794):
+ *   { bytes, offset, patched, skipped, skipReason, sec16Hex, leHex,
+ *     mode, mirror1Overlap, mirror1ClobberedAt? }
  * ---------------------------------------------------------------------------- */
-export function writeBcmFlatSec16(bytes, resolvedSec16) {
+const FLAT_WRITE_MODES = new Set(['canonical', 'legacy-flat']);
+
+export function writeBcmFlatSec16(bytes, resolvedSec16, options = {}) {
   if (!resolvedSec16 || resolvedSec16.length !== 16) {
     throw new Error('Resolved SEC16 must be 16 bytes');
   }
   if (!bytes || bytes.length < 0x40D9) {
     throw new Error('BCM buffer too small for flat 0x40C9 slice (need ≥ 0x40D9 B)');
   }
+  const mode = options.mode || 'canonical';
+  if (!FLAT_WRITE_MODES.has(mode)) {
+    throw new Error(`Unknown writeBcmFlatSec16 mode: ${mode} (expected 'canonical' or 'legacy-flat')`);
+  }
+
   const out = new Uint8Array(bytes);
   const le = new Uint8Array(16);
   for (let i = 0; i < 16; i++) le[i] = resolvedSec16[15 - i];
 
-  /* Overlap guard — on some older BCM dumps a mirror1 record (slot 0xEB,
-   * size 0x18) lands at 0x40C0, which puts its 16-byte SEC16 payload at
-   * exactly 0x40C9..0x40D8 — the legacy flat slice this writer targets.
-   * Writing the LE-reversed copy on top would silently clobber the
-   * mirror's freshly-written canonical SEC16. Detect the mirror1 header
-   * `00 00 00 18 00 46 EB 00` at 0x40C0 and skip the write so every
-   * call site is safe by construction (no caller-side guard required). */
   const mirror1OverlapsFlat = (
     out.length >= 0x40C8 &&
     out[0x40C0] === 0x00 && out[0x40C1] === 0x00 && out[0x40C2] === 0x00 &&
@@ -250,7 +285,7 @@ export function writeBcmFlatSec16(bytes, resolvedSec16) {
     out[0x40C6] === 0xEB && out[0x40C7] === 0x00
   );
 
-  if (mirror1OverlapsFlat) {
+  if (mirror1OverlapsFlat && mode === 'canonical') {
     return {
       bytes: out,
       offset: 0x40C9,
@@ -259,6 +294,8 @@ export function writeBcmFlatSec16(bytes, resolvedSec16) {
       skipReason: 'mirror1 at 0x40C0 overlaps flat 0x40C9 slice',
       sec16Hex: hexStr(resolvedSec16),
       leHex: hexStr(le),
+      mode,
+      mirror1Overlap: true,
     };
   }
 
@@ -271,6 +308,9 @@ export function writeBcmFlatSec16(bytes, resolvedSec16) {
     skipReason: null,
     sec16Hex: hexStr(resolvedSec16),
     leHex: hexStr(le),
+    mode,
+    mirror1Overlap: mirror1OverlapsFlat,
+    mirror1ClobberedAt: mirror1OverlapsFlat ? 0x40C0 : null,
   };
 }
 

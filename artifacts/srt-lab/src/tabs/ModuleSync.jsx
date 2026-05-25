@@ -198,24 +198,33 @@ export function resizePcmForTargetChip(bytes, chipKey) {
  * AND the flat slice does not already contain reverse(resolved SEC16),
  * repairs the flat slice in-place and returns the patched bytes.
  *
+ * Task #794 — accepts { mode: 'canonical' | 'legacy-flat' } and forwards it
+ * to writeBcmFlatSec16. On overlap dumps (mirror1 sitting at 0x40C0) the
+ * underlying writer will skip in canonical mode to protect the mirror1
+ * payload; that skip is now surfaced as repaired:false / reason:
+ * 'overlap-canonical-skip' so callers stop logging a false success and
+ * stop labeling the download as "repaired" when no bytes changed.
+ *
  * Returns:
- *   { repaired:false, reason:'unresolved-or-blank' | 'flat-only' | 'already-in-sync',
- *     resolver, bytes:<input>, oldFlatHex? }
+ *   { repaired:false, reason:'unresolved-or-blank' | 'flat-only'
+ *     | 'already-in-sync' | 'overlap-canonical-skip' | 'buffer-too-small',
+ *     resolver, bytes:<input>, mode?, mirror1Overlap?, oldFlatHex? }
  *   { repaired:true,  reason:'stale', resolver, bytes:<patched>,
- *     source, leHex, sec16Hex, oldFlatHex }
+ *     source, leHex, sec16Hex, oldFlatHex, mode, mirror1Overlap,
+ *     mirror1ClobberedAt? }
  *
  * Pure function — caller decides whether to log, download, or chain a row.
  * ---------------------------------------------------------------------------- */
-export function chainBcmFlatRepairIfStale(bcmBytes) {
+export function chainBcmFlatRepairIfStale(bcmBytes, { mode = 'canonical' } = {}) {
   if (!bcmBytes || bcmBytes.length < 0x40D9) {
-    return { repaired: false, reason: 'buffer-too-small', resolver: null, bytes: bcmBytes };
+    return { repaired: false, reason: 'buffer-too-small', resolver: null, bytes: bcmBytes, mode };
   }
   const r = resolveBcmSec16(bcmBytes);
   if (!r || !r.bytes || r.blank) {
-    return { repaired: false, reason: 'unresolved-or-blank', resolver: r, bytes: bcmBytes };
+    return { repaired: false, reason: 'unresolved-or-blank', resolver: r, bytes: bcmBytes, mode };
   }
   if (r.source === 'flat') {
-    return { repaired: false, reason: 'flat-only', resolver: r, bytes: bcmBytes };
+    return { repaired: false, reason: 'flat-only', resolver: r, bytes: bcmBytes, mode };
   }
   const cur = bcmBytes.slice(0x40C9, 0x40D9);
   const expectedLe = new Uint8Array(16);
@@ -224,22 +233,43 @@ export function chainBcmFlatRepairIfStale(bcmBytes) {
   for (let i = 0; i < 16; i++) if (cur[i] !== expectedLe[i]) { same = false; break; }
   const oldFlatHex = Array.from(cur).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
   if (same) {
-    return { repaired: false, reason: 'already-in-sync', resolver: r, bytes: bcmBytes, oldFlatHex };
+    return { repaired: false, reason: 'already-in-sync', resolver: r, bytes: bcmBytes, oldFlatHex, mode };
   }
-  const wr = writeBcmFlatSec16(bcmBytes, r.bytes);
+  const wr = writeBcmFlatSec16(bcmBytes, r.bytes, { mode });
+  if (wr.skipped) {
+    /* Canonical mode + mirror1 overlap: writer refuses to clobber mirror1.
+     * Caller should surface the legacy-flat compatibility mode as the
+     * explicit override; do not pretend the file was repaired. */
+    return {
+      repaired: false,
+      reason: 'overlap-canonical-skip',
+      resolver: r,
+      bytes: bcmBytes,
+      oldFlatHex,
+      mode,
+      mirror1Overlap: !!wr.mirror1Overlap,
+    };
+  }
   /* Task #678 — fire-and-forget audit log for offline flat-40C9 repair. */
   void logSec16Sync({
     actionId: 'flat-40c9-repair',
     target: 'BCM',
     verified: 'offline',
-    notes: `resolver source: ${r.source}`,
-    detail: { oldFlatHex, newFlatHex: wr.leHex.toUpperCase(), sec16Hex: wr.sec16Hex.toUpperCase() },
+    notes: `resolver source: ${r.source} · mode: ${mode}${wr.mirror1Overlap ? ' · mirror1 overlap' : ''}`,
+    detail: {
+      oldFlatHex, newFlatHex: wr.leHex.toUpperCase(),
+      sec16Hex: wr.sec16Hex.toUpperCase(),
+      mode, mirror1Overlap: !!wr.mirror1Overlap,
+    },
   });
   return {
     repaired: true, reason: 'stale', resolver: r,
     bytes: wr.bytes, source: r.source,
     leHex: wr.leHex.toUpperCase(), sec16Hex: wr.sec16Hex.toUpperCase(),
     oldFlatHex,
+    mode,
+    mirror1Overlap: !!wr.mirror1Overlap,
+    mirror1ClobberedAt: wr.mirror1ClobberedAt ?? null,
   };
 }
 
@@ -1682,6 +1712,61 @@ function ActionBtn({ title, desc, enabled, onClick, color }) {
   );
 }
 
+/* Task #794 — compact mode selector for the BCM flat 0x40C9 repair card.
+ * Surfaces the canonical / legacy-flat trade-off inline next to the
+ * action button so the tech sees which compatibility view they are
+ * about to download. Highlights amber when an overlap is detected so
+ * the choice is unmissable on the dumps the trade-off actually applies
+ * to (older BCM layouts where mirror1 sits at 0x40C0). */
+function FlatRepairModeSelector({ mode, setMode, overlapDetected }) {
+  const opts = [
+    { key: 'canonical', label: 'Canonical', hint: 'Preserve mirror1 record. Modern tools + SRT Lab agree.' },
+    { key: 'legacy-flat', label: 'Legacy-flat compatibility', hint: 'Force LE write on overlap dumps so CGDI / AlfaOBD / SINCRO verify.' },
+  ];
+  const cur = opts.find(o => o.key === mode) || opts[0];
+  return (
+    <div data-testid="flat-repair-mode-selector"
+         data-mode={mode}
+         data-overlap={overlapDetected ? '1' : '0'}
+         style={{
+           marginBottom: 10, padding: '10px 12px', borderRadius: 10,
+           background: overlapDetected ? C.wn + '14' : C.c2,
+           border: `1.5px solid ${overlapDetected ? C.wn : C.bd}`,
+         }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+          Compatibility mode
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {opts.map(opt => {
+            const active = mode === opt.key;
+            return (
+              <button key={opt.key}
+                data-testid={`flat-repair-mode-${opt.key}`}
+                data-active={active ? '1' : '0'}
+                onClick={() => setMode(opt.key)}
+                title={opt.hint}
+                style={{
+                  padding: '6px 12px', borderRadius: 8, cursor: 'pointer',
+                  border: `2px solid ${active ? C.a3 : C.bd}`,
+                  background: active ? C.a3 : C.cd,
+                  color: active ? '#fff' : C.tx,
+                  fontFamily: "'Nunito'", fontWeight: 800, fontSize: 11,
+                  letterSpacing: 0.4,
+                }}>{opt.label}</button>
+            );
+          })}
+        </div>
+      </div>
+      <div style={{ marginTop: 6, fontSize: 11, color: overlapDetected ? C.wn : C.ts, fontWeight: 600, lineHeight: 1.5 }}>
+        {overlapDetected
+          ? `⚠ Overlap detected — mirror1 at 0x40C0 collides with the flat 0x40C9 slice. ${cur.hint}`
+          : cur.hint}
+      </div>
+    </div>
+  );
+}
+
 /* ==========================================================================
  * MAIN COMPONENT
  * ========================================================================== */
@@ -1895,6 +1980,15 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
    * a different bench chip than the donor and acknowledges that the
    * generated file will be padded or sliced to match. */
   const [targetPcmChip, setTargetPcmChip] = useState(null);
+  /* Task #794 — compatibility mode for the BCM flat-0x40C9 repair button.
+   * 'canonical' (default): preserves mirror1 record when it overlaps the
+   * flat slice (older BCM layouts where mirror1 sits at 0x40C0). Modern
+   * tools + SRT Lab read the canonical BE secret; legacy tools that read
+   * the flat slice as LE will see reversed garbage on these dumps.
+   * 'legacy-flat': forces the LE write even on overlap, clobbering the
+   * mirror1 SEC16 payload so CGDI / AlfaOBD / SINCRO can verify the
+   * file. SRT Lab still recovers the secret from split records. */
+  const [flatRepairMode, setFlatRepairMode] = useState('canonical');
   const [logLines,  setLogLines]  = useState([]);
   const [diffRows,  setDiffRows]  = useState([]);
   const [originals, setOriginals] = useState({ bcm: null, rfh: null, pcm: null, eep: null });
@@ -2471,19 +2565,32 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         /* Task #385: auto-chain the legacy flat 0x40C9 repair when the live
          * SEC16 records were just rewritten — otherwise pre-Redeye CGDI/Autel
          * tools would still see the old secret in the flat slice. */
+        let bcmModeTag = '';
         if (sec16SyncOk && rfhSec16 && rfhSec16.length === 16) {
-          const fr = chainBcmFlatRepairIfStale(bcmFinal);
+          const fr = chainBcmFlatRepairIfStale(bcmFinal, { mode: flatRepairMode });
           if (fr.repaired) {
             bcmFinal = fr.bytes;
-            log(`✓ Auto-chained: flat 0x40C9 repaired from resolved SEC16 (source: ${fr.source}) — legacy CGDI/Autel readers will now see the live secret`, 'ok');
+            bcmModeTag = flatRepairMode === 'legacy-flat' ? '_LEGACYFLAT' : '_CANONICAL';
+            log(`✓ Auto-chained: flat 0x40C9 repaired from resolved SEC16 (source: ${fr.source}, mode: ${flatRepairMode}) — legacy CGDI/Autel readers will now see the live secret`, 'ok');
             log(`  Old flat (LE): ${fr.oldFlatHex} → New flat (LE): ${fr.leHex}`, 'muted');
+            if (fr.mirror1Overlap) {
+              log(`  ⚠ Mirror1 overlap detected — legacy-flat mode clobbered mirror1 payload at 0x${(fr.mirror1ClobberedAt || 0x40C0).toString(16).toUpperCase()}; split records remain canonical so SRT Lab still resolves the live secret`, 'warn');
+            }
             rows.push({
               module: 'BCM', slot: '·', offset: '0x40C9',
               oldVin: fr.oldFlatHex, newVin: fr.leHex,
               checkLabel: 'src',
-              oldCheck: 'flat (legacy)', newCheck: `auto · ${fr.source}`,
+              oldCheck: 'flat (legacy)', newCheck: `auto · ${fr.source} · ${flatRepairMode}`,
               oldPass: null, newPass: true,
             });
+          } else if (fr.reason === 'overlap-canonical-skip') {
+            /* Task #794 — mirror1 sits at 0x40C0 on this dump. Canonical
+             * mode refuses to clobber it, so the synced BCM still carries
+             * the stale flat slice — the exact incompatibility the task
+             * is meant to fix. Surface the explicit override path. */
+            bcmModeTag = '_CANONICAL';
+            log(`⚠ Flat 0x40C9 NOT repaired: mirror1 overlaps the flat slice on this dump and canonical mode is preserving it. Legacy tools (CGDI / AlfaOBD / SINCRO) reading the flat slice will still see the OLD secret in this BCM_SYNCED file.`, 'warn');
+            log(`  To produce a legacy-tool-compatible copy, switch the "Compatibility mode" selector to "Legacy-flat compatibility" and run BCM-only Flat 0x40C9 Repair, then download that file alongside this one.`, 'muted');
           } else if (fr.reason === 'already-in-sync') {
             log('  Flat 0x40C9 auto-repair: already in sync with resolved SEC16 — no change needed', 'muted');
           } else if (fr.reason === 'flat-only') {
@@ -2492,8 +2599,9 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
             log('  Flat 0x40C9 auto-repair skipped: post-write SEC16 is blank or unresolvable', 'muted');
           }
         }
-        downloadBin(bcmFinal, `BCM_SYNCED_${newVin}_${ts}.bin`);
-        log(`Downloaded: BCM_SYNCED_${newVin}_${ts}.bin`, 'ok');
+        const bcmSyncName = `BCM_SYNCED${bcmModeTag}_${newVin}_${ts}.bin`;
+        downloadBin(bcmFinal, bcmSyncName);
+        log(`Downloaded: ${bcmSyncName}`, 'ok');
 
         /* RFH VIN */
         const rr = engWriteRfhVin(rfh.bytes, newVin, virginize);
@@ -2577,18 +2685,28 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         /* Task #385: auto-chain the legacy flat 0x40C9 repair so pre-Redeye
          * tools that still read the flat field stop seeing the old secret. */
         let bcmSec16Out = sr.bytes;
-        const fr = chainBcmFlatRepairIfStale(bcmSec16Out);
+        let sec16ModeTag = '';
+        const fr = chainBcmFlatRepairIfStale(bcmSec16Out, { mode: flatRepairMode });
         if (fr.repaired) {
           bcmSec16Out = fr.bytes;
-          log(`✓ Auto-chained: flat 0x40C9 repaired from resolved SEC16 (source: ${fr.source}) — legacy CGDI/Autel readers will now see the live secret`, 'ok');
+          sec16ModeTag = flatRepairMode === 'legacy-flat' ? '_LEGACYFLAT' : '_CANONICAL';
+          log(`✓ Auto-chained: flat 0x40C9 repaired from resolved SEC16 (source: ${fr.source}, mode: ${flatRepairMode}) — legacy CGDI/Autel readers will now see the live secret`, 'ok');
           log(`  Old flat (LE): ${fr.oldFlatHex} → New flat (LE): ${fr.leHex}`, 'muted');
+          if (fr.mirror1Overlap) {
+            log(`  ⚠ Mirror1 overlap detected — legacy-flat mode clobbered mirror1 payload at 0x${(fr.mirror1ClobberedAt || 0x40C0).toString(16).toUpperCase()}; split records remain canonical so SRT Lab still resolves the live secret`, 'warn');
+          }
           rows.push({
             module: 'BCM', slot: '·', offset: '0x40C9',
             oldVin: fr.oldFlatHex, newVin: fr.leHex,
             checkLabel: 'src',
-            oldCheck: 'flat (legacy)', newCheck: `auto · ${fr.source}`,
+            oldCheck: 'flat (legacy)', newCheck: `auto · ${fr.source} · ${flatRepairMode}`,
             oldPass: null, newPass: true,
           });
+        } else if (fr.reason === 'overlap-canonical-skip') {
+          /* Task #794 — same incompatibility surface as the sync-all path. */
+          sec16ModeTag = '_CANONICAL';
+          log(`⚠ Flat 0x40C9 NOT repaired: mirror1 overlaps the flat slice on this dump and canonical mode is preserving it. Legacy tools (CGDI / AlfaOBD / SINCRO) reading the flat slice will still see the OLD secret in this BCM_SEC16_SYNCED file.`, 'warn');
+          log(`  Switch the "Compatibility mode" selector to "Legacy-flat compatibility" and re-run to produce a copy legacy tools will accept.`, 'muted');
         } else if (fr.reason === 'already-in-sync') {
           log('  Flat 0x40C9 auto-repair: already in sync with resolved SEC16 — no change needed', 'muted');
         } else if (fr.reason === 'flat-only') {
@@ -2596,8 +2714,9 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         } else if (fr.reason === 'unresolved-or-blank') {
           log('  Flat 0x40C9 auto-repair skipped: post-write SEC16 is blank or unresolvable', 'muted');
         }
-        downloadBin(bcmSec16Out, `BCM_SEC16_SYNCED_${ts}.bin`);
-        log(`Downloaded: BCM_SEC16_SYNCED_${ts}.bin`, 'ok');
+        const sec16OutName = `BCM_SEC16_SYNCED${sec16ModeTag}_${ts}.bin`;
+        downloadBin(bcmSec16Out, sec16OutName);
+        log(`Downloaded: ${sec16OutName}`, 'ok');
         /* Task #433 — single shared preflight, same reason set as full sync. */
         const sec6Skip = pcmSec6SkipReason({ rfh, pcm });
         if (!sec6Skip) {
@@ -2675,29 +2794,51 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           .map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
         const snapB = new Uint8Array(bcm.bytes);
         setOriginals(prev => ({ ...prev, bcm: { bytes: snapB, filename: bcm.file?.name || 'BCM' } }));
-        const wr = writeBcmFlatSec16(bcm.bytes, rs.bytes);
+        const wr = writeBcmFlatSec16(bcm.bytes, rs.bytes, { mode: flatRepairMode });
+        const modeLabel = wr.mode === 'legacy-flat' ? 'LEGACY-FLAT' : 'CANONICAL';
         void logSec16Sync({
           vin: bcm.vin || null,
           platform: bcm.vin ? classifyPlatform({ vin: bcm.vin }).platform : null,
           actionId: 'flat-40c9-repair',
           target: 'BCM',
           verified: 'offline',
-          notes: `resolver source: ${rs.source} @0x${hex4(rs.offset)}`,
-          detail: { oldFlatHex: oldFlat, newFlatHex: wr.leHex.toUpperCase(), sec16Hex: wr.sec16Hex.toUpperCase() },
+          notes: `resolver source: ${rs.source} @0x${hex4(rs.offset)} · mode: ${wr.mode}`,
+          detail: { oldFlatHex: oldFlat, newFlatHex: wr.leHex.toUpperCase(), sec16Hex: wr.sec16Hex.toUpperCase(), mode: wr.mode, mirror1Overlap: !!wr.mirror1Overlap },
         });
-        log(`BCM flat 0x40C9 repaired from resolver source '${rs.source}' @0x${hex4(rs.offset)}`, 'ok');
+        if (wr.skipped) {
+          log(`BCM flat 0x40C9 repair SKIPPED — ${wr.skipReason}. Mirror1 record at 0x40C0 preserved (canonical mode).`, 'warn');
+          log(`  Legacy CGDI / AlfaOBD / SINCRO tools will still see the canonical bytes reversed and may report IMMO_DAMAGED.`, 'warn');
+          log(`  Switch to "Legacy-flat compatibility" mode on the BCM repair card and re-run to force the LE write (mirror1 record will become inconsistent in the downloaded file, but the split records — the master source — stay valid).`, 'muted');
+          rows.push({
+            module: 'BCM', slot: 1, offset: '0x40C9',
+            oldVin: oldFlat, newVin: oldFlat,
+            checkLabel: 'mode',
+            oldCheck: 'overlap', newCheck: `${modeLabel} · skipped`,
+            oldPass: null, newPass: null,
+          });
+          return rows;
+        }
+        log(`BCM flat 0x40C9 repaired (${modeLabel}) from resolver source '${rs.source}' @0x${hex4(rs.offset)}`, 'ok');
         log(`  Resolved SEC16 (BE): ${wr.sec16Hex.toUpperCase()}`, 'muted');
         log(`  Written @0x40C9 (LE): ${wr.leHex.toUpperCase()}`, 'muted');
+        if (wr.mirror1Overlap && wr.mode === 'legacy-flat') {
+          log(`  ⚠ Mirror1 record at 0x40C0 was clobbered by the LE write (overlap mode). Split records (0x81A0/C0/E0) and mirror2 (slot 0xCA) remain canonical — SRT Lab will still parse the correct SEC16 from the split records.`, 'warn');
+        }
+        const suffix = wr.mode === 'legacy-flat' ? '_LEGACYFLAT' : '_CANONICAL';
         rows.push({
           module: 'BCM', slot: 1, offset: '0x40C9',
           oldVin: oldFlat, newVin: wr.leHex.toUpperCase(),
-          checkLabel: 'src',
-          oldCheck: 'flat (legacy)', newCheck: rs.source,
+          checkLabel: 'mode',
+          oldCheck: 'flat (legacy)', newCheck: `${rs.source} · ${modeLabel}`,
           oldPass: null, newPass: true,
         });
-        downloadBin(wr.bytes, `BCM_FLAT40C9_REPAIRED_${ts}.bin`);
-        log(`Downloaded: BCM_FLAT40C9_REPAIRED_${ts}.bin`, 'ok');
-        log('Legacy CGDI/Autel-style readers will now see the same SEC16 as the live split records.', 'ok');
+        downloadBin(wr.bytes, `BCM_FLAT40C9_REPAIRED${suffix}_${ts}.bin`);
+        log(`Downloaded: BCM_FLAT40C9_REPAIRED${suffix}_${ts}.bin`, 'ok');
+        if (wr.mode === 'legacy-flat') {
+          log('Legacy CGDI / Autel / AlfaOBD / SINCRO can now verify this dump. Keep your canonical copy in the vault — only hand this _LEGACYFLAT copy to legacy bench tools.', 'ok');
+        } else {
+          log('Legacy CGDI/Autel-style readers will now see the same SEC16 as the live split records.', 'ok');
+        }
 
       } else if (action === 'bcm-sec16-to-rfh') {
         /* BCM SEC16 → RFHUB Gen2 slots — use when RFHUB is from a different vehicle.
@@ -3106,11 +3247,16 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.8, color: C.a3, marginBottom: 8, textTransform: 'uppercase' }}>
             🩹 Flat 0x40C9 repair (BCM-only)
           </div>
+          <FlatRepairModeSelector
+            mode={flatRepairMode}
+            setMode={setFlatRepairMode}
+            overlapDetected={flatRepairResolver?.candidates?.mirror1?.offset === 0x40C0}
+          />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
             <ActionBtn title="🩹 Repair flat 0x40C9 from split records"
               enabled={flatRepairOk}
               color={C.a3}
-              desc={`Copy resolved SEC16 (source: ${flatRepairResolver.source} @0x${hex4(flatRepairResolver.offset)}) into legacy flat slice 0x40C9 (LE). Live split/mirror records untouched. For CGDI / Autel and other tools that still read the pre-Redeye flat field.`}
+              desc={`Copy resolved SEC16 (source: ${flatRepairResolver.source} @0x${hex4(flatRepairResolver.offset)}) into legacy flat slice 0x40C9 (${flatRepairMode === 'legacy-flat' ? 'forces LE write even on overlap dumps' : 'preserves mirror1 on overlap dumps'}). For CGDI / Autel / AlfaOBD / SINCRO that still read the pre-Redeye flat field.`}
               onClick={() => doSync('bcm-flat-from-resolved')} />
           </div>
         </Card>
@@ -3252,17 +3398,26 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                       onClick={() => doSync('sec16-only')} />
                   );
                 })()}
-                <ActionBtn title="🩹 Repair flat 0x40C9 from split records"
-                  enabled={flatRepairOk}
-                  color={C.a3}
-                  desc={flatRepairOk
-                    ? `Copy resolved SEC16 (source: ${flatRepairResolver.source} @0x${hex4(flatRepairResolver.offset)}) into legacy flat slice 0x40C9 (LE). Live split/mirror records untouched. For CGDI / Autel and other tools that still read the pre-Redeye flat field.`
-                    : flatRepairResolver?.source === 'flat'
-                      ? 'Resolver fell back to the flat slice itself — no live split/mirror records to copy from'
-                      : flatRepairResolver?.blank
-                        ? 'BCM SEC16 is blank (virgin) — nothing to repair'
-                        : 'Requires a BCM with a populated SEC16 in split records or inactive-bank mirrors'}
-                  onClick={() => doSync('bcm-flat-from-resolved')} />
+                <div>
+                  {flatRepairOk && (
+                    <FlatRepairModeSelector
+                      mode={flatRepairMode}
+                      setMode={setFlatRepairMode}
+                      overlapDetected={flatRepairResolver?.candidates?.mirror1?.offset === 0x40C0}
+                    />
+                  )}
+                  <ActionBtn title="🩹 Repair flat 0x40C9 from split records"
+                    enabled={flatRepairOk}
+                    color={C.a3}
+                    desc={flatRepairOk
+                      ? `Copy resolved SEC16 (source: ${flatRepairResolver.source} @0x${hex4(flatRepairResolver.offset)}) into legacy flat slice 0x40C9 (${flatRepairMode === 'legacy-flat' ? 'forces LE write even on overlap dumps' : 'preserves mirror1 on overlap dumps'}). For CGDI / Autel / AlfaOBD / SINCRO that still read the pre-Redeye flat field.`
+                      : flatRepairResolver?.source === 'flat'
+                        ? 'Resolver fell back to the flat slice itself — no live split/mirror records to copy from'
+                        : flatRepairResolver?.blank
+                          ? 'BCM SEC16 is blank (virgin) — nothing to repair'
+                          : 'Requires a BCM with a populated SEC16 in split records or inactive-bank mirrors'}
+                    onClick={() => doSync('bcm-flat-from-resolved')} />
+                </div>
                 <ActionBtn title="🔄 BCM SEC16 → RFHUB"  enabled={bcmToRfhSec16Ok}
                   color={C.a2}
                   desc={bcmToRfhSec16Ok
