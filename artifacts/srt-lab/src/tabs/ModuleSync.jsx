@@ -14,6 +14,31 @@ import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 import { getDidDescription, getDidOperations } from "../lib/dids.js";
 import { logSec16Sync } from "../lib/sec16SyncLog.js";
 import { classifyPlatform } from "../lib/sec16Platforms.js";
+import { classifyFlatRepairFilename } from "../lib/flatRepairLabel.js";
+
+/* Inline badge for BCM_FLAT40C9_REPAIRED_{CANONICAL,LEGACYFLAT}_*.bin files.
+ * Returns null for any filename that doesn't match — caller can render it
+ * unconditionally next to a filename string. */
+function FlatRepairBadge({ filename, size = 9 }) {
+  const k = classifyFlatRepairFilename(filename);
+  if (!k) return null;
+  return (
+    <span
+      title={k.fullLabel}
+      data-testid={`flat-repair-badge-${k.kind}`}
+      style={{
+        fontSize: size, fontWeight: 800, letterSpacing: 0.6,
+        padding: '1px 6px', borderRadius: 4,
+        background: k.background, color: k.color,
+        border: `1px solid ${k.color}40`,
+        fontFamily: "'Nunito'", textTransform: 'uppercase',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {k.shortLabel}
+    </span>
+  );
+}
 
 /* ============================================================================
  * SRT Lab — Module Sync v2 (SINCRO-verified engine)
@@ -3733,6 +3758,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                   style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 10, border: `2px solid ${C.a3}40`, background: `rgba(41,121,255,0.06)`, color: C.a3, cursor: 'pointer', fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, letterSpacing: 0.5 }}>
                   ⟲ Restore BCM original
                   <span style={{ fontSize: 10, fontWeight: 600, color: C.ts, fontFamily: "'JetBrains Mono'" }}>{originals.bcm.filename}</span>
+                  <FlatRepairBadge filename={originals.bcm.filename} />
                 </button>
               )}
               {originals.rfh && (
