@@ -127,6 +127,26 @@ describe('VIN extraction', () => {
     const moduleNames = new Set(report.vinMatrix.map((r) => r.module));
     expect(moduleNames.size).toBeGreaterThanOrEqual(3);
   });
+  it('VIN matrix surfaces all 4 RFHUB EEE VIN slots, each carrying a CRC verdict', () => {
+    ensureLoaded();
+    const rfhRows = report.vinMatrix.filter((r) => r.role === 'RFHUB_EEE');
+    expect(rfhRows.length).toBe(4);
+    // Every RFH slot row must carry an explicit boolean CRC verdict
+    // (not undefined) so the panel can render CRC OK / CRC FAIL.
+    for (const row of rfhRows) {
+      expect(typeof row.crcOk).toBe('boolean');
+    }
+    // At least one slot has a CRC verdict (true or false) — confirms the
+    // per-slot CRC state survives the parser→report→panel pipeline.
+    expect(rfhRows.some((r) => r.crcOk === true || r.crcOk === false)).toBe(true);
+    // Each row points at a distinct Gen2 slot offset (0x0EA5, 0x0EB9, 0x0ECD, 0x0EE1)
+    const offsets = new Set(rfhRows.map((r) => r.offset));
+    expect(offsets.size).toBe(4);
+    expect(offsets.has(0x0ea5)).toBe(true);
+    expect(offsets.has(0x0eb9)).toBe(true);
+    expect(offsets.has(0x0ecd)).toBe(true);
+    expect(offsets.has(0x0ee1)).toBe(true);
+  });
   it('donorVin is the RFHUB EEE VIN', () => {
     ensureLoaded();
     expect(report.donorVin).toBe(rfhEeeInfo.vins[0].vin);

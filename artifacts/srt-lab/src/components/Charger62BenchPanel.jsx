@@ -98,8 +98,8 @@ function VinMatrixTable({ rows }) {
                 {r.note && <span style={{ fontSize: 9, color: C.ts, marginLeft: 6 }}>({r.note})</span>}
               </td>
               <td style={{ padding: '4px 10px' }}>
-                {r.crcOk === true ? <VTag v="PASS">CRC ✓</VTag>
-                  : r.crcOk === false ? <VTag v="MISMATCH">CRC ✗</VTag>
+                {r.crcOk === true ? <VTag v="PASS">CRC OK</VTag>
+                  : r.crcOk === false ? <VTag v="MISMATCH">CRC FAIL</VTag>
                   : <span style={{ color: C.tm, fontSize: 10 }}>—</span>}
               </td>
               <td style={{ padding: '4px 10px' }}>
