@@ -463,9 +463,154 @@ describe("GET /api/anthropic/investigation/:runId", () => {
     expect(res.body.agentRuns[0].agentName).toBe("CRYPTO");
   });
 
+  it("returns only the agent rows that belong to the requested run", async () => {
+    store.investigation_runs.push(
+      { id: "r1", status: "completed", title: "R1", createdAt: new Date() } as Row,
+      { id: "r2", status: "completed", title: "R2", createdAt: new Date() } as Row,
+    );
+    store.investigation_agent_runs.push(
+      { id: "ar1", runId: "r1", agentName: "CRYPTO",   status: "completed" } as Row,
+      { id: "ar2", runId: "r1", agentName: "PROTOCOL", status: "completed" } as Row,
+      { id: "ar3", runId: "r2", agentName: "LAYOUT",   status: "completed" } as Row,
+    );
+
+    const app = makeApp();
+    const res = await request(app).get("/api/anthropic/investigation/r1");
+
+    expect(res.status).toBe(200);
+    expect(res.body.agentRuns).toHaveLength(2);
+    const names = (res.body.agentRuns as Array<{ agentName: string }>).map((r) => r.agentName);
+    expect(names.sort()).toEqual(["CRYPTO", "PROTOCOL"]);
+  });
+
   it("returns 404 when run is not found", async () => {
     const app = makeApp();
     const res = await request(app).get("/api/anthropic/investigation/nonexistent");
     expect(res.status).toBe(404);
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * INTEGRATION: SSE event ordering invariants
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+describe("POST /api/anthropic/investigation — SSE event ordering", () => {
+  it("emits run_created first, run_done last, with coordinator_start strictly after every agent_done", async () => {
+    const agentText = '```json\n{"summary":"ok","findings":[],"gaps":[]}\n```';
+    const endTurn = { content: [{ type: "text", text: agentText }], stop_reason: "end_turn" };
+    for (let i = 0; i < 5; i++) anthropicResponses.push(endTurn);
+    anthropicResponses.push({
+      content: [{ type: "text", text: '```json\n{"moduleType":"UNKNOWN","vin":null,"confidence":0.5,"summary":"s","findings":[],"gaps":[],"nextSteps":[]}\n```' }],
+      stop_reason: "end_turn",
+    });
+
+    const app = makeApp();
+    const res = await request(app)
+      .post("/api/anthropic/investigation")
+      .send({ title: "Ordering test" });
+
+    expect(res.status).toBe(200);
+    const events = parseSseEvents(res.text);
+    const types = events.map((e) => e.type as string);
+
+    // run_created is first
+    expect(types[0]).toBe("run_created");
+    // run_done is last
+    expect(types[types.length - 1]).toBe("run_done");
+
+    // For each agent: agent_start precedes its agent_done; agent_text (when present) sits between them.
+    for (const name of AGENT_NAMES) {
+      const startIdx = events.findIndex((e) => e.type === "agent_start" && e.agentName === name);
+      const doneIdx  = events.findIndex((e) => e.type === "agent_done"  && e.agentName === name);
+      expect(startIdx).toBeGreaterThanOrEqual(0);
+      expect(doneIdx).toBeGreaterThan(startIdx);
+
+      const textIdx = events.findIndex((e) => e.type === "agent_text" && e.agentName === name);
+      if (textIdx >= 0) {
+        expect(textIdx).toBeGreaterThan(startIdx);
+        expect(textIdx).toBeLessThan(doneIdx);
+      }
+    }
+
+    // coordinator_start strictly follows the LAST agent_done
+    const lastAgentDone = types.lastIndexOf("agent_done");
+    const coordinatorStart = types.indexOf("coordinator_start");
+    expect(coordinatorStart).toBeGreaterThan(lastAgentDone);
+
+    // run_done strictly follows coordinator_start
+    const runDoneIdx = types.lastIndexOf("run_done");
+    expect(runDoneIdx).toBeGreaterThan(coordinatorStart);
+  });
+
+  it("emits agent_tool_call before agent_tool_result for the same tool id", async () => {
+    const buf = Buffer.alloc(1024, 0xff);
+    const toolCallResp = {
+      content: [{ type: "tool_use", id: "tc_42", name: "key_secrets_scan", input: {} }],
+      stop_reason: "tool_use",
+    };
+    const endTurn = {
+      content: [{ type: "text", text: '```json\n{"summary":"x","findings":[],"gaps":[]}\n```' }],
+      stop_reason: "end_turn",
+    };
+
+    anthropicResponses.push(toolCallResp, endTurn);
+    for (let i = 1; i < 5; i++) anthropicResponses.push(endTurn);
+    anthropicResponses.push({
+      content: [{ type: "text", text: '```json\n{"moduleType":"UNKNOWN","vin":null,"confidence":0.3,"summary":"s","findings":[],"gaps":[],"nextSteps":[]}\n```' }],
+      stop_reason: "end_turn",
+    });
+
+    const app = makeApp();
+    const res = await request(app)
+      .post("/api/anthropic/investigation")
+      .send({ binaryBase64: buf.toString("base64"), title: "Tool order test" });
+
+    const events = parseSseEvents(res.text);
+    const callIdx   = events.findIndex((e) => e.type === "agent_tool_call"   && e.id === "tc_42");
+    const resultIdx = events.findIndex((e) => e.type === "agent_tool_result" && e.id === "tc_42");
+    expect(callIdx).toBeGreaterThanOrEqual(0);
+    expect(resultIdx).toBeGreaterThan(callIdx);
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * INTEGRATION: Active-run cancellation
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+describe("POST /api/anthropic/investigation/:runId/cancel — active run", () => {
+  it("cancel of an unknown run id is a no-op that still updates the DB row when present", async () => {
+    const app = makeApp();
+    // No active controller registered, no row in DB: should still return ok (cancel is idempotent).
+    const res = await request(app)
+      .post("/api/anthropic/investigation/never-existed/cancel")
+      .send();
+    expect(res.status).toBe(200);
+    expect(res.body.ok).toBe(true);
+  });
+
+  it("a run that completes successfully is persisted with status 'completed' and its agent rows", async () => {
+    const agentText = '```json\n{"summary":"ok","findings":[],"gaps":[]}\n```';
+    const endTurn = { content: [{ type: "text", text: agentText }], stop_reason: "end_turn" };
+    for (let i = 0; i < 5; i++) anthropicResponses.push(endTurn);
+    anthropicResponses.push({
+      content: [{ type: "text", text: '```json\n{"moduleType":"UNKNOWN","vin":null,"confidence":0.4,"summary":"s","findings":[],"gaps":[],"nextSteps":[]}\n```' }],
+      stop_reason: "end_turn",
+    });
+
+    const app = makeApp();
+    const res = await request(app).post("/api/anthropic/investigation").send({ title: "Done" });
+    expect(res.status).toBe(200);
+
+    expect(store.investigation_runs).toHaveLength(1);
+    const row = store.investigation_runs[0];
+    expect(row.status).toBe("completed");
+    expect(row.completedAt).toBeTruthy();
+
+    // GET /:id surfaces the run + its agent sub-rows
+    const runId = row.id;
+    const detail = await request(app).get(`/api/anthropic/investigation/${runId}`);
+    expect(detail.status).toBe(200);
+    expect(detail.body.id).toBe(runId);
+    expect(detail.body.agentRuns).toHaveLength(5);
   });
 });
