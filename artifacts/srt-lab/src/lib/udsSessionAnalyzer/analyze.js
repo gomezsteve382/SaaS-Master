@@ -216,11 +216,14 @@ export function analyzeSession(parsedLines) {
     const line = parsedLines[i];
 
     if (line.isFF || line.isCF) {
+      const kind = line.isFF
+        ? 'First Frame buffered but not enough Consecutive Frames arrived to complete the message'
+        : 'Orphan Consecutive Frame — no matching First Frame on this stream';
       exchanges.push({
         request: line, response: null,
-        severity: 'WARN', service: 'Multi-Frame (not reassembled)',
+        severity: 'WARN', service: 'Multi-Frame (incomplete)',
         subFunction: null, requestBytes: fmtBytes(line.bytes), responseBytes: '',
-        verdict: `${line.isFF ? 'First Frame' : 'Consecutive Frame'} detected — multi-frame ISO-TP reassembly is out of scope for this analyzer. Payload may be truncated. Review raw frames manually.`,
+        verdict: `${kind}. Payload was truncated or frames arrived out of order — review the raw capture for the missing CF(s).`,
         type: 'multiframe', nrcCode: null,
       });
       used.add(i);

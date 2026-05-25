@@ -204,6 +204,52 @@ describe('parseTrace — ISO-TP multi-frame reassembly', () => {
     expect(exchanges[1].responseBytes).toMatch(/41 42 43$/);
   });
 
+  it('runs DID name + decoded-value labelling on reassembled 0x22 responses', () => {
+    // RDBI 0xF190 (VIN) — 17-byte ASCII payload "1C3CDZAG5KR123456".
+    // Response: 62 F1 90 + 17 bytes = 20 bytes → must arrive as FF + 2 CF.
+    //   FF : 10 14 62 F1 90 31 43 33                  (PCI 0x1014, len=20, 6 data bytes)
+    //   CF1: 21 43 44 5A 41 47 35 4B                  (SN=1, 7 bytes)
+    //   CF2: 22 52 31 32 33 34 35 36                  (SN=2, 7 bytes)
+    const { exchanges } = analyze([
+      '(0.000) can0 7E0#0322F190CCCCCCCC',
+      '(0.010) can0 7E8#101462F190314333',
+      '(0.020) can0 7E8#2143445A4147354B',
+      '(0.030) can0 7E8#2252313233343536',
+    ]);
+
+    expect(exchanges).toHaveLength(1);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.service).toBe('ReadDataByIdentifier');
+    expect(ex.did).toBeDefined();
+    expect(ex.did.did).toBe(0xF190);
+    expect(ex.did.name).toMatch(/VIN/i);
+    expect(ex.did.decoded).toBe('1C3CDZAG5KR123456');
+    expect(ex.verdict).toMatch(/1C3CDZAG5KR123456/);
+  });
+
+  it('emits a clear WARN row when an FF is never completed by enough CFs', () => {
+    const { exchanges } = analyze([
+      '(0.010) can0 7E8#101062F188313233',
+      '(0.020) can0 7E8#2134353637383930',
+    ]);
+    const mf = exchanges.find(e => e.type === 'multiframe');
+    expect(mf).toBeDefined();
+    expect(mf.severity).toBe('WARN');
+    expect(mf.service).toBe('Multi-Frame (incomplete)');
+    expect(mf.verdict).toMatch(/First Frame/);
+    expect(mf.verdict).not.toMatch(/out of scope/i);
+  });
+
+  it('emits a clear WARN row for an orphan Consecutive Frame', () => {
+    const { exchanges } = analyze([
+      '(0.020) can0 7E8#2134353637383930',
+    ]);
+    const mf = exchanges.find(e => e.type === 'multiframe');
+    expect(mf).toBeDefined();
+    expect(mf.verdict).toMatch(/Orphan Consecutive Frame/);
+  });
+
   it('reassembles multi-frame responses in TX/RX shape too', () => {
     const { lines } = parseTrace([
       '[0.010] RX 7E8 10 10 62 F1 88 31 32 33',
