@@ -98,7 +98,7 @@ function catalogStepsFor(code){
 const TOOLS = [
   {name: 'Autel Elite J2534 + bridge', desc: 'Bench-only path. Connect via the local bridge daemon (this app). CDA6, GPEC2A, BCM, RFHUB all driven from here.', cost: '$$ (already owned)'},
   {name: 'wiTECH 2.0 + MicroPod',      desc: 'OEM Mopar tool. TechAuthority sub required. Best for Mopar `.webm` cals on a real vehicle.', cost: '$$$'},
-  {name: 'AlfaOBD + CarDAQ-Plus',      desc: 'Independent shop favorite. CDA6 built in, handles GPEC2A flashing.', cost: '$$'},
+  {name: 'AlfaOBD + CarDAQ-Plus',      desc: 'Popular independent stack. CDA6 built in, handles GPEC2A flashing.', cost: '$$'},
   {name: 'AlfaOBD + MongoosePro JLR',  desc: 'Cheaper J2534 option. Verify Hellcat/Redeye support before trusting it.', cost: '$'},
 ];
 

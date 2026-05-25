@@ -2293,7 +2293,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         log(`Sync cancelled — target chip change to ${targetChipDescriptor.sizeLabel} declined.`, 'warn');
         return;
       }
-      log(`Tech acknowledged PCM target-chip change: ${pcmSourceChip.sizeLabel} donor → ${targetChipDescriptor.sizeLabel} target.`, 'warn');
+      log(`Acknowledged PCM target-chip change: ${pcmSourceChip.sizeLabel} donor → ${targetChipDescriptor.sizeLabel} target.`, 'warn');
     }
     /* Gate: if any loaded module bypassed the registry check, ask the tech to
      * acknowledge before the sync proceeds. Per-session opt-out is honoured. */
@@ -3395,7 +3395,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
               skipOverrideConfirmRef.current = true;
               log('P/N override prompt suppressed for the rest of this session.', 'muted');
             }
-            log(`Tech acknowledged P/N override on ${modules.join(', ')} — proceeding with ${action}.`, 'warn');
+            log(`Acknowledged P/N override on ${modules.join(', ')} — proceeding with ${action}.`, 'warn');
             setOverrideConfirm(null);
             executeSync(action, overrideVin);
           }}

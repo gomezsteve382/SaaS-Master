@@ -167,15 +167,6 @@ function slugToAlgo(slug) {
 export default function UnlockCoverageTab() {
   const masterVin = useMasterVin();
   const benchVin = masterVin?.vin || "";
-  // Task #643 — last operator name typed into a verify form. Remembered
-  // per-browser so the tech doesn't have to retype their initials on
-  // every row. Stored as a plain string (no PII guardrails — same as
-  // localStorage VIN history elsewhere in the app).
-  const [operatorName, setOperatorName] = useState(() => {
-    if (typeof window === "undefined") return "";
-    try { return window.localStorage.getItem("srtlab.task634.operator.v1") || ""; }
-    catch { return ""; }
-  });
   const [catalog, setCatalog] = useState(null);
   // Optional extended catalog from tools/asset-sweep (DLLs + UDS tables).
   const [extCatalog, setExtCatalog] = useState(null);
@@ -911,13 +902,6 @@ export default function UnlockCoverageTab() {
     // still run so the row flips to VERIFIED instantly.
     const isOffline = verificationsSource === "cache";
 
-    // Persist the operator name for next time so the tech doesn't retype it.
-    if (cleanOperator) {
-      setOperatorName(cleanOperator);
-      try { window.localStorage.setItem("srtlab.task634.operator.v1", cleanOperator); }
-      catch { /* best-effort */ }
-    }
-
     setVerifiedIds((prev) => {
       const next = new Set(prev);
       next.add(entryId);
@@ -1090,7 +1074,7 @@ export default function UnlockCoverageTab() {
     setVerifyDrafts((prev) => ({
       ...prev,
       [entryId]: {
-        operator: existing.operator || operatorName || "",
+        operator: existing.operator || "",
         vin: existing.vin || benchVin || "",
         notes: existing.notes || "",
       },
@@ -1502,7 +1486,6 @@ export default function UnlockCoverageTab() {
                                 meta={verifications[e.task634Id]}
                                 draft={verifyDrafts[e.task634Id]}
                                 benchVin={benchVin}
-                                lastOperator={operatorName}
                                 onOpenDraft={openVerifyDraft}
                                 onCloseDraft={closeVerifyDraft}
                                 onUpdateDraft={updateVerifyDraft}
@@ -1535,7 +1518,6 @@ export default function UnlockCoverageTab() {
           verifications={verifications}
           verifyDrafts={verifyDrafts}
           benchVin={benchVin}
-          operatorName={operatorName}
           onOpenDraft={openVerifyDraft}
           onCloseDraft={closeVerifyDraft}
           onUpdateDraft={updateVerifyDraft}
@@ -1547,8 +1529,8 @@ export default function UnlockCoverageTab() {
       {/* Task #646 — single-screen audit log of every bench verification
           recorded for the task-634 capabilities. Pulls from the same
           verifications state the per-row VerifyPanel writes to, joined
-          with the task634 entry labels so a shop owner can scan a week
-          of bench work in one place and export it for billing. */}
+          with the task634 entry labels so you can scan a week of bench
+          work in one place and export it. */}
       <VerificationsLogCard
         verifications={verifications}
         task634Entries={task634Entries}
@@ -1707,7 +1689,7 @@ export default function UnlockCoverageTab() {
 // operator / VIN / notes provenance can be captured against the same
 // entries that live in this dedicated card.
 function Task634Card({
-  entries, verifications, verifyDrafts, benchVin, operatorName,
+  entries, verifications, verifyDrafts, benchVin,
   onOpenDraft, onCloseDraft, onUpdateDraft, onSave, onClear,
 }) {
   const [open, setOpen] = useState(true);
@@ -1755,7 +1737,6 @@ function Task634Card({
               meta={verifications?.[e.id]}
               draft={verifyDrafts?.[e.id]}
               benchVin={benchVin}
-              operatorName={operatorName}
               onOpenDraft={onOpenDraft}
               onCloseDraft={onCloseDraft}
               onUpdateDraft={onUpdateDraft}
@@ -1770,7 +1751,7 @@ function Task634Card({
 }
 
 function Task634Row({
-  entry, meta, draft, benchVin, operatorName,
+  entry, meta, draft, benchVin,
   onOpenDraft, onCloseDraft, onUpdateDraft, onSave, onClear,
 }) {
   const [open, setOpen] = useState(false);
@@ -1854,7 +1835,6 @@ function Task634Row({
           meta={meta}
           draft={draft}
           benchVin={benchVin}
-          lastOperator={operatorName}
           onOpenDraft={onOpenDraft}
           onCloseDraft={onCloseDraft}
           onUpdateDraft={onUpdateDraft}
@@ -1874,14 +1854,14 @@ function Task634Row({
 //      summary + Edit / Unmark buttons.
 function VerifyPanel({
   entryId, verified, meta, draft,
-  benchVin, lastOperator,
+  benchVin,
   onOpenDraft, onCloseDraft, onUpdateDraft, onSave, onClear,
 }) {
   const isEditing = !!draft;
   const operatorVal = draft?.operator ?? "";
   const vinVal = draft?.vin ?? "";
   const notesVal = draft?.notes ?? "";
-  const canSave = operatorVal.trim().length > 0;
+  const canSave = true;
   const inputStyle = {
     fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
     padding: "5px 8px", border: `1px solid ${C.bd}`, borderRadius: 4,
@@ -1937,7 +1917,7 @@ function VerifyPanel({
             }}
           >Mark verified</button>
           <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, lineHeight: 1.4}}>
-            Flip this once you've run the capability on a real car. Records who / when / which VIN so other techs can see the provenance.
+            Flip this once you've run the capability on a real car. Records when / which VIN for later reference.
           </div>
         </div>
       )}
@@ -1982,11 +1962,6 @@ function VerifyPanel({
                 padding: "5px 10px", borderRadius: 6,
               }}
             >Unmark</button>
-            {!meta?.operator && (
-              <span style={{fontFamily: "'Nunito'", fontSize: 11, color: "#E65100", fontStyle: "italic"}}>
-                (no operator recorded — click Edit to add)
-              </span>
-            )}
           </div>
         </div>
       )}
@@ -2001,40 +1976,26 @@ function VerifyPanel({
           }}
           style={{display: "flex", flexDirection: "column", gap: 8}}
         >
-          <div style={{display: "grid", gridTemplateColumns: "minmax(160px, 1fr) minmax(160px, 1fr)", gap: 10}}>
-            <div>
-              <div style={labelStyle}>OPERATOR <span style={{color: "#E65100"}}>*</span></div>
-              <input
-                type="text"
-                data-testid={`verify-operator-input-${entryId}`}
-                value={operatorVal}
-                placeholder={lastOperator ? `e.g. ${lastOperator}` : "tech initials / name"}
-                onChange={(ev) => onUpdateDraft(entryId, {operator: ev.target.value})}
-                maxLength={120}
-                style={inputStyle}
-                autoFocus
-              />
-            </div>
-            <div>
-              <div style={labelStyle}>VIN</div>
-              <input
-                type="text"
-                data-testid={`verify-vin-input-${entryId}`}
-                value={vinVal}
-                placeholder={benchVin || "17-char VIN (optional)"}
-                onChange={(ev) => onUpdateDraft(entryId, {vin: ev.target.value.toUpperCase()})}
-                maxLength={17}
-                spellCheck={false}
-                style={inputStyle}
-              />
-            </div>
+          <div>
+            <div style={labelStyle}>VIN</div>
+            <input
+              type="text"
+              data-testid={`verify-vin-input-${entryId}`}
+              value={vinVal}
+              placeholder={benchVin || "17-char VIN (optional)"}
+              onChange={(ev) => onUpdateDraft(entryId, {vin: ev.target.value.toUpperCase()})}
+              maxLength={17}
+              spellCheck={false}
+              style={inputStyle}
+              autoFocus
+            />
           </div>
           <div>
             <div style={labelStyle}>NOTES (optional)</div>
             <textarea
               data-testid={`verify-notes-input-${entryId}`}
               value={notesVal}
-              placeholder="Anything worth flagging for the next tech — caveats, vehicle, NRC seen, etc."
+              placeholder="Anything worth flagging later — caveats, vehicle, NRC seen, etc."
               onChange={(ev) => onUpdateDraft(entryId, {notes: ev.target.value})}
               rows={2}
               maxLength={2000}
@@ -2067,11 +2028,6 @@ function VerifyPanel({
                 padding: "5px 10px", borderRadius: 6,
               }}
             >Cancel</button>
-            {!canSave && (
-              <span style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, fontStyle: "italic"}}>
-                Operator is required so we can audit who confirmed the unlock.
-              </span>
-            )}
           </div>
         </form>
       )}
@@ -2261,14 +2217,14 @@ function VerificationsLogSourceBanner({
   let msg;
   if (isLive) {
     msg = syncedLabel
-      ? `Showing the live shop audit log from the API server. Last synced ${syncedLabel}.`
-      : "Showing the live shop audit log from the API server.";
+      ? `Showing the live audit log from the API server. Last synced ${syncedLabel}.`
+      : "Showing the live audit log from the API server.";
   } else if (isCache) {
     msg = syncedLabel
-      ? `API server unreachable — showing the cached audit log from the last successful sync (${syncedLabel}). Any new verifications you record while offline will save to this device only and will NOT reach the shop's authoritative log until the API is reachable again.`
-      : "API server unreachable and no cached audit log on this device yet. Plug back in and retry to pull the shop's history. Verifications recorded right now will save to this device only.";
+      ? `API server unreachable — showing the cached audit log from the last successful sync (${syncedLabel}). Any new verifications you record while offline will save to this device only and will NOT reach the server until the API is reachable again.`
+      : "API server unreachable and no cached audit log on this device yet. Plug back in and retry to pull history. Verifications recorded right now will save to this device only.";
   } else {
-    msg = "Syncing the shop audit log from the API server…";
+    msg = "Syncing the audit log from the API server…";
   }
   return (
     <div data-testid="verifications-log-source-banner-wrap" data-source={source} data-pending-count={pendingCount} data-conflict-count={conflicts?.length || 0}>

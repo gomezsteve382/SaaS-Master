@@ -112,7 +112,6 @@ export default function GpecObdVinPanel({platform}) {
     setWriteResult(null);
     updateStatus(platform, 'writing');
     addLog(`═══ ${platform} OBD VIN WRITE — original + current ═══`, 'info');
-    if (confirmData?.technician) addLog('Technician: ' + confirmData.technician, 'info');
     if (confirmData?.titleRef)   addLog('Title reference: ' + confirmData.titleRef, 'info');
 
     // SGW gating mirrors EcmTab — if the new VIN is on a 2018+ FCA

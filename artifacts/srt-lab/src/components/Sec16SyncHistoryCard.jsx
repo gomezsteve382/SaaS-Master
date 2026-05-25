@@ -4,11 +4,11 @@ import { C } from '../lib/constants.js';
 import { MasterVinContext } from '../lib/masterVinContext.jsx';
 
 /* ============================================================================
- * Sec16SyncHistoryCard — Task #685
+ * Sec16SyncHistoryCard
  *
- * Surfaces the audit trail recorded by `POST /api/sec16-sync-events`
- * (Task #678). Techs working a job can now see "last sync 12m ago by JD"
- * directly inside SRT Lab instead of squinting at the api-server log.
+ * Surfaces the audit trail recorded by `POST /api/sec16-sync-events`.
+ * Shows "last sync 12m ago" directly inside SRT Lab instead of squinting
+ * at the api-server log.
  *
  * Two view modes — toggled by the "All VINs / This VIN" switch at the
  * top of the card — share the same render path. When `vinValid` is true
@@ -137,7 +137,7 @@ export default function Sec16SyncHistoryCard() {
             return (
               <div key={ev.id} data-testid="sec16-history-row"
                    style={{ display: 'grid',
-                            gridTemplateColumns: '90px 90px 1fr 1fr 110px 110px',
+                            gridTemplateColumns: '90px 90px 1fr 110px 110px',
                             gap: 10, alignItems: 'center', padding: '8px 12px',
                             border: `1px solid ${meta.color}33`, borderRadius: 10,
                             background: meta.color + '08' }}>
@@ -154,10 +154,6 @@ export default function Sec16SyncHistoryCard() {
                 <span style={{ fontSize: 11, color: C.tx, fontFamily: "'JetBrains Mono'" }}
                       data-testid="sec16-history-action">
                   {ev.actionId}
-                </span>
-                <span style={{ fontSize: 11, color: C.ts }}
-                      data-testid="sec16-history-operator">
-                  {ev.operator || <em style={{ color: C.tm }}>no operator</em>}
                 </span>
                 <span style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono'" }}
                       data-testid="sec16-history-vin">

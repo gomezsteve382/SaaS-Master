@@ -174,7 +174,6 @@ export default function RfhubTab({vehicle}){
     setBusy('Writing VIN to RFHUB...');
     setModuleStatus(p=>({...p,RFHUB:'writing'}));
     addLog('═══ RFHUB VIN WRITE ═══','info');
-    if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
     // SGW-routed VINs require the Autel J2534 bridge channel; programVin
     // re-runs the SBEC seed/key on whichever channel we hand it.

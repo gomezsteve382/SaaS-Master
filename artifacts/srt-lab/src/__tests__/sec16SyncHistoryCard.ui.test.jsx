@@ -5,7 +5,7 @@
 // Locks the behaviour the task spec calls out:
 //   1. With a valid VIN in master context, the card fetches the
 //      VIN-filtered endpoint by default and shows actionId, target,
-//      verified status, operator, and a relative timestamp.
+//      verified status, and a relative timestamp.
 //   2. Unchecking "Filter to current VIN" re-fetches against the
 //      unfiltered endpoint.
 //   3. The pure relativeTime helper produces stable, human-readable
@@ -69,7 +69,7 @@ describe("relativeTime", () => {
 });
 
 describe("Sec16SyncHistoryCard", () => {
-  it("renders VIN-filtered events with actionId, target, verified and operator", async () => {
+  it("renders VIN-filtered events with actionId, target, verified", async () => {
     const events = [
       {
         id: 1, vin: VIN, platform: "lx-ld",
@@ -101,7 +101,6 @@ describe("Sec16SyncHistoryCard", () => {
     expect(within(row).getByTestId("sec16-history-verified").textContent).toBe("MATCH");
     expect(within(row).getByTestId("sec16-history-target").textContent).toBe("BCM");
     expect(within(row).getByTestId("sec16-history-action").textContent).toBe("rfh-bcm-sec16-sync");
-    expect(within(row).getByTestId("sec16-history-operator").textContent).toBe("JD");
     expect(within(row).getByTestId("sec16-history-time").textContent).toBe("12m ago");
   });
 

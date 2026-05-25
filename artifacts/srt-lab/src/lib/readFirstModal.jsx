@@ -1,7 +1,6 @@
 import React, {useState, useCallback} from 'react';
 import {vinHasSGW, parseVinYear} from './vin.js';
 import {useBridgeStatus} from './bridgeClient.js';
-import TechPicker, {recordTechUsed} from './TechPicker.jsx';
 
 /* ReadFirstModal — single shared pre-write confirmation gate.
  *
@@ -36,14 +35,11 @@ export function ReadFirstModal({
   const [reviewed, setReviewed] = useState(false);
   const [titleRef, setTitleRef] = useState('');
   const [titleNotes, setTitleNotes] = useState('');
-  const [technician, setTechnician] = useState('');
 
   const handleConfirm = useCallback(() => {
     if (!reviewed) { alert('Please check the box confirming you reviewed the current module state.'); return; }
-    const trimmedTech = technician.trim();
-    if (trimmedTech) recordTechUsed(trimmedTech);
-    onConfirm({reviewed, titleRef, titleNotes, technician: trimmedTech || undefined, preWriteConfirmed: new Date().toISOString()});
-  }, [reviewed, titleRef, titleNotes, technician, onConfirm]);
+    onConfirm({reviewed, titleRef, titleNotes, preWriteConfirmed: new Date().toISOString()});
+  }, [reviewed, titleRef, titleNotes, onConfirm]);
 
   const headerTitle = title || '⚠ READ BEFORE WRITING';
   const headerSubtitle = subtitle || 'Review the current module state below. Once you write, the old VIN is overwritten.';
@@ -93,10 +89,6 @@ export function ReadFirstModal({
 
         <div style={{marginBottom:18,background:'#F0F8FF',border:'1px solid #B0D4F0',borderRadius:8,padding:14}}>
           <div style={{fontSize:11,fontWeight:800,color:'#1976D2',letterSpacing:2,marginBottom:10}}>📄 TITLE REFERENCE</div>
-          <div style={{marginBottom:10}}>
-            <div style={{fontSize:10,color:'#666',marginBottom:3,fontWeight:700}}>TECHNICIAN (optional)</div>
-            <TechPicker value={technician} onChange={setTechnician} placeholder="Your name or initials"/>
-          </div>
           <div style={{marginBottom:10}}>
             <div style={{fontSize:10,color:'#666',marginBottom:3,fontWeight:700}}>TITLE NUMBER / CAR ID / STOCK # / WORK ORDER (RO)</div>
             <input value={titleRef} onChange={e=>setTitleRef(e.target.value)} placeholder="e.g. RO-2024-087, Title #FL4820193X" style={{width:'100%',padding:10,border:'1.5px solid #B0D4F0',borderRadius:6,fontSize:13,fontFamily:"'JetBrains Mono'",boxSizing:'border-box'}}/>

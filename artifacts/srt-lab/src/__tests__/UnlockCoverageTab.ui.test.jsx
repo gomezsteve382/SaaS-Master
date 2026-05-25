@@ -612,7 +612,7 @@ describe("UnlockCoverageTab — UI", () => {
     }
   });
 
-  it("verify panel captures operator, VIN, notes and surfaces them on the badge + summary (task #643)", async () => {
+  it("verify panel captures VIN, notes and surfaces them on the badge + summary (task #643)", async () => {
     // Override fetch so we can capture the POST body the form sends and
     // simulate the server's authoritative response.
     const postBodies = [];
@@ -662,10 +662,8 @@ describe("UnlockCoverageTab — UI", () => {
 
     // Open the form, type in metadata, save.
     fireEvent.click(openBtn);
-    const opInput = await screen.findByTestId(`verify-operator-input-${entryId}`);
-    const vinInput = screen.getByTestId(`verify-vin-input-${entryId}`);
+    const vinInput = await screen.findByTestId(`verify-vin-input-${entryId}`);
     const notesInput = screen.getByTestId(`verify-notes-input-${entryId}`);
-    fireEvent.change(opInput, { target: { value: "K. Pierce" } });
     fireEvent.change(vinInput, { target: { value: "2c3cdzc97kh123456" } });
     fireEvent.change(notesInput, { target: { value: "Demon, ran clean on second seed" } });
 
@@ -675,16 +673,14 @@ describe("UnlockCoverageTab — UI", () => {
     await waitFor(() => expect(postBodies.length).toBe(1));
     expect(postBodies[0]).toMatchObject({
       entryId,
-      operator: "K. Pierce",
       vin: "2C3CDZC97KH123456",
       notes: "Demon, ran clean on second seed",
     });
     expect(typeof postBodies[0].clientVerifiedAt).toBe("string");
 
-    // Form closes, summary now surfaces operator + VIN + a formatted time.
+    // Form closes, summary now surfaces VIN + a formatted time.
     await waitFor(() => {
       expect(screen.queryByTestId(`verify-form-${entryId}`)).toBeNull();
-      expect(screen.getByTestId(`verify-operator-${entryId}`).textContent).toBe("K. Pierce");
       expect(screen.getByTestId(`verify-vin-${entryId}`).textContent).toBe("2C3CDZC97KH123456");
       expect(screen.getByTestId(`verify-notes-${entryId}`).textContent).toMatch(
         /Demon, ran clean on second seed/,
@@ -697,12 +693,11 @@ describe("UnlockCoverageTab — UI", () => {
       .querySelector('[data-status="verified"]');
     expect(badge).toBeTruthy();
     const title = badge.getAttribute("title") || "";
-    expect(title).toMatch(/K\. Pierce/);
     expect(title).toMatch(/2C3CDZC97KH123456/);
     expect(title).toMatch(/Demon, ran clean/);
   });
 
-  it("verify form refuses to save without an operator name (task #643)", async () => {
+  it("verify form is saveable immediately without any required field (task #715)", async () => {
     setupFetch({ task634: TASK634 });
     const entryId = TASK634.entries[0].id;
     render(<UnlockCoverageTab />);
@@ -710,13 +705,8 @@ describe("UnlockCoverageTab — UI", () => {
     fireEvent.click(screen.getByTestId(`toggle-task634_${entryId}`));
     fireEvent.click(await screen.findByTestId(`verify-btn-${entryId}`));
     const saveBtn = await screen.findByTestId(`verify-save-${entryId}`);
-    expect(saveBtn.hasAttribute("disabled")).toBe(true);
-    fireEvent.change(screen.getByTestId(`verify-operator-input-${entryId}`), {
-      target: { value: "tech-1" },
-    });
-    expect(
-      screen.getByTestId(`verify-save-${entryId}`).hasAttribute("disabled"),
-    ).toBe(false);
+    expect(saveBtn.hasAttribute("disabled")).toBe(false);
+    expect(screen.queryByTestId(`verify-operator-input-${entryId}`)).toBeNull();
   });
 
   // Task #646 — single-screen audit log of every bench verification.
