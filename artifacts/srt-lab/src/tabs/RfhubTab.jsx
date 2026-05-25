@@ -9,6 +9,7 @@ import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
+import IdentityCard from "../components/IdentityCard.jsx";
 import {parseModule,moduleTooSmall} from "../lib/parseModule.js";
 import {vinHasSGW} from "../lib/vin.js";
 import {createBridgeEngine} from "../lib/bridgeEngine.js";
@@ -512,6 +513,7 @@ export default function RfhubTab({vehicle}){
         <div style={{marginTop:8,fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>Re-read the RFHUB in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module.</div>
       </div>}
       {inspectMod&&!inspectTooSmall&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod}/></div>}
+      {inspectMod&&!inspectTooSmall&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}
     </Card>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>

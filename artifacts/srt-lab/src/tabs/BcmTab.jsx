@@ -9,6 +9,7 @@ import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule, syncImmoBackup, bcmTooSmall} from "../lib/parseModule.js";
+import IdentityCard from "../components/IdentityCard.jsx";
 import {bcmFeatureMatrix} from "../lib/cgwConfig.js";
 import {vinHasSGW} from "../lib/vin.js";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
@@ -999,6 +1000,7 @@ export default function BcmTab({vehicle}){
       </div>}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.gn,fontWeight:700}}>{inspectMsg}</div>}
       {inspectMod&&!inspectTooSmall&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
+      {inspectMod&&!inspectTooSmall&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}
     </Card>
 
     <MinedBcmConfigPanel

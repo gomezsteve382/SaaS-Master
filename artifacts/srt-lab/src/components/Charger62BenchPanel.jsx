@@ -21,6 +21,7 @@ import {
   buildCharger62Report,
 } from '../lib/charger62BenchReport.js';
 import { extractRfhPflashIdentity } from '../lib/rfhPflashIdentity.js';
+import IdentityCard from './IdentityCard.jsx';
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Small helpers
@@ -183,52 +184,6 @@ function KeyMaterialBlock({ km }) {
             ? <Mono>{r.value}</Mono>
             : <div style={{ fontSize: 13, fontWeight: 800, color: C.tx }}>{r.value}</div>}
           <div style={{ fontSize: 9, color: C.tm, marginTop: 4 }}>{r.src}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ────────────────────────────────────────────────────────────────────────────
- * P-Flash Identity Card (Task #772) — OS / PN / SERIAL best-pick
- * ────────────────────────────────────────────────────────────────────────────*/
-function PflashIdentityCard({ identity }) {
-  if (!identity) return null;
-  const rows = [
-    { label: 'OS PN',  field: identity.os,
-      hint: 'Operating-system part number (letters + digits)' },
-    { label: 'Part #', field: identity.pn,
-      hint: 'Hardware part number (digits + 2–3 letter suffix)' },
-    { label: 'Serial', field: identity.serial,
-      hint: 'Supplier serial — mixed alphanumeric' },
-  ];
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
-      {rows.map((r, i) => (
-        <div key={i} style={{
-          background: C.c2, borderRadius: 10, padding: '10px 14px',
-          border: '1px solid ' + (r.field?.matchesCanonical ? C.gn + '60' : C.bd),
-        }}>
-          <div style={{ fontSize: 9, fontWeight: 900, color: C.ts, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
-            {r.label}
-          </div>
-          {r.field ? (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}>
-                <Mono>{r.field.value}</Mono>
-                {r.field.matchesCanonical ? <Tag color={C.gn}>canonical</Tag> : null}
-              </div>
-              <div style={{ fontSize: 9, color: C.tm, marginTop: 4 }}>
-                score {r.field.score} — useful {r.field.useful}, ratio {r.field.ratio.toFixed(2)}, len {r.field.len}, pr {r.field.pr.toFixed(2)}
-              </div>
-              <div style={{ fontSize: 9, color: C.tm, marginTop: 2 }}>
-                @ 0x{r.field.offset.toString(16).toUpperCase().padStart(6, '0')}
-              </div>
-            </>
-          ) : (
-            <span style={{ fontSize: 11, color: C.tm }}>— no candidate found —</span>
-          )}
-          <div style={{ fontSize: 9, color: C.tm, marginTop: 4, fontStyle: 'italic' }}>{r.hint}</div>
         </div>
       ))}
     </div>
@@ -513,7 +468,7 @@ export default function Charger62BenchPanel() {
           {modules?.pflashIdentity && (
             <>
               <SectionHead>RFHUB P-Flash Identity (best pick)</SectionHead>
-              <PflashIdentityCard identity={modules.pflashIdentity} />
+              <IdentityCard identity={modules.pflashIdentity} title={null} />
             </>
           )}
 

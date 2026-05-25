@@ -1,6 +1,7 @@
 import React, {useState, useCallback, useMemo, useRef, useEffect} from "react";
 import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
+import IdentityCard from '../components/IdentityCard.jsx';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
 import {decodeNRC} from '../lib/nrc.js';
 import {backupModule} from '../lib/audit.js';
@@ -16,7 +17,18 @@ import {parseDtcResponse, formatDtcLogLine, buildDtcDetail} from '../lib/dtc.js'
 import {build} from '@workspace/uds';
 
 export default function AdcmTab(){
-  const{vin:masterVin,updateStatus}=useMasterVin();
+  const{vin:masterVin,updateStatus,getDumpsByType}=useMasterVin();
+  // Task #774 — surface OS/PN/Serial best-pick for any loaded ADCM-class
+  // dump. ADCM dumps don't have a dedicated parseModule type, so we fall
+  // back across the most-likely buckets (FW / GPEC2A / BCM).
+  const adcmInspectMod=useMemo(()=>{
+    if(!getDumpsByType)return null;
+    for(const t of ['FW','GPEC2A','BCM']){
+      const d=(getDumpsByType(t)||[])[0];
+      if(d?.mod?.data)return d.mod;
+    }
+    return null;
+  },[getDumpsByType]);
   const[conn,setConn]=useState(false);const[busy,setBusy]=useState('');
   const[log,setLog]=useState([]);const[mod,setMod]=useState(ADCM_MODULES[2]);
   const[curVinF190,setCurVinF190]=useState('');const[curVin7B90,setCurVin7B90]=useState('');
@@ -408,6 +420,13 @@ export default function AdcmTab(){
         {busy||'▶️ RUN FULL PROGRAMMING SEQUENCE'}
       </Btn>
     </Card>
+
+    {adcmInspectMod&&adcmInspectMod.data&&<Card style={{marginBottom:14}}>
+      <IdentityCard bytes={adcmInspectMod.data}/>
+      <div style={{marginTop:8,fontSize:10,color:C.tm,fontFamily:"'JetBrains Mono'"}}>
+        Source: {adcmInspectMod.filename} · {(adcmInspectMod.size/1024).toFixed(1)} KB
+      </div>
+    </Card>}
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>

@@ -1,6 +1,7 @@
 import React, {useState, useCallback, useRef} from "react";
 import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
+import IdentityCard from '../components/IdentityCard.jsx';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
 import {decodeNRC} from '../lib/nrc.js';
 import {backupModule} from '../lib/audit.js';
@@ -15,7 +16,11 @@ import {programVin} from '../lib/vinProgrammer.js';
 import {build} from '@workspace/uds';
 
 export default function EcmTab({vehicle}){
-  const{vin:masterVin,updateStatus}=useMasterVin();
+  const{vin:masterVin,updateStatus,getDumpsByType}=useMasterVin();
+  // Task #774 — surface OS/PN/Serial best-pick for any GPEC2A (ECM) dump
+  // present in the shared workspace.
+  const ecmDumps=(getDumpsByType?.('GPEC2A')||[]);
+  const ecmInspectMod=ecmDumps[0]?.mod||null;
   const[conn,setConn]=useState(false);const[unlocked,setUnlocked]=useState(false);
   const[busy,setBusy]=useState('');const[log,setLog]=useState([]);
   const[curVin,setCurVin]=useState(null);const[ecmInfo,setEcmInfo]=useState({});
@@ -231,6 +236,13 @@ export default function EcmTab({vehicle}){
         {curVin&&masterVin&&curVin!==masterVin&&<div style={{fontSize:10,color:C.wn,marginTop:4}}>⚠ differs from Master VIN ({masterVin})</div>}
       </div>
     </Card>
+
+    {ecmInspectMod&&ecmInspectMod.data&&<Card style={{marginBottom:14}}>
+      <IdentityCard bytes={ecmInspectMod.data}/>
+      <div style={{marginTop:8,fontSize:10,color:C.tm,fontFamily:"'JetBrains Mono'"}}>
+        Source: {ecmInspectMod.filename} · {(ecmInspectMod.size/1024).toFixed(1)} KB
+      </div>
+    </Card>}
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
