@@ -158,6 +158,8 @@ export function buildCharger62Report({ bcmInfo, rfhEeeInfo, rfhPflashInfo, pcmIn
       offsetHex: fO(v.offset),
       vin: v.vin,
       crcOk: v.crcOk,
+      magic: v.magic,
+      magicKnown: v.magicKnown,
       ...vd,
     });
   }

@@ -148,6 +148,22 @@ describe('VIN extraction', () => {
     expect(offsets.has(0x0ecd)).toBe(true);
     expect(offsets.has(0x0ee1)).toBe(true);
   });
+  it('RFHUB EEE VIN slots flag off-spec magic (SINCRO disagreement signal)', () => {
+    ensureLoaded();
+    // This fixture's stored VIN CS byte is 0x02 → derived magic 0x3E, which
+    // is not in RFH_GEN2_VIN_CS_KNOWN_MAGICS = [0xDB, 0x87].  The competitor
+    // FCA SINCRO tool reports "Checksum ERROR" on every slot.  Our parser
+    // keeps crcOk=true (slots are internally self-consistent with magic 0x3E)
+    // but must surface magicKnown=false so the bench panel can warn that
+    // SINCRO will disagree.  See .agents/memory/charger62-bench-set.md.
+    expect(rfhEeeInfo.rfhVinMagic).toBe(0x3e);
+    expect(rfhEeeInfo.rfhVinMagicKnown).toBe(false);
+    const rfhRows = report.vinMatrix.filter((r) => r.role === 'RFHUB_EEE');
+    for (const row of rfhRows) {
+      expect(row.magic).toBe(0x3e);
+      expect(row.magicKnown).toBe(false);
+    }
+  });
   it('donorVin is the RFHUB EEE VIN', () => {
     ensureLoaded();
     expect(report.donorVin).toBe(rfhEeeInfo.vins[0].vin);

@@ -24,8 +24,18 @@ these values, so they can be used as cross-tool sanity checks.
 - **Target VIN** (all modules agree): `2C3CCABG1KH539430`
   - BCM has 4 VIN copies, all CRC OK
   - RFH EEE has 4 VIN slots, all carry the VIN but **all 4 VIN-slot CRCs FAIL**
-    on the competitor tool (parseModule currently surfaces them as 4 vins but
-    the per-slot CRC state isn't shown in the bench panel — see follow-up)
+    on FCA SINCRO while our parser reports CRC OK.  Decision: this is a
+    self-consistency vs spec-strict disagreement, not a polynomial bug.  Our
+    `rfhGen2DetectMagic` derives whatever XOR magic makes slot 1 consistent
+    (this fixture derives `0x3E` from stored CS=`0x02`); SINCRO accepts only
+    a fixed canonical magic set (modelled here as `RFH_GEN2_VIN_CS_KNOWN_MAGICS
+    = [0xDB, 0x87]`) and rejects everything else.  Both verdicts are
+    defensible from their own model — surface them side-by-side, do not
+    collapse them.  Why we don't tighten our gate: other legitimate fixtures
+    (e.g. `SAMPLE_RFH` magic=`0x85`) intentionally rely on the looser self-
+    consistency check.  How to apply: when a future panel/report renders a
+    Gen2 RFH VIN row, treat `magicKnown=false` as the "SINCRO will reject
+    this" signal and show it alongside the OK verdict.
 - **RFH EEE SEC16 slot 1** (offset 0x050E): `0000000000000001FC01FFFF00000000` (CRC OK)
 - **RFH EEE SEC16 slot 2**:                  `FC011B04F7031B012ECF1B010DF0FFFF` (CRC FAIL)
 - **BCM SEC16 (byte-reversed from RFH slot 1)**: `00000000FFFF01FC0100000000000000`

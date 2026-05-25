@@ -102,6 +102,14 @@ function VinMatrixTable({ rows }) {
                 {r.crcOk === true ? <VTag v="PASS">CRC OK</VTag>
                   : r.crcOk === false ? <VTag v="MISMATCH">CRC FAIL</VTag>
                   : <span style={{ color: C.tm, fontSize: 10 }}>—</span>}
+                {r.role === 'RFHUB_EEE' && r.magicKnown === false && (
+                  <div
+                    data-testid="rfh-magic-warning"
+                    title={`Derived Gen2 VIN magic 0x${(r.magic ?? 0).toString(16).toUpperCase().padStart(2, '0')} is not a canonical value (0xDB or 0x87). FCA SINCRO will reject this slot.`}
+                    style={{ marginTop: 3, fontSize: 9, fontWeight: 700, color: '#B26A00', letterSpacing: 0.3 }}>
+                    ⚠ SINCRO: Checksum ERROR (off-spec magic 0x{(r.magic ?? 0).toString(16).toUpperCase().padStart(2, '0')})
+                  </div>
+                )}
               </td>
               <td style={{ padding: '4px 10px' }}>
                 <VTag v={r.verdict}>{r.verdict}</VTag>
