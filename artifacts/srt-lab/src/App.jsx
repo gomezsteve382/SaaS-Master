@@ -58,6 +58,7 @@ import SignalDiscoveryTab from "./tabs/SignalDiscoveryTab.jsx";
 import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
 import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
+import InvestigationTab from "./tabs/InvestigationTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
@@ -941,6 +942,7 @@ const WORKSPACE_TABS = [
   {id:'sigdisc',   i:'🛰️', l:'SIGNAL DISC', s:'TUMFTM sweep · record · match'},
   {id:'canuniverse',i:'🌐', l:'CAN UNIVERSE', s:'awesome-canbus + Eclipse SDV catalog'},
   {id:'loganalyser',i:'📜',l:'LOG ANALYSER',s:'candump · UDS · iddiff · catalog growth'},
+  {id:'investigation',i:'🕵️',l:'SWARM',s:'Multi-agent ECU investigation swarm'},
 ];
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -1210,6 +1212,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='sigdisc'   && <SignalDiscoveryTab/>}
         {tab==='canuniverse' && <CanUniverseTab/>}
         {tab==='loganalyser' && <LogAnalyserTab/>}
+        {tab==='investigation' && <InvestigationTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also

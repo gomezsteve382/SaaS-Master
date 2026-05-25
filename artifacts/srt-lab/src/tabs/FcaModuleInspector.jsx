@@ -822,6 +822,23 @@ export default function FcaModuleInspector({ onOpenTab } = {}) {
           <div style={{ fontFamily: "'Righteous'", fontSize: 24, letterSpacing: 2 }}>MODULE INSPECTOR</div>
           <div style={{ fontSize: 10, opacity: .75, letterSpacing: 3, fontWeight: 700 }}>GPEC2A · RFHUB · BCM · CROSS-MODULE VALIDATION</div>
         </div>
+        {onOpenTab && modules.length > 0 && (
+          <button
+            onClick={() => onOpenTab("investigation")}
+            title="Run multi-agent swarm investigation against loaded modules"
+            style={{
+              background: "rgba(255,255,255,0.15)",
+              border: "1.5px solid rgba(255,255,255,0.5)",
+              borderRadius: 8, cursor: "pointer",
+              color: "#fff", fontFamily: "'Nunito',sans-serif",
+              fontWeight: 900, fontSize: 11, letterSpacing: 1,
+              padding: "7px 14px", whiteSpace: "nowrap",
+              display: "flex", alignItems: "center", gap: 6,
+            }}
+          >
+            🕵️ INVESTIGATE
+          </button>
+        )}
       </div>
     </Card>
 
