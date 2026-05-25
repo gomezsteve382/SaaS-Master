@@ -565,3 +565,34 @@ describe('example_session.log fixture', () => {
     expect(summary.pendingTimeouts).toBe(0);
   });
 });
+
+// ─── DID decoding via RDBI 0x22 ──────────────────────────────────────────────
+
+describe('RDBI 0x22 DID decoding', () => {
+  it('decodes a 0xF190 positive response to the VIN ASCII string', () => {
+    // "1C4HJXFG5KW501234" → 17 ASCII bytes after the 62 F1 90 header.
+    const { exchanges } = analyze([
+      '[Req] 22 F1 90',
+      '[Resp] 62 F1 90 31 43 34 48 4A 58 46 47 35 4B 57 35 30 31 32 33 34',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.did).toBeDefined();
+    expect(ex.did.did).toBe(0xF190);
+    expect(ex.did.decoded).toBe('1C4HJXFG5KW501234');
+    expect(ex.verdict).toMatch(/1C4HJXFG5KW501234/);
+  });
+
+  it('falls back to hex when the DID is not in the catalog', () => {
+    // 0xABCD is not a known DID — decoder should surface the raw payload as hex.
+    const { exchanges } = analyze([
+      '[Req] 22 AB CD',
+      '[Resp] 62 AB CD DE AD BE EF',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.did.did).toBe(0xABCD);
+    expect(ex.did.decoded).toMatch(/DE AD BE EF/i);
+    expect(ex.did.name).toBeNull();
+  });
+});
