@@ -214,10 +214,12 @@ function PflashIdentityCard({ identity }) {
           </div>
           {r.field ? (
             <>
-              <Mono>{r.field.value}</Mono>
+              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}>
+                <Mono>{r.field.value}</Mono>
+                {r.field.matchesCanonical ? <Tag color={C.gn}>canonical</Tag> : null}
+              </div>
               <div style={{ fontSize: 9, color: C.tm, marginTop: 4 }}>
                 score {r.field.score} — useful {r.field.useful}, ratio {r.field.ratio.toFixed(2)}, len {r.field.len}, pr {r.field.pr.toFixed(2)}
-                {r.field.matchesCanonical ? <span style={{ color: C.gn, marginLeft: 6, fontWeight: 800 }}>canonical</span> : null}
               </div>
               <div style={{ fontSize: 9, color: C.tm, marginTop: 2 }}>
                 @ 0x{r.field.offset.toString(16).toUpperCase().padStart(6, '0')}
