@@ -695,6 +695,232 @@ describe('RFHUB P-Flash identity — sibling legacy 4 KB RFHUB EEPROM fixtures',
 });
 
 /* ─────────────────────────────────────────────────────────────────────────────
+ * 9e. BCM 64 KB D-Flash family — auto-discover + pin (Task #797)
+ *
+ * Mirrors the §9d RFHUB enumerator for the BCM family. Any 64 KB fixture in
+ * attached_assets/ whose filename carries `BCM` or `DFLASH` is auto-discovered
+ * and run through `parseModule`. PINNED entries assert ground truth
+ * (vin + sec16 hex + fobikCount); unpinned fixtures emit a TODO log with the
+ * parser's current best read instead of failing so the regression net stays
+ * self-extending. Files where `parseModule` does not classify as `BCM` are
+ * surfaced as TODO + the actual classified type so misrouted fixtures are
+ * visible without breaking the build.
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('BCM 64 KB D-Flash — auto-discover + pin', () => {
+  /* ── Pinned ground-truth registry ───────────────────────────────────────────
+   * Keyed by exact filename in attached_assets/. Each entry pins
+   * { vin, sec16 (32-char hex, no separators, uppercase), fobikCount }.
+   * The canonical 6.2 Charger BCM is pinned from .agents/memory/
+   * charger62-bench-set.md (cross-confirmed against FCA SINCRO). */
+  const BCM_PINNED = {
+    '196.2charger_BCMDFLASH_NEWVIN_1779734554788.bin': {
+      vin: '2C3CCABG1KH539430',
+      sec16: '00000000000000313E00100018000A00',
+      fobikCount: 66,
+    },
+  };
+
+  const BCM_PATTERN = /(?:BCM|DFLASH)/i;
+  function discoverBcm64kFixtures() {
+    let entries;
+    try { entries = readdirSync(ASSETS); } catch { return []; }
+    const hits = [];
+    for (const name of entries) {
+      if (!name.toLowerCase().endsWith('.bin')) continue;
+      if (!BCM_PATTERN.test(name)) continue;
+      let size;
+      try { size = statSync(join(ASSETS, name)).size; } catch { continue; }
+      if (size !== 65536) continue;
+      hits.push(name);
+    }
+    hits.sort();
+    return hits;
+  }
+  const BCM_DISCOVERED = discoverBcm64kFixtures();
+
+  it('discovers at least the known pinned BCM fixtures', () => {
+    for (const pinnedName of Object.keys(BCM_PINNED)) {
+      expect(BCM_DISCOVERED).toContain(pinnedName);
+    }
+  });
+
+  function sec16ToHex(bytes) {
+    if (!bytes) return null;
+    return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0').toUpperCase()).join('');
+  }
+
+  for (const file of BCM_DISCOVERED) {
+    const expected = BCM_PINNED[file] || null;
+    describe(file, () => {
+      let data;
+      let info;
+      function load() {
+        if (info) return;
+        data = loadBin(file);
+        info = parseModule(data, file);
+      }
+
+      it('is a 65536-byte file', () => {
+        load();
+        expect(data.length).toBe(65536);
+      });
+
+      if (!expected) {
+        it('TODO — add to BCM_PINNED registry once VIN / SEC16 / fobikCount confirmed (best pick logged)', () => {
+          load();
+          const vin = info.vins?.[0]?.vin ?? null;
+          const sec16Hex = sec16ToHex(info.bcmSec16?.bytes);
+          // eslint-disable-next-line no-console
+          console.log(`[bcm-auto-discover] ${file} — not yet pinned, parser best pick:`, {
+            type: info.type,
+            vin,
+            sec16: sec16Hex,
+            sec16Blank: info.bcmSec16?.blank ?? null,
+            fobikCount: typeof info.fobikCount === 'number' ? info.fobikCount : null,
+          });
+          // Brand-new fixture that crashes the parser should still fail.
+          expect(info).toBeDefined();
+          expect(typeof info.type).toBe('string');
+        });
+        return;
+      }
+
+      it('parseModule classifies as BCM', () => {
+        load();
+        expect(info.type).toBe('BCM');
+      });
+      it(`vin === ${expected.vin}`, () => {
+        load();
+        expect(info.vins?.[0]?.vin).toBe(expected.vin);
+      });
+      it(`bcmSec16 hex === ${expected.sec16}`, () => {
+        load();
+        expect(sec16ToHex(info.bcmSec16?.bytes)).toBe(expected.sec16);
+      });
+      it(`fobikCount === ${expected.fobikCount}`, () => {
+        load();
+        expect(info.fobikCount).toBe(expected.fobikCount);
+      });
+    });
+  }
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 9f. GPEC2A 4 KB PCM family — auto-discover + pin (Task #797)
+ *
+ * Mirrors §9d/§9e for the GPEC2A PCM family. Any 4 KB fixture in
+ * attached_assets/ whose filename carries `PCM`, `immoFix`, `GPEC2A`, or
+ * `CONTINENTAL` is auto-discovered and run through `parseModule`. PINNED
+ * entries assert ground truth (vin + sec6 hex + marker hex + markerOk);
+ * unpinned fixtures emit a TODO log with the parser's current best read.
+ *
+ * Note on misclassification: some `FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_VIRGIN*`
+ * 4 KB fixtures are blank-page virgin pulls that `parseModule` classifies as
+ * RFHUB rather than GPEC2A. Those still surface here as TODO entries with
+ * `type: <actual>` logged so future investigation has a thread to pull on.
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('GPEC2A 4 KB PCM — auto-discover + pin', () => {
+  /* ── Pinned ground-truth registry ─────────────────────────────────────────
+   * Each entry pins { vin, sec6 (17-char "XX XX XX XX XX XX"), markerHex,
+   * markerOk, skimByte }. The canonical 6.2 Charger PCM is pinned from
+   * .agents/memory/charger62-bench-set.md. */
+  const PCM_PINNED = {
+    '6.2CHARGER_NEEDTOUSE_immoFix_1779733593578.bin': {
+      vin: '2C3CCABG1KH539430',
+      sec6: 'FF FF FF FF FF FF',
+      markerHex: 'FF FF FF AA',
+      markerOk: true,
+      skimByte: 0x80,
+    },
+  };
+
+  const PCM_PATTERN = /(?:^PCM|_PCM|immoFix|GPEC2A|CONTINENTAL)/i;
+  function discoverPcm4kFixtures() {
+    let entries;
+    try { entries = readdirSync(ASSETS); } catch { return []; }
+    const hits = [];
+    for (const name of entries) {
+      if (!name.toLowerCase().endsWith('.bin')) continue;
+      if (!PCM_PATTERN.test(name)) continue;
+      let size;
+      try { size = statSync(join(ASSETS, name)).size; } catch { continue; }
+      if (size !== 4096) continue;
+      hits.push(name);
+    }
+    hits.sort();
+    return hits;
+  }
+  const PCM_DISCOVERED = discoverPcm4kFixtures();
+
+  it('discovers at least the known pinned PCM fixtures', () => {
+    for (const pinnedName of Object.keys(PCM_PINNED)) {
+      expect(PCM_DISCOVERED).toContain(pinnedName);
+    }
+  });
+
+  for (const file of PCM_DISCOVERED) {
+    const expected = PCM_PINNED[file] || null;
+    describe(file, () => {
+      let data;
+      let info;
+      function load() {
+        if (info) return;
+        data = loadBin(file);
+        info = parseModule(data, file);
+      }
+
+      it('is a 4096-byte file', () => {
+        load();
+        expect(data.length).toBe(4096);
+      });
+
+      if (!expected) {
+        it('TODO — add to PCM_PINNED registry once VIN / SEC6 / marker confirmed (best pick logged)', () => {
+          load();
+          // eslint-disable-next-line no-console
+          console.log(`[pcm-auto-discover] ${file} — not yet pinned, parser best pick:`, {
+            type: info.type,
+            vin: info.vins?.[0]?.vin ?? null,
+            sec6: info.pcmSec6?.hex ?? null,
+            markerHex: info.pcmSec6?.markerHex ?? null,
+            markerOk: info.pcmSec6?.markerOk ?? null,
+            skimByte: typeof info.skimByte === 'number' ? info.skimByte : null,
+          });
+          expect(info).toBeDefined();
+          expect(typeof info.type).toBe('string');
+        });
+        return;
+      }
+
+      it('parseModule classifies as GPEC2A', () => {
+        load();
+        expect(info.type).toBe('GPEC2A');
+      });
+      it(`vin === ${expected.vin}`, () => {
+        load();
+        expect(info.vins?.[0]?.vin).toBe(expected.vin);
+      });
+      it(`pcmSec6.hex === "${expected.sec6}"`, () => {
+        load();
+        expect(info.pcmSec6?.hex).toBe(expected.sec6);
+      });
+      it(`pcmSec6.markerHex === "${expected.markerHex}"`, () => {
+        load();
+        expect(info.pcmSec6?.markerHex).toBe(expected.markerHex);
+      });
+      it(`pcmSec6.markerOk === ${expected.markerOk}`, () => {
+        load();
+        expect(info.pcmSec6?.markerOk).toBe(expected.markerOk);
+      });
+      it(`skimByte === 0x${expected.skimByte.toString(16).toUpperCase()}`, () => {
+        load();
+        expect(info.skimByte).toBe(expected.skimByte);
+      });
+    });
+  }
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
  * 10. crossValidate on the trio (BCM + RFHUB EEE + PCM)
  * ───────────────────────────────────────────────────────────────────────────── */
 describe('crossValidate — BCM + RFHUB EEE + PCM trio', () => {
