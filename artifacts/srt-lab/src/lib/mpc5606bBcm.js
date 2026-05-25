@@ -37,7 +37,7 @@
  * ============================================================================ */
 
 import { crc16 } from './crc.js';
-import { writeBcmSec16Gen2 } from './securityBytes.js';
+import { writeBcmSec16Gen2, writeBcmFlatSec16 } from './securityBytes.js';
 
 export const MPC5606B_CANONICAL_BASES = [0x5320, 0x5340, 0x5360, 0x5380];
 export const MPC5606B_ALT_BASES       = [0x1320, 0x1340, 0x1360, 0x1380];
@@ -373,4 +373,121 @@ export function applyMpc5606bBcm(data, parsed, { newVin, newSec16Hex } = {}) {
   }
 
   return { bytes: out, newVin, vinCrc, updatedSlots, sec16: sec16Result };
+}
+
+/* Re-key a fully-virgin BCM from an RFHUB SEC16 secret.
+ *
+ * Writes `reverse(rfhSec16)` (= the BCM's canonical representation) into
+ * every SEC16 location in the dump:
+ *   - Split records at 0x81A0 / 0x81C0 / 0x81E0 (via writeBcmSec16Gen2)
+ *   - Inactive-bank mirror records (slot 0xEB + 0xCA, via writeBcmSec16Gen2)
+ *   - Legacy flat slice at 0x40C9..0x40D8 (canonical mode — skipped silently
+ *     if mirror1 overlaps at 0x40C0, which keeps the mirror payload intact)
+ *
+ * Also normalises the FOBIK count byte at 0x5862 to `newFobikCount` when
+ * provided, so the wizard's key-count-mismatch warning clears on reload.
+ *
+ * Throws if the BCM is not fully virgin (i.e. any SEC16 location already
+ * carries data) so callers cannot accidentally overwrite a real secret.
+ * Use `sec16-only` for BCMs that already have any SEC16 data.
+ *
+ * Returns:
+ *   { bytes, splitPatched, mirrorPatched, inactiveBase, bcmSec16Hex,
+ *     fobikCount: newFobikCount | null }
+ */
+export function rekeyVirginBcmFromRfhub(data, rfhSec16, newFobikCount) {
+  if (!rfhSec16 || rfhSec16.length !== 16) {
+    throw new Error('rekeyVirginBcmFromRfhub: rfhSec16 must be 16 bytes');
+  }
+  const sec16State = resolveMpc5606bSec16(data);
+  /* Guard on FEE records only (split + mirrors). The legacy flat slice at
+   * 0x40C9 may contain stale data on virgin-provisioned BCMs even though no
+   * FEE records exist — we overwrite it with the correct value below.
+   *
+   * Mirror candidates are CRC-validated before being treated as "populated":
+   * real NEWVIN BCMs carry a "phantom" mirror1 at 0x40C0 whose header bytes
+   * collide with the `00 00 00 18 00 46 EB 00` signature — but its CRC-16
+   * doesn't check out, so we ignore it (matching engParseBcm's `crcOk` gate
+   * in ModuleSync.jsx#findMirrorsInBank). */
+  const mirrorHasValidCrc = (cand) => {
+    if (!cand || cand.blank) return false;
+    const i = cand.offset;
+    if (i == null || i + 30 > data.length) return false;
+    const idx = data[i + 8];
+    const input = new Uint8Array(20);
+    input[0] = idx;
+    for (let k = 0; k < 16; k++) input[1 + k] = data[i + 9 + k];
+    input[17] = data[i + 25]; input[18] = data[i + 26]; input[19] = data[i + 27];
+    const stored = (data[i + 28] << 8) | data[i + 29];
+    return crc16(input) === stored;
+  };
+  const hasFeeData =
+    (sec16State.candidates.split   && !sec16State.candidates.split.blank) ||
+    mirrorHasValidCrc(sec16State.candidates.mirror1)                      ||
+    mirrorHasValidCrc(sec16State.candidates.mirror2);
+  if (hasFeeData) {
+    throw new Error(
+      `rekeyVirginBcmFromRfhub: BCM already has FEE SEC16 data in '${sec16State.source}' records — use SEC16 Sync Only instead.`,
+    );
+  }
+
+  /* BCM SEC16 = reverse of RFHUB SEC16 (byte-swap across the 16-byte slot) */
+  const bcmSec16 = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) bcmSec16[i] = rfhSec16[15 - i];
+
+  /* Step 1 — Fresh copy of the source buffer. */
+  const buf = new Uint8Array(data);
+
+  /* Step 2 — Write split records from scratch at 0x81A0 / 0x81C0 / 0x81E0.
+   * Virgin BCMs have all-0xFF at these locations (no FEE record initialized).
+   * Format: FF FF | 00×6 | idx | prefix7 | 04 04 00 14 | suffix9 | 7F
+   * idx = 0x01 for the first record, 0x02 for the second and third. */
+  const SPLIT_OFFS = [0x81A0, 0x81C0, 0x81E0];
+  let splitPatched = 0;
+  for (let ri = 0; ri < SPLIT_OFFS.length; ri++) {
+    const off = SPLIT_OFFS[ri];
+    if (off + 30 > buf.length) continue;
+    buf[off]     = 0xFF; buf[off + 1] = 0xFF;
+    for (let j = 2; j < 8; j++) buf[off + j] = 0x00;
+    buf[off + 8] = ri === 0 ? 0x01 : 0x02;
+    for (let k = 0; k < 7; k++) buf[off + 9 + k] = bcmSec16[k];
+    buf[off + 16] = 0x04; buf[off + 17] = 0x04;
+    buf[off + 18] = 0x00; buf[off + 19] = 0x14;
+    for (let k = 0; k < 9; k++) buf[off + 20 + k] = bcmSec16[7 + k];
+    buf[off + 29] = 0x7F;
+    splitPatched++;
+  }
+
+  /* Step 3 — Mirror records via writeBcmSec16Gen2 (update-only).
+   * The freshly-written split records above will be found and re-stamped
+   * with the same values (harmless). Mirror records in the inactive bank
+   * are updated if they exist; on a truly virgin BCM they won't, so
+   * mirrorPatched = 0 is expected and correct — the ECU's FEE allocator
+   * creates them the first time it boots after flashing. */
+  const mr = writeBcmSec16Gen2(buf, rfhSec16);
+  let out = mr.bytes;
+  const mirrorPatched = mr.mirrorPatched;
+  const inactiveBase  = mr.inactiveBase;
+
+  /* Step 4 — Legacy flat slice at 0x40C9 (canonical mode — skipped if
+   * mirror1 landed at 0x40C0, which keeps the mirror record intact). */
+  if (out.length >= 0x40D9) {
+    const fr = writeBcmFlatSec16(out, bcmSec16);
+    out = fr.bytes;
+  }
+
+  /* Step 5 — Normalise FOBIK count. */
+  if (newFobikCount != null && out.length > 0x5862) {
+    out[0x5862] = newFobikCount & 0xFF;
+  }
+
+  const bcmSec16Hex = Array.from(bcmSec16).map(b => b.toString(16).padStart(2, '0')).join('');
+  return {
+    bytes: out,
+    splitPatched,
+    mirrorPatched,
+    inactiveBase,
+    bcmSec16Hex,
+    fobikCount: newFobikCount ?? null,
+  };
 }

@@ -6,6 +6,7 @@ import MismatchWizard from "../components/MismatchWizard.jsx";
 import PcmRepairWizard from "../components/PcmRepairWizard.jsx";
 import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
+import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
 import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
 import { crossValidate } from "../lib/crossValidate.js";
 import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
@@ -1192,7 +1193,7 @@ function buildCandidateList(values, canonicalRegex) {
   }));
 }
 
-function BcmCard({ parsed, pnOverride }) {
+function BcmCard({ parsed, pnOverride, fullyVirgin }) {
   if (!parsed) return null;
   if (parsed.tooSmall) {
     return (
@@ -1291,7 +1292,13 @@ function BcmCard({ parsed, pnOverride }) {
           <OffsetList offsets={parsed.sec16Mirrors.map(m => m.offset)} testid="bcm-sec16-mirror-offsets" />
         </>
       )}
-      {!hasSec16 && isGen2 && (
+      {fullyVirgin && (
+        <div data-testid="bcm-virgin-sec16-badge"
+             style={{ marginTop: 8, padding: '6px 10px', background: 'rgba(255,109,0,0.10)', border: `1.5px solid ${C.a1}55`, borderRadius: 8, fontSize: 11, color: C.a1, fontWeight: 800, letterSpacing: 0.4 }}>
+          🧹 VIRGIN / NEWVIN — SEC16 wiped &middot; all split records + mirrors + flat 0x40C9 are blank
+        </div>
+      )}
+      {!hasSec16 && isGen2 && !fullyVirgin && (
         <div style={{ marginTop: 6, padding: '6px 10px', background: 'rgba(255,179,0,0.08)', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700 }}>
           ⚠ Gen2 BCM — no SEC16 records found. May need a different flash layout.
         </div>
@@ -2366,6 +2373,16 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const rfhHasSec16      = !!(rfh.parsed?.sec16 && !rfh.parsed.sec16.virgin);
   const sec16SyncOk      = bcmHasSec16 && rfhHasSec16;
   const bcmToRfhSec16Ok  = bcmHasSec16 && rfh.parsed?.format?.startsWith('gen2');
+  /* Virgin BCM gate — true when BCM parsed OK AND no FEE records exist
+   * (split records + inactive-bank mirrors all blank). The legacy flat slice
+   * at 0x40C9 may carry stale provisioning data on virgin-provisioned BCMs
+   * even with no FEE records, so we intentionally ignore it here; the re-key
+   * action overwrites the flat slice with the correct SEC16 value. */
+  const bcmFullyVirgin   = !!(
+    bcm.parsed?.ok
+    && bcm.parsed.sec16Records?.length === 0
+    && !(bcm.parsed.mirrorsPopulated > 0)
+  );
 
   /* Task #475 — derived PCM chip state shared by the action card UI and
    * the doSync() / executeSync() guards. `pcmSourceChip` is the chip
@@ -2546,6 +2563,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     { id: 'rfh-to-bcm',       label: '← RFHUB VIN → BCM',       enabled: bothReady, description: 'Stamp BCM with RFHUB VIN' },
     { id: 'bcm-to-rfh',       label: '→ BCM VIN → RFHUB',       enabled: bothReady, description: 'Stamp RFHUB with BCM VIN' },
     { id: 'rekey-95640-from-rfh', label: '📟 Re-key 95640 from RFHUB', enabled: rekey95640Ok, description: 'Write reverse(RFHUB SEC16) → 95640 @ 0x838 + CRC16 @ 0x848' },
+    { id: 'rekey-virgin-bcm', label: '🔓 Re-key virgin BCM ← RFHUB', enabled: bcmFullyVirgin && rfhHasSec16, description: 'Write reverse(RFHUB SEC16) into all BCM SEC16 locations + normalise FOBIK count' },
   ];
 
   const doSync = (action, overrideVin) => {
@@ -2960,6 +2978,37 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         } else {
           log(`PCM SEC6 skipped: ${sec6Skip}`, 'muted');
         }
+
+      } else if (action === 'rekey-virgin-bcm') {
+        /* Re-key a fully-virgin BCM from the RFHUB SEC16 master.
+         * Writes reverse(RFHUB SEC16 slot 1) into split records, inactive-bank
+         * mirrors, and the legacy flat 0x40C9 slice; normalises fobikCount
+         * to the RFHUB's populated-slot count so the key-count warning clears. */
+        const rfhSec16 = rfh.parsed?.sec16?.slot1;
+        if (!rfhSec16) {
+          log('✗ RFHUB SEC16 not available — load a Gen2 RFHUB with populated SEC16 slots', 'err');
+          return;
+        }
+        if (!bcmFullyVirgin) {
+          log('✗ BCM is not fully virgin — use "🔐 SEC16 Sync Only" for BCMs that already carry a secret', 'err');
+          return;
+        }
+        const newFobikCount = typeof rfh.parsed?.fobikSlots === 'number' ? rfh.parsed.fobikSlots : null;
+        const snapB = new Uint8Array(bcm.bytes);
+        setOriginals(prev => ({ ...prev, bcm: { bytes: snapB, filename: bcm.file?.name || 'BCM' } }));
+        const rk = rekeyVirginBcmFromRfhub(bcm.bytes, rfhSec16, newFobikCount);
+        log(`BCM Re-key: ${rk.splitPatched} split record(s) + ${rk.mirrorPatched} mirror(s) written`, 'ok');
+        const rfhSec16Hex = Array.from(rfhSec16).map(b => b.toString(16).toUpperCase().padStart(2, '0')).join('');
+        log(`  RFHUB SEC16 (slot 1): ${rfhSec16Hex}`, 'muted');
+        log(`  BCM SEC16 (reversed): ${rk.bcmSec16Hex.toUpperCase()}`, 'muted');
+        if (newFobikCount != null) {
+          const oldFobik = bcm.parsed?.fobikCount;
+          log(`  FOBIK count: ${oldFobik ?? '?'} → ${newFobikCount} (normalised to RFHUB populated slots)`, 'ok');
+        }
+        const outVin = bcm.parsed?.vin || rfh.parsed?.vin || 'UNKNOWN';
+        const outName = `BCM_REKEYED_${outVin}_${ts}.bin`;
+        downloadBin(rk.bytes, outName);
+        log(`Downloaded: ${outName}`, 'ok');
 
       } else if (action === 'rekey-95640-from-rfh') {
         /* Re-key 95640 BCM-backup chip from RFHUB master.
@@ -3451,7 +3500,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           })()}
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
-            <BcmCard parsed={bcm.parsed} pnOverride={bcm.pnOverride} />
+            <BcmCard parsed={bcm.parsed} pnOverride={bcm.pnOverride} fullyVirgin={bcmFullyVirgin} />
             <RfhCard parsed={rfh.parsed} pnOverride={rfh.pnOverride} />
             {pcm.parsed && (
               <PcmCard
@@ -3640,7 +3689,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           </div>
 
           {/* Gen2 SEC16 sync buttons */}
-          {(bcmHasSec16 || sec16SyncOk) && (
+          {(bcmHasSec16 || sec16SyncOk || bcmFullyVirgin) && (
             <div style={{ marginBottom: 10 }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.8, color: C.a4, marginBottom: 8, textTransform: 'uppercase' }}>
                 🔐 SEC16 / IMMO Sync (SINCRO-verified · Gen2)
@@ -3699,6 +3748,19 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
               )}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
                 {(() => {
+                  /* When the BCM is fully virgin AND the RFHUB has a valid SEC16,
+                   * swap in the "Re-key virgin BCM" button in place of the
+                   * SEC16 Sync Only button, so the tech sees one clear action
+                   * instead of a disabled button with no explanation. */
+                  if (bcmFullyVirgin && rfhHasSec16) {
+                    return (
+                      <ActionBtn title="🔓 Re-key virgin BCM ← RFHUB"
+                        enabled={true}
+                        color={C.a1}
+                        desc={`Write reverse(RFHUB SEC16) into BCM split records, mirrors, and flat 0x40C9. Normalise FOBIK count to ${rfh.parsed?.fobikSlots ?? '?'} (RFHUB populated slots). Downloads BCM_REKEYED_<VIN>_<ts>.bin.`}
+                        onClick={() => doSync('rekey-virgin-bcm')} />
+                    );
+                  }
                   /* Task #475 — hard-block SEC16-only when the loaded PCM
                    * is non-canonical, mirroring SYNC ALL. The PCM SEC6
                    * write is part of this action, so producing a wrong-
