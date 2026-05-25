@@ -6,6 +6,7 @@ import {CDA_FLASH_CATALOG, getOfflineFlashSequence} from '../lib/cdaCatalog.js';
 import {flashEcuOffline, FLASH_PHASES} from '../lib/flasherStateMachine.js';
 import {createBridgeEngine} from '../lib/bridgeEngine.js';
 import {useCanRecorder} from '../lib/canRecorder.js';
+import {useVinScrubGate} from '../components/VinScrubDialog.jsx';
 
 // CDA6 UDS programming-session walkthrough (Task #488 + Task #599). The
 // step list is now driven by the per-module catalog mined out of the
@@ -197,6 +198,7 @@ export default function Cda6SessionTab(){
   const fileInputRef = useRef(null);
 
   const recorder = useCanRecorder({iface: 'cda6'});
+  const vinGate = useVinScrubGate();
   const recorderRef = useRef(recorder);
   useEffect(() => { recorderRef.current = recorder; }, [recorder]);
 
@@ -390,10 +392,11 @@ export default function Cda6SessionTab(){
             <Btn data-testid="cda6-rec-start" onClick={recorder.start} disabled={recorder.recording} color={C.sr}>● START</Btn>
             <Btn data-testid="cda6-rec-stop" onClick={recorder.stop} disabled={!recorder.recording} outline>■ STOP</Btn>
             <Btn data-testid="cda6-rec-clear" onClick={recorder.clear} outline>CLEAR</Btn>
-            <Btn data-testid="cda6-rec-download" onClick={() => recorder.download()} disabled={!recorder.count}>📥 DOWNLOAD .log</Btn>
-            <Btn data-testid="cda6-rec-open-analyser" onClick={() => recorder.openInAnalyser()} disabled={!recorder.count} color={C.a4}>📜 OPEN IN LOG ANALYSER</Btn>
-            <Btn data-testid="cda6-rec-open-uds-analyzer" onClick={() => recorder.openInUdsAnalyzer()} disabled={!recorder.count} color={C.sr}>🔎 ANALYZE UDS</Btn>
+            <Btn data-testid="cda6-rec-download" onClick={() => vinGate.run(recorder.toLog(), (t) => recorder.download(undefined, {text:t}), {actionLabel:'Download'})} disabled={!recorder.count}>📥 DOWNLOAD .log</Btn>
+            <Btn data-testid="cda6-rec-open-analyser" onClick={() => vinGate.run(recorder.toLog(), (t) => recorder.openInAnalyser(undefined, {text:t}), {actionLabel:'Send to Analyser'})} disabled={!recorder.count} color={C.a4}>📜 OPEN IN LOG ANALYSER</Btn>
+            <Btn data-testid="cda6-rec-open-uds-analyzer" onClick={() => vinGate.run(recorder.toLog(), (t) => recorder.openInUdsAnalyzer(undefined, {text:t}), {actionLabel:'Send to UDS Analyzer'})} disabled={!recorder.count} color={C.sr}>🔎 ANALYZE UDS</Btn>
           </div>
+          {vinGate.dialog}
         </Card>
       </Section>
 

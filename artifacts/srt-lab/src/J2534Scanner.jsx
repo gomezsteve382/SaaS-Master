@@ -4,6 +4,7 @@ import { useDownloadCount } from "./lib/useDownloadCount.jsx";
 import { buildOnePagerPDF } from "./lib/buildOnePagerPDF.js";
 import { J2534_REF } from "./lib/tabReferences.js";
 import { useCanRecorder } from "./lib/canRecorder.js";
+import { useVinScrubGate } from "./components/VinScrubDialog.jsx";
 
 /**
  * J2534 Module Scanner — HTTP version
@@ -136,6 +137,7 @@ const parseMsgData = (msgData) => {
 
 export default function J2534Scanner() {
   const recorder = useCanRecorder({iface: 'j2534'});
+  const vinGate = useVinScrubGate();
   const recorderRef = useRef(null);
   useEffect(() => { recorderRef.current = recorder; }, [recorder]);
   const [status, setStatus] = useState("disconnected");
@@ -579,9 +581,9 @@ export default function J2534Scanner() {
           <span style={{fontFamily:'monospace',color:S.dim}}>{recorder.count} frames{recorder.overflowed?' (overflow)':''}</span>
           <button data-testid="j2534-rec-start" onClick={recorder.start} disabled={recorder.recording} style={{padding:'5px 10px',background:S.red,color:'#fff',border:'none',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.recording?0.4:1}}>● START</button>
           <button data-testid="j2534-rec-stop" onClick={recorder.stop} disabled={!recorder.recording} style={{padding:'5px 10px',background:'#333',color:'#fff',border:'1px solid #555',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.recording?1:0.4}}>■ STOP</button>
-          <button data-testid="j2534-rec-download" onClick={()=>recorder.download()} disabled={!recorder.count} style={{padding:'5px 10px',background:'#333',color:'#fff',border:'1px solid #555',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>📥 .log</button>
-          <button data-testid="j2534-rec-open-analyser" onClick={()=>recorder.openInAnalyser()} disabled={!recorder.count} style={{padding:'5px 10px',background:'#1B5E20',color:'#fff',border:'none',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>📜 OPEN IN ANALYSER</button>
-          <button data-testid="j2534-rec-open-uds-analyzer" onClick={()=>recorder.openInUdsAnalyzer()} disabled={!recorder.count} style={{padding:'5px 10px',background:'#B71C1C',color:'#fff',border:'none',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>🔎 ANALYZE UDS</button>
+          <button data-testid="j2534-rec-download" onClick={()=>vinGate.run(recorder.toLog(),(t)=>recorder.download(undefined,{text:t}),{actionLabel:'Download'})} disabled={!recorder.count} style={{padding:'5px 10px',background:'#333',color:'#fff',border:'1px solid #555',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>📥 .log</button>
+          <button data-testid="j2534-rec-open-analyser" onClick={()=>vinGate.run(recorder.toLog(),(t)=>recorder.openInAnalyser(undefined,{text:t}),{actionLabel:'Send to Analyser'})} disabled={!recorder.count} style={{padding:'5px 10px',background:'#1B5E20',color:'#fff',border:'none',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>📜 OPEN IN ANALYSER</button>
+          <button data-testid="j2534-rec-open-uds-analyzer" onClick={()=>vinGate.run(recorder.toLog(),(t)=>recorder.openInUdsAnalyzer(undefined,{text:t}),{actionLabel:'Send to UDS Analyzer'})} disabled={!recorder.count} style={{padding:'5px 10px',background:'#B71C1C',color:'#fff',border:'none',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>🔎 ANALYZE UDS</button>
         </div>
 
         <div style={{ background: "#0D1A0D", border: "1px solid #2E7D32", borderRadius: 8, padding: 14, marginBottom: 14, fontSize: 12 }}>

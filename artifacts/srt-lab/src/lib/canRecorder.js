@@ -55,8 +55,14 @@ export function useCanRecorder({cap = 50_000, iface = 'can0'} = {}) {
 
   const toLog = useCallback(() => writeCandumpLog(buf.current), []);
 
-  const download = useCallback((name = `srtlab-${Date.now()}.log`) => {
-    const blob = new Blob([toLog()], {type:'text/plain'});
+  // Task #755 — every export path that emits the raw trace text accepts
+  // an optional `text` override so the host tab can route through the
+  // shared VIN-scrub gate (see `useVinScrubGate`) before the bytes leave
+  // the browser. When no override is supplied, the recorder falls back
+  // to its own `toLog()` for backward compatibility.
+  const download = useCallback((name = `srtlab-${Date.now()}.log`, opts = {}) => {
+    const body = typeof opts.text === 'string' ? opts.text : toLog();
+    const blob = new Blob([body], {type:'text/plain'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = name;
@@ -65,10 +71,11 @@ export function useCanRecorder({cap = 50_000, iface = 'can0'} = {}) {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }, [toLog]);
 
-  const openInAnalyser = useCallback((onSwitchTab) => {
+  const openInAnalyser = useCallback((onSwitchTab, opts = {}) => {
+    const body = typeof opts.text === 'string' ? opts.text : toLog();
     if (typeof window !== 'undefined') {
       window.__srtLabAnalyserHandoff = {
-        text: toLog(),
+        text: body,
         name: `live-capture-${Date.now()}.log`,
       };
       // Dispatch an app-level event so any host that wires the listener
@@ -82,10 +89,11 @@ export function useCanRecorder({cap = 50_000, iface = 'can0'} = {}) {
   // Task #724 — same handoff mechanism but routed to the UDS Analyzer tab
   // so users can jump from a live capture straight into post-mortem NRC /
   // session diagnosis without copy-pasting through the Log Analyser first.
-  const openInUdsAnalyzer = useCallback((onSwitchTab) => {
+  const openInUdsAnalyzer = useCallback((onSwitchTab, opts = {}) => {
+    const body = typeof opts.text === 'string' ? opts.text : toLog();
     if (typeof window !== 'undefined') {
       window.__srtLabUdsAnalyzerHandoff = {
-        text: toLog(),
+        text: body,
         name: `live-capture-${Date.now()}.log`,
       };
       try { window.dispatchEvent(new CustomEvent('srtlab:open-uds-analyzer')); } catch {}
