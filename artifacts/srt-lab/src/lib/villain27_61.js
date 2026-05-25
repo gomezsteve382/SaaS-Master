@@ -5,23 +5,47 @@
 // promotion steps in docs/villain-unpack-workflow.md §3.3. Source intel:
 // docs/villain-binary-intel.md §7.
 //
-// IMPORTANT — S-BOX STATUS
-//   The 256-byte FCA_SBox embedded below is still the identity-permutation
-//   placeholder. Steps 1–4 of the algorithm are implemented as described in
-//   §7.2. Step 5 (S-box substitution) will not produce valid ECU keys until
-//   the real S-box is extracted from the unpacked binary and replaces
-//   FCA_SBOX_PLACEHOLDER. Because of this, the corresponding ALGOS entry in
-//   algos.js is gated behind ENABLE_VILLAIN_0x61 (default false). Do not
-//   flip the flag true until the real S-box is in place AND the bench-pair
-//   harness in src/lib/_unverified/__tests__/villain27_61.candidate.test.js
-//   passes against ≥ 3 real captures.
+// IMPORTANT — ALGORITHM SHAPE IS WRONG (revised 2026-05-25)
+//
+//   The Steps-1–4 + 256-byte S-box structure below comes from the original
+//   third-party report archived in docs/villain-binary-intel.md §7.2 and
+//   has NOT been ground-truthed. A subsequent VILLAIN memory-dump extraction
+//   (VILLAIN_GPEC_COMPLETE_EXTRACTION.zip, summary in §7.3 of the same doc)
+//   proves the report was structurally wrong for security level 0x61:
+//
+//     • Level 0x61 is in the binary's Group-4 dispatch and routes to the
+//       function `_gpec_calculator` (GPEC2 base), NOT to a CRC16+S-box.
+//     • That function operates on 32-bit ints (`seedInt`, `tempSeedInt`,
+//       `TL1`–`TL5`, `keyInt`) with the constant pair
+//       `q1=0xE72E3799, q2=0x1B64DB03` — the same constants already wired
+//       into algos.js as the `gpec2_q1` / `gpec2_q2` sxor entries.
+//     • There is NO 256-byte FCA_SBox in the binary. The upload's string
+//       table, the wiTECH process dump, and the GPEC Unlocker IL listing
+//       contain zero references to an S-box of any size.
+//
+//   Consequence: replacing FCA_SBOX_PLACEHOLDER with "real" bytes will NOT
+//   make this function produce valid 0x27/0x61 keys, because the surrounding
+//   CRC16 + 4-round-mixer scaffolding is itself the wrong algorithm. The
+//   correct path for 0x61 is the existing `gpec2_q1` / `gpec2_q2` entries
+//   in algos.js — those use the constants the upload actually confirms.
+//
+//   This file is retained (rather than deleted) only so the ENABLE_VILLAIN_0x61
+//   feature flag and the binary-intel coverage tags in BinaryIntelTab continue
+//   to resolve. The corresponding ALGOS entry stays gated behind
+//   ENABLE_VILLAIN_0x61 = false; the flag should stay false until the real
+//   _gpec_calculator body (not an S-box) is extracted from an unpacked
+//   VILLAIN.exe AND a passing bench-pair harness exists against ≥ 3 real
+//   (seed → key) captures from a live ECU.
 // ============================================================================
 
 // ─── S-box (256-byte permutation) ─────────────────────────────────────────
 //
-// TODO: replace this identity placeholder with the real 256-byte FCA_SBox
-// extracted from VILLAIN_unpacked.exe. Extraction procedure: see
-// docs/villain-unpack-workflow.md §Phase 1 + §Phase 2.
+// Kept as an identity placeholder. Per the revised header above, there is no
+// real FCA_SBox to substitute — the binary doesn't use one for level 0x61.
+// Do not "fill in" this table with random or AES-style bytes hoping the
+// algorithm will start working; it won't, and flipping ENABLE_VILLAIN_0x61
+// true would only silence the Swarm CRYPTO-agent GAP flag with a false
+// positive while still producing keys the ECU rejects with NRC 0x35.
 const FCA_SBOX_PLACEHOLDER = new Uint8Array([
   0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
   0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1A,0x1B,0x1C,0x1D,0x1E,0x1F,

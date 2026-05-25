@@ -130,11 +130,20 @@ export const BINARY_INTEL_REPORTS = [
           requestSeed: 0x61,
           sendKey: 0x62,
           seedLen: 8,
-          notes: "8-byte seed returned in 67 61 response. S-box NOT extracted — algorithm is incomplete without it.",
+          notes:
+            "REVISED 2026-05-25: a follow-up extraction (VILLAIN_GPEC_COMPLETE_EXTRACTION.zip) " +
+            "proves the Steps-1-4 + S-box structure below is structurally wrong for level 0x61. " +
+            "Level 0x61 is in the binary's Group-4 dispatch and routes to _gpec_calculator (GPEC2 " +
+            "base) using the 32-bit constant pair q1=0xE72E3799 / q2=0x1B64DB03 — already wired " +
+            "in algos.js as gpec2_q1 / gpec2_q2 (sxor family). There is no 256-byte S-box in the " +
+            "binary; grep over the extraction strings + 77MB wiTECH_wde.DMP returns zero hits " +
+            "for FCA_SBox / sbox / CalculateSecurityKey. The Steps 1-4 pseudocode below is " +
+            "retained verbatim for historical traceability against the original third-party " +
+            "report; see docs/villain-binary-intel.md §7.3 for the correction.",
           algorithm: {
             name: "CalculateSecurityKey_0x61",
-            status: "incomplete",
-            missingPiece: "256-byte FCA_SBox (not in source report — must be extracted from unpacked binary)",
+            status: "wrong-shape (superseded by gpec2_q1 / gpec2_q2 in algos.js)",
+            missingPiece: "Body of _gpec_calculator (not an S-box) from an unpacked VILLAIN.exe, plus ≥3 (seed→key) bench captures",
             steps: [
               {
                 step: 1,
@@ -188,6 +197,7 @@ export const BINARY_INTEL_REPORTS = [
         "RX CAN IDs (TX+8) follow the standard FCA convention but are not bench-confirmed from this source.",
         "Label inconsistencies in 0xF1xx DIDs: the report uses FCA-internal names that diverge from ISO 14229 standard names.",
         "The 256-byte FCA_SBox is the critical missing piece for the 0x27/0x61 algorithm — without it Steps 1–4 alone produce an invalid key.",
+        "REVISED 2026-05-25 — the bullet above is the original report's claim and has been refuted on-bench. The VILLAIN_GPEC_COMPLETE_EXTRACTION upload shows level 0x61 dispatches to _gpec_calculator with 32-bit constants q1=0xE72E3799 / q2=0x1B64DB03 (already wired as gpec2_q1 / gpec2_q2 in algos.js). No S-box exists. ENABLE_VILLAIN_0x61 must stay false. See docs/villain-binary-intel.md §7.3.",
       ],
     },
   },

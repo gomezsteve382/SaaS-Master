@@ -240,6 +240,47 @@ for j in 0..7:
 
 ---
 
+## 7.3 REVISED 2026-05-25 — §7.2 algorithm shape is wrong
+
+A subsequent independent extraction of the VILLAIN memory dump
+(`attached_assets/VILLAIN_GPEC_COMPLETE_EXTRACTION_1777782698204.zip`,
+summarised in its bundled `VILLAIN_COMPLETE_EXTRACTION.md`) contradicts the
+Steps-1–4 + S-box structure documented in §7.2. The findings:
+
+- **Level 0x61 is in Group 4** of the binary's `EcuUnlocks` dispatch table
+  (`0x22–0x26, 0x42, 0x45, 0x44, 0x60–0x62, 0x66, 0x67, 0x6B–0x6D`).
+- Group 4 routes to the function `_gpec_calculator` (GPEC2 base), confirmed
+  by the disassembled strings (`J2534_Define_strings.txt: a_gpec_calculator`)
+  and the dispatch summary in §"Security Access Dispatch".
+- `_gpec_calculator` operates on **32-bit integers** — variables
+  `seedInt`, `tempSeedInt`, `TL1`–`TL5`, `keyInt` — with the constant pair
+  `q1 = 0xE72E3799`, `q2 = 0x1B64DB03`. These are already wired into
+  `algos.js` as the `gpec2_q1` / `gpec2_q2` sxor entries.
+- **There is no 256-byte S-box in the binary.** A grep across the entire
+  extraction (strings dumps + the 77 MB `wiTECH_wde.DMP`) returns zero hits
+  for `FCA_SBox`, `sbox`, `S_BOX`, `CalculateSecurityKey`, or
+  `security_key_0x61`. The original §7.2 description appears to be a
+  fabrication or a confusion with a different module.
+- The extraction also has no actual `_gpec_calculator` body — only its
+  string-table name and constants. The function bytecode body was not
+  captured, and no `(seed → key)` bench-pair captures from a live ECU were
+  included in the upload.
+
+**Consequence for the codebase:**
+
+- `src/lib/villain27_61.js` is structurally wrong for level 0x61. The file
+  has been retained with a corrected header banner and the
+  `ENABLE_VILLAIN_0x61` flag remains `false`. Do not flip it.
+- The bench-verification checklist below (§9) is superseded: the correct
+  goal is to extract the `_gpec_calculator` body from an unpacked
+  `VILLAIN.exe`, not to "find the S-box."
+- The `gpec2_q1` / `gpec2_q2` entries in `algos.js` already cover the
+  constants that the upload actually confirms. Whether their `sxor`
+  implementation matches the unextracted `_gpec_calculator` body is still
+  unverified.
+
+---
+
 ## 8. How This Maps to SRT Lab Today
 
 This section cross-references the VILLAIN intel against the existing codebase to identify
