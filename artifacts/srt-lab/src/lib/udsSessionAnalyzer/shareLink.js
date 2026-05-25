@@ -10,7 +10,61 @@
  * helpers are async because the streaming compression API is async.
  */
 
+import { vinCheckDigitValid } from '../vin.js';
+
 const FRAGMENT_KEY = 'uds';
+
+// Placeholder substituted for real VINs in shared traces. Same 17-char width
+// so column-aligned trace formats survive the rewrite. We deliberately use
+// `I` characters (illegal in real VINs alongside `O`/`Q`) so a second pass
+// of `findVinsInText` over a previously-scrubbed trace will skip the
+// placeholder instead of treating it as a "real VIN detected" hit.
+export const VIN_PLACEHOLDER = 'IIIIIIIIIIIIIIIII';
+
+// VIN-shaped run: 17 chars from the legal VIN alphabet (no I, O, Q). We bound
+// the match with non-VIN-char lookarounds so adjacent text doesn't extend the
+// run (e.g. `3148475A4B433232333435360000` should yield exactly one VIN, not a
+// shifted one). The check digit is verified per-match before scrubbing so we
+// don't rewrite arbitrary 17-char hex blobs that happen to use the alphabet.
+const VIN_RUN_RX = /(?<![A-HJ-NPR-Z0-9])[A-HJ-NPR-Z0-9]{17}(?![A-HJ-NPR-Z0-9])/g;
+
+/**
+ * Find every distinct VIN-shaped substring in `text` whose check digit
+ * validates. Returns an array of unique uppercase VINs in first-seen order.
+ */
+export function findVinsInText(text) {
+  if (typeof text !== 'string' || text.length < 17) return [];
+  const seen = new Set();
+  const out = [];
+  const matches = text.toUpperCase().match(VIN_RUN_RX);
+  if (!matches) return out;
+  for (const m of matches) {
+    if (seen.has(m)) continue;
+    if (!vinCheckDigitValid(m)) continue;
+    seen.add(m);
+    out.push(m);
+  }
+  return out;
+}
+
+/**
+ * Replace every check-digit-valid VIN in `text` with `VIN_PLACEHOLDER`.
+ * Case-insensitive on the VIN alphabet; surrounding text and whitespace
+ * are preserved verbatim.
+ */
+export function scrubVinsFromText(text) {
+  if (typeof text !== 'string' || text.length < 17) return text;
+  const vins = findVinsInText(text);
+  if (vins.length === 0) return text;
+  let out = text;
+  for (const vin of vins) {
+    // Build a case-insensitive matcher for this exact VIN, with the same
+    // non-VIN-char boundary lookarounds used during detection.
+    const rx = new RegExp(`(?<![A-HJ-NPR-Z0-9])${vin}(?![A-HJ-NPR-Z0-9])`, 'gi');
+    out = out.replace(rx, VIN_PLACEHOLDER);
+  }
+  return out;
+}
 
 function bytesToBase64Url(bytes) {
   let bin = '';

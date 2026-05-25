@@ -4,7 +4,7 @@ import { C } from '../lib/constants.js';
 import { parseTrace } from '../lib/udsSessionAnalyzer/parser.js';
 import { analyzeSession } from '../lib/udsSessionAnalyzer/analyze.js';
 import { consumeUdsAnalyzerHandoff } from '../lib/canRecorder.js';
-import { buildShareUrl, decodeShareFragment } from '../lib/udsSessionAnalyzer/shareLink.js';
+import { buildShareUrl, decodeShareFragment, findVinsInText, scrubVinsFromText } from '../lib/udsSessionAnalyzer/shareLink.js';
 import exampleLog from '../lib/udsSessionAnalyzer/fixtures/example_session.log?raw';
 
 const ACCEPT = '.log,.txt,.asc,.trc';
@@ -234,6 +234,7 @@ export default function UdsAnalyzerTab() {
   const [filterSev, setFilterSev] = useState('ALL');
   const [filterText, setFilterText] = useState('');
   const [shareStatus, setShareStatus] = useState('');
+  const [sharePrompt, setSharePrompt] = useState(null); // { vins: string[] } | null
   const fileRef = useRef(null);
   const shareTimerRef = useRef(null);
 
@@ -292,11 +293,10 @@ export default function UdsAnalyzerTab() {
     if (shareTimerRef.current) clearTimeout(shareTimerRef.current);
   }, []);
 
-  const handleCopyShareLink = useCallback(async () => {
-    if (!text.trim()) return;
+  const doShare = useCallback(async (src) => {
     setShareStatus('Preparing…');
     try {
-      const url = await buildShareUrl(text);
+      const url = await buildShareUrl(src);
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
         setShareStatus('Copied!');
@@ -309,7 +309,39 @@ export default function UdsAnalyzerTab() {
     }
     if (shareTimerRef.current) clearTimeout(shareTimerRef.current);
     shareTimerRef.current = setTimeout(() => setShareStatus(''), 2000);
-  }, [text]);
+  }, []);
+
+  const handleCopyShareLink = useCallback(async () => {
+    if (!text.trim()) return;
+    // Task #748 — pre-share VIN scan. If the trace contains any
+    // check-digit-valid VIN-shaped sequence, surface a confirm dialog
+    // so the user can scrub before the trace leaves their machine.
+    const vins = findVinsInText(text);
+    if (vins.length > 0) {
+      setSharePrompt({ vins });
+      return;
+    }
+    await doShare(text);
+  }, [text, doShare]);
+
+  const handleShareWithVin = useCallback(async () => {
+    const src = text;
+    setSharePrompt(null);
+    await doShare(src);
+  }, [text, doShare]);
+
+  const handleShareScrubbed = useCallback(async () => {
+    const scrubbed = scrubVinsFromText(text);
+    setSharePrompt(null);
+    setText(scrubbed);
+    setFileName((prev) => (prev ? `${prev} (VIN scrubbed)` : 'scrubbed trace'));
+    analyze(scrubbed);
+    await doShare(scrubbed);
+  }, [text, doShare, analyze]);
+
+  const handleShareCancel = useCallback(() => {
+    setSharePrompt(null);
+  }, []);
 
   const handleFile = useCallback((e) => {
     const file = e.target.files?.[0];
@@ -379,6 +411,49 @@ export default function UdsAnalyzerTab() {
 
   return (
     <div data-testid="uds-analyzer-tab">
+      {sharePrompt && (
+        <div
+          data-testid="uds-analyzer-vin-warn"
+          style={{
+            position: 'fixed', inset: 0, background: '#0008', zIndex: 9999,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+          }}
+          onClick={handleShareCancel}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#fff', borderRadius: 12, padding: 20, maxWidth: 480,
+              border: `2px solid ${C.sr}`, boxShadow: '0 10px 40px #0006',
+            }}
+          >
+            <div style={{ fontFamily: "'Righteous'", fontSize: 18, color: C.sr, letterSpacing: 1, marginBottom: 8 }}>
+              ⚠ REAL VIN DETECTED
+            </div>
+            <div style={{ fontSize: 12, color: C.tx, marginBottom: 10, lineHeight: 1.5 }}>
+              This trace contains {sharePrompt.vins.length === 1 ? 'a check-digit-valid VIN' : `${sharePrompt.vins.length} check-digit-valid VINs`} that will be embedded in the share link. Anyone with the link can read {sharePrompt.vins.length === 1 ? 'it' : 'them'}.
+            </div>
+            <div style={{
+              fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.ts,
+              background: C.c2, border: `1px solid ${C.bd}`, borderRadius: 6,
+              padding: '6px 10px', marginBottom: 12, maxHeight: 90, overflowY: 'auto',
+            }}>
+              {sharePrompt.vins.map(v => <div key={v}>{v}</div>)}
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              <Btn onClick={handleShareCancel} color={C.tm} outline data-testid="uds-analyzer-vin-cancel">
+                Cancel
+              </Btn>
+              <Btn onClick={handleShareWithVin} color={C.sr} outline data-testid="uds-analyzer-vin-share-real">
+                Share with real VIN
+              </Btn>
+              <Btn onClick={handleShareScrubbed} color={C.gn} data-testid="uds-analyzer-vin-scrub">
+                Scrub VIN first
+              </Btn>
+            </div>
+          </div>
+        </div>
+      )}
       <Card style={{ background: 'linear-gradient(135deg,#1A0A0A 0%,#3D0A0A 40%,#D32F2F 100%)', color: '#fff', marginBottom: 18 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ fontSize: 32 }}>🔍</div>
