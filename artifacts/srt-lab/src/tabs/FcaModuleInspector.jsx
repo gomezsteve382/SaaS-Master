@@ -72,6 +72,7 @@ import { SizeWarnBanner, ContentWarnBanner } from "../components/ModuleFieldsPan
 import { buildModuleReportData } from "../lib/reportData.js";
 import { buildModulePDF } from "../lib/buildAnalysisPDF.js";
 import { scanForKeys } from "../lib/keyScanner.js";
+import { scanEepromLayout, ROLE_COLORS } from "../lib/eepromLayoutScan.js";
 
 // Module types the inspector cares about. Other types loaded into the
 // workspace (e.g. '95640' EEPROM backups, EFD payloads, C-Flash blobs)
@@ -259,9 +260,172 @@ function STitle({ children, color }) {
 const TABS = [
   { id: "overview", label: "Overview", icon: "📋" },
   { id: "security", label: "Security", icon: "🔒" },
+  { id: "layout",   label: "Layout Map", icon: "🗺️" },
   { id: "diff",     label: "Hex Diff", icon: "🔀" },
   { id: "tools",    label: "Tools",    icon: "🛠️" },
 ];
+
+const ROLE_LABELS = {
+  vin:            'VIN',
+  seed_key:       'SECRET',
+  skim_pair:      'SKIM',
+  pin:            'PIN',
+  calibration_id: 'CAL-ID',
+  dtc:            'DTC',
+  immo:           'IMMO',
+  boot:           'BOOT',
+  flash_flag:     'FLAG',
+  unknown:        '?',
+};
+
+function roleColor(role) {
+  return ROLE_COLORS[role] || '#9E9E9E';
+}
+
+function LayoutHexViewer({ data, regions, maxRows = 64 }) {
+  const [collapsed, setCollapsed] = useState(true);
+  if (!data || data.length === 0) return null;
+
+  const roleMap = new Map();
+  for (const r of regions) {
+    for (let i = r.offset; i < r.offset + r.length && i < data.length; i++) {
+      if (!roleMap.has(i)) roleMap.set(i, r.role);
+    }
+  }
+
+  const totalRows = Math.ceil(data.length / 16);
+  const showRows = collapsed ? Math.min(maxRows, totalRows) : totalRows;
+
+  return (
+    <div style={{ marginTop: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+        <div style={{ fontSize: 10, fontWeight: 800, color: C.tm, letterSpacing: 1, textTransform: "uppercase" }}>
+          Hex View ({data.length.toLocaleString()} bytes · {totalRows} rows)
+        </div>
+        {totalRows > maxRows && (
+          <button onClick={() => setCollapsed(v => !v)} style={{
+            background: C.c2, border: "1px solid " + C.bd, borderRadius: 6,
+            padding: "2px 8px", fontSize: 10, color: C.ts, cursor: "pointer",
+            fontFamily: "'Nunito'", fontWeight: 700,
+          }}>{collapsed ? `Show all ${totalRows} rows` : "Collapse"}</button>
+        )}
+      </div>
+      <div style={{ background: "#111", borderRadius: 8, padding: "10px 12px", overflowX: "auto", maxHeight: collapsed ? 340 : 600, overflowY: "auto", fontFamily: "'JetBrains Mono',monospace", fontSize: 11, lineHeight: 1.7 }}>
+        {Array.from({ length: showRows }, (_, row) => {
+          const base = row * 16;
+          const bytes = [];
+          for (let j = 0; j < 16; j++) {
+            const idx = base + j;
+            if (idx >= data.length) break;
+            bytes.push({ idx, val: data[idx], role: roleMap.get(idx) || null });
+          }
+          return (
+            <div key={row} style={{ display: "flex", gap: 12 }}>
+              <span style={{ color: "#4A90D9", minWidth: 44, flexShrink: 0 }}>
+                {base.toString(16).toUpperCase().padStart(4, '0')}
+              </span>
+              <span style={{ minWidth: 340, flexShrink: 0 }}>
+                {bytes.map(({ idx, val, role }) => (
+                  <span key={idx} style={{
+                    color: role ? roleColor(role) : '#666',
+                    fontWeight: role ? 700 : 400,
+                    marginRight: (idx % 4 === 3) ? 6 : 3,
+                  }}>
+                    {val.toString(16).toUpperCase().padStart(2, '0')}
+                  </span>
+                ))}
+              </span>
+              <span style={{ color: "#555" }}>
+                {bytes.map(({ idx, val, role }) => (
+                  <span key={idx} style={{ color: role ? roleColor(role) : '#444', fontWeight: role ? 600 : 400 }}>
+                    {val >= 0x20 && val < 0x7F ? String.fromCharCode(val) : '.'}
+                  </span>
+                ))}
+              </span>
+            </div>
+          );
+        })}
+        {collapsed && totalRows > maxRows && (
+          <div style={{ color: "#555", fontSize: 10, paddingTop: 6 }}>
+            … {(totalRows - maxRows) * 16} more bytes hidden — click &quot;Show all&quot; to expand
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function LayoutRegionList({ regions }) {
+  const [openRoles, setOpenRoles] = useState(() => new Set(['vin', 'seed_key', 'immo', 'flash_flag']));
+
+  const byRole = useMemo(() => {
+    const map = new Map();
+    for (const r of regions) {
+      if (!map.has(r.role)) map.set(r.role, []);
+      map.get(r.role).push(r);
+    }
+    return map;
+  }, [regions]);
+
+  if (regions.length === 0) {
+    return <div style={{ fontSize: 12, color: C.tm, padding: 14 }}>No regions identified for this module.</div>;
+  }
+
+  const toggleRole = role => {
+    setOpenRoles(prev => {
+      const next = new Set(prev);
+      if (next.has(role)) next.delete(role); else next.add(role);
+      return next;
+    });
+  };
+
+  return (
+    <div>
+      {Array.from(byRole.entries()).map(([role, rlist]) => {
+        const color = roleColor(role);
+        const open = openRoles.has(role);
+        return (
+          <div key={role} style={{ marginBottom: 6 }}>
+            <button onClick={() => toggleRole(role)} style={{
+              display: "flex", alignItems: "center", gap: 8, width: "100%",
+              background: C.c2, border: "1px solid " + C.bd, borderLeft: "3px solid " + color,
+              borderRadius: 8, padding: "6px 12px", cursor: "pointer", textAlign: "left",
+            }}>
+              <span style={{ fontSize: 9, fontWeight: 800, color, letterSpacing: 1, textTransform: "uppercase", minWidth: 52, background: color + "22", padding: "2px 6px", borderRadius: 4 }}>
+                {ROLE_LABELS[role] || role}
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: C.ts, flex: 1 }}>
+                {rlist.length} region{rlist.length !== 1 ? 's' : ''}
+              </span>
+              <span style={{ fontSize: 10, color: C.tm }}>{open ? '▲' : '▼'}</span>
+            </button>
+            {open && (
+              <div style={{ background: C.cd, border: "1px solid " + C.bd, borderTop: "none", borderRadius: "0 0 8px 8px", padding: "0 4px 4px" }}>
+                {rlist.map((r, i) => (
+                  <div key={i} style={{
+                    display: "flex", alignItems: "flex-start", gap: 10, padding: "6px 10px",
+                    borderBottom: i < rlist.length - 1 ? "1px solid " + C.bd : "none",
+                  }}>
+                    <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.a3, minWidth: 80, flexShrink: 0 }}>
+                      {`0x${r.offset.toString(16).toUpperCase().padStart(4, '0')}`}
+                    </span>
+                    <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.tm, minWidth: 52, flexShrink: 0 }}>
+                      {r.length.toLocaleString()}B
+                    </span>
+                    <span style={{ fontSize: 11, color: C.ts, flex: 1, lineHeight: 1.4 }}>{r.label}</span>
+                    <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: color, maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {r.preview}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export { inspectorWriteVin };
 
@@ -902,6 +1066,42 @@ export default function FcaModuleInspector() {
           {m.zzzzTamper && <div style={{ fontSize: 11 }}>Tamper: <span style={{ color: m.zzzzTamper.intact ? C.gn : C.wn, fontWeight: 700 }}>{m.zzzzTamper.intact ? "INTACT" : "CLEARED"}</span></div>}
         </Card>)}
       </div>
+    </div>}
+
+    {/* LAYOUT MAP TAB */}
+    {tab === "layout" && <div>
+      <STitle>Layout Map</STitle>
+      {modules.length === 0
+        ? <Card style={{ textAlign: "center", padding: 22, color: C.tm, fontSize: 12 }}>Load a module to see its region map.</Card>
+        : modules.map((m, i) => {
+            const layout = scanEepromLayout(m.data, m.filename);
+            return (
+              <div key={i} style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 13, fontWeight: 900, color: m.color, marginBottom: 4 }}>
+                  {inspectorName(m)}
+                  <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, fontWeight: 500, color: C.ts, marginLeft: 10 }}>{m.filename} · {m.size.toLocaleString()}B</span>
+                  <span style={{ marginLeft: 8, fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 5, background: layout.confidence === 'high' ? C.gn + '22' : layout.confidence === 'medium' ? C.wn + '22' : C.tm + '22', color: layout.confidence === 'high' ? C.gn : layout.confidence === 'medium' ? C.wn : C.tm }}>
+                    {layout.confidence.toUpperCase()} confidence
+                  </span>
+                </div>
+                {/* Role legend */}
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+                  {Array.from(new Set(layout.regions.map(r => r.role))).map(role => (
+                    <span key={role} style={{
+                      fontSize: 9, fontWeight: 800, padding: "2px 8px", borderRadius: 5,
+                      background: roleColor(role) + "22", color: roleColor(role),
+                      border: "1px solid " + roleColor(role) + "44", letterSpacing: 0.5,
+                    }}>{ROLE_LABELS[role] || role}</span>
+                  ))}
+                </div>
+                <Card style={{ padding: 10 }}>
+                  <LayoutRegionList regions={layout.regions} />
+                  <LayoutHexViewer data={m.data} regions={layout.regions} />
+                </Card>
+              </div>
+            );
+          })
+      }
     </div>}
 
     {/* DIFF TAB */}
