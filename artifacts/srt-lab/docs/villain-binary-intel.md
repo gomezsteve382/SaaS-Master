@@ -159,84 +159,26 @@ All routines use sub-type `0x01` (startRoutine). Frame format: `31 01 HH LL [opt
 
 ## 7. `CalculateSecurityKey_0x61` Algorithm
 
-> **[UNVERIFIED — THIRD-PARTY REPORT]**
-> This algorithm was claimed to be fully reverse-engineered from the unpacked binary.
-> It has **not** been verified against real ECU traffic. Do **not** implement this in
-> `algos.js` or any other execution path until bench-confirmed with known seed→key pairs.
+> **[UNVERIFIED — THIRD-PARTY REPORT, SUPERSEDED]**
 
 The reported security access level is `0x27 0x61` (requestSeed sub-function `0x61`,
 sendKey sub-function `0x62`). The ECU reportedly returns an **8-byte seed** in the
 `67 61 [8 bytes]` response.
 
-### 7.1 Inputs / Outputs
+### 7.2 Historical note — original (wrong) CRC16 + S-box report
 
-- **Input**: 8-byte seed array `Seed[0..7]` (from ECU `67 61` response)
-- **Output**: 8-byte key array `Key[0..7]` (sent back in `27 62` request)
-
-### 7.2 Step-by-step (pseudocode)
-
-> **[UNVERIFIED — THIRD-PARTY REPORT]** on every step below.
-
-**Step 1 — Initialize key buffer**
-
-```
-Key[0] = 0x5A
-Key[1] = 0xA5
-Key[2..7] = 0x00
-```
-
-**Step 2 — TempSeed permutation (byte reorder + XOR)**
-
-```
-TempSeed[0] = Seed[2] ^ Seed[5]
-TempSeed[1] = Seed[0] ^ Seed[7]
-TempSeed[2] = Seed[4] ^ Seed[1]
-TempSeed[3] = Seed[6] ^ Seed[3]
-TempSeed[4] = Seed[1] ^ Seed[6]
-TempSeed[5] = Seed[3] ^ Seed[0]
-TempSeed[6] = Seed[5] ^ Seed[2]
-TempSeed[7] = Seed[7] ^ Seed[4]
-```
-
-**Step 3 — 4-round mixer**
-
-For each round `i` in `[0, 1, 2, 3]`:
-```
-Key[2] = (Key[2] + TempSeed[i*2])   & 0xFF
-Key[3] = (Key[3] ^ TempSeed[i*2+1]) & 0xFF
-Key[4] = (Key[4] + Key[2])           & 0xFF
-Key[5] = (Key[5] ^ Key[3])           & 0xFF
-Key[6] = (Key[6] + (Key[4] >> 4))   & 0xFF
-Key[7] = (Key[7] ^ (Key[5] << 4))   & 0xFF  (note: low byte of shifted value)
-Key[0] = (Key[0] + Key[6])           & 0xFF
-Key[1] = (Key[1] ^ Key[7])           & 0xFF
-```
-
-**Step 4 — CRC-16/CCITT over first 4 seed bytes**
-
-Compute CRC-16/CCITT-FALSE (poly `0x1021`, init `0xFFFF`, no final XOR) over
-`Seed[0..3]`. Let `CRC_Result` be the 16-bit result.
-
-```
-Key[0] = (Key[0] ^ (CRC_Result & 0xFF))        & 0xFF
-Key[1] = (Key[1] ^ ((CRC_Result >> 8) & 0xFF)) & 0xFF
-```
-
-Our existing `crc16ccitt()` in `src/lib/crc.js` computes this exact variant.
-
-**Step 5 — Final S-box substitution**
-
-Apply a 256-byte custom S-box (`FCA_SBox`) embedded in the binary's data section:
-
-```
-for j in 0..7:
-    Key[j] = FCA_SBox[Key[j]]
-```
-
-> ⚠️ The S-box contents were **not** included in the source report — they were described
-> as "embedded in the binary's data section." The full S-box must be extracted from the
-> unpacked binary before this algorithm can be implemented. Without it, Steps 1–4 alone
-> will not produce a valid key.
+The original third-party report described `0x27/0x61` as a 5-step algorithm: (1) init
+`Key[0]=0x5A, Key[1]=0xA5`; (2) a byte-reorder + XOR permutation of `Seed[0..7]` into
+`TempSeed[0..7]`; (3) a 4-round byte-wise mixer over `Key[]`; (4) CRC-16/CCITT-FALSE
+(poly `0x1021`, init `0xFFFF`) over `Seed[0..3]` XOR'd into `Key[0..1]`; and (5) a
+final substitution through a 256-byte `FCA_SBox` claimed to be embedded in the binary
+but never extracted. That shape was implemented as `src/lib/villain27_61.js` (gated
+behind `ENABLE_VILLAIN_0x61 = false`) and then refuted on bench by the
+`VILLAIN_GPEC_COMPLETE_EXTRACTION.zip` upload — see §7.3 below for the correction. The
+dead implementation, its feature flag, its `villain_0x61` `ALGOS` entry, the
+`_unverified/` candidate file, and the bench-pair harness were all removed in a
+follow-up cleanup. The pseudocode is intentionally not reproduced here — refer to
+this file's git history if you need the original wording.
 
 ---
 
@@ -268,9 +210,10 @@ Steps-1–4 + S-box structure documented in §7.2. The findings:
 
 **Consequence for the codebase:**
 
-- `src/lib/villain27_61.js` is structurally wrong for level 0x61. The file
-  has been retained with a corrected header banner and the
-  `ENABLE_VILLAIN_0x61` flag remains `false`. Do not flip it.
+- The CRC16 + S-box scaffold (`src/lib/villain27_61.js`, the `ENABLE_VILLAIN_0x61`
+  feature flag, the `villain_0x61` `ALGOS` entry, and the `_unverified/`
+  candidate file with its bench-pair harness) has been **deleted**. It was
+  structurally wrong for level 0x61 and kept the codebase carrying dead code.
 - The bench-verification checklist below (§9) is superseded: the correct
   goal is to extract the `_gpec_calculator` body from an unpacked
   `VILLAIN.exe`, not to "find the S-box."
@@ -341,13 +284,13 @@ what is already covered and what is net-new.
 | CRC-16/CCITT-FALSE (poly `0x1021`, init `0xFFFF`) | `crc16ccitt()` confirmed matching | `src/lib/crc.js` |
 | SecurityAccess for various GPEC/TIPM levels | Multiple `sxor` / `tipm` variants | `src/lib/algos.js` |
 | SGW security access (`0x27 0x01` XTEA) | `xtea_sgw()`, `xtea_sgw_full()` | `src/lib/algos.js` |
-| `0x27 0x61` security access (Steps 1–4) | `calculateSecurityKey_0x61()` promoted from `_unverified/`, gated behind `ENABLE_VILLAIN_0x61` (default false). Step 5 S-box still placeholder — flip the flag only after the real 256-byte `FCA_SBox` is substituted in `villain27_61.js`. | `src/lib/villain27_61.js`, `src/lib/algos.js` |
+| `0x27 0x61` security access | Dispatches to `_gpec_calculator` (GPEC2 base) per §7.3 — already wired as `gpec2` / `gpec2_q2` sxor entries (constants `q1=0xE72E3799` / `q2=0x1B64DB03`). Sxor body vs. live ECU still bench-pending. | `src/lib/algos.js` |
 
 ### 8.2 Net-new gaps from this intel
 
 | VILLAIN intel item | Gap description | Priority |
 |-------------------|-----------------|----------|
-| `FCA_SBox` (256-byte S-box) | Algorithm scaffolding promoted; still using identity placeholder. Must be extracted from unpacked binary before `ENABLE_VILLAIN_0x61` can be flipped true. | Blocker for activating `0x27 0x61` |
+| `_gpec_calculator` function body | Per §7.3, level `0x61` routes to `_gpec_calculator`. The constants are in `algos.js` but the disassembled function body was not in the upload — bench-verify the existing `gpec2` / `gpec2_q2` sxor implementation against ≥3 live `(seed → key)` captures, or extract the body from an unpacked `VILLAIN.exe`. | High |
 | 8-byte seed format for `0x27 0x61` | Existing `unlockKeyBytes()` handles 4-byte and 8-byte seeds; framing may need extension | Medium |
 | SKIM DIDs `0xDE01`–`0xDE03` | Not in `dids.ts` catalog (only `0xDE00`–`0xDE0C` generic BCM blocks) | Low |
 | RFHUB DIDs `0xAB01`–`0xAB02` | Not in `dids.ts` catalog | Low |

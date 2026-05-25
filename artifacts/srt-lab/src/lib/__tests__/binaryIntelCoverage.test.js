@@ -138,10 +138,10 @@ describe("classifySecurityLevel", () => {
     expect(result.evidence).toMatch(/algos\.js/);
   });
 
-  it("marks VILLAIN 0x61 level as gap (S-box missing)", () => {
+  it("marks VILLAIN 0x61 level as covered (dispatches to gpec2 sxor)", () => {
     const result = classifySecurityLevel({ requestSeed: 0x61 });
-    expect(result.status).toBe("gap");
-    expect(result.evidence).toMatch(/S-box|FCA_SBox/i);
+    expect(result.status).toBe("covered");
+    expect(result.evidence).toMatch(/gpec2|_gpec_calculator/);
   });
 
   it("marks dealer lockout level 0x0B as covered", () => {

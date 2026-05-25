@@ -306,9 +306,9 @@ function SecurityLevelsTable({ entries, q }) {
                     padding: "8px 12px", background: "#B71C1C", color: "#fff",
                     borderRadius: 6, fontWeight: 700, fontSize: 11, marginBottom: 10,
                   }}>
-                    ⚠ UNVERIFIED — THIRD-PARTY REPORT. This algorithm is NOT wired into any executable
-                    code path in SRT Lab. Do not use for real key calculation until bench-confirmed
-                    with known seed→key pairs and the missing FCA_SBox is extracted.
+                    ⚠ UNVERIFIED — THIRD-PARTY REPORT. Algorithm details below are reproduced from
+                    upstream intel for traceability. Do not rely on them for real key calculation
+                    until bench-confirmed with known seed→key pairs.
                   </div>
                   <div style={{ marginBottom: 8, fontSize: 11, color: C.ts }}>
                     Status: <strong style={{ color: algo.status === "incomplete" ? C.er : C.gn }}>{algo.status}</strong>

@@ -1,5 +1,18 @@
 # VILLAIN Unpack & Seed/Key Verification Workflow
 
+> **⚠ DEPRECATED 2026-05-25** — the algorithm hypothesis this workflow was built
+> around (CRC16 + 4-round mixer + 256-byte `FCA_SBox` for UDS `0x27/0x61`) was
+> refuted by the `VILLAIN_GPEC_COMPLETE_EXTRACTION` upload; level `0x61`
+> actually dispatches to `_gpec_calculator` (GPEC2 base) — see
+> `villain-binary-intel.md` §7.3 for the correction. All file paths below that
+> reference `src/lib/villain27_61.js`, `src/lib/_unverified/`,
+> `ENABLE_VILLAIN_0x61`, or `FCA_SBox` are **stale** — those files and that
+> feature flag have been removed. Treat §1–§6 (the unpacking methodology) as
+> still useful reference material, but ignore §7–§10's algorithm-specific
+> steps. A future bench task should be re-scoped to extract the
+> `_gpec_calculator` body or to validate the existing `gpec2` / `gpec2_q2`
+> sxor entries in `algos.js` against live `(seed → key)` captures.
+
 > **Status: PLAN ONLY — not yet executed**
 >
 > This document is a reviewable methodology for independently verifying two claims

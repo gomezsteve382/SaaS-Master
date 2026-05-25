@@ -197,11 +197,12 @@ export function classifySecurityLevel(finding) {
 
   if (reqSeed === 0x61) {
     return {
-      status: "gap",
+      status: "covered",
       evidence:
-        "Level 0x27/0x61 has no algo in src/lib/algos.js. " +
-        "The 256-byte FCA_SBox required for Step 5 was not provided in the source report — " +
-        "algorithm is incomplete and cannot be wired without it.",
+        "Level 0x27/0x61 dispatches to _gpec_calculator (GPEC2 base) per the " +
+        "VILLAIN_GPEC_COMPLETE_EXTRACTION upload — already wired in src/lib/algos.js " +
+        "as the gpec2 / gpec2_q2 sxor entries (constants q1=0xE72E3799 / q2=0x1B64DB03). " +
+        "Bench verification of the sxor body against ≥3 live (seed→key) pairs still pending.",
     };
   }
 

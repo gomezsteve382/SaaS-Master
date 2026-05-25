@@ -131,73 +131,31 @@ export const BINARY_INTEL_REPORTS = [
           sendKey: 0x62,
           seedLen: 8,
           notes:
-            "REVISED 2026-05-25: a follow-up extraction (VILLAIN_GPEC_COMPLETE_EXTRACTION.zip) " +
-            "proves the Steps-1-4 + S-box structure below is structurally wrong for level 0x61. " +
-            "Level 0x61 is in the binary's Group-4 dispatch and routes to _gpec_calculator (GPEC2 " +
-            "base) using the 32-bit constant pair q1=0xE72E3799 / q2=0x1B64DB03 — already wired " +
-            "in algos.js as gpec2_q1 / gpec2_q2 (sxor family). There is no 256-byte S-box in the " +
-            "binary; grep over the extraction strings + 77MB wiTECH_wde.DMP returns zero hits " +
-            "for FCA_SBox / sbox / CalculateSecurityKey. The Steps 1-4 pseudocode below is " +
-            "retained verbatim for historical traceability against the original third-party " +
-            "report; see docs/villain-binary-intel.md §7.3 for the correction.",
+            "Level 0x27/0x61 sits in the binary's Group-4 dispatch and routes to " +
+            "_gpec_calculator (GPEC2 base) — confirmed by the VILLAIN_GPEC_COMPLETE_EXTRACTION " +
+            "upload. The function operates on 32-bit integers with the constant pair " +
+            "q1=0xE72E3799 / q2=0x1B64DB03, already wired in src/lib/algos.js as the " +
+            "gpec2 / gpec2_q2 sxor entries. There is no 256-byte S-box in the binary; " +
+            "a grep across the extraction strings + the 77MB wiTECH_wde.DMP returns zero " +
+            "hits for FCA_SBox / sbox / CalculateSecurityKey. See " +
+            "docs/villain-binary-intel.md §7.3 for the historical note on the original " +
+            "(wrong) CRC16+S-box report.",
           algorithm: {
-            name: "CalculateSecurityKey_0x61",
-            status: "wrong-shape (superseded by gpec2_q1 / gpec2_q2 in algos.js)",
-            missingPiece: "Body of _gpec_calculator (not an S-box) from an unpacked VILLAIN.exe, plus ≥3 (seed→key) bench captures",
-            steps: [
-              {
-                step: 1,
-                label: "Initialize key buffer",
-                pseudocode: "Key[0]=0x5A; Key[1]=0xA5; Key[2..7]=0x00",
-              },
-              {
-                step: 2,
-                label: "TempSeed permutation (byte reorder + XOR)",
-                pseudocode:
-                  "TempSeed[0]=Seed[2]^Seed[5]; TempSeed[1]=Seed[0]^Seed[7]; " +
-                  "TempSeed[2]=Seed[4]^Seed[1]; TempSeed[3]=Seed[6]^Seed[3]; " +
-                  "TempSeed[4]=Seed[1]^Seed[6]; TempSeed[5]=Seed[3]^Seed[0]; " +
-                  "TempSeed[6]=Seed[5]^Seed[2]; TempSeed[7]=Seed[7]^Seed[4]",
-              },
-              {
-                step: 3,
-                label: "4-round mixer",
-                pseudocode:
-                  "for i in [0,1,2,3]: " +
-                  "Key[2]=(Key[2]+TempSeed[i*2])&0xFF; " +
-                  "Key[3]=(Key[3]^TempSeed[i*2+1])&0xFF; " +
-                  "Key[4]=(Key[4]+Key[2])&0xFF; " +
-                  "Key[5]=(Key[5]^Key[3])&0xFF; " +
-                  "Key[6]=(Key[6]+(Key[4]>>4))&0xFF; " +
-                  "Key[7]=(Key[7]^(Key[5]<<4))&0xFF; " +
-                  "Key[0]=(Key[0]+Key[6])&0xFF; " +
-                  "Key[1]=(Key[1]^Key[7])&0xFF",
-              },
-              {
-                step: 4,
-                label: "CRC-16/CCITT-FALSE over first 4 seed bytes",
-                pseudocode:
-                  "CRC=crc16ccitt(Seed[0..3]); " +
-                  "Key[0]=(Key[0]^(CRC&0xFF))&0xFF; " +
-                  "Key[1]=(Key[1]^((CRC>>8)&0xFF))&0xFF",
-              },
-              {
-                step: 5,
-                label: "S-box substitution (BLOCKED — S-box not available)",
-                pseudocode:
-                  "for j in 0..7: Key[j]=FCA_SBox[Key[j]]   // FCA_SBox[256] not extracted",
-              },
-            ],
+            name: "_gpec_calculator (GPEC2 base, sxor q1/q2)",
+            status: "covered by algos.js gpec2 / gpec2_q2",
+            missingPiece:
+              "Function body of _gpec_calculator was not captured in the extraction — " +
+              "verify the existing sxor implementation matches by collecting ≥3 (seed→key) " +
+              "bench captures from a live ECU.",
           },
         },
       ],
 
       notes: [
-        "CRC-16/CCITT-FALSE (poly 0x1021, init 0xFFFF) is already implemented in src/lib/crc.js as crc16ccitt().",
+        "CRC-16/CCITT-FALSE (poly 0x1021, init 0xFFFF) is implemented in src/lib/crc.js as crc16ccitt() and used by other modules (not by 0x27/0x61).",
         "RX CAN IDs (TX+8) follow the standard FCA convention but are not bench-confirmed from this source.",
         "Label inconsistencies in 0xF1xx DIDs: the report uses FCA-internal names that diverge from ISO 14229 standard names.",
-        "The 256-byte FCA_SBox is the critical missing piece for the 0x27/0x61 algorithm — without it Steps 1–4 alone produce an invalid key.",
-        "REVISED 2026-05-25 — the bullet above is the original report's claim and has been refuted on-bench. The VILLAIN_GPEC_COMPLETE_EXTRACTION upload shows level 0x61 dispatches to _gpec_calculator with 32-bit constants q1=0xE72E3799 / q2=0x1B64DB03 (already wired as gpec2_q1 / gpec2_q2 in algos.js). No S-box exists. ENABLE_VILLAIN_0x61 must stay false. See docs/villain-binary-intel.md §7.3.",
+        "Historical note: the original third-party report described 0x27/0x61 as a CRC16 + 4-round mixer + 256-byte FCA_SBox algorithm. The VILLAIN_GPEC_COMPLETE_EXTRACTION upload (2026-05-25) refuted that shape — level 0x61 actually dispatches to _gpec_calculator and no S-box exists in the binary. The dead CRC16+S-box scaffold (src/lib/villain27_61.js + ENABLE_VILLAIN_0x61 flag + villain_0x61 ALGOS entry) was removed in a follow-up cleanup. See docs/villain-binary-intel.md §7.3.",
       ],
     },
   },
