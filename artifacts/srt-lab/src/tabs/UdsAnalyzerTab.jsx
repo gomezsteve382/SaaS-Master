@@ -203,9 +203,17 @@ export default function UdsAnalyzerTab() {
   const fileRef = useRef(null);
   const shareTimerRef = useRef(null);
 
+  const [parseWarning, setParseWarning] = useState(false);
+
   const analyze = useCallback((src) => {
-    if (!src.trim()) { setResult(null); return; }
+    if (!src.trim()) { setResult(null); setParseWarning(false); return; }
     const parsed = parseTrace(src);
+    if (parsed.messageCount === 0) {
+      setResult(null);
+      setParseWarning(true);
+      return;
+    }
+    setParseWarning(false);
     const session = analyzeSession(parsed.lines);
     setResult({ parsed, session });
   }, []);
@@ -286,6 +294,7 @@ export default function UdsAnalyzerTab() {
   const handleChange = useCallback((e) => {
     const t = e.target.value;
     setText(t);
+    if (!t.trim()) setParseWarning(false);
   }, []);
 
   const handlePaste = useCallback((e) => {
@@ -302,7 +311,7 @@ export default function UdsAnalyzerTab() {
   }, [text, analyze]);
 
   const handleAnalyze = useCallback(() => analyze(text), [analyze, text]);
-  const handleClear = useCallback(() => { setText(''); setFileName(''); setResult(null); setFilterSev('ALL'); setFilterText(''); }, []);
+  const handleClear = useCallback(() => { setText(''); setFileName(''); setResult(null); setFilterSev('ALL'); setFilterText(''); setParseWarning(false); }, []);
   const handleExample = useCallback(() => {
     const t = exampleLog;
     setText(t);
@@ -418,6 +427,24 @@ export default function UdsAnalyzerTab() {
             color: C.tx,
           }}
         />
+        {parseWarning && (
+          <div
+            data-testid="uds-analyzer-parse-warning"
+            style={{
+              marginTop: 8,
+              padding: '8px 12px',
+              borderRadius: 8,
+              border: `1px solid ${C.er}`,
+              background: '#FFEBEE',
+              color: C.er,
+              fontSize: 11,
+              fontWeight: 700,
+              lineHeight: 1.5,
+            }}
+          >
+            ⚠ 0 messages parsed — unrecognized format. Expected candump, TX/RX, Req/Resp, or bare hex.
+          </div>
+        )}
       </Card>
 
       {result && (
