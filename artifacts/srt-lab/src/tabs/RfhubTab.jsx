@@ -20,6 +20,8 @@ import {build} from "@workspace/uds";
 import {LocalAlgoOverJ2534} from "../lib/securityAccessSource.js";
 import {runDealerLockoutBypass,dealerLockoutBypassSteps} from "../lib/dealerLockoutBypass.js";
 import Sec16PreflightCard from "../components/Sec16PreflightCard.jsx";
+import {extractRfhPflashIdentity} from "../lib/rfhPflashIdentity.js";
+import {pinnedStatus,formatRegistryEntry} from "../lib/rfhPinnedRegistry.js";
 
 // VIN-specific RFHUB CRC algorithms (poly+init pairs derived from real dumps).
 // Used as a hint shown to the user; the actual write goes through UDS so the
@@ -497,6 +499,7 @@ export default function RfhubTab({vehicle}){
               now feeds this inspector from any tab that loaded an
               RFHUB dump; tell the user where it came from. */}
           {inspectEntry?.source&&<span data-testid="rfhub-source-chip" style={{fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:6,background:C.c2,color:C.ts,border:'1px solid '+C.bd,letterSpacing:0.5,textTransform:'uppercase'}}>Loaded from {inspectEntry.source}</span>}
+          <FixtureConfirmationBadge mod={inspectMod} addLog={addLog}/>
           <button onClick={closeInspect} style={{border:'none',background:'transparent',color:C.tm,cursor:'pointer',fontSize:14}} title="Remove from workspace">✕</button>
         </>}
       </div>
@@ -528,7 +531,129 @@ export default function RfhubTab({vehicle}){
   </div>;
 }
 
-export {RFHUB_KNOWN_ALGOS, DealerLockoutBypassCard};
+export {RFHUB_KNOWN_ALGOS, DealerLockoutBypassCard, FixtureConfirmationBadge};
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * FixtureConfirmationBadge — Task #796.
+ * Shows whether the currently-inspected RFHUB dump is in the pinned
+ * ground-truth registry or is an "unconfirmed best pick". Clicking the
+ * chip toggles a panel that shows the extractor's OS/PN/SERIAL pick
+ * (with canonical-match info) and a Confirm-as-ground-truth button that
+ * copies a paste-ready registry entry to the clipboard.
+ * ────────────────────────────────────────────────────────────────────── */
+function FixtureConfirmationBadge({ mod, addLog }) {
+  const [open, setOpen] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+  const filename = mod?.filename || '';
+  const bytes = mod?.data;
+  const identity = React.useMemo(() => {
+    if (!bytes || !bytes.length) return null;
+    try { return extractRfhPflashIdentity(bytes); } catch { return null; }
+  }, [bytes]);
+  const status = React.useMemo(() => pinnedStatus(filename, identity), [filename, identity]);
+  const isPinned = status.status === 'pinned';
+  const isMismatch = status.status === 'pinned-mismatch';
+  const palette = isPinned
+    ? { bg: '#E8F5E9', fg: '#1B5E20', border: C.gn, label: 'PINNED' }
+    : isMismatch
+      ? { bg: '#FFEBEE', fg: '#B71C1C', border: C.er, label: 'PINNED · MISMATCH' }
+      : { bg: '#FFF8E1', fg: '#E65100', border: '#FFB300', label: 'UNCONFIRMED' };
+
+  const onCopy = React.useCallback(async () => {
+    if (!identity) return;
+    const text = formatRegistryEntry(filename, identity);
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+      }
+      setCopied(true);
+      if (typeof addLog === 'function') addLog('Registry entry for ' + filename + ' copied to clipboard', 'info');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      if (typeof addLog === 'function') addLog('Clipboard copy failed: ' + (e && e.message || e), 'error');
+    }
+  }, [identity, filename, addLog]);
+
+  const fieldRow = (label, f) => (
+    <div style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.ts,lineHeight:1.6}}>
+      <b>{label}:</b> {f ? <>
+        <span style={{color:C.tx,fontWeight:700}}>{f.value}</span>
+        <span style={{color:C.tm}}> · len {f.len} · score {f.score} · @ 0x{f.offset.toString(16).toUpperCase()}</span>
+        {f.matchesCanonical && <span style={{marginLeft:6,color:C.gn,fontWeight:800}}>canonical</span>}
+        {f.supplierBonus ? <span style={{marginLeft:6,color:C.a1,fontWeight:800}}>supplier+{f.supplierBonus}</span> : null}
+      </> : <span style={{color:C.tm,fontStyle:'italic'}}>— none —</span>}
+    </div>
+  );
+
+  return (
+    <span style={{position:'relative',display:'inline-block'}}>
+      <button
+        type="button"
+        data-testid="rfhub-pin-chip"
+        data-status={status.status}
+        onClick={() => setOpen(o => !o)}
+        title={isPinned ? 'Matches pinned ground truth — click for details'
+          : isMismatch ? 'Extractor disagrees with pinned ground truth — click for details'
+          : 'Best pick has not been confirmed — click to review and confirm'}
+        style={{
+          fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:6,
+          background:palette.bg,color:palette.fg,
+          border:'1px solid '+palette.border,letterSpacing:0.5,
+          textTransform:'uppercase',cursor:'pointer',
+        }}
+      >
+        {isPinned ? '✓ ' : isMismatch ? '✗ ' : '○ '}{palette.label}
+      </button>
+      {open && (
+        <div
+          data-testid="rfhub-pin-panel"
+          style={{
+            position:'absolute',top:'calc(100% + 6px)',left:0,zIndex:20,
+            minWidth:360,maxWidth:520,padding:'12px 14px',
+            background:'#fff',border:'1px solid '+palette.border,borderRadius:10,
+            boxShadow:'0 6px 18px rgba(0,0,0,0.12)',
+          }}
+        >
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+            <div style={{fontSize:11,fontWeight:800,color:palette.fg,letterSpacing:1}}>{palette.label}</div>
+            <button type="button" onClick={() => setOpen(false)} style={{border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:C.tm}}>✕</button>
+          </div>
+          <div style={{fontSize:10,color:C.tm,marginBottom:8,wordBreak:'break-all'}}>{filename}</div>
+          {fieldRow('OS', identity?.os)}
+          {fieldRow('PN', identity?.pn)}
+          {fieldRow('SERIAL', identity?.serial)}
+          {isMismatch && status.mismatches.length > 0 && (
+            <div style={{marginTop:8,padding:8,background:'#FFEBEE',border:'1px solid '+C.er+'55',borderRadius:6}}>
+              <div style={{fontSize:10,fontWeight:800,color:C.er,marginBottom:4}}>Registry mismatch — extractor regressed?</div>
+              {status.mismatches.map((m, i) => (
+                <div key={i} style={{fontFamily:"'JetBrains Mono'",fontSize:9,color:C.er,lineHeight:1.5}}>
+                  {m.field}.{m.key}: expected <b>{String(m.expected)}</b> · got <b>{String(m.actual)}</b>
+                </div>
+              ))}
+            </div>
+          )}
+          {!isPinned && (
+            <div style={{marginTop:10,display:'flex',gap:8,alignItems:'center'}}>
+              <Btn onClick={onCopy} disabled={!identity} color={C.a1} data-testid="rfhub-pin-confirm">
+                📋 {copied ? 'Copied!' : 'Confirm as ground truth (copy entry)'}
+              </Btn>
+              <span style={{fontSize:9,color:C.tm,fontStyle:'italic'}}>Paste into <code>rfhPinnedRegistry.js</code> PINNED_RFH_FIXTURES.</span>
+            </div>
+          )}
+          {isPinned && (
+            <div style={{marginTop:10,fontSize:10,color:C.gn,fontWeight:700}}>
+              ✓ Registry agrees with extractor — no action needed.
+            </div>
+          )}
+        </div>
+      )}
+    </span>
+  );
+}
 
 /* ────────────────────────────────────────────────────────────────────────────
  * DealerLockoutBypassCard — 2019+ internal-flash RFHUB lockout recovery.
