@@ -456,6 +456,91 @@ describe('RFHUB P-Flash identity (best pick)', () => {
 });
 
 /* ─────────────────────────────────────────────────────────────────────────────
+ * 9c. RFHUB P-Flash identity — legacy 4 KB RFHUB EEPROM family (Task #776)
+ *
+ * The task description's canonical reference values
+ * (`AA30712804` / `30712804CA` / `7161A9870IR00T`) live in the legacy 4 KB
+ * RFHUB EEPROM family (e.g. `RFH_SCAT_OG_*.bin`) at offset ~0x800, NOT in
+ * the 6.2 Charger 384 KB Infineon P-flash. This block runs the same
+ * extractor against that legacy family to lock the originally-proposed
+ * ground-truth values.
+ *
+ * The fixture stores the identity block as two adjacent printable runs:
+ *   run @ 0x808 — `AA30712804CA85149386@`  (OS+PN concat plus a `@` byte)
+ *   run @ 0x82C — `7161A9870IR00TM`        (supplier serial + stray `M`)
+ *
+ * Tuning notes baked into rfhPflashIdentity.js to support these:
+ *   - OS regex uses `(?:[A-Z]{2}(?!\d))?` so the trailing 2-letter revision
+ *     refuses to consume `CA` when followed by another digit — recovering
+ *     the canonical 10-char `AA30712804` from the concatenated run while
+ *     still allowing the genuine 12-char `AA40821703AA` form when the
+ *     trailing letters sit at end-of-run.
+ *   - A SUPPLIER_SERIAL_RE second pass scoops up `IR\d{2}T`-suffix supplier
+ *     serials (e.g. `7161A9870IR00T`) with an extra +20 bonus so they
+ *     out-score generic longer alnum runs without affecting fixtures that
+ *     have no supplier suffix.
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('RFHUB P-Flash identity — legacy 4 KB RFHUB EEPROM (RFH_SCAT_OG)', () => {
+  const LEGACY_RFH_FILE = 'RFH_SCAT_OG_1776883386715.bin';
+  let legacyData;
+  let legacyId;
+  function loadLegacy() {
+    if (legacyId) return;
+    legacyData = loadBin(LEGACY_RFH_FILE);
+    legacyId = extractRfhPflashIdentity(legacyData);
+  }
+
+  it('legacy fixture is 4096 bytes', () => {
+    loadLegacy();
+    expect(legacyData.length).toBe(4096);
+  });
+
+  it('OS is AA30712804 at the identity block (~0x808)', () => {
+    loadLegacy();
+    expect(legacyId.os).not.toBeNull();
+    expect(legacyId.os.value).toBe('AA30712804');
+    expect(legacyId.os.len).toBe(10);
+    expect(legacyId.os.offset).toBe(0x808);
+  });
+
+  it('PN is the 30712804CA mopar candidate (8 digits + 2 letters)', () => {
+    loadLegacy();
+    expect(legacyId.pn).not.toBeNull();
+    expect(legacyId.pn.value).toBe('30712804CA');
+    expect(legacyId.pn.len).toBe(10);
+    // Not the 68xxxxxxAB family, so canonical rfhPn bonus does NOT fire.
+    expect(legacyId.pn.matchesCanonical).toBe(false);
+    expect(legacyId.pn.offset).toBe(0x80A);
+  });
+
+  it('SERIAL is the supplier-style 7161A9870IR00T (IR-suffix wins)', () => {
+    loadLegacy();
+    expect(legacyId.serial).not.toBeNull();
+    expect(legacyId.serial.value).toBe('7161A9870IR00T');
+    expect(legacyId.serial.value).toContain('7161A9870IR00T');
+    expect(legacyId.serial.matchesCanonical).toBe(true);
+    // useful 14 + pr 10 + canonical 100 + supplier 20 = 144
+    expect(legacyId.serial.score).toBe(144);
+    expect(legacyId.serial.supplierBonus).toBe(20);
+  });
+
+  it('every field hit carries the full scoreCandidate breakdown', () => {
+    loadLegacy();
+    for (const field of [legacyId.os, legacyId.pn, legacyId.serial]) {
+      expect(field).toHaveProperty('value');
+      expect(field).toHaveProperty('score');
+      expect(field).toHaveProperty('useful');
+      expect(field).toHaveProperty('ratio');
+      expect(field).toHaveProperty('len');
+      expect(field).toHaveProperty('pr');
+      expect(field).toHaveProperty('offset');
+      expect(field).toHaveProperty('matchesCanonical');
+      expect(field.ratio).toBeCloseTo(1.0, 5);
+    }
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
  * 10. crossValidate on the trio (BCM + RFHUB EEE + PCM)
  * ───────────────────────────────────────────────────────────────────────────── */
 describe('crossValidate — BCM + RFHUB EEE + PCM trio', () => {

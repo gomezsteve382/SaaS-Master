@@ -70,9 +70,33 @@ const PRINTABLE_RUN_RE = /[\x20-\x7E]{6,}/g;
  * Each regex is sized so a longer real candidate wins on `useful` over a
  * shorter accidental substring (the scorer's tie-breaker is insertion order
  * via bestPick.pickBest, so length differences matter). */
-const OS_RE     = /[A-Z]{2}\d{8,10}(?:[A-Z]{2})?/g;
-const PN_RE     = /\d{8}[A-Z]{2,3}/g;
+/* OS:  exactly 8 digits between the 2-letter prefix and the optional
+ *      2-letter revision (Stellantis OS PNs are documented as 8-digit
+ *      part numbers). The optional trailing 2-letter revision is gated
+ *      by a `(?![A-Z0-9])` lookahead so we refuse to consume two letters
+ *      that are themselves the start of the next adjacent token. This
+ *      keeps a concatenated run like `CA00000933UAA30712804` from
+ *      mis-matching the rev-letters of the leading PN; the regex
+ *      continues past it and surfaces the canonical 10-char `AA30712804`
+ *      from later in the same run. */
+const OS_RE     = /[A-Z]{2}\d{8}(?:[A-Z]{2}(?![A-Z0-9]))?/g;
+/* PN:  the optional 3rd trailing letter is only consumed if it is NOT
+ *      followed by another 8-digit run — that pattern signals the third
+ *      "letter" is actually the leading character of the next OS-style
+ *      token (e.g. in `00000933UAA30712804`, refusing the 3rd `A` keeps
+ *      the canonical 10-char PN `00000933UA` while still allowing the
+ *      genuine 11-char `30012001ADD` form to match when nothing follows). */
+const PN_RE     = /\d{8}[A-Z]{2}(?:[A-Z](?!\d{8}))?/g;
 const SERIAL_RE = /[A-Z0-9]{10,20}/g;
+/* Stellantis supplier serials are exactly `\d{4}[A-Z]\d{3,4}IR\d{2}T`
+ * (e.g. `7161A9870IR00T`, `3060A8341IR00T`). When present, this form is
+ * always the true supplier serial — the generic SERIAL_RE often picks
+ * up a longer concatenated alnum run that out-scores it on length. We
+ * run this tightly-anchored regex as a second pass and award a small
+ * extra bonus so the supplier-shaped candidate beats those generic
+ * runs without affecting fixtures that have no supplier suffix. */
+const SUPPLIER_SERIAL_RE = /\d{4}[A-Z]\d{3,4}IR\d{2}T/g;
+const SUPPLIER_BONUS = 20;
 
 /* Helper — does this candidate look like a serial number (mixed letters AND
  * digits)? Pure-digit runs are calibration tables, pure-letter runs are
@@ -99,14 +123,21 @@ function bytesToAscii(data, start, len) {
 
 /* Score a single field hit. Pulls the matchesCanonical flag from a per-field
  * canonical regex (the bestPick patterns) so we don't double-define them. */
-function scoreFieldHit(value, offset, canonicalRe) {
+function scoreFieldHit(value, offset, canonicalRe, extraBonus = 0) {
   const matchesCanonical = canonicalRe ? canonicalRe.test(value) : false;
   const b = scoreCandidate({
     value,
     precedenceRank: 1.0,
     matchesCanonical,
   });
-  return { ...b, offset, matchesCanonical };
+  return {
+    ...b,
+    score: b.score + extraBonus,
+    bonus: b.bonus + extraBonus,
+    offset,
+    matchesCanonical,
+    supplierBonus: extraBonus,
+  };
 }
 
 /* Pick the top-scoring hit out of a per-field hit list. Stable on insertion
@@ -166,6 +197,11 @@ export function extractRfhPflashIdentity(buf) {
     while ((mm = SERIAL_RE.exec(runText)) !== null) {
       if (!looksLikeSerial(mm[0])) continue;
       serHits.push(scoreFieldHit(mm[0], runOffset + mm.index, CANONICAL_PATTERNS.serial));
+    }
+    SUPPLIER_SERIAL_RE.lastIndex = 0;
+    while ((mm = SUPPLIER_SERIAL_RE.exec(runText)) !== null) {
+      if (!looksLikeSerial(mm[0])) continue;
+      serHits.push(scoreFieldHit(mm[0], runOffset + mm.index, CANONICAL_PATTERNS.serial, SUPPLIER_BONUS));
     }
   }
 
