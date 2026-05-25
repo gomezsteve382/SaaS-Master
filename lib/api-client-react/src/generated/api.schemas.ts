@@ -504,6 +504,73 @@ export interface UnlockCoverageStatsError {
   detail?: string | null;
 }
 
+/**
+ * Request body to start a new Investigation Swarm run.
+ */
+export interface InvestigationStartInput {
+  /** Base64-encoded ECU dump bytes (required). */
+  dumpBase64: string;
+  /** Filename hint, e.g. "bcm_dump.bin". */
+  dumpName?: string;
+  /** Base64-encoded reference dump for hex-diff comparison (optional). */
+  referenceBase64?: string | null;
+  /** Filename hint for the reference dump. */
+  referenceName?: string | null;
+  /** Bench-session scope string (used to isolate runs per session). */
+  scope?: string | null;
+}
+
+export interface InvestigationStartResponse {
+  /** The run id — use this to open the SSE stream. */
+  id: string;
+}
+
+export type InvestigationAgentFindingStatus =
+  (typeof InvestigationAgentFindingStatus)[keyof typeof InvestigationAgentFindingStatus];
+
+export const InvestigationAgentFindingStatus = {
+  VERIFIED: "VERIFIED",
+  UNVERIFIED: "UNVERIFIED",
+} as const;
+
+export type InvestigationAgentFindingRaw = { [key: string]: unknown } | null;
+
+export interface InvestigationAgentFinding {
+  id: string;
+  runId: string;
+  agent: string;
+  findingType: string;
+  description: string;
+  offsets?: number[] | null;
+  confidence: number;
+  status: InvestigationAgentFindingStatus;
+  raw?: InvestigationAgentFindingRaw;
+  createdAt: string;
+}
+
+export type InvestigationRunSummary = { [key: string]: unknown } | null;
+
+export interface InvestigationRun {
+  id: string;
+  scope?: string | null;
+  dumpName: string;
+  dumpSize: number;
+  referenceName?: string | null;
+  referenceSize?: number | null;
+  status: string;
+  summary?: InvestigationRunSummary;
+  startedAt: string;
+  finishedAt?: string | null;
+}
+
+export type InvestigationRunDetail = InvestigationRun & {
+  findings: InvestigationAgentFinding[];
+};
+
+export interface ErrorResponse {
+  error: string;
+}
+
 export type ListAnthropicConversationsParams = {
   /**
    * Optional scope key — when set, only conversations created with this scope are returned.
@@ -625,4 +692,11 @@ export type ListDiscoveryCatalogParams = {
 
 export type ListDiscoveryCatalog200 = {
   entries: DiscoveryDidCatalogEntry[];
+};
+
+export type ListInvestigationRunsParams = {
+  /**
+   * Filter runs by bench-session scope
+   */
+  scope?: string;
 };

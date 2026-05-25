@@ -943,6 +943,137 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DiscoveryDidCatalogEntry"
+  /api/anthropic/investigation/runs:
+    post:
+      operationId: startInvestigationRun
+      tags: [investigation]
+      summary: Start a new Investigation Swarm run
+      description: |
+        Accepts a base64-encoded ECU dump (and optional reference dump), creates a
+        database record, and returns the run id. Use the /stream endpoint to
+        consume SwarmEvents over SSE. The binary is held in memory until the
+        stream is opened. Strictly read-only — no bytes are written to any ECU.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvestigationStartInput"
+      responses:
+        "201":
+          description: Run created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvestigationStartResponse"
+        "400":
+          description: Bad request — missing or empty dumpBase64
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      operationId: listInvestigationRuns
+      tags: [investigation]
+      summary: List investigation runs
+      parameters:
+        - name: scope
+          in: query
+          required: false
+          schema:
+            type: string
+            description: Filter runs by bench-session scope
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InvestigationRun"
+  /api/anthropic/investigation/runs/{id}:
+    get:
+      operationId: getInvestigationRun
+      tags: [investigation]
+      summary: Get a single investigation run with all agent findings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvestigationRunDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteInvestigationRun
+      tags: [investigation]
+      summary: Delete an investigation run and its findings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/anthropic/investigation/runs/{id}/stream:
+    get:
+      operationId: streamInvestigationRun
+      tags: [investigation]
+      summary: SSE stream of SwarmEvents for a run
+      description: |
+        Opens a Server-Sent Events stream. Events are newline-delimited JSON
+        objects prefixed with `data: `. Closing the connection cancels the run.
+        Event types: run_started, agent_started, agent_tool_call,
+        agent_tool_result, finding, agent_done, agent_aborted, agent_error,
+        budget_exceeded, synthesis_started, synthesis, done, error.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "404":
+          description: Run not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Run already started or buffer expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -1625,3 +1756,77 @@ components:
           nullable: true
       required:
         - error
+    InvestigationStartInput:
+      type: object
+      description: Request body to start a new Investigation Swarm run.
+      properties:
+        dumpBase64:
+          type: string
+          description: Base64-encoded ECU dump bytes (required).
+        dumpName:
+          type: string
+          description: Filename hint, e.g. "bcm_dump.bin".
+        referenceBase64:
+          type: string
+          nullable: true
+          description: Base64-encoded reference dump for hex-diff comparison (optional).
+        referenceName:
+          type: string
+          nullable: true
+          description: Filename hint for the reference dump.
+        scope:
+          type: string
+          nullable: true
+          description: Bench-session scope string (used to isolate runs per session).
+      required: [dumpBase64]
+    InvestigationStartResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The run id — use this to open the SSE stream.
+      required: [id]
+    InvestigationAgentFinding:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        agent: { type: string }
+        findingType: { type: string }
+        description: { type: string }
+        offsets: { type: array, items: { type: number }, nullable: true }
+        confidence: { type: number, format: float }
+        status: { type: string, enum: [VERIFIED, UNVERIFIED] }
+        raw: { type: object, nullable: true }
+        createdAt: { type: string, format: date-time }
+      required: [id, runId, agent, findingType, description, confidence, status, createdAt]
+    InvestigationRun:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        scope: { type: string, nullable: true }
+        dumpName: { type: string }
+        dumpSize: { type: integer }
+        referenceName: { type: string, nullable: true }
+        referenceSize: { type: integer, nullable: true }
+        status: { type: string }
+        summary: { type: object, nullable: true }
+        startedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time, nullable: true }
+      required: [id, dumpName, dumpSize, status, startedAt]
+    InvestigationRunDetail:
+      allOf:
+        - $ref: "#/components/schemas/InvestigationRun"
+        - type: object
+          properties:
+            findings:
+              type: array
+              items:
+                $ref: "#/components/schemas/InvestigationAgentFinding"
+          required: [findings]
+    ErrorResponse:
+      type: object
+      properties:
+        error: { type: string }
+      required: [error]

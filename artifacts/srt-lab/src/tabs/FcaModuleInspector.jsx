@@ -591,7 +591,7 @@ function SecretsCryptoPanel({ findings, modIdx, isOpen, onToggle, onJumpToHex })
   );
 }
 
-export default function FcaModuleInspector() {
+export default function FcaModuleInspector({ onOpenTab } = {}) {
   const { loadedDumps, addDump, removeDump } = useContext(MasterVinContext);
   const [tab, setTab] = useState("overview");
   const [dp, setDp] = useState([0, 1]);
@@ -942,7 +942,7 @@ export default function FcaModuleInspector() {
         {m.skimStatus && <div style={{ fontSize: 11, color: m.skimByte === 0x80 ? C.gn : C.er, fontWeight: 700, marginTop: 2 }}>SKIM: {m.skimStatus}</div>}
         {m.vehicleSecret && <div style={{ fontSize: 10, color: C.a4, fontFamily: "'JetBrains Mono'", marginTop: 2 }}>Secret: {m.vehicleSecret.hex.slice(0, 23)}…</div>}
         {m.securityLock && <div style={{ fontSize: 11, color: m.securityLock.locked ? C.gn : C.wn, fontWeight: 700, marginTop: 2 }}>{m.securityLock.locked ? "LOCKED" : "UNLOCKED"}</div>}
-        <div style={{ marginTop: 10 }}>
+        <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 6 }}>
           <Btn
             color={C.sr}
             outline
@@ -952,6 +952,23 @@ export default function FcaModuleInspector() {
             style={{ fontSize: 10, padding: "6px 12px" }}
           >
             {pdfBusy ? "⏳ Generating…" : "⬇ Export PDF Report"}
+          </Btn>
+          <Btn
+            color="#6A1B9A"
+            outline
+            onClick={() => {
+              const entry = entries[i];
+              if (!entry?.mod?.data) return;
+              window.dispatchEvent(new CustomEvent("srtlab:openInvestigation", {
+                detail: { module: { bytes: entry.mod.data, name: m.filename || "module.bin" } }
+              }));
+              if (typeof onOpenTab === "function") onOpenTab("investigation");
+            }}
+            data-testid={`inspector-investigate-${i}`}
+            style={{ fontSize: 10, padding: "6px 12px" }}
+            title="Run the five-agent Investigation Swarm on this dump"
+          >
+            🔬 Investigate
           </Btn>
         </div>
       </div>)}

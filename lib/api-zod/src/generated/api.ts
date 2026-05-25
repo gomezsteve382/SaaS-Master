@@ -1056,3 +1056,121 @@ export const UpsertDiscoveryCatalogEntryResponse = zod.object({
   notes: zod.string().nullish(),
   updatedAt: zod.coerce.date(),
 });
+
+/**
+ * Accepts a base64-encoded ECU dump (and optional reference dump), creates a
+database record, and returns the run id. Use the /stream endpoint to
+consume SwarmEvents over SSE. The binary is held in memory until the
+stream is opened. Strictly read-only — no bytes are written to any ECU.
+
+ * @summary Start a new Investigation Swarm run
+ */
+export const StartInvestigationRunBody = zod
+  .object({
+    dumpBase64: zod
+      .string()
+      .describe("Base64-encoded ECU dump bytes (required)."),
+    dumpName: zod
+      .string()
+      .optional()
+      .describe('Filename hint, e.g. \"bcm_dump.bin\".'),
+    referenceBase64: zod
+      .string()
+      .nullish()
+      .describe(
+        "Base64-encoded reference dump for hex-diff comparison (optional).",
+      ),
+    referenceName: zod
+      .string()
+      .nullish()
+      .describe("Filename hint for the reference dump."),
+    scope: zod
+      .string()
+      .nullish()
+      .describe(
+        "Bench-session scope string (used to isolate runs per session).",
+      ),
+  })
+  .describe("Request body to start a new Investigation Swarm run.");
+
+/**
+ * @summary List investigation runs
+ */
+export const ListInvestigationRunsQueryParams = zod.object({
+  scope: zod.coerce.string().optional(),
+});
+
+export const ListInvestigationRunsResponseItem = zod.object({
+  id: zod.string().uuid(),
+  scope: zod.string().nullish(),
+  dumpName: zod.string(),
+  dumpSize: zod.number(),
+  referenceName: zod.string().nullish(),
+  referenceSize: zod.number().nullish(),
+  status: zod.string(),
+  summary: zod.object({}).passthrough().nullish(),
+  startedAt: zod.coerce.date(),
+  finishedAt: zod.coerce.date().nullish(),
+});
+export const ListInvestigationRunsResponse = zod.array(
+  ListInvestigationRunsResponseItem,
+);
+
+/**
+ * @summary Get a single investigation run with all agent findings
+ */
+export const GetInvestigationRunParams = zod.object({
+  id: zod.coerce.string().uuid(),
+});
+
+export const GetInvestigationRunResponse = zod
+  .object({
+    id: zod.string().uuid(),
+    scope: zod.string().nullish(),
+    dumpName: zod.string(),
+    dumpSize: zod.number(),
+    referenceName: zod.string().nullish(),
+    referenceSize: zod.number().nullish(),
+    status: zod.string(),
+    summary: zod.object({}).passthrough().nullish(),
+    startedAt: zod.coerce.date(),
+    finishedAt: zod.coerce.date().nullish(),
+  })
+  .and(
+    zod.object({
+      findings: zod.array(
+        zod.object({
+          id: zod.string().uuid(),
+          runId: zod.string().uuid(),
+          agent: zod.string(),
+          findingType: zod.string(),
+          description: zod.string(),
+          offsets: zod.array(zod.number()).nullish(),
+          confidence: zod.number(),
+          status: zod.enum(["VERIFIED", "UNVERIFIED"]),
+          raw: zod.object({}).passthrough().nullish(),
+          createdAt: zod.coerce.date(),
+        }),
+      ),
+    }),
+  );
+
+/**
+ * @summary Delete an investigation run and its findings
+ */
+export const DeleteInvestigationRunParams = zod.object({
+  id: zod.coerce.string().uuid(),
+});
+
+/**
+ * Opens a Server-Sent Events stream. Events are newline-delimited JSON
+objects prefixed with `data: `. Closing the connection cancels the run.
+Event types: run_started, agent_started, agent_tool_call,
+agent_tool_result, finding, agent_done, agent_aborted, agent_error,
+budget_exceeded, synthesis_started, synthesis, done, error.
+
+ * @summary SSE stream of SwarmEvents for a run
+ */
+export const StreamInvestigationRunParams = zod.object({
+  id: zod.coerce.string().uuid(),
+});

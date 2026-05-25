@@ -45,10 +45,15 @@ import type {
   DiscoverySweepInput,
   DiscoverySweepUpdate,
   DownloadCount,
+  ErrorResponse,
   HealthStatus,
   IntegrationTask,
   IntegrationTaskBulkInput,
   IntegrationTaskUpdate,
+  InvestigationRun,
+  InvestigationRunDetail,
+  InvestigationStartInput,
+  InvestigationStartResponse,
   ListAnthropicConversationsParams,
   ListAuth29Detections200,
   ListAuth29DetectionsParams,
@@ -59,6 +64,7 @@ import type {
   ListDiscoverySweeps200,
   ListDiscoverySweepsParams,
   ListIntegrationTasks200,
+  ListInvestigationRunsParams,
   ListVehicleJobEvents200,
   ListVehicleJobs200,
   ListVehicleJobsParams,
@@ -3678,3 +3684,466 @@ export const useUpsertDiscoveryCatalogEntry = <
 > => {
   return useMutation(getUpsertDiscoveryCatalogEntryMutationOptions(options));
 };
+
+/**
+ * Accepts a base64-encoded ECU dump (and optional reference dump), creates a
+database record, and returns the run id. Use the /stream endpoint to
+consume SwarmEvents over SSE. The binary is held in memory until the
+stream is opened. Strictly read-only — no bytes are written to any ECU.
+
+ * @summary Start a new Investigation Swarm run
+ */
+export const getStartInvestigationRunUrl = () => {
+  return `/api/api/anthropic/investigation/runs`;
+};
+
+export const startInvestigationRun = async (
+  investigationStartInput: InvestigationStartInput,
+  options?: RequestInit,
+): Promise<InvestigationStartResponse> => {
+  return customFetch<InvestigationStartResponse>(
+    getStartInvestigationRunUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(investigationStartInput),
+    },
+  );
+};
+
+export const getStartInvestigationRunMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof startInvestigationRun>>,
+    TError,
+    { data: BodyType<InvestigationStartInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof startInvestigationRun>>,
+  TError,
+  { data: BodyType<InvestigationStartInput> },
+  TContext
+> => {
+  const mutationKey = ["startInvestigationRun"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof startInvestigationRun>>,
+    { data: BodyType<InvestigationStartInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return startInvestigationRun(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type StartInvestigationRunMutationResult = NonNullable<
+  Awaited<ReturnType<typeof startInvestigationRun>>
+>;
+export type StartInvestigationRunMutationBody =
+  BodyType<InvestigationStartInput>;
+export type StartInvestigationRunMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Start a new Investigation Swarm run
+ */
+export const useStartInvestigationRun = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof startInvestigationRun>>,
+    TError,
+    { data: BodyType<InvestigationStartInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof startInvestigationRun>>,
+  TError,
+  { data: BodyType<InvestigationStartInput> },
+  TContext
+> => {
+  return useMutation(getStartInvestigationRunMutationOptions(options));
+};
+
+/**
+ * @summary List investigation runs
+ */
+export const getListInvestigationRunsUrl = (
+  params?: ListInvestigationRunsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/api/anthropic/investigation/runs?${stringifiedParams}`
+    : `/api/api/anthropic/investigation/runs`;
+};
+
+export const listInvestigationRuns = async (
+  params?: ListInvestigationRunsParams,
+  options?: RequestInit,
+): Promise<InvestigationRun[]> => {
+  return customFetch<InvestigationRun[]>(getListInvestigationRunsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListInvestigationRunsQueryKey = (
+  params?: ListInvestigationRunsParams,
+) => {
+  return [
+    `/api/api/anthropic/investigation/runs`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getListInvestigationRunsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listInvestigationRuns>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListInvestigationRunsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listInvestigationRuns>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListInvestigationRunsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listInvestigationRuns>>
+  > = ({ signal }) =>
+    listInvestigationRuns(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listInvestigationRuns>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListInvestigationRunsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listInvestigationRuns>>
+>;
+export type ListInvestigationRunsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List investigation runs
+ */
+
+export function useListInvestigationRuns<
+  TData = Awaited<ReturnType<typeof listInvestigationRuns>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListInvestigationRunsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listInvestigationRuns>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListInvestigationRunsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get a single investigation run with all agent findings
+ */
+export const getGetInvestigationRunUrl = (id: string) => {
+  return `/api/api/anthropic/investigation/runs/${id}`;
+};
+
+export const getInvestigationRun = async (
+  id: string,
+  options?: RequestInit,
+): Promise<InvestigationRunDetail> => {
+  return customFetch<InvestigationRunDetail>(getGetInvestigationRunUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetInvestigationRunQueryKey = (id: string) => {
+  return [`/api/api/anthropic/investigation/runs/${id}`] as const;
+};
+
+export const getGetInvestigationRunQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInvestigationRun>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInvestigationRun>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetInvestigationRunQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInvestigationRun>>
+  > = ({ signal }) => getInvestigationRun(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInvestigationRun>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInvestigationRunQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInvestigationRun>>
+>;
+export type GetInvestigationRunQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get a single investigation run with all agent findings
+ */
+
+export function useGetInvestigationRun<
+  TData = Awaited<ReturnType<typeof getInvestigationRun>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInvestigationRun>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInvestigationRunQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Delete an investigation run and its findings
+ */
+export const getDeleteInvestigationRunUrl = (id: string) => {
+  return `/api/api/anthropic/investigation/runs/${id}`;
+};
+
+export const deleteInvestigationRun = async (
+  id: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteInvestigationRunUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteInvestigationRunMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteInvestigationRun>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteInvestigationRun>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteInvestigationRun"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteInvestigationRun>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteInvestigationRun(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteInvestigationRunMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteInvestigationRun>>
+>;
+
+export type DeleteInvestigationRunMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Delete an investigation run and its findings
+ */
+export const useDeleteInvestigationRun = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteInvestigationRun>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteInvestigationRun>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteInvestigationRunMutationOptions(options));
+};
+
+/**
+ * Opens a Server-Sent Events stream. Events are newline-delimited JSON
+objects prefixed with `data: `. Closing the connection cancels the run.
+Event types: run_started, agent_started, agent_tool_call,
+agent_tool_result, finding, agent_done, agent_aborted, agent_error,
+budget_exceeded, synthesis_started, synthesis, done, error.
+
+ * @summary SSE stream of SwarmEvents for a run
+ */
+export const getStreamInvestigationRunUrl = (id: string) => {
+  return `/api/api/anthropic/investigation/runs/${id}/stream`;
+};
+
+export const streamInvestigationRun = async (
+  id: string,
+  options?: RequestInit,
+): Promise<string> => {
+  return customFetch<string>(getStreamInvestigationRunUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getStreamInvestigationRunQueryKey = (id: string) => {
+  return [`/api/api/anthropic/investigation/runs/${id}/stream`] as const;
+};
+
+export const getStreamInvestigationRunQueryOptions = <
+  TData = Awaited<ReturnType<typeof streamInvestigationRun>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof streamInvestigationRun>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getStreamInvestigationRunQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof streamInvestigationRun>>
+  > = ({ signal }) => streamInvestigationRun(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof streamInvestigationRun>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type StreamInvestigationRunQueryResult = NonNullable<
+  Awaited<ReturnType<typeof streamInvestigationRun>>
+>;
+export type StreamInvestigationRunQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary SSE stream of SwarmEvents for a run
+ */
+
+export function useStreamInvestigationRun<
+  TData = Awaited<ReturnType<typeof streamInvestigationRun>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof streamInvestigationRun>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getStreamInvestigationRunQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}

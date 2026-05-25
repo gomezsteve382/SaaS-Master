@@ -53,6 +53,7 @@ import BinaryIntelTab from "./tabs/BinaryIntelTab.jsx";
 import UdsAnalyzerTab from "./tabs/UdsAnalyzerTab.jsx";
 import PatternLibraryTab from "./tabs/PatternLibraryTab.jsx";
 import KnowledgeGraphTab from "./tabs/KnowledgeGraphTab.jsx";
+import InvestigationTab from "./tabs/InvestigationTab.jsx";
 import SignalDiscoveryTab from "./tabs/SignalDiscoveryTab.jsx";
 import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
@@ -936,6 +937,7 @@ const WORKSPACE_TABS = [
   {id:'udsanalyzer',i:'🔎',l:'UDS ANALYZER',s:'trace → NRC decode · diagnosis'},
   {id:'patterns',  i:'🧬', l:'PATTERNS',    s:'Cross-binary signature library'},
   {id:'kg',        i:'🕸️', l:'KNOW. GRAPH', s:'Module relationship map'},
+  {id:'investigation',i:'🔬',l:'SWARM',     s:'Five-agent forensic investigation'},
   {id:'sigdisc',   i:'🛰️', l:'SIGNAL DISC', s:'TUMFTM sweep · record · match'},
   {id:'canuniverse',i:'🌐', l:'CAN UNIVERSE', s:'awesome-canbus + Eclipse SDV catalog'},
   {id:'loganalyser',i:'📜',l:'LOG ANALYSER',s:'candump · UDS · iddiff · catalog growth'},
@@ -1193,7 +1195,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='proxi'     && <ProxiTab/>}
         {tab==='immobcm56xb' && <ImmoBcm56xbTab/>}
         {tab==='bcmconfig' && <BcmConfigTab vehicle={vehicle}/>}
-        {tab==='inspector' && <FcaModuleInspector/>}
+        {tab==='inspector' && <FcaModuleInspector onOpenTab={setTab}/>}
         {tab==='unlockcov' && <UnlockCoverageTab/>}
         {tab==='alfaobd'   && <AlfaObdTablesTab/>}
         {tab==='workflow'  && <WorkflowTab onOpenTab={setTab}/>}
@@ -1204,6 +1206,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='udsanalyzer' && <UdsAnalyzerTab/>}
         {tab==='patterns'  && <PatternLibraryTab/>}
         {tab==='kg'        && <KnowledgeGraphTab/>}
+        {tab==='investigation' && <InvestigationTab onOpenTab={setTab}/>}
         {tab==='sigdisc'   && <SignalDiscoveryTab/>}
         {tab==='canuniverse' && <CanUniverseTab/>}
         {tab==='loganalyser' && <LogAnalyserTab/>}
