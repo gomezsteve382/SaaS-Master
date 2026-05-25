@@ -14,7 +14,7 @@ import { zipSync } from 'fflate';
 import { C } from '../lib/constants.js';
 import { Card, Tag } from '../lib/ui.jsx';
 import { parseModule } from '../lib/parseModule.js';
-import { runKeyProgPatch, sha256Hex } from '../lib/keyProgWizard.js';
+import { runKeyProgPatch, runRfhBcmSync, sha256Hex } from '../lib/keyProgWizard.js';
 import {
   CHARGER62_BENCH_FILES,
   loadCharger62BenchSet,
@@ -266,6 +266,8 @@ export default function Charger62BenchPanel() {
   const [modules, setModules] = useState(null);
   const [payBusy, setPayBusy] = useState(false);
   const [payResult, setPayResult] = useState(null);
+  const [syncBusy, setSyncBusy] = useState(false);
+  const [syncResult, setSyncResult] = useState(null);
   const [expanded, setExpanded] = useState(false);
 
   /* ── Load bench set ── */
@@ -339,6 +341,36 @@ export default function Charger62BenchPanel() {
 
   const canStage = report && report.blockingErrors.length === 0
     && (report.targetVin || report.donorVin)?.length === 17;
+
+  /* ── SEC16 sync (RFH ⇄ BCM) ── */
+  const canSync = report && report.blockingErrors.length === 0 && !!modules;
+
+  const handleSync = useCallback((direction) => {
+    if (!modules) return;
+    setSyncBusy(true);
+    setSyncResult(null);
+    try {
+      const result = runRfhBcmSync({
+        bcm: modules.bcmFile,
+        rfh: modules.rfhEeeFile,
+        direction,
+      });
+      setSyncResult(result);
+      if (result.ok && result.files?.[0]) {
+        const f = result.files[0];
+        const bytes = f.data instanceof Uint8Array ? f.data : new Uint8Array(f.data);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([bytes], { type: 'application/octet-stream' }));
+        a.download = f.name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      }
+    } catch (err) {
+      setSyncResult({ ok: false, direction, checks: [{ label: 'sync threw', pass: false, detail: String(err?.message || err) }], files: [] });
+    } finally {
+      setSyncBusy(false);
+    }
+  }, [modules]);
 
   /* ── Render ── */
   return (
@@ -511,6 +543,68 @@ export default function Charger62BenchPanel() {
               </div>
             )}
             <PayloadResultCard payResult={payResult} />
+          </div>
+
+          {/* SEC16 sync (RFH ⇄ BCM) */}
+          <SectionHead>SEC16 Sync — RFH ⇄ BCM</SectionHead>
+          <div style={{ marginTop: 8 }}>
+            {!canSync ? (
+              <div style={{ fontSize: 11, color: C.er, padding: '8px 12px', background: C.er + '0A', borderRadius: 8, border: '1px solid ' + C.er + '40' }}>
+                SEC16 sync blocked — resolve all cross-check errors above first.
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontSize: 11, color: C.ts, marginBottom: 8 }}>
+                  Push one module's SEC16 into the other and re-emit the patched binary
+                  (split records, mirror CRC16/CCITT, flat 0x40C9 LE, RFH slot 1/2 CS — all recomputed).
+                  Round-trip parses are asserted before download.
+                </div>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => handleSync('RFH_TO_BCM')}
+                    disabled={syncBusy}
+                    style={{
+                      padding: '10px 22px', borderRadius: 10, fontWeight: 800, fontSize: 12,
+                      background: syncBusy ? C.tm : C.a3, color: '#fff', border: 'none',
+                      cursor: syncBusy ? 'not-allowed' : 'pointer',
+                    }}>
+                    {syncBusy ? 'Syncing…' : 'RFH → BCM'}
+                  </button>
+                  <button
+                    onClick={() => handleSync('BCM_TO_RFH')}
+                    disabled={syncBusy}
+                    style={{
+                      padding: '10px 22px', borderRadius: 10, fontWeight: 800, fontSize: 12,
+                      background: syncBusy ? C.tm : C.a3, color: '#fff', border: 'none',
+                      cursor: syncBusy ? 'not-allowed' : 'pointer',
+                    }}>
+                    {syncBusy ? 'Syncing…' : 'BCM → RFH'}
+                  </button>
+                </div>
+              </div>
+            )}
+            {syncResult && (
+              <div style={{ marginTop: 12, padding: '12px 16px', borderRadius: 12, border: '1px solid ' + (syncResult.ok ? C.gn + '60' : C.er + '60'), background: (syncResult.ok ? C.gn : C.er) + '08' }}>
+                <div style={{ fontWeight: 900, fontSize: 12, color: syncResult.ok ? C.gn : C.er, marginBottom: 6 }}>
+                  {syncResult.ok
+                    ? `✓ ${syncResult.direction === 'RFH_TO_BCM' ? 'BCM' : 'RFH'} patched and downloaded`
+                    : '✗ Sync failed'}
+                </div>
+                {syncResult.ok && (syncResult.sec16BcmHex || syncResult.sec16RfhHex) && (
+                  <div style={{ fontSize: 10, color: C.tm, marginBottom: 4 }}>
+                    {syncResult.sec16BcmHex && <div>BCM SEC16 (BE): <Mono>{syncResult.sec16BcmHex.toUpperCase()}</Mono></div>}
+                    {syncResult.sec16RfhHex && <div>RFH SEC16: <Mono>{syncResult.sec16RfhHex.toUpperCase()}</Mono></div>}
+                  </div>
+                )}
+                {syncResult.checks && syncResult.checks.map((ch, i) => (
+                  <div key={i} style={{ fontSize: 10, color: ch.pass ? C.gn : C.er, marginBottom: 2, display: 'flex', gap: 8 }}>
+                    <span>{ch.pass ? '✓' : '✗'}</span>
+                    <span style={{ fontWeight: 700 }}>{ch.label}</span>
+                    {ch.detail && <span style={{ color: C.tm }}>— {ch.detail}</span>}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
         </div>

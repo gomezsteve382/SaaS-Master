@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parseModule } from '../parseModule.js';
 import { crossValidate } from '../crossValidate.js';
-import { runKeyProgPatch } from '../keyProgWizard.js';
+import { runKeyProgPatch, runRfhBcmSync } from '../keyProgWizard.js';
 import { buildCharger62Report } from '../charger62BenchReport.js';
 import { extractRfhPflashIdentity } from '../rfhPflashIdentity.js';
 
@@ -554,5 +554,103 @@ describe('runKeyProgPatch — payload staging', () => {
       const vins = (bcmParsed.vins || []).map((v) => v.vin);
       expect(vins.some((v) => v === vin)).toBe(true);
     }
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 12. runRfhBcmSync — bidirectional SEC16 sync (Task #771)
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('runRfhBcmSync — RFH ⇄ BCM SEC16 sync', () => {
+  it('rejects an unknown direction', () => {
+    ensureLoaded();
+    const r = runRfhBcmSync({
+      bcm: { name: BCM_FILE, data: bcmData },
+      rfh: { name: RFH_EEE_FILE, data: rfhEeeData },
+      direction: 'FOO',
+    });
+    expect(r.ok).toBe(false);
+    expect(r.files).toEqual([]);
+  });
+
+  it('RFH_TO_BCM: patched BCM reparses with bcmSec16 = reverse(RFH SEC16)', () => {
+    ensureLoaded();
+    const r = runRfhBcmSync({
+      bcm: { name: BCM_FILE, data: bcmData },
+      rfh: { name: RFH_EEE_FILE, data: rfhEeeData },
+      direction: 'RFH_TO_BCM',
+    });
+    expect(r.ok).toBe(true);
+    expect(r.files).toHaveLength(1);
+    expect(r.files[0].role).toBe('BCM');
+    expect(r.files[0].name).toMatch(/_SYNC_FROM_RFH\.bin$/);
+    expect(r.files[0].data).toBeInstanceOf(Uint8Array);
+    expect(r.files[0].data.length).toBe(bcmData.length);
+
+    // Round-trip
+    const bcmAfter = parseModule(r.files[0].data, 'out.bin');
+    expect(bcmAfter.type).toBe('BCM');
+    expect(bcmAfter.bcmSec16?.bytes).toBeDefined();
+    const after = Array.from(bcmAfter.bcmSec16.bytes);
+    const expected = Array.from(rfhEeeInfo.sec16s[0].raw).reverse();
+    expect(after).toEqual(expected);
+
+    // BCM output is byte-equivalent in size and untouched outside SEC16 zones
+    // — every BCM VIN slot should still parse to the same VIN as before.
+    const beforeVins = (bcmInfo.vins || []).map((v) => v.vin).sort();
+    const afterVins  = (bcmAfter.vins || []).map((v) => v.vin).sort();
+    expect(afterVins).toEqual(beforeVins);
+  });
+
+  it('BCM_TO_RFH: patched RFH reparses with sec16s[0..1] = reverse(BCM SEC16) and CS valid', () => {
+    ensureLoaded();
+    if (!bcmInfo.bcmSec16?.bytes || bcmInfo.bcmSec16.blank) {
+      console.warn('BCM SEC16 blank — skipping BCM_TO_RFH round-trip assertion');
+      return;
+    }
+    // The bench RFH dump lacks the Gen2 AA 55 31 01 marker at 0x0500 — the
+    // sync helper auto-stamps it (parser is already permissive), so we pass
+    // the unmodified fixture through directly.
+    const r = runRfhBcmSync({
+      bcm: { name: BCM_FILE, data: bcmData },
+      rfh: { name: RFH_EEE_FILE, data: rfhEeeData },
+      direction: 'BCM_TO_RFH',
+    });
+    expect(r.ok).toBe(true);
+    expect(r.files).toHaveLength(1);
+    expect(r.files[0].role).toBe('RFH');
+    expect(r.files[0].name).toMatch(/_SYNC_FROM_BCM\.bin$/);
+    expect(r.files[0].data.length).toBe(rfhEeeData.length);
+
+    const rfhAfter = parseModule(r.files[0].data, 'out.bin');
+    expect(rfhAfter.type).toBe('RFHUB');
+    expect(rfhAfter.sec16s).toHaveLength(2);
+
+    const expectedRfh = Array.from(bcmInfo.bcmSec16.bytes).reverse();
+    expect(Array.from(rfhAfter.sec16s[0].raw)).toEqual(expectedRfh);
+    expect(Array.from(rfhAfter.sec16s[1].raw)).toEqual(expectedRfh);
+    expect(rfhAfter.sec16s[0].csOk).toBe(true);
+    expect(rfhAfter.sec16s[1].csOk).toBe(true);
+    expect(rfhAfter.sec16match).toBe(true);
+    expect(rfhAfter.sec16valid).toBe(true);
+  });
+
+  it('SEC16 sync round-trip: RFH→BCM→RFH lands back on the original RFH SEC16', () => {
+    ensureLoaded();
+    // RFH→BCM (sync helper auto-stamps the Gen2 marker on the bench RFH)
+    const r1 = runRfhBcmSync({
+      bcm: { name: BCM_FILE, data: bcmData },
+      rfh: { name: RFH_EEE_FILE, data: rfhEeeData },
+      direction: 'RFH_TO_BCM',
+    });
+    expect(r1.ok).toBe(true);
+    // Then BCM→RFH using the patched BCM
+    const r2 = runRfhBcmSync({
+      bcm: { name: 'patched.bin', data: r1.files[0].data },
+      rfh: { name: RFH_EEE_FILE, data: rfhEeeData },
+      direction: 'BCM_TO_RFH',
+    });
+    expect(r2.ok).toBe(true);
+    const rfhAfter = parseModule(r2.files[0].data, 'rfh_out.bin');
+    expect(Array.from(rfhAfter.sec16s[0].raw)).toEqual(Array.from(rfhEeeInfo.sec16s[0].raw));
   });
 });

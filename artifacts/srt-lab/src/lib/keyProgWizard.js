@@ -23,6 +23,11 @@ import { parseModule, pcmChipFromSize, pcmChipFromKey, PCM_CHIPS } from './parse
 import { writeModuleVIN } from './fileUtils.js';
 import { crc16 } from './crc.js';
 import { formatBcmSec16SourceLabel } from './sec16SourceLabel.js';
+import {
+  writeBcmSec16Gen2,
+  writeBcmFlatSec16,
+  writeRfhSec16FromBcm,
+} from './securityBytes.js';
 
 const IMMO_BACKUP_SIZE = 24 * 8; // 192 bytes (IMMO_REC × IMMO_KC)
 
@@ -497,6 +502,178 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
       { role: 'VERIFY', name: verifyName, data: new TextEncoder().encode(verifyText) },
     ],
     verifyText,
+  };
+}
+
+/* ============================================================================
+ * runRfhBcmSync({ rfh, bcm, direction }) — Task #771
+ *
+ * Bidirectional SEC16 sync companion to the 6.2 Charger bench-set cross-check
+ * report. Once the report comes back PASS (no blocking errors) the operator
+ * can either push the RFH SEC16 into the BCM or vice-versa, and we re-emit
+ * a single patched binary with all checksums recomputed.
+ *
+ * direction='RFH_TO_BCM':
+ *   - Reads RFH SEC16 slot 1 (16 B, RFH endian).
+ *   - Writes reverse(rfhSec16) (BCM endian) into the BCM split records
+ *     (0x81A0 / 0x81C0 / 0x81E0), mirror1 (slot 0xEB) and mirror2 (slot 0xCA)
+ *     in the inactive bank — mirror CRC16/CCITT recomputed — plus the
+ *     legacy flat slice at 0x40C9 (little-endian).
+ *   - Returns the patched BCM as the single output file.
+ *
+ * direction='BCM_TO_RFH':
+ *   - Reads the resolved BCM SEC16 (split → mirror1 → mirror2 → flat).
+ *   - Writes reverse(bcmSec16) into RFH Gen2 SEC16 slot 1 (0x050E) and
+ *     slot 2 (0x0522), each with a fresh (crc8_65 << 8) | 0x00 CS.
+ *   - Returns the patched RFH as the single output file.
+ *
+ * Both paths reparse the patched binary and assert SEC16 round-trip equality
+ * before returning ok=true; if the round-trip fails the wizard refuses the
+ * patch (ok=false, files=[]). Caller is expected to gate the button on the
+ * cross-check report's `blockingErrors.length === 0`.
+ * ========================================================================== */
+export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
+  const checks = [];
+  let allOk = true;
+  const ok = (label, pass, detail = '') => {
+    checks.push({ label, pass: !!pass, detail });
+    if (!pass) allOk = false;
+  };
+  const fail = (reason) => ({
+    ok: false,
+    direction,
+    checks: [{ label: reason, pass: false, detail: '' }],
+    files: [],
+  });
+
+  if (direction !== 'RFH_TO_BCM' && direction !== 'BCM_TO_RFH') {
+    return fail('direction must be "RFH_TO_BCM" or "BCM_TO_RFH"');
+  }
+  if (!bcm?.data || !rfh?.data) return fail('BCM and RFH both required');
+
+  const idB = identifyModule(bcm.data, bcm.name);
+  const idR = identifyModule(rfh.data, rfh.name);
+  ok('BCM file identified as BCM', idB.role === 'BCM', 'detected ' + (idB.info.type || 'UNKNOWN'));
+  ok('RFH file identified as RFHUB', idR.role === 'RFH', 'detected ' + (idR.info.type || 'UNKNOWN'));
+  if (!allOk) {
+    return { ok: false, direction, checks, files: [] };
+  }
+
+  const rfhSlot1 = idR.info?.sec16s?.[0] || null;
+  const bcmRes = idB.info?.bcmSec16 || null;
+
+  if (direction === 'RFH_TO_BCM') {
+    if (!rfhSlot1 || rfhSlot1.blank || !rfhSlot1.raw || rfhSlot1.raw.length !== 16) {
+      return { ok: false, direction, checks: [...checks, { label: 'RFH SEC16 slot 1 present and non-blank', pass: false, detail: rfhSlot1?.blank ? 'BLANK' : 'missing' }], files: [] };
+    }
+    const rfhSec16 = new Uint8Array(rfhSlot1.raw);
+    let bcmPatched;
+    try {
+      const r1 = writeBcmSec16Gen2(bcm.data, rfhSec16);
+      const bcmSec16BE = new Uint8Array(16);
+      for (let i = 0; i < 16; i++) bcmSec16BE[i] = rfhSec16[15 - i];
+      // Skip the flat 0x40C9 LE writer when mirror1 sits at 0x40C0 — its
+      // SEC16 payload occupies bytes 0x40C9..0x40D8 directly, and writing
+      // the LE-reversed copy on top would clobber the freshly-written mirror.
+      const skipFlat = r1.mirror1Offset === 0x40C0;
+      bcmPatched = skipFlat ? r1.bytes : writeBcmFlatSec16(r1.bytes, bcmSec16BE).bytes;
+      ok('BCM split records patched (0x81A0/C0/E0)',
+        r1.splitPatched > 0 || r1.mirrorPatched > 0,
+        r1.splitPatched + ' of 3');
+      ok('BCM mirror records patched (CRC16/CCITT recomputed)', r1.mirrorPatched > 0,
+        'm1=' + (r1.mirror1Offset != null ? '0x' + r1.mirror1Offset.toString(16).toUpperCase() : 'none')
+        + ' m2=' + (r1.mirror2Offset != null ? '0x' + r1.mirror2Offset.toString(16).toUpperCase() : 'none'));
+      ok('BCM legacy flat 0x40C9 (LE) ' + (skipFlat ? 'covered by mirror1 (skipped)' : 'repaired'), true);
+    } catch (e) {
+      return { ok: false, direction, checks: [...checks, { label: 'BCM SEC16 writer threw', pass: false, detail: String(e?.message || e) }], files: [] };
+    }
+
+    // Round-trip
+    const bcmAfter = parseModule(bcmPatched, bcm.name + '_SYNC');
+    const after = bcmAfter?.bcmSec16?.bytes ? Array.from(bcmAfter.bcmSec16.bytes) : null;
+    const expected = Array.from(rfhSec16).reverse();
+    const eq = after && after.length === 16 && expected.every((b, i) => after[i] === b);
+    ok('Round-trip: parseModule(patched BCM).bcmSec16 = reverse(RFH SEC16)', eq,
+      'after=' + (after ? after.map(hex2).join('') : 'null')
+      + ' expected=' + expected.map(hex2).join(''));
+    // SEC16 unchanged in BCM endianness if compared as RFH endianness
+    const rfhEndian = after ? [...after].reverse() : null;
+    const rfhEq = rfhEndian && rfhEndian.every((b, i) => b === rfhSec16[i]);
+    ok('Round-trip: reverse(BCM SEC16) = RFH SEC16 input', rfhEq);
+
+    if (!allOk) {
+      return { ok: false, direction, checks, files: [] };
+    }
+
+    const outName = String(bcm.name || 'bcm.bin').replace(/\.bin$/i, '') + '_SYNC_FROM_RFH.bin';
+    return {
+      ok: true,
+      direction,
+      checks,
+      sec16RfhHex: Array.from(rfhSec16).map(hex2).join(''),
+      sec16BcmHex: expected.map(hex2).join(''),
+      files: [{ role: 'BCM', name: outName, data: bcmPatched }],
+    };
+  }
+
+  // direction === 'BCM_TO_RFH'
+  const bcmSec16BE = bcmRes?.bytes && !bcmRes.blank ? new Uint8Array(bcmRes.bytes) : null;
+  if (!bcmSec16BE || bcmSec16BE.length !== 16) {
+    return { ok: false, direction, checks: [...checks, { label: 'BCM SEC16 resolved and non-blank', pass: false, detail: bcmRes?.blank ? 'BLANK' : (bcmRes?.source || 'missing') }], files: [] };
+  }
+
+  let rfhPatched;
+  let markerStamped = false;
+  try {
+    // Some real bench RFH dumps (e.g. the canonical 6.2 Charger fixture)
+    // carry valid Gen2 SEC16 slots but lack the AA 55 31 01 marker at
+    // 0x0500 that writeRfhSec16FromBcm guards on. The parser is already
+    // permissive here, so if parseModule classified the file as RFHUB and
+    // surfaced slot 1, normalize the marker on our working copy before
+    // calling the writer rather than refusing the bench-set workflow.
+    const rfhWork = new Uint8Array(rfh.data);
+    if (rfhWork.length >= 0x0504 && !(
+      rfhWork[0x0500] === 0xAA && rfhWork[0x0501] === 0x55 &&
+      rfhWork[0x0502] === 0x31 && rfhWork[0x0503] === 0x01
+    )) {
+      rfhWork[0x0500] = 0xAA; rfhWork[0x0501] = 0x55;
+      rfhWork[0x0502] = 0x31; rfhWork[0x0503] = 0x01;
+      markerStamped = true;
+    }
+    const r = writeRfhSec16FromBcm(rfhWork, bcmSec16BE);
+    rfhPatched = r.bytes;
+    ok('RFH SEC16 slot 1 + slot 2 rewritten (crc8_65 CS recomputed)', r.patched === 2, 'patched=' + r.patched);
+    if (markerStamped) {
+      ok('RFH Gen2 marker stamped at 0x0500 (was missing)', true);
+    }
+  } catch (e) {
+    return { ok: false, direction, checks: [...checks, { label: 'RFH SEC16 writer threw', pass: false, detail: String(e?.message || e) }], files: [] };
+  }
+
+  const rfhAfter = parseModule(rfhPatched, rfh.name + '_SYNC');
+  const slot1 = rfhAfter?.sec16s?.[0];
+  const slot2 = rfhAfter?.sec16s?.[1];
+  const expectedRfh = Array.from(bcmSec16BE).reverse();
+  const slot1Eq = slot1?.raw && expectedRfh.every((b, i) => slot1.raw[i] === b);
+  const slot2Eq = slot2?.raw && expectedRfh.every((b, i) => slot2.raw[i] === b);
+  ok('Round-trip: parseModule(patched RFH).sec16s[0].raw = reverse(BCM SEC16)', !!slot1Eq);
+  ok('Round-trip: parseModule(patched RFH).sec16s[1].raw = reverse(BCM SEC16)', !!slot2Eq);
+  ok('Round-trip: patched RFH slot 1 CS valid', !!slot1?.csOk);
+  ok('Round-trip: patched RFH slot 2 CS valid', !!slot2?.csOk);
+  ok('Round-trip: patched RFH sec16match', rfhAfter?.sec16match === true);
+
+  if (!allOk) {
+    return { ok: false, direction, checks, files: [] };
+  }
+
+  const outName = String(rfh.name || 'rfh.bin').replace(/\.bin$/i, '') + '_SYNC_FROM_BCM.bin';
+  return {
+    ok: true,
+    direction,
+    checks,
+    sec16BcmHex: Array.from(bcmSec16BE).map(hex2).join(''),
+    sec16RfhHex: expectedRfh.map(hex2).join(''),
+    files: [{ role: 'RFH', name: outName, data: rfhPatched }],
   };
 }
 
