@@ -704,23 +704,30 @@ function resolveBcmSec16(data){
     const blank=Array.from(sec).every(b=>b===0xFF||b===0x00);
     candidates.flat={offset:0x40C9,bytes:new Uint8Array(sec),blank};
   }
-  /* -- pick winner: prefer the first non-blank candidate in priority order -- */
+  /* -- pick winner: prefer the first non-blank candidate in priority order
+   * (split → mirror1 → mirror2 → flat). Any candidate that is not
+   * structurally blank (all-FF / all-00) is accepted — including low-entropy
+   * flat slices on pre-Redeye paired BCMs (e.g. the 6.2 Charger bench set
+   * whose flat slice `00 00 00 00 00 00 00 31 3E 00 10 00 18 00 0A 00` has
+   * only 5 non-zero/non-FF bytes but IS the authoritative vehicle secret,
+   * confirmed by FCA SINCRO). */
   let chosen=null,source=null;
   for(const key of ['split','mirror1','mirror2','flat']){
     const c=candidates[key];
     if(c&&!c.blank){chosen=c;source=key;break;}
   }
-  /* If everything is blank but at least the flat slice exists, surface it
-   * (so legacy tabs that read .bytes still have a value), and report blank. */
+  /* allBlank: all candidates are structurally blank (all-FF / all-00).
+   * This is the only condition under which a BCM is treated as virgin. */
   const allBlank=
     (!candidates.split||candidates.split.blank)&&
     (!candidates.mirror1||candidates.mirror1.blank)&&
     (!candidates.mirror2||candidates.mirror2.blank)&&
     (!candidates.flat||candidates.flat.blank);
-  if(!chosen){
-    chosen=candidates.flat||candidates.split||candidates.mirror1||candidates.mirror2||null;
-    if(chosen)source=allBlank?(candidates.split?'split':candidates.mirror1?'mirror1':candidates.mirror2?'mirror2':'flat'):source;
-  }
+  /* sec16Absent: true only when every candidate is blank — i.e. the module
+   * is in a fully virgin / factory state with no real SEC16 anywhere.
+   * When sec16Absent is true we return bytes:null so downstream consumers
+   * (crossValidate, wizard, AI context) never fabricate a phantom key. */
+  const sec16Absent=allBlank;
   return{
     bytes:chosen?new Uint8Array(chosen.bytes):null,
     offset:chosen?chosen.offset:null,
@@ -728,6 +735,7 @@ function resolveBcmSec16(data){
     inactiveBase,
     candidates,
     blank:allBlank,
+    sec16Absent,
   };
 }
 
@@ -1056,7 +1064,12 @@ function parseModule(data,filename,opts){
      * / Key Prog wizard read .bytes / .hex), and `info.bcmSec16` exposes the
      * full provenance (source, candidates, inactiveBase, blank flag). */
     info.bcmSec16=resolveBcmSec16(data);
-    if(info.bcmSec16.bytes){
+    /* sec16Absent: propagated from the resolver. When true the BCM is in
+     * ALERT_NO_SECURITY / VIN-only state — no authoritative 128-bit secret
+     * can be read. We null out vehicleSecret so callers (crossValidate, the
+     * Key Prog wizard, the AI assistant context) never see fabricated bytes. */
+    info.sec16Absent=info.bcmSec16.sec16Absent;
+    if(info.bcmSec16.bytes&&!info.sec16Absent){
       const off=info.bcmSec16.offset;
       const endian=info.bcmSec16.source==='flat'?'little':'big';
       info.vehicleSecret={

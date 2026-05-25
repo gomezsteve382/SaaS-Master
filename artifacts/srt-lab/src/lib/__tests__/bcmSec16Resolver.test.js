@@ -153,12 +153,15 @@ describe('resolveBcmSec16 — priority chain', () => {
     expect(r.blank).toBe(false);
   });
 
-  it('reports blank=true and source=flat when every candidate is all-FF', () => {
+  it('reports blank=true and sec16Absent=true when every candidate is all-FF (bytes=null)', () => {
     const buf = new Uint8Array(65536).fill(0xFF);
     const r = resolveBcmSec16(buf);
     expect(r.blank).toBe(true);
-    expect(r.bytes).not.toBeNull(); // flat slice returned for legacy callers
-    expect(Array.from(r.bytes).every(b => b === 0xFF)).toBe(true);
+    expect(r.sec16Absent).toBe(true);
+    /* Task #815 — phantom bytes are never surfaced; null prevents callers from
+     * treating the all-FF noise as an authoritative vehicle secret. */
+    expect(r.bytes).toBeNull();
+    expect(r.source).toBeNull();
   });
 });
 
@@ -199,13 +202,13 @@ describe('resolveBcmSec16 — real synced fixture (2C3CDXL90MH582899)', () => {
 });
 
 describe('crossValidate — Task #380 BCM SEC16 rules', () => {
-  it('emits BCM SEC16 BLANK warning when every source is virgin', () => {
+  it('emits sec16Absent note (not MISMATCH / BLANK warning) when every source is virgin', () => {
     const blankBcm = new Uint8Array(65536).fill(0xFF);
     // give it a BCM signature so parseModule classifies it correctly
     blankBcm[0x5320] = 'A'.charCodeAt(0); // partial — just enough to keep type=BCM via size
     const bcm = parseModule(blankBcm, 'bcm.bin');
     expect(bcm.type).toBe('BCM');
-    // build a stub RFH with non-virgin secret so we exercise the BLANK path
+    // build a stub RFH with non-virgin secret so we exercise the sec16Absent path
     const rfh = {
       type: 'RFHUB',
       vins: [],
@@ -214,9 +217,13 @@ describe('crossValidate — Task #380 BCM SEC16 rules', () => {
       sec16valid: true,
     };
     const out = crossValidate([bcm, rfh]);
-    expect(out.warnings.some(w => /BCM SEC16 BLANK/.test(w))).toBe(true);
-    // No MISMATCH should be emitted for a virgin BCM
+    /* Task #815 — no MISMATCH and no "BLANK" warning. Instead, a neutral
+     * "absent / not evaluable" note is pushed to passed so the wizard and AI
+     * assistant never see phantom bytes or a false MISMATCH. */
     expect(out.issues.some(i => /RFHUB ↔ BCM/.test(i))).toBe(false);
+    expect(out.warnings.some(w => /BCM SEC16 BLANK/.test(w))).toBe(false);
+    const hasAbsentNote = [...out.passed].some(p => /ALERT_NO_SECURITY|absent/i.test(p));
+    expect(hasAbsentNote).toBe(true);
   });
 
   it('emits MATCH when reverse(BCM SEC16) equals RFH SEC16 (resolved source)', () => {

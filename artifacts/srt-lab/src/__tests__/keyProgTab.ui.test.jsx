@@ -376,8 +376,8 @@ describe('KeyProgTab UI (Task #343)', () => {
 
       const badge = screen.getByTestId('keyprog-bcm-sec16-status');
       expect(badge.getAttribute('data-sec16-blank')).toBe('1');
-      // Source falls back to the flat slice surface even when every candidate is blank.
-      expect(badge.getAttribute('data-sec16-source')).toBe('flat');
+      // Task #815 — when sec16Absent, no source is chosen; badge shows 'none'.
+      expect(badge.getAttribute('data-sec16-source')).toBe('none');
       expect(badge.textContent).toMatch(/BLANK \/ virgin/);
 
       // Virgin explainer paragraph must be present.

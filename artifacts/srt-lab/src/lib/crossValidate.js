@@ -48,22 +48,31 @@ function crossValidate(modules){
   /* RFHUB ↔ BCM SEC16 (Task #380) — uses the resolved SEC16 instead of
    * the flat 0x40C9 slice so synced Redeye dumps stop firing false
    * MISMATCHes. BLANK is reported only when the resolver flags every
-   * candidate (split + mirrors + flat) as all-FF/00. */
+   * candidate (split + mirrors + flat) as all-FF/00.
+   * Task #815: when sec16Absent the BCM is in ALERT_NO_SECURITY state
+   * (no real key material anywhere, including the flat noise slice). Do NOT
+   * compare phantom noise against the RFHUB secret — that would be both a
+   * false MISMATCH and a leakage of fabricated bytes to the wizard / AI. */
   if(rfhub&&rfhub.vehicleSecret&&bcm&&bcm.bcmSec16){
-    const bRes=bcm.bcmSec16;
-    if(bRes.blank||!bRes.bytes)warnings.push("BCM SEC16 BLANK (virgin) — split records, inactive-bank mirrors and flat 0x40C9 are all empty");
-    else{
-      const rev=Array.from(bRes.bytes).reverse();
-      if(arrEq(new Uint8Array(Array.from(rfhub.vehicleSecret.bytes)),new Uint8Array(rev)))
-        passed.push("RFHUB ↔ BCM vehicle secret: MATCH (BCM "+bRes.source+" → reversed = RFH SEC16)");
-      else issues.push("RFHUB ↔ BCM vehicle secret: MISMATCH — BCM("+bRes.source+")="+fmtHex(bRes.bytes)+" RFH="+fmtHex(rfhub.vehicleSecret.bytes));
+    if(bcm.sec16Absent){
+      passed.push("BCM SEC16 absent — RFHUB ↔ BCM pairing not evaluable (ALERT_NO_SECURITY; VIN-only edition)");
+    }else{
+      const bRes=bcm.bcmSec16;
+      if(bRes.blank||!bRes.bytes)warnings.push("BCM SEC16 BLANK (virgin) — split records, inactive-bank mirrors and flat 0x40C9 are all empty");
+      else{
+        const rev=Array.from(bRes.bytes).reverse();
+        if(arrEq(new Uint8Array(Array.from(rfhub.vehicleSecret.bytes)),new Uint8Array(rev)))
+          passed.push("RFHUB ↔ BCM vehicle secret: MATCH (BCM "+bRes.source+" → reversed = RFH SEC16)");
+        else issues.push("RFHUB ↔ BCM vehicle secret: MISMATCH — BCM("+bRes.source+")="+fmtHex(bRes.bytes)+" RFH="+fmtHex(rfhub.vehicleSecret.bytes));
+      }
     }
   }
   /* BCM legacy flat 0x40C9 staleness (Task #385) — even on imported dumps the
    * tech didn't sync themselves, surface a warning when the live record-table
    * SEC16 (split / mirror) disagrees with the flat slice so legacy CGDI/Autel
-   * tools that still read the flat field stop seeing the old secret silently. */
-  if(bcm&&bcm.bcmSec16&&bcm.bcmSec16.bytes&&!bcm.bcmSec16.blank
+   * tools that still read the flat field stop seeing the old secret silently.
+   * Task #815: skip entirely when sec16Absent (no real SEC16 = no flat to check). */
+  if(!bcm?.sec16Absent&&bcm&&bcm.bcmSec16&&bcm.bcmSec16.bytes&&!bcm.bcmSec16.blank
      &&bcm.bcmSec16.source&&bcm.bcmSec16.source!=='flat'
      &&bcm.bcmSec16.candidates&&bcm.bcmSec16.candidates.flat
      &&bcm.bcmSec16.candidates.flat.bytes){
@@ -105,8 +114,11 @@ function crossValidate(modules){
    * paired BCM against a virgin PCM produced no message at all and the
    * Mismatch Wizard reported "Found 0 errors". Now we fire an issue in
    * BOTH cases: virgin PCM against paired BCM ("never paired"), and
-   * non-matching populated SEC6 ("MISMATCH"). */
-  if(bcm&&bcm.bcmSec16&&gpec&&gpec.pcmSec6){
+   * non-matching populated SEC6 ("MISMATCH").
+   * Task #815: when sec16Absent, BCM has no authoritative SEC16 to derive
+   * SEC6 from — skip the rule entirely so phantom noise never produces a
+   * spurious "PCM never paired" / MISMATCH issue. */
+  if(!bcm?.sec16Absent&&bcm&&bcm.bcmSec16&&gpec&&gpec.pcmSec6){
     const bRes=bcm.bcmSec16;
     if(!bRes.blank&&bRes.bytes){
       const rev6=Array.from(bRes.bytes).reverse().slice(0,6);

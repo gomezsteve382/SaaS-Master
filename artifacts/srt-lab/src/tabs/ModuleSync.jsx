@@ -479,6 +479,21 @@ export function engParseBcm(bytes, filename) {
     r.mirrorsPopulated = populated.length;
   }
 
+  /* Task #815 — sec16Absent: no real SEC16 found.
+   * Mirrors the allBlank gate in parseModule's resolveBcmSec16: absent only
+   * when EVERY candidate (split records, mirrors, AND the flat 0x40C9 slice)
+   * is structurally blank (all-FF / all-00).
+   *
+   * Low-entropy but non-blank flat slices (e.g. the 6.2 Charger bench set's
+   * `00 00 00 00 00 00 00 31 3E 00 10 00 18 00 0A 00`) ARE authoritative and
+   * must NOT set sec16Absent.
+   *
+   * Note: mirrorsPopulated is only assigned when > 0, so it may be undefined
+   * on a virgin BCM — use !(...) instead of === 0 to handle both cases. */
+  const flatSlice = bytes.length >= 0x40D9 ? bytes.slice(0x40C9, 0x40D9) : null;
+  const flatBlank = !flatSlice || Array.from(flatSlice).every(b => b === 0xFF || b === 0x00);
+  r.sec16Absent = r.sec16Records.length === 0 && !r.mirrorsPopulated && flatBlank;
+
   r.ok = r.vin !== null;
   return r;
 }
@@ -2340,8 +2355,14 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const flatRepairOverlap = flatRepairResolver?.candidates?.mirror1?.offset === 0x40C0;
   const vinMatch  = bothReady && bcm.parsed.vin === rfh.parsed.vin;
 
-  /* SEC16 sync eligibility */
-  const bcmHasSec16      = !!(bcm.parsed?.sec16Records?.length > 0 || bcm.parsed?.mirrorsPopulated > 0);
+  /* SEC16 sync eligibility.
+   * Task #815: sec16Absent (from engParseBcm) means the BCM carries no real
+   * key material — split records + mirrors are both empty. bcmHasSec16 is
+   * false in that state, which already disables the sec16-only and
+   * bcm-sec16-to-rfh actions. The explicit `!sec16Absent` guard is belt-and-
+   * suspenders so new action variants can never accidentally bypass the gate. */
+  const bcmSec16Absent   = !!(bcm.parsed?.sec16Absent);
+  const bcmHasSec16      = !bcmSec16Absent && !!(bcm.parsed?.sec16Records?.length > 0 || bcm.parsed?.mirrorsPopulated > 0);
   const rfhHasSec16      = !!(rfh.parsed?.sec16 && !rfh.parsed.sec16.virgin);
   const sec16SyncOk      = bcmHasSec16 && rfhHasSec16;
   const bcmToRfhSec16Ok  = bcmHasSec16 && rfh.parsed?.format?.startsWith('gen2');
@@ -2501,7 +2522,13 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     const off = rfh.parsed.format?.startsWith('gen2') ? '0x050E' : '0x00AE';
     wizardHexSnippets.push(`RFHUB SEC16 @${off}: ${bytesToHex(rfh.parsed.sec16.slot1).toUpperCase()}`);
   }
-  if (bcm.parsed?.sec16Hex) {
+  if (bcmSec16Absent) {
+    /* Task #815 — BCM is in ALERT_NO_SECURITY / VIN-only state. Surface the
+     * verdict explicitly so Claude can give correct guidance ("load the RFHUB
+     * as master") instead of receiving phantom bytes and describing a mismatch
+     * that doesn't exist. */
+    wizardHexSnippets.push('BCM SEC16: ABSENT (ALERT_NO_SECURITY — no SEC16 in split records or mirrors; VIN-only edition; use RFHUB as the authoritative key source)');
+  } else if (bcm.parsed?.sec16Hex) {
     const recOff = bcm.parsed.sec16Records?.[0]?.offset != null
       ? `0x${hex4(bcm.parsed.sec16Records[0].offset)}` : '0x4090';
     wizardHexSnippets.push(`BCM SEC16 @${recOff}: ${bcm.parsed.sec16Hex.toUpperCase()}`);
@@ -3386,29 +3413,42 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
             </div>
           )}
 
-          {/* Standalone wizard trigger when no VIN mismatch but SEC16 issues */}
-          {bothReady && vinMatch && (wizardIssues.length > 0 || wizardWarnings.length > 0) && (
-            <div style={{
-              padding: '10px 16px', borderRadius: 10, marginBottom: 14,
-              background: 'rgba(255,179,0,0.08)', border: '1.5px solid rgba(255,179,0,0.3)',
-              display: 'flex', alignItems: 'center', gap: 10,
-            }}>
-              <span style={{ fontSize: 12, color: '#7a4a00', flex: 1 }}>
-                ⚠ Security token issues detected — use the wizard for guided resolution.
-              </span>
-              <button
-                data-testid="open-wizard-btn-sec16"
-                onClick={() => setWizardOpen(true)}
-                style={{
-                  background: 'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
-                  border: 'none', borderRadius: 8, padding: '6px 14px',
-                  color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
-                  letterSpacing: 0.5, fontFamily: "'Nunito'",
-                }}>
-                🔧 Fix with Wizard →
-              </button>
-            </div>
-          )}
+          {/* Standalone wizard trigger when no VIN mismatch but real SEC16/SEC6 issues.
+               Task #815: gate specifically on security-token issues, not every warning.
+               An absent BCM SEC16 (ALERT_NO_SECURITY) is informational — we do NOT
+               surface the amber "Security token issues detected" banner for it because
+               the wizard cannot resolve an absent SEC16 offline, and there is nothing
+               to diff against the RFHUB. Only genuine MISMATCH / BLANK verdicts from
+               paired modules should trigger the wizard offer. */}
+          {bothReady && vinMatch && (() => {
+            const SEC_TOKEN_RE = /MISMATCH|BLANK.*SEC16|SEC16.*BLANK|SEC6.*MISMATCH|SEC6.*paired|RFHUB.*SEC16.*MISMATCH|BCM.*SEC16.*MISMATCH/i;
+            const hasSecTokenIssue =
+              wizardIssues.some(m => SEC_TOKEN_RE.test(m)) ||
+              wizardWarnings.some(m => SEC_TOKEN_RE.test(m));
+            if (!hasSecTokenIssue) return null;
+            return (
+              <div style={{
+                padding: '10px 16px', borderRadius: 10, marginBottom: 14,
+                background: 'rgba(255,179,0,0.08)', border: '1.5px solid rgba(255,179,0,0.3)',
+                display: 'flex', alignItems: 'center', gap: 10,
+              }}>
+                <span style={{ fontSize: 12, color: '#7a4a00', flex: 1 }}>
+                  ⚠ Security token issues detected — use the wizard for guided resolution.
+                </span>
+                <button
+                  data-testid="open-wizard-btn-sec16"
+                  onClick={() => setWizardOpen(true)}
+                  style={{
+                    background: 'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+                    border: 'none', borderRadius: 8, padding: '6px 14px',
+                    color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
+                    letterSpacing: 0.5, fontFamily: "'Nunito'",
+                  }}>
+                  🔧 Fix with Wizard →
+                </button>
+              </div>
+            );
+          })()}
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
             <BcmCard parsed={bcm.parsed} pnOverride={bcm.pnOverride} />
