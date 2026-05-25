@@ -4,7 +4,14 @@ import { C } from '../lib/constants.js';
 import { parseTrace } from '../lib/udsSessionAnalyzer/parser.js';
 import { analyzeSession } from '../lib/udsSessionAnalyzer/analyze.js';
 import { consumeUdsAnalyzerHandoff } from '../lib/canRecorder.js';
-import { buildShareUrl, decodeShareFragment, findVinsInText, scrubVinsFromText } from '../lib/udsSessionAnalyzer/shareLink.js';
+import {
+  buildShareUrl,
+  decodeShareFragment,
+  findSensitiveInText,
+  hasSensitiveFindings,
+  scrubSensitiveFromText,
+  SENSITIVE_CATEGORY_LABELS,
+} from '../lib/udsSessionAnalyzer/shareLink.js';
 import exampleLog from '../lib/udsSessionAnalyzer/fixtures/example_session.log?raw';
 
 const ACCEPT = '.log,.txt,.asc,.trc';
@@ -234,7 +241,7 @@ export default function UdsAnalyzerTab() {
   const [filterSev, setFilterSev] = useState('ALL');
   const [filterText, setFilterText] = useState('');
   const [shareStatus, setShareStatus] = useState('');
-  const [sharePrompt, setSharePrompt] = useState(null); // { vins: string[] } | null
+  const [sharePrompt, setSharePrompt] = useState(null); // { findings } | null
   const fileRef = useRef(null);
   const shareTimerRef = useRef(null);
 
@@ -313,28 +320,31 @@ export default function UdsAnalyzerTab() {
 
   const handleCopyShareLink = useCallback(async () => {
     if (!text.trim()) return;
-    // Task #748 — pre-share VIN scan. If the trace contains any
-    // check-digit-valid VIN-shaped sequence, surface a confirm dialog
-    // so the user can scrub before the trace leaves their machine.
-    const vins = findVinsInText(text);
-    if (vins.length > 0) {
-      setSharePrompt({ vins });
+    // Task #748 / Task #756 — pre-share sensitive-data scan. If the
+    // trace contains a real VIN, SecurityAccess seed/key payload,
+    // F1 8C ECU serial, F1 95 calibration ID, or PIN-shaped digit run
+    // inside a known DID response, surface a confirm dialog grouped
+    // by category so the user can scrub before the trace leaves their
+    // machine.
+    const findings = findSensitiveInText(text);
+    if (hasSensitiveFindings(findings)) {
+      setSharePrompt({ findings });
       return;
     }
     await doShare(text);
   }, [text, doShare]);
 
-  const handleShareWithVin = useCallback(async () => {
+  const handleShareWithSensitive = useCallback(async () => {
     const src = text;
     setSharePrompt(null);
     await doShare(src);
   }, [text, doShare]);
 
   const handleShareScrubbed = useCallback(async () => {
-    const scrubbed = scrubVinsFromText(text);
+    const scrubbed = scrubSensitiveFromText(text);
     setSharePrompt(null);
     setText(scrubbed);
-    setFileName((prev) => (prev ? `${prev} (VIN scrubbed)` : 'scrubbed trace'));
+    setFileName((prev) => (prev ? `${prev} (scrubbed)` : 'scrubbed trace'));
     analyze(scrubbed);
     await doShare(scrubbed);
   }, [text, doShare, analyze]);
@@ -423,32 +433,57 @@ export default function UdsAnalyzerTab() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: '#fff', borderRadius: 12, padding: 20, maxWidth: 480,
+              background: '#fff', borderRadius: 12, padding: 20, maxWidth: 540,
               border: `2px solid ${C.sr}`, boxShadow: '0 10px 40px #0006',
             }}
           >
             <div style={{ fontFamily: "'Righteous'", fontSize: 18, color: C.sr, letterSpacing: 1, marginBottom: 8 }}>
-              ⚠ REAL VIN DETECTED
+              ⚠ SENSITIVE DATA DETECTED
             </div>
             <div style={{ fontSize: 12, color: C.tx, marginBottom: 10, lineHeight: 1.5 }}>
-              This trace contains {sharePrompt.vins.length === 1 ? 'a check-digit-valid VIN' : `${sharePrompt.vins.length} check-digit-valid VINs`} that will be embedded in the share link. Anyone with the link can read {sharePrompt.vins.length === 1 ? 'it' : 'them'}.
+              This trace contains identifying data that will be embedded in the share link. Anyone with the link can read it.
             </div>
-            <div style={{
-              fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.ts,
-              background: C.c2, border: `1px solid ${C.bd}`, borderRadius: 6,
-              padding: '6px 10px', marginBottom: 12, maxHeight: 90, overflowY: 'auto',
-            }}>
-              {sharePrompt.vins.map(v => <div key={v}>{v}</div>)}
+            <div
+              data-testid="uds-analyzer-vin-categories"
+              style={{
+                background: C.c2, border: `1px solid ${C.bd}`, borderRadius: 6,
+                padding: '6px 10px', marginBottom: 12, maxHeight: 220, overflowY: 'auto',
+              }}
+            >
+              {Object.entries(SENSITIVE_CATEGORY_LABELS).map(([key, label]) => {
+                const items = sharePrompt.findings?.[key] || [];
+                if (items.length === 0) return null;
+                return (
+                  <div key={key} data-testid={`uds-analyzer-vin-category-${key}`} style={{ marginBottom: 6 }}>
+                    <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, color: C.sr, marginBottom: 2 }}>
+                      {label} · {items.length}
+                    </div>
+                    <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.ts, paddingLeft: 8 }}>
+                      {items.slice(0, 6).map((item, i) => {
+                        let preview;
+                        if (key === 'vins') preview = item;
+                        else if (key === 'pins') preview = `${item.didLabel} → ${item.digits}`;
+                        else if (key === 'seeds' || key === 'keys') preview = `SF 0x${item.subFunction.toString(16).toUpperCase().padStart(2, '0')} · ${item.bytesHex}`;
+                        else preview = item.bytesHex;
+                        return <div key={i} style={{ wordBreak: 'break-all' }}>{preview}</div>;
+                      })}
+                      {items.length > 6 && (
+                        <div style={{ color: C.tm, fontStyle: 'italic' }}>… +{items.length - 6} more</div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
               <Btn onClick={handleShareCancel} color={C.tm} outline data-testid="uds-analyzer-vin-cancel">
                 Cancel
               </Btn>
-              <Btn onClick={handleShareWithVin} color={C.sr} outline data-testid="uds-analyzer-vin-share-real">
-                Share with real VIN
+              <Btn onClick={handleShareWithSensitive} color={C.sr} outline data-testid="uds-analyzer-vin-share-real">
+                Share as-is
               </Btn>
               <Btn onClick={handleShareScrubbed} color={C.gn} data-testid="uds-analyzer-vin-scrub">
-                Scrub VIN first
+                Scrub first
               </Btn>
             </div>
           </div>
