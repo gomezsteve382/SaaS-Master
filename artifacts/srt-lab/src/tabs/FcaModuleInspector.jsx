@@ -71,6 +71,7 @@ import { analyzeFile, patchFile } from "../lib/fileUtils.js";
 import { SizeWarnBanner, ContentWarnBanner } from "../components/ModuleFieldsPanel.jsx";
 import { buildModuleReportData } from "../lib/reportData.js";
 import { buildModulePDF } from "../lib/buildAnalysisPDF.js";
+import { scanForKeys } from "../lib/keyScanner.js";
 
 // Module types the inspector cares about. Other types loaded into the
 // workspace (e.g. '95640' EEPROM backups, EFD payloads, C-Flash blobs)
@@ -264,6 +265,168 @@ const TABS = [
 
 export { inspectorWriteVin };
 
+// ── Secrets & Crypto panel ─────────────────────────────────────────────────
+
+const SCAN_GROUP_COLORS = {
+  pem: "#D32F2F",
+  ssh: "#1976D2",
+  jwt: "#E65100",
+  apikey: "#C62828",
+  entropy: "#6A0DAD",
+  "crypto-const": "#2E7D32",
+};
+const SCAN_GROUP_LABELS = {
+  pem: "PEM",
+  ssh: "SSH",
+  jwt: "JWT",
+  apikey: "API KEY",
+  entropy: "ENTROPY",
+  "crypto-const": "CRYPTO",
+};
+const SCAN_SEV_COLORS = {
+  high: "#D32F2F",
+  medium: "#E65100",
+  low: "#777",
+};
+
+function SecretsCryptoPanel({ findings, modIdx, isOpen, onToggle, onJumpToHex }) {
+  const [copied, setCopied] = useState(null);
+
+  function copyOffset(id, offsetHex) {
+    navigator.clipboard?.writeText(offsetHex).catch(() => {});
+    setCopied(id);
+    setTimeout(() => setCopied(c => c === id ? null : c), 1500);
+  }
+
+  const count = findings.length;
+  const highCount = findings.filter(f => f.severity === "high").length;
+
+  return (
+    <div style={{ marginTop: 10 }} data-testid="secrets-crypto-panel">
+      {/* Collapsible header */}
+      <button
+        onClick={onToggle}
+        style={{
+          width: "100%", textAlign: "left", cursor: "pointer",
+          background: C.c2, border: "1.5px solid " + C.bd,
+          borderRadius: isOpen ? "10px 10px 0 0" : 10,
+          padding: "10px 14px", display: "flex", alignItems: "center",
+          gap: 10, fontFamily: "'Nunito',sans-serif",
+        }}
+      >
+        <span style={{ fontSize: 14 }}>🔑</span>
+        <span style={{ fontWeight: 900, fontSize: 12, color: C.tx, letterSpacing: 0.5, textTransform: "uppercase" }}>
+          Secrets &amp; Crypto
+        </span>
+        {count > 0 && (
+          <span style={{
+            background: highCount > 0 ? SCAN_SEV_COLORS.high : SCAN_SEV_COLORS.medium,
+            color: "#fff", borderRadius: 6, padding: "1px 8px",
+            fontSize: 11, fontWeight: 800,
+          }}>
+            {count} finding{count !== 1 ? "s" : ""}{highCount > 0 ? " · " + highCount + " HIGH" : ""}
+          </span>
+        )}
+        <span style={{ marginLeft: "auto", color: C.tm, fontSize: 12 }}>{isOpen ? "▲" : "▼"}</span>
+      </button>
+
+      {isOpen && (
+        <div style={{
+          border: "1.5px solid " + C.bd, borderTop: "none",
+          borderRadius: "0 0 10px 10px",
+          background: C.cd, padding: 12,
+        }}>
+          {count === 0 ? (
+            <div style={{ fontSize: 12, color: C.tm, textAlign: "center", padding: "12px 0", fontStyle: "italic" }}>
+              No embedded keys or known crypto constants detected.
+            </div>
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: "left", color: C.tm, fontWeight: 800, padding: "6px 8px", borderBottom: "1px solid " + C.bd, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>Group</th>
+                    <th style={{ textAlign: "left", color: C.tm, fontWeight: 800, padding: "6px 8px", borderBottom: "1px solid " + C.bd, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>Label</th>
+                    <th style={{ textAlign: "left", color: C.tm, fontWeight: 800, padding: "6px 8px", borderBottom: "1px solid " + C.bd, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>Offset</th>
+                    <th style={{ textAlign: "left", color: C.tm, fontWeight: 800, padding: "6px 8px", borderBottom: "1px solid " + C.bd, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>Size</th>
+                    <th style={{ textAlign: "left", color: C.tm, fontWeight: 800, padding: "6px 8px", borderBottom: "1px solid " + C.bd, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>Sev</th>
+                    <th style={{ textAlign: "left", color: C.tm, fontWeight: 800, padding: "6px 8px", borderBottom: "1px solid " + C.bd, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>Preview</th>
+                    <th style={{ textAlign: "left", color: C.tm, fontWeight: 800, padding: "6px 8px", borderBottom: "1px solid " + C.bd, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {findings.map(f => {
+                    const offsetHex = "0x" + f.offset.toString(16).toUpperCase().padStart(6, "0");
+                    const groupColor = SCAN_GROUP_COLORS[f.group] || C.tm;
+                    const sevColor = SCAN_SEV_COLORS[f.severity] || C.tm;
+                    return (
+                      <tr key={f.id} style={{ borderBottom: "1px solid " + C.bd }}>
+                        <td style={{ padding: "5px 8px" }}>
+                          <span style={{
+                            background: groupColor + "22", color: groupColor,
+                            borderRadius: 4, padding: "1px 6px",
+                            fontSize: 9, fontWeight: 800, letterSpacing: 0.5,
+                            fontFamily: "'Nunito',sans-serif",
+                          }}>
+                            {SCAN_GROUP_LABELS[f.group] || f.group}
+                          </span>
+                        </td>
+                        <td style={{ padding: "5px 8px", color: C.tx, fontWeight: 600, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {f.label}
+                        </td>
+                        <td style={{ padding: "5px 8px", fontFamily: "'JetBrains Mono',monospace", color: C.a3, fontWeight: 700, whiteSpace: "nowrap" }}>
+                          {offsetHex}
+                        </td>
+                        <td style={{ padding: "5px 8px", color: C.tm, fontFamily: "'JetBrains Mono',monospace" }}>
+                          {f.size}
+                        </td>
+                        <td style={{ padding: "5px 8px" }}>
+                          <span style={{ color: sevColor, fontWeight: 800, fontSize: 10, textTransform: "uppercase" }}>
+                            {f.severity}
+                          </span>
+                        </td>
+                        <td style={{ padding: "5px 8px", fontFamily: "'JetBrains Mono',monospace", color: C.ts, fontSize: 10, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {f.preview}
+                        </td>
+                        <td style={{ padding: "5px 8px", whiteSpace: "nowrap" }}>
+                          <button
+                            onClick={() => copyOffset(f.id, offsetHex)}
+                            title="Copy offset to clipboard"
+                            style={{
+                              background: "none", border: "1px solid " + C.bd,
+                              borderRadius: 5, cursor: "pointer", color: copied === f.id ? C.gn : C.ts,
+                              fontSize: 10, padding: "2px 7px", fontFamily: "'Nunito',sans-serif",
+                              fontWeight: 700, marginRight: 4,
+                            }}
+                          >
+                            {copied === f.id ? "✓ Copied" : "Copy offset"}
+                          </button>
+                          <button
+                            onClick={() => onJumpToHex(modIdx, f.offset)}
+                            title={"Go to 0x" + f.offset.toString(16).toUpperCase().padStart(6, "0") + " in Hex Diff view"}
+                            style={{
+                              background: "none", border: "1px solid " + C.bd,
+                              borderRadius: 5, cursor: "pointer", color: C.a3,
+                              fontSize: 10, padding: "2px 7px", fontFamily: "'Nunito',sans-serif",
+                              fontWeight: 700,
+                            }}
+                          >
+                            Jump to hex
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function FcaModuleInspector() {
   const { loadedDumps, addDump, removeDump } = useContext(MasterVinContext);
   const [tab, setTab] = useState("overview");
@@ -285,6 +448,17 @@ export default function FcaModuleInspector() {
   // the file name, actual byte count, and required minimum, matching the
   // warm/orange visual language of the size-warn / content-warn lists.
   const [tooSmallRejects, setTooSmallRejects] = useState([]);
+  // "Secrets & Crypto" panel — track which module indices have the panel open.
+  // Collapsed by default so large-binary scans don't block the first render;
+  // results are memoized per module data so toggling open is instant once
+  // the first scan has run.
+  const [scanOpen, setScanOpen] = useState(() => new Set());
+  // Hex-viewer focus from "Jump to hex" in the Secrets & Crypto panel.
+  // hexFocusOffset: byte offset to navigate to; hexFocusMod: module index
+  // that owns the finding. Cleared when the user switches away from the
+  // Hex Diff tab or loads/removes modules.
+  const [hexFocusOffset, setHexFocusOffset] = useState(null);
+  const [hexFocusMod, setHexFocusMod] = useState(0);
   const fr = useRef();
 
   // Pull every inspector-relevant dump out of the shared workspace store
@@ -300,6 +474,23 @@ export default function FcaModuleInspector() {
     [loadedDumps]
   );
   const modules = useMemo(() => entries.map((e) => e.mod), [entries]);
+
+  // Run keyScanner over each module's data bytes. Results are stable as long
+  // as the underlying Uint8Array reference doesn't change — memoized on the
+  // module array so a tab switch or unrelated state update can't re-trigger
+  // the scan. For BCM (64 KB) this takes ~2–5 ms; for GPEC2A (4 KB) < 1 ms.
+  const scanResults = useMemo(
+    () =>
+      modules.map((m) => {
+        if (!m || !m.data) return [];
+        try {
+          return scanForKeys(m.data);
+        } catch {
+          return [];
+        }
+      }),
+    [modules]
+  );
 
   const onFiles = useCallback(
     (e) => {
@@ -675,6 +866,23 @@ export default function FcaModuleInspector() {
             </table>
           </div>
         </Card>
+
+        {/* Secrets & Crypto panel — collapsible, collapsed by default */}
+        <SecretsCryptoPanel
+          findings={scanResults[i] || []}
+          modIdx={i}
+          isOpen={scanOpen.has(i)}
+          onToggle={() => setScanOpen(prev => {
+            const next = new Set(prev);
+            if (next.has(i)) next.delete(i); else next.add(i);
+            return next;
+          })}
+          onJumpToHex={(modIdx, offset) => {
+            setHexFocusMod(modIdx);
+            setHexFocusOffset(offset);
+            setTab("diff");
+          }}
+        />
       </div>)}
     </div>}
 
@@ -699,6 +907,82 @@ export default function FcaModuleInspector() {
     {/* DIFF TAB */}
     {tab === "diff" && <div>
       <STitle>Hex Diff</STitle>
+
+      {/* Hex-at-offset panel — rendered whenever the user clicked "Jump to hex"
+          from the Secrets & Crypto panel. Works with any number of loaded
+          modules (including just one). Shows 8 rows × 16 bytes centred on the
+          target offset with the finding's bytes highlighted. */}
+      {hexFocusOffset !== null && modules[hexFocusMod] && (() => {
+        const m = modules[hexFocusMod];
+        const data = m.data;
+        if (!data) return null;
+        const rowSize = 16;
+        const contextRows = 4; // rows before + after the target row
+        const targetRow = (hexFocusOffset >> 4) << 4; // round down to row boundary
+        const startOff = Math.max(0, targetRow - contextRows * rowSize);
+        const endOff = Math.min(data.length, targetRow + (contextRows + 1) * rowSize);
+        const rows = [];
+        for (let o = startOff; o < endOff; o += rowSize) {
+          const cells = [];
+          for (let j = 0; j < rowSize && o + j < data.length; j++) {
+            const idx = o + j;
+            const inFinding = idx >= hexFocusOffset;
+            cells.push({ v: data[idx].toString(16).padStart(2, "0").toUpperCase(), inFinding });
+          }
+          rows.push({ o, cells, isTarget: o === targetRow });
+        }
+        return (
+          <Card style={{ padding: 14, marginBottom: 14, borderLeft: "3px solid " + C.a3 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 900, color: C.a3, textTransform: "uppercase", letterSpacing: 1 }}>
+                Navigate to offset
+              </span>
+              <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 12, fontWeight: 700, color: C.tx }}>
+                {"0x" + hexFocusOffset.toString(16).toUpperCase().padStart(6, "0")}
+              </span>
+              <span style={{ fontSize: 11, color: C.tm }}>
+                in <strong style={{ color: m.color }}>{inspectorName(m)}</strong> · {m.filename}
+              </span>
+              <button
+                onClick={() => setHexFocusOffset(null)}
+                style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: C.tm, fontSize: 14, fontWeight: 700 }}
+              >×</button>
+            </div>
+            <div style={{ background: C.c2, border: "1px solid " + C.bd, borderRadius: 8, padding: 10, fontFamily: "'JetBrains Mono',monospace", fontSize: 11 }}>
+              {rows.map((row) => (
+                <div key={row.o} style={{ display: "flex", gap: 12, lineHeight: 1.7, background: row.isTarget ? C.cd : "transparent", borderRadius: 4 }}>
+                  <span style={{ color: row.isTarget ? C.a3 : C.tm, minWidth: 48, fontWeight: row.isTarget ? 800 : 400 }}>
+                    {row.o.toString(16).toUpperCase().padStart(6, "0")}
+                  </span>
+                  <span>
+                    {row.cells.map((cell, ci) => (
+                      <span
+                        key={ci}
+                        style={{
+                          marginRight: ci % 8 === 7 ? 10 : 4,
+                          color: cell.inFinding && row.isTarget ? C.a3 : C.ts,
+                          fontWeight: cell.inFinding && row.isTarget ? 800 : 400,
+                          background: cell.inFinding && row.isTarget ? C.a3 + "22" : "transparent",
+                          borderRadius: 2, padding: "0 1px",
+                        }}
+                      >
+                        {cell.v}
+                      </span>
+                    ))}
+                  </span>
+                  <span style={{ color: C.tm, fontSize: 10 }}>
+                    {row.cells.map(c => {
+                      const code = parseInt(c.v, 16);
+                      return code >= 0x20 && code < 0x7F ? String.fromCharCode(code) : ".";
+                    }).join("")}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        );
+      })()}
+
       {modules.length < 2 ? <Card style={{ textAlign: "center", padding: 22, color: C.tm, fontSize: 12 }}>Load 2+ modules to compare.</Card> : <div>
         <Card style={{ padding: 12, marginBottom: 14 }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
