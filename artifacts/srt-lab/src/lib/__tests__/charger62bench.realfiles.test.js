@@ -541,6 +541,135 @@ describe('RFHUB P-Flash identity — legacy 4 KB RFHUB EEPROM (RFH_SCAT_OG)', ()
 });
 
 /* ─────────────────────────────────────────────────────────────────────────────
+ * 9d. RFHUB P-Flash identity — sibling legacy 4 KB RFHUB EEPROM fixtures
+ * (Task #786).
+ *
+ * Task #776 pinned ground truth against a single legacy fixture
+ * (`RFH_SCAT_OG_1776883386715.bin`). attached_assets/ ships several sibling
+ * 4 KB legacy RFHUB EEPROM dumps; running the extractor against each of
+ * them catches any future regex / scoring regression that only manifests
+ * on a specific variant. Expected values were captured by probing the
+ * current extractor and confirming they match the identity-block layout
+ * documented in §9c (OS at 0x808, PN at 0x80A, supplier serial at 0x82C).
+ *
+ * Each entry pins value + length + offset + canonical/supplier-bonus
+ * state. If a future fixture lands where the expected values are not yet
+ * confirmed, add it with `expected: null` and the loop will log the
+ * extractor's current best pick for follow-up confirmation instead of
+ * asserting.
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('RFHUB P-Flash identity — sibling legacy 4 KB RFHUB EEPROM fixtures', () => {
+  const SIBLINGS = [
+    {
+      file: 'RFH_SCAT_OG_1776883397469.bin',
+      expected: {
+        os:     { value: 'AA30712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
+        pn:     { value: '30712804CA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
+        serial: { value: '7161A9870IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
+      },
+    },
+    {
+      file: 'RFH_SCAT_OG__1776953366762.bin',
+      expected: {
+        os:     { value: 'AA30712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
+        pn:     { value: '30712804CA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
+        serial: { value: '7161A9870IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
+      },
+    },
+    {
+      file: 'RFH_SCAT_OG_1776953518379.bin',
+      expected: {
+        os:     { value: 'AA30712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
+        pn:     { value: '30712804CA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
+        serial: { value: '7161A9870IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
+      },
+    },
+    {
+      file: 'RFH_SCAT_OG_1776959969103.bin',
+      expected: {
+        os:     { value: 'AA30712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
+        pn:     { value: '30712804CA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
+        serial: { value: '7161A9870IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
+      },
+    },
+    {
+      file: 'CARTMAN21CHARGER6.2RFHUBOG_1776135438588.bin',
+      expected: {
+        os:     { value: 'AA40712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
+        pn:     { value: '40712804AA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
+        serial: { value: '3280D2211IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
+      },
+    },
+    {
+      file: 'CARTMAN21CHARGER6.2RFHUBOG_1776135460754.bin',
+      expected: {
+        os:     { value: 'AA40712804',     len: 10, offset: 0x808, matchesCanonical: true,  supplierBonus: 0  },
+        pn:     { value: '40712804AA',     len: 10, offset: 0x80a, matchesCanonical: false, supplierBonus: 0  },
+        serial: { value: '3280D2211IR00T', len: 14, offset: 0x82c, matchesCanonical: true,  supplierBonus: 20 },
+      },
+    },
+  ];
+
+  for (const { file, expected } of SIBLINGS) {
+    describe(file, () => {
+      let data;
+      let id;
+      function load() {
+        if (id) return;
+        data = loadBin(file);
+        id = extractRfhPflashIdentity(data);
+      }
+
+      it('is a 4096-byte legacy RFHUB EEPROM', () => {
+        load();
+        expect(data.length).toBe(4096);
+      });
+
+      if (!expected) {
+        it('TODO — confirm expected OS / PN / SERIAL (best pick logged)', () => {
+          load();
+          // eslint-disable-next-line no-console
+          console.log(`[task-786] ${file} best pick:`, {
+            os: id.os && { value: id.os.value, len: id.os.len, offset: id.os.offset, score: id.os.score, matchesCanonical: id.os.matchesCanonical, supplierBonus: id.os.supplierBonus },
+            pn: id.pn && { value: id.pn.value, len: id.pn.len, offset: id.pn.offset, score: id.pn.score, matchesCanonical: id.pn.matchesCanonical, supplierBonus: id.pn.supplierBonus },
+            serial: id.serial && { value: id.serial.value, len: id.serial.len, offset: id.serial.offset, score: id.serial.score, matchesCanonical: id.serial.matchesCanonical, supplierBonus: id.serial.supplierBonus },
+          });
+          expect(id).toHaveProperty('os');
+          expect(id).toHaveProperty('pn');
+          expect(id).toHaveProperty('serial');
+        });
+        return;
+      }
+
+      for (const field of ['os', 'pn', 'serial']) {
+        const exp = expected[field];
+        it(`${field}: value ${exp.value}`, () => {
+          load();
+          expect(id[field]).not.toBeNull();
+          expect(id[field].value).toBe(exp.value);
+        });
+        it(`${field}: len ${exp.len}`, () => {
+          load();
+          expect(id[field].len).toBe(exp.len);
+        });
+        it(`${field}: offset 0x${exp.offset.toString(16).toUpperCase()}`, () => {
+          load();
+          expect(id[field].offset).toBe(exp.offset);
+        });
+        it(`${field}: matchesCanonical=${exp.matchesCanonical}`, () => {
+          load();
+          expect(id[field].matchesCanonical).toBe(exp.matchesCanonical);
+        });
+        it(`${field}: supplierBonus=${exp.supplierBonus}`, () => {
+          load();
+          expect(id[field].supplierBonus).toBe(exp.supplierBonus);
+        });
+      }
+    });
+  }
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
  * 10. crossValidate on the trio (BCM + RFHUB EEE + PCM)
  * ───────────────────────────────────────────────────────────────────────────── */
 describe('crossValidate — BCM + RFHUB EEE + PCM trio', () => {
