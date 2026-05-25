@@ -2,6 +2,7 @@ import React, {useState, useCallback, useRef} from "react";
 import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import IdentityCard from '../components/IdentityCard.jsx';
+import {parseModule,moduleTooSmall} from '../lib/parseModule.js';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
 import {decodeNRC} from '../lib/nrc.js';
 import {backupModule} from '../lib/audit.js';
@@ -16,11 +17,36 @@ import {programVin} from '../lib/vinProgrammer.js';
 import {build} from '@workspace/uds';
 
 export default function EcmTab({vehicle}){
-  const{vin:masterVin,updateStatus,getDumpsByType}=useMasterVin();
+  const{vin:masterVin,updateStatus,getDumpsByType,addDump,removeDump}=useMasterVin();
   // Task #774 — surface OS/PN/Serial best-pick for any GPEC2A (ECM) dump
   // present in the shared workspace.
   const ecmDumps=(getDumpsByType?.('GPEC2A')||[]);
-  const ecmInspectMod=ecmDumps[0]?.mod||null;
+  // Task #783 — inline file picker (mirrors RfhubTab pattern). Lets techs
+  // load a donor ECM .bin from this tab without bouncing through Dumps.
+  const[inspectHash,setInspectHash]=useState(null);
+  const[inspectMsg,setInspectMsg]=useState('');
+  const[inspectTooSmall,setInspectTooSmall]=useState(null);
+  const inspectEntry=ecmDumps.find(d=>d.hash===inspectHash)||ecmDumps[0]||null;
+  const ecmInspectMod=inspectEntry?.mod||null;
+  const onInspectFile=useCallback(file=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      const bytes=new Uint8Array(ev.target.result);
+      const small=moduleTooSmall(bytes,'GPEC2A',file.name);
+      if(small){setInspectHash(null);setInspectTooSmall(small);setInspectMsg('');return;}
+      setInspectTooSmall(null);
+      const m=parseModule(bytes,file.name);
+      if(m.type!=='GPEC2A'){setInspectMsg('Selected file is '+m.type+', not GPEC2A — load a 4 KB Continental GPEC2A ECM dump.');return;}
+      const entry=addDump(m,'ECM tab');
+      if(entry)setInspectHash(entry.hash);
+      setInspectMsg('');
+    };
+    r.readAsArrayBuffer(file);
+  },[addDump]);
+  const closeInspect=useCallback(()=>{
+    if(inspectEntry)removeDump(inspectEntry.hash);
+    setInspectHash(null);setInspectMsg('');setInspectTooSmall(null);
+  },[inspectEntry,removeDump]);
   const[conn,setConn]=useState(false);const[unlocked,setUnlocked]=useState(false);
   const[busy,setBusy]=useState('');const[log,setLog]=useState([]);
   const[curVin,setCurVin]=useState(null);const[ecmInfo,setEcmInfo]=useState({});
@@ -237,12 +263,37 @@ export default function EcmTab({vehicle}){
       </div>
     </Card>
 
-    {ecmInspectMod&&ecmInspectMod.data&&<Card style={{marginBottom:14}}>
-      <IdentityCard bytes={ecmInspectMod.data}/>
-      <div style={{marginTop:8,fontSize:10,color:C.tm,fontFamily:"'JetBrains Mono'"}}>
-        Source: {ecmInspectMod.filename} · {(ecmInspectMod.size/1024).toFixed(1)} KB
+    <Card style={{marginBottom:14}}>
+      <div style={{fontWeight:800,fontSize:11,color:C.wn,marginBottom:10,letterSpacing:2}}>🔍 ECM DUMP INSPECTOR</div>
+      <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+        <label style={{padding:'10px 16px',borderRadius:10,border:'2px dashed '+C.wn+'40',background:C.c2,cursor:'pointer',fontSize:12,fontWeight:800,color:C.wn}}>
+          📂 Load ECM .bin
+          <input type="file" accept=".bin,.BIN" hidden onChange={e=>e.target.files[0]&&onInspectFile(e.target.files[0])}/>
+        </label>
+        {ecmDumps.length>1&&<select value={inspectEntry?.hash||''} onChange={e=>setInspectHash(e.target.value)}
+          style={{padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:11}}>
+          {ecmDumps.map(d=><option key={d.hash} value={d.hash}>{d.filename}</option>)}
+        </select>}
+        {ecmInspectMod&&<>
+          <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.ts}}>{ecmInspectMod.filename} · {(ecmInspectMod.size/1024).toFixed(1)} KB</span>
+          {inspectEntry?.source&&<span style={{fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:6,background:C.c2,color:C.ts,border:'1px solid '+C.bd,letterSpacing:0.5,textTransform:'uppercase'}}>Loaded from {inspectEntry.source}</span>}
+          <button onClick={closeInspect} style={{border:'none',background:'transparent',color:C.tm,cursor:'pointer',fontSize:14}} title="Remove from workspace">✕</button>
+        </>}
       </div>
-    </Card>}
+      {!ecmInspectMod&&ecmDumps.length===0&&!inspectTooSmall&&!inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the Dumps tab show up here automatically.</div>}
+      {ecmInspectMod&&ecmDumps.length>0&&<div style={{marginTop:6,fontSize:10,color:C.gn,fontWeight:700}}>✓ Auto-loaded from shared workspace ({ecmDumps.length} GPEC2A dump{ecmDumps.length===1?'':'s'} available)</div>}
+      {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.wn,fontWeight:700}}>{inspectMsg}</div>}
+      {inspectTooSmall&&<div style={{marginTop:12,padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
+        <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ This isn't a full ECM dump</div>
+        <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts,lineHeight:1.7}}>
+          <div>File size: <strong style={{color:C.er}}>{inspectTooSmall.size.toLocaleString()} bytes</strong></div>
+          <div>Required min: <strong>{inspectTooSmall.min.toLocaleString()} bytes</strong> — {inspectTooSmall.label}</div>
+        </div>
+      </div>}
+      {ecmInspectMod&&ecmInspectMod.data&&<div style={{marginTop:12}}>
+        <IdentityCard bytes={ecmInspectMod.data}/>
+      </div>}
+    </Card>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>

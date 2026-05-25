@@ -2,6 +2,7 @@ import React, {useState, useCallback, useMemo, useRef, useEffect} from "react";
 import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import IdentityCard from '../components/IdentityCard.jsx';
+import {parseModule,moduleTooSmall,MODULE_MIN_SIZES} from '../lib/parseModule.js';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
 import {decodeNRC} from '../lib/nrc.js';
 import {backupModule} from '../lib/audit.js';
@@ -17,18 +18,59 @@ import {parseDtcResponse, formatDtcLogLine, buildDtcDetail} from '../lib/dtc.js'
 import {build} from '@workspace/uds';
 
 export default function AdcmTab(){
-  const{vin:masterVin,updateStatus,getDumpsByType}=useMasterVin();
+  const{vin:masterVin,updateStatus,getDumpsByType,addDump,removeDump}=useMasterVin();
   // Task #774 — surface OS/PN/Serial best-pick for any loaded ADCM-class
   // dump. ADCM dumps don't have a dedicated parseModule type, so we fall
   // back across the most-likely buckets (FW / GPEC2A / BCM).
-  const adcmInspectMod=useMemo(()=>{
-    if(!getDumpsByType)return null;
+  const adcmDumps=useMemo(()=>{
+    if(!getDumpsByType)return [];
+    const seen=new Set();const out=[];
     for(const t of ['FW','GPEC2A','BCM']){
-      const d=(getDumpsByType(t)||[])[0];
-      if(d?.mod?.data)return d.mod;
+      for(const d of (getDumpsByType(t)||[])){
+        if(d?.hash&&!seen.has(d.hash)&&d.mod?.data){seen.add(d.hash);out.push(d);}
+      }
     }
-    return null;
+    return out;
   },[getDumpsByType]);
+  // Task #783 — inline file picker (mirrors RfhubTab pattern). ADCM dumps
+  // don't have a dedicated parseModule type, so we accept any of the three
+  // buckets the existing inspector already reads from (FW / GPEC2A / BCM).
+  const[inspectHash,setInspectHash]=useState(null);
+  const[inspectMsg,setInspectMsg]=useState('');
+  const[inspectTooSmall,setInspectTooSmall]=useState(null);
+  const inspectEntry=adcmDumps.find(d=>d.hash===inspectHash)||adcmDumps[0]||null;
+  const adcmInspectMod=inspectEntry?.mod||null;
+  const ADCM_OK_TYPES=['FW','GPEC2A','BCM'];
+  const onInspectFile=useCallback(file=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      const bytes=new Uint8Array(ev.target.result);
+      const sz=bytes.length;
+      // Floor of the three acceptable buckets — anything smaller than the
+      // smallest ADCM-shaped dump (4 KB GPEC2A) is rejected outright.
+      const floor=Math.min(MODULE_MIN_SIZES.GPEC2A,MODULE_MIN_SIZES.BCM);
+      if(sz<floor){
+        setInspectHash(null);
+        setInspectTooSmall({tooSmall:true,size:sz,min:floor,label:'4 KB GPEC2A / 64 KB BCM-style ADCM image'});
+        setInspectMsg('');
+        return;
+      }
+      setInspectTooSmall(null);
+      const m=parseModule(bytes,file.name);
+      if(!ADCM_OK_TYPES.includes(m.type)){
+        setInspectMsg('Selected file is '+m.type+', not an ADCM-shaped dump (expected FW / GPEC2A / BCM).');
+        return;
+      }
+      const entry=addDump(m,'ADCM tab');
+      if(entry)setInspectHash(entry.hash);
+      setInspectMsg('');
+    };
+    r.readAsArrayBuffer(file);
+  },[addDump]);
+  const closeInspect=useCallback(()=>{
+    if(inspectEntry)removeDump(inspectEntry.hash);
+    setInspectHash(null);setInspectMsg('');setInspectTooSmall(null);
+  },[inspectEntry,removeDump]);
   const[conn,setConn]=useState(false);const[busy,setBusy]=useState('');
   const[log,setLog]=useState([]);const[mod,setMod]=useState(ADCM_MODULES[2]);
   const[curVinF190,setCurVinF190]=useState('');const[curVin7B90,setCurVin7B90]=useState('');
@@ -421,12 +463,37 @@ export default function AdcmTab(){
       </Btn>
     </Card>
 
-    {adcmInspectMod&&adcmInspectMod.data&&<Card style={{marginBottom:14}}>
-      <IdentityCard bytes={adcmInspectMod.data}/>
-      <div style={{marginTop:8,fontSize:10,color:C.tm,fontFamily:"'JetBrains Mono'"}}>
-        Source: {adcmInspectMod.filename} · {(adcmInspectMod.size/1024).toFixed(1)} KB
+    <Card style={{marginBottom:14}}>
+      <div style={{fontWeight:800,fontSize:11,color:C.sr,marginBottom:10,letterSpacing:2}}>🔍 ADCM DUMP INSPECTOR</div>
+      <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+        <label style={{padding:'10px 16px',borderRadius:10,border:'2px dashed '+C.a3+'40',background:C.c2,cursor:'pointer',fontSize:12,fontWeight:800,color:C.a3}}>
+          📂 Load ADCM .bin
+          <input type="file" accept=".bin,.BIN" hidden onChange={e=>e.target.files[0]&&onInspectFile(e.target.files[0])}/>
+        </label>
+        {adcmDumps.length>1&&<select value={inspectEntry?.hash||''} onChange={e=>setInspectHash(e.target.value)}
+          style={{padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:11}}>
+          {adcmDumps.map(d=><option key={d.hash} value={d.hash}>{d.filename}</option>)}
+        </select>}
+        {adcmInspectMod&&<>
+          <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:C.ts}}>{adcmInspectMod.filename} · {(adcmInspectMod.size/1024).toFixed(1)} KB · {adcmInspectMod.type}</span>
+          {inspectEntry?.source&&<span style={{fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:6,background:C.c2,color:C.ts,border:'1px solid '+C.bd,letterSpacing:0.5,textTransform:'uppercase'}}>Loaded from {inspectEntry.source}</span>}
+          <button onClick={closeInspect} style={{border:'none',background:'transparent',color:C.tm,cursor:'pointer',fontSize:14}} title="Remove from workspace">✕</button>
+        </>}
       </div>
-    </Card>}
+      {!adcmInspectMod&&adcmDumps.length===0&&!inspectTooSmall&&!inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the Dumps tab show up here automatically.</div>}
+      {adcmInspectMod&&adcmDumps.length>0&&<div style={{marginTop:6,fontSize:10,color:C.gn,fontWeight:700}}>✓ Auto-loaded from shared workspace ({adcmDumps.length} ADCM-shaped dump{adcmDumps.length===1?'':'s'} available)</div>}
+      {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.wn,fontWeight:700}}>{inspectMsg}</div>}
+      {inspectTooSmall&&<div style={{marginTop:12,padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
+        <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ This isn't a full ADCM dump</div>
+        <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts,lineHeight:1.7}}>
+          <div>File size: <strong style={{color:C.er}}>{inspectTooSmall.size.toLocaleString()} bytes</strong></div>
+          <div>Required min: <strong>{inspectTooSmall.min.toLocaleString()} bytes</strong> — {inspectTooSmall.label}</div>
+        </div>
+      </div>}
+      {adcmInspectMod&&adcmInspectMod.data&&<div style={{marginTop:12}}>
+        <IdentityCard bytes={adcmInspectMod.data}/>
+      </div>}
+    </Card>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
