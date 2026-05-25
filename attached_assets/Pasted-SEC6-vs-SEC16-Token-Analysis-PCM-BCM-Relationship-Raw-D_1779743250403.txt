@@ -1,0 +1,260 @@
+SEC6 vs SEC16 Token Analysis — PCM ↔ BCM Relationship
+
+Raw Data from Inspection Result
+
+BCM · MPC5606B
+
+•
+VIN CRC-16: 0xA8EF (valid)
+
+•
+SEC16 Token: Not directly shown, but implied by RFHUB's SEC16 sync
+
+•
+Active bank: Bank B (seq 0x2525)
+
+•
+Mirror recs: 0x60C8 (16576) · 0x60D8 (19928)
+
+RFHUB · YAZAKI FCM
+
+•
+VIN Checksum: 0x05 (valid)
+
+•
+SEC16 · 0x0226 (550) / 0x023A (570)
+
+•
+Slots match: yes
+
+•
+Status: ✅ MATCH
+
+•
+Slot 1 Key: 59022F5542BE7644EC2028C53AD4D654
+
+PCM · CONTINENTAL
+
+•
+Current VIN: 2C3CCABG1KH539430
+
+•
+VIN slots: 4 found
+
+•
+0x0B00 (0) · 0xB1F0 (496) · 0x02 (2 bytes)
+
+•
+24 (548) · 0x8CE0 (3296)
+
+
+
+•
+Immo (SEC6): ✅ Populated
+
+•
+IMMO byte @0x0011: 0x80000000 — ENABLED (17)
+
+•
+SEC6 marker: canonical 0x3C8
+
+•
+Marker @0x03C4: ✅ FFFFFFAA (canonical FF FF F AA)
+
+•
+SEC6 bytes: 59022F5542BE @ 0x03C8 (968)
+
+•
+Derived rule: first 6 bytes of byte-reversed BCM SEC16
+
+
+
+
+The Key Discovery: SEC6 is Derived from SEC16
+
+The PCM's SEC6 bytes (59022F5542BE) are exactly the first 6 bytes of the RFHUB's SEC16 Slot 1 key:
+
+Plain Text
+
+
+RFHUB Slot 1 (SEC16):  59022F5542BE 7644EC2028C53AD4D654
+                       ↑↑↑↑↑↑↑↑↑↑↑↑
+PCM SEC6 bytes:        59022F5542BE
+
+
+
+This is the security token derivation chain:
+
+Plain Text
+
+
+BCM SEC16 (master token)
+    ↓
+    └─→ RFHUB SEC16 Slot 1 (synced from BCM)
+            ↓
+            └─→ PCM SEC6 (first 6 bytes of RFHUB Slot 1)
+
+
+
+
+
+
+What This Means
+
+1. Hierarchical Security Chain
+
+The BCM is the master security authority. It generates or stores the primary SEC16 token. The RFHUB receives this token and stores it in Slot 1. The PCM then derives its SEC6 bytes from the RFHUB's SEC16 Slot 1.
+
+2. Synchronization Points
+
+Link
+Source
+Destination
+Data
+Status
+BCM → RFHUB
+BCM SEC16 (unknown)
+RFHUB SEC16 0x0226/0x023A
+Full 16-byte token
+✅ MATCH
+RFHUB → PCM
+RFHUB Slot 1 (59022F5542BE...)
+PCM SEC6 (59022F5542BE)
+First 6 bytes
+✅ MATCH
+
+
+
+
+3. Why the Warning Still Shows
+
+Even though all three modules show "MATCH" status, the warning "Security token issues detected" persists because:
+
+Hypothesis 1: BCM → RFHUB chain not verified
+
+•
+The inspection shows RFHUB's SEC16 matches its own slots (yes)
+
+•
+But it doesn't show whether RFHUB's SEC16 matches the BCM's original SEC16
+
+•
+The BCM's SEC16 value isn't displayed in the inspection result
+
+•
+If BCM's SEC16 ≠ RFHUB's SEC16, the entire chain breaks
+
+Hypothesis 2: PCM SEC6 marker validation
+
+•
+PCM shows SEC6 marker as "canonical 0x3C8"
+
+•
+Marker @0x03C4 shows "FFFFFFAA (canonical FF FF F AA)"
+
+•
+This might be a checksum or validation byte that doesn't match expected value
+
+•
+The "AA" at the end might indicate a mismatch flag
+
+Hypothesis 3: IMMO byte state
+
+•
+PCM IMMO byte @0x0011: 0x80000000 — ENABLED (17)
+
+•
+This means immobilizer is ACTIVE and locked
+
+•
+The vehicle won't start until this byte is synced with BCM's immobilizer state
+
+•
+If BCM has immobilizer DISABLED but PCM has it ENABLED, they're out of sync
+
+4. The Canonical Marker Issue
+
+The PCM shows:
+
+Plain Text
+
+
+SEC6 marker: canonical 0x3C8
+Marker @0x03C4: ✅ FFFFFFAA (canonical FF FF F AA)
+
+
+
+The marker location (0x03C4) contains FFFFFFAA. In FCA firmware:
+
+•
+FFFFFFFF = "canonical" or "original" state
+
+•
+AA suffix = validation/checksum byte
+
+•
+If this doesn't match the BCM's expected marker, the PCM won't accept commands from the BCM
+
+
+
+
+The Likely Issue: Immobilizer State Mismatch
+
+The most probable cause of the "Security token issues detected" warning:
+
+BCM Immobilizer State: Unknown (not shown in inspection)
+PCM Immobilizer State: 0x80000000 — ENABLED (locked)
+
+If the BCM has immobilizer disabled but the PCM has it enabled, the vehicle is in an inconsistent security state:
+
+•
+BCM thinks: "Vehicle is unlocked, start it"
+
+•
+PCM thinks: "Vehicle is locked, don't start"
+
+•
+Result: No-start condition
+
+
+
+
+What the Wizard Likely Does Next
+
+When you click "Fix with Wizard" again, it probably:
+
+1.
+Reads BCM's SEC16 token (which wasn't displayed in the inspection)
+
+2.
+Compares BCM SEC16 vs RFHUB SEC16 — if they don't match, re-syncs them
+
+3.
+Verifies PCM SEC6 derivation — ensures first 6 bytes match RFHUB Slot 1
+
+4.
+Syncs immobilizer state — sets PCM IMMO byte to match BCM's immobilizer state
+
+5.
+Validates SEC6 marker — recalculates the marker checksum at 0x03C4
+
+
+
+
+Recommendation
+
+The inspection result is incomplete — it doesn't show:
+
+•
+BCM's actual SEC16 value (only RFHUB's SEC16 is shown)
+
+•
+BCM's immobilizer state (only PCM's is shown)
+
+•
+Whether the SEC6 marker checksum (FFFFFFAA) is valid
+
+To fully diagnose: You'd need a tool that reads the BCM's SEC16 directly and compares it byte-for-byte with RFHUB's SEC16. The wizard likely has this capability internally, which is why it can fix issues the inspection can't fully display.
+
+Click "Fix with Wizard" again — it should sync the BCM SEC16 → RFHUB SEC16 → PCM SEC6 chain completely.
+

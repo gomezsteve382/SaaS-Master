@@ -1,0 +1,50 @@
+Lite
+Here's exactly what you need to tell Replit to fix the remaining security token issue:
+The Problem
+The BCM, RFHUB, and PCM are VIN-matched and checksum-valid, but the immobilizer state is out of sync:
+PCM immobilizer: ENABLED (locked) — byte at 0x0011 = 0x80000000
+BCM immobilizer: Unknown (likely DISABLED)
+Result: Vehicle won't start because the modules disagree on lock state
+The SEC6 bytes (59022F5542BE) are correctly derived from the RFHUB's SEC16 Slot 1, so that chain is good. But the immobilizer synchronization is broken.
+What Needs to Be Fixed
+The wizard needs to:
+Read BCM's immobilizer state (currently not displayed in the inspection)
+Compare BCM immobilizer vs PCM immobilizer
+If they don't match, sync them — write the BCM's immobilizer state to the PCM
+Recalculate the SEC6 marker checksum at offset 0x03C4 (currently shows FFFFFFAA)
+Tell Replit This
+"The inspection shows PCM immobilizer is ENABLED (0x80000000 at 0x0011), but the BCM immobilizer state isn't displayed. The wizard needs to:
+Read the BCM's immobilizer byte and display it in the inspection result
+Compare BCM immobilizer vs PCM immobilizer — if they differ, flag it as a mismatch
+In the wizard fix routine: Sync the immobilizer states so BCM and PCM agree
+Recalculate the SEC6 marker checksum at 0x03C4 after any immobilizer changes
+Re-verify the entire SEC16 → SEC6 derivation chain to ensure the marker is valid
+The SEC6 bytes are correctly derived (59022F5542BE matches RFHUB Slot 1), but the immobilizer state mismatch is causing the 'Security token issues detected' warning to persist even after the first wizard fix."
+Technical Details for Replit Dev
+If they need specifics:
+Field
+Location
+Current Value
+Issue
+PCM IMMO byte
+0x0011
+0x80000000
+ENABLED (locked)
+BCM IMMO byte
+? (unknown)
+?
+Not displayed in inspection
+SEC6 marker
+0x03C4
+FFFFFFAA
+Checksum validation unknown
+SEC6 bytes
+0x03C8
+59022F5542BE
+✅ Correctly derived
+RFHUB SEC16 Slot 1
+(RFHUB module)
+59022F5542BE7644EC2028C53AD4D654
+✅ Matches
+The fix: Make the wizard read BCM's immobilizer state, compare it to PCM's, and sync them if they differ. Then recalculate the SEC6 marker checksum to validate the entire chain.
+That should clear the "Security token issues detected" warning.
