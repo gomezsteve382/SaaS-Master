@@ -12,6 +12,7 @@ import { parseModule } from '../parseModule.js';
 import { crossValidate } from '../crossValidate.js';
 import { runKeyProgPatch } from '../keyProgWizard.js';
 import { buildCharger62Report } from '../charger62BenchReport.js';
+import { extractRfhPflashIdentity } from '../rfhPflashIdentity.js';
 
 /* ── Fixture paths ── */
 const ASSETS = resolve(__dirname, '../../../../..', 'attached_assets');
@@ -355,6 +356,83 @@ describe('RFHUB P-Flash (384 KB)', () => {
     ensureLoaded();
     expect(report.rfhPflashType).toBe(rfhPflashInfo.type);
     expect(report.rfhPflashSize).toBe(393216);
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * 9b. RFHUB P-Flash — OS / PN / SERIAL best-pick identity (Task #772)
+ *
+ * NOTE on ground truth: the task description proposes the canonical reference
+ * values `AA30712804` / `30712804BA` / `3060A8341IR00T`. Those exact strings
+ * live in the 4 KB legacy-RFHUB EEPROM family at offset ~0x800 — they are
+ * NOT present in this 6.2 Charger 384 KB Infineon P-flash dump (verified via
+ * exhaustive byte search). The bench panel deliberately surfaces whatever
+ * the extractor recovers from the actual file under inspection, so the
+ * pinned values below are the strings the helper genuinely finds in this
+ * fixture, not the template values from the task description.
+ * ───────────────────────────────────────────────────────────────────────────── */
+describe('RFHUB P-Flash identity (best pick)', () => {
+  it('extracts a PN, OS, and SERIAL candidate from the 384 KB P-flash', () => {
+    ensureLoaded();
+    const id = extractRfhPflashIdentity(rfhPflashData);
+    expect(id).toHaveProperty('os');
+    expect(id).toHaveProperty('pn');
+    expect(id).toHaveProperty('serial');
+    expect(id.pn).not.toBeNull();
+    expect(id.os).not.toBeNull();
+    expect(id.serial).not.toBeNull();
+  });
+
+  it('PN best pick is the Stellantis 68xxxxxxAB mopar candidate', () => {
+    ensureLoaded();
+    const id = extractRfhPflashIdentity(rfhPflashData);
+    // 0x5F160 in this fixture holds a run of 68356570AB..68356579AB. The
+    // canonical rfhPn regex (68\d{6}[A-Z]{2}) earns the +100 bonus, so the
+    // first canonical hit wins the field by ~100 points over non-canonical
+    // numeric-prefix PNs like 93203001AK.
+    expect(id.pn.value).toBe('68356570AB');
+    expect(id.pn.matchesCanonical).toBe(true);
+    expect(id.pn.score).toBe(120);
+    expect(id.pn.offset).toBe(0x5F160);
+  });
+
+  it('OS best pick is the 12-char AA40821703AA-style operating-system PN', () => {
+    ensureLoaded();
+    const id = extractRfhPflashIdentity(rfhPflashData);
+    // Embedded in 93105000AA40821703AA at 0x57F90; the OS regex skips the
+    // leading 8 digits and locks onto the 2-letter / 10-digit / 2-letter
+    // OS PN form. Score is 22 (12 useful + 10 pr, no canonical bonus —
+    // there is no canonical OS regex in bestPick today).
+    expect(id.os.value).toBe('AA40821703AA');
+    expect(id.os.len).toBe(12);
+  });
+
+  it('SERIAL best pick is the full 20-char concatenated supplier string', () => {
+    ensureLoaded();
+    const id = extractRfhPflashIdentity(rfhPflashData);
+    // Same 0x57F90 run. The serial regex picks up the entire mixed
+    // letters+digits 20-char block. It also matches bestPick.serial
+    // (^[A-Z0-9]{6,32}$) and so collects the +100 bonus → score 130.
+    expect(id.serial.value).toBe('93105000AA40821703AA');
+    expect(id.serial.matchesCanonical).toBe(true);
+    expect(id.serial.score).toBe(130);
+    expect(id.serial.offset).toBe(0x57F90);
+  });
+
+  it('every field hit carries the full scoreCandidate breakdown', () => {
+    ensureLoaded();
+    const id = extractRfhPflashIdentity(rfhPflashData);
+    for (const field of [id.os, id.pn, id.serial]) {
+      expect(field).toHaveProperty('value');
+      expect(field).toHaveProperty('score');
+      expect(field).toHaveProperty('useful');
+      expect(field).toHaveProperty('ratio');
+      expect(field).toHaveProperty('len');
+      expect(field).toHaveProperty('pr');
+      expect(field).toHaveProperty('offset');
+      expect(field).toHaveProperty('matchesCanonical');
+      expect(field.ratio).toBeCloseTo(1.0, 5);
+    }
   });
 });
 
