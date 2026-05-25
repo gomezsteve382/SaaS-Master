@@ -511,51 +511,54 @@ describe("UnlockCoverageTab — UI", () => {
     }
   });
 
-  it("renders task634 entries in their own dedicated card (task #640)", async () => {
-    // The hand-curated task-634 entries now live in a dedicated
-    // "Competitor-parity additions" card with its own count badge,
-    // separate from the main DLL coverage table. This keeps the DLL
-    // coverage percentage from being skewed by non-DLL rows.
+  it("merges task634 entries into the main coverage table and totals (task #733)", async () => {
+    // Task #733 surfaced the hand-curated task-634 entries in the
+    // main coverage table alongside the FCA DLL catalog so the
+    // headline total, the "Showing X of Y" counter, and the
+    // filterable row list all account for them.
     setupFetch({ task634: TASK634 });
     render(<UnlockCoverageTab />);
     await waitFor(() => screen.getByTestId("unlock-coverage-tab"));
 
-    // Card is present with a count badge reflecting the entry count.
     expect(TASK634.entries.length).toBeGreaterThan(0);
+
+    // The dedicated competitor-parity card stays in place for the
+    // verify panel / source links, and still tags its rows with the
+    // task-634 provenance attribute.
     await waitFor(() => {
       expect(screen.getByTestId("task634-card")).toBeTruthy();
     });
     expect(screen.getByTestId("task634-count").textContent).toContain(
       String(TASK634.entries.length),
     );
-
-    // One row per hand-curated entry inside the card.
     for (const e of TASK634.entries) {
-      const row = screen.getByTestId(`task634-row-${e.id}`);
-      expect(row).toBeTruthy();
-      expect(row.getAttribute("data-provenance")).toBe("task-634");
+      const cardRow = screen.getByTestId(`task634-row-${e.id}`);
+      expect(cardRow.getAttribute("data-provenance")).toBe("task-634");
     }
 
-    // Task-634 entries must NOT appear in the main coverage table any
-    // more — they are intentionally excluded so the DLL stats stay clean.
+    // Each task-634 entry now also appears as a row in the main
+    // coverage table with the correct provenance tag so an operator
+    // can filter / search across both sources from one place.
     for (const e of TASK634.entries) {
-      expect(screen.queryByTestId(`row-task634_${e.id}`)).toBeNull();
+      const mainRow = screen.getByTestId(`row-task634row_${e.id}`);
+      expect(mainRow.getAttribute("data-provenance")).toBe("task-634");
+      // Status column populated (bench-pending until verified).
+      expect(mainRow.textContent).toContain(e.label);
     }
 
     // Canonical catalog row is still in the main table.
     const canonical = CATALOG.entries[0];
     expect(screen.getByTestId(`row-${canonical.module}`)).toBeTruthy();
 
-    // The "Showing X of Y entries" counter reflects only the canonical
-    // DLL catalog, not the task-634 additions.
+    // The "Showing X of Y entries" counter and the headline total
+    // both account for the task-634 additions.
+    const expectedTotal = CATALOG.entries.length + TASK634.entries.length;
     const counter = screen.getByText(/of\s+\d+\s+entries/i);
     expect(counter.textContent.replace(/\s+/g, " ")).toContain(
-      `of ${CATALOG.entries.length} entries`,
+      `of ${expectedTotal} entries`,
     );
-
-    // Headline stats remain pinned to the DLL catalog rollup.
     expect(screen.getByTestId("total-count").textContent).toBe(
-      String(CATALOG.entry_count),
+      String(expectedTotal),
     );
   });
 

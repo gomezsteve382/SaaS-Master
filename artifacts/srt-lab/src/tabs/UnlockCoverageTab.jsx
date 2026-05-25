@@ -814,13 +814,46 @@ export default function UnlockCoverageTab() {
     return task634.entries.map((e) => ({...e, verified: verifiedIds.has(e.id)}));
   }, [task634, verifiedIds]);
 
+  // Task #733 — map the hand-curated task-634 capabilities into the
+  // catalog row shape so they show up in the main coverage table on
+  // equal footing with the FCA DLL entries (status, category, module
+  // columns are all populated). The main-table renderer is already
+  // pre-wired for `provenance === "task-634"` (the status badge
+  // tooltip pulls from `verifications[task634Id]`, and the expanded
+  // details row swaps in the VerifyPanel), so feeding the rows here
+  // is the only wiring needed.
+  const task634Rows = useMemo(() => {
+    return task634Entries.map((e) => {
+      const reasonParts = [];
+      if (e.lib) reasonParts.push(`Implemented in ${e.lib}`);
+      if (e.ui) reasonParts.push(`UI: ${e.ui}`);
+      return {
+        module: `task634row_${e.id}`,
+        file: e.lib || e.id,
+        display_name: e.label || e.id,
+        family: e.category || "task-634",
+        algorithm: e.algorithm || null,
+        tx_can_id: null,
+        rx_can_id: null,
+        size_bytes: null,
+        status: e.verified ? "verified" : (e.status || "bench-pending"),
+        provenance: "task-634",
+        task634Id: e.id,
+        verified: !!e.verified,
+        reason: reasonParts.join(" · "),
+        ecu_info: null,
+        python_function: null,
+      };
+    });
+  }, [task634Entries]);
+
   // Computed from merged rows so families/algoCounts/totals stay
-  // consistent when the asset-sweep extension contributes new entries.
-  // Task-634 hand-curated additions intentionally live outside this
-  // merge so the DLL-catalog coverage stats stay clean.
+  // consistent across catalog + asset-sweep + task-634 additions.
+  // Task #733 folded the task-634 hand-curated rows into this merge
+  // so they appear in the main table and the "Showing X of Y" total.
   const mergedEntries = useMemo(
-    () => (catalog ? [...catalog.entries, ...extEntries] : []),
-    [catalog, extEntries],
+    () => (catalog ? [...catalog.entries, ...extEntries, ...task634Rows] : []),
+    [catalog, extEntries, task634Rows],
   );
 
   const families = useMemo(() => {
@@ -1134,9 +1167,14 @@ export default function UnlockCoverageTab() {
   const emulatedCount = dispatcherStats
     ? dispatcherStats.emulated_count
     : catalog.dll_only_count;
-  const totalCount = dispatcherStats
+  // Task #733 — fold the hand-curated task-634 additions into the
+  // headline denominator so the "X / Y" coverage badge reflects the
+  // full surface area of the tab. Native/emulated counts stay pinned
+  // to the FCA DLL rollup since task-634 entries are bench-pending
+  // capabilities, not python-ported seed→key DLLs.
+  const totalCount = (dispatcherStats
     ? dispatcherStats.entry_count
-    : catalog.entry_count;
+    : catalog.entry_count) + task634Rows.length;
   const pctReversed = totalCount > 0
     ? Math.round((nativeCount / totalCount) * 100)
     : 0;
