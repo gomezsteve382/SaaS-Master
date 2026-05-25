@@ -1,14 +1,38 @@
 /**
  * Tool executor for the Investigation Swarm.
  *
- * Wraps the shared TOOL_REGISTRY and adds three swarm-only stub tools:
- *   - uds_static_decode  — decodes known UDS service/NRC bytes statically
- *   - pattern_lookup     — looks up signatures in a static in-memory dict
- *   - kg_query           — queries a minimal in-memory knowledge graph stub
+ * Wraps the shared TOOL_REGISTRY and adds three swarm-only tools backed
+ * by real SRT Lab data sources:
+ *
+ *   - uds_static_decode  — decodes UDS service/NRC/DID bytes via the
+ *                          `@workspace/uds` SERVICES, NRC_TABLE, and
+ *                          DID_CATALOG.
+ *   - pattern_lookup     — searches the loaded primary dump bytes for
+ *                          the supplied hex pattern and returns matched
+ *                          offsets (mirror of the hex-viewer search in
+ *                          FcaModuleInspector).
+ *   - kg_query           — queries the canonical unlock_catalog.json and
+ *                          bcmFeatureCatalog.generated.js for the
+ *                          supplied algorithm / service / module / DID /
+ *                          feature identifier.
  *
  * Read-only is enforced here at the dispatch layer: any tool name in
  * FORBIDDEN_TOOLS raises ForbiddenToolError before the handler runs.
  */
+
+import { fileURLToPath, pathToFileURL } from "node:url";
+import path from "node:path";
+import { readFileSync, existsSync } from "node:fs";
+
+import {
+  SERVICES,
+  serviceForSid,
+  serviceForPosRsp,
+  NRC_TABLE,
+  nrcEntry,
+  DID_CATALOG,
+  didEntry,
+} from "@workspace/uds";
 
 import { TOOL_REGISTRY, MAX_TOOL_RESULT_BYTES } from "../toolRegistry";
 import { FORBIDDEN_TOOLS, type ReadOnlyTool } from "./agents";
@@ -20,277 +44,431 @@ export class ForbiddenToolError extends Error {
   }
 }
 
-/* ── Static UDS decode table ──────────────────────────────────────────── */
+/* ── Workspace path resolution ────────────────────────────────────────── */
 
-const UDS_SERVICES: Record<number, string> = {
-  0x10: "DiagnosticSessionControl",
-  0x11: "ECUReset",
-  0x14: "ClearDiagnosticInformation",
-  0x19: "ReadDTCInformation",
-  0x22: "ReadDataByIdentifier",
-  0x23: "ReadMemoryByAddress",
-  0x27: "SecurityAccess",
-  0x28: "CommunicationControl",
-  0x29: "Authentication (0x29 — not 0x27)",
-  0x2C: "DynamicallyDefineDataIdentifier",
-  0x2E: "WriteDataByIdentifier",
-  0x2F: "InputOutputControlByIdentifier",
-  0x31: "RoutineControl",
-  0x34: "RequestDownload",
-  0x35: "RequestUpload",
-  0x36: "TransferData",
-  0x37: "RequestTransferExit",
-  0x3D: "WriteMemoryByAddress",
-  0x3E: "TesterPresent",
-  0x50: "DiagnosticSessionControl (response)",
-  0x51: "ECUReset (response)",
-  0x62: "ReadDataByIdentifier (response)",
-  0x67: "SecurityAccess (response)",
-  0x6F: "Authentication (response)",
-  0x7E: "TesterPresent (response)",
-  0x7F: "NegativeResponse",
-};
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const UDS_NRCS: Record<number, string> = {
-  0x10: "generalReject",
-  0x11: "serviceNotSupported",
-  0x12: "subFunctionNotSupported",
-  0x13: "incorrectMessageLengthOrInvalidFormat",
-  0x14: "responseTooLong",
-  0x21: "busyRepeatRequest",
-  0x22: "conditionsNotCorrect",
-  0x24: "requestSequenceError",
-  0x25: "noResponseFromSubnetComponent",
-  0x26: "failurePreventsExecutionOfRequestedAction",
-  0x31: "requestOutOfRange",
-  0x33: "securityAccessDenied",
-  0x35: "invalidKey",
-  0x36: "exceededNumberOfAttempts",
-  0x37: "requiredTimeDelayNotExpired",
-  0x70: "uploadDownloadNotAccepted",
-  0x71: "transferDataSuspended",
-  0x72: "generalProgrammingFailure",
-  0x73: "wrongBlockSequenceCounter",
-  0x78: "requestCorrectlyReceived-ResponsePending",
-  0x7E: "subFunctionNotSupportedInActiveSession",
-  0x7F: "serviceNotSupportedInActiveSession",
-  0x92: "voltageTooHigh",
-  0x93: "voltageTooLow",
-};
+/**
+ * Find the monorepo root by walking up from a start directory until we
+ * find a `pnpm-workspace.yaml`. Works in three environments:
+ *   - dev (tsx): start dir is the source tree, walks up to the repo root
+ *   - vitest:    same as dev
+ *   - prod build: start dir is `artifacts/api-server/dist`, walks up too
+ *
+ * Optional `cwd` fallback covers the case where the bundle has been
+ * moved out of the repo (we accept env-var overrides below regardless).
+ */
+function findWorkspaceRoot(startDir: string, cwd: string = process.cwd()): string | null {
+  for (const start of [startDir, cwd]) {
+    let dir = path.resolve(start);
+    for (let i = 0; i < 12; i++) {
+      if (existsSync(path.join(dir, "pnpm-workspace.yaml"))) return dir;
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+  }
+  return null;
+}
+
+const WORKSPACE_ROOT = findWorkspaceRoot(__dirname);
+
+function resolveCatalogPath(relPath: string, envVar: string): string | null {
+  const override = process.env[envVar];
+  if (override && existsSync(override)) return override;
+  if (!WORKSPACE_ROOT) return null;
+  const resolved = path.resolve(WORKSPACE_ROOT, relPath);
+  return existsSync(resolved) ? resolved : null;
+}
+
+const UNLOCK_CATALOG_PATH = resolveCatalogPath(
+  "artifacts/srt-lab/public/unlock_catalog.json",
+  "SRTLAB_UNLOCK_CATALOG_PATH",
+);
+const BCM_FEATURE_CATALOG_PATH = resolveCatalogPath(
+  "artifacts/srt-lab/src/lib/bcmFeatureCatalog.generated.js",
+  "SRTLAB_BCM_FEATURE_CATALOG_PATH",
+);
+
+/* ── 1. uds_static_decode ─────────────────────────────────────────────── */
+
+function fmtHex(b: number, width = 2): string {
+  return "0x" + b.toString(16).toUpperCase().padStart(width, "0");
+}
+
+function decodeOneByte(b: number): string {
+  // Positive response (SID | 0x40)
+  const posSvc = serviceForPosRsp(b);
+  if (posSvc) return `${fmtHex(b)}: ${posSvc.name} (positive response)`;
+  // Request service
+  const req = serviceForSid(b);
+  if (req) return `${fmtHex(b)}: ${req.name} (request SID)`;
+  // NRC code
+  const n = nrcEntry(b);
+  if (n) return `${fmtHex(b)}: NRC ${n.shortName} — ${n.description}`;
+  return `${fmtHex(b)}: (unknown)`;
+}
+
+function decodeFrame(bytes: number[]): string[] {
+  const lines: string[] = [];
+  if (bytes.length === 0) return lines;
+
+  const b0 = bytes[0];
+
+  // Negative response: 7F <reqSid> <nrc>
+  if (b0 === 0x7f && bytes.length >= 3) {
+    const reqSvc = serviceForSid(bytes[1]);
+    const n = nrcEntry(bytes[2]);
+    lines.push(`Frame: NegativeResponse to ${reqSvc ? reqSvc.name : "unknown service"} ${fmtHex(bytes[1])}`);
+    lines.push(
+      n
+        ? `  NRC ${fmtHex(bytes[2])} (${n.shortName}) — ${n.description}${n.isPending ? " [pending/retry]" : ""}`
+        : `  NRC ${fmtHex(bytes[2])} — (unknown / reserved)`,
+    );
+    if (bytes.length > 3) {
+      lines.push(`  Trailing bytes: ${bytes.slice(3).map((b) => fmtHex(b)).join(" ")}`);
+    }
+    return lines;
+  }
+
+  // Positive response?
+  const posSvc = serviceForPosRsp(b0);
+  if (posSvc) {
+    lines.push(`Frame: ${posSvc.name} positive response (${fmtHex(b0)})`);
+    // ReadDataByIdentifier response: 62 <DID-hi> <DID-lo> <data...>
+    if (b0 === 0x62 && bytes.length >= 3) {
+      const did = (bytes[1] << 8) | bytes[2];
+      const d = didEntry(did);
+      lines.push(`  DID ${fmtHex(did, 4)}${d ? `: ${d.name}` : " (not in catalog)"}`);
+      if (d && bytes.length > 3) {
+        try {
+          lines.push(`  Decoded: ${d.decode(bytes.slice(3))}`);
+        } catch {
+          // ignore decode errors
+        }
+      }
+    }
+    return lines;
+  }
+
+  // Request?
+  const reqSvc = serviceForSid(b0);
+  if (reqSvc) {
+    lines.push(`Frame: ${reqSvc.name} request (${fmtHex(b0)})`);
+    // ReadDataByIdentifier request: 22 <DID-hi> <DID-lo> [<DID-hi> <DID-lo> ...]
+    if (b0 === 0x22 && bytes.length >= 3) {
+      for (let i = 1; i + 1 < bytes.length; i += 2) {
+        const did = (bytes[i] << 8) | bytes[i + 1];
+        const d = didEntry(did);
+        lines.push(`  DID ${fmtHex(did, 4)}${d ? `: ${d.name}` : " (not in catalog)"}`);
+      }
+    }
+    // WriteDataByIdentifier request: 2E <DID-hi> <DID-lo> <data...>
+    else if (b0 === 0x2e && bytes.length >= 3) {
+      const did = (bytes[1] << 8) | bytes[2];
+      const d = didEntry(did);
+      lines.push(`  DID ${fmtHex(did, 4)}${d ? `: ${d.name}` : " (not in catalog)"}`);
+    }
+    // Sub-function services
+    else if (bytes.length >= 2 && reqSvc.subFunctions) {
+      const sub = reqSvc.subFunctions.find((s) => s.value === (bytes[1] & 0x7f));
+      if (sub) lines.push(`  Sub-function ${fmtHex(bytes[1])}: ${sub.name} — ${sub.description}`);
+    }
+    return lines;
+  }
+
+  return lines;
+}
 
 function handleUdsStaticDecode(args: Record<string, unknown>): string {
   const bytes = String(args.bytes || "").trim();
-  if (!bytes) return "Error: bytes argument is required (hex string, e.g. '7F 22 31').";
-  const hexParts = bytes.split(/\s+/).filter(Boolean);
-  if (hexParts.length === 0) return "Error: no bytes provided.";
-  const decoded = hexParts.map((h) => {
-    const val = parseInt(h, 16);
-    if (isNaN(val)) return `0x${h}: (invalid)`;
-    const svc = UDS_SERVICES[val];
-    const nrc = UDS_NRCS[val];
-    if (svc) return `0x${h.toUpperCase()}: ${svc}`;
-    if (nrc) return `0x${h.toUpperCase()}: NRC ${nrc}`;
-    return `0x${h.toUpperCase()}: (unknown)`;
-  });
-  return `UDS static decode:\n${decoded.join("\n")}`;
+  if (!bytes) return "Error: bytes argument is required (hex string, e.g. '7F 22 31' or '62F19031...').";
+
+  const cleaned = bytes.replace(/0x/gi, "").replace(/[,\s]+/g, " ").trim();
+  const parts = cleaned.includes(" ")
+    ? cleaned.split(/\s+/).filter(Boolean)
+    : (cleaned.match(/.{1,2}/g) || []);
+  if (parts.length === 0) return "Error: no bytes provided.";
+
+  const values: number[] = [];
+  const perByte: string[] = [];
+  for (const p of parts) {
+    const v = parseInt(p, 16);
+    if (isNaN(v) || v < 0 || v > 0xff) {
+      perByte.push(`${p}: (invalid hex byte)`);
+      continue;
+    }
+    values.push(v);
+    perByte.push(decodeOneByte(v));
+  }
+
+  const lines: string[] = [];
+  const frame = decodeFrame(values);
+  if (frame.length > 0) {
+    lines.push(...frame, "");
+  }
+  lines.push("Per-byte decode:", ...perByte);
+  return lines.join("\n");
 }
 
-/* ── Pattern library (static in-memory stub) ──────────────────────────── */
+/* ── 2. pattern_lookup (hex search in loaded dump) ────────────────────── */
 
-const PATTERN_SIGNATURES: Array<{
-  id: string;
-  name: string;
-  description: string;
-  hexPattern?: string;
-  tags: string[];
-}> = [
-  {
-    id: "mirrored_aes_secret",
-    name: "Mirrored AES-128 Secret Block",
-    description:
-      "A 16-byte block appearing verbatim and byte-reversed at two offsets. Common in FCA BCM/RFHUB SEC16 pairing — the BCM stores reverse(RFHUB_SEC16). Entropy floor: ≥10 unique bytes, ≤2 zeros, ≤2 0xFF bytes.",
-    tags: ["crypto", "sec16", "bcm", "rfhub"],
-  },
-  {
-    id: "fca_vin_wmi_1c",
-    name: "FCA WMI 1C (Chrysler/Jeep — US plant)",
-    description: "VIN starting with 1C — North American Chrysler/Jeep plant WMI prefix.",
-    hexPattern: "31 43",
-    tags: ["vin", "wmi", "chrysler"],
-  },
-  {
-    id: "fca_vin_wmi_2c",
-    name: "FCA WMI 2C (Chrysler — Canada plant)",
-    description: "VIN starting with 2C — Canadian Chrysler plant WMI prefix.",
-    hexPattern: "32 43",
-    tags: ["vin", "wmi", "chrysler"],
-  },
-  {
-    id: "fca_vin_wmi_3c",
-    name: "FCA WMI 3C (Chrysler — Mexico plant)",
-    description: "VIN starting with 3C — Mexican Chrysler plant WMI prefix.",
-    hexPattern: "33 43",
-    tags: ["vin", "wmi", "chrysler"],
-  },
-  {
-    id: "fca_did_f190",
-    name: "FCA DID 0xF190 (VIN)",
-    description:
-      "UDS DID 0xF190 is the standardised ISO 15031 VIN DID. FCA modules respond with 17 ASCII bytes.",
-    hexPattern: "F1 90",
-    tags: ["did", "vin", "uds"],
-  },
-  {
-    id: "fca_did_2023",
-    name: "FCA DID 0x2023 (BCM BODY_PN_CONFIG)",
-    description: "BCM proxi blob DID — 16 bytes of feature flags decoded by ProxiTab.",
-    hexPattern: "20 23",
-    tags: ["did", "bcm", "proxi"],
-  },
-  {
-    id: "fca_did_de00",
-    name: "FCA DID 0xDE00–0xDE0C (BCM DEnn features)",
-    description:
-      "DEnn family: 155-field BCM feature configuration (DRL, horn chirp, auto-lock, etc.).",
-    tags: ["did", "bcm", "feature"],
-  },
-  {
-    id: "fca_gpec2a_skim_byte",
-    name: "GPEC2A SKIM byte at 0x0011",
-    description:
-      "0x80 = SKIM enabled (standard), 0x00 = SKIM bypassed (SkimStar unlock applied), 0x40 = learning mode.",
-    hexPattern: "80",
-    tags: ["skim", "gpec2a", "immobilizer"],
-  },
-  {
-    id: "fca_rfhub_fobik_marker",
-    name: "RFHUB FOBIK slot marker 0xAA 0x50",
-    description:
-      "Delimits each FOBIK transponder key record in the RFHUB EEPROM. Count populated slots to determine how many keys are programmed.",
-    hexPattern: "AA 50",
-    tags: ["fobik", "rfhub", "immobilizer"],
-  },
-  {
-    id: "fca_gpec2a_unlock_sig",
-    name: "GPEC2A Unlock Signature (ZZZZ tamper block)",
-    description:
-      "17 bytes at GPEC2A 0x0888: all 0xFF = tamper block intact (SKIM locked). Cleared by GPEC2A unlock process (SkimStar / VILLAIN routine 0x0202).",
-    tags: ["gpec2a", "unlock", "tamper"],
-  },
-];
+function toHexCtx(buf: Buffer, offset: number, length: number): string {
+  const slice = buf.subarray(offset, offset + length);
+  return Array.from(slice)
+    .map((b) => b.toString(16).padStart(2, "0").toUpperCase())
+    .join(" ");
+}
 
-function handlePatternLookup(args: Record<string, unknown>): string {
-  const query = String(args.query || "").toLowerCase().trim();
-  if (!query) return "Error: query argument is required.";
-  const results = PATTERN_SIGNATURES.filter(
-    (p) =>
-      p.id.includes(query) ||
-      p.name.toLowerCase().includes(query) ||
-      p.description.toLowerCase().includes(query) ||
-      p.tags.some((t) => t.includes(query)),
-  );
-  if (results.length === 0)
-    return `No patterns found matching "${query}". Available tags: crypto, sec16, vin, wmi, did, bcm, rfhub, gpec2a, skim, fobik, immobilizer, proxi, unlock, tamper.`;
-  const lines = [`Pattern library: ${results.length} match(es) for "${query}"`, ""];
-  for (const r of results.slice(0, 10)) {
-    lines.push(`[${r.id}] ${r.name}`);
-    lines.push(`  ${r.description}`);
-    if (r.hexPattern) lines.push(`  Hex pattern: ${r.hexPattern}`);
-    lines.push(`  Tags: ${r.tags.join(", ")}`);
-    lines.push("");
+function handlePatternLookup(
+  args: Record<string, unknown>,
+  primaryBuf: Buffer,
+  binaries: Record<string, Buffer>,
+): string {
+  const patternRaw = String(args.pattern ?? args.hex ?? args.query ?? "").trim();
+  if (!patternRaw) return "Error: pattern argument is required (hex string, e.g. 'F1 90' or 'AA50').";
+
+  const cleaned = patternRaw.replace(/0x/gi, "").replace(/[,\s]+/g, "");
+  if (!/^[0-9a-fA-F]+$/.test(cleaned) || cleaned.length % 2 !== 0) {
+    return `Error: invalid hex pattern "${patternRaw}" — provide an even-length hex string.`;
   }
+  const hexBytes = cleaned.match(/.{2}/g)!;
+  const needle = Buffer.from(hexBytes.map((h) => parseInt(h, 16)));
+  if (needle.length === 0) return "Error: empty pattern.";
+
+  // Decide which buffer to search: explicit target or the primary buffer.
+  const targetName = args.target != null ? String(args.target) : null;
+  let target: Buffer = primaryBuf;
+  let targetLabel = "primary";
+  if (targetName) {
+    const b = binaries[targetName];
+    if (!b) {
+      const known = Object.keys(binaries);
+      return `Error: target "${targetName}" not loaded. Available: ${known.length ? known.join(", ") : "(none)"}.`;
+    }
+    target = b;
+    targetLabel = targetName;
+  }
+  if (target.length === 0) {
+    return "Error: no binary loaded — upload a module file to enable pattern_lookup.";
+  }
+  if (needle.length > target.length) {
+    return `No matches: pattern (${needle.length} B) is larger than ${targetLabel} buffer (${target.length} B).`;
+  }
+
+  const maxMatches = 64;
+  const offsets: number[] = [];
+  // Boyer–Moore-Horspool-lite linear scan; fine for ≤1 MB dumps.
+  outer: for (let i = 0; i <= target.length - needle.length; i++) {
+    for (let j = 0; j < needle.length; j++) {
+      if (target[i + j] !== needle[j]) continue outer;
+    }
+    offsets.push(i);
+    if (offsets.length >= maxMatches) break;
+  }
+
+  if (offsets.length === 0) {
+    return `No matches for hex pattern "${hexBytes.join(" ")}" in ${targetLabel} (${target.length} bytes).`;
+  }
+
+  const ctxLen = Math.min(needle.length + 8, 32);
+  const lines = [
+    `${offsets.length}${offsets.length >= maxMatches ? "+" : ""} match(es) for "${hexBytes.join(" ")}" in ${targetLabel} (${target.length} bytes):`,
+    "",
+    ...offsets.map((off) => {
+      const ctxStart = Math.max(0, off - 4);
+      const ctx = toHexCtx(target, ctxStart, ctxLen);
+      return `0x${off.toString(16).padStart(6, "0").toUpperCase()}  ${ctx}`;
+    }),
+  ];
   const out = lines.join("\n");
   return out.length > MAX_TOOL_RESULT_BYTES
     ? out.slice(0, MAX_TOOL_RESULT_BYTES) + "\n…[truncated]"
     : out;
 }
 
-/* ── Knowledge graph stub ─────────────────────────────────────────────── */
+/* ── 3. kg_query (unlock_catalog + bcmFeatureCatalog) ─────────────────── */
 
-const KG_NODES: Array<{
-  type: string;
-  id: string;
-  label: string;
-  description: string;
-  relations: string[];
-}> = [
-  {
-    type: "module",
-    id: "bcm_mpc5606b",
-    label: "BCM MPC5606B",
-    description:
-      "FCA Body Control Module — NXP MPC5606B SoC. DFLASH: 64 KB (standard) or 128 KB (Trackhawk/Redeye). Stores VIN, SEC16, FOBIK keys, proxi blob, immo block.",
-    relations: ["paired_with:rfhub_yazaki_fcm", "synced_with:gpec2a_95320", "synced_with:gpec2a_95640"],
-  },
-  {
-    type: "module",
-    id: "rfhub_yazaki_fcm",
-    label: "RFHUB Yazaki FCM",
-    description:
-      "FCA Remote/FOBIK Hub — Yazaki FCM EEPROM. Gen1: 24C16 (2 KB), Gen2: 24C32 (4 KB). Stores byte-reversed VIN, SEC16 (master), FOBIK transponder slots.",
-    relations: ["paired_with:bcm_mpc5606b", "sec16_source_for:gpec2a_95320"],
-  },
-  {
-    type: "module",
-    id: "gpec2a_95320",
-    label: "GPEC2A PCM (95320 4 KB)",
-    description:
-      "Continental GPEC2A Powertrain Control Module — 95320 4 KB EXT EEPROM. Stores VIN at 4 slots, SEC6 (= first 6 bytes of RFHUB SEC16), SKIM byte at 0x0011.",
-    relations: ["sec6_derived_from:rfhub_yazaki_fcm", "skim_controlled_by:rfhub_yazaki_fcm"],
-  },
-  {
-    type: "module",
-    id: "gpec2a_95640",
-    label: "GPEC2A PCM (95640 8 KB)",
-    description:
-      "Continental GPEC2A Powertrain Control Module — 95640 8 KB EXT EEPROM. Same layout as 95320 but 8 KB. Appears on higher-output engine variants.",
-    relations: ["sec6_derived_from:rfhub_yazaki_fcm"],
-  },
-  {
-    type: "algorithm",
-    id: "sec16_pairing",
-    label: "SEC16 Cross-Module Pairing Rule",
-    description:
-      "BCM.SEC16 = reverse(RFHUB.SEC16). PCM.SEC6 = RFHUB.SEC16[0:6]. Verification: read 16 bytes from BCM immo block, reverse, compare to RFHUB SEC16 at offset 0x00. Mismatch = modules from different vehicles.",
-    relations: ["governs:bcm_mpc5606b", "governs:rfhub_yazaki_fcm", "governs:gpec2a_95320"],
-  },
-  {
-    type: "algorithm",
-    id: "fca_seed_key_standard",
-    label: "FCA Seed-to-Key 0x01/0x02 (Standard)",
-    description:
-      "Standard FCA SecurityAccess level. 4-byte seed XORed with module-specific constants derived from part number. Used for BCM, RFHUB, most PCMs.",
-    relations: ["used_by:bcm_mpc5606b", "used_by:rfhub_yazaki_fcm"],
-  },
-  {
-    type: "vehicle",
-    id: "lx_platform",
-    label: "FCA LX Platform (Charger/Challenger/300)",
-    description:
-      "Dodge Charger, Dodge Challenger, Chrysler 300. MY2011+. BCM: MPC5605B/06B. RFHUB: Yazaki FCM Gen1/Gen2. PCM: Continental GPEC2A/GPEC5.",
-    relations: ["uses:bcm_mpc5606b", "uses:rfhub_yazaki_fcm", "uses:gpec2a_95320"],
-  },
-];
+type UnlockEntry = {
+  file?: string;
+  module?: string;
+  display_name?: string;
+  family?: string;
+  algorithm?: string;
+  status?: string;
+  python_function?: string;
+  tx_can_id?: number;
+  rx_can_id?: number;
+  ecu_info?: { name?: string; tx_can_id?: number; rx_can_id?: number };
+};
 
-function handleKgQuery(args: Record<string, unknown>): string {
-  const query = String(args.query || "").toLowerCase().trim();
-  if (!query) return "Error: query argument is required.";
-  const results = KG_NODES.filter(
-    (n) =>
-      n.id.includes(query) ||
-      n.label.toLowerCase().includes(query) ||
-      n.description.toLowerCase().includes(query) ||
-      n.type.includes(query),
-  );
-  if (results.length === 0)
-    return `No KG nodes found matching "${query}". Try: bcm, rfhub, gpec2a, sec16, skim, algorithm, vehicle, lx.`;
-  const lines = [`Knowledge graph: ${results.length} node(s) for "${query}"`, ""];
-  for (const n of results.slice(0, 8)) {
-    lines.push(`[${n.type}] ${n.label} (${n.id})`);
-    lines.push(`  ${n.description}`);
-    if (n.relations.length) lines.push(`  Relations: ${n.relations.join(", ")}`);
+type BcmFeatureRow = {
+  request: string;
+  groupName: string;
+  name: string;
+  bit: number;
+  length: number;
+  options?: Array<{ value: number; label: string }>;
+};
+
+type CatalogLoad<T> = { rows: T[]; error: string | null; source: string | null };
+
+let unlockCatalogCache: CatalogLoad<UnlockEntry> | null = null;
+let bcmFeatureCache: CatalogLoad<BcmFeatureRow> | null = null;
+let bcmFeaturePromise: Promise<CatalogLoad<BcmFeatureRow>> | null = null;
+
+function loadUnlockCatalog(): CatalogLoad<UnlockEntry> {
+  if (unlockCatalogCache) return unlockCatalogCache;
+  if (!UNLOCK_CATALOG_PATH) {
+    unlockCatalogCache = {
+      rows: [],
+      error:
+        "unlock_catalog.json not found — set SRTLAB_UNLOCK_CATALOG_PATH or run from a checkout of the monorepo.",
+      source: null,
+    };
+    return unlockCatalogCache;
+  }
+  try {
+    const raw = readFileSync(UNLOCK_CATALOG_PATH, "utf8");
+    const parsed = JSON.parse(raw);
+    const rows = Array.isArray(parsed?.entries) ? (parsed.entries as UnlockEntry[]) : [];
+    unlockCatalogCache = { rows, error: null, source: UNLOCK_CATALOG_PATH };
+  } catch (e) {
+    unlockCatalogCache = {
+      rows: [],
+      error: `Failed to read ${UNLOCK_CATALOG_PATH}: ${e instanceof Error ? e.message : String(e)}`,
+      source: UNLOCK_CATALOG_PATH,
+    };
+  }
+  return unlockCatalogCache;
+}
+
+async function loadBcmFeatureCatalog(): Promise<CatalogLoad<BcmFeatureRow>> {
+  if (bcmFeatureCache) return bcmFeatureCache;
+  if (!BCM_FEATURE_CATALOG_PATH) {
+    bcmFeatureCache = {
+      rows: [],
+      error:
+        "bcmFeatureCatalog.generated.js not found — set SRTLAB_BCM_FEATURE_CATALOG_PATH or run from a checkout of the monorepo.",
+      source: null,
+    };
+    return bcmFeatureCache;
+  }
+  if (!bcmFeaturePromise) {
+    const src = BCM_FEATURE_CATALOG_PATH;
+    bcmFeaturePromise = import(pathToFileURL(src).href)
+      .then((mod) => {
+        const rows = Array.isArray(mod.DE_FEATURE_CATALOG)
+          ? (mod.DE_FEATURE_CATALOG as BcmFeatureRow[])
+          : [];
+        bcmFeatureCache = { rows, error: null, source: src };
+        return bcmFeatureCache;
+      })
+      .catch((e: unknown) => {
+        bcmFeatureCache = {
+          rows: [],
+          error: `Failed to import ${src}: ${e instanceof Error ? e.message : String(e)}`,
+          source: src,
+        };
+        return bcmFeatureCache;
+      });
+  }
+  return bcmFeaturePromise;
+}
+
+function describeUnlock(e: UnlockEntry): string[] {
+  const lines: string[] = [];
+  const name = e.display_name || e.module || e.file || "(unnamed)";
+  lines.push(`[unlock] ${name}  family=${e.family ?? "?"}  algorithm=${e.algorithm ?? "?"}  status=${e.status ?? "?"}`);
+  const tx = e.tx_can_id ?? e.ecu_info?.tx_can_id;
+  const rx = e.rx_can_id ?? e.ecu_info?.rx_can_id;
+  if (tx != null || rx != null) {
+    lines.push(`  CAN tx=${tx != null ? "0x" + tx.toString(16).toUpperCase() : "?"} rx=${rx != null ? "0x" + rx.toString(16).toUpperCase() : "?"}  ecu=${e.ecu_info?.name ?? "?"}`);
+  }
+  if (e.python_function) lines.push(`  bridge fn: ${e.python_function}`);
+  return lines;
+}
+
+function describeBcmFeature(r: BcmFeatureRow): string {
+  const opts = r.options && r.options.length
+    ? `  opts=[${r.options.slice(0, 6).map((o) => `${o.value}=${o.label}`).join(", ")}${r.options.length > 6 ? ", …" : ""}]`
+    : "  (integer)";
+  return `[bcm-feature] ${r.request}  ${r.groupName} / ${r.name}  bit=${r.bit} len=${r.length}${opts}`;
+}
+
+async function handleKgQuery(args: Record<string, unknown>): Promise<string> {
+  const query = String(args.query || "").trim();
+  if (!query) {
+    return "Error: query argument is required (e.g. algorithm name, module/DLL name, BCM DID like 'DE00', service like 'auto lock').";
+  }
+  const q = query.toLowerCase();
+
+  const unlockLoad = loadUnlockCatalog();
+  const bcmLoad = await loadBcmFeatureCatalog();
+  const unlocks = unlockLoad.rows;
+  const bcm = bcmLoad.rows;
+
+  // Also accept "0xDE00" / "DE00" / "0x27" style hex tokens.
+  const hexToken = q.replace(/^0x/, "");
+
+  const unlockHits = unlocks.filter((e) => {
+    const haystack = [
+      e.file,
+      e.module,
+      e.display_name,
+      e.family,
+      e.algorithm,
+      e.status,
+      e.python_function,
+      e.ecu_info?.name,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q) || (hexToken && haystack.includes(hexToken));
+  });
+
+  const bcmHits = bcm.filter((r) => {
+    const haystack = `${r.request} ${r.groupName} ${r.name}`.toLowerCase();
+    if (haystack.includes(q)) return true;
+    if (hexToken && r.request.toLowerCase() === hexToken) return true;
+    if (r.options && r.options.some((o) => o.label.toLowerCase().includes(q))) return true;
+    return false;
+  });
+
+  const loadErrors: string[] = [];
+  if (unlockLoad.error) loadErrors.push(`unlock_catalog: ${unlockLoad.error}`);
+  if (bcmLoad.error) loadErrors.push(`bcmFeatureCatalog: ${bcmLoad.error}`);
+
+  if (unlockHits.length === 0 && bcmHits.length === 0) {
+    const base = `No matches for "${query}". Indexed: ${unlocks.length} unlock_catalog entries, ${bcm.length} BCM DE-feature rows. Try a module/DLL name (e.g. 'abs', 'rfh'), algorithm (e.g. 't8_xor', 'lcg_pair'), BCM DID ('DE00'..'DE0C'), or feature ('auto lock', 'horn', 'DRL').`;
+    return loadErrors.length > 0
+      ? `${base}\n\nWARNING: catalog data unavailable —\n  ${loadErrors.join("\n  ")}`
+      : base;
+  }
+
+  const lines: string[] = [
+    `Knowledge query "${query}": ${unlockHits.length} unlock entry/entries, ${bcmHits.length} BCM feature row(s)`,
+    "",
+  ];
+  if (loadErrors.length > 0) {
+    lines.push("WARNING: catalog data partially unavailable —", ...loadErrors.map((m) => `  ${m}`), "");
+  }
+
+  if (unlockHits.length > 0) {
+    lines.push(`── Unlock catalog (${unlockHits.length}) ──`);
+    for (const e of unlockHits.slice(0, 20)) lines.push(...describeUnlock(e));
+    if (unlockHits.length > 20) lines.push(`  …and ${unlockHits.length - 20} more.`);
     lines.push("");
   }
+
+  if (bcmHits.length > 0) {
+    lines.push(`── BCM feature catalog (${bcmHits.length}) ──`);
+    for (const r of bcmHits.slice(0, 25)) lines.push(describeBcmFeature(r));
+    if (bcmHits.length > 25) lines.push(`  …and ${bcmHits.length - 25} more.`);
+  }
+
   const out = lines.join("\n");
   return out.length > MAX_TOOL_RESULT_BYTES
     ? out.slice(0, MAX_TOOL_RESULT_BYTES) + "\n…[truncated]"
@@ -303,13 +481,19 @@ export const SWARM_ONLY_TOOL_SCHEMAS = {
   uds_static_decode: {
     name: "uds_static_decode",
     description:
-      "Decode one or more UDS service/NRC bytes statically from a hex string. Returns the standard ISO 14229 name for each byte. Useful for interpreting raw protocol bytes found in the dump.",
+      `Decode a UDS request/response/NRC byte sequence using the ISO 14229 ` +
+      `service table (${SERVICES.length} services), NRC table (${NRC_TABLE.length} codes), ` +
+      `and SRT Lab DID catalog (${DID_CATALOG.length} DIDs). Recognises ` +
+      `negative responses (7F <sid> <nrc>), positive responses (e.g. 62 F1 90 …), ` +
+      `RDBI/WDBI requests, and sub-function services. Useful for interpreting ` +
+      `raw protocol bytes found in a dump or log.`,
     input_schema: {
       type: "object" as const,
       properties: {
         bytes: {
           type: "string",
-          description: 'Space-separated hex bytes to decode, e.g. "7F 22 31" or "27 67".',
+          description:
+            'Hex bytes to decode. Spaces optional, e.g. "7F 22 31", "62F19031...", or "0x10 0x03".',
         },
       },
       required: ["bytes"],
@@ -318,29 +502,41 @@ export const SWARM_ONLY_TOOL_SCHEMAS = {
   pattern_lookup: {
     name: "pattern_lookup",
     description:
-      "Look up a query string against the SRT Lab pattern library — a curated set of known FCA cryptographic signatures, DID constants, and module-specific markers. Returns matching entries with descriptions and hex patterns.",
+      "Search the loaded ECU dump for an exact byte sequence and return matched file offsets. " +
+      "Mirrors the hex-viewer search in FcaModuleInspector. Returns up to 64 offsets with " +
+      "surrounding hex context.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        pattern: {
+          type: "string",
+          description:
+            'Hex byte pattern to search for, e.g. "F1 90", "AA50", or "20 23". Even number of hex digits required.',
+        },
+        target: {
+          type: "string",
+          description:
+            "Optional name of a loaded secondary binary to search instead of the primary buffer (see binaries map).",
+        },
+      },
+      required: ["pattern"],
+    },
+  },
+  kg_query: {
+    name: "kg_query",
+    description:
+      "Query the SRT Lab knowledge sources for an algorithm, service, module, DID, or feature " +
+      "identifier. Searches the canonical unlock_catalog.json (per-DLL family / algorithm / CAN " +
+      "IDs / bridge function) and the curated bcmFeatureCatalog (DE00..DE0C, 155 BCM feature " +
+      "rows: bit position, length, option labels). Pure read-only lookup against static data.",
     input_schema: {
       type: "object" as const,
       properties: {
         query: {
           type: "string",
           description:
-            'Search term — e.g. "mirrored_aes", "fobik", "sec16", "skim", "proxi", "gpec2a".',
-        },
-      },
-      required: ["query"],
-    },
-  },
-  kg_query: {
-    name: "kg_query",
-    description:
-      "Query the SRT Lab knowledge graph for module relationships, algorithm descriptions, and vehicle platform context. Use to understand how modules relate (e.g. BCM↔RFHUB SEC16 pairing rule) or which platforms use a given module.",
-    input_schema: {
-      type: "object" as const,
-      properties: {
-        query: {
-          type: "string",
-          description: 'Search term — e.g. "bcm", "sec16 pairing", "lx platform", "seed key".',
+            'Identifier to look up — e.g. an algorithm ("t8_xor", "lcg_pair"), a module/DLL ' +
+            '("abs", "rfh", "ccn"), a BCM DID ("DE00".."DE0C"), or a feature label ("auto lock", "horn chirp", "DRL").',
         },
       },
       required: ["query"],
@@ -373,7 +569,7 @@ export async function executeTool(
   }
 
   if (toolName === "uds_static_decode") return handleUdsStaticDecode(args);
-  if (toolName === "pattern_lookup") return handlePatternLookup(args);
+  if (toolName === "pattern_lookup") return handlePatternLookup(args, primaryBuf, binaries);
   if (toolName === "kg_query") return handleKgQuery(args);
 
   const def = TOOL_REGISTRY[toolName];
@@ -388,3 +584,13 @@ export async function executeTool(
     return `Error: tool execution failed — ${e instanceof Error ? e.message : String(e)}`;
   }
 }
+
+/* ── Test-only helpers ────────────────────────────────────────────────── */
+
+export const __test = {
+  handleUdsStaticDecode,
+  handlePatternLookup,
+  handleKgQuery,
+  loadUnlockCatalog,
+  loadBcmFeatureCatalog,
+};

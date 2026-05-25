@@ -244,20 +244,18 @@ describe("eeprom_layout_scan VIN slot detection", () => {
 /* ── 8. pattern_lookup ─────────────────────────────────────────────── */
 
 describe("pattern_lookup", () => {
-  it("finds mirrored_aes_secret by id", async () => {
-    const result = await executeTool("pattern_lookup", { query: "mirrored_aes" }, Buffer.alloc(0), {});
-    expect(result).toContain("mirrored_aes_secret");
-    expect(result).toContain("SEC16");
+  const buf = Buffer.from([0x00, 0xaa, 0x50, 0x11, 0xaa, 0x50, 0x99]);
+
+  it("finds every occurrence of a hex pattern in the loaded dump", async () => {
+    const result = await executeTool("pattern_lookup", { pattern: "AA 50" }, buf, {});
+    expect(result).toMatch(/2 match\(es\)/);
+    expect(result).toContain("0x000001");
+    expect(result).toContain("0x000004");
   });
 
-  it("finds fobik marker pattern", async () => {
-    const result = await executeTool("pattern_lookup", { query: "fobik" }, Buffer.alloc(0), {});
-    expect(result).toContain("AA 50");
-  });
-
-  it("returns no-match message for unknown query", async () => {
-    const result = await executeTool("pattern_lookup", { query: "zzz_not_a_pattern" }, Buffer.alloc(0), {});
-    expect(result).toMatch(/no patterns found/i);
+  it("returns no-match message when the pattern is absent", async () => {
+    const result = await executeTool("pattern_lookup", { pattern: "DE AD BE EF" }, buf, {});
+    expect(result).toMatch(/no matches/i);
   });
 });
 
@@ -269,14 +267,14 @@ describe("kg_query", () => {
     expect(result).toContain("BCM");
   });
 
-  it("returns SEC16 pairing algorithm", async () => {
-    const result = await executeTool("kg_query", { query: "sec16" }, Buffer.alloc(0), {});
-    expect(result).toContain("sec16_pairing");
+  it("returns a BCM DE-feature row by DID", async () => {
+    const result = await executeTool("kg_query", { query: "DE00" }, Buffer.alloc(0), {});
+    expect(result).toContain("[bcm-feature] DE00");
   });
 
   it("returns no-match for unknown query", async () => {
-    const result = await executeTool("kg_query", { query: "zzz_no_such_node" }, Buffer.alloc(0), {});
-    expect(result).toMatch(/no kg nodes found/i);
+    const result = await executeTool("kg_query", { query: "zzz_no_such_node_xyz" }, Buffer.alloc(0), {});
+    expect(result).toMatch(/no matches/i);
   });
 });
 
@@ -288,10 +286,10 @@ describe("uds_static_decode", () => {
     expect(result).toContain("SecurityAccess");
   });
 
-  it("decodes NRC 0x33 as securityAccessDenied", async () => {
+  it("decodes NRC 0x33 as Security access denied", async () => {
     const result = await executeTool("uds_static_decode", { bytes: "7F 27 33" }, Buffer.alloc(0), {});
     expect(result).toContain("NegativeResponse");
-    expect(result).toContain("securityAccessDenied");
+    expect(result).toMatch(/Security access denied|SAD/);
   });
 
   it("requires bytes argument", async () => {
