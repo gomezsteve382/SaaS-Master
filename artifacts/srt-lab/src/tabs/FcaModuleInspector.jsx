@@ -69,6 +69,8 @@ import { parseModule, moduleTooSmall, detectModuleType, MODULE_MIN_SIZES, MODULE
 import { MasterVinContext } from "../lib/masterVinContext.jsx";
 import { analyzeFile, patchFile } from "../lib/fileUtils.js";
 import { SizeWarnBanner, ContentWarnBanner } from "../components/ModuleFieldsPanel.jsx";
+import { buildModuleReportData } from "../lib/reportData.js";
+import { buildModulePDF } from "../lib/buildAnalysisPDF.js";
 
 // Module types the inspector cares about. Other types loaded into the
 // workspace (e.g. '95640' EEPROM backups, EFD payloads, C-Flash blobs)
@@ -270,6 +272,8 @@ export default function FcaModuleInspector() {
   const [tt, setTt] = useState(0);
   const [tr, setTr] = useState(null);
   const [loadMsg, setLoadMsg] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfToast, setPdfToast] = useState("");
   // Task #543 — undersized fragment rejections. parseModule classifies a
   // sub-2 KB drop as UNKNOWN (no canonical family fits), so the per-type
   // `moduleTooSmall` guard in `onFiles` returns null and the file used to
@@ -387,6 +391,23 @@ export default function FcaModuleInspector() {
   const dismissTooSmall = useCallback((idx) => {
     setTooSmallRejects((prev) => prev.filter((_, i) => i !== idx));
   }, []);
+
+  const handleExportPDF = useCallback(async (idx) => {
+    const mod = modules[idx];
+    const entry = entries[idx];
+    if (!mod) return;
+    setPdfBusy(true);
+    setPdfToast("");
+    try {
+      const reportData = buildModuleReportData(mod, entry);
+      await buildModulePDF(reportData);
+      setPdfToast(`PDF downloaded: ${reportData.filename}`);
+    } catch (e) {
+      setPdfToast("PDF export failed: " + (e.message || String(e)));
+    } finally {
+      setPdfBusy(false);
+    }
+  }, [modules, entries]);
 
   const val = useMemo(() => (modules.length > 0 ? crossValidate(modules) : null), [modules]);
   // Clamp the diff and tools target indices so removals (or auto-shared
@@ -531,7 +552,7 @@ export default function FcaModuleInspector() {
     </div>}
 
     {/* Loaded module chips */}
-    {modules.length > 0 && <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 18 }}>
+    {modules.length > 0 && <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
       {modules.map((m, i) => <div key={i} style={{
         background: C.cd, border: "1.5px solid " + C.bd, borderRadius: 12,
         padding: "12px 14px 12px 16px", borderLeft: "4px solid " + m.color,
@@ -557,6 +578,18 @@ export default function FcaModuleInspector() {
         {m.skimStatus && <div style={{ fontSize: 11, color: m.skimByte === 0x80 ? C.gn : C.er, fontWeight: 700, marginTop: 2 }}>SKIM: {m.skimStatus}</div>}
         {m.vehicleSecret && <div style={{ fontSize: 10, color: C.a4, fontFamily: "'JetBrains Mono'", marginTop: 2 }}>Secret: {m.vehicleSecret.hex.slice(0, 23)}…</div>}
         {m.securityLock && <div style={{ fontSize: 11, color: m.securityLock.locked ? C.gn : C.wn, fontWeight: 700, marginTop: 2 }}>{m.securityLock.locked ? "LOCKED" : "UNLOCKED"}</div>}
+        <div style={{ marginTop: 10 }}>
+          <Btn
+            color={C.sr}
+            outline
+            onClick={() => handleExportPDF(i)}
+            disabled={pdfBusy}
+            data-testid={`inspector-export-pdf-${i}`}
+            style={{ fontSize: 10, padding: "6px 12px" }}
+          >
+            {pdfBusy ? "⏳ Generating…" : "⬇ Export PDF Report"}
+          </Btn>
+        </div>
       </div>)}
       <button onClick={clr} style={{
         background: C.cd, border: "1.5px dashed " + C.bd, borderRadius: 12,
@@ -565,6 +598,18 @@ export default function FcaModuleInspector() {
         fontFamily: "'Nunito'", letterSpacing: 0.5,
       }}>Clear All</button>
     </div>}
+
+    {/* PDF export feedback toast */}
+    {pdfToast && <div style={{
+      marginBottom: 14,
+      padding: "7px 14px",
+      background: pdfToast.startsWith("PDF export failed") ? C.er + "12" : C.gn + "12",
+      border: `1px solid ${pdfToast.startsWith("PDF export failed") ? C.er : C.gn}33`,
+      borderRadius: 8,
+      color: pdfToast.startsWith("PDF export failed") ? C.er : C.gn,
+      fontSize: 12,
+      fontWeight: 700,
+    }}>{pdfToast}</div>}
 
     {/* Task #527 / Task #538 — content-warn banner for size-only auto-detects.
         parseModule() classifies any 64 KB / 128 KB capture as BCM purely

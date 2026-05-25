@@ -30,6 +30,8 @@ import {
   appendEvent,
   newJobId,
 } from "../lib/vehicleJobs.js";
+import { buildJobReportData } from "../lib/reportData.js";
+import { buildJobPDF } from "../lib/buildAnalysisPDF.js";
 
 const VIN_RX = /^[A-HJ-NPR-Z0-9]{17}$/;
 
@@ -413,6 +415,24 @@ export default function WorkflowTab({ onOpenTab } = {}) {
     [goTab],
   );
 
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfToast, setPdfToast] = useState("");
+
+  const handleExportPDF = useCallback(async () => {
+    if (!job) return;
+    setPdfBusy(true);
+    setPdfToast("");
+    try {
+      const reportData = buildJobReportData(job, { results });
+      await buildJobPDF(reportData);
+      setPdfToast("PDF downloaded.");
+    } catch (e) {
+      setPdfToast("PDF export failed: " + (e.message || String(e)));
+    } finally {
+      setPdfBusy(false);
+    }
+  }, [job, results]);
+
   return (
     <div data-testid="workflow-tab" style={{ display: "grid", gap: 16 }}>
       <Card>
@@ -632,6 +652,17 @@ export default function WorkflowTab({ onOpenTab } = {}) {
           <div style={{ flex: 1 }} />
           {job?.id && (
             <Btn
+              color={C.sr}
+              outline
+              onClick={handleExportPDF}
+              disabled={pdfBusy}
+              data-testid="workflow-export-pdf"
+            >
+              {pdfBusy ? "⏳ Generating…" : "⬇ EXPORT PDF REPORT"}
+            </Btn>
+          )}
+          {job?.id && (
+            <Btn
               color={C.gn}
               onClick={handleSignOff}
               disabled={!!busy}
@@ -641,6 +672,24 @@ export default function WorkflowTab({ onOpenTab } = {}) {
             </Btn>
           )}
         </div>
+        {pdfToast && (
+          <div
+            style={{
+              marginBottom: 8,
+              padding: "6px 12px",
+              background: pdfToast.startsWith("PDF export failed")
+                ? C.er + "12"
+                : C.gn + "12",
+              border: `1px solid ${pdfToast.startsWith("PDF export failed") ? C.er : C.gn}33`,
+              borderRadius: 8,
+              color: pdfToast.startsWith("PDF export failed") ? C.er : C.gn,
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            {pdfToast}
+          </div>
+        )}
         {signOff ? (
           <div data-testid="workflow-signoff-summary">
             <div style={{ fontSize: 12, color: C.ts, marginBottom: 8 }}>
