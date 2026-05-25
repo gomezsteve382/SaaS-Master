@@ -279,6 +279,40 @@ Steps-1–4 + S-box structure documented in §7.2. The findings:
   implementation matches the unextracted `_gpec_calculator` body is still
   unverified.
 
+**Bench-pair verification harness (Task #743):**
+
+A fixture-driven test sits at
+`src/lib/__tests__/gpec2BenchPairs.test.js` with its fixture at
+`src/lib/__tests__/gpec2-bench-pairs.json` (currently `[]`, so the suite
+reports a single skipped placeholder and CI stays green). The pattern
+mirrors `src/lib/_unverified/__tests__/villain27_61.candidate.test.js`.
+
+For each captured pair the harness asserts that either
+`sxor(seed, 0xE72E3799)` or `sxor(seed, 0x1B64DB03)` reproduces the
+captured key — accepting either constant because the bench operator
+records the raw `0x27` sub-function used, not which of the two
+`_gpec_calculator` internal branches the ECU took. If neither matches,
+`sxor()` is the wrong shape for `_gpec_calculator` and must be replaced;
+the `gpec2_q1` / `gpec2_q2` ALGOS entries get updated in the same change.
+
+Fixture schema (per entry):
+
+```
+{ "seed":    "AABBCCDD",        // 4 bytes, big-endian, 8 hex chars
+  "key":     "11223344",        // 4 bytes, big-endian, 8 hex chars
+  "saLevel": 66,                // 0x42 — decimal so JSON stays readable
+  "ecu":     "GPEC2A PCM (XYZ)",
+  "date":    "2026-06-01",
+  "source":  "bench notes / capture file ref" }
+```
+
+Only Group-4 SA levels are accepted by the schema check:
+`0x22, 0x42, 0x44, 0x60, 0x61, 0x62, 0x66, 0x67, 0x6B, 0x6C, 0x6D`.
+
+The "done" bar (≥3 pairs) is enforced inside the suite — populating the
+fixture with fewer than 3 entries will fail loud rather than silently
+pass with thin coverage.
+
 ---
 
 ## 8. How This Maps to SRT Lab Today
