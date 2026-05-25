@@ -32,6 +32,7 @@ import {
 } from "../lib/vehicleJobs.js";
 import { buildJobReportData } from "../lib/reportData.js";
 import { buildJobPDF } from "../lib/buildAnalysisPDF.js";
+import Sec16SyncHistoryCard from "../components/Sec16SyncHistoryCard.jsx";
 
 const VIN_RX = /^[A-HJ-NPR-Z0-9]{17}$/;
 
@@ -638,6 +639,8 @@ export default function WorkflowTab({ onOpenTab } = {}) {
           ))
         )}
       </Card>
+
+      <Sec16SyncHistoryCard />
 
       <Card>
         <div
