@@ -721,3 +721,199 @@ describe('RDBI 0x22 DID decoding', () => {
     expect(ex.did.name).toBeNull();
   });
 });
+
+// ─── Multi-DID 0x2E batched writes ───────────────────────────────────────────
+
+describe('analyzeSession — 0x2E multi-DID batch writes', () => {
+  it('splits a batched 0x2E write into one sub-row per DID', () => {
+    // Request:  2E F19F 03 F1A6 02 F1A9 00       (three 1-byte DIDs)
+    // Response: 6E F19F F1A6 F1A9                (echo IDs of each written DID)
+    const { exchanges } = analyze([
+      '[Req] 2E F1 9F 03 F1 A6 02 F1 A9 00',
+      '[Resp] 6E F1 9F F1 A6 F1 A9',
+    ]);
+    expect(exchanges).toHaveLength(1);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.service).toBe('WriteDataByIdentifier');
+    expect(ex.dids).toHaveLength(3);
+    expect(ex.dids[0].did).toBe(0xF19F);
+    expect(ex.dids[0].decoded).toBe('written successfully');
+    expect(ex.dids[1].did).toBe(0xF1A6);
+    expect(ex.dids[2].did).toBe(0xF1A9);
+    expect(ex.verdict).toMatch(/Multi-DID write \(3 DIDs\)/);
+    expect(ex.verdict).toMatch(/0xF19F/);
+    expect(ex.verdict).toMatch(/0xF1A9/);
+  });
+
+  it('falls back to labeled sub-rows when the 0x6E echoes do not line up', () => {
+    // Request three writes, response echoes only two — splitter must reject
+    // and surface a labeled-but-undecoded fallback.
+    const { exchanges } = analyze([
+      '[Req] 2E F1 9F 03 F1 A6 02 F1 A9 00',
+      '[Resp] 6E F1 9F F1 A6',
+    ]);
+    expect(exchanges).toHaveLength(1);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.dids).toHaveLength(3);
+    expect(ex.dids.every(r => r.decoded === null)).toBe(true);
+    expect(ex.verdict).toMatch(/could not be split/i);
+  });
+
+  it('attaches per-DID NRC sub-rows when a batched write fails with NRC', () => {
+    const { exchanges } = analyze([
+      '[Req] 2E F1 9F 03 F1 A6 02 F1 A9 00',
+      '[Resp] 7F 2E 33',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('FAIL');
+    expect(ex.nrcCode).toBe(0x33);
+    expect(ex.dids).toHaveLength(3);
+    expect(ex.dids[0].decoded).toMatch(/NRC 0x33/);
+    expect(ex.dids[2].decoded).toMatch(/NRC 0x33/);
+  });
+
+  it('still surfaces a single-DID 0x2E exchange the way it did before', () => {
+    const { exchanges } = analyze([
+      '[Req] 2E F1 9F 03',
+      '[Resp] 6E F1 9F',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.dids).toBeNull();
+    expect(ex.verdict).toMatch(/written successfully/);
+    expect(ex.verdict).toMatch(/0xF19F/);
+  });
+
+  it('does not try to split when one of the written DIDs has no catalog length', () => {
+    // 0xABCD is not in the catalog → getWrittenDids returns null and the
+    // exchange falls back to the original single-DID rendering.
+    const { exchanges } = analyze([
+      '[Req] 2E F1 9F 03 AB CD 11 22',
+      '[Resp] 6E F1 9F AB CD',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.dids).toBeNull();
+  });
+});
+
+// ─── Multi-routine 0x31 batched RoutineControl results ───────────────────────
+
+describe('analyzeSession — 0x31 multi-routine batch results', () => {
+  it('splits a batched RoutineControl response into one sub-row per routine', () => {
+    // Request:  31 01 FF 00 FF 01 FF 02            (three RIDs, start type)
+    // Response: 71 01 FF 00 AA FF 01 BB FF 02 CC   (1-byte status per RID)
+    const { exchanges } = analyze([
+      '[Req] 31 01 FF 00 FF 01 FF 02',
+      '[Resp] 71 01 FF 00 AA FF 01 BB FF 02 CC',
+    ]);
+    expect(exchanges).toHaveLength(1);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.service).toBe('RoutineControl');
+    expect(ex.routines).toHaveLength(3);
+    expect(ex.routines[0].routineId).toBe(0xFF00);
+    expect(ex.routines[0].status).toMatch(/AA/);
+    expect(ex.routines[1].routineId).toBe(0xFF01);
+    expect(ex.routines[1].status).toMatch(/BB/);
+    expect(ex.routines[2].routineId).toBe(0xFF02);
+    expect(ex.routines[2].status).toMatch(/CC/);
+    expect(ex.verdict).toMatch(/Multi-routine \(3 routines/);
+    expect(ex.verdict).toMatch(/0xFF00/);
+  });
+
+  it('handles batched routines with empty status records (pure RID echoes)', () => {
+    // Request:  31 01 DE AD BE EF AB CD           (three RIDs)
+    // Response: 71 01 DE AD BE EF AB CD           (echo only, no status)
+    const { exchanges } = analyze([
+      '[Req] 31 01 DE AD BE EF AB CD',
+      '[Resp] 71 01 DE AD BE EF AB CD',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.routines).toHaveLength(3);
+    expect(ex.routines.every(r => r.status === 'completed')).toBe(true);
+  });
+
+  it('falls through to single-routine rendering when echoes do not line up', () => {
+    // Request three routines, response echoes only two — splitter rejects
+    // and we fall through to the legacy single-routine verdict rather
+    // than emitting a misleading multi-routine error.
+    const { exchanges } = analyze([
+      '[Req] 31 01 FF 00 FF 01 FF 02',
+      '[Resp] 71 01 FF 00 AA FF 01 BB',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.routines).toBeNull();
+    expect(ex.verdict).toMatch(/Routine 0xFF00 type 0x01/);
+    expect(ex.verdict).not.toMatch(/could not be split/i);
+  });
+
+  it('does not attach per-routine NRC sub-rows for batched RC (request alone is ambiguous)', () => {
+    const { exchanges } = analyze([
+      '[Req] 31 01 FF 00 FF 01 FF 02',
+      '[Resp] 7F 31 33',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('FAIL');
+    expect(ex.nrcCode).toBe(0x33);
+    expect(ex.routines).toBeNull();
+  });
+
+  it('still surfaces a single-routine 0x31 exchange the way it did before', () => {
+    const { exchanges } = analyze([
+      '[Req] 31 01 FF 00',
+      '[Resp] 71 01 FF 00',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.routines).toBeNull();
+    expect(ex.verdict).toMatch(/Routine 0xFF00 type 0x01/);
+  });
+
+  it('does not misclassify a single-routine request with an option record as a 2-RID batch', () => {
+    // Request:  31 01 FF 00 12 34         (single RID 0xFF00 + 2-byte option)
+    // Response: 71 01 FF 00 99             (normal single-routine response)
+    // Regression guard: previous logic treated 2 candidate RIDs as a batch
+    // and emitted "could not be split"; new logic preserves legacy rendering.
+    const { exchanges } = analyze([
+      '[Req] 31 01 FF 00 12 34',
+      '[Resp] 71 01 FF 00 99',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.routines).toBeNull();
+    expect(ex.verdict).toMatch(/Routine 0xFF00 type 0x01/);
+    expect(ex.verdict).not.toMatch(/Multi-routine/i);
+    expect(ex.verdict).not.toMatch(/could not be split/i);
+  });
+
+  it('handles single-routine request with option record + NRC response without inventing sub-rows', () => {
+    const { exchanges } = analyze([
+      '[Req] 31 01 FF 00 12 34',
+      '[Resp] 7F 31 33',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('FAIL');
+    expect(ex.nrcCode).toBe(0x33);
+    expect(ex.routines).toBeNull();
+  });
+
+  it('handles single-routine request with a longer option record that mimics multiple RIDs', () => {
+    // Request:  31 01 FF 00 11 22 33 44      (single RID + 4-byte option)
+    // Response: 71 01 FF 00 55                (normal single-routine response)
+    // Even with 3 candidate RIDs from the request, the response can't be
+    // split, so we fall through to single-routine rendering safely.
+    const { exchanges } = analyze([
+      '[Req] 31 01 FF 00 11 22 33 44',
+      '[Resp] 71 01 FF 00 55',
+    ]);
+    const ex = exchanges[0];
+    expect(ex.severity).toBe('OK');
+    expect(ex.routines).toBeNull();
+    expect(ex.verdict).toMatch(/Routine 0xFF00 type 0x01/);
+  });
+});

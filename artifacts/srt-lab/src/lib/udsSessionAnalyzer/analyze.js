@@ -75,6 +75,57 @@ function getRequestedDids(reqBytes) {
   return dids;
 }
 
+/**
+ * Pull the ordered list of 16-bit DIDs from a 0x2E WriteDataByIdentifier
+ * request. Each DID is followed by `entry.length` data bytes, looked up
+ * from the catalog. Returns null when any DID lacks a known length, or
+ * when the bytes don't pack cleanly. Single-DID writes come back as a
+ * 1-element array.
+ */
+function getWrittenDids(reqBytes) {
+  if (reqBytes[0] !== 0x2E) return null;
+  if (reqBytes.length < 4) return null;
+  const dids = [];
+  let off = 1;
+  while (off < reqBytes.length) {
+    if (off + 2 > reqBytes.length) return null;
+    const did = (reqBytes[off] << 8) | reqBytes[off + 1];
+    const entry = didEntry(did);
+    if (!entry || typeof entry.length !== 'number') return null;
+    off += 2;
+    if (off + entry.length > reqBytes.length) return null;
+    off += entry.length;
+    dids.push(did);
+  }
+  if (off !== reqBytes.length) return null;
+  return dids.length ? dids : null;
+}
+
+/**
+ * Pull the candidate list of 16-bit RoutineIdentifiers from a 0x31
+ * RoutineControl request. Bench tools that batch routines pack them as
+ * `31 <type> RID1 RID2 RID3 ...` with no per-routine optionRecord, but
+ * a normal single-routine request `31 <type> RID optionRecord` is
+ * indistinguishable from a 2-RID batch on the wire. To avoid
+ * misclassifying single-routine requests that carry option bytes, we
+ * only treat the payload as a candidate batch when it contains at
+ * least three potential RIDs (≥ 6 bytes, even-length) — and even then
+ * we still require the positive response to confirm by splitting
+ * cleanly before rendering multi-routine sub-rows. Returns null
+ * otherwise.
+ */
+function getRequestedRoutines(reqBytes) {
+  if (reqBytes[0] !== 0x31) return null;
+  if (reqBytes.length < 8) return null; // type + at least 3 × 2-byte RIDs
+  const payload = reqBytes.slice(2);
+  if (payload.length === 0 || payload.length % 2 !== 0) return null;
+  const rids = [];
+  for (let i = 0; i + 1 < payload.length; i += 2) {
+    rids.push((payload[i] << 8) | payload[i + 1]);
+  }
+  return rids.length >= 3 ? rids : null;
+}
+
 function didRow(did, decoded, dataBytes) {
   const entry = didEntry(did);
   return {
@@ -85,6 +136,85 @@ function didRow(did, decoded, dataBytes) {
     decoded,
     bytes: dataBytes ? fmtBytes(dataBytes) : null,
   };
+}
+
+function routineRow(rid, status) {
+  return {
+    routineId: rid,
+    label: `0x${hx((rid >> 8) & 0xFF)}${hx(rid & 0xFF)}`,
+    status,
+  };
+}
+
+/**
+ * Split a 0x6E positive WriteDataByIdentifier response into one row per
+ * written DID. Batched bench tools echo each written DID id back as
+ * `6E DID1 DID2 …`. Returns null if the echoes don't line up with the
+ * request so callers can fall back to a raw-hex verdict.
+ *
+ * @param {number[]} writtenDids  Ordered list of DIDs from the request
+ * @param {number[]} payload      Response bytes after the 0x6E SID echo
+ */
+function splitMultiDidWriteResponse(writtenDids, payload) {
+  if (payload.length !== writtenDids.length * 2) return null;
+  for (let i = 0; i < writtenDids.length; i++) {
+    const did = writtenDids[i];
+    const hi = (did >> 8) & 0xFF;
+    const lo = did & 0xFF;
+    if (payload[i * 2] !== hi || payload[i * 2 + 1] !== lo) return null;
+  }
+  return writtenDids.map(d => didRow(d, 'written successfully'));
+}
+
+/**
+ * Split a 0x71 positive RoutineControl response into one row per
+ * routine. Response payload after `71 <type>` is a sequence of
+ * `RID statusRecord…` blocks. The status record for each routine is
+ * variable-length, so we bound it by scanning forward for the next
+ * requested RID; the last routine consumes the remainder. Returns null
+ * when alignment fails.
+ *
+ * @param {number[]} routineIds  Ordered list of RIDs from the request
+ * @param {number[]} payload     Response bytes after the 0x71 + type bytes
+ */
+function splitMultiRoutineResponse(routineIds, payload) {
+  const rows = [];
+  let off = 0;
+  for (let i = 0; i < routineIds.length; i++) {
+    const rid = routineIds[i];
+    const hi = (rid >> 8) & 0xFF;
+    const lo = rid & 0xFF;
+    if (off + 2 > payload.length || payload[off] !== hi || payload[off + 1] !== lo) {
+      return null;
+    }
+    off += 2;
+    let dataLen;
+    if (i + 1 < routineIds.length) {
+      const nextRid = routineIds[i + 1];
+      const nHi = (nextRid >> 8) & 0xFF;
+      const nLo = nextRid & 0xFF;
+      let found = -1;
+      for (let k = off; k + 1 < payload.length; k++) {
+        if (payload[k] === nHi && payload[k + 1] === nLo) {
+          found = k;
+          break;
+        }
+      }
+      if (found < 0) return null;
+      dataLen = found - off;
+    } else {
+      dataLen = payload.length - off;
+    }
+    if (dataLen < 0 || off + dataLen > payload.length) return null;
+    const statusBytes = payload.slice(off, off + dataLen);
+    off += dataLen;
+    const status = statusBytes.length
+      ? `completed (status: ${fmtBytes(statusBytes)})`
+      : 'completed';
+    rows.push(routineRow(rid, status));
+  }
+  if (off !== payload.length) return null;
+  return rows;
 }
 
 /**
@@ -153,6 +283,8 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
 
   let didInfo = null;
   const requestedDids = sid === 0x22 ? getRequestedDids(reqLine.bytes) : null;
+  const writtenDids = sid === 0x2E ? getWrittenDids(reqLine.bytes) : null;
+  const requestedRoutines = sid === 0x31 ? getRequestedRoutines(reqLine.bytes) : null;
   if ((sid === 0x22 || sid === 0x2E) && reqLine.bytes.length >= 3) {
     const num = (reqLine.bytes[1] << 8) | reqLine.bytes[2];
     const entry = didEntry(num);
@@ -165,6 +297,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
     };
   }
   let dids = null;
+  let routines = null;
 
   if (!respLine) {
     if (isTesterPresentSuppressed(reqLine.bytes)) {
@@ -173,19 +306,23 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
         severity: 'OK', service: svcName, subFunction,
         requestBytes: reqBytes, responseBytes: '',
         verdict: 'TesterPresent with suppress-positive-response bit set — no response expected.',
-        type: 'suppress', nrcCode: null, did: didInfo, dids,
+        type: 'suppress', nrcCode: null, did: didInfo, dids, routines,
       };
     }
     if (requestedDids && requestedDids.length > 1) {
       dids = requestedDids.map(d => didRow(d, null));
+    } else if (writtenDids && writtenDids.length > 1) {
+      dids = writtenDids.map(d => didRow(d, null));
     }
+    // 0x31 batch detection is response-confirmed only — see the OK branch
+    // below. We don't populate `routines` for no-response / pending cases.
     if (hadPending) {
       return {
         request: reqLine, response: null,
         severity: 'FAIL', service: svcName, subFunction,
         requestBytes: reqBytes, responseBytes: '',
         verdict: `ResponsePending (NRC 0x78) received ${pendingCount} time(s) but no final response arrived — ECU timed out mid-operation. Increase the P2-star timeout, ensure TesterPresent keep-alive is running, and retry.`,
-        type: 'pending_timeout', nrcCode: null, did: didInfo, dids,
+        type: 'pending_timeout', nrcCode: null, did: didInfo, dids, routines,
       };
     }
     return {
@@ -193,7 +330,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
       severity: 'WARN', service: svcName, subFunction,
       requestBytes: reqBytes, responseBytes: '',
       verdict: 'No response received — possible CAN addressing mismatch, ECU not present on bus, or module sleeping. Verify TX/RX CAN IDs and module power/ground.',
-      type: 'no_response', nrcCode: null, did: didInfo, dids,
+      type: 'no_response', nrcCode: null, did: didInfo, dids, routines,
     };
   }
 
@@ -213,14 +350,21 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
 
     if (requestedDids && requestedDids.length > 1) {
       dids = requestedDids.map(d => didRow(d, null));
+    } else if (writtenDids && writtenDids.length > 1) {
+      const nrcStatus = `NRC 0x${hx(nrcCode ?? 0)} (${nrcName})`;
+      dids = writtenDids.map(d => didRow(d, nrcStatus));
     }
+    // Note: we intentionally do NOT attach per-routine NRC sub-rows.
+    // A 0x31 request alone cannot be unambiguously classified as a batch
+    // (option records and RID lists look identical on the wire) and the
+    // NRC response gives us no extra evidence either way.
     return {
       request: reqLine, response: respLine,
       severity: isPending ? 'WARN' : 'FAIL',
       service: svcName, subFunction,
       requestBytes: reqBytes, responseBytes: fmtBytes(respBytes),
       verdict: parts.join(' '),
-      type: 'nrc', nrcCode, nrcName, did: didInfo, dids,
+      type: 'nrc', nrcCode, nrcName, did: didInfo, dids, routines,
     };
   }
 
@@ -268,12 +412,46 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
       }
     }
   } else if (sid === 0x2E && reqLine.bytes.length >= 3 && didInfo) {
-    parts.push(didInfo.name
-      ? `DID ${didInfo.label} ${didInfo.name} written successfully.`
-      : `DID ${didInfo.label} written successfully.`);
+    const payloadAfterSid = respBytes[0] === 0x6E ? respBytes.slice(1) : null;
+    const split = (payloadAfterSid && writtenDids)
+      ? splitMultiDidWriteResponse(writtenDids, payloadAfterSid)
+      : null;
+    if (split && split.length > 1) {
+      dids = split;
+      const lines = split.map(r => r.name
+        ? `${r.label} ${r.name}: written successfully`
+        : `${r.label}: written successfully`);
+      parts.push(`Multi-DID write (${split.length} DIDs): ${lines.join(' | ')}`);
+    } else if (writtenDids && writtenDids.length > 1) {
+      dids = writtenDids.map(d => didRow(d, null));
+      const labels = dids.map(r => r.name ? `${r.label} ${r.name}` : r.label).join(', ');
+      parts.push(`Multi-DID write response could not be split (${labels}); raw payload: ${fmtBytes(respBytes.slice(1))}`);
+    } else {
+      parts.push(didInfo.name
+        ? `DID ${didInfo.label} ${didInfo.name} written successfully.`
+        : `DID ${didInfo.label} written successfully.`);
+    }
   } else if (sid === 0x31 && reqLine.bytes.length >= 4) {
-    const rid = `0x${hx(reqLine.bytes[2])}${hx(reqLine.bytes[3])}`;
-    parts.push(`Routine ${rid} type 0x${hx(reqLine.bytes[1])} completed.`);
+    const typeByte = reqLine.bytes[1];
+    const payloadAfterSid = (respBytes[0] === 0x71 && respBytes.length >= 2 && respBytes[1] === typeByte)
+      ? respBytes.slice(2)
+      : null;
+    // Batch detection is response-confirmed: only render multi-routine
+    // when the candidate RID list (3+ RIDs) splits cleanly against the
+    // response payload. Otherwise fall through to legacy single-routine
+    // rendering — never emit a misleading "could not be split" verdict
+    // for what may simply be a normal single-routine response.
+    const split = (payloadAfterSid && requestedRoutines)
+      ? splitMultiRoutineResponse(requestedRoutines, payloadAfterSid)
+      : null;
+    if (split && split.length > 1) {
+      routines = split;
+      const lines = split.map(r => `${r.label}: ${r.status}`);
+      parts.push(`Multi-routine (${split.length} routines, type 0x${hx(typeByte)}): ${lines.join(' | ')}`);
+    } else {
+      const rid = `0x${hx(reqLine.bytes[2])}${hx(reqLine.bytes[3])}`;
+      parts.push(`Routine ${rid} type 0x${hx(typeByte)} completed.`);
+    }
   } else if (sid === 0x11) {
     parts.push('ECU reset acknowledged.');
   } else if (sid === 0x14) {
@@ -289,7 +467,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
     severity: 'OK', service: svcName, subFunction,
     requestBytes: reqBytes, responseBytes: fmtBytes(respBytes),
     verdict: parts.join(' '),
-    type: 'ok', nrcCode: null, did: didInfo, dids,
+    type: 'ok', nrcCode: null, did: didInfo, dids, routines,
   };
 }
 
