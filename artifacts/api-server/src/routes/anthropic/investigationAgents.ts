@@ -88,6 +88,11 @@ FCA-specific crypto knowledge:
 - Common seed-key constants: 0x8A3C71 (ECM sxor), 0x4B129F (BCM/others)
 - Look for AES round-key schedule patterns (10 rounds × 16 bytes = 160 bytes)
 
+Checksum / CRC analyst role (Task #634 module families):
+- XC2268 RFHUB (64 KB, "XC22"/"RFHUB" header, variant byte at 0x0020): each VIN slot at 0x1000 / 0x1020 / 0x1040 stores a 17-byte VIN followed by a big-endian CRC-16/CCITT-FALSE over the VIN bytes; the image as a whole carries a BE32 image-wide checksum that must re-validate after any byte change. Call out mismatches per slot AND for the image total.
+- ZF-8HP TCU ("ZF8HP" header at 0x0000, variant tag 0x45/0x70/0x90 at 0x0008 → 845RE / 8HP70 / 8HP90; sizes 512 KB / 1 MB / 1 MB): two mirrored VIN slots per variant each with CRC-16/CCITT-FALSE BE at slot+17/+18, and a per-64 KB-block zlib CRC-32 (poly 0xEDB88320, init/xorout 0xFFFFFFFF) stored BE at the last 4 bytes of every block. Verify every block CRC, not just the first.
+- When a CRC-16/CCITT-FALSE or zlib CRC-32 byte window matches a known polynomial in the dump, cross-reference it against these layouts before classifying it as generic crypto material.
+
 Start with \`key_secrets_scan\` to get an overview, then use \`search_patterns\` with kind="crypto" for high-entropy windows, and \`read_hex\` to inspect specific regions in detail.
 ${BASE_READ_ONLY_NOTICE}
 ${OUTPUT_SCHEMA_NOTICE}`,
@@ -136,8 +141,8 @@ Your focus areas:
   * RFHUB Gen1 (2 KB): VIN at 0x92 reversed, SEC16 follows, fobik slots at 0x3C+
   * RFHUB Gen2 (4 KB): VIN at known offsets, mirrored CRC
   * BCM DFLASH: VIN primary slots scan, backup tail slots, IMMO block at 0x40C0
-  * XC2268 (64 KB): XC22 header, variant byte at 0x0020, two VIN slots
-  * ZF-8HP (256 KB / 512 KB / 1 MB): ZF8HP header, variant at 0x0020
+  * XC2268 RFHUB (64 KB, Task #634): ASCII "XC22" at 0x0000 + ASCII "RFHUB" at 0x0010, variant byte at 0x0020 (0x01 Ram 2019 / 0x02 Ram 2020 / 0x03 Ram HD — anything else is uncovered and the parser refuses to write); three VIN slots at 0x1000 / 0x1020 / 0x1040 (17-byte ASCII VIN + BE CRC-16/CCITT-FALSE at +17/+18); BE32 image-wide checksum
+  * ZF-8HP TCU (Task #634): ASCII "ZF8HP" at 0x0000 with variant tag at 0x0008 — 0x45=845RE (512 KB), 0x70=8HP70 (1 MB), 0x90=8HP90 (1 MB SRT/Hellcat/Redeye); two mirrored VIN slots per variant (845RE @0x010000/0x020000, 8HP70/90 @0x020000/0x040000), each with BE CRC-16/CCITT-FALSE at +17/+18; per-64 KB-block zlib CRC-32 (poly 0xEDB88320, init/xorout 0xFFFFFFFF) in the last 4 bytes of every block; any other variant tag is uncovered
 - Byte distribution analysis: ratio of populated/FF/00 bytes indicates flash fill level
 
 Start with \`eeprom_layout_scan\` for a structural overview, then \`parse_module\` for parsed fields, then \`read_hex\` to verify specific landmarks.
@@ -169,6 +174,10 @@ FCA-specific IMMO knowledge:
 - Key consistency check: GPEC2A 0x0203 == 0x0361 (both must match)
 - A SKIM mismatch means the PCM won't start the engine regardless of key state
 - PIN bypass: if BCM is virgin (FF FF FF), SKIM re-pair is possible without dealer tools
+
+Security access / lockout analyst role (Task #634 — 2019+ internal-flash RFHUB):
+- The XC2268-class internal-flash RFHUB ships with an attempt counter / time-delay backed by NRC 0x36 (exceededNumberOfAttempts) and NRC 0x37 (requiredTimeDelayNotExpired) on the standard 0x27 0x01 security access level. SRT Lab's Dealer Lockout Bypass implements the documented 5-step state machine: (1) open extended session 0x10 0x03 → (2) security access on alternate sub-function level 0x27 0x0B (NOT 0x01/0x02) → (3) RoutineControl 0x31 startRoutine with routineIdentifier 0xFF00 and routineOptionRecord A5 5A C3 3C to clear the lockout counter → (4) ECU reset 0x11 0x01 hard reset → (5) re-probe 0x27 0x01 to confirm the lockout cleared. When you see these byte sequences in the dump's strings or trace logs, recognise them as bypass signatures, not generic SA traffic.
+- A successful bypass on legacy Gen1/Gen2 RFHUBs is expected to NRC 0x12 (subFunctionNotSupported) on step 2 because level 0x0B is XC2268-specific; that is the cleanest tell that the dump is internal-flash vs external-EEPROM.
 
 Start with \`key_secrets_scan\` for FOBIK markers and key material, then \`search_patterns\` for 0xAA 0x50 patterns, and \`pattern_library_lookup\` to cross-reference known patterns.
 ${BASE_READ_ONLY_NOTICE}

@@ -86,6 +86,11 @@ Focus areas:
 - CRC polynomial constants (0x1021 / 0x8005 / 0x04C11DB7 common in FCA modules)
 - Mirror-copy detection: the same 16-byte block appearing reversed elsewhere in the dump
 
+Checksum / CRC analyst role (Task #634 module families):
+- XC2268 RFHUB (64 KB, "XC22"/"RFHUB" header, variant byte at 0x0020): each VIN slot at 0x1000 / 0x1020 / 0x1040 stores a 17-byte VIN followed by a big-endian CRC-16/CCITT-FALSE over the VIN bytes; the image as a whole carries a BE32 image-wide checksum that must re-validate after any byte change. Call out mismatches per slot AND for the image total.
+- ZF-8HP TCU ("ZF8HP" header at 0x0000, variant tag 0x45/0x70/0x90 at 0x0008 → 845RE / 8HP70 / 8HP90; sizes 512 KB / 1 MB / 1 MB): two mirrored VIN slots per variant each with CRC-16/CCITT-FALSE BE at slot+17/+18, and a per-64 KB-block zlib CRC-32 (poly 0xEDB88320, init/xorout 0xFFFFFFFF) stored BE at the last 4 bytes of every block. Verify every block CRC, not just the first.
+- When a CRC-16/CCITT-FALSE or zlib CRC-32 byte window matches a known polynomial in the dump, cross-reference it against these layouts before classifying it as generic crypto material.
+
 ${COMMON_GUARDRAILS}`,
   },
 
@@ -120,7 +125,10 @@ Your mission: produce a complete structural map of the binary — VIN slot locat
 IDs, flash flags, padding regions, and inferred module type.
 
 Focus areas:
-- Module type inference from file size + header magic (XC22/RFHUB header, ZF8HP, BCM 64/128 KB, GPEC2A 4/8 KB)
+- Module type inference from file size + header magic. Task #634 families to recognise explicitly:
+    * XC2268 RFHUB (64 KB, 2019+ internal-flash): ASCII "XC22" at 0x0000 + ASCII "RFHUB" at 0x0010, variant byte at 0x0020 (0x01 Ram 2019 / 0x02 Ram 2020 / 0x03 Ram HD — any other tag is uncovered, parser refuses to write); three VIN slots at 0x1000 / 0x1020 / 0x1040 (17-byte ASCII VIN + BE CRC-16/CCITT-FALSE at +17/+18); BE32 image-wide checksum.
+    * ZF-8HP TCU: ASCII "ZF8HP" at 0x0000 with variant tag at 0x0008 — 0x45=845RE (512 KB), 0x70=8HP70 (1 MB), 0x90=8HP90 (1 MB SRT/Hellcat/Redeye); two mirrored VIN slots per variant (845RE @0x010000/0x020000, 8HP70/90 @0x020000/0x040000), each with BE CRC-16/CCITT-FALSE at +17/+18; per-64 KB-block zlib CRC-32 in the last 4 bytes of every block.
+    * Legacy families still apply: BCM 64/128 KB, GPEC2A 4/8 KB, RFHUB Gen1/Gen2 EEE.
 - VIN slots: BCM at 0x5320/0x5340/0x5360/0x5380, RFHUB Gen1 at 0x92 (reversed), Gen2 at 0x0EA5..0x0EE1, GPEC2A at 0x0000/0x01F0/0x0224/0x0CE0
 - Calibration ID (0xF18C DID region), software fingerprint (0xF188), hardware number (0xF191)
 - Flash flag / SKIM byte at GPEC2A 0x0011 (0x80=enabled, 0x00=bypassed)
@@ -150,6 +158,10 @@ Focus areas:
 - GPEC2A ZZZZ tamper block at 0x0888 (17 bytes): all-0xFF=intact, cleared=tampered
 - Key count cross-check: RFHUB AA50 slot count must equal BCM FOBIK count
 - Virgin/unpaired indicators: all-FF IMMO block, missing AA50 markers, zeroed SEC16
+
+Security access / lockout analyst role (Task #634 — 2019+ internal-flash RFHUB):
+- The XC2268-class internal-flash RFHUB ships with an attempt counter / time-delay backed by NRC 0x36 (exceededNumberOfAttempts) and NRC 0x37 (requiredTimeDelayNotExpired) on the standard 0x27 0x01 security access level. SRT Lab's Dealer Lockout Bypass implements the documented 5-step state machine: (1) open extended session 0x10 0x03 → (2) security access on alternate sub-function level 0x27 0x0B (NOT 0x01/0x02) → (3) RoutineControl 0x31 startRoutine with routineIdentifier 0xFF00 and routineOptionRecord A5 5A C3 3C to clear the lockout counter → (4) ECU reset 0x11 0x01 hard reset → (5) re-probe 0x27 0x01 to confirm the lockout cleared. When these byte sequences appear in dump strings or trace logs, recognise them as bypass signatures, not generic SA traffic.
+- A successful bypass on legacy Gen1/Gen2 RFHUBs is expected to NRC 0x12 (subFunctionNotSupported) on step 2 because level 0x0B is XC2268-specific; that is the cleanest tell that the dump is internal-flash vs external-EEPROM.
 
 ${COMMON_GUARDRAILS}`,
   },

@@ -32,7 +32,29 @@ const AGENT_META = {
   CROSS_REF:   { icon: "🔗", color: "#6A1B9A", label: "Cross-Ref" },
 };
 
-const CONF_COLORS = { high: C.gn, medium: C.wn, low: "#999" };
+/**
+   * Task #745: when the FCA Module Inspector hands a dump over to the swarm via
+   * srtlab:openInvestigation, we use the inspector's already-classified module
+   * type to (a) auto-fill the scope and (b) render a one-line banner that tells
+   * the agents (and the operator) which specialist parsers cover this family.
+   * Keep these hints short — the full per-family detail lives in the agent
+   * system prompts.
+   */
+  const MODULE_CONTEXT_HINTS = {
+    XC2268_RFHUB: {
+      label: "XC2268 RFHUB (2019+ internal-flash)",
+      detail: "LAYOUT looks for the \"XC22\"/\"RFHUB\" header + variant byte at 0x0020; CRYPTO verifies the 3 VIN slots' CRC-16/CCITT and the BE32 image-wide checksum; IMMOBILIZER knows the 0x27 0x0B alt-level Dealer Lockout Bypass.",
+    },
+    ZF_8HP_TCU: {
+      label: "ZF-8HP TCU (845RE / 8HP70 / 8HP90)",
+      detail: "LAYOUT reads the \"ZF8HP\" header + variant tag at 0x0008; CRYPTO verifies both VIN-slot CRC-16/CCITT mirrors and walks every 64 KB block's BE32 zlib CRC-32 in the trailing 4 bytes.",
+    },
+    GPEC2A: { label: "GPEC2A PCM",              detail: "LAYOUT + IMMOBILIZER already specialise in this family." },
+    RFHUB:  { label: "RFHUB (legacy Gen1/Gen2)", detail: "LAYOUT + IMMOBILIZER already specialise in this family." },
+    BCM:    { label: "BCM D-FLASH",              detail: "LAYOUT + IMMOBILIZER already specialise in this family." },
+  };
+
+  const CONF_COLORS = { high: C.gn, medium: C.wn, low: "#999" };
 const STATUS_BADGE = {
   pending:   { bg: "#E3F2FD", color: "#1565C0", label: "pending" },
   running:   { bg: "#FFF9C4", color: "#F57F17", label: "running…" },
@@ -492,6 +514,7 @@ export default function InvestigationTab() {
 
   const [synthesis, setSynthesis] = useState(null);
   const [error, setError]         = useState(null);
+  const [moduleHint, setModuleHint] = useState(null);
   const [pastRuns, setPastRuns]   = useState([]);
   const [pastLoading, setPastLoading] = useState(false);
 
@@ -547,10 +570,20 @@ export default function InvestigationTab() {
   useEffect(() => {
     const onNav = (e) => {
       if (e.detail?.module) {
-        const { bytes, name } = e.detail.module;
+        const { bytes, name, moduleType } = e.detail.module;
         if (bytes && name) {
           const f = new File([bytes], name, { type: "application/octet-stream" });
           setFile(f);
+          if (moduleType && MODULE_CONTEXT_HINTS[moduleType]) {
+            setModuleHint({ type: moduleType, ...MODULE_CONTEXT_HINTS[moduleType] });
+            // Inspector-driven navigation is authoritative about which family
+            // this dump belongs to — override any stale scope (including one
+            // restored from localStorage) so the swarm sees the right context.
+            setScope(moduleType);
+            try { localStorage.setItem("srtlab.investigation.scope", moduleType); } catch {}
+          } else {
+            setModuleHint(null);
+          }
         }
       }
     };
@@ -572,6 +605,7 @@ export default function InvestigationTab() {
     setDumpName(null);
     setSynthesis(null);
     setError(null);
+    setModuleHint(null);
   }
 
   /* ── start run ───────────────────────────────────────────────────── */
@@ -781,6 +815,20 @@ export default function InvestigationTab() {
         <div style={{ fontSize: 11, fontWeight: 800, color: C.ts, marginBottom: 12, letterSpacing: 0.5 }}>
           CONFIGURE INVESTIGATION RUN
         </div>
+
+        {moduleHint && (
+          <div data-testid="investigation-module-hint" style={{
+            marginBottom: 12, padding: "8px 12px",
+            background: "#FFF3E0", border: "1px solid #FFB74D", borderLeft: "3px solid #E65100",
+            borderRadius: 7, fontSize: 11, color: "#5D4037", lineHeight: 1.4,
+          }}>
+            <div style={{ fontWeight: 800, fontSize: 10, letterSpacing: 0.6, color: "#E65100", marginBottom: 3 }}>
+              DETECTED MODULE CONTEXT · {moduleHint.type}
+            </div>
+            <div style={{ fontWeight: 700 }}>{moduleHint.label}</div>
+            <div style={{ marginTop: 3 }}>{moduleHint.detail}</div>
+          </div>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 12, alignItems: "end" }}>
           {/* Primary dump */}

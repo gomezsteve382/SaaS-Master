@@ -1035,7 +1035,11 @@ export default function FcaModuleInspector({ onOpenTab } = {}) {
               const entry = entries[i];
               if (!entry?.mod?.data) return;
               window.dispatchEvent(new CustomEvent("srtlab:openInvestigation", {
-                detail: { module: { bytes: entry.mod.data, name: m.filename || "module.bin" } }
+                detail: { module: {
+                  bytes: entry.mod.data,
+                  name: m.filename || "module.bin",
+                  moduleType: m.type || null,
+                } }
               }));
               if (typeof onOpenTab === "function") onOpenTab("investigation");
             }}
