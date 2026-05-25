@@ -11,6 +11,11 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Card, Btn, Tag } from "../lib/ui.jsx";
 import { C } from "../lib/constants.js";
+import {
+  parsePatternLookupOffsets,
+  parseKgQueryBcmFeatures,
+  parseKgQueryUnlocks,
+} from "../lib/swarmToolResultParse.js";
 
 /* ── constants ─────────────────────────────────────────────────────── */
 
@@ -48,7 +53,180 @@ function hex(n) {
 
 /* ── sub-components ─────────────────────────────────────────────────── */
 
-function AgentColumn({ agentId, findings, status, toolLog, latestTool }) {
+/* ── Tool-run renderer (Task #740) ──────────────────────────────────
+ *
+ * Each agent's tool calls are captured into `toolRuns` as we receive
+ * them. When a tool result arrives, we parse the preview text into
+ * structured deep-links the tech can click to land in the right tab:
+ *
+ *   pattern_lookup → hex offsets → Inspector → Hex Diff
+ *   kg_query (BCM feature DEnn rows) → PROXI tab filtered to that DID
+ *   kg_query (unlock-catalog rows)   → Unlock Coverage filtered to name
+ *
+ * Each deep-link stashes a one-shot handoff in sessionStorage, then
+ * dispatches `srtlab:openTab` so App.jsx switches tabs and the target
+ * tab's mount effect consumes the handoff.
+ */
+
+function deepLinkHexFocus({ dumpName, bytesB64, offset }) {
+  try {
+    sessionStorage.setItem(
+      "srtlab.swarmJump.hexFocus",
+      JSON.stringify({ dumpName, bytesB64, offset }),
+    );
+  } catch {
+    // sessionStorage full / disabled — Inspector will simply no-op the focus.
+  }
+  window.dispatchEvent(new CustomEvent("srtlab:openTab", { detail: "inspector" }));
+}
+
+function deepLinkProxiDid(did) {
+  try {
+    sessionStorage.setItem("srtlab.swarmJump.proxiFilter", JSON.stringify({ did }));
+  } catch { /* see hexFocus */ }
+  window.dispatchEvent(new CustomEvent("srtlab:openTab", { detail: "proxi" }));
+}
+
+function deepLinkUnlockCoverage({ q, family, algorithm }) {
+  try {
+    sessionStorage.setItem(
+      "srtlab.swarmJump.unlockFilter",
+      JSON.stringify({ q, family, algorithm }),
+    );
+  } catch { /* see hexFocus */ }
+  window.dispatchEvent(new CustomEvent("srtlab:openTab", { detail: "unlockcov" }));
+}
+
+function chipStyle(color) {
+  return {
+    background: color + "1A",
+    color,
+    border: "1px solid " + color + "55",
+    borderRadius: 5,
+    padding: "2px 7px",
+    fontSize: 9,
+    fontWeight: 800,
+    fontFamily: "'JetBrains Mono',monospace",
+    cursor: "pointer",
+    marginRight: 4,
+    marginTop: 3,
+  };
+}
+
+function ToolRunCard({ run, dumpName, dumpBytesB64 }) {
+  const offsets = run.toolName === "pattern_lookup"
+    ? parsePatternLookupOffsets(run.preview)
+    : [];
+  const bcmFeatures = run.toolName === "kg_query"
+    ? parseKgQueryBcmFeatures(run.preview)
+    : [];
+  const unlocks = run.toolName === "kg_query"
+    ? parseKgQueryUnlocks(run.preview)
+    : [];
+  const canJumpToHex = !!(dumpName && dumpBytesB64);
+
+  return (
+    <div style={{
+      background: C.c2, borderRadius: 6, padding: "6px 8px",
+      marginBottom: 6, borderLeft: "3px solid " + (run.preview ? C.gn : C.tm),
+    }}>
+      <div style={{
+        display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap",
+        fontFamily: "'JetBrains Mono',monospace",
+      }}>
+        <span style={{ fontSize: 10, fontWeight: 800, color: C.ts }}>⚙ {run.toolName}</span>
+        {run.args && (
+          <span style={{ fontSize: 9, color: C.tm, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 320 }}>
+            {run.args}
+          </span>
+        )}
+        {run.durationMs != null && (
+          <span style={{ marginLeft: "auto", fontSize: 9, color: C.tm }}>{run.durationMs}ms</span>
+        )}
+      </div>
+      {run.preview && (
+        <div style={{
+          fontSize: 9, fontFamily: "'JetBrains Mono',monospace",
+          color: C.tx, background: C.cd, borderRadius: 4,
+          padding: "4px 6px", marginTop: 4, whiteSpace: "pre-wrap",
+          maxHeight: 80, overflow: "auto",
+        }}>{run.preview}</div>
+      )}
+
+      {/* pattern_lookup offset chips */}
+      {offsets.length > 0 && (
+        <div style={{ marginTop: 4, display: "flex", flexWrap: "wrap" }}>
+          {offsets.slice(0, 12).map((off) => (
+            <button
+              key={off}
+              onClick={() => deepLinkHexFocus({ dumpName, bytesB64: dumpBytesB64, offset: off })}
+              disabled={!canJumpToHex}
+              title={canJumpToHex
+                ? `Jump to 0x${off.toString(16).toUpperCase().padStart(6, "0")} in the Hex Diff viewer`
+                : "Re-upload the dump in the Investigation tab to enable hex jump"}
+              style={{
+                ...chipStyle("#1565C0"),
+                opacity: canJumpToHex ? 1 : 0.4,
+                cursor: canJumpToHex ? "pointer" : "not-allowed",
+              }}
+            >
+              ↪ 0x{off.toString(16).toUpperCase().padStart(6, "0")}
+            </button>
+          ))}
+          {offsets.length > 12 && (
+            <span style={{ fontSize: 9, color: C.tm, marginLeft: 4, alignSelf: "center" }}>
+              +{offsets.length - 12} more
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* kg_query BCM feature chips */}
+      {bcmFeatures.length > 0 && (
+        <div style={{ marginTop: 4, display: "flex", flexWrap: "wrap" }}>
+          {bcmFeatures.slice(0, 8).map((f, i) => (
+            <button
+              key={i}
+              onClick={() => deepLinkProxiDid(f.did)}
+              title={`Open PROXI filtered to ${f.did} (${f.group} / ${f.field})`}
+              style={chipStyle("#2E7D32")}
+            >
+              📋 {f.did} · {f.field}
+            </button>
+          ))}
+          {bcmFeatures.length > 8 && (
+            <span style={{ fontSize: 9, color: C.tm, marginLeft: 4, alignSelf: "center" }}>
+              +{bcmFeatures.length - 8} more
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* kg_query unlock-catalog chips */}
+      {unlocks.length > 0 && (
+        <div style={{ marginTop: 4, display: "flex", flexWrap: "wrap" }}>
+          {unlocks.slice(0, 6).map((u, i) => (
+            <button
+              key={i}
+              onClick={() => deepLinkUnlockCoverage({ q: u.name, family: u.family, algorithm: u.algorithm })}
+              title={`Open Unlock Coverage filtered to "${u.name}" (family ${u.family}, algorithm ${u.algorithm})`}
+              style={chipStyle("#6A1B9A")}
+            >
+              🗝 {u.name} · {u.family}
+            </button>
+          ))}
+          {unlocks.length > 6 && (
+            <span style={{ fontSize: 9, color: C.tm, marginLeft: 4, alignSelf: "center" }}>
+              +{unlocks.length - 6} more
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AgentColumn({ agentId, findings, status, toolLog, latestTool, toolRuns = [], dumpName, dumpBytesB64 }) {
   const meta = AGENT_META[agentId];
   const badgeCfg = STATUS_BADGE[status] || STATUS_BADGE.pending;
   const [collapsed, setCollapsed] = useState(false);
@@ -132,6 +310,23 @@ function AgentColumn({ agentId, findings, status, toolLog, latestTool }) {
       {!collapsed && findings.length === 0 && status !== "pending" && (
         <div style={{ fontSize: 10, color: C.tm, fontStyle: "italic", marginTop: 4 }}>
           {status === "running" ? "Analysing…" : "No findings."}
+        </div>
+      )}
+
+      {/* Task #740 — tool runs with deep-links into Inspector / PROXI / Unlock Coverage */}
+      {!collapsed && toolRuns.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, color: C.tm, marginBottom: 4, letterSpacing: 0.5 }}>
+            TOOL RUNS ({toolRuns.length})
+          </div>
+          {toolRuns.map((run, i) => (
+            <ToolRunCard
+              key={i}
+              run={run}
+              dumpName={dumpName}
+              dumpBytesB64={dumpBytesB64}
+            />
+          ))}
         </div>
       )}
     </div>
@@ -282,6 +477,18 @@ export default function InvestigationTab() {
     Object.fromEntries(AGENT_IDS.map(id => [id, []])));
   const [agentLatestTool, setAgentLatestTool] = useState(() =>
     Object.fromEntries(AGENT_IDS.map(id => [id, null])));
+  // Task #740 — full tool-call/result transcript per agent. Each entry:
+  // { toolName, args, preview, durationMs, error? }. Updated by the
+  // agent_tool_call (push placeholder) + agent_tool_result (fill in
+  // preview+duration on the most recent matching call) SSE events.
+  const [toolRuns, setToolRuns] = useState(() =>
+    Object.fromEntries(AGENT_IDS.map(id => [id, []])));
+  // Base64 of the loaded primary dump bytes, captured at startRun time.
+  // Used as the bytes payload of the hex-focus handoff so the Inspector
+  // can load the dump on demand even if the user never visited the
+  // Dumps tab. Cleared on resetState / past-run load.
+  const [dumpBytesB64, setDumpBytesB64] = useState(null);
+  const [dumpName, setDumpName] = useState(null);
 
   const [synthesis, setSynthesis] = useState(null);
   const [error, setError]         = useState(null);
@@ -360,6 +567,9 @@ export default function InvestigationTab() {
     setAgentStatus(Object.fromEntries(AGENT_IDS.map(id => [id, "pending"])));
     setAgentFindings(Object.fromEntries(AGENT_IDS.map(id => [id, []])));
     setAgentLatestTool(Object.fromEntries(AGENT_IDS.map(id => [id, null])));
+    setToolRuns(Object.fromEntries(AGENT_IDS.map(id => [id, []])));
+    setDumpBytesB64(null);
+    setDumpName(null);
     setSynthesis(null);
     setError(null);
   }
@@ -389,6 +599,8 @@ export default function InvestigationTab() {
 
       const dumpBase64 = await readBase64(file);
       const referenceBase64 = refFile ? await readBase64(refFile) : undefined;
+      setDumpBytesB64(dumpBase64);
+      setDumpName(file.name);
 
       const scopeVal = scope.trim() || undefined;
       if (scopeVal) localStorage.setItem("srtlab.investigation.scope", scopeVal);
@@ -431,6 +643,34 @@ export default function InvestigationTab() {
             break;
           case "agent_tool_call":
             setAgentLatestTool(p => ({ ...p, [event.agent]: event.toolName }));
+            setToolRuns(p => ({
+              ...p,
+              [event.agent]: [
+                ...(p[event.agent] || []),
+                { toolName: event.toolName, args: event.args, preview: null, durationMs: null },
+              ],
+            }));
+            break;
+          case "agent_tool_result":
+            // Fill in preview/duration on the most recent matching call
+            // (no result yet) for this agent. Falls through to push a
+            // fresh entry if call/result events arrived out of order.
+            setToolRuns(p => {
+              const list = (p[event.agent] || []).slice();
+              for (let i = list.length - 1; i >= 0; i--) {
+                if (list[i].toolName === event.toolName && list[i].preview == null) {
+                  list[i] = { ...list[i], preview: event.preview, durationMs: event.durationMs };
+                  return { ...p, [event.agent]: list };
+                }
+              }
+              list.push({
+                toolName: event.toolName,
+                args: "",
+                preview: event.preview,
+                durationMs: event.durationMs,
+              });
+              return { ...p, [event.agent]: list };
+            });
             break;
           case "finding":
             setAgentFindings(p => ({
@@ -687,6 +927,9 @@ export default function InvestigationTab() {
               findings={agentFindings[id] || []}
               status={agentStatus[id] || "pending"}
               latestTool={agentLatestTool[id]}
+              toolRuns={toolRuns[id] || []}
+              dumpName={dumpName}
+              dumpBytesB64={dumpBytesB64}
             />
           ))}
         </div>

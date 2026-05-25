@@ -217,6 +217,27 @@ export default function UnlockCoverageTab() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+
+  // Task #740 — consume a one-shot deep-link handoff from the
+  // Investigation Swarm tab. When the swarm renders a kg_query unlock
+  // hit and the tech clicks "View in Unlock Coverage", that tab
+  // stashes `{ q, family, algorithm }` in sessionStorage and dispatches
+  // openTab to 'unlockcov'. We mount, read+clear the handoff, and
+  // prefill the search box / family chip / algo chip so the matching
+  // catalog rows are visible immediately.
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("srtlab.swarmJump.unlockFilter");
+      if (!raw) return;
+      sessionStorage.removeItem("srtlab.swarmJump.unlockFilter");
+      const payload = JSON.parse(raw) || {};
+      if (typeof payload.q === "string" && payload.q) setQ(payload.q);
+      if (typeof payload.family === "string" && payload.family) setFamilyFilter(payload.family);
+      if (typeof payload.algorithm === "string" && payload.algorithm) setAlgoFilter(payload.algorithm);
+    } catch {
+      // malformed handoff — ignore
+    }
+  }, []);
   const [statusFilter, setStatusFilter] = useState("all");
   const [familyFilter, setFamilyFilter] = useState("all");
   // Active algorithm-family chip; seeded from ?algo=… so shared links open pre-filtered.

@@ -62,7 +62,7 @@
  * capture: only the first N bytes are the real image" and "re-dump with
  * the right read length" guidance instead of the file landing in the
  * workspace with a misleading "✓ parsed" appearance. */
-import { useState, useCallback, useMemo, useRef, useContext } from "react";
+import { useState, useCallback, useMemo, useRef, useContext, useEffect } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn, Tag, SLine } from "../lib/ui.jsx";
 import { parseModule, moduleTooSmall, detectModuleType, MODULE_MIN_SIZES, MODULE_MIN_LABELS } from "../lib/parseModule.js";
@@ -625,6 +625,8 @@ export default function FcaModuleInspector({ onOpenTab } = {}) {
   const [hexFocusMod, setHexFocusMod] = useState(0);
   const fr = useRef();
 
+  const pendingHexFocusRef = useRef(null);
+
   // Pull every inspector-relevant dump out of the shared workspace store
   // so files loaded in any tab (Dumps, Samples, Gpec2a/Rfhub/Bcm) appear
   // here automatically, ordered by load time. Each entry's `mod` is the
@@ -638,6 +640,62 @@ export default function FcaModuleInspector({ onOpenTab } = {}) {
     [loadedDumps]
   );
   const modules = useMemo(() => entries.map((e) => e.mod), [entries]);
+
+  // Task #740 — consume a one-shot deep-link handoff from the
+  // Investigation Swarm tab. When the swarm renders a pattern_lookup
+  // offset and the tech clicks "Jump to hex", that tab stashes
+  // `{ dumpName, bytesB64, offset }` in sessionStorage and dispatches
+  // openTab to 'inspector'. We mount, decode the handoff, ensure the
+  // dump is in the workspace store (add if not), select it, set the
+  // hex focus offset, and switch to the Hex Diff sub-tab.
+  //
+  // Re-runs whenever `entries` changes so the second leg (looking up
+  // the dump index after addDump bumps loadedDumps) lands in the same
+  // effect rather than racing the next render.
+  useEffect(() => {
+    if (!pendingHexFocusRef.current) {
+      try {
+        const raw = sessionStorage.getItem("srtlab.swarmJump.hexFocus");
+        if (raw) {
+          sessionStorage.removeItem("srtlab.swarmJump.hexFocus");
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed.dumpName === "string" && Number.isFinite(parsed.offset)) {
+            pendingHexFocusRef.current = parsed;
+          }
+        }
+      } catch {
+        // malformed handoff — ignore
+      }
+    }
+    const pending = pendingHexFocusRef.current;
+    if (!pending) return;
+    let idx = entries.findIndex((e) => e.filename === pending.dumpName || e.name === pending.dumpName);
+    if (idx === -1) {
+      // Not loaded yet — try to add it from the supplied bytes.
+      if (typeof pending.bytesB64 === "string" && pending.bytesB64) {
+        try {
+          const bin = atob(pending.bytesB64);
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          const parsed = parseModule(bytes, pending.dumpName);
+          if (parsed && parsed.data && INSPECTOR_TYPES.includes(parsed.type)) {
+            addDump(parsed, "Investigation Swarm");
+            // Wait for the loadedDumps update to reach `entries` on the next render.
+            return;
+          }
+        } catch {
+          // fall through
+        }
+      }
+      // Can't resolve — drop the pending request so we don't loop.
+      pendingHexFocusRef.current = null;
+      return;
+    }
+    setHexFocusMod(idx);
+    setHexFocusOffset(pending.offset);
+    setTab("diff");
+    pendingHexFocusRef.current = null;
+  }, [entries, addDump]);
 
   // Run keyScanner over each module's data bytes. Results are stable as long
   // as the underlying Uint8Array reference doesn't change — memoized on the

@@ -22,7 +22,7 @@
  * dump for this user's platform. The banner at the top makes that
  * stance explicit so nobody mistakes this tab for a programming tool.
  */
-import React, { useState, useMemo, useCallback, useRef } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Tag, Btn } from "../lib/ui.jsx";
 import {
@@ -88,6 +88,27 @@ export default function ProxiTab() {
   const [parseError, setParseError] = useState(null);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+
+  // Task #740 — consume a one-shot deep-link handoff from the
+  // Investigation Swarm tab. When the swarm renders a kg_query
+  // BCM-feature row and the tech clicks "View in PROXI", that tab
+  // stashes `{ did }` in sessionStorage and dispatches openTab to
+  // 'proxi'. We mount, read+clear the handoff, and prefill the search
+  // filter so the matching DID rows are visible immediately.
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("srtlab.swarmJump.proxiFilter");
+      if (!raw) return;
+      sessionStorage.removeItem("srtlab.swarmJump.proxiFilter");
+      const { did } = JSON.parse(raw) || {};
+      if (typeof did === "string" && did) {
+        setSearch(did);
+        setActiveCategory("all");
+      }
+    } catch {
+      // malformed handoff — ignore
+    }
+  }, []);
   const [expanded, setExpanded] = useState(() => new Set());
   // Visible log sink for the live PROXI editor — every UDS step / NRC /
   // outcome from ProxiEditor is appended here so the tech has full

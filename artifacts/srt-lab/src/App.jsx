@@ -58,7 +58,6 @@ import SignalDiscoveryTab from "./tabs/SignalDiscoveryTab.jsx";
 import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
 import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
-import InvestigationTab from "./tabs/InvestigationTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
@@ -1212,7 +1211,6 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='sigdisc'   && <SignalDiscoveryTab/>}
         {tab==='canuniverse' && <CanUniverseTab/>}
         {tab==='loganalyser' && <LogAnalyserTab/>}
-        {tab==='investigation' && <InvestigationTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also
