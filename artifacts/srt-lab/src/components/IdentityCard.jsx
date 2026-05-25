@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { C } from '../lib/constants.js';
 import { extractRfhPflashIdentity } from '../lib/rfhPflashIdentity.js';
+import { fmtPick } from '../lib/bestPick.js';
 
 /**
  * Shared OS / PN / SERIAL best-pick card (Task #774).
@@ -52,7 +53,7 @@ export default function IdentityCard({ identity, bytes, title = 'OS / PN / SERIA
                   {r.field.value}
                 </span>
                 <div style={{ fontSize: 9, color: C.tm, marginTop: 4 }}>
-                  score {r.field.score} — useful {r.field.useful}, ratio {r.field.ratio.toFixed(2)}, len {r.field.len}, pr {r.field.pr.toFixed(2)}
+                  {fmtPick(r.field)}
                   {r.field.matchesCanonical ? <span style={{ color: C.gn, marginLeft: 6, fontWeight: 800 }}>canonical</span> : null}
                 </div>
                 <div style={{ fontSize: 9, color: C.tm, marginTop: 2 }}>
