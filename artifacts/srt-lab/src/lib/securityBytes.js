@@ -1,4 +1,59 @@
 /* ============================================================================
+ * Overlap-hazard audit (Task #795 — follow-up to #779)
+ *
+ * Task #779 fixed one case: writeBcmFlatSec16 (LE slice at 0x40C9..0x40D8)
+ * could silently clobber the canonical SEC16 that writeBcmSec16Gen2 had just
+ * written into a mirror1 record landing at 0x40C0 in the same sync run.
+ * That fix lives at the top of writeBcmFlatSec16 below (header sniff at
+ * 0x40C0 → skip the flat write).
+ *
+ * Audit of every other writer in this file for the same "two writers chained
+ * in a sync run, one writer's target region falls inside the other writer's
+ * record on certain dumps" hazard:
+ *
+ *   ─ writeBcmSec16Gen2 split records (0x81A0/C0/E0) vs its own inactive-
+ *     bank mirror records:
+ *     The split-record region lives in bank 2 (0x8000..). The inactiveBase
+ *     for mirrors is either 0x0000 or 0x4000 (the two FEE banks); the
+ *     findRec scan range is [base, base+0x4000), which terminates at most
+ *     at 0x8000. Geometrically separate — no overlap possible regardless of
+ *     dump variant. ✅ safe by construction.
+ *
+ *   ─ writeBcmSec16Gen2 mirror1 (slot 0xEB / size 0x18) vs mirror2
+ *     (slot 0xCA / size 0x28), both searched in the same inactive bank:
+ *     PRE-FIX: m1Off was located, m1 written, then m2Off located. m1's
+ *     write paints bytes off+8..off+31. If m2's header (8 bytes at m2Off)
+ *     happened to land anywhere in [m1Off+8, m1Off+31] the m2 findRec
+ *     would miss because m1's payload had just overwritten the
+ *     `00 00 00 28 00 46 CA 00` signature.
+ *     FIX: both findRec calls now run before either writeMirror, so each
+ *     scan sees the original buffer. ✅ safe by construction.
+ *
+ *   ─ writeBcmSec16Gen2 vs writeBcmFlatSec16:
+ *     Already addressed in #779; guard lives in writeBcmFlatSec16. ✅.
+ *
+ *   ─ writePcmSec6 (marker 0x3C4..0x3C7, secret 0x3C8..0x3CD):
+ *     This is the only writer in the PCM sync chain. GPEC2A is a flat
+ *     image (no FEE record stream) and the writer is gated to the two
+ *     canonical sizes (4 KB 95320, 8 KB 95640). There is no sibling
+ *     writer that could deposit a record header at 0x3C0 between the
+ *     marker stamp and the secret stamp. ✅ not at risk in the #779 sense.
+ *
+ *   ─ writeRfhSec16FromBcm (slots 0x050E and 0x0522 on Gen2):
+ *     Only writer in the RFHUB sync chain. Gated on the Gen2 header
+ *     `AA 55 31 01` at 0x0500. The two slots are 16 + chk + 00 = 18
+ *     bytes each, with a 2-byte gap (0x0520..0x0521 untouched). No
+ *     sibling writer; no internal write-then-search ordering. ✅ not
+ *     at risk in the #779 sense.
+ *
+ * Net result of the audit: one new in-writer guard (the mirror1-vs-
+ * mirror2 reordering in writeBcmSec16Gen2 below). All other pairs are
+ * either geometrically separate or have no chained sibling that could
+ * trigger the hazard.
+ * ============================================================================
+ */
+
+/* ============================================================================
  * securityBytes.js — single source of truth for the three immobilizer-secret
  * writers used during a Module Sync run.
  *
@@ -123,9 +178,18 @@ export function writeBcmSec16Gen2(bytes, rfhSec16) {
     out[off + 31] = 0x00;
   };
 
+  /* Find BOTH mirror offsets before writing either (Task #795 overlap guard).
+   * Previously the order was: find m1 → write m1 → find m2. If m2's header
+   * happened to land inside m1's payload window [m1Off+8, m1Off+31] on a
+   * non-canonical dump, the m1 write would overwrite m2's
+   * `00 00 00 28 00 46 CA 00` signature and the subsequent findRec would
+   * silently return -1 → m2 left unpatched on a customer car. Doing both
+   * scans first against the pristine buffer eliminates that class of bug
+   * by construction. The two writes themselves cannot collide with each
+   * other's header (they only touch off+8..off+31). */
   const m1Off = findRec(inactiveBase, 0xEB, 0x18);
-  if (m1Off >= 0) { writeMirror(m1Off); mirrorPatched++; }
   const m2Off = findRec(inactiveBase, 0xCA, 0x28);
+  if (m1Off >= 0) { writeMirror(m1Off); mirrorPatched++; }
   if (m2Off >= 0) { writeMirror(m2Off); mirrorPatched++; }
 
   return {

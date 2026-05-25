@@ -260,6 +260,51 @@ describe('writeBcmSec16Gen2 — golden vectors', () => {
     expect(r.mirrorPatched).toBe(1);
   });
 
+  // Task #795 — overlap-hazard regression. Place mirror2's header inside
+  // mirror1's payload window (m1's write covers off+8..off+31, so any
+  // m2 header sitting at m1Off+8..m1Off+24 used to get clobbered before
+  // findRec(m2) ran, leaving m2 silently unpatched). Both mirrors must
+  // now find AND patch independent of write ordering.
+  it('still patches mirror2 when its header sits inside mirror1 payload window', () => {
+    const buf = new Uint8Array(65536).fill(0xFF);
+    buf[0x0002] = 0x00; buf[0x0003] = 0x01;
+    buf[0x4002] = 0x00; buf[0x4003] = 0x02; // bank0 inactive
+    writeSplitHeader(buf, 0x81A0, 0x01);
+    writeSplitHeader(buf, 0x81C0, 0x02);
+    writeSplitHeader(buf, 0x81E0, 0x01);
+    // m1 header at 0x1000 — m1 write paints 0x1008..0x101F.
+    writeMirrorHeader(buf, 0x1000, 0xEB, 0x18);
+    // m2 header at 0x1010 — sits *inside* m1's payload window. Pre-fix this
+    // header's signature bytes would be overwritten by m1's write before
+    // findRec(m2) ran, so m2 would be reported missing and never patched.
+    writeMirrorHeader(buf, 0x1010, 0xCA, 0x28);
+    const r = writeBcmSec16Gen2(buf, RFH_SEC16_REAL_SLOT);
+    expect(r.mirror1Offset).toBe(0x1000);
+    expect(r.mirror2Offset).toBe(0x1010);
+    expect(r.mirrorPatched).toBe(2);
+    // m2's payload at 0x1010+8..0x1010+31 must be the canonical mirror
+    // payload (idx 02 + BCM SEC16 + 8F FF FF + CRC + EB 00) — the proof
+    // that m2 was actually located and written even though m1's write
+    // overwrote m2's header signature in the buffer. (m2's header bytes
+    // 0x1010..0x1017 themselves are expected to be clobbered by m1's
+    // SEC16 payload — that's the pre-existing overlap; what matters is
+    // that findRec(m2) ran against the pristine buffer before any write
+    // and so m2's *payload* still lands at the correct offset.)
+    const expectedM2Payload = new Uint8Array(24);
+    expectedM2Payload[0] = 0x02;
+    for (let k = 0; k < 16; k++) expectedM2Payload[1 + k] = BCM_SEC16_FROM_RFH[k];
+    expectedM2Payload[17] = 0x8F;
+    expectedM2Payload[18] = 0xFF;
+    expectedM2Payload[19] = 0xFF;
+    const crc = crc16Ccitt(expectedM2Payload.slice(0, 20));
+    expectedM2Payload[20] = (crc >> 8) & 0xFF;
+    expectedM2Payload[21] = crc & 0xFF;
+    expectedM2Payload[22] = 0xEB;
+    expectedM2Payload[23] = 0x00;
+    expect(Array.from(r.bytes.slice(0x1010 + 8, 0x1010 + 32)))
+      .toEqual(Array.from(expectedM2Payload));
+  });
+
   it('does not mutate the input buffer', () => {
     const buf = buildSyntheticBcm();
     const snapshot = new Uint8Array(buf);
