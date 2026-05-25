@@ -1,0 +1,56 @@
+Here are the actual security byte values from both dumps — you can see them side by side now.
+
+## RFHUB security bytes
+
+**Key slot status table** (`0x04DE-0x0501`, mirrored twice for integrity):
+```
+CC 66 AA 55  CC 66 AA 55  CC 66 AA 55  CC 66 AA 55
+CC 66 AA 55  CC 66 AA 55  CC 66 AA 55  31 01
+```
+Reading: **7 key slots blank** (`CC66AA55` = factory-empty marker), **1 slot programmed** (`3101`).
+
+**Programmed secret** (`0x050E-0x051E`, also mirrored at `0x0522-0x0531`):
+```
+AB 80 15 D7  7E D9 43 C1  AB 45 EC 16  89 69 69 DA  5D
+```
+This is the only real cryptographic material in the RFHUB — 17 bytes of high-entropy data, stored twice for verification.
+
+## BCM security bytes
+
+The BCM doesn't store security as one big secret — it uses **per-DID records** with the format `00 00 00 [len] 00 46 [did_id] 00 [payload]`. The DIDs that hold security-relevant data:
+
+| DID | Offset | Bytes |
+|---|---|---|
+| `4647` (VIN) | `0x52E4` | `32 43 33 43 43 41 42 47 31 4B 48 35 33 39 34 33 30` = `2C3CCABG1KH539430` |
+| `4643` | `0x4A34` | `6C 4F 9D 60 01 48 80 8B 9A CC 01 00` |
+| `463F` | `0x4A64` | `84 AB 63 CD 5B 02 67 C0 80 7D 01 00` |
+| `463B` | `0x4A94` | `CD 02 1D A9 1D 20 10 04 3D 27 01 00` |
+| `4659` | `0x4914` | `4C 0B A2 15 BE 9E 06 10 58 37 01 00` |
+| `4653` | `0x4974` | `40 4D 22 69 BB 24 0B EC AA 70 01 00` |
+| `46F5` | `0x59E4` | `44 30 62 01 61 A7 C7 98 75 1F 00 10` |
+
+These are the per-vehicle config/security records — each one is 12 bytes of authentication material tied to that specific VIN.
+
+## Direct comparison
+
+```
+RFHUB secret:  AB 80 15 D7 7E D9 43 C1 AB 45 EC 16 89 69 69 DA 5D
+BCM:           [no occurrence anywhere — checked full 17-byte, 12-byte, 8-byte, 6-byte, even 4-byte windows]
+```
+
+**Not a single byte sequence from the RFHUB security block appears anywhere in the BCM.** Not the secret, not the markers, nothing.
+
+## Bottom line
+
+| Module | Security state |
+|---|---|
+| RFHUB | 1 programmed key slot, secret `AB80…5D`, **paired to some other vehicle's BCM** (or to a bench-programmer) |
+| BCM | Married to VIN `2C3CCABG1KH539430`, 6+ DID-keyed security records — **none match the RFHUB** |
+
+This RFHUB is NOT fresh in the cryptographic sense — it has a programmed secret from a prior pairing. Before installing on the 6.2 Charger you need to either:
+
+1. **Erase the RFHUB security block** (`0x04D0-0x0540`) back to all `CC66AA55` then let the BCM re-pair it via PROXI alignment, or
+2. **Replace the secret region** with values derived from the BCM's master security DIDs (`4643`/`463F`/`463B`/`4659`/`4653` block), or
+3. **Use AlfaOBD's "Replace Hub" routine** which does the secret transfer over UDS automatically.
+
+Want me to write you a small Python tool that does option 1 (blanks the RFHUB security area to the virgin sentinel pattern) so you can re-pair it cleanly?
