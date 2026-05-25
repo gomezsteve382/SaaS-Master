@@ -599,6 +599,7 @@ export default function OBDSwarmDiagnostic() {
           <button data-testid="swarm-rec-stop" onClick={recorder.stop} disabled={!recorder.recording} style={{padding:'5px 10px',background:'#333',color:'#fff',border:'1px solid #555',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.recording?1:0.4}}>■ STOP</button>
           <button data-testid="swarm-rec-download" onClick={()=>recorder.download()} disabled={!recorder.count} style={{padding:'5px 10px',background:'#333',color:'#fff',border:'1px solid #555',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>📥 .log</button>
           <button data-testid="swarm-rec-open-analyser" onClick={()=>recorder.openInAnalyser()} disabled={!recorder.count} style={{padding:'5px 10px',background:'#1B5E20',color:'#fff',border:'none',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>📜 OPEN IN ANALYSER</button>
+          <button data-testid="swarm-rec-open-uds-analyzer" onClick={()=>recorder.openInUdsAnalyzer()} disabled={!recorder.count} style={{padding:'5px 10px',background:'#B71C1C',color:'#fff',border:'none',borderRadius:4,fontSize:10,cursor:'pointer',opacity:recorder.count?1:0.4}}>🔎 ANALYZE UDS</button>
         </div>
 
         {connErr && status==='disconnected' && (

@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { Card, Btn } from '../lib/ui.jsx';
 import { C } from '../lib/constants.js';
 import { parseTrace } from '../lib/udsSessionAnalyzer/parser.js';
 import { analyzeSession } from '../lib/udsSessionAnalyzer/analyze.js';
+import { consumeUdsAnalyzerHandoff } from '../lib/canRecorder.js';
 import exampleLog from '../lib/udsSessionAnalyzer/fixtures/example_session.log?raw';
 
 const ACCEPT = '.log,.txt,.asc,.trc';
@@ -205,6 +206,19 @@ export default function UdsAnalyzerTab() {
     const session = analyzeSession(parsed.lines);
     setResult({ parsed, session });
   }, []);
+
+  // Task #724 — pull a live-capture handoff from the recorder hook on
+  // mount so the "Analyze UDS" buttons on the Live OBD / J2534 / CDA6
+  // recorder cards drop the user straight into a populated, already-
+  // analyzed session.
+  useEffect(() => {
+    const h = consumeUdsAnalyzerHandoff();
+    if (h) {
+      setText(h.text);
+      setFileName(h.name);
+      analyze(h.text);
+    }
+  }, [analyze]);
 
   const handleFile = useCallback((e) => {
     const file = e.target.files?.[0];

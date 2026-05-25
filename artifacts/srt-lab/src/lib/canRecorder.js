@@ -79,10 +79,24 @@ export function useCanRecorder({cap = 50_000, iface = 'can0'} = {}) {
     if (onSwitchTab) onSwitchTab('loganalyser');
   }, [toLog]);
 
+  // Task #724 — same handoff mechanism but routed to the UDS Analyzer tab
+  // so users can jump from a live capture straight into post-mortem NRC /
+  // session diagnosis without copy-pasting through the Log Analyser first.
+  const openInUdsAnalyzer = useCallback((onSwitchTab) => {
+    if (typeof window !== 'undefined') {
+      window.__srtLabUdsAnalyzerHandoff = {
+        text: toLog(),
+        name: `live-capture-${Date.now()}.log`,
+      };
+      try { window.dispatchEvent(new CustomEvent('srtlab:open-uds-analyzer')); } catch {}
+    }
+    if (onSwitchTab) onSwitchTab('udsanalyzer');
+  }, [toLog]);
+
   return {
     recording, count, overflowed,
     start, stop, clear, addFrame,
-    download, openInAnalyser, toLog,
+    download, openInAnalyser, openInUdsAnalyzer, toLog,
     frames: buf.current,
   };
 }
@@ -97,5 +111,18 @@ export function consumeAnalyserHandoff() {
   const h = window.__srtLabAnalyserHandoff;
   if (!h) return null;
   delete window.__srtLabAnalyserHandoff;
+  return h;
+}
+
+/**
+ * Task #724 — counterpart to `consumeAnalyserHandoff`, but for the UDS
+ * Analyzer tab. Consumed once on mount by `UdsAnalyzerTab` to pre-load
+ * a live capture handed off from a recorder card.
+ */
+export function consumeUdsAnalyzerHandoff() {
+  if (typeof window === 'undefined') return null;
+  const h = window.__srtLabUdsAnalyzerHandoff;
+  if (!h) return null;
+  delete window.__srtLabUdsAnalyzerHandoff;
   return h;
 }

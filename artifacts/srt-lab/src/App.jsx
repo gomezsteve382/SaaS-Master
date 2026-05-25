@@ -964,6 +964,14 @@ function VehicleWorkspace({vehicleId, onBack}){
     window.addEventListener('srtlab:open-analyser', onOpen);
     return () => window.removeEventListener('srtlab:open-analyser', onOpen);
   }, [setTab]);
+  // Task #724 — parallel listener for the UDS Analyzer handoff so the
+  // "Analyze UDS" button on the Live OBD / J2534 / CDA6 recorder cards
+  // switches tabs and the UdsAnalyzerTab consumes the global slot on mount.
+  useEffect(() => {
+    const onOpen = () => setTab('udsanalyzer');
+    window.addEventListener('srtlab:open-uds-analyzer', onOpen);
+    return () => window.removeEventListener('srtlab:open-uds-analyzer', onOpen);
+  }, [setTab]);
   const [files, setFiles] = useState([]);
   // Task #488 — shared EFD container + selected C-Flash payload so the
   // EFD inspector and the ECM Flasher tab can co-operate. The flasher's

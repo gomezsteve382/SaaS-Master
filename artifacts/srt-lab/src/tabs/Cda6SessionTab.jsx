@@ -392,6 +392,7 @@ export default function Cda6SessionTab(){
             <Btn data-testid="cda6-rec-clear" onClick={recorder.clear} outline>CLEAR</Btn>
             <Btn data-testid="cda6-rec-download" onClick={() => recorder.download()} disabled={!recorder.count}>📥 DOWNLOAD .log</Btn>
             <Btn data-testid="cda6-rec-open-analyser" onClick={() => recorder.openInAnalyser()} disabled={!recorder.count} color={C.a4}>📜 OPEN IN LOG ANALYSER</Btn>
+            <Btn data-testid="cda6-rec-open-uds-analyzer" onClick={() => recorder.openInUdsAnalyzer()} disabled={!recorder.count} color={C.sr}>🔎 ANALYZE UDS</Btn>
           </div>
         </Card>
       </Section>
