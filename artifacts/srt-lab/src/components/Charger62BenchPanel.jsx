@@ -502,65 +502,119 @@ export default function Charger62BenchPanel() {
 
           {/* SEC16 sync (RFH ⇄ BCM) */}
           <SectionHead>SEC16 Sync — RFH ⇄ BCM</SectionHead>
-          <div style={{ marginTop: 8 }}>
-            {!canSync ? (
-              <div style={{ fontSize: 11, color: C.er, padding: '8px 12px', background: C.er + '0A', borderRadius: 8, border: '1px solid ' + C.er + '40' }}>
-                SEC16 sync blocked — resolve all cross-check errors above first.
-              </div>
-            ) : (
-              <div>
-                <div style={{ fontSize: 11, color: C.ts, marginBottom: 8 }}>
-                  Push one module's SEC16 into the other and re-emit the patched binary
-                  (split records, mirror CRC16/CCITT, flat 0x40C9 LE, RFH slot 1/2 CS — all recomputed).
-                  Round-trip parses are asserted before download.
+          {(() => {
+            const bcmSec16Hex = modules?.bcmInfo?.bcmSec16?.bytes && !modules.bcmInfo.bcmSec16.blank
+              ? Array.from(modules.bcmInfo.bcmSec16.bytes).map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ')
+              : null;
+            const rfhSlot1 = modules?.rfhEeeInfo?.sec16s?.[0];
+            const rfhSec16Hex = rfhSlot1 && !rfhSlot1.blank
+              ? Array.from(rfhSlot1.raw).map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ')
+              : null;
+            const inSync = report.bcmRfhMatch === true;
+            const mismatch = report.bcmRfhMatch === false;
+            const badgeColor = inSync ? C.gn : mismatch ? C.wn : C.tm;
+            const badgeLabel = inSync
+              ? '✓ Already paired — RFH and BCM SEC16 already in sync'
+              : mismatch
+                ? '⚠ Mismatch — RFH and BCM SEC16 differ; pick a direction below'
+                : '— Pairing state unknown (one side blank or missing)';
+            const btnBg = syncBusy ? C.tm : (inSync ? 'transparent' : C.a3);
+            const btnColor = syncBusy ? '#fff' : (inSync ? C.a3 : '#fff');
+            const btnBorder = inSync ? '1px solid ' + C.a3 + '80' : 'none';
+            return (
+              <div style={{ marginTop: 8 }}>
+                <div
+                  data-testid="sec16-pairing-badge"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                    padding: '6px 12px', borderRadius: 8, marginBottom: 10,
+                    background: badgeColor + '12',
+                    border: '1px solid ' + badgeColor + '60',
+                    fontSize: 11, fontWeight: 800, color: badgeColor,
+                  }}>
+                  {badgeLabel}
                 </div>
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                  <button
-                    onClick={() => handleSync('RFH_TO_BCM')}
-                    disabled={syncBusy}
+                {(bcmSec16Hex || rfhSec16Hex) && (
+                  <div
+                    data-testid="sec16-hex-preview"
                     style={{
-                      padding: '10px 22px', borderRadius: 10, fontWeight: 800, fontSize: 12,
-                      background: syncBusy ? C.tm : C.a3, color: '#fff', border: 'none',
-                      cursor: syncBusy ? 'not-allowed' : 'pointer',
+                      background: C.c2, borderRadius: 8, padding: '8px 12px',
+                      border: '1px solid ' + C.bd, marginBottom: 10,
+                      display: 'grid', gridTemplateColumns: 'auto 1fr', columnGap: 12, rowGap: 4,
                     }}>
-                    {syncBusy ? 'Syncing…' : 'RFH → BCM'}
-                  </button>
-                  <button
-                    onClick={() => handleSync('BCM_TO_RFH')}
-                    disabled={syncBusy}
-                    style={{
-                      padding: '10px 22px', borderRadius: 10, fontWeight: 800, fontSize: 12,
-                      background: syncBusy ? C.tm : C.a3, color: '#fff', border: 'none',
-                      cursor: syncBusy ? 'not-allowed' : 'pointer',
-                    }}>
-                    {syncBusy ? 'Syncing…' : 'BCM → RFH'}
-                  </button>
-                </div>
-              </div>
-            )}
-            {syncResult && (
-              <div style={{ marginTop: 12, padding: '12px 16px', borderRadius: 12, border: '1px solid ' + (syncResult.ok ? C.gn + '60' : C.er + '60'), background: (syncResult.ok ? C.gn : C.er) + '08' }}>
-                <div style={{ fontWeight: 900, fontSize: 12, color: syncResult.ok ? C.gn : C.er, marginBottom: 6 }}>
-                  {syncResult.ok
-                    ? `✓ ${syncResult.direction === 'RFH_TO_BCM' ? 'BCM' : 'RFH'} patched and downloaded`
-                    : '✗ Sync failed'}
-                </div>
-                {syncResult.ok && (syncResult.sec16BcmHex || syncResult.sec16RfhHex) && (
-                  <div style={{ fontSize: 10, color: C.tm, marginBottom: 4 }}>
-                    {syncResult.sec16BcmHex && <div>BCM SEC16 (BE): <Mono>{syncResult.sec16BcmHex.toUpperCase()}</Mono></div>}
-                    {syncResult.sec16RfhHex && <div>RFH SEC16: <Mono>{syncResult.sec16RfhHex.toUpperCase()}</Mono></div>}
+                    <span style={{ fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1 }}>RFH SEC16</span>
+                    <Mono>{rfhSec16Hex || '(blank/missing)'}</Mono>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1 }}>BCM SEC16 BE</span>
+                    <Mono>{bcmSec16Hex || '(blank/missing)'}</Mono>
                   </div>
                 )}
-                {syncResult.checks && syncResult.checks.map((ch, i) => (
-                  <div key={i} style={{ fontSize: 10, color: ch.pass ? C.gn : C.er, marginBottom: 2, display: 'flex', gap: 8 }}>
-                    <span>{ch.pass ? '✓' : '✗'}</span>
-                    <span style={{ fontWeight: 700 }}>{ch.label}</span>
-                    {ch.detail && <span style={{ color: C.tm }}>— {ch.detail}</span>}
+                {!canSync ? (
+                  <div style={{ fontSize: 11, color: C.er, padding: '8px 12px', background: C.er + '0A', borderRadius: 8, border: '1px solid ' + C.er + '40' }}>
+                    SEC16 sync blocked — resolve all cross-check errors above first.
                   </div>
-                ))}
+                ) : (
+                  <div>
+                    <div style={{ fontSize: 11, color: C.ts, marginBottom: 8 }}>
+                      {inSync
+                        ? 'No change needed — running a sync will re-emit an identical-payload binary.'
+                        : 'Push one module\u2019s SEC16 into the other and re-emit the patched binary (split records, mirror CRC16/CCITT, flat 0x40C9 LE, RFH slot 1/2 CS — all recomputed). Round-trip parses are asserted before download.'}
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <button
+                        onClick={() => handleSync('RFH_TO_BCM')}
+                        disabled={syncBusy}
+                        title={inSync ? 'No change needed — already in sync' : undefined}
+                        style={{
+                          padding: '10px 22px', borderRadius: 10, fontWeight: 800, fontSize: 12,
+                          background: btnBg, color: btnColor, border: btnBorder,
+                          cursor: syncBusy ? 'not-allowed' : 'pointer',
+                        }}>
+                        {syncBusy ? 'Syncing…' : 'RFH → BCM'}
+                      </button>
+                      <button
+                        onClick={() => handleSync('BCM_TO_RFH')}
+                        disabled={syncBusy}
+                        title={inSync ? 'No change needed — already in sync' : undefined}
+                        style={{
+                          padding: '10px 22px', borderRadius: 10, fontWeight: 800, fontSize: 12,
+                          background: btnBg, color: btnColor, border: btnBorder,
+                          cursor: syncBusy ? 'not-allowed' : 'pointer',
+                        }}>
+                        {syncBusy ? 'Syncing…' : 'BCM → RFH'}
+                      </button>
+                      {inSync && (
+                        <span style={{ fontSize: 10, color: C.tm, fontStyle: 'italic' }}>
+                          no change needed
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {syncResult && (
+                  <div style={{ marginTop: 12, padding: '12px 16px', borderRadius: 12, border: '1px solid ' + (syncResult.ok ? C.gn + '60' : C.er + '60'), background: (syncResult.ok ? C.gn : C.er) + '08' }}>
+                    <div style={{ fontWeight: 900, fontSize: 12, color: syncResult.ok ? C.gn : C.er, marginBottom: 6 }}>
+                      {syncResult.ok
+                        ? `✓ ${syncResult.direction === 'RFH_TO_BCM' ? 'BCM' : 'RFH'} patched and downloaded`
+                        : '✗ Sync failed'}
+                    </div>
+                    {syncResult.ok && (syncResult.sec16BcmHex || syncResult.sec16RfhHex) && (
+                      <div style={{ fontSize: 10, color: C.tm, marginBottom: 4 }}>
+                        {syncResult.sec16BcmHex && <div>BCM SEC16 (BE): <Mono>{syncResult.sec16BcmHex.toUpperCase()}</Mono></div>}
+                        {syncResult.sec16RfhHex && <div>RFH SEC16: <Mono>{syncResult.sec16RfhHex.toUpperCase()}</Mono></div>}
+                      </div>
+                    )}
+                    {syncResult.checks && syncResult.checks.map((ch, i) => (
+                      <div key={i} style={{ fontSize: 10, color: ch.pass ? C.gn : C.er, marginBottom: 2, display: 'flex', gap: 8 }}>
+                        <span>{ch.pass ? '✓' : '✗'}</span>
+                        <span style={{ fontWeight: 700 }}>{ch.label}</span>
+                        {ch.detail && <span style={{ color: C.tm }}>— {ch.detail}</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            );
+          })()}
 
         </div>
       )}
