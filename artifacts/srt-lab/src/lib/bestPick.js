@@ -44,6 +44,7 @@ const PRINTABLE_RE = /[\x20-\x7E]/;
 export const CANONICAL_PATTERNS = {
   bcmPn:        /^68\d{6}$/,
   rfhPn:        /^68\d{6}[A-Z]{2}$/,
+  rfhOsPn:      /^[A-Z]{2}\d{8,10}(?:[A-Z]{2})?$/,
   pcmBodyPn:    /^68\d{6}[A-Z]{2}$/,
   pcmOsPn:      /^0\d{7}[A-Z]{2}$/,
   pcmContPn:    /^A2C\d+$/,

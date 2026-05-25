@@ -156,7 +156,7 @@ export function extractRfhPflashIdentity(buf) {
     OS_RE.lastIndex = 0;
     let mm;
     while ((mm = OS_RE.exec(runText)) !== null) {
-      osHits.push(scoreFieldHit(mm[0], runOffset + mm.index, null));
+      osHits.push(scoreFieldHit(mm[0], runOffset + mm.index, CANONICAL_PATTERNS.rfhOsPn));
     }
     PN_RE.lastIndex = 0;
     while ((mm = PN_RE.exec(runText)) !== null) {

@@ -401,10 +401,13 @@ describe('RFHUB P-Flash identity (best pick)', () => {
     const id = extractRfhPflashIdentity(rfhPflashData);
     // Embedded in 93105000AA40821703AA at 0x57F90; the OS regex skips the
     // leading 8 digits and locks onto the 2-letter / 10-digit / 2-letter
-    // OS PN form. Score is 22 (12 useful + 10 pr, no canonical bonus —
-    // there is no canonical OS regex in bestPick today).
+    // OS PN form. Matches bestPick.CANONICAL_PATTERNS.rfhOsPn (Task #775)
+    // and so earns the +100 canonical bonus → score 122 (12 useful + 10 pr
+    // + 100 bonus).
     expect(id.os.value).toBe('AA40821703AA');
     expect(id.os.len).toBe(12);
+    expect(id.os.matchesCanonical).toBe(true);
+    expect(id.os.score).toBe(122);
   });
 
   it('SERIAL best pick is the full 20-char concatenated supplier string', () => {
