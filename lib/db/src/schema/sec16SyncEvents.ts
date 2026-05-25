@@ -69,6 +69,7 @@ export const sec16SyncEventsTable = pgTable(
       sql`${table.verified} IN ('match', 'mismatch', 'unverified', 'offline')`,
     ),
     index("sec16_sync_events_vin_idx").on(table.vin),
+    index("sec16_sync_events_created_at_idx").on(table.createdAt),
   ],
 );
 

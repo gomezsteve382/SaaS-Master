@@ -44,6 +44,7 @@ vi.mock("drizzle-orm", () => ({
     kind: "desc",
     column: column._name,
   }),
+  sql: (..._args: unknown[]) => ({ kind: "sql" }),
 }));
 
 vi.mock("@workspace/db", () => {
@@ -131,6 +132,14 @@ vi.mock("@workspace/db", () => {
         };
       },
     }),
+    delete: (_t: unknown) => ({
+      where: async (_p: unknown) => {
+        /* no-op for tests — retention pruning isn't asserted here */
+      },
+    }),
+    execute: async (_q: unknown) => {
+      /* no-op for tests — retention pruning isn't asserted here */
+    },
   };
   return { db, sec16SyncEventsTable };
 });

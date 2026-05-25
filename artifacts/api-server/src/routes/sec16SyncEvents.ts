@@ -1,10 +1,59 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import {
   db,
   sec16SyncEventsTable,
   type Sec16SyncEvent,
 } from "@workspace/db";
+
+/* Task #686 — retention.
+ *
+ * The table is append-only at the API surface but bounded at the storage
+ * level by a per-VIN row cap plus an absolute age cutoff. Rows with a null
+ * VIN share one bucket. Pruning runs best-effort after every successful
+ * insert; failures are logged and swallowed so they never break a write.
+ *
+ *   RETENTION_PER_VIN     keep the N most-recent rows per VIN bucket
+ *                         (the null-VIN bucket counts as one VIN)
+ *   RETENTION_MAX_AGE_MS  hard cutoff — anything older is dropped
+ *                         regardless of bucket size
+ */
+const RETENTION_PER_VIN = 200;
+const RETENTION_MAX_AGE_MS = 180 * 24 * 60 * 60 * 1000; // 180 days
+
+async function pruneSec16SyncEvents(vin: string | null): Promise<void> {
+  try {
+    const cutoff = new Date(Date.now() - RETENTION_MAX_AGE_MS);
+    await db
+      .delete(sec16SyncEventsTable)
+      .where(sql`${sec16SyncEventsTable.createdAt} < ${cutoff}`);
+    if (vin === null) {
+      await db.execute(sql`
+        DELETE FROM ${sec16SyncEventsTable}
+        WHERE vin IS NULL
+          AND id IN (
+            SELECT id FROM ${sec16SyncEventsTable}
+            WHERE vin IS NULL
+            ORDER BY created_at DESC, id DESC
+            OFFSET ${RETENTION_PER_VIN}
+          )
+      `);
+    } else {
+      await db.execute(sql`
+        DELETE FROM ${sec16SyncEventsTable}
+        WHERE vin = ${vin}
+          AND id IN (
+            SELECT id FROM ${sec16SyncEventsTable}
+            WHERE vin = ${vin}
+            ORDER BY created_at DESC, id DESC
+            OFFSET ${RETENTION_PER_VIN}
+          )
+      `);
+    }
+  } catch (err) {
+    console.error("[sec16-sync-events] prune failed", err);
+  }
+}
 
 /* Task #678 — SEC16 sync event log.
  *
@@ -102,6 +151,7 @@ router.post("/sec16-sync-events", async (req, res, next) => {
       .returning();
     const row = inserted[0];
     if (!row) { res.status(500).json({ error: "insert returned no row" }); return; }
+    await pruneSec16SyncEvents(row.vin ?? null);
     res.json({ ok: true, event: rowToJson(row) });
   } catch (err) {
     next(err);
