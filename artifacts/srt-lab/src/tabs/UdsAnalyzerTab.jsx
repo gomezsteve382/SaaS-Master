@@ -114,6 +114,23 @@ function ExchangeRow({ ex, idx }) {
               <code style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: ex.nrcCode ? C.er : C.gn }}>{ex.responseBytes}</code>
             </div>
           )}
+          {ex.did && (
+            <div style={{ marginTop: 6, marginBottom: 4, padding: '6px 8px', background: `${C.a4}10`, borderLeft: `2px solid ${C.a4}`, borderRadius: 4 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', flexWrap: 'wrap' }}>
+                <span style={{ color: C.tm, fontWeight: 700 }}>DID:</span>
+                <code style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.a4, fontWeight: 700 }}>{ex.did.label}</code>
+                <span style={{ color: C.tx, fontWeight: 600 }}>
+                  {ex.did.name || 'Unknown DID (no catalog entry)'}
+                </span>
+              </div>
+              {ex.did.decoded != null && (
+                <div style={{ marginTop: 4, display: 'flex', gap: 6, alignItems: 'baseline' }}>
+                  <span style={{ color: C.tm, fontWeight: 700 }}>DECODED:</span>
+                  <code style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.gn, wordBreak: 'break-all' }}>{ex.did.decoded}</code>
+                </div>
+              )}
+            </div>
+          )}
           <div style={{ color: C.ts, lineHeight: 1.6, marginTop: 4 }}>{ex.verdict}</div>
         </div>
       )}

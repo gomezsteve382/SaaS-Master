@@ -10,7 +10,7 @@
  * Plain-English cause strings extend those descriptions for actionability.
  */
 
-import { serviceForSid, serviceForPosRsp, NRC_TABLE } from '@workspace/uds';
+import { serviceForSid, serviceForPosRsp, NRC_TABLE, didEntry, decodeDid } from '@workspace/uds';
 
 const NRC_PLAIN_CAUSES = {
   0x10: 'Verify the service is appropriate for this module and that the request format is correct.',
@@ -70,6 +70,19 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
   const subFunction = getSubFunction(reqLine.bytes);
   const reqBytes = fmtBytes(reqLine.bytes);
 
+  let didInfo = null;
+  if ((sid === 0x22 || sid === 0x2E) && reqLine.bytes.length >= 3) {
+    const num = (reqLine.bytes[1] << 8) | reqLine.bytes[2];
+    const entry = didEntry(num);
+    didInfo = {
+      did: num,
+      label: `0x${hx(reqLine.bytes[1])}${hx(reqLine.bytes[2])}`,
+      name: entry ? entry.name : null,
+      encoding: entry ? entry.encoding : null,
+      decoded: null,
+    };
+  }
+
   if (!respLine) {
     if (isTesterPresentSuppressed(reqLine.bytes)) {
       return {
@@ -77,7 +90,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
         severity: 'OK', service: svcName, subFunction,
         requestBytes: reqBytes, responseBytes: '',
         verdict: 'TesterPresent with suppress-positive-response bit set — no response expected.',
-        type: 'suppress', nrcCode: null,
+        type: 'suppress', nrcCode: null, did: didInfo,
       };
     }
     if (hadPending) {
@@ -86,7 +99,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
         severity: 'FAIL', service: svcName, subFunction,
         requestBytes: reqBytes, responseBytes: '',
         verdict: `ResponsePending (NRC 0x78) received ${pendingCount} time(s) but no final response arrived — ECU timed out mid-operation. Increase the P2-star timeout, ensure TesterPresent keep-alive is running, and retry.`,
-        type: 'pending_timeout', nrcCode: null,
+        type: 'pending_timeout', nrcCode: null, did: didInfo,
       };
     }
     return {
@@ -94,7 +107,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
       severity: 'WARN', service: svcName, subFunction,
       requestBytes: reqBytes, responseBytes: '',
       verdict: 'No response received — possible CAN addressing mismatch, ECU not present on bus, or module sleeping. Verify TX/RX CAN IDs and module power/ground.',
-      type: 'no_response', nrcCode: null,
+      type: 'no_response', nrcCode: null, did: didInfo,
     };
   }
 
@@ -118,7 +131,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
       service: svcName, subFunction,
       requestBytes: reqBytes, responseBytes: fmtBytes(respBytes),
       verdict: parts.join(' '),
-      type: 'nrc', nrcCode, nrcName,
+      type: 'nrc', nrcCode, nrcName, did: didInfo,
     };
   }
 
@@ -135,13 +148,19 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
     }
   } else if (sid === 0x10) {
     parts.push(`Session 0x${hx(reqLine.bytes[1] ?? 0)} confirmed.`);
-  } else if (sid === 0x22 && reqLine.bytes.length >= 3) {
-    const did = `0x${hx(reqLine.bytes[1])}${hx(reqLine.bytes[2])}`;
-    const data = fmtBytes(respBytes.slice(3));
-    parts.push(`DID ${did}: ${data || '(empty)'}.`);
-  } else if (sid === 0x2E && reqLine.bytes.length >= 3) {
-    const did = `0x${hx(reqLine.bytes[1])}${hx(reqLine.bytes[2])}`;
-    parts.push(`DID ${did} written successfully.`);
+  } else if (sid === 0x22 && reqLine.bytes.length >= 3 && didInfo) {
+    const payload = respBytes.slice(3);
+    const decoded = payload.length ? decodeDid(didInfo.did, payload) : '(empty)';
+    didInfo.decoded = decoded;
+    if (didInfo.name) {
+      parts.push(`DID ${didInfo.label} ${didInfo.name}: ${decoded}`);
+    } else {
+      parts.push(`DID ${didInfo.label}: ${decoded}`);
+    }
+  } else if (sid === 0x2E && reqLine.bytes.length >= 3 && didInfo) {
+    parts.push(didInfo.name
+      ? `DID ${didInfo.label} ${didInfo.name} written successfully.`
+      : `DID ${didInfo.label} written successfully.`);
   } else if (sid === 0x31 && reqLine.bytes.length >= 4) {
     const rid = `0x${hx(reqLine.bytes[2])}${hx(reqLine.bytes[3])}`;
     parts.push(`Routine ${rid} type 0x${hx(reqLine.bytes[1])} completed.`);
@@ -160,7 +179,7 @@ function buildExchange(reqLine, respLine, hadPending, pendingCount) {
     severity: 'OK', service: svcName, subFunction,
     requestBytes: reqBytes, responseBytes: fmtBytes(respBytes),
     verdict: parts.join(' '),
-    type: 'ok', nrcCode: null,
+    type: 'ok', nrcCode: null, did: didInfo,
   };
 }
 
