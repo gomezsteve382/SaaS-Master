@@ -14,11 +14,16 @@
  * (which carry raw 8-byte CAN frames). Req/Resp and bare-hex shapes are
  * assumed to carry already-assembled UDS payloads without a PCI byte.
  *
- * Multi-frame FirstFrame (high nibble 0x1) is flagged as isFF=true and
- * passed through without reassembly — the caller surfaces a warning.
+ * Multi-frame (FF + CF) sequences in candump and TX/RX shapes are
+ * reassembled per (shape, dir, canId) stream via @workspace/uds
+ * IsoTpReceiver. When a stream completes, a single line containing the
+ * full UDS payload is emitted at the position of the last frame.
+ * Flow-control (FC) frames are dropped silently. Incomplete sequences
+ * (FF without enough CFs, orphan CFs, out-of-order CFs) fall back to the
+ * existing isFF/isCF warning surface in analyzeSession.
  */
 
-import { serviceForPosRsp } from '@workspace/uds';
+import { serviceForPosRsp, frameType, IsoTpReceiver } from '@workspace/uds';
 
 const RE_CANDUMP = /^\((\d+\.\d+)\)\s+\w+\s+([0-9A-Fa-f]+)#([0-9A-Fa-f]{2,})/;
 const RE_TX_RX   = /^(?:\[?([\d.]+)\]?\s+)?(TX|RX)\s+(?:0x)?([0-9A-Fa-f]+)\s+((?:[0-9A-Fa-f]{2}\s*)+)/i;
@@ -58,6 +63,126 @@ function inferDirection(bytes) {
   return 'req';
 }
 
+function streamKey(shape, dir, canId) {
+  return `${shape}|${dir ?? 'auto'}|${canId ?? '?'}`;
+}
+
+/**
+ * Handle a raw 8-byte CAN frame from candump or TX/RX shapes, applying
+ * ISO-TP reassembly via per-stream IsoTpReceiver state.
+ *
+ * Emits lines into `lines` (and increments formatCounts[ctx.shape]) when:
+ *   - a Single Frame arrives          → emits PCI-stripped line immediately
+ *   - a Consecutive Frame completes a buffered FF → emits one reassembled line
+ *   - an orphan CF arrives (no FF)    → emits an isCF=true warning line
+ *   - a malformed FF or out-of-order CF is encountered → emits warning line
+ *
+ * Buffers FF + in-progress CFs silently; flushIncompleteStreams() emits
+ * a single isFF=true warning line per stream still open at end of trace.
+ */
+function processRawFrame(rawBytes, ctx, lines, formatCounts, rxStreams) {
+  if (!rawBytes.length) return;
+  const ft = frameType(rawBytes[0]);
+
+  if (ft === 'FC') {
+    // Flow-control frames carry no UDS payload; ignored for analysis.
+    return;
+  }
+
+  if (ft === 'FF') {
+    const key = streamKey(ctx.shape, ctx.dir, ctx.canId);
+    const existing = rxStreams.get(key);
+    if (existing) {
+      // Previous FF on this stream never completed — surface it now.
+      flushIncompleteStream(existing, lines, formatCounts);
+      rxStreams.delete(key);
+    }
+    const receiver = new IsoTpReceiver();
+    try {
+      const result = receiver.push(rawBytes);
+      if (result.done && result.payload) {
+        // Shouldn't normally happen for an FF, but tolerate it.
+        emitReassembled(result.payload, ctx, lines, formatCounts);
+        return;
+      }
+    } catch {
+      // Malformed FF — emit as isFF=true warning line via existing path.
+      emitWithStrip(rawBytes, ctx, lines, formatCounts);
+      return;
+    }
+    rxStreams.set(key, { receiver, ctx, rawBytes });
+    return;
+  }
+
+  if (ft === 'CF') {
+    const key = streamKey(ctx.shape, ctx.dir, ctx.canId);
+    const stream = rxStreams.get(key);
+    if (!stream) {
+      // Orphan CF — preserve the isCF=true warning behaviour.
+      emitWithStrip(rawBytes, ctx, lines, formatCounts);
+      return;
+    }
+    try {
+      const result = stream.receiver.push(rawBytes);
+      if (result.done && result.payload) {
+        emitReassembled(result.payload, stream.ctx, lines, formatCounts);
+        rxStreams.delete(key);
+      }
+    } catch {
+      // Out-of-order CF or other error — surface the buffered FF as a
+      // warning placeholder and drop the stream.
+      flushIncompleteStream(stream, lines, formatCounts);
+      rxStreams.delete(key);
+    }
+    return;
+  }
+
+  // SF or 'unknown' → existing pass-through behaviour.
+  emitWithStrip(rawBytes, ctx, lines, formatCounts);
+}
+
+function emitWithStrip(rawBytes, ctx, lines, formatCounts) {
+  const { bytes, isFF, isCF } = stripIsoTpPci(rawBytes);
+  if (!bytes.length) return;
+  const dir = ctx.dir ?? inferDirection(bytes);
+  lines.push({
+    dir, bytes,
+    ts: ctx.ts, canId: ctx.canId,
+    isFF, isCF,
+    shape: ctx.shape, raw: ctx.raw,
+  });
+  formatCounts[ctx.shape]++;
+}
+
+function emitReassembled(payload, ctx, lines, formatCounts) {
+  const bytes = Array.from(payload);
+  if (!bytes.length) return;
+  const dir = ctx.dir ?? inferDirection(bytes);
+  lines.push({
+    dir, bytes,
+    ts: ctx.ts, canId: ctx.canId,
+    isFF: false, isCF: false,
+    shape: ctx.shape, raw: ctx.raw,
+  });
+  formatCounts[ctx.shape]++;
+}
+
+function flushIncompleteStream(stream, lines, formatCounts) {
+  // The buffered FF never received enough CFs to complete. Surface it as
+  // an isFF=true line so analyzeSession's existing multi-frame warning
+  // fires for the (now-known-incomplete) sequence.
+  const { bytes } = stripIsoTpPci(stream.rawBytes);
+  if (!bytes.length) return;
+  const dir = stream.ctx.dir ?? inferDirection(bytes);
+  lines.push({
+    dir, bytes,
+    ts: stream.ctx.ts, canId: stream.ctx.canId,
+    isFF: true, isCF: false,
+    shape: stream.ctx.shape, raw: stream.ctx.raw,
+  });
+  formatCounts[stream.ctx.shape]++;
+}
+
 /**
  * Parse a raw trace string into an array of line objects.
  *
@@ -86,6 +211,7 @@ export function parseTrace(text) {
   const rawLines = text.split(/\r?\n/);
   const lines = [];
   const formatCounts = { candump: 0, txrx: 0, reqresp: 0, bare: 0 };
+  const rxStreams = new Map();
 
   for (const raw of rawLines) {
     const line = raw.trim();
@@ -98,11 +224,11 @@ export function parseTrace(text) {
       const ts = parseFloat(m[1]);
       const canId = parseInt(m[2], 16);
       const rawBytes = parseHex(m[3]);
-      const { bytes, isFF, isCF } = stripIsoTpPci(rawBytes);
-      if (!bytes.length) continue;
-      const dir = inferDirection(bytes);
-      lines.push({ dir, bytes, ts, canId, isFF, isCF, shape: 'candump', raw: line });
-      formatCounts.candump++;
+      processRawFrame(
+        rawBytes,
+        { shape: 'candump', ts, canId, dir: null, raw: line },
+        lines, formatCounts, rxStreams,
+      );
       continue;
     }
 
@@ -112,10 +238,11 @@ export function parseTrace(text) {
       const dir = m[2].toUpperCase() === 'TX' ? 'req' : 'resp';
       const canId = parseInt(m[3], 16);
       const rawBytes = parseHex(m[4]);
-      const { bytes, isFF, isCF } = stripIsoTpPci(rawBytes);
-      if (!bytes.length) continue;
-      lines.push({ dir, bytes, ts, canId, isFF, isCF, shape: 'txrx', raw: line });
-      formatCounts.txrx++;
+      processRawFrame(
+        rawBytes,
+        { shape: 'txrx', ts, canId, dir, raw: line },
+        lines, formatCounts, rxStreams,
+      );
       continue;
     }
 
@@ -140,9 +267,19 @@ export function parseTrace(text) {
     }
   }
 
+  // Any streams still open at end of trace are incomplete; surface each
+  // as a single isFF=true warning placeholder.
+  for (const stream of rxStreams.values()) {
+    flushIncompleteStream(stream, lines, formatCounts);
+  }
+  rxStreams.clear();
+
   const dominant = Object.entries(formatCounts)
     .sort((a, b) => b[1] - a[1])[0];
   const formatDetected = dominant && dominant[1] > 0 ? dominant[0] : 'unknown';
 
   return { lines, messageCount: lines.length, formatDetected, formatCounts };
 }
+
+// Internal helper exported for testing only.
+export const __testing = { processRawFrame, streamKey };

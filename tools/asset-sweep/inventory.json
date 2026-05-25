@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_by": "tools/asset-sweep/src/sweep.mjs",
-  "file_count": 3616,
+  "file_count": 3638,
   "counts_by_kind": {
     "alfaobd_algorithm_catalog": 4,
     "asm": 5,
@@ -20,19 +20,19 @@
     "html": 18,
     "image": 55,
     "javascript": 143,
-    "markdown": 178,
+    "markdown": 182,
     "other": 134,
-    "python": 166,
+    "python": 175,
     "seedkey_source": 32,
     "seedkey_source_js": 8,
     "spreadsheet": 2,
     "sqlite": 9,
     "swf": 2,
-    "text": 48,
-    "typescript": 1587,
+    "text": 49,
+    "typescript": 1591,
     "uds_source": 13,
     "unlock_dll": 486,
-    "zip": 81
+    "zip": 85
   },
   "files": [
     {
@@ -21136,6 +21136,102 @@
       "cachePath": "attached_assets/srt-lab-ultimate_(1)_1779719393051.zip__zip__/vitest.config.ts"
     },
     {
+      "path": "attached_assets/srt3_1779725310573.zip",
+      "size": 8512,
+      "sha256": "ff5036b5e400aa8afded336dfda93ef9b8e71d5eccda37ad5c82bb9e6a46119a",
+      "kind": "zip",
+      "depth": 0,
+      "cachePath": "attached_assets/srt3_1779725310573.zip"
+    },
+    {
+      "path": "attached_assets/srt3_1779725310573.zip!/analyze_session.py",
+      "size": 1547,
+      "sha256": "3ef6c200f9b0359ecd92557b5eb56a05c3b016ce973a9f51cbcbb28675f2593e",
+      "kind": "python",
+      "depth": 1,
+      "cachePath": "attached_assets/srt3_1779725310573.zip__zip__/analyze_session.py"
+    },
+    {
+      "path": "attached_assets/srt3_1779725310573.zip!/example_session.log",
+      "size": 451,
+      "sha256": "6c6f9fe9757744e83358fa38f88a358e7867ff96c3b61b303e8ae7486d747dcd",
+      "kind": "text",
+      "depth": 1,
+      "cachePath": "attached_assets/srt3_1779725310573.zip__zip__/example_session.log"
+    },
+    {
+      "path": "attached_assets/srt3_1779725310573.zip!/README.md",
+      "size": 2489,
+      "sha256": "48f7f1a9af1e94ac8e6f6a667e60a1df91c9eabb79a1faef819b5fbbee5f3b5f",
+      "kind": "markdown",
+      "depth": 1,
+      "cachePath": "attached_assets/srt3_1779725310573.zip__zip__/README.md"
+    },
+    {
+      "path": "attached_assets/srt3_1779725310573.zip!/uds_analyze.py",
+      "size": 8228,
+      "sha256": "fc7d9c7fe8cc9c420b40143b10066035927a7c7fc598ba91a2879b0bd404d032",
+      "kind": "python",
+      "depth": 1,
+      "cachePath": "attached_assets/srt3_1779725310573.zip__zip__/uds_analyze.py"
+    },
+    {
+      "path": "attached_assets/srt3_1779725310573.zip!/uds_parser.py",
+      "size": 6542,
+      "sha256": "764f15a12b529a22d97ea7ed98dbaef097becc31da6ad137da1bc54349a4eef2",
+      "kind": "python",
+      "depth": 1,
+      "cachePath": "attached_assets/srt3_1779725310573.zip__zip__/uds_parser.py"
+    },
+    {
+      "path": "attached_assets/srtagent_1779722831262.zip",
+      "size": 15639,
+      "sha256": "45277c193c6b0c1ced9a76ebd013f0301f48308b99c877eeb185ffc676ab33a6",
+      "kind": "zip",
+      "depth": 0,
+      "cachePath": "attached_assets/srtagent_1779722831262.zip"
+    },
+    {
+      "path": "attached_assets/srtagent_1779722831262.zip!/agents.ts",
+      "size": 10778,
+      "sha256": "1b76b2968d6ea07ebab9e87b73862c35d4bc51c94d94f644c9ee70c27fc69e7c",
+      "kind": "typescript",
+      "depth": 1,
+      "cachePath": "attached_assets/srtagent_1779722831262.zip__zip__/agents.ts"
+    },
+    {
+      "path": "attached_assets/srtagent_1779722831262.zip!/coordinator.ts",
+      "size": 15396,
+      "sha256": "383bcaaf61cba4d5f4fb2147bbf93d37cddd188da1b5e1515c4e5d0af5df1012",
+      "kind": "typescript",
+      "depth": 1,
+      "cachePath": "attached_assets/srtagent_1779722831262.zip__zip__/coordinator.ts"
+    },
+    {
+      "path": "attached_assets/srtagent_1779722831262.zip!/README.md",
+      "size": 3202,
+      "sha256": "ef334499c3c5263e42ca0a14e9e97cd2f222edad92c1eb4d45c3022651b70eec",
+      "kind": "markdown",
+      "depth": 1,
+      "cachePath": "attached_assets/srtagent_1779722831262.zip__zip__/README.md"
+    },
+    {
+      "path": "attached_assets/srtagent_1779722831262.zip!/sse.ts",
+      "size": 2206,
+      "sha256": "0ec33834926e5c7108423d0a878f2663ddfc61e4d90d154bc898b5dc7feccfad",
+      "kind": "typescript",
+      "depth": 1,
+      "cachePath": "attached_assets/srtagent_1779722831262.zip__zip__/sse.ts"
+    },
+    {
+      "path": "attached_assets/srtagent_1779722831262.zip!/swarm.test.ts",
+      "size": 8555,
+      "sha256": "e652c3532c10ff116c0ffa50af880c72a481afed71a6c0fb638c5943b2ceb080",
+      "kind": "typescript",
+      "depth": 1,
+      "cachePath": "attached_assets/srtagent_1779722831262.zip__zip__/swarm.test.ts"
+    },
+    {
       "path": "attached_assets/srtlab_1777351235932.jsx",
       "size": 72658,
       "sha256": "cc449db3fcff112736858dc56caee0df5d1b0ebb53dd4e8e44ed0d7a18f7987a",
@@ -22910,6 +23006,86 @@
       "kind": "markdown",
       "depth": 1,
       "cachePath": "attached_assets/srtlab_tools_only_1776703301345.zip__zip__/UI_DEPLOY.md"
+    },
+    {
+      "path": "attached_assets/srtlab2_1779724570381.zip",
+      "size": 8917,
+      "sha256": "5524b77ab5b72c587cec3c9b817193c47481dd247acb2fe7e6cde8e95d3d82f7",
+      "kind": "zip",
+      "depth": 0,
+      "cachePath": "attached_assets/srtlab2_1779724570381.zip"
+    },
+    {
+      "path": "attached_assets/srtlab2_1779724570381.zip!/fca_tools.py",
+      "size": 8443,
+      "sha256": "eaf303e0abc3b7c26562d9b1081698f362eb4332c4954afa21f68c9997ad8852",
+      "kind": "python",
+      "depth": 1,
+      "cachePath": "attached_assets/srtlab2_1779724570381.zip__zip__/fca_tools.py"
+    },
+    {
+      "path": "attached_assets/srtlab2_1779724570381.zip!/investigate.py",
+      "size": 1696,
+      "sha256": "0021781c5b9d53f60a4d9be3b324449e93358765f2ba0984371269cfaf361317",
+      "kind": "python",
+      "depth": 1,
+      "cachePath": "attached_assets/srtlab2_1779724570381.zip__zip__/investigate.py"
+    },
+    {
+      "path": "attached_assets/srtlab2_1779724570381.zip!/README.md",
+      "size": 2409,
+      "sha256": "e3a8007e75c4c4883c0e1e60f8a89cb6ec2b17b8bd0c9b6d8f0ce72136c590c5",
+      "kind": "markdown",
+      "depth": 1,
+      "cachePath": "attached_assets/srtlab2_1779724570381.zip__zip__/README.md"
+    },
+    {
+      "path": "attached_assets/srtlab2_1779724570381.zip!/swarm_run.py",
+      "size": 11247,
+      "sha256": "ae61aea60e21703a10f6cf197fb05349d0f96348cb15baf007267ef72720ec82",
+      "kind": "python",
+      "depth": 1,
+      "cachePath": "attached_assets/srtlab2_1779724570381.zip__zip__/swarm_run.py"
+    },
+    {
+      "path": "attached_assets/srtlab2_1779725301081.zip",
+      "size": 8917,
+      "sha256": "5524b77ab5b72c587cec3c9b817193c47481dd247acb2fe7e6cde8e95d3d82f7",
+      "kind": "zip",
+      "depth": 0,
+      "cachePath": "attached_assets/srtlab2_1779725301081.zip"
+    },
+    {
+      "path": "attached_assets/srtlab2_1779725301081.zip!/fca_tools.py",
+      "size": 8443,
+      "sha256": "eaf303e0abc3b7c26562d9b1081698f362eb4332c4954afa21f68c9997ad8852",
+      "kind": "python",
+      "depth": 1,
+      "cachePath": "attached_assets/srtlab2_1779725301081.zip__zip__/fca_tools.py"
+    },
+    {
+      "path": "attached_assets/srtlab2_1779725301081.zip!/investigate.py",
+      "size": 1696,
+      "sha256": "0021781c5b9d53f60a4d9be3b324449e93358765f2ba0984371269cfaf361317",
+      "kind": "python",
+      "depth": 1,
+      "cachePath": "attached_assets/srtlab2_1779725301081.zip__zip__/investigate.py"
+    },
+    {
+      "path": "attached_assets/srtlab2_1779725301081.zip!/README.md",
+      "size": 2409,
+      "sha256": "e3a8007e75c4c4883c0e1e60f8a89cb6ec2b17b8bd0c9b6d8f0ce72136c590c5",
+      "kind": "markdown",
+      "depth": 1,
+      "cachePath": "attached_assets/srtlab2_1779725301081.zip__zip__/README.md"
+    },
+    {
+      "path": "attached_assets/srtlab2_1779725301081.zip!/swarm_run.py",
+      "size": 11247,
+      "sha256": "ae61aea60e21703a10f6cf197fb05349d0f96348cb15baf007267ef72720ec82",
+      "kind": "python",
+      "depth": 1,
+      "cachePath": "attached_assets/srtlab2_1779725301081.zip__zip__/swarm_run.py"
     },
     {
       "path": "attached_assets/SRTLabJailbreakEdition_1776518736143.jsx",

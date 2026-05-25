@@ -116,6 +116,108 @@ describe('parseTrace — format detection', () => {
   });
 });
 
+// ─── ISO-TP multi-frame reassembly ───────────────────────────────────────────
+
+describe('parseTrace — ISO-TP multi-frame reassembly', () => {
+  it('reassembles a single FF + 2 CF response into one line with the full payload', () => {
+    // Positive response to RDBI 0xF188: 0x62 0xF1 0x88 + 13 data bytes = 16 bytes total.
+    // FF: 10 10 62 F1 88 31 32 33                      (PCI 0x1010, len=16, 6 payload bytes)
+    // CF1: 21 34 35 36 37 38 39 30                     (SN=1, 7 bytes)
+    // CF2: 22 41 42 43 CC CC CC CC                     (SN=2, 3 bytes, then padding)
+    const { lines } = parseTrace([
+      '(0.000) can0 7E0#0322F188CCCCCCCC',
+      '(0.010) can0 7E8#101062F188313233',
+      '(0.020) can0 7E8#2134353637383930',
+      '(0.030) can0 7E8#22414243CCCCCCCC',
+    ].join('\n'));
+
+    expect(lines).toHaveLength(2);
+    expect(lines[0].bytes).toEqual([0x22, 0xF1, 0x88]);
+    expect(lines[1].bytes).toEqual([
+      0x62, 0xF1, 0x88,
+      0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30,
+      0x41, 0x42, 0x43,
+    ]);
+    expect(lines[1].dir).toBe('resp');
+    expect(lines[1].isFF).toBe(false);
+    expect(lines[1].isCF).toBe(false);
+    expect(lines[1].canId).toBe(0x7E8);
+  });
+
+  it('drops ISO-TP flow-control (PCI 0x3x) frames silently', () => {
+    const { lines } = parseTrace([
+      '(0.005) can0 7E0#3000000000000000',
+    ].join('\n'));
+    expect(lines).toHaveLength(0);
+  });
+
+  it('surfaces the existing multi-frame warning when a CF sequence is incomplete', () => {
+    // FF claims 16 bytes (6 in FF), only one CF arrives (7 more) — short by 3.
+    const { lines } = parseTrace([
+      '(0.010) can0 7E8#101062F188313233',
+      '(0.020) can0 7E8#2134353637383930',
+    ].join('\n'));
+
+    expect(lines).toHaveLength(1);
+    expect(lines[0].isFF).toBe(true);
+    expect(lines[0].canId).toBe(0x7E8);
+
+    const { exchanges } = analyzeSession(lines);
+    const mf = exchanges.find(e => e.type === 'multiframe');
+    expect(mf).toBeDefined();
+    expect(mf.severity).toBe('WARN');
+    expect(mf.verdict).toMatch(/First Frame|multi-frame/i);
+  });
+
+  it('emits an isCF warning for an orphan Consecutive Frame (no preceding FF)', () => {
+    const { lines } = parseTrace([
+      '(0.020) can0 7E8#2134353637383930',
+    ].join('\n'));
+    expect(lines).toHaveLength(1);
+    expect(lines[0].isCF).toBe(true);
+  });
+
+  it('handles SF and multi-frame interleaved in the same candump session', () => {
+    // Two complete exchanges:
+    //   1. SF req 10 03 → SF resp 50 03 00 19
+    //   2. SF req 22 F1 88 → FF + 2 CF reassembled into 16-byte positive response
+    const { lines } = parseTrace([
+      '(0.000) can0 7E0#02100300CCCCCCCC',
+      '(0.005) can0 7E8#0450030019CCCCCC',
+      '(0.010) can0 7E0#0322F188CCCCCCCC',
+      '(0.020) can0 7E8#101062F188313233',
+      '(0.030) can0 7E8#2134353637383930',
+      '(0.040) can0 7E8#22414243CCCCCCCC',
+    ].join('\n'));
+
+    expect(lines).toHaveLength(4);
+    expect(lines[3].bytes).toHaveLength(16);
+    expect(lines[3].dir).toBe('resp');
+
+    const { exchanges } = analyzeSession(lines);
+    expect(exchanges).toHaveLength(2);
+    expect(exchanges[0].severity).toBe('OK');
+    expect(exchanges[0].service).toBe('DiagnosticSessionControl');
+    expect(exchanges[1].severity).toBe('OK');
+    expect(exchanges[1].service).toBe('ReadDataByIdentifier');
+    // Reassembled payload is surfaced verbatim in the response bytes.
+    expect(exchanges[1].responseBytes).toMatch(/41 42 43$/);
+  });
+
+  it('reassembles multi-frame responses in TX/RX shape too', () => {
+    const { lines } = parseTrace([
+      '[0.010] RX 7E8 10 10 62 F1 88 31 32 33',
+      '[0.020] RX 7E8 21 34 35 36 37 38 39 30',
+      '[0.030] RX 7E8 22 41 42 43 CC CC CC CC',
+    ].join('\n'));
+
+    expect(lines).toHaveLength(1);
+    expect(lines[0].dir).toBe('resp');
+    expect(lines[0].bytes).toHaveLength(16);
+    expect(lines[0].isFF).toBe(false);
+  });
+});
+
 // ─── analyzeSession — NRC diagnosis branches ─────────────────────────────────
 
 describe('analyzeSession — NRC 0x33 SecurityAccess denied', () => {
