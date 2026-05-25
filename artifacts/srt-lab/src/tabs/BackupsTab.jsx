@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn } from "../lib/ui.jsx";
+import AnalysisDiffView from "./AnalysisDiffView.jsx";
+import { compareAnalyses } from "../lib/analysisDiff.js";
 import {
   getBackupList, getBackup, getBackupAsync, deleteBackup, clearBackups,
   restoreModule, subscribeAudit, refreshBackupsFromServer,
@@ -52,6 +54,8 @@ export default function BackupsTab() {
   const [aemtBusy, setAemtBusy] = useState(false);
   const [exportDialog, setExportDialog] = useState(null);
   const [importPassphraseDialog, setImportPassphraseDialog] = useState(null);
+  const [diffSelection, setDiffSelection] = useState(new Set());
+  const [diffView, setDiffView] = useState(null);
   const eng = useRef(null);
   const importInputRef = useRef(null);
   const diffImportInputRef = useRef(null);
@@ -320,10 +324,44 @@ export default function BackupsTab() {
     return () => window.removeEventListener("srtlab:backupSelect", consume);
   }, [addRestoreLog]);
 
+  const handleToggleDiffSelect = useCallback((key, e) => {
+    e.stopPropagation();
+    setDiffSelection((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else if (next.size < 2) {
+        next.add(key);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleLaunchDiff = useCallback(async () => {
+    const keys = Array.from(diffSelection);
+    if (keys.length !== 2) return;
+    const [dataA, dataB] = await Promise.all([
+      getBackupAsync(keys[0]),
+      getBackupAsync(keys[1]),
+    ]);
+    if (!dataA || !dataB) {
+      alert("Could not load one or both selected backups.");
+      return;
+    }
+    const result = compareAnalyses(dataA, dataB);
+    setDiffView({ result, backupA: dataA, backupB: dataB });
+  }, [diffSelection]);
+
   const handleDelete = useCallback((key) => {
     if (!window.confirm("Delete this backup? Cannot be undone.")) return;
     deleteBackup(key);
     if (selected === key) { setSelected(null); setSelectedData(null); }
+    setDiffSelection((prev) => {
+      if (!prev.has(key)) return prev;
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
     refresh();
   }, [selected, refresh]);
 
@@ -331,6 +369,7 @@ export default function BackupsTab() {
     if (!window.confirm("Delete ALL " + backups.length + " backups? Cannot be undone.")) return;
     clearBackups();
     setSelected(null); setSelectedData(null);
+    setDiffSelection(new Set());
     refresh();
   }, [backups.length, refresh]);
 
@@ -791,6 +830,27 @@ export default function BackupsTab() {
               data-testid="aemt-import-backups-input"
             />
             {backups.length > 0 && <Btn onClick={handleClearAll} color={C.er} outline>🗑️ Clear All</Btn>}
+            {diffSelection.size > 0 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Btn
+                  onClick={handleLaunchDiff}
+                  disabled={diffSelection.size !== 2}
+                  color={diffSelection.size === 2 ? C.a3 : C.tm}
+                  data-testid="diff-selected-btn"
+                >
+                  🔀 Diff selected ({diffSelection.size}/2)
+                </Btn>
+                <button
+                  onClick={() => setDiffSelection(new Set())}
+                  title="Clear selection"
+                  style={{
+                    fontSize: 11, padding: "4px 8px", borderRadius: 4,
+                    border: "1px solid " + C.bd, background: "#fff",
+                    cursor: "pointer", color: C.ts,
+                  }}
+                >✕</button>
+              </div>
+            )}
           </div>
         </div>
         {restoreLog.length > 0 && (
@@ -1028,21 +1088,43 @@ export default function BackupsTab() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: 14 }}>
           <Card style={{ padding: 0, overflow: "hidden" }}>
             <div style={listHeader}>BACKUP HISTORY ({filtered.length})</div>
+            {diffSelection.size > 0 && (
+              <div style={{
+                padding: "6px 12px", fontSize: 10, background: "#EEF2FF",
+                borderBottom: "1px solid " + C.bd, color: C.a3, fontWeight: 700,
+                display: "flex", alignItems: "center", gap: 8,
+              }}>
+                <span>Select 2 backups to compare — {diffSelection.size === 2 ? "ready to diff" : `${2 - diffSelection.size} more needed`}</span>
+                <span style={{ marginLeft: "auto", opacity: 0.6, fontWeight: 400 }}>Click the checkbox on any row</span>
+              </div>
+            )}
             <div style={{ maxHeight: 600, overflowY: "auto" }}>
               {filtered.map(b => {
                 const isSel = selected === b.key;
+                const isDiffSel = diffSelection.has(b.key);
+                const isMaxed = diffSelection.size >= 2 && !isDiffSel;
                 const date = new Date(b.timestamp);
                 return (
                   <div key={b.key} onClick={() => loadBackup(b.key)}
                     style={{
                       padding: "12px 16px", borderBottom: "1px solid " + C.bd, cursor: "pointer",
-                      background: isSel ? C.a2 + "10" : "#fff",
-                      borderLeft: "3px solid " + (isSel ? C.a2 : "transparent"),
+                      background: isDiffSel ? C.a3 + "18" : isSel ? C.a2 + "10" : "#fff",
+                      borderLeft: "3px solid " + (isDiffSel ? C.a3 : isSel ? C.a2 : "transparent"),
                       transition: "all 0.15s",
                     }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <div style={{ fontWeight: 800, fontSize: 13, color: isSel ? C.a2 : C.tx }}>{b.module}</div>
+                        <input
+                          type="checkbox"
+                          checked={isDiffSel}
+                          disabled={isMaxed}
+                          onClick={(e) => handleToggleDiffSelect(b.key, e)}
+                          onChange={() => {}}
+                          data-testid={"diff-checkbox-" + b.key}
+                          title={isMaxed ? "Clear one selection before picking another" : isDiffSel ? "Deselect for diff" : "Select for diff"}
+                          style={{ cursor: isMaxed ? "not-allowed" : "pointer", accentColor: C.a3, width: 14, height: 14, flexShrink: 0 }}
+                        />
+                        <div style={{ fontWeight: 800, fontSize: 13, color: isDiffSel ? C.a3 : isSel ? C.a2 : C.tx }}>{b.module}</div>
                         {b.snapshotKind && (
                           <span style={{
                             fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: "1px 5px", borderRadius: 3,
@@ -1362,6 +1444,31 @@ export default function BackupsTab() {
               <div style={{ fontSize: 13, fontWeight: 700, color: C.ts }}>Select a backup to view details</div>
             </Card>
           )}
+        </div>
+      )}
+
+      {diffView && (
+        <div
+          data-testid="analysis-diff-modal"
+          style={{
+            position: "fixed", inset: 0, zIndex: 9998,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex", alignItems: "flex-start", justifyContent: "center",
+            padding: "24px 16px", overflowY: "auto",
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setDiffView(null); }}
+        >
+          <div style={{
+            background: "#fff", borderRadius: 10, width: "100%", maxWidth: 900,
+            boxShadow: "0 12px 60px rgba(0,0,0,0.35)", overflow: "hidden",
+          }}>
+            <AnalysisDiffView
+              diffResult={diffView.result}
+              backupA={diffView.backupA}
+              backupB={diffView.backupB}
+              onClose={() => setDiffView(null)}
+            />
+          </div>
         </div>
       )}
 
