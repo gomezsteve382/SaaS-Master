@@ -1,0 +1,1 @@
+- [UDS Session Analyzer structure](uds-session-analyzer.md) — parser.js + analyze.js under src/lib/udsSessionAnalyzer/; fixture at fixtures/example_session.log; imports @workspace/uds which is already a devDep of srt-lab.

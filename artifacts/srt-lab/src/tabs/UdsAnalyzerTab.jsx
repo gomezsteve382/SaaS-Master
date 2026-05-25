@@ -1,0 +1,403 @@
+import React, { useState, useCallback, useMemo, useRef } from 'react';
+import { Card, Btn } from '../lib/ui.jsx';
+import { C } from '../lib/constants.js';
+import { parseTrace } from '../lib/udsSessionAnalyzer/parser.js';
+import { analyzeSession } from '../lib/udsSessionAnalyzer/analyze.js';
+import exampleLog from '../lib/udsSessionAnalyzer/fixtures/example_session.log?raw';
+
+const ACCEPT = '.log,.txt,.asc,.trc';
+
+const SEV_COLOR = { OK: C.gn, WARN: '#F59E0B', FAIL: C.er };
+const SEV_BG    = { OK: '#E8F5E9', WARN: '#FFFBEB', FAIL: '#FFEBEE' };
+
+function SeverityChip({ severity }) {
+  return (
+    <span style={{
+      display: 'inline-block',
+      padding: '2px 8px',
+      borderRadius: 10,
+      fontSize: 10,
+      fontWeight: 800,
+      letterSpacing: 1,
+      background: SEV_BG[severity] || '#F4F1EC',
+      color: SEV_COLOR[severity] || C.ts,
+      fontFamily: "'JetBrains Mono'",
+      border: `1px solid ${SEV_COLOR[severity] || C.bd}33`,
+    }}>
+      {severity}
+    </span>
+  );
+}
+
+function DiagCard({ item }) {
+  const col = SEV_COLOR[item.severity] || C.ts;
+  const icon = item.severity === 'OK' ? '✓' : item.severity === 'WARN' ? '⚠' : '✗';
+  return (
+    <div style={{
+      padding: '12px 14px',
+      borderRadius: 10,
+      border: `1px solid ${col}30`,
+      background: `${col}08`,
+      marginBottom: 8,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
+        <span style={{ color: col, fontWeight: 900, fontSize: 14, flexShrink: 0 }}>{icon}</span>
+        <div style={{ flex: 1, fontSize: 12, fontWeight: 700, color: C.tx }}>{item.message}</div>
+        <SeverityChip severity={item.severity} />
+      </div>
+      <div style={{
+        fontSize: 11,
+        color: C.ts,
+        paddingLeft: 22,
+        lineHeight: 1.6,
+        borderLeft: `2px solid ${col}40`,
+        marginLeft: 6,
+        paddingLeft: 10,
+      }}>
+        {item.recommendation}
+      </div>
+    </div>
+  );
+}
+
+function ExchangeRow({ ex, idx }) {
+  const [open, setOpen] = useState(false);
+  const col = SEV_COLOR[ex.severity] || C.ts;
+
+  return (
+    <div
+      style={{
+        borderBottom: `1px solid ${C.bd}`,
+        background: open ? `${col}05` : 'transparent',
+      }}
+    >
+      <div
+        onClick={() => setOpen(p => !p)}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '28px 60px 160px 90px 1fr',
+          gap: 8,
+          padding: '7px 12px',
+          cursor: 'pointer',
+          alignItems: 'center',
+          fontSize: 11,
+        }}
+      >
+        <div style={{ color: C.tm, fontFamily: "'JetBrains Mono'", fontSize: 9 }}>
+          {ex.request?.ts != null ? ex.request.ts.toFixed(3) : idx + 1}
+        </div>
+        <SeverityChip severity={ex.severity} />
+        <div style={{ fontWeight: 700, color: C.tx, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {ex.service}
+          {ex.subFunction != null && (
+            <span style={{ color: C.tm, fontWeight: 400 }}> / 0x{ex.subFunction.toString(16).toUpperCase().padStart(2, '0')}</span>
+          )}
+        </div>
+        <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.ts, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {ex.requestBytes || '—'}
+        </div>
+        <div style={{ fontSize: 11, color: col, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {ex.verdict}
+        </div>
+      </div>
+      {open && (
+        <div style={{ padding: '0 12px 10px 28px', fontSize: 11 }}>
+          {ex.requestBytes && (
+            <div style={{ marginBottom: 4 }}>
+              <span style={{ color: C.tm, fontWeight: 700, marginRight: 6 }}>REQ:</span>
+              <code style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.a4 }}>{ex.requestBytes}</code>
+            </div>
+          )}
+          {ex.responseBytes && (
+            <div style={{ marginBottom: 4 }}>
+              <span style={{ color: C.tm, fontWeight: 700, marginRight: 6 }}>RESP:</span>
+              <code style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: ex.nrcCode ? C.er : C.gn }}>{ex.responseBytes}</code>
+            </div>
+          )}
+          <div style={{ color: C.ts, lineHeight: 1.6, marginTop: 4 }}>{ex.verdict}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SummaryCard({ summary }) {
+  const saColor = summary.securityAccessUnlocked ? C.gn
+    : summary.lockoutActive ? C.er
+    : summary.securityAccessSeen ? '#F59E0B'
+    : C.tm;
+
+  const saLabel = summary.securityAccessUnlocked ? '✓ UNLOCKED'
+    : summary.lockoutActive ? '✗ LOCKED OUT'
+    : summary.securityAccessSeen ? '⚡ SEEN / NOT UNLOCKED'
+    : '— NOT SEEN';
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10, marginBottom: 16 }}>
+      {[
+        { label: 'MESSAGES PARSED', value: summary.messageCount, color: C.a4 },
+        { label: 'EXCHANGES', value: summary.exchangeCount, color: C.a4 },
+        {
+          label: 'SECURITY ACCESS',
+          value: saLabel,
+          color: saColor,
+          mono: true,
+        },
+        {
+          label: 'FIRST FAILURE',
+          value: summary.firstFailure
+            ? `${summary.firstFailure}${summary.firstFailureNrc != null ? ` (NRC 0x${summary.firstFailureNrc.toString(16).toUpperCase().padStart(2,'0')})` : ''}`
+            : '—',
+          color: summary.firstFailure ? C.er : C.gn,
+        },
+      ].map(item => (
+        <div key={item.label} style={{
+          padding: '10px 14px',
+          background: C.c2,
+          borderRadius: 10,
+          border: `1px solid ${C.bd}`,
+        }}>
+          <div style={{ fontSize: 8, fontWeight: 800, letterSpacing: 2, color: C.tm, marginBottom: 4 }}>
+            {item.label}
+          </div>
+          <div style={{
+            fontSize: item.mono ? 10 : 18,
+            fontWeight: 900,
+            color: item.color,
+            fontFamily: item.mono ? "'JetBrains Mono'" : undefined,
+          }}>
+            {item.value}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function UdsAnalyzerTab() {
+  const [text, setText] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [result, setResult] = useState(null);
+  const [filterSev, setFilterSev] = useState('ALL');
+  const [filterText, setFilterText] = useState('');
+  const fileRef = useRef(null);
+
+  const analyze = useCallback((src) => {
+    if (!src.trim()) { setResult(null); return; }
+    const parsed = parseTrace(src);
+    const session = analyzeSession(parsed.lines);
+    setResult({ parsed, session });
+  }, []);
+
+  const handleFile = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const t = String(ev.target.result || '');
+      setText(t);
+      analyze(t);
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }, [analyze]);
+
+  const handlePaste = useCallback((e) => {
+    const t = e.target.value;
+    setText(t);
+  }, []);
+
+  const handleAnalyze = useCallback(() => analyze(text), [analyze, text]);
+  const handleClear = useCallback(() => { setText(''); setFileName(''); setResult(null); setFilterSev('ALL'); setFilterText(''); }, []);
+  const handleExample = useCallback(() => {
+    const t = exampleLog;
+    setText(t);
+    setFileName('example_session.log');
+    analyze(t);
+  }, [analyze]);
+
+  const filteredExchanges = useMemo(() => {
+    if (!result) return [];
+    let exs = result.session.exchanges;
+    if (filterSev !== 'ALL') exs = exs.filter(e => e.severity === filterSev);
+    if (filterText) {
+      const f = filterText.toLowerCase();
+      exs = exs.filter(e =>
+        e.service?.toLowerCase().includes(f) ||
+        e.verdict?.toLowerCase().includes(f) ||
+        e.requestBytes?.toLowerCase().includes(f) ||
+        e.responseBytes?.toLowerCase().includes(f)
+      );
+    }
+    return exs;
+  }, [result, filterSev, filterText]);
+
+  const sevCounts = useMemo(() => {
+    if (!result) return { OK: 0, WARN: 0, FAIL: 0 };
+    return result.session.exchanges.reduce((acc, e) => {
+      acc[e.severity] = (acc[e.severity] || 0) + 1;
+      return acc;
+    }, { OK: 0, WARN: 0, FAIL: 0 });
+  }, [result]);
+
+  return (
+    <div data-testid="uds-analyzer-tab">
+      <Card style={{ background: 'linear-gradient(135deg,#1A0A0A 0%,#3D0A0A 40%,#D32F2F 100%)', color: '#fff', marginBottom: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ fontSize: 32 }}>🔍</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: "'Righteous'", fontSize: 24, letterSpacing: 2 }}>UDS ANALYZER</div>
+            <div style={{ fontSize: 10, opacity: 0.7, letterSpacing: 3, fontWeight: 700 }}>POST-MORTEM TRACE · NRC DECODE · SESSION DIAGNOSIS</div>
+          </div>
+          {result && (
+            <div style={{
+              fontSize: 11, padding: '6px 12px',
+              background: result.session.diagnosis.some(d => d.severity === 'FAIL') ? '#FF174433' : '#00C85333',
+              borderRadius: 8,
+              border: `1px solid ${result.session.diagnosis.some(d => d.severity === 'FAIL') ? '#FF1744' : '#00C853'}`,
+            }}>
+              {result.session.diagnosis.some(d => d.severity === 'FAIL') ? '✗ ISSUES FOUND' : '✓ CLEAN'}
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <Card style={{ marginBottom: 14 }}>
+        <div style={{ fontWeight: 800, fontSize: 11, color: C.sr, marginBottom: 10, letterSpacing: 2 }}>📂 LOAD TRACE</div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10, flexWrap: 'wrap' }}>
+          <input
+            ref={fileRef}
+            type="file"
+            accept={ACCEPT}
+            onChange={handleFile}
+            style={{ display: 'none' }}
+          />
+          <Btn onClick={() => fileRef.current?.click()} color={C.a4} outline>
+            📁 Open file
+          </Btn>
+          <Btn onClick={handleExample} color={C.a3} outline>
+            💡 Load example
+          </Btn>
+          <Btn onClick={handleAnalyze} color={C.sr} disabled={!text.trim()}>
+            ▶ Analyze
+          </Btn>
+          <Btn onClick={handleClear} color={C.tm} outline disabled={!text && !result}>
+            ✕ Clear
+          </Btn>
+          {fileName && (
+            <span style={{ fontSize: 11, color: C.ts, fontFamily: "'JetBrains Mono'" }}>{fileName}</span>
+          )}
+          {result && (
+            <span style={{ fontSize: 10, color: C.tm, marginLeft: 'auto' }}>
+              {result.parsed.messageCount} lines · format: <strong>{result.parsed.formatDetected}</strong>
+            </span>
+          )}
+        </div>
+        <textarea
+          data-testid="uds-analyzer-paste"
+          value={text}
+          onChange={handlePaste}
+          placeholder={`Paste a UDS trace here, or open a file — supports:\n  • candump: (0.000) can0 7E0#0322F190CC\n  • TX/RX:   [0.050] TX 7E0 22 F1 90\n  • Req/Resp: [Req] 10 03  /  [Resp] 50 03 00 19 01 F4\n  • Bare hex: 10 03  /  50 03 00 19 01 F4`}
+          style={{
+            width: '100%',
+            height: 120,
+            fontFamily: "'JetBrains Mono'",
+            fontSize: 11,
+            padding: '8px 10px',
+            border: `1px solid ${C.bd}`,
+            borderRadius: 8,
+            resize: 'vertical',
+            background: '#FAFAF8',
+            color: C.tx,
+          }}
+        />
+      </Card>
+
+      {result && (
+        <>
+          <Card style={{ marginBottom: 14 }}>
+            <div style={{ fontWeight: 800, fontSize: 11, color: C.sr, marginBottom: 12, letterSpacing: 2 }}>📊 SESSION SUMMARY</div>
+            <SummaryCard summary={result.session.summary} />
+          </Card>
+
+          <Card style={{ marginBottom: 14 }}>
+            <div style={{ fontWeight: 800, fontSize: 11, color: C.sr, marginBottom: 12, letterSpacing: 2 }}>
+              🩺 DIAGNOSIS &amp; RECOMMENDATIONS
+            </div>
+            {result.session.diagnosis.map((item, i) => (
+              <DiagCard key={i} item={item} />
+            ))}
+          </Card>
+
+          <Card style={{ marginBottom: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <div style={{ fontWeight: 800, fontSize: 11, color: C.sr, letterSpacing: 2 }}>
+                🔁 EXCHANGES ({filteredExchanges.length})
+              </div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                {['ALL', 'OK', 'WARN', 'FAIL'].map(sev => (
+                  <button
+                    key={sev}
+                    onClick={() => setFilterSev(sev)}
+                    style={{
+                      padding: '3px 10px',
+                      borderRadius: 8,
+                      border: `1px solid ${sev === 'ALL' ? C.bd : SEV_COLOR[sev] || C.bd}`,
+                      background: filterSev === sev ? (SEV_COLOR[sev] || C.a4) + '20' : 'transparent',
+                      color: sev === 'ALL' ? C.tx : SEV_COLOR[sev],
+                      cursor: 'pointer',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      letterSpacing: 1,
+                    }}
+                  >
+                    {sev}{sev !== 'ALL' ? ` (${sevCounts[sev] || 0})` : ''}
+                  </button>
+                ))}
+                <input
+                  value={filterText}
+                  onChange={e => setFilterText(e.target.value)}
+                  placeholder="filter…"
+                  style={{
+                    padding: '4px 8px',
+                    border: `1px solid ${C.bd}`,
+                    borderRadius: 6,
+                    fontSize: 11,
+                    width: 130,
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ fontSize: 9, color: C.tm, marginBottom: 6, display: 'grid', gridTemplateColumns: '28px 60px 160px 90px 1fr', gap: 8, padding: '0 12px', fontWeight: 700, letterSpacing: 1 }}>
+              <div>TIME</div><div>SEV</div><div>SERVICE / SUB</div><div>REQ BYTES</div><div>VERDICT</div>
+            </div>
+            <div style={{ border: `1px solid ${C.bd}`, borderRadius: 8, maxHeight: 440, overflowY: 'auto' }}>
+              {filteredExchanges.length === 0 ? (
+                <div style={{ padding: 24, textAlign: 'center', color: C.tm, fontSize: 12 }}>
+                  No exchanges match the current filter.
+                </div>
+              ) : (
+                filteredExchanges.map((ex, i) => (
+                  <ExchangeRow key={i} ex={ex} idx={i} />
+                ))
+              )}
+            </div>
+          </Card>
+        </>
+      )}
+
+      {!result && (
+        <div style={{ textAlign: 'center', padding: '40px 20px', color: C.tm, fontSize: 12 }}>
+          <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.4 }}>🔍</div>
+          <div style={{ fontWeight: 700, marginBottom: 6 }}>Load or paste a UDS trace to begin</div>
+          <div style={{ fontSize: 11 }}>
+            Hit <strong>Load example</strong> to see a demo session with a wrong-key attempt,
+            time-delay enforcement, and a RoutineControl failure.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
