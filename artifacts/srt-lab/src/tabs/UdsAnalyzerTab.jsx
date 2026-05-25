@@ -4,6 +4,7 @@ import { C } from '../lib/constants.js';
 import { parseTrace } from '../lib/udsSessionAnalyzer/parser.js';
 import { analyzeSession } from '../lib/udsSessionAnalyzer/analyze.js';
 import { consumeUdsAnalyzerHandoff } from '../lib/canRecorder.js';
+import { buildShareUrl, decodeShareFragment } from '../lib/udsSessionAnalyzer/shareLink.js';
 import exampleLog from '../lib/udsSessionAnalyzer/fixtures/example_session.log?raw';
 
 const ACCEPT = '.log,.txt,.asc,.trc';
@@ -198,7 +199,9 @@ export default function UdsAnalyzerTab() {
   const [result, setResult] = useState(null);
   const [filterSev, setFilterSev] = useState('ALL');
   const [filterText, setFilterText] = useState('');
+  const [shareStatus, setShareStatus] = useState('');
   const fileRef = useRef(null);
+  const shareTimerRef = useRef(null);
 
   const analyze = useCallback((src) => {
     if (!src.trim()) { setResult(null); return; }
@@ -211,14 +214,60 @@ export default function UdsAnalyzerTab() {
   // mount so the "Analyze UDS" buttons on the Live OBD / J2534 / CDA6
   // recorder cards drop the user straight into a populated, already-
   // analyzed session.
+  //
+  // Task #736 — also check the URL fragment for a shared trace
+  // (`#uds=<gzip+base64url>`). When present, rehydrate the textarea and
+  // auto-run analyze so the recipient lands on the same populated view.
+  // Live-capture handoff takes precedence; the fragment is consumed
+  // (cleared from the URL bar) after a successful decode so refreshes
+  // don't re-trigger.
   useEffect(() => {
     const h = consumeUdsAnalyzerHandoff();
     if (h) {
       setText(h.text);
       setFileName(h.name);
       analyze(h.text);
+      return;
     }
+    let cancelled = false;
+    (async () => {
+      const decoded = await decodeShareFragment(window.location.hash);
+      if (cancelled || !decoded) return;
+      setText(decoded);
+      setFileName('shared trace');
+      analyze(decoded);
+      try {
+        const url = `${window.location.origin}${window.location.pathname}${window.location.search}`;
+        window.history.replaceState(null, '', url);
+      } catch {
+        // Non-fatal — fragment cleanup is a nice-to-have.
+      }
+    })();
+    return () => { cancelled = true; };
   }, [analyze]);
+
+  useEffect(() => () => {
+    if (shareTimerRef.current) clearTimeout(shareTimerRef.current);
+  }, []);
+
+  const handleCopyShareLink = useCallback(async () => {
+    if (!text.trim()) return;
+    setShareStatus('Preparing…');
+    try {
+      const url = await buildShareUrl(text);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        setShareStatus('Copied!');
+      } else {
+        window.prompt('Copy share link:', url);
+        setShareStatus('Ready');
+      }
+    } catch {
+      setShareStatus('Failed');
+    }
+    if (shareTimerRef.current) clearTimeout(shareTimerRef.current);
+    shareTimerRef.current = setTimeout(() => setShareStatus(''), 2000);
+  }, [text]);
 
   const handleFile = useCallback((e) => {
     const file = e.target.files?.[0];
@@ -329,6 +378,18 @@ export default function UdsAnalyzerTab() {
           <Btn onClick={handleClear} color={C.tm} outline disabled={!text && !result}>
             ✕ Clear
           </Btn>
+          <Btn
+            onClick={handleCopyShareLink}
+            color={C.a4}
+            outline
+            disabled={!text.trim()}
+            data-testid="uds-analyzer-copy-share"
+          >
+            🔗 Copy share link
+          </Btn>
+          {shareStatus && (
+            <span style={{ fontSize: 11, color: C.gn, fontWeight: 700 }}>{shareStatus}</span>
+          )}
           {fileName && (
             <span style={{ fontSize: 11, color: C.ts, fontFamily: "'JetBrains Mono'" }}>{fileName}</span>
           )}
