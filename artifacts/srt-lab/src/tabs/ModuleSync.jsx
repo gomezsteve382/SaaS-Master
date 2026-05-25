@@ -1869,6 +1869,129 @@ function lookupPnOverride(files, file, bytes) {
   return !!match;
 }
 
+/* Task #801 — pre-download confirm for the BCM flat 0x40C9 repair on
+ * overlap dumps. The compatibility-mode selector is a power-user choice;
+ * picking the wrong side produces a file the destination tool will
+ * reject (IMMO_DAMAGED on legacy CGDI/AlfaOBD/SINCRO if canonical is
+ * picked, mirror1 CRC fail in SRT Lab if legacy-flat is picked). This
+ * modal mirrors the OverrideConfirmModal / target-chip confirm UX:
+ * spells out the trade-off, lists which tools accept the resulting
+ * file, and offers a "don't ask again this session" opt-out.
+ */
+function FlatRepairConfirmModal({ mode, onConfirm, onCancel }) {
+  const [dontAsk, setDontAsk] = useState(false);
+  const overlayRef = useRef(null);
+  const handleOverlay = (e) => { if (e.target === overlayRef.current) onCancel?.(); };
+  const isLegacy = mode === 'legacy-flat';
+  const summary = isLegacy
+    ? {
+        title: 'LEGACY-FLAT COMPATIBILITY',
+        oneLine: 'The legacy 0x40C9 slice will be written and the mirror1 record at 0x40C0 will be clobbered.',
+        accepted: ['CGDI', 'AlfaOBD', 'SINCRO', 'Autel (pre-Redeye flat readers)', 'SRT Lab (resolves via split records)'],
+        rejected: ['Bench tools that verify the mirror1 CRC will report mirror1 as inconsistent in this file (split records remain the master).'],
+      }
+    : {
+        title: 'CANONICAL',
+        oneLine: 'Mirror1 will be preserved on this overlap dump, so the legacy flat slice stays stale.',
+        accepted: ['SRT Lab', 'Modern bench tools that read split records / mirrors'],
+        rejected: ['CGDI, AlfaOBD, SINCRO and other legacy readers will still see the OLD secret in the flat slice and will likely report IMMO_DAMAGED.'],
+      };
+  return (
+    <div
+      ref={overlayRef}
+      onClick={handleOverlay}
+      data-testid="flat-repair-confirm"
+      data-mode={mode}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 10000,
+        background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(3px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+      }}>
+      <div style={{
+        background: C.cd, border: `1.5px solid ${C.wn}`, borderRadius: 14,
+        width: '100%', maxWidth: 560, boxShadow: '0 18px 60px rgba(0,0,0,0.5)',
+        overflow: 'hidden', display: 'flex', flexDirection: 'column',
+      }}>
+        <div style={{
+          padding: '14px 18px',
+          background: `linear-gradient(135deg, ${C.wn}22 0%, ${C.wn}11 100%)`,
+          borderBottom: `1px solid ${C.bd}`,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <div style={{ fontSize: 22 }}>⚠️</div>
+          <div>
+            <div style={{ fontWeight: 900, fontSize: 14, color: C.tx, letterSpacing: 0.5 }}>
+              OVERLAP DUMP — CONFIRM COMPATIBILITY MODE
+            </div>
+            <div style={{ fontSize: 11, color: C.ts, marginTop: 2 }}>
+              Mirror1 at 0x40C0 collides with the flat 0x40C9 slice — picking the wrong side produces a file the destination tool will reject.
+            </div>
+          </div>
+        </div>
+        <div style={{ padding: '16px 18px', fontSize: 13, color: C.tx, lineHeight: 1.5 }}>
+          <div style={{ marginBottom: 10 }}>
+            Selected mode: <strong style={{ color: C.sr }}>{summary.title}</strong>
+          </div>
+          <div style={{
+            background: C.wn + '14', border: `1px solid ${C.wn}55`, borderRadius: 8,
+            padding: '8px 10px', fontSize: 12, color: C.tx, marginBottom: 10,
+          }}>
+            {summary.oneLine}
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 800, color: C.gn, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 4 }}>
+            Tools that will accept this file
+          </div>
+          <ul style={{ margin: '0 0 12px 18px', padding: 0, color: C.tx, fontSize: 12 }}>
+            {summary.accepted.map(t => <li key={t} style={{ marginBottom: 2 }}>{t}</li>)}
+          </ul>
+          <div style={{ fontSize: 11, fontWeight: 800, color: C.er, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 4 }}>
+            Trade-off
+          </div>
+          <ul style={{ margin: '0 0 12px 18px', padding: 0, color: C.tx, fontSize: 12 }}>
+            {summary.rejected.map(t => <li key={t} style={{ marginBottom: 2 }}>{t}</li>)}
+          </ul>
+          <div style={{ fontSize: 11, color: C.ts, marginBottom: 10 }}>
+            To switch sides, cancel and toggle the &ldquo;Compatibility mode&rdquo; selector on the repair card.
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: C.ts, cursor: 'pointer', userSelect: 'none' }}>
+            <input
+              type="checkbox"
+              checked={dontAsk}
+              onChange={e => setDontAsk(e.target.checked)}
+              data-testid="flat-repair-dont-ask"
+              style={{ accentColor: C.a3, cursor: 'pointer' }}
+            />
+            Don&rsquo;t ask again for the rest of this session
+          </label>
+        </div>
+        <div style={{
+          padding: '12px 18px', borderTop: `1px solid ${C.bd}`,
+          display: 'flex', justifyContent: 'flex-end', gap: 10, background: C.c2,
+        }}>
+          <button
+            onClick={onCancel}
+            data-testid="flat-repair-cancel"
+            style={{
+              padding: '8px 16px', borderRadius: 8, border: `1px solid ${C.bd}`,
+              background: C.cd, color: C.tx, fontSize: 13, fontWeight: 700, cursor: 'pointer',
+            }}>
+            Cancel
+          </button>
+          <button
+            onClick={() => onConfirm?.(dontAsk)}
+            data-testid="flat-repair-confirm-btn"
+            style={{
+              padding: '8px 16px', borderRadius: 8, border: 'none',
+              background: C.wn, color: '#1A1A1A', fontSize: 13, fontWeight: 800, cursor: 'pointer',
+            }}>
+            Acknowledge &amp; Download
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function OverrideConfirmModal({ modules, onConfirm, onCancel }) {
   const [dontAsk, setDontAsk] = useState(false);
   const overlayRef = useRef(null);
@@ -2002,6 +2125,16 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
    * modules carry pnOverride (registry compatibility check was bypassed). */
   const [overrideConfirm, setOverrideConfirm] = useState(null); /* { action, overrideVin, modules } */
   const skipOverrideConfirmRef = useRef(false); /* per-session "don't ask again" */
+  /* Task #801 — pre-download confirm for the BCM flat 0x40C9 repair on
+   * overlap dumps. Holds { action, overrideVin, mode } until the tech
+   * acknowledges (or cancels) the compatibility trade-off. */
+  const [flatRepairConfirm, setFlatRepairConfirm] = useState(null);
+  const skipFlatRepairConfirmRef = useRef(false);
+  /* One-shot bypass set by the flat-repair confirm's onConfirm so the
+   * re-entry through doSync() doesn't re-open the modal but still runs
+   * every other preflight (notably the P/N override prompt). Cleared
+   * the moment doSync() consumes it. */
+  const flatRepairJustConfirmedRef = useRef(false);
   const logRef = useRef(null);
 
   const log = useCallback((msg, level = 'info') => {
@@ -2357,6 +2490,25 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   ];
 
   const doSync = (action, overrideVin) => {
+    /* Task #801 — on overlap dumps (mirror1 at 0x40C0 colliding with the
+     * flat 0x40C9 slice), the compatibility-mode choice has real
+     * consequences for which bench tool will accept the downloaded file.
+     * Surface a pre-download confirm summarizing the trade-off the first
+     * time the tech clicks the repair button this session. Skipped when
+     * "don't ask again" was checked, or when no overlap is present. */
+    if (action === 'bcm-flat-from-resolved') {
+      if (flatRepairJustConfirmedRef.current) {
+        /* Consume the one-shot bypass set by the confirm modal so the
+         * remaining preflight gates (P/N override etc.) still run. */
+        flatRepairJustConfirmedRef.current = false;
+      } else if (!skipFlatRepairConfirmRef.current) {
+        const overlap = flatRepairResolver?.candidates?.mirror1?.offset === 0x40C0;
+        if (overlap) {
+          setFlatRepairConfirm({ action, overrideVin, mode: flatRepairMode });
+          return;
+        }
+      }
+    }
     /* Task #475 — block any sync that emits a PCM file when the loaded
      * PCM is non-canonical, so a tech can't get past the disabled
      * button via a wizard step / programmatic call and end up with a
@@ -3553,6 +3705,32 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
             log(`Acknowledged P/N override on ${modules.join(', ')} — proceeding with ${action}.`, 'warn');
             setOverrideConfirm(null);
             executeSync(action, overrideVin);
+          }}
+        />
+      )}
+
+      {/* ── Flat 0x40C9 repair confirm (Task #801) ── */}
+      {flatRepairConfirm && (
+        <FlatRepairConfirmModal
+          mode={flatRepairConfirm.mode}
+          onCancel={() => {
+            log(`Flat 0x40C9 repair cancelled — compatibility-mode confirmation declined (${flatRepairConfirm.mode}).`, 'warn');
+            setFlatRepairConfirm(null);
+          }}
+          onConfirm={(dontAskAgain) => {
+            const { action, overrideVin, mode } = flatRepairConfirm;
+            if (dontAskAgain) {
+              skipFlatRepairConfirmRef.current = true;
+              log('Flat 0x40C9 repair confirm suppressed for the rest of this session.', 'muted');
+            }
+            log(`Acknowledged flat 0x40C9 repair in ${mode} mode — proceeding.`, 'warn');
+            setFlatRepairConfirm(null);
+            /* Route back through doSync so the remaining preflight gates
+             * (notably the P/N override confirm) still run on the combined
+             * overlap + override edge case. The one-shot bypass keeps the
+             * modal from re-opening on the re-entry. */
+            flatRepairJustConfirmedRef.current = true;
+            doSync(action, overrideVin);
           }}
         />
       )}
