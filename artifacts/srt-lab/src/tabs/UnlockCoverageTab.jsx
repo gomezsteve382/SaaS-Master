@@ -2974,7 +2974,7 @@ function VerificationsLogCard({
         >Export CSV</button>
       </div>
       <div style={{fontFamily: "'Nunito'", fontSize: 11, color: C.tm, marginBottom: 10, lineHeight: 1.4}}>
-        Chronological audit of every bench verification recorded for the competitor-parity capabilities — operator, VIN, capability, when, free-form notes. Filter or search, then export CSV for compliance / billing.
+        Chronological audit of every bench verification recorded for the competitor-parity capabilities — verifier, VIN, capability, when, free-form notes. Filter or search, then export CSV for compliance / billing.
       </div>
 
       {/* Task #652 — source-of-truth banner. Tells the operator whether

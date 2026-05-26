@@ -259,7 +259,7 @@ export default function BcmConfigTab({ vehicle }) {
       `${resetAfterWrite ? 'ECU reset (11 01) WILL be issued after the write.' : 'No reset will be issued.'}\n\n` +
       `This is a real WriteDataByIdentifier (2E) and will modify the BCM.`,
     )) {
-      log(`Write ${hxDid(did)} cancelled by tech`, 'warn');
+      log(`Write ${hxDid(did)} cancelled by user`, 'warn');
       return;
     }
     setBusy('writing');

@@ -178,7 +178,7 @@ export default function ProxiEditor({ addLog }) {
       `CRC will be recomputed and an ECU reset (11 01) will follow. ` +
       `This is a real WriteDataByIdentifier and will modify the live BCM.`
     )) {
-      log('Write cancelled by tech', 'warn');
+      log('Write cancelled by user', 'warn');
       return;
     }
     setBusy('writing');
