@@ -226,7 +226,7 @@ async function synthesise(
     return null;
   }
 
-  const text = response.content.find((b: { type: string }) => b.type === "text")?.text ?? "";
+  const text = (response.content.find((b) => b.type === "text") as { type: string; text?: string } | undefined)?.text ?? "";
   try {
     const cleaned = text.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
     const report = JSON.parse(cleaned) as SynthesisReport;

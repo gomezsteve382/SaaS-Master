@@ -26,16 +26,24 @@ export const investigationRunsTable = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     scope: text("scope"),
+    title: text("title"),
     dumpName: text("dump_name").notNull().default(""),
     dumpSize: integer("dump_size").notNull().default(0),
     referenceName: text("reference_name"),
     referenceSize: integer("reference_size"),
     status: text("status").notNull().default("pending"),
     summary: jsonb("summary"),
+    report: jsonb("report"),
+    binaryMeta: jsonb("binary_meta"),
+    agentIterCap: integer("agent_iter_cap"),
+    tokenBudget: integer("token_budget"),
+    totalTokensUsed: integer("total_tokens_used"),
     startedAt: timestamp("started_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
     finishedAt: timestamp("finished_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
   },
   (t) => ({
     scopeIdx: index("investigation_runs_scope_idx").on(t.scope),
@@ -67,6 +75,29 @@ export const investigationAgentFindingsTable = pgTable(
   }),
 );
 
+export const investigationAgentRunsTable = pgTable(
+  "investigation_agent_runs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => investigationRunsTable.id, { onDelete: "cascade" }),
+    agentName: text("agent_name").notNull(),
+    status: text("status").notNull().default("pending"),
+    findings: jsonb("findings"),
+    toolTrace: jsonb("tool_trace"),
+    iterations: integer("iterations").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    runIdx: index("investigation_agent_runs_run_idx").on(t.runId),
+  }),
+);
+
 export type InvestigationRun = typeof investigationRunsTable.$inferSelect;
 export type InvestigationAgentFinding =
   typeof investigationAgentFindingsTable.$inferSelect;
+export type InvestigationAgentRun =
+  typeof investigationAgentRunsTable.$inferSelect;

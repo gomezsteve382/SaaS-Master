@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from "react";
-import chargerImg from "@assets/charger_1776312563310.png";
+const chargerImg = "";
 import { C } from "@/lib/srt/constants.js";
 import { Card, Tag, Btn } from "@/lib/srt/ui.jsx";
 import { crc16, rfhSec16Cs, rfhGen2DetectMagic, rfhGen2VinCs, RFH_GEN2_VIN_CS_KNOWN_MAGICS } from "@/lib/srt/crc.js";

@@ -273,7 +273,8 @@ router.post("/conversations/:id/messages", async (req, res) => {
         max_tokens: 8192,
         system: systemPrompt,
         tools: [PATTERN_LIBRARY_TOOL],
-        messages: loopMessages,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        messages: loopMessages as any[],
         stream: false,
       });
 
@@ -302,7 +303,7 @@ router.post("/conversations/:id/messages", async (req, res) => {
 
       /* Model wants to call tools — execute them and append results. */
       if (toolUses.length > 0 && !isLastRound) {
-        loopMessages.push({ role: "assistant", content: resp.content as Array<Record<string, unknown>> });
+        loopMessages.push({ role: "assistant", content: resp.content as unknown as Array<Record<string, unknown>> });
 
         /* If there was also text before the tool call, accumulate it. */
         if (textParts.length > 0) {

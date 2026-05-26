@@ -10,10 +10,12 @@ router.post("/module-assistant", async (req, res) => {
     const mod = await import("@workspace/integrations-anthropic-ai");
     anthropic = mod.anthropic;
   } catch {
-    return res.status(503).json({ error: "AI service unavailable: Anthropic integration not configured" });
+    res.status(503).json({ error: "AI service unavailable: Anthropic integration not configured" });
+    return;
   }
   if (!anthropic) {
-    return res.status(503).json({ error: "AI service unavailable" });
+    res.status(503).json({ error: "AI service unavailable" });
+    return;
   }
 
   try {

@@ -294,7 +294,7 @@ router.get("/investigation", async (_req, res) => {
     const rows = await db
       .select()
       .from(investigationRunsTable)
-      .orderBy(desc(investigationRunsTable.createdAt))
+      .orderBy(desc(investigationRunsTable.startedAt))
       .limit(50);
     res.json(rows);
   } catch (err) {
