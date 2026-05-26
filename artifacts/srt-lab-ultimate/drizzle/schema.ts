@@ -247,6 +247,28 @@ export const keyFindingDismissals = pgTable("key_finding_dismissals", {
   dismissedAt: bigint("dismissed_at", { mode: "number" }).notNull(),
 });
 
+// ─── AI Learning ────────────────────────────────────────────────────────
+export const userProfile = pgTable("user_profile", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 }).notNull().unique(),
+  totalSessions: integer("total_sessions").notNull().default(0),
+  knownModules: jsonb("known_modules"),
+  knownAlgorithms: jsonb("known_algorithms"),
+  knownPatterns: jsonb("known_patterns"),
+  expertiseSummary: text("expertise_summary"),
+  updatedAt: bigint("updated_at", { mode: "number" }).notNull(),
+});
+
+export const analysisGoals = pgTable("analysis_goals", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  analysisId: varchar("analysis_id", { length: 36 }).notNull().unique(),
+  userId: varchar("user_id", { length: 36 }).notNull(),
+  userInstructions: text("user_instructions"),
+  summary: text("summary"),
+  keyFindings: jsonb("key_findings"),
+  createdAt: bigint("created_at", { mode: "number" }).notNull(),
+});
+
 // ─── YARA + Analysis Files ──────────────────────────────────────────────
 export const yaraRules = pgTable("yara_rules", {
   id: varchar("id", { length: 36 }).primaryKey(),
