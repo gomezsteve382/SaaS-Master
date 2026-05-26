@@ -202,6 +202,8 @@ export default function J2534UdsConsoleTab() {
   const [saOpen, setSaOpen] = useState(false);
   const [saLevelIdx, setSaLevelIdx] = useState(0);
   const [saAlgoId, setSaAlgoId] = useState("cda6");
+  const [saAutoConfirm, setSaAutoConfirm] = useState(false);
+  const [saPending, setSaPending] = useState(null);
 
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
@@ -236,6 +238,7 @@ export default function J2534UdsConsoleTab() {
       await bridgeCallRaw(urlRef.current, "/stopperiodic", { periodicId: pid }).catch(() => {});
       periodicIdRef.current = null;
     }
+    setSaPending(null);
     setStatus("disconnected");
     setLog([]);
     addLog("Disconnected — log cleared.", "info");
@@ -358,7 +361,7 @@ export default function J2534UdsConsoleTab() {
     send(bytes);
   }, [rawCmd, send]);
 
-  /* ── Security Access unlock flow ────────────────────────────────────── */
+  /* ── Security Access — Phase 1: request seed + compute key ──────────── */
   const runSecurityAccess = useCallback(async () => {
     if (status !== "can_connected") { addLog("Bridge not connected — connect first.", "error"); return; }
     const tx = parseAddr(txHex);
@@ -409,28 +412,61 @@ export default function J2534UdsConsoleTab() {
       }
       addLog(`Key (${algo.n}): ${bytesToHex(keyBytes)}`, "info");
 
-      /* Step 3: Send key — 27 XX+1 */
       const keyReq = [0x27, level.key & 0xFF, ...keyBytes];
-      addLog(`TX → 0x${hx(tx, 3)}: ${bytesToHex(keyReq)}  (sendKey)`, "tx");
-      const kr = await udsCall(urlRef.current, tx, rx, keyReq, 5000);
-      if (!kr.ok || !kr.d) {
-        addLog("Send-key failed: " + (kr.raw || "no response"), "error");
+
+      /* Auto-confirm: skip the interstitial and send immediately */
+      if (saAutoConfirm) {
+        addLog("Auto-confirm enabled — sending key immediately.", "warn");
+        await doSendKey({ tx, rx, level, algo, seedBytes, keyBytes, keyReq });
         return;
       }
-      addLog(`RX ← 0x${hx(rx, 3)}: ${bytesToHex(kr.d)}`, "rx");
 
-      if (kr.d[0] === 0x7F) {
-        const nrc = kr.d.length >= 3 ? kr.d[2] : 0;
-        addLog(`NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — wrong key or wrong algorithm`, "error");
-      } else if (kr.d[0] === 0x67 && kr.d[1] === (level.key & 0xFF)) {
-        addLog("Security access GRANTED ✓", "success");
-      } else {
-        addLog(`Unexpected send-key response: ${bytesToHex(kr.d)}`, "warn");
-      }
+      /* Pause for operator review */
+      addLog("Waiting for operator confirmation before sending key.", "info");
+      setSaPending({ tx, rx, level, algo, seedBytes, keyBytes, keyReq });
     } finally {
       setBusy(false);
     }
-  }, [status, txHex, rxHex, saLevelIdx, saAlgoId, addLog]);
+  }, [status, txHex, rxHex, saLevelIdx, saAlgoId, saAutoConfirm, addLog]);
+
+  /* ── Security Access — Phase 2: actually transmit 27 XX+1 ───────────── */
+  const doSendKey = useCallback(async ({ tx, rx, level, algo, seedBytes, keyBytes, keyReq }) => {
+    addLog(`TX → 0x${hx(tx, 3)}: ${bytesToHex(keyReq)}  (sendKey)`, "tx");
+    const kr = await udsCall(urlRef.current, tx, rx, keyReq, 5000);
+    if (!kr.ok || !kr.d) {
+      addLog("Send-key failed: " + (kr.raw || "no response"), "error");
+      return;
+    }
+    addLog(`RX ← 0x${hx(rx, 3)}: ${bytesToHex(kr.d)}`, "rx");
+    if (kr.d[0] === 0x7F) {
+      const nrc = kr.d.length >= 3 ? kr.d[2] : 0;
+      addLog(`NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — wrong key or wrong algorithm`, "error");
+    } else if (kr.d[0] === 0x67 && kr.d[1] === (level.key & 0xFF)) {
+      addLog("Security access GRANTED ✓", "success");
+    } else {
+      addLog(`Unexpected send-key response: ${bytesToHex(kr.d)}`, "warn");
+    }
+  }, [addLog]);
+
+  const confirmSendKey = useCallback(async () => {
+    if (!saPending) return;
+    const pending = saPending;
+    setSaPending(null);
+    setBusy(true);
+    try {
+      await doSendKey(pending);
+    } finally {
+      setBusy(false);
+    }
+  }, [saPending, doSendKey]);
+
+  const cancelSendKey = useCallback(() => {
+    if (!saPending) return;
+    addLog(`Key send CANCELLED by operator.`, "warn");
+    addLog(`  Seed: ${bytesToHex(saPending.seedBytes)}`, "info");
+    addLog(`  Key:  ${bytesToHex(saPending.keyBytes)}`, "info");
+    setSaPending(null);
+  }, [saPending, addLog]);
 
   /* ── Module preset picker ───────────────────────────────────────────── */
   const pickModule = useCallback((mod) => {
@@ -657,19 +693,116 @@ export default function J2534UdsConsoleTab() {
                   {(SA_ALGOS.find(a => a.id === saAlgoId) || SA_ALGOS[0]).h}
                 </div>
 
-                {/* Unlock button */}
-                <button
-                  onClick={runSecurityAccess}
-                  disabled={busy}
-                  style={{
-                    width: "100%", padding: "10px 0", borderRadius: 6, border: `1px solid ${busy ? S.border : S.yellow}`,
-                    background: busy ? "#222" : "#1A1000", color: busy ? "#555" : S.yellow,
-                    fontFamily: S.font, fontWeight: 800, fontSize: 12, letterSpacing: 1,
-                    cursor: busy ? "not-allowed" : "pointer", transition: "all 0.2s",
-                  }}
-                >
-                  {busy ? "Running…" : "▶ Request Seed → Compute Key → Send Key"}
-                </button>
+                {/* Auto-confirm toggle */}
+                <label style={{
+                  display: "flex", alignItems: "center", gap: 8, marginBottom: 14,
+                  cursor: "pointer", userSelect: "none",
+                }}>
+                  <div
+                    onClick={() => setSaAutoConfirm(v => !v)}
+                    style={{
+                      width: 34, height: 18, borderRadius: 9, position: "relative",
+                      background: saAutoConfirm ? "#5A3A00" : "#1A1A1A",
+                      border: `1px solid ${saAutoConfirm ? S.yellow : S.border}`,
+                      transition: "all 0.2s", flexShrink: 0,
+                    }}
+                  >
+                    <div style={{
+                      position: "absolute", top: 2, left: saAutoConfirm ? 16 : 2,
+                      width: 12, height: 12, borderRadius: "50%",
+                      background: saAutoConfirm ? S.yellow : "#555",
+                      transition: "left 0.2s",
+                    }} />
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: saAutoConfirm ? S.yellow : S.dim, letterSpacing: 1 }}>
+                    AUTO-CONFIRM
+                  </span>
+                  <span style={{ fontSize: 10, color: "#444" }}>
+                    {saAutoConfirm ? "Key will be sent without review" : "Confirm key before sending"}
+                  </span>
+                </label>
+
+                {/* Confirmation interstitial */}
+                {saPending && (
+                  <div style={{
+                    borderRadius: 8, border: `2px solid ${S.yellow}`,
+                    background: "#110B00", padding: "14px 16px", marginBottom: 12,
+                  }}>
+                    <div style={{
+                      fontSize: 11, fontWeight: 800, color: S.yellow, letterSpacing: 1.5, marginBottom: 10,
+                    }}>
+                      ⚠ CONFIRM KEY SEND
+                    </div>
+                    <div style={{ fontSize: 10, color: S.dim, marginBottom: 8, lineHeight: 1.7 }}>
+                      Review the computed values below. Sending a wrong key can trigger NRC 0x35 (attempt counter)
+                      and repeated failures may cause NRC 0x36/0x37 (module lockout).
+                    </div>
+                    <div style={{
+                      display: "grid", gridTemplateColumns: "80px 1fr", gap: "4px 12px",
+                      fontFamily: S.mono, fontSize: 11, marginBottom: 14,
+                    }}>
+                      <span style={{ color: S.dim, fontWeight: 700 }}>Module</span>
+                      <span style={{ color: "#CCC" }}>
+                        TX 0x{hx(saPending.tx, 3)} → RX 0x{hx(saPending.rx, 3)}
+                      </span>
+                      <span style={{ color: S.dim, fontWeight: 700 }}>Level</span>
+                      <span style={{ color: "#CCC" }}>
+                        {saPending.level.label.split("—")[0].trim()} (seed 0x{hx(saPending.level.seed)}, key 0x{hx(saPending.level.key)})
+                      </span>
+                      <span style={{ color: S.dim, fontWeight: 700 }}>Algorithm</span>
+                      <span style={{ color: "#CCC" }}>{saPending.algo.n}</span>
+                      <span style={{ color: S.dim, fontWeight: 700 }}>Seed</span>
+                      <span style={{ color: "#4FC3F7", fontWeight: 700 }}>{bytesToHex(saPending.seedBytes)}</span>
+                      <span style={{ color: S.dim, fontWeight: 700 }}>Key</span>
+                      <span style={{ color: S.green, fontWeight: 700 }}>{bytesToHex(saPending.keyBytes)}</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                      <button
+                        onClick={confirmSendKey}
+                        disabled={busy}
+                        style={{
+                          flex: 1, padding: "9px 0", borderRadius: 6,
+                          border: `1px solid ${busy ? S.border : S.green}`,
+                          background: busy ? "#222" : "#001A00",
+                          color: busy ? "#555" : S.green,
+                          fontFamily: S.font, fontWeight: 800, fontSize: 12, letterSpacing: 1,
+                          cursor: busy ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        {busy ? "Sending…" : "✓ Send Key"}
+                      </button>
+                      <button
+                        onClick={cancelSendKey}
+                        disabled={busy}
+                        style={{
+                          padding: "9px 18px", borderRadius: 6,
+                          border: `1px solid ${S.border}`,
+                          background: "none", color: S.dim,
+                          fontFamily: S.font, fontWeight: 700, fontSize: 12,
+                          cursor: busy ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Unlock button — hidden while confirmation is pending */}
+                {!saPending && (
+                  <button
+                    onClick={runSecurityAccess}
+                    disabled={busy}
+                    style={{
+                      width: "100%", padding: "10px 0", borderRadius: 6, border: `1px solid ${busy ? S.border : S.yellow}`,
+                      background: busy ? "#222" : "#1A1000", color: busy ? "#555" : S.yellow,
+                      fontFamily: S.font, fontWeight: 800, fontSize: 12, letterSpacing: 1,
+                      cursor: busy ? "not-allowed" : "pointer", transition: "all 0.2s",
+                    }}
+                  >
+                    {busy ? "Running…" : "▶ Request Seed → Compute Key"}
+                  </button>
+                )}
               </div>
             )}
           </div>
