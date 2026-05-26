@@ -92,20 +92,76 @@ wizard against the same VIN, and the receiver accepts the chip on the
 first try because UID + payload already match SEC16. No re-virginization,
 no PIN dance.
 
-## Future: Express daemon
+## HTTP fallback (`/api/key-writer/transport/*`)
 
-A future task can mirror this over an `/api/key-writer/*` endpoint
-backed by a Node `serialport` daemon for desktop browsers without Web
-Serial (Firefox, locked-down corporate Chromiums). Out of scope here
-because the only existing native bridge — `tools/python-bridge/` — is
-off-limits by user preference, and adding a second daemon is a separate
-architecture call.
+Web Serial is Chromium-only. For Firefox, locked-down corporate
+browsers, and field laptops where Web Serial is disabled, the tab
+exposes a **Probe HTTP fallback** button that hits the api-server.
+Two endpoints, both in `artifacts/api-server/src/routes/keyWriter.ts`:
+
+- `GET  /api/key-writer/transport/status` →
+  `{ available, reason, model?, firmware? }`. If the server has no
+  daemon configured (default), `available:false` with a clear reason
+  so the UI can fall back to Simulator cleanly.
+- `POST /api/key-writer/transport/send` accepts
+  `{ frame: base64 }` and returns `{ frame: base64 }`. Without a
+  configured daemon this returns 501 with a clear message.
+
+The server reads `KEY_WRITER_DAEMON_URL` (and optional
+`KEY_WRITER_DAEMON_TIMEOUT_MS`) and forwards requests to a small
+desktop USB-CDC daemon that the bench operator runs locally. We
+deliberately do **not** bundle a native `serialport` addon into the
+web-server build — that turns the SRT Lab deploy into a hardware-
+specific binary. The relay shape is intentionally trivial so any
+language can implement the daemon.
+
+Client side: `src/lib/keyWriter/httpTransport.js` mirrors the
+`send(frame) → Promise<Uint8Array>` contract used by WebSerial and
+Simulator, so the burn pipeline never needs to special-case transport.
+
+## Writer detection
+
+The **Detect writer** button issues a `CMD.PING` and parses the ACK
+payload as `[status, modelId, fwMajor, fwMinor]`. `modelId 0x01` ⇒
+"VVDI Mini Key Tool", `0x02` ⇒ "Tango". The result surfaces as
+`Writer: …` / `Firmware: v…` pills on the transport card so the
+operator can confirm the bench setup before sending real secret
+bytes. Refuse-on-doubt: a non-ACK response or a short payload leaves
+the pills cleared and surfaces the error in red.
+
+## RFHUB handoff CTA
+
+After a successful burn the tab renders a green **Open RFHUB tab**
+button. Clicking it:
+
+1. Writes `{slotIdx, chipId, writerId, at}` to
+   `sessionStorage['srtlab:keywriter:handoff']` (one-shot — read +
+   cleared by RfhubTab on mount).
+2. Calls the parent's `onOpenTab('rfhub')` so the App switches tabs
+   without the operator hunting for it.
+
+RfhubTab renders a `<KeyWriterHandoffBanner/>` at the top of its
+render output that surfaces the handoff record so the operator can
+visually confirm the chip about to be paired matches the one that was
+just burned.
 
 ## Test coverage
 
-`src/lib/__tests__/keyWriter.test.js` — 21 tests covering framing
-round-trip, FrameReader resync against junk bytes, serializer refusal
-gates, chip family lookup, and the full `burnSlot` happy path + four
-fault profiles (no chip, wrong chip, locked, verify mismatch).
+- `src/lib/__tests__/keyWriter.test.js` — framing round-trip,
+  FrameReader resync against junk bytes, serializer refusal gates,
+  chip family lookup, and the full `burnSlot` happy path + four
+  fault profiles (no chip, wrong chip, locked, verify mismatch).
+- `src/lib/__tests__/keyWriterFixture.test.js` — replays the
+  recorded wire trace at
+  `src/lib/keyWriter/__fixtures__/vvdi-mini-burn-trace.json` so any
+  change to framing/serializer bytes trips a clear failure here
+  instead of a live-hardware regression. Fixture is synthetic-but-
+  stable today; the test stays valid the moment a real VVDI Mini
+  capture replaces the bytes (flip `_meta.verified_against_hardware`
+  to `true` at the same time).
+- `src/tabs/__tests__/KeyWriterTab.ui.test.jsx` — Task #862 smoke
+  test: mounts the tab, mocks `parseKeySlots`, walks load → pick
+  slot → burn → KEYMOD WRITTEN → handoff CTA → sessionStorage record
+  through the React DOM.
 
 Run with: `pnpm --filter @workspace/srt-lab test`

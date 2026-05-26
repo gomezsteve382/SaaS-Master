@@ -22,6 +22,44 @@ import {runDealerLockoutBypass,dealerLockoutBypassSteps} from "../lib/dealerLock
 import Sec16PreflightCard from "../components/Sec16PreflightCard.jsx";
 import {extractRfhPflashIdentity} from "../lib/rfhPflashIdentity.js";
 import {pinnedStatus,formatRegistryEntry} from "../lib/rfhPinnedRegistry.js";
+import {useEffect} from "react";
+
+/**
+ * KEY WRITER → RFHUB handoff banner.
+ *
+ * The Key Writer tab writes a one-shot record to sessionStorage when
+ * the operator clicks "Open RFHUB tab" after a successful chip burn.
+ * This banner reads that record, shows it once, and clears it so a
+ * page refresh doesn't keep the prompt around. Slot/chip/writer are
+ * surfaced verbatim so the operator can confirm the pairing they're
+ * about to run on the bus matches the chip that was just burned.
+ */
+function KeyWriterHandoffBanner(){
+  const [handoff,setHandoff]=useState(null);
+  useEffect(()=>{
+    try{
+      const raw=sessionStorage.getItem('srtlab:keywriter:handoff');
+      if(!raw)return;
+      const obj=JSON.parse(raw);
+      if(obj && typeof obj.slotIdx==='number')setHandoff(obj);
+    }catch{/* ignore — sessionStorage may be disabled */}
+  },[]);
+  if(!handoff)return null;
+  const dismiss=()=>{
+    try{sessionStorage.removeItem('srtlab:keywriter:handoff');}catch{/* ignore */}
+    setHandoff(null);
+  };
+  return <Card data-testid="rfhub-keywriter-handoff" style={{marginBottom:14,background:'#E8F5E9',borderColor:C.gn}}>
+    <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+      <div style={{fontSize:20}}>🗝️</div>
+      <div style={{flex:1,fontSize:12,color:'#1B5E20',lineHeight:1.6}}>
+        <strong>Chip burned by Key Writer</strong> — slot {handoff.slotIdx+1}, chip <code>{handoff.chipId}</code>, writer <code>{handoff.writerId}</code>.
+        Now run RoutineControl 0x0401 below with the same VIN to pair this chip with the RFHUB.
+      </div>
+      <Btn onClick={dismiss} color={C.tm} outline data-testid="rfhub-keywriter-handoff-dismiss">Dismiss</Btn>
+    </div>
+  </Card>;
+}
 
 // VIN-specific RFHUB CRC algorithms (poly+init pairs derived from real dumps).
 // Used as a hint shown to the user; the actual write goes through UDS so the
@@ -333,6 +371,7 @@ export default function RfhubTab({vehicle}){
 
   const vinValid=masterVin.length===17;
   return <div>
+    <KeyWriterHandoffBanner/>
     {showConfirmModal&&<ReadFirstModal
       module="RFHUB"
       currentState={[

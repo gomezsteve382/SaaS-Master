@@ -1252,7 +1252,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='gpecunlock'&& <Gpec2aUnlockTab/>}
         {tab==='exttools'  && <ExternalToolsTab onOpenTab={setTab}/>}
         {tab==='radiocodes'&& <RadioCodesTab/>}
-        {tab==='keywriter' && <KeyWriterTab/>}
+        {tab==='keywriter' && <KeyWriterTab onOpenTab={setTab}/>}
         {tab==='binintel'  && <BinaryIntelTab/>}
         {tab==='dispatchcov' && <DispatchCoverageTab/>}
         {tab==='alfaintel' && <AlfaObdIntelTab/>}

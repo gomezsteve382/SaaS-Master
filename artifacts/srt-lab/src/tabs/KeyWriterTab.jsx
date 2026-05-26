@@ -20,7 +20,10 @@ import { parseKeySlots, KEY_ID_BLOCK_LEN } from '../lib/rfhubKeySlots.js';
 import { CHIP_FAMILIES, chipForRfhubGen } from '../lib/keyWriter/chipFamilies.js';
 import { SimulatorTransport, FAULT_HANDLERS } from '../lib/keyWriter/simulator.js';
 import { connectWebSerial, isWebSerialAvailable } from '../lib/keyWriter/webSerialTransport.js';
+import { HttpTransport, probeHttpTransport } from '../lib/keyWriter/httpTransport.js';
 import { burnSlot } from '../lib/keyWriter/index.js';
+import { buildPingRequest } from '../lib/keyWriter/serializer.js';
+import { parseFrame, CMD } from '../lib/keyWriter/protocol.js';
 
 const WRITERS = [
   { id: 'vvdi-mini', label: 'Xhorse VVDI Mini Key Tool' },
@@ -47,7 +50,7 @@ function readFileBytes(file) {
   });
 }
 
-export default function KeyWriterTab() {
+export default function KeyWriterTab({ onOpenTab } = {}) {
   const [rfhFile, setRfhFile] = useState(null);
   const [rfhBytes, setRfhBytes] = useState(null);
   const [parsed, setParsed] = useState(null);
@@ -57,13 +60,17 @@ export default function KeyWriterTab() {
   const [chipId, setChipId] = useState('pcf7953');
   const [writerId, setWriterId] = useState('vvdi-mini');
 
-  const [mode, setMode] = useState('sim'); // 'sim' | 'webserial'
+  const [mode, setMode] = useState('sim'); // 'sim' | 'webserial' | 'http'
   const [simProfile, setSimProfile] = useState('happy');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
   const [log, setLog] = useState([]);
   const [serialError, setSerialError] = useState(null);
   const transportRef = useRef(null);
+  // Detected writer model + firmware (populated by Detect button).
+  const [writerInfo, setWriterInfo] = useState(null); // {model, firmware, source}
+  // HTTP fallback probe — null = not probed, false = unavailable, {available,reason,...}.
+  const [httpProbe, setHttpProbe] = useState(null);
 
   const onLoadRfh = useCallback(async (e) => {
     const f = e.target.files?.[0];
@@ -133,8 +140,70 @@ export default function KeyWriterTab() {
   const disconnectSerial = useCallback(async () => {
     try { await transportRef.current?.close(); } catch { /* ignore */ }
     transportRef.current = null;
+    setWriterInfo(null);
     setMode('sim');
   }, []);
+
+  // Probe the api-server fallback. Caches result in component state so the
+  // operator can decide to switch into HTTP mode without re-probing.
+  const probeHttp = useCallback(async () => {
+    setSerialError(null);
+    const p = await probeHttpTransport({});
+    setHttpProbe(p);
+    if (p.available) {
+      try { await transportRef.current?.close(); } catch { /* ignore */ }
+      transportRef.current = new HttpTransport({});
+      setMode('http');
+      if (p.model || p.firmware) {
+        setWriterInfo({ model: p.model || 'unknown', firmware: p.firmware || 'unknown', source: 'http-status' });
+      }
+    }
+  }, []);
+
+  // PING the live writer (Web Serial or HTTP) and surface model + firmware.
+  // The ACK payload for CMD_PING is documented as
+  //   [status, modelId, fwMajor, fwMinor]
+  // in docs/key-writer-bridge.md. Refuse-on-doubt: if the response is not a
+  // CMD_PING ACK we leave writerInfo untouched and surface the error.
+  const detectWriter = useCallback(async () => {
+    const t = transportRef.current;
+    if (!t) {
+      setSerialError('Connect Web Serial or enable the HTTP fallback first.');
+      return;
+    }
+    setSerialError(null);
+    try {
+      const built = buildPingRequest();
+      if (!built.ok) throw new Error('failed to build ping request');
+      const respBytes = await t.send(built.frame);
+      const parsed = parseFrame(respBytes);
+      if (!parsed.ok || !parsed.frame || parsed.frame.cmd !== CMD.ACK) {
+        throw new Error(`unexpected ping reply (${parsed.error || 'cmd 0x' + (parsed.frame?.cmd ?? 0).toString(16)})`);
+      }
+      const p = parsed.frame.payload || new Uint8Array();
+      if (p.length < 4) throw new Error(`short ping payload (${p.length} bytes)`);
+      const modelMap = { 0x01: 'VVDI Mini Key Tool', 0x02: 'Tango' };
+      const model = modelMap[p[1]] || `unknown (0x${p[1].toString(16)})`;
+      const fw = `v${p[2]}.${p[3]}`;
+      setWriterInfo({ model, firmware: fw, source: mode });
+    } catch (e) {
+      setSerialError(`Detect failed: ${e.message || e}`);
+      setWriterInfo(null);
+    }
+  }, [mode]);
+
+  const openRfhubHandoff = useCallback(() => {
+    if (!slot) return;
+    try {
+      sessionStorage.setItem('srtlab:keywriter:handoff', JSON.stringify({
+        slotIdx: slot.idx,
+        chipId,
+        writerId,
+        at: Date.now(),
+      }));
+    } catch { /* ignore — sessionStorage can be disabled */ }
+    onOpenTab?.('rfhub');
+  }, [slot, chipId, writerId, onOpenTab]);
 
   const runBurn = useCallback(async () => {
     if (!slot || !secret16) return;
@@ -335,12 +404,41 @@ export default function KeyWriterTab() {
             {mode === 'webserial' && (
               <Btn onClick={disconnectSerial} color={C.tm} outline>Disconnect</Btn>
             )}
+            <Btn
+              onClick={probeHttp}
+              color={mode === 'http' ? C.gn : C.tm}
+              outline={mode !== 'http'}
+              data-testid="kwriter-mode-http"
+            >
+              {mode === 'http' ? '✓ HTTP fallback active' : 'Probe HTTP fallback'}
+            </Btn>
+            <Btn
+              onClick={detectWriter}
+              color={C.tm}
+              outline
+              disabled={mode === 'sim'}
+              data-testid="kwriter-detect"
+            >
+              Detect writer
+            </Btn>
             {!isWebSerialAvailable() && (
               <span style={{ fontSize: 11, color: C.ts }}>
-                Web Serial unavailable in this browser — Simulator only.
+                Web Serial unavailable in this browser — use HTTP fallback or Simulator.
               </span>
             )}
           </div>
+          {writerInfo && (
+            <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }} data-testid="kwriter-writer-info">
+              <Tag color={C.gn}>Writer: {writerInfo.model}</Tag>
+              <Tag color={C.tm}>Firmware: {writerInfo.firmware}</Tag>
+              <Tag color={C.tm}>via {writerInfo.source}</Tag>
+            </div>
+          )}
+          {httpProbe && !httpProbe.available && (
+            <div style={{ fontSize: 11, color: C.ts, marginTop: 6 }} data-testid="kwriter-http-probe">
+              HTTP fallback unavailable: {httpProbe.reason}
+            </div>
+          )}
           {mode === 'sim' && (
             <div style={{ marginTop: 8 }}>
               <div style={{ fontSize: 10, color: C.tm, letterSpacing: 1.4, marginBottom: 4 }}>SIMULATOR FAULT PROFILE</div>
@@ -429,6 +527,11 @@ export default function KeyWriterTab() {
         <Card style={{ marginBottom: 16, background: '#E8F5E9', borderColor: C.gn }}>
           <div style={{ fontSize: 12, color: '#1B5E20', lineHeight: 1.6 }}>
             ✓ Chip burn verified. Next step: leave the chip in the FOBIK, switch to the <strong>RFHUB</strong> tab, and run the RoutineControl 0x0401 pairing with the same VIN — the receiver will accept the freshly-burned ID because its UID + payload already match the SEC16 master secret you just sent the writer.
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <Btn onClick={openRfhubHandoff} color={C.gn} data-testid="kwriter-open-rfhub">
+              ▶ Open RFHUB tab (slot {slot ? slot.idx + 1 : '—'} preloaded)
+            </Btn>
           </div>
         </Card>
       )}
