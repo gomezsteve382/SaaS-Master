@@ -46,6 +46,38 @@ function matchesQuery(tab, q) {
   return hay.includes(q);
 }
 
+// Render `text` with the first case-insensitive occurrence of `q` wrapped
+// in a <mark> for visual emphasis. Returns the raw string when no query
+// or no match so non-searching renders stay byte-identical.
+function highlightMatch(text, q) {
+  if (!text) return text;
+  if (!q) return text;
+  const lower = text.toLowerCase();
+  const idx = lower.indexOf(q);
+  if (idx < 0) return text;
+  const before = text.slice(0, idx);
+  const hit = text.slice(idx, idx + q.length);
+  const after = text.slice(idx + q.length);
+  return (
+    <>
+      {before}
+      <mark
+        data-testid="sidebar-match"
+        style={{
+          background: 'rgba(211,47,47,0.35)',
+          color: '#F4F1EC',
+          padding: 0,
+          borderRadius: 2,
+          fontWeight: 800,
+        }}
+      >
+        {hit}
+      </mark>
+      {after}
+    </>
+  );
+}
+
 export default function WorkspaceSidebar({tabs, categories, activeTab, onSelect, accent = ACCENT}) {
   const narrow = useIsNarrow(900);
   // Group tabs by category in their original registry order.
@@ -296,10 +328,10 @@ function SECTION_ROUTE_RENDER({
                   {!narrow && (
                     <span style={{display: 'flex', flexDirection: 'column', minWidth: 0}}>
                       <span style={{fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
-                        {t.l}
+                        {searching ? highlightMatch(t.l, q) : t.l}
                       </span>
                       <span style={{fontSize: 9, color: active ? 'rgba(244,241,236,0.65)' : TEXT_FAINT, marginTop: 2, fontWeight: 500, letterSpacing: 0.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
-                        {t.s}
+                        {searching ? highlightMatch(t.s, q) : t.s}
                       </span>
                     </span>
                   )}
