@@ -1,197 +1,187 @@
-/**
- * UDS Session Analyzer — auto-resolve decoration pass (Task #826)
- *
- * Pure, dependency-free decoration layer that runs after analyzeSession()
- * and surfaces three orthogonal pieces of context for every parsed
- * exchange:
- *
- *   1. ecuName       — friendly ECU label derived from the request CAN ID
- *                       via reverse lookup of ECU_TO_CAN_FROM_EXE
- *                       (provenance: 'alfaobd-il').
- *   2. routineLabel  — RoutineControl friendly label derived from the
- *                       request hex via UDS_FRAME_TO_ROUTINES (prefix
- *                       match, longest first) cross-referenced against
- *                       ROUTINE_CATALOG_FROM_EXE idx[1]
- *                       (provenance: 'alfaobd-il').
- *   3. didCatalogName — already populated by analyzeSession() via the
- *                       built-in @workspace/uds didEntry() (provenance:
- *                       'iso14229'); this module just confirms it flows
- *                       through exchange.did.name / exchange.dids[*].name.
- *
- * No React imports, no DOM access, no side effects.
- */
+// UDS Session Analyzer — frame resolver.
+//
+// Pure helpers that decorate a parsed UDS frame with:
+//   • ecuName     — target ECU name from CAN-ID (AlfaOBD intel, unverified)
+//   • serviceLabel — service + sub-function description (ISO 14229, canonical)
+//   • routineLabel — for 0x31 RoutineControl, the routine name (AlfaOBD intel)
+//
+// Every resolved field carries a `source` provenance tag so the UI and
+// downstream consumers can show users where the label came from. Sources:
+//   • 'iso14229'                — canonical ISO 14229-1 service table
+//   • 'alfaobd-intel-unverified' — mined from the AlfaOBD .exe decompile
+//
+// Unknown / missing data returns `null` for the affected field — callers
+// must handle the unresolved case gracefully. No side effects, no I/O.
 
+import { SERVICES, serviceForSid } from '@workspace/uds';
 import { ECU_TO_CAN_FROM_EXE } from '../ecuToCanFromExe.generated.js';
-import { UDS_FRAME_TO_ROUTINES } from '../dispatchToRoutine.generated.js';
 import { ROUTINE_CATALOG_FROM_EXE } from '../routineCatalogFromExe.generated.js';
+import { UDS_FRAME_TO_ROUTINES } from '../dispatchToRoutine.generated.js';
 
-const ECU_SOURCE = 'alfaobd-il';
-const ROUTINE_SOURCE = 'alfaobd-il';
+export const SOURCE_ISO14229 = 'iso14229';
+export const SOURCE_ALFAOBD = 'alfaobd-intel-unverified';
 
-// --- ECU reverse lookup -----------------------------------------------------
-
-function isNumericName(s) {
-  return /^[\d,]+$/.test(s);
-}
-
-function isPlatformName(s) {
-  // Vehicle platform / model-year identifiers that aren't an ECU name per se.
-  if (/^MY\s*\d/i.test(s)) return true;
-  if (/PowerNet/i.test(s)) return true;
-  if (/^\(/.test(s)) return true;                // "(RM) ROUTAN", "(KA) NITRO"
-  if (/^RAM\s/i.test(s)) return true;
-  return false;
-}
-
-function pickBestName(names) {
-  const filtered = names.filter(n => !isNumericName(n) && !isPlatformName(n));
-  // Prefer the first multi-word descriptive name (e.g. "Radio Frequency HUB"
-  // over the family-code short form "TPM").
-  const withSpace = filtered.find(n => /\s/.test(n));
-  return withSpace || filtered[0] || names[0] || null;
-}
-
-const CAN_TO_ECU_NAMES = (() => {
-  const map = new Map();
-  for (const [name, canIds] of Object.entries(ECU_TO_CAN_FROM_EXE)) {
+// ── CAN-ID → ECU name reverse index ─────────────────────────────────────────
+//
+// ECU_TO_CAN_FROM_EXE has two key shapes mixed together: numeric strings
+// ("10", "13", …) which are AlfaOBD-internal enum codes, and human-readable
+// ECU names ("Radio Frequency HUB", "TIPM_CGW", …). Only the human-readable
+// keys produce a useful label for the analyzer, so the index ignores the
+// numeric-string entries.
+let _canToEcuCache = null;
+function canToEcuIndex() {
+  if (_canToEcuCache) return _canToEcuCache;
+  const out = new Map();
+  for (const [key, canIds] of Object.entries(ECU_TO_CAN_FROM_EXE)) {
+    if (/^\d+$/.test(key)) continue;
     if (!Array.isArray(canIds)) continue;
     for (const id of canIds) {
-      if (!map.has(id)) map.set(id, []);
-      map.get(id).push(name);
+      const list = out.get(id) ?? [];
+      if (!list.includes(key)) list.push(key);
+      out.set(id, list);
     }
   }
-  return map;
-})();
+  _canToEcuCache = out;
+  return out;
+}
 
 /**
- * Resolve a CAN ID (decimal) to a friendly ECU name (or array when
- * multiple descriptive names survive filtering).
- *
- * @param {number} canId
- * @returns {string|string[]|null}
+ * Resolve an ECU name for a CAN-ID. Returns null when the id is unknown
+ * or undefined (e.g. bare-hex / Req-Resp traces with no CAN framing).
  */
 export function resolveEcuName(canId) {
   if (canId == null) return null;
-  const names = CAN_TO_ECU_NAMES.get(canId);
-  if (!names || !names.length) return null;
-  const filtered = names.filter(n => !isNumericName(n) && !isPlatformName(n));
-  if (!filtered.length) {
-    const best = pickBestName(names);
-    return best || null;
-  }
-  if (filtered.length === 1) return filtered[0];
-  // Multi-ECU CAN ID: return the full array of descriptive names so the
-  // caller can disambiguate.
-  return filtered.slice();
+  const names = canToEcuIndex().get(canId);
+  if (!names || names.length === 0) return null;
+  return {
+    value: names.length === 1 ? names[0] : names.join(' / '),
+    candidates: [...names],
+    source: SOURCE_ALFAOBD,
+  };
 }
 
-// --- Routine resolution -----------------------------------------------------
+// ── ISO 14229 service + sub-function ────────────────────────────────────────
 
-function normHex(s) { return String(s).toLowerCase().replace(/\s+/g, ''); }
+/**
+ * Resolve the ISO 14229 service name (and sub-function description when
+ * available) for a request's first byte(s). Returns null for empty input
+ * or for SIDs not in the standard service table.
+ */
+export function resolveService(reqBytes) {
+  if (!reqBytes || reqBytes.length === 0) return null;
+  const sid = reqBytes[0];
+  // Negative responses (0x7F sid nrc) are not "services" — leave for callers.
+  if (sid === 0x7F) return null;
+  const svc = serviceForSid(sid);
+  if (!svc) return null;
+  let value = svc.name;
+  let subFunctionName = null;
+  if (reqBytes.length >= 2 && Array.isArray(svc.subFunctions) && svc.subFunctions.length > 0) {
+    const sf = reqBytes[1] & 0x7F; // mask suppress-positive-response bit
+    const sub = svc.subFunctions.find(s => s.value === sf);
+    if (sub) {
+      subFunctionName = sub.name;
+      value = `${svc.name} / ${sub.name}`;
+    }
+  }
+  return {
+    value,
+    serviceName: svc.name,
+    subFunctionName,
+    sid,
+    source: SOURCE_ISO14229,
+  };
+}
+
+// Keep SERVICES referenced so tree-shakers don't drop the named export when
+// the resolver only uses serviceForSid (tests import SERVICES through the
+// barrel for round-trip checks).
+export const _SERVICES_REF = SERVICES;
+
+// ── RoutineControl (0x31) routine name ──────────────────────────────────────
+
+function hx(b) {
+  return b.toString(16).toUpperCase().padStart(2, '0');
+}
 
 function bytesToHex(bytes) {
-  return bytes.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-const FRAME_MAP = (() => {
-  const m = new Map();
-  for (const [k, rids] of Object.entries(UDS_FRAME_TO_ROUTINES)) {
-    if (!Array.isArray(rids) || !rids.length) continue;
-    m.set(normHex(k), rids);
-  }
-  // Sort keys by length descending so prefix matching picks the most
-  // specific frame first.
-  const sortedKeys = [...m.keys()].sort((a, b) => b.length - a.length);
-  return { map: m, sortedKeys };
-})();
-
-function ridToHexLabel(rid) {
-  return '0x' + rid.toString(16).toUpperCase().padStart(4, '0');
-}
-
-function routineFriendlyName(rid) {
-  const entry = ROUTINE_CATALOG_FROM_EXE[String(rid)] || ROUTINE_CATALOG_FROM_EXE[rid];
-  if (!entry) return null;
-  // idx[1] = ECU friendly name (per generated file JSDoc).
-  return entry['1'] || null;
+  return bytes.map(hx).join(' ');
 }
 
 /**
- * Resolve a request byte array to a routine label + the full candidate list.
+ * Resolve the routine name for a RoutineControl (0x31) request by:
+ *   1. looking up the full request hex in UDS_FRAME_TO_ROUTINES, then
+ *   2. progressively dropping trailing bytes until a match is found,
+ *      stopping at "31 <sub>" (4-byte minimum: sid+sub+RID hi+lo).
  *
- * @param {number[]} reqBytes
- * @returns {{ routineLabel: string|null, routineCandidates: Array<{rid:number,label:string|null}>|null }}
+ * The match list maps to routine_ids in ROUTINE_CATALOG_FROM_EXE; the
+ * routine's friendly name lives at field "1". Returns null for non-0x31
+ * frames or when no dispatch entry exists.
  */
 export function resolveRoutine(reqBytes) {
-  if (!Array.isArray(reqBytes) || reqBytes.length === 0) {
-    return { routineLabel: null, routineCandidates: null };
+  if (!reqBytes || reqBytes[0] !== 0x31 || reqBytes.length < 4) return null;
+  const ridLabel = `0x${hx(reqBytes[2])}${hx(reqBytes[3])}`;
+
+  for (let n = reqBytes.length; n >= 2; n--) {
+    const key = bytesToHex(reqBytes.slice(0, n));
+    const rids = UDS_FRAME_TO_ROUTINES[key];
+    if (!rids || rids.length === 0) continue;
+
+    const names = [];
+    for (const rid of rids) {
+      const entry = ROUTINE_CATALOG_FROM_EXE[String(rid)];
+      const name = entry?.['1'];
+      if (name && !names.includes(name)) names.push(name);
+    }
+    let value;
+    if (names.length === 0) {
+      value = `${ridLabel} — routine ${rids.join('/')}`;
+    } else if (names.length === 1) {
+      value = `${ridLabel} — ${names[0]}`;
+    } else {
+      const head = names.slice(0, 3).join(', ');
+      const tail = names.length > 3 ? `, +${names.length - 3} more` : '';
+      value = `${ridLabel} — ${names.length} candidates (${head}${tail})`;
+    }
+    return {
+      value,
+      ridLabel,
+      routineIds: [...rids],
+      candidates: names,
+      matchedKey: key,
+      source: SOURCE_ALFAOBD,
+    };
   }
-  const hex = bytesToHex(reqBytes);
-  for (const key of FRAME_MAP.sortedKeys) {
-    // Require at least 2 bytes (4 hex chars) of match to avoid noisy
-    // bare-SID hits like "22" or "31" that resolve to dozens of unrelated
-    // routines.
-    if (key.length < 4) continue;
-    if (!hex.startsWith(key)) continue;
-    const rids = FRAME_MAP.map.get(key);
-    const candidates = rids.map(rid => ({ rid, label: routineFriendlyName(rid) }));
-    const best = candidates.find(c => c.label) || candidates[0];
-    const ridHex = ridToHexLabel(best.rid);
-    const routineLabel = best.label ? `${ridHex} ${best.label}` : ridHex;
-    return { routineLabel, routineCandidates: candidates };
-  }
-  return { routineLabel: null, routineCandidates: null };
+  return null;
 }
 
-// --- Public API -------------------------------------------------------------
+// ── Convenience aggregate ───────────────────────────────────────────────────
 
 /**
- * Decorate a single analyzed exchange with ECU + routine context.
- * Pure function; does not mutate its argument.
- *
- * Provenance:
- *   - ecuName / routineLabel come from AlfaOBD.exe IL extraction
- *     ('alfaobd-il').
- *   - DID names (already attached by analyzeSession via @workspace/uds
- *     didEntry) come from the built-in ISO 14229 catalog ('iso14229').
- *
- * @param {object} exchange
- * @returns {{
- *   ecuName: string|string[]|null,
- *   ecuSource: string|null,
- *   routineLabel: string|null,
- *   routineCandidates: Array<{rid:number,label:string|null}>|null,
- *   routineSource: string|null,
- * }}
+ * Resolve every supported field for a single parsed request line.
+ * Accepts either a parser line ({ canId, bytes }) or a plain byte array.
+ * Always returns an object — each field is the resolution result or null.
  */
-export function resolveExchange(exchange) {
-  const canId = exchange?.request?.canId ?? exchange?.response?.canId ?? null;
-  const ecuName = resolveEcuName(canId);
-
-  const reqBytes = exchange?.request?.bytes;
-  const { routineLabel, routineCandidates } = resolveRoutine(reqBytes || []);
-
+export function resolveFrame(input) {
+  const line = Array.isArray(input) ? { canId: null, bytes: input } : (input || {});
+  const bytes = line.bytes || [];
   return {
-    ecuName,
-    ecuSource: ecuName ? ECU_SOURCE : null,
-    routineLabel,
-    routineCandidates,
-    routineSource: routineLabel ? ROUTINE_SOURCE : null,
+    ecuName: resolveEcuName(line.canId),
+    serviceLabel: resolveService(bytes),
+    routineLabel: resolveRoutine(bytes),
   };
 }
 
 /**
- * Return a new session object with every exchange decorated under
- * exchange.resolved. Pure: original session and exchanges are not mutated.
- *
- * @param {{exchanges: object[]} & object} session
- * @returns {object}
+ * Compose a single human-readable "Resolved" string suitable for the
+ * analyzer's searchable column. Joins the non-null parts with " · ".
+ * Returns an empty string when nothing resolved.
  */
-export function resolveSession(session) {
-  if (!session || !Array.isArray(session.exchanges)) return session;
-  const exchanges = session.exchanges.map(ex => ({
-    ...ex,
-    resolved: resolveExchange(ex),
-  }));
-  return { ...session, exchanges };
+export function formatResolved(resolved) {
+  if (!resolved) return '';
+  const parts = [];
+  if (resolved.ecuName) parts.push(resolved.ecuName.value);
+  if (resolved.serviceLabel) parts.push(resolved.serviceLabel.value);
+  if (resolved.routineLabel) parts.push(resolved.routineLabel.value);
+  return parts.join(' · ');
 }

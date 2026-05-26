@@ -11,6 +11,7 @@
  */
 
 import { serviceForSid, serviceForPosRsp, NRC_TABLE, didEntry, decodeDid } from '@workspace/uds';
+import { resolveFrame, formatResolved } from './resolver.js';
 
 const NRC_PLAIN_CAUSES = {
   0x10: 'Verify the service is appropriate for this module and that the request format is correct.',
@@ -600,6 +601,20 @@ export function analyzeSession(parsedLines) {
     if (exchange.severity === 'FAIL' && !firstFailure) {
       firstFailure = exchange;
     }
+  }
+
+  // Decorate every exchange with frame resolution (ECU name, ISO 14229
+  // service/sub-function, RoutineControl name). Pure post-pass — fields
+  // are optional so downstream consumers can ignore them safely.
+  for (const ex of exchanges) {
+    const reqLine = ex.request;
+    if (!reqLine) {
+      ex.resolved = { ecuName: null, serviceLabel: null, routineLabel: null };
+      ex.resolvedText = '';
+      continue;
+    }
+    ex.resolved = resolveFrame(reqLine);
+    ex.resolvedText = formatResolved(ex.resolved);
   }
 
   const diagnosis = buildDiagnosis(exchanges, saState, sessionEscalated, pendingTimeouts);

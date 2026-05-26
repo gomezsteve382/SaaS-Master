@@ -79,12 +79,71 @@ function DiagCard({ item }) {
   );
 }
 
+const SOURCE_BADGE_STYLE = {
+  iso14229: { bg: '#E3F2FD', fg: '#0D47A1', label: 'ISO 14229' },
+  'alfaobd-intel-unverified': { bg: '#FFF3E0', fg: '#E65100', label: 'AlfaOBD · unverified' },
+};
+
+function SourceBadge({ source }) {
+  const s = SOURCE_BADGE_STYLE[source];
+  if (!s) return null;
+  return (
+    <span
+      title={source}
+      style={{
+        display: 'inline-block',
+        padding: '1px 6px',
+        marginLeft: 6,
+        borderRadius: 6,
+        fontSize: 8,
+        fontWeight: 800,
+        letterSpacing: 0.5,
+        background: s.bg,
+        color: s.fg,
+        fontFamily: "'JetBrains Mono'",
+        verticalAlign: 'middle',
+      }}
+    >
+      {s.label}
+    </span>
+  );
+}
+
+function ResolvedCell({ resolved }) {
+  if (!resolved || (!resolved.ecuName && !resolved.serviceLabel && !resolved.routineLabel)) {
+    return <span style={{ color: C.tm, fontStyle: 'italic', fontSize: 10 }}>unresolved</span>;
+  }
+  return (
+    <span style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
+      {resolved.ecuName && (
+        <span style={{ fontWeight: 700, color: C.tx }}>
+          {resolved.ecuName.value}
+          <SourceBadge source={resolved.ecuName.source} />
+        </span>
+      )}
+      {resolved.routineLabel && (
+        <span style={{ color: C.a3 }}>
+          {resolved.routineLabel.value}
+          <SourceBadge source={resolved.routineLabel.source} />
+        </span>
+      )}
+      {!resolved.ecuName && !resolved.routineLabel && resolved.serviceLabel && (
+        <span style={{ color: C.ts }}>
+          {resolved.serviceLabel.value}
+          <SourceBadge source={resolved.serviceLabel.source} />
+        </span>
+      )}
+    </span>
+  );
+}
+
 function ExchangeRow({ ex, idx }) {
   const [open, setOpen] = useState(false);
   const col = SEV_COLOR[ex.severity] || C.ts;
 
   return (
     <div
+      data-testid="uds-analyzer-exchange-row"
       style={{
         borderBottom: `1px solid ${C.bd}`,
         background: open ? `${col}05` : 'transparent',
@@ -94,7 +153,7 @@ function ExchangeRow({ ex, idx }) {
         onClick={() => setOpen(p => !p)}
         style={{
           display: 'grid',
-          gridTemplateColumns: '28px 60px 160px 90px 1fr',
+          gridTemplateColumns: '28px 60px 160px 90px 1.2fr 1fr',
           gap: 8,
           padding: '7px 12px',
           cursor: 'pointer',
@@ -114,6 +173,9 @@ function ExchangeRow({ ex, idx }) {
         </div>
         <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.ts, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {ex.requestBytes || '—'}
+        </div>
+        <div data-testid="uds-analyzer-resolved-cell" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 10 }}>
+          <ResolvedCell resolved={ex.resolved} />
         </div>
         <div style={{ fontSize: 11, color: col, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {ex.verdict}
@@ -461,7 +523,8 @@ export default function UdsAnalyzerTab() {
         e.service?.toLowerCase().includes(f) ||
         e.verdict?.toLowerCase().includes(f) ||
         e.requestBytes?.toLowerCase().includes(f) ||
-        e.responseBytes?.toLowerCase().includes(f)
+        e.responseBytes?.toLowerCase().includes(f) ||
+        e.resolvedText?.toLowerCase().includes(f)
       );
     }
     return exs;
@@ -717,8 +780,15 @@ export default function UdsAnalyzerTab() {
               </div>
             </div>
 
-            <div style={{ fontSize: 9, color: C.tm, marginBottom: 6, display: 'grid', gridTemplateColumns: '28px 60px 160px 90px 1fr', gap: 8, padding: '0 12px', fontWeight: 700, letterSpacing: 1 }}>
-              <div>TIME</div><div>SEV</div><div>SERVICE / SUB</div><div>REQ BYTES</div><div>VERDICT</div>
+            <div style={{ fontSize: 10, color: C.tm, marginBottom: 6, padding: '0 12px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontWeight: 700, letterSpacing: 1 }}>SOURCES:</span>
+              <SourceBadge source="iso14229" />
+              <span style={{ fontSize: 10 }}>= canonical ISO 14229</span>
+              <SourceBadge source="alfaobd-intel-unverified" />
+              <span style={{ fontSize: 10 }}>= AlfaOBD .exe intel (unverified, treat as hint)</span>
+            </div>
+            <div style={{ fontSize: 9, color: C.tm, marginBottom: 6, display: 'grid', gridTemplateColumns: '28px 60px 160px 90px 1.2fr 1fr', gap: 8, padding: '0 12px', fontWeight: 700, letterSpacing: 1 }}>
+              <div>TIME</div><div>SEV</div><div>SERVICE / SUB</div><div>REQ BYTES</div><div>RESOLVED</div><div>VERDICT</div>
             </div>
             <div style={{ border: `1px solid ${C.bd}`, borderRadius: 8, maxHeight: 440, overflowY: 'auto' }}>
               {filteredExchanges.length === 0 ? (
