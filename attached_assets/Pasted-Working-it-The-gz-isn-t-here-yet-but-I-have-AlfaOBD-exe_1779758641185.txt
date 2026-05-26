@@ -1,0 +1,61 @@
+Working it. The .gz isn't here yet — but I have AlfaOBD.exe on disk, and the dispatch logic must live in its IL (it's the runtime that ships UDS frames). Going to hunt it directly.
+
+Committed
+d9c365e
+Now hunting the actual UDS dispatch in AlfaOBD.exe's IL.
+
+Ran
+Hunt for UDS dispatch / SQL / Tier-1 IDs in AlfaOBD.exe decrypted strings
+Two solid leads. The string '3101' (= UDS RoutineControl startRoutine prefix 0x31 0x01) IS in the #US heap at offset 0x471. And '22046=15203' looks like a key=value pairing referencing label_id 1520. Let me drill into both.
+
+Ran
+Track '3101' and '22046=15203' deeper — call sites + K/V meaning
+Major lead. The 11 strings '3101' through '3111' clustered at 0x471-0x4F5 in #US are a hardcoded UDS RoutineControl sub-function table inside AlfaOBD.exe's IL. Six methods reference ldstr '3101'. Let me identify what those methods do and find the table they're building.
+
+
+Ran a command
+The .cctor of Method[5] contains 7,199 ldstr operations and the pattern arr[0]=label_id, arr[1]=UDS_byte. This IS the dispatch! Let me extract every pair systematically.
+
+
+Ran 2 commands
+This IS the dispatch table. 863 entries map 4-digit AlfaOBD procedure IDs → KWP2000/UDS service bytes. The pattern 3028 → 0x07 (KWP2000 ReadDTC), 3030 → 0x10 (StartDiagSession), 3031 → 0x11 (ECUReset) is exactly the dispatch. Plus 45 entries with 5-byte UDS frames. Now hunting for Tier-1 routine IDs.
+
+Ran
+Find Tier-1 routine IDs in the dispatch + extract every pair
+The Tier-1 routines aren't in this .cctor list — these 863 pairs (3028→0x07, etc.) are AlfaOBD UI screen IDs → UDS service bytes, not routine dispatch. Let me search for Tier-1 IDs as BINARY VALUES in the IL (as int16/int32 literals), since they might be passed numerically rather than as strings.
+
+Ran
+Search AlfaOBD.exe for Tier-1 IDs as binary integers + UDS RoutineControl byte sequences
+BINGO. The dispatch is per-routine with 5 string fields per (routine_id, ecu_variant) entry. Pattern is ldc.i4 <routine_id>; ldc.i4 <index 0-4>; ldstr <encrypted>; call h(decrypt). Let me extract all 5 fields for every Tier-1 ID.
+
+Ran
+Extract all 5 dispatch fields for every Tier-1 routine ID
+The dispatch table is THERE — I just need to actually decrypt the strings. They're encrypted; my existing JSON has the wrong salt for these. Let me brute-force-decrypt each #US offset that the Tier-1 dispatch references.
+
+Ran
+Brute-force decrypt every dispatch entry per Tier-1 routine
+This IS the dispatch. 5 of 8 Tier-1 routines have real per-ECU dispatch entries with applicability strings, sub-codes, year ranges. Most interesting: routines 1750 and 1751 differ only at index[3] (0 vs 1) — that's the sub-parameter byte. Saving this and sweeping the entire IL for all routines.
+
+
+Ran 3 commands, used 2 tools
+Saving the Tier-1 dispatch I already have while the full sweep continues.
+
+Committed
+8efd80b
+Pushed 8efd80b. Tier-1 dispatch is now in the repo — extracted directly from AlfaOBD.exe IL, not from the .db.
+
+What's confirmed so far (waiting on the full sweep for the rest)
+Routine	Dispatch found	Key fields decoded
+1126 BCM→ECM/ESL Code Card	✅ 17 entries	MARELLI6F3_CAN; Chrysler Pentastar/Hemi; Alfa MITO; Fiat DOBLO/PUNTO/FIORINO/QUBO
+1520 Create BCM backup of RF-HUB secret	✅ 18 entries	TBM2; Radio Frequency HUB; ALFA GIULIA/STELVIO; ProMaster VF; 500E; Fiat 6V; Jeep RENEGADE; MY2020+
+1750 BCM→ECM/PCM secret transfer	✅ 6 entries	Comfort Steering Wheel Module Continental; idx[3]=0
+1751 BCM→ESL secret transfer	✅ 6 entries	Comfort Steering Wheel Module Continental; idx[3]=1 ← identical to 1750 except this field
+1367 FOBIK after RFH replace	✅ 15 entries	CCN; Audio Amplifier; (MK)COMPASS/PATRIOT/LIBERTY; MY2011+
+2504 RF-HUB Reset/Replace	❌ Computed dispatch (no ldstr literal)	
+2505/2507 FOBIK programming	❌ Computed dispatch	
+2508 Transfer secret key	❌ Computed dispatch	
+The 1750/1751 finding is concrete proof the structure is real: identical dispatch entries except idx[3] = 0 vs 1. That field is the routine sub-parameter that picks ECM/PCM vs ESL — exactly the difference in the routine descriptions.
+
+The 4 missing routines (2504/2505/2507/2508) use a different IL pattern — ldc.i4 rid; ldc.i4 idx; call MemberRef[X] instead of an inline ldstr. Their dispatch comes from a method return value, not a literal. Tracing those producer methods is next, but the full IL-wide sweep running in background will tell us how many OTHER routines have dispatch entries in the same ldc.i4-ldc.i4-ldstr-call h pattern.
+
+I'll fold the sweep results in as soon as it finishes (notification will come from the Monitor).
