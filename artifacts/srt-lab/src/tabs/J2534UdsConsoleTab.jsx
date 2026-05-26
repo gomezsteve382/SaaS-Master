@@ -74,6 +74,7 @@ const QUICK_CMDS = [
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────── */
 function hx(n, w = 2) { return n.toString(16).toUpperCase().padStart(w, "0"); }
+const saStorageKey = (txHex) => `sa_algo_${txHex.toLowerCase().replace(/\s/g, "")}`;
 function hexToBytes(s) {
   const clean = s.replace(/[^0-9a-fA-F]/g, "");
   const out = [];
@@ -183,9 +184,22 @@ function Btn({ children, onClick, disabled, color = S.blue, small }) {
    0x27 0x02 → send key    (level 1), positive: 0x67 0x02
    (odd = seed request, even = key send — standard ISO 14229-1)          */
 const SA_LEVELS = [
-  { label: "0x01 — Default / Programming", seed: 0x01, key: 0x02 },
-  { label: "0x03 — Extended level 3",      seed: 0x03, key: 0x04 },
-  { label: "0x05 — Extended level 5",      seed: 0x05, key: 0x06 },
+  { label: "0x01 — Default / Programming",  seed: 0x01, key: 0x02 },
+  { label: "0x03 — Extended level 3",       seed: 0x03, key: 0x04 },
+  { label: "0x05 — Extended level 5",       seed: 0x05, key: 0x06 },
+  { label: "0x08 — NGC / TIPM t3608",       seed: 0x08, key: 0x09 },
+  { label: "0x0C — Cummins CM2100/CM2200",  seed: 0x0C, key: 0x0D },
+  { label: "0x10 — GPEC2 alt level",        seed: 0x10, key: 0x11 },
+  { label: "0x34 — JTEC (fixed key)",       seed: 0x34, key: 0x35 },
+  { label: "0x36 — GPEC2 / TIPM t3605",     seed: 0x36, key: 0x37 },
+  { label: "0x3C — TIPM t3c",               seed: 0x3C, key: 0x3D },
+  { label: "0x42 — GPEC2 variant",          seed: 0x42, key: 0x43 },
+  { label: "0x44 — GPEC2 variant",          seed: 0x44, key: 0x45 },
+  { label: "0x60 — EPS (session 0x67 req)", seed: 0x60, key: 0x61 },
+  { label: "0x80 — NGC / TIPM t8001",       seed: 0x80, key: 0x81 },
+  { label: "0x81 — TIPM t8101",             seed: 0x81, key: 0x82 },
+  { label: "0x88 — NGC high-byte variant",  seed: 0x88, key: 0x89 },
+  { label: "0xC6 — TIPM tc605",             seed: 0xC6, key: 0xC7 },
 ];
 
 /* ALGOS entries available in the SA picker — exclude the catch-all custom entry */
@@ -206,9 +220,12 @@ export default function J2534UdsConsoleTab() {
   const [saLevelIdx, setSaLevelIdx] = useState(0);
   const [saAlgoId, setSaAlgoId] = useState("cda6");
   const [saAutoConfirm, setSaAutoConfirm] = useState(false);
+  const [saSweepLevels, setSaSweepLevels] = useState(false);
   const [saPending, setSaPending] = useState(null);
   const [saExtHint, setSaExtHint] = useState(false);
   const [saDetectedAlgo, setSaDetectedAlgo] = useState(null);
+  const [saRememberedAlgo, setSaRememberedAlgo] = useState(null);
+  const [saDetectedLevel, setSaDetectedLevel] = useState(null);
   const [saRememberedAlgo, setSaRememberedAlgo] = useState(null);
 
   const logRef = useRef(null);
@@ -221,6 +238,7 @@ export default function J2534UdsConsoleTab() {
   /* When TX address changes: load remembered algo from localStorage, clear live detection */
   useEffect(() => {
     setSaDetectedAlgo(null);
+    setSaDetectedLevel(null);
     const saved = localStorage.getItem(saStorageKey(txHex));
     if (saved && SA_ALGOS.find(a => a.id === saved)) {
       setSaAlgoId(saved);
@@ -230,8 +248,9 @@ export default function J2534UdsConsoleTab() {
     }
   }, [txHex]);
 
-  /* Clear live detection when RX address or SA level changes (TX handled above) */
-  useEffect(() => { setSaDetectedAlgo(null); }, [rxHex, saLevelIdx]);
+  /* Clear live detection when RX address changes (TX handled above; saLevelIdx intentionally
+     excluded — the sweep sets it programmatically and must not wipe the winner badge) */
+  useEffect(() => { setSaDetectedAlgo(null); setSaDetectedLevel(null); }, [rxHex]);
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
@@ -485,10 +504,12 @@ export default function J2534UdsConsoleTab() {
       addLog(`NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — wrong key or wrong algorithm`, "error");
     } else if (kr.d[0] === 0x67 && kr.d[1] === (level.key & 0xFF)) {
       addLog("Security access GRANTED ✓", "success");
+      localStorage.setItem(saStorageKey(txHex), algo.id);
+      setSaRememberedAlgo(algo.id);
     } else {
       addLog(`Unexpected send-key response: ${bytesToHex(kr.d)}`, "warn");
     }
-  }, [addLog]);
+  }, [addLog, txHex]);
 
   const confirmSendKey = useCallback(async () => {
     if (!saPending) return;
@@ -542,144 +563,173 @@ export default function J2534UdsConsoleTab() {
   }, [status, txHex, rxHex, addLog, runSecurityAccess]);
 
   /* ── Auto-detect: iterate pickUnlockChain, log each attempt ─────────── */
+  /* When saSweepLevels is true an outer loop iterates all SA_LEVELS;
+     NRC 0x12 (subFunctionNotSupported) or 0x31 (requestOutOfRange) on the
+     seed request mean the module doesn't support that SA level — we skip it
+     rather than aborting. All other abort conditions (0x36 lockout, comm
+     failure, unexpected NRC) still abort the whole sweep immediately. */
   const runAutoDetect = useCallback(async () => {
     if (status !== "can_connected") { addLog("Bridge not connected — connect first.", "error"); return; }
     const tx = parseAddr(txHex);
     const rx = parseAddr(rxHex);
     if (isNaN(tx) || isNaN(rx)) { addLog("Invalid TX/RX address.", "error"); return; }
 
-    const level = SA_LEVELS[saLevelIdx];
+    const levelsToTry = saSweepLevels ? SA_LEVELS : [SA_LEVELS[saLevelIdx]];
     const chain = pickUnlockChain(tx);
 
-    addLog(`── Auto-detect Security Access (level 0x${hx(level.seed & 0x1F)}, ${chain.length} algos) ──`, "header");
+    if (saSweepLevels) {
+      addLog(`── Auto-detect Security Access — sweeping ${levelsToTry.length} levels × ${chain.length} algos ──`, "header");
+    } else {
+      const lvl = levelsToTry[0];
+      addLog(`── Auto-detect Security Access (level 0x${hx(lvl.seed)}, ${chain.length} algos) ──`, "header");
+    }
     setSaDetectedAlgo(null);
+    setSaDetectedLevel(null);
     setBusy(true);
 
     // Track why the loop ended so the terminal message is accurate.
-    // 'lockout'   — NRC 0x36: module locked, no point trying more algos
+    // 'lockout'   — NRC 0x36: module locked, no point trying more
     // 'comm'      — transport failure (no response / bad framing)
     // 'nrc_abort' — unexpected NRC on seed or key that retrying won't fix
-    // 'exhausted' — all algos tried, none succeeded
+    // 'exhausted' — all level+algo combinations tried, none succeeded
     let exitReason = 'exhausted';
 
     try {
-      outer: for (const algoId of chain) {
-        const algoMeta = SA_ALGOS.find(a => a.id === algoId);
-        const algoLabel = algoMeta ? algoMeta.n : algoId;
+      levelLoop: for (const level of levelsToTry) {
+        if (saSweepLevels) {
+          addLog(`  ── level 0x${hx(level.seed)} (${level.label.split("—")[1]?.trim() || ""}) ──`, "header");
+        }
 
-        addLog(`  trying ${algoLabel}…`, "info");
+        algoLoop: for (const algoId of chain) {
+          const algoMeta = SA_ALGOS.find(a => a.id === algoId);
+          const algoLabel = algoMeta ? algoMeta.n : algoId;
 
-        let seedRetryLeft = 1; // allow one 0x37 retry per algo
-        let keyRetryLeft  = 1;
+          addLog(`    trying ${algoLabel}…`, "info");
 
-        /* ── seed request loop (handles NRC 0x37 delay) ── */
-        let seedBytes = null;
-        while (true) {
-          const seedReq = [0x27, level.seed & 0xFF];
-          const sr = await udsCall(urlRef.current, tx, rx, seedReq, 5000);
-          if (!sr.ok || !sr.d) {
-            addLog(`    seed: no response — aborting`, "error");
-            exitReason = 'comm';
-            break outer;
-          }
+          let seedRetryLeft = 1; // allow one 0x37 retry per algo
+          let keyRetryLeft  = 1;
 
-          if (sr.d[0] === 0x7F) {
-            const nrc = sr.d.length >= 3 ? sr.d[2] : 0;
-            if (nrc === 0x36) {
-              addLog(`    seed NRC 0x36 (exceededNumberOfAttempts) — module locked`, "error");
-              exitReason = 'lockout';
-              break outer;
+          /* ── seed request loop (handles NRC 0x37 delay) ── */
+          let seedBytes = null;
+          while (true) {
+            const seedReq = [0x27, level.seed & 0xFF];
+            const sr = await udsCall(urlRef.current, tx, rx, seedReq, 5000);
+            if (!sr.ok || !sr.d) {
+              addLog(`      seed: no response — aborting`, "error");
+              exitReason = 'comm';
+              break levelLoop;
             }
-            if (nrc === 0x37 && seedRetryLeft > 0) {
-              const delayMs = (sr.d.length >= 4 ? sr.d[3] * 1000 : 0) || 1500;
-              addLog(`    seed NRC 0x37 — waiting ${delayMs} ms`, "warn");
-              seedRetryLeft--;
-              await new Promise(r => setTimeout(r, delayMs));
-              continue;
+
+            if (sr.d[0] === 0x7F) {
+              const nrc = sr.d.length >= 3 ? sr.d[2] : 0;
+              if (nrc === 0x36) {
+                addLog(`      seed NRC 0x36 (exceededNumberOfAttempts) — module locked`, "error");
+                exitReason = 'lockout';
+                break levelLoop;
+              }
+              if (nrc === 0x37 && seedRetryLeft > 0) {
+                const delayMs = (sr.d.length >= 4 ? sr.d[3] * 1000 : 0) || 1500;
+                addLog(`      seed NRC 0x37 — waiting ${delayMs} ms`, "warn");
+                seedRetryLeft--;
+                await new Promise(r => setTimeout(r, delayMs));
+                continue;
+              }
+              // NRC 0x12 (subFunctionNotSupported) or 0x31 (requestOutOfRange)
+              // means this SA level is not supported by this module — skip to
+              // the next level when sweeping, otherwise abort.
+              if (saSweepLevels && (nrc === 0x12 || nrc === 0x31)) {
+                addLog(`      seed NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — level not supported, skipping`, "warn");
+                break algoLoop; // advance to next level
+              }
+              // Any other NRC means the session or SA level is wrong for this
+              // module — a different algorithm won't help, so abort.
+              addLog(`      seed NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — non-retryable, aborting`, "error");
+              exitReason = 'nrc_abort';
+              break levelLoop;
             }
-            // Any other NRC means the session or SA level is wrong for this
-            // module — a different algorithm won't help, so abort the chain.
-            addLog(`    seed NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — non-retryable, aborting`, "error");
-            exitReason = 'nrc_abort';
-            break outer;
+
+            if (sr.d[0] !== 0x67 || sr.d[1] !== (level.seed & 0xFF)) {
+              addLog(`      unexpected seed response: ${bytesToHex(sr.d)} — aborting`, "warn");
+              exitReason = 'comm';
+              break levelLoop;
+            }
+
+            seedBytes = Array.from(sr.d).slice(2);
+            break; // got a valid seed
           }
 
-          if (sr.d[0] !== 0x67 || sr.d[1] !== (level.seed & 0xFF)) {
-            addLog(`    unexpected seed response: ${bytesToHex(sr.d)} — aborting`, "warn");
-            exitReason = 'comm';
-            break outer;
-          }
+          if (!seedBytes) break; // levelLoop break already set exitReason
 
-          seedBytes = Array.from(sr.d).slice(2);
-          break; // got a valid seed
-        }
-
-        if (!seedBytes) break; // outer break already set exitReason
-
-        if (!seedBytes.some(b => b !== 0)) {
-          addLog(`    zero seed — module already unlocked (algo unverified, not remembered)`, "success");
-          setSaAlgoId(algoId);
-          setSaDetectedAlgo(algoId);
-          // Do NOT persist: zero seed proves nothing about which algo is correct.
-          // The module was already unlocked before we tried any key.
-          return;
-        }
-        addLog(`    seed: ${bytesToHex(seedBytes)}`, "info");
-
-        /* Compute key */
-        const keyBytes = unlockKeyBytes(algoId, seedBytes);
-        if (!keyBytes) {
-          addLog(`    ${algoLabel} returned null for this seed — skipping`, "warn");
-          continue;
-        }
-        addLog(`    key:  ${bytesToHex(keyBytes)}`, "info");
-
-        /* ── send key loop (handles NRC 0x37 delay) ── */
-        while (true) {
-          const keyReq = [0x27, level.key & 0xFF, ...keyBytes];
-          const kr = await udsCall(urlRef.current, tx, rx, keyReq, 5000);
-          if (!kr.ok || !kr.d) {
-            addLog(`    send-key: no response — skipping`, "warn");
-            break; // no response — try next algo
-          }
-
-          if (kr.d[0] === 0x67 && kr.d[1] === (level.key & 0xFF)) {
-            addLog(`Auto-detect WINNER → ${algoLabel} (${algoId}) ✓`, "success");
+          if (!seedBytes.some(b => b !== 0)) {
+            addLog(`      zero seed — already unlocked at level 0x${hx(level.seed)}`, "success");
+            const winnerIdx = SA_LEVELS.indexOf(level);
+            if (winnerIdx >= 0) setSaLevelIdx(winnerIdx);
             setSaAlgoId(algoId);
             setSaDetectedAlgo(algoId);
+            setSaDetectedLevel(level);
             localStorage.setItem(saStorageKey(txHex), algoId);
             setSaRememberedAlgo(algoId);
             return;
           }
+          addLog(`      seed: ${bytesToHex(seedBytes)}`, "info");
 
-          if (kr.d[0] === 0x7F) {
-            const nrc = kr.d.length >= 3 ? kr.d[2] : 0;
-            if (nrc === 0x36) {
-              addLog(`    key NRC 0x36 — module locked`, "error");
-              exitReason = 'lockout';
-              break outer;
-            }
-            if (nrc === 0x37 && keyRetryLeft > 0) {
-              const delayMs = (kr.d.length >= 4 ? kr.d[3] * 1000 : 0) || 1500;
-              addLog(`    key NRC 0x37 — waiting ${delayMs} ms`, "warn");
-              keyRetryLeft--;
-              await new Promise(r => setTimeout(r, delayMs));
-              continue;
-            }
-            if (nrc === 0x35) {
-              // Expected "wrong algorithm" response — advance to next algo.
-              addLog(`    NRC 0x35 (invalidKey) — next`, "warn");
-            } else {
-              // Unexpected NRC (session-level, auth denial, etc.) — trying
-              // another algorithm won't help for the same seed level. Abort.
-              addLog(`    key NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — non-retryable, aborting`, "error");
-              exitReason = 'nrc_abort';
-              break outer;
-            }
-          } else {
-            addLog(`    unexpected key response: ${bytesToHex(kr.d)} — skipping`, "warn");
+          /* Compute key */
+          const keyBytes = unlockKeyBytes(algoId, seedBytes);
+          if (!keyBytes) {
+            addLog(`      ${algoLabel} returned null for this seed — skipping`, "warn");
+            continue;
           }
-          break; // advance chain
+          addLog(`      key:  ${bytesToHex(keyBytes)}`, "info");
+
+          /* ── send key loop (handles NRC 0x37 delay) ── */
+          while (true) {
+            const keyReq = [0x27, level.key & 0xFF, ...keyBytes];
+            const kr = await udsCall(urlRef.current, tx, rx, keyReq, 5000);
+            if (!kr.ok || !kr.d) {
+              addLog(`      send-key: no response — skipping`, "warn");
+              break; // no response — try next algo
+            }
+
+            if (kr.d[0] === 0x67 && kr.d[1] === (level.key & 0xFF)) {
+              addLog(`Auto-detect WINNER → level 0x${hx(level.seed)} · ${algoLabel} (${algoId}) ✓`, "success");
+              const winnerIdx = SA_LEVELS.indexOf(level);
+              if (winnerIdx >= 0) setSaLevelIdx(winnerIdx);
+              setSaAlgoId(algoId);
+              setSaDetectedAlgo(algoId);
+              setSaDetectedLevel(level);
+              localStorage.setItem(saStorageKey(txHex), algoId);
+              setSaRememberedAlgo(algoId);
+              return;
+            }
+
+            if (kr.d[0] === 0x7F) {
+              const nrc = kr.d.length >= 3 ? kr.d[2] : 0;
+              if (nrc === 0x36) {
+                addLog(`      key NRC 0x36 — module locked`, "error");
+                exitReason = 'lockout';
+                break levelLoop;
+              }
+              if (nrc === 0x37 && keyRetryLeft > 0) {
+                const delayMs = (kr.d.length >= 4 ? kr.d[3] * 1000 : 0) || 1500;
+                addLog(`      key NRC 0x37 — waiting ${delayMs} ms`, "warn");
+                keyRetryLeft--;
+                await new Promise(r => setTimeout(r, delayMs));
+                continue;
+              }
+              if (nrc === 0x35) {
+                // Expected "wrong algorithm" response — advance to next algo.
+                addLog(`      NRC 0x35 (invalidKey) — next`, "warn");
+              } else {
+                // Unexpected NRC — trying another algorithm won't help. Abort.
+                addLog(`      key NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — non-retryable, aborting`, "error");
+                exitReason = 'nrc_abort';
+                break levelLoop;
+              }
+            } else {
+              addLog(`      unexpected key response: ${bytesToHex(kr.d)} — skipping`, "warn");
+            }
+            break; // advance chain
+          }
         }
       }
 
@@ -687,13 +737,15 @@ export default function J2534UdsConsoleTab() {
         lockout:   "Auto-detect stopped — module locked (NRC 0x36), power-cycle required",
         comm:      "Auto-detect stopped — communication failure",
         nrc_abort: "Auto-detect stopped — module returned non-retryable NRC (check session/SA level)",
-        exhausted: "Auto-detect: all algorithms exhausted — no match found",
+        exhausted: saSweepLevels
+          ? "Auto-detect: all levels + algorithms exhausted — no match found"
+          : "Auto-detect: all algorithms exhausted — no match found",
       };
       addLog(terminalMsg[exitReason] || terminalMsg.exhausted, "error");
     } finally {
       setBusy(false);
     }
-  }, [status, txHex, rxHex, saLevelIdx, addLog]);
+  }, [status, txHex, rxHex, saLevelIdx, saSweepLevels, addLog]);
 
   /* ── Module preset picker ───────────────────────────────────────────── */
   const pickModule = useCallback((mod) => {
@@ -854,9 +906,11 @@ export default function J2534UdsConsoleTab() {
               {saOpen && (
                 <span style={{
                   marginLeft: "auto", fontSize: 9, padding: "2px 7px", borderRadius: 4,
-                  background: "#2A1A00", color: S.yellow, border: `1px solid #5A3A00`, fontWeight: 700,
+                  background: saSweepLevels ? "#003A1A" : "#2A1A00",
+                  color: saSweepLevels ? S.green : S.yellow,
+                  border: `1px solid ${saSweepLevels ? "#004A20" : "#5A3A00"}`, fontWeight: 700,
                 }}>
-                  {SA_LEVELS[saLevelIdx].label.split("—")[0].trim()} · {(SA_ALGOS.find(a => a.id === saAlgoId) || SA_ALGOS[0]).n}
+                  {saSweepLevels ? `SWEEP ×${SA_LEVELS.length}` : SA_LEVELS[saLevelIdx].label.split("—")[0].trim()} · {(SA_ALGOS.find(a => a.id === saAlgoId) || SA_ALGOS[0]).n}
                 </span>
               )}
             </button>
@@ -866,23 +920,32 @@ export default function J2534UdsConsoleTab() {
               <div style={{ padding: "0 16px 16px" }}>
                 {/* Level picker */}
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 10, color: S.dim, marginBottom: 6, fontWeight: 700, letterSpacing: 1 }}>SECURITY LEVEL</div>
-                  <div style={{ display: "flex", gap: 6 }}>
+                  <div style={{ display: "flex", alignItems: "center", marginBottom: 6, gap: 8 }}>
+                    <div style={{ fontSize: 10, color: S.dim, fontWeight: 700, letterSpacing: 1 }}>SECURITY LEVEL</div>
+                    {saDetectedLevel && (
+                      <div style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#001A00", color: S.green, border: `1px solid #004400`, fontWeight: 700, fontFamily: S.mono }}>
+                        ✓ detected: 0x{hx(saDetectedLevel.seed)}
+                      </div>
+                    )}
+                  </div>
+                  <select
+                    value={saLevelIdx}
+                    onChange={e => setSaLevelIdx(Number(e.target.value))}
+                    style={{
+                      width: "100%", padding: "7px 10px", borderRadius: 6,
+                      border: `1px solid ${S.yellow}`, background: "#1A1000",
+                      color: S.yellow, fontFamily: S.mono, fontSize: 11, fontWeight: 700,
+                      cursor: "pointer", outline: "none",
+                    }}
+                  >
                     {SA_LEVELS.map((lv, i) => (
-                      <button
-                        key={lv.label}
-                        onClick={() => setSaLevelIdx(i)}
-                        style={{
-                          flex: 1, padding: "7px 10px", borderRadius: 6, border: `1px solid ${saLevelIdx === i ? S.yellow : S.border}`,
-                          background: saLevelIdx === i ? "#1A1000" : "#0A0A0F",
-                          color: saLevelIdx === i ? S.yellow : S.dim,
-                          cursor: "pointer", fontFamily: S.mono, fontSize: 10, fontWeight: 700,
-                        }}
-                      >
-                        <div>{lv.label.split("—")[0].trim()}</div>
-                        <div style={{ fontSize: 9, marginTop: 2, color: S.dim, fontWeight: 400 }}>seed {hx(lv.seed)} → key {hx(lv.key)}</div>
-                      </button>
+                      <option key={lv.label} value={i}>
+                        {lv.label}
+                      </option>
                     ))}
+                  </select>
+                  <div style={{ fontSize: 9, marginTop: 4, color: S.dim, fontFamily: S.mono }}>
+                    seed 0x{hx(SA_LEVELS[saLevelIdx].seed)} → key 0x{hx(SA_LEVELS[saLevelIdx].key)}
                   </div>
                 </div>
 
@@ -896,34 +959,31 @@ export default function J2534UdsConsoleTab() {
                       </div>
                     )}
                     {saRememberedAlgo && !saDetectedAlgo && (
-                      <div
-                        title={`Remembered from a previous session for ${txHex}. Click "Forget" to clear.`}
-                        style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#0A0A1A", color: "#8888FF", border: `1px solid #2A2A5A`, fontWeight: 700, fontFamily: S.mono }}
-                      >
-                        ↩ remembered
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#1A1A2A", color: S.blue, border: "1px solid #2A2A4A", fontWeight: 700, fontFamily: S.mono }}>
+                          ★ remembered: {(SA_ALGOS.find(a => a.id === saRememberedAlgo) || { n: saRememberedAlgo }).n}
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            localStorage.removeItem(saStorageKey(txHex));
+                            setSaRememberedAlgo(null);
+                          }}
+                          style={{
+                            background: "none", border: "none", color: "#666", fontSize: 9, cursor: "pointer",
+                            padding: "2px 4px", textDecoration: "underline", fontFamily: S.font,
+                          }}
+                        >
+                          Forget
+                        </button>
                       </div>
-                    )}
-                    {saRememberedAlgo && (
-                      <button
-                        onClick={() => {
-                          localStorage.removeItem(saStorageKey(txHex));
-                          setSaRememberedAlgo(null);
-                        }}
-                        title={`Forget the remembered algorithm for ${txHex}`}
-                        style={{
-                          background: "none", border: "none", color: "#555", cursor: "pointer",
-                          fontSize: 9, fontFamily: S.mono, padding: 0, textDecoration: "underline",
-                          marginLeft: 2,
-                        }}
-                      >
-                        Forget
-                      </button>
                     )}
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4, maxHeight: 120, overflowY: "auto" }}>
                     {SA_ALGOS.map(algo => {
                       const active = saAlgoId === algo.id;
                       const winner = saDetectedAlgo === algo.id;
+                      const remembered = saRememberedAlgo === algo.id;
                       return (
                         <button
                           key={algo.id}
@@ -931,13 +991,13 @@ export default function J2534UdsConsoleTab() {
                           title={algo.h}
                           style={{
                             padding: "4px 9px", fontSize: 10, fontWeight: 700, borderRadius: 5,
-                            border: `1px solid ${active ? S.yellow : winner ? S.green : S.border}`,
-                            background: active ? "#1A1000" : winner ? "#001400" : "#0A0A0F",
-                            color: active ? S.yellow : winner ? S.green : S.dim,
+                            border: `1px solid ${active ? S.yellow : winner ? S.green : remembered ? S.blue : S.border}`,
+                            background: active ? "#1A1000" : winner ? "#001400" : remembered ? "#0A0A1A" : "#0A0A0F",
+                            color: active ? S.yellow : winner ? S.green : remembered ? S.blue : S.dim,
                             cursor: "pointer", fontFamily: S.mono, whiteSpace: "nowrap",
                           }}
                         >
-                          {algo.n}{winner && !active ? " ✓" : ""}
+                          {algo.n}{winner && !active ? " ✓" : (remembered && !active ? " ★" : "")}
                         </button>
                       );
                     })}
@@ -948,6 +1008,37 @@ export default function J2534UdsConsoleTab() {
                 <div style={{ fontSize: 10, color: "#555", marginBottom: 12, fontFamily: S.mono }}>
                   {(SA_ALGOS.find(a => a.id === saAlgoId) || SA_ALGOS[0]).h}
                 </div>
+
+                {/* Sweep levels toggle */}
+                <label style={{
+                  display: "flex", alignItems: "center", gap: 8, marginBottom: 10,
+                  cursor: "pointer", userSelect: "none",
+                }}>
+                  <div
+                    onClick={() => setSaSweepLevels(v => !v)}
+                    style={{
+                      width: 34, height: 18, borderRadius: 9, position: "relative",
+                      background: saSweepLevels ? "#003A1A" : "#1A1A1A",
+                      border: `1px solid ${saSweepLevels ? S.green : S.border}`,
+                      transition: "all 0.2s", flexShrink: 0,
+                    }}
+                  >
+                    <div style={{
+                      position: "absolute", top: 2, left: saSweepLevels ? 16 : 2,
+                      width: 12, height: 12, borderRadius: "50%",
+                      background: saSweepLevels ? S.green : "#555",
+                      transition: "left 0.2s",
+                    }} />
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: saSweepLevels ? S.green : S.dim, letterSpacing: 1 }}>
+                    SWEEP LEVELS
+                  </span>
+                  <span style={{ fontSize: 10, color: "#444" }}>
+                    {saSweepLevels
+                      ? `Auto-detect iterates all ${SA_LEVELS.length} SA levels as outer loop`
+                      : "Auto-detect uses selected level only"}
+                  </span>
+                </label>
 
                 {/* Auto-confirm toggle */}
                 <label style={{
