@@ -200,7 +200,7 @@ function ExchangeRow({ ex, idx }) {
                     fontFamily: "'JetBrains Mono'",
                   }}
                 >
-                  ECU: {Array.isArray(ex.resolved.ecuName) ? ex.resolved.ecuName.join(' / ') : ex.resolved.ecuName}
+                  ECU: {ex.resolved.ecuName.value}
                 </span>
               )}
               {ex.resolved.routineLabel && (
@@ -218,7 +218,7 @@ function ExchangeRow({ ex, idx }) {
                     fontFamily: "'JetBrains Mono'",
                   }}
                 >
-                  Routine: {ex.resolved.routineLabel}
+                  Routine: {ex.resolved.routineLabel.value}
                 </span>
               )}
             </div>

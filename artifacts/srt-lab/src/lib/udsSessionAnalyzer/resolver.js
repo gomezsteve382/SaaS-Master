@@ -185,3 +185,33 @@ export function formatResolved(resolved) {
   if (resolved.routineLabel) parts.push(resolved.routineLabel.value);
   return parts.join(' · ');
 }
+
+/**
+ * Decorate a single analyzer exchange with `resolved` (the resolveFrame
+ * result for the request frame) and `resolvedText` (the formatted joined
+ * string for searching). Returns a new object — does not mutate input.
+ * Exchanges without a request frame (e.g. orphan responses) are returned
+ * unchanged with `resolved: null, resolvedText: ''`.
+ */
+export function resolveExchange(exchange) {
+  if (!exchange) return exchange;
+  if (!exchange.request) {
+    return { ...exchange, resolved: null, resolvedText: '' };
+  }
+  const resolved = resolveFrame(exchange.request);
+  return { ...exchange, resolved, resolvedText: formatResolved(resolved) };
+}
+
+/**
+ * Decorate every exchange in an analyzed session with resolver output.
+ * Returns a new session object with a new `exchanges` array — input is
+ * not mutated. Non-exchange fields (summary, diagnosis, …) pass through
+ * unchanged.
+ */
+export function resolveSession(session) {
+  if (!session) return session;
+  const exchanges = Array.isArray(session.exchanges)
+    ? session.exchanges.map(resolveExchange)
+    : session.exchanges;
+  return { ...session, exchanges };
+}
