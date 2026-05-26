@@ -19,6 +19,7 @@ import {
   TIER1_DISPATCH_NOTE,
   TIER1_DISPATCH_SOURCE,
 } from "../lib/tier1Dispatch.js";
+import { ECU_PICKER_ROWS } from "../lib/ecuToCanIndex.js";
 
 const UDS_CAN_FILTERS = [
   { category: "Protocols", subcategory: "UDS" },
@@ -321,6 +322,18 @@ export default function UdsTab(){
           <button key={m} data-testid={'uds-preset-'+m} onClick={()=>loadPreset(m)} style={{padding:'6px 10px',fontSize:10,fontWeight:800,borderRadius:6,border:'1.5px solid '+(selectedModule===m?C.a4:C.bd),background:selectedModule===m?C.a4+'15':'#fff',color:selectedModule===m?C.a4:C.ts,cursor:'pointer'}}>{m}</button>
         ))}
       </div>
+      <EcuPicker
+        onPick={(row)=>{
+          setTxAddr('0x'+hx(row.requestId,3));
+          setRxAddr('0x'+hx(row.responseId,3));
+          addLog(
+            'Auto-filled CAN IDs from AlfaOBD intel: '+row.label+
+            ' TX:0x'+hx(row.requestId,3)+' RX:0x'+hx(row.responseId,3)+
+            (row.isLegacyMultiBus?' (legacy multi-bus entry)':''),
+            'info'
+          );
+        }}
+      />
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr auto',gap:10,alignItems:'end'}}>
         <div>
           <div style={{fontSize:10,color:C.ts,marginBottom:4}}>TX ADDRESS</div>
@@ -477,6 +490,59 @@ export default function UdsTab(){
         })}
       </div>
     </Card>
+  </div>;
+}
+
+function EcuPicker({onPick}){
+  const [q,setQ]=useState('');
+  const [open,setOpen]=useState(false);
+  const rows=ECU_PICKER_ROWS;
+  const filtered=q.trim()
+    ?rows.filter(r=>{
+       const lq=q.toLowerCase();
+       return r.label.toLowerCase().includes(lq)
+         ||('0x'+r.requestId.toString(16)).toLowerCase().includes(lq)
+         ||('0x'+r.responseId.toString(16)).toLowerCase().includes(lq);
+     })
+    :rows;
+  const visible=filtered.slice(0,120);
+  return <div style={{marginBottom:10,position:'relative'}}>
+    <div style={{display:'flex',gap:8,alignItems:'center',marginBottom:6}}>
+      <div style={{fontSize:10,color:C.ts,fontWeight:700,letterSpacing:1}}>ECU PICKER (auto-fill TX/RX)</div>
+      <span data-testid="uds-ecu-picker-provenance" title="Mapping derived from AlfaOBD.exe IL — verify on bench before trusting unfamiliar entries."
+        style={{fontSize:9,fontWeight:800,letterSpacing:1,padding:'2px 7px',borderRadius:99,background:'#FFF8E1',color:'#5D4037',border:'1px solid #FFD54F'}}>
+        from AlfaOBD intel (unverified)
+      </span>
+    </div>
+    <input
+      data-testid="uds-ecu-picker-input"
+      value={q}
+      onChange={e=>{setQ(e.target.value);setOpen(true);}}
+      onFocus={()=>setOpen(true)}
+      onBlur={()=>setTimeout(()=>setOpen(false),150)}
+      placeholder={`Search ${rows.length} ECU / platform names…`}
+      style={{width:'100%',padding:8,fontFamily:"'JetBrains Mono'",fontSize:12,border:'1px solid '+C.bd,borderRadius:6,background:'#fff'}}
+    />
+    {open&&visible.length>0&&<div data-testid="uds-ecu-picker-list" style={{position:'absolute',zIndex:10,top:'100%',left:0,right:0,marginTop:2,background:'#fff',border:'1px solid '+C.bd,borderRadius:6,maxHeight:240,overflowY:'auto',boxShadow:'0 4px 16px rgba(0,0,0,0.10)'}}>
+      {visible.map((r,i)=>(
+        <div key={i}
+          data-testid={'uds-ecu-picker-row-'+i}
+          onMouseDown={(e)=>{e.preventDefault();onPick(r);setQ(r.label);setOpen(false);}}
+          style={{padding:'6px 10px',cursor:'pointer',borderBottom:'1px solid #F0F0F0',display:'flex',justifyContent:'space-between',gap:10,alignItems:'center'}}
+          onMouseEnter={e=>e.currentTarget.style.background='#F5F0FF'}
+          onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+          <span style={{fontSize:11,fontFamily:r.isNumericInternalId?"'JetBrains Mono'":"'Nunito'",color:r.isNumericInternalId?C.ts:C.tx,fontWeight:r.isNumericInternalId?400:700}}>
+            {r.label}
+          </span>
+          <span style={{fontFamily:"'JetBrains Mono'",fontSize:10,color:'#6A1B9A',whiteSpace:'nowrap'}}>
+            TX 0x{r.requestId.toString(16).toUpperCase().padStart(3,'0')} · RX 0x{r.responseId.toString(16).toUpperCase().padStart(3,'0')}
+          </span>
+        </div>
+      ))}
+      {filtered.length>visible.length&&<div style={{padding:'6px 10px',fontSize:10,color:C.tm,fontStyle:'italic'}}>
+        {filtered.length-visible.length} more — refine the search to narrow down.
+      </div>}
+    </div>}
   </div>;
 }
 
