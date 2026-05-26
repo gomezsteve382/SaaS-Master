@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { getStatus, open as openBridge, connect as bridgeConnect, setFilter, sendMsg, readMsg, getAutelState } from "../lib/bridgeClient.js";
 import { decodeNRC } from "../lib/nrc.js";
-import { ALGOS, unlockKeyBytes } from "../lib/algos.js";
+import { ALGOS, unlockKeyBytes, pickUnlockChain } from "../lib/algos.js";
 
 /* ─── FCA module address table (mirrors J2534Scanner.jsx) ─────────────────── */
 const FCA_MODULES = [
@@ -205,6 +205,7 @@ export default function J2534UdsConsoleTab() {
   const [saAutoConfirm, setSaAutoConfirm] = useState(false);
   const [saPending, setSaPending] = useState(null);
   const [saExtHint, setSaExtHint] = useState(false);
+  const [saDetectedAlgo, setSaDetectedAlgo] = useState(null);
 
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
@@ -212,6 +213,9 @@ export default function J2534UdsConsoleTab() {
 
   /* Keep URL ref fresh whenever component re-renders */
   urlRef.current = getAutelState().url;
+
+  /* Clear auto-detected winner whenever the target address or SA level changes */
+  useEffect(() => { setSaDetectedAlgo(null); }, [txHex, rxHex, saLevelIdx]);
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
@@ -505,6 +509,156 @@ export default function J2534UdsConsoleTab() {
     await runSecurityAccess();
   }, [status, txHex, rxHex, addLog, runSecurityAccess]);
 
+  /* ── Auto-detect: iterate pickUnlockChain, log each attempt ─────────── */
+  const runAutoDetect = useCallback(async () => {
+    if (status !== "can_connected") { addLog("Bridge not connected — connect first.", "error"); return; }
+    const tx = parseAddr(txHex);
+    const rx = parseAddr(rxHex);
+    if (isNaN(tx) || isNaN(rx)) { addLog("Invalid TX/RX address.", "error"); return; }
+
+    const level = SA_LEVELS[saLevelIdx];
+    const chain = pickUnlockChain(tx);
+
+    addLog(`── Auto-detect Security Access (level 0x${hx(level.seed & 0x1F)}, ${chain.length} algos) ──`, "header");
+    setSaDetectedAlgo(null);
+    setBusy(true);
+
+    // Track why the loop ended so the terminal message is accurate.
+    // 'lockout'   — NRC 0x36: module locked, no point trying more algos
+    // 'comm'      — transport failure (no response / bad framing)
+    // 'nrc_abort' — unexpected NRC on seed or key that retrying won't fix
+    // 'exhausted' — all algos tried, none succeeded
+    let exitReason = 'exhausted';
+
+    try {
+      outer: for (const algoId of chain) {
+        const algoMeta = SA_ALGOS.find(a => a.id === algoId);
+        const algoLabel = algoMeta ? algoMeta.n : algoId;
+
+        addLog(`  trying ${algoLabel}…`, "info");
+
+        let seedRetryLeft = 1; // allow one 0x37 retry per algo
+        let keyRetryLeft  = 1;
+
+        /* ── seed request loop (handles NRC 0x37 delay) ── */
+        let seedBytes = null;
+        while (true) {
+          const seedReq = [0x27, level.seed & 0xFF];
+          const sr = await udsCall(urlRef.current, tx, rx, seedReq, 5000);
+          if (!sr.ok || !sr.d) {
+            addLog(`    seed: no response — aborting`, "error");
+            exitReason = 'comm';
+            break outer;
+          }
+
+          if (sr.d[0] === 0x7F) {
+            const nrc = sr.d.length >= 3 ? sr.d[2] : 0;
+            if (nrc === 0x36) {
+              addLog(`    seed NRC 0x36 (exceededNumberOfAttempts) — module locked`, "error");
+              exitReason = 'lockout';
+              break outer;
+            }
+            if (nrc === 0x37 && seedRetryLeft > 0) {
+              const delayMs = (sr.d.length >= 4 ? sr.d[3] * 1000 : 0) || 1500;
+              addLog(`    seed NRC 0x37 — waiting ${delayMs} ms`, "warn");
+              seedRetryLeft--;
+              await new Promise(r => setTimeout(r, delayMs));
+              continue;
+            }
+            // Any other NRC means the session or SA level is wrong for this
+            // module — a different algorithm won't help, so abort the chain.
+            addLog(`    seed NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — non-retryable, aborting`, "error");
+            exitReason = 'nrc_abort';
+            break outer;
+          }
+
+          if (sr.d[0] !== 0x67 || sr.d[1] !== (level.seed & 0xFF)) {
+            addLog(`    unexpected seed response: ${bytesToHex(sr.d)} — aborting`, "warn");
+            exitReason = 'comm';
+            break outer;
+          }
+
+          seedBytes = Array.from(sr.d).slice(2);
+          break; // got a valid seed
+        }
+
+        if (!seedBytes) break; // outer break already set exitReason
+
+        if (!seedBytes.some(b => b !== 0)) {
+          addLog(`    zero seed — already unlocked`, "success");
+          setSaAlgoId(algoId);
+          setSaDetectedAlgo(algoId);
+          return;
+        }
+        addLog(`    seed: ${bytesToHex(seedBytes)}`, "info");
+
+        /* Compute key */
+        const keyBytes = unlockKeyBytes(algoId, seedBytes);
+        if (!keyBytes) {
+          addLog(`    ${algoLabel} returned null for this seed — skipping`, "warn");
+          continue;
+        }
+        addLog(`    key:  ${bytesToHex(keyBytes)}`, "info");
+
+        /* ── send key loop (handles NRC 0x37 delay) ── */
+        while (true) {
+          const keyReq = [0x27, level.key & 0xFF, ...keyBytes];
+          const kr = await udsCall(urlRef.current, tx, rx, keyReq, 5000);
+          if (!kr.ok || !kr.d) {
+            addLog(`    send-key: no response — skipping`, "warn");
+            break; // no response — try next algo
+          }
+
+          if (kr.d[0] === 0x67 && kr.d[1] === (level.key & 0xFF)) {
+            addLog(`Auto-detect WINNER → ${algoLabel} (${algoId}) ✓`, "success");
+            setSaAlgoId(algoId);
+            setSaDetectedAlgo(algoId);
+            return;
+          }
+
+          if (kr.d[0] === 0x7F) {
+            const nrc = kr.d.length >= 3 ? kr.d[2] : 0;
+            if (nrc === 0x36) {
+              addLog(`    key NRC 0x36 — module locked`, "error");
+              exitReason = 'lockout';
+              break outer;
+            }
+            if (nrc === 0x37 && keyRetryLeft > 0) {
+              const delayMs = (kr.d.length >= 4 ? kr.d[3] * 1000 : 0) || 1500;
+              addLog(`    key NRC 0x37 — waiting ${delayMs} ms`, "warn");
+              keyRetryLeft--;
+              await new Promise(r => setTimeout(r, delayMs));
+              continue;
+            }
+            if (nrc === 0x35) {
+              // Expected "wrong algorithm" response — advance to next algo.
+              addLog(`    NRC 0x35 (invalidKey) — next`, "warn");
+            } else {
+              // Unexpected NRC (session-level, auth denial, etc.) — trying
+              // another algorithm won't help for the same seed level. Abort.
+              addLog(`    key NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — non-retryable, aborting`, "error");
+              exitReason = 'nrc_abort';
+              break outer;
+            }
+          } else {
+            addLog(`    unexpected key response: ${bytesToHex(kr.d)} — skipping`, "warn");
+          }
+          break; // advance chain
+        }
+      }
+
+      const terminalMsg = {
+        lockout:   "Auto-detect stopped — module locked (NRC 0x36), power-cycle required",
+        comm:      "Auto-detect stopped — communication failure",
+        nrc_abort: "Auto-detect stopped — module returned non-retryable NRC (check session/SA level)",
+        exhausted: "Auto-detect: all algorithms exhausted — no match found",
+      };
+      addLog(terminalMsg[exitReason] || terminalMsg.exhausted, "error");
+    } finally {
+      setBusy(false);
+    }
+  }, [status, txHex, rxHex, saLevelIdx, addLog]);
+
   /* ── Module preset picker ───────────────────────────────────────────── */
   const pickModule = useCallback((mod) => {
     setTxHex("0x" + hx(mod.tx, 3));
@@ -701,10 +855,18 @@ export default function J2534UdsConsoleTab() {
 
                 {/* Algorithm picker */}
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 10, color: S.dim, marginBottom: 6, fontWeight: 700, letterSpacing: 1 }}>ALGORITHM</div>
+                  <div style={{ display: "flex", alignItems: "center", marginBottom: 6, gap: 8 }}>
+                    <div style={{ fontSize: 10, color: S.dim, fontWeight: 700, letterSpacing: 1 }}>ALGORITHM</div>
+                    {saDetectedAlgo && (
+                      <div style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#001A00", color: S.green, border: `1px solid #004400`, fontWeight: 700, fontFamily: S.mono }}>
+                        ✓ auto-detected: {(SA_ALGOS.find(a => a.id === saDetectedAlgo) || { n: saDetectedAlgo }).n}
+                      </div>
+                    )}
+                  </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4, maxHeight: 120, overflowY: "auto" }}>
                     {SA_ALGOS.map(algo => {
                       const active = saAlgoId === algo.id;
+                      const winner = saDetectedAlgo === algo.id;
                       return (
                         <button
                           key={algo.id}
@@ -712,13 +874,13 @@ export default function J2534UdsConsoleTab() {
                           title={algo.h}
                           style={{
                             padding: "4px 9px", fontSize: 10, fontWeight: 700, borderRadius: 5,
-                            border: `1px solid ${active ? S.yellow : S.border}`,
-                            background: active ? "#1A1000" : "#0A0A0F",
-                            color: active ? S.yellow : S.dim,
+                            border: `1px solid ${active ? S.yellow : winner ? S.green : S.border}`,
+                            background: active ? "#1A1000" : winner ? "#001400" : "#0A0A0F",
+                            color: active ? S.yellow : winner ? S.green : S.dim,
                             cursor: "pointer", fontFamily: S.mono, whiteSpace: "nowrap",
                           }}
                         >
-                          {algo.n}
+                          {algo.n}{winner && !active ? " ✓" : ""}
                         </button>
                       );
                     })}
@@ -852,20 +1014,36 @@ export default function J2534UdsConsoleTab() {
                   </div>
                 )}
 
-                {/* Unlock button — hidden while confirmation is pending */}
+                {/* Action buttons — hidden while confirmation is pending */}
                 {!saPending && (
-                  <button
-                    onClick={runSecurityAccess}
-                    disabled={busy}
-                    style={{
-                      width: "100%", padding: "10px 0", borderRadius: 6, border: `1px solid ${busy ? S.border : S.yellow}`,
-                      background: busy ? "#222" : "#1A1000", color: busy ? "#555" : S.yellow,
-                      fontFamily: S.font, fontWeight: 800, fontSize: 12, letterSpacing: 1,
-                      cursor: busy ? "not-allowed" : "pointer", transition: "all 0.2s",
-                    }}
-                  >
-                    {busy ? "Running…" : "▶ Request Seed → Compute Key"}
-                  </button>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={runAutoDetect}
+                      disabled={busy}
+                      style={{
+                        flex: 1, padding: "10px 0", borderRadius: 6,
+                        border: `1px solid ${busy ? S.border : S.green}`,
+                        background: busy ? "#222" : "#001A00", color: busy ? "#555" : S.green,
+                        fontFamily: S.font, fontWeight: 800, fontSize: 11, letterSpacing: 1,
+                        cursor: busy ? "not-allowed" : "pointer", transition: "all 0.2s",
+                      }}
+                    >
+                      {busy ? "Running…" : "⟳ Auto-detect Algorithm"}
+                    </button>
+                    <button
+                      onClick={runSecurityAccess}
+                      disabled={busy}
+                      style={{
+                        flex: 2, padding: "10px 0", borderRadius: 6,
+                        border: `1px solid ${busy ? S.border : S.yellow}`,
+                        background: busy ? "#222" : "#1A1000", color: busy ? "#555" : S.yellow,
+                        fontFamily: S.font, fontWeight: 800, fontSize: 11, letterSpacing: 1,
+                        cursor: busy ? "not-allowed" : "pointer", transition: "all 0.2s",
+                      }}
+                    >
+                      {busy ? "Running…" : "▶ Request Seed → Compute Key"}
+                    </button>
+                  </div>
                 )}
               </div>
             )}
