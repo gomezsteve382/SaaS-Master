@@ -24,6 +24,13 @@ import { HttpTransport, probeHttpTransport } from '../lib/keyWriter/httpTranspor
 import { burnSlot } from '../lib/keyWriter/index.js';
 import { buildPingRequest } from '../lib/keyWriter/serializer.js';
 import { parseFrame, CMD } from '../lib/keyWriter/protocol.js';
+import {
+  buildAutelExportData,
+  buildJsonManifest,
+  buildRawBin,
+  triggerDownload,
+  exportBaseName,
+} from '../lib/keyWriter/autelExport.js';
 
 const WRITERS = [
   { id: 'vvdi-mini', label: 'Xhorse VVDI Mini Key Tool' },
@@ -40,6 +47,7 @@ const SIM_PROFILES = [
 
 const hex = (b) => b.toString(16).toUpperCase().padStart(2, '0');
 const hexJoin = (bs) => [...bs].map(hex).join(' ');
+const hexCompact = (bs) => [...bs].map(hex).join('');
 
 /* Shared audit ring buffer — same storage key + event channel KeyManagerTab,
  * RfhubTab and BackupsTab use (see KeyManagerTab.jsx). Mirroring the helper
@@ -440,9 +448,127 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
         </Card>
       )}
 
+      {/* Autel IM608 export — shown whenever RFHUB + slot + non-blank SEC16 are ready */}
+      {parsed && slot && slot.occupied && slot.idMapped && secret16 && !secretBlank && (() => {
+        const exportData = buildAutelExportData({ slot, secret16, chipId, chipDef, gen: parsed.gen });
+        const baseName = exportBaseName(rfhFile?.name, slot.idx);
+
+        const onDownloadJson = () => {
+          if (!exportData.ok) return;
+          const json = buildJsonManifest({
+            uid: exportData.uid,
+            payload: exportData.payload,
+            sec16: exportData.sec16,
+            chipId,
+            chipDef,
+            gen: parsed.gen,
+            slotIdx: slot.idx,
+            fileName: rfhFile?.name,
+          });
+          triggerDownload(new Blob([json], { type: 'application/json' }), `${baseName}.json`);
+        };
+
+        const onDownloadBin = () => {
+          if (!exportData.ok) return;
+          const bin = buildRawBin({ uid: exportData.uid, payload: exportData.payload, sec16: exportData.sec16, chipId });
+          triggerDownload(new Blob([bin], { type: 'application/octet-stream' }), `${baseName}.bin`);
+        };
+
+        const copyText = (text) => navigator.clipboard?.writeText(text).catch(() => {});
+
+        return (
+          <Card style={{ marginBottom: 16, background: '#E8F5E9', borderColor: C.gn }} data-testid="autel-export-card">
+            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10 }}>
+              <div style={{ fontSize: 20 }}>🔑</div>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 13, color: '#1B5E20', letterSpacing: 0.5 }}>
+                  AUTEL IM608 EXPORT — Slot {slot.idx + 1}
+                </div>
+                <div style={{ fontSize: 11, color: '#2E7D32', marginTop: 2 }}>
+                  All values extracted from the RFHUB dump. Enter them into your Autel's transponder programmer or download the JSON manifest for reference.
+                </div>
+              </div>
+            </div>
+
+            {exportData.ok ? (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+                  {/* UID */}
+                  <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: `1px solid ${C.bd}` }}>
+                    <div style={{ fontSize: 10, color: C.tm, letterSpacing: 1.2, marginBottom: 4 }}>TRANSPONDER UID ({exportData.uid.length} bytes)</div>
+                    <div style={{ fontFamily: 'JetBrains Mono', fontSize: 13, color: C.tx, wordBreak: 'break-all' }}>
+                      {hexJoin(exportData.uid)}
+                    </div>
+                    <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: C.ts, marginTop: 2 }}>
+                      compact: {hexCompact(exportData.uid)}
+                    </div>
+                    <Btn onClick={() => copyText(hexCompact(exportData.uid))} color={C.tm} outline style={{ marginTop: 6, fontSize: 10, padding: '2px 8px' }}>
+                      Copy
+                    </Btn>
+                  </div>
+
+                  {/* Payload */}
+                  <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: `1px solid ${C.bd}` }}>
+                    <div style={{ fontSize: 10, color: C.tm, letterSpacing: 1.2, marginBottom: 4 }}>CRYPTO PAYLOAD ({exportData.payload.length} bytes)</div>
+                    <div style={{ fontFamily: 'JetBrains Mono', fontSize: 13, color: C.tx, wordBreak: 'break-all' }}>
+                      {hexJoin(exportData.payload)}
+                    </div>
+                    <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: C.ts, marginTop: 2 }}>
+                      compact: {hexCompact(exportData.payload)}
+                    </div>
+                    <Btn onClick={() => copyText(hexCompact(exportData.payload))} color={C.tm} outline style={{ marginTop: 6, fontSize: 10, padding: '2px 8px' }}>
+                      Copy
+                    </Btn>
+                  </div>
+
+                  {/* SEC16 */}
+                  <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: `1px solid ${C.bd}`, gridColumn: '1 / -1' }}>
+                    <div style={{ fontSize: 10, color: C.tm, letterSpacing: 1.2, marginBottom: 4 }}>SEC16 MASTER SECRET (16 bytes) — handle with care</div>
+                    <div style={{ fontFamily: 'JetBrains Mono', fontSize: 13, color: C.tx, wordBreak: 'break-all' }}>
+                      {hexJoin(exportData.sec16)}
+                    </div>
+                    <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: C.ts, marginTop: 2 }}>
+                      compact: {hexCompact(exportData.sec16)}
+                    </div>
+                    <Btn onClick={() => copyText(hexCompact(exportData.sec16))} color={C.tm} outline style={{ marginTop: 6, fontSize: 10, padding: '2px 8px' }}>
+                      Copy
+                    </Btn>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+                  <Btn onClick={onDownloadJson} color={C.gn} data-testid="autel-download-json">
+                    ↓ Download JSON manifest
+                  </Btn>
+                  <Btn onClick={onDownloadBin} color={C.tm} outline data-testid="autel-download-bin">
+                    ↓ Download raw .bin
+                  </Btn>
+                </div>
+
+                <div style={{ fontSize: 11, color: '#2E7D32', lineHeight: 1.7, borderTop: `1px solid ${C.bd}`, paddingTop: 8 }}>
+                  <strong>Autel IM608 workflow:</strong>
+                  <ol style={{ margin: '4px 0 0 16px', padding: 0 }}>
+                    <li>MaxiIM → FCA/Chrysler → your model/year → Program Key → Expert/Manual mode</li>
+                    <li>Enter the <strong>Transponder UID</strong> when prompted (4 hex bytes above)</li>
+                    <li>Enter the <strong>Crypto Payload</strong> for the data pages (4 hex bytes above)</li>
+                    <li>Enter the <strong>SEC16 master secret</strong> as the encryption/master key (16 bytes)</li>
+                    <li>After the chip is written, pair the key via OBD using the RFHUB tab's existing flow</li>
+                  </ol>
+                  <div style={{ marginTop: 6, fontStyle: 'italic', color: '#388E3C' }}>
+                    Exact menu path varies by firmware version — the JSON download includes all values in a copy-paste-friendly format.
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div style={{ color: C.er, fontSize: 12 }}>✗ {exportData.error}</div>
+            )}
+          </Card>
+        );
+      })()}
+
       {/* Chip + writer + transport */}
       <Card style={{ marginBottom: 16 }}>
-        <div style={{ fontWeight: 900, fontSize: 14, color: C.tx, marginBottom: 8 }}>3. Pick chip, writer, transport</div>
+        <div style={{ fontWeight: 900, fontSize: 14, color: C.tx, marginBottom: 8 }}>3. Pick chip, writer, transport (Xhorse VVDI / Tango only)</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <label style={{ display: 'block' }}>
             <div style={{ fontSize: 10, color: C.tm, letterSpacing: 1.4 }}>CHIP FAMILY</div>

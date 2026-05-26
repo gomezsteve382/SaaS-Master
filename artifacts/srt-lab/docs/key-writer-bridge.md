@@ -165,3 +165,77 @@ just burned.
   through the React DOM.
 
 Run with: `pnpm --filter @workspace/srt-lab test`
+
+## Bench verification procedure (for the locksmith)
+
+Until the steps below are executed against a real Xhorse VVDI Mini, the
+disclaimer at the top of this file and the orange banner on the KEY
+WRITER tab stay in place. **Do not flip them on speculation.**
+
+### What you need on the bench
+
+- A real Xhorse VVDI Mini Key Tool, USB cable, working host driver.
+- At least one sacrificial PCF7953 chip (a known-blank fobik insert is
+  fine — the burn is destructive).
+- A loaded RFHUB dump in SRT Lab whose first SEC16 slot is **non-blank**
+  (gate refuses all-`0xFF` / all-`0x00`).
+- A USB-CDC packet capture tool:
+  - Windows: Wireshark + USBPcap (filter on the writer's interface).
+  - Linux: `usbmon` + `tshark -i usbmonN -Y 'usb.src==... || usb.dst==...'`.
+  - macOS: `wireshark` against the IOUSBHost interface, or run the burn
+    through the HTTP fallback daemon and log frames there — easier.
+
+### Capture procedure
+
+1. Start the packet capture **before** plugging the writer in, so the
+   enumeration descriptors are recorded too (useful if `modelId` /
+   firmware shape needs to change).
+2. In SRT Lab → KEY WRITER, set transport to **Web Serial** (or **HTTP
+   fallback** if you're routing through the daemon), pick the same
+   inputs the fixture pins:
+   - `chipId: pcf7953`
+   - `writer: vvdi-mini`
+   - load any RFHUB whose first slot has a non-blank SEC16
+3. Click **Detect writer** → record the ACK payload bytes.
+4. Click **Burn slot** on the first slot. The pipeline will issue
+   PING → DETECT_CHIP → BURN_KEY → VERIFY in that order.
+5. Stop the capture. Export request/response pairs as hex.
+
+### Folding the capture back into the repo
+
+The fixture is engineered to accept a real capture as a drop-in
+replacement. Do **not** rewrite the test; rewrite the fixture.
+
+1. Open `src/lib/keyWriter/__fixtures__/vvdi-mini-burn-trace.json`.
+2. Update `_meta.inputs` to the exact slot id bytes and SEC16 secret
+   the bench actually used (else the contract test diverges from the
+   hardware on inputs alone).
+3. For each of the four `exchanges` entries (`ping`, `detect_chip`,
+   `burn_key`, `verify`), paste the captured `request_hex` and
+   `response_hex` in place of the synthetic bytes.
+4. Run `pnpm --filter @workspace/srt-lab test
+   src/lib/__tests__/keyWriterFixture.test.js`.
+   - If `buildXxxRequest` byte-equality fails, the real writer disagrees
+     with our serializer. Diff the bytes, decide which side is correct
+     (almost always the writer), and update `protocol.js` /
+     `serializer.js` until the test passes against the real capture.
+   - If response parsing fails, update `protocol.js` `parseFrame` /
+     `CMD.*` to match what the device actually sends.
+5. Only after the test passes against the real bytes:
+   - Set `_meta.verified_against_hardware: true`.
+   - Replace the `source` and `notes` block with a one-line provenance
+     (date, writer firmware version, capture tool).
+   - In this file, replace the "**unverified**" labels in the Protocol
+     notes section and remove the "treat the first live burn as field
+     verification" sentence.
+   - In `src/tabs/KeyWriterTab.jsx`, downgrade the orange "needs bench
+     verification" disclaimer to a neutral "verified against VVDI Mini
+     fw vX.Y on YYYY-MM-DD" pill.
+
+### What changes if the writer is a Tango, not a VVDI Mini
+
+Same procedure, but capture into a second fixture file
+(`tango-burn-trace.json`) and add a parallel contract test. Do not
+overload the VVDI fixture — the `writer` field in `_meta.inputs` is
+what disambiguates, and the serializer is already plumbed to branch on
+it.
