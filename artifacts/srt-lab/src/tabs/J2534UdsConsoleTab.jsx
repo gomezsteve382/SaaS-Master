@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { getStatus, open as openBridge, connect as bridgeConnect, setFilter, sendMsg, readMsg, getAutelState } from "../lib/bridgeClient.js";
 import { decodeNRC } from "../lib/nrc.js";
+import { ALGOS, unlockKeyBytes } from "../lib/algos.js";
 
 /* ─── FCA module address table (mirrors J2534Scanner.jsx) ─────────────────── */
 const FCA_MODULES = [
@@ -173,6 +174,20 @@ function Btn({ children, onClick, disabled, color = S.blue, small }) {
   );
 }
 
+/* ─── Security Access level options ──────────────────────────────────────── */
+/* seed / key are the UDS sub-function bytes sent after SID 0x27:
+   0x27 0x01 → request seed (level 1), positive: 0x67 0x01 <seed>
+   0x27 0x02 → send key    (level 1), positive: 0x67 0x02
+   (odd = seed request, even = key send — standard ISO 14229-1)          */
+const SA_LEVELS = [
+  { label: "0x01 — Default / Programming", seed: 0x01, key: 0x02 },
+  { label: "0x03 — Extended level 3",      seed: 0x03, key: 0x04 },
+  { label: "0x05 — Extended level 5",      seed: 0x05, key: 0x06 },
+];
+
+/* ALGOS entries available in the SA picker — exclude the catch-all custom entry */
+const SA_ALGOS = ALGOS.filter(a => a.id !== "alfa_w6_custom");
+
 /* ─── Main component ─────────────────────────────────────────────────────── */
 export default function J2534UdsConsoleTab() {
   const [status, setStatus] = useState("disconnected");
@@ -182,6 +197,12 @@ export default function J2534UdsConsoleTab() {
   const [rawCmd, setRawCmd] = useState("");
   const [busy, setBusy] = useState(false);
   const [search, setSearch] = useState("");
+
+  /* Security Access panel state */
+  const [saOpen, setSaOpen] = useState(false);
+  const [saLevelIdx, setSaLevelIdx] = useState(0);
+  const [saAlgoId, setSaAlgoId] = useState("cda6");
+
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
   const urlRef = useRef(getAutelState().url);
@@ -337,6 +358,80 @@ export default function J2534UdsConsoleTab() {
     send(bytes);
   }, [rawCmd, send]);
 
+  /* ── Security Access unlock flow ────────────────────────────────────── */
+  const runSecurityAccess = useCallback(async () => {
+    if (status !== "can_connected") { addLog("Bridge not connected — connect first.", "error"); return; }
+    const tx = parseAddr(txHex);
+    const rx = parseAddr(rxHex);
+    if (isNaN(tx) || isNaN(rx)) { addLog("Invalid TX/RX address.", "error"); return; }
+
+    const level = SA_LEVELS[saLevelIdx];
+    const algo  = SA_ALGOS.find(a => a.id === saAlgoId) || SA_ALGOS[0];
+
+    addLog(`── Security Access (level 0x${hx(level.seed & 0x1F)}, algo: ${algo.n}) ──`, "header");
+    setBusy(true);
+    try {
+      /* Step 1: Request seed — 27 XX */
+      const seedReq = [0x27, level.seed & 0xFF];
+      addLog(`TX → 0x${hx(tx, 3)}: ${bytesToHex(seedReq)}  (requestSeed)`, "tx");
+      const sr = await udsCall(urlRef.current, tx, rx, seedReq, 5000);
+      if (!sr.ok || !sr.d) {
+        addLog("Seed request failed: " + (sr.raw || "no response"), "error");
+        return;
+      }
+      addLog(`RX ← 0x${hx(rx, 3)}: ${bytesToHex(sr.d)}`, "rx");
+
+      /* Negative response check */
+      if (sr.d[0] === 0x7F) {
+        const nrc = sr.d.length >= 3 ? sr.d[2] : 0;
+        addLog(`NRC 0x${hx(nrc)}: ${decodeNRC(nrc)}`, "error");
+        return;
+      }
+
+      /* Validate positive response: 67 XX <seed bytes…> */
+      if (sr.d[0] !== 0x67 || sr.d[1] !== (level.seed & 0xFF)) {
+        addLog(`Unexpected response (expected 67 ${hx(level.seed & 0xFF)}): ${bytesToHex(sr.d)}`, "error");
+        return;
+      }
+
+      const seedBytes = sr.d.slice(2);
+      if (!seedBytes.length) {
+        addLog("Empty seed — module may already be unlocked or requires a different session.", "warn");
+        return;
+      }
+      addLog(`Seed: ${bytesToHex(seedBytes)}`, "info");
+
+      /* Step 2: Compute key */
+      const keyBytes = unlockKeyBytes(algo.id, seedBytes);
+      if (!keyBytes) {
+        addLog(`Algorithm '${algo.n}' returned null for this seed. Try a different algorithm.`, "error");
+        return;
+      }
+      addLog(`Key (${algo.n}): ${bytesToHex(keyBytes)}`, "info");
+
+      /* Step 3: Send key — 27 XX+1 */
+      const keyReq = [0x27, level.key & 0xFF, ...keyBytes];
+      addLog(`TX → 0x${hx(tx, 3)}: ${bytesToHex(keyReq)}  (sendKey)`, "tx");
+      const kr = await udsCall(urlRef.current, tx, rx, keyReq, 5000);
+      if (!kr.ok || !kr.d) {
+        addLog("Send-key failed: " + (kr.raw || "no response"), "error");
+        return;
+      }
+      addLog(`RX ← 0x${hx(rx, 3)}: ${bytesToHex(kr.d)}`, "rx");
+
+      if (kr.d[0] === 0x7F) {
+        const nrc = kr.d.length >= 3 ? kr.d[2] : 0;
+        addLog(`NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — wrong key or wrong algorithm`, "error");
+      } else if (kr.d[0] === 0x67 && kr.d[1] === (level.key & 0xFF)) {
+        addLog("Security access GRANTED ✓", "success");
+      } else {
+        addLog(`Unexpected send-key response: ${bytesToHex(kr.d)}`, "warn");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [status, txHex, rxHex, saLevelIdx, saAlgoId, addLog]);
+
   /* ── Module preset picker ───────────────────────────────────────────── */
   const pickModule = useCallback((mod) => {
     setTxHex("0x" + hx(mod.tx, 3));
@@ -476,6 +571,109 @@ export default function J2534UdsConsoleTab() {
             ))}
           </div>
         </div>
+
+        {/* ── Security Access panel ──────────────────────────────────────── */}
+        {isLive && (
+          <div style={{
+            borderRadius: 8, border: `1px solid ${saOpen ? "#4A3000" : S.border}`,
+            background: saOpen ? "#0D0900" : S.card, marginBottom: 12, overflow: "hidden",
+            transition: "border-color 0.2s",
+          }}>
+            {/* Collapsible header */}
+            <button
+              onClick={() => setSaOpen(o => !o)}
+              style={{
+                width: "100%", padding: "10px 16px", background: "none", border: "none",
+                display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
+                fontFamily: S.font, color: S.text, textAlign: "left",
+              }}
+            >
+              <span style={{ fontSize: 13, lineHeight: 1 }}>{saOpen ? "▾" : "▸"}</span>
+              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: S.yellow }}>SECURITY ACCESS</span>
+              <span style={{ fontSize: 10, color: S.dim, marginLeft: 4 }}>27/67 seed-key unlock</span>
+              {saOpen && (
+                <span style={{
+                  marginLeft: "auto", fontSize: 9, padding: "2px 7px", borderRadius: 4,
+                  background: "#2A1A00", color: S.yellow, border: `1px solid #5A3A00`, fontWeight: 700,
+                }}>
+                  {SA_LEVELS[saLevelIdx].label.split("—")[0].trim()} · {(SA_ALGOS.find(a => a.id === saAlgoId) || SA_ALGOS[0]).n}
+                </span>
+              )}
+            </button>
+
+            {/* Panel body */}
+            {saOpen && (
+              <div style={{ padding: "0 16px 16px" }}>
+                {/* Level picker */}
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 10, color: S.dim, marginBottom: 6, fontWeight: 700, letterSpacing: 1 }}>SECURITY LEVEL</div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {SA_LEVELS.map((lv, i) => (
+                      <button
+                        key={lv.label}
+                        onClick={() => setSaLevelIdx(i)}
+                        style={{
+                          flex: 1, padding: "7px 10px", borderRadius: 6, border: `1px solid ${saLevelIdx === i ? S.yellow : S.border}`,
+                          background: saLevelIdx === i ? "#1A1000" : "#0A0A0F",
+                          color: saLevelIdx === i ? S.yellow : S.dim,
+                          cursor: "pointer", fontFamily: S.mono, fontSize: 10, fontWeight: 700,
+                        }}
+                      >
+                        <div>{lv.label.split("—")[0].trim()}</div>
+                        <div style={{ fontSize: 9, marginTop: 2, color: S.dim, fontWeight: 400 }}>seed {hx(lv.seed)} → key {hx(lv.key)}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Algorithm picker */}
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 10, color: S.dim, marginBottom: 6, fontWeight: 700, letterSpacing: 1 }}>ALGORITHM</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4, maxHeight: 120, overflowY: "auto" }}>
+                    {SA_ALGOS.map(algo => {
+                      const active = saAlgoId === algo.id;
+                      return (
+                        <button
+                          key={algo.id}
+                          onClick={() => setSaAlgoId(algo.id)}
+                          title={algo.h}
+                          style={{
+                            padding: "4px 9px", fontSize: 10, fontWeight: 700, borderRadius: 5,
+                            border: `1px solid ${active ? S.yellow : S.border}`,
+                            background: active ? "#1A1000" : "#0A0A0F",
+                            color: active ? S.yellow : S.dim,
+                            cursor: "pointer", fontFamily: S.mono, whiteSpace: "nowrap",
+                          }}
+                        >
+                          {algo.n}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Hint for the selected algo */}
+                <div style={{ fontSize: 10, color: "#555", marginBottom: 12, fontFamily: S.mono }}>
+                  {(SA_ALGOS.find(a => a.id === saAlgoId) || SA_ALGOS[0]).h}
+                </div>
+
+                {/* Unlock button */}
+                <button
+                  onClick={runSecurityAccess}
+                  disabled={busy}
+                  style={{
+                    width: "100%", padding: "10px 0", borderRadius: 6, border: `1px solid ${busy ? S.border : S.yellow}`,
+                    background: busy ? "#222" : "#1A1000", color: busy ? "#555" : S.yellow,
+                    fontFamily: S.font, fontWeight: 800, fontSize: 12, letterSpacing: 1,
+                    cursor: busy ? "not-allowed" : "pointer", transition: "all 0.2s",
+                  }}
+                >
+                  {busy ? "Running…" : "▶ Request Seed → Compute Key → Send Key"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ── Log panel ─────────────────────────────────────────────────── */}
         <div style={{ borderRadius: 8, border: `1px solid ${S.border}`, background: "#07070D", overflow: "hidden" }}>
