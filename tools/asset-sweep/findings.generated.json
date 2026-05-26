@@ -4,7 +4,7 @@
   "description": "Normalized findings — one record per detection. `coverageStatus` is one of 'already-implemented' / 'partial-match' / 'new' (the unlock-coverage contract). The orthogonal `ported` boolean marks entries this sweep ships an executable JS port for in extendedAlgorithms.generated.js (joined by `tag`).",
   "counts": {
     "algorithms": {
-      "already-implemented": 35,
+      "already-implemented": 38,
       "partial-match": 0,
       "new": 3,
       "ported_in_sweep": 0
@@ -184,6 +184,24 @@
           "shape": "6eba6cbb6f584af8"
         },
         {
+          "sourcePath": "attached_assets/alfaobd-complete-package-with-dbs_(1)_1779753988043.zip!/alfaobd-delivery/seedkey-algorithms/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "06ee97de051248d1"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd-complete-package-with-dbs_(1)_1779753988043.zip!/alfaobd-delivery/seedkey-algorithms/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "ao",
+          "shape": "6eba6cbb6f584af8"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd-complete-package-with-dbs_(1)_1779753988043.zip!/alfaobd-delivery/seedkey-algorithms/alfaobd_seedkey_v1.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "696ec679703956a3"
+        },
+        {
           "sourcePath": "attached_assets/alfaobd_seedkey_1776573163345.py",
           "lang": "python",
           "pythonName": "ao",
@@ -203,6 +221,12 @@
         },
         {
           "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "06ee97de051248d1"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1779753993031.py",
           "lang": "python",
           "pythonName": "ao",
           "shape": "06ee97de051248d1"
@@ -266,6 +290,41 @@
           "lang": "python",
           "pythonName": "ao",
           "shape": "696ec679703956a3"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/attached_assets/alfaobd-package-2026-05-25/alfaobd_seedkey_reference.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "06ee97de051248d1"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/attached_assets/alfaobd-package-2026-05-25/alfaobd_seedkey_reference.js",
+          "lang": "javascript",
+          "pythonName": "ao",
+          "shape": "6eba6cbb6f584af8"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/attached_assets/alfaobd-package-2026-05-25/alfaobd_seedkey_reference_v1.py",
+          "lang": "python",
+          "pythonName": "ao",
+          "shape": "696ec679703956a3"
+        }
+      ]
+    },
+    {
+      "tag": "ao_u32",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/client/src/lib/srt/algos.js",
+          "lang": "javascript",
+          "pythonName": "alfaAoU32",
+          "shape": "2747265defa2a052"
         }
       ]
     },
@@ -944,6 +1003,24 @@
           "shape": "f4c0921935e05e89"
         },
         {
+          "sourcePath": "attached_assets/alfaobd-complete-package-with-dbs_(1)_1779753988043.zip!/alfaobd-delivery/seedkey-algorithms/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd-complete-package-with-dbs_(1)_1779753988043.zip!/alfaobd-delivery/seedkey-algorithms/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "f",
+          "shape": "f4c0921935e05e89"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd-complete-package-with-dbs_(1)_1779753988043.zip!/alfaobd-delivery/seedkey-algorithms/alfaobd_seedkey_v1.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        },
+        {
           "sourcePath": "attached_assets/alfaobd_seedkey_1776573163345.py",
           "lang": "python",
           "pythonName": "f",
@@ -963,6 +1040,12 @@
         },
         {
           "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1779753993031.py",
           "lang": "python",
           "pythonName": "f",
           "shape": "2c8db023f3e6aa44"
@@ -1026,6 +1109,41 @@
           "lang": "python",
           "pythonName": "f",
           "shape": "2c8db023f3e6aa44"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/attached_assets/alfaobd-package-2026-05-25/alfaobd_seedkey_reference.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/attached_assets/alfaobd-package-2026-05-25/alfaobd_seedkey_reference.js",
+          "lang": "javascript",
+          "pythonName": "f",
+          "shape": "f4c0921935e05e89"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/attached_assets/alfaobd-package-2026-05-25/alfaobd_seedkey_reference_v1.py",
+          "lang": "python",
+          "pythonName": "f",
+          "shape": "2c8db023f3e6aa44"
+        }
+      ]
+    },
+    {
+      "tag": "fu32",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/client/src/lib/srt/algos.js",
+          "lang": "javascript",
+          "pythonName": "alfaFU32",
+          "shape": "b67a0efd287c71db"
         }
       ]
     },
@@ -1100,6 +1218,24 @@
           "shape": "d16383878b296e95"
         },
         {
+          "sourcePath": "attached_assets/alfaobd-complete-package-with-dbs_(1)_1779753988043.zip!/alfaobd-delivery/seedkey-algorithms/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd-complete-package-with-dbs_(1)_1779753988043.zip!/alfaobd-delivery/seedkey-algorithms/alfaobd_seedkey.js",
+          "lang": "javascript",
+          "pythonName": "ht",
+          "shape": "d16383878b296e95"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd-complete-package-with-dbs_(1)_1779753988043.zip!/alfaobd-delivery/seedkey-algorithms/alfaobd_seedkey_v1.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        },
+        {
           "sourcePath": "attached_assets/alfaobd_seedkey_1776573163345.py",
           "lang": "python",
           "pythonName": "ht",
@@ -1119,6 +1255,12 @@
         },
         {
           "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1779753993031.py",
           "lang": "python",
           "pythonName": "ht",
           "shape": "449722bd59f74fcc"
@@ -1182,6 +1324,41 @@
           "lang": "python",
           "pythonName": "ht",
           "shape": "449722bd59f74fcc"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/attached_assets/alfaobd-package-2026-05-25/alfaobd_seedkey_reference.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/attached_assets/alfaobd-package-2026-05-25/alfaobd_seedkey_reference.js",
+          "lang": "javascript",
+          "pythonName": "ht",
+          "shape": "d16383878b296e95"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/attached_assets/alfaobd-package-2026-05-25/alfaobd_seedkey_reference_v1.py",
+          "lang": "python",
+          "pythonName": "ht",
+          "shape": "449722bd59f74fcc"
+        }
+      ]
+    },
+    {
+      "tag": "ht_u32",
+      "coverageStatus": "already-implemented",
+      "ported": false,
+      "partialMatchOf": null,
+      "params": "seed",
+      "docstring": "",
+      "signatures": [],
+      "detections": [
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/client/src/lib/srt/algos.js",
+          "lang": "javascript",
+          "pythonName": "alfaHtU32",
+          "shape": "1c38aeadca26b7ce"
         }
       ]
     },
@@ -2361,6 +2538,12 @@
           "shape": "3a61a94aacb6e93d"
         },
         {
+          "sourcePath": "attached_assets/alfaobd-complete-package-with-dbs_(1)_1779753988043.zip!/alfaobd-delivery/seedkey-algorithms/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "w6",
+          "shape": "4299087c95b3fc0e"
+        },
+        {
           "sourcePath": "attached_assets/alfaobd_algorithm_catalog_1776573875648.json",
           "lang": "alfaobd_catalog_json",
           "pythonName": "w6",
@@ -2368,6 +2551,12 @@
         },
         {
           "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "w6",
+          "shape": "4299087c95b3fc0e"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1779753993031.py",
           "lang": "python",
           "pythonName": "w6",
           "shape": "4299087c95b3fc0e"
@@ -2395,6 +2584,12 @@
           "lang": "python",
           "pythonName": "w6",
           "shape": "4299087c95b3fc0e"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/attached_assets/alfaobd-package-2026-05-25/alfaobd_seedkey_reference.py",
+          "lang": "python",
+          "pythonName": "w6",
+          "shape": "4299087c95b3fc0e"
         }
       ]
     },
@@ -2414,7 +2609,19 @@
           "shape": "76d1d6908259032c"
         },
         {
+          "sourcePath": "attached_assets/alfaobd-complete-package-with-dbs_(1)_1779753988043.zip!/alfaobd-delivery/seedkey-algorithms/alfaobd_seedkey.py",
+          "lang": "python",
+          "pythonName": "w6_by_name",
+          "shape": "76d1d6908259032c"
+        },
+        {
           "sourcePath": "attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "w6_by_name",
+          "shape": "76d1d6908259032c"
+        },
+        {
+          "sourcePath": "attached_assets/alfaobd_seedkey_1779753993031.py",
           "lang": "python",
           "pythonName": "w6_by_name",
           "shape": "76d1d6908259032c"
@@ -2427,6 +2634,12 @@
         },
         {
           "sourcePath": "attached_assets/attached_assets_1776659723942.zip!/attached_assets/alfaobd_seedkey_1776573875649.py",
+          "lang": "python",
+          "pythonName": "w6_by_name",
+          "shape": "76d1d6908259032c"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/attached_assets/alfaobd-package-2026-05-25/alfaobd_seedkey_reference.py",
           "lang": "python",
           "pythonName": "w6_by_name",
           "shape": "76d1d6908259032c"
@@ -2571,6 +2784,12 @@
           "lang": "python",
           "pythonName": "xtea_sgw",
           "shape": "f86233d9b084db4c"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/client/src/lib/srt/algos.js",
+          "lang": "javascript",
+          "pythonName": "xtea_sgw",
+          "shape": "45ee915933e368f1"
         }
       ]
     },
@@ -2581,7 +2800,11 @@
       "partialMatchOf": null,
       "params": "seed",
       "docstring": "8-byte SGW variant — flexible seed input.\n    \n    seed may be:\n      - int             → v0=seed, v1=~seed (matches xtea_sgw legacy path)\n      - bytes of len 4  → v0=seed bytes, v1=~v0\n      - bytes of len 8  → v0=bytes[0:4], v1=bytes[4:8] (raw from UDS 67 01)\n    \n    Returns 8 bytes big-endian (v0_cipher || v1_cipher). Some 2018+ SGWs \n    issue an 8-byte seed where v1 is chosen INDEPENDENTLY (not the \n    complement), which is why the bytes-of-8 path exists.",
-      "signatures": [],
+      "signatures": [
+        "ALFA_XTEA_KEY",
+        "XTEA_ALFAOBD_DELTA",
+        "XTEA_STD_DELTA"
+      ],
       "detections": [
         {
           "sourcePath": "attached_assets/files_(3)_1776703082424.zip!/srtlab_complete.zip!/srtlab_algos.py",
@@ -2618,6 +2841,12 @@
           "lang": "python",
           "pythonName": "xtea_sgw_full",
           "shape": "7e7970ebaa0655d1"
+        },
+        {
+          "sourcePath": "attached_assets/srtlabultimateslim_1779754491840.zip!/srt-lab-ultimate/client/src/lib/srt/algos.js",
+          "lang": "javascript",
+          "pythonName": "xtea_sgw_full",
+          "shape": "b95cc25a9a16490f"
         }
       ]
     },

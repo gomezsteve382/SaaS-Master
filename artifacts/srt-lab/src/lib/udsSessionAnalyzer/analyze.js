@@ -17,6 +17,7 @@ const NRC_PLAIN_CAUSES = {
   0x11: 'Check the SID and session type — the ECU does not recognise this service here.',
   0x12: 'Sub-function byte is not valid for this service on this ECU.',
   0x13: 'Message length is wrong — too many or too few payload bytes in the request.',
+  0x21: 'ECU was busy and asked the tool to repeat the request. Usually transient on a loaded bus — retry the same request. If it persists, check for bus storms, a stuck module flooding the network, or a CAN load above the ECU\'s receive budget.',
   0x22: 'Preconditions not met: verify diagnostic session (usually 0x10 0x03 extended first), engine state (ignition on / engine off), and that any required prerequisite services already completed successfully.',
   0x24: 'Service called out of order. Typical fix: enter extended session → complete SecurityAccess seed/key → then retry the rejected service.',
   0x31: 'DID, routine ID, or parameter not supported in this session. Check the correct value for this ECU variant and verify the active session.',
@@ -27,6 +28,7 @@ const NRC_PLAIN_CAUSES = {
   0x70: 'Flash preconditions not met: check supply voltage (≥13.5 V), correct session (0x10 0x02 programming), and that ControlDTCSetting / CommunicationControl are set before RequestDownload.',
   0x71: 'Data transfer suspended. Re-establish the session and restart the full download sequence from RequestDownload.',
   0x72: 'General programming failure — erase or write to flash failed. Check voltage stability, block address/length alignment, and that the correct image version matches the ECU hardware variant.',
+  0x73: 'TransferData block sequence counter is out of order. Restart the download from RequestDownload (0x34) and ensure every TransferData (0x36) block uses the next sequential counter without skipping or repeating. Do not resume mid-stream after any error — abort with RequestTransferExit (0x37) and start over.',
   0x7E: 'Sub-function rejected in this session — escalate to extended (0x10 0x03) or programming (0x10 0x02) session first.',
   0x7F: 'Service rejected in this session — escalate the diagnostic session (0x10 0x03 for extended) before retrying.',
 };
@@ -534,6 +536,12 @@ export function analyzeSession(parsedLines) {
 
     used.add(i);
 
+    // Stamp the SecurityAccess state observed BEFORE this request is issued.
+    // Used by buildDiagnosis to flag secured services (0x31 / 0x2E / 0x34)
+    // attempted while still locked, independent of how the ECU responded.
+    const saSeenAtRequest = saState.seen;
+    const saUnlockedAtRequest = saState.unlocked;
+
     const pendingNrcs = [];
     let respIdx = -1;
 
@@ -567,6 +575,8 @@ export function analyzeSession(parsedLines) {
     if (hadPending && !respLine) pendingTimeouts++;
 
     const exchange = buildExchange(line, respLine, hadPending, pendingNrcs.length);
+    exchange.saSeenAtRequest = saSeenAtRequest;
+    exchange.saUnlockedAtRequest = saUnlockedAtRequest;
     exchanges.push(exchange);
 
     if (line.bytes[0] === 0x27) {
@@ -708,6 +718,36 @@ function buildDiagnosis(exchanges, saState, sessionEscalated, pendingTimeouts) {
       code: 'SNSIAS', severity: 'FAIL',
       message: `Service not supported in active session (NRC 0x7F) for: ${snsiasExchanges.map(e => e.service).join(', ')}.`,
       recommendation: 'Escalate the session: use 0x10 0x03 for extended (config reads/writes) or 0x10 0x02 for programming (flash operations).',
+    });
+  }
+
+  // Secured service attempted before SecurityAccess unlocked. Catches the
+  // case the Python reference flags where the ECU returns NRC 0x22 / 0x24
+  // / silence (or even a positive response in a permissive mode) and the
+  // real underlying cause is that the unlock step was skipped. Independent
+  // of whether the NRC happened to be 0x33.
+  const SECURED_SIDS = new Set([0x31, 0x2E, 0x34]);
+  const securedWithoutUnlock = exchanges.filter(e =>
+    e.request &&
+    SECURED_SIDS.has(e.request.bytes[0]) &&
+    e.saUnlockedAtRequest === false,
+  );
+  if (securedWithoutUnlock.length > 0) {
+    const anySeen = securedWithoutUnlock.some(e => e.saSeenAtRequest);
+    const anyActuallyFailed = securedWithoutUnlock.some(e => e.severity === 'FAIL');
+    const services = Array.from(new Set(securedWithoutUnlock.map(e => e.service))).join(', ');
+    const subCase = anySeen
+      ? 'SecurityAccess was requested in this trace but no successful unlock (positive 0x67 to an even sub-function) was observed before the secured service was attempted.'
+      : 'No SecurityAccess (0x27) request was issued at all in this trace before the secured service was attempted.';
+    // FAIL when at least one secured request actually failed (NRC). Downgrade
+    // to WARN when every matched request returned a positive response — the
+    // trace may simply be missing the earlier unlock (e.g. unlock happened
+    // before logging started), so flag it but don't escalate to a failure.
+    items.push({
+      code: 'SECURED_WITHOUT_UNLOCK',
+      severity: anyActuallyFailed ? 'FAIL' : 'WARN',
+      message: `Secured service(s) attempted without a completed SecurityAccess unlock: ${services}.`,
+      recommendation: `${subCase} 0x31 / 0x2E / 0x34 typically require an unlocked security level. Run the seed/key handshake (0x27 sub-function odd → ECU returns seed → 0x27 next sub-function with computed key → positive 0x67) in the same session, then retry. If the unlock occurred before this trace started, capture from the unlock step to confirm.`,
     });
   }
 

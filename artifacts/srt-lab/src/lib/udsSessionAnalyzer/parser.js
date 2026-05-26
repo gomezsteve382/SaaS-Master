@@ -9,6 +9,9 @@
  *   2. TX/RX:    [0.050] TX 7E0 22 F1 90   |  0.065 RX 7E8 62F190...
  *   3. Req/Resp: [0.000] [Req] 10 03        |  [Resp] 62 F1 90 xx
  *   4. Bare hex: 22 F1 90  (already-assembled UDS — direction inferred from SID)
+ *   5. CAN raw:  18DA40F1 03 22 F1 90       |  12.345 18DA40F1 03 22 F1 90
+ *      (id then raw 8-byte CAN frame, no TX/RX keyword, no # separator;
+ *       direction inferred from SID like bare hex)
  *
  * ISO-TP single-frame PCI stripping: applied to candump and TX/RX shapes
  * (which carry raw 8-byte CAN frames). Req/Resp and bare-hex shapes are
@@ -29,6 +32,10 @@ const RE_CANDUMP = /^\((\d+\.\d+)\)\s+\w+\s+([0-9A-Fa-f]+)#([0-9A-Fa-f]{2,})/;
 const RE_TX_RX   = /^(?:\[?([\d.]+)\]?\s+)?(TX|RX)\s+(?:0x)?([0-9A-Fa-f]+)\s+((?:[0-9A-Fa-f]{2}\s*)+)/i;
 const RE_REQRESP = /^(?:\[?([\d.]+)\]?\s+)?\[(Req|Resp)\]\s+((?:[0-9A-Fa-f]{2}\s*)+)/i;
 const RE_BARE    = /^(?:[0-9A-Fa-f]{2}\s+)*[0-9A-Fa-f]{2}\s*$/;
+// canraw: optional timestamp, then a 3–8 hex-char CAN id, then one or more
+// hex byte pairs. The 3–8 char first token is the discriminator that keeps
+// this regex from swallowing bare-hex lines (whose tokens are all 2 chars).
+const RE_CANRAW  = /^(?:\[?([\d.]+)\]?\s+)?([0-9A-Fa-f]{3,8})\s+((?:[0-9A-Fa-f]{2}\s+)*[0-9A-Fa-f]{2})\s*$/;
 
 function parseHex(str) {
   const clean = str.replace(/\s+/g, '');
@@ -210,7 +217,7 @@ export function parseTrace(text) {
 
   const rawLines = text.split(/\r?\n/);
   const lines = [];
-  const formatCounts = { candump: 0, txrx: 0, reqresp: 0, bare: 0 };
+  const formatCounts = { candump: 0, txrx: 0, reqresp: 0, bare: 0, canraw: 0 };
   const rxStreams = new Map();
 
   for (const raw of rawLines) {
@@ -263,6 +270,22 @@ export function parseTrace(text) {
       const dir = inferDirection(bytes);
       lines.push({ dir, bytes, ts: undefined, isFF: false, isCF: false, shape: 'bare', raw: line });
       formatCounts.bare++;
+      continue;
+    }
+
+    m = RE_CANRAW.exec(line);
+    if (m) {
+      const ts = m[1] ? parseFloat(m[1]) : undefined;
+      const canId = parseInt(m[2], 16);
+      const rawBytes = parseHex(m[3]);
+      // Route through processRawFrame so ISO-TP SF/FF/CF behaviour matches
+      // candump and TX/RX shapes. Direction is unknown (no TX/RX keyword),
+      // so emitWithStrip / emitReassembled fall back to inferDirection().
+      processRawFrame(
+        rawBytes,
+        { shape: 'canraw', ts, canId, dir: null, raw: line },
+        lines, formatCounts, rxStreams,
+      );
       continue;
     }
   }

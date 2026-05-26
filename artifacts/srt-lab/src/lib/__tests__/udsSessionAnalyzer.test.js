@@ -917,3 +917,157 @@ describe('analyzeSession — 0x31 multi-routine batch results', () => {
     expect(ex.verdict).toMatch(/Routine 0xFF00 type 0x01/);
   });
 });
+
+// ─── Task #823 backfill 1: canraw (id-first) shape ───────────────────────────
+
+describe('parseTrace — canraw (id-first) shape', () => {
+  it('parses id-first lines without TX/RX keyword and infers direction from SID', () => {
+    const { lines, formatDetected, formatCounts } = parseTrace(
+      [
+        '18DA40F1 03 22 F1 90 CC CC CC CC',   // request — SID 0x22 (RDBI)
+        '18DAF140 06 62 F1 90 41 42 43 44',   // response — SID 0x62 (pos RDBI)
+      ].join('\n'),
+    );
+    expect(formatDetected).toBe('canraw');
+    expect(formatCounts.canraw).toBe(2);
+    expect(lines).toHaveLength(2);
+    expect(lines[0].dir).toBe('req');
+    expect(lines[0].shape).toBe('canraw');
+    expect(lines[0].canId).toBe(0x18DA40F1);
+    expect(lines[0].bytes).toEqual([0x22, 0xF1, 0x90]); // SF PCI stripped
+    expect(lines[1].dir).toBe('resp');
+    expect(lines[1].bytes).toEqual([0x62, 0xF1, 0x90, 0x41, 0x42, 0x43]);
+  });
+
+  it('accepts a leading timestamp on a canraw line', () => {
+    const { lines, formatDetected } = parseTrace('12.345 18DA40F1 03 22 F1 90');
+    expect(formatDetected).toBe('canraw');
+    expect(lines).toHaveLength(1);
+    expect(lines[0].ts).toBeCloseTo(12.345);
+    expect(lines[0].bytes).toEqual([0x22, 0xF1, 0x90]);
+  });
+
+  it('accepts an 11-bit CAN id like 7E0 / 7E8', () => {
+    const { lines } = parseTrace('7E0 02 10 03\n7E8 06 50 03 00 19 01 F4');
+    expect(lines).toHaveLength(2);
+    expect(lines[0].canId).toBe(0x7E0);
+    expect(lines[0].bytes).toEqual([0x10, 0x03]);
+    expect(lines[1].canId).toBe(0x7E8);
+    expect(lines[1].bytes).toEqual([0x50, 0x03, 0x00, 0x19, 0x01, 0xF4]);
+  });
+
+  it('does NOT misclassify true bare-hex lines as canraw (token-length discriminator)', () => {
+    // Each token is 2 chars → bare, not canraw.
+    const { formatDetected, lines } = parseTrace('22 F1 90');
+    expect(formatDetected).toBe('bare');
+    expect(lines[0].shape).toBe('bare');
+  });
+
+  it('still produces an exchange the analyzer can pair from a canraw trace', () => {
+    const { lines } = parseTrace(
+      [
+        '18DA40F1 02 27 01',                 // SecAccess seed request
+        '18DAF140 06 67 01 AA BB CC DD',     // seed response
+      ].join('\n'),
+    );
+    const { exchanges, summary } = analyzeSession(lines);
+    expect(exchanges).toHaveLength(1);
+    expect(exchanges[0].severity).toBe('OK');
+    expect(exchanges[0].service).toMatch(/SecurityAccess/i);
+    expect(summary.securityAccessSeen).toBe(true);
+  });
+});
+
+// ─── Task #823 backfill 2: NRC 0x21 / 0x73 plain causes ──────────────────────
+
+describe('analyzeSession — NRC 0x21 / 0x73 plain causes', () => {
+  it('surfaces the busy-repeat-request cause for NRC 0x21', () => {
+    const { exchanges } = analyze(['[Req] 22 F1 90', '[Resp] 7F 22 21']);
+    const ex = exchanges[0];
+    expect(ex.nrcCode).toBe(0x21);
+    // 0x21 is flagged isPending in the ISO 14229 NRC table (transient retry),
+    // so the analyzer correctly classifies it as WARN, not FAIL.
+    expect(ex.severity).toBe('WARN');
+    expect(ex.verdict).toMatch(/busy/i);
+    expect(ex.verdict).toMatch(/retry/i);
+  });
+
+  it('surfaces the block-sequence-counter cause for NRC 0x73', () => {
+    const { exchanges } = analyze(['[Req] 36 02 AA BB CC', '[Resp] 7F 36 73']);
+    const ex = exchanges[0];
+    expect(ex.nrcCode).toBe(0x73);
+    expect(ex.severity).toBe('FAIL');
+    expect(ex.verdict).toMatch(/sequence counter/i);
+    expect(ex.verdict).toMatch(/RequestDownload/i);
+  });
+});
+
+// ─── Task #823 backfill 3: secured service without unlock ────────────────────
+
+describe('analyzeSession — secured service attempted without unlock', () => {
+  it('flags a 0x2E write attempted with no SecurityAccess at all', () => {
+    const { diagnosis } = analyze([
+      '[Req] 10 03',
+      '[Resp] 50 03 00 19 01 F4',
+      '[Req] 2E F1 90 41 42 43',
+      '[Resp] 7F 2E 22',     // ECU returned 0x22, not 0x33 — Python flags this anyway
+    ]);
+    const item = diagnosis.find(d => d.code === 'SECURED_WITHOUT_UNLOCK');
+    expect(item).toBeDefined();
+    expect(item.severity).toBe('FAIL');
+    expect(item.recommendation).toMatch(/No SecurityAccess.*was issued at all/i);
+  });
+
+  it('flags a 0x31 routine attempted after seed but before key (unlock never completed)', () => {
+    const { diagnosis } = analyze([
+      '[Req] 10 03',
+      '[Resp] 50 03 00 19 01 F4',
+      '[Req] 27 01',
+      '[Resp] 67 01 AA BB CC DD',
+      // No 0x27 sub-function-even / no positive 0x67 to the key — unlock never completes.
+      '[Req] 31 01 FF 00',
+      '[Resp] 71 01 FF 00 00',  // even a "positive" response — Python would still flag
+    ]);
+    const item = diagnosis.find(d => d.code === 'SECURED_WITHOUT_UNLOCK');
+    expect(item).toBeDefined();
+    expect(item.recommendation).toMatch(/SecurityAccess was requested.*no successful unlock/i);
+  });
+
+  it('downgrades to WARN when the secured request returned a positive response (trace likely started after unlock)', () => {
+    const { diagnosis } = analyze([
+      '[Req] 10 03',
+      '[Resp] 50 03 00 19 01 F4',
+      // No 0x27 in trace at all, but the 0x31 worked — unlock likely
+      // happened before logging started. Worth flagging, not a failure.
+      '[Req] 31 01 FF 00',
+      '[Resp] 71 01 FF 00 00',
+    ]);
+    const item = diagnosis.find(d => d.code === 'SECURED_WITHOUT_UNLOCK');
+    expect(item).toBeDefined();
+    expect(item.severity).toBe('WARN');
+  });
+
+  it('does NOT flag when SecurityAccess unlocked before the secured service', () => {
+    const { diagnosis } = analyze([
+      '[Req] 10 03',
+      '[Resp] 50 03 00 19 01 F4',
+      '[Req] 27 01',
+      '[Resp] 67 01 AA BB CC DD',
+      '[Req] 27 02 DE AD BE EF',
+      '[Resp] 67 02',           // key accepted — unlocked
+      '[Req] 31 01 FF 00',
+      '[Resp] 71 01 FF 00 00',
+    ]);
+    const item = diagnosis.find(d => d.code === 'SECURED_WITHOUT_UNLOCK');
+    expect(item).toBeUndefined();
+  });
+
+  it('does NOT flag non-secured services (RDBI etc.) even when locked', () => {
+    const { diagnosis } = analyze([
+      '[Req] 22 F1 90',
+      '[Resp] 62 F1 90 31 41 42 43 44',  // VIN read works in extended without unlock
+    ]);
+    const item = diagnosis.find(d => d.code === 'SECURED_WITHOUT_UNLOCK');
+    expect(item).toBeUndefined();
+  });
+});
