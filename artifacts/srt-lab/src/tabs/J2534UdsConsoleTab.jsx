@@ -204,6 +204,7 @@ export default function J2534UdsConsoleTab() {
   const [saAlgoId, setSaAlgoId] = useState("cda6");
   const [saAutoConfirm, setSaAutoConfirm] = useState(false);
   const [saPending, setSaPending] = useState(null);
+  const [saExtHint, setSaExtHint] = useState(false);
 
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
@@ -371,6 +372,7 @@ export default function J2534UdsConsoleTab() {
     const level = SA_LEVELS[saLevelIdx];
     const algo  = SA_ALGOS.find(a => a.id === saAlgoId) || SA_ALGOS[0];
 
+    setSaExtHint(false);
     addLog(`── Security Access (level 0x${hx(level.seed & 0x1F)}, algo: ${algo.n}) ──`, "header");
     setBusy(true);
     try {
@@ -388,6 +390,10 @@ export default function J2534UdsConsoleTab() {
       if (sr.d[0] === 0x7F) {
         const nrc = sr.d.length >= 3 ? sr.d[2] : 0;
         addLog(`NRC 0x${hx(nrc)}: ${decodeNRC(nrc)}`, "error");
+        if (nrc === 0x22) {
+          setSaExtHint(true);
+          addLog("Hint: send 'Ext Session' (10 03) first, then retry Security Access", "hint");
+        }
         return;
       }
 
@@ -468,6 +474,37 @@ export default function J2534UdsConsoleTab() {
     setSaPending(null);
   }, [saPending, addLog]);
 
+  /* ── Ext Session → retry SA composite action ───────────────────────── */
+  const runExtSessionThenRetry = useCallback(async () => {
+    if (status !== "can_connected") return;
+    const tx = parseAddr(txHex);
+    const rx = parseAddr(rxHex);
+    if (isNaN(tx) || isNaN(rx)) { addLog("Invalid TX/RX address.", "error"); return; }
+
+    setSaExtHint(false);
+    addLog("── Auto: Extended Session → Security Access ──", "header");
+    setBusy(true);
+    try {
+      const extReq = [0x10, 0x03];
+      addLog(`TX → 0x${hx(tx, 3)}: ${bytesToHex(extReq)}  (DiagnosticSessionControl extendedDiagnosticSession)`, "tx");
+      const esr = await udsCall(urlRef.current, tx, rx, extReq, 3000);
+      if (!esr.ok || !esr.d) {
+        addLog("Ext Session failed: " + (esr.raw || "no response"), "error");
+        return;
+      }
+      addLog(`RX ← 0x${hx(rx, 3)}: ${bytesToHex(esr.d)}`, "rx");
+      if (esr.d[0] === 0x7F) {
+        const nrc = esr.d.length >= 3 ? esr.d[2] : 0;
+        addLog(`Ext Session NRC 0x${hx(nrc)}: ${decodeNRC(nrc)}`, "error");
+        return;
+      }
+      addLog("Extended session active — retrying Security Access…", "success");
+    } finally {
+      setBusy(false);
+    }
+    await runSecurityAccess();
+  }, [status, txHex, rxHex, addLog, runSecurityAccess]);
+
   /* ── Module preset picker ───────────────────────────────────────────── */
   const pickModule = useCallback((mod) => {
     setTxHex("0x" + hx(mod.tx, 3));
@@ -482,7 +519,7 @@ export default function J2534UdsConsoleTab() {
   const isLive = status === "can_connected";
 
   /* ── Log line colour map ────────────────────────────────────────────── */
-  const logColor = { tx: "#4FC3F7", rx: "#69F0AE", error: "#FF5252", warn: "#FFB300", success: "#69F0AE", info: "#AAA", header: "#BB86FC" };
+  const logColor = { tx: "#4FC3F7", rx: "#69F0AE", error: "#FF5252", warn: "#FFB300", success: "#69F0AE", info: "#AAA", header: "#BB86FC", hint: "#FF8F00" };
 
   return (
     <div style={{ background: S.bg, minHeight: "100%", padding: 16, fontFamily: S.font, color: S.text }}>
@@ -722,6 +759,33 @@ export default function J2534UdsConsoleTab() {
                   </span>
                 </label>
 
+                {/* NRC 0x22 hint callout */}
+                {saExtHint && (
+                  <div style={{
+                    marginBottom: 12, padding: "10px 14px", borderRadius: 6,
+                    background: "#1A1000", border: "1px solid #5A3A00",
+                    borderLeft: "3px solid #FF8F00",
+                    display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
+                  }}>
+                    <span style={{ fontSize: 12 }}>⚡</span>
+                    <span style={{ flex: 1, fontSize: 11, color: "#FF8F00", fontWeight: 700, fontFamily: S.mono }}>
+                      Module replied NRC 0x22 — it needs Extended Session (10 03) before Security Access.
+                    </span>
+                    <button
+                      onClick={runExtSessionThenRetry}
+                      disabled={busy}
+                      style={{
+                        padding: "7px 14px", borderRadius: 6, border: `1px solid ${busy ? S.border : "#FF8F00"}`,
+                        background: busy ? "#222" : "#241300", color: busy ? "#555" : "#FF8F00",
+                        fontFamily: S.font, fontWeight: 800, fontSize: 11, letterSpacing: 0.5,
+                        cursor: busy ? "not-allowed" : "pointer", whiteSpace: "nowrap",
+                      }}
+                    >
+                      Send Ext Session then Retry
+                    </button>
+                  </div>
+                )}
+
                 {/* Confirmation interstitial */}
                 {saPending && (
                   <div style={{
@@ -829,8 +893,20 @@ export default function J2534UdsConsoleTab() {
               <div style={{ color: "#333" }}>// idle — connect the bridge and select a module target</div>
             ) : (
               log.map((l, i) => (
-                <div key={i} style={{ color: logColor[l.type] || S.dim }}>
-                  <span style={{ color: "#444", userSelect: "none" }}>[{l.ts}] </span>
+                <div key={i} style={{
+                  color: logColor[l.type] || S.dim,
+                  ...(l.type === "hint" ? {
+                    background: "#1A1000",
+                    border: "1px solid #5A3A00",
+                    borderLeft: "3px solid #FF8F00",
+                    borderRadius: 4,
+                    padding: "3px 8px",
+                    margin: "3px 0",
+                    fontWeight: 700,
+                  } : {}),
+                }}>
+                  <span style={{ color: l.type === "hint" ? "#7A5A00" : "#444", userSelect: "none" }}>[{l.ts}] </span>
+                  {l.type === "hint" && <span style={{ marginRight: 5 }}>⚡</span>}
                   {l.msg}
                 </div>
               ))
