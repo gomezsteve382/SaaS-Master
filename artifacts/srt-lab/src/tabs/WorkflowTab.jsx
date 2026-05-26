@@ -33,6 +33,7 @@ import {
 import { buildJobReportData } from "../lib/reportData.js";
 import { buildJobPDF } from "../lib/buildAnalysisPDF.js";
 import Sec16SyncHistoryCard from "../components/Sec16SyncHistoryCard.jsx";
+import ChipBurnAuditCard from "../components/ChipBurnAuditCard.jsx";
 
 const VIN_RX = /^[A-HJ-NPR-Z0-9]{17}$/;
 
@@ -641,6 +642,8 @@ export default function WorkflowTab({ onOpenTab } = {}) {
       </Card>
 
       <Sec16SyncHistoryCard />
+
+      <ChipBurnAuditCard />
 
       <Card>
         <div

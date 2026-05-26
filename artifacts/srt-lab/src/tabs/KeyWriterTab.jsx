@@ -41,6 +41,56 @@ const SIM_PROFILES = [
 const hex = (b) => b.toString(16).toUpperCase().padStart(2, '0');
 const hexJoin = (bs) => [...bs].map(hex).join(' ');
 
+/* Shared audit ring buffer — same storage key + event channel KeyManagerTab,
+ * RfhubTab and BackupsTab use (see KeyManagerTab.jsx). Mirroring the helper
+ * here (rather than importing) keeps this tab a leaf that doesn't pull in
+ * KeyManagerTab's React tree just for one persistence call. */
+const AUDIT_KEY = 'srt-lab.keymgr.audit.v1';
+const AUDIT_LIMIT = 500;
+function appendAudit(entry) {
+  try {
+    const raw = globalThis.localStorage?.getItem(AUDIT_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    arr.push({ ts: new Date().toISOString(), ...entry });
+    while (arr.length > AUDIT_LIMIT) arr.shift();
+    globalThis.localStorage?.setItem(AUDIT_KEY, JSON.stringify(arr));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('srtlab:audit', { detail: entry }));
+    }
+  } catch { /* localStorage may be denied in test sandboxes */ }
+}
+
+/* VIN extraction mirrors KeyManagerTab.extractRfhVin — kept inline so this
+ * tab doesn't take a dep on the other tab's module. */
+function extractRfhVin(bytes, gen) {
+  if (!bytes) return null;
+  const tryAscii = (off) => {
+    if (off + 17 > bytes.length) return null;
+    let s = '';
+    for (let i = 0; i < 17; i++) {
+      const b = bytes[off + i];
+      if (!((b >= 0x30 && b <= 0x39) || (b >= 0x41 && b <= 0x5A))) return null;
+      s += String.fromCharCode(b);
+    }
+    return s;
+  };
+  const tryAsciiReversed = (off) => {
+    if (off + 17 > bytes.length) return null;
+    let s = '';
+    for (let i = 16; i >= 0; i--) {
+      const b = bytes[off + i];
+      if (!((b >= 0x30 && b <= 0x39) || (b >= 0x41 && b <= 0x5A))) return null;
+      s += String.fromCharCode(b);
+    }
+    return s;
+  };
+  /* parseKeySlots reports gen as a number (1, 2) — but legacy callers used
+   * the string 'gen2'. Accept either. */
+  const isGen2 = gen === 'gen2' || gen === 2 || gen >= 2;
+  if (isGen2) return tryAsciiReversed(0x0EA5) || tryAscii(0x92);
+  return tryAscii(0x92);
+}
+
 function readFileBytes(file) {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -222,6 +272,21 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
       setBusy(false);
       return;
     }
+    /* VIN + per-burn audit context. The audit payload deliberately omits
+     * secret16 (the SEC16 master) — the audit row only carries identifiers
+     * the operator needs to reconcile the burn against a job, never the
+     * material that would let someone reproduce the chip off-bench. */
+    const vin = extractRfhVin(rfhBytes, parsed?.gen) || 'NOVIN';
+    const auditBase = {
+      source: 'keywriter',
+      op: 'chip-burn',
+      vin,
+      slotIdx: slot.idx,
+      chipId,
+      writer: writerId,
+      transport: mode,
+      simProfile: mode === 'sim' ? simProfile : null,
+    };
     try {
       const res = await burnSlot({
         transport, slot, chipId, writer: writerId, secret16,
@@ -240,14 +305,39 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
             : `KEYMOD REFUSED — failed at step "${res.failedAt}".` },
       ]);
       setResult(res);
+      /* Persist to shared audit channel. Step trace carries label/ok/error/
+       * detail only — burnSlot's `steps` shape already excludes raw secret
+       * material, but we re-pick fields explicitly so a future shape change
+       * can't leak SEC16 by accident. */
+      appendAudit({
+        ...auditBase,
+        ok: !!res.ok,
+        outcome: res.ok ? 'KEYMOD WRITTEN' : 'KEYMOD REFUSED',
+        failedAt: res.failedAt || null,
+        steps: (res.steps || []).map((s) => ({
+          label: s.label,
+          ok: !!s.ok,
+          error: s.error || null,
+          detail: s.detail || null,
+        })),
+      });
     } catch (e) {
-      setLog((L) => [...L, { at: Date.now(), level: 'err', msg: `KEYMOD REFUSED — transport error: ${e.message || e}` }]);
+      const msg = e?.message || String(e);
+      setLog((L) => [...L, { at: Date.now(), level: 'err', msg: `KEYMOD REFUSED — transport error: ${msg}` }]);
       setResult({ ok: false, failedAt: 'transport', steps: [] });
+      appendAudit({
+        ...auditBase,
+        ok: false,
+        outcome: 'KEYMOD REFUSED',
+        failedAt: 'transport',
+        error: msg,
+        steps: [],
+      });
     } finally {
       if (createdSim) transport.close?.();
       setBusy(false);
     }
-  }, [slot, secret16, mode, simProfile, chipId, writerId]);
+  }, [slot, secret16, mode, simProfile, chipId, writerId, rfhBytes, parsed]);
 
   return (
     <div data-testid="key-writer-tab">
