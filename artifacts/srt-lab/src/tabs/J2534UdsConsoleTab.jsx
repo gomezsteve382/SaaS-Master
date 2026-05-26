@@ -3,6 +3,9 @@ import { getStatus, open as openBridge, connect as bridgeConnect, setFilter, sen
 import { decodeNRC } from "../lib/nrc.js";
 import { ALGOS, unlockKeyBytes, pickUnlockChain } from "../lib/algos.js";
 
+/* ─── localStorage key for remembered algo per TX address ──────────────────── */
+const saStorageKey = (txHex) => `sa_algo_${txHex.toLowerCase().replace(/\s/g, "")}`;
+
 /* ─── FCA module address table (mirrors J2534Scanner.jsx) ─────────────────── */
 const FCA_MODULES = [
   { name: "ECM",         tx: 0x7E0, rx: 0x7E8 },
@@ -206,6 +209,7 @@ export default function J2534UdsConsoleTab() {
   const [saPending, setSaPending] = useState(null);
   const [saExtHint, setSaExtHint] = useState(false);
   const [saDetectedAlgo, setSaDetectedAlgo] = useState(null);
+  const [saRememberedAlgo, setSaRememberedAlgo] = useState(null);
 
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
@@ -214,8 +218,20 @@ export default function J2534UdsConsoleTab() {
   /* Keep URL ref fresh whenever component re-renders */
   urlRef.current = getAutelState().url;
 
-  /* Clear auto-detected winner whenever the target address or SA level changes */
-  useEffect(() => { setSaDetectedAlgo(null); }, [txHex, rxHex, saLevelIdx]);
+  /* When TX address changes: load remembered algo from localStorage, clear live detection */
+  useEffect(() => {
+    setSaDetectedAlgo(null);
+    const saved = localStorage.getItem(saStorageKey(txHex));
+    if (saved && SA_ALGOS.find(a => a.id === saved)) {
+      setSaAlgoId(saved);
+      setSaRememberedAlgo(saved);
+    } else {
+      setSaRememberedAlgo(null);
+    }
+  }, [txHex]);
+
+  /* Clear live detection when RX address or SA level changes (TX handled above) */
+  useEffect(() => { setSaDetectedAlgo(null); }, [rxHex, saLevelIdx]);
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
@@ -601,9 +617,11 @@ export default function J2534UdsConsoleTab() {
         if (!seedBytes) break; // outer break already set exitReason
 
         if (!seedBytes.some(b => b !== 0)) {
-          addLog(`    zero seed — already unlocked`, "success");
+          addLog(`    zero seed — module already unlocked (algo unverified, not remembered)`, "success");
           setSaAlgoId(algoId);
           setSaDetectedAlgo(algoId);
+          // Do NOT persist: zero seed proves nothing about which algo is correct.
+          // The module was already unlocked before we tried any key.
           return;
         }
         addLog(`    seed: ${bytesToHex(seedBytes)}`, "info");
@@ -629,6 +647,8 @@ export default function J2534UdsConsoleTab() {
             addLog(`Auto-detect WINNER → ${algoLabel} (${algoId}) ✓`, "success");
             setSaAlgoId(algoId);
             setSaDetectedAlgo(algoId);
+            localStorage.setItem(saStorageKey(txHex), algoId);
+            setSaRememberedAlgo(algoId);
             return;
           }
 
@@ -868,12 +888,36 @@ export default function J2534UdsConsoleTab() {
 
                 {/* Algorithm picker */}
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", marginBottom: 6, gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", marginBottom: 6, gap: 8, flexWrap: "wrap" }}>
                     <div style={{ fontSize: 10, color: S.dim, fontWeight: 700, letterSpacing: 1 }}>ALGORITHM</div>
                     {saDetectedAlgo && (
                       <div style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#001A00", color: S.green, border: `1px solid #004400`, fontWeight: 700, fontFamily: S.mono }}>
                         ✓ auto-detected: {(SA_ALGOS.find(a => a.id === saDetectedAlgo) || { n: saDetectedAlgo }).n}
                       </div>
+                    )}
+                    {saRememberedAlgo && !saDetectedAlgo && (
+                      <div
+                        title={`Remembered from a previous session for ${txHex}. Click "Forget" to clear.`}
+                        style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#0A0A1A", color: "#8888FF", border: `1px solid #2A2A5A`, fontWeight: 700, fontFamily: S.mono }}
+                      >
+                        ↩ remembered
+                      </div>
+                    )}
+                    {saRememberedAlgo && (
+                      <button
+                        onClick={() => {
+                          localStorage.removeItem(saStorageKey(txHex));
+                          setSaRememberedAlgo(null);
+                        }}
+                        title={`Forget the remembered algorithm for ${txHex}`}
+                        style={{
+                          background: "none", border: "none", color: "#555", cursor: "pointer",
+                          fontSize: 9, fontFamily: S.mono, padding: 0, textDecoration: "underline",
+                          marginLeft: 2,
+                        }}
+                      >
+                        Forget
+                      </button>
                     )}
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4, maxHeight: 120, overflowY: "auto" }}>
