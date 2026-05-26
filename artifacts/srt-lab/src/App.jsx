@@ -51,6 +51,7 @@ import WorkflowTab from "./tabs/WorkflowTab.jsx";
 import Gpec2aUnlockTab from "./tabs/Gpec2aUnlockTab.jsx";
 import ExternalToolsTab from "./tabs/ExternalToolsTab.jsx";
 import RadioCodesTab from "./tabs/RadioCodesTab.jsx";
+import KeyWriterTab from "./tabs/KeyWriterTab.jsx";
 import BinaryIntelTab from "./tabs/BinaryIntelTab.jsx";
 import DispatchCoverageTab from "./tabs/DispatchCoverageTab.jsx";
 import AlfaObdIntelTab from "./tabs/AlfaObdIntelTab.jsx";
@@ -937,6 +938,7 @@ const WORKSPACE_TABS = [
   {id:'gpecunlock',i:'🔓', l:'GPEC2A UNLOCK',s:'Firmware file patcher · no OBD'},
   {id:'exttools',  i:'🧰', l:'EXT TOOLS',   s:'FCA PROXI Tool · GPEC Unlocker'},
   {id:'radiocodes',i:'📻', l:'RADIO CODES', s:'Mopar PIN deriver'},
+  {id:'keywriter', i:'🗝️', l:'KEY WRITER',  s:'VVDI / Tango chip burn bridge'},
   {id:'binintel',  i:'🧪', l:'BINARY INTEL',s:'External report cross-ref'},
   {id:'dispatchcov',i:'📊', l:'DISPATCH COV',s:'Full routine→frame gap · 1,696 routines'},
   {id:'alfaintel', i:'🧾', l:'ALFAOBD INTEL',s:'UDS frames · routines · ECU→CAN · DB schema'},
@@ -964,7 +966,7 @@ const WORKSPACE_CATEGORIES = {
   jailbreak:'PROGRAM', keyprog:'PROGRAM', keymgr:'PROGRAM', livekey:'PROGRAM',
   vinprog:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', gpecunlock:'PROGRAM',
-  cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM',
+  cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
   // LIVE — connected OBD/J2534 sessions and external bench tools.
   obd:'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE',
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
@@ -1250,6 +1252,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='gpecunlock'&& <Gpec2aUnlockTab/>}
         {tab==='exttools'  && <ExternalToolsTab onOpenTab={setTab}/>}
         {tab==='radiocodes'&& <RadioCodesTab/>}
+        {tab==='keywriter' && <KeyWriterTab/>}
         {tab==='binintel'  && <BinaryIntelTab/>}
         {tab==='dispatchcov' && <DispatchCoverageTab/>}
         {tab==='alfaintel' && <AlfaObdIntelTab/>}

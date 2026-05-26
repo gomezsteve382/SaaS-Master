@@ -82,6 +82,9 @@ Seed-to-key calculator (iterates `ALGOS`), GPEC/GPEC2A firmware unlocks, **SWARM
 - **2019+ Dealer Lockout Bypass** (`dealerLockoutBypass.js`) — 5-step state machine surfaced on `RfhubTab`, gated on observed NRC `0x36`/`0x37` + `XC2268_RFHUB` inspector hint (or bench-override checkbox).
 - **Radio Codes tab** (`radiocodes`).
 
+### Transponder writer bridge (`KEY WRITER` tab)
+`keyWriter/` USB-CDC bridge that hands a single RFHUB slot's chip ID + resolved SEC16 master secret to Xhorse VVDI Mini / Tango writers via Web Serial (with a Simulator fallback for bench dry-runs). `burnSlot()` runs ping → detect → burn → verify with refuse-on-doubt gates (`securityBytes.js`-style: blank SEC16, wrong chip family, id-shape mismatch, or unknown writer all halt before any bytes leave the host). Chip burn only — vehicle pairing still goes through the existing RoutineControl 0x0401 flow on RFHUB tab. Protocol framing matches public VVDI captures but is **unverified**; see `docs/key-writer-bridge.md`.
+
 ### Vendored external tools (`artifacts/srt-lab/vendor/`)
 Two Windows binaries pre-staged for internal bench use with manifests + READMEs:
 - **FCA PROXI Tool v1.2.0.1** (`vendor/fca-proxi/`) — Stellantis PROXI tool. License bypass via Safengine-Shielden DLL sideload (`shfolder.dll`). Activated against HWID `2899614-B9E65D4-73F1D98-D6D5DCB`. Launch with CWD set to the vendor folder.
