@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 const SIDEBAR_BG = '#1A1A1A';
 const SIDEBAR_BG_DEEP = '#0F0F0F';
@@ -80,6 +80,40 @@ export default function WorkspaceSidebar({tabs, categories, activeTab, onSelect,
   const q = query.trim().toLowerCase();
   const searching = q.length > 0;
 
+  const searchInputRef = useRef(null);
+
+  // Global keyboard shortcut: Cmd/Ctrl+K or "/" focuses the sidebar search.
+  // Ignored while the user is typing in another input/textarea/contentEditable.
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const handler = (e) => {
+      const isCmdK = (e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey);
+      const isSlash = e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey;
+      if (!isCmdK && !isSlash) return;
+
+      const t = e.target;
+      const input = searchInputRef.current;
+      // If focus is already on the sidebar search, let the key behave normally.
+      if (t === input) return;
+      // Ignore when typing in any other editable element so the shortcut
+      // doesn't hijack focus mid-edit. Applies to both "/" and Cmd/Ctrl+K.
+      if (t && (
+        t.tagName === 'INPUT' ||
+        t.tagName === 'TEXTAREA' ||
+        t.tagName === 'SELECT' ||
+        t.isContentEditable
+      )) {
+        return;
+      }
+      if (!input) return;
+      e.preventDefault();
+      input.focus();
+      try { input.select(); } catch { /* no-op */ }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
   // Filtered groups + ordered list of matches for Enter handling.
   // Re-derived every render — the cost is trivial (a few dozen string
   // includes) and avoids stale-closure bugs from memo-dep mismatches.
@@ -128,11 +162,12 @@ export default function WorkspaceSidebar({tabs, categories, activeTab, onSelect,
       {!narrow && (
         <div style={{padding: '0 12px 10px'}}>
           <input
+            ref={searchInputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder="Search tabs…"
+            placeholder="Search tabs (press / or Ctrl+K)…"
             data-testid="sidebar-search"
             aria-label="Search tabs"
             style={{
