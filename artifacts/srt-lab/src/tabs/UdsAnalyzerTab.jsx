@@ -17,6 +17,16 @@ import exampleLog from '../lib/udsSessionAnalyzer/fixtures/example_session.log?r
 const ACCEPT = '.log,.txt,.asc,.trc';
 
 const SEV_COLOR = { OK: C.gn, WARN: '#F59E0B', FAIL: C.er };
+
+const FORMAT_LABELS = {
+  candump: 'candump',
+  txrx: 'TX/RX',
+  reqresp: 'Req/Resp',
+  bare: 'bare hex',
+  canraw: 'canraw (CAN id-first)',
+  unknown: 'unknown',
+  none: 'none',
+};
 const SEV_BG    = { OK: '#E8F5E9', WARN: '#FFFBEB', FAIL: '#FFEBEE' };
 
 function SeverityChip({ severity }) {
@@ -548,7 +558,7 @@ export default function UdsAnalyzerTab() {
           )}
           {result && (
             <span style={{ fontSize: 10, color: C.tm, marginLeft: 'auto' }}>
-              {result.parsed.messageCount} lines · format: <strong>{result.parsed.formatDetected}</strong>
+              {result.parsed.messageCount} lines · format: <strong>{FORMAT_LABELS[result.parsed.formatDetected] || result.parsed.formatDetected}</strong>
             </span>
           )}
         </div>
@@ -561,8 +571,8 @@ export default function UdsAnalyzerTab() {
   • candump: (0.000) can0 7E0#0322F190CC
   • TX/RX:   [0.050] TX 7E0 22 F1 90
   • Req/Resp: [Req] 10 03  /  [Resp] 50 03 00 19 01 F4
-  • Raw CAN:  [0.050] 7E0 03 22 F1 90
-  • Bare hex: 10 03  /  50 03 00 19 01 F4`}
+  • Bare hex: 10 03  /  50 03 00 19 01 F4
+  • canraw:   18DA40F1 03 22 F1 90  (raw CAN id-first; also [0.050] 7E0 03 22 F1 90 — J2534 / PEAK / Vector logs)`}
           style={{
             width: '100%',
             height: 120,
@@ -591,7 +601,7 @@ export default function UdsAnalyzerTab() {
               lineHeight: 1.5,
             }}
           >
-            ⚠ 0 messages parsed — unrecognized format. Expected candump, TX/RX, Req/Resp, or bare hex.
+            ⚠ 0 messages parsed — unrecognized format. Expected candump, TX/RX, Req/Resp, bare hex, or canraw.
           </div>
         )}
       </Card>
