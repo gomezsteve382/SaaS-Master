@@ -48,9 +48,9 @@ export const CHIP_FAMILIES = [
     label: 'Megamos AES (ID88)',
     uidBytes: 7,
     payloadBytes: 16,
-    writers: ['vvdi-mini'],
+    writers: ['tango'],
     notes:
-      'Not used by stock FCA — listed for benches that share a writer with VW/Audi work. SRT Lab will refuse to burn this from a FCA RFHUB slot.',
+      'Not used by stock FCA — listed for benches that share a writer with VW/Audi work. Megamos AES is a Tango-only family here: VVDI Mini lacks the Megamos AES routine in its firmware, so we refuse that combination at the serializer. SRT Lab will also refuse to burn this from a FCA RFHUB slot.',
   },
 ];
 

@@ -27,14 +27,31 @@
  *   - chip family must list the requested writer in `writers`.
  * ========================================================================== */
 
-import { CMD, buildFrame } from './protocol.js';
+import { CMD, buildFrame, cmdsFor } from './protocol.js';
 import { chipFamily } from './chipFamilies.js';
 
+/* VVDI Mini chip ordinal — single-byte family selector the writer firmware
+ * uses to refuse a wrong chip before any burn cycle starts. */
 export const CHIP_ORDINAL = {
   'pcf7953':     0x01,
   'pcf7945':     0x02,
   'megamos-aes': 0x10,
 };
+
+/* Tango uses a different chip-family selector space (2-byte family code in
+ * the public Scorpio-LK SDK). We only need single-byte ordinals here; the
+ * serializer emits a 2-byte field for Tango (high byte 0x00) to match the
+ * documented Tango payload header without changing call sites. */
+export const TANGO_CHIP_ORDINAL = {
+  'pcf7953':     0x21,
+  'pcf7945':     0x22,
+  'megamos-aes': 0x88,
+};
+
+function ordinalFor(writer, chipId) {
+  if (writer === 'tango') return TANGO_CHIP_ORDINAL[chipId];
+  return CHIP_ORDINAL[chipId];
+}
 
 function isBlankSecret(s) {
   let allFF = true, all00 = true;
@@ -73,51 +90,67 @@ export function buildBurnRequest({ slot, chipId, writer, secret16 } = {}) {
   if (isBlankSecret(sec)) {
     return { ok: false, error: 'SEC16 master secret is blank (all 0xFF / 0x00) — refusing to burn against a virgin secret', reason: 'blank-secret' };
   }
-  const ord = CHIP_ORDINAL[chip.id];
+  const ord = ordinalFor(writer, chip.id);
   if (ord == null) {
-    return { ok: false, error: `chip family ${chip.id} has no protocol ordinal`, reason: 'no-ordinal' };
+    return { ok: false, error: `chip family ${chip.id} has no ${writer || 'vvdi-mini'} protocol ordinal`, reason: 'no-ordinal' };
   }
   const uid = slot.idBytes.slice(0, chip.uidBytes);
   const pl  = slot.idBytes.slice(chip.uidBytes);
-  const payload = new Uint8Array(3 + uid.length + pl.length + 16);
-  payload[0] = ord;
-  payload[1] = uid.length;
-  payload[2] = pl.length;
-  payload.set(uid, 3);
-  payload.set(pl, 3 + uid.length);
-  payload.set(sec, 3 + uid.length + pl.length);
+  // Tango header is two bytes wide (family hi + family lo) where VVDI uses one.
+  const ordBytes = writer === 'tango' ? [0x00, ord] : [ord];
+  const header = ordBytes.length + 2; // + uidLen + payloadLen
+  const payload = new Uint8Array(header + uid.length + pl.length + 16);
+  let off = 0;
+  for (const b of ordBytes) payload[off++] = b;
+  payload[off++] = uid.length;
+  payload[off++] = pl.length;
+  payload.set(uid, off);
+  payload.set(pl, off + uid.length);
+  payload.set(sec, off + uid.length + pl.length);
+  const cmds = cmdsFor(writer);
   return {
     ok: true,
-    frame: buildFrame(CMD.BURN_KEY, payload),
+    frame: buildFrame(cmds.BURN_KEY, payload),
     payload,
     chip,
+    writer: writer || 'vvdi-mini',
     uidHex: [...uid].map((b) => b.toString(16).padStart(2, '0')).join(''),
     payloadHex: [...pl].map((b) => b.toString(16).padStart(2, '0')).join(''),
   };
 }
 
-/** Build a CMD.DETECT_CHIP request — payload is the expected chip ordinal
+/** Build a DETECT_CHIP request — payload is the expected chip ordinal
  *  so the writer can refuse the wrong family without burning. */
-export function buildDetectRequest({ chipId } = {}) {
+export function buildDetectRequest({ chipId, writer } = {}) {
   const chip = chipFamily(chipId);
   if (!chip) return { ok: false, error: `unknown chip family: ${chipId}`, reason: 'bad-chip' };
-  const ord = CHIP_ORDINAL[chip.id];
-  return { ok: true, frame: buildFrame(CMD.DETECT_CHIP, new Uint8Array([ord])) };
+  if (writer && !chip.writers.includes(writer)) {
+    return { ok: false, error: `chip ${chip.id} not supported by writer ${writer}`, reason: 'writer-unsupported' };
+  }
+  const ord = ordinalFor(writer, chip.id);
+  if (ord == null) {
+    return { ok: false, error: `chip family ${chip.id} has no ${writer || 'vvdi-mini'} protocol ordinal`, reason: 'no-ordinal' };
+  }
+  const cmds = cmdsFor(writer);
+  const payload = writer === 'tango' ? new Uint8Array([0x00, ord]) : new Uint8Array([ord]);
+  return { ok: true, frame: buildFrame(cmds.DETECT_CHIP, payload) };
 }
 
-/** Build a CMD.PING request (no payload). */
-export function buildPingRequest() {
-  return { ok: true, frame: buildFrame(CMD.PING) };
+/** Build a PING request (no payload). */
+export function buildPingRequest({ writer } = {}) {
+  const cmds = cmdsFor(writer);
+  return { ok: true, frame: buildFrame(cmds.PING) };
 }
 
-/** Build a CMD.VERIFY request — same payload shape as BURN_KEY so the
+/** Build a VERIFY request — same payload shape as BURN_KEY so the
  *  writer can read the chip back and compare against the expected bytes. */
 export function buildVerifyRequest(args) {
   const r = buildBurnRequest(args);
   if (!r.ok) return r;
+  const cmds = cmdsFor(args?.writer);
   // Re-build with VERIFY opcode instead of BURN_KEY.
   return {
     ...r,
-    frame: buildFrame(CMD.VERIFY, r.payload),
+    frame: buildFrame(cmds.VERIFY, r.payload),
   };
 }

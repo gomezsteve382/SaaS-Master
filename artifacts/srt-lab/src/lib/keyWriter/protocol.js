@@ -35,6 +35,43 @@ export const CMD = Object.freeze({
   NACK:           0x81,
 });
 
+/* --------------------------------------------------------------------------
+ * Tango (Scorpio-LK) opcode table.
+ *
+ * Tango speaks the same 5A A5 / XOR-checksum framing on its USB-CDC port
+ * (publicly observed in third-party SDK captures) but uses a different
+ * opcode space and slightly different ACK/NACK bytes. The values below
+ * mirror the most widely-published Tango command IDs; same honesty caveat
+ * as the VVDI table — unverified against a tethered writer in this repo.
+ *
+ * Tango BURN_KEY payloads carry the full chip payload (e.g. the 16-byte
+ * Megamos AES secret), where VVDI Mini caps out at the 4+4 HITAG2 layout.
+ * The serializer doesn't truncate per writer — it just selects this opcode
+ * table — because the slot/chip-family shape already determines length.
+ * ------------------------------------------------------------------------ */
+export const TANGO_CMD = Object.freeze({
+  PING:           0xA0,
+  DETECT_CHIP:    0xB0,
+  READ_UID:       0xB1,
+  READ_PAGE:      0xB2,
+  WRITE_PAGE:     0xC0,
+  BURN_KEY:       0xC1,
+  VERIFY:         0xC2,
+  RESET:          0xFE,
+  ACK:            0x06,
+  NACK:           0x15,
+});
+
+const WRITER_CMD_TABLES = Object.freeze({
+  'vvdi-mini': CMD,
+  'tango':     TANGO_CMD,
+});
+
+/** Return the opcode table for `writer` (defaults to VVDI Mini). */
+export function cmdsFor(writer) {
+  return WRITER_CMD_TABLES[writer] || CMD;
+}
+
 export function xorChecksum(bytes) {
   let c = 0;
   for (let i = 0; i < bytes.length; i++) c ^= bytes[i] & 0xFF;

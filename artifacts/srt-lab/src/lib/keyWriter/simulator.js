@@ -9,30 +9,49 @@
  *     customer through the whole flow before any chip is on the coil.
  * ========================================================================== */
 
-import { CMD, parseFrame, buildFrame } from './protocol.js';
+import { CMD, TANGO_CMD, parseFrame, buildFrame, cmdsFor } from './protocol.js';
 
-/** Default scripted behaviour: PING/DETECT/BURN/VERIFY all succeed. */
+/** Build a default scripted handler for a given opcode table.
+ *  All four happy-path steps (PING/DETECT/BURN/VERIFY) succeed; everything
+ *  else NACKs with UNSUPPORTED. The handler is opcode-table-aware so the
+ *  same code answers either VVDI Mini or Tango requests correctly. */
+function makeDefaultHandler(cmds) {
+  return function defaultHandler(req) {
+    switch (req.cmd) {
+      case cmds.PING:
+        return { cmd: cmds.ACK, payload: new Uint8Array([0x00, 0x01, 0x00 /* fw 0.1.0 */, 0x00]) };
+      case cmds.DETECT_CHIP:
+        // Echo the chip-family selector tail back as "found".
+        return { cmd: cmds.ACK, payload: new Uint8Array([0x00, req.payload[req.payload.length - 1] || 0x00]) };
+      case cmds.BURN_KEY:
+      case cmds.VERIFY:
+        return { cmd: cmds.ACK, payload: new Uint8Array([0x00]) };
+      case cmds.RESET:
+        return { cmd: cmds.ACK, payload: new Uint8Array([0x00]) };
+      default:
+        return { cmd: cmds.NACK, payload: new Uint8Array([0x07 /* UNSUPPORTED */]) };
+    }
+  };
+}
+
+/** Auto-routing default handler — dispatches each request to the opcode
+ *  table that recognises its opcode. Lets a single SimulatorTransport
+ *  answer both VVDI and Tango traffic in mixed-writer tests. */
 function defaultHandler(req) {
-  switch (req.cmd) {
-    case CMD.PING:
-      return { cmd: CMD.ACK, payload: new Uint8Array([0x00, 0x01, 0x00 /* fw 0.1.0 */, 0x00]) };
-    case CMD.DETECT_CHIP:
-      // Echo the chip ordinal back as "found".
-      return { cmd: CMD.ACK, payload: new Uint8Array([0x00, req.payload[0] || 0x00]) };
-    case CMD.BURN_KEY:
-    case CMD.VERIFY:
-      return { cmd: CMD.ACK, payload: new Uint8Array([0x00]) };
-    case CMD.RESET:
-      return { cmd: CMD.ACK, payload: new Uint8Array([0x00]) };
-    default:
-      return { cmd: CMD.NACK, payload: new Uint8Array([0x07 /* UNSUPPORTED */]) };
+  if (Object.values(TANGO_CMD).includes(req.cmd)) {
+    return makeDefaultHandler(TANGO_CMD)(req);
   }
+  return makeDefaultHandler(CMD)(req);
 }
 
 export class SimulatorTransport {
-  /** @param {{handler?: (req:{cmd:number,payload:Uint8Array}) => {cmd:number,payload:Uint8Array}, latencyMs?:number, label?:string}} opts */
+  /** @param {{handler?: (req:{cmd:number,payload:Uint8Array}) => {cmd:number,payload:Uint8Array}, latencyMs?:number, label?:string, writer?:'vvdi-mini'|'tango'}} opts */
   constructor(opts = {}) {
-    this.handler = opts.handler || defaultHandler;
+    // If a writer is specified and no custom handler given, scope responses
+    // to that opcode table — useful for asserting that e.g. VVDI ignores
+    // Tango opcodes (which would NACK as UNSUPPORTED).
+    const scoped = opts.writer ? makeDefaultHandler(cmdsFor(opts.writer)) : defaultHandler;
+    this.handler = opts.handler || scoped;
     this.latencyMs = opts.latencyMs ?? 25;
     this.label = opts.label || 'Simulator';
     this.open = true;

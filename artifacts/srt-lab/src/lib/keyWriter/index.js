@@ -6,7 +6,7 @@
  * (KEYMOD REFUSED on first ok:false).
  * ========================================================================== */
 
-import { parseFrame, CMD } from './protocol.js';
+import { parseFrame, CMD, TANGO_CMD } from './protocol.js';
 import {
   buildPingRequest,
   buildDetectRequest,
@@ -15,14 +15,17 @@ import {
 } from './serializer.js';
 import { describeError } from './errors.js';
 
+const ACK_OPCODES = new Set([CMD.ACK, TANGO_CMD.ACK]);
+const NACK_OPCODES = new Set([CMD.NACK, TANGO_CMD.NACK]);
+
 function decodeResponse(respBytes) {
   const p = parseFrame(respBytes);
   if (!p.ok) return { ok: false, error: p.error || 'incomplete frame' };
   const { cmd, payload } = p.frame;
-  if (cmd === CMD.ACK) {
+  if (ACK_OPCODES.has(cmd)) {
     return { ok: true, cmd, payload, status: 0x00, detail: 'OK' };
   }
-  if (cmd === CMD.NACK) {
+  if (NACK_OPCODES.has(cmd)) {
     const code = payload[0] ?? 0xFF;
     const err = describeError(code);
     return { ok: false, cmd, payload, status: code, error: err.label, detail: err.detail };
@@ -50,7 +53,7 @@ export async function burnSlot({ transport, slot, chipId, writer, secret16 }) {
   const steps = [];
   const args = { slot, chipId, writer, secret16 };
 
-  const ping = await runStep(transport, 'ping',   buildPingRequest, undefined);
+  const ping = await runStep(transport, 'ping',   buildPingRequest, { writer });
   steps.push(ping);
   if (!ping.ok) return { ok: false, steps, failedAt: 'ping' };
 

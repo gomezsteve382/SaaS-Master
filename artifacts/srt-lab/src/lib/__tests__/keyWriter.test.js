@@ -5,10 +5,11 @@
  */
 import { describe, it, expect } from 'vitest';
 import {
-  buildFrame, parseFrame, FrameReader, xorChecksum, CMD,
+  buildFrame, parseFrame, FrameReader, xorChecksum, CMD, TANGO_CMD, cmdsFor,
 } from '../keyWriter/protocol.js';
 import {
-  buildBurnRequest, buildDetectRequest, buildVerifyRequest, CHIP_ORDINAL,
+  buildBurnRequest, buildDetectRequest, buildVerifyRequest, buildPingRequest,
+  CHIP_ORDINAL, TANGO_CHIP_ORDINAL,
 } from '../keyWriter/serializer.js';
 import { SimulatorTransport, FAULT_HANDLERS } from '../keyWriter/simulator.js';
 import { burnSlot } from '../keyWriter/index.js';
@@ -115,9 +116,10 @@ describe('keyWriter/serializer — refuse-on-doubt gates', () => {
     expect(r.reason).toBe('blank-secret');
   });
   it('refuses an unsupported writer for chip', () => {
-    const r = buildBurnRequest({ slot: makeSlot({ idLen: 23 }), chipId: 'megamos-aes', writer: 'tango', secret16: makeSecret() });
+    // VVDI Mini lacks the Megamos AES routine — must refuse before any framing.
+    const r = buildBurnRequest({ slot: makeSlot({ idLen: 23 }), chipId: 'megamos-aes', writer: 'vvdi-mini', secret16: makeSecret() });
     expect(r.ok).toBe(false);
-    expect(['writer-unsupported', 'id-shape-mismatch']).toContain(r.reason);
+    expect(r.reason).toBe('writer-unsupported');
   });
   it('builds a well-formed BURN_KEY payload for a pcf7953 slot', () => {
     const slot = makeSlot();
@@ -157,11 +159,147 @@ describe('keyWriter/chipFamilies', () => {
     expect(chipForRfhubGen('gen1')).toBe('pcf7945');
     expect(chipForRfhubGen('unknown')).toBeNull();
   });
-  it('chipFamily pcf7953 describes a 4+8-byte HITAG2 chip', () => {
+  it('chipFamily pcf7953 describes a 4+8-byte HITAG2 chip burnable by both writers', () => {
     const c = chipFamily('pcf7953');
     expect(c.uidBytes).toBe(4);
     expect(c.payloadBytes).toBe(4);
     expect(c.writers).toContain('vvdi-mini');
+    expect(c.writers).toContain('tango');
+  });
+  it('megamos-aes is Tango-only — VVDI Mini lacks the routine', () => {
+    const c = chipFamily('megamos-aes');
+    expect(c.writers).toContain('tango');
+    expect(c.writers).not.toContain('vvdi-mini');
+  });
+});
+
+describe('keyWriter/protocol — Tango opcode table', () => {
+  it('cmdsFor returns the VVDI table by default and the Tango table when asked', () => {
+    expect(cmdsFor('vvdi-mini').BURN_KEY).toBe(CMD.BURN_KEY);
+    expect(cmdsFor('tango').BURN_KEY).toBe(TANGO_CMD.BURN_KEY);
+    expect(cmdsFor(undefined).PING).toBe(CMD.PING);
+  });
+  it('Tango opcodes do not collide with VVDI opcodes', () => {
+    for (const k of ['PING', 'DETECT_CHIP', 'BURN_KEY', 'VERIFY', 'ACK', 'NACK']) {
+      expect(TANGO_CMD[k]).not.toBe(CMD[k]);
+    }
+  });
+});
+
+describe('keyWriter/serializer — Tango branch', () => {
+  function makeMegamosSlot(idx = 0) {
+    // Megamos AES needs 7-byte UID + 16-byte payload.
+    const idBytes = new Uint8Array(7 + 16);
+    for (let i = 0; i < idBytes.length; i++) idBytes[i] = (0x10 + i) & 0xFF;
+    return {
+      idx,
+      markerOffset: 0,
+      occupied: true,
+      raw: new Uint8Array([0xAA, 0x50]),
+      idOffset: 0,
+      idBytes,
+      idMapped: true,
+    };
+  }
+
+  it('VVDI BURN_KEY uses the VVDI opcode and a 1-byte chip-family header', () => {
+    const r = buildBurnRequest({ slot: makeSlot(), chipId: 'pcf7953', writer: 'vvdi-mini', secret16: makeSecret() });
+    expect(r.ok).toBe(true);
+    const p = parseFrame(r.frame);
+    expect(p.frame.cmd).toBe(CMD.BURN_KEY);
+    expect(p.frame.payload[0]).toBe(CHIP_ORDINAL['pcf7953']);
+    expect(p.frame.payload[1]).toBe(4); // uidLen
+    expect(p.frame.payload[2]).toBe(4); // payloadLen
+  });
+
+  it('Tango BURN_KEY uses the Tango opcode and a 2-byte chip-family header', () => {
+    const r = buildBurnRequest({ slot: makeSlot(), chipId: 'pcf7953', writer: 'tango', secret16: makeSecret() });
+    expect(r.ok).toBe(true);
+    expect(r.writer).toBe('tango');
+    const p = parseFrame(r.frame);
+    expect(p.frame.cmd).toBe(TANGO_CMD.BURN_KEY);
+    // 2-byte ordinal + uidLen + payloadLen + uid(4) + payload(4) + sec16(16) = 28
+    expect(p.frame.payload.length).toBe(28);
+    expect(p.frame.payload[0]).toBe(0x00);
+    expect(p.frame.payload[1]).toBe(TANGO_CHIP_ORDINAL['pcf7953']);
+    expect(p.frame.payload[2]).toBe(4);
+    expect(p.frame.payload[3]).toBe(4);
+    expect(Array.from(p.frame.payload.slice(-16))).toEqual(Array.from(makeSecret()));
+  });
+
+  it('Tango can serialize a longer Megamos AES payload that VVDI cannot accept', () => {
+    const slot = makeMegamosSlot();
+    const r = buildBurnRequest({ slot, chipId: 'megamos-aes', writer: 'tango', secret16: makeSecret() });
+    expect(r.ok).toBe(true);
+    // 2 + 1 + 1 + 7 (uid) + 16 (payload) + 16 (sec16) = 43
+    expect(r.payload.length).toBe(43);
+    const p = parseFrame(r.frame);
+    expect(p.frame.cmd).toBe(TANGO_CMD.BURN_KEY);
+    expect(p.frame.payload[1]).toBe(TANGO_CHIP_ORDINAL['megamos-aes']);
+    expect(p.frame.payload[2]).toBe(7);
+    expect(p.frame.payload[3]).toBe(16);
+
+    // Same chip on VVDI is refused at the writers-table gate, before any bytes are framed.
+    const v = buildBurnRequest({ slot, chipId: 'megamos-aes', writer: 'vvdi-mini', secret16: makeSecret() });
+    expect(v.ok).toBe(false);
+    expect(v.reason).toBe('writer-unsupported');
+  });
+
+  it('Tango DETECT_CHIP carries the Tango 2-byte ordinal under the Tango opcode', () => {
+    const r = buildDetectRequest({ chipId: 'pcf7953', writer: 'tango' });
+    expect(r.ok).toBe(true);
+    const p = parseFrame(r.frame);
+    expect(p.frame.cmd).toBe(TANGO_CMD.DETECT_CHIP);
+    expect(Array.from(p.frame.payload)).toEqual([0x00, TANGO_CHIP_ORDINAL['pcf7953']]);
+  });
+
+  it('Tango PING/VERIFY use Tango opcodes', () => {
+    const ping = buildPingRequest({ writer: 'tango' });
+    expect(parseFrame(ping.frame).frame.cmd).toBe(TANGO_CMD.PING);
+    const v = buildVerifyRequest({ slot: makeSlot(), chipId: 'pcf7953', writer: 'tango', secret16: makeSecret() });
+    expect(parseFrame(v.frame).frame.cmd).toBe(TANGO_CMD.VERIFY);
+  });
+});
+
+describe('keyWriter — burnSlot end-to-end via Tango simulator', () => {
+  const slot = makeSlot();
+  const secret = makeSecret();
+
+  it('ping/detect/burn/verify all succeed against a Tango-scoped simulator', async () => {
+    const t = new SimulatorTransport({ latencyMs: 0, writer: 'tango' });
+    const res = await burnSlot({ transport: t, slot, chipId: 'pcf7953', writer: 'tango', secret16: secret });
+    expect(res.ok).toBe(true);
+    expect(res.steps.map((s) => s.label)).toEqual(['ping', 'detect', 'burn', 'verify']);
+    expect(res.steps.every((s) => s.ok)).toBe(true);
+    // Every request frame the simulator saw used a Tango opcode.
+    const reqCmds = t.log.map((e) => e.req.cmd);
+    expect(reqCmds).toContain(TANGO_CMD.PING);
+    expect(reqCmds).toContain(TANGO_CMD.DETECT_CHIP);
+    expect(reqCmds).toContain(TANGO_CMD.BURN_KEY);
+    expect(reqCmds).toContain(TANGO_CMD.VERIFY);
+    for (const c of reqCmds) {
+      expect(Object.values(CMD)).not.toContain(c);
+    }
+  });
+
+  it('a VVDI-scoped simulator NACKs Tango opcodes as UNSUPPORTED', async () => {
+    const t = new SimulatorTransport({ latencyMs: 0, writer: 'vvdi-mini' });
+    const res = await burnSlot({ transport: t, slot, chipId: 'pcf7953', writer: 'tango', secret16: secret });
+    expect(res.ok).toBe(false);
+    expect(res.failedAt).toBe('ping');
+  });
+
+  it('refuses Megamos AES against a VVDI writer before any bytes leave the host', async () => {
+    const t = new SimulatorTransport({ latencyMs: 0, writer: 'vvdi-mini' });
+    const megamosSlot = {
+      ...slot,
+      idBytes: new Uint8Array(23).fill(0xAA),
+    };
+    const res = await burnSlot({ transport: t, slot: megamosSlot, chipId: 'megamos-aes', writer: 'vvdi-mini', secret16: secret });
+    expect(res.ok).toBe(false);
+    // detect is the first step that consults the chip-family writers table.
+    expect(res.failedAt).toBe('detect');
+    expect(res.steps.at(-1).reason).toBe('writer-unsupported');
   });
 });
 
