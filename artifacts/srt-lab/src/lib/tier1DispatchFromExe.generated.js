@@ -34,18 +34,43 @@
 // producer pattern at IL offsets 0x6c386 / 0x... / 0x10ca9b / 0x16baa0 /
 // 0x16bb3c respectively, alongside their consumer reads.
 //
-// Conclusion: 2504/2505/2507/2508 have no Form-builder dispatch payload in
-// AlfaOBD.exe at all. The original "computed-value MemberRef dispatch"
-// hypothesis is not supported by the IL — there is no producer in any form
-// (literal, computed, or MemberRef call) for these four rids. This matches
-// the prior reverse-engineering report (`reverse-engineering-status.md`,
-// "Missing Data" section) which states the dispatch catalog for the bulk
-// of Tier-1 routines lives in an external SQLite database that AlfaOBD
-// loads at runtime, not in the compiled assembly.
+// Conclusion (IL side): 2504/2505/2507/2508 have no Form-builder dispatch
+// payload in AlfaOBD.exe at all. The original "computed-value MemberRef
+// dispatch" hypothesis is not supported by the IL — there is no producer
+// in any form (literal, computed, or MemberRef call) for these four rids.
 //
-// Per the task rule "do NOT invent new routines/frames", these four entries
-// remain empty `{}` until the external AlfaOBD SQLite catalog is decrypted
-// (separate workstream).
+// DB EXTRACTION FOLLOWUP (Task #837 — this revision):
+// The encrypted AlfaOBD database was unpacked (1024-byte repeating XOR over
+// 66,625 × 1024-byte SQLite pages — see `alfaobd-db-schema-notes.txt`).
+// The decrypted image (`attached_assets/alfao_bd.decrypted_*.db`) has a
+// malformed B-tree root, so the schema was reconstructed via `sqlite3
+// .recover` into `attached_assets/.cache/alfao_bd.recovered.db`. The
+// recovered schema lists 19 tables:
+//   BODY_PN_CONFIG, CAN_DELPHI_500_CONFIG, CAN_DELPHI_RAM_CONFIG,
+//   CAN_MARELLI_CONFIG, Devices_params_units, Diag_names, FCM_CGW_CONFIG,
+//   FGA_ABS_DATA, FGA_DIESEL_DYNAMIC, FGA_DIESEL_STATIC, FGA_ENGINE_DATA,
+//   FGA_IPC_DATA, FGA_IPC_SNAPSHOT, FGA_IPC_SNAPSHOT_DATA, Faults, STATES,
+//   TIPM_CGW_CONFIG, Units, newTable.
+//
+// NONE of those 19 tables has a "routine_id → (ECU code, security level,
+// numeric param tuple)" shape. The only DB row carrying any of the four
+// target rids is `Diag_names` (LABEL text in 10+ languages). The dispatch
+// payload (the per-rid `af::a[rid, idx]` tuple this file represents) is
+// therefore NOT held in the AlfaOBD database either. The 17.6% routine→
+// frame static coverage ceiling reported in prior sweeps stands; closing
+// the gap for these four rids requires live bench capture, not further
+// static extraction.
+//
+// What the DB DID yield: the English (and multilingual) human-readable
+// labels for all four rids, recovered verbatim from `Diag_names` and
+// surfaced below in `TIER1_LABELS_FROM_DB`. These are LABEL strings only,
+// not dispatch tuples — they intentionally do NOT populate any `af::a`
+// field index, because doing so would conflate label text with the
+// ECU-code / security-level slots that index[0..16] carry for the five
+// known-good rids.
+//
+// Per the task rule "do NOT invent new routines/frames", the four dispatch
+// entries below remain empty `{}`.
 
 export const TIER1_DISPATCH_FROM_EXE = {
   "2504": {},
@@ -218,13 +243,46 @@ export const TIER1_DISPATCH_FROM_EXE = {
   "2508": {}
 };
 
+// Labels recovered from the decrypted AlfaOBD SQLite database (`Diag_names`
+// table, reconstructed via `sqlite3 .recover` from the malformed-but-
+// decrypted image). For each rid the row appears once under its own
+// rootpgno (1473 for 2504, 1475 for 2505, 1477 for 2507+2508 — they share
+// a B-tree page) with nfield=14 and `c0` carrying the Diag_Name_ID. Only
+// the English column is surfaced here; the other 9 language columns are
+// present in the recovered row but not needed by SRT Lab's coverage UI.
+export const TIER1_LABELS_FROM_DB = {
+  "2504": "RF-HUB Reset/Replace",
+  "2505": "Program Ignition FOBIKs Baseline System",
+  "2507": "Program Ignition FOBIKs Highline System",
+  "2508": "Transfer secret key",
+};
+
 export const TIER1_DISPATCH_FROM_EXE_META = {
   source: "AlfaOBD_PC.exe v2.5.7.0 Method[5] .cctor IL pattern extraction",
   pattern: "dup; ldc.i4 <rid>; ldc.i4 <idx>; ldstr <encrypted>; ldloc <salt>; call b::h(string,int32); call Set(int32,int32,string)",
   routines_with_dispatch: ["1126", "1367", "1520", "1750", "1751"],
   routines_missing: ["2504", "2505", "2507", "2508"],
   routines_missing_reason:
-    "Exhaustive IL trace (Task #833) found ZERO producer-pattern occurrences for these four rids in the full decompiled assembly. Every `ldc.i4 250[4578]` in AlfaOBD_managed.il is a consumer (Get on `af::a` or ldelem on `af::b`), never a Set. The earlier 'computed-value MemberRef dispatch' hypothesis is not supported — there is no producer in any form. Matches the prior RE finding that the bulk Tier-1 dispatch catalog lives in the external (encrypted SQLite) AlfaOBD database, not in the compiled EXE.",
+    "Exhaustive IL trace (Task #833) found ZERO producer-pattern occurrences for these four rids in the full decompiled assembly. Task #837 then unpacked and schema-recovered the encrypted AlfaOBD SQLite database (1024-byte XOR over 66,625 pages) and confirmed the dispatch payload is NOT held there either: the 19-table schema (BODY_PN_CONFIG, CAN_*_CONFIG, Diag_names, Devices_params_units, FCM_CGW_CONFIG, TIPM_CGW_CONFIG, FGA_*, Faults, STATES, Units, newTable) contains no routine_id→(ECU code, security level, numeric param tuple) table. The only DB row carrying these four rids is `Diag_names`, which yields LABEL text only (now surfaced in TIER1_LABELS_FROM_DB). The dispatch tuples remain unrecoverable by static means and need live bench capture.",
+  routines_missing_db_evidence: {
+    db_decrypted_source: "attached_assets/alfao_bd.decrypted_<ts>.db (68,224,000 B, 1024-byte repeating XOR cracked via Kasiski autocorrelation + SQLite header constraint — see attached_assets/alfaobd-package-2026-05-25/alfaobd-db-schema-notes.txt)",
+    db_recovered_source: "attached_assets/.cache/alfao_bd.recovered.db (35,288,064 B, produced by `sqlite3 attached_assets/alfao_bd.decrypted_<ts>.db .recover` because the decrypted image has a corrupt B-tree root)",
+    schema_tables_total: 19,
+    schema_tables: [
+      "BODY_PN_CONFIG", "CAN_DELPHI_500_CONFIG", "CAN_DELPHI_RAM_CONFIG",
+      "CAN_MARELLI_CONFIG", "Devices_params_units", "Diag_names",
+      "FCM_CGW_CONFIG", "FGA_ABS_DATA", "FGA_DIESEL_DYNAMIC",
+      "FGA_DIESEL_STATIC", "FGA_ENGINE_DATA", "FGA_IPC_DATA",
+      "FGA_IPC_SNAPSHOT", "FGA_IPC_SNAPSHOT_DATA", "Faults", "STATES",
+      "TIPM_CGW_CONFIG", "Units", "newTable",
+    ],
+    routine_dispatch_table_present: false,
+    rid_hits_per_table: {
+      "Diag_names (recovered via lost_and_found rootpgno=1473/1475/1477, nfield=14)":
+        "1 row per rid (2504/2505/2507/2508), label column only — surfaced in TIER1_LABELS_FROM_DB",
+    },
+    cross_check: "attached_assets/alfaobd-package-2026-05-25/cctor-dispatch-pairs.json `tier1_lookups` block lists all four rids with empty arrays, matching the IL trace.",
+  },
   routines_missing_il_evidence: {
     method: "ilspycmd -il AlfaOBD_managed.exe (6,932,292 lines)",
     ldc_i4_2504_total_refs: 3,
