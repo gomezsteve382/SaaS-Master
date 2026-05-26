@@ -64,23 +64,7 @@ import {
   ALFAOBD_DB_META,
 } from "../lib/alfaobdDbSchema.generated.js";
 
-import {
-  listFriendlyEcus,
-  canIdsForEcu,
-  ecusForCanId,
-  canIdHex,
-} from "../lib/ecuToCanIndex.js";
-
-import {
-  evaluateAllCandidates,
-} from "../lib/codecardHarness.js";
-
-import {
-  DISPATCH_GAP_META,
-  TIER1_ROUTINE_IDS,
-  TIER1_STATUS,
-  DISPATCH_GAP_BY_ECU,
-} from "../lib/dispatchGapReport.generated.js";
+import { DISPATCH_GAP_REPORT } from "../lib/dispatchGapReport.generated.js";
 
 /* ── palette ──────────────────────────────────────────────────────────── */
 const MONO = "'JetBrains Mono', monospace";
@@ -836,6 +820,176 @@ const intelCardTitle = {
   color: C.bk, letterSpacing: 0.5, marginBottom: 6,
 };
 
+/* ── Dispatch Coverage sub-panel (lives in Section 6 — DB Schema) ─────── */
+function DispatchCoveragePanel() {
+  const [q, setQ] = useState("");
+  const [openEcu, setOpenEcu] = useState(null);
+  const { aggregate, perEcu, meta } = DISPATCH_GAP_REPORT;
+
+  const filtered = useMemo(() => {
+    if (!q.trim()) return perEcu;
+    const lq = q.toLowerCase();
+    return perEcu.filter(
+      (e) =>
+        e.ecu.toLowerCase().includes(lq) ||
+        e.orphans.some(
+          (o) =>
+            o.rid.includes(lq) ||
+            (o.ecuName || "").toLowerCase().includes(lq) ||
+            (o.platform || "").toLowerCase().includes(lq),
+        ),
+    );
+  }, [q, perEcu]);
+
+  const aggGrid = "1fr 1fr 1fr 1fr 1fr";
+  const aggCell = (label, value, color) => (
+    <div style={{
+      background: "#FAFAF8", border: "1px solid #E8E4DE",
+      borderRadius: 8, padding: "8px 10px",
+    }}>
+      <div style={{
+        fontFamily: SANS, fontSize: 9, fontWeight: 800,
+        color: C.ts, letterSpacing: 1, textTransform: "uppercase",
+      }}>{label}</div>
+      <div style={{
+        fontFamily: MONO, fontSize: 18, fontWeight: 700,
+        color: color || C.bk, marginTop: 2,
+      }}>{value}</div>
+    </div>
+  );
+
+  return (
+    <div style={{
+      border: "1px solid #E8E4DE", borderRadius: 10,
+      padding: "12px 14px", marginBottom: 12, background: "#FFF",
+    }}>
+      <div style={{
+        fontFamily: SANS, fontWeight: 900, fontSize: 12,
+        color: C.tm, letterSpacing: 1.6, textTransform: "uppercase",
+        marginBottom: 8,
+      }}>📈 Dispatch Coverage (Task #829)</div>
+
+      <ProvenanceBanner
+        text={`Static-analysis audit over routine catalog + UDS frame catalog + ${meta.upstreamDispatchMatchedCount} resolved dispatch records. Re-run: pnpm -F @workspace/scripts run audit:dispatch-gap. ${meta.heuristicNote}`}
+      />
+
+      <div style={{
+        display: "grid", gridTemplateColumns: aggGrid,
+        gap: 8, marginBottom: 10,
+      }}>
+        {aggCell("Routines total", aggregate.routinesTotal.toLocaleString())}
+        {aggCell("With frame", aggregate.routinesWithFrame.toLocaleString(), "#2E7D32")}
+        {aggCell("Orphan", aggregate.routinesOrphan.toLocaleString(), "#BF360C")}
+        {aggCell("Coverage", aggregate.coveragePercent + "%", "#1565C0")}
+        {aggCell("Frames unattributed", aggregate.framesUnattributed.toLocaleString(), "#6A1B9A")}
+      </div>
+
+      <SearchBox value={q} onChange={setQ} placeholder="Search ECU family, routine ID, ECU name, platform…" />
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {filtered.map((row) => {
+          const isOpen = openEcu === row.ecu;
+          const orphanPct = row.routinesTotal
+            ? Math.round((row.routinesOrphan / row.routinesTotal) * 100)
+            : 0;
+          return (
+            <div key={row.ecu} style={{
+              border: "1px solid #E8E4DE", borderRadius: 8, overflow: "hidden",
+            }}>
+              <button
+                onClick={() => setOpenEcu(isOpen ? null : row.ecu)}
+                style={{
+                  width: "100%", background: isOpen ? "#F0EDE8" : "#FAFAF8",
+                  border: "none", cursor: "pointer", padding: "7px 12px",
+                  display: "flex", alignItems: "center", gap: 10, textAlign: "left",
+                }}
+              >
+                <span style={{
+                  fontFamily: MONO, fontSize: 11, fontWeight: 700,
+                  color: "#1565C0", minWidth: 200,
+                }}>{row.ecu}</span>
+                <span style={{
+                  fontFamily: MONO, fontSize: 10,
+                  background: "#FFEBEE", borderRadius: 99,
+                  padding: "1px 7px", color: "#BF360C",
+                }}>{row.routinesOrphan} orphan</span>
+                <span style={{
+                  fontFamily: MONO, fontSize: 10,
+                  background: "#E8F5E9", borderRadius: 99,
+                  padding: "1px 7px", color: "#2E7D32",
+                }}>{row.routinesWithFrame} matched</span>
+                <span style={{ fontFamily: SANS, fontSize: 10, color: C.ts }}>
+                  {row.routinesTotal} total · {orphanPct}% gap · {row.framesAttributed} frames
+                </span>
+                <span style={{ marginLeft: "auto", color: C.ts, fontSize: 12 }}>
+                  {isOpen ? "▲" : "▼"}
+                </span>
+              </button>
+              {isOpen && (
+                <div style={{ padding: "8px 12px 12px", background: "#FFF" }}>
+                  {row.orphans.length === 0 ? (
+                    <div style={{ fontFamily: SANS, fontSize: 11, color: C.ts }}>
+                      No orphan routines — every routine on this ECU has at least one statically-resolved frame match.
+                    </div>
+                  ) : (
+                    <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 10 }}>
+                      <thead>
+                        <tr style={{
+                          fontFamily: SANS, fontWeight: 800, color: C.ts,
+                          textTransform: "uppercase", letterSpacing: 0.8,
+                        }}>
+                          <th style={{ textAlign: "left", padding: "3px 8px 3px 0", borderBottom: "1px solid #EEE" }}>RID</th>
+                          <th style={{ textAlign: "left", padding: "3px 8px 3px 0", borderBottom: "1px solid #EEE" }}>ECU name</th>
+                          <th style={{ textAlign: "left", padding: "3px 8px 3px 0", borderBottom: "1px solid #EEE" }}>Platform</th>
+                          <th style={{ textAlign: "left", padding: "3px 0", borderBottom: "1px solid #EEE" }}>Heuristic candidate frame(s)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {row.orphans.map((o) => (
+                          <tr key={o.rid} style={{ borderBottom: "1px solid #F5F5F5" }}>
+                            <td style={{ padding: "4px 8px 4px 0", fontFamily: MONO, verticalAlign: "top" }}>{o.rid}</td>
+                            <td style={{ padding: "4px 8px 4px 0", fontFamily: SANS, verticalAlign: "top" }}>{o.ecuName || "—"}</td>
+                            <td style={{ padding: "4px 8px 4px 0", fontFamily: SANS, color: C.ts, verticalAlign: "top" }}>{o.platform || "—"}</td>
+                            <td style={{ padding: "4px 0", verticalAlign: "top" }}>
+                              {o.candidates.length === 0 ? (
+                                <span style={{ fontFamily: SANS, fontSize: 10, color: C.ts, fontStyle: "italic" }}>
+                                  no static candidate — bench capture required
+                                </span>
+                              ) : (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                                  {o.candidates.map((c) => (
+                                    <span key={c.frameHex} title={c.rationale} style={{
+                                      fontFamily: MONO, fontSize: 10,
+                                      background: "#FFF3E0", borderRadius: 4,
+                                      padding: "1px 6px", color: "#BF360C",
+                                      border: "1px dashed #FFAB40",
+                                    }}>
+                                      {c.frameHex} <span style={{ fontFamily: SANS, fontSize: 9, marginLeft: 3 }}>heuristic</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+        {filtered.length === 0 && (
+          <div style={{ fontFamily: SANS, fontSize: 12, color: C.ts, padding: "8px 0" }}>
+            No ECU buckets match.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ── Section 6: DB Schema ──────────────────────────────────────────────── */
 function DbSchemaSection() {
   const [expanded, setExpanded] = useState(null);
@@ -846,6 +1000,8 @@ function DbSchemaSection() {
       <ProvenanceBanner
         text={`Source: AlfaOBD SQLite catalog DB — ${(ALFAOBD_DB_META.fileSize / 1024 / 1024).toFixed(1)} MB, ${ALFAOBD_DB_META.totalPages.toLocaleString()} × ${ALFAOBD_DB_META.pageSize}-byte pages, encrypted with 1024-byte XOR key (alfaobdDbXorKey.js). ${tableNames.length} tables documented.`}
       />
+
+      <DispatchCoveragePanel />
 
       {/* Dispatch gap alert */}
       <div style={{
@@ -941,237 +1097,14 @@ function DbSchemaSection() {
   );
 }
 
-/* ── Section 7: ECU ↔ CAN Picker (Task #827) ─────────────────────────── */
-function EcuPickerSection() {
-  const ecus = useMemo(() => listFriendlyEcus(), []);
-  const [selected, setSelected] = useState(ecus[0]?.name || "");
-  const [canQuery, setCanQuery] = useState("");
-
-  const selectedCanIds = useMemo(
-    () => (selected ? canIdsForEcu(selected) : []),
-    [selected]
-  );
-  const canQueryResult = useMemo(() => {
-    if (!canQuery.trim()) return null;
-    const raw = canQuery.trim().replace(/^0x/i, "");
-    const n = parseInt(raw, 16);
-    if (Number.isNaN(n)) return { error: "Invalid hex" };
-    const matches = ecusForCanId(n);
-    return { canId: n, matches };
-  }, [canQuery]);
-
-  return (
-    <Card style={{ marginBottom: 16 }}>
-      <ProvenanceBanner text="ECU ↔ CAN ID reverse-index — friendly-name picker filters out numeric/platform keys. Strictly read-only." />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-        <div>
-          <div style={{ fontFamily: SANS, fontWeight: 800, fontSize: 10, color: C.tm, letterSpacing: 1.5, marginBottom: 6 }}>
-            ECU → CAN IDs
-          </div>
-          <select
-            value={selected}
-            onChange={e => setSelected(e.target.value)}
-            style={{
-              width: "100%", boxSizing: "border-box",
-              padding: "7px 10px", borderRadius: 6,
-              border: "1px solid #CCC", fontFamily: MONO,
-              fontSize: 12, background: "#FAFAF8", marginBottom: 8,
-            }}
-          >
-            {ecus.map(e => (
-              <option key={e.name} value={e.name}>{e.name}</option>
-            ))}
-          </select>
-          <div style={{ fontFamily: SANS, fontSize: 11, color: C.ts, marginBottom: 4 }}>
-            {selectedCanIds.length} CAN ID{selectedCanIds.length === 1 ? "" : "s"}:
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {selectedCanIds.map(id => (
-              <Mono key={id}>{canIdHex(id)}</Mono>
-            ))}
-          </div>
-        </div>
-        <div>
-          <div style={{ fontFamily: SANS, fontWeight: 800, fontSize: 10, color: C.tm, letterSpacing: 1.5, marginBottom: 6 }}>
-            CAN ID → ECUs (hex, e.g. 600)
-          </div>
-          <input
-            type="text"
-            value={canQuery}
-            onChange={e => setCanQuery(e.target.value)}
-            placeholder="600 or 0x14E"
-            style={{
-              width: "100%", boxSizing: "border-box",
-              padding: "7px 10px", borderRadius: 6,
-              border: "1px solid #CCC", fontFamily: MONO,
-              fontSize: 12, background: "#FAFAF8", marginBottom: 8,
-            }}
-          />
-          {canQueryResult?.error && (
-            <div style={{ fontFamily: SANS, fontSize: 11, color: "#B71C1C" }}>{canQueryResult.error}</div>
-          )}
-          {canQueryResult && !canQueryResult.error && (
-            <>
-              <div style={{ fontFamily: SANS, fontSize: 11, color: C.ts, marginBottom: 4 }}>
-                {canQueryResult.matches.length} friendly ECU name{canQueryResult.matches.length === 1 ? "" : "s"} for {canIdHex(canQueryResult.canId)}:
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                {canQueryResult.matches.map(n => (
-                  <Mono key={n}>{n}</Mono>
-                ))}
-                {canQueryResult.matches.length === 0 && (
-                  <div style={{ fontFamily: SANS, fontSize: 11, color: C.tm, fontStyle: "italic" }}>
-                    No friendly-name match (numeric/platform-only keys are filtered).
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-/* ── Section 8: CodeCard Harness (Task #828) ─────────────────────────── */
-function CodecardHarnessSection() {
-  const verdicts = useMemo(() => evaluateAllCandidates([]), []);
-  return (
-    <Card style={{ marginBottom: 16 }}>
-      <WarnBanner text="HARNESS OUTPUT IS REPORT-ONLY — never auto-applied. The 5-byte CodeCard candidates are NOT confirmed live keys. Provide real bench pairs offline to reach a verdict." />
-      <div style={{ fontFamily: SANS, fontSize: 11, color: C.ts, marginBottom: 10 }}>
-        Three hypotheses are evaluated per candidate against any bench-captured (seed, expectedKey) pairs:
-        <ul style={{ margin: "6px 0 0 18px", padding: 0 }}>
-          <li><b>H1 CONSTANT_KEY</b> — the 5 bytes ARE the literal SA key</li>
-          <li><b>H2 DERIVATION_INPUT</b> — bytes feed a key-derivation transform (XOR / concat-suffix / add-mod-256)</li>
-          <li><b>H3 REJECTED</b> — pairs exist but nothing matches</li>
-        </ul>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8 }}>
-        {verdicts.map((v, i) => (
-          <div key={i} style={{
-            border: "1px solid #DDD", borderRadius: 6,
-            padding: "8px 12px", background: "#FAFAF8",
-          }}>
-            <div style={{ display: "flex", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
-              <Mono>{v.candidateHex}</Mono>
-              <span style={{
-                fontFamily: SANS, fontSize: 10, fontWeight: 800,
-                padding: "1px 8px", borderRadius: 99,
-                background: v.verdict === "INSUFFICIENT_DATA" ? "#E0E0E0" : "#FFF3E0",
-                color: v.verdict === "INSUFFICIENT_DATA" ? C.ts : "#BF360C",
-                letterSpacing: 1,
-              }}>{v.verdict}</span>
-              <span style={{ fontFamily: SANS, fontSize: 10, color: C.ts }}>
-                confidence: {v.confidence}
-              </span>
-            </div>
-            <div style={{ fontFamily: SANS, fontSize: 11, color: C.ts, marginTop: 4 }}>
-              {v.summary}
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
-/* ── Section 9: Dispatch Gap Report (Task #829) ──────────────────────── */
-function DispatchGapSection() {
-  const [showAllEcus, setShowAllEcus] = useState(false);
-  const ecuRows = useMemo(() => {
-    const rows = Object.entries(DISPATCH_GAP_BY_ECU).map(([family, stats]) => ({
-      family, ...stats, coveragePct: stats.total ? (stats.covered / stats.total) * 100 : 0,
-    }));
-    rows.sort((a, b) => b.gap - a.gap);
-    return rows;
-  }, []);
-  const visible = showAllEcus ? ecuRows : ecuRows.slice(0, 20);
-
-  return (
-    <Card style={{ marginBottom: 16 }}>
-      <ProvenanceBanner text={`Coverage: ${DISPATCH_GAP_META.coveredCount.toLocaleString()} / ${DISPATCH_GAP_META.totalRoutines.toLocaleString()} routines have a resolved dispatch frame (${DISPATCH_GAP_META.coveragePct}%). Tier-1: ${DISPATCH_GAP_META.tier1Covered}/${DISPATCH_GAP_META.tier1Total} covered. Generated ${DISPATCH_GAP_META.generatedAt}.`} />
-
-      <div style={{ marginBottom: 12 }}>
-        <div style={{ fontFamily: SANS, fontWeight: 800, fontSize: 10, color: C.tm, letterSpacing: 1.5, marginBottom: 6 }}>
-          TIER-1 ROUTINES ({TIER1_ROUTINE_IDS.length})
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 4 }}>
-          {TIER1_STATUS.map(r => (
-            <div key={r.rid} style={{
-              display: "grid", gridTemplateColumns: "60px 80px 1fr 160px", gap: 8,
-              padding: "4px 8px", borderBottom: "1px solid #EEE",
-              alignItems: "center", fontSize: 11, fontFamily: SANS,
-            }}>
-              <Mono>{r.rid}</Mono>
-              <span style={{
-                padding: "1px 8px", borderRadius: 99, fontSize: 9, fontWeight: 800,
-                background: r.covered ? "#E8F5E9" : "#FFEBEE",
-                color: r.covered ? "#2E7D32" : "#C62828",
-                letterSpacing: 1, textAlign: "center",
-              }}>{r.covered ? "COVERED" : "GAP"}</span>
-              <span style={{ color: C.bk, fontWeight: 600 }}>
-                {r.friendlyName || <em style={{ color: C.tm }}>unnamed</em>}
-              </span>
-              <span style={{ color: C.ts, fontFamily: MONO, fontSize: 10 }}>{r.ecuFamily || "—"}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ fontFamily: SANS, fontWeight: 800, fontSize: 10, color: C.tm, letterSpacing: 1.5, marginBottom: 6 }}>
-        GAPS BY ECU FAMILY ({ecuRows.length} families, worst-first)
-      </div>
-      <div style={{
-        fontFamily: SANS, fontWeight: 800, fontSize: 10,
-        color: C.ts, letterSpacing: 1, textTransform: "uppercase",
-        borderBottom: "2px solid #DDD", paddingBottom: 4, marginBottom: 2,
-        display: "grid", gridTemplateColumns: "1fr 60px 60px 60px 80px", gap: 8, alignItems: "center",
-      }}>
-        <span>ECU Family</span>
-        <span>Total</span>
-        <span>Covered</span>
-        <span>Gap</span>
-        <span>Coverage</span>
-      </div>
-      {visible.map(r => (
-        <div key={r.family} style={{
-          display: "grid", gridTemplateColumns: "1fr 60px 60px 60px 80px",
-          gap: 8, padding: "4px 2px", borderBottom: "1px solid #EEE",
-          fontSize: 11, fontFamily: SANS, alignItems: "center",
-        }}>
-          <Mono>{r.family}</Mono>
-          <span style={{ color: C.ts }}>{r.total}</span>
-          <span style={{ color: "#2E7D32" }}>{r.covered}</span>
-          <span style={{ color: r.gap > 0 ? "#C62828" : C.ts }}>{r.gap}</span>
-          <span style={{ color: C.ts, fontFamily: MONO, fontSize: 10 }}>{r.coveragePct.toFixed(1)}%</span>
-        </div>
-      ))}
-      {!showAllEcus && ecuRows.length > 20 && (
-        <button
-          onClick={() => setShowAllEcus(true)}
-          style={{
-            marginTop: 8, padding: "5px 12px", borderRadius: 5,
-            border: "1px solid #CCC", background: "#FFF", color: C.bk,
-            cursor: "pointer", fontFamily: SANS, fontSize: 11,
-          }}
-        >Show all {ecuRows.length} families →</button>
-      )}
-    </Card>
-  );
-}
-
 /* ── Sidebar navigation ────────────────────────────────────────────────── */
 const SECTIONS = [
   { id: "frames",   icon: "📡", label: "UDS Frames",       count: UDS_DISPATCH_META?.frames_unique },
   { id: "routines", icon: "📋", label: "Routine Catalog",  count: ROUTINE_CATALOG_META?.totalRoutines },
   { id: "dispatch", icon: "🔀", label: "Frame→Routine",    count: DISPATCH_TO_ROUTINE_META?.unambiguous_matches },
   { id: "ecucan",   icon: "🔌", label: "ECU→CAN",          count: ECU_TO_CAN_META?.unique_pairings },
-  { id: "ecupicker", icon: "🎯", label: "ECU Picker",      count: null },
   { id: "security", icon: "🔐", label: "Security Intel",   count: null },
-  { id: "codecard", icon: "🔑", label: "CodeCard Harness", count: null },
   { id: "schema",   icon: "🗄️", label: "DB Schema",        count: Object.keys(ALFAOBD_DB_TABLES).length },
-  { id: "gaps",     icon: "📊", label: "Dispatch Gaps",    count: DISPATCH_GAP_META.gapCount },
 ];
 
 /* ── Root component ────────────────────────────────────────────────────── */
@@ -1334,40 +1267,6 @@ export default function AlfaObdIntelTab() {
               subtitle={`AlfaOBD SQLite catalog DB — ${(ALFAOBD_DB_META.fileSize / 1024 / 1024).toFixed(1)} MB encrypted with 1024-byte XOR key`}
             />
             <DbSchemaSection />
-          </>
-        )}
-
-        {section === "ecupicker" && (
-          <>
-            <SectionHead
-              icon="🎯"
-              title="ECU ↔ CAN Picker"
-              subtitle="Friendly-name reverse-index — pick an ECU to see its CAN IDs, or enter a CAN ID (hex) to see which friendly-named ECUs use it"
-            />
-            <EcuPickerSection />
-          </>
-        )}
-
-        {section === "codecard" && (
-          <>
-            <SectionHead
-              icon="🔑"
-              title="CodeCard Bench-Pair Harness"
-              subtitle="Hypothesis evaluator (H1 / H2 / H3) for the 5-byte CodeCard candidates. Provide bench (seed,key) pairs offline to reach a verdict — report-only, never auto-applied."
-            />
-            <CodecardHarnessSection />
-          </>
-        )}
-
-        {section === "gaps" && (
-          <>
-            <SectionHead
-              icon="📊"
-              title="Routine → Dispatch Gap Report"
-              count={DISPATCH_GAP_META.gapCount}
-              subtitle={`${DISPATCH_GAP_META.coveredCount.toLocaleString()} of ${DISPATCH_GAP_META.totalRoutines.toLocaleString()} routines have a resolved UDS dispatch frame (${DISPATCH_GAP_META.coveragePct}%). Tier-1: ${DISPATCH_GAP_META.tier1Covered}/${DISPATCH_GAP_META.tier1Total} covered.`}
-            />
-            <DispatchGapSection />
           </>
         )}
       </div>

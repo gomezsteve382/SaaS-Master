@@ -4,4 +4,5 @@
 - [AlfaOBD .db recovery technique](alfaobd-db-recovery.md) — sqlite3 .recover beats malformed-schema errors; yields 3,806 routine ID→label mappings; debunks several handoff claims (20k DTCs, 285 endpoints) as fiction.
 - [BCM SEC16 blank gate](bcm-sec16-blank-gate.md) — sec16Absent uses allBlank (all-FF/all-00), NOT entropy count; 5-byte flat slice on Charger bench is real SEC16.
 - [Re-key virgin BCM from RFHUB](rekey-virgin-bcm.md) — writeBcmSec16Gen2 is update-only; virgin BCMs need split records created from scratch. parseModule vs engParseRfh have different RFHUB sec16 field shapes.
+- [AlfaOBD dispatch gap static ceiling](dispatch-gap-static-coverage.md) — routine→frame static coverage tops at ~17.6% (299/1696); rest needs bench capture, not more IL parsing.
 - [Sister-repo integration pattern](sister-repo-integration.md) — add new generated files → run pnpm sweep:assets before tests; keep local when local is larger; skip bigMethodsVocabulary (1.1MB).
