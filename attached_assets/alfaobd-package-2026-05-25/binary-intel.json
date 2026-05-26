@@ -1,0 +1,30 @@
+{
+ "sql_queries": [
+  "SELECT * FROM Win32_PnPEntity WHERE ConfigManagerErrorCode = 0",
+  "SELECT ProcessorId FROM Win32_Processor"
+ ],
+ "fga_tables_in_sql": [],
+ "registry_paths": [
+  "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\ThemeManager",
+  "SOFTWARE\\AlfaOBD",
+  "SOFTWARE\\AlfaOBD\\",
+  "SOFTWARE\\AlfaOBD\\CommonSettings",
+  "SOFTWARE\\Microsoft\\Windows\\TabPC"
+ ],
+ "file_paths": [
+  "Error reading AlfaOBD.db. Please reinstall the application.",
+  "Error reading from AlfaOBD.db. Please reinstall the application.",
+  "\\Data\\AlfaOBD_setup.exe",
+  "\\Data\\AlfaOBDsetup.exe",
+  "\\alfaobd.db;Version=3;Password=",
+  "http://www.alfaobd.com/AlfaOBDsetup.exe"
+ ],
+ "urls": [
+  "http://www.alfaobd.com/AlfaOBDsetup.exe",
+  "http://www.alfaobd.com/licgen.txt",
+  "http://www.alfaobd.com/update.txt",
+  "https://www.alfaobd.com/download_pc.html",
+  "https://www.alfaobd.com/petrol.php?ISOCODE={0}&DTC={1}",
+  "https://www.alfaobd.com/sqltest.php?ISOCODE={0}&DTC={1}"
+ ]
+}

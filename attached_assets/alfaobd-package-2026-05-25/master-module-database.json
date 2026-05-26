@@ -1,0 +1,3433 @@
+{
+  "metadata": {
+    "version": "3.0",
+    "sources": [
+      "AlfaOBD",
+      "wiTECH/CDA6",
+      "Community"
+    ],
+    "total_modules": 22,
+    "verified_addresses": 5
+  },
+  "modules": [
+    {
+      "code": "BCM",
+      "name": "Body Control Module",
+      "tx": "0x7E0",
+      "rx": "0x7E8",
+      "verified": true,
+      "source": "wiTECH",
+      "description": "Central body electronics control - lighting, locks, windows, security"
+    },
+    {
+      "code": "ECM",
+      "name": "Engine Control Module",
+      "tx": "0x7E0",
+      "rx": "0x7E8",
+      "verified": true,
+      "source": "wiTECH",
+      "description": "Engine management - fuel injection, ignition, emissions"
+    },
+    {
+      "code": "TCM",
+      "name": "Transmission Control Module",
+      "tx": "0x7E1",
+      "rx": "0x7E9",
+      "verified": true,
+      "source": "wiTECH",
+      "description": "Transmission control - shift points, torque converter"
+    },
+    {
+      "code": "RFHUB",
+      "name": "RF Hub / SKIM",
+      "tx": "0x742",
+      "rx": "0x762",
+      "verified": true,
+      "source": "wiTECH",
+      "description": "Key fob receiver and immobilizer - wireless entry, remote start"
+    },
+    {
+      "code": "ABS",
+      "name": "Anti-lock Brake System",
+      "tx": "0x760",
+      "rx": "0x768",
+      "verified": true,
+      "source": "wiTECH",
+      "description": "Brake control - ABS, traction control, stability control"
+    },
+    {
+      "code": "CCM",
+      "name": "Climate Control Module",
+      "tx": "0x743",
+      "rx": "0x763",
+      "verified": true,
+      "source": "wiTECH",
+      "description": "HVAC control - air conditioning, heating, ventilation"
+    },
+    {
+      "code": "ADM",
+      "name": "Active Dampening Module",
+      "tx": "0x744",
+      "rx": "0x764",
+      "verified": true,
+      "source": "wiTECH",
+      "description": "Active suspension control - adaptive dampening"
+    },
+    {
+      "code": "SDM",
+      "name": "Suspension Dampening Module",
+      "tx": "0x745",
+      "rx": "0x765",
+      "verified": true,
+      "source": "wiTECH",
+      "description": "Suspension control - air suspension, ride height"
+    },
+    {
+      "code": "IPCM",
+      "name": "Instrument Panel Cluster Module",
+      "tx": "0x746",
+      "rx": "0x766",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Gauges and displays - speedometer, tachometer, warning lights"
+    },
+    {
+      "code": "ORC",
+      "name": "Occupant Restraint Controller",
+      "tx": "0x747",
+      "rx": "0x767",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Airbag system - deployment control, crash sensors"
+    },
+    {
+      "code": "DDM",
+      "name": "Driver Door Module",
+      "tx": "0x748",
+      "rx": "0x768",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Driver door functions - locks, windows, mirrors"
+    },
+    {
+      "code": "PDM",
+      "name": "Passenger Door Module",
+      "tx": "0x749",
+      "rx": "0x769",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Passenger door functions - locks, windows, mirrors"
+    },
+    {
+      "code": "EPS",
+      "name": "Electric Power Steering",
+      "tx": "0x74A",
+      "rx": "0x76A",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Power steering control - assist level, returnability"
+    },
+    {
+      "code": "SCCM",
+      "name": "Steering Column Control Module",
+      "tx": "0x74B",
+      "rx": "0x76B",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Steering column functions - tilt, telescope, lock"
+    },
+    {
+      "code": "PAM",
+      "name": "Park Assist Module",
+      "tx": "0x74C",
+      "rx": "0x76C",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Parking sensors - ultrasonic detection, alerts"
+    },
+    {
+      "code": "TCCM",
+      "name": "Transfer Case Control Module",
+      "tx": "0x74D",
+      "rx": "0x76D",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "4WD/AWD control - transfer case, differential locks"
+    },
+    {
+      "code": "TPMS",
+      "name": "Tire Pressure Monitoring System",
+      "tx": "0x74E",
+      "rx": "0x76E",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Tire pressure monitoring - sensors, alerts"
+    },
+    {
+      "code": "SGW",
+      "name": "Security Gateway Module",
+      "tx": "0x74F",
+      "rx": "0x76F",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "CAN gateway security - module authentication, firewall"
+    },
+    {
+      "code": "ACC",
+      "name": "Adaptive Cruise Control",
+      "tx": "0x750",
+      "rx": "0x770",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Cruise control - adaptive speed, distance keeping"
+    },
+    {
+      "code": "ESM",
+      "name": "Electronic Shifter Module",
+      "tx": "0x751",
+      "rx": "0x771",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Electronic shifter - gear selection, park lock"
+    },
+    {
+      "code": "EPB",
+      "name": "Electronic Parking Brake",
+      "tx": "0x752",
+      "rx": "0x772",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Electronic parking brake - apply, release, hill hold"
+    },
+    {
+      "code": "RADIO",
+      "name": "Radio / Infotainment",
+      "tx": "0x753",
+      "rx": "0x773",
+      "verified": false,
+      "source": "AlfaOBD + Standard CAN",
+      "description": "Audio system - radio, navigation, connectivity"
+    }
+  ],
+  "security_algorithms": {
+    "SBEC2_SBEC3": {
+      "name": "EEPROM Security Seed (SBEC2/SBEC3)",
+      "protocol": "SCI-bus (Chrysler CCD)",
+      "commands": {
+        "request_seed": {
+          "command": "0x2B",
+          "tx": "2B",
+          "rx_format": "2B XX YY CS",
+          "description": "Request security seed from PCM",
+          "notes": "XX YY = 16-bit seed, CS = checksum"
+        },
+        "send_solution": {
+          "command": "0x2C",
+          "algorithm": "Solution = (Seed * 4) + 0x9018",
+          "tx_format": "2C SolutionHB SolutionLB CS",
+          "checksum": "CS = 0x2C + SolutionHB + SolutionLB",
+          "description": "Send calculated solution to unlock EEPROM write",
+          "notes": "Use lower 16 bits only (mask with 0xFFFF)"
+        },
+        "write_eeprom": {
+          "command": "0x27",
+          "description": "Write EEPROM (requires security clearance)",
+          "prerequisite": "Must send valid solution via 0x2C first"
+        }
+      },
+      "example": {
+        "seed": "0x2E2A",
+        "calculation": "0x2E2A * 4 + 0x9018 = 0x148C0",
+        "solution": "0x48C0",
+        "tx_bytes": "2C 48 C0 [checksum]"
+      },
+      "source": "chryslerccdsci.wordpress.com (extracted from wiTECH files)"
+    }
+  },
+  "uds_services": {
+    "protocol": "ISO 14229 (UDS over CAN)",
+    "services": {
+      "0x10": {
+        "name": "DiagnosticSessionControl",
+        "description": "Switch to programming session",
+        "request": "10 02",
+        "response": "50 02",
+        "notes": "Required before VIN writing"
+      },
+      "0x27": {
+        "name": "SecurityAccess",
+        "description": "Unlock security for programming",
+        "request_seed": "27 01",
+        "send_key": "27 02 [calculated_key]",
+        "response": "67 01 [seed]",
+        "notes": "Seed-key algorithm varies by module"
+      },
+      "0x2E": {
+        "name": "WriteDataByIdentifier",
+        "description": "Write VIN to module",
+        "request": "2E F1 90 [17-byte VIN]",
+        "response": "6E F1 90",
+        "data_identifier": "F190 = VIN",
+        "notes": "Primary method for VIN programming"
+      },
+      "0x31": {
+        "name": "RoutineControl",
+        "description": "Execute checksum calculation routine",
+        "request": "31 01 [routine_id]",
+        "response": "71 01 [routine_id]",
+        "notes": "May be required after VIN write"
+      },
+      "0x3E": {
+        "name": "TesterPresent",
+        "description": "Keep session alive",
+        "request": "3E 00",
+        "response": "7E 00",
+        "notes": "Send every 2 seconds during programming"
+      },
+      "0x11": {
+        "name": "ECUReset",
+        "description": "Reset module after programming",
+        "request": "11 01",
+        "response": "51 01",
+        "notes": "Apply changes and restart"
+      }
+    }
+  },
+  "dealer_services": {
+    "vin_programming": [
+      {
+        "name": "getVIDfromVIN",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "TABID",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredVIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": "VIN"
+          }
+        ]
+      },
+      {
+        "name": "getVehicleInfoActions",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getVIDInfo",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.VIDFromVINVO",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "TABID",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredVIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashListByPartNo",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.ECUFlashVO",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredPartNumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": "partNo"
+          }
+        ]
+      },
+      {
+        "name": "getFlashListByVIN",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.ECUFlashVO",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "TCIDProcessedConfig",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/repair/scantools/SalesCodeAction.do",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "partnumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredVIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecu_variant",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "serialnumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecu_type",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getKeyCodes",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "action",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "authPIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "iac",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "updateImmobilizerInfo",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "action",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "authPIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer1",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer2",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer3",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer4",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer5",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer6",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer7",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer8",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "rfhm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": "rhfm"
+          },
+          {
+            "key": "bcm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "eslm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "remoteRepair",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vehicleGPS",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getPROXI",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "action",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "electronicPIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "bcmBrand",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getKeyCodes2",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "action",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "authPIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "iac",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecuType",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecuIdent",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "updateImmobilizerInfo2",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "action",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "authPIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer1",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer2",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer3",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer4",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer5",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer6",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer7",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer8",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "rfhm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": "rhfm"
+          },
+          {
+            "key": "bcm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "eslm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "wup",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "hcp",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "remoteRepair",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vehicleGPS",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getVIDfromVIN",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "TABID",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredVIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": "VIN"
+          }
+        ]
+      },
+      {
+        "name": "getKeyCodes",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "action",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "authPIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "iac",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "updateImmobilizerInfo",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "action",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "authPIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer1",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer2",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer3",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer4",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer5",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer6",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer7",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer8",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "rfhm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": "rhfm"
+          },
+          {
+            "key": "bcm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "eslm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "remoteRepair",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vehicleGPS",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getPROXI",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "action",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "electronicPIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "bcmBrand",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getKeyCodes2",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "action",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "authPIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "iac",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecuType",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecuIdent",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "updateImmobilizerInfo2",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "action",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "authPIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer1",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer2",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer3",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer4",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer5",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer6",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer7",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "fobIKSer8",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "rfhm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": "rhfm"
+          },
+          {
+            "key": "bcm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "eslm",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "wup",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "hcp",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "remoteRepair",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vehicleGPS",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getVehicleInfoActions",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getVIDInfo",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.VIDFromVINVO",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "TABID",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredVIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashListByVID",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VID",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashListByTSBNo",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredTSBNumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashListByPartNo",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.ECUFlashVO",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredPartNumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": "partNo"
+          },
+          {
+            "key": "year",
+            "required": false,
+            "query_param": true,
+            "alt_keys": "year"
+          },
+          {
+            "key": "body",
+            "required": false,
+            "query_param": true,
+            "alt_keys": "body"
+          },
+          {
+            "key": "VIN",
+            "required": false,
+            "query_param": true,
+            "alt_keys": "vin"
+          }
+        ]
+      },
+      {
+        "name": "getFlashListByVIN",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.ECUFlashVO",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getServiceActionsInfo",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "TCIDProcessedConfig",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/repair/scantools/SalesCodeAction.do",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "partnumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredVIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecu_variant",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "serialnumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecu_type",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "SalesCodeListByVIN",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/repair/scantools/SalesCodeListAction.do",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredVIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "GCWConfig",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/writeup/vip/jsp/vip_gui.jsp",
+        "arguments": [
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": "VIN"
+          },
+          {
+            "key": "odometer",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getSearchResultsWithVid",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/repair/scantools/TCSearchAction.do",
+        "arguments": [
+          {
+            "key": "TAB",
+            "required": true,
+            "query_param": true,
+            "alt_keys": "tab"
+          },
+          {
+            "key": "SEARCHTEXT",
+            "required": true,
+            "query_param": true,
+            "alt_keys": "searchText"
+          },
+          {
+            "key": "MODE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": "mode"
+          },
+          {
+            "key": "HITSPERPAGE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "OFFSET",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": false,
+            "query_param": true,
+            "alt_keys": "vin"
+          }
+        ]
+      },
+      {
+        "name": "getVipInfoPage",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/writeup/vip2/SingleVinInq.do",
+        "arguments": [
+          {
+            "key": "tab",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "subTab",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "target",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getTechConnectPage",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/common/jsp/MDS2002MainWitech.jsp",
+        "arguments": [
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "openTechConnectLink",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/techtools/starscan/wiTECH/wiTECHDCProxy.html",
+        "arguments": [
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "DEALERCODE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "launchExternalApp",
+        "implementation": "customTimeoutRestfulService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "monitorServices.xml",
+        "uri": "/launchExternalApp",
+        "arguments": [
+          {
+            "key": "appName",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "deviceIp",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "locale",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ticket",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "launchKdaApp",
+        "implementation": "customTimeoutRestfulService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "monitorServices.xml",
+        "uri": "/launchExternalApp",
+        "arguments": [
+          {
+            "key": "appName",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "deviceIp",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "locale",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecu",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "year",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "model",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ticket",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "servicesUrl",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "setVehicleInfo",
+        "implementation": "",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.VehicleInfoVO",
+        "source_file": "services.xml",
+        "uri": "/getVehicleInfoData",
+        "arguments": [
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vinValidated",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "engine",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "setVehicleConnectData",
+        "implementation": "streamingXMLSocketService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.VehicleConnectVO",
+        "source_file": "services.xml",
+        "uri": "/getVehicleConnectData",
+        "arguments": [
+          {
+            "key": "year",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "body",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "oem",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getECUs",
+        "implementation": "streamingXMLSocketService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.WiTECHECU",
+        "source_file": "services.xml",
+        "uri": "/getEcuData",
+        "arguments": []
+      },
+      {
+        "name": "getKlineECUs",
+        "implementation": "streamingXMLSocketService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.WiTECHECUKLINE",
+        "source_file": "services.xml",
+        "uri": "/getKLineEcuData",
+        "arguments": []
+      },
+      {
+        "name": "getECUCapabilities",
+        "implementation": "",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.ECUCapabilitiesVO",
+        "source_file": "services.xml",
+        "uri": "/getEcuCommandMetaData",
+        "arguments": []
+      },
+      {
+        "name": "getECUAcronyms",
+        "implementation": "",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.ECUAcronymMappingVO",
+        "source_file": "services.xml",
+        "uri": "/getEcuIdMapping",
+        "arguments": []
+      },
+      {
+        "name": "getECUConfiguration",
+        "implementation": "",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.ECUConfigVO",
+        "source_file": "services.xml",
+        "uri": "/getConfigData",
+        "arguments": [
+          {
+            "key": "ecuAcronym",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getECUOverview",
+        "implementation": "",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.ECUOverviewVO",
+        "source_file": "services.xml",
+        "uri": "/getEcuDetailData",
+        "arguments": [
+          {
+            "key": "ecuAcronym",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "onlySendNotifyItem",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashStatus",
+        "implementation": "",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.FlashStatusVO",
+        "source_file": "services.xml",
+        "uri": "/getFlashStatus",
+        "arguments": [
+          {
+            "key": "ecuAcronym",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "partNumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "filename",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "country",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "continue",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "userEntry",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "dealercode",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "customerComplaintType",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "customerComplaint",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashCache",
+        "implementation": "",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.FlashCacheVO",
+        "source_file": "services.xml",
+        "uri": "/getFlashCacheData",
+        "arguments": [
+          {
+            "key": "checksum",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "partNumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "flashFileName",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashPartNumber",
+        "implementation": "",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.FlashPartNumberStatusVO",
+        "source_file": "services.xml",
+        "uri": "/getFlashPartNumberStatus",
+        "arguments": [
+          {
+            "key": "ecuAcronym",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "done",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getRecSpecWriteData",
+        "implementation": "xmlSocketService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.other.domain.vo.WriteRecSpecResultsVO",
+        "source_file": "services.xml",
+        "uri": "/getRecSpecWriteData",
+        "arguments": [
+          {
+            "key": "templateLocation",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "recSpecLocation",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "eventUserDescription",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getLogicalEcuDataForFlightRecorder",
+        "implementation": "xmlSocketService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.other.domain.vo.FlightRecorderLogicalECUDataVO",
+        "source_file": "services.xml",
+        "uri": "/getLogicalEcuMetaData",
+        "arguments": [
+          {
+            "key": "year",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "body",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getDBECUs",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.ecu.ECUVO",
+        "source_file": "wde-services.xml",
+        "uri": "/db/ecus",
+        "arguments": [
+          {
+            "key": "year",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "body",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getDBECULogicals",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.ecu.ECUDBLogicalVO",
+        "source_file": "wde-services.xml",
+        "uri": "/db/ddes/logical",
+        "arguments": [
+          {
+            "key": "year",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "body",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecu_id",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "locale",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "startFlashWde",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.generic.StatusVO",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/flash/start/{year}/{body}/{flashKey}",
+        "arguments": [
+          {
+            "key": "year",
+            "required": true,
+            "query_param": false,
+            "alt_keys": ""
+          },
+          {
+            "key": "body",
+            "required": true,
+            "query_param": false,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "flashKey",
+            "required": true,
+            "query_param": false,
+            "alt_keys": ""
+          },
+          {
+            "key": "file_path",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "locale",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "country",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "dealercode",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecu_instance_id",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "customer-complaint-type",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "customer-complaint",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashStatusWde",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.flash.FlashStatusWdeVO",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/flash/status",
+        "arguments": [
+          {
+            "key": "flash_key",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashPartNumber",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.ecu.ECUFlashPartNumberVO",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/ecus/{ecuInstanceId}/flash_partnumber",
+        "arguments": [
+          {
+            "key": "ecuInstanceId",
+            "required": true,
+            "query_param": false,
+            "alt_keys": ""
+          },
+          {
+            "key": "uom",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "sendFlashInputWDE",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/flash/input",
+        "arguments": [
+          {
+            "key": "flash_key",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "value",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getSavedReports",
+        "implementation": "XMLwdeRESTService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/report/legacy/history",
+        "arguments": [
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "locale",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "uom",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "runReport",
+        "implementation": "XMLwdeRESTService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/report/legacy",
+        "arguments": [
+          {
+            "key": "report",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "locale",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "uom",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "connect_time",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "request_time",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getSupportedEcus",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "wde-services.xml",
+        "uri": "/db/ecus",
+        "arguments": [
+          {
+            "key": "year",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "body",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "writeRecSpecDataToDisk",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.flightrecorder.WriteRecSpecDataVO",
+        "source_file": "wde-services.xml",
+        "uri": "/datarecorder/recspec",
+        "arguments": [
+          {
+            "key": "template",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "recspec",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "name",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "engine",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "uom",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "description",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "startEcuInstanceConfigScan",
+        "implementation": "WDEChunckedHttpSocketService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.ecu.ECUInstanceConfigVO",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/scan/monitor",
+        "arguments": [
+          {
+            "key": "wdeperiod",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "data",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "startECUInitialScanComplete",
+        "implementation": "WDEChunckedHttpSocketService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.ecu.ECUInitialScanCompleteVO",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/scan/monitor",
+        "arguments": [
+          {
+            "key": "wdeperiod",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "data",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "startLogicalECUScan",
+        "implementation": "WDEChunckedHttpSocketService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.ecu.ECULogicalDataVO",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/scan/monitor",
+        "arguments": [
+          {
+            "key": "wdeperiod",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "data",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "legacyGetEcuData",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.ecu.LegacyEcuDataVO",
+        "source_file": "wde-services.xml",
+        "uri": "/legacy/getEcuData",
+        "arguments": [
+          {
+            "key": "acronym",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "legacyGetEcuDetails",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.ecu.ECUDetailsVO",
+        "source_file": "wde-services.xml",
+        "uri": "/legacy/getEcuDetailData",
+        "arguments": [
+          {
+            "key": "ecuAcronym",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "legacyGetEcuConfiguration",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.ecu.ECUConfigurationVO",
+        "source_file": "wde-services.xml",
+        "uri": "/legacy/getConfigData",
+        "arguments": [
+          {
+            "key": "ecuAcronym",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "startLegacySession",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.diagnostic.procedure.LegacySessionTokenVO",
+        "source_file": "wde-services.xml",
+        "uri": "/legacy/session/start",
+        "arguments": [
+          {
+            "key": "expire",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecu_info",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "locale",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "uom",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "deviceConnectData",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "obdiiVIN",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.vehicle.OBDIIVINVO",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/obdii/vin",
+        "arguments": []
+      }
+    ],
+    "flash_programming": [
+      {
+        "name": "getFlashListByPartNo",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.ECUFlashVO",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredPartNumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": "partNo"
+          }
+        ]
+      },
+      {
+        "name": "getFlashListByVIN",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.ECUFlashVO",
+        "source_file": "dealer-services.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashListByVID",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VID",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashListByTSBNo",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredTSBNumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashListByPartNo",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.ECUFlashVO",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "enteredPartNumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": "partNo"
+          },
+          {
+            "key": "year",
+            "required": false,
+            "query_param": true,
+            "alt_keys": "year"
+          },
+          {
+            "key": "body",
+            "required": false,
+            "query_param": true,
+            "alt_keys": "body"
+          },
+          {
+            "key": "VIN",
+            "required": false,
+            "query_param": true,
+            "alt_keys": "vin"
+          }
+        ]
+      },
+      {
+        "name": "getFlashListByVIN",
+        "implementation": "dealerConnectService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.ECUFlashVO",
+        "source_file": "dealer-services2.xml",
+        "uri": "/service/mds2002/Dispatcher",
+        "arguments": [
+          {
+            "key": "SERVICE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "BROWSER",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "LOCALE",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashStatus",
+        "implementation": "",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.FlashStatusVO",
+        "source_file": "services.xml",
+        "uri": "/getFlashStatus",
+        "arguments": [
+          {
+            "key": "ecuAcronym",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "partNumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "filename",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "country",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "continue",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "userEntry",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "dealercode",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "customerComplaintType",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "customerComplaint",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashCache",
+        "implementation": "",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.dealerservices.domain.vo.FlashCacheVO",
+        "source_file": "services.xml",
+        "uri": "/getFlashCacheData",
+        "arguments": [
+          {
+            "key": "checksum",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "partNumber",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "flashFileName",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashPartNumber",
+        "implementation": "",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.vehicle.domain.vo.FlashPartNumberStatusVO",
+        "source_file": "services.xml",
+        "uri": "/getFlashPartNumberStatus",
+        "arguments": [
+          {
+            "key": "ecuAcronym",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "done",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getRecSpecWriteData",
+        "implementation": "xmlSocketService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.other.domain.vo.WriteRecSpecResultsVO",
+        "source_file": "services.xml",
+        "uri": "/getRecSpecWriteData",
+        "arguments": [
+          {
+            "key": "templateLocation",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "recSpecLocation",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "eventUserDescription",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "VIN",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "startFlashWde",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.generic.StatusVO",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/flash/start/{year}/{body}/{flashKey}",
+        "arguments": [
+          {
+            "key": "year",
+            "required": true,
+            "query_param": false,
+            "alt_keys": ""
+          },
+          {
+            "key": "body",
+            "required": true,
+            "query_param": false,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "flashKey",
+            "required": true,
+            "query_param": false,
+            "alt_keys": ""
+          },
+          {
+            "key": "file_path",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "locale",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "country",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "dealercode",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "ecu_instance_id",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "customer-complaint-type",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "customer-complaint",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashStatusWde",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.flash.FlashStatusWdeVO",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/flash/status",
+        "arguments": [
+          {
+            "key": "flash_key",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "getFlashPartNumber",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.ecu.ECUFlashPartNumberVO",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/ecus/{ecuInstanceId}/flash_partnumber",
+        "arguments": [
+          {
+            "key": "ecuInstanceId",
+            "required": true,
+            "query_param": false,
+            "alt_keys": ""
+          },
+          {
+            "key": "uom",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "sendFlashInputWDE",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "",
+        "source_file": "wde-services.xml",
+        "uri": "/vehicle/flash/input",
+        "arguments": [
+          {
+            "key": "flash_key",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "value",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      },
+      {
+        "name": "writeRecSpecDataToDisk",
+        "implementation": "JSONwdeRESTService",
+        "method": "POST",
+        "dataType": "com.dcctools.witech.sal.data.vos.flightrecorder.WriteRecSpecDataVO",
+        "source_file": "wde-services.xml",
+        "uri": "/datarecorder/recspec",
+        "arguments": [
+          {
+            "key": "template",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "recspec",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "name",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "vin",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "engine",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "uom",
+            "required": true,
+            "query_param": true,
+            "alt_keys": ""
+          },
+          {
+            "key": "description",
+            "required": false,
+            "query_param": true,
+            "alt_keys": ""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "$generated": "2026-05-25",
+  "$sources_analyzed": [
+    "AlfaOBD.exe (26.8 MB, .NET 4.8 Dotfuscator-obfuscated, v2.5.7.0)",
+    "CDA.swf (4.15 MB compressed / 8.5 MB body, Flash 11, Chrysler Diagnostic Application v6)",
+    "UDS_Complete_Reference.pdf (35 pages, generic UDS reference)",
+    "CredentialManagement.dll (third-party Windows CredMan wrapper, irrelevant)",
+    "config.bin (16-byte hex: E9105EE93BF49D69258AEE921ABC30E9 — likely AES-128 key)"
+  ],
+
+  "architecture_findings": {
+    "summary": "Both AlfaOBD and CDA are CLIENT applications. Neither contains the routine-ID dispatch catalog as plaintext data in the binary. Both load that catalog at runtime from external sources.",
+    "cda_swf": {
+      "what_it_is": "Chrysler Diagnostic Application v6 — the Flash UI for wiTECH 2.",
+      "ui_framework": "Adobe Flex 4.x + Parsley DI",
+      "back_end": "Calls a wiTECH diagnostic engine via HTTP/SOAP. ECU-specific dispatch (RIDs, security levels, payload framing) lives in the wiTECH SERVER's ODX/CBF database, not in this SWF.",
+      "embedded_data": {
+        "DefineBinaryData_blocks": "9 blocks, all Adobe Pixel Bender shaders (graphic blend effects: ColorDodge, Hue, Saturation, etc.) — NOT dispatch tables",
+        "ABC_bytecode": "2 frames totaling 7.3 MB — UI logic + service client orchestration only"
+      },
+      "key_namespaces": [
+        "com.chrysler.cda.application.diagnostic.ecu.offBoardRoutines (RoutineControl wrappers)",
+        "com.chrysler.cda.application.diagnostic.ecu.unlock (SecurityAccess flow)",
+        "com.chrysler.cda.application.diagnostic.ecu.sessions (DiagSession control)",
+        "com.chrysler.cda.application.diagnostic.flash (UDS 0x34/0x36/0x37 flow)",
+        "com.chrysler.cda.application.diagnostic.ecu.dtcs (UDS 0x19 wrappers)",
+        "com.chrysler.cda.application.diagnostic.ecu.iocontrol (UDS 0x2F wrappers)",
+        "com.chrysler.cda.application.authenticatedDiagnostics (Stellantis SGW/AD)",
+        "com.dcctools.witech.diagnostic.engine.cryptography (ISecretKeyService, AESCipher)",
+        "com.dcctools.witech.diagnostic.engine.http (RESTful wiTECH backend)"
+      ],
+      "service_class_count": "1204 *Command/*Service/*Routine/*Action/*Message/*Event/*Controller classes — pure orchestration layer"
+    },
+    "alfaobd_exe": {
+      "what_it_is": "AlfaOBD_PC v2.5.7.0, .NET Framework 4.8, Dotfuscator-protected",
+      "dispatch_storage": "External SQLite .db (uses Entity Framework 6 SQLite provider per app.config). The .db is the catalog — likely encrypted with the 16-byte hex key in config.bin (E9105EE93BF49D69258AEE921ABC30E9).",
+      "embedded_data": {
+        "DotNet_resources": "14 .resources blobs — all are UI bitmaps (manufacturer logos, icons, blend modes) — no dispatch data",
+        "Encrypted_strings": "2079 strings in #US heap, all Dotfuscator-XOR-encrypted (algorithm reversed — see below). Decrypted set is mostly CAN message symbolic names (CAN Output (BCM_A3), CAN Input (SKREEM_A1)) and config DID labels (VehConfig 1-8, Cust.Prog.Features, etc) — no routine IDs."
+      },
+      "dotfuscator_decryption": {
+        "method": "MethodDef[26] 'h(string, int)' at RVA 0x5A324",
+        "algorithm": "per-char XOR; key = 0x6DDC67B5 + salt_arg; key++ per byte; byte-swap output",
+        "decryption_tool_status": "PORTED — alfaobd_decrypt.py works against any future AlfaOBD build with this algo",
+        "decrypted_count": "2078 of 2079 strings (99.95%)"
+      }
+    }
+  },
+
+  "concrete_uds_extractions": {
+    "$note": "These are the ONLY plaintext UDS byte sequences I found embedded as literal strings or labels in either binary.",
+    "BCM_PROXI_read": {
+      "uds_request": "22 20 23",
+      "service": "0x22 ReadDataByIdentifier",
+      "did_hex": "0x2023",
+      "did_name": "PROXI String",
+      "target_ecu": "BCM",
+      "source": "CDA.swf string: 'The Proxi String is read from the BCM using command 222023.'",
+      "confidence": "confirmed_from_source_string"
+    },
+    "BCM_PROXI_write": {
+      "uds_request": "2E 20 23 <data>",
+      "service": "0x2E WriteDataByIdentifier",
+      "did_hex": "0x2023",
+      "did_name": "PROXI String",
+      "target_ecu": "BCM",
+      "source": "CDA.swf string '2E2023'",
+      "confidence": "confirmed_from_source_string",
+      "prerequisites_likely": "extendedDiagnosticSession (0x10 0x03), SecurityAccess unlock, possibly SGW unlock on 2018+"
+    },
+    "BCM_EOL_read_2023plus": {
+      "uds_request": "22 10 2A",
+      "service": "0x22 ReadDataByIdentifier",
+      "did_hex": "0x102A",
+      "did_name": "EOL (End-of-Line) data — 2023+ generation",
+      "target_ecu": "BCM (likely; possibly other modules)",
+      "source": "CDA.swf string: '[{0}] EOL (22102A)'",
+      "confidence": "confirmed_from_source_string"
+    },
+    "BCM_EOL_read_alt": {
+      "uds_request": "22 40 A2",
+      "service": "0x22 ReadDataByIdentifier",
+      "did_hex": "0x40A2",
+      "did_name": "EOL data (alternative DID, older platforms)",
+      "target_ecu": "BCM (likely; possibly other modules)",
+      "source": "CDA.swf string: 'EOL (2240A2)'",
+      "confidence": "confirmed_from_source_string"
+    }
+  },
+
+  "sgw_unlock_flow_from_cda": {
+    "summary": "CDA implements the Stellantis Authenticated Diagnostics (AD) flow for SGW-equipped vehicles. Auth is via login to Stellantis backend + dongle hardware.",
+    "user_flow_strings": [
+      "Authenticated Diagnostics is required for any vehicle equipped with a Security Gateway (SGW)",
+      "Login to Stellantis US and unlock the SGW",
+      "If this vehicle is equipped with an SGW and you skip the authentication step, the flash may fail",
+      "Unlocking an ADA requires authentication. Click the button below to authenticate..."
+    ],
+    "implementation_classes": [
+      "AuthenticatedDiagnosticsLoginPopupEvent",
+      "DongleSecurityGatewayMessage",
+      "FlashSecurityGatewayMessage",
+      "SecurityGatewayOfflineDongleSer*",
+      "onSecurityGatewayUnlockComplete",
+      "EcuParityDataGridImpl"
+    ],
+    "dongle_pin_handling": {
+      "string": "authenticatedDiagnosticsLoginPopup.formlabel.PIN.dongle",
+      "purpose": "User enters PIN from physical dongle hardware → CDA sends to Stellantis backend → backend issues SGW unlock token"
+    }
+  },
+
+  "alfaobd_decrypted_string_categories": {
+    "$note": "Categorical summary of 2078 Dotfuscator-decrypted strings — see all_decrypted.json for full set",
+    "CAN_message_names": {
+      "count": 39,
+      "samples": ["CAN Output (BCM_A3)", "CAN Output (BCM_A4)", "CAN Output (BCM_A8)", "CAN Input (BCM_A5)", "CAN Input (SKREEM_A1)", "CAN Input (TPM_A1)", "CAN Input (FCM_A1)", "CAN Input (GW_C_B2)", "CAN Input (CGW_A7)", "CAN Input (ORC_A1)"]
+    },
+    "ECU_type_identifiers": {
+      "samples": ["GIULIA_PETROL_MED17_3_5_PRIMARY", "GIULIA_PETROL_MED17_3_5_SECONDARY", "ECM_FGA_HYBRID", "ECM_FGA_ELECTRIC", "GIULIA_DIESEL_EDC17C69", "GIULIA_PETROL_IAW10JA"]
+    },
+    "config_DID_labels": {
+      "samples": ["Radio & Connectivity OR Seats A", "Cust.Prog.Features OR ECO mode", "2014 CBC Config I/O & Feat.", "CBC Extern.Light Calibr.", "Doors - Liftgate Params", "VehConfig 1..8", "ECUConfig 3, 4, 14, 18", "Diesel Fuel Heater", "LIN Cust Prog Feat", "Alarm - VTA Params", "Plant/Service Mode"]
+    },
+    "numeric_label_IDs": {
+      "count": 631,
+      "samples": ["3028", "3029", "3030", "6117", "6072", "3048"],
+      "note": "These are AlfaOBD's internal procedure-table indices, NOT UDS routine identifiers. They map to the DIAG_NAMES descriptive labels in the corrupted .db (alreadyextracted into alfaobdData.generated.js)."
+    },
+    "tier1_routine_ids_searched": {
+      "search_terms": ["2504","1520","1126","1750","1751","2505","2507","1367"],
+      "found_in_alfaobd_exe": "ZERO. The Tier-1 routine IDs from the shopping list do NOT appear in either binary's strings or numeric constants. The exe doesn't carry the catalog."
+    }
+  },
+
+  "uds_complete_reference_summary": {
+    "$note": "Generic UDS reference document — useful as SRT Lab documentation but contains no FCA-specific dispatch data",
+    "valuable_content": [
+      "Full SID 0x00-0xFF allocation map with positive/negative response codes",
+      "Diagnostic Session table (0x01..0x7E) with FCA-specific session range 0x40-0x5F flagged",
+      "Security Access odd/even pair convention (0x01/02, 0x03/04, 0x05/06, 0x07/08+)",
+      "ReadDTCInformation 0x19 sub-functions (0x01-0x1A + 0x42, 0x55, 0x56)",
+      "DTC status byte bit map (testFailed, pendingDTC, confirmedDTC, warningIndicatorRequested, etc.)",
+      "RoutineControl 0x31 sub-functions (0x01 start, 0x02 stop, 0x03 results)",
+      "10-phase flash sequence template (10 02 → 27 → 28/85 → 31 01 erase → 34 → 36 → 37 → 31 01 verify → 11 → 85)",
+      "Common NRC reasons during RoutineControl (0x12, 0x22, 0x24, 0x31, 0x33, 0x72)"
+    ],
+    "explicit_disclaimer_from_doc": "'individual DIDs, routines, security levels, seed/key algorithms, programming preconditions, and supported services vary by ECU, model year, software level, market, and network gateway configuration' — author flags that catalog data must come from FCA service info / wiTECH ODX/CBF, not from this PDF.",
+    "use_for_srt_lab": "Drop the PDF into docs/ as `docs/uds-protocol-reference.pdf` — it's a clean general UDS reference that can be linked from the seed-key calculator + raw UDS console pages for end-user reference."
+  },
+
+  "where_the_routine_catalog_actually_lives": {
+    "primary_source_authoritative": {
+      "location": "wiTECH backend server — ODX-D (ISO 22901) or CBF (Common Bus File) databases",
+      "format": "FCA proprietary, hundreds of MB to multi-GB per vehicle line",
+      "access": "Requires wiTECH 2 license + Stellantis backend account",
+      "rationale_why_not_in_clients": "Stellantis updates the catalog continuously without pushing new client binaries — clients always fetch latest"
+    },
+    "alfaobd_subset_source": {
+      "location": "Local SQLite .db in AlfaOBD install directory (encrypted)",
+      "decryption_key_candidate": "config.bin contents — E9105EE93BF49D69258AEE921ABC30E9 (16 bytes, AES-128 length)",
+      "expected_paths": [
+        "C:\\Program Files (x86)\\AlfaOBD\\Data\\*.db",
+        "C:\\Program Files\\AlfaOBD\\*.db",
+        "C:\\Users\\<user>\\AppData\\Local\\AlfaOBD\\*.db",
+        "Wherever AlfaOBD_PC.rar was extracted"
+      ],
+      "note": "Previously a 'corrupted' decrypted version yielded DIAG_NAMES labels in alfaobdData.generated.js — confirms the .db is the catalog source. A clean copy is needed."
+    },
+    "bench_capture_source": {
+      "alternative": "J2534 PassThru logging during a real procedure run",
+      "tools": "Drew Tech, Cardaq, Tactrix, Kvaser, PCAN, ValueCAN, AlfaOBD's own session log",
+      "yield_per_capture": "Full UDS frame sequence for one procedure including session, security, RID, payload"
+    }
+  },
+
+  "tier1_routines_updated": {
+    "$status": "Same scaffold as alfaobd-tier1-routines.json — fields below are now informed by CDA architecture findings",
+    "$summary": "CDA.swf confirms FCA gates these behind extendedDiagnosticSession + (on SGW vehicles) Stellantis AD unlock. CDA delegates the actual byte construction to the wiTECH engine, so the RID bytes themselves are NOT in CDA.swf. AlfaOBD's encrypted .db is the next-best source.",
+    "additional_pre_conditions_now_known_from_cda": [
+      "2018+ vehicles: SGW unlock REQUIRED before any of these routines (Stellantis AD)",
+      "Bench mode: some procedures can bypass SGW via dongle PIN (DongleSecurityGatewayMessage)",
+      "Flash routines (1126, 1520, 1750, 1751) follow the 10-phase template in UDS_Reference §8"
+    ]
+  },
+
+  "deliverables_in_this_session": {
+    "files_emitted": [
+      "alfaobd_decrypt.py — Working Dotfuscator decryptor for any AlfaOBD .NET binary",
+      "all_decrypted.json — 2078 decrypted strings from AlfaOBD v2.5.7.0",
+      "alfaobd-tier1-routines.json — Tier-1 routine JSON scaffold with confirmed structural fields",
+      "this file — comprehensive cross-source extraction summary"
+    ],
+    "next_request_for_user": {
+      "highest_value": "AlfaOBD's external SQLite .db (decryptable with the config.bin AES key + algorithm from the AlfaOBD.exe)",
+      "alternatively": "One bench capture of an FCA UDS procedure (any of the Tier-1 routines) — gives us that routine's exact RID, security level, and payload immediately"
+    }
+  }
+}

@@ -1,0 +1,255 @@
+{
+ "analysis": {
+  "idx12_means": "AlfaOBD internal ECU class number / cipher family ID. Matches dispatch table family_X keys.",
+  "idx14_means": "Device type ID (more granular than family). Possibly maps to physical ECU role/CAN protocol variant.",
+  "cipher_dispatch_coverage": "8 of ~40 ECU families have cipher dispatch entries in algorithm-catalog.json. The other 32+ families use unmapped wrappers (W6 or W7 entries directly, or special non-W6/W7 ciphers)."
+ },
+ "bcm": {
+  "cipher_family_idx12": 3,
+  "variants": [
+   "BCDELMAR",
+   "BCDELPHI",
+   "BCMAR3",
+   "BODY_CHRYSLER",
+   "BODY_CONTINENTAL",
+   "BODY_CONTINENTAL_UNO",
+   "BODY_CONTINENTAL_WL",
+   "BODY_MARELLI10",
+   "BODY_SIEMENS",
+   "BODY_SZK",
+   "FCM_CGW",
+   "TIPM_CGW",
+   "VISION_RAM750",
+   "VSIM_PN"
+  ],
+  "cipher_dispatch": "NOT IN DISPATCH TABLE \u2014 uses non-standard cipher",
+  "note": "family_3 is NOT in the dispatch table \u2014 BCM uses a cipher not catalogued in the 8-family list. Possibly the ht linear algo with hardcoded constants, or a per-MY variant.",
+  "catalog_routines_count": 140,
+  "idx14_device_types": [
+   "16",
+   "51",
+   "79"
+  ]
+ },
+ "ecm": {
+  "cipher_family_idx12": 11,
+  "variants_total_count": 103,
+  "cipher_dispatch": "NOT IN DISPATCH TABLE",
+  "note": "family_11 has 103 ECU variants but no dispatch entry. ECM uses per-variant cipher selection (could be one of the 380 W6 wrappers, identified at runtime).",
+  "catalog_routines_count": 240,
+  "variants_first_30": [
+   "AHCP_PN",
+   "BOSCH_1730_LPG",
+   "BOSCH_MED1735",
+   "BOSCH_MSA11",
+   "CHRYSLER_NGC4",
+   "CUMMINS_DIESEL_2019",
+   "DCU",
+   "DCU_FGA",
+   "DELPHIMT",
+   "DIESEL_CUMMINS",
+   "DIESEL_I4_28L",
+   "DIESEL_I4_VW",
+   "DIESEL_I6_CUMMINS",
+   "DIESEL_MB_OM644",
+   "DIESEL_RAM",
+   "DIESEL_V6_EDC16",
+   "ECM_FGA_ELECTRIC",
+   "ECM_FGA_HYBRID",
+   "EDC15",
+   "EDC16",
+   "EDC16CF4",
+   "EDC16CF5",
+   "EDC16CF5_CAN",
+   "EDC16_CAN",
+   "EDC17CF5_CAN",
+   "EDC17_FRMNT",
+   "GIULIA_DIESEL_EDC17C69",
+   "GIULIA_PETROL_IAW10JA",
+   "GIULIA_PETROL_MED17_3_5_PRIMARY",
+   "GIULIA_PETROL_MED17_3_5_SECONDARY"
+  ]
+ },
+ "rfhub": {
+  "cipher_family_idx12": "UNKNOWN \u2014 RFH not in catalog directly",
+  "variants_from_binary_registry": [
+   "RFH_200",
+   "RFH_CHEROKEE",
+   "RFH_COMPASS",
+   "RFH_CUSW",
+   "RFH_CUSW_OTTIMO",
+   "RFH_FGA",
+   "RFH_PN"
+  ],
+  "rfh_diag_routines": {
+   "1304": "This procedure reads the PIN from the RFH memory. If the procedure terminates with an error retry with the ignition set to OFF or Lock position.",
+   "1306": "This function will verify the functionality of the antenna coil located inside the RF-HUB. Ignition switch should be in the Run position while running the routine.",
+   "1367": "RAM trucks only with high-line system. Use this function to program FOBIK(s) when the RF-HUB has been replaced or additional FOBIK(s) need to be added. The FOBIK(s) being pRograMmEd MUST bE",
+   "1520": "RAM only. Use this function when the BCM has been replaced. It will create the BCM backup of the secret key value stored in the RF-HUB.",
+   "2504": "RF-HUB Reset/Replace",
+   "2505": "Program Ignition FOBIKs Baseline System",
+   "2507": "Program Ignition FOBIKs Highline System",
+   "2508": "governor output duty cycle for LSU heater 0"
+  },
+  "verified_can_ids": {
+   "X2_platform": "0x75F (request) / 0x76C (response)",
+   "legacy_non_PowerNet": "0x600 / 0x620"
+  },
+  "note": "RFH routines are runtime-dispatched (Method[2143] ir uses 2504-2508 as dict keys). The BCM\u2194RFH transfer is implemented as a BCM-family operation (idx[12]=3). For DIRECT AlfaOBD\u2192RFH connections, the cipher likely uses family 18 (HSM/MSM/seats area) or a special non-W6/W7 path."
+ },
+ "cipher_dispatch_full_table": {
+  "family_31": {
+   "aj_1": "jh",
+   "aj_3": "jg",
+   "aj_5": "jf"
+  },
+  "family_39": {
+   "aj_1": "au"
+  },
+  "family_17": {
+   "aj_1": "c2",
+   "aj_3": "cz",
+   "aj_5": "cw"
+  },
+  "family_21": {
+   "aj_1": "c1",
+   "aj_3": "cy",
+   "aj_5": "cv"
+  },
+  "family_22": {
+   "aj_1": "c0",
+   "aj_3": "cx",
+   "aj_5": "cu"
+  },
+  "family_27": {
+   "aj_1": "tv",
+   "aj_3": "tu",
+   "aj_5": "tt",
+   "aj_7": "tp"
+  },
+  "family_37": {
+   "aj_1": "bq",
+   "aj_3": "bp",
+   "aj_5": "bo"
+  },
+  "family_66": {
+   "aj_1": "e1",
+   "aj_3": "ez",
+   "aj_5": "e2"
+  },
+  "ecu_UCONNECT_0x149": {
+   "level_5": "ao (XTEA-BE)"
+  },
+  "ecu_RADIO_FGA_0x14E": {
+   "level_5": "ao (XTEA-BE)"
+  }
+ },
+ "cipher_catalogs": {
+  "w6_count": 380,
+  "w7_count": 360,
+  "wrapper_names_w6_first_50": [
+   "wq",
+   "wo",
+   "wm",
+   "wk",
+   "wi",
+   "wg",
+   "v9",
+   "v7",
+   "vz",
+   "vy",
+   "vp",
+   "vo",
+   "vn",
+   "vm",
+   "vl",
+   "vk",
+   "vi",
+   "vh",
+   "vg",
+   "vf",
+   "ve",
+   "vd",
+   "vc",
+   "vb",
+   "va",
+   "u8",
+   "u7",
+   "u6",
+   "u5",
+   "u4",
+   "u3",
+   "u2",
+   "u1",
+   "u0",
+   "uy",
+   "ux",
+   "uo",
+   "un",
+   "um",
+   "ul",
+   "uk",
+   "uj",
+   "ui",
+   "uh",
+   "ug",
+   "uf",
+   "uc",
+   "ub",
+   "ua",
+   "t9"
+  ],
+  "wrapper_names_w7_first_50": [
+   "aa",
+   "ab",
+   "ac",
+   "ae",
+   "ap",
+   "aq",
+   "au",
+   "aw",
+   "ax",
+   "ay",
+   "az",
+   "b0",
+   "b1",
+   "b2",
+   "b3",
+   "b5",
+   "bc",
+   "bf",
+   "bo",
+   "bp",
+   "bq",
+   "bt",
+   "bu",
+   "c0",
+   "c1",
+   "c2",
+   "c3",
+   "c4",
+   "c5",
+   "c6",
+   "c7",
+   "c8",
+   "c9",
+   "ca",
+   "cb",
+   "cl",
+   "cm",
+   "cn",
+   "co",
+   "cp",
+   "cq",
+   "cr",
+   "cs",
+   "ct",
+   "cu",
+   "cv",
+   "cw",
+   "cx",
+   "cy",
+   "cz"
+  ]
+ }
+}

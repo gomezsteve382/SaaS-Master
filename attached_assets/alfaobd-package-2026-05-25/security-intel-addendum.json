@@ -1,0 +1,51 @@
+{
+  "alfaobd_credential_storage": {
+    "registry_root": "HKCU\\SOFTWARE\\AlfaOBD\\CommonSettings",
+    "value_names": ["CodeCard", "PINcode"],
+    "source": "AlfaOBD.exe Method[2526] StartButton_Click1 IL strings (salt=11)"
+  },
+  "send_code_card_login_method": {
+    "method": "Method[1436] zz",
+    "salt": 10,
+    "decrypted_method_identity": "SendCodeCardLogin",
+    "evidence_strings": [
+      ": SendCodeCardLogin - sent",
+      ": SendCodeCardLogin: Error: "
+    ],
+    "associated_can_buses": ["BCAN_7209", "CCAN"],
+    "uds_flow": [
+      "27 03 (SecurityAccess Request Seed level 3)",
+      "27 04 <key_bytes> (SecurityAccess Send Key level 4)",
+      "31 01 02 11 (RoutineControl Start, RID=0x0211 — vehicle config backup write)"
+    ],
+    "candidate_codecard_keys_5byte": [
+      {
+        "hex": "4083618902",
+        "bytes": "40 83 61 89 02",
+        "appears_with_frame": "27 04",
+        "interpretation_caveat": "Either a sample CodeCard baked into the EXE for testing, OR an expected-response value, OR a key-derivation input. NOT independently verified."
+      },
+      {
+        "hex": "3E07860DAD",
+        "bytes": "3E 07 86 0D AD",
+        "appears_with_frame": "27 04 00",
+        "interpretation_caveat": "Either a sample CodeCard, OR an expected-response value, OR a key-derivation input. NOT independently verified."
+      }
+    ]
+  },
+  "kwp2000_door_modules": {
+    "ecus": ["DDM_KWP (Driver Door Module)", "PDM_KWP (Passenger Door Module)"],
+    "protocol": "KWP2000 (legacy, NOT UDS)",
+    "source": "Method[2528] StartButton_Click3 decrypted strings"
+  },
+  "alfaobd_can_protocol_names": [
+    "BCAN_11BIT", "BCAN_7209", "BCAN_7274",
+    "CCAN", "CCAN_11BIT"
+  ],
+  "legacy_protocols_supported": [
+    "ISO9141", "ISO9141_2", "KWP2000_SLOW", "KWP2000"
+  ],
+  "obd_adapter_detection": [
+    "STN1170", "STN1110", "OBDLinkMX"
+  ]
+}

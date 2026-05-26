@@ -10,7 +10,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "mine:alfaobd": "node src/mine-alfaobd.mjs",
     "fetch:can-catalogs": "node src/fetch-can-catalogs.mjs",
-    "test:can-catalogs": "node --test src/__tests__/canCatalogMerge.test.mjs"
+    "test:can-catalogs": "node --test src/__tests__/canCatalogMerge.test.mjs",
+    "audit:dispatch-gap": "node src/audit-dispatch-gap.mjs",
+    "test:dispatch-gap": "node --test src/__tests__/auditDispatchGap.test.mjs"
   },
   "devDependencies": {
     "@types/node": "catalog:",

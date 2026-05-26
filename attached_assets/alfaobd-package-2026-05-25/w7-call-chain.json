@@ -1,0 +1,83 @@
+{
+ "entry_point": {
+  "method": "Method[203] w7",
+  "rva": "0x5FD44",
+  "size": 765
+ },
+ "first_layer_helpers": [
+  {
+   "method": "Method[1075] a",
+   "rva": "0x...",
+   "size": 114,
+   "role": "array/bignum init helper"
+  },
+  {
+   "method": "Method[1079] o",
+   "rva": "0x...",
+   "size": 31,
+   "role": "top-level (a*a - b*c) composition"
+  },
+  {
+   "method": "Method[1080] a",
+   "rva": "0x...",
+   "size": 374,
+   "role": "larger arithmetic"
+  },
+  {
+   "method": "Method[1087] l",
+   "rva": "0x...",
+   "size": 40,
+   "role": "4-arg arithmetic chain"
+  },
+  {
+   "method": "Method[1089] j",
+   "rva": "0x...",
+   "size": 44,
+   "role": "4-arg arithmetic chain (index+1)"
+  },
+  {
+   "method": "Method[1091] h",
+   "rva": "0x...",
+   "size": 40,
+   "role": "4-arg arithmetic chain (variant)"
+  },
+  {
+   "method": "Method[1096] b",
+   "rva": "0x...",
+   "size": 64,
+   "role": "byte-array indexing with 0xFF masks"
+  },
+  {
+   "method": "Method[1106] e",
+   "rva": "0x...",
+   "size": 125,
+   "role": "string<->bignum conversion"
+  },
+  {
+   "method": "Method[1126] a",
+   "rva": "0x...",
+   "size": 134,
+   "role": "branch comparison logic, multi-ret"
+  }
+ ],
+ "second_layer_helpers_referenced": [
+  "Method[1098]:j",
+  "Method[1101]:h",
+  "Method[1103]:g",
+  "Method[1097]:k",
+  "Method[1090]:i",
+  "Method[1092]:g",
+  "Method[1104]:b",
+  "Method[1088]:k",
+  "Method[1107]:d",
+  "Method[1301]:l"
+ ],
+ "algorithm_characterization": "BigInteger arithmetic with byte-level primitives. Uses multi-precision multiplication, addition, subtraction, and modular reduction. Each (n, o, p) parameter triple from the W7 catalog is passed through this chain. The 23 decrypted-string constants loaded by w7 are the cipher's additional parameter array.",
+ "translation_status": "Located + call graph mapped. Full algebraic translation requires C# decompilation (dnSpy/ILSpy) of 20+ helper methods. Static IL analysis confirms BigInteger structure consistent with PROVENANCE's claim of \"big-integer cipher\".",
+ "work_remaining_to_complete_w7_in_javascript": [
+  "Decompile each helper method to C#-equivalent pseudocode",
+  "Reconstruct the bignum primitive layer (add/sub/mul/mod on byte arrays)",
+  "Map the (n, o, p) triple invocation back to the seed input",
+  "Test against a known (seed, key) pair from a real ECU bench"
+ ]
+}

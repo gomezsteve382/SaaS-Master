@@ -1,0 +1,63 @@
+{
+ "method_26_h": {
+  "summary": "The Dotfuscator decryption stub. Fully disassembled.",
+  "algorithm_confirmed": "ToCharArray; key = 0x6DDC67B5 + salt; for each char: lo = (char & 0xFF) XOR (key&0xFF); key++; hi = ((char>>8)&0xFF) XOR (key&0xFF); key++; swap lo/hi; recompose char as (hi<<8) | lo; Intern result string.",
+  "magic_constant": "0x6DDC67B5 (decimal 1843161013) found at IL offset 0x07",
+  "matches_provenance": true
+ },
+ "method_1088_k_method_1090_i_method_1092_g": {
+  "summary": "Three nearly-identical 138-byte bignum-array operations.",
+  "differences": "Method[1088] uses XOR+ADD, Method[1090] uses ADD+ADD, Method[1092] uses AND+ADD on limbs (per-limb operations differ).",
+  "common_pattern": "Iterate two ushort-array limbs; for each i: tmp = a[i] OP b[i]; tmp += carry; carry = (tmp & T_0972) >> ((carry & 0x3F)); a[i] = tmp",
+  "limb_size": "ushort (16-bit) via ldelem.u2",
+  "static_constants": [
+   "T0x04000971 (likely 0xFFFF or shift base)",
+   "T0x04000972 (likely 0xFFFF_FFFF mask)"
+  ],
+  "interpretation": "Schoolbook multi-precision integer arithmetic: 1088=XOR-and-carry, 1090=ADD-and-carry, 1092=AND-and-carry. The XOR variant is unusual \u2014 could be a custom hash-mix step."
+ },
+ "method_1097_k": {
+  "summary": "25-byte bignum operation wrapper.",
+  "calls": [
+   "Method[1101]:h (multiply)",
+   "Method[1099]:i",
+   "Method[1098]:j"
+  ]
+ },
+ "method_1098_j": {
+  "summary": "43-byte bignum trim/right-shift helper. Walks down from len-1 looking for first non-zero limb, then resizes via Method[1102]:d."
+ },
+ "method_1101_h_BIGNUM_MULTIPLY": {
+  "summary": "37-byte bignum MULTIPLY primitive.",
+  "key_ops": "ldsfld T0x4000971; mul (multiply by the static field constant)",
+  "calls": [
+   "Method[1104]:b (allocate result buffer)",
+   "Method[1102]:d (resize)"
+  ]
+ },
+ "method_1103_g_BIGNUM_DIVMOD": {
+  "summary": "159-byte bignum DIVIDE + MODULO primitive.",
+  "key_ops": "div; Math.Floor; rem; conv.i4 conversion + per-limb shl/shr with mask 0x3F (6-bit) and bigger 32-bit limb math via T_0972",
+  "interpretation": "Implements schoolbook long-division on multi-limb integers. Mask 0x3F = 63 indicates 64-bit-word ops (limb is uint32 with shift count limited to 0-63)."
+ },
+ "method_1104_b": {
+  "summary": "45-byte buffer-allocation helper. Computes ceil(arg1 / T_0971) + 1 limbs.",
+  "use": "Allocates the result buffer for a bignum operation."
+ },
+ "method_1107_d_STRING_TO_BIGNUM": {
+  "summary": "203-byte string -> bignum decoder. Walks string chars, looks up via static T_0979 table, multiplies-add via T_0974, calls Method[26]:h to decrypt portions inline.",
+  "use": "Parses W7 catalog's per-ECU (n, o, p) ASCII parameters into BigInteger form."
+ },
+ "method_1301_l": {
+  "summary": "337-byte HEX STRING TO BYTE ARRAY converter.",
+  "key_ops": "Sets up 16-element character lookup [0-9A-F] = [48..57, 65..70]; parses 2 hex chars at a time via MR[505]:ToByte; outputs byte array.",
+  "use": "Converts the W7's intermediate hex output back to raw bytes for the final cipher result."
+ },
+ "static_fields_used_as_cipher_constants": {
+  "T0x04000971": "Used in shl/shr/mul/rem operations as the limb size constant.",
+  "T0x04000972": "Used as bitmask for limb-truncate operations.",
+  "T0x04000974": "String / charset used by Method[1107].",
+  "T0x04000979": "Lookup table used by Method[1107]."
+ },
+ "summary": "The W7 cipher is a CUSTOM multi-precision integer algorithm using ushort-limb math. The 6 first-layer methods (1075/1079/1080/1087/1089/1091/1096/1106/1126) wrap the 9 second-layer primitives (1088/1090/1092/1097/1098/1101/1103/1104/1107). Method[1101]:h is bignum MULTIPLY, Method[1103]:g is bignum DIV/MOD. Limb size is uint16 (ldelem.u2) with shift masks of 0x3F = 6 bits (= 64-bit constants). The cipher fits the W7 PROVENANCE entry: 'big-integer cipher with 360 per-ECU (n, o, p) parameter triples'. Translating to JS requires reading 2 more static field values (T_0971, T_0972) from the FieldRVA section."
+}

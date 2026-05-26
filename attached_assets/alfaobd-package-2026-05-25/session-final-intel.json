@@ -1,0 +1,67 @@
+{
+ "cda_swf": {
+  "source_file": "CDA.swf 4.15 MB compressed / 8.72 MB decompressed",
+  "note": "Chrysler Diagnostic Application v6 \u2014 wiTECH 2 Flash UI shell built with Adobe Flex + Parsley DI",
+  "total_ascii_strings": 46283,
+  "service_class_names_unique": 396,
+  "critical_findings": [
+   {
+    "name": "ISecretKeyService",
+    "context": "hidden interface for SKIM/Immobilizer key handling \u2014 declared but not implemented in SWF (delegates to wiTECH backend)"
+   },
+   {
+    "name": "com.chrysler.cda.event.message.securitygateway",
+    "context": "Security Gateway message namespace \u2014 used for SGW (0x74F/0x76F) authenticated routing"
+   },
+   {
+    "name": "WiTECHServiceLoader / WebServiceBroker / WebServiceModel",
+    "context": "wiTECH backend service architecture \u2014 confirms CDA delegates real UDS to remote backend"
+   },
+   {
+    "name": "READ_PROXI / READ_EOL / READ_102A_EOL / EOL_102A",
+    "context": "confirms PROXI 22 20 23 + EOL 22 10 2A + EOL alt 22 40 A2 are all directly named"
+   },
+   {
+    "name": "EOLDDEEntriesController / Impl / PM",
+    "context": "End-of-Line Diagnostic Data Element handling"
+   },
+   {
+    "name": "TriggerECUEOLFilter",
+    "context": "ECU EOL routine triggering primitive"
+   },
+   {
+    "name": "EnterDiagnosticSessionCommand / Message",
+    "context": "session-management commands"
+   },
+   {
+    "name": "service/services.xml",
+    "context": "the wiTECH service definition file \u2014 confirms the 285 backend endpoints come from this"
+   }
+  ]
+ },
+ "help_pdf": {
+  "source_file": "AlfaOBD_Help.pdf (1.1 MB)",
+  "critical_findings": [
+   {
+    "name": "CodeCard input is 5 DECIMAL digits",
+    "context": "UI label: \"Enter Code Card Data (5 digits)\" \u2014 range 00000-99999. The 5-byte hex constants 4083618902 and 3E07860DAD found in IL near 27 04 frames are NOT raw CodeCards \u2014 they are computed/transformed/expected values."
+   },
+   {
+    "name": "Yellow Adapter requirement",
+    "context": "Body Computer Marelli 1G ECUs require physical YELLOW adapter (OBD pin 1+9 \u2192 interface pin 6+14) for legacy non-CAN buses."
+   },
+   {
+    "name": "Demo mode limits",
+    "context": "15-minute runtime limit, only first active diagnostic available, no manual connect. All other features operate in demo."
+   },
+   {
+    "name": "License activation flow",
+    "context": "Email license request to dealer or info@alfaobd.com \u2192 receive activation code \u2192 enter in About tab \u2192 Activate."
+   },
+   {
+    "name": "Update endpoint",
+    "context": "Application checks http://www.alfaobd.com/update.txt at startup. Auto-downloads updates if newer version available."
+   }
+  ]
+ }
+}

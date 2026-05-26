@@ -1,0 +1,53 @@
+{
+ "w6_cipher_core": {
+  "method_index": 204,
+  "method_name": "w6",
+  "rva_hex": "0x60050",
+  "il_size_bytes": 138,
+  "algorithm_summary": "Linear bit-shuffle: chain of shl, shr, and 0xFF, and 0xFFFF, xor, add operations on input r, s parameters. Returns 2 bytes via conv.u1 x2.",
+  "opcode_sequence_at_entry": [
+   "call Method[1075]:a   ; load param",
+   "ldc.i4.0",
+   "ldc.i4.0",
+   "shl",
+   "ldc.i4.1",
+   "ldc.i4 0xFF",
+   "and",
+   "add",
+   "ldc.i4.2",
+   "shr",
+   "ldc.i4 0xFFFF",
+   "and",
+   "xor",
+   "shl",
+   "ldc.i4 0xFFFF",
+   "and",
+   "xor",
+   "ldc.i4 0xFFFF",
+   "and"
+  ],
+  "confirmed_consistent_with": "PROVENANCE entry \"ht linear bit-shuffle\" + alfaobd_seedkey_reference.py"
+ },
+ "w7_cipher_harness": {
+  "method_index": 203,
+  "method_name": "w7",
+  "rva_hex": "0x5FD44",
+  "il_size_bytes": 765,
+  "algorithm_summary": "W7 cipher invocation harness \u2014 loads 23 decrypted string parameters via Method[26]:h (Dotfuscator decrypt) with salt 8, then chains calls to helper cipher methods.",
+  "cipher_helpers_called": [
+   "Method[1075]:a",
+   "Method[1080]:a",
+   "Method[1079]:o",
+   "Method[1089]:j",
+   "Method[1091]:h",
+   "Method[1126]:a",
+   "Method[1087]:l",
+   "Method[1106]:e",
+   "Method[1096]:b"
+  ],
+  "still_unknown": "Full algebraic translation of the 6 helper methods to produce a working pure-JS w7 implementation."
+ },
+ "ui_event_handlers_not_cipher": {
+  "note": "Methods 1594 and 1595 are also named w7/w6 but are UI button event handlers (ListControl::get_SelectedIndex + String::Concat), NOT cipher code. Easy to confuse by name alone."
+ }
+}

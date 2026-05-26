@@ -3,6 +3,7 @@ import { Card, Btn } from '../lib/ui.jsx';
 import { C } from '../lib/constants.js';
 import { parseTrace } from '../lib/udsSessionAnalyzer/parser.js';
 import { analyzeSession } from '../lib/udsSessionAnalyzer/analyze.js';
+import { resolveSession } from '../lib/udsSessionAnalyzer/resolver.js';
 import { consumeUdsAnalyzerHandoff } from '../lib/canRecorder.js';
 import {
   buildShareUrl,
@@ -67,7 +68,6 @@ function DiagCard({ item }) {
       <div style={{
         fontSize: 11,
         color: C.ts,
-        paddingLeft: 22,
         lineHeight: 1.6,
         borderLeft: `2px solid ${col}40`,
         marginLeft: 6,
@@ -121,6 +121,46 @@ function ExchangeRow({ ex, idx }) {
       </div>
       {open && (
         <div style={{ padding: '0 12px 10px 28px', fontSize: 11 }}>
+          {ex.resolved && (ex.resolved.ecuName || ex.resolved.routineLabel) && (
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>
+              {ex.resolved.ecuName && (
+                <span
+                  data-testid="uds-analyzer-resolved-ecu"
+                  style={{
+                    display: 'inline-block',
+                    padding: '2px 8px',
+                    borderRadius: 10,
+                    fontSize: 10,
+                    fontWeight: 700,
+                    background: `${C.a4}15`,
+                    color: C.a4,
+                    border: `1px solid ${C.a4}40`,
+                    fontFamily: "'JetBrains Mono'",
+                  }}
+                >
+                  ECU: {Array.isArray(ex.resolved.ecuName) ? ex.resolved.ecuName.join(' / ') : ex.resolved.ecuName}
+                </span>
+              )}
+              {ex.resolved.routineLabel && (
+                <span
+                  data-testid="uds-analyzer-resolved-routine"
+                  style={{
+                    display: 'inline-block',
+                    padding: '2px 8px',
+                    borderRadius: 10,
+                    fontSize: 10,
+                    fontWeight: 700,
+                    background: `${C.gn}15`,
+                    color: C.gn,
+                    border: `1px solid ${C.gn}40`,
+                    fontFamily: "'JetBrains Mono'",
+                  }}
+                >
+                  Routine: {ex.resolved.routineLabel}
+                </span>
+              )}
+            </div>
+          )}
           {ex.requestBytes && (
             <div style={{ marginBottom: 4 }}>
               <span style={{ color: C.tm, fontWeight: 700, marginRight: 6 }}>REQ:</span>
@@ -191,7 +231,7 @@ function ExchangeRow({ ex, idx }) {
   );
 }
 
-function SummaryCard({ summary }) {
+function SummaryCard({ summary, ecuCoverage }) {
   const saColor = summary.securityAccessUnlocked ? C.gn
     : summary.lockoutActive ? C.er
     : summary.securityAccessSeen ? '#F59E0B'
@@ -220,8 +260,14 @@ function SummaryCard({ summary }) {
             : '—',
           color: summary.firstFailure ? C.er : C.gn,
         },
+        ...(ecuCoverage ? [{
+          label: 'ECU COVERAGE',
+          value: `${ecuCoverage.resolved} of ${ecuCoverage.total} exchanges resolved`,
+          color: ecuCoverage.resolved > 0 ? C.a4 : C.tm,
+          testId: 'uds-analyzer-ecu-coverage',
+        }] : []),
       ].map(item => (
-        <div key={item.label} style={{
+        <div key={item.label} data-testid={item.testId} style={{
           padding: '10px 14px',
           background: C.c2,
           borderRadius: 10,
@@ -266,7 +312,7 @@ export default function UdsAnalyzerTab() {
       return;
     }
     setParseWarning(false);
-    const session = analyzeSession(parsed.lines);
+    const session = resolveSession(analyzeSession(parsed.lines));
     setResult({ parsed, session });
   }, []);
 
@@ -427,6 +473,15 @@ export default function UdsAnalyzerTab() {
       acc[e.severity] = (acc[e.severity] || 0) + 1;
       return acc;
     }, { OK: 0, WARN: 0, FAIL: 0 });
+  }, [result]);
+
+  // Task #826 — ECU COVERAGE metric: how many exchanges had their request
+  // CAN ID reverse-resolved to a friendly ECU name via the alfaobd-il map.
+  const ecuCoverage = useMemo(() => {
+    if (!result) return null;
+    const total = result.session.exchanges.length;
+    const resolved = result.session.exchanges.filter(e => e.resolved?.ecuName).length;
+    return { total, resolved };
   }, [result]);
 
   return (
@@ -610,7 +665,7 @@ export default function UdsAnalyzerTab() {
         <>
           <Card style={{ marginBottom: 14 }}>
             <div style={{ fontWeight: 800, fontSize: 11, color: C.sr, marginBottom: 12, letterSpacing: 2 }}>📊 SESSION SUMMARY</div>
-            <SummaryCard summary={result.session.summary} />
+            <SummaryCard summary={result.session.summary} ecuCoverage={ecuCoverage} />
           </Card>
 
           <Card style={{ marginBottom: 14 }}>
