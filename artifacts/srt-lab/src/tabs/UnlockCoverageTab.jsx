@@ -31,7 +31,7 @@ function verificationTooltip(meta) {
   if (meta.vin) parts.push(`VIN ${meta.vin}`);
   if (meta.notes) parts.push(`notes: ${meta.notes}`);
   return parts.length === 0
-    ? "Bench-verified (no operator metadata recorded)"
+    ? "Bench-verified (no verifier metadata recorded)"
     : `Verified ${parts.join(" · ")}`;
 }
 
@@ -2500,7 +2500,7 @@ function ConflictMergeDialog({
   const local = conflict.local || {};
   const server = conflict.server || {};
   const fields = [
-    {key: "operator", label: "Operator"},
+    {key: "operator", label: "Verified by"},
     {key: "vin", label: "VIN"},
     {key: "notes", label: "Notes"},
   ];
@@ -2909,7 +2909,7 @@ function VerificationsLogCard({
     // quotes by doubling them. Keeps newlines inside notes intact since the
     // surrounding quotes make that legal.
     const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const header = ["verifiedAt", "operator", "vin", "capability", "entryId", "notes"];
+    const header = ["verifiedAt", "verifiedBy", "vin", "capability", "entryId", "notes"];
     const lines = [header.map(esc).join(",")];
     for (const r of filtered) {
       lines.push([
@@ -3010,7 +3010,7 @@ function VerificationsLogCard({
         <>
           <div style={{display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 10, alignItems: "center"}}>
             <label style={{display: "flex", alignItems: "center", gap: 6, fontFamily: "'Nunito'", fontSize: 11, color: C.tm}}>
-              Operator
+              Verified by
               <select
                 data-testid="verifications-log-operator"
                 value={operatorFilter}
@@ -3113,7 +3113,7 @@ function VerificationsLogCard({
               <thead style={{background: "#0000000A"}}>
                 <tr>
                   <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm, letterSpacing: 1}}>WHEN</th>
-                  <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm, letterSpacing: 1}}>OPERATOR</th>
+                  <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm, letterSpacing: 1}}>VERIFIED BY</th>
                   <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm, letterSpacing: 1}}>VIN</th>
                   <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm, letterSpacing: 1}}>CAPABILITY</th>
                   <th style={{textAlign: "left", padding: "6px 10px", fontSize: 10, color: C.tm, letterSpacing: 1}}>NOTES</th>

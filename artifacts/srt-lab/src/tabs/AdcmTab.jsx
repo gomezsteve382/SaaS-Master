@@ -215,7 +215,7 @@ export default function AdcmTab(){
     setBusy('Writing all VIN DIDs...');
     updateStatus('ADCM','writing');
     addLog('═══ WRITING VINs TO '+mod.id+' ═══','info');
-    if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
+    if(confirmData.technician)addLog('Verifier: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
     const target=vin.toUpperCase();
     // Pick the engine for this write (bridge if SGW-routed). The registry

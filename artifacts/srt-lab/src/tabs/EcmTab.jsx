@@ -158,7 +158,7 @@ export default function EcmTab({vehicle}){
     setBusy('Writing ECM VIN...');
     updateStatus('ECM','writing');
     addLog('═══ ECM VIN WRITE ═══','info');
-    if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
+    if(confirmData.technician)addLog('Verifier: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
     // Bridge engine when SGW-routed; programVin replays the registry's
     // 10-algo GPEC platform sweep on the chosen channel.

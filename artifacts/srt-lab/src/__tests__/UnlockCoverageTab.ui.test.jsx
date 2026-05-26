@@ -1026,7 +1026,7 @@ describe("UnlockCoverageTab — UI", () => {
         expect(capturedBlob).toBeTruthy();
         const csv = await capturedBlob.text();
         const lines = csv.split("\r\n");
-        expect(lines[0]).toBe('"verifiedAt","operator","vin","capability","entryId","notes"');
+        expect(lines[0]).toBe('"verifiedAt","verifiedBy","vin","capability","entryId","notes"');
         // Only M. Wong row remains after filter — and embedded quote is
         // doubled per RFC 4180.
         expect(lines.length).toBe(2);

@@ -655,7 +655,7 @@ export default function BcmTab({vehicle}){
     setBusy('Writing VIN...');
     setModuleStatus(p=>({...p,BCM:'writing'}));
     addLog('═══ BCM VIN WRITE ═══','info');
-    if(confirmData.technician)addLog('Technician: '+confirmData.technician,'info');
+    if(confirmData.technician)addLog('Verifier: '+confirmData.technician,'info');
     if(confirmData.titleRef)addLog('Title reference: '+confirmData.titleRef,'info');
     // Pick the engine: bridge channel when SGW is mandated by the VIN year,
     // otherwise the live ELM/STN adapter. programVin() then drives unlock +
