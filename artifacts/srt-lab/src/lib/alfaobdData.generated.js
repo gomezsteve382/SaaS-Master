@@ -2120,7 +2120,7 @@ export const DIAG_NAMES = {
   "2505": "Program Ignition FOBIKs Baseline System",
   "2506": "reciprocal lambda signal of(the gas mass flow, downstream of the exhaust manifold",
   "2507": "Program Ignition FOBIKs Highline System",
-  "2508": "governor output duty cycle for LSU heater 0",
+  "2508": "Transfer secret key",
   "2510": "reciprocal lambda vaLue, MeAsuRED",
   "2511": "reciprocal lambda value, measured from LsU 0",
   "2512": "direct O2 voltage value from the ADC (before segment filtering) 0",

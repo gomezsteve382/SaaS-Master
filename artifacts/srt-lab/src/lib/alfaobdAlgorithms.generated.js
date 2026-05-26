@@ -4,7 +4,8 @@
 //
 // w6: 380 entries (fully decoded — see alfaW6 in algos.js)
 // w7: 360 entries (DATA ONLY — cipher core not yet translated)
-// dispatch: 10 keys (8 ECU families + per-ECU branches)
+// cipher_algorithm_dispatch: 10 keys (8 ECU families + per-ECU branches)
+// NOTE: AOBD_DISPATCH is the SecurityAccess cipher-wrapper selector, NOT UDS RoutineControl dispatch.
 //
 // VERIFICATION STATUS — "w7 ≡ w6 with p=0xFFFFFFFF" hypothesis (task #424):
 // The SRTLabJailbreakEdition_v2 paste asserted that the w7 cipher collapses
