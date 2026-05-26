@@ -19,6 +19,8 @@
  * ═══════════════════════════════════════════════════════════════════════════ */
 
 import React, { useState, useCallback, useMemo, useRef, useEffect, useContext } from "react";
+import WorkspaceSidebar from "./components/WorkspaceSidebar.jsx";
+import ReferencePanel, { ReferencePanelTrigger } from "./components/ReferencePanel.jsx";
 import GpecTab from "./tabs/GpecTab";
 import OBDTab from "./tabs/OBDTab";
 import SeedTab from "./tabs/SeedTab";
@@ -945,17 +947,52 @@ const WORKSPACE_TABS = [
   {id:'sigdisc',   i:'🛰️', l:'SIGNAL DISC', s:'TUMFTM sweep · record · match'},
   {id:'canuniverse',i:'🌐', l:'CAN UNIVERSE', s:'awesome-canbus + Eclipse SDV catalog'},
   {id:'loganalyser',i:'📜',l:'LOG ANALYSER',s:'candump · UDS · iddiff · catalog growth'},
-  {id:'investigation',i:'🕵️',l:'SWARM',s:'Multi-agent ECU investigation swarm'},
-];
+]
+  // Drop the INFO entry — it now lives behind the floating "?" reference
+  // panel rather than occupying a sidebar slot. The id remains a valid
+  // tab id (see VALID_TAB_IDS) so deep-link calls still route correctly.
+  .filter(t => t.id !== 'info')
+  // The horizontal tab strip historically had two entries with id
+  // `investigation`; keep the first one (the 🔬 SWARM card) and drop
+  // any later duplicates so the sidebar renders one button per id.
+  .filter((t, i, a) => a.findIndex(x => x.id === t.id) === i);
+
+/* Maps every workspace tab id to one of five sidebar categories.
+ * INFO is intentionally absent — it lives in the reference panel. */
+const WORKSPACE_CATEGORIES = {
+  // PROGRAM — anything that writes to a module / produces a flashable file.
+  jailbreak:'PROGRAM', keyprog:'PROGRAM', keymgr:'PROGRAM', livekey:'PROGRAM',
+  vinprog:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
+  ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', gpecunlock:'PROGRAM',
+  cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM',
+  // LIVE — connected OBD/J2534 sessions and external bench tools.
+  obd:'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE',
+  // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
+  dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE',
+  proxi:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
+  loganalyser:'ANALYZE', workflow:'ANALYZE',
+  // TOOLS — cross-cutting catalogs and coverage dashboards.
+  unlockcov:'TOOLS', alfaobd:'TOOLS', alfaintel:'TOOLS', dispatchcov:'TOOLS',
+  sigdisc:'TOOLS',
+  // RESEARCH — experimental / read-only knowledge surfaces (collapsed by default).
+  binintel:'RESEARCH', patterns:'RESEARCH', kg:'RESEARCH', investigation:'RESEARCH',
+  canuniverse:'RESEARCH',
+};
 
 function VehicleWorkspace({vehicleId, onBack}){
   const vehicle = VEHICLES[vehicleId];
   // The FCA Analyzer tab was removed; if any persisted/deep-linked state
   // still asks for it, fall back to the Dumps tab so the workspace never
   // renders a blank screen.
-  const VALID_TAB_IDS = useMemo(()=>new Set(WORKSPACE_TABS.map(t=>t.id)),[]);
+  // INFO is intentionally absent from the sidebar (it lives in the
+  // reference panel), but its tab id stays in the valid set so that
+  // deep-link / event-driven `setTab('info')` calls keep working —
+  // they open the slide-out reference panel instead of swapping tabs.
+  const VALID_TAB_IDS = useMemo(()=>new Set([...WORKSPACE_TABS.map(t=>t.id), 'info']),[]);
   const [tab, setTabRaw] = useState('dumps');
+  const [referenceOpen, setReferenceOpen] = useState(false);
   const setTab = useCallback((next)=>{
+    if (next === 'info') { setReferenceOpen(true); return; }
     setTabRaw(VALID_TAB_IDS.has(next) ? next : 'dumps');
   },[VALID_TAB_IDS]);
   /* Window-level "open this tab" channel so deeply-nested components
@@ -1172,11 +1209,17 @@ function VehicleWorkspace({vehicleId, onBack}){
             🔧 WIZARD
           </button>
         </div>
-        <div style={{display:'flex',padding:'12px 16px 0',overflowX:'auto',gap:2}}>
-          {WORKSPACE_TABS.map(t=>{const a=tab===t.id;return<button key={t.id} onClick={()=>setTab(t.id)} style={{padding:'11px 18px 13px',border:'none',cursor:'pointer',background:a?C.bg:'transparent',borderRadius:'11px 11px 0 0',color:a?accent:'rgba(255,255,255,0.45)',fontFamily:"'Nunito'",fontWeight:a?900:700,fontSize:11,letterSpacing:1.2,transition:'all 0.25s',boxShadow:a?'0 -4px 16px rgba(0,0,0,0.1)':'none',whiteSpace:'nowrap'}}><span style={{fontSize:14,marginRight:4,filter:a?'none':'grayscale(1) brightness(2)'}}>{t.i}</span>{t.l}<div style={{fontSize:7,marginTop:1,opacity:.4,letterSpacing:1}}>{t.s}</div></button>;})}
-        </div>
+        <div style={{height:14}}/>
       </div>
-      <div style={{maxWidth:1200,margin:'0 auto',padding:'22px 22px 60px'}}>
+      <div style={{display:'flex',alignItems:'flex-start',gap:0,minHeight:'calc(100vh - 140px)'}}>
+        <WorkspaceSidebar
+          tabs={WORKSPACE_TABS}
+          categories={WORKSPACE_CATEGORIES}
+          activeTab={tab}
+          onSelect={setTab}
+          accent={accent}
+        />
+      <div style={{flex:1,minWidth:0,maxWidth:1200,margin:'0 auto',padding:'22px 22px 60px'}}>
         {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
         {tab==='keyprog'   && <KeyProgTab/>}
@@ -1230,6 +1273,12 @@ function VehicleWorkspace({vehicleId, onBack}){
           return result;
         }}/>}
       </div>
+      </div>
+
+      <ReferencePanelTrigger onOpen={()=>setReferenceOpen(true)}/>
+      <ReferencePanel open={referenceOpen} onClose={()=>setReferenceOpen(false)} vehicle={vehicle}>
+        <InfoTab vehicle={vehicle}/>
+      </ReferencePanel>
 
       {/* ── Workspace-level Mismatch Wizard ── */}
       {workspaceWizardOpen && (
