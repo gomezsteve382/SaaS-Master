@@ -249,26 +249,27 @@ export default function J2534UdsConsoleTab() {
     addLog("Disconnected — log cleared.", "info");
   }, [addLog]);
 
-  /* ── Step 1: probe bridge ────────────────────────────────────────────── */
+  /* ── Connect: daemon check → PassThruOpen → ISO15765 channel ───────── */
   const connectBridge = useCallback(async () => {
-    addLog("Probing bridge at " + urlRef.current + " …");
+    addLog("Connecting to J2534 device …");
     setBusy(true);
     try {
+      /* 1. Ping the bridge daemon */
       const st = await getStatus(urlRef.current);
       if (!st || !st.ok) {
-        addLog("Cannot reach bridge: " + (st?.error || "no response"), "error");
-        addLog("Make sure j2534_bridge.py is running (port 8765).", "error");
+        addLog("Bridge software not running — start j2534_bridge.py (port 8765).", "error");
         setStatus("disconnected");
         return;
       }
-      addLog(`Bridge daemon OK — vendor=${st.vendor || "?"} platform=${st.platform || "?"} bridge=${st.bridgeVersion || "?"}`, "success");
-      addLog("Hardware presence is confirmed when you click Open Device.", "warn");
-      if (st.dllPath) addLog("DLL: " + st.dllPath);
       if (!st.dllLoaded) {
-        addLog("No DLL loaded — restart bridge with --dll <vendor DLL>", "warn");
-        setStatus("bridge_connected");
+        addLog("Bridge is up but no J2534 DLL loaded — restart bridge with --dll <vendor DLL>.", "error");
+        setStatus("disconnected");
         return;
       }
+      addLog(`Bridge daemon OK (${st.vendor || "?"}) — checking hardware …`);
+      if (st.dllPath) addLog("DLL: " + st.dllPath);
+
+      /* 2. Shortcut: daemon reports device already open */
       if (st.deviceOpen && st.channelConnected) {
         addLog("Device already open and ISO15765 channel is up.", "success");
         await startKeepalive();
@@ -276,32 +277,46 @@ export default function J2534UdsConsoleTab() {
         return;
       }
       if (st.deviceOpen) {
+        addLog("Device already open — connecting CAN …");
+        setStatus("device_open");
+        /* fall through to CAN connect below */
+      } else {
+        /* 3. PassThruOpen — this is where missing hardware is detected */
+        const opened = await openBridge(urlRef.current);
+        if (!opened || !opened.ok) {
+          addLog("No J2534 device detected: " + (opened?.error || "PassThruOpen failed"), "error");
+          addLog("Plug in the adapter and try again.", "error");
+          setStatus("disconnected");
+          return;
+        }
+        addLog(`Device opened${opened.versions?.firmware ? " fw " + opened.versions.firmware : ""}`, "success");
+        setStatus("device_open");
+      }
+
+      /* 4. ISO15765 channel */
+      addLog("Opening ISO15765 channel @ 500 kbps …");
+      const c = await bridgeConnect({ protocol: PROTOCOL_ISO15765, flags: 0, baudrate: 500000 }, urlRef.current);
+      if (!c || !c.ok) {
+        addLog("CAN channel failed: " + (c?.error || "unknown"), "error");
         setStatus("device_open");
         return;
       }
-      setStatus("bridge_connected");
+      addLog("CAN bus up — ISO15765 500 kbps", "success");
+      await startKeepalive();
+      setStatus("can_connected");
     } finally {
       setBusy(false);
     }
   }, [addLog]);
 
-  /* ── Step 2+3: open device + connect channel ────────────────────────── */
+  /* ── Connect CAN (retry after device_open) ───────────────────────────── */
   const openDevice = useCallback(async () => {
-    addLog("Opening J2534 device (PassThruOpen) …");
+    addLog("Connecting ISO15765 channel @ 500 kbps …");
     setBusy(true);
     try {
-      const opened = await openBridge(urlRef.current);
-      if (!opened || !opened.ok) {
-        addLog("Open failed: " + (opened?.error || "unknown"), "error");
-        return;
-      }
-      addLog(`Device opened${opened.versions?.firmware ? " fw " + opened.versions.firmware : ""}`, "success");
-      setStatus("device_open");
-
-      addLog("Connecting ISO15765 channel @ 500 kbps …");
       const c = await bridgeConnect({ protocol: PROTOCOL_ISO15765, flags: 0, baudrate: 500000 }, urlRef.current);
       if (!c || !c.ok) {
-        addLog("Channel connect failed: " + (c?.error || "unknown"), "error");
+        addLog("CAN channel failed: " + (c?.error || "unknown"), "error");
         return;
       }
       addLog("CAN bus up — ISO15765 500 kbps", "success");
@@ -699,11 +714,8 @@ export default function J2534UdsConsoleTab() {
           <div style={{ flex: 1, minWidth: 0, fontSize: 11, color: S.dim, fontFamily: S.mono, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {urlRef.current}
           </div>
-          {status === "disconnected" && (
-            <Btn onClick={connectBridge} disabled={busy} color={S.blue}>Connect Bridge</Btn>
-          )}
-          {status === "bridge_connected" && (
-            <Btn onClick={openDevice} disabled={busy} color={S.yellow}>Open Device</Btn>
+          {(status === "disconnected" || status === "bridge_connected") && (
+            <Btn onClick={connectBridge} disabled={busy} color={S.blue}>Connect</Btn>
           )}
           {status === "device_open" && (
             <Btn onClick={openDevice} disabled={busy} color={S.green}>Connect CAN</Btn>
