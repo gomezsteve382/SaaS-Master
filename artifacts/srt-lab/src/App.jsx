@@ -50,6 +50,7 @@ import Gpec2aUnlockTab from "./tabs/Gpec2aUnlockTab.jsx";
 import ExternalToolsTab from "./tabs/ExternalToolsTab.jsx";
 import RadioCodesTab from "./tabs/RadioCodesTab.jsx";
 import BinaryIntelTab from "./tabs/BinaryIntelTab.jsx";
+import DispatchCoverageTab from "./tabs/DispatchCoverageTab.jsx";
 import AlfaObdIntelTab from "./tabs/AlfaObdIntelTab.jsx";
 import UdsAnalyzerTab from "./tabs/UdsAnalyzerTab.jsx";
 import PatternLibraryTab from "./tabs/PatternLibraryTab.jsx";
@@ -935,6 +936,7 @@ const WORKSPACE_TABS = [
   {id:'exttools',  i:'🧰', l:'EXT TOOLS',   s:'FCA PROXI Tool · GPEC Unlocker'},
   {id:'radiocodes',i:'📻', l:'RADIO CODES', s:'Mopar PIN deriver'},
   {id:'binintel',  i:'🧪', l:'BINARY INTEL',s:'External report cross-ref'},
+  {id:'dispatchcov',i:'📊', l:'DISPATCH COV',s:'Full routine→frame gap · 1,696 routines'},
   {id:'alfaintel', i:'🧾', l:'ALFAOBD INTEL',s:'UDS frames · routines · ECU→CAN · DB schema'},
   {id:'udsanalyzer',i:'🔎',l:'UDS ANALYZER',s:'trace → NRC decode · diagnosis'},
   {id:'patterns',  i:'🧬', l:'PATTERNS',    s:'Cross-binary signature library'},
@@ -1206,6 +1208,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='exttools'  && <ExternalToolsTab onOpenTab={setTab}/>}
         {tab==='radiocodes'&& <RadioCodesTab/>}
         {tab==='binintel'  && <BinaryIntelTab/>}
+        {tab==='dispatchcov' && <DispatchCoverageTab/>}
         {tab==='alfaintel' && <AlfaObdIntelTab/>}
         {tab==='udsanalyzer' && <UdsAnalyzerTab/>}
         {tab==='patterns'  && <PatternLibraryTab/>}
