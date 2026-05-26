@@ -557,7 +557,12 @@ export default function UdsAnalyzerTab() {
           value={text}
           onChange={handleChange}
           onPaste={handlePaste}
-          placeholder={`Paste a UDS trace here (auto-analyzes on paste) or open a file — supports:\n  • candump: (0.000) can0 7E0#0322F190CC\n  • TX/RX:   [0.050] TX 7E0 22 F1 90\n  • Req/Resp: [Req] 10 03  /  [Resp] 50 03 00 19 01 F4\n  • Bare hex: 10 03  /  50 03 00 19 01 F4`}
+          placeholder={`Paste a UDS trace here (auto-analyzes on paste) or open a file — supports:
+  • candump: (0.000) can0 7E0#0322F190CC
+  • TX/RX:   [0.050] TX 7E0 22 F1 90
+  • Req/Resp: [Req] 10 03  /  [Resp] 50 03 00 19 01 F4
+  • Raw CAN:  [0.050] 7E0 03 22 F1 90
+  • Bare hex: 10 03  /  50 03 00 19 01 F4`}
           style={{
             width: '100%',
             height: 120,
