@@ -10,118 +10,103 @@ I prefer iterative development and value clear, concise communication. Please as
 
 ## System Architecture
 
-The application is built as a React SPA using Vite, with all binary processing handled client-side via `FileReader` and `Uint8Array`. A `MasterVinContext` manages the current VIN and per-module status across tabs. Core processing helpers in `src/lib/` include `parseModule` for auto-detecting and extracting fields from various ECU types (GPEC2A, RFHUB, BCM, 95640), `crossValidate` for inter-module rule checking and hex diffing, `crc.js` for verified CRC primitives, and `algos.js` for seed-to-key algorithms.
+### Frontend
 
-The UI/UX adheres to a consistent color palette of light base (`#F4F1EC`), SRT Red (`#D32F2F`), and black (`#1A1A1A`) accents, using Nunito for body text, Righteous for display, and JetBrains Mono for hex/data.
+React SPA built with Vite. All binary processing is client-side via `FileReader` and `Uint8Array`. A `MasterVinContext` tracks the active VIN and per-module status across tabs.
 
-The system incorporates a desktop J2534 driver (a separate Python package located in `tools/python-bridge/`) for raw CAN PassThru when Web Serial is insufficient, communicating via a localhost HTTP daemon. Python dependencies for this bridge are managed separately to prevent conflicts with the main build process.
+Core processing helpers in `artifacts/srt-lab/src/lib/`:
+- `parseModule` — auto-detects and extracts fields from GPEC2A, RFHUB, BCM, 95640, XC2268_RFHUB, ZF_8HP_TCU.
+- `crossValidate` — inter-module rule checking, VIN cross-comparison, SEC16/SEC6 verdicts.
+- `securityBytes.js` — single source of truth for the three immobilizer-secret writers (BCM SEC16 split + mirrors + legacy flat, RFHUB Gen2 SEC16, PCM SEC6).
+- `keyProgWizard.js` — `runKeyProgPatch` (full 3-module wizard) + `runRfhBcmSync` (bidirectional SEC16 sync).
+- `crc.js`, `algos.js` — verified CRC primitives + seed-to-key algorithm table.
 
-An API server (`artifacts/api-server/`) provides functionalities like download counters, module backups, diff reports, and an Anthropic AI module assistant. The AI assistant supports both stateless one-shot queries and persistent conversations, with conversation data stored in a database and scoped for per-launcher isolation, enabling features like the Mismatch Wizard to resume chats.
+UI palette: light base `#F4F1EC`, SRT Red `#D32F2F`, black `#1A1A1A`. Fonts: Nunito (body), Righteous (display), JetBrains Mono (hex/data).
 
-Key features and modules include:
-- **Module Programming:** Dedicated tabs for BCM, RFHUB, ECM, and ADCM, handling VIN read/write, key programming, and module-specific unlocks.
-- **Proxi Decoder (read-only):** `ProxiTab` decodes the BCM 0x2023 proxi blob (16 B from `BODY_PN_CONFIG` via `cgwConfig.decodeBcmConfig`) plus the curated DEnn family (`DE00`–`DE0C`, 155 fields) sourced from `bcmFeatureCatalog.generated.js` (extracted from the user-supplied `BCMConfiguration.tsx`). Two input modes — upload a BCM `.bin` (16 B sliced at offset `0x2023`) or paste hex for any DID with optional `62 DD DD` UDS header strip. UI shows a category sidebar (15 buckets, regex match order mirrors the source TSX), search, and grouped/expand-collapse rows. Intentionally no write path; encoder + UDS programmer ship in a follow-up once labels are ground-truthed against a real bench dump. Decoder + tests live in `src/lib/proxiDecoder.js` + `src/lib/__tests__/proxiDecoder.test.js`.
-- **UDS Programmer:** A universal raw UDS console.
-- **Data Management:** Tabs for viewing backups, session logs, and managing module dumps (load, auto-detect, VIN patch, hex viewer, virginizer).
-- **Diagnostics:** Live OBD-II scanning, bench diagnostics, and a comprehensive FCA Analyzer for multi-file, cross-module audits.
-- **Advanced Tools:** Seed-to-key calculator, GPEC/GPEC2A firmware unlocks, CAN bus diagnostics (SWARM), J2534 raw CAN PassThru, and calibration file analysis (C-FLASH).
-- **Workflow Orchestration:** A `WORKFLOW` tab manages persistent `vehicleJobs`, provides a unified Module Census, and facilitates a Fix Plan builder with pluggable `SecurityAccessSource` for unlocking and verification steps.
-- **CAN Universe (read-only catalog):** `CanUniverseTab` (id `canuniverse`) browses ~485 deduplicated CAN bus / OSS automotive projects merged from three upstream lists — `iDoka/awesome-canbus` (CC0), `eclipse-sdv-landscape/the-automotive-collection` (CC-BY-SA-4.0, canonical), and `ariexi/the-automotive-collection` (legacy snapshot) — plus a small user-curated extras block (currently `provrb/obdium`). The merger lives in `scripts/src/fetch-can-catalogs.mjs` (run via `pnpm -F @workspace/scripts run fetch:can-catalogs`) and writes the static `src/lib/awesomeCanbus.generated.js`. UI ships category sidebar with counts, search, source/tag filter chips, star-to-localStorage shortlist (`srtlab.canUniverse.shortlist.v1`) with JSON export, and a "How these plug into SRT Lab" hints panel mapping categories to existing tabs (J2534 Bridge, Live OBD, UDS Programmer, SWARM, Module Inspector). Strictly read-only — no downloads, no executions, no auto-wiring; per-entry integration is a separate decision.
+### Backend services
 
-The `parseModule()` function merges original analysis with richer `fca_module_analyzer` for deeper extraction of data points across GPEC2A, RFHUB, BCM, and 95640 modules. `crossValidate()` performs cross-vehicle matching by comparing VINs and security bytes across different modules.
+- **`artifacts/api-server/`** — Express API. Download counters, module backups, diff reports, Anthropic AI module assistant (stateless one-shot + persistent conversations), `vehicleJobs` + `vehicleJobEvents` persistence, investigation runs.
+- **`tools/python-bridge/`** — separate Python package providing a desktop J2534 driver and localhost HTTP daemon for raw CAN PassThru when Web Serial isn't enough. Python deps are managed in isolation from the main build. **Not modified per user preference.**
 
-File type detection is based on file size and content patterns to identify BCM D-FLASH, 95640 EEPROM, GPEC2A, RFHUB EEE, and general firmware files.
+### `@workspace/uds` library (`lib/uds/`)
 
-## Vendored External Tools (`artifacts/srt-lab/vendor/`)
+Complete ISO 14229-1 UDS TypeScript library, composite pnpm workspace lib:
+- `services.ts`, `nrc.ts`, `constants.ts` — full ISO 14229 service / NRC / constants tables.
+- `build.ts` — frame builders for every standard service (return `Uint8Array`).
+- `parse.ts` — generic + service-specific parsers (RDBI, SecurityAccess, RoutineControl, RequestDownload).
+- `dids.ts` — `0xF1xx` ID block + common DID catalog.
+- `isotp.ts` — ISO 15765-2 SF/FF/CF/FC encode/decode + `segmentPayload`.
+- 54 unit tests in `src/__tests__/uds.test.ts`; README with 5 worked examples.
 
-Two Windows binaries are pre-staged with their license bypass intact for internal bench use:
+The BCM frame builder (`artifacts/srt-lab/src/lib/alfaobdMined/udsFrameBuilder.js`) delegates WDBI to `build.writeDataByIdentifier` and routine/reset frames to the matching lib builders.
 
-- **FCA PROXI Tool v1.2.0.1** (`vendor/fca-proxi/`): PyInstaller bundle of Stellantis' PROXI configuration tool. Uses a Safengine-Shielden DLL sideload (`shfolder.dll`) to bypass the license check. Activated against HWID `2899614-B9E65D4-73F1D98-D6D5DCB`. The EXE must be launched with CWD set to the vendor folder so the sideload resolves before `%SYSTEM32%`.
-- **GPEC Unlocker v1.0** (`vendor/gpec-unlocker/`): WinLicense-protected .NET binary for Continental GPEC2A unlock. No separate license file required.
+### `srt-lab-ultimate` artifact
 
-Each vendor directory contains `manifest.json` (SHA-256 + byte-size for every file) and `README.md`.
+Standalone Reverse-Engineering Workbench (React + Express + Drizzle) running alongside the original `srt-lab`. Two services under `/srtlabu/` (web) and `/srtlabu/api/` (api). Postgres via `pg` + `drizzle-orm/node-postgres`. See [`CHANGELOG.md`](CHANGELOG.md) for the import/promotion history and `artifacts/srt-lab-ultimate/MERGED.md` for remaining follow-ups.
 
-The **External Tools tab** (`src/tabs/ExternalToolsTab.jsx`, id `exttools`) lists both tools with status (present/missing/bridge-offline), a Launch button, and a Reveal in Folder button. Launch and Reveal are handled by three new J2534 bridge endpoints: `POST /tools/status`, `POST /tools/launch`, `POST /tools/reveal`.
+## Tabs and features
 
-The **native PROXI JS module** (`src/lib/fcaProxi.js`) provides: `parseProxi()`, `serializeProxi()`, `buildProxi()`, `validateLicenseJson()`, `verifyManifest()`. All functions are covered by 22 Vitest tests in `src/tabs/__tests__/fcaProxi.test.js`.
+### Module programming
+Dedicated tabs for **BCM**, **RFHUB**, **ECM**, **ADCM** — VIN read/write, key programming, module-specific unlocks. SGW-gated VINs auto-route to the J2534 bridge.
 
-Decompiled Python source from the PyInstaller bundle is in `tools/fca-proxi-extract/src/` (hwid.py, license_check.py, proxi_record.py, uds_transport.py). The full reverse-engineering reference is in `artifacts/srt-lab/docs/fca-proxi-reference.md`. SGW protocol and UDS function map is in `artifacts/srt-lab/docs/sgw-and-uds-reference.md`. Third-party binary intel for `VILLAIN_protected.exe` (CAN IDs, UDS service map, FCA DIDs, RoutineControl IDs, claimed `0x27 0x61` seed-to-key algorithm — all unverified) is in `artifacts/srt-lab/docs/villain-binary-intel.md`. The step-by-step bench methodology for independently verifying the unpacking and the `0x27 0x61` seed/key algorithm is in `artifacts/srt-lab/docs/villain-unpack-workflow.md`. The candidate JS implementation of `CalculateSecurityKey_0x61` (with placeholder S-box) lives in `artifacts/srt-lab/src/lib/_unverified/villain27_61.candidate.js`; the quarantine policy for that directory is in its `README.md`. Nothing in `_unverified/` is imported by application code until the Phase 3 integration gate passes. The algorithm has been **structurally promoted** to `artifacts/srt-lab/src/lib/villain27_61.js` (Steps 1–4 verbatim from the candidate) and surfaced in `algos.js` as `ALGOS` entry `villain_0x61`, gated behind the `ENABLE_VILLAIN_0x61` feature flag exported from `algos.js`. The flag **defaults to `false`** because the embedded S-box is still the identity-permutation placeholder — flipping it true before the real 256-byte `FCA_SBox` is substituted will produce keys the ECU rejects with NRC 0x35. The SeedTab picker (`SeedTab.jsx`) iterates `ALGOS`, so the entry appears in the calculator automatically the moment the flag is flipped. The `_unverified/` candidate file and its bench-pair harness remain in place per the workflow doc's "team preference" footnote (so the existing test fixtures keep running unchanged until real bench pairs land).
+### Module Sync (`ModuleSync.jsx`)
+Cross-module security-byte sync: `runRfhBcmSync` in either direction, `Repair flat 0x40C9 from split records`, full 3-module `runKeyProgPatch`. Refuses to write SEC6 against a virgin GPEC2A.
 
-## `@workspace/uds` Library (`lib/uds/`)
+### UDS Programmer
+Universal raw UDS console driving `@workspace/uds` builders.
 
-A complete ISO 14229-1 UDS (Unified Diagnostic Services) TypeScript library, registered as a composite pnpm workspace lib. Covers:
+### Proxi Decoder (read-only)
+`ProxiTab` decodes the BCM `0x2023` proxi blob (16 B from `BODY_PN_CONFIG` via `cgwConfig.decodeBcmConfig`) plus the curated `DEnn` family (`DE00`–`DE0C`, 155 fields) sourced from `bcmFeatureCatalog.generated.js`. Upload BCM `.bin` or paste hex (optional `62 DD DD` UDS header strip). Category sidebar + search + grouped rows. No write path until labels are ground-truthed against a real bench dump.
 
-- **services.ts** — full ISO 14229 service table (0x10–0x87) with sub-functions
-- **nrc.ts** — complete NRC table (0x10–0x93) with shortName, description, isPending flag
-- **constants.ts** — sessions, resetTypes, securityLevels, routineControlTypes, dtcStatusMask, commCtrlTypes, ioControlParams, dtcSettingTypes, linkControlBaudrates
-- **build.ts** — pure frame builders for every standard UDS service (all return Uint8Array)
-- **parse.ts** — generic parseResponse + service-specific parsers (RDBI, SecurityAccess, RoutineControl, RequestDownload)
-- **dids.ts** — 0xF1xx standard identification block + common DID catalog with decode functions
-- **isotp.ts** — SF/FF/CF/FC encode+decode + segmentPayload for ISO 15765-2 framing
-- **index.ts** — barrel with named exports and `build.*`/`parse.*`/`nrc.*`/`services.*`/`dids.*`/`isotp.*` namespaces
-- **54 unit tests** in `src/__tests__/uds.test.ts` covering all builders, NRC round-trip, ISO-TP segmentation, and parsers
-- **README.md** with 5 worked examples (Read VIN, Write VIN, SecurityAccess handshake, RoutineControl, flash download)
+### Data Management
+Backups, session logs, module-dump load/auto-detect/VIN patch/hex viewer/virginizer.
 
-The existing BCM frame builder (`artifacts/srt-lab/src/lib/alfaobdMined/udsFrameBuilder.js`) was refactored to delegate WDBI frame assembly to `build.writeDataByIdentifier` and routine/reset frames to `build.routineControl`, `build.clearDiagnosticInformation`, and `build.ecuReset`. Public API and read-modify-write bit logic are unchanged.
+### Diagnostics
+Live OBD-II scan, bench diagnostics, **FCA Analyzer** (multi-file cross-module audit).
 
-## Task #634 — Competitor Parity Additions
+### Advanced Tools
+Seed-to-key calculator (iterates `ALGOS`), GPEC/GPEC2A firmware unlocks, **SWARM** CAN bus diagnostics, J2534 raw CAN PassThru, C-FLASH calibration analysis.
 
-Four new bench-tool capabilities, modeled on the screenshot reference in `.local/tasks/task-634.md`:
+### Workflow Orchestration
+`WORKFLOW` tab — persistent `vehicleJobs`, unified Module Census, Fix Plan builder with pluggable `SecurityAccessSource`.
 
-- **XC2268-class RFHUB parser** (`src/lib/xc2268Rfhub.js`): 2019+ internal-flash RFHUB image (64 KB). Detects the `XC22`/`RFHUB` header + variant byte at 0x0020 (0x01/0x02/0x03), reads two VIN slots with CRC16/CCITT, and validates the image-wide BE32 checksum. Refuses to write when the variant tag is unknown or any banner is set. Companion `patchXc2268Vin()` re-stamps VIN slots and re-computes both per-slot CRC16 and the image-wide checksum.
-- **ZF-8HP TCU parser** (`src/lib/zf8hp.js`): `ZF8HP` header + variant 0x45/0x70/0x90 (845RE / 8HP70 / 8HP90), 256 KB / 512 KB / 1 MB images, two VIN slots per variant with CRC16/CCITT, per-64KB-block CRC32 (zlib polynomial). `patchZf8hpVin()` writes VIN + recomputes every touched block's CRC32.
-- **Mopar radio code derivations** (`src/lib/moparRadioCode.js`): pinned algorithm for legacy Mopar RAQ/REF radio codes from serial number (e.g. RBZ12345 → 7176). Deterministic — refuses unsupported serial prefixes.
-- **2019+ Dealer Lockout Bypass** (`src/lib/dealerLockoutBypass.js`): pure 5-step state machine — extended session (0x10 0x03) → alt-level security access (0x27 0x0B) → RoutineControl 0xFF00 with 4-byte clear payload → ECU reset (0x11 0x01) → re-probe 0x27 0x01 to confirm. Uses `@workspace/uds` builders with correct `subFunction` / `resetType` / `type` / `routineIdentifier` / `routineOptionRecord` parameter names. Each step surfaces its exact request bytes / response / NRC.
+### Read-only references
+- **CAN Universe** (`canuniverse`) — ~485 deduplicated CAN/OSS automotive projects merged from three upstream lists + curated extras. Generator: `scripts/src/fetch-can-catalogs.mjs`. Strictly catalog — no downloads/executions.
+- **Binary Intel** (`binintel`) — hand-curated third-party binary-analysis reports cross-referenced against SRT Lab coverage with COVERED / PARTIAL / GAP tags. First report: VILLAIN intel (unverified). Read-only.
+- **Dispatch Coverage** — AlfaOBD routine-ID coverage browser.
 
-Wiring:
-- `parseModule.js` auto-detects both new families before the UNKNOWN bucket via header signatures, and surfaces full parser payloads on `info.xc2268` / `info.zf8hp` (field names mirror the parsers — no rewrapping).
-- `CANONICAL_SIZES_BY_TYPE`, `MODULE_MIN_SIZES`, `MODULE_MIN_LABELS` extended for both new families so the inspector's tooSmall guard works correctly.
-- `FcaModuleInspector.jsx`: `INSPECTOR_TYPES` now includes `XC2268_RFHUB` and `ZF_8HP_TCU` so the cross-module browser surfaces them alongside GPEC2A/RFHUB/BCM.
-- `RfhubTab.jsx`: new `DealerLockoutBypassCard` after the VIN status card. Run button is gated on (a) standard `unlockRfhub` having actually surfaced NRC 0x36 / 0x37 (recorded into `lockoutNrc` state) AND (b) the loaded inspector module being `XC2268_RFHUB`, with a visible "bench override" checkbox as the explicit opt-out. `lockoutNrc` clears on successful unlock or after a successful bypass via `onCleared`.
-- New `RadioCodesTab.jsx` (id `radiocodes`) — registered between `exttools` and `sigdisc` in `App.jsx`.
+### Capabilities added for competitor parity
+- **XC2268-class RFHUB parser** (`xc2268Rfhub.js`) — 2019+ internal-flash RFHUB (64 KB).
+- **ZF-8HP TCU parser** (`zf8hp.js`) — 845RE / 8HP70 / 8HP90.
+- **Mopar radio codes** (`moparRadioCode.js`) — legacy RAQ/REF code derivation.
+- **2019+ Dealer Lockout Bypass** (`dealerLockoutBypass.js`) — 5-step state machine surfaced on `RfhubTab`, gated on observed NRC `0x36`/`0x37` + `XC2268_RFHUB` inspector hint (or bench-override checkbox).
+- **Radio Codes tab** (`radiocodes`).
 
-Catalog: the canonical `public/unlock_catalog.json` is regenerated by `tools/python-bridge/tools/srtlab_unlock_catalog_gen.py` and the `unlock_catalog_extended.json` extension entries are repopulated by `tools/asset-sweep` from the DLL scan. Both are out of scope per the user preference "no edits to `tools/python-bridge/`". A hand-curated companion list of the four new capabilities lives in `public/task634_entries.json`; surfacing it in the Unlock Coverage tab is filed as a deferred follow-up.
+### Vendored external tools (`artifacts/srt-lab/vendor/`)
+Two Windows binaries pre-staged for internal bench use with manifests + READMEs:
+- **FCA PROXI Tool v1.2.0.1** (`vendor/fca-proxi/`) — Stellantis PROXI tool. License bypass via Safengine-Shielden DLL sideload (`shfolder.dll`). Activated against HWID `2899614-B9E65D4-73F1D98-D6D5DCB`. Launch with CWD set to the vendor folder.
+- **GPEC Unlocker v1.0** (`vendor/gpec-unlocker/`) — WinLicense-protected .NET binary for Continental GPEC2A unlock.
 
-## srt-lab-ultimate Artifact (Tasks #842 / #845)
+Surfaced via **External Tools tab** (`exttools`) with status / Launch / Reveal-in-Folder backed by `POST /tools/{status,launch,reveal}` on the J2534 bridge. Native PROXI JS module: `src/lib/fcaProxi.js` (parse/serialize/build + 22 Vitest tests).
 
-`srt-lab-ultimate` is the standalone Reverse-Engineering Workbench (React + Express + Drizzle), originally imported as a verbatim file drop in Task #842 and promoted to a real two-service artifact in Task #845. It runs alongside the original `srt-lab` artifact rather than replacing it.
+Reference docs: `artifacts/srt-lab/docs/{fca-proxi-reference,sgw-and-uds-reference,villain-binary-intel,villain-unpack-workflow}.md`. Decompiled Python source: `tools/fca-proxi-extract/src/`.
 
-**How it runs:** registered as artifact `artifacts/srt-lab-ultimate` (kind `web`, preview path `/srtlabu/`) with two services in `.replit-artifact/artifact.toml` — a Vite web service on `/srtlabu/` (`localPort 5180`) and an Express+`tsx watch` api service on `/srtlabu/api/` (`localPort 5181`, mounted as a more-specific sub-path so the shared proxy routes it correctly). A small prefix-strip middleware at the top of `server/index.ts` (configured via `API_PREFIX`, default `/srtlabu`) rewrites incoming `req.url` so the existing `app.post("/api/*")` route registrations keep working unchanged; the historical static-serve + SPA catch-all at the tail of `server/index.ts` was removed because Vite is its own service now. The 61 legacy client call sites that fetch absolute `/api/...` URLs are handled by an early-boot fetch patch in `client/src/lib/apiBase.ts` (installed from `main.tsx`) that rewrites them to `${import.meta.env.BASE_URL}api/...` so they land at `/srtlabu/api/...` and route to the api service. Workflows: `artifacts/srt-lab-ultimate: web` and `artifacts/srt-lab-ultimate: api`. `pnpm --filter @workspace/srt-lab-ultimate run typecheck` is clean.
-
-**Drizzle port:** the imported schema targeted MySQL/TiDB. `drizzle/schema.ts` was rewritten to `pgTable`/`varchar`/`integer`/`real`/`jsonb` (enums stored as `varchar` to keep named-type churn down), all 16 tables + relations preserved. `server/db.ts` now uses `pg` + `drizzle-orm/node-postgres`. Every `.onDuplicateKeyUpdate({ set })` call site in `server/index.ts` was rewritten to `.onConflictDoUpdate({ target: <table>.id, set })`. `server/ai-learning.ts` is stubbed (safe defaults / no-ops) because it queried `user_profile` and `analysis_goals` tables that were not part of the imported schema. Runtime needs `DATABASE_URL` pointed at a Postgres database and the schema pushed via `drizzle-kit push` (the old MySQL migration SQL under `drizzle/migrations/` was removed; only `meta/` remains).
-
-**Dependency reconciliation:** new minimal `package.json` declares deps via `catalog:` where available (react, vite, zod, drizzle-orm, etc.) and local versions for the long Radix / shadcn tail plus `pg`, `express`, `multer`, `pdfkit`, `archiver`, `form-data`, `@modelcontextprotocol/sdk`, `@trpc/server`, `tw-animate-css`. New `tsconfig.json` extends `../../tsconfig.base.json` with two project-level relaxations needed for the dropped-in upstream code to typecheck without invasive rewrites: `noImplicitReturns: false` and `types: [..., "google.maps"]` (with `@types/google.maps` installed). Two real upstream context-provider prop holes (`WorkbenchWrapper`, `MasterVinProvider`) are annotated with a single `// @ts-expect-error` each. The original `package.json.from-zip` / `pnpm-lock.yaml.from-zip` / `tsconfig.json.from-zip` files are gone. See `artifacts/srt-lab-ultimate/MERGED.md` for the full state and remaining follow-ups.
-
-The original Task #842 file-drop landed in three zones:
-
-- **`artifacts/srt-lab/src/lib/`** — four upstream files added to the existing artifact:
-  - `bigMethodsVocabulary.generated.js` (1.1 MB) — user opted in this time despite the bundle-size note in the sister-repo integration rule.
-  - `j2534Raw.js` — aliased from upstream `j2534.js` to avoid collision with existing `bridgeEngine.js`.
-  - `export-report.ts` + `workbench-types.ts` — TS helpers, resolve via the `@/lib/*` path alias.
-- **`scripts/src/`** — 36 codegen / extractor scripts (`codegen-*.mjs`, `extract-*.mjs`, `generate-*.mjs`, `decrypt-*.mjs`, plus a few Python helpers). All hard-coded `client/src/lib/srt/...` output paths were rewritten to `artifacts/srt-lab/src/lib/...`. A new `codegen:ultimate:*` namespace in `scripts/package.json` exposes them individually but **deliberately not chained into any `codegen:all`** — each one overwrites a `*.generated.js` and several would clobber audited local forks.
-- **`artifacts/srt-lab-ultimate/`** — net-new directory holding the standalone React + Express + Drizzle reverse-engineering workbench (220 client files, 42 server files, MySQL/TiDB schema). **Not registered as an artifact and not wired into the workspace**: its `package.json`, `pnpm-lock.yaml`, and `tsconfig.json` were renamed to `*.from-zip` so pnpm-install does not try to resolve its 90+ deps and `tsc --build` does not pick up the orphan tsconfig. See `artifacts/srt-lab-ultimate/MERGED.md` for the full WIP state and the open questions (Drizzle MySQL→Postgres port, dependency catalog reconciliation, artifact registration decision).
-
-Provenance: `.local/tasks/srt-lab-ultimate-merge.manifest.tsv` lists every zip entry with SHA-256 (349 NEW, 68 IDENTICAL with the `alfaobd-package-2026-05-25/` block imported in a prior task, 1 DIFFER on a charger PNG, 1 DENY on `.project-config.json`, 1 SKIP on a yarn-style wouter patch).
-
-**Secret hygiene:** the source zip included a `.project-config.json` with **live credentials** (`ANTHROPIC_API_KEY`, `JWT_SECRET`, `DATABASE_URL` (TiDB), `DRIZZLE_DATABASE_URL`, `BUILT_IN_FORGE_API_KEY`, `SWARM_DELEGATE_SECRET`, `OAUTH_SERVER_URL`, several VITE_* Forge/OAuth keys, plus AWS STS `git_remote.*`). That file was deny-listed and never copied into the repo, but every credential listed there should be treated as compromised and rotated.
-
-## Binary Intel Tab (Task #649)
-
-`BinaryIntelTab.jsx` (id `binintel`) is a read-only report cross-reference that ingests hand-curated third-party binary-analysis reports from `src/lib/binaryIntel.generated.js` and maps each finding against SRT Lab's existing coverage. The first report is the VILLAIN intel (`VILLAIN_protected.exe`), covering CAN TX/RX IDs, UDS service map, FCA-proprietary DIDs, RoutineControl IDs, and a claimed `0x27/0x61` seed-to-key algorithm (unverified, S-box missing).
-
-For each finding, the tab emits one of three coverage tags — **COVERED** (frame builder or dedicated UI exists), **PARTIAL** (related capability exists but specific sub-function / DID / algorithm step is missing), or **GAP** (net-new) — computed at runtime by the pure `binaryIntelCoverage.js` helper. A prominent "UNVERIFIED — THIRD-PARTY REPORT" banner sits at the top of each report card; the algorithm detail block for `0x27/0x61` is collapsed by default with a second warning that it is not wired into any executable code path. A search/filter box narrows all finding groups. Coverage logic is covered by 18 Vitest tests in `src/lib/__tests__/binaryIntelCoverage.test.js`. Tab is registered between `radiocodes` and `sigdisc` in `App.jsx`. Strictly read-only — no buttons that touch a real ECU.
+### VILLAIN `0x27/0x61` algorithm (quarantined)
+Candidate in `artifacts/srt-lab/src/lib/_unverified/villain27_61.candidate.js`. Structurally promoted to `src/lib/villain27_61.js` and surfaced in `algos.js` as `villain_0x61`, **gated behind `ENABLE_VILLAIN_0x61` (defaults `false`)** because the embedded S-box is still the identity-permutation placeholder. Flipping the flag before the real 256-byte `FCA_SBox` is substituted will produce keys the ECU rejects with NRC `0x35`. SeedTab picker iterates `ALGOS`, so it appears automatically the moment the flag flips.
 
 ## External Dependencies
 
-- **Node.js**: Version 24
-- **pnpm**: As the package manager for monorepo workspaces.
-- **React**: Version 18+ for the frontend SPA.
-- **Vite**: For frontend tooling and bundling.
-- **Anthropic API**: For the AI module assistant (`/api/anthropic/module-assistant`, `/api/anthropic/conversations`).
-- **Web Serial API**: For OBD-II communication.
-- **Python-based J2534 Driver**: A custom desktop application for raw CAN PassThru, communicating via a localhost HTTP daemon. This driver utilizes `pefile` for Python provisioning.
-- **SQLite Database**: Used by the API server for storing AI assistant conversations (`conversations` and `conversation_messages` tables) and `vehicleJobs` + `vehicleJobEvents`.
-- **`ilspycmd`**: Decompiler used by the `alfaobd-extractor` pipeline.
-- **`librsvg` and `ImageMagick`**: Used in `scripts/build-flyer.mjs` for generating marketing flyers.
-- **FCA Seed-to-Key DLLs**: Referenced for unlock coverage in the J2534 desktop driver.
-- **AlfaOBD.exe**: User-supplied binary processed by `alfaobd-extractor` to generate structured JSON data.
+- **Node.js** 24, **pnpm** for monorepo workspaces.
+- **React** 18+, **Vite** for the SPA.
+- **Anthropic API** — AI module assistant (`/api/anthropic/module-assistant`, `/api/anthropic/conversations`).
+- **Web Serial API** — OBD-II.
+- **Python J2534 driver** (`tools/python-bridge/`) — localhost HTTP daemon, uses `pefile`.
+- **PostgreSQL** — API server storage (conversations, vehicleJobs, investigation runs).
+- **`ilspycmd`** — decompiler for the `alfaobd-extractor` pipeline.
+- **`librsvg` + ImageMagick** — `scripts/build-flyer.mjs` marketing flyers.
+- **FCA Seed-to-Key DLLs** — unlock coverage in the J2534 desktop driver.
+- **AlfaOBD.exe** — user-supplied binary processed by `alfaobd-extractor` for structured JSON.
+
+---
+
+Historical notes (per-task narrative, file-drop provenance, secret-rotation history): see [`CHANGELOG.md`](CHANGELOG.md).
