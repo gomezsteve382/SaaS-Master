@@ -13,6 +13,12 @@ import {
 } from "../lib/uds.js";
 import { build } from "@workspace/uds";
 import RelatedCanUniversePanel from "../components/RelatedCanUniversePanel.jsx";
+import {
+  getDispatchFor,
+  getRoutineIds,
+  TIER1_DISPATCH_NOTE,
+  TIER1_DISPATCH_SOURCE,
+} from "../lib/tier1Dispatch.js";
 
 const UDS_CAN_FILTERS = [
   { category: "Protocols", subcategory: "UDS" },
@@ -409,6 +415,8 @@ export default function UdsTab(){
       </div>
     </Card>
 
+    <Tier1ApplicabilityCard routineId={routineId}/>
+
     <Card style={{marginBottom:14}}>
       <div style={{fontWeight:800,fontSize:11,color:C.a4,marginBottom:10,letterSpacing:2}}>🧠 MEMORY BY ADDRESS (0x23 / 0x3D)</div>
       <div style={{fontSize:10,color:C.tm,marginBottom:8,fontStyle:'italic'}}>
@@ -470,4 +478,50 @@ export default function UdsTab(){
       </div>
     </Card>
   </div>;
+}
+
+function Tier1ApplicabilityCard({routineId}){
+  const ridInt = parseInt(routineId,16);
+  const d = Number.isFinite(ridInt) ? getDispatchFor(ridInt) : null;
+  const knownIds = getRoutineIds();
+  return <Card style={{marginBottom:14}}>
+    <div style={{fontWeight:800,fontSize:11,color:C.a4,marginBottom:6,letterSpacing:2}}>
+      🔎 ROUTINE APPLICABILITY (read-only)
+    </div>
+    <div style={{fontSize:10,color:C.tm,marginBottom:8,fontStyle:'italic'}}>
+      Tier-1 lookup for the routine ID above (decimal). Source: {TIER1_DISPATCH_SOURCE}.
+      <br/>{TIER1_DISPATCH_NOTE}
+    </div>
+    {!d && <div style={{fontSize:11,color:C.ts}}>Enter a valid hex routine ID above to look up applicability.</div>}
+    {d && !d.known && <div style={{fontSize:11,color:C.ts}}>
+      Routine {ridInt} (0x{ridInt.toString(16).toUpperCase()}) is not in the Tier-1 table.
+      Known IDs: {knownIds.join(", ")}.
+    </div>}
+    {d && d.known && d.computed && <div style={{fontSize:11,color:C.wn}}>
+      Routine {ridInt}: dispatch is computed at runtime in AlfaOBD — no inline metadata available.
+      Bench verification required before assuming any (ECU, session, security) combination.
+    </div>}
+    {d && d.known && !d.computed && <div>
+      <div style={{fontSize:11,marginBottom:8,color:C.tm}}>
+        Routine {ridInt} (0x{ridInt.toString(16).toUpperCase()}): {d.records.length} dispatch record(s)
+      </div>
+      {d.records.map((r,i)=>(
+        <div key={i} style={{border:'1px solid '+C.bd,borderRadius:6,padding:10,marginBottom:8}}>
+          <div style={{fontWeight:700,fontSize:12,marginBottom:6}}>
+            {r.ecuDisplay}
+            {r.ecuCode && <span style={{color:C.ts,fontWeight:400,marginLeft:8}}>code {r.ecuCode}</span>}
+            {r.subParam!=null && <span style={{color:C.ts,fontWeight:400,marginLeft:8}}>sub-param {r.subParam}</span>}
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'auto 1fr',gap:'2px 12px',fontSize:10,fontFamily:"'JetBrains Mono'"}}>
+            {Object.entries(r.fields).map(([k,v])=>(
+              <React.Fragment key={k}>
+                <span style={{color:C.ts}}>idx {k}</span>
+                <span>{v}</span>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>}
+  </Card>;
 }
