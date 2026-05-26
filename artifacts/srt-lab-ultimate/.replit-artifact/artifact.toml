@@ -1,0 +1,40 @@
+kind = "web"
+previewPath = "/srtlabu/"
+title = "SRT Lab Ultimate"
+version = "1.0.0"
+id = "artifacts/srt-lab-ultimate"
+router = "path"
+
+[[services]]
+name = "web"
+paths = ["/srtlabu/"]
+localPort = 5180
+
+[services.development]
+run = "pnpm --filter @workspace/srt-lab-ultimate run dev:web"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/srt-lab-ultimate", "run", "build"]
+publicDir = "artifacts/srt-lab-ultimate/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "5180"
+BASE_PATH = "/srtlabu/"
+
+[[services]]
+name = "api"
+paths = ["/srtlabu/api/"]
+localPort = 5181
+
+[services.development]
+run = "pnpm --filter @workspace/srt-lab-ultimate run dev:api"
+
+[services.env]
+PORT = "5181"
+API_PREFIX = "/srtlabu"
+NODE_ENV = "development"

@@ -61,6 +61,18 @@ function diffArrayByKey<T extends Record<string, any>>(arr1: T[], arr2: T[], key
 
 async function startServer() {
   const app = express();
+
+  // Strip the public API prefix added by the Replit shared proxy so existing
+  // `/api/*` route registrations below keep working unchanged.
+  const API_PREFIX = process.env.API_PREFIX ?? "/srtlabu-api";
+  if (API_PREFIX) {
+    app.use((req, _res, next) => {
+      if (req.url.startsWith(API_PREFIX)) {
+        req.url = req.url.slice(API_PREFIX.length) || "/";
+      }
+      next();
+    });
+  }
   const server = createServer(app);
 
   app.use(express.json({ limit: "500mb" }));
@@ -632,7 +644,8 @@ async function startServer() {
         s3Key,
         s3Url,
         uploadedAt: Date.now(),
-      }).onDuplicateKeyUpdate({
+      }).onConflictDoUpdate({
+        target: uploadedBinaries.id,
         set: {
           fileHash,
           fileSize: file.buffer.length,
@@ -704,7 +717,8 @@ async function startServer() {
                 status: "failed", analyzedAt: Date.now(),
                 summary: `GCP delegation failed: ${r.status} ${txt.slice(0, 200)}`,
                 analysisData: { error: `GCP delegation failed: ${r.status}` } as any,
-              }).onDuplicateKeyUpdate({
+              }).onConflictDoUpdate({
+                target: analysisResults.id,
                 set: { status: "failed", summary: `GCP delegation failed: ${r.status}`, analyzedAt: Date.now() },
               });
             } else {
@@ -851,7 +865,8 @@ async function startServer() {
               analysisData: analysisDataPayload as any,
               status: "complete",
               analyzedAt: Date.now(),
-            }).onDuplicateKeyUpdate({
+            }).onConflictDoUpdate({
+              target: analysisResults.id,
               set: {
                 binaryId,
                 userId,
@@ -954,7 +969,8 @@ async function startServer() {
             analysisData: { error: error.message } as any,
             status: "failed",
             analyzedAt: Date.now(),
-          }).onDuplicateKeyUpdate({
+          }).onConflictDoUpdate({
+            target: analysisResults.id,
             set: {
               status: "failed",
               summary: `Analysis failed: ${error.message}`,
@@ -3821,7 +3837,8 @@ RULES:
             summary: bgResult.findings?.summary || "",
             analysisData: { ...bgResult, id: newAnalysisId } as any,
             status: "complete", analyzedAt: Date.now(),
-          }).onDuplicateKeyUpdate({
+          }).onConflictDoUpdate({
+            target: analysisResults.id,
             set: {
               fileType: bgResult.fileType || "Unknown",
               algorithmCount: bgResult.findings?.algorithms?.length || 0,
@@ -3839,7 +3856,7 @@ RULES:
           await db.insert(analysisResults).values({
             id: newAnalysisId, binaryId, userId, filename, fileSize: fileBuffer.length,
             status: "failed", analyzedAt: Date.now(),
-          }).onDuplicateKeyUpdate({ set: { status: "failed", analyzedAt: Date.now() } });
+          }).onConflictDoUpdate({ target: analysisResults.id, set: { status: "failed", analyzedAt: Date.now() } });
         }
       })();
       res.json({ analysisId: newAnalysisId, status: "running" });
@@ -3915,7 +3932,8 @@ RULES:
               summary: bgResult.findings?.summary || "",
               analysisData: { ...bgResult, id: capturedId } as any,
               status: "complete", analyzedAt: Date.now(),
-            }).onDuplicateKeyUpdate({
+            }).onConflictDoUpdate({
+              target: analysisResults.id,
               set: {
                 fileType: bgResult.fileType || "Unknown",
                 algorithmCount: bgResult.findings?.algorithms?.length || 0,
@@ -3933,7 +3951,7 @@ RULES:
             await db.insert(analysisResults).values({
               id: capturedId, binaryId: capturedBinaryId, userId, filename: capturedFilename,
               fileSize: capturedBuffer.length, status: "failed", analyzedAt: Date.now(),
-            }).onDuplicateKeyUpdate({ set: { status: "failed", analyzedAt: Date.now() } });
+            }).onConflictDoUpdate({ target: analysisResults.id, set: { status: "failed", analyzedAt: Date.now() } });
           }
         })();
         batchResults.push({ filename: f.filename, analysisId: bAnalysisId });
@@ -4284,7 +4302,8 @@ RULES:
             s3Url: "",  // Not available in delegation context
             detectedModule: swarmResult.detectedModule || null,
             uploadedAt: Date.now(),
-          }).onDuplicateKeyUpdate({
+          }).onConflictDoUpdate({
+            target: uploadedBinaries.id,
             set: {
               fileHash,
               fileSize: fileBuffer.length,
@@ -4315,7 +4334,8 @@ RULES:
           analysisData: analysisDataPayload as any,
           status: "complete",
           analyzedAt: Date.now(),
-        }).onDuplicateKeyUpdate({
+        }).onConflictDoUpdate({
+          target: analysisResults.id,
           set: {
             fileType: swarmResult.fileType || "Unknown",
             detectedModule: swarmResult.detectedModule || null,
@@ -4342,7 +4362,8 @@ RULES:
             status: "failed", analyzedAt: Date.now(),
             summary: `Analysis failed: ${err.message}`,
             analysisData: { error: err.message } as any,
-          }).onDuplicateKeyUpdate({
+          }).onConflictDoUpdate({
+            target: analysisResults.id,
             set: { status: "failed", summary: `Analysis failed: ${err.message}`, analyzedAt: Date.now() },
           });
         } catch (dbErr: any) {
@@ -4352,21 +4373,24 @@ RULES:
     })().catch((err) => console.error(`[delegate] Unhandled error:`, err));
   });
 
-  // ─── Static Files ──────────────────────────────────────────────────────
-  const staticPath =
-    process.env.NODE_ENV === "production"
-      ? path.resolve(__dirname, "public")
-      : path.resolve(__dirname, "..", "dist", "public");
+  // Static files and SPA catch-all are intentionally omitted here:
+  // the Vite "web" service inside this artifact serves the frontend
+  // and the shared Replit proxy routes /srtlabu-api/* to this API.
 
-  app.use(express.static(staticPath));
-
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(staticPath, "index.html"));
+  app.use((_req, res) => {
+    res.status(404).json({ error: "not_found" });
   });
 
-  const port = process.env.PORT || 3001;
+  const rawPort = process.env.PORT;
+  if (!rawPort) {
+    throw new Error("PORT environment variable is required but was not provided.");
+  }
+  const port = Number(rawPort);
+  if (Number.isNaN(port) || port <= 0) {
+    throw new Error(`Invalid PORT value: "${rawPort}"`);
+  }
   server.listen(port, () => {
-    console.log(`SRT Lab RE Agent running on http://localhost:${port}/`);
+    console.log(`SRT Lab RE Agent API listening on port ${port}`);
   });
 }
 

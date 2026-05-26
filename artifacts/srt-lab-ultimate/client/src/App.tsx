@@ -97,6 +97,7 @@ function Router() {
             <Route path={"/workbench/seed"}>{() => <WorkbenchWrapper><SeedTab /></WorkbenchWrapper>}</Route>
             <Route path={"/workbench/security"}>{() => <WorkbenchWrapper><SecurityTab /></WorkbenchWrapper>}</Route>
             <Route path={"/workbench/jailbreak"}>{() => <WorkbenchWrapper><JailbreakTab /></WorkbenchWrapper>}</Route>
+            {/* @ts-expect-error WorkbenchWrapper has upstream-loose prop types (files/setFiles/loadF) supplied by context. */}
             <Route path={"/workbench/dumps"}>{() => <WorkbenchWrapper><DumpsTab /></WorkbenchWrapper>}</Route>
             <Route path={"/workbench/immovin"}>{() => <WorkbenchWrapper><ImmoVINTab /></WorkbenchWrapper>}</Route>
             <Route path={"/workbench/obd"}>{() => <WorkbenchWrapper><OBDTab /></WorkbenchWrapper>}</Route>
@@ -124,6 +125,7 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
+        {/* @ts-expect-error MasterVinProvider has upstream-loose prop types (setPg) supplied by context. */}
         <MasterVinProvider>
           <TooltipProvider>
             <Toaster />

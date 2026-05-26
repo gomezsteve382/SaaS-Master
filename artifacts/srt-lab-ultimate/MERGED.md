@@ -1,7 +1,76 @@
-# srt-lab-ultimate — Imported from external zip (Task #842)
+# srt-lab-ultimate — Imported from external zip (Task #842), shipped as artifact (Task #845)
 
 This directory is the verbatim merge of `srt-lab-ultimate-main_(1)_1779796229930.zip` into the
-monorepo. It is **not yet wired up as a runnable artifact** — it is staged for follow-up work.
+monorepo. As of Task #845 it is **registered as a real two-service artifact** (web + api) and
+boots cleanly under the workspace workflows.
+
+## How it runs now
+
+- Registered as artifact `artifacts/srt-lab-ultimate` (kind `web`, preview path `/srtlabu/`).
+- Two services live in `.replit-artifact/artifact.toml`:
+  - **web** — Vite dev server on `localPort 5180`, mounted at `/srtlabu/`. Build output goes to
+    `dist/public/` and is served as static in production.
+  - **api** — `tsx watch server/index.ts` on `localPort 5181`, mounted at `/srtlabu/api/`
+    (more-specific than the web service's `/srtlabu/`, so the shared proxy routes it correctly).
+    A small prefix-strip middleware (configured via `API_PREFIX`, default `/srtlabu`) rewrites
+    incoming `req.url` so the existing `app.post("/api/*")` route registrations keep working
+    unchanged. The historical static-serve + SPA catch-all at the tail of `server/index.ts` was
+    removed — Vite is its own service now.
+- Client code uses absolute `/api/...` fetches throughout. A small early-boot fetch patch in
+  `client/src/lib/apiBase.ts` (installed from `main.tsx`) rewrites any `/api/...` call to
+  `${import.meta.env.BASE_URL}api/...`, so a client call to `/api/vault` is sent as
+  `/srtlabu/api/vault` and the shared proxy routes it to the api service. This keeps the 61
+  legacy call sites working without touching them.
+- Workflows: `artifacts/srt-lab-ultimate: web` and `artifacts/srt-lab-ultimate: api`.
+- `pnpm --filter @workspace/srt-lab-ultimate run typecheck` passes clean.
+
+## Drizzle MySQL/TiDB → Postgres port
+
+- `drizzle/schema.ts` was rewritten: `mysqlTable`/`mysqlEnum`/`int`/`float`/`json` →
+  `pgTable`/`varchar`/`integer`/`real`/`jsonb`. All 16 tables and their relations are preserved.
+  Enums are stored as `varchar` (not `pgEnum`) to keep named-type churn down.
+- `server/db.ts` now uses `pg` + `drizzle-orm/node-postgres`.
+- `drizzle.config.json` (mysql) replaced by `drizzle.config.ts` (postgresql dialect). The old
+  MySQL migration SQL under `drizzle/migrations/` was removed; only `meta/` remains. New
+  migrations need to be generated against a real Postgres instance.
+- Every `.onDuplicateKeyUpdate({ set: … })` site in `server/index.ts` was rewritten to
+  `.onConflictDoUpdate({ target: <table>.id, set: … })`.
+- `server/ai-learning.ts` is stubbed (safe defaults / no-ops). It previously queried
+  `user_profile` and `analysis_goals` tables that were not part of the imported schema; a real
+  port belongs in a follow-up.
+- Runtime needs `DATABASE_URL` pointing at a Postgres database and the schema pushed via
+  `pnpm drizzle-kit push` (or generate + apply migrations). Until then routes that hit the DB
+  return their own SQL error rather than a 500.
+
+## Dependency reconciliation
+
+- `package.json.from-zip`, `pnpm-lock.yaml.from-zip`, and `tsconfig.json.from-zip` are gone.
+  A new minimal `package.json` declares deps using `catalog:` where available (react, vite, zod,
+  drizzle-orm, etc.) and local versions for the long Radix / shadcn tail, `pg`, `express`,
+  `multer`, `pdfkit`, `archiver`, `form-data`, `@modelcontextprotocol/sdk`, `@trpc/server`, and
+  `tw-animate-css`.
+- New `tsconfig.json` extends `../../tsconfig.base.json`. Two project-level relaxations were
+  needed for the dropped-in upstream code to typecheck without invasive rewrites:
+  `noImplicitReturns: false` and `types: [..., "google.maps"]` (with `@types/google.maps`
+  installed). A single `// @ts-expect-error` annotates each of the two real upstream
+  context-provider prop holes (`WorkbenchWrapper`, `MasterVinProvider`) that the original
+  codebase relied on JS looseness for.
+- New `vite.config.ts` adds the React + Tailwind plugins, sets `BASE_PATH` default `/srtlabu/`,
+  `allowedHosts: true` for the Replit proxy, and proxies `/api` → `http://localhost:5181` for
+  ad-hoc local fetches that bypass the prefix strip.
+
+## What still belongs in a follow-up
+
+1. **Run migrations against a real Postgres**: generate the initial migration from the ported
+   `drizzle/schema.ts`, apply it, and connect `DATABASE_URL`. Until then all DB-backed routes
+   surface their underlying SQL error.
+2. **`server/ai-learning.ts` real port** if user-profile / analysis-goals features are wanted.
+3. **Catalog the long Radix / shadcn tail** in `pnpm-workspace.yaml` so versions hoist with the
+   other artifacts instead of being re-resolved per package.
+4. **Tighten the two `@ts-expect-error` suppressions** by giving `WorkbenchWrapper` and
+   `MasterVinProvider` real prop types upstream.
+5. **Smoke tests** (`smoke-tests/test-*.mjs`) still expect Forge / Anthropic / Cloudfront
+   secrets — same status as the original import.
 
 ## What landed
 
