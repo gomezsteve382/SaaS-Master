@@ -15,7 +15,7 @@ When adding new `.generated.js` files to `artifacts/srt-lab/src/lib/`, always ru
 
 When importing from `srt-lab-ultimate` (the sister monorepo):
 
-- **Skip** `bigMethodsVocabulary.generated.js` — 1.1 MB, bundle killer.
+- **Default skip** `bigMethodsVocabulary.generated.js` — 1.1 MB, bundle killer. ALWAYS ask the user before importing; Task #842 was an explicit opt-in.
 - **Keep local** for any JS file where local is larger: algos.js (809L), parseModule.js (1143L), crossValidate.js (183L), rfhPcmPair.js (574L), bridgeClient.js (200L), bridgeEngine.js (390L), jailbreakFeatures.js (388L), vin.js (67L), fileUtils.js (187L), obdEngine.js (307L), tabReferences.js (266L).
 - **Keep local** `alfaobdData.generated.js` and `alfaobdAlgorithms.generated.js` — local has safety naming (`AOBD_W7_UNVERIFIED`) and audit corrections applied.
 - **Copy freely** any `.generated.js` not already in the repo — they are static data files with no side effects.

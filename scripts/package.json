@@ -11,7 +11,20 @@
     "mine:alfaobd": "node src/mine-alfaobd.mjs",
     "fetch:can-catalogs": "node src/fetch-can-catalogs.mjs",
     "test:can-catalogs": "node --test src/__tests__/canCatalogMerge.test.mjs",
-    "audit:dispatch-gap": "node src/audit-dispatch-gap.mjs"
+    "audit:dispatch-gap": "node src/audit-dispatch-gap.mjs",
+    "_comment:ultimate": "Codegen scripts imported from srt-lab-ultimate via Task #842. OUT paths were rewritten to artifacts/srt-lab/src/lib/. Each script overwrites a *.generated.js — run individually after confirming it will not clobber an audited local fork. Deliberately NOT chained into any codegen:all target.",
+    "codegen:ultimate:alfaobd-xor-key": "node src/generate-alfaobd-db-xor-key.mjs",
+    "codegen:ultimate:firmware": "node src/extract-firmware-catalog.mjs",
+    "codegen:ultimate:fms": "node src/extract-fms-scripts.mjs",
+    "codegen:ultimate:witech": "node src/extract-witech-services.mjs",
+    "codegen:ultimate:alfaobd-text": "node src/extract-alfaobd-extracted-text.mjs",
+    "codegen:ultimate:dids": "node src/extract-did-database.mjs",
+    "codegen:ultimate:alfaobd-package": "node src/codegen-alfaobd-package.mjs",
+    "codegen:ultimate:big-methods": "node src/codegen-big-methods.mjs",
+    "codegen:ultimate:binary-intel": "node src/codegen-binary-intel.mjs",
+    "codegen:ultimate:routine-catalog": "node src/codegen-routine-catalog.mjs",
+    "codegen:ultimate:uds-dispatch": "node src/codegen-uds-dispatch.mjs",
+    "codegen:ultimate:security-master": "node src/codegen-security-master.mjs"
   },
   "devDependencies": {
     "@types/node": "catalog:",

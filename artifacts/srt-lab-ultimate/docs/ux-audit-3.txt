@@ -1,0 +1,18 @@
+UX Audit 3 - New Chat-First Analysis Page
+
+WHAT THE USER NOW SEES:
+1. Compact header: back arrow, filename (aemt.exe), file type/size badge, "Findings (9)" button, "Re-analyze" button
+2. Summary banner: one-line summary of what the binary is
+3. MAIN AREA: "Ask VENOM about aemt.exe" with a big chat icon
+4. Subtitle: "VENOM has already analyzed this binary with 5 specialist agents. Ask anything — it can also run tools in real-time to dig deeper."
+5. 8 clickable suggestion buttons: "What did you find?", "Show me the seed-key algorithm", "What crypto is being used?", etc.
+6. Input bar at bottom: "Ask VENOM anything about this binary..." with Send button
+7. "Findings (9)" button in header opens a collapsible drawer with all the structured findings
+
+THIS IS EXACTLY RIGHT:
+- Chat is the PRIMARY interface, not buried in a tab
+- User immediately sees what they can ask
+- Findings are accessible via the header button but don't overwhelm
+- The input bar is always visible at the bottom
+- Suggestion buttons let user click to ask without typing
+- Clean, focused, no confusion about what to do next

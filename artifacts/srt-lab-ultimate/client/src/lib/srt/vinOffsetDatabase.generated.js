@@ -1,0 +1,579 @@
+// AUTO-GENERATED data file. DO NOT EDIT BY HAND.
+// Source: attached_assets/alfaobd-package-2026-05-25/vin-offset-database.json
+// Re-extract: node scripts/codegen-alfaobd-package.mjs
+//
+// PER-MODULE VIN BYTE OFFSETS + CRC CHECKSUM ALGORITHMS.
+//
+// For 17 FCA modules: EEPROM byte offset for the 17-byte VIN ASCII; primary +
+// backup VIN locations; CRC algorithm + polynomial + init + checksum byte
+// locations; DTC codes on mismatch; security access requirements.
+//
+// Modules: ECM_GPEC2/2A, BCM_CHRYSLER/CONTINENTAL/MARELLI, TCM_ZF8HP/ZF9HP/
+// AISIN/CHRYSLER, ABS_CHRYSLER/CONTINENTAL/TEVES/TRW, RFHUB, AIRBAG_AUTOLIV/
+// ORCM, AC_CONTROLLER.
+//
+// This is the most actionable dispatch data we have for VIN programming.
+
+export const VIN_OFFSET_METADATA = {
+  "source": "AlfaOBD reverse engineering",
+  "date": "2025-12-05",
+  "vehicle_platform": "FCA (Fiat Chrysler Automobiles) 2015-2025",
+  "note": "Database encryption prevented full extraction. Offsets based on known patterns and user knowledge."
+};
+
+export const VIN_OFFSET_MODULES = {
+  "ECM_GPEC2": {
+    "name": "Engine Control Module - GPEC2",
+    "engines": [
+      "Pentastar V6 3.6L",
+      "Hemi V8 5.7L/6.4L"
+    ],
+    "vin_locations": [
+      {
+        "offset": "0x160",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": null,
+    "notes": "No checksum required for ECM VIN patching"
+  },
+  "ECM_GPEC2A": {
+    "name": "Engine Control Module - GPEC2A",
+    "engines": [
+      "Pentastar V6 3.6L Supercharged",
+      "Hellcat 6.2L"
+    ],
+    "vin_locations": [
+      {
+        "offset": "0x160",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": null,
+    "notes": "2015+ variant, no checksum"
+  },
+  "BCM_CHRYSLER": {
+    "name": "Body Control Module - Chrysler",
+    "supplier": "Chrysler/Mopar",
+    "vin_locations": [
+      {
+        "offset": "0x100",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      },
+      {
+        "offset": "0x200",
+        "length": 17,
+        "type": "backup",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x112",
+          "length": 2,
+          "endian": "little",
+          "covers": "0x100-0x110"
+        },
+        {
+          "offset": "0x212",
+          "length": 2,
+          "endian": "little",
+          "covers": "0x200-0x210"
+        }
+      ]
+    },
+    "dtc_codes": [
+      "B1602: VIN configuration error"
+    ],
+    "notes": "Requires security access (seed/key) before VIN writing"
+  },
+  "BCM_CONTINENTAL": {
+    "name": "Body Control Module - Continental",
+    "supplier": "Continental Automotive",
+    "vin_locations": [
+      {
+        "offset": "0x100",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      },
+      {
+        "offset": "0x200",
+        "length": 17,
+        "type": "backup",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x112",
+          "length": 2,
+          "endian": "little"
+        },
+        {
+          "offset": "0x212",
+          "length": 2,
+          "endian": "little"
+        }
+      ]
+    }
+  },
+  "BCM_MARELLI": {
+    "name": "Body Control Module - Magneti Marelli",
+    "supplier": "Magneti Marelli",
+    "vin_locations": [
+      {
+        "offset": "0x100",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      },
+      {
+        "offset": "0x200",
+        "length": 17,
+        "type": "backup",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x112",
+          "length": 2,
+          "endian": "little"
+        },
+        {
+          "offset": "0x212",
+          "length": 2,
+          "endian": "little"
+        }
+      ]
+    }
+  },
+  "TCM_ZF8HP": {
+    "name": "Transmission Control Module - ZF 8HP",
+    "transmissions": [
+      "ZF 8HP45",
+      "ZF 8HP70",
+      "ZF 8HP90"
+    ],
+    "vin_locations": [
+      {
+        "offset": "0x80",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      },
+      {
+        "offset": "0x200",
+        "length": 17,
+        "type": "backup",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x92",
+          "length": 2,
+          "endian": "little"
+        },
+        {
+          "offset": "0x212",
+          "length": 2,
+          "endian": "little"
+        }
+      ]
+    },
+    "post_patch": [
+      "Reset adaptive learning: UDS 31 01 FF 00"
+    ],
+    "notes": "VIN must match ECM and BCM"
+  },
+  "TCM_ZF9HP": {
+    "name": "Transmission Control Module - ZF 9HP",
+    "transmissions": [
+      "ZF 9HP48",
+      "ZF 9HP50"
+    ],
+    "vin_locations": [
+      {
+        "offset": "0x80",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      },
+      {
+        "offset": "0x200",
+        "length": 17,
+        "type": "backup",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x92",
+          "length": 2,
+          "endian": "little"
+        },
+        {
+          "offset": "0x212",
+          "length": 2,
+          "endian": "little"
+        }
+      ]
+    }
+  },
+  "TCM_AISIN": {
+    "name": "Transmission Control Module - Aisin",
+    "transmissions": [
+      "AS68RC",
+      "AS69RC"
+    ],
+    "vin_locations": [
+      {
+        "offset": "0x80",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      },
+      {
+        "offset": "0x200",
+        "length": 17,
+        "type": "backup",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x92",
+          "length": 2,
+          "endian": "little"
+        },
+        {
+          "offset": "0x212",
+          "length": 2,
+          "endian": "little"
+        }
+      ]
+    }
+  },
+  "TCM_CHRYSLER": {
+    "name": "Transmission Control Module - Chrysler",
+    "transmissions": [
+      "62TE",
+      "68RFE"
+    ],
+    "vin_locations": [
+      {
+        "offset": "0x80",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      },
+      {
+        "offset": "0x200",
+        "length": 17,
+        "type": "backup",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x92",
+          "length": 2,
+          "endian": "little"
+        },
+        {
+          "offset": "0x212",
+          "length": 2,
+          "endian": "little"
+        }
+      ]
+    }
+  },
+  "ABS_CHRYSLER": {
+    "name": "ABS Module - Chrysler",
+    "vin_locations": [
+      {
+        "offset": "0x20",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x32",
+          "length": 2,
+          "endian": "little"
+        }
+      ]
+    },
+    "dtc_codes": [
+      "C2202: VIN mismatch",
+      "C121C: VIN not programmed"
+    ]
+  },
+  "ABS_CONTINENTAL": {
+    "name": "ABS Module - Continental MK60EC/MK100",
+    "supplier": "Continental",
+    "vin_locations": [
+      {
+        "offset": "0x100",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x112",
+          "length": 2,
+          "endian": "little"
+        }
+      ]
+    }
+  },
+  "ABS_TEVES": {
+    "name": "ABS Module - Teves EP9",
+    "supplier": "Teves",
+    "vin_locations": [
+      {
+        "offset": "0x100",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x112",
+          "length": 2,
+          "endian": "little"
+        }
+      ]
+    }
+  },
+  "ABS_TRW": {
+    "name": "ABS Module - TRW",
+    "supplier": "TRW",
+    "vin_locations": [
+      {
+        "offset": "0x40",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x52",
+          "length": 2,
+          "endian": "little"
+        }
+      ]
+    }
+  },
+  "RFHUB": {
+    "name": "Remote Function Hub / SKIM",
+    "function": "Wireless Ignition Node, Immobilizer",
+    "vin_locations": [
+      {
+        "offset": "0x100",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      }
+    ],
+    "additional_data": [
+      {
+        "name": "B-Number",
+        "offset": "0x140",
+        "length": 16,
+        "format": "ASCII"
+      },
+      {
+        "name": "Secret Key",
+        "offset": "0x120",
+        "length": 16,
+        "format": "HEX",
+        "warning": "DO NOT MODIFY"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16 (Variable Polynomial)",
+      "polynomials": [
+        "0x1021",
+        "0x8005",
+        "0x8BB7"
+      ],
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x112",
+          "length": 2,
+          "endian": "little"
+        }
+      ],
+      "note": "Polynomial varies by hardware/software version - use auto-detection"
+    },
+    "notes": "CRITICAL: Incorrect checksum will prevent vehicle start"
+  },
+  "AIRBAG_AUTOLIV": {
+    "name": "Airbag Module - Autoliv",
+    "supplier": "Autoliv",
+    "vin_locations": [
+      {
+        "offset": "variable (0x200-0x220)",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII",
+        "detection": "scan"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT or CRC-32",
+      "note": "Varies by module generation"
+    },
+    "notes": "SAFETY CRITICAL - Always test on spare module first"
+  },
+  "AIRBAG_ORCM": {
+    "name": "Occupant Restraint Controller Module",
+    "vin_locations": [
+      {
+        "offset": "variable (0x200-0x220)",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII",
+        "detection": "scan"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT or CRC-32"
+    },
+    "notes": "SAFETY CRITICAL - Multiple VIN instances may exist"
+  },
+  "AC_CONTROLLER": {
+    "name": "AC/Climate Control Module",
+    "vin_locations": [
+      {
+        "offset": "0x100",
+        "length": 17,
+        "type": "primary",
+        "format": "ASCII"
+      }
+    ],
+    "checksum": {
+      "algorithm": "CRC-16-CCITT",
+      "polynomial": "0x1021",
+      "init": "0xFFFF",
+      "locations": [
+        {
+          "offset": "0x112",
+          "length": 2,
+          "endian": "little"
+        }
+      ]
+    }
+  }
+};
+
+export const VIN_OFFSET_UDS_PROTOCOL = {
+  "services": {
+    "0x10": "DiagnosticSessionControl",
+    "0x11": "ECUReset",
+    "0x22": "ReadDataByIdentifier",
+    "0x27": "SecurityAccess",
+    "0x2E": "WriteDataByIdentifier",
+    "0x31": "RoutineControl",
+    "0x3E": "TesterPresent"
+  },
+  "dids": {
+    "0xF190": "VIN",
+    "0xF187": "Spare Part Number",
+    "0xF191": "Hardware Version",
+    "0xF195": "Software Version",
+    "0xF18C": "ECU Serial Number"
+  },
+  "vin_operations": {
+    "read": "22 F1 90",
+    "write": "2E F1 90 [17 bytes]",
+    "security_seed": "27 01",
+    "security_key": "27 02 [4 bytes]",
+    "reset": "11 01"
+  }
+};
+
+export const VIN_OFFSET_DB_META = {
+  "moduleCount": 17,
+  "source": "AlfaOBD RE, 2025-12-05",
+  "caveat": "Database encryption prevented full extraction. Offsets based on known patterns and user knowledge.",
+  "modulesCovered": [
+    "ECM_GPEC2",
+    "ECM_GPEC2A",
+    "BCM_CHRYSLER",
+    "BCM_CONTINENTAL",
+    "BCM_MARELLI",
+    "TCM_ZF8HP",
+    "TCM_ZF9HP",
+    "TCM_AISIN",
+    "TCM_CHRYSLER",
+    "ABS_CHRYSLER",
+    "ABS_CONTINENTAL",
+    "ABS_TEVES",
+    "ABS_TRW",
+    "RFHUB",
+    "AIRBAG_AUTOLIV",
+    "AIRBAG_ORCM",
+    "AC_CONTROLLER"
+  ]
+};
