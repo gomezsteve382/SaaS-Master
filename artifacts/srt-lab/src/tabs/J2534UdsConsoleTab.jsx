@@ -135,7 +135,7 @@ const S = {
 /* ─── Status badge ────────────────────────────────────────────────────────── */
 const STATUS_META = {
   disconnected:    { label: "○ NO BRIDGE",   bg: "#1A1A1A", color: S.dim },
-  bridge_connected:{ label: "● BRIDGE OK",   bg: "#1A1A1A", color: "#AAA" },
+  bridge_connected:{ label: "● DAEMON OK",   bg: "#1A1A1A", color: "#AAA" },
   device_open:     { label: "● DEVICE OPEN", bg: "#1A1A1A", color: S.yellow },
   can_connected:   { label: "● CAN LIVE",    bg: "#003300", color: S.green },
 };
@@ -261,7 +261,8 @@ export default function J2534UdsConsoleTab() {
         setStatus("disconnected");
         return;
       }
-      addLog(`Bridge OK — vendor=${st.vendor || "?"} platform=${st.platform || "?"} bridge=${st.bridgeVersion || "?"}`, "success");
+      addLog(`Bridge daemon OK — vendor=${st.vendor || "?"} platform=${st.platform || "?"} bridge=${st.bridgeVersion || "?"}`, "success");
+      addLog("Hardware presence is confirmed when you click Open Device.", "warn");
       if (st.dllPath) addLog("DLL: " + st.dllPath);
       if (!st.dllLoaded) {
         addLog("No DLL loaded — restart bridge with --dll <vendor DLL>", "warn");
