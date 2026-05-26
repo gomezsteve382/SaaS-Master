@@ -918,7 +918,7 @@ describe('analyzeSession — 0x31 multi-routine batch results', () => {
   });
 });
 
-// ─── Task #823 backfill 1: canraw (id-first) shape ───────────────────────────
+// ─── Backfill 1: canraw "id-first" trace shape ───────────────────────────────
 
 describe('parseTrace — canraw (id-first) shape', () => {
   it('parses id-first lines without TX/RX keyword and infers direction from SID', () => {
@@ -976,11 +976,17 @@ describe('parseTrace — canraw (id-first) shape', () => {
     expect(exchanges[0].service).toMatch(/SecurityAccess/i);
     expect(summary.securityAccessSeen).toBe(true);
   });
+
+  it('canraw lines go into formatCounts.canraw bucket', () => {
+    const { formatCounts } = parseTrace('18DA40F1 03 22 F1 90\n');
+    expect(formatCounts.canraw).toBe(1);
+    expect(formatCounts.bare).toBe(0);
+  });
 });
 
-// ─── Task #823 backfill 2: NRC 0x21 / 0x73 plain causes ──────────────────────
+// ─── Backfill 2: NRC 0x21 and 0x73 plain-cause strings ───────────────────────
 
-describe('analyzeSession — NRC 0x21 / 0x73 plain causes', () => {
+describe('analyzeSession — NRC 0x21 busyRepeatRequest plain cause', () => {
   it('surfaces the busy-repeat-request cause for NRC 0x21', () => {
     const { exchanges } = analyze(['[Req] 22 F1 90', '[Resp] 7F 22 21']);
     const ex = exchanges[0];
@@ -991,7 +997,9 @@ describe('analyzeSession — NRC 0x21 / 0x73 plain causes', () => {
     expect(ex.verdict).toMatch(/busy/i);
     expect(ex.verdict).toMatch(/retry/i);
   });
+});
 
+describe('analyzeSession — NRC 0x73 wrongBlockSequenceCounter plain cause', () => {
   it('surfaces the block-sequence-counter cause for NRC 0x73', () => {
     const { exchanges } = analyze(['[Req] 36 02 AA BB CC', '[Resp] 7F 36 73']);
     const ex = exchanges[0];
@@ -1002,15 +1010,15 @@ describe('analyzeSession — NRC 0x21 / 0x73 plain causes', () => {
   });
 });
 
-// ─── Task #823 backfill 3: secured service without unlock ────────────────────
+// ─── Backfill 3: SECURED_WITHOUT_UNLOCK diagnosis item ───────────────────────
 
-describe('analyzeSession — secured service attempted without unlock', () => {
-  it('flags a 0x2E write attempted with no SecurityAccess at all', () => {
+describe('analyzeSession — SECURED_WITHOUT_UNLOCK diagnosis', () => {
+  it('emits SECURED_WITHOUT_UNLOCK (SA never requested) when 0x31 attempted with no SA at all', () => {
     const { diagnosis } = analyze([
       '[Req] 10 03',
       '[Resp] 50 03 00 19 01 F4',
-      '[Req] 2E F1 90 41 42 43',
-      '[Resp] 7F 2E 22',     // ECU returned 0x22, not 0x33 — Python flags this anyway
+      '[Req] 31 01 FF 00',
+      '[Resp] 7F 31 22',
     ]);
     const item = diagnosis.find(d => d.code === 'SECURED_WITHOUT_UNLOCK');
     expect(item).toBeDefined();
@@ -1018,18 +1026,22 @@ describe('analyzeSession — secured service attempted without unlock', () => {
     expect(item.recommendation).toMatch(/No SecurityAccess.*was issued at all/i);
   });
 
-  it('flags a 0x31 routine attempted after seed but before key (unlock never completed)', () => {
+  it('emits SECURED_WITHOUT_UNLOCK (SA requested but not completed) when SA seed was seen but key exchange never succeeded', () => {
     const { diagnosis } = analyze([
       '[Req] 10 03',
       '[Resp] 50 03 00 19 01 F4',
       '[Req] 27 01',
       '[Resp] 67 01 AA BB CC DD',
-      // No 0x27 sub-function-even / no positive 0x67 to the key — unlock never completes.
+      // Key send fails — never gets a positive 0x67 response
+      '[Req] 27 02 DE AD BE EF',
+      '[Resp] 7F 27 35',
+      // Then attempts a secured routine before completing unlock
       '[Req] 31 01 FF 00',
-      '[Resp] 71 01 FF 00 00',  // even a "positive" response — Python would still flag
+      '[Resp] 7F 31 22',
     ]);
     const item = diagnosis.find(d => d.code === 'SECURED_WITHOUT_UNLOCK');
     expect(item).toBeDefined();
+    expect(item.severity).toBe('FAIL');
     expect(item.recommendation).toMatch(/SecurityAccess was requested.*no successful unlock/i);
   });
 
@@ -1047,7 +1059,7 @@ describe('analyzeSession — secured service attempted without unlock', () => {
     expect(item.severity).toBe('WARN');
   });
 
-  it('does NOT flag when SecurityAccess unlocked before the secured service', () => {
+  it('does NOT emit SECURED_WITHOUT_UNLOCK when unlock was completed before the secured service', () => {
     const { diagnosis } = analyze([
       '[Req] 10 03',
       '[Resp] 50 03 00 19 01 F4',
@@ -1060,6 +1072,16 @@ describe('analyzeSession — secured service attempted without unlock', () => {
     ]);
     const item = diagnosis.find(d => d.code === 'SECURED_WITHOUT_UNLOCK');
     expect(item).toBeUndefined();
+  });
+
+  it('detects SECURED_WITHOUT_UNLOCK for 0x34 RequestDownload attempted without unlock', () => {
+    const { diagnosis } = analyze([
+      '[Req] 34 00 44 00 10 00 00 00 FF 00',
+      '[Resp] 7F 34 33',
+    ]);
+    const item = diagnosis.find(d => d.code === 'SECURED_WITHOUT_UNLOCK');
+    expect(item).toBeDefined();
+    expect(item.message).toMatch(/RequestDownload/);
   });
 
   it('does NOT flag non-secured services (RDBI etc.) even when locked', () => {

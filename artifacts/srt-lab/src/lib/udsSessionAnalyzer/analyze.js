@@ -536,11 +536,13 @@ export function analyzeSession(parsedLines) {
 
     used.add(i);
 
-    // Stamp the SecurityAccess state observed BEFORE this request is issued.
-    // Used by buildDiagnosis to flag secured services (0x31 / 0x2E / 0x34)
-    // attempted while still locked, independent of how the ECU responded.
-    const saSeenAtRequest = saState.seen;
-    const saUnlockedAtRequest = saState.unlocked;
+    // Snapshot SA state before this exchange is processed — used by the
+    // SECURED_WITHOUT_UNLOCK diagnosis to know whether the unlock had
+    // already completed at the moment this request was issued.
+    const SECURED_SIDS = new Set([0x31, 0x2E, 0x34]);
+    const saSnapshotAtTime = SECURED_SIDS.has(line.bytes[0])
+      ? { seen: saState.seen, unlocked: saState.unlocked }
+      : null;
 
     const pendingNrcs = [];
     let respIdx = -1;
@@ -575,8 +577,7 @@ export function analyzeSession(parsedLines) {
     if (hadPending && !respLine) pendingTimeouts++;
 
     const exchange = buildExchange(line, respLine, hadPending, pendingNrcs.length);
-    exchange.saSeenAtRequest = saSeenAtRequest;
-    exchange.saUnlockedAtRequest = saUnlockedAtRequest;
+    if (saSnapshotAtTime !== null) exchange._saSnapshotAtTime = saSnapshotAtTime;
     exchanges.push(exchange);
 
     if (line.bytes[0] === 0x27) {
@@ -640,6 +641,33 @@ function buildDiagnosis(exchanges, saState, sessionEscalated, pendingTimeouts) {
       code: 'SAD', severity: 'FAIL',
       message: `SecurityAccess denied (NRC 0x33) on ${sadList.length} service(s): ${sadList.map(e => e.service).join(', ')}.`,
       recommendation: 'The rejected service requires a security unlock first. Complete the 0x27 seed/key handshake before retrying.',
+    });
+  }
+
+  // SECURED_WITHOUT_UNLOCK: find secured services (0x31, 0x2E, 0x34) that were
+  // attempted before a completed SecurityAccess unlock, regardless of whether
+  // the ECU happened to respond with NRC 0x33 (it may return 0x22, 0x24, or
+  // silence — all of which mask the real root cause).
+  const securedWithoutUnlock = exchanges.filter(
+    e => e._saSnapshotAtTime && !e._saSnapshotAtTime.unlocked,
+  );
+  if (securedWithoutUnlock.length > 0) {
+    const anySeen = securedWithoutUnlock.some(e => e._saSnapshotAtTime.seen);
+    const anyActuallyFailed = securedWithoutUnlock.some(e => e.severity === 'FAIL');
+    const serviceNames = [...new Set(securedWithoutUnlock.map(e => e.service))].join(', ');
+    const subCase = anySeen
+      ? 'SecurityAccess was requested in this trace but no successful unlock (positive 0x67 to an even sub-function) was observed before the secured service was attempted.'
+      : 'No SecurityAccess (0x27) request was issued at all in this trace before the secured service was attempted.';
+
+    // FAIL when at least one secured request actually failed (NRC). Downgrade
+    // to WARN when every matched request returned a positive response — the
+    // trace may simply be missing the earlier unlock (e.g. unlock happened
+    // before logging started), so flag it but don't escalate to a failure.
+    items.push({
+      code: 'SECURED_WITHOUT_UNLOCK',
+      severity: anyActuallyFailed ? 'FAIL' : 'WARN',
+      message: `Secured service(s) attempted without a completed SecurityAccess unlock: ${serviceNames}.`,
+      recommendation: `${subCase} 0x31 / 0x2E / 0x34 typically require an unlocked security level. Run the seed/key handshake (0x27 sub-function odd → ECU returns seed → 0x27 next sub-function with computed key → positive 0x67) in the same session, then retry. If the unlock occurred before this trace started, capture from the unlock step to confirm.`,
     });
   }
 
@@ -721,35 +749,6 @@ function buildDiagnosis(exchanges, saState, sessionEscalated, pendingTimeouts) {
     });
   }
 
-  // Secured service attempted before SecurityAccess unlocked. Catches the
-  // case the Python reference flags where the ECU returns NRC 0x22 / 0x24
-  // / silence (or even a positive response in a permissive mode) and the
-  // real underlying cause is that the unlock step was skipped. Independent
-  // of whether the NRC happened to be 0x33.
-  const SECURED_SIDS = new Set([0x31, 0x2E, 0x34]);
-  const securedWithoutUnlock = exchanges.filter(e =>
-    e.request &&
-    SECURED_SIDS.has(e.request.bytes[0]) &&
-    e.saUnlockedAtRequest === false,
-  );
-  if (securedWithoutUnlock.length > 0) {
-    const anySeen = securedWithoutUnlock.some(e => e.saSeenAtRequest);
-    const anyActuallyFailed = securedWithoutUnlock.some(e => e.severity === 'FAIL');
-    const services = Array.from(new Set(securedWithoutUnlock.map(e => e.service))).join(', ');
-    const subCase = anySeen
-      ? 'SecurityAccess was requested in this trace but no successful unlock (positive 0x67 to an even sub-function) was observed before the secured service was attempted.'
-      : 'No SecurityAccess (0x27) request was issued at all in this trace before the secured service was attempted.';
-    // FAIL when at least one secured request actually failed (NRC). Downgrade
-    // to WARN when every matched request returned a positive response — the
-    // trace may simply be missing the earlier unlock (e.g. unlock happened
-    // before logging started), so flag it but don't escalate to a failure.
-    items.push({
-      code: 'SECURED_WITHOUT_UNLOCK',
-      severity: anyActuallyFailed ? 'FAIL' : 'WARN',
-      message: `Secured service(s) attempted without a completed SecurityAccess unlock: ${services}.`,
-      recommendation: `${subCase} 0x31 / 0x2E / 0x34 typically require an unlocked security level. Run the seed/key handshake (0x27 sub-function odd → ECU returns seed → 0x27 next sub-function with computed key → positive 0x67) in the same session, then retry. If the unlock occurred before this trace started, capture from the unlock step to confirm.`,
-    });
-  }
 
   const hasFails = exchanges.some(e => e.severity === 'FAIL');
   if (hasFails && !sessionEscalated) {

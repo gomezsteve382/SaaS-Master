@@ -5,11 +5,8 @@
  * bytes, optional timestamp, and CAN ID.
  *
  * Supported shapes:
- *   1. candump:  (0.000123) can0 7E0#0322F190CCCCCCCC
- *   2. TX/RX:    [0.050] TX 7E0 22 F1 90   |  0.065 RX 7E8 62F190...
- *   3. Req/Resp: [0.000] [Req] 10 03        |  [Resp] 62 F1 90 xx
- *   4. Bare hex: 22 F1 90  (already-assembled UDS — direction inferred from SID)
- *   5. CAN raw:  18DA40F1 03 22 F1 90       |  12.345 18DA40F1 03 22 F1 90
+ *   5. canraw:   18DA40F1 03 22 F1 90  (raw CAN id-first, no # separator, optional leading
+ *                                       timestamp like 12.345 18DA40F1 03 22 F1 90)
  *      (id then raw 8-byte CAN frame, no TX/RX keyword, no # separator;
  *       direction inferred from SID like bare hex)
  *
@@ -202,7 +199,7 @@ function flushIncompleteStream(stream, lines, formatCounts) {
  *     canId?: number,
  *     isFF: boolean,
  *     isCF: boolean,
- *     shape: 'candump'|'txrx'|'reqresp'|'bare',
+ *     shape: 'candump'|'txrx'|'reqresp'|'bare'|'canraw',
  *     raw: string,
  *   }>,
  *   messageCount: number,
@@ -264,28 +261,25 @@ export function parseTrace(text) {
       continue;
     }
 
+    m = RE_CANRAW.exec(line);
+    if (m) {
+      const ts = m[1] ? parseFloat(m[1]) : undefined;
+      const canId = parseInt(m[2], 16);
+      const rawBytes = parseHex(m[3]);
+      processRawFrame(
+        rawBytes,
+        { shape: 'canraw', ts, canId, dir: null, raw: line },
+        lines, formatCounts, rxStreams,
+      );
+      continue;
+    }
+
     if (RE_BARE.test(line)) {
       const bytes = parseHex(line);
       if (!bytes.length) continue;
       const dir = inferDirection(bytes);
       lines.push({ dir, bytes, ts: undefined, isFF: false, isCF: false, shape: 'bare', raw: line });
       formatCounts.bare++;
-      continue;
-    }
-
-    m = RE_CANRAW.exec(line);
-    if (m) {
-      const ts = m[1] ? parseFloat(m[1]) : undefined;
-      const canId = parseInt(m[2], 16);
-      const rawBytes = parseHex(m[3]);
-      // Route through processRawFrame so ISO-TP SF/FF/CF behaviour matches
-      // candump and TX/RX shapes. Direction is unknown (no TX/RX keyword),
-      // so emitWithStrip / emitReassembled fall back to inferDirection().
-      processRawFrame(
-        rawBytes,
-        { shape: 'canraw', ts, canId, dir: null, raw: line },
-        lines, formatCounts, rxStreams,
-      );
       continue;
     }
   }
