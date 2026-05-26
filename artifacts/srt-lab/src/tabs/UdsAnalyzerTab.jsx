@@ -376,6 +376,14 @@ export default function UdsAnalyzerTab() {
     setParseWarning(false);
     const session = resolveSession(analyzeSession(parsed.lines));
     setResult({ parsed, session });
+    // Task #828 — stash the raw trace so the CodeCard bench-pair harness
+    // (in AlfaObdIntelTab) can offer an "import from current session"
+    // shortcut to pull the most recent 27 03 / 27 04 pair.
+    try {
+      window.localStorage.setItem('srtlab.udsAnalyzer.lastTrace.v1', src);
+    } catch {
+      // localStorage is best-effort — quota / privacy-mode failures are non-fatal.
+    }
   }, []);
 
   // Task #724 — pull a live-capture handoff from the recorder hook on

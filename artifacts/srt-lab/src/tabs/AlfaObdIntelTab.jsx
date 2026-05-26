@@ -52,6 +52,13 @@ import {
 } from "../lib/securityIntelFromExe.generated.js";
 
 import {
+  parseHexBytes,
+  evaluateAllCandidateTokens,
+  findLastSeedKeyPair,
+} from "../lib/codecardHarness/index.js";
+import { parseTrace } from "../lib/udsSessionAnalyzer/parser.js";
+
+import {
   ALFAOBD_DB_TABLES,
   ALFAOBD_DB_DISPATCH_GAP,
   ALFAOBD_DB_META,
@@ -478,6 +485,222 @@ function EcuCanSection() {
   );
 }
 
+/* ── CodeCard bench-pair harness panel (Task #828) ────────────────────── */
+function CodecardHarnessPanel() {
+  const [open, setOpen] = useState(false);
+  const [seedHex, setSeedHex] = useState("");
+  const [keyHex, setKeyHex] = useState("");
+  const [error, setError] = useState("");
+  const [results, setResults] = useState(null);
+  const [imported, setImported] = useState(null); // 'ok' | 'none' | 'fail' | null
+
+  const importFromSession = () => {
+    setError("");
+    setImported(null);
+    try {
+      const text = window.localStorage.getItem("srtlab.udsAnalyzer.lastTrace.v1");
+      if (!text || !text.trim()) {
+        setImported("none");
+        return;
+      }
+      const parsed = parseTrace(text);
+      const pair = findLastSeedKeyPair(parsed.lines);
+      if (!pair) {
+        setImported("none");
+        return;
+      }
+      const toHex = (u8) => Array.from(u8, (b) =>
+        b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+      setSeedHex(toHex(pair.seed));
+      setKeyHex(toHex(pair.key));
+      setImported("ok");
+    } catch {
+      setImported("fail");
+    }
+  };
+
+  const run = () => {
+    setError("");
+    setResults(null);
+    let seedBytes, keyBytes;
+    try {
+      seedBytes = parseHexBytes(seedHex);
+      keyBytes = parseHexBytes(keyHex);
+    } catch (e) {
+      setError(`Could not parse hex: ${e.message}`);
+      return;
+    }
+    if (!seedBytes.length || !keyBytes.length) {
+      setError("Both seed and key are required.");
+      return;
+    }
+    const out = evaluateAllCandidateTokens([{ seed: seedBytes, key: keyBytes }]);
+    setResults(out);
+  };
+
+  return (
+    <div style={intelCard}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          background: "none", border: "none", cursor: "pointer",
+          fontFamily: SANS, fontSize: 12, fontWeight: 700,
+          color: "#1565C0", display: "flex", alignItems: "center", gap: 6, padding: 0,
+        }}
+      >
+        <span>{open ? "▼" : "▶"}</span>
+        Test CodeCard candidates against a bench pair
+        <span style={{
+          fontFamily: MONO, fontSize: 10, background: "#E3F2FD",
+          borderRadius: 99, padding: "1px 8px", color: "#1565C0",
+        }}>HARNESS</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 10 }}>
+          <WarnBanner text="A single positive bench pair is suggestive, not cryptographic verification. Two or three pairs from independent seeds are needed before any token can be promoted out of the UNVERIFIED bucket. The harness never sends frames — it only evaluates recorded bytes." />
+
+          <div style={{ display: "flex", gap: 8, marginBottom: 8, flexWrap: "wrap", alignItems: "center" }}>
+            <button
+              onClick={importFromSession}
+              style={{
+                padding: "5px 10px", borderRadius: 5,
+                border: "1px solid #1565C0", background: "#FFF",
+                color: "#1565C0", cursor: "pointer",
+                fontFamily: SANS, fontSize: 11, fontWeight: 700,
+              }}
+            >Import from current session</button>
+            {imported === "ok" && (
+              <span style={{ fontFamily: SANS, fontSize: 11, color: "#2E7D32" }}>
+                Filled from the last 27 03 / 27 04 pair in the UDS Analyzer trace.
+              </span>
+            )}
+            {imported === "none" && (
+              <span style={{ fontFamily: SANS, fontSize: 11, color: "#BF360C" }}>
+                No 27 03 / 27 04 pair found in the last UDS Analyzer trace. Paste seed and key manually below.
+              </span>
+            )}
+            {imported === "fail" && (
+              <span style={{ fontFamily: SANS, fontSize: 11, color: "#BF360C" }}>
+                Could not read the last UDS Analyzer trace from local storage.
+              </span>
+            )}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "90px 1fr", gap: 6, marginBottom: 8, alignItems: "center" }}>
+            <label style={{ fontFamily: SANS, fontSize: 11, color: C.ts }}>Seed (hex)</label>
+            <input
+              type="text" value={seedHex} onChange={(e) => setSeedHex(e.target.value)}
+              placeholder="e.g. AA BB CC DD"
+              style={{
+                padding: "5px 8px", borderRadius: 5, border: "1px solid #CCC",
+                fontFamily: MONO, fontSize: 11, background: "#FAFAF8", outline: "none",
+              }}
+            />
+            <label style={{ fontFamily: SANS, fontSize: 11, color: C.ts }}>Key (hex)</label>
+            <input
+              type="text" value={keyHex} onChange={(e) => setKeyHex(e.target.value)}
+              placeholder="e.g. 11 22 33 44 55"
+              style={{
+                padding: "5px 8px", borderRadius: 5, border: "1px solid #CCC",
+                fontFamily: MONO, fontSize: 11, background: "#FAFAF8", outline: "none",
+              }}
+            />
+          </div>
+
+          <button
+            onClick={run}
+            style={{
+              padding: "6px 14px", borderRadius: 5,
+              border: "1px solid #B71C1C", background: "#FFEBEE",
+              color: "#B71C1C", cursor: "pointer",
+              fontFamily: SANS, fontSize: 11, fontWeight: 800,
+              letterSpacing: 0.5, textTransform: "uppercase",
+            }}
+          >Run harness</button>
+
+          {error && (
+            <div style={{
+              marginTop: 8, fontFamily: SANS, fontSize: 11, color: "#B71C1C",
+            }}>{error}</div>
+          )}
+
+          {results && (
+            <div style={{ marginTop: 12 }}>
+              {results.map(({ token, result }) => (
+                <CodecardVerdictCard key={token.hex} token={token} result={result} />
+              ))}
+              <div style={{
+                marginTop: 6, fontFamily: SANS, fontSize: 10, color: C.ts,
+                fontStyle: "italic",
+              }}>
+                Verdicts are not promoted to "verified" automatically. Update
+                <code style={{ margin: "0 4px" }}>securityIntelFromExe.generated.js</code>
+                or <code>algos.js</code> only after independent confirmation across multiple bench pairs.
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function verdictColor(v) {
+  if (v === "confirmed-constant-key" || v === "confirmed-derivation-input") return "#2E7D32";
+  if (v === "rejected") return "#B71C1C";
+  return "#BF360C"; // inconclusive
+}
+function verdictLabel(v) {
+  if (v === "confirmed-constant-key")      return "CONFIRMED — constant key";
+  if (v === "confirmed-derivation-input")  return "CONFIRMED — derivation input";
+  if (v === "rejected")                    return "REJECTED";
+  return "INCONCLUSIVE — need more pairs";
+}
+
+function CodecardVerdictCard({ token, result }) {
+  const color = verdictColor(result.overall);
+  return (
+    <div style={{
+      ...intelCard, marginBottom: 8, background: "#FFF",
+      borderColor: color + "55",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <Mono>{token.hex}</Mono>
+        <span style={{
+          fontFamily: SANS, fontSize: 10, fontWeight: 800,
+          padding: "2px 8px", borderRadius: 99,
+          background: color + "1A", color, letterSpacing: 0.5,
+        }}>{verdictLabel(result.overall)}</span>
+      </div>
+      <div style={{ fontFamily: SANS, fontSize: 10, color: C.ts, marginTop: 4 }}>
+        {result.reason}
+      </div>
+      {result.perPair.map((p, i) => (
+        <div key={i} style={{
+          marginTop: 6, padding: "6px 8px",
+          background: "#FAFAF8", borderRadius: 5,
+          fontFamily: MONO, fontSize: 10, color: C.bk,
+        }}>
+          <div>seed: {p.seed}</div>
+          <div>key:  {p.key}</div>
+          {p.degenerate && (
+            <div style={{ color: "#BF360C", marginTop: 2 }}>
+              ⚠ degenerate input (all-zero / all-FF / seed == key) — any transform matches trivially
+            </div>
+          )}
+          <div style={{ marginTop: 4, color: C.ts }}>
+            {p.hypotheses.map((h) => (
+              <div key={h.name}>
+                {h.matched ? "✓" : "✗"} {h.name}: {h.detail}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ── Section 5: Security Intel ────────────────────────────────────────── */
 function SecurityIntelSection() {
   const [showCodecard, setShowCodecard] = useState(false);
@@ -527,6 +750,9 @@ function SecurityIntelSection() {
           </div>
         ))}
       </div>
+
+      {/* Bench-pair harness — Task #828 */}
+      <CodecardHarnessPanel />
 
       {/* Candidate CodeCard keys — collapsed by default */}
       <div style={intelCard}>
