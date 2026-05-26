@@ -14,6 +14,10 @@ import { C } from "../lib/constants.js";
 import { Card } from "../lib/ui.jsx";
 import { BINARY_INTEL_REPORTS, BINARY_INTEL_GENERATED_AT } from "../lib/binaryIntel.generated.js";
 import { classifyFinding } from "../lib/binaryIntelCoverage.js";
+import {
+  TIER1_DISPATCH_FROM_EXE,
+  TIER1_DISPATCH_FROM_EXE_META,
+} from "../lib/tier1DispatchFromExe.generated.js";
 
 /* ── palette helpers ─────────────────────────────────────────────────── */
 const STATUS_META = {
@@ -381,6 +385,163 @@ function CoverageSummary({ report }) {
   );
 }
 
+/* ── Tier-1 dispatch coverage panel ──────────────────────────────────── */
+function Tier1DispatchCoveragePanel() {
+  const meta = TIER1_DISPATCH_FROM_EXE_META;
+  const fieldCounts = meta.field_count_per_routine || {};
+  const missingEvidence = meta.routines_missing_il_evidence || {};
+  const consumerOffsets = missingEvidence.representative_consumer_il_offsets || {};
+
+  const rows = useMemo(() => {
+    const entries = Object.entries(TIER1_DISPATCH_FROM_EXE);
+    return entries.map(([rid, fields]) => {
+      const fieldCount = Object.keys(fields).length;
+      const covered = fieldCount > 0;
+      return {
+        rid,
+        status: covered ? "covered" : "gap",
+        statusLabel: covered ? "COVERED" : "GAP-PENDING-DB",
+        fieldCount,
+        declaredCount: fieldCounts[rid],
+        getOffset: consumerOffsets[`${rid}_get`],
+        labelOffset: consumerOffsets[`${rid}_label_read`],
+      };
+    }).sort((a, b) => Number(a.rid) - Number(b.rid));
+  }, [fieldCounts, consumerOffsets]);
+
+  const coveredCount = rows.filter(r => r.status === "covered").length;
+  const gapCount = rows.length - coveredCount;
+
+  return (
+    <>
+      <SectionHead icon="🧩" title="Tier-1 Dispatch Coverage (AlfaOBD.exe IL)" count={rows.length} />
+
+      <Card style={{ marginBottom: 12, background: "#F3F0EA", borderColor: C.bd }}>
+        <div style={{ fontSize: 11, color: C.ts, lineHeight: 1.6 }}>
+          Per-routine dispatch fields recovered from the AlfaOBD.exe IL sweep
+          (<code style={{ fontFamily: "'JetBrains Mono'", fontSize: 10 }}>Method[5] .cctor</code> producer pattern).
+          Routines marked <strong>GAP-PENDING-DB</strong> have no producer in the compiled
+          assembly — only consumer reads — and are blocked on extracting the external
+          encrypted AlfaOBD SQLite catalog. Strictly read-only; no ECU traffic.
+        </div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            padding: "8px 14px", borderRadius: 8,
+            background: STATUS_META.covered.bg,
+            border: `1.5px solid ${STATUS_META.covered.color}40`,
+            flex: "1 1 120px",
+          }}>
+            <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 22, fontWeight: 900, color: STATUS_META.covered.color }}>
+              {coveredCount}
+            </div>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 900, color: STATUS_META.covered.color, letterSpacing: 1 }}>COVERED</div>
+              <div style={{ fontSize: 9, color: C.ts }}>of {rows.length} Tier-1 routines</div>
+            </div>
+          </div>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            padding: "8px 14px", borderRadius: 8,
+            background: STATUS_META.gap.bg,
+            border: `1.5px solid ${STATUS_META.gap.color}40`,
+            flex: "1 1 120px",
+          }}>
+            <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 22, fontWeight: 900, color: STATUS_META.gap.color }}>
+              {gapCount}
+            </div>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 900, color: STATUS_META.gap.color, letterSpacing: 1 }}>GAP-PENDING-DB</div>
+              <div style={{ fontSize: 9, color: C.ts }}>awaiting external DB extraction</div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
+          <thead>
+            <tr style={{ background: "#F0EDE8" }}>
+              {["Routine ID", "Status", "Fields", "Evidence"].map(h => (
+                <th key={h} style={{ padding: "6px 10px", textAlign: "left", fontFamily: "'Nunito'", fontWeight: 800, fontSize: 10, color: C.ts, letterSpacing: 1 }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={r.rid} style={{ borderBottom: `1px solid ${C.bd}`, background: i % 2 === 0 ? "#FFF" : C.bg }}>
+                <td style={{ padding: "6px 10px" }}>
+                  <code style={{
+                    fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+                    background: "#F0F0F0", padding: "1px 5px", borderRadius: 4, color: C.bk,
+                  }}>{r.rid}</code>
+                </td>
+                <td style={{ padding: "6px 10px" }}>
+                  <span style={{
+                    display: "inline-flex", alignItems: "center", gap: 3,
+                    padding: "2px 8px", borderRadius: 6,
+                    background: STATUS_META[r.status].bg, color: STATUS_META[r.status].color,
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontWeight: 800, fontSize: 10, letterSpacing: 0.8,
+                  }}>
+                    {STATUS_META[r.status].icon} {r.statusLabel}
+                  </span>
+                </td>
+                <td style={{ padding: "6px 10px", fontFamily: "'JetBrains Mono', monospace", color: C.tx }}>
+                  {r.fieldCount}
+                  {r.declaredCount !== undefined && r.declaredCount !== r.fieldCount && (
+                    <span style={{ color: C.tm, marginLeft: 4 }}>/ {r.declaredCount}</span>
+                  )}
+                </td>
+                <td style={{ padding: "6px 10px", maxWidth: 420 }}>
+                  {r.status === "covered" ? (
+                    <EvidenceText text={`Producer pattern matched in Method[5] .cctor; ${r.fieldCount} field${r.fieldCount === 1 ? "" : "s"} decoded.`} />
+                  ) : (
+                    <>
+                      <EvidenceText text="No producer (dup; ldc.i4 rid; ldc.i4 idx; ldstr; call b::h; call Set) anywhere in AlfaOBD_managed.il — only consumer reads." />
+                      {(r.getOffset || r.labelOffset) && (
+                        <EvidenceText text={`Consumers: ${[r.getOffset, r.labelOffset].filter(Boolean).join("  •  ")}`} />
+                      )}
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <details style={{ marginTop: 12 }}>
+        <summary style={{
+          cursor: "pointer", fontSize: 11, fontWeight: 800, color: C.tm,
+          padding: "6px 10px", background: "#F0EDE8", borderRadius: 6, userSelect: "none",
+        }}>
+          IL trace summary for the four GAP-PENDING-DB routines
+        </summary>
+        <Card style={{ marginTop: 8 }}>
+          <div style={{ fontSize: 11, color: C.ts, lineHeight: 1.6 }}>
+            <div><strong>Method:</strong> <code style={{ fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{missingEvidence.method}</code></div>
+            <div style={{ marginTop: 6 }}>
+              <strong>ldc.i4 reference counts:</strong>{" "}
+              2504 = {missingEvidence.ldc_i4_2504_total_refs},{" "}
+              2505 = {missingEvidence.ldc_i4_2505_total_refs},{" "}
+              2507 = {missingEvidence.ldc_i4_2507_total_refs},{" "}
+              2508 = {missingEvidence.ldc_i4_2508_total_refs}
+            </div>
+            <div style={{ marginTop: 4 }}>
+              <strong>Producer-pattern hits:</strong>{" "}
+              <code style={{ fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{missingEvidence.producer_pattern_hits}</code>
+            </div>
+            <div style={{ marginTop: 8, fontSize: 10, color: C.tm, fontStyle: "italic" }}>
+              {meta.routines_missing_reason}
+            </div>
+          </div>
+        </Card>
+      </details>
+    </>
+  );
+}
+
 /* ── Main tab ────────────────────────────────────────────────────────── */
 export default function BinaryIntelTab() {
   const [selectedId, setSelectedId] = useState(BINARY_INTEL_REPORTS[0]?.id || null);
@@ -581,6 +742,9 @@ export default function BinaryIntelTab() {
           )}
         </>
       )}
+
+      {/* ── Tier-1 dispatch coverage (read-only) ─────────────────────── */}
+      <Tier1DispatchCoveragePanel />
 
       {/* Footer */}
       <div style={{ marginTop: 24, fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'", textAlign: "right" }}>
