@@ -1,5 +1,6 @@
 - [UDS Session Analyzer structure](uds-session-analyzer.md) — parser.js + analyze.js under src/lib/udsSessionAnalyzer/; fixture at fixtures/example_session.log; imports @workspace/uds which is already a devDep of srt-lab.
 - [VILLAIN 0x27/0x61 wrong shape](villain-0x61-wrong-shape.md) — original CRC16+S-box hypothesis is wrong (removed from codebase); real level 0x61 dispatches to _gpec_calculator and is covered by algos.js gpec2/gpec2_q2 sxor entries pending bench verification.
 - [6.2 Charger bench set ground truth](charger62-bench-set.md) — pinned VIN/SEC16/CRC values for the canonical 4-file bench fixture; independently confirmed by FCA SINCRO competitor tool.
+- [AlfaOBD .db recovery technique](alfaobd-db-recovery.md) — sqlite3 .recover beats malformed-schema errors; yields 3,806 routine ID→label mappings; debunks several handoff claims (20k DTCs, 285 endpoints) as fiction.
 - [BCM SEC16 blank gate](bcm-sec16-blank-gate.md) — sec16Absent uses allBlank (all-FF/all-00), NOT entropy count; 5-byte flat slice on Charger bench is real SEC16.
 - [Re-key virgin BCM from RFHUB](rekey-virgin-bcm.md) — writeBcmSec16Gen2 is update-only; virgin BCMs need split records created from scratch. parseModule vs engParseRfh have different RFHUB sec16 field shapes.
