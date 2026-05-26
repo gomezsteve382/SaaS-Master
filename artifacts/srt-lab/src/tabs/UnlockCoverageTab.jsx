@@ -2638,7 +2638,7 @@ function ConflictMergeDialog({
             MERGED PAYLOAD (used by KEEP MINE & OVERWRITE)
           </div>
           <div data-testid="verifications-conflict-merge-preview">
-            operator: {fmt(merged.operator)} · vin: {fmt(merged.vin)} · notes: {fmt(merged.notes)}
+            verified by: {fmt(merged.operator)} · vin: {fmt(merged.vin)} · notes: {fmt(merged.notes)}
           </div>
         </div>
 
