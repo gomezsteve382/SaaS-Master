@@ -74,7 +74,6 @@ const QUICK_CMDS = [
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────── */
 function hx(n, w = 2) { return n.toString(16).toUpperCase().padStart(w, "0"); }
-const saStorageKey = (txHex) => `sa_algo_${txHex.toLowerCase().replace(/\s/g, "")}`;
 function hexToBytes(s) {
   const clean = s.replace(/[^0-9a-fA-F]/g, "");
   const out = [];
@@ -226,7 +225,6 @@ export default function J2534UdsConsoleTab() {
   const [saDetectedAlgo, setSaDetectedAlgo] = useState(null);
   const [saRememberedAlgo, setSaRememberedAlgo] = useState(null);
   const [saDetectedLevel, setSaDetectedLevel] = useState(null);
-  const [saRememberedAlgo, setSaRememberedAlgo] = useState(null);
 
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
