@@ -2,7 +2,7 @@ import React, {useState, useCallback, useMemo, useEffect} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Btn} from "../lib/ui.jsx";
 import {getAuth29Detections, subscribeAuth29, clearAuth29Detections, loadAuth29Detections, getAuth29Unlocks, clearAuth29Unlocks} from "../lib/auth29State.js";
-import {ALGOS, xtea_sgw_full, alfaW6, alfaW6By, u32} from "../lib/algos.js";
+import {ALGOS, UNLOCK_FALLBACK, xtea_sgw_full, alfaW6, alfaW6By, u32} from "../lib/algos.js";
 import {AOBD_W6, AOBD_W7, AOBD_DISPATCH} from "../lib/alfaobdAlgorithms.generated.js";
 import {EXTENDED_ALGORITHMS} from "../lib/extendedAlgorithms.generated.js";
 import {mergeDispatch, STATUS_BRANCH_KNOWN} from "../lib/alfaobdDispatchAuxiliary.js";
@@ -30,8 +30,13 @@ const EXT_PICKER_ALGOS = Object.freeze(
     })),
 );
 function SeedTab(){
-  const[al,setAl]=useState('gpec2');const[sh,setSh]=useState('');const[res,setRes]=useState(null);const[all,setAll]=useState(false);
+  const[al,setAl]=useState('gpec2');const[sh,setSh]=useState('');const[res,setRes]=useState(null);const[all,setAll]=useState(false);const[fallback,setFallback]=useState(false);
   const[pdfBusy,setPdfBusy]=useState(false);
+  const[copiedId,setCopiedId]=useState(null);
+  const copyKey=(id,text)=>{
+    try{navigator.clipboard.writeText(text).catch(()=>{});}catch(_){}
+    setCopiedId(id);setTimeout(()=>setCopiedId(i=>i===id?null:i),1500);
+  };
   // AlfaOBD lookup affordances — these don't pollute the main picker
   // (380 wrappers would be unusable). Selecting a family/level or
   // entering a wrapper name computes alongside the chosen ALGOS entry.
@@ -111,6 +116,16 @@ function SeedTab(){
   // below treats them identically.
   const PICKER_ALGOS=useMemo(()=>[...ALGOS,...EXT_PICKER_ALGOS],[]);
 
+  // Resolve UNLOCK_FALLBACK ids to picker entries for the fallback table.
+  // alfa_w6_custom is skipped (it needs interactive (r,s) input and has no
+  // deterministic fn for batch computation).
+  const FALLBACK_ALGOS=useMemo(()=>
+    UNLOCK_FALLBACK
+      .map(id=>PICKER_ALGOS.find(a=>a.id===id))
+      .filter(Boolean)
+      .filter(a=>a.id!=='alfa_w6_custom')
+  ,[PICKER_ALGOS]);
+
   const calc=useCallback(()=>{
     const raw=sh.replace(/\s/g,'');const v=parseInt(raw,16);if(isNaN(v)||!raw)return;
     const sb=seedToBytes(u32(v));
@@ -129,28 +144,34 @@ function SeedTab(){
       }
       return {via:'',key:'enter (r, s) above OR a wrapper name in the AlfaOBD lookup'};
     };
-    if(all){
+    if(fallback){
+      setRes({mode:'fallback',seed:v.toString(16).toUpperCase().padStart(8,'0'),
+        results:FALLBACK_ALGOS.map(a=>({id:a.id,n:a.n,h:a.h,
+          k:a.fn(u32(v)).toString(16).toUpperCase().padStart(8,'0'),
+          k8:a.id==='xtea_sgw'?sgwFull():null})),
+        wrapResult,dispResult});
+    } else if(all){
       // "Run all" includes both the curated ALGOS and the executable
       // extended ports — the latter were verified against pinned
       // vectors at sweep time so they're safe to fire alongside the
       // canonical entries.
-      setRes({multi:true,seed:v.toString(16).toUpperCase().padStart(8,'0'),
+      setRes({mode:'all',seed:v.toString(16).toUpperCase().padStart(8,'0'),
         results:PICKER_ALGOS.map(a=>({id:a.id,n:a.n,h:a.h,extended:!!a.extended,
-          k:a.id==='alfa_w6_custom'?(computeCustom().key||'—'):a.fn(v).toString(16).toUpperCase().padStart(8,'0'),
+          k:a.id==='alfa_w6_custom'?(computeCustom().key||'—'):a.fn(u32(v)).toString(16).toUpperCase().padStart(8,'0'),
           k8:a.id==='xtea_sgw'?sgwFull():null})),
         wrapResult,dispResult});
     } else {
       const a=PICKER_ALGOS.find(x=>x.id===al);if(!a)return;
       const isCustom=a.id==='alfa_w6_custom';
       const customRes=isCustom?computeCustom():null;
-      setRes({multi:false,id:a.id,n:a.n,seed:v.toString(16).toUpperCase().padStart(8,'0'),
-        key:isCustom?(customRes.key||'—'):a.fn(v).toString(16).toUpperCase().padStart(8,'0'),
+      setRes({mode:'single',id:a.id,n:a.n,seed:v.toString(16).toUpperCase().padStart(8,'0'),
+        key:isCustom?(customRes.key||'—'):a.fn(u32(v)).toString(16).toUpperCase().padStart(8,'0'),
         key8:a.id==='xtea_sgw'?sgwFull():null,
         customVia:isCustom?customRes.via:null,
         extended:!!a.extended,
         wrapResult,dispResult});
     }
-  },[al,sh,all,wrapName,dispatchedName,dispatchedIsW6,famKey,lvlKey,customR,customS,PICKER_ALGOS]);
+  },[al,sh,all,fallback,wrapName,dispatchedName,dispatchedIsW6,famKey,lvlKey,customR,customS,PICKER_ALGOS,FALLBACK_ALGOS]);
 
   const totalAlgoCount=ALGOS.length;
   const extendedAlgoCount=EXT_PICKER_ALGOS.length;
@@ -213,21 +234,25 @@ function SeedTab(){
       </div>
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(130px,1fr))',gap:6,marginBottom:16}}>
-        {PICKER_ALGOS.map(a=><div key={a.id} title={a.extended?(a.docstring||a.tag):a.h} onClick={()=>{setAl(a.id);setAll(false);}} style={{
+        {PICKER_ALGOS.map(a=><div key={a.id} title={a.extended?(a.docstring||a.tag):a.h} onClick={()=>{setAl(a.id);setAll(false);setFallback(false);}} style={{
           padding:'9px 11px',borderRadius:10,cursor:'pointer',transition:'all 0.2s',position:'relative',
-          background:al===a.id&&!all?C.sr+'12':C.c2,border:`1.5px solid ${al===a.id&&!all?C.sr:C.bd}`}}>
-          <div style={{fontSize:11,fontWeight:800,color:al===a.id&&!all?C.sr:C.tx}}>{a.n}</div>
+          background:al===a.id&&!all&&!fallback?C.sr+'12':C.c2,border:`1.5px solid ${al===a.id&&!all&&!fallback?C.sr:C.bd}`}}>
+          <div style={{fontSize:11,fontWeight:800,color:al===a.id&&!all&&!fallback?C.sr:C.tx}}>{a.n}</div>
           <div style={{fontSize:8,color:C.tm}}>{a.h}</div>
           {a.extended&&<span data-testid={`ext-chip-${a.tag}`} style={{position:'absolute',top:4,right:4,fontSize:7,fontWeight:800,letterSpacing:.5,padding:'1px 4px',borderRadius:3,background:'#9C27B014',color:'#6A1B9A'}}>EXT</span>}
         </div>)}
-        <div onClick={()=>setAll(true)} style={{padding:'9px 11px',borderRadius:10,cursor:'pointer',background:all?C.a4+'12':C.c2,border:`1.5px solid ${all?C.a4:C.bd}`}}>
+        <div data-testid="fallback-chain-tile" onClick={()=>{setFallback(true);setAll(false);}} style={{padding:'9px 11px',borderRadius:10,cursor:'pointer',background:fallback?'#1B5E2012':C.c2,border:`1.5px solid ${fallback?'#1B5E20':C.bd}`}}>
+          <div style={{fontSize:11,fontWeight:800,color:fallback?'#1B5E20':C.tx}}>FALLBACK</div>
+          <div style={{fontSize:8,color:C.tm}}>Try {FALLBACK_ALGOS.length} · UNLOCK_FALLBACK chain</div>
+        </div>
+        <div onClick={()=>{setAll(true);setFallback(false);}} style={{padding:'9px 11px',borderRadius:10,cursor:'pointer',background:all?C.a4+'12':C.c2,border:`1.5px solid ${all?C.a4:C.bd}`}}>
           <div style={{fontSize:11,fontWeight:800,color:all?C.a4:C.tx}}>ALL</div>
           <div style={{fontSize:8,color:C.tm}}>Run all {totalAlgoCount + extendedAlgoCount}</div>
         </div>
       </div>
 
       {/* AlfaOBD w6 (custom) extra inputs — only shown when that ALGOS entry is selected */}
-      {al==='alfa_w6_custom'&&!all&&<div style={{padding:12,borderRadius:10,background:C.a4+'10',border:'1.5px solid '+C.a4,marginBottom:12}}>
+      {al==='alfa_w6_custom'&&!all&&!fallback&&<div style={{padding:12,borderRadius:10,background:C.a4+'10',border:'1.5px solid '+C.a4,marginBottom:12}}>
         <div style={{fontSize:10,fontWeight:800,color:C.a4,letterSpacing:2,marginBottom:8}}>ALFAOBD W6 — MANUAL (r, s)</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
           <div>
@@ -297,7 +322,7 @@ function SeedTab(){
         onKeyDown={e=>{if(e.key==='Enter')calc();}}/>
       <div style={{marginTop:12}}><Btn onClick={calc} disabled={!sh.trim()} full>Calculate Key</Btn></div>
 
-      {res&&!res.multi&&<div style={{marginTop:20,padding:20,borderRadius:14,background:C.c2,border:'1.5px solid '+C.bd}}>
+      {res&&res.mode==='single'&&<div style={{marginTop:20,padding:20,borderRadius:14,background:C.c2,border:'1.5px solid '+C.bd}}>
         <div style={{display:'grid',gridTemplateColumns:'1fr 40px 1fr',gap:12,alignItems:'center'}}>
           <div><div style={{fontSize:9,color:C.tm,letterSpacing:2,marginBottom:6}}>SEED</div>
             <div style={{fontFamily:"'JetBrains Mono'",fontSize:26,fontWeight:800,color:C.a3}}>{res.seed}</div></div>
@@ -314,7 +339,47 @@ function SeedTab(){
         <div style={{marginTop:8,fontSize:11,color:C.tm}}>{res.n}</div>
       </div>}
 
-      {res&&res.multi&&<div style={{marginTop:20}}>
+      {res&&res.mode==='fallback'&&<div data-testid="fallback-results" style={{marginTop:20}}>
+        <div style={{display:'flex',alignItems:'baseline',gap:10,marginBottom:10}}>
+          <div style={{fontSize:12,fontWeight:800}}>UNLOCK_FALLBACK chain — Seed: <span style={{fontFamily:"'JetBrains Mono'",color:C.a3}}>{res.seed}</span></div>
+          <span style={{fontSize:10,color:C.tm}}>{res.results.length} algorithms · ordered as tried on-bus</span>
+        </div>
+        <div style={{maxHeight:380,overflowY:'auto',border:'1.5px solid '+C.bd,borderRadius:12,background:C.c2}}>
+          <table style={{width:'100%',borderCollapse:'collapse',fontFamily:"'JetBrains Mono'",fontSize:12}}>
+            <thead style={{position:'sticky',top:0,background:C.c2,zIndex:1,borderBottom:'2px solid '+C.bd}}>
+              <tr>
+                <th style={{textAlign:'left',padding:'8px 12px',fontWeight:800,color:C.tm,fontSize:10,letterSpacing:1}}>#</th>
+                <th style={{textAlign:'left',padding:'8px 12px',fontWeight:800,color:C.tm,fontSize:10,letterSpacing:1}}>ALGORITHM</th>
+                <th style={{textAlign:'left',padding:'8px 12px',fontWeight:800,color:C.tm,fontSize:10,letterSpacing:1}}>KEY BYTES</th>
+                <th style={{textAlign:'right',padding:'8px 12px',fontWeight:800,color:C.tm,fontSize:10,letterSpacing:1}}>COPY</th>
+              </tr>
+            </thead>
+            <tbody>
+              {res.results.map((r,i)=><tr key={r.id} data-testid={`fallback-row-${r.id}`} style={{borderTop:'1px solid '+C.bd+'60',background:i%2===0?'transparent':'#0000000A'}}>
+                <td style={{padding:'8px 12px',color:C.tm,fontSize:10,fontWeight:700}}>{i+1}</td>
+                <td style={{padding:'8px 12px'}}>
+                  <div style={{fontWeight:800,color:C.tx,fontSize:11}}>{r.n}</div>
+                  <div style={{fontSize:8,color:C.tm,marginTop:1}}>{r.h}</div>
+                </td>
+                <td style={{padding:'8px 12px'}}>
+                  <span style={{color:C.sr,fontWeight:800,letterSpacing:1}}>{r.k}</span>
+                  {r.k8&&<div style={{fontSize:9,color:C.sr,opacity:.75,marginTop:2}}>8B: {r.k8}</div>}
+                </td>
+                <td style={{padding:'8px 12px',textAlign:'right'}}>
+                  <button data-testid={`fallback-copy-${r.id}`} onClick={()=>copyKey(r.id,r.k8||r.k)}
+                    style={{cursor:'pointer',border:'1.5px solid '+(copiedId===r.id?'#1B5E20':C.bd),padding:'4px 10px',borderRadius:6,
+                      background:copiedId===r.id?'#E8F5E9':'#fff',color:copiedId===r.id?'#1B5E20':C.tx,
+                      fontWeight:800,fontSize:9,letterSpacing:.5,fontFamily:"'Nunito'",transition:'all .15s'}}>
+                    {copiedId===r.id?'✓ COPIED':'COPY'}
+                  </button>
+                </td>
+              </tr>)}
+            </tbody>
+          </table>
+        </div>
+      </div>}
+
+      {res&&res.mode==='all'&&<div style={{marginTop:20}}>
         <div style={{fontSize:12,fontWeight:800,marginBottom:10}}>Seed: <span style={{fontFamily:"'JetBrains Mono'",color:C.a3}}>{res.seed}</span></div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
           {res.results.map((r,i)=><div key={i} style={{padding:'10px 12px',borderRadius:10,background:C.c2,border:'1px solid '+C.bd,display:'flex',justifyContent:'space-between',alignItems:'center',gap:8}}>
