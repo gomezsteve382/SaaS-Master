@@ -446,7 +446,11 @@ export default function J2534UdsConsoleTab() {
         const rxStr = bytesToHex(r.d);
         addLog(`RX ← 0x${hx(rx, 3)}: ${rxStr}`, "rx");
         if (r.d[0] === 0x7F && r.d.length >= 3) {
-          addLog(`NRC 0x${hx(r.d[2])}: ${decodeNRC(r.d[2])}`, "warn");
+          const nrc = r.d[2];
+          addLog(`NRC 0x${hx(nrc)}: ${decodeNRC(nrc)}`, "warn");
+          if (nrc === 0x22 && bytes[0] === 0x27) {
+            addLog("Hint: send 'Ext Session' (10 03) first, then retry Security Access", "hint");
+          }
         }
       } else {
         addLog("No response: " + (r.raw || "timeout"), "error");
