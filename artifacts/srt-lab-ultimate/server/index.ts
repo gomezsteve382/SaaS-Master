@@ -4389,9 +4389,37 @@ RULES:
   if (Number.isNaN(port) || port <= 0) {
     throw new Error(`Invalid PORT value: "${rawPort}"`);
   }
-  server.listen(port, () => {
-    console.log(`SRT Lab RE Agent API listening on port ${port}`);
-  });
+  function tryListen(tryPort: number, attemptsLeft: number): void {
+    server.once("error", (err: NodeJS.ErrnoException) => {
+      if (err.code === "EADDRINUSE" && attemptsLeft > 0) {
+        console.warn(
+          `[api] Port ${tryPort} is already in use — trying ${tryPort + 1} …`
+        );
+        tryListen(tryPort + 1, attemptsLeft - 1);
+      } else if (err.code === "EADDRINUSE") {
+        console.error(
+          `[api] Could not find a free port after several attempts. ` +
+          `Kill stale processes or set PORT to a free port.`
+        );
+        process.exit(1);
+      } else {
+        console.error("[api] Server error:", err);
+        process.exit(1);
+      }
+    });
+
+    server.listen(tryPort, () => {
+      if (tryPort !== port) {
+        console.warn(
+          `[api] Port ${port} was busy — listening on fallback port ${tryPort} instead.`
+        );
+      } else {
+        console.log(`SRT Lab RE Agent API listening on port ${tryPort}`);
+      }
+    });
+  }
+
+  tryListen(port, 10);
 }
 
 startServer().catch(console.error);

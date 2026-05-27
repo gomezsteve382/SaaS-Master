@@ -1,0 +1,45 @@
+For 6 GB the only path that actually works is **GitHub Release assets** on `mjremetio/srt-lab-ultimate`. Releases allow 2 GB per asset and unlimited assets per release, so split into 3–4 chunks and I can pull them through the GitHub MCP and reconstruct here.
+
+But before you spend an hour uploading 6 GB — **tell me what's in it and what you want me to do with it**, because "the whole software I built" is almost certainly 95% stuff I don't need. The realistic breakdown:
+
+| Likely bloat | Size | Do I need it? |
+|---|---|---|
+| `node_modules` / `vendor` / dependencies | 2–4 GB | No, I install fresh |
+| `.git` history (if huge) | 0.5–2 GB | Usually no, just current state |
+| Build outputs / `dist` / `target` | 0.5–1 GB | No, I rebuild |
+| Bundled runtimes (Erlang OTP, JRE, Python, etc.) | 0.5–1 GB | No, I have them or install |
+| Embedded databases / ECU dump library | 0.1–1 GB | Maybe — depends on task |
+| **Your actual source code + configs** | **5–200 MB** | **Yes** |
+
+So the real question: **what do you want me to do with your software?**
+
+- **Code review / understanding the architecture** → `git archive HEAD` from your repo (or copy the source tree without `node_modules`, `dist`, `.git`) gives me ~50 MB and that's everything.
+- **Extend it / add features to it** → same; just the source.
+- **Reverse-engineer its database format** → just the DBs + the runtime DLLs.
+- **Port a specific feature from your software into SRT Lab** → just the relevant module/file.
+- **Sign off on the whole thing for production** → still don't need 6 GB; the build artifacts come from CI, not from a copy.
+
+## If you genuinely do need to ship all 6 GB
+
+On Windows (Git Bash / WSL / PowerShell with 7-zip):
+
+```bash
+# Slim first — this often drops 6 GB → 200 MB
+zip -r -9 software.zip your_software/ \
+    -x "*/node_modules/*" "*/.git/*" "*/dist/*" "*/build/*" "*/target/*" \
+       "*/__pycache__/*" "*/.venv/*" "*/vendor/*"
+
+# If still over 2 GB, split into 1900 MB chunks
+# Git Bash / WSL:
+split -b 1900M software.zip software.zip.part_
+
+# Or 7-zip with volume split:
+7z a -v1900m software.7z your_software/ -xr!node_modules -xr!.git -xr!dist
+```
+
+Then on `mjremetio/srt-lab-ultimate`:
+1. Create a draft release (don't publish — just attach assets)
+2. Drag the `.part_aa`, `.part_ab`, `.part_ac` files in
+3. Tell me the release tag and I pull + reassemble here
+
+**My strong recommendation: spend 5 minutes telling me what the software is and what you want done. I'll tell you what 50 MB to actually send.**
