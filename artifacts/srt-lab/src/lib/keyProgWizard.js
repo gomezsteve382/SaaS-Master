@@ -143,6 +143,7 @@ function buildVerifyText({
   before, after, bcmAfterInfo, rfhAfterInfo, pcmAfterInfo,
   bcmPatched, promoteBank, ok, failedChecks = [],
   pcmChip, pcmSliced,
+  rfhSec16Status, rfhSec16BeforeHex, rfhSec16AfterHex,
 }) {
   const lines = [];
   lines.push('Cluster key-prog patch — VERIFY report');
@@ -204,9 +205,12 @@ function buildVerifyText({
     }
     lines.push('');
   }
-  lines.push('-- RFH ' + rfhName + '  (PASS-THROUGH)');
+  const rfhWasPatched = rfhSec16Status && rfhSec16Status.startsWith('PATCHED');
+  const rfhModeTag = rfhWasPatched ? '  (SEC16 PATCHED)' : '  (PASS-THROUGH)';
+  const rfhShaTag  = rfhWasPatched ? '  [SEC16 bytes updated]' : '  [identical]';
+  lines.push('-- RFH ' + rfhName + rfhModeTag);
   lines.push('   src SHA-256: ' + rfhSrcSha);
-  lines.push('   out SHA-256: ' + rfhOutSha + '  [identical]');
+  lines.push('   out SHA-256: ' + rfhOutSha + rfhShaTag);
   if (rfhAfterInfo?.vins?.length) {
     lines.push('   Full VINs:');
     for (const v of rfhAfterInfo.vins) {
@@ -215,6 +219,15 @@ function buildVerifyText({
   }
   if (rfhAfterInfo?.sec16s?.[0]?.hex) {
     lines.push('   SEC16 slot1 (= shared secret BE): ' + rfhAfterInfo.sec16s[0].hex.toUpperCase());
+  }
+  // RFHUB_SEC16 outcome — always present so the operator knows exactly what
+  // happened to the SEC16 during this wizard run without re-loading the files.
+  if (rfhSec16Status) {
+    lines.push('   RFHUB_SEC16: ' + rfhSec16Status);
+    if (rfhWasPatched && rfhSec16BeforeHex) {
+      lines.push('     before: ' + rfhSec16BeforeHex);
+      lines.push('     after:  ' + (rfhSec16AfterHex || '(see slot1 above)'));
+    }
   }
   lines.push('');
   // Task #379: surface the actual chip-mode resolution in the operator
@@ -337,6 +350,31 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
   const idR = identifyModule(rfh.data, rfh.name);
   const idP = identifyModule(pcm.data, pcm.name);
   ok('BCM file identified as BCM', idB.role === 'BCM', 'detected ' + (idB.info.type || 'UNKNOWN'));
+
+  // XC2268-class RFHUB (2019+ Ram internal-flash, 64 KB) uses a different
+  // internal layout than the Gen2 Yazaki (which has AA 55 31 01 at 0x0500 and
+  // SEC16 slots at 0x050E / 0x0522). writeRfhSec16FromBcm cannot auto-patch an
+  // XC2268 image — surface a clear, blocking error rather than silently treating
+  // it as an unknown module and allowing a corrupt ZIP to be downloaded.
+  if (idR.info?.type === 'XC2268_RFHUB') {
+    return {
+      ok: false,
+      checks: [
+        ...checks,
+        {
+          label: 'RFH file identified as RFHUB',
+          pass: false,
+          detail: 'XC2268 RFHUB (2019+ Ram internal-flash, 64 KB) detected — '
+            + 'SEC16 slots differ from Gen2 layout and cannot be auto-patched here. '
+            + 'Use ModuleSync BCM→RFH to sync the RFHUB SEC16, then re-run the wizard.',
+        },
+      ],
+      files: [],
+      before: { bcmFullVins: (idB.info?.vins || []).map((v) => ({ offset: v.offset, vin: v.vin })), bcmPartials: [] },
+      after: null, sharedSecret: null, verifyText: '',
+    };
+  }
+
   ok('RFH file identified as RFHUB', idR.role === 'RFH', 'detected ' + (idR.info.type || 'UNKNOWN'));
   ok('PCM file identified as GPEC2A', idP.role === 'PCM', 'detected ' + (idP.info.type || 'UNKNOWN'));
   if (idP.role === 'PCM' && idP.doubled) {
@@ -344,11 +382,33 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
   }
 
   const sharedSecret = idB.role === 'BCM' ? deriveSharedSecretBE(idB.info) : null;
-  if (sharedSecret && idR.info?.sec16s?.[0]?.hex) {
-    const rfhSec = String(idR.info.sec16s[0].hex).toUpperCase();
-    ok('RFH SEC16 slot1 matches BCM secret (BE)', rfhSec === sharedSecret, 'RFH=' + rfhSec);
-  } else if (idR.role === 'RFH') {
-    ok('RFH SEC16 slot1 matches BCM secret (BE)', false, 'RFH SEC16 not parsed');
+
+  // Track the RFHUB SEC16 state before patching.  When there is a mismatch the
+  // wizard auto-fixes it below (writeRfhSec16FromBcm) rather than failing hard
+  // here. The check is recorded as informational so the operator can see what
+  // was found before any write, but a mismatch alone is NOT a blocking failure.
+  let rfhSec16NeedsWrite = false;
+  let rfhSec16BeforeHex = null;
+  if (sharedSecret && idR.role === 'RFH') {
+    if (idR.info?.sec16s?.[0]?.hex) {
+      rfhSec16BeforeHex = String(idR.info.sec16s[0].hex).toUpperCase();
+      rfhSec16NeedsWrite = rfhSec16BeforeHex !== sharedSecret;
+      checks.push({
+        label: 'RFH SEC16 slot1 vs BCM secret (BE)',
+        pass: true,
+        detail: rfhSec16NeedsWrite
+          ? 'mismatch — will auto-patch (was ' + rfhSec16BeforeHex + ')'
+          : 'already matched',
+      });
+    } else {
+      // SEC16 not yet populated (virgin or unrecognised format) — attempt write.
+      rfhSec16NeedsWrite = true;
+      checks.push({
+        label: 'RFH SEC16 slot1 vs BCM secret (BE)',
+        pass: true,
+        detail: 'SEC16 not yet populated — will write from BCM secret',
+      });
+    }
   }
   if (sharedSecret && idP.info?.pcmSec6?.hex) {
     const pcmSec6 = String(idP.info.pcmSec6.hex).replace(/ /g, '');
@@ -437,8 +497,51 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
   }
   ok('All BCM VIN-slot headers/trailers preserved', trailerFail === null, trailerFail || '');
 
-  // ── RFH pass-through; PCM size resolution per --pcm-chip / auto-pick (#379) ──
-  const rfhOut = new Uint8Array(rfh.data);
+  // ── RFH SEC16 write (when mismatched) + PCM size resolution ──────────────
+  // `rfhOut` starts as a mutable copy of the source. When rfhSec16NeedsWrite
+  // is set we call writeRfhSec16FromBcm which returns a new patched buffer;
+  // any thrown error (e.g. missing AA 55 31 01 Gen2 header on a module that
+  // cannot be auto-stamped) surfaces as a clear, blocking wizard failure.
+  let rfhOut = new Uint8Array(rfh.data);
+  let rfhSec16Status = rfhSec16NeedsWrite ? null : 'ALREADY_MATCHED';
+  let rfhSec16AfterHex = rfhSec16BeforeHex; // stays same when already matched
+
+  if (rfhSec16NeedsWrite && sharedSecret
+      && idB.info?.bcmSec16?.bytes && !idB.info.bcmSec16.blank) {
+    const bcmSec16Bytes = new Uint8Array(idB.info.bcmSec16.bytes);
+    try {
+      const wr = writeRfhSec16FromBcm(rfhOut, bcmSec16Bytes);
+      rfhOut = wr.bytes;
+      rfhSec16AfterHex = wr.rfhSec16Hex.toUpperCase();
+      rfhSec16Status = 'PATCHED (old: ' + (rfhSec16BeforeHex || 'unset')
+        + ', new: ' + rfhSec16AfterHex + ')';
+      ok('RFH SEC16 written from BCM secret', wr.patched === 2,
+        'slots patched: ' + wr.patched);
+    } catch (e) {
+      const msg = String(e?.message || e);
+      return {
+        ok: false,
+        checks: [
+          ...checks,
+          {
+            label: 'RFH SEC16 write failed',
+            pass: false,
+            detail: msg + ' — cannot produce a safe RFHUB output. '
+              + 'Use ModuleSync BCM→RFH to sync the RFHUB SEC16 manually.',
+          },
+        ],
+        sharedSecret,
+        before: { bcmFullVins: beforeBcmFullVins, bcmPartials: beforeBcmPartials },
+        after: null, files: [], verifyText: '',
+      };
+    }
+  } else if (rfhSec16NeedsWrite) {
+    // BCM SEC16 is blank or not resolvable — cannot derive a secret to write.
+    rfhSec16Status = 'WRITE_SKIPPED (BCM SEC16 blank or unresolvable)';
+    ok('RFH SEC16 write skipped — BCM SEC16 blank', false,
+      'BCM has no vehicle secret to derive from');
+  }
+
   const pcmRes = resolvePcmOutput(pcm.data, idP, pcmChip);
   ok('PCM output size matches selected chip',
      pcmRes.ok, pcmRes.ok ? pcmRes.chip.chip + ' (' + pcmRes.chip.sizeLabel + ')'
@@ -485,6 +588,7 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
     bcmAfterInfo, rfhAfterInfo, pcmAfterInfo, bcmPatched, promoteBank,
     ok: allOk, failedChecks: checks.filter((c) => !c.pass),
     pcmChip: pcmRes.chip, pcmSliced: pcmRes.sliced,
+    rfhSec16Status, rfhSec16BeforeHex, rfhSec16AfterHex,
   });
 
   return {
