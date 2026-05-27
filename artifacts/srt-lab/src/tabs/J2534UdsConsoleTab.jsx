@@ -226,12 +226,59 @@ export default function J2534UdsConsoleTab() {
   const [saRememberedAlgo, setSaRememberedAlgo] = useState(null);
   const [saDetectedLevel, setSaDetectedLevel] = useState(null);
 
+  /* Remembered Algorithms panel state */
+  const [saMemoryOpen, setSaMemoryOpen] = useState(false);
+  const [rememberedEntries, setRememberedEntries] = useState([]);
+
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
   const urlRef = useRef(getAutelState().url);
 
   /* Keep URL ref fresh whenever component re-renders */
   urlRef.current = getAutelState().url;
+
+  /* ── Remembered-algo management helpers ────────────────────────────── */
+  const loadRemembered = useCallback(() => {
+    const entries = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith("sa_algo_")) continue;
+      const addrStr = key.slice("sa_algo_".length);
+      const algoId = localStorage.getItem(key) || "";
+      const algoMeta = SA_ALGOS.find(a => a.id === algoId);
+      const addrNum = parseInt(addrStr.replace(/^0x/i, ""), 16);
+      const modMeta = !isNaN(addrNum) ? FCA_MODULES.find(m => m.tx === addrNum) : null;
+      entries.push({
+        key,
+        addrStr,
+        algoId,
+        algoName: algoMeta ? algoMeta.n : algoId,
+        moduleName: modMeta ? modMeta.name : null,
+      });
+    }
+    entries.sort((a, b) => a.addrStr.localeCompare(b.addrStr));
+    setRememberedEntries(entries);
+  }, []);
+
+  const forgetEntry = useCallback((key) => {
+    localStorage.removeItem(key);
+    if (key === saStorageKey(txHex)) setSaRememberedAlgo(null);
+    loadRemembered();
+  }, [loadRemembered, txHex]);
+
+  const clearAllRemembered = useCallback(() => {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("sa_algo_")) keys.push(k);
+    }
+    keys.forEach(k => localStorage.removeItem(k));
+    setSaRememberedAlgo(null);
+    setRememberedEntries([]);
+  }, []);
+
+  /* Load remembered entries on mount */
+  useEffect(() => { loadRemembered(); }, [loadRemembered]);
 
   /* When TX address changes: load remembered algo from localStorage, clear live detection */
   useEffect(() => {
@@ -504,10 +551,11 @@ export default function J2534UdsConsoleTab() {
       addLog("Security access GRANTED ✓", "success");
       localStorage.setItem(saStorageKey(txHex), algo.id);
       setSaRememberedAlgo(algo.id);
+      loadRemembered();
     } else {
       addLog(`Unexpected send-key response: ${bytesToHex(kr.d)}`, "warn");
     }
-  }, [addLog, txHex]);
+  }, [addLog, txHex, loadRemembered]);
 
   const confirmSendKey = useCallback(async () => {
     if (!saPending) return;
@@ -667,6 +715,7 @@ export default function J2534UdsConsoleTab() {
             setSaDetectedLevel(level);
             localStorage.setItem(saStorageKey(txHex), algoId);
             setSaRememberedAlgo(algoId);
+            loadRemembered();
             return;
           }
           addLog(`      seed: ${bytesToHex(seedBytes)}`, "info");
@@ -697,6 +746,7 @@ export default function J2534UdsConsoleTab() {
               setSaDetectedLevel(level);
               localStorage.setItem(saStorageKey(txHex), algoId);
               setSaRememberedAlgo(algoId);
+              loadRemembered();
               return;
             }
 
@@ -743,7 +793,7 @@ export default function J2534UdsConsoleTab() {
     } finally {
       setBusy(false);
     }
-  }, [status, txHex, rxHex, saLevelIdx, saSweepLevels, addLog]);
+  }, [status, txHex, rxHex, saLevelIdx, saSweepLevels, addLog, loadRemembered]);
 
   /* ── Module preset picker ───────────────────────────────────────────── */
   const pickModule = useCallback((mod) => {
@@ -966,6 +1016,7 @@ export default function J2534UdsConsoleTab() {
                             e.stopPropagation();
                             localStorage.removeItem(saStorageKey(txHex));
                             setSaRememberedAlgo(null);
+                            loadRemembered();
                           }}
                           style={{
                             background: "none", border: "none", color: "#666", fontSize: 9, cursor: "pointer",
@@ -1195,6 +1246,98 @@ export default function J2534UdsConsoleTab() {
             )}
           </div>
         )}
+
+        {/* ── Remembered Algorithms management panel ───────────────────── */}
+        <div style={{
+          borderRadius: 8,
+          border: `1px solid ${saMemoryOpen ? "#1A2A4A" : S.border}`,
+          background: saMemoryOpen ? "#080C14" : S.card,
+          marginBottom: 12, overflow: "hidden", transition: "border-color 0.2s",
+        }}>
+          <button
+            onClick={() => setSaMemoryOpen(o => !o)}
+            style={{
+              width: "100%", padding: "10px 16px", background: "none", border: "none",
+              display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
+              fontFamily: S.font, color: S.text, textAlign: "left",
+            }}
+          >
+            <span style={{ fontSize: 13, lineHeight: 1 }}>{saMemoryOpen ? "▾" : "▸"}</span>
+            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: S.blue }}>REMEMBERED ALGORITHMS</span>
+            <span style={{ fontSize: 10, color: S.dim, marginLeft: 4 }}>saved address → algo mappings</span>
+            {rememberedEntries.length > 0 && (
+              <span style={{
+                marginLeft: "auto", fontSize: 9, padding: "2px 7px", borderRadius: 4,
+                background: "#0A1A2A", color: S.blue,
+                border: "1px solid #1A3A5A", fontWeight: 700,
+              }}>
+                {rememberedEntries.length} saved
+              </span>
+            )}
+          </button>
+
+          {saMemoryOpen && (
+            <div style={{ padding: "0 16px 16px" }}>
+              {rememberedEntries.length === 0 ? (
+                <div style={{ fontSize: 11, color: S.dim, fontFamily: S.mono, padding: "8px 0" }}>
+                  {"// No remembered algorithms — successfully unlock a module to save one automatically."}
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <span style={{ fontSize: 9, color: "#444", fontWeight: 700, letterSpacing: 1, fontFamily: S.mono }}>
+                      {rememberedEntries.length} {rememberedEntries.length === 1 ? "entry" : "entries"}
+                    </span>
+                    <button
+                      onClick={clearAllRemembered}
+                      style={{
+                        padding: "5px 12px", borderRadius: 5,
+                        border: `1px solid ${S.red}`,
+                        background: "none", color: S.red,
+                        fontFamily: S.font, fontWeight: 700, fontSize: 10,
+                        cursor: "pointer", letterSpacing: 0.5,
+                      }}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    {rememberedEntries.map(e => (
+                      <div key={e.key} style={{
+                        display: "grid",
+                        gridTemplateColumns: "72px 90px 1fr auto",
+                        gap: "0 12px", alignItems: "center",
+                        padding: "7px 10px", borderRadius: 5,
+                        background: "#0A0A14", border: `1px solid ${S.border}`,
+                      }}>
+                        <span style={{ fontSize: 11, color: "#AAA", fontFamily: S.mono, fontWeight: 700 }}>
+                          {e.moduleName || "—"}
+                        </span>
+                        <span style={{ fontSize: 11, color: "#4FC3F7", fontFamily: S.mono }}>
+                          {e.addrStr}
+                        </span>
+                        <span style={{ fontSize: 11, color: S.yellow, fontFamily: S.mono }}>
+                          {e.algoName}
+                        </span>
+                        <button
+                          onClick={() => forgetEntry(e.key)}
+                          style={{
+                            background: "none", border: "none",
+                            color: S.dim, fontSize: 10, cursor: "pointer",
+                            padding: "2px 6px", fontFamily: S.font,
+                            textDecoration: "underline",
+                          }}
+                        >
+                          Forget
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* ── Log panel ─────────────────────────────────────────────────── */}
         <div style={{ borderRadius: 8, border: `1px solid ${S.border}`, background: "#07070D", overflow: "hidden" }}>
