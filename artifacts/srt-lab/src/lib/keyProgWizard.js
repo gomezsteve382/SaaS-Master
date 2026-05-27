@@ -599,6 +599,9 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
     pcmSliced: pcmRes.sliced,
     before: { bcmFullVins: beforeBcmFullVins, bcmPartials: beforeBcmPartials },
     after: { bcmFullVins: afterBcmFullVins, bcmPartials: afterBcmPartials },
+    rfhSec16Status,
+    rfhSec16BeforeHex,
+    rfhSec16AfterHex,
     files: [
       { role: 'BCM', name: bcmOutName, data: bcmPatched },
       { role: 'RFH', name: rfhOutName, data: rfhOut },
