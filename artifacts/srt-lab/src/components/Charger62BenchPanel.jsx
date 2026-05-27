@@ -191,9 +191,9 @@ function KeyMaterialBlock({ km }) {
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
- * Payload result card
+ * Payload result card — exported for unit-test isolation (Task #905).
  * ────────────────────────────────────────────────────────────────────────────*/
-function PayloadResultCard({ payResult }) {
+export function PayloadResultCard({ payResult }) {
   if (!payResult) return null;
   const rfhPatched = payResult.rfhSec16Status && payResult.rfhSec16Status.startsWith('PATCHED');
   const rfhFailed = payResult.rfhSec16Status
