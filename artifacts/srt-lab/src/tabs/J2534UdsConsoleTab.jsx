@@ -493,6 +493,12 @@ export default function J2534UdsConsoleTab() {
         if (nrc === 0x22) {
           setSaExtHint(true);
           addLog("Hint: send 'Ext Session' (10 03) first, then retry Security Access", "hint");
+        } else if (nrc === 0x24) {
+          addLog("Hint: RequestSequenceError — send Extended Session (10 03) first, then re-request the seed", "hint");
+        } else if (nrc === 0x36) {
+          addLog("Hint: ExceededAttempts — module is locked out; perform an ECU reset and wait for the lockout timer to expire before retrying", "hint");
+        } else if (nrc === 0x37) {
+          addLog("Hint: RequiredTimeDelayNotExpired — module enforces a lockout delay after failed attempts; wait a few seconds and retry", "hint");
         }
         return;
       }
@@ -546,7 +552,14 @@ export default function J2534UdsConsoleTab() {
     addLog(`RX ← 0x${hx(rx, 3)}: ${bytesToHex(kr.d)}`, "rx");
     if (kr.d[0] === 0x7F) {
       const nrc = kr.d.length >= 3 ? kr.d[2] : 0;
-      addLog(`NRC 0x${hx(nrc)}: ${decodeNRC(nrc)} — wrong key or wrong algorithm`, "error");
+      addLog(`NRC 0x${hx(nrc)}: ${decodeNRC(nrc)}`, "error");
+      if (nrc === 0x35) {
+        addLog("Hint: InvalidKey — wrong algorithm or the seed has expired; request a fresh seed and retry", "hint");
+      } else if (nrc === 0x36) {
+        addLog("Hint: ExceededAttempts — module is locked out; perform an ECU reset and wait for the lockout timer to expire before retrying", "hint");
+      } else if (nrc === 0x37) {
+        addLog("Hint: RequiredTimeDelayNotExpired — module enforces a lockout delay after failed attempts; wait a few seconds and retry", "hint");
+      }
     } else if (kr.d[0] === 0x67 && kr.d[1] === (level.key & 0xFF)) {
       addLog("Security access GRANTED ✓", "success");
       localStorage.setItem(saStorageKey(txHex), algo.id);
