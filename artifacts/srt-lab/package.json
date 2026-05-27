@@ -21,6 +21,7 @@
     "codegen:alfaobd:check": "node scripts/extract-alfaobd.mjs --check",
     "codegen:alfaobd-algos": "node scripts/extract-alfaobd-algorithms.mjs",
     "codegen:alfaobd-algos:check": "node scripts/extract-alfaobd-algorithms.mjs --check",
+    "pretest": "pnpm -w run sweep:assets",
     "test": "vitest run --config vitest.config.ts && node --test src/__tests__/*.test.mjs",
     "test:watch": "vitest --config vitest.config.ts",
     "fixtures:check": "vitest run --config vitest.config.ts src/lib/__tests__/anonymizeRealDump.test.js src/lib/__tests__/realDumps.anonymization.test.js src/lib/__tests__/realDumps.helperLeakScan.test.js src/lib/__tests__/securityBytes.realDump.golden.test.js",
