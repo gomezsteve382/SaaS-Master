@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
-pnpm install --frozen-lockfile
+
+# Only run pnpm install if the lockfile changed in the merge.
+# This avoids a 50s+ install on every task merge when dependencies haven't changed.
+if git --no-optional-locks diff --name-only HEAD~1 HEAD 2>/dev/null | grep -q 'pnpm-lock\.yaml\|package\.json'; then
+  echo "post-merge: lockfile or package.json changed — running pnpm install…"
+  pnpm install --frozen-lockfile
+else
+  echo "post-merge: no lockfile changes — skipping pnpm install"
+fi
+
 pnpm --filter db push
 
 # Best-effort install of the python-bridge runtime deps (pefile, unicorn).
