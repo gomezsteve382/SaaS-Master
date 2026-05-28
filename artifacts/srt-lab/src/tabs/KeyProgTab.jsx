@@ -28,6 +28,62 @@ import { saveAemtPlaceholders } from '../lib/audit.js';
 import AemtImportModal from '../components/AemtImportModal.jsx';
 import Charger62BenchPanel from '../components/Charger62BenchPanel.jsx';
 
+/**
+ * Exported for unit testing — renders the two RFHUB SEC16 status banners that
+ * appear in the KeyProgTab result section. Depends only on three fields of the
+ * `result` object so it can be rendered in isolation without mocking the full
+ * tab's state.
+ */
+export function KeyProgSec16Banners({ result }) {
+  if (!result) return null;
+  return (
+    <>
+      {result.rfhSec16Status && result.rfhSec16Status.startsWith('PATCHED') && (
+        <div
+          data-testid="rfh-sec16-patched-banner"
+          style={{
+            marginTop: 14, padding: '10px 14px', borderRadius: 10,
+            background: '#FF8F0012', border: '1px solid #FF8F0060',
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+          }}>
+          <span style={{ fontSize: 14, lineHeight: 1 }}>🔧</span>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 11, color: '#E65100', marginBottom: 2 }}>
+              RFHUB SEC16 auto-corrected
+            </div>
+            <div style={{ fontSize: 11, color: '#BF360C' }}>
+              Old:&nbsp;<span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{result.rfhSec16BeforeHex || 'unset'}</span>
+              &nbsp;→ New:&nbsp;<span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{result.rfhSec16AfterHex || '—'}</span>
+            </div>
+          </div>
+        </div>
+      )}
+      {result.rfhSec16Status && (result.rfhSec16Status.startsWith('WRITE_FAILED') || result.rfhSec16Status.startsWith('WRITE_SKIPPED')) && (
+        <div
+          data-testid="rfh-sec16-failed-banner"
+          style={{
+            marginTop: 14, padding: '10px 14px', borderRadius: 10,
+            background: '#D32F2F0A', border: '1px solid #D32F2F50',
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+          }}>
+          <span style={{ fontSize: 14, lineHeight: 1 }}>⚠</span>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 11, color: '#D32F2F', marginBottom: 2 }}>
+              RFHUB SEC16 write not completed
+            </div>
+            <div style={{ fontSize: 11, color: '#C62828' }}>
+              {result.rfhSec16Status}
+            </div>
+            <div style={{ fontSize: 11, color: '#C62828', marginTop: 4 }}>
+              Use <strong>ModuleSync → BCM→RFH</strong> to sync the RFHUB SEC16 manually.
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 const ROLE_LABEL = { BCM: 'BCM (D-FLASH)', RFH: 'RFHUB (EEE)', PCM: 'PCM (GPEC2A)' };
 const ROLE_ORDER = ['BCM', 'RFH', 'PCM'];
 
@@ -1172,48 +1228,7 @@ export default function KeyProgTab() {
           </div>
 
           {/* RFHUB SEC16 auto-correct banner */}
-          {result.rfhSec16Status && result.rfhSec16Status.startsWith('PATCHED') && (
-            <div
-              data-testid="rfh-sec16-patched-banner"
-              style={{
-                marginTop: 14, padding: '10px 14px', borderRadius: 10,
-                background: '#FF8F0012', border: '1px solid #FF8F0060',
-                display: 'flex', alignItems: 'flex-start', gap: 10,
-              }}>
-              <span style={{ fontSize: 14, lineHeight: 1 }}>🔧</span>
-              <div>
-                <div style={{ fontWeight: 800, fontSize: 11, color: '#E65100', marginBottom: 2 }}>
-                  RFHUB SEC16 auto-corrected
-                </div>
-                <div style={{ fontSize: 11, color: '#BF360C' }}>
-                  Old:&nbsp;<span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{result.rfhSec16BeforeHex || 'unset'}</span>
-                  &nbsp;→ New:&nbsp;<span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{result.rfhSec16AfterHex || '—'}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          {result.rfhSec16Status && (result.rfhSec16Status.startsWith('WRITE_FAILED') || result.rfhSec16Status.startsWith('WRITE_SKIPPED')) && (
-            <div
-              data-testid="rfh-sec16-failed-banner"
-              style={{
-                marginTop: 14, padding: '10px 14px', borderRadius: 10,
-                background: '#D32F2F0A', border: '1px solid #D32F2F50',
-                display: 'flex', alignItems: 'flex-start', gap: 10,
-              }}>
-              <span style={{ fontSize: 14, lineHeight: 1 }}>⚠</span>
-              <div>
-                <div style={{ fontWeight: 800, fontSize: 11, color: '#D32F2F', marginBottom: 2 }}>
-                  RFHUB SEC16 write not completed
-                </div>
-                <div style={{ fontSize: 11, color: '#C62828' }}>
-                  {result.rfhSec16Status}
-                </div>
-                <div style={{ fontSize: 11, color: '#C62828', marginTop: 4 }}>
-                  Use <strong>ModuleSync → BCM→RFH</strong> to sync the RFHUB SEC16 manually.
-                </div>
-              </div>
-            </div>
-          )}
+          <KeyProgSec16Banners result={result} />
 
           <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
             <button
