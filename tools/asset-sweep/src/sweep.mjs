@@ -39,6 +39,7 @@
  *      algorithm fails its pinned vector verification.
  */
 import {createHash} from "node:crypto";
+import {execSync} from "node:child_process";
 import {
   readFileSync, writeFileSync, readdirSync, statSync, existsSync,
   mkdirSync, rmSync,
@@ -224,7 +225,15 @@ function walkAssets() {
   const inventory = [];
   // Rebuild scratch tree each run so `ls tools/asset-sweep/.cache/` shows
   // exactly what the sweep unpacked, byte-stable for any given input set.
-  if (existsSync(CACHE_DIR)) rmSync(CACHE_DIR, {recursive: true, force: true});
+  if (existsSync(CACHE_DIR)) {
+    try {
+      rmSync(CACHE_DIR, {recursive: true, force: true});
+    } catch {
+      // Node 24 / overlayfs can raise ENOTEMPTY even with recursive:true;
+      // fall back to a shell rm which always handles non-empty dirs.
+      execSync(`rm -rf ${JSON.stringify(CACHE_DIR)}`);
+    }
+  }
   mkdirSync(CACHE_DIR, {recursive: true});
 
   function writeScratch(virtPath, buf) {
