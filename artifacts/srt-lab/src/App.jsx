@@ -2048,7 +2048,12 @@ export default function App(){
           />
         </MasterVinProvider>
       )}
-      {!copilotOpen && <CopilotFab onOpen={openCopilot}/>}
+      {/* The workspace exposes the co-pilot via the top-bar button; the
+       * floating launcher only needs to cover the landing screen, where
+       * there is no top bar. Scoping it to the landing also avoids a
+       * fixed-position collision with the workspace ReferencePanelTrigger
+       * (both anchor bottom-right). */}
+      {!vehicleId && !copilotOpen && <CopilotFab onOpen={openCopilot}/>}
       <CopilotPanel open={copilotOpen} onClose={()=>setCopilotOpen(false)}/>
     </>
   );
