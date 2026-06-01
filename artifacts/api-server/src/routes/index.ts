@@ -16,7 +16,7 @@ import sec16SyncEventsRouter from "./sec16SyncEvents";
 import patternsRouter from "./patterns";
 import knowledgeGraphRouter from "./knowledgeGraph";
 import keyWriterRouter from "./keyWriter";
-import rebridgeRouter from "./rebridge";
+import reBridgeRouter from "./reBridge";
 
 const router: IRouter = Router();
 
@@ -36,7 +36,7 @@ router.use(sec16SyncEventsRouter);
 router.use(patternsRouter);
 router.use(knowledgeGraphRouter);
 router.use(keyWriterRouter);
-router.use(rebridgeRouter);
+router.use(reBridgeRouter);
 router.use("/anthropic", anthropicRouter);
 
 export default router;

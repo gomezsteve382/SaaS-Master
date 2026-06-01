@@ -952,7 +952,7 @@ const WORKSPACE_TABS = [
   {id:'sigdisc',   i:'🛰️', l:'SIGNAL DISC', s:'TUMFTM sweep · record · match'},
   {id:'canuniverse',i:'🌐', l:'CAN UNIVERSE', s:'awesome-canbus + Eclipse SDV catalog'},
   {id:'loganalyser',i:'📜',l:'LOG ANALYSER',s:'candump · UDS · iddiff · catalog growth'},
-  {id:'fwemulation',i:'🧬',l:'FW EMULATION', s:'Unicorn · emulate · keyfn · seed→key'},
+  {id:'fwemul',    i:'🔬', l:'FW EMULATE', s:'Seed→key from firmware · Unicorn CPU emulator'},
 ]
   // Drop the INFO entry — it now lives behind the floating "?" reference
   // panel rather than occupying a sidebar slot. The id remains a valid
@@ -976,13 +976,13 @@ const WORKSPACE_CATEGORIES = {
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
   dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE',
   proxi:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
-  loganalyser:'ANALYZE', workflow:'ANALYZE', fwemulation:'ANALYZE',
+  loganalyser:'ANALYZE', workflow:'ANALYZE',
   // TOOLS — cross-cutting catalogs and coverage dashboards.
   unlockcov:'TOOLS', alfaobd:'TOOLS', alfaintel:'TOOLS', dispatchcov:'TOOLS',
   sigdisc:'TOOLS',
   // RESEARCH — experimental / read-only knowledge surfaces (collapsed by default).
   binintel:'RESEARCH', patterns:'RESEARCH', kg:'RESEARCH', investigation:'RESEARCH',
-  canuniverse:'RESEARCH',
+  canuniverse:'RESEARCH', fwemul:'RESEARCH',
 };
 
 function VehicleWorkspace({vehicleId, onBack}){
@@ -1268,7 +1268,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='sigdisc'   && <SignalDiscoveryTab/>}
         {tab==='canuniverse' && <CanUniverseTab/>}
         {tab==='loganalyser' && <LogAnalyserTab/>}
-        {tab==='fwemulation' && <FirmwareEmulationTab/>}
+        {tab==='fwemul'     && <FirmwareEmulationTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also

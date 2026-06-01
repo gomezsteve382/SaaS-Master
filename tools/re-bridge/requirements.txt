@@ -1,1 +1,8 @@
-unicorn>=2.0
+# SRT Lab RE bridge — firmware emulation dependencies
+#
+# unicorn: CPU emulator framework (x86, ARM, ARM64, MIPS, PPC …)
+# Already present in tools/python-bridge/requirements.txt for the
+# unlock-catalog DLL sandbox; listed here as a standalone declaration
+# so `pip install -r tools/re-bridge/requirements.txt` works
+# independently of the python-bridge package.
+unicorn>=2.0.0
