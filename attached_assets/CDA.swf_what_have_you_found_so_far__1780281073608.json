@@ -1,0 +1,14 @@
+{
+  "id": "analysis_1780080830742_4bolh4e",
+  "title": "CDA.swf — what have you found so far>?",
+  "prompt": "what have you found so far>?",
+  "fileName": "CDA.swf",
+  "filePath": "/home/ubuntu/re-agent/uploads/1780074841683-CDA.swf",
+  "response": "Here's everything recovered from `CDA.swf` so far.\n\n## What the file is\nThe official **CDA 6 — Chrysler Diagnostic Application** (FCA/Stellantis dealer diagnostic tool, Adobe AIR/Flex 4 app).\n\n| | |\n|---|---|\n| Type | Flash SWF v11, zlib (CWS) → ~8.7 MB FWS |\n| MD5 | `0333960e0fe7537834709ae77ba9029a` |\n| SHA-256 | `524b65c18c0f47be120fd1097da7bfe4848028d2cd33246d4c108b58c46b8c9b` |\n| Runtime | Adobe AIR; 2× DoABC (AVM2), 9× DefineBinaryData, 311 bitmaps |\n| Endpoints | `cda.dcctools.com/help.php`, `jira.fca-tools.com`, `stage.fca-tools.com`, DealerCONNECT/Contrado/Stellantis-Login |\n\n## Crypto / secrets recovered\nThe constant-pool obfuscation (`Config2.Assemble` + `StringToHexConverter.dec` subtracting the `P.$` table mod‑16) was fully reversed and round-trip verified.\n\n**1) WDE session \"securityKey\" — AES‑128‑CBC, NullPad** (`CryptographyUtil2`, hurlant lib):\n```\nstored KEY  C8FFA2FA89070312079FFCF3C21E4DED  → effective 92A37213F50DF30D1783EDC3F30D6DD3\nstored IV   C67D53386329F354F81D4BD1B2509CAB  → effective 90212351DF2FE34F08013CA1E34FBC91\n(present, unused here)\nKEY_X → 351671435E75217F9CA5A11D218EBD09   IV_X → E0EF3A7BAA3CFED196384784...\n```\nUsage: `CryptographyUtil.Encrypt(sessionUUID, KEY, IV)` → security token sent to the local WDE HTTP context. Verified the effective key/IV round-trip a UUID correctly.\n\n**2) Local license / config protection — AES‑128‑ECB/PKCS5** (`UserPrincipal`, `Cryptographer`):\n```\npassphrase = \"1(3(r3@m$@ndw1ch\"   (leet \"ice cream sandwich\")\nAES key    = MD5(passphrase) = EA3101F5D270A2BB93BF77F76829FF9D\n```\nProtects `%ALLUSERSPROFILE%\\CDA\\license` (stores `username=MM/DD/YYYY` license expiry) and the user sync-config.\n\n**3)** A secondary **DES‑ECB/PKCS5** routine in `UserPrincipal` keyed by an instance field `this.key`.\n\n## Where I left off\n- 2118 classes exported / decompiled.\n- All three crypto-key call sites identified and the effective KEY/",
+  "toolCount": 0,
+  "model": "anthropic/claude-opus-4.8",
+  "promptTokens": 15751,
+  "completionTokens": 1000,
+  "createdAt": "2026-05-29T18:53:50.741Z",
+  "updatedAt": "2026-05-29T18:53:50.741Z"
+}
