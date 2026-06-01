@@ -16,3 +16,4 @@
 - [Backup vault payload round-trip](backup-vault-roundtrip.md) — refreshBackupsFromServer rebuilds from server columns: snapshotKind survives, in-payload source does not; detail view branches by shape (rawB64 first); 512KB POST cap.
 - [Checksum scanner block detection](checksum-scanner-block-detection.md) — per-block scan must be CRC-only (sum/xor false-positive on padding) and must NOT skip uniform windows (drops real padding-block CRCs like ZF-8HP blocks 3-7).
 - [Co-pilot chat persistence](copilot-persistence.md) — global Co-pilot persists via conversations API scope="general"; prompt chosen by conv.scope in conversations.ts; localStorage pointer srt-copilot-last-conv.
+- [Export safety gate](export-safety-gate.md) — checkExportSafety gates EVERY .bin export; scope selfChecks to what was written (VIN-only/legacy-flat→vin+partials; secret-write→full+master-in-context; 95640 needs explicit reparse).

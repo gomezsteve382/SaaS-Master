@@ -9,6 +9,7 @@ import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec1
 import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
 import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, corruptFillError, detectCorruptFill, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
 import { crossValidate } from "../lib/crossValidate.js";
+import { checkExportSafety, formatBlockingMessage } from "../lib/exportSafetyGate.js";
 import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
 import { scoreCandidate, pickBest, fmtPick, CANONICAL_PATTERNS } from "../lib/bestPick.js";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
@@ -807,7 +808,7 @@ export function pcmSec6SkipReason({ rfh, pcm }) {
 
 /* ---------- write helpers (SINCRO-verified) ---------- */
 
-function engWriteBcmVin(bytes, newVin) {
+export function engWriteBcmVin(bytes, newVin) {
   if (!VIN_RE.test(newVin)) throw new Error('Invalid VIN: ' + newVin);
   const out = new Uint8Array(bytes);
   const vb  = new TextEncoder().encode(newVin);
@@ -859,7 +860,7 @@ function engWriteBcmVin(bytes, newVin) {
   return { bytes: out, fullPatched, shortPatched, crc: fullCrc };
 }
 
-function engWriteRfhVin(bytes, newVin, virginize) {
+export function engWriteRfhVin(bytes, newVin, virginize) {
   if (!VIN_RE.test(newVin)) throw new Error('Invalid VIN: ' + newVin);
   const out = new Uint8Array(bytes);
   const fwd = new TextEncoder().encode(newVin);
@@ -2754,15 +2755,31 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         setOriginals(prev => ({ ...prev, bcm: { bytes: snap, filename: bcm.file?.name || 'BCM' } }));
         const r  = engWriteBcmVin(bcm.bytes, newVin);
         log(`BCM: patched ${r.fullPatched} full slot(s)${r.shortPatched > 0 ? ` + ${r.shortPatched} tail slot(s)` : ''}`, 'ok');
-        downloadBin(r.bytes, `BCM_SYNCED_${newVin}_${ts}.bin`);
-        log(`Downloaded: BCM_SYNCED_${newVin}_${ts}.bin`, 'ok');
-        if (virginize) {
-          const snapR = new Uint8Array(rfh.bytes);
-          setOriginals(prev => ({ ...prev, rfh: { bytes: snapR, filename: rfh.file?.name || 'RFH' } }));
-          const rr = engWriteRfhVin(rfh.bytes, newVin, true);
-          addRfhRows(rfh.parsed, newVin, rr.chk);
-          downloadBin(rr.bytes, `RFH_VIRGIN_${newVin}_${ts}.bin`);
-          log(`RFH: re-wrote VIN + wiped ${rr.sec16Wiped} SEC16 slot(s)`, 'warn');
+        /* Task #1023 — VIN-only single-module stamp. Gate PER-FILE (crossModule
+         * false, VIN-scoped) so the outgoing VIN-slot CRCs are verified before
+         * the _SYNCED label ships, without refusing on the modules' SEC16 state
+         * (untouched here). */
+        {
+          const pendingBcm = [{ role: 'BCM', bytes: r.bytes, name: `BCM_SYNCED_${newVin}_${ts}.bin` }];
+          if (virginize) {
+            const snapR = new Uint8Array(rfh.bytes);
+            setOriginals(prev => ({ ...prev, rfh: { bytes: snapR, filename: rfh.file?.name || 'RFH' } }));
+            const rr = engWriteRfhVin(rfh.bytes, newVin, true);
+            addRfhRows(rfh.parsed, newVin, rr.chk);
+            pendingBcm.push({ role: 'RFH', bytes: rr.bytes, name: `RFH_VIRGIN_${newVin}_${ts}.bin` });
+            log(`RFH: re-wrote VIN + wiped ${rr.sec16Wiped} SEC16 slot(s)`, 'warn');
+          }
+          const verdict = checkExportSafety({ outgoing: pendingBcm, crossModule: false, selfChecks: ['vin', 'partials'] });
+          if (!verdict.ok) {
+            for (const line of formatBlockingMessage(verdict).split('\n')) log(line, 'err');
+            log('Sync aborted — no files were written. A VIN-slot checksum failed verification.', 'err');
+            return;
+          }
+          for (const f of pendingBcm) {
+            downloadBin(f.bytes, f.name);
+            log(`Downloaded: ${f.name}`, 'ok');
+          }
+          log(`✓ Pre-download safety gate PASSED — ${pendingBcm.length} file(s) verified before write.`, 'ok');
         }
 
       } else if (action === 'bcm-to-rfh') {
@@ -2772,8 +2789,20 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         const r  = engWriteRfhVin(rfh.bytes, newVin, virginize);
         addRfhRows(rfh.parsed, newVin, r.chk);
         log(`RFHUB: patched ${r.patched} slot(s)${virginize ? ` + wiped ${r.sec16Wiped} SEC16 slot(s)` : ''}`, virginize ? 'warn' : 'ok');
-        downloadBin(r.bytes, `RFH_SYNCED${virginize ? '_VIRGIN' : ''}_${newVin}_${ts}.bin`);
-        log(`Downloaded: RFH_SYNCED_${newVin}_${ts}.bin`, 'ok');
+        /* Task #1023 — VIN-only single-module stamp; gate PER-FILE (crossModule
+         * false, VIN-scoped) before the _SYNCED label ships. */
+        {
+          const rfhName = `RFH_SYNCED${virginize ? '_VIRGIN' : ''}_${newVin}_${ts}.bin`;
+          const verdict = checkExportSafety({ outgoing: [{ role: 'RFH', bytes: r.bytes, name: rfhName }], crossModule: false, selfChecks: ['vin', 'partials'] });
+          if (!verdict.ok) {
+            for (const line of formatBlockingMessage(verdict).split('\n')) log(line, 'err');
+            log('Sync aborted — no files were written. A VIN-slot checksum failed verification.', 'err');
+            return;
+          }
+          downloadBin(r.bytes, rfhName);
+          log(`Downloaded: ${rfhName}`, 'ok');
+          log('✓ Pre-download safety gate PASSED — 1 file verified before write.', 'ok');
+        }
 
       } else if (action === 'target-both') {
         const newVin = ov || tv;
@@ -2784,19 +2813,44 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         const br = engWriteBcmVin(bcm.bytes, newVin);
         addBcmRows(bcm.parsed, newVin, newCrc);
         log(`BCM: patched ${br.fullPatched} full + ${br.shortPatched} tail slot(s)`, 'ok');
-        downloadBin(br.bytes, `BCM_SYNCED_${newVin}_${ts}.bin`);
-        log(`Downloaded: BCM_SYNCED_${newVin}_${ts}.bin`, 'ok');
         const rr = engWriteRfhVin(rfh.bytes, newVin, virginize);
         addRfhRows(rfh.parsed, newVin, rr.chk);
         log(`RFHUB: patched ${rr.patched} slot(s)${virginize ? ` + wiped ${rr.sec16Wiped} SEC16 slot(s)` : ''}`, virginize ? 'warn' : 'ok');
-        downloadBin(rr.bytes, `RFH_SYNCED_${newVin}_${ts}.bin`);
-        log(`Downloaded: RFH_SYNCED_${newVin}_${ts}.bin`, 'ok');
+        /* Task #1023 — target-both is a VIN-ONLY sync: it rewrites the VIN in
+         * BCM + RFH and never touches SEC16. Gate it PER-FILE (crossModule
+         * false) so the outgoing VIN-slot CRCs are verified before the _SYNCED
+         * label is applied, WITHOUT refusing on a SEC16 secret mismatch — the
+         * two modules' secrets may legitimately still differ here (that is what
+         * the SEC16-sync / Sync-all paths are for, and a paired RFH may be
+         * virgin). Cross-module secret gating lives on the secret-writing
+         * paths, not on a VIN rewrite. */
+        {
+          const tbPending = [
+            { role: 'BCM', bytes: br.bytes, name: `BCM_SYNCED_${newVin}_${ts}.bin` },
+            { role: 'RFH', bytes: rr.bytes, name: `RFH_SYNCED${virginize ? '_VIRGIN' : ''}_${newVin}_${ts}.bin` },
+          ];
+          const verdict = checkExportSafety({ outgoing: tbPending, crossModule: false, selfChecks: ['vin', 'partials'] });
+          if (!verdict.ok) {
+            for (const line of formatBlockingMessage(verdict).split('\n')) log(line, 'err');
+            log('Sync aborted — no files were written. A VIN-slot checksum failed verification.', 'err');
+            return;
+          }
+          for (const f of tbPending) {
+            downloadBin(f.bytes, f.name);
+            log(`Downloaded: ${f.name}`, 'ok');
+          }
+          log(`✓ Pre-download safety gate PASSED — ${tbPending.length} file(s) verified before write.`, 'ok');
+        }
 
       } else if (action === 'sync-all') {
         /* Full 3-module sync: VIN → BCM + RFH + PCM, SEC16 BCM ← RFH, SEC6 PCM ← RFH */
         const newVin = ov || (tvOk ? tv : (rfh.parsed?.vin || bcm.parsed?.vin));
         if (!newVin) { log('✗ No target VIN available', 'err'); return; }
         const newCrc = engCrc16(new TextEncoder().encode(newVin));
+        /* Task #1023 — accumulate every outgoing file here instead of writing
+         * inline; the pre-download safety gate runs over the whole set and
+         * either flushes all of them or refuses the entire sync. */
+        const pending = [];
 
         const snapB = new Uint8Array(bcm.bytes);
         const snapR = new Uint8Array(rfh.bytes);
@@ -2861,15 +2915,13 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           }
         }
         const bcmSyncName = `BCM_SYNCED${bcmModeTag}_${newVin}_${ts}.bin`;
-        downloadBin(bcmFinal, bcmSyncName);
-        log(`Downloaded: ${bcmSyncName}`, 'ok');
+        pending.push({ role: 'BCM', bytes: bcmFinal, name: bcmSyncName });
 
         /* RFH VIN */
         const rr = engWriteRfhVin(rfh.bytes, newVin, virginize);
         addRfhRows(rfh.parsed, newVin, rr.chk);
         log(`RFHUB VIN: ${rr.patched} slot(s) patched${virginize ? ` + ${rr.sec16Wiped} SEC16 slot(s) wiped` : ''}`, virginize ? 'warn' : 'ok');
-        downloadBin(rr.bytes, `RFH_SYNCED_${newVin}_${ts}.bin`);
-        log(`Downloaded: RFH_SYNCED_${newVin}_${ts}.bin`, 'ok');
+        pending.push({ role: 'RFH', bytes: rr.bytes, name: `RFH_SYNCED${virginize ? '_VIRGIN' : ''}_${newVin}_${ts}.bin` });
 
         /* PCM VIN + SEC6 */
         if (pcm.bytes && pcm.parsed) {
@@ -2921,11 +2973,30 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           })();
           if (pcmSec6Ok) {
             const pcmName = `PCM_SYNCED${pcmChipSuffix}_${newVin}_${ts}.bin`;
-            downloadBin(pcmFinal, pcmName);
-            log(`Downloaded: ${pcmName} (${pcmFinal.length.toLocaleString()} bytes · ${targetChipDescriptor?.label || `${(pcmFinal.length/1024).toFixed(0)} KB`})`, 'ok');
+            pending.push({ role: 'PCM', bytes: pcmFinal, name: pcmName });
           } else {
             log('PCM file withheld: SEC6 could not be written; flashing this file would leave the car with an unpaired PCM.', 'err');
           }
+        }
+
+        /* Task #1023 — pre-download safety gate. Reparse every accumulated file
+         * and run checksum + crossValidate before anything touches disk. A
+         * virginize run deliberately blanks the RFH secret, so it is gated
+         * per-file (checksum self-check) rather than cross-secret; a normal
+         * sync is gated across all modules so a BCM/RFH/PCM whose VINs or
+         * SEC16/SEC6 secrets disagree is REFUSED instead of shipped _SYNCED. */
+        if (pending.length) {
+          const verdict = checkExportSafety({ outgoing: pending, crossModule: !virginize });
+          if (!verdict.ok) {
+            for (const line of formatBlockingMessage(verdict).split('\n')) log(line, 'err');
+            log('Sync aborted — no files were written. The modules are not safe to flash as a set.', 'err');
+            return;
+          }
+          for (const f of pending) {
+            downloadBin(f.bytes, f.name);
+            log(`Downloaded: ${f.name}`, 'ok');
+          }
+          log(`✓ Pre-download safety gate PASSED — ${pending.length} file(s) verified consistent before write.`, 'ok');
         }
 
       } else if (action === 'sec16-only') {
@@ -2976,8 +3047,8 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           log('  Flat 0x40C9 auto-repair skipped: post-write SEC16 is blank or unresolvable', 'muted');
         }
         const sec16OutName = `BCM_SEC16_SYNCED${sec16ModeTag}_${ts}.bin`;
-        downloadBin(bcmSec16Out, sec16OutName);
-        log(`Downloaded: ${sec16OutName}`, 'ok');
+        /* Task #1023 — accumulate outgoing files; gate before writing. */
+        const pending = [{ role: 'BCM', bytes: bcmSec16Out, name: sec16OutName }];
         /* Task #433 — single shared preflight, same reason set as full sync. */
         const sec6Skip = pcmSec6SkipReason({ rfh, pcm });
         if (!sec6Skip) {
@@ -3000,8 +3071,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
             }
             const pcmChipSuffix = pcmOut.length === 4096 ? '_4KB' : pcmOut.length === 8192 ? '_8KB' : '';
             const pcmName = `PCM_SEC6_SYNCED${pcmChipSuffix}_${ts}.bin`;
-            downloadBin(pcmOut, pcmName);
-            log(`Downloaded: ${pcmName} (${pcmOut.length.toLocaleString()} bytes · ${targetChipDescriptor?.label || `${(pcmOut.length/1024).toFixed(0)} KB`})`, 'ok');
+            pending.push({ role: 'PCM', bytes: pcmOut, name: pcmName });
           } else {
             /* Task #399 — preflight passed but writer still refused; refuse
              * to ship an unmodified PCM as "synced". */
@@ -3009,6 +3079,26 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           }
         } else {
           log(`PCM SEC6 skipped: ${sec6Skip}`, 'muted');
+        }
+
+        /* Task #1023 — gate the SEC16/SEC6 sync outputs against the source RFH
+         * (passed as context) so a BCM/PCM whose secret does not match the RFH
+         * it was synced from is refused instead of shipped _SYNCED. */
+        {
+          const verdict = checkExportSafety({
+            outgoing: pending,
+            context: [{ role: 'RFH', bytes: rfh.bytes, name: rfh.file?.name || 'RFH' }],
+          });
+          if (!verdict.ok) {
+            for (const line of formatBlockingMessage(verdict).split('\n')) log(line, 'err');
+            log('SEC16 sync aborted — no files were written. The BCM/PCM secret does not match the RFH.', 'err');
+            return;
+          }
+          for (const f of pending) {
+            downloadBin(f.bytes, f.name);
+            log(`Downloaded: ${f.name}`, 'ok');
+          }
+          log(`✓ Pre-download safety gate PASSED — ${pending.length} file(s) verified against the RFH secret before write.`, 'ok');
         }
 
       } else if (action === 'rekey-virgin-bcm') {
@@ -3039,8 +3129,25 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         }
         const outVin = bcm.parsed?.vin || rfh.parsed?.vin || 'UNKNOWN';
         const outName = `BCM_REKEYED_${outVin}_${ts}.bin`;
-        downloadBin(rk.bytes, outName);
-        log(`Downloaded: ${outName}`, 'ok');
+        /* Task #1023 — re-keying a virgin BCM creates the split/mirror SEC16
+         * records from scratch off the RFHUB master. Run the freshly-written
+         * BCM back through the shared gate cross-module against the RFH so a
+         * re-key whose SEC16 does not actually mirror the RFHUB is refused
+         * instead of shipped _REKEYED (brick-risk twin of the sync incident). */
+        {
+          const verdict = checkExportSafety({
+            outgoing: [{ role: 'BCM', bytes: rk.bytes, name: outName }],
+            context: [{ role: 'RFH', bytes: rfh.bytes, name: rfh.file?.name || 'RFH' }],
+          });
+          if (!verdict.ok) {
+            for (const line of formatBlockingMessage(verdict).split('\n')) log(line, 'err');
+            log('Re-key aborted — no file was written. The re-keyed BCM SEC16 does not match the RFHUB master.', 'err');
+            return;
+          }
+          downloadBin(rk.bytes, outName);
+          log(`Downloaded: ${outName}`, 'ok');
+          log('✓ Pre-download safety gate PASSED — re-keyed BCM verified against the RFHUB master before write.', 'ok');
+        }
 
       } else if (action === 'rekey-95640-from-rfh') {
         /* Re-key 95640 BCM-backup chip from RFHUB master.
@@ -3063,8 +3170,33 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           oldPass: eep.parsed?.bcmSec16CrcOk ?? null,
           newPass: true,
         });
-        downloadBin(wr.bytes, `EEP95640_REKEYED_${ts}.bin`);
-        log(`Downloaded: EEP95640_REKEYED_${ts}.bin`, 'ok');
+        /* Task #1023 — verify the freshly-written 95640 before download.
+         * crossValidate does not model the 95640↔RFH relationship, so the
+         * shared gate runs scoped to the (untouched) VIN slots while the
+         * meaningful SEC16 self-check is done explicitly: reparse the written
+         * bytes and confirm the stored CRC16 verifies AND the SEC16 equals
+         * reverse(RFHUB master). Either failure refuses the download. */
+        {
+          const outName95 = `EEP95640_REKEYED_${ts}.bin`;
+          const reparsed95 = engParseEep95640(wr.bytes, outName95);
+          const writtenSec16 = (wr.sec16Hex || '').toUpperCase();
+          const sec16Ok95 = !!reparsed95.bcmSec16CrcOk && reparsed95.bcmSec16Hex === writtenSec16;
+          const verdict = checkExportSafety({
+            outgoing: [{ role: '95640', bytes: wr.bytes, name: outName95 }],
+            context: [{ role: 'RFH', bytes: rfh.bytes, name: rfh.file?.name || 'RFH' }],
+            crossModule: false,
+            selfChecks: ['vin'],
+          });
+          if (!verdict.ok || !sec16Ok95) {
+            if (!verdict.ok) for (const line of formatBlockingMessage(verdict).split('\n')) log(line, 'err');
+            if (!sec16Ok95) log(`✗ 95640 SEC16 self-check failed — written CRC16 ${reparsed95.bcmSec16CrcOk ? 'OK' : 'BAD'}, SEC16 ${reparsed95.bcmSec16Hex === writtenSec16 ? 'matches' : 'does NOT match'} reverse(RFHUB master).`, 'err');
+            log('Re-key aborted — no file was written. The re-keyed 95640 did not pass the safety gate.', 'err');
+            return null;
+          }
+          downloadBin(wr.bytes, outName95);
+          log(`Downloaded: ${outName95}`, 'ok');
+          log('✓ Pre-download safety gate PASSED — 95640 SEC16 + CRC16 verified against the RFHUB master before write.', 'ok');
+        }
 
       } else if (action === 'bcm-flat-from-resolved') {
         /* Repair the legacy flat 0x40C9 slice from the resolved (split/mirror)
@@ -3124,6 +3256,24 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           oldCheck: 'flat (legacy)', newCheck: `${rs.source} · ${modeLabel}`,
           oldPass: null, newPass: true,
         });
+        /* Task #1023 — gate the _CANONICAL / _LEGACYFLAT copy before download.
+         * Canonical leaves the split + mirror records intact so the full SEC16
+         * self-check must pass. Legacy-flat deliberately clobbers mirror1 on
+         * overlap dumps (the master split records stay valid), so its SEC16
+         * mirror is intentionally inconsistent — scope that copy to VIN slots
+         * only to avoid a false refusal while still catching VIN corruption. */
+        {
+          const flatVerdict = checkExportSafety({
+            outgoing: [{ role: 'BCM', bytes: wr.bytes, name: `BCM_FLAT40C9_REPAIRED${suffix}_${ts}.bin` }],
+            crossModule: false,
+            selfChecks: wr.mode === 'legacy-flat' ? ['vin', 'partials'] : ['vin', 'partials', 'sec16'],
+          });
+          if (!flatVerdict.ok) {
+            for (const line of formatBlockingMessage(flatVerdict).split('\n')) log(line, 'err');
+            log('Flat 0x40C9 repair aborted — no file was written. The repaired BCM failed the safety gate.', 'err');
+            return rows;
+          }
+        }
         downloadBin(wr.bytes, `BCM_FLAT40C9_REPAIRED${suffix}_${ts}.bin`);
         log(`Downloaded: BCM_FLAT40C9_REPAIRED${suffix}_${ts}.bin`, 'ok');
         if (wr.mode === 'legacy-flat') {
@@ -3183,6 +3333,22 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         } else {
           log(`  • CANONICAL copy: flat 0x40C9 (LE) = ${wrCanon.leHex.toUpperCase()}. For modern tools + SRT Lab.`, 'muted');
         }
+        /* Task #1023 — gate the CANONICAL copy (full SEC16 self-check; the
+         * split + mirror records stay intact in this mode). Refuse BOTH
+         * downloads if the canonical copy fails — it is the one vaulted as the
+         * source of truth, so a bad canonical aborts the whole double-emit. */
+        {
+          const canonVerdict = checkExportSafety({
+            outgoing: [{ role: 'BCM', bytes: wrCanon.bytes, name: `BCM_FLAT40C9_REPAIRED_CANONICAL_${ts}.bin` }],
+            crossModule: false,
+            selfChecks: ['vin', 'partials', 'sec16'],
+          });
+          if (!canonVerdict.ok) {
+            for (const line of formatBlockingMessage(canonVerdict).split('\n')) log(line, 'err');
+            log('Double-emit aborted — no files were written. The CANONICAL copy failed the safety gate.', 'err');
+            return rows;
+          }
+        }
         downloadBin(wrCanon.bytes, `BCM_FLAT40C9_REPAIRED_CANONICAL_${ts}.bin`);
         log(`Downloaded: BCM_FLAT40C9_REPAIRED_CANONICAL_${ts}.bin`, 'ok');
 
@@ -3199,6 +3365,22 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         log(`  • LEGACYFLAT copy: flat 0x40C9 (LE) = ${wrLegacy.leHex.toUpperCase()}. For legacy CGDI / Autel / AlfaOBD / SINCRO that read the flat slice as LE.`, 'muted');
         if (wrLegacy.mirror1Overlap) {
           log(`    ⚠ Mirror1 record at 0x40C0 was clobbered by the LE write in this copy. Split records (0x81A0/C0/E0) and mirror2 (slot 0xCA) remain canonical — only hand this copy to legacy bench tools.`, 'warn');
+        }
+        /* Task #1023 — gate the LEGACYFLAT copy scoped to VIN slots only:
+         * legacy-flat intentionally clobbers mirror1 on overlap dumps (master
+         * split records stay valid), so a full SEC16 self-check would falsely
+         * refuse a legitimate copy. VIN-slot integrity must still hold. */
+        {
+          const legacyVerdict = checkExportSafety({
+            outgoing: [{ role: 'BCM', bytes: wrLegacy.bytes, name: `BCM_FLAT40C9_REPAIRED_LEGACYFLAT_${ts}.bin` }],
+            crossModule: false,
+            selfChecks: ['vin', 'partials'],
+          });
+          if (!legacyVerdict.ok) {
+            for (const line of formatBlockingMessage(legacyVerdict).split('\n')) log(line, 'err');
+            log('Double-emit halted — the CANONICAL copy was written, but the LEGACYFLAT copy failed the safety gate and was NOT written.', 'err');
+            return rows;
+          }
         }
         downloadBin(wrLegacy.bytes, `BCM_FLAT40C9_REPAIRED_LEGACYFLAT_${ts}.bin`);
         log(`Downloaded: BCM_FLAT40C9_REPAIRED_LEGACYFLAT_${ts}.bin`, 'ok');
@@ -3232,9 +3414,26 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         log(`  RFHUB new SEC16: ${sr.rfhSec16Hex.toUpperCase()} · slot chk: 0x${sr.chk.toString(16).padStart(2,'0').toUpperCase()}`, 'muted');
         const rfhFinal = sr.bytes;
         const ts2 = timestamp();
-        downloadBin(rfhFinal, `RFHUB_BCM_SEC16_SYNCED_${ts2}.bin`);
-        log(`Downloaded: RFHUB_BCM_SEC16_SYNCED_${ts2}.bin`, 'ok');
-        log('Flash corrected RFHUB + power-cycle 30 s — BCM, RFHUB and PCM will now share the same secret.', 'ok');
+        /* Task #1023 — symmetric twin of the original brick scenario: a secret
+         * write that ships an RFH labeled _SYNCED which is supposed to share the
+         * BCM's secret. Gate the outgoing RFH cross-module against the BCM
+         * (master) context so an RFH whose freshly-written SEC16 still does not
+         * match the BCM is refused instead of shipped _SYNCED. */
+        {
+          const verdict = checkExportSafety({
+            outgoing: [{ role: 'RFH', bytes: rfhFinal, name: `RFHUB_BCM_SEC16_SYNCED_${ts2}.bin` }],
+            context: [{ role: 'BCM', bytes: bcm.bytes }],
+          });
+          if (!verdict.ok) {
+            for (const line of formatBlockingMessage(verdict).split('\n')) log(line, 'err');
+            log('Sync aborted — no file was written. The RFHUB SEC16 does not match the BCM master.', 'err');
+            return;
+          }
+          downloadBin(rfhFinal, `RFHUB_BCM_SEC16_SYNCED_${ts2}.bin`);
+          log(`Downloaded: RFHUB_BCM_SEC16_SYNCED_${ts2}.bin`, 'ok');
+          log(`✓ Pre-download safety gate PASSED — RFHUB SEC16 verified to match the BCM master before write.`, 'ok');
+          log('Flash corrected RFHUB + power-cycle 30 s — BCM, RFHUB and PCM will now share the same secret.', 'ok');
+        }
       }
 
       log('✓ Sync complete. Flash .bin file(s) to modules and power-cycle 30 s for handshake.', 'ok');
