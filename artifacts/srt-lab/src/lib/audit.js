@@ -937,6 +937,76 @@ export async function saveAemtPlaceholders(stubs) {
 }
 
 /**
+ * Save a raw binary module image straight into the backup vault.
+ *
+ * Used by the Checksum Scan "Save as Backup" path (Task #970) so a repaired
+ * dump lands in Data Management without forcing a manual download + reimport.
+ * Unlike backupModule(), there are no DIDs — the whole module image is stored
+ * as base64 (`rawB64`) and tagged with the detected module/VIN so it shows up
+ * in the list and renders its own raw-dump detail view. snapshotKind is set to
+ * "repaired-dump" so the list badge survives a server-driven refresh (the
+ * snapshotKind column round-trips, the in-payload `source` field does not).
+ *
+ * Returns { key, savedRemote } so the caller can confirm with a toast.
+ */
+export async function saveBackup({
+  module, vin, rawBytes,
+  source = "checksum-repair", origin = null, snapshotKind = "repaired-dump",
+}) {
+  const bytes = rawBytes instanceof Uint8Array
+    ? rawBytes
+    : new Uint8Array(rawBytes || []);
+  const moduleType = module || "DUMP";
+  const vinVal = vin || "unknown";
+  const timestamp = new Date().toISOString();
+  const rawB64 = _toB64(bytes);
+  const checksum = await sha256Hex(bytes).catch(() => null);
+  const key = BACKUP_KEY_PREFIX + moduleType + "_" + vinVal + "_" + Date.now();
+  const backup = {
+    key, id: key, module: moduleType, vin: vinVal, timestamp,
+    dids: {}, rawB64, rawSize: bytes.length,
+    source, origin, snapshotKind, checksum,
+  };
+  const meta = {
+    key, id: key, module: moduleType, vin: vinVal, timestamp,
+    didCount: 0, tx: null, rx: null, checksum, snapshotKind, source,
+  };
+
+  // Pre-flight prune so a large image doesn't trip the localStorage quota.
+  const preUsage = getBackupStorageUsage();
+  if (preUsage.percent >= BACKUP_PRUNE_PERCENT) pruneNonCriticalBackups();
+
+  // Optimistic local write so the list updates immediately, no reload.
+  try {
+    const idx = readLocalIndex();
+    idx.unshift(meta);
+    if (idx.length > MAX_BACKUPS) {
+      idx.slice(MAX_BACKUPS).forEach(b => removeLocalPayload(b.key));
+    }
+    setLocalPayload(key, backup);
+    writeLocalIndex(idx);
+  } catch { /* quota — server copy below still keeps it durable */ }
+  notify();
+
+  // Write-through to the database so it survives a server-driven list refresh.
+  let savedRemote = false;
+  try {
+    const res = await fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: key, module: moduleType, vin: vinVal, didCount: 0,
+        tx: null, rx: null, timestamp, payload: backup,
+        checksum, snapshotKind, preWriteKey: null,
+      }),
+    });
+    savedRemote = res.ok;
+  } catch { /* offline — local cache keeps it alive */ }
+
+  return { key, savedRemote };
+}
+
+/**
  * Save a lightweight provenance record after a binary checksum repair.
  * Stores the repaired binary as base64 in the provenance record so it can be
  * re-downloaded from Data Management history without losing the file.

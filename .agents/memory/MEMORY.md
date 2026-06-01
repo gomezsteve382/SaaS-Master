@@ -12,3 +12,4 @@
 - [XC2268 RFHUB SEC16 layout](xc2268-sec16-layout.md) — 2 mirror slots (16B+BE16 CRC) inside the image-checksum window; RFH SEC16 = reverse(BCM); writer must refresh trailing image checksum.
 - [Session paper-trail location & backend sync](session-paper-trail.md) — session log removed from srt-lab + ultimate retired = no frontend home; backend /api/sessions + session_log table exist on shared api-server with no consumer yet.
 - [vehicleJobs kind + status](vehicle-jobs-kind.md) — vehicle_jobs.kind splits job consumers; status vocab differs per tab (hyphen vs underscore); resume eligibility must use saved target set, not recorded failures.
+- [Backup vault payload round-trip](backup-vault-roundtrip.md) — refreshBackupsFromServer rebuilds from server columns: snapshotKind survives, in-payload source does not; detail view branches by shape (rawB64 first); 512KB POST cap.

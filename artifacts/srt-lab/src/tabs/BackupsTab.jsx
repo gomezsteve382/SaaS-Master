@@ -10,10 +10,10 @@ import {
   subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
   exportAllBackups, importBackups, saveAemtPlaceholders,
   encryptArchive, decryptArchive, ENCRYPTED_ARCHIVE_TYPE,
-  backupCorruptFill, saveBinaryRepairRecord,
+  backupCorruptFill, saveBinaryRepairRecord, saveBackup, dispatchToast,
 } from "../lib/audit.js";
 import { sha256Hex, backupDidsToBytes } from "../lib/checksum.js";
-import { detectCorruptFill, corruptFillError } from "../lib/parseModule.js";
+import { detectCorruptFill, corruptFillError, parseModule } from "../lib/parseModule.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import LeakScanPanel from "../components/LeakScanPanel.jsx";
@@ -62,6 +62,10 @@ function ChecksumScanPanel() {
   const [scanResult, setScanResult] = useState(null);
   const [eepmResult, setEepmResult] = useState(null);
   const [msg, setMsg] = useState("");
+  // Task #970 — the most recent successful repair, kept so the "Save as
+  // Backup" button can drop the patched image straight into the vault.
+  const [lastRepair, setLastRepair] = useState(null);
+  const [saveBackupBusy, setSaveBackupBusy] = useState(false);
   const fileInputRef = useRef(null);
 
   const loadFile = useCallback((f) => {
@@ -69,6 +73,7 @@ function ChecksumScanPanel() {
     setFile(f);
     setScanResult(null);
     setEepmResult(null);
+    setLastRepair(null);
     setMsg("");
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -141,6 +146,9 @@ function ChecksumScanPanel() {
         a.download = (file?.name ?? "patched").replace(/\.bin$/i, "") + "_repaired.bin";
         a.click();
         setMsg(`Repaired ${algorithm} at ${offset} — downloaded ${j.patchedSize?.toLocaleString()} bytes`);
+        // Task #970 — keep the patched image so "Save as Backup" can store it
+        // in the vault without forcing a manual reimport.
+        setLastRepair({ b64: j.fileB64, offset, algorithm, savedKey: null });
         // Save a provenance record in the backup index so this repair shows up
         // in Data Management history. No binary stored — repaired file is on disk.
         const brokenEntry = scanResult?.verifiedChecksums?.find(
@@ -163,6 +171,47 @@ function ChecksumScanPanel() {
     }
     setFixBusy(b => { const n = { ...b }; delete n[key]; return n; });
   }, [fileB64, file]);
+
+  // Task #970 — store the most recently repaired image as a backup vault entry
+  // so the user doesn't have to download + reimport to keep the corrected dump.
+  // Module/VIN are auto-detected from the patched bytes (falling back to the
+  // EEPROM-map VIN candidate and filename) so the entry is properly labelled.
+  const handleSaveAsBackup = useCallback(async () => {
+    if (!lastRepair?.b64) return;
+    setSaveBackupBusy(true);
+    try {
+      const bin = Uint8Array.from(atob(lastRepair.b64), c => c.charCodeAt(0));
+      let moduleType = "DUMP";
+      let vin = "";
+      try {
+        const p = parseModule(bin, file?.name);
+        if (p?.type && p.type !== "UNKNOWN") moduleType = p.type;
+        if (p?.vins?.[0]?.vin) vin = p.vins[0].vin;
+      } catch { /* detection best-effort */ }
+      if (!vin && eepmResult?.vinCandidates?.[0]?.vin) vin = eepmResult.vinCandidates[0].vin;
+      const { key, savedRemote } = await saveBackup({
+        module: moduleType,
+        vin: vin || "unknown",
+        rawBytes: bin,
+        source: "checksum-repair",
+        origin: {
+          filename: file?.name ?? "unknown",
+          offset: lastRepair.offset,
+          algorithm: lastRepair.algorithm,
+        },
+      });
+      setLastRepair(r => (r ? { ...r, savedKey: key } : r));
+      setMsg(`Saved repaired ${moduleType} dump as backup`);
+      dispatchToast(
+        `Repaired ${moduleType} dump saved as backup` +
+          (savedRemote ? "" : " (local cache only — server unreachable)"),
+        "info",
+      );
+    } catch (e) {
+      dispatchToast("Could not save repaired dump as backup: " + e.message, "error");
+    }
+    setSaveBackupBusy(false);
+  }, [lastRepair, file, eepmResult]);
 
   const panelBorder = "1px solid " + C.bd;
 
@@ -311,6 +360,35 @@ function ChecksumScanPanel() {
               {scanResult.note && (
                 <div style={{ fontSize: 10, color: C.ts, marginTop: 8, lineHeight: 1.5 }}>{scanResult.note}</div>
               )}
+            </div>
+          )}
+
+          {/* Task #970 — Save the most recent repaired image as a backup vault
+              entry instead of forcing a manual download + reimport. */}
+          {lastRepair?.b64 && (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
+              marginBottom: 14, padding: "10px 12px", borderRadius: 6,
+              background: "#FFF8F0", border: "1px solid #FFD0A0",
+            }}>
+              <span style={{ fontSize: 11, color: C.ts, flex: "1 1 200px", lineHeight: 1.5 }}>
+                Repaired <b>{lastRepair.algorithm}</b> @ {lastRepair.offset} was downloaded.
+                Save the corrected image straight to the backups vault below.
+              </span>
+              <button
+                onClick={handleSaveAsBackup}
+                disabled={saveBackupBusy || !!lastRepair.savedKey}
+                style={{
+                  fontSize: 11, fontWeight: 800, padding: "6px 14px", borderRadius: 6,
+                  border: "1px solid " + C.a1,
+                  background: lastRepair.savedKey ? "#e6f9ed" : C.a1,
+                  color: lastRepair.savedKey ? "#1E6F3A" : "#fff",
+                  cursor: (saveBackupBusy || lastRepair.savedKey) ? "default" : "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {saveBackupBusy ? "⏳ Saving…" : lastRepair.savedKey ? "✓ Saved as Backup" : "💾 Save as Backup"}
+              </button>
             </div>
           )}
 
@@ -1540,6 +1618,13 @@ export default function BackupsTab() {
                           }}>
                             REPAIR
                           </span>
+                        ) : b.snapshotKind === "repaired-dump" ? (
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: "1px 5px", borderRadius: 3,
+                            background: "#FFF3E0", color: "#E65100",
+                          }}>
+                            REPAIRED
+                          </span>
                         ) : b.snapshotKind && b.snapshotKind !== "binary-repair" ? (
                           <span style={{
                             fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: "1px 5px", borderRadius: 3,
@@ -1553,7 +1638,9 @@ export default function BackupsTab() {
                       <div style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
                         {b.module === "BINARY_REPAIR"
                           ? (b.provenance?.algorithm ?? "") + "@" + (b.provenance?.offset ?? "")
-                          : b.didCount + " DIDs"}
+                          : b.snapshotKind === "repaired-dump"
+                            ? "repaired image"
+                            : b.didCount + " DIDs"}
                       </div>
                     </div>
                     <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.ts, marginTop: 3 }}>{b.vin}</div>
@@ -1568,7 +1655,75 @@ export default function BackupsTab() {
 
           {selectedData ? (
             <Card style={{ padding: 0, overflow: "hidden" }}>
-              {selectedData.module === "BINARY_REPAIR" ? (
+              {selectedData.rawB64 ? (
+                /* ── Repaired raw-image backup detail view (Task #970) ── */
+                <>
+                  <div style={{
+                    padding: "12px 16px",
+                    background: "linear-gradient(90deg,#4A2700,#E65100)",
+                    color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center",
+                  }}>
+                    <div>
+                      <div style={{ fontSize: 10, opacity: 0.7, letterSpacing: 2, fontWeight: 700 }}>REPAIRED IMAGE BACKUP</div>
+                      <div style={{ fontFamily: "'Righteous'", fontSize: 16, letterSpacing: 1 }}>💾 {selectedData.module} dump</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button
+                        onClick={() => {
+                          const bin = Uint8Array.from(atob(selectedData.rawB64), c => c.charCodeAt(0));
+                          const blob = new Blob([bin], { type: "application/octet-stream" });
+                          const a = document.createElement("a");
+                          a.href = URL.createObjectURL(blob);
+                          const base = (selectedData.origin?.filename ?? selectedData.module ?? "module").replace(/\.bin$/i, "");
+                          a.download = base + "_repaired.bin";
+                          a.click();
+                        }}
+                        style={chip("rgba(255,255,255,0.15)", "#fff")}
+                      >
+                        ⬇ Download .bin
+                      </button>
+                      <button onClick={() => handleDelete(selected)} style={chip("#FF525222", "#fff", "#FF525255")}>🗑 Delete</button>
+                    </div>
+                  </div>
+                  <div style={{ padding: 16 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "6px 12px", fontSize: 11, marginBottom: 16 }}>
+                      <span style={{ color: C.ts }}>Saved at:</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'" }}>{new Date(selectedData.timestamp).toLocaleString()}</span>
+                      <span style={{ color: C.ts }}>Module:</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{selectedData.module}</span>
+                      <span style={{ color: C.ts }}>VIN:</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700, color: C.a2 }}>{selectedData.vin}</span>
+                      <span style={{ color: C.ts }}>Image size:</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'" }}>
+                        {selectedData.rawSize ? selectedData.rawSize.toLocaleString() + " bytes" : "—"}
+                      </span>
+                      <span style={{ color: C.ts }}>Source file:</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'" }}>{selectedData.origin?.filename ?? "—"}</span>
+                      <span style={{ color: C.ts }}>Repaired at:</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700, color: C.a1 }}>
+                        {selectedData.origin
+                          ? (selectedData.origin.algorithm ?? "?") + " @ " + (selectedData.origin.offset ?? "?")
+                          : "—"}
+                      </span>
+                      {selectedData.checksum && (<>
+                        <span style={{ color: C.ts }}>SHA-256:</span>
+                        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{selectedData.checksum.slice(0, 16)}…</span>
+                          <button onClick={() => navigator.clipboard?.writeText(selectedData.checksum)} style={{
+                            fontSize: 9, padding: "1px 6px", borderRadius: 3, border: "1px solid " + C.bd,
+                            background: "#f5f5f5", cursor: "pointer", color: C.ts,
+                          }}>Copy</button>
+                        </span>
+                      </>)}
+                    </div>
+                    <div style={{ fontSize: 11, color: C.ts, lineHeight: 1.6, padding: "8px 12px", background: "#FFF8F0", borderRadius: 6, border: "1px solid #FFD0A0" }}>
+                      Full module image with the checksum repair applied. Use <b>⬇ Download .bin</b> to write it to your
+                      programming tool, or re-upload it to the <b>Binary Checksum Scan</b> panel to confirm all checksums read{" "}
+                      <span style={{ color: "#1E6F3A", fontWeight: 700 }}>✓ VALID</span>.
+                    </div>
+                  </div>
+                </>
+              ) : selectedData.module === "BINARY_REPAIR" ? (
                 /* ── Repair provenance record detail view ── */
                 <>
                   <div style={{
