@@ -55,6 +55,7 @@ import { unzipSync } from 'fflate';
 import { identifyModule, runKeyProgPatch } from './keyProgWizard.js';
 import { bytesToB64 } from './keyProgPresets.js';
 import { getRow } from './moduleRegistry.js';
+import { detectCorruptFill, corruptFillError } from './parseModule.js';
 
 const BACKUP_KEY_PREFIX = 'srtlab_backup_';
 
@@ -205,6 +206,24 @@ export function parseAemtBundle(rawFiles) {
           : 'The bundle appears to contain no recognised files.',
       ],
     );
+  }
+
+  /* Refuse corrupt (tool-error) captures before any persistence. A single-byte
+   * fill or repeated-ASCII error string is never a valid module dump; saving it
+   * as a backup/preset would let a bad capture be restored to a live ECU. This
+   * guard runs on the fully-expanded bin list so zipped bundles are covered too. */
+  for (const f of binFiles) {
+    const corrupt = detectCorruptFill(f.data);
+    if (corrupt) {
+      throw new AemtImportError(
+        'File "' + f.name + '" looks corrupt — ' + corruptFillError(corrupt),
+        [
+          'A corrupt capture cannot be saved as a backup or Key Prog preset.',
+          'Re-read the module to get a clean dump, then import again.',
+          'Detail: ' + (corrupt.reason || 'corrupt fill') + (corrupt.detail ? ' (' + corrupt.detail + ')' : ''),
+        ],
+      );
+    }
   }
 
   /* Identify each binary's module role. */

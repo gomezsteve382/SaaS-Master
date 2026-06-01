@@ -244,3 +244,44 @@ describe("BackupsTab integration — two-selection → Diff flow", () => {
     expect(screen.queryByTestId("analysis-diff-view")).toBeNull();
   });
 });
+
+/* ──────────────────────────────────────────────────────────────────────
+ * Task #946 — corrupt .bin dropped on the Backups tab must be refused
+ * before it is persisted as a backup (importAemtBundle / saveAemtPlaceholders
+ * must never run for a tool-error capture).
+ * ────────────────────────────────────────────────────────────────────── */
+function makeCorruptBin(name) {
+  return new File([new Uint8Array(131072).fill(0x55)], name, { type: "application/octet-stream" });
+}
+
+describe("BackupsTab — corrupt .bin not persisted as a backup (Task #946)", () => {
+  it("refuses a corrupt .bin on the AEMT import path", async () => {
+    const { importAemtBundle } = await import("../../lib/aemtImporter.js");
+    const { saveAemtPlaceholders } = await import("../../lib/audit.js");
+    await renderTab();
+
+    const input = screen.getByTestId("aemt-import-backups-input");
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [makeCorruptBin("BCM_BAD.bin")] } });
+      await new Promise(r => setTimeout(r, 30));
+    });
+
+    expect(importAemtBundle).not.toHaveBeenCalled();
+    expect(saveAemtPlaceholders).not.toHaveBeenCalled();
+  });
+
+  it("refuses a corrupt .bin routed through the generic Import button", async () => {
+    const { importAemtBundle } = await import("../../lib/aemtImporter.js");
+    const { saveAemtPlaceholders } = await import("../../lib/audit.js");
+    await renderTab();
+
+    const input = screen.getByTestId("import-backups-input");
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [makeCorruptBin("RFH_BAD.bin")] } });
+      await new Promise(r => setTimeout(r, 30));
+    });
+
+    expect(importAemtBundle).not.toHaveBeenCalled();
+    expect(saveAemtPlaceholders).not.toHaveBeenCalled();
+  });
+});

@@ -196,6 +196,34 @@ test('ZIP bundle parse: a .zip in a loose-file list is transparently expanded al
   assert.ok(result.roles.PCM, 'PCM came from the loose file list');
 });
 
+/* ───────────────── Corrupt-fill rejection (Task #946) ───────────────── */
+
+test('rejects a corrupt single-byte-fill .bin inside a ZIP before persistence', () => {
+  /* 0x55 single-byte fill = classic tool-error capture, NOT a virgin read. */
+  const corrupt = new Uint8Array(NON_CLASSIFYING_SIZE).fill(0x55);
+  const zipBytes = zipSync({ 'aemt_job/BCM.bin': corrupt });
+  assert.throws(
+    () => parseAemtBundle([{ name: 'aemt_job.zip', data: zipBytes }]),
+    (e) => {
+      assert.ok(e instanceof AemtImportError);
+      assert.match(e.message, /BCM\.bin.*corrupt/i);
+      return true;
+    },
+  );
+});
+
+test('rejects a corrupt loose .bin before persistence', () => {
+  const corrupt = new Uint8Array(NON_CLASSIFYING_SIZE).fill(0xAB);
+  assert.throws(
+    () => parseAemtBundle([{ name: 'RFHUB.bin', data: corrupt }]),
+    (e) => {
+      assert.ok(e instanceof AemtImportError);
+      assert.match(e.message, /corrupt/i);
+      return true;
+    },
+  );
+});
+
 /* ───────────────── Filename heuristic fallback ───────────────── */
 
 test('filename heuristic: assigns BCM/RFH/PCM when binary header is unrecognised', () => {

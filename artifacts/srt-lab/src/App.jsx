@@ -68,7 +68,7 @@ import FirmwareEmulationTab from "./tabs/FirmwareEmulationTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
-import {parseModule, typeFromFilename, moduleTooSmall, wrongModuleForSlot, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A, pcmChipFromSize, detectCorruptFill} from "./lib/parseModule.js";
+import {parseModule, typeFromFilename, moduleTooSmall, wrongModuleForSlot, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A, pcmChipFromSize, detectCorruptFill, corruptFillError} from "./lib/parseModule.js";
 import {analyzeFile} from "./lib/fileUtils.js";
 import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
@@ -1116,6 +1116,12 @@ function VehicleWorkspace({vehicleId, onBack}){
         // <X> slot?" message.
         const wrong = wrongModuleForSlot(x.data, slotType, x.name);
         if (wrong) { rejected.push({name:x.name, ...wrong}); continue; }
+        // Task #946 — corrupt-fill guard. A tool-error capture (single-byte
+        // fill or repeated ASCII error string) must never reach addDump /
+        // setFiles, or it would be persisted into the workspace and could be
+        // loaded into a real module slot later without re-running the guard.
+        const cf = detectCorruptFill(x.data);
+        if (cf) { rejected.push({name:x.name, corruptFill:true, reason:cf.reason, message:corruptFillError({corruptFill:cf}), size:x.data.length}); continue; }
         const t = detectModuleType(x.data, x.name, slotType);
         const small = t ? moduleTooSmall(x.data, t, x.name) : null;
         if (small) rejected.push({name:x.name, ...small});
@@ -1363,6 +1369,11 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       // entry-point comment.
       const wrong = wrongModuleForSlot(x.bytes, slotType, x.name);
       if (wrong) { rejects.push({name: x.name, ...wrong}); continue; }
+      // Task #946 — corrupt-fill guard at the slot uploader, before the file
+      // is forwarded to loadF (which persists via addDump). Keeps the Dumps
+      // tab from silently storing a tool-error capture as a usable dump.
+      const cf = detectCorruptFill(x.bytes);
+      if (cf) { rejects.push({name: x.name, corruptFill: true, reason: cf.reason, message: corruptFillError({corruptFill: cf}), size: x.bytes.length}); continue; }
       const t = detectModuleType(x.bytes, x.name, slotType);
       const small = t ? moduleTooSmall(x.bytes, t, x.name) : null;
       if (small) rejects.push({name: x.name, ...small});
@@ -1629,7 +1640,20 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       />
       {rejected.length>0 && <div style={{marginTop:12,display:'flex',flexDirection:'column',gap:10}}>
         {rejected.map((r,i)=>(
-          r.wrongModule ? (
+          r.corruptFill ? (
+            /* Task #946 — corrupt-fill rejection card. A tool-error capture
+               (single-byte fill or repeated ASCII error string) is refused
+               at upload time so it never reaches the workspace or a backup. */
+            <div key={i} data-testid="dumps-corrupt-card" data-corrupt-reason={r.reason} style={{padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
+              <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ Corrupt capture — not a real module dump</div>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts,lineHeight:1.7}}>
+                <div>File: <strong>{r.name}</strong></div>
+                {typeof r.size==='number' && <div>File size: <strong style={{color:C.er}}>{r.size.toLocaleString()} bytes</strong></div>}
+                <div>Reason: <strong>{r.reason}</strong></div>
+              </div>
+              <div style={{marginTop:8,fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>{r.message}</div>
+            </div>
+          ) : r.wrongModule ? (
             /* Task #484 — wrong-module rejection card. Distinct testid + copy
                from the too-small card so QA can pin down which guard fired
                and the user gets the "drop it in the right slot" hint. */

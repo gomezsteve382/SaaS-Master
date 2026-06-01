@@ -12,6 +12,7 @@ import {
   encryptArchive, decryptArchive, ENCRYPTED_ARCHIVE_TYPE,
 } from "../lib/audit.js";
 import { sha256Hex, backupDidsToBytes } from "../lib/checksum.js";
+import { detectCorruptFill, corruptFillError } from "../lib/parseModule.js";
 import { createObdEngine } from "../lib/obdEngine.js";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import LeakScanPanel from "../components/LeakScanPanel.jsx";
@@ -29,6 +30,21 @@ import {
 } from "../lib/diffReports.js";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
+
+// Task #946 — corrupt-fill guard for the Backups tab upload paths.
+// Scans the raw .bin module dumps in an AEMT bundle (the only binary
+// captures that get persisted as backups) and returns the first
+// tool-error capture found, or null when every dump looks clean.
+// Keeps a corrupt file from being silently stored as a backup and later
+// re-loaded into a real module slot without the guard re-running.
+function firstCorruptBin(rawFiles) {
+  for (const f of rawFiles || []) {
+    if (!f?.name || !f.name.toLowerCase().endsWith(".bin")) continue;
+    const cf = detectCorruptFill(f.data);
+    if (cf) return { name: f.name, cf };
+  }
+  return null;
+}
 
 // ---------------------------------------------------------------------------
 // ChecksumScanPanel — binary firmware checksum scanner + repair
@@ -733,6 +749,21 @@ export default function BackupsTab() {
       ),
     );
 
+    /* Task #946 — refuse a corrupt .bin dump before it is persisted as a
+     * backup via saveAemtPlaceholders. */
+    const corrupt = firstCorruptBin(rawFiles);
+    if (corrupt) {
+      setAemtBusy(false);
+      setAemtModal({
+        mode: "error",
+        error: new AemtImportError(
+          corruptFillError({ corruptFill: corrupt.cf }),
+          [corrupt.name + ": " + corrupt.cf.detail],
+        ),
+      });
+      return;
+    }
+
     /* promptVin: resolve(null) signals cancel; throw only on unrecoverable error. */
     const promptVin = (info) => new Promise((resolve) => {
       aemtVinResolveRef.current = resolve;
@@ -805,6 +836,18 @@ export default function BackupsTab() {
           }),
         ),
       );
+      /* Task #946 — refuse a corrupt .bin dump before it is persisted. */
+      const corrupt = firstCorruptBin(rawFiles);
+      if (corrupt) {
+        setAemtModal({
+          mode: "error",
+          error: new AemtImportError(
+            corruptFillError({ corruptFill: corrupt.cf }),
+            [corrupt.name + ": " + corrupt.cf.detail],
+          ),
+        });
+        return;
+      }
       setAemtBusy(true);
       setAemtModal(null);
       const promptVin = (info) => new Promise((resolve) => {
