@@ -68,7 +68,7 @@ test("scanChecksums: returns empty array for all-zero file (no meaningful checks
 });
 
 test("crc32: BCM whole-file CRC32 matches python binascii.crc32 ground truth (0x48a7da78)", () => {
-  const v = crc32(BCM_18TH, BCM_18TH.length);
+  const v = crc32(BCM_18TH, 0, BCM_18TH.length);
   assert.equal("0x" + v.toString(16), "0x48a7da78");
 });
 
@@ -166,4 +166,60 @@ test("eepmapAnalyze: finds mirrored 16-byte blocks (SEC16 redundancy) in BCM fix
 test("eepmapAnalyze: returns empty vinCandidates for an all-zero file", () => {
   const { vinCandidates } = eepmapAnalyze(new Uint8Array(256));
   assert.deepEqual(vinCandidates, []);
+});
+
+// ---------------------------------------------------------------------------
+// 5. scanChecksums — non-prefix / per-block CRC detection (ZF-8HP TCU)
+//
+// The ZF-8HP fixture is 512 KB split into eight 64 KB blocks, each sealed with
+// a big-endian CRC32 (crc32be) over the block body at blockEnd-4. Block 0's
+// CRC covers the file prefix (start 0x0), but blocks 1..7 are *non-prefix*:
+// their coverage starts mid-file (0x10000, 0x20000, ...). This proves the
+// scanner detects partial-range checksums, not just byte-0 prefixes.
+// ---------------------------------------------------------------------------
+
+const ZF_8HP = new Uint8Array(
+  readFileSync(join(__dir, "..", "lib", "__fixtures__", "zf8hp_845re.bin")),
+);
+
+test("scanChecksums: finds non-prefix per-block crc32be in ZF-8HP fixture", () => {
+  const results = scanChecksums(ZF_8HP);
+
+  // Block 1: a genuinely non-prefix checksum — coverage starts at 0x10000.
+  const block1 = results.find(
+    (r) => r.algorithm === "crc32be" && r.offset === "0x1fffc",
+  );
+  assert.ok(block1, "must find crc32be at block-1 trailer 0x1fffc");
+  assert.equal(block1.status, "valid");
+  assert.equal(block1.coversStart, "0x10000", "coverage must start mid-file");
+  assert.equal(block1.covers, "0x10000 .. 0x1fffb");
+  assert.notEqual(block1.coversStart, "0x0", "must NOT be a byte-0 prefix");
+
+  // The scheme spans all eight blocks; at least one is non-prefix.
+  const blockCrcs = results.filter(
+    (r) => r.algorithm === "crc32be" && r.status === "valid",
+  );
+  assert.ok(blockCrcs.length >= 2, "per-block CRC scheme must surface ≥2 blocks");
+  const nonPrefix = blockCrcs.filter((r) => r.coversStart !== "0x0");
+  assert.ok(
+    nonPrefix.length >= 1,
+    "at least one detected checksum must be non-prefix",
+  );
+});
+
+test("fixChecksum: repairs a corrupted non-prefix crc32be block (ZF-8HP block 1)", () => {
+  // Corrupt the block-1 trailer, then repair it against its own range.
+  const corrupt = new Uint8Array(ZF_8HP);
+  corrupt[0x1fffc] ^= 0xff;
+
+  const repaired = fixChecksum(corrupt, "0x1fffc", "crc32be", "0x10000");
+
+  for (let i = 0; i < 4; i++) {
+    assert.equal(
+      repaired[0x1fffc + i],
+      ZF_8HP[0x1fffc + i],
+      `repaired byte at 0x1fffc+${i} must match original`,
+    );
+  }
+  assert.equal(repaired.length, ZF_8HP.length);
 });
