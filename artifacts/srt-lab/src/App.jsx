@@ -19,7 +19,9 @@
  * ═══════════════════════════════════════════════════════════════════════════ */
 
 import React, { useState, useCallback, useMemo, useRef, useEffect, useContext } from "react";
+import { Bot } from "lucide-react";
 import CommandShell from "./components/CommandShell.jsx";
+import CopilotPanel from "./components/CopilotPanel.jsx";
 import ReferencePanel, { ReferencePanelTrigger } from "./components/ReferencePanel.jsx";
 import GpecTab from "./tabs/GpecTab";
 import OBDTab from "./tabs/OBDTab";
@@ -986,7 +988,7 @@ const WORKSPACE_CATEGORIES = {
   canuniverse:'RESEARCH', fwemul:'RESEARCH',
 };
 
-function VehicleWorkspace({vehicleId, onBack}){
+function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
   const vehicle = VEHICLES[vehicleId];
   // The FCA Analyzer tab was removed; if any persisted/deep-linked state
   // still asks for it, fall back to the Dumps tab so the workspace never
@@ -1197,6 +1199,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         vehicle={vehicle}
         onBack={onBack}
         onOpenWizard={()=>setWorkspaceWizardOpen(true)}
+        onOpenCopilot={onOpenCopilot}
         tabs={WORKSPACE_TABS}
         categories={WORKSPACE_CATEGORIES}
         activeTab={tab}
@@ -2001,13 +2004,52 @@ function InfoTab({vehicle}){
   </div>;
 }
 
+/* Always-available floating launcher for the global Claude co-pilot.
+ * Rendered at the App root so it is reachable from every screen,
+ * including the vehicle-selection landing page. */
+function CopilotFab({onOpen}){
+  return (
+    <button
+      type="button"
+      data-testid="copilot-fab"
+      onClick={onOpen}
+      title="Open the AI Co-pilot — ask Claude anything"
+      aria-label="Open the AI Co-pilot"
+      style={{
+        position:'fixed', right:22, bottom:22, zIndex:4400,
+        display:'flex', alignItems:'center', gap:9,
+        background:'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+        color:'#fff', border:'none', borderRadius:999,
+        padding:'13px 18px', fontSize:13.5, fontWeight:800,
+        fontFamily:"'Nunito',sans-serif", cursor:'pointer',
+        boxShadow:'0 6px 20px rgba(211,47,47,0.42)',
+      }}
+    >
+      <Bot size={18}/> AI Co-pilot
+    </button>
+  );
+}
+
 /* ═══ APP ═══ */
 export default function App(){
   const [vehicleId, setVehicleId] = useState(null);
-  if(!vehicleId) return <VehicleLanding onSelect={setVehicleId}/>;
+  const [copilotOpen, setCopilotOpen] = useState(false);
+  const openCopilot = useCallback(()=>setCopilotOpen(true),[]);
   return (
-    <MasterVinProvider>
-      <VehicleWorkspace vehicleId={vehicleId} onBack={()=>setVehicleId(null)}/>
-    </MasterVinProvider>
+    <>
+      {!vehicleId ? (
+        <VehicleLanding onSelect={setVehicleId}/>
+      ) : (
+        <MasterVinProvider>
+          <VehicleWorkspace
+            vehicleId={vehicleId}
+            onBack={()=>setVehicleId(null)}
+            onOpenCopilot={openCopilot}
+          />
+        </MasterVinProvider>
+      )}
+      {!copilotOpen && <CopilotFab onOpen={openCopilot}/>}
+      <CopilotPanel open={copilotOpen} onClose={()=>setCopilotOpen(false)}/>
+    </>
   );
 }

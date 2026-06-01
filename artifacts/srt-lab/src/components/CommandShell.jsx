@@ -4,7 +4,6 @@ import {
   ChevronRight, Wrench, Car, ShieldCheck, Search, X,
 } from 'lucide-react';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
-import CopilotPanel from './CopilotPanel.jsx';
 
 /* SRT command-center design tokens (graduated from the approved canvas mockup). */
 const T = {
@@ -191,11 +190,10 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
 
 /* ── Command shell: slim top bar + 5-item workflow rail + drawer ── */
 export default function CommandShell({
-  vehicle, onBack, onOpenWizard, tabs, categories, activeTab, onSelect, children,
+  vehicle, onBack, onOpenWizard, onOpenCopilot, tabs, categories, activeTab, onSelect, children,
 }) {
   const {vin} = useContext(MasterVinContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [copilotOpen, setCopilotOpen] = useState(false);
 
   const advancedCount = useMemo(
     () => tabs.filter(t => !PRIMARY_KEYS.has(t.id)).length,
@@ -252,12 +250,12 @@ export default function CommandShell({
         <button
           type="button"
           data-testid="topbar-copilot-btn"
-          onClick={() => setCopilotOpen(true)}
+          onClick={onOpenCopilot}
           title="Open the AI Co-pilot — ask Claude anything"
           style={{
             display: 'flex', alignItems: 'center', gap: 7,
-            background: copilotOpen ? 'rgba(211,47,47,0.22)' : 'transparent', color: '#fff',
-            border: `1px solid ${copilotOpen ? T.red : 'rgba(255,255,255,.22)'}`,
+            background: 'transparent', color: '#fff',
+            border: '1px solid rgba(255,255,255,.22)',
             borderRadius: 9, padding: '8px 13px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer',
           }}
         >
@@ -385,8 +383,6 @@ export default function CommandShell({
         activeTab={activeTab}
         onSelect={onSelect}
       />
-
-      <CopilotPanel open={copilotOpen} onClose={() => setCopilotOpen(false)} />
     </div>
   );
 }
