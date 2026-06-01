@@ -67,7 +67,7 @@ import J2534UdsConsoleTab from "./tabs/J2534UdsConsoleTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
-import {parseModule, typeFromFilename, moduleTooSmall, wrongModuleForSlot, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A, pcmChipFromSize} from "./lib/parseModule.js";
+import {parseModule, typeFromFilename, moduleTooSmall, wrongModuleForSlot, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A, pcmChipFromSize, detectCorruptFill} from "./lib/parseModule.js";
 import {analyzeFile} from "./lib/fileUtils.js";
 import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
@@ -415,7 +415,7 @@ const TL={BCM:'BCM D-FLASH','95640':'FCA 95640',RFHUB:'RFHUB EEE',GPEC2A:'GPEC2A
 const C={bg:'#F4F1EC',cd:'#FFF',c2:'#FAF9F7',sr:'#D32F2F',sl:'#FF5252',bk:'#1A1A1A',a1:'#FF6D00',a2:'#00BFA5',a3:'#2979FF',a4:'#AA00FF',tx:'#1A1A1A',ts:'#5A5A5A',tm:'#9E9E9E',bd:'#E8E4DE',gn:'#00C853',wn:'#FFB300',er:'#FF1744'};
 function Card({children,style={},glow,onClick}){const[h,setH]=useState(false);return<div onClick={onClick} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{background:C.cd,borderRadius:16,padding:22,border:`1.5px solid ${h&&onClick?C.sr:C.bd}`,boxShadow:h&&onClick?'0 8px 32px rgba(211,47,47,0.12)':'0 2px 16px rgba(0,0,0,0.06)',transition:'all 0.3s',transform:h&&onClick?'translateY(-2px)':'none',cursor:onClick?'pointer':'default',position:'relative',overflow:'hidden',...style}}>{glow&&<div style={{position:'absolute',top:-40,right:-40,width:120,height:120,borderRadius:'50%',background:'radial-gradient(circle,#FF525215,transparent 70%)',pointerEvents:'none'}}/>}<div style={{position:'relative',zIndex:1}}>{children}</div></div>;}
 function Tag({children,color=C.sr}){return<span style={{fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:8,background:color+'14',color,letterSpacing:.5,display:'inline-block',marginLeft:4}}>{children}</span>;}
-function Btn({children,onClick,disabled,color=C.sr,full,outline}){const[h,setH]=useState(false);return<button onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#D5D0C8':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?'#3F3F3F':outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
+function Btn({children,onClick,disabled,color=C.sr,full,outline,...rest}){const[h,setH]=useState(false);return<button {...rest} onClick={onClick} disabled={disabled} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{padding:'10px 20px',borderRadius:10,fontFamily:"'Nunito'",fontWeight:800,fontSize:12,border:outline?`2px solid ${color}33`:'none',cursor:disabled?'not-allowed':'pointer',background:disabled?'#D5D0C8':outline?(h?color+'10':'transparent'):(h?color:color+'DD'),color:disabled?'#3F3F3F':outline?color:'#fff',width:full?'100%':undefined,transition:'all 0.2s',letterSpacing:.5}}>{children}</button>;}
 function PH({icon,title,sub}){return<Card style={{textAlign:'center',padding:'60px 24px'}}><div style={{fontSize:48,marginBottom:12,opacity:.3}}>{icon}</div><div style={{fontSize:20,fontWeight:900,color:C.tm}}>{title}</div><div style={{fontSize:13,color:C.tm,marginTop:4}}>{sub}</div></Card>;}/* ═══ SECURITY MATCHER TAB (Piece 4) ═══ */
 function extractVAt(d,o){if(o+17>d.length)return null;let s='';for(let i=0;i<17;i++){const b=d[o+i];if(b<0x20||b>0x7E)return null;s+=String.fromCharCode(b);}return/^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/.test(s)?s:null;}
 function secAnalyze(data,fn){const sz=data.length;const m={fn,sz,type:'?',vins:[],skey:null,skoff:-1,skb:true,immo:null,immoBak:null,immoOk:true,immoBlank:true,bak:null,bakBlank:true,fobBlank:true,raw:data};
@@ -1398,6 +1398,25 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   const rfh = files.find(f=>f && f.type==='RFHUB');
   const pcm = files.find(f=>f && (f.type==='GPEC2A' || f.type==='PCM'));
 
+  // Run detectCorruptFill on every loaded buffer so files that entered the
+  // workspace before the upload-time guard existed are caught retroactively.
+  // The result is memoised — only recomputes when the files array changes.
+  const corruptEntries = useMemo(()=>{
+    const out=[];
+    files.forEach((f,idx)=>{
+      if(!f||!f.data)return;
+      const result=detectCorruptFill(f.data);
+      if(result)out.push({file:f,fileIndex:idx,result});
+    });
+    return out;
+  },[files]);
+  // True when any of the three core module slots holds a corrupt buffer —
+  // used to disable SYNC ALL MODULES so a bad file can never flow through
+  // the VIN/key writer paths.
+  const hasCorruptModule = corruptEntries.some(({file:f})=>
+    f===bcm||f===rfh||f===pcm
+  );
+
   /* Task #481 — when the loaded PCM is already exactly 4 KB or 8 KB,
    * snap the in-memory target-chip selector to that size so a tech who
    * just dropped in a clean source dump doesn't have to flip the
@@ -1555,7 +1574,7 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
           <input className="vin-input" value={tv} maxLength={17} placeholder={`Enter customer ${vehicle.name} VIN`} onChange={e=>setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+(vinBad?C.er:vinGood?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}}/>
         </div>
         <div style={{display:'flex',flexDirection:'column',gap:8}}>
-          <Btn onClick={runFullSync} color={vehicle.accent} disabled={!vinGood||!bcm||blockers.length>0}>▶ SYNC ALL MODULES</Btn>
+          <Btn onClick={runFullSync} color={vehicle.accent} disabled={!vinGood||!bcm||blockers.length>0||hasCorruptModule} title={hasCorruptModule?'Remove corrupt captures before syncing':undefined}>▶ SYNC ALL MODULES</Btn>
           <button onClick={()=>{setFiles([]);setMsg('');setErr('');}} style={{padding:'6px 14px',fontSize:10,background:'none',border:'1px solid '+C.bd,borderRadius:8,cursor:'pointer',color:C.ts,fontWeight:700,letterSpacing:1}}>CLEAR FILES</button>
         </div>
       </div>
@@ -1665,6 +1684,37 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
             <button onClick={()=>removeFile(b.fileIndex)} style={{padding:'5px 12px',fontSize:10,background:'none',border:'1px solid '+C.bd,borderRadius:8,cursor:'pointer',color:C.ts,fontWeight:700,letterSpacing:1}}>REMOVE</button>
             <button onClick={()=>loadAnyway(b.fileIndex)} title="Bench override — bypass the registry check for this file only. Parsing still uses the real BCM bytes." style={{padding:'5px 12px',fontSize:10,background:C.wn+'18',border:'1px solid '+C.wn+'66',borderRadius:8,cursor:'pointer',color:C.wn,fontWeight:800,letterSpacing:1}}>LOAD ANYWAY (P/N NOT IN REGISTRY)</button>
           </div>
+        </div>
+      ))}
+      {/* Corrupt-fill vault scan — runs detectCorruptFill on every already-
+          stored buffer so files that entered the workspace before the
+          upload-time guard existed (e.g. the seven OBDSTAR6 BCM dumps from
+          the original incident) are still caught and surfaced here. One badge
+          per corrupt file; each badge includes a REMOVE button so the user can
+          clear the entry without having to use the global CLEAR FILES button. */}
+      {corruptEntries.map(({file:f,fileIndex,result})=>(
+        <div key={`corrupt-${fileIndex}`}
+             data-testid="dumps-corrupt-fill-badge"
+             data-file-index={fileIndex}
+             data-corrupt-reason={result.reason}
+             style={{marginTop:12,padding:'14px 16px',borderRadius:10,background:'rgba(211,47,47,0.09)',border:'2px solid '+C.er}}>
+          <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>
+            ⚠ Corrupt capture — OBDSTAR6 fill detected
+          </div>
+          <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:C.ts,lineHeight:1.7}}>
+            <div>File: <strong>{f.name||f.filename||'(unknown)'}</strong></div>
+            <div>Module: <strong>{f.type||'UNKNOWN'}</strong> · {(f.size||0).toLocaleString()} bytes</div>
+            <div>Reason: <strong>{result.reason}</strong></div>
+            <div style={{marginTop:4,fontSize:10,color:C.tm,wordBreak:'break-word'}}>{result.detail}</div>
+          </div>
+          <div style={{marginTop:8,fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>
+            This file cannot be used for VIN or key operations. Remove it and re-read the module using verified hardware.
+          </div>
+          <button
+            onClick={()=>removeFile(fileIndex)}
+            style={{marginTop:10,padding:'5px 14px',fontSize:10,background:'none',border:'1px solid '+C.er,borderRadius:8,cursor:'pointer',color:C.er,fontWeight:800,letterSpacing:1}}>
+            REMOVE
+          </button>
         </div>
       ))}
     </Card>
