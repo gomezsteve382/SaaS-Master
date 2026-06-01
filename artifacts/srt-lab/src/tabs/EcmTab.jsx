@@ -17,6 +17,39 @@ import {getRow} from '../lib/moduleRegistry.js';
 import {programVin} from '../lib/vinProgrammer.js';
 import {build} from '@workspace/uds';
 
+// Prioritized ECM/PCM CAN address candidates probed on Connect. The
+// standard FCA PCM (0x7E0/0x7E8) is first so there is zero behaviour change
+// for ordinary vehicles; the remainder cover auxiliary engine controllers,
+// platforms with a non-standard PCM CAN ID, and some Hellcat variants.
+// RX defaults to TX+8 per the ISO-TP normal-addressing convention.
+const ECM_PROBE_CANDIDATES=[
+  {tx:0x7E0,rx:0x7E8,name:'Standard PCM (FCA default)'},
+  {tx:0x740,rx:0x748,name:'Auxiliary engine controller'},
+  {tx:0x7A0,rx:0x7A8,name:'Alternate PCM CAN ID'},
+  {tx:0x6F0,rx:0x6F8,name:'Hellcat variant'},
+];
+
+/**
+ * discoverEcm — probe the candidate address list with a TesterPresent
+ * (3E 00) and return the first pair that answers with a positive response
+ * (0x7E). Returns null if no candidate responds.
+ *
+ * `engine` is the initAdapter UDS engine; `addLog`/`hx` are optional and
+ * only used for progress logging when supplied.
+ */
+export async function discoverEcm(engine,addLog,hx){
+  if(!engine)return null;
+  const fmt=hx||((n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0'));
+  for(const c of ECM_PROBE_CANDIDATES){
+    addLog&&addLog('Probing '+c.name+' TX:0x'+fmt(c.tx,3)+' (3E 00)...','info');
+    const r=await engine.uds(c.tx,c.rx,build.testerPresent({subFunction:0x00}));
+    if(r&&r.ok&&r.d&&r.d[0]===0x7E)return c;
+  }
+  return null;
+}
+
+export {ECM_PROBE_CANDIDATES};
+
 export default function EcmTab({vehicle}){
   const{vin:masterVin,updateStatus,getDumpsByType,addDump,removeDump}=useMasterVin();
   // Task #774 — surface OS/PN/Serial best-pick for any GPEC2A (ECM) dump
@@ -54,15 +87,64 @@ export default function EcmTab({vehicle}){
   const[busy,setBusy]=useState('');const[log,setLog]=useState([]);
   const[curVin,setCurVin]=useState(null);const[ecmInfo,setEcmInfo]=useState({});
   const[algo,setAlgo]=useState('');const[showConfirmModal,setShowConfirmModal]=useState(false);
-  const ecmAddr={tx:0x7E0,rx:0x7E8};
+  const[ecmAddr,setEcmAddr]=useState(ECM_PROBE_CANDIDATES[0]);
+  const[discovering,setDiscovering]=useState(false);
+  const[manualAddr,setManualAddr]=useState('');
   const eng=useRef(null);
   const addLog=useCallback((m,t='info')=>{const ts=new Date().toLocaleTimeString();setLog(p=>[...p.slice(-300),{t:ts,m,type:t}]);},[]);
   const hx=(n,w=2)=>n.toString(16).toUpperCase().padStart(w,'0');
 
   const connect=useCallback(async()=>{
     const e=await initAdapter(addLog,hx);
-    if(e){eng.current=e;setConn(true);addLog('Connected — ready for ECM ops','info');}
+    if(!e)return;
+    eng.current=e;setConn(true);
+    setDiscovering(true);
+    addLog('═══ ECM ADDRESS DISCOVERY ═══','info');
+    const found=await discoverEcm(e,addLog,hx);
+    setDiscovering(false);
+    if(found){
+      setEcmAddr(found);
+      addLog('✓ ECM found at '+found.name+' — TX 0x'+hx(found.tx,3)+' / RX 0x'+hx(found.rx,3),'rx');
+    }else{
+      const tried=ECM_PROBE_CANDIDATES.map(c=>'0x'+hx(c.tx,3)).join(', ');
+      setEcmAddr(ECM_PROBE_CANDIDATES[0]);
+      addLog('✗ ECM did not respond on any candidate address. Tried: '+tried,'error');
+      addLog('Falling back to default 0x7E0 — use Manual Address Override below if you know the ECM CAN ID.','warn');
+    }
+    addLog('Connected — ready for ECM ops','info');
   },[addLog]);
+
+  const rediscover=useCallback(async()=>{
+    if(!eng.current){addLog('Connect first','error');return;}
+    setDiscovering(true);
+    addLog('═══ ECM ADDRESS DISCOVERY ═══','info');
+    const found=await discoverEcm(eng.current,addLog,hx);
+    setDiscovering(false);
+    if(found){
+      setEcmAddr(found);
+      addLog('✓ ECM found at '+found.name+' — TX 0x'+hx(found.tx,3)+' / RX 0x'+hx(found.rx,3),'rx');
+    }else{
+      const tried=ECM_PROBE_CANDIDATES.map(c=>'0x'+hx(c.tx,3)).join(', ');
+      addLog('✗ ECM did not respond on any candidate address. Tried: '+tried,'error');
+    }
+  },[addLog]);
+
+  const applyManualAddr=useCallback(()=>{
+    const raw=manualAddr.trim();
+    if(!raw){addLog('Enter a hex CAN ID (e.g. 7E0 or 7E0/7E8)','error');return;}
+    const parts=raw.split(/[\/,\s]+/).filter(Boolean);
+    const tx=parseInt(parts[0].replace(/^0x/i,''),16);
+    if(isNaN(tx)||tx<0||tx>0x7FF){addLog('Invalid TX address — enter an 11-bit hex CAN ID like 7E0','error');return;}
+    let rx;
+    if(parts[1]!==undefined){
+      rx=parseInt(parts[1].replace(/^0x/i,''),16);
+      if(isNaN(rx)||rx<0||rx>0x7FF){addLog('Invalid RX address — enter an 11-bit hex CAN ID like 7E8','error');return;}
+    }else{
+      rx=(tx+8)&0x7FF;
+    }
+    setEcmAddr({tx,rx,name:'Manual override'});
+    addLog('Manual ECM address set — TX 0x'+hx(tx,3)+' / RX 0x'+hx(rx,3),'info');
+  },[manualAddr,addLog]);
 
   const disconnect=useCallback(()=>{setConn(false);setUnlocked(false);eng.current=null;addLog('Disconnected','info');},[addLog]);
 
@@ -81,7 +163,7 @@ export default function EcmTab({vehicle}){
     }else addLog('VIN read failed — try Read ECM Info','warn');
     addLog('═══ TEST COMPLETE ═══','info');
     setBusy('');
-  },[addLog]);
+  },[addLog,ecmAddr]);
 
   const readInfo=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
@@ -106,7 +188,7 @@ export default function EcmTab({vehicle}){
       }else addLog(r.label+' (0x'+hx(r.did,4)+'): no response','warn');
     }
     setEcmInfo(info);setBusy('');
-  },[addLog]);
+  },[addLog,ecmAddr]);
 
   const readVin=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
@@ -116,7 +198,7 @@ export default function EcmTab({vehicle}){
     if(r.ok){const v=parseVinFromResponse(r.d);if(v){setCurVin(v);addLog('VIN: '+v,'rx');}else addLog('VIN parse failed','warn');}
     else addLog('VIN read failed','error');
     setBusy('');
-  },[addLog]);
+  },[addLog,ecmAddr]);
 
   const unlockEcm=useCallback(async()=>{
     if(!eng.current){addLog('Connect first','error');return;}
@@ -145,7 +227,7 @@ export default function EcmTab({vehicle}){
     }
     addLog('All '+ECM_ALGOS.length+' algorithms failed — ECM may need different platform algo','error');
     setBusy('');
-  },[addLog]);
+  },[addLog,ecmAddr]);
 
   const writeVin=useCallback(()=>{
     if(!eng.current){addLog('Connect first','error');return;}
@@ -182,7 +264,11 @@ export default function EcmTab({vehicle}){
       }
       activeEng=br.engine;
     }
-    const row=getRow('ECM');
+    // Pin the registry row's tx/rx to the discovered/manual ECM address so
+    // VIN write, preflight, unlock, and verify all target the resolved
+    // module — not the hardcoded 0x7E0/0x7E8 registry default.
+    const row={...getRow('ECM'),tx:ecmAddr.tx,rx:ecmAddr.rx};
+    addLog('Targeting ECM at TX 0x'+hx(ecmAddr.tx,3)+' / RX 0x'+hx(ecmAddr.rx,3)+' ('+ecmAddr.name+')','info');
     const r=await programVin({
       eng:activeEng, row, vin:masterVin,
       addLog:(m,t)=>addLog(m,t),
@@ -192,7 +278,7 @@ export default function EcmTab({vehicle}){
     setCurVin(f190?.readback||null);
     updateStatus('ECM',r.ok?'ok':'fail');
     setBusy('');
-  },[masterVin,addLog,updateStatus,curVin,algo]);
+  },[masterVin,addLog,updateStatus,curVin,algo,ecmAddr]);
 
   const vinValid=masterVin.length===17;
 
@@ -219,11 +305,16 @@ export default function EcmTab({vehicle}){
           <div style={{fontSize:10,opacity:.7,letterSpacing:3,fontWeight:700}}>ENGINE CONTROL MODULE · VIN · 10 ALGORITHMS</div>
           {vehicle&&<div style={{marginTop:8,padding:'6px 10px',background:'rgba(0,0,0,0.3)',borderRadius:8,display:'inline-block'}}>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,color:'rgba(255,255,255,0.9)'}}>{vehicle.full} — {vehicle.body}</div>
-            <div style={{fontSize:10,color:'rgba(255,255,255,0.6)',marginTop:3,fontFamily:"'JetBrains Mono'"}}>{vehicle.generations.length} generation{vehicle.generations.length===1?'':'s'} · ECM address: 0x7E0/0x7E8 (standard for all)</div>
+            <div style={{fontSize:10,color:'rgba(255,255,255,0.6)',marginTop:3,fontFamily:"'JetBrains Mono'"}}>{vehicle.generations.length} generation{vehicle.generations.length===1?'':'s'} · ECM address auto-discovered on connect (default 0x7E0/0x7E8)</div>
           </div>}
         </div>
-        <div style={{fontSize:11,padding:'6px 12px',background:conn?(unlocked?'#00C85333':'#FFB30033'):'#FF174433',borderRadius:8,border:'1px solid '+(conn?(unlocked?'#00C853':'#FFB300'):'#FF1744')}}>
-          {!conn?'○ DISCONNECTED':unlocked?'● UNLOCKED ('+algo+')':'● CONNECTED'}
+        <div style={{textAlign:'right'}}>
+          <div style={{fontSize:11,padding:'6px 12px',background:conn?(unlocked?'#00C85333':'#FFB30033'):'#FF174433',borderRadius:8,border:'1px solid '+(conn?(unlocked?'#00C853':'#FFB300'):'#FF1744')}}>
+            {!conn?'○ DISCONNECTED':discovering?'◌ DISCOVERING…':unlocked?'● UNLOCKED ('+algo+')':'● CONNECTED'}
+          </div>
+          {conn&&<div style={{marginTop:6,fontSize:9,color:'rgba(255,255,255,0.85)',fontFamily:"'JetBrains Mono'",letterSpacing:0.5}}>
+            {discovering?'probing candidates…':ecmAddr.name+' · TX 0x'+hx(ecmAddr.tx,3)+' / RX 0x'+hx(ecmAddr.rx,3)}
+          </div>}
         </div>
       </div>
     </Card>
@@ -237,10 +328,28 @@ export default function EcmTab({vehicle}){
         {conn&&<Btn onClick={readInfo} disabled={!!busy} color={C.a2}>📖 Read ECM Info</Btn>}
         {conn&&<Btn onClick={readVin} disabled={!!busy} color={C.a3} outline>📖 Read VIN</Btn>}
         {conn&&<Btn onClick={unlockEcm} disabled={!!busy} color={C.a4}>🔓 Unlock (Auto-Try All 10)</Btn>}
+        {conn&&<Btn onClick={rediscover} disabled={!!busy||discovering} color={C.a3} outline>🎯 Re-discover Address</Btn>}
         {conn&&<Btn onClick={writeVin} disabled={!!busy||!unlocked||!vinValid} color={C.sr}>💾 Write Master VIN</Btn>}
       </div>
       <div style={{marginTop:10,fontSize:10,color:C.tm,fontFamily:"'JetBrains Mono'"}}>
-        ECM at TX 0x{hx(ecmAddr.tx,3)} · RX 0x{hx(ecmAddr.rx,3)} · {ECM_ALGOS.length} algorithms ready
+        ECM at TX 0x{hx(ecmAddr.tx,3)} · RX 0x{hx(ecmAddr.rx,3)} · {ecmAddr.name} · {ECM_ALGOS.length} algorithms ready
+      </div>
+      <div style={{marginTop:12,paddingTop:12,borderTop:'1px dashed '+C.bd}}>
+        <div style={{fontSize:10,fontWeight:800,color:C.ts,letterSpacing:1,marginBottom:6}}>MANUAL ADDRESS OVERRIDE</div>
+        <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+          <input
+            value={manualAddr}
+            onChange={e=>setManualAddr(e.target.value)}
+            onKeyDown={e=>{if(e.key==='Enter')applyManualAddr();}}
+            placeholder="e.g. 7E0 or 7E0/7E8"
+            style={{padding:'7px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:11,width:160}}
+          />
+          <Btn onClick={applyManualAddr} color={C.a4} outline>Set Address</Btn>
+          <span style={{fontSize:10,color:C.tm,fontStyle:'italic'}}>For non-standard ECM CAN IDs not covered by auto-discovery. RX defaults to TX+8 unless specified.</span>
+        </div>
+        <div style={{marginTop:8,fontSize:9,color:C.tm,fontFamily:"'JetBrains Mono'"}}>
+          Probe order: {ECM_PROBE_CANDIDATES.map(c=>'0x'+hx(c.tx,3)).join(' → ')}
+        </div>
       </div>
     </Card>
 
