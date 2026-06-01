@@ -22,6 +22,11 @@ import {runDealerLockoutBypass,dealerLockoutBypassSteps} from "../lib/dealerLock
 import Sec16PreflightCard from "../components/Sec16PreflightCard.jsx";
 import {extractRfhPflashIdentity} from "../lib/rfhPflashIdentity.js";
 import {pinnedStatus,formatRegistryEntry} from "../lib/rfhPinnedRegistry.js";
+import {
+  resolvePinEncoding,PIN_ENCODINGS,encodePin,pinAttemptGate,planPinSends,
+  pinAttemptStorageKey,readPinAttempts,incrementPinAttempts,resetPinAttempts,
+  MAX_PIN_ATTEMPTS,
+} from "../lib/rfhubPin.js";
 import {useEffect} from "react";
 
 /**
@@ -91,6 +96,8 @@ export default function RfhubTab({vehicle}){
   const [pin,setPin]=useState('');
   const [keysProgrammed,setKeysProgrammed]=useState(null);
   const [pinAttempts,setPinAttempts]=useState(0);
+  const [pinEncoding,setPinEncoding]=useState('');   // '' = unchosen, 'all' = blind multi-try, or a PIN_ENCODINGS id
+  const [dryRun,setDryRun]=useState(false);
   const [pinExtractInfo,setPinExtractInfo]=useState('');
   const [showConfirmModal,setShowConfirmModal]=useState(false);
   const [rfhubAddr,setRfhubAddr]=useState(RFHUB_CANDIDATES[0]);
@@ -257,29 +264,122 @@ export default function RfhubTab({vehicle}){
     setBusy('');
   },[masterVin,rfhubAddr,addLog,setModuleStatus,curVin]);
 
+  const rfhubDumps=getDumpsByType('RFHUB');
+  const [inspectHash,setInspectHash]=useState(null);
+  const [inspectMsg,setInspectMsg]=useState('');
+  const [inspectTooSmall,setInspectTooSmall]=useState(null);
+  const inspectEntry=rfhubDumps.find(d=>d.hash===inspectHash)||rfhubDumps[0]||null;
+  const inspectMod=inspectEntry?.mod||null;
+
+  /* Task #935 — RFHUB PIN encoding resolution + cumulative lockout guard.
+   * Resolve the best-known encoding from the loaded RFHUB dump's generation,
+   * derive a per-module attempt key from its serial/PN (falling back to the
+   * CAN address), and load any prior cumulative attempts from sessionStorage
+   * so a page refresh can't reset the budget back to zero. */
+  const pinResolution=React.useMemo(()=>resolvePinEncoding(inspectMod),[inspectMod]);
+  const rfhIdentity=React.useMemo(()=>{
+    if(!inspectMod||!inspectMod.data)return null;
+    try{return extractRfhPflashIdentity(inspectMod.data);}catch{return null;}
+  },[inspectMod]);
+  const attemptKey=React.useMemo(()=>pinAttemptStorageKey({
+    serial:rfhIdentity&&rfhIdentity.serial&&rfhIdentity.serial.value,
+    pn:rfhIdentity&&rfhIdentity.pn&&rfhIdentity.pn.value,
+    tx:rfhubAddr.tx,
+  }),[rfhIdentity,rfhubAddr]);
+  useEffect(()=>{setPinAttempts(readPinAttempts(attemptKey));},[attemptKey]);
+  // Pre-select the resolved encoding when a generation is recognised; reset
+  // to "unchosen" (forces a manual pick) when it can't be resolved.
+  useEffect(()=>{setPinEncoding(pinResolution.encodingId||'');},[pinResolution.encodingId]);
+  const pinGate=pinAttemptGate(pinAttempts);
+
   const programNewKey=useCallback(async()=>{
     if(!eng.current||!unlocked){addLog('Unlock RFHUB first','error');return;}
     if(pin.length!==4){addLog('Enter 4-digit PIN','error');return;}
+
+    /* ── Dry Run (read-only — guaranteed NOT to spend a hardware attempt) ──
+     * A real startRoutine 0x0401 always risks being counted by the module as a
+     * wrong-PIN attempt, so dry run never sends one. Instead it (1) previews
+     * the exact frame that *would* be transmitted with the chosen encoding so
+     * the operator can eyeball it, and (2) sends only requestRoutineResults
+     * (subfunction 0x03), which queries routine status, carries no PIN, and
+     * does not start key programming — confirming the session is live without
+     * touching the attempt counter. */
+    if(dryRun){
+      setBusy('Dry run — preview + read-only session probe...');
+      addLog('═══ KEY FOB PROGRAMMING — DRY RUN (no attempt consumed) ═══','info');
+      const previewId=(pinEncoding&&pinEncoding!=='all')?pinEncoding:(pinResolution.encodingId||'raw');
+      const enc=PIN_ENCODINGS[previewId];
+      if(enc){
+        const frame=Array.from(build.routineControl({type:'startRoutine',routineIdentifier:0x0401,routineOptionRecord:enc.encode(pin)}));
+        addLog('Would send ('+enc.name+'): '+frame.map(b=>hx(b)).join(' ')+'  ← NOT transmitted','info');
+      }
+      addLog('Probing session with read-only requestRoutineResults (31 03 04 01)...','info');
+      const status=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.routineControl({type:'requestRoutineResults',routineIdentifier:0x0401}));
+      if(status.ok&&status.d&&status.d[0]===0x71)addLog('✓ Session live — module answered the routine-results query (no PIN attempt made)','rx');
+      else if(status.ok&&status.d&&status.d[0]===0x7F)addLog('NRC: '+decodeNRC(status.d[2]||0)+' — session reachable (no PIN attempt made)','warn');
+      else addLog('No usable response — check connection / session','error');
+      setBusy('');
+      return;
+    }
+
+    /* ── Lockout guard ────────────────────────────────────────────────────
+     * Re-read the persisted counter so the gate reflects the true cumulative
+     * hardware attempts even after a refresh / module swap. Every transmitted
+     * 0x0401 PIN frame is one irreversible attempt; the 3rd wrong one bricks
+     * the RFHUB. planPinSends() is the chokepoint that decides exactly which
+     * encodings may go out this click without ever reaching that ceiling. */
+    const startAttempts=readPinAttempts(attemptKey);
+    setPinAttempts(startAttempts);
+    const startGate=pinAttemptGate(startAttempts);
+    if(startGate.locked){
+      addLog('🛑 MAXIMUM ATTEMPTS REACHED — refusing. Dealer scan tool required to reset the RFHUB attempt counter.','error');
+      return;
+    }
+    const blind=pinEncoding==='all';
+    if(blind&&!startGate.blindAllowed){
+      addLog('🛑 Blind multi-try disabled after '+startGate.attempts+' attempts — pick ONE encoding manually before the last try.','error');
+      return;
+    }
+    if(!blind&&!PIN_ENCODINGS[pinEncoding]){
+      addLog('🛑 Select a PIN encoding (or load an RFHUB dump so one can be resolved) before programming.','error');
+      return;
+    }
+
+    const candidateIds=blind
+      ?(pinResolution.candidates&&pinResolution.candidates.length?pinResolution.candidates:['raw','bcd','ascii','none'])
+      :[pinEncoding];
+    const plan=planPinSends({blind,currentAttempts:startAttempts,candidateIds});
+    if(plan.length===0){
+      addLog('🛑 No PIN attempt is safe to send right now without risking permanent lockout — aborting.','error');
+      return;
+    }
+
     setBusy('Programming new key fob...');
     addLog('═══ KEY FOB PROGRAMMING (EXPERIMENTAL) ═══','info');
-    addLog('⚠ PIN format not in source docs — trying 4 common FCA encodings','warn');
     addLog('PIN: '+pin,'info');
-    const d=pin.split('').map(c=>parseInt(c,10));
-    const pinFormats=[
-      {name:'4 digit bytes',bytes:d},
-      {name:'2 BCD bytes',bytes:[(d[0]<<4)|d[1],(d[2]<<4)|d[3]]},
-      {name:'4 ASCII bytes',bytes:pin.split('').map(c=>c.charCodeAt(0))},
-      {name:'no PIN',bytes:[]},
-    ];
+    if(blind)addLog('⚠ Blind multi-try — sending '+plan.length+' encoding(s) this run (capped to protect the attempt budget)','warn');
+    else addLog('Using selected encoding: '+(PIN_ENCODINGS[pinEncoding].name)+(pinResolution.generation?(' (resolved for '+pinResolution.label+', '+pinResolution.confidence+')'):''),'info');
+
     let accepted=null;
-    for(const fmt of pinFormats){
-      const cmdBytes=Array.from(build.routineControl({type:'startRoutine',routineIdentifier:0x0401,routineOptionRecord:fmt.bytes}));
-      addLog('Trying '+fmt.name+': '+cmdBytes.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' '),'info');
+    let attemptsNow=startAttempts;
+    for(const id of plan){
+      // Safety re-check against the LIVE persisted counter before every frame.
+      const liveGate=pinAttemptGate(readPinAttempts(attemptKey));
+      if(liveGate.locked){addLog('🛑 Attempt ceiling reached mid-run — refusing further PIN sends.','error');break;}
+      if(blind&&!liveGate.blindAllowed){addLog('🛑 Blind budget exhausted — stopping to preserve the final deliberate attempt.','warn');break;}
+      const fmt=PIN_ENCODINGS[id];
+      const cmdBytes=Array.from(build.routineControl({type:'startRoutine',routineIdentifier:0x0401,routineOptionRecord:encodePin(id,pin)}));
+      addLog('Trying '+fmt.name+': '+cmdBytes.map(b=>hx(b)).join(' '),'info');
+      // Count the attempt the instant the frame leaves the host — a wrong PIN
+      // is already spent on the module whether or not we see the reply.
+      attemptsNow=incrementPinAttempts(attemptKey);
+      setPinAttempts(attemptsNow);
       const r=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,cmdBytes);
       if(r.ok&&r.d&&r.d[0]===0x71){accepted=fmt;break;}
       if(r.ok&&r.d&&r.d[0]===0x7F){
         const nrc=r.d[2]||0;
         addLog('  NRC: '+decodeNRC(nrc),'warn');
+        if(nrc===0x36||nrc===0x37){addLog('🛑 Module reports lockout NRC 0x'+nrc.toString(16).toUpperCase()+' — STOP. Use Dealer Lockout Bypass.','error');break;}
         if(nrc===0x22){addLog('Conditions not correct — check ignition state / session','error');break;}
       }
       await new Promise(r=>setTimeout(r,300));
@@ -292,22 +392,23 @@ export default function RfhubTab({vehicle}){
       addLog('Checking routine results (31 03 04 01)...','info');
       const status=await eng.current.uds(rfhubAddr.tx,rfhubAddr.rx,build.routineControl({type:'requestRoutineResults',routineIdentifier:0x0401}));
       if(status.ok&&status.d&&status.d[0]===0x71){
-        addLog('✓ Routine results: '+Array.from(status.d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' '),'rx');
-        setPinAttempts(0);
+        addLog('✓ Routine results: '+Array.from(status.d).map(b=>hx(b)).join(' '),'rx');
+        resetPinAttempts(attemptKey);setPinAttempts(0);
       }else addLog('Status inconclusive — click Locate Keys to verify count increased','warn');
     }else{
-      const newAttempts=pinAttempts+1;
-      setPinAttempts(newAttempts);
-      addLog('✗ All PIN formats rejected — attempt '+newAttempts+'/3 used','error');
-      if(newAttempts>=3){
+      const g=pinAttemptGate(attemptsNow);
+      addLog('✗ PIN rejected — '+attemptsNow+'/'+MAX_PIN_ATTEMPTS+' cumulative attempts used','error');
+      if(g.locked){
         addLog('🛑 MAXIMUM ATTEMPTS REACHED — RFHUB may now require dealer unlock','error');
         addLog('Do NOT try again. Dealer scan tool required to reset attempt counter.','error');
+      }else if(!g.blindAllowed){
+        addLog('⚠ '+g.remaining+' attempt(s) left — blind multi-try now DISABLED. Pick ONE encoding before the final try.','warn');
       }else{
-        addLog('⚠ '+(3-newAttempts)+' attempt(s) remaining before permanent lockout','warn');
+        addLog('⚠ '+g.remaining+' attempt(s) remaining before permanent lockout','warn');
       }
     }
     setBusy('');
-  },[rfhubAddr,unlocked,pin,addLog,pinAttempts]);
+  },[rfhubAddr,unlocked,pin,addLog,pinEncoding,pinResolution,dryRun,attemptKey,hx]);
 
   const locateKeys=useCallback(async()=>{
     if(!eng.current||!unlocked){addLog('Unlock RFHUB first','error');return;}
@@ -334,12 +435,6 @@ export default function RfhubTab({vehicle}){
     setBusy('');
   },[rfhubAddr,unlocked,addLog]);
 
-  const rfhubDumps=getDumpsByType('RFHUB');
-  const [inspectHash,setInspectHash]=useState(null);
-  const [inspectMsg,setInspectMsg]=useState('');
-  const [inspectTooSmall,setInspectTooSmall]=useState(null);
-  const inspectEntry=rfhubDumps.find(d=>d.hash===inspectHash)||rfhubDumps[0]||null;
-  const inspectMod=inspectEntry?.mod||null;
   const onInspectFile=useCallback(file=>{
     const r=new FileReader();
     r.onload=ev=>{
@@ -480,14 +575,24 @@ export default function RfhubTab({vehicle}){
       </div>
       <div style={{padding:10,background:'#FFFDE7',border:'1px solid '+C.wn+'55',borderRadius:6,fontSize:11,color:C.ts,marginBottom:12,lineHeight:1.5}}>
         <b>Heads up:</b> The exact PIN encoding for routine 0x0401 is not documented in our source files.
-        This tool auto-tries 4 common FCA formats. If one works, we log which one so we can hard-code it later.
-        Use bench-only first — don't risk locking out a customer's RFHUB.
+        SRT Lab now resolves a best-known encoding from the loaded dump's hardware generation, but no encoding is bench-confirmed —
+        review the resolved choice and override before sending. Use bench-only first — don't risk locking out a customer's RFHUB.
       </div>
+
+      {/* Task #935 — resolved PIN encoding + confidence. */}
+      <div data-testid="rfhub-pin-resolution" style={{padding:10,background:'#fff',border:'1px solid '+C.bd,borderRadius:6,fontSize:11,color:C.ts,marginBottom:12,lineHeight:1.6}}>
+        <div style={{fontWeight:800,color:C.a2,letterSpacing:1,marginBottom:4}}>RESOLVED PIN ENCODING</div>
+        {pinResolution.generation
+          ? <div>Generation: <b>{pinResolution.label}</b> · Encoding: <b style={{color:C.a1}}>{pinResolution.encoding?pinResolution.encoding.name:'—'}</b> · Confidence: <b style={{color:pinResolution.confidence==='unverified'?C.wn:C.gn,textTransform:'uppercase'}}>{pinResolution.confidence}</b></div>
+          : <div style={{color:C.wn,fontWeight:700}}>○ Generation not resolved — load an RFHUB dump in the inspector below, or pick an encoding manually.</div>}
+        <div style={{marginTop:4,fontSize:10,color:C.tm,fontStyle:'italic'}}>{pinResolution.source}</div>
+      </div>
+
       <div style={{marginBottom:12}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
           <div style={{fontSize:11,color:C.ts,fontWeight:700}}>4-DIGIT PIN (auto-extract or enter manually)</div>
-          <div style={{fontSize:10,color:pinAttempts>=2?C.er:pinAttempts===1?C.wn:C.ts,fontFamily:"'JetBrains Mono'",fontWeight:700}}>
-            Attempts: {pinAttempts}/3 {pinAttempts>=2&&'⚠'}
+          <div data-testid="rfhub-pin-attempts" style={{fontSize:10,color:pinGate.critical?C.er:pinAttempts===1?C.wn:C.ts,fontFamily:"'JetBrains Mono'",fontWeight:700}}>
+            Attempts: {pinAttempts}/{MAX_PIN_ATTEMPTS} {pinGate.critical&&'⚠'}
           </div>
         </div>
         <div style={{display:'flex',gap:8,alignItems:'center'}}>
@@ -498,11 +603,34 @@ export default function RfhubTab({vehicle}){
           ✓ {pinExtractInfo}
         </div>}
       </div>
-      {pinAttempts>=2&&<div style={{padding:10,background:'#FFEBEE',border:'2px solid '+C.er,borderRadius:6,fontSize:11,color:C.er,marginBottom:12,fontWeight:700}}>
-        ⚠ CRITICAL: {3-pinAttempts} attempt{3-pinAttempts===1?'':'s'} remaining. 3 wrong PINs = PERMANENT RFHUB LOCKOUT requiring dealer unlock.
+
+      {/* Encoding picker + Dry Run — Task #935. */}
+      <div style={{display:'flex',gap:12,alignItems:'center',flexWrap:'wrap',marginBottom:12}}>
+        <label style={{fontSize:11,color:C.ts,fontWeight:700,display:'flex',alignItems:'center',gap:6}}>
+          Encoding:
+          <select data-testid="rfhub-pin-encoding" value={pinEncoding} onChange={e=>setPinEncoding(e.target.value)}
+            style={{padding:'6px 8px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:11}}>
+            <option value="">— select encoding —</option>
+            {Object.values(PIN_ENCODINGS).map(enc=><option key={enc.id} value={enc.id}>
+              {enc.name}{pinResolution.encodingId===enc.id?' ★ resolved':''}
+            </option>)}
+            <option value="all" disabled={!pinGate.blindAllowed}>Try all encodings (blind){pinGate.blindAllowed?'':' — disabled'}</option>
+          </select>
+        </label>
+        <label data-testid="rfhub-pin-dryrun" style={{fontSize:11,color:C.ts,fontWeight:700,display:'flex',alignItems:'center',gap:6,cursor:'pointer'}}>
+          <input type="checkbox" checked={dryRun} onChange={e=>setDryRun(e.target.checked)}/>
+          Dry Run (dummy payload — no attempt burned)
+        </label>
+      </div>
+
+      {pinGate.critical&&<div style={{padding:10,background:'#FFEBEE',border:'2px solid '+C.er,borderRadius:6,fontSize:11,color:C.er,marginBottom:12,fontWeight:700}}>
+        ⚠ CRITICAL: {pinGate.remaining} attempt{pinGate.remaining===1?'':'s'} remaining. Blind multi-try is DISABLED — pick ONE encoding. {MAX_PIN_ATTEMPTS} wrong PINs = PERMANENT RFHUB LOCKOUT requiring dealer unlock.
+      </div>}
+      {pinGate.locked&&<div style={{padding:10,background:'#FFEBEE',border:'2px solid '+C.er,borderRadius:6,fontSize:11,color:C.er,marginBottom:12,fontWeight:700}}>
+        🛑 LOCKED OUT in this session — {MAX_PIN_ATTEMPTS} attempts used for this RFHUB. A dealer scan tool is required to reset the attempt counter. Use Dealer Lockout Bypass if the module reports NRC 0x36/0x37.
       </div>}
       <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-        <Btn onClick={programNewKey} disabled={!!busy||!unlocked||pin.length!==4||pinAttempts>=3||!sec16Cleared} color={C.a1} data-testid="rfhub-program-new-key">➕ Program New Key (0x0401)</Btn>
+        <Btn onClick={programNewKey} disabled={!!busy||!unlocked||pin.length!==4||pinGate.locked||(!dryRun&&!sec16Cleared)||(!dryRun&&!pinEncoding)} color={C.a1} data-testid="rfhub-program-new-key">{dryRun?'🧪 Dry Run (0x0401)':'➕ Program New Key (0x0401)'}</Btn>
         <Btn onClick={locateKeys} disabled={!!busy||!unlocked} color={C.a3} outline>📍 Locate Keys (0x0403)</Btn>
         <Btn onClick={eraseAllKeys} disabled={!!busy||!unlocked} color={C.er} outline>🗑️ Erase All (0x0404)</Btn>
       </div>

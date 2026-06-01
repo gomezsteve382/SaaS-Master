@@ -7,3 +7,4 @@
 - [AlfaOBD dispatch gap static ceiling](dispatch-gap-static-coverage.md) — routine→frame static coverage tops at ~17.6% (299/1696); rest needs bench capture, not more IL parsing.
 - [Sister-repo integration pattern](sister-repo-integration.md) — add new generated files → run pnpm sweep:assets before tests; keep local when local is larger; skip bigMethodsVocabulary (1.1MB).
 - [Transponder writer bridge](key-writer-bridge.md) — VVDI/Tango USB-CDC chip burn: chip uid+payload must match RFHUB slot block; transports must return raw bytes; pending before write.
+- [RFHUB PIN lockout safety](rfhub-pin-lockout.md) — 0x0401 PIN frames are irreversible; count per-frame, cap blind via planPinSends, dry-run must be read-only (requestRoutineResults).
