@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   Stethoscope, Terminal, Fingerprint, DownloadCloud, Bot,
-  ChevronRight, Wrench, Car, ShieldCheck, Search, X,
+  ChevronRight, Wrench, Car, ShieldCheck, Search, X, ListChecks,
 } from 'lucide-react';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
 
@@ -20,6 +20,7 @@ const T = {
  * tab id so the battle-tested tab content components keep rendering. */
 export const PRIMARY_NAV = [
   {key: 'dumps',       label: 'Diagnose',      sub: 'Drop \u2192 verdict \u2192 fix', icon: Stethoscope},
+  {key: 'vinsync',     label: 'VIN \u2192 Sync',    sub: 'Checksums then security',        icon: ListChecks},
   {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          icon: Terminal},
   {key: 'vinprog',     label: 'VIN & Checksum', sub: 'Read / write / verify',          icon: Fingerprint},
   {key: 'obd',         label: 'OBD Pull',      sub: 'Read bin dumps live',            icon: DownloadCloud},

@@ -915,6 +915,7 @@ function VehicleLanding({onSelect}){
 /* ═══ VEHICLE WORKSPACE ═══ */
 const WORKSPACE_TABS = [
   {id:'dumps',     i:'📂', l:'DUMPS',        s:'VIN · SEC16 · Unlocks · Hex'},
+  {id:'vinsync',   i:'🪪', l:'VIN → SYNC',   s:'Step 1 VIN+CRC · Step 2 security'},
   {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
   {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
   {id:'keymgr',    i:'🗝️', l:'KEY MGR',      s:'Dual-file RFHUB fob transfer'},
@@ -973,7 +974,7 @@ const WORKSPACE_TABS = [
 const WORKSPACE_CATEGORIES = {
   // PROGRAM — anything that writes to a module / produces a flashable file.
   jailbreak:'PROGRAM', keyprog:'PROGRAM', keymgr:'PROGRAM', livekey:'PROGRAM',
-  vinprog:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
+  vinprog:'PROGRAM', vinsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', gpecunlock:'PROGRAM',
   cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
   // LIVE — connected OBD/J2534 sessions and external bench tools.
@@ -1208,6 +1209,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         onSelect={setTab}
       >
         {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
+        {tab==='vinsync'   && <VinThenSyncTab vehicle={vehicle}/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
         {tab==='keyprog'   && <KeyProgTab/>}
         {tab==='jailbreak' && <JailbreakTab vehicle={vehicle}/>}
@@ -1747,6 +1749,226 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
     {/* Status */}
     {msg && <div style={{padding:'12px 16px',borderRadius:10,background:C.gn+'15',border:'1px solid '+C.gn+'44',fontSize:11,color:C.gn,fontWeight:700,fontFamily:'JetBrains Mono'}}>✓ {msg}</div>}
     {err && <div style={{padding:'12px 16px',borderRadius:10,background:C.er+'15',border:'1px solid '+C.er+'44',fontSize:12,color:C.er,fontWeight:700}}>⚠ {err}</div>}
+  </div>;
+}
+
+/* ═══ VIN → SYNC — guided two-phase write ═══
+ * A self-contained pane (own uploads, independent of the Diagnose tab) that
+ * splits the all-in-one SYNC ALL MODULES into two explicit, ordered phases:
+ *
+ *   Step 1 — write the target VIN to each loaded module and refresh ONLY the
+ *            VIN-area CRC (the VIN writers in this file already recompute the
+ *            VIN block's checksum as part of the write). No security bytes are
+ *            touched, so the tech can verify the VIN/CRC result first.
+ *   Step 2 — sync the immobiliser security bytes, gated until Step 1 has run.
+ *            BCM is the SOURCE OF TRUTH (never overwritten): RFH SEC16 =
+ *            reverse(BCM SEC16) (Gen2 only) and PCM SEC6 = reverse(BCM)[0:6].
+ *            Mirrors the verified runFullSync / securityBytes.js contract.
+ *
+ * Both steps emit downloadable .bin buffers from local state — no auto-clicks.
+ */
+function VinThenSyncTab({vehicle}){
+  const [bcm, setBcm] = useState(null);
+  const [rfh, setRfh] = useState(null);
+  const [pcm, setPcm] = useState(null);
+  const [tv, setTv] = useState('');
+  const [targetPcmChip, setTargetPcmChip] = useState('4kb');
+  const [step1, setStep1] = useState(null); // {bcmBytes,rfhBytes,pcmBytes,log[]}
+  const [step2, setStep2] = useState(null); // {files:[{label,name,bytes}],log[]}
+  const [msg, setMsg] = useState('');
+  const [err, setErr] = useState('');
+
+  const vinGood = VIN_REGEX.test(tv);
+
+  // Independent loader — keeps this pane's dumps separate from the shared
+  // workspace file set so "loaded right there" stays literally true.
+  const loadSlot = (fileList, slotType) => {
+    const f = (fileList||[])[0];
+    if(!f) return;
+    const rd = new FileReader();
+    rd.onload = e => {
+      const data = new Uint8Array(e.target.result);
+      const obj = {name:f.name, size:data.length, data};
+      if(slotType==='BCM') setBcm(obj);
+      else if(slotType==='RFHUB') setRfh(obj);
+      else if(slotType==='PCM') setPcm(obj);
+      // Any new upload invalidates a prior run.
+      setStep1(null); setStep2(null); setMsg(''); setErr('');
+    };
+    rd.readAsArrayBuffer(f);
+  };
+
+  const downloadBin = (bytes, name) => {
+    const blob = new Blob([bytes],{type:'application/octet-stream'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=name; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const runStep1 = () => {
+    setErr(''); setMsg(''); setStep2(null);
+    if(!vinGood){ setErr('Enter a valid 17-char target VIN first'); return; }
+    if(!bcm){ setErr('Upload a BCM dump to continue'); return; }
+    try {
+      const log = [];
+      const vinRes = engWriteBcmVin(bcm.data, tv);
+      log.push(`BCM VIN: ${vinRes.fullPatched} full / ${vinRes.shortPatched} short slot(s) patched (VIN-CRC 0x${vinRes.fullCrc.toString(16).toUpperCase()} / tail 0x${vinRes.tailCrc.toString(16).toUpperCase()})`);
+      let rfhBytes = null;
+      if(rfh){ const r = engWriteRfhVin(rfh.data, tv, false); rfhBytes = r.bytes; log.push(`RFH VIN: ${r.patched} slot(s) patched`); }
+      let pcmBytes = null;
+      if(pcm){ const p = engWritePcmVin(pcm.data, tv); pcmBytes = p.bytes; log.push(`PCM VIN: ${p.patched} slot(s) patched`); }
+      setStep1({bcmBytes:vinRes.bytes, rfhBytes, pcmBytes, log});
+      setMsg('Step 1 complete — VIN written and VIN-area checksums refreshed. Download below, then run Step 2 to sync security bytes.');
+    } catch(e){ setErr(e.message); }
+  };
+
+  const runStep2 = () => {
+    setErr(''); setMsg('');
+    if(!step1){ setErr('Run Step 1 (VIN + checksums) first'); return; }
+    try {
+      const log = [];
+      const out = [];
+      // BCM is the source of truth and is never written in Step 2 — it carries
+      // through exactly as Step 1 left it (VIN + VIN-CRC only).
+      const bcmBytes = step1.bcmBytes;
+      const bcmParsed = engParseBcm(bcmBytes);
+      const bcmSec16Hex = bcmParsed.sec16Hex || null;
+      const bcmSec16Bytes = bcmSec16Hex ? u8FromHex(bcmSec16Hex) : null;
+      const bcmSecReal = !!(bcmSec16Bytes && bcmSec16Bytes.length === 16
+        && !bcmSec16Bytes.every(b => b === 0xFF) && !bcmSec16Bytes.every(b => b === 0x00));
+      if(!bcmSecReal){
+        setErr('BCM has no real SEC16 secret (virgin / older family) — there is nothing to sync. The Step-1 VIN files above are still valid.');
+        return;
+      }
+      const rfhFormSecret = new Uint8Array(16);
+      for(let i=0;i<16;i++) rfhFormSecret[i] = bcmSec16Bytes[15-i];
+      log.push(`BCM SEC16 (source of truth, kept intact): ${bcmSec16Hex}`);
+      out.push({label:'BCM', name:`${vehicle.id.toUpperCase()}_BCM_SYNCED_${tv}_${Date.now()}.bin`, bytes:bcmBytes});
+
+      if(step1.rfhBytes){
+        let currentRfh = step1.rfhBytes;
+        const rfhP = engParseRfh(currentRfh);
+        if(rfhP.format === 'gen2'){
+          try {
+            const r = writeRfhSec16FromBcm(currentRfh, bcmSec16Bytes);
+            currentRfh = r.bytes;
+            log.push(`RFH SEC16 \u2190 reverse(BCM): ${r.patched}/2 slot(s) = ${r.rfhSec16Hex}`);
+          } catch(e){ log.push(`RFH SEC16: skipped (${e.message})`); }
+        } else {
+          log.push(`RFH SEC16: skipped (RFH is ${rfhP.format} \u2014 Gen2 SEC16 writer only; VIN-only for this RFH)`);
+        }
+        out.push({label:'RFH', name:`${vehicle.id.toUpperCase()}_RFH_SYNCED_${tv}_${Date.now()}.bin`, bytes:currentRfh});
+      }
+
+      if(step1.pcmBytes){
+        let currentPcm = step1.pcmBytes;
+        const sec6Res = engWritePcmSec6(currentPcm, rfhFormSecret);
+        if(sec6Res.ok){
+          currentPcm = sec6Res.bytes;
+          log.push(`PCM SEC6 \u2190 reverse(BCM)[0:6]: ${sec6Res.patched} location(s) patched (${sec6Res.sec6Hex})`);
+          const resized = resizePcmForTargetChip(currentPcm, targetPcmChip);
+          const sfx = resized.suffix || (targetPcmChip === '8kb' ? '_8KB' : '_4KB');
+          log.push(`PCM output: ${resized.bytes.length} B (${targetPcmChip === '8kb' ? '95640 / 8 KB' : '95320 / 4 KB'} bench chip)`);
+          out.push({label:'PCM', name:`${vehicle.id.toUpperCase()}_PCM_SYNCED${sfx}_${tv}_${Date.now()}.bin`, bytes:resized.bytes});
+        } else {
+          log.push(`PCM SEC6 SYNC FAILED: no writable site (size=${currentPcm.length} B). PCM not produced — re-dump at 4 KB / 8 KB.`);
+        }
+      }
+
+      setStep2({files:out, log});
+      setMsg('Step 2 complete — security bytes synced from the BCM. Download the synced files below.');
+    } catch(e){ setErr(e.message); }
+  };
+
+  const stepBadge = (n, active, done) => (
+    <span style={{display:'inline-grid',placeItems:'center',width:24,height:24,borderRadius:'50%',
+      background: done ? C.gn : active ? vehicle.accent : C.bd,
+      color: (done||active) ? '#fff' : C.ts, fontWeight:900, fontSize:12, flexShrink:0}}>
+      {done ? '✓' : n}
+    </span>
+  );
+
+  return <div style={{display:'grid',gridTemplateColumns:'1fr',gap:16}}>
+    <Card>
+      <div style={{fontFamily:"'Righteous'",fontSize:18,color:C.tx,marginBottom:4}}>VIN → SYNC · Guided two-phase write</div>
+      <div style={{fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>
+        Step 1 writes the target VIN and refreshes the VIN-area checksum on each module you load here.
+        Step 2 then syncs the immobiliser security bytes from the <strong>BCM (source of truth)</strong> — the BCM secret itself is never overwritten.
+      </div>
+    </Card>
+
+    {/* Uploads (independent of the Diagnose tab) */}
+    <Card>
+      <div style={{fontSize:11,fontWeight:800,color:C.ts,letterSpacing:2,marginBottom:12}}>MODULE DUMPS</div>
+      <div data-testid="vinsync-slots" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:10}}>
+        <UploadSlot label="BCM" slotType="BCM" file={bcm} onLoad={loadSlot}/>
+        <UploadSlot label="RFHUB" slotType="RFHUB" file={rfh} onLoad={loadSlot}/>
+        <UploadSlot label="PCM / GPEC2A" slotType="PCM" file={pcm} onLoad={loadSlot}/>
+      </div>
+    </Card>
+
+    {/* Target VIN */}
+    <Card>
+      <div style={{fontSize:10,fontWeight:800,color:C.ts,marginBottom:6,letterSpacing:1.5}}>TARGET VIN · 17 CHARS</div>
+      <input data-testid="vinsync-vin-input" className="vin-input" value={tv} maxLength={17}
+        placeholder={`Enter customer ${vehicle.name} VIN`}
+        onChange={e=>{setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,'')); setStep1(null); setStep2(null);}}
+        style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+(tv.length===17&&!vinGood?C.er:vinGood?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}}/>
+    </Card>
+
+    {/* Step 1 — VIN + checksums */}
+    <Card>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+        {stepBadge(1, !step1, !!step1)}
+        <div style={{fontFamily:"'Righteous'",fontSize:15,color:C.tx}}>Write VIN + fix checksums</div>
+      </div>
+      <div style={{fontSize:11,color:C.ts,fontWeight:600,lineHeight:1.5,marginBottom:12}}>
+        Stamps the target VIN into every VIN slot and recomputes only the VIN-area CRC for each module. Security bytes are not touched.
+      </div>
+      <Btn data-testid="vinsync-step1-btn" onClick={runStep1} color={vehicle.accent} disabled={!vinGood||!bcm}>① WRITE VIN + CHECKSUMS</Btn>
+      {step1 && <div data-testid="vinsync-step1-result" style={{marginTop:14}}>
+        <div style={{fontFamily:'JetBrains Mono',fontSize:11,color:C.tx,lineHeight:1.7,background:C.c2,border:'1px solid '+C.bd,borderRadius:10,padding:'10px 12px'}}>
+          {step1.log.map((l,i)=><div key={i}>· {l}</div>)}
+        </div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10}}>
+          <Btn outline color={vehicle.accent} onClick={()=>downloadBin(step1.bcmBytes, `${vehicle.id.toUpperCase()}_BCM_VIN_${tv}.bin`)}>⬇ BCM (VIN)</Btn>
+          {step1.rfhBytes && <Btn outline color={vehicle.accent} onClick={()=>downloadBin(step1.rfhBytes, `${vehicle.id.toUpperCase()}_RFH_VIN_${tv}.bin`)}>⬇ RFH (VIN)</Btn>}
+          {step1.pcmBytes && <Btn outline color={vehicle.accent} onClick={()=>downloadBin(step1.pcmBytes, `${vehicle.id.toUpperCase()}_PCM_VIN_${tv}.bin`)}>⬇ PCM (VIN)</Btn>}
+        </div>
+      </div>}
+    </Card>
+
+    {/* Step 2 — security bytes */}
+    <Card>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+        {stepBadge(2, !!step1 && !step2, !!step2)}
+        <div style={{fontFamily:"'Righteous'",fontSize:15,color: step1?C.tx:C.tm}}>Sync security bytes</div>
+      </div>
+      <div style={{fontSize:11,color:C.ts,fontWeight:600,lineHeight:1.5,marginBottom:12}}>
+        Uses the BCM as the source of truth: RFH SEC16 = reverse(BCM SEC16) (Gen2 only), PCM SEC6 = reverse(BCM)[0:6]. The BCM secret is never overwritten.
+      </div>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12,flexWrap:'wrap'}}>
+        <div style={{fontSize:10,fontWeight:800,color:C.ts,letterSpacing:1.2}}>TARGET PCM CHIP</div>
+        {[{key:'4kb',label:'95320 · 4 KB'},{key:'8kb',label:'95640 · 8 KB'}].map(opt=>{
+          const active = targetPcmChip===opt.key;
+          return <button key={opt.key} data-testid={`vinsync-pcm-chip-${opt.key}`} data-active={active?'1':'0'} onClick={()=>setTargetPcmChip(opt.key)}
+            style={{padding:'5px 12px',borderRadius:8,cursor:'pointer',border:`2px solid ${active?vehicle.accent:C.bd}`,background:active?vehicle.accent:C.cd,color:active?'#fff':C.tx,fontFamily:"'Nunito'",fontWeight:800,fontSize:11}}>{opt.label}</button>;
+        })}
+      </div>
+      <Btn data-testid="vinsync-step2-btn" onClick={runStep2} color={vehicle.accent} disabled={!step1} title={!step1?'Run Step 1 first':undefined}>② SYNC SECURITY BYTES</Btn>
+      {step2 && <div data-testid="vinsync-step2-result" style={{marginTop:14}}>
+        <div style={{fontFamily:'JetBrains Mono',fontSize:11,color:C.tx,lineHeight:1.7,background:C.c2,border:'1px solid '+C.bd,borderRadius:10,padding:'10px 12px'}}>
+          {step2.log.map((l,i)=><div key={i}>· {l}</div>)}
+        </div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10}}>
+          {step2.files.map((f,i)=><Btn key={i} color={vehicle.accent} onClick={()=>downloadBin(f.bytes, f.name)}>⬇ {f.label} (SYNCED)</Btn>)}
+        </div>
+      </div>}
+    </Card>
+
+    {/* Status */}
+    {msg && <div style={{padding:'12px 16px',borderRadius:10,background:C.gn+'15',border:'1px solid '+C.gn+'44',fontSize:11,color:C.gn,fontWeight:700,fontFamily:'JetBrains Mono'}}>✓ {msg}</div>}
+    {err && <div data-testid="vinsync-error" style={{padding:'12px 16px',borderRadius:10,background:C.er+'15',border:'1px solid '+C.er+'44',fontSize:12,color:C.er,fontWeight:700}}>⚠ {err}</div>}
   </div>;
 }
 
