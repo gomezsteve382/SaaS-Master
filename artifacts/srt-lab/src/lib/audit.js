@@ -275,6 +275,34 @@ export async function backupModule(engUds, tx, rx, moduleType, addLog = () => {}
     }
   }
   addLog("Backup complete: " + successCount + "/" + standardDids.length + " DIDs captured", "info");
+
+  /* Corrupt-read guard (Task #968). The DIDs we just read off the live module
+   * can themselves be a tool-error capture (single-byte fill, or a repeated
+   * "NO DATA"/"OBDSTAR6"-class string) if the programming tool glitched
+   * mid-read. Saving that as a "good" pre-write snapshot would let it be
+   * restored later, writing garbage onto a live ECU over UDS 0x2E. We flag it
+   * at creation time and refuse to persist it so a corrupt snapshot never
+   * enters the vault. backupCorruptFill is the single source of truth shared
+   * with the restore-time guard. */
+  const corrupt = backupCorruptFill(backup);
+  if (corrupt) {
+    backup.corrupt = corrupt;
+    addLog(
+      "✖ Backup NOT saved — the live read looks like a tool-error capture" +
+      (corrupt.reason ? " (" + corrupt.reason + ")" : "") + ": " +
+      (corrupt.detail || "corrupt fill detected") +
+      " Re-read the module with your programming tool before writing; this snapshot was discarded and cannot be restored.",
+      "error",
+    );
+    dispatchToast(
+      "Discarded a corrupt " + moduleType + " backup — the live read looked " +
+      "like a tool error. Re-read the module before writing.",
+      "error",
+      10000,
+    );
+    return backup;
+  }
+
   const checksum = await sha256Hex(backupDidsToBytes(backup.dids)).catch(() => null);
   backup.checksum = checksum;
   backup.snapshotKind = snapshotKind;

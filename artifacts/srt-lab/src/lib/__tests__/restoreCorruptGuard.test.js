@@ -1,5 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { backupCorruptFill, restoreModule, importBackups } from '../audit.js';
+import { backupCorruptFill, restoreModule, importBackups, backupModule } from '../audit.js';
+
+/* The corrupt-read guard in backupModule (Task #968) runs before any
+ * persistence, so we stub readDidsBatched to feed it a controlled read result
+ * (a Map keyed by DID -> { ok, data }) without standing up the real batched
+ * UDS plumbing. */
+const mockReadDidsBatched = vi.fn();
+vi.mock('../uds.js', () => ({
+  readDidsBatched: (...args) => mockReadDidsBatched(...args),
+}));
 
 /**
  * Block restoring a corrupt backup onto a live module.
@@ -83,6 +92,51 @@ describe('restoreModule corrupt guard', () => {
     const ok = await restoreModule(uds, 0x7B0, 0x7B8, cleanBackup(), () => {}, true);
     expect(ok).toBe(true);
     expect(uds).toHaveBeenCalled();
+  });
+});
+
+describe('backupModule corrupt-read guard', () => {
+  const engUds = vi.fn(async () => ({ ok: true, d: [0x6E] }));
+
+  beforeEach(() => {
+    mockReadDidsBatched.mockReset();
+    engUds.mockClear();
+    globalThis.fetch = vi.fn(async () => ({ ok: true, status: 200 }));
+  });
+
+  it('discards a corrupt live read and never persists it to the vault', async () => {
+    /* Every DID comes back as a 64-byte 0x55 fill — a tool-error capture. */
+    mockReadDidsBatched.mockImplementation(async (_e, _tx, _rx, dids) => {
+      const m = new Map();
+      for (const did of dids) m.set(did, { ok: true, data: corruptBytes });
+      return m;
+    });
+    const logs = [];
+    const backup = await backupModule(engUds, 0x7B0, 0x7B8, 'BCM', (m, t) => logs.push({ m, type: t }));
+
+    expect(backup.corrupt).toBeTruthy();
+    expect(backup.corrupt.corruptFill).toBe(true);
+    expect(logs.some(l => l.type === 'error' && /tool-error|NOT saved|corrupt/i.test(l.m))).toBe(true);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+    const idx = JSON.parse(localStorage.getItem('srtlab_backup_index') || '[]');
+    expect(idx.length).toBe(0);
+  });
+
+  it('persists a clean live read as normal (guard does not over-fire)', async () => {
+    const vin = Array.from('1C6SRFKT5MN500000').map(c => c.charCodeAt(0));
+    mockReadDidsBatched.mockImplementation(async (_e, _tx, _rx, dids) => {
+      const m = new Map();
+      for (const did of dids) {
+        m.set(did, did === 0xF190 ? { ok: true, data: vin } : { ok: false, data: null });
+      }
+      return m;
+    });
+    const backup = await backupModule(engUds, 0x7B0, 0x7B8, 'BCM', () => {});
+
+    expect(backup.corrupt).toBeUndefined();
+    expect(backup.checksum).toBeDefined();
+    const idx = JSON.parse(localStorage.getItem('srtlab_backup_index') || '[]');
+    expect(idx.length).toBe(1);
   });
 });
 
