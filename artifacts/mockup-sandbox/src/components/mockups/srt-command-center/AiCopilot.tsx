@@ -34,7 +34,7 @@ export function AiCopilot() {
           <div className="h-14 flex items-center px-6 border-b shrink-0 bg-white/50" style={{ borderColor: "var(--srt-line)" }}>
             <div className="flex items-center gap-2">
               <Bot className="w-5 h-5" style={{ color: "var(--srt-red)" }} />
-              <h2 className="font-display text-lg tracking-wide uppercase mt-1">Investigation Copilot</h2>
+              <h2 className="font-display text-lg tracking-wide uppercase mt-1">AI Copilot</h2>
             </div>
             <div className="ml-auto flex items-center gap-3">
               <span className="flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full" style={{ backgroundColor: "rgba(34, 197, 94, 0.1)", color: "var(--srt-good)" }}>

@@ -71,11 +71,11 @@ export function ObdPull() {
         <div className="max-w-6xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-display uppercase tracking-tight" style={{ color: "var(--srt-ink)" }}>
-                OBD-II Bin Pull
+              <h1 className="text-2xl font-display uppercase tracking-wider" style={{ color: "var(--srt-ink)" }}>
+                OBD Pull
               </h1>
               <p className="text-sm mt-1" style={{ color: "var(--srt-muted)" }}>
-                Extract raw module firmware and NVRAM dumps over CAN/Web Serial.
+                Read raw module firmware and NVRAM dumps live over CAN / Web Serial.
               </p>
             </div>
             {/* Status indicators */}
@@ -212,7 +212,7 @@ export function ObdPull() {
                 </div>
                 
                 {pulling && (
-                  <div className="w-full h-1 bg-gray-100">
+                  <div className="w-full h-1" style={{ backgroundColor: "rgba(0,0,0,0.06)" }}>
                     <div className="h-full transition-all duration-200" style={{ width: `${progress}%`, backgroundColor: "var(--srt-red)" }}></div>
                   </div>
                 )}
