@@ -10,12 +10,12 @@
  * ========================================================================== */
 
 import React from 'react';
-import { describe, it, beforeEach, afterEach, expect } from 'vitest';
-import { render, screen, cleanup, fireEvent, act, within } from '@testing-library/react';
+import { describe, it, beforeEach, afterEach, expect, vi } from 'vitest';
+import { render, screen, cleanup, fireEvent, act, within, waitFor } from '@testing-library/react';
 
 import KeyWriterTab from '../KeyWriterTab.jsx';
 import { MasterVinContext } from '../../lib/masterVinContext.jsx';
-import { KEY_HISTORY_KEY } from '../../lib/keyWriter/keyHistory.js';
+import { KEY_HISTORY_KEY, buildKeyHistoryExport } from '../../lib/keyWriter/keyHistory.js';
 
 const VIN = '2C3CDXL95KH123456';
 
@@ -121,5 +121,80 @@ describe('KeyWriter per-vehicle key history (Task #986)', () => {
     expect(screen.getByTestId('key-dump-uid').value).toBe('00 77 A2 9B');
     expect(screen.getByTestId('key-dump-sk').value).toBe('4F 4E 4D 49 4B 52');
     expect(screen.getByTestId('key-dump-label').value).toBe('charger key #1');
+  });
+});
+
+/* ============================================================================
+ * Task #1000 — Export all keys / Import key set buttons.
+ *
+ * keyHistory.test.js already unit-tests the wrapper build/parse/import logic.
+ * These tests lock in the *wiring* of the two new Key Writer buttons:
+ *   - "Export all keys" triggers a download once a populated history exists.
+ *   - The hidden file input folds an imported wrapper into the list + note.
+ *   - "Import key set" is disabled without a valid Master VIN.
+ * ========================================================================== */
+describe('KeyWriter Export/Import key set buttons (Task #1000)', () => {
+  beforeEach(() => {
+    globalThis.localStorage?.removeItem(KEY_HISTORY_KEY);
+    if (!globalThis.URL.createObjectURL) globalThis.URL.createObjectURL = () => 'blob:stub';
+    if (!globalThis.URL.revokeObjectURL) globalThis.URL.revokeObjectURL = () => {};
+  });
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it('Export all keys triggers a download for a populated history', async () => {
+    renderWithVin(VIN);
+
+    // Populate the history with one saved key so the export button renders.
+    await captureValidKey('export me');
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('key-dump-save-history'));
+    });
+
+    // Spy on the download primitives so we can assert one fired.
+    const createUrl = vi.spyOn(globalThis.URL, 'createObjectURL').mockReturnValue('blob:keyset');
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+    const exportBtn = screen.getByTestId('key-history-export-all');
+    await act(async () => {
+      fireEvent.click(exportBtn);
+    });
+
+    expect(createUrl).toHaveBeenCalledTimes(1);
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('key-dump-note').textContent).toMatch(/Exported all 1 key/i);
+  });
+
+  it('importing a wrapper file via the hidden input grows the list and shows a note', async () => {
+    renderWithVin(VIN);
+    expect(screen.getByTestId('key-history-empty')).toBeTruthy();
+
+    // Build a valid wrapper the lib would accept, carrying two distinct keys.
+    const wrapper = buildKeyHistoryExport(VIN, [
+      { chipId: 'id46', uidHex: '11 22 33 44', skHex: '01 02 03 04 05 06', label: 'imported A' },
+      { chipId: 'id46', uidHex: 'AA BB CC DD', skHex: '0A 0B 0C 0D 0E 0F', label: 'imported B' },
+    ]);
+    const file = new File([JSON.stringify(wrapper)], 'keyset.json', { type: 'application/json' });
+
+    const input = screen.getByTestId('key-history-import-input');
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [file] } });
+    });
+
+    // onImportKeysFile awaits file.text(); wait for the list to materialize.
+    await waitFor(() => {
+      expect(screen.getByTestId('key-history-list')).toBeTruthy();
+    });
+    const rows = within(screen.getByTestId('key-history-list')).getAllByTestId('key-history-row');
+    expect(rows).toHaveLength(2);
+    expect(screen.getByTestId('key-history-count').textContent).toMatch(/2 saved/);
+    expect(screen.getByTestId('key-dump-note').textContent).toMatch(/Imported 2 keys/i);
+  });
+
+  it('Import key set is disabled without a valid Master VIN', () => {
+    renderWithVin('');
+    expect(screen.getByTestId('key-history-import').disabled).toBe(true);
   });
 });
