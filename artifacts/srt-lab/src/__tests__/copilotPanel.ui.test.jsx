@@ -281,6 +281,149 @@ describe('CopilotPanel — error handling', () => {
   });
 });
 
+describe('CopilotPanel — file attachments', () => {
+  it('attaches a text file and folds its contents into the sent message', async () => {
+    const { calls } = installFetch({ list: [], onMessages: () => streamingResponse(['ok']) });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    const file = new File(['line one\nline two'], 'notes.txt', { type: 'text/plain' });
+    fireEvent.change(screen.getByTestId('copilot-attach-input'), { target: { files: [file] } });
+
+    // A removable chip appears for the attached file.
+    await waitFor(() => expect(screen.getByTestId('copilot-attachment').textContent).toMatch(/notes\.txt/));
+
+    fireEvent.change(screen.getByTestId('copilot-input'), { target: { value: 'summarize this' } });
+    fireEvent.click(screen.getByTestId('copilot-send'));
+
+    await waitFor(() => expect(messagesCall(calls)).toBeTruthy());
+    const body = JSON.parse(messagesCall(calls).init.body);
+    expect(body.content).toMatch(/summarize this/);
+    expect(body.content).toMatch(/Attached file: notes\.txt/);
+    expect(body.content).toMatch(/line one\nline two/);
+
+    // Chip cleared after sending.
+    await waitFor(() => expect(screen.queryByTestId('copilot-attachment')).toBeNull());
+  });
+
+  it('allows sending with only an attachment (no typed text)', async () => {
+    const { calls } = installFetch({ list: [], onMessages: () => streamingResponse(['ok']) });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    // Send is disabled with no text and no attachment.
+    expect(screen.getByTestId('copilot-send').disabled).toBe(true);
+
+    const file = new File(['payload'], 'data.csv', { type: 'text/csv' });
+    fireEvent.change(screen.getByTestId('copilot-attach-input'), { target: { files: [file] } });
+
+    await waitFor(() => expect(screen.getByTestId('copilot-send').disabled).toBe(false));
+    fireEvent.click(screen.getByTestId('copilot-send'));
+
+    await waitFor(() => expect(messagesCall(calls)).toBeTruthy());
+    expect(JSON.parse(messagesCall(calls).init.body).content).toMatch(/Attached file: data\.csv/);
+  });
+
+  it('removes an attachment when its remove button is clicked', async () => {
+    installFetch({ list: [] });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    const file = new File(['x'], 'a.json', { type: 'application/json' });
+    fireEvent.change(screen.getByTestId('copilot-attach-input'), { target: { files: [file] } });
+
+    await waitFor(() => expect(screen.getByTestId('copilot-attachment')).toBeTruthy());
+    fireEvent.click(screen.getByTestId('copilot-attachment-remove'));
+    expect(screen.queryByTestId('copilot-attachment')).toBeNull();
+  });
+
+  it('rejects a binary file with an inline note and attaches nothing', async () => {
+    installFetch({ list: [] });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    const bin = new File(['abc\u0000def'], 'dump.bin', { type: 'application/octet-stream' });
+    fireEvent.change(screen.getByTestId('copilot-attach-input'), { target: { files: [bin] } });
+
+    await waitFor(() => expect(screen.getByTestId('copilot-attach-error').textContent).toMatch(/binary/i));
+    expect(screen.queryByTestId('copilot-attachment')).toBeNull();
+  });
+
+  it('rejects a file over the per-file size cap (256 KB)', async () => {
+    installFetch({ list: [] });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    const big = new File(['a'.repeat(256 * 1024 + 1)], 'huge.log', { type: 'text/plain' });
+    fireEvent.change(screen.getByTestId('copilot-attach-input'), { target: { files: [big] } });
+
+    await waitFor(() => expect(screen.getByTestId('copilot-attach-error').textContent).toMatch(/over 256\.0 KB/));
+    expect(screen.queryByTestId('copilot-attachment')).toBeNull();
+  });
+
+  it('rejects files past the max count (6) but keeps the first six', async () => {
+    installFetch({ list: [] });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    const files = Array.from({ length: 7 }, (_, i) => new File(['x'], `f${i}.txt`, { type: 'text/plain' }));
+    fireEvent.change(screen.getByTestId('copilot-attach-input'), { target: { files } });
+
+    await waitFor(() => expect(screen.getAllByTestId('copilot-attachment').length).toBe(6));
+    expect(screen.getByTestId('copilot-attach-error').textContent).toMatch(/max 6 files/);
+  });
+
+  it('rejects a file that would push the batch over the total cap (512 KB)', async () => {
+    installFetch({ list: [] });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    // Three 200 KB files (each under the 256 KB per-file cap): the first two fit
+    // (400 KB), the third pushes past the 512 KB total and is skipped.
+    const a = new File(['a'.repeat(200 * 1024)], 'a.log', { type: 'text/plain' });
+    const b = new File(['b'.repeat(200 * 1024)], 'b.log', { type: 'text/plain' });
+    const c = new File(['c'.repeat(200 * 1024)], 'c.log', { type: 'text/plain' });
+    fireEvent.change(screen.getByTestId('copilot-attach-input'), { target: { files: [a, b, c] } });
+
+    await waitFor(() => expect(screen.getAllByTestId('copilot-attachment').length).toBe(2));
+    expect(screen.getByTestId('copilot-attach-error').textContent).toMatch(/c\.log \(total over 512\.0 KB\)/);
+  });
+
+  it('accepts files dropped onto the panel', async () => {
+    installFetch({ list: [] });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    const file = new File(['dropped'], 'drop.txt', { type: 'text/plain' });
+    fireEvent.drop(screen.getByTestId('copilot-panel'), { dataTransfer: { files: [file] } });
+
+    await waitFor(() => expect(screen.getByTestId('copilot-attachment').textContent).toMatch(/drop\.txt/));
+  });
+
+  it('folds multiple attachments into the message in order with fenced headers', async () => {
+    const { calls } = installFetch({ list: [], onMessages: () => streamingResponse(['ok']) });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    const f1 = new File(['alpha'], 'one.txt', { type: 'text/plain' });
+    const f2 = new File(['beta'], 'two.txt', { type: 'text/plain' });
+    fireEvent.change(screen.getByTestId('copilot-attach-input'), { target: { files: [f1, f2] } });
+
+    await waitFor(() => expect(screen.getAllByTestId('copilot-attachment').length).toBe(2));
+
+    fireEvent.change(screen.getByTestId('copilot-input'), { target: { value: 'see attached' } });
+    fireEvent.click(screen.getByTestId('copilot-send'));
+
+    await waitFor(() => expect(messagesCall(calls)).toBeTruthy());
+    const content = JSON.parse(messagesCall(calls).init.body).content;
+    // Typed prose comes first, then each file fenced, in pick order.
+    expect(content.indexOf('see attached')).toBe(0);
+    expect(content).toMatch(/--- Attached file: one\.txt \([^)]+\) ---\nalpha\n--- end of one\.txt ---/);
+    expect(content).toMatch(/--- Attached file: two\.txt \([^)]+\) ---\nbeta\n--- end of two\.txt ---/);
+    expect(content.indexOf('one.txt')).toBeLessThan(content.indexOf('two.txt'));
+  });
+});
+
 describe('CopilotPanel — abort on close', () => {
   it('aborts the in-flight fetch when the panel is closed', async () => {
     let capturedSignal;

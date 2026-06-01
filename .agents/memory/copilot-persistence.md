@@ -20,3 +20,12 @@ default new scopes to the restrictive module prompt unintentionally.
 **Restore-on-open:** localStorage pointer `srt-copilot-last-conv` holds the last
 conversation id; on mount the hook hydrates it, falling back to the newest
 `?scope=general` conversation if the pointer is missing/stale.
+
+**File attachments** are frontend-only: `buildOutgoing(text, attachments)` folds
+each text file's content into the single `content` string the conversations
+messages endpoint already sends/persists — no backend, multimodal, or DB change.
+**Why:** images/PDF/binary would require content-block message shapes + DB changes
+(major arch), so they are deliberately rejected (NUL/control-char sniff in
+`looksBinary`) with a note pointing users to the Data Management module-load flow.
+Caps: 256 KB/file, 512 KB total, 6 files. If you ever need real binary/image
+support, that is a backend+schema change, not an extension of this folding path.
