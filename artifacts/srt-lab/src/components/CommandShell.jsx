@@ -4,6 +4,7 @@ import {
   ChevronRight, Wrench, Car, ShieldCheck, Search, X,
 } from 'lucide-react';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
+import CopilotPanel from './CopilotPanel.jsx';
 
 /* SRT command-center design tokens (graduated from the approved canvas mockup). */
 const T = {
@@ -194,6 +195,7 @@ export default function CommandShell({
 }) {
   const {vin} = useContext(MasterVinContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [copilotOpen, setCopilotOpen] = useState(false);
 
   const advancedCount = useMemo(
     () => tabs.filter(t => !PRIMARY_KEYS.has(t.id)).length,
@@ -245,6 +247,22 @@ export default function CommandShell({
           <span style={{opacity: 0.85, fontWeight: 700}}>BENCH READY</span>
           <span style={{width: 7, height: 7, borderRadius: '50%', background: '#69d36e', boxShadow: '0 0 0 3px rgba(105,211,110,.25)'}} />
         </div>
+
+        {/* Always-available general Claude co-pilot */}
+        <button
+          type="button"
+          data-testid="topbar-copilot-btn"
+          onClick={() => setCopilotOpen(true)}
+          title="Open the AI Co-pilot — ask Claude anything"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            background: copilotOpen ? 'rgba(211,47,47,0.22)' : 'transparent', color: '#fff',
+            border: `1px solid ${copilotOpen ? T.red : 'rgba(255,255,255,.22)'}`,
+            borderRadius: 9, padding: '8px 13px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer',
+          }}
+        >
+          <Bot size={15} /> AI Co-pilot
+        </button>
 
         {onOpenWizard && (
           <button
@@ -367,6 +385,8 @@ export default function CommandShell({
         activeTab={activeTab}
         onSelect={onSelect}
       />
+
+      <CopilotPanel open={copilotOpen} onClose={() => setCopilotOpen(false)} />
     </div>
   );
 }
