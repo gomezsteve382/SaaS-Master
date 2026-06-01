@@ -68,6 +68,28 @@ ALGOS = {
 # ---------------------------------------------------------------------------
 # checksum — scan for stored checksums that verify their own prefix
 # ---------------------------------------------------------------------------
+
+def _structural_probes(n):
+    """Last 16 bytes of the file's containing power-of-2 block.
+
+    ECU checksums land overwhelmingly at the very end of the flash/EEPROM
+    region so we concentrate the structural probe there rather than at every
+    sub-block boundary.  Broken checksums at these positions are surfaced even
+    when stored ≠ computed so users who edited a dump can find and repair the
+    invalidated field.
+    """
+    # Smallest power-of-2 >= n
+    block = 256
+    while block < n:
+        block *= 2
+    probes = set()
+    for off in range(1, 17):
+        p = block - off
+        if 4 <= p < n:
+            probes.add(p)
+    return probes
+
+
 def cmd_checksum(a):
     try:
         data = open(a.file, "rb").read()
@@ -85,15 +107,27 @@ def cmd_checksum(a):
         "sum8":  hex(sum(data) & 0xFF),
     }
 
-    verified = []
     # Sample at ~512 positions across the file for speed; always include
-    # common ECU checksum landing spots (end of header blocks)
+    # common ECU checksum landing spots (end of header blocks) and structural
+    # high-probability positions.
     step = max(2, n // 400)
-    probes = set(range(4, n - 4, step))
+    regular_probes = set(range(4, n - 4, step))
     for pct in [0.25, 0.5, 0.75, 1.0]:
-        probes.add(max(4, int(n * pct) & ~1))
+        regular_probes.add(max(4, int(n * pct) & ~1))
 
-    for pos in sorted(probes):
+    structural = _structural_probes(n)
+    all_probes = regular_probes | structural
+
+    # Only surface broken candidates when the file actually has content.
+    # All-zero / all-FF images produce non-trivial CRC values at every probe
+    # position, which would generate misleading noise with no repair value.
+    file_has_content = any(b != 0 for b in data)
+
+    # seen: (pos, algo) → entry  (prefer "valid" over "broken" if both match)
+    seen = {}
+
+    for pos in sorted(all_probes):
+        is_structural = pos in structural
         for algo_name, (width, fn) in ALGOS.items():
             if pos + width > n:
                 continue
@@ -102,8 +136,11 @@ def cmd_checksum(a):
             except Exception:
                 continue
             stored = data[pos : pos + width]
+            key = (pos, algo_name)
+
             if stored == computed and any(b != 0 for b in stored):
-                verified.append({
+                # Valid checksum — always record; overwrites any prior broken entry
+                seen[key] = {
                     "offset":    hex(pos),
                     "algorithm": algo_name,
                     "width":     width,
@@ -111,18 +148,44 @@ def cmd_checksum(a):
                     "computed":  computed.hex(),
                     "status":    "valid",
                     "covers":    f"0x0 .. {hex(pos - 1)}",
-                })
+                }
+            elif is_structural and file_has_content and any(b != 0 for b in computed) and key not in seen:
+                # Broken candidate: structural end-of-file position, file has data,
+                # computed is non-trivial — surface so users can find and repair.
+                seen[key] = {
+                    "offset":    hex(pos),
+                    "algorithm": algo_name,
+                    "width":     width,
+                    "stored":    stored.hex(),
+                    "computed":  computed.hex(),
+                    "status":    "broken",
+                    "covers":    f"0x0 .. {hex(pos - 1)}",
+                }
+
+    valid_entries  = sorted(
+        (e for e in seen.values() if e["status"] == "valid"),
+        key=lambda x: int(x["offset"], 16),
+    )
+    # Broken: sort DESC by offset so end-of-file (most likely ECU checksum) is first
+    broken_entries = sorted(
+        (e for e in seen.values() if e["status"] == "broken"),
+        key=lambda x: -int(x["offset"], 16),
+    )
+    # Valid entries first, then broken (highest offset first).
+    # Combined cap of 30 so that with 0 valid entries the broken pool gets 30 slots.
+    entries = (valid_entries + broken_entries)[:30]
 
     out({
         "ok": True,
         "file": a.file,
         "whole_file": whole,
-        "found": len(verified),
-        "checksums": verified[:30],
+        "found": len(entries),
+        "checksums": entries[:30],
         "note": (
-            "Stored checksums that validate their own prefix — these are the fields to fix "
-            "after editing the dump. If none found, try a different region or the checksum "
-            "may cover only part of the file. Use fixck to repair."
+            "Valid entries (✓): stored checksum matches computed prefix. "
+            "Broken entries (✗): structural position where stored ≠ computed — "
+            "these are likely checksums invalidated by an edit. "
+            "Use fixck to recompute and repair."
         ),
     })
 
@@ -263,12 +326,21 @@ def main():
     sp.add_argument("--out", default=None,
                     help="output path (defaults to overwriting input)")
 
+    sp = sub.add_parser("patch", help="alias for fixck — recompute and write back one checksum")
+    sp.add_argument("file")
+    sp.add_argument("--offset", type=lambda x: int(x, 0), required=True,
+                    help="byte offset of the stored checksum (from checksum scan)")
+    sp.add_argument("--algorithm", required=True,
+                    help=f"algorithm name: {list(ALGOS.keys())}")
+    sp.add_argument("--out", default=None,
+                    help="output path (defaults to overwriting input)")
+
     sp = sub.add_parser("eepmap", help="extract VIN candidates, strings, mirrors")
     sp.add_argument("file")
 
     a = p.parse_args()
     try:
-        {"checksum": cmd_checksum, "fixck": cmd_fixck, "eepmap": cmd_eepmap}[a.cmd](a)
+        {"checksum": cmd_checksum, "fixck": cmd_fixck, "patch": cmd_fixck, "eepmap": cmd_eepmap}[a.cmd](a)
     except FileNotFoundError:
         err(f"file not found: {getattr(a, 'file', '?')}")
     except Exception as e:

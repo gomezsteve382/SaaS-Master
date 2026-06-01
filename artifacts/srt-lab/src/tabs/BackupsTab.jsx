@@ -10,7 +10,7 @@ import {
   subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
   exportAllBackups, importBackups, saveAemtPlaceholders,
   encryptArchive, decryptArchive, ENCRYPTED_ARCHIVE_TYPE,
-  backupCorruptFill,
+  backupCorruptFill, saveBinaryRepairRecord,
 } from "../lib/audit.js";
 import { sha256Hex, backupDidsToBytes } from "../lib/checksum.js";
 import { detectCorruptFill, corruptFillError } from "../lib/parseModule.js";
@@ -115,7 +115,7 @@ function ChecksumScanPanel() {
       });
       const j = await r.json();
       setEepmResult(j);
-      setMsg(j.ok ? `Found ${j.vin_candidates?.length ?? 0} VIN candidate(s), ${j.mirrored_blocks?.length ?? 0} mirror(s)` : ("Error: " + (j.error ?? "unknown")));
+      setMsg(j.ok ? `Found ${j.vinCandidates?.length ?? 0} VIN candidate(s), ${j.mirroredBlocks?.length ?? 0} mirror(s)` : ("Error: " + (j.error ?? "unknown")));
     } catch (e) {
       setMsg("Request failed: " + e.message);
     }
@@ -133,14 +133,28 @@ function ChecksumScanPanel() {
         body: JSON.stringify({ fileB64, offset, algorithm }),
       });
       const j = await r.json();
-      if (j.ok && j.patchedB64) {
-        const bin = Uint8Array.from(atob(j.patchedB64), c => c.charCodeAt(0));
+      if (j.ok && j.fileB64) {
+        const bin = Uint8Array.from(atob(j.fileB64), c => c.charCodeAt(0));
         const blob = new Blob([bin], { type: "application/octet-stream" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
         a.download = (file?.name ?? "patched").replace(/\.bin$/i, "") + "_repaired.bin";
         a.click();
         setMsg(`Repaired ${algorithm} at ${offset} — downloaded ${j.patchedSize?.toLocaleString()} bytes`);
+        // Save a provenance record in the backup index so this repair shows up
+        // in Data Management history. No binary stored — repaired file is on disk.
+        const brokenEntry = scanResult?.verifiedChecksums?.find(
+          ck => ck.offset === offset && ck.algorithm === algorithm
+        );
+        await saveBinaryRepairRecord({
+          filename: file?.name ?? "unknown",
+          fileSize: file?.size ?? 0,
+          offset,
+          algorithm,
+          storedHex: brokenEntry?.stored ?? "?",
+          computedHex: brokenEntry?.computed ?? "?",
+          repairedB64: j.fileB64,
+        });
       } else {
         setMsg("Repair failed: " + (j.error ?? "unknown"));
       }
@@ -223,7 +237,7 @@ function ChecksumScanPanel() {
           {scanResult?.ok && (
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, color: C.ts, marginBottom: 6 }}>
-                CHECKSUM SCAN RESULTS — {file?.name} — {scanResult.whole_file?.size?.toLocaleString()} bytes
+                CHECKSUM SCAN RESULTS — {file?.name} — {scanResult.wholeFile?.size?.toLocaleString()} bytes
               </div>
               {/* Whole-file stats */}
               <div style={{
@@ -231,11 +245,11 @@ function ChecksumScanPanel() {
                 background: "#F4F1EC", borderRadius: 4, padding: "6px 10px", marginBottom: 8,
                 display: "flex", gap: 16, flexWrap: "wrap",
               }}>
-                {Object.entries(scanResult.whole_file ?? {}).filter(([k]) => k !== "size").map(([k, v]) => (
+                {Object.entries(scanResult.wholeFile ?? {}).filter(([k]) => k !== "size").map(([k, v]) => (
                   <span key={k}><b style={{ color: "#333" }}>{k}:</b> {String(v)}</span>
                 ))}
               </div>
-              {scanResult.checksums?.length > 0 ? (
+              {scanResult.verifiedChecksums?.length > 0 ? (
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
                   <thead>
                     <tr style={{ background: "#F4F1EC" }}>
@@ -248,7 +262,7 @@ function ChecksumScanPanel() {
                     </tr>
                   </thead>
                   <tbody>
-                    {scanResult.checksums.map((ck, i) => {
+                    {scanResult.verifiedChecksums.map((ck, i) => {
                       const isValid = ck.status === "valid";
                       const fixKey = `${ck.offset}:${ck.algorithm}`;
                       return (
@@ -304,12 +318,12 @@ function ChecksumScanPanel() {
           {eepmResult?.ok && (
             <div>
               <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, color: C.ts, marginBottom: 8 }}>
-                EEPROM MAP — {eepmResult.vin_candidates?.length ?? 0} VIN(s) · {eepmResult.strings?.length ?? 0} string(s) · {eepmResult.mirrored_blocks?.length ?? 0} mirror(s)
+                EEPROM MAP — {eepmResult.vinCandidates?.length ?? 0} VIN(s) · {eepmResult.strings?.length ?? 0} string(s) · {eepmResult.mirroredBlocks?.length ?? 0} mirror(s)
               </div>
-              {eepmResult.vin_candidates?.length > 0 && (
+              {eepmResult.vinCandidates?.length > 0 && (
                 <div style={{ marginBottom: 10 }}>
                   <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>VIN CANDIDATES</div>
-                  {eepmResult.vin_candidates.map((v, i) => (
+                  {eepmResult.vinCandidates.map((v, i) => (
                     <div key={i} style={{ fontSize: 11, fontFamily: "'JetBrains Mono'", marginBottom: 2 }}>
                       <span style={{ color: C.ts, marginRight: 10 }}>{v.offset}</span>
                       <span style={{ color: C.a1, fontWeight: 700 }}>{v.vin}</span>
@@ -317,10 +331,10 @@ function ChecksumScanPanel() {
                   ))}
                 </div>
               )}
-              {eepmResult.mirrored_blocks?.length > 0 && (
+              {eepmResult.mirroredBlocks?.length > 0 && (
                 <div style={{ marginBottom: 10 }}>
                   <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>MIRRORED 16-BYTE BLOCKS (SEC16 redundancy candidates)</div>
-                  {eepmResult.mirrored_blocks.map((m, i) => (
+                  {eepmResult.mirroredBlocks.map((m, i) => (
                     <div key={i} style={{ fontSize: 10, fontFamily: "'JetBrains Mono'", marginBottom: 2, color: C.ts }}>
                       {m.first_offset} ↔ {m.mirror_offset} (gap {m.gap})
                       <span style={{ color: C.a2, marginLeft: 8 }}>{m.hex}</span>
@@ -1509,15 +1523,24 @@ export default function BackupsTab() {
                         <input
                           type="checkbox"
                           checked={isDiffSel}
-                          disabled={isMaxed}
+                          disabled={isMaxed || b.module === "BINARY_REPAIR"}
                           onClick={(e) => handleToggleDiffSelect(b.key, e)}
                           onChange={() => {}}
                           data-testid={"diff-checkbox-" + b.key}
                           title={isMaxed ? "Clear one selection before picking another" : isDiffSel ? "Deselect for diff" : "Select for diff"}
-                          style={{ cursor: isMaxed ? "not-allowed" : "pointer", accentColor: C.a3, width: 14, height: 14, flexShrink: 0 }}
+                          style={{ cursor: (isMaxed || b.module === "BINARY_REPAIR") ? "not-allowed" : "pointer", accentColor: C.a3, width: 14, height: 14, flexShrink: 0 }}
                         />
-                        <div style={{ fontWeight: 800, fontSize: 13, color: isDiffSel ? C.a3 : isSel ? C.a2 : C.tx }}>{b.module}</div>
-                        {b.snapshotKind && (
+                        <div style={{ fontWeight: 800, fontSize: 13, color: isDiffSel ? C.a3 : isSel ? C.a2 : C.tx }}>
+                          {b.module === "BINARY_REPAIR" ? "🔧 BINARY REPAIR" : b.module}
+                        </div>
+                        {b.module === "BINARY_REPAIR" ? (
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: "1px 5px", borderRadius: 3,
+                            background: "#FFF3E0", color: "#E65100",
+                          }}>
+                            REPAIR
+                          </span>
+                        ) : b.snapshotKind && b.snapshotKind !== "binary-repair" ? (
                           <span style={{
                             fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: "1px 5px", borderRadius: 3,
                             background: b.snapshotKind === "post-write" ? "#1E6F3A22" : "#3A1E6F22",
@@ -1525,9 +1548,13 @@ export default function BackupsTab() {
                           }}>
                             {b.snapshotKind === "post-write" ? "POST" : "PRE"}
                           </span>
-                        )}
+                        ) : null}
                       </div>
-                      <div style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>{b.didCount} DIDs</div>
+                      <div style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
+                        {b.module === "BINARY_REPAIR"
+                          ? (b.provenance?.algorithm ?? "") + "@" + (b.provenance?.offset ?? "")
+                          : b.didCount + " DIDs"}
+                      </div>
                     </div>
                     <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.ts, marginTop: 3 }}>{b.vin}</div>
                     {/* Task #488 — Charger LD trim/HP under each backup VIN. */}
@@ -1541,6 +1568,67 @@ export default function BackupsTab() {
 
           {selectedData ? (
             <Card style={{ padding: 0, overflow: "hidden" }}>
+              {selectedData.module === "BINARY_REPAIR" ? (
+                /* ── Repair provenance record detail view ── */
+                <>
+                  <div style={{
+                    padding: "12px 16px",
+                    background: "linear-gradient(90deg,#4A2700,#E65100)",
+                    color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center",
+                  }}>
+                    <div>
+                      <div style={{ fontSize: 10, opacity: 0.7, letterSpacing: 2, fontWeight: 700 }}>REPAIR RECORD</div>
+                      <div style={{ fontFamily: "'Righteous'", fontSize: 16, letterSpacing: 1 }}>🔧 Binary Checksum Repair</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {selectedData.provenance?.repairedB64 && (
+                        <button
+                          onClick={() => {
+                            const bin = Uint8Array.from(atob(selectedData.provenance.repairedB64), c => c.charCodeAt(0));
+                            const blob = new Blob([bin], { type: "application/octet-stream" });
+                            const a = document.createElement("a");
+                            a.href = URL.createObjectURL(blob);
+                            a.download = (selectedData.provenance.filename ?? "patched").replace(/\.bin$/i, "") + "_repaired.bin";
+                            a.click();
+                          }}
+                          style={chip("rgba(255,255,255,0.15)", "#fff")}
+                        >
+                          ⬇ Download Repaired
+                        </button>
+                      )}
+                      <button onClick={() => handleDelete(selected)} style={chip("#FF525222", "#fff", "#FF525255")}>🗑 Delete</button>
+                    </div>
+                  </div>
+                  <div style={{ padding: 16 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "6px 12px", fontSize: 11, marginBottom: 16 }}>
+                      <span style={{ color: C.ts }}>Repaired at:</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'" }}>{new Date(selectedData.timestamp).toLocaleString()}</span>
+                      <span style={{ color: C.ts }}>File:</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{selectedData.provenance?.filename ?? "—"}</span>
+                      <span style={{ color: C.ts }}>File size:</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'" }}>
+                        {selectedData.provenance?.fileSize ? selectedData.provenance.fileSize.toLocaleString() + " bytes" : "—"}
+                      </span>
+                      <span style={{ color: C.ts }}>Offset:</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700, color: C.a1 }}>{selectedData.provenance?.offset ?? "—"}</span>
+                      <span style={{ color: C.ts }}>Algorithm:</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{selectedData.provenance?.algorithm ?? "—"}</span>
+                      <span style={{ color: C.ts }}>Stored (bad):</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'", color: "#C00" }}>{selectedData.provenance?.storedHex ?? "—"}</span>
+                      <span style={{ color: C.ts }}>Computed (fix):</span>
+                      <span style={{ fontFamily: "'JetBrains Mono'", color: "#1E6F3A", fontWeight: 700 }}>{selectedData.provenance?.computedHex ?? "—"}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: C.ts, lineHeight: 1.6, padding: "8px 12px", background: "#FFF8F0", borderRadius: 6, border: "1px solid #FFD0A0" }}>
+                      {selectedData.provenance?.repairedB64
+                        ? <>Use <b>⬇ Download Repaired</b> above to save the corrected binary. Re-upload it to the <b>Binary Checksum Scan</b> panel to confirm all checksums read <span style={{ color: "#1E6F3A", fontWeight: 700 }}>✓ VALID</span>.</>
+                        : <>The repaired binary was downloaded as <b>{(selectedData.provenance?.filename ?? "file").replace(/\.bin$/i, "") + "_repaired.bin"}</b>. Re-scan it in the <b>Binary Checksum Scan</b> panel to verify.</>
+                      }
+                    </div>
+                  </div>
+                </>
+              ) : (
+              /* ── Normal DID snapshot detail view ── */
+              <>
               <div style={{
                 padding: "12px 16px", background: "linear-gradient(90deg,#0A3D1A,#1E6F3A)",
                 color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -1828,7 +1916,11 @@ export default function BackupsTab() {
                     </div>
                   );
                 })()}
+              {/* Binary checksum scanner — shown inline for any selected backup */}
+              <ChecksumScanPanel />
               </div>
+              </>
+              )}
             </Card>
           ) : (
             <Card style={{ textAlign: "center", padding: 40, color: C.tm }}>
@@ -1838,8 +1930,6 @@ export default function BackupsTab() {
           )}
         </div>
       )}
-
-      <ChecksumScanPanel />
 
       {diffView && (
         <div

@@ -754,6 +754,8 @@ export async function refreshBackupsFromServer() {
     checksum: b.checksum ?? null,
     snapshotKind: b.snapshotKind ?? null,
     preWriteKey: b.preWriteKey ?? null,
+    // Re-derive source for repair records so the list badge survives server sync.
+    source: b.module === "BINARY_REPAIR" ? "binary-checksum-repair" : (b.source ?? null),
   }));
   writeLocalIndex(normalized);
   notify();
@@ -932,6 +934,54 @@ export async function saveAemtPlaceholders(stubs) {
   }));
 
   return { created: createdKeys.length, keys: createdKeys, skipped, duplicates: duplicateKeys, serverFailures };
+}
+
+/**
+ * Save a lightweight provenance record after a binary checksum repair.
+ * Stores the repaired binary as base64 in the provenance record so it can be
+ * re-downloaded from Data Management history without losing the file.
+ */
+export async function saveBinaryRepairRecord({ filename, fileSize, offset, algorithm, storedHex, computedHex, repairedB64 }) {
+  const key = BACKUP_KEY_PREFIX + "REPAIR_" + Date.now();
+  const timestamp = new Date().toISOString();
+  const meta = {
+    key,
+    id: key,
+    module: "BINARY_REPAIR",
+    vin: filename || "unknown",
+    timestamp,
+    didCount: 0,
+    source: "binary-checksum-repair",
+    provenance: { filename, fileSize, offset, algorithm, storedHex, computedHex, repairedB64 },
+  };
+  // Optimistic local write so the list updates immediately.
+  try {
+    const idx = readLocalIndex();
+    idx.unshift(meta);
+    writeLocalIndex(idx);
+    setLocalPayload(key, meta);
+  } catch { /* best-effort */ }
+  notify();
+  // Write-through to the server so the record survives a page reload /
+  // server-driven list refresh (refreshBackupsFromServer overwrites local index).
+  try {
+    await fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: key,
+        module: "BINARY_REPAIR",
+        vin: filename || "unknown",
+        didCount: 0,
+        tx: null,
+        rx: null,
+        timestamp,
+        payload: meta,
+        snapshotKind: "binary-repair",
+        preWriteKey: null,
+      }),
+    });
+  } catch { /* server unreachable — local cache keeps it alive offline */ }
 }
 
 /* React hook helper: triggers a re-render when audit storage changes. */
