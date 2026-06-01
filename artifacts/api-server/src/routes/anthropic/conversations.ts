@@ -138,6 +138,7 @@ router.get("/conversations/:id", async (req, res) => {
     try { parsedArgs = JSON.parse(tc.toolArgs); } catch { parsedArgs = { raw: tc.toolArgs }; }
     bucket.push({
       toolName: tc.toolName,
+      module: tc.module,
       args: parsedArgs,
       resultPreview: tc.resultPreview,
       bytesReturned: tc.bytesReturned,

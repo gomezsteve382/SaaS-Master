@@ -741,7 +741,7 @@ describe('CopilotPanel — tool trace', () => {
             content: 'Done.',
             id: 42,
             toolTrace: [
-              { toolName: 'extract_strings', args: { min: 4 }, resultPreview: 'VIN: 2C3...', bytesReturned: 20, durationMs: 8 },
+              { toolName: 'extract_strings', module: 'RFHUB#2', args: { min: 4 }, resultPreview: 'VIN: 2C3...', bytesReturned: 20, durationMs: 8 },
             ],
           },
         ],
@@ -759,5 +759,41 @@ describe('CopilotPanel — tool trace', () => {
     const step = await screen.findByTestId('copilot-tool-step');
     expect(step.textContent).toMatch(/extract_strings/);
     expect(step.textContent).toMatch(/VIN: 2C3/);
+    // The persisted module label is preferred over the derived fallback, so a
+    // resumed chat shows the original module even with nothing loaded.
+    expect(step.textContent).toMatch(/RFHUB#2/);
+  });
+
+  it('falls back to the derived label when no module was persisted', async () => {
+    installFetch({
+      list: [{ id: 4, scope: 'general', title: 'Legacy chat', createdAt: Date.now() }],
+      conv: {
+        id: 4,
+        scope: 'general',
+        title: 'Legacy chat',
+        messages: [
+          { role: 'user', content: 'inspect it' },
+          {
+            role: 'assistant',
+            content: 'Done.',
+            id: 43,
+            toolTrace: [
+              { toolName: 'extract_strings', args: { min: 4 }, resultPreview: 'VIN: 2C3...', bytesReturned: 20, durationMs: 8 },
+            ],
+          },
+        ],
+      },
+    });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('copilot-msg-assistant').textContent).toMatch(/Done\./),
+    );
+    fireEvent.click(screen.getByTestId('copilot-tool-trace-toggle'));
+    const step = await screen.findByTestId('copilot-tool-step');
+    expect(step.textContent).toMatch(/extract_strings/);
+    // No persisted module + nothing loaded → generic fallback.
+    expect(step.textContent).toMatch(/loaded dump/);
   });
 });

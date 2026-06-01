@@ -43,10 +43,32 @@ const router = Router();
 export interface ToolTraceEntry {
   id: string;
   toolName: string;
+  module: string;
   args: Record<string, unknown>;
   result: string;
   durationMs: number;
   bytesReturned: number;
+}
+
+/* Resolve the module label a tool step inspected, matching the client's
+ * deriveToolModule (CopilotPanel.jsx) so resumed chats render the same labels
+ * they showed live. Most tools run against the primary loaded dump; hex_diff
+ * also names a second module via `otherId`. The primary key is the first key of
+ * the binaries map (insertion order is preserved through JSON, so it matches
+ * the client's primaryKey). Falls back to a generic label when no module is
+ * known. */
+function deriveToolModule(
+  toolName: string,
+  args: Record<string, unknown>,
+  primaryKey: string | null,
+): string {
+  if (toolName === "hex_diff") {
+    const otherId = typeof args.otherId === "string" ? args.otherId : null;
+    if (primaryKey && otherId) return `${primaryKey} ↔ ${otherId}`;
+    if (otherId) return `↔ ${otherId}`;
+    return primaryKey || "diff";
+  }
+  return primaryKey || "loaded dump";
 }
 
 router.post("/conversations/:id/tool-messages", async (req, res) => {
@@ -85,6 +107,13 @@ router.post("/conversations/:id/tool-messages", async (req, res) => {
       binaryMap[id] = Buffer.from(b64, "base64");
     }
   }
+
+  /* The primary module key is the first entry of the binaries map (its
+   * insertion order survives JSON serialization, so it matches the client's
+   * resolved primaryKey). Used to label each tool step's inspected module. */
+  const primaryKey: string | null = binariesBase64
+    ? Object.keys(binariesBase64)[0] ?? null
+    : null;
 
   // Persist user message
   const [userMsg] = await db
@@ -206,7 +235,8 @@ router.post("/conversations/:id/tool-messages", async (req, res) => {
           const bytesReturned = Buffer.byteLength(result, "utf8");
           cumulativeBytes += bytesReturned;
 
-          const traceEntry: ToolTraceEntry = { id: toolId, toolName, args, result, durationMs, bytesReturned };
+          const module = deriveToolModule(toolName, args, primaryKey);
+          const traceEntry: ToolTraceEntry = { id: toolId, toolName, module, args, result, durationMs, bytesReturned };
           toolTrace.push(traceEntry);
 
           if (!clientGone) {
@@ -252,6 +282,7 @@ router.post("/conversations/:id/tool-messages", async (req, res) => {
           conversationId: convId,
           messageId: assistantMessageId,
           toolName: entry.toolName,
+          module: entry.module,
           toolArgs: JSON.stringify(entry.args).slice(0, 512),
           resultPreview: entry.result.slice(0, 512),
           bytesReturned: entry.bytesReturned,

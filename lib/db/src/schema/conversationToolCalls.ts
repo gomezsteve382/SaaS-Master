@@ -11,6 +11,7 @@ export const conversationToolCalls = pgTable("conversation_tool_calls", {
     .references(() => conversations.id, { onDelete: "cascade" }),
   messageId: integer("message_id"),
   toolName: text("tool_name").notNull(),
+  module: text("module").notNull().default(""),
   toolArgs: text("tool_args").notNull().default("{}"),
   resultPreview: text("result_preview").notNull().default(""),
   bytesReturned: integer("bytes_returned").notNull().default(0),

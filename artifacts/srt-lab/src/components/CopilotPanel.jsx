@@ -108,6 +108,7 @@ function hydrateMessage(m) {
       id: `hydrated-${m.id}-${i}`,
       toolName: t.toolName,
       args: t.args,
+      module: t.module || undefined,
       status: 'done',
       result: t.result ?? t.resultPreview ?? '',
       bytesReturned: t.bytesReturned ?? 0,

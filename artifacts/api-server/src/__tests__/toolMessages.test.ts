@@ -219,6 +219,10 @@ describe("POST /api/anthropic/conversations/:id/tool-messages", () => {
     expect(store.conversation_tool_calls).toHaveLength(2);
     expect(store.conversation_tool_calls[0].toolName).toBe("read_hex");
     expect(store.conversation_tool_calls[1].toolName).toBe("extract_strings");
+    // Resolved module label persists per step (no binaries map sent here, so
+    // the primary key is unknown → generic "loaded dump" fallback).
+    expect(store.conversation_tool_calls[0].module).toBe("loaded dump");
+    expect(store.conversation_tool_calls[1].module).toBe("loaded dump");
   });
 
   it("returns 400 when content is missing", async () => {
