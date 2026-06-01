@@ -3,7 +3,7 @@ import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import IdentityCard from '../components/IdentityCard.jsx';
 import DumpDropZone, {DumpDropArea} from '../components/DumpDropZone.jsx';
-import {parseModule,moduleTooSmall} from '../lib/parseModule.js';
+import {parseModule,moduleTooSmall,corruptFillError} from '../lib/parseModule.js';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
 import {decodeNRC} from '../lib/nrc.js';
 import {backupModule} from '../lib/audit.js';
@@ -37,6 +37,8 @@ export default function EcmTab({vehicle}){
       if(small){setInspectHash(null);setInspectTooSmall(small);setInspectMsg('');return;}
       setInspectTooSmall(null);
       const m=parseModule(bytes,file.name);
+      const cfErr=corruptFillError(m);
+      if(cfErr){setInspectMsg(cfErr);return;}
       if(m.type!=='GPEC2A'){setInspectMsg('Selected file is '+m.type+', not GPEC2A — load a 4 KB Continental GPEC2A ECM dump.');return;}
       const entry=addDump(m,'ECM tab');
       if(entry)setInspectHash(entry.hash);

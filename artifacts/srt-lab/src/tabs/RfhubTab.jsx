@@ -10,7 +10,7 @@ import ReadFirstModal from "../lib/readFirstModal.jsx";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
-import {parseModule,moduleTooSmall} from "../lib/parseModule.js";
+import {parseModule,moduleTooSmall,corruptFillError} from "../lib/parseModule.js";
 import {vinHasSGW} from "../lib/vin.js";
 import {createBridgeEngine} from "../lib/bridgeEngine.js";
 import {getRow} from "../lib/moduleRegistry.js";
@@ -357,6 +357,8 @@ export default function RfhubTab({vehicle}){
       }
       setInspectTooSmall(null);
       const m=parseModule(bytes,file.name);
+      const cfErr=corruptFillError(m);
+      if(cfErr){setInspectMsg(cfErr);return;}
       if(m.type!=='RFHUB'){setInspectMsg('Selected file is '+m.type+', not RFHUB — load a 4 KB RFHUB EEE dump.');return;}
       const entry=addDump(m,'RFHUB tab');
       if(entry)setInspectHash(entry.hash);

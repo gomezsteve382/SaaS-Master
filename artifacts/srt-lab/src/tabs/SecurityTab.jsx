@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useMemo} from "react";
 import {C,TC,TL,SKIM_OFF,IMMO_BLOCK,IMMO_REC,IMMO_KC} from "../lib/constants.js";
 import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
-import {parseModule,arrEq,countSkimRecs,syncImmoBackup} from "../lib/parseModule.js";
+import {parseModule,arrEq,countSkimRecs,syncImmoBackup,corruptFillError} from "../lib/parseModule.js";
 import {fmtOff} from "./ModuleSync.jsx";
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crossValidate,computeDiff,compareGpecBcmKey} from "../lib/crossValidate.js";
@@ -28,6 +28,8 @@ function SecurityTab(){
       r.onload=ev=>{
         const d=new Uint8Array(ev.target.result);
         const m=parseModule(d,f.name);
+        const cfErr=corruptFillError(m);
+        if(cfErr){setMsg(cfErr);return;}
         if(m.type!=='UNKNOWN'&&m.type!=='FW')setMods(p=>{const u=[...p,m];if(!tv&&m.vins?.[0])setTv(m.vins[0].vin);return u;});
       };r.readAsArrayBuffer(f);
     });

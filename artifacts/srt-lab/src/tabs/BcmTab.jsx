@@ -8,7 +8,7 @@ import {decodeNRC, nrcMsg} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
-import {parseModule, syncImmoBackup, bcmTooSmall} from "../lib/parseModule.js";
+import {parseModule, syncImmoBackup, bcmTooSmall, corruptFillError} from "../lib/parseModule.js";
 import IdentityCard from "../components/IdentityCard.jsx";
 import {bcmFeatureMatrix} from "../lib/cgwConfig.js";
 import {vinHasSGW} from "../lib/vin.js";
@@ -773,6 +773,8 @@ export default function BcmTab({vehicle}){
       }
       setInspectTooSmall(null);
       const m=parseModule(bytes,file.name);
+      const cfErr=corruptFillError(m);
+      if(cfErr){setInspectMsg(cfErr);setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);return;}
       if(m.type!=='BCM'){setInspectMsg('Selected file is '+m.type+', not BCM — load a 64 KB or 128 KB BCM dump.');setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);return;}
       const entry=addDump(m,'BCM tab');
       if(entry)setInspectHash(entry.hash);

@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useRef} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn,SLine} from "../lib/ui.jsx";
-import {parseModule,extractHex,syncImmoBackup} from "../lib/parseModule.js";
+import {parseModule,extractHex,syncImmoBackup,corruptFillError} from "../lib/parseModule.js";
 import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crc16,crc8_42,crc8rf} from "../lib/crc.js";
 import {MODS} from "../lib/mods.js";
@@ -40,6 +40,8 @@ function BenchTab(){
       r.onload=ev=>{
         const d=new Uint8Array(ev.target.result);
         const m=parseModule(d,f.name);
+        const cfErr=corruptFillError(m);
+        if(cfErr){addLog(cfErr,'error');return;}
         setMods(p=>[...p,m]);
         if(m.hexOnly)addLog('Unrecognized file (hex view only): '+f.name,'error');
         else{addLog('Loaded '+m.name+': '+f.name,'info');if(m.vins?.[0])addLog('  VIN: '+m.vins[0].vin,'rx');}

@@ -1,7 +1,7 @@
 import React, {useState, useMemo, useCallback, useContext} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Tag,Btn} from "../lib/ui.jsx";
-import {parseModule,moduleTooSmall,pcmChipFromSize} from "../lib/parseModule.js";
+import {parseModule,moduleTooSmall,pcmChipFromSize,corruptFillError} from "../lib/parseModule.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {SizeWarnBanner,ContentWarnBanner} from "../components/ModuleFieldsPanel.jsx";
 import GpecObdVinPanel from "../components/GpecObdVinPanel.jsx";
@@ -35,6 +35,8 @@ function Gpec2aTab(){
       if(small){setTooSmall(small);setMsg('');return;}
       setTooSmall(null);
       const m=parseModule(d,fi.name,{forceType:'GPEC2A'});
+      const cfErr=corruptFillError(m);
+      if(cfErr){setMsg(cfErr);return;}
       const entry=addDump(m,'GPEC2A tab');
       if(entry){if(slot===1)setHash1(entry.hash);else setHash2(entry.hash);}
       setMsg('');

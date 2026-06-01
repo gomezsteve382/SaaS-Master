@@ -3,7 +3,7 @@ import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import IdentityCard from '../components/IdentityCard.jsx';
 import DumpDropZone, {DumpDropArea} from '../components/DumpDropZone.jsx';
-import {parseModule,moduleTooSmall,MODULE_MIN_SIZES} from '../lib/parseModule.js';
+import {parseModule,moduleTooSmall,MODULE_MIN_SIZES,corruptFillError} from '../lib/parseModule.js';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
 import {decodeNRC} from '../lib/nrc.js';
 import {backupModule} from '../lib/audit.js';
@@ -58,6 +58,8 @@ export default function AdcmTab(){
       }
       setInspectTooSmall(null);
       const m=parseModule(bytes,file.name);
+      const cfErr=corruptFillError(m);
+      if(cfErr){setInspectMsg(cfErr);return;}
       if(!ADCM_OK_TYPES.includes(m.type)){
         setInspectMsg('Selected file is '+m.type+', not an ADCM-shaped dump (expected FW / GPEC2A / BCM).');
         return;

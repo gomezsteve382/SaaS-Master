@@ -1212,7 +1212,22 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,detectCorruptFill,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,buildGpecContentWarn,buildRfhubContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,wrongModuleForSlot,SLOT_TO_FAMILY,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,
+// Shared helper for all upload handlers: returns a human-readable error
+// string when a parsed module result indicates a corrupt capture, or null
+// when the file looks clean. Use this instead of inspecting m.corruptFill
+// directly so every tab produces the same rejection message format.
+//
+//   const err = corruptFillError(m);
+//   if (err) { setMsg(err); return; }
+//
+function corruptFillError(m){
+  if(!m?.corruptFill)return null;
+  const cf=m.corruptFill;
+  const base='✖ Corrupt capture'+(cf.reason?' ('+cf.reason+')':'')+': '+(cf.detail||'file looks like a tool-error response')+'.';
+  return base+' Re-read the module with your programming tool — do not use this capture for VIN or key operations.';
+}
+
+export {parseModule,detectCorruptFill,corruptFillError,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,buildGpecContentWarn,buildRfhubContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,wrongModuleForSlot,SLOT_TO_FAMILY,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,
   // Canonical VIN slot tables (single source of truth shared with
   // scripts/anonymize-real-dump.mjs — see the block-comment at the top
   // of this file for the per-family explanation). PCM_VIN_OFFSETS_GPEC2A
