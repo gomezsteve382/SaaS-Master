@@ -27,6 +27,7 @@ import { render, screen, waitFor, cleanup, fireEvent } from '@testing-library/re
 import React from 'react';
 
 import CopilotPanel from '../components/CopilotPanel.jsx';
+import { MasterVinContext } from '../lib/masterVinContext.jsx';
 
 // A ReadableStream that emits the given SSE frames then closes.
 function makeStream(frames) {
@@ -58,7 +59,7 @@ function jsonResponse(status, payload) {
 /* Route fetch calls by method + URL the way the persistent panel drives them.
  * Returns { calls } so tests can assert on what was sent. `onMessages` is a
  * factory invoked per POST /:id/messages call (so each gets a fresh stream). */
-function installFetch({ list = [], conv = null, onMessages, onCreate, onPatch } = {}) {
+function installFetch({ list = [], conv = null, onMessages, onToolMessages, onCreate, onPatch } = {}) {
   const calls = [];
   global.fetch = vi.fn(async (url, init = {}) => {
     const u = String(url);
@@ -75,6 +76,9 @@ function installFetch({ list = [], conv = null, onMessages, onCreate, onPatch } 
       if (onCreate) return onCreate(init);
       return jsonResponse(201, { id: 1, scope: 'general', title: 'New chat' });
     }
+    if (method === 'POST' && /\/conversations\/\d+\/tool-messages$/.test(u)) {
+      return onToolMessages ? onToolMessages(init) : streamingResponse(['ok']);
+    }
     if (method === 'POST' && /\/conversations\/\d+\/messages$/.test(u)) {
       return onMessages ? onMessages(init) : streamingResponse(['ok']);
     }
@@ -90,6 +94,36 @@ function installFetch({ list = [], conv = null, onMessages, onCreate, onPatch } 
 }
 
 const messagesCall = (calls) => calls.find((c) => /\/messages$/.test(c.url));
+const toolMessagesCall = (calls) => calls.find((c) => /\/tool-messages$/.test(c.url));
+
+/* Minimal MasterVinContext value: the panel only reads vin / vinValid /
+ * loadedDumps, so we hand-craft those rather than spin up the real provider. */
+function benchValue({ vin = '1C3CDZBT5DN500000', loadedDumps = [] } = {}) {
+  return { vin, vinValid: vin.length === 17, loadedDumps };
+}
+
+/* A loaded-dump entry shaped like MasterVinContext.addDump output, with real
+ * bytes under `mod.data` so the panel can build the binaryBase64 payload. */
+function makeDump({ type = 'BCM', filename = 'bcm.bin', bytes = new Uint8Array([0xde, 0xad, 0xbe, 0xef]) } = {}) {
+  return {
+    hash: `${type}-${filename}`,
+    type,
+    name: filename,
+    filename,
+    size: bytes.length,
+    mod: { type, data: bytes, vins: [] },
+    addedAt: Date.now(),
+    source: 'Dumps tab',
+  };
+}
+
+function renderWithBench(value, props = {}) {
+  return render(
+    <MasterVinContext.Provider value={value}>
+      <CopilotPanel open onClose={() => {}} {...props} />
+    </MasterVinContext.Provider>,
+  );
+}
 
 let originalFetch;
 
@@ -504,5 +538,76 @@ describe('CopilotPanel — abort on close', () => {
     // Closing the panel should abort the open stream via the cleanup effect.
     rerender(<CopilotPanel open={false} onClose={() => {}} />);
     await waitFor(() => expect(capturedSignal.aborted).toBe(true));
+  });
+});
+
+describe('CopilotPanel — bench context (loaded dumps + detach toggle)', () => {
+  it('reads loaded dumps: shows the bench bar and sends to /tool-messages with context + bytes', async () => {
+    const { calls } = installFetch({ list: [], onToolMessages: () => streamingResponse(['ok']) });
+
+    renderWithBench(benchValue({ loadedDumps: [makeDump()] }));
+
+    // The bench bar appears and advertises the loaded module + attached bytes.
+    const bar = screen.getByTestId('copilot-bench-bar');
+    expect(bar).toBeTruthy();
+    expect(bar.textContent).toMatch(/Reading your bench/i);
+    expect(bar.textContent).toMatch(/1 module/);
+    expect(bar.textContent).toMatch(/bytes attached/);
+
+    fireEvent.change(screen.getByTestId('copilot-input'), { target: { value: 'inspect this dump' } });
+    fireEvent.click(screen.getByTestId('copilot-send'));
+
+    // The turn routes to the tool-use endpoint with module context + bytes.
+    await waitFor(() => expect(toolMessagesCall(calls)).toBeTruthy());
+    const body = JSON.parse(toolMessagesCall(calls).init.body);
+    expect(body.content).toBe('inspect this dump');
+    expect(body.moduleContext).toBeTruthy();
+    expect(Array.isArray(body.moduleContext.modules)).toBe(true);
+    expect(body.moduleContext.modules[0]).toMatch(/BCM/);
+    expect(typeof body.binaryBase64).toBe('string');
+    expect(body.binaryBase64.length).toBeGreaterThan(0);
+
+    // It did NOT fall back to the plain text endpoint.
+    expect(messagesCall(calls)).toBeUndefined();
+  });
+
+  it('respects the detach toggle: switching to Detached falls back to /messages with no module context', async () => {
+    const { calls } = installFetch({ list: [], onMessages: () => streamingResponse(['ok']) });
+
+    renderWithBench(benchValue({ loadedDumps: [makeDump()] }));
+
+    // Detach the bench context.
+    fireEvent.click(screen.getByTestId('copilot-bench-toggle'));
+    expect(screen.getByTestId('copilot-bench-bar').textContent).toMatch(/detached/i);
+
+    fireEvent.change(screen.getByTestId('copilot-input'), { target: { value: 'general question' } });
+    fireEvent.click(screen.getByTestId('copilot-send'));
+
+    // With the bench detached, the request goes to the plain text endpoint
+    // with no module context and no bytes.
+    await waitFor(() => expect(messagesCall(calls)).toBeTruthy());
+    const body = JSON.parse(messagesCall(calls).init.body);
+    expect(body.content).toBe('general question');
+    expect(body.moduleContext).toBeUndefined();
+    expect(body.binaryBase64).toBeUndefined();
+
+    // The tool-use endpoint was never hit.
+    expect(toolMessagesCall(calls)).toBeUndefined();
+  });
+
+  it('with no dumps loaded: renders no bench bar and uses /messages (current behavior)', async () => {
+    const { calls } = installFetch({ list: [], onMessages: () => streamingResponse(['ok']) });
+
+    renderWithBench(benchValue({ vin: '', loadedDumps: [] }));
+
+    // Nothing on the bench → no bench bar at all.
+    expect(screen.queryByTestId('copilot-bench-bar')).toBeNull();
+
+    fireEvent.change(screen.getByTestId('copilot-input'), { target: { value: 'hello' } });
+    fireEvent.click(screen.getByTestId('copilot-send'));
+
+    await waitFor(() => expect(messagesCall(calls)).toBeTruthy());
+    expect(JSON.parse(messagesCall(calls).init.body)).toEqual({ content: 'hello' });
+    expect(toolMessagesCall(calls)).toBeUndefined();
   });
 });
