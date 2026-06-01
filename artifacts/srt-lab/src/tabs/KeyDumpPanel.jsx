@@ -15,7 +15,7 @@
  * reference only — it is NOT the SK).
  * ========================================================================== */
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useRef } from 'react';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
 import { CHIP_FAMILIES } from '../lib/keyWriter/chipFamilies.js';
@@ -25,7 +25,10 @@ import {
   validateKeyRecord,
   buildKeyDumpManifest,
   buildKeyDumpBin,
+  parseKeyDumpBin,
+  parseKeyDumpManifest,
   keyDumpBaseName,
+  KEY_DUMP_MAGIC,
   CODING_SCHEMES,
 } from '../lib/keyDump.js';
 import { triggerDownload } from '../lib/keyWriter/autelExport.js';
@@ -36,6 +39,21 @@ const hexCompact = (bs) => [...bs].map(hex).join('');
 let RID = 0;
 function freshForm(init) {
   return { _id: ++RID, label: '', chipId: 'pcf7953', uidHex: '', skHex: '', locked: false, encryption: false, cloneable: false, coding: CODING_SCHEMES[0], ...init };
+}
+
+/* Convert a parsed keyDump record (from parseKeyDumpBin / parseKeyDumpManifest)
+ * into a fresh editable form. */
+function recordToForm(rec) {
+  return freshForm({
+    label: rec.label || '',
+    chipId: rec.chipId,
+    uidHex: hexCompact(rec.uid || []),
+    skHex: hexCompact(rec.sk || []),
+    locked: !!rec.locked,
+    encryption: !!rec.encryption,
+    cloneable: !!rec.cloneable,
+    coding: rec.coding || CODING_SCHEMES[0],
+  });
 }
 
 /* Convert the panel's editable form into the keyDump record shape. */
@@ -70,6 +88,52 @@ export default function KeyDumpPanel({ prefillSlot = null, prefillSec16 = null, 
     const nf = freshForm();
     setForms((fs) => [...fs, nf]);
     setActiveId(nf._id);
+  }, []);
+
+  const fileRef = useRef(null);
+  const [importError, setImportError] = useState(null);
+
+  const onPickImport = useCallback(() => {
+    setImportError(null);
+    fileRef.current?.click();
+  }, []);
+
+  const onImportFile = useCallback((e) => {
+    const file = e.target.files?.[0];
+    // Reset the input so re-selecting the same file re-fires onChange.
+    e.target.value = '';
+    if (!file) return;
+    setImportError(null);
+    const reader = new FileReader();
+    reader.onerror = () => setImportError(`Could not read "${file.name}".`);
+    reader.onload = (ev) => {
+      const bytes = new Uint8Array(ev.target.result || []);
+      // KDMP magic at the head → treat as a raw .bin; otherwise try the JSON
+      // manifest. Refuse-on-doubt: a parse failure surfaces and adds no record.
+      const isKdmp =
+        bytes.length >= KEY_DUMP_MAGIC.length &&
+        KEY_DUMP_MAGIC.every((m, i) => bytes[i] === m);
+      let res;
+      if (isKdmp) {
+        res = parseKeyDumpBin(bytes);
+      } else {
+        let text = '';
+        try {
+          text = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+        } catch {
+          text = '';
+        }
+        res = parseKeyDumpManifest(text);
+      }
+      if (!res.ok) {
+        setImportError(`"${file.name}" is not a valid key dump: ${res.error}`);
+        return;
+      }
+      const nf = recordToForm(res.record);
+      setForms((fs) => [...fs, nf]);
+      setActiveId(nf._id);
+    };
+    reader.readAsArrayBuffer(file);
   }, []);
 
   const copyToNew = useCallback(() => {
@@ -166,7 +230,24 @@ export default function KeyDumpPanel({ prefillSlot = null, prefillSec16 = null, 
         <Btn onClick={addNew} color={C.tm} outline style={{ fontSize: 10, padding: '2px 8px' }} data-testid="keydump-add">
           + New key
         </Btn>
+        <Btn onClick={onPickImport} color={C.a3} outline style={{ fontSize: 10, padding: '2px 8px' }} data-testid="keydump-import">
+          ↥ Import saved dump
+        </Btn>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".bin,.json,application/json,application/octet-stream"
+          onChange={onImportFile}
+          data-testid="keydump-import-input"
+          style={{ display: 'none' }}
+        />
       </div>
+
+      {importError && (
+        <div style={{ fontSize: 12, color: C.er, marginBottom: 10, fontWeight: 700 }} data-testid="keydump-import-error">
+          ✗ {importError}
+        </div>
+      )}
 
       {/* Form */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>

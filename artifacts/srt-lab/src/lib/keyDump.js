@@ -322,6 +322,52 @@ export function parseKeyDumpBin(bytes) {
   };
 }
 
+/**
+ * Parse a JSON manifest (the artefact built by buildKeyDumpManifest) back into
+ * the same record shape parseKeyDumpBin returns. Refuse-on-doubt: anything that
+ * is not valid JSON, or is missing the chip/UID/SK fields, or carries un-hex
+ * UID/SK, is rejected rather than coerced into a partial record.
+ *
+ * @returns {{ ok: boolean, error?: string, record?: object }}
+ */
+export function parseKeyDumpManifest(text) {
+  let obj;
+  try {
+    obj = JSON.parse(text);
+  } catch {
+    return { ok: false, error: 'not valid JSON (not a key dump manifest)' };
+  }
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+    return { ok: false, error: 'not a key dump manifest object' };
+  }
+  const chipId = obj.chip_family;
+  const uidHex = obj.uid_hex_compact ?? obj.uid_hex;
+  const skHex = obj.sk_hex_compact ?? obj.sk_hex;
+  if (!chipId || uidHex == null || skHex == null) {
+    return { ok: false, error: 'missing chip_family / uid / sk fields' };
+  }
+  const uidP = parseHexBytes(uidHex);
+  if (!uidP.ok) return { ok: false, error: `UID hex invalid: ${uidP.error}` };
+  const skP = parseHexBytes(skHex);
+  if (!skP.ok) return { ok: false, error: `SK hex invalid: ${skP.error}` };
+  const flags = obj.flags && typeof obj.flags === 'object' ? obj.flags : {};
+  return {
+    ok: true,
+    record: {
+      chipId,
+      label: typeof obj.label === 'string' ? obj.label : '',
+      uid: uidP.bytes,
+      sk: skP.bytes,
+      uidError: null,
+      skError: null,
+      locked: !!flags.locked,
+      encryption: !!flags.encryption_mode,
+      cloneable: !!flags.cloneable,
+      coding: typeof flags.coding === 'string' ? flags.coding : CODING_SCHEMES[0],
+    },
+  };
+}
+
 /** Safe base filename for a key dump export. */
 export function keyDumpBaseName(rec) {
   const stem = (rec?.label || rec?.chipId || 'key')
