@@ -109,7 +109,7 @@ vi.mock("../../lib/obdEngine.js", () => ({
 
 vi.mock("../../lib/checksum.js", () => ({
   sha256Hex: vi.fn(async () => "cafebabe00"),
-  backupDidsToBytes: vi.fn(() => new Uint8Array([])),
+  backupDidsToBytes: vi.fn(() => new Uint8Array([0x41, 0x41, 0x41, 0x41, 0xAA, 0xBB, 0xCC, 0x11])),
 }));
 
 vi.mock("../../lib/readFirstModal.jsx", () => ({ default: () => null }));
@@ -242,6 +242,61 @@ describe("BackupsTab integration — two-selection → Diff flow", () => {
     const closeBtn = screen.getByTestId("analysis-diff-close");
     await act(async () => { fireEvent.click(closeBtn); });
     expect(screen.queryByTestId("analysis-diff-view")).toBeNull();
+  });
+});
+
+/* ──────────────────────────────────────────────────────────────────────
+ * Inline checksum scan — "Scan Checksums" on the loaded-backup detail card
+ * scans the stored backup bytes (no file upload) and renders results inline.
+ * ────────────────────────────────────────────────────────────────────── */
+describe("BackupsTab — inline checksum scan of a loaded backup", () => {
+  let fetchSpy;
+  beforeEach(() => {
+    fetchSpy = vi.spyOn(global, "fetch").mockImplementation(async (url) => ({
+      json: async () => {
+        if (String(url).includes("/api/tools/checksum-scan")) {
+          return {
+            ok: true, found: 1,
+            wholeFile: { size: 8, crc32: "deadbeef" },
+            verifiedChecksums: [
+              { offset: "0x4", algorithm: "crc32", stored: "AABBCC11", computed: "AABBCC11", covers: "0x0-0x3", status: "valid" },
+            ],
+          };
+        }
+        return { ok: false, error: "unexpected" };
+      },
+    }));
+  });
+  afterEach(() => { fetchSpy?.mockRestore(); });
+
+  it("clicking Scan Checksums posts the stored bytes and renders results inline", async () => {
+    await renderTab();
+    await act(async () => { fireEvent.click(screen.getByTestId(`backup-row-${KEY_1}`)); });
+
+    const scanBtn = await screen.findByText(/Scan Checksums/i);
+    await act(async () => { fireEvent.click(scanBtn); });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("inline-checksum-scan")).toBeTruthy();
+    });
+    // checksum-scan endpoint was hit with a base64 fileB64 body — no upload.
+    const scanCall = fetchSpy.mock.calls.find(c => String(c[0]).includes("/api/tools/checksum-scan"));
+    expect(scanCall).toBeTruthy();
+    expect(JSON.parse(scanCall[1].body).fileB64).toBeTruthy();
+
+    await waitFor(() => {
+      expect(document.body.textContent).toContain("CHECKSUM SCAN RESULTS");
+      expect(document.body.textContent).toContain("VALID");
+    });
+  });
+
+  it("Close button dismisses the inline scan panel", async () => {
+    await renderTab();
+    await act(async () => { fireEvent.click(screen.getByTestId(`backup-row-${KEY_1}`)); });
+    await act(async () => { fireEvent.click(await screen.findByText(/Scan Checksums/i)); });
+    await waitFor(() => screen.getByTestId("inline-checksum-scan"));
+    await act(async () => { fireEvent.click(screen.getByText(/✕ Close/)); });
+    expect(screen.queryByTestId("inline-checksum-scan")).toBeNull();
   });
 });
 

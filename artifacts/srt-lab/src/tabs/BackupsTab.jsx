@@ -47,15 +47,27 @@ function firstCorruptBin(rawFiles) {
   return null;
 }
 
+// Encode a Uint8Array (or flat byte array) into base64 in chunks so large
+// module dumps don't blow the call stack. Shared by the file-upload and
+// loaded-backup checksum scan paths.
+function bytesToB64(bytes) {
+  const buf = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  let b64 = "";
+  const CHUNK = 8192;
+  for (let i = 0; i < buf.length; i += CHUNK) {
+    b64 += String.fromCharCode(...buf.subarray(i, i + CHUNK));
+  }
+  return btoa(b64);
+}
+
 // ---------------------------------------------------------------------------
-// ChecksumScanPanel — binary firmware checksum scanner + repair
-// Accepts a raw .bin file upload; calls /api/tools/checksum-scan and
-// /api/tools/fix-checksum + /api/tools/eeprom-map from the re-bridge.
+// ChecksumScanBody — reusable checksum scan / EEPROM map / repair workflow.
+// Given the base64 bytes of a dump (from a file upload OR a loaded backup),
+// renders the Scan / EEPROM Map action buttons + results tables and wires the
+// Repair download. No file picker — the caller supplies the bytes. Used by
+// both ChecksumScanPanel (standalone upload) and the inline detail-card scan.
 // ---------------------------------------------------------------------------
-function ChecksumScanPanel() {
-  const [open, setOpen] = useState(false);
-  const [file, setFile] = useState(null);
-  const [fileB64, setFileB64] = useState("");
+function ChecksumScanBody({ fileB64, fileName, fileSize, autoStart = false }) {
   const [scanBusy, setScanBusy] = useState(false);
   const [eepmBusy, setEepmBusy] = useState(false);
   const [fixBusy, setFixBusy] = useState({});
@@ -66,28 +78,6 @@ function ChecksumScanPanel() {
   // Backup" button can drop the patched image straight into the vault.
   const [lastRepair, setLastRepair] = useState(null);
   const [saveBackupBusy, setSaveBackupBusy] = useState(false);
-  const fileInputRef = useRef(null);
-
-  const loadFile = useCallback((f) => {
-    if (!f) return;
-    setFile(f);
-    setScanResult(null);
-    setEepmResult(null);
-    setLastRepair(null);
-    setMsg("");
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const buf = new Uint8Array(e.target.result);
-      let b64 = "";
-      const CHUNK = 8192;
-      for (let i = 0; i < buf.length; i += CHUNK) {
-        b64 += String.fromCharCode(...buf.slice(i, i + CHUNK));
-      }
-      setFileB64(btoa(b64));
-      setMsg(`Loaded ${f.name} — ${buf.length.toLocaleString()} bytes`);
-    };
-    reader.readAsArrayBuffer(f);
-  }, []);
 
   const handleScan = useCallback(async () => {
     if (!fileB64) return;
@@ -143,7 +133,7 @@ function ChecksumScanPanel() {
         const blob = new Blob([bin], { type: "application/octet-stream" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = (file?.name ?? "patched").replace(/\.bin$/i, "") + "_repaired.bin";
+        a.download = (fileName ?? "patched").replace(/\.bin$/i, "") + "_repaired.bin";
         a.click();
         setMsg(`Repaired ${algorithm} at ${offset} — downloaded ${j.patchedSize?.toLocaleString()} bytes`);
         // Task #970 — keep the patched image so "Save as Backup" can store it
@@ -155,8 +145,8 @@ function ChecksumScanPanel() {
           ck => ck.offset === offset && ck.algorithm === algorithm
         );
         await saveBinaryRepairRecord({
-          filename: file?.name ?? "unknown",
-          fileSize: file?.size ?? 0,
+          filename: fileName ?? "unknown",
+          fileSize: fileSize ?? 0,
           offset,
           algorithm,
           storedHex: brokenEntry?.stored ?? "?",
@@ -170,7 +160,7 @@ function ChecksumScanPanel() {
       setMsg("Request failed: " + e.message);
     }
     setFixBusy(b => { const n = { ...b }; delete n[key]; return n; });
-  }, [fileB64, file]);
+  }, [fileB64, fileName, fileSize, scanResult]);
 
   // Task #970 — store the most recently repaired image as a backup vault entry
   // so the user doesn't have to download + reimport to keep the corrected dump.
@@ -184,7 +174,7 @@ function ChecksumScanPanel() {
       let moduleType = "DUMP";
       let vin = "";
       try {
-        const p = parseModule(bin, file?.name);
+        const p = parseModule(bin, fileName);
         if (p?.type && p.type !== "UNKNOWN") moduleType = p.type;
         if (p?.vins?.[0]?.vin) vin = p.vins[0].vin;
       } catch { /* detection best-effort */ }
@@ -195,7 +185,7 @@ function ChecksumScanPanel() {
         rawBytes: bin,
         source: "checksum-repair",
         origin: {
-          filename: file?.name ?? "unknown",
+          filename: fileName ?? "unknown",
           offset: lastRepair.offset,
           algorithm: lastRepair.algorithm,
         },
@@ -211,7 +201,206 @@ function ChecksumScanPanel() {
       dispatchToast("Could not save repaired dump as backup: " + e.message, "error");
     }
     setSaveBackupBusy(false);
-  }, [lastRepair, file, eepmResult]);
+  }, [lastRepair, fileName, eepmResult]);
+
+  // Auto-kick the scan when the caller asks for it (inline "Scan Checksums"
+  // button on a loaded backup) so results render without a second click.
+  useEffect(() => {
+    if (autoStart && fileB64) handleScan();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart, fileB64]);
+
+  return (
+    <>
+      {/* Action buttons */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+        <Btn onClick={handleScan} disabled={!fileB64 || scanBusy} color={C.a1}>
+          {scanBusy ? "⏳ Scanning…" : "Scan Checksums"}
+        </Btn>
+        <Btn onClick={handleEepmap} disabled={!fileB64 || eepmBusy} color={C.a2} outline>
+          {eepmBusy ? "⏳ Mapping…" : "EEPROM Map"}
+        </Btn>
+      </div>
+
+      {/* Status message */}
+      {msg && (
+        <div style={{ fontSize: 11, color: C.ts, marginBottom: 12, fontFamily: "'JetBrains Mono'" }}>
+          {msg}
+        </div>
+      )}
+
+      {/* Scan results */}
+      {scanResult?.ok && (
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, color: C.ts, marginBottom: 6 }}>
+            CHECKSUM SCAN RESULTS — {fileName} — {scanResult.wholeFile?.size?.toLocaleString()} bytes
+          </div>
+          {/* Whole-file stats */}
+          <div style={{
+            fontSize: 10, fontFamily: "'JetBrains Mono'", color: C.ts,
+            background: "#F4F1EC", borderRadius: 4, padding: "6px 10px", marginBottom: 8,
+            display: "flex", gap: 16, flexWrap: "wrap",
+          }}>
+            {Object.entries(scanResult.wholeFile ?? {}).filter(([k]) => k !== "size").map(([k, v]) => (
+              <span key={k}><b style={{ color: "#333" }}>{k}:</b> {String(v)}</span>
+            ))}
+          </div>
+          {scanResult.verifiedChecksums?.length > 0 ? (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
+              <thead>
+                <tr style={{ background: "#F4F1EC" }}>
+                  {["Offset", "Algorithm", "Stored", "Computed", "Covers", "Status", ""].map(h => (
+                    <th key={h} style={{ padding: "5px 10px", textAlign: "left", fontSize: 10,
+                      fontWeight: 800, letterSpacing: 1, color: C.ts, borderBottom: "1px solid " + C.bd }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {scanResult.verifiedChecksums.map((ck, i) => {
+                  const isValid = ck.status === "valid";
+                  const fixKey = `${ck.offset}:${ck.algorithm}`;
+                  return (
+                    <tr key={i} style={{ background: i % 2 === 0 ? "#fff" : "#FAFAF8" }}>
+                      <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.offset}</td>
+                      <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.algorithm}</td>
+                      <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.stored}</td>
+                      <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.computed}</td>
+                      <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.ts }}>{ck.covers}</td>
+                      <td style={{ padding: "5px 10px" }}>
+                        <span style={{
+                          fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 3,
+                          background: isValid ? "#e6f9ed" : "#FFE6E6",
+                          color: isValid ? "#1E6F3A" : "#C00",
+                          border: `1px solid ${isValid ? "#1E6F3A44" : "#C0000044"}`,
+                        }}>
+                          {isValid ? "✓ VALID" : "✗ BROKEN"}
+                        </span>
+                      </td>
+                      <td style={{ padding: "5px 10px" }}>
+                        {!isValid && (
+                          <button
+                            disabled={!!fixBusy[fixKey]}
+                            onClick={() => handleFix(ck.offset, ck.algorithm)}
+                            style={{
+                              fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 4,
+                              border: "1px solid " + C.a1, background: "#fff", color: C.a1,
+                              cursor: fixBusy[fixKey] ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            {fixBusy[fixKey] ? "…" : "Repair"}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <div style={{ fontSize: 11, color: C.ts, padding: "10px 0" }}>
+              No self-validating checksums found at sampled offsets.
+              The stored checksum may cover a non-prefix region, or use a non-standard algorithm.
+            </div>
+          )}
+          {scanResult.note && (
+            <div style={{ fontSize: 10, color: C.ts, marginTop: 8, lineHeight: 1.5 }}>{scanResult.note}</div>
+          )}
+        </div>
+      )}
+
+      {/* Task #970 — Save the most recent repaired image as a backup vault
+          entry instead of forcing a manual download + reimport. */}
+      {lastRepair?.b64 && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
+          marginBottom: 14, padding: "10px 12px", borderRadius: 6,
+          background: "#FFF8F0", border: "1px solid #FFD0A0",
+        }}>
+          <span style={{ fontSize: 11, color: C.ts, flex: "1 1 200px", lineHeight: 1.5 }}>
+            Repaired <b>{lastRepair.algorithm}</b> @ {lastRepair.offset} was downloaded.
+            Save the corrected image straight to the backups vault below.
+          </span>
+          <button
+            onClick={handleSaveAsBackup}
+            disabled={saveBackupBusy || !!lastRepair.savedKey}
+            style={{
+              fontSize: 11, fontWeight: 800, padding: "6px 14px", borderRadius: 6,
+              border: "1px solid " + C.a1,
+              background: lastRepair.savedKey ? "#e6f9ed" : C.a1,
+              color: lastRepair.savedKey ? "#1E6F3A" : "#fff",
+              cursor: (saveBackupBusy || lastRepair.savedKey) ? "default" : "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {saveBackupBusy ? "⏳ Saving…" : lastRepair.savedKey ? "✓ Saved as Backup" : "💾 Save as Backup"}
+          </button>
+        </div>
+      )}
+
+      {/* EEPROM map results */}
+      {eepmResult?.ok && (
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, color: C.ts, marginBottom: 8 }}>
+            EEPROM MAP — {eepmResult.vinCandidates?.length ?? 0} VIN(s) · {eepmResult.strings?.length ?? 0} string(s) · {eepmResult.mirroredBlocks?.length ?? 0} mirror(s)
+          </div>
+          {eepmResult.vinCandidates?.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>VIN CANDIDATES</div>
+              {eepmResult.vinCandidates.map((v, i) => (
+                <div key={i} style={{ fontSize: 11, fontFamily: "'JetBrains Mono'", marginBottom: 2 }}>
+                  <span style={{ color: C.ts, marginRight: 10 }}>{v.offset}</span>
+                  <span style={{ color: C.a1, fontWeight: 700 }}>{v.vin}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {eepmResult.mirroredBlocks?.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>MIRRORED 16-BYTE BLOCKS (SEC16 redundancy candidates)</div>
+              {eepmResult.mirroredBlocks.map((m, i) => (
+                <div key={i} style={{ fontSize: 10, fontFamily: "'JetBrains Mono'", marginBottom: 2, color: C.ts }}>
+                  {m.first_offset} ↔ {m.mirror_offset} (gap {m.gap})
+                  <span style={{ color: C.a2, marginLeft: 8 }}>{m.hex}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {eepmResult.note && (
+            <div style={{ fontSize: 10, color: C.ts, lineHeight: 1.5 }}>{eepmResult.note}</div>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ChecksumScanPanel — standalone binary checksum scanner + repair.
+// Accepts a raw .bin file upload; delegates the scan / EEPROM map / repair
+// workflow to ChecksumScanBody.
+// ---------------------------------------------------------------------------
+function ChecksumScanPanel() {
+  const [open, setOpen] = useState(false);
+  const [file, setFile] = useState(null);
+  const [fileB64, setFileB64] = useState("");
+  const [loadMsg, setLoadMsg] = useState("");
+  const fileInputRef = useRef(null);
+
+  const loadFile = useCallback((f) => {
+    if (!f) return;
+    setFile(f);
+    setFileB64("");
+    setLoadMsg("");
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const buf = new Uint8Array(e.target.result);
+      setFileB64(bytesToB64(buf));
+      setLoadMsg(`Loaded ${f.name} — ${buf.length.toLocaleString()} bytes`);
+    };
+    reader.readAsArrayBuffer(f);
+  }, []);
 
   const panelBorder = "1px solid " + C.bd;
 
@@ -265,166 +454,13 @@ function ChecksumScanPanel() {
             )}
           </div>
 
-          {/* Action buttons */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
-            <Btn onClick={handleScan} disabled={!fileB64 || scanBusy} color={C.a1}>
-              {scanBusy ? "⏳ Scanning…" : "Scan Checksums"}
-            </Btn>
-            <Btn onClick={handleEepmap} disabled={!fileB64 || eepmBusy} color={C.a2} outline>
-              {eepmBusy ? "⏳ Mapping…" : "EEPROM Map"}
-            </Btn>
-          </div>
-
-          {/* Status message */}
-          {msg && (
+          {loadMsg && (
             <div style={{ fontSize: 11, color: C.ts, marginBottom: 12, fontFamily: "'JetBrains Mono'" }}>
-              {msg}
+              {loadMsg}
             </div>
           )}
 
-          {/* Scan results */}
-          {scanResult?.ok && (
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, color: C.ts, marginBottom: 6 }}>
-                CHECKSUM SCAN RESULTS — {file?.name} — {scanResult.wholeFile?.size?.toLocaleString()} bytes
-              </div>
-              {/* Whole-file stats */}
-              <div style={{
-                fontSize: 10, fontFamily: "'JetBrains Mono'", color: C.ts,
-                background: "#F4F1EC", borderRadius: 4, padding: "6px 10px", marginBottom: 8,
-                display: "flex", gap: 16, flexWrap: "wrap",
-              }}>
-                {Object.entries(scanResult.wholeFile ?? {}).filter(([k]) => k !== "size").map(([k, v]) => (
-                  <span key={k}><b style={{ color: "#333" }}>{k}:</b> {String(v)}</span>
-                ))}
-              </div>
-              {scanResult.verifiedChecksums?.length > 0 ? (
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
-                  <thead>
-                    <tr style={{ background: "#F4F1EC" }}>
-                      {["Offset", "Algorithm", "Stored", "Computed", "Covers", "Status", ""].map(h => (
-                        <th key={h} style={{ padding: "5px 10px", textAlign: "left", fontSize: 10,
-                          fontWeight: 800, letterSpacing: 1, color: C.ts, borderBottom: "1px solid " + C.bd }}>
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {scanResult.verifiedChecksums.map((ck, i) => {
-                      const isValid = ck.status === "valid";
-                      const fixKey = `${ck.offset}:${ck.algorithm}`;
-                      return (
-                        <tr key={i} style={{ background: i % 2 === 0 ? "#fff" : "#FAFAF8" }}>
-                          <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.offset}</td>
-                          <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.algorithm}</td>
-                          <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.stored}</td>
-                          <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.computed}</td>
-                          <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.ts }}>{ck.covers}</td>
-                          <td style={{ padding: "5px 10px" }}>
-                            <span style={{
-                              fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 3,
-                              background: isValid ? "#e6f9ed" : "#FFE6E6",
-                              color: isValid ? "#1E6F3A" : "#C00",
-                              border: `1px solid ${isValid ? "#1E6F3A44" : "#C0000044"}`,
-                            }}>
-                              {isValid ? "✓ VALID" : "✗ BROKEN"}
-                            </span>
-                          </td>
-                          <td style={{ padding: "5px 10px" }}>
-                            {!isValid && (
-                              <button
-                                disabled={!!fixBusy[fixKey]}
-                                onClick={() => handleFix(ck.offset, ck.algorithm)}
-                                style={{
-                                  fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 4,
-                                  border: "1px solid " + C.a1, background: "#fff", color: C.a1,
-                                  cursor: fixBusy[fixKey] ? "not-allowed" : "pointer",
-                                }}
-                              >
-                                {fixBusy[fixKey] ? "…" : "Repair"}
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              ) : (
-                <div style={{ fontSize: 11, color: C.ts, padding: "10px 0" }}>
-                  No self-validating checksums found at sampled offsets.
-                  The stored checksum may cover a non-prefix region, or use a non-standard algorithm.
-                </div>
-              )}
-              {scanResult.note && (
-                <div style={{ fontSize: 10, color: C.ts, marginTop: 8, lineHeight: 1.5 }}>{scanResult.note}</div>
-              )}
-            </div>
-          )}
-
-          {/* Task #970 — Save the most recent repaired image as a backup vault
-              entry instead of forcing a manual download + reimport. */}
-          {lastRepair?.b64 && (
-            <div style={{
-              display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
-              marginBottom: 14, padding: "10px 12px", borderRadius: 6,
-              background: "#FFF8F0", border: "1px solid #FFD0A0",
-            }}>
-              <span style={{ fontSize: 11, color: C.ts, flex: "1 1 200px", lineHeight: 1.5 }}>
-                Repaired <b>{lastRepair.algorithm}</b> @ {lastRepair.offset} was downloaded.
-                Save the corrected image straight to the backups vault below.
-              </span>
-              <button
-                onClick={handleSaveAsBackup}
-                disabled={saveBackupBusy || !!lastRepair.savedKey}
-                style={{
-                  fontSize: 11, fontWeight: 800, padding: "6px 14px", borderRadius: 6,
-                  border: "1px solid " + C.a1,
-                  background: lastRepair.savedKey ? "#e6f9ed" : C.a1,
-                  color: lastRepair.savedKey ? "#1E6F3A" : "#fff",
-                  cursor: (saveBackupBusy || lastRepair.savedKey) ? "default" : "pointer",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {saveBackupBusy ? "⏳ Saving…" : lastRepair.savedKey ? "✓ Saved as Backup" : "💾 Save as Backup"}
-              </button>
-            </div>
-          )}
-
-          {/* EEPROM map results */}
-          {eepmResult?.ok && (
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, color: C.ts, marginBottom: 8 }}>
-                EEPROM MAP — {eepmResult.vinCandidates?.length ?? 0} VIN(s) · {eepmResult.strings?.length ?? 0} string(s) · {eepmResult.mirroredBlocks?.length ?? 0} mirror(s)
-              </div>
-              {eepmResult.vinCandidates?.length > 0 && (
-                <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>VIN CANDIDATES</div>
-                  {eepmResult.vinCandidates.map((v, i) => (
-                    <div key={i} style={{ fontSize: 11, fontFamily: "'JetBrains Mono'", marginBottom: 2 }}>
-                      <span style={{ color: C.ts, marginRight: 10 }}>{v.offset}</span>
-                      <span style={{ color: C.a1, fontWeight: 700 }}>{v.vin}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {eepmResult.mirroredBlocks?.length > 0 && (
-                <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>MIRRORED 16-BYTE BLOCKS (SEC16 redundancy candidates)</div>
-                  {eepmResult.mirroredBlocks.map((m, i) => (
-                    <div key={i} style={{ fontSize: 10, fontFamily: "'JetBrains Mono'", marginBottom: 2, color: C.ts }}>
-                      {m.first_offset} ↔ {m.mirror_offset} (gap {m.gap})
-                      <span style={{ color: C.a2, marginLeft: 8 }}>{m.hex}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {eepmResult.note && (
-                <div style={{ fontSize: 10, color: C.ts, lineHeight: 1.5 }}>{eepmResult.note}</div>
-              )}
-            </div>
-          )}
+          <ChecksumScanBody fileB64={fileB64} fileName={file?.name} fileSize={file?.size} />
         </div>
       )}
     </div>
@@ -452,6 +488,9 @@ export default function BackupsTab() {
   const [restoreCorrupt, setRestoreCorrupt] = useState(null);
   const [verifyStates, setVerifyStates] = useState({});
   const [pairedData, setPairedData] = useState(null);
+  /* Inline checksum scan of the loaded backup — base64 of its stored bytes,
+     set when the user clicks "Scan Checksums" in the detail card. */
+  const [inlineScan, setInlineScan] = useState(null);
   const [aemtModal, setAemtModal] = useState(null);
   const [aemtBusy, setAemtBusy] = useState(false);
   const [exportDialog, setExportDialog] = useState(null);
@@ -682,6 +721,7 @@ export default function BackupsTab() {
     setSelectedData(null);
     setPairedData(null);
     setRestoreCorrupt(null);
+    setInlineScan(null);
     const data = await getBackupAsync(key);
     setSelectedData(data);
     // Auto-load the paired snapshot so the diff section appears immediately.
@@ -718,6 +758,7 @@ export default function BackupsTab() {
         if (data) {
           setSelected(key);
           setSelectedData(data);
+          setInlineScan(null);
           addRestoreLog("Loaded backup from deep-link: " + key, "info");
         }
       } catch {/* ignore */}
@@ -1590,6 +1631,7 @@ export default function BackupsTab() {
                 const date = new Date(b.timestamp);
                 return (
                   <div key={b.key} onClick={() => loadBackup(b.key)}
+                    data-testid={"backup-row-" + b.key}
                     style={{
                       padding: "12px 16px", borderBottom: "1px solid " + C.bd, cursor: "pointer",
                       background: isDiffSel ? C.a3 + "18" : isSel ? C.a2 + "10" : "#fff",
@@ -1803,6 +1845,18 @@ export default function BackupsTab() {
                   >
                     ↩ Restore
                   </button>
+                  <button
+                    onClick={() => {
+                      const bytes = backupDidsToBytes(selectedData.dids);
+                      if (!bytes.length) return;
+                      setInlineScan({ fileB64: bytesToB64(bytes), bytes: bytes.length });
+                    }}
+                    disabled={!Object.keys(selectedData.dids || {}).length}
+                    title="Scan the stored backup bytes for checksums — no upload needed"
+                    style={chip("rgba(255,255,255,0.1)", "#fff")}
+                  >
+                    🔎 Scan Checksums
+                  </button>
                   <button onClick={() => downloadBackup(selected)} style={chip("rgba(255,255,255,0.1)", "#fff")}>⬇ Download</button>
                   <button onClick={() => handleDelete(selected)} style={chip("#FF525222", "#fff", "#FF525255")}>🗑 Delete</button>
                 </div>
@@ -1924,6 +1978,31 @@ export default function BackupsTab() {
                     </div>
                   ))}
                 </div>
+
+                {inlineScan && (
+                  <div data-testid="inline-checksum-scan" style={{
+                    marginTop: 16, padding: 14, background: "#FAFAF8",
+                    border: "1px solid " + C.bd, borderRadius: 8,
+                  }}>
+                    <div style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10,
+                    }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: C.a1, letterSpacing: 2 }}>
+                        🔎 BINARY CHECKSUM SCAN — {inlineScan.bytes.toLocaleString()} bytes (stored backup)
+                      </div>
+                      <button onClick={() => setInlineScan(null)} style={{
+                        fontSize: 9, padding: "1px 7px", borderRadius: 3, border: "1px solid " + C.bd,
+                        background: "#f5f5f5", cursor: "pointer", color: C.ts, fontWeight: 700,
+                      }}>✕ Close</button>
+                    </div>
+                    <ChecksumScanBody
+                      fileB64={inlineScan.fileB64}
+                      fileName={(selectedData.module || "backup") + ".bin"}
+                      fileSize={inlineScan.bytes}
+                      autoStart
+                    />
+                  </div>
+                )}
 
                 {pairedData === "loading" && (
                   <div data-testid="snapshot-diff-loading" style={{
