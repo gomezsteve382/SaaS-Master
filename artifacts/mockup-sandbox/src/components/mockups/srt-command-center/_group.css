@@ -1,0 +1,19 @@
+/* SRT Lab command-center design tokens (scoped via .srt-cc wrapper) */
+.srt-cc {
+  --srt-base: #F4F1EC;
+  --srt-panel: #FFFFFF;
+  --srt-ink: #1A1A1A;
+  --srt-red: #D32F2F;
+  --srt-red-deep: #9E1B1B;
+  --srt-muted: #6B6B6B;
+  --srt-line: #E2DDD3;
+  --srt-good: #2E7D32;
+  --srt-warn: #ED6C02;
+  --srt-bad: #C62828;
+  --font-body: 'Nunito', system-ui, sans-serif;
+  --font-display: 'Righteous', 'Nunito', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+.srt-cc { font-family: var(--font-body); color: var(--srt-ink); background: var(--srt-base); }
+.srt-cc .font-display { font-family: var(--font-display); letter-spacing: 0.01em; }
+.srt-cc .font-mono { font-family: var(--font-mono); }

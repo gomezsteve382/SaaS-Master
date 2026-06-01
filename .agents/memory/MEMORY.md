@@ -7,6 +7,7 @@
 - [AlfaOBD dispatch gap static ceiling](dispatch-gap-static-coverage.md) — routine→frame static coverage tops at ~17.6% (299/1696); rest needs bench capture, not more IL parsing.
 - [Sister-repo integration pattern](sister-repo-integration.md) — add new generated files → run pnpm sweep:assets before tests; keep local when local is larger; skip bigMethodsVocabulary (1.1MB).
 - [Transponder writer bridge](key-writer-bridge.md) — VVDI/Tango USB-CDC chip burn: chip uid+payload must match RFHUB slot block; transports must return raw bytes; pending before write.
+- [SRT Command Center 5-pane redesign](srt-command-center-redesign.md) — canvas mockup collapsing ~40 tabs into Diagnose/UDS/VIN/OBD/Copilot + Advanced drawer; old-tab->pane map; graduate via mockup-graduate when approved.
 - [RFHUB PIN lockout safety](rfhub-pin-lockout.md) — 0x0401 PIN frames are irreversible; count per-frame, cap blind via planPinSends, dry-run must be read-only (requestRoutineResults).
 - [XC2268 RFHUB SEC16 layout](xc2268-sec16-layout.md) — 2 mirror slots (16B+BE16 CRC) inside the image-checksum window; RFH SEC16 = reverse(BCM); writer must refresh trailing image checksum.
 - [Session paper-trail location & backend sync](session-paper-trail.md) — session log removed from srt-lab + ultimate retired = no frontend home; backend /api/sessions + session_log table exist on shared api-server with no consumer yet.
