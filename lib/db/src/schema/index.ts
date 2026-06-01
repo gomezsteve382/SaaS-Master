@@ -14,3 +14,4 @@ export * from "./sec16SyncEvents";
 export * from "./conversationToolCalls";
 export * from "./patternLibrary";
 export * from "./investigationRuns";
+export * from "./sessionLog";

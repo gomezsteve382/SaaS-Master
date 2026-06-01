@@ -17,6 +17,7 @@ import patternsRouter from "./patterns";
 import knowledgeGraphRouter from "./knowledgeGraph";
 import keyWriterRouter from "./keyWriter";
 import reBridgeRouter from "./reBridge";
+import sessionsRouter from "./sessions";
 
 const router: IRouter = Router();
 
@@ -37,6 +38,7 @@ router.use(patternsRouter);
 router.use(knowledgeGraphRouter);
 router.use(keyWriterRouter);
 router.use(reBridgeRouter);
+router.use(sessionsRouter);
 router.use("/anthropic", anthropicRouter);
 
 export default router;

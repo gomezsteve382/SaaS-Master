@@ -9,3 +9,4 @@
 - [Transponder writer bridge](key-writer-bridge.md) — VVDI/Tango USB-CDC chip burn: chip uid+payload must match RFHUB slot block; transports must return raw bytes; pending before write.
 - [RFHUB PIN lockout safety](rfhub-pin-lockout.md) — 0x0401 PIN frames are irreversible; count per-frame, cap blind via planPinSends, dry-run must be read-only (requestRoutineResults).
 - [XC2268 RFHUB SEC16 layout](xc2268-sec16-layout.md) — 2 mirror slots (16B+BE16 CRC) inside the image-checksum window; RFH SEC16 = reverse(BCM); writer must refresh trailing image checksum.
+- [Session paper-trail location & backend sync](session-paper-trail.md) — session log removed from srt-lab + ultimate retired = no frontend home; backend /api/sessions + session_log table exist on shared api-server with no consumer yet.
