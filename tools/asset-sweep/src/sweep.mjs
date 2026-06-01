@@ -1058,7 +1058,14 @@ function renderExtendedCatalog({newDlls, verified, udsServiceTables, udsNrcTable
         ? [...new Set(ecuStringDumps.flatMap((t) => t.allSources))].length
         : 0,
       note: "No seed-key algorithm constants found; data is module metadata only."
-        + " See tools/asset-sweep/REPORT.md §'AlfaOBD ECU string dumps' for details.",
+        + " The idx=14 'SA hint' values (1126=0, 1367=20, 1520=29) were"
+        + " cross-referenced against AlfaOBD's cipher dispatch (Method[1307] abf):"
+        + " they do NOT appear in the family-dispatch set {17,21,22,27,31,37,39,66}"
+        + " (keyed on idx[12] cipher-family, not idx[14]) nor in the 177-key abf"
+        + " ECU-code->cipher table. idx[14] is a device-type/variant classifier,"
+        + " not an SA-level routing constant; no SA-level->algorithm mapping confirmed."
+        + " See algos.js comment block above SA_DISPATCH's pickChainForSA and"
+        + " tools/asset-sweep/REPORT.md §'AlfaOBD ECU string dumps' for details.",
     },
     dll_coverage_summary: {
       sweep_total: newDlls.length + verified.length,
@@ -1407,10 +1414,18 @@ function renderReport(inventory, extracts, dllCoverage, knownAlgoTags, knownCrcS
     lines.push("");
     lines.push("> **Coverage verdict:** No seed-key algorithm constants were found.");
     lines.push("> These files contain module _metadata_ (name, vehicle platforms, model-year");
-    lines.push("> filter, SA-level hint at idx=14) — not crypto primitives. `algos.js` and");
+    lines.push("> filter, device-type field at idx=14) — not crypto primitives. `algos.js` and");
     lines.push("> `extendedAlgorithms.generated.js` are unchanged. The eEcutype→module-tag");
-    lines.push("> table is preserved in `unlock_catalog_extended.json §alfaobd_ecu_string_dumps`");
-    lines.push("> for cross-referencing against the AlfaOBD w6/w7 dispatch tables.");
+    lines.push("> table is preserved in `unlock_catalog_extended.json §alfaobd_ecu_string_dumps`.");
+    lines.push(">");
+    lines.push("> **idx=14 cross-reference (done):** the idx=14 values (1126=0, 1367=20,");
+    lines.push("> 1520=29) were checked against AlfaOBD's cipher dispatch (Method[1307] abf).");
+    lines.push("> They are absent from the family-dispatch set {17,21,22,27,31,37,39,66}");
+    lines.push("> (which is keyed on the idx[12] cipher-family index, not idx[14]) and from");
+    lines.push("> the 177-key abf ECU-code→cipher table. idx[14] is a device-type/variant");
+    lines.push("> classifier, not an SA-level routing constant — **no SA-level→algorithm");
+    lines.push("> mapping is confirmed**. See the comment block above `pickChainForSA` in");
+    lines.push("> `algos.js`.");
     lines.push("");
     if (withData.length) {
       lines.push("| eEcutype | Short tag | Long description | Platforms | Model year | SA hint (idx 14) |");

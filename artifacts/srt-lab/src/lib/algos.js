@@ -487,6 +487,34 @@ const SA_DISPATCH = Object.freeze({
   0x0C: 'cummins_849', // Cummins ISB 6.7L (CM2100/CM2200)
 });
 
+// ─── AlfaOBD eEcutype idx=14 "SA hint" cross-reference (NO mapping) ────
+// The asset-sweep recovered an offline XOR-salt-14 dump of AlfaOBD.exe's
+// encrypted eEcutype string pool (see unlock_catalog_extended.json
+// §alfaobd_ecu_string_dumps + tools/asset-sweep/REPORT.md). Field idx=14
+// was labelled a "SA-level hint" and yielded:
+//   eEcutype 1126 MARELLI6F3_CAN → "0"
+//   eEcutype 1367 CCN            → "20"
+//   eEcutype 1520 TBM2 (RFHUB)   → "29"
+//
+// These were cross-referenced against AlfaOBD's actual SecurityAccess
+// dispatch (Method[1307] abf, salt=17 — see masterCipherDispatch.generated.js
+// and alfaobdAlgorithms.generated.js AOBD_DISPATCH). Result: NO MATCH, and
+// the hint is NOT a cipher-routing constant:
+//   1. AlfaOBD selects the cipher by the ECU's *cipher-family index* at
+//      idx[12] (BCM=family_3, ECM=family_11) plus the per-ECU code string —
+//      NOT idx[14]. The catalogued family-dispatch set is
+//      {17,21,22,27,31,37,39,66}; none of 0/20/29 appear in it.
+//   2. idx[14] is the eEcutype *device-type* list (BCM_FAMILY_DEEP records
+//      idx14_device_types=["16","51","79"]), a vehicle/variant classifier,
+//      not an SA seed sub-function level.
+//   3. The recovered values 0/20/29 are absent from the 177-key abf
+//      ECU-code→cipher table (ECU_CODE_TO_CIPHER) as well.
+// Conclusion: the idx=14 "SA hint" cannot be promoted into SA_DISPATCH or a
+// new AOBD_SA_DISPATCH table. The real selector (idx[12] cipher-family) is
+// not present in these particular string-pool dumps, so no SA-level→algorithm
+// mapping is confirmed. Left as a documented dead end pending a bench seed/key
+// capture that pins an eEcutype to an observed SA level + accepted key.
+
 // Build an ordered unlock chain given a known SA seed sub-function level.
 // Preferred algorithm comes first, then UNLOCK_FALLBACK with duplicates
 // stripped. Returns the same format as pickUnlockChain so callers are

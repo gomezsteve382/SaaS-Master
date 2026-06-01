@@ -13529,7 +13529,7 @@
     "total_ecu_types_queried": 9,
     "ecu_types_with_data": 5,
     "distinct_source_files": 3,
-    "note": "No seed-key algorithm constants found; data is module metadata only. See tools/asset-sweep/REPORT.md §'AlfaOBD ECU string dumps' for details."
+    "note": "No seed-key algorithm constants found; data is module metadata only. The idx=14 'SA hint' values (1126=0, 1367=20, 1520=29) were cross-referenced against AlfaOBD's cipher dispatch (Method[1307] abf): they do NOT appear in the family-dispatch set {17,21,22,27,31,37,39,66} (keyed on idx[12] cipher-family, not idx[14]) nor in the 177-key abf ECU-code->cipher table. idx[14] is a device-type/variant classifier, not an SA-level routing constant; no SA-level->algorithm mapping confirmed. See algos.js comment block above SA_DISPATCH's pickChainForSA and tools/asset-sweep/REPORT.md §'AlfaOBD ECU string dumps' for details."
   },
   "dll_coverage_summary": {
     "sweep_total": 81,
