@@ -25,7 +25,7 @@
  * ============================================================================ */
 
 import { CHIP_ORDINAL } from './serializer.js';
-import { codingScheme, CODING_SCHEMES, validateKeyRecord } from './keyRecord.js';
+import { codingScheme, CODING_SCHEMES, validateKeyRecord, parseHexBytes } from './keyRecord.js';
 
 const CHIP_ORDINALS = {
   pcf7953: 0x01,
@@ -339,6 +339,65 @@ export function parseKeyDumpBin(u8) {
     sk,
     label,
   };
+}
+
+/**
+ * Parse a JSON key-dump manifest (the `format: 'srt-lab-key-dump'` file written
+ * by buildKeyDumpManifest) back into the same normalized shape parseKeyDumpBin
+ * returns, so both import paths feed one code path.
+ * @returns {{ ok: boolean, error?: string, version?: number, chipId?: string|null,
+ *            flags?: object, label?: string, uid?: Uint8Array, sk?: Uint8Array }}
+ */
+export function parseKeyDumpManifest(input) {
+  let obj;
+  try {
+    obj = typeof input === 'string' ? JSON.parse(input) : input;
+  } catch {
+    return { ok: false, error: 'Not valid JSON' };
+  }
+  if (!obj || typeof obj !== 'object') return { ok: false, error: 'Empty manifest' };
+  if (obj.format !== 'srt-lab-key-dump') {
+    return { ok: false, error: 'Not an SRT Lab key-dump manifest' };
+  }
+  const uid = parseHexBytes(obj.transponder_uid_hex ?? obj.transponder_uid_hex_compact ?? '');
+  const sk = parseHexBytes(obj.sk_hex ?? obj.sk_hex_compact ?? '');
+  if (uid == null || sk == null) {
+    return { ok: false, error: 'Manifest UID/SK is not valid hex' };
+  }
+  const f = obj.flags || {};
+  return {
+    ok: true,
+    version: obj.version,
+    chipId: obj.chip_family || null,
+    label: typeof obj.label === 'string' ? obj.label : '',
+    flags: {
+      locked: !!f.locked,
+      encryption: !!f.encryption,
+      cloneable: !!f.cloneable,
+      coding: f.coding || null,
+    },
+    uid,
+    sk,
+  };
+}
+
+/**
+ * Parse either key-dump artefact (KDMP .bin or srt-lab-key-dump JSON) by
+ * sniffing the leading KDMP magic. Returns the normalized record shape.
+ */
+export function parseKeyDumpFile(u8) {
+  if (!u8 || u8.length === 0) return { ok: false, error: 'Empty file' };
+  const isKdmp = u8.length >= 4
+    && u8[0] === KEY_DUMP_MAGIC[0] && u8[1] === KEY_DUMP_MAGIC[1]
+    && u8[2] === KEY_DUMP_MAGIC[2] && u8[3] === KEY_DUMP_MAGIC[3];
+  if (isKdmp) return parseKeyDumpBin(u8);
+  let text;
+  try {
+    text = new TextDecoder().decode(u8);
+  } catch {
+    return { ok: false, error: 'Unrecognized key-dump file' };
+  }
+  return parseKeyDumpManifest(text);
 }
 
 /**

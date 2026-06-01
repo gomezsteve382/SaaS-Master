@@ -25,6 +25,7 @@ import {
   cloneKeyRecord,
   validateKeyRecord,
   bytesToHexSpaced,
+  defaultFlags,
 } from '../lib/keyWriter/keyRecord.js';
 import { SimulatorTransport, FAULT_HANDLERS } from '../lib/keyWriter/simulator.js';
 import { connectWebSerial, isWebSerialAvailable } from '../lib/keyWriter/webSerialTransport.js';
@@ -41,6 +42,7 @@ import {
   buildKeyDumpManifest,
   buildKeyDumpBin,
   keyDumpBaseName,
+  parseKeyDumpFile,
 } from '../lib/keyWriter/autelExport.js';
 import {
   loadKeyHistory,
@@ -118,6 +120,18 @@ function extractRfhVin(bytes, gen) {
   const isGen2 = gen === 'gen2' || gen === 2 || gen >= 2;
   if (isGen2) return tryAsciiReversed(0x0EA5) || tryAscii(0x92);
   return tryAscii(0x92);
+}
+
+/* A key record is "meaningful" (worth confirming before an overwrite) once it
+ * carries a UID, an SK, or a label. Chip family / flags alone are defaults and
+ * don't count as unsaved operator work. */
+function recordHasData(rec) {
+  if (!rec) return false;
+  return !!(
+    (rec.uidHex && rec.uidHex.trim())
+    || (rec.skHex && rec.skHex.trim())
+    || (rec.label && rec.label.trim())
+  );
 }
 
 function readFileBytes(file) {
@@ -449,6 +463,52 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
     setKeyDumpNote({ ok: true, msg: 'Compact KDMP .bin downloaded (portable intermediate — not a vendor import).' });
   }, [activeRecord]);
 
+  /* Import a saved key dump (KDMP .bin or srt-lab-key-dump JSON) straight into
+   * the ACTIVE record, replacing it in place. If the active record already has
+   * a UID, SK, or label entered, confirm first so an accidental import doesn't
+   * silently wipe unsaved edits; cancelling leaves the record untouched. */
+  const keyDumpImportRef = useRef(null);
+
+  const onPickImport = useCallback(() => {
+    keyDumpImportRef.current?.click();
+  }, []);
+
+  const onImportFile = useCallback(async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-importing the same file
+    if (!file) return;
+    let rec;
+    try {
+      const u8 = new Uint8Array(await file.arrayBuffer());
+      rec = parseKeyDumpFile(u8);
+    } catch {
+      setKeyDumpNote({ ok: false, msg: 'Could not read the selected dump file.' });
+      return;
+    }
+    if (!rec?.ok) {
+      setKeyDumpNote({ ok: false, msg: rec?.error || 'Unrecognized key-dump file.' });
+      return;
+    }
+    if (recordHasData(activeRecord)) {
+      const proceed = typeof window !== 'undefined' && typeof window.confirm === 'function'
+        ? window.confirm('This key already has a UID, SK, or label. Importing will overwrite it. Continue?')
+        : true;
+      if (!proceed) {
+        setKeyDumpNote({ ok: false, msg: 'Import cancelled — active key left unchanged.' });
+        return;
+      }
+    }
+    updateActive({
+      chipId: rec.chipId || activeRecord?.chipId,
+      uidHex: bytesToHexSpaced(rec.uid),
+      skHex: bytesToHexSpaced(rec.sk),
+      flags: { ...defaultFlags(), ...(rec.flags || {}) },
+      label: rec.label != null && rec.label !== '' ? rec.label : (activeRecord?.label || ''),
+    });
+    setCloneResult(null);
+    setKeyDumpNote({ ok: true, msg: 'Imported dump into the active key. Review the fields before exporting or cloning.' });
+  }, [activeRecord, updateActive]);
+
   /* Prefill the active record from the currently-picked RFHUB slot: copy the
    * slot UID only. SK is left blank (it is the transponder secret, captured
    * from your external tool — never the SEC16 master). SEC16 is surfaced for
@@ -765,6 +825,17 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
           <Btn onClick={onCopyToNewKey} color={C.tm} outline data-testid="key-dump-copy">
             ⧉ Copy to new key
           </Btn>
+          <Btn onClick={onPickImport} color={C.tm} outline data-testid="key-dump-import">
+            ↑ Import into this key
+          </Btn>
+          <input
+            ref={keyDumpImportRef}
+            type="file"
+            accept=".json,application/json,.bin,application/octet-stream"
+            onChange={onImportFile}
+            data-testid="key-dump-import-input"
+            style={{ display: 'none' }}
+          />
           <Btn onClick={onExportKeyJson} color={C.gn} disabled={!keyValidation.ok} data-testid="key-dump-export-json">
             ↓ Export key dump (JSON)
           </Btn>
