@@ -21,11 +21,10 @@ default new scopes to the restrictive module prompt unintentionally.
 conversation id; on mount the hook hydrates it, falling back to the newest
 `?scope=general` conversation if the pointer is missing/stale.
 
-**File attachments** are frontend-only: `buildOutgoing(text, attachments)` folds
-each text file's content into the single `content` string the conversations
-messages endpoint already sends/persists — no backend, multimodal, or DB change.
-**Why:** images/PDF/binary would require content-block message shapes + DB changes
-(major arch), so they are deliberately rejected (NUL/control-char sniff in
-`looksBinary`) with a note pointing users to the Data Management module-load flow.
-Caps: 256 KB/file, 512 KB total, 6 files. If you ever need real binary/image
+**File attachments** are folded into the plain message text on the frontend, not
+sent as separate content blocks — so they ride the existing conversations
+messages path with no backend, multimodal, or DB change.
+**Why:** images/PDF/binary would require Anthropic content-block message shapes +
+DB changes (major arch), so they are deliberately rejected with a note pointing
+users to the Data Management module-load flow. If you ever need real binary/image
 support, that is a backend+schema change, not an extension of this folding path.
