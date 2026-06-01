@@ -1,0 +1,88 @@
+PER-VEHICLE WORKFLOW
+
+Diagnose
+Drop → verdict → fix
+
+UDS Command
+Raw ISO 14229 console
+
+VIN & Checksum
+Read / write / verify
+
+OBD Pull
+Read bin dumps live
+
+AI Copilot
+Guided investigation
+Module Census
+CAN Universe · Intel
+TARGET VIN · 17 CHARS
+Enter customer CHARGER VIN
+▶ SYNC ALL MODULES
+CLEAR FILES
+Target PCM chip
+95320 · 4 KB
+95640 · 8 KB
+PCM is always emitted at exactly 4 KB (95320) so Multi-PROG / CGDI / Xhorse will accept the file.
+MODULE DUMPS
+BCM
+BCM D-FLASH
+65,536 bytes
+RFHUB
+RFHUB EEE
+393,216 bytes
+PCM / GPEC2A
+GPEC2A
+4,096 bytes
+95320 · 4 KB
+❓ Programmer says "File different size"?
+The CGDI / Xprog / Orange5 / Multi-PROG / Xhorse flasher refuses any image whose byte count doesn't match the chip on the bench. The PCM EXT EEPROM must be exactly 4 KB (95320) or 8 KB (95640). The size badge on each loaded PCM shows the live byte count and chip class — re-read the EXT EEPROM (not INT FLASH) if it shows OTHER. SYNC ALL writes the patched PCM at the chip you picked above; if the source dump came in at an odd size (e.g. INT FLASH instead of EXT EEPROM), the lower 4 KB of the patched buffer is kept and the file is padded or truncated to fit.
+🔄
+READY FOR MODULE SYNC
+Open Module Sync to fix VIN mismatches, sync SEC16 security secrets, and download patched binaries.
+→
+DETECTED
+BCM
+2018–2020 LD · 68396563
+VIN
+2C3CDXL92KH674464
+Full slots
+4 (4 CRC ok)
+Short-VIN
+2 records (2 CRC ok)
+SEC16
+8702c634b68516232005c6046b25f4f6
+SEC16 state
+3 records · consistent
+RFHUB
+Gen1 · 18b SEC16 @0x0226
+VIN
+2C3CDXL92KH674464
+VIN slots
+4 (4 CHK ok)
+SEC16
+fc29fcbc292d2718fc292d7c29fccc29fc3b
+SEC16 state
+MISMATCH
+PCM
+GPEC2A
+Current VIN
+2C3CDXL92KH674464
+VIN slots
+4
+SEC6
+f6f4256b04c6 @0x3C8
+Marker
+FF FF FF AA
+IMMO
+SANO (SEC6 populated)
+🔐 SECURITY SYNC · PAIRING CHAIN
+BCM SEC16 ⇄ reverse ⇄ RFH SEC16 → first 6 → PCM SEC6
+SOURCE OF TRUTH · RFH SEC16
+fc29fcbc292d2718fc292d7c29fccc29fc3b
+⚠ BCM NOT PAIRED · WILL BE FIXED ON SYNC
+current: 8702c634b68516232005c6046b25f4f6
+expected: 3bfc29ccfc297c2d29fc18272d29bcfc29fc
+⚠ PCM NOT PAIRED · WILL BE FIXED ON SYNC
+current: f6f4256b04c6
+expected: fc29fcbc292d
