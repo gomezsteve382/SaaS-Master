@@ -7,7 +7,19 @@ import {
   timestamp,
   jsonb,
   index,
+  customType,
 } from "drizzle-orm/pg-core";
+
+/**
+ * PostgreSQL `bytea` column. drizzle-orm's node-postgres driver maps a
+ * `bytea` column to a Node `Buffer` on read and accepts a `Buffer` on write,
+ * so we surface it with that type.
+ */
+const bytea = customType<{ data: Buffer; default: false }>({
+  dataType() {
+    return "bytea";
+  },
+});
 
 /**
  * Investigation Swarm (Task #718).
@@ -38,6 +50,15 @@ export const investigationRunsTable = pgTable(
     agentIterCap: integer("agent_iter_cap"),
     tokenBudget: integer("token_budget"),
     totalTokensUsed: integer("total_tokens_used"),
+    /**
+     * Durable, short-lived storage for the uploaded dump buffers so a swarm
+     * run survives an API-server restart between the POST that creates it and
+     * the SSE GET that consumes it (Task #937). Cleared once the run finishes
+     * or after `bufferExpiresAt` passes (see the TTL sweep in the router).
+     */
+    primaryBuffer: bytea("primary_buffer"),
+    referenceBuffer: bytea("reference_buffer"),
+    bufferExpiresAt: timestamp("buffer_expires_at", { withTimezone: true }),
     startedAt: timestamp("started_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -74,6 +95,34 @@ export const investigationAgentFindingsTable = pgTable(
     agentIdx: index("investigation_agent_findings_agent_idx").on(t.agent),
   }),
 );
+
+/**
+ * Columns safe to return from the run list/detail read APIs. This explicitly
+ * EXCLUDES the durable upload buffers (`primaryBuffer` / `referenceBuffer`)
+ * and `bufferExpiresAt` so raw uploaded binaries are never disclosed through
+ * the standard run read endpoints (Task #937). Every read endpoint must use
+ * this projection instead of `select()` on the whole row.
+ */
+export const investigationRunPublicColumns = {
+  id: investigationRunsTable.id,
+  scope: investigationRunsTable.scope,
+  title: investigationRunsTable.title,
+  dumpName: investigationRunsTable.dumpName,
+  dumpSize: investigationRunsTable.dumpSize,
+  referenceName: investigationRunsTable.referenceName,
+  referenceSize: investigationRunsTable.referenceSize,
+  status: investigationRunsTable.status,
+  summary: investigationRunsTable.summary,
+  report: investigationRunsTable.report,
+  binaryMeta: investigationRunsTable.binaryMeta,
+  agentIterCap: investigationRunsTable.agentIterCap,
+  tokenBudget: investigationRunsTable.tokenBudget,
+  totalTokensUsed: investigationRunsTable.totalTokensUsed,
+  startedAt: investigationRunsTable.startedAt,
+  finishedAt: investigationRunsTable.finishedAt,
+  completedAt: investigationRunsTable.completedAt,
+  cancelledAt: investigationRunsTable.cancelledAt,
+} as const;
 
 export const investigationAgentRunsTable = pgTable(
   "investigation_agent_runs",

@@ -21,12 +21,74 @@ import { db } from "@workspace/db";
 import {
   investigationRunsTable,
   investigationAgentFindingsTable,
+  investigationRunPublicColumns,
 } from "@workspace/db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, lt, isNotNull } from "drizzle-orm";
 import { runSwarm } from "./coordinator";
 import { toSseFrame, type SwarmEvent } from "./sse";
+import { logger } from "../../../lib/logger";
 
 const router = Router();
+
+/* ── Durable buffer storage (Task #937) ─────────────────────────────────
+ *
+ * Uploaded dump buffers used to live in an in-memory `Map`. If the API
+ * server restarted between the POST that created a run and the SSE GET that
+ * consumes it, the buffer was lost and the run failed silently. Buffers are
+ * now persisted on the `investigation_runs` row as `bytea` with a TTL, so a
+ * run survives a restart. The buffers are cleared once the run finishes or
+ * after the TTL passes.
+ */
+
+/** How long an uploaded buffer is retained before the TTL sweep clears it. */
+const BUFFER_TTL_MS = 30 * 60 * 1000;
+
+/** How often the TTL sweep runs. */
+const BUFFER_SWEEP_INTERVAL_MS = 5 * 60 * 1000;
+
+/**
+ * In-process guard so two concurrent SSE GETs for the same run id (e.g. a
+ * client reconnect while the first stream is still alive) don't both kick off
+ * the swarm. This is a best-effort de-dupe only — durability comes from the
+ * DB-backed buffers, not from this set.
+ */
+const activeStreams = new Set<string>();
+
+/** Delete buffers that have outlived their TTL. */
+async function sweepExpiredBuffers(): Promise<void> {
+  try {
+    await db
+      .update(investigationRunsTable)
+      .set({ primaryBuffer: null, referenceBuffer: null, bufferExpiresAt: null })
+      .where(
+        and(
+          isNotNull(investigationRunsTable.bufferExpiresAt),
+          lt(investigationRunsTable.bufferExpiresAt, new Date()),
+        ),
+      );
+  } catch (err) {
+    logger.error(
+      { err },
+      "investigation swarm: failed to sweep expired buffers",
+    );
+  }
+}
+
+const bufferSweepTimer = setInterval(() => {
+  void sweepExpiredBuffers();
+}, BUFFER_SWEEP_INTERVAL_MS);
+// Don't keep the event loop alive solely for the sweep (matters for tests).
+bufferSweepTimer.unref();
+// Run one sweep on startup so a restart also clears anything already expired.
+void sweepExpiredBuffers();
+
+/** Clear the persisted buffers for a finished/abandoned run. */
+async function clearBuffers(runId: string): Promise<void> {
+  await db
+    .update(investigationRunsTable)
+    .set({ primaryBuffer: null, referenceBuffer: null, bufferExpiresAt: null })
+    .where(eq(investigationRunsTable.id, runId));
+}
 
 /* ── POST /anthropic/investigation/runs ─────────────────────────────── */
 
@@ -60,6 +122,8 @@ router.post("/investigation/runs", async (req, res) => {
     ? Buffer.from(referenceBase64, "base64")
     : null;
 
+  // Persist the buffers on the run row so the SSE stream can retrieve them
+  // even if the server restarts between this POST and the GET (Task #937).
   const [run] = await db
     .insert(investigationRunsTable)
     .values({
@@ -69,25 +133,14 @@ router.post("/investigation/runs", async (req, res) => {
       referenceName: referenceName ?? null,
       referenceSize: referenceBuf ? referenceBuf.length : null,
       status: "pending",
+      primaryBuffer: primaryBuf,
+      referenceBuffer: referenceBuf,
+      bufferExpiresAt: new Date(Date.now() + BUFFER_TTL_MS),
     })
-    .returning();
-
-  // Store the buffers in memory keyed by run id so the SSE stream can
-  // retrieve them without re-parsing the request.
-  pendingBuffers.set(run.id, {
-    primary: primaryBuf,
-    reference: referenceBuf,
-  });
+    .returning({ id: investigationRunsTable.id });
 
   res.status(201).json({ id: run.id });
 });
-
-/* ── In-memory buffer store (short-lived — cleared after stream ends) ── */
-
-const pendingBuffers = new Map<
-  string,
-  { primary: Buffer; reference: Buffer | null }
->();
 
 /* ── GET /anthropic/investigation/runs/:id/stream ───────────────────── */
 
@@ -104,31 +157,58 @@ router.get("/investigation/runs/:id/stream", async (req, res) => {
     return;
   }
 
-  const bufs = pendingBuffers.get(runId);
-  if (!bufs) {
-    res.status(409).json({ error: "Run already started or buffer expired" });
-    return;
-  }
-
-  pendingBuffers.delete(runId);
-
+  // Always upgrade to an SSE stream first so the client (which uses
+  // EventSource) can read a structured event for any failure mode instead of
+  // hanging on a non-200 response.
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("X-Accel-Buffering", "no");
 
-  const ac = new AbortController();
   let clientGone = false;
-  res.on("close", () => {
-    clientGone = true;
-    ac.abort();
-  });
-
   const emit = (event: SwarmEvent) => {
     if (!clientGone) {
       res.write(toSseFrame(event));
     }
   };
+  res.on("close", () => {
+    clientGone = true;
+  });
+
+  // The buffer is gone — either the TTL swept it, the run already ran (buffers
+  // are cleared on completion), or it was never persisted. Tell the client to
+  // re-upload instead of leaving the connection hanging (Task #937).
+  const primaryBuffer = run.primaryBuffer;
+  const expired =
+    run.bufferExpiresAt != null && run.bufferExpiresAt.getTime() < Date.now();
+  if (!primaryBuffer || primaryBuffer.length === 0 || expired) {
+    emit({
+      type: "buffer_not_found",
+      runId,
+      error:
+        "Server restarted or the upload expired during analysis — please re-upload the dump to start a new run.",
+    });
+    if (expired) void clearBuffers(runId);
+    if (!clientGone) res.end();
+    return;
+  }
+
+  // Best-effort guard against a duplicate concurrent stream for the same run.
+  if (activeStreams.has(runId)) {
+    emit({
+      type: "buffer_not_found",
+      runId,
+      error: "This run is already being streamed in another connection.",
+    });
+    if (!clientGone) res.end();
+    return;
+  }
+  activeStreams.add(runId);
+
+  const ac = new AbortController();
+  res.on("close", () => {
+    ac.abort();
+  });
 
   // Mark as running
   await db
@@ -137,12 +217,14 @@ router.get("/investigation/runs/:id/stream", async (req, res) => {
     .where(eq(investigationRunsTable.id, runId));
 
   const binaries: Record<string, Buffer> = {};
-  if (bufs.reference) binaries["reference"] = bufs.reference;
+  if (run.referenceBuffer && run.referenceBuffer.length > 0) {
+    binaries["reference"] = run.referenceBuffer;
+  }
 
   try {
     const { findings, report } = await runSwarm(
       runId,
-      bufs.primary,
+      primaryBuffer,
       binaries,
       ac.signal,
       emit,
@@ -164,7 +246,7 @@ router.get("/investigation/runs/:id/stream", async (req, res) => {
       );
     }
 
-    // Mark done
+    // Mark done and drop the now-consumed buffers from durable storage.
     const finalStatus = ac.signal.aborted ? "cancelled" : "completed";
     await db
       .update(investigationRunsTable)
@@ -172,6 +254,9 @@ router.get("/investigation/runs/:id/stream", async (req, res) => {
         status: finalStatus,
         summary: report as never,
         finishedAt: new Date(),
+        primaryBuffer: null,
+        referenceBuffer: null,
+        bufferExpiresAt: null,
       })
       .where(eq(investigationRunsTable.id, runId));
 
@@ -181,10 +266,18 @@ router.get("/investigation/runs/:id/stream", async (req, res) => {
     const msg = err instanceof Error ? err.message : String(err);
     await db
       .update(investigationRunsTable)
-      .set({ status: "error", finishedAt: new Date() })
+      .set({
+        status: "error",
+        finishedAt: new Date(),
+        primaryBuffer: null,
+        referenceBuffer: null,
+        bufferExpiresAt: null,
+      })
       .where(eq(investigationRunsTable.id, runId));
     emit({ type: "error", runId, error: msg });
     if (!clientGone) res.end();
+  } finally {
+    activeStreams.delete(runId);
   }
 });
 
@@ -195,12 +288,12 @@ router.get("/investigation/runs", async (req, res) => {
     typeof req.query.scope === "string" ? req.query.scope : undefined;
   const rows = scope
     ? await db
-        .select()
+        .select(investigationRunPublicColumns)
         .from(investigationRunsTable)
         .where(eq(investigationRunsTable.scope, scope))
         .orderBy(desc(investigationRunsTable.startedAt))
     : await db
-        .select()
+        .select(investigationRunPublicColumns)
         .from(investigationRunsTable)
         .orderBy(desc(investigationRunsTable.startedAt));
   res.json(rows);
@@ -211,7 +304,7 @@ router.get("/investigation/runs", async (req, res) => {
 router.get("/investigation/runs/:id", async (req, res) => {
   const runId = req.params.id;
   const [run] = await db
-    .select()
+    .select(investigationRunPublicColumns)
     .from(investigationRunsTable)
     .where(eq(investigationRunsTable.id, runId));
   if (!run) {
@@ -229,8 +322,8 @@ router.get("/investigation/runs/:id", async (req, res) => {
 
 router.delete("/investigation/runs/:id", async (req, res) => {
   const runId = req.params.id;
-  // Cancel in-flight run if its buffer is still pending
-  pendingBuffers.delete(runId);
+  // Drop any in-process stream guard; the row delete also drops the buffers.
+  activeStreams.delete(runId);
   const deleted = await db
     .delete(investigationRunsTable)
     .where(eq(investigationRunsTable.id, runId))

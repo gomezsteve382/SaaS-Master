@@ -23,7 +23,11 @@
 
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { investigationRunsTable, investigationAgentRunsTable } from "@workspace/db";
+import {
+  investigationRunsTable,
+  investigationAgentRunsTable,
+  investigationRunPublicColumns,
+} from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import {
   AGENT_NAMES,
@@ -292,7 +296,7 @@ async function runCoordinator(
 router.get("/investigation", async (_req, res) => {
   try {
     const rows = await db
-      .select()
+      .select(investigationRunPublicColumns)
       .from(investigationRunsTable)
       .orderBy(desc(investigationRunsTable.startedAt))
       .limit(50);
@@ -307,7 +311,7 @@ router.get("/investigation", async (_req, res) => {
 router.get("/investigation/:runId", async (req, res) => {
   try {
     const [run] = await db
-      .select()
+      .select(investigationRunPublicColumns)
       .from(investigationRunsTable)
       .where(eq(investigationRunsTable.id, req.params.runId));
 

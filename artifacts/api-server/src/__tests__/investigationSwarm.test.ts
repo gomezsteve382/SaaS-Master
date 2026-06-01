@@ -17,6 +17,11 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { getTableColumns } from "drizzle-orm";
+import {
+  investigationRunsTable,
+  investigationRunPublicColumns,
+} from "@workspace/db";
 import { toSseFrame, fromSseFrame, type SwarmEvent } from "../routes/anthropic/investigationSwarm/sse";
 import {
   AGENT_DEFS,
@@ -105,6 +110,37 @@ describe("SSE event serialisation", () => {
   it("round-trips agent_error event", () => {
     const event: SwarmEvent = { type: "agent_error", runId: "r", agent: "LAYOUT", error: "boom" };
     expect(fromSseFrame(toSseFrame(event).trim())).toEqual(event);
+  });
+
+  it("round-trips buffer_not_found event", () => {
+    const event: SwarmEvent = {
+      type: "buffer_not_found",
+      runId: "r",
+      error: "Server restarted during analysis — please re-upload the dump.",
+    };
+    expect(fromSseFrame(toSseFrame(event).trim())).toEqual(event);
+  });
+});
+
+/* ── 1b. Run read-API column projection (Task #937) ────────────────── */
+
+describe("investigationRunPublicColumns projection", () => {
+  const SENSITIVE = ["primaryBuffer", "referenceBuffer", "bufferExpiresAt"];
+
+  it("never exposes the persisted upload buffers", () => {
+    const keys = Object.keys(investigationRunPublicColumns);
+    for (const field of SENSITIVE) {
+      expect(keys, `${field} must not be in the public projection`).not.toContain(
+        field,
+      );
+    }
+  });
+
+  it("covers every other run column so list/detail stay complete", () => {
+    const allColumns = Object.keys(getTableColumns(investigationRunsTable));
+    const expected = allColumns.filter((c) => !SENSITIVE.includes(c)).sort();
+    const actual = Object.keys(investigationRunPublicColumns).sort();
+    expect(actual).toEqual(expected);
   });
 });
 

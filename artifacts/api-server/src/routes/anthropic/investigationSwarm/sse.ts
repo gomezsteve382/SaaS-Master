@@ -54,6 +54,7 @@ export type SwarmEvent =
   | { type: "synthesis_started"; runId: string }
   | { type: "synthesis"; runId: string; report: SynthesisReport }
   | { type: "done"; runId: string; status: "completed" | "cancelled" | "error" }
+  | { type: "buffer_not_found"; runId: string; error: string }
   | { type: "error"; runId: string; error: string };
 
 /** Serialise a SwarmEvent to an SSE frame string. */

@@ -521,6 +521,10 @@ export default function InvestigationTab() {
   const eventSourceRef = useRef(null);
   const fileInputRef   = useRef(null);
   const refInputRef    = useRef(null);
+  // Set true the moment a terminal event (done / error / buffer_not_found)
+  // is handled, so a late EventSource `onerror` can't clobber the precise
+  // message with the generic "Stream connection lost." fallback.
+  const streamTerminalRef = useRef(false);
 
   /* ── load past runs ──────────────────────────────────────────────── */
 
@@ -613,6 +617,7 @@ export default function InvestigationTab() {
   const startRun = useCallback(async () => {
     if (!file) return;
     resetState();
+    streamTerminalRef.current = false;
     setRunStatus("starting");
     setError(null);
 
@@ -726,11 +731,22 @@ export default function InvestigationTab() {
             setSynthesis(event.report);
             break;
           case "done":
+            streamTerminalRef.current = true;
             setRunStatus("done");
             es.close();
             loadPastRuns();
             break;
+          case "buffer_not_found":
+            streamTerminalRef.current = true;
+            setError(
+              event.error ||
+                "Server restarted during analysis — please re-upload the dump.",
+            );
+            setRunStatus("error");
+            es.close();
+            break;
           case "error":
+            streamTerminalRef.current = true;
             setError(event.error);
             setRunStatus("error");
             es.close();
@@ -740,7 +756,9 @@ export default function InvestigationTab() {
       };
 
       es.onerror = () => {
-        if (runStatus !== "done") {
+        // A terminal event (done / error / buffer_not_found) already settled
+        // the run — don't overwrite its precise message with the generic one.
+        if (!streamTerminalRef.current) {
           setError("Stream connection lost.");
           setRunStatus("error");
         }

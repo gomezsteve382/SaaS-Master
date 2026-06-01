@@ -63,18 +63,31 @@ vi.mock("@workspace/db", () => {
     ...makeCols("id", "runId", "agentName", "status", "findings", "toolTrace", "iterations"),
   };
 
+  // Public projection — mirrors the real export: every run column EXCEPT the
+  // persisted upload buffers (primaryBuffer/referenceBuffer/bufferExpiresAt).
+  const investigationRunPublicColumns = makeCols(
+    "id", "status", "title", "binaryMeta", "agentIterCap", "tokenBudget",
+    "createdAt", "completedAt", "cancelledAt", "report", "totalTokensUsed",
+  );
+
   const db = {
-    select: () => ({
+    select: (cols?: Record<string, unknown>) => ({
       from: (t: Tbl) => {
         const filters: Array<{ column: string; value: unknown }> = [];
+        const project = (row: Row): Row =>
+          cols
+            ? (Object.fromEntries(
+                Object.keys(cols).map((k) => [k, row[k]]),
+              ) as Row)
+            : row;
         const builder = {
           where(p: { column: string; value: unknown }) { filters.push(p); return builder; },
           orderBy() { return builder; },
           limit() { return builder; },
           then(resolve: (rows: Row[]) => void) {
-            resolve((store[t._name] ?? []).filter((row) =>
-              filters.every((f) => row[f.column] === f.value),
-            ));
+            resolve((store[t._name] ?? [])
+              .filter((row) => filters.every((f) => row[f.column] === f.value))
+              .map(project));
           },
         };
         return builder;
@@ -104,7 +117,7 @@ vi.mock("@workspace/db", () => {
     }),
   };
 
-  return { db, investigationRunsTable, investigationAgentRunsTable };
+  return { db, investigationRunsTable, investigationAgentRunsTable, investigationRunPublicColumns };
 });
 
 /* ─── Anthropic SDK stub ─── */
