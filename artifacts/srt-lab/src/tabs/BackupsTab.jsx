@@ -10,6 +10,7 @@ import {
   subscribeToast, formatBytes, BACKUP_WARN_PERCENT,
   exportAllBackups, importBackups, saveAemtPlaceholders,
   encryptArchive, decryptArchive, ENCRYPTED_ARCHIVE_TYPE,
+  backupCorruptFill,
 } from "../lib/audit.js";
 import { sha256Hex, backupDidsToBytes } from "../lib/checksum.js";
 import { detectCorruptFill, corruptFillError } from "../lib/parseModule.js";
@@ -356,6 +357,7 @@ export default function BackupsTab() {
   const [busy, setBusy] = useState("");
   const [conn, setConn] = useState(false);
   const [restoreLog, setRestoreLog] = useState([]);
+  const [restoreCorrupt, setRestoreCorrupt] = useState(null);
   const [verifyStates, setVerifyStates] = useState({});
   const [pairedData, setPairedData] = useState(null);
   const [aemtModal, setAemtModal] = useState(null);
@@ -587,6 +589,7 @@ export default function BackupsTab() {
     setSelected(key);
     setSelectedData(null);
     setPairedData(null);
+    setRestoreCorrupt(null);
     const data = await getBackupAsync(key);
     setSelectedData(data);
     // Auto-load the paired snapshot so the diff section appears immediately.
@@ -1011,17 +1014,46 @@ export default function BackupsTab() {
 
   const handleRestore = useCallback(() => {
     if (!selectedData) return;
+    /* Refuse to even open the confirm modal for a corrupt capture. A backup
+     * taken before the upload-time guard (or imported from an older archive)
+     * can still hold a tool-error payload; restoring it would write garbage
+     * onto a live ECU over OBD-II. The same check also runs in restoreModule
+     * as a last line of defense. */
+    const cf = backupCorruptFill(selectedData);
+    if (cf) {
+      setRestoreCorrupt(cf);
+      addRestoreLog(
+        "✖ Restore blocked — this backup looks like a tool-error capture" +
+        (cf.reason ? " (" + cf.reason + ")" : "") + ". Re-read the module.",
+        "error",
+      );
+      return;
+    }
+    setRestoreCorrupt(null);
     if (!conn) {
       alert("Connect to the adapter first (button at the top of this tab).");
       return;
     }
     setModalOpen(true);
-  }, [selectedData, conn]);
+  }, [selectedData, conn, addRestoreLog]);
 
   const onConfirmRestore = useCallback(async (meta = {}) => {
     setModalOpen(false);
     if (!eng.current || !selectedData) return;
     void meta;
+    /* Defensive re-check: the modal could have been opened before a corrupt
+     * payload was detected (deep-link, race). restoreModule guards too, but
+     * surfacing the banner here keeps the user feedback consistent. */
+    const cf = backupCorruptFill(selectedData);
+    if (cf) {
+      setRestoreCorrupt(cf);
+      addRestoreLog(
+        "✖ Restore blocked — this backup looks like a tool-error capture" +
+        (cf.reason ? " (" + cf.reason + ")" : "") + ". Re-read the module.",
+        "error",
+      );
+      return;
+    }
     setBusy("Restoring...");
     try {
       await restoreModule(
@@ -1188,6 +1220,31 @@ export default function BackupsTab() {
             )}
           </div>
         </div>
+        {restoreCorrupt && (
+          <div
+            data-testid="restore-corrupt-banner"
+            style={{
+              marginBottom: 12, padding: 14, borderRadius: 8,
+              background: "#FFEBEE", border: "1.5px solid #FF5252",
+              display: "flex", alignItems: "flex-start", gap: 12,
+            }}
+          >
+            <div style={{ fontSize: 22, lineHeight: 1 }}>🚫</div>
+            <div style={{ flex: 1, fontSize: 12, color: C.ts, lineHeight: 1.5 }}>
+              <b style={{ color: "#C00" }}>
+                Restore blocked — corrupt capture
+                {restoreCorrupt.reason ? " (" + restoreCorrupt.reason + ")" : ""}.
+              </b>
+              <div style={{ marginTop: 4 }}>
+                {restoreCorrupt.detail || "This backup looks like a tool-error response, not a real module dump."}
+              </div>
+              <div style={{ marginTop: 4 }}>
+                Writing it back over OBD-II would push garbage onto the live module.
+                Re-read the module with your programming tool and create a fresh backup.
+              </div>
+            </div>
+          </div>
+        )}
         {restoreLog.length > 0 && (
           <div style={{
             maxHeight: 110, overflow: "auto", background: "#111", color: "#9CFF9C",

@@ -10,6 +10,7 @@
 // functional data needed by the Restore flow.
 
 import { sha256Hex, backupDidsToBytes } from "./checksum.js";
+import { detectCorruptFill } from "./parseModule.js";
 import { readDidsBatched } from "./uds.js";
 import {
   exportArchives as exportKeyProgArchives,
@@ -389,9 +390,37 @@ function fmtBytes(b) {
 
 export { fmtBytes as formatBytes };
 
+/* Run the corrupt-fill check against a backup's reconstructed bytes.
+ * A backup created before the upload-time corrupt guard (Task #946) — or
+ * imported from an older archive — can still hold a tool-error capture
+ * (single-byte fill, repeated "NO DATA"/"OBDSTAR6" string). Restoring such
+ * a payload would write garbage onto a live ECU over OBD-II. We rebuild the
+ * canonical byte stream the same way the checksum does (every non-missing
+ * DID's bytes concatenated) and hand it to detectCorruptFill, the single
+ * source of truth for the corrupt-fill heuristic. Returns the corruptFill
+ * descriptor when the bytes look like a tool error, or null when clean. */
+export function backupCorruptFill(backup) {
+  if (!backup || !backup.dids) return null;
+  return detectCorruptFill(backupDidsToBytes(backup.dids));
+}
+
 export async function restoreModule(engUds, tx, rx, backup, addLog = () => {}, fullRestore = false) {
   if (!backup || !backup.dids) {
     addLog("Invalid backup data", "error");
+    return false;
+  }
+  /* Refuse to write a corrupt capture onto a live module. This is the
+   * last-line guard: it fires even if the UI banner is bypassed (deep-link,
+   * programmatic caller) so a tool-error backup can never reach UDS 0x2E. */
+  const cf = backupCorruptFill(backup);
+  if (cf) {
+    addLog(
+      "✖ Restore refused — backup looks like a tool-error capture" +
+      (cf.reason ? " (" + cf.reason + ")" : "") + ": " +
+      (cf.detail || "corrupt fill detected") +
+      " Re-read the module with your programming tool; do not restore this snapshot.",
+      "error",
+    );
     return false;
   }
   addLog("═══ RESTORING MODULE: " + backup.module + " ═══", "info");
@@ -573,6 +602,11 @@ export function importBackups(archive) {
     if (!key.startsWith(BACKUP_KEY_PREFIX)) { result.invalid++; continue; }
     if (!data || !data.module || !data.dids) { result.invalid++; continue; }
     if (existingKeys.has(key)) { result.skipped++; continue; }
+    /* Older archives predate the upload-time corrupt guard, so a tool-error
+     * capture could be sitting inside them. Drop corrupt entries here so they
+     * are never listed as restorable — otherwise the restore flow would be the
+     * only thing standing between a garbage payload and a live ECU. */
+    if (backupCorruptFill(data)) { result.invalid++; continue; }
     try {
       localStorage.setItem(key, JSON.stringify(data));
       const meta = indexByKey.get(key) || {
