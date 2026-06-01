@@ -7,7 +7,7 @@ import PcmRepairWizard from "../components/PcmRepairWizard.jsx";
 import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
 import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
-import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
+import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, corruptFillError, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
 import { crossValidate } from "../lib/crossValidate.js";
 import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
 import { scoreCandidate, pickBest, fmtPick, CANONICAL_PATTERNS } from "../lib/bestPick.js";
@@ -2254,6 +2254,8 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   }, [pcm.bytes, pcm.parsed?.size, pcm.parsed?.tooSmall]);
 
   const handleBcm = useCallback((file, bytes) => {
+    const cfErr = corruptFillError(parseModule(bytes, file.name));
+    if (cfErr) { log(cfErr, 'err'); return; }
     const parsed = engParseBcm(bytes, file.name);
     const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
     setBcm({ file, bytes, parsed, pnOverride });
@@ -2284,6 +2286,8 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   }, [log, dumpsFiles]);
 
   const handleRfh = useCallback((file, bytes) => {
+    const cfErr = corruptFillError(parseModule(bytes, file.name));
+    if (cfErr) { log(cfErr, 'err'); return; }
     const parsed = engParseRfh(bytes, file.name);
     const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
     setRfh({ file, bytes, parsed, pnOverride });
@@ -2303,6 +2307,8 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   }, [log, dumpsFiles]);
 
   const handlePcm = useCallback((file, bytes) => {
+    const cfErr = corruptFillError(parseModule(bytes, file.name));
+    if (cfErr) { log(cfErr, 'err'); return; }
     const parsed = engParsePcm(bytes, file.name);
     const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
     setPcm({ file, bytes, parsed, pnOverride });
@@ -2319,6 +2325,8 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   }, [log, dumpsFiles]);
 
   const handleEep = useCallback((file, bytes) => {
+    const cfErr = corruptFillError(parseModule(bytes, file.name));
+    if (cfErr) { log(cfErr, 'err'); return; }
     const parsed = engParseEep95640(bytes, file.name);
     setEep({ file, bytes, parsed });
     setDiffRows([]); setOriginals(prev => ({ ...prev, eep: null }));
