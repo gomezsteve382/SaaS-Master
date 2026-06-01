@@ -21,6 +21,7 @@ import {
   clearKeyHistory,
   buildKeyHistoryExport,
   parseKeyHistoryImport,
+  readKeyHistoryImportVin,
   importKeyHistory,
   KEY_HISTORY_KEY,
   KEY_HISTORY_LIMIT_PER_VIN,
@@ -258,5 +259,24 @@ describe('whole-key-set wrapper export / import — Task #992', () => {
   it('throws when the wrapper has no usable keys', () => {
     const empty = JSON.stringify(buildKeyHistoryExport(VIN_A, []));
     expect(() => parseKeyHistoryImport(empty)).toThrow(/No keys/i);
+  });
+});
+
+describe('readKeyHistoryImportVin — pre-import VIN warning helper', () => {
+  it('returns the normalized VIN a wrapper was exported from', () => {
+    const json = JSON.stringify(buildKeyHistoryExport(VIN_A, []));
+    expect(readKeyHistoryImportVin(json)).toBe(VIN_A);
+  });
+
+  it('accepts the wrapper object directly and normalizes the VIN', () => {
+    const wrapper = buildKeyHistoryExport('2c3cdxl95kh123456', []);
+    expect(readKeyHistoryImportVin(wrapper)).toBe(VIN_A);
+  });
+
+  it('returns empty string for a bare array, missing VIN, or unparsable input', () => {
+    expect(readKeyHistoryImportVin('[{"chipId":"id46"}]')).toBe('');
+    expect(readKeyHistoryImportVin(JSON.stringify({ type: KEY_HISTORY_EXPORT_TYPE, keys: [] }))).toBe('');
+    expect(readKeyHistoryImportVin('{not json')).toBe('');
+    expect(readKeyHistoryImportVin(null)).toBe('');
   });
 });

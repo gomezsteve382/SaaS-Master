@@ -50,6 +50,7 @@ import {
   buildKeyHistoryExport,
   importKeyHistory,
   refreshKeyHistoryFromServer,
+  readKeyHistoryImportVin,
 } from '../lib/keyWriter/keyHistory.js';
 
 const WRITERS = [
@@ -591,6 +592,18 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
     } catch {
       setKeyDumpNote({ ok: false, msg: 'Could not read the selected file.' });
       return;
+    }
+    const wrapperVin = readKeyHistoryImportVin(text);
+    if (wrapperVin && wrapperVin !== masterVin) {
+      const proceed = typeof window === 'undefined' || typeof window.confirm !== 'function'
+        || window.confirm(
+          `This key set was exported from ${wrapperVin}, but the active Master VIN is ${masterVin}.\n\n` +
+          'Importing will fold these keys into the current vehicle. Continue anyway?'
+        );
+      if (!proceed) {
+        setKeyDumpNote({ ok: false, msg: `Import cancelled — key set belongs to ${wrapperVin}, not ${masterVin}.` });
+        return;
+      }
     }
     const res = importKeyHistory(masterVin, text);
     if (!res.ok) { setKeyDumpNote({ ok: false, msg: res.error }); return; }

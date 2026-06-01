@@ -309,6 +309,19 @@ export function parseKeyHistoryImport(input) {
   return out;
 }
 
+/* Pure helper: pull the VIN a wrapper was exported from, if it carries one.
+ * Accepts the wrapper object or a JSON string of it. Returns the normalized
+ * VIN, or '' when the input is a bare array / has no usable VIN / is unparsable.
+ * Never throws — callers use this only to decide whether to warn before import. */
+export function readKeyHistoryImportVin(input) {
+  let parsed = input;
+  if (typeof input === 'string') {
+    try { parsed = JSON.parse(input); } catch { return ''; }
+  }
+  if (!parsed || Array.isArray(parsed) || typeof parsed.vin !== 'string') return '';
+  return normalizeVin(parsed.vin);
+}
+
 /* localStorage wrapper: import a key-set wrapper into a VIN's history. Each
  * entry is re-built through makeHistoryEntry (fresh id) and folded in with the
  * same upsert/dedupe/cap reducer used by single saves, so importing into a

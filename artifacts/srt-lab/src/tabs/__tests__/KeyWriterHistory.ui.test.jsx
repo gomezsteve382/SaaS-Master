@@ -198,3 +198,67 @@ describe('KeyWriter Export/Import key set buttons (Task #1000)', () => {
     expect(screen.getByTestId('key-history-import').disabled).toBe(true);
   });
 });
+
+describe('KeyWriter cross-VIN import warning (Task #999)', () => {
+  const OTHER_VIN = '2C3CDXL95KH654321';
+
+  /* A one-key wrapper exported from OTHER_VIN, ready to import onto VIN. */
+  function otherVinWrapperFile() {
+    const wrapper = {
+      type: 'srtlab.keywriter.keyhistory',
+      version: 1,
+      exportedAt: Date.now(),
+      vin: OTHER_VIN,
+      keys: [{
+        chipId: 'id46', uidHex: '11 22 33 44', skHex: '4F 4E 4D 49 4B 52',
+        flags: { locked: false, coding: 'manchester', encryption: true, cloneable: true },
+        label: 'foreign fob', slotIdx: 0,
+      }],
+    };
+    const file = new File([JSON.stringify(wrapper)], 'keys.json', { type: 'application/json' });
+    file.text = async () => JSON.stringify(wrapper);
+    return file;
+  }
+
+  beforeEach(() => {
+    globalThis.localStorage?.removeItem(KEY_HISTORY_KEY);
+    if (!globalThis.URL.createObjectURL) globalThis.URL.createObjectURL = () => 'blob:stub';
+    if (!globalThis.URL.revokeObjectURL) globalThis.URL.revokeObjectURL = () => {};
+  });
+  afterEach(() => {
+    cleanup();
+    delete globalThis.window.confirm;
+  });
+
+  it('cancelling the warning aborts with no change to history', async () => {
+    globalThis.window.confirm = () => false;
+    renderWithVin(VIN);
+    expect(screen.getByTestId('key-history-empty')).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('key-history-import-input'), {
+        target: { files: [otherVinWrapperFile()] },
+      });
+    });
+
+    expect(screen.queryByTestId('key-history-list')).toBeNull();
+    expect(screen.getByTestId('key-history-empty')).toBeTruthy();
+    expect(screen.getByTestId('key-dump-note').textContent).toMatch(/cancelled/i);
+  });
+
+  it('confirming the warning folds the foreign key set in', async () => {
+    globalThis.window.confirm = () => true;
+    renderWithVin(VIN);
+
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('key-history-import-input'), {
+        target: { files: [otherVinWrapperFile()] },
+      });
+    });
+
+    const rows = within(screen.getByTestId('key-history-list')).getAllByTestId('key-history-row');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].textContent).toMatch(/foreign fob/);
+    expect(screen.getByTestId('key-dump-note').textContent).toMatch(/Imported 1 key/i);
+  });
+});
