@@ -7,7 +7,7 @@ import PcmRepairWizard from "../components/PcmRepairWizard.jsx";
 import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
 import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
-import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, corruptFillError, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
+import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, corruptFillError, detectCorruptFill, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
 import { crossValidate } from "../lib/crossValidate.js";
 import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
 import { scoreCandidate, pickBest, fmtPick, CANONICAL_PATTERNS } from "../lib/bestPick.js";
@@ -2575,6 +2575,30 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   ];
 
   const doSync = (action, overrideVin) => {
+    /* Task #940 — corrupt-capture guard. Even though the load handlers
+     * reject OBDSTAR6-class tool-error fills up-front, re-check every
+     * loaded buffer at the moment of sync so a flagged file can never
+     * reach the SEC16 / VIN / SEC6 writers regardless of how it entered a
+     * slot. Only the modules the chosen action actually touches are
+     * checked, so a corrupt-but-unused module can't block an unrelated
+     * sync. */
+    const participants = MODSYNC_ACTION_PARTICIPANTS[action] || ['BCM', 'RFHUB', 'PCM'];
+    const corruptSlots = [];
+    const checkSlot = (name, bytes) => {
+      if (!bytes) return;
+      const cf = detectCorruptFill(bytes);
+      if (cf) corruptSlots.push({ name, cf });
+    };
+    if (participants.includes('BCM'))   checkSlot('BCM', bcm.bytes);
+    if (participants.includes('RFHUB')) checkSlot('RFHUB', rfh.bytes);
+    if (participants.includes('PCM'))   checkSlot('PCM', pcm.bytes);
+    if (participants.includes('EEP') || participants.includes('95640')) checkSlot('95640', eep.bytes);
+    if (corruptSlots.length > 0) {
+      for (const { name, cf } of corruptSlots) {
+        log(`✗ ${action} blocked: ${name} buffer is a corrupt capture (${cf.reason}) — ${cf.detail} Re-read the module with verified hardware before syncing.`, 'err');
+      }
+      return;
+    }
     /* Task #801 — on overlap dumps (mirror1 at 0x40C0 colliding with the
      * flat 0x40C9 slice), the compatibility-mode choice has real
      * consequences for which bench tool will accept the downloaded file.

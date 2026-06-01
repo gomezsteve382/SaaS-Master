@@ -10,7 +10,7 @@ import ReadFirstModal from "../lib/readFirstModal.jsx";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
-import CorruptDumpBanner from "../components/CorruptDumpBanner.jsx";
+import CorruptFillBanner from "../components/CorruptFillBanner.jsx";
 import {parseModule,moduleTooSmall,corruptFillError} from "../lib/parseModule.js";
 import {vinHasSGW} from "../lib/vin.js";
 import {createBridgeEngine} from "../lib/bridgeEngine.js";
@@ -272,6 +272,12 @@ export default function RfhubTab({vehicle}){
   const [inspectTooSmall,setInspectTooSmall]=useState(null);
   const inspectEntry=rfhubDumps.find(d=>d.hash===inspectHash)||rfhubDumps[0]||null;
   const inspectMod=inspectEntry?.mod||null;
+
+  /* Task #940 — corrupt fill guard.
+   * If the buffer was filled with tool-error patterns (0xEE/0xFF/0x00)
+   * during read/upload, display the banner and suppress panels to
+   * prevent writing garbage back to the module. */
+  const inspectCorrupt=inspectMod?.corruptFill||null;
 
   /* Task #935 — RFHUB PIN encoding resolution + cumulative lockout guard.
    * Resolve the best-known encoding from the loaded RFHUB dump's generation,
@@ -688,9 +694,9 @@ export default function RfhubTab({vehicle}){
         </div>
         <div style={{marginTop:8,fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>Re-read the RFHUB in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module.</div>
       </div>}
-      <CorruptDumpBanner mod={inspectMod} testid="rfhub-corrupt-dump-banner"/>
-      {inspectMod&&!inspectTooSmall&&!inspectMod.corruptFill&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod}/></div>}
-      {inspectMod&&!inspectTooSmall&&!inspectMod.corruptFill&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}
+      {inspectMod&&!inspectTooSmall&&inspectCorrupt&&<CorruptFillBanner testId="rfhub-corrupt-fill-banner" result={inspectCorrupt} name={inspectMod.filename}/>}
+      {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod}/></div>}
+      {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}
     </Card>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>

@@ -5,6 +5,7 @@ import {parseModule,moduleTooSmall,pcmChipFromSize,corruptFillError} from "../li
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {SizeWarnBanner,ContentWarnBanner} from "../components/ModuleFieldsPanel.jsx";
 import GpecObdVinPanel from "../components/GpecObdVinPanel.jsx";
+import CorruptFillBanner from "../components/CorruptFillBanner.jsx";
 
 const dl=(d,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d]));a.download=n;a.click();URL.revokeObjectURL(a.href);};
 const offHex=o=>'0x'+o.toString(16).toUpperCase().padStart(4,'0');
@@ -22,6 +23,12 @@ function Gpec2aTab(){
   const entry2=gpecDumps.find(d=>d.hash===hash2&&d.hash!==entry1?.hash)||gpecDumps.find(d=>d.hash!==entry1?.hash)||null;
   const f=entry1?.mod||null;
   const f2=entry2?.mod||null;
+  // Task #940 — a dump auto-shared from the Dumps tab bypasses the load()
+  // corrupt-fill guard, so re-check both active buffers here and suppress
+  // the analysis / diff panels (and block the SKIM patch writer) when they
+  // match a tool-error fill pattern.
+  const corrupt1=f?.corruptFill||null;
+  const corrupt2=f2?.corruptFill||null;
 
   const load=useCallback((e,slot)=>{
     const fi=e.target.files[0];if(!fi)return;
@@ -48,6 +55,7 @@ function Gpec2aTab(){
 
   const toggleSkim=useCallback(()=>{
     if(!f||!entry1)return;
+    if(f.corruptFill){setMsg(corruptFillError(f));return;}
     const p=new Uint8Array(f.data);
     p[0x11]=p[0x11]===0x80?0x00:0x80;
     const next=parseModule(p,f.filename,{forceType:'GPEC2A'});
@@ -129,8 +137,10 @@ function Gpec2aTab(){
         VIN / SKIM / SECRET KEY verdicts off random padding bytes. */}
     {f&&f.contentWarn&&<ContentWarnBanner warn={f.contentWarn}/>}
     {f2&&f2.contentWarn&&<ContentWarnBanner warn={f2.contentWarn}/>}
+    {corrupt1&&<CorruptFillBanner testId="gpec2a-corrupt-fill-banner-1" result={corrupt1} name={f.filename}/>}
+    {corrupt2&&<CorruptFillBanner testId="gpec2a-corrupt-fill-banner-2" result={corrupt2} name={f2.filename}/>}
 
-    {f&&<>
+    {f&&!corrupt1&&<>
       {/* Hero status: SKIM + ZZZZ tamper */}
       <Card glow style={{marginBottom:14}}>
         <div style={{fontSize:16,fontWeight:900,marginBottom:12,display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
@@ -227,7 +237,7 @@ function Gpec2aTab(){
       </Card>}
     </>}
 
-    {f&&f2&&<Card style={{padding:16,marginTop:10}}>
+    {f&&f2&&!corrupt1&&!corrupt2&&<Card style={{padding:16,marginTop:10}}>
       <div style={{fontSize:13,fontWeight:800,marginBottom:10}}>🔀 Hex Diff — {diff.length} byte{diff.length!==1?'s':''} different</div>
       {diff.length===0&&<div style={{fontSize:12,color:C.gn,fontWeight:700}}>✓ Files are identical</div>}
       {diff.length>0&&<div style={{fontFamily:"'JetBrains Mono'",fontSize:10,background:C.c2,borderRadius:8,padding:10,maxHeight:260,overflow:'auto',border:'1px solid '+C.bd}}>

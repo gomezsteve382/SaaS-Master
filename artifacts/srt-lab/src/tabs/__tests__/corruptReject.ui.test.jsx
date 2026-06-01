@@ -33,7 +33,8 @@ import BcmTab      from "../BcmTab.jsx";
 import RfhubTab    from "../RfhubTab.jsx";
 import EcmTab      from "../EcmTab.jsx";
 import AdcmTab     from "../AdcmTab.jsx";
-import { MasterVinProvider } from "../../lib/masterVinContext.jsx";
+import { MasterVinProvider, MasterVinContext } from "../../lib/masterVinContext.jsx";
+import { parseModule } from "../../lib/parseModule.js";
 
 // ─── Corrupt fixture ──────────────────────────────────────────────────────────
 //
@@ -323,5 +324,76 @@ describe("AdcmTab — corrupt file rejected", () => {
     assertNoIdentityCard();
 
     restore();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared-state (loadedDumps) corrupt buffer — Task #940
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// The upload-path guards above (onInspectFile / load / drop) only fire when a
+// file is dropped *into the tab itself*.  A corrupt capture can still reach an
+// inspector through the shared workspace store (MasterVinContext.loadedDumps)
+// when it was loaded elsewhere (Dumps tab) and the tab auto-pulls it via
+// getDumpsByType.  Task #931 only guarded the Dumps vault; Task #940 adds the
+// badge + write block at every consumption point.
+//
+// These tests inject a corrupt dump straight into loadedDumps (bypassing the
+// per-tab upload guard) and assert the tab renders its corruption banner and
+// suppresses the analysis / identity panels.
+
+// Harness: calls addDump(parsedCorruptMod) once on mount, then renders the tab.
+function InjectAndRender({ type, child }) {
+  const { addDump, loadedDumps } = React.useContext(MasterVinContext);
+  const injected = React.useRef(false);
+  React.useEffect(() => {
+    if (injected.current) return;
+    injected.current = true;
+    const mod = parseModule(CORRUPT, "corrupt.bin", { forceType: type });
+    addDump(mod, "Dumps tab");
+  }, [addDump]);
+  // Only mount the tab once the corrupt dump is actually in the store, so the
+  // first render the tab sees already has the shared buffer.
+  return loadedDumps.length > 0 ? child : null;
+}
+
+function wrapInjected(type, child) {
+  return render(
+    <MasterVinProvider setPg={() => {}}>
+      <InjectAndRender type={type} child={child} />
+    </MasterVinProvider>
+  );
+}
+
+describe("Shared-state corrupt buffer — badged + blocked in inspectors", () => {
+  it("BcmTab badges a corrupt loadedDumps buffer and hides the field panels", async () => {
+    const { container } = wrapInjected("BCM", <BcmTab />);
+    await waitFor(
+      () => expect(container.querySelector('[data-testid="bcm-corrupt-fill-banner"]')).toBeTruthy(),
+      { timeout: 3000 }
+    );
+    expect(screen.getByText(/Corrupt capture/i)).toBeTruthy();
+    assertNoIdentityCard();
+  });
+
+  it("RfhubTab badges a corrupt loadedDumps buffer and hides the field panels", async () => {
+    const { container } = wrapInjected("RFHUB", <RfhubTab />);
+    await waitFor(
+      () => expect(container.querySelector('[data-testid="rfhub-corrupt-fill-banner"]')).toBeTruthy(),
+      { timeout: 3000 }
+    );
+    expect(screen.getByText(/Corrupt capture/i)).toBeTruthy();
+    assertNoIdentityCard();
+  });
+
+  it("Gpec2aTab badges a corrupt loadedDumps buffer and hides the analysis panels", async () => {
+    const { container } = wrapInjected("GPEC2A", <Gpec2aTab />);
+    await waitFor(
+      () => expect(container.querySelector('[data-testid="gpec2a-corrupt-fill-banner-1"]')).toBeTruthy(),
+      { timeout: 3000 }
+    );
+    expect(screen.getByText(/Corrupt capture/i)).toBeTruthy();
+    // The GPEC2A analysis card must not have rendered off the corrupt buffer.
+    expect(screen.queryByText(/GPEC2A Analysis/i)).toBeNull();
   });
 });

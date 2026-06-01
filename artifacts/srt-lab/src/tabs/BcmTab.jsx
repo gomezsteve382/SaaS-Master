@@ -9,8 +9,8 @@ import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {parseModule, syncImmoBackup, bcmTooSmall, corruptFillError} from "../lib/parseModule.js";
+import CorruptFillBanner from "../components/CorruptFillBanner.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
-import CorruptDumpBanner from "../components/CorruptDumpBanner.jsx";
 import {bcmFeatureMatrix} from "../lib/cgwConfig.js";
 import {vinHasSGW} from "../lib/vin.js";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
@@ -735,6 +735,12 @@ export default function BcmTab({vehicle}){
   const [inspectPnCheck,setInspectPnCheck]=useState(null);
   const inspectEntry=bcmDumps.find(d=>d.hash===inspectHash)||bcmDumps[0]||null;
   const inspectMod=inspectEntry?.mod||null;
+  // Task #940 — a dump that reached this inspector through the shared
+  // workspace store (Dumps-tab load) bypasses onInspectFile's corrupt-fill
+  // guard, so re-check the active buffer here. When flagged, the field /
+  // identity / feature panels are suppressed and the IMMO-sync writer
+  // refuses to run.
+  const inspectCorrupt=inspectMod?.corruptFill||null;
 
   // Run part-number detection whenever the active dump changes — covers both
   // manual file loads (via onInspectFile) and dumps auto-shared via the
@@ -793,7 +799,7 @@ export default function BcmTab({vehicle}){
   },[addDump,vehicle]);
   const onSyncImmoFile=useCallback(()=>{
     if(!inspectEntry||!inspectMod)return;
-    if(inspectMod.corruptFill){setInspectMsg(corruptFillError(inspectMod));return;}
+    if(inspectCorrupt){setInspectMsg(corruptFillError(inspectMod));return;}
     if(inspectMod.immoBlank){setInspectMsg('IMMO primary is blank — nothing to sync.');return;}
     if(!window.confirm('Copy IMMO primary @0x40C0 → backup @0x2000? A patched .bin will be downloaded; the original file is not modified.'))return;
     const synced=syncImmoBackup(inspectMod.data);
@@ -803,7 +809,7 @@ export default function BcmTab({vehicle}){
     const updated=replaceDump(inspectEntry.hash,reparsed);
     if(updated)setInspectHash(updated.hash);
     setInspectMsg('IMMO backup synced: '+inspectMod.immoRecs+' keys → 0x2000. Snapshot downloaded.');
-  },[inspectEntry,inspectMod,replaceDump]);
+  },[inspectEntry,inspectMod,inspectCorrupt,replaceDump]);
   const closeInspect=useCallback(()=>{
     if(inspectEntry)removeDump(inspectEntry.hash);
     setInspectHash(null);setInspectMsg('');setInspectErr('');setInspectTooSmall(null);setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);
@@ -1006,9 +1012,9 @@ export default function BcmTab({vehicle}){
       </div>}
       {inspectErr&&<div style={{marginTop:8,padding:'8px 12px',borderRadius:8,background:C.er+'12',border:'1px solid '+C.er+'40',fontSize:11,fontWeight:700,color:C.er}}>{inspectErr}</div>}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.gn,fontWeight:700}}>{inspectMsg}</div>}
-      <CorruptDumpBanner mod={inspectMod} testid="bcm-corrupt-dump-banner"/>
-      {inspectMod&&!inspectTooSmall&&!inspectMod.corruptFill&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
-      {inspectMod&&!inspectTooSmall&&!inspectMod.corruptFill&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}
+      {inspectMod&&!inspectTooSmall&&inspectCorrupt&&<CorruptFillBanner testId="bcm-corrupt-fill-banner" result={inspectCorrupt} name={inspectMod.filename}/>}
+      {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
+      {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}
     </Card>
 
     <MinedBcmConfigPanel
@@ -1020,7 +1026,7 @@ export default function BcmTab({vehicle}){
       setBusy={setBusy}
     />
 
-    {inspectMod&&!inspectTooSmall&&!inspectMod.corruptFill&&<FeatureMatrixPanel mod={inspectMod}/>}
+    {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&<FeatureMatrixPanel mod={inspectMod}/>}
 
     <FeatureMatrixCatalog/>
 

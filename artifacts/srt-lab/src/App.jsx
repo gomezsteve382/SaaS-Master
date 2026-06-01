@@ -1723,6 +1723,7 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       {corruptEntries.map(({file:f,fileIndex,result})=>(
         <CorruptFillBanner
           key={`corrupt-${fileIndex}`}
+          testId="dumps-corrupt-fill-badge"
           filename={f.name||f.filename}
           moduleType={f.type}
           size={f.size}
