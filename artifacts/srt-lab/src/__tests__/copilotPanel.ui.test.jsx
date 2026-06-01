@@ -29,6 +29,26 @@ import React from 'react';
 import CopilotPanel from '../components/CopilotPanel.jsx';
 import { MasterVinContext } from '../lib/masterVinContext.jsx';
 
+// Render the panel inside a MasterVinContext provider carrying loaded bench
+// dumps, which is what flips the Co-pilot onto the tool-use endpoint.
+function renderWithDumps(loadedDumps, props = {}) {
+  return render(
+    <MasterVinContext.Provider value={{ vin: '', vinValid: false, loadedDumps }}>
+      <CopilotPanel open onClose={() => {}} {...props} />
+    </MasterVinContext.Provider>,
+  );
+}
+
+// A single loaded dump of the given module type with `n` bytes of data.
+function dump(type, n = 16) {
+  return { type, mod: { type, data: new Uint8Array(n) } };
+}
+
+// SSE response for the tool-use endpoint: emits typed frames then done.
+function toolStream(frames) {
+  return sse(makeStream([...frames, { done: true }]));
+}
+
 // A ReadableStream that emits the given SSE frames then closes.
 function makeStream(frames) {
   const enc = new TextEncoder();
@@ -609,5 +629,135 @@ describe('CopilotPanel — bench context (loaded dumps + detach toggle)', () => 
     await waitFor(() => expect(messagesCall(calls)).toBeTruthy());
     expect(JSON.parse(messagesCall(calls).init.body)).toEqual({ content: 'hello' });
     expect(toolMessagesCall(calls)).toBeUndefined();
+  });
+});
+
+describe('CopilotPanel — tool trace', () => {
+  // Route the tool-use endpoint. installFetch's /messages$ matcher doesn't
+  // catch /tool-messages, so we wire fetch directly for these.
+  function installToolFetch({ frames }) {
+    const calls = [];
+    global.fetch = vi.fn(async (url, init = {}) => {
+      const u = String(url);
+      const method = (init.method || 'GET').toUpperCase();
+      calls.push({ url: u, init, method });
+      if (method === 'GET' && /\/anthropic\/conversations\?scope=/.test(u)) {
+        return jsonResponse(200, []);
+      }
+      if (method === 'POST' && /\/anthropic\/conversations$/.test(u)) {
+        return jsonResponse(201, { id: 1, scope: 'general', title: 'New chat' });
+      }
+      if (method === 'POST' && /\/conversations\/\d+\/tool-messages$/.test(u)) {
+        return toolStream(frames);
+      }
+      if (method === 'POST' && /\/conversations\/\d+\/messages$/.test(u)) {
+        return streamingResponse(['plain']);
+      }
+      return jsonResponse(404, { error: 'not found' });
+    });
+    return { calls };
+  }
+
+  it('routes to the tool endpoint and renders inspected steps when bytes are loaded', async () => {
+    const { calls } = installToolFetch({
+      frames: [
+        { type: 'tool_call', id: 'a1', toolName: 'read_hex', args: '{"offset":0,"length":16}' },
+        { type: 'tool_result', id: 'a1', result: 'BCM @ 0x0000\n00 11 22', durationMs: 12, bytesReturned: 48 },
+        { type: 'text', content: 'The BCM looks fine.' },
+      ],
+    });
+
+    renderWithDumps([dump('BCM')]);
+    fireEvent.change(screen.getByTestId('copilot-input'), { target: { value: 'inspect bcm' } });
+    fireEvent.click(screen.getByTestId('copilot-send'));
+
+    // The assistant text streams in.
+    await waitFor(() =>
+      expect(screen.getByTestId('copilot-msg-assistant').textContent).toBe('The BCM looks fine.'),
+    );
+
+    // The bench bytes routed to the tool endpoint, not the plain one.
+    expect(calls.some((c) => /\/tool-messages$/.test(c.url))).toBe(true);
+    expect(calls.some((c) => /\/messages$/.test(c.url) && !/tool-messages/.test(c.url))).toBe(false);
+
+    // Disclosure is present and collapsed by default (no steps shown yet).
+    const trace = screen.getByTestId('copilot-tool-trace');
+    expect(trace.textContent).toMatch(/Inspected 1 step/);
+    expect(screen.queryByTestId('copilot-tool-step')).toBeNull();
+
+    // Expanding reveals the tool step with its module label + result summary.
+    fireEvent.click(screen.getByTestId('copilot-tool-trace-toggle'));
+    const step = await screen.findByTestId('copilot-tool-step');
+    expect(step.textContent).toMatch(/read_hex/);
+    expect(step.textContent).toMatch(/BCM/);
+    expect(step.textContent).toMatch(/BCM @ 0x0000/);
+  });
+
+  it('labels a hex_diff step with both modules', async () => {
+    installToolFetch({
+      frames: [
+        { type: 'tool_call', id: 'd1', toolName: 'hex_diff', args: '{"otherId":"RFHUB"}' },
+        { type: 'tool_result', id: 'd1', result: '3 differing ranges', durationMs: 5, bytesReturned: 0 },
+        { type: 'text', content: 'They differ.' },
+      ],
+    });
+
+    renderWithDumps([dump('BCM'), dump('RFHUB')]);
+    fireEvent.change(screen.getByTestId('copilot-input'), { target: { value: 'diff them' } });
+    fireEvent.click(screen.getByTestId('copilot-send'));
+
+    await waitFor(() => expect(screen.getByTestId('copilot-tool-trace')).toBeTruthy());
+    fireEvent.click(screen.getByTestId('copilot-tool-trace-toggle'));
+    const step = await screen.findByTestId('copilot-tool-step');
+    // primary ↔ otherId label.
+    expect(step.textContent).toMatch(/BCM ↔ RFHUB/);
+  });
+
+  it('shows no tool trace for a plain chat with no bytes attached', async () => {
+    installFetch({ list: [], onMessages: () => streamingResponse(['just text']) });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+    fireEvent.change(screen.getByTestId('copilot-input'), { target: { value: 'hello' } });
+    fireEvent.click(screen.getByTestId('copilot-send'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('copilot-msg-assistant').textContent).toBe('just text'),
+    );
+    expect(screen.queryByTestId('copilot-tool-trace')).toBeNull();
+    expect(screen.queryByTestId('copilot-tool-step')).toBeNull();
+  });
+
+  it('hydrates a persisted tool trace on a resumed chat', async () => {
+    installFetch({
+      list: [{ id: 3, scope: 'general', title: 'Bench chat', createdAt: Date.now() }],
+      conv: {
+        id: 3,
+        scope: 'general',
+        title: 'Bench chat',
+        messages: [
+          { role: 'user', content: 'inspect it' },
+          {
+            role: 'assistant',
+            content: 'Done.',
+            id: 42,
+            toolTrace: [
+              { toolName: 'extract_strings', args: { min: 4 }, resultPreview: 'VIN: 2C3...', bytesReturned: 20, durationMs: 8 },
+            ],
+          },
+        ],
+      },
+    });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('copilot-msg-assistant').textContent).toMatch(/Done\./),
+    );
+    const trace = screen.getByTestId('copilot-tool-trace');
+    expect(trace.textContent).toMatch(/Inspected 1 step/);
+    fireEvent.click(screen.getByTestId('copilot-tool-trace-toggle'));
+    const step = await screen.findByTestId('copilot-tool-step');
+    expect(step.textContent).toMatch(/extract_strings/);
+    expect(step.textContent).toMatch(/VIN: 2C3/);
   });
 });

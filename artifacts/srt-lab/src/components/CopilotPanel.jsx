@@ -94,6 +94,28 @@ function formatRelativeTime(input, now = Date.now()) {
   return new Date(t).toLocaleDateString();
 }
 
+/* Normalize a server message into the panel's local shape, carrying any
+ * persisted tool trace so a resumed chat shows the same "Inspected N steps"
+ * disclosure that streamed live. The server returns each entry as
+ * { toolName, args, resultPreview, bytesReturned, durationMs }; the disclosure
+ * wants { toolName, args, status, result, bytesReturned, durationMs }. */
+function hydrateMessage(m) {
+  const base = {role: m.role, content: m.content};
+  if (!Array.isArray(m.toolTrace) || m.toolTrace.length === 0) return base;
+  return {
+    ...base,
+    toolTrace: m.toolTrace.map((t, i) => ({
+      id: `hydrated-${m.id}-${i}`,
+      toolName: t.toolName,
+      args: t.args,
+      status: 'done',
+      result: t.result ?? t.resultPreview ?? '',
+      bytesReturned: t.bytesReturned ?? 0,
+      durationMs: t.durationMs ?? 0,
+    })),
+  };
+}
+
 function useGeneralChat() {
   const [messages, setMessages] = useState([]);
   const [streaming, setStreaming] = useState(false);
@@ -132,7 +154,7 @@ function useGeneralChat() {
       if (cancelled) return true;
       setConversationId(data.id);
       convIdRef.current = data.id;
-      setMessages((data.messages || []).map((m) => ({role: m.role, content: m.content})));
+      setMessages((data.messages || []).map(hydrateMessage));
       try { localStorage.setItem(LAST_CONV_KEY, String(data.id)); } catch { /* ignore */ }
       return true;
     };
@@ -172,8 +194,21 @@ function useGeneralChat() {
     if (!content || streaming) return;
 
     setError(null);
+
+    /* Decide up-front whether this send will route to the tool-use endpoint so
+     * the assistant placeholder can carry a toolTrace array we append tool
+     * activity to as it streams. A plain general-purpose chat (no bytes
+     * attached) gets no trace, so nothing tool-related ever renders. */
+    const ctx = contextRef.current;
+    const binary = binaryRef.current;
+    const useTools = !!(binary && binary.binaryBase64);
+    const primaryKey = (binary && binary.primaryKey) || null;
+
     const userMsg = {role: 'user', content};
-    setMessages([...messagesRef.current, userMsg, {role: 'assistant', content: ''}]);
+    const assistantPlaceholder = useTools
+      ? {role: 'assistant', content: '', toolTrace: []}
+      : {role: 'assistant', content: ''};
+    setMessages([...messagesRef.current, userMsg, assistantPlaceholder]);
     setStreaming(true);
 
     const controller = new AbortController();
@@ -201,10 +236,9 @@ function useGeneralChat() {
        * dumps (read_hex / extract_strings / hex_diff). Otherwise (no bytes, or
        * the user detached the bench context) use the plain text endpoint and
        * the chat stays general-purpose. moduleContext is sent on both paths so
-       * the model sees the active VIN + loaded module summaries when present. */
-      const ctx = contextRef.current;
-      const binary = binaryRef.current;
-      const useTools = !!(binary && binary.binaryBase64);
+       * the model sees the active VIN + loaded module summaries when present.
+       * ctx / binary / useTools were resolved before the placeholder was
+       * inserted so the assistant bubble could carry its toolTrace. */
       const endpoint = useTools
         ? `${API_BASE}/anthropic/conversations/${convId}/tool-messages`
         : `${API_BASE}/anthropic/conversations/${convId}/messages`;
@@ -261,11 +295,43 @@ function useGeneralChat() {
           if (evt.error) {
             throw new Error(evt.error);
           }
+          /* The tool-use endpoint emits typed frames: text deltas
+           * ({type:'text', content}), tool_call (assistant invoking a tool),
+           * and tool_result (its output). The plain text endpoint just sends
+           * {content}. Text on either path accumulates into the bubble; the
+           * tool frames append to / update the bubble's toolTrace. */
           if (evt.content) {
             acc += evt.content;
             setMessages((m) => {
               const copy = m.slice();
-              copy[copy.length - 1] = {role: 'assistant', content: acc};
+              const last = copy[copy.length - 1];
+              copy[copy.length - 1] = {...last, role: 'assistant', content: acc};
+              return copy;
+            });
+          } else if (evt.type === 'tool_call') {
+            setMessages((m) => {
+              const copy = m.slice();
+              const last = copy[copy.length - 1];
+              const trace = [...(last.toolTrace || []), {
+                id: evt.id,
+                toolName: evt.toolName,
+                args: evt.args,
+                module: deriveToolModule(evt.toolName, evt.args, primaryKey),
+                status: 'running',
+              }];
+              copy[copy.length - 1] = {...last, toolTrace: trace};
+              return copy;
+            });
+          } else if (evt.type === 'tool_result') {
+            setMessages((m) => {
+              const copy = m.slice();
+              const last = copy[copy.length - 1];
+              const trace = (last.toolTrace || []).map((t) =>
+                t.id === evt.id
+                  ? {...t, status: 'done', result: evt.result, durationMs: evt.durationMs, bytesReturned: evt.bytesReturned}
+                  : t,
+              );
+              copy[copy.length - 1] = {...last, toolTrace: trace};
               return copy;
             });
           }
@@ -313,7 +379,7 @@ function useGeneralChat() {
       if (data.scope !== SCOPE) throw new Error('Not a Co-pilot chat');
       setConversationId(data.id);
       convIdRef.current = data.id;
-      setMessages((data.messages || []).map((m) => ({role: m.role, content: m.content})));
+      setMessages((data.messages || []).map(hydrateMessage));
       try { localStorage.setItem(LAST_CONV_KEY, String(data.id)); } catch { /* ignore */ }
     } catch (e) {
       setError(`Could not load chat: ${e.message}`);
@@ -413,7 +479,118 @@ function buildBenchBinaries(loadedDumps) {
     total += bytes.length;
   }
   if (!primaryKey) return null;
-  return {binaryBase64: binaries[primaryKey], binaries};
+  return {binaryBase64: binaries[primaryKey], binaries, primaryKey};
+}
+
+/* Normalize a tool entry's args into an object — the SSE tool_call frame
+ * sends args as a truncated JSON string, while persisted/hydrated traces
+ * return a parsed object. Both flow through the disclosure. */
+function normalizeToolArgs(args) {
+  if (args && typeof args === 'object') return args;
+  if (typeof args === 'string') {
+    try { return JSON.parse(args); } catch { return {}; }
+  }
+  return {};
+}
+
+/* Derive the module the Co-pilot inspected for a given tool step. Most tools
+ * run against the primary loaded dump; hex_diff also names a second module via
+ * `otherId`. Falls back to a generic label when no bench module is known
+ * (e.g. an older hydrated trace viewed with nothing loaded). */
+function deriveToolModule(toolName, args, primaryKey) {
+  if (toolName === 'hex_diff') {
+    const otherId = normalizeToolArgs(args).otherId;
+    if (primaryKey && otherId) return `${primaryKey} ↔ ${otherId}`;
+    if (otherId) return `↔ ${otherId}`;
+    return primaryKey || 'diff';
+  }
+  return primaryKey || 'loaded dump';
+}
+
+/* First non-empty line of a tool result, trimmed to a short single-line
+ * summary for the collapsed/expanded step header. */
+function toolResultSummary(result) {
+  if (!result) return '';
+  const firstLine = String(result).split('\n').find((l) => l.trim()) || '';
+  const clean = firstLine.trim();
+  return clean.length > 120 ? `${clean.slice(0, 117)}…` : clean;
+}
+
+/* ── Tool-activity disclosure ─────────────────────────────────────────────
+ * Surfaces every read_hex / extract_strings / hex_diff / … call the Co-pilot
+ * made while drafting a reply that inspected the loaded bench bytes. Each row
+ * names the target module and a short result summary so bench answers are
+ * auditable. Collapsed by default; plain general-purpose chats never render
+ * it (the trace array is empty). Mirrors the Mismatch Wizard's disclosure. */
+function CopilotToolTrace({trace, primaryModule}) {
+  const [open, setOpen] = useState(false);
+  const runningCount = trace.filter((t) => t.status === 'running').length;
+  const doneCount = trace.filter((t) => t.status === 'done').length;
+  const totalBytes = trace.reduce((sum, t) => sum + (t.bytesReturned || 0), 0);
+
+  return (
+    <div
+      data-testid="copilot-tool-trace"
+      style={{
+        fontFamily: C.mono, fontSize: 10.5, color: C.muted,
+        background: C.base, border: `1px solid ${C.line}`, borderRadius: 10,
+        overflow: 'hidden',
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        data-testid="copilot-tool-trace-toggle"
+        style={{
+          width: '100%', textAlign: 'left', background: 'transparent', border: 'none',
+          padding: '7px 11px', color: C.muted, cursor: 'pointer', fontFamily: C.mono,
+          fontSize: 10.5, display: 'flex', alignItems: 'center', gap: 6,
+        }}
+      >
+        <span>{open ? '▼' : '▶'}</span>
+        <Cpu size={12} style={{color: C.red, flexShrink: 0}} />
+        <span style={{color: C.red, fontWeight: 700}}>
+          Inspected {trace.length} step{trace.length === 1 ? '' : 's'}
+        </span>
+        <span style={{opacity: 0.7}}>
+          {runningCount > 0 ? `(${runningCount} running, ${doneCount} done)` : `(${totalBytes.toLocaleString()} bytes)`}
+        </span>
+      </button>
+      {open && (
+        <div style={{padding: '6px 11px 9px', borderTop: `1px solid ${C.line}`, display: 'flex', flexDirection: 'column', gap: 7}}>
+          {trace.map((t, idx) => {
+            const moduleLabel = t.module || deriveToolModule(t.toolName, t.args, primaryModule);
+            const result = t.result ?? t.resultPreview ?? '';
+            const summary = toolResultSummary(result);
+            return (
+              <div
+                key={t.id || idx}
+                data-testid="copilot-tool-step"
+                style={{borderLeft: `2px solid ${t.status === 'running' ? C.muted : C.red}`, paddingLeft: 8}}
+              >
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6}}>
+                  <span style={{color: C.ink, fontWeight: 700}}>
+                    {t.toolName}
+                    <span style={{color: C.red, fontWeight: 700}}> · {moduleLabel}</span>
+                  </span>
+                  <span style={{opacity: 0.7, whiteSpace: 'nowrap'}}>
+                    {t.status === 'running'
+                      ? '…'
+                      : `${t.durationMs != null ? `${t.durationMs}ms · ` : ''}${(t.bytesReturned || 0).toLocaleString()}B`}
+                  </span>
+                </div>
+                {summary && (
+                  <div style={{color: C.muted, marginTop: 2, wordBreak: 'break-word'}}>
+                    {summary}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
 const SUGGESTIONS = [
@@ -875,27 +1052,43 @@ export default function CopilotPanel({open, onClose}) {
           {messages.map((m, i) => {
             const isUser = m.role === 'user';
             const isLast = i === messages.length - 1;
+            const hasTrace = !isUser && Array.isArray(m.toolTrace) && m.toolTrace.length > 0;
             return (
               <div
                 key={i}
-                data-testid={isUser ? 'copilot-msg-user' : 'copilot-msg-assistant'}
                 style={{
                   alignSelf: isUser ? 'flex-end' : 'flex-start',
                   maxWidth: '88%',
-                  background: isUser ? C.userBubble : C.panel,
-                  color: isUser ? '#fff' : C.ink,
-                  border: isUser ? 'none' : `1px solid ${C.line}`,
-                  borderRadius: 12,
-                  padding: '10px 13px',
-                  fontSize: 13.5,
-                  lineHeight: 1.55,
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 6,
                 }}
               >
-                {m.content || (isLast && streaming ? (
-                  <span style={{color: C.muted, fontStyle: 'italic'}}>Thinking…</span>
-                ) : '')}
+                {hasTrace && (
+                  <CopilotToolTrace trace={m.toolTrace} primaryModule={benchBinaries?.primaryKey || null} />
+                )}
+                <div
+                  data-testid={isUser ? 'copilot-msg-user' : 'copilot-msg-assistant'}
+                  style={{
+                    alignSelf: isUser ? 'flex-end' : 'flex-start',
+                    maxWidth: '100%',
+                    background: isUser ? C.userBubble : C.panel,
+                    color: isUser ? '#fff' : C.ink,
+                    border: isUser ? 'none' : `1px solid ${C.line}`,
+                    borderRadius: 12,
+                    padding: '10px 13px',
+                    fontSize: 13.5,
+                    lineHeight: 1.55,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {m.content || (isLast && streaming ? (
+                    <span style={{color: C.muted, fontStyle: 'italic'}}>
+                      {hasTrace ? 'Inspecting…' : 'Thinking…'}
+                    </span>
+                  ) : '')}
+                </div>
               </div>
             );
           })}
