@@ -19,9 +19,16 @@
  *   label: string,
  *   uidBytes: number,
  *   payloadBytes: number,
+ *   skBytes: number,
  *   writers: Array<'vvdi-mini'|'tango'>,
  *   notes: string,
  * }} ChipFamily */
+
+/* `skBytes` is the length of the transponder *secret key* (SK) — the value an
+ * external programmer (Autel / VVDI) reports after its own "Calculate SK" step.
+ * This is a DIFFERENT thing from the RFHUB's 16-byte SEC16 master secret and
+ * from the per-slot `payloadBytes`; never conflate them. HITAG2 (PCF7945/7953)
+ * uses a 48-bit (6-byte) crypto key; Megamos AES carries a 16-byte AES key. */
 
 /** @type {ChipFamily[]} */
 export const CHIP_FAMILIES = [
@@ -30,6 +37,7 @@ export const CHIP_FAMILIES = [
     label: 'PCF7953 (HITAG2 + AES, FCA/Mopar FOBIK)',
     uidBytes: 4,
     payloadBytes: 4,
+    skBytes: 6,
     writers: ['vvdi-mini', 'tango'],
     notes:
       'Default for 2011+ FCA SRT/Demon/Hellcat/Redeye FOBIKs. RFHUB stores 8 bytes per slot (KEY_ID_BLOCK_LEN) — first 4 are the chip UID, remaining 4 are the per-fob payload the receiver hashes against the SEC16 master secret. Higher-page material (AES root key, lock bits) lives on the chip itself and is the writer firmware\'s concern, not ours.',
@@ -39,6 +47,7 @@ export const CHIP_FAMILIES = [
     label: 'PCF7945 (HITAG2 fixed-code, pre-2011 FCA)',
     uidBytes: 4,
     payloadBytes: 4,
+    skBytes: 6,
     writers: ['vvdi-mini', 'tango'],
     notes:
       'Older Gen1 RFHUB (Cherokee / WK / LX) FOBIKs. RFHUB slot idBytes hold a 4-byte UID + 4 bytes padding.',
@@ -48,6 +57,7 @@ export const CHIP_FAMILIES = [
     label: 'Megamos AES (ID88)',
     uidBytes: 7,
     payloadBytes: 16,
+    skBytes: 16,
     writers: ['tango'],
     notes:
       'Not used by stock FCA — listed for benches that share a writer with VW/Audi work. Megamos AES is a Tango-only family here: VVDI Mini lacks the Megamos AES routine in its firmware, so we refuse that combination at the serializer. SRT Lab will also refuse to burn this from a FCA RFHUB slot.',

@@ -31,6 +31,7 @@ import {
   triggerDownload,
   exportBaseName,
 } from '../lib/keyWriter/autelExport.js';
+import KeyDumpPanel from './KeyDumpPanel.jsx';
 
 const WRITERS = [
   { id: 'vvdi-mini', label: 'Xhorse VVDI Mini Key Tool' },
@@ -401,6 +402,14 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
           </div>
         )}
       </Card>
+
+      {/* Standalone key-dump capture & export — works with no RFHUB loaded;
+          when a slot is selected it can prefill the UID + surface SEC16. */}
+      <KeyDumpPanel
+        prefillSlot={slot}
+        prefillSec16={secret16}
+        prefillChipId={chipId}
+      />
 
       {/* Slot picker */}
       {parsed && (
