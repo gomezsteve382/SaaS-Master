@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect, useCallback} from 'react';
-import {Bot, X, Send, Sparkles, Plus, History, Trash2, RotateCw, Paperclip, FileText} from 'lucide-react';
+import {Bot, X, Send, Sparkles, Plus, History, Trash2, RotateCw, Paperclip, FileText, Pencil, Check} from 'lucide-react';
 
 /* Global Claude Co-pilot — an always-available, general-purpose chat panel
  * surfaced from the app shell (CommandShell). Unlike the Mismatch Wizard
@@ -303,13 +303,25 @@ function useGeneralChat() {
     if (convIdRef.current === id) startNew();
   }, [startNew]);
 
+  const renameSession = useCallback(async (id, title) => {
+    const next = (title || '').trim();
+    if (!next) throw new Error('Title cannot be empty');
+    const res = await fetch(`${API_BASE}/anthropic/conversations/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({title: next}),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }, []);
+
   const stop = useCallback(() => {
     if (abortRef.current) abortRef.current.abort();
   }, []);
 
   return {
     messages, streaming, error, conversationId, hydrated,
-    send, startNew, switchTo, listSessions, deleteSession, stop,
+    send, startNew, switchTo, listSessions, deleteSession, renameSession, stop,
   };
 }
 
@@ -322,7 +334,7 @@ const SUGGESTIONS = [
 export default function CopilotPanel({open, onClose}) {
   const {
     messages, streaming, error, conversationId, hydrated,
-    send, startNew, switchTo, listSessions, deleteSession, stop,
+    send, startNew, switchTo, listSessions, deleteSession, renameSession, stop,
   } = useGeneralChat();
   const [input, setInput] = useState('');
   const [pastOpen, setPastOpen] = useState(false);
@@ -331,6 +343,8 @@ export default function CopilotPanel({open, onClose}) {
   const [attachments, setAttachments] = useState([]); /* {id,name,size,content} */
   const [attachError, setAttachError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
+  const [renamingId, setRenamingId] = useState(null);
+  const [renameDraft, setRenameDraft] = useState('');
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -458,6 +472,32 @@ export default function CopilotPanel({open, onClose}) {
     e.preventDefault();
     setDragOver(false);
     if (e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files);
+  };
+
+  const startRename = (s, ev) => {
+    ev.stopPropagation();
+    setRenamingId(s.id);
+    setRenameDraft(s.title || `Chat #${s.id}`);
+    setPastError(null);
+  };
+
+  const cancelRename = () => {
+    setRenamingId(null);
+    setRenameDraft('');
+  };
+
+  const commitRename = async (id) => {
+    const next = renameDraft.trim();
+    if (!next) { cancelRename(); return; }
+    try {
+      await renameSession(id, next);
+      setPastSessions((list) =>
+        Array.isArray(list) ? list.map((c) => (c.id === id ? {...c, title: next} : c)) : list,
+      );
+      cancelRename();
+    } catch (e) {
+      setPastError(e.message);
+    }
   };
 
   const submit = (e) => {
@@ -604,13 +644,56 @@ export default function CopilotPanel({open, onClose}) {
                 >
                   <span style={{fontSize: 12, color: active ? C.red : C.muted}}>{active ? '●' : '○'}</span>
                   <div style={{flex: 1, minWidth: 0}}>
-                    <div style={{fontSize: 12.5, color: C.ink, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                      {s.title || `Chat #${s.id}`}
-                    </div>
+                    {renamingId === s.id ? (
+                      <input
+                        autoFocus
+                        value={renameDraft}
+                        onClick={(ev) => ev.stopPropagation()}
+                        onChange={(ev) => setRenameDraft(ev.target.value)}
+                        onKeyDown={(ev) => {
+                          ev.stopPropagation();
+                          if (ev.key === 'Enter') { ev.preventDefault(); commitRename(s.id); }
+                          else if (ev.key === 'Escape') { ev.preventDefault(); cancelRename(); }
+                        }}
+                        onBlur={() => commitRename(s.id)}
+                        data-testid={`copilot-past-rename-input-${s.id}`}
+                        style={{
+                          width: '100%', boxSizing: 'border-box', fontSize: 12.5, fontWeight: 700,
+                          color: C.ink, fontFamily: C.sans, border: `1px solid ${C.red}`,
+                          borderRadius: 6, padding: '3px 6px', outline: 'none', background: '#fff',
+                        }}
+                      />
+                    ) : (
+                      <div style={{fontSize: 12.5, color: C.ink, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                        {s.title || `Chat #${s.id}`}
+                      </div>
+                    )}
                     <div style={{fontSize: 10, color: C.muted, fontFamily: C.mono}} title={s.createdAt ? new Date(s.createdAt).toLocaleString() : ''}>
                       #{s.id} · {s.createdAt ? formatRelativeTime(s.createdAt) : ''}
                     </div>
                   </div>
+                  {renamingId === s.id ? (
+                    <button
+                      onClick={(ev) => { ev.stopPropagation(); commitRename(s.id); }}
+                      onMouseDown={(ev) => ev.preventDefault()}
+                      aria-label="Save chat name"
+                      title="Save name"
+                      data-testid={`copilot-past-rename-save-${s.id}`}
+                      style={{background: 'none', border: 'none', color: C.red, cursor: 'pointer', padding: '2px 4px', display: 'grid', placeItems: 'center'}}
+                    >
+                      <Check size={14} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(ev) => startRename(s, ev)}
+                      aria-label="Rename chat"
+                      title="Rename this chat"
+                      data-testid={`copilot-past-rename-${s.id}`}
+                      style={{background: 'none', border: 'none', color: C.muted, cursor: 'pointer', padding: '2px 4px', display: 'grid', placeItems: 'center'}}
+                    >
+                      <Pencil size={13} />
+                    </button>
+                  )}
                   <button
                     onClick={(ev) => handleDelete(s.id, ev)}
                     aria-label="Delete chat"

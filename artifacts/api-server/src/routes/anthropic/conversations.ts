@@ -151,6 +151,31 @@ router.get("/conversations/:id", async (req, res) => {
   res.json({ ...conv, messages: msgsWithTraces });
 });
 
+/* PATCH /anthropic/conversations/:id  { title } — rename a saved chat */
+router.patch("/conversations/:id", async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const { title } = req.body as { title?: string };
+  const trimmed = typeof title === "string" ? title.trim() : "";
+  if (!trimmed) {
+    res.status(400).json({ error: "title is required" });
+    return;
+  }
+  const [updated] = await db
+    .update(conversations)
+    .set({ title: trimmed })
+    .where(eq(conversations.id, id))
+    .returning();
+  if (!updated) {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
+  res.json(updated);
+});
+
 /* DELETE /anthropic/conversations/:id */
 router.delete("/conversations/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);

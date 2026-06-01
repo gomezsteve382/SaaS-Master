@@ -147,6 +147,35 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AnthropicError"
+    patch:
+      operationId: updateAnthropicConversation
+      tags: [anthropic]
+      summary: Rename a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAnthropicConversationBody"
+      responses:
+        "200":
+          description: Updated conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicConversation"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicError"
     delete:
       operationId: deleteAnthropicConversation
       tags: [anthropic]
@@ -1139,6 +1168,13 @@ components:
         scope:
           type: string
           nullable: true
+      required:
+        - title
+    UpdateAnthropicConversationBody:
+      type: object
+      properties:
+        title:
+          type: string
       required:
         - title
     SendAnthropicMessageBody:

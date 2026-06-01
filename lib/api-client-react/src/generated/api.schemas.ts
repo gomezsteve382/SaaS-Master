@@ -35,6 +35,10 @@ export interface CreateAnthropicConversationBody {
   scope?: string | null;
 }
 
+export interface UpdateAnthropicConversationBody {
+  title: string;
+}
+
 export interface ModuleContext {
   modules?: string[];
   issues?: string[];

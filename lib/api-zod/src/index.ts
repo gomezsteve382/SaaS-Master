@@ -3,3 +3,4 @@
 // Avoids TS2308 collisions on `*Body` identifiers that appear in
 // both modules.
 export * from "./generated/api";
+export * from "./generated/types";

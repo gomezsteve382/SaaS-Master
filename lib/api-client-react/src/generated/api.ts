@@ -72,6 +72,7 @@ import type {
   SendAnthropicMessageBody,
   UnlockCoverageStats,
   UnlockCoverageStatsError,
+  UpdateAnthropicConversationBody,
   UpsertAuth29Detection200,
   VehicleJob,
   VehicleJobEvent,
@@ -626,6 +627,98 @@ export function useGetAnthropicConversation<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Rename a conversation
+ */
+export const getUpdateAnthropicConversationUrl = (id: number) => {
+  return `/api/anthropic/conversations/${id}`;
+};
+
+export const updateAnthropicConversation = async (
+  id: number,
+  updateAnthropicConversationBody: UpdateAnthropicConversationBody,
+  options?: RequestInit,
+): Promise<AnthropicConversation> => {
+  return customFetch<AnthropicConversation>(
+    getUpdateAnthropicConversationUrl(id),
+    {
+      ...options,
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(updateAnthropicConversationBody),
+    },
+  );
+};
+
+export const getUpdateAnthropicConversationMutationOptions = <
+  TError = ErrorType<AnthropicError>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateAnthropicConversation>>,
+    TError,
+    { id: number; data: BodyType<UpdateAnthropicConversationBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateAnthropicConversation>>,
+  TError,
+  { id: number; data: BodyType<UpdateAnthropicConversationBody> },
+  TContext
+> => {
+  const mutationKey = ["updateAnthropicConversation"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateAnthropicConversation>>,
+    { id: number; data: BodyType<UpdateAnthropicConversationBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateAnthropicConversation(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateAnthropicConversationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateAnthropicConversation>>
+>;
+export type UpdateAnthropicConversationMutationBody =
+  BodyType<UpdateAnthropicConversationBody>;
+export type UpdateAnthropicConversationMutationError =
+  ErrorType<AnthropicError>;
+
+/**
+ * @summary Rename a conversation
+ */
+export const useUpdateAnthropicConversation = <
+  TError = ErrorType<AnthropicError>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateAnthropicConversation>>,
+    TError,
+    { id: number; data: BodyType<UpdateAnthropicConversationBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateAnthropicConversation>>,
+  TError,
+  { id: number; data: BodyType<UpdateAnthropicConversationBody> },
+  TContext
+> => {
+  return useMutation(getUpdateAnthropicConversationMutationOptions(options));
+};
 
 /**
  * @summary Delete a conversation

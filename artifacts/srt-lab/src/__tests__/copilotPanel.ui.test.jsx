@@ -58,7 +58,7 @@ function jsonResponse(status, payload) {
 /* Route fetch calls by method + URL the way the persistent panel drives them.
  * Returns { calls } so tests can assert on what was sent. `onMessages` is a
  * factory invoked per POST /:id/messages call (so each gets a fresh stream). */
-function installFetch({ list = [], conv = null, onMessages, onCreate } = {}) {
+function installFetch({ list = [], conv = null, onMessages, onCreate, onPatch } = {}) {
   const calls = [];
   global.fetch = vi.fn(async (url, init = {}) => {
     const u = String(url);
@@ -77,6 +77,11 @@ function installFetch({ list = [], conv = null, onMessages, onCreate } = {}) {
     }
     if (method === 'POST' && /\/conversations\/\d+\/messages$/.test(u)) {
       return onMessages ? onMessages(init) : streamingResponse(['ok']);
+    }
+    if (method === 'PATCH' && /\/anthropic\/conversations\/\d+$/.test(u)) {
+      if (onPatch) return onPatch(init);
+      const body = JSON.parse(init.body || '{}');
+      return jsonResponse(200, { id: 1, scope: 'general', title: body.title });
     }
     if (method === 'DELETE') return new Response(null, { status: 204 });
     return jsonResponse(404, { error: 'not found' });
@@ -221,6 +226,57 @@ describe('CopilotPanel — streaming a reply', () => {
     );
     const msgCall = messagesCall(calls);
     expect(JSON.parse(msgCall.init.body).content).toBe(chips[0].textContent);
+  });
+});
+
+describe('CopilotPanel — rename a past chat', () => {
+  it('PATCHes a new title and reflects it in the list', async () => {
+    const { calls } = installFetch({
+      list: [{ id: 5, scope: 'general', title: 'Old name', createdAt: Date.now() }],
+    });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+    // Open the Past chats panel.
+    fireEvent.click(screen.getByTestId('copilot-history'));
+    await waitFor(() => expect(screen.getByTestId('copilot-past-5')).toBeTruthy());
+
+    // Enter rename mode, type a new title, save.
+    fireEvent.click(screen.getByTestId('copilot-past-rename-5'));
+    const input = await screen.findByTestId('copilot-past-rename-input-5');
+    fireEvent.change(input, { target: { value: 'Charger SEC16 notes' } });
+    fireEvent.click(screen.getByTestId('copilot-past-rename-save-5'));
+
+    // The PATCH was sent with the trimmed title.
+    await waitFor(() => {
+      const patch = calls.find((c) => c.method === 'PATCH' && /\/conversations\/5$/.test(c.url));
+      expect(patch).toBeTruthy();
+      expect(JSON.parse(patch.init.body)).toEqual({ title: 'Charger SEC16 notes' });
+    });
+
+    // The list shows the new title and the editor is gone.
+    await waitFor(() =>
+      expect(screen.getByTestId('copilot-past-5').textContent).toMatch(/Charger SEC16 notes/),
+    );
+    expect(screen.queryByTestId('copilot-past-rename-input-5')).toBeNull();
+  });
+
+  it('cancels rename on Escape without sending a PATCH', async () => {
+    const { calls } = installFetch({
+      list: [{ id: 8, scope: 'general', title: 'Keep me', createdAt: Date.now() }],
+    });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+    fireEvent.click(screen.getByTestId('copilot-history'));
+    await waitFor(() => expect(screen.getByTestId('copilot-past-8')).toBeTruthy());
+
+    fireEvent.click(screen.getByTestId('copilot-past-rename-8'));
+    const input = await screen.findByTestId('copilot-past-rename-input-8');
+    fireEvent.change(input, { target: { value: 'discarded' } });
+    fireEvent.keyDown(input, { key: 'Escape' });
+
+    await waitFor(() => expect(screen.queryByTestId('copilot-past-rename-input-8')).toBeNull());
+    expect(calls.some((c) => c.method === 'PATCH')).toBe(false);
+    expect(screen.getByTestId('copilot-past-8').textContent).toMatch(/Keep me/);
   });
 });
 

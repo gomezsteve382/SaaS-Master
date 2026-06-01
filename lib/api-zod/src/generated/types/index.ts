@@ -81,6 +81,7 @@ export * from "./sendAnthropicMessageBody";
 export * from "./unlockCoverageStats";
 export * from "./unlockCoverageStatsError";
 export * from "./unlockCoverageStatsSource";
+export * from "./updateAnthropicConversationBody";
 export * from "./upsertAuth29Detection200";
 export * from "./vehicleJob";
 export * from "./vehicleJobCensus";

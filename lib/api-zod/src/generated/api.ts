@@ -99,6 +99,24 @@ export const GetAnthropicConversationResponse = zod.object({
 });
 
 /**
+ * @summary Rename a conversation
+ */
+export const UpdateAnthropicConversationParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateAnthropicConversationBody = zod.object({
+  title: zod.string(),
+});
+
+export const UpdateAnthropicConversationResponse = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  scope: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
  * @summary Delete a conversation
  */
 export const DeleteAnthropicConversationParams = zod.object({
