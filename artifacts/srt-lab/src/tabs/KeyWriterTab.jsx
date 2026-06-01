@@ -49,6 +49,7 @@ import {
   clearKeyHistory,
   buildKeyHistoryExport,
   importKeyHistory,
+  refreshKeyHistoryFromServer,
 } from '../lib/keyWriter/keyHistory.js';
 
 const WRITERS = [
@@ -165,7 +166,15 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
   const { vin: masterVin, vinValid } = useContext(MasterVinContext);
   const [keyHistory, setKeyHistory] = useState([]);
   useEffect(() => {
+    // Render the localStorage cache synchronously, then hydrate from the server
+    // so history saved on another device/browser for this VIN shows up here.
+    // The async result is the canonical merged list (server + local-only).
     setKeyHistory(loadKeyHistory(masterVin));
+    let cancelled = false;
+    refreshKeyHistoryFromServer(masterVin)
+      .then((list) => { if (!cancelled) setKeyHistory(list); })
+      .catch(() => { /* offline — keep the local cache already shown */ });
+    return () => { cancelled = true; };
   }, [masterVin]);
 
   const onLoadRfh = useCallback(async (e) => {

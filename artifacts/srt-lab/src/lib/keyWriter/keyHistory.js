@@ -30,6 +30,14 @@
 export const KEY_HISTORY_KEY = 'srt-lab.keywriter.keyhistory.v1';
 export const KEY_HISTORY_LIMIT_PER_VIN = 50;
 
+/* Per-VIN first-run migration markers live under this prefix so local-only
+ * history saved before server sync existed gets pushed up exactly once. */
+export const KEY_HISTORY_MIGRATED_PREFIX = 'srt-lab.keywriter.keyhistory.migrated.';
+
+/* Server endpoint. localStorage is an offline cache that mirrors this store;
+ * the server is the canonical cross-device source of truth. */
+const API_BASE = '/api/key-history';
+
 const VIN_RX = /^[A-HJ-NPR-Z0-9]{17}$/;
 
 /* Normalize a VIN the same way MasterVinContext does (uppercase, no
@@ -124,6 +132,53 @@ function writeStore(store) {
   }
 }
 
+/* ── server sync layer ───────────────────────────────────────────────────── */
+
+/* Shape a stored entry into the JSON the server route expects. The server
+ * scopes by VIN, so the VIN rides along in the body. */
+function toServerBody(vin, entry) {
+  return {
+    id: entry.id,
+    vin,
+    chipId: entry.chipId,
+    uidHex: entry.uidHex || '',
+    skHex: entry.skHex || '',
+    flags: entry.flags || null,
+    label: entry.label || '',
+    slotIdx: Number.isInteger(entry.slotIdx) ? entry.slotIdx : null,
+    capturedAt: Number.isFinite(entry.capturedAt) ? entry.capturedAt : Date.now(),
+  };
+}
+
+/* Normalize a server row back into the local entry shape. The server returns
+ * capturedAt as epoch ms, matching makeHistoryEntry's numeric field. */
+function fromServerRow(row) {
+  return {
+    id: row.id,
+    chipId: row.chipId,
+    uidHex: String(row.uidHex || ''),
+    skHex: String(row.skHex || ''),
+    flags: row.flags ? { ...row.flags } : null,
+    label: String(row.label || ''),
+    slotIdx: Number.isInteger(row.slotIdx) ? row.slotIdx : null,
+    capturedAt: Number.isFinite(row.capturedAt) ? row.capturedAt : Date.now(),
+  };
+}
+
+/* Best-effort write-through to the server. Failures are silent — the local
+ * cache is the synchronous source of truth, and `refreshKeyHistoryFromServer`
+ * retries stranded entries on the next refresh via the migration sweep. */
+function pushToServer(vin, entry) {
+  try {
+    return fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(toServerBody(vin, entry)),
+    }).catch(() => { /* offline — keep local only */ });
+  } catch { /* ignore */ }
+  return Promise.resolve();
+}
+
 /* Load the saved keys for a VIN, newest-first. Returns [] for an invalid VIN
  * or when nothing has been saved yet. */
 export function loadKeyHistory(vin) {
@@ -152,6 +207,8 @@ export function saveKeyToHistory(vin, raw) {
   // the original id, so re-read it from `next` rather than handing back the
   // pre-dedupe `entry` (whose id may differ).
   const stored = next.find((e) => dedupeKey(e) === dedupeKey(entry)) || entry;
+  // Best-effort write-through so the key shows up on other devices for this VIN.
+  pushToServer(v, stored);
   return { ok: true, entry: stored, list: next };
 }
 
@@ -163,6 +220,10 @@ export function removeKeyFromHistory(vin, id) {
   const next = removeEntryById(store[v] || [], id);
   store[v] = next;
   if (!writeStore(store)) return { ok: false, error: 'Could not write to local storage.', list: next };
+  try {
+    fetch(`${API_BASE}/${encodeURIComponent(id)}`, { method: 'DELETE' })
+      .catch(() => { /* best-effort; writeStore already won locally */ });
+  } catch { /* ignore */ }
   return { ok: true, list: next };
 }
 
@@ -173,8 +234,13 @@ export function clearKeyHistory(vin) {
   const store = readStore();
   delete store[v];
   if (!writeStore(store)) return { ok: false, error: 'Could not write to local storage.', list: [] };
+  try {
+    fetch(`${API_BASE}?vin=${encodeURIComponent(v)}`, { method: 'DELETE' })
+      .catch(() => { /* best-effort */ });
+  } catch { /* ignore */ }
   return { ok: true, list: [] };
 }
+
 
 /* ── Whole-key-set wrapper export / import (Task #992) ────────────────────────
  * The history layer above lets an operator save and re-load keys one at a time.
@@ -260,9 +326,95 @@ export function importKeyHistory(vin, input) {
   const store = readStore();
   let next = Array.isArray(store[v]) ? store[v] : [];
   for (const r of records) {
-    next = upsertEntry(next, makeHistoryEntry(r));
+    const entry = makeHistoryEntry(r);
+    next = upsertEntry(next, entry);
+    // Task #991 Enhancement: push each newly-imported entry to the server
+    // Best-effort write-through so imported keys propagate cross-device.
+    pushToServer(v, entry);
   }
   store[v] = next;
   if (!writeStore(store)) return { ok: false, error: 'Could not write to local storage.' };
   return { ok: true, list: next, imported: records.length };
+}
+
+/* Pull the canonical history for a VIN from the server, migrate any local-only
+ * entries on first run, refresh the local cache, and return the merged list
+ * (newest-first). Safe to call repeatedly. Falls back to the local cache
+ * unchanged when the server is unreachable or the VIN is invalid.
+ *
+ * The first-run migration marker is per-VIN and is only set after every local
+ * candidate is confirmed on the server — a transient outage leaves it unset so
+ * the next refresh retries, and never strands local-only keys. */
+export async function refreshKeyHistoryFromServer(vin) {
+  const v = normalizeVin(vin);
+  if (!v) return [];
+
+  let serverList = null;
+  try {
+    const res = await fetch(`${API_BASE}?vin=${encodeURIComponent(v)}`);
+    if (res.ok) {
+      const j = await res.json();
+      if (Array.isArray(j.entries)) serverList = j.entries.map(fromServerRow);
+    }
+  } catch { /* offline — keep local cache */ }
+
+  if (!serverList) return loadKeyHistory(v);
+
+  const ls = globalThis.localStorage;
+  const migratedKey = `${KEY_HISTORY_MIGRATED_PREFIX}${v}`;
+  const serverIds = new Set(serverList.map((e) => e.id));
+  const localList = loadKeyHistory(v);
+  let migrated = false;
+
+  let alreadyMigrated = false;
+  try { alreadyMigrated = !!ls?.getItem(migratedKey); } catch { /* ignore */ }
+
+  if (!alreadyMigrated) {
+    let anyFailure = false;
+    for (const entry of localList) {
+      if (!entry?.id || serverIds.has(entry.id)) continue;
+      let ok = false;
+      try {
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(toServerBody(v, entry)),
+        });
+        if (res.ok) { serverIds.add(entry.id); migrated = true; ok = true; }
+      } catch { /* network error — retry next refresh */ }
+      if (!ok) anyFailure = true;
+    }
+    if (!anyFailure) {
+      try { ls?.setItem(migratedKey, new Date().toISOString()); } catch { /* ignore */ }
+    }
+  }
+
+  if (migrated) {
+    try {
+      const res = await fetch(`${API_BASE}?vin=${encodeURIComponent(v)}`);
+      if (res.ok) {
+        const j = await res.json();
+        if (Array.isArray(j.entries)) serverList = j.entries.map(fromServerRow);
+      }
+    } catch { /* ignore */ }
+  }
+
+  // Merge: server rows + any local-only entries that did NOT make it up, so a
+  // partial migration failure never wipes them from the cache.
+  const seen = new Set(serverList.map((e) => e.id));
+  const merged = serverList.slice();
+  for (const entry of localList) {
+    if (entry?.id && !seen.has(entry.id)) {
+      merged.push(entry);
+      seen.add(entry.id);
+    }
+  }
+  merged.sort((a, b) => (b.capturedAt || 0) - (a.capturedAt || 0));
+  const normalized = merged.slice(0, KEY_HISTORY_LIMIT_PER_VIN);
+
+  const store = readStore();
+  store[v] = normalized;
+  writeStore(store);
+  return normalized;
+
 }
