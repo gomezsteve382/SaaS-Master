@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect, useCallback} from 'react';
-import {Bot, X, Send, Sparkles, Plus, History, Trash2, RotateCw} from 'lucide-react';
+import {Bot, X, Send, Sparkles, Plus, History, Trash2, RotateCw, Paperclip, FileText} from 'lucide-react';
 
 /* Global Claude Co-pilot — an always-available, general-purpose chat panel
  * surfaced from the app shell (CommandShell). Unlike the Mismatch Wizard
@@ -17,6 +17,49 @@ import {Bot, X, Send, Sparkles, Plus, History, Trash2, RotateCw} from 'lucide-re
 const API_BASE = (import.meta.env.BASE_URL?.replace(/\/$/, '') || '') + '/api';
 const SCOPE = 'general';
 const LAST_CONV_KEY = 'srt-copilot-last-conv';
+
+/* File-attachment limits. Files are read as text client-side and folded into
+ * the outgoing message, so we cap per-file and total size to keep payloads
+ * (10mb server limit) and token usage sane. Binary files are rejected — module
+ * dumps belong in the dedicated module-loading flow, not the chat. */
+const MAX_FILE_BYTES = 256 * 1024; // 256 KB per file
+const MAX_TOTAL_BYTES = 512 * 1024; // 512 KB across all attachments
+const MAX_FILES = 6;
+
+function formatBytes(n) {
+  if (!Number.isFinite(n)) return '';
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/* Heuristic binary sniff: a NUL byte (or a high ratio of non-text control
+ * chars) means this isn't something we can usefully fold into a prompt. */
+function looksBinary(text) {
+  if (text.indexOf('\u0000') !== -1) return true;
+  const sample = text.slice(0, 4096);
+  let ctrl = 0;
+  for (let i = 0; i < sample.length; i++) {
+    const c = sample.charCodeAt(i);
+    if (c < 9 || (c > 13 && c < 32)) ctrl++;
+  }
+  return sample.length > 0 && ctrl / sample.length > 0.1;
+}
+
+/* Compose the message that is actually sent + stored: the typed text first,
+ * then each attachment fenced with a clear header so the model can tell file
+ * content apart from the user's prose. */
+function buildOutgoing(text, attachments) {
+  const parts = [];
+  const typed = (text || '').trim();
+  if (typed) parts.push(typed);
+  for (const a of attachments) {
+    parts.push(
+      `--- Attached file: ${a.name} (${formatBytes(a.size)}) ---\n${a.content}\n--- end of ${a.name} ---`,
+    );
+  }
+  return parts.join('\n\n');
+}
 
 const C = {
   base: '#F4F1EC',
@@ -285,8 +328,13 @@ export default function CopilotPanel({open, onClose}) {
   const [pastOpen, setPastOpen] = useState(false);
   const [pastSessions, setPastSessions] = useState(null); /* null = not loaded */
   const [pastError, setPastError] = useState(null);
+  const [attachments, setAttachments] = useState([]); /* {id,name,size,content} */
+  const [attachError, setAttachError] = useState(null);
+  const [dragOver, setDragOver] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const attachIdRef = useRef(0);
 
   /* Abort any in-flight stream when the panel is closed/unmounted so we
    * don't keep burning tokens on a hidden request. */
@@ -349,11 +397,77 @@ export default function CopilotPanel({open, onClose}) {
     }
   };
 
+  /* Read picked/dropped files as text and add the ones we can use. Rejections
+   * (binary, too big, over the count/total cap) surface a single inline note
+   * rather than silently dropping the file. */
+  const addFiles = useCallback(async (fileList) => {
+    const files = Array.from(fileList || []);
+    if (files.length === 0) return;
+    setAttachError(null);
+    const rejected = [];
+
+    const current = attachments;
+    let total = current.reduce((s, a) => s + a.size, 0);
+
+    const accepted = [];
+    for (const file of files) {
+      if (current.length + accepted.length >= MAX_FILES) {
+        rejected.push(`${file.name} (max ${MAX_FILES} files)`);
+        continue;
+      }
+      if (file.size > MAX_FILE_BYTES) {
+        rejected.push(`${file.name} (over ${formatBytes(MAX_FILE_BYTES)})`);
+        continue;
+      }
+      if (total + file.size > MAX_TOTAL_BYTES) {
+        rejected.push(`${file.name} (total over ${formatBytes(MAX_TOTAL_BYTES)})`);
+        continue;
+      }
+      let text;
+      try {
+        text = await file.text();
+      } catch {
+        rejected.push(`${file.name} (unreadable)`);
+        continue;
+      }
+      if (looksBinary(text)) {
+        rejected.push(`${file.name} (binary not supported — load module dumps via Data Management)`);
+        continue;
+      }
+      total += file.size;
+      attachIdRef.current += 1;
+      accepted.push({id: attachIdRef.current, name: file.name, size: file.size, content: text});
+    }
+
+    if (accepted.length) setAttachments((prev) => [...prev, ...accepted]);
+    if (rejected.length) setAttachError(`Skipped: ${rejected.join('; ')}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [attachments]);
+
+  const removeAttachment = useCallback((id) => {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+    setAttachError(null);
+  }, []);
+
+  const onPickFiles = (e) => {
+    addFiles(e.target.files);
+    e.target.value = ''; // allow re-picking the same file
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files);
+  };
+
   const submit = (e) => {
     e?.preventDefault?.();
-    if (!input.trim() || streaming) return;
-    send(input);
+    if (streaming) return;
+    if (!input.trim() && attachments.length === 0) return;
+    send(buildOutgoing(input, attachments));
     setInput('');
+    setAttachments([]);
+    setAttachError(null);
   };
 
   if (!open) return null;
@@ -375,13 +489,32 @@ export default function CopilotPanel({open, onClose}) {
       />
       <aside
         data-testid="copilot-panel"
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={(e) => { e.preventDefault(); setDragOver(false); }}
+        onDrop={onDrop}
         style={{
           position: 'relative', width: 440, maxWidth: '94vw', height: '100%',
           background: C.base, borderLeft: `1px solid ${C.line}`,
           boxShadow: '-12px 0 40px rgba(0,0,0,0.25)', display: 'flex', flexDirection: 'column',
           fontFamily: C.sans,
+          outline: dragOver ? `2px dashed ${C.red}` : 'none', outlineOffset: -2,
         }}
       >
+        {dragOver && (
+          <div
+            data-testid="copilot-dropzone"
+            style={{
+              position: 'absolute', inset: 0, zIndex: 5, background: 'rgba(244,241,236,0.92)',
+              display: 'grid', placeItems: 'center', pointerEvents: 'none',
+              color: C.red, fontFamily: "'Righteous',sans-serif", fontSize: 16,
+            }}
+          >
+            <div style={{textAlign: 'center'}}>
+              <Paperclip size={28} style={{marginBottom: 8}} />
+              <div>Drop files to attach</div>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px',
@@ -574,45 +707,115 @@ export default function CopilotPanel({open, onClose}) {
         </div>
 
         {/* Composer */}
-        <form
-          onSubmit={submit}
-          style={{
-            display: 'flex', alignItems: 'flex-end', gap: 8, padding: '12px 14px',
-            borderTop: `1px solid ${C.line}`, background: C.panel,
-          }}
-        >
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(e); }
-            }}
-            rows={1}
-            placeholder="Message the co-pilot…"
-            data-testid="copilot-input"
-            style={{
-              flex: 1, resize: 'none', maxHeight: 140, minHeight: 40,
-              border: `1px solid ${C.line}`, borderRadius: 10, padding: '10px 12px',
-              fontSize: 13.5, fontFamily: C.sans, outline: 'none', color: C.ink,
-              background: C.base,
-            }}
-          />
-          <button
-            type="submit"
-            disabled={!input.trim() || streaming}
-            aria-label="Send message"
-            data-testid="copilot-send"
-            style={{
-              flexShrink: 0, width: 42, height: 42, borderRadius: 10, border: 'none',
-              background: (!input.trim() || streaming) ? C.line : C.red,
-              color: '#fff', cursor: (!input.trim() || streaming) ? 'default' : 'pointer',
-              display: 'grid', placeItems: 'center',
-            }}
+        <div style={{borderTop: `1px solid ${C.line}`, background: C.panel}}>
+          {/* Attachment chips + rejection note */}
+          {(attachments.length > 0 || attachError) && (
+            <div style={{padding: '10px 14px 0', display: 'flex', flexDirection: 'column', gap: 6}}>
+              {attachments.length > 0 && (
+                <div style={{display: 'flex', flexWrap: 'wrap', gap: 6}}>
+                  {attachments.map((a) => (
+                    <div
+                      key={a.id}
+                      data-testid="copilot-attachment"
+                      title={`${a.name} · ${formatBytes(a.size)}`}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6, maxWidth: '100%',
+                        background: C.base, border: `1px solid ${C.line}`, borderRadius: 8,
+                        padding: '5px 8px', fontSize: 12, color: C.ink,
+                      }}
+                    >
+                      <FileText size={13} style={{color: C.red, flexShrink: 0}} />
+                      <span style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200}}>
+                        {a.name}
+                      </span>
+                      <span style={{color: C.muted, fontFamily: C.mono, fontSize: 10}}>{formatBytes(a.size)}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeAttachment(a.id)}
+                        aria-label={`Remove ${a.name}`}
+                        data-testid="copilot-attachment-remove"
+                        style={{background: 'none', border: 'none', color: C.muted, cursor: 'pointer', padding: 0, display: 'grid', placeItems: 'center'}}
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {attachError && (
+                <div data-testid="copilot-attach-error" style={{fontSize: 11.5, color: C.red}}>
+                  {attachError}
+                </div>
+              )}
+            </div>
+          )}
+
+          <form
+            onSubmit={submit}
+            style={{display: 'flex', alignItems: 'flex-end', gap: 8, padding: '12px 14px'}}
           >
-            <Send size={17} />
-          </button>
-        </form>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={onPickFiles}
+              data-testid="copilot-attach-input"
+              style={{display: 'none'}}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={streaming}
+              aria-label="Attach files"
+              title="Attach text files (logs, code, JSON, CSV…)"
+              data-testid="copilot-attach"
+              style={{
+                flexShrink: 0, width: 42, height: 42, borderRadius: 10,
+                border: `1px solid ${C.line}`, background: C.base,
+                color: streaming ? C.line : C.muted, cursor: streaming ? 'default' : 'pointer',
+                display: 'grid', placeItems: 'center',
+              }}
+            >
+              <Paperclip size={17} />
+            </button>
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(e); }
+              }}
+              rows={1}
+              placeholder="Message the co-pilot…"
+              data-testid="copilot-input"
+              style={{
+                flex: 1, resize: 'none', maxHeight: 140, minHeight: 40,
+                border: `1px solid ${C.line}`, borderRadius: 10, padding: '10px 12px',
+                fontSize: 13.5, fontFamily: C.sans, outline: 'none', color: C.ink,
+                background: C.base,
+              }}
+            />
+            {(() => {
+              const canSend = !streaming && (input.trim() || attachments.length > 0);
+              return (
+                <button
+                  type="submit"
+                  disabled={!canSend}
+                  aria-label="Send message"
+                  data-testid="copilot-send"
+                  style={{
+                    flexShrink: 0, width: 42, height: 42, borderRadius: 10, border: 'none',
+                    background: canSend ? C.red : C.line,
+                    color: '#fff', cursor: canSend ? 'pointer' : 'default',
+                    display: 'grid', placeItems: 'center',
+                  }}
+                >
+                  <Send size={17} />
+                </button>
+              );
+            })()}
+          </form>
+        </div>
       </aside>
     </div>
   );
