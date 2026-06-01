@@ -19,7 +19,7 @@
  * ═══════════════════════════════════════════════════════════════════════════ */
 
 import React, { useState, useCallback, useMemo, useRef, useEffect, useContext } from "react";
-import WorkspaceSidebar from "./components/WorkspaceSidebar.jsx";
+import CommandShell from "./components/CommandShell.jsx";
 import ReferencePanel, { ReferencePanelTrigger } from "./components/ReferencePanel.jsx";
 import GpecTab from "./tabs/GpecTab";
 import OBDTab from "./tabs/OBDTab";
@@ -1168,7 +1168,6 @@ function VehicleWorkspace({vehicleId, onBack}){
     });
   },[addDump]);
 
-  const accent = vehicle.accent;
   return (
     <div style={{minHeight:'100vh',background:C.bg,color:C.tx,fontFamily:"'Nunito',sans-serif"}}>
       <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&family=Righteous&display=swap" rel="stylesheet"/>
@@ -1194,45 +1193,15 @@ function VehicleWorkspace({vehicleId, onBack}){
         </div>
       )}
 
-      {/* Header with vehicle banner */}
-      <div style={{background:`linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 40%, ${accent} 100%)`,position:'relative',overflow:'hidden'}}>
-        <div style={{position:'absolute',inset:0,background:`radial-gradient(ellipse at 80% 50%, ${accent}44, transparent 60%)`,pointerEvents:'none'}}/>
-        <div style={{position:'absolute',right:-40,top:'50%',transform:'translateY(-50%)',width:420,height:420,backgroundImage:`url('${vehicle.img}')`,backgroundSize:'cover',backgroundPosition:'center',opacity:0.4,mixBlendMode:'lighten',pointerEvents:'none'}}/>
-        <div style={{position:'relative',padding:'20px 28px 0',display:'flex',alignItems:'center',gap:14}}>
-          <button onClick={onBack} style={{background:'rgba(255,255,255,0.1)',border:'1px solid rgba(255,255,255,0.15)',color:'#fff',padding:'8px 14px',borderRadius:10,cursor:'pointer',fontFamily:"'Nunito'",fontWeight:700,fontSize:11,letterSpacing:1.5}}>← VEHICLES</button>
-          <div style={{flex:1}}>
-            <div style={{fontFamily:"'Righteous'",fontSize:26,color:'#fff',letterSpacing:2,textShadow:'0 2px 12px rgba(0,0,0,0.5)'}}>{vehicle.name}</div>
-            <div style={{fontSize:9,color:'rgba(255,255,255,0.5)',fontWeight:700,letterSpacing:6}}>{vehicle.body}</div>
-          </div>
-          <div style={{fontFamily:'JetBrains Mono',fontSize:10,color:'rgba(255,255,255,0.5)',letterSpacing:2,textAlign:'right'}}>
-            <div>{vehicle.generations.length} GENERATIONS</div>
-            <div>{vehicle.bcmFamilies.length} BCM FAMILIES</div>
-          </div>
-          <button
-            data-testid="workspace-open-wizard-btn"
-            onClick={()=>setWorkspaceWizardOpen(true)}
-            title="Open the Mismatch Wizard + Claude AI assistant — works from any tab"
-            style={{
-              background:'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
-              border:'none',borderRadius:10,padding:'10px 16px',
-              color:'#fff',fontWeight:900,fontSize:12,cursor:'pointer',
-              letterSpacing:1,fontFamily:"'Nunito'",whiteSpace:'nowrap',
-              boxShadow:'0 2px 12px rgba(211,47,47,0.35)',
-            }}>
-            🔧 WIZARD
-          </button>
-        </div>
-        <div style={{height:14}}/>
-      </div>
-      <div style={{display:'flex',alignItems:'flex-start',gap:0,minHeight:'calc(100vh - 140px)'}}>
-        <WorkspaceSidebar
-          tabs={WORKSPACE_TABS}
-          categories={WORKSPACE_CATEGORIES}
-          activeTab={tab}
-          onSelect={setTab}
-          accent={accent}
-        />
-      <div style={{flex:1,minWidth:0,maxWidth:1200,margin:'0 auto',padding:'22px 22px 60px'}}>
+      <CommandShell
+        vehicle={vehicle}
+        onBack={onBack}
+        onOpenWizard={()=>setWorkspaceWizardOpen(true)}
+        tabs={WORKSPACE_TABS}
+        categories={WORKSPACE_CATEGORIES}
+        activeTab={tab}
+        onSelect={setTab}
+      >
         {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
         {tab==='keyprog'   && <KeyProgTab/>}
@@ -1288,8 +1257,7 @@ function VehicleWorkspace({vehicleId, onBack}){
           setTab(targetTab || 'dumps');
           return result;
         }}/>}
-      </div>
-      </div>
+      </CommandShell>
 
       <ReferencePanelTrigger onOpen={()=>setReferenceOpen(true)}/>
       <ReferencePanel open={referenceOpen} onClose={()=>setReferenceOpen(false)} vehicle={vehicle}>

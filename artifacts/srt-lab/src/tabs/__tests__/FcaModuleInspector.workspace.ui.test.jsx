@@ -57,8 +57,12 @@ async function openInspectorTab() {
   // clicking the label dispatches through the wrapper's onClick handler.
   await act(async () => { fireEvent.click(chargerLabel); });
 
-  // Workspace mounted → click the MODULE INSPECTOR tab button.
-  const tabBtn = await screen.findByText('MODULE INSPECTOR');
+  // Workspace mounted → the MODULE INSPECTOR tab now lives in the
+  // command-center Advanced/Reference drawer (it is not one of the five
+  // primary rail panes). Open the drawer, then click its entry.
+  const advBtn = await screen.findByTestId('topbar-advanced-btn');
+  await act(async () => { fireEvent.click(advBtn); });
+  const tabBtn = await screen.findByTestId('drawer-tab-inspector');
   await act(async () => { fireEvent.click(tabBtn); });
 
   // The FcaModuleInspector body renders the file-drop card prompt

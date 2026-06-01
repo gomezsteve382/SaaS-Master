@@ -1,13 +1,28 @@
 ---
-name: SRT Command Center 5-pane redesign (canvas mockup)
-description: The approved IA for collapsing SRT Lab's ~40 tabs into 5 per-vehicle panes; lives as a canvas mockup pending graduation into the real app.
+name: SRT Command Center 5-pane redesign (GRADUATED into srt-lab)
+description: The IA that collapses SRT Lab's ~40 tabs into 5 per-vehicle panes + Advanced drawer; now LIVE in the real app via CommandShell.jsx (no longer a mockup).
 ---
 
 # SRT Command Center — 5-pane UX redesign
 
-A canvas/mockup-sandbox prototype (NOT yet in the real srt-lab app) that collapses SRT Lab's
-~40 sprawling tabs into 5 focused per-vehicle panes plus an "Advanced / Reference" drawer for
-the long tail of read-only/expert tabs.
+GRADUATED (June 2026): now LIVE in the real srt-lab app. `src/components/CommandShell.jsx`
+replaces the old `WorkspaceSidebar` + tall vehicle banner inside `App.jsx`'s VehicleWorkspace.
+It wraps the existing tab-conditional unchanged (all tab content components reused as-is).
+`WorkspaceSidebar.jsx` is left on disk but no longer imported.
+
+Collapses SRT Lab's ~40 sprawling tabs into 5 focused per-vehicle panes plus an
+"Advanced / Reference" drawer for the long tail of read-only/expert tabs.
+
+**Navigation contract (stable testids, important for UI tests):** top bar has
+`topbar-vehicle-chip` (click = onBack/change vehicle), `topbar-wizard-btn`,
+`topbar-advanced-btn` (opens drawer). Left rail `command-rail` has `rail-<tabid>` for the 5
+primary panes + `rail-footer-workflow`/`rail-footer-canuniverse`. Drawer `advanced-drawer` has
+`advanced-drawer-search` + `drawer-tab-<tabid>` per non-primary tab. KEY GOTCHA: any tab that is
+NOT one of the 5 primary (dumps/uds-console/vinprog/obd/investigation) or 2 footer
+(workflow/canuniverse) is reachable ONLY by opening the drawer first — workspace UI tests that
+used to click a sidebar label (e.g. MODULE INSPECTOR) must now click `topbar-advanced-btn` then
+`drawer-tab-<id>`. Drawer grouping keys off WORKSPACE_CATEGORIES (PROGRAM/LIVE/ANALYZE/TOOLS/RESEARCH);
+a tab missing from WORKSPACE_CATEGORIES would be stranded (rendered nowhere in the drawer).
 
 **The IA collapse (old tabs -> new pane):**
 - **Diagnose** (front door) = DumpDropZone + ModuleSync + AnalysisDiffView. Drop file -> cross-module verdict -> side-by-side hex diff with fix -> one-click apply.
