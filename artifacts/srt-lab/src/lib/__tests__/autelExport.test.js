@@ -4,8 +4,14 @@ import {
   buildJsonManifest,
   buildRawBin,
   exportBaseName,
+  buildKeyDumpManifest,
+  buildKeyDumpBin,
+  parseKeyDumpManifest,
+  parseKeyDumpFile,
+  KEY_DUMP_VERSION,
 } from '../keyWriter/autelExport.js';
 import { CHIP_FAMILIES } from '../keyWriter/chipFamilies.js';
+import { makeKeyRecord } from '../keyWriter/keyRecord.js';
 
 const PCF7953 = CHIP_FAMILIES.find((c) => c.id === 'pcf7953');
 const PCF7945 = CHIP_FAMILIES.find((c) => c.id === 'pcf7945');
@@ -169,5 +175,121 @@ describe('exportBaseName', () => {
 
   it('uses 1-indexed slot number', () => {
     expect(exportBaseName('test.bin', 3)).toBe('test_slot4_autel');
+  });
+});
+
+const KEY_UID = '11 22 33 44';
+const KEY_SK  = '55 66 77 88 99 AA';
+
+function makeKeyDumpRecord(overrides = {}) {
+  return makeKeyRecord({
+    chipId: 'id46',
+    uidHex: KEY_UID,
+    skHex: KEY_SK,
+    label: 'Spare fob #2',
+    flags: { locked: true, coding: 'manchester', encryption: true, cloneable: false },
+    ...overrides,
+  });
+}
+
+describe('parseKeyDumpManifest', () => {
+  it('round-trips buildKeyDumpManifest -> parseKeyDumpManifest', () => {
+    const record = makeKeyDumpRecord();
+    const json = buildKeyDumpManifest(record);
+    const parsed = parseKeyDumpManifest(json);
+    expect(parsed.ok).toBe(true);
+    expect(parsed.version).toBe(KEY_DUMP_VERSION);
+    expect(parsed.chipId).toBe('id46');
+    expect(parsed.label).toBe('Spare fob #2');
+    expect([...parsed.uid]).toEqual([0x11, 0x22, 0x33, 0x44]);
+    expect([...parsed.sk]).toEqual([0x55, 0x66, 0x77, 0x88, 0x99, 0xAA]);
+    expect(parsed.flags).toEqual({
+      locked: true,
+      encryption: true,
+      cloneable: false,
+      coding: 'manchester',
+    });
+  });
+
+  it('accepts a pre-parsed object as well as a JSON string', () => {
+    const obj = JSON.parse(buildKeyDumpManifest(makeKeyDumpRecord()));
+    const parsed = parseKeyDumpManifest(obj);
+    expect(parsed.ok).toBe(true);
+    expect([...parsed.uid]).toEqual([0x11, 0x22, 0x33, 0x44]);
+  });
+
+  it('defaults a missing label to an empty string', () => {
+    const json = buildKeyDumpManifest(makeKeyDumpRecord({ label: '' }));
+    const parsed = parseKeyDumpManifest(json);
+    expect(parsed.ok).toBe(true);
+    expect(parsed.label).toBe('');
+  });
+
+  it('rejects non-JSON input', () => {
+    const parsed = parseKeyDumpManifest('not json at all {');
+    expect(parsed.ok).toBe(false);
+    expect(parsed.error).toMatch(/not valid json/i);
+  });
+
+  it('rejects a manifest with the wrong format field', () => {
+    const json = JSON.stringify({ format: 'some-other-tool', version: 2 });
+    const parsed = parseKeyDumpManifest(json);
+    expect(parsed.ok).toBe(false);
+    expect(parsed.error).toMatch(/key-dump manifest/i);
+  });
+
+  it('rejects a JSON value that is not an object', () => {
+    const parsed = parseKeyDumpManifest('null');
+    expect(parsed.ok).toBe(false);
+    expect(parsed.error).toMatch(/empty manifest/i);
+  });
+
+  it('rejects a manifest with invalid hex UID/SK', () => {
+    const obj = JSON.parse(buildKeyDumpManifest(makeKeyDumpRecord()));
+    obj.transponder_uid_hex = 'ZZ XX';
+    obj.transponder_uid_hex_compact = 'ZZXX';
+    const parsed = parseKeyDumpManifest(JSON.stringify(obj));
+    expect(parsed.ok).toBe(false);
+    expect(parsed.error).toMatch(/not valid hex/i);
+  });
+});
+
+describe('parseKeyDumpFile dispatch', () => {
+  it('routes a KDMP-magic binary to the .bin parser', () => {
+    const bin = buildKeyDumpBin({
+      uid: new Uint8Array([0x11, 0x22, 0x33, 0x44]),
+      sk: new Uint8Array([0x55, 0x66, 0x77, 0x88, 0x99, 0xAA]),
+      flags: { locked: true, coding: 'manchester', encryption: true, cloneable: false },
+      chipId: 'id46',
+      label: 'Spare fob #2',
+    });
+    const parsed = parseKeyDumpFile(bin);
+    expect(parsed.ok).toBe(true);
+    expect(parsed.chipId).toBe('id46');
+    expect(parsed.label).toBe('Spare fob #2');
+    expect([...parsed.uid]).toEqual([0x11, 0x22, 0x33, 0x44]);
+    expect([...parsed.sk]).toEqual([0x55, 0x66, 0x77, 0x88, 0x99, 0xAA]);
+  });
+
+  it('routes a JSON manifest (no KDMP magic) to the manifest parser', () => {
+    const json = buildKeyDumpManifest(makeKeyDumpRecord());
+    const bytes = new TextEncoder().encode(json);
+    const parsed = parseKeyDumpFile(bytes);
+    expect(parsed.ok).toBe(true);
+    expect(parsed.chipId).toBe('id46');
+    expect([...parsed.uid]).toEqual([0x11, 0x22, 0x33, 0x44]);
+    expect([...parsed.sk]).toEqual([0x55, 0x66, 0x77, 0x88, 0x99, 0xAA]);
+  });
+
+  it('rejects an empty file', () => {
+    const parsed = parseKeyDumpFile(new Uint8Array(0));
+    expect(parsed.ok).toBe(false);
+    expect(parsed.error).toMatch(/empty file/i);
+  });
+
+  it('rejects unrecognized non-JSON bytes via the manifest path', () => {
+    const bytes = new TextEncoder().encode('plain text, not a manifest');
+    const parsed = parseKeyDumpFile(bytes);
+    expect(parsed.ok).toBe(false);
   });
 });
