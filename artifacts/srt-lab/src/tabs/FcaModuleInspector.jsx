@@ -612,6 +612,11 @@ export default function FcaModuleInspector({ onOpenTab } = {}) {
   // the file name, actual byte count, and required minimum, matching the
   // warm/orange visual language of the size-warn / content-warn lists.
   const [tooSmallRejects, setTooSmallRejects] = useState([]);
+  // Corrupt-fill rejections — files whose content matches known tool-error
+  // patterns (single-byte fills, repeated ASCII strings like "OBDSTAR6").
+  // Displayed as dismissible cards before the too-small list so techs see
+  // the reason the file was refused instead of it silently vanishing.
+  const [corruptFillRejects, setCorruptFillRejects] = useState([]);
   // "Secrets & Crypto" panel — track which module indices have the panel open.
   // Collapsed by default so large-binary scans don't block the first render;
   // results are memoized per module data so toggling open is instant once
@@ -755,7 +760,12 @@ export default function FcaModuleInspector({ onOpenTab } = {}) {
           const m = parseModule(bytes, f.name);
           const small = m?.type ? moduleTooSmall(bytes, m.type, f.name) : null;
 
-          if (!m || !m.type || !INSPECTOR_TYPES.includes(m.type)) {
+          if (m?.corruptFill) {
+            // Corrupt fill detected — refuse the file with a structured card
+            // so the tech sees exactly WHY it was rejected, instead of it
+            // vanishing into the generic "skipped N file(s)" message.
+            setCorruptFillRejects((prev) => [...prev, {filename: f.name, ...m.corruptFill}]);
+          } else if (!m || !m.type || !INSPECTOR_TYPES.includes(m.type)) {
             skipped.push(f.name + " (" + (m?.type || "UNKNOWN") + ")");
           } else if (small) {
             skipped.push(f.name + " (TOO SMALL: " + small.expected + ")");
@@ -806,12 +816,17 @@ export default function FcaModuleInspector({ onOpenTab } = {}) {
     setTr(null);
     setLoadMsg("");
     setTooSmallRejects([]);
+    setCorruptFillRejects([]);
   }, [entries, removeDump]);
   // Per-card dismissal for the too-small rejection list, so a tech who
   // has read the warning can clear it without dropping the rest of the
   // workspace state.
   const dismissTooSmall = useCallback((idx) => {
     setTooSmallRejects((prev) => prev.filter((_, i) => i !== idx));
+  }, []);
+
+  const dismissCorruptFill = useCallback((idx) => {
+    setCorruptFillRejects((prev) => prev.filter((_, i) => i !== idx));
   }, []);
 
   const handleExportPDF = useCallback(async (idx) => {
@@ -935,6 +950,38 @@ export default function FcaModuleInspector({ onOpenTab } = {}) {
       </Card>
     </label>
     {loadMsg && <div style={{ marginBottom: 12, padding: "8px 12px", borderRadius: 8, background: C.wn + "15", border: "1px solid " + C.wn + "40", color: C.wn, fontSize: 11, fontWeight: 700 }}>⚠ {loadMsg}</div>}
+
+    {/* Corrupt-fill rejection cards — files whose content matches a known
+        tool-error fill pattern (single-byte fills, repeated ASCII strings
+        like "OBDSTAR6"). The OBDSTAR6 incident: seven 128 KB captures filled
+        entirely with the repeated string "OBDSTAR6" were accepted as real BCM
+        dumps and stored for months before the pattern was recognised. These
+        cards surface BEFORE the file is added to workspace state so the tech
+        sees a clear reason instead of a silent no-op. The red (C.er) palette
+        distinguishes "the file is actively wrong" from the orange (C.wn)
+        "the file is undersized" warnings. */}
+    {corruptFillRejects.length > 0 && <div data-testid="inspector-corrupt-fill-list" style={{ marginBottom: 18 }}>
+      {corruptFillRejects.map((rej, i) => (
+        <Card key={"cf-" + i} data-testid="inspector-corrupt-fill-card" style={{
+          marginBottom: 12, padding: 14,
+          border: "1px solid " + C.er + "66",
+          background: C.er + "0e",
+          position: "relative",
+        }}>
+          <button onClick={() => dismissCorruptFill(i)} aria-label="Dismiss corrupt-fill rejection" style={{
+            position: "absolute", top: 8, right: 10, background: "none", border: "none",
+            color: C.tm, cursor: "pointer", fontSize: 16, lineHeight: 1, fontWeight: 700,
+          }}>×</button>
+          <div style={{ fontWeight: 800, fontSize: 12, color: C.er, marginBottom: 6, letterSpacing: 0.5 }}>
+            ✖ CORRUPT CAPTURE — <span style={{ fontFamily: "'JetBrains Mono'" }}>{rej.filename}</span> looks like a tool error response
+          </div>
+          <div style={{ fontSize: 11, color: C.tx, lineHeight: 1.6 }}>{rej.detail}</div>
+          <div style={{ marginTop: 8, fontSize: 11, color: C.tm, lineHeight: 1.5 }}>
+            Re-read the module with your programming tool — do not use this capture for VIN or key operations.
+          </div>
+        </Card>
+      ))}
+    </div>}
 
     {/* Task #543 — undersized fragment rejection cards. Files smaller than
         the smallest inspector-supported family (RFHUB Gen1 24C16 at 2 KB)

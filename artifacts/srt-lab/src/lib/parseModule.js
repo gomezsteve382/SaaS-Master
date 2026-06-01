@@ -739,6 +739,80 @@ function resolveBcmSec16(data){
   };
 }
 
+// Detects obviously corrupt / tool-error fill patterns in a raw binary buffer.
+// Returns null when the buffer looks like a real capture, or a structured
+// {corruptFill, reason, detail} object the caller can surface at upload time.
+//
+// Covered patterns
+//   1. Single-byte fill — the entire file is ≥98% one repeated byte value
+//      (catches blank erases, all-FF/all-00 virgin reads that slipped past
+//      the type guard, and OBDSTAR/dealer-tool "fill on error" patterns like
+//      0x55-filled captures seen in the wild).
+//   2. Repeated short ASCII string — the canonical OBDSTAR6 failure mode:
+//      a 4–32 printable-ASCII byte sequence that tiles ≥90% of the file.
+//      "OBDSTAR6" (8 B) repeated 16,384× across a 128 KB capture is the
+//      exact incident that triggered this guard.
+//
+// The minimum scannable size is 64 bytes — shorter buffers are handled by
+// the existing too-small guards and are too small to distinguish a real
+// header from a coincidental short pattern.
+function detectCorruptFill(data){
+  if(!data||data.length<64)return null;
+
+  // ── Check 1: single-byte fill ──────────────────────────────────────────
+  // 0xFF (flash erase) and 0x00 (EEPROM blank) are explicitly excluded:
+  // an all-FF or all-00 buffer is a legitimate virgin module read and is
+  // already handled upstream by the contentWarn / ContentWarnBanner system.
+  // We only reject fills of other byte values (e.g. 0x55, 0xAA, or any
+  // OBDSTAR-class error byte) because those have no legitimate meaning in
+  // a real module capture.
+  const counts=new Uint32Array(256);
+  for(let i=0;i<data.length;i++)counts[data[i]]++;
+  let maxCount=0,maxByte=0;
+  for(let b=0;b<256;b++){if(counts[b]>maxCount){maxCount=counts[b];maxByte=b;}}
+  const fillRatio=maxCount/data.length;
+  if(fillRatio>=0.98&&maxByte!==0xFF&&maxByte!==0x00){
+    const byteHex='0x'+maxByte.toString(16).toUpperCase().padStart(2,'0');
+    return{
+      corruptFill:true,
+      reason:'single-byte fill',
+      detail:`File is ${Math.round(fillRatio*100)}% byte ${byteHex} — looks like a tool error response, not a real module dump.`,
+    };
+  }
+
+  // ── Check 2: repeated short ASCII string ──────────────────────────────
+  // Scan the leading 32 bytes for a printable-ASCII window of length 4–32.
+  // If that exact window tiles ≥90% of the file's full-length blocks, the
+  // file is a repeated-string error response (OBDSTAR6, "NO DATA", etc.).
+  const scanWindow=Math.min(32,data.length);
+  const PRINT_LO=0x20,PRINT_HI=0x7E;
+  for(let len=4;len<=scanWindow;len++){
+    // If byte at position len-1 is not printable, no longer window can be
+    // an all-printable ASCII candidate — stop expanding.
+    if(data[len-1]<PRINT_LO||data[len-1]>PRINT_HI)break;
+    // Check whether this len-byte window tiles the whole file.
+    const fullBlocks=Math.floor(data.length/len);
+    if(fullBlocks<2)continue; // degenerate: pattern is basically the whole file
+    let matchingBlocks=0;
+    for(let block=0;block<fullBlocks;block++){
+      const base=block*len;let match=true;
+      for(let k=0;k<len;k++){if(data[base+k]!==data[k]){match=false;break;}}
+      if(match)matchingBlocks++;
+    }
+    if(matchingBlocks/fullBlocks>=0.90){
+      let pat='';
+      for(let i=0;i<len;i++)pat+=String.fromCharCode(data[i]);
+      return{
+        corruptFill:true,
+        reason:'repeated ASCII string',
+        detail:`File appears to be "${pat}" repeated ${matchingBlocks.toLocaleString()} times — this looks like a tool error response, not a real module dump.`,
+      };
+    }
+  }
+
+  return null;
+}
+
 function parseModule(data,filename,opts){
   const sz=data.length;let type='UNKNOWN';
   const forceType=opts&&opts.forceType;
@@ -808,6 +882,12 @@ function parseModule(data,filename,opts){
   if(forceType&&CANONICAL_SIZES_BY_TYPE[forceType])type=forceType;
 
   const info={type,filename,data,size:sz,name:TL[type]||type,color:TC[type]||'#9E9E9E'};
+  // Pre-parse sanity check: reject files whose content matches known tool-error
+  // patterns (single-byte fills, repeated ASCII strings like "OBDSTAR6") before
+  // any module-specific field extraction runs. The result is attached here so
+  // every consumer — FcaModuleInspector, BenchTab, SecurityTab, etc. — can gate
+  // on info.corruptFill without repeating the detection logic.
+  info.corruptFill=detectCorruptFill(data);
   info.sizeWarn=buildSizeWarn(type,sz);
   // Content sanity check — fires when size-only / signature classification
   // routes a buffer to a family whose defining structures are all blank.
@@ -1132,7 +1212,7 @@ function parseModule(data,filename,opts){
   return info;
 }
 
-export {parseModule,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,buildGpecContentWarn,buildRfhubContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,wrongModuleForSlot,SLOT_TO_FAMILY,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,
+export {parseModule,detectCorruptFill,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,buildGpecContentWarn,buildRfhubContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,wrongModuleForSlot,SLOT_TO_FAMILY,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,
   // Canonical VIN slot tables (single source of truth shared with
   // scripts/anonymize-real-dump.mjs — see the block-comment at the top
   // of this file for the per-family explanation). PCM_VIN_OFFSETS_GPEC2A
