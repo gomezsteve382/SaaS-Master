@@ -261,12 +261,14 @@ router.post("/conversations/:id/messages", async (req, res) => {
   /* Pick the base prompt by conversation scope: the global AI Co-pilot
    * (scope="general") gets the non-restrictive general assistant prompt so it
    * answers any question; everything else uses the IMMO module-assistant
-   * prompt. A moduleContext always implies a module-assistant conversation, so
-   * it overrides scope and appends the live context block. */
+   * prompt. A moduleContext appends the live bench context block to whichever
+   * base prompt applies — so the Co-pilot can see the loaded dumps WITHOUT
+   * losing its general-purpose behavior, while the Mismatch Wizard (non-general
+   * scope) keeps its IMMO module-assistant prompt + context as before. */
   const basePrompt =
     conv.scope === "general" ? GENERAL_SYSTEM_PROMPT : SYSTEM_PROMPT;
   const systemPrompt = moduleContext
-    ? `${SYSTEM_PROMPT}\n\n${buildContextBlock(moduleContext)}`
+    ? `${basePrompt}\n\n${buildContextBlock(moduleContext)}`
     : basePrompt;
 
   res.setHeader("Content-Type", "text/event-stream");

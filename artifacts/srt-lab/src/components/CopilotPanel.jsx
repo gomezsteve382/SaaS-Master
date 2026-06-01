@@ -1,5 +1,6 @@
-import React, {useState, useRef, useEffect, useCallback} from 'react';
-import {Bot, X, Send, Sparkles, Plus, History, Trash2, RotateCw, Paperclip, FileText, Pencil, Check} from 'lucide-react';
+import React, {useState, useRef, useEffect, useCallback, useContext, useMemo} from 'react';
+import {Bot, X, Send, Sparkles, Plus, History, Trash2, RotateCw, Paperclip, FileText, Pencil, Check, Cpu} from 'lucide-react';
+import {MasterVinContext} from '../lib/masterVinContext.jsx';
 
 /* Global Claude Co-pilot — an always-available, general-purpose chat panel
  * surfaced from the app shell (CommandShell). Unlike the Mismatch Wizard
@@ -102,8 +103,17 @@ function useGeneralChat() {
   const abortRef = useRef(null);
   const messagesRef = useRef([]);
   const convIdRef = useRef(null);
+  /* Optional bench context the panel feeds in (active VIN + loaded module
+   * summaries) and, when available, the raw module bytes so the assistant can
+   * call read_hex / extract_strings / etc. against the real dumps. Both stay
+   * null for a general-purpose chat with nothing loaded. */
+  const contextRef = useRef(null);
+  const binaryRef = useRef(null);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
   useEffect(() => { convIdRef.current = conversationId; }, [conversationId]);
+
+  const updateContext = useCallback((ctx) => { contextRef.current = ctx || null; }, []);
+  const updateBinaryData = useCallback((data) => { binaryRef.current = data || null; }, []);
 
   /* ── Hydrate the most recent general conversation on mount ── */
   useEffect(() => {
@@ -186,10 +196,31 @@ function useGeneralChat() {
         try { localStorage.setItem(LAST_CONV_KEY, String(convId)); } catch { /* ignore */ }
       }
 
-      const resp = await fetch(`${API_BASE}/anthropic/conversations/${convId}/messages`, {
+      /* When the panel has handed us the raw module bytes, route to the
+       * tool-use endpoint so the assistant can actually inspect the loaded
+       * dumps (read_hex / extract_strings / hex_diff). Otherwise (no bytes, or
+       * the user detached the bench context) use the plain text endpoint and
+       * the chat stays general-purpose. moduleContext is sent on both paths so
+       * the model sees the active VIN + loaded module summaries when present. */
+      const ctx = contextRef.current;
+      const binary = binaryRef.current;
+      const useTools = !!(binary && binary.binaryBase64);
+      const endpoint = useTools
+        ? `${API_BASE}/anthropic/conversations/${convId}/tool-messages`
+        : `${API_BASE}/anthropic/conversations/${convId}/messages`;
+      const body = useTools
+        ? {
+            content,
+            moduleContext: ctx || undefined,
+            binaryBase64: binary.binaryBase64,
+            binaries: binary.binaries || undefined,
+          }
+        : {content, moduleContext: ctx || undefined};
+
+      const resp = await fetch(endpoint, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({content}),
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
 
@@ -322,7 +353,67 @@ function useGeneralChat() {
   return {
     messages, streaming, error, conversationId, hydrated,
     send, startNew, switchTo, listSessions, deleteSession, renameSession, stop,
+    updateContext, updateBinaryData,
   };
+}
+
+/* ── Build the bench context the Co-pilot can optionally see ──────────────
+ * Turns the MasterVin session (active VIN + loaded module dumps) into the
+ * ModuleContext shape the server's buildContextBlock understands. Returns
+ * null when there's nothing on the bench so the chat stays general-purpose. */
+function buildBenchContext(vin, vinValid, loadedDumps) {
+  const hasVin = !!(vinValid && vin);
+  const dumps = Array.isArray(loadedDumps) ? loadedDumps : [];
+  if (!hasVin && dumps.length === 0) return null;
+
+  const modules = dumps.map((d) => {
+    const mod = d.mod || {};
+    const vins = Array.isArray(mod.vins) ? mod.vins.map((v) => v && v.vin).filter(Boolean) : [];
+    const uniqVins = Array.from(new Set(vins));
+    const parts = [`${d.type || mod.type || 'UNKNOWN'} — ${d.filename || d.name || 'dump'}`];
+    if (typeof d.size === 'number') parts.push(`${d.size} bytes`);
+    if (uniqVins.length) parts.push(`VIN ${uniqVins.join(' / ')}`);
+    if (d.source) parts.push(`from ${d.source}`);
+    return parts.join(', ');
+  });
+
+  const ctx = {};
+  if (modules.length) ctx.modules = modules;
+  if (hasVin) ctx.hexSnippets = [`Active bench VIN: ${vin}`];
+  return Object.keys(ctx).length ? ctx : null;
+}
+
+/* Base64-encode a Uint8Array without spreading huge arrays onto the stack. */
+function bytesToB64(bytes) {
+  let s = '';
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return typeof btoa === 'function' ? btoa(s) : Buffer.from(s, 'binary').toString('base64');
+}
+
+/* Build the {binaryBase64, binaries} payload from the loaded dumps so the
+ * tool-use endpoint can inspect the real bytes. Caps the total so we never
+ * push more than a few MB (the API json limit is 10 MB). */
+function buildBenchBinaries(loadedDumps) {
+  const dumps = Array.isArray(loadedDumps) ? loadedDumps : [];
+  if (dumps.length === 0) return null;
+  const MAX_TOTAL = 4 * 1024 * 1024;
+  const counts = {};
+  const binaries = {};
+  let total = 0;
+  let primaryKey = null;
+  for (const d of dumps) {
+    const bytes = d.mod && d.mod.data;
+    if (!bytes || !bytes.length) continue;
+    if (total + bytes.length > MAX_TOTAL) break;
+    const base = d.type || (d.mod && d.mod.type) || 'DUMP';
+    counts[base] = (counts[base] || 0) + 1;
+    const key = counts[base] > 1 ? `${base}#${counts[base]}` : base;
+    binaries[key] = bytesToB64(bytes);
+    if (!primaryKey) primaryKey = key;
+    total += bytes.length;
+  }
+  if (!primaryKey) return null;
+  return {binaryBase64: binaries[primaryKey], binaries};
 }
 
 const SUGGESTIONS = [
@@ -335,7 +426,37 @@ export default function CopilotPanel({open, onClose}) {
   const {
     messages, streaming, error, conversationId, hydrated,
     send, startNew, switchTo, listSessions, deleteSession, renameSession, stop,
+    updateContext, updateBinaryData,
   } = useGeneralChat();
+
+  /* Pull the live bench session from MasterVinContext. Outside a provider
+   * (the landing screen) this resolves to the context defaults — empty dumps
+   * and no VIN — so the Co-pilot is simply general-purpose there. */
+  const {vin, vinValid, loadedDumps} = useContext(MasterVinContext);
+
+  const benchContext = useMemo(
+    () => buildBenchContext(vin, vinValid, loadedDumps),
+    [vin, vinValid, loadedDumps],
+  );
+  const benchBinaries = useMemo(
+    () => buildBenchBinaries(loadedDumps),
+    [loadedDumps],
+  );
+  const hasBench = !!benchContext;
+  const dumpCount = Array.isArray(loadedDumps) ? loadedDumps.length : 0;
+
+  /* Opt-in by default when there's something on the bench; the user can
+   * detach it to ask a purely general question without leaking dump context. */
+  const [attachBench, setAttachBench] = useState(true);
+
+  /* Feed the (toggled) context + bytes into the chat hook so each send picks
+   * them up. Detaching, or having nothing loaded, sends null → general chat. */
+  useEffect(() => {
+    const on = attachBench && hasBench;
+    updateContext(on ? benchContext : null);
+    updateBinaryData(on ? benchBinaries : null);
+  }, [attachBench, hasBench, benchContext, benchBinaries, updateContext, updateBinaryData]);
+
   const [input, setInput] = useState('');
   const [pastOpen, setPastOpen] = useState(false);
   const [pastSessions, setPastSessions] = useState(null); /* null = not loaded */
@@ -727,7 +848,10 @@ export default function CopilotPanel({open, onClose}) {
                 survive a refresh.
               </div>
               <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
-                {SUGGESTIONS.map((s) => (
+                {(attachBench && hasBench
+                  ? ['Summarize the modules I have loaded and flag any mismatches', ...SUGGESTIONS]
+                  : SUGGESTIONS
+                ).map((s) => (
                   <button
                     key={s}
                     type="button"
@@ -788,6 +912,41 @@ export default function CopilotPanel({open, onClose}) {
             </div>
           )}
         </div>
+
+        {/* Bench context bar — only shown when there's something on the bench.
+         * Lets the user see what the Co-pilot can read and detach it for a
+         * purely general question. */}
+        {hasBench && (
+          <div
+            data-testid="copilot-bench-bar"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px',
+              borderTop: `1px solid ${C.line}`, background: C.panel,
+              fontSize: 11.5, color: C.muted,
+            }}
+          >
+            <Cpu size={14} style={{color: attachBench ? C.red : C.muted, flexShrink: 0}} />
+            <span style={{flex: 1, minWidth: 0, lineHeight: 1.4}}>
+              {attachBench
+                ? `Reading your bench: ${dumpCount} module${dumpCount === 1 ? '' : 's'}${benchBinaries ? ' (bytes attached)' : ''}${vinValid && vin ? ` · VIN ${vin}` : ''}`
+                : 'Bench context detached — answering generally'}
+            </span>
+            <button
+              type="button"
+              onClick={() => setAttachBench((v) => !v)}
+              data-testid="copilot-bench-toggle"
+              style={{
+                flexShrink: 0, background: attachBench ? C.red : 'transparent',
+                color: attachBench ? '#fff' : C.muted,
+                border: `1px solid ${attachBench ? C.red : C.line}`,
+                borderRadius: 8, padding: '3px 9px', cursor: 'pointer',
+                fontSize: 11, fontFamily: C.sans, fontWeight: 600,
+              }}
+            >
+              {attachBench ? 'Attached' : 'Detached'}
+            </button>
+          </div>
+        )}
 
         {/* Composer */}
         <div style={{borderTop: `1px solid ${C.line}`, background: C.panel}}>

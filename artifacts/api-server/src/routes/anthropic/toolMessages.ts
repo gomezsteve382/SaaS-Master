@@ -25,6 +25,7 @@ import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { eq, asc } from "drizzle-orm";
 import {
   SYSTEM_PROMPT,
+  GENERAL_SYSTEM_PROMPT,
   buildContextBlock,
   buildAutoTitle,
   type ModuleContext,
@@ -109,13 +110,20 @@ router.post("/conversations/:id/tool-messages", async (req, res) => {
     content: m.content,
   }));
 
+  /* Base prompt by scope: the global Co-pilot (scope="general") keeps its
+   * non-restrictive general assistant prompt even when inspecting bytes, so it
+   * can answer any question while still being able to call the binary tools.
+   * Everything else (the Mismatch Wizard) keeps the IMMO module-assistant
+   * prompt. The context + binary note append to whichever base applies. */
+  const basePrompt =
+    conv.scope === "general" ? GENERAL_SYSTEM_PROMPT : SYSTEM_PROMPT;
   const systemPrompt = moduleContext
-    ? `${SYSTEM_PROMPT}\n\n${buildContextBlock(moduleContext)}\n\n${
+    ? `${basePrompt}\n\n${buildContextBlock(moduleContext)}\n\n${
         primaryBuf.length > 0
           ? `**Loaded binary:** ${primaryBuf.length} bytes available for tool inspection.`
           : "No binary loaded — tool calls returning data will be skipped."
       }`
-    : SYSTEM_PROMPT;
+    : basePrompt;
 
   // SSE headers
   res.setHeader("Content-Type", "text/event-stream");

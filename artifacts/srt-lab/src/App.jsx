@@ -2038,7 +2038,14 @@ export default function App(){
   return (
     <>
       {!vehicleId ? (
-        <VehicleLanding onSelect={setVehicleId}/>
+        <>
+          <VehicleLanding onSelect={setVehicleId}/>
+          {/* Landing screen has no top bar, so the floating launcher covers it.
+           * No MasterVinProvider here means the Co-pilot sees no bench context
+           * (nothing is loaded yet), which is the correct general-purpose state. */}
+          {!copilotOpen && <CopilotFab onOpen={openCopilot}/>}
+          <CopilotPanel open={copilotOpen} onClose={()=>setCopilotOpen(false)}/>
+        </>
       ) : (
         <MasterVinProvider>
           <VehicleWorkspace
@@ -2046,15 +2053,13 @@ export default function App(){
             onBack={()=>setVehicleId(null)}
             onOpenCopilot={openCopilot}
           />
+          {/* Rendered INSIDE the provider so the Co-pilot can read the active
+           * VIN + loaded module dumps and offer bench-specific answers. The
+           * workspace exposes the launcher via the top-bar button, so no FAB
+           * here (avoids a fixed-position collision with the reference panel). */}
+          <CopilotPanel open={copilotOpen} onClose={()=>setCopilotOpen(false)}/>
         </MasterVinProvider>
       )}
-      {/* The workspace exposes the co-pilot via the top-bar button; the
-       * floating launcher only needs to cover the landing screen, where
-       * there is no top bar. Scoping it to the landing also avoids a
-       * fixed-position collision with the workspace ReferencePanelTrigger
-       * (both anchor bottom-right). */}
-      {!vehicleId && !copilotOpen && <CopilotFab onOpen={openCopilot}/>}
-      <CopilotPanel open={copilotOpen} onClose={()=>setCopilotOpen(false)}/>
     </>
   );
 }
