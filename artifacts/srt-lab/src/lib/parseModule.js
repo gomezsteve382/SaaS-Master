@@ -1240,8 +1240,8 @@ function parseModule(data,filename,opts){
 function corruptFillError(m){
   if(!m?.corruptFill)return null;
   const cf=m.corruptFill;
-  const base='✖ Corrupt capture'+(cf.reason?' ('+cf.reason+')':'')+': '+(cf.detail||'file looks like a tool-error response')+'.';
-  return base+' Re-read the module with your programming tool — do not use this capture for VIN or key operations.';
+  const tech=(cf.reason||'single-byte fill')+(cf.detail?': '+cf.detail:'');
+  return '⚠ This file looks like a tool read error — the programmer returned all identical bytes instead of real module data, so it can\'t be used for VIN or key operations. Read the module again with your tool and upload the fresh capture. (Details: '+tech+')';
 }
 
 export {parseModule,detectCorruptFill,corruptFillError,countSkimRecs,syncImmoBackup,extractVIN,extractHex,arrEq,detectBySignature,fO,rd32,buildSizeWarn,typeFromFilename,CANONICAL_SIZES_BY_TYPE,looksLikeRealBcm,buildBcmContentWarn,buildGpecContentWarn,buildRfhubContentWarn,BCM_MIN_SIZE,bcmTooSmall,MODULE_MIN_SIZES,MODULE_MIN_LABELS,moduleTooSmall,wrongModuleForSlot,SLOT_TO_FAMILY,detectModuleType,PCM_CHIPS,pcmChipFromSize,pcmChipFromKey,resolveBcmSec16,classifyPcmSec6,

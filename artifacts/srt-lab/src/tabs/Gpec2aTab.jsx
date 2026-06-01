@@ -16,6 +16,7 @@ function Gpec2aTab(){
   const [hash1,setHash1]=useState(null);
   const [hash2,setHash2]=useState(null);
   const [msg,setMsg]=useState('');
+  const [err,setErr]=useState('');
   const [tooSmall,setTooSmall]=useState(null);
   const entry1=gpecDumps.find(d=>d.hash===hash1)||gpecDumps[0]||null;
   const entry2=gpecDumps.find(d=>d.hash===hash2&&d.hash!==entry1?.hash)||gpecDumps.find(d=>d.hash!==entry1?.hash)||null;
@@ -32,11 +33,12 @@ function Gpec2aTab(){
       // user would think the file was good. Mirrors the BCM size guard
       // added in Task #370 (Task #372).
       const small=moduleTooSmall(d,'GPEC2A',fi.name);
-      if(small){setTooSmall(small);setMsg('');return;}
+      if(small){setTooSmall(small);setMsg('');setErr('');return;}
       setTooSmall(null);
       const m=parseModule(d,fi.name,{forceType:'GPEC2A'});
       const cfErr=corruptFillError(m);
-      if(cfErr){setMsg(cfErr);return;}
+      if(cfErr){setErr(cfErr);setMsg('');return;}
+      setErr('');
       const entry=addDump(m,'GPEC2A tab');
       if(entry){if(slot===1)setHash1(entry.hash);else setHash2(entry.hash);}
       setMsg('');
@@ -243,6 +245,7 @@ function Gpec2aTab(){
       </div>}
     </Card>}
 
+    {err&&<div style={{marginTop:10,padding:'8px 12px',borderRadius:8,background:C.er+'12',border:'1px solid '+C.er+'40',fontSize:11,fontWeight:700,color:C.er}}>{err}</div>}
     {msg&&<div style={{marginTop:10,padding:'8px 12px',borderRadius:8,background:C.gn+'10',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
     {!f&&<div style={{textAlign:'center',padding:30,color:C.tm,fontSize:12}}>Load a GPEC2A 4 KB .bin file above</div>}
   </div>;

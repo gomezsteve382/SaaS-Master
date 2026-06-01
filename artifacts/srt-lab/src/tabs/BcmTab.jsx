@@ -727,6 +727,7 @@ export default function BcmTab({vehicle}){
   const bcmDumps=getDumpsByType('BCM');
   const [inspectHash,setInspectHash]=useState(null);
   const [inspectMsg,setInspectMsg]=useState('');
+  const [inspectErr,setInspectErr]=useState('');
   const [inspectTooSmall,setInspectTooSmall]=useState(null);
   const [detectedGen,setDetectedGen]=useState(null);
   const [detectedPn,setDetectedPn]=useState(null);
@@ -774,7 +775,8 @@ export default function BcmTab({vehicle}){
       setInspectTooSmall(null);
       const m=parseModule(bytes,file.name);
       const cfErr=corruptFillError(m);
-      if(cfErr){setInspectMsg(cfErr);setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);return;}
+      if(cfErr){setInspectErr(cfErr);setInspectMsg('');setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);return;}
+      setInspectErr('');
       if(m.type!=='BCM'){setInspectMsg('Selected file is '+m.type+', not BCM — load a 64 KB or 128 KB BCM dump.');setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);return;}
       const entry=addDump(m,'BCM tab');
       if(entry)setInspectHash(entry.hash);
@@ -802,7 +804,7 @@ export default function BcmTab({vehicle}){
   },[inspectEntry,inspectMod,replaceDump]);
   const closeInspect=useCallback(()=>{
     if(inspectEntry)removeDump(inspectEntry.hash);
-    setInspectHash(null);setInspectMsg('');setInspectTooSmall(null);setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);
+    setInspectHash(null);setInspectMsg('');setInspectErr('');setInspectTooSmall(null);setDetectedGen(null);setDetectedPn(null);setInspectPnCheck(null);
   },[inspectEntry,removeDump]);
 
   const vinValid=masterVin.length===17;
@@ -1000,6 +1002,7 @@ export default function BcmTab({vehicle}){
         </div>
         <div style={{marginTop:8,fontSize:12,color:C.tx,fontWeight:600,lineHeight:1.5}}>Re-read the BCM in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module.</div>
       </div>}
+      {inspectErr&&<div style={{marginTop:8,padding:'8px 12px',borderRadius:8,background:C.er+'12',border:'1px solid '+C.er+'40',fontSize:11,fontWeight:700,color:C.er}}>{inspectErr}</div>}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.gn,fontWeight:700}}>{inspectMsg}</div>}
       {inspectMod&&!inspectTooSmall&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
       {inspectMod&&!inspectTooSmall&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}

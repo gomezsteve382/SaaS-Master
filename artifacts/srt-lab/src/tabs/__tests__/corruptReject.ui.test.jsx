@@ -7,7 +7,7 @@
 // incident (canonical incident documented in detectCorruptFill.test.js).
 //
 // Per-tab assertions:
-//   1. An error message containing "Corrupt capture" becomes visible.
+//   1. The plain-language "tool read error" message becomes visible.
 //   2. No module identity card (OS / PN / SERIAL) is rendered — the tab
 //      never progressed past the guard into state.
 //
@@ -116,7 +116,7 @@ async function dropOnElement(queryText, bytes) {
 
 async function assertCorruptMessageVisible() {
   await waitFor(
-    () => expect(screen.getByText(/Corrupt capture/i)).toBeTruthy(),
+    () => expect(screen.getByText(/tool read error/i)).toBeTruthy(),
     { timeout: 3000 }
   );
 }

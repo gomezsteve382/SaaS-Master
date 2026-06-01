@@ -14,7 +14,7 @@ const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).
 
 function SecurityTab(){
   const[mods,setMods]=useState([]);const[sub,setSub]=useState('overview');const[tv,setTv]=useState('');
-  const[msg,setMsg]=useState('');const[dp,setDp]=useState([0,1]);const[tt,setTt]=useState(0);
+  const[msg,setMsg]=useState('');const[err,setErr]=useState('');const[dp,setDp]=useState([0,1]);const[tt,setTt]=useState(0);
   const[tr,setTr]=useState(null);const[flashList,setFlashList]=useState([]);const[keySrc,setKeySrc]=useState(-1);
   const[advanced,setAdvancedState]=useState(()=>loadAdvanced('security'));
   const[wizardOpen,setWizardOpen]=useState(false);
@@ -29,7 +29,8 @@ function SecurityTab(){
         const d=new Uint8Array(ev.target.result);
         const m=parseModule(d,f.name);
         const cfErr=corruptFillError(m);
-        if(cfErr){setMsg(cfErr);return;}
+        if(cfErr){setErr(cfErr);setMsg('');return;}
+        setErr('');
         if(m.type!=='UNKNOWN'&&m.type!=='FW')setMods(p=>{const u=[...p,m];if(!tv&&m.vins?.[0])setTv(m.vins[0].vin);return u;});
       };r.readAsArrayBuffer(f);
     });
@@ -565,6 +566,7 @@ function SecurityTab(){
       </div>}
     </div>}
 
+    {err&&<div style={{marginTop:12,padding:'8px 12px',borderRadius:8,background:C.er+'12',border:'1px solid '+C.er+'40',fontSize:11,fontWeight:700,color:C.er}}>{err}</div>}
     {msg&&<div style={{marginTop:12,padding:'8px 12px',borderRadius:8,background:C.gn+'10',border:'1px solid '+C.gn+'25',fontSize:11,fontWeight:700,color:C.gn}}>✓ {msg}</div>}
     {!mods.length&&<div style={{textAlign:'center',padding:30,color:C.tm,fontSize:12}}>Drop BCM, RFHUB, 95640, GPEC2A files above to compare security</div>}
 

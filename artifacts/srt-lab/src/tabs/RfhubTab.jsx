@@ -267,6 +267,7 @@ export default function RfhubTab({vehicle}){
   const rfhubDumps=getDumpsByType('RFHUB');
   const [inspectHash,setInspectHash]=useState(null);
   const [inspectMsg,setInspectMsg]=useState('');
+  const [inspectErr,setInspectErr]=useState('');
   const [inspectTooSmall,setInspectTooSmall]=useState(null);
   const inspectEntry=rfhubDumps.find(d=>d.hash===inspectHash)||rfhubDumps[0]||null;
   const inspectMod=inspectEntry?.mod||null;
@@ -453,7 +454,8 @@ export default function RfhubTab({vehicle}){
       setInspectTooSmall(null);
       const m=parseModule(bytes,file.name);
       const cfErr=corruptFillError(m);
-      if(cfErr){setInspectMsg(cfErr);return;}
+      if(cfErr){setInspectErr(cfErr);setInspectMsg('');return;}
+      setInspectErr('');
       if(m.type!=='RFHUB'){setInspectMsg('Selected file is '+m.type+', not RFHUB — load a 4 KB RFHUB EEE dump.');return;}
       const entry=addDump(m,'RFHUB tab');
       if(entry)setInspectHash(entry.hash);
@@ -463,7 +465,7 @@ export default function RfhubTab({vehicle}){
   },[addDump]);
   const closeInspect=useCallback(()=>{
     if(inspectEntry)removeDump(inspectEntry.hash);
-    setInspectHash(null);setInspectMsg('');setInspectTooSmall(null);
+    setInspectHash(null);setInspectMsg('');setInspectErr('');setInspectTooSmall(null);
   },[inspectEntry,removeDump]);
 
   const vinValid=masterVin.length===17;
@@ -674,6 +676,7 @@ export default function RfhubTab({vehicle}){
       </div>
       {!inspectMod&&rfhubDumps.length===0&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the Dumps tab show up here automatically.</div>}
       {inspectMod&&rfhubDumps.length>0&&<div style={{marginTop:6,fontSize:10,color:C.gn,fontWeight:700}}>✓ Auto-loaded from shared workspace ({rfhubDumps.length} RFHUB dump{rfhubDumps.length===1?'':'s'} available)</div>}
+      {inspectErr&&<div style={{marginTop:8,padding:'8px 12px',borderRadius:8,background:C.er+'12',border:'1px solid '+C.er+'40',fontSize:11,fontWeight:700,color:C.er}}>{inspectErr}</div>}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.wn,fontWeight:700}}>{inspectMsg}</div>}
       {inspectTooSmall&&<div data-testid="rfh-too-small-card" style={{marginTop:12,padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
         <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ This isn&apos;t a full RFHUB dump</div>

@@ -38,6 +38,7 @@ export default function AdcmTab(){
   // buckets the existing inspector already reads from (FW / GPEC2A / BCM).
   const[inspectHash,setInspectHash]=useState(null);
   const[inspectMsg,setInspectMsg]=useState('');
+  const[inspectErr,setInspectErr]=useState('');
   const[inspectTooSmall,setInspectTooSmall]=useState(null);
   const inspectEntry=adcmDumps.find(d=>d.hash===inspectHash)||adcmDumps[0]||null;
   const adcmInspectMod=inspectEntry?.mod||null;
@@ -59,7 +60,8 @@ export default function AdcmTab(){
       setInspectTooSmall(null);
       const m=parseModule(bytes,file.name);
       const cfErr=corruptFillError(m);
-      if(cfErr){setInspectMsg(cfErr);return;}
+      if(cfErr){setInspectErr(cfErr);setInspectMsg('');return;}
+      setInspectErr('');
       if(!ADCM_OK_TYPES.includes(m.type)){
         setInspectMsg('Selected file is '+m.type+', not an ADCM-shaped dump (expected FW / GPEC2A / BCM).');
         return;
@@ -72,7 +74,7 @@ export default function AdcmTab(){
   },[addDump]);
   const closeInspect=useCallback(()=>{
     if(inspectEntry)removeDump(inspectEntry.hash);
-    setInspectHash(null);setInspectMsg('');setInspectTooSmall(null);
+    setInspectHash(null);setInspectMsg('');setInspectErr('');setInspectTooSmall(null);
   },[inspectEntry,removeDump]);
   const[conn,setConn]=useState(false);const[busy,setBusy]=useState('');
   const[log,setLog]=useState([]);const[mod,setMod]=useState(ADCM_MODULES[2]);
@@ -483,6 +485,7 @@ export default function AdcmTab(){
       </div>
       {!adcmInspectMod&&adcmDumps.length===0&&!inspectTooSmall&&!inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the Dumps tab show up here automatically.</div>}
       {adcmInspectMod&&adcmDumps.length>0&&<div style={{marginTop:6,fontSize:10,color:C.gn,fontWeight:700}}>✓ Auto-loaded from shared workspace ({adcmDumps.length} ADCM-shaped dump{adcmDumps.length===1?'':'s'} available)</div>}
+      {inspectErr&&<div style={{marginTop:8,padding:'8px 12px',borderRadius:8,background:C.er+'12',border:'1px solid '+C.er+'40',fontSize:11,fontWeight:700,color:C.er}}>{inspectErr}</div>}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.wn,fontWeight:700}}>{inspectMsg}</div>}
       {inspectTooSmall&&<div style={{marginTop:12,padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
         <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ This isn't a full ADCM dump</div>

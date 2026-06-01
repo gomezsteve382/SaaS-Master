@@ -59,6 +59,7 @@ export default function EcmTab({vehicle}){
   // load a donor ECM .bin from this tab without bouncing through Dumps.
   const[inspectHash,setInspectHash]=useState(null);
   const[inspectMsg,setInspectMsg]=useState('');
+  const[inspectErr,setInspectErr]=useState('');
   const[inspectTooSmall,setInspectTooSmall]=useState(null);
   const inspectEntry=ecmDumps.find(d=>d.hash===inspectHash)||ecmDumps[0]||null;
   const ecmInspectMod=inspectEntry?.mod||null;
@@ -71,7 +72,8 @@ export default function EcmTab({vehicle}){
       setInspectTooSmall(null);
       const m=parseModule(bytes,file.name);
       const cfErr=corruptFillError(m);
-      if(cfErr){setInspectMsg(cfErr);return;}
+      if(cfErr){setInspectErr(cfErr);setInspectMsg('');return;}
+      setInspectErr('');
       if(m.type!=='GPEC2A'){setInspectMsg('Selected file is '+m.type+', not GPEC2A — load a 4 KB Continental GPEC2A ECM dump.');return;}
       const entry=addDump(m,'ECM tab');
       if(entry)setInspectHash(entry.hash);
@@ -81,7 +83,7 @@ export default function EcmTab({vehicle}){
   },[addDump]);
   const closeInspect=useCallback(()=>{
     if(inspectEntry)removeDump(inspectEntry.hash);
-    setInspectHash(null);setInspectMsg('');setInspectTooSmall(null);
+    setInspectHash(null);setInspectMsg('');setInspectErr('');setInspectTooSmall(null);
   },[inspectEntry,removeDump]);
   const[conn,setConn]=useState(false);const[unlocked,setUnlocked]=useState(false);
   const[busy,setBusy]=useState('');const[log,setLog]=useState([]);
@@ -392,6 +394,7 @@ export default function EcmTab({vehicle}){
       </div>
       {!ecmInspectMod&&ecmDumps.length===0&&!inspectTooSmall&&!inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.tm,fontStyle:'italic'}}>Tip: dumps loaded in the Dumps tab show up here automatically.</div>}
       {ecmInspectMod&&ecmDumps.length>0&&<div style={{marginTop:6,fontSize:10,color:C.gn,fontWeight:700}}>✓ Auto-loaded from shared workspace ({ecmDumps.length} GPEC2A dump{ecmDumps.length===1?'':'s'} available)</div>}
+      {inspectErr&&<div style={{marginTop:8,padding:'8px 12px',borderRadius:8,background:C.er+'12',border:'1px solid '+C.er+'40',fontSize:11,fontWeight:700,color:C.er}}>{inspectErr}</div>}
       {inspectMsg&&<div style={{marginTop:8,fontSize:11,color:C.wn,fontWeight:700}}>{inspectMsg}</div>}
       {inspectTooSmall&&<div style={{marginTop:12,padding:'14px 16px',borderRadius:10,background:'rgba(255,23,68,0.07)',border:'2px solid '+C.er}}>
         <div style={{fontWeight:900,fontSize:13,color:C.er,letterSpacing:1.2,textTransform:'uppercase',marginBottom:8}}>⛔ This isn't a full ECM dump</div>
