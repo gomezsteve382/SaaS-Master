@@ -5,6 +5,7 @@ import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { eq, asc, desc, or, ilike } from "drizzle-orm";
 import {
   SYSTEM_PROMPT,
+  GENERAL_SYSTEM_PROMPT,
   buildContextBlock,
   buildAutoTitle,
   type ModuleContext,
@@ -232,9 +233,16 @@ router.post("/conversations/:id/messages", async (req, res) => {
     content: m.content,
   }));
 
+  /* Pick the base prompt by conversation scope: the global AI Co-pilot
+   * (scope="general") gets the non-restrictive general assistant prompt so it
+   * answers any question; everything else uses the IMMO module-assistant
+   * prompt. A moduleContext always implies a module-assistant conversation, so
+   * it overrides scope and appends the live context block. */
+  const basePrompt =
+    conv.scope === "general" ? GENERAL_SYSTEM_PROMPT : SYSTEM_PROMPT;
   const systemPrompt = moduleContext
     ? `${SYSTEM_PROMPT}\n\n${buildContextBlock(moduleContext)}`
-    : SYSTEM_PROMPT;
+    : basePrompt;
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");

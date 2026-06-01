@@ -2,17 +2,22 @@
 //
 // UI coverage for the always-available AI Co-pilot panel (CopilotPanel.jsx).
 //
-// Exercises the panel through its public testid contract:
+// The Co-pilot is now DB-backed: chats persist via the shared conversations
+// API (scope="general") so they survive a page refresh. The panel:
 //   • renders only when `open`, hides when closed
 //   • close button + Escape key + scrim click call onClose
-//   • a send streams `data: {content}` frames into an assistant bubble and
-//     re-enables the composer when the stream ends
+//   • on mount, hydrates the most recent general conversation (localStorage
+//     pointer first, falling back to GET /conversations?scope=general)
+//   • a send lazily creates a scope="general" conversation, then streams
+//     `data: {content}` frames from POST /conversations/:id/messages into an
+//     assistant bubble and re-enables the composer when the stream ends
 //   • a suggestion chip sends its prompt
-//   • reset clears the conversation
+//   • "New chat" clears the active conversation (the saved one stays on the
+//     server and remains browsable under Past chats)
 //   • a mid-stream `data: {error}` frame rolls back the empty assistant
 //     placeholder, preserves the user message, surfaces copilot-error, and
 //     re-enables the input
-//   • a 503 response shows the "not configured" guidance
+//   • a 503 from the messages endpoint shows the "not configured" guidance
 //   • closing the panel aborts the in-flight stream (abort-on-close)
 //
 // fetch + the streaming Response are stubbed; we never hit a real backend.
@@ -23,31 +28,24 @@ import React from 'react';
 
 import CopilotPanel from '../components/CopilotPanel.jsx';
 
-// A streaming Response that emits the given content chunks then a done frame.
-function makeStreamingResponse(chunks) {
+// A ReadableStream that emits the given SSE frames then closes.
+function makeStream(frames) {
   const enc = new TextEncoder();
-  const body = new ReadableStream({
+  return new ReadableStream({
     start(c) {
-      for (const chunk of chunks) {
-        c.enqueue(enc.encode(`data: ${JSON.stringify({ content: chunk })}\n`));
-      }
-      c.enqueue(enc.encode(`data: ${JSON.stringify({ done: true })}\n`));
+      for (const f of frames) c.enqueue(enc.encode(`data: ${JSON.stringify(f)}\n`));
       c.close();
     },
   });
-  return new Response(body, { status: 200, headers: { 'Content-Type': 'text/event-stream' } });
 }
 
-// A streaming Response that emits an `error` frame before any content.
-function makeErrorFrameResponse(message) {
-  const enc = new TextEncoder();
-  const body = new ReadableStream({
-    start(c) {
-      c.enqueue(enc.encode(`data: ${JSON.stringify({ error: message })}\n`));
-      c.close();
-    },
-  });
-  return new Response(body, { status: 200, headers: { 'Content-Type': 'text/event-stream' } });
+function sse(stream) {
+  return new Response(stream, { status: 200, headers: { 'Content-Type': 'text/event-stream' } });
+}
+
+// SSE response that streams the given content chunks then a done frame.
+function streamingResponse(chunks) {
+  return sse(makeStream([...chunks.map((content) => ({ content })), { done: true }]));
 }
 
 function jsonResponse(status, payload) {
@@ -57,15 +55,50 @@ function jsonResponse(status, payload) {
   });
 }
 
+/* Route fetch calls by method + URL the way the persistent panel drives them.
+ * Returns { calls } so tests can assert on what was sent. `onMessages` is a
+ * factory invoked per POST /:id/messages call (so each gets a fresh stream). */
+function installFetch({ list = [], conv = null, onMessages, onCreate } = {}) {
+  const calls = [];
+  global.fetch = vi.fn(async (url, init = {}) => {
+    const u = String(url);
+    const method = (init.method || 'GET').toUpperCase();
+    calls.push({ url: u, init, method });
+
+    if (method === 'GET' && /\/anthropic\/conversations\?scope=/.test(u)) {
+      return jsonResponse(200, list);
+    }
+    if (method === 'GET' && /\/anthropic\/conversations\/\d+$/.test(u)) {
+      return jsonResponse(200, conv || { id: 1, scope: 'general', title: 'New chat', messages: [] });
+    }
+    if (method === 'POST' && /\/anthropic\/conversations$/.test(u)) {
+      if (onCreate) return onCreate(init);
+      return jsonResponse(201, { id: 1, scope: 'general', title: 'New chat' });
+    }
+    if (method === 'POST' && /\/conversations\/\d+\/messages$/.test(u)) {
+      return onMessages ? onMessages(init) : streamingResponse(['ok']);
+    }
+    if (method === 'DELETE') return new Response(null, { status: 204 });
+    return jsonResponse(404, { error: 'not found' });
+  });
+  return { calls };
+}
+
+const messagesCall = (calls) => calls.find((c) => /\/messages$/.test(c.url));
+
 let originalFetch;
 
 beforeEach(() => {
   originalFetch = global.fetch;
+  try { localStorage.clear(); } catch { /* ignore */ }
+  // Safe default so a mount's hydration never hits a real network.
+  global.fetch = vi.fn(async () => jsonResponse(200, []));
 });
 
 afterEach(() => {
   cleanup();
   global.fetch = originalFetch;
+  try { localStorage.clear(); } catch { /* ignore */ }
   vi.restoreAllMocks();
 });
 
@@ -99,9 +132,55 @@ describe('CopilotPanel — close affordances', () => {
   });
 });
 
+describe('CopilotPanel — hydration', () => {
+  it('restores the most recent general conversation on mount', async () => {
+    installFetch({
+      list: [{ id: 7, scope: 'general', title: 'Prior chat', createdAt: Date.now() }],
+      conv: {
+        id: 7,
+        scope: 'general',
+        title: 'Prior chat',
+        messages: [
+          { role: 'user', content: 'earlier question' },
+          { role: 'assistant', content: 'earlier answer' },
+        ],
+      },
+    });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('copilot-msg-user').textContent).toBe('earlier question'),
+    );
+    expect(screen.getByTestId('copilot-msg-assistant').textContent).toBe('earlier answer');
+  });
+
+  it('ignores a stale pointer that resolves to a non-general conversation', async () => {
+    try { localStorage.setItem('srt-copilot-last-conv', '99'); } catch { /* ignore */ }
+    const { calls } = installFetch({
+      list: [],
+      // GET /conversations/99 returns a module-assistant chat — must be rejected.
+      conv: { id: 99, scope: 'workspace:dodge-charger', title: 'IMMO', messages: [{ role: 'user', content: 'leaked' }] },
+    });
+
+    render(<CopilotPanel open onClose={() => {}} />);
+
+    // Falls back to the (empty) general list, so the leaked message never shows
+    // and the empty-state suggestions render instead.
+    await waitFor(() => expect(screen.getAllByTestId('copilot-suggestion').length).toBeGreaterThan(0));
+    expect(screen.queryByTestId('copilot-msg-user')).toBeNull();
+    // It did attempt the pointer, then the scoped list fallback.
+    expect(calls.some((c) => /\/conversations\/99$/.test(c.url))).toBe(true);
+    expect(calls.some((c) => /\/conversations\?scope=general$/.test(c.url))).toBe(true);
+  });
+});
+
 describe('CopilotPanel — streaming a reply', () => {
   it('streams content into an assistant bubble and re-enables the composer', async () => {
-    global.fetch = vi.fn(async () => makeStreamingResponse(['Hello ', 'world']));
+    const { calls } = installFetch({
+      list: [],
+      onMessages: () => streamingResponse(['Hello ', 'world']),
+    });
 
     render(<CopilotPanel open onClose={() => {}} />);
     const input = screen.getByTestId('copilot-input');
@@ -116,41 +195,45 @@ describe('CopilotPanel — streaming a reply', () => {
       expect(screen.getByTestId('copilot-msg-assistant').textContent).toBe('Hello world'),
     );
 
-    // POST went to the general-chat endpoint with the user turn in the body.
-    const [url, init] = global.fetch.mock.calls[0];
-    expect(String(url)).toMatch(/\/anthropic\/general-chat$/);
-    const sent = JSON.parse(init.body);
-    expect(sent.messages.at(-1)).toEqual({ role: 'user', content: 'hi there' });
+    // A scoped conversation was created, then the turn POSTed to its messages
+    // endpoint with the user content in the body.
+    expect(calls.some((c) => c.method === 'POST' && /\/anthropic\/conversations$/.test(c.url))).toBe(true);
+    const msgCall = messagesCall(calls);
+    expect(msgCall).toBeTruthy();
+    expect(JSON.parse(msgCall.init.body)).toEqual({ content: 'hi there' });
 
-    // Composer cleared + re-enabled (send disabled only because input is empty).
+    // Composer cleared + re-enabled.
     expect(input.value).toBe('');
   });
 
   it('sends a suggestion chip prompt', async () => {
-    global.fetch = vi.fn(async () => makeStreamingResponse(['answer']));
+    const { calls } = installFetch({
+      list: [],
+      onMessages: () => streamingResponse(['answer']),
+    });
 
     render(<CopilotPanel open onClose={() => {}} />);
-    const chips = screen.getAllByTestId('copilot-suggestion');
+    const chips = await screen.findAllByTestId('copilot-suggestion');
     fireEvent.click(chips[0]);
 
     await waitFor(() =>
       expect(screen.getByTestId('copilot-msg-assistant').textContent).toBe('answer'),
     );
-    const sent = JSON.parse(global.fetch.mock.calls[0][1].body);
-    expect(sent.messages.at(-1).content).toBe(chips[0].textContent);
+    const msgCall = messagesCall(calls);
+    expect(JSON.parse(msgCall.init.body).content).toBe(chips[0].textContent);
   });
 });
 
-describe('CopilotPanel — reset', () => {
-  it('clears the conversation when reset is clicked', async () => {
-    global.fetch = vi.fn(async () => makeStreamingResponse(['done']));
+describe('CopilotPanel — new chat', () => {
+  it('clears the conversation when New chat is clicked', async () => {
+    installFetch({ list: [], onMessages: () => streamingResponse(['done']) });
 
     render(<CopilotPanel open onClose={() => {}} />);
     fireEvent.change(screen.getByTestId('copilot-input'), { target: { value: 'q' } });
     fireEvent.click(screen.getByTestId('copilot-send'));
     await waitFor(() => expect(screen.getByTestId('copilot-msg-assistant')).toBeTruthy());
 
-    fireEvent.click(screen.getByTestId('copilot-reset'));
+    fireEvent.click(screen.getByTestId('copilot-new'));
     expect(screen.queryByTestId('copilot-msg-user')).toBeNull();
     expect(screen.queryByTestId('copilot-msg-assistant')).toBeNull();
   });
@@ -158,7 +241,10 @@ describe('CopilotPanel — reset', () => {
 
 describe('CopilotPanel — error handling', () => {
   it('rolls back the empty assistant bubble on a mid-stream error frame', async () => {
-    global.fetch = vi.fn(async () => makeErrorFrameResponse('rate_limited: backoff 30s'));
+    installFetch({
+      list: [],
+      onMessages: () => sse(makeStream([{ error: 'rate_limited: backoff 30s' }])),
+    });
 
     render(<CopilotPanel open onClose={() => {}} />);
     const input = screen.getByTestId('copilot-input');
@@ -177,10 +263,11 @@ describe('CopilotPanel — error handling', () => {
     expect(input.disabled).toBeFalsy();
   });
 
-  it('shows the not-configured guidance on a 503 response', async () => {
-    global.fetch = vi.fn(async () =>
-      jsonResponse(503, { error: 'AI service unavailable' }),
-    );
+  it('shows the not-configured guidance on a 503 from the messages endpoint', async () => {
+    installFetch({
+      list: [],
+      onMessages: () => jsonResponse(503, { error: 'AI service unavailable' }),
+    });
 
     render(<CopilotPanel open onClose={() => {}} />);
     fireEvent.change(screen.getByTestId('copilot-input'), { target: { value: 'hi' } });
@@ -197,14 +284,15 @@ describe('CopilotPanel — error handling', () => {
 describe('CopilotPanel — abort on close', () => {
   it('aborts the in-flight fetch when the panel is closed', async () => {
     let capturedSignal;
-    // Resolve the fetch only after we can observe the signal; the body never
-    // completes, so the stream is genuinely in-flight when we close.
-    global.fetch = vi.fn((_url, init) => {
-      capturedSignal = init.signal;
-      const body = new ReadableStream({ start() { /* never closes */ } });
-      return Promise.resolve(
-        new Response(body, { status: 200, headers: { 'Content-Type': 'text/event-stream' } }),
-      );
+    // The messages POST never completes, so the stream is genuinely in-flight
+    // when we close. The create POST resolves normally first.
+    installFetch({
+      list: [],
+      onMessages: (init) => {
+        capturedSignal = init.signal;
+        const body = new ReadableStream({ start() { /* never closes */ } });
+        return new Response(body, { status: 200, headers: { 'Content-Type': 'text/event-stream' } });
+      },
     });
 
     const { rerender } = render(<CopilotPanel open onClose={() => {}} />);

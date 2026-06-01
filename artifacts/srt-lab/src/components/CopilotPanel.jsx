@@ -1,14 +1,22 @@
 import React, {useState, useRef, useEffect, useCallback} from 'react';
-import {Bot, X, Send, Sparkles, Trash2} from 'lucide-react';
+import {Bot, X, Send, Sparkles, Plus, History, Trash2, RotateCw} from 'lucide-react';
 
 /* Global Claude Co-pilot — an always-available, general-purpose chat panel
  * surfaced from the app shell (CommandShell). Unlike the Mismatch Wizard
- * assistant, this talks to the general-chat endpoint with a non-restrictive
- * system prompt, so it answers any question. Conversation lives in component
- * state for the session and survives open/close (the panel is always mounted;
- * only its visibility toggles). */
+ * assistant, this talks to the general assistant with a non-restrictive
+ * system prompt, so it answers any question.
+ *
+ * Conversations are persisted server-side via the shared conversations API
+ * (scope="general"), so chats survive a page refresh / tab close:
+ *   • on mount we hydrate the most recent general conversation (localStorage
+ *     pointer first, falling back to the newest on the server);
+ *   • the first user message lazily creates a server conversation tagged
+ *     scope="general", then streams via POST /conversations/:id/messages;
+ *   • users can start a fresh chat and browse / delete prior ones. */
 
 const API_BASE = (import.meta.env.BASE_URL?.replace(/\/$/, '') || '') + '/api';
+const SCOPE = 'general';
+const LAST_CONV_KEY = 'srt-copilot-last-conv';
 
 const C = {
   base: '#F4F1EC',
@@ -23,13 +31,88 @@ const C = {
   mono: "'JetBrains Mono', monospace",
 };
 
+/* Compact relative timestamp for the Past Chats list. */
+function formatRelativeTime(input, now = Date.now()) {
+  if (!input) return '';
+  const t = typeof input === 'number' ? input : new Date(input).getTime();
+  if (!Number.isFinite(t)) return '';
+  const diff = Math.max(0, now - t);
+  const sec = Math.floor(diff / 1000);
+  if (sec < 45) return 'just now';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  if (day < 7) return `${day}d ago`;
+  const wk = Math.floor(day / 7);
+  if (wk < 5) return `${wk}w ago`;
+  return new Date(t).toLocaleDateString();
+}
+
 function useGeneralChat() {
   const [messages, setMessages] = useState([]);
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState(null);
+  const [conversationId, setConversationId] = useState(null);
+  const [hydrated, setHydrated] = useState(false);
   const abortRef = useRef(null);
   const messagesRef = useRef([]);
+  const convIdRef = useRef(null);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
+  useEffect(() => { convIdRef.current = conversationId; }, [conversationId]);
+
+  /* ── Hydrate the most recent general conversation on mount ── */
+  useEffect(() => {
+    let cancelled = false;
+
+    const hydrateFrom = async (id) => {
+      const res = await fetch(`${API_BASE}/anthropic/conversations/${encodeURIComponent(id)}`);
+      if (res.status === 404) return false;
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      /* Guard against a stale/corrupted pointer that resolves to a non-general
+       * conversation (e.g. a module-assistant chat). Treat it as a miss so we
+       * fall back to the newest general chat rather than loading the wrong
+       * thread under the general-purpose prompt. */
+      if (data.scope !== SCOPE) return false;
+      if (cancelled) return true;
+      setConversationId(data.id);
+      convIdRef.current = data.id;
+      setMessages((data.messages || []).map((m) => ({role: m.role, content: m.content})));
+      try { localStorage.setItem(LAST_CONV_KEY, String(data.id)); } catch { /* ignore */ }
+      return true;
+    };
+
+    (async () => {
+      try {
+        const pointer = (() => {
+          try { return localStorage.getItem(LAST_CONV_KEY); } catch { return null; }
+        })();
+
+        if (pointer && (await hydrateFrom(pointer))) {
+          if (!cancelled) setHydrated(true);
+          return;
+        }
+        /* No (or stale) pointer — fall back to the newest general chat. */
+        try { localStorage.removeItem(LAST_CONV_KEY); } catch { /* ignore */ }
+        const listRes = await fetch(`${API_BASE}/anthropic/conversations?scope=${SCOPE}`);
+        if (listRes.ok) {
+          const list = await listRes.json();
+          if (Array.isArray(list) && list.length > 0) {
+            await hydrateFrom(list[0].id);
+          }
+        }
+      } catch {
+        /* Transient failure — leave the panel empty; a new chat will be
+         * created on the next send. Don't surface a blocking error. */
+      } finally {
+        if (!cancelled) setHydrated(true);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, []);
 
   const send = useCallback(async (text) => {
     const content = (text || '').trim();
@@ -37,18 +120,33 @@ function useGeneralChat() {
 
     setError(null);
     const userMsg = {role: 'user', content};
-    const history = [...messagesRef.current, userMsg];
-    setMessages([...history, {role: 'assistant', content: ''}]);
+    setMessages([...messagesRef.current, userMsg, {role: 'assistant', content: ''}]);
     setStreaming(true);
 
     const controller = new AbortController();
     abortRef.current = controller;
 
     try {
-      const resp = await fetch(`${API_BASE}/anthropic/general-chat`, {
+      /* Lazily create the server conversation on first send. */
+      let convId = convIdRef.current;
+      if (!convId) {
+        const createRes = await fetch(`${API_BASE}/anthropic/conversations`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({title: 'New chat', scope: SCOPE}),
+        });
+        if (!createRes.ok) throw new Error(`Failed to create chat (HTTP ${createRes.status})`);
+        const created = await createRes.json();
+        convId = created.id;
+        setConversationId(convId);
+        convIdRef.current = convId;
+        try { localStorage.setItem(LAST_CONV_KEY, String(convId)); } catch { /* ignore */ }
+      }
+
+      const resp = await fetch(`${API_BASE}/anthropic/conversations/${convId}/messages`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({messages: history}),
+        body: JSON.stringify({content}),
         signal: controller.signal,
       });
 
@@ -117,18 +215,59 @@ function useGeneralChat() {
     }
   }, [streaming]);
 
-  const reset = useCallback(() => {
+  /* Start a brand-new chat. The current one stays saved on the server and
+   * remains browsable under Past chats. */
+  const startNew = useCallback(() => {
     if (abortRef.current) abortRef.current.abort();
+    try { localStorage.removeItem(LAST_CONV_KEY); } catch { /* ignore */ }
+    setConversationId(null);
+    convIdRef.current = null;
     setMessages([]);
     setError(null);
     setStreaming(false);
   }, []);
 
+  const switchTo = useCallback(async (id) => {
+    if (abortRef.current) abortRef.current.abort();
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/anthropic/conversations/${encodeURIComponent(id)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      /* Mirror the hydration guard: never load a non-general conversation into
+       * the general-purpose Co-pilot, even if an out-of-scope id is passed. */
+      if (data.scope !== SCOPE) throw new Error('Not a Co-pilot chat');
+      setConversationId(data.id);
+      convIdRef.current = data.id;
+      setMessages((data.messages || []).map((m) => ({role: m.role, content: m.content})));
+      try { localStorage.setItem(LAST_CONV_KEY, String(data.id)); } catch { /* ignore */ }
+    } catch (e) {
+      setError(`Could not load chat: ${e.message}`);
+    }
+  }, []);
+
+  const listSessions = useCallback(async () => {
+    const res = await fetch(`${API_BASE}/anthropic/conversations?scope=${SCOPE}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }, []);
+
+  const deleteSession = useCallback(async (id) => {
+    const res = await fetch(`${API_BASE}/anthropic/conversations/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok && res.status !== 404) throw new Error(`HTTP ${res.status}`);
+    if (convIdRef.current === id) startNew();
+  }, [startNew]);
+
   const stop = useCallback(() => {
     if (abortRef.current) abortRef.current.abort();
   }, []);
 
-  return {messages, streaming, error, send, reset, stop};
+  return {
+    messages, streaming, error, conversationId, hydrated,
+    send, startNew, switchTo, listSessions, deleteSession, stop,
+  };
 }
 
 const SUGGESTIONS = [
@@ -138,8 +277,14 @@ const SUGGESTIONS = [
 ];
 
 export default function CopilotPanel({open, onClose}) {
-  const {messages, streaming, error, send, reset, stop} = useGeneralChat();
+  const {
+    messages, streaming, error, conversationId, hydrated,
+    send, startNew, switchTo, listSessions, deleteSession, stop,
+  } = useGeneralChat();
   const [input, setInput] = useState('');
+  const [pastOpen, setPastOpen] = useState(false);
+  const [pastSessions, setPastSessions] = useState(null); /* null = not loaded */
+  const [pastError, setPastError] = useState(null);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -164,6 +309,46 @@ export default function CopilotPanel({open, onClose}) {
     return () => window.removeEventListener('keydown', h);
   }, [open, onClose]);
 
+  const refreshPastSessions = useCallback(async () => {
+    setPastError(null);
+    try {
+      const list = await listSessions();
+      setPastSessions(list);
+    } catch (e) {
+      setPastError(e.message);
+      setPastSessions([]);
+    }
+  }, [listSessions]);
+
+  const togglePast = () => {
+    setPastOpen((o) => {
+      const next = !o;
+      if (next) refreshPastSessions();
+      return next;
+    });
+  };
+
+  const handleNewChat = () => {
+    startNew();
+    setPastOpen(false);
+  };
+
+  const handleSwitch = async (id) => {
+    await switchTo(id);
+    setPastOpen(false);
+  };
+
+  const handleDelete = async (id, ev) => {
+    ev.stopPropagation();
+    if (!window.confirm('Delete this chat permanently?')) return;
+    try {
+      await deleteSession(id);
+      await refreshPastSessions();
+    } catch (e) {
+      setPastError(e.message);
+    }
+  };
+
   const submit = (e) => {
     e?.preventDefault?.();
     if (!input.trim() || streaming) return;
@@ -172,6 +357,11 @@ export default function CopilotPanel({open, onClose}) {
   };
 
   if (!open) return null;
+
+  const headerBtn = {
+    background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)',
+    color: '#fff', borderRadius: 8, padding: 6, cursor: 'pointer', display: 'grid', placeItems: 'center',
+  };
 
   return (
     <div
@@ -194,34 +384,114 @@ export default function CopilotPanel({open, onClose}) {
       >
         {/* Header */}
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px',
+          display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px',
           background: C.ink, color: '#fff', borderBottom: `3px solid ${C.red}`,
         }}>
           <Bot size={18} style={{color: C.red}} />
-          <div style={{flex: 1}}>
+          <div style={{flex: 1, minWidth: 0}}>
             <div style={{fontFamily: "'Righteous',sans-serif", fontSize: 15, letterSpacing: 0.5}}>AI CO-PILOT</div>
-            <div style={{fontSize: 11, opacity: 0.65}}>Claude · ask anything</div>
+            <div style={{fontSize: 11, opacity: 0.65}}>
+              Claude · ask anything{conversationId ? ` · #${conversationId}` : ''}
+            </div>
           </div>
-          {messages.length > 0 && (
-            <button
-              onClick={reset}
-              aria-label="New conversation"
-              title="Clear conversation"
-              data-testid="copilot-reset"
-              style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#fff', borderRadius: 8, padding: 6, cursor: 'pointer', display: 'grid', placeItems: 'center'}}
-            >
-              <Trash2 size={15} />
-            </button>
-          )}
+          {streaming && <span style={{fontSize: 10, color: C.red, fontWeight: 700}}>● streaming…</span>}
+          <button
+            onClick={togglePast}
+            aria-label="Past chats"
+            title="Browse past chats"
+            data-testid="copilot-history"
+            style={headerBtn}
+          >
+            <History size={15} />
+          </button>
+          <button
+            onClick={handleNewChat}
+            aria-label="New conversation"
+            title="Start a new chat (the current one is saved)"
+            data-testid="copilot-new"
+            style={headerBtn}
+          >
+            <Plus size={16} />
+          </button>
           <button
             onClick={onClose}
             aria-label="Close co-pilot"
             data-testid="copilot-close"
-            style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#fff', borderRadius: 8, padding: 6, cursor: 'pointer', display: 'grid', placeItems: 'center'}}
+            style={headerBtn}
           >
             <X size={16} />
           </button>
         </div>
+
+        {/* Past chats dropdown */}
+        {pastOpen && (
+          <div
+            data-testid="copilot-past-panel"
+            style={{
+              background: C.panel, borderBottom: `1px solid ${C.line}`,
+              padding: '10px 14px', maxHeight: 220, overflowY: 'auto',
+            }}
+          >
+            <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8}}>
+              <div style={{fontSize: 10, fontWeight: 800, color: C.muted, letterSpacing: 1}}>PAST CHATS</div>
+              <button
+                onClick={refreshPastSessions}
+                title="Refresh"
+                style={{background: 'none', border: 'none', color: C.muted, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, padding: 0}}
+              >
+                <RotateCw size={11} /> refresh
+              </button>
+              <div style={{flex: 1}} />
+              <button
+                onClick={() => setPastOpen(false)}
+                style={{background: 'none', border: 'none', color: C.muted, fontSize: 12, cursor: 'pointer'}}
+              >
+                ✕
+              </button>
+            </div>
+            {pastError && <div style={{color: C.red, fontSize: 12}}>✗ {pastError}</div>}
+            {pastSessions === null && !pastError && <div style={{color: C.muted, fontSize: 12}}>Loading…</div>}
+            {pastSessions && pastSessions.length === 0 && !pastError && (
+              <div style={{color: C.muted, fontSize: 12, fontStyle: 'italic'}}>No previous chats yet.</div>
+            )}
+            {pastSessions && pastSessions.map((s) => {
+              const active = s.id === conversationId;
+              return (
+                <div
+                  key={s.id}
+                  data-testid={`copilot-past-${s.id}`}
+                  onClick={() => handleSwitch(s.id)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '7px 8px', marginBottom: 4, borderRadius: 8,
+                    background: active ? C.red + '14' : 'transparent',
+                    border: `1px solid ${active ? C.red + '55' : C.line}`,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <span style={{fontSize: 12, color: active ? C.red : C.muted}}>{active ? '●' : '○'}</span>
+                  <div style={{flex: 1, minWidth: 0}}>
+                    <div style={{fontSize: 12.5, color: C.ink, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                      {s.title || `Chat #${s.id}`}
+                    </div>
+                    <div style={{fontSize: 10, color: C.muted, fontFamily: C.mono}} title={s.createdAt ? new Date(s.createdAt).toLocaleString() : ''}>
+                      #{s.id} · {s.createdAt ? formatRelativeTime(s.createdAt) : ''}
+                    </div>
+                  </div>
+                  <button
+                    onClick={(ev) => handleDelete(s.id, ev)}
+                    aria-label="Delete chat"
+                    title="Delete this chat"
+                    data-testid={`copilot-past-delete-${s.id}`}
+                    style={{background: 'none', border: 'none', color: C.muted, cursor: 'pointer', padding: '2px 4px', display: 'grid', placeItems: 'center'}}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Messages */}
         <div
@@ -229,7 +499,7 @@ export default function CopilotPanel({open, onClose}) {
           data-testid="copilot-messages"
           style={{flex: 1, overflowY: 'auto', padding: '16px 16px 8px', display: 'flex', flexDirection: 'column', gap: 12}}
         >
-          {messages.length === 0 && (
+          {hydrated && messages.length === 0 && (
             <div style={{margin: 'auto 0', textAlign: 'center', color: C.muted, padding: '20px 8px'}}>
               <Sparkles size={28} style={{color: C.red, marginBottom: 10}} />
               <div style={{fontFamily: "'Righteous',sans-serif", fontSize: 16, color: C.ink, marginBottom: 6}}>
@@ -237,7 +507,8 @@ export default function CopilotPanel({open, onClose}) {
               </div>
               <div style={{fontSize: 12.5, lineHeight: 1.5, marginBottom: 16}}>
                 I&apos;m Claude, running live inside SRT Lab. I can help with module
-                diagnostics, code, writing, or anything else.
+                diagnostics, code, writing, or anything else. Your chats are saved and
+                survive a refresh.
               </div>
               <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
                 {SUGGESTIONS.map((s) => (

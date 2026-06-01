@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { GENERAL_SYSTEM_PROMPT } from "./_shared";
 
 const router = Router();
 
@@ -7,13 +8,11 @@ const router = Router();
  * and uses a general-purpose system prompt so it can answer any question,
  * not just IMMO/security-mismatch topics. SSE shape matches module-assistant
  * (`data: {content}` deltas, terminal `data: {done:true}`) so the frontend
- * streaming reader is shared. */
-const GENERAL_SYSTEM_PROMPT = `You are the SRT Lab Co-pilot, a helpful, knowledgeable AI assistant powered by Claude.
-
-You live inside SRT Lab, a browser-based workbench for FCA/Stellantis ECU module diagnostics (BCM, RFHUB, PCM/GPEC2A, immobilizer keys, VIN programming, UDS, etc.), so you can help with those topics when asked. But you are a general assistant: answer any question the user has — technical or not — clearly and directly. Do not restrict yourself to automotive or immobilizer topics, and do not refuse a question just because it is unrelated to SRT Lab.
-
-Be accurate, concise, and friendly. Use Markdown formatting when it helps (lists, code blocks, tables). When you are unsure, say so rather than inventing facts.`;
-
+ * streaming reader is shared.
+ *
+ * This endpoint remains stateless. The persistent co-pilot (chats that survive
+ * a page refresh) reuses the conversations API with scope="general", which
+ * shares GENERAL_SYSTEM_PROMPT from _shared. */
 router.post("/general-chat", async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let anthropic: any;
