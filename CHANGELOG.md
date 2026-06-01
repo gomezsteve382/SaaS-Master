@@ -32,28 +32,11 @@ For each finding, the tab emits one of three coverage tags — **COVERED** (fram
 
 ---
 
-## Tasks #842 / #845 — srt-lab-ultimate artifact
+## srt-lab-ultimate artifact — imported (#842 / #845), later removed
 
-`srt-lab-ultimate` is the standalone Reverse-Engineering Workbench (React + Express + Drizzle), originally imported as a verbatim file drop in Task #842 and promoted to a real two-service artifact in Task #845. It runs alongside the original `srt-lab` artifact rather than replacing it.
+The `srt-lab-ultimate` artifact (a standalone React + Express + Drizzle Reverse-Engineering Workbench) was imported as a file drop in Task #842, promoted to a registered two-service artifact under `/srtlabu/` in Task #845, and **removed entirely** in a later task — its directory, both workflows (`web` + `api`), and all live references are gone. The original import also added some still-live files outside that directory which were intentionally left in place: a handful of upstream helpers under `artifacts/srt-lab/src/lib/` (e.g. `bigMethodsVocabulary.generated.js`, `j2534Raw.js`, `export-report.ts`, `workbench-types.ts`) and the `codegen:ultimate:*` script namespace in `scripts/package.json` (deliberately not chained into any `codegen:all`). The artifact's Postgres tables were left untouched on removal.
 
-**How it runs:** registered as artifact `artifacts/srt-lab-ultimate` (kind `web`, preview path `/srtlabu/`) with two services in `.replit-artifact/artifact.toml` — a Vite web service on `/srtlabu/` (`localPort 5180`) and an Express+`tsx watch` api service on `/srtlabu/api/` (`localPort 5181`, mounted as a more-specific sub-path so the shared proxy routes it correctly). A small prefix-strip middleware at the top of `server/index.ts` (configured via `API_PREFIX`, default `/srtlabu`) rewrites incoming `req.url` so the existing `app.post("/api/*")` route registrations keep working unchanged; the historical static-serve + SPA catch-all at the tail of `server/index.ts` was removed because Vite is its own service now. The 61 legacy client call sites that fetch absolute `/api/...` URLs are handled by an early-boot fetch patch in `client/src/lib/apiBase.ts` (installed from `main.tsx`) that rewrites them to `${import.meta.env.BASE_URL}api/...` so they land at `/srtlabu/api/...` and route to the api service. Workflows: `artifacts/srt-lab-ultimate: web` and `artifacts/srt-lab-ultimate: api`. `pnpm --filter @workspace/srt-lab-ultimate run typecheck` is clean.
-
-**Drizzle port:** the imported schema targeted MySQL/TiDB. `drizzle/schema.ts` was rewritten to `pgTable`/`varchar`/`integer`/`real`/`jsonb` (enums stored as `varchar` to keep named-type churn down), all 16 tables + relations preserved. `server/db.ts` now uses `pg` + `drizzle-orm/node-postgres`. Every `.onDuplicateKeyUpdate({ set })` call site in `server/index.ts` was rewritten to `.onConflictDoUpdate({ target: <table>.id, set })`. `server/ai-learning.ts` is stubbed (safe defaults / no-ops) because it queried `user_profile` and `analysis_goals` tables that were not part of the imported schema. Runtime needs `DATABASE_URL` pointed at a Postgres database and the schema pushed via `drizzle-kit push` (the old MySQL migration SQL under `drizzle/migrations/` was removed; only `meta/` remains).
-
-**Dependency reconciliation:** new minimal `package.json` declares deps via `catalog:` where available (react, vite, zod, drizzle-orm, etc.) and local versions for the long Radix / shadcn tail plus `pg`, `express`, `multer`, `pdfkit`, `archiver`, `form-data`, `@modelcontextprotocol/sdk`, `@trpc/server`, `tw-animate-css`. New `tsconfig.json` extends `../../tsconfig.base.json` with two project-level relaxations needed for the dropped-in upstream code to typecheck without invasive rewrites: `noImplicitReturns: false` and `types: [..., "google.maps"]` (with `@types/google.maps` installed). Two real upstream context-provider prop holes (`WorkbenchWrapper`, `MasterVinProvider`) are annotated with a single `// @ts-expect-error` each. The original `package.json.from-zip` / `pnpm-lock.yaml.from-zip` / `tsconfig.json.from-zip` files are gone. See `artifacts/srt-lab-ultimate/MERGED.md` for the full state and remaining follow-ups.
-
-### Task #842 original file-drop zones
-
-The original Task #842 file-drop landed in three zones:
-
-- **`artifacts/srt-lab/src/lib/`** — four upstream files added to the existing artifact:
-  - `bigMethodsVocabulary.generated.js` (1.1 MB) — user opted in this time despite the bundle-size note in the sister-repo integration rule.
-  - `j2534Raw.js` — aliased from upstream `j2534.js` to avoid collision with existing `bridgeEngine.js`.
-  - `export-report.ts` + `workbench-types.ts` — TS helpers, resolve via the `@/lib/*` path alias.
-- **`scripts/src/`** — 36 codegen / extractor scripts (`codegen-*.mjs`, `extract-*.mjs`, `generate-*.mjs`, `decrypt-*.mjs`, plus a few Python helpers). All hard-coded `client/src/lib/srt/...` output paths were rewritten to `artifacts/srt-lab/src/lib/...`. A new `codegen:ultimate:*` namespace in `scripts/package.json` exposes them individually but **deliberately not chained into any `codegen:all`** — each one overwrites a `*.generated.js` and several would clobber audited local forks.
-- **`artifacts/srt-lab-ultimate/`** — net-new directory holding the standalone React + Express + Drizzle reverse-engineering workbench (220 client files, 42 server files, MySQL/TiDB schema). At the time of #842 not registered as an artifact and not wired into the workspace; its `package.json`, `pnpm-lock.yaml`, and `tsconfig.json` were renamed to `*.from-zip` so pnpm-install did not try to resolve its 90+ deps and `tsc --build` did not pick up the orphan tsconfig. Promotion to a registered artifact happened in #845.
-
-Provenance: `.local/tasks/srt-lab-ultimate-merge.manifest.tsv` lists every zip entry with SHA-256 (349 NEW, 68 IDENTICAL with the `alfaobd-package-2026-05-25/` block imported in a prior task, 1 DIFFER on a charger PNG, 1 DENY on `.project-config.json`, 1 SKIP on a yarn-style wouter patch).
+Provenance for the original import: `.local/tasks/srt-lab-ultimate-merge.manifest.tsv` lists every zip entry with SHA-256.
 
 ### Secret hygiene (Task #842)
 

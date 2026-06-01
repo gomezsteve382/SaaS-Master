@@ -2,9 +2,9 @@
  * keyScanner.js — Pure browser-safe binary scanner for embedded keys,
  * secrets, and cryptographic constants.
  *
- * Ported from the bundled `srt-lab-ultimate` server/key-scanner.ts concept;
- * converted from Node Buffer API to Uint8Array so it runs client-side with
- * no external dependencies.
+ * Originally ported from the (now-removed) srt-lab-ultimate
+ * server/key-scanner.ts concept; converted from Node Buffer API to
+ * Uint8Array so it runs client-side with no external dependencies.
  *
  * Export: scanForKeys(bytes, options?) → KeyFinding[]
  *

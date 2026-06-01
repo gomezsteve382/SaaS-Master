@@ -12,7 +12,7 @@
     "fetch:can-catalogs": "node src/fetch-can-catalogs.mjs",
     "test:can-catalogs": "node --test src/__tests__/canCatalogMerge.test.mjs",
     "audit:dispatch-gap": "node src/audit-dispatch-gap.mjs",
-    "_comment:ultimate": "Codegen scripts imported from srt-lab-ultimate via Task #842. OUT paths were rewritten to artifacts/srt-lab/src/lib/. Each script overwrites a *.generated.js — run individually after confirming it will not clobber an audited local fork. Deliberately NOT chained into any codegen:all target.",
+    "_comment:ultimate": "Codegen scripts originally imported from the (now-removed) srt-lab-ultimate artifact via Task #842; the scripts themselves are still live here. OUT paths were rewritten to artifacts/srt-lab/src/lib/. Each script overwrites a *.generated.js — run individually after confirming it will not clobber an audited local fork. Deliberately NOT chained into any codegen:all target.",
     "codegen:ultimate:alfaobd-xor-key": "node src/generate-alfaobd-db-xor-key.mjs",
     "codegen:ultimate:firmware": "node src/extract-firmware-catalog.mjs",
     "codegen:ultimate:fms": "node src/extract-fms-scripts.mjs",

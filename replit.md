@@ -42,10 +42,6 @@ Complete ISO 14229-1 UDS TypeScript library, composite pnpm workspace lib:
 
 The BCM frame builder (`artifacts/srt-lab/src/lib/alfaobdMined/udsFrameBuilder.js`) delegates WDBI to `build.writeDataByIdentifier` and routine/reset frames to the matching lib builders.
 
-### `srt-lab-ultimate` artifact
-
-Standalone Reverse-Engineering Workbench (React + Express + Drizzle) running alongside the original `srt-lab`. Two services under `/srtlabu/` (web) and `/srtlabu/api/` (api). Postgres via `pg` + `drizzle-orm/node-postgres`. See [`CHANGELOG.md`](CHANGELOG.md) for the import/promotion history and `artifacts/srt-lab-ultimate/MERGED.md` for remaining follow-ups.
-
 ## Tabs and features
 
 ### Module programming
