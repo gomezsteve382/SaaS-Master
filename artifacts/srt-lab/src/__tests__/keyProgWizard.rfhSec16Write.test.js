@@ -168,23 +168,38 @@ describe('runKeyProgPatch — RFHUB SEC16 write path (Task #902)', () => {
     expect(r.checks.find((c) => /RFH SEC16 written/i.test(c.label))).toBeUndefined();
   });
 
-  // ── (d) XC2268-class RFHUB → explicit unsupported error ──────────────────
-  it('(d) XC2268 RFHUB → explicit "unsupported module variant" blocking error', () => {
+  // ── (d) XC2268-class RFHUB → SEC16 synced through the wizard (Task #934) ──
+  it('(d) virgin XC2268 RFHUB → SEC16 written from BCM secret, ok=true', () => {
     const bcm = { name: 'BCM.bin', data: makeBcmWithSecret() };
+    // Blank-SEC16 (virgin) XC2268 fixture carrying the target VIN.
     const rfh = { name: 'RFH_XC2268.bin', data: makeXc2268Fixture({ vin: TARGET_VIN }) };
     const pcm = { name: 'PCM.bin', data: makePcm() };
 
     const r = runKeyProgPatch({ bcm, rfh, pcm, vin: TARGET_VIN });
-    expect(r.ok).toBe(false);
+    if (!r.ok) console.error('Failures:', r.checks.filter((c) => !c.pass));
+    expect(r.ok).toBe(true);
 
-    const failCheck = r.checks.find((c) => !c.pass);
-    expect(failCheck).toBeDefined();
-    // Must mention XC2268 explicitly and suggest ModuleSync as the fix path.
-    expect(failCheck.detail).toMatch(/XC2268/i);
-    expect(failCheck.detail).toMatch(/ModuleSync/i);
+    // RFH is identified as RFHUB (no longer a blocking "unsupported" path).
+    const idCheck = r.checks.find((c) => c.label === 'RFH file identified as RFHUB');
+    expect(idCheck?.pass).toBe(true);
+    expect(idCheck?.detail).toMatch(/XC2268/i);
 
-    // No files — ZIP must be blocked.
-    expect(r.files).toHaveLength(0);
+    // SEC16 was written (output differs from source) and round-trips.
+    const rfhFile = r.files.find((f) => f.role === 'RFH');
+    expect(rfhFile).toBeDefined();
+    expect(sha(rfhFile.data)).not.toBe(sha(rfh.data));
+
+    const rfhAfter = parseModule(rfhFile.data, 'RFH_xc2268_out.bin');
+    expect(rfhAfter.type).toBe('XC2268_RFHUB');
+    expect(rfhAfter.sec16s?.[0]?.hex?.toUpperCase()).toBe(BCM_SECRET_BE_HEX);
+    expect(rfhAfter.sec16s?.[0]?.csOk).toBe(true);
+    expect(rfhAfter.sec16s?.[1]?.hex?.toUpperCase()).toBe(BCM_SECRET_BE_HEX);
+    expect(rfhAfter.sec16s?.[1]?.csOk).toBe(true);
+    // Image-wide checksum refreshed after the SEC16 write.
+    expect(rfhAfter.xc2268?.imageChecksum?.ok).toBe(true);
+
+    const writeCheck = r.checks.find((c) => /RFH SEC16 written/i.test(c.label));
+    expect(writeCheck?.pass).toBe(true);
   });
 
   // ── (e) VERIFY.txt RFHUB_SEC16 line ──────────────────────────────────────

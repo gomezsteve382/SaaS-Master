@@ -52,6 +52,21 @@ export const XC2268_VIN_LEN = 17;
 export const XC2268_CANONICAL_SIZES = [0x8000, 0x10000, 0x20000];
 export const XC2268_SUPPORTED_SIZE = 0x10000;
 
+/* SEC16 immobiliser secret — two mirrored 16-byte slots at 0x1100 / 0x1120
+ * (same 32-byte stride as the VIN slot table just above). Each slot stores
+ * the 16 SEC16 bytes followed by a BE16 CRC-16/CCITT-FALSE (poly 0x1021,
+ * init 0xFFFF) over those 16 bytes at slot+16/+17 — the same CRC family the
+ * VIN slots use, keeping a single checksum primitive for the whole image.
+ *
+ * Convention matches the Gen1/Gen2 RFHUB: the RFHUB stores the SEC16 in
+ * RFH endianness, which is reverse(BCM SEC16). The slots live inside the
+ * [0, len-4) image-checksum window, so any SEC16 write MUST refresh the
+ * trailing image-wide checksum (writeXc2268Sec16 in securityBytes.js does
+ * this). These offsets share the same "deterministic in-app contract, not
+ * yet bench-verified" caveat as the rest of this module — see header. */
+export const XC2268_SEC16_SLOTS = [0x1100, 0x1120];
+export const XC2268_SEC16_LEN = 16;
+
 const VARIANT_LABELS = {
   0x01: 'Ram 2019 (XC2268N)',
   0x02: 'Ram 2020 (XC2268N)',
@@ -179,6 +194,35 @@ export function parseXc2268Image(buf) {
   const csCalc = xc2268ImageChecksum(data);
   const imageCsOk = csStored !== null && csStored === csCalc;
 
+  // SEC16 mirror slots. A blank (all-FF / all-00) slot is the normal virgin
+  // state and is NOT treated as an error or a writeSafe blocker — the key
+  // programming wizard writes the secret in from the BCM. csOk is only
+  // meaningful (and required) for a populated slot.
+  const sec16Slots = XC2268_SEC16_SLOTS.map((off) => {
+    if (off + XC2268_SEC16_LEN + 2 > sz) {
+      return { offset: off, present: false, raw: null, csStored: null, csCalc: null, csOk: false, blank: true };
+    }
+    const raw = data.slice(off, off + XC2268_SEC16_LEN);
+    const blank = raw.every((b) => b === 0xFF || b === 0x00);
+    const slotCsStored = readBE16(data, off + XC2268_SEC16_LEN);
+    const slotCsCalc = crc16ccitt(raw);
+    return {
+      offset: off,
+      present: true,
+      raw: Array.from(raw),
+      csStored: slotCsStored,
+      csCalc: slotCsCalc,
+      csOk: !blank && slotCsStored === slotCsCalc,
+      blank,
+    };
+  });
+  const sec16Blank = sec16Slots.every((s) => s.blank);
+  const sec16Populated = sec16Slots.filter((s) => s.present && !s.blank);
+  const sec16Match = sec16Populated.length === XC2268_SEC16_SLOTS.length &&
+    sec16Populated.every((s) =>
+      s.raw.length === sec16Populated[0].raw.length &&
+      s.raw.every((b, i) => b === sec16Populated[0].raw[i]));
+
   // Refuse to declare the image safe to write back unless every gate
   // passes — this is the "no silent corruption" guard the task asks for.
   const writeSafe = sizeSupported && variantSupported && allMatch &&
@@ -222,6 +266,9 @@ export function parseXc2268Image(buf) {
     vin: allMatch ? distinct[0] : (populated[0] ? populated[0].vin : null),
     vinAllSlotsMatch: allMatch,
     imageChecksum: { stored: csStored, calc: csCalc, ok: imageCsOk },
+    sec16Slots,
+    sec16Blank,
+    sec16Match,
     writeSafe,
     banners,
   };
@@ -269,7 +316,7 @@ export function patchXc2268Vin(buf, targetVin) {
  * Build a synthetic XC2268 RFHUB fixture for tests / docs. Deterministic:
  * same inputs → same bytes.
  */
-export function makeXc2268Fixture({ vin = '1C6RR7LT5KS123456', variant = 0x01, size = XC2268_SUPPORTED_SIZE } = {}) {
+export function makeXc2268Fixture({ vin = '1C6RR7LT5KS123456', variant = 0x01, size = XC2268_SUPPORTED_SIZE, sec16 = null } = {}) {
   const buf = new Uint8Array(size).fill(0xFF);
   writeBytes(buf, XC2268_SIG_HEAD_OFFSET, XC2268_SIG_HEAD);
   writeBytes(buf, XC2268_SIG_TAG_OFFSET, XC2268_SIG_TAG);
@@ -281,6 +328,17 @@ export function makeXc2268Fixture({ vin = '1C6RR7LT5KS123456', variant = 0x01, s
     for (const off of XC2268_VIN_SLOTS) {
       writeBytes(buf, off, enc);
       writeBE16(buf, off + XC2268_VIN_LEN, crc);
+    }
+  }
+  // Optional pre-populated SEC16 (RFH endianness). Left blank (0xFF) by
+  // default so the canonical golden fixture is unchanged; tests that need a
+  // paired RFHUB pass an explicit 16-byte secret.
+  if (sec16 && sec16.length === XC2268_SEC16_LEN) {
+    const sec = Uint8Array.from(sec16);
+    const crc = crc16ccitt(sec);
+    for (const off of XC2268_SEC16_SLOTS) {
+      writeBytes(buf, off, sec);
+      writeBE16(buf, off + XC2268_SEC16_LEN, crc);
     }
   }
   writeBE32(buf, buf.length - 4, xc2268ImageChecksum(buf));

@@ -69,6 +69,17 @@
  * working.
  * ============================================================================ */
 
+/* XC2268 SEC16 lives in xc2268Rfhub.js's "single source of truth" layout
+ * (slot offsets + image-wide checksum). The writer below imports those rather
+ * than re-deriving the offsets so a layout change there can never drift from
+ * the writer. crc16ccitt is the SEC16 slot-CRC primitive used by that parser. */
+import { crc16ccitt } from './crc.js';
+import {
+  XC2268_SEC16_SLOTS,
+  XC2268_SEC16_LEN,
+  xc2268ImageChecksum,
+} from './xc2268Rfhub.js';
+
 /* CRC-16/CCITT-FALSE — poly 0x1021, init 0xFFFF.
  * Same primitive as engCrc16 / lib/crc.js#crc16, duplicated here so this
  * module has no cross-file dependency for its core algorithm. */
@@ -423,6 +434,59 @@ export function writeRfhSec16FromBcm(bytes, bcmSec16) {
     out[slotOff + 17] = 0x00;
     patched++;
   }
+  return {
+    bytes: out,
+    patched,
+    rfhSec16Hex: hexStr(rfhSec16),
+    chk,
+  };
+}
+
+/* ----------------------------------------------------------------------------
+ * writeXc2268Sec16(bytes, bcmSec16)
+ *
+ * Writes the BCM secret → XC2268-class RFHUB (2019+ Ram internal-flash, 64 KB)
+ * SEC16 mirror slots (0x1100 / 0x1120 — see XC2268_SEC16_SLOTS). Same secret
+ * convention as the Gen2 writer: the BCM stores reverse(RFHUB SEC16), so the
+ * RFHUB SEC16 = reverse(BCM SEC16). Each slot stores the 16 SEC16 bytes plus a
+ * BE16 CRC-16/CCITT-FALSE over those bytes at slot+16/+17.
+ *
+ * Because the SEC16 slots live inside the [0, len-4) image-checksum window,
+ * the trailing image-wide checksum is refreshed after the slots are written
+ * (otherwise a reparse would flag an image-CRC mismatch).
+ *
+ * Refuses (throws) on a blank BCM secret — same refuse-on-doubt stance as the
+ * Gen2 writer — so a virgin/unresolved BCM can never silently zero the RFHUB.
+ * Returns the same shape as writeRfhSec16FromBcm ({bytes, patched,
+ * rfhSec16Hex, chk}) so the key-prog wizard can branch on RFHUB type without
+ * special-casing the result.
+ * ---------------------------------------------------------------------------- */
+export function writeXc2268Sec16(bytes, bcmSec16) {
+  if (!bcmSec16 || bcmSec16.length !== XC2268_SEC16_LEN) {
+    throw new Error('BCM SEC16 must be 16 bytes');
+  }
+  if (bcmSec16.every((b) => b === 0xFF || b === 0x00)) {
+    throw new Error('Refusing to write XC2268 SEC16 from a blank BCM secret');
+  }
+  const rfhSec16 = new Uint8Array(XC2268_SEC16_LEN);
+  for (let i = 0; i < XC2268_SEC16_LEN; i++) rfhSec16[i] = bcmSec16[XC2268_SEC16_LEN - 1 - i];
+  const chk = crc16ccitt(rfhSec16);
+  const out = new Uint8Array(bytes);
+  let patched = 0;
+  for (const slotOff of XC2268_SEC16_SLOTS) {
+    if (slotOff + XC2268_SEC16_LEN + 2 > out.length) continue;
+    for (let k = 0; k < XC2268_SEC16_LEN; k++) out[slotOff + k] = rfhSec16[k];
+    out[slotOff + XC2268_SEC16_LEN] = (chk >>> 8) & 0xFF;
+    out[slotOff + XC2268_SEC16_LEN + 1] = chk & 0xFF;
+    patched++;
+  }
+  // SEC16 slots sit inside the image-checksum window — refresh the trailing
+  // BE32 image-wide checksum so a reparse round-trips with imageChecksum.ok.
+  const imageCs = xc2268ImageChecksum(out);
+  out[out.length - 4] = (imageCs >>> 24) & 0xFF;
+  out[out.length - 3] = (imageCs >>> 16) & 0xFF;
+  out[out.length - 2] = (imageCs >>> 8) & 0xFF;
+  out[out.length - 1] = imageCs & 0xFF;
   return {
     bytes: out,
     patched,

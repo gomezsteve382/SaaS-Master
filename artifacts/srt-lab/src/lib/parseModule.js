@@ -1031,6 +1031,7 @@ function parseModule(data,filename,opts){
     // Field names mirror parseXc2268Image() exactly so a schema drift trips
     // the new types' tests instead of surfacing as silent undefineds.
     const x=parseXc2268Image(data);
+    info.sec16s=[];
     if(!x.ok){info.xc2268={ok:false,reason:x.reason||'parse failed'};info.vins=[];}
     else{
       info.xc2268={
@@ -1045,6 +1046,22 @@ function parseModule(data,filename,opts){
         banners:x.banners||[],
       };
       info.vins=x.vinSlots.filter(v=>v.vin).map(v=>({offset:v.offset,vin:v.vin,sc:v.csStored,cc:v.csCalc,crcOk:v.csOk}));
+      // Surface SEC16 mirror slots in the SAME shape the Gen1/Gen2 RFHUB
+      // branch uses (slot/offset/raw/hex/cs/csCalc/csOk/bcmHex/blank) so the
+      // Key Prog wizard and ModuleSync compare/patch paths work without any
+      // XC2268 special-casing. hex is RFH-endian; bcmHex is the byte-reversed
+      // (BCM-endian) view.
+      info.sec16s=(x.sec16Slots||[]).map((s,i)=>{
+        const raw=s.raw?Uint8Array.from(s.raw):new Uint8Array(0);
+        const hex=Array.from(raw).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
+        const bcmHex=Array.from(raw).reverse().map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
+        return {slot:i+1,offset:s.offset,raw,hex,cs:s.csStored,csCalc:s.csCalc,csOk:s.csOk,bcmHex,blank:s.blank};
+      });
+      if(info.sec16s.length===2){
+        info.sec16match=x.sec16Match;
+        info.sec16valid=!info.sec16s[0].blank&&x.sec16Match&&!!info.sec16s[0].csOk;
+      }
+      info.sec16SourceSlot=1;
     }
   }else if(type==='ZF_8HP_TCU'){
     // Task #634 — ZF 8HP TCU image (845RE / 8HP70 / 8HP90). Per-64KB-block

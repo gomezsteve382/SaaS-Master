@@ -27,6 +27,7 @@ import {
   writeBcmSec16Gen2,
   writeBcmFlatSec16,
   writeRfhSec16FromBcm,
+  writeXc2268Sec16,
 } from './securityBytes.js';
 
 const IMMO_BACKUP_SIZE = 24 * 8; // 192 bytes (IMMO_REC × IMMO_KC)
@@ -49,6 +50,9 @@ export function identifyModule(data, filename) {
   const info = parseModule(data, filename);
   if (info.type === 'BCM') return { role: 'BCM', info };
   if (info.type === 'RFHUB') return { role: 'RFH', info };
+  // XC2268-class RFHUB (2019+ Ram internal-flash, 64 KB) is a first-class
+  // RFHUB role now that the wizard can sync its SEC16 (writeXc2268Sec16).
+  if (info.type === 'XC2268_RFHUB') return { role: 'RFH', info };
   if (info.type === 'GPEC2A') return { role: 'PCM', info, doubled: false };
   // 8 KB doubled PCM: parseModule classifies as 95640. Reparse the first 4 KB
   // as GPEC2A and confirm the second 4 KB is 0xFF padding.
@@ -351,30 +355,9 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
   const idP = identifyModule(pcm.data, pcm.name);
   ok('BCM file identified as BCM', idB.role === 'BCM', 'detected ' + (idB.info.type || 'UNKNOWN'));
 
-  // XC2268-class RFHUB (2019+ Ram internal-flash, 64 KB) uses a different
-  // internal layout than the Gen2 Yazaki (which has AA 55 31 01 at 0x0500 and
-  // SEC16 slots at 0x050E / 0x0522). writeRfhSec16FromBcm cannot auto-patch an
-  // XC2268 image — surface a clear, blocking error rather than silently treating
-  // it as an unknown module and allowing a corrupt ZIP to be downloaded.
-  if (idR.info?.type === 'XC2268_RFHUB') {
-    return {
-      ok: false,
-      checks: [
-        ...checks,
-        {
-          label: 'RFH file identified as RFHUB',
-          pass: false,
-          detail: 'XC2268 RFHUB (2019+ Ram internal-flash, 64 KB) detected — '
-            + 'SEC16 slots differ from Gen2 layout and cannot be auto-patched here. '
-            + 'Use ModuleSync BCM→RFH to sync the RFHUB SEC16, then re-run the wizard.',
-        },
-      ],
-      files: [],
-      before: { bcmFullVins: (idB.info?.vins || []).map((v) => ({ offset: v.offset, vin: v.vin })), bcmPartials: [] },
-      after: null, sharedSecret: null, verifyText: '',
-    };
-  }
-
+  // RFHUB role covers both the Gen1/Gen2 Yazaki layout and the XC2268-class
+  // 2019+ Ram internal-flash image (64 KB). Each has its own SEC16 writer
+  // (writeRfhSec16FromBcm vs writeXc2268Sec16) selected at the write step.
   ok('RFH file identified as RFHUB', idR.role === 'RFH', 'detected ' + (idR.info.type || 'UNKNOWN'));
   ok('PCM file identified as GPEC2A', idP.role === 'PCM', 'detected ' + (idP.info.type || 'UNKNOWN'));
   if (idP.role === 'PCM' && idP.doubled) {
@@ -509,8 +492,11 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
   if (rfhSec16NeedsWrite && sharedSecret
       && idB.info?.bcmSec16?.bytes && !idB.info.bcmSec16.blank) {
     const bcmSec16Bytes = new Uint8Array(idB.info.bcmSec16.bytes);
+    const isXc2268 = idR.info?.type === 'XC2268_RFHUB';
     try {
-      const wr = writeRfhSec16FromBcm(rfhOut, bcmSec16Bytes);
+      const wr = isXc2268
+        ? writeXc2268Sec16(rfhOut, bcmSec16Bytes)
+        : writeRfhSec16FromBcm(rfhOut, bcmSec16Bytes);
       rfhOut = wr.bytes;
       rfhSec16AfterHex = wr.rfhSec16Hex.toUpperCase();
       rfhSec16Status = 'PATCHED (old: ' + (rfhSec16BeforeHex || 'unset')
