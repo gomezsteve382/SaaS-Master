@@ -1,5 +1,7 @@
-import React, {useState, useCallback, useContext, useMemo, useEffect} from "react";
+import React, {useState, useCallback, useContext, useMemo, useEffect, useRef} from "react";
 import {Card, Btn} from "../lib/ui.jsx";
+import {listJobs, getJob, createJob, patchJob, appendEvent} from "../lib/vehicleJobs.js";
+import {reconstructBatchResults, isJobResumable, computeResumeCounts} from "../lib/programAllResume.js";
 import {C} from "../lib/constants.js";
 import {crc16ccitt} from "../lib/crc.js";
 import {initAdapter} from "../lib/initAdapter.js";
@@ -67,6 +69,10 @@ const REASON_LABELS = {
 // shape ever changes — older snapshots are then ignored on mount.
 const RESUME_KEY = 'srt-lab.programall.resume.v1';
 
+// vehicleJob.kind discriminator for the universal VIN batch runner. Lets the
+// cross-device resume query ignore the original WORKFLOW-tab jobs.
+const PROGRAMALL_KIND = 'programAll';
+
 export default function ProgramAllTab(){
   const{vin:masterVin,vinValid,moduleStatus,setPg,setModuleStatus}=useContext(MasterVinContext);
   const{connected:bridgeConnected}=useBridgeStatus(5000);
@@ -101,6 +107,17 @@ export default function ProgramAllTab(){
   // render doesn't clobber the saved snapshot before we've consumed it.
   const [savedSession, setSavedSession] = useState(null);
   const [sessionLoaded, setSessionLoaded] = useState(false);
+  // ── Cross-device (server) resume state ──
+  // `jobId` is the vehicleJob (kind=programAll) that durably backs the current
+  // batch. A ref mirrors it so the async batch loop always appends events to
+  // the right job even before a state flush. `serverResume` holds a job
+  // reconstructed from the server's event log when an interrupted batch is
+  // found that did NOT originate in this tab (different laptop / closed tab).
+  const jobIdRef = useRef(null);
+  const [jobId, setJobIdState] = useState(null);
+  const setJobId = useCallback((id) => { jobIdRef.current = id; setJobIdState(id); }, []);
+  const [serverResume, setServerResume] = useState(null);
+  const [archiving, setArchiving] = useState(false);
   const blog = useCallback((m, t='info') => {
     setBatchLog(p => [...p.slice(-300), { t: new Date().toLocaleTimeString(), m, type: t }]);
   }, []);
@@ -153,6 +170,85 @@ export default function ProgramAllTab(){
       }
     } catch { /* quota / private mode — silently ignore */ }
   }, [sessionLoaded, vinValid, masterVin, selection, perRowVin, batchResults, batchBusy]);
+
+  // ── On mount / VIN change: look for a resumable batch on the SERVER ──
+  // sessionStorage only survives a reload in the *same* tab. For a tech who
+  // closed the laptop overnight or switched to a bench tablet, the durable
+  // record lives in the API as a kind=programAll vehicleJob still marked
+  // in_progress. We always adopt that job's id (so further events/finish hit
+  // the same record), but only surface the cross-device banner when there's
+  // no same-tab snapshot — the local fast-path always wins to avoid a double
+  // prompt. Best-effort: if the API is unreachable the local flow is intact.
+  useEffect(() => {
+    if (!sessionLoaded) return;
+    if (!vinValid || !masterVin) return;
+    let alive = true;
+    (async () => {
+      try {
+        const jobs = await listJobs({ kind: PROGRAMALL_KIND, status: 'in_progress', vin: masterVin });
+        if (!alive || jobs.length === 0) return;
+        const j = jobs[0];
+        setJobId(j.id);
+        // A same-tab snapshot already drives the local resume banner — don't
+        // also pop the cross-device one for the very same interrupted run.
+        if (savedSession) { setServerResume(null); return; }
+        const full = await getJob(j.id);
+        if (!alive || !full) return;
+        const prior = reconstructBatchResults(full.events);
+        const cfg = (full.fixPlan && typeof full.fixPlan === 'object') ? full.fixPlan : {};
+        // Resume eligibility compares against the batch's *intended* target set
+        // (saved in fixPlan.selection), not just whether a non-ok status was
+        // recorded — see lib/programAllResume.js for the why. A run interrupted
+        // after only successful modules is still incomplete and must resume.
+        if (isJobResumable(prior, cfg.selection)) {
+          setServerResume({
+            jobId: j.id,
+            vin: j.vin,
+            batchResults: prior,
+            selection: cfg.selection || {},
+            perRowVin: cfg.perRowVin || {},
+          });
+        }
+      } catch (e) {
+        if (alive) blog('cross-device resume check failed: ' + (e.message || e), 'warn');
+      }
+    })();
+    return () => { alive = false; };
+  }, [sessionLoaded, vinValid, masterVin, savedSession, blog, setJobId]);
+
+  // Create (or reuse) the durable vehicleJob backing this batch. Returns the
+  // job id, or null if the server is unreachable — in which case the batch
+  // still runs locally with only the sessionStorage fast-path for recovery.
+  const ensureServerJob = useCallback(async ({ selectionArg, perRowVinArg }) => {
+    const fixPlan = { selection: selectionArg, perRowVin: perRowVinArg, ts: Date.now() };
+    try {
+      let id = jobIdRef.current;
+      if (!id) {
+        // Adopt an existing resumable job for this VIN before minting a new one.
+        const existing = await listJobs({ kind: PROGRAMALL_KIND, status: 'in_progress', vin: masterVin });
+        if (existing.length) id = existing[0].id;
+      }
+      if (id) {
+        setJobId(id);
+        await patchJob(id, { status: 'in_progress', fixPlan });
+        return id;
+      }
+      const created = await createJob({
+        vin: masterVin,
+        kind: PROGRAMALL_KIND,
+        status: 'in_progress',
+        title: `Program All — ${masterVin}`,
+        fixPlan,
+      });
+      setJobId(created.id);
+      await appendEvent(created.id, { kind: 'batch.started', payload: { vin: masterVin } });
+      blog(`🗄 batch persisted as job ${created.id}`, 'info');
+      return created.id;
+    } catch (e) {
+      blog('⚠ server job unavailable — running locally only: ' + (e.message || e), 'warn');
+      return null;
+    }
+  }, [masterVin, blog, setJobId]);
 
   const allWritable = partition.writable;
   const sgwBlockedRows = partition.blockedBySgw;
@@ -277,6 +373,14 @@ export default function ProgramAllTab(){
     }
     blog(`Target VIN: ${masterVin}`, 'info');
 
+    // Create (or reuse) the durable server-side job that backs this batch so
+    // progress survives a closed tab / different device. Best-effort: a null
+    // id just means we fall back to the sessionStorage fast-path.
+    const activeJobId = await ensureServerJob({
+      selectionArg: activeSelection,
+      perRowVinArg: activePerRowVin,
+    });
+
     // Decide which uds engine to use. If any selected row needs SGW we
     // route the whole batch through the bridge; otherwise we use the
     // standard ELM/STN serial engine.
@@ -348,6 +452,31 @@ export default function ProgramAllTab(){
         setBatchResults(p => ({ ...p, [row.tx]: { status: 'fail', reason: r.reason, before: r.beforeVin, after: r.afterVin, errors: r.errors } }));
       }
 
+      // Durably record this module's result so progress survives across
+      // devices. Awaited so an interrupted batch always leaves the server in
+      // a consistent state; failures are non-fatal (local state is intact).
+      if (activeJobId) {
+        try {
+          await appendEvent(activeJobId, {
+            kind: r.ok ? 'module.ok' : 'module.fail',
+            module: row.code,
+            payload: {
+              tx: row.tx,
+              code: row.code,
+              status: r.ok ? 'ok' : 'fail',
+              vin: vinForThisRow,
+              reason: r.ok ? undefined : r.reason,
+              before: r.beforeVin,
+              after: r.afterVin,
+              unlockAlgo: typeof r.unlockAlgo === 'string' ? r.unlockAlgo : undefined,
+              errors: r.ok ? undefined : r.errors,
+            },
+          });
+        } catch (e) {
+          blog(`  ⚠ event log failed for ${row.code}: ${e.message || e}`, 'warn');
+        }
+      }
+
       // Mirror status into the existing per-tab traffic light when this
       // row maps to one of the four bench tabs.
       if (['BCM','RFHUB','ECM','ADCM'].includes(row.code)) {
@@ -366,6 +495,17 @@ export default function ProgramAllTab(){
           for (const rr of remaining) if (!out[rr.tx]) out[rr.tx] = { status: 'skipped' };
           return out;
         });
+        // Persist the skipped rows too so a cross-device resume knows exactly
+        // which modules still need a write.
+        if (activeJobId) {
+          for (const rr of remaining) {
+            appendEvent(activeJobId, {
+              kind: 'module.skipped',
+              module: rr.code,
+              payload: { tx: rr.tx, code: rr.code, status: 'skipped' },
+            }).catch(() => { /* best-effort */ });
+          }
+        }
         skipCount = remaining.length;
         break;
       }
@@ -405,6 +545,69 @@ export default function ProgramAllTab(){
     try { sessionStorage.removeItem(RESUME_KEY); } catch { /* ignore */ }
     setSavedSession(null);
   }, []);
+
+  // ── Resume a batch found on the SERVER (different device / closed tab) ──
+  // Same explicit-args contract as resumeSavedSession: restore selection /
+  // overrides / prior results from the reconstructed snapshot and hand them
+  // to runBatch directly so it skips already-ok rows and retries the rest.
+  const resumeServerSession = useCallback(() => {
+    if (!serverResume) return;
+    const sel = serverResume.selection || {};
+    const rowVin = serverResume.perRowVin || {};
+    const prior = serverResume.batchResults || {};
+    setJobId(serverResume.jobId);
+    setSelection(sel);
+    setPerRowVin(rowVin);
+    setBatchResults(prior);
+    setServerResume(null);
+    runBatch({ priorResults: prior, selectionOverride: sel, perRowVinOverride: rowVin });
+  }, [serverResume, runBatch, setJobId]);
+
+  const discardServerSession = useCallback(async () => {
+    const id = serverResume?.jobId;
+    setServerResume(null);
+    if (id) {
+      try { await patchJob(id, { status: 'abandoned' }); }
+      catch (e) { blog('discard failed: ' + (e.message || e), 'warn'); }
+      if (jobIdRef.current === id) setJobId(null);
+    }
+  }, [serverResume, blog, setJobId]);
+
+  // ── Finish & Archive ──
+  // Marks the durable job completed on the server and clears all local state
+  // (sessionStorage snapshot + in-memory grid). After this the tab is back to
+  // a clean slate and the job will no longer appear in any resume query.
+  const finishAndArchive = useCallback(async () => {
+    setArchiving(true);
+    try {
+      const id = jobIdRef.current;
+      if (id) {
+        await patchJob(id, { status: 'completed' });
+        try { await appendEvent(id, { kind: 'batch.completed', payload: { vin: masterVin } }); }
+        catch { /* audit event is best-effort */ }
+        blog(`🏁 job ${id} archived (completed)`, 'rx');
+      } else {
+        blog('🏁 no server job to archive — clearing local state', 'info');
+      }
+    } catch (e) {
+      blog('⚠ archive failed: ' + (e.message || e), 'error');
+    } finally {
+      try { sessionStorage.removeItem(RESUME_KEY); } catch { /* ignore */ }
+      setJobId(null);
+      setSavedSession(null);
+      setServerResume(null);
+      setBatchResults({});
+      setArchiving(false);
+    }
+  }, [masterVin, blog, setJobId]);
+
+  // Banner numbers for the server-sourced resume snapshot. `toRetry` derives
+  // from the intended selection (so never-attempted modules count as still-
+  // to-do) — see lib/programAllResume.js.
+  const serverCounts = useMemo(() => {
+    if (!serverResume?.batchResults) return null;
+    return computeResumeCounts(serverResume.batchResults, serverResume.selection);
+  }, [serverResume]);
 
   // Banner numbers — count rows in the saved snapshot by status.
   const savedCounts = useMemo(() => {
@@ -503,6 +706,44 @@ export default function ProgramAllTab(){
       </div>
     </Card>}
 
+    {/* ── Cross-device (server) resume banner ── */}
+    {/* Only shows when there is no same-tab snapshot (savedSession) — the
+        local fast-path takes priority. Surfaces a batch that was interrupted
+        on another device or after the tab was closed. */}
+    {serverResume && serverCounts && <Card data-testid="server-resume-banner" style={{
+      marginBottom:14,
+      background:'linear-gradient(135deg,#E3F2FD 0%,#90CAF9 100%)',
+      border:'2px solid '+C.a3,
+    }}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+        <div style={{flex:1,minWidth:240}}>
+          <div style={{fontWeight:900,fontSize:13,color:'#0D47A1',letterSpacing:1}}>
+            ☁ RESUMABLE JOB ON SERVER
+          </div>
+          <div style={{fontSize:12,color:'#0D47A1',marginTop:4,lineHeight:1.5}}>
+            An interrupted batch for VIN <b data-testid="server-resume-vin" style={{fontFamily:"'JetBrains Mono'"}}>{serverResume.vin || '(unknown)'}</b> was
+            recovered from the server (different device or closed tab).{' '}
+            <b data-testid="server-resume-ok-count">{serverCounts.ok}</b> ok ·{' '}
+            <b data-testid="server-resume-retry-count">{serverCounts.toRetry}</b> to retry.
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          <Btn data-testid="server-resume-btn"
+            onClick={resumeServerSession}
+            disabled={batchBusy || !vinValid}
+            color={C.gn}>
+            ▶ Resume server job
+          </Btn>
+          <Btn data-testid="server-resume-discard-btn"
+            onClick={discardServerSession}
+            disabled={batchBusy}
+            color={C.tm} outline>
+            ✕ Discard
+          </Btn>
+        </div>
+      </div>
+    </Card>}
+
     {/* ── Universal batch runner ── */}
     <Card data-testid="universal-runner" style={{marginBottom:18,border:'2px solid '+C.tx}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,flexWrap:'wrap',gap:10}}>
@@ -523,6 +764,13 @@ export default function ProgramAllTab(){
           <Btn onClick={runBatch} disabled={batchBusy||!vinValid||selectedCount===0||sgwBatchBlocked} color={C.sr}>
             {batchBusy?'⏳ Running…':`▶ Program ${selectedCount} module${selectedCount===1?'':'s'}`}
           </Btn>
+          {(jobId || Object.keys(batchResults).length>0) && <Btn
+            data-testid="finish-archive-btn"
+            onClick={finishAndArchive}
+            disabled={batchBusy||archiving}
+            color={C.gn} outline>
+            {archiving?'⏳ Archiving…':'🏁 Finish & Archive'}
+          </Btn>}
         </div>
       </div>
 

@@ -28,10 +28,11 @@ async function asJson(res) {
   return res.json();
 }
 
-export async function listJobs({ vin, status } = {}) {
+export async function listJobs({ vin, status, kind } = {}) {
   const qs = new URLSearchParams();
   if (vin) qs.set("vin", vin);
   if (status) qs.set("status", status);
+  if (kind) qs.set("kind", kind);
   const url = qs.toString() ? `${API_BASE}?${qs}` : API_BASE;
   const data = await asJson(await fetch(url, { headers: { Accept: "application/json" } }));
   return Array.isArray(data?.jobs) ? data.jobs : [];
@@ -47,14 +48,14 @@ export async function getJob(id) {
   return data;
 }
 
-export async function createJob({ id, vin, title, vehicle, status, owner } = {}) {
+export async function createJob({ id, vin, title, vehicle, status, owner, kind, fixPlan } = {}) {
   if (!vin) throw new Error("createJob: vin required");
   const finalId = id || newJobId();
   return asJson(
     await fetch(API_BASE, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: finalId, vin: vin.toUpperCase(), title, vehicle, status, owner }),
+      body: JSON.stringify({ id: finalId, vin: vin.toUpperCase(), title, vehicle, status, owner, kind, fixPlan }),
     }),
   );
 }

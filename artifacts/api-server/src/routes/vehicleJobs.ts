@@ -28,6 +28,7 @@ function rowToJson(row: VehicleJob) {
   return {
     id: row.id,
     vin: row.vin,
+    kind: row.kind ?? "workflow",
     title: row.title ?? null,
     vehicle: row.vehicle ?? null,
     status: row.status,
@@ -64,10 +65,12 @@ router.get("/vehicle-jobs", async (req, res, next) => {
   try {
     const vin = typeof req.query["vin"] === "string" ? req.query["vin"].toUpperCase() : null;
     const status = typeof req.query["status"] === "string" ? req.query["status"] : null;
+    const kind = typeof req.query["kind"] === "string" ? req.query["kind"] : null;
 
     const conditions = [];
     if (vin) conditions.push(eq(vehicleJobsTable.vin, vin));
     if (status) conditions.push(eq(vehicleJobsTable.status, status));
+    if (kind) conditions.push(eq(vehicleJobsTable.kind, kind));
 
     const baseQuery = db.select().from(vehicleJobsTable);
     const rows = conditions.length
@@ -101,29 +104,52 @@ router.post("/vehicle-jobs", async (req, res, next) => {
     const title = typeof body.title === "string" ? body.title.slice(0, 256) : null;
     const vehicle = body.vehicle && typeof body.vehicle === "object" ? body.vehicle : null;
     const status = typeof body.status === "string" ? body.status.slice(0, 32) : "draft";
+    const kind = typeof body.kind === "string" ? body.kind.slice(0, 32) : "workflow";
     const owner = typeof body.owner === "string" ? body.owner.slice(0, 128) : null;
+    const fixPlan =
+      body.fixPlan && typeof body.fixPlan === "object" ? body.fixPlan : null;
 
     if (!checkPayloadSize(vehicle)) {
       res.status(413).json({ error: "vehicle payload too large" });
       return;
     }
+    if (!checkPayloadSize(fixPlan)) {
+      res.status(413).json({ error: "fixPlan payload too large" });
+      return;
+    }
 
     const now = new Date();
+    const insertValues: typeof vehicleJobsTable.$inferInsert = {
+      id,
+      vin,
+      kind,
+      title,
+      vehicle,
+      status,
+      owner,
+      createdAt: now,
+      updatedAt: now,
+    };
+    const updateValues: Record<string, unknown> = {
+      vin,
+      kind,
+      title,
+      vehicle,
+      status,
+      owner,
+      updatedAt: now,
+    };
+    if (fixPlan !== null) {
+      insertValues.fixPlan = fixPlan;
+      updateValues["fixPlan"] = fixPlan;
+    }
+
     const [row] = await db
       .insert(vehicleJobsTable)
-      .values({
-        id,
-        vin,
-        title,
-        vehicle,
-        status,
-        owner,
-        createdAt: now,
-        updatedAt: now,
-      })
+      .values(insertValues)
       .onConflictDoUpdate({
         target: vehicleJobsTable.id,
-        set: { vin, title, vehicle, status, owner, updatedAt: now },
+        set: updateValues,
       })
       .returning();
 

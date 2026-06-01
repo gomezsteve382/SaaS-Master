@@ -15,6 +15,11 @@ export const vehicleJobsTable = pgTable(
   {
     id: text("id").primaryKey(),
     vin: text("vin").notNull(),
+    // Discriminates the workflow that owns this job. The original module-swap
+    // WORKFLOW tab uses "workflow"; the universal VIN batch runner uses
+    // "programAll" so its in-progress jobs can be resumed across devices
+    // without colliding with workflow jobs.
+    kind: text("kind").notNull().default("workflow"),
     title: text("title"),
     vehicle: jsonb("vehicle"),
     status: text("status").notNull().default("draft"),
@@ -27,6 +32,7 @@ export const vehicleJobsTable = pgTable(
   },
   (t) => ({
     vinIdx: index("vehicle_jobs_vin_idx").on(t.vin),
+    kindIdx: index("vehicle_jobs_kind_idx").on(t.kind),
     updatedAtIdx: index("vehicle_jobs_updated_at_idx").on(t.updatedAt),
   }),
 );
