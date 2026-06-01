@@ -13423,6 +13423,114 @@
       "size_bytes": 9068
     }
   ],
+  "alfaobd_ecu_string_dumps": [
+    {
+      "sourcePath": "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177975984785_1779759847861.json",
+      "ecuTypeId": 1126,
+      "shortTag": "MARELLI6F3_CAN",
+      "longDesc": "MARELLI6F3_CAN",
+      "platforms": [
+        "Alfa MITO",
+        "Fiat DOBLO/GRANDE PUNTO/PUNTO EVO/FIORINO/QUBO"
+      ],
+      "saHint": "0",
+      "modelYear": "EOBD EP engine 1.3 JTD 2",
+      "decryptionSalt": 14,
+      "fieldCount": 17,
+      "hasData": true,
+      "allSources": [
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177975984785_1779759847861.json",
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177976026709_1779760267091.json",
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177976043567_1779760435678.json"
+      ]
+    },
+    {
+      "sourcePath": "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177975984785_1779759847861.json",
+      "ecuTypeId": 1367,
+      "shortTag": "CCN",
+      "longDesc": "CCN",
+      "platforms": [
+        "(MK)COMPASS/PATRIOT/LIBERTY"
+      ],
+      "saHint": "20",
+      "modelYear": "MY2011+ Non-PowerNet",
+      "decryptionSalt": 14,
+      "fieldCount": 15,
+      "hasData": true,
+      "allSources": [
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177975984785_1779759847861.json",
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177976026709_1779760267091.json",
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177976043567_1779760435678.json"
+      ]
+    },
+    {
+      "sourcePath": "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177975984785_1779759847861.json",
+      "ecuTypeId": 1520,
+      "shortTag": "TBM2",
+      "longDesc": "TBM2",
+      "platforms": [
+        "ALFA GIULIA/STELVIO",
+        "ProMaster VF",
+        "500E",
+        "Fiat 6V",
+        "Jeep RENEGADE"
+      ],
+      "saHint": "29",
+      "modelYear": "MY2020+",
+      "decryptionSalt": 14,
+      "fieldCount": 18,
+      "hasData": true,
+      "allSources": [
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177975984785_1779759847861.json",
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177976026709_1779760267091.json",
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177976043567_1779760435678.json"
+      ]
+    },
+    {
+      "sourcePath": "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177975984785_1779759847861.json",
+      "ecuTypeId": 1750,
+      "shortTag": "53765",
+      "longDesc": "Comfort Steering Wheel Module Continental",
+      "platforms": [
+        "0"
+      ],
+      "saHint": null,
+      "modelYear": null,
+      "decryptionSalt": 14,
+      "fieldCount": 6,
+      "hasData": true,
+      "allSources": [
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177975984785_1779759847861.json",
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177976026709_1779760267091.json",
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177976043567_1779760435678.json"
+      ]
+    },
+    {
+      "sourcePath": "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177975984785_1779759847861.json",
+      "ecuTypeId": 1751,
+      "shortTag": "53765",
+      "longDesc": "Comfort Steering Wheel Module Continental",
+      "platforms": [
+        "1"
+      ],
+      "saHint": null,
+      "modelYear": null,
+      "decryptionSalt": 14,
+      "fieldCount": 6,
+      "hasData": true,
+      "allSources": [
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177975984785_1779759847861.json",
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177976026709_1779760267091.json",
+        "attached_assets/Pasted--2504-1520-file-off-0x10CA9B-idx-0-us-off--177976043567_1779760435678.json"
+      ]
+    }
+  ],
+  "alfaobd_ecu_string_dump_summary": {
+    "total_ecu_types_queried": 9,
+    "ecu_types_with_data": 5,
+    "distinct_source_files": 3,
+    "note": "No seed-key algorithm constants found; data is module metadata only. See tools/asset-sweep/REPORT.md §'AlfaOBD ECU string dumps' for details."
+  },
   "dll_coverage_summary": {
     "sweep_total": 81,
     "already_in_unlock_catalog": 81,

@@ -173,6 +173,16 @@ function classify(name, parentZips) {
   if (/^alfaobd_algorithm_catalog.*\.json$/.test(_bareTop)) {
     return "alfaobd_algorithm_catalog";
   }
+  // AlfaOBD ECU string-dump JSON: analyst-pasted output from the offline
+  // XOR-14 string decryption pass over AlfaOBD.exe's encrypted string pool.
+  // Keys are eEcutype IDs (numeric strings); values are arrays of decrypted
+  // field records ({file_off, idx, us_off, salt, score, decrypted}).
+  // These contain module metadata (names, platforms, SA params) but no
+  // crypto primitives — bucketed separately so the algorithm extractor
+  // doesn't confuse them with seed-key source files.
+  if (/^pasted-.*\.json$/.test(_bareTop)) {
+    return "alfaobd_ecu_string_dump";
+  }
 
   const lower = name.toLowerCase();
   const ext = extname(lower);
@@ -362,6 +372,69 @@ function computeCoverageStatus(tag, knownAlgoTags) {
   return "new";
 }
 
+/**
+ * Parse an AlfaOBD ECU string-dump JSON.
+ *
+ * File shape: { "<ecuTypeId>": [ {file_off, idx, us_off, salt, score, decrypted}, … ], … }
+ *
+ * Well-known idx positions extracted from the decrypted field arrays:
+ *   0  — module short tag  (e.g. "TBM2", "MARELLI6F3_CAN", "CCN")
+ *   1  — long description  (e.g. "Radio Frequency HUB")
+ *   3  — vehicle platforms (comma-separated)
+ *   14 — numeric SA-level hint (not confirmed against ECU bench)
+ *   15 — model-year filter (e.g. "MY2020+")
+ *
+ * Returns an array of per-eEcutype records, sorted by ecuTypeId.
+ * Empty-array eEcutype entries (no matching encrypted strings found in the
+ * binary) are included so the report can show the full query scope.
+ */
+function parseEcuStringDump(text, sourcePath) {
+  let raw;
+  try { raw = JSON.parse(text); } catch { return null; }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+
+  const types = [];
+  for (const [typeIdStr, entries] of Object.entries(raw).sort(
+    ([a], [b]) => Number(a) - Number(b)
+  )) {
+    const typeId = Number(typeIdStr);
+    if (!Number.isFinite(typeId)) continue;
+    const arr = Array.isArray(entries) ? entries : [];
+
+    // Pull well-known fields by idx.
+    const byIdx = new Map();
+    for (const e of arr) {
+      if (typeof e.idx === "number" && typeof e.decrypted === "string") {
+        if (!byIdx.has(e.idx)) byIdx.set(e.idx, e.decrypted);
+      }
+    }
+
+    const shortTag   = byIdx.get(0) || null;
+    const longDesc   = byIdx.get(1) || null;
+    const platforms  = byIdx.get(3) || null;
+    const saHint     = byIdx.get(14) || null;
+    const modelYear  = byIdx.get(15) || null;
+    const salt       = arr.length > 0 && arr[0].salt != null ? arr[0].salt : null;
+    const fieldCount = arr.length;
+    const hasData    = fieldCount > 0;
+
+    types.push({
+      sourcePath,
+      ecuTypeId: typeId,
+      shortTag,
+      longDesc,
+      platforms: platforms ? platforms.split(",").map((s) => s.trim()).filter(Boolean) : [],
+      saHint: saHint !== null ? saHint : null,
+      modelYear: modelYear || null,
+      decryptionSalt: salt,
+      fieldCount,
+      hasData,
+      rawEntries: arr,
+    });
+  }
+  return types;
+}
+
 function extractAll(inventory, knownAlgoTags, knownCrcSigs) {
   const seedKeyHits = [];
   const crcHits = [];
@@ -371,6 +444,9 @@ function extractAll(inventory, knownAlgoTags, knownCrcSigs) {
   const udsSessionTables = new Map();
   const didMaps = new Map();
   const ecuTypes = new Map();
+  // ecuStringDumps: deduped by content-hash so the three identical pasted
+  // files collapse to a single canonical record set.
+  const ecuStringDumpsByHash = new Map();  // sha256(content) → {sources, types}
 
   for (const rec of inventory) {
     const isPySource = rec.kind === "seedkey_source" || rec.kind === "uds_source"
@@ -499,12 +575,42 @@ function extractAll(inventory, knownAlgoTags, knownCrcSigs) {
       const text = asText(rec._bytes());
       ecuTypes.set(rec.path, text.length);
     }
+
+    // alfaobd_ecu_string_dump — analyst-pasted JSON from offline XOR-14
+    // string decryption pass over AlfaOBD.exe's encrypted string pool.
+    // Keys are eEcutype IDs; values are decoded field arrays.
+    // Deduplicate by content-hash: all three pasted copies are identical,
+    // so only the first distinct payload is kept; subsequent sources are
+    // appended to the `sources` list of the existing entry.
+    if (rec.kind === "alfaobd_ecu_string_dump") {
+      const buf = rec._bytes();
+      const h = sha256(buf);
+      const text = asText(buf);
+      if (!ecuStringDumpsByHash.has(h)) {
+        const types = parseEcuStringDump(text, rec.path);
+        if (types) {
+          ecuStringDumpsByHash.set(h, {sources: [rec.path], types});
+        }
+      } else {
+        ecuStringDumpsByHash.get(h).sources.push(rec.path);
+      }
+    }
   }
+
+  // Flatten deduplicated string dumps into a single sorted array of
+  // eEcutype records (one entry per distinct payload × eEcutype).
+  const ecuStringDumps = [];
+  for (const {sources, types} of ecuStringDumpsByHash.values()) {
+    for (const t of types) {
+      ecuStringDumps.push({...t, allSources: sources});
+    }
+  }
+  ecuStringDumps.sort((a, b) => a.ecuTypeId - b.ecuTypeId);
 
   return {
     seedKeyHits, crcHits, stringsHits,
     udsServiceTables, udsNrcTables, udsSessionTables,
-    didMaps, ecuTypes,
+    didMaps, ecuTypes, ecuStringDumps,
   };
 }
 
@@ -708,7 +814,7 @@ function renderExtendedCrcJs(crcHits) {
 }
 
 function renderExtendedCatalog({newDlls, verified, udsServiceTables, udsNrcTables,
-  udsSessionTables, didMaps, ecuTypes}) {
+  udsSessionTables, didMaps, ecuTypes, ecuStringDumps}) {
   // Extension entries — DLLs the asset sweep found that the in-repo
   // generator did not. Each carries `provenance: "asset_sweep"` so the UI
   // can paint the SWEEP chip on its row.
@@ -936,6 +1042,24 @@ function renderExtendedCatalog({newDlls, verified, udsServiceTables, udsNrcTable
     ecu_type_dumps: [...ecuTypes.entries()]
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([path, size]) => ({sourcePath: path, size_bytes: size})),
+    // AlfaOBD eEcutype → module-metadata table recovered from the offline
+    // XOR-14 string decryption pass. No crypto primitives are present —
+    // these are module descriptors (name, platforms, model-year filter, SA
+    // level hint). The three source files were identical; they are deduped
+    // here to a single canonical entry set. Useful for cross-referencing
+    // eEcutype IDs against the AlfaOBD w6/w7 algorithm dispatch tables.
+    alfaobd_ecu_string_dumps: (ecuStringDumps || [])
+      .filter((t) => t.hasData)
+      .map(({rawEntries: _r, ...rest}) => rest),
+    alfaobd_ecu_string_dump_summary: {
+      total_ecu_types_queried: (ecuStringDumps || []).length,
+      ecu_types_with_data: (ecuStringDumps || []).filter((t) => t.hasData).length,
+      distinct_source_files: ecuStringDumps && ecuStringDumps.length > 0
+        ? [...new Set(ecuStringDumps.flatMap((t) => t.allSources))].length
+        : 0,
+      note: "No seed-key algorithm constants found; data is module metadata only."
+        + " See tools/asset-sweep/REPORT.md §'AlfaOBD ECU string dumps' for details.",
+    },
     dll_coverage_summary: {
       sweep_total: newDlls.length + verified.length,
       already_in_unlock_catalog: verified.length,
@@ -1264,6 +1388,54 @@ function renderReport(inventory, extracts, dllCoverage, knownAlgoTags, knownCrcS
   }
   lines.push("");
 
+  // ── AlfaOBD ECU string-dump section ──────────────────────────────────
+  const dumpData = ext.ecuStringDumps || [];
+  lines.push("## AlfaOBD ECU string dumps");
+  lines.push("");
+  if (dumpData.length === 0) {
+    lines.push("_No `alfaobd_ecu_string_dump` files found in attached_assets/._");
+    lines.push("");
+  } else {
+    const withData = dumpData.filter((t) => t.hasData);
+    const allSources = [...new Set(dumpData.flatMap((t) => t.allSources))].sort();
+    lines.push(
+      `Three pasted JSON files (all byte-for-byte identical, deduped to one payload) decoded`
+      + ` from an offline XOR-salt-14 pass over AlfaOBD.exe's encrypted string pool.`
+    );
+    lines.push(`Distinct source files: **${allSources.length}** (deduplicated to **1** unique payload)`);
+    lines.push(`eEcutype IDs queried: **${dumpData.length}** total, **${withData.length}** with decrypted data`);
+    lines.push("");
+    lines.push("> **Coverage verdict:** No seed-key algorithm constants were found.");
+    lines.push("> These files contain module _metadata_ (name, vehicle platforms, model-year");
+    lines.push("> filter, SA-level hint at idx=14) — not crypto primitives. `algos.js` and");
+    lines.push("> `extendedAlgorithms.generated.js` are unchanged. The eEcutype→module-tag");
+    lines.push("> table is preserved in `unlock_catalog_extended.json §alfaobd_ecu_string_dumps`");
+    lines.push("> for cross-referencing against the AlfaOBD w6/w7 dispatch tables.");
+    lines.push("");
+    if (withData.length) {
+      lines.push("| eEcutype | Short tag | Long description | Platforms | Model year | SA hint (idx 14) |");
+      lines.push("| ---: | --- | --- | --- | --- | --- |");
+      for (const t of withData) {
+        const platforms = t.platforms.slice(0, 3).join(", ")
+          + (t.platforms.length > 3 ? `, +${t.platforms.length - 3}` : "");
+        lines.push(
+          `| ${t.ecuTypeId} | ${t.shortTag || "—"} | ${t.longDesc || "—"}`
+          + ` | ${platforms || "—"} | ${t.modelYear || "—"} | ${t.saHint || "—"} |`
+        );
+      }
+      lines.push("");
+    }
+    if (dumpData.some((t) => !t.hasData)) {
+      const empty = dumpData.filter((t) => !t.hasData).map((t) => t.ecuTypeId).join(", ");
+      lines.push(`_eEcutype IDs with no decrypted entries (AlfaOBD XOR sweep found no matches in binary): ${empty}_`);
+      lines.push("");
+    }
+    for (const src of allSources) {
+      lines.push(`Source file: \`${src}\``);
+    }
+    lines.push("");
+  }
+
   lines.push("## Unlock DLL coverage");
   lines.push("");
   lines.push(`Total unique \`canflash_unlocks/*.dll\` filenames in attached_assets/: **${dllCoverage.seen.size}**`);
@@ -1346,7 +1518,7 @@ function main() {
 
   const extracts = extractAll(inventory, knownAlgoTags, knownCrcSigs);
   const dllCoverage = computeDllCoverage(inventory, knownDlls);
-  console.log(`[asset-sweep]   extracted: ${extracts.seedKeyHits.length} seed-key hits, ${extracts.crcHits.length} CRC hits, ${extracts.stringsHits.length} strings-corroborations, ${extracts.didMaps.size} DID maps, ${dllCoverage.newDlls.length} new DLLs`);
+  console.log(`[asset-sweep]   extracted: ${extracts.seedKeyHits.length} seed-key hits, ${extracts.crcHits.length} CRC hits, ${extracts.stringsHits.length} strings-corroborations, ${extracts.didMaps.size} DID maps, ${dllCoverage.newDlls.length} new DLLs, ${extracts.ecuStringDumps.length} ecu-string-dump entries (${[...new Set(extracts.ecuStringDumps.flatMap((t) => t.allSources))].length} source files deduped)`);
 
   writeOrCheck(OUT_INVENTORY, renderInventoryJson(inventory));
   writeOrCheck(OUT_FINDINGS, renderFindingsJson(extracts, knownAlgoTags, dllCoverage, portReport));
@@ -1359,6 +1531,7 @@ function main() {
     udsSessionTables: extracts.udsSessionTables,
     didMaps: extracts.didMaps,
     ecuTypes: extracts.ecuTypes,
+    ecuStringDumps: extracts.ecuStringDumps,
   }));
   writeOrCheck(OUT_REPORT, renderReport(inventory, extracts, dllCoverage, knownAlgoTags, knownCrcSigs, portReport));
 
