@@ -1,5 +1,7 @@
 # SRT Lab - Jailbreak Edition
 
+[![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/<owner>/<repo>/actions/workflows/ci.yml)
+
 ## Overview
 
 SRT Lab is a React single-page application designed as a workbench for FCA/Stellantis ECU modules. It runs entirely client-side, enabling functionalities such as patching VINs, managing immobilizer keys, and communicating over OBD-II via Web Serial. The project aims to provide comprehensive tools for diagnosing, programming, and "jailbreaking" vehicle ECUs, focusing on high-performance SRT, Demon, Hellcat, and Redeye models to unlock features and enhance vehicle customization.
