@@ -76,6 +76,9 @@ export function buildFixPlan({ census, targetVin = "", options = {} } = {}) {
       blockers.push(`Unknown dump for slot: ${row.name || row.code}`);
     } else if (row.kind === "extra") {
       blockers.push(`Extra dump not in expected platform list: ${row.code}`);
+    } else if (row.kind === "corrupt") {
+      // Task #948 — a corrupt capture cannot drive any VIN/key step.
+      blockers.push(`Corrupt dump: ${row.code} — re-read the module before running this plan`);
     }
   }
 
@@ -152,7 +155,9 @@ export function buildFixPlan({ census, targetVin = "", options = {} } = {}) {
 
   // ── 5. Verify reads ───────────────────────────────────────────────────
   if (opts.includeVerify) {
-    const verified = census.rows.filter((r) => rowToTarget(r) && r.kind !== "missing");
+    const verified = census.rows.filter(
+      (r) => rowToTarget(r) && r.kind !== "missing" && r.kind !== "corrupt",
+    );
     for (const row of verified) {
       steps.push(
         step({

@@ -35,6 +35,18 @@ function pickVin(mod) {
 
 function classifyRow(slot, dump, targetVin) {
   if (!dump) return { kind: "missing", reason: `no ${slot.code} dump loaded` };
+  // Task #948 — a dump whose buffer fails the corrupt-fill guard (single-byte
+  // fill / repeated tool-error string) must never be treated as a usable
+  // module. parseModule attaches `mod.corruptFill`; surface it as its own
+  // census kind so the Workflow runner flags it instead of pairing it to a
+  // slot or judging its (garbage) VIN.
+  const cf = (dump.mod || dump).corruptFill;
+  if (cf) {
+    return {
+      kind: "corrupt",
+      reason: `corrupt capture (${cf.reason}) — re-read this module before using it`,
+    };
+  }
   if (dump.type && dump.type.toUpperCase() === "UNKNOWN") {
     return { kind: "unknown", reason: "dump type could not be detected" };
   }
@@ -102,6 +114,7 @@ export function buildCensus({ expected = [], loaded = [], targetVin = "" } = {})
     missing: rows.filter((r) => r.kind === "missing").length,
     extra: rows.filter((r) => r.kind === "extra").length,
     unknown: rows.filter((r) => r.kind === "unknown").length,
+    corrupt: rows.filter((r) => r.kind === "corrupt").length,
   };
   return { rows, summary };
 }

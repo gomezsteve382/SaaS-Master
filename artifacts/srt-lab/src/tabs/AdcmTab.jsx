@@ -2,6 +2,7 @@ import React, {useState, useCallback, useMemo, useRef, useEffect} from "react";
 import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import IdentityCard from '../components/IdentityCard.jsx';
+import CorruptDumpBanner from '../components/CorruptDumpBanner.jsx';
 import DumpDropZone, {DumpDropArea} from '../components/DumpDropZone.jsx';
 import {parseModule,moduleTooSmall,MODULE_MIN_SIZES,corruptFillError} from '../lib/parseModule.js';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
@@ -494,7 +495,8 @@ export default function AdcmTab(){
           <div>Required min: <strong>{inspectTooSmall.min.toLocaleString()} bytes</strong> — {inspectTooSmall.label}</div>
         </div>
       </div>}
-      {adcmInspectMod&&adcmInspectMod.data&&<div style={{marginTop:12}}>
+      <CorruptDumpBanner mod={adcmInspectMod} testid="adcm-corrupt-dump-banner"/>
+      {adcmInspectMod&&adcmInspectMod.data&&!adcmInspectMod.corruptFill&&<div style={{marginTop:12}}>
         <IdentityCard bytes={adcmInspectMod.data}/>
       </div>}
     </Card>

@@ -10,6 +10,7 @@ import ReadFirstModal from "../lib/readFirstModal.jsx";
 import {isSgwAuthenticated} from "../lib/sgwAuth.js";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
+import CorruptDumpBanner from "../components/CorruptDumpBanner.jsx";
 import {parseModule,moduleTooSmall,corruptFillError} from "../lib/parseModule.js";
 import {vinHasSGW} from "../lib/vin.js";
 import {createBridgeEngine} from "../lib/bridgeEngine.js";
@@ -567,7 +568,7 @@ export default function RfhubTab({vehicle}){
       setBusy={setBusy}
       lockoutNrc={lockoutNrc}
       onCleared={()=>setLockoutNrc(null)}
-      moduleHint={inspectMod}
+      moduleHint={inspectMod?.corruptFill?null:inspectMod}
     />
 
     <Card style={{marginBottom:14,background:'linear-gradient(135deg,#FFF8F0 0%,#FFE0B2 100%)',border:'2px solid '+C.a1}}>
@@ -687,8 +688,9 @@ export default function RfhubTab({vehicle}){
         </div>
         <div style={{marginTop:8,fontSize:12,color:C.ts,fontWeight:600,lineHeight:1.5}}>Re-read the RFHUB in full or load the correct file — this looks like a fragment, an EEPROM slice, or the wrong module.</div>
       </div>}
-      {inspectMod&&!inspectTooSmall&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod}/></div>}
-      {inspectMod&&!inspectTooSmall&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}
+      <CorruptDumpBanner mod={inspectMod} testid="rfhub-corrupt-dump-banner"/>
+      {inspectMod&&!inspectTooSmall&&!inspectMod.corruptFill&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod}/></div>}
+      {inspectMod&&!inspectTooSmall&&!inspectMod.corruptFill&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}
     </Card>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>

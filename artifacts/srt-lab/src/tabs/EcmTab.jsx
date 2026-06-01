@@ -2,6 +2,7 @@ import React, {useState, useCallback, useRef} from "react";
 import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import IdentityCard from '../components/IdentityCard.jsx';
+import CorruptDumpBanner from '../components/CorruptDumpBanner.jsx';
 import DumpDropZone, {DumpDropArea} from '../components/DumpDropZone.jsx';
 import {parseModule,moduleTooSmall,corruptFillError} from '../lib/parseModule.js';
 import {initAdapter, parseVinFromResponse} from '../lib/initAdapter.js';
@@ -403,7 +404,8 @@ export default function EcmTab({vehicle}){
           <div>Required min: <strong>{inspectTooSmall.min.toLocaleString()} bytes</strong> — {inspectTooSmall.label}</div>
         </div>
       </div>}
-      {ecmInspectMod&&ecmInspectMod.data&&<div style={{marginTop:12}}>
+      <CorruptDumpBanner mod={ecmInspectMod} testid="ecm-corrupt-dump-banner"/>
+      {ecmInspectMod&&ecmInspectMod.data&&!ecmInspectMod.corruptFill&&<div style={{marginTop:12}}>
         <IdentityCard bytes={ecmInspectMod.data}/>
       </div>}
     </Card>

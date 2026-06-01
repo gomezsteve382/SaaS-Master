@@ -47,6 +47,45 @@ test("census flags extras and unknowns separately", () => {
   assert.equal(byCode.UNKNOWN.kind, "unknown");
 });
 
+test("census flags corrupt loaded modules (Task #948)", () => {
+  const loaded = [
+    fakeDump("BCM", VIN_NEW, "h_bcm"),
+    { hash: "h_rfh", type: "RFHUB", mod: { vin: VIN_NEW, corruptFill: { reason: "single-byte fill" } } },
+    fakeDump("ECM", VIN_NEW, "h_ecm"),
+  ];
+  const census = buildCensus({ expected, loaded, targetVin: VIN_NEW });
+  const byCode = Object.fromEntries(census.rows.map((r) => [r.code, r]));
+  assert.equal(byCode.RFHUB.kind, "corrupt");
+  assert.ok(/single-byte fill/.test(byCode.RFHUB.reason));
+  assert.equal(census.summary.corrupt, 1);
+  // A corrupt module must not be miscounted as ok/mismatch.
+  assert.equal(byCode.BCM.kind, "ok");
+  assert.equal(byCode.ECM.kind, "ok");
+});
+
+test("corrupt loaded module reported as extra is still flagged corrupt", () => {
+  const loaded = [
+    { hash: "h_tipm", type: "TIPM", mod: { vin: VIN_NEW, corruptFill: { reason: "repeated ASCII string" } } },
+  ];
+  const census = buildCensus({ expected, loaded, targetVin: VIN_NEW });
+  const byCode = Object.fromEntries(census.rows.map((r) => [r.code, r]));
+  assert.equal(byCode.TIPM.kind, "corrupt");
+});
+
+test("Fix Plan blocks and skips steps for a corrupt module (Task #948)", () => {
+  const loaded = [
+    fakeDump("BCM", VIN_OLD, "h_bcm"),
+    { hash: "h_rfh", type: "RFHUB", mod: { vin: VIN_OLD, corruptFill: { reason: "single-byte fill" } } },
+    fakeDump("ECM", VIN_OLD, "h_ecm"),
+  ];
+  const census = buildCensus({ expected, loaded, targetVin: VIN_NEW });
+  const plan = buildFixPlan({ census, targetVin: VIN_NEW, options: { includeVerify: true } });
+  assert.ok(plan.blockers.some((b) => /Corrupt dump: RFHUB/.test(b)));
+  // The corrupt RFHUB must not produce a VIN write or a verify step.
+  assert.ok(!plan.steps.some((s) => s.module === "RFHUB" && s.action === "vinWrite"));
+  assert.ok(!plan.steps.some((s) => s.module === "RFHUB" && s.action === "verify"));
+});
+
 test("Fix Plan orders VIN writes BCM → RFHUB → ECM", () => {
   const loaded = [
     fakeDump("ECM", VIN_OLD, "h_ecm"),

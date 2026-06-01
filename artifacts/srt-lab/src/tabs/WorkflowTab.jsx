@@ -67,11 +67,13 @@ function CensusRow({ row }) {
     missing: C.er,
     extra: C.a3,
     unknown: C.tm,
+    corrupt: C.er,
   };
   const color = palette[row.kind] || C.tm;
   return (
     <div
       data-testid={`census-row-${row.code}`}
+      data-census-kind={row.kind}
       style={{
         display: "flex",
         gap: 12,
@@ -569,6 +571,7 @@ export default function WorkflowTab({ onOpenTab } = {}) {
           >
             {census.summary.ok} ok · {census.summary.mismatch} mismatch ·{" "}
             {census.summary.missing} missing · {census.summary.extra} extra
+            {census.summary.corrupt ? ` · ${census.summary.corrupt} corrupt` : ""}
           </span>
         </div>
         {census.rows.length === 0 ? (
