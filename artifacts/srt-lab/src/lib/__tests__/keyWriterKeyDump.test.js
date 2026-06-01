@@ -135,6 +135,54 @@ describe('buildKeyDumpBin / parseKeyDumpBin — round-trip', () => {
     expect(back.flags).toMatchObject({ locked: true, coding: 'fsk', encryption: false, cloneable: true });
   });
 
+  it('round-trips the human label through the .bin', () => {
+    const rec = refRecord({ label: 'spare fob #2' });
+    const v = validateKeyRecord(rec);
+    const bin = buildKeyDumpBin({ uid: v.uid, sk: v.sk, flags: rec.flags, chipId: rec.chipId, label: rec.label });
+    const back = parseKeyDumpBin(bin);
+    expect(back.ok).toBe(true);
+    expect(back.label).toBe('spare fob #2');
+  });
+
+  it('round-trips a multi-byte UTF-8 label', () => {
+    const rec = refRecord({ label: 'clé de rechange 🔑' });
+    const v = validateKeyRecord(rec);
+    const bin = buildKeyDumpBin({ uid: v.uid, sk: v.sk, flags: rec.flags, chipId: rec.chipId, label: rec.label });
+    const back = parseKeyDumpBin(bin);
+    expect(back.ok).toBe(true);
+    expect(back.label).toBe('clé de rechange 🔑');
+  });
+
+  it('yields an empty label when none was supplied', () => {
+    const rec = refRecord({ label: '' });
+    const v = validateKeyRecord(rec);
+    const bin = buildKeyDumpBin({ uid: v.uid, sk: v.sk, flags: rec.flags, chipId: rec.chipId });
+    const back = parseKeyDumpBin(bin);
+    expect(back.ok).toBe(true);
+    expect(back.label).toBe('');
+  });
+
+  it('reads a legacy v1 .bin (no label trailer) without failing', () => {
+    // A version-01 buffer ends right after SK with no trailing label bytes.
+    const rec = refRecord();
+    const v = validateKeyRecord(rec);
+    const legacy = new Uint8Array([
+      0x4B, 0x44, 0x4D, 0x50, // KDMP
+      0x01,                   // version 1
+      0x00,                   // ordinal (unknown is fine for this check)
+      0x00,                   // flags
+      v.uid.length,
+      v.sk.length,
+      ...v.uid,
+      ...v.sk,
+    ]);
+    const back = parseKeyDumpBin(legacy);
+    expect(back.ok).toBe(true);
+    expect(back.version).toBe(1);
+    expect(back.label).toBe('');
+    expect([...back.uid]).toEqual([...v.uid]);
+  });
+
   it('rejects a buffer with the wrong magic', () => {
     const bad = new Uint8Array([0x41, 0x55, 0x54, 0x4C, 0x01, 0x00, 0x00, 0x00, 0x00]);
     const r = parseKeyDumpBin(bad);

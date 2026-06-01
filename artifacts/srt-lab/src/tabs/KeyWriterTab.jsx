@@ -443,7 +443,7 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
   const onExportKeyBin = useCallback(() => {
     const v = validateKeyRecord(activeRecord);
     if (!v.ok) { setKeyDumpNote({ ok: false, msg: v.error }); return; }
-    const bin = buildKeyDumpBin({ uid: v.uid, sk: v.sk, flags: activeRecord.flags, chipId: activeRecord.chipId });
+    const bin = buildKeyDumpBin({ uid: v.uid, sk: v.sk, flags: activeRecord.flags, chipId: activeRecord.chipId, label: activeRecord.label });
     triggerDownload(new Blob([bin], { type: 'application/octet-stream' }), `${keyDumpBaseName(activeRecord)}.bin`);
     appendAudit({ source: 'keywriter', op: 'key-dump-export-bin', chipId: activeRecord.chipId, ok: true });
     setKeyDumpNote({ ok: true, msg: 'Compact KDMP .bin downloaded (portable intermediate — not a vendor import).' });

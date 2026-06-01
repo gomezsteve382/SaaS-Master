@@ -162,14 +162,20 @@ export function exportBaseName(rfhFileName, slotIdx) {
  *
  * Compact raw .bin ("KDMP"):
  *   offset 0  : magic 4B 44 4D 50 ("KDMP")
- *   offset 4  : version 01
+ *   offset 4  : version 02
  *   offset 5  : chip ordinal (shared CHIP_ORDINAL table; FF = unknown)
  *   offset 6  : flags byte — bit0 locked, bit1 encryption, bit2 cloneable,
  *               bits4-7 coding-scheme ordinal
  *   offset 7  : UID length
  *   offset 8  : SK length
  *   offset 9  : UID bytes
- *   offset 9+uidLen : SK bytes
+ *   offset 9+uidLen           : SK bytes
+ *   offset 9+uidLen+skLen     : label length (1 B, UTF-8 byte count, ≤255)  [v2+]
+ *   offset 9+uidLen+skLen+1   : label bytes (UTF-8)                          [v2+]
+ *
+ * The label trailer was added in version 02 so re-opening a .bin restores the
+ * operator's human name for the key. Version 01 files (no trailer) still parse
+ * — they simply yield an empty label. Older readers ignore the extra bytes.
  *
  * Honestly labelled as a portable intermediate — NOT a verified Autel/VVDI
  * binary import format. SK is the per-transponder secret, never the 16-byte
@@ -177,7 +183,9 @@ export function exportBaseName(rfhFileName, slotIdx) {
  * ========================================================================== */
 
 export const KEY_DUMP_MAGIC = [0x4B, 0x44, 0x4D, 0x50]; // "KDMP"
-export const KEY_DUMP_VERSION = 0x01;
+export const KEY_DUMP_VERSION = 0x02;
+/* Largest label (in UTF-8 bytes) the single-byte length field can hold. */
+export const KEY_DUMP_MAX_LABEL_BYTES = 0xFF;
 
 function encodeFlagsByte(flags) {
   const f = flags || {};
@@ -204,6 +212,26 @@ function decodeFlagsByte(b) {
 const ORDINAL_TO_CHIP = Object.fromEntries(
   Object.entries(CHIP_ORDINAL).map(([k, v]) => [v, k]),
 );
+
+/* Encode a label string into a length-prefixed UTF-8 trailer. The label is
+ * truncated to KEY_DUMP_MAX_LABEL_BYTES *whole* UTF-8 bytes so we never split a
+ * multi-byte character or overflow the single-byte length field. */
+function encodeLabelTrailer(label) {
+  const enc = new TextEncoder();
+  let bytes = enc.encode(String(label || ''));
+  if (bytes.length > KEY_DUMP_MAX_LABEL_BYTES) {
+    bytes = bytes.slice(0, KEY_DUMP_MAX_LABEL_BYTES);
+    // Drop any trailing continuation bytes left dangling by the cut.
+    let end = bytes.length;
+    while (end > 0 && (bytes[end - 1] & 0xC0) === 0x80) end -= 1;
+    bytes = bytes.slice(0, end);
+  }
+  return bytes;
+}
+
+function decodeLabelBytes(u8) {
+  return new TextDecoder().decode(u8);
+}
 
 /**
  * Build the human-readable JSON manifest for a standalone key record.
@@ -245,11 +273,14 @@ export function buildKeyDumpManifest(record, validated) {
 }
 
 /**
- * Build the compact raw .bin for a standalone key record.
- * @param {{ uid: Uint8Array, sk: Uint8Array, flags: object, chipId: string }} args
+ * Build the compact raw .bin for a standalone key record. The operator's label
+ * is carried in a length-prefixed UTF-8 trailer (version 02) so re-opening the
+ * .bin restores the human name.
+ * @param {{ uid: Uint8Array, sk: Uint8Array, flags: object, chipId: string, label?: string }} args
  */
-export function buildKeyDumpBin({ uid, sk, flags, chipId }) {
+export function buildKeyDumpBin({ uid, sk, flags, chipId, label = '' }) {
   const ordinal = CHIP_ORDINAL[chipId] ?? 0xFF;
+  const labelBytes = encodeLabelTrailer(label);
   const header = [
     ...KEY_DUMP_MAGIC,
     KEY_DUMP_VERSION,
@@ -258,11 +289,13 @@ export function buildKeyDumpBin({ uid, sk, flags, chipId }) {
     uid.length,
     sk.length,
   ];
-  const out = new Uint8Array(header.length + uid.length + sk.length);
+  const out = new Uint8Array(header.length + uid.length + sk.length + 1 + labelBytes.length);
   let i = 0;
   for (const b of header) out[i++] = b;
   out.set(uid, i); i += uid.length;
-  out.set(sk, i);
+  out.set(sk, i); i += sk.length;
+  out[i++] = labelBytes.length;
+  out.set(labelBytes, i);
   return out;
 }
 
@@ -284,6 +317,18 @@ export function parseKeyDumpBin(u8) {
   if (9 + uidLen + skLen > u8.length) return { ok: false, error: 'truncated payload' };
   const uid = u8.slice(9, 9 + uidLen);
   const sk = u8.slice(9 + uidLen, 9 + uidLen + skLen);
+
+  // Optional length-prefixed UTF-8 label trailer (version 02+). Absent in v1
+  // files, so default to an empty label rather than failing.
+  let label = '';
+  const labelLenOff = 9 + uidLen + skLen;
+  if (labelLenOff < u8.length) {
+    const labelLen = u8[labelLenOff];
+    const labelOff = labelLenOff + 1;
+    if (labelOff + labelLen > u8.length) return { ok: false, error: 'truncated label' };
+    label = decodeLabelBytes(u8.slice(labelOff, labelOff + labelLen));
+  }
+
   return {
     ok: true,
     version,
@@ -292,6 +337,7 @@ export function parseKeyDumpBin(u8) {
     flags,
     uid,
     sk,
+    label,
   };
 }
 
