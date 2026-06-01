@@ -19,8 +19,12 @@ import {
   saveKeyToHistory,
   removeKeyFromHistory,
   clearKeyHistory,
+  buildKeyHistoryExport,
+  parseKeyHistoryImport,
+  importKeyHistory,
   KEY_HISTORY_KEY,
   KEY_HISTORY_LIMIT_PER_VIN,
+  KEY_HISTORY_EXPORT_TYPE,
 } from '../keyWriter/keyHistory.js';
 
 const VIN_A = '2C3CDXL95KH123456';
@@ -157,5 +161,102 @@ describe('localStorage round-trip, scoped per VIN', () => {
 
   it('returns [] for an unknown VIN', () => {
     expect(loadKeyHistory('2C3CDXL95KH000000')).toEqual([]);
+  });
+});
+
+describe('whole-key-set wrapper export / import — Task #992', () => {
+  it('exports a typed/versioned wrapper that drops per-row ids', () => {
+    saveKeyToHistory(VIN_A, { ...baseRecord, uidHex: '11 11 11 11', label: 'one' });
+    saveKeyToHistory(VIN_A, { ...baseRecord, uidHex: '22 22 22 22', label: 'two' });
+    const list = loadKeyHistory(VIN_A);
+    const wrapper = buildKeyHistoryExport(VIN_A, list);
+
+    expect(wrapper.type).toBe(KEY_HISTORY_EXPORT_TYPE);
+    expect(wrapper.version).toBe(1);
+    expect(wrapper.vin).toBe(VIN_A);
+    expect(wrapper.keys).toHaveLength(2);
+    for (const k of wrapper.keys) {
+      expect('id' in k).toBe(false); // ids never leak into the bundle
+      expect(k.chipId).toBe('id46');
+    }
+  });
+
+  it('round-trips every saved key through build → parse', () => {
+    saveKeyToHistory(VIN_A, { ...baseRecord, uidHex: '11 11 11 11', label: 'one', slotIdx: 0 });
+    saveKeyToHistory(VIN_A, { ...baseRecord, uidHex: '22 22 22 22', label: 'two', slotIdx: 3 });
+    const list = loadKeyHistory(VIN_A);
+    const json = JSON.stringify(buildKeyHistoryExport(VIN_A, list));
+    const parsed = parseKeyHistoryImport(json);
+
+    expect(parsed).toHaveLength(2);
+    const byUid = Object.fromEntries(parsed.map((p) => [p.uidHex, p]));
+    expect(byUid['11 11 11 11'].label).toBe('one');
+    expect(byUid['11 11 11 11'].slotIdx).toBe(0);
+    expect(byUid['22 22 22 22'].label).toBe('two');
+    expect(byUid['22 22 22 22'].slotIdx).toBe(3);
+  });
+
+  it('imports the wrapper into an empty history, minting fresh ids', () => {
+    saveKeyToHistory(VIN_A, { ...baseRecord, uidHex: '11 11 11 11', label: 'one' });
+    saveKeyToHistory(VIN_A, { ...baseRecord, uidHex: '22 22 22 22', label: 'two' });
+    const json = JSON.stringify(buildKeyHistoryExport(VIN_A, loadKeyHistory(VIN_A)));
+
+    // Import the bundle into a *different*, empty VIN history.
+    const res = importKeyHistory(VIN_B, json);
+    expect(res.ok).toBe(true);
+    expect(res.imported).toBe(2);
+
+    const loaded = loadKeyHistory(VIN_B);
+    expect(loaded).toHaveLength(2);
+    const ids = loaded.map((e) => e.id);
+    expect(new Set(ids).size).toBe(2); // unique, freshly minted
+    expect(ids.every((id) => typeof id === 'string' && id.length > 0)).toBe(true);
+  });
+
+  it('imports into a populated history without id collisions', () => {
+    // Seed VIN_B with one existing distinct key.
+    saveKeyToHistory(VIN_B, { ...baseRecord, uidHex: 'AA BB CC DD', label: 'existing' });
+    const existingId = loadKeyHistory(VIN_B)[0].id;
+
+    // Build a wrapper of two other keys and import it on top.
+    saveKeyToHistory(VIN_A, { ...baseRecord, uidHex: '11 11 11 11', label: 'one' });
+    saveKeyToHistory(VIN_A, { ...baseRecord, uidHex: '22 22 22 22', label: 'two' });
+    const json = JSON.stringify(buildKeyHistoryExport(VIN_A, loadKeyHistory(VIN_A)));
+
+    const res = importKeyHistory(VIN_B, json);
+    expect(res.ok).toBe(true);
+
+    const loaded = loadKeyHistory(VIN_B);
+    expect(loaded).toHaveLength(3); // existing + 2 imported
+    const ids = loaded.map((e) => e.id);
+    expect(new Set(ids).size).toBe(ids.length); // all unique
+    expect(ids).toContain(existingId); // existing row untouched
+  });
+
+  it('re-importing the same wrapper de-dupes by chip+UID (no duplicate rows)', () => {
+    saveKeyToHistory(VIN_A, { ...baseRecord, uidHex: '11 11 11 11', label: 'one' });
+    const json = JSON.stringify(buildKeyHistoryExport(VIN_A, loadKeyHistory(VIN_A)));
+
+    importKeyHistory(VIN_B, json);
+    importKeyHistory(VIN_B, json); // import twice
+    expect(loadKeyHistory(VIN_B)).toHaveLength(1);
+  });
+
+  it('refuses to import without a valid VIN', () => {
+    const json = JSON.stringify(buildKeyHistoryExport(VIN_A, []));
+    const res = importKeyHistory('bad', json);
+    expect(res.ok).toBe(false);
+    expect(res.error).toMatch(/VIN/i);
+  });
+
+  it('rejects malformed JSON and unrelated wrapper types', () => {
+    expect(() => parseKeyHistoryImport('{not json')).toThrow(/JSON/i);
+    const wrong = JSON.stringify({ type: 'some.other.export', version: 1, keys: [{ chipId: 'id46' }] });
+    expect(() => parseKeyHistoryImport(wrong)).toThrow(/Unrecognized export type/);
+  });
+
+  it('throws when the wrapper has no usable keys', () => {
+    const empty = JSON.stringify(buildKeyHistoryExport(VIN_A, []));
+    expect(() => parseKeyHistoryImport(empty)).toThrow(/No keys/i);
   });
 });

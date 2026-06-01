@@ -47,6 +47,8 @@ import {
   saveKeyToHistory,
   removeKeyFromHistory,
   clearKeyHistory,
+  buildKeyHistoryExport,
+  importKeyHistory,
 } from '../lib/keyWriter/keyHistory.js';
 
 const WRITERS = [
@@ -546,6 +548,48 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
     setKeyDumpNote({ ok: true, msg: `Cleared all saved keys for ${masterVin}.` });
   }, [masterVin]);
 
+  /* Export the whole key set on file for this VIN as one portable wrapper file
+   * (Task #992). Mirrors the J2534 "EXPORT ALL" baseline pattern. */
+  const keyHistoryImportRef = useRef(null);
+
+  const onExportAllKeys = useCallback(() => {
+    if (!vinValid) {
+      setKeyDumpNote({ ok: false, msg: 'Set a valid 17-char Master VIN first to export this vehicle\u2019s key set.' });
+      return;
+    }
+    if (keyHistory.length === 0) {
+      setKeyDumpNote({ ok: false, msg: 'No keys on file to export for this vehicle yet.' });
+      return;
+    }
+    const payload = buildKeyHistoryExport(masterVin, keyHistory);
+    const json = JSON.stringify(payload, null, 2);
+    triggerDownload(new Blob([json], { type: 'application/json' }), `srtlab_keyset_${masterVin}.json`);
+    appendAudit({ source: 'keywriter', op: 'key-history-export-all', vin: masterVin, count: keyHistory.length, ok: true });
+    setKeyDumpNote({ ok: true, msg: `Exported all ${keyHistory.length} key${keyHistory.length === 1 ? '' : 's'} on file for ${masterVin} as one wrapper file.` });
+  }, [vinValid, masterVin, keyHistory]);
+
+  const onImportKeysFile = useCallback(async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-importing the same file
+    if (!file) return;
+    if (!vinValid) {
+      setKeyDumpNote({ ok: false, msg: 'Set a valid 17-char Master VIN first to import a key set onto this vehicle.' });
+      return;
+    }
+    let text;
+    try {
+      text = await file.text();
+    } catch {
+      setKeyDumpNote({ ok: false, msg: 'Could not read the selected file.' });
+      return;
+    }
+    const res = importKeyHistory(masterVin, text);
+    if (!res.ok) { setKeyDumpNote({ ok: false, msg: res.error }); return; }
+    setKeyHistory(res.list);
+    appendAudit({ source: 'keywriter', op: 'key-history-import', vin: masterVin, imported: res.imported, ok: true });
+    setKeyDumpNote({ ok: true, msg: `Imported ${res.imported} key${res.imported === 1 ? '' : 's'} into ${masterVin}. ${res.list.length} now on file.` });
+  }, [vinValid, masterVin]);
+
   return (
     <div data-testid="key-writer-tab">
       {/* Header / disclaimer */}
@@ -785,6 +829,29 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
           <span data-testid="key-history-count"><Tag color={C.tm}>{keyHistory.length} saved</Tag></span>
           <span style={{ flex: 1 }} />
           {keyHistory.length > 0 && (
+            <Btn onClick={onExportAllKeys} color={C.gn} data-testid="key-history-export-all" style={{ fontSize: 11, padding: '3px 10px' }}>
+              ↓ Export all keys
+            </Btn>
+          )}
+          <Btn
+            onClick={() => keyHistoryImportRef.current?.click()}
+            color={C.tm}
+            outline
+            disabled={!vinValid}
+            data-testid="key-history-import"
+            style={{ fontSize: 11, padding: '3px 10px' }}
+          >
+            ↑ Import key set
+          </Btn>
+          <input
+            ref={keyHistoryImportRef}
+            type="file"
+            accept=".json,application/json"
+            onChange={onImportKeysFile}
+            data-testid="key-history-import-input"
+            style={{ display: 'none' }}
+          />
+          {keyHistory.length > 0 && (
             <Btn onClick={onClearHistory} color={C.er} outline data-testid="key-history-clear" style={{ fontSize: 11, padding: '3px 10px' }}>
               Clear all
             </Btn>
@@ -793,7 +860,8 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
         <div style={{ fontSize: 11, color: C.ts, marginBottom: 12, lineHeight: 1.6 }}>
           Every key you save from the Key Dump card above is retained here, keyed by the active Master VIN, so you can
           confirm how many keys exist for this car and which RFHUB slot each maps to before cloning a spare. Re-load any
-          row back into the Key Dump card to re-export or clone on bench.
+          row back into the Key Dump card to re-export or clone on bench. Use <strong>Export all keys</strong> to hand off
+          the whole set as one file, and <strong>Import key set</strong> to fold a wrapper back in (fresh ids, no collisions).
         </div>
 
         {!vinValid && (

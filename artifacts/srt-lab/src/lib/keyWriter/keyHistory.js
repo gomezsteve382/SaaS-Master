@@ -175,3 +175,94 @@ export function clearKeyHistory(vin) {
   if (!writeStore(store)) return { ok: false, error: 'Could not write to local storage.', list: [] };
   return { ok: true, list: [] };
 }
+
+/* ── Whole-key-set wrapper export / import (Task #992) ────────────────────────
+ * The history layer above lets an operator save and re-load keys one at a time.
+ * For handoff, a tech needs to ship a car's *entire* key set as a single file
+ * and re-import it on another bench. This mirrors the "EXPORT ALL" baseline
+ * wrapper pattern (J2534Scanner.jsx): a typed/versioned envelope whose entries
+ * deliberately drop their ids so a re-import mints fresh ones (no collisions),
+ * even when imported into an already-populated history. */
+
+export const KEY_HISTORY_EXPORT_TYPE = 'srtlab.keywriter.keyhistory';
+export const KEY_HISTORY_EXPORT_VERSION = 1;
+
+/* Normalize one stored history row into a portable wrapper entry, stripping the
+ * id so the importer can mint a fresh one. */
+function toWrapperEntry(e) {
+  return {
+    chipId: e?.chipId,
+    uidHex: String(e?.uidHex || ''),
+    skHex: String(e?.skHex || ''),
+    flags: e?.flags ? { ...e.flags } : null,
+    label: String(e?.label || ''),
+    slotIdx: Number.isInteger(e?.slotIdx) ? e.slotIdx : null,
+    capturedAt: Number.isFinite(e?.capturedAt) ? e.capturedAt : null,
+  };
+}
+
+/* Pure builder: bundle a VIN's full key list into one serializable wrapper.
+ * Ids are deliberately omitted from `keys` so re-import never collides. */
+export function buildKeyHistoryExport(vin, list) {
+  const arr = Array.isArray(list) ? list : [];
+  return {
+    type: KEY_HISTORY_EXPORT_TYPE,
+    version: KEY_HISTORY_EXPORT_VERSION,
+    exportedAt: Date.now(),
+    vin: normalizeVin(vin),
+    keys: arr.map(toWrapperEntry),
+  };
+}
+
+/* Pure parser: accept the wrapper object, a JSON string of it, or a bare array
+ * of entries. Returns the list of id-less entries ready to be re-minted.
+ * Throws on malformed JSON, an unrelated wrapper type, or a shape with no keys.
+ */
+export function parseKeyHistoryImport(input) {
+  let parsed = input;
+  if (typeof input === 'string') {
+    try { parsed = JSON.parse(input); } catch { throw new Error('Not valid JSON.'); }
+  }
+  let candidates = [];
+  if (Array.isArray(parsed)) {
+    candidates = parsed;
+  } else if (parsed && Array.isArray(parsed.keys)) {
+    if (parsed.type && parsed.type !== KEY_HISTORY_EXPORT_TYPE) {
+      throw new Error(`Unrecognized export type "${parsed.type}".`);
+    }
+    candidates = parsed.keys;
+  } else {
+    throw new Error('JSON does not look like a key-history export.');
+  }
+  const out = [];
+  for (const c of candidates) {
+    if (!c || !c.chipId) continue;
+    out.push(toWrapperEntry(c));
+  }
+  if (!out.length) throw new Error('No keys found in the key-history export.');
+  return out;
+}
+
+/* localStorage wrapper: import a key-set wrapper into a VIN's history. Each
+ * entry is re-built through makeHistoryEntry (fresh id) and folded in with the
+ * same upsert/dedupe/cap reducer used by single saves, so importing into a
+ * populated history never produces id collisions or duplicate chip+UID rows.
+ * Returns { ok, list?, imported?, error? }. */
+export function importKeyHistory(vin, input) {
+  const v = normalizeVin(vin);
+  if (!v) return { ok: false, error: 'A valid 17-char Master VIN is required to import key history.' };
+  let records;
+  try {
+    records = parseKeyHistoryImport(input);
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+  const store = readStore();
+  let next = Array.isArray(store[v]) ? store[v] : [];
+  for (const r of records) {
+    next = upsertEntry(next, makeHistoryEntry(r));
+  }
+  store[v] = next;
+  if (!writeStore(store)) return { ok: false, error: 'Could not write to local storage.' };
+  return { ok: true, list: next, imported: records.length };
+}
