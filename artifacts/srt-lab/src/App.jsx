@@ -64,6 +64,7 @@ import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
 import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
 import J2534UdsConsoleTab from "./tabs/J2534UdsConsoleTab.jsx";
+import FirmwareEmulationTab from "./tabs/FirmwareEmulationTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
@@ -951,6 +952,7 @@ const WORKSPACE_TABS = [
   {id:'sigdisc',   i:'🛰️', l:'SIGNAL DISC', s:'TUMFTM sweep · record · match'},
   {id:'canuniverse',i:'🌐', l:'CAN UNIVERSE', s:'awesome-canbus + Eclipse SDV catalog'},
   {id:'loganalyser',i:'📜',l:'LOG ANALYSER',s:'candump · UDS · iddiff · catalog growth'},
+  {id:'fwemulation',i:'🧬',l:'FW EMULATION', s:'Unicorn · emulate · keyfn · seed→key'},
 ]
   // Drop the INFO entry — it now lives behind the floating "?" reference
   // panel rather than occupying a sidebar slot. The id remains a valid
@@ -974,7 +976,7 @@ const WORKSPACE_CATEGORIES = {
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
   dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE',
   proxi:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
-  loganalyser:'ANALYZE', workflow:'ANALYZE',
+  loganalyser:'ANALYZE', workflow:'ANALYZE', fwemulation:'ANALYZE',
   // TOOLS — cross-cutting catalogs and coverage dashboards.
   unlockcov:'TOOLS', alfaobd:'TOOLS', alfaintel:'TOOLS', dispatchcov:'TOOLS',
   sigdisc:'TOOLS',
@@ -1266,6 +1268,7 @@ function VehicleWorkspace({vehicleId, onBack}){
         {tab==='sigdisc'   && <SignalDiscoveryTab/>}
         {tab==='canuniverse' && <CanUniverseTab/>}
         {tab==='loganalyser' && <LogAnalyserTab/>}
+        {tab==='fwemulation' && <FirmwareEmulationTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also

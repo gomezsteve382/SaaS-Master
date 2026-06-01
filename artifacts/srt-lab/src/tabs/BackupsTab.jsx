@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { C } from "../lib/constants.js";
 import { Card, Btn } from "../lib/ui.jsx";
 import AnalysisDiffView from "./AnalysisDiffView.jsx";
@@ -29,6 +29,298 @@ import {
 } from "../lib/diffReports.js";
 
 const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, "0");
+
+// ---------------------------------------------------------------------------
+// ChecksumScanPanel — binary firmware checksum scanner + repair
+// Accepts a raw .bin file upload; calls /api/tools/checksum-scan and
+// /api/tools/fix-checksum + /api/tools/eeprom-map from the re-bridge.
+// ---------------------------------------------------------------------------
+function ChecksumScanPanel() {
+  const [open, setOpen] = useState(false);
+  const [file, setFile] = useState(null);
+  const [fileB64, setFileB64] = useState("");
+  const [scanBusy, setScanBusy] = useState(false);
+  const [eepmBusy, setEepmBusy] = useState(false);
+  const [fixBusy, setFixBusy] = useState({});
+  const [scanResult, setScanResult] = useState(null);
+  const [eepmResult, setEepmResult] = useState(null);
+  const [msg, setMsg] = useState("");
+  const fileInputRef = useRef(null);
+
+  const loadFile = useCallback((f) => {
+    if (!f) return;
+    setFile(f);
+    setScanResult(null);
+    setEepmResult(null);
+    setMsg("");
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const buf = new Uint8Array(e.target.result);
+      let b64 = "";
+      const CHUNK = 8192;
+      for (let i = 0; i < buf.length; i += CHUNK) {
+        b64 += String.fromCharCode(...buf.slice(i, i + CHUNK));
+      }
+      setFileB64(btoa(b64));
+      setMsg(`Loaded ${f.name} — ${buf.length.toLocaleString()} bytes`);
+    };
+    reader.readAsArrayBuffer(f);
+  }, []);
+
+  const handleScan = useCallback(async () => {
+    if (!fileB64) return;
+    setScanBusy(true);
+    setScanResult(null);
+    setMsg("Scanning…");
+    try {
+      const r = await fetch("/api/tools/checksum-scan", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileB64 }),
+      });
+      const j = await r.json();
+      setScanResult(j);
+      setMsg(j.ok ? `Found ${j.found ?? 0} checksum(s)` : ("Error: " + (j.error ?? "unknown")));
+    } catch (e) {
+      setMsg("Request failed: " + e.message);
+    }
+    setScanBusy(false);
+  }, [fileB64]);
+
+  const handleEepmap = useCallback(async () => {
+    if (!fileB64) return;
+    setEepmBusy(true);
+    setEepmResult(null);
+    setMsg("Mapping EEPROM…");
+    try {
+      const r = await fetch("/api/tools/eeprom-map", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileB64 }),
+      });
+      const j = await r.json();
+      setEepmResult(j);
+      setMsg(j.ok ? `Found ${j.vin_candidates?.length ?? 0} VIN candidate(s), ${j.mirrored_blocks?.length ?? 0} mirror(s)` : ("Error: " + (j.error ?? "unknown")));
+    } catch (e) {
+      setMsg("Request failed: " + e.message);
+    }
+    setEepmBusy(false);
+  }, [fileB64]);
+
+  const handleFix = useCallback(async (offset, algorithm) => {
+    if (!fileB64) return;
+    const key = `${offset}:${algorithm}`;
+    setFixBusy(b => ({ ...b, [key]: true }));
+    setMsg(`Repairing ${algorithm} at ${offset}…`);
+    try {
+      const r = await fetch("/api/tools/fix-checksum", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileB64, offset, algorithm }),
+      });
+      const j = await r.json();
+      if (j.ok && j.patchedB64) {
+        const bin = Uint8Array.from(atob(j.patchedB64), c => c.charCodeAt(0));
+        const blob = new Blob([bin], { type: "application/octet-stream" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = (file?.name ?? "patched").replace(/\.bin$/i, "") + "_repaired.bin";
+        a.click();
+        setMsg(`Repaired ${algorithm} at ${offset} — downloaded ${j.patchedSize?.toLocaleString()} bytes`);
+      } else {
+        setMsg("Repair failed: " + (j.error ?? "unknown"));
+      }
+    } catch (e) {
+      setMsg("Request failed: " + e.message);
+    }
+    setFixBusy(b => { const n = { ...b }; delete n[key]; return n; });
+  }, [fileB64, file]);
+
+  const panelBorder = "1px solid " + C.bd;
+
+  return (
+    <div style={{ marginTop: 20, marginBottom: 8 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: "100%", textAlign: "left", padding: "10px 16px",
+          background: "#F4F1EC", border: panelBorder, borderRadius: open ? "8px 8px 0 0" : 8,
+          cursor: "pointer", display: "flex", alignItems: "center", gap: 10, userSelect: "none",
+        }}
+      >
+        <span style={{ fontFamily: "'Righteous'", fontSize: 13, letterSpacing: 1, color: C.a1 }}>
+          BINARY CHECKSUM SCAN
+        </span>
+        <span style={{ fontSize: 11, color: C.ts, flex: 1 }}>
+          Find + repair stored checksums in raw module dump files
+        </span>
+        <span style={{ fontSize: 11, color: C.ts }}>{open ? "▲" : "▼"}</span>
+      </button>
+
+      {open && (
+        <div style={{
+          border: panelBorder, borderTop: "none", borderRadius: "0 0 8px 8px",
+          background: "#FAFAF8", padding: 16,
+        }}>
+          <div style={{ fontSize: 11, color: C.ts, marginBottom: 12, lineHeight: 1.6 }}>
+            Upload a raw <b>.bin</b> module dump. The scanner tries CRC-32, CRC-16/CCITT, sum16, sum32, sum8, xor32
+            at sampled positions to locate stored checksums that validate their own prefix.
+            Click <b>Repair</b> on any broken checksum to download a corrected binary.
+          </div>
+
+          {/* File picker */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              style={{
+                fontSize: 11, fontWeight: 800, padding: "6px 14px", borderRadius: 6,
+                border: "1px solid " + C.a1, background: "#fff", color: C.a1, cursor: "pointer",
+              }}
+            >
+              Choose .bin
+            </button>
+            <input ref={fileInputRef} type="file" accept=".bin,.hex,.srec,.rom"
+              style={{ display: "none" }} onChange={e => loadFile(e.target.files?.[0])} />
+            {file && (
+              <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono'", color: C.ts }}>
+                {file.name} ({(file.size / 1024).toFixed(1)} KB)
+              </span>
+            )}
+          </div>
+
+          {/* Action buttons */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+            <Btn onClick={handleScan} disabled={!fileB64 || scanBusy} color={C.a1}>
+              {scanBusy ? "⏳ Scanning…" : "Scan Checksums"}
+            </Btn>
+            <Btn onClick={handleEepmap} disabled={!fileB64 || eepmBusy} color={C.a2} outline>
+              {eepmBusy ? "⏳ Mapping…" : "EEPROM Map"}
+            </Btn>
+          </div>
+
+          {/* Status message */}
+          {msg && (
+            <div style={{ fontSize: 11, color: C.ts, marginBottom: 12, fontFamily: "'JetBrains Mono'" }}>
+              {msg}
+            </div>
+          )}
+
+          {/* Scan results */}
+          {scanResult?.ok && (
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, color: C.ts, marginBottom: 6 }}>
+                CHECKSUM SCAN RESULTS — {file?.name} — {scanResult.whole_file?.size?.toLocaleString()} bytes
+              </div>
+              {/* Whole-file stats */}
+              <div style={{
+                fontSize: 10, fontFamily: "'JetBrains Mono'", color: C.ts,
+                background: "#F4F1EC", borderRadius: 4, padding: "6px 10px", marginBottom: 8,
+                display: "flex", gap: 16, flexWrap: "wrap",
+              }}>
+                {Object.entries(scanResult.whole_file ?? {}).filter(([k]) => k !== "size").map(([k, v]) => (
+                  <span key={k}><b style={{ color: "#333" }}>{k}:</b> {String(v)}</span>
+                ))}
+              </div>
+              {scanResult.checksums?.length > 0 ? (
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
+                  <thead>
+                    <tr style={{ background: "#F4F1EC" }}>
+                      {["Offset", "Algorithm", "Stored", "Computed", "Covers", "Status", ""].map(h => (
+                        <th key={h} style={{ padding: "5px 10px", textAlign: "left", fontSize: 10,
+                          fontWeight: 800, letterSpacing: 1, color: C.ts, borderBottom: "1px solid " + C.bd }}>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scanResult.checksums.map((ck, i) => {
+                      const isValid = ck.status === "valid";
+                      const fixKey = `${ck.offset}:${ck.algorithm}`;
+                      return (
+                        <tr key={i} style={{ background: i % 2 === 0 ? "#fff" : "#FAFAF8" }}>
+                          <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.offset}</td>
+                          <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.algorithm}</td>
+                          <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.stored}</td>
+                          <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10 }}>{ck.computed}</td>
+                          <td style={{ padding: "5px 10px", fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.ts }}>{ck.covers}</td>
+                          <td style={{ padding: "5px 10px" }}>
+                            <span style={{
+                              fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 3,
+                              background: isValid ? "#e6f9ed" : "#FFE6E6",
+                              color: isValid ? "#1E6F3A" : "#C00",
+                              border: `1px solid ${isValid ? "#1E6F3A44" : "#C0000044"}`,
+                            }}>
+                              {isValid ? "✓ VALID" : "✗ BROKEN"}
+                            </span>
+                          </td>
+                          <td style={{ padding: "5px 10px" }}>
+                            {!isValid && (
+                              <button
+                                disabled={!!fixBusy[fixKey]}
+                                onClick={() => handleFix(ck.offset, ck.algorithm)}
+                                style={{
+                                  fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 4,
+                                  border: "1px solid " + C.a1, background: "#fff", color: C.a1,
+                                  cursor: fixBusy[fixKey] ? "not-allowed" : "pointer",
+                                }}
+                              >
+                                {fixBusy[fixKey] ? "…" : "Repair"}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              ) : (
+                <div style={{ fontSize: 11, color: C.ts, padding: "10px 0" }}>
+                  No self-validating checksums found at sampled offsets.
+                  The stored checksum may cover a non-prefix region, or use a non-standard algorithm.
+                </div>
+              )}
+              {scanResult.note && (
+                <div style={{ fontSize: 10, color: C.ts, marginTop: 8, lineHeight: 1.5 }}>{scanResult.note}</div>
+              )}
+            </div>
+          )}
+
+          {/* EEPROM map results */}
+          {eepmResult?.ok && (
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, color: C.ts, marginBottom: 8 }}>
+                EEPROM MAP — {eepmResult.vin_candidates?.length ?? 0} VIN(s) · {eepmResult.strings?.length ?? 0} string(s) · {eepmResult.mirrored_blocks?.length ?? 0} mirror(s)
+              </div>
+              {eepmResult.vin_candidates?.length > 0 && (
+                <div style={{ marginBottom: 10 }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>VIN CANDIDATES</div>
+                  {eepmResult.vin_candidates.map((v, i) => (
+                    <div key={i} style={{ fontSize: 11, fontFamily: "'JetBrains Mono'", marginBottom: 2 }}>
+                      <span style={{ color: C.ts, marginRight: 10 }}>{v.offset}</span>
+                      <span style={{ color: C.a1, fontWeight: 700 }}>{v.vin}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {eepmResult.mirrored_blocks?.length > 0 && (
+                <div style={{ marginBottom: 10 }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>MIRRORED 16-BYTE BLOCKS (SEC16 redundancy candidates)</div>
+                  {eepmResult.mirrored_blocks.map((m, i) => (
+                    <div key={i} style={{ fontSize: 10, fontFamily: "'JetBrains Mono'", marginBottom: 2, color: C.ts }}>
+                      {m.first_offset} ↔ {m.mirror_offset} (gap {m.gap})
+                      <span style={{ color: C.a2, marginLeft: 8 }}>{m.hex}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {eepmResult.note && (
+                <div style={{ fontSize: 10, color: C.ts, lineHeight: 1.5 }}>{eepmResult.note}</div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function BackupsTab() {
   const [backups, setBackups] = useState(getBackupList());
@@ -1446,6 +1738,8 @@ export default function BackupsTab() {
           )}
         </div>
       )}
+
+      <ChecksumScanPanel />
 
       {diffView && (
         <div
