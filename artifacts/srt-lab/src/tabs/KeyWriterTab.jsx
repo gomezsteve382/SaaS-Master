@@ -13,8 +13,9 @@
  * RfhubTab — see docs/key-writer-bridge.md for the full handoff.
  * ========================================================================== */
 
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { C } from '../lib/constants.js';
+import { MasterVinContext } from '../lib/masterVinContext.jsx';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
 import { parseKeySlots, KEY_ID_BLOCK_LEN, writeKeyRecordToSlot, firstFreeSlot } from '../lib/rfhubKeySlots.js';
 import { CHIP_FAMILIES, chipForRfhubGen, chipFamily } from '../lib/keyWriter/chipFamilies.js';
@@ -41,6 +42,12 @@ import {
   buildKeyDumpBin,
   keyDumpBaseName,
 } from '../lib/keyWriter/autelExport.js';
+import {
+  loadKeyHistory,
+  saveKeyToHistory,
+  removeKeyFromHistory,
+  clearKeyHistory,
+} from '../lib/keyWriter/keyHistory.js';
 import KeyDumpPanel from './KeyDumpPanel.jsx';
 
 const WRITERS = [
@@ -149,6 +156,16 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
   const [cloneSlotIdx, setCloneSlotIdx] = useState(null); // target free slot for write-to-RFHUB
   const [cloneResult, setCloneResult] = useState(null);
   const [keyDumpNote, setKeyDumpNote] = useState(null);   // transient prefill/export status
+
+  /* ── Per-vehicle key history (Task #986) ──────────────────────────────────
+   * Captured keys persist (localStorage) keyed by the active Master VIN so a
+   * locksmith can see every key on file for a car at a glance and re-load any
+   * of them back into the Key Dump card for re-export / clone-on-bench. */
+  const { vin: masterVin, vinValid } = useContext(MasterVinContext);
+  const [keyHistory, setKeyHistory] = useState([]);
+  useEffect(() => {
+    setKeyHistory(loadKeyHistory(masterVin));
+  }, [masterVin]);
 
   const onLoadRfh = useCallback(async (e) => {
     const f = e.target.files?.[0];
@@ -468,6 +485,68 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
     [parsed],
   );
 
+  /* ── Per-vehicle key history actions (Task #986) ──────────────────────── */
+
+  /* Save the active captured key under the Master VIN. Requires a valid VIN
+   * and a record that passes the same refuse-on-doubt validation the exports
+   * use. The associated RFHUB slot (if one is picked) is recorded so the list
+   * can show which slot each key maps to. */
+  const onSaveToHistory = useCallback(() => {
+    if (!vinValid) {
+      setKeyDumpNote({ ok: false, msg: 'Set a valid 17-char Master VIN first (top of the workspace) to save this key to the vehicle history.' });
+      return;
+    }
+    const v = validateKeyRecord(activeRecord);
+    if (!v.ok) { setKeyDumpNote({ ok: false, msg: v.error }); return; }
+    const res = saveKeyToHistory(masterVin, {
+      chipId: activeRecord.chipId,
+      uidHex: activeRecord.uidHex,
+      skHex: activeRecord.skHex,
+      flags: activeRecord.flags,
+      label: activeRecord.label,
+      slotIdx: slot ? slot.idx : (cloneSlotIdx != null ? cloneSlotIdx : null),
+    });
+    if (!res.ok) { setKeyDumpNote({ ok: false, msg: res.error }); return; }
+    setKeyHistory(res.list);
+    appendAudit({
+      source: 'keywriter',
+      op: 'key-history-save',
+      vin: masterVin,
+      chipId: activeRecord.chipId,
+      slotIdx: res.entry.slotIdx,
+      ok: true,
+    });
+    setKeyDumpNote({ ok: true, msg: `Saved to vehicle history for ${masterVin}. ${res.list.length} key${res.list.length === 1 ? '' : 's'} on file.` });
+  }, [vinValid, activeRecord, masterVin, slot, cloneSlotIdx]);
+
+  /* Re-load a saved key back into the Key Dump card as a fresh, editable
+   * record so the operator can re-export it or send it to clone-on-bench. */
+  const onLoadFromHistory = useCallback((entry) => {
+    if (!entry) return;
+    const rec = makeKeyRecord({
+      chipId: entry.chipId,
+      uidHex: entry.uidHex,
+      skHex: entry.skHex,
+      flags: entry.flags,
+      label: entry.label,
+    });
+    setKeyRecords((rs) => [...rs, rec]);
+    setActiveKeyId(rec.id);
+    setCloneResult(null);
+    setKeyDumpNote({ ok: true, msg: `Loaded "${entry.label || 'saved key'}" from history into the Key Dump card. Edit, re-export, or clone on bench.` });
+  }, []);
+
+  const onRemoveFromHistory = useCallback((id) => {
+    const res = removeKeyFromHistory(masterVin, id);
+    setKeyHistory(res.list);
+  }, [masterVin]);
+
+  const onClearHistory = useCallback(() => {
+    const res = clearKeyHistory(masterVin);
+    setKeyHistory(res.list);
+    setKeyDumpNote({ ok: true, msg: `Cleared all saved keys for ${masterVin}.` });
+  }, [masterVin]);
+
   return (
     <div data-testid="key-writer-tab">
       {/* Header / disclaimer */}
@@ -630,6 +709,9 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
           <Btn onClick={onPrefillFromSlot} color={C.tm} outline disabled={!slot?.idBytes} data-testid="key-dump-prefill">
             ⇇ Prefill UID from picked slot
           </Btn>
+          <Btn onClick={onSaveToHistory} color={C.a3} disabled={!keyValidation.ok} data-testid="key-dump-save-history">
+            💾 Save to vehicle history
+          </Btn>
         </div>
 
         {keyDumpNote && (
@@ -692,6 +774,85 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
             </div>
           )}
         </div>
+      </Card>
+
+      {/* ── Keys on file for this VIN (Task #986) ── */}
+      <Card style={{ marginBottom: 16 }} data-testid="key-history-card">
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontWeight: 900, fontSize: 14, color: C.tx }}>Keys on file for this vehicle</span>
+          {vinValid
+            ? <Tag color={C.a3}>{masterVin}</Tag>
+            : <Tag color={C.wn}>no Master VIN</Tag>}
+          <span data-testid="key-history-count"><Tag color={C.tm}>{keyHistory.length} saved</Tag></span>
+          <span style={{ flex: 1 }} />
+          {keyHistory.length > 0 && (
+            <Btn onClick={onClearHistory} color={C.er} outline data-testid="key-history-clear" style={{ fontSize: 11, padding: '3px 10px' }}>
+              Clear all
+            </Btn>
+          )}
+        </div>
+        <div style={{ fontSize: 11, color: C.ts, marginBottom: 12, lineHeight: 1.6 }}>
+          Every key you save from the Key Dump card above is retained here, keyed by the active Master VIN, so you can
+          confirm how many keys exist for this car and which RFHUB slot each maps to before cloning a spare. Re-load any
+          row back into the Key Dump card to re-export or clone on bench.
+        </div>
+
+        {!vinValid && (
+          <div style={{ fontSize: 12, color: C.wn, fontWeight: 700 }} data-testid="key-history-novin">
+            Set a valid 17-char Master VIN at the top of the workspace to view and save this vehicle's key history.
+          </div>
+        )}
+
+        {vinValid && keyHistory.length === 0 && (
+          <div style={{ fontSize: 12, color: C.ts }} data-testid="key-history-empty">
+            No keys saved yet for {masterVin}. Capture a read above and press “💾 Save to vehicle history”.
+          </div>
+        )}
+
+        {vinValid && keyHistory.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }} data-testid="key-history-list">
+            {keyHistory.map((entry) => {
+              const def = chipFamily(entry.chipId);
+              const uidShow = (entry.uidHex || '').trim() || '—';
+              return (
+                <div
+                  key={entry.id}
+                  data-testid="key-history-row"
+                  style={{
+                    display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
+                    padding: '8px 10px', border: `1px solid ${C.bd}`, borderRadius: 8, background: C.bg,
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontWeight: 800, fontSize: 12, color: C.tx }}>
+                      {entry.label?.trim() ? entry.label : '(unlabeled key)'}
+                    </div>
+                    <div style={{ fontSize: 11, color: C.ts, marginTop: 2 }}>
+                      <span style={{ color: C.tm, fontWeight: 700 }}>{def?.label || entry.chipId}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: C.ts, marginTop: 2, fontFamily: 'JetBrains Mono', wordBreak: 'break-all' }}>
+                      UID {uidShow}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 11, color: C.ts, textAlign: 'right', minWidth: 120 }}>
+                    <div>Slot {entry.slotIdx != null ? entry.slotIdx + 1 : '—'}</div>
+                    <div style={{ marginTop: 2 }} title={new Date(entry.capturedAt).toLocaleString()}>
+                      {new Date(entry.capturedAt).toLocaleString()}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <Btn onClick={() => onLoadFromHistory(entry)} color={C.tm} outline data-testid="key-history-load" style={{ fontSize: 11, padding: '3px 10px' }}>
+                      ⤓ Load
+                    </Btn>
+                    <Btn onClick={() => onRemoveFromHistory(entry.id)} color={C.er} outline data-testid="key-history-remove" style={{ fontSize: 11, padding: '3px 10px' }}>
+                      ✕
+                    </Btn>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </Card>
 
       {/* RFHUB loader */}

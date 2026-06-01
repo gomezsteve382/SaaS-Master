@@ -38,5 +38,12 @@ The Key Dump capture/clone/export surface stores a transponder's own **SK** secr
 
 **How to apply:** Any extension of `keyRecord.js` / `autelExport.js` Key Dump path keeps SK and SEC16 in separate slots. `writeKeyRecordToSlot` (rfhubKeySlots.js) clones a UID into a free RFHUB slot for the "second blank key, same car" case; it never touches SEC16.
 
+## Per-vehicle key history is localStorage-only, scoped by Master VIN
+The "Keys on file for this vehicle" list (`keyWriter/keyHistory.js`) persists captured Key Dump records in localStorage keyed by the active MasterVin (cap 50/VIN), de-duped by chipId+UID. It is the inline Key Dump card's history — NOT KeyDumpPanel.jsx (separate parallel impl).
+
+**Why:** Operators work several keys per car and need an at-a-glance count + slot map before cloning. Storage is per-browser only; there is no server backing yet (follow-up tasks cover cross-device sync + bulk export/import).
+
+**How to apply:** Reducers (`upsertEntry`/`removeEntryById`) are pure for unit tests; storage wrappers must return the post-upsert stored row (id is preserved on dedupe, so re-read from the resulting list rather than the pre-dedupe entry). The shared `Tag` component does NOT forward `data-testid` — wrap it in a span when a testid is needed.
+
 ## Protocol framing is unverified
 `protocol.js` 5A A5 framing matches public USB-CDC captures of VVDI Mini but has not been bench-verified in this repo. The Burn tab puts an orange disclaimer banner on this and defaults to Simulator. Treat the first live burn as field-verification, not production.
