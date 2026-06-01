@@ -35,7 +35,7 @@ import BackupsTab from "./tabs/BackupsTab";
 import SampleLibraryTab from "./tabs/SampleLibraryTab.jsx";
 import AlfaObdTablesTab from "./tabs/AlfaObdTablesTab.jsx";
 import LiveKeyTab from "./tabs/LiveKeyTab.jsx";
-import { writeBcmSec16Gen2, writePcmSec6 } from "./lib/securityBytes.js";
+import { writePcmSec6, writeRfhSec16FromBcm } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
 import KeyProgTab from "./tabs/KeyProgTab";
 import KeyManagerTab from "./tabs/KeyManagerTab";
@@ -788,10 +788,11 @@ function engWriteBcmVin(bytes,newVin){if(!VIN_REGEX.test(newVin))throw new Error
   return{bytes:out,fullPatched,shortPatched,fullCrc,tailCrc};
 }
 
-/* engWriteBcmSec16Gen2 / engWritePcmSec6 — extracted to lib/securityBytes.js
- * (single source of truth, golden-vector regression test in
- * lib/__tests__/securityBytes.golden.test.js). */
-const engWriteBcmSec16Gen2 = writeBcmSec16Gen2;
+/* engWritePcmSec6 / writeRfhSec16FromBcm — single source of truth in
+ * lib/securityBytes.js (golden-vector regression test in
+ * lib/__tests__/securityBytes.golden.test.js). The BCM SEC16 writer is no
+ * longer aliased here: SYNC ALL MODULES treats the BCM as the source of
+ * truth and never overwrites the BCM secret. */
 
 function engWriteRfhVin(bytes,newVin,virginize){if(!VIN_REGEX.test(newVin))throw new Error('Invalid VIN: '+newVin);const out=new Uint8Array(bytes);const fwd=new TextEncoder().encode(newVin);const rev=new Uint8Array(17);for(let i=0;i<17;i++)rev[i]=fwd[16-i];let sum=0;for(const b of rev)sum=(sum+b)&0xFF;const chk=(0xF9-sum)&0xFF;let patched=0;
   for(const off of RFH_VIN_OFFSETS){if(off+18>out.length)continue;for(let k=0;k<17;k++)out[off+k]=rev[k];out[off+17]=chk;patched++;}
@@ -805,6 +806,7 @@ const engWritePcmSec6 = writePcmSec6;
 function engWritePcmVin(bytes,newVin){if(!VIN_REGEX.test(newVin))throw new Error('Invalid VIN: '+newVin);const out=new Uint8Array(bytes);const vb=new TextEncoder().encode(newVin);let patched=0;for(const off of PCM_VIN_OFFSETS_GPEC2A){if(off+17>out.length)continue;for(let k=0;k<17;k++)out[off+k]=vb[k];patched++;}return{bytes:out,patched};}
 
 const hexStr=(arr)=>[...arr].map(b=>b.toString(16).padStart(2,'0')).join('');
+const u8FromHex=(h)=>{const s=(h||'').replace(/[^0-9a-fA-F]/g,'');const n=s.length>>1;const a=new Uint8Array(n);for(let i=0;i<n;i++)a[i]=parseInt(s.substr(i*2,2),16);return a;};
 
 /* ═══ DESIGN TOKENS v2 (extends existing C palette) ═══ */
 const C2 = {
@@ -1466,19 +1468,25 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       currentBcm = vinRes.bytes;
       log.push(`BCM VIN: ${vinRes.fullPatched} full slots, ${vinRes.shortPatched} short-VIN records patched (CRC 0x${vinRes.fullCrc.toString(16).toUpperCase()} / 0x${vinRes.tailCrc.toString(16).toUpperCase()})`);
 
-      // SEC16 write — Gen2 only, requires RFH present
-      const pns = analyzeDumpPartNumber(bcm.data);
-      const genRow = pns.primaryPn ? generationForPartNumber(vehicle.id, pns.primaryPn, pns.vinModelYearChar) : null;
-      const isGen2 = genRow?.sec16 === 'gen2-split';
-      if(isGen2 && rfh){
-        const rfhP = engParseRfh(rfh.data);
-        if(rfhP.format==='gen2' && rfhP.sec16 && !rfhP.sec16.virgin){
-          const sec16Res = engWriteBcmSec16Gen2(currentBcm, rfhP.sec16.slot1);
-          currentBcm = sec16Res.bytes;
-          log.push(`BCM SEC16 split records: ${sec16Res.splitPatched}/3 · mirrors: ${sec16Res.mirrorPatched}/2${sec16Res.mirror2Offset===null?' (mirror 2 slot not found — may need donor-bank restore)':''}`);
-        } else {
-          log.push(`BCM SEC16: skipped (RFH SEC16 virgin or wrong format)`);
-        }
+      // ── Security pairing — BCM is the SOURCE OF TRUTH ──
+      // The BCM holds the canonical vehicle immobilizer secret (SEC16). SYNC
+      // rewrites the RFH SEC16 and PCM SEC6 to MATCH the BCM; the BCM secret
+      // itself is NEVER overwritten. This mirrors the verified
+      // keyProgWizard.runKeyProgPatch / securityBytes.js contract:
+      //   RFH SEC16 = reverse(BCM SEC16)   ·   PCM SEC6 = reverse(BCM SEC16)[0:6]
+      const bcmParsed = engParseBcm(bcm.data);
+      const bcmSec16Hex = bcmParsed.sec16Hex || null;
+      const bcmSec16Bytes = bcmSec16Hex ? u8FromHex(bcmSec16Hex) : null;
+      const bcmSecReal = !!(bcmSec16Bytes && bcmSec16Bytes.length === 16
+        && !bcmSec16Bytes.every(b => b === 0xFF) && !bcmSec16Bytes.every(b => b === 0x00));
+      // reverse(BCM) is the RFH-form secret shared by RFH SEC16 and PCM SEC6.
+      let rfhFormSecret = null;
+      if (bcmSecReal) {
+        rfhFormSecret = new Uint8Array(16);
+        for (let i = 0; i < 16; i++) rfhFormSecret[i] = bcmSec16Bytes[15 - i];
+        log.push(`BCM SEC16 (source of truth, kept intact): ${bcmSec16Hex}`);
+      } else {
+        log.push('BCM SEC16: no real secret found (virgin / older family) — RFH+PCM security sync skipped, VIN-only');
       }
 
       // Download BCM
@@ -1487,14 +1495,29 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       const a1 = document.createElement('a'); a1.href=bcmUrl; a1.download=`${vehicle.id.toUpperCase()}_BCM_SYNCED_${tv}_${Date.now()}.bin`; a1.click();
       URL.revokeObjectURL(bcmUrl);
       
-      // RFH write (VIN only by default; no virginize)
+      // RFH write (VIN + SEC16 rewritten from BCM when both sides are Gen2)
       if(rfh){
         const rfhRes = engWriteRfhVin(rfh.data, tv, false);
-        const rfhBlob = new Blob([rfhRes.bytes],{type:'application/octet-stream'});
+        let currentRfh = rfhRes.bytes;
+        log.push(`RFH VIN: ${rfhRes.patched} slots patched`);
+        if (bcmSecReal) {
+          const rfhP = engParseRfh(currentRfh);
+          if (rfhP.format === 'gen2') {
+            try {
+              const rfhSecRes = writeRfhSec16FromBcm(currentRfh, bcmSec16Bytes);
+              currentRfh = rfhSecRes.bytes;
+              log.push(`RFH SEC16 \u2190 reverse(BCM): ${rfhSecRes.patched}/2 slots = ${rfhSecRes.rfhSec16Hex}`);
+            } catch(e) {
+              log.push(`RFH SEC16: skipped (${e.message})`);
+            }
+          } else {
+            log.push(`RFH SEC16: skipped (RFH is ${rfhP.format} \u2014 Gen2 SEC16 writer only; VIN-only for this RFH)`);
+          }
+        }
+        const rfhBlob = new Blob([currentRfh],{type:'application/octet-stream'});
         const rfhUrl = URL.createObjectURL(rfhBlob);
         const a2 = document.createElement('a'); a2.href=rfhUrl; a2.download=`${vehicle.id.toUpperCase()}_RFH_SYNCED_${tv}_${Date.now()}.bin`; a2.click();
         URL.revokeObjectURL(rfhUrl);
-        log.push(`RFH VIN: ${rfhRes.patched} slots patched`);
       }
 
       // PCM write (VIN + SEC6 if RFH available)
@@ -1507,17 +1530,14 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
          * A virgin GPEC2A PCM (no AA marker, all-FF SEC6) would otherwise
          * report 0 patches and still get shipped as "synced" to the tech. */
         let pcmSec6Ok = true;
-        if(rfh){
-          const rfhP = engParseRfh(rfh.data);
-          if(rfhP.format==='gen2' && rfhP.sec16){
-            const sec6Res = engWritePcmSec6(currentPcm, rfhP.sec16.slot1);
-            if(sec6Res.ok){
-              currentPcm = sec6Res.bytes;
-              log.push(`PCM SEC6: ${sec6Res.patched} location(s) patched (first 6 of RFH SEC16: ${sec6Res.sec6Hex})`);
-            } else {
-              pcmSec6Ok = false;
-              log.push(`PCM SEC6 SYNC FAILED: no writable site (size=${currentPcm.length} B). PCM NOT downloaded — re-dump at 4 KB / 8 KB.`);
-            }
+        if(bcmSecReal && rfhFormSecret){
+          const sec6Res = engWritePcmSec6(currentPcm, rfhFormSecret);
+          if(sec6Res.ok){
+            currentPcm = sec6Res.bytes;
+            log.push(`PCM SEC6 \u2190 reverse(BCM)[0:6]: ${sec6Res.patched} location(s) patched (${sec6Res.sec6Hex})`);
+          } else {
+            pcmSec6Ok = false;
+            log.push(`PCM SEC6 SYNC FAILED: no writable site (size=${currentPcm.length} B). PCM NOT downloaded — re-dump at 4 KB / 8 KB.`);
           }
         }
         if(pcmSec6Ok){
@@ -1762,17 +1782,36 @@ function ModuleSummary({vehicle, bcm, rfh, pcm, targetVin}){
   const rfhEng = useMemo(()=>rfh?engParseRfh(rfh.data):null,[rfh]);
   const pcmEng = useMemo(()=>pcm?engParsePcm(pcm.data):null,[pcm]);
 
-  /* Compute expected values after sync */
-  const expectedBcmSec16 = rfhEng && rfhEng.sec16 ? hexStr([...rfhEng.sec16.slot1].reverse()) : null;
-  const expectedPcmSec6 = rfhEng && rfhEng.sec16 ? hexStr(rfhEng.sec16.slot1.slice(0,6)) : null;
-  const bcmPaired = bcmEng && bcmEng.sec16Hex && expectedBcmSec16 && bcmEng.sec16Hex === expectedBcmSec16;
+  /* Compute expected values after sync.
+   * BCM is the SOURCE OF TRUTH. The keyProgWizard write path derives the
+   * shared secret straight from the BCM (deriveSharedSecretBE = reverse(BCM
+   * SEC16)), then writes RFH SEC16 = reverse(BCM) and PCM SEC6 =
+   * reverse(BCM)[0:6]. This preview is aligned to that exact contract.
+   * The previous code wrongly treated the RFH as the source of truth and
+   * reversed the 18-byte Gen1 RFH slot1 (which carries a 2-byte trailer),
+   * so the "expected BCM" value could never match a real 16-byte BCM. */
+  const revHex = (h) => (h && h.length % 2 === 0) ? ((h.toLowerCase().match(/../g)) || []).reverse().join('') : null;
+  const bcmSec16Hex = bcmEng && bcmEng.sec16Hex ? bcmEng.sec16Hex.toLowerCase() : null;
+  /* Mirror runFullSync's `bcmSecReal` gate exactly: a virgin / blank SEC16
+   * (16 bytes all-FF or all-00) is NOT a usable source of truth, so the
+   * security sync is skipped (VIN-only) and the preview must not promise a
+   * pairing fix that the write path will never perform. */
+  const bcmSecReal = !!(bcmSec16Hex && bcmSec16Hex.length === 32
+    && bcmSec16Hex !== 'ff'.repeat(16) && bcmSec16Hex !== '00'.repeat(16));
+  const bcmCanonSec16 = bcmSecReal ? bcmSec16Hex : null; // source of truth (real 16 B secret only)
+  const expectedRfhSec16 = revHex(bcmCanonSec16);                                   // reverse(BCM)
+  const expectedPcmSec6 = expectedRfhSec16 ? expectedRfhSec16.slice(0, 12) : null;  // first 6 bytes of reverse(BCM)
+  /* The RFH SEC16 core is 16 bytes; the Gen1 slot1 (18 B) carries a 2-byte
+   * trailer, so compare only the first 16 bytes against expected reverse(BCM). */
+  const rfhCurrentCore = rfhEng && rfhEng.sec16 ? hexStr([...rfhEng.sec16.slot1].slice(0, 16)).toLowerCase() : null;
+  const rfhPaired = !!(rfhCurrentCore && expectedRfhSec16 && rfhCurrentCore === expectedRfhSec16);
   /* Task #404 — PCM pairing requires BOTH the canonical FF FF FF AA marker
    * @ 0x3C4 AND the 6 secret bytes @ 0x3C8 to match. Pre-#404 the summary
    * compared only the 6 bytes, so a PCM with the correct secret but a
    * missing marker (the user-reported regression) was shown as "PCM PAIRED"
    * even though external locksmith tools still flagged it as IMMO_DAMAGED. */
-  const pcmPaired = pcmEng && pcmEng.sec6 && pcmEng.sec6.markerOk
-                 && expectedPcmSec6 && hexStr(pcmEng.sec6.bytes) === expectedPcmSec6;
+  const pcmPaired = !!(pcmEng && pcmEng.sec6 && pcmEng.sec6.markerOk
+                 && expectedPcmSec6 && hexStr(pcmEng.sec6.bytes).toLowerCase() === expectedPcmSec6);
 
   return <div>
     <div style={{fontSize:11,fontWeight:800,color:C.ts,letterSpacing:2,marginBottom:12}}>DETECTED</div>
@@ -1809,8 +1848,8 @@ function ModuleSummary({vehicle, bcm, rfh, pcm, targetVin}){
 
     </div>
 
-    {/* Security Sync section — the pairing chain */}
-    {rfhEng && rfhEng.sec16 && (bcmEng || pcmEng) && <div style={{marginTop:16,padding:'14px 16px',borderRadius:12,background:`linear-gradient(135deg, ${vehicle.accent}0A 0%, ${vehicle.accent}14 100%)`,border:'1px solid '+vehicle.accent+'44'}}>
+    {/* Security Sync section — the pairing chain (BCM is the source of truth) */}
+    {(bcmEng || rfhEng || pcmEng) && <div style={{marginTop:16,padding:'14px 16px',borderRadius:12,background:`linear-gradient(135deg, ${vehicle.accent}0A 0%, ${vehicle.accent}14 100%)`,border:'1px solid '+vehicle.accent+'44'}}>
       <div style={{fontSize:11,fontWeight:900,color:vehicle.accent,letterSpacing:2,marginBottom:10,display:'flex',alignItems:'center',gap:8}}>
         🔐 SECURITY SYNC · PAIRING CHAIN
       </div>
@@ -1820,28 +1859,41 @@ function ModuleSummary({vehicle, bcm, rfh, pcm, targetVin}){
         BCM SEC16 <span style={{color:vehicle.accent}}>⇄ reverse ⇄</span> RFH SEC16 <span style={{color:vehicle.accent}}>→ first 6 →</span> PCM SEC6
       </div>
 
-      {/* Source of truth: RFH SEC16 */}
-      <div style={{padding:'8px 12px',borderRadius:8,background:C.c2,border:'1px solid '+C.bd,marginBottom:8}}>
-        <div style={{fontSize:9,fontWeight:800,color:C.a3,letterSpacing:1.5,marginBottom:2}}>SOURCE OF TRUTH · RFH SEC16</div>
-        <div style={{fontFamily:'JetBrains Mono',fontSize:11,color:C.tx,fontWeight:700}}>{hexStr(rfhEng.sec16.slot1)}</div>
-      </div>
+      {/* Source of truth: BCM SEC16 */}
+      {bcmCanonSec16 && <div style={{padding:'8px 12px',borderRadius:8,background:C.c2,border:'1px solid '+C.bd,marginBottom:8}}>
+        <div style={{fontSize:9,fontWeight:800,color:vehicle.accent,letterSpacing:1.5,marginBottom:2}}>SOURCE OF TRUTH · BCM SEC16</div>
+        <div style={{fontFamily:'JetBrains Mono',fontSize:11,color:C.tx,fontWeight:700}}>{bcmCanonSec16}</div>
+      </div>}
+      {!bcmCanonSec16 && <div style={{padding:'8px 12px',borderRadius:8,background:C.c2,border:'1px dashed '+C.bd,marginBottom:8,fontSize:10,color:C.ts}}>
+        BCM SEC16 not available ({pnInfo?.primaryPn||'unknown PN'}) — no security source of truth. VIN-only sync.
+      </div>}
 
-      {/* BCM pairing status */}
-      {bcmEng && bcmEng.sec16Hex && <div style={{padding:'8px 12px',borderRadius:8,background:bcmPaired?C.gn+'10':C.er+'10',border:'1px solid '+(bcmPaired?C.gn:C.er)+'55',marginBottom:8}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-          <span style={{fontSize:9,fontWeight:800,color:bcmPaired?C.gn:C.er,letterSpacing:1.5}}>{bcmPaired?'✓ BCM PAIRED':'⚠ BCM NOT PAIRED · WILL BE FIXED ON SYNC'}</span>
-        </div>
-        <div style={{fontFamily:'JetBrains Mono',fontSize:9,color:C.ts}}>
-          <div>current:  {bcmEng.sec16Hex}</div>
-          <div>expected: {expectedBcmSec16}</div>
-        </div>
-      </div>}
-      {bcmEng && !bcmEng.sec16Hex && <div style={{padding:'8px 12px',borderRadius:8,background:C.c2,border:'1px dashed '+C.bd,marginBottom:8,fontSize:10,color:C.ts}}>
-        BCM family has no flash SEC16 storage ({pnInfo?.primaryPn||'unknown'}). VIN-only sync.
-      </div>}
+      {/* RFH pairing status — must equal reverse(BCM).
+       * SYNC only rewrites the RFH SEC16 when the RFH is Gen2 (the
+       * securityBytes Gen2 SEC16 writer is the only RFH SEC16 writer).
+       * A Gen1 RFH gets VIN-only on sync, so the preview must not promise a
+       * SEC16 fix it will never perform. */}
+      {bcmCanonSec16 && rfhEng && rfhEng.sec16 && (() => {
+        const rfhGen2 = rfhEng.format === 'gen2';
+        const statusLabel = rfhPaired
+          ? '✓ RFH PAIRED'
+          : rfhGen2
+            ? '⚠ RFH NOT PAIRED · WILL BE FIXED ON SYNC'
+            : '⚠ RFH NOT PAIRED · GEN1 · VIN-ONLY (SEC16 NOT REWRITTEN)';
+        const statusColor = rfhPaired ? C.gn : (rfhGen2 ? C.er : C.wn);
+        return <div style={{padding:'8px 12px',borderRadius:8,background:statusColor+'10',border:'1px solid '+statusColor+'55',marginBottom:8}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+            <span style={{fontSize:9,fontWeight:800,color:statusColor,letterSpacing:1.5}}>{statusLabel}</span>
+          </div>
+          <div style={{fontFamily:'JetBrains Mono',fontSize:9,color:C.ts}}>
+            <div>current:  {rfhCurrentCore}</div>
+            <div>expected: {expectedRfhSec16}</div>
+          </div>
+        </div>;
+      })()}
 
       {/* PCM pairing status */}
-      {pcmEng && pcmEng.sec6 && <div style={{padding:'8px 12px',borderRadius:8,background:pcmPaired?C.gn+'10':C.er+'10',border:'1px solid '+(pcmPaired?C.gn:C.er)+'55'}}>
+      {bcmCanonSec16 && pcmEng && pcmEng.sec6 && <div style={{padding:'8px 12px',borderRadius:8,background:pcmPaired?C.gn+'10':C.er+'10',border:'1px solid '+(pcmPaired?C.gn:C.er)+'55'}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
           <span style={{fontSize:9,fontWeight:800,color:pcmPaired?C.gn:C.er,letterSpacing:1.5}}>{pcmPaired?'✓ PCM PAIRED':'⚠ PCM NOT PAIRED · WILL BE FIXED ON SYNC'}</span>
         </div>
@@ -1850,7 +1902,7 @@ function ModuleSummary({vehicle, bcm, rfh, pcm, targetVin}){
           <div>expected: {expectedPcmSec6}</div>
         </div>
       </div>}
-      {pcmEng && pcmEng.immoDamaged && <div style={{padding:'8px 12px',borderRadius:8,background:C.wn+'10',border:'1px solid '+C.wn+'55',fontSize:10,color:C.wn,fontWeight:700}}>
+      {bcmCanonSec16 && pcmEng && pcmEng.immoDamaged && <div style={{padding:'8px 12px',borderRadius:8,background:C.wn+'10',border:'1px solid '+C.wn+'55',fontSize:10,color:C.wn,fontWeight:700,marginTop:8}}>
         ⚠ PCM IMMO DAMAGED — SEC6 is all FF. SYNC will write expected: {expectedPcmSec6}
       </div>}
 

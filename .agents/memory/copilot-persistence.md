@@ -1,30 +1,24 @@
 ---
 name: Global AI Co-pilot persistence
-description: How the global Co-pilot panel persists chats and how its system prompt is chosen
+description: Durable rules for the global Co-pilot's prompt scoping and attachment handling
 ---
 
-The global AI Co-pilot (CopilotPanel.jsx, surfaced from App.jsx FAB) persists
-chats by reusing the shared conversations API with `scope="general"`.
+The global Co-pilot persists chats by reusing the shared conversations API with
+`scope="general"` (rather than a bespoke store).
 
-**System prompt selection** lives in api-server `routes/anthropic/conversations.ts`
-POST `/conversations/:id/messages`: it branches on `conv.scope`. `scope==="general"`
-gets `GENERAL_SYSTEM_PROMPT` (non-restrictive, answers anything); any other scope
-gets the IMMO `SYSTEM_PROMPT`. A `moduleContext` in the body always overrides to
-`SYSTEM_PROMPT` + context block (module-assistant conversations).
+**System-prompt scoping rule:** the persistent co-pilot and the stateless
+general-chat endpoint must share the SAME non-restrictive prompt. The conversations
+message handler branches on `conv.scope`: `general` → non-restrictive; everything
+else → the restrictive IMMO prompt; a `moduleContext` in the body always forces the
+IMMO prompt + context block.
+**Why:** a new co-pilot-like scope that falls through the branch would silently get
+the restrictive module prompt and refuse normal questions.
+**How to apply:** when adding any new conversational scope, extend the branch
+explicitly — never let it default to the restrictive prompt.
 
-**Why:** both the stateless `/general-chat` endpoint and the persistent co-pilot
-must share the same non-restrictive prompt, so `GENERAL_SYSTEM_PROMPT` was moved
-to `_shared.ts`. If you add another co-pilot-like scope, extend the branch — don't
-default new scopes to the restrictive module prompt unintentionally.
-
-**Restore-on-open:** localStorage pointer `srt-copilot-last-conv` holds the last
-conversation id; on mount the hook hydrates it, falling back to the newest
-`?scope=general` conversation if the pointer is missing/stale.
-
-**File attachments** are folded into the plain message text on the frontend, not
-sent as separate content blocks — so they ride the existing conversations
-messages path with no backend, multimodal, or DB change.
-**Why:** images/PDF/binary would require Anthropic content-block message shapes +
-DB changes (major arch), so they are deliberately rejected with a note pointing
-users to the Data Management module-load flow. If you ever need real binary/image
-support, that is a backend+schema change, not an extension of this folding path.
+**Attachment handling rule:** file attachments are deliberately folded into the
+plain message text on the frontend, not sent as Anthropic content blocks.
+**Why:** real image/PDF/binary support needs content-block message shapes + DB
+changes — a backend+schema change, not an extension of the text-folding path.
+**How to apply:** treat "add real binary/image co-pilot input" as a backend task;
+do not try to bolt multimodal onto the existing folding path.
