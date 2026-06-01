@@ -154,7 +154,26 @@ function isJsonLike(bytes) {
   if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) i = 3;
   while (i < bytes.length && (bytes[i] === 0x20 || bytes[i] === 0x09 || bytes[i] === 0x0a || bytes[i] === 0x0d)) i++;
   if (i >= bytes.length) return false;
-  return bytes[i] === 0x7b /* { */ || bytes[i] === 0x5b /* [ */;
+  const first = bytes[i];
+  if (first === 0x7b /* { */) return true;
+  if (first === 0x5b /* [ */) {
+    /* Skip whitespace after '['. */
+    let j = i + 1;
+    while (j < bytes.length && (bytes[j] === 0x20 || bytes[j] === 0x09 || bytes[j] === 0x0a || bytes[j] === 0x0d)) j++;
+    if (j >= bytes.length) return false;
+    const after = bytes[j];
+    /* If the first value token is a bare digit, peek one char ahead.
+     * A '/' or ':' immediately following indicates a date/time literal
+     * (e.g. "[5/25/2026…" or "[12:30…"), not a JSON number array.
+     * Valid JSON number arrays have digits followed only by digits, '.',
+     * 'e', 'E', '+', '-', ',', ']', or whitespace at this position. */
+    if (after >= 0x30 && after <= 0x39 /* digit */) {
+      const next1 = j + 1 < bytes.length ? bytes[j + 1] : 0;
+      if (next1 === 0x2f /* '/' */ || next1 === 0x3a /* ':' */) return false;
+    }
+    return true;
+  }
+  return false;
 }
 function detectType(bytes) {
   if (SIG.zip(bytes))    return "zip";
