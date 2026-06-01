@@ -31,5 +31,12 @@ Any request/response transport over USB-CDC must assign `this.pending` **before*
 
 **How to apply:** Use the pre-armed inbox pattern in the WebSerialTransport tests; never accept a transport patch that moves the pending assignment after the write.
 
+## SK (transponder secret) is NOT SEC16 (vehicle master)
+The Key Dump capture/clone/export surface stores a transponder's own **SK** secret. SK ≠ SEC16. They have different lengths, different roles, and must never be cross-copied into each other's field.
+
+**Why:** SEC16 is the RFHUB/vehicle immobilizer master secret; SK is the chip's own key from an external read tool. Putting SEC16 in the SK field (or vice-versa) produces a key the receiver rejects and risks leaking the master secret into a portable export. The Key Dump JSON manifest carries an explicit `_sk_warning` field to keep this honest.
+
+**How to apply:** Any extension of `keyRecord.js` / `autelExport.js` Key Dump path keeps SK and SEC16 in separate slots. `writeKeyRecordToSlot` (rfhubKeySlots.js) clones a UID into a free RFHUB slot for the "second blank key, same car" case; it never touches SEC16.
+
 ## Protocol framing is unverified
 `protocol.js` 5A A5 framing matches public USB-CDC captures of VVDI Mini but has not been bench-verified in this repo. The Burn tab puts an orange disclaimer banner on this and defaults to Simulator. Treat the first live burn as field-verification, not production.

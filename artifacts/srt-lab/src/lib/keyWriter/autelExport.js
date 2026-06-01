@@ -24,6 +24,9 @@
  *
  * ============================================================================ */
 
+import { CHIP_ORDINAL } from './serializer.js';
+import { codingScheme, CODING_SCHEMES, validateKeyRecord } from './keyRecord.js';
+
 const CHIP_ORDINALS = {
   pcf7953: 0x01,
   pcf7945: 0x02,
@@ -147,4 +150,156 @@ export function exportBaseName(rfhFileName, slotIdx) {
     .replace(/\.[^.]+$/, '')
     .replace(/[^a-zA-Z0-9_-]/g, '_');
   return `${stem}_slot${slotIdx + 1}_autel`;
+}
+
+/* ============================================================================
+ * Standalone key-dump export (Task #985).
+ *
+ * Unlike the Autel export above — which extracts UID + payload + SEC16 out of
+ * a loaded RFHUB dump — these helpers serialize a *standalone captured key*
+ * (chip family, UID, SK transponder secret, and chip flags) that the operator
+ * typed in from an external bench-tool read. There is no RFHUB behind it.
+ *
+ * Compact raw .bin ("KDMP"):
+ *   offset 0  : magic 4B 44 4D 50 ("KDMP")
+ *   offset 4  : version 01
+ *   offset 5  : chip ordinal (shared CHIP_ORDINAL table; FF = unknown)
+ *   offset 6  : flags byte — bit0 locked, bit1 encryption, bit2 cloneable,
+ *               bits4-7 coding-scheme ordinal
+ *   offset 7  : UID length
+ *   offset 8  : SK length
+ *   offset 9  : UID bytes
+ *   offset 9+uidLen : SK bytes
+ *
+ * Honestly labelled as a portable intermediate — NOT a verified Autel/VVDI
+ * binary import format. SK is the per-transponder secret, never the 16-byte
+ * RFHUB SEC16 master.
+ * ========================================================================== */
+
+export const KEY_DUMP_MAGIC = [0x4B, 0x44, 0x4D, 0x50]; // "KDMP"
+export const KEY_DUMP_VERSION = 0x01;
+
+function encodeFlagsByte(flags) {
+  const f = flags || {};
+  let b = 0;
+  if (f.locked) b |= 0x01;
+  if (f.encryption) b |= 0x02;
+  if (f.cloneable) b |= 0x04;
+  const cs = codingScheme(f.coding);
+  b |= ((cs ? cs.ordinal : 0) & 0x0F) << 4;
+  return b;
+}
+
+function decodeFlagsByte(b) {
+  const codingOrd = (b >> 4) & 0x0F;
+  const cs = CODING_SCHEMES.find((c) => c.ordinal === codingOrd);
+  return {
+    locked: !!(b & 0x01),
+    encryption: !!(b & 0x02),
+    cloneable: !!(b & 0x04),
+    coding: cs ? cs.id : null,
+  };
+}
+
+const ORDINAL_TO_CHIP = Object.fromEntries(
+  Object.entries(CHIP_ORDINAL).map(([k, v]) => [v, k]),
+);
+
+/**
+ * Build the human-readable JSON manifest for a standalone key record.
+ * Pass the result of validateKeyRecord(record) as the second arg to avoid a
+ * re-parse; otherwise it is validated here and throws if invalid.
+ */
+export function buildKeyDumpManifest(record, validated) {
+  const v = validated || validateKeyRecord(record);
+  if (!v.ok) throw new Error(v.error || 'invalid key record');
+  const { uid, sk, chipDef } = v;
+  const manifest = {
+    _note: 'Standalone key dump captured in SRT Lab from an external transponder read (Autel/VVDI). Portable intermediate for your external key tool — NOT a verified vendor import format.',
+    _sk_warning: 'SK is the per-transponder secret your external tool calculated. It is NOT the 16-byte RFHUB SEC16 master secret — do not confuse the two.',
+    format: 'srt-lab-key-dump',
+    version: KEY_DUMP_VERSION,
+    label: record.label || '',
+    chip_family: record.chipId,
+    chip_label: chipDef?.label || record.chipId,
+    transponder_uid_hex: toHexStr(uid),
+    transponder_uid_hex_compact: toHexStrCompact(uid),
+    sk_hex: toHexStr(sk),
+    sk_hex_compact: toHexStrCompact(sk),
+    flags: {
+      locked: !!record.flags?.locked,
+      coding: record.flags?.coding || null,
+      encryption: !!record.flags?.encryption,
+      cloneable: !!record.flags?.cloneable,
+    },
+    external_tool_workflow: [
+      'Open your transponder programmer (Autel IM508/IM608, Xhorse VVDI, etc.).',
+      'Select the chip family: ' + (chipDef?.label || record.chipId),
+      'Write the UID: ' + toHexStrCompact(uid),
+      'Write the SK (transponder secret): ' + toHexStrCompact(sk),
+      'Apply the flags above (lock state, coding, encryption, cloneable).',
+      'This file is a portable intermediate — your tool will not import the .bin directly.',
+    ],
+  };
+  return JSON.stringify(manifest, null, 2);
+}
+
+/**
+ * Build the compact raw .bin for a standalone key record.
+ * @param {{ uid: Uint8Array, sk: Uint8Array, flags: object, chipId: string }} args
+ */
+export function buildKeyDumpBin({ uid, sk, flags, chipId }) {
+  const ordinal = CHIP_ORDINAL[chipId] ?? 0xFF;
+  const header = [
+    ...KEY_DUMP_MAGIC,
+    KEY_DUMP_VERSION,
+    ordinal,
+    encodeFlagsByte(flags),
+    uid.length,
+    sk.length,
+  ];
+  const out = new Uint8Array(header.length + uid.length + sk.length);
+  let i = 0;
+  for (const b of header) out[i++] = b;
+  out.set(uid, i); i += uid.length;
+  out.set(sk, i);
+  return out;
+}
+
+/**
+ * Parse a KDMP .bin back into its fields. Round-trips buildKeyDumpBin.
+ * @returns {{ ok: boolean, error?: string, version?: number, chipOrdinal?: number,
+ *            chipId?: string|null, flags?: object, uid?: Uint8Array, sk?: Uint8Array }}
+ */
+export function parseKeyDumpBin(u8) {
+  if (!u8 || u8.length < 9) return { ok: false, error: 'too short for KDMP header' };
+  for (let i = 0; i < 4; i++) {
+    if (u8[i] !== KEY_DUMP_MAGIC[i]) return { ok: false, error: 'bad magic (expected KDMP)' };
+  }
+  const version = u8[4];
+  const ordinal = u8[5];
+  const flags = decodeFlagsByte(u8[6]);
+  const uidLen = u8[7];
+  const skLen = u8[8];
+  if (9 + uidLen + skLen > u8.length) return { ok: false, error: 'truncated payload' };
+  const uid = u8.slice(9, 9 + uidLen);
+  const sk = u8.slice(9 + uidLen, 9 + uidLen + skLen);
+  return {
+    ok: true,
+    version,
+    chipOrdinal: ordinal,
+    chipId: ORDINAL_TO_CHIP[ordinal] || null,
+    flags,
+    uid,
+    sk,
+  };
+}
+
+/**
+ * Safe base filename for a standalone key dump.
+ */
+export function keyDumpBaseName(record) {
+  const lbl = (record?.label || '').trim();
+  const stem = (lbl || `keydump_${record?.chipId || 'chip'}`).replace(/[^a-zA-Z0-9_-]/g, '_');
+  return `${stem}_keydump`;
 }

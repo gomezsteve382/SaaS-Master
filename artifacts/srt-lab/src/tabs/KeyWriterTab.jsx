@@ -16,8 +16,15 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
-import { parseKeySlots, KEY_ID_BLOCK_LEN } from '../lib/rfhubKeySlots.js';
-import { CHIP_FAMILIES, chipForRfhubGen } from '../lib/keyWriter/chipFamilies.js';
+import { parseKeySlots, KEY_ID_BLOCK_LEN, writeKeyRecordToSlot, firstFreeSlot } from '../lib/rfhubKeySlots.js';
+import { CHIP_FAMILIES, chipForRfhubGen, chipFamily } from '../lib/keyWriter/chipFamilies.js';
+import {
+  CODING_SCHEMES,
+  makeKeyRecord,
+  cloneKeyRecord,
+  validateKeyRecord,
+  bytesToHexSpaced,
+} from '../lib/keyWriter/keyRecord.js';
 import { SimulatorTransport, FAULT_HANDLERS } from '../lib/keyWriter/simulator.js';
 import { connectWebSerial, isWebSerialAvailable } from '../lib/keyWriter/webSerialTransport.js';
 import { HttpTransport, probeHttpTransport } from '../lib/keyWriter/httpTransport.js';
@@ -30,6 +37,9 @@ import {
   buildRawBin,
   triggerDownload,
   exportBaseName,
+  buildKeyDumpManifest,
+  buildKeyDumpBin,
+  keyDumpBaseName,
 } from '../lib/keyWriter/autelExport.js';
 import KeyDumpPanel from './KeyDumpPanel.jsx';
 
@@ -130,6 +140,15 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
   const [writerInfo, setWriterInfo] = useState(null); // {model, firmware, source}
   // HTTP fallback probe — null = not probed, false = unavailable, {available,reason,...}.
   const [httpProbe, setHttpProbe] = useState(null);
+
+  /* ── Standalone key-dump capture (Task #985) ──────────────────────────
+   * keyRecords is a small in-memory list the operator builds by hand from
+   * external bench-tool reads; "Copy to new key" clones the active record. */
+  const [keyRecords, setKeyRecords] = useState(() => [makeKeyRecord()]);
+  const [activeKeyId, setActiveKeyId] = useState(null);
+  const [cloneSlotIdx, setCloneSlotIdx] = useState(null); // target free slot for write-to-RFHUB
+  const [cloneResult, setCloneResult] = useState(null);
+  const [keyDumpNote, setKeyDumpNote] = useState(null);   // transient prefill/export status
 
   const onLoadRfh = useCallback(async (e) => {
     const f = e.target.files?.[0];
@@ -348,6 +367,107 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
     }
   }, [slot, secret16, mode, simProfile, chipId, writerId, rfhBytes, parsed]);
 
+  /* ── Standalone key-dump capture / clone / export (Task #985) ──────────── */
+  const activeRecord = useMemo(
+    () => keyRecords.find((r) => r.id === activeKeyId) || keyRecords[0],
+    [keyRecords, activeKeyId],
+  );
+  const keyValidation = useMemo(() => validateKeyRecord(activeRecord), [activeRecord]);
+  const keyChipDef = useMemo(() => chipFamily(activeRecord?.chipId), [activeRecord]);
+
+  const updateActive = useCallback((patch) => {
+    setKeyRecords((rs) => rs.map((r) => (r.id === activeRecord?.id ? { ...r, ...patch } : r)));
+  }, [activeRecord]);
+
+  const updateActiveFlags = useCallback((flagPatch) => {
+    setKeyRecords((rs) => rs.map((r) => (
+      r.id === activeRecord?.id ? { ...r, flags: { ...r.flags, ...flagPatch } } : r
+    )));
+  }, [activeRecord]);
+
+  const onAddBlankKey = useCallback(() => {
+    const rec = makeKeyRecord();
+    setKeyRecords((rs) => [...rs, rec]);
+    setActiveKeyId(rec.id);
+    setCloneResult(null);
+    setKeyDumpNote(null);
+  }, []);
+
+  const onCopyToNewKey = useCallback(() => {
+    const cur = keyRecords.find((r) => r.id === activeKeyId) || keyRecords[0];
+    if (!cur) return;
+    const cloned = cloneKeyRecord(cur);
+    setKeyRecords((rs) => [...rs, cloned]);
+    setActiveKeyId(cloned.id);
+    setCloneResult(null);
+    setKeyDumpNote({ ok: true, msg: `Cloned "${cur.label || 'Key'}" → editable copy. SK/UID carried over; edit before export.` });
+  }, [keyRecords, activeKeyId]);
+
+  const onExportKeyJson = useCallback(() => {
+    const v = validateKeyRecord(activeRecord);
+    if (!v.ok) { setKeyDumpNote({ ok: false, msg: v.error }); return; }
+    const json = buildKeyDumpManifest(activeRecord, v);
+    triggerDownload(new Blob([json], { type: 'application/json' }), `${keyDumpBaseName(activeRecord)}.json`);
+    appendAudit({ source: 'keywriter', op: 'key-dump-export-json', chipId: activeRecord.chipId, ok: true });
+    setKeyDumpNote({ ok: true, msg: 'Key-dump JSON manifest downloaded (portable intermediate — not a vendor import).' });
+  }, [activeRecord]);
+
+  const onExportKeyBin = useCallback(() => {
+    const v = validateKeyRecord(activeRecord);
+    if (!v.ok) { setKeyDumpNote({ ok: false, msg: v.error }); return; }
+    const bin = buildKeyDumpBin({ uid: v.uid, sk: v.sk, flags: activeRecord.flags, chipId: activeRecord.chipId });
+    triggerDownload(new Blob([bin], { type: 'application/octet-stream' }), `${keyDumpBaseName(activeRecord)}.bin`);
+    appendAudit({ source: 'keywriter', op: 'key-dump-export-bin', chipId: activeRecord.chipId, ok: true });
+    setKeyDumpNote({ ok: true, msg: 'Compact KDMP .bin downloaded (portable intermediate — not a vendor import).' });
+  }, [activeRecord]);
+
+  /* Prefill the active record from the currently-picked RFHUB slot: copy the
+   * slot UID only. SK is left blank (it is the transponder secret, captured
+   * from your external tool — never the SEC16 master). SEC16 is surfaced for
+   * reference but never written into the SK field. */
+  const onPrefillFromSlot = useCallback(() => {
+    if (!slot?.idBytes) { setKeyDumpNote({ ok: false, msg: 'Pick an RFHUB slot with an ID block first.' }); return; }
+    const uidLen = keyChipDef?.uidBytes || 4;
+    const uidBytes = slot.idBytes.slice(0, uidLen);
+    updateActive({ uidHex: bytesToHexSpaced(uidBytes) });
+    const sec16Hex = secret16 ? bytesToHexSpaced(secret16) : '(none loaded)';
+    setKeyDumpNote({
+      ok: true,
+      msg: `UID copied from slot ${slot.idx + 1}. SK left blank — enter the transponder SK from your tool. This RFHUB's SEC16 master (reference only, NOT the SK): ${sec16Hex}`,
+    });
+  }, [slot, keyChipDef, secret16, updateActive]);
+
+  /* Clone-on-bench: write the captured UID into a chosen free RFHUB slot and
+   * download the patched dump to flash back. Refuses against a blank SEC16. */
+  const onWriteToRfhub = useCallback(() => {
+    setCloneResult(null);
+    const v = validateKeyRecord(activeRecord);
+    if (!v.ok) { setCloneResult({ ok: false, error: v.error }); return; }
+    if (!rfhBytes || !parsed) { setCloneResult({ ok: false, error: 'Load an RFHUB dump first (section 1).' }); return; }
+    if (secretBlank) { setCloneResult({ ok: false, error: 'RFHUB SEC16 is blank — cannot register a key against a virgin master secret.' }); return; }
+    const idx = cloneSlotIdx != null ? cloneSlotIdx : firstFreeSlot(rfhBytes);
+    if (idx == null || idx < 0) { setCloneResult({ ok: false, error: 'No free slot available — delete a key first or pick a slot.' }); return; }
+    const r = writeKeyRecordToSlot(rfhBytes, idx, { uid: v.uid });
+    if (!r.ok) { setCloneResult({ ok: false, error: r.error }); return; }
+    const base = exportBaseName(rfhFile?.name, idx).replace(/_autel$/, '_cloned');
+    triggerDownload(new Blob([r.bytes], { type: 'application/octet-stream' }), `${base}.bin`);
+    appendAudit({
+      source: 'keywriter',
+      op: 'key-clone-to-rfhub',
+      vin: extractRfhVin(rfhBytes, parsed?.gen) || 'NOVIN',
+      slotIdx: idx,
+      chipId: activeRecord.chipId,
+      payloadKnown: r.payloadKnown,
+      ok: true,
+    });
+    setCloneResult({ ok: true, slotIdx: idx, payloadKnown: r.payloadKnown });
+  }, [activeRecord, rfhBytes, parsed, secretBlank, cloneSlotIdx, rfhFile]);
+
+  const freeSlots = useMemo(
+    () => (parsed?.slots || []).filter((s) => !s.occupied).map((s) => s.idx),
+    [parsed],
+  );
+
   return (
     <div data-testid="key-writer-tab">
       {/* Header / disclaimer */}
@@ -369,6 +489,208 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
               Protocol framing matches public Xhorse VVDI Mini USB-CDC captures and has NOT been bench-verified in this codebase. Use the Simulator first; treat live burns as field-verification of the framing.
             </div>
           </div>
+        </div>
+      </Card>
+
+      {/* ── Standalone Key Dump: capture, clone & export (Task #985) ── */}
+      <Card style={{ marginBottom: 16 }} data-testid="key-dump-card">
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontWeight: 900, fontSize: 14, color: C.tx }}>Key Dump — capture, clone &amp; export</span>
+          <Tag color={C.a3}>standalone</Tag>
+          <span style={{ flex: 1 }} />
+          <Btn onClick={onAddBlankKey} color={C.tm} outline data-testid="key-dump-add" style={{ fontSize: 11, padding: '3px 10px' }}>
+            + New blank key
+          </Btn>
+        </div>
+        <div style={{ fontSize: 11, color: C.ts, marginBottom: 12, lineHeight: 1.6 }}>
+          Type or paste a transponder read from your external tool (Autel / VVDI). Works with no RFHUB loaded.{' '}
+          <strong>SK is the transponder secret your tool calculated — NOT the 16-byte RFHUB SEC16 master.</strong>
+        </div>
+
+        {/* record tabs */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }} data-testid="key-dump-tabs">
+          {keyRecords.map((r, i) => {
+            const on = r.id === activeRecord?.id;
+            return (
+              <button
+                key={r.id}
+                onClick={() => { setActiveKeyId(r.id); setCloneResult(null); setKeyDumpNote(null); }}
+                data-testid={`key-dump-tab-${i}`}
+                style={{
+                  fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
+                  border: `2px solid ${on ? C.a3 : C.bd}`, background: on ? C.a3 + '14' : C.bg, color: C.tx,
+                }}
+              >
+                {r.label?.trim() ? r.label : `Key ${i + 1}`}
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <label style={{ display: 'block' }}>
+            <div style={{ fontSize: 10, color: C.tm, letterSpacing: 1.4 }}>CHIP FAMILY</div>
+            <select
+              value={activeRecord?.chipId || ''}
+              onChange={(e) => updateActive({ chipId: e.target.value })}
+              data-testid="key-dump-chip"
+              style={{ width: '100%', padding: 6, fontSize: 12 }}
+            >
+              {CHIP_FAMILIES.map((c) => (
+                <option key={c.id} value={c.id}>{c.label}</option>
+              ))}
+            </select>
+          </label>
+          <label style={{ display: 'block' }}>
+            <div style={{ fontSize: 10, color: C.tm, letterSpacing: 1.4 }}>LABEL</div>
+            <input
+              type="text"
+              value={activeRecord?.label || ''}
+              onChange={(e) => updateActive({ label: e.target.value })}
+              placeholder="e.g. spare fob #2"
+              data-testid="key-dump-label"
+              style={{ width: '100%', padding: 6, fontSize: 12, fontFamily: 'inherit', boxSizing: 'border-box' }}
+            />
+          </label>
+          <label style={{ display: 'block' }}>
+            <div style={{ fontSize: 10, color: C.tm, letterSpacing: 1.4 }}>
+              UID HEX{keyChipDef?.uidBytes ? ` (expect ${keyChipDef.uidBytes} B)` : ''}
+            </div>
+            <input
+              type="text"
+              value={activeRecord?.uidHex || ''}
+              onChange={(e) => updateActive({ uidHex: e.target.value })}
+              placeholder="00 77 A2 9B"
+              data-testid="key-dump-uid"
+              style={{ width: '100%', padding: 6, fontSize: 12, fontFamily: 'JetBrains Mono', boxSizing: 'border-box' }}
+            />
+          </label>
+          <label style={{ display: 'block' }}>
+            <div style={{ fontSize: 10, color: C.tm, letterSpacing: 1.4 }}>
+              SK HEX — transponder secret{keyChipDef?.skBytes ? ` (expect ${keyChipDef.skBytes} B)` : ''}
+            </div>
+            <input
+              type="text"
+              value={activeRecord?.skHex || ''}
+              onChange={(e) => updateActive({ skHex: e.target.value })}
+              placeholder="4F 4E 4D 49 4B 52"
+              data-testid="key-dump-sk"
+              style={{ width: '100%', padding: 6, fontSize: 12, fontFamily: 'JetBrains Mono', boxSizing: 'border-box' }}
+            />
+          </label>
+        </div>
+
+        {/* flags */}
+        <div style={{ marginTop: 12, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }} data-testid="key-dump-flags">
+          <label style={{ fontSize: 12, color: C.tx, display: 'flex', gap: 6, alignItems: 'center' }}>
+            <input type="checkbox" checked={!!activeRecord?.flags?.locked} onChange={(e) => updateActiveFlags({ locked: e.target.checked })} data-testid="key-dump-flag-locked" />
+            Locked
+          </label>
+          <label style={{ fontSize: 12, color: C.tx, display: 'flex', gap: 6, alignItems: 'center' }}>
+            <input type="checkbox" checked={!!activeRecord?.flags?.encryption} onChange={(e) => updateActiveFlags({ encryption: e.target.checked })} data-testid="key-dump-flag-encryption" />
+            Encryption
+          </label>
+          <label style={{ fontSize: 12, color: C.tx, display: 'flex', gap: 6, alignItems: 'center' }}>
+            <input type="checkbox" checked={!!activeRecord?.flags?.cloneable} onChange={(e) => updateActiveFlags({ cloneable: e.target.checked })} data-testid="key-dump-flag-cloneable" />
+            Cloneable
+          </label>
+          <label style={{ fontSize: 12, color: C.tx, display: 'flex', gap: 6, alignItems: 'center' }}>
+            <span style={{ fontSize: 10, color: C.tm, letterSpacing: 1.2 }}>CODING</span>
+            <select
+              value={activeRecord?.flags?.coding || ''}
+              onChange={(e) => updateActiveFlags({ coding: e.target.value })}
+              data-testid="key-dump-flag-coding"
+              style={{ padding: 4, fontSize: 12 }}
+            >
+              {CODING_SCHEMES.map((cs) => (
+                <option key={cs.id} value={cs.id}>{cs.label}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        {/* validation line */}
+        <div style={{ marginTop: 10, fontSize: 12 }} data-testid="key-dump-validation">
+          {keyValidation.ok
+            ? <span style={{ color: C.gn, fontWeight: 700 }}>✓ Valid — UID {keyValidation.uid.length} B, SK {keyValidation.sk.length} B</span>
+            : <span style={{ color: C.er, fontWeight: 700 }}>✗ {keyValidation.error}</span>}
+        </div>
+
+        {/* action buttons */}
+        <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <Btn onClick={onCopyToNewKey} color={C.tm} outline data-testid="key-dump-copy">
+            ⧉ Copy to new key
+          </Btn>
+          <Btn onClick={onExportKeyJson} color={C.gn} disabled={!keyValidation.ok} data-testid="key-dump-export-json">
+            ↓ Export key dump (JSON)
+          </Btn>
+          <Btn onClick={onExportKeyBin} color={C.tm} outline disabled={!keyValidation.ok} data-testid="key-dump-export-bin">
+            ↓ Export raw .bin
+          </Btn>
+          <Btn onClick={onPrefillFromSlot} color={C.tm} outline disabled={!slot?.idBytes} data-testid="key-dump-prefill">
+            ⇇ Prefill UID from picked slot
+          </Btn>
+        </div>
+
+        {keyDumpNote && (
+          <div
+            data-testid="key-dump-note"
+            style={{ marginTop: 10, fontSize: 11, color: keyDumpNote.ok ? '#2E7D32' : C.er, lineHeight: 1.6, wordBreak: 'break-all' }}
+          >
+            {keyDumpNote.ok ? 'ℹ ' : '✗ '}{keyDumpNote.msg}
+          </div>
+        )}
+
+        {/* clone-on-bench: write into a loaded RFHUB slot */}
+        <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.bd}` }} data-testid="key-dump-clone">
+          <div style={{ fontWeight: 900, fontSize: 12, color: C.tx, marginBottom: 6 }}>
+            Clone on bench → write into a loaded RFHUB slot
+          </div>
+          <div style={{ fontSize: 11, color: C.ts, lineHeight: 1.6, marginBottom: 8 }}>
+            Stamps the captured UID into a free slot of the RFHUB loaded below and downloads a patched dump to flash back.{' '}
+            <strong>Only the UID is written</strong> — the per-fob payload and chip crypto are still generated by the receiver during RoutineControl 0x0401 pairing on the car. Requires a non-blank SEC16.
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <label style={{ fontSize: 11, color: C.tm, display: 'flex', gap: 6, alignItems: 'center' }}>
+              TARGET SLOT
+              <select
+                value={cloneSlotIdx == null ? '' : String(cloneSlotIdx)}
+                onChange={(e) => setCloneSlotIdx(e.target.value === '' ? null : Number(e.target.value))}
+                data-testid="key-dump-clone-slot"
+                style={{ padding: 4, fontSize: 12 }}
+                disabled={!parsed}
+              >
+                <option value="">{freeSlots.length ? 'first free' : 'no free slot'}</option>
+                {freeSlots.map((i) => (
+                  <option key={i} value={i}>Slot {i + 1}</option>
+                ))}
+              </select>
+            </label>
+            <Btn
+              onClick={onWriteToRfhub}
+              color={C.sr}
+              disabled={!keyValidation.ok || !parsed || secretBlank}
+              data-testid="key-dump-write-rfhub"
+            >
+              ▶ Write UID into RFHUB &amp; download
+            </Btn>
+          </div>
+          {!parsed && (
+            <div style={{ fontSize: 11, color: C.ts, marginTop: 6 }}>Load an RFHUB dump (section 1 below) to enable.</div>
+          )}
+          {parsed && secretBlank && (
+            <div style={{ fontSize: 11, color: C.er, marginTop: 6 }}>✗ Loaded RFHUB SEC16 is blank — can't register a key against a virgin master secret.</div>
+          )}
+          {cloneResult && (
+            <div
+              data-testid="key-dump-clone-result"
+              style={{ marginTop: 8, fontSize: 11, lineHeight: 1.6, color: cloneResult.ok ? '#2E7D32' : C.er }}
+            >
+              {cloneResult.ok
+                ? `✓ UID written into slot ${cloneResult.slotIdx + 1}; patched RFHUB downloaded.${cloneResult.payloadKnown ? '' : ' Payload not derivable from a standalone read — finish pairing on the car (RFHUB tab → RoutineControl 0x0401) so the receiver writes the matching crypto.'}`
+                : `✗ ${cloneResult.error}`}
+            </div>
+          )}
         </div>
       </Card>
 

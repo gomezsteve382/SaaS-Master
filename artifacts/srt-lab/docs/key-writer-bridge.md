@@ -163,6 +163,11 @@ just burned.
   test: mounts the tab, mocks `parseKeySlots`, walks load → pick
   slot → burn → KEYMOD WRITTEN → handoff CTA → sessionStorage record
   through the React DOM.
+- `src/lib/__tests__/keyDump.test.js` — Key Dump capture/clone/export
+  (below): `validateKeyRecord` refuse-on-doubt gates, `cloneKeyRecord`,
+  `buildKeyDumpManifest` JSON shape + SK-vs-SEC16 honesty note,
+  `buildKeyDumpBin`/`parseKeyDumpBin` round-trip, and
+  `writeKeyRecordToSlot` clone-on-bench (UID into a free RFHUB slot).
 
 Run with: `pnpm --filter @workspace/srt-lab test`
 
@@ -239,3 +244,68 @@ Same procedure, but capture into a second fixture file
 overload the VVDI fixture — the `writer` field in `_meta.inputs` is
 what disambiguates, and the serializer is already plumbed to branch on
 it.
+
+---
+
+# Key Dump — capture / clone / export
+
+Task #985. The KEY WRITER tab also carries a **Key Dump** card (above
+the RFHUB loader). This is the locksmith's "I read a transponder with my
+external tool, now do something useful with it" surface. It is
+independent of the USB-CDC burn pipeline above — it does not talk to a
+writer, it works on captured bytes.
+
+## What a Key Dump is
+
+The operator reads a chip on their bench tool (Autel / VVDI / Tango) and
+pastes the result into the card:
+
+- **chip family** — `id46` (PCF7945), `pcf7945`, `pcf7953`,
+  `megamos-aes` (`chipFamilies.js`).
+- **transponder UID** — the chip's serial (e.g. `00 77 A2 9B`).
+- **SK** — the *transponder secret key* the read tool recovered.
+- **flags** — locked, coding scheme (Manchester/Biphase/PSK/FSK),
+  encryption, cloneable.
+
+### SK is NOT SEC16
+
+This is the load-bearing safety rule of the whole feature. **SK is the
+transponder's own secret; SEC16 is the vehicle/RFHUB immobilizer master
+secret.** They are different bytes with different lengths and different
+roles. The manifest writes an explicit `_sk_warning` field saying so,
+and nothing in this code path ever copies SEC16 into the SK field or
+vice-versa. If you extend this surface, keep them in separate slots.
+
+## Two outputs (both confirmed wanted)
+
+1. **Clone on bench** — `writeKeyRecordToSlot(bytes, idx, {uid, payload,
+   overwrite})` in `rfhubKeySlots.js` stamps the captured UID into a
+   free slot of a **loaded RFHUB dump**, sets the `AA-50` marker, and
+   returns the patched buffer for download as a `.bin`. This is the
+   "second blank key for the same car" path. Refuse-on-doubt: rejects a
+   non-RFHUB buffer, an out-of-range index, an occupied slot (unless
+   `overwrite`), and a missing/empty UID. The optional `payload` is the
+   trailing bytes of the slot's ID block; when omitted the slot's
+   payload bytes are zeroed and `payloadKnown:false` is returned so the
+   caller knows the clone is UID-only.
+2. **Portable export** — `buildKeyDumpManifest(record)` (JSON) +
+   `buildKeyDumpBin({uid, sk, flags, chipId})` (`.bin`) in
+   `autelExport.js` produce a portable key dump for an external chip
+   writer. The `.bin` is a small `KDMP` container (magic `4B 44 4D 50`,
+   version, chip ordinal, flags byte, uid, sk) that round-trips through
+   `parseKeyDumpBin`.
+
+## File layout (added for Task #985)
+
+```
+src/lib/keyWriter/
+├── keyRecord.js   — makeKeyRecord / cloneKeyRecord / validateKeyRecord
+├── chipFamilies.js — + id46 family, per-family skBytes
+├── serializer.js   — CHIP_ORDINAL incl. id46
+└── autelExport.js  — buildKeyDumpManifest / buildKeyDumpBin /
+                       parseKeyDumpBin / keyDumpBaseName
+
+src/lib/rfhubKeySlots.js — writeKeyRecordToSlot
+src/tabs/KeyWriterTab.jsx — Key Dump card (data-testid: key-dump-*)
+src/lib/__tests__/keyDump.test.js — unit tests
+```

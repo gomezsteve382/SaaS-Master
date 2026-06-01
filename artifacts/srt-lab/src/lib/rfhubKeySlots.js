@@ -262,6 +262,69 @@ export function addSlot(bytes, idx) {
   return { ok: true, bytes: out, patched: 1, slotIdx: idx, markerOffset: off };
 }
 
+/* writeKeyRecordToSlot(bytes, idx, { uid, payload }) — stamp a *standalone
+ * captured key* (Task #985 "clone on bench") into a slot: write the chip UID
+ * (+ optional per-fob payload) into the ID block and set the AA-50 occupancy
+ * marker. Returns the patched buffer; the caller downloads it to flash back.
+ *
+ * Honesty notes:
+ *  - A standalone external read carries the chip UID (and its SK — the
+ *    transponder secret, which is NOT the RFHUB per-fob payload). When
+ *    `payload` is omitted the trailing ID-block bytes are zero-filled and
+ *    `payloadKnown:false` is returned. The receiver still generates the real
+ *    payload and chip crypto during RoutineControl 0x0401 pairing on the car.
+ *  - Refuses an already-occupied slot unless `overwrite:true` (don't silently
+ *    clobber an existing key). Mirrors transferSlot's ID-block write (no image
+ *    checksum recompute — consistent with the rest of this module). */
+export function writeKeyRecordToSlot(bytes, idx, { uid, payload = null, overwrite = false } = {}) {
+  const c = checkRfhubForSlotEdit(bytes, 'writeKeyRecordToSlot'); if (!c.ok) return { ok: false, error: c.error };
+  const s = checkSlotIdx(idx, 'writeKeyRecordToSlot'); if (!s.ok) return { ok: false, error: s.error };
+  if (!(uid instanceof Uint8Array) || uid.length === 0) {
+    return { ok: false, error: 'writeKeyRecordToSlot: uid missing or empty' };
+  }
+  const idLayout = keyIdLayoutFor(c.gen);
+  if (!idLayout) return { ok: false, error: `writeKeyRecordToSlot: no ID-block layout for ${c.gen}` };
+  if (uid.length > idLayout.len) {
+    return { ok: false, error: `writeKeyRecordToSlot: uid ${uid.length} B exceeds ID block ${idLayout.len} B` };
+  }
+  const out = clone(bytes);
+  const aaOff = aa50BaseFor(c.gen) + idx * AA50_STRIDE;
+  const idOff = idLayout.base + idx * idLayout.stride;
+  if (aaOff + 2 > out.length) return { ok: false, error: 'writeKeyRecordToSlot: marker offset past EOF' };
+  if (idOff + idLayout.len > out.length) return { ok: false, error: 'writeKeyRecordToSlot: ID block past EOF' };
+  const wasOccupied = out[aaOff] === 0xAA && out[aaOff + 1] === 0x50;
+  if (wasOccupied && !overwrite) {
+    return { ok: false, error: `writeKeyRecordToSlot: slot ${idx} already occupied — pick a free slot or pass overwrite`, alreadyOccupied: true };
+  }
+  // Build the ID block: UID first, then payload (or zero-fill).
+  const block = new Uint8Array(idLayout.len);
+  block.set(uid.slice(0, idLayout.len), 0);
+  let payloadKnown = false;
+  if (payload instanceof Uint8Array && payload.length > 0) {
+    const room = idLayout.len - uid.length;
+    if (payload.length > room) {
+      return { ok: false, error: `writeKeyRecordToSlot: payload ${payload.length} B exceeds remaining ID block ${room} B` };
+    }
+    block.set(payload, uid.length);
+    payloadKnown = true;
+  }
+  for (let k = 0; k < idLayout.len; k++) out[idOff + k] = block[k];
+  out[aaOff] = 0xAA;
+  out[aaOff + 1] = 0x50;
+  return {
+    ok: true,
+    bytes: out,
+    patched: 1,
+    slotIdx: idx,
+    gen: c.gen,
+    markerOffset: aaOff,
+    idOffset: idOff,
+    idLen: idLayout.len,
+    payloadKnown,
+    wasOccupied,
+  };
+}
+
 /* transferSlot(srcBytes, dstBytes, srcIdx, dstIdx) — copy AA-50 occupancy
  * state from src[srcIdx] → dst[dstIdx]. Refuses if generations differ
  * (Gen1↔Gen2 mixing not supported until per-slot ID layout is mapped).

@@ -35,6 +35,7 @@ import { chipFamily } from './chipFamilies.js';
 export const CHIP_ORDINAL = {
   'pcf7953':     0x01,
   'pcf7945':     0x02,
+  'id46':        0x03,
   'megamos-aes': 0x10,
 };
 
@@ -45,6 +46,7 @@ export const CHIP_ORDINAL = {
 export const TANGO_CHIP_ORDINAL = {
   'pcf7953':     0x21,
   'pcf7945':     0x22,
+  'id46':        0x23,
   'megamos-aes': 0x88,
 };
 
