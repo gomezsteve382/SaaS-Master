@@ -483,6 +483,170 @@ describe("POST /api/anthropic/conversations/:id/messages — streaming", () => {
   });
 });
 
+describe("GET /api/anthropic/conversations/:id — resume with tool traces", () => {
+  // Seed helpers push straight into the in-memory stores so we can control
+  // message ordering and the messageId → tool-call association the route's
+  // trace join depends on (no API surface creates tool-call rows directly).
+  function seedConversation(row: Anyrow): number {
+    const id = (row.id as number | undefined) ?? ++counters.conversations;
+    stores.conversations.push({
+      createdAt: new Date(Date.now() + ++seq),
+      ...row,
+      id,
+    });
+    return id;
+  }
+  function seedMessage(row: Anyrow): number {
+    const id = (row.id as number | undefined) ?? ++counters.messages;
+    stores.messages.push({
+      createdAt: new Date(Date.now() + ++seq),
+      ...row,
+      id,
+    });
+    return id;
+  }
+  function seedToolCall(row: Anyrow): number {
+    const id = (row.id as number | undefined) ?? ++counters.conversationToolCalls;
+    stores.conversationToolCalls.push({
+      createdAt: new Date(Date.now() + ++seq),
+      ...row,
+      id,
+    });
+    return id;
+  }
+
+  it("returns 400 for a non-numeric id", async () => {
+    const r = await request(makeApp()).get(
+      "/api/anthropic/conversations/not-a-number",
+    );
+    expect(r.status).toBe(400);
+    expect(r.body.error).toMatch(/invalid id/i);
+  });
+
+  it("returns 404 for a missing conversation", async () => {
+    const r = await request(makeApp()).get("/api/anthropic/conversations/9999");
+    expect(r.status).toBe(404);
+    expect(r.body.error).toMatch(/not found/i);
+  });
+
+  it("returns the conversation with messages in created order and tool traces on the right message", async () => {
+    const convId = seedConversation({ title: "resume me", scope: "wizard:bcm" });
+
+    // Seed messages out of insertion order to prove the route sorts by createdAt.
+    const msg2 = seedMessage({
+      conversationId: convId,
+      role: "assistant",
+      content: "second",
+      createdAt: new Date(2000),
+    });
+    const msg1 = seedMessage({
+      conversationId: convId,
+      role: "user",
+      content: "first",
+      createdAt: new Date(1000),
+    });
+
+    // Two tool calls attached to the assistant message…
+    seedToolCall({
+      conversationId: convId,
+      messageId: msg2,
+      toolName: "pattern_library_lookup",
+      toolArgs: JSON.stringify({ query: "SEC16" }),
+      resultPreview: "Found 2 patterns",
+      bytesReturned: 128,
+      durationMs: 42,
+      createdAt: new Date(3000),
+    });
+    seedToolCall({
+      conversationId: convId,
+      messageId: msg2,
+      toolName: "pattern_library_lookup",
+      toolArgs: JSON.stringify({ query: "VIN" }),
+      resultPreview: "Found 1 pattern",
+      bytesReturned: 64,
+      durationMs: 17,
+      createdAt: new Date(3500),
+    });
+    // …and one orphan with no messageId, which must be dropped.
+    seedToolCall({
+      conversationId: convId,
+      messageId: null,
+      toolName: "pattern_library_lookup",
+      toolArgs: JSON.stringify({ query: "orphan" }),
+      resultPreview: "mid-stream failure",
+      bytesReturned: 0,
+      durationMs: 5,
+      createdAt: new Date(3700),
+    });
+
+    const r = await request(makeApp()).get(
+      `/api/anthropic/conversations/${convId}`,
+    );
+
+    expect(r.status).toBe(200);
+    expect(r.body).toMatchObject({
+      id: convId,
+      title: "resume me",
+      scope: "wizard:bcm",
+    });
+
+    // Messages come back oldest-first regardless of insertion order.
+    expect(
+      r.body.messages.map((m: { id: number; content: string }) => [
+        m.id,
+        m.content,
+      ]),
+    ).toEqual([
+      [msg1, "first"],
+      [msg2, "second"],
+    ]);
+
+    // The user message carries no trace.
+    const userMsg = r.body.messages.find(
+      (m: { id: number }) => m.id === msg1,
+    );
+    expect(userMsg.toolTrace).toBeUndefined();
+
+    // The assistant message carries both traces, in created order, with parsed args.
+    const assistantMsg = r.body.messages.find(
+      (m: { id: number }) => m.id === msg2,
+    );
+    expect(assistantMsg.toolTrace).toEqual([
+      {
+        toolName: "pattern_library_lookup",
+        args: { query: "SEC16" },
+        resultPreview: "Found 2 patterns",
+        bytesReturned: 128,
+        durationMs: 42,
+      },
+      {
+        toolName: "pattern_library_lookup",
+        args: { query: "VIN" },
+        resultPreview: "Found 1 pattern",
+        bytesReturned: 64,
+        durationMs: 17,
+      },
+    ]);
+
+    // The orphan tool call (messageId null) never surfaces.
+    const allPreviews = r.body.messages
+      .flatMap((m: { toolTrace?: Array<{ resultPreview: string }> }) =>
+        m.toolTrace ?? [],
+      )
+      .map((t: { resultPreview: string }) => t.resultPreview);
+    expect(allPreviews).not.toContain("mid-stream failure");
+  });
+
+  it("returns the conversation with an empty messages array when none exist", async () => {
+    const convId = seedConversation({ title: "fresh", scope: null });
+    const r = await request(makeApp()).get(
+      `/api/anthropic/conversations/${convId}`,
+    );
+    expect(r.status).toBe(200);
+    expect(r.body.messages).toEqual([]);
+  });
+});
+
 describe("DELETE /api/anthropic/conversations/:id", () => {
   it("deletes a conversation and returns 204", async () => {
     const app = makeApp();
