@@ -27,6 +27,7 @@ import {
   writeBcmSec16Gen2,
   writeRfhSec16FromBcm,
   writeRfhSec16Gen1,
+  writeXc2268Sec16,
   writePcmSec6,
 } from '../lib/securityBytes.js';
 
@@ -416,7 +417,7 @@ export default function PairingRepairPanel({
       }
     }
 
-    /* RFHUB — Gen2 and Gen1 both supported */
+    /* RFHUB — Gen2, Gen1, and XC2268 (2019+ internal flash) all supported */
     if (rfhubBytes) {
       try {
         if (triage.rfhub.rfhFormat === 'gen2') {
@@ -424,6 +425,9 @@ export default function PairingRepairPanel({
           patchedBuffers.rfhub = res.bytes;
         } else if (triage.rfhub.rfhFormat === 'gen1') {
           const res = writeRfhSec16Gen1(rfhubBytes, secrets.bcmSec16);
+          patchedBuffers.rfhub = res.bytes;
+        } else if (triage.rfhub.rfhFormat === 'xc2268') {
+          const res = writeXc2268Sec16(rfhubBytes, secrets.bcmSec16);
           patchedBuffers.rfhub = res.bytes;
         } else {
           errors.push(`RFHUB: Unknown format (${triage.rfhub.rfhFormat || 'undetected'}) — cannot write SEC16 offline`);
@@ -788,7 +792,10 @@ export default function PairingRepairPanel({
               {rfhubBytes && (
                 <div style={{ background: C.surf, borderRadius: 10, border: `1px solid ${C.bd}`, padding: '14px 16px', marginBottom: 12 }}>
                   <div style={{ fontWeight: 900, fontSize: 12, color: C.a4, marginBottom: 10 }}>
-                    🔑 RFHUB — SEC16 Gen2 slots
+                    🔑 RFHUB — SEC16
+                    {triage.rfhub.rfhFormat === 'gen1' && ' (Gen1)'}
+                    {triage.rfhub.rfhFormat === 'gen2' && ' (Gen2)'}
+                    {triage.rfhub.rfhFormat === 'xc2268' && ' (XC2268 — 2019+ internal flash)'}
                   </div>
                   {triage.rfhub.rfhFormat === 'gen2' ? (
                     <HexBlock
@@ -802,6 +809,17 @@ export default function PairingRepairPanel({
                       before={triage.rfhub.sec16Bytes || null}
                       after={previewSecrets.rfhubSec16}
                     />
+                  ) : triage.rfhub.rfhFormat === 'xc2268' ? (
+                    <>
+                      <HexBlock
+                        label="RFHUB SEC16 (XC2268 slots 0x1100 / 0x1120)"
+                        before={triage.rfhub.sec16Bytes || null}
+                        after={previewSecrets.rfhubSec16}
+                      />
+                      <div style={{ fontSize: 9, color: C.ts, fontStyle: 'italic', marginTop: 4 }}>
+                        Both mirror slots written; BE16 CRC-16/CCITT-FALSE appended per slot; image-wide checksum refreshed
+                      </div>
+                    </>
                   ) : (
                     <div style={{ fontSize: 10, color: C.wn }}>
                       Unknown RFHUB format — cannot write SEC16 offline

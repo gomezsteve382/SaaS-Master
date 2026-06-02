@@ -17,7 +17,7 @@
  *     sec6Hex:    string|null,
  *     markerHex:  string|null,      // PCM only: 4 bytes at 0x3C4
  *     markerOk:   boolean,          // PCM only: true when FF FF FF AA
- *     rfhFormat:  string|null,      // RFHUB only: 'gen1' | 'gen2'
+ *     rfhFormat:  string|null,      // RFHUB only: 'gen1' | 'gen2' | 'xc2268'
  *   }
  *
  * No UI, no side-effects, no fetch. Reuses existing library functions.
@@ -25,6 +25,7 @@
 
 import { resolveBcmSec16, classifyPcmSec6 } from './parseModule.js';
 import { PCM_SEC6_MARKER_OFFSET, PCM_SEC6_OFFSET } from './securityBytes.js';
+import { isXc2268Rfhub, XC2268_SEC16_SLOTS, XC2268_SEC16_LEN } from './xc2268Rfhub.js';
 
 const fmtHex = (arr) => {
   if (!arr || arr.length === 0) return '';
@@ -86,8 +87,10 @@ function triageBcm(bytes) {
 /* Canonical SEC16 slot locations (verified against parseModule.js):
  *   Gen2 (24C32, 4096 B or 8192 B): slots at 0x050E and 0x0522
  *   Gen1 (24C16, 2048 B):            slots at 0x00AE and 0x00C0
- * Checksum for both Gen1 and Gen2: (crc8_65(raw16) << 8) | 0x00 at slot+16/+17.
- * Format is determined by buffer size, same rule as parseModule.js. */
+ *   XC2268 (64 KB internal flash):   slots at 0x1100 and 0x1120 (XC2268_SEC16_SLOTS)
+ * Checksum for Gen1/Gen2: (crc8_65(raw16) << 8) | 0x00 at slot+16/+17.
+ * Checksum for XC2268:   BE16 CRC-16/CCITT-FALSE at slot+16/+17.
+ * Format is determined by buffer size + header heuristic, same rule as parseModule.js. */
 const RFH_GEN2_HEADER_OFFSET = 0x0500;
 const RFH_GEN2_SLOTS = [0x050E, 0x0522];
 const RFH_GEN1_SLOTS = [0x00AE, 0x00C0];
@@ -107,12 +110,18 @@ function triageRfhub(bytes) {
 
   const sz = bytes.length;
 
-  /* Format detection: same size-based rule as parseModule.js */
+  /* Format detection: same size-based rule as parseModule.js.
+   * XC2268 header check takes priority over the size buckets so a 64 KB
+   * internal-flash RFHUB isn't misclassified as a BCM dump. */
   const isGen2 = sz === 4096 || sz === 8192;
   const isGen1 = sz === 2048;
 
   let rfhFormat, slots, provName;
-  if (isGen2) {
+  if (isXc2268Rfhub(bytes)) {
+    rfhFormat = 'xc2268';
+    slots = XC2268_SEC16_SLOTS;
+    provName = `XC2268 slots 0x1100/0x1120`;
+  } else if (isGen2) {
     rfhFormat = 'gen2';
     slots = RFH_GEN2_SLOTS;
     provName = `Gen2 slots 0x050E/0x0522`;
@@ -134,11 +143,12 @@ function triageRfhub(bytes) {
 
   let sec16Bytes = null;
   let provenance = provName;
+  const slotLen = XC2268_SEC16_LEN; /* 16 for all formats */
 
-  if (slots.length > 0 && slots[0] + 16 <= sz) {
-    const s1 = bytes.slice(slots[0], slots[0] + 16);
-    const s2 = slots.length > 1 && slots[1] + 16 <= sz
-      ? bytes.slice(slots[1], slots[1] + 16) : null;
+  if (slots.length > 0 && slots[0] + slotLen <= sz) {
+    const s1 = bytes.slice(slots[0], slots[0] + slotLen);
+    const s2 = slots.length > 1 && slots[1] + slotLen <= sz
+      ? bytes.slice(slots[1], slots[1] + slotLen) : null;
     const virgin = s1.every(b => b === 0xFF) || s1.every(b => b === 0x00);
 
     if (!virgin) {
@@ -160,7 +170,8 @@ function triageRfhub(bytes) {
   if (!sec16Bytes) {
     /* Distinguish: if format was identifiable but virgin → blank; if truly
      * unknown format or too small → absent (cannot assess) */
-    state = (rfhFormat !== 'unknown' && sz >= (isGen1 ? 0x00C2 : 0x0532)) ? 'blank' : 'absent';
+    const minSz = isGen1 ? 0x00C2 : rfhFormat === 'xc2268' ? (XC2268_SEC16_SLOTS[1] + slotLen) : 0x0532;
+    state = (rfhFormat !== 'unknown' && sz >= minSz) ? 'blank' : 'absent';
   } else {
     state = 'trusted';
   }
