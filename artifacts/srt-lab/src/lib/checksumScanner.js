@@ -355,6 +355,12 @@ export function scanChecksums(data) {
       const computedNonTrivial = Array.from(computed).some(b => b !== 0);
       const storedMatchesComputed = computed.every((b, i) => b === stored[i]);
       const storedNonTrivial = Array.from(stored).some(b => b !== 0);
+      // Blank EEPROM locations store all-FF (erased state) or all-00 (zero-filled).
+      // These are NOT broken checksums — they are unwritten slots.  Surfacing them
+      // as BROKEN floods the table with noise (e.g. 20+ entries on a GPEC2A whose
+      // end region is all-FF).  Filter them from the broken candidate path; the
+      // valid path still fires whenever computed === stored (e.g. sum8 = 0xFF).
+      const storedIsAllFF = Array.from(stored).every(b => b === 0xFF);
 
       if (storedMatchesComputed && storedNonTrivial) {
         // Valid: stored checksum matches computed prefix — overwrite any prior broken entry
@@ -368,9 +374,9 @@ export function scanChecksums(data) {
           covers:      covers(0, pos),
           coversStart: "0x0",
         });
-      } else if (isStructural && fileHasContent && computedNonTrivial && !seen.has(key)) {
-        // Broken candidate: structural position, file has data, computed is meaningful.
-        // Surface so users can see and repair the invalidated field.
+      } else if (isStructural && fileHasContent && computedNonTrivial && !storedIsAllFF && !seen.has(key)) {
+        // Broken candidate: structural position, file has data, stored slot looks
+        // intentionally written (not blank EEPROM), computed is meaningful.
         seen.set(key, {
           offset:      "0x" + pos.toString(16),
           algorithm:   name,
