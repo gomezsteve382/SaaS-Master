@@ -233,7 +233,10 @@ function makeRfhubGen1({
   return buf;
 }
 
-// 4096-byte GPEC2A fixture.
+// 4096-byte GPEC2A fixture. `size` overrides the buffer length so callers can
+// build a non-canonical PCM image (e.g. 6 KB) to exercise the SYNC ALL size
+// guard — every field this fixture writes lives in the first 4 KB, so a larger
+// buffer just pads the tail with 0xFF and still parses as a GPEC2A.
 function makeGpec2a({
   vin = VIN_DEFAULT,
   skim = 0x80,
@@ -242,8 +245,9 @@ function makeGpec2a({
   zzzzIntact = true,
   pcmSec6Damaged = false,
   pcmSec6Bytes = null,
+  size = 4096,
 } = {}) {
-  const sz = 4096;
+  const sz = size;
   const buf = new Uint8Array(sz).fill(0xFF);
 
   const vinAscii = asciiBytes(vin);

@@ -279,6 +279,67 @@ describe("ModuleSync — SYNC ALL pre-download safety gate (Task #1026)", () => 
     ).toBeTruthy();
   });
 
+  // ── Task #1033: wrong-size PCM blocks SYNC ALL before any write ───────────
+  // The genuine virgin/wrong-file brick guard on the SYNC ALL path: when the
+  // loaded GPEC2A/PCM dump is neither 4 KB nor 8 KB, the whole sync is refused
+  // BEFORE anything is written. Flashing a wrong-sized PCM the bench programmer
+  // would reject — or a truncated/over-read EXT EEPROM capture — is exactly the
+  // file that bricks a car, so loading one must make shipping a _SYNCED set
+  // impossible from this surface.
+  //
+  // DRIFT NOTE: the task framed this as "click SYNC ALL → the size-block reason
+  // surfaces in the log" via the executeSync('sync-all') size guard
+  // (ModuleSync.jsx ~2761). Driving the REAL component shows the protection
+  // lands one layer earlier: a non-canonical PCM (pcmHasNonCanonicalSize)
+  // DISABLES the SYNC ALL button (enabled = baseEnabled && !pcmSizeBlocked),
+  // and ActionBtn wires a disabled button's onClick to undefined — so a direct
+  // click can NEVER reach doSync/executeSync, and the 2761 log line is an
+  // unreachable backstop for that button. The size-block reason instead
+  // surfaces in the inline help panel under the action grid. The 2761 log guard
+  // only fires for the programmatic re-entry the comment names (the
+  // MismatchWizard "Full 3-Module Sync" step → doSync('sync-all')), not a
+  // SYNC ALL click. This test therefore asserts the brick is blocked at its
+  // real SYNC ALL home: the button is disabled, the size reason surfaces, and
+  // crucially NO _SYNCED file can ship (clickSpy never fires) — the same
+  // bottom-line guarantee the task asks for.
+  it("BLOCKS SYNC ALL when the loaded PCM is a non-canonical size (6 KB): button disabled, size reason surfaces, no _SYNCED ships", async () => {
+    const { container } = renderModuleSync();
+    // BCM/RFH reconcile (so the PCM size — not a secret mismatch — is the only
+    // reason SYNC ALL is held), and the PCM is a 6 KB GPEC2A: above the 4 KB
+    // floor (so it parses, not "too small") but neither 4 KB nor 8 KB, so
+    // pcmHasNonCanonicalSize is true and the size gate engages.
+    await loadInto(container, 0, bcmFixture({ flatSecret: RFH_SECRET_REVERSED }), "bcm-fixture.bin");
+    await loadInto(container, 1, makeRfhubGen2(), "rfh-fixture.bin");
+    await loadInto(container, 2, makeGpec2a({ size: 6144 }), "pcm-fixture.bin");
+
+    // The SYNC ALL button mounts but is DISABLED — the brick guard at the
+    // button level. (loadTrio's "enabled" wait can't be used here precisely
+    // because this PCM correctly disables it.)
+    let syncBtn;
+    await waitFor(() => {
+      syncBtn = screen.getByRole("button", { name: /SYNC ALL/i });
+      expect(syncBtn).toBeTruthy();
+      expect(syncBtn.disabled).toBe(true);
+    });
+
+    // The size-block reason surfaces on the SYNC ALL surface (help panel),
+    // naming the offending size and the two canonical chip sizes.
+    const blockHelp = screen.getByTestId("modsync-pcm-size-blocked-help");
+    expect(blockHelp.textContent).toMatch(/6144 bytes/i);
+    expect(blockHelp.textContent).toMatch(/4 KB .*8 KB/i);
+
+    // Clicking the disabled button is inert (onClick is undefined when
+    // disabled) — proving the wrong-size file can't be pushed through here.
+    await act(async () => {
+      fireEvent.click(syncBtn);
+    });
+
+    // Nothing may ship — no _SYNCED download, no anchor click, no "gate PASSED".
+    expect(screen.queryByText(/^Downloaded:/i, { exact: false })).toBeNull();
+    expect(screen.queryByText(/safety gate PASSED/i, { exact: false })).toBeNull();
+    expect(clickSpy).not.toHaveBeenCalled();
+  });
+
   // ── Task #1032: virgin-GPEC2A SEC6 refusal at its real home ──────────────
   // Task #1036 — Case 4a: the rendered SYNC ALL flow now refuses a virgin /
   // blank GPEC2A. A reconcilable BCM/RFH pair + a canonical-size GPEC2A whose

@@ -37,3 +37,15 @@ Reconcile rule (crossValidate): MATCH iff reverse(resolved BCM flat) === RFH
 SEC16 secret. RFH default (makeRfhubGen2) secret = [01..10], so a reconcilable
 BCM flat = reverse([01..10]). source stays 'flat', which skips the legacy-flat
 staleness warning.
+
+5. **Wrong-size PCM is blocked at UI enablement, not by the sync-time log
+   guard.** SYNC ALL has two entry points and only one is reachable by clicking:
+   the direct button is *disabled* when the PCM is non-canonical (neither 4 KB
+   nor 8 KB), and a disabled button's onClick is wired to undefined — so a click
+   can never reach the sync executor. The executor's size-guard log line is a
+   backstop reachable only via the MismatchWizard "Full 3-Module Sync"
+   programmatic re-entry. So a wrong-size *button* test asserts disabled state +
+   visible reason (the size-block help panel) + no download fired — NOT a log
+   line; testing the log requires driving the wizard path instead. Build the
+   oversized PCM with `makeGpec2a({ size })`: fields stay in the first 4 KB and
+   the tail is 0xFF pad, so it still parses as GPEC2A (not "too small").
