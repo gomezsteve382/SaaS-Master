@@ -353,7 +353,7 @@ function PcmPanel({ pcm, pcmSizeBadge, pcmSizeNonCanonical }) {
 }
 
 /* ─── Comparison + verdict ────────────────────────────────────────────────── */
-function computeVerdict(bcm, pcm) {
+export function computeVerdict(bcm, pcm) {
   if (!bcm || !pcm) {
     return { verdict: 'LOCKED', reason: 'Load both BCM and PCM files', canApply: false, issues: [], info: [] };
   }
