@@ -2,8 +2,12 @@ import React, {useState, useCallback, useRef, useMemo, useContext} from "react";
 import {Card, Btn, SLine} from "../lib/ui.jsx";
 import {C, TR, WT} from "../lib/constants.js";
 import {analyzeFile, patchFile} from "../lib/fileUtils.js";
+import {parseModule} from "../lib/parseModule.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
+import Gpec2aImmoPanel from "../components/Gpec2aImmoPanel.jsx";
+import BcmImmoSection from "../components/BcmImmoSection.jsx";
+import RfhubImmoSection from "../components/RfhubImmoSection.jsx";
 
 /* VIN PROGRAMMER TAB
  *
@@ -105,9 +109,184 @@ function SlotRow({slot, kind}) {
   );
 }
 
+/* The VIN + CHECKSUM tab hosts a sub-tab bar: the original single-file
+ * PATCHER plus one ImmoVIN sub-tab per module (ECM / BCM / RFHUB). Each
+ * module sub-tab loads + parses its own file and renders the SAME shared
+ * panel component used by the per-module main tabs (Gpec2aImmoPanel,
+ * BcmImmoSection, RfhubImmoSection) — no duplicated layout or checksum
+ * logic. All sub-tabs stay mounted (visibility toggled) so switching
+ * between them never loses a loaded dump or in-progress edits. */
+const SUBTABS = [
+  {id: 'patch', label: 'PATCHER', icon: '🪪'},
+  {id: 'ecm', label: 'ECM', icon: '🧠'},
+  {id: 'bcm', label: 'BCM', icon: '🔧'},
+  {id: 'rfhub', label: 'RFHUB', icon: '📡'},
+];
+
+function SubTabBar({sub, setSub}) {
+  return (
+    <div data-testid="vinprog-subtab-bar" style={{display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap'}}>
+      {SUBTABS.map(t => {
+        const active = sub === t.id;
+        return (
+          <button
+            key={t.id}
+            data-testid={`vinprog-subtab-${t.id}`}
+            onClick={() => setSub(t.id)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 10,
+              border: `2px solid ${active ? C.sr : C.bd}`,
+              background: active ? C.sr : '#fff',
+              color: active ? '#fff' : C.tx,
+              fontFamily: "'Nunito'",
+              fontWeight: 800,
+              fontSize: 12,
+              letterSpacing: 1,
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            <span style={{marginRight: 6}}>{t.icon}</span>{t.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* A module sub-tab: load a .bin, parse it with the same parseModule path
+ * the per-module main tabs use, refuse a file whose detected type does not
+ * match the sub-tab, and hand the parsed `mod` to its render-prop child
+ * (which mounts the matching shared ImmoVIN panel). `mod`/`setMod` live in
+ * the parent so the loaded dump survives sub-tab switches. */
+function ModuleSubTab({testidPrefix, label, blurb, expectedTypes, mod, setMod, children}) {
+  const inputRef = useRef(null);
+  const [err, setErr] = useState('');
+
+  const onPick = useCallback(async (f) => {
+    setErr('');
+    if (!f) return;
+    try {
+      const bytes = new Uint8Array(await f.arrayBuffer());
+      const m = parseModule(bytes, f.name);
+      if (expectedTypes && !expectedTypes.includes(m.type)) {
+        setErr(`Selected file detected as ${m.name || m.type} — load a ${label} dump for this sub-tab.`);
+        return;
+      }
+      setMod(m);
+    } catch (e) {
+      setErr(`Could not read file: ${e?.message || e}`);
+    }
+  }, [expectedTypes, label, setMod]);
+
+  const onFilePick = useCallback((e) => {
+    const f = e.target.files && e.target.files[0];
+    onPick(f);
+    if (e.target) e.target.value = '';
+  }, [onPick]);
+
+  const onDrop = useCallback((e) => {
+    e.preventDefault();
+    const f = e.dataTransfer.files && e.dataTransfer.files[0];
+    onPick(f);
+  }, [onPick]);
+
+  return (
+    <div data-testid={`${testidPrefix}-subtab`}>
+      <Card style={{marginBottom: 14}}>
+        <div style={{fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, color: C.sr, letterSpacing: 1.5, marginBottom: 10}}>LOAD {label} FILE</div>
+        <div style={{fontSize: 11, color: C.tm, marginBottom: 10}}>{blurb}</div>
+        <div
+          data-testid={`${testidPrefix}-dropzone`}
+          onDragOver={e => e.preventDefault()}
+          onDrop={onDrop}
+          onClick={() => inputRef.current && inputRef.current.click()}
+          style={{
+            border: `2px dashed ${mod ? C.gn : C.bd}`,
+            borderRadius: 12,
+            padding: 20,
+            textAlign: 'center',
+            cursor: 'pointer',
+            background: mod ? '#F0FFF4' : '#FAFAF8',
+            transition: 'all 0.2s',
+          }}
+        >
+          <input
+            ref={inputRef}
+            data-testid={`${testidPrefix}-file-input`}
+            type="file"
+            accept=".bin,.BIN"
+            style={{display: 'none'}}
+            onChange={onFilePick}
+          />
+          {!mod && <>
+            <div style={{fontSize: 24, marginBottom: 6}}>📁</div>
+            <div style={{fontFamily: "'JetBrains Mono'", fontWeight: 700, fontSize: 12, color: C.tx}}>Drop a {label} .bin or click to pick</div>
+          </>}
+          {mod && <>
+            <div style={{fontFamily: "'JetBrains Mono'", fontWeight: 800, fontSize: 13, color: C.tx, marginBottom: 4}} data-testid={`${testidPrefix}-filename`}>{mod.filename}</div>
+            <div style={{fontSize: 11, color: C.tm}}>
+              <span data-testid={`${testidPrefix}-detected-type`} style={{color: mod.color || C.tm, fontWeight: 800}}>{mod.name || mod.type}</span>
+              {' · '}
+              <span>{(mod.size / 1024).toFixed(mod.size % 1024 === 0 ? 0 : 2)} KB</span>
+            </div>
+          </>}
+        </div>
+        {mod && (
+          <div style={{marginTop: 10}}>
+            <Btn outline color={C.tm} onClick={() => {setMod(null); setErr('');}}>CLEAR</Btn>
+          </div>
+        )}
+        {err && <div style={{marginTop: 10}}><SLine type="error" msg={err}/></div>}
+      </Card>
+      {mod && children(mod)}
+    </div>
+  );
+}
+
 export default function VinProgrammerTab() {
-  const {vin: masterVin, vinValid: masterVinValid, setVin: setMasterVin} = useContext(MasterVinContext);
+  const {vin: masterVin, vinValid: masterVinValid, setVin: setMasterVin, getDumpsByType} = useContext(MasterVinContext);
   const fileInputRef = useRef(null);
+
+  // Sub-tab selection + per-module loaded dumps (kept here so switching
+  // sub-tabs preserves each module's loaded file/state).
+  const [sub, setSub] = useState('patch');
+  const [ecmMod, setEcmMod] = useState(null);
+  const [bcmMod, setBcmMod] = useState(null);
+  const [rfhubMod, setRfhubMod] = useState(null);
+
+  // Donor SEC16 sources for the GPEC2A immo-fix panel: the BCM / RFHUB
+  // dumps loaded in the sibling sub-tabs plus any already in the shared
+  // workspace (mirrors EcmTab's donor wiring).
+  const donorMods = useMemo(() => {
+    const ctx = [
+      ...(getDumpsByType ? getDumpsByType('BCM') : []),
+      ...(getDumpsByType ? getDumpsByType('RFHUB') : []),
+    ].map(d => d.mod).filter(Boolean);
+    return [bcmMod, rfhubMod, ...ctx].filter(Boolean);
+  }, [bcmMod, rfhubMod, getDumpsByType]);
+
+  // When a panel pushes a patched buffer back, re-parse it in place so the
+  // sub-tab re-analyzes the patched result (the download is still saved).
+  const onEcmPatched = useCallback((bytes, filename) => {
+    try {
+      const m = parseModule(bytes, filename || 'gpec2a_patched.bin');
+      if (m && m.type === 'GPEC2A') setEcmMod(m);
+    } catch { /* ignore — keep the prior dump on a bad re-parse */ }
+  }, []);
+  const onBcmPatched = useCallback((bytes, filename) => {
+    try {
+      const m = parseModule(bytes, filename || 'bcm_patched.bin');
+      if (m && m.type === 'BCM') setBcmMod(m);
+    } catch { /* ignore */ }
+  }, []);
+  const onRfhubPatched = useCallback((bytes, filename) => {
+    try {
+      const m = parseModule(bytes, filename || 'rfhub_patched.bin');
+      if (m && (m.type === 'RFHUB' || m.type === 'XC2268_RFHUB')) setRfhubMod(m);
+    } catch { /* ignore */ }
+  }, []);
 
   const [file, setFile] = useState(null); // {name, bytes, info}
   const [newVin, setNewVin] = useState('');
@@ -218,6 +397,9 @@ export default function VinProgrammerTab() {
         </div>
       </Card>
 
+      <SubTabBar sub={sub} setSub={setSub}/>
+
+      <div data-testid="vinprog-subtab-patch-wrap" style={{display: sub === 'patch' ? 'block' : 'none'}}>
       <Card style={{marginBottom: 14}}>
         <div style={{fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, color: C.sr, letterSpacing: 1.5, marginBottom: 10}}>1 · LOAD FILE</div>
         <div
@@ -368,6 +550,46 @@ export default function VinProgrammerTab() {
         <div style={{fontWeight: 800, color: C.sr, letterSpacing: 1, fontSize: 11, marginBottom: 6}}>BENCH WORK ONLY</div>
         Reads the dropped file in the browser and writes the patched copy back to your downloads folder. Nothing is sent over CAN — pair this tab with the per-module write tabs (BCM / RFHUB / KEY PROG) when you're ready to push the patched bin to the actual module.
       </Card>
+      </div>
+
+      <div data-testid="vinprog-subtab-ecm-wrap" style={{display: sub === 'ecm' ? 'block' : 'none'}}>
+        <ModuleSubTab
+          testidPrefix="vinprog-ecm"
+          label="ECM (GPEC2A)"
+          blurb="Continental GPEC2A PCM dump — VIN copies, SEC6 secret, checksum verdicts and one-click IMMO fix."
+          expectedTypes={['GPEC2A']}
+          mod={ecmMod}
+          setMod={setEcmMod}
+        >
+          {(m) => <Gpec2aImmoPanel mod={m} donorMods={donorMods} onPatched={onEcmPatched}/>}
+        </ModuleSubTab>
+      </div>
+
+      <div data-testid="vinprog-subtab-bcm-wrap" style={{display: sub === 'bcm' ? 'block' : 'none'}}>
+        <ModuleSubTab
+          testidPrefix="vinprog-bcm"
+          label="BCM"
+          blurb="MPC5606B-class BCM dump — per-slot VIN + SEC16 edit with safety-gated export."
+          expectedTypes={['BCM']}
+          mod={bcmMod}
+          setMod={setBcmMod}
+        >
+          {(m) => <BcmImmoSection mod={m} onPatched={onBcmPatched}/>}
+        </ModuleSubTab>
+      </div>
+
+      <div data-testid="vinprog-subtab-rfhub-wrap" style={{display: sub === 'rfhub' ? 'block' : 'none'}}>
+        <ModuleSubTab
+          testidPrefix="vinprog-rfhub"
+          label="RFHUB"
+          blurb="XC2268 internal-flash RFHUB image — per-slot VIN edit with safety-gated export (legacy RFHUB is read-only here)."
+          expectedTypes={['RFHUB', 'XC2268_RFHUB']}
+          mod={rfhubMod}
+          setMod={setRfhubMod}
+        >
+          {(m) => <RfhubImmoSection mod={m} onPatched={onRfhubPatched}/>}
+        </ModuleSubTab>
+      </div>
     </div>
   );
 }
