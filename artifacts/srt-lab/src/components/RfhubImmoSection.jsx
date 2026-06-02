@@ -119,6 +119,16 @@ export default function RfhubImmoSection({mod, onPatched = null}) {
     empty: "No XC2268 VIN slots present.",
   };
 
+  // Derive a human-readable offset-confirmation note for the SEC16 section.
+  // A real 2019+ Ram dump with populated slots will show "CRC OK" on both
+  // rows — that is the on-vehicle confirmation that 0x1100 / 0x1120 are
+  // correct. Virgin / blank dumps show "BLANK" (normal state before key-prog).
+  const sec16VerificationNote = parsed.sec16Blank
+    ? "Both slots blank (virgin / never key-programmed) — load a dump from a paired vehicle to verify offset ground-truth."
+    : parsed.sec16Slots.every((s) => s.csOk)
+    ? "✓ Both slots populated with valid CRC — offsets 0x1100 / 0x1120 confirmed for this dump."
+    : "⚠ One or more slots have a CRC mismatch — image may be partially edited or the offset layout differs.";
+
   const securityModel = {
     title: "SEC16 MIRROR SLOTS / VERDICTS",
     icon: "🔐",
@@ -161,6 +171,20 @@ export default function RfhubImmoSection({mod, onPatched = null}) {
     },
   };
 
+  const sec16NoteEl = (
+    <div
+      data-testid="rfhub-immo-sec16-verification-note"
+      style={{
+        fontSize: 10,
+        color: parsed.sec16Blank ? C.tm : parsed.sec16Slots.every((s) => s.csOk) ? C.gn : C.wn,
+        marginTop: 6,
+        fontStyle: "italic",
+      }}
+    >
+      {sec16VerificationNote}
+    </div>
+  );
+
   return (
     <ImmoChecksumPanel
       testid="rfhub-immo-panel"
@@ -171,6 +195,7 @@ export default function RfhubImmoSection({mod, onPatched = null}) {
       analysis={analysisModel}
       vinSection={vinModel}
       securitySection={securityModel}
+      afterSecurity={sec16NoteEl}
       editing={editingModel}
       status={{testid: "rfhub-immo-status", msg, err}}
     />

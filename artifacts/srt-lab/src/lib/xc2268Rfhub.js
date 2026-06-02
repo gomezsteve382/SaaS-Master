@@ -66,11 +66,22 @@ export const XC2268_SUPPORTED_SIZE = 0x10000;
  *
  * Status: the 0x1100/0x1120 offsets, the 0x20-byte slot stride, the BE16
  * per-slot CRC, and the image-wide checksum round-trip are all locked by
- * golden-byte assertions in xc2268Rfhub.test.js (18 tests pass). Structural
- * source: bench-tool screenshot (Task #634) + cross-checked against the
- * writeXc2268Sec16 write path. On-vehicle verification with a real 2019+
- * Ram RFHUB dump is the remaining confirmation step before these offsets
- * can be considered fully ground-truthed. */
+ * golden-byte assertions in xc2268Rfhub.test.js (25 tests across the two
+ * XC2268 test files pass). Structural source: bench-tool screenshot (Task
+ * #634) cross-checked against the writeXc2268Sec16 write path.
+ *
+ * ON-VEHICLE VERIFICATION PROCEDURE (pending — complete before live flash):
+ *   1. Obtain a real 64 KB 2019+ Ram 1500 RFHUB dump (variant tag 0x01/02).
+ *   2. Load it in SRT Lab → RFHUB tab → RFHUB IMMO / VIN WORKBENCH panel.
+ *   3. In the "SEC16 MIRROR SLOTS / VERDICTS" table, confirm:
+ *        • Both rows show offset 0x1100 and 0x1120 respectively.
+ *        • Each row contains 16 non-trivial bytes (not all-FF / all-00).
+ *        • The "Stored CRC" matches the BE16 CRC-16/CCITT-FALSE of those bytes.
+ *        • The Verdict badge shows "CRC OK" for both slots.
+ *   4. If the offsets are correct → update this comment to
+ *      "bench-verified on <vehicle-VIN / date>".
+ *   5. If the offsets differ → correct XC2268_SEC16_SLOTS below and update
+ *      the golden-byte inline snapshot in xc2268Rfhub.test.js. */
 export const XC2268_SEC16_SLOTS = [0x1100, 0x1120];
 export const XC2268_SEC16_LEN = 16;
 

@@ -175,10 +175,12 @@ describe('xc2268Rfhub — patch VIN', () => {
 
 // ---------------------------------------------------------------------------
 // SEC16 slot tests — verifies the 0x1100/0x1120 offset contract and the
-// round-trip write→parse path. These are the primary coverage for the
-// "bench-verify" task: the slot offsets are locked by the golden-byte
-// assertions below. On-vehicle verification with a real 2019+ Ram RFHUB dump
-// remains the final confirmation step (see xc2268Rfhub.js header).
+// round-trip write→parse path. The slot offsets are locked by the golden-byte
+// assertions below. On-vehicle verification procedure: load a real 64 KB
+// 2019+ Ram RFHUB dump in SRT Lab; the "SEC16 MIRROR SLOTS / VERDICTS" panel
+// in the inspector shows offset, raw bytes, and CRC verdict for each slot.
+// "CRC OK" on both rows = offsets confirmed. See the verification checklist
+// in xc2268Rfhub.js for the full 5-step procedure.
 // ---------------------------------------------------------------------------
 
 describe('xc2268Rfhub — SEC16 slot offsets and layout', () => {
