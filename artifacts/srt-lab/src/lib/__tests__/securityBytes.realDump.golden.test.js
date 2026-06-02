@@ -4,7 +4,9 @@ import {
   writeBcmSec16Gen2,
   writePcmSec6,
   writeRfhSec16FromBcm,
+  writeRfhSec16Gen1,
 } from '../securityBytes.js';
+import { parseModule } from '../parseModule.js';
 import { loadRealDumpFixtures } from '../__fixtures__/realDumps/loader.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -156,6 +158,70 @@ function expectBytesEqual(actual, expected, label) {
         r.patched,
         'writer reported zero patches — fixture before/after look identical',
       ).toBeGreaterThan(0);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Gen1 RFHUB (Yazaki 24C16, 2 KB) — writeRfhSec16Gen1 round-trip
+  //
+  // ⚠️  FORMULA_UNVERIFIED_ON_REAL_HW
+  //
+  // The manifest entry `rfhubg1` was derived from the donor-style synthetic
+  // golden fixture `lx_charger_2014_fullhouse.bin` (a hand-built layout
+  // conformance fixture, NOT a physical EEPROM capture).  This means the
+  // round-trip below confirms that writeRfhSec16Gen1 is internally consistent
+  // with the fixture's own crc8_65 checksum — it does NOT confirm that a
+  // real Yazaki 24C16 chip stores its SEC16 CS with the same polynomial.
+  //
+  // HOW TO UPGRADE when a real 24C16 dump surfaces:
+  //   1. Sanitize the physical dump (scrub the VIN at 0x92, recompute CRC16
+  //      BE at +17/+18 from crc16(vinAscii) — see __golden__/README.md).
+  //   2. Erase both SEC16 slots (0x00AE and 0x00C0, each 18 B) to 0xFF to
+  //      produce `rfhubg1.before.bin`.
+  //   3. Keep the original dump as `rfhubg1.after.bin` (the paired state).
+  //   4. Update the manifest `rfhubg1` entry with the donor VIN, anon VIN,
+  //      the real rfhSec16Hex, and set source = 'real-sanitized'.
+  //   5. Run this test.  If it fails, the real chip uses a different CS
+  //      formula — inspect parseModule(dump,'x.bin').sec16s[*].csOk and
+  //      correct both writeRfhSec16Gen1 AND the !sec16IsGen2 branch in
+  //      parseModule.js, then rebuild the fixture pair and re-run.
+  // ─────────────────────────────────────────────────────────────────────────
+  const rfhubg1Describe = fixtures.rfhubg1 ? describe : describe.skip;
+  rfhubg1Describe('writeRfhSec16Gen1 — Gen1 RFHUB dump (FORMULA_UNVERIFIED_ON_REAL_HW)', () => {
+    if (!fixtures.rfhubg1) {
+      it.skip('no rfhubg1 before/after pair in manifest', () => {});
+      return;
+    }
+    it('produces the captured "after" Gen1 RFHUB bytes from the captured "before" bytes', () => {
+      // manifest rfhSec16 is in RFHUB form; writeRfhSec16Gen1 expects BCM
+      // form (it reverses internally), so reverse here before passing in.
+      const rfhSec16 = fixtures.rfhubg1.rfhSec16;
+      const bcmSec16 = new Uint8Array(16);
+      for (let i = 0; i < 16; i++) bcmSec16[i] = rfhSec16[15 - i];
+
+      const r = writeRfhSec16Gen1(fixtures.rfhubg1.before, bcmSec16);
+      expectBytesEqual(r.bytes, fixtures.rfhubg1.after, 'Gen1-RFHUB');
+      expect(
+        r.patched,
+        'writer reported zero patches — fixture before/after look identical',
+      ).toBeGreaterThan(0);
+    });
+
+    it('both SEC16 slots in the "after" buffer have csOk=true under parseModule', () => {
+      const info = parseModule(fixtures.rfhubg1.after, 'rfhubg1.after.bin');
+      expect(info.type).toBe('RFHUB');
+      expect(info.rfhGen).toBe('Gen1 (24C16)');
+      expect(info.sec16s.length).toBeGreaterThanOrEqual(2);
+      for (const s of info.sec16s) {
+        expect(s.csOk, `slot @ 0x${s.offset.toString(16)}: csOk`).toBe(true);
+      }
+      expect(info.sec16match).toBe(true);
+      expect(info.sec16valid).toBe(true);
+    });
+
+    it('source metadata documents provenance (synthetic or real-sanitized)', () => {
+      expect(typeof fixtures.rfhubg1.source).toBe('string');
+      expect(fixtures.rfhubg1.source.length).toBeGreaterThan(0);
     });
   });
 });
