@@ -297,6 +297,8 @@ export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null})
     })),
   };
 
+  const immoAlreadyOk = !!(a.immo?.synced);
+
   const editingModel = {
     title: "APPLY CHANGES & DOWNLOAD",
     icon: "✏️",
@@ -339,27 +341,31 @@ export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null})
         ),
       },
     ],
-    controls: (
+    controls: !immoAlreadyOk ? (
       <label style={{display: "flex", gap: 6, alignItems: "center", marginTop: 12, fontSize: 11, color: C.tx, fontWeight: 700}}>
         <input type="checkbox" checked={fixImmo} onChange={(e) => setFixImmo(e.target.checked)} />
         Apply automatic FIX IMMO (stamp FF FF FF AA marker)
       </label>
+    ) : (
+      <div style={{marginTop: 12, fontSize: 10, color: C.gn, fontWeight: 700}}>✓ IMMO already OK — marker not touched</div>
     ),
     primary: {label: "✅ APPLY CHANGES AND DOWNLOAD", color: C.gn, onClick: onApply, disabled: !canonical},
   };
 
   const justFixAndPushback = (
     <>
-      <Card style={{marginBottom: 14, borderLeft: "3px solid " + C.wn}}>
-        <div style={{fontWeight: 800, fontSize: 11, color: C.wn, marginBottom: 4, letterSpacing: 2}}>🛠️ JUST FIX IT</div>
-        <div style={{fontSize: 10, color: C.tm, marginBottom: 12}}>
-          One-click immo repair: stamps FF FF FF AA + writes the SEC6 secret (manual entry above, else the loaded donor).
-          Refuses on doubt — no secret, blank/virgin source, or non-canonical image.
-        </div>
-        <Btn color={C.wn} full onClick={onJustFix} disabled={!canonical || (!donor && !sec6Hex.trim())}>
-          🛠️ ONLY FIX IMMO AND DOWNLOAD
-        </Btn>
-      </Card>
+      {!immoAlreadyOk && (
+        <Card style={{marginBottom: 14, borderLeft: "3px solid " + C.wn}}>
+          <div style={{fontWeight: 800, fontSize: 11, color: C.wn, marginBottom: 4, letterSpacing: 2}}>🛠️ JUST FIX IT</div>
+          <div style={{fontSize: 10, color: C.tm, marginBottom: 12}}>
+            One-click immo repair: stamps FF FF FF AA + writes the SEC6 secret (manual entry above, else the loaded donor).
+            Refuses on doubt — no secret, blank/virgin source, or non-canonical image.
+          </div>
+          <Btn color={C.wn} full onClick={onJustFix} disabled={!canonical || (!donor && !sec6Hex.trim())}>
+            🛠️ ONLY FIX IMMO AND DOWNLOAD
+          </Btn>
+        </Card>
+      )}
 
       {patched && typeof onPatched === "function" && (
         <Card style={{marginBottom: 14, borderLeft: "3px solid " + C.gn}}>
