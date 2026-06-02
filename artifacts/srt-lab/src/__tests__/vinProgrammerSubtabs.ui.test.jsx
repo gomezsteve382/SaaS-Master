@@ -184,6 +184,104 @@ describe("BCM sub-tab — patched-buffer refresh (onBcmPatched)", () => {
   });
 });
 
+// ECM sub-tab patched-buffer push-back (onEcmPatched):
+// After the GPEC2A panel produces a patched buffer (Just FIX IT), clicking
+// "ADD PATCHED DUMP TO WORKSPACE & RE-ANALYZE" fires onPushBack → onEcmPatched
+// in VinProgrammerTab → parseModule re-parse → setEcmMod. The ECM sub-tab
+// then shows the patched filename without any manual reload.
+describe("ECM sub-tab — push-back round-trip (onEcmPatched + gpec2a-pushback-btn)", () => {
+  it("re-parses the patched GPEC2A buffer in place after Just FIX IT + push-back", async () => {
+    renderTab();
+
+    // Load a BCM donor in the BCM sub-tab so the GPEC2A panel has a SEC6
+    // source (without a donor, Just FIX IT is disabled).
+    await clickSubtab("bcm");
+    await loadInto("vinprog-bcm", bcmBytes(), BCM_SYNCED);
+    await waitFor(() => expect(screen.getByTestId("bcm-immo-panel")).toBeTruthy());
+
+    // Switch to the ECM sub-tab and load the real GPEC2A bench dump.
+    await clickSubtab("ecm");
+    // Re-query the input — a prior render between sub-tab switches can
+    // detach the old node (modulesync-ui-test-fixtures memory note).
+    await loadInto("vinprog-ecm", gpecBytes(), PCM_FILE);
+    await waitFor(() => expect(screen.getByTestId("gpec2a-immo-panel")).toBeTruthy());
+
+    const subtab = within(screen.getByTestId("vinprog-ecm-subtab"));
+
+    // Sanity: the freshly loaded dump shows the original filename.
+    expect(subtab.getByTestId("vinprog-ecm-filename").textContent).toBe(PCM_FILE);
+
+    // Run Just FIX IT — the donor SEC6 is available from the BCM sub-tab, so
+    // the button is enabled. Clicking it produces the patched buffer and
+    // reveals the push-back card.
+    const panel = within(screen.getByTestId("gpec2a-immo-panel"));
+    const justFix = panel.getByRole("button", { name: /ONLY FIX IMMO AND DOWNLOAD/i });
+    expect(justFix.disabled).toBe(false);
+    await act(async () => {
+      fireEvent.click(justFix);
+    });
+
+    // The push-back button is now present (patched state is set + onPatched prop wired).
+    await waitFor(() => expect(screen.getByTestId("gpec2a-pushback-btn")).toBeTruthy());
+
+    // Click the push-back button → onPushBack → onEcmPatched → parseModule →
+    // setEcmMod. The ECM sub-tab dropzone should flip to the patched filename.
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("gpec2a-pushback-btn"));
+    });
+
+    // The patched filename ends with "_immoFix.bin" (Gpec2aImmoPanel.onJustFix
+    // sets fname = baseName + "_immoFix.bin").
+    await waitFor(() =>
+      expect(screen.getByTestId("vinprog-ecm-filename").textContent).toMatch(/_immoFix\.bin$/)
+    );
+
+    // The push-back button disappears once pushed (patched state cleared).
+    expect(screen.queryByTestId("gpec2a-pushback-btn")).toBeNull();
+  });
+});
+
+// RFHUB sub-tab patched-buffer refresh (onRfhubPatched):
+// After the XC2268 panel stamps a new VIN and calls onPatched, VinProgrammerTab
+// re-parses the result via onRfhubPatched → parseModule → setRfhubMod. The
+// RFHUB sub-tab dropzone should switch to the patched filename without any
+// manual reload.
+describe("RFHUB sub-tab — patched-buffer refresh (onRfhubPatched)", () => {
+  it("re-parses the XC2268 patched buffer in place after a VIN re-stamp", async () => {
+    renderTab();
+    await clickSubtab("rfhub");
+    await loadInto("vinprog-rfhub", xcBytes(), "rfhub_xc2268.bin");
+    await waitFor(() => expect(screen.getByTestId("rfhub-immo-panel")).toBeTruthy());
+
+    const subtab = within(screen.getByTestId("vinprog-rfhub-subtab"));
+
+    // Sanity: the freshly loaded dump shows the original filename.
+    expect(subtab.getByTestId("vinprog-rfhub-filename").textContent).toBe("rfhub_xc2268.bin");
+
+    // Enter a new VIN and click APPLY — patchXc2268Vin + runGatedExport →
+    // onPatched(res.bytes, "rfhub_xc2268_vin.bin") → onRfhubPatched.
+    const panel = within(screen.getByTestId("rfhub-immo-panel"));
+    await act(async () => {
+      fireEvent.change(panel.getByTestId("rfhub-immo-vin-input"), {
+        target: { value: XC_VIN },
+      });
+    });
+    await act(async () => {
+      fireEvent.click(panel.getByTestId("rfhub-immo-apply-btn"));
+    });
+
+    // VinProgrammerTab re-parsed the patched bytes and updated rfhubMod.
+    // The dropzone now shows the patched filename ("rfhub_xc2268_vin.bin").
+    await waitFor(() =>
+      expect(screen.getByTestId("vinprog-rfhub-filename").textContent).toMatch(/_vin\.bin$/)
+    );
+
+    // The panel re-analyzed the patched image: the VIN appears in at least
+    // one analysis card / slot row (VIN Consensus + per-slot rows all agree).
+    expect(panel.getAllByText(XC_VIN).length).toBeGreaterThanOrEqual(1);
+  });
+});
+
 // The cross-sub-tab donor chain: a BCM (or RFHUB) loaded in a sibling
 // sub-tab feeds the GPEC2A immo panel's donorMods, so the ECM sub-tab can
 // offer the BCM-derived PCM SEC6 secret (reverse(BCM SEC16)[0:6]) without
