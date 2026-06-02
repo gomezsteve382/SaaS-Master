@@ -716,15 +716,14 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
 
   let rfhPatched;
   let markerStamped = false;
+  // XC2268-class RFHUB (2019+ Ram internal-flash, 64 KB) uses a different
+  // SEC16 writer (writeXc2268Sec16) that refreshes the image-wide CRC32
+  // at the trailing 4 bytes instead of the Gen2 crc8_65 slot checksum.
+  const isXc2268Rfh = idR.info?.type === 'XC2268_RFHUB';
   try {
-    // Some real bench RFH dumps (e.g. the canonical 6.2 Charger fixture)
-    // carry valid Gen2 SEC16 slots but lack the AA 55 31 01 marker at
-    // 0x0500 that writeRfhSec16FromBcm guards on. The parser is already
-    // permissive here, so if parseModule classified the file as RFHUB and
-    // surfaced slot 1, normalize the marker on our working copy before
-    // calling the writer rather than refusing the bench-set workflow.
     const rfhWork = new Uint8Array(rfh.data);
-    if (rfhWork.length >= 0x0504 && !(
+    // Gen2 marker normalization is Yazaki-only; XC2268 has no such marker.
+    if (!isXc2268Rfh && rfhWork.length >= 0x0504 && !(
       rfhWork[0x0500] === 0xAA && rfhWork[0x0501] === 0x55 &&
       rfhWork[0x0502] === 0x31 && rfhWork[0x0503] === 0x01
     )) {
@@ -732,9 +731,14 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
       rfhWork[0x0502] = 0x31; rfhWork[0x0503] = 0x01;
       markerStamped = true;
     }
-    const r = writeRfhSec16FromBcm(rfhWork, bcmSec16BE);
+    const r = isXc2268Rfh
+      ? writeXc2268Sec16(rfhWork, bcmSec16BE)
+      : writeRfhSec16FromBcm(rfhWork, bcmSec16BE);
     rfhPatched = r.bytes;
-    ok('RFH SEC16 slot 1 + slot 2 rewritten (crc8_65 CS recomputed)', r.patched === 2, 'patched=' + r.patched);
+    ok(isXc2268Rfh
+      ? 'XC2268 RFHUB SEC16 slot 1 + slot 2 rewritten (CRC-16/CCITT refreshed + image CRC32 updated)'
+      : 'RFH SEC16 slot 1 + slot 2 rewritten (crc8_65 CS recomputed)',
+      r.patched === 2, 'patched=' + r.patched);
     if (markerStamped) {
       ok('RFH Gen2 marker stamped at 0x0500 (was missing)', true);
     }

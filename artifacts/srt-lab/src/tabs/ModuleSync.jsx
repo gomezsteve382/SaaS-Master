@@ -6,7 +6,8 @@ import MismatchWizard from "../components/MismatchWizard.jsx";
 import PcmRepairWizard from "../components/PcmRepairWizard.jsx";
 import PairingRepairPanel from "../components/PairingRepairPanel.jsx";
 import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
-import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
+import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16, writeXc2268Sec16 } from "../lib/securityBytes.js";
+import { isXc2268Rfhub } from "../lib/xc2268Rfhub.js";
 import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
 import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, corruptFillError, detectCorruptFill, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
 import { crossValidate } from "../lib/crossValidate.js";
@@ -2550,7 +2551,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const bcmHasSec16      = !bcmSec16Absent && !!(bcm.parsed?.sec16Records?.length > 0 || bcm.parsed?.mirrorsPopulated > 0);
   const rfhHasSec16      = !!(rfh.parsed?.sec16 && !rfh.parsed.sec16.virgin);
   const sec16SyncOk      = bcmHasSec16 && rfhHasSec16;
-  const bcmToRfhSec16Ok  = bcmHasSec16 && rfh.parsed?.format?.startsWith('gen2');
+  const bcmToRfhSec16Ok  = bcmHasSec16 && (rfh.parsed?.format?.startsWith('gen2') || !!(rfh.bytes && isXc2268Rfhub(rfh.bytes)));
   /* Virgin BCM gate — true when BCM parsed OK AND no FEE records exist
    * (split records + inactive-bank mirrors all blank). The legacy flat slice
    * at 0x40C9 may carry stale provisioning data on virgin-provisioned BCMs
@@ -3616,16 +3617,21 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         }
 
       } else if (action === 'bcm-sec16-to-rfh') {
-        /* BCM SEC16 → RFHUB Gen2 slots — use when RFHUB is from a different vehicle.
-           BCM is master: reverse(BCM SEC16) is written to RFHUB 0x050E + 0x0522. */
+        /* BCM SEC16 → RFHUB slots — use when RFHUB is from a different vehicle.
+           BCM is master: reverse(BCM SEC16) is written to RFHUB slots.
+           Gen2 Yazaki: slots 0x050E + 0x0522 (crc8_65 checksum).
+           XC2268 (2019+ Ram 64 KB): slots 0x1100 + 0x1120 (CRC-16/CCITT + image CRC32). */
         const bcmSec16 = bcm.parsed?.sec16Records?.[0]?.sec16
                       ?? bcm.parsed?.sec16Mirrors?.find(m => m.populated && m.crcOk)?.sec16;
         if (!bcmSec16) { log('✗ No BCM SEC16 found in split records or mirrors', 'err'); return; }
         const snapR = new Uint8Array(rfh.bytes);
         setOriginals(prev => ({ ...prev, rfh: { bytes: snapR, filename: rfh.file?.name || 'RFH' } }));
-        const sr = engWriteRfhSec16FromBcm(rfh.bytes, bcmSec16);
-        log(`RFHUB SEC16 sync (BCM → RFH): ${sr.patched} slot(s) written`, 'ok');
-        log(`  RFHUB new SEC16: ${sr.rfhSec16Hex.toUpperCase()} · slot chk: 0x${sr.chk.toString(16).padStart(2,'0').toUpperCase()}`, 'muted');
+        const rfhIsXc2268 = isXc2268Rfhub(rfh.bytes);
+        const sr = rfhIsXc2268
+          ? writeXc2268Sec16(rfh.bytes, bcmSec16)
+          : engWriteRfhSec16FromBcm(rfh.bytes, bcmSec16);
+        log(`RFHUB SEC16 sync (BCM → RFH${rfhIsXc2268 ? ' XC2268' : ' Gen2'}): ${sr.patched} slot(s) written`, 'ok');
+        log(`  RFHUB new SEC16: ${sr.rfhSec16Hex.toUpperCase()}${rfhIsXc2268 ? '' : ` · slot chk: 0x${sr.chk.toString(16).padStart(2,'0').toUpperCase()}`}`, 'muted');
         const rfhFinal = sr.bytes;
         const ts2 = timestamp();
         /* Task #1023 — symmetric twin of the original brick scenario: a secret
