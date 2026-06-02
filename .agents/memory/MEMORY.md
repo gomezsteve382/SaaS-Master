@@ -19,3 +19,4 @@
 - [Export safety gate](export-safety-gate.md) — checkExportSafety gates EVERY .bin export; scope selfChecks to what was written (VIN-only/legacy-flat→vin+partials; secret-write→full+master-in-context; 95640 needs explicit reparse).
 - [Module Sync source-of-truth](module-sync-source-of-truth.md) — SYNC ALL: BCM canonical, RFH SEC16=reverse(BCM) Gen2-only, PCM SEC6=reverse(BCM)[0:6], BCM never written; preview gating MUST mirror writer gating (drift is the bug class).
 - [ModuleSync UI test harness](modulesync-ui-test-harness.md) — to reach bothReady in jsdom: use REAL corpus fixtures (synthetic buildFixtures never parse ok) AND re-query file inputs between the two sequential loads (first load detaches nodes).
+- [ModuleSync SYNC ALL UI test fixtures](modulesync-ui-test-fixtures.md) — 4 jsdom traps: BCM VIN needs 00 46 header ×4 bases, makeBcm vehicleSecret clobbered by IMMO fill (stamp 0x40C9 after), re-query file inputs each load (NodeList goes stale).
