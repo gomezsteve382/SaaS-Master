@@ -31,6 +31,7 @@ import {
 } from "../lib/rfhubPin.js";
 import {useEffect} from "react";
 import RfhubVinPatcherPanel from "../components/RfhubVinPatcherPanel.jsx";
+import CharRfhubKeyAdderPanel from "../components/CharRfhubKeyAdderPanel.jsx";
 
 /**
  * KEY WRITER → RFHUB handoff banner.
@@ -715,6 +716,16 @@ export default function RfhubTab({vehicle}){
       * No live OBD connection required.
       * ─────────────────────────────────────────────────────────────────── */}
     <RfhubVinPatcherPanel
+      initialMod={inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data?inspectMod:null}
+      onPatched={onPatchedRfhubDump}
+    />
+
+    {/* ── Offline Key Adder (MPC Charger 8-slot key table @0xC5E) ──────────
+      * Adds a transponder key by editing the EEPROM key table offline. Own
+      * file picker; auto-opens when a Charger-layout RFHUB is loaded above.
+      * Experimental: index byte unverified (no checksum / no brick risk).
+      * ─────────────────────────────────────────────────────────────────── */}
+    <CharRfhubKeyAdderPanel
       initialMod={inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data?inspectMod:null}
       onPatched={onPatchedRfhubDump}
     />
