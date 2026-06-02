@@ -298,6 +298,7 @@ export default function PairingRepairPanel({
   pcmBytes: pcmBytesProp,
   pcmFilename: pcmFilenameProp,
   onClose,
+  onPatchComplete,
 }) {
   /* ── Internal file state (overrides props when locally loaded) ── */
   const [bcmLocal,   setBcmLocal]   = useState(null);   /* { file, bytes } */
@@ -478,8 +479,17 @@ export default function PairingRepairPanel({
       secrets,
       validation,
     });
+
+    if (allValidate && onPatchComplete) {
+      onPatchComplete({
+        bcm:   patchedBuffers.bcm   || null,
+        rfhub: patchedBuffers.rfhub || null,
+        pcm:   patchedBuffers.pcm   || null,
+      });
+    }
+
     setStep(4);
-  }, [donorChoice, previewRfhubSec16, generatedSecret, bcmBytes, rfhubBytes, pcmBytes, triage]);
+  }, [donorChoice, previewRfhubSec16, generatedSecret, bcmBytes, rfhubBytes, pcmBytes, triage, onPatchComplete]);
 
   /* ── Downloads ── */
   const handleDownloadBcm = () => {

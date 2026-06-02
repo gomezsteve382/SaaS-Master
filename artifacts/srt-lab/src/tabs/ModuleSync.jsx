@@ -1053,7 +1053,7 @@ function ConnectionGuides() {
   );
 }
 
-function DropZone({ label, icon, hint, file, onFile, accent, badge, badgeTestid }) {
+function DropZone({ label, icon, hint, file, onFile, accent, badge, badgeTestid, repaired }) {
   const [over, setOver] = useState(false);
   const fileRef = useRef(null);
   const loaded  = file != null;
@@ -1101,6 +1101,21 @@ function DropZone({ label, icon, hint, file, onFile, accent, badge, badgeTestid 
                     }}>{badge.label}</span>
             )}
           </div>
+          {/* Task #1056 — "✓ Repaired" badge after Pairing Repair patches this slot */}
+          {repaired && (
+            <div style={{ marginTop: 6 }}>
+              <span
+                data-testid={`modsync-repaired-badge-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                style={{
+                  display: 'inline-block', fontSize: 9, fontWeight: 800,
+                  padding: '2px 8px', borderRadius: 10, letterSpacing: 0.6,
+                  background: C.gn + '22', color: C.gn,
+                  border: `1px solid ${C.gn}55`,
+                }}>
+                ✓ Repaired
+              </span>
+            </div>
+          )}
         </>
       )}
       <input ref={fileRef} type="file" accept=".bin,.BIN,.eprom" style={{ display: 'none' }}
@@ -2281,6 +2296,9 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const [pcmRepairOpen, setPcmRepairOpen] = useState(false);
   /* Task #1052 — Full 3-Module Pairing Repair panel. */
   const [pairingRepairOpen, setPairingRepairOpen] = useState(false);
+  /* Task #1056 — track which DropZone slots were patched by PairingRepairPanel
+   * so we can show the "✓ Repaired" badge. Cleared when a new file is dropped. */
+  const [repairedSlots, setRepairedSlots] = useState({ bcm: false, rfh: false, pcm: false });
   /* Confirm dialog shown before a sync proceeds when one or more loaded
    * modules carry pnOverride (registry compatibility check was bypassed). */
   const [overrideConfirm, setOverrideConfirm] = useState(null); /* { action, overrideVin, modules } */
@@ -2380,6 +2398,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     const parsed = engParseBcm(bytes, file.name);
     const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
     setBcm({ file, bytes, parsed, pnOverride });
+    setRepairedSlots(prev => ({ ...prev, bcm: false }));
     setDiffRows([]); setOriginals(prev => ({ ...prev, bcm: null }));
     log(`Loaded BCM: ${file.name} (${bytes.length} bytes)`, 'info');
     if (parsed.tooSmall) {
@@ -2412,6 +2431,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     const parsed = engParseRfh(bytes, file.name);
     const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
     setRfh({ file, bytes, parsed, pnOverride });
+    setRepairedSlots(prev => ({ ...prev, rfh: false }));
     setDiffRows([]); setOriginals(prev => ({ ...prev, rfh: null }));
     log(`Loaded RFHUB: ${file.name} (${bytes.length} bytes)`, 'info');
     if (parsed.tooSmall) {
@@ -2433,6 +2453,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     const parsed = engParsePcm(bytes, file.name);
     const pnOverride = lookupPnOverride(dumpsFiles, file, bytes);
     setPcm({ file, bytes, parsed, pnOverride });
+    setRepairedSlots(prev => ({ ...prev, pcm: false }));
     setDiffRows([]); setOriginals(prev => ({ ...prev, pcm: null }));
     log(`Loaded PCM: ${file.name} (${bytes.length} bytes) · ${parsed.variant}`, 'info');
     if (parsed.tooSmall) {
@@ -2467,6 +2488,34 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
       log('  95640: no VIN and no SEC16 — file may be virgin or unrecognized', 'warn');
     }
   }, [log, dumpsFiles]);
+
+  /* Task #1056 — fired by PairingRepairPanel after a successful apply+validate
+   * round. Updates each module slot with patched bytes and marks it repaired
+   * so the "✓ Repaired" badge appears on the DropZone card. */
+  const handlePatchComplete = useCallback(({ bcm: bcmBuf, rfhub: rfhBuf, pcm: pcmBuf }) => {
+    const newRepaired = { bcm: false, rfh: false, pcm: false };
+    if (bcmBuf) {
+      const parsed = engParseBcm(bcmBuf, bcm.file?.name || 'BCM_PAIRED.bin');
+      const syntheticFile = { name: bcm.file?.name || 'BCM_PAIRED.bin', size: bcmBuf.length };
+      setBcm(prev => ({ ...prev, file: syntheticFile, bytes: bcmBuf, parsed }));
+      newRepaired.bcm = true;
+    }
+    if (rfhBuf) {
+      const parsed = engParseRfh(rfhBuf, rfh.file?.name || 'RFHUB_PAIRED.bin');
+      const syntheticFile = { name: rfh.file?.name || 'RFHUB_PAIRED.bin', size: rfhBuf.length };
+      setRfh(prev => ({ ...prev, file: syntheticFile, bytes: rfhBuf, parsed }));
+      newRepaired.rfh = true;
+    }
+    if (pcmBuf) {
+      const parsed = engParsePcm(pcmBuf, pcm.file?.name || 'PCM_PAIRED.bin');
+      const syntheticFile = { name: pcm.file?.name || 'PCM_PAIRED.bin', size: pcmBuf.length };
+      setPcm(prev => ({ ...prev, file: syntheticFile, bytes: pcmBuf, parsed }));
+      newRepaired.pcm = true;
+    }
+    setRepairedSlots(newRepaired);
+    const names = [newRepaired.bcm && 'BCM', newRepaired.rfh && 'RFHUB', newRepaired.pcm && 'PCM'].filter(Boolean);
+    log(`🔧 Pairing Repair applied — module slots updated from PairingRepairPanel: ${names.join(', ')}`, 'ok');
+  }, [bcm.file, rfh.file, pcm.file, log]);
 
   const tv      = targetVin.replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, VIN_LEN);
   const tvOk    = tv.length === VIN_LEN && VIN_RE.test(tv);
@@ -3702,15 +3751,18 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           <DropZone label="BCM"      icon="🧠" hint="MPC5606B DFLASH · Gen1 or Gen2 · drag .bin"
                     file={bcm.file} onFile={handleBcm}
                     badge={bcm.bytes ? moduleSizeBadge('bcm', bcm.bytes.length) : null}
-                    badgeTestid="modsync-bcm-size-badge" />
+                    badgeTestid="modsync-bcm-size-badge"
+                    repaired={repairedSlots.bcm} />
           <DropZone label="RFHUB / FCM" icon="🔑" hint="Yazaki FCM EEPROM · Gen1 or Gen2 · drag .bin"
                     file={rfh.file} onFile={handleRfh} accent={C.a4}
                     badge={rfh.bytes ? moduleSizeBadge('rfh', rfh.bytes.length) : null}
-                    badgeTestid="modsync-rfh-size-badge" />
+                    badgeTestid="modsync-rfh-size-badge"
+                    repaired={repairedSlots.rfh} />
           <DropZone label="PCM (optional)" icon="⚙️" hint="GPEC2A (4 KB or 8 KB) · drag .bin"
                     file={pcm.file} onFile={handlePcm} accent={C.a1}
                     badge={pcm.bytes ? moduleSizeBadge('pcm', pcm.bytes.length) : null}
-                    badgeTestid="modsync-pcm-size-badge" />
+                    badgeTestid="modsync-pcm-size-badge"
+                    repaired={repairedSlots.pcm} />
           <DropZone label="95640 (optional)" icon="📟" hint="BCM-backup EEPROM · 8 / 16 KB · drag .bin"
                     file={eep.file} onFile={handleEep} accent={C.a4}
                     badge={eep.bytes ? moduleSizeBadge('eep', eep.bytes.length) : null}
@@ -4429,6 +4481,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           pcmBytes={pcm.bytes || undefined}
           pcmFilename={pcm.file?.name}
           onClose={() => setPairingRepairOpen(false)}
+          onPatchComplete={handlePatchComplete}
         />
       )}
 
