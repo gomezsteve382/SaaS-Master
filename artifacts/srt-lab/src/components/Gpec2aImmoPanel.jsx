@@ -73,7 +73,7 @@ function MiniCard({title, accent = C.sr, children, badge}) {
 const labelStyle = {fontSize: 10, fontWeight: 800, color: C.ts, letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 4};
 const inputStyle = {padding: "8px 10px", borderRadius: 8, border: "1.5px solid " + C.bd, background: C.cd, fontFamily: mono, fontSize: 12, color: C.tx, width: "100%", boxSizing: "border-box"};
 
-export default function Gpec2aImmoPanel({mod, donorMods = []}) {
+export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null}) {
   const bytes = mod?.data || null;
   const baseName = (mod?.filename || "gpec2a.bin").replace(/\.[^.]+$/, "");
 
@@ -100,6 +100,10 @@ export default function Gpec2aImmoPanel({mod, donorMods = []}) {
   const [fixImmo, setFixImmo] = useState(true);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
+  // Holds the most recent patched buffer so it can be pushed straight back
+  // into the shared workspace (re-analyzed in place) instead of forcing a
+  // download-then-reload round trip. Cleared once pushed back.
+  const [patched, setPatched] = useState(null);
 
   const donorHex = donor ? Array.from(donor.sec6).map((b) => b.toString(16).toUpperCase().padStart(2, "0")).join(" ") : "";
 
@@ -116,7 +120,9 @@ export default function Gpec2aImmoPanel({mod, donorMods = []}) {
       setErr(res.error);
       return;
     }
-    dl(res.bytes, baseName + "_patched.bin");
+    const fname = baseName + "_patched.bin";
+    dl(res.bytes, fname);
+    setPatched({bytes: res.bytes, filename: fname, summary: res.changes.join(" · ")});
     setMsg("Applied: " + res.changes.join(" · ") + " → downloaded.");
   }, [bytes, newVin, alsoWriteCe0, sec6Hex, fixImmo, baseName]);
 
@@ -134,7 +140,9 @@ export default function Gpec2aImmoPanel({mod, donorMods = []}) {
       setErr(res.error);
       return;
     }
-    dl(res.bytes, baseName + "_immoFix.bin");
+    const fname = baseName + "_immoFix.bin";
+    dl(res.bytes, fname);
+    setPatched({bytes: res.bytes, filename: fname, summary: "IMMO marker + SEC6 " + res.sec6Hex});
     setMsg(
       "IMMO repaired (" +
         (manual ? "manual SEC6" : "from " + (donor?.source || "donor")) +
@@ -143,6 +151,14 @@ export default function Gpec2aImmoPanel({mod, donorMods = []}) {
         " → downloaded."
     );
   }, [bytes, sec6Hex, donor, baseName]);
+
+  const onPushBack = useCallback(() => {
+    if (!patched || typeof onPatched !== "function") return;
+    onPatched(patched.bytes, patched.filename);
+    setPatched(null);
+    setErr("");
+    setMsg("Patched dump (" + patched.summary + ") added to workspace — re-analyzing in place.");
+  }, [patched, onPatched]);
 
   if (!bytes || !analysis) return null;
 
@@ -425,6 +441,20 @@ export default function Gpec2aImmoPanel({mod, donorMods = []}) {
           🛠️ ONLY FIX IMMO AND DOWNLOAD
         </Btn>
       </Card>
+
+      {/* ── Push patched bytes back into the shared workspace ── */}
+      {patched && typeof onPatched === "function" && (
+        <Card style={{marginBottom: 14, borderLeft: "3px solid " + C.gn}}>
+          <div style={{fontWeight: 800, fontSize: 11, color: C.gn, marginBottom: 4, letterSpacing: 2}}>📥 SAVE BACK TO WORKSPACE</div>
+          <div style={{fontSize: 10, color: C.tm, marginBottom: 12}}>
+            Add the patched bytes ({patched.summary}) into the shared workspace as a new GPEC2A dump and re-analyze it
+            here in place — no manual reload through the Dumps / ECM inspector. The download above is still saved to disk.
+          </div>
+          <Btn color={C.gn} full onClick={onPushBack} data-testid="gpec2a-pushback-btn">
+            📥 ADD PATCHED DUMP TO WORKSPACE &amp; RE-ANALYZE
+          </Btn>
+        </Card>
+      )}
 
       {(msg || err) && (
         <div

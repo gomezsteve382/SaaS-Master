@@ -92,6 +92,15 @@ export default function EcmTab({vehicle}){
     if(inspectEntry)removeDump(inspectEntry.hash);
     setInspectHash(null);setInspectMsg('');setInspectErr('');setInspectTooSmall(null);
   },[inspectEntry,removeDump]);
+  // Task #1037 — push a patched GPEC2A buffer from the immo-fix panel straight
+  // back into the shared workspace as a new dump, then select it so the panel
+  // re-analyzes the patched result in place (no manual reload).
+  const onPatchedDump=useCallback((bytes,filename)=>{
+    const m=parseModule(bytes,filename||'gpec2a_patched.bin');
+    if(!m||m.type!=='GPEC2A'){setInspectErr('Patched buffer did not re-parse as GPEC2A — not added to workspace.');return;}
+    const entry=addDump(m,'GPEC2A immo-fix');
+    if(entry){setInspectHash(entry.hash);setInspectErr('');setInspectTooSmall(null);}
+  },[addDump]);
   const[conn,setConn]=useState(false);const[unlocked,setUnlocked]=useState(false);
   const[busy,setBusy]=useState('');const[log,setLog]=useState([]);
   const[curVin,setCurVin]=useState(null);const[ecmInfo,setEcmInfo]=useState({});
@@ -415,7 +424,7 @@ export default function EcmTab({vehicle}){
         <IdentityCard bytes={ecmInspectMod.data}/>
       </div>}
       {ecmInspectMod&&ecmInspectMod.data&&!ecmInspectMod.corruptFill&&ecmInspectMod.type==='GPEC2A'&&
-        <Gpec2aImmoPanel mod={ecmInspectMod} donorMods={donorMods}/>}
+        <Gpec2aImmoPanel mod={ecmInspectMod} donorMods={donorMods} onPatched={onPatchedDump}/>}
     </Card>
     </DumpDropArea>
 
