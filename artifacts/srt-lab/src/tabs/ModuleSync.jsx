@@ -1054,6 +1054,40 @@ function ConnectionGuides() {
   );
 }
 
+/* FilePicker — flat <input type="file"> picker used for BCM and RFHUB in the
+ * Step-1 card. Displays filename + byte count after selection. Resets the
+ * input value after read so the same file can be re-loaded after a reset. */
+function FilePicker({ label, subtitle, file, onFile, accept = ".bin,.BIN,.eprom", testid }) {
+  const handleChange = async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const buf = await f.arrayBuffer();
+    onFile(f, new Uint8Array(buf));
+    e.target.value = '';
+  };
+  return (
+    <div style={{ flex: 1, minWidth: 200 }}>
+      <div style={{ fontWeight: 800, fontSize: 12, marginBottom: 4, color: C.tx }}>{label}</div>
+      <input
+        type="file"
+        accept={accept}
+        data-testid={testid}
+        onChange={handleChange}
+        style={{ display: 'block', width: '100%', cursor: 'pointer', fontSize: 12, padding: '4px 0', fontFamily: "'Nunito'" }}
+      />
+      <div style={{ fontSize: 11, color: C.ts, marginTop: 3 }}>{subtitle}</div>
+      {file && (
+        <div style={{
+          fontSize: 10, fontFamily: "'JetBrains Mono'", color: C.gn, marginTop: 6,
+          fontWeight: 700, wordBreak: 'break-all',
+        }}>
+          ✓ {file.name} · {file.size.toLocaleString()} B
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DropZone({ label, icon, hint, file, onFile, accent, badge, badgeTestid, repaired }) {
   const [over, setOver] = useState(false);
   const fileRef = useRef(null);
@@ -1211,7 +1245,7 @@ function buildCandidateList(values, canonicalRegex) {
   }));
 }
 
-function BcmCard({ parsed, pnOverride, fullyVirgin }) {
+function BcmCard({ parsed, pnOverride, fullyVirgin, filename, fileSize }) {
   if (!parsed) return null;
   if (parsed.tooSmall) {
     return (
@@ -1229,96 +1263,143 @@ function BcmCard({ parsed, pnOverride, fullyVirgin }) {
       </div>
     );
   }
-  const match   = bcmVehicleMatch(parsed);
-  const isGen2  = parsed.sec16Records.length > 0 || (match && match.gen === 'gen2');
-  const hasSec16 = parsed.sec16Hex || parsed.sec16MirrorHex;
 
-  let status = 'READY', statusColor = C.gn;
-  if (!parsed.ok)             { status = 'NO VIN';         statusColor = C.er; }
-  else if (!parsed.vinConsistent) { status = 'SLOT MISMATCH';  statusColor = C.wn; }
+  /* Derive RFH view (byte-reversed BCM SEC16) for the SEC16 (BCM) section. */
+  const sec16HexUp = parsed.sec16Hex ? parsed.sec16Hex.toUpperCase() : null;
+  const bcmRfhViewHex = sec16HexUp
+    ? (sec16HexUp.match(/.{2}/g) || []).reverse().join('')
+    : null;
 
   return (
-    <div style={{ background: 'rgba(0,200,83,0.02)', borderRadius: 12, padding: 16, border: `1.5px solid ${statusColor}40` }}>
-      <div style={{ fontWeight: 900, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: C.tx, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-        🧠 BCM · MPC5606B
-        <Badge text={status} color={statusColor} />
-        {isGen2 && <Badge text="GEN2" color={C.a4} />}
-        {pnOverride && <PnOverrideBadge />}
-      </div>
+    <div data-testid="modsync-bcm-card" style={{ background: 'rgba(0,200,83,0.02)', borderRadius: 12, padding: 16, border: `1.5px solid ${C.bd}` }}>
+
+      {/* Header row: filename + chip badge + size badge */}
+      {(() => {
+        const _bcmSz = fileSize ?? parsed.size ?? null;
+        const _bcmBadge = moduleSizeBadge('bcm', _bcmSz);
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+            <span style={{ fontWeight: 900, fontSize: 11, color: C.tx, fontFamily: "'JetBrains Mono'", wordBreak: 'break-all', flex: 1, minWidth: 0 }}>
+              {filename || 'BCM'}
+            </span>
+            <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 4, background: C.a3, color: '#fff', fontWeight: 800, letterSpacing: 0.6, whiteSpace: 'nowrap', flexShrink: 0 }}>
+              MPC5606B_05B
+            </span>
+            {_bcmBadge ? (
+              <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 4, background: C.ts, color: '#fff', fontWeight: 800, letterSpacing: 0.6, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {_bcmBadge.label}
+              </span>
+            ) : (
+              <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 4, background: C.ts, color: '#fff', fontWeight: 800, letterSpacing: 0.6, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {_bcmSz != null ? `${_bcmSz.toLocaleString()} bytes` : ''}
+              </span>
+            )}
+            {pnOverride && <PnOverrideBadge />}
+          </div>
+        );
+      })()}
+
       {pnOverride && (
         <div style={{ marginBottom: 8, padding: '6px 10px', background: C.wn + '14', border: '1px solid ' + C.wn + '55', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700 }}>
           ⚠ P/N override active — this BCM bypassed the registry compatibility check on the Dumps tab.
         </div>
       )}
-      <Kv k="Stored VIN"   v={parsed.vin} mono />
-      <Kv k="VIN slots"    v={`${parsed.vinSlots.length} / 4 · ${parsed.vinConsistent ? 'all match' : 'MISMATCH'}`} />
-      <OffsetList offsets={parsed.vinSlots.map(s => s.offset)} testid="bcm-vin-slot-offsets" />
-      <Kv k="File size"    v={`${parsed.size} bytes (${(parsed.size/1024).toFixed(1)} KB)`} mono />
-      {parsed.vinSlots.length > 0 && (() => {
-        const allOk = parsed.vinSlots.every(s => s.crcOk);
-        const crc   = parsed.vinSlots[0].computedCrc;
-        return <Kv k="VIN CRC-16" v={`0x${hex4(crc)} · ${allOk ? '✓ valid' : '✗ mismatch'}`} mono color={allOk ? C.gn : C.er} />;
-      })()}
-      {match && <Kv k="Vehicle"  v={match.name} />}
-      {parsed.partNumbers.length > 0 && (
-        <>
-          <Kv k="Part numbers" v={parsed.partNumbers.join(', ')} mono />
-          {(() => {
-            /* Real picker flow — rank every candidate the parser gathered, then render
-             * the winner with its breakdown so the chosen value is the actual top scorer. */
-            const { winner } = pickBest(buildCandidateList(parsed.partNumbers, CANONICAL_PATTERNS.bcmPn));
-            return <PickBreakdown kind="PN"  value={winner?.value} breakdown={winner} testid="bcm-pn-pick" />;
-          })()}
-        </>
-      )}
-      {parsed.supplierSerial && (
-        <>
-          <Kv k="Supplier" v={parsed.supplierSerial} mono />
-          {(() => {
-            const { winner } = pickBest(buildCandidateList([parsed.supplierSerial], CANONICAL_PATTERNS.serial));
-            return <PickBreakdown kind="Serial" value={winner?.value} breakdown={winner} testid="bcm-serial-pick" />;
-          })()}
-        </>
-      )}
-      {parsed.banks && (
-        <Kv k="Active bank" v={`Bank ${parsed.banks.activeBank} (seq 0x${hex4(parsed.banks.activeBank === 0 ? parsed.banks.bank0Seq : parsed.banks.bank1Seq)})`} mono />
-      )}
-      {parsed.sec16Records.length > 0 && (
-        <>
-          <div style={{ marginTop: 8, borderTop: `1px solid ${C.bd}`, paddingTop: 8 }}>
-            <div style={{ fontWeight: 800, fontSize: 11, letterSpacing: 0.8, color: C.a4, marginBottom: 4 }}>
-              SEC16 SPLIT RECORDS
-              <Badge text={`${parsed.sec16Records.length} found`} color={parsed.sec16Consistent ? C.gn : C.wn} />
+
+      {/* VIN (BCM) section */}
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ fontWeight: 800, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: C.ts, marginBottom: 5 }}>
+          VIN (BCM)
+        </div>
+        <div style={{ fontSize: 10, color: C.tm, marginBottom: 2 }}>Stored VIN:</div>
+        <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 12, fontWeight: 700, color: parsed.vin ? C.tx : C.tm, marginBottom: 3 }}>
+          {parsed.vin || '— none —'}
+        </div>
+        <div style={{ fontSize: 11, color: C.ts, marginBottom: 5 }}>
+          Copies: {parsed.vinSlots?.length ?? 0}
+        </div>
+        {parsed.vinSlots?.map((slot, idx) => {
+          const ok = slot.crcOk;
+          return (
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, marginBottom: 3 }}>
+              <span style={{ color: C.ts, minWidth: 46, flexShrink: 0 }}>VIN {idx + 1}</span>
+              <span style={{
+                fontSize: 9, padding: '1px 6px', borderRadius: 4,
+                background: ok ? C.gn : C.er, color: '#fff', fontWeight: 800, letterSpacing: 0.5,
+              }}>{ok ? 'CS OK' : 'CS FAIL'}</span>
             </div>
-            <Kv k="Consistent" v={parsed.sec16Consistent ? '✓ All match' : '✗ MISMATCH'} color={parsed.sec16Consistent ? C.gn : C.er} />
-            {/* Task #464 — SINCRO-style hex+decimal offsets for every split record so
-                a tech can cross-reference the canonical 0x81A0/C0/E0 trio against the
-                raw dump in their hex viewer without reaching for a calculator. */}
-            <OffsetList offsets={parsed.sec16Records.map(x => x.offset)} testid="bcm-sec16-split-offsets" />
-            {parsed.sec16Hex && <Kv k="SEC16 hex" v={parsed.sec16Hex.toUpperCase()} mono />}
+          );
+        })}
+      </div>
+
+      {/* SEC16 (BCM) section */}
+      <div style={{ borderTop: `1px solid ${C.bd}`, paddingTop: 8, marginBottom: 10 }}>
+        <div style={{ fontWeight: 800, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: C.ts, marginBottom: 5 }}>
+          SEC16 (BCM)
+        </div>
+        <div style={{ fontSize: 11, marginBottom: 3, display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+          <span style={{ color: C.ts, fontWeight: 600, flexShrink: 0 }}>SEC16 BCM:</span>
+          <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: sec16HexUp ? C.tx : C.tm, fontWeight: 600, wordBreak: 'break-all' }}>
+            {sec16HexUp || '— none —'}
+          </span>
+        </div>
+        <div style={{ fontSize: 11, marginBottom: 3, display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+          <span style={{ color: C.ts, fontWeight: 600, flexShrink: 0 }}>SEC16 RFH (view):</span>
+          <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: bcmRfhViewHex ? C.a4 : C.tm, fontWeight: 600, wordBreak: 'break-all' }}>
+            {bcmRfhViewHex ? `= ${bcmRfhViewHex}` : '—'}
+          </span>
+        </div>
+        <div style={{ fontSize: 10, color: C.tm, fontStyle: 'italic' }}>
+          RFH view = byte-reverse of BCM SEC16
+        </div>
+      </div>
+
+      {/* SEC16 MAIN section */}
+      <div style={{ borderTop: `1px solid ${C.bd}`, paddingTop: 8, marginBottom: 10 }}>
+        <div style={{ fontWeight: 800, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: C.ts, marginBottom: 4 }}>
+          SEC16 MAIN
+        </div>
+        <div style={{ fontSize: 11, color: C.tx, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span>Total: {parsed.sec16Records?.length ?? 0}</span>
+          {parsed.sec16Records && parsed.sec16Records.length > 0 && (
+            <span style={{
+              fontSize: 9, padding: '1px 6px', borderRadius: 4,
+              background: parsed.sec16Consistent ? C.gn : C.wn, color: '#fff', fontWeight: 800,
+            }}>
+              {parsed.sec16Consistent ? 'Consistent' : 'MISMATCH'}
+            </span>
+          )}
+        </div>
+        <OffsetList offsets={parsed.sec16Records?.map(x => x.offset)} testid="bcm-sec16-split-offsets" />
+      </div>
+
+      {/* SEC16 MIRRORS (WITH CRC) section */}
+      {parsed.sec16Mirrors && parsed.sec16Mirrors.length > 0 && (
+        <div style={{ borderTop: `1px solid ${C.bd}`, paddingTop: 8, marginBottom: 10 }}>
+          <div style={{ fontWeight: 800, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: C.ts, marginBottom: 5 }}>
+            SEC16 MIRRORS (WITH CRC)
           </div>
-        </>
-      )}
-      {parsed.sec16Mirrors.length > 0 && (
-        <>
-          <Kv k="Mirror recs"
-              v={`${parsed.mirrorsPopulated || 0} populated · ${parsed.sec16Mirrors.filter(m => m.crcOk).length} CRC OK`}
-              color={parsed.mirrorsPopulated > 0 ? C.gn : C.tm} />
-          {/* Task #464 — mirror record offsets in the same hex+decimal format
-              so the bank-0 / bank-4000 mirror search results are visible at a
-              glance instead of being summarised behind a count. */}
+          {parsed.sec16Mirrors.map((mirror, idx) => {
+            const ok = mirror.crcOk;
+            const populated = mirror.populated;
+            return (
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, marginBottom: 3 }}>
+                <span style={{ color: C.ts, minWidth: 52, flexShrink: 0 }}>Mirror {idx + 1}</span>
+                <span style={{
+                  fontSize: 9, padding: '1px 6px', borderRadius: 4,
+                  background: ok ? C.gn : (populated ? C.er : C.tm),
+                  color: '#fff', fontWeight: 800, letterSpacing: 0.5,
+                }}>{ok ? 'CS OK' : (populated ? 'CS FAIL' : 'BLANK')}</span>
+              </div>
+            );
+          })}
           <OffsetList offsets={parsed.sec16Mirrors.map(m => m.offset)} testid="bcm-sec16-mirror-offsets" />
-        </>
+        </div>
       )}
+
       {fullyVirgin && (
         <div data-testid="bcm-virgin-sec16-badge"
              style={{ marginTop: 8, padding: '6px 10px', background: 'rgba(255,109,0,0.10)', border: `1.5px solid ${C.a1}55`, borderRadius: 8, fontSize: 11, color: C.a1, fontWeight: 800, letterSpacing: 0.4 }}>
           🧹 VIRGIN / NEWVIN — SEC16 wiped &middot; all split records + mirrors + flat 0x40C9 are blank
-        </div>
-      )}
-      {!hasSec16 && isGen2 && !fullyVirgin && (
-        <div style={{ marginTop: 6, padding: '6px 10px', background: 'rgba(255,179,0,0.08)', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700 }}>
-          ⚠ Gen2 BCM — no SEC16 records found. May need a different flash layout.
         </div>
       )}
     </div>
@@ -1346,80 +1427,165 @@ function TooSmallCard({ parsed, moduleLabel, testid }) {
   );
 }
 
-function RfhCard({ parsed, pnOverride }) {
+function RfhCard({ parsed, pnOverride, filename, fileSize }) {
   if (!parsed) return null;
   if (parsed.tooSmall) return <TooSmallCard parsed={parsed} moduleLabel="RFHUB" testid="rfh-too-small-card" />;
+
   const isVirgin = parsed.sec16?.virgin;
   const isMatch  = parsed.sec16?.match;
-  let status = 'READY', statusColor = C.gn;
-  if (!parsed.ok)                { status = 'NO VIN';    statusColor = C.er; }
-  else if (!parsed.vinConsistent){ status = 'MISMATCH';  statusColor = C.wn; }
-  else if (isVirgin)             { status = 'SEC16 VIRGIN'; statusColor = C.wn; }
-  else if (!isMatch)             { status = 'SEC16 ≠';   statusColor = C.wn; }
+
+  /* DERIVED (DEMO) — RFH → BCM: reverse of RFH SEC16 slot 1. */
+  const derivedBcmHex = parsed.sec16?.slot1
+    ? bytesToHex(Array.from(parsed.sec16.slot1).reverse()).toUpperCase()
+    : null;
 
   return (
-    <div style={{ background: 'rgba(0,200,83,0.02)', borderRadius: 12, padding: 16, border: `1.5px solid ${statusColor}40` }}>
-      <div style={{ fontWeight: 900, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: C.tx, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-        🔑 RFHUB · Yazaki FCM
-        <Badge text={status} color={statusColor} />
-        {parsed.format && <Badge text={parsed.format.toUpperCase()} color={parsed.format === 'gen2' ? C.a4 : C.a3} />}
+    <div data-testid="modsync-rfh-card" style={{ background: 'rgba(0,200,83,0.02)', borderRadius: 12, padding: 16, border: `1.5px solid ${C.bd}` }}>
+
+      {/* Header row: filename + chip badge + size badge */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+        <span style={{ fontWeight: 900, fontSize: 11, color: C.tx, fontFamily: "'JetBrains Mono'", wordBreak: 'break-all', flex: 1, minWidth: 0 }}>
+          {filename || 'RFHUB'}
+        </span>
+        <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 4, background: C.a4, color: '#fff', fontWeight: 800, letterSpacing: 0.6, whiteSpace: 'nowrap', flexShrink: 0 }}>
+          MC9S12X
+        </span>
+        <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 4, background: C.ts, color: '#fff', fontWeight: 800, letterSpacing: 0.6, whiteSpace: 'nowrap', flexShrink: 0 }}>
+          {(fileSize ?? parsed.size ?? 0).toLocaleString()} bytes
+        </span>
         {pnOverride && <PnOverrideBadge />}
       </div>
+
       {pnOverride && (
         <div style={{ marginBottom: 8, padding: '6px 10px', background: C.wn + '14', border: '1px solid ' + C.wn + '55', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700 }}>
           ⚠ P/N override active — this RFHUB bypassed the registry compatibility check on the Dumps tab.
         </div>
       )}
-      <Kv k="Stored VIN"  v={parsed.vin} mono />
-      <Kv k="VIN slots"   v={`${parsed.vinSlots.length} / 4 · ${parsed.vinConsistent ? 'all match' : 'MISMATCH'}`} />
-      <OffsetList offsets={parsed.vinSlots.map(s => s.offset)} testid="rfh-vin-slot-offsets" />
-      <Kv k="File size"   v={`${parsed.size} bytes`} mono />
-      {parsed.vinSlots.length > 0 && (() => {
-        const allOk = parsed.vinSlots.every(s => s.chkOk);
-        const chk   = parsed.vinSlots[0].computedChk;
-        return <Kv k="VIN checksum" v={`0x${hex2(chk)} · ${allOk ? '✓ valid' : '⚠ mismatch'}`} mono color={allOk ? C.gn : C.wn} />;
-      })()}
-      {parsed.partNumbers.length > 0 && (
-        <>
-          <Kv k="Part numbers" v={parsed.partNumbers.join(', ')} mono />
-          {(() => {
-            const { winner } = pickBest(buildCandidateList(parsed.partNumbers, CANONICAL_PATTERNS.rfhPn));
-            return <PickBreakdown kind="PN"  value={winner?.value} breakdown={winner} testid="rfh-pn-pick" />;
-          })()}
-        </>
-      )}
-      {parsed.internalSerial && (
-        <>
-          <Kv k="Serial" v={parsed.internalSerial} mono />
-          {(() => {
-            const { winner } = pickBest(buildCandidateList([parsed.internalSerial], CANONICAL_PATTERNS.serial));
-            return <PickBreakdown kind="Serial" value={winner?.value} breakdown={winner} testid="rfh-serial-pick" />;
-          })()}
-        </>
-      )}
-      <Kv k="Keys stored"   v={`${parsed.keyCount} slot${parsed.keyCount === 1 ? '' : 's'} populated`} />
 
+      {/* VIN (RFH GEN2 — 4 SLOTS + CHK AFTER) section */}
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ fontWeight: 800, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: C.ts, marginBottom: 5 }}>
+          VIN (RFH GEN2 — 4 SLOTS + CHK AFTER)
+        </div>
+        {parsed.vinSlots?.length > 0 ? parsed.vinSlots.map((slot, idx) => {
+          const ok = slot.chkOk;
+          return (
+            <div key={idx} style={{ marginBottom: 5 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
+                <span style={{ color: C.ts, minWidth: 46, flexShrink: 0 }}>Slot {idx + 1}</span>
+                <span style={{
+                  fontSize: 9, padding: '1px 6px', borderRadius: 4,
+                  background: ok ? C.gn : C.er, color: '#fff', fontWeight: 800, letterSpacing: 0.5,
+                }}>{ok ? 'CS OK' : 'CRC FAIL'}</span>
+              </div>
+              <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.tx, paddingLeft: 52, marginTop: 2, wordBreak: 'break-all' }}>
+                {slot.vin || '—'}
+              </div>
+            </div>
+          );
+        }) : (
+          <div style={{ fontSize: 11, color: C.tm, fontStyle: 'italic' }}>No VIN slots found</div>
+        )}
+      </div>
+
+      {/* SEC16 (RFH GEN2 — 2 SLOTS + CHK AFTER) section */}
       {parsed.sec16 && (
-        <div style={{ marginTop: 8, borderTop: `1px solid ${C.bd}`, paddingTop: 8 }}>
-          <div style={{ fontWeight: 800, fontSize: 11, letterSpacing: 0.8, color: C.a4, marginBottom: 4 }}>
-            SEC16 · {parsed.format === 'gen2' ? `${fmtOff(0x050E)} / ${fmtOff(0x0522)}` : `${fmtOff(0x0226)} / ${fmtOff(0x023A)}`}
+        <div style={{ borderTop: `1px solid ${C.bd}`, paddingTop: 8, marginBottom: 10 }}>
+          <div style={{ fontWeight: 800, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: C.ts, marginBottom: 5 }}>
+            SEC16 (RFH GEN2 — 2 SLOTS + CHK AFTER)
           </div>
-          {/* Task #464 — surface the slot-pair agreement at the top of the
-              SEC16 panel so a tech can see at a glance whether the two RFH
-              SEC16 slots are byte-for-byte identical. The reference SINCRO
-              tool prints "Slots match: yes/no" before the slot bytes; we
-              mirror that ordering for parity. */}
-          <div data-testid="rfh-sec16-slots-match">
-            <Kv k="Slots match"
-                v={isVirgin ? 'n/a (virgin)' : (isMatch ? 'yes' : 'no')}
-                color={isVirgin ? C.wn : (isMatch ? C.gn : C.er)} />
+          {/* Slots match badge */}
+          <div data-testid="rfh-sec16-slots-match" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, marginBottom: 8 }}>
+            <span style={{ color: C.ts, fontWeight: 600 }}>Slots match:</span>
+            <span style={{
+              fontSize: 9, padding: '1px 6px', borderRadius: 4,
+              background: isVirgin ? C.wn : (isMatch ? C.gn : C.er),
+              color: '#fff', fontWeight: 800, letterSpacing: 0.5,
+            }}>{isVirgin ? 'n/a (virgin)' : (isMatch ? 'OK' : 'No/review')}</span>
           </div>
-          <Kv k="Status"  v={isVirgin ? 'VIRGIN (all FF)' : isMatch ? '✓ MATCH' : '✗ MISMATCH'}
-              color={isVirgin ? C.wn : isMatch ? C.gn : C.er} />
-          <Kv k="Slot 1"  v={parsed.sec16.slot1 ? bytesToHex(parsed.sec16.slot1).toUpperCase() : null} mono />
-          {!isMatch && <Kv k="Slot 2"  v={parsed.sec16.slot2 ? bytesToHex(parsed.sec16.slot2).toUpperCase() : null} mono />}
+          {/* Slot 1 */}
+          {parsed.sec16.slot1 && (
+            <div style={{ marginBottom: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, marginBottom: 2 }}>
+                <span style={{ color: C.ts, minWidth: 46, flexShrink: 0 }}>Slot 1</span>
+                <span style={{
+                  fontSize: 9, padding: '1px 6px', borderRadius: 4,
+                  background: isVirgin ? C.wn : C.gn, color: '#fff', fontWeight: 800, letterSpacing: 0.5,
+                }}>{isVirgin ? 'VIRGIN' : 'CS OK'}</span>
+              </div>
+              <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 9, color: C.tx, paddingLeft: 52, wordBreak: 'break-all' }}>
+                {bytesToHex(parsed.sec16.slot1).toUpperCase()}
+              </div>
+            </div>
+          )}
+          {/* Slot 2 */}
+          {parsed.sec16.slot2 && (
+            <div style={{ marginBottom: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, marginBottom: 2 }}>
+                <span style={{ color: C.ts, minWidth: 46, flexShrink: 0 }}>Slot 2</span>
+                <span style={{
+                  fontSize: 9, padding: '1px 6px', borderRadius: 4,
+                  background: isVirgin ? C.wn : (isMatch ? C.gn : C.er),
+                  color: '#fff', fontWeight: 800, letterSpacing: 0.5,
+                }}>{isVirgin ? 'VIRGIN' : (isMatch ? 'CS OK' : 'Checksum ERROR')}</span>
+              </div>
+              <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 9, color: C.tx, paddingLeft: 52, wordBreak: 'break-all' }}>
+                {bytesToHex(parsed.sec16.slot2).toUpperCase()}
+              </div>
+            </div>
+          )}
         </div>
       )}
+
+      {/* DERIVED (DEMO) — RFH → BCM section */}
+      <div style={{ borderTop: `1px solid ${C.bd}`, paddingTop: 8, marginBottom: 10 }}>
+        <div style={{ fontWeight: 800, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: C.ts, marginBottom: 5 }}>
+          DERIVED (DEMO) — RFH → BCM
+        </div>
+        <div style={{ fontSize: 11, color: C.ts, marginBottom: 4 }}>
+          Rule: reverse bytes of the entire block.
+        </div>
+        <div style={{ fontSize: 11, display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+          <span style={{ color: C.ts, fontWeight: 600, flexShrink: 0 }}>SEC16 BCM (hex):</span>
+          <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: derivedBcmHex ? C.a3 : C.tm, fontWeight: 600, wordBreak: 'break-all' }}>
+            {derivedBcmHex || '—'}
+          </span>
+        </div>
+      </div>
+
+      {/* OS / PN / SERIAL (BEST PICK) section */}
+      <div style={{ borderTop: `1px solid ${C.bd}`, paddingTop: 8 }}>
+        <div style={{ fontWeight: 800, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: C.ts, marginBottom: 5 }}>
+          OS / PN / SERIAL (BEST PICK)
+        </div>
+        {parsed.partNumbers?.length > 0 && (() => {
+          const { winner } = pickBest(buildCandidateList(parsed.partNumbers, CANONICAL_PATTERNS.rfhPn));
+          return winner ? (
+            <div style={{ marginBottom: 5 }}>
+              <div style={{ fontSize: 11 }}>
+                <span style={{ color: C.ts, fontWeight: 600, marginRight: 6 }}>PN:</span>
+                <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.tx }}>{winner.value}</span>
+              </div>
+              <PickBreakdown kind="PN" value={winner.value} breakdown={winner} testid="rfh-pn-pick" />
+            </div>
+          ) : null;
+        })()}
+        {parsed.internalSerial && (() => {
+          const { winner } = pickBest(buildCandidateList([parsed.internalSerial], CANONICAL_PATTERNS.serial));
+          return winner ? (
+            <div style={{ marginBottom: 5 }}>
+              <div style={{ fontSize: 11 }}>
+                <span style={{ color: C.ts, fontWeight: 600, marginRight: 6 }}>Serial:</span>
+                <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.tx }}>{winner.value}</span>
+              </div>
+              <PickBreakdown kind="Serial" value={winner.value} breakdown={winner} testid="rfh-serial-pick" />
+            </div>
+          ) : null;
+        })()}
+        {!parsed.partNumbers?.length && !parsed.internalSerial && (
+          <div style={{ fontSize: 11, color: C.tm, fontStyle: 'italic' }}>No PN / Serial found</div>
+        )}
+      </div>
     </div>
   );
 }
@@ -3738,32 +3904,90 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         </button>
       </div>
 
-      {/* ── Load & Inspect ── */}
+      {/* ── Step 1: Load BCM + RFH ── */}
       <Card>
-        <H2 badge={`${loaded} / 4`}>Load &amp; Inspect</H2>
-        {/* Task #464 — surface the SINCRO-style refresh-warning hint above the
-            uploaders. SRT Lab is fully client-side (no server-side persisted
-            session for module bytes), so a page refresh wipes the loaded
-            files. Telling the tech this up-front avoids the "where did my
-            files go?" question after a tab reload. */}
-        <div data-testid="modsync-refresh-hint" style={{
-          marginBottom: 10, padding: '6px 10px', borderRadius: 8,
-          background: C.wn + '14', border: `1px solid ${C.wn}55`,
-          color: C.wn, fontSize: 11, fontWeight: 700, lineHeight: 1.4,
-        }}>
-          ⚠ State is lost on page refresh — re-drop the .bin files if you reload the tab.
+        <H2>1) Load files and filter (INSPECT)</H2>
+        <div style={{ fontSize: 12, color: C.ts, marginBottom: 14, lineHeight: 1.5 }}>
+          Upload BCM and RFH. The system detects VIN/SEC16 and validates checksums.
         </div>
+        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 16 }}>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <FilePicker
+              label="BCM file (.bin)"
+              subtitle="Dump BCM (full flash)."
+              file={bcm.file}
+              onFile={handleBcm}
+              accept=".bin,.BIN"
+              testid="modsync-bcm-file-input"
+            />
+            {bcm.bytes && (() => {
+              const _sz = bcm.bytes.length;
+              const _b = moduleSizeBadge('bcm', _sz);
+              return _b ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                  <span style={{ fontSize: 9, color: 'rgb(90, 90, 90)', whiteSpace: 'nowrap' }}>
+                    {_sz.toLocaleString()} B
+                  </span>
+                  <span
+                    data-testid="modsync-bcm-size-badge"
+                    data-size-key={_b.dataKey}
+                    data-size-canonical={_b.canonical ? '1' : '0'}
+                    style={{ fontSize: 9, padding: '2px 7px', borderRadius: 4, background: '#4a6c8c', color: '#fff', fontWeight: 800, letterSpacing: 0.6, whiteSpace: 'nowrap' }}
+                  >{_b.label}</span>
+                </div>
+              ) : null;
+            })()}
+          </div>
+          <FilePicker
+            label="RFH File (MC9S12X Gen2) (.bin/.eprom)"
+            subtitle="Dump RFH (Gen2: VIN 4 slots + SEC16 2 slots)."
+            file={rfh.file}
+            onFile={handleRfh}
+            accept=".bin,.BIN,.eprom"
+            testid="modsync-rfh-file-input"
+          />
+        </div>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+          <button
+            data-testid="modsync-inspect-btn"
+            onClick={() => {
+              const el = document.getElementById('modsync-inspection-result');
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            disabled={!bcm.file && !rfh.file}
+            style={{
+              background: (bcm.file || rfh.file) ? C.a3 : C.bd,
+              border: 'none', borderRadius: 8, padding: '9px 18px',
+              color: '#fff', fontWeight: 900, fontSize: 12,
+              cursor: (bcm.file || rfh.file) ? 'pointer' : 'not-allowed',
+              letterSpacing: 0.5, fontFamily: "'Nunito'",
+            }}>
+            🔍 Inspect BCM / RFH
+          </button>
+          <button
+            data-testid="modsync-step1-reset-btn"
+            onClick={handleReset}
+            style={{
+              background: C.cd, border: `1px solid ${C.bd}`, borderRadius: 8,
+              padding: '8px 14px', color: C.tx, fontWeight: 800, fontSize: 12,
+              cursor: 'pointer', letterSpacing: 0.4, fontFamily: "'Nunito'",
+            }}>
+            🧹 Clean / Reset
+          </button>
+        </div>
+        <div data-testid="modsync-refresh-hint" style={{
+          padding: '7px 12px', borderRadius: 8,
+          background: C.wn + '14', border: `1px solid ${C.wn}55`,
+          color: '#7a4a00', fontSize: 11, fontWeight: 600, lineHeight: 1.5,
+        }}>
+          💡 If you refresh the page or open it in another tab, the state will be lost. Run Inspect again.
+        </div>
+      </Card>
+
+      {/* ── Optional Modules (PCM / 95640) ── */}
+      <Card>
+        <H2 badge={`${[pcm.file, eep.file].filter(Boolean).length} / 2`}>Load &amp; Inspect — Optional</H2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
-          <DropZone label="BCM"      icon="🧠" hint="MPC5606B DFLASH · Gen1 or Gen2 · drag .bin"
-                    file={bcm.file} onFile={handleBcm}
-                    badge={bcm.bytes ? moduleSizeBadge('bcm', bcm.bytes.length) : null}
-                    badgeTestid="modsync-bcm-size-badge"
-                    repaired={repairedSlots.bcm} />
-          <DropZone label="RFHUB / FCM" icon="🔑" hint="Yazaki FCM EEPROM · Gen1 or Gen2 · drag .bin"
-                    file={rfh.file} onFile={handleRfh} accent={C.a4}
-                    badge={rfh.bytes ? moduleSizeBadge('rfh', rfh.bytes.length) : null}
-                    badgeTestid="modsync-rfh-size-badge"
-                    repaired={repairedSlots.rfh} />
           <DropZone label="PCM (optional)" icon="⚙️" hint="GPEC2A (4 KB or 8 KB) · drag .bin"
                     file={pcm.file} onFile={handlePcm} accent={C.a1}
                     badge={pcm.bytes ? moduleSizeBadge('pcm', pcm.bytes.length) : null}
@@ -3774,13 +3998,6 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                     badge={eep.bytes ? moduleSizeBadge('eep', eep.bytes.length) : null}
                     badgeTestid="modsync-eep-size-badge" />
         </div>
-        {/* Task #475 — "Programmer says 'File different size'?" help blurb.
-            Sits directly below the upload zones so a tech who's already
-            staring at a wrong-sized PCM has the explanation in their
-            sight-line. Wording is centralised in <ProgrammerSizeHelp/>
-            (see Task #482) so it can't drift from the OBD wizard or the
-            DumpsTabV2 copy. The site-specific tail points at this
-            workspace's Sync Actions selector. */}
         <ProgrammerSizeHelp
           testId="modsync-programmer-size-help"
           variant="accent"
@@ -3789,186 +4006,251 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         />
       </Card>
 
-      {/* ── Inspection Results ── */}
+      {/* ── Inspection Result ── */}
       {loaded > 0 && (
         <Card>
-          <H2>Inspection Result</H2>
-
-          {/* Vehicle family selector */}
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: C.ts, marginBottom: 6 }}>
-              Vehicle Family — select to verify BCM part number
-            </div>
-            <select
-              data-testid="vehicle-family-select"
-              value={vehicleFamily}
-              onChange={e => setVehicleFamily(e.target.value)}
-              style={{
-                padding: '10px 14px', borderRadius: 10, border: `2px solid ${vehicleFamily ? C.a3 : C.bd}`,
-                background: C.c2, color: C.tx, fontFamily: "'Nunito'", fontSize: 13, fontWeight: 700,
-                cursor: 'pointer', outline: 'none', width: '100%', maxWidth: 480,
-              }}
-            >
-              <option value="">— select vehicle family to verify BCM PN —</option>
-              {VEHICLE_FAMILIES.map(f => (
-                <option key={f.id} value={f.id}>{f.label}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* BCM part-number mismatch warning */}
-          {(() => {
-            if (!bcm.parsed?.ok) return null;
-            const r = bcmFamilyMismatch(bcm.parsed, vehicleFamily);
-            if (!r) return null;
-            if (r.match) return (
-              <div data-testid="bcm-family-match" style={{
-                padding: '12px 16px', borderRadius: 10, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10,
-                background: 'rgba(0,200,83,0.08)', color: '#0a7a3b', border: '1.5px solid rgba(0,200,83,0.3)', fontWeight: 700, fontSize: 13,
-              }}>
-                ✓ BCM part number matches <strong>{r.family.label}</strong>
+          <div id="modsync-inspection-result">
+            {/* Header: "Inspection Result:" + inline status badge */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <div style={{ fontWeight: 900, fontSize: 13, letterSpacing: 1.2, textTransform: 'uppercase', color: C.tx, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: C.sr }} />
+                Inspection Result:
               </div>
-            );
-            return (
-              <div data-testid="bcm-family-mismatch" style={{
-                padding: '12px 16px', borderRadius: 10, marginBottom: 14, display: 'flex', flexDirection: 'column', gap: 6,
-                background: 'rgba(255,179,0,0.09)', border: '2px solid rgba(255,179,0,0.4)',
+              <span style={{
+                fontSize: 10, padding: '3px 10px', borderRadius: 6, fontWeight: 800, letterSpacing: 0.6,
+                background: bothReady ? C.gn : C.bd,
+                color: bothReady ? '#fff' : C.ts,
               }}>
-                <div style={{ fontWeight: 900, fontSize: 13, color: '#7a4a00' }}>
-                  ⚠ BCM PART NUMBER MISMATCH
-                </div>
-                <div style={{ fontSize: 12, color: '#7a4a00', lineHeight: 1.5 }}>
-                  Selected vehicle: <strong>{r.family.label}</strong><br />
-                  Expected BCM PN: <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{r.expected?.join(', ') || '—'}</span><br />
-                  Detected BCM PN: <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{r.detected.join(', ') || '— none recognized'}</span>
-                </div>
-                <div style={{ fontSize: 11, color: '#9a6000', fontStyle: 'italic' }}>
-                  Flash a mismatched BCM into this vehicle at your own risk — key-fob and immobilizer pairing may fail.
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* BCM-too-small banner — shown in place of the VIN match / Comparison
-              wording so users aren't told the SEC6 doesn't match when the real
-              cause is an undersized / fragment / wrong-module BCM file. */}
-          {bcm.parsed?.tooSmall && (
-            <div data-testid="bcm-too-small-banner" style={{
-              padding: '14px 18px', borderRadius: 12, marginBottom: 14,
-              fontWeight: 800, fontSize: 13, letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
-              background: 'rgba(255,23,68,0.08)', color: '#a00025',
-              border: `1.5px solid ${C.er}55`,
-            }}>
-              <span style={{ flex: 1 }}>
-                ✗ NOT READY — BCM file is too small ({bcm.parsed.size.toLocaleString()} B, need ≥ {bcm.parsed.minSize.toLocaleString()} B). Load a full BCM dump to enable VIN / SEC16 / SEC6 comparison.
+                {bothReady ? '✓ Ready to apply' : 'Load BCM + RFH'}
               </span>
             </div>
-          )}
 
-          {/* VIN match banner */}
-          {bothReady && (
-            <div style={{
-              padding: '14px 18px', borderRadius: 12, marginBottom: 14,
-              fontWeight: 800, fontSize: 13, letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
-              background: vinMatch ? 'rgba(0,200,83,0.1)' : 'rgba(255,23,68,0.08)',
-              color: vinMatch ? '#0a7a3b' : '#a00025',
-              border: `1.5px solid ${vinMatch ? 'rgba(0,200,83,0.3)' : 'rgba(255,23,68,0.25)'}`,
-            }}>
-              <span style={{ flex: 1 }}>
-                {vinMatch ? '✓ VIN MATCH' : '✗ VIN MISMATCH'} —{' '}
-                {vinMatch
-                  ? <>BCM and RFHUB both carry <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{bcm.parsed.vin}</strong> · modules already paired</>
-                  : <>BCM: <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{bcm.parsed.vin}</strong> · RFHUB: <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{rfh.parsed.vin}</strong> · sync required</>}
-              </span>
-              {(wizardIssues.length > 0 || wizardWarnings.length > 0) && (
-                <button
-                  data-testid="open-wizard-btn"
-                  onClick={() => setWizardOpen(true)}
-                  style={{
-                    background: 'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
-                    border: 'none', borderRadius: 8, padding: '6px 14px',
-                    color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
-                    letterSpacing: 0.5, fontFamily: "'Nunito'",
-                    flexShrink: 0, whiteSpace: 'nowrap',
-                  }}>
-                  🔧 Fix with Wizard →
-                </button>
-              )}
+            {/* Warnings sub-card */}
+            {[...wizardWarnings, ...wizardIssues].length > 0 && (
+              <div style={{
+                marginBottom: 14, padding: '10px 14px', borderRadius: 10,
+                background: C.wn + '10', border: `1px solid ${C.wn}44`,
+              }}>
+                <div style={{ fontWeight: 800, fontSize: 11, color: '#7a4a00', marginBottom: 6, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                  Warnings
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 18, listStyle: 'disc' }}>
+                  {[...wizardWarnings, ...wizardIssues].map((w, i) => (
+                    <li key={i} style={{ fontSize: 11, color: '#7a4a00', lineHeight: 1.5, marginBottom: 2 }}>{w}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Vehicle family selector */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: C.ts, marginBottom: 6 }}>
+                Vehicle Family — select to verify BCM part number
+              </div>
+              <select
+                data-testid="vehicle-family-select"
+                value={vehicleFamily}
+                onChange={e => setVehicleFamily(e.target.value)}
+                style={{
+                  padding: '10px 14px', borderRadius: 10, border: `2px solid ${vehicleFamily ? C.a3 : C.bd}`,
+                  background: C.c2, color: C.tx, fontFamily: "'Nunito'", fontSize: 13, fontWeight: 700,
+                  cursor: 'pointer', outline: 'none', width: '100%', maxWidth: 480,
+                }}
+              >
+                <option value="">— select vehicle family to verify BCM PN —</option>
+                {VEHICLE_FAMILIES.map(f => (
+                  <option key={f.id} value={f.id}>{f.label}</option>
+                ))}
+              </select>
             </div>
-          )}
 
-          {/* Task #574 — secondary "Repair PCM" CTA in the banner area
-           * (mirrors the per-card button) so the user sees the offer even
-           * if the PCM card is scrolled out of view. Same strict gating. */}
-          {pcmRepairable && (
-            <div
-              data-testid="pcm-repair-banner-cta"
-              style={{
+            {/* BCM part-number mismatch warning */}
+            {(() => {
+              if (!bcm.parsed?.ok) return null;
+              const r = bcmFamilyMismatch(bcm.parsed, vehicleFamily);
+              if (!r) return null;
+              if (r.match) return (
+                <div data-testid="bcm-family-match" style={{
+                  padding: '12px 16px', borderRadius: 10, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10,
+                  background: 'rgba(0,200,83,0.08)', color: '#0a7a3b', border: '1.5px solid rgba(0,200,83,0.3)', fontWeight: 700, fontSize: 13,
+                }}>
+                  ✓ BCM part number matches <strong>{r.family.label}</strong>
+                </div>
+              );
+              return (
+                <div data-testid="bcm-family-mismatch" style={{
+                  padding: '12px 16px', borderRadius: 10, marginBottom: 14, display: 'flex', flexDirection: 'column', gap: 6,
+                  background: 'rgba(255,179,0,0.09)', border: '2px solid rgba(255,179,0,0.4)',
+                }}>
+                  <div style={{ fontWeight: 900, fontSize: 13, color: '#7a4a00' }}>⚠ BCM PART NUMBER MISMATCH</div>
+                  <div style={{ fontSize: 12, color: '#7a4a00', lineHeight: 1.5 }}>
+                    Selected vehicle: <strong>{r.family.label}</strong><br />
+                    Expected BCM PN: <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{r.expected?.join(', ') || '—'}</span><br />
+                    Detected BCM PN: <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{r.detected.join(', ') || '— none recognized'}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#9a6000', fontStyle: 'italic' }}>
+                    Flash a mismatched BCM into this vehicle at your own risk — key-fob and immobilizer pairing may fail.
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* BCM-too-small banner */}
+            {bcm.parsed?.tooSmall && (
+              <div data-testid="bcm-too-small-banner" style={{
+                padding: '14px 18px', borderRadius: 12, marginBottom: 14,
+                fontWeight: 800, fontSize: 13, letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+                background: 'rgba(255,23,68,0.08)', color: '#a00025', border: `1.5px solid ${C.er}55`,
+              }}>
+                <span style={{ flex: 1 }}>
+                  ✗ NOT READY — BCM file is too small ({bcm.parsed.size.toLocaleString()} B, need ≥ {bcm.parsed.minSize.toLocaleString()} B). Load a full BCM dump to enable VIN / SEC16 / SEC6 comparison.
+                </span>
+              </div>
+            )}
+
+            {/* VIN match banner */}
+            {bothReady && (
+              <div style={{
+                padding: '14px 18px', borderRadius: 12, marginBottom: 14,
+                fontWeight: 800, fontSize: 13, letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+                background: vinMatch ? 'rgba(0,200,83,0.1)' : 'rgba(255,23,68,0.08)',
+                color: vinMatch ? '#0a7a3b' : '#a00025',
+                border: `1.5px solid ${vinMatch ? 'rgba(0,200,83,0.3)' : 'rgba(255,23,68,0.25)'}`,
+              }}>
+                <span style={{ flex: 1 }}>
+                  {vinMatch ? '✓ VIN MATCH' : '✗ VIN MISMATCH'} —{' '}
+                  {vinMatch
+                    ? <>BCM and RFHUB both carry <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{bcm.parsed.vin}</strong> · modules already paired</>
+                    : <>BCM: <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{bcm.parsed.vin}</strong> · RFHUB: <strong style={{ fontFamily: "'JetBrains Mono'", margin: '0 4px', letterSpacing: 2 }}>{rfh.parsed.vin}</strong> · sync required</>}
+                </span>
+                {(wizardIssues.length > 0 || wizardWarnings.length > 0) && (
+                  <button data-testid="open-wizard-btn" onClick={() => setWizardOpen(true)}
+                    style={{
+                      background: 'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+                      border: 'none', borderRadius: 8, padding: '6px 14px',
+                      color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
+                      letterSpacing: 0.5, fontFamily: "'Nunito'", flexShrink: 0, whiteSpace: 'nowrap',
+                    }}>
+                    🔧 Fix with Wizard →
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* PCM repair banner */}
+            {pcmRepairable && (
+              <div data-testid="pcm-repair-banner-cta" style={{
                 padding: '10px 16px', borderRadius: 10, marginBottom: 14,
                 background: 'rgba(255,23,68,0.08)', border: '1.5px solid rgba(255,23,68,0.35)',
                 display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
               }}>
-              <span style={{ fontSize: 12, color: '#a00025', flex: 1, fontWeight: 700 }}>
-                ⚠ PCM dump is damaged but repairable — BCM and RFHUB agree on the VIN and pairing
-                secret, so SRT Lab can rewrite the bad offsets and produce a fixed file.
-                {pcmDamageSignals.length > 0 && (
-                  <span style={{ fontWeight: 500, color: C.ts }}> · {pcmDamageSignals.join(' · ')}</span>
-                )}
-              </span>
-              <button
-                data-testid="pcm-repair-banner-btn"
-                onClick={() => setPcmRepairOpen(true)}
-                style={{
-                  background: 'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
-                  border: 'none', borderRadius: 8, padding: '6px 14px',
-                  color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
-                  letterSpacing: 0.5, fontFamily: "'Nunito'", whiteSpace: 'nowrap',
-                }}>
-                🩹 Repair PCM →
-              </button>
-            </div>
-          )}
-
-          {/* Standalone wizard trigger when no VIN mismatch but real SEC16/SEC6 issues.
-               Task #815: gate specifically on security-token issues, not every warning.
-               An absent BCM SEC16 (ALERT_NO_SECURITY) is informational — we do NOT
-               surface the amber "Security token issues detected" banner for it because
-               the wizard cannot resolve an absent SEC16 offline, and there is nothing
-               to diff against the RFHUB. Only genuine MISMATCH / BLANK verdicts from
-               paired modules should trigger the wizard offer. */}
-          {bothReady && vinMatch && (() => {
-            const SEC_TOKEN_RE = /MISMATCH|BLANK.*SEC16|SEC16.*BLANK|SEC6.*MISMATCH|SEC6.*paired|RFHUB.*SEC16.*MISMATCH|BCM.*SEC16.*MISMATCH/i;
-            const hasSecTokenIssue =
-              wizardIssues.some(m => SEC_TOKEN_RE.test(m)) ||
-              wizardWarnings.some(m => SEC_TOKEN_RE.test(m));
-            if (!hasSecTokenIssue) return null;
-            return (
-              <div style={{
-                padding: '10px 16px', borderRadius: 10, marginBottom: 14,
-                background: 'rgba(255,179,0,0.08)', border: '1.5px solid rgba(255,179,0,0.3)',
-                display: 'flex', alignItems: 'center', gap: 10,
-              }}>
-                <span style={{ fontSize: 12, color: '#7a4a00', flex: 1 }}>
-                  ⚠ Security token issues detected — use the wizard for guided resolution.
+                <span style={{ fontSize: 12, color: '#a00025', flex: 1, fontWeight: 700 }}>
+                  ⚠ PCM dump is damaged but repairable — BCM and RFHUB agree on the VIN and pairing
+                  secret, so SRT Lab can rewrite the bad offsets and produce a fixed file.
+                  {pcmDamageSignals.length > 0 && (
+                    <span style={{ fontWeight: 500, color: C.ts }}> · {pcmDamageSignals.join(' · ')}</span>
+                  )}
                 </span>
-                <button
-                  data-testid="open-wizard-btn-sec16"
-                  onClick={() => setWizardOpen(true)}
+                <button data-testid="pcm-repair-banner-btn" onClick={() => setPcmRepairOpen(true)}
                   style={{
                     background: 'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
                     border: 'none', borderRadius: 8, padding: '6px 14px',
                     color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
-                    letterSpacing: 0.5, fontFamily: "'Nunito'",
+                    letterSpacing: 0.5, fontFamily: "'Nunito'", whiteSpace: 'nowrap',
                   }}>
-                  🔧 Fix with Wizard →
+                  🩹 Repair PCM →
                 </button>
               </div>
-            );
-          })()}
+            )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
-            <BcmCard parsed={bcm.parsed} pnOverride={bcm.pnOverride} fullyVirgin={bcmFullyVirgin} />
-            <RfhCard parsed={rfh.parsed} pnOverride={rfh.pnOverride} />
+            {/* Standalone wizard trigger when SEC16/SEC6 issues are present with VIN match */}
+            {bothReady && vinMatch && (() => {
+              const SEC_TOKEN_RE = /MISMATCH|BLANK.*SEC16|SEC16.*BLANK|SEC6.*MISMATCH|SEC6.*paired|RFHUB.*SEC16.*MISMATCH|BCM.*SEC16.*MISMATCH/i;
+              const hasSecTokenIssue =
+                wizardIssues.some(m => SEC_TOKEN_RE.test(m)) ||
+                wizardWarnings.some(m => SEC_TOKEN_RE.test(m));
+              if (!hasSecTokenIssue) return null;
+              return (
+                <div style={{
+                  padding: '10px 16px', borderRadius: 10, marginBottom: 14,
+                  background: 'rgba(255,179,0,0.08)', border: '1.5px solid rgba(255,179,0,0.3)',
+                  display: 'flex', alignItems: 'center', gap: 10,
+                }}>
+                  <span style={{ fontSize: 12, color: '#7a4a00', flex: 1 }}>
+                    ⚠ Security token issues detected — use the wizard for guided resolution.
+                  </span>
+                  <button data-testid="open-wizard-btn-sec16" onClick={() => setWizardOpen(true)}
+                    style={{
+                      background: 'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+                      border: 'none', borderRadius: 8, padding: '6px 14px',
+                      color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
+                      letterSpacing: 0.5, fontFamily: "'Nunito'",
+                    }}>
+                    🔧 Fix with Wizard →
+                  </button>
+                </div>
+              );
+            })()}
+
+            {/* Two-column BCM + RFH inspection cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14, marginBottom: bothReady ? 14 : 0 }}>
+              <BcmCard parsed={bcm.parsed} pnOverride={bcm.pnOverride} fullyVirgin={bcmFullyVirgin}
+                       filename={bcm.file?.name} fileSize={bcm.bytes?.length} />
+              <RfhCard parsed={rfh.parsed} pnOverride={rfh.pnOverride}
+                       filename={rfh.file?.name} fileSize={rfh.bytes?.length} />
+            </div>
+
+            {/* Actions section — shown when both BCM and RFH are loaded and parsed */}
+            {bothReady && (
+              <div style={{
+                padding: '16px 18px', borderRadius: 12, marginBottom: pcm.parsed ? 14 : 0,
+                border: `1.5px solid ${C.gn}44`, background: 'rgba(0,200,83,0.03)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                  <div style={{ fontWeight: 900, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: C.tx }}>
+                    Actions
+                  </div>
+                  <span style={{
+                    fontSize: 9, padding: '2px 8px', borderRadius: 4,
+                    background: C.gn, color: '#fff', fontWeight: 800, letterSpacing: 0.5,
+                  }}>APPLY enabled</span>
+                </div>
+                <div style={{ fontSize: 11, color: C.ts, marginBottom: 12 }}>
+                  It applies in both directions using the data already uploaded (without re-uploading files).
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <button data-testid="modsync-action-rfh-to-bcm" onClick={() => doSync('rfh-to-bcm')}
+                    style={{
+                      background: 'transparent', border: `1.5px solid ${C.gn}`,
+                      borderRadius: 8, padding: '9px 16px', color: C.gn,
+                      fontWeight: 800, fontSize: 12, cursor: 'pointer',
+                      letterSpacing: 0.4, fontFamily: "'Nunito'", textAlign: 'left',
+                    }}>
+                    ← Import RFH data → to BCM (download twinned BCM)
+                  </button>
+                  <button data-testid="modsync-action-bcm-to-rfh" onClick={() => doSync('bcm-to-rfh')}
+                    style={{
+                      background: 'transparent', border: `1.5px solid ${C.gn}`,
+                      borderRadius: 8, padding: '9px 16px', color: C.gn,
+                      fontWeight: 800, fontSize: 12, cursor: 'pointer',
+                      letterSpacing: 0.4, fontFamily: "'Nunito'", textAlign: 'left',
+                    }}>
+                    → Import data from BCM → to RFH (download twinned RFH)
+                  </button>
+                  <button onClick={handleReset}
+                    style={{
+                      background: 'transparent', border: `1px solid ${C.bd}`,
+                      borderRadius: 8, padding: '8px 14px', color: C.ts,
+                      fontWeight: 700, fontSize: 11, cursor: 'pointer',
+                      letterSpacing: 0.3, fontFamily: "'Nunito'", textAlign: 'left',
+                    }}>
+                    🔄 Re-filter / reload files
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* PCM card (only if pcm.parsed) */}
             {pcm.parsed && (
               <PcmCard
                 parsed={pcm.parsed}
