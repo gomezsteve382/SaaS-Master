@@ -2520,6 +2520,22 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
    * border so the tech sees that donor and target sizes diverge. */
   const pcmSourceChip = pcm.parsed && !pcm.parsed.tooSmall ? pcmChipFromSize(pcm.parsed.size) : null;
   const pcmHasNonCanonicalSize = !!(pcm.parsed && !pcm.parsed.tooSmall && !pcmSourceChip);
+  /* Task #1036 — refuse-on-doubt: SYNC ALL must NOT blindly pair a virgin /
+   * blank engine module. This mirrors runKeyProgPatch's "PCM SEC6 is prefix
+   * of shared secret" guard: a canonical-size GPEC2A whose SEC6 secret slot
+   * @0x3C8 is blank (all-FF / all-00 / mostly-FF — classifyPcmSec6 reports
+   * !populated) carries no existing immobilizer pairing to verify against, so
+   * stamping reverse(BCM)[0:6] onto it would silently fabricate a pairing on a
+   * module that may be the wrong file or a bad dump. Derived once here so the
+   * SYNC ALL preview gating and the executeSync('sync-all') writer share a
+   * single predicate — preview MUST mirror writer gating (drift is the bug
+   * class). Non-canonical sizes are handled by pcmHasNonCanonicalSize first,
+   * so this only fires on a genuine 4 KB / 8 KB GPEC2A with a blank SEC6. */
+  const pcmSec6Blank = !!(
+    pcm.bytes && pcm.parsed
+    && (pcm.bytes.length === 4096 || pcm.bytes.length === 8192)
+    && !(pcm.parsed.sec6Class && pcm.parsed.sec6Class.populated)
+  );
   const effectiveTargetChipKey = targetPcmChip || pcmSourceChip?.chipKey || null;
   const targetChipDescriptor = effectiveTargetChipKey ? pcmChipFromKey(effectiveTargetChipKey) : null;
   const targetChipMismatch = !!(pcmSourceChip && targetPcmChip && targetPcmChip !== pcmSourceChip.chipKey);
@@ -2979,6 +2995,19 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         /* Full 3-module sync: VIN → BCM + RFH + PCM, SEC16 BCM ← RFH, SEC6 PCM ← RFH */
         const newVin = ov || (tvOk ? tv : (rfh.parsed?.vin || bcm.parsed?.vin));
         if (!newVin) { log('✗ No target VIN available', 'err'); return; }
+        /* Task #1036 — refuse-on-doubt before ANY write: SYNC ALL will not
+         * pair a virgin / blank engine module. Same guard runKeyProgPatch
+         * enforces ("PCM SEC6 is prefix of shared secret"), now wired into the
+         * SYNC ALL writer so it can't fabricate a pairing on a GPEC2A whose
+         * SEC6 secret slot is blank. Halts before writePcmSec6 — nothing is
+         * written or downloaded. pcmSec6Blank is the same predicate that
+         * disables the button, so the preview gating mirrors this exactly. */
+        if (pcm.bytes && pcmSec6Blank) {
+          log('✗ SYNC ALL refused: the loaded engine module (GPEC2A) has a BLANK SEC6 immobilizer slot (virgin / unpopulated).', 'err');
+          log('  Refuse-on-doubt: stamping reverse(BCM)[0:6] onto a blank engine module would fabricate a pairing with nothing to verify against — the same guard the full key-programming wizard (runKeyProgPatch) enforces.', 'err');
+          log('  Load a PCM that already carries a populated SEC6, or use the dedicated key-programming wizard if you intend to pair a fresh GPEC2A. No files were written.', 'muted');
+          return;
+        }
         const newCrc = engCrc16(new TextEncoder().encode(newVin));
         /* Task #1023 — accumulate every outgoing file here instead of writing
          * inline; the pre-download safety gate runs over the whole set and
@@ -4181,17 +4210,24 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                   // flasher will refuse the output, so producing it would
                   // give the user a junk file and a wasted bench cycle.
                   const pcmSizeBlocked = pcmHasNonCanonicalSize;
+                  // Task #1036 — refuse-on-doubt: block SYNC ALL when the
+                  // loaded PCM is a virgin / blank engine module (canonical
+                  // size but SEC6 secret slot unpopulated). Same predicate the
+                  // writer halts on, so this preview mirrors writer gating.
+                  const pcmVirginBlocked = !!(pcm.bytes && pcmSec6Blank);
                   const baseEnabled = tvOk || !!(rfh.parsed.vin);
-                  const enabled = baseEnabled && !pcmSizeBlocked;
+                  const enabled = baseEnabled && !pcmSizeBlocked && !pcmVirginBlocked;
                   const desc = pcmSizeBlocked
                     ? `⛔ Loaded PCM is ${pcm.parsed.size} B — neither 4 KB (95320) nor 8 KB (95640). CGDI will reject. Re-read the EXT EEPROM (not INT FLASH) or load the matching virgin before SYNC.`
-                    : tvOk
-                      ? `Write ${tv} + SEC16 to all loaded modules in one pass. SINCRO-verified output${pcm.bytes && targetChipDescriptor ? ` · PCM sized to ${targetChipDescriptor.sizeLabel}` : ''}.`
-                      : `Write ${rfh.parsed.vin || bcm.parsed.vin} + SEC16 to all modules (no target VIN set)${pcm.bytes && targetChipDescriptor ? ` · PCM sized to ${targetChipDescriptor.sizeLabel}` : ''}.`;
+                    : pcmVirginBlocked
+                      ? `⛔ Loaded engine module (GPEC2A) has a BLANK SEC6 immobilizer slot (virgin / unpopulated). SYNC ALL refuses to pair a blank engine module — load a PCM with a populated SEC6, or use the key-programming wizard to pair a fresh GPEC2A.`
+                      : tvOk
+                        ? `Write ${tv} + SEC16 to all loaded modules in one pass. SINCRO-verified output${pcm.bytes && targetChipDescriptor ? ` · PCM sized to ${targetChipDescriptor.sizeLabel}` : ''}.`
+                        : `Write ${rfh.parsed.vin || bcm.parsed.vin} + SEC16 to all modules (no target VIN set)${pcm.bytes && targetChipDescriptor ? ` · PCM sized to ${targetChipDescriptor.sizeLabel}` : ''}.`;
                   return (
                     <ActionBtn title="⚡ SYNC ALL — BCM + RFH + PCM"
                       enabled={enabled}
-                      color={pcmSizeBlocked ? C.er : C.a1}
+                      color={(pcmSizeBlocked || pcmVirginBlocked) ? C.er : C.a1}
                       desc={desc}
                       onClick={() => doSync('sync-all')} />
                   );
@@ -4202,6 +4238,14 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                      style={{ marginTop: 8, padding: '8px 12px', background: C.er + '14', borderRadius: 8, fontSize: 11, color: C.er, fontWeight: 700, lineHeight: 1.5 }}>
                   ⛔ Generate is blocked: the loaded PCM is {pcm.parsed?.size} bytes — not the 4 KB (95320) or 8 KB (95640) the CGDI / Xprog / Orange5 flasher accepts.
                   Re-read the EXT EEPROM (not the INT FLASH) on your bench at the matching size, then drop the new file in to unlock SYNC.
+                </div>
+              )}
+              {pcm.bytes && pcmSec6Blank && !pcmHasNonCanonicalSize && (
+                <div data-testid="modsync-pcm-virgin-blocked-help"
+                     style={{ marginTop: 8, padding: '8px 12px', background: C.er + '14', borderRadius: 8, fontSize: 11, color: C.er, fontWeight: 700, lineHeight: 1.5 }}>
+                  ⛔ SYNC ALL is blocked: the loaded engine module (GPEC2A) has a BLANK SEC6 immobilizer slot — it is a virgin / unpopulated dump.
+                  Pairing it would stamp this car's secret onto a module with nothing to verify against (the same refusal the full key-programming wizard enforces).
+                  Load a PCM that already carries a populated SEC6, or use the dedicated key-programming wizard if you intend to pair a fresh GPEC2A.
                 </div>
               )}
               {!sec16SyncOk && (

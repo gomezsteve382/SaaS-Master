@@ -31,17 +31,16 @@
 //      third PCM_SYNCED file ships alongside BCM_SYNCED / RFH_SYNCED.
 //
 //   4. VIRGIN GPEC2A → SEC6 write refused.
-//      DRIFT NOTE: the task framed this as a SYNC ALL endpoint, but the
-//      executeSync('sync-all') path does NOT block a virgin GPEC2A — its writer
-//      (engWritePcmSec6 / securityBytes.writePcmSec6) unconditionally stamps
-//      reverse(BCM)[0:6] over the virgin SEC6 slot, so the dump simply becomes
-//      paired and exports as PCM_SYNCED (verified empirically). The "refuse SEC6
-//      against a virgin GPEC2A" logic the task references lives in
-//      runKeyProgPatch (the full 3-module wizard), which is NOT wired into
-//      ModuleSync's SYNC ALL button. Case 4 therefore asserts that refusal at
-//      its real home: runKeyProgPatch returns ok=false with the "PCM SEC6 is
-//      prefix of shared secret" check failing for a virgin GPEC2A, while the
-//      same setup with a populated, matching SEC6 passes that check.
+//      Task #1036 RESOLVED the earlier drift: executeSync('sync-all') now DOES
+//      refuse a virgin / blank GPEC2A. A canonical-size GPEC2A whose SEC6 secret
+//      slot is unpopulated (classifyPcmSec6 !populated) disables the SYNC ALL
+//      button (preview gating) and halts the writer before any byte is written
+//      — the same "PCM SEC6 is prefix of shared secret" refuse-on-doubt guard
+//      runKeyProgPatch enforces, now wired into the simpler SYNC ALL flow.
+//      Case 4a asserts the rendered SYNC ALL refusal (button disabled + blocked
+//      help text, no download); Case 4b keeps the unit assertion that
+//      runKeyProgPatch refuses the same virgin GPEC2A but accepts a populated,
+//      matching one — proving the two flows are now consistent.
 
 import React from "react";
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
@@ -281,10 +280,44 @@ describe("ModuleSync — SYNC ALL pre-download safety gate (Task #1026)", () => 
   });
 
   // ── Task #1032: virgin-GPEC2A SEC6 refusal at its real home ──────────────
-  // See the DRIFT NOTE in the file header: executeSync('sync-all') does NOT
-  // refuse a virgin GPEC2A (its writer stamps SEC6 unconditionally), so the
-  // refusal is asserted against runKeyProgPatch, the wizard that actually
-  // enforces "PCM SEC6 must be a prefix of the BCM-derived shared secret".
+  // Task #1036 — Case 4a: the rendered SYNC ALL flow now refuses a virgin /
+  // blank GPEC2A. A reconcilable BCM/RFH pair + a canonical-size GPEC2A whose
+  // SEC6 slot is blank (pcmSec6Damaged) must DISABLE the SYNC ALL button and
+  // surface the blocked help text — and (defense-in-depth) the writer halts
+  // before any file is downloaded even if a click somehow lands.
+  it("SYNC ALL REFUSES a virgin GPEC2A: button disabled, blocked help shown, no download", async () => {
+    const { container } = renderModuleSync();
+    await loadInto(container, 0, bcmFixture({ flatSecret: RFH_SECRET_REVERSED }), "bcm-fixture.bin");
+    await loadInto(container, 1, makeRfhubGen2(), "rfh-fixture.bin");
+    // Virgin engine module: blank SEC6 slot (all-FF, no marker).
+    await loadInto(container, 2, makeGpec2a({ pcmSec6Damaged: true }), "pcm-virgin.bin");
+
+    // The SYNC ALL button mounts (BCM+RFH ready) but must be DISABLED because
+    // the loaded engine module is blank.
+    let btn;
+    await waitFor(() => {
+      btn = screen.getByRole("button", { name: /SYNC ALL/i });
+      expect(btn).toBeTruthy();
+      expect(btn.disabled).toBe(true);
+    });
+
+    // The refuse-on-doubt help text mirrors the disabled button (preview
+    // gating === writer gating).
+    expect(
+      screen.getByTestId("modsync-pcm-virgin-blocked-help")
+    ).toBeTruthy();
+
+    // A disabled button can't fire doSync, so nothing was ever written.
+    await act(async () => {
+      fireEvent.click(btn);
+    });
+    expect(clickSpy).not.toHaveBeenCalled();
+    expect(screen.queryByText(/^Downloaded:/i, { exact: false })).toBeNull();
+  });
+
+  // Case 4b — the wizard parity check that proves the two flows now agree:
+  // runKeyProgPatch enforces "PCM SEC6 must be a prefix of the BCM-derived
+  // shared secret", refusing a virgin GPEC2A and accepting a populated one.
   it("runKeyProgPatch REFUSES SEC6 against a virgin GPEC2A but accepts a populated, matching one", () => {
     // BCM stores the secret little-endian; RFHUB/PCM consume the big-endian
     // (reversed) form. PCM SEC6 = first 6 BE bytes of the shared secret.

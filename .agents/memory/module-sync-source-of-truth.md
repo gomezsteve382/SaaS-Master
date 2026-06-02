@@ -31,14 +31,12 @@ Regression coverage lives in syncAllBcmSourceContract.test.js (real OG Charger
 triple, BCM is Gen2-split, RFH is Gen1 → exercises the VIN-only RFH + PCM-from-BCM
 paths and the foreign-RFH negative case).
 
-**SYNC ALL does NOT refuse a virgin GPEC2A.** executeSync('sync-all') writes PCM
-SEC6 unconditionally — securityBytes.writePcmSec6/engWritePcmSec6 stamp
-reverse(BCM)[0:6] + marker over ANY canonical 4K/8K buffer, so a virgin (all-FF,
-no-marker) GPEC2A simply becomes paired and exports as PCM_SYNCED with the gate
-PASSED. The "refuse SEC6 against a virgin GPEC2A" logic the docs mention lives in
-keyProgWizard.runKeyProgPatch (the `PCM SEC6 is prefix of shared secret` check →
-allOk false → ok:false), which is NOT wired into the ModuleSync SYNC ALL button.
-**Why:** a task framed virgin-GPEC2A blocking as a SYNC ALL endpoint; it isn't —
-verified empirically. Only a non-canonical PCM *size* blocks the sync-all PCM leg
-before write. **How to apply:** assert virgin-GPEC2A refusal against runKeyProgPatch
-directly, not through the SYNC ALL UI.
+**SYNC ALL refuses a virgin/blank engine module** (consistency with
+runKeyProgPatch). A blank-SEC6 GPEC2A carries no pairing to verify against, so
+pairing it would fabricate one — same reason runKeyProgPatch refuses via its
+"PCM SEC6 is prefix of shared secret" check. **Why:** the SYNC-ALL-pairs-blank
+vs wizard-refuses-blank inconsistency was the bug. **How to apply:** same drift
+class as the BCM-source gating above — the blank-engine refusal must be enforced
+by ONE shared predicate used by both the button gating and the writer; never let
+preview and write disagree. The refusal is currently scoped to the sync-all path
+only (the sec16-only path is a known gap).
