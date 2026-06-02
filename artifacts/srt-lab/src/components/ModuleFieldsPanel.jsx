@@ -213,12 +213,15 @@ export default function ModuleFieldsPanel({mod,onSyncImmo}){
         </ul>
       </Card>}
       <Card glow style={{marginBottom:14}}>
-        <div style={{fontSize:16,fontWeight:900,marginBottom:12}}>🔑 RFHUB Analysis</div>
+        <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',marginBottom:12}}>
+          <div style={{fontSize:16,fontWeight:900}}>🔑 RFHUB Analysis</div>
+          <Tag color={!mod.rfhGen||mod.rfhGen==='Unknown'?C.wn:C.a3}>{mod.rfhGen&&mod.rfhGen!=='Unknown'?mod.rfhGen:'Generation: Unknown'}</Tag>
+        </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
           <div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+C.a3+'40'}}>
             <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>FOBIK SLOTS @0x0880</div>
             <div style={{fontSize:28,fontWeight:900,color:C.a3,fontFamily:"'JetBrains Mono'",lineHeight:1.1}}>{mod.fobikSlots}</div>
-            <div style={{fontSize:10,color:C.tm,marginTop:4}}>AA50 markers · Gen {mod.rfhGen}</div>
+            <div style={{fontSize:10,color:C.tm,marginTop:4}}>AA50 markers</div>
           </div>
           {mod.rfhVin92?<div style={{padding:16,borderRadius:12,background:C.c2,border:'1px solid '+(mod.rfhVin92.csOk?C.gn+'40':C.er+'40')}}>
             <div style={{fontSize:11,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:1.5}}>VIN @0x0092</div>
