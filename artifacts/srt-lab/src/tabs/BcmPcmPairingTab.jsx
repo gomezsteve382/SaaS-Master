@@ -121,8 +121,8 @@ function BcmPanel({ bcm }) {
     );
   }
 
-  const sec16Raw = bcm.sec16Copies[0]?.raw || [];
-  const sec16Blank = sec16Raw.every(b => b === 0xFF || b === 0x00);
+  const effRaw = bcm.sec16SourceRaw || bcm.sec16Copies[0]?.raw || [];
+  const sec16Blank = effRaw.length === 0 || effRaw.every(b => b === 0xFF || b === 0x00);
   const bcmVin = bcm.vins[0]?.vin || '—';
   const vinOk = VIN_RE.test(bcmVin);
 
@@ -198,8 +198,20 @@ function BcmPanel({ bcm }) {
         <div style={{ fontSize: 10, fontWeight: 800, color: C.ts, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>
           SEC16 Derivation Chain
         </div>
+        {bcm.sec16FromSplit && (
+          <div data-testid="bcmpcm-split-fallback-note" style={{
+            marginBottom: 8, padding: '6px 10px', borderRadius: 8,
+            background: C.wn + '12', border: '1px solid ' + C.wn + '40',
+            fontSize: 10, fontWeight: 700, color: C.wn, lineHeight: 1.45,
+          }}>
+            ⚠ Mirror copies @ 0x40C9 / 0x40F1 are blank — using split-record fallback{' '}
+            <strong>{bcm.sec16Source}</strong> @ {fmtOff(bcm.sec16SourceOffset)}.
+          </div>
+        )}
         <div style={{ marginBottom: 4 }}>
-          <div style={{ fontSize: 9, color: C.tm, marginBottom: 2 }}>BCM MAIN (stored format, Mirror 1 @ {fmtOff(bcm.sec16Copies[0]?.offset || 0x40C9)})</div>
+          <div style={{ fontSize: 9, color: C.tm, marginBottom: 2 }}>
+            BCM MAIN (stored format, {bcm.sec16Source} @ {fmtOff(bcm.sec16SourceOffset || 0x40C9)})
+          </div>
           <MonoHex hex={bcm.sec16Hex} color={C.a4} />
         </div>
         <div style={{ marginBottom: 4 }}>
@@ -351,14 +363,21 @@ function computeVerdict(bcm, pcm) {
   const bcmVin = bcm.vins[0]?.vin || null;
   const bcmVinValid = bcmVin && VIN_RE.test(bcmVin);
 
-  // Require at least one CRC-valid, non-blank BCM SEC16 copy — mirrors the
+  // Require at least one CRC-valid, non-blank BCM SEC16 mirror — mirrors the
   // RFH tab rule (rfhPcmPair.computeCompatibility / parseRFH24C32 sourceSlot
   // logic): a copy is only trusted when present + non-blank + csOk.
   // Blank detection must match securityBytes.js allBlank (all-FF or all-00).
   const validSec16Copy = bcm.sec16Copies.find(
     c => c.csOk && !c.raw.every(b => b === 0xFF || b === 0x00)
   );
-  const sec16Blank = !validSec16Copy;
+  // Split-record fallback: when both mirrors are blank but the 0x81xx split
+  // records carry a consistent non-blank SEC16, parseBcm exposes it as the
+  // effective source — accept it so a re-paired virgin BCM still derives SEC6.
+  const splitFallbackUsable = !validSec16Copy && !!bcm.sec16FromSplit;
+  const effectiveSource = validSec16Copy
+    ? { label: validSec16Copy.label, offset: validSec16Copy.offset }
+    : (splitFallbackUsable ? { label: bcm.sec16Source, offset: bcm.sec16SourceOffset } : null);
+  const sec16Blank = !effectiveSource;
 
   if (bcm.size !== 65536) issues.push('BCM file must be 65 536 B (full MPC5606B flash)');
   if (sec16Blank) {
@@ -372,11 +391,15 @@ function computeVerdict(bcm, pcm) {
   if (!bcmVinValid) issues.push('BCM primary VIN is missing or invalid');
   if (!pcm.writeCheck.ok) issues.push(pcm.writeCheck.reason || 'PCM is not writable (non-canonical size)');
 
-  if (!bcm.secMatch) info.push(
-    'BCM SEC16 mirrors differ — using ' + (validSec16Copy?.label || 'Mirror 1') +
-    ' @ ' + fmtOff(validSec16Copy?.offset || bcm.sec16Copies[0]?.offset || 0x40C9)
+  if (splitFallbackUsable) info.push(
+    'BCM mirror copies @ 0x40C9 / 0x40F1 are blank — using split-record fallback ' +
+    bcm.sec16Source + ' @ ' + fmtOff(bcm.sec16SourceOffset)
   );
-  if (!bcm.secAllCsOk && !sec16Blank) info.push('BCM SEC16: one or more mirrors have CRC errors (using best valid copy)');
+  if (!bcm.secMatch && !splitFallbackUsable) info.push(
+    'BCM SEC16 mirrors differ — using ' + (effectiveSource?.label || 'Mirror 1') +
+    ' @ ' + fmtOff(effectiveSource?.offset || bcm.sec16Copies[0]?.offset || 0x40C9)
+  );
+  if (!bcm.secAllCsOk && !sec16Blank && !splitFallbackUsable) info.push('BCM SEC16: one or more mirrors have CRC errors (using best valid copy)');
   if (pcm.immo.state === 'IMMO_DAMAGED') info.push('PCM IMMO byte is IMMO_DAMAGED (all-FF). Enable "Repair IMMO byte" toggle to also fix 0x0011 → ENABLED on Apply.');
 
   const vinMatch = bcmVinValid && pcm.vinCurrent && bcmVin === pcm.vinCurrent;
@@ -480,18 +503,22 @@ export default function BcmPcmPairingTab() {
   const doApply = useCallback(() => {
     if (!verdict.canApply || pcmSizeNonCanonical || !bcm || !pcm || !pcmBuf) return;
 
-    // Pick the best (first CRC-valid, non-blank) BCM SEC16 copy — same rule
-    // used in computeVerdict's validSec16Copy gate, so if we reach here at
-    // least one exists.
-    const bestCopy = bcm.sec16Copies.find(
+    // Pick the SEC16 source — same priority as computeVerdict: first CRC-valid,
+    // non-blank mirror, else the split-record fallback parseBcm resolved when
+    // both mirrors are blank. If we reach here at least one exists.
+    const validMirror = bcm.sec16Copies.find(
       c => c.csOk && !c.raw.every(b => b === 0xFF || b === 0x00)
     );
-    if (!bestCopy) { setMsg('✗ No CRC-valid BCM SEC16 copy found — cannot apply'); return; }
+    const srcRaw = validMirror
+      ? validMirror.raw
+      : (bcm.sec16FromSplit ? bcm.sec16SourceRaw : null);
+    const srcLabel = validMirror ? validMirror.label : bcm.sec16Source;
+    if (!srcRaw) { setMsg('✗ No usable BCM SEC16 source found — cannot apply'); return; }
 
     // Route through the canonical BCM → PCM entrypoint (bcmPcmSync.applyPcmFromBcm).
     // applyPcmFromBcm handles the BCM byte-reversal internally and calls
     // writePcmSec6 to stamp the FF FF FF AA marker @ 0x3C4 + 6 secret bytes @ 0x3C8.
-    const sec16Stored = new Uint8Array(bestCopy.raw);
+    const sec16Stored = new Uint8Array(srcRaw);
     const writeRes = applyPcmFromBcm(pcmBuf, sec16Stored);
     if (!writeRes.ok) {
       setPatched(null); setApplyLog([]);
@@ -501,7 +528,7 @@ export default function BcmPcmPairingTab() {
 
     let out = writeRes.bytes;
     const log = [];
-    log.push('PCM SEC6 @ 0x03C8 ← ' + bcm.pcmSec6Hex + ' (' + bestCopy.label + ' byte-reversed → first 6 B)');
+    log.push('PCM SEC6 @ 0x03C8 ← ' + bcm.pcmSec6Hex + ' (' + srcLabel + ' byte-reversed → first 6 B)');
     log.push('PCM SEC6 marker @ 0x03C4 ← FF FF FF AA (canonical Continental tag)');
 
     // VIN write — same slot list as rfhPcmPair.applyRfhToPcm (PCM_VIN_OFFSETS).

@@ -30,6 +30,21 @@ import {
 
 const hxb = arr => Array.from(arr).map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
 
+/* All-FF / all-00 blank check — matches securityBytes.js allBlank semantics. */
+const isBlank16 = raw => raw.length === 16 && raw.every(b => b === 0xFF || b === 0x00);
+
+/* Reconstruct a 16-byte SEC16 from a 0x81xx split-record copy. Inverse of
+ * applyBcmFromRfh's split writer: bytes 0-6 live at copyOff+0..6, the 4-byte
+ * record separator sits at copyOff+7..10, and bytes 7-15 live at copyOff+11..19.
+ * (Equivalent to resolveBcmSec16's prefix7@+9 / suffix9@+20 read on the record
+ * start 0x81A0, since copyOff === recordOff + 9.) */
+function readSplitCopy(data, copyOff) {
+  const raw = new Array(16);
+  for (let i = 0; i <= 6; i++)  raw[i] = data[copyOff + i];
+  for (let i = 7; i <= 15; i++) raw[i] = data[copyOff + 4 + i];
+  return raw;
+}
+
 export const BCM_VIN_PRIMARY = [0x5328, 0x5348, 0x5368, 0x5388];
 // Task #47 — secondary full-VIN slots at 0x0698/0x06B8/0x06D8/0x06F8/0x0718/0x0738
 // were audited against real FCA SINCRO binary output and confirmed to NOT EXIST.
@@ -98,7 +113,36 @@ export function parseBcm(data, filename) {
 
   const secMatch    = sec16Copies.length > 1 && sec16Copies[0].hex === sec16Copies[1].hex;
   const secAllCsOk  = sec16Copies.every(m => m.csOk);
-  const sec16Raw    = sec16Copies[0].raw;
+
+  // 0x81xx split-record copies — read back the three persistent SEC16 copies.
+  const sec16SplitCopies = BCM_SEC16_SPLIT_COPIES.map((off, i) => {
+    const raw = readSplitCopy(data, off);
+    return { label: `Split ${i + 1}`, offset: off, raw, hex: hxb(raw), blank: isBlank16(raw) };
+  });
+
+  // Split-record fallback: ONLY when both mirror copies are blank. A real edge
+  // case on virginized-then-re-paired BCMs whose 0x40C9/0x40F1 mirrors are still
+  // all-FF but the 0x81xx split records carry the live SEC16. We accept the
+  // first non-blank split, but only when every non-blank split agrees
+  // (consistent) — divergent split records are suspicious, so we refuse.
+  const mirrorsAllBlank = sec16Copies.every(m => isBlank16(m.raw));
+  let splitFallback = null;
+  if (mirrorsAllBlank) {
+    const nonBlank = sec16SplitCopies.filter(s => !s.blank);
+    if (nonBlank.length > 0 && nonBlank.every(s => s.hex === nonBlank[0].hex)) {
+      splitFallback = nonBlank[0];
+    }
+  }
+
+  // Effective SEC16 source: Mirror 1 by default, the split fallback when the
+  // mirrors are blank and a consistent split record is available.
+  const sec16SourceCopy   = splitFallback || sec16Copies[0];
+  const sec16FromSplit    = !!splitFallback;
+  const sec16Source       = sec16SourceCopy.label;
+  const sec16SourceOffset = sec16SourceCopy.offset;
+  const sec16SourceRaw    = sec16SourceCopy.raw;
+
+  const sec16Raw    = sec16SourceRaw;
   const sec16Hex    = hxb(sec16Raw);
   const sec16RfhRaw = [...sec16Raw].reverse();
   const sec16RfhHex = hxb(sec16RfhRaw);
@@ -107,6 +151,7 @@ export function parseBcm(data, filename) {
   return {
     type: "MPC5606B_05B", filename, size: data.length,
     vins, partialVins, sec16Copies, secMatch, secAllCsOk,
+    sec16SplitCopies, sec16FromSplit, sec16Source, sec16SourceOffset, sec16SourceRaw,
     sec16Hex, sec16RfhHex, pcmSec6Hex,
   };
 }
