@@ -8,6 +8,7 @@ import {decodeNRC, nrcMsg} from "../lib/nrc.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import ReadFirstModal from "../lib/readFirstModal.jsx";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
+import BcmImmoSection from "../components/BcmImmoSection.jsx";
 import {parseModule, syncImmoBackup, bcmTooSmall, corruptFillError} from "../lib/parseModule.js";
 import CorruptFillBanner from "../components/CorruptFillBanner.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
@@ -1015,6 +1016,7 @@ export default function BcmTab({vehicle}){
       {inspectMod&&!inspectTooSmall&&inspectCorrupt&&<CorruptFillBanner testId="bcm-corrupt-fill-banner" result={inspectCorrupt} name={inspectMod.filename}/>}
       {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod} onSyncImmo={onSyncImmoFile}/></div>}
       {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}
+      {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data&&<BcmImmoSection mod={inspectMod}/>}
     </Card>
 
     <MinedBcmConfigPanel

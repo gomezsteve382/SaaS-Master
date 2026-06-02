@@ -11,6 +11,7 @@ import {isSgwAuthenticated} from "../lib/sgwAuth.js";
 import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
 import CorruptFillBanner from "../components/CorruptFillBanner.jsx";
+import RfhubImmoSection from "../components/RfhubImmoSection.jsx";
 import {parseModule,moduleTooSmall,corruptFillError} from "../lib/parseModule.js";
 import {vinHasSGW} from "../lib/vin.js";
 import {createBridgeEngine} from "../lib/bridgeEngine.js";
@@ -697,6 +698,7 @@ export default function RfhubTab({vehicle}){
       {inspectMod&&!inspectTooSmall&&inspectCorrupt&&<CorruptFillBanner testId="rfhub-corrupt-fill-banner" result={inspectCorrupt} name={inspectMod.filename}/>}
       {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&<div style={{marginTop:12}}><ModuleFieldsPanel mod={inspectMod}/></div>}
       {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}
+      {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data&&<RfhubImmoSection mod={inspectMod}/>}
     </Card>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
