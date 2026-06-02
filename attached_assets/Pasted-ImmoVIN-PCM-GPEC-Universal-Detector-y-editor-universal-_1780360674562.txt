@@ -1,0 +1,111 @@
+ImmoVIN – PCM GPEC Universal
+Detector y editor universal para PCM GPEC2 / GPEC2A / GPEC3 / GPEC4 / GPEC4LM / GPEC5.
+Families supported:
+GPEC2
+GPEC2A
+GPEC3
+GPEC4
+GPEC4LM
+GPEC5
+ST95640 / M95128
+GPEC PCM file analyzed successfully.
+1) Load PCM file
+The API automatically detects family, memory, VINs, SEC6, IMMO status, and internal IDs.
+
+Archivo EEPROM PCM GPEC
+📁 Choose file
+PCM GPEC EEPROM (.bin / .eep / .eprom / .pcm)
+No file chosen
+🔎 INSPECT
+2) Analysis result
+Family detected
+Possible partial GPEC2/GPEC2A/GPEC3 / ST95640
+Code: GPEC2_GPEC2A_GPEC3 · Confidence: Medium · Score: 50
+EEPROM / Reading
+ST95640 / 95640 probable
+Partial read 4KB · Size: 0x1000
+State
+PROGRAMMED / NO IMMO SYNC / SEC6 FF
+Valid VINs: 3 · IMMO Sync: NO
+REAL ESTATE / SEC6
+SIN IMMO SINCRO / SEC6 FF
+SEC6
+FF FF FF FF FF
+State SEC6
+EMPTY_FF
+Current IMMO pattern
+FF FF FF FF
+expected pattern for family
+FF FF FF AA
+Reasons / Notes
+3
+DETECTION
+Size 0x1000 / 4KB: Common partial read of ST95640
+DETECTION
+Signature 00EP detected in 0x081F
+USE
+4KB Read: ST95640 partial possible GPEC2/GPEC2A/GPEC3
+3) VINs by offset
+Slot	Offset	COME	State	Format	Check	Raw
+actual_0x0000	0x0000	2C3CDXL92KH674464	
+WIN_OK
+OK	
+OK
+32 43 33 43 44 58 4C 39 32 4B 48 36 37 34 34 36 34
+original_0x01F0	0x01F0	2C3CDXL92KH674464	
+WIN_OK
+OK
+OK
+32 43 33 43 44 58 4C 39 32 4B 48 36 37 34 34 36 34
+copy_0x0224	0x0224	2C3CDXL92KH674464	
+WIN_OK
+OK
+OK
+32 43 33 43 44 58 4C 39 32 4B 48 36 37 34 34 36 34
+extra_0x0CE0	0x0CE0	-	
+EMPTY_FF
+NO	
+NO
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+4) Internal IDs / Signatures
+Field	Value
+YOU	68565377AB
+Part Number	68434935AC
+Serial	AAA9160120000
+0x081F Family/String	00EP
+0x0825 Variant/Code	L16EQ)W
+0x0CFA Status ID	
+0x0FA1 Continental/Extra ID	AAA9160120000
+0x081C DT23	AC00EP
+0x0825 GPEC5 Code	L16EQ)
+0x0F9C GPEC5 Serial	fwDAAA9160120
+5) Apply changes and download
+Empty VIN = do not touch VIN. Empty SEC6 = do not touch SEC6. The FIX IMMO is applied automatically according to the detected family: GPEC4/GPEC4LM/GPEC5 = FF FF CC AA , GPEC2/GPEC2A/GPEC3 = FF FF FF AA .
+
+Archivo PCM GPEC
+📁 Choose file
+Select the PCM GPEC file again to modify
+No file chosen
+New VIN
+2C3CDXL92KH674464
+17 characters. No I, O, Q.
+VIN Mode
+
+COMMON – 0x0000 + 0x01F0 + 0x0224
+Do not touch 0x0CE0 blindly: it may be donor/original/backup VIN.
+New SEC6
+FF FF FF FF FF FF
+6 bytes in HEX. Example: AA BB CC DD EE FF.
+
+In AUTO mode, also write VIN to 0x0CE0
+
+Apply automatic FIX IMMO according to detected family
+
+✅ APPLY CHANGES AND DOWNLOAD
+Just FIX IT
+📁 Choose file
+Select the PCM GPEC file to repair IMMO
+No file chosen
+
+🛠️ ONLY FIX IMMO AND DOWNLOAD
+© 2026 FCA SINCRO · ArmandoQS

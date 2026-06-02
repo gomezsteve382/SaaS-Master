@@ -257,8 +257,8 @@ export default function VinProgrammerTab() {
           </>}
         </div>
         {error && <div style={{marginTop: 10}}><SLine type="error" msg={error}/></div>}
-        {info?.sizeWarn && <div style={{marginTop: 10}}><SLine type="warn" msg={info.sizeWarn}/></div>}
-        {info?.contentWarn && <div style={{marginTop: 6}}><SLine type="warn" msg={info.contentWarn}/></div>}
+        {info?.sizeWarn && <div style={{marginTop: 10}}><SLine type="warn" msg={info.sizeWarn.message}/></div>}
+        {info?.contentWarn && <div style={{marginTop: 6}}><SLine type="warn" msg={info.contentWarn.message}/></div>}
         {file && info?.type === 'UNKNOWN' && (
           <div style={{marginTop: 10}}>
             <SLine type="error" msg="Unknown module type — no VIN slot table available. This tab only programs known modules: BCM, RFHUB, PCM (GPEC2A), 95640."/>
