@@ -2,6 +2,7 @@ import React, {useState, useCallback, useRef} from "react";
 import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import IdentityCard from '../components/IdentityCard.jsx';
+import Gpec2aImmoPanel from '../components/Gpec2aImmoPanel.jsx';
 import CorruptDumpBanner from '../components/CorruptDumpBanner.jsx';
 import DumpDropZone, {DumpDropArea} from '../components/DumpDropZone.jsx';
 import {parseModule,moduleTooSmall,corruptFillError} from '../lib/parseModule.js';
@@ -56,6 +57,11 @@ export default function EcmTab({vehicle}){
   // Task #774 — surface OS/PN/Serial best-pick for any GPEC2A (ECM) dump
   // present in the shared workspace.
   const ecmDumps=(getDumpsByType?.('GPEC2A')||[]);
+  // Task #1035 — donor SEC16 sources for the offline GPEC2A immo-fix panel.
+  const donorMods=[
+    ...(getDumpsByType?.('BCM')||[]),
+    ...(getDumpsByType?.('RFHUB')||[]),
+  ].map(d=>d.mod).filter(Boolean);
   // Task #783 — inline file picker (mirrors RfhubTab pattern). Lets techs
   // load a donor ECM .bin from this tab without bouncing through Dumps.
   const[inspectHash,setInspectHash]=useState(null);
@@ -408,6 +414,8 @@ export default function EcmTab({vehicle}){
       {ecmInspectMod&&ecmInspectMod.data&&!ecmInspectMod.corruptFill&&<div style={{marginTop:12}}>
         <IdentityCard bytes={ecmInspectMod.data}/>
       </div>}
+      {ecmInspectMod&&ecmInspectMod.data&&!ecmInspectMod.corruptFill&&ecmInspectMod.type==='GPEC2A'&&
+        <Gpec2aImmoPanel mod={ecmInspectMod} donorMods={donorMods}/>}
     </Card>
     </DumpDropArea>
 

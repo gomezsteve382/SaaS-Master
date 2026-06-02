@@ -20,3 +20,4 @@
 - [Module Sync source-of-truth](module-sync-source-of-truth.md) — SYNC ALL: BCM canonical, RFH SEC16=reverse(BCM) Gen2-only, PCM SEC6=reverse(BCM)[0:6], BCM never written; preview gating MUST mirror writer gating (drift is the bug class).
 - [ModuleSync UI test harness](modulesync-ui-test-harness.md) — to reach bothReady in jsdom: use REAL corpus fixtures (synthetic buildFixtures never parse ok) AND re-query file inputs between the two sequential loads (first load detaches nodes).
 - [ModuleSync SYNC ALL UI test fixtures](modulesync-ui-test-fixtures.md) — 4 jsdom traps: BCM VIN needs 00 46 header ×4 bases, makeBcm vehicleSecret clobbered by IMMO fill (stamp 0x40C9 after), re-query file inputs each load (NodeList goes stale).
+- [GPEC2A PCM offline analyzer](gpec2a-pcm-analyzer.md) — ECM-tab offline immo-fix panel; PCM SEC6 = reverse(BCM SEC16)[0:6], marker FF FF FF AA @0x3C4; delegates writes to writePcmSec6; BCM donor reliable, RFHUB often blank.

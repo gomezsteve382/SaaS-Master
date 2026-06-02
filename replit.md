@@ -47,6 +47,8 @@ The BCM frame builder (`artifacts/srt-lab/src/lib/alfaobdMined/udsFrameBuilder.j
 ### Module programming
 Dedicated tabs for **BCM**, **RFHUB**, **ECM**, **ADCM** — VIN read/write, key programming, module-specific unlocks. SGW-gated VINs auto-route to the J2534 bridge.
 
+The **ECM tab** also hosts an offline **GPEC2A PCM Immo Analyzer** (`Gpec2aImmoPanel.jsx` + pure `gpec2aPcmAnalyzer.js`): for a loaded GPEC2A dump it shows analysis cards (family/EEPROM/state/SEC6/IMMO), a checksum panel with per-row fix+download, VINs-by-offset, internal IDs/signatures, an apply-changes form (VIN + SEC6 + IMMO marker), and a one-click **Just FIX IT** immo repair. SEC6 secrets are derived from any loaded BCM/RFHUB donor (`PCM SEC6 = reverse(BCM SEC16)[0:6]`, marker `FF FF FF AA` @0x3C4) and the write delegates to `securityBytes.writePcmSec6`. GPEC2A only; no live-OBD coupling.
+
 ### Module Sync (`ModuleSync.jsx`)
 Cross-module security-byte sync: `runRfhBcmSync` in either direction, `Repair flat 0x40C9 from split records`, full 3-module `runKeyProgPatch`. The virgin-GPEC2A SEC6 refusal is a `runKeyProgPatch` behavior only — it is not wired into the **SYNC ALL** button. `executeSync('sync-all')` writes PCM SEC6 (`writePcmSec6` / `engWritePcmSec6`) unconditionally onto any canonical-size dump (4 KB 95320, 8 KB 95640), so a virgin GPEC2A simply becomes paired and exports as `PCM_SYNCED`; only a non-canonical buffer size aborts the write.
 
