@@ -48,7 +48,7 @@ The BCM frame builder (`artifacts/srt-lab/src/lib/alfaobdMined/udsFrameBuilder.j
 Dedicated tabs for **BCM**, **RFHUB**, **ECM**, **ADCM** — VIN read/write, key programming, module-specific unlocks. SGW-gated VINs auto-route to the J2534 bridge.
 
 ### Module Sync (`ModuleSync.jsx`)
-Cross-module security-byte sync: `runRfhBcmSync` in either direction, `Repair flat 0x40C9 from split records`, full 3-module `runKeyProgPatch`. Refuses to write SEC6 against a virgin GPEC2A.
+Cross-module security-byte sync: `runRfhBcmSync` in either direction, `Repair flat 0x40C9 from split records`, full 3-module `runKeyProgPatch`. The virgin-GPEC2A SEC6 refusal is a `runKeyProgPatch` behavior only — it is not wired into the **SYNC ALL** button. `executeSync('sync-all')` writes PCM SEC6 (`writePcmSec6` / `engWritePcmSec6`) unconditionally onto any canonical-size dump (4 KB 95320, 8 KB 95640), so a virgin GPEC2A simply becomes paired and exports as `PCM_SYNCED`; only a non-canonical buffer size aborts the write.
 
 ### UDS Programmer
 Universal raw UDS console driving `@workspace/uds` builders.
