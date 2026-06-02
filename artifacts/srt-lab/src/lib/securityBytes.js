@@ -69,6 +69,36 @@
  * working.
  * ============================================================================ */
 
+/* ============================================================================
+ * generateSec16() — cryptographically random 16-byte RFHUB SEC16.
+ * deriveAllFromSec16(rfhubSec16) — derive all three module secrets from
+ * a single authoritative 16-byte RFHUB SEC16.
+ *
+ * Relationship (single source of truth, verified against SINCRO bench set):
+ *   RFHUB SEC16 = sec16  (stored in RFHUB Gen2 slots 0x050E/0x0522)
+ *   BCM SEC16   = reverse(sec16)  (BCM stores the byte-reversed form)
+ *   PCM SEC6    = sec16[0:6]  (first 6 bytes of the RFHUB form)
+ *
+ * The "Generate Fresh Secret" path in PairingRepairPanel calls:
+ *   const rfhubSec16 = generateSec16();
+ *   const { bcmSec16, rfhubSec16, pcmSec6 } = deriveAllFromSec16(rfhubSec16);
+ * ========================================================================= */
+export function generateSec16() {
+  const buf = new Uint8Array(16);
+  (globalThis.crypto || self.crypto).getRandomValues(buf);
+  return buf;
+}
+
+export function deriveAllFromSec16(rfhubSec16) {
+  if (!rfhubSec16 || rfhubSec16.length !== 16) {
+    throw new Error('deriveAllFromSec16: rfhubSec16 must be exactly 16 bytes');
+  }
+  const bcmSec16 = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) bcmSec16[i] = rfhubSec16[15 - i];
+  const pcmSec6 = new Uint8Array(rfhubSec16.slice(0, 6));
+  return { bcmSec16, rfhubSec16: new Uint8Array(rfhubSec16), pcmSec6 };
+}
+
 /* XC2268 SEC16 lives in xc2268Rfhub.js's "single source of truth" layout
  * (slot offsets + image-wide checksum). The writer below imports those rather
  * than re-deriving the offsets so a layout change there can never drift from
@@ -428,6 +458,40 @@ export function writeRfhSec16FromBcm(bytes, bcmSec16) {
   }
   let patched = 0;
   for (const slotOff of [0x050E, 0x0522]) {
+    if (slotOff + 18 > out.length) continue;
+    for (let k = 0; k < 16; k++) out[slotOff + k] = rfhSec16[k];
+    out[slotOff + 16] = chk;
+    out[slotOff + 17] = 0x00;
+    patched++;
+  }
+  return {
+    bytes: out,
+    patched,
+    rfhSec16Hex: hexStr(rfhSec16),
+    chk,
+  };
+}
+
+/* ----------------------------------------------------------------------------
+ * writeRfhSec16Gen1(bytes, bcmSec16)
+ *
+ * Writes BCM secret → Gen1 RFHUB (Yazaki 24C16, 2 KB) SEC16 slots.
+ * Gen1 SEC16 slots: 0x00AE and 0x00C0 (verified against parseModule.js).
+ * Same secret convention as Gen2: BCM stores reverse(RFHUB SEC16), so
+ *   RFHUB SEC16 = reverse(BCM SEC16).
+ * Checksum formula (Task #409 confirmed Gen1 uses the same crc8_65 as Gen2):
+ *   stored as BE16 at slot+16/+17: (crc8_65(rfhSec16) << 8) | 0x00
+ * Refuses (throws) if the buffer is clearly not a Gen1 RFHUB (< 0xD2 B).
+ * ---------------------------------------------------------------------------- */
+export function writeRfhSec16Gen1(bytes, bcmSec16) {
+  if (!bcmSec16 || bcmSec16.length !== 16) throw new Error('BCM SEC16 must be 16 bytes');
+  if (bytes.length < 0x00D2) throw new Error('Buffer too small to be a Gen1 RFHUB (need ≥ 0xD2 B)');
+  const rfhSec16 = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) rfhSec16[i] = bcmSec16[15 - i];
+  const chk = crc8_65(rfhSec16);
+  const out = new Uint8Array(bytes);
+  let patched = 0;
+  for (const slotOff of [0x00AE, 0x00C0]) {
     if (slotOff + 18 > out.length) continue;
     for (let k = 0; k < 16; k++) out[slotOff + k] = rfhSec16[k];
     out[slotOff + 16] = chk;

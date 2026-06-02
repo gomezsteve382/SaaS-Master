@@ -4,6 +4,7 @@ import { DownloadCounter } from "../lib/useDownloadCount.jsx";
 import { useMasterVin } from "../lib/masterVinContext.jsx";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import PcmRepairWizard from "../components/PcmRepairWizard.jsx";
+import PairingRepairPanel from "../components/PairingRepairPanel.jsx";
 import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16 } from "../lib/securityBytes.js";
 import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
@@ -2278,6 +2279,8 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
    * (VINs match BCM, SEC6 populated + marker OK, IMMO byte 0x80) the
    * CTA never appears so the wizard cannot be opened. */
   const [pcmRepairOpen, setPcmRepairOpen] = useState(false);
+  /* Task #1052 — Full 3-Module Pairing Repair panel. */
+  const [pairingRepairOpen, setPairingRepairOpen] = useState(false);
   /* Confirm dialog shown before a sync proceeds when one or more loaded
    * modules carry pnOverride (registry compatibility check was bypassed). */
   const [overrideConfirm, setOverrideConfirm] = useState(null); /* { action, overrideVin, modules } */
@@ -3653,6 +3656,19 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           🧹 Clean / Reset
         </button>
         <button
+          data-testid="open-pairing-repair-btn"
+          onClick={() => setPairingRepairOpen(true)}
+          title="Full 3-Module Pairing Repair — repair all BCM + RFHUB + ECM SEC16/SEC6 combinations, including all-blank / generate-fresh paths"
+          style={{
+            background: 'linear-gradient(135deg,#AA00FF 0%,#2979FF 100%)',
+            border: 'none', borderRadius: 8, padding: '8px 16px',
+            color: '#fff', fontWeight: 900, fontSize: 12, cursor: 'pointer',
+            letterSpacing: 0.5, fontFamily: "'Nunito'",
+            boxShadow: '0 2px 8px rgba(41,121,255,0.25)',
+          }}>
+          🔧 Full Pairing Repair
+        </button>
+        <button
           data-testid="open-wizard-btn-toolbar"
           onClick={() => setWizardOpen(true)}
           title="Open the guided Mismatch Wizard + AI assistant (works even with no files loaded)"
@@ -4400,6 +4416,19 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
             virginizeJustConfirmedRef.current = true;
             doSync(action, overrideVin);
           }}
+        />
+      )}
+
+      {/* ── Full 3-Module Pairing Repair modal (Task #1052) ── */}
+      {pairingRepairOpen && (
+        <PairingRepairPanel
+          bcmBytes={bcm.bytes || undefined}
+          bcmFilename={bcm.file?.name}
+          rfhubBytes={rfh.bytes || undefined}
+          rfhubFilename={rfh.file?.name}
+          pcmBytes={pcm.bytes || undefined}
+          pcmFilename={pcm.file?.name}
+          onClose={() => setPairingRepairOpen(false)}
         />
       )}
 
