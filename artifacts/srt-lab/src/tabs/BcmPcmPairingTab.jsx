@@ -24,6 +24,7 @@ import { applyPcmFromBcm } from '../lib/bcmPcmSync.js';
 import { fmtOff, moduleSizeBadge } from './ModuleSync.jsx';
 import ProgrammerSizeHelp from '../components/ProgrammerSizeHelp.jsx';
 import SamplePicker from '../lib/SamplePicker.jsx';
+import { getBenchPairs, loadFixtureAsFile } from '../lib/sampleFixtures.js';
 
 const { PCM_VIN_OFFSETS } = RFH_PCM_CONST;
 
@@ -495,6 +496,33 @@ export default function BcmPcmPairingTab() {
     r.readAsArrayBuffer(f);
   }, []);
 
+  // One-click bench set: pull BOTH halves (BCM + matching canonical PCM) of a
+  // known pair in a single click. Eligible pairs are computed from the catalog
+  // (must have a 65 KB BCM and a 4 KB/8 KB GPEC2A EXT). Reuses handleBcm /
+  // handlePcm so parsing + verdict run exactly as for a manual load.
+  const benchPairs = useMemo(() => getBenchPairs(), []);
+  const [benchBusy, setBenchBusy] = useState(false);
+  const [benchErr, setBenchErr] = useState('');
+
+  const loadBenchSet = useCallback(async pairKey => {
+    const entry = benchPairs.find(p => p.pair === pairKey);
+    if (!entry) return;
+    setBenchBusy(true); setBenchErr('');
+    try {
+      const [bcmF, pcmF] = await Promise.all([
+        loadFixtureAsFile(entry.bcm.file),
+        loadFixtureAsFile(entry.pcm.file),
+      ]);
+      handleBcm(bcmF);
+      handlePcm(pcmF);
+      setSamplePair(pairKey);
+    } catch (ex) {
+      setBenchErr(ex.message || String(ex));
+    } finally {
+      setBenchBusy(false);
+    }
+  }, [benchPairs, handleBcm, handlePcm]);
+
   const pcmSizeBadge = useMemo(() => (pcmBuf ? moduleSizeBadge('pcm', pcmBuf.length) : null), [pcmBuf]);
   const pcmSizeNonCanonical = !!(pcmSizeBadge && pcmSizeBadge.canonical === false);
 
@@ -595,6 +623,43 @@ export default function BcmPcmPairingTab() {
             </div>
           </div>
         </div>
+
+        {benchPairs.length > 0 && (
+          <div data-testid="bcmpcm-bench-set-loader" style={{
+            marginBottom: 14, padding: '10px 12px', borderRadius: 10,
+            background: C.c2, border: '1px dashed ' + C.bd,
+          }}>
+            <div style={{ fontSize: 10, fontWeight: 900, color: C.tm, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
+              ⚡ One-click bench set — load BCM + matching PCM together{benchBusy ? ' · loading…' : ''}
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {benchPairs.map(p => (
+                <button
+                  key={p.pair}
+                  type="button"
+                  data-bench-set="1"
+                  data-pair-key={p.pair}
+                  onClick={() => loadBenchSet(p.pair)}
+                  disabled={benchBusy}
+                  title={`Loads ${p.bcm.file} + ${p.pcm.file}`}
+                  style={{
+                    padding: '8px 12px', borderRadius: 8,
+                    border: '1.5px solid ' + C.sr + '60',
+                    background: C.sr + '12', color: C.sr,
+                    fontSize: 11, fontWeight: 800, letterSpacing: 0.3,
+                    fontFamily: "'Nunito'", cursor: benchBusy ? 'wait' : 'pointer',
+                    textAlign: 'left', lineHeight: 1.3,
+                  }}>
+                  🔗 Load BCM + PCM bench set: {p.bcm.vin || p.pair}
+                  <div style={{ fontSize: 9, fontWeight: 600, color: C.tm, marginTop: 2 }}>
+                    BCM {(p.bcm.size / 1024).toFixed(0)} KB + PCM {(p.pcm.size / 1024).toFixed(0)} KB · {p.pair}
+                  </div>
+                </button>
+              ))}
+            </div>
+            {benchErr && <div style={{ marginTop: 6, fontSize: 10, color: C.er, fontWeight: 700 }}>✗ {benchErr}</div>}
+          </div>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>

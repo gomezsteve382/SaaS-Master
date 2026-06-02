@@ -111,6 +111,26 @@ export function getFixturesByKind(kind) {
   return SAMPLE_FIXTURES.filter(f => f.kind === kind);
 }
 
+/* Bench-set pairs: every `pair` key that has BOTH a full 65 KB BCM and a
+ * canonical-size GPEC2A EXT EEPROM (4 KB / 8 KB) entry. These are the pairs
+ * the BCM → PCM tab can auto-load in one click (both halves at once).
+ * For each pair the first matching BCM + first matching canonical PCM win. */
+export function getBenchPairs() {
+  const byPair = new Map();
+  for (const f of SAMPLE_FIXTURES) {
+    if (!f.pair) continue;
+    if (!byPair.has(f.pair)) byPair.set(f.pair, { bcm: null, pcm: null });
+    const slot = byPair.get(f.pair);
+    if (!slot.bcm && f.kind === "BCM" && f.size === 65536) slot.bcm = f;
+    if (!slot.pcm && f.kind === "GPEC_EXT" && (f.size === 4096 || f.size === 8192)) slot.pcm = f;
+  }
+  const out = [];
+  for (const [pair, { bcm, pcm }] of byPair) {
+    if (bcm && pcm) out.push({ pair, bcm, pcm });
+  }
+  return out;
+}
+
 export function getFixturesByKinds(kinds) {
   const set = new Set(kinds);
   return SAMPLE_FIXTURES.filter(f => set.has(f.kind));
