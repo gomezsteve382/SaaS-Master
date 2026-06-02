@@ -30,3 +30,15 @@ be mirrored on the other. Never let the preview claim a fix the write path skips
 Regression coverage lives in syncAllBcmSourceContract.test.js (real OG Charger
 triple, BCM is Gen2-split, RFH is Gen1 → exercises the VIN-only RFH + PCM-from-BCM
 paths and the foreign-RFH negative case).
+
+**SYNC ALL does NOT refuse a virgin GPEC2A.** executeSync('sync-all') writes PCM
+SEC6 unconditionally — securityBytes.writePcmSec6/engWritePcmSec6 stamp
+reverse(BCM)[0:6] + marker over ANY canonical 4K/8K buffer, so a virgin (all-FF,
+no-marker) GPEC2A simply becomes paired and exports as PCM_SYNCED with the gate
+PASSED. The "refuse SEC6 against a virgin GPEC2A" logic the docs mention lives in
+keyProgWizard.runKeyProgPatch (the `PCM SEC6 is prefix of shared secret` check →
+allOk false → ok:false), which is NOT wired into the ModuleSync SYNC ALL button.
+**Why:** a task framed virgin-GPEC2A blocking as a SYNC ALL endpoint; it isn't —
+verified empirically. Only a non-canonical PCM *size* blocks the sync-all PCM leg
+before write. **How to apply:** assert virgin-GPEC2A refusal against runKeyProgPatch
+directly, not through the SYNC ALL UI.

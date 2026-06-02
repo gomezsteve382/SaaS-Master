@@ -22,6 +22,26 @@
 // Driving the actual button (rather than checkExportSafety directly) locks the
 // wiring: a future refactor that drops the gate, mislabels the files, or stops
 // accumulating before the gate runs will break this test.
+//
+// Task #1032 — the THIRD leg: "SYNC ALL — BCM + RFH + PCM" also writes PCM SEC6
+// (= reverse(BCM)[0:6]) and exports a PCM_SYNCED file. Two cases are added:
+//
+//   3. RECONCILABLE TRIO (BCM + RFH + GPEC2A loaded through DropZone [0]/[1]/[2]):
+//      the PCM SEC6 import path runs ("PCM SEC6: ... written" logged) and a
+//      third PCM_SYNCED file ships alongside BCM_SYNCED / RFH_SYNCED.
+//
+//   4. VIRGIN GPEC2A → SEC6 write refused.
+//      DRIFT NOTE: the task framed this as a SYNC ALL endpoint, but the
+//      executeSync('sync-all') path does NOT block a virgin GPEC2A — its writer
+//      (engWritePcmSec6 / securityBytes.writePcmSec6) unconditionally stamps
+//      reverse(BCM)[0:6] over the virgin SEC6 slot, so the dump simply becomes
+//      paired and exports as PCM_SYNCED (verified empirically). The "refuse SEC6
+//      against a virgin GPEC2A" logic the task references lives in
+//      runKeyProgPatch (the full 3-module wizard), which is NOT wired into
+//      ModuleSync's SYNC ALL button. Case 4 therefore asserts that refusal at
+//      its real home: runKeyProgPatch returns ok=false with the "PCM SEC6 is
+//      prefix of shared secret" check failing for a virgin GPEC2A, while the
+//      same setup with a populated, matching SEC6 passes that check.
 
 import React from "react";
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
@@ -29,7 +49,8 @@ import { render, screen, cleanup, fireEvent, act, waitFor } from "@testing-libra
 
 import ModuleSync from "../tabs/ModuleSync.jsx";
 import { MasterVinProvider } from "../lib/masterVinContext.jsx";
-import { makeBcm, makeRfhubGen2 } from "../lib/__fixtures__/buildFixtures.js";
+import { makeBcm, makeRfhubGen2, makeGpec2a } from "../lib/__fixtures__/buildFixtures.js";
+import { runKeyProgPatch } from "../lib/keyProgWizard.js";
 
 // RFHUB Gen2 default SEC16 secret (buildFixtures makeRfhubGen2).
 const RFH_SECRET = [
@@ -140,6 +161,23 @@ async function loadPair(container, { bcmBytes, rfhBytes }) {
   return btn;
 }
 
+/* Load a BCM + RFH + PCM trio (DropZone order: [0]=BCM, [1]=RFH, [2]=PCM) and
+ * wait for the "SYNC ALL" action button to mount. The PCM (GPEC2A) is the
+ * optional third leg: when present, executeSync('sync-all') also patches its
+ * VIN and writes PCM SEC6, then exports a PCM_SYNCED file. */
+async function loadTrio(container, { bcmBytes, rfhBytes, pcmBytes }) {
+  await loadInto(container, 0, bcmBytes, "bcm-fixture.bin");
+  await loadInto(container, 1, rfhBytes, "rfh-fixture.bin");
+  await loadInto(container, 2, pcmBytes, "pcm-fixture.bin");
+  let btn;
+  await waitFor(() => {
+    btn = screen.getByRole("button", { name: /SYNC ALL/i });
+    expect(btn).toBeTruthy();
+    expect(btn.disabled).toBe(false);
+  });
+  return btn;
+}
+
 describe("ModuleSync — SYNC ALL pre-download safety gate (Task #1026)", () => {
   it("REFUSES a non-reconcilable BCM/RFH pair: no _SYNCED download, BLOCKED log surfaces", async () => {
     const { container } = renderModuleSync();
@@ -197,5 +235,99 @@ describe("ModuleSync — SYNC ALL pre-download safety gate (Task #1026)", () => 
     expect(
       screen.getByText(/safety gate PASSED/i, { exact: false })
     ).toBeTruthy();
+  });
+
+  // ── Task #1032: the third PCM SEC6 leg through the real DropZone ──────────
+  it("EXPORTS a third PCM_SYNCED file (PCM SEC6 written) for a reconcilable BCM+RFH+GPEC2A trio", async () => {
+    const { container } = renderModuleSync();
+    // BCM flat slice == reverse(RFH secret) → reverse(BCM)[0:6] == RFH[0:6], so
+    // the written PCM SEC6 reconciles with the BCM/RFH pair and the whole set
+    // clears the gate. makeGpec2a() defaults to the same VIN as the BCM/RFH
+    // fixtures, so VIN cross-checks also pass.
+    const syncBtn = await loadTrio(container, {
+      bcmBytes: bcmFixture({ flatSecret: RFH_SECRET_REVERSED }),
+      rfhBytes: makeRfhubGen2(),
+      pcmBytes: makeGpec2a(),
+    });
+
+    await act(async () => {
+      fireEvent.click(syncBtn);
+    });
+
+    // The PCM SEC6 import/write path must run — this is the leg under test.
+    await waitFor(() => {
+      expect(
+        screen.getByText(/PCM SEC6: .*written/i, { exact: false })
+      ).toBeTruthy();
+    });
+
+    // All three modules export, with the canonical _SYNCED names.
+    expect(
+      screen.getByText(/^Downloaded: BCM_SYNCED/i, { exact: false })
+    ).toBeTruthy();
+    expect(
+      screen.getByText(/^Downloaded: RFH_SYNCED/i, { exact: false })
+    ).toBeTruthy();
+    expect(
+      screen.getByText(/^Downloaded: PCM_SYNCED/i, { exact: false })
+    ).toBeTruthy();
+
+    // Three files actually hit disk; the gate passed rather than aborting.
+    expect(clickSpy).toHaveBeenCalledTimes(3);
+    expect(screen.queryByText(/Sync aborted/i, { exact: false })).toBeNull();
+    expect(
+      screen.getByText(/safety gate PASSED/i, { exact: false })
+    ).toBeTruthy();
+  });
+
+  // ── Task #1032: virgin-GPEC2A SEC6 refusal at its real home ──────────────
+  // See the DRIFT NOTE in the file header: executeSync('sync-all') does NOT
+  // refuse a virgin GPEC2A (its writer stamps SEC6 unconditionally), so the
+  // refusal is asserted against runKeyProgPatch, the wizard that actually
+  // enforces "PCM SEC6 must be a prefix of the BCM-derived shared secret".
+  it("runKeyProgPatch REFUSES SEC6 against a virgin GPEC2A but accepts a populated, matching one", () => {
+    // BCM stores the secret little-endian; RFHUB/PCM consume the big-endian
+    // (reversed) form. PCM SEC6 = first 6 BE bytes of the shared secret.
+    const SECRET_LE = new Uint8Array([
+      0xaa, 0xbb, 0xcc, 0xdd, 0x11, 0x22, 0x33, 0x44,
+      0x55, 0x66, 0x77, 0x88, 0x99, 0x00, 0xff, 0xee,
+    ]);
+    const SECRET_BE = new Uint8Array([...SECRET_LE].reverse());
+    const PCM_SEC6 = SECRET_BE.slice(0, 6);
+    const VIN = "2C3CDXKT3FH796320";
+
+    // BCM with derivable shared secret (Gen2 split records, no IMMO-record
+    // clobber) and a matched Gen2 RFHUB.
+    const bcm = {
+      name: "bcm.bin",
+      data: makeBcm({ vin: VIN, partialTail: VIN.slice(9), vehicleSecret: SECRET_LE, immoRecsCount: 0 }),
+    };
+    const rfh = { name: "rfh.bin", data: makeRfhubGen2({ vin: VIN, vehicleSecret: SECRET_BE }) };
+
+    const findSec6Check = (res) =>
+      (res.checks || []).find((c) => /PCM SEC6 is prefix of shared secret/i.test(c.label));
+
+    // Virgin GPEC2A: SEC6 slot wiped (all-FF, no marker) → the prefix check
+    // fails and the wizard refuses (ok=false). No paired PCM is produced.
+    const virgin = runKeyProgPatch({
+      bcm, rfh,
+      pcm: { name: "pcm-virgin.bin", data: makeGpec2a({ vin: VIN, pcmSec6Damaged: true }) },
+      vin: VIN,
+    });
+    const virginCheck = findSec6Check(virgin);
+    expect(virginCheck).toBeTruthy();
+    expect(virginCheck.pass).toBe(false);
+    expect(virgin.ok).toBe(false);
+
+    // Control: a populated GPEC2A whose SEC6 is the BCM secret's BE prefix
+    // clears the same check — proving virginity is what blocks the write.
+    const populated = runKeyProgPatch({
+      bcm, rfh,
+      pcm: { name: "pcm-paired.bin", data: makeGpec2a({ vin: VIN, pcmSec6Bytes: PCM_SEC6 }) },
+      vin: VIN,
+    });
+    const populatedCheck = findSec6Check(populated);
+    expect(populatedCheck).toBeTruthy();
+    expect(populatedCheck.pass).toBe(true);
   });
 });
