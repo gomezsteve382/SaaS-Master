@@ -25,7 +25,7 @@ import React from "react";
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, it, afterEach, beforeAll, expect } from "vitest";
-import { render, screen, cleanup, fireEvent, act, waitFor } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, act, waitFor, within } from "@testing-library/react";
 
 import VinProgrammerTab from "../tabs/VinProgrammerTab.jsx";
 import { MasterVinProvider } from "../lib/masterVinContext.jsx";
@@ -140,5 +140,80 @@ describe("sub-tab state isolation", () => {
     expect(screen.getByTestId("vinprog-dropzone")).toBeTruthy();
     expect(screen.getByTestId("bcm-immo-panel")).toBeTruthy();
     expect(screen.getByTestId("rfhub-immo-panel")).toBeTruthy();
+  });
+});
+
+// The patched-buffer refresh path (onBcmPatched): the BCM ImmoVIN panel
+// runs a safety-gated export and hands the patched bytes back to the
+// parent's onPatched. VinProgrammerTab re-parses that buffer in place and
+// swaps it in as the new bcmMod, so the sub-tab now reflects the patched
+// result (new dominant VIN + patched filename) without a manual reload.
+describe("BCM sub-tab — patched-buffer refresh (onBcmPatched)", () => {
+  const NEW_VIN = "2C3CDXL97LH237142"; // differs from the corpus VIN
+  const ORIG_VIN = "2C3CDXL90MH582899";
+
+  it("re-parses the panel's patched buffer in place after a VIN re-stamp", async () => {
+    renderTab();
+    await clickSubtab("bcm");
+    await loadInto("vinprog-bcm", bcmBytes(), BCM_SYNCED);
+    await waitFor(() => expect(screen.getByTestId("bcm-immo-panel")).toBeTruthy());
+
+    // Sanity: the freshly loaded dump shows the original corpus VIN and
+    // its original filename in the dropzone.
+    const subtab = within(screen.getByTestId("vinprog-bcm-subtab"));
+    expect(subtab.getByTestId("vinprog-bcm-filename").textContent).toBe(BCM_SYNCED);
+    expect(subtab.getByText(new RegExp("Dominant VIN: " + ORIG_VIN))).toBeTruthy();
+
+    // Re-stamp the BCM with a new VIN through the shared panel and apply.
+    await act(async () => {
+      fireEvent.change(subtab.getByTestId("bcm-immo-vin-input"), { target: { value: NEW_VIN } });
+    });
+    await act(async () => {
+      fireEvent.click(subtab.getByTestId("bcm-immo-apply-btn"));
+    });
+
+    // The panel's onPatched fired → VinProgrammerTab re-parsed the patched
+    // buffer and swapped it in as the new bcmMod. The sub-tab now shows the
+    // patched filename and the panel re-analyzes to the NEW dominant VIN.
+    await waitFor(() =>
+      expect(screen.getByTestId("vinprog-bcm-filename").textContent).toMatch(/_vin\.bin$/)
+    );
+    expect(
+      within(screen.getByTestId("vinprog-bcm-subtab")).getByText(new RegExp("Dominant VIN: " + NEW_VIN))
+    ).toBeTruthy();
+  });
+});
+
+// The cross-sub-tab donor chain: a BCM (or RFHUB) loaded in a sibling
+// sub-tab feeds the GPEC2A immo panel's donorMods, so the ECM sub-tab can
+// offer the BCM-derived PCM SEC6 secret (reverse(BCM SEC16)[0:6]) without
+// the donor ever living in the shared workspace.
+describe("ECM sub-tab — donor SEC6 from a sibling sub-tab (donorMods)", () => {
+  it("offers the BCM-derived SEC6 in the GPEC2A panel after loading a BCM donor", async () => {
+    renderTab();
+
+    // Load a BCM donor in the BCM sub-tab.
+    await clickSubtab("bcm");
+    await loadInto("vinprog-bcm", bcmBytes(), BCM_SYNCED);
+    await waitFor(() => expect(screen.getByTestId("bcm-immo-panel")).toBeTruthy());
+
+    // Switch to the ECM sub-tab and load the GPEC2A bench dump.
+    await clickSubtab("ecm");
+    await loadInto("vinprog-ecm", gpecBytes(), PCM_FILE);
+    await waitFor(() => expect(screen.getByTestId("gpec2a-immo-panel")).toBeTruthy());
+
+    // donorMods reached Gpec2aImmoPanel: the donor secret is surfaced as
+    // the SEC6 placeholder + a "use donor" auto-fill.
+    const panel = within(screen.getByTestId("gpec2a-immo-panel"));
+    expect(panel.getByText(/Donor secret available/i)).toBeTruthy();
+
+    const sec6Input = panel.getByTestId("gpec2a-sec6-input");
+    const donorHex = sec6Input.getAttribute("placeholder");
+    expect(donorHex).toMatch(/^([0-9A-F]{2} ){5}[0-9A-F]{2}$/); // 6 hex bytes
+
+    await act(async () => {
+      fireEvent.click(panel.getByRole("button", { name: /use donor/i }));
+    });
+    expect(sec6Input.value).toBe(donorHex);
   });
 });
