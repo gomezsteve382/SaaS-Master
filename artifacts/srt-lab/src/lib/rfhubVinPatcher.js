@@ -6,14 +6,14 @@
  *         CS = rfhGen2VinCs(storedBytes, magic) at slot+17. Magic auto-detected.
  *   Gen1  (MC9S12X, 24C16, 2048 B): single VIN at 0x92, plain (not reversed),
  *         CS = CRC-16/CCITT at +17..18 (big-endian).
- *   XC2268 (internal-flash, ≥32 KB): inspect-only — patchXc2268Vin lives in xc2268Rfhub.js.
+ *   XC2268 (internal-flash, ≥32 KB): inspect-only — VIN slots readable, patch blocked.
  *
  * No live OBD dependency — both helpers are pure (bytes in, bytes out).
  */
 
-import {RFH_GEN2_VIN_OFFSETS, RFH_GEN1_VIN_OFFSET} from './parseModule.js';
+import {RFH_GEN2_VIN_OFFSETS, RFH_GEN1_VIN_OFFSET, buildRfhubContentWarn} from './parseModule.js';
 import {crc16, rfhGen2VinCs, rfhGen2DetectMagic} from './crc.js';
-import {isXc2268Rfhub} from './xc2268Rfhub.js';
+import {isXc2268Rfhub, parseXc2268Image} from './xc2268Rfhub.js';
 
 // ---------------------------------------------------------------------------
 // Constants & validation
@@ -44,7 +44,7 @@ export function validateVin(vin) {
  * @property {string}  offsetHex   e.g. "0x0EA5"
  * @property {string|null} vin     decoded VIN string, or null if slot is blank/invalid
  * @property {boolean} blank       true when the entire slot is all-FF or all-00
- * @property {number|null} storedCs  the checksum byte(s) stored in the image (null if blank)
+ * @property {number|null} storedCs  checksum stored in the image (null if blank)
  * @property {number|null} computedCs  re-computed expected checksum (null if blank)
  * @property {boolean|null} crcOk   true = passes, false = broken, null = blank (not checked)
  * @property {string} [csFormat]  human-readable description of the CS algorithm used
@@ -57,6 +57,8 @@ export function validateVin(vin) {
  * @property {RfhVinSlot[]} slots  one entry per VIN slot (including blank ones)
  * @property {number} [magic]     Gen2 auto-detected magic byte
  * @property {boolean} [xc2268]  true when the image is an XC2268 internal-flash dump
+ * @property {Object} [contentWarn]  non-null when content doesn't look like a Gen2 RFHUB dump;
+ *                                   shape: {message, causes[]}. Patch is UI-gated on override.
  * @property {string} [error]    set when the buffer is non-canonical / unrecognised
  */
 
@@ -73,15 +75,38 @@ export function analyzeRfhubVin(bytes) {
     return {generation: null, mcuLabel: 'No data', slots: [], error: 'Empty or missing buffer.'};
   }
 
-  // XC2268 internal-flash — inspect-only (patchXc2268Vin is a separate flow)
+  // ── XC2268: internal-flash — inspect VIN slots, patch blocked ────────────
   if (isXc2268Rfhub(bytes)) {
-    return {generation: 'xc2268', mcuLabel: 'XC2268 internal-flash', slots: [], xc2268: true};
+    const parsed = parseXc2268Image(bytes);
+    if (!parsed.ok) {
+      return {generation: 'xc2268', mcuLabel: 'XC2268 internal-flash', slots: [], xc2268: true, error: parsed.reason};
+    }
+    const slots = parsed.vinSlots.map((vs, idx) => {
+      const blank = vs.present && !vs.vin && (!vs.raw || vs.raw.every(b => b === 0xFF || b === 0x00));
+      return {
+        slotNum: idx + 1,
+        offset: vs.offset,
+        offsetHex: hex4(vs.offset),
+        vin: vs.vin,
+        blank,
+        storedCs: vs.csStored,
+        computedCs: vs.csCalc,
+        crcOk: vs.csOk ? true : (vs.csCalc !== null && vs.csStored !== null) ? false : null,
+        csFormat: 'CRC-16/CCITT BE',
+      };
+    });
+    return {generation: 'xc2268', mcuLabel: 'XC2268 internal-flash', slots, xc2268: true};
   }
 
   const sz = bytes.length;
 
   // ── Gen2: 24C32, exactly 4096 bytes ───────────────────────────────────────
   if (sz === 4096) {
+    // Content validation — warn when none of the RFHUB structural markers are
+    // present.  A blank/virgin RFHUB also fails this check, so it is a warning
+    // not a hard refusal; the UI gates patch behind an explicit override.
+    const contentWarn = buildRfhubContentWarn(bytes) || null;
+
     // Auto-detect magic from the first non-blank slot
     let magic = 0xDB;
     for (const o of RFH_GEN2_VIN_OFFSETS) {
@@ -123,7 +148,7 @@ export function analyzeRfhubVin(bytes) {
       };
     });
 
-    return {generation: 'gen2', mcuLabel: 'Gen2 MC9S12X (24C32 · 4 KB)', slots, magic};
+    return {generation: 'gen2', mcuLabel: 'Gen2 MC9S12X (24C32 · 4 KB)', slots, magic, contentWarn};
   }
 
   // ── Gen1: 24C16, exactly 2048 bytes ───────────────────────────────────────
@@ -186,6 +211,8 @@ export function analyzeRfhubVin(bytes) {
  * checksums.  Returns a new Uint8Array — the input is never mutated.
  *
  * Throws on invalid input (wrong VIN format, non-canonical buffer, XC2268).
+ * Does NOT throw on content-warn (blank/virgin Gen2) — that gate lives in the
+ * UI layer so technicians who know what they're doing can override.
  *
  * @param {Uint8Array} bytes   raw RFHUB image
  * @param {string}     newVin  17-char VIN string (upper or lower case, no I/O/Q)

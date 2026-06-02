@@ -709,20 +709,15 @@ export default function RfhubTab({vehicle}){
     </Card>
 
     {/* ── RFHUB Offline VIN Patcher ───────────────────────────────────────
-      * Shown whenever an RFHUB dump is loaded in the inspector above.
-      * Works for Gen1 (2 KB) and Gen2 (4 KB); XC2268 shows an inspect-only notice.
+      * Always visible (collapsible). Has its own file picker; auto-opens and
+      * pre-populates when a clean RFHUB dump is loaded in the inspector above.
+      * Works for Gen1 (2 KB), Gen2 (4 KB); XC2268 shows an inspect-only notice.
       * No live OBD connection required.
       * ─────────────────────────────────────────────────────────────────── */}
-    {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data&&<>
-      <div style={{display:'flex',alignItems:'center',gap:10,margin:'18px 0 10px'}}>
-        <div style={{flex:1,height:1,background:C.bd}}/>
-        <div style={{fontSize:10,fontWeight:800,color:C.sr,letterSpacing:2,fontFamily:"'Righteous'",whiteSpace:'nowrap'}}>
-          OFFLINE VIN PATCHER — NO OBD NEEDED
-        </div>
-        <div style={{flex:1,height:1,background:C.bd}}/>
-      </div>
-      <RfhubVinPatcherPanel mod={inspectMod} onPatched={onPatchedRfhubDump}/>
-    </>}
+    <RfhubVinPatcherPanel
+      initialMod={inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data?inspectMod:null}
+      onPatched={onPatchedRfhubDump}
+    />
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{fontWeight:800,fontSize:12,color:'#00BFA5',marginBottom:10,letterSpacing:2}}>📋 LOG</div>

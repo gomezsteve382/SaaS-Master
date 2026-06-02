@@ -1,7 +1,8 @@
 import {describe, it, expect} from 'vitest';
 import {analyzeRfhubVin, patchRfhubVin, validateVin} from '../rfhubVinPatcher.js';
-import {crc16, rfhGen2VinCs} from '../crc.js';
+import {crc16, rfhGen2VinCs, crc16ccitt} from '../crc.js';
 import {RFH_GEN2_VIN_OFFSETS, RFH_GEN1_VIN_OFFSET} from '../parseModule.js';
+import {XC2268_VIN_SLOTS, XC2268_VIN_LEN} from '../xc2268Rfhub.js';
 
 // ---------------------------------------------------------------------------
 // Fixture builders
@@ -306,9 +307,118 @@ describe('patchRfhubVin guard rails', () => {
     expect(() => patchRfhubVin(makeGen1(), 'TOO-SHORT')).toThrow();
   });
   it('throws on XC2268 buffer', () => {
-    const buf = new Uint8Array(0x10000).fill(0xFF);
-    buf[0] = 0x58; buf[1] = 0x43; buf[2] = 0x32; buf[3] = 0x32;
-    buf[0x10] = 0x52; buf[0x11] = 0x46; buf[0x12] = 0x48; buf[0x13] = 0x55; buf[0x14] = 0x42;
+    const buf = makeXc2268();
     expect(() => patchRfhubVin(buf, GEN2_VIN)).toThrow(/XC2268/i);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// XC2268 fixture builder
+// ---------------------------------------------------------------------------
+
+/** "XC22" at 0x0000, "RFHUB" at 0x0010, canonical 0x10000 bytes. */
+function makeXc2268(vin = GEN2_VIN) {
+  const buf = new Uint8Array(0x10000).fill(0xFF);
+  // Header
+  buf[0x00] = 0x58; buf[0x01] = 0x43; buf[0x02] = 0x32; buf[0x03] = 0x32; // "XC22"
+  buf[0x10] = 0x52; buf[0x11] = 0x46; buf[0x12] = 0x48; buf[0x13] = 0x55; buf[0x14] = 0x42; // "RFHUB"
+  if (vin) {
+    // Write VIN + CRC-16/CCITT at each of the 3 VIN slots
+    const vinBytes = new Uint8Array(XC2268_VIN_LEN);
+    for (let i = 0; i < XC2268_VIN_LEN; i++) vinBytes[i] = vin.charCodeAt(i);
+    const cs = crc16ccitt(vinBytes);
+    for (const off of XC2268_VIN_SLOTS) {
+      buf.set(vinBytes, off);
+      buf[off + XC2268_VIN_LEN]     = (cs >> 8) & 0xFF;
+      buf[off + XC2268_VIN_LEN + 1] = cs & 0xFF;
+    }
+  }
+  return buf;
+}
+
+// ---------------------------------------------------------------------------
+// analyzeRfhubVin — XC2268 inspect mode
+// ---------------------------------------------------------------------------
+
+describe('analyzeRfhubVin XC2268 inspect', () => {
+  it('detects generation xc2268', () => {
+    const r = analyzeRfhubVin(makeXc2268());
+    expect(r.generation).toBe('xc2268');
+    expect(r.xc2268).toBe(true);
+  });
+
+  it('populates 3 VIN slots (not empty)', () => {
+    const r = analyzeRfhubVin(makeXc2268());
+    expect(r.slots).toHaveLength(3);
+  });
+
+  it('reads correct VIN from each slot', () => {
+    const r = analyzeRfhubVin(makeXc2268(GEN2_VIN));
+    r.slots.forEach(s => expect(s.vin).toBe(GEN2_VIN));
+  });
+
+  it('reports crcOk=true for all valid slots', () => {
+    const r = analyzeRfhubVin(makeXc2268(GEN2_VIN));
+    r.slots.forEach(s => expect(s.crcOk).toBe(true));
+  });
+
+  it('reports crcOk=false for corrupted CS', () => {
+    const buf = makeXc2268(GEN2_VIN);
+    // Corrupt the CS of the second slot
+    buf[XC2268_VIN_SLOTS[1] + XC2268_VIN_LEN] ^= 0xFF;
+    const r = analyzeRfhubVin(buf);
+    expect(r.slots[1].crcOk).toBe(false);
+    expect(r.slots[0].crcOk).toBe(true);
+    expect(r.slots[2].crcOk).toBe(true);
+  });
+
+  it('reports blank=true for all-FF slot', () => {
+    const buf = makeXc2268(null); // no VIN written → all FF
+    const r = analyzeRfhubVin(buf);
+    r.slots.forEach(s => {
+      expect(s.blank).toBe(true);
+      expect(s.vin).toBeNull();
+      expect(s.crcOk).toBeNull();
+    });
+  });
+
+  it('exposes correct offsets for XC2268 VIN slots', () => {
+    const r = analyzeRfhubVin(makeXc2268());
+    expect(r.slots[0].offset).toBe(XC2268_VIN_SLOTS[0]);
+    expect(r.slots[1].offset).toBe(XC2268_VIN_SLOTS[1]);
+    expect(r.slots[2].offset).toBe(XC2268_VIN_SLOTS[2]);
+  });
+
+  it('uses CRC-16/CCITT BE CS format label', () => {
+    const r = analyzeRfhubVin(makeXc2268());
+    r.slots.forEach(s => expect(s.csFormat).toBe('CRC-16/CCITT BE'));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// analyzeRfhubVin — Gen2 content validation
+// ---------------------------------------------------------------------------
+
+describe('analyzeRfhubVin Gen2 content warn', () => {
+  it('sets contentWarn when a blank 4 KB buffer has no RFHUB markers', () => {
+    // All-FF with no VIN/header/sec16/aa50 — passes size check but fails content
+    const buf = new Uint8Array(4096).fill(0xFF);
+    const r = analyzeRfhubVin(buf);
+    expect(r.generation).toBe('gen2');
+    expect(r.contentWarn).toBeTruthy();
+    expect(r.contentWarn.message).toMatch(/RFHUB/i);
+  });
+
+  it('does not set contentWarn when VIN-shaped content is present in slots', () => {
+    // makeGen2 writes byte-reversed VIN, which buildRfhubContentWarn can detect
+    const r = analyzeRfhubVin(makeGen2(GEN2_VIN));
+    expect(r.contentWarn).toBeFalsy();
+  });
+
+  it('contentWarn carries a causes array', () => {
+    const buf = new Uint8Array(4096).fill(0xFF);
+    const r = analyzeRfhubVin(buf);
+    expect(Array.isArray(r.contentWarn.causes)).toBe(true);
+    expect(r.contentWarn.causes.length).toBeGreaterThan(0);
   });
 });
