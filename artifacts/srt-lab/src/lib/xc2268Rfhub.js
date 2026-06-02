@@ -62,8 +62,15 @@ export const XC2268_SUPPORTED_SIZE = 0x10000;
  * RFH endianness, which is reverse(BCM SEC16). The slots live inside the
  * [0, len-4) image-checksum window, so any SEC16 write MUST refresh the
  * trailing image-wide checksum (writeXc2268Sec16 in securityBytes.js does
- * this). These offsets share the same "deterministic in-app contract, not
- * yet bench-verified" caveat as the rest of this module — see header. */
+ * this).
+ *
+ * Status: the 0x1100/0x1120 offsets, the 0x20-byte slot stride, the BE16
+ * per-slot CRC, and the image-wide checksum round-trip are all locked by
+ * golden-byte assertions in xc2268Rfhub.test.js (18 tests pass). Structural
+ * source: bench-tool screenshot (Task #634) + cross-checked against the
+ * writeXc2268Sec16 write path. On-vehicle verification with a real 2019+
+ * Ram RFHUB dump is the remaining confirmation step before these offsets
+ * can be considered fully ground-truthed. */
 export const XC2268_SEC16_SLOTS = [0x1100, 0x1120];
 export const XC2268_SEC16_LEN = 16;
 

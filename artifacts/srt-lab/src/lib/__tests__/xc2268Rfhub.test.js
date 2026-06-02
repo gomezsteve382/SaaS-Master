@@ -7,10 +7,24 @@ import {
   xc2268ImageChecksum,
   XC2268_SUPPORTED_SIZE,
   XC2268_VIN_SLOTS,
+  XC2268_SEC16_SLOTS,
+  XC2268_SEC16_LEN,
 } from '../xc2268Rfhub.js';
 
 const VIN_A = '1C6RR7LT5KS123456';
 const VIN_B = '1C6RR7LT5LS654321';
+
+const hex = (a) =>
+  Array.from(a)
+    .map((b) => b.toString(16).toUpperCase().padStart(2, '0'))
+    .join('');
+
+// Canonical SEC16 used for slot round-trip tests. Chosen to be non-trivial
+// (not all-FF / all-00) so blank-detection doesn't accidentally fire.
+const SEC16_FIXTURE = new Uint8Array([
+  0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
+  0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00,
+]);
 
 describe('xc2268Rfhub — detection', () => {
   it('isXc2268Rfhub returns false for empty / random buffers', () => {
@@ -103,5 +117,107 @@ describe('xc2268Rfhub — patch VIN', () => {
     // Pin the image-wide checksum for the canonical fixture so a future
     // change to CRC constants or layout trips loudly.
     expect(xc2268ImageChecksum(buf).toString(16).toUpperCase()).toMatchInlineSnapshot(`"24C4DB3B"`);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SEC16 slot tests — verifies the 0x1100/0x1120 offset contract and the
+// round-trip write→parse path. These are the primary coverage for the
+// "bench-verify" task: the slot offsets are locked by the golden-byte
+// assertions below. On-vehicle verification with a real 2019+ Ram RFHUB dump
+// remains the final confirmation step (see xc2268Rfhub.js header).
+// ---------------------------------------------------------------------------
+
+describe('xc2268Rfhub — SEC16 slot offsets and layout', () => {
+  it('exports the expected slot addresses and byte length', () => {
+    // These values are the single source of truth; the writer in
+    // securityBytes.writeXc2268Sec16 imports XC2268_SEC16_SLOTS directly, so
+    // any offset change here automatically propagates.
+    expect(XC2268_SEC16_SLOTS).toEqual([0x1100, 0x1120]);
+    expect(XC2268_SEC16_LEN).toBe(16);
+    // Stride between slots = 0x20 (32 bytes: 16 data + 2 CRC + 14 padding).
+    expect(XC2268_SEC16_SLOTS[1] - XC2268_SEC16_SLOTS[0]).toBe(0x20);
+    // Both slots sit well inside the 64 KB image and below the image-checksum
+    // window at (len-4) = 0xFFFC.
+    expect(XC2268_SEC16_SLOTS.every((off) => off + XC2268_SEC16_LEN + 2 <= 0xFFFC)).toBe(true);
+  });
+
+  it('virgin fixture has blank SEC16 slots (all-FF)', () => {
+    const buf = makeXc2268Fixture({ vin: VIN_A });
+    const r = parseXc2268Image(buf);
+    expect(r.sec16Slots).toHaveLength(2);
+    expect(r.sec16Blank).toBe(true);
+    for (const slot of r.sec16Slots) {
+      expect(slot.blank).toBe(true);
+      expect(slot.present).toBe(true);
+      expect(slot.csOk).toBe(false); // blank → csOk is intentionally false
+      // Raw bytes are all 0xFF (virgin state).
+      expect(slot.raw.every((b) => b === 0xFF)).toBe(true);
+    }
+  });
+
+  it('populated fixture round-trips: makeXc2268Fixture sec16 → parseXc2268Image', () => {
+    const buf = makeXc2268Fixture({ vin: VIN_A, sec16: SEC16_FIXTURE });
+    const r = parseXc2268Image(buf);
+    expect(r.ok).toBe(true);
+    expect(r.sec16Blank).toBe(false);
+    expect(r.sec16Match).toBe(true);
+    expect(r.sec16Slots).toHaveLength(2);
+    for (const slot of r.sec16Slots) {
+      expect(slot.present).toBe(true);
+      expect(slot.blank).toBe(false);
+      expect(slot.csOk).toBe(true);
+      expect(hex(slot.raw)).toBe(hex(SEC16_FIXTURE));
+    }
+    // Image-wide checksum is still valid after SEC16 population.
+    expect(r.imageChecksum.ok).toBe(true);
+  });
+
+  it('SEC16 bytes land at the documented raw offsets in the image buffer', () => {
+    const buf = makeXc2268Fixture({ vin: VIN_A, sec16: SEC16_FIXTURE });
+    // Directly inspect the raw buffer bytes at the documented offsets so that
+    // any offset drift in makeXc2268Fixture or parseXc2268Image is caught
+    // independently by this assertion.
+    for (const slotOff of XC2268_SEC16_SLOTS) {
+      for (let i = 0; i < XC2268_SEC16_LEN; i++) {
+        expect(buf[slotOff + i]).toBe(SEC16_FIXTURE[i]);
+      }
+    }
+  });
+
+  it('SEC16 CRC is stored BE16 at slot+16/+17 (spot-check both slots)', () => {
+    const buf = makeXc2268Fixture({ vin: VIN_A, sec16: SEC16_FIXTURE });
+    const r = parseXc2268Image(buf);
+    for (const slot of r.sec16Slots) {
+      const crcHi = buf[slot.offset + XC2268_SEC16_LEN];
+      const crcLo = buf[slot.offset + XC2268_SEC16_LEN + 1];
+      const stored = ((crcHi << 8) | crcLo) & 0xFFFF;
+      expect(stored).toBe(slot.csStored);
+      expect(stored).toBe(slot.csCalc);
+    }
+  });
+
+  it('golden-byte pin: SEC16 fixture image-wide checksum is deterministic', () => {
+    // Pinning this checksum ensures that any future change to XC2268_SEC16_SLOTS,
+    // XC2268_SEC16_LEN, the CRC primitive, or the fixture builder trips loudly.
+    const buf = makeXc2268Fixture({ vin: VIN_A, variant: 0x01, sec16: SEC16_FIXTURE });
+    expect(xc2268ImageChecksum(buf).toString(16).toUpperCase()).toMatchInlineSnapshot(`"366BC994"`);
+  });
+
+  it('corrupt SEC16 slot CRC is detected (csOk:false, blank stays false)', () => {
+    const buf = makeXc2268Fixture({ vin: VIN_A, sec16: SEC16_FIXTURE });
+    // Flip one byte of the stored CRC in slot 0 (offset + 16).
+    buf[XC2268_SEC16_SLOTS[0] + XC2268_SEC16_LEN] ^= 0xFF;
+    const r = parseXc2268Image(buf);
+    expect(r.sec16Slots[0].csOk).toBe(false);
+    expect(r.sec16Slots[0].blank).toBe(false);
+    // Slot 1 is still intact.
+    expect(r.sec16Slots[1].csOk).toBe(true);
+  });
+
+  it('SEC16 slots do not overlap VIN slots (layout sanity)', () => {
+    // VIN slots end at 0x1040 + 17 + 2 = 0x1053; SEC16 starts at 0x1100.
+    const lastVinEnd = Math.max(...XC2268_VIN_SLOTS) + 17 + 2;
+    expect(Math.min(...XC2268_SEC16_SLOTS)).toBeGreaterThan(lastVinEnd);
   });
 });
