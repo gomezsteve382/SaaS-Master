@@ -23,6 +23,7 @@ import { parsePCMGPEC, RFH_PCM_CONST } from '../lib/rfhPcmPair.js';
 import { applyPcmFromBcm } from '../lib/bcmPcmSync.js';
 import { fmtOff, moduleSizeBadge } from './ModuleSync.jsx';
 import ProgrammerSizeHelp from '../components/ProgrammerSizeHelp.jsx';
+import SamplePicker from '../lib/SamplePicker.jsx';
 
 const { PCM_VIN_OFFSETS } = RFH_PCM_CONST;
 
@@ -424,6 +425,11 @@ export default function BcmPcmPairingTab() {
   const [msg, setMsg] = useState('');
   const [repairImmo, setRepairImmo] = useState(false);
 
+  // Mirror RFHPCMTab: track the pair key of whichever sample was loaded last so
+  // the sibling picker can surface a one-click "Load matching pair" button.
+  const [samplePair, setSamplePair] = useState(null);
+  const onSamplePairLoaded = useCallback(f => setSamplePair(f?.pair || null), []);
+
   const handleBcm = useCallback(f => {
     const r = new FileReader();
     r.onload = ev => {
@@ -575,6 +581,14 @@ export default function BcmPcmPairingTab() {
               fileName={bcmFile?.name}
               accept=".bin,.BIN"
             />
+            <SamplePicker
+              kinds={['BCM']}
+              acceptSizes={[65536]}
+              onFile={handleBcm}
+              onLoaded={onSamplePairLoaded}
+              suggestedPair={samplePair}
+              label="📦 Sample BCM (paired with PCM)"
+            />
             {bcmErr && (
               <div style={{ marginTop: 6, padding: '6px 10px', borderRadius: 8, background: C.er + '10', color: C.er, fontSize: 11, fontWeight: 700 }}>
                 ✗ {bcmErr}
@@ -590,6 +604,14 @@ export default function BcmPcmPairingTab() {
               hint={`VIN @ ${fmtOff(0x0000)} / ${fmtOff(0x01F0)} · SEC6 @ ${fmtOff(0x03C8)} · IMMO @ ${fmtOff(0x0011)}`}
               onFile={handlePcm}
               fileName={pcmFile?.name}
+            />
+            <SamplePicker
+              kinds={['GPEC_EXT']}
+              acceptSizes={[4096, 8192]}
+              onFile={handlePcm}
+              onLoaded={onSamplePairLoaded}
+              suggestedPair={samplePair}
+              label="📦 Sample PCM (pairs with BCM)"
             />
             {pcmErr && (
               <div style={{ marginTop: 6, padding: '6px 10px', borderRadius: 8, background: C.er + '10', color: C.er, fontSize: 11, fontWeight: 700 }}>
