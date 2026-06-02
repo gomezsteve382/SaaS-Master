@@ -2136,6 +2136,114 @@ function OverrideConfirmModal({ modules, onConfirm, onCancel }) {
   );
 }
 
+/* Task #1025 — pre-download confirm for any sync that ships a VIRGINIZED
+ * RFHUB. Virginize deliberately wipes the RFHUB SEC16, so the exported
+ * BCM and RFHUB do NOT share an immobilizer secret: flashing the pair
+ * as-is leaves a car that won't crank until the RFHUB is re-keyed on the
+ * bench (RoutineControl 0x0401 pairing on the RFHUB tab). Task #1022
+ * already renamed the file to RFH_VIRGIN_ and logged a loud line, but a
+ * tech can still miss it and waste a bench trip. This modal makes the
+ * trade-off impossible to skip past, mirroring the FlatRepair / Override
+ * confirm UX with a "don't ask again this session" opt-out. */
+function VirginizeConfirmModal({ onConfirm, onCancel }) {
+  const [dontAsk, setDontAsk] = useState(false);
+  const overlayRef = useRef(null);
+  const handleOverlay = (e) => { if (e.target === overlayRef.current) onCancel?.(); };
+  return (
+    <div
+      ref={overlayRef}
+      onClick={handleOverlay}
+      data-testid="virginize-confirm"
+      style={{
+        position: 'fixed', inset: 0, zIndex: 10000,
+        background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(3px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+      }}>
+      <div style={{
+        background: C.cd, border: `1.5px solid ${C.sr}`, borderRadius: 14,
+        width: '100%', maxWidth: 560, boxShadow: '0 18px 60px rgba(0,0,0,0.5)',
+        overflow: 'hidden', display: 'flex', flexDirection: 'column',
+      }}>
+        <div style={{
+          padding: '14px 18px',
+          background: `linear-gradient(135deg, ${C.sr}22 0%, ${C.sr}11 100%)`,
+          borderBottom: `1px solid ${C.bd}`,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <div style={{ fontSize: 22 }}>🆕</div>
+          <div>
+            <div style={{ fontWeight: 900, fontSize: 14, color: C.tx, letterSpacing: 0.5 }}>
+              VIRGINIZE — RFHUB WON&rsquo;T PAIR WITHOUT RE-KEYING
+            </div>
+            <div style={{ fontSize: 11, color: C.ts, marginTop: 2 }}>
+              The exported BCM and RFHUB will NOT share an immobilizer secret.
+            </div>
+          </div>
+        </div>
+        <div style={{ padding: '16px 18px', fontSize: 13, color: C.tx, lineHeight: 1.5 }}>
+          <div style={{
+            background: C.sr + '14', border: `1px solid ${C.sr}55`, borderRadius: 8,
+            padding: '8px 10px', fontSize: 12, color: C.tx, marginBottom: 10,
+          }}>
+            Virginize wipes the RFHUB SEC16, so the downloaded <strong>RFH_VIRGIN_</strong> file
+            carries no security key. The BCM keeps its own secret — the two files are
+            <strong> not a matched immobilizer pair</strong>.
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 800, color: C.er, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 4 }}>
+            If you flash this RFHUB as-is
+          </div>
+          <ul style={{ margin: '0 0 12px 18px', padding: 0, color: C.tx, fontSize: 12 }}>
+            <li style={{ marginBottom: 2 }}>The car will not crank / keys will not be recognised until the RFHUB is re-keyed.</li>
+            <li style={{ marginBottom: 2 }}>This is intended for salvage rebuilds, not factory-paired swaps.</li>
+          </ul>
+          <div style={{ fontSize: 11, fontWeight: 800, color: C.gn, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 4 }}>
+            To make it pair
+          </div>
+          <ul style={{ margin: '0 0 12px 18px', padding: 0, color: C.tx, fontSize: 12 }}>
+            <li style={{ marginBottom: 2 }}>Re-key the RFHUB on the bench via the RoutineControl 0x0401 pairing flow on the <strong>RFHUB tab</strong>.</li>
+          </ul>
+          <div style={{ fontSize: 11, color: C.ts, marginBottom: 10 }}>
+            To export a matched pair instead, cancel and uncheck &ldquo;Virginize RFH SEC16&rdquo;.
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: C.ts, cursor: 'pointer', userSelect: 'none' }}>
+            <input
+              type="checkbox"
+              checked={dontAsk}
+              onChange={e => setDontAsk(e.target.checked)}
+              data-testid="virginize-dont-ask"
+              style={{ accentColor: C.a3, cursor: 'pointer' }}
+            />
+            Don&rsquo;t ask again for the rest of this session
+          </label>
+        </div>
+        <div style={{
+          padding: '12px 18px', borderTop: `1px solid ${C.bd}`,
+          display: 'flex', justifyContent: 'flex-end', gap: 10, background: C.c2,
+        }}>
+          <button
+            onClick={onCancel}
+            data-testid="virginize-cancel"
+            style={{
+              padding: '8px 16px', borderRadius: 8, border: `1px solid ${C.bd}`,
+              background: C.cd, color: C.tx, fontSize: 13, fontWeight: 700, cursor: 'pointer',
+            }}>
+            Cancel
+          </button>
+          <button
+            onClick={() => onConfirm?.(dontAsk)}
+            data-testid="virginize-confirm-btn"
+            style={{
+              padding: '8px 16px', borderRadius: 8, border: 'none',
+              background: C.sr, color: '#FFFFFF', fontSize: 13, fontWeight: 800, cursor: 'pointer',
+            }}>
+            Acknowledge &amp; Download
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const { vin: masterVin, vinValid: masterVinValid, clearDumps } = useMasterVin();
 
@@ -2184,6 +2292,15 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
    * every other preflight (notably the P/N override prompt). Cleared
    * the moment doSync() consumes it. */
   const flatRepairJustConfirmedRef = useRef(false);
+  /* Task #1025 — pre-download confirm for any sync that ships a virginized
+   * RFHUB. Holds { action, overrideVin } until the tech acknowledges (or
+   * cancels) that the exported BCM/RFHUB pair shares no immobilizer secret
+   * and the RFHUB must be re-keyed on the bench. Mirrors the flat-repair
+   * confirm: per-session "don't ask again" + one-shot re-entry bypass so
+   * the remaining preflight gates still run. */
+  const [virginizeConfirm, setVirginizeConfirm] = useState(null);
+  const skipVirginizeConfirmRef = useRef(false);
+  const virginizeJustConfirmedRef = useRef(false);
   const logRef = useRef(null);
 
   const log = useCallback((msg, level = 'info') => {
@@ -2599,6 +2716,22 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         log(`✗ ${action} blocked: ${name} buffer is a corrupt capture (${cf.reason}) — ${cf.detail} Re-read the module with verified hardware before syncing.`, 'err');
       }
       return;
+    }
+    /* Task #1025 — when VIRGINIZE is checked on any sync that ships the
+     * RFHUB, the exported BCM/RFHUB pair shares no immobilizer secret and
+     * the RFHUB must be re-keyed on the bench. Surface an explicit confirm
+     * the first time the tech downloads a virginized set this session
+     * (honours the per-session "don't ask again" + one-shot re-entry
+     * bypass so the remaining preflight gates still run). */
+    const virginizesRfh = virginize
+      && ['rfh-to-bcm', 'bcm-to-rfh', 'target-both', 'sync-all', 'full-sync'].includes(action);
+    if (virginizesRfh) {
+      if (virginizeJustConfirmedRef.current) {
+        virginizeJustConfirmedRef.current = false;
+      } else if (!skipVirginizeConfirmRef.current) {
+        setVirginizeConfirm({ action, overrideVin });
+        return;
+      }
     }
     /* Task #801 — on overlap dumps (mirror1 at 0x40C0 colliding with the
      * flat 0x40C9 slice), the compatibility-mode choice has real
@@ -4197,6 +4330,30 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
              * overlap + override edge case. The one-shot bypass keeps the
              * modal from re-opening on the re-entry. */
             flatRepairJustConfirmedRef.current = true;
+            doSync(action, overrideVin);
+          }}
+        />
+      )}
+
+      {/* ── Virginize confirm dialog (Task #1025) ── */}
+      {virginizeConfirm && (
+        <VirginizeConfirmModal
+          onCancel={() => {
+            log('Sync cancelled — virginize acknowledgement declined. No files were written.', 'warn');
+            setVirginizeConfirm(null);
+          }}
+          onConfirm={(dontAskAgain) => {
+            const { action, overrideVin } = virginizeConfirm;
+            if (dontAskAgain) {
+              skipVirginizeConfirmRef.current = true;
+              log('Virginize confirm suppressed for the rest of this session.', 'muted');
+            }
+            log('⚠ Acknowledged: exported RFHUB is VIRGIN — it shares no immobilizer secret with the BCM and must be re-keyed on the bench (RoutineControl 0x0401 on the RFHUB tab) before the car will pair.', 'warn');
+            setVirginizeConfirm(null);
+            /* Route back through doSync so the remaining preflight gates
+             * (flat-repair, PCM resize, P/N override) still run. The
+             * one-shot bypass keeps this modal from re-opening. */
+            virginizeJustConfirmedRef.current = true;
             doSync(action, overrideVin);
           }}
         />

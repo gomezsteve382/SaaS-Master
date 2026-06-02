@@ -18,3 +18,4 @@
 - [Co-pilot chat persistence](copilot-persistence.md) — Co-pilot reuses conversations API scope="general"; new scopes must opt into the non-restrictive prompt; attachments are text-folded (real multimodal = backend+schema change).
 - [Export safety gate](export-safety-gate.md) — checkExportSafety gates EVERY .bin export; scope selfChecks to what was written (VIN-only/legacy-flat→vin+partials; secret-write→full+master-in-context; 95640 needs explicit reparse).
 - [Module Sync source-of-truth](module-sync-source-of-truth.md) — SYNC ALL: BCM canonical, RFH SEC16=reverse(BCM) Gen2-only, PCM SEC6=reverse(BCM)[0:6], BCM never written; preview gating MUST mirror writer gating (drift is the bug class).
+- [ModuleSync UI test harness](modulesync-ui-test-harness.md) — to reach bothReady in jsdom: use REAL corpus fixtures (synthetic buildFixtures never parse ok) AND re-query file inputs between the two sequential loads (first load detaches nodes).
