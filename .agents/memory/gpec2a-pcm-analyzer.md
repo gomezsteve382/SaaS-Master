@@ -22,6 +22,13 @@ PCM SEC6 = reverse(BCM split SEC16)[0:6]; marker `FF FF FF AA` @ 0x3C4; SEC6 @ 0
 the BCM donor path is the reliable one. `derivePcmSec6FromDonor` rejects all-FF/all-00
 secrets — never fix immo from a virgin source.
 
+**UI test harness:** to drive `Gpec2aImmoPanel` end-to-end via EcmTab, load the
+GPEC2A through EcmTab's file input (FileReader path) but seed the BCM/RFHUB donor
+via context `addDump` — EcmTab only exposes a GPEC2A picker; donorMods come from
+`getDumpsByType('BCM'|'RFHUB')`. Stub `URL.createObjectURL`/`revokeObjectURL`
+(dl() download helper). Donor message says "from BCM"; donorHex placeholder on
+`gpec2a-sec6-input`. Use the real `attached_assets/19gpec2a…bin` fixture.
+
 **Verification:** full srt-lab vitest suite OOM-kills in this env; verify with a
 targeted file run (`vitest run src/lib/__tests__/gpec2aPcmAnalyzer.test.js`) + typecheck.
 The `asset-sweep-check` workflow failing on inventory/REPORT drift is pre-existing and
