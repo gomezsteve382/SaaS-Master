@@ -63,14 +63,67 @@ describe('xc2268Rfhub — parse', () => {
     expect(r.banners.some((b) => /variant tag/i.test(b.message))).toBe(true);
   });
 
-  it('flags an unsupported size and refuses writeSafe', () => {
+  it('parses a Ram HD (0x03) 64 KB fixture cleanly and reports writeSafe:true', () => {
+    const buf = makeXc2268Fixture({ vin: VIN_A, variant: 0x03 });
+    const r = parseXc2268Image(buf);
+    expect(r.ok).toBe(true);
+    expect(r.variantByte).toBe(0x03);
+    expect(r.variantLabel).toMatch(/Ram HD/);
+    expect(r.variantSupported).toBe(true);
+    expect(r.sizeSupported).toBe(true);
+    expect(r.vin).toBe(VIN_A);
+    expect(r.vinAllSlotsMatch).toBe(true);
+    expect(r.imageChecksum.ok).toBe(true);
+    expect(r.writeSafe).toBe(true);
+    expect(r.banners).toEqual([]);
+  });
+
+  it('Ram HD (0x03) VIN patch round-trips correctly', () => {
+    const buf = makeXc2268Fixture({ vin: VIN_A, variant: 0x03 });
+    const r = patchXc2268Vin(buf, VIN_B);
+    expect(r.ok).toBe(true);
+    const re = parseXc2268Image(r.bytes);
+    expect(re.vin).toBe(VIN_B);
+    expect(re.variantLabel).toMatch(/Ram HD/);
+    expect(re.writeSafe).toBe(true);
+  });
+
+  it('32 KB sub-variant surfaces a send-dump-request warn banner (not hard error) and refuses writeSafe', () => {
+    const buf = makeXc2268Fixture({ vin: VIN_A, size: 0x8000 });
+    const r = parseXc2268Image(buf);
+    expect(r.ok).toBe(true);
+    expect(r.sizeKnown).toBe(true);
+    expect(r.sizeSupported).toBe(false);
+    expect(r.writeSafe).toBe(false);
+    const banner = r.banners.find((b) => b.kind === 'send-dump-request');
+    expect(banner).toBeDefined();
+    expect(banner.level).toBe('warn');
+    expect(banner.message).toMatch(/32 KB/);
+    expect(banner.message).toMatch(/share it/i);
+  });
+
+  it('128 KB sub-variant surfaces a send-dump-request warn banner (not hard error) and refuses writeSafe', () => {
+    const buf = makeXc2268Fixture({ vin: VIN_A, size: 0x20000 });
+    const r = parseXc2268Image(buf);
+    expect(r.ok).toBe(true);
+    expect(r.sizeKnown).toBe(true);
+    expect(r.sizeSupported).toBe(false);
+    expect(r.writeSafe).toBe(false);
+    const banner = r.banners.find((b) => b.kind === 'send-dump-request');
+    expect(banner).toBeDefined();
+    expect(banner.level).toBe('warn');
+    expect(banner.message).toMatch(/128 KB/);
+    expect(banner.message).toMatch(/share it/i);
+  });
+
+  it('flags an unsupported size and refuses writeSafe (legacy check)', () => {
     const small = makeXc2268Fixture({ vin: VIN_A });
     // Truncate to 32 KB → known sub-variant size but not the covered 64 KB.
     const r = parseXc2268Image(small.slice(0, 0x8000));
     expect(r.ok).toBe(true);
     expect(r.sizeSupported).toBe(false);
     expect(r.writeSafe).toBe(false);
-    expect(r.banners.some((b) => /size/i.test(b.message))).toBe(true);
+    expect(r.banners.some((b) => b.kind === 'send-dump-request')).toBe(true);
   });
 
   it('detects a mismatched per-slot CRC', () => {

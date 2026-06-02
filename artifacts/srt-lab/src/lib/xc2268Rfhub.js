@@ -242,9 +242,14 @@ export function parseXc2268Image(buf) {
       message: `XC2268 image size ${sz.toLocaleString()} B is not a known variant size (32 KB / 64 KB / 128 KB). Read-only — refusing to write.`,
     });
   } else if (!sizeSupported) {
+    const sizeKB = sz >> 10;
     banners.push({
-      level: 'error',
-      message: `XC2268 image size ${sz.toLocaleString()} B is a known sub-variant but coverage is pending. Read-only — refusing to write.`,
+      level: 'warn',
+      kind: 'send-dump-request',
+      message:
+        `XC2268 ${sizeKB} KB sub-variant detected — layout not yet bench-verified. ` +
+        `Reads are available; writes are disabled until a real dump confirms the offset map. ` +
+        `If you have a ${sizeKB} KB Ram RFHUB dump, please share it so we can add full support.`,
     });
   }
   if (!variantSupported) {
