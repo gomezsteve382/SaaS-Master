@@ -160,7 +160,11 @@ export function parseEFD(buf, name){
       const payloadSize = Math.max(0, payloadEnd - dataStart);
       result.payload = {
         offset: dataStart,
+        // `size` is the number of payload bytes actually present in the file
+        // (clamped to the buffer). `declaredSize` is the raw size the EBML
+        // header claims — they differ only when the container is truncated.
         size: payloadSize,
+        declaredSize: sizeR.value,
         entropy: shannonEntropy(data.subarray(dataStart, payloadEnd)),
       };
     }
@@ -182,4 +186,31 @@ export function isEbmlBuffer(buf){
   const data = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
   return data[0] === EBML_MAGIC[0] && data[1] === EBML_MAGIC[1] &&
          data[2] === EBML_MAGIC[2] && data[3] === EBML_MAGIC[3];
+}
+
+// Carve the raw UP payload out of an EFD container. This is exactly what the
+// original Windows `EFD_Reader.exe` writes to disk: the encrypted payload
+// bytes, unmodified. No decryption is performed here (none is by the desktop
+// tool either) — the ECM bootloader decrypts the payload in-place during the
+// `0x36 TransferData` half of the UDS programming session. The payload is
+// located by a proper EBML walk (the UP element id `0x205550`), not a naive
+// two-byte id scan, so it is robust to coincidental id bytes inside the blob.
+//
+// Returns `{ ok:true, offset, size, declaredSize, bytes, parsed }` on success
+// or `{ ok:false, error, parsed }` when the file isn't a valid EFD or has no
+// payload section.
+export function extractEfdPayload(buf, name){
+  const data = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  const parsed = parseEFD(data, name);
+  if (!parsed.valid){
+    return { ok: false, error: parsed.error || 'Not a valid EFD/EBML container', parsed };
+  }
+  if (!parsed.payload || !parsed.payload.size){
+    return { ok: false, error: 'No UP payload section (id 0x205550) found in container', parsed };
+  }
+  const { offset, size } = parsed.payload;
+  const end = Math.min(offset + size, data.length);
+  const bytes = data.subarray(offset, end);
+  const declaredSize = parsed.payload.declaredSize ?? size;
+  return { ok: true, offset, size: bytes.length, declaredSize, bytes, parsed };
 }
