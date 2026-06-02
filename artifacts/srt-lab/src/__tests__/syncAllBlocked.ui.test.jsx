@@ -101,6 +101,85 @@ function bcmFixture({ flatSecret = null, ...opts } = {}) {
   return buf;
 }
 
+/* A BCM that exposes a REAL resolvable SEC16 (not just the flat 0x40C9 slice):
+ * the cases above keep the BCM in a flat-only / virgin state, where
+ * bcmHasSec16 is false and the "SEC16 Sync Only" action stays DISABLED. The
+ * sec16-only leg of the wrong-size PCM guard can only be exercised when that
+ * button is ENABLED — i.e. sec16SyncOk = bcmHasSec16 && rfhHasSec16 is true.
+ *
+ * bcmHasSec16 (ModuleSync engParseBcm) requires at least one Gen2 SEC16 split
+ * record (0x81A0/C0/E0) or a populated inactive-bank mirror — makeBcm writes
+ * neither. This helper stamps the three canonical split records AFTER makeBcm
+ * (overwriting its IMMO-key fill at 0x81a4/c4/e4) in the exact 7+9 byte layout
+ * engParseBcm and resolveBcmSec16 both decode:
+ *
+ *   +0..+1   FF FF                 (record header)
+ *   +2..+7   00 00 00 00 00 00     (zero pad)
+ *   +8       idx (0x01 / 0x02)
+ *   +9..+15  SEC16[0:7]            (prefix, 7 bytes)
+ *   +16..+19 04 04 00 14           (separator)
+ *   +20..+28 SEC16[7:16]           (suffix, 9 bytes)
+ *   +29      trailer
+ *
+ * The stored SEC16 is reverse(RFH secret); crossValidate compares
+ * reverse(resolved BCM SEC16) to the RFH secret, so the pair reconciles (no
+ * VIN / secret MISMATCH) and the loaded PCM is the only outstanding issue.
+ * The flat 0x40C9 slice is set to RFH_SECRET (== reverse(resolved)) so the
+ * "flat 0x40C9 STALE" advisory stays silent and the PCM SEC6 step is the only
+ * one carrying a sec16-only action. */
+const SEC16_SPLIT_OFFS = [0x81a0, 0x81c0, 0x81e0];
+const SEC16_SPLIT_IDX = [0x01, 0x02, 0x01];
+function bcmWithSplitSec16({ sec16, ...opts } = {}) {
+  const buf = bcmFixture(opts);
+  for (let s = 0; s < SEC16_SPLIT_OFFS.length; s++) {
+    const off = SEC16_SPLIT_OFFS[s];
+    buf[off] = 0xff;
+    buf[off + 1] = 0xff;
+    for (let j = 2; j < 8; j++) buf[off + j] = 0x00;
+    buf[off + 8] = SEC16_SPLIT_IDX[s];
+    for (let k = 0; k < 7; k++) buf[off + 9 + k] = sec16[k];
+    buf[off + 16] = 0x04;
+    buf[off + 17] = 0x04;
+    buf[off + 18] = 0x00;
+    buf[off + 19] = 0x14;
+    for (let k = 0; k < 9; k++) buf[off + 20 + k] = sec16[7 + k];
+    buf[off + 29] = 0x00;
+  }
+  return buf;
+}
+
+/* A Gen2 RFHUB whose two SEC16 mirror slots disagree. makeRfhubGen2 writes the
+ * same 16 secret bytes into slot 1 (0x050E) and slot 2 (0x0522); flipping a
+ * byte in slot 2's raw region makes the slots differ.
+ *
+ * This is the lever that surfaces a "SEC16 Sync Only" wizard step for a
+ * wrong-size PCM. A 6 KB GPEC2A parses as type=UNKNOWN (parseModule only
+ * recognizes canonical 4 KB / 8 KB GPEC2A), so crossValidate produces NO
+ * "PCM SEC6 / IMMO_DAMAGED" issue for it — and therefore no PCM SEC6 step.
+ * The SEC16-only action lives on TWO issueToStep cards: the PCM SEC6 step
+ * (unreachable here) and the "SEC16 Security Token Mismatch" step
+ * (MismatchWizard ~94, actions ['sec16-only', 'bcm-sec16-to-rfh']). A slot 1/2
+ * mismatch makes parseModule report sec16valid=false, which crossValidate
+ * emits as the warning "RFHUB SEC16: Slot 1/2 MISMATCH or unreadable" — and the
+ * Advanced flow turns warnings into step cards too (MismatchWizard ~1982), so
+ * that warning becomes the SEC16 step carrying the sec16-only action.
+ *
+ * Corrupting slot 2 (not slot 1) is deliberate: engParseRfh derives
+ * sec16.virgin from slot 1 ALONE (rfh sec16.virgin = slot1.every(0xFF),
+ * ModuleSync ~555), so slot 1 stays intact → rfhHasSec16 stays true →
+ * sec16SyncOk (bcmHasSec16 && rfhHasSec16) stays true → the "SEC16 Sync Only"
+ * button is ENABLED and the click reaches doSync('sec16-only'). Slot 1 also
+ * stays the RFH vehicle secret crossValidate compares against the BCM, so the
+ * pair still reconciles (no secret-mismatch issue cluttering the steps). */
+function rfhWithSlotMismatch(opts = {}) {
+  const buf = makeRfhubGen2(opts);
+  // Slot 2 raw lives at 0x0522..0x0531; flip one byte to a distinct, non-blank
+  // value (not 0xFF / 0x00) so the slot stays "populated" but differs from
+  // slot 1 → sec16valid=false, slot0 not blank → "Slot 1/2 MISMATCH".
+  buf[0x0522] = buf[0x0522] ^ 0x55 || 0x55;
+  return buf;
+}
+
 let clickSpy;
 
 beforeEach(() => {
@@ -111,6 +190,11 @@ beforeEach(() => {
   clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
   // No PCM is loaded, so SYNC ALL never opens a confirm; stub defensively.
   vi.spyOn(window, "confirm").mockReturnValue(true);
+  // jsdom doesn't implement scrollIntoView; the Advanced-flow wizard's chat
+  // panel calls it on mount (Task #1045 case).
+  if (!HTMLElement.prototype.scrollIntoView) {
+    HTMLElement.prototype.scrollIntoView = () => {};
+  }
 });
 
 afterEach(() => {
@@ -484,5 +568,115 @@ describe("ModuleSync — SYNC ALL pre-download safety gate (Task #1026)", () => 
     const populatedCheck = findSec6Check(populated);
     expect(populatedCheck).toBeTruthy();
     expect(populatedCheck.pass).toBe(true);
+  });
+
+  // ── Task #1045: wrong-size PCM blocks the WIZARD's SEC16-only sync ────────
+  // The THIRD programmatic entry point into the wrong-size PCM guard. Task #1039
+  // proved the guard fires on the wizard's "Full 3-Module Sync" step
+  // (onAction('full-sync') → doSync('sync-all')); this proves it ALSO fires on
+  // the "SEC16 Sync Only" step.
+  //
+  // Why this matters: writesPcm = sync-all || full-sync || sec16-only
+  // (ModuleSync.jsx ~2776), so a SEC16-only sync ALSO writes a PCM SEC6 file
+  // when a PCM is loaded. If the size guard only covered full-sync, a tech who
+  // picked the lighter "SEC16 Sync Only" fix against a wrong-size PCM would
+  // still ship a PCM file the bench programmer rejects. The guard must refuse
+  // sec16-only on the same terms.
+  //
+  // Reaching sec16-only deterministically: the SimpleFlow recommended/scenario
+  // path collapses to full-sync whenever BCM+RFH parse OK (bothReady → full-sync
+  // enabled → Scenario B), so the simple "FIX IT" button can't surface
+  // sec16-only here. The Advanced flow's per-issue step cards do, BUT the PCM
+  // SEC6 step is NOT reachable with a wrong-size PCM: a 6 KB GPEC2A parses as
+  // type=UNKNOWN (parseModule only recognizes canonical 4 KB / 8 KB GPEC2A), so
+  // crossValidate emits no "PCM SEC6 / IMMO_DAMAGED" issue for it. The
+  // sec16-only action lives on a SECOND issueToStep card too — the "SEC16
+  // Security Token Mismatch" step (MismatchWizard ~94, actions ['sec16-only',
+  // 'bcm-sec16-to-rfh']). We surface that card via an RFHUB whose two SEC16
+  // mirror slots disagree (rfhWithSlotMismatch): crossValidate reports
+  // "RFHUB SEC16: Slot 1/2 MISMATCH" as a warning, and the Advanced flow turns
+  // warnings into step cards (MismatchWizard ~1982). onAction('sec16-only')
+  // maps straight to doSync('sec16-only') (ModuleSync ~4444). The button is
+  // only ENABLED when sec16SyncOk is true, which is why the BCM here carries
+  // real Gen2 SEC16 split records (bcmWithSplitSec16) instead of the flat-only
+  // fixture the other cases use.
+  it("BLOCKS the wizard's SEC16-only sync (programmatic sec16-only) when the PCM is a non-canonical size (6 KB): size-guard log fires, no _SYNCED ships", async () => {
+    const { container } = renderModuleSync();
+    // BCM: real split SEC16 = reverse(RFH secret) → sec16SyncOk true AND the
+    // BCM/RFH pair reconciles. Flat 0x40C9 = RFH_SECRET (== reverse(resolved))
+    // suppresses the "flat STALE" advisory.
+    await loadInto(
+      container,
+      0,
+      bcmWithSplitSec16({
+        sec16: RFH_SECRET_REVERSED,
+        flatSecret: new Uint8Array(RFH_SECRET),
+      }),
+      "bcm-fixture.bin"
+    );
+    // RFHUB with mismatched SEC16 slots → "RFHUB SEC16: Slot 1/2 MISMATCH"
+    // warning → SEC16 step card (carrying the sec16-only action). Slot 1 stays
+    // intact, so rfhHasSec16 (→ sec16SyncOk) stays true and the BCM/RFH secret
+    // still reconciles.
+    await loadInto(container, 1, rfhWithSlotMismatch(), "rfh-fixture.bin");
+    // 6 KB GPEC2A: above the 4 KB floor (parses, not "too small") but neither
+    // 4 KB nor 8 KB → pcmHasNonCanonicalSize true → the doSync size guard fires
+    // because writesPcm = sync-all || full-sync || sec16-only.
+    await loadInto(container, 2, makeGpec2a({ size: 6144, pcmSec6Damaged: true }), "pcm-fixture.bin");
+
+    // SYNC ALL mounts but is DISABLED (button-path size guard) — confirm so we
+    // know we're exercising the OTHER entry point (the wizard's sec16-only step).
+    await waitFor(() => {
+      const btn = screen.getByRole("button", { name: /SYNC ALL/i });
+      expect(btn.disabled).toBe(true);
+    });
+
+    // Open the guided Mismatch Wizard, then switch to the Advanced flow whose
+    // per-issue step cards expose the dedicated "SEC16 Sync Only" action.
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("open-wizard-btn-toolbar"));
+    });
+    await act(async () => {
+      const toggle = screen.getByTestId("wizard-advanced-toggle").querySelector('input[type="checkbox"]');
+      fireEvent.click(toggle);
+    });
+    // Advanced flow opens on the issue summary — start the step walkthrough.
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /START WIZARD/i }));
+    });
+
+    // Walk the step cards until the SEC16 mismatch step (the one carrying the
+    // "SEC16 Sync Only" action) is on screen. It must be ENABLED — proving
+    // sec16SyncOk and that the click can actually reach doSync('sec16-only').
+    let sec16Btn = null;
+    for (let i = 0; i < 12; i++) {
+      sec16Btn = screen.queryByRole("button", { name: /SEC16 Sync Only/i });
+      if (sec16Btn) break;
+      const next = screen.queryByRole("button", { name: /Next Step/i });
+      if (!next) break;
+      await act(async () => {
+        fireEvent.click(next);
+      });
+    }
+    expect(sec16Btn).toBeTruthy();
+    expect(sec16Btn.disabled).toBe(false);
+
+    await act(async () => {
+      fireEvent.click(sec16Btn);
+    });
+
+    // The executeSync size guard — reached via doSync('sec16-only') — must fire,
+    // naming the offending 6 KB size. This is the contract the task asserts.
+    await waitFor(() => {
+      expect(
+        screen.getByText(/blocked: loaded PCM is 6144 B/i, { exact: false })
+      ).toBeTruthy();
+    });
+
+    // And crucially: NOTHING may ship. No _SYNCED download, no anchor click, no
+    // "gate PASSED" — the wrong-size PCM was refused before any write.
+    expect(clickSpy).not.toHaveBeenCalled();
+    expect(screen.queryByText(/^Downloaded:/i, { exact: false })).toBeNull();
+    expect(screen.queryByText(/safety gate PASSED/i, { exact: false })).toBeNull();
   });
 });
