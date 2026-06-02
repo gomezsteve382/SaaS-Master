@@ -47,6 +47,7 @@ import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
 import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
 import ProxiTab from "./tabs/ProxiTab.jsx";
 import ImmoBcm56xbTab from "./tabs/ImmoBcm56xbTab.jsx";
+import BcmPcmPairingTab from "./tabs/BcmPcmPairingTab.jsx";
 import BcmConfigTab from "./tabs/BcmConfigTab.jsx";
 import FcaModuleInspector from "./tabs/FcaModuleInspector.jsx";
 import UnlockCoverageTab from "./tabs/UnlockCoverageTab.jsx";
@@ -941,6 +942,7 @@ const WORKSPACE_TABS = [
   {id:'vinprog',   i:'🪪', l:'VIN + CHECKSUM', s:'Single-file VIN write + CRC patcher'},
   {id:'proxi',     i:'📋', l:'PROXI',        s:'BCM 0x2023 + DEnn feature decoder · read-only'},
   {id:'immobcm56xb',i:'🧠', l:'IMMO BCM 56xB',s:'64 KB MPC5606B · FULL / VIN_ONLY / LOCKED · file in/out'},
+  {id:'bcmpcmpair', i:'🔐', l:'BCM → PCM',    s:'MPC5606B full-flash · GPEC2A · SEC6 pairing workbench'},
   {id:'bcmconfig', i:'⚙️', l:'BCM CONFIG',   s:'DE00..DE0C · 155 toggles · SRT/Perf/Track'},
   {id:'inspector', i:'🔍', l:'MODULE INSPECTOR', s:'GPEC2A · RFHUB · BCM auto-detect'},
   {id:'unlockcov', i:'🗝️', l:'UNLOCK COV',   s:'81 DLLs · reversed vs dll_only'},
@@ -977,7 +979,7 @@ const WORKSPACE_CATEGORIES = {
   // PROGRAM — anything that writes to a module / produces a flashable file.
   jailbreak:'PROGRAM', keyprog:'PROGRAM', keymgr:'PROGRAM', livekey:'PROGRAM',
   vinprog:'PROGRAM', vinsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
-  ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', gpecunlock:'PROGRAM',
+  ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
   cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
   // LIVE — connected OBD/J2534 sessions and external bench tools.
   obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE',
@@ -1235,6 +1237,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='vinprog'   && <VinProgrammerTab/>}
         {tab==='proxi'     && <ProxiTab/>}
         {tab==='immobcm56xb' && <ImmoBcm56xbTab/>}
+        {tab==='bcmpcmpair' && <BcmPcmPairingTab/>}
         {tab==='bcmconfig' && <BcmConfigTab vehicle={vehicle}/>}
         {tab==='inspector' && <FcaModuleInspector onOpenTab={setTab}/>}
         {tab==='unlockcov' && <UnlockCoverageTab/>}
