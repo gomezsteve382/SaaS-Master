@@ -30,6 +30,7 @@ import {
   MAX_PIN_ATTEMPTS,
 } from "../lib/rfhubPin.js";
 import {useEffect} from "react";
+import RfhubVinPatcherPanel from "../components/RfhubVinPatcherPanel.jsx";
 
 /**
  * KEY WRITER → RFHUB handoff banner.
@@ -476,6 +477,12 @@ export default function RfhubTab({vehicle}){
     setInspectHash(null);setInspectMsg('');setInspectErr('');setInspectTooSmall(null);
   },[inspectEntry,removeDump]);
 
+  const onPatchedRfhubDump=useCallback((bytes,filename)=>{
+    const m=parseModule(bytes,filename);
+    const entry=addDump(m,'RFHUB VIN patcher');
+    if(entry)setInspectHash(entry.hash);
+  },[addDump]);
+
   const vinValid=masterVin.length===17;
   return <div>
     <KeyWriterHandoffBanner/>
@@ -700,6 +707,22 @@ export default function RfhubTab({vehicle}){
       {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data&&<div style={{marginTop:14}}><IdentityCard bytes={inspectMod.data}/></div>}
       {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data&&<RfhubImmoSection mod={inspectMod}/>}
     </Card>
+
+    {/* ── RFHUB Offline VIN Patcher ───────────────────────────────────────
+      * Shown whenever an RFHUB dump is loaded in the inspector above.
+      * Works for Gen1 (2 KB) and Gen2 (4 KB); XC2268 shows an inspect-only notice.
+      * No live OBD connection required.
+      * ─────────────────────────────────────────────────────────────────── */}
+    {inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data&&<>
+      <div style={{display:'flex',alignItems:'center',gap:10,margin:'18px 0 10px'}}>
+        <div style={{flex:1,height:1,background:C.bd}}/>
+        <div style={{fontSize:10,fontWeight:800,color:C.sr,letterSpacing:2,fontFamily:"'Righteous'",whiteSpace:'nowrap'}}>
+          OFFLINE VIN PATCHER — NO OBD NEEDED
+        </div>
+        <div style={{flex:1,height:1,background:C.bd}}/>
+      </div>
+      <RfhubVinPatcherPanel mod={inspectMod} onPatched={onPatchedRfhubDump}/>
+    </>}
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{fontWeight:800,fontSize:12,color:'#00BFA5',marginBottom:10,letterSpacing:2}}>📋 LOG</div>
