@@ -340,6 +340,67 @@ describe("ModuleSync — SYNC ALL pre-download safety gate (Task #1026)", () => 
     expect(clickSpy).not.toHaveBeenCalled();
   });
 
+  // ── Task #1039: wrong-size PCM blocks the WIZARD's Full 3-Module Sync ─────
+  // The SECOND entry point into sync-all. The button-disable guard (Task #1033
+  // above) only protects a *click* on SYNC ALL — but the MismatchWizard's
+  // "Full 3-Module Sync" step calls doSync('sync-all') PROGRAMMATICALLY
+  // (onAction('full-sync') → doSync('sync-all')), bypassing the disabled button
+  // entirely. On that path the executeSync('sync-all') size guard
+  // (ModuleSync.jsx ~2777: "✗ sync-all blocked: loaded PCM is X B …") is the
+  // ONLY thing standing between a wrong-size PCM and a bricked module. This test
+  // drives the real wizard to that step and proves the guard fires.
+  //
+  // Setup: BCM + RFHUB reconcile (matching VIN + SEC16) so neither a VIN nor a
+  // secret mismatch is the blocker — the PCM is the only problem. The PCM is a
+  // 6 KB GPEC2A with a DAMAGED SEC6: the damaged SEC6 is an IMMO-class issue, so
+  // the wizard recognizes the BCM+RFHUB+PCM scenario and offers the one-click
+  // "Full 3-Module Sync" (scenario.actionId === 'full-sync'); the 6 KB size is
+  // what the executeSync('sync-all') guard must refuse.
+  it("BLOCKS the wizard's Full 3-Module Sync (programmatic sync-all) when the PCM is a non-canonical size (6 KB): size-guard log fires, no _SYNCED ships", async () => {
+    const { container } = renderModuleSync();
+    await loadInto(container, 0, bcmFixture({ flatSecret: RFH_SECRET_REVERSED }), "bcm-fixture.bin");
+    await loadInto(container, 1, makeRfhubGen2(), "rfh-fixture.bin");
+    await loadInto(container, 2, makeGpec2a({ size: 6144, pcmSec6Damaged: true }), "pcm-fixture.bin");
+
+    // The SYNC ALL button is DISABLED (the button-path guard from Task #1033) —
+    // confirm so we know the click path is closed and we're exercising the OTHER
+    // entry point (the wizard's programmatic doSync('sync-all')).
+    await waitFor(() => {
+      const btn = screen.getByRole("button", { name: /SYNC ALL/i });
+      expect(btn.disabled).toBe(true);
+    });
+
+    // Open the guided Mismatch Wizard (always-visible toolbar launcher).
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("open-wizard-btn-toolbar"));
+    });
+
+    // The wizard recognizes the BCM+RFHUB+PCM IMMO-class problem (damaged PCM
+    // SEC6) and offers a one-click fix wired to doSync('sync-all'). Trigger it.
+    let fixBtn;
+    await waitFor(() => {
+      fixBtn = screen.getByTestId("simple-fix-btn");
+      expect(fixBtn).toBeTruthy();
+    });
+    await act(async () => {
+      fireEvent.click(fixBtn);
+    });
+
+    // The executeSync('sync-all') size guard — the ONLY guard on the wizard
+    // path — must fire, naming the offending 6 KB size.
+    await waitFor(() => {
+      expect(
+        screen.getByText(/blocked: loaded PCM is 6144 B/i, { exact: false })
+      ).toBeTruthy();
+    });
+
+    // And crucially: NOTHING may ship. No _SYNCED download, no anchor click, no
+    // "gate PASSED" — the wrong-size PCM was refused before any write.
+    expect(clickSpy).not.toHaveBeenCalled();
+    expect(screen.queryByText(/^Downloaded:/i, { exact: false })).toBeNull();
+    expect(screen.queryByText(/safety gate PASSED/i, { exact: false })).toBeNull();
+  });
+
   // ── Task #1032: virgin-GPEC2A SEC6 refusal at its real home ──────────────
   // Task #1036 — Case 4a: the rendered SYNC ALL flow now refuses a virgin /
   // blank GPEC2A. A reconcilable BCM/RFH pair + a canonical-size GPEC2A whose

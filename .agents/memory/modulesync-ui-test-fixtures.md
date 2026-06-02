@@ -49,3 +49,17 @@ staleness warning.
    line; testing the log requires driving the wizard path instead. Build the
    oversized PCM with `makeGpec2a({ size })`: fields stay in the first 4 KB and
    the tail is 0xFF pad, so it still parses as GPEC2A (not "too small").
+
+6. **Driving the MismatchWizard's "Full 3-Module Sync" → doSync('sync-all') in
+   jsdom.** The wizard's default SimpleFlow renders a one-click scenario card
+   (`data-testid="simple-fix-btn"`) whose onClick calls `onAction('full-sync')`,
+   which ModuleSync maps to `doSync('sync-all')` — the programmatic re-entry that
+   bypasses the disabled SYNC ALL button. To make that card appear:
+   `detectCommonScenario` needs an enabled `full-sync` action (true whenever
+   BCM+RFH are `bothReady`) AND an IMMO-class issue. Keep BCM/RFH reconcilable
+   (matching VIN+SEC16) and create the issue with `makeGpec2a({ size: 6144,
+   pcmSec6Damaged: true })` — the damaged SEC6 is the IMMO issue, the 6 KB size
+   is what the executeSync size guard refuses. Open the wizard via
+   `open-wizard-btn-toolbar`, click `simple-fix-btn`, then assert the size-guard
+   log (`blocked: loaded PCM is 6144 B`) fires and nothing ships. A non-canonical
+   6 KB GPEC2A does NOT trip detectCorruptFill (0xFF fill is excluded).
