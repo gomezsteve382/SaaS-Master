@@ -36,6 +36,7 @@ import {
   writeBcmFlatSec16,
   writePcmSec6,
   writeRfhSec16FromBcm,
+  writeRfhSec16Gen1,
 } from '../securityBytes.js';
 import { alfaHt, alfaF, alfaAo, unlockKeyBytes } from '../algos.js';
 
@@ -110,6 +111,7 @@ const F = {
   FIXED_RFH:     requireLoad(path.join(ATTACHED, 'FIXED_RFH_ZO_PAIRED_TO_MODULES_1776839997904.bin')),
   SAMPLE_BCM:    requireLoad(path.join(FIXTURES, 'SAMPLE_BCM_SYNCED_2C3CDXL90MH582899.bin')),
   SAMPLE_RFH:    requireLoad(path.join(FIXTURES, 'SAMPLE_RFH_SYNCED_VIRGIN_2C3CDXL90MH582899.bin')),
+  GEN1_RFH:      requireLoad(path.join(FIXTURES, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin')),
 };
 
 /* ============================================================================
@@ -453,6 +455,101 @@ describe('RFHUB fixture checksums', () => {
       expect(rfhGen2DetectMagic(raw17, F.SAMPLE_RFH[0x0EA5 + 17])).toBe(0x85);
     });
   });
+
+  /* ── Gen1 (Yazaki 24C16, 2 KB) ── FORMULA_UNVERIFIED_ON_REAL_HW ────────────
+   *
+   * INVESTIGATION SUMMARY (no real 2 KB dump found):
+   *   Every RFHUB file in attached_assets/ is exactly 4096 bytes (Gen2, 24C32).
+   *   No physical Yazaki 24C16 (2 KB) dump exists in this repository.
+   *   The crc8_65 formula for Gen1 SEC16 derives from a prior task note, NOT
+   *   from a real ECU read-back.
+   *
+   * WHAT THESE TESTS ARE AND ARE NOT:
+   *   ✓ They ARE regression tests for the parse ↔ write contract:
+   *     if parseModule or writeRfhSec16Gen1 drift from each other, they fail.
+   *   ✗ They are NOT hardware confirmation: the fixture was built with the
+   *     same crc8_65 formula the writer uses, so csOk=true by construction.
+   *     A wrong polynomial would still produce csOk=true here.
+   *
+   * HOW TO UPGRADE WHEN A REAL 2 KB DUMP SURFACES:
+   *   1. Load the real dump bytes into parseModule and check sec16s[*].csOk.
+   *   2. If csOk=false, find the correct formula and update writeRfhSec16Gen1
+   *      AND the parseModule.js rfhSec16Cs call for !sec16IsGen2 branches.
+   *   3. Replace SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin with the real dump
+   *      and update the pinned hex values below.
+   *   See also: securityBytes.js writeRfhSec16Gen1 FORMULA_UNVERIFIED_ON_REAL_HW
+   *   note and the follow-up task that tracks this verification.
+   *
+   * Fixture: SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin (2048 B, SYNTHETIC)
+   *   BCM donor SEC16:  8CF8E4012D19B27E64731D5A2FBD4BDE  (CARTMAN set)
+   *   RFH SEC16:        DE4BBD2F5A1D73647EB2192D01E4F88C  (reverse of above)
+   *   crc8_65 checksum: 0xB7  → stored as BE16 [0xB7, 0x00] at slot+16/+17
+   *   SEC16 slot 1:     0x00AE
+   *   SEC16 slot 2:     0x00C0
+   * ─────────────────────────────────────────────────────────────────────── */
+  describe('GEN1_RFH — Yazaki 24C16 (2 KB), SYNTHETIC fixture, formula pending real-HW verification', () => {
+    it('classifies as RFHUB Gen1 (24C16), size 2048', () => {
+      const info = parseModule(F.GEN1_RFH, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin');
+      expect(info.type).toBe('RFHUB');
+      expect(F.GEN1_RFH.length).toBe(2048);
+      expect(info.rfhGen).toBe('Gen1 (24C16)');
+    });
+
+    it('VIN "2C3CDZL95NH179529" at offset 0x92 passes crc16 checksum', () => {
+      const info = parseModule(F.GEN1_RFH, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin');
+      expect(info.vins.length).toBeGreaterThanOrEqual(1);
+      expect(info.vins[0].vin).toBe('2C3CDZL95NH179529');
+      expect(info.vins[0].crcOk).toBe(true);
+    });
+
+    it('slot 1 @ 0x00AE: SEC16 pinned to DE4BBD2F5A1D73647EB2192D01E4F88C', () => {
+      const info = parseModule(F.GEN1_RFH, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin');
+      expect(info.sec16s.length).toBeGreaterThanOrEqual(1);
+      expect(info.sec16s[0].offset).toBe(0x00AE);
+      expect(info.sec16s[0].hex).toBe('DE4BBD2F5A1D73647EB2192D01E4F88C');
+    });
+
+    it('slot 1 @ 0x00AE: crc8_65 checksum is correct (csOk=true, stored=0xB700, calc=0xB700)', () => {
+      const info = parseModule(F.GEN1_RFH, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin');
+      const s1 = info.sec16s[0];
+      expect(s1.csOk).toBe(true);
+      expect(s1.cs).toBe(0xB700);
+      expect(s1.csCalc).toBe(0xB700);
+    });
+
+    it('slot 2 @ 0x00C0: crc8_65 checksum is correct (csOk=true)', () => {
+      const info = parseModule(F.GEN1_RFH, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin');
+      expect(info.sec16s.length).toBe(2);
+      expect(info.sec16s[1].offset).toBe(0x00C0);
+      expect(info.sec16s[1].csOk).toBe(true);
+      expect(info.sec16s[1].cs).toBe(0xB700);
+    });
+
+    it('both slots carry identical SEC16 bytes (sec16match=true)', () => {
+      const info = parseModule(F.GEN1_RFH, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin');
+      expect(info.sec16match).toBe(true);
+    });
+
+    it('sec16valid=true (not blank, slots match, CRC ok)', () => {
+      const info = parseModule(F.GEN1_RFH, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin');
+      expect(info.sec16valid).toBe(true);
+    });
+
+    it('bcmHex field on slot 1 is the byte-reversed SEC16 = 8CF8E4012D19B27E64731D5A2FBD4BDE', () => {
+      const info = parseModule(F.GEN1_RFH, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin');
+      expect(info.sec16s[0].bcmHex).toBe('8CF8E4012D19B27E64731D5A2FBD4BDE');
+    });
+
+    it('crc8_65 raw primitive independently confirms 0xB7 for the pinned SEC16 bytes', () => {
+      const rfhSec16 = V('DE4BBD2F5A1D73647EB2192D01E4F88C');
+      expect(crc8_65(rfhSec16)).toBe(0xB7);
+    });
+
+    it('rfhSec16Cs returns 0xB700 for the pinned SEC16 bytes', () => {
+      const rfhSec16 = V('DE4BBD2F5A1D73647EB2192D01E4F88C');
+      expect(rfhSec16Cs(rfhSec16)).toBe(0xB700);
+    });
+  });
 });
 
 /* ============================================================================
@@ -694,6 +791,73 @@ describe('Writer round-trips', () => {
       const result = writePcmSec6(F.CARTMAN_GPEC, rfhSec16);
       expect(result.bytes[0x03C3]).toBe(F.CARTMAN_GPEC[0x03C3]);
       expect(result.bytes[0x03CE]).toBe(F.CARTMAN_GPEC[0x03CE]);
+    });
+  });
+
+  describe('writeRfhSec16Gen1 — SYNTHETIC round-trip (parse↔write contract only; NOT real-HW verified)', () => {
+    /* BCM SEC16 from the CARTMAN donor (same set used to build the fixture).
+     * These tests validate that the writer and parser agree on the crc8_65
+     * formula.  They are NOT evidence that crc8_65 is the correct formula for
+     * real Yazaki 24C16 hardware — see FORMULA_UNVERIFIED_ON_REAL_HW above. */
+    const bcmSec16 = V('8CF8E4012D19B27E64731D5A2FBD4BDE');
+
+    it('patched=2 (both Gen1 slots written)', () => {
+      const result = writeRfhSec16Gen1(F.GEN1_RFH, bcmSec16);
+      expect(result.patched).toBe(2);
+    });
+
+    it('rfhSec16Hex = DE4BBD2F5A1D73647EB2192D01E4F88C (reverse of BCM SEC16)', () => {
+      const result = writeRfhSec16Gen1(F.GEN1_RFH, bcmSec16);
+      expect(result.rfhSec16Hex).toBe('de4bbd2f5a1d73647eb2192d01e4f88c');
+    });
+
+    it('chk = 0xB7', () => {
+      const result = writeRfhSec16Gen1(F.GEN1_RFH, bcmSec16);
+      expect(result.chk).toBe(0xB7);
+    });
+
+    it('slot 1 @ 0x00AE: written 18 bytes are byte-identical to the fixture', () => {
+      const result = writeRfhSec16Gen1(F.GEN1_RFH, bcmSec16);
+      for (let i = 0; i < 18; i++) {
+        expect(result.bytes[0x00AE + i]).toBe(F.GEN1_RFH[0x00AE + i]);
+      }
+    });
+
+    it('slot 2 @ 0x00C0: written 18 bytes are byte-identical to the fixture', () => {
+      const result = writeRfhSec16Gen1(F.GEN1_RFH, bcmSec16);
+      for (let i = 0; i < 18; i++) {
+        expect(result.bytes[0x00C0 + i]).toBe(F.GEN1_RFH[0x00C0 + i]);
+      }
+    });
+
+    it('checksum byte at slot+16 is 0xB7 and trailer byte at slot+17 is 0x00', () => {
+      const result = writeRfhSec16Gen1(F.GEN1_RFH, bcmSec16);
+      for (const off of [0x00AE, 0x00C0]) {
+        expect(result.bytes[off + 16]).toBe(0xB7);
+        expect(result.bytes[off + 17]).toBe(0x00);
+      }
+    });
+
+    it('re-parsing the written buffer: sec16valid=true and SEC16 unchanged', () => {
+      const result = writeRfhSec16Gen1(F.GEN1_RFH, bcmSec16);
+      const info = parseModule(result.bytes, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin');
+      expect(info.sec16valid).toBe(true);
+      expect(info.sec16s[0].hex).toBe('DE4BBD2F5A1D73647EB2192D01E4F88C');
+    });
+
+    it('does not mutate the input buffer', () => {
+      const orig = F.GEN1_RFH.slice();
+      writeRfhSec16Gen1(F.GEN1_RFH, bcmSec16);
+      expect(Array.from(F.GEN1_RFH)).toEqual(Array.from(orig));
+    });
+
+    it('rfhSec16Cs of the written slot bytes matches the stored BE16 checksum', () => {
+      const result = writeRfhSec16Gen1(F.GEN1_RFH, bcmSec16);
+      for (const off of [0x00AE, 0x00C0]) {
+        const raw16 = result.bytes.slice(off, off + 16);
+        const stored = (result.bytes[off + 16] << 8) | result.bytes[off + 17];
+        expect(rfhSec16Cs(raw16)).toBe(stored);
+      }
     });
   });
 });
@@ -1183,6 +1347,12 @@ const MANIFEST = [
     label: 'SAMPLE GPEC2A INT FLASH JAILBREAK 62 FULL (fixtures/) — 4 MB full flash',
     file:  path.join(FIXTURES, 'SAMPLE_GPEC2A_INT_FLASH_JAILBREAK_62_FULL.bin'),
     type: 'GPEC2A', size: 4194304,
+  },
+  /* ── Gen1 RFHUB (Yazaki 24C16, 2 KB) ──────────────────────────────────── */
+  {
+    label: 'SAMPLE GEN1 RFHUB 24C16 CARTMAN SEC16 (fixtures/) — synthetic Yazaki 24C16',
+    file:  path.join(FIXTURES, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin'),
+    type: 'RFHUB', size: 2048,
   },
 ];
 

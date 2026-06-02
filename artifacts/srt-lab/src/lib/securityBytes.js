@@ -479,8 +479,24 @@ export function writeRfhSec16FromBcm(bytes, bcmSec16) {
  * Gen1 SEC16 slots: 0x00AE and 0x00C0 (verified against parseModule.js).
  * Same secret convention as Gen2: BCM stores reverse(RFHUB SEC16), so
  *   RFHUB SEC16 = reverse(BCM SEC16).
- * Checksum formula (Task #409 confirmed Gen1 uses the same crc8_65 as Gen2):
+ * Checksum formula used:
  *   stored as BE16 at slot+16/+17: (crc8_65(rfhSec16) << 8) | 0x00
+ *   (same polynomial as the Gen2 writer)
+ *
+ * ⚠️  FORMULA_UNVERIFIED_ON_REAL_HW — as of the investigation that produced
+ *     this note, no physical Yazaki 24C16 (2 KB) dump exists in the repo to
+ *     confirm the formula.  ALL repo RFHUB files are 4096-byte Gen2 (24C32)
+ *     images.  The crc8_65 formula for Gen1 derives from a prior task note,
+ *     not from a real ECU response.  If a 2 KB bench dump ever surfaces:
+ *       1. Run `parseModule(dump, 'rfhub.bin')` and inspect sec16s[*].csOk.
+ *       2. If csOk is false, find the correct polynomial/init and update
+ *          both this writer AND the equivalent block in parseModule.js
+ *          (the `rfhSec16Cs` call inside the `sec16Offsets` loop for
+ *          !sec16IsGen2 branches).
+ *       3. Update / replace the synthetic fixture in
+ *          src/__tests__/fixtures/SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin
+ *          and pin the new real-world values in checksum.fixtures.test.js.
+ *
  * Refuses (throws) if the buffer is clearly not a Gen1 RFHUB (< 0xD2 B).
  * ---------------------------------------------------------------------------- */
 export function writeRfhSec16Gen1(bytes, bcmSec16) {
