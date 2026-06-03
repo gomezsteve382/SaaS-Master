@@ -6,7 +6,10 @@
  * Writes a new key record (UID byte-reversed + index + flag) into a free slot
  * and downloads a patched .bin. The original file is never modified.
  *
- * EXPERIMENTAL: the per-key index byte is firmware-assigned and unverified —
+ * EXPERIMENTAL: the per-key index byte is derived (mod-255 checksum, verified
+ * against all six known keys) and the new key is placed in the highest free
+ * slot so the table stays contiguous and ends at slot 8, matching every real
+ * dump surveyed. Both are corpus-aligned but NOT before/after-bench-verified —
  * see charRfhubKeyTable.js header. Worst case is the car ignores the new key
  * (other keys keep working; reflash the original). It cannot brick the
  * immobilizer: SEC16 and checksums are untouched.
@@ -183,12 +186,14 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
               confirmed against real dumps, and no checksum covers this region, so the edit <strong>cannot brick the
               module</strong> — SEC16 and checksums are untouched and your original file is never modified. The per-key
               <strong> index byte is now computed</strong> from the Key ID (mod-255 checksum, verified against all six
-              known keys), replacing the old {hex2(CHAR_KEY_DEFAULT_INDEX)} placeholder. Two things are still
-              <strong> not proven</strong>, so a written key <strong>may not yet be read by the car</strong>:
+              known keys), replacing the old {hex2(CHAR_KEY_DEFAULT_INDEX)} placeholder, and the new key is now placed in
+              the <strong>highest free slot</strong> so the table stays contiguous and ends at slot 8 — matching every real
+              dump surveyed. Both are <strong>corpus-aligned</strong> but still <strong>not before/after-bench-verified</strong>,
+              so a written key <strong>may not yet be read by the car</strong>:
             </div>
             <ul style={{fontSize: 11, color: C.ts, lineHeight: 1.6, margin: '6px 0 0', paddingLeft: 18}}>
-              <li><strong>Slot placement</strong> is unproven — real cars fill slots 3-8 and leave 1-2 empty, so a key written into an early free slot may be ignored.</li>
-              <li>A <strong>companion table</strong> elsewhere in the EEPROM may also need a matching entry that this tool does not write.</li>
+              <li><strong>Slot placement</strong> now mirrors real cars (keys packed contiguously, ending at slot 8), but only a before/after key-add diff can prove the firmware actually reads a key from this slot on a live start.</li>
+              <li>A <strong>companion table</strong> elsewhere in the EEPROM may also need a matching entry that this tool does not write — unconfirmed, as no before/after key-add pair exists to diff.</li>
             </ul>
             <div style={{fontSize: 11, color: C.ts, lineHeight: 1.6, marginTop: 6}}>
               Worst case is fully reversible: reflash the original and your existing keys keep working.

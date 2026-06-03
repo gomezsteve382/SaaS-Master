@@ -11,6 +11,7 @@ import {
   isCharRfhubKeyTable,
   parseCharKeyTable,
   firstFreeCharSlot,
+  lastFreeCharSlot,
   addCharKey,
   deriveCharKeyIndex,
   CHAR_KEY_INDEX_CHECK,
@@ -129,6 +130,10 @@ describe('charRfhubKeyTable — detection & parse', () => {
   it('firstFreeCharSlot returns the first empty (0-based)', () => {
     expect(firstFreeCharSlot(buildRef())).toBe(0);
   });
+  it('lastFreeCharSlot returns the highest empty (0-based) — the hole below the key block', () => {
+    // Reference layout: slots 1-2 empty (idx 0,1), keys 3-8. Highest empty = slot 2 (idx 1).
+    expect(lastFreeCharSlot(buildRef())).toBe(1);
+  });
 
   it('accepts a faithful dump whose LAST slot trailing separator is NOT FF FF (real boundary)', () => {
     const buf = buildRef();
@@ -154,11 +159,14 @@ describe('charRfhubKeyTable — detection & parse', () => {
 });
 
 describe('charRfhubKeyTable — addCharKey', () => {
-  it('adds a new key into the first free slot, both mirrors, deriving the index byte', () => {
+  it('adds a new key into the HIGHEST free slot (corpus-aligned), both mirrors, deriving the index byte', () => {
     const src = buildRef();
     const r = addCharKey(src, { keyId: 'BCD2EB9B' });
     expect(r.ok).toBe(true);
-    expect(r.slot).toBe(1);
+    // Reference layout has slots 1-2 empty; the new key fills the HIGHEST empty
+    // slot (slot 2), the hole directly below the key block — not slot 1. This
+    // keeps the keys contiguous and ending at slot 8, matching every real dump.
+    expect(r.slot).toBe(2);
     // Index is now derived from the Key ID (mod-255 checksum), not the 0x95 placeholder.
     expect(r.indexLow).toBe(deriveCharKeyIndex('BCD2EB9B'));
     expect(r.indexLow).toBe(0xE6);
@@ -179,7 +187,7 @@ describe('charRfhubKeyTable — addCharKey', () => {
     const p = parseCharKeyTable(r.bytes);
     expect(p.keyCount).toBe(7);
     const added = p.slots.find(s => s.keyId === 'BCD2EB9B');
-    expect(added.slot).toBe(1);
+    expect(added.slot).toBe(2);
     expect(added.flag).toBe(0x01);
     expect(added.indexLow).toBe(0xE6);
     expect(added.mirrorOk).toBe(true);
@@ -325,13 +333,19 @@ describe('charRfhubKeyTable — flag 0x03 alternate-family keys (real 652640 dum
   });
 
   it('still writes flag 0x01 Hitag2 records (alt family is never synthesized)', () => {
-    // Add into the first genuine empty slot of the real dump.
+    // Real dump: slots 1-5 empty, alt keys in 6-8. The default lands in the
+    // HIGHEST empty slot (slot 5, idx 4) — the hole directly below the block —
+    // so the result keeps the keys contiguous (slots 5-8), exactly like a real
+    // car. firstFree would have dropped it into slot 1 with a 4-slot gap.
     const r = addCharKey(load652640(), { keyId: 'BCD2EB9B', indexLow: 0x22 });
     expect(r.ok).toBe(true);
+    expect(r.slot).toBe(5);
     const p = parseCharKeyTable(r.bytes);
     const added = p.slots.find((s) => s.keyId === 'BCD2EB9B');
     expect(added.flag).toBe(0x01);
     expect(added.keyKind).toBe('hitag2');
+    // Keys are now a contiguous block ending at slot 8 (slots 5,6,7,8).
+    expect(p.slots.filter((s) => s.state === 'key').map((s) => s.slot)).toEqual([5, 6, 7, 8]);
     // The pre-existing alt keys are untouched and still recognized.
     expect(p.slots.filter((s) => s.keyKind === 'alt').length).toBe(3);
     expect(p.keyCount).toBe(4);

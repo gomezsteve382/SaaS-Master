@@ -24,6 +24,33 @@
  *   │  Reference car: 6 keys in slots 3..8, slots 1..2 empty.                │
  *   └────────────────────────────────────────────────────────────────────────┘
  *
+ *   ┌─────────────────────────── SLOT PLACEMENT ─────────────────────────────┐
+ *   │  Every real 4 KB dump surveyed (4 DISTINCT vehicles in attached_assets  │
+ *   │  + fixtures) packs its keys as a CONTIGUOUS BLOCK that ENDS at slot 8,  │
+ *   │  with the EMPTY slots at the LOW end. Observed occupancy patterns        │
+ *   │  (`.`=empty, `K`=key), 100% consistent across the corpus:               │
+ *   │     ..KKKKKK  (slots 3-8, the 6.2 Charger reference car, 6 keys)        │
+ *   │     ...KKKKK  (slots 4-8, a Scat Pack, 5 keys)                          │
+ *   │     .....KKK  (slots 6-8, a 21 Charger and the 0x03 Redeye, 3 keys)     │
+ *   │  No real car ever leaves a gap BELOW a key or an empty slot 8.          │
+ *   │                                                                         │
+ *   │  So addCharKey defaults to the HIGHEST empty slot (lastFreeCharSlot),   │
+ *   │  not the lowest: that is the hole directly below the existing block, so  │
+ *   │  the write grows the block downward and the result is byte-structurally │
+ *   │  identical to a real car. The old first-free default dropped the key    │
+ *   │  into slot 1 with a gap above it — a layout NEVER seen on a real dump,  │
+ *   │  the most likely reason firmware would ignore an offline-added key.     │
+ *   │                                                                         │
+ *   │  HONESTY: this rule is CORPUS-ALIGNED, not before/after-bench-verified. │
+ *   │  It is derived from where keys already SIT on real cars, which fixes    │
+ *   │  the structural placement, but it does NOT yet prove (a) that firmware  │
+ *   │  reads a key from this slot on a live start, nor (b) that no companion  │
+ *   │  table elsewhere also needs a matching entry. Both still require a      │
+ *   │  before/after EEPROM pair captured around a single real key-add — no    │
+ *   │  such pair exists in the corpus (the rfhub.before/after fixture is a    │
+ *   │  SEC16 sync, diff only at 0x050E-0x0533; its key table is identical).   │
+ *   └────────────────────────────────────────────────────────────────────────┘
+ *
  *   ┌─────────────────────────── FLAG 0x03 (alternate family) ───────────────┐
  *   │  Real OG dumps from VIN 2C3CDXCT1HH652640 (2020 6.2 Redeye, RFHUB      │
  *   │  master f7b1fbae…) carry THREE key records in slots 6-8 whose flag is  │
@@ -265,11 +292,29 @@ export function parseCharKeyTable(bytes) {
   return { ok: true, slots, keyCount, unknownCount };
 }
 
-/** firstFreeCharSlot(bytes) → 0-based slot idx | -1 */
+/** firstFreeCharSlot(bytes) → 0-based slot idx | -1
+ *  LOWEST-indexed empty slot. Retained for callers that genuinely want the
+ *  first hole (and for the corpus-pattern regression tests), but it is NO
+ *  LONGER what addCharKey uses to place a new key — see lastFreeCharSlot and
+ *  the SLOT PLACEMENT box in the header. */
 export function firstFreeCharSlot(bytes) {
   const p = parseCharKeyTable(bytes);
   if (!p.ok) return -1;
   for (const s of p.slots) if (s.empty) return s.slot - 1;
+  return -1;
+}
+
+/** lastFreeCharSlot(bytes) → 0-based slot idx | -1
+ *  HIGHEST-indexed empty slot. On every real 4 KB Charger/Challenger dump the
+ *  keys form a contiguous block that ENDS at slot 8 and the empty slots are the
+ *  low ones, so the highest empty slot is the hole directly below the key block.
+ *  Writing there grows the block downward and preserves the observed
+ *  "contiguous keys ending at slot 8" invariant — this is the slot addCharKey
+ *  now fills by default (see the SLOT PLACEMENT box in the header). */
+export function lastFreeCharSlot(bytes) {
+  const p = parseCharKeyTable(bytes);
+  if (!p.ok) return -1;
+  for (let i = p.slots.length - 1; i >= 0; i--) if (p.slots[i].empty) return i;
   return -1;
 }
 
@@ -319,10 +364,15 @@ export function addCharKey(bytes, { keyId, indexLow = null, slotIdx = null, allo
     return { ok: false, error: `addCharKey: index 0x${indexLow.toString(16)} already used by key ${clash.keyId} (slot ${clash.slot}) — choose a different index`, indexClash: true };
   }
 
-  // Resolve target slot.
+  // Resolve target slot. Default to the HIGHEST empty slot, not the lowest:
+  // every real dump keeps its keys in a contiguous block ENDING at slot 8 with
+  // the empty slots at the low end, so the highest empty slot is the hole
+  // directly below the key block. Filling it grows the block downward and keeps
+  // the layout identical to a real car (see the SLOT PLACEMENT box). An explicit
+  // slotIdx still overrides for bench experiments.
   let target = slotIdx;
   if (target == null) {
-    target = firstFreeCharSlot(bytes);
+    target = lastFreeCharSlot(bytes);
     if (target < 0) return { ok: false, error: 'addCharKey: key table full (no empty slots)', tableFull: true };
   }
   if (!Number.isInteger(target) || target < 0 || target >= CHAR_KEYTABLE_SLOTS) {
