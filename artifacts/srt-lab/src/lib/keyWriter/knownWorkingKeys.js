@@ -126,6 +126,91 @@ export const KNOWN_WORKING_KEYS = Object.freeze([
         `not independently fob-tested.`,
     }),
   ),
+
+  /* ─────────────────────────── Charger SCAT — VIN 2C3CDXHG5EH219538 ─────────
+   * A SECOND vehicle (Task #1099). The RFH_SCAT_OG RFHUB read carries FIVE
+   * paired keys in slots 4..8 of its Charger 0xC5E table — every record flag
+   * 0x01 (present), mirror-verified, unknownCount 0. VIN attribution is
+   * SEC16-confirmed, not just filename-deep:
+   *   • RFH_SCAT_OG SEC16 = 08A1C5E7BA303582C3821594793C2FC4.
+   *   • The operator's RFH synced to VIN 2C3CDXHG5EH219538 carries the IDENTICAL
+   *     SEC16 AND the identical five UIDs (same physical module).
+   *   • That VIN's BCM dump embeds this RFHUB's SEC16 (forward @0x40C9,
+   *     reverse @0xC9 per the RFH SEC16 = reverse(BCM) layout) — i.e. the RFHUB
+   *     and BCM are paired, so these five fobs are programmed into that car's
+   *     immobilizer.
+   * VIN-SCOPED to 2C3CDXHG5EH219538. keyId/revUid/index/flag/addr are lifted
+   * verbatim from the dump (asserted in the golden test). chipId + SK are the
+   * car-wide id46 / universal-MIKRON default shared by every FCA Charger fob in
+   * this immobilizer (no per-chip Autel `profile` read available, so omitted).
+   * Not independently fob-tested.
+   * ────────────────────────────────────────────────────────────────────────── */
+  ...[
+    { keyId: '54D44964', revUid: '6449D454', tableIndex: 0x27, tableAddr: 0x0C8E, slot: 4 },
+    { keyId: '37BB1F68', revUid: '681FBB37', tableIndex: 0x83, tableAddr: 0x0C9E, slot: 5 },
+    { keyId: '90B0EB64', revUid: '64EBB090', tableIndex: 0x6C, tableAddr: 0x0CAE, slot: 6 },
+    { keyId: '33741E64', revUid: '641E7433', tableIndex: 0xD3, tableAddr: 0x0CBE, slot: 7 },
+    { keyId: 'E1381664', revUid: '641638E1', tableIndex: 0x69, tableAddr: 0x0CCE, slot: 8 },
+  ].map((k) =>
+    Object.freeze({
+      id: `scat-2C3CDXHG5EH219538-${k.keyId}`,
+      vin: '2C3CDXHG5EH219538',
+      keyId: k.keyId,
+      revUid: k.revUid,
+      chipId: 'id46',
+      sk: '4F4E4D494B52',
+      flags: Object.freeze({ locked: false, coding: 'manchester', encryption: true, cloneable: true }),
+      tableIndex: k.tableIndex,
+      tableFlag: 0x01,
+      tableAddr: k.tableAddr,
+      vehicle: 'Charger SCAT (RFHUB EEPROM)',
+      provenance:
+        `Paired key — present (flag 0x01, mirror-verified) at slot ${k.slot} / ` +
+        `0x${k.tableAddr.toString(16).toUpperCase()} in the RFH_SCAT_OG RFHUB read. The same five UIDs ` +
+        `+ SEC16 (08A1C5E7BA303582C3821594793C2FC4) appear in the operator's RFH synced to VIN ` +
+        `2C3CDXHG5EH219538, whose BCM embeds this SEC16 (forward @0x40C9, reverse @0xC9) — paired ` +
+        `into that immobilizer. Not independently fob-tested.`,
+    }),
+  ),
+
+  /* ────────────────────── Charger 6.2 "CARTMAN" — VIN 2C3CDZL95NH179529 ─────
+   * A THIRD vehicle (Task #1099). The CARTMAN 21 Charger 6.2 RFHUB OG read
+   * carries THREE paired keys in slots 6..8 — flag 0x01, mirror-verified,
+   * unknownCount 0. VIN attribution is SEC16-confirmed:
+   *   • CARTMAN RFHUB OG SEC16 = DE4BBD2F5A1D73647EB2192D01E4F88C, identical to
+   *     the operator's CARTMAN RFH synced read (same physical module).
+   *   • The matching CARTMAN BCM dflash carries VIN 2C3CDZL95NH179529 and embeds
+   *     reverse(RFH SEC16) @0xC9 (the RFH SEC16 = reverse(BCM) layout) — i.e.
+   *     the RFHUB is paired to that BCM, so these three fobs are programmed into
+   *     that car's immobilizer.
+   * VIN-SCOPED to 2C3CDZL95NH179529. Values lifted verbatim from the dump
+   * (asserted in the golden test). chipId + SK = the car-wide id46 /
+   * universal-MIKRON default. Not independently fob-tested.
+   * ────────────────────────────────────────────────────────────────────────── */
+  ...[
+    { keyId: '2FA7D964', revUid: '64D9A72F', tableIndex: 0xE8, tableAddr: 0x0CAE, slot: 6 },
+    { keyId: '3AC1D964', revUid: '64D9C13A', tableIndex: 0xC3, tableAddr: 0x0CBE, slot: 7 },
+    { keyId: '73C0D964', revUid: '64D9C073', tableIndex: 0x8B, tableAddr: 0x0CCE, slot: 8 },
+  ].map((k) =>
+    Object.freeze({
+      id: `cartman-2C3CDZL95NH179529-${k.keyId}`,
+      vin: '2C3CDZL95NH179529',
+      keyId: k.keyId,
+      revUid: k.revUid,
+      chipId: 'id46',
+      sk: '4F4E4D494B52',
+      flags: Object.freeze({ locked: false, coding: 'manchester', encryption: true, cloneable: true }),
+      tableIndex: k.tableIndex,
+      tableFlag: 0x01,
+      tableAddr: k.tableAddr,
+      vehicle: 'Charger 6.2 "CARTMAN" (RFHUB EEPROM)',
+      provenance:
+        `Paired key — present (flag 0x01, mirror-verified) at slot ${k.slot} / ` +
+        `0x${k.tableAddr.toString(16).toUpperCase()} in the CARTMAN 21 Charger 6.2 RFHUB OG read ` +
+        `(SEC16 DE4BBD2F5A1D73647EB2192D01E4F88C). The matching CARTMAN BCM (VIN 2C3CDZL95NH179529) ` +
+        `embeds reverse(this SEC16) @0xC9 — paired into that immobilizer. Not independently fob-tested.`,
+    }),
+  ),
 ]);
 
 /* Normalize a hex token the same way dedupeKey / validateKeyRecord do: strip

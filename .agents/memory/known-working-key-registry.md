@@ -54,3 +54,20 @@ Provenance says "present in the immobilizer table; not independently fob-tested"
 — honest distinction from the operator-fob-tested seed. Other RFHUB fixtures
 (2C3CDXCT1HH652640) have flag `0x03` = `state:'unknown'` → refuse-on-doubt,
 do NOT register those.
+
+## Adding MORE vehicles — sourcing rule + VIN attribution
+The registry now holds THREE cars. To add another, the candidate RFHUB dump
+must parse with `parseCharKeyTable().ok && unknownCount===0` and every key
+record flag `0x01` (mirror-verified). Then attribute the VIN by **SEC16
+cross-check, not filename**: extract the dump's RFHUB SEC16 and confirm a BCM
+dump that (a) carries the claimed VIN and (b) embeds that SEC16 (`forward
+@0x40C9` and/or `reverse @0xC9`, per the RFH SEC16 = reverse(BCM) layout). That
+pairing proves the fobs belong to that immobilizer. Registered vehicles 2 & 3:
+- **Charger SCAT** VIN `2C3CDXHG5EH219538`, 5 keys (slots 4..8), SEC16
+  `08A1C5E7BA303582C3821594793C2FC4`. Fixture `SAMPLE_RFHUB_EEE_SCATPACK_KEYS_2C3CDXHG5EH219538.bin`.
+- **Charger 6.2 "CARTMAN"** VIN `2C3CDZL95NH179529`, 3 keys (slots 6..8), SEC16
+  `DE4BBD2F5A1D73647EB2192D01E4F88C`. Fixture `SAMPLE_RFHUB_EEE_21CHARGER62_KEYS_2C3CDZL95NH179529.bin`.
+All entries reuse the car-wide id46 / universal-MIKRON `sk` default (no per-chip
+Autel read) — keep that honest in `provenance`. Golden tests live in
+`knownWorkingKeys.golden.test.js` (a `describe.each(VEHICLES)` block asserts each
+key's slot/offset/index/flag/revUid against the fixture bytes).

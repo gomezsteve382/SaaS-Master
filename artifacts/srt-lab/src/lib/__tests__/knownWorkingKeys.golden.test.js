@@ -169,3 +169,116 @@ describe('knownWorkingKeys golden — 2019 Charger 6.2 RFHUB dump', () => {
     expect(classifyAgainstRegistry(rec).status).toBe('unknown');
   });
 });
+
+/* ============================================================================
+ * Second + third vehicles (Task #1099): keys sourced from two MORE real RFHUB
+ * dumps that parse cleanly (flag 0x01, mirror-verified). Each block mirrors the
+ * 2019 Charger 6.2 golden above: load the fixture, parse its Charger table, and
+ * assert that every registered key sits exactly where the registry says it does.
+ * ========================================================================== */
+
+/* Each tuple: [keyId, slot, offset, indexLow, revUid] — all asserted vs bytes. */
+const VEHICLES = [
+  {
+    name: 'Charger SCAT — VIN 2C3CDXHG5EH219538',
+    vin: '2C3CDXHG5EH219538',
+    vehicle: 'Charger SCAT (RFHUB EEPROM)',
+    fixture: 'SAMPLE_RFHUB_EEE_SCATPACK_KEYS_2C3CDXHG5EH219538.bin',
+    keyCount: 5,
+    keys: [
+      ['54D44964', 4, 0x0C8E, 0x27, '6449D454'],
+      ['37BB1F68', 5, 0x0C9E, 0x83, '681FBB37'],
+      ['90B0EB64', 6, 0x0CAE, 0x6C, '64EBB090'],
+      ['33741E64', 7, 0x0CBE, 0xD3, '641E7433'],
+      ['E1381664', 8, 0x0CCE, 0x69, '641638E1'],
+    ],
+  },
+  {
+    name: 'Charger 6.2 "CARTMAN" — VIN 2C3CDZL95NH179529',
+    vin: '2C3CDZL95NH179529',
+    vehicle: 'Charger 6.2 "CARTMAN" (RFHUB EEPROM)',
+    fixture: 'SAMPLE_RFHUB_EEE_21CHARGER62_KEYS_2C3CDZL95NH179529.bin',
+    keyCount: 3,
+    keys: [
+      ['2FA7D964', 6, 0x0CAE, 0xE8, '64D9A72F'],
+      ['3AC1D964', 7, 0x0CBE, 0xC3, '64D9C13A'],
+      ['73C0D964', 8, 0x0CCE, 0x8B, '64D9C073'],
+    ],
+  },
+];
+
+describe.each(VEHICLES)('knownWorkingKeys golden — $name', (V) => {
+  const loadV = () =>
+    new Uint8Array(readFileSync(resolve(__dirname, '../../__tests__/fixtures/', V.fixture)));
+
+  it('fixture is a canonical 4 KB RFHUB image with the expected key count', () => {
+    expect(loadV().length).toBe(4096);
+    const p = parseCharKeyTable(loadV());
+    expect(p.ok).toBe(true);
+    expect(p.keyCount).toBe(V.keyCount);
+    expect(p.unknownCount).toBe(0);
+  });
+
+  it.each(V.keys)(
+    'key %s sits at the registry-recorded slot/offset/index/flag in the dump',
+    (keyId, slot, offset, indexLow, revUid) => {
+      const entry = KNOWN_WORKING_KEYS.find((e) => e.keyId === keyId);
+      expect(entry).toBeTruthy();
+      expect(entry.vin).toBe(V.vin);
+      expect(entry.vehicle).toBe(V.vehicle);
+      expect(entry.tableAddr).toBe(offset);
+      expect(entry.tableIndex).toBe(indexLow);
+      expect(entry.tableFlag).toBe(0x01);
+      expect(entry.revUid).toBe(revUid);
+
+      const p = parseCharKeyTable(loadV());
+      const s = p.slots.find((x) => x.slot === slot);
+      expect(s).toBeTruthy();
+      expect(s.state).toBe('key');
+      expect(s.flag).toBe(0x01);
+      expect(s.offset).toBe(offset);
+      expect(s.offset).toBe(entry.tableAddr);
+      expect(s.keyId).toBe(keyId);
+      expect(s.indexLow).toBe(indexLow);
+      expect(s.indexLow).toBe(entry.tableIndex);
+
+      // registry revUid == byte-reversed keyId == the bytes stored in the dump.
+      const calcRev = Array.from(keyIdToRevUid(keyId))
+        .map((x) => x.toString(16).padStart(2, '0').toUpperCase())
+        .join('');
+      const rawRev = Array.from(s.raw.slice(0, 4))
+        .map((x) => x.toString(16).padStart(2, '0').toUpperCase())
+        .join('');
+      expect(calcRev).toBe(entry.revUid);
+      expect(rawRev).toBe(entry.revUid);
+    },
+  );
+
+  it('every paired key from the dump is represented in the registry for this VIN', () => {
+    const p = parseCharKeyTable(loadV());
+    const dumpKeyIds = p.slots.filter((s) => s.state === 'key').map((s) => s.keyId).sort();
+    const registryKeyIds = KNOWN_WORKING_KEYS.filter((e) => e.vin === V.vin)
+      .map((e) => e.keyId)
+      .sort();
+    expect(registryKeyIds).toEqual(dumpKeyIds);
+  });
+
+  it('records built from the registry classify as known-good only for this VIN', () => {
+    for (const [keyId] of V.keys) {
+      const entry = KNOWN_WORKING_KEYS.find((e) => e.keyId === keyId);
+      const rec = knownKeyToRecord(entry);
+      expect(classifyAgainstRegistry(rec, V.vin).status).toBe('known-good');
+      // VIN-scoped: without the VIN it is not in the candidate set → unknown.
+      expect(classifyAgainstRegistry(rec).status).toBe('unknown');
+    }
+  });
+
+  it('per-VIN filtering: this vehicle sees the global seed + its own keys, not others', () => {
+    const keys = getKnownWorkingKeys(V.vin).map((e) => e.keyId);
+    expect(keys).toContain('0077A29B'); // global seed always visible
+    for (const [keyId] of V.keys) expect(keys).toContain(keyId);
+    // The other vehicles' VIN-scoped keys must NOT leak in.
+    const otherKeys = VEHICLES.filter((o) => o.vin !== V.vin).flatMap((o) => o.keys.map((k) => k[0]));
+    for (const k of otherKeys) expect(keys).not.toContain(k);
+  });
+});
