@@ -290,6 +290,67 @@ export function derivePcmSec6FromDonor(donorMod) {
   return null;
 }
 
+/* ── Export safety: refuse a non-synced SEC6 ─────────────────────────────────
+ * Given the bytes that are about to be exported, verify the SEC6 actually
+ * written at 0x3C8 matches the secret derived from a loaded BCM donor
+ * (reverse(BCM SEC16)[0:6]). When a BCM donor is present and the resulting
+ * SEC6 disagrees, the export is refused so a "fixed" PCM can never ship the
+ * wrong (un-synced) immobilizer secret. The user can bypass this by entering a
+ * SEC6 manually (an explicit override) or when no BCM donor is loaded (nothing
+ * authoritative to compare against). */
+export function checkSec6MatchesBcm(outBytes, donorMods = [], manualOverride = false) {
+  if (!outBytes || outBytes.length < PCM_SEC6_OFFSET + 6) return { ok: true };
+  const eq6 = (a, b) => {
+    for (let i = 0; i < 6; i++) if (a[i] !== b[i]) return false;
+    return true;
+  };
+  // Collect EVERY usable BCM-derived secret across all loaded donors (a blank
+  // or virgin BCM yields nothing and must not shadow a later valid one).
+  const distinct = [];
+  for (const d of donorMods || []) {
+    if (!d || d.type !== 'BCM' || !d.data || !d.data.length) continue;
+    const t = derivePcmSec6FromDonor(d);
+    if (!t || !t.sec6 || t.sec6.length < 6) continue;
+    const sec6 = t.sec6.slice(0, 6);
+    if (!distinct.some((u) => eq6(u, sec6))) distinct.push(sec6);
+  }
+  if (distinct.length === 0) return { ok: true }; // nothing authoritative to compare
+  const final = outBytes.slice(PCM_SEC6_OFFSET, PCM_SEC6_OFFSET + 6);
+  const finalHex = bytesToHexStr(final);
+  // Explicit manual override bypasses both the match and conflict gates.
+  if (manualOverride) {
+    return {
+      ok: true,
+      override: true,
+      final: finalHex,
+      target: distinct.length === 1 ? bytesToHexStr(distinct[0]) : undefined,
+    };
+  }
+  // Two loaded BCMs disagree → which secret is authoritative is ambiguous.
+  if (distinct.length > 1) {
+    const list = distinct.map((t) => bytesToHexStr(t));
+    return {
+      ok: false,
+      final: finalHex,
+      conflict: list,
+      error:
+        `Refusing export — loaded BCM donors derive different secrets (${list.join(' vs ')}). ` +
+        `Remove the conflicting BCM, or type the secret into the SEC6 field to override.`,
+    };
+  }
+  const target = distinct[0];
+  const targetHex = bytesToHexStr(target);
+  if (eq6(target, final)) return { ok: true, target: targetHex, final: finalHex };
+  return {
+    ok: false,
+    target: targetHex,
+    final: finalHex,
+    error:
+      `Refusing export — resulting SEC6 ${finalHex} does not match the BCM-derived secret ${targetHex}. ` +
+      `Load the matching BCM donor, or type the secret into the SEC6 field to override.`,
+  };
+}
+
 /* ── Apply changes (VIN + SEC6 + optional IMMO marker) ───────────────────── */
 export function applyGpec2aChanges(bytes, opts = {}) {
   const { newVin = '', alsoWriteCe0 = false, newSec6 = null, fixImmo = false } = opts;

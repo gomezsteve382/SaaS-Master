@@ -6,6 +6,7 @@ import {
   derivePcmSec6FromDonor,
   applyGpec2aChanges,
   applyGpec2aImmoFix,
+  checkSec6MatchesBcm,
   isCanonicalGpec2a,
 } from "../lib/gpec2aPcmAnalyzer.js";
 import {scanChecksums, fixChecksum} from "../lib/checksumScanner.js";
@@ -60,11 +61,16 @@ export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null})
       setErr(res.error);
       return;
     }
+    const guard = checkSec6MatchesBcm(res.bytes, donorMods, !!sec6);
+    if (!guard.ok) {
+      setErr(guard.error);
+      return;
+    }
     const fname = baseName + "_patched.bin";
     dl(res.bytes, fname);
     setPatched({bytes: res.bytes, filename: fname, summary: res.changes.join(" · ")});
     setMsg("Applied: " + res.changes.join(" · ") + " → downloaded.");
-  }, [bytes, newVin, alsoWriteCe0, sec6Hex, fixImmo, baseName]);
+  }, [bytes, newVin, alsoWriteCe0, sec6Hex, fixImmo, baseName, donorMods]);
 
   const onJustFix = useCallback(() => {
     setMsg("");
@@ -80,6 +86,11 @@ export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null})
       setErr(res.error);
       return;
     }
+    const guard = checkSec6MatchesBcm(res.bytes, donorMods, !!manual);
+    if (!guard.ok) {
+      setErr(guard.error);
+      return;
+    }
     const fname = baseName + "_immoFix.bin";
     dl(res.bytes, fname);
     setPatched({bytes: res.bytes, filename: fname, summary: "IMMO marker + SEC6 " + res.sec6Hex});
@@ -90,7 +101,7 @@ export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null})
         res.sec6Hex +
         " → downloaded."
     );
-  }, [bytes, sec6Hex, donor, baseName]);
+  }, [bytes, sec6Hex, donor, baseName, donorMods]);
 
   const onPushBack = useCallback(() => {
     if (!patched || typeof onPatched !== "function") return;
