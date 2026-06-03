@@ -99,11 +99,16 @@
  *   │       and per-chip secret (SK) are NOT bench-verified.                 │
  *   │                                                                         │
  *   │  classifySlot returns state 'key' + keyKind 'alt' for these (they are  │
- *   │  recognized real keys, not 'unknown'), but addCharKey still WRITES only │
- *   │  flag 0x01 Hitag2 records (it byte-reverses an Autel Key ID; it has no  │
- *   │  way to synthesize an alt-family record). Registering an 0x03 key in    │
- *   │  knownWorkingKeys.js needs its chip family + SK confirmed first —       │
- *   │  inventing id46/MIKRON values would break refuse-on-doubt.             │
+ *   │  recognized real keys, not 'unknown'). addCharKey defaults to writing  │
+ *   │  flag 0x01 Hitag2 records, but now ALSO accepts flag:0x03 to synthesize │
+ *   │  an alternate-family record — the alt-family INDEX rule is cracked (see │
+ *   │  the INDEX BYTE box), so the EEPROM bytes can be emitted correctly. The │
+ *   │  family flag still has to be opted into explicitly, and any flag other  │
+ *   │  than 0x01/0x03 is refused (gate not widened). CAVEAT: a correct EEPROM │
+ *   │  record is necessary but NOT sufficient — the transponder chip must be  │
+ *   │  programmed with the right alt-family SK out-of-band (KEY WRITER tab),  │
+ *   │  and registering an 0x03 key in knownWorkingKeys.js still needs its     │
+ *   │  chip family + SK confirmed (inventing id46/MIKRON would be a lie).    │
  *   └────────────────────────────────────────────────────────────────────────┘
  *
  *   ┌─────────────────────────── HONESTY / RISK ─────────────────────────────┐
@@ -115,27 +120,40 @@
  *   │    immobilizer because SEC16 and checksums are untouched.              │
  *   └────────────────────────────────────────────────────────────────────────┘
  *
- *   ┌─────────────────────── INDEX BYTE — SOLVED ────────────────────────────┐
+ *   ┌────────────── INDEX BYTE — SOLVED (both families, unified) ─────────────┐
  *   │  The per-key INDEX LOW byte was long treated as an opaque firmware-     │
  *   │  assigned handle. It is in fact a mod-255 (ones'-complement-style)      │
- *   │  CHECK byte over the 4 Key-ID bytes:                                    │
+ *   │  CHECK byte over the rest of the record — the 4 UID bytes AND the       │
+ *   │  family flag:                                                           │
  *   │                                                                         │
- *   │      index = (0xFD - sum(keyId bytes)) mod 255                          │
+ *   │      index = (0xFE - flag - sum(keyId bytes)) mod 255                   │
  *   │                                                                         │
- *   │  equivalently  (sum(keyId bytes) + index) ≡ 0xFD (mod 255).            │
+ *   │  equivalently  (sum(keyId bytes) + index + flag) ≡ 0xFE (mod 255).     │
  *   │  Because the byte SUM is order-independent, the reversed stored UID     │
  *   │  gives the same result as the Autel-printed Key ID. The output range is │
  *   │  0x00..0xFE — it never collides with the 0xFF record separator.         │
  *   │                                                                         │
- *   │  Verified against ALL SIX known Key-ID -> index pairs from the 2019     │
- *   │  Charger 6.2 RFHUB dump (see deriveCharKeyIndex + tests):              │
- *   │     0077A29B->0x48  CC62209F->0x0F  09A6629F->0x4C                      │
- *   │     91654F9E->0x19  197E6C9E->0x5B  C47D6C9E->0xB0                      │
+ *   │  The flag-0x01 base family was solved first and pinned to the constant  │
+ *   │  0xFD (= 0xFE - 0x01). The flag-0x03 alternate family was the open part │
+ *   │  of this task: its three real keys all fit the SAME rule once the flag  │
+ *   │  byte is folded in (constant shifts to 0xFB = 0xFE - 0x03). So the flag │
+ *   │  was always part of the checksum; the 0x01-only corpus just hid it.     │
+ *   │                                                                         │
+ *   │  Verified against EVERY real corpus pair (deriveCharKeyIndex + tests):  │
+ *   │   flag 0x01 (18 keys / 3 vehicles): 0077A29B->0x48 CC62209F->0x0F …     │
+ *   │   flag 0x03 (3 keys, VIN 2C3CDXCT1HH652640):                            │
+ *   │     BFA40065->0x32  2369DA69->0x2B  1248C964->0x73                      │
  *   │  An exhaustive sweep (CRC8/16, DES/3DES/AES every byte position,       │
- *   │  HMAC, AES-CMAC, Hitag2 keystream) found no other producing function,  │
- *   │  so this checksum is the derivation, not a coincidence. addCharKey now  │
- *   │  computes the index from the Key ID instead of defaulting to 0x95 (the  │
- *   │  empty-slot low byte, which is what an earlier failed add reused).      │
+ *   │  HMAC, AES-CMAC, Hitag2 keystream, master-keyed) found no other         │
+ *   │  producing function, so this checksum is the derivation, not chance.    │
+ *   │  It is master-INDEPENDENT (no per-vehicle secret enters), which is why  │
+ *   │  offline key-add works. addCharKey computes the index from the Key ID + │
+ *   │  flag instead of the 0x95 empty-slot placeholder an earlier add reused. │
+ *   │                                                                         │
+ *   │  HONESTY: the 0x03 fit rests on a SINGLE vehicle's 3 keys (the only     │
+ *   │  0x03 car in the corpus) — no before/after key-add pair exists. The fit │
+ *   │  is exact and shares the already-multi-vehicle-verified 0x01 mechanism, │
+ *   │  but a real before/after capture would still be the gold standard.      │
  *   └────────────────────────────────────────────────────────────────────────┘
  * ========================================================================== */
 
@@ -159,27 +177,50 @@ export const CHAR_KEY_FLAG_ALT = 0x03;
 // Key ID (deriveCharKeyIndex); this constant is kept only so the UI/tests can
 // name the empty-slot sentinel and warn against it.
 export const CHAR_KEY_DEFAULT_INDEX = 0x95;
-// Target constant of the mod-255 index checksum: (sum(keyId) + index) ≡ 0xFD.
-export const CHAR_KEY_INDEX_CHECK = 0xFD;
+// UNIFIED record-checksum target (mod 255): the index byte is the value that
+// makes  (sum(keyId bytes) + index + flag) ≡ 0xFE (mod 255)  — i.e. the index
+// is a mod-255 ones'-complement-style checksum over the OTHER record bytes
+// (the 4 UID bytes + the family flag). Confirmed on every real pair in the
+// corpus: 18 flag-0x01 keys across 3 vehicles AND all 3 flag-0x03 (alt-family)
+// keys on the one 0x03 vehicle (VIN 2C3CDXCT1HH652640). See the INDEX BYTE box.
+export const CHAR_KEY_RECORD_CHECKSUM = 0xFE;
+// Per-family index-check constant = (CHAR_KEY_RECORD_CHECKSUM - flag). For the
+// base Hitag2 family (flag 0x01) this is 0xFD — the constant the index rule was
+// originally pinned to before the flag-0x03 corpus revealed that the flag byte
+// participates in the checksum. Kept for back-compat (UI labels + the flag-0x01
+// invariant test); new code should prefer CHAR_KEY_RECORD_CHECKSUM + the flag.
+export const CHAR_KEY_INDEX_CHECK = CHAR_KEY_RECORD_CHECKSUM - CHAR_KEY_FLAG_PRESENT; // 0xFD
 // Empty-slot template: 5A 5A 5A 5A 95 00
 export const CHAR_EMPTY_TEMPLATE = [0x5A, 0x5A, 0x5A, 0x5A, 0x95, 0x00];
 const CANONICAL_SIZE = 4096;
 
 function clone(bytes) { return new Uint8Array(bytes); }
 
-/* deriveCharKeyIndex(key) — compute the per-key INDEX LOW byte from the Key ID.
+/* deriveCharKeyIndex(key, flag) — compute the per-key INDEX LOW byte.
  *
- *   index = (0xFD - sum(keyId bytes)) mod 255       (range 0x00..0xFE)
+ *   index = (0xFE - flag - sum(keyId bytes)) mod 255      (range 0x00..0xFE)
  *
- * The four Key-ID bytes are summed and the index is the mod-255 complement that
- * makes (sum + index) ≡ 0xFD (mod 255). Because the sum is order-independent,
+ * The index byte is a mod-255 ones'-complement-style CHECKSUM over the rest of
+ * the 6-byte record: the four UID bytes PLUS the family flag, chosen so that
+ *     (sum(keyId bytes) + index + flag) ≡ 0xFE (mod 255).
+ * For the base Hitag2 family (flag 0x01) this collapses to the originally-pinned
+ * (0xFD - sum) rule; the flag-0x03 alternate family shifts the constant to 0xFB
+ * because the flag is two larger. Because the byte sum is order-independent,
  * either the Autel-printed Key ID ('0077A29B') or the byte-reversed stored UID
- * (Uint8Array/array [0x9B,0xA2,0x77,0x00]) yields the SAME index. Verified
- * against all six known Charger 6.2 pairs (see module header + tests).
+ * (Uint8Array/array [0x9B,0xA2,0x77,0x00]) yields the SAME index.
+ *
+ * Verified against EVERY real corpus pair: 18 flag-0x01 keys across 3 vehicles
+ * AND all 3 flag-0x03 keys on VIN 2C3CDXCT1HH652640 (see module header + tests).
+ *
+ * `flag` defaults to the base Hitag2 family (0x01) so existing callers are
+ * unchanged. Pass CHAR_KEY_FLAG_ALT (0x03) for an alternate-family record.
  *
  * Accepts an 8-hex-char Key ID string OR a 4-byte Uint8Array/array. Throws on a
  * malformed string; for a byte array only the first 4 bytes are summed. */
-export function deriveCharKeyIndex(key) {
+export function deriveCharKeyIndex(key, flag = CHAR_KEY_FLAG_PRESENT) {
+  if (!Number.isInteger(flag) || flag < 0 || flag > 0xFF) {
+    throw new Error(`deriveCharKeyIndex: flag must be a byte 0..255 (got ${flag})`);
+  }
   let sum = 0;
   if (typeof key === 'string') {
     const h = key.replace(/[^0-9a-fA-F]/g, '');
@@ -191,7 +232,7 @@ export function deriveCharKeyIndex(key) {
   } else {
     throw new Error('deriveCharKeyIndex: expected an 8-hex Key ID or 4-byte array');
   }
-  return ((CHAR_KEY_INDEX_CHECK - sum) % 255 + 255) % 255;
+  return ((CHAR_KEY_RECORD_CHECKSUM - flag - sum) % 255 + 255) % 255;
 }
 
 function slotOffset(i) { return CHAR_KEYTABLE_BASE + i * CHAR_KEYTABLE_STRIDE; }
@@ -351,32 +392,50 @@ export function lastFreeCharSlot(bytes) {
   return -1;
 }
 
-/* addCharKey(bytes, { keyId, indexLow, slotIdx, allowDuplicate })
+/* addCharKey(bytes, { keyId, indexLow, slotIdx, flag, allowDuplicate })
  *   Writes a new transponder key record (and its mirror) into a free slot.
  *   Returns { ok, bytes, ... } | { ok:false, error }. The original is never
  *   mutated. No checksum recompute (none covers this region — see header).
  *
  *   indexLow defaults to null → the correct per-key index is DERIVED from the
- *   Key ID via deriveCharKeyIndex (the mod-255 checksum). Pass an explicit
- *   indexLow only to override (e.g. bench experiments). `indexDerived` in the
- *   result reports whether the written index came from the derivation.
+ *   Key ID AND the family flag via deriveCharKeyIndex (the mod-255 record
+ *   checksum). Pass an explicit indexLow only to override (e.g. bench
+ *   experiments). `indexDerived` in the result reports whether the written
+ *   index came from the derivation.
+ *
+ *   flag defaults to CHAR_KEY_FLAG_PRESENT (0x01, base Hitag2). Pass
+ *   CHAR_KEY_FLAG_ALT (0x03) to synthesize an alternate-family record (now that
+ *   the alt-family index rule is cracked — see the INDEX BYTE box). Any flag
+ *   value other than these two recognized families is REFUSED so the
+ *   refuse-on-doubt gate is never widened to a record shape this tool has not
+ *   observed on a real car. NOTE: writing an alt record places the correct
+ *   EEPROM bytes, but the transponder chip itself must still be programmed with
+ *   the right family SK out-of-band (KEY WRITER tab); this function does not
+ *   register the key in knownWorkingKeys.js.
  *
  *   Mirrors the module-wide refuse-on-doubt pattern: bad buffer, duplicate
- *   key, full table, index collision, or a non-empty target all halt before
- *   any byte is written. */
-export function addCharKey(bytes, { keyId, indexLow = null, slotIdx = null, allowDuplicate = false } = {}) {
+ *   key, full table, index collision, unrecognized flag, or a non-empty target
+ *   all halt before any byte is written. */
+export function addCharKey(bytes, { keyId, indexLow = null, slotIdx = null, flag = CHAR_KEY_FLAG_PRESENT, allowDuplicate = false } = {}) {
   if (!(bytes instanceof Uint8Array)) return { ok: false, error: 'addCharKey: missing buffer' };
   if (!isCharRfhubKeyTable(bytes)) {
     return { ok: false, error: 'addCharKey: not a recognized Charger RFHUB key table (refusing to write)' };
+  }
+  // Refuse any flag that is not one of the two recognized present-key families.
+  // keyKindForFlag is the single source of truth; widening it here would let
+  // the writer emit a record shape never seen on a real dump.
+  if (keyKindForFlag(flag) === null) {
+    return { ok: false, error: `addCharKey: unrecognized family flag 0x${(flag & 0xFF).toString(16)} (only 0x01 Hitag2 / 0x03 alt are writable)`, badFlag: true };
   }
   let revUid;
   try { revUid = keyIdToRevUid(keyId); }
   catch (e) { return { ok: false, error: 'addCharKey: ' + (e.message || e) }; }
 
-  // Default the index to the value derived from the Key ID; an explicit
-  // indexLow (incl. 0) overrides for bench experiments.
+  // Default the index to the value derived from the Key ID AND the family flag
+  // (the flag participates in the record checksum); an explicit indexLow (incl.
+  // 0) overrides for bench experiments.
   const indexDerived = indexLow == null;
-  if (indexDerived) indexLow = deriveCharKeyIndex(revUid);
+  if (indexDerived) indexLow = deriveCharKeyIndex(revUid, flag);
 
   if (!Number.isInteger(indexLow) || indexLow < 0 || indexLow > 0xFF) {
     return { ok: false, error: `addCharKey: index byte must be 0..255 (got ${indexLow})` };
@@ -419,7 +478,7 @@ export function addCharKey(bytes, { keyId, indexLow = null, slotIdx = null, allo
 
   const out = clone(bytes);
   const off = slotOffset(target);
-  const rec = [revUid[0], revUid[1], revUid[2], revUid[3], indexLow, CHAR_KEY_FLAG_PRESENT];
+  const rec = [revUid[0], revUid[1], revUid[2], revUid[3], indexLow, flag];
   for (let k = 0; k < CHAR_KEY_RECLEN; k++) {
     out[off + k] = rec[k];
     out[off + CHAR_KEY_MIRROR_OFFSET + k] = rec[k];
@@ -430,6 +489,8 @@ export function addCharKey(bytes, { keyId, indexLow = null, slotIdx = null, allo
     keyId: newKeyId,
     indexLow,
     indexDerived,
+    flag,
+    keyKind: keyKindForFlag(flag),
     slotIdx: target,
     slot: target + 1,
     offset: off,

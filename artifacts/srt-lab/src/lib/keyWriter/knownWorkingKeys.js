@@ -29,8 +29,10 @@
  *
  * ┌──────────────────────────── INDEX BYTE ─────────────────────────────────┐
  * │ `tableIndex` (0x48 for the seed) is now COMPUTED from the Key ID via      │
- * │ deriveCharKeyIndex — the mod-255 checksum (sum(keyId)+index ≡ 0xFD) that  │
- * │ reproduces all six known Charger 6.2 pairs (formerly the package's open   │
+ * │ deriveCharKeyIndex — the unified mod-255 record checksum                  │
+ * │ (sum(keyId)+index+flag ≡ 0xFE; 0xFD for this flag-0x01 seed) that         │
+ * │ reproduces every known Charger 6.2 pair across both key families          │
+ * │ (formerly the package's open                                              │
  * │ problem in SEARCH_SPEC.md). Entries store the derived value rather than a │
  * │ hand-copied magic number, so the registry can never drift from the        │
  * │ derivation. The empty-slot template low byte 0x95 is still recorded as a  │

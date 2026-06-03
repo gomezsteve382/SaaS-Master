@@ -5,6 +5,7 @@ import {
   CHAR_KEYTABLE_BASE,
   CHAR_KEYTABLE_STRIDE,
   CHAR_KEY_DEFAULT_INDEX,
+  CHAR_KEY_FLAG_PRESENT,
   CHAR_KEY_FLAG_ALT,
   keyIdToRevUid,
   revUidToKeyId,
@@ -15,6 +16,7 @@ import {
   addCharKey,
   deriveCharKeyIndex,
   CHAR_KEY_INDEX_CHECK,
+  CHAR_KEY_RECORD_CHECKSUM,
 } from '../charRfhubKeyTable.js';
 
 // Build a synthetic-but-faithful 4 KB Charger RFHUB key-table buffer.
@@ -107,6 +109,63 @@ describe('charRfhubKeyTable — deriveCharKeyIndex', () => {
   it('rejects malformed Key IDs', () => {
     expect(() => deriveCharKeyIndex('BCD2EB9')).toThrow();
     expect(() => deriveCharKeyIndex('ZZZZZZZZ')).toThrow();
+  });
+});
+
+// The three real flag-0x03 (alternate-family) key/index pairs from the only
+// 0x03 vehicle in the corpus (VIN 2C3CDXCT1HH652640, RFHUB master f7b1…).
+// These were the open part of the index crack: the flag-0x01 rule pinned the
+// constant to 0xFD, but folding the flag byte into the checksum recovers them.
+const ALT_KEYS = [
+  { keyId: 'BFA40065', idx: 0x32 },
+  { keyId: '2369DA69', idx: 0x2B },
+  { keyId: '1248C964', idx: 0x73 },
+];
+
+describe('charRfhubKeyTable — deriveCharKeyIndex flag-0x03 (alternate family)', () => {
+  it('reproduces all three real flag-0x03 key/index pairs', () => {
+    ALT_KEYS.forEach(({ keyId, idx }) => {
+      expect(deriveCharKeyIndex(keyId, CHAR_KEY_FLAG_ALT)).toBe(idx);
+    });
+  });
+
+  it('satisfies the unified record checksum (sum(keyId)+index+flag ≡ 0xFE)', () => {
+    ALT_KEYS.forEach(({ keyId, idx }) => {
+      const sum = (keyId.match(/../g)).reduce((a, h) => a + parseInt(h, 16), 0);
+      expect((sum + idx + CHAR_KEY_FLAG_ALT) % 255).toBe(CHAR_KEY_RECORD_CHECKSUM % 255);
+    });
+    // Same invariant holds for the base family with its own flag byte.
+    REF_KEYS.forEach(({ keyId, idx }) => {
+      const sum = (keyId.match(/../g)).reduce((a, h) => a + parseInt(h, 16), 0);
+      expect((sum + idx + CHAR_KEY_FLAG_PRESENT) % 255).toBe(CHAR_KEY_RECORD_CHECKSUM % 255);
+    });
+  });
+
+  it('defaults to the base family (flag 0x01) when no flag is passed', () => {
+    REF_KEYS.forEach(({ keyId }) => {
+      expect(deriveCharKeyIndex(keyId)).toBe(deriveCharKeyIndex(keyId, CHAR_KEY_FLAG_PRESENT));
+    });
+  });
+
+  it('the flag genuinely shifts the result by the flag delta (0x01 vs 0x03)', () => {
+    ALT_KEYS.forEach(({ keyId }) => {
+      const base = deriveCharKeyIndex(keyId, CHAR_KEY_FLAG_PRESENT);
+      const alt = deriveCharKeyIndex(keyId, CHAR_KEY_FLAG_ALT);
+      expect(((base - alt) % 255 + 255) % 255).toBe(CHAR_KEY_FLAG_ALT - CHAR_KEY_FLAG_PRESENT);
+    });
+  });
+
+  it('is byte-order independent for the alt family too', () => {
+    ALT_KEYS.forEach(({ keyId }) => {
+      expect(deriveCharKeyIndex(Array.from(keyIdToRevUid(keyId)), CHAR_KEY_FLAG_ALT))
+        .toBe(deriveCharKeyIndex(keyId, CHAR_KEY_FLAG_ALT));
+    });
+  });
+
+  it('rejects a non-byte flag', () => {
+    expect(() => deriveCharKeyIndex('BCD2EB9B', 256)).toThrow();
+    expect(() => deriveCharKeyIndex('BCD2EB9B', -1)).toThrow();
+    expect(() => deriveCharKeyIndex('BCD2EB9B', 1.5)).toThrow();
   });
 });
 
@@ -362,5 +421,44 @@ describe('charRfhubKeyTable — flag 0x03 alternate-family keys (real 652640 dum
     expect(p.slots[5].keyKind).toBe(null);
     expect(p.unknownCount).toBe(1);
     expect(p.keyCount).toBe(2); // the other two 0x03 keys still count
+  });
+
+  it('CAN now synthesize an alt (flag 0x03) record with the cracked index', () => {
+    // Opt in with flag: 0x03. The index is derived from the cracked unified
+    // checksum and the written record parses back as a real alt-family key.
+    const altKeyId = '11223364'; // non-Hitag2-looking, like the real 0x03 keys
+    const r = addCharKey(load652640(), { keyId: altKeyId, flag: CHAR_KEY_FLAG_ALT });
+    expect(r.ok).toBe(true);
+    expect(r.flag).toBe(CHAR_KEY_FLAG_ALT);
+    expect(r.keyKind).toBe('alt');
+    expect(r.indexDerived).toBe(true);
+    expect(r.indexLow).toBe(deriveCharKeyIndex(altKeyId, CHAR_KEY_FLAG_ALT));
+    // Lands in the highest empty slot (slot 5) — the hole below the 6-8 block.
+    expect(r.slot).toBe(5);
+
+    const p = parseCharKeyTable(r.bytes);
+    const added = p.slots.find((s) => s.keyId === altKeyId);
+    expect(added.flag).toBe(CHAR_KEY_FLAG_ALT);
+    expect(added.keyKind).toBe('alt');
+    expect(added.mirrorOk).toBe(true);
+    // Now 4 alt keys, contiguous slots 5-8.
+    expect(p.slots.filter((s) => s.keyKind === 'alt').map((s) => s.slot)).toEqual([5, 6, 7, 8]);
+    expect(p.keyCount).toBe(4);
+  });
+
+  it('refuses to write any flag outside the recognized 0x01/0x03 families', () => {
+    for (const badFlag of [0x00, 0x02, 0x07, 0xFF]) {
+      const r = addCharKey(load652640(), { keyId: 'BCD2EB9B', flag: badFlag });
+      expect(r.ok).toBe(false);
+      expect(r.badFlag).toBe(true);
+    }
+  });
+
+  it('explicit base-family write (flag 0x01) still derives the 0x01 index, not the 0x03 one', () => {
+    const keyId = 'BCD2EB9B';
+    const r = addCharKey(load652640(), { keyId, flag: CHAR_KEY_FLAG_PRESENT });
+    expect(r.ok).toBe(true);
+    expect(r.indexLow).toBe(deriveCharKeyIndex(keyId, CHAR_KEY_FLAG_PRESENT));
+    expect(r.indexLow).not.toBe(deriveCharKeyIndex(keyId, CHAR_KEY_FLAG_ALT));
   });
 });
