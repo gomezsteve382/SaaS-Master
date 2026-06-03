@@ -19,10 +19,17 @@
  * Visual style matches CharRfhubKeyAdderPanel / ImmoChecksumPanel.
  */
 
-import React, {useMemo, useState, useCallback} from 'react';
-import {Card} from '../lib/ui.jsx';
+import React, {useMemo, useState, useCallback, useEffect} from 'react';
+import {Card, Btn} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import {diffCharKeyTables, CHAR_MASTER_OFFSET, CHAR_MASTER_LEN} from '../lib/charRfhubKeyTable.js';
+import {
+  CHAR_MPC_8SLOT_LAYOUT,
+  isVerifiableCleanAdd,
+  saveVerification,
+  isLayoutVerified,
+  refreshVerificationsFromServer,
+} from '../lib/charKeyAddVerification.js';
 
 const mono = "'JetBrains Mono'";
 
@@ -203,6 +210,18 @@ export default function CharRfhubKeyDiffPanel({defaultOpen = false}) {
   const [beforeName, setBeforeName] = useState('');
   const [after, setAfter] = useState(null);
   const [afterName, setAfterName] = useState('');
+  const [alreadyVerified, setAlreadyVerified] = useState(() => isLayoutVerified(CHAR_MPC_8SLOT_LAYOUT));
+  const [saveMsg, setSaveMsg] = useState('');
+
+  // Pull the canonical confirmation state from the server on mount so a
+  // confirmation saved on another bench laptop is reflected here too.
+  useEffect(() => {
+    let live = true;
+    refreshVerificationsFromServer(CHAR_MPC_8SLOT_LAYOUT)
+      .then(list => { if (live) setAlreadyVerified(list.length > 0); })
+      .catch(() => { /* offline — keep local state */ });
+    return () => { live = false; };
+  }, []);
 
   const diff = useMemo(() => {
     if (!before || !after) return null;
@@ -218,13 +237,22 @@ export default function CharRfhubKeyDiffPanel({defaultOpen = false}) {
     });
   }, []);
 
-  const clearBefore = useCallback(() => { setBefore(null); setBeforeName(''); setExpanded(new Set()); }, []);
-  const clearAfter = useCallback(() => { setAfter(null); setAfterName(''); setExpanded(new Set()); }, []);
+  const clearBefore = useCallback(() => { setBefore(null); setBeforeName(''); setSaveMsg(''); setExpanded(new Set()); }, []);
+  const clearAfter = useCallback(() => { setAfter(null); setAfterName(''); setSaveMsg(''); setExpanded(new Set()); }, []);
 
   // Overall verdict: a clean single key-add, in the expected slot, with no
-  // companion regions and no master change.
-  const cleanAdd = !!diff && diff.ok && diff.isSingleKeyAdd
-    && diff.addedSlotMatchesRule === true && diff.companionRegions.length === 0;
+  // companion regions and no master change. Shared gate with the adder panel.
+  const cleanAdd = isVerifiableCleanAdd(diff);
+
+  const onSaveVerified = useCallback(() => {
+    const r = saveVerification(diff, {layout: CHAR_MPC_8SLOT_LAYOUT, beforeName, afterName});
+    if (!r.ok) { setSaveMsg(r.error || 'Could not save.'); return; }
+    setAlreadyVerified(true);
+    setSaveMsg(
+      'Saved as bench evidence — the Offline Key Adder caveat is now cleared for this layout. '
+      + 'Key ' + (r.entry.addedKeyId || '?') + ' → slot ' + (r.entry.slot ?? '?') + '.'
+    );
+  }, [diff, beforeName, afterName]);
 
   const headerSummary = !diff ? (before || after ? 'Load both dumps' : 'No files loaded')
     : !diff.ok ? 'Not a Charger key table'
@@ -337,6 +365,30 @@ export default function CharRfhubKeyDiffPanel({defaultOpen = false}) {
                     ? 'Exactly one key was added, in the highest free slot, with no master-secret change and no changes outside the key table. This is the bench evidence that clears the Offline Key Adder caveat for this layout.'
                     : 'See the breakdown below. A clean single key-add must add exactly one key (no removals), in the expected slot, with the master secret unchanged and no companion regions.'}
                 </div>
+
+                {cleanAdd && (
+                  <div style={{marginTop: 12}}>
+                    {alreadyVerified && !saveMsg && (
+                      <div data-testid="char-key-diff-already-verified" style={{fontSize: 10, color: C.gn, fontWeight: 800, marginBottom: 8, letterSpacing: 1}}>
+                        ✓ THIS LAYOUT IS ALREADY MARKED BENCH-VERIFIED — saving again records another confirming pair.
+                      </div>
+                    )}
+                    <Btn data-testid="char-key-diff-save-btn" color={C.gn} full onClick={onSaveVerified}>
+                      SAVE AS BENCH EVIDENCE &amp; CLEAR ADDER CAVEAT
+                    </Btn>
+                    {saveMsg && (
+                      <div
+                        data-testid="char-key-diff-save-status"
+                        style={{
+                          marginTop: 10, padding: '10px 14px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+                          whiteSpace: 'pre-wrap', background: C.gn + '12', border: '1px solid ' + C.gn + '40', color: C.gn,
+                        }}
+                      >
+                        {saveMsg}
+                      </div>
+                    )}
+                  </div>
+                )}
               </Card>
 
               {/* Verdict checklist */}

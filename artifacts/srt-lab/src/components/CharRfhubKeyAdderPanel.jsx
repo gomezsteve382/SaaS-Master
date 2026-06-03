@@ -29,6 +29,13 @@ import {
 } from '../lib/charRfhubKeyTable.js';
 import {parseCharAuxTable, CHAR_AUX_BASE, CHAR_AUX_END, CHAR_AUX_CHECKSUM_TARGET} from '../lib/charRfhubAuxTable.js';
 import {dl} from './ImmoChecksumPanel.jsx';
+import {
+  CHAR_MPC_8SLOT_LAYOUT,
+  KEY_ADD_VERIFY_EVENT,
+  isLayoutVerified,
+  loadVerifications,
+  refreshVerificationsFromServer,
+} from '../lib/charKeyAddVerification.js';
 
 const mono = "'JetBrains Mono'";
 
@@ -109,6 +116,28 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
     };
     r.readAsDataURL(file);
   }, [applyKeyId]);
+
+  // Bench-verification state for this layout. The before/after self-check
+  // (CharRfhubKeyDiffPanel) records a clean single-add confirmation; once one
+  // exists the EXPERIMENTAL caveat below is softened to BENCH-VERIFIED. Seed
+  // synchronously from the local cache so a refresh shows the cleared state
+  // immediately, then reconcile with the server (cross-device).
+  const [verified, setVerified] = useState(() => isLayoutVerified(CHAR_MPC_8SLOT_LAYOUT));
+  const [verification, setVerification] = useState(() => loadVerifications(CHAR_MPC_8SLOT_LAYOUT)[0] || null);
+
+  useEffect(() => {
+    let live = true;
+    const sync = (list) => {
+      if (!live) return;
+      setVerified(list.length > 0);
+      setVerification(list[0] || null);
+    };
+    refreshVerificationsFromServer(CHAR_MPC_8SLOT_LAYOUT).then(sync).catch(() => { /* offline */ });
+    // React to a save in the sibling self-check panel without a page refresh.
+    const onChanged = () => sync(loadVerifications(CHAR_MPC_8SLOT_LAYOUT));
+    globalThis.addEventListener?.(KEY_ADD_VERIFY_EVENT, onChanged);
+    return () => { live = false; globalThis.removeEventListener?.(KEY_ADD_VERIFY_EVENT, onChanged); };
+  }, []);
 
   // Seed from the inspector above, only if it's a Charger key-table dump and
   // we haven't loaded our own file yet.
@@ -233,8 +262,34 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
       {open && (
         <div style={{border: '1px solid ' + C.bd, borderTop: 'none', borderRadius: '0 0 10px 10px', padding: 14, background: C.bg, marginBottom: 14}}>
 
-          {/* Experimental banner */}
-          <Card style={{marginBottom: 12, borderLeft: '3px solid ' + C.wn}}>
+          {/* Bench-verified banner — shown once a clean before/after single
+            * key-add has been confirmed in the self-check panel for this layout. */}
+          {verified ? (
+          <Card style={{marginBottom: 12, borderLeft: '3px solid ' + C.gn}} data-testid="char-key-adder-verified-banner">
+            <div style={{fontWeight: 800, fontSize: 11, color: C.gn, marginBottom: 6, letterSpacing: 2}}>
+              BENCH-VERIFIED — A REAL SINGLE KEY-ADD WAS CONFIRMED FOR THIS LAYOUT
+            </div>
+            <div style={{fontSize: 11, color: C.ts, lineHeight: 1.6}}>
+              A real before/after RFHUB capture confirmed in the <strong>Key-Add Self-Check</strong> below that exactly one
+              key was added in the highest free slot, with the master secret unchanged and <strong>nothing changed outside
+              the key table</strong> — so no companion table is needed and the slot placement matches a live car. That clears
+              the experimental caveat for the MPC Charger/Challenger 8-slot layout.
+              {verification && (
+                <> Confirming pair: key <strong>{verification.addedKeyId || '—'}</strong> → slot{' '}
+                <strong>{verification.slot ?? '—'}</strong>{verification.confirmedAt
+                  ? ' (' + new Date(verification.confirmedAt).toLocaleDateString() + ')'
+                  : ''}.</>
+              )}
+            </div>
+            <div style={{fontSize: 11, color: C.ts, lineHeight: 1.6, marginTop: 6}}>
+              The edit was already non-destructive (SEC16 and checksums untouched, your original file is never modified); this
+              confirmation adds the live-car evidence that a written key is actually read on start. Worst case remains fully
+              reversible — keep your original dump as the restore file.
+            </div>
+          </Card>
+          ) : (
+          /* Experimental banner */
+          <Card style={{marginBottom: 12, borderLeft: '3px solid ' + C.wn}} data-testid="char-key-adder-experimental-banner">
             <div style={{fontWeight: 800, fontSize: 11, color: C.wn, marginBottom: 6, letterSpacing: 2}}>
               EXPERIMENTAL — NOT BENCH-VERIFIED ON A REAL CAR
             </div>
@@ -260,6 +315,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
               <strong> Keep your original dump as the restore file.</strong>
             </div>
           </Card>
+          )}
 
           {/* File picker */}
           <div style={{display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 14}}>

@@ -3,6 +3,7 @@ export * from "./moduleBackups";
 export * from "./diffReports";
 export * from "./keyProgArchives";
 export * from "./keyHistory";
+export * from "./keyAddVerifications";
 export * from "./conversations";
 export * from "./messages";
 export * from "./vehicleJobs";
