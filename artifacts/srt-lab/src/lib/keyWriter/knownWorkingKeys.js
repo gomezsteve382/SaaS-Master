@@ -28,17 +28,21 @@
  * └──────────────────────────────────────────────────────────────────────────┘
  *
  * ┌──────────────────────────── INDEX BYTE ─────────────────────────────────┐
- * │ `tableIndex` (0x48 for the seed) is stored as DATA only. Deriving it      │
- * │ algorithmically is the package's open problem (SEARCH_SPEC.md) and is     │
- * │ explicitly out of scope here. The empty-slot template low byte 0x95 is    │
- * │ recorded as a NON-KEY sentinel so it can never be presented as known-good │
- * │ (an earlier failed add used 0x95).                                        │
+ * │ `tableIndex` (0x48 for the seed) is now COMPUTED from the Key ID via      │
+ * │ deriveCharKeyIndex — the mod-255 checksum (sum(keyId)+index ≡ 0xFD) that  │
+ * │ reproduces all six known Charger 6.2 pairs (formerly the package's open   │
+ * │ problem in SEARCH_SPEC.md). Entries store the derived value rather than a │
+ * │ hand-copied magic number, so the registry can never drift from the        │
+ * │ derivation. The empty-slot template low byte 0x95 is still recorded as a  │
+ * │ NON-KEY sentinel so it can never be presented as known-good (an earlier   │
+ * │ failed add reused 0x95).                                                  │
  * └──────────────────────────────────────────────────────────────────────────┘
  * ========================================================================== */
 
 import { chipFamily } from './chipFamilies.js';
 import { makeKeyRecord } from './keyRecord.js';
 import { normalizeVin } from './keyHistory.js';
+import { deriveCharKeyIndex } from '../charRfhubKeyTable.js';
 
 /* Empty-slot template low byte + revUID (5A 5A 5A 5A 95 00). This is the
  * "no key here" marker in the Charger RFHUB key table — NOT a real key. The
@@ -81,7 +85,9 @@ export const KNOWN_WORKING_KEYS = Object.freeze([
      * straight from `profile` so it can never silently drift from the read. */
     sk: '502077550100',
     flags: Object.freeze({ locked: false, coding: 'manchester', encryption: true, cloneable: true }),
-    tableIndex: 0x48,
+    // Derived from the Key ID (mod-255 checksum) — evaluates to 0x48, matching
+    // the byte observed in the dump. Computed, never hand-copied.
+    tableIndex: deriveCharKeyIndex('0077A29B'),
     tableFlag: 0x01,
     tableAddr: 0x0C7E,
     vehicle: '2019 Charger 6.2 (RFHUB EEPROM)',

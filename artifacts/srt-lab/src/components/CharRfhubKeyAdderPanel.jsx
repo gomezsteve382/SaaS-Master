@@ -21,6 +21,7 @@ import {
   parseCharKeyTable,
   isCharRfhubKeyTable,
   addCharKey,
+  deriveCharKeyIndex,
   CHAR_KEY_DEFAULT_INDEX,
 } from '../lib/charRfhubKeyTable.js';
 import {dl} from './ImmoChecksumPanel.jsx';
@@ -47,7 +48,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
   const fileInputRef = useRef(null);
 
   const [keyId, setKeyId] = useState('');
-  const [indexHex, setIndexHex] = useState(CHAR_KEY_DEFAULT_INDEX.toString(16).toUpperCase());
+  const [indexHex, setIndexHex] = useState('');
   const [ack, setAck] = useState(false);
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
@@ -91,6 +92,20 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
     return Number.isInteger(v) && v >= 0 && v <= 0xFF ? v : null;
   }, [indexHex]);
 
+  // The correct index is derived from the Key ID (mod-255 checksum). Auto-fill
+  // the field whenever a valid Key ID is entered; the operator may still type
+  // over it for a bench override.
+  const derivedIndex = useMemo(
+    () => (keyIdValid ? deriveCharKeyIndex(keyId.trim()) : null),
+    [keyIdValid, keyId],
+  );
+  useEffect(() => {
+    if (derivedIndex != null) {
+      setIndexHex(derivedIndex.toString(16).toUpperCase().padStart(2, '0'));
+    }
+  }, [derivedIndex]);
+  const indexOverridden = derivedIndex != null && indexVal != null && indexVal !== derivedIndex;
+
   const freeSlots = analysis?.ok ? analysis.slots.filter(s => s.empty).length : 0;
   const tableOk = !!analysis?.ok;
   const canAdd = tableOk && keyIdValid && indexVal != null && ack && freeSlots > 0;
@@ -98,7 +113,12 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
   const onAdd = useCallback(() => {
     setMsg(''); setErr('');
     if (!bytes) { setErr('No RFHUB dump loaded.'); return; }
-    const r = addCharKey(bytes, { keyId: keyId.trim(), indexLow: indexVal });
+    // Only pass indexLow when the operator overrode the auto-filled value;
+    // otherwise let addCharKey derive it so indexDerived is reported truthfully.
+    const r = addCharKey(bytes, {
+      keyId: keyId.trim(),
+      ...(indexOverridden ? { indexLow: indexVal } : {}),
+    });
     if (!r.ok) { setErr(r.error); return; }
     const fname = baseName + '_KEY_' + r.keyId + '_ADDED.bin';
     dl(r.bytes, fname);
@@ -108,7 +128,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
       + hexOff(r.offset) + ' + mirror ' + hexOff(r.mirrorOffset) + '. '
       + r.keyCountAfter + ' keys now present. Downloaded as ' + fname + '.'
     );
-  }, [bytes, keyId, indexVal, baseName]);
+  }, [bytes, keyId, indexVal, indexOverridden, baseName]);
 
   const onPushBack = useCallback(() => {
     if (!patched || typeof onPatched !== 'function') return;
@@ -159,11 +179,12 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
             <div style={{fontSize: 11, color: C.ts, lineHeight: 1.6}}>
               Adds a transponder key by editing the 8-slot key table at 0xC5E. The byte layout (UID, mirror, flag) is
               confirmed against real dumps, and no checksum covers this region, so the edit <strong>cannot brick the
-              module</strong> — SEC16 and checksums are untouched and your original file is never modified. But three
-              things are <strong>not proven</strong>, so a written key <strong>may simply not be read by the car</strong>:
+              module</strong> — SEC16 and checksums are untouched and your original file is never modified. The per-key
+              <strong> index byte is now computed</strong> from the Key ID (mod-255 checksum, verified against all six
+              known keys), replacing the old {hex2(CHAR_KEY_DEFAULT_INDEX)} placeholder. Two things are still
+              <strong> not proven</strong>, so a written key <strong>may not yet be read by the car</strong>:
             </div>
             <ul style={{fontSize: 11, color: C.ts, lineHeight: 1.6, margin: '6px 0 0', paddingLeft: 18}}>
-              <li>The per-key <strong>index byte</strong> is firmware-assigned and can&apos;t be derived (default {hex2(CHAR_KEY_DEFAULT_INDEX)}); no observed real key uses this value.</li>
               <li><strong>Slot placement</strong> is unproven — real cars fill slots 3-8 and leave 1-2 empty, so a key written into an early free slot may be ignored.</li>
               <li>A <strong>companion table</strong> elsewhere in the EEPROM may also need a matching entry that this tool does not write.</li>
             </ul>
@@ -276,10 +297,14 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                     data-testid="char-key-index-input"
                     value={indexHex}
                     onChange={e => setIndexHex(e.target.value.toUpperCase().replace(/[^0-9A-F]/g, '').slice(0, 2))}
-                    placeholder="95"
+                    placeholder={derivedIndex != null ? hex2(derivedIndex).slice(2) : ''}
                     style={{...inputStyle, borderColor: indexVal != null ? C.bd : C.er}}
                   />
-                  <div style={{marginTop: 4, fontSize: 10, color: C.tm}}>default {hex2(CHAR_KEY_DEFAULT_INDEX)}</div>
+                  <div style={{marginTop: 4, fontSize: 10, color: indexOverridden ? C.er : C.tm}}>
+                    {derivedIndex != null
+                      ? (indexOverridden ? 'override (derived ' + hex2(derivedIndex) + ')' : 'derived ' + hex2(derivedIndex))
+                      : 'auto-derived from Key ID'}
+                  </div>
                 </div>
               </div>
 

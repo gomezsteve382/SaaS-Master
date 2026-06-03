@@ -16,10 +16,12 @@ Observed on VIN 2C3CDXL92KH674464 dumps (19CHARGER_RFHUB_EEE+ and immovin..._VIN
 ## Why the built-in parser misses it
 - `rfhubKeySlots.js` (parseKeySlots) reads Gen2 keys at base **0x888** (AA50 markers) with KEY_SLOT_COUNT=4. On this dump 0x888 is garbage/empty — the real working keys are at 0xC7E. So this Charger RFHUB variant uses a layout the current parser does **not** model; addSlot/writeKeyRecordToSlot/firstFreeSlot target the wrong region.
 
-## Why offline key-add is hard (index byte is the blocker)
-- The per-key **index low byte is NOT derivable from the UID**: exhaustive sweep of sum, xor, and full CRC8 (all 256 polys x init 0/FF x refin/refout, over fwd/rev/+01) matched **none** of the 6 samples.
-- **Not a pointer** either: treating the 2-byte field as LE addr 0x01xx lands in an unrelated repeating region, not per-key data.
-- Conclusion: the index is **firmware-assigned at learn time** (handle/sequence or checksum over per-key data not in this table). A 7th key also isn't a free-slot overwrite — keys are contiguous and the next bytes belong to another table.
+## Index byte — SOLVED (mod-255 checksum complement)
+- **`index = (0xFD - sum(keyId bytes)) mod 255`**, equivalently `(sum(keyId) + index) ≡ 0xFD (mod 255)`. A mod-255 checksum complement: range 0x00–0xFE, never 0xFF (the record separator). Byte-sum is order-independent, so Key ID and reversed UID give the same result.
+- Verified against all 6 known vectors: 0077A29B→0x48, CC62209F→0x0F, 09A6629F→0x4C, 91654F9E→0x19, 197E6C9E→0x5B, C47D6C9E→0xB0.
+- **Why the earlier sweep missed it:** the first pass only tried sum/xor/CRC8 of the UID *as the index directly*; the answer is an affine function over int-mod-255 (0xFD minus the sum), not a CRC. An exhaustive affine-over-mod-255 search found this as the unique match (false-positive prob ~1e-9). Also ruled out: hashes/HMAC, all CRC16, DES/3DES/AES (all positions/dirs), AES-CMAC, Hitag2 keystream.
+- **In code:** `deriveCharKeyIndex(key)` in `charRfhubKeyTable.js` (accepts 8-hex Key ID or 4-byte array) + `CHAR_KEY_INDEX_CHECK = 0xFD`. `addCharKey` now auto-derives the index when none is passed (explicit `indexLow` still overrides for bench experiments); result carries `indexDerived: boolean`. `CHAR_KEY_DEFAULT_INDEX = 0x95` is retained ONLY as the empty-slot sentinel, not a key-add default.
+- **Still unproven on a real car:** slot placement (real cars fill slots 3-8) and whether a companion table elsewhere needs a matching entry. A 7th key isn't a free-slot overwrite — keys are contiguous and the next bytes belong to another table.
 
 ## Slot-8 boundary trap (detection gate)
 - The key table's LAST slot has NO trailing `FF FF` separator on real dumps: the next table (10-byte RKE records) abuts it with no gap (reference car: `00 6C` at 0xCDC-0xCDD). A detection gate that requires trailing `FF FF` on all 8 slots rejects **every** real 4 KB dump (0/30 accepted incl. the reference car).

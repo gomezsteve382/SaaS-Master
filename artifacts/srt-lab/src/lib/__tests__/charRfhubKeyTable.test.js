@@ -12,6 +12,8 @@ import {
   parseCharKeyTable,
   firstFreeCharSlot,
   addCharKey,
+  deriveCharKeyIndex,
+  CHAR_KEY_INDEX_CHECK,
 } from '../charRfhubKeyTable.js';
 
 // Build a synthetic-but-faithful 4 KB Charger RFHUB key-table buffer.
@@ -73,6 +75,40 @@ describe('charRfhubKeyTable — UID conversion', () => {
   });
 });
 
+describe('charRfhubKeyTable — deriveCharKeyIndex', () => {
+  it('reproduces all six known Charger 6.2 key/index pairs', () => {
+    REF_KEYS.forEach(({ keyId, idx }) => {
+      expect(deriveCharKeyIndex(keyId)).toBe(idx);
+    });
+  });
+
+  it('is byte-order independent (Key ID and reversed UID give the same index)', () => {
+    REF_KEYS.forEach(({ keyId }) => {
+      expect(deriveCharKeyIndex(Array.from(keyIdToRevUid(keyId)))).toBe(deriveCharKeyIndex(keyId));
+    });
+  });
+
+  it('satisfies the mod-255 checksum invariant (sum(keyId)+index ≡ CHECK)', () => {
+    REF_KEYS.forEach(({ keyId, idx }) => {
+      const sum = (keyId.match(/../g)).reduce((a, h) => a + parseInt(h, 16), 0);
+      expect((sum + idx) % 255).toBe(CHAR_KEY_INDEX_CHECK % 255);
+    });
+  });
+
+  it('returns a byte in 0x00–0xFE (never the 0xFF separator) and is deterministic', () => {
+    const v = deriveCharKeyIndex('BCD2EB9B');
+    expect(v).toBe(0xE6);
+    expect(v).toBeGreaterThanOrEqual(0x00);
+    expect(v).toBeLessThanOrEqual(0xFE);
+    expect(deriveCharKeyIndex('BCD2EB9B')).toBe(v);
+  });
+
+  it('rejects malformed Key IDs', () => {
+    expect(() => deriveCharKeyIndex('BCD2EB9')).toThrow();
+    expect(() => deriveCharKeyIndex('ZZZZZZZZ')).toThrow();
+  });
+});
+
 describe('charRfhubKeyTable — detection & parse', () => {
   it('accepts the reference table', () => {
     expect(isCharRfhubKeyTable(buildRef())).toBe(true);
@@ -118,27 +154,34 @@ describe('charRfhubKeyTable — detection & parse', () => {
 });
 
 describe('charRfhubKeyTable — addCharKey', () => {
-  it('adds a new key into the first free slot, both mirrors, only 10 bytes change', () => {
+  it('adds a new key into the first free slot, both mirrors, deriving the index byte', () => {
     const src = buildRef();
     const r = addCharKey(src, { keyId: 'BCD2EB9B' });
     expect(r.ok).toBe(true);
     expect(r.slot).toBe(1);
-    expect(r.indexLow).toBe(CHAR_KEY_DEFAULT_INDEX);
+    // Index is now derived from the Key ID (mod-255 checksum), not the 0x95 placeholder.
+    expect(r.indexLow).toBe(deriveCharKeyIndex('BCD2EB9B'));
+    expect(r.indexLow).toBe(0xE6);
+    expect(r.indexLow).not.toBe(CHAR_KEY_DEFAULT_INDEX);
+    expect(r.indexDerived).toBe(true);
     expect(r.keyCountAfter).toBe(7);
 
     // original untouched
     expect(src).toEqual(buildRef());
 
-    // exactly the record + mirror bytes that differ from the empty template
+    // exactly the record + mirror bytes that differ from the empty template.
+    // The derived index 0xE6 differs from the template low byte 0x95, so all
+    // 6 bytes/record change (vs 5 when the old placeholder matched), x2 mirrors.
     let diffs = 0;
     for (let i = 0; i < src.length; i++) if (src[i] !== r.bytes[i]) diffs++;
-    expect(diffs).toBe(10); // 5 bytes/record (low byte 0x95 unchanged) x2 mirrors
+    expect(diffs).toBe(12);
 
     const p = parseCharKeyTable(r.bytes);
     expect(p.keyCount).toBe(7);
     const added = p.slots.find(s => s.keyId === 'BCD2EB9B');
     expect(added.slot).toBe(1);
     expect(added.flag).toBe(0x01);
+    expect(added.indexLow).toBe(0xE6);
     expect(added.mirrorOk).toBe(true);
   });
 

@@ -55,15 +55,32 @@
  *   │  • NO checksum covers this region: editing the 4 VIN copies in an      │
  *   │    immovin VIN-applied dump changed ONLY the VIN bytes — no checksum   │
  *   │    byte moved anywhere — so a key-table edit needs no CS recompute.    │
- *   │  • The per-key INDEX LOW byte is firmware-assigned and could NOT be    │
- *   │    derived from the UID (exhaustive sum/xor/CRC8 sweep failed) and is  │
- *   │    not a pointer. Because every key on these cars shares the MIKRON    │
- *   │    default secret, the immobilizer must match on UID, not the index —  │
- *   │    so the index is treated as a stored handle. This is REASONED, not   │
- *   │    bench-verified: a wrong index can only make the car reject THAT key │
- *   │    (other keys keep working; reflash the original to recover). It      │
- *   │    cannot brick the immobilizer because SEC16 and checksums are        │
- *   │    untouched. Default index 0x95 (reuses the empty-slot low byte).     │
+ *   │  • A wrong index can only make the car reject THAT key (other keys     │
+ *   │    keep working; reflash the original to recover). It cannot brick the │
+ *   │    immobilizer because SEC16 and checksums are untouched.              │
+ *   └────────────────────────────────────────────────────────────────────────┘
+ *
+ *   ┌─────────────────────── INDEX BYTE — SOLVED ────────────────────────────┐
+ *   │  The per-key INDEX LOW byte was long treated as an opaque firmware-     │
+ *   │  assigned handle. It is in fact a mod-255 (ones'-complement-style)      │
+ *   │  CHECK byte over the 4 Key-ID bytes:                                    │
+ *   │                                                                         │
+ *   │      index = (0xFD - sum(keyId bytes)) mod 255                          │
+ *   │                                                                         │
+ *   │  equivalently  (sum(keyId bytes) + index) ≡ 0xFD (mod 255).            │
+ *   │  Because the byte SUM is order-independent, the reversed stored UID     │
+ *   │  gives the same result as the Autel-printed Key ID. The output range is │
+ *   │  0x00..0xFE — it never collides with the 0xFF record separator.         │
+ *   │                                                                         │
+ *   │  Verified against ALL SIX known Key-ID -> index pairs from the 2019     │
+ *   │  Charger 6.2 RFHUB dump (see deriveCharKeyIndex + tests):              │
+ *   │     0077A29B->0x48  CC62209F->0x0F  09A6629F->0x4C                      │
+ *   │     91654F9E->0x19  197E6C9E->0x5B  C47D6C9E->0xB0                      │
+ *   │  An exhaustive sweep (CRC8/16, DES/3DES/AES every byte position,       │
+ *   │  HMAC, AES-CMAC, Hitag2 keystream) found no other producing function,  │
+ *   │  so this checksum is the derivation, not a coincidence. addCharKey now  │
+ *   │  computes the index from the Key ID instead of defaulting to 0x95 (the  │
+ *   │  empty-slot low byte, which is what an earlier failed add reused).      │
  *   └────────────────────────────────────────────────────────────────────────┘
  * ========================================================================== */
 
@@ -76,12 +93,46 @@ export const CHAR_KEY_FLAG_PRESENT = 0x01;
 // Alternate-family present flag (bit1 set). Real keys of a non-Hitag2 transponder
 // family (see the FLAG 0x03 header box). Recognized as keys; never synthesized.
 export const CHAR_KEY_FLAG_ALT = 0x03;
+// LEGACY placeholder = the empty-slot template low byte (5A 5A 5A 5A *95* 00).
+// This is NOT a valid index for a present key — reusing it is what made an
+// earlier offline add fail. addCharKey now derives the real index from the
+// Key ID (deriveCharKeyIndex); this constant is kept only so the UI/tests can
+// name the empty-slot sentinel and warn against it.
 export const CHAR_KEY_DEFAULT_INDEX = 0x95;
+// Target constant of the mod-255 index checksum: (sum(keyId) + index) ≡ 0xFD.
+export const CHAR_KEY_INDEX_CHECK = 0xFD;
 // Empty-slot template: 5A 5A 5A 5A 95 00
 export const CHAR_EMPTY_TEMPLATE = [0x5A, 0x5A, 0x5A, 0x5A, 0x95, 0x00];
 const CANONICAL_SIZE = 4096;
 
 function clone(bytes) { return new Uint8Array(bytes); }
+
+/* deriveCharKeyIndex(key) — compute the per-key INDEX LOW byte from the Key ID.
+ *
+ *   index = (0xFD - sum(keyId bytes)) mod 255       (range 0x00..0xFE)
+ *
+ * The four Key-ID bytes are summed and the index is the mod-255 complement that
+ * makes (sum + index) ≡ 0xFD (mod 255). Because the sum is order-independent,
+ * either the Autel-printed Key ID ('0077A29B') or the byte-reversed stored UID
+ * (Uint8Array/array [0x9B,0xA2,0x77,0x00]) yields the SAME index. Verified
+ * against all six known Charger 6.2 pairs (see module header + tests).
+ *
+ * Accepts an 8-hex-char Key ID string OR a 4-byte Uint8Array/array. Throws on a
+ * malformed string; for a byte array only the first 4 bytes are summed. */
+export function deriveCharKeyIndex(key) {
+  let sum = 0;
+  if (typeof key === 'string') {
+    const h = key.replace(/[^0-9a-fA-F]/g, '');
+    if (h.length !== 8) throw new Error(`deriveCharKeyIndex: Key ID must be 8 hex chars; got "${key}"`);
+    for (let i = 0; i < 8; i += 2) sum += parseInt(h.slice(i, i + 2), 16);
+  } else if (key instanceof Uint8Array || Array.isArray(key)) {
+    if (key.length < 4) throw new Error('deriveCharKeyIndex: need 4 key bytes');
+    for (let i = 0; i < 4; i++) sum += key[i] & 0xFF;
+  } else {
+    throw new Error('deriveCharKeyIndex: expected an 8-hex Key ID or 4-byte array');
+  }
+  return ((CHAR_KEY_INDEX_CHECK - sum) % 255 + 255) % 255;
+}
 
 function slotOffset(i) { return CHAR_KEYTABLE_BASE + i * CHAR_KEYTABLE_STRIDE; }
 
@@ -226,10 +277,15 @@ export function firstFreeCharSlot(bytes) {
  *   Returns { ok, bytes, ... } | { ok:false, error }. The original is never
  *   mutated. No checksum recompute (none covers this region — see header).
  *
+ *   indexLow defaults to null → the correct per-key index is DERIVED from the
+ *   Key ID via deriveCharKeyIndex (the mod-255 checksum). Pass an explicit
+ *   indexLow only to override (e.g. bench experiments). `indexDerived` in the
+ *   result reports whether the written index came from the derivation.
+ *
  *   Mirrors the module-wide refuse-on-doubt pattern: bad buffer, duplicate
  *   key, full table, index collision, or a non-empty target all halt before
  *   any byte is written. */
-export function addCharKey(bytes, { keyId, indexLow = CHAR_KEY_DEFAULT_INDEX, slotIdx = null, allowDuplicate = false } = {}) {
+export function addCharKey(bytes, { keyId, indexLow = null, slotIdx = null, allowDuplicate = false } = {}) {
   if (!(bytes instanceof Uint8Array)) return { ok: false, error: 'addCharKey: missing buffer' };
   if (!isCharRfhubKeyTable(bytes)) {
     return { ok: false, error: 'addCharKey: not a recognized Charger RFHUB key table (refusing to write)' };
@@ -237,6 +293,11 @@ export function addCharKey(bytes, { keyId, indexLow = CHAR_KEY_DEFAULT_INDEX, sl
   let revUid;
   try { revUid = keyIdToRevUid(keyId); }
   catch (e) { return { ok: false, error: 'addCharKey: ' + (e.message || e) }; }
+
+  // Default the index to the value derived from the Key ID; an explicit
+  // indexLow (incl. 0) overrides for bench experiments.
+  const indexDerived = indexLow == null;
+  if (indexDerived) indexLow = deriveCharKeyIndex(revUid);
 
   if (!Number.isInteger(indexLow) || indexLow < 0 || indexLow > 0xFF) {
     return { ok: false, error: `addCharKey: index byte must be 0..255 (got ${indexLow})` };
@@ -284,6 +345,7 @@ export function addCharKey(bytes, { keyId, indexLow = CHAR_KEY_DEFAULT_INDEX, sl
     bytes: out,
     keyId: newKeyId,
     indexLow,
+    indexDerived,
     slotIdx: target,
     slot: target + 1,
     offset: off,
