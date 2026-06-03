@@ -817,7 +817,7 @@ export default function BcmTab({vehicle}){
   },[inspectEntry,removeDump]);
 
   const vinValid=masterVin.length===17;
-  return <div>
+  return <div data-testid="bcm-tab">
     {showConfirmModal&&<ReadFirstModal
       module="BCM"
       currentState={[

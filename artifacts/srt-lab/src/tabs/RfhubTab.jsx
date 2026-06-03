@@ -486,7 +486,7 @@ export default function RfhubTab({vehicle}){
   },[addDump]);
 
   const vinValid=masterVin.length===17;
-  return <div>
+  return <div data-testid="rfhub-tab">
     <KeyWriterHandoffBanner/>
     {showConfirmModal&&<ReadFirstModal
       module="RFHUB"

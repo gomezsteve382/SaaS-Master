@@ -2189,7 +2189,7 @@ function LiveObdTab({vehicle, onOpenTab}){
     {id:'scan', l:'LIVE SCAN',       s:'Read modules'},
     {id:'seed', l:'SEED→KEY',        s:'All algorithms'},
   ];
-  return <div>
+  return <div data-testid="live-obd-tab">
     <RelatedCanUniversePanel panelId="liveobd" filters={LIVEOBD_CAN_FILTERS} onOpenTab={onOpenTab} />
     <div style={{display:'flex',gap:6,marginBottom:14}}>
       {sections.map(s=>{const a=section===s.id;return <button key={s.id} onClick={()=>setSection(s.id)} style={{padding:'10px 16px',borderRadius:10,border:'1px solid '+(a?vehicle.accent:C.bd),background:a?vehicle.accent+'15':C.cd,color:a?vehicle.accent:C.ts,fontFamily:"'Nunito'",fontWeight:a?900:700,fontSize:11,letterSpacing:1.5,cursor:'pointer'}}>

@@ -333,7 +333,7 @@ export default function CanUniverseTab() {
   }, [stars]);
 
   return (
-    <div>
+    <div data-testid="canuniverse-tab">
       {/* Header banner */}
       <Card style={{ marginBottom: 16, background: "#E3F2FD", borderColor: "#1976D2" }}>
         <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>

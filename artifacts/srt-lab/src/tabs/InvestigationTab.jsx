@@ -790,7 +790,7 @@ export default function InvestigationTab() {
   /* ── render ──────────────────────────────────────────────────────── */
 
   return (
-    <div style={{ padding: "0 0 40px 0", fontFamily: "'Nunito',sans-serif" }}>
+    <div data-testid="investigation-tab" style={{ padding: "0 0 40px 0", fontFamily: "'Nunito',sans-serif" }}>
       {/* ── header ── */}
       <div style={{
         background: "linear-gradient(135deg, #1A1A1A 0%, #2C1010 100%)",

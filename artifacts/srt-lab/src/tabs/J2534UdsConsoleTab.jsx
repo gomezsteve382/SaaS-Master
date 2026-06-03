@@ -829,7 +829,7 @@ export default function J2534UdsConsoleTab() {
   const logColor = { tx: "#4FC3F7", rx: "#69F0AE", error: "#FF5252", warn: "#FFB300", success: "#69F0AE", info: "#AAA", header: "#BB86FC", hint: "#FF8F00" };
 
   return (
-    <div style={{ background: S.bg, minHeight: "100%", padding: 16, fontFamily: S.font, color: S.text }}>
+    <div data-testid="uds-console-tab" style={{ background: S.bg, minHeight: "100%", padding: 16, fontFamily: S.font, color: S.text }}>
       <div style={{ maxWidth: 860, margin: "0 auto" }}>
 
         {/* ── Header ────────────────────────────────────────────────────── */}

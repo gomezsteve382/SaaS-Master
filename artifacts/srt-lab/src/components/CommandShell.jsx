@@ -32,7 +32,7 @@ const PRIMARY_KEYS = new Set(PRIMARY_NAV.map(n => n.key));
 
 /* Two quick links pinned under the primary rail (still reachable in the
  * drawer too). */
-const FOOTER_NAV = [
+export const FOOTER_NAV = [
   {key: 'workflow',    label: 'Module Census',       icon: ShieldCheck},
   {key: 'canuniverse', label: 'CAN Universe \u00b7 Intel', icon: Search},
 ];
