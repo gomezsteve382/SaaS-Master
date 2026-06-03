@@ -22,7 +22,7 @@ describe('knownWorkingKeys — seed ground truth', () => {
     expect(SEED.keyId).toBe('0077A29B');
     expect(SEED.revUid).toBe('9BA27700');
     expect(SEED.chipId).toBe('id46');
-    expect(SEED.sk).toBe('4F4E4D494B52');
+    expect(SEED.sk).toBe('502077550100');
     expect(SEED.tableIndex).toBe(0x48);
     expect(SEED.tableFlag).toBe(0x01);
     expect(SEED.tableAddr).toBe(0x0C7E);
@@ -33,14 +33,16 @@ describe('knownWorkingKeys — seed ground truth', () => {
     expect(SEED.revUid).toBe(rev);
   });
 
-  it('SK is the documented 6-byte transponder secret, NOT a 16-byte SEC16', () => {
+  it('SK is the per-chip secret recovered from the Autel read, NOT the universal default', () => {
     // SK is 6 bytes (12 hex chars) for an id46 transponder — never SEC16 (16 B).
     expect(SEED.sk.length).toBe(12);
-    expect(SEED.sk).toBe('4F4E4D494B52');
-    // Its bytes are the MIKRON ASCII set (the readable "MIKRON" is a rotation).
-    expect(Buffer.from(SEED.sk, 'hex').toString('ascii').split('').sort().join('')).toBe(
-      'MIKRON'.split('').sort().join(''),
-    );
+    // Per-chip read confirmed: SK is recovered straight from this fob's own
+    // Autel page read — page1 ∥ the high word of page2 — so it can never drift
+    // from the documented `profile`.
+    expect(SEED.sk).toBe((SEED.profile.page1 + SEED.profile.page2.slice(0, 4)).toUpperCase());
+    // It must differ from the universal MIKRON default the other entries carry,
+    // otherwise a wrong secret could never be told apart from the real one.
+    expect(SEED.sk).not.toBe('4F4E4D494B52');
   });
 
   it('every entry is frozen and carries a stable id + provenance', () => {
@@ -105,14 +107,14 @@ describe('knownWorkingKeys — empty-slot sentinel', () => {
 
 describe('knownWorkingKeys — classifyAgainstRegistry', () => {
   it('known-good: chipId + UID + SK all match (operator types BE keyId)', () => {
-    const r = classifyAgainstRegistry({ chipId: 'id46', uidHex: '00 77 A2 9B', skHex: '4F 4E 4D 49 4B 52' });
+    const r = classifyAgainstRegistry({ chipId: 'id46', uidHex: '00 77 A2 9B', skHex: '50 20 77 55 01 00' });
     expect(r.status).toBe('known-good');
     expect(r.entry.id).toBe(SEED.id);
     expect(r.mismatchedFields).toEqual([]);
   });
 
   it('known-good is case/separator insensitive', () => {
-    const r = classifyAgainstRegistry({ chipId: 'ID46', uidHex: '0077a29b', skHex: '0x4f4e4d494b52' });
+    const r = classifyAgainstRegistry({ chipId: 'ID46', uidHex: '0077a29b', skHex: '0x502077550100' });
     expect(r.status).toBe('known-good');
   });
 
@@ -123,8 +125,18 @@ describe('knownWorkingKeys — classifyAgainstRegistry', () => {
     expect(r.mismatchedFields).toContain('sk');
   });
 
+  it('mismatch: the old universal-MIKRON default no longer matches the seed UID', () => {
+    // Before per-chip capture, every entry carried 4F4E4D494B52, so this would
+    // have read as known-good. Now the seed holds its real per-chip secret, so
+    // presenting the universal default against 0077A29B is a `sk` mismatch.
+    const r = classifyAgainstRegistry({ chipId: 'id46', uidHex: '0077A29B', skHex: '4F4E4D494B52' });
+    expect(r.status).toBe('mismatch');
+    expect(r.entry.id).toBe(SEED.id);
+    expect(r.mismatchedFields).toContain('sk');
+  });
+
   it('mismatch: UID matches but chip family differs', () => {
-    const r = classifyAgainstRegistry({ chipId: 'id48', uidHex: '0077A29B', skHex: '4F4E4D494B52' });
+    const r = classifyAgainstRegistry({ chipId: 'id48', uidHex: '0077A29B', skHex: '502077550100' });
     expect(r.status).toBe('mismatch');
     expect(r.mismatchedFields).toContain('chipId');
   });
@@ -165,9 +177,9 @@ describe('knownWorkingKeys — knownKeyToRecord (prefill builder)', () => {
     expect(rec.chipId).toBe('id46');
     const v = validateKeyRecord(rec);
     expect(v.ok).toBe(true);
-    // UID is the BE keyId; SK is the documented secret — never SEC16.
+    // UID is the BE keyId; SK is the per-chip secret from the read — never SEC16.
     expect(Buffer.from(v.uid).toString('hex').toUpperCase()).toBe('0077A29B');
-    expect(Buffer.from(v.sk).toString('hex').toUpperCase()).toBe('4F4E4D494B52');
+    expect(Buffer.from(v.sk).toString('hex').toUpperCase()).toBe('502077550100');
   });
 
   it('a record built from the seed classifies back as known-good', () => {

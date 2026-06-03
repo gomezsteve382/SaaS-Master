@@ -37,6 +37,19 @@ card in `KeyWriterTab.jsx` (testids `known-key-status` with `data-status`,
 `password_cs_last6`). Don't assert `ascii(sk) === "MIKRON"`; the bytes are the
 same letter SET, just rotated.
 
+## Per-chip SK capture — seed key only carries its real secret
+The seed key `0077A29B` is the ONE entry with a real Autel page read (`profile`),
+so it now carries its OWN per-chip SK `502077550100`, re-derived from the read as
+`profile.page1 ∥ profile.page2[:2 bytes]` (KEYLOW ∥ KEYHIGH high word). It is NO
+LONGER the universal MIKRON `4F4E4D494B52` — presenting MIKRON (or any other
+secret) against `0077A29B` now classifies as `sk` **mismatch**, which the old
+all-identical-SK registry could never catch. **All OTHER entries (5 siblings + 2
+other vehicles) still carry the MIKRON default** because no per-chip read exists
+for them — keep that honest in provenance; do NOT fabricate per-chip secrets for
+keys without a real `profile`. The seed's golden test re-derives SK from `profile`
+so a re-extracted read can't silently drift. Prefill message in KeyWriterTab
+branches on `/per-chip read confirmed/` in provenance.
+
 ## Seed ground truth (2019 Charger 6.2) — the single seeded confirmed key
 keyId `0077A29B` → slot 3 @ `0xC7E`, index `0x48`, flag `0x01`, chip id46
 (PCF7945A/53A HITAG2, Manchester, not locked/cloneable). Verified against the

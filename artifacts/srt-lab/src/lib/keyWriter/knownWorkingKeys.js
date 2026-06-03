@@ -13,10 +13,18 @@
  *
  * ┌──────────────────────────── SK ≠ SEC16 ─────────────────────────────────┐
  * │ The `sk` stored here is the per-transponder secret an external tool       │
- * │ (Autel/VVDI) reports — for these FCA chips the UNIVERSAL "MIKRON" default │
- * │ (4F4E4D494B52). It is NOT the per-vehicle differentiator and it is NOT    │
- * │ the 16-byte RFHUB SEC16 master secret. Prefill sets SK from this          │
- * │ documented value; it never copies SEC16 into the SK field.                │
+ * │ (Autel/VVDI) reports. It is NOT the 16-byte RFHUB SEC16 master secret and │
+ * │ prefill never copies SEC16 into the SK field. Two flavours coexist:       │
+ * │   • PER-CHIP READ CONFIRMED — recovered from this fob's own Autel page     │
+ * │     read (see the seed key #1 `profile` block: SK is page1 ∥ the high      │
+ * │     word of page2). This is the chip's real secret, distinct per chip.     │
+ * │   • UNIVERSAL "MIKRON" DEFAULT (4F4E4D494B52) — used only where NO per-    │
+ * │     chip read is available (the sibling / second / third-vehicle keys).    │
+ * │     Honest placeholder, NOT a per-chip differentiator; provenance says so. │
+ * │ Because the seed now carries its real per-chip SK while the rest still     │
+ * │ carry the default, classifyAgainstRegistry can finally reject a fob whose  │
+ * │ UID matches but whose secret does not (the universal default no longer     │
+ * │ classifies the seed UID as known-good).                                    │
  * └──────────────────────────────────────────────────────────────────────────┘
  *
  * ┌──────────────────────────── INDEX BYTE ─────────────────────────────────┐
@@ -63,7 +71,15 @@ export const KNOWN_WORKING_KEYS = Object.freeze([
     keyId: '0077A29B',
     revUid: '9BA27700',
     chipId: 'id46',
-    sk: '4F4E4D494B52',
+    /* PER-CHIP READ CONFIRMED. SK is this fob's real per-transponder secret,
+     * recovered byte-for-byte from its own Autel page read in `profile` below:
+     * page1 (50207755) ∥ the high word of page2 (0100) = the 6-byte HITAG2
+     * crypto key. It is NOT the universal MIKRON default (4F4E4D494B52) the
+     * sibling / second / third-vehicle keys still carry — so a fob that shows
+     * 0077A29B's UID but the MIKRON default (or any other secret) now classifies
+     * as a `mismatch`, not known-good. The golden test re-derives this value
+     * straight from `profile` so it can never silently drift from the read. */
+    sk: '502077550100',
     flags: Object.freeze({ locked: false, coding: 'manchester', encryption: true, cloneable: true }),
     tableIndex: 0x48,
     tableFlag: 0x01,
@@ -77,7 +93,9 @@ export const KNOWN_WORKING_KEYS = Object.freeze([
       page3: 'FF6E5500',
     }),
     provenance:
-      'Autel programmer read of working fob (starts the car) = key #1 in 2019 Charger 6.2 dump',
+      'Autel programmer read of working fob (starts the car) = key #1 in 2019 Charger 6.2 dump. ' +
+      'Per-chip read confirmed: SK 502077550100 is this transponder\'s own secret recovered from ' +
+      'the Autel page read (page1 50207755 ∥ high word of page2 0100), NOT the universal MIKRON default.',
   }),
 
   /* ─────────────────────── 2019 Charger 6.2 sibling keys ───────────────────

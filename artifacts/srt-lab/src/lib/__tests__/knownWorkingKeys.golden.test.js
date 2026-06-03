@@ -97,6 +97,49 @@ describe('knownWorkingKeys golden — 2019 Charger 6.2 RFHUB dump', () => {
     expect(classifyAgainstRegistry(rec).status).toBe('known-good');
   });
 
+  /* ─── Per-chip secret capture (Task #1103) ──────────────────────────────────
+   * The seed fob is the one registered key with a real Autel page read attached
+   * (`profile`), so it carries its OWN per-transponder secret rather than the
+   * universal MIKRON default the other entries share. These cases prove the
+   * captured secret is (a) re-derivable straight from the real read bytes — no
+   * invented constant — and (b) actually verifiable: it round-trips as
+   * known-good, while the universal default it replaced now fails as a `sk`
+   * mismatch (a check the old all-identical-SK registry could never make).
+   * ─────────────────────────────────────────────────────────────────────────── */
+  it('the seed SK is re-derivable from its real Autel profile page read', () => {
+    // page1 (KEYLOW) ∥ the high word of page2 (KEYHIGH) = the 6-byte secret.
+    const derived = (SEED.profile.page1 + SEED.profile.page2.slice(0, 4)).toUpperCase();
+    expect(SEED.sk).toBe(derived);
+    expect(SEED.sk).toBe('502077550100');
+    expect(SEED.sk).toHaveLength(12); // 6 bytes, an id46 HITAG2 crypto key
+    // Provenance reflects the per-chip read, not an assumed default.
+    expect(SEED.provenance).toMatch(/per-chip read confirmed/i);
+  });
+
+  it('the captured per-chip secret round-trips knownKeyToRecord → classify as known-good', () => {
+    const rec = knownKeyToRecord(SEED);
+    expect(rec.skHex.replace(/\s/g, '').toUpperCase()).toBe('502077550100');
+    expect(classifyAgainstRegistry(rec).status).toBe('known-good');
+  });
+
+  it('a WRONG sk against the seed UID now yields mismatch (impossible pre-capture)', () => {
+    // The exact secret the seed used to carry before per-chip capture — every
+    // entry shared it, so it could never be told apart from the real one.
+    const withOldDefault = classifyAgainstRegistry({
+      chipId: SEED.chipId, uidHex: SEED.keyId, skHex: '4F4E4D494B52',
+    });
+    expect(withOldDefault.status).toBe('mismatch');
+    expect(withOldDefault.entry.keyId).toBe('0077A29B');
+    expect(withOldDefault.mismatchedFields).toContain('sk');
+
+    // Any other wrong secret is a mismatch too (e.g. a cloned chip's secret).
+    const withClone = classifyAgainstRegistry({
+      chipId: SEED.chipId, uidHex: SEED.keyId, skHex: 'DEADBEEFCAFE',
+    });
+    expect(withClone.status).toBe('mismatch');
+    expect(withClone.mismatchedFields).toContain('sk');
+  });
+
   it.each(SIBLINGS)(
     'sibling key %s sits at the registry-recorded slot/offset/index/flag in the dump',
     (keyId, slot, offset, indexLow) => {

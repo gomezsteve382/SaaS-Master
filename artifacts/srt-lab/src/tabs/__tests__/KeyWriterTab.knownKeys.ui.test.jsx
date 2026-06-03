@@ -80,7 +80,7 @@ describe('KeyWriterTab known-good registry surface (Task #1096)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('key-dump-uid').value.replace(/\s/g, '')).toBe('0077A29B');
     });
-    expect(screen.getByTestId('key-dump-sk').value.replace(/\s/g, '')).toBe('4F4E4D494B52');
+    expect(screen.getByTestId('key-dump-sk').value.replace(/\s/g, '')).toBe('502077550100');
     expect(screen.getByTestId('key-dump-chip').value).toBe('id46');
     expect(screen.getByTestId('known-key-status').getAttribute('data-status')).toBe('known-good');
   });

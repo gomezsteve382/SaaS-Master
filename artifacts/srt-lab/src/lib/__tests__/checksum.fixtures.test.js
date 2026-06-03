@@ -1207,13 +1207,13 @@ const MANIFEST = [
     type: 'RFHUB', size: 4096,
   },
   {
-    label: 'SAMPLE RFHUB EEE SCATPACK keys (fixtures/) — known-good key table ground truth',
-    file:  path.join(FIXTURES, 'SAMPLE_RFHUB_EEE_SCATPACK_KEYS_2C3CDXHG5EH219538.bin'),
+    label: 'SAMPLE RFHUB EEE 21 Charger 6.2 keys (fixtures/) — registry sibling-key donor',
+    file:  path.join(FIXTURES, 'SAMPLE_RFHUB_EEE_21CHARGER62_KEYS_2C3CDZL95NH179529.bin'),
     type: 'RFHUB', size: 4096,
   },
   {
-    label: 'SAMPLE RFHUB EEE 21 Charger 6.2 CARTMAN keys (fixtures/) — known-good key table ground truth',
-    file:  path.join(FIXTURES, 'SAMPLE_RFHUB_EEE_21CHARGER62_KEYS_2C3CDZL95NH179529.bin'),
+    label: 'SAMPLE RFHUB EEE Scat Pack keys (fixtures/) — registry SCAT-vehicle key donor',
+    file:  path.join(FIXTURES, 'SAMPLE_RFHUB_EEE_SCATPACK_KEYS_2C3CDXHG5EH219538.bin'),
     type: 'RFHUB', size: 4096,
   },
   /* ── GPEC2A EXT EEPROM ───────────────────────────────────────────────── */

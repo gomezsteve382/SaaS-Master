@@ -569,9 +569,13 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
     const rec = knownKeyToRecord(entry);
     if (!rec) { setKeyDumpNote({ ok: false, msg: 'Could not build a record for that known-good key (unknown chip family).' }); return; }
     updateActive({ chipId: rec.chipId, uidHex: rec.uidHex, skHex: rec.skHex, flags: rec.flags, label: rec.label });
+    const perChip = /per-chip read confirmed/i.test(entry.provenance || '');
+    const skNote = perChip
+      ? 'SK is this fob\'s own per-chip read (NOT SEC16)'
+      : 'SK is the documented MIKRON default (NOT SEC16)';
     setKeyDumpNote({
       ok: true,
-      msg: `Prefilled known-good key ${entry.keyId} (${entry.vehicle}). SK is the documented MIKRON default (NOT SEC16). Review before export.`,
+      msg: `Prefilled known-good key ${entry.keyId} (${entry.vehicle}). ${skNote}. Review before export.`,
     });
   }, [updateActive]);
 
