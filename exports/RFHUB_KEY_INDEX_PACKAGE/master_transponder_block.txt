@@ -1,0 +1,12 @@
+MASTER TRANSPONDER BLOCK
+========================
+Location:        0x0226 (mirror copy at 0x0232, separated by FF FF)
+16-byte secret:  59 02 2F 55 42 BE 76 44 EC 20 28 C5 3A D4 D6 54
+18-byte w/trailer: 59 02 2F 55 42 BE 76 44 EC 20 28 C5 3A D4 D6 54 2E 00   (trailer 2E 00)
+Preceding bytes @0x0224: FF FF
+ASCII of low region: (none printable - binary secret)
+
+This is the per-vehicle master used by the RFHUB. The index byte is believed to be
+derived from KeyID under THIS secret (keyed MAC) OR assigned by the RFHUB at the
+0x0401 key-learn. Brute force of simple ops (xor/add/sub/CRC8 poly 07,1D,31) vs
+KeyID and vs master bytes produced ZERO matches.
