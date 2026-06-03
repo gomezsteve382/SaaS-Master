@@ -42,3 +42,15 @@ keyId `0077A29B` → slot 3 @ `0xC7E`, index `0x48`, flag `0x01`, chip id46
 (PCF7945A/53A HITAG2, Manchester, not locked/cloneable). Verified against the
 real dump via `parseCharKeyTable` (base 0xC5E, stride 16, first real key slot 3).
 Fixture: `src/__tests__/fixtures/SAMPLE_RFHUB_EEE_19CHARGER62_KEYINDEX_0077A29B.bin`.
+
+## Sibling keys = the rest of the same dump (don't go hunting elsewhere)
+The seed dump holds SIX paired keys (slots 3..8, all flag 0x01, mirror-verified):
+0077A29B (seed), CC62209F, 09A6629F, 91654F9E, 197E6C9E, C47D6C9E. The five
+non-seed ones are registered VIN-scoped to `2C3CDXL92KH674464` (the documented
+reference car for the 0xC5E layout — NOT embedded in the fixture, sourced from
+charRfhubKeyTable.js header). **Why VIN-scoped while the seed is global:** to
+exercise/prove the per-VIN path in `getKnownWorkingKeys(vin)` against real bytes.
+Provenance says "present in the immobilizer table; not independently fob-tested"
+— honest distinction from the operator-fob-tested seed. Other RFHUB fixtures
+(2C3CDXCT1HH652640) have flag `0x03` = `state:'unknown'` → refuse-on-doubt,
+do NOT register those.

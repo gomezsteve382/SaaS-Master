@@ -79,6 +79,53 @@ export const KNOWN_WORKING_KEYS = Object.freeze([
     provenance:
       'Autel programmer read of working fob (starts the car) = key #1 in 2019 Charger 6.2 dump',
   }),
+
+  /* ─────────────────────── 2019 Charger 6.2 sibling keys ───────────────────
+   * The same RFHUB dump that seeded key #1 above carries SIX paired keys in
+   * its 8-slot Charger table (slots 3..8, every record flag 0x01 = present,
+   * mirror-verified). All six are paired into the immobilizer of the running
+   * car the operator confirmed — i.e. the ECU will start the car when any of
+   * these transponders is presented. Only key #1 (0077A29B) was physically
+   * fob-tested by the operator; the five below are confirmed PRESENT in the
+   * same vehicle's key table (their `provenance` says exactly that, no more).
+   *
+   * These five are VIN-SCOPED to 2C3CDXL92KH674464 — the documented reference
+   * car for this exact 0xC5E table layout (see charRfhubKeyTable.js header:
+   * "2019 Charger (VIN 2C3CDXL92KH674464 reference set) … 6 keys in slots
+   * 3..8"). Scoping them proves the per-VIN path in getKnownWorkingKeys(vin)
+   * against real bytes: they surface only for this VIN, while the global seed
+   * (vin: null) stays visible everywhere. keyId/revUid/index/flag/addr are
+   * lifted verbatim from the dump (asserted in the golden test). chipId + SK
+   * are the car-wide id46 / universal-MIKRON default shared by every fob in
+   * this immobilizer (same as key #1). No per-chip Autel `profile` read is
+   * available for these, so that field is intentionally omitted.
+   * ────────────────────────────────────────────────────────────────────── */
+  ...[
+    { keyId: 'CC62209F', revUid: '9F2062CC', tableIndex: 0x0F, tableAddr: 0x0C8E, slot: 4 },
+    { keyId: '09A6629F', revUid: '9F62A609', tableIndex: 0x4C, tableAddr: 0x0C9E, slot: 5 },
+    { keyId: '91654F9E', revUid: '9E4F6591', tableIndex: 0x19, tableAddr: 0x0CAE, slot: 6 },
+    { keyId: '197E6C9E', revUid: '9E6C7E19', tableIndex: 0x5B, tableAddr: 0x0CBE, slot: 7 },
+    { keyId: 'C47D6C9E', revUid: '9E6C7DC4', tableIndex: 0xB0, tableAddr: 0x0CCE, slot: 8 },
+  ].map((k) =>
+    Object.freeze({
+      id: `charger62-2019-${k.keyId}`,
+      vin: '2C3CDXL92KH674464',
+      keyId: k.keyId,
+      revUid: k.revUid,
+      chipId: 'id46',
+      sk: '4F4E4D494B52',
+      flags: Object.freeze({ locked: false, coding: 'manchester', encryption: true, cloneable: true }),
+      tableIndex: k.tableIndex,
+      tableFlag: 0x01,
+      tableAddr: k.tableAddr,
+      vehicle: '2019 Charger 6.2 (RFHUB EEPROM)',
+      provenance:
+        `Sibling paired key — present (flag 0x01, mirror-verified) at slot ${k.slot} / ` +
+        `0x${k.tableAddr.toString(16).toUpperCase()} in the same operator-confirmed 2019 Charger 6.2 ` +
+        `RFHUB key table as fob 0077A29B (VIN 2C3CDXL92KH674464). Paired into the immobilizer; ` +
+        `not independently fob-tested.`,
+    }),
+  ),
 ]);
 
 /* Normalize a hex token the same way dedupeKey / validateKeyRecord do: strip
