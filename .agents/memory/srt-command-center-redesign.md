@@ -18,11 +18,20 @@ Collapses SRT Lab's ~40 sprawling tabs into 5 focused per-vehicle panes plus an
 `topbar-advanced-btn` (opens drawer). Left rail `command-rail` has `rail-<tabid>` for the 5
 primary panes + `rail-footer-workflow`/`rail-footer-canuniverse`. Drawer `advanced-drawer` has
 `advanced-drawer-search` + `drawer-tab-<tabid>` per non-primary tab. KEY GOTCHA: any tab that is
-NOT one of the 5 primary (dumps/uds-console/vinprog/obd/investigation) or 2 footer
+NOT in `PRIMARY_NAV` (currently dumps/vinsync/keyxfer/uds-console/vinprog/obd/investigation) or the 2 footer
 (workflow/canuniverse) is reachable ONLY by opening the drawer first — workspace UI tests that
 used to click a sidebar label (e.g. MODULE INSPECTOR) must now click `topbar-advanced-btn` then
 `drawer-tab-<id>`. Drawer grouping keys off WORKSPACE_CATEGORIES (PROGRAM/LIVE/ANALYZE/TOOLS/RESEARCH);
 a tab missing from WORKSPACE_CATEGORIES would be stranded (rendered nowhere in the drawer).
+
+**Adding a PRIMARY_NAV entry — two non-obvious wiring rules:** (1) The `PRIMARY_NAV` `key` MUST
+also exist as a `WORKSPACE_TABS` id, because `setTab` does `VALID_TAB_IDS.has(next) ? next : 'dumps'`
+— a rail item whose key is not a registered tab id silently falls back to the Dumps tab when clicked.
+(2) Being in `PRIMARY_NAV` AUTO-excludes a tab from the Advanced drawer (drawer filters out PRIMARY_NAV
+keys), so promoting a tab to the rail is the *only* edit needed to remove it from the drawer — do not
+also delete it from WORKSPACE_TABS/CATEGORIES or it loses its content route + category home.
+**Why:** the offline Charger key-transfer flow (CharRfhubKeyAdderPanel) was promoted to a `keyxfer`
+rail pane this way; forgetting rule (1) makes the new rail button look broken (lands on Dumps).
 
 **The IA collapse (old tabs -> new pane):**
 - **Diagnose** (front door) = DumpDropZone + ModuleSync + AnalysisDiffView. Drop file -> cross-module verdict -> side-by-side hex diff with fix -> one-click apply.

@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   Stethoscope, Terminal, Fingerprint, DownloadCloud, Bot,
-  ChevronRight, Wrench, Car, ShieldCheck, Search, X, ListChecks,
+  ChevronRight, Wrench, Car, ShieldCheck, Search, X, ListChecks, KeyRound,
 } from 'lucide-react';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
 
@@ -21,6 +21,7 @@ const T = {
 export const PRIMARY_NAV = [
   {key: 'dumps',       label: 'Diagnose',      sub: 'Drop \u2192 verdict \u2192 fix', icon: Stethoscope},
   {key: 'vinsync',     label: 'VIN \u2192 Sync',    sub: 'Checksums then security',        icon: ListChecks},
+  {key: 'keyxfer',     label: 'Key Program',   sub: 'Add transponder key offline',    icon: KeyRound},
   {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          icon: Terminal},
   {key: 'vinprog',     label: 'VIN & Checksum', sub: 'Read / write / verify',          icon: Fingerprint},
   {key: 'obd',         label: 'OBD Pull',      sub: 'Read bin dumps live',            icon: DownloadCloud},

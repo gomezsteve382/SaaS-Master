@@ -39,6 +39,7 @@ import { writePcmSec6, writeRfhSec16FromBcm } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
 import SmartBoxTab from "./tabs/SmartBoxTab";
 import KeyProgTab from "./tabs/KeyProgTab";
+import KeyTransferTab from "./tabs/KeyTransferTab.jsx";
 import KeyManagerTab from "./tabs/KeyManagerTab";
 import CFlashTab from "./tabs/CFlashTab.jsx";
 import EfdInspectorTab from "./tabs/EfdInspectorTab.jsx";
@@ -921,6 +922,7 @@ const WORKSPACE_TABS = [
   {id:'vinsync',   i:'🪪', l:'VIN → SYNC',   s:'Step 1 VIN+CRC · Step 2 security'},
   {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
   {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
+  {id:'keyxfer',   i:'🔑', l:'KEY PROGRAM',  s:'Offline transponder-key transfer · no OBD'},
   {id:'keymgr',    i:'🗝️', l:'KEY MGR',      s:'Dual-file RFHUB fob transfer'},
   {id:'livekey',   i:'🔑', l:'LIVE KEYS',    s:'OBD PIN extract · key prog · SKREEM'},
   {id:'jailbreak', i:'💀', l:'JAILBREAK',    s:'SRT · Demon · Hellcat · Redeye'},
@@ -979,7 +981,7 @@ const WORKSPACE_TABS = [
  * INFO is intentionally absent — it lives in the reference panel. */
 const WORKSPACE_CATEGORIES = {
   // PROGRAM — anything that writes to a module / produces a flashable file.
-  jailbreak:'PROGRAM', keyprog:'PROGRAM', keymgr:'PROGRAM', livekey:'PROGRAM',
+  jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM', livekey:'PROGRAM',
   vinprog:'PROGRAM', vinsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
   cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
@@ -1218,6 +1220,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='vinsync'   && <VinThenSyncTab vehicle={vehicle}/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
         {tab==='keyprog'   && <KeyProgTab/>}
+        {tab==='keyxfer'   && <KeyTransferTab/>}
         {tab==='jailbreak' && <JailbreakTab vehicle={vehicle}/>}
         {tab==='seed'      && <SeedTab/>}
         {tab==='bcm'       && <BcmTab vehicle={vehicle}/>}

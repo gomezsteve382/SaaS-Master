@@ -45,8 +45,8 @@ const inputStyle = {
 const hex2 = n => '0x' + (n ?? 0).toString(16).toUpperCase().padStart(2, '0');
 const hexOff = n => '0x' + (n ?? 0).toString(16).toUpperCase();
 
-export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = null}) {
-  const [open, setOpen] = useState(false);
+export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = null, onBytesLoaded = null, onAdded = null, defaultOpen = false}) {
+  const [open, setOpen] = useState(defaultOpen);
   const [bytes, setBytes] = useState(null);
   const [filename, setFilename] = useState('');
   const fileInputRef = useRef(null);
@@ -65,6 +65,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
       setBytes(initialMod.data);
       setFilename(initialMod.filename || 'rfhub.bin');
       setOpen(true);
+      if (typeof onBytesLoaded === 'function') onBytesLoaded(initialMod.data, initialMod.filename || 'rfhub.bin');
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialMod]);
@@ -74,18 +75,21 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
     if (!file) return;
     const r = new FileReader();
     r.onload = ev => {
-      setBytes(new Uint8Array(ev.target.result));
+      const buf = new Uint8Array(ev.target.result);
+      setBytes(buf);
       setFilename(file.name);
       setMsg(''); setErr(''); setPatched(null);
+      if (typeof onBytesLoaded === 'function') onBytesLoaded(buf, file.name);
     };
     r.readAsArrayBuffer(file);
     e.target.value = '';
-  }, []);
+  }, [onBytesLoaded]);
 
   const onClearFile = useCallback(() => {
     setBytes(null); setFilename('');
     setMsg(''); setErr(''); setPatched(null);
-  }, []);
+    if (typeof onBytesLoaded === 'function') onBytesLoaded(null, '');
+  }, [onBytesLoaded]);
 
   const analysis = useMemo(() => (bytes ? parseCharKeyTable(bytes) : null), [bytes]);
   const auxAnalysis = useMemo(() => (bytes ? parseCharAuxTable(bytes) : null), [bytes]);
@@ -128,12 +132,13 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
     const fname = baseName + '_KEY_' + r.keyId + '_ADDED.bin';
     dl(r.bytes, fname);
     setPatched({bytes: r.bytes, filename: fname});
+    if (typeof onAdded === 'function') onAdded(r);
     setMsg(
       'Added key ' + r.keyId + ' to slot ' + r.slot + ' (index ' + hex2(r.indexLow) + ') at '
       + hexOff(r.offset) + ' + mirror ' + hexOff(r.mirrorOffset) + '. '
       + r.keyCountAfter + ' keys now present. Downloaded as ' + fname + '.'
     );
-  }, [bytes, keyId, indexVal, indexOverridden, baseName]);
+  }, [bytes, keyId, indexVal, indexOverridden, baseName, onAdded]);
 
   const onPushBack = useCallback(() => {
     if (!patched || typeof onPatched !== 'function') return;
