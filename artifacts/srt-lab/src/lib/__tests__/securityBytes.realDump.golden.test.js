@@ -279,18 +279,32 @@ function expectBytesEqual(actual, expected, label) {
 
     it('documents KNOWN EEE+ gaps: checksum byte and Gen2 marker differ from writer output', () => {
       // (1) Checksum byte: SINCRO stores 0x05 at slot+16; our crc8_65 writer
-      //     emits 0xFD. Unresolved EEE+ checksum variant — NOT pinned as
-      //     writer output, asserted-as-different so a future match is loud.
+      //     emits 0xFD. UNSOLVABLE EEE+ checksum variant (NOT a quick writer
+      //     tweak): only two real EEE+ SEC16 vectors exist in the whole corpus
+      //     (this one f0b6…→0x05 and 5902…→0x2e) and they leave the CRC8
+      //     underdetermined — 1280 candidate fits across 5 polys, the classic
+      //     Gen2 poly 0x65 gives ZERO solutions, and no simple sum/xor or
+      //     crc8_65^const fits both. Asserted-as-different so the day a real
+      //     formula is derived (after more captures land) this fails loudly.
       const ourChk = crc8_65(eee.rfhSec16);
       expect(ourChk).toBe(0xFD);
       for (const off of SLOTS) {
         expect(eee.after[off + 16], `EEE+ stored chk @0x${(off + 16).toString(16)}`).toBe(0x05);
         expect(eee.after[off + 16]).not.toBe(ourChk);
       }
-      // (2) Gen2 header: classic Gen2 reads AA 55 31 01 @0x0500; EEE+ does
-      //     not, which is why the writer cannot be run on it unmodified.
-      const hdr = Array.from(eee.after.slice(0x0500, 0x0504));
-      expect(hdr).not.toEqual([0xAA, 0x55, 0x31, 0x01]);
+      // (2) Gen2 banner: classic Gen2 reads AA 55 31 01 @0x0500; EEE+ carries
+      //     FF FF 00 00, and SINCRO LEAVES IT UNCHANGED through the twin (the
+      //     captured before AND after both read FF FF 00 00). Our sync writer
+      //     (runRfhBcmSync BCM_TO_RFH) instead auto-stamps AA 55 31 01 to clear
+      //     the Gen2 writer gate and emits a SELF-CONSISTENT crc8_65 twin — a
+      //     deliberately-pinned behavior (see charger62bench.realfiles.test.js)
+      //     that is NOT byte-for-byte SINCRO. Graduating it to byte-for-byte is
+      //     blocked on the unsolved checksum above.
+      const hdrBefore = Array.from(eee.before.slice(0x0500, 0x0504));
+      const hdrAfter = Array.from(eee.after.slice(0x0500, 0x0504));
+      expect(hdrBefore).toEqual([0xFF, 0xFF, 0x00, 0x00]);
+      expect(hdrAfter).toEqual([0xFF, 0xFF, 0x00, 0x00]);
+      expect(hdrAfter).not.toEqual([0xAA, 0x55, 0x31, 0x01]);
     });
   });
 });
