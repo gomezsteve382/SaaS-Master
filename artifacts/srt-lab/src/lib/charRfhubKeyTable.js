@@ -17,8 +17,12 @@
  *   │     • flag byte is a PRESENCE/FAMILY bitfield:                          │
  *   │         0x00 = no key (only the exact 5A5A5A5A 95 00 template counts    │
  *   │                as a writable EMPTY slot).                               │
- *   │         0x01 = present, base family (FCA id46 Hitag2 — Key IDs end in   │
- *   │                9B/9F/9E, so stored records start with 0x9X).            │
+ *   │         0x01 = PRESENT (base family). On the 2019 seed car the Key IDs  │
+ *   │                end 9B/9F/9E (stored records start 0x9X), but that 0x9X  │
+ *   │                prefix is NOT what flag 0x01 means — it just marks a     │
+ *   │                present key. Later cars carry flag-0x01 keys whose       │
+ *   │                stored UIDs start 0x62/0x64 (Key IDs ending 0x62/0x64);  │
+ *   │                see the FLAG 0x01 / 0x64-UID box below.                  │
  *   │         0x03 = present, ALTERNATE family (bit1 set). See FLAG 0x03 box.  │
  *   │       Any OTHER flag stays 'unknown' (refuse-on-doubt).                 │
  *   │  Reference car: 6 keys in slots 3..8, slots 1..2 empty.                │
@@ -49,6 +53,30 @@
  *   │  before/after EEPROM pair captured around a single real key-add — no    │
  *   │  such pair exists in the corpus (the rfhub.before/after fixture is a    │
  *   │  SEC16 sync, diff only at 0x050E-0x0533; its key table is identical).   │
+ *   └────────────────────────────────────────────────────────────────────────┘
+ *
+ *   ┌──────────────────── FLAG 0x01 with 0x62/0x64-prefixed UIDs ─────────────┐
+ *   │  Flag 0x01 == PRESENT; it does NOT imply the 0x9X UID prefix seen on the │
+ *   │  2019 seed car. Multiple real, registered cars carry flag-0x01 keys      │
+ *   │  whose stored UIDs start 0x64 (Key IDs ending 0x64):                    │
+ *   │     • SCAT   (VIN 2C3CDXHG5EH219538) — slots 4..8, flag 0x01,          │
+ *   │       e.g. 54D44964 / 90B0EB64 / 33741E64 / E1381664.                   │
+ *   │     • CARTMAN (VIN 2C3CDZL95NH179529) — slots 6..8, flag 0x01.         │
+ *   │  Both are registered in knownWorkingKeys.js as id46 (BCM SEC16 cross-   │
+ *   │  checked + VIN-scoped). So a 0x62/0x64-prefixed UID under flag 0x01 is   │
+ *   │  ORDINARY, not the flag-0x03 alternate family.                          │
+ *   │                                                                         │
+ *   │  FIFTH car — 2022 Charger Redeye 6.2 "797" (VIN 2C3CDXGJXNH176487,     │
+ *   │  RFHUB master 581391E0…): 4 flag-0x01 keys in slots 5..8 with stored    │
+ *   │  UIDs 64BCBB42 / 623DE128 / 64DE97BF / 64DE8317 (Key IDs 42BBBC64 /     │
+ *   │  28E13D62 / BF97DE64 / 1783DE64), every index byte = deriveCharKeyIndex.│
+ *   │  PARSE-VERIFIED-ONLY (NOT registered): the source bundle's "BCM" file is │
+ *   │  byte-identical to this RFHUB (a mislabeled duplicate, not a real BCM),  │
+ *   │  so there is no independent SEC16 cross-check, and the paired GPEC2A's   │
+ *   │  PCM SEC6 ≠ reverse(master)[0:6] — the secret is attested by a single   │
+ *   │  module. Chip family + per-chip SK are unconfirmed; registering would   │
+ *   │  mean inventing id46/MIKRON values and break refuse-on-doubt. See       │
+ *   │  charRfhubKeyTable.redeye797.test.js.                                   │
  *   └────────────────────────────────────────────────────────────────────────┘
  *
  *   ┌─────────────────────────── FLAG 0x03 (alternate family) ───────────────┐

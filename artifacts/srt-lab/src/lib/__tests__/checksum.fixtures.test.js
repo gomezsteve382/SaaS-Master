@@ -1216,6 +1216,11 @@ const MANIFEST = [
     file:  path.join(FIXTURES, 'SAMPLE_RFHUB_EEE_21CHARGER62_KEYS_2C3CDZL95NH179529.bin'),
     type: 'RFHUB', size: 4096,
   },
+  {
+    label: 'SAMPLE RFHUB EEE 22 Redeye 797 (fixtures/) — 4-key table, golden key-index corpus',
+    file:  path.join(FIXTURES, 'SAMPLE_RFHUB_EEE_22REDEYE797_KEYS_2C3CDXGJXNH176487.bin'),
+    type: 'RFHUB', size: 4096, vin: '2C3CDXGJXNH176487',
+  },
   /* ── GPEC2A EXT EEPROM ───────────────────────────────────────────────── */
   {
     label: 'CARTMAN GPEC2A OG — 8 KB, SEC6 OK, BCM-SEC16 CRC mismatch',
@@ -1231,6 +1236,11 @@ const MANIFEST = [
     label: 'SAMPLE GPEC2A EXT EEPROM VIRGIN OG (fixtures/) — 4 KB',
     file:  path.join(FIXTURES, 'SAMPLE_GPEC2A_EXT_EEPROM_VIRGIN_OG.bin'),
     type: 'GPEC2A', size: 4096, forceType: 'GPEC2A',
+  },
+  {
+    label: 'SAMPLE GPEC2A EXT EEPROM 797 Redeye (fixtures/) — 8 KB, 22 Redeye 797 donor',
+    file:  path.join(FIXTURES, 'SAMPLE_GPEC2A_EXT_EEPROM_797REDEYE_2C3CDXGJXNH176487.bin'),
+    type: 'GPEC2A', size: 8192, forceType: 'GPEC2A', vin: '2C3CDXGJXNH176487',
   },
   /* ── Additional BCM D-Flash fixtures ────────────────────────────────── */
   {

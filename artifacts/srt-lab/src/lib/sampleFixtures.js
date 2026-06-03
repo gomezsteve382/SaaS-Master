@@ -105,6 +105,19 @@ export const SAMPLE_FIXTURES = [
     pair:"sxt-charger-237142", notes:"Rescued duplicate of the SXT Charger BCM second-bench capture (byte-identical to ba26d1c1, kept for parity with original upload pair)" },
   { file:"SAMPLE_GPEC2A_EXT_EEPROM_4KB_RESCUED_VIN_CRC_1C4RJFN9XJC309165_628f7b3c.bin", kind:"GPEC_EXT", size:4096, vin:"1C4RJFN9XJC309165", role:"VIN_CRC",
     pair:"wk2-grand-cherokee-srt-309165", notes:"Rescued 2018 Jeep Grand Cherokee SRT 6.4 PCM (Continental GPEC2A 4 KB EXT EEPROM, part A2C7628120000, VIN @ offset 0)" },
+
+  // FIFTH distinct vehicle — 2022 Charger Redeye 6.2 "797" (VIN 2C3CDXGJXNH176487,
+  // RFHUB master secret 581391E0…). PARSE-VERIFIED-ONLY: the RFHUB key table
+  // parses clean (4 keys slots 5..8, flag 0x01, mirror-verified, index checksum
+  // valid) but the keys are NOT registered in knownWorkingKeys.js — the source
+  // bundle's "BCM" file is byte-identical to this RFHUB (a mislabeled duplicate,
+  // not a real BCM), and the GPEC2A's PCM SEC6 ≠ reverse(master)[0:6], so the
+  // immobilizer secret is attested by a single module. See
+  // charRfhubKeyTable.redeye797.test.js for the full determination.
+  { file:"SAMPLE_RFHUB_EEE_22REDEYE797_KEYS_2C3CDXGJXNH176487.bin", kind:"RFH_EEE", size:4096, vin:"2C3CDXGJXNH176487", role:"OG",
+    pair:"redeye797-176487", notes:"2022 Charger Redeye 6.2 797 RFHUB EEE — 4 paired keys (slots 5..8, flag 0x01, parse-verified-only, NOT registered). VIN echoed reversed in the Gen2 VIN slots." },
+  { file:"SAMPLE_GPEC2A_EXT_EEPROM_797REDEYE_2C3CDXGJXNH176487.bin", kind:"GPEC_EXT", size:8192, vin:"2C3CDXGJXNH176487", role:"OG",
+    pair:"redeye797-176487", notes:"2022 Charger Redeye 6.2 797 PCM (Continental GPEC2A 8 KB EXT EEPROM, VIN @ offset 0) — VIN-attribution provenance for the RFHUB above. PCM SEC6 does NOT match reverse(RFHUB master)[0:6] (only the VIN string is shared)." },
 ];
 
 export function getFixturesByKind(kind) {
