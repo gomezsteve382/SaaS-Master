@@ -47,6 +47,7 @@ import EfdToBinTab from "./tabs/EfdToBinTab.jsx";
 import EcmFlasherTab from "./tabs/EcmFlasherTab.jsx";
 import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
 import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
+import SecuritySyncTab from "./tabs/SecuritySyncTab.jsx";
 import ProxiTab from "./tabs/ProxiTab.jsx";
 import ImmoBcm56xbTab from "./tabs/ImmoBcm56xbTab.jsx";
 import BcmPcmPairingTab from "./tabs/BcmPcmPairingTab.jsx";
@@ -920,6 +921,7 @@ function VehicleLanding({onSelect}){
 const WORKSPACE_TABS = [
   {id:'dumps',     i:'📂', l:'DUMPS',        s:'VIN · SEC16 · Unlocks · Hex'},
   {id:'vinsync',   i:'🪪', l:'VIN → SYNC',   s:'Step 1 VIN+CRC · Step 2 security'},
+  {id:'secsync',   i:'🔐', l:'SECURITY SYNC',s:'BCM · RFHUB · PCM · SEC16/SEC6 side-by-side'},
   {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
   {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
   {id:'keyxfer',   i:'🔑', l:'KEY PROGRAM',  s:'Offline transponder-key transfer · no OBD'},
@@ -982,7 +984,7 @@ const WORKSPACE_TABS = [
 const WORKSPACE_CATEGORIES = {
   // PROGRAM — anything that writes to a module / produces a flashable file.
   jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM', livekey:'PROGRAM',
-  vinprog:'PROGRAM', vinsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
+  vinprog:'PROGRAM', vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
   cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
   // LIVE — connected OBD/J2534 sessions and external bench tools.
@@ -1218,6 +1220,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
       >
         {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
         {tab==='vinsync'   && <VinThenSyncTab vehicle={vehicle}/>}
+        {tab==='secsync'   && <SecuritySyncTab/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
         {tab==='keyprog'   && <KeyProgTab/>}
         {tab==='keyxfer'   && <KeyTransferTab/>}
