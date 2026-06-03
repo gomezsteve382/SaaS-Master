@@ -34,6 +34,7 @@ import { PRIMARY_NAV, FOOTER_NAV } from '../components/CommandShell.jsx';
 const EXPECTED_CONTENT_TESTID = {
   dumps: 'dumps-pcm-target-chip-selector',
   vinsync: 'vinsync-slots',
+  secsync: 'security-sync-tab',
   keyxfer: 'key-transfer-tab',
   'uds-console': 'uds-console-tab',
   vinprog: 'vinprog-subtab-bar',

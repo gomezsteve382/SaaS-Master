@@ -1,0 +1,170 @@
+🔐 SECURITY SYNC
+Security-only workbench. Load a BCM, RFHUB and PCM (GPEC2A) dump and see, byte-by-byte, whether their immobiliser secrets are paired. Relationship rules (verified): RFHUB SEC16 = reverse(BCM SEC16) · PCM SEC6 = reverse(BCM SEC16)[0:6]. No VIN / CRC / patch tools live here.
+BCM
+clear
+BCM_HERMANADO_CHARGER_BCM_SYNCED_2C3CDXL92KH674464_1780351340108.bin
+65,536 bytes
+VIN: 2C3CDXL92KH674464
+SEC16 · split
+↻ REPLACE
+RFHUB
+clear
+immovin_7b01d62116d74ca5a3536206a3e9e86b.bin_VIN_APPLIED.bin
+4,096 bytes
+VIN: 464476HK29LXDC3C2 · gen1
+SEC16 SET
+↻ REPLACE
+PCM
+clear
+CHARGER_PCM_SYNCED_4KB_2C3CDXL92KH674464_1780351340114_immoFix_ramtrx.bin
+4,096 bytes
+VIN: 2C3CDXL92KH674464
+SEC6 SET
+↻ REPLACE
+📊 SECURITY BYTES · SIDE BY SIDE
+RFH ↔ BCM:
+✗ MISMATCH
+PCM ↔ BCM:
+✓ IN SYNC
+Green = byte matches what it should be for a paired set · Red = out of sync. The BCM is the canonical source; everything is compared against it.
+BCM SEC16 (canonical)
+source: split
+87
+02
+C6
+34
+B6
+85
+16
+23
+20
+05
+C6
+04
+6B
+25
+F4
+F6
+↳ reverse(BCM) → expected RFHUB SEC16
+F6
+F4
+25
+6B
+04
+C6
+05
+20
+23
+16
+85
+B6
+34
+C6
+02
+87
+RFHUB SEC16 (actual)
+gen1
+59
+02
+2F
+55
+42
+BE
+76
+44
+EC
+20
+28
+C5
+3A
+D4
+D6
+54
+↳ reverse(BCM)[0:6] → expected PCM SEC6
+F6
+F4
+25
+6B
+04
+C6
+PCM SEC6 (actual @ 0x3C8)
+IMMO marker FF FF FF AA OK
+F6
+F4
+25
+6B
+04
+C6
+SHOW IT ALL · RAW HEX
+BCM SEC16
+87 02 C6 34 B6 85 16 23 20 05 C6 04 6B 25 F4 F6
+reverse(BCM SEC16)
+F6 F4 25 6B 04 C6 05 20 23 16 85 B6 34 C6 02 87
+RFHUB SEC16
+59 02 2F 55 42 BE 76 44 EC 20 28 C5 3A D4 D6 54
+RFHUB SEC16 slot2
+59 02 2F 55 42 BE 76 44 EC 20 28 C5 3A D4 D6 54
+PCM SEC6
+F6 F4 25 6B 04 C6
+expected SEC6 = reverse(BCM)[0:6]
+F6 F4 25 6B 04 C6
+🛠️ ECM / GPEC2A IMMO FIX
+One-click immo repair for the loaded PCM: stamps the GPEC2A marker and writes the SEC6 secret derived from the BCM / RFHUB donor above. Refuses on doubt.
+PCM GPEC2A IMMO ANALYZER
+OFFLINE DUMP · ANALYZE · VIN / SEC6 EDIT · ONE-CLICK IMMO FIX
+GPEC2A · High · 90
+📊 ANALYSIS RESULT
+Family Detected
+Continental GPEC2A
+Code: GPEC2A · Confidence: High · Score: 90
+EEPROM / Reading
+95320
+95320 · 4 KB · 0x1000
+State
+PROGRAMMED / IMMO SYNC / SEC6 SET
+Valid VINs: 4 · IMMO Sync: YES
+Real Estate / SEC6
+POPULATED
+F6 F4 25 6B 04 C6
+@ 0x3C8 · State: POPULATED
+Current IMMO Pattern
+FF FF FF AA
+Expected for family
+FF FF FF AA
+Reasons / Notes (3)
+DETECTION
+Size 0x1000 / 4 KB: canonical 4 KB GPEC2A external EEPROM (95320)
+DETECTION
+Signature 00EP detected at 0x081F
+IMMO
+IMMO marker present (FF FF FF AA) and SEC6 populated — paired
+🧮 CHECKSUMS
+No checksum candidates detected.
+🔑 VINs BY OFFSET
+Slot	Offset	VIN	State	Format	Check	Raw
+actual_0x0000	0x0000	2C3CDXL92KH674464	WIN_OK	OK	OK	32 43 33 43 44 58 4C 39 32 4B 48 36 37 34 34 36 34
+original_0x01F0	0x01F0	2C3CDXL92KH674464	WIN_OK	OK	OK	32 43 33 43 44 58 4C 39 32 4B 48 36 37 34 34 36 34
+copy_0x0224	0x0224	2C3CDXL92KH674464	WIN_OK	OK	OK	32 43 33 43 44 58 4C 39 32 4B 48 36 37 34 34 36 34
+extra_0x0CE0	0x0CE0	2C3CDXL92KH674464	WIN_OK	OK	OK	32 43 33 43 44 58 4C 39 32 4B 48 36 37 34 34 36 34
+🧬 INTERNAL IDs / SIGNATURES
+ECU / OS	AA91601200
+Part Number	— none —
+Serial	2C3CDXL92KH674464
+0x081F Family / String	00EP
+0x0825 Variant / Code	L16EQ)W
+0x0FA1 Continental / Extra ID	AAA9160120000
+0x081C DT23	AC00EP
+🔐 SECURITY / IMMO VERDICTS
+Field	Value	Verdict
+SEC6 secret @ 0x3C8	F6 F4 25 6B 04 C6	POPULATED
+IMMO marker @ 0x3C4	current FF FF FF AA / expected FF FF FF AA	IMMO OK
+✏️ APPLY CHANGES & DOWNLOAD
+Empty VIN = do not touch VIN. Empty SEC6 = do not touch SEC6. FIX IMMO stamps the GPEC2A marker FF FF FF AA @ 0x3C4.
+New VIN (17 chars · no I/O/Q)
+2C3CDXL92KH674464
+Also write VIN to 0x0CE0 (donor/backup slot — use with care)
+New SEC6 (6 hex bytes)
+F6 F4 25 6B 04 C6
+Donor secret available: F6 F4 25 6B 04 C6 (reverse(BCM SEC16 · split)[0:6])use donor
+✓ IMMO already OK — marker not touched
+✅ APPLY CHANGES AND DOWNLOAD
