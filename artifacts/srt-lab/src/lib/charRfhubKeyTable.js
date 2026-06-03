@@ -14,9 +14,41 @@
  *   │  Record = [UID 4B, byte-reversed][index low 1B][flag 1B].              │
  *   │     • UID stored = byte-reverse of the Autel "Key ID"                  │
  *   │         (Key ID 0077A29B  ->  9B A2 77 00).                            │
- *   │     • flag byte 0x01 = key present.                                     │
- *   │     • EMPTY slot template = 5A 5A 5A 5A 95 00 (flag 0x00).             │
+ *   │     • flag byte is a PRESENCE/FAMILY bitfield:                          │
+ *   │         0x00 = no key (only the exact 5A5A5A5A 95 00 template counts    │
+ *   │                as a writable EMPTY slot).                               │
+ *   │         0x01 = present, base family (FCA id46 Hitag2 — Key IDs end in   │
+ *   │                9B/9F/9E, so stored records start with 0x9X).            │
+ *   │         0x03 = present, ALTERNATE family (bit1 set). See FLAG 0x03 box.  │
+ *   │       Any OTHER flag stays 'unknown' (refuse-on-doubt).                 │
  *   │  Reference car: 6 keys in slots 3..8, slots 1..2 empty.                │
+ *   └────────────────────────────────────────────────────────────────────────┘
+ *
+ *   ┌─────────────────────────── FLAG 0x03 (alternate family) ───────────────┐
+ *   │  Real OG dumps from VIN 2C3CDXCT1HH652640 (2020 6.2 Redeye, RFHUB      │
+ *   │  master f7b1fbae…) carry THREE key records in slots 6-8 whose flag is  │
+ *   │  0x03 instead of 0x01, and that car has ZERO flag-0x01 keys. A running  │
+ *   │  car must have at least one working immobilizer key, and these three   │
+ *   │  are the only keys present (mirror-verified, structurally identical to  │
+ *   │  0x01 records) — so the 0x03 records ARE real, working keys, just of a  │
+ *   │  different transponder family than the 0x01 Hitag2 keys.               │
+ *   │                                                                         │
+ *   │  Corpus evidence (every valid 4 KB key table in attached_assets):      │
+ *   │     • Flag 0x03 appears on ONLY this one vehicle; no car mixes 0x01    │
+ *   │       and 0x03 — each immobilizer is single-family.                    │
+ *   │     • 0x03 stored UIDs (65 00 a4 bf / 69 da 69 23 / 64 c9 48 12) do    │
+ *   │       NOT start with 0x9X, i.e. their Key IDs do not end in 9B/9F/9E,  │
+ *   │       so they are NOT id46 Hitag2 keys. The flag's bit1 (0x02) marks   │
+ *   │       this alternate family. Most consistent with FCA proximity /      │
+ *   │       Hitag-AES (PEPS) keys on this Redeye, but the exact chip family  │
+ *   │       and per-chip secret (SK) are NOT bench-verified.                 │
+ *   │                                                                         │
+ *   │  classifySlot returns state 'key' + keyKind 'alt' for these (they are  │
+ *   │  recognized real keys, not 'unknown'), but addCharKey still WRITES only │
+ *   │  flag 0x01 Hitag2 records (it byte-reverses an Autel Key ID; it has no  │
+ *   │  way to synthesize an alt-family record). Registering an 0x03 key in    │
+ *   │  knownWorkingKeys.js needs its chip family + SK confirmed first —       │
+ *   │  inventing id46/MIKRON values would break refuse-on-doubt.             │
  *   └────────────────────────────────────────────────────────────────────────┘
  *
  *   ┌─────────────────────────── HONESTY / RISK ─────────────────────────────┐
@@ -41,6 +73,9 @@ export const CHAR_KEYTABLE_STRIDE = 16;
 export const CHAR_KEY_RECLEN = 6;
 export const CHAR_KEY_MIRROR_OFFSET = 8;
 export const CHAR_KEY_FLAG_PRESENT = 0x01;
+// Alternate-family present flag (bit1 set). Real keys of a non-Hitag2 transponder
+// family (see the FLAG 0x03 header box). Recognized as keys; never synthesized.
+export const CHAR_KEY_FLAG_ALT = 0x03;
 export const CHAR_KEY_DEFAULT_INDEX = 0x95;
 // Empty-slot template: 5A 5A 5A 5A 95 00
 export const CHAR_EMPTY_TEMPLATE = [0x5A, 0x5A, 0x5A, 0x5A, 0x95, 0x00];
@@ -71,9 +106,27 @@ function hasTrailingFFSep(bytes, off) {
     && bytes[off + CHAR_KEY_MIRROR_OFFSET + CHAR_KEY_RECLEN + 1] === 0xFF;
 }
 
+/* keyKindForFlag(flag) → 'hitag2' | 'alt' | null
+ *   Single source of truth for which flag bytes are RECOGNIZED present-key
+ *   records and what sub-family each one is. Only the two flag values actually
+ *   observed on real dumps are recognized:
+ *     0x01 → 'hitag2' (FCA id46 base family).
+ *     0x03 → 'alt'    (alternate transponder family — see FLAG 0x03 box).
+ *   Every other flag (incl. 0x00) returns null so classifySlot keeps it
+ *   'unknown'/'empty' and the refuse-on-doubt gate is never widened to flags
+ *   this tool has not seen on a real car. */
+function keyKindForFlag(flag) {
+  if (flag === CHAR_KEY_FLAG_PRESENT) return 'hitag2';
+  if (flag === CHAR_KEY_FLAG_ALT) return 'alt';
+  return null;
+}
+
 /* classifySlot(bytes, off) → 'empty' | 'key' | 'unknown'
  *   'empty'   — EXACTLY the canonical empty template (5A 5A 5A 5A 95 00).
- *   'key'     — flag byte == 0x01 (a present transponder key).
+ *   'key'     — flag byte is a recognized present-key flag (0x01 Hitag2 or
+ *               0x03 alternate family). Use keyKindForFlag(flag) to get the
+ *               sub-family; both are real keys, so empty=false and they count
+ *               toward keyCount.
  *   'unknown' — anything else. Fail-closed: an unknown record is NEVER
  *               treated as a free slot and is included in the duplicate /
  *               index-collision checks, so addCharKey refuses to overwrite
@@ -84,7 +137,7 @@ function classifySlot(bytes, off) {
     bytes[off + 2] === CHAR_EMPTY_TEMPLATE[2] && bytes[off + 3] === CHAR_EMPTY_TEMPLATE[3] &&
     bytes[off + 4] === CHAR_EMPTY_TEMPLATE[4] && bytes[off + 5] === CHAR_EMPTY_TEMPLATE[5];
   if (isTemplate) return 'empty';
-  if (bytes[off + CHAR_KEY_RECLEN - 1] === CHAR_KEY_FLAG_PRESENT) return 'key';
+  if (keyKindForFlag(bytes[off + CHAR_KEY_RECLEN - 1]) !== null) return 'key';
   return 'unknown';
 }
 
@@ -148,9 +201,14 @@ export function parseCharKeyTable(bytes) {
     const keyId = empty ? null : revUidToKeyId(raw);
     const indexLow = raw[4];
     const flag = raw[5];
+    // keyKind distinguishes the present-key sub-family ('hitag2' for flag 0x01,
+    // 'alt' for flag 0x03). null for empty/unknown slots. Lets callers tell the
+    // recognized alternate-family keys apart from base Hitag2 keys without
+    // re-deriving it from the flag byte.
+    const keyKind = state === 'key' ? keyKindForFlag(flag) : null;
     if (state === 'key') keyCount++;
     else if (state === 'unknown') unknownCount++;
-    slots.push({ slot: i + 1, offset: off, mirrorOffset, empty, state, mirrorOk, keyId, indexLow, flag, raw });
+    slots.push({ slot: i + 1, offset: off, mirrorOffset, empty, state, keyKind, mirrorOk, keyId, indexLow, flag, raw });
   }
   return { ok: true, slots, keyCount, unknownCount };
 }

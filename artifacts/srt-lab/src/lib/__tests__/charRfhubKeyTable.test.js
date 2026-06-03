@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import {
   CHAR_KEYTABLE_BASE,
   CHAR_KEYTABLE_STRIDE,
   CHAR_KEY_DEFAULT_INDEX,
+  CHAR_KEY_FLAG_ALT,
   keyIdToRevUid,
   revUidToKeyId,
   isCharRfhubKeyTable,
@@ -200,5 +203,107 @@ describe('charRfhubKeyTable — addCharKey', () => {
     const r = addCharKey(buildRef(), { keyId: 'BCD2EB9B', slotIdx: 1 });
     expect(r.ok).toBe(true);
     expect(r.slot).toBe(2);
+  });
+});
+
+/* ─────────────────────── flag 0x03 (alternate family) ─────────────────────
+ * Real OG dumps from VIN 2C3CDXCT1HH652640 (2020 6.2 Redeye) carry key records
+ * in slots 6-8 with flag 0x03 (a different transponder family — see the FLAG
+ * 0x03 box in charRfhubKeyTable.js). These were previously lumped into the
+ * catch-all 'unknown' state and so excluded from the known-good registry. The
+ * parser now recognizes them as real keys (state 'key', keyKind 'alt') WITHOUT
+ * widening the refuse-on-doubt write gate. This block pins both halves of that. */
+const FIXTURE_652640 = resolve(
+  __dirname,
+  '../../__tests__/fixtures/SAMPLE_RFHUB_EEE_OG_2C3CDXCT1HH652640.bin',
+);
+const FIXTURE_652640_PF = resolve(
+  __dirname,
+  '../../__tests__/fixtures/SAMPLE_RFHUB_PFLASH_OG_2C3CDXCT1HH652640.bin',
+);
+function load652640() {
+  return new Uint8Array(readFileSync(FIXTURE_652640));
+}
+
+describe('charRfhubKeyTable — flag 0x03 alternate-family keys (real 652640 dump)', () => {
+  it('parses the EEE OG dump as a valid 8-slot table', () => {
+    const buf = load652640();
+    expect(buf.length).toBe(4096);
+    expect(isCharRfhubKeyTable(buf)).toBe(true);
+  });
+
+  it('recognizes the three 0x03 records as real keys, not unknown', () => {
+    const p = parseCharKeyTable(load652640());
+    expect(p.ok).toBe(true);
+    // 3 keys (slots 6-8), 5 empty (slots 1-5), 0 unknown.
+    expect(p.keyCount).toBe(3);
+    expect(p.unknownCount).toBe(0);
+    expect(p.slots.filter((s) => s.empty).map((s) => s.slot)).toEqual([1, 2, 3, 4, 5]);
+
+    const altSlots = p.slots.filter((s) => s.state === 'key');
+    expect(altSlots.map((s) => s.slot)).toEqual([6, 7, 8]);
+    // Every recognized key here is the alternate family, flag 0x03, mirror-verified.
+    for (const s of altSlots) {
+      expect(s.flag).toBe(CHAR_KEY_FLAG_ALT);
+      expect(s.keyKind).toBe('alt');
+      expect(s.empty).toBe(false);
+      expect(s.mirrorOk).toBe(true);
+      expect(s.keyId).toMatch(/^[0-9A-F]{8}$/);
+    }
+    // The 0x03 Key IDs are NOT Hitag2 (they do not end in 9B/9F/9E) — that is
+    // exactly why they are a distinct family, not 0x01 keys.
+    expect(altSlots.map((s) => s.keyId)).toEqual(['BFA40065', '2369DA69', '1248C964']);
+  });
+
+  it('EEE and P-FLASH dumps of the same car parse identically', () => {
+    const a = parseCharKeyTable(new Uint8Array(readFileSync(FIXTURE_652640)));
+    const b = parseCharKeyTable(new Uint8Array(readFileSync(FIXTURE_652640_PF)));
+    expect(b.keyCount).toBe(a.keyCount);
+    expect(b.slots.map((s) => s.keyId)).toEqual(a.slots.map((s) => s.keyId));
+    expect(b.slots.map((s) => s.keyKind)).toEqual(a.slots.map((s) => s.keyKind));
+  });
+
+  it('keeps the write gate fail-closed over an 0x03 (alt) key — no overwrite, dup by UID', () => {
+    const buf = load652640();
+    // Slot 6 (idx 5) holds an alt key; an explicit add there must refuse.
+    const occupied = addCharKey(buf, { keyId: 'BCD2EB9B', slotIdx: 5 });
+    expect(occupied.ok).toBe(false);
+    expect(occupied.slotOccupied).toBe(true);
+
+    // Adding a key whose UID already exists as an 0x03 record is a duplicate.
+    const p = parseCharKeyTable(buf);
+    const existingAltKeyId = p.slots.find((s) => s.keyKind === 'alt').keyId;
+    const dup = addCharKey(buf, { keyId: existingAltKeyId });
+    expect(dup.ok).toBe(false);
+    expect(dup.duplicate).toBe(true);
+
+    // firstFree still lands on a genuine empty slot (1), never on an alt key.
+    expect(firstFreeCharSlot(buf)).toBe(0);
+  });
+
+  it('still writes flag 0x01 Hitag2 records (alt family is never synthesized)', () => {
+    // Add into the first genuine empty slot of the real dump.
+    const r = addCharKey(load652640(), { keyId: 'BCD2EB9B', indexLow: 0x22 });
+    expect(r.ok).toBe(true);
+    const p = parseCharKeyTable(r.bytes);
+    const added = p.slots.find((s) => s.keyId === 'BCD2EB9B');
+    expect(added.flag).toBe(0x01);
+    expect(added.keyKind).toBe('hitag2');
+    // The pre-existing alt keys are untouched and still recognized.
+    expect(p.slots.filter((s) => s.keyKind === 'alt').length).toBe(3);
+    expect(p.keyCount).toBe(4);
+  });
+
+  it('an unrecognized flag (not 0x01/0x03) is still unknown — gate not widened', () => {
+    const buf = load652640();
+    // Corrupt slot 6's flag byte (both record + mirror) to a never-seen value.
+    const off = CHAR_KEYTABLE_BASE + 5 * CHAR_KEYTABLE_STRIDE;
+    buf[off + 5] = 0x07;
+    buf[off + 8 + 5] = 0x07;
+    const p = parseCharKeyTable(buf);
+    expect(p.slots[5].state).toBe('unknown');
+    expect(p.slots[5].keyKind).toBe(null);
+    expect(p.unknownCount).toBe(1);
+    expect(p.keyCount).toBe(2); // the other two 0x03 keys still count
   });
 });

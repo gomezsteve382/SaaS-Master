@@ -223,6 +223,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                     {analysis.slots.map(s => {
                       const badge = s.state === 'empty' ? {t: 'FREE', c: C.tm}
                         : s.state === 'unknown' ? {t: 'UNKNOWN', c: C.wn}
+                        : s.keyKind === 'alt' ? {t: 'KEY · ALT', c: C.wn}
                         : {t: 'KEY', c: C.gn};
                       return (
                       <tr key={s.slot} data-testid={'char-key-slot-' + s.slot} style={{borderBottom: '1px solid ' + C.bd, fontFamily: mono}}>

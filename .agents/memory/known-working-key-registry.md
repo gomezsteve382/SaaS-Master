@@ -52,8 +52,12 @@ charRfhubKeyTable.js header). **Why VIN-scoped while the seed is global:** to
 exercise/prove the per-VIN path in `getKnownWorkingKeys(vin)` against real bytes.
 Provenance says "present in the immobilizer table; not independently fob-tested"
 — honest distinction from the operator-fob-tested seed. Other RFHUB fixtures
-(2C3CDXCT1HH652640) have flag `0x03` = `state:'unknown'` → refuse-on-doubt,
-do NOT register those.
+(2C3CDXCT1HH652640) have flag `0x03`: these are now recognized as REAL keys of
+an alternate transponder family (`state:'key'`, `keyKind:'alt'` — see
+charger-rfhub-keytable.md) and so are ELIGIBLE for the registry, but are STILL
+NOT registered: `classifyAgainstRegistry` needs `chipId`+`SK`, and the alt
+family's chip + per-chip SK are not bench-confirmed (claiming id46/MIKRON would
+be a lie). Register only after a bench read of one alt fob gives chip+SK.
 
 ## Adding MORE vehicles — sourcing rule + VIN attribution
 The registry now holds THREE cars. To add another, the candidate RFHUB dump

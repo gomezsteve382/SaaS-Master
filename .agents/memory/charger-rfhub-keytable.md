@@ -26,6 +26,12 @@ Observed on VIN 2C3CDXL92KH674464 dumps (19CHARGER_RFHUB_EEE+ and immovin..._VIN
 - **Why it hid for so long:** the synthetic test fixture padded slot 8 with `FF FF`, which never occurs on a real car, so the gate passed in tests while failing on every real file. Any fixture for this table MUST reproduce the non-FF slot-8 boundary or it masks the bug.
 - **How to apply:** enforce the inner `FF FF` separator + mirror match on all 8 slots, but the trailing `FF FF` separator on slots 1-7 only. The mirror check still runs on the last slot, so the gate stays fail-closed.
 
+## Flag byte is a presence/family bitfield (0x03 resolved)
+- The record flag is NOT just 0/1. Observed values across every valid 4 KB key table in attached_assets: **0x00** (no key / empty template), **0x01** (present, FCA id46 Hitag2 — Key IDs end in 9B/9F/9E so stored records start 0x9X), **0x03** (present, ALTERNATE family, bit1 set). No other flag value occurs.
+- **0x03 records ARE real working keys**, not garbage: the ONLY 0x03 vehicle (master f7b1, VIN 2C3CDXCT1HH652640, a 2020 6.2 Redeye) has ZERO 0x01 keys and THREE 0x03 keys (slots 6-8). A running car must have a working immobilizer key and those three are its only keys → they work. **No car mixes 0x01 and 0x03** — each immobilizer is single-family.
+- 0x03 stored UIDs (65 00 a4 bf / 69 da 69 23 / 64 c9 48 12) do NOT start with 0x9X → NOT id46 Hitag2. Most consistent with FCA proximity / Hitag-AES (PEPS) keys on the Redeye, but **chip family + per-chip SK are NOT bench-verified**.
+- `classifySlot`/`parseCharKeyTable` now classify 0x03 as `state:'key'` + `keyKind:'alt'` (0x01 → `keyKind:'hitag2'`). Any other flag stays `'unknown'` (gate not widened). `keyKindForFlag` is the single source of truth. `addCharKey` still WRITES only 0x01 (it byte-reverses an Autel Key ID; it cannot synthesize an alt record). **Not yet in knownWorkingKeys.js** — registering needs chip family + SK confirmed (id46/MIKRON would be a lie for the alt family).
+
 ## Multi-vehicle corpus result (4 distinct masters)
 - attached_assets holds 4 DISTINCT vehicles by master secret (16 B @0x0226, mirror @0x0238): V1 5902.. (8 keys, the subject), V2 F7B1.. (Mitchell VIN ...65264, flag 0x03 keys), V3 4F80.. (CARTMAN), V4 D0D8.. (rfhubzo). Many filenames are duplicate dumps of the same car.
 - 21 real keyId->index pairs across the 4 masters. `FFFFFF02 -> index 0xFB` appears under TWO different masters (V2,V3): a factory **sentinel**, not a derived key — do NOT treat it as proof the index is master-independent.
