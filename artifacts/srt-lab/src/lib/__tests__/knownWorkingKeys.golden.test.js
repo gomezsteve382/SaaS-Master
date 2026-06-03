@@ -18,9 +18,11 @@ import {
 } from '../charRfhubKeyTable.js';
 import {
   KNOWN_WORKING_KEYS,
+  PENDING_ALT_FAMILY_KEYS,
   classifyAgainstRegistry,
   knownKeyToRecord,
   getKnownWorkingKeys,
+  getPendingAltFamilyKeys,
 } from '../keyWriter/knownWorkingKeys.js';
 
 /* Reference VIN for the 2019 Charger 6.2 dump (see charRfhubKeyTable.js header
@@ -323,5 +325,144 @@ describe.each(VEHICLES)('knownWorkingKeys golden — $name', (V) => {
     // The other vehicles' VIN-scoped keys must NOT leak in.
     const otherKeys = VEHICLES.filter((o) => o.vin !== V.vin).flatMap((o) => o.keys.map((k) => k[0]));
     for (const k of otherKeys) expect(keys).not.toContain(k);
+  });
+});
+
+/* ============================================================================
+ * PENDING alternate-family keys (flag 0x03) — VIN 2C3CDXCT1HH652640.
+ *
+ * These three keys are RECOGNIZED real keys of a different transponder family
+ * than the 0x01 Hitag2 keys (the only keys on this 2020 6.2 Redeye, so they
+ * start it), but their chip family + per-chip SK are NOT bench-confirmed. They
+ * are staged in PENDING_ALT_FAMILY_KEYS — never in KNOWN_WORKING_KEYS — so this
+ * golden block proves two things at once:
+ *   1. The recorded bytes (UID / revUid / index / flag 0x03 / offset) match the
+ *      real fixtures, exactly like the known-good blocks above.
+ *   2. The honesty contract holds: chipId/sk are null, the keys never classify
+ *      as known-good, and they never leak into the known-good candidate set.
+ * Both the OG and PFLASH reads of this VIN must carry the identical three keys.
+ * ========================================================================== */
+const ALT_VIN = '2C3CDXCT1HH652640';
+const ALT_FIXTURES = [
+  'SAMPLE_RFHUB_EEE_OG_2C3CDXCT1HH652640.bin',
+  'SAMPLE_RFHUB_PFLASH_OG_2C3CDXCT1HH652640.bin',
+];
+/* [keyId, slot, offset, indexLow, revUid] — all asserted vs the dump bytes. */
+const ALT_KEYS = [
+  ['BFA40065', 6, 0x0CAE, 0x32, '6500A4BF'],
+  ['2369DA69', 7, 0x0CBE, 0x2B, '69DA6923'],
+  ['1248C964', 8, 0x0CCE, 0x73, '64C94812'],
+];
+
+describe.each(ALT_FIXTURES)('knownWorkingKeys golden — PENDING alt family (%s)', (fixture) => {
+  const loadAlt = () =>
+    new Uint8Array(readFileSync(resolve(__dirname, '../../__tests__/fixtures/', fixture)));
+
+  it('fixture is a canonical 4 KB RFHUB image with exactly 3 keys, all alt-family', () => {
+    expect(loadAlt().length).toBe(4096);
+    const p = parseCharKeyTable(loadAlt());
+    expect(p.ok).toBe(true);
+    expect(p.keyCount).toBe(3);
+    expect(p.unknownCount).toBe(0);
+    // Every present key on this car is the 0x03 alternate family — no Hitag2.
+    const present = p.slots.filter((s) => s.state === 'key');
+    expect(present).toHaveLength(3);
+    for (const s of present) {
+      expect(s.keyKind).toBe('alt');
+      expect(s.flag).toBe(0x03);
+    }
+  });
+
+  it.each(ALT_KEYS)(
+    'pending key %s sits at the recorded slot/offset/index/flag 0x03 in the dump',
+    (keyId, slot, offset, indexLow, revUid) => {
+      const entry = PENDING_ALT_FAMILY_KEYS.find((e) => e.keyId === keyId);
+      expect(entry).toBeTruthy();
+      expect(entry.vin).toBe(ALT_VIN);
+      expect(entry.tableAddr).toBe(offset);
+      expect(entry.tableIndex).toBe(indexLow);
+      expect(entry.tableFlag).toBe(0x03);
+      expect(entry.revUid).toBe(revUid);
+      expect(entry.keyKind).toBe('alt');
+
+      const p = parseCharKeyTable(loadAlt());
+      const s = p.slots.find((x) => x.slot === slot);
+      expect(s).toBeTruthy();
+      expect(s.state).toBe('key');
+      expect(s.keyKind).toBe('alt');
+      expect(s.flag).toBe(0x03);
+      expect(s.offset).toBe(offset);
+      expect(s.offset).toBe(entry.tableAddr);
+      expect(s.keyId).toBe(keyId);
+      expect(s.indexLow).toBe(indexLow);
+      expect(s.indexLow).toBe(entry.tableIndex);
+
+      // registry revUid == byte-reversed keyId == the bytes stored in the dump.
+      const calcRev = Array.from(keyIdToRevUid(keyId))
+        .map((x) => x.toString(16).padStart(2, '0').toUpperCase())
+        .join('');
+      const rawRev = Array.from(s.raw.slice(0, 4))
+        .map((x) => x.toString(16).padStart(2, '0').toUpperCase())
+        .join('');
+      expect(calcRev).toBe(entry.revUid);
+      expect(rawRev).toBe(entry.revUid);
+    },
+  );
+
+  it('every present key in the dump is represented in the pending table for this VIN', () => {
+    const p = parseCharKeyTable(loadAlt());
+    const dumpKeyIds = p.slots.filter((s) => s.state === 'key').map((s) => s.keyId).sort();
+    const pendingKeyIds = PENDING_ALT_FAMILY_KEYS.filter((e) => e.vin === ALT_VIN)
+      .map((e) => e.keyId)
+      .sort();
+    expect(pendingKeyIds).toEqual(dumpKeyIds);
+  });
+});
+
+describe('knownWorkingKeys — PENDING alt family honesty contract', () => {
+  it('pending entries are frozen, chip+SK unconfirmed (null), and flagged pending', () => {
+    expect(Object.isFrozen(PENDING_ALT_FAMILY_KEYS)).toBe(true);
+    expect(PENDING_ALT_FAMILY_KEYS).toHaveLength(3);
+    for (const e of PENDING_ALT_FAMILY_KEYS) {
+      expect(Object.isFrozen(e)).toBe(true);
+      expect(e.chipId).toBeNull();
+      expect(e.sk).toBeNull();
+      expect(e.pending).toBe(true);
+      expect(e.needs).toEqual(['chipId', 'sk']);
+      expect(typeof e.provenance).toBe('string');
+      expect(e.provenance.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('pending keys are NOT in KNOWN_WORKING_KEYS and do not leak into the known-good set', () => {
+    const knownIds = new Set(KNOWN_WORKING_KEYS.map((e) => e.keyId));
+    for (const e of PENDING_ALT_FAMILY_KEYS) expect(knownIds.has(e.keyId)).toBe(false);
+    // Even scoped to the alt VIN, getKnownWorkingKeys returns only the global seed.
+    const known = getKnownWorkingKeys(ALT_VIN).map((e) => e.keyId);
+    for (const [keyId] of ALT_KEYS) expect(known).not.toContain(keyId);
+    expect(known).toContain('0077A29B');
+  });
+
+  it('getPendingAltFamilyKeys surfaces them only for the alt VIN', () => {
+    const pending = getPendingAltFamilyKeys(ALT_VIN).map((e) => e.keyId);
+    for (const [keyId] of ALT_KEYS) expect(pending).toContain(keyId);
+    // A different VIN / no VIN sees none (pending keys are strictly VIN-scoped).
+    expect(getPendingAltFamilyKeys('2C3CDXL92KH674464')).toEqual([]);
+    expect(getPendingAltFamilyKeys()).toEqual([]);
+  });
+
+  it('a pending key can never be built into a record or classified known-good', () => {
+    for (const entry of PENDING_ALT_FAMILY_KEYS) {
+      // null chipId → knownKeyToRecord refuses to build a record (refuse-on-doubt).
+      expect(knownKeyToRecord(entry)).toBeNull();
+      // Even if an operator types the real UID with the Hitag2 id46/MIKRON guess,
+      // it must NOT classify as known-good — the alt UID is not a registered key.
+      const guess = classifyAgainstRegistry(
+        { chipId: 'id46', uidHex: entry.keyId, skHex: '4F4E4D494B52' },
+        ALT_VIN,
+      );
+      expect(guess.status).toBe('unknown');
+      expect(guess.entry).toBeNull();
+    }
   });
 });

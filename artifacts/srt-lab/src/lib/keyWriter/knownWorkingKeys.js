@@ -237,6 +237,68 @@ export const KNOWN_WORKING_KEYS = Object.freeze([
   ),
 ]);
 
+/* ════════════════════════ PENDING — alt transponder family ════════════════
+ * These are NOT in KNOWN_WORKING_KEYS and are NEVER classified known-good.
+ *
+ * VIN 2C3CDXCT1HH652640 (a 2020 6.2 Redeye) carries THREE key records in slots
+ * 6-8 whose RFHUB-table flag is 0x03 instead of 0x01. The parser recognizes
+ * them as REAL keys of a DIFFERENT transponder family than the 0x01 Hitag2
+ * keys (`state:'key'`, `keyKind:'alt'` — see charRfhubKeyTable.js FLAG 0x03
+ * box). They are the only keys on this car, so they DO start it.
+ *
+ * That makes them ELIGIBLE for the known-good registry, but they are deliberately
+ * staged here and NOT promoted, because a real KNOWN_WORKING_KEYS entry needs a
+ * chip family (`chipId`) and per-chip secret (`sk`) — and for this alternate
+ * family those are NOT bench-confirmed. Reusing the Hitag2 id46 / universal
+ * MIKRON (`4F4E4D494B52`) values the 0x01 sibling blocks use would be a LIE and
+ * would break refuse-on-doubt (`classifyAgainstRegistry` would falsely return
+ * 'known-good'). So `chipId` and `sk` are left `null` here.
+ *
+ * What IS bench-true and recorded verbatim (asserted byte-for-byte against the
+ * fixtures in knownWorkingKeys.golden.test.js): each key's UID (BE keyId + LE
+ * revUid), RFHUB-table index byte, flag 0x03, slot offset, and that both the
+ * OG and PFLASH reads of this VIN carry the identical three (mirror-verified,
+ * unknownCount 0). VIN-scoped to 2C3CDXCT1HH652640.
+ *
+ * To PROMOTE: bench-read one physical alt-family fob from a 652640-class car
+ * (Autel/VVDI) to get its chip family + SK, fill `chipId`/`sk` on these entries,
+ * move them into KNOWN_WORKING_KEYS, and drop the golden test's pending guards.
+ * ════════════════════════════════════════════════════════════════════════════ */
+export const PENDING_ALT_FAMILY_KEYS = Object.freeze(
+  [
+    { keyId: 'BFA40065', revUid: '6500A4BF', tableIndex: 0x32, tableAddr: 0x0CAE, slot: 6 },
+    { keyId: '2369DA69', revUid: '69DA6923', tableIndex: 0x2B, tableAddr: 0x0CBE, slot: 7 },
+    { keyId: '1248C964', revUid: '64C94812', tableIndex: 0x73, tableAddr: 0x0CCE, slot: 8 },
+  ].map((k) =>
+    Object.freeze({
+      id: `alt-pending-2C3CDXCT1HH652640-${k.keyId}`,
+      vin: '2C3CDXCT1HH652640',
+      keyId: k.keyId,
+      revUid: k.revUid,
+      // Unconfirmed alternate transponder family. Left null on purpose — see the
+      // block header. A null chipId means knownKeyToRecord() refuses to build a
+      // record and classifyAgainstRegistry() can never call this known-good.
+      chipId: null,
+      sk: null,
+      keyKind: 'alt',
+      flags: null,
+      tableIndex: k.tableIndex,
+      tableFlag: 0x03,
+      tableAddr: k.tableAddr,
+      vehicle: '2020 Charger 6.2 Redeye (RFHUB EEPROM)',
+      pending: true,
+      needs: Object.freeze(['chipId', 'sk']),
+      provenance:
+        `Alternate-family key (flag 0x03, mirror-verified) at slot ${k.slot} / ` +
+        `0x${k.tableAddr.toString(16).toUpperCase()} in the OG + PFLASH RFHUB reads of VIN ` +
+        `2C3CDXCT1HH652640 (2020 6.2 Redeye). Recognized as a real key (keyKind 'alt') of a ` +
+        `transponder family DIFFERENT from the 0x01 Hitag2 keys; the only keys on this car, so it ` +
+        `starts it. Chip family + per-chip SK are NOT bench-confirmed, so this is staged as PENDING ` +
+        `and is NEVER treated as known-good until a bench read of one alt fob fills chipId + SK.`,
+    }),
+  ),
+);
+
 /* Normalize a hex token the same way dedupeKey / validateKeyRecord do: strip
  * separators + an optional 0x prefix, uppercase. */
 function normHex(s) {
@@ -286,6 +348,18 @@ export function getKnownWorkingKeyById(id) {
 export function getKnownWorkingKeys(vin) {
   const norm = normalizeVin(vin);
   return KNOWN_WORKING_KEYS.filter((e) => !e.vin || (norm && e.vin === norm));
+}
+
+/**
+ * Return the PENDING alternate-family keys applicable to `vin` (a fresh array).
+ * These are recognized real keys whose chip family + SK are NOT bench-confirmed,
+ * so they are recorded for provenance but are NEVER known-good (chipId/sk null).
+ * They live OUTSIDE KNOWN_WORKING_KEYS, so getKnownWorkingKeys /
+ * classifyAgainstRegistry never see them — call this explicitly to surface them.
+ */
+export function getPendingAltFamilyKeys(vin) {
+  const norm = normalizeVin(vin);
+  return PENDING_ALT_FAMILY_KEYS.filter((e) => norm && e.vin === norm);
 }
 
 /**

@@ -68,9 +68,23 @@ Provenance says "present in the immobilizer table; not independently fob-tested"
 (2C3CDXCT1HH652640) have flag `0x03`: these are now recognized as REAL keys of
 an alternate transponder family (`state:'key'`, `keyKind:'alt'` — see
 charger-rfhub-keytable.md) and so are ELIGIBLE for the registry, but are STILL
-NOT registered: `classifyAgainstRegistry` needs `chipId`+`SK`, and the alt
+NOT known-good: `classifyAgainstRegistry` needs `chipId`+`SK`, and the alt
 family's chip + per-chip SK are not bench-confirmed (claiming id46/MIKRON would
-be a lie). Register only after a bench read of one alt fob gives chip+SK.
+be a lie).
+
+## PENDING alt-family staging (NOT known-good)
+The three flag-0x03 keys on VIN `2C3CDXCT1HH652640` (2020 6.2 Redeye: BFA40065,
+2369DA69, 1248C964 — slots 6-8 @0xCAE/0xCBE/0xCCE) are STAGED in a separate
+frozen export `PENDING_ALT_FAMILY_KEYS` with `chipId:null, sk:null, pending:true,
+needs:['chipId','sk']`, surfaced via `getPendingAltFamilyKeys(vin)`. They live
+OUTSIDE `KNOWN_WORKING_KEYS` on purpose, so `getKnownWorkingKeys` /
+`classifyAgainstRegistry` never see them and they can NEVER be called known-good
+(null chipId → `knownKeyToRecord` returns null; UID isn't a registered key →
+classify is 'unknown'). Their real bytes (UID/revUid/index/flag 0x03/offset) ARE
+asserted against both fixtures (OG + PFLASH) in `knownWorkingKeys.golden.test.js`.
+**To promote:** bench-read one alt fob → fill chipId+sk → move the entries into
+`KNOWN_WORKING_KEYS` → drop the pending golden guards. Do NOT promote without a
+real bench read; that's the whole point of the staging.
 
 ## Adding MORE vehicles — sourcing rule + VIN attribution
 The registry now holds THREE cars. To add another, the candidate RFHUB dump
