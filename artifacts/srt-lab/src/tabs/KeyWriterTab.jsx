@@ -424,6 +424,31 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
 
   /* ── Known-good working-key registry (Task #1096) ───────────────────────── */
   const knownKeys = useMemo(() => getKnownWorkingKeys(masterVin), [masterVin]);
+  /* Group the known keys by the vehicle they're paired to (Task #1104) so an
+   * operator picking a fob can see WHICH car each key belongs to — its friendly
+   * name + VIN — not just the bare key code. Globals (vin == null, usable on any
+   * vehicle) collapse into one "Any vehicle" group. Insertion order from the
+   * registry is preserved. */
+  const knownKeyGroups = useMemo(() => {
+    const groups = [];
+    const byKey = new Map();
+    for (const entry of knownKeys) {
+      const groupKey = entry.vin || 'global';
+      let g = byKey.get(groupKey);
+      if (!g) {
+        g = {
+          key: groupKey,
+          vin: entry.vin || null,
+          vehicle: entry.vin ? entry.vehicle : 'Any vehicle',
+          entries: [],
+        };
+        byKey.set(groupKey, g);
+        groups.push(g);
+      }
+      g.entries.push(entry);
+    }
+    return groups;
+  }, [knownKeys]);
   const registryStatus = useMemo(
     () => classifyAgainstRegistry(activeRecord, masterVin),
     [activeRecord, masterVin],
@@ -870,28 +895,55 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
               KNOWN-GOOD KEYS{' '}
               <span style={{ fontWeight: 400, color: C.ts }}>(confirmed working — prefill then review)</span>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {knownKeys.map((entry) => (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {knownKeyGroups.map((group) => (
                 <div
-                  key={entry.id}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
-                  data-testid={`known-key-row-${entry.id}`}
+                  key={group.key}
+                  data-testid={`known-key-group-${group.key}`}
+                  data-vin={group.vin || ''}
                 >
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: C.tx }}>
-                    {entry.keyId}
-                  </span>
-                  <span style={{ fontSize: 11, color: C.ts }}>
-                    {entry.vehicle} · {entry.chipId} · idx 0x{entry.tableIndex.toString(16).toUpperCase()}
-                  </span>
-                  <Btn
-                    onClick={() => onPrefillFromKnownKey(entry)}
-                    color={C.a3}
-                    outline
-                    data-testid={`known-key-prefill-${entry.id}`}
-                    style={{ fontSize: 11, padding: '2px 10px' }}
+                  {/* vehicle + VIN header so the operator can see WHICH car
+                      each key belongs to (Task #1104) */}
+                  <div
+                    data-testid={`known-key-group-label-${group.key}`}
+                    style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}
                   >
-                    ⇇ Prefill
-                  </Btn>
+                    <span style={{ fontWeight: 800, fontSize: 11, color: C.tx }}>{group.vehicle}</span>
+                    {group.vin
+                      ? (
+                        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10.5, color: C.ts }}>
+                          VIN {group.vin}
+                        </span>
+                      )
+                      : (
+                        <span style={{ fontSize: 10.5, color: C.ts }}>(usable on any vehicle)</span>
+                      )}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingLeft: 8, borderLeft: `2px solid ${C.bd}` }}>
+                    {group.entries.map((entry) => (
+                      <div
+                        key={entry.id}
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
+                        data-testid={`known-key-row-${entry.id}`}
+                      >
+                        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: C.tx }}>
+                          {entry.keyId}
+                        </span>
+                        <span style={{ fontSize: 11, color: C.ts }}>
+                          {entry.chipId} · idx 0x{entry.tableIndex.toString(16).toUpperCase()}
+                        </span>
+                        <Btn
+                          onClick={() => onPrefillFromKnownKey(entry)}
+                          color={C.a3}
+                          outline
+                          data-testid={`known-key-prefill-${entry.id}`}
+                          style={{ fontSize: 11, padding: '2px 10px' }}
+                        >
+                          ⇇ Prefill
+                        </Btn>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
