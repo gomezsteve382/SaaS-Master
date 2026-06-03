@@ -198,8 +198,11 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
             </div>
             <ul style={{fontSize: 11, color: C.ts, lineHeight: 1.6, margin: '6px 0 0', paddingLeft: 18}}>
               <li><strong>Slot placement</strong> now mirrors real cars (keys packed contiguously, ending at slot 8), but only a before/after key-add diff can prove the firmware actually reads a key from this slot on a live start.</li>
-              <li>A <strong>companion table</strong> elsewhere in the EEPROM may also need a matching entry that this tool does not write. An <strong>exhaustive pairwise scan of the entire bundled dump corpus found no genuine single-key-add pair</strong> (every key-set change also changed the vehicle master secret = a full re-key), so this remains unconfirmed until a real before/after capture is diffed.</li>
+              <li>A <strong>companion table</strong> elsewhere in the EEPROM may also need a matching entry that this tool does not write. A re-run <strong>exhaustive pairwise scan of every bundled 4&nbsp;KB dump (57 key-table images across 11 distinct vehicles) still found no genuine single-key-add pair</strong> — every key-set change also changed the vehicle master secret (a full re-key), so this remains unconfirmed until a real before/after capture is diffed.</li>
             </ul>
+            <div style={{fontSize: 11, color: C.ts, lineHeight: 1.6, marginTop: 6}}>
+              The before/after diff harness is <strong>built and tested</strong> (it confirms slot placement and flags any change outside the key table as a companion-table candidate). To clear this caveat: on a working car, read the RFHUB EEPROM, add <strong>one</strong> key with a real tool, read it again, and supply the before/after pair — <strong>do not virginize between reads</strong>. See <code>exports/RFHUB_INDEX_CRACK_KIT/BEFORE_AFTER_PROTOCOL.md</code>.
+            </div>
             <div style={{fontSize: 11, color: C.ts, lineHeight: 1.6, marginTop: 6}}>
               Worst case is fully reversible: reflash the original and your existing keys keep working.
               <strong> Keep your original dump as the restore file.</strong>
