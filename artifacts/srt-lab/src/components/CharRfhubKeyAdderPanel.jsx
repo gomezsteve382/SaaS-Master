@@ -32,6 +32,8 @@ import {dl} from './ImmoChecksumPanel.jsx';
 
 const mono = "'JetBrains Mono'";
 
+const API_BASE = (import.meta.env.BASE_URL?.replace(/\/$/, '') || '') + '/api';
+
 const labelStyle = {
   fontSize: 10, fontWeight: 800, color: C.ts, letterSpacing: 0.6,
   textTransform: 'uppercase', marginBottom: 4,
@@ -45,7 +47,7 @@ const inputStyle = {
 const hex2 = n => '0x' + (n ?? 0).toString(16).toUpperCase().padStart(2, '0');
 const hexOff = n => '0x' + (n ?? 0).toString(16).toUpperCase();
 
-export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = null, onBytesLoaded = null, onAdded = null, defaultOpen = false}) {
+export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = null, onBytesLoaded = null, onAdded = null, defaultOpen = false, enablePhotoImport = false}) {
   const [open, setOpen] = useState(defaultOpen);
   const [bytes, setBytes] = useState(null);
   const [filename, setFilename] = useState('');
@@ -57,6 +59,56 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
   const [patched, setPatched] = useState(null);
+
+  // Photo import (opt-in): read a Key ID off a photo of the key / programmer
+  // readout via the api-server vision endpoint, then auto-fill the Key ID field.
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoMsg, setPhotoMsg] = useState('');
+  const [photoErr, setPhotoErr] = useState('');
+  const [photoCandidates, setPhotoCandidates] = useState([]);
+
+  const applyKeyId = useCallback(id => {
+    setKeyId(id);
+    setMsg(''); setErr('');
+  }, []);
+
+  const onPhotoChange = useCallback(e => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!/^image\//.test(file.type || '')) { setPhotoErr('Please choose an image file (PNG, JPG, WEBP).'); return; }
+    setPhotoBusy(true); setPhotoErr(''); setPhotoMsg(''); setPhotoCandidates([]);
+    const r = new FileReader();
+    r.onerror = () => { setPhotoBusy(false); setPhotoErr('Could not read that image file.'); };
+    r.onload = async ev => {
+      try {
+        const dataUrl = String(ev.target.result || '');
+        const m = dataUrl.match(/^data:([^;,]+)[;,]/);
+        const mediaType = (m && m[1]) || file.type || 'image/png';
+        const res = await fetch(`${API_BASE}/anthropic/key-photo`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({imageBase64: dataUrl, mediaType}),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { setPhotoErr(data.error || ('Read failed (HTTP ' + res.status + ').')); return; }
+        setPhotoCandidates(Array.isArray(data.candidates) ? data.candidates : []);
+        if (data.keyId) {
+          applyKeyId(data.keyId);
+          setPhotoMsg('Read Key ID ' + data.keyId + ' from photo'
+            + (data.notes ? ' — ' + data.notes : '') + '. Confirm it matches the physical key before adding.');
+        } else {
+          setPhotoMsg('No Key ID could be read confidently'
+            + (data.notes ? ' — ' + data.notes : '') + '. Enter it manually below.');
+        }
+      } catch (e2) {
+        setPhotoErr(e2 && e2.message ? e2.message : 'Photo read failed.');
+      } finally {
+        setPhotoBusy(false);
+      }
+    };
+    r.readAsDataURL(file);
+  }, [applyKeyId]);
 
   // Seed from the inspector above, only if it's a Charger key-table dump and
   // we haven't loaded our own file yet.
@@ -222,6 +274,58 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
               </>
             )}
           </div>
+
+          {/* Photo import (opt-in): read the Key ID off a photo */}
+          {enablePhotoImport && (
+            <Card style={{marginBottom: 12, borderLeft: '3px solid ' + C.sr}} data-testid="char-key-photo-card">
+              <div style={{fontWeight: 800, fontSize: 11, color: C.sr, marginBottom: 6, letterSpacing: 2}}>
+                READ KEY ID FROM PHOTO
+              </div>
+              <div style={{fontSize: 10, color: C.ts, lineHeight: 1.6, marginBottom: 10}}>
+                Upload a clear photo of the key, the programmer readout (Autel / Xhorse), or the
+                packaging label. The Key ID is read off the image and filled in below for you to
+                confirm — nothing is written to a module from the photo.
+              </div>
+              <div style={{display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap'}}>
+                <label style={{padding: '8px 14px', borderRadius: 8, border: '2px dashed ' + C.sr + '50', background: C.c2, cursor: photoBusy ? 'default' : 'pointer', fontSize: 11, fontWeight: 800, color: C.sr, opacity: photoBusy ? 0.6 : 1}}>
+                  {photoBusy ? 'Reading photo…' : 'Upload key photo'}
+                  <input type="file" accept="image/*" hidden disabled={photoBusy} data-testid="char-key-photo-input" onChange={onPhotoChange} />
+                </label>
+                <span style={{fontSize: 10, color: C.tm}}>PNG · JPG · WEBP</span>
+              </div>
+
+              {photoCandidates.length > 0 && (
+                <div style={{marginTop: 10, fontSize: 10, color: C.ts}}>
+                  Other IDs seen in the photo:&nbsp;
+                  {photoCandidates.map(cand => (
+                    <button
+                      key={cand}
+                      onClick={() => applyKeyId(cand)}
+                      data-testid={'char-key-photo-candidate-' + cand}
+                      style={{margin: '0 6px 6px 0', padding: '3px 8px', borderRadius: 6, border: '1px solid ' + C.bd, background: C.cd, color: C.tx, fontFamily: mono, fontSize: 10, cursor: 'pointer'}}
+                      title="Use this Key ID"
+                    >
+                      {cand}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {(photoMsg || photoErr) && (
+                <div
+                  data-testid="char-key-photo-status"
+                  style={{
+                    marginTop: 10, padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, whiteSpace: 'pre-wrap',
+                    background: photoErr ? C.er + '12' : C.gn + '12',
+                    border: '1px solid ' + (photoErr ? C.er + '40' : C.gn + '40'),
+                    color: photoErr ? C.er : C.gn,
+                  }}
+                >
+                  {photoErr || photoMsg}
+                </div>
+              )}
+            </Card>
+          )}
 
           {!bytes && (
             <div style={{fontSize: 11, color: C.tm, fontStyle: 'italic', paddingBottom: 6}}>

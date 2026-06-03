@@ -153,7 +153,7 @@ export default function KeyTransferTab() {
         </div>
       </div>
 
-      <CharRfhubKeyAdderPanel defaultOpen onBytesLoaded={onBytesLoaded} onAdded={onAdded} />
+      <CharRfhubKeyAdderPanel defaultOpen enablePhotoImport onBytesLoaded={onBytesLoaded} onAdded={onAdded} />
 
       {added && (
         <div
