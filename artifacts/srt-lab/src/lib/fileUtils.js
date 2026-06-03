@@ -116,7 +116,10 @@ function patchFile(f,nv){
     return{data:r.bytes,log:r.log};
   }
   if(f.type==='ZF_8HP_TCU'){
-    const r=patchZf8hpVin(f.data,(nv||'').toUpperCase());
+    // allVins: the generic pipeline writes the new VIN at every detected slot
+    // (BCM/RFHUB convention). For surgical single-VIN edits on a dual-VIN dump,
+    // call patchZf8hpVin directly with { sourceVin }.
+    const r=patchZf8hpVin(f.data,{targetVin:(nv||'').toUpperCase(),allVins:true});
     if(!r.ok)return{data:new Uint8Array(f.data),log:['ZF-8HP write refused: '+(r.reason||'unknown')]};
     return{data:r.bytes,log:r.log};
   }

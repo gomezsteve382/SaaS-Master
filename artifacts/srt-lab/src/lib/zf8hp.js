@@ -1,324 +1,342 @@
 /* ============================================================================
- * zf8hp.js — ZF 8HP TCU image handling: VIN slots + per-block CRC
- *           (Task #634)
+ * zf8hp.js — ZF 8HP TCU dump handling (GROUNDED on real bench dumps)
  *
- * Bench parity with the "ZF-8HP TCU VIN + CRC" capability in the
- * referenced bench tool. The 8HP family ships on FCA RWD/AWD vehicles as
- * three nameplates with distinct image layouts:
+ * This module replaces the earlier synthetic "ZF8HP"-ASCII-header contract,
+ * which no real dump ever matched. It is built byte-for-byte from the real
+ * 8HP TCU reads on the bench:
  *
- *   - 845RE : 0x80000 (512 KB) Jeep / Charger / Challenger pre-2017
- *   - 8HP70 : 0x100000 (1 MB) Charger / Challenger / 300 6.4
- *   - 8HP90 : 0x100000 (1 MB) Charger / Challenger SRT / Hellcat / Redeye
+ *   1. OBDSTAR-tool internal-EEPROM dump  (0x20000 / 128 KB)
+ *      - Unused regions are padded with the repeating ASCII filler "OBDSTAR6"
+ *        (the OBDSTAR programmer's signature), so these are tool-wrapped reads,
+ *        not raw TCU EEPROM images.
+ *      - The vehicle-identity block is mirrored ~3x and holds, in order:
+ *          [record marker] VIN_A(17 ASCII) VIN_B(17 ASCII) [01 FF FF FF ...]
+ *        The two VINs are stored ADJACENT with NO per-VIN checksum between or
+ *        after them (confirmed across every bench file).
+ *      - Also present as plain ASCII: the ZF unit number (e.g. 1034420271),
+ *        the Mopar assembly part number (05035827AC), the ZF calibration /
+ *        software id (0260TP1122V02), and a build date ("Oct  1 2019").
  *
- * Image layout (single source of truth — fixtures use the same constants):
- *   - Header signature  : ASCII "ZF8HP" at 0x0000 followed by the variant
- *                         tag at 0x0008 (0x45/0x70/0x90 → 845RE/8HP70/8HP90).
- *   - VIN slots         : 2 mirrored 17-byte ASCII slots per variant
- *                         (table below). CRC-16/CCITT-FALSE over the 17
- *                         VIN bytes, stored BE at slot+17/+18.
- *   - Per-block CRC32   : The image is partitioned into 64 KB blocks. The
- *                         last 4 bytes of each block hold a BE32 CRC-32
- *                         (poly 0xEDB88320, init 0xFFFFFFFF, xorout
- *                         0xFFFFFFFF — standard zlib CRC) over the block's
- *                         preceding (BLOCK_SIZE - 4) bytes. The loader
- *                         walks every block at boot and refuses to engage
- *                         the TCU on any mismatch.
+ *   2. Infineon TriCore program flash dump (0x200000 / 2 MB, *.HexTemp)
+ *      - Begins with the c3 05 c3 05 ... boot pattern; the only reliable plain
+ *        ASCII is the software-protection version string, e.g.
+ *        "TPROT_TC_G2_V05.01.00" at 0x1F00. No clean VIN, no write path.
  *
- * Refusal policy: variants outside the covered table OR sizes outside the
- * canonical-for-variant table return `{ ok:false }` so the inspector can
- * surface a clear "ZF-8HP variant not yet covered" banner instead of
- * silently corrupting blocks.
- *
- * Coverage is bench-pending — the constants form a deterministic in-app
- * contract; off-platform verification on a real TCU dump is the next
- * step. The block-CRC machinery is general-purpose (the block size is the
- * variable that needs bench confirmation per variant), so retargeting is
- * a one-line change here.
+ * HONESTY / refuse-on-doubt:
+ *   - The immobilizer secret (ISN) and any global EEPROM integrity check are
+ *     NOT located/verified in these dumps, so this module never claims to read
+ *     or write them. VIN write only patches the ASCII VIN mirrors.
+ *   - VIN validation uses the ISO-3779 / NHTSA check digit so calibration
+ *     strings that merely look 17-char (e.g. "1034420271011270H") are rejected.
+ *   - When a dump carries two distinct VINs the writer refuses to guess and
+ *     requires the caller to name the source VIN to replace.
  * ============================================================================ */
 
-import { crc16ccitt } from './crc.js';
+export const OBDSTAR_FILLER = 'OBDSTAR6';
+export const OBDSTAR_8HP_EEPROM_SIZE = 0x20000;   // 128 KB
+export const TRICORE_8HP_FLASH_SIZE = 0x200000;   // 2 MB
 
-export const ZF8HP_SIG_HEAD = [0x5A, 0x46, 0x38, 0x48, 0x50]; // "ZF8HP"
-export const ZF8HP_SIG_OFFSET = 0x0000;
-export const ZF8HP_VARIANT_OFFSET = 0x0008;
-export const ZF8HP_BLOCK_SIZE = 0x10000; // 64 KB
-export const ZF8HP_BLOCK_CRC_LEN = 4;
+/* Grounded identity patterns (all observed as plain ASCII in real dumps).
+ * No word boundaries: the ZF unit number and Mopar p/n are stored immediately
+ * adjacent to the calibration string, so \b anchors would never match. */
+const ZF_UNIT_RE = /103[0-9]{7}/g;                 // ZF Saarbrücken unit no. (1034420271 …)
+const MOPAR_PART_RE = /0[0-9]{7}[A-Z]{2}/g;        // Mopar assembly p/n (05035827AC …)
+const CAL_RE = /0260[A-Z0-9]{2}[0-9]{4}V[0-9]{2}/g; // ZF calibration / sw id (0260TP1122V02 …)
+const DATE_RE = /(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s{1,2}[0-9 ][0-9]\s[0-9]{4}/g;
+const SW_VERSION_RE = /[A-Z0-9_]{3,}_V[0-9]{2}\.[0-9]{2}\.[0-9]{2}/g; // TriCore TPROT_TC_G2_V05.01.00
 
-const VARIANT_TABLE = {
-  0x45: {
-    key: '845RE',
-    label: 'ZF 845RE (Jeep / Charger / Challenger pre-2017)',
-    canonicalSize: 0x80000,
-    vinSlots: [0x010000, 0x020000],
-  },
-  0x70: {
-    key: '8HP70',
-    label: 'ZF 8HP70 (Charger / Challenger / 300 6.4)',
-    canonicalSize: 0x100000,
-    vinSlots: [0x020000, 0x040000],
-  },
-  0x90: {
-    key: '8HP90',
-    label: 'ZF 8HP90 (SRT / Hellcat / Redeye)',
-    canonicalSize: 0x100000,
-    vinSlots: [0x020000, 0x040000],
-  },
+/* Confidently-known ZF unit numbers → marketing variant. Extend only with
+ * bench-confirmed mappings; unknown units report the raw number, never a guess. */
+const KNOWN_ZF_UNITS = {
+  '1034420271': { variant: '8HP95', label: 'ZF 8HP95 (Jeep Grand Cherokee SRT/Trackhawk, Durango)' },
 };
 
-export const ZF8HP_VARIANTS = Object.freeze(
-  Object.entries(VARIANT_TABLE).map(([tagHex, v]) => ({ tag: Number(tagHex), ...v })),
-);
+const VIN_CHARSET_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
+const VIN_TRANS = { A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8, J: 1, K: 2, L: 3, M: 4, N: 5, P: 7, R: 9, S: 2, T: 3, U: 4, V: 5, W: 6, X: 7, Y: 8, Z: 9 };
+for (let i = 0; i <= 9; i++) VIN_TRANS[String(i)] = i;
+const VIN_WEIGHTS = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2];
 
-const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
-
-/* zlib CRC-32 (poly 0xEDB88320, refin, refout, init/xorout 0xFFFFFFFF). */
-const CRC32_TABLE = (() => {
-  const t = new Uint32Array(256);
-  for (let i = 0; i < 256; i++) {
-    let c = i;
-    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-    t[i] = c >>> 0;
-  }
-  return t;
-})();
-
-export function crc32zlib(bytes, init = 0xFFFFFFFF) {
-  let c = init >>> 0;
-  for (let i = 0; i < bytes.length; i++) {
-    c = (CRC32_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8)) >>> 0;
-  }
-  return (c ^ 0xFFFFFFFF) >>> 0;
+/** ISO-3779 / NHTSA VIN check-digit validation (position 9). */
+export function vinCheckDigitOk(vin) {
+  if (!VIN_CHARSET_RE.test(vin)) return false;
+  let sum = 0;
+  for (let i = 0; i < 17; i++) sum += VIN_TRANS[vin[i]] * VIN_WEIGHTS[i];
+  const r = sum % 11;
+  const expect = r === 10 ? 'X' : String(r);
+  return vin[8] === expect;
 }
 
-function matchBytes(data, offset, signature) {
-  if (offset + signature.length > data.length) return false;
-  for (let i = 0; i < signature.length; i++) {
-    if (data[offset + i] !== signature[i]) return false;
-  }
-  return true;
+function asUint8(buf) {
+  return buf instanceof Uint8Array ? buf : new Uint8Array(buf);
 }
 
-function readAscii(data, offset, len) {
-  if (offset + len > data.length) return null;
+function latin1(data, start = 0, end = data.length) {
   let s = '';
-  for (let i = 0; i < len; i++) {
-    const b = data[offset + i];
-    if (b < 0x20 || b > 0x7E) return null;
-    s += String.fromCharCode(b);
-  }
+  for (let i = start; i < end; i++) s += String.fromCharCode(data[i]);
   return s;
 }
 
-function readBE16(data, offset) {
-  return ((data[offset] << 8) | data[offset + 1]) & 0xFFFF;
+function uniqueByValue(arr) {
+  return Array.from(new Set(arr));
 }
 
-function writeBE16(buf, offset, value) {
-  buf[offset] = (value >>> 8) & 0xFF;
-  buf[offset + 1] = value & 0xFF;
+/** True iff the buffer contains the repeating OBDSTAR programmer filler. */
+export function containsObdstarFiller(data) {
+  const needle = OBDSTAR_FILLER;
+  const text = latin1(data, 0, Math.min(data.length, 0x20000));
+  return text.includes(needle);
 }
 
-function readBE32(data, offset) {
-  return (
-    ((data[offset] << 24) >>> 0) |
-    (data[offset + 1] << 16) |
-    (data[offset + 2] << 8) |
-    data[offset + 3]
-  ) >>> 0;
-}
-
-function writeBE32(buf, offset, value) {
-  buf[offset]     = (value >>> 24) & 0xFF;
-  buf[offset + 1] = (value >>> 16) & 0xFF;
-  buf[offset + 2] = (value >>> 8)  & 0xFF;
-  buf[offset + 3] =  value         & 0xFF;
-}
-
-function writeBytes(buf, offset, bytes) {
-  for (let i = 0; i < bytes.length; i++) buf[offset + i] = bytes[i];
-}
-
-/** True iff `data` carries the ZF-8HP header signature. Size-agnostic. */
-export function isZf8hpImage(data) {
-  if (!data || data.length < ZF8HP_VARIANT_OFFSET + 1) return false;
-  return matchBytes(data, ZF8HP_SIG_OFFSET, ZF8HP_SIG_HEAD);
-}
-
-export function zf8hpVariantFor(data) {
-  if (!isZf8hpImage(data)) return null;
-  const tag = data[ZF8HP_VARIANT_OFFSET];
-  return VARIANT_TABLE[tag] ? { tag, ...VARIANT_TABLE[tag] } : { tag, key: null, label: null };
-}
-
-/**
- * Recompute every per-block CRC32 of `data`. Returns an array of
- * `{ blockIndex, offset, csOffset, stored, calc, ok }` so callers can
- * render a per-block status table.
- */
-export function zf8hpBlockChecksums(data) {
+/** Every check-digit-valid VIN occurrence in the buffer: [{ vin, offset }]. */
+export function extractObdstar8hpVins(data) {
+  const text = latin1(data);
+  const re = /[A-HJ-NPR-Z0-9]{17}/g;
   const out = [];
-  const sz = data.length;
-  for (let off = 0; off + ZF8HP_BLOCK_SIZE <= sz; off += ZF8HP_BLOCK_SIZE) {
-    const csOff = off + ZF8HP_BLOCK_SIZE - ZF8HP_BLOCK_CRC_LEN;
-    const region = data.subarray(off, csOff);
-    const calc = crc32zlib(region);
-    const stored = readBE32(data, csOff);
-    out.push({
-      blockIndex: out.length,
-      offset: off,
-      csOffset: csOff,
-      stored,
-      calc,
-      ok: stored === calc,
-    });
+  let m;
+  while ((m = re.exec(text))) {
+    // Check digit + an alphabetic WMI char in position 2. Every FCA/Stellantis
+    // VIN (1C4…, 2C3…, ZAR…) has a letter there; the numeric-prefix calibration
+    // strings (1034420271…, 1039S…) that happen to pass the check digit do not.
+    if (vinCheckDigitOk(m[0]) && /[A-HJ-NPR-Z]/.test(m[0][1])) {
+      out.push({ vin: m[0], offset: m.index });
+    }
   }
   return out;
 }
 
-/** Parse a ZF-8HP image. `ok:false` when the buffer isn't a ZF-8HP. */
-export function parseZf8hpImage(buf) {
-  const data = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
-  if (!isZf8hpImage(data)) {
-    return { ok: false, reason: 'Not a ZF-8HP TCU image (missing "ZF8HP" header)' };
-  }
-  const variant = zf8hpVariantFor(data);
-  const sz = data.length;
-  const variantSupported = !!(variant && variant.key);
-  const sizeSupported = variantSupported && sz === variant.canonicalSize;
+/** True iff `data` is an OBDSTAR-wrapped 8HP internal-EEPROM dump. */
+export function isObdstar8hpEeprom(data) {
+  if (!data || data.length !== OBDSTAR_8HP_EEPROM_SIZE) return false;
+  if (!containsObdstarFiller(data)) return false;
+  // 8HP fingerprint so other 128 KB OBDSTAR dumps aren't misread as a TCU.
+  const text = latin1(data);
+  ZF_UNIT_RE.lastIndex = 0;
+  CAL_RE.lastIndex = 0;
+  return ZF_UNIT_RE.test(text) || CAL_RE.test(text) || extractObdstar8hpVins(data).length > 0;
+}
 
-  const vinSlots = variantSupported
-    ? variant.vinSlots.map((off) => {
-        if (off + 17 + 2 > sz) {
-          return { offset: off, present: false, vin: null, csStored: null, csCalc: null, csOk: false };
-        }
-        const vinBytes = data.slice(off, off + 17);
-        const vinStr = readAscii(data, off, 17);
-        const isVin = !!vinStr && VIN_RE.test(vinStr);
-        const csStored = readBE16(data, off + 17);
-        const csCalc = isVin ? crc16ccitt(vinBytes) : null;
-        return {
-          offset: off,
-          present: true,
-          vin: isVin ? vinStr : null,
-          raw: Array.from(vinBytes),
-          csStored,
-          csCalc,
-          csOk: isVin && csStored === csCalc,
-        };
-      })
-    : [];
+/** True iff `data` is an Infineon TriCore 8HP program-flash dump. */
+export function isTricore8hpFlash(data) {
+  if (!data || data.length !== TRICORE_8HP_FLASH_SIZE) return false;
+  return latin1(data, 0, data.length).includes('TPROT_');
+}
 
-  const populated = vinSlots.filter((s) => s.vin);
-  const distinct = Array.from(new Set(populated.map((s) => s.vin)));
-  const allMatch = populated.length > 0 && distinct.length === 1;
+/** True iff `data` is any recognised ZF-8HP TCU dump (EEPROM or flash). */
+export function isZf8hpImage(data) {
+  return isObdstar8hpEeprom(data) || isTricore8hpFlash(data);
+}
 
-  const blocks = sizeSupported ? zf8hpBlockChecksums(data) : [];
-  const blocksOk = blocks.length > 0 && blocks.every((b) => b.ok);
+function grabAll(text, re) {
+  re.lastIndex = 0;
+  return uniqueByValue(text.match(re) || []);
+}
 
-  const banners = [];
-  if (!variantSupported) {
-    banners.push({
-      level: 'error',
-      message: `ZF-8HP variant tag 0x${data[ZF8HP_VARIANT_OFFSET].toString(16).toUpperCase().padStart(2, '0')} at 0x${ZF8HP_VARIANT_OFFSET.toString(16).toUpperCase().padStart(4, '0')} is not in the covered set (0x45 / 0x70 / 0x90). Read-only — refusing to write.`,
-    });
-  } else if (!sizeSupported) {
-    banners.push({
-      level: 'error',
-      message: `ZF-8HP ${variant.key} image size ${sz.toLocaleString()} B is not the canonical ${variant.canonicalSize.toLocaleString()} B for this variant. Read-only — refusing to write.`,
-    });
-  }
-  if (blocks.length && !blocksOk) {
-    const badCount = blocks.filter((b) => !b.ok).length;
+/** Parse an OBDSTAR-wrapped 8HP internal-EEPROM dump. */
+export function parseObdstar8hpEeprom(buf) {
+  const data = asUint8(buf);
+  const text = latin1(data);
+
+  const vinHits = extractObdstar8hpVins(data);
+  const distinctVins = uniqueByValue(vinHits.map((v) => v.vin));
+  const primaryVin = vinHits.length ? vinHits[0].vin : null;
+
+  const zfUnit = grabAll(text, ZF_UNIT_RE).find((u) => /^103/.test(u)) || grabAll(text, ZF_UNIT_RE)[0] || null;
+  const moparPart = grabAll(text, MOPAR_PART_RE).find((p) => /^050/.test(p)) || null;
+  const calibrationIds = grabAll(text, CAL_RE);
+  const buildDate = grabAll(text, DATE_RE)[0] || null;
+
+  const known = zfUnit ? KNOWN_ZF_UNITS[zfUnit] : null;
+  const variant = known ? known.variant : null;
+  const variantLabel = known ? known.label : (zfUnit ? `ZF 8HP TCU (ZF unit ${zfUnit})` : 'ZF 8HP TCU');
+
+  const banners = [{
+    level: 'info',
+    message: 'OBDSTAR-tool internal-EEPROM dump. VIN / ZF unit / Mopar p/n / calibration / build-date are read from plain-ASCII ground truth. The immobilizer secret (ISN) and any global EEPROM checksum are not located in this block — neither is read or written.',
+  }];
+  if (distinctVins.length > 1) {
     banners.push({
       level: 'warn',
-      message: `ZF-8HP per-block CRC mismatch: ${badCount} / ${blocks.length} blocks fail. The 8HP loader will refuse to engage until every block CRC is repaired.`,
+      message: `This dump carries ${distinctVins.length} distinct VINs (${distinctVins.join(', ')}). A VIN write must name which one to replace.`,
     });
+  } else if (distinctVins.length === 0) {
+    banners.push({ level: 'warn', message: 'No check-digit-valid VIN found — virgin or non-standard dump.' });
   }
 
   return {
     ok: true,
     type: 'ZF_8HP_TCU',
-    size: sz,
-    variant: variantSupported ? variant.key : null,
-    variantLabel: variant ? variant.label : null,
-    variantTag: variant ? variant.tag : null,
-    variantSupported,
-    sizeSupported,
-    vinSlots,
-    vin: allMatch ? distinct[0] : (populated[0] ? populated[0].vin : null),
-    vinAllSlotsMatch: allMatch,
-    blocks,
-    blocksOk,
-    writeSafe: sizeSupported && variantSupported && allMatch && vinSlots.every((s) => s.csOk) && blocksOk,
+    format: 'OBDSTAR_EEPROM',
+    size: data.length,
+    vins: vinHits,
+    vinSlots: vinHits.map((v) => ({ offset: v.offset, vin: v.vin, present: true })),
+    distinctVins,
+    vin: distinctVins.length === 1 ? distinctVins[0] : primaryVin,
+    primaryVin,
+    zfUnit,
+    variant,
+    variantLabel,
+    moparPart,
+    calibrationIds,
+    buildDate,
+    softwareVersion: null,
+    writeSafe: distinctVins.length >= 1,
     banners,
   };
 }
 
-/**
- * Patch a target VIN into every ZF-8HP VIN slot of a copy of `buf`,
- * recompute per-slot CRC16, then re-stamp every per-block CRC32 so the
- * TCU loader will accept the modified image. Returns `{ ok, bytes, log }`.
- */
-export function patchZf8hpVin(buf, targetVin) {
-  const data = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
-  const parsed = parseZf8hpImage(data);
-  if (!parsed.ok) return { ok: false, reason: parsed.reason, log: [] };
-  if (!targetVin || !VIN_RE.test(targetVin)) {
-    return { ok: false, reason: 'Target VIN missing or not a valid 17-character VIN.', log: [] };
+/** Parse an Infineon TriCore 8HP program-flash dump (version string only). */
+export function parseTricore8hpFlash(buf) {
+  const data = asUint8(buf);
+  const text = latin1(data, 0, Math.min(data.length, 0x40000));
+  SW_VERSION_RE.lastIndex = 0;
+  let softwareVersion = null;
+  let versionOffset = null;
+  const m = SW_VERSION_RE.exec(text);
+  if (m) {
+    softwareVersion = m[0];
+    versionOffset = m.index;
   }
-  if (!parsed.sizeSupported || !parsed.variantSupported) {
-    return {
-      ok: false,
-      reason: 'Refusing to write — ZF-8HP variant/size is not in the covered set. See parse banners.',
-      log: [],
-      banners: parsed.banners,
-    };
-  }
-  const out = new Uint8Array(data);
-  const variant = VARIANT_TABLE[parsed.variantTag];
-  const vinBytes = new Uint8Array(17);
-  for (let i = 0; i < 17; i++) vinBytes[i] = targetVin.charCodeAt(i) & 0xFF;
-  const slotCrc = crc16ccitt(vinBytes);
-  const log = [];
-  for (const off of variant.vinSlots) {
-    writeBytes(out, off, vinBytes);
-    writeBE16(out, off + 17, slotCrc);
-    log.push(`ZF-8HP VIN @ 0x${off.toString(16).toUpperCase().padStart(6, '0')} ← ${targetVin} (CRC16 0x${slotCrc.toString(16).toUpperCase().padStart(4, '0')})`);
-  }
-  // Repair every block CRC32 — VIN slots almost always sit inside the
-  // calibration blocks so the stored sums need a refresh either way.
-  const blocks = zf8hpBlockChecksums(out);
-  let blocksTouched = 0;
-  for (const b of blocks) {
-    if (b.stored !== b.calc) {
-      writeBE32(out, b.csOffset, b.calc);
-      blocksTouched++;
-      log.push(`ZF-8HP block #${b.blockIndex} CRC32 @ 0x${b.csOffset.toString(16).toUpperCase().padStart(6, '0')} ← 0x${b.calc.toString(16).toUpperCase().padStart(8, '0')} (was 0x${b.stored.toString(16).toUpperCase().padStart(8, '0')})`);
-    }
-  }
-  if (blocksTouched === 0) log.push('ZF-8HP per-block CRCs unchanged (all already valid)');
-  return { ok: true, bytes: out, log, vin: targetVin, blocksTouched };
+  return {
+    ok: true,
+    type: 'ZF_8HP_TCU',
+    format: 'TRICORE_FLASH',
+    size: data.length,
+    vins: [],
+    vinSlots: [],
+    distinctVins: [],
+    vin: null,
+    primaryVin: null,
+    zfUnit: null,
+    variant: null,
+    variantLabel: 'ZF 8HP TCU — Infineon TriCore program flash',
+    moparPart: null,
+    calibrationIds: [],
+    buildDate: null,
+    softwareVersion,
+    versionOffset,
+    writeSafe: false,
+    banners: [{
+      level: 'info',
+      message: softwareVersion
+        ? `TriCore program flash. Software version "${softwareVersion}" surfaced; this image holds no plain-ASCII VIN and has no write path here.`
+        : 'TriCore program flash. No software-version string located; no VIN and no write path here.',
+    }],
+  };
 }
 
-/** Build a deterministic ZF-8HP fixture for tests / docs. */
-export function makeZf8hpFixture({ variant = '8HP90', vin = '2C3CDXL90MH582899' } = {}) {
-  const entry = Object.values(VARIANT_TABLE).find((v) => v.key === variant);
-  if (!entry) throw new Error(`Unknown ZF-8HP variant '${variant}'`);
-  const buf = new Uint8Array(entry.canonicalSize).fill(0xFF);
-  writeBytes(buf, ZF8HP_SIG_OFFSET, ZF8HP_SIG_HEAD);
-  const tagEntry = Object.entries(VARIANT_TABLE).find(([, v]) => v.key === variant);
-  buf[ZF8HP_VARIANT_OFFSET] = Number(tagEntry[0]);
-  if (vin && VIN_RE.test(vin)) {
-    const enc = new Uint8Array(17);
-    for (let i = 0; i < 17; i++) enc[i] = vin.charCodeAt(i) & 0xFF;
-    const crc = crc16ccitt(enc);
-    for (const off of entry.vinSlots) {
-      writeBytes(buf, off, enc);
-      writeBE16(buf, off + 17, crc);
+/** Parse any recognised ZF-8HP dump; `ok:false` if it is neither format. */
+export function parseZf8hpImage(buf) {
+  const data = asUint8(buf);
+  if (isObdstar8hpEeprom(data)) return parseObdstar8hpEeprom(data);
+  if (isTricore8hpFlash(data)) return parseTricore8hpFlash(data);
+  return { ok: false, reason: 'Not a recognised ZF-8HP TCU dump (no OBDSTAR EEPROM filler or TriCore flash signature).' };
+}
+
+/**
+ * Patch a target VIN into every mirror of a source VIN inside an OBDSTAR 8HP
+ * EEPROM dump. `arg` may be a target-VIN string (only valid for single-VIN
+ * dumps) or `{ targetVin, sourceVin }`. There is no per-VIN checksum in this
+ * block, so only the ASCII VIN bytes are rewritten. Returns `{ ok, bytes, log }`.
+ */
+export function patchZf8hpVin(buf, arg) {
+  const data = asUint8(buf);
+  const opts = typeof arg === 'string' ? { targetVin: arg } : (arg || {});
+  const targetVin = (opts.targetVin || '').toUpperCase();
+  let sourceVin = opts.sourceVin ? opts.sourceVin.toUpperCase() : null;
+
+  if (!isObdstar8hpEeprom(data)) {
+    return { ok: false, reason: 'VIN write supported only on OBDSTAR 8HP internal-EEPROM dumps.', log: [] };
+  }
+  if (!vinCheckDigitOk(targetVin)) {
+    return { ok: false, reason: 'Target VIN missing or fails the VIN check digit.', log: [] };
+  }
+
+  const parsed = parseObdstar8hpEeprom(data);
+
+  // allVins mode: rewrite EVERY VIN occurrence (every mirror of every distinct
+  // VIN) to the target. This matches the codebase-wide BCM/RFHUB convention —
+  // the generic patchFile pipeline "writes the new VIN at every detected slot"
+  // so a module adapted into a target vehicle reports that VIN everywhere. The
+  // surgical { sourceVin } path below is for preserving a second distinct VIN.
+  if (opts.allVins) {
+    const targets = parsed.vins.filter((v) => v.vin && v.vin !== targetVin);
+    if (targets.length === 0) {
+      return { ok: false, reason: 'No replaceable VIN slot found (dump already carries only the target VIN, or none).', log: [] };
+    }
+    const outAll = new Uint8Array(data);
+    const logAll = [];
+    for (const slot of targets) {
+      for (let i = 0; i < 17; i++) outAll[slot.offset + i] = targetVin.charCodeAt(i) & 0xff;
+      logAll.push(`ZF-8HP VIN @ 0x${slot.offset.toString(16).toUpperCase().padStart(6, '0')} ${slot.vin} → ${targetVin}`);
+    }
+    const priorVins = uniqueByValue(targets.map((v) => v.vin));
+    if (priorVins.length > 1) {
+      logAll.push(`Note: dump carried ${priorVins.length} distinct VINs (${priorVins.join(', ')}); all overwritten with ${targetVin}.`);
+    }
+    logAll.push(`Patched ${targets.length} VIN slot${targets.length === 1 ? '' : 's'}. No per-VIN checksum in this block — none recomputed.`);
+    return { ok: true, bytes: outAll, log: logAll, vin: targetVin, mirrorsPatched: targets.length };
+  }
+
+  if (!sourceVin) {
+    if (parsed.distinctVins.length === 1) {
+      sourceVin = parsed.distinctVins[0];
+    } else if (parsed.distinctVins.length === 0) {
+      return { ok: false, reason: 'No existing VIN to replace in this dump.', log: [] };
+    } else {
+      return {
+        ok: false,
+        reason: `Dump holds ${parsed.distinctVins.length} VINs (${parsed.distinctVins.join(', ')}). Specify which to replace via { sourceVin }, or { allVins: true } to overwrite every slot.`,
+        log: [],
+      };
     }
   }
-  // Stamp every block CRC32 so the fixture round-trips clean.
-  const blocks = zf8hpBlockChecksums(buf);
-  for (const b of blocks) writeBE32(buf, b.csOffset, b.calc);
+  if (!parsed.distinctVins.includes(sourceVin)) {
+    return { ok: false, reason: `Source VIN ${sourceVin} not present in this dump.`, log: [] };
+  }
+  if (sourceVin === targetVin) {
+    return { ok: false, reason: 'Target VIN equals source VIN — nothing to write.', log: [] };
+  }
+
+  const out = new Uint8Array(data);
+  const offsets = parsed.vins.filter((v) => v.vin === sourceVin).map((v) => v.offset);
+  const log = [];
+  for (const off of offsets) {
+    for (let i = 0; i < 17; i++) out[off + i] = targetVin.charCodeAt(i) & 0xff;
+    log.push(`ZF-8HP VIN @ 0x${off.toString(16).toUpperCase().padStart(6, '0')} ${sourceVin} → ${targetVin}`);
+  }
+  log.push(`Patched ${offsets.length} mirror${offsets.length === 1 ? '' : 's'}. No per-VIN checksum in this block — none recomputed.`);
+  return { ok: true, bytes: out, log, vin: targetVin, sourceVin, mirrorsPatched: offsets.length };
+}
+
+/**
+ * Build a deterministic OBDSTAR-style 8HP EEPROM fixture for tests/docs:
+ * a 128 KB buffer of OBDSTAR6 filler with the identity block (two VINs +
+ * ZF unit + Mopar p/n + calibration + date) written into 3 mirrors.
+ */
+export function makeZf8hpFixture({
+  vinA = '1C4RJFN98MC842152',
+  vinB = '1C4RJFDJ4EC359481',
+  zfUnit = '1034420271',
+  moparPart = '05035827AC',
+  calibration = '0260TP1122V02',
+  date = 'Oct  1 2019',
+} = {}) {
+  const buf = new Uint8Array(OBDSTAR_8HP_EEPROM_SIZE);
+  const filler = Array.from(OBDSTAR_FILLER).map((c) => c.charCodeAt(0));
+  for (let i = 0; i < buf.length; i++) buf[i] = filler[i % filler.length];
+  const writeAscii = (off, str) => { for (let i = 0; i < str.length; i++) buf[off + i] = str.charCodeAt(i) & 0xff; };
+  const mirrors = [0x0ae6f, 0x12e6f, 0x1ae6f];
+  for (const base of mirrors) {
+    buf[base - 1] = 0x01; // record marker (matches observed layout)
+    writeAscii(base, vinA);
+    writeAscii(base + 17, vinB);
+    buf[base + 34] = 0x01;
+    buf[base + 35] = 0xff; buf[base + 36] = 0xff; buf[base + 37] = 0xff;
+  }
+  // Identity strings near the end (matches the observed ~0x1A000+ region).
+  writeAscii(0x1acdd, 'A' + moparPart);
+  writeAscii(0x1ae53, date);
+  writeAscii(0x1ba33, moparPart);
+  writeAscii(0x1bc9f, zfUnit + calibration);
   return buf;
 }

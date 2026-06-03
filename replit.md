@@ -77,7 +77,7 @@ Seed-to-key calculator (iterates `ALGOS`), GPEC/GPEC2A firmware unlocks, **SWARM
 
 ### Capabilities added for competitor parity
 - **XC2268-class RFHUB parser** (`xc2268Rfhub.js`) — 2019+ internal-flash RFHUB (64 KB).
-- **ZF-8HP TCU parser** (`zf8hp.js`) — 845RE / 8HP70 / 8HP90.
+- **ZF-8HP TCU parser** (`zf8hp.js`) — GROUNDED on real bench dumps (the earlier synthetic "ZF8HP"-ASCII-header / per-64KB-block-CRC contract was fiction and is retired). Two real formats: (1) OBDSTAR-tool internal-EEPROM dump (128 KB, `OBDSTAR6` filler) whose identity block is mirrored ~3x and holds two ADJACENT VINs (17 ASCII each, NO per-VIN checksum) plus the ZF unit number (`1034420271`=8HP95), Mopar p/n (`05035827AC`), ZF calibration (`0260TP1122V02`) and build date; (2) Infineon TriCore program flash (2 MB `.HexTemp`, software version `TPROT_TC_G2_V05.01.00` @0x1F00, no VIN). VINs are check-digit validated + require an alphabetic WMI char (rejects calibration junk like `1034420271011270H`). `patchZf8hpVin` rewrites the ASCII VIN in every mirror of a named source VIN (refuses to guess when a dump carries two distinct VINs; no checksum recompute — none exists). ISN/global integrity are not located, so neither is read or written. Flash is read-only.
 - **Mopar radio codes** (`moparRadioCode.js`) — legacy RAQ/REF code derivation.
 - **2019+ Dealer Lockout Bypass** (`dealerLockoutBypass.js`) — 5-step state machine surfaced on `RfhubTab`, gated on observed NRC `0x36`/`0x37` + `XC2268_RFHUB` inspector hint (or bench-override checkbox).
 - **Radio Codes tab** (`radiocodes`).

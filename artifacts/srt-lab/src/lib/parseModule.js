@@ -26,12 +26,14 @@ const CANONICAL_SIZES_BY_TYPE={
   '95640':[8192],
   GPEC2A:[4096,8192],
   RFHUB:[2048,4096],
-  // Task #634 — XC2268-class RFHUB internal flash dump is 64 KB; ZF-8HP TCU
-  // images are 256 KB / 512 KB / 1 MB depending on variant (845RE / 8HP70 /
-  // 8HP90). Listed here so MODULE_MIN_SIZES / MODULE_MIN_LABELS computes a
-  // valid floor for the inspector's tooSmall guard.
+  // XC2268-class RFHUB internal flash dump is 64 KB. Listed here so
+  // MODULE_MIN_SIZES / MODULE_MIN_LABELS computes a valid floor for the
+  // inspector's tooSmall guard.
   XC2268_RFHUB:[65536],
-  ZF_8HP_TCU:[262144,524288,1048576],
+  // Real bench sizes: OBDSTAR-wrapped internal EEPROM (128 KB) and the
+  // Infineon TriCore program flash (2 MB). Detection is header-gated
+  // (isZf8hpImage) so these sizes only feed the inspector size floor.
+  ZF_8HP_TCU:[131072,2097152],
 };
 
 /* Canonical VIN slot offsets per module family — SINGLE SOURCE OF TRUTH.
@@ -236,7 +238,7 @@ const MODULE_MIN_LABELS={
   PCM:'4 KB Continental GPEC2A (smallest PCM image)',
   '95640':'8 KB BCM-backup EEPROM (95640)',
   XC2268_RFHUB:'64 KB Infineon XC2268 internal flash (2019+ RFHUB)',
-  ZF_8HP_TCU:'256 KB / 512 KB / 1 MB ZF-8HP TCU image (845RE / 8HP70 / 8HP90)',
+  ZF_8HP_TCU:'128 KB OBDSTAR internal EEPROM / 2 MB TriCore flash (ZF 8HP TCU)',
 };
 
 function fileExt(filename){
@@ -1064,29 +1066,34 @@ function parseModule(data,filename,opts){
       info.sec16SourceSlot=1;
     }
   }else if(type==='ZF_8HP_TCU'){
-    // Task #634 — ZF 8HP TCU image (845RE / 8HP70 / 8HP90). Per-64KB-block
-    // CRC32 (zlib polynomial) is exposed so a VIN patch + re-CRC step has
-    // ground-truth block boundaries to write back into. Field names mirror
-    // parseZf8hpImage() so a schema drift surfaces in tests, not at runtime.
+    // Grounded ZF 8HP TCU read. Two real formats: OBDSTAR-wrapped internal
+    // EEPROM (128 KB, holds the VIN mirrors + ZF unit / Mopar p/n / calibration
+    // / build date) and the Infineon TriCore program flash (2 MB, software
+    // version only). Field names mirror parseZf8hpImage() so a schema drift
+    // surfaces in tests, not at runtime. No per-VIN checksum exists in the
+    // EEPROM block, so no CRC is read or recomputed.
     const z=parseZf8hpImage(data);
     if(!z.ok){info.zf8hp={ok:false,reason:z.reason||'parse failed'};info.vins=[];}
     else{
       info.zf8hp={
         ok:true,
+        format:z.format,
         variant:z.variant,
         variantLabel:z.variantLabel,
-        variantTag:z.variantTag,
-        variantSupported:z.variantSupported,
-        sizeSupported:z.sizeSupported,
-        vinSlots:z.vinSlots,
         vin:z.vin,
-        vinAllSlotsMatch:z.vinAllSlotsMatch,
-        blocks:z.blocks,
-        blocksOk:z.blocksOk,
+        primaryVin:z.primaryVin,
+        distinctVins:z.distinctVins,
+        vinSlots:z.vinSlots,
+        zfUnit:z.zfUnit,
+        moparPart:z.moparPart,
+        calibrationIds:z.calibrationIds,
+        buildDate:z.buildDate,
+        softwareVersion:z.softwareVersion,
+        versionOffset:z.versionOffset,
         writeSafe:z.writeSafe,
         banners:z.banners||[],
       };
-      info.vins=z.vinSlots.filter(v=>v.vin).map(v=>({offset:v.offset,vin:v.vin,sc:v.csStored,cc:v.csCalc,crcOk:v.csOk}));
+      info.vins=z.vinSlots.filter(v=>v.vin).map(v=>({offset:v.offset,vin:v.vin}));
     }
   }else if(type==='BCM'){
     // Scan canonical slot bases at both base+0 (legacy/no-header layout) and

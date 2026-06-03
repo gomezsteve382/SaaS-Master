@@ -169,20 +169,36 @@ test("eepmapAnalyze: returns empty vinCandidates for an all-zero file", () => {
 });
 
 // ---------------------------------------------------------------------------
-// 5. scanChecksums — non-prefix / per-block CRC detection (ZF-8HP TCU)
+// 5. scanChecksums — non-prefix / per-block CRC detection
 //
-// The ZF-8HP fixture is 512 KB split into eight 64 KB blocks, each sealed with
-// a big-endian CRC32 (crc32be) over the block body at blockEnd-4. Block 0's
-// CRC covers the file prefix (start 0x0), but blocks 1..7 are *non-prefix*:
-// their coverage starts mid-file (0x10000, 0x20000, ...). This proves the
-// scanner detects partial-range checksums, not just byte-0 prefixes.
+// A synthetic 512 KB image split into eight 64 KB blocks, each sealed with a
+// big-endian CRC32 (crc32be) over the block body at blockEnd-4. Block 0's CRC
+// covers the file prefix (start 0x0), but blocks 1..7 are *non-prefix*: their
+// coverage starts mid-file (0x10000, 0x20000, ...). This proves the scanner
+// detects partial-range checksums, not just byte-0 prefixes. Built inline so
+// the test does not depend on any module-specific fixture file.
 // ---------------------------------------------------------------------------
 
-const ZF_8HP = new Uint8Array(
-  readFileSync(join(__dir, "..", "lib", "__fixtures__", "zf8hp_845re.bin")),
-);
+function makePerBlockCrc32beImage() {
+  const BLOCK = 0x10000;
+  const N = 8;
+  const buf = new Uint8Array(BLOCK * N);
+  for (let i = 0; i < buf.length; i++) buf[i] = (i * 31 + 7) & 0xff; // non-uniform body
+  for (let b = 0; b < N; b++) {
+    const start = b * BLOCK;
+    const trailer = start + BLOCK - 4;
+    const v = crc32(buf, start, trailer) >>> 0;
+    buf[trailer] = (v >>> 24) & 0xff;
+    buf[trailer + 1] = (v >>> 16) & 0xff;
+    buf[trailer + 2] = (v >>> 8) & 0xff;
+    buf[trailer + 3] = v & 0xff;
+  }
+  return buf;
+}
 
-test("scanChecksums: finds non-prefix per-block crc32be in ZF-8HP fixture", () => {
+const ZF_8HP = makePerBlockCrc32beImage();
+
+test("scanChecksums: finds non-prefix per-block crc32be in a block-CRC image", () => {
   const results = scanChecksums(ZF_8HP);
 
   // Block 1: a genuinely non-prefix checksum — coverage starts at 0x10000.

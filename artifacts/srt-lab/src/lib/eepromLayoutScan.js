@@ -40,7 +40,6 @@ import {
   EEP95640_VIN_OFFSETS,
 } from './parseModule.js';
 import { XC2268_VIN_SLOTS, XC2268_VIN_LEN, XC2268_VARIANT_OFFSET } from './xc2268Rfhub.js';
-import { ZF8HP_BLOCK_SIZE, ZF8HP_BLOCK_CRC_LEN } from './zf8hp.js';
 import { BCM_PARTIAL_VIN_LEN } from './donorLeakScan.js';
 
 export const ROLES = Object.freeze([
@@ -303,26 +302,27 @@ function regionsXc2268(info, data) {
 }
 
 function regionsZf8hp(info, data) {
+  // Grounded ZF-8HP layout. OBDSTAR EEPROM dumps mirror an identity block
+  // holding the VIN(s) (no per-VIN CRC); TriCore flash carries only a
+  // software-version string. Annotate the real, observed offsets only.
   const out = [];
-  out.push(region(0x0000, 5, 'ZF-8HP header signature "ZF8HP"', 'boot', data));
-  out.push(region(0x0008, 1, 'Variant tag (0x45/0x70/0x90)', 'flash_flag', data));
-  const variant = info.zf8hp;
-  if (variant && variant.ok && variant.vinSlots) {
-    for (let i = 0; i < variant.vinSlots.length; i++) {
-      const s = variant.vinSlots[i];
+  const z = info.zf8hp;
+  if (z && z.ok && Array.isArray(z.vinSlots)) {
+    for (let i = 0; i < z.vinSlots.length; i++) {
+      const s = z.vinSlots[i];
       if (!s || s.offset === undefined) continue;
       out.push({
         offset: s.offset,
-        length: 19,
-        label: `VIN slot ${i + 1} + CRC16 (ZF-8HP @ 0x${s.offset.toString(16).toUpperCase()})`,
+        length: 17,
+        label: `VIN mirror ${i + 1} (ZF-8HP @ 0x${s.offset.toString(16).toUpperCase()})`,
         role: 'vin',
         preview: asciiPreview(data, s.offset, 17),
       });
     }
   }
-  for (let off = 0; off + ZF8HP_BLOCK_SIZE <= data.length; off += ZF8HP_BLOCK_SIZE) {
-    const csOff = off + ZF8HP_BLOCK_SIZE - ZF8HP_BLOCK_CRC_LEN;
-    out.push(region(csOff, 4, `Block #${off / ZF8HP_BLOCK_SIZE} CRC32 @ 0x${csOff.toString(16).toUpperCase()}`, 'flash_flag', data));
+  if (z && z.ok && z.softwareVersion && z.versionOffset !== undefined && z.versionOffset !== null) {
+    out.push(region(z.versionOffset, z.softwareVersion.length,
+      `TriCore software version "${z.softwareVersion}"`, 'flash_flag', data));
   }
   return out;
 }

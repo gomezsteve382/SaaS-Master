@@ -46,8 +46,8 @@ const AGENT_META = {
       detail: "LAYOUT looks for the \"XC22\"/\"RFHUB\" header + variant byte at 0x0020; CRYPTO verifies the 3 VIN slots' CRC-16/CCITT and the BE32 image-wide checksum; IMMOBILIZER knows the 0x27 0x0B alt-level Dealer Lockout Bypass.",
     },
     ZF_8HP_TCU: {
-      label: "ZF-8HP TCU (845RE / 8HP70 / 8HP90)",
-      detail: "LAYOUT reads the \"ZF8HP\" header + variant tag at 0x0008; CRYPTO verifies both VIN-slot CRC-16/CCITT mirrors and walks every 64 KB block's BE32 zlib CRC-32 in the trailing 4 bytes.",
+      label: "ZF-8HP TCU (OBDSTAR EEPROM / TriCore flash)",
+      detail: "LAYOUT recognises the OBDSTAR-wrapped 128 KB internal-EEPROM dump (\"OBDSTAR6\" filler) and the 2 MB Infineon TriCore program flash; IDENTITY reads the check-digit-validated VIN mirrors, ZF unit number, Mopar part, calibration id and build date (EEPROM) or the software-version string (flash). No per-VIN checksum exists in the EEPROM block, so none is verified or recomputed.",
     },
     GPEC2A: { label: "GPEC2A PCM",              detail: "LAYOUT + IMMOBILIZER already specialise in this family." },
     RFHUB:  { label: "RFHUB (legacy Gen1/Gen2)", detail: "LAYOUT + IMMOBILIZER already specialise in this family." },

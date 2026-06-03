@@ -313,34 +313,41 @@ describe('scanEepromLayout — XC2268_RFHUB', () => {
 
 describe('scanEepromLayout — ZF_8HP_TCU', () => {
   it('identifies ZF_8HP_TCU with high confidence', () => {
-    const buf = makeZf8hpFixture({ variant: '8HP90', vin: '2C3CDXL90MH582899' });
+    const buf = makeZf8hpFixture();
     const { moduleType, confidence } = scanEepromLayout(buf);
     expect(moduleType).toBe('ZF_8HP_TCU');
     expect(confidence).toBe('high');
   });
 
-  it('emits boot region at 0x0000 (ZF8HP signature)', () => {
-    const buf = makeZf8hpFixture({ variant: '8HP90' });
-    const { regions } = scanEepromLayout(buf);
-    const boot = findRegions(regions, 'boot');
-    expect(hasOffset(boot, 0x0000)).toBe(true);
-  });
-
-  it('emits VIN regions at 8HP90 VIN slot offsets (0x020000, 0x040000)', () => {
-    const buf = makeZf8hpFixture({ variant: '8HP90', vin: '2C3CDXL90MH582899' });
+  it('emits VIN mirror regions at the real identity-block offsets', () => {
+    const buf = makeZf8hpFixture();
     const { regions } = scanEepromLayout(buf);
     const vins = findRegions(regions, 'vin');
-    for (const off of [0x020000, 0x040000]) {
+    // makeZf8hpFixture mirrors the identity block at these three bases.
+    for (const off of [0x0ae6f, 0x12e6f, 0x1ae6f]) {
       expect(hasOffset(vins, off)).toBe(true);
     }
   });
 
-  it('emits flash_flag regions for per-block CRCs', () => {
-    const buf = makeZf8hpFixture({ variant: '8HP90' });
+  it('does not emit fictional per-block CRC32 regions', () => {
+    const buf = makeZf8hpFixture();
     const { regions } = scanEepromLayout(buf);
-    const ff = findRegions(regions, 'flash_flag');
-    expect(ff.length).toBeGreaterThan(0);
-    expect(ff.some(r => r.label.includes('CRC32'))).toBe(true);
+    expect(regions.some(r => /CRC32/.test(r.label))).toBe(false);
+  });
+
+  it('emits the TriCore software-version region for a 2MB flash dump', () => {
+    // Minimal grounded TriCore flash: 2MB, boot pattern c3 05, version
+    // string TPROT_TC_G2_V05.01.00 at 0x1F00 (no VIN). Verifies the
+    // parseModule -> regionsZf8hp versionOffset plumbing end to end.
+    const VERSION = 'TPROT_TC_G2_V05.01.00';
+    const flash = new Uint8Array(0x200000);
+    flash[0] = 0xc3; flash[1] = 0x05; flash[2] = 0xc3; flash[3] = 0x05;
+    for (let i = 0; i < VERSION.length; i++) flash[0x1f00 + i] = VERSION.charCodeAt(i);
+    const { moduleType, regions } = scanEepromLayout(flash);
+    expect(moduleType).toBe('ZF_8HP_TCU');
+    const ver = regions.find(r => /software version/i.test(r.label));
+    expect(ver).toBeTruthy();
+    expect(ver.offset).toBe(0x1f00);
   });
 });
 
