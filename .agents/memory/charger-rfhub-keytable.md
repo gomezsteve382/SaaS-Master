@@ -26,6 +26,12 @@ Observed on VIN 2C3CDXL92KH674464 dumps (19CHARGER_RFHUB_EEE+ and immovin..._VIN
 - **Why it hid for so long:** the synthetic test fixture padded slot 8 with `FF FF`, which never occurs on a real car, so the gate passed in tests while failing on every real file. Any fixture for this table MUST reproduce the non-FF slot-8 boundary or it masks the bug.
 - **How to apply:** enforce the inner `FF FF` separator + mirror match on all 8 slots, but the trailing `FF FF` separator on slots 1-7 only. The mirror check still runs on the last slot, so the gate stays fail-closed.
 
+## Multi-vehicle corpus result (4 distinct masters)
+- attached_assets holds 4 DISTINCT vehicles by master secret (16 B @0x0226, mirror @0x0238): V1 5902.. (8 keys, the subject), V2 F7B1.. (Mitchell VIN ...65264, flag 0x03 keys), V3 4F80.. (CARTMAN), V4 D0D8.. (rfhubzo). Many filenames are duplicate dumps of the same car.
+- 21 real keyId->index pairs across the 4 masters. `FFFFFF02 -> index 0xFB` appears under TWO different masters (V2,V3): a factory **sentinel**, not a derived key — do NOT treat it as proof the index is master-independent.
+- **Ruled out across ALL 4 vehicles** (not just one car): CRC8 (every poly/init/refin/refout/xorout), CRC16 sweep (CCITT/IBM/3D65/A001/etc x hi/lo/hi^lo over keyBE, keyLE, key||master, master||key), single-byte linear, sum/xor folds. Index is a real keyed/crypto value or an allocation counter.
+- Kit assembled at exports/RFHUB_INDEX_CRACK_KIT(.tar.gz): all dumps + pairs_all.csv + vehicles.txt + SEARCH_SPEC.md + BEFORE_AFTER_PROTOCOL.md + solve_index.mjs (plug-in candidate harness) + diff_dumps.mjs (before/after differ).
+
 ## How to actually crack/do it
 - **Best:** a before/after EEPROM pair around a single key-add -> diff reveals insertion point, the index value & how chosen, and any checksum/shift. One example fully specifies the format.
 - **If no before/after:** read all existing keys on the Autel (Key ID + 4 pages + Config + SK) to test whether index is computed from page/config data rather than UID.

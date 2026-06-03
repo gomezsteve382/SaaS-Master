@@ -1,0 +1,21 @@
+{
+  "source": "Autel programmer read of working fob (starts the car) = key #1 in dump",
+  "keyId": "0077A29B",
+  "chipType": "PCF7945A/53A",
+  "protocol": "HITAG2 (ID46)",
+  "coding": "Manchester",
+  "status": "Not locked / Cloneable",
+  "sk_low": "4D494B52",
+  "sk_high": "00004F4E",
+  "sk_full_calculated": "4F4E4D494B52",
+  "password_cs_last6": "4D494B524F4E",
+  "password_ascii": "MIKRON",
+  "configuration": "08AA4854",
+  "pages": {
+    "page0": "FFFFFFFF",
+    "page1": "50207755",
+    "page2": "01000000",
+    "page3": "FF6E5500"
+  },
+  "note": "SK is the universal FCA/Mikron default - identical on the non-working blank chip too. SK is NOT the differentiator. Pages 1-3 and config appear FCA-standard."
+}
