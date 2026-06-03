@@ -21,6 +21,11 @@ Observed on VIN 2C3CDXL92KH674464 dumps (19CHARGER_RFHUB_EEE+ and immovin..._VIN
 - **Not a pointer** either: treating the 2-byte field as LE addr 0x01xx lands in an unrelated repeating region, not per-key data.
 - Conclusion: the index is **firmware-assigned at learn time** (handle/sequence or checksum over per-key data not in this table). A 7th key also isn't a free-slot overwrite — keys are contiguous and the next bytes belong to another table.
 
+## Slot-8 boundary trap (detection gate)
+- The key table's LAST slot has NO trailing `FF FF` separator on real dumps: the next table (10-byte RKE records) abuts it with no gap (reference car: `00 6C` at 0xCDC-0xCDD). A detection gate that requires trailing `FF FF` on all 8 slots rejects **every** real 4 KB dump (0/30 accepted incl. the reference car).
+- **Why it hid for so long:** the synthetic test fixture padded slot 8 with `FF FF`, which never occurs on a real car, so the gate passed in tests while failing on every real file. Any fixture for this table MUST reproduce the non-FF slot-8 boundary or it masks the bug.
+- **How to apply:** enforce the inner `FF FF` separator + mirror match on all 8 slots, but the trailing `FF FF` separator on slots 1-7 only. The mirror check still runs on the last slot, so the gate stays fail-closed.
+
 ## How to actually crack/do it
 - **Best:** a before/after EEPROM pair around a single key-add -> diff reveals insertion point, the index value & how chosen, and any checksum/shift. One example fully specifies the format.
 - **If no before/after:** read all existing keys on the Autel (Key ID + 4 pages + Config + SK) to test whether index is computed from page/config data rather than UID.

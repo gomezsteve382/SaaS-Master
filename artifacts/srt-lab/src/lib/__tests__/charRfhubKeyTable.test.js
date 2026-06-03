@@ -30,6 +30,13 @@ function writeSlot(buf, slotIdx, rec6) {
   buf[off + 14] = 0xFF; buf[off + 15] = 0xFF;
 }
 
+// Faithful slot-8 boundary: on real dumps the NEXT table (10-byte RKE records)
+// abuts the last key slot, so slot 8's trailing two bytes are NOT FF FF —
+// reference car has 00 6C at 0xCDC-0xCDD. Reproducing that here means a
+// regression of the slot-8 over-strict gate would fail a test instead of being
+// masked by FF FF padding (which never occurs on a real car).
+const SLOT8_TRAILING = [0x00, 0x6C];
+
 function buildRef() {
   const buf = new Uint8Array(4096).fill(0x00);
   // empty slots 1-2
@@ -40,6 +47,11 @@ function buildRef() {
     const rev = keyIdToRevUid(k.keyId);
     writeSlot(buf, 2 + i, [rev[0], rev[1], rev[2], rev[3], k.idx, 0x01]);
   });
+  // Overwrite the FF FF that writeSlot stamped after slot 8's mirror with the
+  // real next-table boundary bytes.
+  const slot8 = CHAR_KEYTABLE_BASE + 7 * CHAR_KEYTABLE_STRIDE;
+  buf[slot8 + 14] = SLOT8_TRAILING[0];
+  buf[slot8 + 15] = SLOT8_TRAILING[1];
   return buf;
 }
 
@@ -77,6 +89,28 @@ describe('charRfhubKeyTable — detection & parse', () => {
   });
   it('firstFreeCharSlot returns the first empty (0-based)', () => {
     expect(firstFreeCharSlot(buildRef())).toBe(0);
+  });
+
+  it('accepts a faithful dump whose LAST slot trailing separator is NOT FF FF (real boundary)', () => {
+    const buf = buildRef();
+    const slot8 = CHAR_KEYTABLE_BASE + 7 * CHAR_KEYTABLE_STRIDE;
+    // Guard: the fixture must reproduce the real boundary, not pad it with FF FF.
+    expect([buf[slot8 + 14], buf[slot8 + 15]]).toEqual([0x00, 0x6C]);
+    // The defect this regresses: requiring FF FF on the last slot rejected
+    // every real 4 KB Charger RFHUB dump, including the reference car.
+    expect(isCharRfhubKeyTable(buf)).toBe(true);
+    const p = parseCharKeyTable(buf);
+    expect(p.ok).toBe(true);
+    expect(p.keyCount).toBe(6);
+    expect(p.slots[7].keyId).toBe('C47D6C9E'); // slot 8 still parses as a key
+    expect(p.slots[7].mirrorOk).toBe(true);
+  });
+
+  it('still enforces the mirror on the last slot (gate not over-loosened)', () => {
+    const buf = buildRef();
+    const slot8 = CHAR_KEYTABLE_BASE + 7 * CHAR_KEYTABLE_STRIDE;
+    buf[slot8 + 8] ^= 0xFF; // break the first byte of slot 8's mirror copy
+    expect(isCharRfhubKeyTable(buf)).toBe(false);
   });
 });
 

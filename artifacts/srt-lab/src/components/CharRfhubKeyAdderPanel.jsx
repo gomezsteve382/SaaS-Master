@@ -154,13 +154,21 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
           {/* Experimental banner */}
           <Card style={{marginBottom: 12, borderLeft: '3px solid ' + C.wn}}>
             <div style={{fontWeight: 800, fontSize: 11, color: C.wn, marginBottom: 6, letterSpacing: 2}}>
-              EXPERIMENTAL — UNVERIFIED INDEX BYTE
+              EXPERIMENTAL — NOT BENCH-VERIFIED ON A REAL CAR
             </div>
             <div style={{fontSize: 11, color: C.ts, lineHeight: 1.6}}>
-              Adds a transponder key by editing the 8-slot key table at 0xC5E. There is no checksum over this
-              region, so the edit is structurally safe. The one unverified field is the per-key <strong>index byte</strong>
-              {' '}(firmware-assigned; default {hex2(CHAR_KEY_DEFAULT_INDEX)}). Worst case: the car ignores the new key and you
-              reflash the original — other keys keep working and the immobilizer cannot be bricked (SEC16 untouched).
+              Adds a transponder key by editing the 8-slot key table at 0xC5E. The byte layout (UID, mirror, flag) is
+              confirmed against real dumps, and no checksum covers this region, so the edit <strong>cannot brick the
+              module</strong> — SEC16 and checksums are untouched and your original file is never modified. But three
+              things are <strong>not proven</strong>, so a written key <strong>may simply not be read by the car</strong>:
+            </div>
+            <ul style={{fontSize: 11, color: C.ts, lineHeight: 1.6, margin: '6px 0 0', paddingLeft: 18}}>
+              <li>The per-key <strong>index byte</strong> is firmware-assigned and can&apos;t be derived (default {hex2(CHAR_KEY_DEFAULT_INDEX)}); no observed real key uses this value.</li>
+              <li><strong>Slot placement</strong> is unproven — real cars fill slots 3-8 and leave 1-2 empty, so a key written into an early free slot may be ignored.</li>
+              <li>A <strong>companion table</strong> elsewhere in the EEPROM may also need a matching entry that this tool does not write.</li>
+            </ul>
+            <div style={{fontSize: 11, color: C.ts, lineHeight: 1.6, marginTop: 6}}>
+              Worst case is fully reversible: reflash the original and your existing keys keep working.
               <strong> Keep your original dump as the restore file.</strong>
             </div>
           </Card>
@@ -276,7 +284,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
 
               <label style={{display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 11, color: C.er, fontWeight: 700, cursor: 'pointer', marginTop: 12}}>
                 <input type="checkbox" checked={ack} onChange={e => setAck(e.target.checked)} data-testid="char-key-ack" style={{marginTop: 2}} />
-                I have a backup of the original RFHUB dump and understand the index byte is unverified.
+                I have a backup of the original RFHUB dump and understand this key-add is unverified on a real car.
               </label>
 
               <div style={{marginTop: 12}}>
