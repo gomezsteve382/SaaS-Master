@@ -7,6 +7,7 @@ import {
   writeRfhSec16Gen1,
 } from '../securityBytes.js';
 import { parseModule } from '../parseModule.js';
+import { crc8_65 } from '../crc.js';
 import { loadRealDumpFixtures } from '../__fixtures__/realDumps/loader.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -222,6 +223,74 @@ function expectBytesEqual(actual, expected, label) {
     it('source metadata documents provenance (synthetic or real-sanitized)', () => {
       expect(typeof fixtures.rfhubg1.source).toBe('string');
       expect(fixtures.rfhubg1.source.length).toBeGreaterThan(0);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // EEE+ Gen2 RFHUB twinning — VERIFIED-PART-ONLY pin
+  //
+  // Fixture `rfhubEeePlus` is an anonymized real FCA SINCRO twinning of a
+  // 2019+ "EEE+" Charger RFHUB (donor VIN 2C3CDXL92KH674464), independently
+  // confirmed against the competitor SINCRO tool. Unlike the classic Gen2
+  // `rfhub` pair above, this image does NOT carry the AA 55 31 01 Gen2
+  // header at 0x0500 (it reads FF FF 00 00) and its SEC16 slots store a
+  // DIFFERENT trailing checksum byte (0x05) than our crc8_65 writer emits
+  // (0xFD).
+  //
+  // Per the task decision we pin ONLY the part that is independently
+  // verified: the 16-byte SEC16 PAYLOAD at both slots == reverse(BCM SEC16).
+  // The checksum byte, the AA5531 marker, and the VIN/CRC stamping are
+  // KNOWN EEE+ limitations that are asserted-as-DIFFERENT here (so a future
+  // writer change that starts matching them surfaces loudly and the pin can
+  // be graduated) — they are NOT pinned as writer output, and writer logic
+  // is intentionally unchanged.
+  // ─────────────────────────────────────────────────────────────────────────
+  const eeePlusDescribe = fixtures.rfhubEeePlus ? describe : describe.skip;
+  eeePlusDescribe('writeRfhSec16FromBcm — EEE+ RFHUB twinning (verified SEC16 payload only)', () => {
+    if (!fixtures.rfhubEeePlus) {
+      it.skip('no rfhubEeePlus before/after pair in manifest', () => {});
+      return;
+    }
+    const SLOTS = [0x050E, 0x0522];
+    const eee = fixtures.rfhubEeePlus;
+    // BCM SEC16 = reverse(RFH SEC16); the writer reverses internally.
+    const bcmSec16 = new Uint8Array(16);
+    for (let i = 0; i < 16; i++) bcmSec16[i] = eee.rfhSec16[15 - i];
+
+    it('captured SINCRO "after" stores SEC16 payload = reverse(BCM) at both slots', () => {
+      for (const off of SLOTS) {
+        expectBytesEqual(eee.after.slice(off, off + 16), eee.rfhSec16, `EEE+ after @0x${off.toString(16)}`);
+      }
+    });
+
+    it('our writer reproduces the SAME 16-byte SEC16 payload (checksum byte excluded)', () => {
+      // The EEE+ image lacks the AA 55 31 01 Gen2 header the writer gates
+      // on, so stamp it onto a throwaway copy purely to clear the gate — we
+      // assert ONLY the SEC16 payload the writer produces, never the header.
+      const stamped = new Uint8Array(eee.before);
+      stamped[0x0500] = 0xAA; stamped[0x0501] = 0x55; stamped[0x0502] = 0x31; stamped[0x0503] = 0x01;
+      const r = writeRfhSec16FromBcm(stamped, bcmSec16);
+      expect(r.patched).toBe(2);
+      expect(r.rfhSec16Hex).toBe('f0b61be3c75bc294b624783af0aa5a55');
+      for (const off of SLOTS) {
+        expectBytesEqual(r.bytes.slice(off, off + 16), eee.rfhSec16, `EEE+ writer @0x${off.toString(16)}`);
+      }
+    });
+
+    it('documents KNOWN EEE+ gaps: checksum byte and Gen2 marker differ from writer output', () => {
+      // (1) Checksum byte: SINCRO stores 0x05 at slot+16; our crc8_65 writer
+      //     emits 0xFD. Unresolved EEE+ checksum variant — NOT pinned as
+      //     writer output, asserted-as-different so a future match is loud.
+      const ourChk = crc8_65(eee.rfhSec16);
+      expect(ourChk).toBe(0xFD);
+      for (const off of SLOTS) {
+        expect(eee.after[off + 16], `EEE+ stored chk @0x${(off + 16).toString(16)}`).toBe(0x05);
+        expect(eee.after[off + 16]).not.toBe(ourChk);
+      }
+      // (2) Gen2 header: classic Gen2 reads AA 55 31 01 @0x0500; EEE+ does
+      //     not, which is why the writer cannot be run on it unmodified.
+      const hdr = Array.from(eee.after.slice(0x0500, 0x0504));
+      expect(hdr).not.toEqual([0xAA, 0x55, 0x31, 0x01]);
     });
   });
 });

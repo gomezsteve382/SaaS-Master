@@ -99,6 +99,7 @@ function loadPair(entry, fallbackSec16) {
  *     source: string | undefined,
  *     bcm:     PairEntry | null,
  *     rfhub:   PairEntry | null,
+ *     rfhubEeePlus: PairEntry | null, // EEE+ Gen2 RFHUB twinning (SEC16 payload-only golden pin)
  *     rfhubg1: PairEntry | null,   // Task #449 — Gen1 24C16 (2 KB) RFHUB pair
  *     pcm:     PairEntry | null,
  *     extraBcms: Array<PairEntry>,
@@ -138,6 +139,7 @@ export function loadRealDumpFixtures() {
     source: typeof manifest.source === 'string' ? manifest.source : undefined,
     bcm:     loadPair(manifest.bcm,     rfhSec16),
     rfhub:   loadPair(manifest.rfhub,   rfhSec16),
+    rfhubEeePlus: loadPair(manifest.rfhubEeePlus, rfhSec16),
     rfhubg1: loadPair(manifest.rfhubg1, rfhSec16),
     pcm:     loadPair(manifest.pcm,     rfhSec16),
     extraBcms,

@@ -15,6 +15,14 @@
     "donorVin": "2C3CDXCT1HH652640",
     "source": "Anonymized real-bench RFHUB Gen2 (24C32, 4 KB) capture from attached_assets/RFH_20CHRGR6.2_KEYPROG_2C3CDXCT1HH652640.bin — VIN scrubbed (652640→600000) at 4 reverse-VIN slots (0xEA5/0xEB9/0xECD/0xEE1). 'after' = captured synced RFHUB. 'before' = same buffer with the two Gen2 SEC16 slots @ 0x050E and 0x0522 erased to 0xFF (16B SEC16 + 2B CS each)."
   },
+  "rfhubEeePlus": {
+    "before": "rfhub-eeeplus/before.bin",
+    "after": "rfhub-eeeplus/after.bin",
+    "rfhSec16Hex": "f0b61be3c75bc294b624783af0aa5a55",
+    "anonVin": "2C3CDXL92KH600000",
+    "donorVin": "2C3CDXL92KH674464",
+    "source": "VERIFIED-PART-ONLY golden pin for EEE+ Gen2 RFHUB twinning. Anonymized real FCA SINCRO twinning of a 2019+ 'EEE+' Charger RFHUB (24C32, 4 KB) from attached_assets/RFH_HERMANADO_CHARGER_RFH_VIN_2C3CDXL92KH674464_1780515560334.bin, paired against attached_assets/CHARGER_BCM_VIN_2C3CDXL92KH674464_1780515582821.bin (BCM SEC16 = 555aaaf03a7824b694c25bc7e31bb6f0 = reverse(RFH SEC16)). VIN scrubbed (674464->600000) at the 4 reverse-VIN slots (0xEA5/0xEB9/0xECD/0xEE1) via scripts/anonymize-real-dump.mjs --module rfhub. 'after' = anonymized captured SINCRO image; 'before' = same buffer with the two Gen2 SEC16 slots @ 0x050E and 0x0522 (16B SEC16 + 2B CS each = 18B) erased to 0xFF. ONLY the 16-byte SEC16 PAYLOAD (= reverse(BCM)) is pinned by securityBytes.realDump.golden.test.js. KNOWN EEE+ gaps that are NOT pinned as writer output (asserted-as-different instead): (1) the SEC16 trailing checksum byte stores 0x05 here vs crc8_65=0xFD our writer emits; (2) no AA 55 31 01 Gen2 header @ 0x0500 (reads FF FF 00 00); (3) VIN-slot CRC/marker stamping differs. Writer logic intentionally unchanged."
+  },
   "rfhubg1": {
     "before": "rfhubg1.before.bin",
     "after": "rfhubg1.after.bin",

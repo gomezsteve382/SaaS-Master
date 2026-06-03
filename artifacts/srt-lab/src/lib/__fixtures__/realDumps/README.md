@@ -260,6 +260,38 @@ vehicle (anonymized VIN `2C3CDXL90MH582899`).
   `anonymizeRealDump.test.js` (the parseModule cross-check stays as
   the cheapest way to keep the Gen1 → RFHUB classification proven).
 
+- **`rfhub-eeeplus/before.bin` / `rfhub-eeeplus/after.bin`** — Gen2 RFHUB
+  (24C32, 4 KB) twinning of a **2019+ "EEE+" Charger** RFHUB, donor VIN
+  `2C3CDXL92KH674464` → anon `2C3CDXL92KH600000`. Wired through the
+  top-level `rfhubEeePlus` manifest key (a dedicated key, not the `rfhub`
+  slot, because the classic `rfhub` pair is a different vehicle/layout).
+  Source: anonymized real FCA SINCRO twinning from
+  `attached_assets/RFH_HERMANADO_CHARGER_RFH_VIN_2C3CDXL92KH674464_*.bin`,
+  paired against
+  `attached_assets/CHARGER_BCM_VIN_2C3CDXL92KH674464_*.bin` (BCM SEC16 =
+  `555aaaf03a7824b694c25bc7e31bb6f0` = reverse(RFH SEC16), RFH SEC16 =
+  `f0b61be3c75bc294b624783af0aa5a55`). VIN scrubbed (`674464`→`600000`)
+  at the 4 Gen2 reverse-VIN slots (0xEA5/0xEB9/0xECD/0xEE1) via
+  `scripts/anonymize-real-dump.mjs --module rfhub`. `after` = anonymized
+  captured SINCRO image; `before` = same buffer with both Gen2 SEC16 slots
+  @ 0x050E / 0x0522 (16 B SEC16 + 2 B CS = 18 B each) erased to 0xFF.
+
+  **This is a VERIFIED-PART-ONLY golden pin.** `securityBytes.realDump.golden.test.js`
+  pins ONLY the 16-byte SEC16 **payload** (= reverse(BCM) at both slots,
+  independently confirmed against the competitor SINCRO tool). Three EEE+
+  traits are documented as **KNOWN limitations** and asserted-as-DIFFERENT
+  (not pinned as writer output), so the day the writer learns them the test
+  fails loudly and the pin can graduate:
+    1. **Checksum byte** — SINCRO stores `0x05` at slot+16; our `crc8_65`
+       writer emits `0xFD`. EEE+ uses an unresolved checksum variant.
+    2. **No AA 55 31 01 Gen2 header @ 0x0500** — EEE+ reads `FF FF 00 00`,
+       so `writeRfhSec16FromBcm` cannot be run on it unmodified (the golden
+       test stamps the header onto a throwaway copy purely to clear the
+       writer's gate, then asserts only the payload it produces).
+    3. **VIN-slot CRC / marker stamping** differs from our writer.
+  Writer logic is intentionally **unchanged** by this fixture — it is a
+  regression anchor, not a feature.
+
 - **SGW (Secure Gateway, 0x74F req / 0x76F resp on 2018+ FCA)** —
   intentionally **fixture-less by design** (Task #457). Unlike every
   other family in this directory, SGW does not (and is not expected

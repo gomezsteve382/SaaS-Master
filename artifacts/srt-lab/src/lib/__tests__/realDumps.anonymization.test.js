@@ -209,6 +209,7 @@ const targets = [];
 if (fixtures !== null) {
   if (fixtures.bcm)     targets.push({ label: 'bcm',     moduleType: 'bcm',     entry: fixtures.bcm });
   if (fixtures.rfhub)   targets.push({ label: 'rfhub',   moduleType: 'rfhub',   entry: fixtures.rfhub });
+  if (fixtures.rfhubEeePlus) targets.push({ label: 'rfhubEeePlus', moduleType: 'rfhub', entry: fixtures.rfhubEeePlus });
   if (fixtures.rfhubg1) targets.push({ label: 'rfhubg1', moduleType: 'rfhubg1', entry: fixtures.rfhubg1 });
   if (fixtures.pcm)     targets.push({ label: 'pcm',     moduleType: 'pcm',     entry: fixtures.pcm });
   if (Array.isArray(fixtures.extraBcms)) {

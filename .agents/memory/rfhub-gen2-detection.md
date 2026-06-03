@@ -27,3 +27,32 @@ images as Gen2 regardless of the `0x0500` banner (banner is a secondary hint
 only), and only treat 2048-byte images as Gen1. Keep the `format` label
 `'gen2'` so downstream `startsWith('gen2')` / `=== 'gen2'` checks keep working.
 Ground-truth EEE SEC16 offsets/values: `charger62-bench-set.md`.
+
+## EEE+ variant: the WRITER also diverges from real SINCRO output
+
+Detection-by-size fixes the PARSER, but `writeRfhSec16FromBcm` / `runRfhBcmSync`
+still do NOT reproduce a real FCA-SINCRO twin on an "EEE+" Charger RFHUB
+(filename tag `RFHUB_EEE+`). Ground truth from a real OG→SINCRO-twinned pair
+(donor BCM SEC16 `555AAAF03A7824B694C25BC7E31BB6F0`):
+
+1. **SEC16 16-byte payload matches** — SINCRO writes `reverse(BCM SEC16)` =
+   `F0B61BE3C75BC294B624783AF0AA5A55` to both slots `0x050E`/`0x0522`. Our secret
+   derivation is correct here.
+2. **Slot checksum DIFFERS** — SINCRO stores chk byte `0x05` at slot+16; our
+   `crc8_65(rfhSec16)` = `0xFD`. `crc8_65` is verified-correct for STANDARD Gen2
+   (golden `0123…3210`→`0xE2`, and the committed `rfhub.after.bin` slots both
+   match) but NOT for EEE+. A brute sweep with only 2 valid vectors yields 9
+   ambiguous CRC8 fits and none is crc8_65 — the EEE+ checksum is unresolved.
+   The real SINCRO twin even parses as `csOk=false` under our crc8_65.
+3. **Marker gate blocks the write** — EEE+ has `FF FF 00 00` at `0x0500` (no
+   `AA 55 31 01`), and SINCRO LEAVES it that way. `writeRfhSec16FromBcm` throws
+   on the missing marker; `runRfhBcmSync` works around it by STAMPING `AA 55 31
+   01`, which then diverges 4 bytes vs SINCRO.
+4. **VIN restamp** — SINCRO rewrites all 4 RFH VIN slots (reverse-stored
+   `0x0EA5/0xEB9/0xECD/0xEE1`, +chk) from the BCM VIN; neither writer touches
+   VINs, so an OG carrying a different donor VIN stays mismatched.
+
+**Why:** a "pin twinning to SINCRO byte-for-byte" golden test is currently
+impossible for EEE+ — the writer differs in checksum + marker + VIN. Do NOT
+"fix" the checksum to an ambiguous formula without more real EEE+ dumps to
+disambiguate; treat EEE+ as a distinct variant pending bench data.
