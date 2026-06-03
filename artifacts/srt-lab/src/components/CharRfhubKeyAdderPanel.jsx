@@ -24,6 +24,7 @@ import {
   deriveCharKeyIndex,
   CHAR_KEY_DEFAULT_INDEX,
 } from '../lib/charRfhubKeyTable.js';
+import {parseCharAuxTable, CHAR_AUX_BASE, CHAR_AUX_END} from '../lib/charRfhubAuxTable.js';
 import {dl} from './ImmoChecksumPanel.jsx';
 
 const mono = "'JetBrains Mono'";
@@ -84,6 +85,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
   }, []);
 
   const analysis = useMemo(() => (bytes ? parseCharKeyTable(bytes) : null), [bytes]);
+  const auxAnalysis = useMemo(() => (bytes ? parseCharAuxTable(bytes) : null), [bytes]);
   const baseName = filename.replace(/\.[^.]+$/, '') || 'rfhub';
 
   const keyIdValid = /^[0-9a-fA-F]{8}$/.test(keyId.trim());
@@ -262,6 +264,50 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                       </tr>
                       );
                     })}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
+
+          {/* Second mirrored-record table (read-only). NOT RKE fobs — fixed
+            * 17-record parameter/calibration block; meaning unverified. See
+            * charRfhubAuxTable.js header. */}
+          {auxAnalysis && auxAnalysis.ok && (
+            <Card style={{marginBottom: 12}} data-testid="char-aux-table-card">
+              <div style={{fontWeight: 800, fontSize: 11, color: C.sr, marginBottom: 4, letterSpacing: 2}}>
+                SECOND TABLE — {auxAnalysis.count} MIRRORED RECORDS @{hexOff(CHAR_AUX_BASE)}…{hexOff(CHAR_AUX_END)}
+              </div>
+              <div style={{fontSize: 10, color: C.ts, lineHeight: 1.6, marginBottom: 10}}>
+                A fixed run of {auxAnalysis.count} ten-byte mirrored records that sits right after the key table.
+                Read-only and shown raw on purpose: the record <strong>count is fixed at {auxAnalysis.count} regardless
+                of how many keys the car has</strong>, and several records are byte-identical across different vehicles —
+                so despite its position this is <strong>not</strong> the RKE/remote-fob list, but a parameter/calibration
+                block whose field meanings are <strong>not bench-verified</strong>. SRT Lab refuses to label or edit it.
+              </div>
+              <div style={{overflowX: 'auto'}}>
+                <table style={{width: '100%', borderCollapse: 'collapse', fontSize: 11}}>
+                  <thead>
+                    <tr style={{textAlign: 'left', color: C.ts, borderBottom: '1px solid ' + C.bd}}>
+                      <th style={{padding: '6px 8px'}}>#</th>
+                      <th style={{padding: '6px 8px'}}>Offset</th>
+                      <th style={{padding: '6px 8px'}}>Record (10 bytes)</th>
+                      <th style={{padding: '6px 8px'}}>Mirror</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {auxAnalysis.records.map(r => (
+                      <tr key={r.index} data-testid={'char-aux-rec-' + r.index} style={{borderBottom: '1px solid ' + C.bd, fontFamily: mono}}>
+                        <td style={{padding: '6px 8px', color: C.ts}}>{r.index}</td>
+                        <td style={{padding: '6px 8px', color: C.tm}}>{hexOff(r.offset)}</td>
+                        <td style={{padding: '6px 8px', color: C.tx, whiteSpace: 'nowrap'}}>{r.hex}</td>
+                        <td style={{padding: '6px 8px'}}>
+                          <span style={{fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: (r.mirrorOk ? C.gn : C.er) + '18', color: r.mirrorOk ? C.gn : C.er, fontFamily: mono}}>
+                            {r.mirrorOk ? 'OK' : 'BAD'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

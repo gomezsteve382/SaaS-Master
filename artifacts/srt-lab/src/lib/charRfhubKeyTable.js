@@ -143,9 +143,10 @@ function recordsMatch(bytes, a, b) {
 
 // A slot is [rec 6B][FF FF][mirror 6B][FF FF]. The INNER separator (after the
 // first record) is FF FF on every slot. The TRAILING separator (after the
-// mirror) is FF FF for slots 1-7, but on real dumps the LAST slot abuts the
-// next table (10-byte RKE records) with no gap, so its trailing two bytes are
-// NOT FF FF (reference car: 00 6C at 0xCDC-0xCDD). isCharRfhubKeyTable therefore
+// mirror) is FF FF for slots 1-7, but on real dumps the LAST slot abuts a
+// 4-byte mirrored trailer (then the aux 10-byte parameter table at 0xCE6 — see
+// charRfhubAuxTable.js; it is NOT an RKE/fob list) with no gap, so its trailing
+// two bytes are NOT FF FF (reference car: 00 6C at 0xCDC-0xCDD). isCharRfhubKeyTable therefore
 // enforces the trailing separator only on slots 1-7. A synthetic fixture that
 // pads the last slot with FF FF is NOT faithful and will hide this boundary —
 // which is exactly the defect that made the gate reject every real dump.
@@ -210,8 +211,8 @@ export function revUidToKeyId(rev) {
 /** isCharRfhubKeyTable(bytes) — strict structural gate (won't false-positive on
  *  an unrelated 4 KB image): canonical size + every slot is a mirrored 6-byte
  *  record with an inner FF FF separator. The trailing FF FF separator is
- *  required on slots 1-7 only; the last slot abuts the next table on real dumps
- *  (see hasInnerFFSep/hasTrailingFFSep above). */
+ *  required on slots 1-7 only; the last slot abuts the 4-byte trailer + aux
+ *  parameter table on real dumps (see hasInnerFFSep/hasTrailingFFSep above). */
 export function isCharRfhubKeyTable(bytes) {
   if (!(bytes instanceof Uint8Array) || bytes.length !== CANONICAL_SIZE) return false;
   if (slotOffset(CHAR_KEYTABLE_SLOTS - 1) + CHAR_KEYTABLE_STRIDE > bytes.length) return false;
@@ -219,7 +220,7 @@ export function isCharRfhubKeyTable(bytes) {
   for (let i = 0; i < CHAR_KEYTABLE_SLOTS; i++) {
     const off = slotOffset(i);
     if (!hasInnerFFSep(bytes, off)) return false;
-    // The final slot abuts the next table (10-byte RKE records) on real dumps,
+    // The final slot abuts the 4-byte trailer + aux parameter table on real dumps,
     // so only slots 1-7 carry a trailing FF FF separator. The mirror check
     // below is still enforced on every slot, including the last.
     if (i < lastIdx && !hasTrailingFFSep(bytes, off)) return false;

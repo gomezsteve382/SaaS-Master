@@ -35,7 +35,7 @@ function writeSlot(buf, slotIdx, rec6) {
   buf[off + 14] = 0xFF; buf[off + 15] = 0xFF;
 }
 
-// Faithful slot-8 boundary: on real dumps the NEXT table (10-byte RKE records)
+// Faithful slot-8 boundary: on real dumps the next structure (4-byte trailer + aux table)
 // abuts the last key slot, so slot 8's trailing two bytes are NOT FF FF —
 // reference car has 00 6C at 0xCDC-0xCDD. Reproducing that here means a
 // regression of the slot-8 over-strict gate would fail a test instead of being
