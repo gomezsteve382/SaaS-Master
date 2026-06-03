@@ -118,6 +118,38 @@ export const SAMPLE_FIXTURES = [
     pair:"redeye797-176487", notes:"2022 Charger Redeye 6.2 797 RFHUB EEE — 4 paired keys (slots 5..8, flag 0x01, parse-verified-only, NOT registered). VIN echoed reversed in the Gen2 VIN slots." },
   { file:"SAMPLE_GPEC2A_EXT_EEPROM_797REDEYE_2C3CDXGJXNH176487.bin", kind:"GPEC_EXT", size:8192, vin:"2C3CDXGJXNH176487", role:"OG",
     pair:"redeye797-176487", notes:"2022 Charger Redeye 6.2 797 PCM (Continental GPEC2A 8 KB EXT EEPROM, VIN @ offset 0) — VIN-attribution provenance for the RFHUB above. PCM SEC6 does NOT match reverse(RFHUB master)[0:6] (only the VIN string is shared)." },
+
+  // Task #1118 — anonymized real ground-truth dumps from the cda6-alphaobd
+  // bundle (Task #1111 staged 43 in attached_assets/). Each was VIN-scrubbed
+  // with `scripts/anonymize-real-dump.mjs` (donor VIN replaced by a documented
+  // anon stand-in, parser CRCs re-stamped, post-scrub leak scan clean) before
+  // being copied here. The `vin` field below is the ANON stand-in, not the
+  // donor. See fixtures README for the donor→anon mapping.
+  //
+  // New in-set BCM↔PCM pair "jeepgc-srt-anon-284": both halves share the same
+  // anon VIN so the BCM → PCM pairing tab can auto-load them together.
+  { file:"SAMPLE_BCM_DFLASH_18TH_SINCERE_VIN_CRC_1C4RJFN95JC100001.bin", kind:"BCM", size:65536, vin:"1C4RJFN95JC100001", role:"VIN_CRC",
+    pair:"jeepgc-srt-anon-284", notes:"Anonymized Jeep Grand Cherokee SRT BCM (bundle SINCERE OG, base+8 Redeye layout, SEC16 present) — pairs with the matching GPEC2A PCM" },
+  { file:"SAMPLE_GPEC2A_EXT_EEPROM_4KB_SINCERE_VIN_CRC_1C4RJFN95JC100001.bin", kind:"GPEC_EXT", size:4096, vin:"1C4RJFN95JC100001", role:"VIN_CRC",
+    pair:"jeepgc-srt-anon-284", notes:"Anonymized Jeep Grand Cherokee SRT PCM (Continental GPEC2A 4 KB EXT EEPROM) — pairs with the matching SINCERE BCM" },
+
+  // Standalone anonymized BCM DFLASH samples (parser / VIN-read / sync coverage).
+  { file:"SAMPLE_BCM_DFLASH_18TH_DK0G_VIN_CRC_1C4RJFN9XJC100007.bin", kind:"BCM", size:65536, vin:"1C4RJFN9XJC100007", role:"VIN_CRC",
+    notes:"Anonymized Jeep Grand Cherokee SRT BCM (bundle DK0G OG)" },
+  { file:"SAMPLE_BCM_DFLASH_CHARGER_BLAWSON_VIN_CRC_2C3CDXHG8GH100005.bin", kind:"BCM", size:65536, vin:"2C3CDXHG8GH100005", role:"VIN_CRC",
+    notes:"Anonymized Charger BCM (bundle BLAWSON OG)" },
+  { file:"SAMPLE_BCM_DFLASH_CHARGER_ALEXTORRES_VIN_CRC_2C3CDXKT3FH100006.bin", kind:"BCM", size:65536, vin:"2C3CDXKT3FH100006", role:"VIN_CRC",
+    notes:"Anonymized Charger BCM (bundle ALEXTORRES OG)" },
+
+  // Standalone anonymized Continental GPEC2A PCM EXT EEPROM samples (4 KB).
+  { file:"SAMPLE_GPEC2A_EXT_EEPROM_4KB_CONTINENTAL_VIN_CRC_1C4RJFN92JC100002.bin", kind:"GPEC_EXT", size:4096, vin:"1C4RJFN92JC100002", role:"VIN_CRC",
+    notes:"Anonymized Jeep Grand Cherokee SRT PCM (Continental GPEC2A 4 KB EXT EEPROM, bundle EEPROM3)" },
+  { file:"SAMPLE_GPEC2A_EXT_EEPROM_4KB_CONTINENTAL_VIN_CRC_1C4RJFDJ7DC100003.bin", kind:"GPEC_EXT", size:4096, vin:"1C4RJFDJ7DC100003", role:"VIN_CRC",
+    notes:"Anonymized Trackhawk-family PCM (Continental GPEC2A 4 KB EXT EEPROM, bundle EEPROM_513874)" },
+
+  // Standalone anonymized RFHUB Gen2 external EEPROM sample (4 KB).
+  { file:"SAMPLE_RFHUB_EEE_BRANDON_VIN_CRC_2B3CJ4DV6AH100004.bin", kind:"RFH_EEE", size:4096, vin:"2B3CJ4DV6AH100004", role:"VIN_CRC",
+    notes:"Anonymized RFHUB Gen2 EXT EEPROM (bundle testbrandonrfhub, byte-reversed VIN slots)" },
 ];
 
 export function getFixturesByKind(kind) {

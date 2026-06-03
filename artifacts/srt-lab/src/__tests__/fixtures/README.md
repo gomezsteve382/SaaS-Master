@@ -61,6 +61,14 @@ against them.
 | SAMPLE_RFHUB_EEE_22REDEYE797_KEYS_2C3CDXGJXNH176487.bin | 2C3CDXGJXNH176487 | RFHUB EEE | 4096 | OG | **Fifth distinct vehicle.** 2022 Charger Redeye 6.2 "797" RFHUB (master secret `581391E0…`). Charger 0xC5E key table parses clean: 4 paired keys in slots 5..8 (flag 0x01, mirror-verified, index-checksum valid) + 4 empty `5A5A5A5A 95 00` templates. VIN echoed reversed in the Gen2 VIN slots (0xEA5…). **PARSE-VERIFIED-ONLY** — keys are NOT in `knownWorkingKeys.js`: the source bundle's "BCM_DFLASH" file is byte-identical (sha256 `deae1510…`) to this RFHUB (a mislabeled duplicate, not a real BCM), so there is no independent BCM SEC16 cross-check; chip family + per-chip SK are unconfirmed. Pairs (by VIN only) with the GPEC2A below. See `src/lib/__tests__/charRfhubKeyTable.redeye797.test.js`. |
 | SAMPLE_GPEC2A_EXT_EEPROM_797REDEYE_2C3CDXGJXNH176487.bin | 2C3CDXGJXNH176487 | GPEC2A EXT EEPROM (8 KB) | 8192 | OG | 2022 Charger Redeye 6.2 "797" PCM (Continental GPEC2A, VIN at offset 0x00). VIN-attribution provenance for the RFHUB above. NOTE: its PCM SEC6 does **not** equal `reverse(RFHUB master)[0:6]`, so it corroborates only the VIN string, not the immobilizer secret. |
 | SAMPLE_RFHUB_EEE_19CHARGER62_KEYINDEX_0077A29B.bin | (2019 Charger 6.2) | RFHUB EEE | 4096 | KEYINDEX | Task #1096 — 2019 Charger 6.2 RFHUB dump carved from the key-index package. 6 keys in slots 3-8 of the Charger key table @0xC5E; the confirmed **working** key `0077A29B` (Autel read of the fob that starts the car) is slot 3 @0xC7E, index `0x48`, flag `0x01`. Ground truth for the known-good working-key registry (`knownWorkingKeys.js`). |
+| SAMPLE_BCM_DFLASH_18TH_SINCERE_VIN_CRC_1C4RJFN95JC100001.bin | 1C4RJFN95JC100001 (anon) | BCM DFLASH | 65536 | VIN_CRC | Task #1118 — anonymized Jeep Grand Cherokee SRT BCM from the cda6 bundle (`18_BCMDFLASH_TRACKHAWK_SINCERE.bin`, donor `1C4RJFN95JC284062`). base+8 Redeye layout, SEC16 present. Pairs with the matching SINCERE PCM below. |
+| SAMPLE_GPEC2A_EXT_EEPROM_4KB_SINCERE_VIN_CRC_1C4RJFN95JC100001.bin | 1C4RJFN95JC100001 (anon) | GPEC2A EXT EEPROM (4 KB) | 4096 | VIN_CRC | Task #1118 — anonymized Continental GPEC2A PCM from the cda6 bundle (`FCA_CONTINENTAL_GPEC2A_EXT_EEPROM6_*.bin`, donor `1C4RJFN95JC284062`). Pairs with the SINCERE BCM above. |
+| SAMPLE_BCM_DFLASH_18TH_DK0G_VIN_CRC_1C4RJFN9XJC100007.bin | 1C4RJFN9XJC100007 (anon) | BCM DFLASH | 65536 | VIN_CRC | Task #1118 — anonymized Jeep Grand Cherokee SRT BCM from the cda6 bundle (`18TRACKHAWK_DK0G_DFLASH_OG.bin`, donor `1C4RJFN9XJC309165`). |
+| SAMPLE_BCM_DFLASH_CHARGER_BLAWSON_VIN_CRC_2C3CDXHG8GH100005.bin | 2C3CDXHG8GH100005 (anon) | BCM DFLASH | 65536 | VIN_CRC | Task #1118 — anonymized Charger BCM from the cda6 bundle (`BCMD_FLASH_BLAWSONOGFILE_VIN_CRC_*.bin`, donor `2C3CDXHG8GH143509`). |
+| SAMPLE_BCM_DFLASH_CHARGER_ALEXTORRES_VIN_CRC_2C3CDXKT3FH100006.bin | 2C3CDXKT3FH100006 (anon) | BCM DFLASH | 65536 | VIN_CRC | Task #1118 — anonymized Charger BCM from the cda6 bundle (`BCMDFLASHALEXTORRESOG_VIN_CRC_*.bin`, donor `2C3CDXKT3FH796320`). |
+| SAMPLE_GPEC2A_EXT_EEPROM_4KB_CONTINENTAL_VIN_CRC_1C4RJFN92JC100002.bin | 1C4RJFN92JC100002 (anon) | GPEC2A EXT EEPROM (4 KB) | 4096 | VIN_CRC | Task #1118 — anonymized Continental GPEC2A PCM from the cda6 bundle (`FCA_CONTINENTAL_GPEC2A_EXT_EEPROM3_*.bin`, donor `1C4RJFN92JC337221`). |
+| SAMPLE_GPEC2A_EXT_EEPROM_4KB_CONTINENTAL_VIN_CRC_1C4RJFDJ7DC100003.bin | 1C4RJFDJ7DC100003 (anon) | GPEC2A EXT EEPROM (4 KB) | 4096 | VIN_CRC | Task #1118 — anonymized Trackhawk-family Continental GPEC2A PCM from the cda6 bundle (`FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_1C4RJFDJ7DC513874.bin`, donor `1C4RJFDJ7DC513874`). |
+| SAMPLE_RFHUB_EEE_BRANDON_VIN_CRC_2B3CJ4DV6AH100004.bin | 2B3CJ4DV6AH100004 (anon) | RFHUB EEE | 4096 | VIN_CRC | Task #1118 — anonymized RFHUB Gen2 EXT EEPROM from the cda6 bundle (`testbrandonrfhub_*.bin`, donor `2B3CJ4DV6AH300549`). Byte-reversed VIN slots. |
 
 Several attachments in the source set were intentionally **not imported**:
 
@@ -126,6 +134,30 @@ inside the dump, confirming GPEC2A 4 KB EXT EEPROM. No matching BCM in the
 attachment set; this is a PCM-only single-module sample.
 
 - PCM GPEC2A 4 KB: `SAMPLE_GPEC2A_EXT_EEPROM_4KB_RESCUED_VIN_CRC_1C4RJFN9XJC309165_628f7b3c.bin`
+
+### Jeep Grand Cherokee SRT — anon VIN `1C4RJFN95JC100001` (BCM ↔ PCM, Task #1118)
+New in-set BCM ↔ PCM pair, both halves anonymized from the cda6 bundle (donor
+`1C4RJFN95JC284062`). Both share the same anon VIN so the BCM → PCM pairing tab
+auto-loads them together (`pair:"jeepgc-srt-anon-284"`).
+
+- BCM DFLASH: `SAMPLE_BCM_DFLASH_18TH_SINCERE_VIN_CRC_1C4RJFN95JC100001.bin`
+- PCM GPEC2A 4 KB: `SAMPLE_GPEC2A_EXT_EEPROM_4KB_SINCERE_VIN_CRC_1C4RJFN95JC100001.bin`
+
+### Donor → anon VIN mapping (Task #1118)
+All Task #1118 fixtures were VIN-scrubbed with `scripts/anonymize-real-dump.mjs`
+(parser CRCs re-stamped, post-scrub donor-leak scan clean). The donor VINs are
+recorded here only for provenance; they do **not** appear in the committed bytes.
+
+| Bundle source (attached_assets) | Donor VIN | Anon VIN |
+|---|---|---|
+| `18_BCMDFLASH_TRACKHAWK_SINCERE.bin` | 1C4RJFN95JC284062 | 1C4RJFN95JC100001 |
+| `FCA_CONTINENTAL_GPEC2A_EXT_EEPROM6_*.bin` | 1C4RJFN95JC284062 | 1C4RJFN95JC100001 |
+| `18TRACKHAWK_DK0G_DFLASH_OG.bin` | 1C4RJFN9XJC309165 | 1C4RJFN9XJC100007 |
+| `BCMD_FLASH_BLAWSONOGFILE_VIN_CRC_*.bin` | 2C3CDXHG8GH143509 | 2C3CDXHG8GH100005 |
+| `BCMDFLASHALEXTORRESOG_VIN_CRC_*.bin` | 2C3CDXKT3FH796320 | 2C3CDXKT3FH100006 |
+| `FCA_CONTINENTAL_GPEC2A_EXT_EEPROM3_*.bin` | 1C4RJFN92JC337221 | 1C4RJFN92JC100002 |
+| `FCA_CONTINENTAL_GPEC2A_EXT_EEPROM_1C4RJFDJ7DC513874.bin` | 1C4RJFDJ7DC513874 | 1C4RJFDJ7DC100003 |
+| `testbrandonrfhub_*.bin` | 2B3CJ4DV6AH300549 | 2B3CJ4DV6AH100004 |
 
 ## Notes for test authors
 
