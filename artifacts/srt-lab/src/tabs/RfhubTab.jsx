@@ -32,6 +32,7 @@ import {
 import {useEffect} from "react";
 import RfhubVinPatcherPanel from "../components/RfhubVinPatcherPanel.jsx";
 import CharRfhubKeyAdderPanel from "../components/CharRfhubKeyAdderPanel.jsx";
+import CharRfhubKeyDiffPanel from "../components/CharRfhubKeyDiffPanel.jsx";
 
 /**
  * KEY WRITER → RFHUB handoff banner.
@@ -729,6 +730,13 @@ export default function RfhubTab({vehicle}){
       initialMod={inspectMod&&!inspectTooSmall&&!inspectCorrupt&&inspectMod.data?inspectMod:null}
       onPatched={onPatchedRfhubDump}
     />
+
+    {/* ── Key-Add Self-Check (before/after RFHUB diff) ────────────────────
+      * Drop in a real before/after RFHUB capture and confirm an offline
+      * key-add landed in the expected slot with nothing changed outside the
+      * key table. Read-only; runs diffCharKeyTables. No live OBD required.
+      * ─────────────────────────────────────────────────────────────────── */}
+    <CharRfhubKeyDiffPanel />
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{fontWeight:800,fontSize:12,color:'#00BFA5',marginBottom:10,letterSpacing:2}}>📋 LOG</div>
