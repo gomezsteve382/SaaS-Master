@@ -125,6 +125,7 @@ export default function SecuritySyncTab() {
   const [rfh, setRfh] = useState(null);
   const [pcm, setPcm] = useState(null);
   const [err, setErr] = useState("");
+  const [showFixAnyway, setShowFixAnyway] = useState(false);
 
   // Refuse-on-doubt: every slot validates the parsed module type before it is
   // accepted. A wrong-type (but non-corrupt) file would otherwise skew the
@@ -152,6 +153,7 @@ export default function SecuritySyncTab() {
     if (cf) { setErr(cf); return; }
     if (pm.type !== "GPEC2A") { setErr(`Selected file detected as ${pm.type || "UNKNOWN"} — load a PCM (GPEC2A) dump in this slot.`); return; }
     setErr("");
+    setShowFixAnyway(false);
     setPcm({file, bytes, parsed: engParsePcm(bytes, file.name)});
   }, []);
 
@@ -201,6 +203,28 @@ export default function SecuritySyncTab() {
 
   const anyLoaded = bcm || rfh || pcm;
 
+  // ── Overall GO / NO-GO on the security bytes ──
+  // A single, prominent verdict so the user does not have to read the byte grid
+  // to know whether the set is paired. NO-GO (red) only fires on a real
+  // mismatch (or a missing IMMO marker); a blank/virgin or not-yet-loaded
+  // module is PARTIAL (amber), never a false alarm.
+  const overall = useMemo(() => {
+    if (!anyLoaded) return {label: "LOAD MODULES", color: C.tm, detail: "Load a BCM, RFHUB and PCM to evaluate the immobiliser pairing."};
+    if (!bcmSec16) return {label: "NEED BCM", color: C.wn, detail: "The BCM is the canonical secret source — load a BCM with a populated SEC16."};
+    const rfhMismatch = rfh && rfhVerdict.color === C.er;
+    const pcmMismatch = pcm && (sec6Verdict.color === C.er || sec6Verdict.color === C.wn);
+    if (rfhMismatch || pcmMismatch) {
+      return {label: "⛔ NO-GO", color: C.er, detail: "One or more modules are NOT paired with the BCM — see the red bytes below."};
+    }
+    const pending = [];
+    if (!rfh || !rfhVerdict.good) pending.push(rfh ? "RFHUB (blank/virgin)" : "RFHUB");
+    if (!pcm || !sec6Verdict.good) pending.push(pcm ? "PCM (blank/virgin)" : "PCM");
+    if (pending.length) {
+      return {label: "● PARTIAL", color: C.wn, detail: "Loaded secrets are in sync. Still pending: " + pending.join(", ") + "."};
+    }
+    return {label: "✅ GO", color: C.gn, detail: "BCM ⇄ RFHUB ⇄ PCM secrets are all in sync — this set is paired."};
+  }, [anyLoaded, bcmSec16, rfh, pcm, rfhVerdict, sec6Verdict]);
+
   return (
     <div data-testid="security-sync-tab">
       <Card style={{marginBottom: 16, borderTop: "3px solid " + C.sr}}>
@@ -247,7 +271,7 @@ export default function SecuritySyncTab() {
         />
         <FileSlot
           label="PCM" accent={C.a4 || C.wn} role="pcm" mod={pcm}
-          onLoad={loadPcm} onClear={() => setPcm(null)}
+          onLoad={loadPcm} onClear={() => { setPcm(null); setShowFixAnyway(false); }}
           summary={pcm && (
             <div style={{marginTop: 6, fontSize: 10}}>
               {pcm.parsed.tooSmall ? <StatBadge value="TOO SMALL" good={false} />
@@ -259,6 +283,16 @@ export default function SecuritySyncTab() {
           )}
         />
       </div>
+
+      {/* ── Overall GO / NO-GO banner ── */}
+      {anyLoaded && (
+        <Card style={{marginBottom: 16, borderLeft: "5px solid " + overall.color, background: overall.color + "0C"}} data-testid="secsync-overall">
+          <div style={{display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap"}}>
+            <div style={{fontFamily: "'Righteous'", fontSize: 26, color: overall.color, letterSpacing: 1}} data-testid="secsync-overall-label">{overall.label}</div>
+            <div style={{fontSize: 12, color: C.ts, flex: 1, minWidth: 220}}>{overall.detail}</div>
+          </div>
+        </Card>
+      )}
 
       {/* ── Side-by-side byte-by-byte comparison ── */}
       <Card style={{marginBottom: 16}} data-testid="secsync-comparison">
@@ -320,22 +354,50 @@ export default function SecuritySyncTab() {
         )}
       </Card>
 
-      {/* ── ECM / GPEC2A one-click immo fix (delegates to verified writer) ── */}
-      <Card style={{marginBottom: 16, borderLeft: "3px solid " + (C.a4 || C.wn)}}>
-        <div style={{fontWeight: 800, fontSize: 12, color: C.a4 || C.wn, letterSpacing: 2, marginBottom: 4}}>🛠️ ECM / GPEC2A IMMO FIX</div>
-        <div style={{fontSize: 10, color: C.tm}}>
-          One-click immo repair for the loaded PCM: stamps the GPEC2A marker and writes the SEC6 secret derived from the BCM / RFHUB donor above. Refuses on doubt.
-        </div>
-      </Card>
-      {pcm && !pcm.parsed.tooSmall ? (
-        <Gpec2aImmoPanel mod={{data: pcm.bytes, filename: pcm.file.name}} donorMods={donorMods} onPatched={(bytes, fname) => loadPcm({name: fname}, bytes)} />
-      ) : (
-        <Card style={{marginBottom: 16}}>
-          <div style={{fontSize: 12, color: C.tm, fontStyle: "italic", textAlign: "center", padding: "8px 0"}}>
-            Load a PCM (GPEC2A) dump above to enable the immo analyzer and one-click fix.
-          </div>
-        </Card>
-      )}
+      {/* ── ECM / GPEC2A one-click immo fix (delegates to verified writer) ──
+       * When the PCM SEC6 already matches the BCM and the IMMO marker is set,
+       * the loaded PCM is paired — there is nothing to repair. We surface that
+       * clearly and keep the full immo-fix workbench collapsed behind an
+       * explicit opt-in so a paired PCM never *looks* like it needs fixing. */}
+      {(() => {
+        const pcmReady = pcm && !pcm.parsed.tooSmall;
+        const pcmInSync = pcmReady && sec6Verdict.good;
+        return (
+          <>
+            <Card style={{marginBottom: 16, borderLeft: "3px solid " + (pcmInSync ? C.gn : (C.a4 || C.wn))}}>
+              <div style={{fontWeight: 800, fontSize: 12, color: pcmInSync ? C.gn : (C.a4 || C.wn), letterSpacing: 2, marginBottom: 4}}>🛠️ ECM / GPEC2A IMMO FIX</div>
+              {pcmInSync ? (
+                <div style={{fontSize: 11, color: C.ts}} data-testid="secsync-pcm-already-paired">
+                  <strong style={{color: C.gn}}>PCM already paired — no fix needed.</strong>{" "}
+                  The loaded PCM's SEC6 already matches the BCM and the IMMO marker is set. Nothing here needs repairing.
+                </div>
+              ) : (
+                <div style={{fontSize: 10, color: C.tm}}>
+                  One-click immo repair for the loaded PCM: stamps the GPEC2A marker and writes the SEC6 secret derived from the BCM / RFHUB donor above. Refuses on doubt.
+                </div>
+              )}
+              {pcmInSync && (
+                <div style={{marginTop: 10}}>
+                  <Btn color={C.tm} outline onClick={() => setShowFixAnyway((v) => !v)} data-testid="secsync-show-fix-anyway">
+                    {showFixAnyway ? "Hide manual immo tools" : "Show manual immo tools anyway"}
+                  </Btn>
+                </div>
+              )}
+            </Card>
+            {pcmReady ? (
+              (!pcmInSync || showFixAnyway) ? (
+                <Gpec2aImmoPanel mod={{data: pcm.bytes, filename: pcm.file.name}} donorMods={donorMods} onPatched={(bytes, fname) => loadPcm({name: fname}, bytes)} />
+              ) : null
+            ) : (
+              <Card style={{marginBottom: 16}}>
+                <div style={{fontSize: 12, color: C.tm, fontStyle: "italic", textAlign: "center", padding: "8px 0"}}>
+                  Load a PCM (GPEC2A) dump above to enable the immo analyzer and one-click fix.
+                </div>
+              </Card>
+            )}
+          </>
+        );
+      })()}
     </div>
   );
 }

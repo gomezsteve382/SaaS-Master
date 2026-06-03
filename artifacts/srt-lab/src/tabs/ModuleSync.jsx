@@ -546,10 +546,20 @@ export function engParseRfh(bytes, filename) {
     r.vinConsistent = r.vinSlots.every(s => s.vin === r.vin);
   }
 
-  /* SEC16 format detection */
+  /* SEC16 format detection.
+   *
+   * Generation is decided by SIZE first — a 24C32 (4 KB) or double-dump (8 KB)
+   * is always Gen2; a 24C16 (2 KB) is Gen1 — matching the canonical
+   * detectGen() in lib/rfhubKeySlots.js. The 0xAA5531 01 banner at 0x0500 is
+   * only a *secondary* hint: real Gen2 EEE Charger dumps store a valid SEC16 at
+   * 0x050E while carrying a NON-canonical banner (e.g. FF FF 00 00), so gating
+   * Gen2 on the banner alone mislabels them Gen1 and reads garbage from the
+   * Gen1 offset 0x0226 — a false SEC16 MISMATCH. Ground truth: RFH EEE slot1
+   * @0x050E (see .agents/memory/charger62-bench-set.md). */
   const gen2Hdr = bytes[0x0500] === 0xAA && bytes[0x0501] === 0x55 && bytes[0x0502] === 0x31 && bytes[0x0503] === 0x01;
+  const gen2BySize = bytes.length === 4096 || bytes.length === 8192;
   const aeq = (a, b) => { if (!a || !b || a.length !== b.length) return false; for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false; return true; };
-  if (gen2Hdr && bytes.length >= 0x0532) {
+  if ((gen2Hdr || gen2BySize) && bytes.length >= 0x0532) {
     const s1 = bytes.slice(0x050E, 0x051E);   /* 16 bytes */
     const s2 = bytes.slice(0x0522, 0x0532);
     const g2Pop = !s1.every(b => b === 0xFF) && !s1.every(b => b === 0x00);
