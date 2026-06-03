@@ -54,6 +54,11 @@ import {
   refreshKeyHistoryFromServer,
   readKeyHistoryImportVin,
 } from '../lib/keyWriter/keyHistory.js';
+import {
+  getKnownWorkingKeys,
+  classifyAgainstRegistry,
+  knownKeyToRecord,
+} from '../lib/keyWriter/knownWorkingKeys.js';
 
 const WRITERS = [
   { id: 'vvdi-mini', label: 'Xhorse VVDI Mini Key Tool' },
@@ -417,6 +422,13 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
   const keyValidation = useMemo(() => validateKeyRecord(activeRecord), [activeRecord]);
   const keyChipDef = useMemo(() => chipFamily(activeRecord?.chipId), [activeRecord]);
 
+  /* ── Known-good working-key registry (Task #1096) ───────────────────────── */
+  const knownKeys = useMemo(() => getKnownWorkingKeys(masterVin), [masterVin]);
+  const registryStatus = useMemo(
+    () => classifyAgainstRegistry(activeRecord, masterVin),
+    [activeRecord, masterVin],
+  );
+
   const updateActive = useCallback((patch) => {
     setKeyRecords((rs) => rs.map((r) => (r.id === activeRecord?.id ? { ...r, ...patch } : r)));
   }, [activeRecord]);
@@ -524,6 +536,19 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
       msg: `UID copied from slot ${slot.idx + 1}. SK left blank — enter the transponder SK from your tool. This RFHUB's SEC16 master (reference only, NOT the SK): ${sec16Hex}`,
     });
   }, [slot, keyChipDef, secret16, updateActive]);
+
+  /* Prefill the active Key Dump card from a known-good registry entry. SK is
+   * the documented per-transponder secret (NOT SEC16); review before export. */
+  const onPrefillFromKnownKey = useCallback((entry) => {
+    if (!entry) return;
+    const rec = knownKeyToRecord(entry);
+    if (!rec) { setKeyDumpNote({ ok: false, msg: 'Could not build a record for that known-good key (unknown chip family).' }); return; }
+    updateActive({ chipId: rec.chipId, uidHex: rec.uidHex, skHex: rec.skHex, flags: rec.flags, label: rec.label });
+    setKeyDumpNote({
+      ok: true,
+      msg: `Prefilled known-good key ${entry.keyId} (${entry.vehicle}). SK is the documented MIKRON default (NOT SEC16). Review before export.`,
+    });
+  }, [updateActive]);
 
   /* Clone-on-bench: write the captured UID into a chosen free RFHUB slot and
    * download the patched dump to flash back. Refuses against a blank SEC16. */
@@ -819,6 +844,59 @@ export default function KeyWriterTab({ onOpenTab } = {}) {
             ? <span style={{ color: C.gn, fontWeight: 700 }}>✓ Valid — UID {keyValidation.uid.length} B, SK {keyValidation.sk.length} B</span>
             : <span style={{ color: C.er, fontWeight: 700 }}>✗ {keyValidation.error}</span>}
         </div>
+
+        {/* known-good registry status badge (Task #1096) */}
+        <div style={{ marginTop: 8 }} data-testid="known-key-status" data-status={registryStatus.status}>
+          {registryStatus.status === 'known-good' && (
+            <Tag color={C.gn}>✓ Known-good working key — {registryStatus.entry.keyId} ({registryStatus.entry.vehicle})</Tag>
+          )}
+          {registryStatus.status === 'mismatch' && (
+            <Tag color={C.wn}>
+              ⚠ Mismatch vs known-good {registryStatus.entry.keyId} — differs on {registryStatus.mismatchedFields.join(', ')}
+            </Tag>
+          )}
+          {registryStatus.status === 'unknown' && (
+            <Tag color={C.tm}>Not in the known-good registry (unverified)</Tag>
+          )}
+        </div>
+
+        {/* known-good key picker — prefill the card from a confirmed working key */}
+        {knownKeys.length > 0 && (
+          <div
+            style={{ marginTop: 10, paddingTop: 10, borderTop: `1px dashed ${C.bd}` }}
+            data-testid="known-key-list"
+          >
+            <div style={{ fontWeight: 900, fontSize: 11, color: C.tx, marginBottom: 6 }}>
+              KNOWN-GOOD KEYS{' '}
+              <span style={{ fontWeight: 400, color: C.ts }}>(confirmed working — prefill then review)</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {knownKeys.map((entry) => (
+                <div
+                  key={entry.id}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
+                  data-testid={`known-key-row-${entry.id}`}
+                >
+                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: C.tx }}>
+                    {entry.keyId}
+                  </span>
+                  <span style={{ fontSize: 11, color: C.ts }}>
+                    {entry.vehicle} · {entry.chipId} · idx 0x{entry.tableIndex.toString(16).toUpperCase()}
+                  </span>
+                  <Btn
+                    onClick={() => onPrefillFromKnownKey(entry)}
+                    color={C.a3}
+                    outline
+                    data-testid={`known-key-prefill-${entry.id}`}
+                    style={{ fontSize: 11, padding: '2px 10px' }}
+                  >
+                    ⇇ Prefill
+                  </Btn>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* action buttons */}
         <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>

@@ -1201,6 +1201,11 @@ const MANIFEST = [
     file:  path.join(FIXTURES, 'SAMPLE_RFHUB_EEE_OG_2C3CDXCT1HH652640.bin'),
     type: 'RFHUB', size: 4096, vinCount: 4,
   },
+  {
+    label: 'SAMPLE RFHUB EEE 19 Charger 6.2 key-index (fixtures/) — known-good key 0077A29B ground truth',
+    file:  path.join(FIXTURES, 'SAMPLE_RFHUB_EEE_19CHARGER62_KEYINDEX_0077A29B.bin'),
+    type: 'RFHUB', size: 4096,
+  },
   /* ── GPEC2A EXT EEPROM ───────────────────────────────────────────────── */
   {
     label: 'CARTMAN GPEC2A OG — 8 KB, SEC6 OK, BCM-SEC16 CRC mismatch',

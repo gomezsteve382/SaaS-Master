@@ -58,6 +58,7 @@ against them.
 | SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1.bin | 2C3CDXL97LH237142 | BCM DFLASH | 65536 | VIN_CRC | Task #514 — rescued from misnamed `attached_assets/charger_1776900673447.png`. Second-bench capture of the same 2020 Charger SXT as the `_0d3593f2` BCM, but a different sha256 (84-byte delta). Same `FEE1000` header @ 0x04, same partial-VIN tail `NH176487` @ 0x4098/0x40B0, same security lock 0x5A (LOCKED). |
 | SAMPLE_BCM_DFLASH_RESCUED_VIN_CRC_2C3CDXL97LH237142_ba26d1c1_dup_1776900716172.bin | 2C3CDXL97LH237142 | BCM DFLASH | 65536 | VIN_CRC | Task #514 — rescued duplicate (byte-identical sha256 to the BCM above). |
 | SAMPLE_GPEC2A_EXT_EEPROM_4KB_RESCUED_VIN_CRC_1C4RJFN9XJC309165_628f7b3c.bin | 1C4RJFN9XJC309165 | GPEC2A EXT EEPROM (4 KB) | 4096 | VIN_CRC | Task #514 — rescued from misnamed `attached_assets/fca_module_analyzer_1776900458950.jsx`. 2018 Jeep Grand Cherokee SRT 6.4L PCM, VIN at offset 0x00, Continental part number `A2C7628120000` visible in the dump. |
+| SAMPLE_RFHUB_EEE_19CHARGER62_KEYINDEX_0077A29B.bin | (2019 Charger 6.2) | RFHUB EEE | 4096 | KEYINDEX | Task #1096 — 2019 Charger 6.2 RFHUB dump carved from the key-index package. 6 keys in slots 3-8 of the Charger key table @0xC5E; the confirmed **working** key `0077A29B` (Autel read of the fob that starts the car) is slot 3 @0xC7E, index `0x48`, flag `0x01`. Ground truth for the known-good working-key registry (`knownWorkingKeys.js`). |
 
 Several attachments in the source set were intentionally **not imported**:
 
