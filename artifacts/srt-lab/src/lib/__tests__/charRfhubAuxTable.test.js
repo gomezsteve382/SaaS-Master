@@ -8,8 +8,13 @@ import {
   CHAR_AUX_STRIDE,
   CHAR_AUX_MIRROR_OFFSET,
   CHAR_AUX_END,
+  CHAR_AUX_CHECKSUM_INDEX,
+  CHAR_AUX_CHECKSUM_TARGET,
   isCharRfhubAuxTable,
   parseCharAuxTable,
+  auxRecordChecksum,
+  auxRecordChecksumOk,
+  expectedAuxChecksumByte,
 } from '../charRfhubAuxTable.js';
 
 // Real 4 KB MPC Charger RFHUB dumps from 4 DISTINCT vehicles (distinct VINs /
@@ -120,5 +125,63 @@ describe('charRfhubAuxTable — parse', () => {
     const small = parseCharAuxTable(new Uint8Array(100));
     expect(small.ok).toBe(false);
     expect(small.error).toMatch(/4 KB/);
+  });
+});
+
+describe('charRfhubAuxTable — byte 8 checksum (SOLVED & VERIFIED)', () => {
+  it('exposes the cracked constants', () => {
+    expect(CHAR_AUX_CHECKSUM_INDEX).toBe(8);
+    expect(CHAR_AUX_CHECKSUM_TARGET).toBe(0xFE);
+  });
+
+  it('every record on every real dump has a valid ones-complement checksum', () => {
+    let n = 0;
+    for (const k of Object.keys(FILES)) {
+      const p = parseCharAuxTable(load(k));
+      expect(p.ok).toBe(true);
+      for (const r of p.records) {
+        // folded sum of all ten bytes lands on the fixed 0xFE target
+        expect(auxRecordChecksum(r.raw)).toBe(CHAR_AUX_CHECKSUM_TARGET);
+        expect(auxRecordChecksumOk(r.raw)).toBe(true);
+        expect(r.checksumOk).toBe(true);
+        expect(r.checksum).toBe(r.raw[CHAR_AUX_CHECKSUM_INDEX]);
+        n++;
+      }
+    }
+    // 17 records × 4 distinct vehicles
+    expect(n).toBe(68);
+  });
+
+  it('recomputes byte 8 byte-exact from the other nine payload bytes', () => {
+    for (const k of Object.keys(FILES)) {
+      for (const r of parseCharAuxTable(load(k)).records) {
+        expect(expectedAuxChecksumByte(r.raw)).toBe(r.raw[CHAR_AUX_CHECKSUM_INDEX]);
+      }
+    }
+  });
+
+  it('detects a corrupted payload byte via the checksum (byte 9 is covered too)', () => {
+    const p = parseCharAuxTable(load('og'));
+    const r = p.records[0];
+    const bad = Uint8Array.from(r.raw);
+    bad[0] = (bad[0] + 1) & 0xFF; // bump a payload byte, leave byte 8 stale
+    expect(auxRecordChecksumOk(bad)).toBe(false);
+    const bad9 = Uint8Array.from(r.raw);
+    bad9[9] = (bad9[9] + 1) & 0xFF; // byte 9 is part of the checksummed payload
+    expect(auxRecordChecksumOk(bad9)).toBe(false);
+  });
+
+  it('a plain mod-256 sum does NOT reproduce a single target (carry fold is required)', () => {
+    // This is why the field was long believed unsolvable: dropping the high-byte
+    // carries makes the target drift; folding them back makes it the constant 0xFE.
+    const plainTargets = new Set();
+    for (const k of Object.keys(FILES)) {
+      for (const r of parseCharAuxTable(load(k)).records) {
+        let s = 0;
+        for (const b of r.raw) s += b;
+        plainTargets.add(s & 0xFF);
+      }
+    }
+    expect(plainTargets.size).toBeGreaterThan(1); // not constant without folding
   });
 });

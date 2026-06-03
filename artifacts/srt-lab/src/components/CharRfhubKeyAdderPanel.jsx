@@ -24,7 +24,7 @@ import {
   deriveCharKeyIndex,
   CHAR_KEY_DEFAULT_INDEX,
 } from '../lib/charRfhubKeyTable.js';
-import {parseCharAuxTable, CHAR_AUX_BASE, CHAR_AUX_END} from '../lib/charRfhubAuxTable.js';
+import {parseCharAuxTable, CHAR_AUX_BASE, CHAR_AUX_END, CHAR_AUX_CHECKSUM_TARGET} from '../lib/charRfhubAuxTable.js';
 import {dl} from './ImmoChecksumPanel.jsx';
 
 const mono = "'JetBrains Mono'";
@@ -285,6 +285,13 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                 so despite its position this is <strong>not</strong> the RKE/remote-fob list, but a parameter/calibration
                 block whose field meanings are <strong>not bench-verified</strong>. SRT Lab refuses to label or edit it.
               </div>
+              <div style={{fontSize: 10, color: C.tm, lineHeight: 1.6, marginBottom: 10}}>
+                One field <strong>is</strong> now cracked: <strong>byte 8 is a ones'-complement checksum</strong> over
+                the other nine bytes (the end-around-carry sum of all ten bytes folds to {hex2(CHAR_AUX_CHECKSUM_TARGET)}).
+                Verified byte-exact across the 4-vehicle corpus, so the <strong>CS</strong> column below shows whether
+                each record's checksum is intact. This is the only labelled field — everything else stays raw and
+                read-only until a bench capture proves its meaning.
+              </div>
               <div style={{overflowX: 'auto'}}>
                 <table style={{width: '100%', borderCollapse: 'collapse', fontSize: 11}}>
                   <thead>
@@ -292,6 +299,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                       <th style={{padding: '6px 8px'}}>#</th>
                       <th style={{padding: '6px 8px'}}>Offset</th>
                       <th style={{padding: '6px 8px'}}>Record (10 bytes)</th>
+                      <th style={{padding: '6px 8px'}} title="byte 8 ones'-complement checksum (folds all ten bytes to 0xFE)">CS</th>
                       <th style={{padding: '6px 8px'}}>Mirror</th>
                     </tr>
                   </thead>
@@ -301,6 +309,11 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                         <td style={{padding: '6px 8px', color: C.ts}}>{r.index}</td>
                         <td style={{padding: '6px 8px', color: C.tm}}>{hexOff(r.offset)}</td>
                         <td style={{padding: '6px 8px', color: C.tx, whiteSpace: 'nowrap'}}>{r.hex}</td>
+                        <td style={{padding: '6px 8px'}} data-testid={'char-aux-cs-' + r.index}>
+                          <span style={{fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: (r.checksumOk ? C.gn : C.er) + '18', color: r.checksumOk ? C.gn : C.er, fontFamily: mono}}>
+                            {r.checksumOk ? 'OK' : 'BAD'}
+                          </span>
+                        </td>
                         <td style={{padding: '6px 8px'}}>
                           <span style={{fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: (r.mirrorOk ? C.gn : C.er) + '18', color: r.mirrorOk ? C.gn : C.er, fontFamily: mono}}>
                             {r.mirrorOk ? 'OK' : 'BAD'}

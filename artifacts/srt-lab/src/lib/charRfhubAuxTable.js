@@ -45,13 +45,39 @@
  *   │  block, not a remote-fob table. No byte's meaning is bench-verified, so │
  *   │  this module assigns NONE and surfaces the raw records only.            │
  *   │                                                                          │
- *   │  Field meaning: UNVERIFIED. The only structurally-reliable facts are    │
- *   │  the record length (10), the count (17), the mirror, the FF FF          │
- *   │  separators, and the 0xCE6..0xE7E boundary. byte 8 behaves like a       │
- *   │  per-record checksum (no simple sum/xor reproduces it) and byte 9 is a  │
- *   │  small flag/type (mostly 0x01); neither is confirmed. Refuse-on-doubt:  │
- *   │  do not relabel these as fobs or invent field names without a bench     │
- *   │  capture that proves the semantics.                                      │
+ *   │  Field meaning: MOSTLY UNVERIFIED — with ONE byte now ground-truthed.   │
+ *   │  The structurally-reliable facts are the record length (10), the count  │
+ *   │  (17), the mirror, the FF FF separators, and the 0xCE6..0xE7E boundary. │
+ *   │  See the CHECKSUM box below for byte 8. byte 9 is NOT a separate         │
+ *   │  trailer: it is part of the checksummed payload (mostly 0x01, rarely    │
+ *   │  0x02/0x07/0x08). The other bytes (0..7, 9) remain semantically         │
+ *   │  unverified. Refuse-on-doubt: do not relabel these as fobs or invent    │
+ *   │  field names without a bench capture that proves the semantics. The     │
+ *   │  checksum below is the only field that has been cracked, so it is the    │
+ *   │  only one this module labels.                                            │
+ *   └────────────────────────────────────────────────────────────────────────┘
+ *
+ *   ┌──────────────── BYTE 8 — CHECKSUM (SOLVED & VERIFIED) ──────────────────┐
+ *   │  byte 8 of every record is a ONES'-COMPLEMENT (end-around-carry) 8-bit   │
+ *   │  checksum over the other nine bytes (0..7 and 9). Equivalently, the     │
+ *   │  end-around-carry sum of ALL ten bytes (byte 8 included) folds to a     │
+ *   │  fixed target of 0xFE:                                                   │
+ *   │                                                                          │
+ *   │     s = sum(bytes 0..9)                                                   │
+ *   │     while (s > 0xFF) s = (s & 0xFF) + (s >> 8)   // fold carries back    │
+ *   │     s === 0xFE                                                            │
+ *   │                                                                          │
+ *   │  This is why the old note said "no simple sum/xor reproduces it": a      │
+ *   │  plain mod-256 sum drops the high-byte carries, so the apparent target  │
+ *   │  drifted 0xFA..0xFE (the drift is exactly the per-record carry count,   │
+ *   │  1..4). Folding the carries back makes it a single constant.            │
+ *   │                                                                          │
+ *   │  VERIFIED on all 68 records of the 4-vehicle bench corpus (17 records × │
+ *   │  4 distinct VINs/masters): every record satisfies fold(sum)===0xFE and  │
+ *   │  byte 8 recomputes byte-exact from the other nine. This also confirms    │
+ *   │  byte 9 is data covered by the checksum, NOT a free-standing flag.       │
+ *   │  Still READ-ONLY: knowing the checksum does NOT make an edit safe — the  │
+ *   │  meaning of the payload bytes is unproven, so there is still no writer.  │
  *   └────────────────────────────────────────────────────────────────────────┘
  * ========================================================================== */
 
@@ -64,7 +90,53 @@ export const CHAR_AUX_MIRROR_OFFSET = 12;
 export const CHAR_AUX_END = CHAR_AUX_BASE + CHAR_AUX_COUNT * CHAR_AUX_STRIDE; // 0xE7E
 const CANONICAL_SIZE = 4096;
 
+// byte 8 of each 10-byte record is a ones'-complement checksum (see header).
+export const CHAR_AUX_CHECKSUM_INDEX = 8;
+// The end-around-carry sum of all ten bytes folds to this fixed target.
+export const CHAR_AUX_CHECKSUM_TARGET = 0xFE;
+
 function recOffset(i) { return CHAR_AUX_BASE + i * CHAR_AUX_STRIDE; }
+
+/** foldOnesComplement(sum) — fold any high-byte carries back into the low byte
+ *  (Internet/ones'-complement style) until the result fits in 8 bits. */
+function foldOnesComplement(sum) {
+  let s = sum;
+  while (s > 0xFF) s = (s & 0xFF) + (s >> 8);
+  return s;
+}
+
+/** auxRecordChecksum(rec) — the folded ones'-complement sum of all ten bytes of
+ *  a record (byte 8 included). For a well-formed record this equals
+ *  CHAR_AUX_CHECKSUM_TARGET (0xFE). `rec` is a 10-byte Uint8Array/array.
+ *  VERIFIED across the 4-vehicle corpus (see header CHECKSUM box). */
+export function auxRecordChecksum(rec) {
+  let s = 0;
+  for (let i = 0; i < CHAR_AUX_RECLEN; i++) s += rec[i] & 0xFF;
+  return foldOnesComplement(s);
+}
+
+/** auxRecordChecksumOk(rec) — true when the record's byte 8 is a valid checksum
+ *  (fold(all 10 bytes) === 0xFE). The single ground-truthed field check. */
+export function auxRecordChecksumOk(rec) {
+  return auxRecordChecksum(rec) === CHAR_AUX_CHECKSUM_TARGET;
+}
+
+/** expectedAuxChecksumByte(rec) — the value byte 8 should hold given the other
+ *  nine payload bytes (0..7 and 9). Returns 0..0xFF, or null if no byte can
+ *  satisfy the target (cannot happen for a fold-to-0xFE scheme, kept for
+ *  refuse-on-doubt). Read-only helper: there is NO writer for this table. */
+export function expectedAuxChecksumByte(rec) {
+  let s = 0;
+  for (let i = 0; i < CHAR_AUX_RECLEN; i++) {
+    if (i === CHAR_AUX_CHECKSUM_INDEX) continue;
+    s += rec[i] & 0xFF;
+  }
+  s = foldOnesComplement(s);
+  for (let v = 0; v <= 0xFF; v++) {
+    if (foldOnesComplement(s + v) === CHAR_AUX_CHECKSUM_TARGET) return v;
+  }
+  return null;
+}
 
 function recordsMatch(bytes, a, b) {
   for (let k = 0; k < CHAR_AUX_RECLEN; k++) if (bytes[a + k] !== bytes[b + k]) return false;
@@ -102,9 +174,12 @@ export function isCharRfhubAuxTable(bytes) {
 }
 
 /** parseCharAuxTable(bytes) → { ok, records, count, error }
- *  records[i] = { index, offset, mirrorOffset, raw:Uint8Array(10), hex, mirrorOk }
- *  Read-only: no field is interpreted. Refuse-on-doubt — if the structural gate
- *  fails, returns { ok:false, error, records:[], count:0 } and surfaces nothing. */
+ *  records[i] = { index, offset, mirrorOffset, raw:Uint8Array(10), hex, mirrorOk,
+ *                 checksum, checksumOk }
+ *  Only ONE field is interpreted — byte 8, the ones'-complement checksum (the
+ *  one field cracked against the corpus; see header). Every other byte is
+ *  surfaced raw. Refuse-on-doubt — if the structural gate fails, returns
+ *  { ok:false, error, records:[], count:0 } and surfaces nothing. */
 export function parseCharAuxTable(bytes) {
   if (!(bytes instanceof Uint8Array)) {
     return { ok: false, error: 'no buffer', records: [], count: 0 };
@@ -133,6 +208,8 @@ export function parseCharAuxTable(bytes) {
       raw,
       hex,
       mirrorOk: recordsMatch(bytes, off, mirrorOffset),
+      checksum: raw[CHAR_AUX_CHECKSUM_INDEX],
+      checksumOk: auxRecordChecksumOk(raw),
     });
   }
   return { ok: true, records, count: records.length };
