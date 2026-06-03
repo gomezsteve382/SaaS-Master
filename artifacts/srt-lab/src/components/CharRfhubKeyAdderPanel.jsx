@@ -193,7 +193,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
             </div>
             <ul style={{fontSize: 11, color: C.ts, lineHeight: 1.6, margin: '6px 0 0', paddingLeft: 18}}>
               <li><strong>Slot placement</strong> now mirrors real cars (keys packed contiguously, ending at slot 8), but only a before/after key-add diff can prove the firmware actually reads a key from this slot on a live start.</li>
-              <li>A <strong>companion table</strong> elsewhere in the EEPROM may also need a matching entry that this tool does not write — unconfirmed, as no before/after key-add pair exists to diff.</li>
+              <li>A <strong>companion table</strong> elsewhere in the EEPROM may also need a matching entry that this tool does not write. An <strong>exhaustive pairwise scan of the entire bundled dump corpus found no genuine single-key-add pair</strong> (every key-set change also changed the vehicle master secret = a full re-key), so this remains unconfirmed until a real before/after capture is diffed.</li>
             </ul>
             <div style={{fontSize: 11, color: C.ts, lineHeight: 1.6, marginTop: 6}}>
               Worst case is fully reversible: reflash the original and your existing keys keep working.

@@ -142,6 +142,11 @@
 export const CHAR_KEYTABLE_BASE = 0x0C5E;
 export const CHAR_KEYTABLE_SLOTS = 8;
 export const CHAR_KEYTABLE_STRIDE = 16;
+// 16-byte vehicle master secret (mirror @0x238). diffCharKeyTables compares this
+// window to tell a single offline key-add (master unchanged) apart from a full
+// re-sync / cross-vehicle pairing (master changes — the whole table is rewritten).
+export const CHAR_MASTER_OFFSET = 0x0226;
+export const CHAR_MASTER_LEN = 16;
 export const CHAR_KEY_RECLEN = 6;
 export const CHAR_KEY_MIRROR_OFFSET = 8;
 export const CHAR_KEY_FLAG_PRESENT = 0x01;
@@ -430,5 +435,123 @@ export function addCharKey(bytes, { keyId, indexLow = null, slotIdx = null, allo
     offset: off,
     mirrorOffset: off + CHAR_KEY_MIRROR_OFFSET,
     keyCountAfter: parsed.keyCount + 1,
+  };
+}
+
+/* ============================================================================
+ * diffCharKeyTables(before, after) — before/after key-table diff harness.
+ *
+ * Purpose: validate a REAL before/after RFHUB EEPROM capture where exactly one
+ * transponder key was added on a working car. It answers the two questions the
+ * bench-verification needs and refuses to guess when it can't:
+ *
+ *   1. Did the inserted key land in the slot addCharKey would pick — the HIGHEST
+ *      free slot of the BEFORE image (lastFreeCharSlot)? (addedSlotMatchesRule)
+ *   2. Did anything change OUTSIDE the 8-slot key table? Any such run is a
+ *      candidate companion table that an offline key-add would also have to
+ *      touch for the key to actually start the car. (companionRegions)
+ *
+ * It also flags a master-secret change (CHAR_MASTER_OFFSET): when the 16-byte
+ * vehicle master differs, the pair is a full re-sync / cross-vehicle pairing —
+ * NOT a single offline key-add — and isSingleKeyAdd is false regardless of the
+ * key-set delta. (This is exactly what an exhaustive scan of the bundled dump
+ * corpus found for every key-set difference; see the crack-kit findings doc.)
+ *
+ * Pure: never mutates its inputs. Returns a structured verdict, or
+ * { ok:false, error } when either side is not a canonical Charger key table.
+ * ========================================================================== */
+
+function coalesceRuns(before, after, gap = 8) {
+  const len = Math.min(before.length, after.length);
+  const runs = [];
+  let cur = null;
+  for (let i = 0; i < len; i++) {
+    if (before[i] !== after[i]) {
+      if (cur && i - cur.end <= gap) cur.end = i;
+      else { cur = { start: i, end: i }; runs.push(cur); }
+    }
+  }
+  return runs.map(r => ({
+    start: r.start,
+    end: r.end,
+    length: r.end - r.start + 1,
+    startHex: `0x${r.start.toString(16).toUpperCase()}`,
+    endHex: `0x${r.end.toString(16).toUpperCase()}`,
+  }));
+}
+
+function overlapsKeyTable(run) {
+  const tableStart = CHAR_KEYTABLE_BASE;
+  const tableEnd = CHAR_KEYTABLE_BASE + CHAR_KEYTABLE_SLOTS * CHAR_KEYTABLE_STRIDE; // exclusive
+  return run.start < tableEnd && run.end >= tableStart;
+}
+
+function overlapsMaster(run) {
+  const mStart = CHAR_MASTER_OFFSET;
+  const mEnd = CHAR_MASTER_OFFSET + CHAR_MASTER_LEN; // exclusive
+  return run.start < mEnd && run.end >= mStart;
+}
+
+function keySummary(slot) {
+  return {
+    slot: slot.slot,
+    slotIdx: slot.slot - 1,
+    keyId: slot.keyId,
+    indexLow: slot.indexLow,
+    flag: slot.flag,
+    keyKind: slot.keyKind,
+    offset: slot.offset,
+  };
+}
+
+export function diffCharKeyTables(before, after) {
+  const pb = parseCharKeyTable(before);
+  if (!pb.ok) return { ok: false, error: `before: ${pb.error}` };
+  const pa = parseCharKeyTable(after);
+  if (!pa.ok) return { ok: false, error: `after: ${pa.error}` };
+
+  // Key-set delta keyed by UID (a slot move with the same UID is not an add).
+  const beforeKeys = new Map(pb.slots.filter(s => s.state === 'key').map(s => [s.keyId, s]));
+  const afterKeys = new Map(pa.slots.filter(s => s.state === 'key').map(s => [s.keyId, s]));
+  const addedKeys = [];
+  const removedKeys = [];
+  for (const [id, s] of afterKeys) if (!beforeKeys.has(id)) addedKeys.push(keySummary(s));
+  for (const [id, s] of beforeKeys) if (!afterKeys.has(id)) removedKeys.push(keySummary(s));
+
+  // Master secret comparison (full re-key tell).
+  let masterChanged = false;
+  for (let i = 0; i < CHAR_MASTER_LEN; i++) {
+    if (before[CHAR_MASTER_OFFSET + i] !== after[CHAR_MASTER_OFFSET + i]) { masterChanged = true; break; }
+  }
+
+  // Byte-level changed regions, classified relative to the key-table window and
+  // the master-secret window. Anything left over is a companion-table candidate.
+  const changedRegions = coalesceRuns(before, after);
+  const keyTableChanged = changedRegions.some(overlapsKeyTable);
+  const companionRegions = changedRegions.filter(r => !overlapsKeyTable(r) && !overlapsMaster(r));
+
+  const isSingleKeyAdd = addedKeys.length === 1 && removedKeys.length === 0 && !masterChanged;
+
+  // Highest-free-slot rule: only meaningful for a clean single add.
+  let expectedSlotIdx = null;
+  let addedSlotMatchesRule = null;
+  if (isSingleKeyAdd) {
+    expectedSlotIdx = lastFreeCharSlot(before);
+    addedSlotMatchesRule = addedKeys[0].slotIdx === expectedSlotIdx;
+  }
+
+  return {
+    ok: true,
+    addedKeys,
+    removedKeys,
+    masterChanged,
+    isSingleKeyAdd,
+    expectedSlotIdx,
+    addedSlotMatchesRule,
+    keyTableChanged,
+    changedRegions,
+    companionRegions,
+    beforeKeyCount: pb.keyCount,
+    afterKeyCount: pa.keyCount,
   };
 }
