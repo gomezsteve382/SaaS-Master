@@ -37,6 +37,7 @@ import AlfaObdTablesTab from "./tabs/AlfaObdTablesTab.jsx";
 import LiveKeyTab from "./tabs/LiveKeyTab.jsx";
 import { writePcmSec6, writeRfhSec16FromBcm } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
+import SmartBoxTab from "./tabs/SmartBoxTab";
 import KeyProgTab from "./tabs/KeyProgTab";
 import KeyManagerTab from "./tabs/KeyManagerTab";
 import CFlashTab from "./tabs/CFlashTab.jsx";
@@ -928,6 +929,7 @@ const WORKSPACE_TABS = [
   {id:'skimlive',  i:'🛡️', l:'SKIM LIVE',    s:'Immo · Key Count · Learning'},
   {id:'rfhub',     i:'📡', l:'RFHUB',        s:'VIN · Key Fobs'},
   {id:'ecm',       i:'⚡', l:'ECM',          s:'VIN · 10 Algorithms'},
+  {id:'smartbox',  i:'📦', l:'SMARTBOX',     s:'Journey immo EEE · VIN · read-only'},
   {id:'backups',   i:'💾', l:'BACKUPS',      s:'History · Restore'},
   {id:'obd',       i:'📡', l:'LIVE OBD',     s:'UDS · Seed→Key · J2534 · Gould'},
   {id:'uds-console',i:'🔌', l:'UDS CONSOLE',  s:'J2534 bridge · raw UDS · any module'},
@@ -985,7 +987,7 @@ const WORKSPACE_CATEGORIES = {
   obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE',
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
   dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE', efd2bin:'ANALYZE',
-  proxi:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
+  proxi:'ANALYZE', smartbox:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
   loganalyser:'ANALYZE', workflow:'ANALYZE',
   // TOOLS — cross-cutting catalogs and coverage dashboards.
   unlockcov:'TOOLS', alfaobd:'TOOLS', alfaintel:'TOOLS', dispatchcov:'TOOLS',
@@ -1224,6 +1226,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='keymgr'    && <KeyManagerTab vehicle={vehicle}/>}
         {tab==='livekey'   && <LiveKeyTab/>}
         {tab==='ecm'       && <EcmTab vehicle={vehicle}/>}
+        {tab==='smartbox'  && <SmartBoxTab/>}
         {tab==='backups'   && <BackupsTab/>}
         {tab==='obd'       && <LiveObdTab vehicle={vehicle} onOpenTab={setTab}/>}
         {tab==='uds-console' && <J2534UdsConsoleTab/>}
