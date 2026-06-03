@@ -94,6 +94,33 @@ describe("CharRfhubKeyDiffPanel — companion-table candidate", () => {
     expect(screen.getByTestId("char-key-diff-companion").textContent).toMatch(/NO/);
     expect(screen.getByTestId("char-key-diff-companion-row-0")).toBeTruthy();
   });
+
+  it("expands a companion region to a before/after hex view of the changed bytes", async () => {
+    const before = buildRef();
+    const after = addCharKey(before, { keyId: "BCD2EB9B" }).bytes.slice();
+    after[0x0400] ^= 0xff;
+    after[0x0401] ^= 0xff;
+    await renderAndLoad(before, after);
+
+    // Hex view is collapsed by default.
+    expect(screen.queryByTestId("char-key-diff-companion-hex-0")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("char-key-diff-companion-row-0"));
+
+    const hex = await screen.findByTestId("char-key-diff-companion-hex-0");
+    expect(hex).toBeTruthy();
+    // Both before and after columns render, each with its own copy control.
+    expect(hex.textContent).toMatch(/BEFORE/);
+    expect(hex.textContent).toMatch(/AFTER/);
+    expect(screen.getByTestId("char-key-diff-companion-hex-0-copy-before")).toBeTruthy();
+    expect(screen.getByTestId("char-key-diff-companion-hex-0-copy-after")).toBeTruthy();
+    // The changed offset 0x400 is shown in context.
+    expect(hex.textContent).toMatch(/0x400/);
+
+    // Clicking again collapses it.
+    fireEvent.click(screen.getByTestId("char-key-diff-companion-row-0"));
+    await waitFor(() => expect(screen.queryByTestId("char-key-diff-companion-hex-0")).toBeNull());
+  });
 });
 
 describe("CharRfhubKeyDiffPanel — full re-key (master change)", () => {

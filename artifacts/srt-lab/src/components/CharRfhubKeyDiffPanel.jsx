@@ -84,6 +84,104 @@ function KeyList({title, keys, color, testid}) {
   );
 }
 
+const byteHex = b => (b == null ? '--' : b.toString(16).toUpperCase().padStart(2, '0'));
+
+// Read-only before/after hex view of one changed run plus a few bytes of
+// context on each side. Changed bytes are highlighted; context bytes (outside
+// the coalesced run) are dimmed. Copy buttons yield a plain hex string of just
+// the changed bytes for each side, and all bytes are plain selectable text.
+function HexDiffRegion({before, after, region, context = 8, testid}) {
+  const [copied, setCopied] = useState('');
+  const len = Math.min(before.length, after.length);
+  const from = Math.max(0, region.start - context);
+  const to = Math.min(len - 1, region.end + context);
+
+  const rows = [];
+  for (let base = from; base <= to; base += 16) {
+    const rowEnd = Math.min(to, base + 15);
+    const cells = [];
+    for (let i = base; i <= rowEnd; i++) {
+      cells.push({
+        i,
+        before: before[i],
+        after: after[i],
+        changed: before[i] !== after[i],
+        inRegion: i >= region.start && i <= region.end,
+      });
+    }
+    rows.push({base, cells});
+  }
+
+  const regionHex = which => {
+    const parts = [];
+    for (let i = region.start; i <= region.end; i++) {
+      parts.push(byteHex(which === 'before' ? before[i] : after[i]));
+    }
+    return parts.join(' ');
+  };
+
+  const copy = which => {
+    const text = regionHex(which);
+    const done = () => { setCopied(which); setTimeout(() => setCopied(''), 1200); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, done);
+    } else {
+      done();
+    }
+  };
+
+  const offW = ('0x' + to.toString(16).toUpperCase()).length;
+
+  const Column = ({which, color, label}) => (
+    <div style={{flex: '1 1 320px', minWidth: 0}}>
+      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6}}>
+        <span style={{fontSize: 10, fontWeight: 800, color, letterSpacing: 1}}>{label}</span>
+        <button
+          onClick={() => copy(which)}
+          data-testid={testid ? testid + '-copy-' + which : undefined}
+          style={{border: '1px solid ' + C.bd, background: C.cd, color: C.ts, cursor: 'pointer', fontSize: 9, fontWeight: 800, borderRadius: 5, padding: '2px 8px', letterSpacing: 0.5}}
+          title={'Copy changed ' + which + ' bytes as hex'}
+        >
+          {copied === which ? 'COPIED' : 'COPY'}
+        </button>
+      </div>
+      <div style={{background: C.cd, border: '1px solid ' + C.bd, borderRadius: 6, padding: '8px 10px', overflowX: 'auto'}}>
+        <pre style={{margin: 0, fontFamily: mono, fontSize: 11, lineHeight: 1.7, color: C.tx, whiteSpace: 'pre'}}>
+          {rows.map(row => (
+            <div key={row.base}>
+              <span style={{color: C.tm}}>{('0x' + row.base.toString(16).toUpperCase()).padStart(offW, ' ')}</span>
+              {'  '}
+              {row.cells.map((c, idx) => (
+                <span
+                  key={c.i}
+                  style={{
+                    color: c.changed ? C.sr : c.inRegion ? C.tx : C.tm,
+                    fontWeight: c.changed ? 800 : 400,
+                  }}
+                >
+                  {idx > 0 ? ' ' : ''}{byteHex(which === 'before' ? c.before : c.after)}
+                </span>
+              ))}
+            </div>
+          ))}
+        </pre>
+      </div>
+    </div>
+  );
+
+  return (
+    <div data-testid={testid} style={{padding: '4px 0 10px'}}>
+      <div style={{fontSize: 10, color: C.tm, marginBottom: 8}}>
+        Showing {region.startHex}–{region.endHex} ({region.length} B changed) with {context} bytes of context. Changed bytes in <span style={{color: C.sr, fontWeight: 800}}>red</span>.
+      </div>
+      <div style={{display: 'flex', gap: 14, flexWrap: 'wrap'}}>
+        <Column which="before" color={C.ts} label="BEFORE" />
+        <Column which="after" color={C.a2} label="AFTER" />
+      </div>
+    </div>
+  );
+}
+
 function Verdict({label, ok, neutral = false, testid}) {
   const color = neutral ? C.tm : ok ? C.gn : C.er;
   return (
@@ -111,8 +209,17 @@ export default function CharRfhubKeyDiffPanel({defaultOpen = false}) {
     return diffCharKeyTables(before, after);
   }, [before, after]);
 
-  const clearBefore = useCallback(() => { setBefore(null); setBeforeName(''); }, []);
-  const clearAfter = useCallback(() => { setAfter(null); setAfterName(''); }, []);
+  const [expanded, setExpanded] = useState(() => new Set());
+  const toggleRow = useCallback(i => {
+    setExpanded(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
+  }, []);
+
+  const clearBefore = useCallback(() => { setBefore(null); setBeforeName(''); setExpanded(new Set()); }, []);
+  const clearAfter = useCallback(() => { setAfter(null); setAfterName(''); setExpanded(new Set()); }, []);
 
   // Overall verdict: a clean single key-add, in the expected slot, with no
   // companion regions and no master change.
@@ -185,14 +292,14 @@ export default function CharRfhubKeyDiffPanel({defaultOpen = false}) {
               <FilePicker
                 label="Before dump"
                 bytes={before} filename={beforeName}
-                onLoad={(b, n) => { setBefore(b); setBeforeName(n); }}
+                onLoad={(b, n) => { setBefore(b); setBeforeName(n); setExpanded(new Set()); }}
                 onClear={clearBefore}
                 testid="char-key-diff-before-input"
               />
               <FilePicker
                 label="After dump"
                 bytes={after} filename={afterName}
-                onLoad={(b, n) => { setAfter(b); setAfterName(n); }}
+                onLoad={(b, n) => { setAfter(b); setAfterName(n); setExpanded(new Set()); }}
                 onClear={clearAfter}
                 testid="char-key-diff-after-input"
               />
@@ -300,25 +407,53 @@ export default function CharRfhubKeyDiffPanel({defaultOpen = false}) {
                   <div style={{fontSize: 11, color: C.ts, lineHeight: 1.6, marginBottom: 10}}>
                     Bytes changed <strong>outside</strong> the key table and the master-secret window. An offline key-add does
                     not touch these regions, so if the key requires them to start the car the offline add alone would be
-                    incomplete. Capture the layout here so it can be added to the writer.
+                    incomplete. Expand a region to see the before/after bytes side by side and capture the layout for the writer.
                   </div>
                   <div style={{overflowX: 'auto'}}>
                     <table style={{width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: mono}}>
                       <thead>
                         <tr style={{textAlign: 'left', color: C.ts, borderBottom: '1px solid ' + C.bd}}>
+                          <th style={{padding: '6px 8px', width: 28}}></th>
                           <th style={{padding: '6px 8px'}}>Start</th>
                           <th style={{padding: '6px 8px'}}>End</th>
                           <th style={{padding: '6px 8px'}}>Length</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {diff.companionRegions.map((r, i) => (
-                          <tr key={i} data-testid={'char-key-diff-companion-row-' + i} style={{borderBottom: '1px solid ' + C.bd}}>
-                            <td style={{padding: '6px 8px', color: C.tx}}>{r.startHex}</td>
-                            <td style={{padding: '6px 8px', color: C.tx}}>{r.endHex}</td>
-                            <td style={{padding: '6px 8px', color: C.tm}}>{r.length} B</td>
-                          </tr>
-                        ))}
+                        {diff.companionRegions.map((r, i) => {
+                          const isOpen = expanded.has(i);
+                          return (
+                            <React.Fragment key={i}>
+                              <tr
+                                data-testid={'char-key-diff-companion-row-' + i}
+                                onClick={() => toggleRow(i)}
+                                style={{borderBottom: '1px solid ' + C.bd, cursor: 'pointer', background: isOpen ? C.c2 : 'transparent'}}
+                              >
+                                <td style={{padding: '6px 8px', color: C.ts}}>
+                                  <span
+                                    data-testid={'char-key-diff-companion-toggle-' + i}
+                                    style={{display: 'inline-block', transition: 'transform .15s', transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)'}}
+                                  >▶</span>
+                                </td>
+                                <td style={{padding: '6px 8px', color: C.tx}}>{r.startHex}</td>
+                                <td style={{padding: '6px 8px', color: C.tx}}>{r.endHex}</td>
+                                <td style={{padding: '6px 8px', color: C.tm}}>{r.length} B</td>
+                              </tr>
+                              {isOpen && (
+                                <tr style={{borderBottom: '1px solid ' + C.bd}}>
+                                  <td colSpan={4} style={{padding: '4px 8px', background: C.c2}}>
+                                    <HexDiffRegion
+                                      before={before}
+                                      after={after}
+                                      region={r}
+                                      testid={'char-key-diff-companion-hex-' + i}
+                                    />
+                                  </td>
+                                </tr>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
