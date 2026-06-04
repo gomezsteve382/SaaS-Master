@@ -22,3 +22,5 @@
 - [x] All tests passing (8 tests across 2 test files)
 - [x] App renders correctly with vehicle selection screen
 - [x] Fix React animation/animationDelay shorthand conflict in VehicleCard
+- [x] Add RFHUB SEC16 repair option in Security Sync tab (one-click fix when RFHUB is mismatched/virgin, writes reverse(BCM SEC16) to RFHUB Gen2/Gen1/XC2268 slots)
+- [x] Workflow tab: auto-show fix plan immediately when files are loaded (no job creation required); job creation becomes optional for save/sign-off only

@@ -5,6 +5,9 @@ import {resolveBcmSec16, classifyPcmSec6, corruptFillError, parseModule} from ".
 import {engParseBcm, engParseRfh, engParsePcm} from "./ModuleSync.jsx";
 import Gpec2aImmoPanel from "../components/Gpec2aImmoPanel.jsx";
 import {StatBadge} from "../components/ImmoChecksumPanel.jsx";
+import {writeRfhSec16FromBcm, writeRfhSec16Gen1, writeXc2268Sec16} from "../lib/securityBytes.js";
+import {isXc2268Rfhub} from "../lib/xc2268Rfhub.js";
+import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 
 const mono = "'JetBrains Mono'";
 
@@ -353,6 +356,107 @@ export default function SecuritySyncTab() {
           </>
         )}
       </Card>
+
+      {/* ── RFHUB SEC16 one-click fix (writes reverse(BCM SEC16) to RFHUB) ── */}
+      {(() => {
+        const rfhReady = rfh && !rfh.parsed.tooSmall;
+        const rfhInSync = rfhReady && rfhVerdict.good;
+        const canFix = rfhReady && bcmSec16 && !rfhInSync;
+        const [rfhFixBusy, setRfhFixBusy] = useState(false);
+        const [rfhFixResult, setRfhFixResult] = useState(null);
+
+        const doRfhFix = () => {
+          if (!canFix) return;
+          setRfhFixBusy(true);
+          setRfhFixResult(null);
+          try {
+            let result;
+            if (isXc2268Rfhub(rfh.bytes)) {
+              result = writeXc2268Sec16(rfh.bytes, bcmSec16);
+            } else if (rfh.parsed.format === 'gen1') {
+              result = writeRfhSec16Gen1(rfh.bytes, bcmSec16);
+            } else {
+              result = writeRfhSec16FromBcm(rfh.bytes, bcmSec16);
+            }
+            // Download the repaired file
+            const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            const fname = `RFHUB_SEC16_FIXED_${ts}.bin`;
+            const blob = new Blob([result.bytes], {type: 'application/octet-stream'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = fname;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            trackDownload(ASSET_IDS.securityKeySync);
+            // Reload the RFHUB slot with the patched bytes so the comparison updates
+            setRfh({file: {name: fname}, bytes: result.bytes, parsed: engParseRfh(result.bytes, fname)});
+            setRfhFixResult({ok: true, patched: result.patched, hex: result.rfhSec16Hex, fname});
+          } catch (e) {
+            setRfhFixResult({ok: false, error: e.message});
+          } finally {
+            setRfhFixBusy(false);
+          }
+        };
+
+        const rfhType = rfhReady
+          ? isXc2268Rfhub(rfh.bytes) ? 'XC2268' : rfh.parsed.format === 'gen1' ? 'Gen1' : 'Gen2'
+          : null;
+
+        return (
+          <>
+            <Card style={{marginBottom: 16, borderLeft: "3px solid " + (rfhInSync ? C.gn : C.a2)}}>
+              <div style={{fontWeight: 800, fontSize: 12, color: rfhInSync ? C.gn : C.a2, letterSpacing: 2, marginBottom: 4}}>🛠️ RFHUB SEC16 FIX</div>
+              {rfhInSync ? (
+                <div style={{fontSize: 11, color: C.ts}} data-testid="secsync-rfh-already-paired">
+                  <strong style={{color: C.gn}}>RFHUB already paired — no fix needed.</strong>{" "}
+                  The loaded RFHUB SEC16 already matches reverse(BCM SEC16). Nothing here needs repairing.
+                </div>
+              ) : !rfhReady ? (
+                <div style={{fontSize: 11, color: C.tm}}>
+                  Load an RFHUB dump above to enable the SEC16 repair.
+                </div>
+              ) : !bcmSec16 ? (
+                <div style={{fontSize: 11, color: C.tm}}>
+                  Load a BCM with a populated SEC16 to derive the correct RFHUB secret.
+                </div>
+              ) : (
+                <div style={{fontSize: 10, color: C.tm, marginBottom: 10}}>
+                  One-click SEC16 repair for the loaded RFHUB ({rfhType}): writes <span style={{fontFamily: mono}}>reverse(BCM SEC16)</span> into
+                  the RFHUB SEC16 slots and downloads the repaired file. The BCM is the canonical source.
+                </div>
+              )}
+              {canFix && (
+                <div style={{marginTop: 8}}>
+                  <Btn
+                    color={C.a2}
+                    full
+                    onClick={doRfhFix}
+                    disabled={rfhFixBusy}
+                    data-testid="secsync-rfh-fix-btn"
+                  >
+                    {rfhFixBusy ? '⏳ WRITING…' : `⚡ FIX RFHUB SEC16 (${rfhType}) — WRITE reverse(BCM) & DOWNLOAD`}
+                  </Btn>
+                </div>
+              )}
+              {rfhFixResult && (
+                <div style={{marginTop: 10, padding: "8px 12px", borderRadius: 8, background: rfhFixResult.ok ? C.gn + "12" : C.er + "12", border: "1px solid " + (rfhFixResult.ok ? C.gn + "44" : C.er + "44")}}>
+                  {rfhFixResult.ok ? (
+                    <div style={{fontSize: 11, color: C.gn, fontWeight: 700}} data-testid="secsync-rfh-fix-ok">
+                      ✓ RFHUB SEC16 repaired — {rfhFixResult.patched} slot(s) written.<br/>
+                      <span style={{fontFamily: mono, fontSize: 10, color: C.ts}}>New SEC16: {rfhFixResult.hex.toUpperCase()}</span><br/>
+                      <span style={{fontSize: 10, color: C.ts}}>Downloaded: {rfhFixResult.fname}</span>
+                    </div>
+                  ) : (
+                    <div style={{fontSize: 11, color: C.er, fontWeight: 700}} data-testid="secsync-rfh-fix-err">
+                      ✗ RFHUB SEC16 fix failed: {rfhFixResult.error}
+                    </div>
+                  )}
+                </div>
+              )}
+            </Card>
+          </>
+        );
+      })()}
 
       {/* ── ECM / GPEC2A one-click immo fix (delegates to verified writer) ──
        * When the PCM SEC6 already matches the BCM and the IMMO marker is set,

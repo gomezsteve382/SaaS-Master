@@ -10,6 +10,11 @@
  *       open the relevant existing tab when manual work is needed.
  *   5.  Sign-Off summary, persisted to vehicleJobs.signOff.
  *
+ * CHANGE (auto-plan): The fix plan and census are always live — they compute
+ * directly from loadedDumps + vin in context. No job creation is required to
+ * see or run the plan. Job creation is now optional and only needed for
+ * persisting sign-off / audit history.
+ *
  * The runner uses a SecurityAccessSource so the same UI can be wired to a
  * future bench HSM by swapping the source. Today only LocalAlgoOverJ2534 is
  * available; the source is stored on the job so a sign-off captures which
@@ -211,12 +216,33 @@ function StepRow({ step, result, onMark, onOpenTab }) {
   );
 }
 
+/* ─── Severity badge ─────────────────────────────────────────────────────── */
+function SeverityBadge({ count, label, color }) {
+  if (!count) return null;
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        padding: "3px 10px",
+        borderRadius: 999,
+        background: color + "18",
+        border: `1px solid ${color}55`,
+        color,
+        fontSize: 11,
+        fontWeight: 800,
+        letterSpacing: 0.5,
+      }}
+    >
+      {count} {label}
+    </span>
+  );
+}
+
 export default function WorkflowTab({ onOpenTab } = {}) {
   const ctx = useContext(MasterVinContext);
   const { vin, setVin, loadedDumps, setPg, jobId, setJobId, hydrateFromJob } = ctx;
-  // onOpenTab (passed by VehicleWorkspace) takes priority over the legacy
-  // setPg slot on the master context — App.jsx wires VehicleWorkspace's
-  // setTab through the prop so the navigation actually changes tabs.
   const goTab = typeof onOpenTab === "function" ? onOpenTab : setPg;
   const [jobs, setJobs] = useState([]);
   const [job, setJob] = useState(null);
@@ -224,6 +250,8 @@ export default function WorkflowTab({ onOpenTab } = {}) {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [signOff, setSignOff] = useState(null);
+  // Controls whether the "Save Job" panel is expanded
+  const [showJobPanel, setShowJobPanel] = useState(false);
 
   const refreshJobs = useCallback(async () => {
     try {
@@ -263,6 +291,7 @@ export default function WorkflowTab({ onOpenTab } = {}) {
     };
   }, [jobId]);
 
+  // ── Live census and fix plan — always computed from context, no job needed ──
   const census = useMemo(
     () =>
       buildCensus({
@@ -277,6 +306,18 @@ export default function WorkflowTab({ onOpenTab } = {}) {
     () => buildFixPlan({ census, targetVin: vin }),
     [census, vin],
   );
+
+  // Derive a quick severity summary for the banner
+  const criticalCount = useMemo(
+    () => census.rows.filter((r) => r.kind === "mismatch" || r.kind === "corrupt").length,
+    [census],
+  );
+  const missingCount = useMemo(
+    () => census.rows.filter((r) => r.kind === "missing").length,
+    [census],
+  );
+  const hasIssues = criticalCount > 0 || missingCount > 0 || plan.blockers.length > 0;
+  const allOk = census.rows.length > 0 && census.rows.every((r) => r.kind === "ok");
 
   const handleCreateJob = useCallback(async () => {
     setError("");
@@ -302,6 +343,7 @@ export default function WorkflowTab({ onOpenTab } = {}) {
         payload: { vin, securitySource: "LocalAlgoOverJ2534" },
       });
       await refreshJobs();
+      setShowJobPanel(false);
     } catch (e) {
       setError(String(e.message || e));
     } finally {
@@ -320,6 +362,7 @@ export default function WorkflowTab({ onOpenTab } = {}) {
         if (j?.signOff) setSignOff(j.signOff);
         else setSignOff(null);
         setResults({});
+        setShowJobPanel(false);
       } catch (e) {
         setError(String(e.message || e));
       } finally {
@@ -367,8 +410,6 @@ export default function WorkflowTab({ onOpenTab } = {}) {
             },
           });
         } catch (e) {
-          // The runner UI keeps local state even if the audit log fails;
-          // surface the error but don't roll back.
           setError(`event-log: ${e.message || e}`);
         }
       }
@@ -437,55 +478,69 @@ export default function WorkflowTab({ onOpenTab } = {}) {
     }
   }, [job, results]);
 
+  const hasFiles = loadedDumps.length > 0;
+  const vinReady = VIN_RX.test(vin);
+
   return (
     <div data-testid="workflow-tab" style={{ display: "grid", gap: 16 }}>
+
+      {/* ── Top status bar: VIN input + live severity banner ── */}
       <Card>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ flex: 1 }}>
-            <div
-              style={{
-                fontSize: 11,
-                letterSpacing: 2,
-                color: C.tm,
-                fontWeight: 800,
-              }}
-            >
-              VEHICLE JOB
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <div style={{ fontSize: 11, letterSpacing: 2, color: C.tm, fontWeight: 800 }}>
+              WORKFLOW
             </div>
-            <div style={{ fontSize: 18, fontWeight: 900 }}>
-              {job ? job.title || job.id : "No job selected"}
+            <div style={{ fontSize: 16, fontWeight: 900, marginTop: 2 }}>
+              {hasFiles
+                ? allOk
+                  ? "✓ Module set looks good"
+                  : hasIssues
+                  ? `⚠ ${plan.steps.length} fix step${plan.steps.length !== 1 ? "s" : ""} needed`
+                  : `${plan.steps.length} step${plan.steps.length !== 1 ? "s" : ""} in plan`
+                : "Load dumps to auto-generate fix plan"}
             </div>
-            <div style={{ fontSize: 11, color: C.tm, marginTop: 4 }}>
-              Security source:{" "}
-              <strong style={{ color: C.tx }}>LocalAlgoOverJ2534</strong> · Status:{" "}
-              <strong style={{ color: C.tx }}>{job?.status || "—"}</strong> · Updated{" "}
-              {fmtTs(job?.updatedAt)}
-            </div>
+            {hasFiles && (
+              <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                <SeverityBadge count={criticalCount} label="critical" color={C.er} />
+                <SeverityBadge count={missingCount} label="missing" color={C.wn} />
+                <SeverityBadge count={plan.blockers.length} label="blocker" color={C.a3} />
+                {allOk && (
+                  <span style={{ fontSize: 11, color: C.gn, fontWeight: 800 }}>
+                    ✓ All modules paired
+                  </span>
+                )}
+              </div>
+            )}
           </div>
-          <input
-            data-testid="workflow-vin-input"
-            value={vin}
-            onChange={(e) => setVin(e.target.value)}
-            placeholder="VIN (17 chars)"
-            style={{
-              padding: "8px 12px",
-              border: `1.5px solid ${C.bd}`,
-              borderRadius: 10,
-              fontFamily: "JetBrains Mono",
-              fontSize: 14,
-              width: 220,
-              letterSpacing: 1,
-            }}
-          />
-          <Btn
-            color={C.sr}
-            onClick={handleCreateJob}
-            disabled={!!busy || !VIN_RX.test(vin)}
-            data-testid="workflow-create-job"
-          >
-            {busy === "creating" ? "…" : "+ NEW JOB"}
-          </Btn>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <input
+              data-testid="workflow-vin-input"
+              value={vin}
+              onChange={(e) => setVin(e.target.value)}
+              placeholder="VIN (17 chars)"
+              style={{
+                padding: "8px 12px",
+                border: `1.5px solid ${vinReady ? C.gn : C.bd}`,
+                borderRadius: 10,
+                fontFamily: "JetBrains Mono",
+                fontSize: 14,
+                width: 220,
+                letterSpacing: 1,
+                outline: "none",
+              }}
+            />
+            <Btn
+              color={C.tm}
+              outline
+              onClick={() => setShowJobPanel((v) => !v)}
+              data-testid="workflow-toggle-job-panel"
+            >
+              {showJobPanel ? "▲ HIDE JOBS" : "▼ SAVE / HISTORY"}
+            </Btn>
+          </div>
         </div>
+
         {error && (
           <div
             data-testid="workflow-error"
@@ -502,54 +557,75 @@ export default function WorkflowTab({ onOpenTab } = {}) {
             {error}
           </div>
         )}
-        {jobs.length > 0 && (
-          <div style={{ marginTop: 12 }}>
-            <div
-              style={{
-                fontSize: 10,
-                letterSpacing: 1.5,
-                color: C.tm,
-                fontWeight: 800,
-                marginBottom: 6,
-              }}
-            >
-              RECENT JOBS
+
+        {/* ── Collapsible job panel ── */}
+        {showJobPanel && (
+          <div
+            style={{
+              marginTop: 14,
+              paddingTop: 14,
+              borderTop: `1px solid ${C.bd}`,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <div style={{ fontSize: 11, letterSpacing: 1.5, color: C.tm, fontWeight: 800, flex: 1 }}>
+                VEHICLE JOB — optional, for sign-off &amp; audit history
+              </div>
+              {job && (
+                <span style={{ fontSize: 11, color: C.ts }}>
+                  Active: <strong style={{ color: C.tx }}>{job.title || job.id}</strong> · {job.status}
+                </span>
+              )}
+              <Btn
+                color={C.sr}
+                onClick={handleCreateJob}
+                disabled={!!busy || !vinReady}
+                data-testid="workflow-create-job"
+              >
+                {busy === "creating" ? "…" : "+ NEW JOB"}
+              </Btn>
             </div>
-            <div style={{ display: "grid", gap: 6 }}>
-              {jobs.slice(0, 8).map((j) => (
-                <div
-                  key={j.id}
-                  data-testid={`job-row-${j.id}`}
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    alignItems: "center",
-                    border: `1px solid ${j.id === jobId ? C.sr : C.bd}`,
-                    borderRadius: 10,
-                    padding: "8px 12px",
-                    background: j.id === jobId ? C.sr + "08" : C.cd,
-                  }}
-                >
-                  <div style={{ fontFamily: "JetBrains Mono", fontSize: 12, minWidth: 200 }}>
-                    {j.vin}
+            {jobs.length > 0 && (
+              <div style={{ display: "grid", gap: 6 }}>
+                {jobs.slice(0, 8).map((j) => (
+                  <div
+                    key={j.id}
+                    data-testid={`job-row-${j.id}`}
+                    style={{
+                      display: "flex",
+                      gap: 10,
+                      alignItems: "center",
+                      border: `1px solid ${j.id === jobId ? C.sr : C.bd}`,
+                      borderRadius: 10,
+                      padding: "8px 12px",
+                      background: j.id === jobId ? C.sr + "08" : C.cd,
+                    }}
+                  >
+                    <div style={{ fontFamily: "JetBrains Mono", fontSize: 12, minWidth: 200 }}>
+                      {j.vin}
+                    </div>
+                    <div style={{ flex: 1, fontSize: 11, color: C.ts }}>
+                      {j.title || j.id} · {j.status}
+                    </div>
+                    <div style={{ fontSize: 10, color: C.tm }}>{fmtTs(j.updatedAt)}</div>
+                    <Btn color={C.a3} outline onClick={() => handleSelectJob(j.id)}>
+                      OPEN
+                    </Btn>
+                    <Btn color={C.er} outline onClick={() => handleDeleteJob(j.id)}>
+                      DELETE
+                    </Btn>
                   </div>
-                  <div style={{ flex: 1, fontSize: 11, color: C.ts }}>
-                    {j.title || j.id} · {j.status}
-                  </div>
-                  <div style={{ fontSize: 10, color: C.tm }}>{fmtTs(j.updatedAt)}</div>
-                  <Btn color={C.a3} outline onClick={() => handleSelectJob(j.id)}>
-                    OPEN
-                  </Btn>
-                  <Btn color={C.er} outline onClick={() => handleDeleteJob(j.id)}>
-                    DELETE
-                  </Btn>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
+            {jobs.length === 0 && (
+              <div style={{ fontSize: 12, color: C.tm }}>No saved jobs yet.</div>
+            )}
           </div>
         )}
       </Card>
 
+      {/* ── MODULE CENSUS — always live ── */}
       <Card>
         <div
           style={{
@@ -575,14 +651,26 @@ export default function WorkflowTab({ onOpenTab } = {}) {
           </span>
         </div>
         {census.rows.length === 0 ? (
-          <div style={{ fontSize: 12, color: C.tm }}>
-            Load module dumps in the DUMPS tab; they'll appear here.
+          <div
+            style={{
+              padding: "14px 16px",
+              borderRadius: 10,
+              background: C.tm + "0A",
+              border: `1px dashed ${C.bd}`,
+              fontSize: 12,
+              color: C.tm,
+              textAlign: "center",
+            }}
+          >
+            Drop module dumps in the <strong>DUMPS</strong> tab — the census and fix plan
+            will populate automatically here.
           </div>
         ) : (
           census.rows.map((r) => <CensusRow key={r.code + (r.dump?.hash || "")} row={r} />)
         )}
       </Card>
 
+      {/* ── FIX PLAN — always live, no job required ── */}
       <Card>
         <div
           style={{
@@ -628,8 +716,21 @@ export default function WorkflowTab({ onOpenTab } = {}) {
           </div>
         )}
         {plan.steps.length === 0 ? (
-          <div style={{ fontSize: 12, color: C.tm }}>
-            Plan is empty — once the census shows mismatches the runner will populate it.
+          <div
+            style={{
+              padding: "14px 16px",
+              borderRadius: 10,
+              background: census.rows.length === 0 ? C.tm + "0A" : C.gn + "0A",
+              border: `1px dashed ${census.rows.length === 0 ? C.bd : C.gn + "44"}`,
+              fontSize: 12,
+              color: census.rows.length === 0 ? C.tm : C.gn,
+              textAlign: "center",
+              fontWeight: census.rows.length === 0 ? 400 : 700,
+            }}
+          >
+            {census.rows.length === 0
+              ? "Plan is empty — load module dumps and the runner will populate it automatically."
+              : "✓ No fixes needed — module set is consistent."}
           </div>
         ) : (
           plan.steps.map((s) => (
@@ -648,6 +749,7 @@ export default function WorkflowTab({ onOpenTab } = {}) {
 
       <ChipBurnAuditCard />
 
+      {/* ── SIGN-OFF — requires a saved job ── */}
       <Card>
         <div
           style={{
@@ -678,6 +780,16 @@ export default function WorkflowTab({ onOpenTab } = {}) {
               data-testid="workflow-signoff"
             >
               {busy === "signing" ? "…" : "📝 GENERATE SIGN-OFF"}
+            </Btn>
+          )}
+          {!job?.id && (
+            <Btn
+              color={C.tm}
+              outline
+              onClick={() => setShowJobPanel(true)}
+              data-testid="workflow-signoff-prompt"
+            >
+              Save a job first to sign off →
             </Btn>
           )}
         </div>
@@ -726,7 +838,9 @@ export default function WorkflowTab({ onOpenTab } = {}) {
           </div>
         ) : (
           <div style={{ fontSize: 12, color: C.tm }}>
-            Run the plan, then click "Generate Sign-Off" to persist a summary to the job.
+            {job?.id
+              ? 'Run the plan, then click "Generate Sign-Off" to persist a summary to the job.'
+              : "Create a job (▼ SAVE / HISTORY) to enable sign-off and PDF export."}
           </div>
         )}
       </Card>
