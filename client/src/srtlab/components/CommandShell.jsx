@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   Stethoscope, Terminal, Fingerprint, DownloadCloud, Bot,
-  ChevronRight, Wrench, Car, ShieldCheck, Search, X, ListChecks, KeyRound, Lock, Replace, ScanEye,
+  ChevronRight, Wrench, Car, ShieldCheck, Search, X, ListChecks, KeyRound, Lock, Replace, ScanEye, Zap,
 } from 'lucide-react';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
 
@@ -26,6 +26,7 @@ export const PRIMARY_NAV = [
   {key: 'vinsync',     label: 'VIN \u2192 Sync',    sub: 'Checksums then security',        icon: ListChecks},
   {key: 'secsync',     label: 'Security Sync', sub: 'BCM \u00b7 RFHUB \u00b7 PCM side-by-side', icon: Lock},
   // KEYS — programming, transplant, and status
+  {key: 'quickclone',  label: 'Quick Clone',   sub: 'VIN + Security + Keys · 3-step wizard', icon: Zap},
   {key: 'keyxfer',     label: 'Key Program',   sub: 'Add transponder key offline',    icon: KeyRound},
   {key: 'keytransplant', label: 'Key Transplant', sub: 'Donor \u2192 Target RFHUB clone',    icon: Replace},
   {key: 'hitagaes',    label: 'HITAG AES',     sub: 'PCF7953 key status \u00b7 blank/prog/locked', icon: ScanEye},
