@@ -41,16 +41,31 @@ function downloadBin(buf, filename) {
   URL.revokeObjectURL(url);
 }
 
-function FlagBadge({ flag }) {
-  // Known flag values from bench analysis
-  const label = flag === 0xE6 ? 'BLK' : flag === 0x48 ? 'RED' : `0x${flag.toString(16).toUpperCase().padStart(2,'0')}`;
-  const color = flag === 0xE6 ? '#607D8B' : flag === 0x48 ? '#E53935' : '#9E9E9E';
+// Human-readable flag labels (bench-verified against real RFHUB dumps)
+const FLAG_INFO = {
+  0xE6: { label: 'Black Key',    sub: 'Hitag AES',    color: '#607D8B' },
+  0x48: { label: 'Red Key',     sub: 'Hitag AES',    color: '#E53935' },
+  0x01: { label: 'Standard',    sub: 'Hitag2',       color: '#42A5F5' },
+  0x03: { label: 'Alt Family',  sub: 'Hitag2',       color: '#AB47BC' },
+};
+
+function FlagBadge({ flag, showSub = false }) {
+  const info  = FLAG_INFO[flag];
+  const label = info ? info.label : `Flag 0x${flag.toString(16).toUpperCase().padStart(2,'0')}`;
+  const sub   = info ? info.sub   : 'Unknown';
+  const color = info ? info.color : '#9E9E9E';
   return (
-    <span style={{
-      display: 'inline-block', padding: '1px 6px', borderRadius: 4,
-      background: color + '22', color, border: `1px solid ${color}55`,
-      fontSize: 9, fontWeight: 800, letterSpacing: 1, fontFamily: "'JetBrains Mono'",
-    }}>{label}</span>
+    <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+      <span style={{
+        display: 'inline-block', padding: '1px 7px', borderRadius: 4,
+        background: color + '22', color, border: `1px solid ${color}55`,
+        fontSize: 9, fontWeight: 800, letterSpacing: 0.5, fontFamily: "'JetBrains Mono'",
+        whiteSpace: 'nowrap',
+      }}>{label}</span>
+      {showSub && (
+        <span style={{ fontSize: 8, color: color + 'AA', marginTop: 1, paddingLeft: 2 }}>{sub}</span>
+      )}
+    </span>
   );
 }
 
@@ -73,7 +88,7 @@ function KeyRow({ entry, selected, onToggle, disabled }) {
       <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.tx, letterSpacing: 1 }}>
         {entry.chipId}
       </span>
-      <FlagBadge flag={entry.flag} />
+      <FlagBadge flag={entry.flag} showSub />
       <span style={{ fontSize: 9, color: C.ts, marginLeft: 'auto' }}>
         cnt={entry.count}
       </span>
@@ -344,10 +359,10 @@ export default function RfhubKeyTransplantPanel() {
           {result.injected.map(k => (
             <div key={k.chipId} style={{
               fontFamily: "'JetBrains Mono'", fontSize: 10, color: '#00E676',
-              display: 'flex', alignItems: 'center', gap: 6,
+              display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2,
             }}>
               <span>↳ {k.chipId}</span>
-              <FlagBadge flag={k.flag} />
+              <FlagBadge flag={k.flag} showSub />
             </div>
           ))}
           {result.skipped.length > 0 && (
