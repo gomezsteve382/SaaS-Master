@@ -44,3 +44,4 @@
 - [x] KEY TRANSPLANT gap: persist transplant history to Dumps workspace (tRPC backups table) in addition to localStorage
 - [x] KEY TRANSPLANT gap: rename bench diff to 'patched-vs-target byte diff' and clarify it shows what bytes the transplant changed (not a reference comparison)
 - [x] KEY TRANSPLANT gap: surface transplant history entries in BackupsTab (Dumps workspace) with dedicated detail view, TRANSPLANT badge, and proper row rendering
+- [x] KEY TRANSPLANT bug: tab was invisible because keytransplant was missing from WORKSPACE_CATEGORIES — added to PROGRAM category

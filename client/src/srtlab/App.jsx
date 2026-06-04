@@ -993,7 +993,7 @@ const WORKSPACE_TABS = [
  * INFO is intentionally absent — it lives in the reference panel. */
 const WORKSPACE_CATEGORIES = {
   // PROGRAM — anything that writes to a module / produces a flashable file.
-  jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM', livekey:'PROGRAM',
+  jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM', keytransplant:'PROGRAM', livekey:'PROGRAM',
   vinprog:'PROGRAM', vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
   cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
