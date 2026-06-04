@@ -22,7 +22,7 @@
  * so you can compare future reads against known-blank profiles.
  */
 
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Card, Btn, Tag } from '../lib/ui.jsx';
 import { C } from '../lib/constants.js';
 import { KNOWN_WORKING_KEYS } from '../lib/keyWriter/knownWorkingKeys.js';
@@ -233,6 +233,57 @@ function BlankRefCard({ ref: entry, onLoad, onDelete }) {
   );
 }
 
+/* ─── bin file parser: extract SK0–SK3, chipId, config from raw PCF7953 dump ─── */
+function parsePcf7953Bin(data) {
+  // PCF7953 EEPROM is typically 256 bytes (pages 0–63, 4 bytes each)
+  // or 512 bytes (extended). Autel/VVDI dump formats vary but common layout:
+  //   Page 0 (bytes 0–3): Config word
+  //   Page 1 (bytes 4–7): SK0 (or UID depending on dump format)
+  //   Page 2 (bytes 8–11): SK1
+  //   Page 3 (bytes 12–15): SK2
+  //   Page 4 (bytes 16–19): SK3
+  //   Page 24–27 (bytes 96–99): Chip ID / UID
+  // Alternative Autel format (32-byte key data block):
+  //   Bytes 0–3: Chip ID, 4–7: SK0, 8–11: SK1, 12–15: SK2, 16–19: SK3, 20–23: Config
+  const hex = b => b.toString(16).toUpperCase().padStart(2, '0');
+  const word = (arr, off) => hex(arr[off]) + hex(arr[off+1]) + hex(arr[off+2]) + hex(arr[off+3]);
+
+  if (data.length >= 32 && data.length <= 64) {
+    // Compact Autel key-data export: 32 bytes
+    // [ChipID(4)] [SK0(4)] [SK1(4)] [SK2(4)] [SK3(4)] [Config(4)] [Page1(4)] [Page2(4)]
+    return {
+      chipId: word(data, 0),
+      sk0: word(data, 4),
+      sk1: word(data, 8),
+      sk2: word(data, 12),
+      sk3: word(data, 16),
+      config: data.length >= 24 ? word(data, 20) : '00000000',
+      page1: data.length >= 28 ? word(data, 24) : '00000000',
+      page2: data.length >= 32 ? word(data, 28) : '00000000',
+    };
+  }
+
+  if (data.length >= 256) {
+    // Full EEPROM dump (256+ bytes, page-based)
+    // Standard PCF7953 page layout:
+    //   Page 0 (off 0): Config
+    //   Pages 4–7 (off 16–31): SK0–SK3
+    //   Page 24 (off 96): Chip ID
+    return {
+      chipId: word(data, 96),
+      sk0: word(data, 16),
+      sk1: word(data, 20),
+      sk2: word(data, 24),
+      sk3: word(data, 28),
+      config: word(data, 0),
+      page1: word(data, 4),
+      page2: word(data, 8),
+    };
+  }
+
+  return null; // Unrecognized format
+}
+
 /* ─── main component ─── */
 export default function HitagAesTab() {
   const [chipId, setChipId] = useState('CF324E65');
@@ -249,6 +300,105 @@ export default function HitagAesTab() {
   const [blankRefs, setBlankRefs] = useState(() => loadBlankRefs());
   const [saveMsg,   setSaveMsg]   = useState('');
   const [showRefs,  setShowRefs]  = useState(false);
+
+  /* ── File/Photo upload state ── */
+  const [uploadMsg, setUploadMsg] = useState('');
+  const [uploadErr, setUploadErr] = useState('');
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const binInputRef = useRef(null);
+  const photoInputRef = useRef(null);
+  const [dragOver, setDragOver] = useState(false);
+
+  /* Drag-and-drop handler for the upload zone */
+  const handleDrop = useCallback((e) => {
+    e.preventDefault(); e.stopPropagation();
+    setDragOver(false);
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+    if (/^image\//.test(file.type || '')) {
+      // Treat as photo
+      handlePhotoFile(file);
+    } else {
+      // Treat as bin
+      handleBinFile(file);
+    }
+  }, []);
+
+  const handleBinFile = useCallback((file) => {
+    setUploadErr(''); setUploadMsg('');
+    const reader = new FileReader();
+    reader.onerror = () => setUploadErr('Could not read that file.');
+    reader.onload = (ev) => {
+      const data = new Uint8Array(ev.target.result);
+      const parsed = parsePcf7953Bin(data);
+      if (!parsed) {
+        setUploadErr(`Could not parse "${file.name}" (${data.length} bytes). Expected a 32–64 byte Autel key export or a 256+ byte full EEPROM dump.`);
+        return;
+      }
+      setChipId(parsed.chipId);
+      setSk0(parsed.sk0); setSk1(parsed.sk1); setSk2(parsed.sk2); setSk3(parsed.sk3);
+      setConfig(parsed.config); setPage1(parsed.page1); setPage2(parsed.page2);
+      setUploadMsg(`✅ Loaded "${file.name}" (${data.length} bytes) — fields auto-filled from binary.`);
+    };
+    reader.readAsArrayBuffer(file);
+  }, []);
+
+  const handlePhotoFile = useCallback((file) => {
+    if (!/^image\//.test(file.type || '')) { setUploadErr('Please choose an image file (PNG, JPG, WEBP).'); return; }
+    setUploadErr(''); setUploadMsg(''); setPhotoBusy(true);
+    const reader = new FileReader();
+    reader.onerror = () => { setPhotoBusy(false); setUploadErr('Could not read that image.'); };
+    reader.onload = async (ev) => {
+      try {
+        const dataUrl = String(ev.target.result || '');
+        setPhotoPreview(dataUrl);
+        // Attempt AI-powered OCR extraction (graceful fallback if endpoint unavailable)
+        try {
+          const apiRes = await fetch('/api/anthropic/key-photo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageBase64: dataUrl, mediaType: file.type || 'image/png' }),
+          });
+          if (apiRes.ok) {
+            const data = await apiRes.json();
+            if (data.chipId) setChipId(data.chipId);
+            if (data.sk0) setSk0(data.sk0);
+            if (data.sk1) setSk1(data.sk1);
+            if (data.sk2) setSk2(data.sk2);
+            if (data.sk3) setSk3(data.sk3);
+            if (data.config) setConfig(data.config);
+            setUploadMsg(`✅ Photo analyzed — ${data.keyId ? 'Key ID: ' + data.keyId : 'fields extracted'}. Verify values below.`);
+          } else {
+            setUploadMsg('📷 Photo saved as reference. Enter hex values manually from your programmer screen.');
+          }
+        } catch {
+          setUploadMsg('📷 Photo saved as reference. AI extraction unavailable — enter hex values manually.');
+        }
+      } catch (err) {
+        setUploadErr(err?.message || 'Photo read failed.');
+      } finally {
+        setPhotoBusy(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
+  const handleBinUpload = useCallback((e) => {
+    const file = e.target.files && e.target.files[0];
+    if (e.target) e.target.value = '';
+    if (!file) return;
+    handleBinFile(file);
+  }, [handleBinFile]);
+
+  const handlePhotoUpload = useCallback((e) => {
+    const file = e.target.files && e.target.files[0];
+    if (e.target) e.target.value = '';
+    if (!file) return;
+    handlePhotoFile(file);
+  }, [handlePhotoFile]);
+
+
 
   const verdict = useMemo(
     () => analyzeKey({ chipId, sk0, sk1, sk2, sk3, config, page1, page2 }),
@@ -317,6 +467,96 @@ export default function HitagAesTab() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         {/* Left — input */}
         <div>
+          {/* FILE / PHOTO UPLOAD */}
+          <Card
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(true); }}
+            onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(true); }}
+            onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(false); }}
+            onDrop={handleDrop}
+            style={{ marginBottom: 14, border: `2px ${dragOver ? 'solid' : 'solid'} ${dragOver ? C.a2 : C.a2 + '44'}`, background: dragOver ? '#E0E7FF' : '#F8FAFF', transition: 'border-color 0.2s, background 0.2s' }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 800, color: C.a2, letterSpacing: 2, marginBottom: 10 }}>
+              📤 UPLOAD KEY DATA
+            </div>
+            <div style={{ fontSize: 11, color: C.ts, marginBottom: 12, lineHeight: 1.5 }}>
+              Drop a <b>.bin transponder dump</b> (Autel/VVDI export) to auto-fill all fields, or upload a <b>photo</b> of the key/programmer screen for reference.
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+              {/* BIN upload */}
+              <input ref={binInputRef} type="file" accept=".bin,.BIN,.eep,.EEP" style={{ display: 'none' }} onChange={handleBinUpload} />
+              <button
+                onClick={() => binInputRef.current?.click()}
+                style={{
+                  flex: 1, padding: '14px 12px', borderRadius: 10, cursor: 'pointer',
+                  border: `2px dashed ${C.a2}66`, background: '#EEF2FF',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                  transition: 'border-color 0.15s, background 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = C.a2; e.currentTarget.style.background = '#E0E7FF'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = C.a2 + '66'; e.currentTarget.style.background = '#EEF2FF'; }}
+              >
+                <div style={{ fontSize: 18 }}>📂</div>
+                <div style={{ fontSize: 10, fontWeight: 800, color: C.a2, letterSpacing: 1 }}>BIN / EEP FILE</div>
+                <div style={{ fontSize: 9, color: C.ts }}>PCF7953 dump</div>
+              </button>
+
+              {/* PHOTO upload */}
+              <input ref={photoInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoUpload} />
+              <button
+                onClick={() => photoInputRef.current?.click()}
+                style={{
+                  flex: 1, padding: '14px 12px', borderRadius: 10, cursor: 'pointer',
+                  border: `2px dashed #7C3AED66`, background: '#F5F3FF',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                  transition: 'border-color 0.15s, background 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#7C3AED'; e.currentTarget.style.background = '#EDE9FE'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#7C3AED66'; e.currentTarget.style.background = '#F5F3FF'; }}
+              >
+                <div style={{ fontSize: 18 }}>📷</div>
+                <div style={{ fontSize: 10, fontWeight: 800, color: '#7C3AED', letterSpacing: 1 }}>PHOTO</div>
+                <div style={{ fontSize: 9, color: C.ts }}>Key or screen</div>
+              </button>
+            </div>
+
+            {photoBusy && (
+              <div style={{ fontSize: 11, color: C.a2, fontWeight: 700, padding: '6px 0' }}>
+                ⏳ Analyzing photo...
+              </div>
+            )}
+            {uploadMsg && (
+              <div style={{ fontSize: 11, color: C.gn, fontWeight: 700, padding: '4px 0', lineHeight: 1.5 }}>
+                {uploadMsg}
+              </div>
+            )}
+            {uploadErr && (
+              <div style={{ fontSize: 11, color: C.er, fontWeight: 700, padding: '4px 0', lineHeight: 1.5 }}>
+                ⚠ {uploadErr}
+              </div>
+            )}
+            {photoPreview && (
+              <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', border: `1px solid ${C.bd}` }}>
+                <img src={photoPreview} alt="Key photo" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', background: '#000' }} />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', padding: 4 }}>
+                  <button onClick={() => setPhotoPreview(null)} style={{ fontSize: 10, color: C.ts, cursor: 'pointer', background: 'none', border: 'none' }}>✕ Remove</button>
+                </div>
+              </div>
+            )}
+          </Card>
+
+          {/* INSTRUCTIONS */}
+          <Card style={{ marginBottom: 14, background: '#FFFBEB', border: `1.5px solid ${C.wn}33` }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: C.wn, letterSpacing: 2, marginBottom: 8 }}>
+              📖 INSTRUCTIONS
+            </div>
+            <div style={{ fontSize: 11, color: C.t, lineHeight: 1.7 }}>
+              <b>Option A — Upload .bin:</b> Use your Autel IM608 or VVDI to read the transponder, export as .bin, and upload above. All fields auto-fill instantly.<br /><br />
+              <b>Option B — Upload photo:</b> Take a photo of your programmer screen showing the SK pages. The AI will attempt to extract hex values (verify manually).<br /><br />
+              <b>Option C — Manual entry:</b> Type the values directly from your programmer screen into the fields below. Each field is 8 hex characters (4 bytes).
+            </div>
+          </Card>
+
           <Card style={{ marginBottom: 14 }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: C.a2, letterSpacing: 2, marginBottom: 12 }}>
               📋 AUTEL / VVDI PAGE READ INPUT

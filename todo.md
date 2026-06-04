@@ -52,3 +52,4 @@
 - [x] Reorder primary sidebar for logical workflow (diagnostics → VIN/security → keys → OBD → AI)
 - [x] Export project to GitHub repo (pushed to srt-lab-bench branch on mjremetio/goatmez-autoshop-crm)
 - [x] Quick Clone wizard: multi-step guided flow combining VIN patch → Security Sync → Key Transplant into one seamless process
+- [x] HITAG AES tab: add file upload zone (accepts .bin transponder dumps and photo references) with drag-and-drop support
