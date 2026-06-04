@@ -59,6 +59,7 @@ import Gpec2aUnlockTab from "./tabs/Gpec2aUnlockTab.jsx";
 import ExternalToolsTab from "./tabs/ExternalToolsTab.jsx";
 import RadioCodesTab from "./tabs/RadioCodesTab.jsx";
 import KeyWriterTab from "./tabs/KeyWriterTab.jsx";
+import HitagAesTab from "./tabs/HitagAesTab.jsx";
 import BinaryIntelTab from "./tabs/BinaryIntelTab.jsx";
 import DispatchCoverageTab from "./tabs/DispatchCoverageTab.jsx";
 import AlfaObdIntelTab from "./tabs/AlfaObdIntelTab.jsx";
@@ -961,6 +962,7 @@ const WORKSPACE_TABS = [
   {id:'exttools',  i:'🧰', l:'EXT TOOLS',   s:'FCA PROXI Tool · GPEC Unlocker'},
   {id:'radiocodes',i:'📻', l:'RADIO CODES', s:'Mopar PIN deriver'},
   {id:'keywriter', i:'🗝️', l:'KEY WRITER',  s:'VVDI / Tango chip burn bridge'},
+  {id:'hitagaes',  i:'🔑', l:'HITAG AES',   s:'PCF7953 key status · blank/programmed/locked · FCA Redeye/Hellcat'},
   {id:'binintel',  i:'🧪', l:'BINARY INTEL',s:'External report cross-ref'},
   {id:'dispatchcov',i:'📊', l:'DISPATCH COV',s:'Full routine→frame gap · 1,696 routines'},
   {id:'alfaintel', i:'🧾', l:'ALFAOBD INTEL',s:'UDS frames · routines · ECU→CAN · DB schema'},
@@ -1259,6 +1261,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='exttools'  && <ExternalToolsTab onOpenTab={setTab}/>}
         {tab==='radiocodes'&& <RadioCodesTab/>}
         {tab==='keywriter' && <KeyWriterTab onOpenTab={setTab}/>}
+        {tab==='hitagaes'  && <HitagAesTab/>}
         {tab==='binintel'  && <BinaryIntelTab/>}
         {tab==='dispatchcov' && <DispatchCoverageTab/>}
         {tab==='alfaintel' && <AlfaObdIntelTab/>}
