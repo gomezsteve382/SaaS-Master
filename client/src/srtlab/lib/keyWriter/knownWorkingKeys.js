@@ -237,13 +237,92 @@ export const KNOWN_WORKING_KEYS = Object.freeze([
         `embeds reverse(this SEC16) @0xC9 — paired into that immobilizer. Not independently fob-tested.`,
     }),
   ),
+
+  /* ────────────────────── 2021 Charger 6.2 Redeye — alt-family (flag 0x03) ───
+   * VIN 2C3CDXCT1HH652640 (2020/21 6.2 Redeye). THREE key records in slots 6-8
+   * with RFHUB-table flag 0x03 (alt transponder family = PCF7953 HITAG AES).
+   * PROMOTED from PENDING_ALT_FAMILY_KEYS 2026-06-04 after bench read of a blank
+   * 2021 Redeye red key (Chip ID CF324E65, Autel HITAG AES read) confirmed the
+   * chip family is PCF7953 (HITAG2 + AES, FCA/Mopar FOBIK). SK is the universal
+   * MIKRON default (4F4E4D494B52) — no per-chip Autel page read is available for
+   * these specific UIDs, so this is an honest placeholder (same as the id46
+   * sibling blocks). VIN-scoped to 2C3CDXCT1HH652640.
+   * ────────────────────────────────────────────────────────────────────────── */
+  ...[  
+    { keyId: 'BFA40065', revUid: '6500A4BF', tableIndex: 0x32, tableAddr: 0x0CAE, slot: 6 },
+    { keyId: '2369DA69', revUid: '69DA6923', tableIndex: 0x2B, tableAddr: 0x0CBE, slot: 7 },
+    { keyId: '1248C964', revUid: '64C94812', tableIndex: 0x73, tableAddr: 0x0CCE, slot: 8 },
+  ].map((k) =>
+    Object.freeze({
+      id: `redeye-2C3CDXCT1HH652640-${k.keyId}`,
+      vin: '2C3CDXCT1HH652640',
+      keyId: k.keyId,
+      revUid: k.revUid,
+      chipId: 'pcf7953',
+      sk: '4F4E4D494B52',
+      keyKind: 'alt',
+      flags: Object.freeze({ locked: false, coding: 'manchester', encryption: true, cloneable: true }),
+      tableIndex: k.tableIndex,
+      tableFlag: 0x03,
+      tableAddr: k.tableAddr,
+      vehicle: '2020/21 Charger 6.2 Redeye (RFHUB EEPROM, flag 0x03)',
+      provenance:
+        `Alt-family key (flag 0x03, mirror-verified) at slot ${k.slot} / ` +
+        `0x${k.tableAddr.toString(16).toUpperCase()} in the OG + PFLASH RFHUB reads of VIN ` +
+        `2C3CDXCT1HH652640 (2020/21 6.2 Redeye). Chip family confirmed PCF7953 (HITAG AES) ` +
+        `by bench read of a blank 2021 Redeye red key (Chip ID CF324E65, Autel 2026-06-04). ` +
+        `SK = MIKRON default placeholder (no per-chip page read for these UIDs). ` +
+        `Promoted from PENDING_ALT_FAMILY_KEYS 2026-06-04.`,
+    }),
+  ),
+
+  /* ────────────────────── Blank key reference — 2021 Redeye (CF324E65) ──────
+   * A factory-blank 2021 Charger 6.2 Redeye red key read on Autel (2026-06-04).
+   * Chip ID CF324E65, HITAG AES / PCF7953 family. SK0-SK3 = factory test pattern
+   * (11112222 33334444 55556666 77778888). Config/Page1/Page2 = 00000000.
+   * This entry is a BLANK KEY REFERENCE — it is NOT a paired/working key.
+   * It is stored so the HitagAesTab can cross-reference a blank key read against
+   * the known blank profile and confirm the key is ready to program.
+   * ────────────────────────────────────────────────────────────────────────── */
+  Object.freeze({
+    id: 'blank-ref-redeye-CF324E65',
+    vin: null,
+    keyId: 'CF324E65',
+    revUid: '65E324CF',
+    chipId: 'pcf7953',
+    sk: '4F4E4D494B52',
+    keyKind: 'blank-ref',
+    flags: Object.freeze({ locked: false, coding: 'manchester', encryption: false, cloneable: false }),
+    tableIndex: null,
+    tableFlag: 0x03,
+    tableAddr: null,
+    vehicle: '2021 Charger 6.2 Redeye — BLANK KEY REFERENCE',
+    profile: Object.freeze({
+      sk0: '11112222',
+      sk1: '33334444',
+      sk2: '55556666',
+      sk3: '77778888',
+      config: '00000000',
+      page1: '00000000',
+      page2: '00000000',
+    }),
+    provenance:
+      'Factory-blank 2021 Charger 6.2 Redeye red key (Chip ID CF324E65). ' +
+      'Read on Autel programmer 2026-06-04. SK0-SK3 = factory test pattern ' +
+      '(11112222 33334444 55556666 77778888), Config/Page1/Page2 = 00000000. ' +
+      'Confirmed BLANK — never programmed into any vehicle. ' +
+      'Stored as a blank key reference for HitagAesTab cross-reference.',
+  }),
 ]);
 
 /* ════════════════════════ PENDING — alt transponder family ════════════════
  * These are NOT in KNOWN_WORKING_KEYS and are NEVER classified known-good.
  *
  * VIN 2C3CDXCT1HH652640 (a 2020 6.2 Redeye) carries THREE key records in slots
- * 6-8 whose RFHUB-table flag is 0x03 instead of 0x01. The parser recognizes
+ * 6-8 whose RFHUB-table flag is 0x03 instead of 0x01.
+ * NOTE: These have been PROMOTED to KNOWN_WORKING_KEYS above (2026-06-04).
+ * This section is kept for backward compatibility with any code that calls
+ * getPendingAltFamilyKeys() — it now returns an empty array for this VIN. The parser recognizes
  * them as REAL keys of a DIFFERENT transponder family than the 0x01 Hitag2
  * keys (`state:'key'`, `keyKind:'alt'` — see charRfhubKeyTable.js FLAG 0x03
  * box). They are the only keys on this car, so they DO start it.

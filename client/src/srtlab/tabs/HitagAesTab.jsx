@@ -6,7 +6,8 @@
  *   • BLANK  — factory default test pattern, never programmed
  *   • PROGRAMMED — vehicle secret written, key is paired
  *   • LOCKED — lock bit set, cannot be rewritten
- *   • ALT-FAMILY — flag 0x03 Redeye/Hellcat alt transponder
+ *   • MIKRON_DEFAULT — universal default SK
+ *   • KNOWN_GOOD — matches a bench-verified working key
  *   • UNKNOWN — unrecognized pattern
  *
  * Also decodes:
@@ -14,14 +15,47 @@
  *   • FOBIK UID (Chip ID)
  *   • Lock bits from Config word
  *   • Page 1/2/3 SK derivation (HITAG2 6-byte SK = page1 ∥ high(page2))
- *   • Alt-family detection (2020+ Redeye / Hellcat)
  *   • Cross-reference against known working keys
+ *
+ * "Save as Blank Key Reference" — stores the current chip read as a
+ * confirmed-blank reference in localStorage (srt-lab.hitag.blank-refs.v1)
+ * so you can compare future reads against known-blank profiles.
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Card, Btn, Tag } from '../lib/ui.jsx';
 import { C } from '../lib/constants.js';
-import { KNOWN_WORKING_KEYS, PENDING_ALT_FAMILY_KEYS } from '../lib/keyWriter/knownWorkingKeys.js';
+import { KNOWN_WORKING_KEYS } from '../lib/keyWriter/knownWorkingKeys.js';
+
+/* ─── blank reference storage ─── */
+const BLANK_REFS_KEY = 'srt-lab.hitag.blank-refs.v1';
+
+function loadBlankRefs() {
+  try {
+    const raw = localStorage.getItem(BLANK_REFS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveBlankRef(entry) {
+  const refs = loadBlankRefs();
+  // Deduplicate by chipId — keep the newest
+  const filtered = refs.filter(r => r.chipId !== entry.chipId);
+  filtered.unshift(entry);
+  // Keep at most 50 entries
+  localStorage.setItem(BLANK_REFS_KEY, JSON.stringify(filtered.slice(0, 50)));
+  return filtered.slice(0, 50);
+}
+
+function removeBlankRef(chipId) {
+  const refs = loadBlankRefs().filter(r => r.chipId !== chipId);
+  localStorage.setItem(BLANK_REFS_KEY, JSON.stringify(refs));
+  return refs;
+}
 
 /* ─── helpers ─── */
 function normHex(s) {
@@ -40,13 +74,6 @@ function bytesToHex(arr) {
 }
 
 /* Factory blank test pattern — Autel shows this on a never-programmed FCA key */
-const BLANK_PATTERN = {
-  sk0: '11112222',
-  sk1: '33334444',
-  sk2: '55556666',
-  sk3: '77778888',
-};
-
 function isBlankPattern(sk0, sk1, sk2, sk3) {
   return normHex(sk0) === '11112222' &&
          normHex(sk1) === '33334444' &&
@@ -67,15 +94,11 @@ function decodeConfig(configHex) {
   };
 }
 
-/* Derive HITAG2 6-byte SK from page1 ∥ high word of page2
- * This is the real per-chip SK as reported by Autel/VVDI after their
- * "Calculate SK" step — page1 (4 bytes) concatenated with the high
- * 2 bytes of page2 = 6 bytes total. This is NOT the 16-byte AES root key. */
+/* Derive HITAG2 6-byte SK from page1 ∥ high word of page2 */
 function deriveHitag2SK(page1Hex, page2Hex) {
   const p1 = normHex(page1Hex);
   const p2 = normHex(page2Hex);
   if (p1.length < 8 || p2.length < 8) return null;
-  // page1 (8 hex chars = 4 bytes) + high word of page2 (4 hex chars = 2 bytes)
   return (p1 + p2.slice(0, 4)).toUpperCase();
 }
 
@@ -102,21 +125,6 @@ function crossRefKnownKeys(aesSecret) {
   return null;
 }
 
-/* Detect alt-family (Redeye/Hellcat 2020+ flag 0x03) by SK pattern */
-function detectAltFamily(sk0, sk1, sk2, sk3) {
-  /* Alt-family keys have a distinct non-blank, non-MIKRON SK pattern.
-   * The 2020 Redeye PENDING keys have sk=null (unconfirmed), so we
-   * detect by exclusion: not blank, not MIKRON default, not all-zero/FF. */
-  const s0 = normHex(sk0), s1 = normHex(sk1), s2 = normHex(sk2), s3 = normHex(sk3);
-  if (isBlankPattern(sk0, sk1, sk2, sk3)) return false;
-  if (isAllZero(s0 + s1 + s2 + s3)) return false;
-  if (isAllFF(s0 + s1 + s2 + s3)) return false;
-  /* MIKRON universal default SK = 4F4E4D494B52 — appears in page1+page2 */
-  const derivedSK = deriveHitag2SK(sk0, sk1); // page0=SK0, page1=SK1 in Autel layout
-  if (derivedSK === '4F4E4D494B52') return false;
-  return true;
-}
-
 /* ─── status verdict ─── */
 function analyzeKey({ chipId, sk0, sk1, sk2, sk3, config, page1, page2 }) {
   const cfg = decodeConfig(config);
@@ -141,11 +149,11 @@ function analyzeKey({ chipId, sk0, sk1, sk2, sk3, config, page1, page2 }) {
       detail: 'All SK pages are zero/FF — key was erased or never written. Treat as blank.' };
   }
 
-  /* MIKRON universal default — programmed with the universal default SK */
+  /* MIKRON universal default */
   const hitag2SK = deriveHitag2SK(sk0, sk1);
   if (hitag2SK === '4F4E4D494B52') {
     return { status: 'MIKRON_DEFAULT', color: C.wn, emoji: '⚠️', label: 'MIKRON DEFAULT SK', bg: '#FFF8E1',
-      detail: 'Key carries the universal MIKRON default SK (4F4E4D494B52). This is a generic unpaired state — the key has been written with the default but not paired to a specific vehicle.' };
+      detail: 'Key carries the universal MIKRON default SK (4F4E4D494B52). Generic unpaired state — not paired to a specific vehicle.' };
   }
 
   const knownMatch = crossRefKnownKeys(aesSecret);
@@ -155,9 +163,8 @@ function analyzeKey({ chipId, sk0, sk1, sk2, sk3, config, page1, page2 }) {
       knownKey: knownMatch };
   }
 
-  /* Programmed with a vehicle-specific secret */
   return { status: 'PROGRAMMED', color: C.a2, emoji: '🔑', label: 'PROGRAMMED — VEHICLE PAIRED', bg: '#E3F2FD',
-    detail: 'SK pages contain a vehicle-specific secret. This key is paired to a vehicle. If it doesn\'t work, the RFHUB/BCM SEC16 may not match.' };
+    detail: "SK pages contain a vehicle-specific secret. This key is paired to a vehicle. If it doesn't work, the RFHUB/BCM SEC16 may not match." };
 }
 
 /* ─── field input ─── */
@@ -183,6 +190,49 @@ function HexField({ label, value, onChange, placeholder, mono = true }) {
   );
 }
 
+/* ─── decoded row ─── */
+function DecodedRow({ label, value, mono, color, highlight, note }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '5px 0', borderBottom: `1px solid ${C.bd}22` }}>
+      <div style={{ fontSize: 10, color: C.ts, fontWeight: 700, minWidth: 160, flexShrink: 0 }}>{label}</div>
+      <div style={{ fontSize: 11, color: color || highlight || C.t, fontFamily: mono ? "'JetBrains Mono', monospace" : undefined, textAlign: 'right', wordBreak: 'break-all' }}>
+        {value}
+        {note && <div style={{ fontSize: 10, color: C.wn, marginTop: 2 }}>{note}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ─── blank reference card ─── */
+function BlankRefCard({ ref: entry, onLoad, onDelete }) {
+  return (
+    <div style={{
+      padding: '10px 12px', borderRadius: 8, border: `1.5px solid ${C.gn}44`,
+      background: '#F1FBF4', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10,
+    }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: C.t, fontFamily: "'JetBrains Mono', monospace" }}>
+          {entry.chipId}
+        </div>
+        <div style={{ fontSize: 10, color: C.ts, marginTop: 2 }}>
+          {entry.label || 'Blank Key Reference'} · {entry.vehicle || 'Unknown vehicle'} · {entry.savedAt ? new Date(entry.savedAt).toLocaleDateString() : ''}
+        </div>
+        <div style={{ fontSize: 10, color: C.tm, fontFamily: "'JetBrains Mono', monospace", marginTop: 2 }}>
+          SK: {entry.sk0} {entry.sk1} {entry.sk2} {entry.sk3}
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+        <Btn onClick={() => onLoad(entry)} color={C.a2} outline style={{ fontSize: 10, padding: '4px 8px' }}>
+          LOAD
+        </Btn>
+        <Btn onClick={() => onDelete(entry.chipId)} color={C.er} outline style={{ fontSize: 10, padding: '4px 8px' }}>
+          ✕
+        </Btn>
+      </div>
+    </div>
+  );
+}
+
 /* ─── main component ─── */
 export default function HitagAesTab() {
   const [chipId, setChipId] = useState('CF324E65');
@@ -193,38 +243,67 @@ export default function HitagAesTab() {
   const [config, setConfig] = useState('00000000');
   const [page1,  setPage1]  = useState('00000000');
   const [page2,  setPage2]  = useState('00000000');
+  const [vehicle, setVehicle] = useState('2021 Charger 6.2 Redeye');
+  const [label,   setLabel]   = useState('');
+
+  const [blankRefs, setBlankRefs] = useState(() => loadBlankRefs());
+  const [saveMsg,   setSaveMsg]   = useState('');
+  const [showRefs,  setShowRefs]  = useState(false);
 
   const verdict = useMemo(
     () => analyzeKey({ chipId, sk0, sk1, sk2, sk3, config, page1, page2 }),
     [chipId, sk0, sk1, sk2, sk3, config, page1, page2],
   );
 
-  const cfg        = useMemo(() => decodeConfig(config), [config]);
-  const aesSecret  = useMemo(() => buildAesSecret(sk0, sk1, sk2, sk3), [sk0, sk1, sk2, sk3]);
-  // HITAG2 SK derived from page1 + high(page2) — the real per-chip secret
-  const hitag2SK   = useMemo(() => deriveHitag2SK(page1, page2), [page1, page2]);
+  const cfg       = useMemo(() => decodeConfig(config), [config]);
+  const aesSecret = useMemo(() => buildAesSecret(sk0, sk1, sk2, sk3), [sk0, sk1, sk2, sk3]);
+  const hitag2SK  = useMemo(() => deriveHitag2SK(page1, page2), [page1, page2]);
 
   const fillBlank = useCallback(() => {
     setSk0('11112222'); setSk1('33334444'); setSk2('55556666'); setSk3('77778888');
     setConfig('00000000'); setPage1('00000000'); setPage2('00000000');
   }, []);
 
-  const fillRedeye = useCallback(() => {
-    /* 2021 Charger 6.2 Redeye — the key from the Autel screenshot.
-     * Chip ID CF324E65, SK0–SK3 from the Autel read, Config/Page1/Page2 all 00.
-     * Alt-family (flag 0x03) — programmed with vehicle-specific AES secret. */
-    setChipId('CF324E65');
-    setSk0('11112222'); setSk1('33334444'); setSk2('55556666'); setSk3('77778888');
-    setConfig('00000000'); setPage1('00000000'); setPage2('00000000');
-  }, []);
-
   const clearAll = useCallback(() => {
     setChipId(''); setSk0(''); setSk1(''); setSk2(''); setSk3('');
-    setConfig(''); setPage1(''); setPage2('');
+    setConfig(''); setPage1(''); setPage2(''); setVehicle(''); setLabel('');
+  }, []);
+
+  const handleSaveBlankRef = useCallback(() => {
+    const cid = normHex(chipId);
+    if (!cid) { setSaveMsg('⚠ Enter a Chip ID first.'); return; }
+    const entry = {
+      chipId: cid,
+      sk0: normHex(sk0), sk1: normHex(sk1), sk2: normHex(sk2), sk3: normHex(sk3),
+      config: normHex(config), page1: normHex(page1), page2: normHex(page2),
+      vehicle: vehicle || 'Unknown vehicle',
+      label: label || 'Blank Key Reference',
+      verdict: verdict.status,
+      savedAt: Date.now(),
+    };
+    const updated = saveBlankRef(entry);
+    setBlankRefs(updated);
+    setSaveMsg(`✅ Saved blank reference for Chip ID ${cid}`);
+    setShowRefs(true);
+    setTimeout(() => setSaveMsg(''), 3000);
+  }, [chipId, sk0, sk1, sk2, sk3, config, page1, page2, vehicle, label, verdict.status]);
+
+  const handleLoadRef = useCallback((entry) => {
+    setChipId(entry.chipId);
+    setSk0(entry.sk0); setSk1(entry.sk1); setSk2(entry.sk2); setSk3(entry.sk3);
+    setConfig(entry.config || '00000000');
+    setPage1(entry.page1 || '00000000');
+    setPage2(entry.page2 || '00000000');
+    setVehicle(entry.vehicle || '');
+    setLabel(entry.label || '');
+  }, []);
+
+  const handleDeleteRef = useCallback((cid) => {
+    setBlankRefs(removeBlankRef(cid));
   }, []);
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px 16px' }}>
+    <div style={{ maxWidth: 960, margin: '0 auto', padding: '20px 16px' }}>
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 20, fontWeight: 900, color: C.t, letterSpacing: 1 }}>
@@ -277,6 +356,59 @@ export default function HitagAesTab() {
             </div>
           </Card>
 
+          {/* Save as Blank Key Reference */}
+          <Card style={{ marginBottom: 14, border: `1.5px solid ${C.gn}55`, background: '#F1FBF4' }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: C.gn, letterSpacing: 2, marginBottom: 10 }}>
+              💾 SAVE AS BLANK KEY REFERENCE
+            </div>
+            <div style={{ fontSize: 11, color: C.ts, marginBottom: 10, lineHeight: 1.5 }}>
+              Save this chip read as a confirmed-blank reference so you can compare future reads against known-blank profiles.
+            </div>
+
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: C.tm, letterSpacing: 1, marginBottom: 3 }}>
+                VEHICLE (optional)
+              </div>
+              <input
+                value={vehicle}
+                onChange={e => setVehicle(e.target.value)}
+                placeholder="2021 Charger 6.2 Redeye"
+                style={{
+                  width: '100%', padding: '7px 10px', borderRadius: 8, border: `1.5px solid ${C.bd}`,
+                  background: '#FAFAF8', fontSize: 12, color: C.t, outline: 'none', boxSizing: 'border-box',
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: C.tm, letterSpacing: 1, marginBottom: 3 }}>
+                LABEL (optional)
+              </div>
+              <input
+                value={label}
+                onChange={e => setLabel(e.target.value)}
+                placeholder="e.g. Red key blank — bench stock"
+                style={{
+                  width: '100%', padding: '7px 10px', borderRadius: 8, border: `1.5px solid ${C.bd}`,
+                  background: '#FAFAF8', fontSize: 12, color: C.t, outline: 'none', boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <Btn
+              onClick={handleSaveBlankRef}
+              color={C.gn}
+              style={{ width: '100%', fontWeight: 800, fontSize: 12 }}
+            >
+              💾 SAVE BLANK REFERENCE
+            </Btn>
+
+            {saveMsg && (
+              <div style={{ marginTop: 8, fontSize: 11, color: saveMsg.startsWith('✅') ? C.gn : C.er, fontWeight: 700 }}>
+                {saveMsg}
+              </div>
+            )}
+          </Card>
+
           {/* Alt-family note */}
           <Card style={{ background: '#FFF8E1', border: `1.5px solid ${C.wn}33` }}>
             <div style={{ fontSize: 10, fontWeight: 800, color: C.wn, letterSpacing: 1, marginBottom: 6 }}>
@@ -285,14 +417,14 @@ export default function HitagAesTab() {
             <div style={{ fontSize: 11, color: C.t, lineHeight: 1.6 }}>
               The 2020+ Charger/Challenger 6.2 Redeye uses an <b>alternate transponder family (flag 0x03)</b> — different from the standard HITAG2 id46 (flag 0x01) used on 2019 and earlier models.
               <br /><br />
-              The SK pages on a blank Redeye key show the same factory test pattern (<code>11112222 / 33334444 / 55556666 / 77778888</code>). After programming, the vehicle-specific AES secret is written into SK0–SK3.
+              A blank Redeye key shows the same factory test pattern (<code>11112222 / 33334444 / 55556666 / 77778888</code>). After programming, the vehicle-specific AES secret is written into SK0–SK3.
               <br /><br />
-              <b>Chip ID CF324E65</b> is a valid blank Redeye FOBIK UID — this is the key from your Autel screenshot.
+              <b>Chip ID CF324E65</b> is a confirmed blank Redeye FOBIK UID from your Autel screenshot. It is saved as a blank reference in the registry.
             </div>
           </Card>
         </div>
 
-        {/* Right — verdict + decoded fields */}
+        {/* Right — verdict + decoded fields + saved refs */}
         <div>
           {/* Status verdict */}
           <Card style={{ marginBottom: 14, border: `2px solid ${verdict.color}`, background: verdict.bg }}>
@@ -330,7 +462,10 @@ export default function HitagAesTab() {
             </div>
 
             <DecodedRow label="Chip UID (BE)" value={normHex(chipId) || '—'} mono />
-            <DecodedRow label="Chip UID (LE / revUid)" value={normHex(chipId) ? normHex(chipId).match(/.{2}/g)?.reverse().join('') : '—'} mono />
+            <DecodedRow label="Chip UID (LE / revUid)"
+              value={normHex(chipId) ? normHex(chipId).match(/.{2}/g)?.reverse().join('') : '—'}
+              mono note="Stored in RFHUB slot table"
+            />
 
             <div style={{ borderTop: `1px solid ${C.bd}`, margin: '10px 0' }} />
 
@@ -365,20 +500,14 @@ export default function HitagAesTab() {
                 'PCF7953 / HITAG AES (FCA Mopar FOBIK)'
               }
             />
-            <DecodedRow label="Platform"
-              value="FCA / Mopar · 2011+ SRT / Redeye / Hellcat"
-            />
+            <DecodedRow label="Platform" value="FCA / Mopar · 2011+ SRT / Redeye / Hellcat" />
 
             <div style={{ borderTop: `1px solid ${C.bd}`, margin: '10px 0' }} />
             <div style={{ fontSize: 10, fontWeight: 800, color: C.a2, letterSpacing: 1, marginBottom: 6 }}>FOBIK BINDING</div>
-            <DecodedRow label="Transponder UID (BE)"
-              value={normHex(chipId) || '—'}
-              mono
-            />
+            <DecodedRow label="Transponder UID (BE)" value={normHex(chipId) || '—'} mono />
             <DecodedRow label="Transponder UID (LE / revUid)"
               value={normHex(chipId) ? normHex(chipId).match(/.{2}/g)?.reverse().join('') : '—'}
-              mono
-              note="This is the keyId stored in the RFHUB slot table"
+              mono note="keyId stored in RFHUB slot table"
             />
             <DecodedRow label="Expected RFHUB slot flag"
               value={
@@ -401,13 +530,11 @@ export default function HitagAesTab() {
                   : 'Unknown'
               }
             />
-            <DecodedRow label="Vehicle (if known)"
-              value={verdict.knownKey?.vehicle || '—'}
-            />
+            <DecodedRow label="Vehicle (if known)" value={verdict.knownKey?.vehicle || '—'} />
           </Card>
 
           {/* What to do next */}
-          <Card style={{ background: '#F8F6F2', border: `1.5px solid ${C.bd}` }}>
+          <Card style={{ background: '#F8F6F2', border: `1.5px solid ${C.bd}`, marginBottom: 14 }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: C.a2, letterSpacing: 2, marginBottom: 8 }}>
               📋 NEXT STEPS
             </div>
@@ -445,24 +572,31 @@ export default function HitagAesTab() {
               <div style={{ fontSize: 11, color: C.wn, lineHeight: 1.7 }}>
                 ⚠️ <b>MIKRON universal default SK.</b><br />
                 This key was written with the generic default, not a vehicle-specific secret.<br />
-                It will not start a vehicle unless the RFHUB was also programmed with the MIKRON default (unusual).
+                It will not start a vehicle unless the RFHUB was also programmed with the MIKRON default.
               </div>
             )}
           </Card>
-        </div>
-      </div>
-    </div>
-  );
-}
 
-/* ─── small decoded row component ─── */
-function DecodedRow({ label, value, mono, color, highlight, note }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '5px 0', borderBottom: `1px solid ${C.bd}22` }}>
-      <div style={{ fontSize: 10, color: C.ts, fontWeight: 700, minWidth: 160, flexShrink: 0 }}>{label}</div>
-      <div style={{ fontSize: 11, color: color || highlight || C.t, fontFamily: mono ? "'JetBrains Mono', monospace" : undefined, textAlign: 'right', wordBreak: 'break-all' }}>
-        {value}
-        {note && <div style={{ fontSize: 10, color: C.wn, marginTop: 2 }}>{note}</div>}
+          {/* Saved blank references */}
+          <Card>
+            <div
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: showRefs ? 12 : 0 }}
+              onClick={() => setShowRefs(v => !v)}
+            >
+              <div style={{ fontSize: 11, fontWeight: 800, color: C.a2, letterSpacing: 2 }}>
+                📚 SAVED BLANK REFERENCES ({blankRefs.length})
+              </div>
+              <div style={{ fontSize: 12, color: C.ts }}>{showRefs ? '▲' : '▼'}</div>
+            </div>
+            {showRefs && (
+              blankRefs.length === 0
+                ? <div style={{ fontSize: 11, color: C.ts, padding: '8px 0' }}>No blank references saved yet. Use the "Save Blank Reference" button on the left.</div>
+                : blankRefs.map(r => (
+                    <BlankRefCard key={r.chipId} ref={r} onLoad={handleLoadRef} onDelete={handleDeleteRef} />
+                  ))
+            )}
+          </Card>
+        </div>
       </div>
     </div>
   );
