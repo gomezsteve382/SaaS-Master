@@ -10,16 +10,20 @@
  *
  * Features:
  *   - Dual file drop zones (donor / target)
+ *   - RFHUB type auto-detect badge (MC9S12 / XC2268 / UNKNOWN)
+ *   - XC2268 unsupported warning banner
  *   - Master Transponder display (0x0226, 16 bytes, platform constant)
  *   - Autel ID display (chip ID bytes reversed = Autel display format)
  *   - Human-readable flag labels (Black Key / Red Key / Standard / Alt Family)
  *   - Auth sector copy toggle (on by default — required for keys to work)
  *   - Key selection (inject all or pick individual keys)
- *   - Capacity check (ring buffer free slots)
+ *   - Capacity check + key count overflow warning
+ *   - Bench diff display (changed bytes after transplant)
+ *   - Transplant history log (localStorage, last 20 jobs)
  *   - Download patched target
  * ─────────────────────────────────────────────────────────────────────────────
  */
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Card, Btn } from '../lib/ui.jsx';
 import { C } from '../lib/constants.js';
 import {
@@ -35,19 +39,49 @@ import {
 } from '../lib/rfhubKeyTransplant.js';
 import { identifyModule } from '../lib/keyProgWizard.js';
 
+/* ─── constants ─────────────────────────────────────────────────────────────── */
+const HISTORY_KEY   = 'rfhub_transplant_history';
+const MAX_HISTORY   = 20;
+
 /* ─── RFHUB type detector ─────────────────────────────────────────────────── */
 function detectRfhubType(buf, filename) {
   try {
     const id = identifyModule(buf, filename || 'unknown.bin');
-    if (!id || id.role !== 'RFH') return { label: 'UNKNOWN TYPE', color: '#FF5252', detail: 'Not recognized as RFHUB' };
+    if (!id || id.role !== 'RFH') return { label: 'UNKNOWN TYPE', color: '#FF5252', detail: 'Not recognized as RFHUB', isXC2268: false };
     const t = id.info?.type || '';
-    if (t === 'XC2268_RFHUB') return { label: 'XC2268 RFHUB', color: '#FF9800', detail: '64KB internal flash · 2019+ Ram' };
-    if (t === 'RFHUB')        return { label: 'MC9S12 RFHUB', color: '#00E676', detail: '4KB EEPROM · Gen2 Charger/Challenger/Durango' };
-    return { label: t || 'RFHUB', color: '#00E676', detail: '' };
+    if (t === 'XC2268_RFHUB') return { label: 'XC2268 RFHUB', color: '#FF9800', detail: '64KB internal flash · 2019+ Ram', isXC2268: true };
+    if (t === 'RFHUB')        return { label: 'MC9S12 RFHUB', color: '#00E676', detail: '4KB EEPROM · Gen2 Charger/Challenger/Durango', isXC2268: false };
+    return { label: t || 'RFHUB', color: '#00E676', detail: '', isXC2268: false };
   } catch {
-    // validateRfhubBuffer will catch the real error; just show unknown here
-    return { label: 'UNKNOWN TYPE', color: '#FF5252', detail: 'Parse error' };
+    return { label: 'UNKNOWN TYPE', color: '#FF5252', detail: 'Parse error', isXC2268: false };
   }
+}
+
+/* ─── history helpers ───────────────────────────────────────────────────────── */
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
+}
+function saveHistory(entries) {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(entries.slice(0, MAX_HISTORY))); } catch {}
+}
+function pushHistory(entry) {
+  const prev = loadHistory();
+  saveHistory([entry, ...prev]);
+}
+function clearHistory() {
+  try { localStorage.removeItem(HISTORY_KEY); } catch {}
+}
+
+/* ─── bench diff helpers ────────────────────────────────────────────────────── */
+function computeDiff(original, patched) {
+  const diffs = [];
+  const len = Math.min(original.length, patched.length);
+  for (let i = 0; i < len; i++) {
+    if (original[i] !== patched[i]) {
+      diffs.push({ addr: i, before: original[i], after: patched[i] });
+    }
+  }
+  return diffs;
 }
 
 /* ─── tiny helpers ─────────────────────────────────────────────────────────── */
@@ -70,9 +104,13 @@ function downloadBin(buf, filename) {
   URL.revokeObjectURL(url);
 }
 
+function fmtTime(ts) {
+  return new Date(ts).toLocaleString();
+}
+
 /* ─── FlagBadge ────────────────────────────────────────────────────────────── */
 function FlagBadge({ flag, showSub = false }) {
-  const info  = flagInfo(flag);
+  const info = flagInfo(flag);
   return (
     <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start' }}>
       <span style={{
@@ -81,7 +119,7 @@ function FlagBadge({ flag, showSub = false }) {
         border: `1px solid ${info.color}55`,
         fontSize: 9, fontWeight: 800, letterSpacing: 0.5,
         fontFamily: "'JetBrains Mono'", whiteSpace: 'nowrap',
-      }}>{info.label}</span>
+      }} title={`Flag 0x${flag.toString(16).toUpperCase().padStart(2,'0')}`}>{info.label}</span>
       {showSub && (
         <span style={{ fontSize: 8, color: info.color + 'AA', marginTop: 1, paddingLeft: 2 }}>
           {info.sub}
@@ -105,23 +143,18 @@ function KeyRow({ entry, selected, onToggle, disabled, dimmed }) {
         transition: 'background 150ms, opacity 150ms',
       }}
     >
-      <input
-        type="checkbox" checked={selected} readOnly
-        style={{ accentColor: C.ac, cursor: disabled ? 'default' : 'pointer' }}
-      />
-      {/* Autel ID column */}
+      <input type="checkbox" checked={selected} readOnly
+        style={{ accentColor: C.ac, cursor: disabled ? 'default' : 'pointer' }} />
       <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.tx, letterSpacing: 1, minWidth: 72 }}>
         {entry.autelId}
       </span>
       <FlagBadge flag={entry.flag} showSub />
-      <span style={{ fontSize: 9, color: C.ts, marginLeft: 'auto' }}>
-        cnt={entry.count}
-      </span>
+      <span style={{ fontSize: 9, color: C.ts, marginLeft: 'auto' }}>cnt={entry.count}</span>
     </div>
   );
 }
 
-/* ─── TargetKeyRow (read-only, with FlagBadge) ─────────────────────────────── */
+/* ─── TargetKeyRow ──────────────────────────────────────────────────────────── */
 function TargetKeyRow({ entry }) {
   return (
     <div style={{
@@ -148,7 +181,8 @@ function MasterTransponderRow({ mt }) {
         MASTER TRANSPONDER @ 0x0226
       </div>
       <div style={{
-        fontFamily: "'JetBrains Mono'", fontSize: 10, color: mt.virgin ? '#9E9E9E' : '#7986CB',
+        fontFamily: "'JetBrains Mono'", fontSize: 10,
+        color: mt.virgin ? '#9E9E9E' : '#7986CB',
         letterSpacing: 0.5, wordBreak: 'break-all',
       }}>
         {mt.virgin ? '(virgin — FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF)' : mt.hex}
@@ -163,7 +197,7 @@ function MasterTransponderRow({ mt }) {
 }
 
 /* ─── AuthSectorInfo ───────────────────────────────────────────────────────── */
-function AuthSectorInfo({ buf, label, color }) {
+function AuthSectorInfo({ buf, color }) {
   if (!buf) return null;
   const count = readAuthKeyCount(buf);
   return (
@@ -173,12 +207,171 @@ function AuthSectorInfo({ buf, label, color }) {
   );
 }
 
+/* ─── XC2268 Warning Banner ─────────────────────────────────────────────────── */
+function Xc2268Warning({ donorIsXC, targetIsXC }) {
+  if (!donorIsXC && !targetIsXC) return null;
+  const who = donorIsXC && targetIsXC ? 'Both donor and target are'
+    : donorIsXC ? 'Donor is' : 'Target is';
+  return (
+    <div style={{
+      background: '#FF980022', border: '2px solid #FF9800',
+      borderRadius: 8, padding: '10px 12px', marginBottom: 12,
+    }}>
+      <div style={{ fontWeight: 800, fontSize: 11, color: '#FF9800', marginBottom: 4 }}>
+        ⚠ XC2268 RFHUB — NOT SUPPORTED
+      </div>
+      <div style={{ fontSize: 10, color: '#FFB74D', lineHeight: 1.5 }}>
+        {who} an XC2268 RFHUB (64KB internal flash, 2019+ Ram). This transplant
+        tool is designed for the MC9S12 4KB EEPROM format only. XC2268 uses a
+        completely different auth sector layout and ring buffer structure.
+        Flashing an XC2268 with a transplanted MC9S12 bin will brick the module.
+      </div>
+      <div style={{ fontSize: 9, color: '#FF9800', marginTop: 6, fontWeight: 700 }}>
+        XC2268 transplant support is on the roadmap — do not proceed with this file.
+      </div>
+    </div>
+  );
+}
+
+/* ─── Bench Diff Display ─────────────────────────────────────────────────────── */
+function BenchDiffDisplay({ targetBuf, patchedBuf }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!targetBuf || !patchedBuf) return null;
+  const diffs = computeDiff(targetBuf, patchedBuf);
+  if (diffs.length === 0) return (
+    <div style={{ fontSize: 9, color: C.ts, marginTop: 6, fontStyle: 'italic' }}>
+      No bytes changed (target already matches donor).
+    </div>
+  );
+
+  // Group consecutive diffs into regions
+  const regions = [];
+  let cur = null;
+  for (const d of diffs) {
+    if (!cur || d.addr > cur.end + 4) {
+      cur = { start: d.addr, end: d.addr, diffs: [d] };
+      regions.push(cur);
+    } else {
+      cur.end = d.addr;
+      cur.diffs.push(d);
+    }
+  }
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div
+        style={{ fontSize: 9, color: C.ac, cursor: 'pointer', fontWeight: 700, userSelect: 'none' }}
+        onClick={() => setExpanded(e => !e)}
+      >
+        {expanded ? '▼' : '▶'} BYTE DIFF — {diffs.length} byte{diffs.length !== 1 ? 's' : ''} changed across {regions.length} region{regions.length !== 1 ? 's' : ''}
+      </div>
+      {expanded && (
+        <div style={{
+          marginTop: 6, maxHeight: 220, overflowY: 'auto',
+          background: C.cd, borderRadius: 6, border: `1px solid ${C.bd}`,
+          padding: '6px 8px',
+        }}>
+          {regions.map((r, ri) => (
+            <div key={ri} style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 9, color: C.ts, marginBottom: 2 }}>
+                Region 0x{r.start.toString(16).toUpperCase().padStart(4,'0')}–0x{r.end.toString(16).toUpperCase().padStart(4,'0')} ({r.diffs.length} byte{r.diffs.length !== 1 ? 's' : ''})
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {r.diffs.map((d, di) => (
+                  <span key={di} style={{
+                    fontFamily: "'JetBrains Mono'", fontSize: 9,
+                    background: '#FF525218', border: '1px solid #FF525244',
+                    borderRadius: 3, padding: '1px 4px', color: '#FF8A80',
+                  }}>
+                    {d.addr.toString(16).toUpperCase().padStart(4,'0')}: {d.before.toString(16).toUpperCase().padStart(2,'0')}→{d.after.toString(16).toUpperCase().padStart(2,'0')}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── History Log ────────────────────────────────────────────────────────────── */
+function HistoryLog() {
+  const [entries, setEntries] = useState(() => loadHistory());
+  const [expanded, setExpanded] = useState(false);
+
+  // Refresh when panel mounts or user expands
+  useEffect(() => {
+    if (expanded) setEntries(loadHistory());
+  }, [expanded]);
+
+  if (entries.length === 0 && !expanded) return (
+    <div style={{ fontSize: 9, color: C.ts, marginTop: 8, fontStyle: 'italic' }}>
+      No transplant history yet — completed jobs will appear here.
+    </div>
+  );
+
+  return (
+    <div style={{ marginTop: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+        <div
+          style={{ fontSize: 9, color: C.ac, cursor: 'pointer', fontWeight: 700, userSelect: 'none' }}
+          onClick={() => setExpanded(e => !e)}
+        >
+          {expanded ? '▼' : '▶'} TRANSPLANT HISTORY ({entries.length} job{entries.length !== 1 ? 's' : ''})
+        </div>
+        {expanded && entries.length > 0 && (
+          <span
+            style={{ fontSize: 9, color: '#FF5252', cursor: 'pointer' }}
+            onClick={() => { clearHistory(); setEntries([]); }}
+          >CLEAR ALL</span>
+        )}
+      </div>
+      {expanded && (
+        <div style={{
+          maxHeight: 260, overflowY: 'auto',
+          background: C.cd, borderRadius: 6, border: `1px solid ${C.bd}`,
+          padding: '6px 8px',
+        }}>
+          {entries.length === 0 ? (
+            <div style={{ fontSize: 9, color: C.ts, fontStyle: 'italic' }}>No history.</div>
+          ) : entries.map((e, i) => (
+            <div key={i} style={{
+              borderBottom: i < entries.length - 1 ? `1px solid ${C.bd}` : 'none',
+              paddingBottom: 6, marginBottom: 6,
+            }}>
+              <div style={{ fontSize: 9, color: C.ts, marginBottom: 2 }}>{fmtTime(e.ts)}</div>
+              <div style={{ fontSize: 10, color: C.tx, marginBottom: 2 }}>
+                <span style={{ color: '#00E676', fontWeight: 700 }}>DONOR:</span> {e.donor}
+              </div>
+              <div style={{ fontSize: 10, color: C.tx, marginBottom: 2 }}>
+                <span style={{ color: C.ac, fontWeight: 700 }}>TARGET:</span> {e.target}
+              </div>
+              <div style={{ fontSize: 9, color: C.ts }}>
+                {e.injected} key{e.injected !== 1 ? 's' : ''} injected
+                {e.authCopied ? ' · auth sector copied' : ' · ring buffer only'}
+                {e.skipped > 0 ? ` · ${e.skipped} skipped` : ''}
+                {e.bytesChanged > 0 ? ` · ${e.bytesChanged} bytes changed` : ''}
+              </div>
+              {e.keys && e.keys.length > 0 && (
+                <div style={{ fontSize: 9, color: '#69F0AE', marginTop: 2 }}>
+                  Keys: {e.keys.join(', ')}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── main component ───────────────────────────────────────────────────────── */
 export default function RfhubKeyTransplantPanel() {
-  const [donor,    setDonor]    = useState(null);   // { buf, name, keys, writePtr, freeSlots, mt }
-  const [target,   setTarget]   = useState(null);   // same shape
+  const [donor,    setDonor]    = useState(null);
+  const [target,   setTarget]   = useState(null);
   const [selected, setSelected] = useState(new Set());
-  const [copyAuth, setCopyAuth] = useState(true);   // copy auth sector (default: true)
+  const [copyAuth, setCopyAuth] = useState(true);
   const [result,   setResult]   = useState(null);
   const [error,    setError]    = useState('');
   const [busy,     setBusy]     = useState(false);
@@ -234,9 +427,14 @@ export default function RfhubKeyTransplantPanel() {
     });
   }, []);
 
+  /* ── XC2268 check ────────────────────────────────────────────────────────── */
+  const donorIsXC  = donor?.rfhType?.isXC2268  ?? false;
+  const targetIsXC = target?.rfhType?.isXC2268 ?? false;
+  const hasXC2268  = donorIsXC || targetIsXC;
+
   /* ── inject ──────────────────────────────────────────────────────────────── */
   const inject = useCallback(async () => {
-    if (!donor || !target) return;
+    if (!donor || !target || hasXC2268) return;
     setBusy(true);
     setError('');
     setResult(null);
@@ -246,13 +444,29 @@ export default function RfhubKeyTransplantPanel() {
         skipDuplicates: true,
         copyAuthSector: copyAuth,
       });
-      setResult(res);
+
+      // compute byte diff
+      const diffs = computeDiff(target.buf, res.patched);
+
+      // push to history
+      pushHistory({
+        ts:           Date.now(),
+        donor:        donor.name,
+        target:       target.name,
+        injected:     res.injected.length,
+        skipped:      res.skipped.length,
+        authCopied:   res.authSectorCopied,
+        bytesChanged: diffs.length,
+        keys:         res.injected.map(k => k.autelId),
+      });
+
+      setResult({ ...res, diffs, targetBuf: target.buf });
     } catch (e) {
       setError(e.message);
     } finally {
       setBusy(false);
     }
-  }, [donor, target, selected, copyAuth]);
+  }, [donor, target, selected, copyAuth, hasXC2268]);
 
   /* ── download ────────────────────────────────────────────────────────────── */
   const download = useCallback(() => {
@@ -281,7 +495,6 @@ export default function RfhubKeyTransplantPanel() {
           <>
             <div style={{ fontSize: 11, fontWeight: 800, color: accent, marginBottom: 4 }}>{label}</div>
             <div style={{ fontSize: 10, color: C.tx, fontFamily: "'JetBrains Mono'", marginBottom: 2 }}>{info.name}</div>
-            {/* RFHUB type badge */}
             <div style={{
               display: 'inline-block', padding: '1px 6px', borderRadius: 4, marginBottom: 4,
               background: info.rfhType.color + '22', border: `1px solid ${info.rfhType.color}55`,
@@ -294,7 +507,7 @@ export default function RfhubKeyTransplantPanel() {
             <div style={{ fontSize: 9, color: C.ts }}>
               {info.keys.length} key{info.keys.length !== 1 ? 's' : ''} · {info.freeSlots} free slot{info.freeSlots !== 1 ? 's' : ''}
             </div>
-            <AuthSectorInfo buf={info.buf} label={label} color={accent + 'AA'} />
+            <AuthSectorInfo buf={info.buf} color={accent + 'AA'} />
           </>
         ) : (
           <>
@@ -331,7 +544,10 @@ export default function RfhubKeyTransplantPanel() {
         <DropZone label="TARGET RFHUB" info={target} inputRef={targetRef} onDrop={onTargetDrop} accent={C.ac} />
       </div>
 
-      {/* Master Transponder — show for both files if loaded */}
+      {/* XC2268 warning — shown immediately when either file is XC2268 */}
+      <Xc2268Warning donorIsXC={donorIsXC} targetIsXC={targetIsXC} />
+
+      {/* Master Transponder rows */}
       {(donor || target) && (
         <div style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
           {donor  && <div style={{ flex: 1 }}><MasterTransponderRow mt={donor.mt}  /></div>}
@@ -386,7 +602,7 @@ export default function RfhubKeyTransplantPanel() {
         </div>
       )}
 
-      {/* target current keys (read-only, with FlagBadge) */}
+      {/* target current keys */}
       {target && target.keys.length > 0 && (
         <div style={{ marginBottom: 12 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>
@@ -424,8 +640,8 @@ export default function RfhubKeyTransplantPanel() {
 
       {/* capacity + key count overflow warning */}
       {target && donor && selected.size > 0 && (() => {
-        const slotsNeeded   = selected.size * 2;
-        const freeSlots     = target.freeSlots;
+        const slotsNeeded    = selected.size * 2;
+        const freeSlots      = target.freeSlots;
         const targetKeyCount = target.keys.length;
         const donorSelected  = selected.size;
         const combinedCount  = targetKeyCount + donorSelected;
@@ -450,14 +666,18 @@ export default function RfhubKeyTransplantPanel() {
         );
       })()}
 
-      {/* inject button */}
+      {/* inject button — disabled if XC2268 detected */}
       <Btn
         onClick={inject}
-        disabled={!donor || !target || selected.size === 0 || busy}
-        color={C.gn}
+        disabled={!donor || !target || selected.size === 0 || busy || hasXC2268}
+        color={hasXC2268 ? '#FF9800' : C.gn}
         style={{ width: '100%', marginBottom: 8 }}
       >
-        {busy ? 'INJECTING…' : `INJECT ${selected.size} KEY${selected.size !== 1 ? 'S' : ''} INTO TARGET`}
+        {hasXC2268
+          ? '⚠ XC2268 NOT SUPPORTED — CANNOT INJECT'
+          : busy
+            ? 'INJECTING…'
+            : `INJECT ${selected.size} KEY${selected.size !== 1 ? 'S' : ''} INTO TARGET`}
       </Btn>
 
       {/* error */}
@@ -499,6 +719,10 @@ export default function RfhubKeyTransplantPanel() {
               Skipped: {result.skipped.map(s => `${s.chipId} (${s.reason})`).join(', ')}
             </div>
           )}
+
+          {/* bench diff display */}
+          <BenchDiffDisplay targetBuf={result.targetBuf} patchedBuf={result.patched} />
+
           <Btn onClick={download} color={C.ac} style={{ marginTop: 10, width: '100%' }}>
             ⬇ DOWNLOAD PATCHED TARGET
           </Btn>
@@ -511,6 +735,11 @@ export default function RfhubKeyTransplantPanel() {
           Ring buffer: {KEY_SLOT_COUNT} slots total · {target.freeSlots} free · write ptr 0x{(target.writePtr ?? 0).toString(16).toUpperCase().padStart(4,'0')}
         </div>
       )}
+
+      {/* transplant history log */}
+      <div style={{ marginTop: 12, borderTop: `1px solid ${C.bd}`, paddingTop: 10 }}>
+        <HistoryLog />
+      </div>
     </Card>
   );
 }

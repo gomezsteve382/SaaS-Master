@@ -37,3 +37,6 @@
 - [x] RFHUB 4KB EEPROM: Master Transponder panel (0x0226, 14 bytes, display only)
 - [x] RFHUB 4KB EEPROM: Dual-file key transplant (copy auth sector 0x0100-0x027F + ring buffer 0x0C5E-0x0CDD from donor to target)
 - [x] Promote RFHUB Key Transplant to its own top-level workspace tab (visible on the workspace page after selecting a vehicle)
+- [ ] KEY TRANSPLANT: transplant history log (timestamped entries in Dumps workspace after each successful transplant)
+- [ ] KEY TRANSPLANT: XC2268 RFHUB warning banner (if either file is XC2268, show clear unsupported warning)
+- [ ] KEY TRANSPLANT: bench simulation diff display (show expected vs actual byte diff in UI after transplant)
