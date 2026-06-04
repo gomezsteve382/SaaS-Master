@@ -118,6 +118,87 @@ async function startServer() {
     });
   }
 
+  // --- /api/anthropic/key-photo — Vision OCR for HITAG AES key data ---
+  app.post("/api/anthropic/key-photo", async (req, res) => {
+    try {
+      const { imageBase64, mediaType } = req.body || {};
+      if (!imageBase64) {
+        return res.status(400).json({ error: "Missing imageBase64 field" });
+      }
+
+      const { invokeLLM } = await import("./llm");
+
+      const result = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `You are an automotive key programmer assistant. You analyze photos of key programmer screens (Autel IM608, VVDI, Tango, etc.) and extract HITAG AES / PCF7953 transponder data. Extract hex values exactly as shown on screen. Return a JSON object with these fields (use null for any field you cannot read):\n- chipId: 8 hex chars (Chip UID)\n- sk0: 8 hex chars (Secret Key page 0)\n- sk1: 8 hex chars (Secret Key page 1)\n- sk2: 8 hex chars (Secret Key page 2)\n- sk3: 8 hex chars (Secret Key page 3)\n- config: 8 hex chars (Config word)\n- keyId: any key identifier visible\n- notes: brief description of what you see\nOnly return the JSON object, no other text.`,
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "image_url" as const,
+                image_url: {
+                  url: imageBase64.startsWith("data:") ? imageBase64 : `data:${mediaType || "image/png"};base64,${imageBase64}`,
+                  detail: "high" as const,
+                },
+              },
+              {
+                type: "text" as const,
+                text: "Extract the HITAG AES / PCF7953 transponder data from this key programmer screen photo. Return only the JSON object.",
+              },
+            ],
+          },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "key_photo_extraction",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                chipId: { type: ["string", "null"], description: "8 hex char Chip UID" },
+                sk0: { type: ["string", "null"], description: "8 hex char SK0" },
+                sk1: { type: ["string", "null"], description: "8 hex char SK1" },
+                sk2: { type: ["string", "null"], description: "8 hex char SK2" },
+                sk3: { type: ["string", "null"], description: "8 hex char SK3" },
+                config: { type: ["string", "null"], description: "8 hex char Config" },
+                keyId: { type: ["string", "null"], description: "Key identifier if visible" },
+                notes: { type: ["string", "null"], description: "Brief description" },
+              },
+              required: ["chipId", "sk0", "sk1", "sk2", "sk3", "config", "keyId", "notes"],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      const content = result.choices?.[0]?.message?.content;
+      let parsed: any = {};
+      if (typeof content === "string") {
+        try { parsed = JSON.parse(content); } catch { parsed = { notes: content }; }
+      }
+
+      // Normalize: strip spaces, uppercase
+      const norm = (v: any) => v ? String(v).replace(/[\s:_\-]/g, "").toUpperCase().slice(0, 8) : null;
+      return res.json({
+        chipId: norm(parsed.chipId),
+        sk0: norm(parsed.sk0),
+        sk1: norm(parsed.sk1),
+        sk2: norm(parsed.sk2),
+        sk3: norm(parsed.sk3),
+        config: norm(parsed.config),
+        keyId: parsed.keyId || null,
+        notes: parsed.notes || null,
+      });
+    } catch (e: any) {
+      console.error("[/api/anthropic/key-photo]", e);
+      return res.status(500).json({ error: e.message || "Vision analysis failed" });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",

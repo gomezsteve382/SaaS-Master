@@ -53,3 +53,6 @@
 - [x] Export project to GitHub repo (pushed to srt-lab-bench branch on mjremetio/goatmez-autoshop-crm)
 - [x] Quick Clone wizard: multi-step guided flow combining VIN patch → Security Sync → Key Transplant into one seamless process
 - [x] HITAG AES tab: add file upload zone (accepts .bin transponder dumps and photo references) with drag-and-drop support
+- [x] Wire up /api/anthropic/key-photo server endpoint using LLM vision for photo OCR extraction of HITAG AES key data
+- [x] Add "Compare to Blank" button in HITAG AES tab to highlight SK page differences vs saved blank references
+- [x] Add VVDI text paste support (parse P0: XXXXXXXX P1: XXXXXXXX... format) to HITAG AES tab

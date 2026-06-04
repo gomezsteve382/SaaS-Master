@@ -452,6 +452,92 @@ export default function HitagAesTab() {
     setBlankRefs(removeBlankRef(cid));
   }, []);
 
+  /* ── Compare to Blank ── */
+  const [compareResult, setCompareResult] = useState(null);
+
+  const handleCompareToBlank = useCallback(() => {
+    const refs = loadBlankRefs();
+    if (refs.length === 0) {
+      setCompareResult({ error: 'No blank references saved yet. Save a blank key first.' });
+      return;
+    }
+    const currentChip = normHex(chipId);
+    // Try to find a matching chipId first, otherwise compare against the first saved blank
+    const matchRef = refs.find(r => r.chipId === currentChip) || refs[0];
+    const fields = ['sk0', 'sk1', 'sk2', 'sk3', 'config', 'page1', 'page2'];
+    const current = { sk0: normHex(sk0), sk1: normHex(sk1), sk2: normHex(sk2), sk3: normHex(sk3), config: normHex(config), page1: normHex(page1), page2: normHex(page2) };
+    const diffs = [];
+    for (const f of fields) {
+      const refVal = normHex(matchRef[f] || '00000000');
+      const curVal = current[f] || '00000000';
+      if (refVal !== curVal) {
+        diffs.push({ field: f.toUpperCase(), blank: refVal, current: curVal });
+      }
+    }
+    setCompareResult({
+      refChipId: matchRef.chipId,
+      refLabel: matchRef.label || matchRef.vehicle || 'Blank Reference',
+      diffs,
+      identical: diffs.length === 0,
+    });
+  }, [chipId, sk0, sk1, sk2, sk3, config, page1, page2]);
+
+  /* ── VVDI Text Paste ── */
+  const [showVvdiPaste, setShowVvdiPaste] = useState(false);
+  const [vvdiText, setVvdiText] = useState('');
+
+  const handleVvdiParse = useCallback(() => {
+    if (!vvdiText.trim()) return;
+    // Parse formats like:
+    //   P0: 11112222 P1: 33334444 P2: 55556666 P3: 77778888
+    //   Page 0: 11112222\nPage 1: 33334444\n...
+    //   P0=11112222 P1=33334444
+    //   0: 11112222  1: 33334444  2: 55556666  3: 77778888
+    const lines = vvdiText.replace(/[\r\n]+/g, ' ').trim();
+    const pageMap = {};
+    // Match patterns like "P0: XXXXXXXX" or "Page 0: XXXXXXXX" or "0: XXXXXXXX" or "P0=XXXXXXXX"
+    const regex = /(?:page\s*|p)?([0-9]+)\s*[:=]\s*([0-9A-Fa-f]{8})/gi;
+    let m;
+    while ((m = regex.exec(lines)) !== null) {
+      pageMap[parseInt(m[1], 10)] = m[2].toUpperCase();
+    }
+    // If no matches, try space-separated hex words (just 8-char hex blocks in order)
+    if (Object.keys(pageMap).length === 0) {
+      const hexBlocks = vvdiText.match(/[0-9A-Fa-f]{8}/g);
+      if (hexBlocks && hexBlocks.length >= 4) {
+        hexBlocks.forEach((h, i) => { pageMap[i] = h.toUpperCase(); });
+      }
+    }
+    if (Object.keys(pageMap).length === 0) {
+      setUploadErr('Could not parse VVDI text. Expected format: P0: XXXXXXXX P1: XXXXXXXX ...');
+      return;
+    }
+    // Map pages to fields based on common VVDI layout:
+    // P0=Config, P1=SK0 (or ChipID), P2=SK1, P3=SK2, P4=SK3
+    // Or if 4+ pages: first 4 are SK0-SK3
+    const keys = Object.keys(pageMap).map(Number).sort((a, b) => a - b);
+    if (keys.length >= 5 && pageMap[0]) {
+      // Full page dump: P0=Config, P1-P4=SK0-SK3, P24=ChipID
+      setConfig(pageMap[0] || config);
+      setSk0(pageMap[1] || sk0); setSk1(pageMap[2] || sk1);
+      setSk2(pageMap[3] || sk2); setSk3(pageMap[4] || sk3);
+      if (pageMap[5]) setPage1(pageMap[5]);
+      if (pageMap[6]) setPage2(pageMap[6]);
+      if (pageMap[24]) setChipId(pageMap[24]);
+    } else if (keys.length >= 4) {
+      // Just SK pages: first 4 hex blocks
+      const vals = keys.map(k => pageMap[k]);
+      setSk0(vals[0]); setSk1(vals[1]); setSk2(vals[2]); setSk3(vals[3]);
+      if (vals[4]) setConfig(vals[4]);
+      if (vals[5]) setPage1(vals[5]);
+      if (vals[6]) setPage2(vals[6]);
+    }
+    setUploadMsg(`✅ Parsed ${Object.keys(pageMap).length} pages from VVDI text.`);
+    setUploadErr('');
+    setShowVvdiPaste(false);
+    setVvdiText('');
+  }, [vvdiText, config, sk0, sk1, sk2, sk3]);
+
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '20px 16px' }}>
       {/* Header */}
@@ -594,6 +680,47 @@ export default function HitagAesTab() {
                 CLEAR
               </Btn>
             </div>
+
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <Btn onClick={() => setShowVvdiPaste(v => !v)} color={C.a2} outline style={{ flex: 1, fontSize: 11 }}>
+                📋 PASTE FROM VVDI
+              </Btn>
+              <Btn onClick={handleCompareToBlank} color='#7C3AED' outline style={{ flex: 1, fontSize: 11 }}>
+                🔍 COMPARE TO BLANK
+              </Btn>
+            </div>
+
+            {/* VVDI Text Paste Area */}
+            {showVvdiPaste && (
+              <div style={{ marginTop: 12, padding: 12, borderRadius: 10, background: '#F0F4FF', border: `1.5px solid ${C.a2}44` }}>
+                <div style={{ fontSize: 10, fontWeight: 800, color: C.a2, letterSpacing: 1, marginBottom: 6 }}>
+                  PASTE VVDI / TANGO PAGE DUMP
+                </div>
+                <div style={{ fontSize: 10, color: C.ts, marginBottom: 8, lineHeight: 1.5 }}>
+                  Accepts formats: <code>P0: XXXXXXXX P1: XXXXXXXX ...</code> or <code>Page 0: XXXXXXXX</code> (one per line) or just space-separated 8-char hex blocks.
+                </div>
+                <textarea
+                  value={vvdiText}
+                  onChange={e => setVvdiText(e.target.value)}
+                  placeholder={'P0: 00000000\nP1: 11112222\nP2: 33334444\nP3: 55556666\nP4: 77778888'}
+                  style={{
+                    width: '100%', minHeight: 80, padding: 10, borderRadius: 8,
+                    border: `1.5px solid ${C.bd}`, background: '#fff',
+                    fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+                    color: C.t, resize: 'vertical', boxSizing: 'border-box',
+                  }}
+                  spellCheck={false}
+                />
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <Btn onClick={handleVvdiParse} color={C.a2} style={{ flex: 1, fontSize: 11 }}>
+                    PARSE & FILL
+                  </Btn>
+                  <Btn onClick={() => { setShowVvdiPaste(false); setVvdiText(''); }} color={C.tm} outline style={{ fontSize: 11 }}>
+                    CANCEL
+                  </Btn>
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* Save as Blank Key Reference */}
@@ -816,6 +943,48 @@ export default function HitagAesTab() {
               </div>
             )}
           </Card>
+
+          {/* Compare to Blank Result */}
+          {compareResult && (
+            <Card style={{ marginBottom: 14, border: `2px solid ${compareResult.error ? C.er : compareResult.identical ? C.gn : '#7C3AED'}`, background: compareResult.error ? '#FFF0F0' : compareResult.identical ? '#F0FFF4' : '#F5F0FF' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: '#7C3AED', letterSpacing: 2 }}>
+                  🔍 COMPARE TO BLANK
+                </div>
+                <button onClick={() => setCompareResult(null)} style={{ fontSize: 11, color: C.ts, cursor: 'pointer', background: 'none', border: 'none' }}>✕ Close</button>
+              </div>
+              {compareResult.error ? (
+                <div style={{ fontSize: 11, color: C.er, fontWeight: 700 }}>⚠️ {compareResult.error}</div>
+              ) : compareResult.identical ? (
+                <div style={{ fontSize: 11, color: C.gn, fontWeight: 700, lineHeight: 1.6 }}>
+                  ✅ <b>Identical to blank reference</b> ({compareResult.refLabel} — Chip {compareResult.refChipId})<br />
+                  All SK pages and config match the saved blank. This key has NOT been programmed since the reference was saved.
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontSize: 11, color: C.t, marginBottom: 10, lineHeight: 1.5 }}>
+                    Compared against: <b>{compareResult.refLabel}</b> (Chip {compareResult.refChipId})<br />
+                    <span style={{ color: '#7C3AED', fontWeight: 800 }}>{compareResult.diffs.length} field{compareResult.diffs.length > 1 ? 's' : ''} changed</span> since blank reference was saved.
+                  </div>
+                  <div style={{ borderRadius: 8, overflow: 'hidden', border: `1px solid #7C3AED33` }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr', fontSize: 10, fontWeight: 800, color: '#7C3AED', padding: '6px 10px', background: '#EDE9FE', letterSpacing: 1 }}>
+                      <div>FIELD</div><div>BLANK</div><div>CURRENT</div>
+                    </div>
+                    {compareResult.diffs.map(d => (
+                      <div key={d.field} style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr', fontSize: 11, padding: '5px 10px', borderTop: '1px solid #7C3AED22', fontFamily: "'JetBrains Mono', monospace" }}>
+                        <div style={{ fontWeight: 800, color: C.t }}>{d.field}</div>
+                        <div style={{ color: C.ts }}>{d.blank}</div>
+                        <div style={{ color: '#7C3AED', fontWeight: 700 }}>{d.current}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 10, color: C.ts, marginTop: 8, lineHeight: 1.5 }}>
+                    💡 Changed SK pages indicate the key has been programmed with a vehicle-specific secret. If all 4 SK pages changed, the key is fully paired.
+                  </div>
+                </div>
+              )}
+            </Card>
+          )}
 
           {/* Saved blank references */}
           <Card>
