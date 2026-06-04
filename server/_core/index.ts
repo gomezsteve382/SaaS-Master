@@ -118,7 +118,7 @@ async function startServer() {
     });
   }
 
-  // --- /api/anthropic/key-photo — Vision OCR for HITAG AES key data ---
+  // --- /api/anthropic/key-photo — Vision OCR for HITAG 2 / HITAG AES key programmer screens ---
   app.post("/api/anthropic/key-photo", async (req, res) => {
     try {
       const { imageBase64, mediaType } = req.body || {};
@@ -128,12 +128,35 @@ async function startServer() {
 
       const { invokeLLM } = await import("./llm");
 
+      const systemPrompt = `You are an expert automotive transponder data extraction assistant. Your job is to read key programmer screenshots (Autel IM608, VVDI Prog, Tango, etc.) and extract EVERY hex value visible on screen with 100% accuracy.
+
+You will encounter two main screen layouts:
+
+1. HITAG 2 / PCF7945/53 layout (Autel VVDI Prog):
+   - Top: "HITAG 2" label, Chip ID field (e.g. 437C2C9F)
+   - Parameter section: Low SK (4 hex chars, e.g. 4D494B52), High SK (4 hex chars, e.g. 4F4E)
+   - Chip info section: Chip type (PCF7945/53), Low SK (8 hex chars), High SK (8 hex chars), Config page (8 hex chars)
+   - Chip data section: Page 0 (8 hex chars), Page 1 (8 hex chars), Page 2 (8 hex chars), Page 3 (8 hex chars)
+
+2. HITAG AES / PCF7939FA layout:
+   - Chip ID / UID field
+   - AES Key pages (SK0, SK1, SK2, SK3) — each 8 hex chars
+   - Config word — 8 hex chars
+
+Extraction rules:
+- Read EVERY hex value shown in input fields, text boxes, and data cells
+- Hex values are always 4 or 8 characters: 0-9, A-F
+- For HITAG 2: Low SK in Parameter = first 4 bytes of the 6-byte secret key (e.g. "4D494B52"); High SK in Parameter = last 2 bytes (e.g. "4F4E")
+- For HITAG 2: chipInfoLowSK = full 8-char Low SK from Chip info section; chipInfoHighSK = full 8-char High SK; configPage = 8-char Config page
+- For HITAG 2: page0, page1, page2, page3 = 8-char values from Chip data section
+- chipType: the chip model shown (e.g. "PCF7945/53", "PCF7939FA", "HITAG 2", "HITAG AES")
+- chipId: the Chip ID / UID shown at the top (e.g. "437C2C9F")
+- Do NOT guess or invent values — use null for any field you genuinely cannot read
+- Strip all spaces from hex values in your output`;
+
       const result = await invokeLLM({
         messages: [
-          {
-            role: "system",
-            content: `You are an automotive key programmer assistant. You analyze photos of key programmer screens (Autel IM608, VVDI, Tango, etc.) and extract HITAG AES / PCF7953 transponder data. Extract hex values exactly as shown on screen. Return a JSON object with these fields (use null for any field you cannot read):\n- chipId: 8 hex chars (Chip UID)\n- sk0: 8 hex chars (Secret Key page 0)\n- sk1: 8 hex chars (Secret Key page 1)\n- sk2: 8 hex chars (Secret Key page 2)\n- sk3: 8 hex chars (Secret Key page 3)\n- config: 8 hex chars (Config word)\n- keyId: any key identifier visible\n- notes: brief description of what you see\nOnly return the JSON object, no other text.`,
-          },
+          { role: "system", content: systemPrompt },
           {
             role: "user",
             content: [
@@ -146,7 +169,7 @@ async function startServer() {
               },
               {
                 type: "text" as const,
-                text: "Extract the HITAG AES / PCF7953 transponder data from this key programmer screen photo. Return only the JSON object.",
+                text: `Extract ALL hex values from this key programmer screen. Read every field carefully — Chip ID, all SK values, Config page, and all Page data. Return the complete JSON object with every field you can read.`,
               },
             ],
           },
@@ -154,21 +177,33 @@ async function startServer() {
         response_format: {
           type: "json_schema",
           json_schema: {
-            name: "key_photo_extraction",
+            name: "key_photo_extraction_v2",
             strict: true,
             schema: {
               type: "object",
               properties: {
-                chipId: { type: ["string", "null"], description: "8 hex char Chip UID" },
-                sk0: { type: ["string", "null"], description: "8 hex char SK0" },
-                sk1: { type: ["string", "null"], description: "8 hex char SK1" },
-                sk2: { type: ["string", "null"], description: "8 hex char SK2" },
-                sk3: { type: ["string", "null"], description: "8 hex char SK3" },
-                config: { type: ["string", "null"], description: "8 hex char Config" },
-                keyId: { type: ["string", "null"], description: "Key identifier if visible" },
-                notes: { type: ["string", "null"], description: "Brief description" },
+                chipType:        { type: ["string", "null"], description: "Chip type label shown on screen (e.g. PCF7945/53, PCF7939FA, HITAG 2, HITAG AES)" },
+                chipId:          { type: ["string", "null"], description: "Chip ID / UID — 8 hex chars (e.g. 437C2C9F)" },
+                // HITAG 2 Parameter section (top right)
+                paramLowSK:      { type: ["string", "null"], description: "Parameter section Low SK — 8 hex chars (e.g. 4D494B52)" },
+                paramHighSK:     { type: ["string", "null"], description: "Parameter section High SK — 4 hex chars (e.g. 4F4E)" },
+                // HITAG 2 Chip info section
+                chipInfoLowSK:   { type: ["string", "null"], description: "Chip info Low SK — 8 hex chars" },
+                chipInfoHighSK:  { type: ["string", "null"], description: "Chip info High SK — 8 hex chars" },
+                configPage:      { type: ["string", "null"], description: "Config page — 8 hex chars" },
+                // Chip data pages (both HITAG 2 and HITAG AES)
+                page0:           { type: ["string", "null"], description: "Chip data Page 0 — 8 hex chars" },
+                page1:           { type: ["string", "null"], description: "Chip data Page 1 — 8 hex chars" },
+                page2:           { type: ["string", "null"], description: "Chip data Page 2 — 8 hex chars" },
+                page3:           { type: ["string", "null"], description: "Chip data Page 3 — 8 hex chars" },
+                // HITAG AES specific
+                sk0:             { type: ["string", "null"], description: "AES SK0 — 8 hex chars" },
+                sk1:             { type: ["string", "null"], description: "AES SK1 — 8 hex chars" },
+                sk2:             { type: ["string", "null"], description: "AES SK2 — 8 hex chars" },
+                sk3:             { type: ["string", "null"], description: "AES SK3 — 8 hex chars" },
+                notes:           { type: ["string", "null"], description: "Brief description of screen layout and any notable observations" },
               },
-              required: ["chipId", "sk0", "sk1", "sk2", "sk3", "config", "keyId", "notes"],
+              required: ["chipType","chipId","paramLowSK","paramHighSK","chipInfoLowSK","chipInfoHighSK","configPage","page0","page1","page2","page3","sk0","sk1","sk2","sk3","notes"],
               additionalProperties: false,
             },
           },
@@ -181,16 +216,57 @@ async function startServer() {
         try { parsed = JSON.parse(content); } catch { parsed = { notes: content }; }
       }
 
-      // Normalize: strip spaces, uppercase
-      const norm = (v: any) => v ? String(v).replace(/[\s:_\-]/g, "").toUpperCase().slice(0, 8) : null;
+      // Normalize hex: strip spaces/dashes/colons, uppercase, no length cap (some fields are 4 chars)
+      const normHex = (v: any, maxLen = 8) => {
+        if (!v) return null;
+        const s = String(v).replace(/[\s:_\-]/g, "").toUpperCase();
+        return s.length > 0 ? s.slice(0, maxLen) : null;
+      };
+
+      // For HITAG 2 screens: derive sk0–sk3 from chip data pages if AES fields are absent
+      // page0–page3 from Chip data section map directly to sk0–sk3 in our tab
+      const p0 = normHex(parsed.page0);
+      const p1 = normHex(parsed.page1);
+      const p2 = normHex(parsed.page2);
+      const p3 = normHex(parsed.page3);
+
+      // sk0–sk3 come from AES fields if present, otherwise fall back to page data
+      const sk0 = normHex(parsed.sk0) || p0;
+      const sk1 = normHex(parsed.sk1) || p1;
+      const sk2 = normHex(parsed.sk2) || p2;
+      const sk3 = normHex(parsed.sk3) || p3;
+
+      // Config: use configPage (HITAG 2) or config (AES)
+      const config = normHex(parsed.configPage) || normHex(parsed.config);
+
+      // Chip ID
+      const chipId = normHex(parsed.chipId);
+
+      // Full 6-byte HITAG 2 SK = chipInfoLowSK (4 bytes) + chipInfoHighSK (2 bytes)
+      const hitag2FullSK = (parsed.chipInfoLowSK && parsed.chipInfoHighSK)
+        ? (normHex(parsed.chipInfoLowSK, 8) || '') + (normHex(parsed.chipInfoHighSK, 8) || '')
+        : null;
+
       return res.json({
-        chipId: norm(parsed.chipId),
-        sk0: norm(parsed.sk0),
-        sk1: norm(parsed.sk1),
-        sk2: norm(parsed.sk2),
-        sk3: norm(parsed.sk3),
-        config: norm(parsed.config),
-        keyId: parsed.keyId || null,
+        // Normalized fields for direct tab population
+        chipId,
+        sk0,
+        sk1,
+        sk2,
+        sk3,
+        config,
+        page1: p1,
+        page2: p2,
+        // Raw extracted fields for display
+        chipType:       parsed.chipType || null,
+        paramLowSK:     normHex(parsed.paramLowSK),
+        paramHighSK:    normHex(parsed.paramHighSK, 4),
+        chipInfoLowSK:  normHex(parsed.chipInfoLowSK),
+        chipInfoHighSK: normHex(parsed.chipInfoHighSK),
+        configPage:     normHex(parsed.configPage),
+        page0:          p0,
+        page3:          p3,
+        hitag2FullSK,
         notes: parsed.notes || null,
       });
     } catch (e: any) {

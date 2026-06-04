@@ -306,6 +306,7 @@ export default function HitagAesTab() {
   const [uploadErr, setUploadErr] = useState('');
   const [photoBusy, setPhotoBusy] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [ocrRaw, setOcrRaw] = useState(null); // raw OCR extract for display
   const binInputRef = useRef(null);
   const photoInputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
@@ -346,14 +347,14 @@ export default function HitagAesTab() {
 
   const handlePhotoFile = useCallback((file) => {
     if (!/^image\//.test(file.type || '')) { setUploadErr('Please choose an image file (PNG, JPG, WEBP).'); return; }
-    setUploadErr(''); setUploadMsg(''); setPhotoBusy(true);
+    setUploadErr(''); setUploadMsg(''); setOcrRaw(null); setPhotoBusy(true);
     const reader = new FileReader();
     reader.onerror = () => { setPhotoBusy(false); setUploadErr('Could not read that image.'); };
     reader.onload = async (ev) => {
       try {
         const dataUrl = String(ev.target.result || '');
         setPhotoPreview(dataUrl);
-        // Attempt AI-powered OCR extraction (graceful fallback if endpoint unavailable)
+        // AI-powered OCR extraction
         try {
           const apiRes = await fetch('/api/anthropic/key-photo', {
             method: 'POST',
@@ -362,18 +363,27 @@ export default function HitagAesTab() {
           });
           if (apiRes.ok) {
             const data = await apiRes.json();
-            if (data.chipId) setChipId(data.chipId);
-            if (data.sk0) setSk0(data.sk0);
-            if (data.sk1) setSk1(data.sk1);
-            if (data.sk2) setSk2(data.sk2);
-            if (data.sk3) setSk3(data.sk3);
-            if (data.config) setConfig(data.config);
-            setUploadMsg(`✅ Photo analyzed — ${data.keyId ? 'Key ID: ' + data.keyId : 'fields extracted'}. Verify values below.`);
+            // Store raw OCR for display
+            setOcrRaw(data);
+            // Populate all fields — server already maps HITAG2 page data → sk0-sk3
+            if (data.chipId)  setChipId(data.chipId);
+            if (data.sk0)     setSk0(data.sk0);
+            if (data.sk1)     setSk1(data.sk1);
+            if (data.sk2)     setSk2(data.sk2);
+            if (data.sk3)     setSk3(data.sk3);
+            if (data.config)  setConfig(data.config);
+            if (data.page1)   setPage1(data.page1);
+            if (data.page2)   setPage2(data.page2);
+            // Count how many fields were populated
+            const filled = [data.chipId, data.sk0, data.sk1, data.sk2, data.sk3, data.config].filter(Boolean).length;
+            const chipLabel = data.chipType ? ` (${data.chipType})` : '';
+            setUploadMsg(`✅ OCR complete${chipLabel} — ${filled}/6 fields extracted. Verify values below.`);
           } else {
-            setUploadMsg('📷 Photo saved as reference. Enter hex values manually from your programmer screen.');
+            const errData = await apiRes.json().catch(() => ({}));
+            setUploadMsg(`⚠️ OCR failed: ${errData.error || apiRes.status}. Enter values manually.`);
           }
-        } catch {
-          setUploadMsg('📷 Photo saved as reference. AI extraction unavailable — enter hex values manually.');
+        } catch (fetchErr) {
+          setUploadMsg('📷 Photo saved. AI extraction unavailable — enter hex values manually.');
         }
       } catch (err) {
         setUploadErr(err?.message || 'Photo read failed.');
@@ -625,7 +635,49 @@ export default function HitagAesTab() {
               <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', border: `1px solid ${C.bd}` }}>
                 <img src={photoPreview} alt="Key photo" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', background: '#000' }} />
                 <div style={{ display: 'flex', justifyContent: 'flex-end', padding: 4 }}>
-                  <button onClick={() => setPhotoPreview(null)} style={{ fontSize: 10, color: C.ts, cursor: 'pointer', background: 'none', border: 'none' }}>✕ Remove</button>
+                  <button onClick={() => { setPhotoPreview(null); setOcrRaw(null); }} style={{ fontSize: 10, color: C.ts, cursor: 'pointer', background: 'none', border: 'none' }}>✕ Remove</button>
+                </div>
+              </div>
+            )}
+
+            {/* OCR Raw Extract Panel */}
+            {ocrRaw && (
+              <div style={{ marginTop: 10, padding: '10px 12px', borderRadius: 8, background: '#0F0F1A', border: '1.5px solid #7C3AED55' }}>
+                <div style={{ fontSize: 10, fontWeight: 800, color: '#A78BFA', letterSpacing: 2, marginBottom: 8 }}>
+                  🧠 AI OCR EXTRACT — {ocrRaw.chipType || 'UNKNOWN CHIP TYPE'}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px 12px' }}>
+                  {[
+                    ['Chip ID',        ocrRaw.chipId],
+                    ['Chip Type',      ocrRaw.chipType],
+                    ['Param Low SK',   ocrRaw.paramLowSK],
+                    ['Param High SK',  ocrRaw.paramHighSK],
+                    ['Info Low SK',    ocrRaw.chipInfoLowSK],
+                    ['Info High SK',   ocrRaw.chipInfoHighSK],
+                    ['Config Page',    ocrRaw.configPage],
+                    ['Page 0',         ocrRaw.page0],
+                    ['Page 1',         ocrRaw.page1],
+                    ['Page 2',         ocrRaw.page2],
+                    ['Page 3',         ocrRaw.page3],
+                    ['HITAG2 Full SK', ocrRaw.hitag2FullSK],
+                    ['AES SK0',        ocrRaw.sk0],
+                    ['AES SK1',        ocrRaw.sk1],
+                    ['AES SK2',        ocrRaw.sk2],
+                    ['AES SK3',        ocrRaw.sk3],
+                  ].filter(([, v]) => v != null).map(([label, val]) => (
+                    <div key={label} style={{ display: 'flex', gap: 6, alignItems: 'baseline' }}>
+                      <span style={{ fontSize: 9, color: '#6B7280', fontWeight: 700, minWidth: 90, flexShrink: 0 }}>{label}</span>
+                      <span style={{ fontSize: 11, color: '#E2E8F0', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{val}</span>
+                    </div>
+                  ))}
+                </div>
+                {ocrRaw.notes && (
+                  <div style={{ marginTop: 8, fontSize: 10, color: '#9CA3AF', lineHeight: 1.5, fontStyle: 'italic' }}>
+                    {ocrRaw.notes}
+                  </div>
+                )}
+                <div style={{ marginTop: 8, fontSize: 9, color: '#4B5563' }}>
+                  Fields above are what the AI read. The form fields below have been auto-filled from this extract.
                 </div>
               </div>
             )}
