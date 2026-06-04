@@ -72,6 +72,7 @@ import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
 import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
 import J2534UdsConsoleTab from "./tabs/J2534UdsConsoleTab.jsx";
+import AutelSgwTab from "./tabs/AutelSgwTab.jsx";
 import FirmwareEmulationTab from "./tabs/FirmwareEmulationTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
@@ -942,6 +943,7 @@ const WORKSPACE_TABS = [
   {id:'backups',   i:'💾', l:'BACKUPS',      s:'History · Restore'},
   {id:'obd',       i:'📡', l:'LIVE OBD',     s:'UDS · Seed→Key · J2534 · Gould'},
   {id:'uds-console',i:'🔌', l:'UDS CONSOLE',  s:'J2534 bridge · raw UDS · any module'},
+  {id:'autelsgw',   i:'🛡️', l:'AUTEL SGW',    s:'MaxiSys SGW bypass · auth · seed/key'},
   {id:'skim',      i:'🛡️', l:'SKIM',         s:'Keys · Immo'},
   {id:'info',      i:'ℹ️', l:'INFO',         s:'Reference'},
   {id:'samples',   i:'📚', l:'SAMPLES',      s:'Fixture Library'},
@@ -994,7 +996,7 @@ const WORKSPACE_CATEGORIES = {
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
   cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
   // LIVE — connected OBD/J2534 sessions and external bench tools.
-  obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE',
+  obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE', autelsgw:'LIVE',
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
   dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE', efd2bin:'ANALYZE',
   proxi:'ANALYZE', smartbox:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
@@ -1242,6 +1244,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='backups'   && <BackupsTab/>}
         {tab==='obd'       && <LiveObdTab vehicle={vehicle} onOpenTab={setTab}/>}
         {tab==='uds-console' && <J2534UdsConsoleTab/>}
+        {tab==='autelsgw'    && <AutelSgwTab/>}
         {tab==='skim'      && <SkimSecurityTab vehicle={vehicle}/>}
         {tab==='info'      && <InfoTab vehicle={vehicle}/>}
         {tab==='cflash'    && <CFlashTab files={files.filter(f=>f && (f.type==='CFLASH'||f.type==='FW'))} onLoad={loadF} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}

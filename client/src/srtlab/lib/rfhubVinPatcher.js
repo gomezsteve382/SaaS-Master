@@ -12,7 +12,7 @@
  */
 
 import {RFH_GEN2_VIN_OFFSETS, RFH_GEN1_VIN_OFFSET, buildRfhubContentWarn} from './parseModule.js';
-import {crc16, rfhGen2VinCs, rfhGen2DetectMagic} from './crc.js';
+import {crc16, rfhGen2VinCs, rfhGen2DetectMagic, RFH_GEN2_VIN_MAGIC_FORWARD, RFH_GEN2_VIN_MAGIC_REVERSED} from './crc.js';
 import {isXc2268Rfhub, parseXc2268Image} from './xc2268Rfhub.js';
 
 // ---------------------------------------------------------------------------
@@ -242,19 +242,27 @@ export function patchRfhubVin(bytes, newVin) {
   if (sz === 4096) {
     // Re-detect magic from the first non-blank slot so we preserve the
     // variant's original magic; fall back to 0xDB (2020+ Redeye default).
-    let magic = 0xDB;
+    let detectedMagic = RFH_GEN2_VIN_MAGIC_FORWARD; // 0xDB
     for (const o of RFH_GEN2_VIN_OFFSETS) {
       if (o + 17 >= sz) continue;
       const st = bytes.slice(o, o + 17);
       if (st.every(b => b === 0xFF || b === 0x00)) continue;
       const sc = bytes[o + 17];
-      if (sc !== 0x00 && sc !== 0xFF) {magic = rfhGen2DetectMagic(st, sc); break;}
+      if (sc !== 0x00 && sc !== 0xFF) {detectedMagic = rfhGen2DetectMagic(st, sc); break;}
     }
 
-    // Build the reversed storage bytes for the new VIN
+    // Magic 0xDB means the OG file stores VIN FORWARD (old tool format from alpha/6).
+    // When writing, we always store REVERSED (standard format), so we must switch to
+    // the reversed-storage magic 0xAD. All other magics (0x87, 0xAD) already indicate
+    // reversed storage — carry them through unchanged.
+    const writeMagic = detectedMagic === RFH_GEN2_VIN_MAGIC_FORWARD
+      ? RFH_GEN2_VIN_MAGIC_REVERSED  // 0xDB -> 0xAD
+      : detectedMagic;
+
+    // Build the reversed storage bytes for the new VIN (standard format)
     const raw17 = new Uint8Array(17);
     for (let j = 0; j < 17; j++) raw17[j] = vin.charCodeAt(16 - j);
-    const cs = rfhGen2VinCs(raw17, magic);
+    const cs = rfhGen2VinCs(raw17, writeMagic);
 
     for (const o of RFH_GEN2_VIN_OFFSETS) {
       if (o + 18 > sz) continue;
