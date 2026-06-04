@@ -45,3 +45,6 @@
 - [x] KEY TRANSPLANT gap: rename bench diff to 'patched-vs-target byte diff' and clarify it shows what bytes the transplant changed (not a reference comparison)
 - [x] KEY TRANSPLANT gap: surface transplant history entries in BackupsTab (Dumps workspace) with dedicated detail view, TRANSPLANT badge, and proper row rendering
 - [x] KEY TRANSPLANT bug: tab was invisible because keytransplant was missing from WORKSPACE_CATEGORIES — added to PROGRAM category
+- [x] Promote KEY TRANSPLANT tab to primary sidebar (always visible without opening Advanced drawer)
+- [x] Check/fix HITAG AES tab category mapping (added to ANALYZE category)
+- [x] Push updated build to GCP production VM — SKIPPED (GCP has different app; Manus-hosted version is already live)

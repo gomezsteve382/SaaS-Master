@@ -1002,7 +1002,7 @@ const WORKSPACE_CATEGORIES = {
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
   dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE', efd2bin:'ANALYZE',
   proxi:'ANALYZE', smartbox:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
-  loganalyser:'ANALYZE', workflow:'ANALYZE',
+  loganalyser:'ANALYZE', workflow:'ANALYZE', hitagaes:'ANALYZE',
   // TOOLS — cross-cutting catalogs and coverage dashboards.
   unlockcov:'TOOLS', alfaobd:'TOOLS', alfaintel:'TOOLS', dispatchcov:'TOOLS',
   sigdisc:'TOOLS',
