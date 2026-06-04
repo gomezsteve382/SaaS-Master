@@ -1,11 +1,11 @@
-import { eq, desc, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, sessions, uploads, operations, auditLogs } from "../drizzle/schema";
-import type { InsertUpload, InsertOperation, InsertAuditLog } from "../drizzle/schema";
+import { InsertUser, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
+// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -18,18 +18,26 @@ export async function getDb() {
   return _db;
 }
 
-// ─── Users ───────────────────────────────────────────────────────────────────
-
 export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) throw new Error("User openId is required for upsert");
+  if (!user.openId) {
+    throw new Error("User openId is required for upsert");
+  }
+
   const db = await getDb();
-  if (!db) { console.warn("[Database] Cannot upsert user: database not available"); return; }
+  if (!db) {
+    console.warn("[Database] Cannot upsert user: database not available");
+    return;
+  }
 
   try {
-    const values: InsertUser = { openId: user.openId };
+    const values: InsertUser = {
+      openId: user.openId,
+    };
     const updateSet: Record<string, unknown> = {};
+
     const textFields = ["name", "email", "loginMethod"] as const;
     type TextField = (typeof textFields)[number];
+
     const assignNullable = (field: TextField) => {
       const value = user[field];
       if (value === undefined) return;
@@ -37,13 +45,32 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values[field] = normalized;
       updateSet[field] = normalized;
     };
+
     textFields.forEach(assignNullable);
-    if (user.lastSignedIn !== undefined) { values.lastSignedIn = user.lastSignedIn; updateSet.lastSignedIn = user.lastSignedIn; }
-    if (user.role !== undefined) { values.role = user.role; updateSet.role = user.role; }
-    else if (user.openId === ENV.ownerOpenId) { values.role = 'admin'; updateSet.role = 'admin'; }
-    if (!values.lastSignedIn) values.lastSignedIn = new Date();
-    if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
-    await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+
+    if (user.lastSignedIn !== undefined) {
+      values.lastSignedIn = user.lastSignedIn;
+      updateSet.lastSignedIn = user.lastSignedIn;
+    }
+    if (user.role !== undefined) {
+      values.role = user.role;
+      updateSet.role = user.role;
+    } else if (user.openId === ENV.ownerOpenId) {
+      values.role = 'admin';
+      updateSet.role = 'admin';
+    }
+
+    if (!values.lastSignedIn) {
+      values.lastSignedIn = new Date();
+    }
+
+    if (Object.keys(updateSet).length === 0) {
+      updateSet.lastSignedIn = new Date();
+    }
+
+    await db.insert(users).values(values).onDuplicateKeyUpdate({
+      set: updateSet,
+    });
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -52,87 +79,14 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+
   return result.length > 0 ? result[0] : undefined;
 }
 
-// ─── Sessions ────────────────────────────────────────────────────────────────
-
-export async function createSession(userId: number, title?: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(sessions).values({ userId, title: title || "Untitled Session" });
-  return { id: Number(result[0].insertId) };
-}
-
-export async function getUserSessions(userId: number) {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(sessions).where(eq(sessions.userId, userId)).orderBy(desc(sessions.createdAt));
-}
-
-export async function getSessionById(sessionId: number) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
-  return result[0];
-}
-
-// ─── Uploads ─────────────────────────────────────────────────────────────────
-
-export async function createUpload(data: InsertUpload) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(uploads).values(data);
-  return { id: Number(result[0].insertId) };
-}
-
-export async function getSessionUploads(sessionId: number) {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(uploads).where(eq(uploads.sessionId, sessionId)).orderBy(desc(uploads.createdAt));
-}
-
-export async function getUploadById(uploadId: number) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(uploads).where(eq(uploads.id, uploadId)).limit(1);
-  return result[0];
-}
-
-// ─── Operations ──────────────────────────────────────────────────────────────
-
-export async function createOperation(data: InsertOperation) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(operations).values(data);
-  return { id: Number(result[0].insertId) };
-}
-
-export async function getSessionOperations(sessionId: number) {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(operations).where(eq(operations.sessionId, sessionId)).orderBy(desc(operations.createdAt));
-}
-
-// ─── Audit Logs ──────────────────────────────────────────────────────────────
-
-export async function createAuditLog(data: InsertAuditLog) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(auditLogs).values(data);
-  return { id: Number(result[0].insertId) };
-}
-
-export async function getUserAuditLogs(userId: number, limit = 50) {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(auditLogs).where(eq(auditLogs.userId, userId)).orderBy(desc(auditLogs.createdAt)).limit(limit);
-}
-
-export async function getSessionAuditLogs(sessionId: number) {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(auditLogs).where(eq(auditLogs.sessionId, sessionId)).orderBy(desc(auditLogs.createdAt));
-}
+// TODO: add feature queries here as your schema grows.
