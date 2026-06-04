@@ -1,0 +1,2347 @@
+{
+  "schema_version": 1,
+  "generated_by": "srtlab_unlock_catalog_gen.py",
+  "dll_dir": "tools/python-bridge/tools/canflash_unlocks",
+  "entry_count": 81,
+  "reversed_count": 81,
+  "dll_only_count": 0,
+  "entries": [
+    {
+      "file": "HB_ccn.dll",
+      "module": "HB_ccn",
+      "display_name": "Hb Ccn",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100a00614050000",
+        "name": "CCN",
+        "tx_can_id": 1696,
+        "rx_can_id": 1300,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1696,
+      "rx_can_id": 1300,
+      "family": "ccn",
+      "status": "reversed",
+      "python_function": "unlock_HB_ccn",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "LX_ccn.dll",
+      "module": "LX_ccn",
+      "display_name": "Lx Ccn",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100a00614050000",
+        "name": "CCN",
+        "tx_can_id": 1696,
+        "rx_can_id": 1300,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1696,
+      "rx_can_id": 1300,
+      "family": "ccn",
+      "status": "reversed",
+      "python_function": "unlock_LX_ccn",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "abs.dll",
+      "module": "abs",
+      "display_name": "Abs",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100400840785070000",
+        "name": "ABS",
+        "tx_can_id": 1924,
+        "rx_can_id": 1925,
+        "type": 4,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1924,
+      "rx_can_id": 1925,
+      "family": "abs",
+      "status": "reversed",
+      "python_function": "unlock_abs",
+      "algorithm": "lcg_pair",
+      "reason": null
+    },
+    {
+      "file": "ahbm.dll",
+      "module": "ahbm",
+      "display_name": "Ahbm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100100722050000",
+        "name": "AHBM",
+        "tx_can_id": 1808,
+        "rx_can_id": 1314,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1808,
+      "rx_can_id": 1314,
+      "family": "brakes_aux",
+      "status": "reversed",
+      "python_function": "unlock_ahbm",
+      "algorithm": "imul+t8",
+      "reason": null
+    },
+    {
+      "file": "aisin_tcm.dll",
+      "module": "aisin_tcm",
+      "display_name": "Aisin Tcm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100e107e9070800",
+        "name": "TCM",
+        "tx_can_id": 2017,
+        "rx_can_id": 2025,
+        "type": 1,
+        "extra": 8,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2017,
+      "rx_can_id": 2025,
+      "family": "tcm",
+      "status": "reversed",
+      "python_function": "aisin_tcm_unlock",
+      "algorithm": "aisin_t16_3pass",
+      "reason": null
+    },
+    {
+      "file": "alpine_amp.dll",
+      "module": "alpine_amp",
+      "display_name": "Alpine Amp",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100400f0073e050000",
+        "name": "AMP",
+        "tx_can_id": 2032,
+        "rx_can_id": 1342,
+        "type": 4,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2032,
+      "rx_can_id": 1342,
+      "family": "amp",
+      "status": "reversed",
+      "python_function": "unlock_alpine_amp",
+      "algorithm": "lcg_pair",
+      "reason": null
+    },
+    {
+      "file": "alpine_radio.dll",
+      "module": "alpine_radio",
+      "display_name": "Alpine Radio",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100400b00616050000",
+        "name": "Radio",
+        "tx_can_id": 1712,
+        "rx_can_id": 1302,
+        "type": 4,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1712,
+      "rx_can_id": 1302,
+      "family": "radio_rak",
+      "status": "reversed",
+      "python_function": "alpine_radio_unlock",
+      "algorithm": "lcg_pair",
+      "reason": null
+    },
+    {
+      "file": "alpine_rak.dll",
+      "module": "alpine_rak",
+      "display_name": "Alpine Rak",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100400b00616050400",
+        "name": "RAK",
+        "tx_can_id": 1712,
+        "rx_can_id": 1302,
+        "type": 4,
+        "extra": 4,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1712,
+      "rx_can_id": 1302,
+      "family": "radio_rak",
+      "status": "reversed",
+      "python_function": "unlock_alpine_rak",
+      "algorithm": "lcg_pair",
+      "reason": null
+    },
+    {
+      "file": "asbs.dll",
+      "module": "asbs",
+      "display_name": "Asbs",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100b907ba070000",
+        "name": "ASBS",
+        "tx_can_id": 1977,
+        "rx_can_id": 1978,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1977,
+      "rx_can_id": 1978,
+      "family": "brakes_aux",
+      "status": "reversed",
+      "python_function": "unlock_asbs",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "awd_pm_mk.dll",
+      "module": "awd_pm_mk",
+      "display_name": "Awd Pm Mk",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100300b607b7070000",
+        "name": "AWD",
+        "tx_can_id": 1974,
+        "rx_can_id": 1975,
+        "type": 3,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1974,
+      "rx_can_id": 1975,
+      "family": "awd",
+      "status": "reversed",
+      "python_function": "unlock_awd_pm_mk",
+      "algorithm": "lcg_halves",
+      "reason": null
+    },
+    {
+      "file": "borg_awd.dll",
+      "module": "borg_awd",
+      "display_name": "Borg Awd",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100b607b7070000",
+        "name": "AWD",
+        "tx_can_id": 1974,
+        "rx_can_id": 1975,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1974,
+      "rx_can_id": 1975,
+      "family": "awd",
+      "status": "reversed",
+      "python_function": "unlock_borg_awd",
+      "algorithm": "t8_xor+rotate",
+      "reason": null
+    },
+    {
+      "file": "bosch_abs.dll",
+      "module": "bosch_abs",
+      "display_name": "Bosch Abs",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100840785070000",
+        "name": "ABS",
+        "tx_can_id": 1924,
+        "rx_can_id": 1925,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1924,
+      "rx_can_id": 1925,
+      "family": "abs",
+      "status": "reversed",
+      "python_function": "unlock_bosch_abs",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "bosch_cdm_win_ddm.dll",
+      "module": "bosch_cdm_win_ddm",
+      "display_name": "Bosch Cdm Win Ddm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100400608050000",
+        "name": "DDM",
+        "tx_can_id": 1600,
+        "rx_can_id": 1288,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1600,
+      "rx_can_id": 1288,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_bosch_cdm_win_ddm",
+      "algorithm": "t8_chain",
+      "reason": null
+    },
+    {
+      "file": "bosch_cdm_win_pdm.dll",
+      "module": "bosch_cdm_win_pdm",
+      "display_name": "Bosch Cdm Win Pdm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c610010010050060a050000",
+        "name": "PDM",
+        "tx_can_id": 1616,
+        "rx_can_id": 1290,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1616,
+      "rx_can_id": 1290,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_bosch_cdm_win_pdm",
+      "algorithm": "t8_chain",
+      "reason": null
+    },
+    {
+      "file": "bosch_ddm.dll",
+      "module": "bosch_ddm",
+      "display_name": "Bosch Ddm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100400608050000",
+        "name": "DDM",
+        "tx_can_id": 1600,
+        "rx_can_id": 1288,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1600,
+      "rx_can_id": 1288,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_bosch_ddm",
+      "algorithm": "t8_chain",
+      "reason": null
+    },
+    {
+      "file": "bosch_mddm.dll",
+      "module": "bosch_mddm",
+      "display_name": "Bosch Mddm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100400608050000",
+        "name": "DDM",
+        "tx_can_id": 1600,
+        "rx_can_id": 1288,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1600,
+      "rx_can_id": 1288,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_bosch_mddm",
+      "algorithm": "t8_chain",
+      "reason": null
+    },
+    {
+      "file": "bosch_mpdm.dll",
+      "module": "bosch_mpdm",
+      "display_name": "Bosch Mpdm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c610010010050060a050000",
+        "name": "PDM",
+        "tx_can_id": 1616,
+        "rx_can_id": 1290,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1616,
+      "rx_can_id": 1290,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_bosch_mpdm",
+      "algorithm": "t8_chain",
+      "reason": null
+    },
+    {
+      "file": "bosch_mwddm.dll",
+      "module": "bosch_mwddm",
+      "display_name": "Bosch Mwddm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100400608050000",
+        "name": "DDM",
+        "tx_can_id": 1600,
+        "rx_can_id": 1288,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1600,
+      "rx_can_id": 1288,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_bosch_mwddm",
+      "algorithm": "t8_chain",
+      "reason": null
+    },
+    {
+      "file": "bosch_mwpdm.dll",
+      "module": "bosch_mwpdm",
+      "display_name": "Bosch Mwpdm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c610010010050060a050000",
+        "name": "PDM",
+        "tx_can_id": 1616,
+        "rx_can_id": 1290,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1616,
+      "rx_can_id": 1290,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_bosch_mwpdm",
+      "algorithm": "t8_chain",
+      "reason": null
+    },
+    {
+      "file": "bosch_orc.dll",
+      "module": "bosch_orc",
+      "display_name": "Bosch Orc",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100e0061c050000",
+        "name": "ORC",
+        "tx_can_id": 1760,
+        "rx_can_id": 1308,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1760,
+      "rx_can_id": 1308,
+      "family": "orc_airbag",
+      "status": "reversed",
+      "python_function": "unlock_bosch_orc",
+      "algorithm": "t8_chain+crc",
+      "reason": null
+    },
+    {
+      "file": "bosch_pdm.dll",
+      "module": "bosch_pdm",
+      "display_name": "Bosch Pdm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c610010010050060a050000",
+        "name": "PDM",
+        "tx_can_id": 1616,
+        "rx_can_id": 1290,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1616,
+      "rx_can_id": 1290,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_bosch_pdm",
+      "algorithm": "t8_chain",
+      "reason": null
+    },
+    {
+      "file": "cmtc.dll",
+      "module": "cmtc",
+      "display_name": "Cmtc",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100f0061e050000",
+        "name": "CMTC",
+        "tx_can_id": 1776,
+        "rx_can_id": 1310,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1776,
+      "rx_can_id": 1310,
+      "family": "comfort_misc",
+      "status": "reversed",
+      "python_function": "unlock_cmtc",
+      "algorithm": "t8_add+bitpack",
+      "reason": null
+    },
+    {
+      "file": "cummins_849.dll",
+      "module": "cummins_849",
+      "display_name": "Cummins 849",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100300e007e8070200",
+        "name": "Cummins 849",
+        "tx_can_id": 2016,
+        "rx_can_id": 2024,
+        "type": 3,
+        "extra": 2,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2016,
+      "rx_can_id": 2024,
+      "family": "diesel_pcm",
+      "status": "reversed",
+      "python_function": "unlock_cummins_849",
+      "algorithm": "cummins_t16",
+      "reason": null
+    },
+    {
+      "file": "cvt.dll",
+      "module": "cvt",
+      "display_name": "Cvt",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100300e107e9070000",
+        "name": "TCM",
+        "tx_can_id": 2017,
+        "rx_can_id": 2025,
+        "type": 3,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2017,
+      "rx_can_id": 2025,
+      "family": "tcm",
+      "status": "reversed",
+      "python_function": "unlock_cvt",
+      "algorithm": "rol16_chain_2pass",
+      "reason": null
+    },
+    {
+      "file": "dcx_ptcm.dll",
+      "module": "dcx_ptcm",
+      "display_name": "Dcx Ptcm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100400300726050900",
+        "name": "PTCM",
+        "tx_can_id": 1840,
+        "rx_can_id": 1318,
+        "type": 4,
+        "extra": 9,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1840,
+      "rx_can_id": 1318,
+      "family": "ptcm",
+      "status": "reversed",
+      "python_function": "dcx_ptcm_unlock",
+      "algorithm": "lcg_pair",
+      "reason": null
+    },
+    {
+      "file": "ddm.dll",
+      "module": "ddm",
+      "display_name": "Ddm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100400608050000",
+        "name": "DDM",
+        "tx_can_id": 1600,
+        "rx_can_id": 1288,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1600,
+      "rx_can_id": 1288,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_ddm",
+      "algorithm": "t8_xor+bitpack",
+      "reason": null
+    },
+    {
+      "file": "delphi_hvac.dll",
+      "module": "delphi_hvac",
+      "display_name": "Delphi Hvac",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100880611050000",
+        "name": "HVAC",
+        "tx_can_id": 1672,
+        "rx_can_id": 1297,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1672,
+      "rx_can_id": 1297,
+      "family": "hvac",
+      "status": "reversed",
+      "python_function": "unlock_delphi_hvac",
+      "algorithm": "t8_xor_8tap",
+      "reason": null
+    },
+    {
+      "file": "delphi_sdar.dll",
+      "module": "delphi_sdar",
+      "display_name": "Delphi Sdar",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100d8073b050000",
+        "name": "SDAR",
+        "tx_can_id": 2008,
+        "rx_can_id": 1339,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2008,
+      "rx_can_id": 1339,
+      "family": "sat_radio",
+      "status": "reversed",
+      "python_function": "unlock_delphi_sdar",
+      "algorithm": "t8_add_4tap",
+      "reason": null
+    },
+    {
+      "file": "edc16c2.dll",
+      "module": "edc16c2",
+      "display_name": "Edc16C2",
+      "size_bytes": 45056,
+      "ecu_info": {
+        "raw_hex": "0c7100100300e007e8070100",
+        "name": "PCM",
+        "tx_can_id": 2016,
+        "rx_can_id": 2024,
+        "type": 3,
+        "extra": 1,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2016,
+      "rx_can_id": 2024,
+      "family": "pcm",
+      "status": "reversed",
+      "python_function": "unlock_edc16c2",
+      "algorithm": "t32_8row_substitution",
+      "reason": null
+    },
+    {
+      "file": "edc16cp31.dll",
+      "module": "edc16cp31",
+      "display_name": "Edc16Cp31",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100300e007e8070100",
+        "name": "PCM",
+        "tx_can_id": 2016,
+        "rx_can_id": 2024,
+        "type": 3,
+        "extra": 1,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2016,
+      "rx_can_id": 2024,
+      "family": "pcm",
+      "status": "reversed",
+      "python_function": "unlock_edc16cp31",
+      "algorithm": "t32_8row_substitution",
+      "reason": null
+    },
+    {
+      "file": "edc16u31.dll",
+      "module": "edc16u31",
+      "display_name": "Edc16U31",
+      "size_bytes": 45056,
+      "ecu_info": {
+        "raw_hex": "0c7100100300e007e8070100",
+        "name": "PCM",
+        "tx_can_id": 2016,
+        "rx_can_id": 2024,
+        "type": 3,
+        "extra": 1,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2016,
+      "rx_can_id": 2024,
+      "family": "pcm",
+      "status": "reversed",
+      "python_function": "unlock_edc16u31",
+      "algorithm": "t32_8row_substitution",
+      "reason": null
+    },
+    {
+      "file": "egs52.dll",
+      "module": "egs52",
+      "display_name": "Egs52",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100300e107e9070000",
+        "name": "EGS52",
+        "tx_can_id": 2017,
+        "rx_can_id": 2025,
+        "type": 3,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2017,
+      "rx_can_id": 2025,
+      "family": "tcm",
+      "status": "reversed",
+      "python_function": "unlock_egs52",
+      "algorithm": "imul_xor",
+      "reason": null
+    },
+    {
+      "file": "eom.dll",
+      "module": "eom",
+      "display_name": "Eom",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100f0061e050000",
+        "name": "EOM",
+        "tx_can_id": 1776,
+        "rx_can_id": 1310,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1776,
+      "rx_can_id": 1310,
+      "family": "comfort_misc",
+      "status": "reversed",
+      "python_function": "unlock_eom",
+      "algorithm": "t8_add+bitpack",
+      "reason": null
+    },
+    {
+      "file": "esm.dll",
+      "module": "esm",
+      "display_name": "Esm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100300880789070000",
+        "name": "ESM",
+        "tx_can_id": 1928,
+        "rx_can_id": 1929,
+        "type": 3,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1928,
+      "rx_can_id": 1929,
+      "family": "seat",
+      "status": "reversed",
+      "python_function": "unlock_esm",
+      "algorithm": "byte_lane_mux",
+      "reason": null
+    },
+    {
+      "file": "ewm.dll",
+      "module": "ewm",
+      "display_name": "Ewm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100880789070000",
+        "name": "EWM",
+        "tx_can_id": 1928,
+        "rx_can_id": 1929,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1928,
+      "rx_can_id": 1929,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_ewm",
+      "algorithm": "t16_chain",
+      "reason": null
+    },
+    {
+      "file": "fdcm.dll",
+      "module": "fdcm",
+      "display_name": "Fdcm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100b607b7070000",
+        "name": "FDCM",
+        "tx_can_id": 1974,
+        "rx_can_id": 1975,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1974,
+      "rx_can_id": 1975,
+      "family": "awd",
+      "status": "reversed",
+      "python_function": "unlock_fdcm",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "gpec.dll",
+      "module": "gpec",
+      "display_name": "Gpec",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100300e007e8070500",
+        "name": "PCM",
+        "tx_can_id": 2016,
+        "rx_can_id": 2024,
+        "type": 3,
+        "extra": 5,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2016,
+      "rx_can_id": 2024,
+      "family": "pcm",
+      "status": "reversed",
+      "python_function": "unlock_gpec",
+      "algorithm": "tea-feistel",
+      "reason": null
+    },
+    {
+      "file": "harman_amp.dll",
+      "module": "harman_amp",
+      "display_name": "Harman Amp",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100f0073e050000",
+        "name": "AMP",
+        "tx_can_id": 2032,
+        "rx_can_id": 1342,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2032,
+      "rx_can_id": 1342,
+      "family": "amp",
+      "status": "reversed",
+      "python_function": "unlock_harman_amp",
+      "algorithm": "t8_add+imul",
+      "reason": null
+    },
+    {
+      "file": "hella_acc.dll",
+      "module": "hella_acc",
+      "display_name": "Hella Acc",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100400aa07ab070000",
+        "name": "ACC",
+        "tx_can_id": 1962,
+        "rx_can_id": 1963,
+        "type": 4,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1962,
+      "rx_can_id": 1963,
+      "family": "adaptive_cruise",
+      "status": "reversed",
+      "python_function": "unlock_hella_acc",
+      "algorithm": "lcg_pair",
+      "reason": null
+    },
+    {
+      "file": "hfm.dll",
+      "module": "hfm",
+      "display_name": "Hfm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100300f8073f050000",
+        "name": "HFM",
+        "tx_can_id": 2040,
+        "rx_can_id": 1343,
+        "type": 3,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2040,
+      "rx_can_id": 1343,
+      "family": "hfm",
+      "status": "reversed",
+      "python_function": "unlock_hfm",
+      "algorithm": "t8_xor (32-bit)",
+      "reason": null
+    },
+    {
+      "file": "hidt.dll",
+      "module": "hidt",
+      "display_name": "Hidt",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100c80739050000",
+        "name": "HIDT",
+        "tx_can_id": 1992,
+        "rx_can_id": 1337,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1992,
+      "rx_can_id": 1337,
+      "family": "lighting",
+      "status": "reversed",
+      "python_function": "unlock_hidt",
+      "algorithm": "t16x32_mixed_mul_xor",
+      "reason": null
+    },
+    {
+      "file": "huntsville_bcm.dll",
+      "module": "huntsville_bcm",
+      "display_name": "Huntsville Bcm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100200604050000",
+        "name": "BCM/FCM",
+        "tx_can_id": 1568,
+        "rx_can_id": 1284,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1568,
+      "rx_can_id": 1284,
+      "family": "bcm_fcm_tipm",
+      "status": "reversed",
+      "python_function": "unlock_huntsville_bcm",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "huntsville_fcm.dll",
+      "module": "huntsville_fcm",
+      "display_name": "Huntsville Fcm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100200604050000",
+        "name": "FCM",
+        "tx_can_id": 1568,
+        "rx_can_id": 1284,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1568,
+      "rx_can_id": 1284,
+      "family": "bcm_fcm_tipm",
+      "status": "reversed",
+      "python_function": "unlock_huntsville_fcm",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "huntsville_fdcm.dll",
+      "module": "huntsville_fdcm",
+      "display_name": "Huntsville Fdcm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100b607b7070000",
+        "name": "FDCM",
+        "tx_can_id": 1974,
+        "rx_can_id": 1975,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1974,
+      "rx_can_id": 1975,
+      "family": "awd",
+      "status": "reversed",
+      "python_function": "unlock_huntsville_fdcm",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "huntsville_radio.dll",
+      "module": "huntsville_radio",
+      "display_name": "Huntsville Radio",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100b00616050000",
+        "name": "RAQ/REF",
+        "tx_can_id": 1712,
+        "rx_can_id": 1302,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1712,
+      "rx_can_id": 1302,
+      "family": "radio_rak",
+      "status": "reversed",
+      "python_function": "unlock_huntsville_radio",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "hvac.dll",
+      "module": "hvac",
+      "display_name": "Hvac",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100880611050000",
+        "name": "HVAC",
+        "tx_can_id": 1672,
+        "rx_can_id": 1297,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1672,
+      "rx_can_id": 1297,
+      "family": "hvac",
+      "status": "reversed",
+      "python_function": "unlock_hvac",
+      "algorithm": "t8_mul_seed",
+      "reason": null
+    },
+    {
+      "file": "kicker_amp.dll",
+      "module": "kicker_amp",
+      "display_name": "Kicker Amp",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100f0073e050000",
+        "name": "AMP",
+        "tx_can_id": 2032,
+        "rx_can_id": 1342,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2032,
+      "rx_can_id": 1342,
+      "family": "amp",
+      "status": "reversed",
+      "python_function": "unlock_kicker_amp",
+      "algorithm": "crc32_feistel_8round",
+      "reason": null
+    },
+    {
+      "file": "lear_wcm.dll",
+      "module": "lear_wcm",
+      "display_name": "Lear Wcm",
+      "size_bytes": 45056,
+      "ecu_info": {
+        "raw_hex": "0c7100100400000600050000",
+        "name": "WCM",
+        "tx_can_id": 1536,
+        "rx_can_id": 1280,
+        "type": 4,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1536,
+      "rx_can_id": 1280,
+      "family": "wcm",
+      "status": "reversed",
+      "python_function": "unlock_lear_wcm",
+      "algorithm": "hitag2_lfsr48",
+      "reason": null
+    },
+    {
+      "file": "lrsm.dll",
+      "module": "lrsm",
+      "display_name": "Lrsm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100080721050000",
+        "name": "LRSM",
+        "tx_can_id": 1800,
+        "rx_can_id": 1313,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1800,
+      "rx_can_id": 1313,
+      "family": "seat",
+      "status": "reversed",
+      "python_function": "unlock_lrsm",
+      "algorithm": "t16_gf2",
+      "reason": null
+    },
+    {
+      "file": "may_scofield_itm.dll",
+      "module": "may_scofield_itm",
+      "display_name": "May Scofield Itm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c610010010070060e050000",
+        "name": "ITM",
+        "tx_can_id": 1648,
+        "rx_can_id": 1294,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1648,
+      "rx_can_id": 1294,
+      "family": "itm",
+      "status": "reversed",
+      "python_function": "unlock_may_scofield_itm",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "mitsubishi_rar.dll",
+      "module": "mitsubishi_rar",
+      "display_name": "Mitsubishi Rar",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100b00616050000",
+        "name": "RAR",
+        "tx_can_id": 1712,
+        "rx_can_id": 1302,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1712,
+      "rx_can_id": 1302,
+      "family": "radio_rak",
+      "status": "reversed",
+      "python_function": "unlock_mitsubishi_rar",
+      "algorithm": "simple",
+      "reason": null
+    },
+    {
+      "file": "mitsubishi_ves.dll",
+      "module": "mitsubishi_ves",
+      "display_name": "Mitsubishi Ves",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100d0073a050000",
+        "name": "VES",
+        "tx_can_id": 2000,
+        "rx_can_id": 1338,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2000,
+      "rx_can_id": 1338,
+      "family": "video",
+      "status": "reversed",
+      "python_function": "unlock_mitsubishi_ves",
+      "algorithm": "simple",
+      "reason": null
+    },
+    {
+      "file": "mitsubishi_ves3.dll",
+      "module": "mitsubishi_ves3",
+      "display_name": "Mitsubishi Ves3",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100800730050000",
+        "name": "VES3",
+        "tx_can_id": 1920,
+        "rx_can_id": 1328,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1920,
+      "rx_can_id": 1328,
+      "family": "video",
+      "status": "reversed",
+      "python_function": "unlock_mitsubishi_ves3",
+      "algorithm": "t8_mod_imul",
+      "reason": null
+    },
+    {
+      "file": "motorola_tipm7.dll",
+      "module": "motorola_tipm7",
+      "display_name": "Motorola Tipm7",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100200604050000",
+        "name": "TIPM_7",
+        "tx_can_id": 1568,
+        "rx_can_id": 1284,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1568,
+      "rx_can_id": 1284,
+      "family": "bcm_fcm_tipm",
+      "status": "reversed",
+      "python_function": "unlock_motorola_tipm7",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "msmd.dll",
+      "module": "msmd",
+      "display_name": "Msmd",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c610010040060060c050000",
+        "name": "MSMD",
+        "tx_can_id": 1632,
+        "rx_can_id": 1292,
+        "type": 4,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1632,
+      "rx_can_id": 1292,
+      "family": "seat",
+      "status": "reversed",
+      "python_function": "unlock_msmd",
+      "algorithm": "lcg_pair",
+      "reason": null
+    },
+    {
+      "file": "ngc4_trans.dll",
+      "module": "ngc4_trans",
+      "display_name": "Ngc4 Trans",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100e107e9070700",
+        "name": "TCM",
+        "tx_can_id": 2017,
+        "rx_can_id": 2025,
+        "type": 1,
+        "extra": 7,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2017,
+      "rx_can_id": 2025,
+      "family": "tcm",
+      "status": "reversed",
+      "python_function": "unlock_ngc4_trans",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "ngc_engine.dll",
+      "module": "ngc_engine",
+      "display_name": "Ngc Engine",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100e007e8070300",
+        "name": "PCM",
+        "tx_can_id": 2016,
+        "rx_can_id": 2024,
+        "type": 1,
+        "extra": 3,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2016,
+      "rx_can_id": 2024,
+      "family": "pcm",
+      "status": "reversed",
+      "python_function": "unlock_ngc_engine",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "ngc_transmission.dll",
+      "module": "ngc_transmission",
+      "display_name": "Ngc Transmission",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100e107e9070300",
+        "name": "TCM",
+        "tx_can_id": 2017,
+        "rx_can_id": 2025,
+        "type": 1,
+        "extra": 3,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2017,
+      "rx_can_id": 2025,
+      "family": "tcm",
+      "status": "reversed",
+      "python_function": "unlock_ngc_transmission",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "nippon_ccn.dll",
+      "module": "nippon_ccn",
+      "display_name": "Nippon Ccn",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100a00614050000",
+        "name": "CCN",
+        "tx_can_id": 1696,
+        "rx_can_id": 1300,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1696,
+      "rx_can_id": 1300,
+      "family": "ccn",
+      "status": "reversed",
+      "python_function": "unlock_nippon_ccn",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "ocm.dll",
+      "module": "ocm",
+      "display_name": "Ocm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100e8061d050000",
+        "name": "OCM",
+        "tx_can_id": 1768,
+        "rx_can_id": 1309,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1768,
+      "rx_can_id": 1309,
+      "family": "ocm_airbag",
+      "status": "reversed",
+      "python_function": "unlock_ocm",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "pdm.dll",
+      "module": "pdm",
+      "display_name": "Pdm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c610010010050060a050000",
+        "name": "PDM",
+        "tx_can_id": 1616,
+        "rx_can_id": 1290,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1616,
+      "rx_can_id": 1290,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_pdm",
+      "algorithm": "t8_xor+bitpack",
+      "reason": null
+    },
+    {
+      "file": "peiker_hfm.dll",
+      "module": "peiker_hfm",
+      "display_name": "Peiker Hfm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100f8073f050000",
+        "name": "HFM",
+        "tx_can_id": 2040,
+        "rx_can_id": 1343,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2040,
+      "rx_can_id": 1343,
+      "family": "hfm",
+      "status": "reversed",
+      "python_function": "unlock_peiker_hfm",
+      "algorithm": "t8_5tap_chain_xor",
+      "reason": null
+    },
+    {
+      "file": "plgm.dll",
+      "module": "plgm",
+      "display_name": "Plgm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100280725050000",
+        "name": "PLGM",
+        "tx_can_id": 1832,
+        "rx_can_id": 1317,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1832,
+      "rx_can_id": 1317,
+      "family": "liftgate",
+      "status": "reversed",
+      "python_function": "unlock_plgm",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "ptim_lx.dll",
+      "module": "ptim_lx",
+      "display_name": "Ptim Lx",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100b00736050000",
+        "name": "PTIM",
+        "tx_can_id": 1968,
+        "rx_can_id": 1334,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1968,
+      "rx_can_id": 1334,
+      "family": "ptim",
+      "status": "reversed",
+      "python_function": "ptim_lx_unlock",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "pts.dll",
+      "module": "pts",
+      "display_name": "Pts",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100980613050000",
+        "name": "PTS",
+        "tx_can_id": 1688,
+        "rx_can_id": 1299,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1688,
+      "rx_can_id": 1299,
+      "family": "parktronic",
+      "status": "reversed",
+      "python_function": "unlock_pts",
+      "algorithm": "t8_chain+rot",
+      "reason": null
+    },
+    {
+      "file": "sas.dll",
+      "module": "sas",
+      "display_name": "Sas",
+      "size_bytes": 45056,
+      "ecu_info": {
+        "raw_hex": "0c7100100300220684040000",
+        "name": "SAS",
+        "tx_can_id": 1570,
+        "rx_can_id": 1156,
+        "type": 3,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1570,
+      "rx_can_id": 1156,
+      "family": "sas",
+      "status": "reversed",
+      "python_function": "unlock_sas",
+      "algorithm": "gf2_4x4_substitution",
+      "reason": null
+    },
+    {
+      "file": "sunr.dll",
+      "module": "sunr",
+      "display_name": "Sunr",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100380607050000",
+        "name": "SUNR",
+        "tx_can_id": 1592,
+        "rx_can_id": 1287,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1592,
+      "rx_can_id": 1287,
+      "family": "sunroof",
+      "status": "reversed",
+      "python_function": "unlock_sunr",
+      "algorithm": "inline",
+      "reason": null
+    },
+    {
+      "file": "temic_ddm.dll",
+      "module": "temic_ddm",
+      "display_name": "Temic Ddm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100400608050000",
+        "name": "DDM",
+        "tx_can_id": 1600,
+        "rx_can_id": 1288,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1600,
+      "rx_can_id": 1288,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_temic_ddm",
+      "algorithm": "~s*K",
+      "reason": null
+    },
+    {
+      "file": "temic_pdm.dll",
+      "module": "temic_pdm",
+      "display_name": "Temic Pdm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c610010010050060a050000",
+        "name": "PDM",
+        "tx_can_id": 1616,
+        "rx_can_id": 1290,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1616,
+      "rx_can_id": 1290,
+      "family": "doors",
+      "status": "reversed",
+      "python_function": "unlock_temic_pdm",
+      "algorithm": "~s*K",
+      "reason": null
+    },
+    {
+      "file": "teves_abs.dll",
+      "module": "teves_abs",
+      "display_name": "Teves Abs",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100400840785070000",
+        "name": "ABS",
+        "tx_can_id": 1924,
+        "rx_can_id": 1925,
+        "type": 4,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1924,
+      "rx_can_id": 1925,
+      "family": "abs",
+      "status": "reversed",
+      "python_function": "unlock_teves_abs",
+      "algorithm": "lcg_pair",
+      "reason": null
+    },
+    {
+      "file": "trw_abs.dll",
+      "module": "trw_abs",
+      "display_name": "Trw Abs",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100840785070000",
+        "name": "ABS",
+        "tx_can_id": 1924,
+        "rx_can_id": 1925,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1924,
+      "rx_can_id": 1925,
+      "family": "abs",
+      "status": "reversed",
+      "python_function": "unlock_trw_abs",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "trw_hvac.dll",
+      "module": "trw_hvac",
+      "display_name": "Trw Hvac",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100880611050000",
+        "name": "HVAC",
+        "tx_can_id": 1672,
+        "rx_can_id": 1297,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1672,
+      "rx_can_id": 1297,
+      "family": "hvac",
+      "status": "reversed",
+      "python_function": "unlock_trw_hvac",
+      "algorithm": "t8_mul_seed",
+      "reason": null
+    },
+    {
+      "file": "trw_hvac_2.dll",
+      "module": "trw_hvac_2",
+      "display_name": "Trw Hvac 2",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100880611050000",
+        "name": "HVAC",
+        "tx_can_id": 1672,
+        "rx_can_id": 1297,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1672,
+      "rx_can_id": 1297,
+      "family": "hvac",
+      "status": "reversed",
+      "python_function": "unlock_trw_hvac_2",
+      "algorithm": "t8_mul_seed",
+      "reason": null
+    },
+    {
+      "file": "trw_ocm.dll",
+      "module": "trw_ocm",
+      "display_name": "Trw Ocm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100e8061d050000",
+        "name": "OCM",
+        "tx_can_id": 1768,
+        "rx_can_id": 1309,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1768,
+      "rx_can_id": 1309,
+      "family": "ocm_airbag",
+      "status": "reversed",
+      "python_function": "unlock_trw_ocm",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "trw_orc.dll",
+      "module": "trw_orc",
+      "display_name": "Trw Orc",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100e0061c050000",
+        "name": "ORC",
+        "tx_can_id": 1760,
+        "rx_can_id": 1308,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1760,
+      "rx_can_id": 1308,
+      "family": "orc_airbag",
+      "status": "reversed",
+      "python_function": "unlock_trw_orc",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "trw_sas.dll",
+      "module": "trw_sas",
+      "display_name": "Trw Sas",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100220684040000",
+        "name": "SAS",
+        "tx_can_id": 1570,
+        "rx_can_id": 1156,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1570,
+      "rx_can_id": 1156,
+      "family": "sas",
+      "status": "reversed",
+      "python_function": "unlock_trw_sas",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "valeo_scm.dll",
+      "module": "valeo_scm",
+      "display_name": "Valeo Scm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100400a80615050000",
+        "name": "SCM",
+        "tx_can_id": 1704,
+        "rx_can_id": 1301,
+        "type": 4,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1704,
+      "rx_can_id": 1301,
+      "family": "scm",
+      "status": "reversed",
+      "python_function": "unlock_valeo_scm",
+      "algorithm": "lcg_pair",
+      "reason": null
+    },
+    {
+      "file": "venom_pcm.dll",
+      "module": "venom_pcm",
+      "display_name": "Venom Pcm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100e007e8070000",
+        "name": "PCM",
+        "tx_can_id": 2016,
+        "rx_can_id": 2024,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2016,
+      "rx_can_id": 2024,
+      "family": "pcm",
+      "status": "reversed",
+      "python_function": "unlock_venom_pcm",
+      "algorithm": "t8_xor",
+      "reason": null
+    },
+    {
+      "file": "visteon_amp.dll",
+      "module": "visteon_amp",
+      "display_name": "Visteon Amp",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100f0073e050000",
+        "name": "AMP",
+        "tx_can_id": 2032,
+        "rx_can_id": 1342,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 2032,
+      "rx_can_id": 1342,
+      "family": "amp",
+      "status": "reversed",
+      "python_function": "unlock_visteon_amp",
+      "algorithm": "bit_driven_accum",
+      "reason": null
+    },
+    {
+      "file": "wcm.dll",
+      "module": "wcm",
+      "display_name": "Wcm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100000000600050000",
+        "name": "WCM",
+        "tx_can_id": 1536,
+        "rx_can_id": 1280,
+        "type": 0,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1536,
+      "rx_can_id": 1280,
+      "family": "wcm",
+      "status": "reversed",
+      "python_function": "unlock_wcm",
+      "algorithm": "t16_mul",
+      "reason": null
+    },
+    {
+      "file": "yazaki_fcm.dll",
+      "module": "yazaki_fcm",
+      "display_name": "Yazaki Fcm",
+      "size_bytes": 40960,
+      "ecu_info": {
+        "raw_hex": "0c6100100100200604050000",
+        "name": "FCM",
+        "tx_can_id": 1568,
+        "rx_can_id": 1284,
+        "type": 1,
+        "extra": 0,
+        "decode_failed": false,
+        "error": null,
+        "ordinals": {
+          "1": "unlock",
+          "2": "verify",
+          "3": "ecu_info"
+        }
+      },
+      "tx_can_id": 1568,
+      "rx_can_id": 1284,
+      "family": "bcm_fcm_tipm",
+      "status": "reversed",
+      "python_function": "unlock_yazaki_fcm",
+      "algorithm": "t8_xor",
+      "reason": null
+    }
+  ],
+  "task634_entries": [
+    {
+      "id": "xc2268_rfhub",
+      "task": 634,
+      "category": "rfhub",
+      "label": "XC2268-class RFHUB (Infineon dealer-tool image)",
+      "module_type": "XC2268_RFHUB",
+      "algorithm": "crc16_ccitt_per_vin_slot",
+      "image_checksum": "crc32_image_wide",
+      "vin_slot_count": 4,
+      "status": "bench-pending",
+      "lib": "src/lib/xc2268Rfhub.js"
+    },
+    {
+      "id": "mopar_radio_code",
+      "task": 634,
+      "category": "radio",
+      "label": "Mopar head-unit PIN deriver",
+      "families": [
+        "RBZ",
+        "RHB",
+        "REJ",
+        "REC",
+        "RAQ",
+        "RA2",
+        "RA3",
+        "RA4"
+      ],
+      "algorithm": "per_family_mul_add_mod_10000",
+      "status": "bench-pending",
+      "lib": "src/lib/moparRadioCode.js",
+      "ui": "src/tabs/RadioCodesTab.jsx"
+    },
+    {
+      "id": "dealer_lockout_bypass",
+      "task": 634,
+      "category": "rfhub",
+      "label": "2019+ internal-flash RFHUB dealer lockout bypass",
+      "trigger_nrcs": [
+        "0x36",
+        "0x37"
+      ],
+      "alt_security_level": "0x0B",
+      "clear_routine_id": "0xFF00",
+      "reset_type": "0x01",
+      "steps": [
+        "ext-session",
+        "alt-sa",
+        "clear",
+        "reset",
+        "re-probe"
+      ],
+      "status": "bench-pending",
+      "lib": "src/lib/dealerLockoutBypass.js",
+      "ui": "src/tabs/RfhubTab.jsx"
+    },
+    {
+      "id": "zf_8hp_tcu",
+      "task": 634,
+      "category": "tcu",
+      "label": "ZF 8HP TCU image (845RE / 8HP70 / 8HP90)",
+      "module_type": "ZF_8HP_TCU",
+      "algorithm": "per_block_crc32_zlib",
+      "block_size_bytes": 65536,
+      "status": "bench-pending",
+      "lib": "src/lib/zf8hp.js"
+    }
+  ],
+  "task634_provenance": "task-634"
+}

@@ -1,0 +1,341 @@
+{
+  "_meta": {
+    "title": "wiTECH UDS Function Map",
+    "description": "Machine-readable mapping of wiTECH Erlang helper functions to UDS service IDs, sub-functions, and DIDs. Derived from CDA SWF constant-pool trace, ISO 14229-1, and SRT Lab live implementation. Entries marked dump_verified:false need confirmation against wiTECH_wde.DMP once available.",
+    "standard": "ISO 14229-1 (UDS)",
+    "sgwCanIds": { "request": "0x74F", "response": "0x76F" },
+    "sgwBusSpeed": "500000",
+    "sgwProtocol": "ISO15765",
+    "sources": [
+      "CDA SWF constant-pool offset 0x24664A (attached_assets/CDA_1776448059516.swf)",
+      "ISO 14229-1:2013 Unified Diagnostic Services",
+      "artifacts/srt-lab/src/tabs/AutelSgwTab.jsx",
+      "artifacts/srt-lab/src/lib/bridgeEngine.js",
+      "artifacts/srt-lab/src/lib/sgwAuth.js"
+    ],
+    "scanner": "scripts/src/scan-witech-dump.ts",
+    "generatedDate": "2026-05-03"
+  },
+
+  "uds_functions": {
+    "enter_diagnostic_session": {
+      "service": "0x10",
+      "serviceName": "DiagnosticSessionControl",
+      "subfunction": "0x03",
+      "subfunctionName": "extendedDiagnosticSession",
+      "didOrAddress": null,
+      "frameExample": "10 03",
+      "positiveResponse": "50 03",
+      "notes": "wiTECH uses 0x03 (extended) before any security-access. 0x01=default, 0x02=programming also used in flash flows.",
+      "implemented_in_srtlab": true,
+      "dump_verified": false
+    },
+    "pre_unlock_init": {
+      "service": "0x10",
+      "serviceName": "DiagnosticSessionControl",
+      "subfunction": "0x03",
+      "subfunctionName": "extendedDiagnosticSession",
+      "didOrAddress": null,
+      "frameExample": "10 03",
+      "positiveResponse": "50 03",
+      "notes": "Alias for enter_diagnostic_session(0x03). Must be called before read_seed / send_key — the SGW (and most FCA ECUs) will NRC 0x22 a 27 01 in default session.",
+      "implemented_in_srtlab": true,
+      "dump_verified": false
+    },
+    "read_seed": {
+      "service": "0x27",
+      "serviceName": "SecurityAccess",
+      "subfunction": "0x01",
+      "subfunctionName": "requestSeed",
+      "didOrAddress": null,
+      "frameExample": "27 01",
+      "positiveResponse": "67 01 SS SS SS SS",
+      "notes": "SGW returns a 4-byte seed. Key is derived via XTEA-32 (local path) or forwarded to manufacturing server (wiTECH subscription path).",
+      "implemented_in_srtlab": true,
+      "dump_verified": false
+    },
+    "send_key": {
+      "service": "0x27",
+      "serviceName": "SecurityAccess",
+      "subfunction": "0x02",
+      "subfunctionName": "sendKey",
+      "didOrAddress": null,
+      "frameExample": "27 02 KK KK KK KK",
+      "positiveResponse": "67 02",
+      "notes": "4-byte key payload for local XTEA path. Server-signed cert path may use a longer payload (8–16 bytes — dump_verified:false). NRC 0x35 = invalidKey, NRC 0x36 = exceededNumberOfAttempts.",
+      "implemented_in_srtlab": true,
+      "dump_verified": false
+    },
+    "send_tester_present": {
+      "service": "0x3E",
+      "serviceName": "TesterPresent",
+      "subfunction": "0x80",
+      "subfunctionName": "zeroSubFunction_suppressResponse",
+      "didOrAddress": null,
+      "frameExample": "3E 80",
+      "positiveResponse": "(suppressed)",
+      "notes": "wiTECH sends with suppressPosRspMsgIndicationBit (0x80) so the ECU does not respond, minimising bus traffic during keep-alive. Without this the session expires after ~5 s.",
+      "implemented_in_srtlab": true,
+      "dump_verified": false
+    },
+    "disable_normal_messages": {
+      "service": "0x28",
+      "serviceName": "CommunicationControl",
+      "subfunction": "0x03",
+      "subfunctionName": "disableRxAndTx",
+      "didOrAddress": null,
+      "frameExample": "28 03 01",
+      "positiveResponse": "68 03",
+      "notes": "Third byte is communicationType: 0x01 = normalCommunicationMessages. Called before flash download to silence normal bus traffic. Must be paired with enable_normal_messages after flash exit.",
+      "implemented_in_srtlab": false,
+      "dump_verified": false
+    },
+    "enable_normal_messages": {
+      "service": "0x28",
+      "serviceName": "CommunicationControl",
+      "subfunction": "0x00",
+      "subfunctionName": "enableRxAndTx",
+      "didOrAddress": null,
+      "frameExample": "28 00 01",
+      "positiveResponse": "68 00",
+      "notes": "Restores normal bus traffic after flash session. Third byte is communicationType: 0x01.",
+      "implemented_in_srtlab": false,
+      "dump_verified": false
+    },
+    "disable_fault_setting": {
+      "service": "0x85",
+      "serviceName": "ControlDTCSetting",
+      "subfunction": "0x02",
+      "subfunctionName": "off",
+      "didOrAddress": null,
+      "frameExample": "85 02",
+      "positiveResponse": "C5 02",
+      "notes": "Stops the ECU from setting new DTCs during a flash or write session. Should be called before programming and re-enabled after.",
+      "implemented_in_srtlab": false,
+      "dump_verified": false
+    },
+    "enable_fault_setting": {
+      "service": "0x85",
+      "serviceName": "ControlDTCSetting",
+      "subfunction": "0x01",
+      "subfunctionName": "on",
+      "didOrAddress": null,
+      "frameExample": "85 01",
+      "positiveResponse": "C5 01",
+      "notes": "Re-enables DTC setting after a programming session. Pair with enable_normal_messages and ECUReset.",
+      "implemented_in_srtlab": false,
+      "dump_verified": false
+    },
+    "read_memory": {
+      "service": "0x23",
+      "serviceName": "ReadMemoryByAddress",
+      "subfunction": null,
+      "subfunctionName": null,
+      "didOrAddress": "addressAndLengthFormatIdentifier + memoryAddress + memorySize",
+      "frameExample": "23 14 AA AA AA AA LL LL",
+      "positiveResponse": "63 <data>",
+      "notes": "addressAndLengthFormatIdentifier 0x14 = 1-byte length, 4-byte address. FCA ECUs typically use 4-byte address + 2-byte length (0x24). Requires extended session + security access unlock first.",
+      "implemented_in_srtlab": false,
+      "dump_verified": false
+    },
+    "write_memory": {
+      "service": "0x3D",
+      "serviceName": "WriteMemoryByAddress",
+      "subfunction": null,
+      "subfunctionName": null,
+      "didOrAddress": "addressAndLengthFormatIdentifier + memoryAddress + memorySize",
+      "frameExample": "3D 14 AA AA AA AA LL LL <data>",
+      "positiveResponse": "7D <echo>",
+      "notes": "Direct memory write by address. Less common than WriteDataByIdentifier (0x2E) for EEPROM writes on FCA ECUs — many modules gate EEPROM writes through DIDs. Requires unlock.",
+      "implemented_in_srtlab": false,
+      "dump_verified": false
+    },
+    "read_vin": {
+      "service": "0x22",
+      "serviceName": "ReadDataByIdentifier",
+      "subfunction": null,
+      "subfunctionName": null,
+      "didOrAddress": "0xF190",
+      "didName": "VehicleIdentificationNumber",
+      "frameExample": "22 F1 90",
+      "positiveResponse": "62 F1 90 <17 ASCII bytes>",
+      "notes": "Returns the 17-character ASCII VIN stored in the module. Available in default session on most FCA ECUs (no security access required for read).",
+      "implemented_in_srtlab": false,
+      "dump_verified": false
+    },
+    "read_partnumber": {
+      "service": "0x22",
+      "serviceName": "ReadDataByIdentifier",
+      "subfunction": null,
+      "subfunctionName": null,
+      "didOrAddress": "0xF187",
+      "didName": "SystemSupplierECUPartNumber",
+      "frameExample": "22 F1 87",
+      "positiveResponse": "62 F1 87 <part number ASCII>",
+      "notes": "OEM part number string (typically 10–14 ASCII chars on FCA). Available in default session.",
+      "implemented_in_srtlab": false,
+      "dump_verified": false
+    },
+    "read_flash_partnumber": {
+      "service": "0x22",
+      "serviceName": "ReadDataByIdentifier",
+      "subfunction": null,
+      "subfunctionName": null,
+      "didOrAddress": "0xF18A",
+      "didName": "SystemSupplierECUAssemblyNumber",
+      "frameExample": "22 F1 8A",
+      "positiveResponse": "62 F1 8A <assembly number ASCII>",
+      "notes": "Flash/assembly part number. Some FCA modules use 0xF188 instead — [DUMP-TBD] to confirm which DID wiTECH's read_flash_partnumber function actually addresses.",
+      "implemented_in_srtlab": false,
+      "dump_verified": false
+    },
+    "read_software_number": {
+      "service": "0x22",
+      "serviceName": "ReadDataByIdentifier",
+      "subfunction": null,
+      "subfunctionName": null,
+      "didOrAddress": "0xF189",
+      "didName": "SystemSupplierECUSoftwareVersionNumber",
+      "frameExample": "22 F1 89",
+      "positiveResponse": "62 F1 89 <software version ASCII>",
+      "notes": "Software version / calibration identifier. Available in default session.",
+      "implemented_in_srtlab": false,
+      "dump_verified": false
+    },
+    "read_hardware_number": {
+      "service": "0x22",
+      "serviceName": "ReadDataByIdentifier",
+      "subfunction": null,
+      "subfunctionName": null,
+      "didOrAddress": "0xF191",
+      "didName": "VehicleManufacturerECUHardwareVersionNumber",
+      "frameExample": "22 F1 91",
+      "positiveResponse": "62 F1 91 <hardware version ASCII>",
+      "notes": "Hardware version number. Some FCA modules use 0xF193 (SystemSupplierECUHardwareVersionNumber) — [DUMP-TBD] to confirm.",
+      "implemented_in_srtlab": false,
+      "dump_verified": false
+    }
+  },
+
+  "erlang_modules": {
+    "veh_sgw": {
+      "layer": "vehicle_unlock",
+      "summary": "Vehicle SGW authentication dispatcher. Routes to local XTEA path or manufacturing-server cert path based on wiTECH subscription state.",
+      "uds_entry_points": ["0x10/0x03", "0x27/0x01", "0x27/0x02"],
+      "can_ids": { "request": "0x74F", "response": "0x76F" },
+      "dump_verified": false
+    },
+    "veh_unlock": {
+      "layer": "vehicle_unlock",
+      "summary": "Top-level vehicle unlock sequence. Enters extended diagnostic session, calls veh_sgw, then permits downstream module writes through the SGW.",
+      "uds_entry_points": ["0x10/0x03", "0x27/0x01", "0x27/0x02"],
+      "dump_verified": false
+    },
+    "device_unlock_ecu": {
+      "layer": "vehicle_unlock",
+      "summary": "Per-ECU security-access unlock. Runs 10 03 + 27 01/02 on a specified CAN ID pair. Wraps read_seed + send_key for non-SGW modules.",
+      "uds_entry_points": ["0x10/0x03", "0x27/0x01", "0x27/0x02"],
+      "dump_verified": false
+    },
+    "whs_ecu_unlock": {
+      "layer": "vehicle_unlock",
+      "summary": "Warehouse/workshop ECU unlock. Variant of device_unlock_ecu used in bench programming flows where the vehicle harness is absent.",
+      "uds_entry_points": ["0x10/0x03", "0x27/0x01", "0x27/0x02"],
+      "dump_verified": false
+    },
+    "whs_ecu_memory": {
+      "layer": "memory",
+      "summary": "Warehouse ECU memory read/write. Wraps read_memory (0x23) and write_memory (0x3D) with address/length validation.",
+      "uds_entry_points": ["0x23", "0x3D"],
+      "dump_verified": false
+    },
+    "whs_flash": {
+      "layer": "flash",
+      "summary": "Flash programming session manager. Enters programming session (10 02), gates the SGW, silences normal traffic, transfers data via 34/36/37, exits and resets.",
+      "uds_entry_points": ["0x10/0x02", "0x28/0x03", "0x85/0x02", "0x27/0x01", "0x27/0x02", "0x34", "0x36", "0x37", "0x28/0x00", "0x85/0x01", "0x11/0x01"],
+      "dump_verified": false
+    },
+    "whs_ecu_raw": {
+      "layer": "raw",
+      "summary": "Raw UDS passthrough. Sends arbitrary byte arrays to a CAN ID pair without service-layer validation. Used for development and manual diagnostics.",
+      "uds_entry_points": ["any"],
+      "dump_verified": false
+    },
+    "flash_sup": {
+      "layer": "flash",
+      "summary": "Flash supervisor. Manages block checksums, retry logic, and erase confirmation during a flash session. Called by whs_flash and vrflash.",
+      "uds_entry_points": ["0x34", "0x36", "0x37", "0x11"],
+      "dump_verified": false
+    },
+    "jcanflash": {
+      "layer": "flash",
+      "summary": "J1939/CAN flash. Flash programming over J1939 transport, used for heavy-duty variant modules or truck gateway ECUs.",
+      "uds_entry_points": ["0x34", "0x36", "0x37"],
+      "transport": "J1939",
+      "dump_verified": false
+    },
+    "rmflash": {
+      "layer": "flash",
+      "summary": "ROM-mode flash. Programs modules that respond to ROM boot commands rather than standard UDS — vendor-specific bootstrap protocol.",
+      "uds_entry_points": ["vendor-specific"],
+      "dump_verified": false
+    },
+    "vrflash": {
+      "layer": "flash",
+      "summary": "Vehicle Reflash orchestrator. Calls whs_flash per-module and manages the overall multi-ECU reflash sequence including dependency ordering.",
+      "uds_entry_points": ["0x10/0x02", "0x34", "0x36", "0x37", "0x11"],
+      "dump_verified": false
+    },
+    "protocol_kline": {
+      "layer": "transport",
+      "summary": "K-line transport handler (ISO 9141-2 / ISO 14230 KWP2000). Used for pre-CAN modules on pre-2005 Chrysler platforms.",
+      "uds_entry_points": ["KWP2000 / ISO 9141"],
+      "transport": "K-line",
+      "dump_verified": false
+    },
+    "protocol_services": {
+      "layer": "transport",
+      "summary": "UDS service dispatcher. Routes incoming service IDs to the correct Erlang handler — effectively the UDS server loop for the wiTECH BEAM node.",
+      "uds_entry_points": ["all"],
+      "dump_verified": false
+    }
+  },
+
+  "sgw_flow": {
+    "local_xtea_path": {
+      "description": "On-device XTEA seed/key computation. Does not require network access.",
+      "sequence": [
+        { "step": 1, "frame": "10 03", "direction": "tool→sgw", "description": "Enter extended diagnostic session (pre_unlock_init)" },
+        { "step": 2, "frame": "50 03", "direction": "sgw→tool", "description": "Positive response" },
+        { "step": 3, "frame": "27 01", "direction": "tool→sgw", "description": "Request seed (read_seed)" },
+        { "step": 4, "frame": "67 01 SS SS SS SS", "direction": "sgw→tool", "description": "Seed response — 4 bytes" },
+        { "step": 5, "frame": "27 02 KK KK KK KK", "direction": "tool→sgw", "description": "Send key — XTEA_32(seed, K_SGW)[high_u32]" },
+        { "step": 6, "frame": "67 02", "direction": "sgw→tool", "description": "Positive response — SGW authenticated" }
+      ],
+      "key": "BC474048A33B483A6368727973313372",
+      "algorithm": "XTEA-32 ECB, key = K_SGW, v0=seed, v1=~seed, return c0 (high u32)",
+      "implemented": true
+    },
+    "server_signed_path": {
+      "description": "Manufacturing-server cert path used by wiTECH with active subscription. The tool forwards the seed to a Stellantis HTTPS endpoint and gets a signed cert back.",
+      "erlang_functions": [
+        "request_sgw_signed_challenge_from_manufacturing_server",
+        "request_sgw_cert_from_manufacturing_server"
+      ],
+      "sequence": [
+        { "step": 1, "frame": "10 03", "direction": "tool→sgw", "description": "Enter extended session" },
+        { "step": 2, "frame": "50 03", "direction": "sgw→tool", "description": "Positive response" },
+        { "step": 3, "frame": "27 01", "direction": "tool→sgw", "description": "Request seed" },
+        { "step": 4, "frame": "67 01 SS SS SS SS", "direction": "sgw→tool", "description": "Seed (4 bytes)" },
+        { "step": 5, "frame": "HTTPS POST /sgw/challenge", "direction": "tool→mfg_server", "description": "request_sgw_signed_challenge: { seed, vin, toolId, apiVersion }" },
+        { "step": 6, "frame": "{ cert: <signed_blob> }", "direction": "mfg_server→tool", "description": "request_sgw_cert: signed certificate for this seed" },
+        { "step": 7, "frame": "27 02 <cert_bytes>", "direction": "tool→sgw", "description": "Send signed cert as key payload" },
+        { "step": 8, "frame": "67 02", "direction": "sgw→tool", "description": "Positive response — SGW authenticated" }
+      ],
+      "server_endpoint": "HTTPS (exact host/path [DUMP-TBD])",
+      "cert_length_bytes": "8–16 (dump_verified: false)",
+      "implemented": false,
+      "notes": "CDA symbols: SGWJsonHTTPAction, SecurityGatewayOfflineDongleServiceAPIVersionCommand, SecurityGatewayResult. Offline dongle variant caches the cert locally (dongleUnlockSecurityGateway)."
+    }
+  }
+}

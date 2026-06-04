@@ -1,0 +1,23 @@
+# SRT Lab Web — Project TODO
+
+- [x] Project scaffold (React 19 + Tailwind 4 + Express + tRPC + Drizzle)
+- [x] Clone real SaaS-Master repo and copy SRT Lab source tree
+- [x] Install external dependencies (fflate, jspdf, @radix-ui/react-toast)
+- [x] Copy @workspace/uds package and configure Vite alias
+- [x] Upload vehicle images to S3 and update vehicles.js references
+- [x] Replace bcm-cat PNG imports with S3 URL module (bcm-cat-urls.js)
+- [x] Database schema: users, sessions, uploads, operations, audit_logs, backups
+- [x] Database query helpers (db.ts) for all tables
+- [x] tRPC router with sessions, uploads, operations, and audit procedures
+- [x] Wire /api/backups REST endpoint (POST, GET list, GET by id, DELETE one, DELETE all)
+- [x] Variant-aware RFHUB Gen2 VIN writing with XOR-magic checksum (no crc8rf)
+- [x] SEC16 sync (BCM-to-RFH byte-reversal with crc8_65 checksum)
+- [x] Byte-level diff reports
+- [x] Three-way comparison
+- [x] Controlled candidate export with confirmation gate (exportSafetyGate.js)
+- [x] Safe-mode write guard with structured machine-readable refusals
+- [x] Module inspector panel
+- [x] Audit log persistence in database
+- [x] TypeScript: 0 errors
+- [x] All tests passing (8 tests across 2 test files)
+- [x] App renders correctly with vehicle selection screen

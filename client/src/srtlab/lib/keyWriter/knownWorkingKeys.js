@@ -1,0 +1,432 @@
+/* ============================================================================
+ * knownWorkingKeys.js — curated registry of CONFIRMED working transponder
+ * keys (Task #1096).
+ *
+ * The Key Dump card (keyRecord.js) and the per-VIN key history (keyHistory.js)
+ * capture whatever the operator reads from their bench tool — but neither has
+ * any notion of a *ground-truth* "this key actually starts the car" entry.
+ * This module is that ground truth, modelled on rfhPinnedRegistry.js: a frozen
+ * data table plus a handful of pure lookup / classification / prefill helpers.
+ *
+ * Seeded with the first key dump from the 2019 Charger 6.2 RFHUB package — an
+ * Autel read of the working fob that the operator confirmed starts the car.
+ *
+ * ┌──────────────────────────── SK ≠ SEC16 ─────────────────────────────────┐
+ * │ The `sk` stored here is the per-transponder secret an external tool       │
+ * │ (Autel/VVDI) reports. It is NOT the 16-byte RFHUB SEC16 master secret and │
+ * │ prefill never copies SEC16 into the SK field. Two flavours coexist:       │
+ * │   • PER-CHIP READ CONFIRMED — recovered from this fob's own Autel page     │
+ * │     read (see the seed key #1 `profile` block: SK is page1 ∥ the high      │
+ * │     word of page2). This is the chip's real secret, distinct per chip.     │
+ * │   • UNIVERSAL "MIKRON" DEFAULT (4F4E4D494B52) — used only where NO per-    │
+ * │     chip read is available (the sibling / second / third-vehicle keys).    │
+ * │     Honest placeholder, NOT a per-chip differentiator; provenance says so. │
+ * │ Because the seed now carries its real per-chip SK while the rest still     │
+ * │ carry the default, classifyAgainstRegistry can finally reject a fob whose  │
+ * │ UID matches but whose secret does not (the universal default no longer     │
+ * │ classifies the seed UID as known-good).                                    │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * ┌──────────────────────────── INDEX BYTE ─────────────────────────────────┐
+ * │ `tableIndex` (0x48 for the seed) is now COMPUTED from the Key ID via      │
+ * │ deriveCharKeyIndex — the unified mod-255 record checksum                  │
+ * │ (sum(keyId)+index+flag ≡ 0xFE; 0xFD for this flag-0x01 seed) that         │
+ * │ reproduces every known Charger 6.2 pair across both key families          │
+ * │ (formerly the package's open                                              │
+ * │ problem in SEARCH_SPEC.md). Entries store the derived value rather than a │
+ * │ hand-copied magic number, so the registry can never drift from the        │
+ * │ derivation. The empty-slot template low byte 0x95 is still recorded as a  │
+ * │ NON-KEY sentinel so it can never be presented as known-good (an earlier   │
+ * │ failed add reused 0x95).                                                  │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ * ========================================================================== */
+
+import { chipFamily } from './chipFamilies.js';
+import { makeKeyRecord } from './keyRecord.js';
+import { normalizeVin } from './keyHistory.js';
+import { deriveCharKeyIndex } from '../charRfhubKeyTable.js';
+
+/* Empty-slot template low byte + revUID (5A 5A 5A 5A 95 00). This is the
+ * "no key here" marker in the Charger RFHUB key table — NOT a real key. The
+ * registry records it so the UI and classifier can refuse to ever treat it as
+ * known-good. */
+export const EMPTY_SLOT_MARKER = Object.freeze({
+  index: 0x95,
+  flag: 0x00,
+  revUid: '5A5A5A5A',
+  note: 'Empty-slot template (5A 5A 5A 5A 95 00) — NOT a real key. Never present as known-good.',
+});
+
+/* Each entry:
+ *   id          — stable key for React lists / lookups.
+ *   vin         — OPTIONAL. null = a global known-good usable on any vehicle.
+ *   keyId       — BE, exactly as the Autel programmer prints it (4-byte chip UID).
+ *   revUid      — LE, byte-reversed keyId, as stored in the RFHUB table.
+ *   chipId      — chipFamilies.js id (drives UID/SK length validation).
+ *   sk          — documented per-transponder secret key (compact hex).
+ *   flags       — coding/locked/encryption/cloneable as the tool reported.
+ *   tableIndex / tableFlag / tableAddr — RFHUB table placement (DATA only).
+ *   vehicle     — human label for the source vehicle.
+ *   profile     — chip-profile extras kept for provenance/reference only.
+ *   provenance  — where the entry came from + the confirmation.
+ */
+export const KNOWN_WORKING_KEYS = Object.freeze([
+  Object.freeze({
+    id: 'charger62-2019-0077A29B',
+    vin: null,
+    keyId: '0077A29B',
+    revUid: '9BA27700',
+    chipId: 'id46',
+    /* PER-CHIP READ CONFIRMED. SK is this fob's real per-transponder secret,
+     * recovered byte-for-byte from its own Autel page read in `profile` below:
+     * page1 (50207755) ∥ the high word of page2 (0100) = the 6-byte HITAG2
+     * crypto key. It is NOT the universal MIKRON default (4F4E4D494B52) the
+     * sibling / second / third-vehicle keys still carry — so a fob that shows
+     * 0077A29B's UID but the MIKRON default (or any other secret) now classifies
+     * as a `mismatch`, not known-good. The golden test re-derives this value
+     * straight from `profile` so it can never silently drift from the read. */
+    sk: '502077550100',
+    flags: Object.freeze({ locked: false, coding: 'manchester', encryption: true, cloneable: true }),
+    // Derived from the Key ID (mod-255 checksum) — evaluates to 0x48, matching
+    // the byte observed in the dump. Computed, never hand-copied.
+    tableIndex: deriveCharKeyIndex('0077A29B'),
+    tableFlag: 0x01,
+    tableAddr: 0x0C7E,
+    vehicle: '2019 Charger 6.2 (RFHUB EEPROM)',
+    profile: Object.freeze({
+      configuration: '08AA4854',
+      page0: 'FFFFFFFF',
+      page1: '50207755',
+      page2: '01000000',
+      page3: 'FF6E5500',
+    }),
+    provenance:
+      'Autel programmer read of working fob (starts the car) = key #1 in 2019 Charger 6.2 dump. ' +
+      'Per-chip read confirmed: SK 502077550100 is this transponder\'s own secret recovered from ' +
+      'the Autel page read (page1 50207755 ∥ high word of page2 0100), NOT the universal MIKRON default.',
+  }),
+
+  /* ─────────────────────── 2019 Charger 6.2 sibling keys ───────────────────
+   * The same RFHUB dump that seeded key #1 above carries SIX paired keys in
+   * its 8-slot Charger table (slots 3..8, every record flag 0x01 = present,
+   * mirror-verified). All six are paired into the immobilizer of the running
+   * car the operator confirmed — i.e. the ECU will start the car when any of
+   * these transponders is presented. Only key #1 (0077A29B) was physically
+   * fob-tested by the operator; the five below are confirmed PRESENT in the
+   * same vehicle's key table (their `provenance` says exactly that, no more).
+   *
+   * These five are VIN-SCOPED to 2C3CDXL92KH674464 — the documented reference
+   * car for this exact 0xC5E table layout (see charRfhubKeyTable.js header:
+   * "2019 Charger (VIN 2C3CDXL92KH674464 reference set) … 6 keys in slots
+   * 3..8"). Scoping them proves the per-VIN path in getKnownWorkingKeys(vin)
+   * against real bytes: they surface only for this VIN, while the global seed
+   * (vin: null) stays visible everywhere. keyId/revUid/index/flag/addr are
+   * lifted verbatim from the dump (asserted in the golden test). chipId + SK
+   * are the car-wide id46 / universal-MIKRON default shared by every fob in
+   * this immobilizer (same as key #1). No per-chip Autel `profile` read is
+   * available for these, so that field is intentionally omitted.
+   * ────────────────────────────────────────────────────────────────────── */
+  ...[
+    { keyId: 'CC62209F', revUid: '9F2062CC', tableIndex: 0x0F, tableAddr: 0x0C8E, slot: 4 },
+    { keyId: '09A6629F', revUid: '9F62A609', tableIndex: 0x4C, tableAddr: 0x0C9E, slot: 5 },
+    { keyId: '91654F9E', revUid: '9E4F6591', tableIndex: 0x19, tableAddr: 0x0CAE, slot: 6 },
+    { keyId: '197E6C9E', revUid: '9E6C7E19', tableIndex: 0x5B, tableAddr: 0x0CBE, slot: 7 },
+    { keyId: 'C47D6C9E', revUid: '9E6C7DC4', tableIndex: 0xB0, tableAddr: 0x0CCE, slot: 8 },
+  ].map((k) =>
+    Object.freeze({
+      id: `charger62-2019-${k.keyId}`,
+      vin: '2C3CDXL92KH674464',
+      keyId: k.keyId,
+      revUid: k.revUid,
+      chipId: 'id46',
+      sk: '4F4E4D494B52',
+      flags: Object.freeze({ locked: false, coding: 'manchester', encryption: true, cloneable: true }),
+      tableIndex: k.tableIndex,
+      tableFlag: 0x01,
+      tableAddr: k.tableAddr,
+      vehicle: '2019 Charger 6.2 (RFHUB EEPROM)',
+      provenance:
+        `Sibling paired key — present (flag 0x01, mirror-verified) at slot ${k.slot} / ` +
+        `0x${k.tableAddr.toString(16).toUpperCase()} in the same operator-confirmed 2019 Charger 6.2 ` +
+        `RFHUB key table as fob 0077A29B (VIN 2C3CDXL92KH674464). Paired into the immobilizer; ` +
+        `not independently fob-tested.`,
+    }),
+  ),
+
+  /* ─────────────────────────── Charger SCAT — VIN 2C3CDXHG5EH219538 ─────────
+   * A SECOND vehicle (Task #1099). The RFH_SCAT_OG RFHUB read carries FIVE
+   * paired keys in slots 4..8 of its Charger 0xC5E table — every record flag
+   * 0x01 (present), mirror-verified, unknownCount 0. VIN attribution is
+   * SEC16-confirmed, not just filename-deep:
+   *   • RFH_SCAT_OG SEC16 = 08A1C5E7BA303582C3821594793C2FC4.
+   *   • The operator's RFH synced to VIN 2C3CDXHG5EH219538 carries the IDENTICAL
+   *     SEC16 AND the identical five UIDs (same physical module).
+   *   • That VIN's BCM dump embeds this RFHUB's SEC16 (forward @0x40C9,
+   *     reverse @0xC9 per the RFH SEC16 = reverse(BCM) layout) — i.e. the RFHUB
+   *     and BCM are paired, so these five fobs are programmed into that car's
+   *     immobilizer.
+   * VIN-SCOPED to 2C3CDXHG5EH219538. keyId/revUid/index/flag/addr are lifted
+   * verbatim from the dump (asserted in the golden test). chipId + SK are the
+   * car-wide id46 / universal-MIKRON default shared by every FCA Charger fob in
+   * this immobilizer (no per-chip Autel `profile` read available, so omitted).
+   * Not independently fob-tested.
+   * ────────────────────────────────────────────────────────────────────────── */
+  ...[
+    { keyId: '54D44964', revUid: '6449D454', tableIndex: 0x27, tableAddr: 0x0C8E, slot: 4 },
+    { keyId: '37BB1F68', revUid: '681FBB37', tableIndex: 0x83, tableAddr: 0x0C9E, slot: 5 },
+    { keyId: '90B0EB64', revUid: '64EBB090', tableIndex: 0x6C, tableAddr: 0x0CAE, slot: 6 },
+    { keyId: '33741E64', revUid: '641E7433', tableIndex: 0xD3, tableAddr: 0x0CBE, slot: 7 },
+    { keyId: 'E1381664', revUid: '641638E1', tableIndex: 0x69, tableAddr: 0x0CCE, slot: 8 },
+  ].map((k) =>
+    Object.freeze({
+      id: `scat-2C3CDXHG5EH219538-${k.keyId}`,
+      vin: '2C3CDXHG5EH219538',
+      keyId: k.keyId,
+      revUid: k.revUid,
+      chipId: 'id46',
+      sk: '4F4E4D494B52',
+      flags: Object.freeze({ locked: false, coding: 'manchester', encryption: true, cloneable: true }),
+      tableIndex: k.tableIndex,
+      tableFlag: 0x01,
+      tableAddr: k.tableAddr,
+      vehicle: 'Charger SCAT (RFHUB EEPROM)',
+      provenance:
+        `Paired key — present (flag 0x01, mirror-verified) at slot ${k.slot} / ` +
+        `0x${k.tableAddr.toString(16).toUpperCase()} in the RFH_SCAT_OG RFHUB read. The same five UIDs ` +
+        `+ SEC16 (08A1C5E7BA303582C3821594793C2FC4) appear in the operator's RFH synced to VIN ` +
+        `2C3CDXHG5EH219538, whose BCM embeds this SEC16 (forward @0x40C9, reverse @0xC9) — paired ` +
+        `into that immobilizer. Not independently fob-tested.`,
+    }),
+  ),
+
+  /* ────────────────────── Charger 6.2 "CARTMAN" — VIN 2C3CDZL95NH179529 ─────
+   * A THIRD vehicle (Task #1099). The CARTMAN 21 Charger 6.2 RFHUB OG read
+   * carries THREE paired keys in slots 6..8 — flag 0x01, mirror-verified,
+   * unknownCount 0. VIN attribution is SEC16-confirmed:
+   *   • CARTMAN RFHUB OG SEC16 = DE4BBD2F5A1D73647EB2192D01E4F88C, identical to
+   *     the operator's CARTMAN RFH synced read (same physical module).
+   *   • The matching CARTMAN BCM dflash carries VIN 2C3CDZL95NH179529 and embeds
+   *     reverse(RFH SEC16) @0xC9 (the RFH SEC16 = reverse(BCM) layout) — i.e.
+   *     the RFHUB is paired to that BCM, so these three fobs are programmed into
+   *     that car's immobilizer.
+   * VIN-SCOPED to 2C3CDZL95NH179529. Values lifted verbatim from the dump
+   * (asserted in the golden test). chipId + SK = the car-wide id46 /
+   * universal-MIKRON default. Not independently fob-tested.
+   * ────────────────────────────────────────────────────────────────────────── */
+  ...[
+    { keyId: '2FA7D964', revUid: '64D9A72F', tableIndex: 0xE8, tableAddr: 0x0CAE, slot: 6 },
+    { keyId: '3AC1D964', revUid: '64D9C13A', tableIndex: 0xC3, tableAddr: 0x0CBE, slot: 7 },
+    { keyId: '73C0D964', revUid: '64D9C073', tableIndex: 0x8B, tableAddr: 0x0CCE, slot: 8 },
+  ].map((k) =>
+    Object.freeze({
+      id: `cartman-2C3CDZL95NH179529-${k.keyId}`,
+      vin: '2C3CDZL95NH179529',
+      keyId: k.keyId,
+      revUid: k.revUid,
+      chipId: 'id46',
+      sk: '4F4E4D494B52',
+      flags: Object.freeze({ locked: false, coding: 'manchester', encryption: true, cloneable: true }),
+      tableIndex: k.tableIndex,
+      tableFlag: 0x01,
+      tableAddr: k.tableAddr,
+      vehicle: 'Charger 6.2 "CARTMAN" (RFHUB EEPROM)',
+      provenance:
+        `Paired key — present (flag 0x01, mirror-verified) at slot ${k.slot} / ` +
+        `0x${k.tableAddr.toString(16).toUpperCase()} in the CARTMAN 21 Charger 6.2 RFHUB OG read ` +
+        `(SEC16 DE4BBD2F5A1D73647EB2192D01E4F88C). The matching CARTMAN BCM (VIN 2C3CDZL95NH179529) ` +
+        `embeds reverse(this SEC16) @0xC9 — paired into that immobilizer. Not independently fob-tested.`,
+    }),
+  ),
+]);
+
+/* ════════════════════════ PENDING — alt transponder family ════════════════
+ * These are NOT in KNOWN_WORKING_KEYS and are NEVER classified known-good.
+ *
+ * VIN 2C3CDXCT1HH652640 (a 2020 6.2 Redeye) carries THREE key records in slots
+ * 6-8 whose RFHUB-table flag is 0x03 instead of 0x01. The parser recognizes
+ * them as REAL keys of a DIFFERENT transponder family than the 0x01 Hitag2
+ * keys (`state:'key'`, `keyKind:'alt'` — see charRfhubKeyTable.js FLAG 0x03
+ * box). They are the only keys on this car, so they DO start it.
+ *
+ * That makes them ELIGIBLE for the known-good registry, but they are deliberately
+ * staged here and NOT promoted, because a real KNOWN_WORKING_KEYS entry needs a
+ * chip family (`chipId`) and per-chip secret (`sk`) — and for this alternate
+ * family those are NOT bench-confirmed. Reusing the Hitag2 id46 / universal
+ * MIKRON (`4F4E4D494B52`) values the 0x01 sibling blocks use would be a LIE and
+ * would break refuse-on-doubt (`classifyAgainstRegistry` would falsely return
+ * 'known-good'). So `chipId` and `sk` are left `null` here.
+ *
+ * What IS bench-true and recorded verbatim (asserted byte-for-byte against the
+ * fixtures in knownWorkingKeys.golden.test.js): each key's UID (BE keyId + LE
+ * revUid), RFHUB-table index byte, flag 0x03, slot offset, and that both the
+ * OG and PFLASH reads of this VIN carry the identical three (mirror-verified,
+ * unknownCount 0). VIN-scoped to 2C3CDXCT1HH652640.
+ *
+ * To PROMOTE: bench-read one physical alt-family fob from a 652640-class car
+ * (Autel/VVDI) to get its chip family + SK, fill `chipId`/`sk` on these entries,
+ * move them into KNOWN_WORKING_KEYS, and drop the golden test's pending guards.
+ * ════════════════════════════════════════════════════════════════════════════ */
+export const PENDING_ALT_FAMILY_KEYS = Object.freeze(
+  [
+    { keyId: 'BFA40065', revUid: '6500A4BF', tableIndex: 0x32, tableAddr: 0x0CAE, slot: 6 },
+    { keyId: '2369DA69', revUid: '69DA6923', tableIndex: 0x2B, tableAddr: 0x0CBE, slot: 7 },
+    { keyId: '1248C964', revUid: '64C94812', tableIndex: 0x73, tableAddr: 0x0CCE, slot: 8 },
+  ].map((k) =>
+    Object.freeze({
+      id: `alt-pending-2C3CDXCT1HH652640-${k.keyId}`,
+      vin: '2C3CDXCT1HH652640',
+      keyId: k.keyId,
+      revUid: k.revUid,
+      // Unconfirmed alternate transponder family. Left null on purpose — see the
+      // block header. A null chipId means knownKeyToRecord() refuses to build a
+      // record and classifyAgainstRegistry() can never call this known-good.
+      chipId: null,
+      sk: null,
+      keyKind: 'alt',
+      flags: null,
+      tableIndex: k.tableIndex,
+      tableFlag: 0x03,
+      tableAddr: k.tableAddr,
+      vehicle: '2020 Charger 6.2 Redeye (RFHUB EEPROM)',
+      pending: true,
+      needs: Object.freeze(['chipId', 'sk']),
+      provenance:
+        `Alternate-family key (flag 0x03, mirror-verified) at slot ${k.slot} / ` +
+        `0x${k.tableAddr.toString(16).toUpperCase()} in the OG + PFLASH RFHUB reads of VIN ` +
+        `2C3CDXCT1HH652640 (2020 6.2 Redeye). Recognized as a real key (keyKind 'alt') of a ` +
+        `transponder family DIFFERENT from the 0x01 Hitag2 keys; the only keys on this car, so it ` +
+        `starts it. Chip family + per-chip SK are NOT bench-confirmed, so this is staged as PENDING ` +
+        `and is NEVER treated as known-good until a bench read of one alt fob fills chipId + SK.`,
+    }),
+  ),
+);
+
+/* Normalize a hex token the same way dedupeKey / validateKeyRecord do: strip
+ * separators + an optional 0x prefix, uppercase. */
+function normHex(s) {
+  return String(s == null ? '' : s).replace(/^0x/i, '').replace(/[\s:_-]/g, '').toUpperCase();
+}
+
+function normChip(s) {
+  return String(s == null ? '' : s).toLowerCase();
+}
+
+/* All-FF / all-00 over the parsed nibbles → "blank", refuse to classify. */
+function isBlankHex(h) {
+  if (!h || h.length === 0) return true;
+  return /^(?:FF)+$/.test(h) || /^(?:00)+$/.test(h);
+}
+
+/* A well-formed byte string: non-empty, even nibble count, hex only. Anything
+ * else (stray non-hex chars, odd length) is malformed → refuse-on-doubt. */
+function isValidHexBytes(h) {
+  return !!h && h.length % 2 === 0 && /^[0-9A-F]+$/.test(h);
+}
+
+/** A human label for an entry (used by the UI list + prefill). */
+export function knownKeyLabel(entry) {
+  if (!entry) return '';
+  return `${entry.vehicle} — known-good ${entry.keyId}`;
+}
+
+/** True if the supplied {index|revUid|keyId} is the empty-slot sentinel. */
+export function isEmptySlotMarker({ index, revUid, keyId } = {}) {
+  if (Number.isInteger(index) && index === EMPTY_SLOT_MARKER.index) return true;
+  const r = normHex(revUid != null ? revUid : keyId);
+  return r === EMPTY_SLOT_MARKER.revUid;
+}
+
+/* Look up a single entry by id. Returns null when absent. */
+export function getKnownWorkingKeyById(id) {
+  if (!id) return null;
+  return KNOWN_WORKING_KEYS.find((e) => e.id === id) || null;
+}
+
+/**
+ * Return the known-good keys applicable to `vin`: every global entry (vin ==
+ * null) plus any entry whose VIN matches the normalized argument. With no /
+ * invalid VIN, only the globals are returned. Result is a fresh array.
+ */
+export function getKnownWorkingKeys(vin) {
+  const norm = normalizeVin(vin);
+  return KNOWN_WORKING_KEYS.filter((e) => !e.vin || (norm && e.vin === norm));
+}
+
+/**
+ * Return the PENDING alternate-family keys applicable to `vin` (a fresh array).
+ * These are recognized real keys whose chip family + SK are NOT bench-confirmed,
+ * so they are recorded for provenance but are NEVER known-good (chipId/sk null).
+ * They live OUTSIDE KNOWN_WORKING_KEYS, so getKnownWorkingKeys /
+ * classifyAgainstRegistry never see them — call this explicitly to surface them.
+ */
+export function getPendingAltFamilyKeys(vin) {
+  const norm = normalizeVin(vin);
+  return PENDING_ALT_FAMILY_KEYS.filter((e) => norm && e.vin === norm);
+}
+
+/**
+ * Classify a captured/typed key record against the registry.
+ *
+ * Returns { status, entry, mismatchedFields }:
+ *   'known-good' — chipId + UID + SK all match a registry entry.
+ *   'mismatch'   — UID matches a registry entry but chipId and/or SK differ
+ *                  (mismatchedFields lists which: 'chipId' / 'sk').
+ *   'unknown'    — no registry entry shares this UID, OR the input is blank /
+ *                  unparseable / the empty-slot sentinel (refuse-on-doubt).
+ *
+ * UID comparison uses the BE keyId form the operator types into the Key Dump
+ * card (matching the placeholder "00 77 A2 9B"). `vin` scopes the candidate
+ * set the same way getKnownWorkingKeys does.
+ */
+export function classifyAgainstRegistry(record, vin) {
+  const uid = normHex(record?.uidHex);
+  const sk = normHex(record?.skHex);
+  const chip = normChip(record?.chipId);
+
+  // Refuse-on-doubt: need a well-formed, non-blank UID + SK + chip to say
+  // anything. Malformed hex (stray chars, odd length) is treated as unknown,
+  // never allowed to fall through to a UID-only 'mismatch'.
+  if (
+    !chip ||
+    !isValidHexBytes(uid) ||
+    !isValidHexBytes(sk) ||
+    isBlankHex(uid) ||
+    isBlankHex(sk)
+  ) {
+    return { status: 'unknown', entry: null, mismatchedFields: [] };
+  }
+  // The empty-slot sentinel is never a real key.
+  if (isEmptySlotMarker({ keyId: uid })) {
+    return { status: 'unknown', entry: null, mismatchedFields: [] };
+  }
+
+  const candidates = getKnownWorkingKeys(vin);
+  const entry = candidates.find((e) => normHex(e.keyId) === uid) || null;
+  if (!entry) return { status: 'unknown', entry: null, mismatchedFields: [] };
+
+  const mismatchedFields = [];
+  if (normChip(entry.chipId) !== chip) mismatchedFields.push('chipId');
+  if (normHex(entry.sk) !== sk) mismatchedFields.push('sk');
+
+  if (mismatchedFields.length === 0) {
+    return { status: 'known-good', entry, mismatchedFields: [] };
+  }
+  return { status: 'mismatch', entry, mismatchedFields };
+}
+
+/**
+ * Build a fresh, editable makeKeyRecord from a registry entry, for prefilling
+ * the Key Dump card. UID = the BE keyId; SK = the documented per-transponder
+ * secret (NEVER SEC16). Returns null when the entry's chip family is unknown
+ * (refuse-on-doubt — a record we couldn't validate is useless for prefill).
+ */
+export function knownKeyToRecord(entry) {
+  if (!entry || !chipFamily(entry.chipId)) return null;
+  return makeKeyRecord({
+    chipId: entry.chipId,
+    uidHex: entry.keyId,
+    skHex: entry.sk,
+    flags: entry.flags,
+    label: knownKeyLabel(entry),
+  });
+}

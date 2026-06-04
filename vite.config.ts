@@ -159,6 +159,7 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      "@workspace/uds": path.resolve(import.meta.dirname, "client", "src", "srtlab", "lib", "workspace-uds", "index.ts"),
     },
   },
   envDir: path.resolve(import.meta.dirname),

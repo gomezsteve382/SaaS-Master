@@ -1,0 +1,9 @@
+// AUTO-GENERATED data file. DO NOT EDIT BY HAND.
+// Source: attached_assets/alfaobd-package-2026-05-25/vin-offset-correction.json
+//
+// CORRECTION to vin-offset-database.json's BCM_CHRYSLER claims.
+// The package claimed VIN at 0x100/0x200; the actual 2019 Hellcat BCM dump
+// stores VIN at 0x52E8/0x5308/0x5328/0x5348 (4 copies, stride 0x20) with a
+// previously-undocumented record-prefix structure.
+
+export const VIN_OFFSET_CORRECTION = {"topic":"BCM_CHRYSLER VIN offset correction","verified_against":"2019 Dodge Charger SRT Hellcat BCM dump","package_claim":{"primary_vin_offset":"0x100","backup_vin_offset":"0x200","crc_offsets":["0x112","0x212"],"crc_algorithm":"CRC-16-CCITT"},"actual_in_dump":{"vin_offsets_x4":["0x52E8","0x5308","0x5328","0x5348"],"vin_offset_stride":"0x20","bytes_at_claimed_0x100":"all 0xFF (uninitialized)","bytes_at_claimed_0x200":"all 0xFF (uninitialized)","record_structure":{"header_8_bytes":"00 00 00 20 00 46 <type_byte> 00","type_byte_per_record":{"0x47 (FG)":"0x52E8","0x56 (FV)":"0x5308","0x57 (FW)":"0x5328","0x52 (FR)":"0x5348"},"vin_bytes":"17 ASCII chars after header","trailing_7_bytes":"suspected CRC + version + sequence"}},"package_metadata_caveat_was_correct":"vin-offset-database.json says: Offsets based on known patterns and user knowledge - not extracted from real dumps.","recommendation":"Treat vin-offset-database.json claims as CLAIMED pending per-dump verification."};

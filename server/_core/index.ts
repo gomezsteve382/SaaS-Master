@@ -36,6 +36,88 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+
+  // --- /api/backups REST endpoint (used by client-side audit.js) ---
+  {
+    const { createBackup, listBackups, getBackupByKey, deleteBackupByKey, deleteAllBackups } = await import("../db");
+
+    // POST /api/backups — create or upsert a backup
+    app.post("/api/backups", async (req, res) => {
+      try {
+        const body = req.body || {};
+        const backupKey = body.id || body.key;
+        if (!backupKey || !body.module) {
+          return res.status(400).json({ error: "Missing required fields: id, module" });
+        }
+        await createBackup({
+          backupKey,
+          userId: null, // backups are not user-scoped in SRT Lab
+          module: body.module,
+          vin: body.vin || null,
+          didCount: body.didCount ?? 0,
+          tx: body.tx ?? null,
+          rx: body.rx ?? null,
+          timestamp: body.timestamp || null,
+          checksum: body.checksum || null,
+          snapshotKind: body.snapshotKind || null,
+          preWriteKey: body.preWriteKey || null,
+          payload: body.payload || null,
+        });
+        return res.json({ ok: true, id: backupKey });
+      } catch (e: any) {
+        console.error("[/api/backups POST]", e);
+        return res.status(500).json({ error: e.message || "Internal error" });
+      }
+    });
+
+    // GET /api/backups — list all backups
+    app.get("/api/backups", async (_req, res) => {
+      try {
+        const list = await listBackups();
+        return res.json({ backups: list });
+      } catch (e: any) {
+        console.error("[/api/backups GET]", e);
+        return res.status(500).json({ error: e.message || "Internal error" });
+      }
+    });
+
+    // GET /api/backups/:id — get a single backup payload
+    app.get("/api/backups/:id", async (req, res) => {
+      try {
+        const key = decodeURIComponent(req.params.id);
+        const record = await getBackupByKey(key);
+        if (!record) return res.status(404).json({ error: "Not found" });
+        return res.json({ id: record.backupKey, payload: record.payload });
+      } catch (e: any) {
+        console.error("[/api/backups/:id GET]", e);
+        return res.status(500).json({ error: e.message || "Internal error" });
+      }
+    });
+
+    // DELETE /api/backups/:id — delete a single backup
+    app.delete("/api/backups/:id", async (req, res) => {
+      try {
+        const key = decodeURIComponent(req.params.id);
+        await deleteBackupByKey(key);
+        return res.json({ ok: true });
+      } catch (e: any) {
+        console.error("[/api/backups/:id DELETE]", e);
+        return res.status(500).json({ error: e.message || "Internal error" });
+      }
+    });
+
+    // DELETE /api/backups — clear all backups
+    app.delete("/api/backups", async (_req, res) => {
+      try {
+        await deleteAllBackups();
+        return res.json({ ok: true });
+      } catch (e: any) {
+        console.error("[/api/backups DELETE all]", e);
+        return res.status(500).json({ error: e.message || "Internal error" });
+      }
+    });
+  }
+
   // tRPC API
   app.use(
     "/api/trpc",

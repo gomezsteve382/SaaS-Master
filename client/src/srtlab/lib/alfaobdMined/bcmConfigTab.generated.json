@@ -1,0 +1,2133 @@
+{
+  "_meta": {
+    "generator": "scripts/src/mine-alfaobd.mjs",
+    "sourceExe": "AlfaOBD_1777785510544.exe",
+    "miningMethod": "string-anchored scrape from triage document + DE_FEATURE_CATALOG (bcmFeatureCatalog.generated.js, sourced from BCMConfiguration.tsx) cross-referenced with BODY_PN_CONFIG catalog",
+    "generatedAt": "2026-05-03",
+    "optionCount": 155,
+    "groupCount": 13,
+    "didFamily": "DE00..DE0C",
+    "outOfScope": [
+      "EU diesel modules",
+      "PCM",
+      "TCM",
+      "ABS",
+      "IPC",
+      "RFHub",
+      "EPS",
+      "airbag",
+      "W7 platform BCM"
+    ],
+    "sourceExeSha256": "62bad674ae502d61a6908c53bd16b9765adfe2a19dc47d2a19000750e99b4c19",
+    "confirmedDids": []
+  },
+  "groups": [
+    {
+      "groupName": "Lighting Configuration",
+      "did": "0xDE00",
+      "order": 0,
+      "options": [
+        {
+          "name": "Daytime Running Lights Mode",
+          "bit": 0,
+          "length": 3,
+          "valueMap": {
+            "0": "Off",
+            "1": "Low Beam",
+            "2": "High Beam Dimmed",
+            "3": "LED DRL",
+            "4": "Fog Lights"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "DRL Intensity",
+          "bit": 3,
+          "length": 7,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Headlight Auto-Off Delay",
+          "bit": 10,
+          "length": 8,
+          "valueMap": {
+            "0": "Off",
+            "30": "30 sec",
+            "60": "60 sec",
+            "90": "90 sec",
+            "120": "2 min",
+            "180": "3 min"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Auto Headlights Sensitivity",
+          "bit": 18,
+          "length": 3,
+          "valueMap": {
+            "1": "Early",
+            "2": "Medium Early",
+            "3": "Normal",
+            "4": "Medium Late",
+            "5": "Late"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Flash-to-Pass",
+          "bit": 21,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Cornering Lights",
+          "bit": 22,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Lights Flash on Lock",
+          "bit": 23,
+          "length": 2,
+          "valueMap": {
+            "0": "Off",
+            "1": "Park Lights",
+            "2": "Headlights"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Welcome Lights",
+          "bit": 25,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Fog Light Mode",
+          "bit": 26,
+          "length": 2,
+          "valueMap": {
+            "0": "Standard",
+            "1": "With High Beams",
+            "2": "As DRL"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Puddle Lamp Duration",
+          "bit": 28,
+          "length": 8,
+          "valueMap": {
+            "0": "Off",
+            "15": "15 sec",
+            "30": "30 sec",
+            "60": "60 sec",
+            "90": "90 sec"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Puddle Lamp Brightness",
+          "bit": 36,
+          "length": 7,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Ambient Light Color",
+          "bit": 43,
+          "length": 4,
+          "valueMap": {
+            "0": "White",
+            "1": "Red",
+            "2": "Blue",
+            "3": "Green",
+            "4": "Cyan",
+            "5": "Purple",
+            "6": "Orange",
+            "7": "Custom"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Ambient Light Brightness",
+          "bit": 47,
+          "length": 7,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Ambient Light Zone Control",
+          "bit": 54,
+          "length": 3,
+          "valueMap": {
+            "0": "All",
+            "1": "Front",
+            "2": "Rear",
+            "3": "Left",
+            "4": "Right",
+            "5": "Individual"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "LED Signature Lights",
+          "bit": 57,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Tail Light Mode",
+          "bit": 58,
+          "length": 2,
+          "valueMap": {
+            "0": "Standard",
+            "1": "European",
+            "2": "Sequential"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Third Brake Light Flash",
+          "bit": 60,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Third Brake Flash Count",
+          "bit": 61,
+          "length": 4,
+          "valueMap": {
+            "3": "3 flashes",
+            "4": "4 flashes",
+            "5": "5 flashes",
+            "6": "6 flashes"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Hard Braking Flash",
+          "bit": 65,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Headlight On Reminder Chime",
+          "bit": 66,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    },
+    {
+      "groupName": "Door Lock Configuration",
+      "did": "0xDE01",
+      "order": 1,
+      "options": [
+        {
+          "name": "Auto Lock Speed",
+          "bit": 0,
+          "length": 8,
+          "valueMap": {
+            "0": "Off",
+            "15": "15 mph",
+            "20": "20 mph",
+            "25": "25 mph"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Auto Unlock in Park",
+          "bit": 8,
+          "length": 2,
+          "valueMap": {
+            "0": "Off",
+            "1": "Driver Only",
+            "2": "All Doors"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Re-lock Timer",
+          "bit": 10,
+          "length": 8,
+          "valueMap": {
+            "0": "Off",
+            "30": "30 sec",
+            "60": "60 sec",
+            "120": "2 min",
+            "300": "5 min"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "First Unlock",
+          "bit": 18,
+          "length": 1,
+          "valueMap": {
+            "0": "All Doors",
+            "1": "Driver Only"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Passive Entry",
+          "bit": 19,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Passive Entry Zones",
+          "bit": 20,
+          "length": 3,
+          "valueMap": {
+            "0": "All",
+            "1": "Front",
+            "2": "Rear",
+            "3": "Tailgate"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Passive Entry Timeout",
+          "bit": 23,
+          "length": 8,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Fob Range Sensitivity",
+          "bit": 31,
+          "length": 3,
+          "valueMap": {
+            "1": "Short",
+            "2": "Medium",
+            "3": "Long",
+            "4": "Max"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Remote Lock Feedback",
+          "bit": 34,
+          "length": 2,
+          "valueMap": {
+            "0": "None",
+            "1": "Lights Only",
+            "2": "Horn+Lights",
+            "3": "Chirp+Lights"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Door Ajar Threshold",
+          "bit": 36,
+          "length": 8,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Door Ajar Warning Chime",
+          "bit": 44,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Trunk Auto Lock on Drive",
+          "bit": 45,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    },
+    {
+      "groupName": "Horn & Sound Configuration",
+      "did": "0xDE02",
+      "order": 2,
+      "options": [
+        {
+          "name": "Horn on Lock",
+          "bit": 0,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Horn on Arm",
+          "bit": 1,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Chime Volume",
+          "bit": 2,
+          "length": 3,
+          "valueMap": {
+            "1": "Low",
+            "2": "Medium",
+            "3": "High",
+            "4": "Max"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Turn Signal Volume",
+          "bit": 5,
+          "length": 3,
+          "valueMap": {
+            "0": "Off",
+            "1": "Low",
+            "2": "Medium",
+            "3": "High"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Seatbelt Warning Chime",
+          "bit": 8,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Seatbelt Warning Delay",
+          "bit": 9,
+          "length": 8,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Key in Ignition Chime",
+          "bit": 17,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Startup Sound",
+          "bit": 18,
+          "length": 2,
+          "valueMap": {
+            "0": "Off",
+            "1": "Standard",
+            "2": "Performance"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Parking Sensor Volume",
+          "bit": 20,
+          "length": 3,
+          "valueMap": {
+            "0": "Off",
+            "1": "Low",
+            "2": "Medium",
+            "3": "High"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    },
+    {
+      "groupName": "Comfort & Convenience",
+      "did": "0xDE03",
+      "order": 3,
+      "options": [
+        {
+          "name": "Easy Entry/Exit",
+          "bit": 0,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Memory Seat Profiles",
+          "bit": 1,
+          "length": 2,
+          "valueMap": {
+            "1": "1 Profile",
+            "2": "2 Profiles",
+            "3": "3 Profiles"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Memory Seat Fob Link",
+          "bit": 3,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Pedal Position Memory",
+          "bit": 4,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Heated Seats Auto On",
+          "bit": 5,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Heated Steering Auto On",
+          "bit": 6,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Ventilated Seats Auto On",
+          "bit": 7,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Remote Start Climate Control",
+          "bit": 8,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Remote Start Runtime",
+          "bit": 9,
+          "length": 8,
+          "valueMap": {
+            "10": "10 min",
+            "15": "15 min",
+            "20": "20 min",
+            "30": "30 min"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Remote Start Extend",
+          "bit": 17,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Remote Start Heated Features",
+          "bit": 18,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Steering Wheel Position Memory",
+          "bit": 19,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    },
+    {
+      "groupName": "Window & Sunroof Configuration",
+      "did": "0xDE04",
+      "order": 4,
+      "options": [
+        {
+          "name": "Express Down Driver",
+          "bit": 0,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Express Down Passenger",
+          "bit": 1,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Express Down Rear",
+          "bit": 2,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Comfort Windows Down (Remote)",
+          "bit": 3,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Comfort Windows Up (Remote)",
+          "bit": 4,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Remote Windows Control",
+          "bit": 5,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Retained Power Windows",
+          "bit": 6,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Pinch Protection Sensitivity",
+          "bit": 7,
+          "length": 3,
+          "valueMap": {
+            "1": "Low",
+            "2": "Medium",
+            "3": "High"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Rain Close Windows",
+          "bit": 10,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Sunroof Express Open",
+          "bit": 11,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Sunroof Express Close",
+          "bit": 12,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    },
+    {
+      "groupName": "Mirror Configuration",
+      "did": "0xDE05",
+      "order": 5,
+      "options": [
+        {
+          "name": "Mirror Fold on Lock",
+          "bit": 0,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Mirror Dip in Reverse",
+          "bit": 1,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Mirror Position in Reverse",
+          "bit": 2,
+          "length": 2,
+          "valueMap": {
+            "0": "Off",
+            "1": "Curb View",
+            "2": "Down"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Heated Mirrors Auto",
+          "bit": 4,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Memory Mirror Driver",
+          "bit": 5,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Mirror Unfolding on Unlock",
+          "bit": 6,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Passenger Mirror Control",
+          "bit": 7,
+          "length": 1,
+          "valueMap": {
+            "0": "Driver Controls",
+            "1": "Independent"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Auto Dim Mirror",
+          "bit": 8,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    },
+    {
+      "groupName": "Wiper Configuration",
+      "did": "0xDE06",
+      "order": 6,
+      "options": [
+        {
+          "name": "Rain-Sensing Wipers",
+          "bit": 0,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Rain Sensor Sensitivity",
+          "bit": 1,
+          "length": 3,
+          "valueMap": {
+            "1": "Low",
+            "2": "Medium",
+            "3": "High"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Wiper Speed on Reverse",
+          "bit": 4,
+          "length": 1,
+          "valueMap": {
+            "0": "Off",
+            "1": "Single Wipe"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Rear Wiper Auto on Reverse",
+          "bit": 5,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Washer Delay Wipe",
+          "bit": 6,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Wiper Park Position",
+          "bit": 7,
+          "length": 1,
+          "valueMap": {
+            "0": "Standard",
+            "1": "Service (vertical)"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    },
+    {
+      "groupName": "Engine & Start Configuration",
+      "did": "0xDE07",
+      "order": 7,
+      "options": [
+        {
+          "name": "Push-Button Start",
+          "bit": 0,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Auto Start-Stop (ESS)",
+          "bit": 1,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "ESS Default State",
+          "bit": 2,
+          "length": 1,
+          "valueMap": {
+            "0": "On (driver must disable)",
+            "1": "Off (driver must enable)"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Remote Start Enable",
+          "bit": 3,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Trans-Brake",
+          "bit": 4,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign",
+            "ecuReset"
+          ],
+          "requiresReset": true,
+          "note": "SRT/Demon vehicles only — requires compatible TCM and powertrain tune"
+        },
+        {
+          "name": "Launch Control Enable",
+          "bit": 5,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Anti-Theft Horn Chirp",
+          "bit": 6,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Idle Speed Bump",
+          "bit": 7,
+          "length": 8,
+          "valueMap": {
+            "0": "Off",
+            "50": "+50 RPM",
+            "100": "+100 RPM",
+            "150": "+150 RPM"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        }
+      ]
+    },
+    {
+      "groupName": "Display & Cluster Configuration",
+      "did": "0xDE08",
+      "order": 8,
+      "options": [
+        {
+          "name": "Speedometer Units",
+          "bit": 0,
+          "length": 2,
+          "valueMap": {
+            "0": "MPH",
+            "1": "km/h",
+            "2": "MPH + km/h"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Temperature Units",
+          "bit": 2,
+          "length": 1,
+          "valueMap": {
+            "0": "Fahrenheit",
+            "1": "Celsius"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Fuel Economy Units",
+          "bit": 3,
+          "length": 2,
+          "valueMap": {
+            "0": "MPG",
+            "1": "L/100km",
+            "2": "km/L"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Pressure Units",
+          "bit": 5,
+          "length": 2,
+          "valueMap": {
+            "0": "PSI",
+            "1": "kPa",
+            "2": "Bar"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Distance Units",
+          "bit": 7,
+          "length": 1,
+          "valueMap": {
+            "0": "Miles",
+            "1": "Kilometres"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Language",
+          "bit": 8,
+          "length": 4,
+          "valueMap": {
+            "0": "English",
+            "1": "French",
+            "2": "Spanish",
+            "3": "German",
+            "4": "Italian",
+            "5": "Portuguese"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Tachometer Sweep on Start",
+          "bit": 12,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Shift Light Enable",
+          "bit": 13,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Shift Light RPM",
+          "bit": 14,
+          "length": 8,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Heads-Up Display Enable",
+          "bit": 22,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "HUD Brightness",
+          "bit": 23,
+          "length": 7,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Night Mode Auto",
+          "bit": 30,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Lap Timer Display",
+          "bit": 31,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "G-Force Display",
+          "bit": 32,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Dyno Mode Display",
+          "bit": 33,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    },
+    {
+      "groupName": "Security & Alarm Configuration",
+      "did": "0xDE09",
+      "order": 9,
+      "options": [
+        {
+          "name": "Perimeter Alarm",
+          "bit": 0,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Intrusion Sensor",
+          "bit": 1,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Tilt Sensor",
+          "bit": 2,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Valet Mode Pin",
+          "bit": 3,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Horn Panic Duration",
+          "bit": 4,
+          "length": 8,
+          "valueMap": {
+            "0": "Off",
+            "30": "30 sec",
+            "60": "60 sec",
+            "120": "2 min"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Alarm Rearm Timeout",
+          "bit": 12,
+          "length": 8,
+          "valueMap": {
+            "0": "Off",
+            "30": "30 sec",
+            "60": "60 sec",
+            "300": "5 min"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Motion Sensor Alarm",
+          "bit": 20,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    },
+    {
+      "groupName": "Performance & SRT Configuration",
+      "did": "0xDE0A",
+      "order": 10,
+      "options": [
+        {
+          "name": "Line Lock Enable",
+          "bit": 0,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign",
+            "ecuReset"
+          ],
+          "requiresReset": true,
+          "note": "SRT/Scat Pack/Hellcat only"
+        },
+        {
+          "name": "Drag Race Mode",
+          "bit": 1,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Launch Control Mode",
+          "bit": 2,
+          "length": 2,
+          "valueMap": {
+            "0": "Off",
+            "1": "Standard",
+            "2": "Track",
+            "3": "Custom"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Launch RPM",
+          "bit": 4,
+          "length": 12,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Rev Match Enable",
+          "bit": 16,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Exhaust Mode Default",
+          "bit": 17,
+          "length": 2,
+          "valueMap": {
+            "0": "Quiet",
+            "1": "Normal",
+            "2": "Sport",
+            "3": "Track"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Active Exhaust Valves",
+          "bit": 19,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Track Mode Enable",
+          "bit": 20,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Custom Drive Mode Save",
+          "bit": 21,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Paddle Shift Response",
+          "bit": 22,
+          "length": 2,
+          "valueMap": {
+            "0": "Normal",
+            "1": "Fast",
+            "2": "Race"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Suspension Mode Default",
+          "bit": 24,
+          "length": 2,
+          "valueMap": {
+            "0": "Comfort",
+            "1": "Normal",
+            "2": "Sport",
+            "3": "Track"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Torque Reserve Enable",
+          "bit": 26,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Cylinder Deactivation Enable",
+          "bit": 27,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Supercharger Boost Display",
+          "bit": 28,
+          "length": 1,
+          "valueMap": {
+            "0": "Hidden",
+            "1": "Shown"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Race Mode Pages",
+          "bit": 29,
+          "length": 3,
+          "valueMap": {
+            "0": "None",
+            "1": "Lap Timer",
+            "2": "G-Force",
+            "3": "Lap+G",
+            "4": "Drag",
+            "5": "Full Race"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Intercooler Spray Enable",
+          "bit": 32,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Drag Strip Mode",
+          "bit": 33,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Trans-Brake Hold Time",
+          "bit": 34,
+          "length": 8,
+          "valueMap": {
+            "0": "Off",
+            "2": "2 sec",
+            "3": "3 sec",
+            "5": "5 sec"
+          },
+          "postWrite": [
+            "proxiAlign",
+            "ecuReset"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Launch Control Traction Target",
+          "bit": 42,
+          "length": 8,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Cooling Fan Aggressive Mode",
+          "bit": 50,
+          "length": 1,
+          "valueMap": {
+            "0": "Standard",
+            "1": "Track (always max)"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Stability Control Sport Mode",
+          "bit": 51,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Performance Traction Management",
+          "bit": 52,
+          "length": 2,
+          "valueMap": {
+            "0": "Off",
+            "1": "Street",
+            "2": "Sport",
+            "3": "Track"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Nitrous Oxide Relay Control",
+          "bit": 54,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": true,
+          "note": "Reserved / not on all trims"
+        },
+        {
+          "name": "Race Attendance Confirmation",
+          "bit": 55,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Hard Acceleration Detection",
+          "bit": 56,
+          "length": 2,
+          "valueMap": {
+            "0": "Off",
+            "1": "1.0g",
+            "2": "1.2g",
+            "3": "1.5g"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Transmission Shift Firmness",
+          "bit": 58,
+          "length": 2,
+          "valueMap": {
+            "0": "Comfort",
+            "1": "Normal",
+            "2": "Sport",
+            "3": "Race"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Engine Brake Mode",
+          "bit": 60,
+          "length": 2,
+          "valueMap": {
+            "0": "Off",
+            "1": "Light",
+            "2": "Medium",
+            "3": "Heavy"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Demon Mode Enable",
+          "bit": 62,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign",
+            "ecuReset"
+          ],
+          "requiresReset": true,
+          "note": "Dodge Demon 170 only — requires Demon Crate dongle in factory configuration"
+        },
+        {
+          "name": "Drag Race Handicap Timer",
+          "bit": 63,
+          "length": 8,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Supercharger Belt Monitor",
+          "bit": 71,
+          "length": 1,
+          "valueMap": {
+            "0": "Off",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Throttle Response",
+          "bit": 72,
+          "length": 2,
+          "valueMap": {
+            "0": "Comfort",
+            "1": "Sport",
+            "2": "Track"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Supercharger Temp Display",
+          "bit": 74,
+          "length": 1,
+          "valueMap": {
+            "0": "Hidden",
+            "1": "Shown"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Intercooler Temp Display",
+          "bit": 75,
+          "length": 1,
+          "valueMap": {
+            "0": "Hidden",
+            "1": "Shown"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Brake Temperature Warning",
+          "bit": 76,
+          "length": 1,
+          "valueMap": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Widebody Enabled",
+          "bit": 77,
+          "length": 1,
+          "valueMap": {
+            "0": "Standard",
+            "1": "Widebody"
+          },
+          "postWrite": [
+            "proxiAlign",
+            "ecuReset"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Power Modes Available",
+          "bit": 78,
+          "length": 3,
+          "valueMap": {
+            "0": "Standard",
+            "1": "Street",
+            "2": "Sport",
+            "3": "Track",
+            "4": "Custom",
+            "5": "Eco",
+            "6": "Snow",
+            "7": "Tow"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    },
+    {
+      "groupName": "Vehicle Configuration",
+      "did": "0xDE0B",
+      "order": 11,
+      "options": [
+        {
+          "name": "Vehicle Trim Level",
+          "bit": 0,
+          "length": 4,
+          "valueMap": {
+            "0": "Base",
+            "1": "SXT",
+            "2": "GT",
+            "3": "R/T",
+            "4": "Scat Pack",
+            "5": "SRT",
+            "6": "Hellcat",
+            "7": "Redeye",
+            "8": "Jailbreak",
+            "9": "Demon"
+          },
+          "postWrite": [
+            "proxiAlign",
+            "ecuReset"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Engine Variant",
+          "bit": 4,
+          "length": 4,
+          "valueMap": {
+            "0": "3.6L V6",
+            "1": "5.7L V8",
+            "2": "6.2L SC V8",
+            "3": "6.4L V8",
+            "4": "6.2L Redeye",
+            "5": "6.2L Demon"
+          },
+          "postWrite": [
+            "proxiAlign",
+            "ecuReset"
+          ],
+          "requiresReset": true
+        },
+        {
+          "name": "Power Liftgate Height",
+          "bit": 8,
+          "length": 8,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    },
+    {
+      "groupName": "TPMS Configuration",
+      "did": "0xDE0C",
+      "order": 12,
+      "options": [
+        {
+          "name": "Tire Pressure Warning Threshold",
+          "bit": 0,
+          "length": 8,
+          "valueMap": {},
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        },
+        {
+          "name": "Tire Pressure Display Units",
+          "bit": 8,
+          "length": 2,
+          "valueMap": {
+            "0": "PSI",
+            "1": "kPa",
+            "2": "Bar"
+          },
+          "postWrite": [
+            "proxiAlign"
+          ],
+          "requiresReset": false
+        }
+      ]
+    }
+  ]
+}

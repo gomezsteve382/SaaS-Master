@@ -1,0 +1,29 @@
+{
+  "version": "2.1.0",
+  "filename": "srt_lab.py",
+  "sizeBytes": 41643,
+  "sha256": "83ae6943b361c745525185457cdc4834badca34fe4ac6a46116268bcaf0b1fb6",
+  "lastUpdated": "2026-06-02",
+  "changelog": [
+    {
+      "version": "2.1.0",
+      "date": "2026-04-17",
+      "notes": "Swapped to J2534 build for Autel IM608 / MaxiFlash on Windows — drops WebSerial/ELM327 path, talks directly to the J2534 DLL."
+    },
+    {
+      "version": "2.0.0",
+      "date": "2026-04-17",
+      "notes": "Direct J2534 BCM VIN programmer — 17 FCA security algorithms, BCM auto-discovery, one-shot bcm-write."
+    },
+    {
+      "version": "1.4.0",
+      "date": "2026-03-22",
+      "notes": "Added passive CAN monitor (monitor --duration) and verbose scan -v with full TX/RX log."
+    },
+    {
+      "version": "1.3.0",
+      "date": "2026-02-28",
+      "notes": "Probe-by-address (--tx/--rx), named-module read, Autel MaxiPro + DrewTech driver support."
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "_meta": {
+    "title": "VVDI Mini happy-path burn trace (synthetic-but-pinned)",
+    "source": "Bytes computed by calling buildPingRequest/buildDetectRequest/buildBurnRequest/buildVerifyRequest against the canonical inputs below. Re-derived in the contract test so a drift in any serializer fails this fixture immediately.",
+    "verified_against_hardware": false,
+    "notes": [
+      "Pins the exact wire-level request/response pairs the bridge emits during a happy-path PING -> DETECT -> BURN -> VERIFY exchange.",
+      "Chip = PCF7953 (uidBytes=4, payloadBytes=4 → 8 B id block — matches RFHUB KEY_ID_BLOCK_LEN).",
+      "BURN payload shape: ord(1)+uidLen(1)+payloadLen(1)+UID(4)+PAYLOAD(4)+SEC16(16) = 27 B; LEN = 1(CMD)+27 = 0x1C; full frame = hdr(2)+LEN(2)+CMD(1)+27+CK(1) = 33 B.",
+      "Once a real VVDI Mini capture is recorded, drop the bytes in place and flip _meta.verified_against_hardware to true."
+    ],
+    "inputs": {
+      "chipId": "pcf7953",
+      "writer": "vvdi-mini",
+      "slot_idBytes_hex": "11 22 33 44 55 66 77 88",
+      "secret16_hex":     "DD EE FF 00 11 22 33 44 55 66 77 88 99 AA BB CC"
+    }
+  },
+  "exchanges": [
+    {
+      "step": "ping",
+      "request_hex":  "5A A5 00 01 01 00",
+      "response_hex": "5A A5 00 05 80 00 01 00 00 84"
+    },
+    {
+      "step": "detect_chip",
+      "request_hex":  "5A A5 00 02 10 01 13",
+      "response_hex": "5A A5 00 03 80 00 01 82"
+    },
+    {
+      "step": "burn_key",
+      "request_hex":  "5A A5 00 1C 30 01 04 04 11 22 33 44 55 66 77 88 DD EE FF 00 11 22 33 44 55 66 77 88 99 AA BB CC A5",
+      "response_hex": "5A A5 00 02 80 00 82"
+    },
+    {
+      "step": "verify",
+      "request_hex":  "5A A5 00 1C 31 01 04 04 11 22 33 44 55 66 77 88 DD EE FF 00 11 22 33 44 55 66 77 88 99 AA BB CC A4",
+      "response_hex": "5A A5 00 02 80 00 82"
+    }
+  ]
+}

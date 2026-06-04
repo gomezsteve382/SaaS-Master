@@ -1,0 +1,42 @@
+# Example UDS session for analyzer fixture tests.
+# Format: [Req]/[Resp] with bare hex bytes (reqresp format).
+# Covers: DSC, SecurityAccess (with RTDNE + wrong key + successful unlock),
+# RDBI (VIN), WDBI, RoutineControl (general programming failure), ECUReset.
+
+# 1. Switch to extended diagnostic session.
+[Req] 10 03
+[Resp] 50 03 00 19 01 F4
+
+# 2. SecurityAccess seed request — ECU is still in its post-boot delay window.
+[Req] 27 01
+[Resp] 7F 27 37
+
+# 3. Retry seed request after the delay — ECU returns a seed.
+[Req] 27 01
+[Resp] 67 01 AA BB CC DD
+
+# 4. Send a wrong key — ECU rejects with Invalid Key.
+[Req] 27 02 00 00 00 00
+[Resp] 7F 27 35
+
+# 5. Request a fresh seed and send the correct key — ECU unlocks.
+[Req] 27 01
+[Resp] 67 01 11 22 33 44
+[Req] 27 02 DE AD BE EF
+[Resp] 67 02
+
+# 6. Read VIN via RDBI 0xF190 — ASCII "1C4HJXFG5KW501234".
+[Req] 22 F1 90
+[Resp] 62 F1 90 31 43 34 48 4A 58 46 47 35 4B 57 35 30 31 32 33 34
+
+# 7. Write VIN via WDBI 0xF190 — ECU accepts.
+[Req] 2E F1 90 31 43 34 48 4A 58 46 47 35 4B 57 35 30 31 32 33 34
+[Resp] 6E F1 90
+
+# 8. Start a routine (e.g. erase flash) — ECU returns General Programming Failure.
+[Req] 31 01 FF 00
+[Resp] 7F 31 72
+
+# 9. Hard ECU reset.
+[Req] 11 01
+[Resp] 51 01

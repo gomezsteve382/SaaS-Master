@@ -1,0 +1,42 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input:focus, button:focus {
+  outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D5D0C8;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B0AAA0;
+}
+
+/* Task #461 — keep VIN-input placeholders readable on the cream theme.
+ * The browser default placeholder is too light against C.c2 (#FAF9F7). */
+input.vin-input::placeholder {
+  color: #6E6E6E;
+  opacity: 1;
+  font-weight: 600;
+  letter-spacing: 1px;
+}

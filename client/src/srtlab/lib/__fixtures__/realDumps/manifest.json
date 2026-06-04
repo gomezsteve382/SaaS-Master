@@ -1,0 +1,81 @@
+{
+  "rfhSec16Hex": "86fa723776605a7da0c3abbb7cffbded",
+  "source": "Default RFH SEC16 used by the existing single BCM pair (anonymized BCM dump SAMPLE_BCM_SYNCED_2C3CDXL90MH582899). Per-pair entries below override this with their own captured SEC16 — see README.md for provenance + anonymization notes.",
+  "bcm": {
+    "before": "bcm.before.bin",
+    "after": "bcm.after.bin",
+    "anonVin": "2C3CDXL90MH582899",
+    "source": "Derived from src/__tests__/fixtures/SAMPLE_BCM_SYNCED_2C3CDXL90MH582899.bin (VIN already anonymized upstream — original donor VIN is unknown to this repo, so no `donorVin` is declared on this entry). Captured RFH SEC16 = 86fa72... extracted from BCM split records @ 0x81A0 (BCM SEC16 = edbdff7cbbabc3a07d5a60763772fa86 = reverse(RFH SEC16))."
+  },
+  "rfhub": {
+    "before": "rfhub.before.bin",
+    "after": "rfhub.after.bin",
+    "rfhSec16Hex": "816531f7cde32e33c25a415c8440c72a",
+    "anonVin": "2C3CDXCT1HH600000",
+    "donorVin": "2C3CDXCT1HH652640",
+    "source": "Anonymized real-bench RFHUB Gen2 (24C32, 4 KB) capture from attached_assets/RFH_20CHRGR6.2_KEYPROG_2C3CDXCT1HH652640.bin — VIN scrubbed (652640→600000) at 4 reverse-VIN slots (0xEA5/0xEB9/0xECD/0xEE1). 'after' = captured synced RFHUB. 'before' = same buffer with the two Gen2 SEC16 slots @ 0x050E and 0x0522 erased to 0xFF (16B SEC16 + 2B CS each)."
+  },
+  "rfhubEeePlus": {
+    "before": "rfhub-eeeplus/before.bin",
+    "after": "rfhub-eeeplus/after.bin",
+    "rfhSec16Hex": "f0b61be3c75bc294b624783af0aa5a55",
+    "anonVin": "2C3CDXL92KH600000",
+    "donorVin": "2C3CDXL92KH674464",
+    "source": "VERIFIED-PART-ONLY golden pin for EEE+ Gen2 RFHUB twinning. Anonymized real FCA SINCRO twinning of a 2019+ 'EEE+' Charger RFHUB (24C32, 4 KB) from attached_assets/RFH_HERMANADO_CHARGER_RFH_VIN_2C3CDXL92KH674464_1780515560334.bin, paired against attached_assets/CHARGER_BCM_VIN_2C3CDXL92KH674464_1780515582821.bin (BCM SEC16 = 555aaaf03a7824b694c25bc7e31bb6f0 = reverse(RFH SEC16)). VIN scrubbed (674464->600000) at the 4 reverse-VIN slots (0xEA5/0xEB9/0xECD/0xEE1) via scripts/anonymize-real-dump.mjs --module rfhub. 'after' = anonymized captured SINCRO image; 'before' = same buffer with the two Gen2 SEC16 slots @ 0x050E and 0x0522 (16B SEC16 + 2B CS each = 18B) erased to 0xFF. ONLY the 16-byte SEC16 PAYLOAD (= reverse(BCM)) is pinned by securityBytes.realDump.golden.test.js. KNOWN EEE+ gaps that are NOT pinned as writer output (asserted-as-different instead): (1) the SEC16 trailing checksum byte stores 0x05 here vs crc8_65=0xFD our writer emits; (2) no AA 55 31 01 Gen2 header @ 0x0500 (reads FF FF 00 00); (3) VIN-slot CRC/marker stamping differs. Writer logic intentionally unchanged."
+  },
+  "rfhubg1": {
+    "before": "rfhubg1.before.bin",
+    "after": "rfhubg1.after.bin",
+    "rfhSec16Hex": "1bcf824733a570096ed144fb27995a8c",
+    "anonVin": "2C3CDXCT5EH600003",
+    "donorVin": "2C3CDXCT5EH500003",
+    "source": "Task #449 — first RFHUB Gen1 (24C16, 2 KB Yazaki FCM EEPROM) before/after pair. Derived from the donor-style synthetic golden fixture src/lib/__tests__/__golden__/lx_charger_2014_fullhouse.bin (FreshAuto-style placeholder VIN 2C3CDXCT5EH500003, full 4-fob occupancy, distinct master SEC16 1bcf82…5a8c) — no physical 24C16 capture has landed yet. The donor VIN was scrubbed via `node scripts/anonymize-real-dump.mjs --module rfhubg1 --donor-vin 2C3CDXCT5EH500003 --anon-vin 2C3CDXCT5EH600003` (rewrote the single 0x92 plain-VIN slot + re-stamped the trailing CRC16 BE @ +17/+18). 'after' = the helper output (synced state, SEC16 mirrors @ 0x00AE/0x00C0 populated with 16B secret + 2B (crc8_65<<8)|0x00 CS). 'before' = same buffer with both SEC16 mirrors (16B + 2B CS = 18B each) erased to 0xFF, modeling the pre-pair state where the BCM hasn't yet stamped its master secret into the Gen1 hub."
+  },
+  "pcm": {
+    "before": "pcm.before.bin",
+    "after": "pcm.after.bin",
+    "rfhSec16Hex": "816531f7cde32e33c25a415c8440c72a",
+    "anonVin": "2C3CDXCT1HH600000",
+    "donorVin": "2C3CDXCT1HH652640",
+    "source": "Anonymized real-bench PCM GPEC2A (95320, 4 KB) capture from attached_assets/PCM_FCA_CONTINENTAL_GPEC2A_4KB_KEYPROG_2C3CDXCT1HH652640.bin — VIN scrubbed (652640→600000) at 0x0000/0x01F0/0x0224/0x0CE0 (same four offsets as the 8 KB sibling). 'after' = captured synced PCM (SEC6 = 81 65 31 f7 cd e3 = first 6 bytes of paired RFH SEC16). 'before' = same buffer with marker @ 0x3C4..0x3C7 and SEC6 @ 0x3C8..0x3CD erased to 0xFF."
+  },
+  "extraBcms": [
+    {
+      "before": "bcm2.before.bin",
+      "after": "bcm2.after.bin",
+      "rfhSec16Hex": "816531f7cde32e33c25a415c8440c72a",
+      "anonVin": "2C3CDXCT1HH600000",
+      "donorVin": "2C3CDXCT1HH652640",
+      "source": "Second BCM VIN-write pair, distinct from the primary 2C3CDXL90MH582899 fixture. Anonymized real-bench BCM (MPC5606B DFLASH, 64 KB) capture from attached_assets/BCM_22CHARGER_REDEYE_6.2_KEYPROG_2C3CDXCT1HH652640.bin — VIN scrubbed (652640→600000) wherever the 17-char VIN appears in plaintext. Same anonymized vehicle as the rfhub/pcm slot above (real-bench triple). 'after' = captured synced BCM. 'before' = same buffer with the writer-target bytes erased to 0xFF: split records @ 0x81A0/C0/E0 (+9..+15 prefix7, +20..+28 suffix9) and the inactive-bank mirror records @ 0x40C0 (slot 0xEB / size 0x18) and 0x40E8 (slot 0xCA / size 0x28) at +8..+31. Headers + separators left intact so the writer's matchers fire."
+    },
+    {
+      "before": "charger-bcm-0x1328/bcm.before.bin",
+      "after": "charger-bcm-0x1328/bcm.after.bin",
+      "rfhSec16Hex": "08a1c5e7ba303582c3821594793c2fc4",
+      "anonVin": "2C3CDXHG5EH600000",
+      "donorVin": "2C3CDXHG5EH219538",
+      "source": "Task #463 — third BCM pair pinning the alternate 0x1328 VIN base zone (FCA SINCRO output for some Charger BCMs). Anonymized real-bench BCM (64 KB) capture from attached_assets/BCM_HERMANADO_CHARGER_BCM_SYNCED_2C3CDXHG5EH219538__1777338759178.bin — VIN scrubbed (219538→600000) at 4 full-VIN slots in the alternate zone (0x1328/0x1348/0x1368/0x1388, NOT the canonical 0x5328..0x5388 — the canonical zone is all 0xFF in this dump) and 4 partial-VIN slots auto-detected at 0x0098/0x00B0/0x4098/0x40B0. Same per-record layout as the canonical zone (header @ base, VIN @ base+8, BE16 CRC16 @ vinOff+17/+18). 'after' = captured synced BCM with split SEC16 records @ 0x81A0/C0/E0 populated and inactive-bank (bank0, since bank1Seq=0x30CE > bank0Seq=0x30CD) mirror records @ 0x00C0 (slot 0xEB / size 0x18) and 0x00E8 (slot 0xCA / size 0x28) populated. 'before' = same buffer with the writer-target bytes erased to 0xFF: split records @ 0x81A0/C0/E0 (+9..+15 prefix7, +20..+28 suffix9) and inactive-bank mirrors @ 0x00C0 / 0x00E8 (+8..+31). Headers + separators left intact so the writer's matchers fire. The securityBytes.realDump.golden.test pair-round-trip applies unchanged — writeBcmSec16Gen2(before, rfhSec16) == after byte-for-byte."
+    },
+    {
+      "before": "charger-bcm-vin-write/bcm.before.bin",
+      "after": "charger-bcm-vin-write/bcm.after.bin",
+      "rfhSec16Hex": "08a1c5e7ba303582c3821594793c2fc4",
+      "anonVin": "2C3CDXL90MH600142",
+      "anonVinAfter": "2C3CDXHG5EH600538",
+      "donorVin": "2C3CDXL90MH615142",
+      "skipAnonymizationRoundTrip": true,
+      "skipSec16RoundTrip": true,
+      "source": "Task #491 — BCM VIN-write golden pair pinning the multi-target Immo/VIN tab against a real-bench OG → EDIT capture. Source: attached_assets/17CHARGER_HELLCATDFLASH_OGFILE_1777407844142.bin (donor VIN 2C3CDXL90MH615142, real OG) and attached_assets/17CHARGER_HELLCATDFLASH_OGFILE_EDIT_1777408289896.bin (donor VIN 2C3CDXHG5EH219538, real EDIT — SINCRO-produced VIN swap that updated only the 4 full-VIN+CRC slots in the 0x1328 alternate zone). 'before' = anonymized OG (donor 615142 → anon 600142, scrubbed at 4 full-VIN slots @ 0x1328/0x1348/0x1368/0x1388 with re-stamped CRC16/CCITT-FALSE @ vinOff+17/+18 BE, plus 4 partial-VIN slots @ 0x0098/0x00B0/0x4098/0x40B0). 'after' = same anonymized OG with the 4 full-VIN slots overwritten with the second anonymized VIN ('2C3CDXHG5EH600538', donor 219538) AND the 4 partial-VIN slots updated to the new VIN's last-8 tail ('EH600538') with re-stamped CRCs — this is MORE thorough than the real-bench SINCRO-EDIT (which left partials carrying the old donor tail and is why Task #436 had a partial-VIN donor-tail leak), matching the 'rewrite all VIN copies' spec. All non-VIN bytes (SEC16 split records @ 0x81A0/C0/E0, mirror records, immo blocks, FW) are byte-identical between before and after, so the test diff localizes exactly to the 4 full-VIN+CRC + 4 partial-VIN+CRC zones (60 bytes total). Used by tabs/__tests__/ImmoVINTab.bcmVinWrite.test.js to round-trip applyBcmVin(before, '2C3CDXHG5EH600538') == after byte-for-byte. Carries 'anonVinAfter' so the realDumps anonymization sanity scan pins each half's full-VIN slots against the right anon VIN, and 'skipAnonymizationRoundTrip: true' so the anonymizeRealDump round-trip test (which would byte-rewrite the after's full-VINs back to before's VIN) opts out cleanly."
+    }
+  ],
+  "extraPcms": [
+    {
+      "before": "pcm8kb.before.bin",
+      "after": "pcm8kb.after.bin",
+      "rfhSec16Hex": "816531f7cde32e33c25a415c8440c72a",
+      "anonVin": "2C3CDXCT1HH600000",
+      "donorVin": "2C3CDXCT1HH652640",
+      "source": "Task #433 — second PCM pair pinning the 8 KB GPEC2A layout against a real capture. Anonymized real-bench PCM (Continental GPEC2A 95640, 8 KB) from attached_assets/PCM_FCA_CONTINENTAL_GPEC2A_8KB_KEYPROG_2C3CDXCT1HH652640.bin — VIN scrubbed (652640→600000) at 4 plaintext slots (0x0000/0x01F0/0x0224/0x0CE0). Same anonymized vehicle as the rfhub/pcm 4 KB slot above; SEC6 secret matches (81 65 31 f7 cd e3) because both PCMs were paired to the same RFHUB. 'after' = captured synced 8 KB image with canonical FF FF FF AA marker @ 0x3C4 + SEC6 @ 0x3C8; half-2 (0x1000..0x1FFF) is 0xFF padding. 'before' = same buffer with marker @ 0x3C4..0x3C7 and SEC6 @ 0x3C8..0x3CD erased to 0xFF. Confirms the writePcmSec6 doc-comment assertion that the 8 KB image is just a larger GPEC2A — same marker offset, same SEC6 offset, no GPEC5 variant."
+    }
+  ]
+}
