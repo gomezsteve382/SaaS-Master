@@ -263,7 +263,7 @@ function BenchDiffDisplay({ targetBuf, patchedBuf }) {
         style={{ fontSize: 9, color: C.ac, cursor: 'pointer', fontWeight: 700, userSelect: 'none' }}
         onClick={() => setExpanded(e => !e)}
       >
-        {expanded ? '▼' : '▶'} BYTE DIFF — {diffs.length} byte{diffs.length !== 1 ? 's' : ''} changed across {regions.length} region{regions.length !== 1 ? 's' : ''}
+        {expanded ? '▼' : '▶'} PATCHED-VS-TARGET BYTE DIFF — {diffs.length} byte{diffs.length !== 1 ? 's' : ''} changed across {regions.length} region{regions.length !== 1 ? 's' : ''} (shows what the transplant wrote)
       </div>
       {expanded && (
         <div style={{
@@ -379,20 +379,28 @@ export default function RfhubKeyTransplantPanel() {
   const targetRef = useRef();
 
   /* ── file loader ─────────────────────────────────────────────────────────── */
-  const loadFile = useCallback(async (file, role) => {
+    const loadFile = useCallback(async (file, role) => {
     setError('');
     setResult(null);
     try {
       const buf = await readFileAsUint8Array(file);
-      const v   = validateRfhubBuffer(buf);
+      // Detect type FIRST so XC2268 files show the warning banner instead of
+      // a generic validation error (XC2268 is 64KB, fails the 4KB size check).
+      const rfhType = detectRfhubType(buf, file.name);
+      if (rfhType.isXC2268) {
+        // Accept the file but mark it as unsupported — the XC2268 banner will
+        // block the inject button and explain the issue to the operator.
+        const info = { buf, name: file.name, keys: [], writePtr: null, freeSlots: 0, mt: null, rfhType };
+        if (role === 'donor') { setDonor(info); setSelected(new Set()); setResult(null); }
+        else                  { setTarget(info); setResult(null); }
+        return;
+      }
+      const v = validateRfhubBuffer(buf);
       if (!v.ok) throw new Error(v.error);
-
       const keys      = parseKeyRingBuffer(buf);
       const writePtr  = findWritePointer(buf);
       const freeSlots = writePtr !== null ? countFreeSlots(buf, writePtr) : 0;
       const mt        = readMasterTransponder(buf);
-      const rfhType   = detectRfhubType(buf, file.name);
-
       const info = { buf, name: file.name, keys, writePtr, freeSlots, mt, rfhType };
       if (role === 'donor') {
         setDonor(info);
@@ -448,8 +456,8 @@ export default function RfhubKeyTransplantPanel() {
       // compute byte diff
       const diffs = computeDiff(target.buf, res.patched);
 
-      // push to history
-      pushHistory({
+            // push to history (localStorage + server backup for persistence)
+      const histEntry = {
         ts:           Date.now(),
         donor:        donor.name,
         target:       target.name,
@@ -458,8 +466,23 @@ export default function RfhubKeyTransplantPanel() {
         authCopied:   res.authSectorCopied,
         bytesChanged: diffs.length,
         keys:         res.injected.map(k => k.autelId),
-      });
-
+      };
+      pushHistory(histEntry);
+      // Also persist to server so history survives browser cache clears
+      try {
+        await fetch('/api/backups', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id:           `transplant_${histEntry.ts}`,
+            module:       'KEY_TRANSPLANT',
+            vin:          null,
+            snapshotKind: 'transplant_log',
+            timestamp:    histEntry.ts,
+            payload:      JSON.stringify(histEntry),
+          }),
+        });
+      } catch { /* server backup is best-effort */ }
       setResult({ ...res, diffs, targetBuf: target.buf });
     } catch (e) {
       setError(e.message);

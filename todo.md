@@ -37,6 +37,9 @@
 - [x] RFHUB 4KB EEPROM: Master Transponder panel (0x0226, 14 bytes, display only)
 - [x] RFHUB 4KB EEPROM: Dual-file key transplant (copy auth sector 0x0100-0x027F + ring buffer 0x0C5E-0x0CDD from donor to target)
 - [x] Promote RFHUB Key Transplant to its own top-level workspace tab (visible on the workspace page after selecting a vehicle)
-- [ ] KEY TRANSPLANT: transplant history log (timestamped entries in Dumps workspace after each successful transplant)
-- [ ] KEY TRANSPLANT: XC2268 RFHUB warning banner (if either file is XC2268, show clear unsupported warning)
-- [ ] KEY TRANSPLANT: bench simulation diff display (show expected vs actual byte diff in UI after transplant)
+- [x] KEY TRANSPLANT: transplant history log (timestamped entries in Dumps workspace after each successful transplant)
+- [x] KEY TRANSPLANT: XC2268 RFHUB warning banner (if either file is XC2268, show clear unsupported warning)
+- [x] KEY TRANSPLANT: bench simulation diff display (show expected vs actual byte diff in UI after transplant)
+- [x] KEY TRANSPLANT gap: detect RFHUB type BEFORE 4KB validation so XC2268 files show the warning banner instead of a generic validation error
+- [x] KEY TRANSPLANT gap: persist transplant history to Dumps workspace (tRPC backups table) in addition to localStorage
+- [x] KEY TRANSPLANT gap: rename bench diff to 'patched-vs-target byte diff' and clarify it shows what bytes the transplant changed (not a reference comparison)
