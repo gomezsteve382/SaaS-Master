@@ -1,12 +1,22 @@
 /**
  * RfhubKeyTransplantPanel.jsx
  * ─────────────────────────────────────────────────────────────────────────────
- * Offline key transplant: extract key ring-buffer entries from a donor RFHUB
- * and inject them into a target RFHUB — no OBD connection required.
+ * Gen2 RFHUB key transplant panel.
  *
- * Bench-verified format (Gen2 / XC2268 / 95640):
- *   Ring buffer base 0x0C80, 8-byte slots, empty = 5A 5A 5A 5A 95 00 FF FF
- *   Each key stored twice consecutively.
+ * BENCH-VERIFIED algorithm:
+ *   1. Copy auth sector 0x0100-0x027F from donor to target (required for keys
+ *      to actually start the car — ring buffer alone is not sufficient).
+ *   2. Append donor ring buffer entries to target ring buffer.
+ *
+ * Features:
+ *   - Dual file drop zones (donor / target)
+ *   - Master Transponder display (0x0226, 16 bytes, platform constant)
+ *   - Autel ID display (chip ID bytes reversed = Autel display format)
+ *   - Human-readable flag labels (Black Key / Red Key / Standard / Alt Family)
+ *   - Auth sector copy toggle (on by default — required for keys to work)
+ *   - Key selection (inject all or pick individual keys)
+ *   - Capacity check (ring buffer free slots)
+ *   - Download patched target
  * ─────────────────────────────────────────────────────────────────────────────
  */
 import React, { useState, useCallback, useRef } from 'react';
@@ -18,6 +28,9 @@ import {
   countFreeSlots,
   transplantKeys,
   validateRfhubBuffer,
+  readMasterTransponder,
+  readAuthKeyCount,
+  flagInfo,
   KEY_SLOT_COUNT,
 } from '../lib/rfhubKeyTransplant.js';
 
@@ -41,35 +54,29 @@ function downloadBin(buf, filename) {
   URL.revokeObjectURL(url);
 }
 
-// Human-readable flag labels (bench-verified against real RFHUB dumps)
-const FLAG_INFO = {
-  0xE6: { label: 'Black Key',    sub: 'Hitag AES',    color: '#607D8B' },
-  0x48: { label: 'Red Key',     sub: 'Hitag AES',    color: '#E53935' },
-  0x01: { label: 'Standard',    sub: 'Hitag2',       color: '#42A5F5' },
-  0x03: { label: 'Alt Family',  sub: 'Hitag2',       color: '#AB47BC' },
-};
-
+/* ─── FlagBadge ────────────────────────────────────────────────────────────── */
 function FlagBadge({ flag, showSub = false }) {
-  const info  = FLAG_INFO[flag];
-  const label = info ? info.label : `Flag 0x${flag.toString(16).toUpperCase().padStart(2,'0')}`;
-  const sub   = info ? info.sub   : 'Unknown';
-  const color = info ? info.color : '#9E9E9E';
+  const info  = flagInfo(flag);
   return (
     <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start' }}>
       <span style={{
         display: 'inline-block', padding: '1px 7px', borderRadius: 4,
-        background: color + '22', color, border: `1px solid ${color}55`,
-        fontSize: 9, fontWeight: 800, letterSpacing: 0.5, fontFamily: "'JetBrains Mono'",
-        whiteSpace: 'nowrap',
-      }}>{label}</span>
+        background: info.color + '22', color: info.color,
+        border: `1px solid ${info.color}55`,
+        fontSize: 9, fontWeight: 800, letterSpacing: 0.5,
+        fontFamily: "'JetBrains Mono'", whiteSpace: 'nowrap',
+      }}>{info.label}</span>
       {showSub && (
-        <span style={{ fontSize: 8, color: color + 'AA', marginTop: 1, paddingLeft: 2 }}>{sub}</span>
+        <span style={{ fontSize: 8, color: info.color + 'AA', marginTop: 1, paddingLeft: 2 }}>
+          {info.sub}
+        </span>
       )}
     </span>
   );
 }
 
-function KeyRow({ entry, selected, onToggle, disabled }) {
+/* ─── KeyRow ───────────────────────────────────────────────────────────────── */
+function KeyRow({ entry, selected, onToggle, disabled, dimmed }) {
   return (
     <div
       onClick={() => !disabled && onToggle(entry.chipId)}
@@ -78,15 +85,17 @@ function KeyRow({ entry, selected, onToggle, disabled }) {
         borderRadius: 6, cursor: disabled ? 'default' : 'pointer',
         background: selected ? C.ac + '18' : 'transparent',
         border: `1px solid ${selected ? C.ac + '55' : 'transparent'}`,
-        transition: 'background 150ms',
+        opacity: dimmed ? 0.45 : 1,
+        transition: 'background 150ms, opacity 150ms',
       }}
     >
       <input
         type="checkbox" checked={selected} readOnly
         style={{ accentColor: C.ac, cursor: disabled ? 'default' : 'pointer' }}
       />
-      <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.tx, letterSpacing: 1 }}>
-        {entry.chipId}
+      {/* Autel ID column */}
+      <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.tx, letterSpacing: 1, minWidth: 72 }}>
+        {entry.autelId}
       </span>
       <FlagBadge flag={entry.flag} showSub />
       <span style={{ fontSize: 9, color: C.ts, marginLeft: 'auto' }}>
@@ -96,14 +105,67 @@ function KeyRow({ entry, selected, onToggle, disabled }) {
   );
 }
 
+/* ─── TargetKeyRow (read-only, with FlagBadge) ─────────────────────────────── */
+function TargetKeyRow({ entry }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px',
+      borderRadius: 6, background: C.cd, border: `1px solid ${C.bd}`,
+    }}>
+      <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.ts, letterSpacing: 1, minWidth: 72 }}>
+        {entry.autelId}
+      </span>
+      <FlagBadge flag={entry.flag} showSub />
+    </div>
+  );
+}
+
+/* ─── MasterTransponderRow ─────────────────────────────────────────────────── */
+function MasterTransponderRow({ mt }) {
+  if (!mt) return null;
+  return (
+    <div style={{
+      background: '#1A237E18', border: '1px solid #3949AB55',
+      borderRadius: 6, padding: '6px 10px', marginBottom: 10,
+    }}>
+      <div style={{ fontSize: 9, fontWeight: 800, color: '#7986CB', letterSpacing: 1, marginBottom: 3 }}>
+        MASTER TRANSPONDER @ 0x0226
+      </div>
+      <div style={{
+        fontFamily: "'JetBrains Mono'", fontSize: 10, color: mt.virgin ? '#9E9E9E' : '#7986CB',
+        letterSpacing: 0.5, wordBreak: 'break-all',
+      }}>
+        {mt.virgin ? '(virgin — FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF)' : mt.hex}
+      </div>
+      {mt.virgin && (
+        <div style={{ fontSize: 8, color: '#9E9E9E', marginTop: 2, fontStyle: 'italic' }}>
+          Module has never been enrolled — no Master Transponder set
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── AuthSectorInfo ───────────────────────────────────────────────────────── */
+function AuthSectorInfo({ buf, label, color }) {
+  if (!buf) return null;
+  const count = readAuthKeyCount(buf);
+  return (
+    <div style={{ fontSize: 9, color, marginTop: 2 }}>
+      Auth sector: {count} key{count !== 1 ? 's' : ''} enrolled
+    </div>
+  );
+}
+
 /* ─── main component ───────────────────────────────────────────────────────── */
 export default function RfhubKeyTransplantPanel() {
-  const [donor,   setDonor]   = useState(null);   // { buf, name, keys, writePtr, freeSlots }
-  const [target,  setTarget]  = useState(null);   // same shape
-  const [selected, setSelected] = useState(new Set()); // chip IDs to inject
-  const [result,  setResult]  = useState(null);   // transplantKeys() result
-  const [error,   setError]   = useState('');
-  const [busy,    setBusy]    = useState(false);
+  const [donor,    setDonor]    = useState(null);   // { buf, name, keys, writePtr, freeSlots, mt }
+  const [target,   setTarget]   = useState(null);   // same shape
+  const [selected, setSelected] = useState(new Set());
+  const [copyAuth, setCopyAuth] = useState(true);   // copy auth sector (default: true)
+  const [result,   setResult]   = useState(null);
+  const [error,    setError]    = useState('');
+  const [busy,     setBusy]     = useState(false);
   const donorRef  = useRef();
   const targetRef = useRef();
 
@@ -116,14 +178,14 @@ export default function RfhubKeyTransplantPanel() {
       const v   = validateRfhubBuffer(buf);
       if (!v.ok) throw new Error(v.error);
 
-      const keys     = parseKeyRingBuffer(buf);
-      const writePtr = findWritePointer(buf);
+      const keys      = parseKeyRingBuffer(buf);
+      const writePtr  = findWritePointer(buf);
       const freeSlots = writePtr !== null ? countFreeSlots(buf, writePtr) : 0;
+      const mt        = readMasterTransponder(buf);
 
-      const info = { buf, name: file.name, keys, writePtr, freeSlots };
+      const info = { buf, name: file.name, keys, writePtr, freeSlots, mt };
       if (role === 'donor') {
         setDonor(info);
-        // Default: select all donor keys
         setSelected(new Set(keys.map(k => k.chipId)));
         setResult(null);
       } else {
@@ -135,8 +197,17 @@ export default function RfhubKeyTransplantPanel() {
     }
   }, []);
 
-  const onDonorDrop  = useCallback(e => { e.preventDefault(); const f = e.dataTransfer?.files[0] || e.target.files?.[0]; if (f) loadFile(f, 'donor');  }, [loadFile]);
-  const onTargetDrop = useCallback(e => { e.preventDefault(); const f = e.dataTransfer?.files[0] || e.target.files?.[0]; if (f) loadFile(f, 'target'); }, [loadFile]);
+  const onDonorDrop  = useCallback(e => {
+    e.preventDefault();
+    const f = e.dataTransfer?.files[0] || e.target.files?.[0];
+    if (f) loadFile(f, 'donor');
+  }, [loadFile]);
+
+  const onTargetDrop = useCallback(e => {
+    e.preventDefault();
+    const f = e.dataTransfer?.files[0] || e.target.files?.[0];
+    if (f) loadFile(f, 'target');
+  }, [loadFile]);
 
   const toggleKey = useCallback(chipId => {
     setSelected(prev => {
@@ -156,6 +227,7 @@ export default function RfhubKeyTransplantPanel() {
       const res = transplantKeys(donor.buf, target.buf, {
         only: selected.size > 0 ? [...selected] : null,
         skipDuplicates: true,
+        copyAuthSector: copyAuth,
       });
       setResult(res);
     } catch (e) {
@@ -163,7 +235,7 @@ export default function RfhubKeyTransplantPanel() {
     } finally {
       setBusy(false);
     }
-  }, [donor, target, selected]);
+  }, [donor, target, selected, copyAuth]);
 
   /* ── download ────────────────────────────────────────────────────────────── */
   const download = useCallback(() => {
@@ -195,6 +267,7 @@ export default function RfhubKeyTransplantPanel() {
             <div style={{ fontSize: 9, color: C.ts }}>
               {info.keys.length} key{info.keys.length !== 1 ? 's' : ''} · {info.freeSlots} free slot{info.freeSlots !== 1 ? 's' : ''}
             </div>
+            <AuthSectorInfo buf={info.buf} label={label} color={accent + 'AA'} />
           </>
         ) : (
           <>
@@ -207,7 +280,6 @@ export default function RfhubKeyTransplantPanel() {
     );
   }
 
-  /* ── target key list (for duplicate awareness) ───────────────────────────── */
   const targetChipIds = target ? new Set(target.keys.map(k => k.chipId)) : new Set();
 
   /* ── render ──────────────────────────────────────────────────────────────── */
@@ -221,28 +293,24 @@ export default function RfhubKeyTransplantPanel() {
             KEY TRANSPLANT
           </div>
           <div style={{ fontSize: 9, color: C.ts, marginTop: 1 }}>
-            Copy key ring-buffer entries from donor RFHUB → target RFHUB (offline, no OBD)
+            Copy keys from donor RFHUB → target RFHUB (offline · no OBD · bench-verified)
           </div>
         </div>
       </div>
 
       {/* drop zones */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-        <DropZone
-          label="DONOR RFHUB"
-          info={donor}
-          inputRef={donorRef}
-          onDrop={onDonorDrop}
-          accent={C.gn}
-        />
-        <DropZone
-          label="TARGET RFHUB"
-          info={target}
-          inputRef={targetRef}
-          onDrop={onTargetDrop}
-          accent={C.ac}
-        />
+        <DropZone label="DONOR RFHUB"  info={donor}  inputRef={donorRef}  onDrop={onDonorDrop}  accent={C.gn} />
+        <DropZone label="TARGET RFHUB" info={target} inputRef={targetRef} onDrop={onTargetDrop} accent={C.ac} />
       </div>
+
+      {/* Master Transponder — show for both files if loaded */}
+      {(donor || target) && (
+        <div style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
+          {donor  && <div style={{ flex: 1 }}><MasterTransponderRow mt={donor.mt}  /></div>}
+          {target && <div style={{ flex: 1 }}><MasterTransponderRow mt={target.mt} /></div>}
+        </div>
+      )}
 
       {/* donor key list */}
       {donor && donor.keys.length > 0 && (
@@ -260,11 +328,12 @@ export default function RfhubKeyTransplantPanel() {
                     selected={selected.has(entry.chipId)}
                     onToggle={toggleKey}
                     disabled={alreadyInTarget}
+                    dimmed={alreadyInTarget}
                   />
                   {alreadyInTarget && (
                     <span style={{
                       position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
-                      fontSize: 9, color: C.ts, fontStyle: 'italic',
+                      fontSize: 9, color: C.ts, fontStyle: 'italic', pointerEvents: 'none',
                     }}>already in target</span>
                   )}
                 </div>
@@ -290,41 +359,58 @@ export default function RfhubKeyTransplantPanel() {
         </div>
       )}
 
-      {/* target key list (read-only info) */}
+      {/* target current keys (read-only, with FlagBadge) */}
       {target && target.keys.length > 0 && (
         <div style={{ marginBottom: 12 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: C.ts, marginBottom: 4, letterSpacing: 1 }}>
             TARGET CURRENT KEYS ({target.keys.length})
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-            {target.keys.map(k => (
-              <span key={k.chipId} style={{
-                fontFamily: "'JetBrains Mono'", fontSize: 10, color: C.ts,
-                background: C.cd, border: `1px solid ${C.bd}`, borderRadius: 4, padding: '2px 6px',
-              }}>{k.chipId}</span>
-            ))}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {target.keys.map(k => <TargetKeyRow key={k.chipId} entry={k} />)}
           </div>
         </div>
       )}
 
+      {/* auth sector copy toggle */}
+      <div style={{
+        display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10,
+        background: copyAuth ? '#00E67608' : '#FF525208',
+        border: `1px solid ${copyAuth ? '#00E67633' : '#FF525233'}`,
+        borderRadius: 8, padding: '8px 10px',
+      }}>
+        <input
+          type="checkbox" checked={copyAuth}
+          onChange={e => setCopyAuth(e.target.checked)}
+          style={{ accentColor: copyAuth ? '#00E676' : '#FF5252', marginTop: 2, cursor: 'pointer' }}
+        />
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 800, color: copyAuth ? '#00E676' : '#FF5252' }}>
+            {copyAuth ? '✓ Copy Hitag AES Auth Sector (RECOMMENDED)' : '⚠ Ring Buffer Only (keys may not start car)'}
+          </div>
+          <div style={{ fontSize: 9, color: C.ts, marginTop: 2 }}>
+            {copyAuth
+              ? 'Copies auth sector 0x0100–0x027F from donor to target. Required for keys to authenticate with the BCM. Bench-verified byte-identical to Autel-programmed output.'
+              : 'Only appends ring buffer entries. Use only if target already has a compatible auth sector (same vehicle, same key set).'}
+          </div>
+        </div>
+      </div>
+
       {/* capacity warning */}
-      {target && donor && selected.size > 0 && (
-        (() => {
-          const slotsNeeded = selected.size * 2;
-          const freeSlots   = target.freeSlots;
-          if (slotsNeeded > freeSlots) {
-            return (
-              <div style={{
-                background: '#FF525222', border: `1px solid #FF5252`, borderRadius: 6,
-                padding: '6px 10px', fontSize: 10, color: '#FF5252', marginBottom: 10,
-              }}>
-                ⚠️ Need {slotsNeeded} slots for {selected.size} key{selected.size !== 1 ? 's' : ''} (×2 each), but only {freeSlots} free in target.
-              </div>
-            );
-          }
-          return null;
-        })()
-      )}
+      {target && donor && selected.size > 0 && (() => {
+        const slotsNeeded = selected.size * 2;
+        const freeSlots   = target.freeSlots;
+        if (slotsNeeded > freeSlots) {
+          return (
+            <div style={{
+              background: '#FF525222', border: `1px solid #FF5252`, borderRadius: 6,
+              padding: '6px 10px', fontSize: 10, color: '#FF5252', marginBottom: 10,
+            }}>
+              ⚠️ Need {slotsNeeded} ring buffer slots for {selected.size} key{selected.size !== 1 ? 's' : ''} (×2 each), but only {freeSlots} free in target.
+            </div>
+          );
+        }
+        return null;
+      })()}
 
       {/* inject button */}
       <Btn
@@ -353,7 +439,12 @@ export default function RfhubKeyTransplantPanel() {
           <div style={{ fontWeight: 800, fontSize: 11, color: '#00E676', marginBottom: 6 }}>
             ✓ TRANSPLANT COMPLETE
           </div>
-          <div style={{ fontSize: 10, color: C.tx, marginBottom: 4 }}>
+          {result.authSectorCopied && (
+            <div style={{ fontSize: 9, color: '#69F0AE', marginBottom: 6, fontWeight: 700 }}>
+              ✓ Auth sector (0x0100–0x027F) copied from donor — keys will authenticate with BCM
+            </div>
+          )}
+          <div style={{ fontSize: 10, color: '#00E676', marginBottom: 4 }}>
             Injected {result.injected.length} key{result.injected.length !== 1 ? 's' : ''}:
           </div>
           {result.injected.map(k => (
@@ -361,7 +452,7 @@ export default function RfhubKeyTransplantPanel() {
               fontFamily: "'JetBrains Mono'", fontSize: 10, color: '#00E676',
               display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2,
             }}>
-              <span>↳ {k.chipId}</span>
+              <span>↳ {k.autelId}</span>
               <FlagBadge flag={k.flag} showSub />
             </div>
           ))}
