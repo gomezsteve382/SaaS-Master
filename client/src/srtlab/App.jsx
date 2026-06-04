@@ -74,6 +74,7 @@ import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
 import J2534UdsConsoleTab from "./tabs/J2534UdsConsoleTab.jsx";
 import AutelSgwTab from "./tabs/AutelSgwTab.jsx";
 import FirmwareEmulationTab from "./tabs/FirmwareEmulationTab.jsx";
+import RfhubKeyTransplantPanel from "./components/RfhubKeyTransplantPanel.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
@@ -932,6 +933,7 @@ const WORKSPACE_TABS = [
   {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
   {id:'keyxfer',   i:'🔑', l:'KEY PROGRAM',  s:'Offline transponder-key transfer · no OBD'},
   {id:'keymgr',    i:'🗝️', l:'KEY MGR',      s:'Dual-file RFHUB fob transfer'},
+  {id:'keytransplant', i:'🔑', l:'KEY TRANSPLANT', s:'Donor → Target RFHUB · auth sector + ring buffer · no OBD'},
   {id:'livekey',   i:'🔑', l:'LIVE KEYS',    s:'OBD PIN extract · key prog · SKREEM'},
   {id:'jailbreak', i:'💀', l:'JAILBREAK',    s:'SRT · Demon · Hellcat · Redeye'},
   {id:'seed',      i:'🔑', l:'SEED→KEY',     s:'14 Algorithms'},
@@ -1238,6 +1240,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='skimlive'  && <SkimTab/>}
         {tab==='rfhub'     && <RfhubTab vehicle={vehicle}/>}
         {tab==='keymgr'    && <KeyManagerTab vehicle={vehicle}/>}
+        {tab==='keytransplant' && <div style={{padding:24,maxWidth:900,margin:'0 auto'}}><RfhubKeyTransplantPanel/></div>}
         {tab==='livekey'   && <LiveKeyTab/>}
         {tab==='ecm'       && <EcmTab vehicle={vehicle}/>}
         {tab==='smartbox'  && <SmartBoxTab/>}

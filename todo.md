@@ -33,6 +33,7 @@
 - [x] RFHUB key transplant: RfhubKeyTransplantPanel.jsx UI — donor file drop, target file drop, key list preview, inject button, download patched bin
 - [x] RFHUB key transplant: wire panel into RfhubTab as a new sub-section
 - [x] RFHUB key transplant: vitest tests for parse, inject, and duplicate-detection
-- [ ] RFHUB 4KB EEPROM: Autel ID decoder (ring buffer bytes 0-3 reversed) in key ring buffer parser
-- [ ] RFHUB 4KB EEPROM: Master Transponder panel (0x0226, 14 bytes, display only)
-- [ ] RFHUB 4KB EEPROM: Dual-file key transplant (copy auth sector 0x0100-0x027F + ring buffer 0x0C5E-0x0CDD from donor to target)
+- [x] RFHUB 4KB EEPROM: Autel ID decoder (ring buffer bytes 0-3 reversed) in key ring buffer parser
+- [x] RFHUB 4KB EEPROM: Master Transponder panel (0x0226, 14 bytes, display only)
+- [x] RFHUB 4KB EEPROM: Dual-file key transplant (copy auth sector 0x0100-0x027F + ring buffer 0x0C5E-0x0CDD from donor to target)
+- [x] Promote RFHUB Key Transplant to its own top-level workspace tab (visible on the workspace page after selecting a vehicle)
