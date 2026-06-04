@@ -51,4 +51,4 @@
 - [x] Add HITAG AES to primary sidebar (always visible like KEY TRANSPLANT)
 - [x] Reorder primary sidebar for logical workflow (diagnostics → VIN/security → keys → OBD → AI)
 - [x] Export project to GitHub repo (pushed to srt-lab-bench branch on mjremetio/goatmez-autoshop-crm)
-- [ ] Quick Clone wizard: multi-step guided flow combining VIN patch → Security Sync → Key Transplant into one seamless process
+- [x] Quick Clone wizard: multi-step guided flow combining VIN patch → Security Sync → Key Transplant into one seamless process

@@ -291,6 +291,16 @@ export default function QuickCloneTab({ vehicle }) {
     setError('');
     setStep1(null); setStep2(null); setStep3(null);
     const data = await readFile(file);
+    // Validate BCM role
+    const id = identifyModule(data, file.name);
+    if (id && id.role && id.role !== 'BCM') {
+      setError(`File "${file.name}" identified as ${id.role} (${id.info?.type || 'unknown'}), not BCM. Upload a BCM dump in the BCM slot.`);
+      return;
+    }
+    if (data.length < 0x4000) {
+      setError(`File "${file.name}" is too small for a BCM dump (${data.length} bytes). Expected at least 16 KB.`);
+      return;
+    }
     setBcmFile({ name: file.name, data, size: data.length });
   }, []);
 
@@ -328,6 +338,16 @@ export default function QuickCloneTab({ vehicle }) {
     setError('');
     setStep1(null); setStep2(null); setStep3(null);
     const data = await readFile(file);
+    // Validate PCM role
+    const id = identifyModule(data, file.name);
+    if (id && id.role && id.role !== 'PCM') {
+      setError(`File "${file.name}" identified as ${id.role} (${id.info?.type || 'unknown'}), not PCM. Upload a PCM dump in the PCM slot.`);
+      return;
+    }
+    if (data.length !== 4096 && data.length !== 8192) {
+      setError(`File "${file.name}" is ${data.length} bytes. PCM dumps must be 4096 (4 KB) or 8192 (8 KB).`);
+      return;
+    }
     setPcmFile({ name: file.name, data, size: data.length });
   }, []);
 
@@ -433,6 +453,13 @@ export default function QuickCloneTab({ vehicle }) {
         if (autelIds.length > 0) log.push(`Autel IDs: ${autelIds.join(', ')}`);
       }
 
+      // Compute real bytes changed
+      let bytesChanged = 0;
+      const orig = step2.rfhBytes;
+      for (let i = 0; i < Math.min(orig.length, res.patched.length); i++) {
+        if (orig[i] !== res.patched[i]) bytesChanged++;
+      }
+
       // Persist to server
       const histEntry = {
         ts: Date.now(),
@@ -441,7 +468,7 @@ export default function QuickCloneTab({ vehicle }) {
         injected: res.injected.length,
         skipped: res.skipped.length,
         authCopied: res.authSectorCopied,
-        bytesChanged: 0,
+        bytesChanged,
         keys: res.injected.map(k => k.autelId),
       };
       try {
@@ -620,9 +647,19 @@ export default function QuickCloneTab({ vehicle }) {
             <div style={{ fontSize: 10, color: C.ts, fontWeight: 600 }}>Copy donor auth sector + key ring buffer → target RFHUB</div>
           </div>
         </div>
-        <Btn onClick={runStep3} color={STEP_COLORS[2]} disabled={!step2 || !rfhDonor}>
+        <Btn onClick={runStep3} color={STEP_COLORS[2]} disabled={!step2 || !rfhDonor || !rfhTarget}>
           ③ TRANSPLANT KEYS
         </Btn>
+        {!rfhTarget && (
+          <div style={{ marginTop: 8, padding: '8px 12px', borderRadius: 8, background: C.wn + '15', border: `1px solid ${C.wn}44`, fontSize: 11, color: '#7B5800', fontWeight: 700 }}>
+            ⚠ Target RFHUB not uploaded — Step 3 requires a target RFHUB to receive the transplanted keys.
+          </div>
+        )}
+        {rfhTarget && !rfhDonor && (
+          <div style={{ marginTop: 8, padding: '8px 12px', borderRadius: 8, background: C.wn + '15', border: `1px solid ${C.wn}44`, fontSize: 11, color: '#7B5800', fontWeight: 700 }}>
+            ⚠ Donor RFHUB not uploaded — Step 3 needs a donor RFHUB to copy keys from.
+          </div>
+        )}
         {step3 && (
           <div style={{ marginTop: 12, fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.tx, lineHeight: 1.7, background: C.c2, border: `1px solid ${C.bd}`, borderRadius: 10, padding: '10px 12px' }}>
             {step3.log.map((l, i) => <div key={i}>· {l}</div>)}
