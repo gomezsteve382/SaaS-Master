@@ -27,3 +27,4 @@
 - [x] Add HITAG AES key status reader tab (HitagAesTab) — parse SK0-SK3, Chip ID, Config/Page1/Page2, detect blank/programmed/locked state, decode FCA vehicle secret and FOBIK binding
 - [x] HitagAesTab: Add "Save as Blank Key Reference" button — persist Chip ID + SK0-SK3 + verdict to database as a named blank reference entry
 - [x] Promote 2021 Redeye alt-family keys (CF324E65) to KNOWN_WORKING_KEYS with confirmed blank profile (SK0=11112222, SK1=33334444, SK2=55556666, SK3=77778888, flag=0x03)
+- [x] Proactive mismatch banner on Dumps tab: sticky alert when BCM VIN is blank, RFHUB SEC16 mismatches BCM, or VIN cross-mismatch detected — with one-click navigation to the fix tab

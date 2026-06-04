@@ -78,6 +78,7 @@ import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
 import CorruptFillBanner from "./components/CorruptFillBanner.jsx";
 import {parseModule, typeFromFilename, moduleTooSmall, wrongModuleForSlot, detectModuleType, classifyPcmSec6, PCM_VIN_OFFSETS_GPEC2A, pcmChipFromSize, detectCorruptFill, corruptFillError} from "./lib/parseModule.js";
+import {crossValidate} from "./lib/crossValidate.js";
 import {analyzeFile} from "./lib/fileUtils.js";
 import {Tip} from "./lib/plainEnglish.jsx";
 import {MasterVinContext, MasterVinProvider} from "./lib/masterVinContext.jsx";
@@ -1428,6 +1429,62 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
     f===bcm||f===rfh||f===pcm
   );
 
+  /* Proactive mismatch banner — runs crossValidate on loaded modules the instant
+   * they are available. Also detects BCM VIN blank (BCM broadcasting 00s) which
+   * crossValidate doesn’t surface because it’s a live-bus issue, not a file-level
+   * pairing issue. Uses parseModule (already imported) to produce the module
+   * objects crossValidate expects. Navigation uses the global srtlab:openTab
+   * custom event so no extra prop threading is needed. */
+  const mismatchAlerts = useMemo(() => {
+    const mods = [];
+    if (bcm && bcm.data) { try { mods.push(parseModule(bcm.data, bcm.name || 'bcm.bin')); } catch(_e) { /* ignore */ } }
+    if (rfh && rfh.data) { try { mods.push(parseModule(rfh.data, rfh.name || 'rfh.bin')); } catch(_e) { /* ignore */ } }
+    if (pcm && pcm.data) { try { mods.push(parseModule(pcm.data, pcm.name || 'pcm.bin')); } catch(_e) { /* ignore */ } }
+    const alerts = [];
+    if (mods.length > 0) {
+      const {issues, warnings} = crossValidate(mods);
+      for (const iss of (issues || [])) {
+        if (iss.includes('vehicle secret') && iss.includes('MISMATCH')) {
+          alerts.push({ level:'critical', icon:'⛔', msg:'RFHUB secret doesn’t match BCM — dash won’t power up, locks won’t respond', action:'FIX RFHUB SEC16', tab:'secsync' });
+        } else if (iss.startsWith('VIN MISMATCH')) {
+          alerts.push({ level:'critical', icon:'⛔', msg:'VIN mismatch across modules: '+iss.replace('VIN MISMATCH: ',''), action:'GO TO MODULE SYNC', tab:'modsync' });
+        } else if (iss.includes('PCM') && iss.includes('MISMATCH')) {
+          alerts.push({ level:'critical', icon:'⛔', msg:'PCM SEC6 doesn’t match BCM — module pairing broken', action:'GO TO MODULE SYNC', tab:'modsync' });
+        } else if (iss.includes('PCM') && iss.includes('never paired')) {
+          alerts.push({ level:'critical', icon:'⛔', msg:'PCM has never been paired with this BCM — apply BCM→PCM SEC6 sync before key programming', action:'GO TO MODULE SYNC', tab:'modsync' });
+        }
+      }
+      for (const warn of (warnings || [])) {
+        if (warn.includes('BCM SEC16 BLANK')) {
+          alerts.push({ level:'warn', icon:'⚠️', msg:'BCM has no vehicle secret (virgin/blank SEC16) — cannot pair RFHUB or program keys', action:'GO TO SECURITY SYNC', tab:'secsync' });
+        } else if (warn.includes('RFHUB SEC16') && warn.includes('BLANK')) {
+          alerts.push({ level:'warn', icon:'⚠️', msg:'RFHUB is virgin — SEC16 has never been written', action:'FIX RFHUB SEC16', tab:'secsync' });
+        } else if (warn.includes('Slot 1/2 MISMATCH')) {
+          alerts.push({ level:'warn', icon:'⚠️', msg:'RFHUB SEC16 slot 1 and slot 2 don’t match — EEPROM may be partially written', action:'FIX RFHUB SEC16', tab:'secsync' });
+        } else if (warn.includes('XC2268')) {
+          alerts.push({ level:'warn', icon:'⚠️', msg:'2019+ Ram RFHUB (XC2268) — SEC16 lives in MCU flash, not EEPROM. EEPROM writes will be overwritten on boot', action:'GO TO J2534 CONSOLE', tab:'j2534' });
+        }
+      }
+    }
+    // BCM VIN blank detection — independent of crossValidate.
+    // The BCM is the VIN master on the CAN bus; if its VIN slots are all zeros
+    // or empty it will broadcast 00s to the RFHUB on every power-up, overwriting
+    // any corrected RFHUB EEPROM. Surface this as a warning so the tech knows
+    // to fix the BCM VIN (via wiTECH / CDA6 / J2534 UDS) before reflashing RFHUB.
+    if (bcm && bcm.data) {
+      try {
+        const bcmParsed = engParseBcm(bcm.data);
+        const vins = bcmParsed.vinSlots || [];
+        const VIN_BLANK = /^0+$|^\s*$/;
+        const hasRealVin = vins.some(v => v && v.vin && v.vin.length === 17 && !VIN_BLANK.test(v.vin));
+        if (!hasRealVin && vins.length > 0) {
+          alerts.push({ level:'warn', icon:'⚠️', msg:'BCM VIN is blank (all zeros) — BCM will broadcast 00000000000000000 to RFHUB on every power-up, overwriting any corrected RFHUB EEPROM', action:'GO TO BCM TAB', tab:'bcm' });
+        }
+      } catch(_e) { /* ignore parse errors */ }
+    }
+    return alerts;
+  }, [bcm, rfh, pcm]);
+
   /* Task #481 — when the loaded PCM is already exactly 4 KB or 8 KB,
    * snap the in-memory target-chip selector to that size so a tech who
    * just dropped in a clean source dump doesn't have to flip the
@@ -1594,7 +1651,53 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
     }
   };
 
+  const openTab = (tabId) => window.dispatchEvent(new CustomEvent('srtlab:openTab', { detail: tabId }));
+
   return <div style={{display:'grid',gridTemplateColumns:'1fr',gap:16}}>
+    {/* Proactive mismatch banner — surfaces critical issues the instant files are loaded */}
+    {mismatchAlerts.length > 0 && (
+      <div style={{display:'flex',flexDirection:'column',gap:8}}>
+        {mismatchAlerts.map((alert, i) => (
+          <div key={i} data-testid={`dumps-mismatch-alert-${alert.level}`}
+            style={{
+              padding:'12px 16px',
+              borderRadius:10,
+              background: alert.level==='critical' ? C.er+'10' : C.wn+'10',
+              border: '1.5px solid ' + (alert.level==='critical' ? C.er+'55' : C.wn+'55'),
+              display:'flex',
+              alignItems:'center',
+              gap:12,
+              flexWrap:'wrap',
+            }}>
+            <span style={{fontSize:18,flexShrink:0}}>{alert.icon}</span>
+            <div style={{flex:1,minWidth:200}}>
+              <div style={{fontSize:11,fontWeight:900,letterSpacing:1,color:alert.level==='critical'?C.er:C.wn,textTransform:'uppercase',marginBottom:3}}>
+                {alert.level==='critical' ? 'CRITICAL' : 'WARNING'}
+              </div>
+              <div style={{fontSize:12,fontWeight:600,color:C.tx,lineHeight:1.5}}>{alert.msg}</div>
+            </div>
+            <button
+              onClick={() => openTab(alert.tab)}
+              style={{
+                padding:'7px 14px',
+                borderRadius:8,
+                border:'none',
+                cursor:'pointer',
+                background: alert.level==='critical' ? C.er : C.wn,
+                color:'#fff',
+                fontWeight:900,
+                fontSize:11,
+                letterSpacing:1,
+                flexShrink:0,
+                transition:'opacity .15s',
+              }}
+              onMouseEnter={e=>e.currentTarget.style.opacity='0.85'}
+              onMouseLeave={e=>e.currentTarget.style.opacity='1'}
+            >{alert.action} →</button>
+          </div>
+        ))}
+      </div>
+    )}
     {/* Target VIN input */}
     <Card>
       <div style={{display:'flex',gap:14,alignItems:'center',flexWrap:'wrap'}}>
