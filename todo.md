@@ -21,3 +21,4 @@
 - [x] TypeScript: 0 errors
 - [x] All tests passing (8 tests across 2 test files)
 - [x] App renders correctly with vehicle selection screen
+- [x] Fix React animation/animationDelay shorthand conflict in VehicleCard
