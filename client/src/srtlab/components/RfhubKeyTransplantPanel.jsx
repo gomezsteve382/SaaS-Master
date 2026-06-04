@@ -33,6 +33,22 @@ import {
   flagInfo,
   KEY_SLOT_COUNT,
 } from '../lib/rfhubKeyTransplant.js';
+import { identifyModule } from '../lib/keyProgWizard.js';
+
+/* ─── RFHUB type detector ─────────────────────────────────────────────────── */
+function detectRfhubType(buf, filename) {
+  try {
+    const id = identifyModule(buf, filename || 'unknown.bin');
+    if (!id || id.role !== 'RFH') return { label: 'UNKNOWN TYPE', color: '#FF5252', detail: 'Not recognized as RFHUB' };
+    const t = id.info?.type || '';
+    if (t === 'XC2268_RFHUB') return { label: 'XC2268 RFHUB', color: '#FF9800', detail: '64KB internal flash · 2019+ Ram' };
+    if (t === 'RFHUB')        return { label: 'MC9S12 RFHUB', color: '#00E676', detail: '4KB EEPROM · Gen2 Charger/Challenger/Durango' };
+    return { label: t || 'RFHUB', color: '#00E676', detail: '' };
+  } catch {
+    // validateRfhubBuffer will catch the real error; just show unknown here
+    return { label: 'UNKNOWN TYPE', color: '#FF5252', detail: 'Parse error' };
+  }
+}
 
 /* ─── tiny helpers ─────────────────────────────────────────────────────────── */
 function readFileAsUint8Array(file) {
@@ -182,8 +198,9 @@ export default function RfhubKeyTransplantPanel() {
       const writePtr  = findWritePointer(buf);
       const freeSlots = writePtr !== null ? countFreeSlots(buf, writePtr) : 0;
       const mt        = readMasterTransponder(buf);
+      const rfhType   = detectRfhubType(buf, file.name);
 
-      const info = { buf, name: file.name, keys, writePtr, freeSlots, mt };
+      const info = { buf, name: file.name, keys, writePtr, freeSlots, mt, rfhType };
       if (role === 'donor') {
         setDonor(info);
         setSelected(new Set(keys.map(k => k.chipId)));
@@ -264,6 +281,16 @@ export default function RfhubKeyTransplantPanel() {
           <>
             <div style={{ fontSize: 11, fontWeight: 800, color: accent, marginBottom: 4 }}>{label}</div>
             <div style={{ fontSize: 10, color: C.tx, fontFamily: "'JetBrains Mono'", marginBottom: 2 }}>{info.name}</div>
+            {/* RFHUB type badge */}
+            <div style={{
+              display: 'inline-block', padding: '1px 6px', borderRadius: 4, marginBottom: 4,
+              background: info.rfhType.color + '22', border: `1px solid ${info.rfhType.color}55`,
+              fontSize: 8, fontWeight: 800, color: info.rfhType.color, letterSpacing: 0.5,
+              fontFamily: "'JetBrains Mono'",
+            }}>{info.rfhType.label}</div>
+            {info.rfhType.detail ? (
+              <div style={{ fontSize: 8, color: info.rfhType.color + 'AA', marginBottom: 2 }}>{info.rfhType.detail}</div>
+            ) : null}
             <div style={{ fontSize: 9, color: C.ts }}>
               {info.keys.length} key{info.keys.length !== 1 ? 's' : ''} · {info.freeSlots} free slot{info.freeSlots !== 1 ? 's' : ''}
             </div>
@@ -395,21 +422,32 @@ export default function RfhubKeyTransplantPanel() {
         </div>
       </div>
 
-      {/* capacity warning */}
+      {/* capacity + key count overflow warning */}
       {target && donor && selected.size > 0 && (() => {
-        const slotsNeeded = selected.size * 2;
-        const freeSlots   = target.freeSlots;
+        const slotsNeeded   = selected.size * 2;
+        const freeSlots     = target.freeSlots;
+        const targetKeyCount = target.keys.length;
+        const donorSelected  = selected.size;
+        const combinedCount  = targetKeyCount + donorSelected;
+        const warnings = [];
+
         if (slotsNeeded > freeSlots) {
-          return (
-            <div style={{
-              background: '#FF525222', border: `1px solid #FF5252`, borderRadius: 6,
-              padding: '6px 10px', fontSize: 10, color: '#FF5252', marginBottom: 10,
-            }}>
-              ⚠️ Need {slotsNeeded} ring buffer slots for {selected.size} key{selected.size !== 1 ? 's' : ''} (×2 each), but only {freeSlots} free in target.
-            </div>
-          );
+          warnings.push(`⚠️ Ring buffer: need ${slotsNeeded} slots for ${donorSelected} key${donorSelected !== 1 ? 's' : ''} (×2 each), but only ${freeSlots} free in target.`);
         }
-        return null;
+        if (combinedCount > KEY_SLOT_COUNT / 2) {
+          warnings.push(`⚠️ Key count overflow: target has ${targetKeyCount} key${targetKeyCount !== 1 ? 's' : ''}, adding ${donorSelected} more = ${combinedCount} total. Module supports max ${KEY_SLOT_COUNT / 2} keys. Oldest entries may be overwritten.`);
+        }
+
+        if (warnings.length === 0) return null;
+        return (
+          <div style={{
+            background: '#FF525222', border: `1px solid #FF5252`, borderRadius: 6,
+            padding: '8px 10px', fontSize: 10, color: '#FF5252', marginBottom: 10,
+            display: 'flex', flexDirection: 'column', gap: 4,
+          }}>
+            {warnings.map((w, i) => <div key={i}>{w}</div>)}
+          </div>
+        );
       })()}
 
       {/* inject button */}
