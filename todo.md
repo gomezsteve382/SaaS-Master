@@ -28,4 +28,8 @@
 - [x] HitagAesTab: Add "Save as Blank Key Reference" button — persist Chip ID + SK0-SK3 + verdict to database as a named blank reference entry
 - [x] Promote 2021 Redeye alt-family keys (CF324E65) to KNOWN_WORKING_KEYS with confirmed blank profile (SK0=11112222, SK1=33334444, SK2=55556666, SK3=77778888, flag=0x03)
 - [x] Proactive mismatch banner on Dumps tab: sticky alert when BCM VIN is blank, RFHUB SEC16 mismatches BCM, or VIN cross-mismatch detected — with one-click navigation to the fix tab
-- [ ] Fix Gen2 RFHUB VIN checksum bug: when OG file stores VIN forward (old format), magic must be recomputed for reversed storage orientation — magic_for_write = og_magic ^ XOR(og_forward) ^ XOR(og_reversed)
+- [x] Fix Gen2 RFHUB VIN checksum bug: when OG file stores VIN forward (old format), magic must be recomputed for reversed storage orientation — magic_for_write = og_magic ^ XOR(og_forward) ^ XOR(og_reversed)
+- [x] RFHUB key transplant: rfhubKeyTransplant.js — parse key ring buffer (8-byte slots, 0x5A5A9500FFFF empty marker, entries stored twice), find write pointer, extract donor keys, inject into target at write pointer, export patched bin
+- [x] RFHUB key transplant: RfhubKeyTransplantPanel.jsx UI — donor file drop, target file drop, key list preview, inject button, download patched bin
+- [x] RFHUB key transplant: wire panel into RfhubTab as a new sub-section
+- [x] RFHUB key transplant: vitest tests for parse, inject, and duplicate-detection

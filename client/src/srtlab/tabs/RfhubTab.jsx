@@ -33,6 +33,7 @@ import {useEffect} from "react";
 import RfhubVinPatcherPanel from "../components/RfhubVinPatcherPanel.jsx";
 import CharRfhubKeyAdderPanel from "../components/CharRfhubKeyAdderPanel.jsx";
 import CharRfhubKeyDiffPanel from "../components/CharRfhubKeyDiffPanel.jsx";
+import RfhubKeyTransplantPanel from "../components/RfhubKeyTransplantPanel.jsx";
 
 /**
  * KEY WRITER → RFHUB handoff banner.
@@ -737,6 +738,13 @@ export default function RfhubTab({vehicle}){
       * key table. Read-only; runs diffCharKeyTables. No live OBD required.
       * ─────────────────────────────────────────────────────────────────── */}
     <CharRfhubKeyDiffPanel />
+
+    {/* -- Key Transplant (donor -> target RFHUB offline) --
+      * Drop a donor RFHUB and a target RFHUB; select which keys to copy;
+      * download the patched target bin. No OBD required.
+      * Bench-verified: Gen2 / XC2268 / 95640 ring buffer @ 0x0C80.
+      * ----------------------------------------------------------------- */}
+    <RfhubKeyTransplantPanel />
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
       <div style={{fontWeight:800,fontSize:12,color:'#00BFA5',marginBottom:10,letterSpacing:2}}>📋 LOG</div>
