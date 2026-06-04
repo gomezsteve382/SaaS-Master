@@ -1,0 +1,24 @@
+# SRT Lab Web — Project TODO
+
+- [x] Database schema: sessions, uploads, audit_logs, operations tables
+- [x] Server lib: port and adapt RFHUB/BCM/PCM binary parsing library (ESM)
+- [x] tRPC router: file upload endpoint with SHA-256 hashing and S3 storage
+- [x] tRPC router: inspect endpoint (parse module, return VIN/SEC16/checksum status)
+- [x] tRPC router: candidate generation with Gen2 XOR-magic VIN writer (no crc8rf on Gen2)
+- [x] tRPC router: SEC16 synchronization (BCM↔RFH byte-reversal + crc8_65)
+- [x] tRPC router: byte-level diff computation between source/candidate/readback
+- [x] tRPC router: three-way pre-bench/post-bench comparison with learned-state flagging
+- [x] tRPC router: audit log queries (per-user timestamped operations)
+- [x] tRPC router: controlled export with confirmation gate (no download without explicit confirm)
+- [x] Safe-mode write guard: block export if Gen2 layout evidence is insufficient
+- [x] Frontend: Dashboard with drag-and-drop upload slots for RFHUB, BCM, PCM
+- [x] Frontend: Module inspector panel (VIN slots, SEC16 slots, key table, checksums, magic)
+- [x] Frontend: Byte-level diff report UI (offset table with hex values)
+- [x] Frontend: Three-way comparison view (corrected vs pre-bench vs post-bench)
+- [x] Frontend: Controlled candidate export with confirmation dialog
+- [x] Frontend: Audit log viewer (timestamped operation history)
+- [x] Frontend: Safe-mode refusal display (structured machine-readable reason)
+- [x] Frontend: Instructions box for user guidance
+- [x] Tests: server-side binary parsing and checksum validation
+- [x] Tests: Gen2 VIN writer regression (XOR-magic, no crc8rf)
+- [x] Tests: export confirmation gate enforcement
