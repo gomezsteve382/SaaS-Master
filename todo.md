@@ -43,3 +43,4 @@
 - [x] KEY TRANSPLANT gap: detect RFHUB type BEFORE 4KB validation so XC2268 files show the warning banner instead of a generic validation error
 - [x] KEY TRANSPLANT gap: persist transplant history to Dumps workspace (tRPC backups table) in addition to localStorage
 - [x] KEY TRANSPLANT gap: rename bench diff to 'patched-vs-target byte diff' and clarify it shows what bytes the transplant changed (not a reference comparison)
+- [x] KEY TRANSPLANT gap: surface transplant history entries in BackupsTab (Dumps workspace) with dedicated detail view, TRANSPLANT badge, and proper row rendering

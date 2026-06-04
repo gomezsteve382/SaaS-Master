@@ -1643,17 +1643,24 @@ export default function BackupsTab() {
                         <input
                           type="checkbox"
                           checked={isDiffSel}
-                          disabled={isMaxed || b.module === "BINARY_REPAIR"}
+                          disabled={isMaxed || b.module === "BINARY_REPAIR" || b.module === "KEY_TRANSPLANT"}
                           onClick={(e) => handleToggleDiffSelect(b.key, e)}
                           onChange={() => {}}
                           data-testid={"diff-checkbox-" + b.key}
                           title={isMaxed ? "Clear one selection before picking another" : isDiffSel ? "Deselect for diff" : "Select for diff"}
-                          style={{ cursor: (isMaxed || b.module === "BINARY_REPAIR") ? "not-allowed" : "pointer", accentColor: C.a3, width: 14, height: 14, flexShrink: 0 }}
+                          style={{ cursor: (isMaxed || b.module === "BINARY_REPAIR" || b.module === "KEY_TRANSPLANT") ? "not-allowed" : "pointer", accentColor: C.a3, width: 14, height: 14, flexShrink: 0 }}
                         />
                         <div style={{ fontWeight: 800, fontSize: 13, color: isDiffSel ? C.a3 : isSel ? C.a2 : C.tx }}>
-                          {b.module === "BINARY_REPAIR" ? "🔧 BINARY REPAIR" : b.module}
+                          {b.module === "BINARY_REPAIR" ? "🔧 BINARY REPAIR" : b.module === "KEY_TRANSPLANT" ? "🔑 KEY TRANSPLANT" : b.module}
                         </div>
-                        {b.module === "BINARY_REPAIR" ? (
+                        {b.module === "KEY_TRANSPLANT" ? (
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: "1px 5px", borderRadius: 3,
+                            background: "#E8EAF6", color: "#1A237E",
+                          }}>
+                            TRANSPLANT
+                          </span>
+                        ) : b.module === "BINARY_REPAIR" ? (
                           <span style={{
                             fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: "1px 5px", borderRadius: 3,
                             background: "#FFF3E0", color: "#E65100",
@@ -1678,11 +1685,13 @@ export default function BackupsTab() {
                         ) : null}
                       </div>
                       <div style={{ fontSize: 9, color: C.tm, fontFamily: "'JetBrains Mono'" }}>
-                        {b.module === "BINARY_REPAIR"
-                          ? (b.provenance?.algorithm ?? "") + "@" + (b.provenance?.offset ?? "")
-                          : b.snapshotKind === "repaired-dump"
-                            ? "repaired image"
-                            : b.didCount + " DIDs"}
+                        {b.module === "KEY_TRANSPLANT"
+                          ? "transplant log"
+                          : b.module === "BINARY_REPAIR"
+                            ? (b.provenance?.algorithm ?? "") + "@" + (b.provenance?.offset ?? "")
+                            : b.snapshotKind === "repaired-dump"
+                              ? "repaired image"
+                              : b.didCount + " DIDs"}
                       </div>
                     </div>
                     <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.ts, marginTop: 3 }}>{b.vin}</div>
@@ -1823,6 +1832,56 @@ export default function BackupsTab() {
                     </div>
                   </div>
                 </>
+              ) : selectedData.module === "KEY_TRANSPLANT" ? (
+                /* ── Transplant log detail view ── */
+                (() => {
+                  let tData = null;
+                  try { tData = typeof selectedData === "string" ? JSON.parse(selectedData) : (typeof selectedData.payload === "string" ? JSON.parse(selectedData.payload) : selectedData); } catch {}
+                  if (!tData) tData = selectedData;
+                  return (
+                    <>
+                      <div style={{
+                        padding: "12px 16px",
+                        background: "linear-gradient(90deg,#1A237E,#5C6BC0)",
+                        color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center",
+                      }}>
+                        <div>
+                          <div style={{ fontSize: 10, opacity: 0.7, letterSpacing: 2, fontWeight: 700 }}>TRANSPLANT LOG</div>
+                          <div style={{ fontFamily: "'Righteous'", fontSize: 16, letterSpacing: 1 }}>🔑 Key Transplant Job</div>
+                        </div>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <button onClick={() => handleDelete(selected)} style={chip("#FF525222", "#fff", "#FF525255")}>🗑 Delete</button>
+                        </div>
+                      </div>
+                      <div style={{ padding: 16 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "6px 12px", fontSize: 11, marginBottom: 16 }}>
+                          <span style={{ color: C.ts }}>Timestamp:</span>
+                          <span style={{ fontFamily: "'JetBrains Mono'" }}>{tData.ts ? new Date(tData.ts).toLocaleString() : new Date(selectedData.timestamp).toLocaleString()}</span>
+                          <span style={{ color: C.ts }}>Donor file:</span>
+                          <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{tData.donor || "—"}</span>
+                          <span style={{ color: C.ts }}>Target file:</span>
+                          <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700 }}>{tData.target || "—"}</span>
+                          <span style={{ color: C.ts }}>Keys injected:</span>
+                          <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700, color: "#1E6F3A" }}>{tData.injected ?? "—"}</span>
+                          <span style={{ color: C.ts }}>Keys skipped:</span>
+                          <span style={{ fontFamily: "'JetBrains Mono'" }}>{tData.skipped ?? "—"}</span>
+                          <span style={{ color: C.ts }}>Auth sector copied:</span>
+                          <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 700, color: tData.authCopied ? "#1E6F3A" : C.tm }}>{tData.authCopied ? "YES" : "NO"}</span>
+                          <span style={{ color: C.ts }}>Bytes changed:</span>
+                          <span style={{ fontFamily: "'JetBrains Mono'" }}>{tData.bytesChanged ?? "—"}</span>
+                          {Array.isArray(tData.keys) && tData.keys.length > 0 && (<>
+                            <span style={{ color: C.ts }}>Autel IDs:</span>
+                            <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, wordBreak: "break-all" }}>{tData.keys.join(", ")}</span>
+                          </>)}
+                        </div>
+                        <div style={{ fontSize: 11, color: C.ts, lineHeight: 1.6, padding: "8px 12px", background: "#E8EAF6", borderRadius: 6, border: "1px solid #C5CAE9" }}>
+                          This entry records a key transplant operation. The donor's keys (ring buffer + auth sector) were merged into the target RFHUB binary.
+                          View the full transplant workflow in the <b>KEY TRANSPLANT</b> tab.
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()
               ) : (
               /* ── Normal DID snapshot detail view ── */
               <>
