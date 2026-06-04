@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   Stethoscope, Terminal, Fingerprint, DownloadCloud, Bot,
-  ChevronRight, Wrench, Car, ShieldCheck, Search, X, ListChecks, KeyRound, Lock, Replace,
+  ChevronRight, Wrench, Car, ShieldCheck, Search, X, ListChecks, KeyRound, Lock, Replace, ScanEye,
 } from 'lucide-react';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
 
@@ -19,14 +19,19 @@ const T = {
 /* The five per-vehicle workflow panes. Each maps to an existing workspace
  * tab id so the battle-tested tab content components keep rendering. */
 export const PRIMARY_NAV = [
+  // DIAGNOSE — first stop, drop files and get a verdict
   {key: 'dumps',       label: 'Diagnose',      sub: 'Drop \u2192 verdict \u2192 fix', icon: Stethoscope},
+  // VIN & SECURITY — patch identifiers and pair modules
+  {key: 'vinprog',     label: 'VIN & Checksum', sub: 'Read / write / verify',          icon: Fingerprint},
   {key: 'vinsync',     label: 'VIN \u2192 Sync',    sub: 'Checksums then security',        icon: ListChecks},
   {key: 'secsync',     label: 'Security Sync', sub: 'BCM \u00b7 RFHUB \u00b7 PCM side-by-side', icon: Lock},
+  // KEYS — programming, transplant, and status
   {key: 'keyxfer',     label: 'Key Program',   sub: 'Add transponder key offline',    icon: KeyRound},
-  {key: 'keytransplant', label: 'Key Transplant', sub: 'Donor → Target RFHUB clone',    icon: Replace},
-  {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          icon: Terminal},
-  {key: 'vinprog',     label: 'VIN & Checksum', sub: 'Read / write / verify',          icon: Fingerprint},
+  {key: 'keytransplant', label: 'Key Transplant', sub: 'Donor \u2192 Target RFHUB clone',    icon: Replace},
+  {key: 'hitagaes',    label: 'HITAG AES',     sub: 'PCF7953 key status \u00b7 blank/prog/locked', icon: ScanEye},
+  // OBD & AI — live connections and guided analysis
   {key: 'obd',         label: 'OBD Pull',      sub: 'Read bin dumps live',            icon: DownloadCloud},
+  {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          icon: Terminal},
   {key: 'investigation', label: 'AI Copilot',  sub: 'Guided investigation',           icon: Bot},
 ];
 

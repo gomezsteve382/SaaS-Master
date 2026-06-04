@@ -48,3 +48,6 @@
 - [x] Promote KEY TRANSPLANT tab to primary sidebar (always visible without opening Advanced drawer)
 - [x] Check/fix HITAG AES tab category mapping (added to ANALYZE category)
 - [x] Push updated build to GCP production VM — SKIPPED (GCP has different app; Manus-hosted version is already live)
+- [ ] Add HITAG AES to primary sidebar (always visible like KEY TRANSPLANT)
+- [ ] Reorder primary sidebar for logical workflow (diagnostics → VIN/security → keys → OBD → AI)
+- [ ] Export project to GitHub repo (mjremetio/goatmez-autoshop-crm or dedicated repo)
