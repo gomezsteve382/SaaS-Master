@@ -20,23 +20,23 @@ const T = {
  * tab id so the battle-tested tab content components keep rendering. */
 export const PRIMARY_NAV = [
   // WORKFLOW HUB — persistent mission control, always first
-  {key: 'workflow',    label: 'Mission Control', sub: 'Module census \u00b7 status overview', icon: ShieldCheck},
+  {key: 'workflow',    label: 'Mission Control', sub: 'Module census · status overview', emoji: '🛠️'},
   // DIAGNOSE — first stop, drop files and get a verdict
-  {key: 'dumps',       label: 'Diagnose',      sub: 'Drop \u2192 verdict \u2192 fix', icon: Stethoscope},
+  {key: 'dumps',       label: 'Diagnose',      sub: 'Drop → verdict → fix', emoji: '🔍'},
   // VIN & SECURITY — patch identifiers and pair modules
-  {key: 'vinprog',     label: 'VIN & Checksum', sub: 'Read / write / verify',          icon: Fingerprint},
-  {key: 'vinsync',     label: 'VIN \u2192 Sync',    sub: 'Checksums then security',        icon: ListChecks},
-  {key: 'secsync',     label: 'Security Sync', sub: 'BCM \u00b7 RFHUB \u00b7 PCM side-by-side', icon: Lock},
+  {key: 'vinprog',     label: 'VIN & Checksum', sub: 'Read / write / verify',          emoji: '🪪'},
+  {key: 'vinsync',     label: 'VIN → Sync',    sub: 'Checksums then security',        emoji: '🔄'},
+  {key: 'secsync',     label: 'Security Sync', sub: 'BCM · RFHUB · PCM side-by-side', emoji: '🔐'},
   // KEYS — programming, transplant, and status
-  {key: 'quickclone',  label: 'Quick Clone',   sub: 'VIN + Security + Keys · 3-step wizard', icon: Zap},
-  {key: 'keyxfer',     label: 'Transponder Clone', sub: 'Add / transfer key offline \u00b7 no OBD', icon: KeyRound},
-  {key: 'keytransplant', label: 'Key Transplant', sub: 'Donor \u2192 Target RFHUB clone',    icon: Replace},
-  {key: 'hitagaes',    label: 'HITAG Key Reader', sub: 'PCF7945 \u00b7 PCF7939FA \u00b7 blank / prog / locked', icon: ScanEye},
-  {key: 'hitag2',      label: 'HITAG 2 Bench',   sub: 'PCF7945/53 \u00b7 SK derive \u00b7 VVDI write helper', icon: ScanEye},
+  {key: 'quickclone',  label: 'Quick Clone',   sub: 'VIN + Security + Keys · 3-step wizard', emoji: '⚡'},
+  {key: 'keyxfer',     label: 'Transponder Clone', sub: 'Add / transfer key offline · no OBD', emoji: '🔑'},
+  {key: 'keytransplant', label: 'Key Transplant', sub: 'Donor → Target RFHUB clone',    emoji: '🔀'},
+  {key: 'hitagaes',    label: 'HITAG Key Reader', sub: 'PCF7945 · PCF7939FA · blank / prog / locked', emoji: '📶'},
+  {key: 'hitag2',      label: 'HITAG 2 Bench',   sub: 'PCF7945/53 · SK derive · VVDI write helper', emoji: '📶'},
   // OBD & AI — live connections and guided analysis
-  {key: 'obd',         label: 'OBD Pull',      sub: 'Read bin dumps live',            icon: DownloadCloud},
-  {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          icon: Terminal},
-  {key: 'investigation', label: 'AI Copilot',  sub: 'Guided investigation',           icon: Bot},
+  {key: 'obd',         label: 'OBD Pull',      sub: 'Read bin dumps live',            emoji: '📡'},
+  {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          emoji: '🔌'},
+  {key: 'investigation', label: 'AI Copilot',  sub: 'Guided investigation',           emoji: '🤖'},
 ];
 
 const PRIMARY_KEYS = new Set(PRIMARY_NAV.map(n => n.key));
@@ -44,7 +44,7 @@ const PRIMARY_KEYS = new Set(PRIMARY_NAV.map(n => n.key));
 /* Two quick links pinned under the primary rail (still reachable in the
  * drawer too). */
 export const FOOTER_NAV = [
-  {key: 'canuniverse', label: 'CAN Universe \u00b7 Intel', icon: Search},
+  {key: 'canuniverse', label: 'CAN Universe · Intel', emoji: '🔭'},
 ];
 
 const CATEGORY_META = {
@@ -340,7 +340,6 @@ export default function CommandShell({
 
           {PRIMARY_NAV.map((item) => {
             const isActive = item.key === activeTab;
-            const Icon = item.icon;
             return (
               <button
                 key={item.key}
@@ -349,16 +348,24 @@ export default function CommandShell({
                 onClick={() => onSelect(item.key)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 11, width: '100%', textAlign: 'left',
-                  padding: '11px 11px', borderRadius: 10, cursor: 'pointer', border: 'none',
+                  padding: '10px 11px', borderRadius: 10, cursor: 'pointer', border: 'none',
                   background: isActive ? T.red : 'transparent',
                   color: isActive ? '#fff' : T.ink,
                   boxShadow: isActive ? '0 6px 16px -6px rgba(211,47,47,.6)' : 'none',
                   fontFamily: "'Nunito',sans-serif",
+                  transition: 'background 120ms ease-out',
                 }}
                 onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = '#F4F1EC'; }}
                 onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
               >
-                <Icon size={19} style={{flexShrink: 0, opacity: isActive ? 1 : 0.7}} />
+                <span style={{
+                  width: 34, height: 34, borderRadius: 9, flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 19, lineHeight: 1,
+                  background: isActive ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.05)',
+                }}>
+                  {item.emoji}
+                </span>
                 <span style={{lineHeight: 1.2, minWidth: 0}}>
                   <span style={{display: 'block', fontWeight: 800, fontSize: 13.5}}>{item.label}</span>
                   <span style={{display: 'block', fontSize: 11, opacity: isActive ? 0.85 : 0.55}}>{item.sub}</span>
@@ -372,7 +379,6 @@ export default function CommandShell({
           <div style={{borderTop: `1px solid ${T.line}`, paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 4}}>
             {FOOTER_NAV.map((x) => {
               const isActive = x.key === activeTab;
-              const Icon = x.icon;
               return (
                 <button
                   key={x.key}
@@ -389,7 +395,7 @@ export default function CommandShell({
                   onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = '#F4F1EC'; }}
                   onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
                 >
-                  <Icon size={16} /> {x.label}
+                  <span style={{fontSize: 16, lineHeight: 1}}>{x.emoji}</span> {x.label}
                 </button>
               );
             })}
