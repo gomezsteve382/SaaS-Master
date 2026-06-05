@@ -27,9 +27,10 @@ export const PRIMARY_NAV = [
   {key: 'secsync',     label: 'Security Sync', sub: 'BCM \u00b7 RFHUB \u00b7 PCM side-by-side', icon: Lock},
   // KEYS — programming, transplant, and status
   {key: 'quickclone',  label: 'Quick Clone',   sub: 'VIN + Security + Keys · 3-step wizard', icon: Zap},
-  {key: 'keyxfer',     label: 'Key Program',   sub: 'Add transponder key offline',    icon: KeyRound},
+  {key: 'keyxfer',     label: 'Transponder Clone', sub: 'Add / transfer key offline \u00b7 no OBD', icon: KeyRound},
   {key: 'keytransplant', label: 'Key Transplant', sub: 'Donor \u2192 Target RFHUB clone',    icon: Replace},
-  {key: 'hitagaes',    label: 'HITAG AES',     sub: 'PCF7953 key status \u00b7 blank/prog/locked', icon: ScanEye},
+  {key: 'hitagaes',    label: 'HITAG Key Reader', sub: 'PCF7945 \u00b7 PCF7939FA \u00b7 blank / prog / locked', icon: ScanEye},
+  {key: 'hitag2',      label: 'HITAG 2 Bench',   sub: 'PCF7945/53 \u00b7 SK derive \u00b7 VVDI write helper', icon: ScanEye},
   // OBD & AI — live connections and guided analysis
   {key: 'obd',         label: 'OBD Pull',      sub: 'Read bin dumps live',            icon: DownloadCloud},
   {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          icon: Terminal},

@@ -456,6 +456,25 @@ export default function Hitag2Tab() {
               </div>
             )}
 
+            {/* Copy for Autel IM608 — space-separated byte pairs */}
+            {sk6 && (() => {
+              const autelFmt = sk6.match(/.{2}/g).join(' ');
+              return (
+                <div style={{ marginTop: 10, background: '#050505', border: '1px solid #1a3a1a', borderRadius: 6, padding: 10 }}>
+                  <div style={{ color: '#555', fontSize: 10, letterSpacing: 1, marginBottom: 4 }}>AUTEL IM608 FORMAT (space-separated bytes)</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: 14, color: '#4ADE80', fontWeight: 700, flex: 1, letterSpacing: 2 }}>{autelFmt}</span>
+                    <Btn onClick={() => copy(autelFmt, 'autel')} style={{ fontSize: 11, padding: '4px 10px', background: '#14532d', borderColor: '#166534' }}>
+                      {copied === 'autel' ? '✓ Copied for Autel' : '📋 Copy for Autel'}
+                    </Btn>
+                  </div>
+                  <div style={{ color: '#555', fontSize: 10, marginTop: 6, lineHeight: 1.5 }}>
+                    Paste into Autel IM608 → HITAG 2 → Write → SK field exactly as shown.
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Config page copy */}
             {normHex(configPage, 8) && (
               <div style={{ marginTop: 10, background: '#050505', border: '1px solid #222', borderRadius: 6, padding: 10 }}>

@@ -47,6 +47,7 @@ export default function EfdToBinTab({efdFile, onFlash}){
   const [error, setError] = useState(null);
   const [sha, setSha] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [sectionMapOpen, setSectionMapOpen] = useState(false);
 
   // Seed from the shared workspace EFD file (set when an .efd is dropped
   // anywhere — the loader diverts EBML containers to shared state).
@@ -63,7 +64,7 @@ export default function EfdToBinTab({efdFile, onFlash}){
   }, [loaded]);
 
   // Reset the verification hash whenever the loaded file changes.
-  useEffect(() => { setSha(null); }, [loaded]);
+  useEffect(() => { setSha(null); setSectionMapOpen(false); }, [loaded]);
 
   const onPick = useCallback((e) => {
     const f = e.target.files && e.target.files[0];
@@ -120,6 +121,7 @@ export default function EfdToBinTab({efdFile, onFlash}){
   const parsed = result && result.parsed;
   const meta = (parsed && parsed.metadata) || {};
   const ok = result && result.ok;
+  const sections = (parsed && parsed.sections) || [];
 
   return (
     <div>
@@ -199,6 +201,80 @@ export default function EfdToBinTab({efdFile, onFlash}){
               </div>
             ))}
           </div>
+        </Card>
+      )}
+
+      {sections.length > 0 && (
+        <Card style={{marginTop: 16}}>
+          <div
+            style={{display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', userSelect: 'none'}}
+            onClick={() => setSectionMapOpen(o => !o)}
+          >
+            <div style={{fontFamily: 'JetBrains Mono', fontSize: 11, letterSpacing: 3, color: C.a2, fontWeight: 800, flex: 1}}>
+              EBML SECTION MAP
+            </div>
+            <Tag color={C.a1}>{sections.length} ELEMENTS</Tag>
+            <span style={{fontSize: 14, color: C.ts, fontWeight: 700}}>{sectionMapOpen ? '▲' : '▼'}</span>
+          </div>
+
+          {sectionMapOpen && (
+            <>
+              <div style={{overflowX: 'auto', marginTop: 12}}>
+                <table style={{width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: 'JetBrains Mono'}}>
+                  <thead>
+                    <tr style={{borderBottom: `2px solid ${C.bd}`}}>
+                      {['#', 'OFFSET', 'ELEMENT ID', 'TAG / LABEL', 'SIZE', 'KIND'].map(h => (
+                        <th key={h} style={{padding: '4px 10px', textAlign: 'left', fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1.2, whiteSpace: 'nowrap'}}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sections.map((s, i) => {
+                      const isPayload = s.kind === 'payload';
+                      const isHeader  = s.kind === 'header';
+                      const isMeta    = s.kind === 'metadata';
+                      const rowBg = isPayload ? '#2E7D3218' : isHeader ? '#1565C018' : 'transparent';
+                      const kindColor = isPayload ? C.gn : isHeader ? C.a1 : isMeta ? C.a2 : C.ts;
+                      return (
+                        <tr key={i} style={{background: rowBg, borderBottom: `1px solid ${C.bd}33`}}>
+                          <td style={{padding: '5px 10px', color: C.ts, fontSize: 10}}>{i + 1}</td>
+                          <td style={{padding: '5px 10px', color: C.a3, whiteSpace: 'nowrap'}}>
+                            0x{s.offset.toString(16).toUpperCase().padStart(6, '0')}
+                          </td>
+                          <td style={{padding: '5px 10px', color: C.a1, whiteSpace: 'nowrap'}}>
+                            0x{s.id.toUpperCase()}
+                          </td>
+                          <td style={{padding: '5px 10px', color: isPayload ? C.gn : C.tx, fontWeight: isPayload ? 800 : 600}}>
+                            {s.label
+                              ? <>{s.label}{isPayload && <span style={{marginLeft: 6, fontSize: 9, color: C.gn, fontWeight: 800, letterSpacing: 1}}> ← PAYLOAD</span>}</>
+                              : <span style={{color: C.ts, fontStyle: 'italic'}}>unknown</span>
+                            }
+                          </td>
+                          <td style={{padding: '5px 10px', color: C.tx, whiteSpace: 'nowrap'}}>{fmtSize(s.size)}</td>
+                          <td style={{padding: '5px 10px'}}>
+                            {s.kind ? (
+                              <span style={{
+                                fontSize: 9, fontWeight: 800, letterSpacing: 1, color: kindColor,
+                                padding: '2px 6px', borderRadius: 4,
+                                background: `${kindColor}18`,
+                                border: `1px solid ${kindColor}44`,
+                              }}>
+                                {s.kind.toUpperCase()}
+                              </span>
+                            ) : <span style={{color: C.ts, fontSize: 9}}>—</span>}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <div style={{marginTop: 8, fontSize: 10, color: C.ts, lineHeight: 1.6}}>
+                <span style={{color: C.gn, fontWeight: 700}}>■</span> Green row = UP payload (id <code>0x205550</code>) — the encrypted flash image extracted to .bin.{' '}
+                <span style={{color: C.a1, fontWeight: 700}}>■</span> Blue row = EBML header (id <code>0x1A45DFA3</code>).
+              </div>
+            </>
+          )}
         </Card>
       )}
     </div>

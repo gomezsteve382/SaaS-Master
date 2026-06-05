@@ -69,3 +69,19 @@
 - [x] Rename HITAG AES tab to "HITAG KEY READER" in App.jsx nav entry and update description
 - [x] Build Hitag2Tab.jsx: photo OCR (HITAG 2 screen), 6-byte SK derivation display, VVDI write helper (Low SK / High SK formatted for VVDI Prog), chip status analysis (BLANK/PROGRAMMED/LOCKED), blank key reference storage
 - [x] Register Hitag2Tab in App.jsx nav and route
+
+## UI/UX Overhaul (Professional Audit)
+- [x] NAV: PRIMARY_NAV labels updated (Key Program → Transponder Clone, HITAG AES → HITAG Key Reader, added HITAG 2 Bench) — top category header + sub-tabs only for active group
+- [x] NAV: Rename keyxfer (KEY PROGRAM) → TRANSPONDER CLONE and keyprog (KEY PROG) → KEY PROG WIZARD
+- [x] NAV: Update HITAG KEY READER nav label to show chip part numbers (PCF7945/PCF7939)
+- [x] ONBOARDING: Add "What are you trying to do?" landing screen with 5 task-entry buttons routing to correct tabs
+- [x] DIFF: Add hex diff panel to Quick Clone download step showing before/after byte changes with offset labels
+- [ ] GUARD: Add vehicle-year context guard banner to all key-related tabs
+- [ ] SEED: Add algorithm auto-selector to Seed→Key tab based on loaded module type in context
+- [ ] WORKFLOW: Make Workflow tab the persistent top-level hub
+
+## EFD→BIN Enhancements
+- [x] EFD: Show extracted metadata (Engine, Program, Version, Part Number) from 0x204453 section
+- [x] EFD: Show EBML section map (header, metadata, payload offsets and sizes)
+- [x] EFD: Add truncation warning when size < declaredSize
+- [x] EFD: Add "Send to Flasher" button after successful extraction

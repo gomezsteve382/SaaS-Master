@@ -282,6 +282,7 @@ export default function QuickCloneTab({ vehicle }) {
 
   /* ── UI state ── */
   const [error, setError] = useState('');
+  const [diffOpen, setDiffOpen] = useState(false);
   const [activeStep, setActiveStep] = useState(1);
 
   const vinGood = VIN_REGEX.test(targetVin);
@@ -487,7 +488,12 @@ export default function QuickCloneTab({ vehicle }) {
         });
       } catch { /* best-effort */ }
 
-      setStep3({ rfhBytes: res.patched, log, injected: res.injected, skipped: res.skipped });
+      // Build diff entries for the hex diff panel (cap at 256 changed offsets)
+      const diffEntries = [];
+      for (let i = 0; i < Math.min(orig.length, res.patched.length) && diffEntries.length < 256; i++) {
+        if (orig[i] !== res.patched[i]) diffEntries.push({ offset: i, before: orig[i], after: res.patched[i] });
+      }
+      setStep3({ rfhBytes: res.patched, log, injected: res.injected, skipped: res.skipped, diffEntries, bytesChanged });
     } catch (e) { setError(e.message); }
   }, [step2, rfhDonor, rfhTarget, copyAuth, targetVin]);
 
@@ -681,6 +687,47 @@ export default function QuickCloneTab({ vehicle }) {
         {step3 && (
           <div style={{ marginTop: 12, fontFamily: "'JetBrains Mono'", fontSize: 11, color: C.tx, lineHeight: 1.7, background: C.c2, border: `1px solid ${C.bd}`, borderRadius: 10, padding: '10px 12px' }}>
             {step3.log.map((l, i) => <div key={i}>· {l}</div>)}
+          </div>
+        )}
+        {step3 && step3.diffEntries && step3.diffEntries.length > 0 && (
+          <div style={{ marginTop: 10, borderRadius: 10, border: `1px solid ${C.bd}`, overflow: 'hidden' }}>
+            <div
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: C.c2, cursor: 'pointer', userSelect: 'none' }}
+              onClick={() => setDiffOpen(o => !o)}
+            >
+              <span style={{ fontSize: 10, fontWeight: 900, color: C.ts, letterSpacing: 1.5, flex: 1 }}>BYTE DIFF — BEFORE / AFTER KEY TRANSPLANT</span>
+              <span style={{ fontSize: 10, fontWeight: 800, color: C.wn, padding: '2px 8px', borderRadius: 4, background: C.wn + '18', border: `1px solid ${C.wn}44` }}>
+                {step3.bytesChanged} BYTES CHANGED
+              </span>
+              <span style={{ fontSize: 12, color: C.ts }}>{diffOpen ? '▲' : '▼'}</span>
+            </div>
+            {diffOpen && (
+              <div style={{ overflowX: 'auto', maxHeight: 280, overflowY: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: "'JetBrains Mono'" }}>
+                  <thead>
+                    <tr style={{ borderBottom: `1px solid ${C.bd}`, position: 'sticky', top: 0, background: '#F4F1EC' }}>
+                      <th style={{ padding: '4px 10px', textAlign: 'left', fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1.2 }}>OFFSET</th>
+                      <th style={{ padding: '4px 10px', textAlign: 'left', fontSize: 9, fontWeight: 800, color: C.er, letterSpacing: 1.2 }}>BEFORE</th>
+                      <th style={{ padding: '4px 10px', textAlign: 'left', fontSize: 9, fontWeight: 800, color: C.gn, letterSpacing: 1.2 }}>AFTER</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {step3.diffEntries.map((d, i) => (
+                      <tr key={i} style={{ borderBottom: `1px solid ${C.bd}22` }}>
+                        <td style={{ padding: '3px 10px', color: C.a3 }}>0x{d.offset.toString(16).toUpperCase().padStart(4, '0')}</td>
+                        <td style={{ padding: '3px 10px', color: C.er }}>{d.before.toString(16).toUpperCase().padStart(2, '0')}</td>
+                        <td style={{ padding: '3px 10px', color: C.gn }}>{d.after.toString(16).toUpperCase().padStart(2, '0')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {step3.bytesChanged > 256 && (
+                  <div style={{ padding: '6px 12px', fontSize: 10, color: C.ts, borderTop: `1px solid ${C.bd}` }}>
+                    … {step3.bytesChanged - 256} more changed bytes not shown (capped at 256 rows)
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </Card>

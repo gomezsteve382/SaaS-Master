@@ -1710,6 +1710,37 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
         ))}
       </div>
     )}
+    {/* Onboarding quick-action panel — shown only when no files are loaded yet */}
+    {files.length === 0 && (
+      <div style={{padding:'16px 20px',borderRadius:12,background:'linear-gradient(135deg,rgba(26,26,26,0.04),rgba(26,26,26,0.01))',border:'1.5px dashed '+C.bd}}>
+        <div style={{fontSize:10,fontWeight:900,color:C.ts,letterSpacing:2,marginBottom:12,textTransform:'uppercase'}}>What are you trying to do?</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:8}}>
+          {[
+            {icon:'🔑',label:'Program a Key',sub:'Transponder · HITAG 2 / AES',tab:'keyxfer'},
+            {icon:'🔄',label:'Sync VIN Across Modules',sub:'BCM · RFHUB · PCM',tab:'vinsync'},
+            {icon:'🔐',label:'Sync Security Bytes',sub:'SEC16 · SEC6 · BCM source',tab:'secsync'},
+            {icon:'⚡',label:'Clone a Module',sub:'Quick Clone wizard',tab:'quickclone'},
+            {icon:'📡',label:'Pull Dumps via OBD',sub:'Live read · K-line / CAN',tab:'obd'},
+          ].map(({icon,label,sub,tab})=>(
+            <button key={tab} onClick={()=>openTab(tab)}
+              style={{
+                padding:'12px 14px',textAlign:'left',borderRadius:10,cursor:'pointer',
+                background:'rgba(255,255,255,0.7)',border:'1px solid '+C.bd,
+                transition:'all .15s',outline:'none',
+              }}
+              onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,1)';e.currentTarget.style.borderColor=C.a1;e.currentTarget.style.transform='translateY(-1px)';}}
+              onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.7)';e.currentTarget.style.borderColor=C.bd;e.currentTarget.style.transform='none';}}>
+              <div style={{fontSize:20,marginBottom:6}}>{icon}</div>
+              <div style={{fontSize:11,fontWeight:800,color:C.tx,letterSpacing:.5,lineHeight:1.3}}>{label}</div>
+              <div style={{fontSize:10,color:C.ts,marginTop:3,lineHeight:1.4}}>{sub}</div>
+            </button>
+          ))}
+        </div>
+        <div style={{marginTop:12,fontSize:10,color:C.ts,lineHeight:1.5}}>
+          Or drop BCM / RFHUB / PCM dump files below to start with a full module diagnosis.
+        </div>
+      </div>
+    )}
     {/* Target VIN input */}
     <Card>
       <div style={{display:'flex',gap:14,alignItems:'center',flexWrap:'wrap'}}>
