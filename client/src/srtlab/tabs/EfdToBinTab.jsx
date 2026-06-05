@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Card, Btn, Tag, SLine} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
-import {extractEfdPayload, parseEfdZipPackage, buildFullFlashImage} from '../lib/efdParser.js';
+import {extractEfdPayload, parseEfdZipPackage, buildFullFlashImage, parseEfdFilename} from '../lib/efdParser.js';
 
 // EFD → BIN converter.
 //
@@ -141,12 +141,24 @@ function ZipResult({zipResult, pkgName}){
     <div>
       {/* Header */}
       <Card>
-        <div style={{display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap'}}>
-          <Tag color={C.gn}>✓ POWERCAL PACKAGE</Tag>
-          <Tag color={C.a2}>{zipResult.blocks.length} FLASH BLOCKS</Tag>
-          <span style={{fontSize: 12, color: C.tx, fontWeight: 700}}>{pkgName}</span>
-          <span style={{fontSize: 10, color: C.ts}}>{fmtSize(zipResult.totalSize)}</span>
-        </div>
+        {(() => {
+          const fn = parseEfdFilename(pkgName);
+          return (
+            <div style={{display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap'}}>
+              <Tag color={C.gn}>✓ POWERCAL PACKAGE</Tag>
+              <Tag color={C.a2}>{zipResult.blocks.length} FLASH BLOCKS</Tag>
+              {fn.module  && <Tag color={C.a2}>{fn.module}</Tag>}
+              {fn.program && <Tag color={C.a3}>{fn.program}</Tag>}
+              {fn.year    && <Tag color={C.ts}>{fn.year}</Tag>}
+              {fn.region  && <Tag color={C.a1}>{fn.region}</Tag>}
+              <span style={{fontSize: 12, color: C.tx, fontWeight: 700}}>{pkgName}</span>
+              <span style={{fontSize: 10, color: C.ts}}>{fmtSize(zipResult.totalSize)}</span>
+              {fn.summary !== 'Unknown calibration' && (
+                <span style={{fontSize: 10, color: C.ts, fontStyle: 'italic'}}>{fn.summary}</span>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Descriptor summary */}
         {zipResult.descriptor.description && (

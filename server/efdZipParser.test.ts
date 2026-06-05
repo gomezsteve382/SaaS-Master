@@ -207,3 +207,170 @@ describe('buildFullFlashImage', () => {
     expect(r!.endAddress).toBe(0x203);
   });
 });
+
+// ─── benchWriteValidate ───────────────────────────────────────────────────────
+
+describe('benchWriteValidate', () => {
+  it('returns pass=true for exact LB18 size (3407872)', async () => {
+    const { benchWriteValidate } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = benchWriteValidate(3407872, '18SCAT_ECM_INTFLASH.bin');
+    expect(r.pass).toBe(true);
+    expect(r.matches.length).toBeGreaterThan(0);
+    expect(r.matches[0].region).toContain('INT FLASH');
+    expect(r.close).toHaveLength(0);
+  });
+
+  it('returns pass=true for exact RFHUB 4 KB size (4096)', async () => {
+    const { benchWriteValidate } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = benchWriteValidate(4096, 'rfhub.bin');
+    expect(r.pass).toBe(true);
+    expect(r.matches.some(m => m.ecu.includes('RFHUB'))).toBe(true);
+  });
+
+  it('returns pass=false with close matches for encrypted EFD payload size (3985326)', async () => {
+    const { benchWriteValidate } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = benchWriteValidate(3985326, '18SCAT_ECM_INTFLASH.bin');
+    expect(r.pass).toBe(false);
+    expect(r.close.length).toBeGreaterThan(0);
+    // Should be close to LB18 (3407872) or full P-Flash (4194304)
+    const regions = r.close.map(c => c.region);
+    expect(regions.some(reg => reg.includes('INT FLASH') || reg.includes('P-Flash'))).toBe(true);
+  });
+
+  it('returns pass=false with no close matches for random small size (512)', async () => {
+    const { benchWriteValidate } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = benchWriteValidate(512, 'tiny.bin');
+    expect(r.pass).toBe(false);
+    expect(r.close).toHaveLength(0);
+  });
+
+  it('includes filename in result', async () => {
+    const { benchWriteValidate } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = benchWriteValidate(3407872, 'myfile.bin');
+    expect(r.filename).toBe('myfile.bin');
+    expect(r.byteLength).toBe(3407872);
+  });
+});
+
+// ─── parseEfdFilename ─────────────────────────────────────────────────────────
+
+describe('parseEfdFilename', () => {
+  it('parses 18SCAT_ECM_INTFLASH.bin correctly', async () => {
+    const { parseEfdFilename } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = parseEfdFilename('18SCAT_ECM_INTFLASH.bin');
+    expect(r.year).toBe(2018);
+    expect(r.module).toBe('ECM');
+    expect(r.program).toBe('SCAT');
+    expect(r.region).toBe('INTFLASH');
+    expect(r.summary).toContain('2018');
+    expect(r.summary).toContain('SCAT');
+    expect(r.summary).toContain('ECM');
+  });
+
+  it('parses 19LD64_BCM_CFLASH.zip correctly', async () => {
+    const { parseEfdFilename } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = parseEfdFilename('19LD64_BCM_CFLASH.zip');
+    expect(r.year).toBe(2019);
+    expect(r.module).toBe('BCM');
+    expect(r.program).toBe('LD64');
+    expect(r.region).toBe('CFLASH');
+  });
+
+  it('parses 2018GPEC2A_P14U_ENG.zip correctly', async () => {
+    const { parseEfdFilename } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = parseEfdFilename('2018GPEC2A_P14U_ENG.zip');
+    expect(r.year).toBe(2018);
+    expect(r.program).toBe('GPEC2A');
+  });
+
+  it('returns unknown summary for unrecognized filename', async () => {
+    const { parseEfdFilename } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = parseEfdFilename('random_file_xyz.bin');
+    expect(r.year).toBeNull();
+    expect(r.module).toBeNull();
+    expect(r.summary).toBe('Unknown calibration');
+  });
+
+  it('handles null/undefined gracefully', async () => {
+    const { parseEfdFilename } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = parseEfdFilename(null as any);
+    expect(r.summary).toBe('Unknown calibration');
+  });
+
+  it('detects HELLCAT program', async () => {
+    const { parseEfdFilename } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = parseEfdFilename('2020_HELLCAT_ECM_INTFLASH.bin');
+    expect(r.program).toBe('HELLCAT');
+    expect(r.year).toBe(2020);
+    expect(r.module).toBe('ECM');
+  });
+
+  it('detects TCM module', async () => {
+    const { parseEfdFilename } = await import('../client/src/srtlab/lib/efdParser.js');
+    const r = parseEfdFilename('19SCAT_TCM_INTFLASH.bin');
+    expect(r.module).toBe('TCM');
+    expect(r.moduleDesc).toContain('Transmission');
+  });
+});
+
+// ─── diffEfdBlocks ────────────────────────────────────────────────────────────
+
+describe('diffEfdBlocks', () => {
+  it('reports identical for two equal blocks', async () => {
+    const { diffEfdBlocks } = await import('../client/src/srtlab/lib/efdParser.js');
+    const data = new Uint8Array(100).fill(0xAA);
+    const blocksA = [{ index: 18, label: 'INT FLASH', startAddress: 0x40000, endAddress: 0x40063, dataSize: 100, data }];
+    const blocksB = [{ index: 18, label: 'INT FLASH', startAddress: 0x40000, endAddress: 0x40063, dataSize: 100, data }];
+    const diffs = diffEfdBlocks(blocksA as any, blocksB as any);
+    expect(diffs).toHaveLength(1);
+    expect(diffs[0].identical).toBe(true);
+    expect(diffs[0].changedBytes).toBe(0);
+    expect(diffs[0].hunks).toHaveLength(0);
+  });
+
+  it('counts changed bytes correctly', async () => {
+    const { diffEfdBlocks } = await import('../client/src/srtlab/lib/efdParser.js');
+    const a = new Uint8Array(10).fill(0x00);
+    const b = new Uint8Array(10).fill(0x00);
+    b[3] = 0xFF;
+    b[7] = 0xFF;
+    const blocksA = [{ index: 18, label: 'LB18', startAddress: 0, endAddress: 9, dataSize: 10, data: a }];
+    const blocksB = [{ index: 18, label: 'LB18', startAddress: 0, endAddress: 9, dataSize: 10, data: b }];
+    const diffs = diffEfdBlocks(blocksA as any, blocksB as any);
+    expect(diffs[0].identical).toBe(false);
+    expect(diffs[0].changedBytes).toBe(2);
+    expect(diffs[0].pctChanged).toBeCloseTo(20, 0);
+  });
+
+  it('marks blocks only in A or only in B', async () => {
+    const { diffEfdBlocks } = await import('../client/src/srtlab/lib/efdParser.js');
+    const data = new Uint8Array(4).fill(0x01);
+    const blocksA = [{ index: 18, label: 'LB18', startAddress: 0, endAddress: 3, dataSize: 4, data }];
+    const blocksB = [{ index: 19, label: 'LB19', startAddress: 0, endAddress: 3, dataSize: 4, data }];
+    const diffs = diffEfdBlocks(blocksA as any, blocksB as any);
+    expect(diffs).toHaveLength(2);
+    const d18 = diffs.find(d => d.index === 18)!;
+    const d19 = diffs.find(d => d.index === 19)!;
+    expect(d18.onlyInA).toBe(true);
+    expect(d19.onlyInB).toBe(true);
+  });
+
+  it('handles empty block arrays', async () => {
+    const { diffEfdBlocks } = await import('../client/src/srtlab/lib/efdParser.js');
+    expect(diffEfdBlocks([], [])).toHaveLength(0);
+    expect(diffEfdBlocks(null as any, null as any)).toHaveLength(0);
+  });
+
+  it('produces hunks for changed regions', async () => {
+    const { diffEfdBlocks } = await import('../client/src/srtlab/lib/efdParser.js');
+    const a = new Uint8Array(100).fill(0x00);
+    const b = new Uint8Array(100).fill(0x00);
+    // Change a contiguous region
+    for (let i = 40; i < 60; i++) b[i] = 0xFF;
+    const blocksA = [{ index: 18, label: 'LB18', startAddress: 0, endAddress: 99, dataSize: 100, data: a }];
+    const blocksB = [{ index: 18, label: 'LB18', startAddress: 0, endAddress: 99, dataSize: 100, data: b }];
+    const diffs = diffEfdBlocks(blocksA as any, blocksB as any);
+    expect(diffs[0].hunks.length).toBeGreaterThan(0);
+    expect(diffs[0].hunks[0].offset).toBeLessThanOrEqual(40);
+  });
+});

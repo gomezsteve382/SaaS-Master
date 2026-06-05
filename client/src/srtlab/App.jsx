@@ -44,6 +44,8 @@ import KeyManagerTab from "./tabs/KeyManagerTab";
 import CFlashTab from "./tabs/CFlashTab.jsx";
 import EfdInspectorTab from "./tabs/EfdInspectorTab.jsx";
 import EfdToBinTab from "./tabs/EfdToBinTab.jsx";
+import BenchWriteValidatorTab from "./tabs/BenchWriteValidatorTab.jsx";
+import EfdBlockDiffTab from "./tabs/EfdBlockDiffTab.jsx";
 import EcmFlasherTab from "./tabs/EcmFlasherTab.jsx";
 import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
 import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
@@ -955,6 +957,8 @@ const WORKSPACE_TABS = [
   {id:'cflash',     i:'🔥', l:'C-FLASH',          s:'ECM image · Diff · Tuner sigs'},
   {id:'efd',        i:'📦', l:'EFD',              s:'.webm/.efd inspector'},
   {id:'efd2bin',    i:'📦', l:'EFD → BIN',        s:'Extract payload to .bin'},
+  {id:'benchval',   i:'🔬', l:'BENCH VALIDATOR',   s:'Check .bin size vs Multi-PROG regions'},
+  {id:'efdiff',     i:'🔀', l:'EFD BLOCK DIFF',    s:'Diff two PowerCal zip packages'},
   {id:'flasher',    i:'⚡', l:'ECM FLASHER',      s:'GPEC2A bench programmer'},
   {id:'cdasession', i:'🔐', l:'CDA6 SESSION',     s:'9-step UDS walkthrough'},
   {id:'vinprog',    i:'🪪', l:'VIN + CHECKSUM',   s:'Single-file VIN write + CRC patcher'},
@@ -1005,6 +1009,7 @@ const WORKSPACE_CATEGORIES = {
   obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE', autelsgw:'LIVE',
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
   dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE', efd2bin:'ANALYZE',
+  benchval:'ANALYZE', efdiff:'ANALYZE',
   proxi:'ANALYZE', smartbox:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
   loganalyser:'ANALYZE', workflow:'ANALYZE', hitagaes:'ANALYZE', hitag2:'ANALYZE',
   // TOOLS — cross-cutting catalogs and coverage dashboards.
@@ -1258,6 +1263,8 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='cflash'    && <CFlashTab files={files.filter(f=>f && (f.type==='CFLASH'||f.type==='FW'))} onLoad={loadF} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
         {tab==='efd'       && <EfdInspectorTab efdFile={efdFile} files={files} onLoad={loadF} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
         {tab==='efd2bin'   && <EfdToBinTab efdFile={efdFile} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
+        {tab==='benchval'  && <BenchWriteValidatorTab/>}
+        {tab==='efdiff'    && <EfdBlockDiffTab/>}
         {tab==='flasher'   && <EcmFlasherTab selectedFile={selectedCflash} files={files} onSelectFile={setSelectedCflash}/>}
         {tab==='cdasession'&& <Cda6SessionTab/>}
         {tab==='vinprog'   && <VinProgrammerTab/>}

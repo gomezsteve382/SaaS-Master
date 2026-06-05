@@ -98,3 +98,8 @@
 - [x] HITAG 2 tab: add hover tooltips to all input fields (Chip ID, Config Page, Low/High SK, Page 0-3) with field-specific guidance
 - [x] BCM EFD metadata extraction: parse AL section (CRT timestamp, FGN tool name, FGV version, CAD purpose) from BCM EFDs that lack a DS block; show "BCM MODULE INFO" section in EFD Inspector; add MOPAR BCM efdType; AL section now parsed for all EFD types; AL tag shown in EBML structure map
 - [x] EFD zip package converter: parseEfdZipPackage + buildFullFlashImage — extracts decrypted LB18/LB19/LB20 CodeData.bin blocks from PowerCal zip packages for Multi-PROG bench write; per-block download + full flash image assembly; 9 vitest tests passing
+
+## EFD/BIN Tools Expansion (Jun 5, 2026)
+- [x] Bench Write Validator tab: drag any .bin, check size against known Multi-PROG region sizes (LB18=3407872, LB19=524288, LB20=5632, full P-Flash=3932160, D-Flash variants), show PASS/FAIL badge with exact expected vs actual size, identify which ECU/region the file matches
+- [x] EFD filename parser: auto-detect year/engine/module/program from zip or bin filename patterns (18SCAT, 19LD64, ECM, BCM, TCM, INTFLASH, etc.) and pre-fill vehicle context in EfdToBinTab header
+- [x] EFD block diff tab: load two PowerCal zip packages (A vs B), diff each matching LB block byte-by-byte, show changed offset count, hex diff viewer with before/after columns, download diff report

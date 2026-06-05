@@ -546,6 +546,302 @@ export function buildFullFlashImage(blocks){
   return { image, startAddress: imageStart, endAddress: imageEnd };
 }
 
+// ---------------------------------------------------------------------------
+// BENCH WRITE VALIDATOR
+// ---------------------------------------------------------------------------
+// Known flash region sizes for Mopar/FCA ECUs supported by Multi-PROG.
+// Each entry: { ecu, region, startAddress, endAddress, size, programmer, notes }
+// ---------------------------------------------------------------------------
+
+export const BENCH_WRITE_REGIONS = [
+  // ── MPC5674F (GPEC2A / GPEC2B — 6.4L / 5.7L / 3.6L Pentastar) ──────────
+  { ecu:'GPEC2A/GPEC2B', region:'INT FLASH (LB18)',      startAddress:0x040000, endAddress:0x37FFFF, size:3407872, programmer:'Multi-PROG', notes:'Primary calibration region — most common write target' },
+  { ecu:'GPEC2A/GPEC2B', region:'Secondary P-Flash (LB19)', startAddress:0x380000, endAddress:0x3FFFFF, size:524288,  programmer:'Multi-PROG', notes:'Secondary code region' },
+  { ecu:'GPEC2A/GPEC2B', region:'Data Block (LB20)',     startAddress:0x00E000, endAddress:0x00F5FF, size:5632,    programmer:'Multi-PROG', notes:'Small data/config block' },
+  { ecu:'GPEC2A/GPEC2B', region:'Full P-Flash',          startAddress:0x000000, endAddress:0x3FFFFF, size:4194304, programmer:'Multi-PROG', notes:'Complete P-Flash image (all LBs)' },
+  { ecu:'GPEC2A/GPEC2B', region:'P-Flash (no data)',     startAddress:0x040000, endAddress:0x3FFFFF, size:3932160, programmer:'Multi-PROG', notes:'P-Flash minus data block (LB18+LB19)' },
+  // ── MPC5606B (BCM — LH/LD Charger/Challenger/300) ───────────────────────
+  { ecu:'MPC5606B BCM',  region:'INT FLASH',             startAddress:0x000000, endAddress:0x0FFFFF, size:1048576, programmer:'Multi-PROG', notes:'BCM full internal flash' },
+  { ecu:'MPC5606B BCM',  region:'INT FLASH (half)',      startAddress:0x000000, endAddress:0x07FFFF, size:524288,  programmer:'Multi-PROG', notes:'BCM half-flash (some variants)' },
+  // ── MPC5607B (TCM — ZF 8HP) ──────────────────────────────────────────────
+  { ecu:'MPC5607B TCM',  region:'INT FLASH',             startAddress:0x000000, endAddress:0x1FFFFF, size:2097152, programmer:'Multi-PROG', notes:'TCM full internal flash' },
+  // ── SPC5777 (GPEC3 — Hellcat / Demon / Redeye) ───────────────────────────
+  { ecu:'SPC5777 GPEC3', region:'INT FLASH',             startAddress:0x000000, endAddress:0x1FFFFF, size:2097152, programmer:'Multi-PROG', notes:'Hellcat/Demon/Redeye ECM' },
+  { ecu:'SPC5777 GPEC3', region:'INT FLASH (large)',     startAddress:0x000000, endAddress:0x3FFFFF, size:4194304, programmer:'Multi-PROG', notes:'Larger SPC5777 variant' },
+  // ── EEPROM / RFHUB ────────────────────────────────────────────────────────
+  { ecu:'RFHUB 24C32',   region:'EEPROM (4 KB)',         startAddress:0x000000, endAddress:0x000FFF, size:4096,    programmer:'Multi-PROG / SOIC8', notes:'Standard RFHUB — Charger/Challenger/300' },
+  { ecu:'RFHUB 24C32 WK2', region:'EEPROM (8 KB doubled)', startAddress:0x000000, endAddress:0x001FFF, size:8192, programmer:'Multi-PROG / SOIC8', notes:'Trackhawk WK2 — doubled 24C32 dump' },
+  { ecu:'XC2268 RFHUB',  region:'EEPROM (16 KB)',        startAddress:0x000000, endAddress:0x003FFF, size:16384,   programmer:'SOIC8 adapter', notes:'XC2268 variant — not Gen2 compatible' },
+  // ── BCM EEPROM ────────────────────────────────────────────────────────────
+  { ecu:'BCM EEPROM',    region:'EEPROM (2 KB)',         startAddress:0x000000, endAddress:0x0007FF, size:2048,    programmer:'Multi-PROG / SOIC8', notes:'BCM EEPROM — 24C16 or similar' },
+  { ecu:'BCM EEPROM',    region:'EEPROM (8 KB)',         startAddress:0x000000, endAddress:0x001FFF, size:8192,    programmer:'Multi-PROG / SOIC8', notes:'BCM EEPROM — larger variant' },
+];
+
+/**
+ * Validate a binary file's size against known Multi-PROG flash regions.
+ *
+ * @param {number}  byteLength  File size in bytes.
+ * @param {string}  [filename]  Optional filename for context.
+ * @returns {BenchValidateResult}
+ *
+ * @typedef {Object} BenchValidateResult
+ * @property {boolean}  pass         True if at least one region matches exactly.
+ * @property {number}   byteLength
+ * @property {string}   [filename]
+ * @property {BenchRegionMatch[]} matches  All regions whose size matches exactly.
+ * @property {BenchRegionMatch[]} close    Regions within ±10% of the file size (no exact match).
+ *
+ * @typedef {Object} BenchRegionMatch
+ * @property {string}  ecu
+ * @property {string}  region
+ * @property {number}  size
+ * @property {string}  programmer
+ * @property {string}  notes
+ * @property {number}  [delta]  Signed byte difference (close matches only)
+ */
+export function benchWriteValidate(byteLength, filename){
+  const matches = BENCH_WRITE_REGIONS.filter(r => r.size === byteLength);
+  const close   = matches.length === 0
+    ? BENCH_WRITE_REGIONS
+        .filter(r => Math.abs(r.size - byteLength) / r.size < 0.10)
+        .map(r => ({ ...r, delta: byteLength - r.size }))
+    : [];
+  return {
+    pass: matches.length > 0,
+    byteLength,
+    filename: filename || null,
+    matches,
+    close,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// EFD / BIN FILENAME PARSER
+// ---------------------------------------------------------------------------
+// Extracts calibration context from Mopar PowerCal zip/bin filenames.
+// Examples:
+//   18SCAT_ECM_INTFLASH.bin  → { year:2018, program:'SCAT', module:'ECM', region:'INTFLASH' }
+//   19LD64_BCM_CFLASH.zip    → { year:2019, program:'LD64', module:'BCM', region:'CFLASH' }
+//   2018GPEC2A_P14U_ENG.zip  → { year:2018, ecu:'GPEC2A', part:'P14U' }
+// ---------------------------------------------------------------------------
+
+const MODULE_PATTERNS = [
+  { re: /\bECM\b/i,   module:'ECM',   desc:'Engine Control Module' },
+  { re: /\bPCM\b/i,   module:'PCM',   desc:'Powertrain Control Module' },
+  { re: /\bBCM\b/i,   module:'BCM',   desc:'Body Control Module' },
+  { re: /\bTCM\b/i,   module:'TCM',   desc:'Transmission Control Module' },
+  { re: /\bRFH(UB)?\b/i, module:'RFHUB', desc:'RF Hub' },
+  { re: /\bABS\b/i,   module:'ABS',   desc:'ABS Module' },
+  { re: /\bEPS\b/i,   module:'EPS',   desc:'Electric Power Steering' },
+  { re: /\bACM\b/i,   module:'ACM',   desc:'Airbag Control Module' },
+];
+
+const PROGRAM_PATTERNS = [
+  { re: /\bSCAT\b/i,       program:'SCAT',       desc:'Scat Pack (6.4L 392)' },
+  { re: /\bHELLCAT\b/i,   program:'HELLCAT',    desc:'Hellcat (6.2L Supercharged)' },
+  { re: /\bDEMON\b/i,     program:'DEMON',      desc:'Demon (6.2L Supercharged)' },
+  { re: /\bREDEYE\b/i,    program:'REDEYE',     desc:'Redeye (6.2L Supercharged)' },
+  { re: /\bJAILBREAK\b/i, program:'JAILBREAK',  desc:'Jailbreak (6.2L Supercharged)' },
+  { re: /\bLD64\b/i,      program:'LD64',       desc:'6.4L 392 HEMI (LD platform)' },
+  { re: /\bLD6\b/i,       program:'LD6',        desc:'6.2L Supercharged (LD platform)' },
+  { re: /\bLC6\b/i,       program:'LC6',        desc:'6.2L Supercharged (LC platform)' },
+  { re: /\bLC4\b/i,       program:'LC4',        desc:'6.4L 392 (LC platform)' },
+  { re: /\bLX4\b/i,       program:'LX4',        desc:'6.4L 392 (LX platform)' },
+  { re: /\bLX6\b/i,       program:'LX6',        desc:'6.2L Supercharged (LX platform)' },
+  { re: /\bGPEC2A\b/i,    program:'GPEC2A',     desc:'Continental GPEC2A ECU' },
+  { re: /\bGPEC2B\b/i,    program:'GPEC2B',     desc:'Continental GPEC2B ECU' },
+  { re: /\bGPEC3\b/i,     program:'GPEC3',      desc:'Continental GPEC3 ECU (Hellcat/Demon)' },
+  { re: /\bP14U\b/i,      program:'P14U',       desc:'GPEC2A 6.4L program code' },
+  { re: /\bP13U\b/i,      program:'P13U',       desc:'GPEC2A 5.7L program code' },
+  { re: /\bP16U\b/i,      program:'P16U',       desc:'GPEC2A 3.6L Pentastar program code' },
+  { re: /\bP17U\b/i,      program:'P17U',       desc:'GPEC2A 6.4L alt program code' },
+  { re: /\bP15U\b/i,      program:'P15U',       desc:'GPEC2A 5.7L alt program code' },
+];
+
+const REGION_PATTERNS = [
+  { re: /\bINTFLASH\b/i,  region:'INTFLASH',  desc:'Internal Flash (LB18)' },
+  { re: /\bCFLASH\b/i,    region:'CFLASH',    desc:'Cold Flash (full P-Flash)' },
+  { re: /\bEEPROM\b/i,    region:'EEPROM',    desc:'EEPROM' },
+  { re: /\bDFLASH\b/i,    region:'DFLASH',    desc:'D-Flash' },
+  { re: /\bFULL\b/i,      region:'FULL',      desc:'Full flash image' },
+];
+
+const ENGINE_PATTERNS = [
+  { re: /\b6\.4L?\b/i,    engine:'6.4L',    desc:'6.4L 392 HEMI' },
+  { re: /\b6\.2L?\b/i,    engine:'6.2L',    desc:'6.2L Supercharged HEMI' },
+  { re: /\b5\.7L?\b/i,    engine:'5.7L',    desc:'5.7L HEMI' },
+  { re: /\b3\.6L?\b/i,    engine:'3.6L',    desc:'3.6L Pentastar V6' },
+  { re: /\b392\b/,        engine:'392',     desc:'392 HEMI (6.4L)' },
+  { re: /\b426\b/,        engine:'426',     desc:'426 HEMI (Demon/Jailbreak)' },
+  { re: /\bHEMI\b/i,      engine:'HEMI',    desc:'HEMI engine family' },
+];
+
+/**
+ * Parse calibration context from an EFD zip or bin filename.
+ *
+ * @param {string} filename
+ * @returns {EfdFilenameInfo}
+ *
+ * @typedef {Object} EfdFilenameInfo
+ * @property {number|null}  year
+ * @property {string|null}  module      ECM, BCM, TCM, etc.
+ * @property {string|null}  moduleDesc
+ * @property {string|null}  program     SCAT, GPEC2A, LD64, etc.
+ * @property {string|null}  programDesc
+ * @property {string|null}  region      INTFLASH, CFLASH, etc.
+ * @property {string|null}  regionDesc
+ * @property {string|null}  engine
+ * @property {string|null}  engineDesc
+ * @property {string}       summary     Human-readable one-liner
+ */
+export function parseEfdFilename(filename){
+  if (!filename) return _emptyFilenameInfo();
+  // Strip extension and replace separators with spaces for matching
+  const base = filename.replace(/\.(zip|efd|webm|bin|s19)$/i, '').replace(/[_\-\.]/g, ' ');
+  // Strip leading year digits for word-boundary matching (e.g. '18SCAT' -> 'SCAT').
+  // JS \b treats digits and letters both as \w so '18SCAT' has no boundary before 'S'.
+  const baseNY = base.replace(/^\d+\s*/, '');
+
+  // Year: look for 4-digit (2016-2026) or 2-digit (16-26) at start or after space.
+  // Filenames like '18SCAT', '19LD64', '2018GPEC2A' have no word boundary between
+  // the year digits and the following letters, so we use start-of-string / space anchors.
+  let year = null;
+  const yr4 = base.match(/(?:^| )(20(1[6-9]|2[0-6]))(?=[A-Za-z_ ]|$)/);
+  const yr2 = base.match(/(?:^| )(1[6-9]|2[0-6])(?=[A-Za-z_ ]|$)/);
+  if (yr4) year = parseInt(yr4[1], 10);
+  else if (yr2) year = 2000 + parseInt(yr2[1], 10);
+
+  let module = null, moduleDesc = null;
+  for (const p of MODULE_PATTERNS){
+    if (p.re.test(baseNY)){ module = p.module; moduleDesc = p.desc; break; }
+  }
+
+  let program = null, programDesc = null;
+  for (const p of PROGRAM_PATTERNS){
+    if (p.re.test(baseNY)){ program = p.program; programDesc = p.desc; break; }
+  }
+
+  let region = null, regionDesc = null;
+  for (const p of REGION_PATTERNS){
+    if (p.re.test(baseNY)){ region = p.region; regionDesc = p.desc; break; }
+  }
+
+  let engine = null, engineDesc = null;
+  for (const p of ENGINE_PATTERNS){
+    if (p.re.test(baseNY)){ engine = p.engine; engineDesc = p.desc; break; }
+  }
+
+  // Build summary
+  const parts = [];
+  if (year)        parts.push(year.toString());
+  if (program)     parts.push(program);
+  if (module)      parts.push(module);
+  if (engine)      parts.push(engine);
+  if (region)      parts.push(region);
+  const summary = parts.length ? parts.join(' · ') : 'Unknown calibration';
+
+  return { year, module, moduleDesc, program, programDesc, region, regionDesc, engine, engineDesc, summary };
+}
+
+function _emptyFilenameInfo(){
+  return { year:null, module:null, moduleDesc:null, program:null, programDesc:null,
+           region:null, regionDesc:null, engine:null, engineDesc:null, summary:'Unknown calibration' };
+}
+
+// ---------------------------------------------------------------------------
+// BLOCK DIFF
+// ---------------------------------------------------------------------------
+// Compare two sets of FlashBlock arrays (from parseEfdZipPackage) block by block.
+// Returns a diff result for each matching block index.
+// ---------------------------------------------------------------------------
+
+/**
+ * Diff two EfdZipResult block arrays.
+ *
+ * @param {FlashBlock[]} blocksA
+ * @param {FlashBlock[]} blocksB
+ * @returns {BlockDiffResult[]}
+ *
+ * @typedef {Object} BlockDiffResult
+ * @property {number}   index
+ * @property {string}   label
+ * @property {boolean}  onlyInA
+ * @property {boolean}  onlyInB
+ * @property {boolean}  identical
+ * @property {number}   changedBytes
+ * @property {number}   totalBytes
+ * @property {number}   pctChanged
+ * @property {DiffHunk[]} hunks  Contiguous changed regions (max 500 hunks)
+ *
+ * @typedef {Object} DiffHunk
+ * @property {number} offset
+ * @property {Uint8Array} a
+ * @property {Uint8Array} b
+ */
+export function diffEfdBlocks(blocksA, blocksB){
+  const byIndex = (arr) => {
+    const m = {};
+    for (const b of arr) m[b.index] = b;
+    return m;
+  };
+  const mapA = byIndex(blocksA || []);
+  const mapB = byIndex(blocksB || []);
+  const allIdx = [...new Set([...Object.keys(mapA), ...Object.keys(mapB)].map(Number))].sort((a,b)=>a-b);
+
+  return allIdx.map(idx => {
+    const blkA = mapA[idx];
+    const blkB = mapB[idx];
+    if (!blkA) return { index:idx, label: blkB.label, onlyInA:false, onlyInB:true,  identical:false, changedBytes:blkB.dataSize, totalBytes:blkB.dataSize, pctChanged:100, hunks:[] };
+    if (!blkB) return { index:idx, label: blkA.label, onlyInA:true,  onlyInB:false, identical:false, changedBytes:blkA.dataSize, totalBytes:blkA.dataSize, pctChanged:100, hunks:[] };
+
+    const len = Math.max(blkA.dataSize, blkB.dataSize);
+    const a   = blkA.data;
+    const b   = blkB.data;
+    let changedBytes = 0;
+    const hunks = [];
+    let hunkStart = -1;
+    const MAX_HUNKS = 500;
+    const HUNK_CTX  = 8;  // bytes of context around each change
+
+    for (let i = 0; i < len; i++){
+      const byteA = i < a.length ? a[i] : 0xFF;
+      const byteB = i < b.length ? b[i] : 0xFF;
+      if (byteA !== byteB){
+        changedBytes++;
+        if (hunkStart === -1) hunkStart = i;
+      } else if (hunkStart !== -1 && i - hunkStart > HUNK_CTX){
+        // close hunk
+        if (hunks.length < MAX_HUNKS){
+          const s = Math.max(0, hunkStart - HUNK_CTX);
+          const e = Math.min(len, i + HUNK_CTX);
+          hunks.push({
+            offset: s,
+            a: a.slice(s, e),
+            b: b.slice(s, e),
+          });
+        }
+        hunkStart = -1;
+      }
+    }
+    if (hunkStart !== -1 && hunks.length < MAX_HUNKS){
+      const s = Math.max(0, hunkStart - HUNK_CTX);
+      hunks.push({ offset: s, a: a.slice(s), b: b.slice(s) });
+    }
+
+    return {
+      index: idx,
+      label: blkA.label || blkB.label,
+      onlyInA: false,
+      onlyInB: false,
+      identical: changedBytes === 0,
+      changedBytes,
+      totalBytes: len,
+      pctChanged: len > 0 ? (changedBytes / len) * 100 : 0,
+      hunks,
+    };
+  });
+}
+
 export function isEbmlBuffer(buf){
   if (!buf || buf.length < 4) return false;
   const data = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
