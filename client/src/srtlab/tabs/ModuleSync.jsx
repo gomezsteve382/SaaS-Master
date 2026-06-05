@@ -592,7 +592,21 @@ export function engParseRfh(bytes, filename) {
     if (!Array.from(head).every(b => b === 0x50 || b === 0x5A || b === 0xFF)) r.keyCount++;
   }
 
-  r.ok = r.vin !== null;
+  /* Virgin chip detection — factory-fresh RFHUB has all four VIN slots
+   * filled with 0x30 ('0') bytes (Yazaki default placeholder) and blank
+   * SEC16 slots. These chips are valid write targets for BCM→RFHUB SEC16
+   * programming and must be accepted as loaded sources. */
+  if (r.vin === null && r.vinSlots.length === 0) {
+    const reachableOffsets = RFH_VIN_OFFSETS.filter(o => o + 17 <= bytes.length);
+    const virginVinCount = reachableOffsets.filter(off => {
+      const raw = bytes.slice(off, off + 17);
+      return Array.from(raw).every(b => b === 0x30);
+    }).length;
+    if (reachableOffsets.length > 0 && virginVinCount === reachableOffsets.length) {
+      r.virginChip = true;
+    }
+  }
+  r.ok = r.vin !== null || r.virginChip === true;
   return r;
 }
 
@@ -809,7 +823,11 @@ export function pcmSec6SkipReason({ rfh, pcm }) {
   if (rfh.parsed.format === 'gen1') return 'RFH is Gen1 (need Gen2)';
   const slot1 = rfh.parsed.sec16?.slot1;
   if (!slot1 || slot1.length < 6)   return 'RFH SEC16 not readable';
-  if (rfh.parsed.sec16?.virgin)     return 'RFH SEC16 not readable (virgin)';
+  /* Virgin RFHUB chips (factory 0x30-fill, blank SEC16) are valid write
+   * targets for BCM→RFHUB SEC16 programming — do NOT block them here.
+   * pcmSec6SkipReason is only for reading SEC16 FROM the RFHUB to derive
+   * PCM SEC6; writing TO a virgin RFHUB is handled by bcmToRfhSec16Ok. */
+  if (rfh.parsed.sec16?.virgin && !rfh.parsed.virginChip) return 'RFH SEC16 not readable (virgin)';
   if (!pcm?.bytes)            return 'no PCM file loaded';
   if (!pcm.parsed)            return 'PCM file could not be parsed';
   const sz = pcm.bytes.length;
@@ -1469,6 +1487,18 @@ function RfhCard({ parsed, pnOverride, filename, fileSize }) {
       {pnOverride && (
         <div style={{ marginBottom: 8, padding: '6px 10px', background: C.wn + '14', border: '1px solid ' + C.wn + '55', borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700 }}>
           ⚠ P/N override active — this RFHUB bypassed the registry compatibility check on the Dumps tab.
+        </div>
+      )}
+
+      {/* VIRGIN CHIP banner — factory-fresh chip with 0x30-fill VIN slots and blank SEC16 */}
+      {parsed.virginChip && (
+        <div data-testid="rfh-virgin-chip-banner" style={{ marginBottom: 10, padding: '8px 12px', background: C.wn + '18', border: `1.5px solid ${C.wn}88`, borderRadius: 8, fontSize: 11, color: C.wn, fontWeight: 700, lineHeight: 1.5 }}>
+          <div style={{ fontWeight: 900, fontSize: 12, marginBottom: 4, letterSpacing: 0.4 }}>🏭 VIRGIN CHIP — FACTORY FRESH</div>
+          <div style={{ fontWeight: 600, color: C.ts }}>All VIN slots contain factory 0x30 placeholder. SEC16 is blank.</div>
+          <div style={{ marginTop: 4, fontWeight: 700, color: C.a1 }}>→ Load BCM and use <strong>BCM SEC16 → RFHUB</strong> to program this chip.</div>
+          {parsed.partNumbers?.length > 0 && (
+            <div style={{ marginTop: 4, fontWeight: 600, color: C.ts, fontFamily: "'JetBrains Mono'", fontSize: 10 }}>P/N: {parsed.partNumbers.join(' · ')}</div>
+          )}
         </div>
       )}
 
@@ -2616,7 +2646,11 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
       return;
     }
     if (pnOverride) log('  ⚠ RFHUB was loaded with P/N OVERRIDE on the Dumps tab — bypassed registry check', 'warn');
-    if (parsed.ok) {
+    if (parsed.virginChip) {
+      log(`  RFHUB: VIRGIN CHIP — factory 0x30-fill, blank SEC16 · format: ${parsed.format}`, 'warn');
+      if (parsed.partNumbers?.length) log(`  Part numbers: ${parsed.partNumbers.join(', ')}`, 'muted');
+      log('  → Load BCM and use “BCM SEC16 → RFHUB” to program this virgin chip.', 'info');
+    } else if (parsed.ok) {
       log(`  RFHUB VIN: ${parsed.vin} · format: ${parsed.format}`, 'ok');
       if (parsed.sec16) log(`  SEC16: ${parsed.sec16.virgin ? 'VIRGIN' : parsed.sec16.match ? 'matched' : 'MISMATCH'} · ${[...parsed.sec16.slot1].map(hex2).join('').toUpperCase()}`, 'muted');
     } else {

@@ -25,7 +25,7 @@ const CANONICAL_SIZES_BY_TYPE={
   BCM:[65536,131072],
   '95640':[8192],
   GPEC2A:[4096,8192],
-  RFHUB:[2048,4096],
+  RFHUB:[2048,4096,8192],  // 8192 = double-dump of 24C32 (WK2 Trackhawk / some Gen2 RFHUB readers)
   // XC2268-class RFHUB internal flash dump is 64 KB. Listed here so
   // MODULE_MIN_SIZES / MODULE_MIN_LABELS computes a valid floor for the
   // inspector's tooSmall guard.
@@ -949,9 +949,11 @@ function parseModule(data,filename,opts){
     }
   }else if(type==='RFHUB'){
     const knownOffsets=RFH_GEN2_VIN_OFFSETS;
-    // Gen2 (24C32, 4096 B): VINs stored byte-reversed; CS = rfhGen2VinCs (XOR^0x87)
+    // Gen2 (24C32, 4096 B or 8192 B double-dump): VINs stored byte-reversed; CS = rfhGen2VinCs (XOR^0x87)
     // Gen1 (24C16, 2048 B): VINs stored plain or mirrored; CS = crc8rf
-    const rfhIsGen2=sz===4096;
+    // 8192 B = WK2 Trackhawk / some RFHUB readers that dump the 24C32 twice (double-dump);
+    // the VIN slots are at the same Gen2 offsets (0x0EA5+) in the first 4 KB half.
+    const rfhIsGen2=sz===4096||sz===8192;
     if(rfhIsGen2){
       info.vins=[];
       // auto-detect VIN CS magic (0xDB=2020+ Redeye, 0x87=older Gen2)

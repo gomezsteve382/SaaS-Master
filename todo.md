@@ -89,3 +89,6 @@
 ## New Features (Jun 5, 2026)
 - [x] SEC16 mismatch auto-repair wizard: guided 3-step BCM→RFHUB→PCM flow with single "APPLY ALL FIXES" button in SecuritySyncTab
 - [x] Module PN lookup: cross-reference BCM detected P/N against catalog in Diagnose tab ModuleSummary (known P/N check, compatible vehicles, vehicle match, VIN year range check)
+- [ ] Fix Trackhawk WK2 RFHUB 8 KB rejection: add 8192 to CANONICAL_SIZES_BY_TYPE.RFHUB so wrongModuleForSlot accepts 8 KB RFHUB dumps (double-dump of 24C32)
+- [ ] Add Trackhawk callout in ModuleSync RFHUB FilePicker subtitle so users know 8 KB is valid for WK2 Trackhawk
+- [x] Support virgin RFHUB (factory 0x30-filled VIN slots, blank SEC16) as valid source in Module Sync: engParseRfh ok:true for virgin chips, show VIRGIN badge in RfhCard, enable BCM→RFHUB SEC16 write action for virgin chips
