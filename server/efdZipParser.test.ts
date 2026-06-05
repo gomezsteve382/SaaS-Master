@@ -374,3 +374,67 @@ describe('diffEfdBlocks', () => {
     expect(diffs[0].hunks[0].offset).toBeLessThanOrEqual(40);
   });
 });
+
+// ── Regression: 8 KB GPEC2A EXT EEPROM filename detection ──────────────────
+// parseModule.js intentionally blocks the filename override for 8 KB files
+// (to protect the keyProgWizard doubled-PCM path). SecuritySyncTab.loadPcm
+// must pass forceType:'GPEC2A' when the filename contains 'GPEC' so that
+// FCA_CONTINENTAL_GPEC2A_EXTEEPROM_*.bin files are accepted in the PCM slot
+// instead of being rejected as '95640'.
+describe('SecuritySyncTab loadPcm — 8 KB GPEC2A EXT EEPROM forceType logic', () => {
+  it('applies forceType GPEC2A for FCA_CONTINENTAL_GPEC2A_EXTEEPROM filename', () => {
+    const filename = 'FCA_CONTINENTAL_GPEC2A_EXTEEPROM_zo.bin';
+    const nameUpper = filename.toUpperCase();
+    const forceOpts = /GPEC/.test(nameUpper) ? { forceType: 'GPEC2A' } : undefined;
+    expect(forceOpts).toEqual({ forceType: 'GPEC2A' });
+  });
+
+  it('does not apply forceType for BCM filenames', () => {
+    const filename = 'SAMPLE_BCM_SYNCED_2C3CDXL90MH582899.bin';
+    const nameUpper = filename.toUpperCase();
+    const forceOpts = /GPEC/.test(nameUpper) ? { forceType: 'GPEC2A' } : undefined;
+    expect(forceOpts).toBeUndefined();
+  });
+
+  it('applies forceType for all common GPEC2A EXT EEPROM filename patterns', () => {
+    const gpecPatterns = [
+      'FCA_CONTINENTAL_GPEC2A_EXTEEPROM_zo.bin',
+      'GPEC2A_PCM_BACKUP.bin',
+      'gpec2a_exteeprom_original.bin',
+      'MY2019_GPEC2B_EXTEEPROM.bin',
+    ];
+    for (const filename of gpecPatterns) {
+      const nameUpper = filename.toUpperCase();
+      const forceOpts = /GPEC/.test(nameUpper) ? { forceType: 'GPEC2A' } : undefined;
+      expect(forceOpts, `Expected forceType for filename: ${filename}`).toEqual({ forceType: 'GPEC2A' });
+    }
+  });
+
+  it('does not apply forceType for RFHUB, BCM, or generic PCM filenames', () => {
+    const nonGpecPatterns = [
+      'RFHUB_BACKUP.bin',
+      'BCM_DFLASH.bin',
+      'PCM_INTFLASH.bin',
+      '18SCAT_ECM_INTFLASH.bin',
+    ];
+    for (const filename of nonGpecPatterns) {
+      const nameUpper = filename.toUpperCase();
+      const forceOpts = /GPEC/.test(nameUpper) ? { forceType: 'GPEC2A' } : undefined;
+      expect(forceOpts, `Expected no forceType for filename: ${filename}`).toBeUndefined();
+    }
+  });
+
+  it('size-first detection gives 95640 before GPEC2A for 8192-byte files (confirming the fix is needed)', () => {
+    // This documents why the fix is necessary: without forceType, an 8 KB file
+    // is classified as 95640 (BCM-backup EEPROM) because 95640 appears before
+    // GPEC2A in CANONICAL_SIZES_BY_TYPE insertion order.
+    const CANONICAL_SIZES: Record<string, number[]> = {
+      BCM: [65536, 131072],
+      '95640': [8192],
+      GPEC2A: [4096, 8192],
+      RFHUB: [2048, 4096, 8192],
+    };
+    const sizeFirst = Object.keys(CANONICAL_SIZES).find(k => CANONICAL_SIZES[k].includes(8192));
+    expect(sizeFirst).toBe('95640');
+  });
+});

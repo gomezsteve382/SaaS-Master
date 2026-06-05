@@ -103,3 +103,6 @@
 - [x] Bench Write Validator tab: drag any .bin, check size against known Multi-PROG region sizes (LB18=3407872, LB19=524288, LB20=5632, full P-Flash=3932160, D-Flash variants), show PASS/FAIL badge with exact expected vs actual size, identify which ECU/region the file matches
 - [x] EFD filename parser: auto-detect year/engine/module/program from zip or bin filename patterns (18SCAT, 19LD64, ECM, BCM, TCM, INTFLASH, etc.) and pre-fill vehicle context in EfdToBinTab header
 - [x] EFD block diff tab: load two PowerCal zip packages (A vs B), diff each matching LB block byte-by-byte, show changed offset count, hex diff viewer with before/after columns, download diff report
+
+## Security Sync EXTEEPROM Fix (Jun 5, 2026)
+- [x] Fix: 8 KB GPEC2A EXT EEPROM files (e.g. FCA_CONTINENTAL_GPEC2A_EXTEEPROM_zo.bin) rejected by Security Sync PCM slot — parseModule.js intentionally blocks filename override for 8 KB files, causing GPEC-named files to be classified as 95640 instead of GPEC2A; SecuritySyncTab.loadPcm needs to pass forceType:'GPEC2A' when filename contains GPEC
