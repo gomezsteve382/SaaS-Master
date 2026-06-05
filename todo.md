@@ -58,3 +58,11 @@
 - [x] Add VVDI text paste support (parse P0: XXXXXXXX P1: XXXXXXXX... format) to HITAG AES tab
 - [x] Improve HITAG AES photo OCR: rewrite /api/anthropic/key-photo with comprehensive HITAG 2 + HITAG AES layout prompt, extract all fields (Chip ID, Param Low/High SK, Chip Info Low/High SK, Config Page, Page 0-3, AES SK0-SK3), add AI OCR Extract dark panel in UI showing raw extracted values before form autofill
 - [x] RFHUB key type detector: analyze loaded RFHUB dump bytes to detect HITAG 2 vs HITAG AES calibration, show banner with required blank key part number and programming instructions
+- [x] AUDIT: Verify VIN patching byte offsets and logic for BCM, RFHUB Gen1/Gen2/XC2268, and PCM
+- [x] AUDIT: Verify all checksum algorithms (CRC16, XOR, VIN-area CRC) for all module types
+- [x] AUDIT: Verify security byte matching — BCM SEC16, RFHUB SEC16 reversal, PCM SEC6 derivation
+- [x] Fix RFHUB Gen2 VIN checksum bug in writeModuleVIN and patchFile: use rfhGen2VinCs (XOR^magic) for 4KB Gen2, crc8rf for 8KB doubled variant
+- [x] Add regression tests: RFHUB 4KB Gen2 VIN write round-trip (writeModuleVIN + patchFile both produce csOk=true on re-parse)
+- [x] Audit XC2268 and PCM VIN patch paths with fixture-backed tests (XC2268 uses dedicated patcher, PCM uses synthetic fixture without CRC)
+- [x] Document Gen1 RFHUB SEC16 checksum unverified status (no real 2KB dump exists — FORMULA_UNVERIFIED_ON_REAL_HW note in securityBytes.js, documentation test added)
+- [x] BUG FIXED: writeModuleVIN uses v.offset but analyzeFile returns v.off — fixed with v.off??v.offset, VIN writes now correctly target parsed offsets for BCM and RFHUB
