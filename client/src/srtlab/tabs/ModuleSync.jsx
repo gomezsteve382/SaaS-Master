@@ -82,6 +82,7 @@ export const MODSYNC_ACTION_PARTICIPANTS = {
   'bcm-to-rfh':            ['BCM', 'RFHUB'],
   'target-both':           ['BCM', 'RFHUB'],
   'bcm-sec16-to-rfh':      ['BCM', 'RFHUB'],
+  'bcm-vin-sec16-to-rfh':  ['BCM', 'RFHUB'],  // combined: VIN + SEC16 for virgin RFHUB
   'bcm-flat-from-resolved':['BCM'],
   'bcm-flat-from-resolved-both':['BCM'],
   'sec16-only':            ['BCM', 'RFHUB', 'PCM'],
@@ -2762,6 +2763,10 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
   const rfhHasSec16      = !!(rfh.parsed?.sec16 && !rfh.parsed.sec16.virgin);
   const sec16SyncOk      = bcmHasSec16 && rfhHasSec16;
   const bcmToRfhSec16Ok  = bcmHasSec16 && (rfh.parsed?.format?.startsWith('gen2') || !!(rfh.bytes && isXc2268Rfhub(rfh.bytes)));
+  /* Combined VIN + SEC16 write for virgin RFHUB chips.
+   * Requires: BCM with VIN + SEC16, RFHUB that is a virgin chip (virginChip)
+   * OR a Gen2 RFHUB that needs both VIN and SEC16 overwritten from BCM. */
+  const bcmVinSec16ToRfhOk = bcm.parsed?.ok && bcm.parsed?.vin && bcmToRfhSec16Ok;
   /* Virgin BCM gate — true when BCM parsed OK AND no FEE records exist
    * (split records + inactive-bank mirrors all blank). The legacy flat slice
    * at 0x40C9 may carry stale provisioning data on virgin-provisioned BCMs
@@ -2965,6 +2970,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
     { id: 'full-sync',        label: '⚡ Full 3-Module Sync',    enabled: bothReady, description: 'VIN + SEC16 + SEC6 across all modules' },
     { id: 'sec16-only',       label: '🔐 SEC16 Sync Only',       enabled: sec16SyncOk, description: 'RFHUB SEC16 → BCM + PCM SEC6' },
     { id: 'bcm-sec16-to-rfh', label: '🔄 BCM SEC16 → RFHUB',    enabled: bcmToRfhSec16Ok, description: 'Use BCM as master, write to RFHUB Gen2 slots' },
+    { id: 'bcm-vin-sec16-to-rfh', label: '🏭 BCM VIN + SEC16 → RFHUB', enabled: bcmVinSec16ToRfhOk, description: 'Write BCM VIN + SEC16 into virgin/replacement RFHUB in one pass' },
     { id: 'rfh-to-bcm',       label: '← RFHUB VIN → BCM',       enabled: bothReady, description: 'Stamp BCM with RFHUB VIN' },
     { id: 'bcm-to-rfh',       label: '→ BCM VIN → RFHUB',       enabled: bothReady, description: 'Stamp RFHUB with BCM VIN' },
     { id: 'rekey-95640-from-rfh', label: '📟 Re-key 95640 from RFHUB', enabled: rekey95640Ok, description: 'Write reverse(RFHUB SEC16) → 95640 @ 0x838 + CRC16 @ 0x848' },
@@ -3864,6 +3870,47 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           log(`✓ Pre-download safety gate PASSED — RFHUB SEC16 verified to match the BCM master before write.`, 'ok');
           log('Flash corrected RFHUB + power-cycle 30 s — BCM, RFHUB and PCM will now share the same secret.', 'ok');
         }
+      } else if (action === 'bcm-vin-sec16-to-rfh') {
+        /* Combined BCM VIN + SEC16 → RFHUB — for virgin or replacement RFHUB chips.
+         * Step 1: Write BCM VIN (byte-reversed) into all 4 RFHUB Gen2 VIN slots.
+         * Step 2: Write reverse(BCM SEC16) into RFHUB Gen2 SEC16 slots (0x050E + 0x0522).
+         * Produces a single fully-programmed RFHUB file ready to flash. */
+        const newVin = ov || bcm.parsed.vin;
+        if (!VIN_RE.test(newVin)) { log('✗ BCM VIN is invalid — cannot patch RFHUB', 'err'); return; }
+        const bcmSec16 = bcm.parsed?.sec16Records?.[0]?.sec16
+                      ?? bcm.parsed?.sec16Mirrors?.find(m => m.populated && m.crcOk)?.sec16;
+        if (!bcmSec16) { log('✗ No BCM SEC16 found in split records or mirrors', 'err'); return; }
+        const snapR = new Uint8Array(rfh.bytes);
+        setOriginals(prev => ({ ...prev, rfh: { bytes: snapR, filename: rfh.file?.name || 'RFH' } }));
+        /* Step 1 — VIN */
+        const vr = engWriteRfhVin(rfh.bytes, newVin, false);
+        log(`RFHUB: VIN patched at ${vr.patched} slot(s) — ${newVin}`, 'ok');
+        addRfhRows(rfh.parsed, newVin, vr.chk);
+        /* Step 2 — SEC16 (write into VIN-patched buffer) */
+        const rfhIsXc2268 = isXc2268Rfhub(vr.bytes);
+        const sr = rfhIsXc2268
+          ? writeXc2268Sec16(vr.bytes, bcmSec16)
+          : engWriteRfhSec16FromBcm(vr.bytes, bcmSec16);
+        log(`RFHUB: SEC16 synced (BCM → RFH${rfhIsXc2268 ? ' XC2268' : ' Gen2'}) — ${sr.rfhSec16Hex.toUpperCase()}`, 'ok');
+        const rfhFinal = sr.bytes;
+        const ts2 = timestamp();
+        const outName = `RFHUB_BCM_VIN_SEC16_${newVin}_${ts2}.bin`;
+        /* Safety gate: verify outgoing RFHUB SEC16 matches BCM master */
+        {
+          const verdict = checkExportSafety({
+            outgoing: [{ role: 'RFH', bytes: rfhFinal, name: outName }],
+            context: [{ role: 'BCM', bytes: bcm.bytes }],
+          });
+          if (!verdict.ok) {
+            for (const line of formatBlockingMessage(verdict).split('\n')) log(line, 'err');
+            log('Sync aborted — RFHUB SEC16 does not match BCM master after write.', 'err');
+            return;
+          }
+          downloadBin(rfhFinal, outName);
+          log(`Downloaded: ${outName}`, 'ok');
+          log('✓ Pre-download safety gate PASSED — VIN + SEC16 verified before write.', 'ok');
+          log('Flash RFHUB + power-cycle 30 s to complete pairing.', 'ok');
+        }
       }
 
       log('✓ Sync complete. Flash .bin file(s) to modules and power-cycle 30 s for handshake.', 'ok');
@@ -4604,6 +4651,12 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
                     ? 'BCM is master: writes reverse(BCM SEC16) into RFHUB Gen2 slots (0x050E + 0x0522). Use when RFHUB is from a different vehicle.'
                     : 'Requires BCM with Gen2 split records + Gen2 RFHUB (AA 55 31 01 header at 0x0500)'}
                   onClick={() => doSync('bcm-sec16-to-rfh')} />
+                <ActionBtn title="🏭 BCM VIN + SEC16 → RFHUB"  enabled={bcmVinSec16ToRfhOk}
+                  color={rfh.parsed?.virginChip ? C.wn : C.a2}
+                  desc={bcmVinSec16ToRfhOk
+                    ? `Write BCM VIN (${bcm.parsed?.vin}) + reverse(BCM SEC16) into RFHUB in one pass. Use for virgin or replacement chips. Downloads RFHUB_BCM_VIN_SEC16_*.bin.`
+                    : 'Requires BCM with VIN + Gen2 split records + Gen2 RFHUB loaded.'}
+                  onClick={() => doSync('bcm-vin-sec16-to-rfh')} />
                 {(() => {
                   // Task #475 — hard-block SYNC ALL when the loaded PCM is a
                   // non-canonical size (neither 4 KB nor 8 KB). The CGDI
