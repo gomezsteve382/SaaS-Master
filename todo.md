@@ -76,9 +76,9 @@
 - [x] NAV: Update HITAG KEY READER nav label to show chip part numbers (PCF7945/PCF7939)
 - [x] ONBOARDING: Add "What are you trying to do?" landing screen with 5 task-entry buttons routing to correct tabs
 - [x] DIFF: Add hex diff panel to Quick Clone download step showing before/after byte changes with offset labels
-- [ ] GUARD: Add vehicle-year context guard banner to all key-related tabs
-- [ ] SEED: Add algorithm auto-selector to Seed→Key tab based on loaded module type in context
-- [ ] WORKFLOW: Make Workflow tab the persistent top-level hub
+- [x] GUARD: Add vehicle-year context guard banner to all key-related tabs
+- [x] SEED: Add algorithm auto-selector to Seed→Key tab based on loaded module type in context
+- [x] WORKFLOW: Make Workflow tab the persistent top-level hub
 
 ## EFD→BIN Enhancements
 - [x] EFD: Show extracted metadata (Engine, Program, Version, Part Number) from 0x204453 section

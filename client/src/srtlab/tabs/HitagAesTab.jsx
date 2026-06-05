@@ -26,6 +26,7 @@ import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Card, Btn, Tag } from '../lib/ui.jsx';
 import { C } from '../lib/constants.js';
 import { KNOWN_WORKING_KEYS } from '../lib/keyWriter/knownWorkingKeys.js';
+import VehicleYearGuard from '../components/VehicleYearGuard.jsx';
 
 /* ─── blank reference storage ─── */
 const BLANK_REFS_KEY = 'srt-lab.hitag.blank-refs.v1';
@@ -285,7 +286,7 @@ function parsePcf7953Bin(data) {
 }
 
 /* ─── main component ─── */
-export default function HitagAesTab() {
+export default function HitagAesTab({ vehicle: selectedVehicle }) {
   const [chipId, setChipId] = useState('CF324E65');
   const [sk0,    setSk0]    = useState('11112222');
   const [sk1,    setSk1]    = useState('33334444');
@@ -550,6 +551,7 @@ export default function HitagAesTab() {
 
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '20px 16px' }}>
+      <VehicleYearGuard vehicle={selectedVehicle || null} />
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 20, fontWeight: 900, color: C.t, letterSpacing: 1 }}>

@@ -11,6 +11,7 @@ import {
   parseKeySlots, transferSlot, deleteSlot, addSlot, copyMasterSec16,
   firstFreeSlot, slotsEditableFor, KEY_SLOT_COUNT,
 } from '../lib/rfhubKeySlots.js';
+import VehicleYearGuard from '../components/VehicleYearGuard.jsx';
 
 const PANES = [
   { id: 'A', label: 'FILE A · SOURCE', color: C.a3 },
@@ -770,6 +771,7 @@ export default function KeyManagerTab() {
 
   return (
     <div data-testid="keymgr-tab">
+      <VehicleYearGuard vehicle={vehicle || null} />
       <Card style={{ background: 'linear-gradient(135deg,#1A237E 0%,#283593 40%,#3949AB 100%)', color: '#fff', marginBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ fontSize: 32 }}>🗝️</div>

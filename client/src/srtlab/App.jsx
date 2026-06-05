@@ -1236,8 +1236,8 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='vinsync'   && <VinThenSyncTab vehicle={vehicle}/>}
         {tab==='secsync'   && <SecuritySyncTab/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
-        {tab==='keyprog'   && <KeyProgTab/>}
-        {tab==='keyxfer'   && <KeyTransferTab/>}
+        {tab==='keyprog'   && <KeyProgTab vehicle={vehicle}/>}
+        {tab==='keyxfer'   && <KeyTransferTab vehicle={vehicle}/>}
         {tab==='jailbreak' && <JailbreakTab vehicle={vehicle}/>}
         {tab==='seed'      && <SeedTab/>}
         {tab==='bcm'       && <BcmTab vehicle={vehicle}/>}
@@ -1273,8 +1273,8 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='exttools'  && <ExternalToolsTab onOpenTab={setTab}/>}
         {tab==='radiocodes'&& <RadioCodesTab/>}
         {tab==='keywriter' && <KeyWriterTab onOpenTab={setTab}/>}
-        {tab==='hitagaes'  && <HitagAesTab/>}
-        {tab==='hitag2'    && <Hitag2Tab/>}
+        {tab==='hitagaes'  && <HitagAesTab vehicle={vehicle}/>}
+        {tab==='hitag2'    && <Hitag2Tab vehicle={vehicle}/>}
         {tab==='binintel'  && <BinaryIntelTab/>}
         {tab==='dispatchcov' && <DispatchCoverageTab/>}
         {tab==='alfaintel' && <AlfaObdIntelTab/>}

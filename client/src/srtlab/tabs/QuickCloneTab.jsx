@@ -27,6 +27,7 @@ import {
 import { identifyModule } from '../lib/keyProgWizard.js';
 import { resizePcmForTargetChip } from './ModuleSync';
 import { RfhubKeyTypeBanner } from '../components/RfhubKeyTypeBanner.jsx';
+import VehicleYearGuard from '../components/VehicleYearGuard.jsx';
 
 /* ═══ Design tokens ═══ */
 const STEP_COLORS = ['#2979FF', '#00BFA5', '#FF6D00'];
@@ -521,6 +522,7 @@ export default function QuickCloneTab({ vehicle }) {
   /* ═══ RENDER ═══ */
   return (
     <div style={{ display: 'grid', gap: 16, maxWidth: 900, margin: '0 auto', padding: 24 }}>
+      <VehicleYearGuard vehicle={vehicle || null} />
       {/* HEADER */}
       <Card>
         <div style={{ fontFamily: "'Righteous'", fontSize: 20, color: C.tx, marginBottom: 6 }}>

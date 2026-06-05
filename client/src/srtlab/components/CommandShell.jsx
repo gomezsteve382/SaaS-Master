@@ -19,6 +19,8 @@ const T = {
 /* The five per-vehicle workflow panes. Each maps to an existing workspace
  * tab id so the battle-tested tab content components keep rendering. */
 export const PRIMARY_NAV = [
+  // WORKFLOW HUB — persistent mission control, always first
+  {key: 'workflow',    label: 'Mission Control', sub: 'Module census \u00b7 status overview', icon: ShieldCheck},
   // DIAGNOSE — first stop, drop files and get a verdict
   {key: 'dumps',       label: 'Diagnose',      sub: 'Drop \u2192 verdict \u2192 fix', icon: Stethoscope},
   // VIN & SECURITY — patch identifiers and pair modules
@@ -42,7 +44,6 @@ const PRIMARY_KEYS = new Set(PRIMARY_NAV.map(n => n.key));
 /* Two quick links pinned under the primary rail (still reachable in the
  * drawer too). */
 export const FOOTER_NAV = [
-  {key: 'workflow',    label: 'Module Census',       icon: ShieldCheck},
   {key: 'canuniverse', label: 'CAN Universe \u00b7 Intel', icon: Search},
 ];
 

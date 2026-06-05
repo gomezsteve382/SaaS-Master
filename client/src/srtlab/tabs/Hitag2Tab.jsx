@@ -20,6 +20,7 @@
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
+import VehicleYearGuard from '../components/VehicleYearGuard.jsx';
 
 /* ─── blank reference storage (same pattern as HitagAesTab) ─── */
 const BLANK_REFS_KEY = 'srt-lab.hitag2.blank-refs.v1';
@@ -145,7 +146,7 @@ function BlankRefRow({ entry, onDelete }) {
 /* ═══════════════════════════════════════════════════════════════════════════
  * Main component
  * ═══════════════════════════════════════════════════════════════════════════ */
-export default function Hitag2Tab() {
+export default function Hitag2Tab({ vehicle }) {
   /* ── field state ── */
   const [chipId,     setChipId]     = useState('437C2C9F');
   const [lowSk,      setLowSk]      = useState('4D494B52');
@@ -253,6 +254,7 @@ export default function Hitag2Tab() {
 
   return (
     <div style={{ padding: 16, maxWidth: 1100, margin: '0 auto' }}>
+      <VehicleYearGuard vehicle={vehicle || null} />
       {/* Header */}
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', letterSpacing: 1 }}>

@@ -1,13 +1,15 @@
-import React, {useState, useCallback, useMemo, useEffect} from "react";
+import React, {useState, useCallback, useMemo, useEffect, useContext} from "react";
 import {C} from "../lib/constants.js";
 import {Card,Btn} from "../lib/ui.jsx";
 import {getAuth29Detections, subscribeAuth29, clearAuth29Detections, loadAuth29Detections, getAuth29Unlocks, clearAuth29Unlocks} from "../lib/auth29State.js";
-import {ALGOS, UNLOCK_FALLBACK, xtea_sgw_full, alfaW6, alfaW6By, u32} from "../lib/algos.js";
+import {ALGOS, UNLOCK_FALLBACK, xtea_sgw_full, alfaW6, alfaW6By, u32, MOD_UNLOCK} from "../lib/algos.js";
 import {AOBD_W6, AOBD_W7, AOBD_DISPATCH} from "../lib/alfaobdAlgorithms.generated.js";
 import {EXTENDED_ALGORITHMS} from "../lib/extendedAlgorithms.generated.js";
 import {mergeDispatch, STATUS_BRANCH_KNOWN} from "../lib/alfaobdDispatchAuxiliary.js";
 import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
 import {SEED_KEY_REF} from "../lib/tabReferences.js";
+import {MasterVinContext} from "../lib/masterVinContext.jsx";
+import {parseVinYear} from "../lib/vin.js";
 
 // Asset-sweep ports surfaced in the picker. Each extended entry maps to
 // the same {id, n, h, fn} shape as ALGOS so the existing calc/render
@@ -29,6 +31,26 @@ const EXT_PICKER_ALGOS = Object.freeze(
       docstring: a.docstring,
     })),
 );
+// Module type → default algorithm id (mirrors MOD_UNLOCK but as a suggestion, not a lock)
+const MODULE_ALGO_HINT = {
+  BCM: 'cda6',
+  RFHUB: 'cda6',
+  GPEC2A: 'gpec2a',
+  PCM: 'gpec2a',
+  ECM: 'gpec2',
+  TCM: 'gpec2',
+  ADCM: 'gpec2',
+  DAMP: 'gpec2',
+  TIPM: 't80',
+  SGW: 'xtea_sgw',
+};
+// Year-aware BCM algorithm hint: 2016+ uses bcm_fca, 2007-2015 uses bcm_standard.
+// cda6 is the OBD/UDS SecurityAccess algorithm; bcm_fca/bcm_standard are for
+// bench-level direct EEPROM reads. Both are surfaced so the operator can pick.
+function bcmAlgoForYear(year){
+  if(!year) return 'cda6';
+  return year>=2016?'bcm_fca':'bcm_standard';
+}
 function SeedTab(){
   const[al,setAl]=useState('gpec2');const[sh,setSh]=useState('');const[res,setRes]=useState(null);const[all,setAll]=useState(false);const[fallback,setFallback]=useState(false);
   const[pdfBusy,setPdfBusy]=useState(false);
@@ -176,6 +198,30 @@ function SeedTab(){
   const totalAlgoCount=ALGOS.length;
   const extendedAlgoCount=EXT_PICKER_ALGOS.length;
 
+  // ── Algorithm auto-selector ─────────────────────────────────────────────
+  // Reads loaded dumps from MasterVinContext and VIN year to suggest the
+  // most likely algorithm. Dismissed per-session via a local flag.
+  const {vin:masterVin, loadedDumps, getDumpsByType} = useContext(MasterVinContext);
+  const [algoSuggestionDismissed, setAlgoSuggestionDismissed] = useState(false);
+  const algoSuggestion = useMemo(() => {
+    if (algoSuggestionDismissed) return null;
+    // Derive vehicle year from VIN position 10 (0-indexed 9)
+    const vinYear = masterVin && masterVin.length === 17 ? parseVinYear(masterVin) : null;
+    // Prefer the first recognised module type in the workspace
+    const moduleTypes = ['BCM','RFHUB','GPEC2A','ECM','TCM','TIPM','SGW','ADCM','DAMP'];
+    let detectedType = null;
+    for (const t of moduleTypes) {
+      if (getDumpsByType(t).length > 0) { detectedType = t; break; }
+    }
+    if (!detectedType) return null;
+    // BCM: year-aware hint (bench algo vs OBD algo)
+    let algoId = detectedType === 'BCM' ? bcmAlgoForYear(vinYear) : (MODULE_ALGO_HINT[detectedType] || null);
+    if (!algoId) return null;
+    const algoEntry = ALGOS.find(a => a.id === algoId);
+    if (!algoEntry) return null;
+    return { type: detectedType, algoId, algoName: algoEntry.n, hint: algoEntry.h, vinYear };
+  }, [masterVin, loadedDumps, getDumpsByType, algoSuggestionDismissed, ALGOS]);
+
   // Task #567 — UDS 0x29 Authentication detection banner. Subscribes
   // to in-tab updates from the detector and to cross-tab storage events
   // so a probe fired from the flasher or unlock chain lights this up.
@@ -194,6 +240,23 @@ function SeedTab(){
   },[]);
 
   return<div style={{maxWidth:880}}>
+    {algoSuggestion&&<Card data-testid="algo-suggestion-banner" style={{marginBottom:12,background:'#E3F2FD',borderColor:'#1565C0'}}>
+      <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12}}>
+        <div>
+          <div style={{fontSize:12,fontWeight:900,color:'#1565C0',letterSpacing:1,marginBottom:4}}>ALGORITHM SUGGESTION</div>
+          <div style={{fontSize:12,color:C.tx,marginBottom:4}}>
+            Loaded module: <b>{algoSuggestion.type}</b>{algoSuggestion.vinYear?<> · Vehicle year: <b>{algoSuggestion.vinYear}</b></>:null}
+          </div>
+          <div style={{fontSize:12,color:C.tx}}>
+            Suggested algorithm: <b>{algoSuggestion.algoName}</b> <span style={{color:C.ts}}>({algoSuggestion.hint})</span>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8,flexShrink:0}}>
+          <button onClick={()=>{setAl(algoSuggestion.algoId);setAll(false);setFallback(false);setAlgoSuggestionDismissed(true);}} style={{cursor:'pointer',border:'2px solid #1565C0',padding:'6px 12px',borderRadius:8,background:'#1565C0',color:'#fff',fontWeight:800,fontSize:11,letterSpacing:.5,whiteSpace:'nowrap'}}>USE THIS ALGO</button>
+          <button onClick={()=>setAlgoSuggestionDismissed(true)} style={{cursor:'pointer',border:'1.5px solid #9E9E9E',padding:'6px 10px',borderRadius:8,background:'#fff',color:'#9E9E9E',fontWeight:800,fontSize:11,letterSpacing:.5,whiteSpace:'nowrap'}}>DISMISS</button>
+        </div>
+      </div>
+    </Card>}
     {auth29Ok.length>0&&<Card data-testid="auth29-unlocked-banner" style={{marginBottom:12,background:'#E8F5E9',borderColor:'#1B5E20'}}>
       <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12}}>
         <div>

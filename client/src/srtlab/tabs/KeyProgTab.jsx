@@ -27,6 +27,7 @@ import { importAemtBundle, AemtImportError } from '../lib/aemtImporter.js';
 import { saveAemtPlaceholders } from '../lib/audit.js';
 import AemtImportModal from '../components/AemtImportModal.jsx';
 import Charger62BenchPanel from '../components/Charger62BenchPanel.jsx';
+import VehicleYearGuard from '../components/VehicleYearGuard.jsx';
 
 /**
  * Exported for unit testing — renders the two RFHUB SEC16 status banners that
@@ -443,7 +444,7 @@ export function KeyProgSavedArchivesCard({ archives, onDelete, onClear }) {
   );
 }
 
-export default function KeyProgTab() {
+export default function KeyProgTab({ vehicle } = {}) {
   const [files, setFiles] = useState({ BCM: null, RFH: null, PCM: null });
   const [vin, setVin] = useState('');
   const [promoteBank, setPromoteBank] = useState(false);
@@ -781,6 +782,7 @@ export default function KeyProgTab() {
 
   return (
     <div data-testid="keyprog-wizard">
+      <VehicleYearGuard vehicle={vehicle || null} />
       <Card style={{ marginBottom: 14, padding: 18 }}>
         <div style={{ fontSize: 16, fontWeight: 900, color: C.sr }}>
           🔑 One-click "Stamp VIN to module set"

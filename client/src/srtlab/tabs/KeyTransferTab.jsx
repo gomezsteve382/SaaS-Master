@@ -16,6 +16,7 @@ import React, {useState, useMemo, useCallback} from 'react';
 import {Card} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
 import CharRfhubKeyAdderPanel from '../components/CharRfhubKeyAdderPanel.jsx';
+import VehicleYearGuard from '../components/VehicleYearGuard.jsx';
 import {
   CHAR_KEYTABLE_BASE,
   CHAR_KEYTABLE_SLOTS,
@@ -118,7 +119,7 @@ function KeyTableHexView({bytes, changedOffsets}) {
   );
 }
 
-export default function KeyTransferTab() {
+export default function KeyTransferTab({ vehicle }) {
   const [loaded, setLoaded] = useState(null); // {bytes, filename} | null
   const [added, setAdded] = useState(null);   // addCharKey result | null
 
@@ -143,6 +144,7 @@ export default function KeyTransferTab() {
 
   return (
     <div data-testid="key-transfer-tab">
+      <VehicleYearGuard vehicle={vehicle || null} />
       <div style={{marginBottom: 16}}>
         <div style={{fontFamily: "'Righteous'", fontSize: 22, color: C.bk, letterSpacing: 1}}>KEY PROGRAM</div>
         <div style={{fontSize: 12, color: C.ts, marginTop: 4, maxWidth: 760, lineHeight: 1.6}}>
