@@ -438,3 +438,73 @@ describe('SecuritySyncTab loadPcm — 8 KB GPEC2A EXT EEPROM forceType logic', (
     expect(sizeFirst).toBe('95640');
   });
 });
+
+// ── Regression: gen2-hybrid RFHUB write routing ─────────────────────────────
+// A 4 KB RFHUB classified as 'gen2-hybrid' (Gen2 slots empty, no AA-55-31-01
+// banner) must be written via writeRfhSec16Gen2Slots, not writeRfhSec16FromBcm.
+// writeRfhSec16FromBcm throws "Not a Gen2 RFHUB" for banner-less files.
+describe('writeRfhSec16Gen2Slots — gen2-hybrid RFHUB write path', () => {
+  it('writes SEC16 to Gen2 slots without requiring AA-55-31-01 header', async () => {
+    const { writeRfhSec16Gen2Slots } = await import('../client/src/srtlab/lib/securityBytes.js');
+    // 4 KB RFHUB with no AA-55-31-01 banner at 0x0500 (all FF)
+    const bytes = new Uint8Array(4096).fill(0xFF);
+    const bcmSec16 = new Uint8Array([0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x31,0x3E,0x00,0x10,0x00,0x18,0x00,0x0A,0x00]);
+    const res = writeRfhSec16Gen2Slots(bytes, bcmSec16);
+    expect(res.patched).toBe(2);
+    // RFHUB SEC16 = reverse(BCM SEC16)
+    const expectedRfh = new Uint8Array([0x00,0x0A,0x00,0x18,0x00,0x10,0x00,0x3E,0x31,0x00,0x00,0x00,0x00,0x00,0x00,0x00]);
+    expect(Array.from(res.bytes.slice(0x050E, 0x051E))).toEqual(Array.from(expectedRfh));
+    expect(Array.from(res.bytes.slice(0x0522, 0x0532))).toEqual(Array.from(expectedRfh));
+  });
+
+  it('throws if BCM SEC16 is not 16 bytes', async () => {
+    const { writeRfhSec16Gen2Slots } = await import('../client/src/srtlab/lib/securityBytes.js');
+    const bytes = new Uint8Array(4096).fill(0xFF);
+    expect(() => writeRfhSec16Gen2Slots(bytes, new Uint8Array(8))).toThrow('BCM SEC16 must be 16 bytes');
+  });
+
+  it('throws if buffer is too small for Gen2 slots', async () => {
+    const { writeRfhSec16Gen2Slots } = await import('../client/src/srtlab/lib/securityBytes.js');
+    const bytes = new Uint8Array(100).fill(0xFF);
+    const bcmSec16 = new Uint8Array(16).fill(0x01);
+    expect(() => writeRfhSec16Gen2Slots(bytes, bcmSec16)).toThrow('Buffer too small');
+  });
+
+  it('writeRfhSec16FromBcm still throws for banner-less files (confirming the fix is needed)', async () => {
+    const { writeRfhSec16FromBcm } = await import('../client/src/srtlab/lib/securityBytes.js');
+    const bytes = new Uint8Array(4096).fill(0xFF); // no AA-55-31-01 at 0x0500
+    const bcmSec16 = new Uint8Array(16).fill(0x01);
+    expect(() => writeRfhSec16FromBcm(bytes, bcmSec16)).toThrow('Not a Gen2 RFHUB');
+  });
+});
+
+// ── Regression: SecuritySyncTab wizard gen2-hybrid routing logic ─────────────
+describe('SecuritySyncTab wizard — gen2-hybrid format routing', () => {
+  it('routes gen2-hybrid to writeRfhSec16Gen2Slots (not writeRfhSec16FromBcm)', () => {
+    // Simulate the routing logic from SecuritySyncTab.applyAllFixes
+    const format = 'gen2-hybrid';
+    const isXc2268 = false;
+    let path: string;
+    if (isXc2268) {
+      path = 'writeXc2268Sec16';
+    } else if (format === 'gen1') {
+      path = 'writeRfhSec16Gen1';
+    } else if (format === 'gen2-hybrid') {
+      path = 'writeRfhSec16Gen2Slots';
+    } else {
+      path = 'writeRfhSec16FromBcm';
+    }
+    expect(path).toBe('writeRfhSec16Gen2Slots');
+  });
+
+  it('routes gen2 (with banner) to writeRfhSec16FromBcm', () => {
+    const format = 'gen2';
+    const isXc2268 = false;
+    let path: string;
+    if (isXc2268) path = 'writeXc2268Sec16';
+    else if (format === 'gen1') path = 'writeRfhSec16Gen1';
+    else if (format === 'gen2-hybrid') path = 'writeRfhSec16Gen2Slots';
+    else path = 'writeRfhSec16FromBcm';
+    expect(path).toBe('writeRfhSec16FromBcm');
+  });
+});

@@ -106,3 +106,9 @@
 
 ## Security Sync EXTEEPROM Fix (Jun 5, 2026)
 - [x] Fix: 8 KB GPEC2A EXT EEPROM files (e.g. FCA_CONTINENTAL_GPEC2A_EXTEEPROM_zo.bin) rejected by Security Sync PCM slot — parseModule.js intentionally blocks filename override for 8 KB files, causing GPEC-named files to be classified as 95640 instead of GPEC2A; SecuritySyncTab.loadPcm needs to pass forceType:'GPEC2A' when filename contains GPEC
+
+## Security Sync UX Improvements (Jun 5, 2026)
+- [x] PCM slot chip label badge: show 95640·8KB or 95320·4KB chip label in PCM slot summary after EXTEEPROM file loads
+- [x] SEC6 populated/virgin badge: for 8 KB files check bytes at 0x3C8-0x3CE to show SEC6 POPULATED or SEC6 VIRGIN badge in PCM slot without needing to scroll to byte grid
+- [x] RFHUB SEC16 VIRGIN wizard explanation: add one-line explanation in wizard step 2 card explaining why RFHUB is virgin (never programmed vs wiped) so user knows what to expect from the fix
+- [x] Fix: gen2-hybrid RFHUB write routing — add writeRfhSec16Gen2Slots for 4 KB RFHUBs without AA-55-31-01 banner at 0x0500; wizard now routes gen2-hybrid to new function instead of throwing "Not a Gen2 RFHUB"

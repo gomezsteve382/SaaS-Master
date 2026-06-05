@@ -473,6 +473,40 @@ export function writeRfhSec16FromBcm(bytes, bcmSec16) {
 }
 
 /* ----------------------------------------------------------------------------
+ * writeRfhSec16Gen2Slots(bytes, bcmSec16)
+ *
+ * Writes BCM secret → RFHUB Gen2 SEC16 slots (0x050E and 0x0522) WITHOUT
+ * requiring the AA 55 31 01 header at 0x0500.
+ *
+ * Used for 'gen2-hybrid' RFHUBs: 4 KB files where the Gen2 SEC16 slots are
+ * empty/virgin but the AA-55-31-01 banner is absent (some OEM variants omit
+ * the banner on factory-fresh chips). The slot layout and checksum formula are
+ * identical to writeRfhSec16FromBcm — only the header guard is removed.
+ * ---------------------------------------------------------------------------- */
+export function writeRfhSec16Gen2Slots(bytes, bcmSec16) {
+  if (!bcmSec16 || bcmSec16.length !== 16) throw new Error('BCM SEC16 must be 16 bytes');
+  if (bytes.length < 0x0532) throw new Error('Buffer too small for Gen2 SEC16 slots (need ≥ 0x0532 B)');
+  const rfhSec16 = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) rfhSec16[i] = bcmSec16[15 - i];
+  const chk = crc8_65(rfhSec16);
+  const out = new Uint8Array(bytes);
+  let patched = 0;
+  for (const slotOff of [0x050E, 0x0522]) {
+    if (slotOff + 18 > out.length) continue;
+    for (let k = 0; k < 16; k++) out[slotOff + k] = rfhSec16[k];
+    out[slotOff + 16] = chk;
+    out[slotOff + 17] = 0x00;
+    patched++;
+  }
+  return {
+    bytes: out,
+    patched,
+    rfhSec16Hex: hexStr(rfhSec16),
+    chk,
+  };
+}
+
+/* ----------------------------------------------------------------------------
  * writeRfhSec16Gen1(bytes, bcmSec16)
  *
  * Writes BCM secret → Gen1 RFHUB (Yazaki 24C16, 2 KB) SEC16 slots.

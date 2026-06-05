@@ -1,11 +1,11 @@
 import React, {useState, useMemo, useCallback, useRef} from "react";
 import {Card, Btn} from "../lib/ui.jsx";
 import {C} from "../lib/constants.js";
-import {resolveBcmSec16, classifyPcmSec6, corruptFillError, parseModule} from "../lib/parseModule.js";
+import {resolveBcmSec16, classifyPcmSec6, corruptFillError, parseModule, pcmChipFromSize} from "../lib/parseModule.js";
 import {engParseBcm, engParseRfh, engParsePcm} from "./ModuleSync.jsx";
 import Gpec2aImmoPanel from "../components/Gpec2aImmoPanel.jsx";
 import {StatBadge} from "../components/ImmoChecksumPanel.jsx";
-import {writeRfhSec16FromBcm, writeRfhSec16Gen1, writeXc2268Sec16, writePcmSec6} from "../lib/securityBytes.js";
+import {writeRfhSec16FromBcm, writeRfhSec16Gen1, writeRfhSec16Gen2Slots, writeXc2268Sec16, writePcmSec6} from "../lib/securityBytes.js";
 import {isXc2268Rfhub} from "../lib/xc2268Rfhub.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {RfhubKeyTypeBanner} from "../components/RfhubKeyTypeBanner.jsx";
@@ -236,6 +236,10 @@ export default function SecuritySyncTab() {
           res = writeXc2268Sec16(rfh.bytes, bcmSec16);
         } else if (rfh.parsed.format === 'gen1') {
           res = writeRfhSec16Gen1(rfh.bytes, bcmSec16);
+        } else if (rfh.parsed.format === 'gen2-hybrid') {
+          // gen2-hybrid: 4 KB file with empty Gen2 slots and no AA-55-31-01 banner.
+          // Write to the Gen2 slot offsets (0x050E / 0x0522) without the header guard.
+          res = writeRfhSec16Gen2Slots(rfh.bytes, bcmSec16);
         } else {
           res = writeRfhSec16FromBcm(rfh.bytes, bcmSec16);
         }
@@ -323,12 +327,17 @@ export default function SecuritySyncTab() {
             {/* Step 2 — RFHUB */}
             <div style={{padding: '10px 12px', borderRadius: 8, background: C.c2, border: `1px solid ${rfhVerdict.good ? C.gn + '55' : rfhNeedsFix ? C.er + '55' : C.bd}`}}>
               <div style={{fontSize: 10, fontWeight: 800, color: C.ts, letterSpacing: 1, marginBottom: 4}}>STEP 2 · RFHUB SEC16</div>
-              <div style={{fontSize: 11, fontWeight: 700, color: rfhVerdict.good ? C.gn : rfhNeedsFix ? C.er : C.tm}}>
+                <div style={{fontSize: 11, fontWeight: 700, color: rfhVerdict.good ? C.gn : rfhNeedsFix ? C.er : C.tm}}>
                 {rfhVerdict.good ? '✓ In sync — no fix needed'
                   : rfhNeedsFix ? '✗ Mismatch — will fix'
                   : rfh ? '— blank/virgin'
                   : '— not loaded'}
               </div>
+              {rfh && !rfhSec16 && !rfhVerdict.good && (
+                <div style={{fontSize: 10, color: C.tm, marginTop: 4, lineHeight: 1.4}} data-testid="secsync-rfh-virgin-explain">
+                  RFHUB SEC16 is virgin — this module was never programmed with a vehicle secret (factory default) or was wiped. The fix will write the correct reverse(BCM SEC16) value.
+                </div>
+              )}
               {wizardResults && wizardResults.rfh && (
                 <div style={{fontSize: 10, marginTop: 4, color: wizardResults.rfh.ok ? C.gn : C.er}}>
                   {wizardResults.rfh.ok ? `✓ Fixed · ${wizardResults.rfh.patched} slot(s) · ${wizardResults.rfh.fname}` : `✗ ${wizardResults.rfh.error}`}
@@ -410,15 +419,43 @@ export default function SecuritySyncTab() {
         <FileSlot
           label="PCM" accent={C.a4 || C.wn} role="pcm" mod={pcm}
           onLoad={loadPcm} onClear={() => { setPcm(null); setShowFixAnyway(false); }}
-          summary={pcm && (
-            <div style={{marginTop: 6, fontSize: 10}}>
-              {pcm.parsed.tooSmall ? <StatBadge value="TOO SMALL" good={false} />
-                : <>
-                    <div style={{color: C.ts}}>VIN: <span style={{fontFamily: mono, color: C.tx}}>{pcm.parsed.vin || "—"}</span></div>
-                    <div style={{marginTop: 3}}>{pcmSec6 ? <StatBadge value="SEC6 SET" good /> : <StatBadge value={pcmSec6Info ? "SEC6 VIRGIN" : "NO SEC6"} good={false} />}</div>
-                  </>}
-            </div>
-          )}
+          summary={pcm && (() => {
+            const chip = pcmChipFromSize(pcm.bytes.length);
+            const sec6Label = pcmSec6Info ? classifyPcmSec6(pcmSec6Info.raw).label : null;
+            const sec6Populated = pcmSec6Info && pcmSec6Info.cls.populated;
+            return (
+              <div style={{marginTop: 6, fontSize: 10}}>
+                {pcm.parsed.tooSmall ? <StatBadge value="TOO SMALL" good={false} /> : (
+                  <>
+                    {/* Chip label badge */}
+                    <div style={{marginBottom: 3}}>
+                      <span
+                        data-testid="secsync-pcm-chip-badge"
+                        style={{
+                          display: 'inline-block', fontFamily: mono, fontSize: 10, fontWeight: 800,
+                          background: chip ? C.a4 + '22' : C.wn + '22',
+                          color: chip ? (C.a4 || C.wn) : C.wn,
+                          border: '1px solid ' + (chip ? (C.a4 || C.wn) + '55' : C.wn + '55'),
+                          borderRadius: 5, padding: '2px 7px', letterSpacing: 0.5,
+                        }}
+                      >
+                        {chip ? chip.label : pcm.bytes.length.toLocaleString() + ' B · UNKNOWN CHIP'}
+                      </span>
+                    </div>
+                    <div style={{color: C.ts}}>VIN: <span style={{fontFamily: mono, color: C.tx}}>{pcm.parsed.vin || '—'}</span></div>
+                    {/* SEC6 populated/virgin badge */}
+                    <div style={{marginTop: 3}} data-testid="secsync-pcm-sec6-badge">
+                      {sec6Populated
+                        ? <StatBadge value="SEC6 POPULATED" good />
+                        : sec6Label
+                          ? <StatBadge value={'SEC6 ' + sec6Label.toUpperCase().replace('✓ ', '')} good={false} />
+                          : <StatBadge value="NO SEC6" good={false} />}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })()}
         />
       </div>
 
