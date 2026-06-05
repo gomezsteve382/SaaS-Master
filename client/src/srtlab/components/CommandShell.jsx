@@ -48,11 +48,11 @@ export const FOOTER_NAV = [
 ];
 
 const CATEGORY_META = {
-  PROGRAM:  {label: 'PROGRAM',  blurb: 'Write to module'},
-  LIVE:     {label: 'LIVE',     blurb: 'Connected ECU'},
-  ANALYZE:  {label: 'ANALYZE',  blurb: 'Dumps & reports'},
-  TOOLS:    {label: 'TOOLS',    blurb: 'Cross-cutting utilities'},
-  RESEARCH: {label: 'RESEARCH', blurb: 'Experimental / catalogs'},
+  PROGRAM:  {label: 'PROGRAM',  blurb: 'Write to module',          accent: '#ef4444', bg: 'rgba(239,68,68,0.12)'},
+  LIVE:     {label: 'LIVE',     blurb: 'Connected ECU',            accent: '#22c55e', bg: 'rgba(34,197,94,0.12)'},
+  ANALYZE:  {label: 'ANALYZE',  blurb: 'Dumps & reports',          accent: '#3b82f6', bg: 'rgba(59,130,246,0.12)'},
+  TOOLS:    {label: 'TOOLS',    blurb: 'Cross-cutting utilities',   accent: '#f59e0b', bg: 'rgba(245,158,11,0.12)'},
+  RESEARCH: {label: 'RESEARCH', blurb: 'Experimental / catalogs',  accent: '#a855f7', bg: 'rgba(168,85,247,0.12)'},
 };
 const SECTION_ORDER = ['PROGRAM', 'LIVE', 'ANALYZE', 'TOOLS', 'RESEARCH'];
 
@@ -156,11 +156,18 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
             if (items.length === 0) return null;
             const meta = CATEGORY_META[key];
             return (
-              <div key={key} style={{marginBottom: 14}}>
+              <div key={key} style={{marginBottom: 18}}>
                 <div style={{
-                  fontFamily: "'Righteous',sans-serif", fontSize: 11, letterSpacing: 2,
-                  color: T.muted, padding: '8px 8px 6px',
-                }} title={meta.blurb}>{meta.label}</div>
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '10px 8px 7px',
+                }}>
+                  <div style={{width: 3, height: 14, borderRadius: 2, background: meta.accent, flexShrink: 0}} />
+                  <span style={{
+                    fontFamily: "'Righteous',sans-serif", fontSize: 10, letterSpacing: 2.5,
+                    color: meta.accent, textTransform: 'uppercase',
+                  }} title={meta.blurb}>{meta.label}</span>
+                  <span style={{fontSize: 10, color: T.muted, opacity: 0.7}}>— {meta.blurb}</span>
+                </div>
                 {items.map((t) => {
                   const active = activeTab === t.id;
                   return (
@@ -170,23 +177,31 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
                       data-testid={`drawer-tab-${t.id}`}
                       onClick={() => { onSelect(t.id); onClose(); }}
                       style={{
-                        display: 'flex', alignItems: 'center', gap: 11, width: '100%',
-                        background: active ? T.red : T.panel,
+                        display: 'flex', alignItems: 'center', gap: 12, width: '100%',
+                        background: active ? meta.accent : T.panel,
                         color: active ? '#fff' : T.ink,
-                        border: `1px solid ${active ? T.red : T.line}`,
-                        borderRadius: 9, padding: '9px 11px', marginBottom: 6, cursor: 'pointer',
+                        border: `1px solid ${active ? meta.accent : T.line}`,
+                        borderLeft: active ? `3px solid ${meta.accent}` : `3px solid ${meta.bg.replace('0.12','0.45')}`,
+                        borderRadius: 10, padding: '9px 12px 9px 10px', marginBottom: 5, cursor: 'pointer',
                         textAlign: 'left', fontFamily: "'Nunito',sans-serif",
+                        transition: 'background 120ms ease-out, border-color 120ms ease-out',
                       }}
-                      onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = '#fff7f5'; }}
-                      onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = T.panel; }}
+                      onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = meta.bg; e.currentTarget.style.borderLeftColor = meta.accent; } }}
+                      onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = T.panel; e.currentTarget.style.borderLeftColor = meta.bg.replace('0.12','0.45'); } }}
                     >
-                      <span style={{width:22,height:22,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                        {t.Icon ? <t.Icon size={15} strokeWidth={2.2}/> : <span style={{fontSize:15,lineHeight:1}}>{t.i}</span>}
+                      <span style={{
+                        width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0, borderRadius: 8,
+                        background: active ? 'rgba(255,255,255,0.18)' : meta.bg,
+                        fontSize: 18, lineHeight: 1,
+                      }}>
+                        {t.i}
                       </span>
-                      <span style={{display: 'flex', flexDirection: 'column', minWidth: 0}}>
-                        <span style={{fontWeight: 800, fontSize: 12.5, letterSpacing: 0.5, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{t.l}</span>
-                        <span style={{fontSize: 11, opacity: active ? 0.85 : 0.6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{t.s}</span>
+                      <span style={{display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1}}>
+                        <span style={{fontWeight: 800, fontSize: 12.5, letterSpacing: 0.4, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{t.l}</span>
+                        <span style={{fontSize: 11, opacity: active ? 0.88 : 0.55, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 1}}>{t.s}</span>
                       </span>
+                      {active && <span style={{fontSize: 9, fontWeight: 700, letterSpacing: 1, color: 'rgba(255,255,255,0.75)', flexShrink: 0}}>ACTIVE</span>}
                     </button>
                   );
                 })}
