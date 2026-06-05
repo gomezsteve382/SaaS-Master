@@ -94,3 +94,4 @@
 - [x] Support virgin RFHUB (factory 0x30-filled VIN slots, blank SEC16) as valid source in Module Sync: engParseRfh ok:true for virgin chips, show VIRGIN badge in RfhCard, enable BCM→RFHUB SEC16 write action for virgin chips
 - [x] Add "BCM VIN + SEC16 → RFHUB" combined action for virgin RFHUB chips: writes BCM VIN into all 4 RFHUB slots AND writes reverse(BCM SEC16) into Gen2 slots in one pass, downloads single patched file
 - [x] Fix Workflow tab JSON error: add sec16_sync_events table to schema + GET/POST /api/sec16-sync-events routes
+- [x] Add TM9 (Panasonic/Harman UConnect 4C NAV) to moparRadioCode.js with formula: PIN = 10099 - last4digits; test vector TM93197 04555 → 5544

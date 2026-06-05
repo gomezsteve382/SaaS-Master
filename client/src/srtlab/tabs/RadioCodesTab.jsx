@@ -34,14 +34,15 @@ export default function RadioCodesTab() {
       <div style={{ fontSize: 11, color: C.ts, lineHeight: 1.5, marginBottom: 12 }}>
         Deterministic 4-digit anti-theft PIN derived from the radio serial label
         (printed on the chassis, also readable via the head-unit's hidden diag screen).
-        Per-family multiplier + offset, mod 10000. Bench-pending: pinned vectors lock
-        the algorithm in tests; ground-truth confirmation happens off-platform.
+        Most families: per-family multiplier + offset, mod 10000.
+        TM9 (Panasonic/Harman UConnect 4C NAV): PIN = 10099 − last 4 digits of serial.
+        Bench-pending: pinned vectors lock the algorithm in tests; ground-truth confirmation happens off-platform.
       </div>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
         <input
           value={serial}
           onChange={(e) => setSerial(e.target.value.toUpperCase())}
-          placeholder="e.g. RBZ12345"
+          placeholder="e.g. RBZ12345 or TM9319704555"
           style={{
             padding: '10px 14px', border: '2px solid ' + C.bd, borderRadius: 8,
             fontFamily: "'JetBrains Mono'", fontSize: 14, fontWeight: 700, letterSpacing: 2, width: 220,
@@ -59,6 +60,7 @@ export default function RadioCodesTab() {
       </div>
       <div style={{ marginTop: 8, fontSize: 11, color: C.ts, fontFamily: "'JetBrains Mono'" }}>
         Serial: <b>{result.serial}</b> · Family: <b>{result.family}</b> ({result.label}) · Numeric: <b>{result.numeric}</b>
+        {result.formula && <span style={{ display: 'block', marginTop: 4 }}>Formula: <b>{result.formula}</b></span>}
       </div>
     </Card>}
 
