@@ -152,8 +152,9 @@ export function moduleSizeBadge(kind, sizeBytes) {
     return { label: `${kb} KB · OTHER`, color: C.wn, dataKey: 'other', canonical: false };
   }
   if (kind === 'rfh') {
-    if (sizeBytes === 2048) return { label: '2 KB', color: C.a4, dataKey: '2kb', canonical: true };
-    if (sizeBytes === 4096) return { label: '4 KB', color: C.a4, dataKey: '4kb', canonical: true };
+    if (sizeBytes === 2048) return { label: '2 KB · Gen1', color: C.a4, dataKey: '2kb', canonical: true };
+    if (sizeBytes === 4096) return { label: '4 KB · Gen2', color: C.a4, dataKey: '4kb', canonical: true };
+    if (sizeBytes === 8192) return { label: '8 KB · Trackhawk', color: C.wn, dataKey: '8kb', canonical: true };
     return { label: `${kb} KB · OTHER`, color: C.wn, dataKey: 'other', canonical: false };
   }
   if (kind === 'eep') {
@@ -4031,7 +4032,7 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
           </div>
           <FilePicker
             label="RFH File (MC9S12X Gen2) (.bin/.eprom)"
-            subtitle="Dump RFH (Gen2: VIN 4 slots + SEC16 2 slots)."
+            subtitle="Dump RFH (Gen2: VIN 4 slots + SEC16 2 slots). 2 KB = Gen1 · 4 KB = Gen2 · 8 KB = WK2 Trackhawk double-dump (accepted). Virgin chips (factory 0x30 fill) also accepted."
             file={rfh.file}
             onFile={handleRfh}
             accept=".bin,.BIN,.eprom"
