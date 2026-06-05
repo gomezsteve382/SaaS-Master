@@ -114,6 +114,72 @@ function useCopy() {
   return { copy, copied };
 }
 
+/* ─── Tooltip component ─── */
+function Tooltip({ text, children }) {
+  const [visible, setVisible] = useState(false);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const ref = useRef(null);
+
+  const show = useCallback((e) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (rect) {
+      setPos({ x: rect.left, y: rect.bottom + 6 });
+    }
+    setVisible(true);
+  }, []);
+
+  const hide = useCallback(() => setVisible(false), []);
+
+  return (
+    <div ref={ref} style={{ position: 'relative', display: 'contents' }}
+      onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
+      {children}
+      {visible && text && (
+        <div style={{
+          position: 'fixed',
+          left: pos.x,
+          top: pos.y,
+          zIndex: 9999,
+          background: '#1a1f35',
+          border: '1px solid #3a4060',
+          borderRadius: 6,
+          padding: '7px 11px',
+          fontSize: 11,
+          color: '#c8cfe8',
+          maxWidth: 280,
+          lineHeight: 1.55,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
+          pointerEvents: 'none',
+          whiteSpace: 'pre-line',
+        }}>
+          {text}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── TooltipField — label + tooltip icon + input ─── */
+function TooltipField({ label, tooltip, children, style }) {
+  return (
+    <div style={style}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
+        <span style={{ color: '#888', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>{label}</span>
+        <Tooltip text={tooltip}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 14, height: 14, borderRadius: '50%',
+            background: '#2a3050', border: '1px solid #3a4060',
+            color: '#7080b0', fontSize: 9, fontWeight: 700,
+            cursor: 'help', userSelect: 'none', flexShrink: 0,
+          }}>?</span>
+        </Tooltip>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 /* ─── blank ref row component ─── */
 function BlankRefRow({ entry, onDelete }) {
   const { copy, copied } = useCopy();
@@ -142,6 +208,18 @@ function BlankRefRow({ entry, onDelete }) {
     </div>
   );
 }
+
+/* ─── field tooltip content ─── */
+const FIELD_TIPS = {
+  chipId:     'Chip UID — 8 hex digits (4 bytes).\nRead from VVDI Prog: HITAG 2 → Chip info → Chip ID.\nExample: 437C2C9F\nUnique per physical chip — used to identify the transponder.',
+  configPage: 'Config / Password page — 8 hex digits.\nRead from VVDI Prog: HITAG 2 → Chip info → Config page.\nFactory default: 08AA4854\nBit 0 of byte 0 = lock bit. If set, chip cannot be rewritten.',
+  lowSk:      'Low SK — first 4 bytes (8 hex digits) of the 6-byte secret key.\nRead from VVDI Prog: HITAG 2 → Chip info → Low SK.\nMikron default: 4D494B52 (not vehicle-specific).\nThis is the lower half of the 48-bit crypto key.',
+  highSk:     'High SK — last 2 bytes (4 hex digits) of the 6-byte secret key.\nRead from VVDI Prog: HITAG 2 → Chip info → High SK.\nMikron default: 4F4E\nCombined with Low SK: Low(4B) + High(2B) = 6-byte SK.',
+  page0:      'Page 0 — 8 hex digits (4 bytes).\nFactory blank pattern: AABBCCDD\nContains manufacturer data. Rarely changes after personalization.\nIf this still reads AABBCCDD the chip has never been programmed.',
+  page1:      'Page 1 — 8 hex digits (4 bytes).\nThis is the PRIMARY SK SOURCE used for 6-byte SK derivation.\nFactory blank: 00000000\nAfter programming: contains the vehicle-specific secret (first 4 bytes of 6-byte SK).',
+  page2:      'Page 2 — 8 hex digits (4 bytes).\nThe HIGH WORD (first 2 bytes) of Page 2 is the 5th and 6th bytes of the 6-byte SK.\n6-byte SK = Page1 (4B) + Page2[0:2] (2B)\nFactory blank: 00000000',
+  page3:      'Page 3 — 8 hex digits (4 bytes).\nContains additional transponder data (counter, flags).\nNot used in SK derivation but required for a complete chip read.\nExample: FF6CEA60',
+};
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * Main component
@@ -249,7 +327,6 @@ export default function Hitag2Tab({ vehicle }) {
 
   /* ── styles ── */
   const inputStyle = { background: '#1e2230', border: '1px solid #3a4060', color: '#e8eaf6', fontFamily: 'monospace', fontSize: 13, padding: '5px 8px', borderRadius: 4, width: '100%', boxSizing: 'border-box' };
-  const labelStyle = { color: '#888', fontSize: 11, marginBottom: 3, display: 'block', textTransform: 'uppercase', letterSpacing: 1 };
   const fieldRow   = { marginBottom: 12 };
 
   return (
@@ -335,31 +412,31 @@ export default function Hitag2Tab({ vehicle }) {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 12px' }}>
-              <div style={fieldRow}>
-                <label style={labelStyle}>Chip ID</label>
+              <TooltipField label="Chip ID" tooltip={FIELD_TIPS.chipId} style={fieldRow}>
                 <input style={inputStyle} value={chipId} onChange={e => setChipId(e.target.value.toUpperCase())} maxLength={8} placeholder="437C2C9F" />
-              </div>
-              <div style={fieldRow}>
-                <label style={labelStyle}>Config Page</label>
+              </TooltipField>
+              <TooltipField label="Config Page" tooltip={FIELD_TIPS.configPage} style={fieldRow}>
                 <input style={inputStyle} value={configPage} onChange={e => setConfigPage(e.target.value.toUpperCase())} maxLength={8} placeholder="08AA4854" />
-              </div>
-              <div style={fieldRow}>
-                <label style={labelStyle}>Low SK (4 bytes)</label>
+              </TooltipField>
+              <TooltipField label="Low SK (4 bytes)" tooltip={FIELD_TIPS.lowSk} style={fieldRow}>
                 <input style={inputStyle} value={lowSk} onChange={e => setLowSk(e.target.value.toUpperCase())} maxLength={8} placeholder="4D494B52" />
-              </div>
-              <div style={fieldRow}>
-                <label style={labelStyle}>High SK (2 bytes)</label>
+              </TooltipField>
+              <TooltipField label="High SK (2 bytes)" tooltip={FIELD_TIPS.highSk} style={fieldRow}>
                 <input style={inputStyle} value={highSk} onChange={e => setHighSk(e.target.value.toUpperCase())} maxLength={4} placeholder="4F4E" />
-              </div>
+              </TooltipField>
             </div>
 
             <div style={{ fontWeight: 700, color: '#555', fontSize: 10, margin: '8px 0 8px', letterSpacing: 1 }}>CHIP DATA PAGES</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 12px' }}>
-              {[['Page 0', page0, setPage0], ['Page 1', page1, setPage1], ['Page 2', page2, setPage2], ['Page 3', page3, setPage3]].map(([label, val, setter]) => (
-                <div key={label} style={fieldRow}>
-                  <label style={labelStyle}>{label}</label>
+              {[
+                ['Page 0', page0, setPage0, FIELD_TIPS.page0],
+                ['Page 1', page1, setPage1, FIELD_TIPS.page1],
+                ['Page 2', page2, setPage2, FIELD_TIPS.page2],
+                ['Page 3', page3, setPage3, FIELD_TIPS.page3],
+              ].map(([label, val, setter, tip]) => (
+                <TooltipField key={label} label={label} tooltip={tip} style={fieldRow}>
                   <input style={inputStyle} value={val} onChange={e => setter(e.target.value.toUpperCase())} maxLength={8} placeholder="00000000" />
-                </div>
+                </TooltipField>
               ))}
             </div>
           </Card>
