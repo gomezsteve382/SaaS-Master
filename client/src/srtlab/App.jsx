@@ -19,7 +19,7 @@
  * ═══════════════════════════════════════════════════════════════════════════ */
 
 import React, { useState, useCallback, useMemo, useRef, useEffect, useContext } from "react";
-import { Bot } from "lucide-react";
+import { Bot, KeyRound, RefreshCw, ShieldCheck, Zap, Radio, TriangleAlert, AlertCircle, Cpu, Fingerprint, ScanEye, Download, Terminal, Replace, Wrench, Search, ListChecks, Lock, DownloadCloud, Skull, Archive, Flame, Settings, Plug, Scan, FileCode, Package, Sliders, Microscope, Network, Satellite, BookOpen, FlaskConical, GitBranch, Globe, ScrollText, Stethoscope, Braces, Binary, BarChart2, Layers, Unlock, Shield, ScanLine, Wifi, HardDrive, Gauge, SquareCode, Signature, Clipboard, Tag as LucideTag, Bookmark as LucideBookmark } from "lucide-react";
 import CommandShell from "./components/CommandShell.jsx";
 import CopilotPanel from "./components/CopilotPanel.jsx";
 import ReferencePanel, { ReferencePanelTrigger } from "./components/ReferencePanel.jsx";
@@ -928,61 +928,61 @@ function VehicleLanding({onSelect}){
 
 /* ═══ VEHICLE WORKSPACE ═══ */
 const WORKSPACE_TABS = [
-  {id:'dumps',     i:'📂', l:'DUMPS',        s:'VIN · SEC16 · Unlocks · Hex'},
-  {id:'vinsync',   i:'🪪', l:'VIN → SYNC',   s:'Step 1 VIN+CRC · Step 2 security'},
-  {id:'secsync',   i:'🔐', l:'SECURITY SYNC',s:'BCM · RFHUB · PCM · SEC16/SEC6 side-by-side'},
-  {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
-  {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
-  {id:'keyxfer',   i:'🔑', l:'KEY PROGRAM',  s:'Offline transponder-key transfer · no OBD'},
-  {id:'keymgr',    i:'🗝️', l:'KEY MGR',      s:'Dual-file RFHUB fob transfer'},
-  {id:'keytransplant', i:'🔑', l:'KEY TRANSPLANT', s:'Donor → Target RFHUB · auth sector + ring buffer · no OBD'},
-  {id:'quickclone', i:'⚡', l:'QUICK CLONE', s:'VIN + Security + Keys · 3-step guided wizard'},
-  {id:'livekey',   i:'🔑', l:'LIVE KEYS',    s:'OBD PIN extract · key prog · SKREEM'},
-  {id:'jailbreak', i:'💀', l:'JAILBREAK',    s:'SRT · Demon · Hellcat · Redeye'},
-  {id:'seed',      i:'🔑', l:'SEED→KEY',     s:'14 Algorithms'},
-  {id:'bcm',       i:'🧠', l:'BCM',          s:'VIN · CRC · Features'},
-  {id:'skimlive',  i:'🛡️', l:'SKIM LIVE',    s:'Immo · Key Count · Learning'},
-  {id:'rfhub',     i:'📡', l:'RFHUB',        s:'VIN · Key Fobs'},
-  {id:'ecm',       i:'⚡', l:'ECM',          s:'VIN · 10 Algorithms'},
-  {id:'smartbox',  i:'📦', l:'SMARTBOX',     s:'Journey immo EEE · VIN · read-only'},
-  {id:'backups',   i:'💾', l:'BACKUPS',      s:'History · Restore'},
-  {id:'obd',       i:'📡', l:'LIVE OBD',     s:'UDS · Seed→Key · J2534 · Gould'},
-  {id:'uds-console',i:'🔌', l:'UDS CONSOLE',  s:'J2534 bridge · raw UDS · any module'},
-  {id:'autelsgw',   i:'🛡️', l:'AUTEL SGW',    s:'MaxiSys SGW bypass · auth · seed/key'},
-  {id:'skim',      i:'🛡️', l:'SKIM',         s:'Keys · Immo'},
-  {id:'info',      i:'ℹ️', l:'INFO',         s:'Reference'},
-  {id:'samples',   i:'📚', l:'SAMPLES',      s:'Fixture Library'},
-  {id:'cflash',    i:'🔥', l:'C-FLASH',      s:'ECM image · Diff · Tuner sigs'},
-  {id:'efd',       i:'📦', l:'EFD',          s:'.webm/.efd inspector'},
-  {id:'efd2bin',   i:'📦', l:'EFD → BIN',    s:'Extract payload to .bin'},
-  {id:'flasher',   i:'⚡', l:'ECM FLASHER',  s:'GPEC2A bench programmer'},
-  {id:'cdasession',i:'🔐', l:'CDA6 SESSION', s:'9-step UDS walkthrough'},
-  {id:'vinprog',   i:'🪪', l:'VIN + CHECKSUM', s:'Single-file VIN write + CRC patcher'},
-  {id:'proxi',     i:'📋', l:'PROXI',        s:'BCM 0x2023 + DEnn feature decoder · read-only'},
-  {id:'immobcm56xb',i:'🧠', l:'IMMO BCM 56xB',s:'64 KB MPC5606B · FULL / VIN_ONLY / LOCKED · file in/out'},
-  {id:'bcmpcmpair', i:'🔐', l:'BCM → PCM',    s:'MPC5606B full-flash · GPEC2A · SEC6 pairing workbench'},
-  {id:'bcmconfig', i:'⚙️', l:'BCM CONFIG',   s:'DE00..DE0C · 155 toggles · SRT/Perf/Track'},
-  {id:'inspector', i:'🔍', l:'MODULE INSPECTOR', s:'GPEC2A · RFHUB · BCM auto-detect'},
-  {id:'unlockcov', i:'🗝️', l:'UNLOCK COV',   s:'81 DLLs · reversed vs dll_only'},
-  {id:'alfaobd',   i:'🧾', l:'ALFAOBD',      s:'ECUTYPE · Handlers · Transports'},
-  {id:'workflow',  i:'🛠️', l:'WORKFLOW',     s:'Vehicle Job · Census · Fix Plan · Sign-Off'},
-  {id:'gpecunlock',i:'🔓', l:'GPEC2A UNLOCK',s:'Firmware file patcher · no OBD'},
-  {id:'exttools',  i:'🧰', l:'EXT TOOLS',   s:'FCA PROXI Tool · GPEC Unlocker'},
-  {id:'radiocodes',i:'📻', l:'RADIO CODES', s:'Mopar PIN deriver'},
-  {id:'keywriter', i:'🗝️', l:'KEY WRITER',  s:'VVDI / Tango chip burn bridge'},
-  {id:'hitagaes',  i:'🔑', l:'HITAG KEY READER', s:'PCF7945/53 (HITAG 2) + PCF7939FA (AES) · blank/programmed/locked · photo OCR · FCA Charger/Challenger/Redeye'},
-  {id:'hitag2',     i:'🔑', l:'HITAG 2',      s:'PCF7945/53 · 6-byte SK derivation · VVDI write helper · blank/programmed/locked'},
-  {id:'binintel',  i:'🧪', l:'BINARY INTEL',s:'External report cross-ref'},
-  {id:'dispatchcov',i:'📊', l:'DISPATCH COV',s:'Full routine→frame gap · 1,696 routines'},
-  {id:'alfaintel', i:'🧾', l:'ALFAOBD INTEL',s:'UDS frames · routines · ECU→CAN · DB schema'},
-  {id:'udsanalyzer',i:'🔎',l:'UDS ANALYZER',s:'trace → NRC decode · diagnosis'},
-  {id:'patterns',  i:'🧬', l:'PATTERNS',    s:'Cross-binary signature library'},
-  {id:'kg',        i:'🕸️', l:'KNOW. GRAPH', s:'Module relationship map'},
-  {id:'investigation',i:'🔬',l:'SWARM',     s:'Five-agent forensic investigation'},
-  {id:'sigdisc',   i:'🛰️', l:'SIGNAL DISC', s:'TUMFTM sweep · record · match'},
-  {id:'canuniverse',i:'🌐', l:'CAN UNIVERSE', s:'awesome-canbus + Eclipse SDV catalog'},
-  {id:'loganalyser',i:'📜',l:'LOG ANALYSER',s:'candump · UDS · iddiff · catalog growth'},
-  {id:'fwemul',    i:'🔬', l:'FW EMULATE', s:'Seed→key from firmware · Unicorn CPU emulator'},
+  {id:'dumps',      i:'📂', Icon:Stethoscope,  l:'DUMPS',            s:'VIN · SEC16 · Unlocks · Hex'},
+  {id:'vinsync',    i:'🪪', Icon:ListChecks,   l:'VIN → SYNC',       s:'Step 1 VIN+CRC · Step 2 security'},
+  {id:'secsync',    i:'🔐', Icon:Lock,         l:'SECURITY SYNC',    s:'BCM · RFHUB · PCM · SEC16/SEC6 side-by-side'},
+  {id:'modsync',    i:'🔄', Icon:RefreshCw,    l:'MODULE SYNC',      s:'BCM · RFHUB · PCM · SEC16'},
+  {id:'keyprog',    i:'🔑', Icon:KeyRound,     l:'KEY PROG',         s:'Stamp VIN to module set'},
+  {id:'keyxfer',    i:'🔑', Icon:KeyRound,     l:'KEY PROGRAM',      s:'Offline transponder-key transfer · no OBD'},
+  {id:'keymgr',     i:'🗝️', Icon:KeyRound,     l:'KEY MGR',          s:'Dual-file RFHUB fob transfer'},
+  {id:'keytransplant', i:'🔑', Icon:Replace,   l:'KEY TRANSPLANT',   s:'Donor → Target RFHUB · auth sector + ring buffer · no OBD'},
+  {id:'quickclone', i:'⚡', Icon:Zap,          l:'QUICK CLONE',      s:'VIN + Security + Keys · 3-step guided wizard'},
+  {id:'livekey',    i:'🔑', Icon:KeyRound,     l:'LIVE KEYS',        s:'OBD PIN extract · key prog · SKREEM'},
+  {id:'jailbreak',  i:'💀', Icon:Skull,        l:'JAILBREAK',        s:'SRT · Demon · Hellcat · Redeye'},
+  {id:'seed',       i:'🔑', Icon:Gauge,        l:'SEED→KEY',         s:'14 Algorithms'},
+  {id:'bcm',        i:'🧠', Icon:Cpu,          l:'BCM',              s:'VIN · CRC · Features'},
+  {id:'skimlive',   i:'🛡️', Icon:Shield,       l:'SKIM LIVE',        s:'Immo · Key Count · Learning'},
+  {id:'rfhub',      i:'📡', Icon:Radio,        l:'RFHUB',            s:'VIN · Key Fobs'},
+  {id:'ecm',        i:'⚡', Icon:Cpu,          l:'ECM',              s:'VIN · 10 Algorithms'},
+  {id:'smartbox',   i:'📦', Icon:Package,      l:'SMARTBOX',         s:'Journey immo EEE · VIN · read-only'},
+  {id:'backups',    i:'💾', Icon:Archive,      l:'BACKUPS',          s:'History · Restore'},
+  {id:'obd',        i:'📡', Icon:DownloadCloud,l:'LIVE OBD',         s:'UDS · Seed→Key · J2534 · Gould'},
+  {id:'uds-console',i:'🔌', Icon:Terminal,     l:'UDS CONSOLE',      s:'J2534 bridge · raw UDS · any module'},
+  {id:'autelsgw',   i:'🛡️', Icon:ShieldCheck,  l:'AUTEL SGW',        s:'MaxiSys SGW bypass · auth · seed/key'},
+  {id:'skim',       i:'🛡️', Icon:Shield,       l:'SKIM',             s:'Keys · Immo'},
+  {id:'info',       i:'ℹ️', Icon:BookOpen,     l:'INFO',             s:'Reference'},
+  {id:'samples',    i:'📚', Icon:BookOpen,     l:'SAMPLES',          s:'Fixture Library'},
+  {id:'cflash',     i:'🔥', Icon:Flame,        l:'C-FLASH',          s:'ECM image · Diff · Tuner sigs'},
+  {id:'efd',        i:'📦', Icon:ScanLine,     l:'EFD',              s:'.webm/.efd inspector'},
+  {id:'efd2bin',    i:'📦', Icon:Download,     l:'EFD → BIN',        s:'Extract payload to .bin'},
+  {id:'flasher',    i:'⚡', Icon:Zap,          l:'ECM FLASHER',      s:'GPEC2A bench programmer'},
+  {id:'cdasession', i:'🔐', Icon:Lock,         l:'CDA6 SESSION',     s:'9-step UDS walkthrough'},
+  {id:'vinprog',    i:'🪪', Icon:Fingerprint,  l:'VIN + CHECKSUM',   s:'Single-file VIN write + CRC patcher'},
+  {id:'proxi',      i:'📋', Icon:Sliders,      l:'PROXI',            s:'BCM 0x2023 + DEnn feature decoder · read-only'},
+  {id:'immobcm56xb',i:'🧠', Icon:Cpu,          l:'IMMO BCM 56xB',    s:'64 KB MPC5606B · FULL / VIN_ONLY / LOCKED · file in/out'},
+  {id:'bcmpcmpair', i:'🔐', Icon:Lock,         l:'BCM → PCM',        s:'MPC5606B full-flash · GPEC2A · SEC6 pairing workbench'},
+  {id:'bcmconfig',  i:'⚙️', Icon:Settings,     l:'BCM CONFIG',       s:'DE00..DE0C · 155 toggles · SRT/Perf/Track'},
+  {id:'inspector',  i:'🔍', Icon:Search,       l:'MODULE INSPECTOR', s:'GPEC2A · RFHUB · BCM auto-detect'},
+  {id:'unlockcov',  i:'🗝️', Icon:Unlock,       l:'UNLOCK COV',       s:'81 DLLs · reversed vs dll_only'},
+  {id:'alfaobd',    i:'🧾', Icon:ScrollText,   l:'ALFAOBD',          s:'ECUTYPE · Handlers · Transports'},
+  {id:'workflow',   i:'🛠️', Icon:Wrench,       l:'WORKFLOW',         s:'Vehicle Job · Census · Fix Plan · Sign-Off'},
+  {id:'gpecunlock', i:'🔓', Icon:Unlock,       l:'GPEC2A UNLOCK',    s:'Firmware file patcher · no OBD'},
+  {id:'exttools',   i:'🧰', Icon:Wrench,       l:'EXT TOOLS',        s:'FCA PROXI Tool · GPEC Unlocker'},
+  {id:'radiocodes', i:'📻', Icon:Radio,        l:'RADIO CODES',      s:'Mopar PIN deriver'},
+  {id:'keywriter',  i:'🗝️', Icon:KeyRound,     l:'KEY WRITER',       s:'VVDI / Tango chip burn bridge'},
+  {id:'hitagaes',   i:'🔑', Icon:ScanEye,      l:'HITAG KEY READER', s:'PCF7945/53 (HITAG 2) + PCF7939FA (AES) · blank/programmed/locked · photo OCR · FCA Charger/Challenger/Redeye'},
+  {id:'hitag2',     i:'🔑', Icon:ScanEye,      l:'HITAG 2',          s:'PCF7945/53 · 6-byte SK derivation · VVDI write helper · blank/programmed/locked'},
+  {id:'binintel',   i:'🧪', Icon:FlaskConical, l:'BINARY INTEL',     s:'External report cross-ref'},
+  {id:'dispatchcov',i:'📊', Icon:BarChart2,    l:'DISPATCH COV',     s:'Full routine→frame gap · 1,696 routines'},
+  {id:'alfaintel',  i:'🧾', Icon:ScrollText,   l:'ALFAOBD INTEL',    s:'UDS frames · routines · ECU→CAN · DB schema'},
+  {id:'udsanalyzer',i:'🔎', Icon:Microscope,   l:'UDS ANALYZER',     s:'trace → NRC decode · diagnosis'},
+  {id:'patterns',   i:'🧬', Icon:GitBranch,    l:'PATTERNS',         s:'Cross-binary signature library'},
+  {id:'kg',         i:'🕸️', Icon:Network,      l:'KNOW. GRAPH',      s:'Module relationship map'},
+  {id:'investigation',i:'🔬',Icon:Microscope,  l:'SWARM',            s:'Five-agent forensic investigation'},
+  {id:'sigdisc',    i:'🛰️', Icon:Satellite,    l:'SIGNAL DISC',      s:'TUMFTM sweep · record · match'},
+  {id:'canuniverse',i:'🌐', Icon:Globe,        l:'CAN UNIVERSE',     s:'awesome-canbus + Eclipse SDV catalog'},
+  {id:'loganalyser',i:'📜', Icon:ScrollText,   l:'LOG ANALYSER',     s:'candump · UDS · iddiff · catalog growth'},
+  {id:'fwemul',     i:'🔬', Icon:FlaskConical, l:'FW EMULATE',       s:'Seed→key from firmware · Unicorn CPU emulator'},
 ]
   // Drop the INFO entry — it now lives behind the floating "?" reference
   // panel rather than occupying a sidebar slot. The id remains a valid
@@ -1716,21 +1716,26 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
         <div style={{fontSize:10,fontWeight:900,color:C.ts,letterSpacing:2,marginBottom:12,textTransform:'uppercase'}}>What are you trying to do?</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:8}}>
           {[
-            {icon:'🔑',label:'Program a Key',sub:'Transponder · HITAG 2 / AES',tab:'keyxfer'},
-            {icon:'🔄',label:'Sync VIN Across Modules',sub:'BCM · RFHUB · PCM',tab:'vinsync'},
-            {icon:'🔐',label:'Sync Security Bytes',sub:'SEC16 · SEC6 · BCM source',tab:'secsync'},
-            {icon:'⚡',label:'Clone a Module',sub:'Quick Clone wizard',tab:'quickclone'},
-            {icon:'📡',label:'Pull Dumps via OBD',sub:'Live read · K-line / CAN',tab:'obd'},
-          ].map(({icon,label,sub,tab})=>(
+            {Icon:KeyRound,   accent:'#FF6D00', label:'Program a Key',           sub:'Transponder · HITAG 2 / AES',  tab:'keyxfer'},
+            {Icon:ListChecks, accent:'#2979FF', label:'Sync VIN Across Modules',  sub:'BCM · RFHUB · PCM',           tab:'vinsync'},
+            {Icon:Lock,       accent:'#D32F2F', label:'Sync Security Bytes',      sub:'SEC16 · SEC6 · BCM source',   tab:'secsync'},
+            {Icon:Zap,        accent:'#00BFA5', label:'Clone a Module',           sub:'Quick Clone wizard',          tab:'quickclone'},
+            {Icon:DownloadCloud, accent:'#7B1FA2', label:'Pull Dumps via OBD',   sub:'Live read · K-line / CAN',    tab:'obd'},
+          ].map(({Icon,accent,label,sub,tab})=>(
             <button key={tab} onClick={()=>openTab(tab)}
               style={{
-                padding:'12px 14px',textAlign:'left',borderRadius:10,cursor:'pointer',
-                background:'rgba(255,255,255,0.7)',border:'1px solid '+C.bd,
-                transition:'all .15s',outline:'none',
+                padding:'14px 16px',textAlign:'left',borderRadius:12,cursor:'pointer',
+                background:'rgba(255,255,255,0.75)',
+                border:'1.5px solid '+C.bd,
+                borderTop:'3px solid '+accent,
+                transition:'all .18s cubic-bezier(0.23,1,0.32,1)',outline:'none',
+                boxShadow:'0 2px 8px rgba(0,0,0,0.06)',
               }}
-              onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,1)';e.currentTarget.style.borderColor=C.a1;e.currentTarget.style.transform='translateY(-1px)';}}
-              onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.7)';e.currentTarget.style.borderColor=C.bd;e.currentTarget.style.transform='none';}}>
-              <div style={{fontSize:20,marginBottom:6}}>{icon}</div>
+              onMouseEnter={e=>{e.currentTarget.style.background='#fff';e.currentTarget.style.borderColor=accent;e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 6px 20px rgba(0,0,0,0.12)';}}
+              onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.75)';e.currentTarget.style.borderColor=C.bd;e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)';}}>
+              <div style={{width:32,height:32,borderRadius:8,background:accent+'18',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:10}}>
+                <Icon size={17} color={accent} strokeWidth={2.2}/>
+              </div>
               <div style={{fontSize:11,fontWeight:800,color:C.tx,letterSpacing:.5,lineHeight:1.3}}>{label}</div>
               <div style={{fontSize:10,color:C.ts,marginTop:3,lineHeight:1.4}}>{sub}</div>
             </button>

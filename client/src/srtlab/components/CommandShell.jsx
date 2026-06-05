@@ -180,7 +180,9 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
                       onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = '#fff7f5'; }}
                       onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = T.panel; }}
                     >
-                      <span style={{fontSize: 17, lineHeight: 1, flexShrink: 0}}>{t.i}</span>
+                      <span style={{width:22,height:22,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                        {t.Icon ? <t.Icon size={15} strokeWidth={2.2}/> : <span style={{fontSize:15,lineHeight:1}}>{t.i}</span>}
+                      </span>
                       <span style={{display: 'flex', flexDirection: 'column', minWidth: 0}}>
                         <span style={{fontWeight: 800, fontSize: 12.5, letterSpacing: 0.5, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{t.l}</span>
                         <span style={{fontSize: 11, opacity: active ? 0.85 : 0.6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{t.s}</span>
