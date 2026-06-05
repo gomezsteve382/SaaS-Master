@@ -66,3 +66,6 @@
 - [x] Audit XC2268 and PCM VIN patch paths with fixture-backed tests (XC2268 uses dedicated patcher, PCM uses synthetic fixture without CRC)
 - [x] Document Gen1 RFHUB SEC16 checksum unverified status (no real 2KB dump exists — FORMULA_UNVERIFIED_ON_REAL_HW note in securityBytes.js, documentation test added)
 - [x] BUG FIXED: writeModuleVIN uses v.offset but analyzeFile returns v.off — fixed with v.off??v.offset, VIN writes now correctly target parsed offsets for BCM and RFHUB
+- [x] Rename HITAG AES tab to "HITAG KEY READER" in App.jsx nav entry and update description
+- [x] Build Hitag2Tab.jsx: photo OCR (HITAG 2 screen), 6-byte SK derivation display, VVDI write helper (Low SK / High SK formatted for VVDI Prog), chip status analysis (BLANK/PROGRAMMED/LOCKED), blank key reference storage
+- [x] Register Hitag2Tab in App.jsx nav and route

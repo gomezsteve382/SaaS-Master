@@ -60,6 +60,7 @@ import ExternalToolsTab from "./tabs/ExternalToolsTab.jsx";
 import RadioCodesTab from "./tabs/RadioCodesTab.jsx";
 import KeyWriterTab from "./tabs/KeyWriterTab.jsx";
 import HitagAesTab from "./tabs/HitagAesTab.jsx";
+import Hitag2Tab from "./tabs/Hitag2Tab.jsx";
 import BinaryIntelTab from "./tabs/BinaryIntelTab.jsx";
 import DispatchCoverageTab from "./tabs/DispatchCoverageTab.jsx";
 import AlfaObdIntelTab from "./tabs/AlfaObdIntelTab.jsx";
@@ -969,7 +970,8 @@ const WORKSPACE_TABS = [
   {id:'exttools',  i:'🧰', l:'EXT TOOLS',   s:'FCA PROXI Tool · GPEC Unlocker'},
   {id:'radiocodes',i:'📻', l:'RADIO CODES', s:'Mopar PIN deriver'},
   {id:'keywriter', i:'🗝️', l:'KEY WRITER',  s:'VVDI / Tango chip burn bridge'},
-  {id:'hitagaes',  i:'🔑', l:'HITAG AES',   s:'PCF7953 key status · blank/programmed/locked · FCA Redeye/Hellcat'},
+  {id:'hitagaes',  i:'🔑', l:'HITAG KEY READER', s:'PCF7945/53 (HITAG 2) + PCF7939FA (AES) · blank/programmed/locked · photo OCR · FCA Charger/Challenger/Redeye'},
+  {id:'hitag2',     i:'🔑', l:'HITAG 2',      s:'PCF7945/53 · 6-byte SK derivation · VVDI write helper · blank/programmed/locked'},
   {id:'binintel',  i:'🧪', l:'BINARY INTEL',s:'External report cross-ref'},
   {id:'dispatchcov',i:'📊', l:'DISPATCH COV',s:'Full routine→frame gap · 1,696 routines'},
   {id:'alfaintel', i:'🧾', l:'ALFAOBD INTEL',s:'UDS frames · routines · ECU→CAN · DB schema'},
@@ -1004,7 +1006,7 @@ const WORKSPACE_CATEGORIES = {
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
   dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE', efd2bin:'ANALYZE',
   proxi:'ANALYZE', smartbox:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
-  loganalyser:'ANALYZE', workflow:'ANALYZE', hitagaes:'ANALYZE',
+  loganalyser:'ANALYZE', workflow:'ANALYZE', hitagaes:'ANALYZE', hitag2:'ANALYZE',
   // TOOLS — cross-cutting catalogs and coverage dashboards.
   unlockcov:'TOOLS', alfaobd:'TOOLS', alfaintel:'TOOLS', dispatchcov:'TOOLS',
   sigdisc:'TOOLS',
@@ -1272,6 +1274,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='radiocodes'&& <RadioCodesTab/>}
         {tab==='keywriter' && <KeyWriterTab onOpenTab={setTab}/>}
         {tab==='hitagaes'  && <HitagAesTab/>}
+        {tab==='hitag2'    && <Hitag2Tab/>}
         {tab==='binintel'  && <BinaryIntelTab/>}
         {tab==='dispatchcov' && <DispatchCoverageTab/>}
         {tab==='alfaintel' && <AlfaObdIntelTab/>}
