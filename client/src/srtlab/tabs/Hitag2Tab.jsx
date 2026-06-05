@@ -248,7 +248,7 @@ export default function Hitag2Tab({ vehicle }) {
   }, []);
 
   /* ── styles ── */
-  const inputStyle = { background: '#0a0a0a', border: '1px solid #333', color: '#e0e0e0', fontFamily: 'monospace', fontSize: 13, padding: '5px 8px', borderRadius: 4, width: '100%', boxSizing: 'border-box' };
+  const inputStyle = { background: '#1e2230', border: '1px solid #3a4060', color: '#e8eaf6', fontFamily: 'monospace', fontSize: 13, padding: '5px 8px', borderRadius: 4, width: '100%', boxSizing: 'border-box' };
   const labelStyle = { color: '#888', fontSize: 11, marginBottom: 3, display: 'block', textTransform: 'uppercase', letterSpacing: 1 };
   const fieldRow   = { marginBottom: 12 };
 
@@ -260,7 +260,7 @@ export default function Hitag2Tab({ vehicle }) {
         <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', letterSpacing: 1 }}>
           🔑 HITAG 2 — PCF7945/53 Key Tool
         </div>
-        <div style={{ color: '#888', fontSize: 12, marginTop: 4 }}>
+        <div style={{ color: '#aaa', fontSize: 12, marginTop: 2 }}>
           FCA/Mopar 2011–2019 · FOBIK transponder · 6-byte SK · VVDI Prog write helper
         </div>
       </div>

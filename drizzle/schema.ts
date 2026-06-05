@@ -146,3 +146,24 @@ export const backups = mysqlTable("backups", {
 
 export type Backup = typeof backups.$inferSelect;
 export type InsertBackup = typeof backups.$inferInsert;
+
+/**
+ * SEC16 Sync Events — immutable audit trail of every SEC16 sync operation
+ * fired from the Module Sync tab (logSec16Sync helper, /api/sec16-sync-events).
+ */
+export const sec16SyncEvents = mysqlTable("sec16_sync_events", {
+  id: int("id").autoincrement().primaryKey(),
+  vin: varchar("vin", { length: 64 }),
+  platform: varchar("platform", { length: 64 }),
+  actionId: varchar("actionId", { length: 128 }),
+  target: varchar("target", { length: 32 }),
+  recipeId: varchar("recipeId", { length: 128 }),
+  verified: varchar("verified", { length: 32 }),
+  operator: varchar("operator", { length: 256 }),
+  notes: text("notes"),
+  detail: json("detail"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Sec16SyncEvent = typeof sec16SyncEvents.$inferSelect;
+export type InsertSec16SyncEvent = typeof sec16SyncEvents.$inferInsert;

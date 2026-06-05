@@ -275,6 +275,53 @@ Extraction rules:
     }
   });
 
+  // --- /api/sec16-sync-events REST endpoint (SEC16 sync audit trail) ---
+  {
+    const { getDb } = await import("../db");
+    const { sec16SyncEvents } = await import("../../drizzle/schema");
+    const { desc, eq } = await import("drizzle-orm");
+
+    // POST /api/sec16-sync-events — record a sync event (fire-and-forget)
+    app.post("/api/sec16-sync-events", async (req, res) => {
+      try {
+        const db = await getDb();
+        if (!db) return res.json({ ok: false, reason: "no-db" });
+        const body = req.body || {};
+        await db.insert(sec16SyncEvents).values({
+          vin:      body.vin      ? String(body.vin).slice(0, 64)   : null,
+          platform: body.platform ? String(body.platform).slice(0, 64) : null,
+          actionId: body.actionId ? String(body.actionId).slice(0, 128) : null,
+          target:   body.target   ? String(body.target).slice(0, 32)  : null,
+          recipeId: body.recipeId ? String(body.recipeId).slice(0, 128) : null,
+          verified: body.verified ? String(body.verified).slice(0, 32)  : null,
+          operator: body.operator ? String(body.operator).slice(0, 256) : null,
+          notes:    body.notes    ? String(body.notes)                  : null,
+          detail:   body.detail   || null,
+        });
+        return res.json({ ok: true });
+      } catch (e: any) {
+        console.error("[/api/sec16-sync-events POST]", e);
+        return res.status(500).json({ error: e.message || "Internal error" });
+      }
+    });
+
+    // GET /api/sec16-sync-events?vin=... — list events (newest first, max 200)
+    app.get("/api/sec16-sync-events", async (req, res) => {
+      try {
+        const db = await getDb();
+        if (!db) return res.json({ events: [] });
+        const vinFilter = typeof req.query.vin === "string" ? req.query.vin.trim() : "";
+        const rows = vinFilter
+          ? await db.select().from(sec16SyncEvents).where(eq(sec16SyncEvents.vin, vinFilter)).orderBy(desc(sec16SyncEvents.createdAt)).limit(200)
+          : await db.select().from(sec16SyncEvents).orderBy(desc(sec16SyncEvents.createdAt)).limit(200);
+        return res.json({ events: rows });
+      } catch (e: any) {
+        console.error("[/api/sec16-sync-events GET]", e);
+        return res.status(500).json({ error: e.message || "Internal error" });
+      }
+    });
+  }
+
   // tRPC API
   app.use(
     "/api/trpc",
