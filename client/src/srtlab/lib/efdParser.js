@@ -9,6 +9,18 @@
 //     entropy. The ECM bootloader decrypts the payload in-place during
 //     the `0x36 TransferData` half of the UDS programming session, so we
 //     never need to decrypt it ourselves.
+//
+// AL section (builder metadata):
+//   Both ECM and BCM EFDs contain an AL section at the end with nested
+//   sub-elements using a custom 3/4-byte ID format:
+//     - 3-byte space-prefixed IDs: ' LE' (container), ' AU' (session token)
+//     - 4-byte IDs: 0x10 + 3 ASCII chars: CRT (creation timestamp), FGN
+//       (tool name), FGV (tool version), CAD (purpose string)
+//   Sizes use the 8-byte VINT format: 01 00 00 00 00 00 00 NN
+//   CRT is an 8-byte big-endian millisecond Unix timestamp.
+//
+// BCM EFDs have no DS block — only FS + UP + AL. The AL section provides
+// the only human-readable metadata (creation date, builder tool, version).
 
 export const EBML_MAGIC = new Uint8Array([0x1A, 0x45, 0xDF, 0xA3]);
 
@@ -17,6 +29,7 @@ const SECTION_LABELS = {
   '204653': { tag: 'FS', kind: 'encrypted' },
   '20434F': { tag: 'CO', kind: 'checksum' },
   '205550': { tag: 'UP', kind: 'payload' },
+  '20414C': { tag: 'AL', kind: 'builder-metadata' },
 };
 
 // VINT (variable-length integer) reader. `keepMarker=true` keeps the
@@ -97,6 +110,112 @@ function parseDsMetadata(buf, start, end){
   return meta;
 }
 
+// Read an 8-byte AL-section VINT: 01 00 00 00 00 00 00 NN
+// Returns { value, len } where len is the number of bytes consumed.
+function readAlVint(buf, pos){
+  if (pos >= buf.length) return { value: 0, len: 0 };
+  const b = buf[pos];
+  if (b === 0x01 && pos + 8 <= buf.length){
+    // 8-byte form: 01 00 00 00 00 00 00 NN
+    let val = 0;
+    for (let i = 1; i < 8; i++) val = val * 256 + buf[pos + i];
+    return { value: val, len: 8 };
+  }
+  // Fallback: standard VINT
+  if (b & 0x80) return { value: b & 0x7F, len: 1 };
+  if (b & 0x40) return { value: ((b & 0x3F) << 8) | buf[pos + 1], len: 2 };
+  if (b & 0x20) return { value: ((b & 0x1F) << 16) | (buf[pos + 1] << 8) | buf[pos + 2], len: 3 };
+  return { value: 0, len: 1 };
+}
+
+// Decode a 3-byte ASCII ID from the AL section.
+function alIdStr(buf, pos, len){
+  let s = '';
+  for (let i = 0; i < len; i++){
+    const c = buf[pos + i];
+    s += (c >= 0x20 && c < 0x7F) ? String.fromCharCode(c) : '?';
+  }
+  return s.trim();
+}
+
+// Parse AL section sub-elements. The AL section uses a custom nested format:
+//   - 3-byte space-prefixed IDs (0x20 XX XX): ' LE' container, ' AU' session
+//   - 4-byte IDs (0x10 XX XX XX): CRT timestamp, FGN tool name, FGV version, CAD purpose
+//   - Sizes: 8-byte VINT (01 00 00 00 00 00 00 NN)
+// Returns a flat object with decoded fields.
+function parseAlElements(buf, start, end){
+  const result = {};
+  let pos = start;
+
+  while (pos < end && pos < buf.length){
+    if (pos + 3 > end) break;
+    const b0 = buf[pos];
+
+    let idName, idLen;
+    if (b0 === 0x20){
+      // 3-byte space-prefixed ID
+      idName = alIdStr(buf, pos, 3);
+      idLen = 3;
+    } else if (b0 === 0x10){
+      // 4-byte ID: 0x10 + 3 ASCII chars
+      idName = alIdStr(buf, pos + 1, 3);
+      idLen = 4;
+    } else {
+      pos++;
+      continue;
+    }
+
+    pos += idLen;
+    if (pos >= end) break;
+
+    const szR = readAlVint(buf, pos);
+    if (!szR.len || szR.value === 0 || szR.value > 10000) { pos++; continue; }
+    pos += szR.len;
+
+    const valEnd = Math.min(pos + szR.value, buf.length);
+    const val = buf.subarray(pos, valEnd);
+    pos = valEnd;
+
+    if (idName === 'LE'){
+      // Container — recurse into nested elements
+      const nested = parseAlElements(val, 0, val.length);
+      Object.assign(result, nested);
+    } else if (idName === 'AU'){
+      // Session token (short ASCII string)
+      result.AU = String.fromCharCode(...val).replace(/\x00/g, '');
+    } else if (idName === 'CRT'){
+      // 8-byte big-endian millisecond timestamp
+      if (val.length === 8){
+        let ms = 0;
+        for (let i = 0; i < 8; i++) ms = ms * 256 + val[i];
+        // Sanity check: must be between 2000-01-01 and 2040-01-01 in ms
+        if (ms > 946684800000 && ms < 2208988800000){
+          result.CRT_ms = ms;
+          const d = new Date(ms);
+          result.CRT = d.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC');
+        }
+      }
+    } else if (idName === 'FGN'){
+      // Tool name (ASCII)
+      result.FGN = String.fromCharCode(...val).replace(/\x00/g, '');
+    } else if (idName === 'FGV'){
+      // Tool version (ASCII)
+      result.FGV = String.fromCharCode(...val).replace(/\x00/g, '');
+    } else if (idName === 'CAD'){
+      // Purpose string (ASCII)
+      result.CAD = String.fromCharCode(...val).replace(/\x00/g, '');
+    }
+  }
+
+  return result;
+}
+
+// Parse the AL section from the top-level EFD buffer.
+// The AL element ID is 0x20414C (' AL'), followed by an 8-byte VINT size.
+function parseAlSection(buf, dataStart, dataEnd){
+  return parseAlElements(buf, dataStart, dataEnd);
+}
+
 export function parseEFD(buf, name){
   const data = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
   const result = {
@@ -105,7 +224,8 @@ export function parseEFD(buf, name){
     valid: false,
     error: null,
     efdType: 'unknown',
-    metadata: {},
+    metadata: {},       // DS section Key=Value pairs (ECM/PCM EFDs)
+    builderMeta: {},    // AL section builder metadata (all EFD types)
     sections: [],
     payload: null,
   };
@@ -148,10 +268,16 @@ export function parseEFD(buf, name){
     };
     result.sections.push(section);
 
-    // Plaintext metadata sweep.
+    // Plaintext metadata sweep (ECM/PCM EFDs only).
     if (idHex === '204453'){
       const meta = parseDsMetadata(data, dataStart, elemEnd);
       Object.assign(result.metadata, meta);
+    }
+
+    // Builder metadata from AL section (present in all EFD types).
+    if (idHex === '20414C'){
+      const alMeta = parseAlSection(data, dataStart, elemEnd);
+      Object.assign(result.builderMeta, alMeta);
     }
 
     // Capture the encrypted payload location + entropy.
@@ -174,8 +300,16 @@ export function parseEFD(buf, name){
     if (pos <= 0 || pos >= data.length) break;
   }
 
+  // Determine EFD type:
+  //   - ECM/PCM: has DS block with Engine/Program fields
+  //   - BCM: no DS block, smaller UP payload (~1 MB vs ~4 MB for ECM)
+  //   - Unknown: valid EBML but no recognized structure
+  const hasDs = result.sections.some(s => s.label === 'DS');
   if (result.metadata.Engine || result.metadata.Program){
     result.efdType = 'mopar_powercal';
+  } else if (!hasDs && result.payload){
+    // BCM EFDs are ~1 MB; ECM EFDs are ~4 MB. Use payload size as a hint.
+    result.efdType = result.payload.size < 2_000_000 ? 'mopar_bcm' : 'mopar_powercal_noDS';
   }
 
   return result;

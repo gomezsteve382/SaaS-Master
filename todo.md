@@ -96,3 +96,4 @@
 - [x] Fix Workflow tab JSON error: add sec16_sync_events table to schema + GET/POST /api/sec16-sync-events routes
 - [x] Add TM9 (Panasonic/Harman UConnect 4C NAV) to moparRadioCode.js with formula: PIN = 10099 - last4digits; test vector TM93197 04555 → 5544
 - [x] HITAG 2 tab: add hover tooltips to all input fields (Chip ID, Config Page, Low/High SK, Page 0-3) with field-specific guidance
+- [x] BCM EFD metadata extraction: parse AL section (CRT timestamp, FGN tool name, FGV version, CAD purpose) from BCM EFDs that lack a DS block; show "BCM MODULE INFO" section in EFD Inspector; add MOPAR BCM efdType; AL section now parsed for all EFD types; AL tag shown in EBML structure map

@@ -8,6 +8,11 @@ import {decodeChargerVin} from '../lib/vin.js';
 // metadata, EBML structure, and encrypted payload offset are surfaced
 // here. The payload itself is left encrypted — the ECM bootloader
 // decrypts it during the `0x36 TransferData` half of the UDS flash.
+//
+// BCM EFDs have no DS block — only FS + UP + AL. When no DS metadata is
+// present, the "BCM MODULE INFO" section is shown instead, displaying
+// the builder metadata from the AL section (creation date, tool, version)
+// plus file stats derived from the EBML structure.
 
 function Section({title, count, color, children}){
   const c = color || C.a3;
@@ -32,6 +37,15 @@ function Stat({label, value, color}){
   );
 }
 
+function MetaCell({label, value, color}){
+  return (
+    <div style={{padding: '8px 10px', borderRadius: 8, background: C.c2, border: `1px solid ${C.bd}`}}>
+      <div style={{fontSize: 8, fontWeight: 800, color: C.ts, letterSpacing: 1.4}}>{label}</div>
+      <div style={{fontSize: 12, fontWeight: 700, color: color || C.tx, marginTop: 4}}>{value}</div>
+    </div>
+  );
+}
+
 function CompatRow({label, expected, actual}){
   const ok = expected && actual && (
     String(expected) === String(actual) ||
@@ -46,6 +60,19 @@ function CompatRow({label, expected, actual}){
       {ok && <Tag color={C.gn}>✓ MATCH</Tag>}
     </div>
   );
+}
+
+// Determine a human-readable module type label from the parsed EFD.
+function getModuleTypeLabel(efd){
+  if (efd.efdType === 'mopar_powercal') return 'ECM / PCM';
+  if (efd.efdType === 'mopar_bcm') return 'BCM';
+  // Try to infer from filename
+  const n = (efd.name || '').toUpperCase();
+  if (n.includes('BCM')) return 'BCM';
+  if (n.includes('ECM') || n.includes('PCM') || n.includes('ENG')) return 'ECM / PCM';
+  if (n.includes('RFHUB') || n.includes('RFH')) return 'RFHUB';
+  if (n.includes('TCM') || n.includes('TRANS')) return 'TCM';
+  return 'UNKNOWN';
 }
 
 export default function EfdInspectorTab({efdFile, files = [], onFlash, onLoad}){
@@ -98,14 +125,25 @@ export default function EfdInspectorTab({efdFile, files = [], onFlash, onLoad}){
   }
 
   const meta = efd.metadata || {};
+  const builderMeta = efd.builderMeta || {};
   const sections = efd.sections || [];
+  const hasDs = Object.keys(meta).length > 0;
+  const hasBcmInfo = !hasDs && (builderMeta.CRT || builderMeta.FGN || efd.payload);
+  const moduleTypeLabel = getModuleTypeLabel(efd);
+
+  // Determine EFD type badge text
+  let efdTypeBadge = 'UNKNOWN EFD';
+  if (efd.efdType === 'mopar_powercal') efdTypeBadge = 'MOPAR POWERCAL';
+  else if (efd.efdType === 'mopar_bcm') efdTypeBadge = 'MOPAR BCM';
+  else if (efd.efdType === 'mopar_powercal_noDS') efdTypeBadge = 'MOPAR POWERCAL (NO DS)';
 
   return (
     <div>
       <Card>
         <div style={{display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap'}}>
           <Tag color={efd.valid ? C.gn : C.er}>{efd.valid ? '✓ VALID EFD' : '✗ INVALID'}</Tag>
-          <Tag color={C.wn}>{efd.efdType === 'mopar_powercal' ? 'MOPAR POWERCAL' : 'UNKNOWN EFD'}</Tag>
+          <Tag color={C.wn}>{efdTypeBadge}</Tag>
+          <Tag color={C.a4}>{moduleTypeLabel}</Tag>
           <span style={{fontSize: 12, color: C.tx, fontWeight: 700}}>{efd.name}</span>
           <span style={{fontSize: 10, color: C.ts}}>{(efd.size / 1024 / 1024).toFixed(2)} MB</span>
         </div>
@@ -130,17 +168,62 @@ export default function EfdInspectorTab({efdFile, files = [], onFlash, onLoad}){
         )}
       </Card>
 
-      <Section title="CAL METADATA" count={Object.keys(meta).length} color={C.a2}>
-        {Object.keys(meta).length === 0 && <SLine type="warn" msg="No DS plaintext metadata recovered"/>}
-        <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8}}>
-          {Object.entries(meta).map(([k, v]) => (
-            <div key={k} style={{padding: '8px 10px', borderRadius: 8, background: C.c2, border: `1px solid ${C.bd}`}}>
-              <div style={{fontSize: 8, fontWeight: 800, color: C.ts, letterSpacing: 1.4}}>{k.toUpperCase()}</div>
-              <div style={{fontSize: 12, fontWeight: 700, color: C.tx, marginTop: 4}}>{v}</div>
-            </div>
-          ))}
-        </div>
-      </Section>
+      {/* ECM/PCM: DS block with Key=Value metadata */}
+      {hasDs && (
+        <Section title="CAL METADATA" count={Object.keys(meta).length} color={C.a2}>
+          <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8}}>
+            {Object.entries(meta).map(([k, v]) => (
+              <MetaCell key={k} label={k.toUpperCase()} value={v}/>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {/* BCM / no-DS: show builder metadata + file stats instead */}
+      {hasBcmInfo && (
+        <Section title="BCM MODULE INFO" color={C.a3}>
+          <div style={{marginBottom: 10, padding: '8px 12px', borderRadius: 8,
+            background: '#FF8C0012', border: `1px solid ${C.wn}44`,
+            fontSize: 11, color: C.ts, lineHeight: 1.6}}>
+            <strong style={{color: C.wn}}>No DS metadata block.</strong>{' '}
+            BCM EFDs do not carry plaintext calibration fields (Engine, Transmission, etc.).
+            The information below is extracted from the AL builder section and EBML container structure.
+          </div>
+          <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8}}>
+            {builderMeta.CRT && (
+              <MetaCell label="FILE CREATED" value={builderMeta.CRT} color={C.a1}/>
+            )}
+            {builderMeta.FGN && (
+              <MetaCell label="BUILDER TOOL" value={builderMeta.FGN} color={C.a3}/>
+            )}
+            {builderMeta.FGV && (
+              <MetaCell label="BUILDER VERSION" value={builderMeta.FGV} color={C.a3}/>
+            )}
+            {builderMeta.CAD && (
+              <MetaCell label="PURPOSE" value={builderMeta.CAD} color={C.ts}/>
+            )}
+            {efd.payload && (
+              <MetaCell
+                label="FLASH PAYLOAD SIZE"
+                value={`${(efd.payload.size / 1024 / 1024).toFixed(3)} MB`}
+                color={C.a1}
+              />
+            )}
+            <MetaCell
+              label="CONTAINER SIZE"
+              value={`${(efd.size / 1024 / 1024).toFixed(3)} MB`}
+              color={C.tx}
+            />
+          </div>
+        </Section>
+      )}
+
+      {/* No DS and no BCM info at all */}
+      {!hasDs && !hasBcmInfo && (
+        <Section title="CAL METADATA" count={0} color={C.a2}>
+          <SLine type="warn" msg="No DS plaintext metadata recovered"/>
+        </Section>
+      )}
 
       {decoded && (
         <Section title="VIN ↔ CAL COMPATIBILITY" color={C.gn}>
@@ -176,6 +259,7 @@ export default function EfdInspectorTab({efdFile, files = [], onFlash, onLoad}){
                 {s.label === 'FS' && <Tag color={C.wn}>FS · encrypted</Tag>}
                 {s.label === 'CO' && <Tag color={C.a3}>CO · checksum</Tag>}
                 {s.label === 'UP' && <Tag color={C.er}>UP · payload</Tag>}
+                {s.label === 'AL' && <Tag color={C.a4}>AL · builder</Tag>}
               </div>
             ))}
             {sections.length > 24 && <SLine type="warn" msg={`${sections.length - 24} additional sections hidden`}/>}
@@ -193,9 +277,9 @@ export default function EfdInspectorTab({efdFile, files = [], onFlash, onLoad}){
             </div>
             <div style={{marginTop: 12, padding: 10, borderRadius: 8, background: '#FF174410', border: `1px solid ${C.er}33`, fontSize: 11, color: C.tx, lineHeight: 1.6}}>
               <strong style={{color: C.er}}>Note:</strong> Entropy {efd.payload.entropy.toFixed(2)} indicates AES-grade encryption.
-              The payload is decrypted by the ECM bootloader during the `0x36 TransferData` half of the UDS programming
-              session. Hand it to the ECM Flasher tab for the bench Autel bridge, or use wiTECH 2.0 / AlfaOBD with a
-              CarDAQ-Plus or MongoosePro for the full Mopar tool path.
+              The payload is decrypted by the module bootloader during the `0x36 TransferData` half of the UDS programming
+              session. For ECM/PCM: hand it to the ECM Flasher tab for the bench Autel bridge, or use wiTECH 2.0 / AlfaOBD
+              with a CarDAQ-Plus or MongoosePro for the full Mopar tool path.
             </div>
           </Card>
         </Section>
