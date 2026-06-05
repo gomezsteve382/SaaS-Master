@@ -5,7 +5,7 @@ import {resolveBcmSec16, classifyPcmSec6, corruptFillError, parseModule} from ".
 import {engParseBcm, engParseRfh, engParsePcm} from "./ModuleSync.jsx";
 import Gpec2aImmoPanel from "../components/Gpec2aImmoPanel.jsx";
 import {StatBadge} from "../components/ImmoChecksumPanel.jsx";
-import {writeRfhSec16FromBcm, writeRfhSec16Gen1, writeXc2268Sec16} from "../lib/securityBytes.js";
+import {writeRfhSec16FromBcm, writeRfhSec16Gen1, writeXc2268Sec16, writePcmSec6} from "../lib/securityBytes.js";
 import {isXc2268Rfhub} from "../lib/xc2268Rfhub.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {RfhubKeyTypeBanner} from "../components/RfhubKeyTypeBanner.jsx";
@@ -207,6 +207,70 @@ export default function SecuritySyncTab() {
 
   const anyLoaded = bcm || rfh || pcm;
 
+  // ── Wizard state ──
+  const [wizardBusy, setWizardBusy] = useState(false);
+  const [wizardResults, setWizardResults] = useState(null); // {rfh, pcm}
+
+  const rfhNeedsFix = !!(bcmSec16 && rfh && !rfh.parsed.tooSmall && !rfhVerdict.good);
+  const pcmNeedsFix = !!(bcmSec16 && pcm && !pcm.parsed.tooSmall && !sec6Verdict.good);
+  const wizardCanRun = rfhNeedsFix || pcmNeedsFix;
+
+  const applyAllFixes = useCallback(async () => {
+    if (!wizardCanRun || wizardBusy) return;
+    setWizardBusy(true);
+    setWizardResults(null);
+    const results = { rfh: null, pcm: null };
+    const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+
+    // Step 1 — RFHUB
+    if (rfhNeedsFix) {
+      try {
+        let res;
+        if (isXc2268Rfhub(rfh.bytes)) {
+          res = writeXc2268Sec16(rfh.bytes, bcmSec16);
+        } else if (rfh.parsed.format === 'gen1') {
+          res = writeRfhSec16Gen1(rfh.bytes, bcmSec16);
+        } else {
+          res = writeRfhSec16FromBcm(rfh.bytes, bcmSec16);
+        }
+        const fname = `RFHUB_SEC16_FIXED_${ts}.bin`;
+        const blob = new Blob([res.bytes], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = fname;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setRfh({ file: { name: fname }, bytes: res.bytes, parsed: engParseRfh(res.bytes, fname) });
+        results.rfh = { ok: true, fname, hex: res.rfhSec16Hex, patched: res.patched };
+      } catch (e) {
+        results.rfh = { ok: false, error: e.message };
+      }
+    }
+
+    // Step 2 — PCM (uses the freshly-patched RFHUB sec16 if available)
+    if (pcmNeedsFix) {
+      try {
+        // Use the rfhSec16 derived from BCM (canonical source)
+        const rfhBytes = expectedRfh;
+        if (!rfhBytes) throw new Error('Cannot derive PCM SEC6 — BCM SEC16 not available');
+        const res = writePcmSec6(pcm.bytes, rfhBytes);
+        if (!res.ok) throw new Error('writePcmSec6 returned 0 patches — PCM size not supported');
+        const fname = `PCM_IMMO_FIXED_${ts}.bin`;
+        const blob = new Blob([res.bytes], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = fname;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setPcm({ file: { name: fname }, bytes: res.bytes, parsed: engParsePcm(res.bytes, fname) });
+        results.pcm = { ok: true, fname, hex: res.sec6Hex };
+      } catch (e) {
+        results.pcm = { ok: false, error: e.message };
+      }
+    }
+
+    setWizardResults(results);
+    setWizardBusy(false);
+  }, [wizardCanRun, wizardBusy, rfhNeedsFix, pcmNeedsFix, bcmSec16, rfh, pcm, expectedRfh]);
+
   // ── Overall GO / NO-GO on the security bytes ──
   // A single, prominent verdict so the user does not have to read the byte grid
   // to know whether the set is paired. NO-GO (red) only fires on a real
@@ -239,6 +303,70 @@ export default function SecuritySyncTab() {
           <span style={{fontFamily: mono, color: C.ts}}>PCM SEC6 = reverse(BCM SEC16)[0:6]</span>. No VIN / CRC / patch tools live here.
         </div>
       </Card>
+
+      {/* ── AUTO-REPAIR WIZARD ── */}
+      {anyLoaded && (
+        <Card style={{marginBottom: 16, borderLeft: `5px solid ${wizardCanRun ? C.wn : (wizardResults ? C.gn : C.tm)}`}} data-testid="secsync-wizard">
+          <div style={{fontFamily: "'Righteous'", fontSize: 16, color: wizardCanRun ? C.wn : (wizardResults ? C.gn : C.tm), letterSpacing: 1, marginBottom: 10}}>⚡ AUTO-REPAIR WIZARD</div>
+          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 10, marginBottom: 12}}>
+            {/* Step 1 — BCM (source, no fix needed) */}
+            <div style={{padding: '10px 12px', borderRadius: 8, background: C.c2, border: `1px solid ${bcmSec16 ? C.gn + '55' : C.bd}`}}>
+              <div style={{fontSize: 10, fontWeight: 800, color: C.ts, letterSpacing: 1, marginBottom: 4}}>STEP 1 · BCM</div>
+              <div style={{fontSize: 11, color: bcmSec16 ? C.gn : C.tm, fontWeight: 700}}>{bcmSec16 ? '✓ SEC16 loaded — canonical source' : bcm ? '⚠ SEC16 blank/virgin' : '— not loaded'}</div>
+            </div>
+            {/* Step 2 — RFHUB */}
+            <div style={{padding: '10px 12px', borderRadius: 8, background: C.c2, border: `1px solid ${rfhVerdict.good ? C.gn + '55' : rfhNeedsFix ? C.er + '55' : C.bd}`}}>
+              <div style={{fontSize: 10, fontWeight: 800, color: C.ts, letterSpacing: 1, marginBottom: 4}}>STEP 2 · RFHUB SEC16</div>
+              <div style={{fontSize: 11, fontWeight: 700, color: rfhVerdict.good ? C.gn : rfhNeedsFix ? C.er : C.tm}}>
+                {rfhVerdict.good ? '✓ In sync — no fix needed'
+                  : rfhNeedsFix ? '✗ Mismatch — will fix'
+                  : rfh ? '— blank/virgin'
+                  : '— not loaded'}
+              </div>
+              {wizardResults && wizardResults.rfh && (
+                <div style={{fontSize: 10, marginTop: 4, color: wizardResults.rfh.ok ? C.gn : C.er}}>
+                  {wizardResults.rfh.ok ? `✓ Fixed · ${wizardResults.rfh.patched} slot(s) · ${wizardResults.rfh.fname}` : `✗ ${wizardResults.rfh.error}`}
+                </div>
+              )}
+            </div>
+            {/* Step 3 — PCM */}
+            <div style={{padding: '10px 12px', borderRadius: 8, background: C.c2, border: `1px solid ${sec6Verdict.good ? C.gn + '55' : pcmNeedsFix ? C.er + '55' : C.bd}`}}>
+              <div style={{fontSize: 10, fontWeight: 800, color: C.ts, letterSpacing: 1, marginBottom: 4}}>STEP 3 · PCM SEC6</div>
+              <div style={{fontSize: 11, fontWeight: 700, color: sec6Verdict.good ? C.gn : pcmNeedsFix ? C.er : C.tm}}>
+                {sec6Verdict.good ? '✓ In sync — no fix needed'
+                  : pcmNeedsFix ? '✗ Mismatch — will fix'
+                  : pcm ? '— blank/virgin'
+                  : '— not loaded'}
+              </div>
+              {wizardResults && wizardResults.pcm && (
+                <div style={{fontSize: 10, marginTop: 4, color: wizardResults.pcm.ok ? C.gn : C.er}}>
+                  {wizardResults.pcm.ok ? `✓ Fixed · ${wizardResults.pcm.fname}` : `✗ ${wizardResults.pcm.error}`}
+                </div>
+              )}
+            </div>
+          </div>
+          {wizardCanRun ? (
+            <button
+              onClick={applyAllFixes}
+              disabled={wizardBusy}
+              data-testid="secsync-wizard-apply-btn"
+              style={{
+                width: '100%', padding: '12px 0', borderRadius: 8, border: 'none', cursor: wizardBusy ? 'not-allowed' : 'pointer',
+                background: wizardBusy ? C.bd : C.wn, color: '#000', fontFamily: "'Righteous'", fontSize: 15, fontWeight: 800, letterSpacing: 1,
+                opacity: wizardBusy ? 0.6 : 1, transition: 'opacity 0.15s',
+              }}
+            >
+              {wizardBusy ? '⏳ APPLYING FIXES…' : `⚡ APPLY ALL FIXES (${[rfhNeedsFix && 'RFHUB', pcmNeedsFix && 'PCM'].filter(Boolean).join(' + ')}) & DOWNLOAD`}
+            </button>
+          ) : wizardResults ? (
+            <div style={{fontSize: 12, color: C.gn, fontWeight: 800, textAlign: 'center', padding: '8px 0'}}>✅ All repairs applied — patched files downloaded above.</div>
+          ) : (
+            <div style={{fontSize: 11, color: C.tm, fontStyle: 'italic', textAlign: 'center', padding: '8px 0'}}>
+              {!bcmSec16 ? 'Load a BCM with a populated SEC16 to enable the wizard.' : 'All loaded modules are already in sync — nothing to repair.'}
+            </div>
+          )}
+        </Card>
+      )}
 
       {err && (
         <Card style={{marginBottom: 16, borderLeft: "3px solid " + C.er, background: C.er + "0C"}}>

@@ -85,3 +85,7 @@
 - [x] EFD: Show EBML section map (header, metadata, payload offsets and sizes)
 - [x] EFD: Add truncation warning when size < declaredSize
 - [x] EFD: Add "Send to Flasher" button after successful extraction
+
+## New Features (Jun 5, 2026)
+- [x] SEC16 mismatch auto-repair wizard: guided 3-step BCM→RFHUB→PCM flow with single "APPLY ALL FIXES" button in SecuritySyncTab
+- [x] Module PN lookup: cross-reference BCM detected P/N against catalog in Diagnose tab ModuleSummary (known P/N check, compatible vehicles, vehicle match, VIN year range check)

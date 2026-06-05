@@ -2213,6 +2213,27 @@ function ModuleSummary({vehicle, bcm, rfh, pcm, targetVin}){
         {bcmEng.sec16Records.length>0 && <Row k="SEC16" v={bcmEng.sec16Hex} mono small/>}
         {bcmEng.sec16Records.length>0 && <Row k="SEC16 state" v={`${bcmEng.sec16Records.length} records · ${bcmEng.sec16Consistent?'consistent':'MISMATCH'}`}/>}
         {bcmEng.sec16Records.length===0 && <Row k="SEC16" v="not present (older family)"/>}
+        {/* PN LOOKUP — cross-reference detected P/N against the catalog */}
+        {pnInfo?.primaryPn && (() => {
+          const knownPn = KNOWN_BCM_PN.includes(pnInfo.primaryPn);
+          const compatVehicles = pnInfo.compatibleVehicles.map(id=>VEHICLES[id]?.name||id);
+          const matchesSelected = pnInfo.compatibleVehicles.includes(vehicle.id);
+          const YR_MAP = {'B':2011,'C':2012,'D':2013,'E':2014,'F':2015,'G':2016,'H':2017,'J':2018,'K':2019,'L':2020,'M':2021,'N':2022,'P':2023,'R':2024,'S':2025,'T':2026};
+          const yearMismatch = gen && pnInfo.vinModelYearChar && (() => {
+            const yc = pnInfo.vinModelYearChar.toUpperCase();
+            const [ys, ye] = (gen.years||'').split('-').map(Number);
+            const yr = YR_MAP[yc];
+            return yr && ys && ye ? (yr < ys || yr > ye) : false;
+          })();
+          return <>
+            <Row k="PN registry" v={knownPn ? '✓ KNOWN P/N' : '⚠ UNRECOGNIZED P/N'}/>
+            {compatVehicles.length > 0 && <Row k="Compatible" v={compatVehicles.join(', ')}/>}
+            {compatVehicles.length === 0 && <Row k="Compatible" v="unknown — not in catalog"/>}
+            <Row k="Vehicle match" v={matchesSelected ? `✓ MATCHES ${vehicle.name}` : `⚠ NOT A ${vehicle.name} P/N`}/>
+            {yearMismatch && <Row k="Year check" v={`⚠ VIN year '${pnInfo.vinModelYearChar}' outside gen range ${gen.years}`}/>}
+            {!yearMismatch && gen && pnInfo.vinModelYearChar && <Row k="Year check" v={`✓ VIN year '${pnInfo.vinModelYearChar}' within ${gen.years}`}/>}
+          </>;
+        })()}
       </SummaryCard>}
 
       {rfhEng && <SummaryCard color={C.a3} title="RFHUB" subtitle={rfhEng.format==='gen2'?'Gen2 · 16b SEC16 @0x050E':rfhEng.format==='gen1'?'Gen1 · 18b SEC16 @0x0226':'unknown format'}>
