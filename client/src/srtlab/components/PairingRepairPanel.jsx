@@ -27,6 +27,7 @@ import {
   writeBcmSec16Gen2,
   writeRfhSec16FromBcm,
   writeRfhSec16Gen1,
+  writeRfhSec16Gen2Slots,
   writeXc2268Sec16,
   writePcmSec6,
 } from '../lib/securityBytes.js';
@@ -422,6 +423,10 @@ export default function PairingRepairPanel({
       try {
         if (triage.rfhub.rfhFormat === 'gen2') {
           const res = writeRfhSec16FromBcm(rfhubBytes, secrets.bcmSec16);
+          patchedBuffers.rfhub = res.bytes;
+        } else if (triage.rfhub.rfhFormat === 'gen2-hybrid') {
+          // gen2-hybrid: 4 KB file with empty Gen2 slots and no AA-55-31-01 banner
+          const res = writeRfhSec16Gen2Slots(rfhubBytes, secrets.bcmSec16);
           patchedBuffers.rfhub = res.bytes;
         } else if (triage.rfhub.rfhFormat === 'gen1') {
           const res = writeRfhSec16Gen1(rfhubBytes, secrets.bcmSec16);

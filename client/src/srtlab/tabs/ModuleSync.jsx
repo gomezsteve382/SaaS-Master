@@ -6,7 +6,7 @@ import MismatchWizard from "../components/MismatchWizard.jsx";
 import PcmRepairWizard from "../components/PcmRepairWizard.jsx";
 import PairingRepairPanel from "../components/PairingRepairPanel.jsx";
 import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
-import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16, writeXc2268Sec16 } from "../lib/securityBytes.js";
+import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeRfhSec16Gen1, writeRfhSec16Gen2Slots, writeBcmFlatSec16, writeXc2268Sec16 } from "../lib/securityBytes.js";
 import { isXc2268Rfhub } from "../lib/xc2268Rfhub.js";
 import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
 import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, corruptFillError, detectCorruptFill, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
@@ -938,7 +938,12 @@ function engWritePcmVin(bytes, newVin) {
   return { bytes: out, patched };
 }
 
-const engWriteRfhSec16FromBcm = writeRfhSec16FromBcm;
+// engWriteRfhSec16FromBcm — routes to the correct writer based on RFHUB format
+const engWriteRfhSec16FromBcm = (bytes, bcmSec16, format) => {
+  if (format === 'gen1') return writeRfhSec16Gen1(bytes, bcmSec16);
+  if (format === 'gen2-hybrid') return writeRfhSec16Gen2Slots(bytes, bcmSec16);
+  return writeRfhSec16FromBcm(bytes, bcmSec16);
+};
 
 /* ==========================================================================
  * VEHICLE CATALOG — part-number awareness
@@ -3844,10 +3849,11 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         const snapR = new Uint8Array(rfh.bytes);
         setOriginals(prev => ({ ...prev, rfh: { bytes: snapR, filename: rfh.file?.name || 'RFH' } }));
         const rfhIsXc2268 = isXc2268Rfhub(rfh.bytes);
+        const rfhFmt = rfh.parsed?.format || 'gen2';
         const sr = rfhIsXc2268
           ? writeXc2268Sec16(rfh.bytes, bcmSec16)
-          : engWriteRfhSec16FromBcm(rfh.bytes, bcmSec16);
-        log(`RFHUB SEC16 sync (BCM → RFH${rfhIsXc2268 ? ' XC2268' : ' Gen2'}): ${sr.patched} slot(s) written`, 'ok');
+          : engWriteRfhSec16FromBcm(rfh.bytes, bcmSec16, rfhFmt);
+        log(`RFHUB SEC16 sync (BCM → RFH${rfhIsXc2268 ? ' XC2268' : rfhFmt === 'gen1' ? ' Gen1' : rfhFmt === 'gen2-hybrid' ? ' Gen2-Hybrid' : ' Gen2'}): ${sr.patched} slot(s) written`, 'ok');
         log(`  RFHUB new SEC16: ${sr.rfhSec16Hex.toUpperCase()}${rfhIsXc2268 ? '' : ` · slot chk: 0x${sr.chk.toString(16).padStart(2,'0').toUpperCase()}`}`, 'muted');
         const rfhFinal = sr.bytes;
         const ts2 = timestamp();
@@ -3889,10 +3895,11 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         addRfhRows(rfh.parsed, newVin, vr.chk);
         /* Step 2 — SEC16 (write into VIN-patched buffer) */
         const rfhIsXc2268 = isXc2268Rfhub(vr.bytes);
+        const rfhFmt2 = rfh.parsed?.format || 'gen2';
         const sr = rfhIsXc2268
           ? writeXc2268Sec16(vr.bytes, bcmSec16)
-          : engWriteRfhSec16FromBcm(vr.bytes, bcmSec16);
-        log(`RFHUB: SEC16 synced (BCM → RFH${rfhIsXc2268 ? ' XC2268' : ' Gen2'}) — ${sr.rfhSec16Hex.toUpperCase()}`, 'ok');
+          : engWriteRfhSec16FromBcm(vr.bytes, bcmSec16, rfhFmt2);
+        log(`RFHUB: SEC16 synced (BCM → RFH${rfhIsXc2268 ? ' XC2268' : rfhFmt2 === 'gen1' ? ' Gen1' : rfhFmt2 === 'gen2-hybrid' ? ' Gen2-Hybrid' : ' Gen2'}) — ${sr.rfhSec16Hex.toUpperCase()}`, 'ok');
         const rfhFinal = sr.bytes;
         const ts2 = timestamp();
         const outName = `RFHUB_BCM_VIN_SEC16_${newVin}_${ts2}.bin`;

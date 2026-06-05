@@ -35,7 +35,7 @@ import BackupsTab from "./tabs/BackupsTab";
 import SampleLibraryTab from "./tabs/SampleLibraryTab.jsx";
 import AlfaObdTablesTab from "./tabs/AlfaObdTablesTab.jsx";
 import LiveKeyTab from "./tabs/LiveKeyTab.jsx";
-import { writePcmSec6, writeRfhSec16FromBcm } from "./lib/securityBytes.js";
+import { writePcmSec6, writeRfhSec16FromBcm, writeRfhSec16Gen1, writeRfhSec16Gen2Slots } from "./lib/securityBytes.js";
 import EcmTab from "./tabs/EcmTab";
 import SmartBoxTab from "./tabs/SmartBoxTab";
 import KeyProgTab from "./tabs/KeyProgTab";
@@ -1601,16 +1601,19 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
         log.push(`RFH VIN: ${rfhRes.patched} slots patched`);
         if (bcmSecReal) {
           const rfhP = engParseRfh(currentRfh);
-          if (rfhP.format === 'gen2') {
+          if (rfhP.format === 'gen2' || rfhP.format === 'gen2-hybrid' || rfhP.format === 'gen1') {
             try {
-              const rfhSecRes = writeRfhSec16FromBcm(currentRfh, bcmSec16Bytes);
+              let rfhSecRes;
+              if (rfhP.format === 'gen1') rfhSecRes = writeRfhSec16Gen1(currentRfh, bcmSec16Bytes);
+              else if (rfhP.format === 'gen2-hybrid') rfhSecRes = writeRfhSec16Gen2Slots(currentRfh, bcmSec16Bytes);
+              else rfhSecRes = writeRfhSec16FromBcm(currentRfh, bcmSec16Bytes);
               currentRfh = rfhSecRes.bytes;
-              log.push(`RFH SEC16 \u2190 reverse(BCM): ${rfhSecRes.patched}/2 slots = ${rfhSecRes.rfhSec16Hex}`);
+              log.push(`RFH SEC16 \u2190 reverse(BCM) [${rfhP.format}]: ${rfhSecRes.patched}/2 slots = ${rfhSecRes.rfhSec16Hex}`);
             } catch(e) {
               log.push(`RFH SEC16: skipped (${e.message})`);
             }
           } else {
-            log.push(`RFH SEC16: skipped (RFH is ${rfhP.format} \u2014 Gen2 SEC16 writer only; VIN-only for this RFH)`);
+            log.push(`RFH SEC16: skipped (RFH is ${rfhP.format} \u2014 no writer for this format)`);
           }
         }
         const rfhBlob = new Blob([currentRfh],{type:'application/octet-stream'});
@@ -2034,14 +2037,17 @@ function VinThenSyncTab({vehicle}){
       if(step1.rfhBytes){
         let currentRfh = step1.rfhBytes;
         const rfhP = engParseRfh(currentRfh);
-        if(rfhP.format === 'gen2'){
+        if(rfhP.format === 'gen2' || rfhP.format === 'gen2-hybrid' || rfhP.format === 'gen1'){
           try {
-            const r = writeRfhSec16FromBcm(currentRfh, bcmSec16Bytes);
+            let r;
+            if (rfhP.format === 'gen1') r = writeRfhSec16Gen1(currentRfh, bcmSec16Bytes);
+            else if (rfhP.format === 'gen2-hybrid') r = writeRfhSec16Gen2Slots(currentRfh, bcmSec16Bytes);
+            else r = writeRfhSec16FromBcm(currentRfh, bcmSec16Bytes);
             currentRfh = r.bytes;
-            log.push(`RFH SEC16 \u2190 reverse(BCM): ${r.patched}/2 slot(s) = ${r.rfhSec16Hex}`);
+            log.push(`RFH SEC16 \u2190 reverse(BCM) [${rfhP.format}]: ${r.patched}/2 slot(s) = ${r.rfhSec16Hex}`);
           } catch(e){ log.push(`RFH SEC16: skipped (${e.message})`); }
         } else {
-          log.push(`RFH SEC16: skipped (RFH is ${rfhP.format} \u2014 Gen2 SEC16 writer only; VIN-only for this RFH)`);
+          log.push(`RFH SEC16: skipped (RFH is ${rfhP.format} \u2014 no writer for this format)`);
         }
         out.push({label:'RFH', name:`${vehicle.id.toUpperCase()}_RFH_SYNCED_${tv}_${Date.now()}.bin`, bytes:currentRfh});
       }

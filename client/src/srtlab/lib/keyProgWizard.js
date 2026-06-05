@@ -27,6 +27,7 @@ import {
   writeBcmSec16Gen2,
   writeBcmFlatSec16,
   writeRfhSec16FromBcm,
+  writeRfhSec16Gen2Slots,
   writeXc2268Sec16,
 } from './securityBytes.js';
 
@@ -493,10 +494,13 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
       && idB.info?.bcmSec16?.bytes && !idB.info.bcmSec16.blank) {
     const bcmSec16Bytes = new Uint8Array(idB.info.bcmSec16.bytes);
     const isXc2268 = idR.info?.type === 'XC2268_RFHUB';
+    const rfhFmtK = idR.info?.format || 'gen2';
     try {
       const wr = isXc2268
         ? writeXc2268Sec16(rfhOut, bcmSec16Bytes)
-        : writeRfhSec16FromBcm(rfhOut, bcmSec16Bytes);
+        : rfhFmtK === 'gen2-hybrid'
+          ? writeRfhSec16Gen2Slots(rfhOut, bcmSec16Bytes)
+          : writeRfhSec16FromBcm(rfhOut, bcmSec16Bytes);
       rfhOut = wr.bytes;
       rfhSec16AfterHex = wr.rfhSec16Hex.toUpperCase();
       rfhSec16Status = 'PATCHED (old: ' + (rfhSec16BeforeHex || 'unset')
@@ -723,7 +727,11 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
   try {
     const rfhWork = new Uint8Array(rfh.data);
     // Gen2 marker normalization is Yazaki-only; XC2268 has no such marker.
-    if (!isXc2268Rfh && rfhWork.length >= 0x0504 && !(
+    // gen2-hybrid files lack the AA-55-31-01 header and use writeRfhSec16Gen2Slots
+    // instead of writeRfhSec16FromBcm (which guards on that header).
+    const rfhFmtBcmToRfh = idR.info?.format || 'gen2';
+    const isGen2Hybrid = rfhFmtBcmToRfh === 'gen2-hybrid';
+    if (!isXc2268Rfh && !isGen2Hybrid && rfhWork.length >= 0x0504 && !(
       rfhWork[0x0500] === 0xAA && rfhWork[0x0501] === 0x55 &&
       rfhWork[0x0502] === 0x31 && rfhWork[0x0503] === 0x01
     )) {
@@ -733,7 +741,9 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
     }
     const r = isXc2268Rfh
       ? writeXc2268Sec16(rfhWork, bcmSec16BE)
-      : writeRfhSec16FromBcm(rfhWork, bcmSec16BE);
+      : isGen2Hybrid
+        ? writeRfhSec16Gen2Slots(rfhWork, bcmSec16BE)
+        : writeRfhSec16FromBcm(rfhWork, bcmSec16BE);
     rfhPatched = r.bytes;
     ok(isXc2268Rfh
       ? 'XC2268 RFHUB SEC16 slot 1 + slot 2 rewritten (CRC-16/CCITT refreshed + image CRC32 updated)'

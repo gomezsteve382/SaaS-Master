@@ -112,3 +112,8 @@
 - [x] SEC6 populated/virgin badge: for 8 KB files check bytes at 0x3C8-0x3CE to show SEC6 POPULATED or SEC6 VIRGIN badge in PCM slot without needing to scroll to byte grid
 - [x] RFHUB SEC16 VIRGIN wizard explanation: add one-line explanation in wizard step 2 card explaining why RFHUB is virgin (never programmed vs wiped) so user knows what to expect from the fix
 - [x] Fix: gen2-hybrid RFHUB write routing — add writeRfhSec16Gen2Slots for 4 KB RFHUBs without AA-55-31-01 banner at 0x0500; wizard now routes gen2-hybrid to new function instead of throwing "Not a Gen2 RFHUB"
+
+## Security Sync + Bench Validator Enhancements (Jun 5, 2026)
+- [x] PCM SEC6 donor fill shortcut: "Use Donor" button in PCM slot summary card that applies reverse(BCM SEC16)[0:6] as SEC6 donor value directly without scrolling to GPEC2A immo panel
+- [x] Post-fix RFHUB verification row: after wizard patches RFHUB, re-parse the output and show verification row confirming written SEC16 matches reverse(BCM SEC16) — in-app confirmation before flashing
+- [x] Multi-PROG write checklist: after Bench Validator PASS, show step-by-step checklist for matched ECU/region (GPEC2A INT FLASH: DB44 interface, DC_PWR 12V/0.5A, LB18 select, write CodeData.bin)

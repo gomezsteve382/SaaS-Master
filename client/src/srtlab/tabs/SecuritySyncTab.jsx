@@ -215,7 +215,28 @@ export default function SecuritySyncTab() {
 
   // ── Wizard state ──
   const [wizardBusy, setWizardBusy] = useState(false);
-  const [wizardResults, setWizardResults] = useState(null); // {rfh, pcm}
+  const [wizardResults, setWizardResults] = useState(null); // {rfh, pcm, rfhVerify}
+
+  // ── PCM donor fill shortcut ──
+  // Derives the expected SEC6 from the BCM and injects it into the GPEC2A immo
+  // panel by updating the PCM bytes in-place via writePcmSec6, then re-parses.
+  // This mirrors the "Use Donor" button in Gpec2aImmoPanel but lives directly
+  // in the PCM slot card so the user never has to scroll down.
+  const applyPcmDonorFill = useCallback(() => {
+    if (!pcm || !expectedSec6) return;
+    try {
+      const res = writePcmSec6(pcm.bytes, expectedRfh);
+      if (!res.ok) { setErr('PCM donor fill: writePcmSec6 returned 0 patches — PCM size not supported'); return; }
+      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const fname = `PCM_IMMO_DONOR_${ts}.bin`;
+      const blob = new Blob([res.bytes], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = fname;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setPcm({ file: { name: fname }, bytes: res.bytes, parsed: engParsePcm(res.bytes, fname) });
+    } catch (e) { setErr('PCM donor fill failed: ' + e.message); }
+  }, [pcm, expectedSec6, expectedRfh]);
 
   const rfhNeedsFix = !!(bcmSec16 && rfh && !rfh.parsed.tooSmall && !rfhVerdict.good);
   const pcmNeedsFix = !!(bcmSec16 && pcm && !pcm.parsed.tooSmall && !sec6Verdict.good);
@@ -250,7 +271,11 @@ export default function SecuritySyncTab() {
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         URL.revokeObjectURL(url);
         setRfh({ file: { name: fname }, bytes: res.bytes, parsed: engParseRfh(res.bytes, fname) });
-        results.rfh = { ok: true, fname, hex: res.rfhSec16Hex, patched: res.patched };
+        // Post-fix verification: re-parse the patched RFHUB and confirm SEC16 matches expected
+        const verifyParsed = engParseRfh(res.bytes, fname);
+        const verifySlot = verifyParsed.sec16 && !verifyParsed.sec16.virgin ? verifyParsed.sec16.slot1 : null;
+        const verifyMatch = verifySlot && expectedRfh && arrEq(verifySlot, expectedRfh);
+        results.rfh = { ok: true, fname, hex: res.rfhSec16Hex, patched: res.patched, verify: { match: verifyMatch, hex: verifySlot ? bytesHex(verifySlot) : null } };
       } catch (e) {
         results.rfh = { ok: false, error: e.message };
       }
@@ -340,7 +365,19 @@ export default function SecuritySyncTab() {
               )}
               {wizardResults && wizardResults.rfh && (
                 <div style={{fontSize: 10, marginTop: 4, color: wizardResults.rfh.ok ? C.gn : C.er}}>
-                  {wizardResults.rfh.ok ? `✓ Fixed · ${wizardResults.rfh.patched} slot(s) · ${wizardResults.rfh.fname}` : `✗ ${wizardResults.rfh.error}`}
+                  {wizardResults.rfh.ok
+                    ? `✓ Fixed · ${wizardResults.rfh.patched} slot(s) · ${wizardResults.rfh.fname}`
+                    : `✗ ${wizardResults.rfh.error}`}
+                </div>
+              )}
+              {wizardResults && wizardResults.rfh && wizardResults.rfh.ok && wizardResults.rfh.verify && (
+                <div
+                  data-testid="secsync-rfh-postfix-verify"
+                  style={{fontSize: 10, marginTop: 3, color: wizardResults.rfh.verify.match ? C.gn : C.er, fontWeight: 700}}
+                >
+                  {wizardResults.rfh.verify.match
+                    ? `✓ Post-fix verify PASSED — written SEC16 matches reverse(BCM SEC16)`
+                    : `⚠ Post-fix verify FAILED — written SEC16 does not match expected`}
                 </div>
               )}
             </div>
@@ -451,6 +488,25 @@ export default function SecuritySyncTab() {
                           ? <StatBadge value={'SEC6 ' + sec6Label.toUpperCase().replace('✓ ', '')} good={false} />
                           : <StatBadge value="NO SEC6" good={false} />}
                     </div>
+                    {/* Use Donor shortcut — only show when BCM SEC16 is available and PCM SEC6 is mismatched */}
+                    {expectedSec6 && !sec6Verdict.good && (
+                      <div style={{marginTop: 6}}>
+                        <button
+                          data-testid="secsync-pcm-donor-fill-btn"
+                          onClick={applyPcmDonorFill}
+                          style={{
+                            width: '100%', padding: '5px 0', borderRadius: 6, border: `1px solid ${C.gn}66`,
+                            background: C.gn + '18', color: C.gn, fontFamily: "'Righteous'", fontSize: 10,
+                            fontWeight: 800, letterSpacing: 0.8, cursor: 'pointer',
+                          }}
+                        >
+                          ⚡ USE DONOR · WRITE SEC6 & DOWNLOAD
+                        </button>
+                        <div style={{fontSize: 9, color: C.tm, marginTop: 3, lineHeight: 1.4}}>
+                          Writes reverse(BCM SEC16)[0:6] as SEC6 and downloads the patched PCM file.
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
@@ -552,6 +608,9 @@ export default function SecuritySyncTab() {
               result = writeXc2268Sec16(rfh.bytes, bcmSec16);
             } else if (rfh.parsed.format === 'gen1') {
               result = writeRfhSec16Gen1(rfh.bytes, bcmSec16);
+            } else if (rfh.parsed.format === 'gen2-hybrid') {
+              // gen2-hybrid: 4 KB file with empty Gen2 slots and no AA-55-31-01 banner.
+              result = writeRfhSec16Gen2Slots(rfh.bytes, bcmSec16);
             } else {
               result = writeRfhSec16FromBcm(rfh.bytes, bcmSec16);
             }

@@ -13,7 +13,7 @@
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { Card, Btn } from '../lib/ui.jsx';
 import { C } from '../lib/constants.js';
-import { writeRfhSec16FromBcm, writePcmSec6 } from '../lib/securityBytes.js';
+import { writeRfhSec16FromBcm, writeRfhSec16Gen1, writeRfhSec16Gen2Slots, writePcmSec6 } from '../lib/securityBytes.js';
 import {
   parseKeyRingBuffer,
   findWritePointer,
@@ -405,14 +405,17 @@ export default function QuickCloneTab({ vehicle }) {
       let rfhBytes = step1.rfhBytes;
       if (rfhBytes) {
         const rfhFmt = detectRfhFormat(rfhBytes);
-        if (rfhFmt === 'gen2') {
+        if (rfhFmt === 'gen2' || rfhFmt === 'gen2-hybrid' || rfhFmt === 'gen1') {
           try {
-            const r = writeRfhSec16FromBcm(rfhBytes, bcmSec16);
+            let r;
+            if (rfhFmt === 'gen1') r = writeRfhSec16Gen1(rfhBytes, bcmSec16);
+            else if (rfhFmt === 'gen2-hybrid') r = writeRfhSec16Gen2Slots(rfhBytes, bcmSec16);
+            else r = writeRfhSec16FromBcm(rfhBytes, bcmSec16);
             rfhBytes = r.bytes;
-            log.push(`RFHUB SEC16 ← reverse(BCM): ${r.patched}/2 slot(s) = ${r.rfhSec16Hex}`);
+            log.push(`RFHUB SEC16 ← reverse(BCM) [${rfhFmt}]: ${r.patched}/2 slot(s) = ${r.rfhSec16Hex}`);
           } catch (e) { log.push(`RFHUB SEC16: skipped (${e.message})`); }
         } else {
-          log.push(`RFHUB SEC16: skipped (format=${rfhFmt}, Gen2 writer only)`);
+          log.push(`RFHUB SEC16: skipped (format=${rfhFmt}, no writer for this format)`);
         }
       }
 

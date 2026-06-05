@@ -265,6 +265,95 @@ export default function BenchWriteValidatorTab(){
               </div>
             )}
 
+            {/* PASS: Multi-PROG write checklist */}
+            {result.pass && (() => {
+              // Build a checklist specific to the first matched region
+              const m = result.matches[0];
+              const isGpec2a = m.ecu.includes('GPEC2A') || m.ecu.includes('GPEC2B');
+              const isGpec3  = m.ecu.includes('GPEC3');
+              const isBcm    = m.ecu.includes('BCM') && !m.ecu.includes('EEPROM');
+              const isTcm    = m.ecu.includes('TCM');
+              const isRfhub  = m.ecu.includes('RFHUB') || m.ecu.includes('XC2268');
+              const isBcmEep = m.ecu.includes('BCM EEPROM');
+
+              let steps = [];
+              if (isGpec2a) {
+                steps = [
+                  { icon: '🔌', text: 'Interface: DB44 (GPEC2A/GPEC2B bench connector)' },
+                  { icon: '⚡', text: 'Power: DC_PWR 12 V / 0.5 A · HVIO 5 V · VCCIO 3.3 V' },
+                  { icon: '🖥️', text: `ECU path: ECU → Dodge → Charger → FCA_CONTINENTAL_GPEC2A` },
+                  { icon: '📂', text: `Region: ${m.region} (${fmtSizeShort(m.size)} — exact match ✓)` },
+                  { icon: '📝', text: 'Action: Open file → select this .bin → Write → confirm size check passes' },
+                  { icon: '✅', text: 'Verify: Read back after write and compare to confirm no CRC errors' },
+                ];
+              } else if (isGpec3) {
+                steps = [
+                  { icon: '🔌', text: 'Interface: GPEC3 bench adapter (SPC5777 — Hellcat/Demon/Redeye)' },
+                  { icon: '⚡', text: 'Power: DC_PWR 12 V / 0.5 A · HVIO 5 V · VCCIO 3.3 V' },
+                  { icon: '🖥️', text: 'ECU path: ECU → Dodge → Charger → FCA_CONTINENTAL_GPEC3' },
+                  { icon: '📂', text: `Region: ${m.region} (${fmtSizeShort(m.size)} — exact match ✓)` },
+                  { icon: '📝', text: 'Action: Open file → select this .bin → Write' },
+                  { icon: '✅', text: 'Verify: Read back and compare' },
+                ];
+              } else if (isBcm) {
+                steps = [
+                  { icon: '🔌', text: 'Interface: MPC5606B BCM bench adapter' },
+                  { icon: '⚡', text: 'Power: DC_PWR 12 V / 0.5 A' },
+                  { icon: '🖥️', text: 'ECU path: ECU → Dodge → Charger → BCM (MPC5606B)' },
+                  { icon: '📂', text: `Region: ${m.region} (${fmtSizeShort(m.size)} — exact match ✓)` },
+                  { icon: '📝', text: 'Action: Open file → select this .bin → Write' },
+                  { icon: '✅', text: 'Verify: Read back and compare' },
+                ];
+              } else if (isTcm) {
+                steps = [
+                  { icon: '🔌', text: 'Interface: MPC5607B TCM bench adapter (ZF 8HP)' },
+                  { icon: '⚡', text: 'Power: DC_PWR 12 V / 0.5 A' },
+                  { icon: '🖥️', text: 'ECU path: ECU → ZF → 8HP → MPC5607B' },
+                  { icon: '📂', text: `Region: ${m.region} (${fmtSizeShort(m.size)} — exact match ✓)` },
+                  { icon: '📝', text: 'Action: Open file → select this .bin → Write' },
+                  { icon: '✅', text: 'Verify: Read back and compare' },
+                ];
+              } else if (isRfhub) {
+                steps = [
+                  { icon: '🔌', text: 'Interface: SOIC8 clip or SOIC8 adapter on programmer' },
+                  { icon: '⚡', text: 'Power: VCC 3.3 V (24C32) or 5 V (XC2268) — check chip datasheet' },
+                  { icon: '🖥️', text: 'Chip: ' + m.ecu + ' — select matching chip in programmer software' },
+                  { icon: '📂', text: `Region: ${m.region} (${fmtSizeShort(m.size)} — exact match ✓)` },
+                  { icon: '📝', text: 'Action: Open file → select this .bin → Write' },
+                  { icon: '✅', text: 'Verify: Read back and compare — check SEC16 slots after write' },
+                ];
+              } else if (isBcmEep) {
+                steps = [
+                  { icon: '🔌', text: 'Interface: SOIC8 clip on BCM EEPROM chip' },
+                  { icon: '⚡', text: 'Power: VCC 3.3 V or 5 V — check chip label' },
+                  { icon: '📂', text: `Region: ${m.region} (${fmtSizeShort(m.size)} — exact match ✓)` },
+                  { icon: '📝', text: 'Action: Open file → select this .bin → Write' },
+                  { icon: '✅', text: 'Verify: Read back and compare' },
+                ];
+              } else {
+                steps = [
+                  { icon: '📂', text: `Region: ${m.region} — ${m.ecu} (${fmtSizeShort(m.size)} — exact match ✓)` },
+                  { icon: '📝', text: 'Action: Open file in ' + m.programmer + ' → select this .bin → Write' },
+                  { icon: '✅', text: 'Verify: Read back and compare' },
+                ];
+              }
+
+              return (
+                <div data-testid="bench-write-checklist" style={{marginTop:12, padding:'12px 14px', borderRadius:8, background:'#0D2B1A', border:`1px solid ${C.gn}44`}}>
+                  <div style={{fontSize:9, fontWeight:800, color:C.gn, letterSpacing:1.4, marginBottom:10}}>📋 MULTI-PROG WRITE CHECKLIST · {m.ecu} {m.region}</div>
+                  {steps.map((s, i) => (
+                    <div key={i} style={{display:'flex', alignItems:'flex-start', gap:8, marginBottom:6}}>
+                      <span style={{fontSize:14, lineHeight:'18px', flexShrink:0}}>{s.icon}</span>
+                      <span style={{fontSize:11, color:C.tx, lineHeight:1.5}}>{s.text}</span>
+                    </div>
+                  ))}
+                  <div style={{marginTop:8, fontSize:10, color:C.tm, fontStyle:'italic'}}>
+                    Tip: Multi-PROG performs an exact byte-count check before writing — this file passed. If the programmer still rejects it, verify the DB44 interface is seated and the ECU is powered.
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* FAIL: close matches */}
             {!result.pass && result.close.length > 0 && (
               <>
