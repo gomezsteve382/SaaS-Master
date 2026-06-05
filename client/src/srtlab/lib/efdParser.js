@@ -315,6 +315,237 @@ export function parseEFD(buf, name){
   return result;
 }
 
+// ---------------------------------------------------------------------------
+// EFD ZIP PACKAGE PARSER
+// ---------------------------------------------------------------------------
+// Mopar PowerCal exports EFD calibrations as a zip archive containing:
+//   Microprocessor.zip                     — root descriptor
+//   MicroprocessorN_LogicalBlock.zip       — one per flash region (N = 18,19,20…)
+//     MicroprocessorN_LogicalBlock/
+//       PhysicalBlock/
+//         CodeData.bin    ← raw, decrypted flash region data
+//         Address.txt     ← base address (hex, e.g. "0x40000")
+//       AddressRange/
+//         StartAddress.txt  ← region start (hex)
+//         EndAddress.txt    ← region end   (hex, inclusive)
+//   MicroprocessorN_AddScript.zip          — optional add-on scripts
+//   MicroprocessorN_PartNumberDefinition.zip
+//   MicroprocessorN_SourceFile.zip         — source S19 filename
+//
+// This parser accepts the OUTER zip (the one you download from PowerCal /
+// FCA File .efd Reader) and returns a sorted array of flash blocks.
+//
+// Requires fflate (already in package.json).
+// ---------------------------------------------------------------------------
+
+// Parse a hex address text file entry (e.g. "0x40000" or "262144").
+function parseHexAddr(str){
+  if (!str) return null;
+  const s = str.trim();
+  if (s.startsWith('0x') || s.startsWith('0X')) return parseInt(s, 16);
+  return parseInt(s, 10);
+}
+
+// Human-readable name for a known flash region by address range.
+function regionLabel(start, end){
+  const size = end - start + 1;
+  // MPC5674F / GPEC2A known regions
+  if (start === 0x40000  && size === 3407872) return 'INT FLASH (LB18) — Multi-PROG target';
+  if (start === 0x380000 && size === 524288)  return 'Secondary P-Flash (LB19)';
+  if (start === 0xE000   && size === 5632)    return 'Data Block (LB20)';
+  if (start === 0x0      && size === 3932160) return 'Full P-Flash';
+  if (start === 0x800000)                     return 'D-Flash';
+  return null;
+}
+
+/**
+ * Parse a Mopar PowerCal EFD zip package.
+ *
+ * @param {Uint8Array} zipBytes  Raw bytes of the outer .zip file.
+ * @param {string}     [name]    Original filename (for display).
+ * @returns {EfdZipResult}
+ *
+ * @typedef {Object} EfdZipResult
+ * @property {boolean}     ok
+ * @property {string}      [error]
+ * @property {string}      name
+ * @property {number}      totalSize
+ * @property {FlashBlock[]} blocks   Sorted by startAddress.
+ * @property {Object}      descriptor  Parsed Microprocessor.zip descriptor fields.
+ *
+ * @typedef {Object} FlashBlock
+ * @property {number}     index        Logical block number (18, 19, 20 …)
+ * @property {string}     label        Human-readable region name
+ * @property {number}     startAddress
+ * @property {number}     endAddress
+ * @property {number}     declaredSize  endAddress - startAddress + 1
+ * @property {Uint8Array} data          CodeData.bin bytes (may be shorter if truncated)
+ * @property {number}     dataSize      data.byteLength
+ * @property {boolean}    sizeMatch     dataSize === declaredSize
+ * @property {string}     [sourceFile]  S19 source filename if present
+ */
+export async function parseEfdZipPackage(zipBytes, name){
+  const { unzipSync } = await import('fflate');
+
+  const result = {
+    ok: false,
+    name: name || 'package.zip',
+    totalSize: zipBytes.byteLength,
+    blocks: [],
+    descriptor: {},
+    error: null,
+  };
+
+  let outerFiles;
+  try {
+    outerFiles = unzipSync(zipBytes);
+  } catch(e){
+    result.error = 'Could not unzip outer package: ' + (e.message || e);
+    return result;
+  }
+
+  // ── Step 1: parse the root Microprocessor.zip descriptor ──────────────────
+  const rootZipKey = Object.keys(outerFiles).find(k =>
+    /^Microprocessor\.zip$/i.test(k.split('/').pop())
+  );
+  if (rootZipKey){
+    try {
+      const rootFiles = unzipSync(outerFiles[rootZipKey]);
+      const descKeys = Object.keys(rootFiles);
+      for (const k of descKeys){
+        const base = k.split('/').pop();
+        const text = new TextDecoder().decode(rootFiles[k]).trim();
+        if (base === 'Description.txt')  result.descriptor.description  = text;
+        if (base === 'Comment.txt')      result.descriptor.comment      = text;
+        if (base === 'FileSignature.txt') result.descriptor.fileSignature = text;
+      }
+    } catch { /* ignore descriptor parse errors */ }
+  }
+
+  // ── Step 2: find all LogicalBlock zips ────────────────────────────────────
+  const lbZipKeys = Object.keys(outerFiles).filter(k =>
+    /Microprocessor\d+_LogicalBlock\.zip$/i.test(k.split('/').pop())
+  );
+
+  if (lbZipKeys.length === 0){
+    result.error = 'No MicroprocessorN_LogicalBlock.zip entries found — is this a PowerCal EFD package?';
+    return result;
+  }
+
+  // ── Step 3: parse each LogicalBlock zip ───────────────────────────────────
+  for (const lbKey of lbZipKeys){
+    const m = lbKey.match(/Microprocessor(\d+)_LogicalBlock\.zip/i);
+    const idx = m ? parseInt(m[1], 10) : 0;
+
+    let lbFiles;
+    try {
+      lbFiles = unzipSync(outerFiles[lbKey]);
+    } catch { continue; }
+
+    // Locate CodeData.bin, Address.txt, StartAddress.txt, EndAddress.txt
+    let codeData = null, startAddr = null, endAddr = null, sourceFile = null;
+    for (const [path, bytes] of Object.entries(lbFiles)){
+      const parts = path.split('/');
+      const base  = parts[parts.length - 1];
+      const dir   = parts[parts.length - 2] || '';
+
+      if (base === 'CodeData.bin' && dir === 'PhysicalBlock'){
+        codeData = bytes;
+      } else if ((base === 'Address.txt' || base === 'StartAddress.txt') && dir === 'AddressRange'){
+        startAddr = parseHexAddr(new TextDecoder().decode(bytes));
+      } else if (base === 'StartAddress.txt' && dir === 'AddressRange' && startAddr === null){
+        startAddr = parseHexAddr(new TextDecoder().decode(bytes));
+      } else if (base === 'EndAddress.txt' && dir === 'AddressRange'){
+        endAddr = parseHexAddr(new TextDecoder().decode(bytes));
+      } else if (base === 'StartAddress.txt'){
+        // fallback — some zips nest differently
+        if (startAddr === null)
+          startAddr = parseHexAddr(new TextDecoder().decode(bytes));
+      } else if (base === 'EndAddress.txt'){
+        if (endAddr === null)
+          endAddr = parseHexAddr(new TextDecoder().decode(bytes));
+      }
+    }
+
+    // Also grab StartAddress from PhysicalBlock/Address.txt if AddressRange is missing
+    if (startAddr === null){
+      for (const [path, bytes] of Object.entries(lbFiles)){
+        const parts = path.split('/');
+        const base  = parts[parts.length - 1];
+        const dir   = parts[parts.length - 2] || '';
+        if (base === 'Address.txt' && dir === 'PhysicalBlock'){
+          startAddr = parseHexAddr(new TextDecoder().decode(bytes));
+        }
+      }
+    }
+
+    if (!codeData || startAddr === null || endAddr === null) continue;
+
+    // Try to find source S19 filename from MicroprocessorN_SourceFile.zip
+    const sfKey = Object.keys(outerFiles).find(k =>
+      new RegExp(`Microprocessor${idx}_SourceFile\.zip`, 'i').test(k.split('/').pop())
+    );
+    if (sfKey){
+      try {
+        const sfFiles = unzipSync(outerFiles[sfKey]);
+        for (const [path, bytes] of Object.entries(sfFiles)){
+          if (path.split('/').pop() === 'SourceFileName.txt'){
+            sourceFile = new TextDecoder().decode(bytes).trim();
+          }
+        }
+      } catch { /* ignore */ }
+    }
+
+    const declaredSize = endAddr - startAddr + 1;
+    const label = regionLabel(startAddr, endAddr) || `Block ${idx} @ 0x${startAddr.toString(16).toUpperCase()}`;
+
+    result.blocks.push({
+      index: idx,
+      label,
+      startAddress: startAddr,
+      endAddress:   endAddr,
+      declaredSize,
+      data:      codeData,
+      dataSize:  codeData.byteLength,
+      sizeMatch: codeData.byteLength === declaredSize,
+      sourceFile: sourceFile || null,
+    });
+  }
+
+  if (result.blocks.length === 0){
+    result.error = 'Found LogicalBlock zips but could not extract any CodeData.bin + address range pairs.';
+    return result;
+  }
+
+  // Sort by start address
+  result.blocks.sort((a, b) => a.startAddress - b.startAddress);
+  result.ok = true;
+  return result;
+}
+
+/**
+ * Build a contiguous full-flash binary image from an EfdZipResult.
+ * Fills gaps between blocks with 0xFF (erased flash).
+ * Returns null if blocks is empty.
+ *
+ * @param {FlashBlock[]} blocks
+ * @returns {{ image: Uint8Array, startAddress: number, endAddress: number } | null}
+ */
+export function buildFullFlashImage(blocks){
+  if (!blocks || blocks.length === 0) return null;
+  const sorted = [...blocks].sort((a, b) => a.startAddress - b.startAddress);
+  const imageStart = sorted[0].startAddress;
+  const imageEnd   = sorted[sorted.length - 1].endAddress;
+  const imageSize  = imageEnd - imageStart + 1;
+  const image = new Uint8Array(imageSize).fill(0xFF);
+  for (const blk of sorted){
+    const offset = blk.startAddress - imageStart;
+    const src    = blk.data.subarray(0, Math.min(blk.dataSize, blk.declaredSize));
+    image.set(src, offset);
+  }
+  return { image, startAddress: imageStart, endAddress: imageEnd };
+}
+
 export function isEbmlBuffer(buf){
   if (!buf || buf.length < 4) return false;
   const data = buf instanceof Uint8Array ? buf : new Uint8Array(buf);

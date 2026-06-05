@@ -1,15 +1,21 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Card, Btn, Tag, SLine} from '../lib/ui.jsx';
 import {C} from '../lib/constants.js';
-import {extractEfdPayload} from '../lib/efdParser.js';
+import {extractEfdPayload, parseEfdZipPackage, buildFullFlashImage} from '../lib/efdParser.js';
 
-// EFD -> BIN converter (its own UI). Drop a Mopar PowerCal `.efd` / `.webm`
-// container and extract the raw payload as a `.bin`. This reproduces exactly
-// what the desktop `EFD_Reader.exe` writes: the encrypted payload bytes,
-// unmodified. No decryption happens here (none happens in the desktop tool
-// either) — the ECM bootloader decrypts the payload during the `0x36
-// TransferData` half of the UDS flash. The payload is located by a proper
-// EBML walk in `extractEfdPayload`, not a naive id scan.
+// EFD → BIN converter.
+//
+// Two modes:
+//   1. .efd / .webm  — EBML container mode. Extracts the encrypted UP payload
+//      byte-for-byte, identical to what EFD_Reader.exe writes. The payload
+//      stays encrypted; the ECM bootloader decrypts it during 0x36 TransferData.
+//      Use this for wiTECH / AlfaOBD / PowerCal UDS flash.
+//
+//   2. .zip          — PowerCal package mode. Unzips the outer package, finds
+//      all MicroprocessorN_LogicalBlock.zip entries, extracts CodeData.bin +
+//      address ranges, and presents per-block download buttons. Each CodeData.bin
+//      is the DECRYPTED, ready-to-write flash region. Use LB18 for Multi-PROG
+//      INT FLASH bench write (exact size match guaranteed).
 
 function Stat({label, value, color}){
   return (
@@ -20,15 +26,17 @@ function Stat({label, value, color}){
   );
 }
 
-function baseName(name){
-  const n = (name || 'efd-payload').replace(/\.(efd|webm)$/i, '');
-  return n || 'efd-payload';
-}
-
 function fmtSize(n){
   if (n >= 1024 * 1024) return `${(n / 1024 / 1024).toFixed(2)} MB`;
   if (n >= 1024) return `${(n / 1024).toFixed(1)} KB`;
   return `${n} B`;
+}
+
+function fmtHex(n){ return '0x' + n.toString(16).toUpperCase().padStart(6, '0'); }
+
+function baseName(name, suffix = ''){
+  const n = (name || 'efd-payload').replace(/\.(efd|webm|zip)$/i, '');
+  return (n || 'efd-payload') + suffix;
 }
 
 async function sha256Hex(bytes){
@@ -40,112 +48,225 @@ async function sha256Hex(bytes){
   return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-export default function EfdToBinTab({efdFile, onFlash}){
-  const fileInput = useRef(null);
-  // loaded: { name, bytes:Uint8Array }
-  const [loaded, setLoaded] = useState(null);
-  const [error, setError] = useState(null);
+function downloadBytes(bytes, filename){
+  const blob = new Blob([bytes], {type: 'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ─── ZIP MODE ────────────────────────────────────────────────────────────────
+
+function BlockRow({block, pkgName, idx}){
+  const [sha, setSha] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const isTarget = block.label && block.label.includes('Multi-PROG');
+
+  const download = useCallback(async () => {
+    setBusy(true);
+    const suffix = `_LB${block.index}_${fmtHex(block.startAddress)}.bin`;
+    downloadBytes(block.data, baseName(pkgName, suffix));
+    try { setSha(await sha256Hex(block.data)); } catch { setSha(null); }
+    setBusy(false);
+  }, [block, pkgName]);
+
+  return (
+    <div style={{
+      padding: '12px 14px', borderRadius: 10,
+      background: isTarget ? '#1B5E2018' : C.c2,
+      border: `1px solid ${isTarget ? C.gn + '55' : C.bd}`,
+      marginBottom: 10,
+    }}>
+      <div style={{display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6}}>
+        <Tag color={isTarget ? C.gn : C.a1}>LB{block.index}</Tag>
+        {isTarget && <Tag color={C.gn}>✓ MULTI-PROG INT FLASH</Tag>}
+        <span style={{fontSize: 12, fontWeight: 700, color: C.tx, flex: 1}}>{block.label}</span>
+      </div>
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 8}}>
+        <Stat label="START ADDR" value={fmtHex(block.startAddress)} color={C.a3}/>
+        <Stat label="END ADDR"   value={fmtHex(block.endAddress)}   color={C.a3}/>
+        <Stat label="DECLARED"   value={fmtSize(block.declaredSize)} color={C.a1}/>
+        <Stat label="FILE SIZE"  value={fmtSize(block.dataSize)}
+              color={block.sizeMatch ? C.gn : C.er}/>
+      </div>
+      {!block.sizeMatch && (
+        <SLine type="warn" msg={`CodeData.bin is ${block.dataSize} bytes but declared range is ${block.declaredSize} bytes — file may be truncated`}/>
+      )}
+      {block.sourceFile && (
+        <div style={{fontSize: 10, color: C.ts, marginBottom: 6}}>
+          Source: <span style={{fontFamily: 'JetBrains Mono', color: C.tx}}>{block.sourceFile}</span>
+        </div>
+      )}
+      <div style={{display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap'}}>
+        <Btn color={isTarget ? C.gn : C.a1} onClick={download} disabled={busy}>
+          {busy ? '…' : `⬇ DOWNLOAD LB${block.index} .bin`}
+        </Btn>
+        {isTarget && (
+          <span style={{fontSize: 10, color: C.gn, fontWeight: 700}}>
+            ← Use this file for Multi-PROG INT FLASH write
+          </span>
+        )}
+      </div>
+      {sha && (
+        <div style={{marginTop: 8, fontSize: 10, fontFamily: 'JetBrains Mono', color: C.gn, wordBreak: 'break-all'}}>
+          SHA-256: {sha}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ZipResult({zipResult, pkgName}){
+  const [fullBusy, setFullBusy] = useState(false);
+  const [fullSha, setFullSha] = useState(null);
+  const [descOpen, setDescOpen] = useState(false);
+
+  const downloadFull = useCallback(async () => {
+    setFullBusy(true);
+    const r = buildFullFlashImage(zipResult.blocks);
+    if (!r){ setFullBusy(false); return; }
+    downloadBytes(r.image, baseName(pkgName, '_FULL_FLASH.bin'));
+    try { setFullSha(await sha256Hex(r.image)); } catch { setFullSha(null); }
+    setFullBusy(false);
+  }, [zipResult, pkgName]);
+
+  const fullImg = useMemo(() => buildFullFlashImage(zipResult.blocks), [zipResult]);
+
+  return (
+    <div>
+      {/* Header */}
+      <Card>
+        <div style={{display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap'}}>
+          <Tag color={C.gn}>✓ POWERCAL PACKAGE</Tag>
+          <Tag color={C.a2}>{zipResult.blocks.length} FLASH BLOCKS</Tag>
+          <span style={{fontSize: 12, color: C.tx, fontWeight: 700}}>{pkgName}</span>
+          <span style={{fontSize: 10, color: C.ts}}>{fmtSize(zipResult.totalSize)}</span>
+        </div>
+
+        {/* Descriptor summary */}
+        {zipResult.descriptor.description && (
+          <div style={{marginBottom: 10}}>
+            <div
+              style={{cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, userSelect: 'none'}}
+              onClick={() => setDescOpen(o => !o)}
+            >
+              <span style={{fontSize: 10, fontWeight: 800, color: C.a2, letterSpacing: 1.2}}>CALIBRATION DESCRIPTOR</span>
+              <span style={{fontSize: 12, color: C.ts}}>{descOpen ? '▲' : '▼'}</span>
+            </div>
+            {descOpen && (
+              <pre style={{
+                marginTop: 8, padding: '10px 12px', borderRadius: 8,
+                background: C.c2, border: `1px solid ${C.bd}`,
+                fontSize: 11, color: C.tx, fontFamily: 'JetBrains Mono',
+                whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+              }}>
+                {zipResult.descriptor.description}
+              </pre>
+            )}
+          </div>
+        )}
+
+        {/* Full flash image download */}
+        {fullImg && (
+          <div style={{
+            padding: '12px 14px', borderRadius: 10,
+            background: '#1A237E18', border: `1px solid ${C.a1}55`,
+            marginBottom: 10,
+          }}>
+            <div style={{fontSize: 11, fontWeight: 800, color: C.a1, letterSpacing: 1, marginBottom: 6}}>
+              FULL FLASH IMAGE (all blocks assembled)
+            </div>
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 8}}>
+              <Stat label="START" value={fmtHex(fullImg.startAddress)} color={C.a3}/>
+              <Stat label="END"   value={fmtHex(fullImg.endAddress)}   color={C.a3}/>
+              <Stat label="SIZE"  value={fmtSize(fullImg.image.length)} color={C.a1}/>
+            </div>
+            <div style={{fontSize: 10, color: C.ts, marginBottom: 8, lineHeight: 1.5}}>
+              All blocks assembled into one contiguous image. Gaps between blocks filled with 0xFF (erased flash).
+              <br/>Useful for full-chip write tools that expect a single binary.
+            </div>
+            <Btn color={C.a1} onClick={downloadFull} disabled={fullBusy}>
+              {fullBusy ? '… BUILDING' : '⬇ DOWNLOAD FULL FLASH IMAGE .bin'}
+            </Btn>
+            {fullSha && (
+              <div style={{marginTop: 6, fontSize: 10, fontFamily: 'JetBrains Mono', color: C.a1, wordBreak: 'break-all'}}>
+                SHA-256: {fullSha}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div style={{
+          padding: '10px 12px', borderRadius: 8,
+          background: '#FF174410', border: `1px solid ${C.er}33`,
+          fontSize: 11, color: C.tx, lineHeight: 1.6,
+        }}>
+          <strong style={{color: C.gn}}>Multi-PROG users:</strong> download the{' '}
+          <strong style={{color: C.gn}}>LB18 INT FLASH</strong> block (3,407,872 bytes).
+          That is the exact size Multi-PROG expects for an <code>INT FLASH</code> write on the GPEC2A.
+          The other blocks (LB19, LB20) are for tools that write the full P-Flash or data block separately.
+          <br/><br/>
+          <strong style={{color: C.er}}>Do not use the encrypted .efd payload</strong> (18SCAT_ECM_INTFLASH.bin style files)
+          for Multi-PROG — those are UDS flash payloads, not raw flash binaries.
+        </div>
+      </Card>
+
+      {/* Per-block rows */}
+      <div style={{marginTop: 16}}>
+        {zipResult.blocks.map((blk, i) => (
+          <BlockRow key={blk.index} block={blk} pkgName={pkgName} idx={i}/>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── EFD / WEBM MODE ─────────────────────────────────────────────────────────
+
+function EfdResult({result, loaded, onFlash}){
   const [sha, setSha] = useState(null);
   const [busy, setBusy] = useState(false);
   const [sectionMapOpen, setSectionMapOpen] = useState(false);
 
-  // Seed from the shared workspace EFD file (set when an .efd is dropped
-  // anywhere — the loader diverts EBML containers to shared state).
-  useEffect(() => {
-    if (loaded) return;
-    if (!efdFile) return;
-    const raw = efdFile.raw || (efdFile.data instanceof Uint8Array ? efdFile.data.buffer : null);
-    if (raw) setLoaded({name: efdFile.name || efdFile.filename || 'container.efd', bytes: new Uint8Array(raw)});
-  }, [efdFile, loaded]);
-
-  const result = useMemo(() => {
-    if (!loaded) return null;
-    return extractEfdPayload(loaded.bytes, loaded.name);
-  }, [loaded]);
-
-  // Reset the verification hash whenever the loaded file changes.
-  useEffect(() => { setSha(null); setSectionMapOpen(false); }, [loaded]);
-
-  const onPick = useCallback((e) => {
-    const f = e.target.files && e.target.files[0];
-    if (e.target) e.target.value = '';
-    if (!f) return;
-    setError(null);
-    setSha(null);
-    const rd = new FileReader();
-    rd.onload = (ev) => setLoaded({name: f.name, bytes: new Uint8Array(ev.target.result)});
-    rd.onerror = () => setError('Could not read the selected file');
-    rd.readAsArrayBuffer(f);
-  }, []);
+  const parsed = result.parsed;
+  const meta   = (parsed && parsed.metadata) || {};
+  const ok     = result.ok;
+  const sections = (parsed && parsed.sections) || [];
 
   const convert = useCallback(async () => {
     if (!result || !result.ok) return;
     setBusy(true);
     try {
       const out = result.bytes;
-      const blob = new Blob([out], {type: 'application/octet-stream'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = baseName(loaded.name) + '.bin';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      downloadBytes(out, baseName(loaded.name) + '.bin');
       try { setSha(await sha256Hex(out)); } catch { setSha(null); }
-    } finally {
-      setBusy(false);
-    }
+    } finally { setBusy(false); }
   }, [result, loaded]);
-
-  if (!loaded){
-    return (
-      <Card>
-        <div style={{textAlign: 'center', padding: 28}}>
-          <div style={{fontFamily: "'Righteous'", fontSize: 22, color: C.tx, letterSpacing: 2}}>EFD → BIN</div>
-          <div style={{fontSize: 12, color: C.ts, marginTop: 8, lineHeight: 1.6, maxWidth: 540, marginLeft: 'auto', marginRight: 'auto'}}>
-            Drop a Mopar PowerCal <code>.efd</code> / <code>.webm</code> container to extract its payload as a
-            <code> .bin</code>. The output is byte-for-byte identical to what the desktop <strong>EFD_Reader.exe</strong> writes —
-            the payload stays encrypted (the ECM bootloader decrypts it during the flash).
-          </div>
-          <input ref={fileInput} type="file" accept=".efd,.EFD,.webm,.WEBM" style={{display: 'none'}} onChange={onPick}/>
-          <div style={{marginTop: 16}}>
-            <Btn onClick={() => fileInput.current && fileInput.current.click()}>+ LOAD .efd / .webm</Btn>
-          </div>
-          {error && <div style={{marginTop: 12}}><SLine type="error" msg={error}/></div>}
-        </div>
-      </Card>
-    );
-  }
-
-  const parsed = result && result.parsed;
-  const meta = (parsed && parsed.metadata) || {};
-  const ok = result && result.ok;
-  const sections = (parsed && parsed.sections) || [];
 
   return (
     <div>
-      <input ref={fileInput} type="file" accept=".efd,.EFD,.webm,.WEBM" style={{display: 'none'}} onChange={onPick}/>
-
       <Card>
         <div style={{display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap'}}>
-          <Tag color={ok ? C.gn : C.er}>{ok ? '✓ PAYLOAD READY' : '✗ NO PAYLOAD'}</Tag>
-          {parsed && <Tag color={C.wn}>{parsed.efdType === 'mopar_powercal' ? 'MOPAR POWERCAL' : 'EFD CONTAINER'}</Tag>}
+          <Tag color={ok ? C.a2 : C.er}>{ok ? '✓ EFD PAYLOAD READY' : '✗ NO PAYLOAD'}</Tag>
+          {parsed && <Tag color={C.wn}>{parsed.efdType === 'mopar_bcm' ? 'MOPAR BCM' : parsed.efdType === 'mopar_powercal' ? 'MOPAR POWERCAL' : 'EFD CONTAINER'}</Tag>}
           <span style={{fontSize: 12, color: C.tx, fontWeight: 700}}>{loaded.name}</span>
           <span style={{fontSize: 10, color: C.ts}}>{fmtSize(loaded.bytes.length)}</span>
-          <span style={{flex: 1}}/>
-          <Btn color={C.a3} onClick={() => fileInput.current && fileInput.current.click()}>LOAD ANOTHER</Btn>
         </div>
 
         {!ok && <SLine type="error" msg={(result && result.error) || 'Could not extract a payload from this file'}/>}
-        {error && <SLine type="error" msg={error}/>}
 
         {ok && (
           <>
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 4}}>
-              <Stat label="PAYLOAD OFFSET" value={`0x${result.offset.toString(16).toUpperCase()}`} color={C.a3}/>
-              <Stat label="PAYLOAD SIZE" value={fmtSize(result.size)} color={C.a1}/>
-              <Stat label="ENTROPY" value={parsed.payload ? parsed.payload.entropy.toFixed(3) : '—'} color={parsed.payload && parsed.payload.entropy > 7.9 ? C.er : C.wn}/>
+              <Stat label="PAYLOAD OFFSET" value={fmtHex(result.offset)} color={C.a3}/>
+              <Stat label="PAYLOAD SIZE"   value={fmtSize(result.size)}  color={C.a1}/>
+              <Stat label="ENTROPY"        value={parsed.payload ? parsed.payload.entropy.toFixed(3) : '—'}
+                    color={parsed.payload && parsed.payload.entropy > 7.9 ? C.er : C.wn}/>
             </div>
 
             <div style={{marginTop: 14, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap'}}>
@@ -181,10 +302,12 @@ export default function EfdToBinTab({efdFile, onFlash}){
             )}
 
             <div style={{marginTop: 12, padding: 10, borderRadius: 8, background: '#FF174410', border: `1px solid ${C.er}33`, fontSize: 11, color: C.tx, lineHeight: 1.6}}>
-              <strong style={{color: C.er}}>Note:</strong> the extracted <code>.bin</code> is the raw, still-encrypted payload —
-              identical to what EFD_Reader.exe produces. It is not human-readable as-is; the ECM bootloader decrypts it
-              in-place during the <code>0x36 TransferData</code> half of the UDS programming session. Hand it to the ECM
-              Flasher tab for the bench bridge, or flash via wiTECH / AlfaOBD.
+              <strong style={{color: C.wn}}>EFD payload mode:</strong> the extracted <code>.bin</code> is the raw,
+              still-encrypted payload — identical to what EFD_Reader.exe produces.
+              Use it with wiTECH / AlfaOBD / PowerCal (UDS 0x36 TransferData).
+              <br/><br/>
+              <strong style={{color: C.gn}}>For Multi-PROG bench write</strong>, drop the <strong>PowerCal .zip package</strong> here instead —
+              it contains the decrypted CodeData.bin blocks at the exact sizes Multi-PROG expects.
             </div>
           </>
         )}
@@ -276,6 +399,127 @@ export default function EfdToBinTab({efdFile, onFlash}){
             </>
           )}
         </Card>
+      )}
+    </div>
+  );
+}
+
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
+
+export default function EfdToBinTab({efdFile, onFlash}){
+  const fileInput = useRef(null);
+  const [loaded, setLoaded] = useState(null);   // { name, bytes, isZip }
+  const [error, setError] = useState(null);
+  const [zipResult, setZipResult] = useState(null);
+  const [zipBusy, setZipBusy] = useState(false);
+
+  // Seed from shared workspace EFD file
+  useEffect(() => {
+    if (loaded) return;
+    if (!efdFile) return;
+    const raw = efdFile.raw || (efdFile.data instanceof Uint8Array ? efdFile.data.buffer : null);
+    if (raw){
+      const bytes = new Uint8Array(raw);
+      const name  = efdFile.name || efdFile.filename || 'container.efd';
+      const isZip = name.toLowerCase().endsWith('.zip');
+      setLoaded({name, bytes, isZip});
+    }
+  }, [efdFile, loaded]);
+
+  // When a zip is loaded, parse it asynchronously
+  useEffect(() => {
+    if (!loaded || !loaded.isZip) return;
+    setZipResult(null);
+    setZipBusy(true);
+    setError(null);
+    parseEfdZipPackage(loaded.bytes, loaded.name)
+      .then(r => {
+        if (!r.ok) setError(r.error || 'Failed to parse zip package');
+        setZipResult(r);
+      })
+      .catch(e => setError('Zip parse error: ' + (e.message || e)))
+      .finally(() => setZipBusy(false));
+  }, [loaded]);
+
+  const efdResult = useMemo(() => {
+    if (!loaded || loaded.isZip) return null;
+    return extractEfdPayload(loaded.bytes, loaded.name);
+  }, [loaded]);
+
+  const onPick = useCallback((e) => {
+    const f = e.target.files && e.target.files[0];
+    if (e.target) e.target.value = '';
+    if (!f) return;
+    setError(null);
+    setZipResult(null);
+    const isZip = f.name.toLowerCase().endsWith('.zip');
+    const rd = new FileReader();
+    rd.onload = (ev) => setLoaded({name: f.name, bytes: new Uint8Array(ev.target.result), isZip});
+    rd.onerror = () => setError('Could not read the selected file');
+    rd.readAsArrayBuffer(f);
+  }, []);
+
+  const reset = useCallback(() => {
+    setLoaded(null);
+    setZipResult(null);
+    setError(null);
+  }, []);
+
+  // ── Empty state ──────────────────────────────────────────────────────────
+  if (!loaded){
+    return (
+      <Card>
+        <div style={{textAlign: 'center', padding: 28}}>
+          <div style={{fontFamily: "'Righteous'", fontSize: 22, color: C.tx, letterSpacing: 2}}>EFD → BIN</div>
+          <div style={{fontSize: 12, color: C.ts, marginTop: 8, lineHeight: 1.7, maxWidth: 580, marginLeft: 'auto', marginRight: 'auto'}}>
+            Drop a Mopar PowerCal file to extract flash binaries.
+            <br/>
+            <strong style={{color: C.gn}}>PowerCal .zip package</strong> → extracts decrypted CodeData.bin blocks by region
+            (LB18 = INT FLASH, exact size for Multi-PROG bench write).
+            <br/>
+            <strong style={{color: C.a2}}>.efd / .webm container</strong> → extracts the encrypted UP payload
+            (for wiTECH / AlfaOBD / PowerCal UDS flash, same as EFD_Reader.exe).
+          </div>
+          <input ref={fileInput} type="file" accept=".efd,.EFD,.webm,.WEBM,.zip,.ZIP" style={{display: 'none'}} onChange={onPick}/>
+          <div style={{marginTop: 16}}>
+            <Btn onClick={() => fileInput.current && fileInput.current.click()}>+ LOAD .zip / .efd / .webm</Btn>
+          </div>
+          {error && <div style={{marginTop: 12}}><SLine type="error" msg={error}/></div>}
+        </div>
+      </Card>
+    );
+  }
+
+  // ── Loaded state ─────────────────────────────────────────────────────────
+  return (
+    <div>
+      <input ref={fileInput} type="file" accept=".efd,.EFD,.webm,.WEBM,.zip,.ZIP" style={{display: 'none'}} onChange={onPick}/>
+
+      {/* Top bar */}
+      <div style={{display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap'}}>
+        <Tag color={loaded.isZip ? C.gn : C.a2}>{loaded.isZip ? 'ZIP PACKAGE' : 'EFD CONTAINER'}</Tag>
+        <span style={{fontSize: 12, color: C.tx, fontWeight: 700, flex: 1}}>{loaded.name}</span>
+        <Btn color={C.a3} onClick={() => fileInput.current && fileInput.current.click()}>LOAD ANOTHER</Btn>
+        <Btn color={C.ts} onClick={reset}>CLEAR</Btn>
+      </div>
+
+      {error && <div style={{marginBottom: 12}}><SLine type="error" msg={error}/></div>}
+
+      {/* ZIP mode */}
+      {loaded.isZip && zipBusy && (
+        <Card>
+          <div style={{textAlign: 'center', padding: 24, color: C.ts, fontSize: 13}}>
+            Parsing zip package…
+          </div>
+        </Card>
+      )}
+      {loaded.isZip && !zipBusy && zipResult && zipResult.ok && (
+        <ZipResult zipResult={zipResult} pkgName={loaded.name}/>
+      )}
+
+      {/* EFD / WEBM mode */}
+      {!loaded.isZip && efdResult && (
+        <EfdResult result={efdResult} loaded={loaded} onFlash={onFlash}/>
       )}
     </div>
   );
