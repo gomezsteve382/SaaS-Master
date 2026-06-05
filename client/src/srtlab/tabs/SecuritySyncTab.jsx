@@ -8,6 +8,7 @@ import {StatBadge} from "../components/ImmoChecksumPanel.jsx";
 import {writeRfhSec16FromBcm, writeRfhSec16Gen1, writeXc2268Sec16} from "../lib/securityBytes.js";
 import {isXc2268Rfhub} from "../lib/xc2268Rfhub.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
+import {RfhubKeyTypeBanner} from "../components/RfhubKeyTypeBanner.jsx";
 
 const mono = "'JetBrains Mono'";
 
@@ -288,6 +289,11 @@ export default function SecuritySyncTab() {
       </div>
 
       {/* ── Overall GO / NO-GO banner ── */}
+      {/* ── RFHUB key type detector banner ── */}
+      {rfh && rfh.bytes && (
+        <RfhubKeyTypeBanner bytes={rfh.bytes} style={{marginBottom: 16}} />
+      )}
+
       {anyLoaded && (
         <Card style={{marginBottom: 16, borderLeft: "5px solid " + overall.color, background: overall.color + "0C"}} data-testid="secsync-overall">
           <div style={{display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap"}}>

@@ -57,3 +57,4 @@
 - [x] Add "Compare to Blank" button in HITAG AES tab to highlight SK page differences vs saved blank references
 - [x] Add VVDI text paste support (parse P0: XXXXXXXX P1: XXXXXXXX... format) to HITAG AES tab
 - [x] Improve HITAG AES photo OCR: rewrite /api/anthropic/key-photo with comprehensive HITAG 2 + HITAG AES layout prompt, extract all fields (Chip ID, Param Low/High SK, Chip Info Low/High SK, Config Page, Page 0-3, AES SK0-SK3), add AI OCR Extract dark panel in UI showing raw extracted values before form autofill
+- [x] RFHUB key type detector: analyze loaded RFHUB dump bytes to detect HITAG 2 vs HITAG AES calibration, show banner with required blank key part number and programming instructions

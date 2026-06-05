@@ -38,6 +38,7 @@ import {
   KEY_SLOT_COUNT,
 } from '../lib/rfhubKeyTransplant.js';
 import { identifyModule } from '../lib/keyProgWizard.js';
+import { RfhubKeyTypeBanner } from './RfhubKeyTypeBanner.jsx';
 
 /* ─── constants ─────────────────────────────────────────────────────────────── */
 const HISTORY_KEY   = 'rfhub_transplant_history';
@@ -569,6 +570,24 @@ export default function RfhubKeyTransplantPanel() {
 
       {/* XC2268 warning — shown immediately when either file is XC2268 */}
       <Xc2268Warning donorIsXC={donorIsXC} targetIsXC={targetIsXC} />
+
+      {/* Key type detector banners */}
+      {(donor || target) && (
+        <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+          {donor && donor.buf && (
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1.5, marginBottom: 4 }}>DONOR — KEY FAMILY</div>
+              <RfhubKeyTypeBanner bytes={donor.buf} />
+            </div>
+          )}
+          {target && target.buf && (
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1.5, marginBottom: 4 }}>TARGET — REQUIRED BLANK KEY TYPE</div>
+              <RfhubKeyTypeBanner bytes={target.buf} />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Master Transponder rows */}
       {(donor || target) && (

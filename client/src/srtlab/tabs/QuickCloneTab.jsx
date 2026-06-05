@@ -26,6 +26,7 @@ import {
 } from '../lib/rfhubKeyTransplant.js';
 import { identifyModule } from '../lib/keyProgWizard.js';
 import { resizePcmForTargetChip } from './ModuleSync';
+import { RfhubKeyTypeBanner } from '../components/RfhubKeyTypeBanner.jsx';
 
 /* ═══ Design tokens ═══ */
 const STEP_COLORS = ['#2979FF', '#00BFA5', '#FF6D00'];
@@ -553,6 +554,23 @@ export default function QuickCloneTab({ vehicle }) {
             <div style={{ fontSize: 10, color: C.ts, marginTop: 2, fontFamily: "'JetBrains Mono'" }}>
               {rfhDonor.keys.map((k, i) => k.autelId || `Key${i + 1}`).join(' · ')}
             </div>
+          </div>
+        )}
+        {/* Key type banners — shown as soon as donor or target RFHUB is loaded */}
+        {(rfhDonor || rfhTarget) && (
+          <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {rfhTarget && rfhTarget.data && (
+              <div>
+                <div style={{ fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1.5, marginBottom: 4 }}>TARGET RFHUB — REQUIRED BLANK KEY TYPE</div>
+                <RfhubKeyTypeBanner bytes={rfhTarget.data} />
+              </div>
+            )}
+            {rfhDonor && rfhDonor.data && (
+              <div>
+                <div style={{ fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1.5, marginBottom: 4 }}>DONOR RFHUB — KEY FAMILY</div>
+                <RfhubKeyTypeBanner bytes={rfhDonor.data} />
+              </div>
+            )}
           </div>
         )}
       </Card>
