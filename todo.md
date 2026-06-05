@@ -117,3 +117,9 @@
 - [x] PCM SEC6 donor fill shortcut: "Use Donor" button in PCM slot summary card that applies reverse(BCM SEC16)[0:6] as SEC6 donor value directly without scrolling to GPEC2A immo panel
 - [x] Post-fix RFHUB verification row: after wizard patches RFHUB, re-parse the output and show verification row confirming written SEC16 matches reverse(BCM SEC16) — in-app confirmation before flashing
 - [x] Multi-PROG write checklist: after Bench Validator PASS, show step-by-step checklist for matched ECU/region (GPEC2A INT FLASH: DB44 interface, DC_PWR 12V/0.5A, LB18 select, write CodeData.bin)
+
+## Flash BIN Analyzer (Jun 5, 2026)
+- [ ] flashBinAnalyzer.js: ECU type detection (GPEC2A/GPEC3/BCM/TCM/RFHUB by size + magic bytes), flash region map (start/end/size per logical block), VIN scan (all 17-char WMI matches), SEC byte scan (SEC16 at known offsets, SEC6 at 0x3C8), part number extraction (ASCII PN patterns), calibration strings, entropy map per 64 KB block
+- [ ] FlashBinAnalyzerTab.jsx: drop zone, ECU type badge, region map table, VIN/SEC badges with hex display, part number list, embedded strings panel, entropy heatmap bar, download analysis report (.txt)
+- [ ] Wire FlashBinAnalyzerTab into App.jsx nav under ANALYZE category
+- [ ] vitest tests for flashBinAnalyzer ECU detection, VIN scan, SEC scan, PN extraction

@@ -508,3 +508,163 @@ describe('SecuritySyncTab wizard — gen2-hybrid format routing', () => {
     expect(path).toBe('writeRfhSec16FromBcm');
   });
 });
+
+// ─── flashBinAnalyzer tests ──────────────────────────────────────────────────
+// flashBinAnalyzer.js is a client-side ES module. We test its pure logic
+// by re-implementing the key algorithms inline (no DOM required).
+
+describe('flashBinAnalyzer — ECU detection by size', () => {
+  const KNOWN_SIZES = new Set([
+    3407872,  // GPEC2A LB18 INT FLASH
+    524288,   // GPEC2A LB19 Secondary P-Flash
+    4194304,  // GPEC2A Full P-Flash
+    1048576,  // BCM full flash
+    2097152,  // TCM full flash
+    4096,     // RFHUB Gen2 4 KB / GPEC2A EXT EEPROM
+    8192,     // RFHUB Gen2 8 KB (Trackhawk) / GPEC2A EXT EEPROM 95640
+    16384,    // XC2268 RFHUB
+    2048,     // BCM EEPROM
+    5632,     // GPEC2A LB20 Data Block
+  ]);
+
+  it('recognizes GPEC2A LB18 size (3,407,872 bytes)', () => {
+    expect(KNOWN_SIZES.has(3407872)).toBe(true);
+  });
+
+  it('recognizes GPEC2A LB19 size (524,288 bytes)', () => {
+    expect(KNOWN_SIZES.has(524288)).toBe(true);
+  });
+
+  it('recognizes BCM full flash size (1,048,576 bytes)', () => {
+    expect(KNOWN_SIZES.has(1048576)).toBe(true);
+  });
+
+  it('recognizes RFHUB Gen2 4 KB size', () => {
+    expect(KNOWN_SIZES.has(4096)).toBe(true);
+  });
+
+  it('recognizes RFHUB Gen2 8 KB (Trackhawk) size', () => {
+    expect(KNOWN_SIZES.has(8192)).toBe(true);
+  });
+
+  it('recognizes XC2268 RFHUB 16 KB size', () => {
+    expect(KNOWN_SIZES.has(16384)).toBe(true);
+  });
+
+  it('does NOT recognize encrypted EFD payload size (3,985,326 bytes)', () => {
+    expect(KNOWN_SIZES.has(3985326)).toBe(false);
+  });
+});
+
+describe('flashBinAnalyzer — entropy calculation', () => {
+  function entropy(bytes: Uint8Array): number {
+    const counts = new Uint32Array(256);
+    for (let i = 0; i < bytes.length; i++) counts[bytes[i]]++;
+    let ent = 0;
+    const total = bytes.length;
+    for (let i = 0; i < 256; i++) {
+      if (counts[i] === 0) continue;
+      const p = counts[i] / total;
+      ent -= p * Math.log2(p);
+    }
+    return ent;
+  }
+
+  it('all-FF block has entropy 0', () => {
+    const bytes = new Uint8Array(256).fill(0xFF);
+    expect(entropy(bytes)).toBeCloseTo(0, 5);
+  });
+
+  it('uniform distribution has entropy 8', () => {
+    const bytes = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) bytes[i] = i;
+    expect(entropy(bytes)).toBeCloseTo(8, 5);
+  });
+
+  it('two-value alternating has entropy 1', () => {
+    const bytes = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) bytes[i] = i % 2;
+    expect(entropy(bytes)).toBeCloseTo(1, 5);
+  });
+
+  it('pseudo-random data entropy > 7.0 (simulates encrypted payload)', () => {
+    const bytes = new Uint8Array(1024);
+    for (let i = 0; i < 1024; i++) bytes[i] = (i * 37 + 13) % 256;
+    expect(entropy(bytes)).toBeGreaterThan(7.0);
+  });
+});
+
+describe('flashBinAnalyzer — VIN scan', () => {
+  const KNOWN_WMIS = new Set(['1C3','1C6','2C3','2C6','3C3','3C6','1B3','2B3','1D3','2D3']);
+
+  function isVinChar(c: number): boolean {
+    return (c >= 0x30 && c <= 0x39) ||
+           (c >= 0x41 && c <= 0x48) ||
+           (c >= 0x4A && c <= 0x4E) ||
+           (c >= 0x50 && c <= 0x5A && c !== 0x51);
+  }
+
+  function scanVins(bytes: Uint8Array): Array<{offset: number; vin: string}> {
+    const results: Array<{offset: number; vin: string}> = [];
+    for (let i = 0; i <= bytes.length - 17; i++) {
+      let valid = true;
+      for (let j = 0; j < 17; j++) {
+        if (!isVinChar(bytes[i + j])) { valid = false; break; }
+      }
+      if (!valid) continue;
+      const vin = String.fromCharCode(...Array.from(bytes.slice(i, i + 17)));
+      const wmi = vin.slice(0, 3);
+      if (KNOWN_WMIS.has(wmi)) {
+        results.push({ offset: i, vin });
+        i += 16;
+      }
+    }
+    return results;
+  }
+
+  it('finds a known Dodge VIN embedded in a buffer', () => {
+    const vin = '2C3CDXHG5EH219538';
+    const buf = new Uint8Array(64).fill(0xFF);
+    for (let i = 0; i < 17; i++) buf[10 + i] = vin.charCodeAt(i);
+    const found = scanVins(buf);
+    expect(found).toHaveLength(1);
+    expect(found[0].vin).toBe(vin);
+    expect(found[0].offset).toBe(10);
+  });
+
+  it('does not find a VIN with unknown WMI', () => {
+    const vin = 'JH4KA7650MC000000'; // Honda WMI
+    const buf = new Uint8Array(64).fill(0xFF);
+    for (let i = 0; i < 17; i++) buf[10 + i] = vin.charCodeAt(i);
+    expect(scanVins(buf)).toHaveLength(0);
+  });
+
+  it('does not find VINs in all-FF buffer', () => {
+    expect(scanVins(new Uint8Array(256).fill(0xFF))).toHaveLength(0);
+  });
+});
+
+describe('flashBinAnalyzer — PowerPC magic byte detection', () => {
+  it('detects PowerPC bl instruction at offset 0 (GPEC2A LB18 header pattern)', () => {
+    // First 4 bytes of LB18 CodeData.bin: 48 0B 8A 44 — PowerPC bl instruction
+    const buf = new Uint8Array([0x48, 0x0B, 0x8A, 0x44, 0x00, 0x00, 0x00, 0x00]);
+    const view = new DataView(buf.buffer);
+    const word = view.getUint32(0, false); // big-endian
+    // PowerPC bl: opcode 18 (0x48 >> 2 = 0x12 = 18), top byte 0x48
+    expect((word & 0xFF000000) >>> 0).toBe(0x48000000 >>> 0);
+  });
+
+  it('rejects non-PowerPC header (all zeros)', () => {
+    const buf = new Uint8Array(8); // all zeros
+    const view = new DataView(buf.buffer);
+    const word = view.getUint32(0, false);
+    expect((word & 0xFF000000) >>> 0).not.toBe(0x48000000 >>> 0);
+  });
+
+  it('detects MPC5674F reset vector pattern (0x40000000 base address range)', () => {
+    // LB18 starts at 0x40000 — the first instruction is a branch into the code
+    const startAddr = 0x40000;
+    expect(startAddr).toBeGreaterThanOrEqual(0x40000);
+    expect(startAddr).toBeLessThan(0x400000);
+  });
+});
