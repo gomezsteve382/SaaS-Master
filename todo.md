@@ -160,3 +160,15 @@
 - [x] GAP 10: Renegade B1 1.3T HITAG AES crypto key stored LE in RFH — transponderCryptoKey note added
 - [x] PIN BCD fix: analyzeRfhDump PIN extraction uses BCD hex representation (not decimal integer) — ISAC 0715→1507, HYHY 0828→2808
 - [x] 281 vitest tests passing (0 failures) after all 10 gap patches
+
+## J2534 WebSocket Relay — Live UDS Frame Execution
+
+- [ ] Build local J2534 relay agent (Node.js + ws server, J2534 PassThru API bindings)
+- [ ] Relay protocol: JSON messages for open/close channel, send frame, receive frame, list adapters
+- [ ] SRT Lab relay client: RelayConnectionManager (connect/disconnect/status)
+- [ ] SRT Lab relay client: sendFrame(canId, bytes, timeout) → response bytes
+- [ ] Wire relay client into UDS tab: Execute button fires live frames when relay is connected
+- [ ] Live response display in UDS tab: raw bytes + NRC decode + timing
+- [ ] Relay status indicator in UDS tab header (Connected / Disconnected / Error)
+- [ ] Relay agent packaged as standalone Node.js script with setup instructions
+- [ ] Vitest tests for relay protocol message serialization and frame execution logic

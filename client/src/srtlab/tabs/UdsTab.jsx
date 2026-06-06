@@ -1,5 +1,7 @@
-import React, {useState, useCallback, useRef} from "react";
+import React, { useState, useCallback, useRef } from 'react';
 import {Card, Btn} from "../lib/ui.jsx";
+import { RelayStatusBar, getSharedRelay } from '../relay/RelayStatusBar.jsx';
+import { NRC_NAMES } from '../relay/relayClient.js';
 import {C} from "../lib/constants.js";
 import {initAdapter} from "../lib/initAdapter.js";
 import {decodeNRC} from "../lib/nrc.js"; // kept for legacy call sites
@@ -49,6 +51,89 @@ const MODULE_PRESETS = (() => {
 })();
 
 export default function UdsTab(){
+  // ─── Relay state ──────────────────────────────────────────────────────────────
+  const [relayCtx, setRelayCtx] = useState(null); // { relay, channelId } when live
+  const [relayExecLog, setRelayExecLog] = useState([]);
+  const [relayRunning, setRelayRunning] = useState(false);
+
+  const addRelayLog = useCallback((msg, type = 'info') => {
+    const ts = new Date().toLocaleTimeString();
+    setRelayExecLog(p => [...p.slice(-200), { ts, msg, type }]);
+  }, []);
+
+  const executeSequenceViaRelay = useCallback(async () => {
+    if (!relayCtx) return;
+    const { relay, channelId } = relayCtx;
+    const tx = parseInt(String(txAddr).replace(/^0x/i, ''), 16);
+    const steps = seqPreviewSteps;
+    if (!steps.length) { addRelayLog('No steps to execute — select a module and operation first', 'warn'); return; }
+    setRelayRunning(true);
+    setRelayExecLog([]);
+    addRelayLog(`Executing ${steps.length} steps on CH${channelId} TX:0x${tx.toString(16).toUpperCase()}`, 'info');
+    try {
+      const results = await relay.executeSequence(
+        channelId,
+        steps.map(s => ({
+          label: s.label || s.desc || ('Step ' + (steps.indexOf(s) + 1)),
+          canId: tx,
+          bytes: s.bytes || [],
+          timeoutMs: 200,
+          noResp: s.noResp || false,
+        })),
+        {
+          onStep: (step, result) => {
+            if (result.ok) {
+              const rxHex = result.responses.length
+                ? result.responses.map(r => r.bytes.map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' ')).join(' | ')
+                : '(no response)';
+              addRelayLog(`✓ ${step.label} → ${rxHex} [${result.durationMs}ms]`, 'rx');
+            } else {
+              const detail = result.nrcName ? `NRC ${result.nrcName} (0x${result.nrc.toString(16).toUpperCase()})` : (result.error || 'failed');
+              addRelayLog(`✗ ${step.label} → ${detail}`, 'error');
+            }
+          },
+          abortOnNrc: true,
+        }
+      );
+      addRelayLog(`Sequence complete — ${results.length} steps OK`, 'info');
+    } catch (e) {
+      addRelayLog(`Sequence aborted: ${e.message}`, 'error');
+    } finally {
+      setRelayRunning(false);
+    }
+  }, [relayCtx, txAddr, seqPreviewSteps, addRelayLog]);
+
+  const sendRawViaRelay = useCallback(async () => {
+    if (!relayCtx) return;
+    const { relay, channelId } = relayCtx;
+    const tx = parseInt(String(txAddr).replace(/^0x/i, ''), 16);
+    const bytes = hexToBytes(rawCmd);
+    if (!bytes.length) { addRelayLog('Enter hex bytes', 'warn'); return; }
+    setRelayRunning(true);
+    addRelayLog(`TX [0x${tx.toString(16).toUpperCase()}] ${bytes.map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' ')}`, 'tx');
+    try {
+      const result = await relay.sendFrame({ channelId, canId: tx, bytes, timeoutMs: 200 });
+      if (result.responses.length === 0) {
+        addRelayLog('No response (timeout)', 'warn');
+      } else {
+        for (const r of result.responses) {
+          const hex = r.bytes.map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
+          if (r.bytes[0] === 0x7F) {
+            const nrcCode = r.bytes[2];
+            const nrcName = NRC_NAMES[nrcCode] || `0x${nrcCode.toString(16).toUpperCase()}`;
+            addRelayLog(`NRC ${nrcName}: ${hex}`, 'warn');
+          } else {
+            addRelayLog(`RX [0x${r.canId.toString(16).toUpperCase()}] ${hex}`, 'rx');
+          }
+        }
+      }
+    } catch (e) {
+      addRelayLog(`Send failed: ${e.message}`, 'error');
+    } finally {
+      setRelayRunning(false);
+    }
+  }, [relayCtx, txAddr, rawCmd, addRelayLog]);
+
   const[conn,setConn]=useState(false);
   const[busy,setBusy]=useState('');
   const[log,setLog]=useState([]);
@@ -334,6 +419,8 @@ export default function UdsTab(){
   },[txAddr,rxAddr,addLog,recordPaper]);
 
   return <div data-testid="uds-tab">
+    {/* ─── J2534 Relay Status Bar ─────────────────────────────────────────────── */}
+    <RelayStatusBar onRelayReady={ctx => setRelayCtx(ctx)} />
     <Card style={{background:'linear-gradient(135deg,#0A0A3D 0%,#1E1E6F 40%,#4A00E0 100%)',color:'#fff',marginBottom:18}}>
       <div style={{display:'flex',alignItems:'center',gap:14}}>
         <div style={{fontSize:32}}>🔬</div>
@@ -541,6 +628,73 @@ export default function UdsTab(){
         </table>
       </div>
     </Card>
+
+    {/* ────────────────────────────────────────────────────────────────────────────────
+         RELAY LIVE EXECUTION (when relay is connected)
+    ──────────────────────────────────────────────────────────────────────────────── */}
+    {relayCtx && (
+      <Card style={{marginBottom:14,border:'2px solid #22c55e',background:'#0a1a0a'}} data-testid="uds-relay-exec">
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
+          <div style={{fontWeight:800,fontSize:11,color:'#22c55e',letterSpacing:2}}>⚡ LIVE EXECUTION — CH{relayCtx.channelId}</div>
+          <div style={{display:'flex',gap:8}}>
+            <button
+              onClick={sendRawViaRelay}
+              disabled={relayRunning || !rawCmd.trim()}
+              style={{
+                background: relayRunning ? '#1a2a1a' : '#1e3a1e',
+                border: '1px solid #22c55e', color: '#22c55e',
+                borderRadius: 4, padding: '4px 14px', cursor: relayRunning ? 'not-allowed' : 'pointer',
+                fontSize: 11, fontFamily: "'JetBrains Mono'", opacity: relayRunning ? 0.5 : 1,
+              }}
+            >
+              ▶ Send Raw
+            </button>
+            <button
+              onClick={executeSequenceViaRelay}
+              disabled={relayRunning || seqPreviewSteps.length === 0}
+              style={{
+                background: relayRunning ? '#1a2a1a' : '#0d3a1e',
+                border: '1px solid #4ade80', color: '#4ade80',
+                borderRadius: 4, padding: '4px 14px', cursor: relayRunning ? 'not-allowed' : 'pointer',
+                fontSize: 11, fontFamily: "'JetBrains Mono'", fontWeight: 700,
+                opacity: relayRunning ? 0.5 : 1,
+              }}
+            >
+              {relayRunning ? '⏳ Running…' : `▶▶ Execute Sequence (${seqPreviewSteps.length} steps)`}
+            </button>
+            <button
+              onClick={() => setRelayExecLog([])}
+              style={{
+                background: 'transparent', border: '1px solid #374151',
+                color: '#6b7280', borderRadius: 4, padding: '4px 10px',
+                cursor: 'pointer', fontSize: 10,
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+        <div style={{
+          maxHeight: 280, overflowY: 'auto', background: '#050f05',
+          border: '1px solid #1a2a1a', borderRadius: 6, padding: '8px 12px',
+          fontFamily: "'JetBrains Mono'", fontSize: 11, lineHeight: 1.7,
+        }}>
+          {relayExecLog.length === 0 && (
+            <div style={{color:'#374151',textAlign:'center',padding:16}}>
+              Ready — press Execute Sequence or Send Raw to fire live frames
+            </div>
+          )}
+          {relayExecLog.map((l, i) => {
+            const color = l.type === 'error' ? '#ef4444' : l.type === 'rx' ? '#22c55e' : l.type === 'tx' ? '#38bdf8' : l.type === 'warn' ? '#f59e0b' : '#6b7280';
+            return (
+              <div key={i} style={{color}}>
+                <span style={{color:'#374151'}}>{l.ts}</span> {l.msg}
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+    )}
 
     {/* ────────────────────────────────────────────────────────────────────────────────
          SESSION SEQUENCE PREVIEW (udsEngine buildSessionSequence)
