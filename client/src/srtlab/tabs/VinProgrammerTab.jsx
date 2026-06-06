@@ -11,6 +11,7 @@ import RfhubImmoSection from "../components/RfhubImmoSection.jsx";
 import {
   getAllModules, buildSessionSequence, getModuleDids,
   buildReadDid, buildWriteDid, buildDsc, buildSeedRequest,
+  computeKey, ALGO, sbecKey,
 } from "../lib/udsEngine.js";
 import { vinWriteDids, VIN_WRITE_DIDS } from "../lib/algos.js";
 
@@ -264,6 +265,17 @@ export default function VinProgrammerTab() {
   // UDS VIN write subtab state
   const [udsVinModule, setUdsVinModule] = useState('IPC');
   const [udsVin, setUdsVin] = useState('');
+  const [udsSeedHex, setUdsSeedHex] = useState(''); // live seed from ECU (hex string)
+  // Compute the SBEC key from the live seed
+  const udsLiveKey = useMemo(() => {
+    const raw = udsSeedHex.replace(/\s+/g, '');
+    if (!raw || raw.length < 2) return null;
+    const seedVal = parseInt(raw, 16);
+    if (isNaN(seedVal)) return null;
+    const mod = getAllModules().find(m => m.code === udsVinModule);
+    const algo = mod?.algo ?? ALGO.SBEC;
+    return computeKey(algo, seedVal);
+  }, [udsSeedHex, udsVinModule]);
   const [udsSeqExpanded, setUdsSeqExpanded] = useState(false);
   const allModsList = useMemo(() => getAllModules(), []);
   const udsVinCheck = useMemo(() => checkDigit(udsVin), [udsVin]);
@@ -284,8 +296,18 @@ export default function VinProgrammerTab() {
     frames.push({ label: 'DSC 03 (Programming Session)', bytes: [0x10, 0x03], desc: 'Enter programming session' });
     // 3. SA 0x01 — seed request
     frames.push({ label: 'SA 01 (Seed Request)', bytes: [0x27, 0x01], desc: 'Request seed for security access level 0x01' });
-    // 4. SA 0x02 — key send (placeholder — key computed from seed)
-    frames.push({ label: 'SA 02 (Key Send)', bytes: [0x27, 0x02, 0x00, 0x00, 0x00, 0x00], desc: 'Send computed key (replace 00 00 00 00 with actual key)' });
+    // 4. SA 0x02 — key send (live if seed provided, placeholder otherwise)
+    const keyBytes = udsLiveKey?.keyBytes ?? null;
+    const saBytes = keyBytes
+      ? [0x27, 0x02, ...keyBytes]
+      : [0x27, 0x02, 0x00, 0x00]; // placeholder — enter seed above to compute
+    const saLabel = keyBytes
+      ? `SA 02 (Key Send) — key 0x${keyBytes.map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join('')}`
+      : 'SA 02 (Key Send) — ⚠ enter seed above to compute';
+    const saDesc = keyBytes
+      ? `Computed key from seed 0x${udsSeedHex.replace(/\s+/g,'').toUpperCase()} using ${udsLiveKey?.algo ?? 'SBEC'} algorithm`
+      : 'Enter the seed received from the ECU above to auto-compute the key';
+    frames.push({ label: saLabel, bytes: saBytes, desc: saDesc, isPlaceholder: !keyBytes });
     // 5. Write each VIN DID
     for (const did of udsVinDids) {
       const dh = did > 0xFFFF ? [(did>>>16)&0xFF,(did>>>8)&0xFF,did&0xFF] : [(did>>>8)&0xFF,did&0xFF];
@@ -713,9 +735,44 @@ export default function VinProgrammerTab() {
           {udsVin.length===17&&udsVinCheck.ok&&<VinChargerSubtitle vin={udsVin} style={{marginTop:8}}/>}
         </Card>
 
+        <Card style={{marginBottom:14}}>
+          <div style={{fontWeight:800,fontSize:11,color:C.a4,marginBottom:10,letterSpacing:2}}>3 · LIVE SEED → KEY</div>
+          <div style={{fontSize:11,color:C.ts,marginBottom:8}}>
+            After sending SA 01 (seed request), paste the 2-byte seed from the ECU response here.
+            The key is computed instantly using the {udsLiveKey?.algo ?? 'SBEC'} algorithm and injected into the SA 02 frame below.
+          </div>
+          <div style={{display:'flex',gap:10,alignItems:'center',marginBottom:6}}>
+            <input
+              data-testid="vinprog-uds-seed"
+              value={udsSeedHex}
+              onChange={e=>setUdsSeedHex(e.target.value.replace(/[^0-9A-Fa-f\s]/g,'').slice(0,9))}
+              placeholder="e.g. 3A 2B or 3A2B"
+              style={{flex:1,padding:'10px 14px',border:`2px solid ${udsSeedHex?C.a3:C.bd}`,borderRadius:10,fontSize:14,fontFamily:"'JetBrains Mono'",fontWeight:700,letterSpacing:2,background:'#fff',color:C.tx}}
+            />
+            <Btn outline color={C.ts} onClick={()=>setUdsSeedHex('')} disabled={!udsSeedHex}>CLEAR</Btn>
+          </div>
+          {udsLiveKey&&udsLiveKey.keyBytes&&(
+            <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap',marginTop:4}}>
+              <span style={{fontSize:11,color:C.ts}}>Seed:</span>
+              <span style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:C.wn}}>0x{udsSeedHex.replace(/\s+/g,'').toUpperCase()}</span>
+              <span style={{fontSize:11,color:C.ts}}>→ Key:</span>
+              <span style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:800,color:C.gn}}>0x{udsLiveKey.keyBytes.map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join('')}</span>
+              {udsLiveKey.formula&&<span style={{fontSize:10,color:C.ts,fontStyle:'italic'}}>{udsLiveKey.formula}</span>}
+            </div>
+          )}
+          {udsLiveKey&&udsLiveKey.needsAlgosJs&&(
+            <div style={{fontSize:11,color:C.wn,marginTop:4}}>
+              ⚠ {udsLiveKey.algo} key requires algos.js — use the Seed→Key tab to compute the key, then paste SA 02 manually.
+            </div>
+          )}
+          {!udsLiveKey&&udsSeedHex&&(
+            <div style={{fontSize:11,color:C.er,marginTop:4}}>✗ Invalid seed hex</div>
+          )}
+        </Card>
+
         {udsVinFrames.length>0&&<Card style={{marginBottom:14}} data-testid="vinprog-uds-frames">
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
-            <div style={{fontWeight:800,fontSize:11,color:C.a4,letterSpacing:2}}>3 · UDS FRAME SEQUENCE</div>
+            <div style={{fontWeight:800,fontSize:11,color:C.a4,letterSpacing:2}}>4 · UDS FRAME SEQUENCE</div>
             <button onClick={()=>setUdsSeqExpanded(e=>!e)} style={{fontSize:10,color:C.ts,background:'transparent',border:'1px solid '+C.bd,padding:'3px 10px',borderRadius:6,cursor:'pointer'}}>
               {udsSeqExpanded?'▲ Collapse':'▼ Expand'}
             </button>
@@ -725,11 +782,12 @@ export default function VinProgrammerTab() {
           </div>
           {udsSeqExpanded&&<div style={{border:'1px solid '+C.bd,borderRadius:8,background:'#0D0D15',padding:12}}>
             {udsVinFrames.map((frame,i)=>(
-              <div key={i} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'6px 0',borderTop:i>0?'1px solid #1A1A2A':'none'}}>
+              <div key={i} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'6px 0',borderTop:i>0?'1px solid #1A1A2A':'none',background:frame.isPlaceholder?'rgba(255,170,0,0.06)':'transparent',borderRadius:frame.isPlaceholder?6:0}}>
                 <span style={{color:'#555',fontSize:10,minWidth:20,textAlign:'right',paddingTop:1}}>{i+1}</span>
                 <div style={{flex:1}}>
-                  <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:'#40C4FF',letterSpacing:1,marginBottom:2}}>
+                  <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:frame.isPlaceholder?'#FFA726':'#40C4FF',letterSpacing:1,marginBottom:2}}>
                     {frame.bytes.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ')}
+                    {frame.isPlaceholder&&<span style={{fontSize:9,color:'#FFA726',marginLeft:8,fontStyle:'italic'}}>⚠ enter seed above to compute key</span>}
                   </div>
                   <div style={{fontSize:10,color:'#888'}}>{frame.desc}</div>
                 </div>

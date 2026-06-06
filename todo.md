@@ -136,3 +136,12 @@
 - [x] Full SeedTab rebuild: MODULE_ALGO_HINT built live from udsEngine MODULE_REGISTRY, NRC decoder panel (decodeNrc), Module Registry quick-select panel (getAllModules), Session Sequence Preview (buildSessionSequence)
 - [x] Wire IpcClusterReprogramTab into App.jsx nav under PROGRAM category (id: ipccluster)
 - [x] vitest tests for udsEngine: SBEC key derivation, session sequence, DID catalog lookup, flash block layout, IPC body code swap sequence (81 tests, all passing)
+
+## UDS Deep Integration (Jun 5, 2026)
+- [x] udsEngine MODULE_REGISTRY expanded to 34 modules (was 12) — all FCA/Stellantis modules with RE-verified CAN IDs, algorithms, DID catalogs, and notes
+- [x] udsEngine NRC_TABLE expanded to 132 entries (was 22) — full ISO 14229 + FCA-specific NRC codes from workspace-uds/nrc.ts
+- [x] Full zip audit: all 25 numbered text files read, all 04_tab_uds_logic tabs compared line-by-line, all 02_generated_data files compared — 3 tabs larger in app (our additions), all catalog files byte-for-byte identical
+- [x] VinProgrammerTab UDS VIN WRITE: live seed→key wired — SBEC computeKey auto-fills SA 02 frame bytes as user types seed; placeholder warning badge on SA 02 frame when seed not entered
+- [x] IpcClusterReprogramTab LIVE CAPTURE panel: IPC seed input (auto-computes SBEC key, fills Step 6 bytes live), VIN hex input (auto-populates Step 12 restore frame), odometer hex input (auto-populates Step 13 restore frame)
+- [x] IpcClusterReprogramTab UdsStepCard: placeholder steps show amber border + "⚠ NEEDS INPUT" badge; filled steps show normal styling
+- [x] IpcClusterReprogramTab sequence status summary in LIVE CAPTURE panel showing which steps are ready vs need input

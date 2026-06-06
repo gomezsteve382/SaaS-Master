@@ -508,12 +508,13 @@ describe('VEHICLE_BODY_CODES', () => {
 describe('decodeNrc', () => {
   // decodeNrc returns {name, desc} object
 
-  it('decodes 0x35 — invalidKey', async () => {
+  it('decodes 0x35 — invalid key (IK)', async () => {
     const { decodeNrc } = await loadEngine();
     const result = decodeNrc(0x35);
     expect(result).toHaveProperty('name');
     expect(result).toHaveProperty('desc');
-    expect(result.name).toMatch(/invalidKey|invalid/i);
+    // New NRC table uses ISO short names (IK) from workspace-uds/nrc.ts
+    expect(result.name).toMatch(/invalidKey|invalid|^IK$/i);
     expect(result.desc).toMatch(/key/i);
   });
 

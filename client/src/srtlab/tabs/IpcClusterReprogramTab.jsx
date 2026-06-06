@@ -142,14 +142,15 @@ function UdsStepCard({ step, expanded, onToggle }) {
   const phaseColor = PHASE_COLORS[step.phase] || C.ts;
   const phaseLabel = PHASE_LABELS[step.phase] || step.phase?.toUpperCase() || '';
   const isCritical = step.critical;
+  const isPlaceholder = step.isPlaceholder;
 
   return (
     <div
       onClick={onToggle}
       style={{
         borderRadius: 10,
-        border: `1.5px solid ${isCritical ? COL.write + '88' : C.bd}`,
-        background: expanded ? '#0D1117' : C.cd,
+        border: `1.5px solid ${isCritical ? COL.write + '88' : isPlaceholder ? COL.warn + '66' : C.bd}`,
+        background: expanded ? '#0D1117' : isPlaceholder ? COL.warn + '08' : C.cd,
         marginBottom: 6,
         cursor: 'pointer',
         transition: 'all 0.2s',
@@ -204,6 +205,22 @@ function UdsStepCard({ step, expanded, onToggle }) {
         }}>
           {step.name}
         </span>
+
+        {/* Placeholder badge */}
+        {isPlaceholder && (
+          <span style={{
+            fontSize: 9,
+            fontWeight: 800,
+            letterSpacing: 1,
+            padding: '2px 7px',
+            borderRadius: 5,
+            background: COL.warn + '22',
+            color: COL.warn,
+            flexShrink: 0,
+          }}>
+            ⚠ NEEDS INPUT
+          </span>
+        )}
 
         {/* Critical badge */}
         {isCritical && (
@@ -501,8 +518,95 @@ export default function IpcClusterReprogramTab() {
   const [targetKey, setTargetKey] = useState('WK');
   const targetOption = BODY_CODE_OPTIONS.find(o => o.key === targetKey) || BODY_CODE_OPTIONS[0];
 
-  // UDS sequence steps
-  const steps = useMemo(() => buildIpcBodyCodeSwap(targetOption.code), [targetOption.code]);
+  // Live capture state — filled in by user from ECU responses
+  const [capturedVinHex, setCapturedVinHex] = useState('');   // 17 ASCII bytes as hex string
+  const [capturedOdoHex, setCapturedOdoHex] = useState('');   // 8 BCD bytes as hex string
+  const [capturedSgwSeedHex, setCapturedSgwSeedHex] = useState('');  // SGW seed (4 bytes)
+  const [capturedIpcSeedHex, setCapturedIpcSeedHex] = useState('');  // IPC seed (2 bytes)
+
+  // Compute SGW XTEA key from captured seed
+  const sgwKey = useMemo(() => {
+    const raw = capturedSgwSeedHex.replace(/\s+/g, '');
+    if (!raw || raw.length < 2) return null;
+    const seedVal = parseInt(raw, 16);
+    if (isNaN(seedVal)) return null;
+    try {
+      const { computeKey, ALGO } = { computeKey: (algo, seed) => {
+        // XTEA SGW key — use sbecKey as fallback since XTEA requires algos.js
+        return { keyBytes: null, algo: 'XTEA_SGW', needsAlgosJs: true };
+      }, ALGO: { SGW: 'xtea_sgw' } };
+      return computeKey(ALGO.SGW, seedVal);
+    } catch { return null; }
+  }, [capturedSgwSeedHex]);
+
+  // Compute IPC SBEC key from captured seed
+  const ipcKey = useMemo(() => {
+    const raw = capturedIpcSeedHex.replace(/\s+/g, '');
+    if (!raw || raw.length < 2) return null;
+    const seedVal = parseInt(raw, 16);
+    if (isNaN(seedVal)) return null;
+    const key = sbecKey(seedVal);
+    const hi = (key >> 8) & 0xFF;
+    const lo = key & 0xFF;
+    return { keyBytes: [hi, lo], keyVal: key, formula: `((0x${seedVal.toString(16).toUpperCase()} × 4) + 0x9018) & 0xFFFF = 0x${key.toString(16).toUpperCase().padStart(4,'0')}` };
+  }, [capturedIpcSeedHex]);
+
+  // Parse captured VIN hex to bytes
+  const vinBytes = useMemo(() => {
+    const raw = capturedVinHex.replace(/\s+/g, '');
+    if (!raw || raw.length < 34) return null; // 17 bytes = 34 hex chars
+    const bytes = [];
+    for (let i = 0; i < 34; i += 2) bytes.push(parseInt(raw.slice(i, i+2), 16));
+    return bytes.length === 17 ? bytes : null;
+  }, [capturedVinHex]);
+
+  // Parse captured odometer hex to bytes
+  const odoBytes = useMemo(() => {
+    const raw = capturedOdoHex.replace(/\s+/g, '');
+    if (!raw || raw.length < 16) return null; // 8 bytes = 16 hex chars
+    const bytes = [];
+    for (let i = 0; i < 16; i += 2) bytes.push(parseInt(raw.slice(i, i+2), 16));
+    return bytes.length === 8 ? bytes : null;
+  }, [capturedOdoHex]);
+
+  // UDS sequence steps — rebuilt with live captured bytes
+  const steps = useMemo(() => {
+    const base = buildIpcBodyCodeSwap(targetOption.code);
+    return base.map(step => {
+      // Step 3: SGW key send — inject computed XTEA key if available
+      if (step.step === 3 && ipcKey) {
+        // SGW uses XTEA — mark as needing algos.js if not computed
+        return { ...step, isPlaceholder: true, note: 'SGW XTEA key: use sgwUnlock.js or the SGW tab to compute' };
+      }
+      // Step 6: IPC SBEC key send — inject computed key
+      if (step.step === 6 && ipcKey) {
+        return { ...step,
+          bytes: [0x27, 0x04, ...ipcKey.keyBytes],
+          description: `IPC SBEC key computed: ${ipcKey.formula}`,
+          isPlaceholder: false,
+        };
+      }
+      // Step 12: Restore VIN — inject captured VIN bytes
+      if (step.step === 12 && vinBytes) {
+        return { ...step,
+          bytes: [0x2E, 0xF1, 0x90, ...vinBytes],
+          description: `Write VIN back: ${vinBytes.map(b=>String.fromCharCode(b)).join('')}`,
+          isPlaceholder: false,
+        };
+      }
+      // Step 13: Restore odometer — inject captured odo bytes
+      if (step.step === 13 && odoBytes) {
+        return { ...step,
+          bytes: [0x2E, 0xF1, 0x0E, ...odoBytes],
+          description: `Write odometer back: ${capturedOdoHex.replace(/\s+/g,'').toUpperCase()}`,
+          isPlaceholder: false,
+        };
+      }
+      // Mark steps with placeholder bytes
+      const hasPlaceholder = step.bytes.slice(2).every(b => b === 0x00) && step.bytes.length > 3;
+      return { ...step, isPlaceholder: step.isPlaceholder ?? hasPlaceholder };
+    });
+  }, [targetOption.code, ipcKey, vinBytes, odoBytes, capturedOdoHex]);
 
   // Expanded step tracking
   const [expandedSteps, setExpandedSteps] = useState(new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
@@ -534,6 +638,7 @@ export default function IpcClusterReprogramTab() {
 
   const panels = [
     { id: 'sequence', label: '📋 UDS SEQUENCE' },
+    { id: 'capture',  label: '📱 LIVE CAPTURE' },
     { id: 'sbec',     label: '🔑 SBEC CALC' },
     { id: 'dids',     label: '📖 DID CATALOG' },
     { id: 'nrc',      label: '⚠ NRC CODES' },
@@ -729,6 +834,96 @@ export default function IpcClusterReprogramTab() {
               Send <code style={{ fontFamily: 'JetBrains Mono', color: '#E6EDF3' }}>3E 00</code> every{' '}
               <strong>{TESTER_PRESENT_INTERVAL_MS}ms</strong> to keep session alive during long operations.
               Response: <code style={{ fontFamily: 'JetBrains Mono', color: '#E6EDF3' }}>7E 00</code>
+            </div>
+          </Section>
+        </Card>
+      )}
+
+      {/* ── Live Capture panel ── */}
+      {panel === 'capture' && (
+        <Card>
+          <Section title="LIVE ECU RESPONSE CAPTURE" color={COL.security}>
+            <div style={{ fontSize: 12, color: C.ts, marginBottom: 16 }}>
+              Paste the raw hex bytes from each ECU response below. The UDS sequence will auto-populate
+              Steps 6 (IPC key), 12 (VIN restore), and 13 (odometer restore) with the live values.
+            </div>
+
+            {/* IPC Seed */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: COL.security, letterSpacing: 1.5, marginBottom: 6 }}>IPC SEED (from 67 03 SS SS response)</div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <input
+                  value={capturedIpcSeedHex}
+                  onChange={e => setCapturedIpcSeedHex(e.target.value.replace(/[^0-9A-Fa-f\s]/g,'').slice(0,5))}
+                  placeholder="e.g. 3A 2B or 3A2B"
+                  style={{ flex: 1, padding: '10px 14px', border: `2px solid ${capturedIpcSeedHex ? COL.security : C.bd}`, borderRadius: 10, fontSize: 14, fontFamily: "'JetBrains Mono'", fontWeight: 700, letterSpacing: 2, background: '#0D0D15', color: '#E6EDF3' }}
+                />
+                <Btn outline color={C.ts} onClick={() => setCapturedIpcSeedHex('')} disabled={!capturedIpcSeedHex}>CLEAR</Btn>
+              </div>
+              {ipcKey && (
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginTop: 6 }}>
+                  <span style={{ fontSize: 11, color: C.ts }}>Seed:</span>
+                  <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 12, fontWeight: 800, color: COL.warn }}>0x{capturedIpcSeedHex.replace(/\s+/g,'').toUpperCase()}</span>
+                  <span style={{ fontSize: 11, color: C.ts }}>→ Key:</span>
+                  <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 12, fontWeight: 800, color: COL.pass }}>0x{ipcKey.keyBytes.map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join('')}</span>
+                  <span style={{ fontSize: 10, color: C.ts, fontStyle: 'italic' }}>{ipcKey.formula}</span>
+                </div>
+              )}
+            </div>
+
+            {/* VIN Hex */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: COL.read, letterSpacing: 1.5, marginBottom: 6 }}>VIN HEX (from 62 F1 90 [17 bytes] response)</div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <input
+                  value={capturedVinHex}
+                  onChange={e => setCapturedVinHex(e.target.value.replace(/[^0-9A-Fa-f\s]/g,'').slice(0,51))}
+                  placeholder="e.g. 32 43 33 43 44 58 43 54 31 48 48 36 35 32 36 34 30"
+                  style={{ flex: 1, padding: '10px 14px', border: `2px solid ${capturedVinHex ? COL.read : C.bd}`, borderRadius: 10, fontSize: 12, fontFamily: "'JetBrains Mono'", fontWeight: 700, letterSpacing: 1, background: '#0D0D15', color: '#E6EDF3' }}
+                />
+                <Btn outline color={C.ts} onClick={() => setCapturedVinHex('')} disabled={!capturedVinHex}>CLEAR</Btn>
+              </div>
+              {vinBytes && (
+                <div style={{ marginTop: 6, fontSize: 11, color: COL.pass }}>
+                  ✓ VIN decoded: <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 800 }}>{vinBytes.map(b=>String.fromCharCode(b)).join('')}</span>
+                </div>
+              )}
+              {capturedVinHex && !vinBytes && capturedVinHex.replace(/\s+/g,'').length > 0 && (
+                <div style={{ marginTop: 6, fontSize: 11, color: COL.fail }}>✗ Need 17 bytes (34 hex chars) — have {Math.floor(capturedVinHex.replace(/\s+/g,'').length/2)}</div>
+              )}
+            </div>
+
+            {/* Odometer Hex */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: COL.read, letterSpacing: 1.5, marginBottom: 6 }}>ODOMETER HEX (from 62 F1 0E [8 bytes BCD] response)</div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <input
+                  value={capturedOdoHex}
+                  onChange={e => setCapturedOdoHex(e.target.value.replace(/[^0-9A-Fa-f\s]/g,'').slice(0,24))}
+                  placeholder="e.g. 00 00 00 00 01 23 45 67"
+                  style={{ flex: 1, padding: '10px 14px', border: `2px solid ${capturedOdoHex ? COL.read : C.bd}`, borderRadius: 10, fontSize: 12, fontFamily: "'JetBrains Mono'", fontWeight: 700, letterSpacing: 1, background: '#0D0D15', color: '#E6EDF3' }}
+                />
+                <Btn outline color={C.ts} onClick={() => setCapturedOdoHex('')} disabled={!capturedOdoHex}>CLEAR</Btn>
+              </div>
+              {odoBytes && (
+                <div style={{ marginTop: 6, fontSize: 11, color: COL.pass }}>
+                  ✓ Odometer bytes captured: <span style={{ fontFamily: "'JetBrains Mono'", fontWeight: 800 }}>{odoBytes.map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' ')}</span>
+                </div>
+              )}
+              {capturedOdoHex && !odoBytes && capturedOdoHex.replace(/\s+/g,'').length > 0 && (
+                <div style={{ marginTop: 6, fontSize: 11, color: COL.fail }}>✗ Need 8 bytes (16 hex chars) — have {Math.floor(capturedOdoHex.replace(/\s+/g,'').length/2)}</div>
+              )}
+            </div>
+
+            {/* Status summary */}
+            <div style={{ padding: '12px 14px', borderRadius: 8, background: '#0D0D15', border: '1px solid ' + C.bd, fontSize: 11 }}>
+              <div style={{ fontWeight: 800, color: C.ts, marginBottom: 8, letterSpacing: 1 }}>SEQUENCE STATUS</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ color: ipcKey ? COL.pass : COL.warn }}>{ipcKey ? '✓' : '⚠'} Step 6 (IPC Key): {ipcKey ? `0x${ipcKey.keyBytes.map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join('')} — ready` : 'enter IPC seed above'}</div>
+                <div style={{ color: COL.warn }}>⚠ Step 3 (SGW Key): XTEA — use SGW tab or sgwUnlock.js</div>
+                <div style={{ color: vinBytes ? COL.pass : COL.warn }}>{vinBytes ? '✓' : '⚠'} Step 12 (VIN restore): {vinBytes ? `${vinBytes.map(b=>String.fromCharCode(b)).join('')} — ready` : 'enter VIN hex above'}</div>
+                <div style={{ color: odoBytes ? COL.pass : COL.warn }}>{odoBytes ? '✓' : '⚠'} Step 13 (Odo restore): {odoBytes ? `${odoBytes.map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' ')} — ready` : 'enter odometer hex above'}</div>
+              </div>
             </div>
           </Section>
         </Card>
