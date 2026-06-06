@@ -32,6 +32,8 @@ import {
   VOLTAGE_REQUIREMENTS,
   CAN_PARAMS,
 } from "../lib/udsEngine.js";
+import { xtea_sgw } from "../lib/algos.js";
+import { packPin } from "../lib/sgwUnlock.js";
 
 // ─── Color palette for this tab ───────────────────────────────────────────────
 const COL = {
@@ -519,25 +521,46 @@ export default function IpcClusterReprogramTab() {
   const targetOption = BODY_CODE_OPTIONS.find(o => o.key === targetKey) || BODY_CODE_OPTIONS[0];
 
   // Live capture state — filled in by user from ECU responses
-  const [capturedVinHex, setCapturedVinHex] = useState('');   // 17 ASCII bytes as hex string
-  const [capturedOdoHex, setCapturedOdoHex] = useState('');   // 8 BCD bytes as hex string
-  const [capturedSgwSeedHex, setCapturedSgwSeedHex] = useState('');  // SGW seed (4 bytes)
+  const [capturedVinHex, setCapturedVinHex] = useState('');     // 17 ASCII bytes as hex string
+  const [capturedOdoHex, setCapturedOdoHex] = useState('');     // 8 BCD bytes as hex string
+  const [capturedSgwSeedHex, setCapturedSgwSeedHex] = useState('');  // SGW seed (4 bytes from 67 11)
+  const [capturedSgwPin, setCapturedSgwPin] = useState('');     // Dongle PIN (4-8 digit numeric)
   const [capturedIpcSeedHex, setCapturedIpcSeedHex] = useState('');  // IPC seed (2 bytes)
 
-  // Compute SGW XTEA key from captured seed
+  // Compute SGW XTEA key from captured seed (or seed XOR packed PIN)
   const sgwKey = useMemo(() => {
-    const raw = capturedSgwSeedHex.replace(/\s+/g, '');
-    if (!raw || raw.length < 2) return null;
-    const seedVal = parseInt(raw, 16);
-    if (isNaN(seedVal)) return null;
+    const rawSeed = capturedSgwSeedHex.replace(/\s+/g, '');
+    if (!rawSeed || rawSeed.length < 2) return null;
+    const seedU32 = parseInt(rawSeed, 16);
+    if (isNaN(seedU32)) return null;
     try {
-      const { computeKey, ALGO } = { computeKey: (algo, seed) => {
-        // XTEA SGW key — use sbecKey as fallback since XTEA requires algos.js
-        return { keyBytes: null, algo: 'XTEA_SGW', needsAlgosJs: true };
-      }, ALGO: { SGW: 'xtea_sgw' } };
-      return computeKey(ALGO.SGW, seedVal);
+      let inputU32 = seedU32;
+      let pinNote = '';
+      // If dongle PIN provided, XOR the packed PIN into the seed before XTEA
+      if (capturedSgwPin.trim()) {
+        const pinNum = parseInt(capturedSgwPin.trim(), 10);
+        if (!isNaN(pinNum)) {
+          const pinPacked = packPin(pinNum);
+          inputU32 = (seedU32 ^ pinPacked) >>> 0;
+          pinNote = ` (seed XOR PIN 0x${pinPacked.toString(16).toUpperCase().padStart(8,'0')})`;
+        }
+      }
+      const keyU32 = xtea_sgw(inputU32);
+      const keyBytes = [
+        (keyU32 >>> 24) & 0xFF,
+        (keyU32 >>> 16) & 0xFF,
+        (keyU32 >>>  8) & 0xFF,
+         keyU32         & 0xFF,
+      ];
+      return {
+        keyBytes,
+        keyU32,
+        seedU32,
+        inputU32,
+        formula: `xtea_sgw(0x${inputU32.toString(16).toUpperCase().padStart(8,'0')})${pinNote} = 0x${keyU32.toString(16).toUpperCase().padStart(8,'0')}`,
+      };
     } catch { return null; }
-  }, [capturedSgwSeedHex]);
+  }, [capturedSgwSeedHex, capturedSgwPin]);
 
   // Compute IPC SBEC key from captured seed
   const ipcKey = useMemo(() => {
@@ -574,9 +597,15 @@ export default function IpcClusterReprogramTab() {
     const base = buildIpcBodyCodeSwap(targetOption.code);
     return base.map(step => {
       // Step 3: SGW key send — inject computed XTEA key if available
-      if (step.step === 3 && ipcKey) {
-        // SGW uses XTEA — mark as needing algos.js if not computed
-        return { ...step, isPlaceholder: true, note: 'SGW XTEA key: use sgwUnlock.js or the SGW tab to compute' };
+      if (step.step === 3) {
+        if (sgwKey) {
+          return { ...step,
+            bytes: [0x27, 0x12, ...sgwKey.keyBytes],
+            description: `SGW XTEA key computed: ${sgwKey.formula}`,
+            isPlaceholder: false,
+          };
+        }
+        return { ...step, isPlaceholder: true, note: 'SGW XTEA key: enter SGW seed (from 67 11 SS SS SS SS response) in LIVE CAPTURE panel' };
       }
       // Step 6: IPC SBEC key send — inject computed key
       if (step.step === 6 && ipcKey) {
@@ -606,7 +635,7 @@ export default function IpcClusterReprogramTab() {
       const hasPlaceholder = step.bytes.slice(2).every(b => b === 0x00) && step.bytes.length > 3;
       return { ...step, isPlaceholder: step.isPlaceholder ?? hasPlaceholder };
     });
-  }, [targetOption.code, ipcKey, vinBytes, odoBytes, capturedOdoHex]);
+  }, [targetOption.code, sgwKey, ipcKey, vinBytes, odoBytes, capturedOdoHex]);
 
   // Expanded step tracking
   const [expandedSteps, setExpandedSteps] = useState(new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
@@ -845,7 +874,43 @@ export default function IpcClusterReprogramTab() {
           <Section title="LIVE ECU RESPONSE CAPTURE" color={COL.security}>
             <div style={{ fontSize: 12, color: C.ts, marginBottom: 16 }}>
               Paste the raw hex bytes from each ECU response below. The UDS sequence will auto-populate
-              Steps 6 (IPC key), 12 (VIN restore), and 13 (odometer restore) with the live values.
+              Steps 3 (SGW XTEA key), 6 (IPC SBEC key), 12 (VIN restore), and 13 (odometer restore) with the live values.
+            </div>
+
+            {/* SGW Seed */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: COL.sgw, letterSpacing: 1.5, marginBottom: 6 }}>SGW SEED (from 67 11 SS SS SS SS response — 4 bytes)</div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <input
+                  value={capturedSgwSeedHex}
+                  onChange={e => setCapturedSgwSeedHex(e.target.value.replace(/[^0-9A-Fa-f\s]/g,'').slice(0,11))}
+                  placeholder="e.g. A1 B2 C3 D4 or A1B2C3D4"
+                  style={{ flex: 1, padding: '10px 14px', border: `2px solid ${capturedSgwSeedHex ? COL.sgw : C.bd}`, borderRadius: 10, fontSize: 14, fontFamily: "'JetBrains Mono'", fontWeight: 700, letterSpacing: 2, background: '#0D0D15', color: '#E6EDF3' }}
+                />
+                <Btn outline color={C.ts} onClick={() => setCapturedSgwSeedHex('')} disabled={!capturedSgwSeedHex}>CLEAR</Btn>
+              </div>
+              {/* Optional dongle PIN */}
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontSize: 10, color: C.ts, marginBottom: 4 }}>DONGLE PIN (optional — if using AutoAuth/CDA dongle, leave blank for network token path)</div>
+                <input
+                  value={capturedSgwPin}
+                  onChange={e => setCapturedSgwPin(e.target.value.replace(/[^0-9]/g,'').slice(0,8))}
+                  placeholder="e.g. 12345678 (4-8 digits)"
+                  style={{ width: '100%', padding: '8px 12px', border: `1.5px solid ${capturedSgwPin ? COL.sgw + '88' : C.bd}`, borderRadius: 8, fontSize: 13, fontFamily: "'JetBrains Mono'", fontWeight: 600, background: '#0D0D15', color: '#E6EDF3' }}
+                />
+              </div>
+              {sgwKey && (
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginTop: 8 }}>
+                  <span style={{ fontSize: 11, color: C.ts }}>Seed:</span>
+                  <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 12, fontWeight: 800, color: COL.sgw }}>0x{capturedSgwSeedHex.replace(/\s+/g,'').toUpperCase()}</span>
+                  <span style={{ fontSize: 11, color: C.ts }}>→ XTEA Key:</span>
+                  <span style={{ fontFamily: "'JetBrains Mono'", fontSize: 12, fontWeight: 800, color: COL.pass }}>0x{sgwKey.keyBytes.map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join('')}</span>
+                  <span style={{ fontSize: 10, color: C.ts, fontStyle: 'italic' }}>{sgwKey.formula}</span>
+                </div>
+              )}
+              {capturedSgwSeedHex && !sgwKey && capturedSgwSeedHex.replace(/\s+/g,'').length > 0 && (
+                <div style={{ marginTop: 6, fontSize: 11, color: COL.fail }}>✗ Need 4 bytes (8 hex chars) — have {Math.floor(capturedSgwSeedHex.replace(/\s+/g,'').length/2)}</div>
+              )}
             </div>
 
             {/* IPC Seed */}
@@ -920,7 +985,7 @@ export default function IpcClusterReprogramTab() {
               <div style={{ fontWeight: 800, color: C.ts, marginBottom: 8, letterSpacing: 1 }}>SEQUENCE STATUS</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <div style={{ color: ipcKey ? COL.pass : COL.warn }}>{ipcKey ? '✓' : '⚠'} Step 6 (IPC Key): {ipcKey ? `0x${ipcKey.keyBytes.map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join('')} — ready` : 'enter IPC seed above'}</div>
-                <div style={{ color: COL.warn }}>⚠ Step 3 (SGW Key): XTEA — use SGW tab or sgwUnlock.js</div>
+                <div style={{ color: sgwKey ? COL.pass : COL.warn }}>{sgwKey ? '✓' : '⚠'} Step 3 (SGW Key): {sgwKey ? `0x${sgwKey.keyBytes.map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join('')} — ready` : 'enter SGW seed above'}</div>
                 <div style={{ color: vinBytes ? COL.pass : COL.warn }}>{vinBytes ? '✓' : '⚠'} Step 12 (VIN restore): {vinBytes ? `${vinBytes.map(b=>String.fromCharCode(b)).join('')} — ready` : 'enter VIN hex above'}</div>
                 <div style={{ color: odoBytes ? COL.pass : COL.warn }}>{odoBytes ? '✓' : '⚠'} Step 13 (Odo restore): {odoBytes ? `${odoBytes.map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' ')} — ready` : 'enter odometer hex above'}</div>
               </div>

@@ -143,5 +143,6 @@
 - [x] Full zip audit: all 25 numbered text files read, all 04_tab_uds_logic tabs compared line-by-line, all 02_generated_data files compared — 3 tabs larger in app (our additions), all catalog files byte-for-byte identical
 - [x] VinProgrammerTab UDS VIN WRITE: live seed→key wired — SBEC computeKey auto-fills SA 02 frame bytes as user types seed; placeholder warning badge on SA 02 frame when seed not entered
 - [x] IpcClusterReprogramTab LIVE CAPTURE panel: IPC seed input (auto-computes SBEC key, fills Step 6 bytes live), VIN hex input (auto-populates Step 12 restore frame), odometer hex input (auto-populates Step 13 restore frame)
+- [x] IpcClusterReprogramTab LIVE CAPTURE panel: SGW seed input (4 bytes from 67 11 response) + optional dongle PIN field — xtea_sgw(seed XOR packPin(pin)) auto-fills Step 3 bytes live; Step 3 status row in SEQUENCE STATUS updates from ⚠ to ✓ when seed is entered
 - [x] IpcClusterReprogramTab UdsStepCard: placeholder steps show amber border + "⚠ NEEDS INPUT" badge; filled steps show normal styling
 - [x] IpcClusterReprogramTab sequence status summary in LIVE CAPTURE panel showing which steps are ready vs need input
