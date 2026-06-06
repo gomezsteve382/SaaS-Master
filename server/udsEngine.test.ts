@@ -1137,3 +1137,216 @@ describe('EDC17 invert regression (must not break after gap patches)', () => {
     expect(twice).toEqual([0xAA, 0xEE, 0xDD, 0xCC, 0xBB, 0xFF]);
   });
 });
+
+// ─── calcCuswideF2 (CB manual page 18) ───────────────────────────────────────
+describe('calcCuswideF2', () => {
+  it('formula: (~(H + L + K)) & 0xFF with K=1 on 256-byte block of 1s', async () => {
+    const { calcCuswideF2 } = await loadEngine();
+    // sum16 = 256 = 0x0100 → H=0x01, L=0x00 → ~(1+0+1) = ~2 = 0xFD
+    const block = new Array(256).fill(1);
+    expect(calcCuswideF2(block, 1)).toBe(0xFD);
+  });
+  it('K=2 gives 0xFC on same block', async () => {
+    const { calcCuswideF2 } = await loadEngine();
+    const block = new Array(256).fill(1);
+    expect(calcCuswideF2(block, 2)).toBe(0xFC);
+  });
+  it('K=3 gives 0xFB on same block', async () => {
+    const { calcCuswideF2 } = await loadEngine();
+    const block = new Array(256).fill(1);
+    expect(calcCuswideF2(block, 3)).toBe(0xFB);
+  });
+  it('empty block: ~(0+0+1) & 0xFF = 0xFE', async () => {
+    const { calcCuswideF2 } = await loadEngine();
+    expect(calcCuswideF2([], 1)).toBe(0xFE);
+  });
+  it('result is always 0x00-0xFF', async () => {
+    const { calcCuswideF2 } = await loadEngine();
+    for (let K = 1; K <= 3; K++) {
+      const r = calcCuswideF2([0xFF, 0xFF, 0xFF], K);
+      expect(r).toBeGreaterThanOrEqual(0);
+      expect(r).toBeLessThanOrEqual(0xFF);
+    }
+  });
+});
+
+// ─── CB_COMMON_ERRORS table ───────────────────────────────────────────────────
+describe('CB_COMMON_ERRORS', () => {
+  it('exports at least 9 error entries', async () => {
+    const { CB_COMMON_ERRORS } = await loadEngine();
+    expect(CB_COMMON_ERRORS.length).toBeGreaterThanOrEqual(9);
+  });
+  it('Renesas brick error is CRITICAL severity', async () => {
+    const { CB_COMMON_ERRORS } = await loadEngine();
+    const entry = CB_COMMON_ERRORS.find((e: any) => e.error.includes('RH850') || e.error.includes('Renesas'));
+    expect(entry?.severity).toBe('CRITICAL');
+  });
+  it('EDC17 sync error entry exists', async () => {
+    const { CB_COMMON_ERRORS } = await loadEngine();
+    const entry = CB_COMMON_ERRORS.find((e: any) => e.error.includes('EDC17') || e.mitigation?.includes('P1601'));
+    expect(entry).toBeDefined();
+  });
+  it('write order error entry exists (PCM before BCM)', async () => {
+    const { CB_COMMON_ERRORS } = await loadEngine();
+    const entry = CB_COMMON_ERRORS.find((e: any) =>
+      e.error.toLowerCase().includes('pcm before bcm') ||
+      e.mitigation?.includes('BCM') && e.mitigation?.includes('PCM')
+    );
+    expect(entry).toBeDefined();
+  });
+  it('all entries have error, mitigation, and severity fields', async () => {
+    const { CB_COMMON_ERRORS } = await loadEngine();
+    for (const e of CB_COMMON_ERRORS) {
+      expect(e).toHaveProperty('error');
+      expect(e).toHaveProperty('mitigation');
+      expect(e).toHaveProperty('severity');
+    }
+  });
+});
+
+// ─── CB_CHIP_MATRIX ───────────────────────────────────────────────────────────
+describe('CB_CHIP_MATRIX', () => {
+  it('exports at least 8 model entries', async () => {
+    const { CB_CHIP_MATRIX } = await loadEngine();
+    expect(CB_CHIP_MATRIX.length).toBeGreaterThanOrEqual(8);
+  });
+  it('Wrangler JL uses Continental MPC5606B', async () => {
+    const { CB_CHIP_MATRIX } = await loadEngine();
+    const entry = CB_CHIP_MATRIX.find((e: any) => e.model.includes('Wrangler'));
+    expect(entry?.chip).toContain('MPC5606B');
+  });
+  it('Fiat Argo uses Fujitsu MB91F526', async () => {
+    const { CB_CHIP_MATRIX } = await loadEngine();
+    const entry = CB_CHIP_MATRIX.find((e: any) => e.model.includes('Argo'));
+    expect(entry?.chip).toContain('Fujitsu');
+  });
+  it('Compass MP is Renesas RH850', async () => {
+    const { CB_CHIP_MATRIX } = await loadEngine();
+    const entry = CB_CHIP_MATRIX.find((e: any) => e.model.includes('Compass'));
+    expect(entry?.chip).toContain('Renesas');
+  });
+  it('all entries have model, chip, and family fields', async () => {
+    const { CB_CHIP_MATRIX } = await loadEngine();
+    for (const e of CB_CHIP_MATRIX) {
+      expect(e).toHaveProperty('model');
+      expect(e).toHaveProperty('chip');
+      expect(e).toHaveProperty('family');
+    }
+  });
+});
+
+// ─── CB_TOOL_MATRIX ───────────────────────────────────────────────────────────
+describe('CB_TOOL_MATRIX', () => {
+  it('exports at least 10 tool entries', async () => {
+    const { CB_TOOL_MATRIX } = await loadEngine();
+    expect(CB_TOOL_MATRIX.length).toBeGreaterThanOrEqual(10);
+  });
+  it('Tango Plus handles HITAG AES', async () => {
+    const { CB_TOOL_MATRIX } = await loadEngine();
+    const entry = CB_TOOL_MATRIX.find((e: any) => e.tool.includes('Tango Plus'));
+    expect(entry?.notes).toContain('AES');
+  });
+  it('Trasdata handles BDM', async () => {
+    const { CB_TOOL_MATRIX } = await loadEngine();
+    const entry = CB_TOOL_MATRIX.find((e: any) => e.tool.includes('Trasdata'));
+    expect(entry?.use).toContain('BDM');
+  });
+  it('Scanmatik handles J2534', async () => {
+    const { CB_TOOL_MATRIX } = await loadEngine();
+    const entry = CB_TOOL_MATRIX.find((e: any) => e.tool.includes('Scanmatik'));
+    expect(entry?.use).toContain('J2534');
+  });
+});
+
+// ─── CB_METHOD_COMPARISON ─────────────────────────────────────────────────────
+describe('CB_METHOD_COMPARISON', () => {
+  it('exports used and new method objects', async () => {
+    const { CB_METHOD_COMPARISON } = await loadEngine();
+    expect(CB_METHOD_COMPARISON.used).toBeDefined();
+    expect(CB_METHOD_COMPARISON.new).toBeDefined();
+  });
+  it('used method has 5 steps', async () => {
+    const { CB_METHOD_COMPARISON } = await loadEngine();
+    expect(CB_METHOD_COMPARISON.used.steps.length).toBe(5);
+  });
+  it('new method requires WiTECH or AVDI', async () => {
+    const { CB_METHOD_COMPARISON } = await loadEngine();
+    const tools: string[] = CB_METHOD_COMPARISON.new.tools;
+    expect(tools.some((t) => t.includes('WiTECH') || t.includes('AVDI'))).toBe(true);
+  });
+  it('used method has verified field', async () => {
+    const { CB_METHOD_COMPARISON } = await loadEngine();
+    expect(CB_METHOD_COMPARISON.used.verified).toBeDefined();
+  });
+});
+
+// ─── Fujitsu key zone offsets (CB manual page 19) ────────────────────────────
+describe('Fiat Brasil Fujitsu key zone offsets', () => {
+  it('fujitsu_key_zone.keyIdOffset is 0x0420', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const brasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    expect(brasil?.fujitsu_key_zone?.keyIdOffset).toBe(0x0420);
+  });
+  it('fujitsu_key_zone.keyMasterZone is 0xC400', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const brasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    expect(brasil?.fujitsu_key_zone?.keyMasterZone).toBe(0xC400);
+  });
+  it('fujitsu_key_zone.keyChecksumOffset is 0xC46E', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const brasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    expect(brasil?.fujitsu_key_zone?.keyChecksumOffset).toBe(0xC46E);
+  });
+  it('fujitsu_key_zone verified checksum is 04 CB', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const brasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    expect(brasil?.fujitsu_key_zone?.keyChecksumVerified).toBe('04 CB');
+  });
+  it('key zone has 3 repetitions', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const brasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    expect(brasil?.fujitsu_key_zone?.keyZoneRepetitions).toBe(3);
+  });
+});
+
+// ─── Renegade B1 AES crypto key and RFH offsets ──────────────────────────────
+describe('Renegade B1 AES crypto key and RFH offsets', () => {
+  it('verified crypto key is 16 bytes', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const brasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1 = brasil?.models?.find((m: any) => m.id === 'renegade_b1_aes');
+    const keyBytes = b1?.transponderCryptoKeyVerified?.split(' ');
+    expect(keyBytes?.length).toBe(16);
+  });
+  it('verified crypto key starts with DA C2', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const brasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1 = brasil?.models?.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1?.transponderCryptoKeyVerified).toMatch(/^DA C2/);
+  });
+  it('rfhCryptoKeyOffset is 0x0140', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const brasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1 = brasil?.models?.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1?.rfhCryptoKeyOffset).toBe(0x0140);
+  });
+  it('rfhKeyIdeOffset is 0x0500 with 3 repetitions', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const brasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1 = brasil?.models?.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1?.rfhKeyIdeOffset).toBe(0x0500);
+    expect(b1?.rfhKeyIdeRepetitions).toBe(3);
+  });
+  it('crypto key stored LE in RFH (le_stored rule)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const brasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1 = brasil?.models?.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1?.rfhCryptoKeyRule).toBe('le_stored');
+  });
+  it('bcmKeyIdeOffset is 0x0040', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const brasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1 = brasil?.models?.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1?.bcmKeyIdeOffset).toBe(0x0040);
+  });
+});

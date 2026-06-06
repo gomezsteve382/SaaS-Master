@@ -1681,6 +1681,13 @@ export const CAN_PARAMS = Object.freeze({
 // ─── Sync Family Database ─────────────────────────────────────────────────────
 // 3 families, 14 models, sync offsets, block structures, checksum algorithms,
 // PCM inversion rules, transponder types, pinout references.
+//
+// REGLA CB: "EL ORDEN MATA" (CB manual page 10)
+// ALWAYS write in this order: BCM → RFH → PCM. Never reversed.
+// If PCM is written before BCM, the immobilizer enters protection mode
+// and locks the kit for 30 minutes.
+export const CB_WRITE_ORDER = Object.freeze(['BCM', 'RFH', 'PCM']);
+export const CB_WRITE_ORDER_NOTE = 'REGLA CB: BCM → RFH → PCM. Writing PCM before BCM triggers immobilizer protection (30-min lockout).';
 export const CB_SYNC_FAMILIES = Object.freeze([
   {
     id: 'chrysler_usa',
@@ -1698,9 +1705,23 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         rfh: 'Continental 9S12XEG384',
         transponder: 'PCF7936 / HITAG2',
         syncBytes: 6,
+        // CB manual page 17: Continental MPC5606B D-Flash 64KB layout
+        // 0x0000-0x00FF: Config inicial (protected zone)
+        // 0x0100-0x01FF: VIN del vehículo (3 réplicas)
+        // 0x40C8: SYNC motor 16B (1st copy)
+        // 0x40F0: SYNC motor 16B (mirror)
+        // 0x81B0/0x81D0/0x81F0: Footer fraccionado (3 parts)
+        // 0x9000+: Configuraciones (luces, central, etc.)
+        bcmVinOffset: 0x0100,
+        bcmVinReplicas: 3,
+        bcmConfigOffset: 0x0000,
         bcmSyncOffset: 0x40C8,
         bcmSyncMirror: 0x40F0,
         bcmFooter: [0x81B0, 0x81D0, 0x81F0],
+        bcmFooterNote: 'Footer fraccionado — 3 parts at 0x81B0, 0x81D0, 0x81F0. Must update all 3.',
+        bcmConfigZone: 0x9000,
+        // CB manual page 17: PCM marker is AA (single byte) for Wrangler JL/RAM
+        // Note: Cherokee KL uses CC AA (2-byte) — different family
         pcmMarker: 0xAA,
         pcmMarkerOffset: 0x3C7,
         pcmSyncOffset: 0x3C9,
@@ -1709,7 +1730,14 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         rfhSyncMirror: 0x0C34,
         rfhPattern: '66CC55AA',
         checksumAlgo: 'none',
-        notes: 'BCM sync 16B + mirror. PCM marker 0xCC AA @ 0x3C7 + 6B sync subset of BCM in different order.',
+        // CB manual page 16: Transponder data required from RFH dump
+        transponderDataRequired: {
+          sn: { offset: 0x040, len: 4, rule: 'le_to_be', desc: 'S/N 4B — invert LE→BE before writing to PCF7936' },
+          cryptoHigh: { offset: 0x166, len: 2, rule: 'direct', desc: 'Crypto HIGH 2B — DIRECT (no invert)' },
+          cryptoLow: { offset: 0x168, len: 4, rule: 'direct', desc: 'Crypto LOW 4B — DIRECT (no invert)' },
+          config: { offset: 0x1A0, len: 4, rule: 'le_to_be', desc: 'Config/TMCF 4B — invert LE→BE before writing' },
+        },
+        notes: 'BCM sync 16B + mirror. PCM marker AA @ 0x3C7 + 6B sync. VIN 3 replicas @ 0x0100. Footer fraccionado @ 0x81B0/0x81D0/0x81F0.',
       },
       {
         id: 'ram_1500',
@@ -1719,9 +1747,12 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         rfh: 'Continental 9S12XEG384',
         transponder: 'PCF7936 / HITAG2',
         syncBytes: 6,
+        bcmVinOffset: 0x0100,
+        bcmVinReplicas: 3,
         bcmSyncOffset: 0x40C8,
         bcmSyncMirror: 0x40F0,
         bcmFooter: [0x81B0, 0x81D0, 0x81F0],
+        bcmFooterNote: 'Footer fraccionado — 3 parts at 0x81B0, 0x81D0, 0x81F0. Must update all 3.',
         pcmMarker: 0xAA,
         pcmMarkerOffset: 0x3C7,
         pcmSyncOffset: 0x3C9,
@@ -1729,7 +1760,13 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         rfhSyncOffset: 0x0C22,
         rfhSyncMirror: 0x0C34,
         checksumAlgo: 'none',
-        notes: 'Same BCM family as Wrangler JL. Classic 24C32 EEPROM on older variants.',
+        transponderDataRequired: {
+          sn: { offset: 0x040, len: 4, rule: 'le_to_be', desc: 'S/N 4B — invert LE→BE before writing to PCF7936' },
+          cryptoHigh: { offset: 0x166, len: 2, rule: 'direct', desc: 'Crypto HIGH 2B — DIRECT' },
+          cryptoLow: { offset: 0x168, len: 4, rule: 'direct', desc: 'Crypto LOW 4B — DIRECT' },
+          config: { offset: 0x1A0, len: 4, rule: 'le_to_be', desc: 'Config/TMCF 4B — invert LE→BE' },
+        },
+        notes: 'Same BCM family as Wrangler JL. Classic 24C32 EEPROM on older variants. VIN 3 replicas @ 0x0100.',
       },
     ],
   },
@@ -1740,6 +1777,23 @@ export const CB_SYNC_FAMILIES = Object.freeze([
     bcm: '95640 SPI (Cherokee KL, Dart, C200) or Renesas R7F70xxxx (Compass MP, Renegade BU)',
     bcmAccess: 'TL866/XGecu (95640) or Trasdata BDM (Renesas — READ ONLY)',
     bcmWritable: 'partial',
+    // CB manual page 18: Renesas R7F701056 (RH850/F1L) exact offsets
+    renesas_offsets: {
+      syncCompassRenegade: 0x16F4,   // SYNC 16B Compass MP / Renegade BU
+      syncMirror: 0x1704,            // Mirror exactão contiguo
+      syncAlternate: 0x05EC8,        // Sync alternativo — alineamiento BCM
+      vinStyle: 'F2',                // [marker 1B][VIN inv 17B][CS 1B]
+      vinInverted: true,             // VIN stored INVERTED — attention!
+    },
+    // CB manual page 18: Cuswide F2 checksum formula
+    // cs(data, K) = (~(H + L + K)) & 0xFF
+    // H = high byte of sum16, L = low byte, K = constant (1, 2, or 3 by firmware version)
+    // RE of K requires 2-3 virgin dumps of same model/year
+    cuswide_checksum_f2: {
+      formula: 'cs(data, K) = (~(H + L + K)) & 0xFF',
+      kValues: [1, 2, 3],
+      kNote: 'K varies by firmware version. RE K with 2-3 virgin dumps of same model/year.',
+    },
     models: [
       {
         id: 'chrysler_200',
@@ -1890,6 +1944,15 @@ export const CB_SYNC_FAMILIES = Object.freeze([
     bcm: 'Fujitsu MB91F526 (Flash 512KB + EEPROM 32KB)',
     bcmAccess: 'Trasdata / New Genius (BDM)',
     bcmWritable: true,
+    // CB manual page 19: Fujitsu MB91F526 key zone offsets
+    fujitsu_key_zone: {
+      keyIdOffset: 0x0420,           // IDEs de llaves (CHAVE 1, CHAVE 2)
+      keyMasterZone: 0xC400,         // Zona maestra de llaves (3× repetición)
+      keyChecksumOffset: 0xC46E,     // Checksum 16-bit zona llaves (verified: 04 CB)
+      keyChecksumVerified: '04 CB',  // Verified checksum value from real dump
+      keyZoneRepetitions: 3,         // Key data repeated 3 times in master zone
+      checksumAlgo: '16bit_per_block', // 16-bit per block, 2 bytes at end
+    },
     pcmFamilies: [
       {
         id: 'pcm_continental',
@@ -2091,7 +2154,24 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         checksumAlgo: 'linear_16bit',
         transponderNote: 'HITAG AES 128-bit stored LE in RFH. NOT clonable with basic Tango.',
         transponderCryptoKey: '16B AES-128 — stored Little-Endian (inverted byte order) in RFH',
-        notes: 'HITAG AES. Requires Tango Plus or Autel IM608. BCM 28B block ×2 at 0xE03D+0xE059. GPEC 4LM PCM (not GPEC 2A).',
+        // CB manual page 42: BCM dump structure for Renegade B1 1.3T
+        // BCM: 28B block repeated 2x contiguous. Checksum 16B unique (0x0856) — no dual cfg.
+        // Key zone (IDEs llaves) repeated 3x in BCM.
+        // CB manual page 42/50: Verified real Renegade B1 Crypto Key (from Tango verification)
+        transponderCryptoKeyVerified: 'DA C2 02 DC 63 CA FA 38 4F 9A D5 C0 C5 16 79 B5',
+        transponderCryptoKeyNote: 'Verified with Tango Plus. 16B AES-128 stored LE in RFH. Requires Tango Plus or Autel IM608.',
+        // CB manual page 42: RFH dump structure for Renegade B1 AES
+        // RFH: Crypto Key AES 16B at 0x140 (LE storage). IDEs llaves repeated 3x from 0x500.
+        rfhCryptoKeyOffset: 0x0140,
+        rfhCryptoKeyLen: 16,
+        rfhCryptoKeyRule: 'le_stored',  // Stored LE — read as-is, write inverted to transponder
+        rfhKeyIdeOffset: 0x0500,
+        rfhKeyIdeRepetitions: 3,
+        rfhKeyIdeSpacing: 0x100,        // 0x500, 0x600, 0x700
+        // CB manual page 42: BCM key IDE zone
+        bcmKeyIdeOffset: 0x0040,
+        bcmKeyIdeRepetitions: 3,
+        notes: 'HITAG AES. Requires Tango Plus or Autel IM608. BCM 28B block ×2 at 0xE03D+0xE059. GPEC 4LM PCM (not GPEC 2A). Verified Crypto Key: DA C2 02 DC 63 CA FA 38 4F 9A D5 C0 C5 16 79 B5.',
       },
     ],
   },
@@ -2230,6 +2310,19 @@ export function calcF28bit(blockBytes) {
   return (sum ^ 0xF2) & 0xFF;
 }
 
+// ─── Cuswide F2 Checksum (Renesas BCM — CB manual page 18) ───────────────────────────────────────────────────────────────────
+// Formula: cs(data, K) = (~(H + L + K)) & 0xFF
+// H = high byte of sum16, L = low byte, K = firmware constant (1, 2, or 3)
+// K must be determined by RE from 2-3 virgin dumps of same model/year.
+// NOT the same as calcF28bit (which is a simple XOR variant).
+export function calcCuswideF2(blockBytes, K = 1) {
+  let sum16 = 0;
+  for (const b of blockBytes) sum16 = (sum16 + b) & 0xFFFF;
+  const H = (sum16 >> 8) & 0xFF;
+  const L = sum16 & 0xFF;
+  return (~(H + L + K)) & 0xFF;
+}
+
 // ─── BCM Fujitsu 16-bit Linear Checksum ──────────────────────────────────────
 // GAP 3 FIX (2026-06-06): Added dual-cfg +1 rule.
 // Argo/Toro pattern: 4 blocks with cfg=01/01/02/02.
@@ -2332,3 +2425,134 @@ export const TRANSPONDER_TYPE_MATRIX = Object.freeze([
   { model: 'Renegade B1 1.3T (Brasil)', type: 'HITAG AES', crypto: '16B AES-128', tool: 'Tango Plus / Autel IM608', note: 'NOT clonable with basic Tango.' },
   { model: 'Renegade B1 1.8/2.0 (Brasil)', type: 'HITAG2 / PCF7936', crypto: '4B', tool: 'Tango / KeyMaker', note: 'Standard HITAG2' },
 ]);
+
+// ─── Common Errors & Mitigation Table ────────────────────────────────────────
+// Source: CB manual page 11 — "Los que cuestan caro"
+export const CB_COMMON_ERRORS = Object.freeze([
+  {
+    error: 'Writing over RH850 (Renesas) without backup',
+    cause: 'Irreversible brick of BCM',
+    mitigation: 'ALWAYS backup before touching. Renesas BCM is READ ONLY — never write.',
+    severity: 'CRITICAL',
+  },
+  {
+    error: 'Incorrect checksum (F2)',
+    cause: 'BCM rejects dump at startup',
+    mitigation: 'Recalculate checksum with correct K constant. Verify with 2-3 virgin dumps.',
+    severity: 'HIGH',
+  },
+  {
+    error: 'VIN not inverted (Familia F2 / Cuswide)',
+    cause: 'BCM stores VIN inverted — if written direct, BCM rejects it',
+    mitigation: 'VIN must be inverted byte-by-byte before writing to Renesas BCM.',
+    severity: 'HIGH',
+  },
+  {
+    error: 'Sync motor copied inverted in EDC17',
+    cause: 'Engine no-start. DTC P1601.',
+    mitigation: 'EDC17 requires permutation [6,4,2,5,3,1] from BCM bytes. Never copy direct.',
+    severity: 'HIGH',
+  },
+  {
+    error: 'Writing PCM before BCM',
+    cause: 'Immobilizer enters protection mode — kit locked 30 minutes',
+    mitigation: 'REGLA CB: always write BCM → RFH → PCM. Never reversed.',
+    severity: 'HIGH',
+  },
+  {
+    error: 'Mirror not updated in Renesas BCM',
+    cause: 'BCM detects inconsistency between primary and mirror — rejects sync',
+    mitigation: 'Always update mirror at 0x1704 when writing sync at 0x16F4.',
+    severity: 'MEDIUM',
+  },
+  {
+    error: 'Crypto Key in Big-Endian (Renegade B1)',
+    cause: 'HITAG AES key written wrong — transponder not recognized',
+    mitigation: 'Renegade B1 stores AES key LE in RFH. Invert before writing to transponder.',
+    severity: 'HIGH',
+  },
+  {
+    error: 'PIN read in direct order (RAM Chrysler)',
+    cause: 'Wrong PIN shown to customer',
+    mitigation: 'PIN at 0x1C6/0x1C7 must be inverted LE→BE. Raw [07 15] → PIN 1507.',
+    severity: 'MEDIUM',
+  },
+  {
+    error: 'Confusing BCM Renesas with BCM Fujitsu',
+    cause: 'Wrong procedure applied — potential brick',
+    mitigation: 'Renesas = Compass MP, Renegade BU (READ ONLY). Fujitsu = Argo, Cronos, Toro, Renegade B1 (writable).',
+    severity: 'HIGH',
+  },
+]);
+
+// ─── Chip BCM Matrix ──────────────────────────────────────────────────────────
+// Source: CB manual page 15
+export const CB_CHIP_MATRIX = Object.freeze([
+  { model: 'Wrangler JL / Gladiator JT', chassis: 'JL/JT', years: '2018+', chip: 'Continental MPC5606B (D-Flash 64KB)', family: 'Chrysler USA', notes: '2 complete copies + footer fraccionado' },
+  { model: 'RAM 1500/2500/3500', chassis: 'DT/DJ', years: '2014+', chip: 'Continental MPC5606B (D-Flash 64KB)', family: 'Chrysler USA', notes: 'RFH PCF7936 — TRA with 24C32' },
+  { model: 'Cherokee KL', chassis: 'KL', years: '2014+', chip: '95640 EEPROM SPI (8KB)', family: 'Cuswide', notes: 'RFH AES native — BCM serial SPI (not Renesas)' },
+  { model: 'Dodge Dart', chassis: 'PF', years: '2013-2016', chip: '95640 EEPROM SPI (8KB)', family: 'Cuswide', notes: 'BCM serial SPI — Cuswide pre-Renesas' },
+  { model: 'Chrysler 200', chassis: 'UF', years: '2015-2017', chip: '95640 EEPROM SPI (8KB)', family: 'Cuswide', notes: 'BCM serial SPI — NOT Continental MPC5606B' },
+  { model: 'Compass MP', chassis: 'MP', years: '2017+', chip: 'Renesas R7F70xxxx (RH850)', family: 'Cuswide', notes: 'USA — VIN italiano — READ ONLY — brickeable' },
+  { model: 'Renegade BU', chassis: 'BU', years: '2018+', chip: 'Renesas R7F70xxxx (RH850)', family: 'Cuswide', notes: 'USA — VIN italiano — READ ONLY — brickeable' },
+  { model: 'Fiat Argo', chassis: 'F2', years: '2017+', chip: 'Fujitsu MB91F526', family: 'Fiat Brasil', notes: 'BCM blanco — sync 6B at 0xE085+' },
+  { model: 'Fiat Cronos', chassis: 'F2', years: '2018+', chip: 'Fujitsu MB91F526', family: 'Fiat Brasil', notes: 'Identical to Argo' },
+]);
+
+// ─── Tool Reference Matrix ────────────────────────────────────────────────────
+// Source: CB manual page 52
+export const CB_TOOL_MATRIX = Object.freeze([
+  { tool: 'TL866II Plus / XGecu T56', use: 'EEPROM 95xxx / 24Cxx', notes: 'Standard SPI programmer for 95640, 24C32' },
+  { tool: 'Trasdata', use: 'BDM/Nexus/JTAG', notes: 'BCM Renesas RH850 (read) / Fujitsu (read+write)' },
+  { tool: 'New Genius (Dimsport)', use: 'BDM', notes: 'PCM EDC17' },
+  { tool: 'KESS V2 / KTAG', use: 'OBD/BSL', notes: 'EDC17 + GPEC' },
+  { tool: 'Scanmatik 2 Pro', use: 'J2534', notes: 'OEM-style scanner — Renesas proxy write' },
+  { tool: 'Iprog+', use: 'Multi-chip', notes: 'Renesas + Fujitsu' },
+  { tool: 'Tango (Scorpio)', use: 'Transponder', notes: 'HITAG2 programmer — PCF7936' },
+  { tool: 'Tango Plus', use: 'Transponder', notes: 'HITAG AES + 16B Crypto — Cherokee KL / Renegade B1' },
+  { tool: 'Autel IM608 Pro', use: 'Transponder', notes: 'HITAG AES via OEM — Cherokee KL / Renegade B1' },
+  { tool: 'WinHex', use: 'Hex editor', notes: 'Dump editing and checksum calculation' },
+  { tool: 'KeyMaker', use: 'Transponder', notes: 'HITAG2 / PCF7936 — basic key programming' },
+]);
+
+// ─── Method Comparison Table ──────────────────────────────────────────────────
+// Source: CB manual page 9 — Método Usado vs Método Nuevo
+export const CB_METHOD_COMPARISON = Object.freeze({
+  used: {
+    name: 'Método Usado (CB)',
+    steps: [
+      '1. BCM/PCM/RFH from junkyard or donor',
+      '2. Full dump in bench (EEPROM programmer)',
+      '3. Edit specific bytes per family',
+      '4. Recalculate checksum manually (CRC16/ADD16)',
+      '5. Write 3 dumps with AUTEL/KESS/New Genius',
+    ],
+    advantages: [
+      'No active OEM diagnostic required',
+      'Works on BCMs locked to diagnostics',
+      'Compatible with any standard programmer',
+    ],
+    verified: '100+ cases',
+  },
+  new: {
+    name: 'Método Nuevo (OEM)',
+    steps: [
+      '1. New BCM from Mopar (unprogrammed)',
+      '2. VIN identification via OBD',
+      '3. Signature programming via diagnostic tool',
+      '4. Checksum automatic by tool',
+      '5. OBD via WiTECH/AVDI/Autel',
+    ],
+    advantages: [
+      'Guaranteed result (valid OEM signature)',
+      'No reverse engineering of proxies required',
+      'Activation of advanced features (HMI, BLE)',
+    ],
+    disadvantages: [
+      'Requires VIN registered with Stellantis',
+      'Cost per activation (AVDI/Autel credits)',
+      'Traceability in OEM system',
+    ],
+    tools: ['WiTECH', 'AVDI', 'Autel IM608'],
+  },
+});
