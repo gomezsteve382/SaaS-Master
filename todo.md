@@ -119,7 +119,20 @@
 - [x] Multi-PROG write checklist: after Bench Validator PASS, show step-by-step checklist for matched ECU/region (GPEC2A INT FLASH: DB44 interface, DC_PWR 12V/0.5A, LB18 select, write CodeData.bin)
 
 ## Flash BIN Analyzer (Jun 5, 2026)
-- [ ] flashBinAnalyzer.js: ECU type detection (GPEC2A/GPEC3/BCM/TCM/RFHUB by size + magic bytes), flash region map (start/end/size per logical block), VIN scan (all 17-char WMI matches), SEC byte scan (SEC16 at known offsets, SEC6 at 0x3C8), part number extraction (ASCII PN patterns), calibration strings, entropy map per 64 KB block
-- [ ] FlashBinAnalyzerTab.jsx: drop zone, ECU type badge, region map table, VIN/SEC badges with hex display, part number list, embedded strings panel, entropy heatmap bar, download analysis report (.txt)
-- [ ] Wire FlashBinAnalyzerTab into App.jsx nav under ANALYZE category
-- [ ] vitest tests for flashBinAnalyzer ECU detection, VIN scan, SEC scan, PN extraction
+- [x] flashBinAnalyzer.js: ECU type detection (GPEC2A/GPEC3/BCM/TCM/RFHUB by size + magic bytes), flash region map (start/end/size per logical block), VIN scan (all 17-char WMI matches), SEC byte scan (SEC16 at known offsets, SEC6 at 0x3C8), part number extraction (ASCII PN patterns), calibration strings, entropy map per 64 KB block
+- [x] FlashBinAnalyzerTab.jsx: drop zone, ECU type badge, region map table, VIN/SEC badges with hex display, part number list, embedded strings panel, entropy heatmap bar, download analysis report (.txt)
+- [x] Wire FlashBinAnalyzerTab into App.jsx nav under ANALYZE category
+- [x] vitest tests for flashBinAnalyzer ECU detection, VIN scan, SEC scan, PN extraction
+
+## UDS Full Rebuild (Jun 5, 2026)
+- [x] Build udsEngine.js — unified module registry (all CAN IDs, session types, security levels, DID catalog, flash block layouts) from RE analysis; SBEC/CDA6/W6/W7 key derivation; session state machine; SGW bypass sequence
+- [x] Build IpcClusterReprogramTab.jsx — Durango→Trackhawk guided workflow: SBEC calculator, body code read (22 F1 0F) + write (2E F1 0F 09), VIN/odometer preserve-and-restore, step-by-step UDS sequence display, SGW bypass step
+- [x] Fix EcmFlasherTab IPC CAN IDs to RE-verified 0x746/0x766 (was 0x740/0x748)
+- [ ] Full EcmFlasherTab rebuild: consume udsEngine module registry and flash state machine
+- [x] Fix UdsTab IPC CAN IDs to RE-verified 0x746/0x766
+- [ ] Full UdsTab rebuild: consume udsEngine for module selection, session, security, DID read/write
+- [x] Fix moduleRegistry.js, quickRefData.generated.js, tabReferences.js IPC CAN IDs to 0x746/0x766
+- [ ] Full VinProgrammerTab rebuild: consume udsEngine VIN write sequence
+- [ ] Full SeedTab rebuild: consume udsEngine algorithm dispatch (SBEC/CDA6/W6/W7 auto-select by module)
+- [x] Wire IpcClusterReprogramTab into App.jsx nav under PROGRAM category (id: ipccluster)
+- [x] vitest tests for udsEngine: SBEC key derivation, session sequence, DID catalog lookup, flash block layout, IPC body code swap sequence (81 tests, all passing)

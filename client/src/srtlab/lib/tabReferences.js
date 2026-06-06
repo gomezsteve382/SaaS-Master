@@ -257,7 +257,7 @@ export const J2534_REF = {
         ['BCM (alt)', 'TX 0x742 / RX 0x762'],
         ['RFHUB', 'TX 0x75F / RX 0x767'],
         ['ABS', 'TX 0x760 / RX 0x768'],
-        ['IPC', 'TX 0x740 / RX 0x748'],
+        ['IPC', 'TX 0x746 / RX 0x766'],  // RE-verified UDS addr
       ],
     },
   ],

@@ -11,7 +11,8 @@ export const QR_MODULES = [
   { code: "BCM", tx: 0x750, rx: 0x758, desc: "Body Control Module" },
   { code: "RFHUB", tx: 0x75F, rx: 0x767, desc: "RF Hub Module" },
   { code: "ABS", tx: 0x760, rx: 0x768, desc: "Anti-lock Brake System" },
-  { code: "IPC", tx: 0x740, rx: 0x748, desc: "Instrument Panel Cluster" },
+  { code: "IPC", tx: 0x746, rx: 0x766, desc: "Instrument Panel Cluster (UDS programming — RE-verified)" },
+  { code: "IPC_OBD", tx: 0x740, rx: 0x748, desc: "IPC (legacy OBD addr — use IPC 0x746/0x766 for UDS)" },
   { code: "ORC", tx: 0x758, rx: 0x760, desc: "Occupant Restraint Controller" },
   { code: "ADCM", tx: 0x7A8, rx: 0x7B0, desc: "Active Damping Control Module" },
   { code: "AMP", tx: 0x7A0, rx: 0x7A8, desc: "Audio Amplifier" },
@@ -29,7 +30,7 @@ export const QR_MODULES = [
   { code: "CCM", tx: 0x743, rx: 0x763, desc: "Climate Control Module" },
   { code: "ADM", tx: 0x744, rx: 0x764, desc: "Active Dampening Module" },
   { code: "SDM", tx: 0x745, rx: 0x765, desc: "Suspension Dampening Module" },
-  { code: "IPCM", tx: 0x746, rx: 0x766, desc: "IPC Module" },
+  // IPCM removed — 0x746/0x766 is now the primary IPC entry above
   { code: "DDM", tx: 0x748, rx: 0x768, desc: "Driver Door Module" },
   { code: "PDM", tx: 0x749, rx: 0x769, desc: "Passenger Door Module" },
   { code: "SCCM", tx: 0x74D, rx: 0x76D, desc: "Steering Column Control" },

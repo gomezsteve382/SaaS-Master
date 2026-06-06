@@ -76,6 +76,7 @@ import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
 import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
 import J2534UdsConsoleTab from "./tabs/J2534UdsConsoleTab.jsx";
+import IpcClusterReprogramTab from "./tabs/IpcClusterReprogramTab.jsx";
 import AutelSgwTab from "./tabs/AutelSgwTab.jsx";
 import FirmwareEmulationTab from "./tabs/FirmwareEmulationTab.jsx";
 import RfhubKeyTransplantPanel from "./components/RfhubKeyTransplantPanel.jsx";
@@ -962,6 +963,7 @@ const WORKSPACE_TABS = [
   {id:'efdiff',     i:'🔀', l:'EFD BLOCK DIFF',    s:'Diff two PowerCal zip packages'},
   {id:'flashbin',   i:'🔬', l:'BIN ANALYZER',      s:'Structural breakdown of any flash dump'},
   {id:'flasher',    i:'⚡', l:'ECM FLASHER',      s:'GPEC2A bench programmer'},
+  {id:'ipccluster', i:'🖥️', l:'IPC CLUSTER',      s:'Durango→Trackhawk · SBEC · body code'},
   {id:'cdasession', i:'🔐', l:'CDA6 SESSION',     s:'9-step UDS walkthrough'},
   {id:'vinprog',    i:'🪪', l:'VIN + CHECKSUM',   s:'Single-file VIN write + CRC patcher'},
   {id:'proxi',      i:'📋', l:'PROXI',            s:'BCM 0x2023 + DEnn feature decoder · read-only'},
@@ -1006,7 +1008,7 @@ const WORKSPACE_CATEGORIES = {
   jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM',   keytransplant:'PROGRAM', quickclone:'PROGRAM', livekey:'PROGRAM',
   vinprog:'PROGRAM', vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
-  cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
+  cdasession:'PROGRAM', ipccluster:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
   // LIVE — connected OBD/J2534 sessions and external bench tools.
   obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE', autelsgw:'LIVE',
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
@@ -1269,6 +1271,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='efdiff'    && <EfdBlockDiffTab/>}
         {tab==='flashbin'  && <FlashBinAnalyzerTab/>}
         {tab==='flasher'   && <EcmFlasherTab selectedFile={selectedCflash} files={files} onSelectFile={setSelectedCflash}/>}
+        {tab==='ipccluster'&& <IpcClusterReprogramTab/>}
         {tab==='cdasession'&& <Cda6SessionTab/>}
         {tab==='vinprog'   && <VinProgrammerTab/>}
         {tab==='proxi'     && <ProxiTab/>}

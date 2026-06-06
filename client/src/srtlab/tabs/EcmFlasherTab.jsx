@@ -22,7 +22,7 @@ const MODULE_PRESETS = [
   {id:'BCM',   tx:0x750, rx:0x758, hint:'Body Control'},
   {id:'RFHUB', tx:0x75F, rx:0x767, hint:'RF Hub'},
   {id:'ABS',   tx:0x760, rx:0x768, hint:'ABS'},
-  {id:'IPC',   tx:0x740, rx:0x748, hint:'Cluster'},
+  {id:'IPC',   tx:0x746, rx:0x766, hint:'Cluster'},  // RE-verified: 0x746/0x766
   {id:'ORC',   tx:0x758, rx:0x760, hint:'Occupant Restraint'},
   {id:'ADCM',  tx:0x7A8, rx:0x7B0, hint:'Adaptive Damping'},
   {id:'RADIO', tx:0x772, rx:0x77A, hint:'Radio / Uconnect'},
