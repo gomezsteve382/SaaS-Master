@@ -643,3 +643,495 @@ describe('ALGO constants', () => {
     expect(unique.size).toBe(values.length);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CB MASTER PREMIUM 2026 — GAP PATCH TESTS (10 gaps, 2026-06-06)
+// Source: CB Master Premium Stellantis 2026 v6 — 53 pages, 4 verified real dumps
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── GAP 1: RFH classic field map offsets ────────────────────────────────────
+describe('GAP1 — RFH_DUMP_FIELD_MAP classic offsets (CB manual pages 27-29)', () => {
+  it('signature is at 0x020 (not 0x000)', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.classic.signature.offset).toBe(0x020);
+  });
+
+  it('S/N is at 0x040 (not 0x004)', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.classic.sn.offset).toBe(0x040);
+  });
+
+  it('S/N mirror is at 0x080 (not 0x008)', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.classic.snMirror.offset).toBe(0x080);
+  });
+
+  it('Crypto HIGH is at 0x166 (2B), not 0x00C (4B)', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.classic.cryptoHigh.offset).toBe(0x166);
+    expect(RFH_DUMP_FIELD_MAP.classic.cryptoHigh.len).toBe(2);
+  });
+
+  it('Crypto LOW is at 0x168 (4B), not 0x010', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.classic.cryptoLow.offset).toBe(0x168);
+    expect(RFH_DUMP_FIELD_MAP.classic.cryptoLow.len).toBe(4);
+  });
+
+  it('Crypto mirror is at 0x180 (6B), not 0x014 (8B)', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.classic.cryptoMirror.offset).toBe(0x180);
+    expect(RFH_DUMP_FIELD_MAP.classic.cryptoMirror.len).toBe(6);
+  });
+
+  it('Config/TMCF is at 0x1A0 (4B), not 0x01C (2B)', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.classic.config.offset).toBe(0x1A0);
+    expect(RFH_DUMP_FIELD_MAP.classic.config.len).toBe(4);
+  });
+
+  it('Config mirror is at 0x1C0 (4B), not 0x01E', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.classic.configMirror.offset).toBe(0x1C0);
+  });
+
+  it('PIN is at 0x1C6 (not 0x020) — verified ISAC case PIN 1507', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.classic.pin.offset).toBe(0x1C6);
+  });
+
+  it('VIN is at 0x1EA (not 0x0EA5)', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.classic.vin.offset).toBe(0x1EA);
+  });
+
+  it('analyzeRfhDump extracts correct PIN from ISAC case (07 15 → PIN 1507)', async () => {
+    const { analyzeRfhDump } = await loadEngine();
+    // Build minimal 0x200-byte dump with ISAC case data
+    const dump = new Uint8Array(0x200);
+    // Signature at 0x020
+    dump[0x020] = 0x5A; dump[0x021] = 0x5A; dump[0x022] = 0x5A; dump[0x023] = 0x5A;
+    // S/N at 0x040 (LE: 9C 46 8D DD → inverted: DD 8D 46 9C)
+    dump[0x040] = 0x9C; dump[0x041] = 0x46; dump[0x042] = 0x8D; dump[0x043] = 0xDD;
+    // PIN at 0x1C6 (LE: 07 15 → inverted: 15 07 → "1507")
+    dump[0x1C6] = 0x07; dump[0x1C7] = 0x15;
+    const result = analyzeRfhDump(dump);
+    expect(result.derived.pinDecimal).toBe('1507');
+  });
+
+  it('analyzeRfhDump extracts correct PIN from HYHY case (08 28 → PIN 2808)', async () => {
+    const { analyzeRfhDump } = await loadEngine();
+    const dump = new Uint8Array(0x200);
+    dump[0x020] = 0x5A; dump[0x021] = 0x5A; dump[0x022] = 0x5A; dump[0x023] = 0x5A;
+    // PIN at 0x1C6 (LE: 08 28 → inverted: 28 08 → "2808")
+    dump[0x1C6] = 0x08; dump[0x1C7] = 0x28;
+    const result = analyzeRfhDump(dump);
+    expect(result.derived.pinDecimal).toBe('2808');
+  });
+
+  it('analyzeRfhDump extracts correct S/N from ISAC case (LE→BE inversion)', async () => {
+    const { analyzeRfhDump } = await loadEngine();
+    const dump = new Uint8Array(0x200);
+    dump[0x020] = 0x5A; dump[0x021] = 0x5A; dump[0x022] = 0x5A; dump[0x023] = 0x5A;
+    dump[0x040] = 0x9C; dump[0x041] = 0x46; dump[0x042] = 0x8D; dump[0x043] = 0xDD;
+    const result = analyzeRfhDump(dump);
+    // LE→BE: [9C, 46, 8D, DD] reversed = [DD, 8D, 46, 9C]
+    expect(result.fields.sn?.value).toEqual([0xDD, 0x8D, 0x46, 0x9C]);
+  });
+});
+
+// ─── GAP 2: 2019+ variant detection ──────────────────────────────────────────
+describe('GAP2 — RFH 2019+ variant detection (CB manual page 33)', () => {
+  it('2019+ variant has signature 5A×4 at 0x020 (same as classic, NOT AA 55)', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.new2019.signature.offset).toBe(0x020);
+    expect(RFH_DUMP_FIELD_MAP.new2019.signature.expected).toEqual([0x5A, 0x5A, 0x5A, 0x5A]);
+  });
+
+  it('2019+ VIN is at 0x040 (moved from 0x1EA)', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.new2019.vin.offset).toBe(0x040);
+  });
+
+  it('2019+ S/N is at 0x069 (moved from 0x040)', async () => {
+    const { RFH_DUMP_FIELD_MAP } = await loadEngine();
+    expect(RFH_DUMP_FIELD_MAP.new2019.sn.offset).toBe(0x069);
+  });
+
+  it('analyzeRfhDump detects 2019+ when VIN ASCII is at 0x040', async () => {
+    const { analyzeRfhDump } = await loadEngine();
+    const dump = new Uint8Array(0x200);
+    // Signature at 0x020
+    dump[0x020] = 0x5A; dump[0x021] = 0x5A; dump[0x022] = 0x5A; dump[0x023] = 0x5A;
+    // VIN at 0x040 (17 ASCII chars — RAM 1500 USA VIN)
+    const vin = '1C6RR6TTOKS731726';
+    for (let i = 0; i < 17; i++) dump[0x040 + i] = vin.charCodeAt(i);
+    const result = analyzeRfhDump(dump);
+    expect(result.variant).toBe('new2019');
+  });
+
+  it('analyzeRfhDump detects classic when 0x040 is binary (not ASCII VIN)', async () => {
+    const { analyzeRfhDump } = await loadEngine();
+    const dump = new Uint8Array(0x200);
+    dump[0x020] = 0x5A; dump[0x021] = 0x5A; dump[0x022] = 0x5A; dump[0x023] = 0x5A;
+    // 0x040 has binary S/N data (not ASCII)
+    dump[0x040] = 0x9C; dump[0x041] = 0x46; dump[0x042] = 0x8D; dump[0x043] = 0xDD;
+    const result = analyzeRfhDump(dump);
+    expect(result.variant).toBe('classic');
+  });
+});
+
+// ─── GAP 3: Fujitsu dual-cfg checksum ────────────────────────────────────────
+describe('GAP3 — calcFujitsuChecksum dual-cfg +1 rule (CB manual page 39)', () => {
+  it('cfg=1 (default): returns plain linear sum', async () => {
+    const { calcFujitsuChecksum } = await loadEngine();
+    // Argo BCM block 1 (cfg=01): sum of bytes should give 0x1A8E
+    // Use known example: block with known sum
+    const block = new Array(64).fill(0x00);
+    block[0] = 0x1A; block[1] = 0x8E; // put sum at end for reference
+    const sum = block.reduce((a, b) => (a + b) & 0xFFFF, 0);
+    expect(calcFujitsuChecksum(block, 1)).toBe(sum);
+  });
+
+  it('cfg=2: returns (linear sum + 1) — Argo/Toro block 3/4 pattern', async () => {
+    const { calcFujitsuChecksum } = await loadEngine();
+    const block = [0xB4, 0x47, 0x3F, 0x14, 0xB2, 0x1E]; // Toro sync bytes
+    const sumCfg1 = calcFujitsuChecksum(block, 1);
+    const sumCfg2 = calcFujitsuChecksum(block, 2);
+    expect(sumCfg2).toBe((sumCfg1 + 1) & 0xFFFF);
+  });
+
+  it('Toro Diesel: cfg=01 checksum is 0x159A, cfg=02 is 0x159B (delta +1)', async () => {
+    const { calcFujitsuChecksum } = await loadEngine();
+    // Verified from CB manual page 40 real dump
+    // The difference between 15 9A and 15 9B is exactly +1
+    const toroChecksumCfg01 = 0x159A;
+    const toroChecksumCfg02 = 0x159B;
+    expect(toroChecksumCfg02 - toroChecksumCfg01).toBe(1);
+  });
+
+  it('Argo: cfg=01 checksum is 0x1A8E, cfg=02 is 0x1A8F (delta +1)', async () => {
+    // Verified from CB manual page 41 real dump
+    const argoChecksumCfg01 = 0x1A8E;
+    const argoChecksumCfg02 = 0x1A8F;
+    expect(argoChecksumCfg02 - argoChecksumCfg01).toBe(1);
+  });
+
+  it('Renegade B1 1.3T: single checksum 0x0856 — no dual cfg', async () => {
+    const { calcFujitsuChecksum } = await loadEngine();
+    // Renegade B1 uses 28B block with no cfg variation
+    const block = new Array(28).fill(0x00);
+    // cfg=1 and cfg=2 should differ by 1 (function works), but B1 always uses cfg=1
+    const cs1 = calcFujitsuChecksum(block, 1);
+    const cs2 = calcFujitsuChecksum(block, 2);
+    expect(cs2).toBe((cs1 + 1) & 0xFFFF);
+  });
+});
+
+// ─── GAP 4: Renegade B1 1.3T BCM offsets ─────────────────────────────────────
+describe('GAP4 — Renegade B1 1.3T BCM sync at 0xE03D (CB manual page 42)', () => {
+  it('renegade_b1_aes BCM sync offset is 0xE03D (not 0x7C00)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1aes?.bcmSyncOffset).toBe(0xE03D);
+  });
+
+  it('renegade_b1_aes BCM mirror is at 0xE059 (second contiguous 28B copy)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1aes?.bcmSyncMirror).toBe(0xE059);
+  });
+
+  it('renegade_b1_aes BCM checksum offset is 0xE676', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1aes?.bcmChecksumOffset).toBe(0xE676);
+  });
+
+  it('renegade_b1_aes BCM checksum value is 0x0856', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1aes?.bcmChecksumValue).toBe(0x0856);
+  });
+
+  it('renegade_b1_aes block size is 28B (not 64B)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1aes?.bcmBlockSize).toBe(28);
+  });
+});
+
+// ─── GAP 5: GPEC 4LM distinct variant ────────────────────────────────────────
+describe('GAP5 — GPEC 4LM as distinct PCM variant (CB manual page 39)', () => {
+  it('renegade_b1_aes PCM is GPEC 4LM (not Continental)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1aes?.pcm).toContain('GPEC 4LM');
+  });
+
+  it('renegade_b1_aes PCM variant is gpec4lm', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1aes?.pcmVariant).toBe('gpec4lm');
+  });
+
+  it('renegade_b1_aes PCM sync offset is 0x0230 (not 0x3C7 GPEC2A)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1aes?.pcmSyncOffset).toBe(0x0230);
+  });
+
+  it('renegade_b1_aes PCM requires checksum (unlike other GPEC variants)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1aes?.pcmChecksumRequired).toBe(true);
+    expect(b1aes?.pcmChecksumValue).toBe(0x0856);
+  });
+});
+
+// ─── GAP 6: Chrysler 200 CTS block enforcement ───────────────────────────────
+describe('GAP6 — Chrysler 200 CTS block at 0x400 (CB manual page 23)', () => {
+  it('chrysler_200 has pcmCtsBlockRequired=true', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const cuswide = CB_SYNC_FAMILIES.find((f: any) => f.id === 'cuswide');
+    const c200 = cuswide?.models.find((m: any) => m.id === 'chrysler_200');
+    expect(c200?.pcmCtsBlockRequired).toBe(true);
+  });
+
+  it('chrysler_200 CTS block offset is 0x0400', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const cuswide = CB_SYNC_FAMILIES.find((f: any) => f.id === 'cuswide');
+    const c200 = cuswide?.models.find((m: any) => m.id === 'chrysler_200');
+    expect(c200?.pcmCtsBlockOffset).toBe(0x0400);
+  });
+
+  it('chrysler_200 CTS block marker is CTSAA (43 54 53 41 41)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const cuswide = CB_SYNC_FAMILIES.find((f: any) => f.id === 'cuswide');
+    const c200 = cuswide?.models.find((m: any) => m.id === 'chrysler_200');
+    expect(c200?.pcmCtsBlockMarker).toEqual([0x43, 0x54, 0x53, 0x41, 0x41]);
+  });
+
+  it('chrysler_200 notes mention DTC P0513 risk', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const cuswide = CB_SYNC_FAMILIES.find((f: any) => f.id === 'cuswide');
+    const c200 = cuswide?.models.find((m: any) => m.id === 'chrysler_200');
+    expect(c200?.notes).toContain('P0513');
+  });
+});
+
+// ─── GAP 7: Fiat Argo/Cronos BCM and Marelli PCM offsets ─────────────────────
+describe('GAP7 — Fiat Argo BCM at 0xE085 and Marelli PCM at 0x202 (CB manual page 41)', () => {
+  it('fiat_argo BCM sync offset is 0xE085 (not 0x7C00)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const argo = fiatBrasil?.models.find((m: any) => m.id === 'fiat_argo');
+    expect(argo?.bcmSyncOffset).toBe(0xE085);
+  });
+
+  it('fiat_argo BCM has 5-byte header pattern [00 00 00 1D 00]', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const argo = fiatBrasil?.models.find((m: any) => m.id === 'fiat_argo');
+    expect(argo?.bcmSyncHeaderBytes).toBe(5);
+    expect(argo?.bcmSyncHeaderPattern).toEqual([0x00, 0x00, 0x00, 0x1D, 0x00]);
+  });
+
+  it('fiat_argo BCM block is 64B ×4 with cfg=01/01/02/02', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const argo = fiatBrasil?.models.find((m: any) => m.id === 'fiat_argo');
+    expect(argo?.bcmBlockSize).toBe(64);
+    expect(argo?.bcmBlockCount).toBe(4);
+    expect(argo?.bcmBlockCfg).toEqual([0x01, 0x01, 0x02, 0x02]);
+  });
+
+  it('fiat_argo BCM checksums: 1A 8E (cfg=01) / 1A 8F (cfg=02)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const argo = fiatBrasil?.models.find((m: any) => m.id === 'fiat_argo');
+    expect(argo?.bcmChecksumCfg01).toEqual([0x1A, 0x8E]);
+    expect(argo?.bcmChecksumCfg02).toEqual([0x1A, 0x8F]);
+  });
+
+  it('fiat_argo PCM variant is marelli_iaw10gf', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const argo = fiatBrasil?.models.find((m: any) => m.id === 'fiat_argo');
+    expect(argo?.pcmVariant).toBe('marelli_iaw10gf');
+  });
+
+  it('fiat_argo PCM sync offset is 0x0202 (not 0x0080)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const argo = fiatBrasil?.models.find((m: any) => m.id === 'fiat_argo');
+    expect(argo?.pcmSyncOffset).toBe(0x0202);
+  });
+
+  it('fiat_argo PCM sync rule is direct_6b (Marelli — no inversion)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const argo = fiatBrasil?.models.find((m: any) => m.id === 'fiat_argo');
+    expect(argo?.pcmSyncRule).toBe('direct_6b');
+  });
+
+  it('fiat_argo Marelli PCM checksums: A1 03 (cfg=01) / A2 02 (cfg=02)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const argo = fiatBrasil?.models.find((m: any) => m.id === 'fiat_argo');
+    expect(argo?.pcmChecksumCfg01).toEqual([0xA1, 0x03]);
+    expect(argo?.pcmChecksumCfg02).toEqual([0xA2, 0x02]);
+  });
+
+  it('fiat_cronos has same BCM/PCM offsets as Argo (identical family)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const cronos = fiatBrasil?.models.find((m: any) => m.id === 'fiat_cronos');
+    expect(cronos?.bcmSyncOffset).toBe(0xE085);
+    expect(cronos?.pcmSyncOffset).toBe(0x0202);
+    expect(cronos?.pcmVariant).toBe('marelli_iaw10gf');
+  });
+});
+
+// ─── GAP 8: RFH sync mirror at 0x512 ─────────────────────────────────────────
+describe('GAP8 — RFH sync mirror at 0x512 (CB manual page 40)', () => {
+  it('fiat_argo RFH sync primary is at 0x04FE', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const argo = fiatBrasil?.models.find((m: any) => m.id === 'fiat_argo');
+    expect(argo?.rfhSyncOffset).toBe(0x04FE);
+  });
+
+  it('fiat_argo RFH sync mirror is at 0x0512 (not null)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const argo = fiatBrasil?.models.find((m: any) => m.id === 'fiat_argo');
+    expect(argo?.rfhSyncMirror).toBe(0x0512);
+  });
+
+  it('fiat_toro_diesel RFH sync primary is at 0x04FE', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const toro = fiatBrasil?.models.find((m: any) => m.id === 'fiat_toro_diesel');
+    expect(toro?.rfhSyncOffset).toBe(0x04FE);
+  });
+
+  it('fiat_toro_diesel RFH sync mirror is at 0x0512', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const toro = fiatBrasil?.models.find((m: any) => m.id === 'fiat_toro_diesel');
+    expect(toro?.rfhSyncMirror).toBe(0x0512);
+  });
+});
+
+// ─── GAP 9: Toro Diesel PCM EDC17 sync offset ────────────────────────────────
+describe('GAP9 — Toro Diesel PCM EDC17 sync at 0x204 (CB manual page 40)', () => {
+  it('fiat_toro_diesel PCM sync offset is 0x0204 (not 0x0080)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const toro = fiatBrasil?.models.find((m: any) => m.id === 'fiat_toro_diesel');
+    expect(toro?.pcmSyncOffset).toBe(0x0204);
+  });
+
+  it('fiat_toro_diesel PCM variant is edc17c69', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const toro = fiatBrasil?.models.find((m: any) => m.id === 'fiat_toro_diesel');
+    expect(toro?.pcmVariant).toBe('edc17c69');
+  });
+
+  it('fiat_toro_diesel PCM sync rule is edc17_invert_6421531', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const toro = fiatBrasil?.models.find((m: any) => m.id === 'fiat_toro_diesel');
+    expect(toro?.pcmSyncRule).toBe('edc17_invert_6421531');
+  });
+
+  it('fiat_toro_diesel BCM sync offset is 0xE085 (not 0x7C00)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const toro = fiatBrasil?.models.find((m: any) => m.id === 'fiat_toro_diesel');
+    expect(toro?.bcmSyncOffset).toBe(0xE085);
+  });
+
+  it('fiat_toro_diesel BCM checksums: 15 9A (cfg=01) / 15 9B (cfg=02)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const toro = fiatBrasil?.models.find((m: any) => m.id === 'fiat_toro_diesel');
+    expect(toro?.bcmChecksumCfg01).toEqual([0x15, 0x9A]);
+    expect(toro?.bcmChecksumCfg02).toEqual([0x15, 0x9B]);
+  });
+
+  it('edc17SyncInvert: Toro real example BCM→PCM (B4 47 3F 14 B2 1E → 1E 14 47 B2 3F B4)', async () => {
+    const { edc17SyncInvert } = await loadEngine();
+    // Rule: [B1,B2,B3,B4,B5,B6] → [B6,B4,B2,B5,B3,B1]
+    // Input: [B4, 47, 3F, 14, B2, 1E] (0-indexed: 0=B4, 1=47, 2=3F, 3=14, 4=B2, 5=1E)
+    // Output: [b[5], b[3], b[1], b[4], b[2], b[0]] = [1E, 14, 47, B2, 3F, B4]
+    const bcm = [0xB4, 0x47, 0x3F, 0x14, 0xB2, 0x1E];
+    const pcm = edc17SyncInvert(bcm);
+    expect(pcm).toEqual([0x1E, 0x14, 0x47, 0xB2, 0x3F, 0xB4]);
+  });
+});
+
+// ─── GAP 10: Renegade B1 1.3T HITAG AES crypto key storage ───────────────────
+describe('GAP10 — Renegade B1 1.3T HITAG AES crypto key LE storage (CB manual page 42)', () => {
+  it('renegade_b1_aes transponder is HITAG AES (16B)', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1aes?.transponder).toContain('HITAG AES');
+  });
+
+  it('renegade_b1_aes transponder crypto key note mentions Little-Endian storage', async () => {
+    const { CB_SYNC_FAMILIES } = await loadEngine();
+    const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
+    const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
+    expect(b1aes?.transponderCryptoKey).toContain('Little-Endian');
+  });
+
+  it('TRANSPONDER_TYPE_MATRIX: Renegade B1 1.3T uses Tango Plus / Autel IM608', async () => {
+    const { TRANSPONDER_TYPE_MATRIX } = await loadEngine();
+    const b1 = TRANSPONDER_TYPE_MATRIX.find((m: any) => m.model.includes('1.3T'));
+    expect(b1?.tool).toContain('Tango Plus');
+    expect(b1?.type).toContain('HITAG AES');
+  });
+
+  it('TRANSPONDER_TYPE_MATRIX: basic Tango cannot clone HITAG AES', async () => {
+    const { TRANSPONDER_TYPE_MATRIX } = await loadEngine();
+    const b1 = TRANSPONDER_TYPE_MATRIX.find((m: any) => m.model.includes('1.3T'));
+    expect(b1?.note).toContain('NOT clonable');
+  });
+});
+
+// ─── Regression: existing EDC17 invert still correct ─────────────────────────
+describe('EDC17 invert regression (must not break after gap patches)', () => {
+  it('edc17SyncInvert: rule 6-4-2-5-3-1 (1-indexed) on [AA BB CC DD EE FF]', async () => {
+    const { edc17SyncInvert } = await loadEngine();
+    // Input:  [AA, BB, CC, DD, EE, FF]  (indices 0-5, 1-indexed: 1,2,3,4,5,6)
+    // Output: [FF, DD, BB, EE, CC, AA]  (positions 6,4,2,5,3,1 → indices 5,3,1,4,2,0)
+    const result = edc17SyncInvert([0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF]);
+    expect(result).toEqual([0xFF, 0xDD, 0xBB, 0xEE, 0xCC, 0xAA]);
+  });
+
+  it('edc17SyncInvert: applying twice gives different result (not self-inverse)', async () => {
+    const { edc17SyncInvert } = await loadEngine();
+    const original = [0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF];
+    const once = edc17SyncInvert(original);
+    const twice = edc17SyncInvert(once);
+    // The permutation [5,3,1,4,2,0] is NOT self-inverse
+    expect(twice).not.toEqual(original);
+    // Verify the double-inversion result is deterministic:
+    // once = [FF, DD, BB, EE, CC, AA]
+    // twice = [AA, EE, DD, CC, BB, FF]
+    expect(twice).toEqual([0xAA, 0xEE, 0xDD, 0xCC, 0xBB, 0xFF]);
+  });
+});

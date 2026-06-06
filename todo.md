@@ -146,3 +146,17 @@
 - [x] IpcClusterReprogramTab LIVE CAPTURE panel: SGW seed input (4 bytes from 67 11 response) + optional dongle PIN field — xtea_sgw(seed XOR packPin(pin)) auto-fills Step 3 bytes live; Step 3 status row in SEQUENCE STATUS updates from ⚠ to ✓ when seed is entered
 - [x] IpcClusterReprogramTab UdsStepCard: placeholder steps show amber border + "⚠ NEEDS INPUT" badge; filled steps show normal styling
 - [x] IpcClusterReprogramTab sequence status summary in LIVE CAPTURE panel showing which steps are ready vs need input
+
+## CB Master Premium 2026 Gap Patches (Jun 6, 2026)
+- [x] GAP 1: Fix RFH_DUMP_FIELD_MAP classic offsets — signature 0x020, S/N 0x040, Crypto HIGH 0x166 (2B), Crypto LOW 0x168 (4B), Config 0x1A0, PIN 0x1C6, VIN 0x1EA (verified ISAC/HYHY/CESAR/V1 real dumps)
+- [x] GAP 2: Fix 2019+ variant detection — both variants have 5A×4 at 0x020; detect 2019+ by ASCII VIN at 0x040; S/N moves to 0x069 in FW 68363202xx
+- [x] GAP 3: Fujitsu dual-cfg checksum +1 rule — cfg=02 blocks get (linear sum + 1); Argo 1A8E/1A8F, Toro 159A/159B verified
+- [x] GAP 4: Renegade B1 1.3T BCM sync at 0xE03D (not 0x7C00) — 28B block ×2 at 0xE03D+0xE059, checksum 0x0856 at 0xE676
+- [x] GAP 5: GPEC 4LM as distinct PCM variant — pcmVariant=gpec4lm, sync at 0x0230, mandatory checksum 0x0856
+- [x] GAP 6: Chrysler 200 CTS block at 0x400 — REQUIRED (CTSAA + 6B sync); without it: DTC P0513
+- [x] GAP 7: Argo/Cronos BCM at 0xE085 (64B ×4, 5B header, cfg=01/01/02/02) + Marelli IAW10GF PCM at 0x202 (direct, no inversion)
+- [x] GAP 8: RFH sync mirror at 0x0512 (primary 0x04FE) for Argo, Cronos, Toro, Renegade B1
+- [x] GAP 9: Toro Diesel PCM EDC17C69 sync at 0x204 (not 0x0080), pcmVariant=edc17c69, rule=edc17_invert_6421531
+- [x] GAP 10: Renegade B1 1.3T HITAG AES crypto key stored LE in RFH — transponderCryptoKey note added
+- [x] PIN BCD fix: analyzeRfhDump PIN extraction uses BCD hex representation (not decimal integer) — ISAC 0715→1507, HYHY 0828→2808
+- [x] 281 vitest tests passing (0 failures) after all 10 gap patches
