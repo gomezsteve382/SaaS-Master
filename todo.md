@@ -128,11 +128,11 @@
 - [x] Build udsEngine.js — unified module registry (all CAN IDs, session types, security levels, DID catalog, flash block layouts) from RE analysis; SBEC/CDA6/W6/W7 key derivation; session state machine; SGW bypass sequence
 - [x] Build IpcClusterReprogramTab.jsx — Durango→Trackhawk guided workflow: SBEC calculator, body code read (22 F1 0F) + write (2E F1 0F 09), VIN/odometer preserve-and-restore, step-by-step UDS sequence display, SGW bypass step
 - [x] Fix EcmFlasherTab IPC CAN IDs to RE-verified 0x746/0x766 (was 0x740/0x748)
-- [ ] Full EcmFlasherTab rebuild: consume udsEngine module registry and flash state machine
+- [x] Full EcmFlasherTab rebuild: consume udsEngine module registry (live getAllModules), flash block layout panel (buildFlashSequence), pre/post-flash checklist from module notes, algo badge + SGW flag
 - [x] Fix UdsTab IPC CAN IDs to RE-verified 0x746/0x766
-- [ ] Full UdsTab rebuild: consume udsEngine for module selection, session, security, DID read/write
+- [x] Full UdsTab rebuild: live getAllModules() replaces static presets, getModuleDids() DID catalog picker, buildSessionSequence() session preview panel, decodeNrc() NRC decoder panel
 - [x] Fix moduleRegistry.js, quickRefData.generated.js, tabReferences.js IPC CAN IDs to 0x746/0x766
-- [ ] Full VinProgrammerTab rebuild: consume udsEngine VIN write sequence
-- [ ] Full SeedTab rebuild: consume udsEngine algorithm dispatch (SBEC/CDA6/W6/W7 auto-select by module)
+- [x] Full VinProgrammerTab rebuild: new UDS VIN WRITE subtab with udsEngine module registry, vinWriteDids DID list, full frame sequence generator (DSC→03→SA→01/02→2E→22→11 reset)
+- [x] Full SeedTab rebuild: MODULE_ALGO_HINT built live from udsEngine MODULE_REGISTRY, NRC decoder panel (decodeNrc), Module Registry quick-select panel (getAllModules), Session Sequence Preview (buildSessionSequence)
 - [x] Wire IpcClusterReprogramTab into App.jsx nav under PROGRAM category (id: ipccluster)
 - [x] vitest tests for udsEngine: SBEC key derivation, session sequence, DID catalog lookup, flash block layout, IPC body code swap sequence (81 tests, all passing)

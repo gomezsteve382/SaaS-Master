@@ -10,6 +10,10 @@ import {buildOnePagerPDF} from "../lib/buildOnePagerPDF.js";
 import {SEED_KEY_REF} from "../lib/tabReferences.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {parseVinYear} from "../lib/vin.js";
+import {
+  getAllModules, decodeNrc, NRC_TABLE,
+  ALGO as UDS_ALGO, buildSessionSequence,
+} from "../lib/udsEngine.js";
 
 // Asset-sweep ports surfaced in the picker. Each extended entry maps to
 // the same {id, n, h, fn} shape as ALGOS so the existing calc/render
@@ -31,19 +35,29 @@ const EXT_PICKER_ALGOS = Object.freeze(
       docstring: a.docstring,
     })),
 );
-// Module type → default algorithm id (mirrors MOD_UNLOCK but as a suggestion, not a lock)
-const MODULE_ALGO_HINT = {
-  BCM: 'cda6',
-  RFHUB: 'cda6',
-  GPEC2A: 'gpec2a',
-  PCM: 'gpec2a',
-  ECM: 'gpec2',
-  TCM: 'gpec2',
-  ADCM: 'gpec2',
-  DAMP: 'gpec2',
-  TIPM: 't80',
-  SGW: 'xtea_sgw',
+// udsEngine.ALGO constants → algos.js ids bridge
+const UDS_ALGO_TO_ALGOS_ID = {
+  [UDS_ALGO.GPEC2A]:   'gpec2a',
+  [UDS_ALGO.GPEC2]:    'gpec2',
+  [UDS_ALGO.CDA6]:     'cda6',
+  [UDS_ALGO.SBEC]:     'sbec',
+  [UDS_ALGO.XTEA_SGW]: 'xtea_sgw',
+  [UDS_ALGO.NGC]:      'ngc',
+  [UDS_ALGO.TIPM]:     't80',
 };
+// Build MODULE_ALGO_HINT dynamically from udsEngine MODULE_REGISTRY (RE-verified)
+// so it stays in sync instead of being a stale copy.
+const MODULE_ALGO_HINT = (() => {
+  const hint = {};
+  for (const mod of getAllModules()) {
+    hint[mod.code] = UDS_ALGO_TO_ALGOS_ID[mod.algo] || MOD_UNLOCK[mod.code] || 'cda6';
+  }
+  // Supplement with algos.js MOD_UNLOCK for codes not in udsEngine registry
+  for (const [code, id] of Object.entries(MOD_UNLOCK)) {
+    if (!hint[code]) hint[code] = id;
+  }
+  return hint;
+})();
 // Year-aware BCM algorithm hint: 2016+ uses bcm_fca, 2007-2015 uses bcm_standard.
 // cda6 is the OBD/UDS SecurityAccess algorithm; bcm_fca/bcm_standard are for
 // bench-level direct EEPROM reads. Both are surfaced so the operator can pick.
@@ -197,6 +211,36 @@ function SeedTab(){
 
   const totalAlgoCount=ALGOS.length;
   const extendedAlgoCount=EXT_PICKER_ALGOS.length;
+
+  // ── NRC decoder panel state ─────────────────────────────────────────────
+  const [nrcInput, setNrcInput] = useState('');
+  const [nrcResult, setNrcResult] = useState(null);
+  const decodeNrcInput = useCallback(() => {
+    const raw = nrcInput.replace(/^0x/i,'').replace(/\s/g,'');
+    const code = parseInt(raw, 16);
+    if (isNaN(code)) { setNrcResult({err:'Enter a valid hex NRC byte (e.g. 35)'}); return; }
+    setNrcResult(decodeNrc(code & 0xFF));
+  }, [nrcInput]);
+  // ── Module Registry panel state ─────────────────────────────────────────
+  const [regFilter, setRegFilter] = useState('');
+  const [regExpanded, setRegExpanded] = useState(false);
+  const allMods = useMemo(() => getAllModules(), []);
+  const filteredMods = useMemo(() => {
+    const q = regFilter.trim().toLowerCase();
+    if (!q) return allMods;
+    return allMods.filter(m =>
+      m.code.toLowerCase().includes(q) ||
+      m.name.toLowerCase().includes(q) ||
+      (m.algo||'').toLowerCase().includes(q)
+    );
+  }, [allMods, regFilter]);
+  // ── Session sequence preview state ──────────────────────────────────────
+  const [seqModule, setSeqModule] = useState('IPC');
+  const [seqOp, setSeqOp] = useState('extended');
+  const [seqExpanded, setSeqExpanded] = useState(false);
+  const seqSteps = useMemo(() => {
+    try { return buildSessionSequence(seqModule, seqOp); } catch { return []; }
+  }, [seqModule, seqOp]);
 
   // ── Algorithm auto-selector ─────────────────────────────────────────────
   // Reads loaded dumps from MasterVinContext and VIN year to suggest the
@@ -522,6 +566,169 @@ function SeedTab(){
         </table>
       </div>
     </Card>}
+
+    {/* ────────────────────────────────────────────────────────────────────────────────
+         NRC DECODER (udsEngine NRC_TABLE)
+    ──────────────────────────────────────────────────────────────────────────────── */}
+    <Card style={{marginTop:16}} data-testid="nrc-decoder-card">
+      <div style={{fontSize:14,fontWeight:900,marginBottom:8}}>🔴 NRC Decoder</div>
+      <div style={{fontSize:11,color:C.ts,marginBottom:10}}>
+        Paste the negative response code byte from a 7F xx <b>NRC</b> frame to decode it.
+        Source: udsEngine NRC_TABLE ({Object.keys(NRC_TABLE).length} codes).
+      </div>
+      <div style={{display:'flex',gap:8,alignItems:'flex-end',marginBottom:10}}>
+        <div style={{flex:1}}>
+          <div style={{fontSize:10,color:C.ts,marginBottom:4}}>NRC BYTE (hex, e.g. 35 or 0x35)</div>
+          <input
+            data-testid="nrc-input"
+            value={nrcInput}
+            onChange={e=>setNrcInput(e.target.value.toUpperCase().replace(/[^A-F0-9Xx]/g,''))}
+            onKeyDown={e=>{if(e.key==='Enter')decodeNrcInput();}}
+            placeholder="35"
+            style={{width:'100%',padding:'10px 12px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:18,fontWeight:700,letterSpacing:4,textAlign:'center',outline:'none',boxSizing:'border-box'}}
+          />
+        </div>
+        <Btn onClick={decodeNrcInput} disabled={!nrcInput.trim()}>Decode</Btn>
+      </div>
+      {nrcResult&&!nrcResult.err&&<div data-testid="nrc-result" style={{padding:14,borderRadius:10,background:C.c2,border:'1.5px solid '+C.bd}}>
+        <div style={{display:'flex',alignItems:'baseline',gap:10,marginBottom:6}}>
+          <span style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:800,color:C.sr}}>0x{nrcInput.replace(/^0x/i,'').padStart(2,'0').toUpperCase()}</span>
+          <span style={{fontSize:12,fontWeight:800,color:C.tx}}>{nrcResult.name}</span>
+        </div>
+        <div style={{fontSize:12,color:C.ts}}>{nrcResult.desc}</div>
+      </div>}
+      {nrcResult&&nrcResult.err&&<div style={{fontSize:11,color:C.sr,marginTop:6}}>{nrcResult.err}</div>}
+      {/* Full NRC table */}
+      <div style={{marginTop:12}}>
+        <div style={{fontSize:10,fontWeight:800,color:C.tm,letterSpacing:2,marginBottom:6}}>FULL NRC TABLE</div>
+        <div style={{maxHeight:200,overflow:'auto',border:'1px solid '+C.bd,borderRadius:8,background:C.c2}}>
+          <table style={{width:'100%',borderCollapse:'collapse',fontFamily:"'JetBrains Mono'",fontSize:10}}>
+            <thead style={{position:'sticky',top:0,background:C.c2,borderBottom:'1px solid '+C.bd}}>
+              <tr>
+                <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>CODE</th>
+                <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>NAME</th>
+                <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>DESCRIPTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(NRC_TABLE).map(([code,entry])=>(
+                <tr key={code}
+                  onClick={()=>{setNrcInput(parseInt(code).toString(16).toUpperCase().padStart(2,'0'));setNrcResult(entry);}}
+                  style={{borderTop:'1px solid '+C.bd+'60',cursor:'pointer'}}
+                  onMouseEnter={e=>e.currentTarget.style.background='#0000000A'}
+                  onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                  <td style={{padding:'4px 10px',color:C.sr,fontWeight:800}}>0x{parseInt(code).toString(16).toUpperCase().padStart(2,'0')}</td>
+                  <td style={{padding:'4px 10px',fontWeight:700}}>{entry.name}</td>
+                  <td style={{padding:'4px 10px',color:C.tm,fontFamily:"'Nunito'",fontSize:10}}>{entry.desc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </Card>
+
+    {/* ────────────────────────────────────────────────────────────────────────────────
+         MODULE REGISTRY (udsEngine RE-verified CAN IDs + algorithms)
+    ──────────────────────────────────────────────────────────────────────────────── */}
+    <Card style={{marginTop:16}} data-testid="module-registry-card">
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+        <div style={{fontSize:14,fontWeight:900}}>📡 Module Registry</div>
+        <button onClick={()=>setRegExpanded(e=>!e)} style={{fontSize:10,color:C.ts,background:'transparent',border:'1px solid '+C.bd,padding:'3px 10px',borderRadius:6,cursor:'pointer'}}>
+          {regExpanded?'▲ Collapse':'▼ Expand'}
+        </button>
+      </div>
+      <div style={{fontSize:11,color:C.ts,marginBottom:8}}>
+        {allMods.length} modules · RE-verified CAN IDs · click any row to pre-fill the algorithm picker
+      </div>
+      <input
+        data-testid="module-registry-filter"
+        value={regFilter}
+        onChange={e=>setRegFilter(e.target.value)}
+        placeholder="Filter by code, name, or algorithm…"
+        style={{width:'100%',padding:'7px 10px',borderRadius:7,border:'1px solid '+C.bd,background:C.c2,color:C.tx,fontSize:11,marginBottom:8,boxSizing:'border-box'}}
+      />
+      <div style={{maxHeight:regExpanded?600:240,overflow:'auto',border:'1px solid '+C.bd,borderRadius:8,background:C.c2,transition:'max-height .3s'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',fontFamily:"'JetBrains Mono'",fontSize:10}}>
+          <thead style={{position:'sticky',top:0,background:C.c2,borderBottom:'1px solid '+C.bd}}>
+            <tr>
+              <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>CODE</th>
+              <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>MODULE</th>
+              <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>TX</th>
+              <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>RX</th>
+              <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>ALGO</th>
+              <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>SGW</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredMods.map(m=>{
+              const algosId = UDS_ALGO_TO_ALGOS_ID[m.algo] || MOD_UNLOCK[m.code] || 'cda6';
+              return <tr key={m.code}
+                onClick={()=>{setAl(algosId);setAll(false);setFallback(false);}}
+                style={{borderTop:'1px solid '+C.bd+'60',cursor:'pointer'}}
+                onMouseEnter={e=>e.currentTarget.style.background='#0000000A'}
+                onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                <td style={{padding:'4px 10px',fontWeight:800,color:C.a4}}>{m.code}</td>
+                <td style={{padding:'4px 10px',color:C.tx,fontFamily:"'Nunito'",fontSize:10}}>{m.name}</td>
+                <td style={{padding:'4px 10px',color:C.a3}}>0x{m.tx.toString(16).toUpperCase().padStart(3,'0')}</td>
+                <td style={{padding:'4px 10px',color:C.a3}}>0x{m.rx.toString(16).toUpperCase().padStart(3,'0')}</td>
+                <td style={{padding:'4px 10px',color:C.sr,fontWeight:700}}>{m.algo}</td>
+                <td style={{padding:'4px 10px',color:m.sgwRequired?C.wn:C.tm}}>{m.sgwRequired?'YES':'—'}</td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+
+    {/* ────────────────────────────────────────────────────────────────────────────────
+         SESSION SEQUENCE PREVIEW (udsEngine buildSessionSequence)
+    ──────────────────────────────────────────────────────────────────────────────── */}
+    <Card style={{marginTop:16}} data-testid="session-seq-card">
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+        <div style={{fontSize:14,fontWeight:900}}>🔄 Session Sequence Preview</div>
+        <button onClick={()=>setSeqExpanded(e=>!e)} style={{fontSize:10,color:C.ts,background:'transparent',border:'1px solid '+C.bd,padding:'3px 10px',borderRadius:6,cursor:'pointer'}}>
+          {seqExpanded?'▲ Collapse':'▼ Expand'}
+        </button>
+      </div>
+      <div style={{fontSize:11,color:C.ts,marginBottom:8}}>
+        Preview the full UDS byte sequence for any module + operation. Source: udsEngine buildSessionSequence.
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
+        <div>
+          <div style={{fontSize:10,color:C.ts,marginBottom:4}}>MODULE</div>
+          <select value={seqModule} onChange={e=>setSeqModule(e.target.value)}
+            style={{width:'100%',padding:'7px 10px',borderRadius:7,border:'1px solid '+C.bd,background:C.c2,color:C.tx,fontSize:11}}>
+            {allMods.map(m=><option key={m.code} value={m.code}>{m.code} — {m.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:C.ts,marginBottom:4}}>OPERATION</div>
+          <select value={seqOp} onChange={e=>setSeqOp(e.target.value)}
+            style={{width:'100%',padding:'7px 10px',borderRadius:7,border:'1px solid '+C.bd,background:C.c2,color:C.tx,fontSize:11}}>
+            <option value="extended">Extended Diagnostic</option>
+            <option value="programming">Programming</option>
+            <option value="vin">VIN Write</option>
+            <option value="bodycode">Body Code Swap (IPC)</option>
+          </select>
+        </div>
+      </div>
+      {seqExpanded&&<div style={{border:'1px solid '+C.bd,borderRadius:8,background:'#0D0D15',padding:12}}>
+        {seqSteps.length===0&&<div style={{color:'#666',fontSize:11,textAlign:'center',padding:12}}>No steps for this module/operation combination.</div>}
+        {seqSteps.map((step,i)=>(
+          <div key={i} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'6px 0',borderTop:i>0?'1px solid #1A1A2A':'none'}}>
+            <span style={{color:'#555',fontSize:10,minWidth:20,textAlign:'right',paddingTop:1}}>{i+1}</span>
+            <div style={{flex:1}}>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:'#40C4FF',letterSpacing:1}}>
+                {step.bytes ? step.bytes.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ') : step.label}
+              </div>
+              {step.desc&&<div style={{fontSize:10,color:'#888',marginTop:2}}>{step.desc}</div>}
+            </div>
+          </div>
+        ))}
+      </div>}
+      {!seqExpanded&&<div style={{fontSize:11,color:C.ts,fontStyle:'italic'}}>Click Expand to view {seqSteps.length} step{seqSteps.length!==1?'s':''}.</div>}
+    </Card>
 
     {/* w7 read-only catalog panel — staged data, no cipher yet */}
     <Card style={{marginTop:16}}>

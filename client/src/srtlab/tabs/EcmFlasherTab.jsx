@@ -7,33 +7,36 @@ import {ALGOS} from '../lib/algos.js';
 import {cfGPEC, cfWCM, cfAlpineRAK} from '../lib/canflashAlgos.js';
 import {decodeChargerVin} from '../lib/vin.js';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
+import {
+  getAllModules, getModuleConfig, buildFlashSequence,
+  ALGO as UDS_ALGO,
+} from '../lib/udsEngine.js';
 
 // ECM bench flasher tab (Task #488). Connects to the local Autel bridge
 // daemon, walks the GPEC2A UDS programming session via flashEcm(), and
 // streams progress / log / phase / metrics to the operator. Refuses to
 // run when the engine is not the bench bridge.
 
-// Module presets — destination CAN tx/rx pairs for FCA modules. Mirrors
-// the table in UdsTab.jsx so the operator can pick a target without
-// hand-typing addresses. Default `ECM` matches the Stellantis 0x7E0/0x7E8.
-const MODULE_PRESETS = [
-  {id:'ECM',   tx:0x7E0, rx:0x7E8, hint:'Engine Control / GPEC2A'},
-  {id:'TCM',   tx:0x7E1, rx:0x7E9, hint:'Transmission'},
-  {id:'BCM',   tx:0x750, rx:0x758, hint:'Body Control'},
-  {id:'RFHUB', tx:0x75F, rx:0x767, hint:'RF Hub'},
-  {id:'ABS',   tx:0x760, rx:0x768, hint:'ABS'},
-  {id:'IPC',   tx:0x746, rx:0x766, hint:'Cluster'},  // RE-verified: 0x746/0x766
-  {id:'ORC',   tx:0x758, rx:0x760, hint:'Occupant Restraint'},
-  {id:'ADCM',  tx:0x7A8, rx:0x7B0, hint:'Adaptive Damping'},
-  {id:'RADIO', tx:0x772, rx:0x77A, hint:'Radio / Uconnect'},
-  {id:'HVAC',  tx:0x751, rx:0x759, hint:'Climate'},
-  {id:'EPS',   tx:0x761, rx:0x769, hint:'Power Steering'},
-  {id:'SCCM',  tx:0x74D, rx:0x76D, hint:'Steering Column'},
-  {id:'TIPM',  tx:0x74C, rx:0x76C, hint:'Power Distribution'},
-  {id:'AMP',   tx:0x7A0, rx:0x7A8, hint:'Audio Amplifier'},
-  {id:'BSM',   tx:0x770, rx:0x778, hint:'Blind Spot'},
-  {id:'TPMS',  tx:0x752, rx:0x75A, hint:'Tire Pressure'},
-];
+// MODULE_PRESETS: built live from udsEngine MODULE_REGISTRY (RE-verified CAN IDs).
+// Supplemented with legacy entries not yet in udsEngine.
+const _UDS_MODS = getAllModules();
+const MODULE_PRESETS = (() => {
+  const out = _UDS_MODS.map(m => ({
+    id: m.code, tx: m.tx, rx: m.rx,
+    hint: m.name + (m.sgwRequired ? ' [SGW]' : ''),
+    algo: m.algo, sgwRequired: m.sgwRequired,
+    notes: m.notes, postFlash: m.postFlash,
+    flashBlocks: m.flashBlocks,
+  }));
+  // Legacy entries not yet in udsEngine
+  const legacy = [
+    {id:'AMP',  tx:0x7A0, rx:0x7A8, hint:'Audio Amplifier'},
+    {id:'BSM',  tx:0x770, rx:0x778, hint:'Blind Spot'},
+    {id:'TPMS', tx:0x752, rx:0x75A, hint:'Tire Pressure'},
+  ];
+  for (const l of legacy) if (!out.find(m=>m.id===l.id)) out.push(l);
+  return out;
+})();
 
 // Combined algorithm picker. Defaults to canflash GPEC TEA (32-bit) per
 // Task #488 spec for the modern Stellantis PCM bench flow. Falls back
@@ -149,6 +152,16 @@ export default function EcmFlasherTab({selectedFile, files = [], onSelectFile}){
   const selectedModule = useMemo(() => MODULE_PRESETS.find(m => m.id === moduleId) || MODULE_PRESETS[0], [moduleId]);
   const selectedAlgo = useMemo(() => FLASHER_ALGOS.find(a => a.id === algoId) || FLASHER_ALGOS[0], [algoId]);
   const charger = useMemo(() => decodeChargerVin(masterVin), [masterVin]);
+  // udsEngine flash block layout for selected module
+  const flashBlockLayout = useMemo(() => {
+    try { return buildFlashSequence(moduleId); } catch { return []; }
+  }, [moduleId]);
+  // udsEngine module config for notes / checklist
+  const udsModConfig = useMemo(() => {
+    try { return getModuleConfig(moduleId); } catch { return null; }
+  }, [moduleId]);
+  const [checklistOpen, setChecklistOpen] = useState(false);
+  const [flashBlockOpen, setFlashBlockOpen] = useState(false);
 
   useEffect(() => {
     if (logBoxRef.current) logBoxRef.current.scrollTop = logBoxRef.current.scrollHeight;
@@ -377,10 +390,84 @@ export default function EcmFlasherTab({selectedFile, files = [], onSelectFile}){
                 ))}
               </select>
             </label>
-            <div style={{marginTop: 8, fontSize: 10, color: C.tm, fontFamily: 'JetBrains Mono'}}>
-              tx=0x{selectedModule.tx.toString(16).toUpperCase()} rx=0x{selectedModule.rx.toString(16).toUpperCase()}
+            <div style={{display:'flex',gap:12,marginTop:8,flexWrap:'wrap',fontSize:10,fontFamily:'JetBrains Mono',color:C.tm}}>
+              <span>tx=0x{selectedModule.tx.toString(16).toUpperCase()}</span>
+              <span>rx=0x{selectedModule.rx.toString(16).toUpperCase()}</span>
+              {selectedModule.algo&&<span style={{color:C.a4}}>algo={selectedModule.algo}</span>}
+              {selectedModule.sgwRequired&&<span style={{color:C.wn,fontWeight:800}}>[SGW REQUIRED]</span>}
             </div>
+            {/* udsEngine module notes */}
+            {udsModConfig&&udsModConfig.notes&&udsModConfig.notes.length>0&&(
+              <div style={{marginTop:10,padding:'8px 10px',borderRadius:8,background:'#FFF8E1',border:'1px solid #FFD54F'}}>
+                <div style={{fontSize:9,fontWeight:800,color:'#5D4037',letterSpacing:1.5,marginBottom:4}}>MODULE NOTES (udsEngine)</div>
+                {udsModConfig.notes.map((n,i)=>(
+                  <div key={i} style={{fontSize:10,color:'#5D4037',padding:'2px 0'}}>• {n}</div>
+                ))}
+              </div>
+            )}
           </Card>
+
+          {/* Pre-flash checklist from udsEngine postFlash / notes */}
+          {udsModConfig&&(udsModConfig.postFlash||udsModConfig.notes)&&(
+            <Card style={{marginTop:10}} data-testid="flasher-checklist">
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:6}}>
+                <div style={{fontSize:10,fontWeight:800,color:C.wn,letterSpacing:1.5}}>⚠️ PRE/POST-FLASH CHECKLIST</div>
+                <button onClick={()=>setChecklistOpen(o=>!o)} style={{fontSize:9,color:C.ts,background:'transparent',border:'1px solid '+C.bd,padding:'2px 8px',borderRadius:5,cursor:'pointer'}}>
+                  {checklistOpen?'▲ Collapse':'▼ Expand'}
+                </button>
+              </div>
+              {checklistOpen&&<div>
+                {udsModConfig.notes&&udsModConfig.notes.length>0&&(
+                  <div style={{marginBottom:8}}>
+                    <div style={{fontSize:9,fontWeight:800,color:C.tm,letterSpacing:1.2,marginBottom:4}}>PRE-FLASH</div>
+                    {udsModConfig.notes.map((n,i)=>(
+                      <div key={i} style={{display:'flex',gap:8,alignItems:'flex-start',padding:'3px 0',fontSize:10,color:C.tx}}>
+                        <span style={{color:C.wn,marginTop:1}}>□</span>
+                        <span>{n}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {udsModConfig.postFlash&&udsModConfig.postFlash.length>0&&(
+                  <div>
+                    <div style={{fontSize:9,fontWeight:800,color:C.tm,letterSpacing:1.2,marginBottom:4}}>POST-FLASH</div>
+                    {udsModConfig.postFlash.map((n,i)=>(
+                      <div key={i} style={{display:'flex',gap:8,alignItems:'flex-start',padding:'3px 0',fontSize:10,color:C.tx}}>
+                        <span style={{color:C.gn,marginTop:1}}>□</span>
+                        <span>{n}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>}
+              {!checklistOpen&&<div style={{fontSize:9,color:C.ts,fontStyle:'italic'}}>
+                {((udsModConfig.notes||[]).length+(udsModConfig.postFlash||[]).length)} items — expand before flashing
+              </div>}
+            </Card>
+          )}
+
+          {/* Flash block layout from udsEngine buildFlashSequence */}
+          {flashBlockLayout&&flashBlockLayout.length>0&&(
+            <Card style={{marginTop:10}} data-testid="flasher-block-layout">
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:6}}>
+                <div style={{fontSize:10,fontWeight:800,color:C.a3,letterSpacing:1.5}}>💾 FLASH BLOCK LAYOUT</div>
+                <button onClick={()=>setFlashBlockOpen(o=>!o)} style={{fontSize:9,color:C.ts,background:'transparent',border:'1px solid '+C.bd,padding:'2px 8px',borderRadius:5,cursor:'pointer'}}>
+                  {flashBlockOpen?'▲ Collapse':'▼ Expand'}
+                </button>
+              </div>
+              {flashBlockOpen&&<div style={{maxHeight:200,overflow:'auto',border:'1px solid '+C.bd,borderRadius:6,background:'#0D0D15',padding:8}}>
+                {flashBlockLayout.map((block,i)=>(
+                  <div key={i} style={{display:'flex',gap:12,padding:'4px 0',borderTop:i>0?'1px solid #1A1A2A':'none',fontFamily:'JetBrains Mono',fontSize:10}}>
+                    <span style={{color:'#555',minWidth:20,textAlign:'right'}}>{i+1}</span>
+                    <span style={{color:'#40C4FF',minWidth:100}}>0x{(block.addr||0).toString(16).toUpperCase().padStart(8,'0')}</span>
+                    <span style={{color:'#A0FFA0',minWidth:80}}>{block.size?fmtMB(block.size):'—'}</span>
+                    <span style={{color:'#888'}}>{block.label||block.type||''}</span>
+                  </div>
+                ))}
+              </div>}
+              {!flashBlockOpen&&<div style={{fontSize:9,color:C.ts,fontStyle:'italic'}}>{flashBlockLayout.length} blocks — expand to view addresses</div>}
+            </Card>
+          )}
         </Section>
 
         <Section title="UNLOCK ALGORITHM" color={C.a4}>

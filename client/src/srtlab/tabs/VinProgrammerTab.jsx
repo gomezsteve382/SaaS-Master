@@ -8,6 +8,11 @@ import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 import Gpec2aImmoPanel from "../components/Gpec2aImmoPanel.jsx";
 import BcmImmoSection from "../components/BcmImmoSection.jsx";
 import RfhubImmoSection from "../components/RfhubImmoSection.jsx";
+import {
+  getAllModules, buildSessionSequence, getModuleDids,
+  buildReadDid, buildWriteDid, buildDsc, buildSeedRequest,
+} from "../lib/udsEngine.js";
+import { vinWriteDids, VIN_WRITE_DIDS } from "../lib/algos.js";
 
 /* VIN PROGRAMMER TAB
  *
@@ -117,10 +122,11 @@ function SlotRow({slot, kind}) {
  * logic. All sub-tabs stay mounted (visibility toggled) so switching
  * between them never loses a loaded dump or in-progress edits. */
 const SUBTABS = [
-  {id: 'patch', label: 'PATCHER', icon: '🪪'},
+  {id: 'patch', label: 'PATCHER', icon: '🪴'},
   {id: 'ecm', label: 'ECM', icon: '🧠'},
   {id: 'bcm', label: 'BCM', icon: '🔧'},
   {id: 'rfhub', label: 'RFHUB', icon: '📡'},
+  {id: 'uds', label: 'UDS VIN WRITE', icon: '🔌'},
 ];
 
 function SubTabBar({sub, setSub}) {
@@ -255,6 +261,46 @@ export default function VinProgrammerTab() {
   const [ecmMod, setEcmMod] = useState(null);
   const [bcmMod, setBcmMod] = useState(null);
   const [rfhubMod, setRfhubMod] = useState(null);
+  // UDS VIN write subtab state
+  const [udsVinModule, setUdsVinModule] = useState('IPC');
+  const [udsVin, setUdsVin] = useState('');
+  const [udsSeqExpanded, setUdsSeqExpanded] = useState(false);
+  const allModsList = useMemo(() => getAllModules(), []);
+  const udsVinCheck = useMemo(() => checkDigit(udsVin), [udsVin]);
+  const udsVinDids = useMemo(() => vinWriteDids(udsVinModule), [udsVinModule]);
+  const udsSeqSteps = useMemo(() => {
+    try { return buildSessionSequence(udsVinModule, 'vin'); } catch { return []; }
+  }, [udsVinModule]);
+  // Build the full UDS VIN write frame sequence for display
+  const udsVinFrames = useMemo(() => {
+    if (!udsVin || udsVin.length !== 17 || !udsVinCheck.ok) return [];
+    const mod = getAllModules().find(m => m.code === udsVinModule);
+    if (!mod) return [];
+    const vinBytes = Array.from(udsVin).map(c => c.charCodeAt(0));
+    const frames = [];
+    // 1. DSC 02 — extended diagnostic session
+    frames.push({ label: 'DSC 02 (Extended Diagnostic Session)', bytes: [0x10, 0x02], desc: 'Enter extended diagnostic session' });
+    // 2. DSC 03 — programming session
+    frames.push({ label: 'DSC 03 (Programming Session)', bytes: [0x10, 0x03], desc: 'Enter programming session' });
+    // 3. SA 0x01 — seed request
+    frames.push({ label: 'SA 01 (Seed Request)', bytes: [0x27, 0x01], desc: 'Request seed for security access level 0x01' });
+    // 4. SA 0x02 — key send (placeholder — key computed from seed)
+    frames.push({ label: 'SA 02 (Key Send)', bytes: [0x27, 0x02, 0x00, 0x00, 0x00, 0x00], desc: 'Send computed key (replace 00 00 00 00 with actual key)' });
+    // 5. Write each VIN DID
+    for (const did of udsVinDids) {
+      const dh = did > 0xFFFF ? [(did>>>16)&0xFF,(did>>>8)&0xFF,did&0xFF] : [(did>>>8)&0xFF,did&0xFF];
+      const frame = [0x2E, ...dh, ...vinBytes];
+      frames.push({ label: `WDBI 0x${did.toString(16).toUpperCase().padStart(4,'0')} — VIN`, bytes: frame, desc: `Write VIN to DID 0x${did.toString(16).toUpperCase().padStart(4,'0')}` });
+    }
+    // 6. Readback each DID
+    for (const did of udsVinDids) {
+      const dh = did > 0xFFFF ? [(did>>>16)&0xFF,(did>>>8)&0xFF,did&0xFF] : [(did>>>8)&0xFF,did&0xFF];
+      frames.push({ label: `RDBI 0x${did.toString(16).toUpperCase().padStart(4,'0')} — verify`, bytes: [0x22, ...dh], desc: `Read back DID 0x${did.toString(16).toUpperCase().padStart(4,'0')} to verify VIN was written` });
+    }
+    // 7. ECU reset
+    frames.push({ label: 'ECU Reset (11 01)', bytes: [0x11, 0x01], desc: 'Hard reset to apply changes' });
+    return frames;
+  }, [udsVin, udsVinCheck.ok, udsVinModule, udsVinDids]);
 
   // Donor SEC16 sources for the GPEC2A immo-fix panel: the BCM / RFHUB
   // dumps loaded in the sibling sub-tabs plus any already in the shared
@@ -589,6 +635,121 @@ export default function VinProgrammerTab() {
         >
           {(m) => <RfhubImmoSection mod={m} onPatched={onRfhubPatched}/>}
         </ModuleSubTab>
+      </div>
+
+      {/* ────────────────────────────────────────────────────────────────────────────────
+           UDS VIN WRITE (udsEngine session sequence + algos.js vinWriteDids)
+           Live-over-CAN VIN programming via UDS 2E WriteDataByIdentifier.
+           Generates the full byte sequence: DSC→03→SA→01/02→2E F190+mirrors→22 readback→11 reset.
+      ──────────────────────────────────────────────────────────────────────────────── */}
+      <div data-testid="vinprog-subtab-uds-wrap" style={{display: sub === 'uds' ? 'block' : 'none'}}>
+        <Card style={{marginBottom:14,background:'linear-gradient(135deg,#0A0A3D 0%,#1E1E6F 40%,#4A00E0 100%)',color:'#fff'}}>
+          <div style={{display:'flex',alignItems:'center',gap:12}}>
+            <span style={{fontSize:22}}>🔌</span>
+            <div>
+              <div style={{fontFamily:"'Nunito'",fontWeight:900,fontSize:16,letterSpacing:1}}>UDS VIN WRITE</div>
+              <div style={{fontSize:10,opacity:.7,letterSpacing:2,fontWeight:700}}>LIVE CAN · 2E WRITEDATABYIDENTIFIER · ALL VIN MIRRORS</div>
+            </div>
+          </div>
+        </Card>
+
+        <Card style={{marginBottom:14}}>
+          <div style={{fontWeight:800,fontSize:11,color:C.a4,marginBottom:10,letterSpacing:2}}>1 · SELECT MODULE</div>
+          <div style={{fontSize:11,color:C.ts,marginBottom:8}}>
+            Module selection determines TX/RX CAN IDs, security algorithm, and which VIN DIDs to write.
+            Source: udsEngine MODULE_REGISTRY (RE-verified).
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
+            <div>
+              <div style={{fontSize:10,color:C.ts,marginBottom:4}}>MODULE</div>
+              <select value={udsVinModule} onChange={e=>setUdsVinModule(e.target.value)}
+                style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:'#fff',fontSize:12,fontWeight:700}}>
+                {allModsList.map(m=><option key={m.code} value={m.code}>{m.code} — {m.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <div style={{fontSize:10,color:C.ts,marginBottom:4}}>CAN IDs (RE-VERIFIED)</div>
+              {(() => {
+                const mod = allModsList.find(m=>m.code===udsVinModule);
+                return mod ? (
+                  <div style={{padding:'8px 10px',borderRadius:8,border:'1.5px solid '+C.bd,background:C.c2,fontSize:12,fontFamily:"'JetBrains Mono'"}}>
+                    TX <span style={{color:C.a3,fontWeight:800}}>0x{mod.tx.toString(16).toUpperCase().padStart(3,'0')}</span>
+                    {' · '}
+                    RX <span style={{color:C.a3,fontWeight:800}}>0x{mod.rx.toString(16).toUpperCase().padStart(3,'0')}</span>
+                    {mod.sgwRequired&&<span style={{marginLeft:8,fontSize:9,color:C.wn,fontWeight:800}}>[SGW]</span>}
+                  </div>
+                ) : null;
+              })()}
+            </div>
+          </div>
+          <div style={{fontSize:10,color:C.ts,marginBottom:4}}>VIN DIDs TO WRITE</div>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+            {udsVinDids.map(did=>(
+              <span key={did} style={{fontFamily:"'JetBrains Mono'",fontSize:11,fontWeight:800,padding:'4px 10px',borderRadius:6,background:C.c2,border:'1px solid '+C.bd,color:C.a3}}>
+                0x{did.toString(16).toUpperCase().padStart(4,'0')}
+              </span>
+            ))}
+          </div>
+        </Card>
+
+        <Card style={{marginBottom:14}}>
+          <div style={{fontWeight:800,fontSize:11,color:C.a4,marginBottom:10,letterSpacing:2}}>2 · TARGET VIN</div>
+          <div style={{display:'flex',gap:10,alignItems:'center',marginBottom:6}}>
+            <input
+              data-testid="vinprog-uds-vin"
+              value={udsVin}
+              onChange={e=>setUdsVin(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,'').slice(0,17))}
+              maxLength={17}
+              placeholder="2C3CDXCT1HH652640"
+              style={{flex:1,padding:'12px 14px',border:`2px solid ${udsVin.length===0?C.bd:(udsVinCheck.ok?C.gn:C.er)}`,borderRadius:10,fontSize:16,fontFamily:"'JetBrains Mono'",fontWeight:700,letterSpacing:2,background:'#fff',color:C.tx}}
+            />
+            <Btn outline color={C.a3} onClick={()=>masterVinValid&&setUdsVin(masterVin)} disabled={!masterVinValid}>USE MASTER VIN</Btn>
+          </div>
+          <div style={{fontSize:11,minHeight:16}}>
+            {udsVin.length>0&&udsVin.length<17&&<span style={{color:C.tm}}>{udsVin.length}/17 chars</span>}
+            {udsVin.length===17&&udsVinCheck.ok&&<span style={{color:C.gn,fontWeight:700}}>✓ valid VIN (check digit {udsVinCheck.expected})</span>}
+            {udsVin.length===17&&!udsVinCheck.ok&&<span style={{color:C.er,fontWeight:700}}>✗ {udsVinCheck.err}</span>}
+          </div>
+          {udsVin.length===17&&udsVinCheck.ok&&<VinChargerSubtitle vin={udsVin} style={{marginTop:8}}/>}
+        </Card>
+
+        {udsVinFrames.length>0&&<Card style={{marginBottom:14}} data-testid="vinprog-uds-frames">
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+            <div style={{fontWeight:800,fontSize:11,color:C.a4,letterSpacing:2}}>3 · UDS FRAME SEQUENCE</div>
+            <button onClick={()=>setUdsSeqExpanded(e=>!e)} style={{fontSize:10,color:C.ts,background:'transparent',border:'1px solid '+C.bd,padding:'3px 10px',borderRadius:6,cursor:'pointer'}}>
+              {udsSeqExpanded?'▲ Collapse':'▼ Expand'}
+            </button>
+          </div>
+          <div style={{fontSize:11,color:C.ts,marginBottom:8}}>
+            {udsVinFrames.length} frames · DSC→03 → SA→01/02 → {udsVinDids.length}×WDBI → {udsVinDids.length}×RDBI verify → ECU reset
+          </div>
+          {udsSeqExpanded&&<div style={{border:'1px solid '+C.bd,borderRadius:8,background:'#0D0D15',padding:12}}>
+            {udsVinFrames.map((frame,i)=>(
+              <div key={i} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'6px 0',borderTop:i>0?'1px solid #1A1A2A':'none'}}>
+                <span style={{color:'#555',fontSize:10,minWidth:20,textAlign:'right',paddingTop:1}}>{i+1}</span>
+                <div style={{flex:1}}>
+                  <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:'#40C4FF',letterSpacing:1,marginBottom:2}}>
+                    {frame.bytes.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ')}
+                  </div>
+                  <div style={{fontSize:10,color:'#888'}}>{frame.desc}</div>
+                </div>
+                <button
+                  onClick={()=>navigator.clipboard&&navigator.clipboard.writeText(frame.bytes.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' '))}
+                  style={{fontSize:9,color:'#666',background:'transparent',border:'1px solid #333',padding:'2px 8px',borderRadius:4,cursor:'pointer',whiteSpace:'nowrap'}}>
+                  COPY
+                </button>
+              </div>
+            ))}
+          </div>}
+          {!udsSeqExpanded&&<div style={{fontSize:10,color:C.ts,fontStyle:'italic'}}>Expand to view all {udsVinFrames.length} frames with copyable hex</div>}
+        </Card>}
+
+        {(!udsVin||udsVin.length<17)&&<Card style={{background:'#FFF8F0',fontSize:11,color:C.tm}}>
+          <div style={{fontWeight:800,color:C.sr,letterSpacing:1,fontSize:11,marginBottom:4}}>⚠️ LIVE CAN REQUIRED</div>
+          This tab generates the UDS byte sequence for live programming via a J2534 adapter.
+          Enter a valid 17-char VIN above to see the full frame list.
+          For offline binary patching, use the PATCHER sub-tab.
+        </Card>}
       </div>
     </div>
   );

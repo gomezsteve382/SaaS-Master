@@ -2,7 +2,12 @@ import React, {useState, useCallback, useRef} from "react";
 import {Card, Btn} from "../lib/ui.jsx";
 import {C} from "../lib/constants.js";
 import {initAdapter} from "../lib/initAdapter.js";
-import {decodeNRC} from "../lib/nrc.js";
+import {decodeNRC} from "../lib/nrc.js"; // kept for legacy call sites
+import {
+  getAllModules, getModuleDids, decodeNrc, buildSessionSequence,
+  formatHex, buildReadDid, buildWriteDid, buildDsc, buildSeedRequest,
+  COMMON_DIDS,
+} from "../lib/udsEngine.js";
 import {runDtcRead} from "../lib/dtc.js";
 import DtcDetailPanel from "../lib/DtcDetailPanel.jsx";
 import {getDidDescription} from "../lib/dids.js";
@@ -26,16 +31,22 @@ const UDS_CAN_FILTERS = [
   { category: "Protocols", subcategory: "ISO-TP" },
 ];
 
-const MODULE_PRESETS={
-  BCM:{tx:0x750,rx:0x758},RFHUB:{tx:0x75F,rx:0x767},
-  ECM:{tx:0x7E0,rx:0x7E8},TCM:{tx:0x7E1,rx:0x7E9},
-  ABS:{tx:0x760,rx:0x768},IPC:{tx:0x746,rx:0x766},  // RE-verified: 0x746/0x766
-  ORC:{tx:0x758,rx:0x760},ADCM:{tx:0x7A8,rx:0x7B0},
-  RADIO:{tx:0x772,rx:0x77A},HVAC:{tx:0x751,rx:0x759},
-  EPS:{tx:0x761,rx:0x769},SCCM:{tx:0x74D,rx:0x76D},
-  TIPM:{tx:0x74C,rx:0x76C},AMP:{tx:0x7A0,rx:0x7A8},
-  BSM:{tx:0x770,rx:0x778},TPMS:{tx:0x752,rx:0x75A},
-};
+// MODULE_PRESETS: built live from udsEngine MODULE_REGISTRY (RE-verified CAN IDs).
+// Static entries are kept as fallback for modules not yet in udsEngine.
+const _UDS_MODS = getAllModules();
+const MODULE_PRESETS = (() => {
+  const out = {};
+  // udsEngine RE-verified entries take precedence
+  for (const m of _UDS_MODS) out[m.code] = { tx: m.tx, rx: m.rx, algo: m.algo, sgwRequired: m.sgwRequired };
+  // Legacy entries not yet in udsEngine (kept for completeness)
+  const legacy = {
+    AMP:  { tx:0x7A0, rx:0x7A8 },
+    BSM:  { tx:0x770, rx:0x778 },
+    TPMS: { tx:0x752, rx:0x75A },
+  };
+  for (const [k,v] of Object.entries(legacy)) if (!out[k]) out[k] = v;
+  return out;
+})();
 
 export default function UdsTab(){
   const[conn,setConn]=useState(false);
@@ -56,7 +67,26 @@ export default function UdsTab(){
   const[memData,setMemData]=useState('');
   const[selectedModule,setSelectedModule]=useState('BCM');
   const[dtcDetail,setDtcDetail]=useState(null);
+  const[didCatalog,setDidCatalog]=useState(()=>getModuleDids('BCM'));
+  const[didCatalogFilter,setDidCatalogFilter]=useState('');
+  const[seqPreviewModule,setSeqPreviewModule]=useState('BCM');
+  const[seqPreviewOp,setSeqPreviewOp]=useState('extended');
+  const[seqPreviewOpen,setSeqPreviewOpen]=useState(false);
+  const[nrcDecodeInput,setNrcDecodeInput]=useState('');
+  const[nrcDecodeResult,setNrcDecodeResult]=useState(null);
   const eng=useRef(null);
+  const allModsList = React.useMemo(()=>getAllModules(),[]);
+  const filteredDidCatalog = React.useMemo(()=>{
+    const q=didCatalogFilter.trim().toLowerCase();
+    if(!q) return didCatalog;
+    return didCatalog.filter(d=>
+      d.name.toLowerCase().includes(q)||
+      ('0x'+d.did.toString(16).toLowerCase()).includes(q)
+    );
+  },[didCatalog,didCatalogFilter]);
+  const seqPreviewSteps = React.useMemo(()=>{
+    try{return buildSessionSequence(seqPreviewModule,seqPreviewOp);}catch{return [];}
+  },[seqPreviewModule,seqPreviewOp]);
 
   const addLog=useCallback((m,t='info',extra=null)=>{
     const ts=new Date().toLocaleTimeString();
@@ -79,7 +109,9 @@ export default function UdsTab(){
   const loadPreset=m=>{
     const p=MODULE_PRESETS[m];if(!p)return;
     setTxAddr('0x'+hx(p.tx,3));setRxAddr('0x'+hx(p.rx,3));setSelectedModule(m);
-    addLog('Loaded preset: '+m+' TX:0x'+hx(p.tx,3)+' RX:0x'+hx(p.rx,3),'info');
+    addLog('Loaded preset: '+m+' TX:0x'+hx(p.tx,3)+' RX:0x'+hx(p.rx,3)+(p.sgwRequired?' [SGW required]':''),'info');
+    // Surface the DID catalog for this module
+    setDidCatalog(getModuleDids(m));
   };
 
   const connect=useCallback(async()=>{
@@ -463,6 +495,124 @@ export default function UdsTab(){
         <Btn onClick={readDtcs} disabled={!!busy||!conn} color={C.a3} outline>📋 Read DTCs (19 02 08)</Btn>
         <Btn onClick={clearDtcs} disabled={!!busy||!conn} color={C.wn} outline>🗑️ Clear DTCs (14 FF FF FF)</Btn>
       </div>
+    </Card>
+
+    {/* ────────────────────────────────────────────────────────────────────────────────
+         DID CATALOG (udsEngine RE-verified DIDs for selected module)
+    ──────────────────────────────────────────────────────────────────────────────── */}
+    <Card style={{marginBottom:14}} data-testid="uds-did-catalog">
+      <div style={{fontWeight:800,fontSize:11,color:C.a4,marginBottom:8,letterSpacing:2}}>📖 DID CATALOG — {selectedModule}</div>
+      <div style={{fontSize:10,color:C.ts,marginBottom:8}}>
+        {didCatalog.length} DIDs for <b>{selectedModule}</b> (COMMON + module-specific). Click any row to pre-fill the Read DID field.
+      </div>
+      <input
+        value={didCatalogFilter}
+        onChange={e=>setDidCatalogFilter(e.target.value)}
+        placeholder="Filter DIDs by name or hex…"
+        style={{width:'100%',padding:'6px 10px',borderRadius:6,border:'1px solid '+C.bd,background:'#fff',fontSize:11,marginBottom:8,boxSizing:'border-box'}}
+      />
+      <div style={{maxHeight:240,overflow:'auto',border:'1px solid '+C.bd,borderRadius:8,background:C.c2}}>
+        <table style={{width:'100%',borderCollapse:'collapse',fontFamily:"'JetBrains Mono'",fontSize:10}}>
+          <thead style={{position:'sticky',top:0,background:C.c2,borderBottom:'1px solid '+C.bd}}>
+            <tr>
+              <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>DID</th>
+              <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>NAME</th>
+              <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>R/W</th>
+              <th style={{textAlign:'left',padding:'5px 10px',fontWeight:800,color:C.tm}}>SEC</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredDidCatalog.map(d=>(
+              <tr key={d.did}
+                onClick={()=>{
+                  setDidHex(d.did.toString(16).toUpperCase().padStart(4,'0'));
+                  if(d.rw==='RW'||d.rw==='W') setWriteDid(d.did.toString(16).toUpperCase().padStart(4,'0'));
+                }}
+                style={{borderTop:'1px solid '+C.bd+'60',cursor:'pointer'}}
+                onMouseEnter={e=>e.currentTarget.style.background='#0000000A'}
+                onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                <td style={{padding:'4px 10px',color:C.a3,fontWeight:800}}>0x{d.did.toString(16).toUpperCase().padStart(4,'0')}</td>
+                <td style={{padding:'4px 10px',color:C.tx,fontFamily:"'Nunito'",fontSize:10}}>{d.name}</td>
+                <td style={{padding:'4px 10px',color:d.rw==='RW'?C.a4:d.rw==='W'?C.sr:C.tm,fontWeight:700}}>{d.rw||'R'}</td>
+                <td style={{padding:'4px 10px',color:d.secLevel!=null?C.wn:C.tm}}>{d.secLevel!=null?'0x'+d.secLevel.toString(16).toUpperCase():'open'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+
+    {/* ────────────────────────────────────────────────────────────────────────────────
+         SESSION SEQUENCE PREVIEW (udsEngine buildSessionSequence)
+    ──────────────────────────────────────────────────────────────────────────────── */}
+    <Card style={{marginBottom:14}} data-testid="uds-session-seq">
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+        <div style={{fontWeight:800,fontSize:11,color:C.a4,letterSpacing:2}}>🔄 SESSION SEQUENCE PREVIEW</div>
+        <button onClick={()=>setSeqPreviewOpen(o=>!o)} style={{fontSize:10,color:C.ts,background:'transparent',border:'1px solid '+C.bd,padding:'3px 10px',borderRadius:6,cursor:'pointer'}}>
+          {seqPreviewOpen?'▲ Collapse':'▼ Expand'}
+        </button>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
+        <div>
+          <div style={{fontSize:10,color:C.ts,marginBottom:4}}>MODULE</div>
+          <select value={seqPreviewModule} onChange={e=>setSeqPreviewModule(e.target.value)}
+            style={{width:'100%',padding:'6px 8px',borderRadius:6,border:'1px solid '+C.bd,background:'#fff',fontSize:11}}>
+            {allModsList.map(m=><option key={m.code} value={m.code}>{m.code} — {m.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <div style={{fontSize:10,color:C.ts,marginBottom:4}}>OPERATION</div>
+          <select value={seqPreviewOp} onChange={e=>setSeqPreviewOp(e.target.value)}
+            style={{width:'100%',padding:'6px 8px',borderRadius:6,border:'1px solid '+C.bd,background:'#fff',fontSize:11}}>
+            <option value="extended">Extended Diagnostic</option>
+            <option value="programming">Programming</option>
+            <option value="vin">VIN Write</option>
+            <option value="bodycode">Body Code Swap (IPC)</option>
+          </select>
+        </div>
+      </div>
+      {seqPreviewOpen&&<div style={{border:'1px solid '+C.bd,borderRadius:8,background:'#0D0D15',padding:12}}>
+        {seqPreviewSteps.length===0&&<div style={{color:'#666',fontSize:11,textAlign:'center',padding:12}}>No steps for this combination.</div>}
+        {seqPreviewSteps.map((step,i)=>(
+          <div key={i} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'5px 0',borderTop:i>0?'1px solid #1A1A2A':'none'}}>
+            <span style={{color:'#555',fontSize:10,minWidth:20,textAlign:'right',paddingTop:1}}>{i+1}</span>
+            <div style={{flex:1}}>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:'#40C4FF',letterSpacing:1}}>
+                {step.bytes?step.bytes.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' '):step.label}
+              </div>
+              {step.desc&&<div style={{fontSize:10,color:'#888',marginTop:2}}>{step.desc}</div>}
+            </div>
+          </div>
+        ))}
+      </div>}
+      {!seqPreviewOpen&&<div style={{fontSize:10,color:C.ts,fontStyle:'italic'}}>{seqPreviewSteps.length} steps — expand to view</div>}
+    </Card>
+
+    {/* ────────────────────────────────────────────────────────────────────────────────
+         NRC DECODER (udsEngine)
+    ──────────────────────────────────────────────────────────────────────────────── */}
+    <Card style={{marginBottom:14}} data-testid="uds-nrc-decoder">
+      <div style={{fontWeight:800,fontSize:11,color:C.a4,marginBottom:8,letterSpacing:2}}>🔴 NRC DECODER</div>
+      <div style={{display:'flex',gap:8,alignItems:'flex-end',marginBottom:8}}>
+        <div style={{flex:1}}>
+          <div style={{fontSize:10,color:C.ts,marginBottom:4}}>NRC BYTE (hex, e.g. 35)</div>
+          <input
+            value={nrcDecodeInput}
+            onChange={e=>setNrcDecodeInput(e.target.value.toUpperCase().replace(/[^A-F0-9Xx]/g,''))}
+            onKeyDown={e=>{if(e.key==='Enter'){const c=parseInt(nrcDecodeInput.replace(/^0x/i,''),16);if(!isNaN(c))setNrcDecodeResult(decodeNrc(c&0xFF));}}}
+            placeholder="35"
+            style={{width:'100%',padding:'8px 10px',borderRadius:6,border:'1px solid '+C.bd,background:'#fff',fontFamily:"'JetBrains Mono'",fontSize:16,fontWeight:700,letterSpacing:4,textAlign:'center'}}
+          />
+        </div>
+        <Btn onClick={()=>{const c=parseInt(nrcDecodeInput.replace(/^0x/i,''),16);if(!isNaN(c))setNrcDecodeResult(decodeNrc(c&0xFF));}} disabled={!nrcDecodeInput.trim()}>Decode</Btn>
+      </div>
+      {nrcDecodeResult&&<div style={{padding:12,borderRadius:8,background:C.c2,border:'1px solid '+C.bd}}>
+        <div style={{display:'flex',alignItems:'baseline',gap:10,marginBottom:4}}>
+          <span style={{fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:800,color:C.sr}}>0x{nrcDecodeInput.replace(/^0x/i,'').padStart(2,'0').toUpperCase()}</span>
+          <span style={{fontSize:12,fontWeight:800}}>{nrcDecodeResult.name}</span>
+        </div>
+        <div style={{fontSize:11,color:C.ts}}>{nrcDecodeResult.desc}</div>
+      </div>}
     </Card>
 
     <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
