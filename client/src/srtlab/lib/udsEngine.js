@@ -141,6 +141,10 @@ export const MODULE_REGISTRY = Object.freeze({
     notes: [
       'LB18 must be written before LB19 and LB20',
       'GPEC2A requires programming-level security (27 03/04) for flash',
+      'CB manual p.20: GPEC 2A FCA variant uses SA 0x63/0x64 (not 0x03/0x04)',
+      'GPEC 2A full session: 1A 87 → 10 92 → 10 85 → 27 63 (seed) → 27 64 + key → 21 A9 + 21 AA (read EEPROM 4KB)',
+      'GPEC 2A key algo: key = M-seed XOR C, C=0x47EC21F8 (35/35 in-sample verified)',
+      'GPEC 3 key algo: key = M-seed XOR C, C=0x129D657F (44/44 LOO verified)',
       'SEC6 bytes at GPEC2A-specific offsets — must resync with BCM after flash',
       'NRC 0x70 if wrong compression byte (must be 0x00)',
     ],
@@ -1761,10 +1765,14 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         rfhSyncOffset: 0x0470,
         rfhChecksumOffset: 0x0476,
         rfhChecksumAlgo: 'crc16_ccitt',
-        rfhChecksumNote: 'CRC16-CCITT (init 0xFFFF) over the 6 sync bytes. Must recalculate after any sync change.',
+        rfhChecksumPoly: 0x1021,
+        rfhChecksumInit: 0xFFFF,
+        rfhChecksumNote: 'CRC16-CCITT (poly 0x1021, init 0xFFFF) over the 6 sync bytes. Must recalculate after any sync change.',
         checksumAlgo: 'crc16_ccitt',
         notes: 'C200: 3-module sync (BCM 0xFE0 + PCM 0x3C0 + CTS@0x400 + RFH 0x470). RFH CRC16-CCITT at 0x476. Without CTS block: DTC P0513.',
         exampleSync: '3D 6E 11 38 5C 4C',
+        // CB manual page 35: verified real CRC value A1 23 for sync 3D 6E 11 38 5C 4C
+        exampleRfhCrc: 'A1 23',
       },
       {
         id: 'cherokee_kl',
@@ -1777,16 +1785,31 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         syncBytes: 16,
         bcmSyncOffset: 0x0838,
         bcmSyncMirror: null,
+        // CB manual page 36: Cherokee KL uses CC AA (2-byte marker) at 0x3C7
+        // Real dump: 000003C0 FF FF FF FF FF FF FF CC AA 02 A7 97 65 E9 F5 FF
         pcmMarker: 0xAA,
+        pcmMarkerBytes: [0xCC, 0xAA],
         pcmMarkerOffset: 0x3C7,
+        pcmMarkerNote: 'Cherokee KL uses CC AA (2-byte) at 0x3C7 — not single AA like GPEC 2/2A',
         pcmSyncOffset: 0x3C9,
-        pcmSyncRule: 'marker_aa_6b',
+        pcmSyncRule: 'marker_ccaa_6b',
         rfhSyncOffset: 0x02B2,
         rfhSyncMirror: 0x02E0,
         rfhSyncRule: 'reverse_of_bcm',
         checksumAlgo: 'none',
+        // CB manual page 38: RFH AES native offsets
+        rfhAesHeaderOffset: 0x140,
+        rfhAesHeaderFixed: [0x14, 0x24, 0x96, 0x04],
+        rfhPreCrcOffset: 0x146,
+        rfhPreCrcLength: 10,
+        rfhVinOffset: 0x16A,
+        rfhPostCrcOffset: 0x17B,
+        rfhKeyIdOffset: 0x040,
+        rfhAesKeyOffset: 0x230,
+        rfhAesKeyLength: 16,
+        rfhChecksumNote: 'Pre-CRC AES @ 0x146 (10B) + post-CRC AES @ 0x17B. Key ID @ 0x040. AES key candidate @ 0x230 (16B).',
         transponderNote: 'HITAG AES 128-bit. NOT clonable with basic Tango — requires Tango Plus or Autel IM608.',
-        notes: 'BCM 16B sync (AES key). RFH stores reversed copy. PCM uses 6B subset with AA marker.',
+        notes: 'BCM 16B sync (AES key). RFH stores reversed copy. PCM uses 6B subset with CC AA marker (2-byte). AES key @ RFH 0x230.',
       },
       {
         id: 'dodge_dart',
@@ -1815,6 +1838,20 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         syncBytes: 6,
         bcmSyncOffset: null,
         bcmReadOnly: true,
+        // CB manual page 47: OBD proxy write procedure for Renesas BCM
+        obd_proxy: {
+          protocol: 'KWP',
+          sessions: ['10 92', '10 85'],
+          saLevel: '27 05/06',
+          algId: '0016',
+          supplier: 'C6',
+          writeDid: '2E 2023',
+          proxyBytes: 235,
+          responseOk: '6E 2023',
+          verifyDid: '22 2023',
+          tool: 'Scanmatik2 / Autel J2534',
+          warning: 'READ ONLY — writing without valid OEM signature BRICKS the chip irreversibly',
+        },
         notes: 'BCM is Renesas — READ ONLY. Cannot write sync. Use donor BCM only.',
       },
       {
@@ -1828,6 +1865,20 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         syncBytes: 6,
         bcmSyncOffset: null,
         bcmReadOnly: true,
+        // CB manual page 47: OBD proxy write procedure for Renesas BCM
+        obd_proxy: {
+          protocol: 'KWP',
+          sessions: ['10 92', '10 85'],
+          saLevel: '27 05/06',
+          algId: '0016',
+          supplier: 'C6',
+          writeDid: '2E 2023',
+          proxyBytes: 235,
+          responseOk: '6E 2023',
+          verifyDid: '22 2023',
+          tool: 'Scanmatik2 / Autel J2534',
+          warning: 'READ ONLY — writing without valid OEM signature BRICKS the chip irreversibly',
+        },
         notes: 'BCM is Renesas — READ ONLY. Cannot write sync. Use donor BCM only.',
       },
     ],
@@ -1894,13 +1945,22 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         pcmChecksumCfg02: [0xA2, 0x02],
         pcmChecksumAlgo: 'marelli_16bit',
         pcmChecksumNote: 'Marelli verifies checksum at startup. A1 03 (cfg=01) / A2 02 (cfg=02).',
+        // CB manual page 23: Marelli has NO Security Access at OBD level — only startup validation
+        pcmSaRequired: false,
+        pcmSaNote: 'Marelli IAW 10GF has NO Security Access at diagnostic level. Checksum verified at ECU startup only.',
+        pcmProtocol: 'KWP/UDS',
+        pcmMarkerNote: 'Marelli uses proprietary marker (not AA like GPEC). Sync at 0x202 DIRECT — no inversion.',
+        pcmTesterCode: '44652',
+        pcmFirmwareSig: '333580',
+        pcmTesterCodeOffset: 0x230,
+        pcmFirmwareSigOffset: 0x210,
         // GAP 8 FIX: RFH sync at 0x4FE (primary) + mirror at 0x512.
         // Source: CB manual page 40 — Toro Diesel dump shows mirror at 0x512.
         rfhSyncOffset: 0x04FE,
         rfhSyncMirror: 0x0512,
         rfhChecksumAlgo: 'add16_not',
         checksumAlgo: 'add16_not',
-        notes: 'BCM 64B block ×4 at 0xE085 (5B header + 6B sync). PCM Marelli DIRECT sync at 0x202 (no inversion). RFH 0x4FE + mirror 0x512.',
+        notes: 'BCM 64B block ×4 at 0xE085 (5B header + 6B sync). PCM Marelli DIRECT sync at 0x202 (no inversion). RFH 0x4FE + mirror 0x512. Tester Code 44652 @ 0x230. No SA at OBD level.'
       },
       {
         id: 'fiat_cronos',
@@ -1925,11 +1985,18 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         pcmChecksumCfg01: [0xA1, 0x03],
         pcmChecksumCfg02: [0xA2, 0x02],
         pcmChecksumAlgo: 'marelli_16bit',
+        pcmSaRequired: false,
+        pcmSaNote: 'Marelli IAW 10GF has NO Security Access at diagnostic level. Checksum verified at ECU startup only.',
+        pcmProtocol: 'KWP/UDS',
+        pcmTesterCode: '44652',
+        pcmFirmwareSig: '333580',
+        pcmTesterCodeOffset: 0x230,
+        pcmFirmwareSigOffset: 0x210,
         rfhSyncOffset: 0x04FE,
         rfhSyncMirror: 0x0512,
         rfhChecksumAlgo: 'add16_not',
         checksumAlgo: 'add16_not',
-        notes: 'Identical to Argo. BCM dump and PCM dump are interchangeable between Argo/Cronos.',
+        notes: 'Identical to Argo. BCM dump and PCM dump are interchangeable between Argo/Cronos. Tester Code 44652 @ 0x230. No SA at OBD level.'
       },
       {
         id: 'fiat_toro_diesel',
@@ -1956,6 +2023,15 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         pcmChecksumAlgo: 'edc17_internal',
         edc17: true,
         edc17Warning: 'NEVER manually recalculate CRC on EDC17 files. ECU manages its own internal checksum. Use BSL Tool / KESS / MultiBoot.',
+        // CB manual page 22: EDC17 validates CRC on every engine start. Wrong CRC = DTC P1601 = no-start.
+        crcRecalcRequired: true,
+        crcRecalcTool: 'BSL Tool / KESS V2 / MultiBoot / EDC17 Tool',
+        dtcOnCrcFail: 'P1601',
+        dtcNote: 'If CRC invalid after sync write → DTC P1601 → engine no-start. CRC recalc is MANDATORY.',
+        // Verified real Toro Diesel example from CB manual page 21:
+        // BCM: 2C 81 4D 81 04 F9 → PCM (inverted): F9 81 81 04 4D 2C
+        exampleBcmSync: '2C 81 4D 81 04 F9',
+        examplePcmSync: 'F9 81 81 04 4D 2C',
         // GAP 8 FIX: RFH sync at 0x4FE (primary) + mirror at 0x512.
         rfhSyncOffset: 0x04FE,
         rfhSyncMirror: 0x0512,
@@ -1995,12 +2071,13 @@ export const CB_SYNC_FAMILIES = Object.freeze([
         transponder: 'HITAG AES (16B)',
         syncBytes: 6,
         // GAP 4 FIX: Renegade B1 1.3T uses BCM Fujitsu 28B block at 0xE03D (not 0xE085)
-        // Two contiguous copies: 0xE03D and 0xE059. Checksum 0x0856 at 0xE676.
-        // Source: CB manual page 42 — verified real dump.
+        // Two contiguous copies: 0xE03D and 0xE059.
+        // CB manual page 48 flash map: checksum sync at 0xE076 (NOT 0xE676 — was a typo in previous version)
+        // Page 48 explicitly: 0xE076 = Checksum sync (Renegade B1)
         bcmSyncOffset: 0xE03D,
         bcmSyncMirror: 0xE059,
         bcmBlockSize: 28,
-        bcmChecksumOffset: 0xE676,
+        bcmChecksumOffset: 0xE076,
         bcmChecksumValue: 0x0856,
         bcmChecksumNote: 'Fixed 16-bit checksum 0x0856 — no dual cfg, does not change.',
         // GAP 5 FIX: GPEC 4LM sync is in 28B block around 0x230 area — different from GPEC 2A 0x3C7

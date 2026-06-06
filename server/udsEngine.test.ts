@@ -844,11 +844,13 @@ describe('GAP4 — Renegade B1 1.3T BCM sync at 0xE03D (CB manual page 42)', () 
     expect(b1aes?.bcmSyncMirror).toBe(0xE059);
   });
 
-  it('renegade_b1_aes BCM checksum offset is 0xE676', async () => {
+  it('renegade_b1_aes BCM checksum offset is 0xE076 (CB manual page 48 flash map)', async () => {
+    // CB manual page 48 explicitly lists: 0xE076 = Checksum sync (Renegade B1)
+    // Previous value 0xE676 was a typo — corrected in UDS deep-dive patch session.
     const { CB_SYNC_FAMILIES } = await loadEngine();
     const fiatBrasil = CB_SYNC_FAMILIES.find((f: any) => f.id === 'fiat_brasil');
     const b1aes = fiatBrasil?.models.find((m: any) => m.id === 'renegade_b1_aes');
-    expect(b1aes?.bcmChecksumOffset).toBe(0xE676);
+    expect(b1aes?.bcmChecksumOffset).toBe(0xE076);
   });
 
   it('renegade_b1_aes BCM checksum value is 0x0856', async () => {
