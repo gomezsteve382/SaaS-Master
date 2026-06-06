@@ -77,6 +77,8 @@ import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
 import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
 import J2534UdsConsoleTab from "./tabs/J2534UdsConsoleTab.jsx";
 import IpcClusterReprogramTab from "./tabs/IpcClusterReprogramTab.jsx";
+import RfhDumpAnalyzerTab from "./tabs/RfhDumpAnalyzerTab.jsx";
+import ChecksumCalculatorTab from "./tabs/ChecksumCalculatorTab.jsx";
 import AutelSgwTab from "./tabs/AutelSgwTab.jsx";
 import FirmwareEmulationTab from "./tabs/FirmwareEmulationTab.jsx";
 import RfhubKeyTransplantPanel from "./components/RfhubKeyTransplantPanel.jsx";
@@ -965,6 +967,8 @@ const WORKSPACE_TABS = [
   {id:'flasher',    i:'⚡', l:'ECM FLASHER',      s:'GPEC2A bench programmer'},
   {id:'ipccluster', i:'🖥️', l:'IPC CLUSTER',      s:'Durango→Trackhawk · SBEC · body code'},
   {id:'cdasession', i:'🔐', l:'CDA6 SESSION',     s:'9-step UDS walkthrough'},
+  {id:'rfhdump',    i:'📡', l:'RFH DUMP',         s:'4KB hex dump analyzer · 10-field extractor · transponder sheet'},
+  {id:'checksum',   i:'🔢', l:'CHECKSUM CALC',    s:'ADD16+NOT · CRC16-CCITT · F2 8-bit · EDC17 sync inversion'},
   {id:'vinprog',    i:'🪪', l:'VIN + CHECKSUM',   s:'Single-file VIN write + CRC patcher'},
   {id:'proxi',      i:'📋', l:'PROXI',            s:'BCM 0x2023 + DEnn feature decoder · read-only'},
   {id:'immobcm56xb',i:'🧠', l:'IMMO BCM 56xB',    s:'64 KB MPC5606B · FULL / VIN_ONLY / LOCKED · file in/out'},
@@ -1008,7 +1012,8 @@ const WORKSPACE_CATEGORIES = {
   jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM',   keytransplant:'PROGRAM', quickclone:'PROGRAM', livekey:'PROGRAM',
   vinprog:'PROGRAM', vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
-  cdasession:'PROGRAM', ipccluster:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
+  cdasession:'PROGRAM', ipccluster:'PROGRAM', rfhdump:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
+  checksum:'TOOLS',
   // LIVE — connected OBD/J2534 sessions and external bench tools.
   obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE', autelsgw:'LIVE',
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.

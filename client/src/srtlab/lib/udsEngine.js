@@ -1671,3 +1671,479 @@ export const CAN_PARAMS = Object.freeze({
   isotpMode: 'physical',
   note: '500 kbps, normal 11-bit CAN addressing, physical ISO-TP',
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── Sync Family Database ─────────────────────────────────────────────────────
+// 3 families, 14 models, sync offsets, block structures, checksum algorithms,
+// PCM inversion rules, transponder types, pinout references.
+export const CB_SYNC_FAMILIES = Object.freeze([
+  {
+    id: 'chrysler_usa',
+    name: 'Chrysler USA',
+    label: 'FAMILIA 1',
+    bcm: 'Continental MPC5606B (D-Flash 64KB)',
+    bcmAccess: 'BDM/Nexus (Trasdata, New Genius, KESS)',
+    bcmWritable: true,
+    models: [
+      {
+        id: 'wrangler_jl',
+        name: 'Wrangler JL / Gladiator JT',
+        years: '2018-2024',
+        pcm: '95320/95640',
+        rfh: 'Continental 9S12XEG384',
+        transponder: 'PCF7936 / HITAG2',
+        syncBytes: 6,
+        bcmSyncOffset: 0x40C8,
+        bcmSyncMirror: 0x40F0,
+        bcmFooter: [0x81B0, 0x81D0, 0x81F0],
+        pcmMarker: 0xAA,
+        pcmMarkerOffset: 0x3C7,
+        pcmSyncOffset: 0x3C9,
+        pcmSyncRule: 'marker_aa_6b',
+        rfhSyncOffset: 0x0C22,
+        rfhSyncMirror: 0x0C34,
+        rfhPattern: '66CC55AA',
+        checksumAlgo: 'none',
+        notes: 'BCM sync 16B + mirror. PCM marker 0xCC AA @ 0x3C7 + 6B sync subset of BCM in different order.',
+      },
+      {
+        id: 'ram_1500',
+        name: 'RAM 1500 / 2500 / 3500',
+        years: '2009-2018',
+        pcm: '95320/95640',
+        rfh: 'Continental 9S12XEG384',
+        transponder: 'PCF7936 / HITAG2',
+        syncBytes: 6,
+        bcmSyncOffset: 0x40C8,
+        bcmSyncMirror: 0x40F0,
+        bcmFooter: [0x81B0, 0x81D0, 0x81F0],
+        pcmMarker: 0xAA,
+        pcmMarkerOffset: 0x3C7,
+        pcmSyncOffset: 0x3C9,
+        pcmSyncRule: 'marker_aa_6b',
+        rfhSyncOffset: 0x0C22,
+        rfhSyncMirror: 0x0C34,
+        checksumAlgo: 'none',
+        notes: 'Same BCM family as Wrangler JL. Classic 24C32 EEPROM on older variants.',
+      },
+    ],
+  },
+  {
+    id: 'cuswide',
+    name: 'Cuswide',
+    label: 'FAMILIA 2',
+    bcm: '95640 SPI (Cherokee KL, Dart, C200) or Renesas R7F70xxxx (Compass MP, Renegade BU)',
+    bcmAccess: 'TL866/XGecu (95640) or Trasdata BDM (Renesas — READ ONLY)',
+    bcmWritable: 'partial',
+    models: [
+      {
+        id: 'chrysler_200',
+        name: 'Chrysler 200',
+        years: '2011-2017',
+        bcm: '95640 EEPROM SPI',
+        pcm: 'Continental 95320/95640',
+        rfh: '9S12XEG384',
+        transponder: 'PCF7936 / HITAG2',
+        syncBytes: 6,
+        bcmSyncOffset: 0x0FE0,
+        bcmSyncMirror: null,
+        pcmSyncOffset: 0x03C0,
+        pcmSyncRule: 'direct_6b',
+        rfhSyncOffset: 0x0470,
+        rfhChecksumOffset: 0x0476,
+        rfhChecksumAlgo: 'crc16_ccitt',
+        rfhChecksumNote: 'CRC16-CCITT (init 0xFFFF) over the 6 sync bytes. Must recalculate after any sync change.',
+        checksumAlgo: 'crc16_ccitt',
+        notes: 'C200 does NOT use AA marker pattern. 3 modules share identical 6B sync. RFH has immediate CRC16-CCITT checksum.',
+        exampleSync: '3D 6E 11 38 5C 4C',
+      },
+      {
+        id: 'cherokee_kl',
+        name: 'Cherokee KL',
+        years: '2014-2023',
+        bcm: '95640 EEPROM SPI (8KB)',
+        pcm: 'GPEC',
+        rfh: 'Continental 9S12XEG384 (AES native)',
+        transponder: 'HITAG AES (16B)',
+        syncBytes: 16,
+        bcmSyncOffset: 0x0838,
+        bcmSyncMirror: null,
+        pcmMarker: 0xAA,
+        pcmMarkerOffset: 0x3C7,
+        pcmSyncOffset: 0x3C9,
+        pcmSyncRule: 'marker_aa_6b',
+        rfhSyncOffset: 0x02B2,
+        rfhSyncMirror: 0x02E0,
+        rfhSyncRule: 'reverse_of_bcm',
+        checksumAlgo: 'none',
+        transponderNote: 'HITAG AES 128-bit. NOT clonable with basic Tango — requires Tango Plus or Autel IM608.',
+        notes: 'BCM 16B sync (AES key). RFH stores reversed copy. PCM uses 6B subset with AA marker.',
+      },
+      {
+        id: 'dodge_dart',
+        name: 'Dodge Dart',
+        years: '2013-2016',
+        bcm: '95640 EEPROM SPI',
+        pcm: 'Continental',
+        rfh: '9S12XEG384',
+        transponder: 'PCF7936 / HITAG2',
+        syncBytes: 6,
+        bcmSyncOffset: 0x0FE0,
+        bcmSyncMirror: null,
+        pcmSyncOffset: 0x03C0,
+        pcmSyncRule: 'direct_6b',
+        checksumAlgo: 'crc16_ccitt',
+        notes: 'Same family as C200. 6B sync shared across BCM/PCM/RFH.',
+      },
+      {
+        id: 'compass_mp',
+        name: 'Compass MP',
+        years: '2017-2023',
+        bcm: 'Renesas R7F70xxxx (READ ONLY via BDM)',
+        pcm: 'GPEC',
+        rfh: '9S12XEG384',
+        transponder: 'PCF7936 / HITAG2',
+        syncBytes: 6,
+        bcmSyncOffset: null,
+        bcmReadOnly: true,
+        notes: 'BCM is Renesas — READ ONLY. Cannot write sync. Use donor BCM only.',
+      },
+      {
+        id: 'renegade_bu',
+        name: 'Renegade BU (Fiat)',
+        years: '2015-2022',
+        bcm: 'Renesas R7F70xxxx (READ ONLY via BDM)',
+        pcm: 'GPEC',
+        rfh: '9S12XEG384',
+        transponder: 'PCF7936 / HITAG2',
+        syncBytes: 6,
+        bcmSyncOffset: null,
+        bcmReadOnly: true,
+        notes: 'BCM is Renesas — READ ONLY. Cannot write sync. Use donor BCM only.',
+      },
+    ],
+  },
+  {
+    id: 'fiat_brasil',
+    name: 'Fiat Brasil',
+    label: 'FAMILIA 3',
+    bcm: 'Fujitsu MB91F526 (Flash 512KB + EEPROM 32KB)',
+    bcmAccess: 'Trasdata / New Genius (BDM)',
+    bcmWritable: true,
+    pcmFamilies: [
+      {
+        id: 'pcm_continental',
+        name: 'Continental (Argo, Cronos, Toro)',
+        pcmChip: 'Continental',
+        syncOffset: 0x0080,
+        syncBytes: 6,
+        checksumAlgo: 'add16_not',
+        checksumNote: 'ADD16+NOT: sum all bytes in block, invert 16-bit result. Applied to 64B sync block.',
+        edc17: false,
+      },
+      {
+        id: 'pcm_edc17',
+        name: 'EDC17 (Toro Diesel)',
+        pcmChip: 'Bosch EDC17',
+        syncOffset: 0x0080,
+        syncBytes: 6,
+        checksumAlgo: 'edc17_invert',
+        checksumNote: 'EDC17 uses inverted byte order: BCM bytes [1,2,3,4,5,6] to PCM [6,4,2,5,3,1]. DO NOT recalculate CRC — EDC17 manages its own internal checksum.',
+        edc17: true,
+        edc17Warning: 'NEVER manually recalculate CRC on EDC17 files. The ECU will reject the file and may brick.',
+      },
+    ],
+    models: [
+      {
+        id: 'fiat_argo',
+        name: 'Fiat Argo',
+        years: '2017-2024',
+        pcm: 'Continental',
+        rfh: 'Continental C200 (9S12XEG384)',
+        transponder: 'PCF7936 / HITAG2',
+        syncBytes: 6,
+        bcmSyncOffset: 0x7C00,
+        bcmSyncMirror: 0x7C40,
+        bcmFlashZones: [
+          { name: 'Zone A (Immo)', offset: 0x7C00, size: 0x40 },
+          { name: 'Zone B (VIN)', offset: 0x7C40, size: 0x20 },
+          { name: 'Zone C (Config)', offset: 0x7C60, size: 0x20 },
+        ],
+        pcmSyncOffset: 0x0080,
+        pcmChecksumAlgo: 'add16_not',
+        rfhSyncOffset: 0x0470,
+        rfhChecksumAlgo: 'add16_not',
+        checksumAlgo: 'add16_not',
+        notes: 'Fujitsu BCM. BCM sync at 0x7C00 + mirror at 0x7C40. PCM and RFH use ADD16+NOT checksum.',
+      },
+      {
+        id: 'fiat_cronos',
+        name: 'Fiat Cronos',
+        years: '2018-2024',
+        pcm: 'Continental',
+        rfh: 'Continental C200',
+        transponder: 'PCF7936 / HITAG2',
+        syncBytes: 6,
+        bcmSyncOffset: 0x7C00,
+        bcmSyncMirror: 0x7C40,
+        pcmSyncOffset: 0x0080,
+        pcmChecksumAlgo: 'add16_not',
+        rfhChecksumAlgo: 'add16_not',
+        checksumAlgo: 'add16_not',
+        notes: 'Same BCM/PCM family as Argo.',
+      },
+      {
+        id: 'fiat_toro_diesel',
+        name: 'Fiat Toro Diesel',
+        years: '2016-2023',
+        pcm: 'Bosch EDC17',
+        rfh: 'Continental C200',
+        transponder: 'PCF7936 / HITAG2',
+        syncBytes: 6,
+        bcmSyncOffset: 0x7C00,
+        bcmSyncMirror: 0x7C40,
+        pcmSyncOffset: 0x0080,
+        pcmChecksumAlgo: 'edc17_invert',
+        rfhChecksumAlgo: 'add16_not',
+        checksumAlgo: 'edc17_invert',
+        edc17: true,
+        notes: 'EDC17 PCM — use invertSync rule, NEVER recalculate CRC manually.',
+      },
+      {
+        id: 'renegade_b1_hitag2',
+        name: 'Renegade B1 1.8/2.0 (Brasil)',
+        years: '2015-2022',
+        pcm: 'Continental',
+        rfh: 'Continental C200',
+        transponder: 'PCF7936 / HITAG2',
+        syncBytes: 6,
+        bcmSyncOffset: 0x7C00,
+        bcmSyncMirror: 0x7C40,
+        pcmSyncOffset: 0x0080,
+        pcmChecksumAlgo: 'add16_not',
+        rfhChecksumAlgo: 'add16_not',
+        checksumAlgo: 'add16_not',
+        notes: 'Standard HITAG2. Same Fujitsu BCM family as Argo/Cronos.',
+      },
+      {
+        id: 'renegade_b1_aes',
+        name: 'Renegade B1 1.3T (Brasil)',
+        years: '2019-2024',
+        pcm: 'Continental',
+        rfh: 'Continental C200 (AES)',
+        transponder: 'HITAG AES (16B)',
+        syncBytes: 16,
+        bcmSyncOffset: 0x7C00,
+        bcmSyncMirror: 0x7C40,
+        pcmSyncOffset: 0x0080,
+        pcmChecksumAlgo: 'add16_not',
+        rfhChecksumAlgo: 'add16_not',
+        checksumAlgo: 'add16_not',
+        transponderNote: 'HITAG AES 128-bit. NOT clonable with basic Tango.',
+        notes: 'HITAG AES. Requires Tango Plus or Autel IM608.',
+      },
+    ],
+  },
+]);
+
+// ─── RFH Dump Field Map ───────────────────────────────────────────────────────
+// Source: CB manual pages 25-32 (classic 2014-2018) and pages 33-38 (2019+)
+export const RFH_DUMP_FIELD_MAP = Object.freeze({
+  classic: {
+    label: 'Classic (2014-2018)',
+    totalSize: 0x1000,
+    signature: { offset: 0x0000, len: 4, rule: 'raw', expected: [0x5A, 0x5A, 0x5A, 0x5A], desc: 'Magic signature (5A 5A 5A 5A)' },
+    sn:        { offset: 0x0004, len: 4, rule: 'le_to_be', desc: 'Serial Number (LE to BE inversion)' },
+    snMirror:  { offset: 0x0008, len: 4, rule: 'le_to_be', desc: 'S/N Mirror (must match S/N)' },
+    cryptoHigh:{ offset: 0x000C, len: 4, rule: 'raw', desc: 'Crypto HIGH (4B)' },
+    cryptoLow: { offset: 0x0010, len: 4, rule: 'raw', desc: 'Crypto LOW (4B)' },
+    cryptoMirror:{ offset: 0x0014, len: 8, rule: 'raw', desc: 'Crypto Mirror (HIGH+LOW, must match)' },
+    config:    { offset: 0x001C, len: 2, rule: 'le_to_be', desc: 'Config / TMCF (LE to BE inversion)' },
+    configMirror:{ offset: 0x001E, len: 2, rule: 'le_to_be', desc: 'Config Mirror (must match)' },
+    pin:       { offset: 0x0020, len: 2, rule: 'le_to_be', desc: 'PIN (LE to BE, decimal 4-digit customer code)' },
+    vin:       { offset: 0x0EA5, len: 17, rule: 'ascii', desc: 'VIN (17 ASCII bytes)' },
+  },
+  new2019: {
+    label: '2019+ (New Format)',
+    totalSize: 0x1000,
+    signature: { offset: 0x0000, len: 4, rule: 'raw', expected: [0xAA, 0x55, 0xAA, 0x55], desc: 'Magic signature (AA 55 AA 55)' },
+    sn:        { offset: 0x0010, len: 4, rule: 'le_to_be', desc: 'Serial Number (LE to BE inversion)' },
+    snMirror:  { offset: 0x0014, len: 4, rule: 'le_to_be', desc: 'S/N Mirror (must match S/N)' },
+    cryptoHigh:{ offset: 0x0020, len: 4, rule: 'raw', desc: 'Crypto HIGH (4B)' },
+    cryptoLow: { offset: 0x0024, len: 4, rule: 'raw', desc: 'Crypto LOW (4B)' },
+    cryptoMirror:{ offset: 0x0028, len: 8, rule: 'raw', desc: 'Crypto Mirror (HIGH+LOW, must match)' },
+    config:    { offset: 0x0030, len: 2, rule: 'le_to_be', desc: 'Config / TMCF (LE to BE inversion)' },
+    configMirror:{ offset: 0x0032, len: 2, rule: 'le_to_be', desc: 'Config Mirror (must match)' },
+    pin:       { offset: 0x0034, len: 2, rule: 'le_to_be', desc: 'PIN (LE to BE, decimal 4-digit customer code)' },
+    vin:       { offset: 0x0EA5, len: 17, rule: 'ascii', desc: 'VIN (17 ASCII bytes)' },
+  },
+});
+
+// ─── Checksum Algorithms ──────────────────────────────────────────────────────
+// Source: CB manual pages 39-48
+export const CB_CHECKSUM_ALGOS = Object.freeze([
+  {
+    id: 'add16_not',
+    name: 'ADD16+NOT',
+    label: 'ADD16+NOT (RFH Continental / Fiat Brasil PCM)',
+    desc: 'Sum all bytes in the target block as 16-bit unsigned, then bitwise NOT the result. Store as 2 bytes LE.',
+    applies: ['RFH Continental C200', 'Fiat Brasil PCM (non-EDC17)', 'BCM Fujitsu sync block'],
+    example: 'Block [0x3D, 0x6E, 0x11, 0x38, 0x5C, 0x4C] -> sum=0x01FA -> NOT=0xFE05',
+  },
+  {
+    id: 'crc16_ccitt',
+    name: 'CRC16-CCITT',
+    label: 'CRC16-CCITT (RFH C200 / Chrysler 200)',
+    desc: 'CRC16-CCITT (polynomial 0x1021, init 0xFFFF) over the sync bytes. Store as 2 bytes BE.',
+    applies: ['RFH C200 (Chrysler 200, Dodge Dart)', 'Cuswide family RFH'],
+    example: 'Sync [3D 6E 11 38 5C 4C] -> CRC16-CCITT = computed live',
+  },
+  {
+    id: 'f2_8bit',
+    name: 'F2 8-bit',
+    label: 'F2 8-bit (BCM Renesas / Cuswide)',
+    desc: 'XOR-based 8-bit checksum: sum all bytes, XOR with 0xF2, mask to 8 bits.',
+    applies: ['BCM Renesas Compass MP (read-only)', 'Cuswide family BCM'],
+    example: 'Block sum XOR 0xF2 = checksum byte',
+  },
+  {
+    id: 'linear_16bit',
+    name: '16-bit Linear',
+    label: '16-bit Linear (BCM Fujitsu)',
+    desc: 'Simple 16-bit sum of all bytes in the 64B or 28B sync block. No inversion.',
+    applies: ['BCM Fujitsu MB91F526 (Fiat Brasil)'],
+    example: 'Sum all bytes in 64B block -> 16-bit result stored at end of block',
+  },
+  {
+    id: 'edc17_invert',
+    name: 'EDC17 Invert',
+    label: 'EDC17 Sync Inversion (Toro Diesel)',
+    desc: 'BCM bytes [B1,B2,B3,B4,B5,B6] to PCM EDC17 bytes [B6,B4,B2,B5,B3,B1]. DO NOT recalculate CRC.',
+    applies: ['Fiat Toro Diesel EDC17 PCM'],
+    example: 'BCM: 3D 6E 11 38 5C 4C -> EDC17 PCM: 4C 38 6E 5C 11 3D',
+    warning: 'NEVER manually recalculate CRC on EDC17 files. The ECU manages its own internal checksum.',
+  },
+]);
+
+// ─── EDC17 Sync Inversion ─────────────────────────────────────────────────────
+// Source: CB manual pages 43-44
+// Rule: BCM bytes [1,2,3,4,5,6] -> PCM EDC17 [6,4,2,5,3,1] (1-indexed)
+// i.e. input[0..5] -> output = [input[5], input[3], input[1], input[4], input[2], input[0]]
+export function edc17SyncInvert(bcmSync6) {
+  if (!bcmSync6 || bcmSync6.length < 6) throw new Error('EDC17 invert requires exactly 6 bytes');
+  const b = bcmSync6;
+  return [b[5], b[3], b[1], b[4], b[2], b[0]];
+}
+
+// ─── ADD16+NOT Checksum ───────────────────────────────────────────────────────
+export function calcAdd16Not(blockBytes) {
+  let sum = 0;
+  for (const b of blockBytes) sum = (sum + b) & 0xFFFF;
+  return (~sum) & 0xFFFF;
+}
+
+// ─── CRC16-CCITT Checksum ─────────────────────────────────────────────────────
+export function calcCrc16Ccitt(bytes, init = 0xFFFF) {
+  let crc = init;
+  for (const b of bytes) {
+    crc ^= (b << 8);
+    for (let i = 0; i < 8; i++) {
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF;
+    }
+  }
+  return crc;
+}
+
+// ─── F2 8-bit Checksum ────────────────────────────────────────────────────────
+export function calcF28bit(blockBytes) {
+  let sum = 0;
+  for (const b of blockBytes) sum = (sum + b) & 0xFF;
+  return (sum ^ 0xF2) & 0xFF;
+}
+
+// ─── BCM Fujitsu 16-bit Linear Checksum ──────────────────────────────────────
+export function calcFujitsuChecksum(blockBytes) {
+  let sum = 0;
+  for (const b of blockBytes) sum = (sum + b) & 0xFFFF;
+  return sum;
+}
+
+// ─── RFH Dump Analyzer ───────────────────────────────────────────────────────
+// Source: CB manual pages 25-38
+// Auto-detects firmware variant (classic vs 2019+) from signature bytes.
+// Extracts all 10 fields with correct LE->BE inversion.
+export function analyzeRfhDump(bytes) {
+  if (!bytes || bytes.length < 0x100) return { error: 'Dump too small - minimum 256 bytes required' };
+  const sig4 = Array.from(bytes.slice(0, 4));
+  let variant = null;
+  if (sig4[0] === 0x5A && sig4[1] === 0x5A && sig4[2] === 0x5A && sig4[3] === 0x5A) variant = 'classic';
+  else if (sig4[0] === 0xAA && sig4[1] === 0x55 && sig4[2] === 0xAA && sig4[3] === 0x55) variant = 'new2019';
+  else variant = 'classic'; // fallback
+  const map = RFH_DUMP_FIELD_MAP[variant];
+  const readField = (field) => {
+    if (!field || field.offset + field.len > bytes.length) return null;
+    const raw = Array.from(bytes.slice(field.offset, field.offset + field.len));
+    if (field.rule === 'le_to_be') return { raw, value: [...raw].reverse(), inverted: true };
+    if (field.rule === 'ascii') return { raw, value: raw, text: raw.map(b => String.fromCharCode(b)).join('') };
+    return { raw, value: raw, inverted: false };
+  };
+  const sig = readField(map.signature);
+  const isValidRfh = sig && (map.signature.expected
+    ? sig.value.every((b, i) => b === map.signature.expected[i])
+    : true);
+  const sn = readField(map.sn);
+  const snMirror = readField(map.snMirror);
+  const cryptoHigh = readField(map.cryptoHigh);
+  const cryptoLow = readField(map.cryptoLow);
+  const cryptoMirror = readField(map.cryptoMirror);
+  const config = readField(map.config);
+  const configMirror = readField(map.configMirror);
+  const pin = readField(map.pin);
+  const vin = readField(map.vin);
+  let pinDecimal = null;
+  if (pin && pin.value.length === 2) {
+    pinDecimal = ((pin.value[0] << 8) | pin.value[1]).toString().padStart(4, '0');
+  }
+  const snMirrorMatch = sn && snMirror && sn.raw.every((b, i) => b === snMirror.raw[i]);
+  const cryptoMirrorMatch = cryptoHigh && cryptoLow && cryptoMirror &&
+    [...cryptoHigh.raw, ...cryptoLow.raw].every((b, i) => b === cryptoMirror.raw[i]);
+  return {
+    variant,
+    isValidRfh,
+    map,
+    fields: { sig, sn, snMirror, cryptoHigh, cryptoLow, cryptoMirror, config, configMirror, pin, vin },
+    derived: {
+      pinDecimal,
+      snMirrorMatch,
+      cryptoMirrorMatch,
+      vinText: vin ? vin.text : null,
+      cryptoFull: cryptoHigh && cryptoLow ? [...cryptoHigh.value, ...cryptoLow.value] : null,
+    },
+    transponderSheet: {
+      sn:         sn ? sn.value : null,
+      cryptoHigh: cryptoHigh ? cryptoHigh.value : null,
+      cryptoLow:  cryptoLow ? cryptoLow.value : null,
+      config:     config ? config.value : null,
+      pin:        pinDecimal,
+      vin:        vin ? vin.text : null,
+      note: 'Write S/N + Crypto HIGH + Crypto LOW + Config to PCF7936 via Tango/KeyMaker. PIN is customer code.',
+    },
+  };
+}
+
+// ─── Transponder Type Matrix ──────────────────────────────────────────────────
+// Source: CB manual pages 50, glossary
+export const TRANSPONDER_TYPE_MATRIX = Object.freeze([
+  { model: 'RAM 1500/2500/3500 (Chrysler)', type: 'HITAG2 / PCF7936', crypto: '4B', tool: 'Tango / KeyMaker', note: 'Classic RFH 24C32 EEPROM' },
+  { model: 'Wrangler JL / Gladiator JT', type: 'HITAG2 / PCF7936', crypto: '4B', tool: 'Tango / KeyMaker', note: 'RFH 9S12XEG384' },
+  { model: 'Chrysler 200', type: 'HITAG2 / PCF7936', crypto: '4B', tool: 'Tango / KeyMaker', note: 'RFH 9S12XEG384' },
+  { model: 'Dodge Dart', type: 'HITAG2 / PCF7936', crypto: '4B', tool: 'Tango / KeyMaker', note: 'Cuswide family' },
+  { model: 'Compass MP', type: 'HITAG2 / PCF7936', crypto: '4B', tool: 'Tango / KeyMaker', note: 'Renesas BCM - READ ONLY' },
+  { model: 'Cherokee KL', type: 'HITAG AES', crypto: '16B AES-128', tool: 'Tango Plus / Autel IM608', note: 'NOT clonable with basic Tango. Cost ~3-4x HITAG2.' },
+  { model: 'Fiat Argo / Cronos', type: 'HITAG2 / PCF7936', crypto: '4B', tool: 'Tango / KeyMaker', note: 'Fujitsu BCM' },
+  { model: 'Fiat Toro Diesel', type: 'HITAG2 / PCF7936', crypto: '4B', tool: 'Tango / KeyMaker', note: 'Fujitsu BCM + EDC17' },
+  { model: 'Renegade B1 1.3T (Brasil)', type: 'HITAG AES', crypto: '16B AES-128', tool: 'Tango Plus / Autel IM608', note: 'NOT clonable with basic Tango.' },
+  { model: 'Renegade B1 1.8/2.0 (Brasil)', type: 'HITAG2 / PCF7936', crypto: '4B', tool: 'Tango / KeyMaker', note: 'Standard HITAG2' },
+]);
