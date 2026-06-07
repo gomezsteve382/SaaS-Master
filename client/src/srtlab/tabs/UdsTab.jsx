@@ -421,14 +421,14 @@ export default function UdsTab(){
   return <div data-testid="uds-tab">
     {/* ─── J2534 Relay Status Bar ─────────────────────────────────────────────── */}
     <RelayStatusBar onRelayReady={ctx => setRelayCtx(ctx)} />
-    <Card style={{background:'linear-gradient(135deg,#0A0A3D 0%,#1E1E6F 40%,#4A00E0 100%)',color:'#fff',marginBottom:18}}>
+    <Card style={{background:'linear-gradient(135deg,#EDE7F6 0%,#D1C4E9 40%,#B39DDB 100%)',color:'#1A1A1A',marginBottom:18}}>
       <div style={{display:'flex',alignItems:'center',gap:14}}>
         <div style={{fontSize:32}}>🔬</div>
         <div style={{flex:1}}>
-          <div style={{fontFamily:"'Righteous'",fontSize:24,letterSpacing:2}}>UDS PROGRAMMER</div>
-          <div style={{fontSize:10,opacity:.7,letterSpacing:3,fontWeight:700}}>UNIVERSAL · RAW COMMANDS · ANY MODULE</div>
+          <div style={{fontFamily:"'Righteous'",fontSize:24,letterSpacing:2,color:'#4A148C'}}>UDS PROGRAMMER</div>
+          <div style={{fontSize:10,opacity:.9,letterSpacing:3,fontWeight:700,color:'#6A1B9A'}}>UNIVERSAL · RAW COMMANDS · ANY MODULE</div>
         </div>
-        <div data-testid="uds-conn-status" style={{fontSize:11,padding:'6px 12px',background:conn?'#00C85333':'#FF174433',borderRadius:8,border:'1px solid '+(conn?'#00C853':'#FF1744')}}>
+        <div data-testid="uds-conn-status" style={{fontSize:11,padding:'6px 12px',background:conn?'#00C85322':'#FF174422',borderRadius:8,border:'1px solid '+(conn?'#00C853':'#FF1744'),color:conn?'#1B5E20':'#B71C1C',fontWeight:700}}>
           {conn?'● CONNECTED':'○ DISCONNECTED'}
         </div>
       </div>
@@ -633,16 +633,16 @@ export default function UdsTab(){
          RELAY LIVE EXECUTION (when relay is connected)
     ──────────────────────────────────────────────────────────────────────────────── */}
     {relayCtx && (
-      <Card style={{marginBottom:14,border:'2px solid #22c55e',background:'#0a1a0a'}} data-testid="uds-relay-exec">
+      <Card style={{marginBottom:14,border:'2px solid #22c55e',background:'#F0FDF4'}} data-testid="uds-relay-exec">
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-          <div style={{fontWeight:800,fontSize:11,color:'#22c55e',letterSpacing:2}}>⚡ LIVE EXECUTION — CH{relayCtx.channelId}</div>
+          <div style={{fontWeight:800,fontSize:11,color:'#15803d',letterSpacing:2}}>⚡ LIVE EXECUTION — CH{relayCtx.channelId}</div>
           <div style={{display:'flex',gap:8}}>
             <button
               onClick={sendRawViaRelay}
               disabled={relayRunning || !rawCmd.trim()}
               style={{
-                background: relayRunning ? '#1a2a1a' : '#1e3a1e',
-                border: '1px solid #22c55e', color: '#22c55e',
+                background: relayRunning ? '#dcfce7' : '#bbf7d0',
+                border: '1px solid #22c55e', color: '#15803d',
                 borderRadius: 4, padding: '4px 14px', cursor: relayRunning ? 'not-allowed' : 'pointer',
                 fontSize: 11, fontFamily: "'JetBrains Mono'", opacity: relayRunning ? 0.5 : 1,
               }}
@@ -653,8 +653,8 @@ export default function UdsTab(){
               onClick={executeSequenceViaRelay}
               disabled={relayRunning || seqPreviewSteps.length === 0}
               style={{
-                background: relayRunning ? '#1a2a1a' : '#0d3a1e',
-                border: '1px solid #4ade80', color: '#4ade80',
+                background: relayRunning ? '#dcfce7' : '#86efac',
+                border: '1px solid #16a34a', color: '#166534',
                 borderRadius: 4, padding: '4px 14px', cursor: relayRunning ? 'not-allowed' : 'pointer',
                 fontSize: 11, fontFamily: "'JetBrains Mono'", fontWeight: 700,
                 opacity: relayRunning ? 0.5 : 1,
@@ -665,8 +665,8 @@ export default function UdsTab(){
             <button
               onClick={() => setRelayExecLog([])}
               style={{
-                background: 'transparent', border: '1px solid #374151',
-                color: '#6b7280', borderRadius: 4, padding: '4px 10px',
+                background: 'transparent', border: '1px solid '+C.bd,
+                color: C.ts, borderRadius: 4, padding: '4px 10px',
                 cursor: 'pointer', fontSize: 10,
               }}
             >
@@ -675,20 +675,20 @@ export default function UdsTab(){
           </div>
         </div>
         <div style={{
-          maxHeight: 280, overflowY: 'auto', background: '#050f05',
-          border: '1px solid #1a2a1a', borderRadius: 6, padding: '8px 12px',
+          maxHeight: 280, overflowY: 'auto', background: '#fff',
+          border: '1px solid '+C.bd, borderRadius: 6, padding: '8px 12px',
           fontFamily: "'JetBrains Mono'", fontSize: 11, lineHeight: 1.7,
         }}>
           {relayExecLog.length === 0 && (
-            <div style={{color:'#374151',textAlign:'center',padding:16}}>
+            <div style={{color:C.tm,textAlign:'center',padding:16}}>
               Ready — press Execute Sequence or Send Raw to fire live frames
             </div>
           )}
           {relayExecLog.map((l, i) => {
-            const color = l.type === 'error' ? '#ef4444' : l.type === 'rx' ? '#22c55e' : l.type === 'tx' ? '#38bdf8' : l.type === 'warn' ? '#f59e0b' : '#6b7280';
+            const color = l.type === 'error' ? '#D32F2F' : l.type === 'rx' ? '#2E7D32' : l.type === 'tx' ? '#1565C0' : l.type === 'warn' ? '#E65100' : '#5A5A5A';
             return (
               <div key={i} style={{color}}>
-                <span style={{color:'#374151'}}>{l.ts}</span> {l.msg}
+                <span style={{color:'#888'}}>{l.ts}</span> {l.msg}
               </div>
             );
           })}
@@ -725,16 +725,16 @@ export default function UdsTab(){
           </select>
         </div>
       </div>
-      {seqPreviewOpen&&<div style={{border:'1px solid '+C.bd,borderRadius:8,background:'#0D0D15',padding:12}}>
-        {seqPreviewSteps.length===0&&<div style={{color:'#666',fontSize:11,textAlign:'center',padding:12}}>No steps for this combination.</div>}
+      {seqPreviewOpen&&<div style={{border:'1px solid '+C.bd,borderRadius:8,background:'#F4F1EC',padding:12}}>
+        {seqPreviewSteps.length===0&&<div style={{color:C.tm,fontSize:11,textAlign:'center',padding:12}}>No steps for this combination.</div>}
         {seqPreviewSteps.map((step,i)=>(
-          <div key={i} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'5px 0',borderTop:i>0?'1px solid #1A1A2A':'none'}}>
-            <span style={{color:'#555',fontSize:10,minWidth:20,textAlign:'right',paddingTop:1}}>{i+1}</span>
+          <div key={i} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'5px 0',borderTop:i>0?'1px solid '+C.bd:'none'}}>
+            <span style={{color:C.tm,fontSize:10,minWidth:20,textAlign:'right',paddingTop:1}}>{i+1}</span>
             <div style={{flex:1}}>
-              <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:'#40C4FF',letterSpacing:1}}>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:'#1565C0',letterSpacing:1}}>
                 {step.bytes?step.bytes.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' '):step.label}
               </div>
-              {step.desc&&<div style={{fontSize:10,color:'#888',marginTop:2}}>{step.desc}</div>}
+              {step.desc&&<div style={{fontSize:10,color:C.ts,marginTop:2}}>{step.desc}</div>}
             </div>
           </div>
         ))}
@@ -769,27 +769,27 @@ export default function UdsTab(){
       </div>}
     </Card>
 
-    <Card style={{background:'#0D0D15',color:'#E0E0E0'}}>
+    <Card style={{background:'#F4F1EC',color:'#1A1A1A'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-        <div style={{fontWeight:800,fontSize:12,color:'#B388FF',letterSpacing:2}}>📋 LOG</div>
-        <button onClick={()=>setLog([])} style={{fontSize:10,color:'#666',background:'transparent',border:'1px solid #333',padding:'3px 10px',borderRadius:6,cursor:'pointer'}}>CLEAR</button>
+        <div style={{fontWeight:800,fontSize:12,color:C.a4,letterSpacing:2}}>📋 LOG</div>
+        <button onClick={()=>setLog([])} style={{fontSize:10,color:C.ts,background:'transparent',border:'1px solid '+C.bd,padding:'3px 10px',borderRadius:6,cursor:'pointer'}}>CLEAR</button>
       </div>
       <div data-testid="uds-log" style={{maxHeight:380,overflowY:'auto',fontFamily:"'JetBrains Mono'",fontSize:10,lineHeight:1.6}}>
-        {log.length===0&&<div style={{color:'#666',textAlign:'center',padding:20}}>Ready — send a command to begin</div>}
+        {log.length===0&&<div style={{color:C.tm,textAlign:'center',padding:20}}>Ready — send a command to begin</div>}
         {log.map((l,i)=>{
-          const color=l.type==='error'?'#FF5252':l.type==='rx'?'#00E676':l.type==='tx'?'#40C4FF':l.type==='warn'?'#FFB300':'#AAA';
+          const color=l.type==='error'?'#D32F2F':l.type==='rx'?'#2E7D32':l.type==='tx'?'#1565C0':l.type==='warn'?'#E65100':'#5A5A5A';
           if(l.dtc){
             const isOpen=dtcDetail&&dtcDetail._row===i;
             return <div key={i}>
               <div data-testid={'uds-log-dtc-'+l.dtc.code} onClick={()=>setDtcDetail(isOpen?null:{...l.dtc,_row:i})}
                 style={{color,cursor:'pointer',userSelect:'none'}} title="Click for details">
-                <span style={{color:'#555'}}>{l.t}</span> {l.m} <span style={{color:'#888'}}>{isOpen?'▾':'▸'}</span>
+                <span style={{color:'#888'}}>{l.t}</span> {l.m} <span style={{color:C.tm}}>{isOpen?'▾':'▸'}</span>
               </div>
               {isOpen&&<DtcDetailPanel detail={l.dtc}/>}
             </div>;
           }
           return <div key={i} style={{color}}>
-            <span style={{color:'#555'}}>{l.t}</span> {l.m}
+            <span style={{color:'#888'}}>{l.t}</span> {l.m}
           </div>;
         })}
       </div>
