@@ -1,4 +1,4 @@
-import React, {useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import initSqlJs from 'sql.js';
 import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 import reportMarkdown from '../docs/CDA_DB_DECRYPTION_REPORT.md?raw';
@@ -7,10 +7,49 @@ import {Btn, Card, Tag} from '../lib/ui.jsx';
 import {DEFAULT_PASSWORD, bytesToHex, prepareCda6DatabaseBytes} from '../lib/cda6DbCodec.js';
 import {CONFIG_KEY_HEX, CONFIG_PASSWORD, EHTML_LOG_IV_HEX, EHTML_LOG_KEY_HEX, HTTP_TRAFFIC_IV_HEX, HTTP_TRAFFIC_KEY_HEX, aesCbcDecryptBytes, bytesToBase64, bytesToHex as cryptoBytesToHex, decodeCipherInput, decodePlaintext, decryptCdaConfigBytes, hexToBytes} from '../lib/cda6CryptoTools.js';
 import {AUTO_PROGRAM_EXAMPLES, OPERATION_PRESETS, buildAutoProgramPlan, spacedHex as plannerSpacedHex, summarizeSecurityRows} from '../lib/cda6AutoProgramPlanner.js';
+import {CDA_SGW_FLOW, CDA_UDS_COMMANDS} from '../lib/cdaUdsCommands.generated.js';
 
 const PYTHON_TOOL_PATH = '/tools/decrypt_cda_db.py';
 const DEFAULT_ROW_LIMIT = 200;
 const GLOBAL_SEARCH_LIMIT = 80;
+
+const FULL_UDS_DATASET_PATH = '/cda6_full_uds_dataset.json';
+const BUNDLED_DATABASE_MANIFEST_PATH = '/cda6-databases/manifest.json';
+const BUNDLED_DATABASE_BASE = '/cda6-databases/';
+
+const CDA6_KEY_FINDINGS = [
+  {label:'CDA6 database password', value:'2Simple2Gu3ss', detail:'AES-128 page codec password; first 16 key bytes become 2Simple2Gu3ss2Si. Config files use the recovered CDA config password with AES-ECB.'},
+  {label:'SA algorithm location', value:'External smartcable TCP service', detail:'Security-access algorithms are not fully embedded in CDA6 databases; CDA delegates key functions to external service code.'},
+  {label:'SBEC/CDA6 seed-key', value:'key = ~(seed * 0xC541A9) & 0xFFFFFFFF', detail:'Recovered formula used by SBEC/CDA6-style modules where this simple algorithm applies.'},
+  {label:'GPEC2 constant', value:'0x47EC21F8', detail:'Documented constant from the recovered GPEC2 security-access path.'},
+  {label:'XTEA SGW delta', value:'0x9E3779B9', detail:'Standard XTEA delta observed in SGW-related algorithm references.'},
+  {label:'Gen2 RFHUB VIN', value:'0x0EA5 / 0x0EB9 / 0x0ECD / 0x0EE1', detail:'Four reversed VIN slots protected by the recovered XOR + magic checksum.'},
+  {label:'Gen2 SEC16', value:'0x050E / 0x0522, CRC8 poly=0x65 init=0xBF', detail:'SEC16 transfer slots and checksum parameters used by the RFHUB key-slot tooling.'},
+  {label:'Gen1 VIN', value:'offset 0x92, CRC-16/CCITT-FALSE', detail:'Legacy RFHUB VIN layout and checksum family.'},
+  {label:'XC2268 VIN', value:'0x1000 / 0x1020 / 0x1040, CRC-16/CCITT', detail:'XC2268 internal-flash VIN mirror locations and checksum family.'},
+];
+
+const CDA6_FLASH_SEQUENCE_MODULES = ['BCM','PCM','TCM','RFHUB','ABS','IPC','ORC','SGW'].map((module)=>({
+  module,
+  steps:[
+    'Confirm stable battery support and vehicle identity before any programming action.',
+    'Establish the diagnostic transport on the module CAN bus and confirm physical request/response IDs.',
+    'Read ECU identification, VIN, software part number, hardware part number, and current diagnostic session.',
+    'Check DTC state and snapshot any pre-existing faults for rollback documentation.',
+    'Enter extended diagnostic session with 10 03 and verify positive response 50 03.',
+    'Keep the session alive with tester-present traffic while operator reviews prerequisites.',
+    'If SGW-equipped, complete Authenticated Diagnostics or dongle PIN unlock before security-sensitive services.',
+    'Request the module security seed for the required level with 27 xx.',
+    'Resolve the seed/key using the configured module algorithm or smartcable/external service path.',
+    'Send the computed key with the matching 27 xx key sub-function and verify positive response.',
+    'Run pre-programming routines such as erase/precondition checks when the module database exposes them.',
+    'RequestDownload with validated address/length metadata; never infer unrestricted memory ranges.',
+    'TransferData blocks in order, preserving block counters and ISO-TP flow-control pacing.',
+    'RequestTransferExit and execute any post-programming checksum, dependency, or reset routine.',
+    'Reset ECU, re-read identifiers/DTCs, and compare final state against the pre-programming snapshot.',
+  ],
+}));
+
 
 const KEY_TABLES = [
   {name:'var_ver',label:'ECU variants',hint:'Variant/version records that anchor CDA6 ECU coverage.'},
@@ -29,6 +68,186 @@ function loadSqlJs(){
   }
   return sqlInitPromise;
 }
+
+
+function publicAsset(path){
+  const base = (import.meta.env.BASE_URL || '/').replace(/\/?$/, '/');
+  return `${base}${String(path || '').replace(/^\/+/, '')}`;
+}
+
+function compactHex(value){
+  return String(value ?? '').replace(/[^0-9a-fA-F]/g,'').toUpperCase();
+}
+
+function bundledModules(udsDataset){
+  return Array.isArray(udsDataset?.modules) ? udsDataset.modules : [];
+}
+
+function datasetCommandHex(command){
+  return compactHex(command?.hex || command?.udsHex || command?.command || command?.request || '');
+}
+
+function datasetCommandService(command){
+  const hex = datasetCommandHex(command);
+  if(hex.length >= 2) return hex.slice(0,2);
+  return normalizeHex(command?.service ?? command?.serviceId ?? command?.sid, '', 1);
+}
+
+function datasetCommandDid(command){
+  const hex = datasetCommandHex(command);
+  const service = hex.slice(0,2);
+  if(['22','2E','2F'].includes(service) && hex.length >= 6) return hex.slice(2,6);
+  return normalizeHex(command?.did ?? command?.identifier ?? command?.dataIdentifier, '', 2);
+}
+
+function datasetCommandRoutine(command){
+  const hex = datasetCommandHex(command);
+  if(hex.startsWith('31') && hex.length >= 8) return hex.slice(4,8);
+  return normalizeHex(command?.routineId ?? command?.routine_id ?? command?.rid, '', 2);
+}
+
+function normalizeDatasetModule(module, index=0){
+  const name = module?.module || module?.name || module?.ecu || `Module ${index+1}`;
+  const can = Array.isArray(module?.can) ? module.can[0] || {} : module?.can || {};
+  const commands = Array.isArray(module?.commands) ? module.commands : [];
+  const security = Array.isArray(module?.security) ? module.security : [];
+  return {
+    ...module,
+    module:name,
+    can:Array.isArray(module?.can) ? module.can : (module?.can ? [module.can] : []),
+    commands,
+    security,
+    ecuRow:{
+      module:name,
+      request_can_id: can.request ?? can.requestId ?? can.tx ?? '',
+      response_can_id: can.response ?? can.responseId ?? can.rx ?? '',
+      bus: can.bus_id ?? can.bus ?? can.channel ?? '',
+      command_count: commands.length,
+      security_count: security.length,
+    },
+  };
+}
+
+function normalizeDataset(raw){
+  const sourceModules = bundledModules(raw).map(normalizeDatasetModule);
+  if(sourceModules.length){
+    const commandCount = Number(raw?.totalCommands || sourceModules.reduce((sum,module)=>sum + module.commands.length, 0));
+    return {...raw, modules:sourceModules, totalModules:Number(raw?.totalModules || sourceModules.length), totalCommands:commandCount, source:raw?.source || 'cda6_full_uds_dataset.json'};
+  }
+  return {
+    totalModules:1,
+    totalCommands:CDA_UDS_COMMANDS.length,
+    source:'CDA SWF generated fallback',
+    modules:[normalizeDatasetModule({module:'CDA hardcoded SWF commands', can:[], security:[], commands:CDA_UDS_COMMANDS.map((command)=>({
+      hex:command.udsHex,
+      service:command.service,
+      serviceName:command.serviceName,
+      name:command.didName || command.description,
+      description:command.description,
+      did:command.did,
+      targetEcu:command.targetEcu,
+      sourceContext:command.sourceContext,
+      typeId:'CDA_SWF',
+    }))},0)],
+  };
+}
+
+function normalizeManifest(raw){
+  const entries = Array.isArray(raw) ? raw : Array.isArray(raw?.databases) ? raw.databases : [];
+  return entries.map((entry,index)=>{
+    const fileName = entry.fileName || entry.name || entry.filename || entry.path?.split('/').pop() || `database-${index+1}.db`;
+    const path = entry.path || `${BUNDLED_DATABASE_BASE}${fileName}`;
+    return {
+      ...entry,
+      id: entry.id || fileName,
+      fileName,
+      path,
+      size: Number(entry.size || entry.bytes || 0),
+      module: entry.module || entry.ecu || fileName.replace(/\.db$/i,''),
+      description: entry.description || entry.label || 'Bundled decrypted CDA6 SQLite database',
+    };
+  });
+}
+
+function makeDatasetCommandRow(module, command, index){
+  const hex = datasetCommandHex(command);
+  return {
+    ...command,
+    module: module?.module || command?.module || '',
+    command: hex,
+    request: hex,
+    service_hex: datasetCommandService(command),
+    did: datasetCommandDid(command),
+    routine_id: datasetCommandRoutine(command),
+    name: command?.name || command?.didName || command?.serviceName || `Command ${index+1}`,
+    description: command?.description || command?.sourceContext || '',
+  };
+}
+
+function rowsFromDatasetModule(module, kind='all'){
+  const commands = (module?.commands || []).map((command,index)=>makeDatasetCommandRow(module, command, index));
+  if(kind === 'did') return commands.filter((row)=>['22','2E','2F'].includes(datasetCommandService(row)) || row.did);
+  if(kind === 'routine') return commands.filter((row)=>datasetCommandService(row) === '31' || row.routine_id);
+  if(kind === 'security'){
+    const commandRows = commands.filter((row)=>datasetCommandService(row) === '27');
+    const securityRows = (module?.security || []).map((row,index)=>({
+      ...row,
+      module: module?.module || '',
+      level: row.level ?? row.securityLevel ?? index+1,
+      name: row.file_name || row.supplier || `Security level ${row.level ?? index+1}`,
+      description: row.algorithm || row.file_content || '',
+    }));
+    return [...commandRows, ...securityRows];
+  }
+  return commands;
+}
+
+function commandFromDatasetRow(row, fallbackMode='readDid'){
+  const hex = datasetCommandHex(row);
+  if(hex){
+    if(fallbackMode === 'writeDid' && hex.startsWith('22') && hex.length >= 6) return `2E${hex.slice(2,6)}`;
+    if(fallbackMode === 'readDid' && hex.startsWith('2E') && hex.length >= 6) return `22${hex.slice(2,6)}`;
+    return hex;
+  }
+  if(fallbackMode === 'security') return `27${normalizeHex(row?.level ?? row?.securityLevel, '01', 1)}`;
+  if(fallbackMode === 'routine') return `31${normalizeHex(row?.subfunction ?? row?.subFunction, '01', 1)}${datasetCommandRoutine(row)}`;
+  const did = datasetCommandDid(row);
+  if(did) return `${fallbackMode === 'writeDid' ? '2E' : '22'}${did}`;
+  return '';
+}
+
+function createLoadedDatabase(SQL, rawBytes, meta={}){
+  const raw = rawBytes instanceof Uint8Array ? rawBytes : new Uint8Array(rawBytes);
+  const prepared = prepareCda6DatabaseBytes(raw, {password:DEFAULT_PASSWORD});
+  if(!prepared.sqliteHeaderOk){
+    throw new Error('The selected file did not decrypt to a valid SQLite database header.');
+  }
+  const db = new SQL.Database(prepared.bytes);
+  const integrityText = String(scalar(db, 'PRAGMA integrity_check', 'not checked'));
+  const tables = loadTableCatalog(db);
+  const totalRows = tables.reduce((sum,table)=>sum + (Number(table.rowCount) || 0), 0);
+  const fileName = meta.fileName || 'cda6.db';
+  return {
+    id: meta.id || `${Date.now()}-${Math.random().toString(36).slice(2)}-${fileName}`,
+    db,
+    fileName,
+    fileSize: meta.fileSize ?? raw.byteLength,
+    downloadName: meta.downloadName || fileName.replace(/(\.db|\.sqlite)?$/i,'.decrypted.db'),
+    decryptedBytes: prepared.bytes,
+    alreadyDecrypted: prepared.alreadyDecrypted || Boolean(meta.alreadyDecrypted),
+    sourcePath: meta.sourcePath || '',
+    bundled: Boolean(meta.bundled),
+    cipherName: prepared.cipherName,
+    keyHex: prepared.keyHex,
+    pageSize: prepared.pageSize,
+    reserve: prepared.reserve,
+    integrityText,
+    integrityOk: integrityText.toLowerCase()==='ok',
+    tables,
+    totalRows,
+  };
+}
+
 
 function quoteIdent(name){
   return `"${String(name).replaceAll('"','""')}"`;
@@ -506,7 +725,96 @@ function filterRows(rows, query){
   return rows.filter((row)=>rowSearchText(row).includes(q));
 }
 
-function UdsCommandBuilderPane({database}){
+
+function PreloadedDatabaseSummary({udsDataset,datasetStatus,datasetError,onOpen}){
+  const modules = bundledModules(udsDataset);
+  const totalCommands = Number(udsDataset?.totalCommands || modules.reduce((sum,module)=>sum + (module.commands?.length || 0), 0));
+  return <Card glow style={{padding:20,border:`1px solid ${C.sr}22`,background:'linear-gradient(135deg,#FFF7F7 0%,#FFFFFF 70%)'}}>
+    <div style={{display:'flex',justifyContent:'space-between',gap:18,alignItems:'center',flexWrap:'wrap'}}>
+      <div>
+        <div style={{fontSize:12,fontWeight:900,color:C.sr,letterSpacing:.8,textTransform:'uppercase'}}>Pre-loaded Database</div>
+        <h2 style={{fontSize:24,margin:'6px 0 6px',color:C.tx}}>CDA6 UDS dataset is available without uploads</h2>
+        <p style={{fontSize:13,lineHeight:1.6,color:C.ts,margin:0}}>{datasetStatus === 'loading' ? 'Loading bundled CDA6 command catalog...' : datasetError ? `Using fallback SWF command data because the full bundled JSON was not found: ${datasetError}` : `Loaded ${modules.length.toLocaleString()} modules and ${totalCommands.toLocaleString()} UDS commands from ${udsDataset?.source || FULL_UDS_DATASET_PATH}.`}</p>
+      </div>
+      <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+        <Stat label="Modules" value={modules.length.toLocaleString()} accent={C.a3}/>
+        <Stat label="Commands" value={totalCommands.toLocaleString()} accent={C.sr}/>
+        <Btn onClick={onOpen}>Browse pre-loaded data</Btn>
+      </div>
+    </div>
+  </Card>;
+}
+
+function PreloadedDatabasePane({udsDataset,datasetStatus,datasetError}){
+  const [query,setQuery] = useState('');
+  const [moduleIndex,setModuleIndex] = useState(0);
+  const modules = useMemo(()=>bundledModules(udsDataset), [udsDataset]);
+  const filteredModules = useMemo(()=>{
+    const q = query.trim().toLowerCase();
+    if(!q) return modules;
+    return modules.filter((module)=>`${module.module} ${(module.commands || []).map((command)=>`${command.name || ''} ${command.serviceName || ''} ${datasetCommandHex(command)}`).join(' ')}`.toLowerCase().includes(q));
+  }, [modules, query]);
+  const selectedModule = filteredModules[moduleIndex] || filteredModules[0] || modules[0];
+  const commandRows = useMemo(()=>rowsFromDatasetModule(selectedModule, 'all').slice(0,1500), [selectedModule]);
+  const columns = ['module','name','serviceName','command','did','routine_id','securityLevel','typeId','description'];
+  const totalCommands = Number(udsDataset?.totalCommands || modules.reduce((sum,module)=>sum + (module.commands?.length || 0), 0));
+  return <div style={{display:'grid',gap:16}}>
+    <Card style={{padding:20}}>
+      <div style={{display:'flex',justifyContent:'space-between',gap:16,alignItems:'start',flexWrap:'wrap'}}>
+        <div><div style={{fontSize:13,fontWeight:900,color:C.tx}}>Pre-loaded CDA6 UDS Database</div><p style={{fontSize:13,color:C.ts,lineHeight:1.6,margin:'6px 0 0'}}>Browse the bundled JSON catalog immediately after opening the app. The full asset is expected at <strong>{FULL_UDS_DATASET_PATH}</strong>; if it is missing, the tab falls back to the verified hardcoded CDA SWF commands.</p></div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><Tag color={C.a3}>{modules.length.toLocaleString()} modules</Tag><Tag color={C.sr}>{totalCommands.toLocaleString()} commands</Tag><Tag color={datasetError?C.wn:C.gn}>{datasetStatus}</Tag></div>
+      </div>
+      {datasetError && <div style={{marginTop:12,padding:12,borderRadius:12,background:'#FFF8E5',border:`1px solid ${C.wn}55`,fontSize:12,lineHeight:1.55,color:C.tx}}>{datasetError}</div>}
+      <input value={query} onChange={(event)=>{setQuery(event.target.value); setModuleIndex(0);}} placeholder="Search module, service name, DID, routine, or command hex" style={{width:'100%',boxSizing:'border-box',border:`1.5px solid ${C.bd}`,borderRadius:12,padding:'13px 14px',fontFamily:'Nunito',fontSize:14,outline:'none',marginTop:16}} />
+      <div style={{display:'grid',gridTemplateColumns:'minmax(240px,.35fr) minmax(0,.65fr)',gap:14,marginTop:14,alignItems:'start'}}>
+        <div style={{display:'grid',gap:8,maxHeight:620,overflow:'auto',paddingRight:4}}>{filteredModules.map((module,index)=><button key={`${module.module}-${index}`} onClick={()=>setModuleIndex(index)} style={{textAlign:'left',border:`1.5px solid ${selectedModule===module?C.sr:C.bd}`,background:selectedModule===module?'#D32F2F0D':'#fff',borderRadius:14,padding:12,cursor:'pointer'}}><div style={{fontSize:12,fontWeight:900,color:C.tx,wordBreak:'break-word'}}>{module.module}</div><div style={{fontSize:11,color:C.ts,marginTop:5}}>{(module.commands?.length || 0).toLocaleString()} commands · {(module.security?.length || 0).toLocaleString()} security refs</div></button>)}</div>
+        <div style={{minWidth:0}}><DataTable columns={columns} rows={commandRows} maxHeight={620}/>{commandRows.length >= 1500 && <div style={{fontSize:11,color:C.ts,marginTop:8}}>Showing first 1,500 commands for this module; use search to narrow results.</div>}</div>
+      </div>
+    </Card>
+  </div>;
+}
+
+function BundledDatabaseManifest({manifest,loadedDatabases,onLoadOne,onLoadAll,status,error}){
+  const loadedPaths = new Set((loadedDatabases || []).map((database)=>database.sourcePath).filter(Boolean));
+  return <Card style={{padding:18}}>
+    <div style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'start',flexWrap:'wrap'}}>
+      <div><div style={{fontSize:13,fontWeight:900,color:C.tx}}>Bundled decrypted databases</div><div style={{fontSize:12,color:C.ts,lineHeight:1.55,marginTop:4}}>One-click load decrypted SQLite assets from <strong>{BUNDLED_DATABASE_BASE}</strong>. The manifest should enumerate all 52 databases.</div></div>
+      <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><Tag color={manifest.length?C.gn:C.wn}>{manifest.length.toLocaleString()} listed</Tag><Btn onClick={onLoadAll} disabled={!manifest.length || status === 'loading'}>{status === 'loading' ? 'Loading...' : 'Load Bundled Databases'}</Btn></div>
+    </div>
+    {error && <div style={{marginTop:12,padding:10,borderRadius:10,background:'#FFF8E5',border:`1px solid ${C.wn}55`,fontSize:12,lineHeight:1.55,color:C.tx}}>{error}</div>}
+    <div style={{display:'grid',gap:8,maxHeight:430,overflow:'auto',marginTop:14}}>{manifest.length ? manifest.map((entry)=><div key={entry.id || entry.path} style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:12,alignItems:'center',border:`1px solid ${C.bd}`,borderRadius:13,padding:11,background:'#fff'}}><div><div style={{fontSize:12,fontWeight:900,color:C.tx,wordBreak:'break-word'}}>{entry.fileName}</div><div style={{fontSize:11,color:C.ts,marginTop:4,lineHeight:1.45}}>{entry.module} · {entry.size ? formatBytes(entry.size) : 'size unknown'} · {entry.description}</div></div><Btn outline onClick={()=>onLoadOne(entry)} disabled={loadedPaths.has(entry.path) || status === 'loading'}>{loadedPaths.has(entry.path)?'Loaded':'Load'}</Btn></div>) : <div style={{fontSize:12,color:C.ts,lineHeight:1.6,border:`1px dashed ${C.bd}`,borderRadius:12,padding:12}}>No manifest entries are currently available. Add <strong>public/cda6-databases/manifest.json</strong> with the 52 decrypted database filenames to enable this list.</div>}</div>
+  </Card>;
+}
+
+function StandaloneReferencePane({udsDataset}){
+  const modules = bundledModules(udsDataset);
+  return <div style={{display:'grid',gap:16}}>
+    <Card style={{padding:20}}>
+      <div style={{fontSize:13,fontWeight:900,color:C.tx}}>Verified hardcoded UDS commands</div>
+      <p style={{fontSize:13,color:C.ts,lineHeight:1.6,margin:'6px 0 12px'}}>These commands are embedded in the CDA SWF and remain available even when no database upload is present.</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:10}}>{CDA_UDS_COMMANDS.map((command)=><div key={command.udsHex} style={{border:`1px solid ${C.bd}`,borderRadius:14,padding:13,background:'#fff'}}><div style={{fontSize:18,fontWeight:900,color:C.sr,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace'}}>{command.udsHex}</div><div style={{fontSize:12,fontWeight:900,color:C.tx,marginTop:5}}>{command.serviceName} · {command.didName}</div><div style={{fontSize:11,color:C.ts,lineHeight:1.5,marginTop:5}}>{command.description}</div></div>)}</div>
+    </Card>
+    <Card style={{padding:20}}>
+      <div style={{fontSize:13,fontWeight:900,color:C.tx}}>Flash sequence library</div>
+      <p style={{fontSize:13,color:C.ts,lineHeight:1.6,margin:'6px 0 12px'}}>Review-only 15-step programming sequence templates are bundled for eight common module families.</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:10}}>{CDA6_FLASH_SEQUENCE_MODULES.map((item)=><details key={item.module} style={{border:`1px solid ${C.bd}`,borderRadius:14,padding:13,background:'#fff'}}><summary style={{fontSize:13,fontWeight:900,color:C.sr,cursor:'pointer'}}>{item.module} · 15 steps</summary><ol style={{fontSize:11,color:C.ts,lineHeight:1.55,paddingLeft:18,margin:'10px 0 0'}}>{item.steps.map((step,index)=><li key={index}>{step}</li>)}</ol></details>)}</div>
+    </Card>
+    <Card style={{padding:20}}>
+      <div style={{fontSize:13,fontWeight:900,color:C.tx}}>SGW architecture and authenticated diagnostics</div>
+      <p style={{fontSize:13,color:C.ts,lineHeight:1.6,margin:'6px 0 10px'}}>{CDA_SGW_FLOW.description}</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:10}}><div style={{padding:12,border:`1px solid ${C.bd}`,borderRadius:12,background:C.c2}}><strong>Dongle PIN flow</strong><br/><span style={{fontSize:12,color:C.ts,lineHeight:1.5}}>{CDA_SGW_FLOW.dongleAuth.description} Field: {CDA_SGW_FLOW.dongleAuth.formField}</span></div><div style={{padding:12,border:`1px solid ${C.bd}`,borderRadius:12,background:C.c2}}><strong>Unlock event</strong><br/><span style={{fontSize:12,color:C.ts,lineHeight:1.5}}>{CDA_SGW_FLOW.events.join(', ')}</span></div><div style={{padding:12,border:`1px solid ${C.bd}`,borderRadius:12,background:C.c2}}><strong>Dataset status</strong><br/><span style={{fontSize:12,color:C.ts,lineHeight:1.5}}>{modules.length.toLocaleString()} modules available to the command browser.</span></div></div>
+    </Card>
+    <Card style={{padding:20}}>
+      <div style={{fontSize:13,fontWeight:900,color:C.tx}}>RFHUB and security findings embedded in SRT Lab</div>
+      <p style={{fontSize:13,color:C.ts,lineHeight:1.6,margin:'6px 0 12px'}}>The dedicated RFHUB tab wires the offline VIN patcher, key-slot tools, PIN resolver, XC2268 flash inspector, and shared CRC/checksum library. The findings below are surfaced here for quick reference while using CDA6 data.</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(250px,1fr))',gap:10}}>{CDA6_KEY_FINDINGS.map((item)=><div key={item.label} style={{border:`1px solid ${C.bd}`,borderRadius:14,padding:13,background:'#fff'}}><div style={{fontSize:12,fontWeight:900,color:C.tx}}>{item.label}</div><div style={{fontSize:13,fontWeight:900,color:C.sr,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace',marginTop:5,wordBreak:'break-word'}}>{item.value}</div><div style={{fontSize:11,color:C.ts,lineHeight:1.5,marginTop:5}}>{item.detail}</div></div>)}</div>
+    </Card>
+  </div>;
+}
+
+
+function UdsCommandBuilderPane({database,udsDataset}){
+  const [source,setSource] = useState(()=>bundledModules(udsDataset).length ? 'preloaded' : 'database');
   const [ecuIndex,setEcuIndex] = useState(0);
   const [didIndex,setDidIndex] = useState(0);
   const [routineIndex,setRoutineIndex] = useState(0);
@@ -519,43 +827,56 @@ function UdsCommandBuilderPane({database}){
   const [manualDid,setManualDid] = useState('');
   const [manualRoutine,setManualRoutine] = useState('');
   const [manualSecurity,setManualSecurity] = useState('');
-  const ecuRows = useMemo(()=>safeTableRows(database, 'ecu_to_bus', 3000), [database]);
-  const didRows = useMemo(()=>safeTableRows(database, 'com_ser_var_ver', 7000), [database]);
-  const routineRows = useMemo(()=>safeTableRows(database, 'routine', 3000), [database]);
-  const securityRows = useMemo(()=>safeTableRows(database, 'security', 3000), [database]);
-  const ecu = ecuRows[ecuIndex] || ecuRows[0];
-  const did = didRows[didIndex] || didRows[0];
-  const routine = routineRows[routineIndex] || routineRows[0];
-  const security = securityRows[securityIndex] || securityRows[0];
-  const didHex = normalizeHex(manualDid, guessDid(did), 2);
-  const routineHex = normalizeHex(manualRoutine, guessRoutineId(routine), 2);
-  const securityHex = normalizeHex(manualSecurity, guessSecurityLevel(security), 1);
-  const dataHex = normalizeHex(writeData, '', 0);
+  const modules = useMemo(()=>bundledModules(udsDataset), [udsDataset]);
+  const usePreloaded = source === 'preloaded' && modules.length > 0;
+  const selectedModule = modules[ecuIndex] || modules[0];
+  const datasetRows = useMemo(()=>({
+    ecuRows: modules.map((module)=>module.ecuRow || normalizeDatasetModule(module).ecuRow),
+    didRows: rowsFromDatasetModule(selectedModule, 'did'),
+    routineRows: rowsFromDatasetModule(selectedModule, 'routine'),
+    securityRows: rowsFromDatasetModule(selectedModule, 'security'),
+  }), [modules, selectedModule]);
+  const dbRows = useMemo(()=>({
+    ecuRows: safeTableRows(database, 'ecu_to_bus', 3000),
+    didRows: safeTableRows(database, 'com_ser_var_ver', 7000),
+    routineRows: safeTableRows(database, 'routine', 3000),
+    securityRows: safeTableRows(database, 'security', 3000),
+  }), [database]);
+  const rows = usePreloaded ? datasetRows : dbRows;
+  const ecu = rows.ecuRows[ecuIndex] || rows.ecuRows[0];
+  const did = rows.didRows[didIndex] || rows.didRows[0];
+  const routine = rows.routineRows[routineIndex] || rows.routineRows[0];
+  const security = rows.securityRows[securityIndex] || rows.securityRows[0];
+  const didHex = normalizeHex(manualDid, usePreloaded ? datasetCommandDid(did) : guessDid(did), 2);
+  const routineHex = normalizeHex(manualRoutine, usePreloaded ? datasetCommandRoutine(routine) : guessRoutineId(routine), 2);
+  const securityHex = normalizeHex(manualSecurity, usePreloaded ? (security?.level ?? security?.securityLevel ?? datasetCommandHex(security).slice(2,4)) : guessSecurityLevel(security), 1);
+  const dataHex = compactHex(writeData);
   const command = useMemo(()=>{
-    if(mode==='readDid') return commandFromCdaRow(did, 'readDid') || `22${didHex}`;
-    if(mode==='writeDid') return `${(commandFromCdaRow(did, 'writeDid') || `2E${didHex}`)}${dataHex}`;
-    if(mode==='routine') return commandFromCdaRow(routine, 'routine') || `31${normalizeHex(routineSub,'01',1)}${routineHex}`;
-    if(mode==='security') return commandFromCdaRow(security, 'security') || `27${securityHex}`;
+    if(mode==='readDid') return (usePreloaded ? commandFromDatasetRow(did, 'readDid') : commandFromCdaRow(did, 'readDid')) || `22${didHex}`;
+    if(mode==='writeDid') return `${(usePreloaded ? commandFromDatasetRow(did, 'writeDid') : commandFromCdaRow(did, 'writeDid')) || `2E${didHex}`}${dataHex}`;
+    if(mode==='routine') return (usePreloaded ? commandFromDatasetRow(routine, 'routine') : commandFromCdaRow(routine, 'routine')) || `31${normalizeHex(routineSub,'01',1)}${routineHex}`;
+    if(mode==='security') return (usePreloaded ? commandFromDatasetRow(security, 'security') : commandFromCdaRow(security, 'security')) || `27${securityHex}`;
     if(mode==='reset') return `11${normalizeHex(resetType,'01',1)}`;
     if(mode==='session') return `10${normalizeHex(sessionType,'03',1)}`;
     return '';
-  }, [mode,didHex,dataHex,routineSub,routineHex,securityHex,resetType,sessionType]);
+  }, [mode,usePreloaded,did,routine,security,didHex,dataHex,routineSub,routineHex,securityHex,resetType,sessionType]);
   const ids = canAddressInfo(ecu);
-  if(!database) return <EmptyState/>;
+  if(!database && !modules.length) return <EmptyState/>;
   return <Card style={{padding:20}}>
     <div style={{display:'flex',justifyContent:'space-between',gap:18,alignItems:'start',flexWrap:'wrap'}}>
       <div>
         <div style={{fontSize:13,fontWeight:900,color:C.tx}}>UDS Command Builder</div>
-        <p style={{fontSize:13,color:C.ts,lineHeight:1.6,margin:'6px 0 0'}}>Build diagnostic request bytes from CDA6 services, routines, security levels, and ECU addressing tables. Guessed identifiers stay editable so ambiguous legacy schemas can still produce exact commands.</p>
+        <p style={{fontSize:13,color:C.ts,lineHeight:1.6,margin:'6px 0 0'}}>Build diagnostic request bytes from the pre-loaded CDA6 JSON dataset or from uploaded/bundled SQLite tables. The JSON path works immediately without uploads.</p>
       </div>
-      <Tag color={C.sr}>CDA6 driven</Tag>
+      <Tag color={usePreloaded?C.gn:C.sr}>{usePreloaded?'Pre-loaded JSON':'SQLite database'}</Tag>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:14,marginTop:16}}>
-      <label style={{display:'grid',gap:6,fontSize:12,fontWeight:900,color:C.tx}}>ECU module<select value={ecuIndex} onChange={(event)=>setEcuIndex(Number(event.target.value))} style={{border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}>{ecuRows.map((row,index)=><option key={index} value={index}>{describeRow(row, ['ecu','module','bus','address'])}</option>)}</select></label>
+      <label style={{display:'grid',gap:6,fontSize:12,fontWeight:900,color:C.tx}}>Command data source<select value={source} onChange={(event)=>{setSource(event.target.value); setEcuIndex(0); setDidIndex(0); setRoutineIndex(0); setSecurityIndex(0);}} style={{border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}><option value="preloaded" disabled={!modules.length}>Pre-loaded CDA6 JSON dataset</option><option value="database" disabled={!database}>Loaded SQLite database tables</option></select></label>
+      <label style={{display:'grid',gap:6,fontSize:12,fontWeight:900,color:C.tx}}>ECU module<select value={ecuIndex} onChange={(event)=>{setEcuIndex(Number(event.target.value)); setDidIndex(0); setRoutineIndex(0); setSecurityIndex(0);}} style={{border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}>{rows.ecuRows.map((row,index)=><option key={index} value={index}>{usePreloaded ? row.module : describeRow(row, ['ecu','module','bus','address'])}</option>)}</select></label>
       <label style={{display:'grid',gap:6,fontSize:12,fontWeight:900,color:C.tx}}>UDS operation<select value={mode} onChange={(event)=>setMode(event.target.value)} style={{border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}><option value="readDid">ReadDataByIdentifier (0x22)</option><option value="writeDid">WriteDataByIdentifier (0x2E)</option><option value="routine">RoutineControl (0x31)</option><option value="security">SecurityAccess (0x27)</option><option value="reset">ECUReset (0x11)</option><option value="session">DiagnosticSessionControl (0x10)</option></select></label>
-      {(mode==='readDid' || mode==='writeDid') && <label style={{display:'grid',gap:6,fontSize:12,fontWeight:900,color:C.tx}}>DID / service row<select value={didIndex} onChange={(event)=>setDidIndex(Number(event.target.value))} style={{border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}>{didRows.map((row,index)=><option key={index} value={index}>{describeRow(row, ['did','service','name','identifier'])}</option>)}</select></label>}
-      {mode==='routine' && <label style={{display:'grid',gap:6,fontSize:12,fontWeight:900,color:C.tx}}>Routine row<select value={routineIndex} onChange={(event)=>setRoutineIndex(Number(event.target.value))} style={{border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}>{routineRows.map((row,index)=><option key={index} value={index}>{describeRow(row, ['routine','id','name'])}</option>)}</select></label>}
-      {mode==='security' && <label style={{display:'grid',gap:6,fontSize:12,fontWeight:900,color:C.tx}}>Security level row<select value={securityIndex} onChange={(event)=>setSecurityIndex(Number(event.target.value))} style={{border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}>{securityRows.map((row,index)=><option key={index} value={index}>{describeRow(row, ['level','security','algorithm','name'])}</option>)}</select></label>}
+      {(mode==='readDid' || mode==='writeDid') && <label style={{display:'grid',gap:6,fontSize:12,fontWeight:900,color:C.tx}}>DID / service row<select value={didIndex} onChange={(event)=>setDidIndex(Number(event.target.value))} style={{border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}>{rows.didRows.map((row,index)=><option key={index} value={index}>{usePreloaded ? `${row.name || row.serviceName || 'Command'} · ${spacedHex(datasetCommandHex(row))}` : describeRow(row, ['did','service','name','identifier'])}</option>)}</select></label>}
+      {mode==='routine' && <label style={{display:'grid',gap:6,fontSize:12,fontWeight:900,color:C.tx}}>Routine row<select value={routineIndex} onChange={(event)=>setRoutineIndex(Number(event.target.value))} style={{border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}>{rows.routineRows.map((row,index)=><option key={index} value={index}>{usePreloaded ? `${row.name || row.serviceName || 'Routine'} · ${spacedHex(datasetCommandHex(row))}` : describeRow(row, ['routine','id','name'])}</option>)}</select></label>}
+      {mode==='security' && <label style={{display:'grid',gap:6,fontSize:12,fontWeight:900,color:C.tx}}>Security level row<select value={securityIndex} onChange={(event)=>setSecurityIndex(Number(event.target.value))} style={{border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}>{rows.securityRows.map((row,index)=><option key={index} value={index}>{usePreloaded ? `${row.name || 'Security'} · level ${row.level ?? row.securityLevel ?? 'n/a'}` : describeRow(row, ['level','security','algorithm','name'])}</option>)}</select></label>}
     </div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:12,marginTop:14}}>
       {(mode==='readDid' || mode==='writeDid') && <label style={{fontSize:12,fontWeight:900,color:C.tx}}>DID hex<input value={manualDid || didHex} onChange={(event)=>setManualDid(event.target.value)} style={{width:'100%',boxSizing:'border-box',border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace'}} /></label>}
@@ -796,8 +1117,55 @@ export default function Cda6DatabaseToolsTab(){
   const [tableFilter,setTableFilter] = useState('');
   const [globalSearch,setGlobalSearch] = useState('');
   const [rowLimit,setRowLimit] = useState(DEFAULT_ROW_LIMIT);
+  const [udsDataset,setUdsDataset] = useState(()=>normalizeDataset(null));
+  const [datasetStatus,setDatasetStatus] = useState('loading');
+  const [datasetError,setDatasetError] = useState('');
+  const [bundledManifest,setBundledManifest] = useState([]);
+  const [bundledStatus,setBundledStatus] = useState('idle');
+  const [bundledError,setBundledError] = useState('');
 
   const currentDb = useMemo(()=>databases.find((db)=>db.id===currentId) || databases[0], [databases, currentId]);
+
+
+  useEffect(()=>{
+    let cancelled = false;
+    async function loadBundledAssets(){
+      setDatasetStatus('loading');
+      setDatasetError('');
+      try{
+        const response = await fetch(publicAsset(FULL_UDS_DATASET_PATH), {cache:'force-cache'});
+        if(!response.ok) throw new Error(`${FULL_UDS_DATASET_PATH} returned HTTP ${response.status}`);
+        const json = await response.json();
+        if(!cancelled){
+          setUdsDataset(normalizeDataset(json));
+          setDatasetStatus('loaded');
+        }
+      }catch(err){
+        if(!cancelled){
+          setUdsDataset(normalizeDataset(null));
+          setDatasetError(err?.message || String(err));
+          setDatasetStatus('fallback');
+        }
+      }
+      try{
+        const response = await fetch(publicAsset(BUNDLED_DATABASE_MANIFEST_PATH), {cache:'no-cache'});
+        if(!response.ok) throw new Error(`${BUNDLED_DATABASE_MANIFEST_PATH} returned HTTP ${response.status}`);
+        const json = await response.json();
+        if(!cancelled){
+          setBundledManifest(normalizeManifest(json));
+          setBundledError('');
+        }
+      }catch(err){
+        if(!cancelled){
+          setBundledManifest([]);
+          setBundledError(err?.message || String(err));
+        }
+      }
+    }
+    loadBundledAssets();
+    return ()=>{cancelled = true;};
+  }, []);
+
 
   async function handleFiles(files){
     const selectedFiles = Array.from(files || []);
@@ -810,43 +1178,9 @@ export default function Cda6DatabaseToolsTab(){
       for(const [index,file] of selectedFiles.entries()){
         try{
           const raw = new Uint8Array(await file.arrayBuffer());
-          const prepared = prepareCda6DatabaseBytes(raw, {password:DEFAULT_PASSWORD});
-          if(!prepared.sqliteHeaderOk){
-            throw new Error('Decryption completed, but the output does not start with a SQLite header.');
-          }
-          const db = new SQL.Database(prepared.bytes);
-          const integrityText = String(scalar(db, 'PRAGMA integrity_check', 'not checked'));
-          const tables = loadTableCatalog(db);
-          const totalRows = tables.reduce((sum,table)=>sum + (Number(table.rowCount) || 0), 0);
-          const id = `${Date.now()}-${index}-${file.name}`;
-          loaded.push({
-            id,
-            db,
-            fileName:file.name,
-            fileSize:file.size,
-            downloadName:file.name.replace(/(\.db|\.sqlite)?$/i,'.decrypted.db'),
-            decryptedBytes:prepared.bytes,
-            alreadyDecrypted:prepared.alreadyDecrypted,
-            cipherName:prepared.cipherName,
-            keyHex:prepared.keyHex,
-            pageSize:prepared.pageSize,
-            reserve:prepared.reserve,
-            integrityText,
-            integrityOk:integrityText.toLowerCase()==='ok',
-            tables,
-            totalRows,
-          });
+          loaded.push(createLoadedDatabase(SQL, raw, {id:`${Date.now()}-${index}-${file.name}`, fileName:file.name, fileSize:file.size}));
         }catch(fileError){
-          loaded.push({
-            id:`${Date.now()}-${index}-${file.name}-error`,
-            fileName:file.name,
-            fileSize:file.size,
-            error:fileError?.message || String(fileError),
-            tables:[],
-            totalRows:0,
-            integrityText:'error',
-            integrityOk:false,
-          });
+          loaded.push({id:`${Date.now()}-${index}-${file.name}-error`, fileName:file.name, fileSize:file.size, error:fileError?.message || String(fileError), tables:[], totalRows:0, integrityText:'error', integrityOk:false});
         }
       }
       const usable = loaded.filter((item)=>!item.error);
@@ -856,14 +1190,84 @@ export default function Cda6DatabaseToolsTab(){
         setCurrentId((existing)=>existing || usable[0].id);
         setSelectedTableName((existing)=>existing || usable[0].tables.find((table)=>table.isKey)?.name || usable[0].tables[0]?.name || '');
       }
-      if(failed.length){
-        setError(failed.map((item)=>`${item.fileName}: ${item.error}`).join('\n'));
-      }
+      if(failed.length) setError(failed.map((item)=>`${item.fileName}: ${item.error}`).join('\n'));
     }catch(err){
       setError(err?.message || String(err));
     }finally{
       setBusy(false);
       if(fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
+
+  async function loadBundledDatabase(entry){
+    if(!entry?.path) return;
+    setBundledStatus('loading');
+    setBundledError('');
+    try{
+      const existing = databases.find((database)=>database.sourcePath === entry.path);
+      if(existing){
+        setCurrentId(existing.id);
+        setSelectedTableName(existing.tables.find((table)=>table.isKey)?.name || existing.tables[0]?.name || '');
+        setActiveView('browser');
+        return existing;
+      }
+      const response = await fetch(publicAsset(entry.path), {cache:'force-cache'});
+      if(!response.ok) throw new Error(`${entry.fileName}: HTTP ${response.status}`);
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      const SQL = await loadSqlJs();
+      const loaded = createLoadedDatabase(SQL, bytes, {id:`bundled-${entry.id || entry.fileName}`, fileName:entry.fileName, fileSize:entry.size || bytes.byteLength, sourcePath:entry.path, bundled:true, alreadyDecrypted:true});
+      setDatabases((existingDatabases)=>[...existingDatabases, loaded]);
+      setCurrentId(loaded.id);
+      setSelectedTableName(loaded.tables.find((table)=>table.isKey)?.name || loaded.tables[0]?.name || '');
+      setActiveView('browser');
+      return loaded;
+    }catch(err){
+      const message = err?.message || String(err);
+      setBundledError(message);
+      setError(message);
+      return null;
+    }finally{
+      setBundledStatus('idle');
+    }
+  }
+
+  async function loadAllBundledDatabases(){
+    if(!bundledManifest.length) return;
+    setBundledStatus('loading');
+    setBundledError('');
+    try{
+      const SQL = await loadSqlJs();
+      const existingPaths = new Set(databases.map((database)=>database.sourcePath).filter(Boolean));
+      const loaded = [];
+      const failures = [];
+      for(const entry of bundledManifest){
+        if(existingPaths.has(entry.path)) continue;
+        try{
+          const response = await fetch(publicAsset(entry.path), {cache:'force-cache'});
+          if(!response.ok) throw new Error(`HTTP ${response.status}`);
+          const bytes = new Uint8Array(await response.arrayBuffer());
+          loaded.push(createLoadedDatabase(SQL, bytes, {id:`bundled-${entry.id || entry.fileName}`, fileName:entry.fileName, fileSize:entry.size || bytes.byteLength, sourcePath:entry.path, bundled:true, alreadyDecrypted:true}));
+        }catch(err){
+          failures.push(`${entry.fileName}: ${err?.message || String(err)}`);
+        }
+      }
+      if(loaded.length){
+        setDatabases((existingDatabases)=>[...existingDatabases, ...loaded]);
+        setCurrentId((existing)=>existing || loaded[0].id);
+        setSelectedTableName((existing)=>existing || loaded[0].tables.find((table)=>table.isKey)?.name || loaded[0].tables[0]?.name || '');
+        setActiveView('browser');
+      }
+      if(failures.length){
+        const message = failures.join('\n');
+        setBundledError(message);
+        setError(message);
+      }
+    }catch(err){
+      const message = err?.message || String(err);
+      setBundledError(message);
+      setError(message);
+    }finally{
+      setBundledStatus('idle');
     }
   }
 
@@ -890,8 +1294,8 @@ export default function Cda6DatabaseToolsTab(){
       <div style={{display:'flex',justifyContent:'space-between',gap:20,alignItems:'start',flexWrap:'wrap'}}>
         <div style={{maxWidth:860}}>
           <div style={{fontSize:12,fontWeight:900,color:C.sr,letterSpacing:1,textTransform:'uppercase'}}>CDA6 Database Tools</div>
-          <h1 style={{fontSize:34,margin:'8px 0 10px',color:C.tx}}>CDA6 Database Decryptor and Viewer</h1>
-          <p style={{fontSize:15,lineHeight:1.7,color:C.ts,margin:0}}>Upload one or more encrypted CDA6 SQLite databases, decrypt each page locally using the recovered AES-128 OFB-like codec, browse schemas and rows, highlight critical reverse-engineering tables, and search across the full database.</p>
+          <h1 style={{fontSize:34,margin:'8px 0 10px',color:C.tx}}>Standalone CDA6 Database, UDS, and RFHUB Research Tool</h1>
+          <p style={{fontSize:15,lineHeight:1.7,color:C.ts,margin:0}}>Open the tab and immediately browse the pre-loaded CDA6 UDS catalog, hardcoded CDA commands, SGW notes, RFHUB findings, and bundled decrypted databases when present. Upload/decrypt remains available for new encrypted CDA6 .db files.</p>
         </div>
         <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
           <input ref={fileInputRef} type="file" multiple accept=".db,.sqlite,.sqlite3,application/octet-stream" onChange={(event)=>handleFiles(event.target.files)} style={{display:'none'}} />
@@ -900,6 +1304,10 @@ export default function Cda6DatabaseToolsTab(){
         </div>
       </div>
     </Card>
+
+    <PreloadedDatabaseSummary udsDataset={udsDataset} datasetStatus={datasetStatus} datasetError={datasetError} onOpen={()=>setActiveView('preloaded')}/>
+
+    <BundledDatabaseManifest manifest={bundledManifest} loadedDatabases={databases} onLoadOne={loadBundledDatabase} onLoadAll={loadAllBundledDatabases} status={bundledStatus} error={bundledError}/>
 
     {error && <Card style={{padding:16,border:`1.5px solid ${C.er}55`,background:'#FFF5F5'}}><pre style={{margin:0,whiteSpace:'pre-wrap',fontSize:12,lineHeight:1.6,color:C.er,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace'}}>{error}</pre></Card>}
 
@@ -929,6 +1337,8 @@ export default function Cda6DatabaseToolsTab(){
 
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
           {[
+            ['preloaded','Pre-loaded Database'],
+            ['standalone','Flash / SGW / RFHUB'],
             ['auto','Auto Program'],
             ['browser','Browse tables'],
             ['search','Search all tables'],
@@ -940,10 +1350,12 @@ export default function Cda6DatabaseToolsTab(){
           ].map(([id,label])=><button key={id} onClick={()=>setActiveView(id)} style={{border:`1.5px solid ${activeView===id?C.sr:C.bd}`,background:activeView===id?C.sr:'#fff',color:activeView===id?'#fff':C.tx,borderRadius:12,padding:'10px 14px',fontFamily:'Nunito',fontWeight:900,fontSize:12,cursor:'pointer'}}>{label}</button>)}
         </div>
 
+        {activeView==='preloaded' && <PreloadedDatabasePane udsDataset={udsDataset} datasetStatus={datasetStatus} datasetError={datasetError}/>} 
+        {activeView==='standalone' && <StandaloneReferencePane udsDataset={udsDataset}/>} 
         {activeView==='auto' && <AutoProgramPane database={currentDb}/>} 
         {activeView==='browser' && <BrowserPane database={currentDb} selectedTableName={selectedTableName} setSelectedTableName={setSelectedTableName} tableFilter={tableFilter} setTableFilter={setTableFilter} rowLimit={rowLimit} setRowLimit={setRowLimit}/>} 
         {activeView==='search' && <SearchPane database={currentDb} globalSearch={globalSearch} setGlobalSearch={setGlobalSearch}/>} 
-        {activeView==='uds' && <UdsCommandBuilderPane database={currentDb}/>} 
+        {activeView==='uds' && <UdsCommandBuilderPane database={currentDb} udsDataset={udsDataset}/>} 
         {activeView==='dtc' && <DtcDecoderPane database={currentDb}/>} 
         {activeView==='security' && <SecurityReferencePane database={currentDb}/>} 
         {activeView==='crypto' && <AesUtilityPane/>} 
