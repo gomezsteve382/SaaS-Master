@@ -4,6 +4,11 @@ packages:
   - lib/integrations/*
   - scripts
 
+allowBuilds:
+  better-sqlite3: true
+  core-js: true
+  esbuild: true
+
 autoInstallPeers: false
 
 catalog:
@@ -37,6 +42,8 @@ minimumReleaseAgeExclude:
 
 onlyBuiltDependencies:
   - '@swc/core'
+  - better-sqlite3
+  - core-js
   - esbuild
   - msw
   - unrs-resolver

@@ -46,6 +46,7 @@ import EfdInspectorTab from "./tabs/EfdInspectorTab.jsx";
 import EfdToBinTab from "./tabs/EfdToBinTab.jsx";
 import EcmFlasherTab from "./tabs/EcmFlasherTab.jsx";
 import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
+import Cda6DatabaseToolsTab from "./tabs/Cda6DatabaseToolsTab.jsx";
 import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
 import SecuritySyncTab from "./tabs/SecuritySyncTab.jsx";
 import ProxiTab from "./tabs/ProxiTab.jsx";
@@ -945,6 +946,7 @@ const WORKSPACE_TABS = [
   {id:'efd2bin',   i:'📦', l:'EFD → BIN',    s:'Extract payload to .bin'},
   {id:'flasher',   i:'⚡', l:'ECM FLASHER',  s:'GPEC2A bench programmer'},
   {id:'cdasession',i:'🔐', l:'CDA6 SESSION', s:'9-step UDS walkthrough'},
+  {id:'cda6db',    i:'🗄️', l:'CDA6 DB TOOLS', s:'Decrypt · Browse · Search CDA6 databases'},
   {id:'vinprog',   i:'🪪', l:'VIN + CHECKSUM', s:'Single-file VIN write + CRC patcher'},
   {id:'proxi',     i:'📋', l:'PROXI',        s:'BCM 0x2023 + DEnn feature decoder · read-only'},
   {id:'immobcm56xb',i:'🧠', l:'IMMO BCM 56xB',s:'64 KB MPC5606B · FULL / VIN_ONLY / LOCKED · file in/out'},
@@ -995,7 +997,7 @@ const WORKSPACE_CATEGORIES = {
   loganalyser:'ANALYZE', workflow:'ANALYZE',
   // TOOLS — cross-cutting catalogs and coverage dashboards.
   unlockcov:'TOOLS', alfaobd:'TOOLS', alfaintel:'TOOLS', dispatchcov:'TOOLS',
-  sigdisc:'TOOLS',
+  cda6db:'TOOLS', sigdisc:'TOOLS',
   // RESEARCH — experimental / read-only knowledge surfaces (collapsed by default).
   binintel:'RESEARCH', patterns:'RESEARCH', kg:'RESEARCH', investigation:'RESEARCH',
   canuniverse:'RESEARCH', fwemul:'RESEARCH',
@@ -1243,6 +1245,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='efd2bin'   && <EfdToBinTab efdFile={efdFile} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
         {tab==='flasher'   && <EcmFlasherTab selectedFile={selectedCflash} files={files} onSelectFile={setSelectedCflash}/>}
         {tab==='cdasession'&& <Cda6SessionTab/>}
+        {tab==='cda6db'   && <Cda6DatabaseToolsTab/>}
         {tab==='vinprog'   && <VinProgrammerTab/>}
         {tab==='proxi'     && <ProxiTab/>}
         {tab==='immobcm56xb' && <ImmoBcm56xbTab/>}

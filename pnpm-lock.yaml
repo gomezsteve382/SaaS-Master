@@ -189,7 +189,7 @@ importers:
         version: 2.8.6
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0)
+        version: 0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0)(sql.js@1.14.1)
       express:
         specifier: ^5
         version: 5.2.1
@@ -238,7 +238,7 @@ importers:
         version: 4.21.0
       vitest:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@25.3.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@1.8.0))(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
+        version: 4.1.4(@types/node@25.3.5)(jsdom@29.0.2(@noble/hashes@1.8.0))(vite@7.3.1(@types/node@25.3.5)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))
 
   artifacts/mockup-sandbox:
     devDependencies:
@@ -425,12 +425,18 @@ importers:
 
   artifacts/srt-lab:
     dependencies:
+      aes-js:
+        specifier: ^3.1.2
+        version: 3.1.2
       fflate:
         specifier: ^0.8.2
         version: 0.8.2
       jspdf:
         specifier: ^4.2.1
         version: 4.2.1
+      sql.js:
+        specifier: ^1.14.1
+        version: 1.14.1
     devDependencies:
       '@hookform/resolvers':
         specifier: ^3.10.0
@@ -638,7 +644,7 @@ importers:
         version: 7.3.1(@types/node@25.3.5)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@25.3.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@1.8.0))(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
+        version: 4.1.4(@types/node@25.3.5)(jsdom@29.0.2(@noble/hashes@1.8.0))(vite@7.3.1(@types/node@25.3.5)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))
       wouter:
         specifier: ^3.3.5
         version: 3.9.0(react@19.1.0)
@@ -668,10 +674,10 @@ importers:
     dependencies:
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0)
+        version: 0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0)(sql.js@1.14.1)
       drizzle-zod:
         specifier: ^0.8.3
-        version: 0.8.3(drizzle-orm@0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0))(zod@3.25.76)
+        version: 0.8.3(drizzle-orm@0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0)(sql.js@1.14.1))(zod@3.25.76)
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -705,7 +711,7 @@ importers:
     devDependencies:
       vitest:
         specifier: ^4.1.4
-        version: 4.1.4(@types/node@25.3.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@1.8.0))(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
+        version: 4.1.4(@types/node@25.3.5)(jsdom@29.0.2(@noble/hashes@1.8.0))(vite@7.3.1(@types/node@25.3.5)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))
 
   scripts:
     devDependencies:
@@ -1970,6 +1976,9 @@ packages:
     resolution: {integrity: sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==}
     engines: {node: '>=0.4.0'}
     hasBin: true
+
+  aes-js@3.1.2:
+    resolution: {integrity: sha512-e5pEa2kBnBOgR4Y/p20pskXI74UEz7de8ZGVo58asOtvSVG5YAbJeELPZxOmt+Bnz3rX753YKhfIn4X4l1PPRQ==}
 
   ajv-draft-04@1.0.0:
     resolution: {integrity: sha512-mv00Te6nmYbRp5DCwclxtt7yV/joXJPGS7nM+97GdxvuttCOfgI3K4U25zboyeX0O+myI8ERluxQe5wljMmVIw==}
@@ -3500,6 +3509,9 @@ packages:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
     engines: {node: '>= 10.x'}
 
+  sql.js@1.14.1:
+    resolution: {integrity: sha512-gcj8zBWU5cFsi9WUP+4bFNXAyF1iRpA3LLyS/DP5xlrNzGmPIizUeBggKa8DbDwdqaKwUcTEnChtd2grWo/x/A==}
+
   stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
 
@@ -3812,6 +3824,7 @@ packages:
       '@vitest/ui': 4.1.4
       happy-dom: '*'
       jsdom: '*'
+      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
     peerDependenciesMeta:
       '@edge-runtime/vm':
         optional: true
@@ -5332,6 +5345,8 @@ snapshots:
 
   acorn@8.16.0: {}
 
+  aes-js@3.1.2: {}
+
   ajv-draft-04@1.0.0(ajv@8.18.0):
     optionalDependencies:
       ajv: 8.18.0
@@ -5658,15 +5673,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0):
+  drizzle-orm@0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0)(sql.js@1.14.1):
     optionalDependencies:
       '@types/pg': 8.18.0
       better-sqlite3: 12.9.0
       pg: 8.20.0
+      sql.js: 1.14.1
 
-  drizzle-zod@0.8.3(drizzle-orm@0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0))(zod@3.25.76):
+  drizzle-zod@0.8.3(drizzle-orm@0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0)(sql.js@1.14.1))(zod@3.25.76):
     dependencies:
-      drizzle-orm: 0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0)
+      drizzle-orm: 0.45.1(@types/pg@8.18.0)(better-sqlite3@12.9.0)(pg@8.20.0)(sql.js@1.14.1)
       zod: 3.25.76
 
   dunder-proto@1.0.1:
@@ -6780,6 +6796,8 @@ snapshots:
 
   split2@4.2.0: {}
 
+  sql.js@1.14.1: {}
+
   stackback@0.0.2: {}
 
   stackblur-canvas@2.7.0:
@@ -7039,7 +7057,7 @@ snapshots:
       tsx: 4.21.0
       yaml: 2.8.2
 
-  vitest@4.1.4(@types/node@25.3.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@1.8.0))(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2):
+  vitest@4.1.4(@types/node@25.3.5)(jsdom@29.0.2(@noble/hashes@1.8.0))(vite@7.3.1(@types/node@25.3.5)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@vitest/expect': 4.1.4
       '@vitest/mocker': 4.1.4(vite@7.3.1(@types/node@25.3.5)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -7065,17 +7083,7 @@ snapshots:
       '@types/node': 25.3.5
       jsdom: 29.0.2(@noble/hashes@1.8.0)
     transitivePeerDependencies:
-      - jiti
-      - less
-      - lightningcss
       - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - yaml
 
   w3c-xmlserializer@5.0.0:
     dependencies:
