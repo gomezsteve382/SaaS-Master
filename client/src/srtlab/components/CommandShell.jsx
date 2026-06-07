@@ -23,8 +23,11 @@ export const PRIMARY_NAV = [
   {key: 'workflow',    label: 'Mission Control', sub: 'Module census · status overview', emoji: '🛠️'},
   // DIAGNOSE — first stop, drop files and get a verdict
   {key: 'dumps',       label: 'Diagnose',      sub: 'Drop → verdict → fix', emoji: '🔍'},
+  // OBD & UDS — live connections and raw command console (promoted to top)
+  {key: 'obd',         label: 'OBD Pull',      sub: 'Read bin dumps live',            emoji: '📡'},
+  {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          emoji: '🔌'},
   // VIN & SECURITY — patch identifiers and pair modules
-  {key: 'vinprog',     label: 'VIN & Checksum', sub: 'Read / write / verify',          emoji: '🪪'},
+  {key: 'vinprog',     label: 'VIN & Checksum', sub: 'Read / write / verify',          emoji: '🪦'},
   {key: 'vinsync',     label: 'VIN → Sync',    sub: 'Checksums then security',        emoji: '🔄'},
   {key: 'secsync',     label: 'Security Sync', sub: 'BCM · RFHUB · PCM side-by-side', emoji: '🔐'},
   // KEYS — programming, transplant, and status
@@ -33,9 +36,7 @@ export const PRIMARY_NAV = [
   {key: 'keytransplant', label: 'Key Transplant', sub: 'Donor → Target RFHUB clone',    emoji: '🔀'},
   {key: 'hitagaes',    label: 'HITAG Key Reader', sub: 'PCF7945 · PCF7939FA · blank / prog / locked', emoji: '📶'},
   {key: 'hitag2',      label: 'HITAG 2 Bench',   sub: 'PCF7945/53 · SK derive · VVDI write helper', emoji: '📶'},
-  // OBD & AI — live connections and guided analysis
-  {key: 'obd',         label: 'OBD Pull',      sub: 'Read bin dumps live',            emoji: '📡'},
-  {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          emoji: '🔌'},
+  // AI — guided investigation
   {key: 'investigation', label: 'AI Copilot',  sub: 'Guided investigation',           emoji: '🤖'},
 ];
 

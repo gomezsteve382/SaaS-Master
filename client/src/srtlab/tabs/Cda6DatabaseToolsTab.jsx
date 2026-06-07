@@ -574,6 +574,27 @@ function UdsCommandBuilderPane({database}){
       <div style={{padding:16,borderRadius:14,background:C.c2,border:`1px solid ${C.bd}`}}>
         <div style={{fontSize:12,fontWeight:900,color:C.tx}}>CAN addressing</div>
         <div style={{fontSize:12,color:C.ts,lineHeight:1.7,marginTop:8}}><strong>Request ID:</strong> {ids.request ? `0x${ids.request}` : 'Not detected'}<br/><strong>Response ID:</strong> {ids.response ? `0x${ids.response}` : 'Not detected'}<br/><strong>Bus:</strong> {ids.bus || 'Not detected'}</div>
+        {(ids.request || ids.response) && (
+          <button
+            onClick={()=>{
+              // Store CAN IDs in sessionStorage so UDS tab can pick them up on mount
+              if(ids.request) sessionStorage.setItem('srtlab:uds:prefill:tx', '0x'+ids.request);
+              if(ids.response) sessionStorage.setItem('srtlab:uds:prefill:rx', '0x'+ids.response);
+              if(command) sessionStorage.setItem('srtlab:uds:prefill:cmd', command);
+              // Dispatch tab-switch event
+              window.dispatchEvent(new CustomEvent('srtlab:openTab', {detail:'uds-console'}));
+            }}
+            style={{
+              marginTop:10,width:'100%',padding:'8px 12px',borderRadius:10,
+              background:'linear-gradient(135deg,#1565C0 0%,#42A5F5 100%)',
+              color:'#fff',border:'none',fontFamily:"'Nunito'",fontWeight:900,
+              fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,
+              boxShadow:'0 2px 8px rgba(21,101,192,0.35)',
+            }}
+          >
+            🔌 Send to UDS Tab
+          </button>
+        )}
       </div>
     </div>
   </Card>;

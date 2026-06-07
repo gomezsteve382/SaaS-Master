@@ -191,6 +191,18 @@ export default function UdsTab(){
   // contract without needing surgery; the args are intentionally ignored.
   const recordPaper=useCallback((_operation,_extra)=>{},[]);
 
+  // Prefill TX/RX/cmd from sessionStorage when navigating here from CDA6 DB Tools.
+  React.useEffect(()=>{
+    const tx = sessionStorage.getItem('srtlab:uds:prefill:tx');
+    const rx = sessionStorage.getItem('srtlab:uds:prefill:rx');
+    const cmd = sessionStorage.getItem('srtlab:uds:prefill:cmd');
+    if (tx) { setTxAddr(tx); sessionStorage.removeItem('srtlab:uds:prefill:tx'); }
+    if (rx) { setRxAddr(rx); sessionStorage.removeItem('srtlab:uds:prefill:rx'); }
+    if (cmd) { setRawCmd(cmd); sessionStorage.removeItem('srtlab:uds:prefill:cmd'); }
+    if (tx || rx) addLog(`🔌 Pre-filled from CDA6 DB Tools — TX:${tx||'(unchanged)'} RX:${rx||'(unchanged)'}${cmd?' CMD:'+cmd:''}`, 'info');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const loadPreset=m=>{
     const p=MODULE_PRESETS[m];if(!p)return;
     setTxAddr('0x'+hx(p.tx,3));setRxAddr('0x'+hx(p.rx,3));setSelectedModule(m);
@@ -770,9 +782,16 @@ export default function UdsTab(){
     </Card>
 
     <Card style={{background:'#F4F1EC',color:'#1A1A1A'}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
         <div style={{fontWeight:800,fontSize:12,color:C.a4,letterSpacing:2}}>📋 LOG</div>
         <button onClick={()=>setLog([])} style={{fontSize:10,color:C.ts,background:'transparent',border:'1px solid '+C.bd,padding:'3px 10px',borderRadius:6,cursor:'pointer'}}>CLEAR</button>
+      </div>
+      <div style={{display:'flex',gap:10,marginBottom:8,flexWrap:'wrap'}}>
+        {[['TX','#1565C0'],['RX','#2E7D32'],['ERR','#D32F2F'],['WARN','#E65100'],['INFO','#5A5A5A']].map(([label,color])=>(
+          <span key={label} style={{display:'flex',alignItems:'center',gap:3,fontSize:9,fontWeight:700,color}}>
+            <span style={{width:7,height:7,borderRadius:'50%',background:color,display:'inline-block',flexShrink:0}}/>{label}
+          </span>
+        ))}
       </div>
       <div data-testid="uds-log" style={{maxHeight:380,overflowY:'auto',fontFamily:"'JetBrains Mono'",fontSize:10,lineHeight:1.6}}>
         {log.length===0&&<div style={{color:C.tm,textAlign:'center',padding:20}}>Ready — send a command to begin</div>}
@@ -803,6 +822,26 @@ function EcuPicker({onPick}){
   const [showCda6,setShowCda6]=useState(false);
   const [cda6MatchToast,setCda6MatchToast]=useState(null); // {msg, ok}
   const rows=ECU_PICKER_ROWS;
+  // Pre-compute which CDA6 entries have an AlfaOBD match (for confidence badges).
+  // Runs once at mount — 398 entries, negligible cost.
+  const cda6MatchSet = React.useMemo(() => {
+    const matched = new Set();
+    for (const entry of ECU_CATALOG_CDA6) {
+      const acronym = entry.acronym || '';
+      const name = entry.name || '';
+      let hit = findEcuPickerRow(acronym) || findEcuPickerRow(name);
+      if (!hit) {
+        const base = acronym.replace(/[_-](VB|PN|FGA|CUSW|MSRT|CMN|MZD|KLINE|PN2|SUP\d*)$/i, '');
+        if (base !== acronym) hit = findEcuPickerRow(base);
+      }
+      if (!hit) {
+        const firstWord = name.split(/[\s/\-_]/)[0];
+        if (firstWord && firstWord.length >= 2) hit = findEcuPickerRow(firstWord);
+      }
+      if (hit) matched.add(entry.id);
+    }
+    return matched;
+  }, []);
   const filtered=q.trim()
     ?rows.filter(r=>{
        const lq=q.toLowerCase();
@@ -897,7 +936,13 @@ function EcuPicker({onPick}){
     {showCda6&&<div style={{marginTop:8,border:'1px solid #CE93D8',borderRadius:6,background:'#FAF5FF'}}>
       <div style={{padding:'6px 10px',fontSize:10,fontWeight:700,color:'#4A148C',letterSpacing:1,borderBottom:'1px solid #E1BEE7',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:4}}>
         <span>CDA6 MODULE CATALOG — {ECU_CATALOG_CDA6_META.ecuCount} modules · {ECU_CATALOG_CDA6_META.protocolCount} protocols</span>
-        <span style={{fontWeight:400,color:'#7B1FA2',fontSize:9}}>👇 Click any row to auto-match TX/RX from AlfaOBD table</span>
+        <span style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+          <span style={{fontWeight:400,color:'#7B1FA2',fontSize:9}}>👇 Click any row to auto-match TX/RX from AlfaOBD table</span>
+          <span style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'#555'}}>
+            <span style={{width:7,height:7,borderRadius:'50%',background:'#4CAF50',display:'inline-block'}}/><span style={{color:'#2E7D32',fontWeight:700}}>CAN ID known</span>
+            <span style={{width:7,height:7,borderRadius:'50%',background:'#BDBDBD',display:'inline-block',marginLeft:4}}/><span style={{color:'#757575',fontWeight:700}}>no CAN ID</span>
+          </span>
+        </span>
       </div>
       {cda6MatchToast&&<div data-testid="uds-cda6-match-toast" style={{
         padding:'7px 12px',fontSize:11,fontFamily:"'JetBrains Mono'",fontWeight:600,
@@ -914,6 +959,11 @@ function EcuPicker({onPick}){
             style={{padding:'5px 10px',borderBottom:'1px solid #F3E5F5',display:'flex',gap:8,alignItems:'center',fontSize:10,cursor:'pointer',userSelect:'none'}}
             onMouseEnter={ev=>ev.currentTarget.style.background='#EDE7F6'}
             onMouseLeave={ev=>ev.currentTarget.style.background='transparent'}>
+            {/* Confidence badge: green dot = has AlfaOBD CAN ID match, grey = no match */}
+            <span title={cda6MatchSet.has(e.id)?'Has AlfaOBD CAN ID match':'No CAN ID in AlfaOBD table'}
+              style={{width:8,height:8,borderRadius:'50%',flexShrink:0,
+                background:cda6MatchSet.has(e.id)?'#4CAF50':'#BDBDBD',
+                boxShadow:cda6MatchSet.has(e.id)?'0 0 0 2px rgba(76,175,80,0.25)':undefined}}/>
             <span style={{fontWeight:700,color:'#4A148C',minWidth:80,fontFamily:"'JetBrains Mono'"}}>{e.acronym||e.name}</span>
             <span style={{color:'#555',flex:1}}>{e.name}</span>
             {e.protocol&&<span style={{background:'#EDE7F6',color:'#512DA8',padding:'1px 5px',borderRadius:3,fontSize:9,fontWeight:700}}>{e.protocol}</span>}
