@@ -5,7 +5,7 @@ import reportMarkdown from '../docs/CDA_DB_DECRYPTION_REPORT.md?raw';
 import {C} from '../lib/constants.js';
 import {Btn, Card, Tag} from '../lib/ui.jsx';
 import {DEFAULT_PASSWORD, bytesToHex, prepareCda6DatabaseBytes} from '../lib/cda6DbCodec.js';
-import {CONFIG_PASSWORD, EHTML_LOG_KEY_HEX, HTTP_TRAFFIC_IV_HEX, HTTP_TRAFFIC_KEY_HEX, aesCbcDecryptBytes, bytesToBase64, bytesToHex as cryptoBytesToHex, decodeCipherInput, decodePlaintext, decryptPbkdf2AesCbc, hexToBytes} from '../lib/cda6CryptoTools.js';
+import {CONFIG_KEY_HEX, CONFIG_PASSWORD, EHTML_LOG_IV_HEX, EHTML_LOG_KEY_HEX, HTTP_TRAFFIC_IV_HEX, HTTP_TRAFFIC_KEY_HEX, aesCbcDecryptBytes, bytesToBase64, bytesToHex as cryptoBytesToHex, decodeCipherInput, decodePlaintext, decryptCdaConfigBytes, hexToBytes} from '../lib/cda6CryptoTools.js';
 import {AUTO_PROGRAM_EXAMPLES, OPERATION_PRESETS, buildAutoProgramPlan, spacedHex as plannerSpacedHex, summarizeSecurityRows} from '../lib/cda6AutoProgramPlanner.js';
 
 const PYTHON_TOOL_PATH = '/tools/decrypt_cda_db.py';
@@ -369,10 +369,10 @@ function normalizeHex(value, fallback='', bytes=0){
   if(!source) return '';
   let hex = '';
   if(/^0x[0-9a-fA-F]+$/.test(source)) hex = source.slice(2);
-  else if(/^[0-9a-fA-F]+$/.test(source) && /[a-fA-F]/.test(source)) hex = source;
+  else if(/^[0-9a-fA-F]+$/.test(source) && (/[a-fA-F]/.test(source) || source.length % 2 === 0)) hex = source;
   else if(/^[0-9]+$/.test(source)) hex = Number(source).toString(16);
   else {
-    const match = source.match(/0x([0-9a-fA-F]+)/) || source.match(/\b([0-9a-fA-F]{2,8})\b/);
+    const match = source.match(/0x([0-9a-fA-F]+)/) || source.match(/\b([0-9a-fA-F]{2,16})\b/);
     hex = match?.[1] || '';
   }
   hex = hex.replace(/[^0-9a-fA-F]/g,'').toUpperCase();
@@ -381,19 +381,107 @@ function normalizeHex(value, fallback='', bytes=0){
   return hex;
 }
 
+function valueToBytes(value){
+  if(value instanceof Uint8Array) return value;
+  if(Array.isArray(value)) return Uint8Array.from(value.map((item)=>Number(item) & 0xff));
+  if(value instanceof ArrayBuffer) return new Uint8Array(value);
+  if(typeof value === 'string'){
+    const trimmed = value.trim();
+    const hex = trimmed.replace(/^0x/i,'').replace(/[^0-9a-fA-F]/g,'');
+    if(hex.length >= 2 && hex.length % 2 === 0 && /^(?:0x)?[0-9a-fA-F\s,:;-]+$/.test(trimmed)){
+      const out = new Uint8Array(hex.length / 2);
+      for(let index=0; index<out.length; index+=1) out[index] = parseInt(hex.slice(index*2,index*2+2),16);
+      return out;
+    }
+    return new TextEncoder().encode(trimmed);
+  }
+  return new Uint8Array();
+}
+
+function readLe32(bytes, offset){
+  return (bytes[offset] | (bytes[offset+1] << 8) | (bytes[offset+2] << 16) | (bytes[offset+3] << 24)) >>> 0;
+}
+
+function isLikelyUdsPayload(bytes){
+  if(!bytes?.length || bytes.length > 4095) return false;
+  const sid = bytes[0];
+  if(sid === 0x00 && bytes.length > 1 && [0x19,0x22,0x2E,0x31].includes(bytes[1])) return true;
+  return [0x10,0x11,0x14,0x19,0x22,0x23,0x27,0x28,0x2E,0x2F,0x31,0x34,0x36,0x37,0x3E,0x85].includes(sid);
+}
+
+function parseLengthPrefixedPayload(bytes, offset, endian){
+  if(offset + 4 > bytes.length) return null;
+  const length = endian === 'be'
+    ? (((bytes[offset] << 24) | (bytes[offset+1] << 16) | (bytes[offset+2] << 8) | bytes[offset+3]) >>> 0)
+    : readLe32(bytes, offset);
+  if(length > 0 && length <= 4095 && offset + 4 + length <= bytes.length){
+    const payload = bytes.slice(offset + 4, offset + 4 + length);
+    if(isLikelyUdsPayload(payload)) return payload;
+  }
+  return null;
+}
+
+function extractUdsFromXmitStr(value){
+  const bytes = valueToBytes(value);
+  if(!bytes.length) return '';
+  const candidates = [
+    parseLengthPrefixedPayload(bytes, 0, 'le'),
+    parseLengthPrefixedPayload(bytes, 0, 'be'),
+    parseLengthPrefixedPayload(bytes, 4, 'le'),
+    parseLengthPrefixedPayload(bytes, 4, 'be'),
+  ].filter(Boolean);
+  for(let offset=0; offset<Math.min(bytes.length, 32); offset+=1){
+    if(isLikelyUdsPayload(bytes.slice(offset))) candidates.push(bytes.slice(offset));
+  }
+  const best = candidates
+    .map((candidate)=>Array.from(candidate || []))
+    .filter((candidate)=>candidate.length && isLikelyUdsPayload(candidate))
+    .sort((a,b)=>{
+      const aScore = ([0x22,0x2E,0x31,0x27,0x10,0x11,0x14,0x19].includes(a[0]) ? 10 : 0) - a.length;
+      const bScore = ([0x22,0x2E,0x31,0x27,0x10,0x11,0x14,0x19].includes(b[0]) ? 10 : 0) - b.length;
+      return bScore - aScore;
+    })[0];
+  return best ? bytesToHex(Uint8Array.from(best)) : '';
+}
+
+function commandFromCdaRow(row, fallbackMode='readDid'){
+  const xmit = pickValue(row, ['xmit_str','xmit','tx','request','request_bytes','uds_request','command','cmd']);
+  const fromXmit = extractUdsFromXmitStr(xmit);
+  if(fromXmit){
+    if(fallbackMode === 'writeDid' && fromXmit.startsWith('22') && fromXmit.length >= 6) return `2E${fromXmit.slice(2,6)}`;
+    return fromXmit;
+  }
+  const service = fallbackMode === 'writeDid' ? '2E'
+    : fallbackMode === 'routine' ? '31'
+    : fallbackMode === 'security' ? '27'
+    : fallbackMode === 'readDid' ? '22'
+    : normalizeHex(pickValue(row, ['uds_service','service','service_id','sid']), '22', 1);
+  if(service === '31') return `31${normalizeHex(pickValue(row, ['subfunction','sub_function','routine_subfunction']), '01', 1)}${guessRoutineId(row)}`;
+  if(service === '27') return `27${guessSecurityLevel(row)}`;
+  const did = guessDid(row);
+  if(['22','2E','2F'].includes(service) && did) return `${service}${did}`;
+  return service;
+}
+
 function spacedHex(hex){
   return String(hex || '').replace(/[^0-9a-fA-F]/g,'').toUpperCase().replace(/(..)/g,'$1 ').trim();
 }
 
 function guessDid(row){
+  const fromXmit = extractUdsFromXmitStr(pickValue(row, ['xmit_str','xmit','tx','request','request_bytes','uds_request','command','cmd']));
+  if(fromXmit && ['22','2E','2F'].includes(fromXmit.slice(0,2)) && fromXmit.length >= 6) return fromXmit.slice(2,6);
   return normalizeHex(pickValue(row, ['did','data_identifier','dataid','identifier','ident','param_id','com_ser','service_id']), '', 2);
 }
 
 function guessRoutineId(row){
+  const fromXmit = extractUdsFromXmitStr(pickValue(row, ['xmit_str','xmit','tx','request','request_bytes','uds_request','command','cmd']));
+  if(fromXmit?.startsWith('31') && fromXmit.length >= 8) return fromXmit.slice(4,8);
   return normalizeHex(pickValue(row, ['routine_id','routineid','rid','identifier','ident','routine']), '', 2);
 }
 
 function guessSecurityLevel(row){
+  const fromXmit = extractUdsFromXmitStr(pickValue(row, ['xmit_str','xmit','tx','request','request_bytes','uds_request','command','cmd']));
+  if(fromXmit?.startsWith('27') && fromXmit.length >= 4) return fromXmit.slice(2,4);
   return normalizeHex(pickValue(row, ['level','security_level','access_level','seed_level','sec_level','service']), '', 1);
 }
 
@@ -444,10 +532,10 @@ function UdsCommandBuilderPane({database}){
   const securityHex = normalizeHex(manualSecurity, guessSecurityLevel(security), 1);
   const dataHex = normalizeHex(writeData, '', 0);
   const command = useMemo(()=>{
-    if(mode==='readDid') return `22${didHex}`;
-    if(mode==='writeDid') return `2E${didHex}${dataHex}`;
-    if(mode==='routine') return `31${normalizeHex(routineSub,'01',1)}${routineHex}`;
-    if(mode==='security') return `27${securityHex}`;
+    if(mode==='readDid') return commandFromCdaRow(did, 'readDid') || `22${didHex}`;
+    if(mode==='writeDid') return `${(commandFromCdaRow(did, 'writeDid') || `2E${didHex}`)}${dataHex}`;
+    if(mode==='routine') return commandFromCdaRow(routine, 'routine') || `31${normalizeHex(routineSub,'01',1)}${routineHex}`;
+    if(mode==='security') return commandFromCdaRow(security, 'security') || `27${securityHex}`;
     if(mode==='reset') return `11${normalizeHex(resetType,'01',1)}`;
     if(mode==='session') return `10${normalizeHex(sessionType,'03',1)}`;
     return '';
@@ -628,14 +716,10 @@ function AesUtilityPane(){
   const [trafficResult,setTrafficResult] = useState(null);
   const [trafficError,setTrafficError] = useState('');
   const [logInput,setLogInput] = useState('');
-  const [logIv,setLogIv] = useState(HTTP_TRAFFIC_IV_HEX);
+  const [logIv,setLogIv] = useState(EHTML_LOG_IV_HEX);
   const [logResult,setLogResult] = useState(null);
   const [logError,setLogError] = useState('');
   const [configInput,setConfigInput] = useState('');
-  const [configSalt,setConfigSalt] = useState('');
-  const [configIv,setConfigIv] = useState(HTTP_TRAFFIC_IV_HEX);
-  const [configIterations,setConfigIterations] = useState('1000');
-  const [configHash,setConfigHash] = useState('SHA-1');
   const [configResult,setConfigResult] = useState(null);
   const [configError,setConfigError] = useState('');
 
@@ -643,7 +727,7 @@ function AesUtilityPane(){
     setTrafficError(''); setTrafficResult(null);
     try{
       const cipherBytes = decodeCipherInput(trafficInput, trafficEncoding);
-      const plainBytes = aesCbcDecryptBytes(cipherBytes, hexToBytes(HTTP_TRAFFIC_KEY_HEX), hexToBytes(HTTP_TRAFFIC_IV_HEX));
+      const plainBytes = aesCbcDecryptBytes(cipherBytes, hexToBytes(HTTP_TRAFFIC_KEY_HEX), hexToBytes(HTTP_TRAFFIC_IV_HEX), {padding:'null'});
       setTrafficResult({text:decodePlaintext(plainBytes), hex:cryptoBytesToHex(plainBytes), base64:bytesToBase64(plainBytes)});
     }catch(err){ setTrafficError(err?.message || String(err)); }
   }
@@ -663,25 +747,23 @@ function AesUtilityPane(){
     setLogError(''); setLogResult(null);
     try{
       const cipherBytes = decodeCipherInput(logInput, 'auto');
-      const plainBytes = aesCbcDecryptBytes(cipherBytes, hexToBytes(EHTML_LOG_KEY_HEX), hexToBytes(logIv || HTTP_TRAFFIC_IV_HEX));
+      const plainBytes = aesCbcDecryptBytes(cipherBytes, hexToBytes(EHTML_LOG_KEY_HEX), hexToBytes(logIv || EHTML_LOG_IV_HEX), {padding:'null'});
       setLogResult({text:decodePlaintext(plainBytes), hex:cryptoBytesToHex(plainBytes), base64:bytesToBase64(plainBytes)});
     }catch(err){ setLogError(err?.message || String(err)); }
   }
-  async function runConfig(){
+  function runConfig(){
     setConfigError(''); setConfigResult(null);
     try{
       const cipherBytes = decodeCipherInput(configInput, 'auto');
-      const saltBytes = configSalt.trim() ? hexToBytes(configSalt) : cipherBytes.slice(0,16);
-      const actualCipher = configSalt.trim() ? cipherBytes : cipherBytes.slice(16);
-      const result = await decryptPbkdf2AesCbc({cipherBytes:actualCipher,password:CONFIG_PASSWORD,saltBytes,ivBytes:hexToBytes(configIv || HTTP_TRAFFIC_IV_HEX),iterations:Number(configIterations) || 1000,hash:configHash,keyBits:128});
-      setConfigResult({...result, saltHex:cryptoBytesToHex(saltBytes)});
+      const result = decryptCdaConfigBytes(cipherBytes, CONFIG_PASSWORD);
+      setConfigResult(result);
     }catch(err){ setConfigError(err?.message || String(err)); }
   }
   const Output = ({result,error}) => <div style={{marginTop:12}}>{error && <div style={{padding:12,borderRadius:12,background:'#FFF5F5',border:`1px solid ${C.er}44`,fontSize:12,color:C.er,lineHeight:1.5}}>{error}</div>}{result && <div style={{display:'grid',gap:10}}><textarea readOnly value={result.text} style={{width:'100%',minHeight:110,boxSizing:'border-box',border:`1px solid ${C.bd}`,borderRadius:12,padding:12,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace',fontSize:12}}/><details><summary style={{cursor:'pointer',fontSize:12,fontWeight:900,color:C.tx}}>Raw output encodings</summary><pre style={{whiteSpace:'pre-wrap',wordBreak:'break-word',fontSize:11,lineHeight:1.55,background:C.c2,border:`1px solid ${C.bd}`,borderRadius:12,padding:12}}>{`hex=${result.hex}\nbase64=${result.base64 || ''}${result.keyBytes ? `\nderivedKey=${cryptoBytesToHex(result.keyBytes)}\nsalt=${result.saltHex || ''}` : ''}`}</pre></details></div>}</div>;
   return <div style={{display:'grid',gap:16}}>
     <Card style={{padding:20}}><div style={{fontSize:13,fontWeight:900,color:C.tx}}>HTTP Traffic Decryptor</div><p style={{fontSize:13,color:C.ts,lineHeight:1.6}}>AES-128-CBC decryptor for captured CDA HTTP traffic using the supplied static key and IV.</p><textarea value={trafficInput} onChange={(event)=>setTrafficInput(event.target.value)} placeholder="Paste encrypted hex or base64 traffic" style={{width:'100%',minHeight:120,boxSizing:'border-box',border:`1px solid ${C.bd}`,borderRadius:12,padding:12,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace',fontSize:12}}/><div style={{display:'flex',gap:10,alignItems:'center',marginTop:10,flexWrap:'wrap'}}><select value={trafficEncoding} onChange={(event)=>setTrafficEncoding(event.target.value)} style={{border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}><option value="auto">Auto-detect</option><option value="hex">Hex</option><option value="base64">Base64</option></select><Btn onClick={runTraffic}>Decrypt traffic</Btn><Tag color={C.a3}>AES-128-CBC</Tag></div><div style={{fontSize:11,color:C.ts,marginTop:8,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace'}}>key={HTTP_TRAFFIC_KEY_HEX} · iv={HTTP_TRAFFIC_IV_HEX}</div><Output result={trafficResult} error={trafficError}/></Card>
     <Card style={{padding:20}}><div style={{fontSize:13,fontWeight:900,color:C.tx}}>Log File Decryptor (.ehtml)</div><p style={{fontSize:13,color:C.ts,lineHeight:1.6}}>Upload or paste encrypted .ehtml content. The IV is editable because CBC log containers may either reuse a known IV or carry one alongside the encrypted content.</p><input type="file" accept=".ehtml,.html,.txt,application/octet-stream" onChange={(event)=>handleLogFiles(event.target.files)} style={{marginBottom:10}}/><textarea value={logInput} onChange={(event)=>setLogInput(event.target.value)} placeholder="Paste encrypted log data as hex or base64" style={{width:'100%',minHeight:120,boxSizing:'border-box',border:`1px solid ${C.bd}`,borderRadius:12,padding:12,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace',fontSize:12}}/><label style={{display:'block',fontSize:12,fontWeight:900,color:C.tx,marginTop:10}}>IV hex<input value={logIv} onChange={(event)=>setLogIv(event.target.value)} style={{width:'100%',boxSizing:'border-box',border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace'}} /></label><div style={{display:'flex',gap:10,alignItems:'center',marginTop:10,flexWrap:'wrap'}}><Btn onClick={runLog}>Decrypt log</Btn><Tag color={C.sr}>key {EHTML_LOG_KEY_HEX}</Tag></div><Output result={logResult} error={logError}/></Card>
-    <Card style={{padding:20}}><div style={{fontSize:13,fontWeight:900,color:C.tx}}>Config File Decryptor</div><p style={{fontSize:13,color:C.ts,lineHeight:1.6}}>AES-128-CBC with PBKDF2 key derivation and the CDA.swf Cryptographer password. If no salt is entered, the first 16 bytes of the pasted payload are treated as the salt and the remainder as ciphertext.</p><input type="file" accept=".cfg,.config,.xml,.txt,application/octet-stream" onChange={(event)=>handleConfigFiles(event.target.files)} style={{marginBottom:10}}/><textarea value={configInput} onChange={(event)=>setConfigInput(event.target.value)} placeholder="Paste encrypted config bytes as hex or base64" style={{width:'100%',minHeight:120,boxSizing:'border-box',border:`1px solid ${C.bd}`,borderRadius:12,padding:12,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace',fontSize:12}}/><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(170px,1fr))',gap:10,marginTop:10}}><label style={{fontSize:12,fontWeight:900,color:C.tx}}>Salt hex<input value={configSalt} onChange={(event)=>setConfigSalt(event.target.value)} placeholder="blank = first 16 bytes" style={{width:'100%',boxSizing:'border-box',border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace'}} /></label><label style={{fontSize:12,fontWeight:900,color:C.tx}}>IV hex<input value={configIv} onChange={(event)=>setConfigIv(event.target.value)} style={{width:'100%',boxSizing:'border-box',border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace'}} /></label><label style={{fontSize:12,fontWeight:900,color:C.tx}}>PBKDF2 iterations<input value={configIterations} onChange={(event)=>setConfigIterations(event.target.value)} style={{width:'100%',boxSizing:'border-box',border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}} /></label><label style={{fontSize:12,fontWeight:900,color:C.tx}}>PBKDF2 hash<select value={configHash} onChange={(event)=>setConfigHash(event.target.value)} style={{width:'100%',boxSizing:'border-box',border:`1px solid ${C.bd}`,borderRadius:10,padding:10,fontFamily:'Nunito'}}><option>SHA-1</option><option>SHA-256</option><option>SHA-384</option><option>SHA-512</option></select></label></div><div style={{display:'flex',gap:10,alignItems:'center',marginTop:10,flexWrap:'wrap'}}><Btn onClick={runConfig}>Decrypt config</Btn><Tag color={C.a1}>password {CONFIG_PASSWORD}</Tag></div><Output result={configResult} error={configError}/></Card>
+    <Card style={{padding:20}}><div style={{fontSize:13,fontWeight:900,color:C.tx}}>Config File Decryptor</div><p style={{fontSize:13,color:C.ts,lineHeight:1.6}}>AES-128-ECB decryptor for CDA.swf Cryptographer files. The AES key is MD5(password bytes), with PKCS5/PKCS7 padding.</p><input type="file" accept=".cfg,.config,.xml,.txt,application/octet-stream" onChange={(event)=>handleConfigFiles(event.target.files)} style={{marginBottom:10}}/><textarea value={configInput} onChange={(event)=>setConfigInput(event.target.value)} placeholder="Paste encrypted config bytes as hex or base64" style={{width:'100%',minHeight:120,boxSizing:'border-box',border:`1px solid ${C.bd}`,borderRadius:12,padding:12,fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace',fontSize:12}}/><div style={{display:'flex',gap:10,alignItems:'center',marginTop:10,flexWrap:'wrap'}}><Btn onClick={runConfig}>Decrypt config</Btn><Tag color={C.a1}>password {CONFIG_PASSWORD}</Tag><Tag color={C.sr}>MD5 key {CONFIG_KEY_HEX}</Tag></div><Output result={configResult} error={configError}/></Card>
   </div>;
 }
 

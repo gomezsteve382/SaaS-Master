@@ -37,6 +37,56 @@ function spacedHex(hex){
   return String(hex || '').replace(/[^0-9a-fA-F]/g,'').toUpperCase().replace(/(..)/g,'$1 ').trim();
 }
 
+function valueToBytes(value){
+  if(value instanceof Uint8Array) return value;
+  if(Array.isArray(value)) return Uint8Array.from(value.map((item)=>Number(item) & 0xff));
+  if(value instanceof ArrayBuffer) return new Uint8Array(value);
+  if(typeof value === 'string'){
+    const trimmed = value.trim();
+    const hex = trimmed.replace(/^0x/i,'').replace(/[^0-9a-fA-F]/g,'');
+    if(hex.length >= 2 && hex.length % 2 === 0 && /^(?:0x)?[0-9a-fA-F\s,:;-]+$/.test(trimmed)){
+      const out = new Uint8Array(hex.length / 2);
+      for(let index=0; index<out.length; index+=1) out[index] = parseInt(hex.slice(index*2,index*2+2),16);
+      return out;
+    }
+    return new TextEncoder().encode(trimmed);
+  }
+  return new Uint8Array();
+}
+
+function readLe32(bytes, offset){
+  return (bytes[offset] | (bytes[offset+1] << 8) | (bytes[offset+2] << 16) | (bytes[offset+3] << 24)) >>> 0;
+}
+
+function isLikelyUdsPayload(bytes){
+  if(!bytes?.length || bytes.length > 4095) return false;
+  return [0x10,0x11,0x14,0x19,0x22,0x23,0x27,0x28,0x2E,0x2F,0x31,0x34,0x36,0x37,0x3E,0x85].includes(bytes[0]);
+}
+
+function parseLengthPrefixedPayload(bytes, offset, endian){
+  if(offset + 4 > bytes.length) return null;
+  const length = endian === 'be'
+    ? (((bytes[offset] << 24) | (bytes[offset+1] << 16) | (bytes[offset+2] << 8) | bytes[offset+3]) >>> 0)
+    : readLe32(bytes, offset);
+  if(length > 0 && length <= 4095 && offset + 4 + length <= bytes.length){
+    const payload = bytes.slice(offset + 4, offset + 4 + length);
+    if(isLikelyUdsPayload(payload)) return payload;
+  }
+  return null;
+}
+
+function extractUdsFromXmitStr(value){
+  const bytes = valueToBytes(value);
+  if(!bytes.length) return '';
+  const candidates = [parseLengthPrefixedPayload(bytes,0,'le'), parseLengthPrefixedPayload(bytes,0,'be'), parseLengthPrefixedPayload(bytes,4,'le'), parseLengthPrefixedPayload(bytes,4,'be')].filter(Boolean);
+  for(let offset=0; offset<Math.min(bytes.length,32); offset+=1){
+    const slice = bytes.slice(offset);
+    if(isLikelyUdsPayload(slice)) candidates.push(slice);
+  }
+  const best = candidates.map((candidate)=>Array.from(candidate || [])).filter((candidate)=>candidate.length && isLikelyUdsPayload(candidate)).sort((a,b)=>a.length-b.length)[0];
+  return best ? bytesToHex(Uint8Array.from(best)) : '';
+}
+
 function normalizeHex(value, fallback='', bytes=0){
   const raw = String(value ?? '').trim();
   const source = raw || String(fallback || '');
@@ -104,15 +154,27 @@ function canAddressInfo(row){
 }
 
 function guessDid(row){
+  const fromXmit = extractUdsFromXmitStr(pickValue(row, ['xmit_str','xmit','tx','request','request_bytes','uds_request','command','cmd']));
+  if(fromXmit && ['22','2E','2F'].includes(fromXmit.slice(0,2)) && fromXmit.length >= 6) return fromXmit.slice(2,6);
   return normalizeHex(pickValue(row, ['did','data_identifier','dataid','identifier','ident','param_id','com_ser','service_id']), '', 2);
 }
 
 function guessRoutineId(row){
+  const fromXmit = extractUdsFromXmitStr(pickValue(row, ['xmit_str','xmit','tx','request','request_bytes','uds_request','command','cmd']));
+  if(fromXmit?.startsWith('31') && fromXmit.length >= 8) return fromXmit.slice(4,8);
   return normalizeHex(pickValue(row, ['routine_id','routineid','rid','identifier','ident','routine']), '', 2);
 }
 
 function guessSecurityLevel(row){
+  const fromXmit = extractUdsFromXmitStr(pickValue(row, ['xmit_str','xmit','tx','request','request_bytes','uds_request','command','cmd']));
+  if(fromXmit?.startsWith('27') && fromXmit.length >= 4) return fromXmit.slice(2,4);
   return normalizeHex(pickValue(row, ['level','security_level','access_level','seed_level','sec_level','service']), '', 1);
+}
+
+function commandFromCdaRow(row, fallback=''){
+  const xmit = pickValue(row, ['xmit_str','xmit','tx','request','request_bytes','uds_request','command','cmd']);
+  const fromXmit = extractUdsFromXmitStr(xmit);
+  return fromXmit || normalizeHex(fallback, '', 0);
 }
 
 function matchModuleRows(rows, moduleRow, limit=250){
@@ -225,7 +287,8 @@ function buildProgrammingSequence({moduleRow, can, rows, params}){
   addSecurityPair(steps, securityRow, moduleRow, can, params.securityLevel);
   steps.push(makeStep({title:'TesterPresent keep-alive',hex:'3E00',can,explanation:'Keep-alive to repeat at the negotiated interval during long operations.',expectation:'Positive response 7E 00 unless suppress-positive-response is used.'}));
   for(const did of didRows){
-    steps.push(makeStep({title:`Pre-check DID 0x${guessDid(did)}`,hex:`22${guessDid(did)}`,can,explanation:`Reads a CDA6-derived pre-check identifier: ${describeRow(did, ['did','name','service'])}`,expectation:`Positive response 62 ${guessDid(did)} <data>.`,source:'com_ser_var_ver'}));
+    const didHex = guessDid(did);
+    steps.push(makeStep({title:`Pre-check DID 0x${didHex}`,hex:commandFromCdaRow(did, `22${didHex}`),can,explanation:`Reads a CDA6-derived pre-check identifier: ${describeRow(did, ['did','name','service'])}`,expectation:`Positive response 62 ${didHex} <data>.`,source:'com_ser_var_ver'}));
   }
   if(eraseRoutine){
     const rid = guessRoutineId(eraseRoutine) || 'FF00';
@@ -246,7 +309,10 @@ function buildProgrammingSequence({moduleRow, can, rows, params}){
 
 function buildReadAllDids({moduleRow, can, rows}){
   const dids = matchModuleRows(rows.didRows || [], moduleRow, 2000).filter((row)=>guessDid(row));
-  return dids.map((row)=>makeStep({title:`Read DID 0x${guessDid(row)}`,hex:`22${guessDid(row)}`,can,explanation:`Reads CDA6 DID/service row: ${describeRow(row, ['did','service','name','identifier'])}`,expectation:`Positive response 62 ${guessDid(row)} <data>.`,source:'com_ser_var_ver'}));
+  return dids.map((row)=>{
+    const didHex = guessDid(row);
+    return makeStep({title:`Read DID 0x${didHex}`,hex:commandFromCdaRow(row, `22${didHex}`),can,explanation:`Reads CDA6 DID/service row: ${describeRow(row, ['did','service','name','identifier'])}`,expectation:`Positive response 62 ${didHex} <data>.`,source:'com_ser_var_ver'});
+  });
 }
 
 function buildVehicleScan({canRows, rows}){
@@ -256,7 +322,7 @@ function buildVehicleScan({canRows, rows}){
     const can = canAddressInfo(moduleRow);
     const did = findBestRow(rows.didRows || [], moduleRow, ['vin','part','software','identifier'], 'did');
     const didHex = guessDid(did) || 'F190';
-    scanSteps.push(makeStep({title:`Scan ${moduleLabel(moduleRow)}: read identifier 0x${didHex}`,hex:`22${didHex}`,can,explanation:'Full-vehicle scan entry generated from ecu_to_bus plus the best matching CDA6 identifier row. If no obvious DID is labelled, VIN DID F190 is used as an editable default.',expectation:`Positive response 62 ${didHex} <data>.`,source:'ecu_to_bus/com_ser_var_ver'}));
+    scanSteps.push(makeStep({title:`Scan ${moduleLabel(moduleRow)}: read identifier 0x${didHex}`,hex:commandFromCdaRow(did, `22${didHex}`),can,explanation:'Full-vehicle scan entry generated from ecu_to_bus plus the best matching CDA6 identifier row. If no obvious DID is labelled, VIN DID F190 is used as an editable default.',expectation:`Positive response 62 ${didHex} <data>.`,source:'ecu_to_bus/com_ser_var_ver'}));
     scanSteps.push(makeStep({title:`Scan ${moduleLabel(moduleRow)}: report DTCs`,hex:'1902FF',can,explanation:'Reads current DTCs for this ECU using UDS ReadDTCInformation reportDTCByStatusMask.',expectation:'Positive response 59 02 <DTC/status records>.'}));
   }
   return scanSteps;
@@ -293,13 +359,14 @@ function buildSingleIntent({operation,moduleRow,can,rows,params,intentMeta}){
   if(operation === 'routine'){
     const routineRow = findBestRow(rows.routineRows || [], moduleRow, intentMeta?.routineKeywords || ['routine'], 'routine');
     const rid = normalizeHex(params.routineId, guessRoutineId(routineRow), 2);
-    return [makeStep({title:`RoutineControl start routine 0x${rid || '????'}`,hex:rid ? `31${normalizeHex(params.routineSubFunction || '01','01',1)}${rid}` : '',displayHex:rid ? undefined : '31 <SUB_FUNCTION> <ROUTINE_ID>',placeholder:!rid,can,explanation:`Starts the selected CDA6 routine candidate: ${describeRow(routineRow, ['routine','name','id'])}`,expectation:rid ? `Positive response 71 ${normalizeHex(params.routineSubFunction || '01','01',1)} ${rid}.` : 'Positive response 71 <sub-function> <routine-id>.'})];
+    const routineCommand = rid ? commandFromCdaRow(routineRow, `31${normalizeHex(params.routineSubFunction || '01','01',1)}${rid}`) : '';
+    return [makeStep({title:`RoutineControl start routine 0x${rid || '????'}`,hex:routineCommand,displayHex:rid ? undefined : '31 <SUB_FUNCTION> <ROUTINE_ID>',placeholder:!rid,can,explanation:`Starts the selected CDA6 routine candidate: ${describeRow(routineRow, ['routine','name','id'])}`,expectation:rid ? `Positive response 71 ${normalizeHex(params.routineSubFunction || '01','01',1)} ${rid}.` : 'Positive response 71 <sub-function> <routine-id>.'})];
   }
   if(operation === 'reset') return [makeStep({title:'ECU reset',hex:`11${normalizeHex(params.resetType || '01','01',1)}`,can,explanation:'Generates an ECUReset request for the selected module.',expectation:'Positive response 51 <reset-type> or expected reset silence.'})];
   if(operation === 'session') return [makeStep({title:'Diagnostic session control',hex:`10${normalizeHex(params.sessionType || '03','03',1)}`,can,explanation:'Generates a DiagnosticSessionControl request for the selected module.',expectation:'Positive response 50 <session-type>.'})];
   const didRow = findBestRow(rows.didRows || [], moduleRow, intentMeta?.didKeywords || ['vin','identifier','data'], 'did');
   const didHex = normalizeHex(params.did, guessDid(didRow) || 'F190', 2);
-  return [makeStep({title:`Read DID 0x${didHex}`,hex:`22${didHex}`,can,explanation:`Reads the best matching CDA6 DID/service row: ${describeRow(didRow, ['did','service','name','identifier'])}`,expectation:`Positive response 62 ${didHex} <data>.`,source:'com_ser_var_ver'})];
+  return [makeStep({title:`Read DID 0x${didHex}`,hex:commandFromCdaRow(didRow, `22${didHex}`),can,explanation:`Reads the best matching CDA6 DID/service row: ${describeRow(didRow, ['did','service','name','identifier'])}`,expectation:`Positive response 62 ${didHex} <data>.`,source:'com_ser_var_ver'})];
 }
 
 export function buildAutoProgramPlan({intent='', operation='natural', moduleRow=null, rows={}, params={}}={}){

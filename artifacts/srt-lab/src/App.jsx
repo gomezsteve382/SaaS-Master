@@ -842,8 +842,11 @@ function VehicleCard({vehicle, delay, onClick}){
         border:`1px solid ${h ? accent+'99' : C2.darkBorder}`,
         transition:'border-color 0.3s, box-shadow 0.3s',
         boxShadow: h ? `0 20px 60px ${accent}40, 0 0 0 1px ${accent}55` : 'none',
-        animation: h ? 'none' : `srtFloat 4s ease-in-out infinite`,
-        animationDelay: `${delay}s`,
+        animationName: h ? 'none' : 'srtFloat',
+        animationDuration: '4s',
+        animationTimingFunction: 'ease-in-out',
+        animationIterationCount: 'infinite',
+        animationDelay: h ? '0s' : `${delay}s`,
       }}
     >
       <div style={{
