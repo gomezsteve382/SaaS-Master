@@ -26,7 +26,7 @@ import {
   TIER1_DISPATCH_NOTE,
   TIER1_DISPATCH_SOURCE,
 } from "../lib/tier1Dispatch.js";
-import { ECU_PICKER_ROWS, ECU_CATALOG_CDA6, ECU_CATALOG_CDA6_META } from "../lib/ecuToCanIndex.js";
+import { ECU_PICKER_ROWS, ECU_CATALOG_CDA6, ECU_CATALOG_CDA6_META, findEcuPickerRow } from "../lib/ecuToCanIndex.js";
 
 const UDS_CAN_FILTERS = [
   { category: "Protocols", subcategory: "UDS" },
@@ -801,6 +801,7 @@ function EcuPicker({onPick}){
   const [q,setQ]=useState('');
   const [open,setOpen]=useState(false);
   const [showCda6,setShowCda6]=useState(false);
+  const [cda6MatchToast,setCda6MatchToast]=useState(null); // {msg, ok}
   const rows=ECU_PICKER_ROWS;
   const filtered=q.trim()
     ?rows.filter(r=>{
@@ -819,6 +820,39 @@ function EcuPicker({onPick}){
      })
     :ECU_CATALOG_CDA6;
   const cda6Visible=cda6Filtered.slice(0,80);
+
+  // When a CDA6 entry is clicked, try to find a matching AlfaOBD row by acronym or name.
+  // Try: exact acronym → name prefix → base acronym (strip _VB/_PN/_FGA etc.)
+  const handleCda6Pick = React.useCallback((entry) => {
+    const acronym = entry.acronym || '';
+    const name = entry.name || '';
+    // 1. Exact acronym match
+    let match = findEcuPickerRow(acronym);
+    // 2. Exact name match
+    if (!match) match = findEcuPickerRow(name);
+    // 3. Base acronym (strip suffix like _VB, _PN, _FGA, _CUSW, _MSRT, _CMN, _MZD, _KLINE)
+    if (!match) {
+      const base = acronym.replace(/[_-](VB|PN|FGA|CUSW|MSRT|CMN|MZD|KLINE|PN2|SUP\d*)$/i, '');
+      if (base !== acronym) match = findEcuPickerRow(base);
+    }
+    // 4. First word of name
+    if (!match) {
+      const firstWord = name.split(/[\s/\-_]/)[0];
+      if (firstWord && firstWord.length >= 2) match = findEcuPickerRow(firstWord);
+    }
+    if (match) {
+      onPick(match);
+      setQ(match.label);
+      const msg = `✓ Matched "${acronym}" → ${match.label} · TX 0x${match.requestId.toString(16).toUpperCase().padStart(3,'0')} RX 0x${match.responseId.toString(16).toUpperCase().padStart(3,'0')}`;
+      setCda6MatchToast({msg, ok: true});
+      setTimeout(()=>setCda6MatchToast(null), 4000);
+    } else {
+      const msg = `⚠ No CAN ID match for "${acronym}" (${name}) in AlfaOBD table — set TX/RX manually`;
+      setCda6MatchToast({msg, ok: false});
+      setTimeout(()=>setCda6MatchToast(null), 5000);
+    }
+  }, [onPick]);
+
   return <div style={{marginBottom:10,position:'relative'}}>
     <div style={{display:'flex',gap:8,alignItems:'center',marginBottom:6,flexWrap:'wrap'}}>
       <div style={{fontSize:10,color:C.ts,fontWeight:700,letterSpacing:1}}>ECU PICKER (auto-fill TX/RX)</div>
@@ -861,18 +895,31 @@ function EcuPicker({onPick}){
       </div>}
     </div>}
     {showCda6&&<div style={{marginTop:8,border:'1px solid #CE93D8',borderRadius:6,background:'#FAF5FF'}}>
-      <div style={{padding:'6px 10px',fontSize:10,fontWeight:700,color:'#4A148C',letterSpacing:1,borderBottom:'1px solid #E1BEE7'}}>
-        CDA6 MODULE CATALOG — {ECU_CATALOG_CDA6_META.ecuCount} modules · {ECU_CATALOG_CDA6_META.protocolCount} protocols
-        <span style={{fontWeight:400,color:'#7B1FA2',marginLeft:8}}>No CAN IDs — cross-ref with AlfaOBD picker or udsEngine for addressing</span>
+      <div style={{padding:'6px 10px',fontSize:10,fontWeight:700,color:'#4A148C',letterSpacing:1,borderBottom:'1px solid #E1BEE7',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:4}}>
+        <span>CDA6 MODULE CATALOG — {ECU_CATALOG_CDA6_META.ecuCount} modules · {ECU_CATALOG_CDA6_META.protocolCount} protocols</span>
+        <span style={{fontWeight:400,color:'#7B1FA2',fontSize:9}}>👇 Click any row to auto-match TX/RX from AlfaOBD table</span>
       </div>
+      {cda6MatchToast&&<div data-testid="uds-cda6-match-toast" style={{
+        padding:'7px 12px',fontSize:11,fontFamily:"'JetBrains Mono'",fontWeight:600,
+        background:cda6MatchToast.ok?'#E8F5E9':'#FFF8E1',
+        color:cda6MatchToast.ok?'#1B5E20':'#E65100',
+        borderBottom:'1px solid '+(cda6MatchToast.ok?'#A5D6A7':'#FFD54F'),
+        transition:'opacity 0.3s',
+      }}>{cda6MatchToast.msg}</div>}
       <div style={{maxHeight:220,overflowY:'auto'}}>
         {cda6Visible.map((e,i)=>(
-          <div key={i} style={{padding:'4px 10px',borderBottom:'1px solid #F3E5F5',display:'flex',gap:8,alignItems:'center',fontSize:10}}>
+          <div key={i}
+            data-testid={'uds-cda6-row-'+i}
+            onClick={()=>handleCda6Pick(e)}
+            style={{padding:'5px 10px',borderBottom:'1px solid #F3E5F5',display:'flex',gap:8,alignItems:'center',fontSize:10,cursor:'pointer',userSelect:'none'}}
+            onMouseEnter={ev=>ev.currentTarget.style.background='#EDE7F6'}
+            onMouseLeave={ev=>ev.currentTarget.style.background='transparent'}>
             <span style={{fontWeight:700,color:'#4A148C',minWidth:80,fontFamily:"'JetBrains Mono'"}}>{e.acronym||e.name}</span>
             <span style={{color:'#555',flex:1}}>{e.name}</span>
             {e.protocol&&<span style={{background:'#EDE7F6',color:'#512DA8',padding:'1px 5px',borderRadius:3,fontSize:9,fontWeight:700}}>{e.protocol}</span>}
             {e.transport&&<span style={{background:'#E3F2FD',color:'#0D47A1',padding:'1px 5px',borderRadius:3,fontSize:9}}>{e.transport}</span>}
             {e.use29bit&&<span style={{background:'#FFF3E0',color:'#E65100',padding:'1px 5px',borderRadius:3,fontSize:9}}>29-bit</span>}
+            <span style={{fontSize:9,color:'#CE93D8',marginLeft:'auto',flexShrink:0}}>click to match →</span>
           </div>
         ))}
         {cda6Filtered.length>cda6Visible.length&&<div style={{padding:'4px 10px',fontSize:10,color:C.tm,fontStyle:'italic'}}>
