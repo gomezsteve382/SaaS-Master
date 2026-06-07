@@ -1,0 +1,202 @@
+[
+  {
+    "db": "ABS-ABS_FGA-01-0101(003_002).decrypted.db",
+    "id": 875,
+    "level": 1,
+    "file_name": "S1_ABS_FGA_Sup0003_Var01_V01.esu",
+    "content": "// javascript\r\nvar name = \"S1_ABS_FGA_Sup0003_Var01\";\r\nvar level = 1;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"ea4e62a5\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"2afc74c2\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"4294967295\", 10);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0003"
+  },
+  {
+    "db": "ABS-ABS_FGA-01-0101(003_002).decrypted.db",
+    "id": 876,
+    "level": 5,
+    "file_name": "S5_ABS_FGA_Sup0003_Var01_V01.esu",
+    "content": "// javascript\r\nvar name = \"S5_ABS_FGA_Sup0003_Var01\";\r\nvar level = 5;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"78829bfc\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"a1d1b1db\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"4294967295\", 10);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0003"
+  },
+  {
+    "db": "ABS-ABS_FGA-01-0101-000.decrypted.db",
+    "id": 875,
+    "level": 1,
+    "file_name": "S1_ABS_FGA_Sup0003_Var01_V01.esu",
+    "content": "// javascript\r\nvar name = \"S1_ABS_FGA_Sup0003_Var01\";\r\nvar level = 1;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"ea4e62a5\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"2afc74c2\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"4294967295\", 10);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0003"
+  },
+  {
+    "db": "ABS-ABS_FGA-01-0101-000.decrypted.db",
+    "id": 876,
+    "level": 5,
+    "file_name": "S5_ABS_FGA_Sup0003_Var01_V01.esu",
+    "content": "// javascript\r\nvar name = \"S5_ABS_FGA_Sup0003_Var01\";\r\nvar level = 5;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"78829bfc\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"a1d1b1db\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"4294967295\", 10);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0003"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4005-006.decrypted.db",
+    "id": 634,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0022_Var40_V01.esu",
+    "content": "// javascript\r\nname = \"S5_ABS_PN_Sup0022_Var40\";\r\nlevel = 5;\r\nversion = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"745717875\", 10);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"1956761722\", 10);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, seed.length - 4, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0022"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4006(001_000).decrypted.db",
+    "id": 634,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0022_Var40_V01.esu",
+    "content": "// javascript\r\nname = \"S5_ABS_PN_Sup0022_Var40\";\r\nlevel = 5;\r\nversion = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"745717875\", 10);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"1956761722\", 10);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, seed.length - 4, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0022"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4006(001_000).decrypted.db",
+    "id": 860,
+    "level": 1,
+    "file_name": "S1_ABS_PN_Sup0027_Var40_V01.esu",
+    "content": "// javascript\r\nvar name = \"S1_ABS_PN_Sup0027_Var40\";\r\nvar level = 1;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"67789e8a\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"67eedb64\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0027"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4006(001_000).decrypted.db",
+    "id": 861,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0027_Var40_V01.esu",
+    "content": "// javascript\r\nvar name = \"S5_ABS_PN_Sup0027_Var40\";\r\nvar level = 5;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"289fc9b3\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"82d9782e\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0027"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4007(005_004).decrypted.db",
+    "id": 634,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0022_Var40_V01.esu",
+    "content": "// javascript\r\nname = \"S5_ABS_PN_Sup0022_Var40\";\r\nlevel = 5;\r\nversion = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"745717875\", 10);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"1956761722\", 10);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, seed.length - 4, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0022"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4007(005_004).decrypted.db",
+    "id": 860,
+    "level": 1,
+    "file_name": "S1_ABS_PN_Sup0027_Var40_V01.esu",
+    "content": "// javascript\r\nvar name = \"S1_ABS_PN_Sup0027_Var40\";\r\nvar level = 1;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"67789e8a\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"67eedb64\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0027"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4007(005_004).decrypted.db",
+    "id": 861,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0027_Var40_V01.esu",
+    "content": "// javascript\r\nvar name = \"S5_ABS_PN_Sup0027_Var40\";\r\nvar level = 5;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"289fc9b3\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"82d9782e\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0027"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4007-002.decrypted.db",
+    "id": 634,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0022_Var40_V01.esu",
+    "content": "// javascript\r\nname = \"S5_ABS_PN_Sup0022_Var40\";\r\nlevel = 5;\r\nversion = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"745717875\", 10);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"1956761722\", 10);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, seed.length - 4, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0022"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4007-002.decrypted.db",
+    "id": 860,
+    "level": 1,
+    "file_name": "S1_ABS_PN_Sup0027_Var40_V01.esu",
+    "content": "// javascript\r\nvar name = \"S1_ABS_PN_Sup0027_Var40\";\r\nvar level = 1;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"67789e8a\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"67eedb64\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0027"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4007-002.decrypted.db",
+    "id": 861,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0027_Var40_V01.esu",
+    "content": "// javascript\r\nvar name = \"S5_ABS_PN_Sup0027_Var40\";\r\nvar level = 5;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"289fc9b3\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"82d9782e\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0027"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4008(003_002).decrypted.db",
+    "id": 860,
+    "level": 1,
+    "file_name": "S1_ABS_PN_Sup0027_Var40_V01.esu",
+    "content": "// javascript\r\nvar name = \"S1_ABS_PN_Sup0027_Var40\";\r\nvar level = 1;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"67789e8a\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"67eedb64\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0027"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4008(003_002).decrypted.db",
+    "id": 861,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0027_Var40_V01.esu",
+    "content": "// javascript\r\nvar name = \"S5_ABS_PN_Sup0027_Var40\";\r\nvar level = 5;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"289fc9b3\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"82d9782e\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0027"
+  },
+  {
+    "db": "ABS-ABS_PN-40-4010(004_003).decrypted.db",
+    "id": 634,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0022_Var40_V01.esu",
+    "content": "// javascript\r\nname = \"S5_ABS_PN_Sup0022_Var40\";\r\nlevel = 5;\r\nversion = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"745717875\", 10);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"1956761722\", 10);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, seed.length - 4, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0022"
+  },
+  {
+    "db": "ABS-ABS_PN-41-4101(005_004).decrypted.db",
+    "id": 932,
+    "level": 1,
+    "file_name": "S1_ABS_PN_Sup0003_Var41_V01.esu",
+    "content": "// javascript\r\nvar name = \"S1_ABS_PN_Sup0003_Var41\";\r\nvar level = 1;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"5E1443A2\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"B59F8AC0\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0003"
+  },
+  {
+    "db": "ABS-ABS_PN-41-4101(005_004).decrypted.db",
+    "id": 933,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0003_Var41_V01.esu",
+    "content": "// javascript\r\nvar name = \"S5_ABS_PN_Sup0003_Var41\";\r\nvar level = 5;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"3D83D147\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"8D014ADC\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0003"
+  },
+  {
+    "db": "ABS-ABS_PN-41-4101-002.decrypted.db",
+    "id": 932,
+    "level": 1,
+    "file_name": "S1_ABS_PN_Sup0003_Var41_V01.esu",
+    "content": "// javascript\r\nvar name = \"S1_ABS_PN_Sup0003_Var41\";\r\nvar level = 1;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"5E1443A2\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"B59F8AC0\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0003"
+  },
+  {
+    "db": "ABS-ABS_PN-41-4101-002.decrypted.db",
+    "id": 933,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0003_Var41_V01.esu",
+    "content": "// javascript\r\nvar name = \"S5_ABS_PN_Sup0003_Var41\";\r\nvar level = 5;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"3D83D147\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"8D014ADC\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0003"
+  },
+  {
+    "db": "ABS-ABS_PN-41-4101-003.decrypted.db",
+    "id": 932,
+    "level": 1,
+    "file_name": "S1_ABS_PN_Sup0003_Var41_V01.esu",
+    "content": "// javascript\r\nvar name = \"S1_ABS_PN_Sup0003_Var41\";\r\nvar level = 1;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"5E1443A2\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"B59F8AC0\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0003"
+  },
+  {
+    "db": "ABS-ABS_PN-41-4101-003.decrypted.db",
+    "id": 933,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0003_Var41_V01.esu",
+    "content": "// javascript\r\nvar name = \"S5_ABS_PN_Sup0003_Var41\";\r\nvar level = 5;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"3D83D147\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"8D014ADC\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"ffffffff\", 16);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, 0, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0003"
+  },
+  {
+    "db": "ABS-ABS_PN-42-4201(007_006).decrypted.db",
+    "id": 1249,
+    "level": 1,
+    "file_name": "S1_ABS_PN_Sup0003_Var42_AlgID0183_V01.esu",
+    "content": "// javascript\r\nvar name = \"S1_ABS_PN_Sup0003_Var42_AlgID0183\";\r\nvar level = 1;\r\nvar version = \"$Revision: #1 $\";\r\n\r\nvar KEY_CONSTANT_1 = strToBigInt(\"7C72C58C\", 16);\r\nvar KEY_CONSTANT_2 = strToBigInt(\"4F6CE8AA\", 16);\r\nvar AND_CONSTANT = strToBigInt(\"4294967295\", 10);\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedBigInt = arrayToBigInt(seed, seed.length - 4, 4);\r\n\r\n    var tempSeed = leftShift(andInt(rightShift(seedBigInt, 16), 0xFF), 24);\r\n    tempSeed = add(tempSeed, leftShift(andInt(rightShift(seedBigInt, 24), 0xFF), 16));\r\n    tempSeed = add(tempSeed, andInt(rightShift(seedBigInt, 8), 0xFF));\r\n    tempSeed = add(tempSeed, leftShift(andInt(seedBigInt, 0xFF), 8));\r\n\r\n    var shiftSeed = and(add(leftShift(tempSeed, 11), rightShift(tempSeed, 22)), AND_CONSTANT);\r\n\r\n    var key = and(xor(shiftSeed,xor(KEY_CONSTANT_1, and(KEY_CONSTANT_2, seedBigInt))), AND_CONSTANT);\r\n\r\n    return toArray(key, 4);\r\n}\r\n",
+    "supplier": "0003"
+  },
+  {
+    "db": "ABS-ABS_PN-42-4201(007_006).decrypted.db",
+    "id": 1388,
+    "level": 5,
+    "file_name": "S5_ABS_PN_Sup0003_Var43_AlgID01D9_V02.esu",
+    "content": "// javascript\r\nvar name = \"S5_ABS_PN_Sup0003_Var43_AlgID01D9\";\r\nvar level = 5;\r\nvar version = \"$Revision: #2 $\";\r\n\r\nvar KEY_CONSTANT_1 = 0x25905977;\r\nvar KEY_CONSTANT_2 = 0xC4EFE8A4;\r\n\r\nfunction calculateKey(seed) {\r\n    if (seed.length < 4) {\r\n        throw \"seed length must be 4\";\r\n    }\r\n\r\n    var seedInt = getSeedInt(seed);\r\n    var keyInt = getKeyInt(seed);\r\n\r\n    keyInt = ((shiftLeft(keyInt, 11) + (keyInt >>> 22)) & 0xffffffff) >>> 0;\r\n\r\n    var temp = (KEY_CONSTANT_2 & seedInt) & 0xffffffff;\r\n    keyInt = (keyInt ^ KEY_CONSTANT_1 ^ temp) & 0xffffffff;\r\n\r\n    return [((keyInt >>> 24) & 0xff) >>> 0, ((keyInt >>> 16) & 0xff) >>> 0, ((keyInt >>> 8) & 0xff) >>> 0, (keyInt & 0xff) >>> 0];\r\n}\r\n\r\nfunction getSeedInt(seed) {\r\n    var out = 0;\r\n    out |= ((0x000000FF & seed[seed.length - 4]) << 24);\r\n    out |= ((0x000000FF & seed[seed.length - 3]) << 16);\r\n    out |= ((0x000000FF & seed[seed.length - 2]) << 8);\r\n    out |= (0x000000FF & seed[seed.length - 1]);\r\n    return out;\r\n}\r\n\r\nfunction getKeyInt(seed) {\r\n    var out = 0;\r\n    out |= ((0x000000FF & seed[seed.length - 3]) << 24);\r\n    out |= ((0x000000FF & seed[seed.length - 4]) << 16);\r\n    out |= ((0x000000FF & seed[seed.length - 1]) << 8);\r\n    out |= (0x000000FF & seed[seed.length - 2]);\r\n    return out;\r\n}\r\n\r\nfunction shiftLeft(number, shiftAmount) {\r\n    var mask = 0x7fffffff >>> (shiftAmount - 1);\r\n    return ((number & mask) << shiftAmount);\r\n}",
+    "supplier": "0003"
+  }
+]

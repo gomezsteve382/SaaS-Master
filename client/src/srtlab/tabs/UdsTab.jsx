@@ -26,7 +26,7 @@ import {
   TIER1_DISPATCH_NOTE,
   TIER1_DISPATCH_SOURCE,
 } from "../lib/tier1Dispatch.js";
-import { ECU_PICKER_ROWS } from "../lib/ecuToCanIndex.js";
+import { ECU_PICKER_ROWS, ECU_CATALOG_CDA6, ECU_CATALOG_CDA6_META } from "../lib/ecuToCanIndex.js";
 
 const UDS_CAN_FILTERS = [
   { category: "Protocols", subcategory: "UDS" },
@@ -800,6 +800,7 @@ export default function UdsTab(){
 function EcuPicker({onPick}){
   const [q,setQ]=useState('');
   const [open,setOpen]=useState(false);
+  const [showCda6,setShowCda6]=useState(false);
   const rows=ECU_PICKER_ROWS;
   const filtered=q.trim()
     ?rows.filter(r=>{
@@ -810,13 +811,25 @@ function EcuPicker({onPick}){
      })
     :rows;
   const visible=filtered.slice(0,120);
+  // CDA6 catalog search (name/acronym only — no CAN IDs)
+  const cda6Filtered=q.trim()
+    ?ECU_CATALOG_CDA6.filter(e=>{
+       const lq=q.toLowerCase();
+       return e.name.toLowerCase().includes(lq)||(e.acronym||'').toLowerCase().includes(lq)||(e.protocol||'').toLowerCase().includes(lq);
+     })
+    :ECU_CATALOG_CDA6;
+  const cda6Visible=cda6Filtered.slice(0,80);
   return <div style={{marginBottom:10,position:'relative'}}>
-    <div style={{display:'flex',gap:8,alignItems:'center',marginBottom:6}}>
+    <div style={{display:'flex',gap:8,alignItems:'center',marginBottom:6,flexWrap:'wrap'}}>
       <div style={{fontSize:10,color:C.ts,fontWeight:700,letterSpacing:1}}>ECU PICKER (auto-fill TX/RX)</div>
       <span data-testid="uds-ecu-picker-provenance" title="Mapping derived from AlfaOBD.exe IL — verify on bench before trusting unfamiliar entries."
         style={{fontSize:9,fontWeight:800,letterSpacing:1,padding:'2px 7px',borderRadius:99,background:'#FFF8E1',color:'#5D4037',border:'1px solid #FFD54F'}}>
         from AlfaOBD intel (unverified)
       </span>
+      <button onClick={()=>setShowCda6(v=>!v)}
+        style={{fontSize:9,fontWeight:800,letterSpacing:1,padding:'2px 7px',borderRadius:99,background:showCda6?'#E8F5E9':'#F3E5F5',color:showCda6?'#1B5E20':'#4A148C',border:'1px solid '+(showCda6?'#A5D6A7':'#CE93D8'),cursor:'pointer'}}>
+        {showCda6?'HIDE':'SHOW'} CDA6 CATALOG ({ECU_CATALOG_CDA6_META.ecuCount})
+      </button>
     </div>
     <input
       data-testid="uds-ecu-picker-input"
@@ -824,10 +837,10 @@ function EcuPicker({onPick}){
       onChange={e=>{setQ(e.target.value);setOpen(true);}}
       onFocus={()=>setOpen(true)}
       onBlur={()=>setTimeout(()=>setOpen(false),150)}
-      placeholder={`Search ${rows.length} ECU / platform names…`}
+      placeholder={`Search ${rows.length} AlfaOBD ECUs${showCda6?' + '+ECU_CATALOG_CDA6_META.ecuCount+' CDA6 modules':''}…`}
       style={{width:'100%',padding:8,fontFamily:"'JetBrains Mono'",fontSize:12,border:'1px solid '+C.bd,borderRadius:6,background:'#fff'}}
     />
-    {open&&visible.length>0&&<div data-testid="uds-ecu-picker-list" style={{position:'absolute',zIndex:10,top:'100%',left:0,right:0,marginTop:2,background:'#fff',border:'1px solid '+C.bd,borderRadius:6,maxHeight:240,overflowY:'auto',boxShadow:'0 4px 16px rgba(0,0,0,0.10)'}}>
+    {open&&visible.length>0&&<div data-testid="uds-ecu-picker-list" style={{position:'absolute',zIndex:10,top:'100%',left:0,right:0,marginTop:2,background:'#fff',border:'1px solid '+C.bd,borderRadius:6,maxHeight:300,overflowY:'auto',boxShadow:'0 4px 16px rgba(0,0,0,0.10)'}}>
       {visible.map((r,i)=>(
         <div key={i}
           data-testid={'uds-ecu-picker-row-'+i}
@@ -846,6 +859,26 @@ function EcuPicker({onPick}){
       {filtered.length>visible.length&&<div style={{padding:'6px 10px',fontSize:10,color:C.tm,fontStyle:'italic'}}>
         {filtered.length-visible.length} more — refine the search to narrow down.
       </div>}
+    </div>}
+    {showCda6&&<div style={{marginTop:8,border:'1px solid #CE93D8',borderRadius:6,background:'#FAF5FF'}}>
+      <div style={{padding:'6px 10px',fontSize:10,fontWeight:700,color:'#4A148C',letterSpacing:1,borderBottom:'1px solid #E1BEE7'}}>
+        CDA6 MODULE CATALOG — {ECU_CATALOG_CDA6_META.ecuCount} modules · {ECU_CATALOG_CDA6_META.protocolCount} protocols
+        <span style={{fontWeight:400,color:'#7B1FA2',marginLeft:8}}>No CAN IDs — cross-ref with AlfaOBD picker or udsEngine for addressing</span>
+      </div>
+      <div style={{maxHeight:220,overflowY:'auto'}}>
+        {cda6Visible.map((e,i)=>(
+          <div key={i} style={{padding:'4px 10px',borderBottom:'1px solid #F3E5F5',display:'flex',gap:8,alignItems:'center',fontSize:10}}>
+            <span style={{fontWeight:700,color:'#4A148C',minWidth:80,fontFamily:"'JetBrains Mono'"}}>{e.acronym||e.name}</span>
+            <span style={{color:'#555',flex:1}}>{e.name}</span>
+            {e.protocol&&<span style={{background:'#EDE7F6',color:'#512DA8',padding:'1px 5px',borderRadius:3,fontSize:9,fontWeight:700}}>{e.protocol}</span>}
+            {e.transport&&<span style={{background:'#E3F2FD',color:'#0D47A1',padding:'1px 5px',borderRadius:3,fontSize:9}}>{e.transport}</span>}
+            {e.use29bit&&<span style={{background:'#FFF3E0',color:'#E65100',padding:'1px 5px',borderRadius:3,fontSize:9}}>29-bit</span>}
+          </div>
+        ))}
+        {cda6Filtered.length>cda6Visible.length&&<div style={{padding:'4px 10px',fontSize:10,color:C.tm,fontStyle:'italic'}}>
+          {cda6Filtered.length-cda6Visible.length} more — type to filter.
+        </div>}
+      </div>
     </div>}
   </div>;
 }

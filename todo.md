@@ -163,12 +163,23 @@
 
 ## J2534 WebSocket Relay — Live UDS Frame Execution
 
-- [ ] Build local J2534 relay agent (Node.js + ws server, J2534 PassThru API bindings)
-- [ ] Relay protocol: JSON messages for open/close channel, send frame, receive frame, list adapters
-- [ ] SRT Lab relay client: RelayConnectionManager (connect/disconnect/status)
-- [ ] SRT Lab relay client: sendFrame(canId, bytes, timeout) → response bytes
-- [ ] Wire relay client into UDS tab: Execute button fires live frames when relay is connected
-- [ ] Live response display in UDS tab: raw bytes + NRC decode + timing
-- [ ] Relay status indicator in UDS tab header (Connected / Disconnected / Error)
-- [ ] Relay agent packaged as standalone Node.js script with setup instructions
-- [ ] Vitest tests for relay protocol message serialization and frame execution logic
+- [x] Build local J2534 relay agent (Node.js + ws server, J2534 PassThru API bindings)
+- [x] Relay protocol: JSON messages for open/close channel, send frame, receive frame, list adapters
+- [x] SRT Lab relay client: RelayConnectionManager (connect/disconnect/status)
+- [x] SRT Lab relay client: sendFrame(canId, bytes, timeout) → response bytes
+- [x] Wire relay client into UDS tab: Execute button fires live frames when relay is connected
+- [x] Live response display in UDS tab: raw bytes + NRC decode + timing
+- [x] Relay status indicator in UDS tab header (Connected / Disconnected / Error)
+- [x] Relay agent packaged as standalone Node.js script with setup instructions
+- [x] Vitest tests for relay protocol message serialization and frame execution logic
+
+## CDA6 ECU Catalog Integration (Jun 7, 2026)
+- [x] Generate ecuCatalogFromCda6.generated.js — 398 ECU name/acronym/architecture entries from ecu_catalog.json
+- [x] Extend ecuToCanIndex.js with ECU_CATALOG_CDA6 second source layer — searchable by name/acronym/architecture
+- [x] Extend UdsTab EcuPicker to show CDA6 catalog entries with architecture badges
+- [x] Integrate cda6DbCodec.js into client/src/srtlab/lib/
+- [x] Integrate cda6CryptoTools.js into client/src/srtlab/lib/
+- [x] Integrate cda6AutoProgramPlanner.js into client/src/srtlab/lib/
+- [x] Integrate Cda6DatabaseToolsTab.jsx into client/src/srtlab/tabs/ and wire into App.jsx
+- [x] Add SA algorithms from sa_algorithms.json to udsEngine.js SA_ALGORITHMS_CDA6 table
+- [x] Vitest tests for ECU catalog lookup, SA algorithm parsing

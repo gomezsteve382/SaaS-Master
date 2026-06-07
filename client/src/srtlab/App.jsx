@@ -49,6 +49,7 @@ import EfdBlockDiffTab from "./tabs/EfdBlockDiffTab.jsx";
 import FlashBinAnalyzerTab from "./tabs/FlashBinAnalyzerTab.jsx";
 import EcmFlasherTab from "./tabs/EcmFlasherTab.jsx";
 import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
+import Cda6DatabaseToolsTab from "./tabs/Cda6DatabaseToolsTab.jsx";
 import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
 import SecuritySyncTab from "./tabs/SecuritySyncTab.jsx";
 import ProxiTab from "./tabs/ProxiTab.jsx";
@@ -967,6 +968,7 @@ const WORKSPACE_TABS = [
   {id:'flasher',    i:'⚡', l:'ECM FLASHER',      s:'GPEC2A bench programmer'},
   {id:'ipccluster', i:'🖥️', l:'IPC CLUSTER',      s:'Durango→Trackhawk · SBEC · body code'},
   {id:'cdasession', i:'🔐', l:'CDA6 SESSION',     s:'9-step UDS walkthrough'},
+  {id:'cdadbtools', i:'🗄️', l:'CDA6 DB TOOLS',    s:'Decrypt CDA6 SQLite · AES config · auto-program planner'},
   {id:'rfhdump',    i:'📡', l:'RFH DUMP',         s:'4KB hex dump analyzer · 10-field extractor · transponder sheet'},
   {id:'checksum',   i:'🔢', l:'CHECKSUM CALC',    s:'ADD16+NOT · CRC16-CCITT · F2 8-bit · EDC17 sync inversion'},
   {id:'vinprog',    i:'🪪', l:'VIN + CHECKSUM',   s:'Single-file VIN write + CRC patcher'},
@@ -1012,7 +1014,7 @@ const WORKSPACE_CATEGORIES = {
   jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM',   keytransplant:'PROGRAM', quickclone:'PROGRAM', livekey:'PROGRAM',
   vinprog:'PROGRAM', vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
-  cdasession:'PROGRAM', ipccluster:'PROGRAM', rfhdump:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
+  cdasession:'PROGRAM', cdadbtools:'PROGRAM', ipccluster:'PROGRAM', rfhdump:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
   checksum:'TOOLS',
   // LIVE — connected OBD/J2534 sessions and external bench tools.
   obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE', autelsgw:'LIVE',
@@ -1278,6 +1280,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='flasher'   && <EcmFlasherTab selectedFile={selectedCflash} files={files} onSelectFile={setSelectedCflash}/>}
         {tab==='ipccluster'&& <IpcClusterReprogramTab/>}
         {tab==='cdasession'&& <Cda6SessionTab/>}
+        {tab==='cdadbtools' && <Cda6DatabaseToolsTab/>}
         {tab==='vinprog'   && <VinProgrammerTab/>}
         {tab==='proxi'     && <ProxiTab/>}
         {tab==='immobcm56xb' && <ImmoBcm56xbTab/>}

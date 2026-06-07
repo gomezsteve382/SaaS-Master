@@ -213,3 +213,18 @@ export function findEcuPickerRow(query, rows = ECU_PICKER_ROWS) {
   if (exact) return exact;
   return rows.find((r) => r.label.toLowerCase().includes(q)) || null;
 }
+
+/* ─── Surface 3: CDA6 ECU catalog (398 modules) ─────────────────────────── */
+/* Re-export the CDA6 catalog and helpers so consumers only need to import
+ * from this one file. The catalog has module type / protocol info but NOT
+ * physical CAN IDs — use the AlfaOBD picker rows or udsEngine MODULE_REGISTRY
+ * for CAN addressing. */
+export {
+  ECU_CATALOG_CDA6,
+  ECU_CATALOG_CDA6_META,
+  CDA6_ARCHITECTURES,
+  CDA6_PROTOCOLS,
+  CDA6_BUSES,
+  findCda6Ecu,
+  getCda6EcuByAcronym,
+} from './ecuCatalogFromCda6.generated.js';

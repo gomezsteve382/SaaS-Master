@@ -2556,3 +2556,115 @@ export const CB_METHOD_COMPARISON = Object.freeze({
     tools: ['WiTECH', 'AVDI', 'Autel IM608'],
   },
 });
+
+// ─── CDA6 SA Algorithm Table ──────────────────────────────────────────────────
+// Source: client/public/sa-algorithms/sa_algorithms.json
+// Extracted from CDA6 ABS database files (52 databases, 25 entries, 9 unique algorithms).
+// All use the standard FCA byte-swap + shift + XOR pattern:
+//   tempSeed = byte-swap(seed)
+//   shiftSeed = ((tempSeed << 11) | (tempSeed >>> 22)) & 0xFFFFFFFF
+//   key = shiftSeed ^ KEY_CONSTANT_1 ^ (KEY_CONSTANT_2 & seed)
+//
+// Pattern variants:
+//   cda6_standard: seed read from bytes 0..3 (arrayToBigInt(seed, 0, 4))
+//   cda6_v42:      seed read from last 4 bytes (arrayToBigInt(seed, seed.length-4, 4))
+//   cda6_v43:      uses getSeedInt/getKeyInt helpers (different byte-swap order)
+//
+// Supplier codes: 0003=Continental, 0022=Bosch, 0027=TRW
+export const SA_ALGORITHMS_CDA6 = Object.freeze([
+  // ABS FGA platform — Supplier 0003 (Continental)
+  { id:'abs_fga_s1', module:'ABS_FGA', level:1, supplier:'0003', var:'01',
+    kc1:0xEA4E62A5, kc2:0x2AFC74C2, andConst:0xFFFFFFFF, pattern:'cda6_standard',
+    file:'S1_ABS_FGA_Sup0003_Var01_V01.esu' },
+  { id:'abs_fga_s5', module:'ABS_FGA', level:5, supplier:'0003', var:'01',
+    kc1:0x78829BFC, kc2:0xA1D1B1DB, andConst:0xFFFFFFFF, pattern:'cda6_standard',
+    file:'S5_ABS_FGA_Sup0003_Var01_V01.esu' },
+  // ABS PN platform — Supplier 0022 (Bosch)
+  { id:'abs_pn_s5_sup22_v40', module:'ABS_PN', level:5, supplier:'0022', var:'40',
+    kc1:0x2C72C073, kc2:0x74A1D07A, andConst:0xFFFFFFFF, pattern:'cda6_v42',
+    file:'S5_ABS_PN_Sup0022_Var40_V01.esu' },
+  // ABS PN platform — Supplier 0027 (TRW)
+  { id:'abs_pn_s1_sup27_v40', module:'ABS_PN', level:1, supplier:'0027', var:'40',
+    kc1:0x67789E8A, kc2:0x67EEDB64, andConst:0xFFFFFFFF, pattern:'cda6_standard',
+    file:'S1_ABS_PN_Sup0027_Var40_V01.esu' },
+  { id:'abs_pn_s5_sup27_v40', module:'ABS_PN', level:5, supplier:'0027', var:'40',
+    kc1:0x289FC9B3, kc2:0x82D9782E, andConst:0xFFFFFFFF, pattern:'cda6_standard',
+    file:'S5_ABS_PN_Sup0027_Var40_V01.esu' },
+  // ABS PN platform — Supplier 0003 Var41
+  { id:'abs_pn_s1_sup03_v41', module:'ABS_PN', level:1, supplier:'0003', var:'41',
+    kc1:0x5E1443A2, kc2:0xB59F8AC0, andConst:0xFFFFFFFF, pattern:'cda6_standard',
+    file:'S1_ABS_PN_Sup0003_Var41_V01.esu' },
+  { id:'abs_pn_s5_sup03_v41', module:'ABS_PN', level:5, supplier:'0003', var:'41',
+    kc1:0x3D83D147, kc2:0x8D014ADC, andConst:0xFFFFFFFF, pattern:'cda6_standard',
+    file:'S5_ABS_PN_Sup0003_Var41_V01.esu' },
+  // ABS PN platform — Supplier 0003 Var42 (AlgID 0x0183)
+  { id:'abs_pn_s1_sup03_v42', module:'ABS_PN', level:1, supplier:'0003', var:'42', algId:0x0183,
+    kc1:0x7C72C58C, kc2:0x4F6CE8AA, andConst:0xFFFFFFFF, pattern:'cda6_v42',
+    file:'S1_ABS_PN_Sup0003_Var42_AlgID0183_V01.esu' },
+  // ABS PN platform — Supplier 0003 Var43 (AlgID 0x01D9) — different byte-swap helper
+  { id:'abs_pn_s5_sup03_v43', module:'ABS_PN', level:5, supplier:'0003', var:'43', algId:0x01D9,
+    kc1:0x25905977, kc2:0xC4EFE8A4, andConst:0xFFFFFFFF, pattern:'cda6_v43',
+    file:'S5_ABS_PN_Sup0003_Var43_AlgID01D9_V02.esu' },
+]);
+
+/**
+ * Compute CDA6 SA key from a 4-byte seed using the standard pattern.
+ * Byte-swap: [b0,b1,b2,b3] → [b2,b3,b0,b1] (swap pairs, then swap bytes within pairs)
+ * Actually: tempSeed = (b2<<24)|(b3<<16)|(b0<<8)|b1  (FCA standard byte-swap)
+ * Then: shiftSeed = rol32(tempSeed, 11)
+ * Then: key = shiftSeed ^ KC1 ^ (KC2 & seedInt)
+ * @param {number[]} seed  4-byte seed array
+ * @param {number} kc1     KEY_CONSTANT_1 (32-bit)
+ * @param {number} kc2     KEY_CONSTANT_2 (32-bit)
+ * @param {string} [pattern='cda6_standard']  'cda6_standard' | 'cda6_v42' | 'cda6_v43'
+ * @returns {number[]} 4-byte key array
+ */
+export function calcCda6SaKey(seed, kc1, kc2, pattern = 'cda6_standard') {
+  const u32 = (n) => (n >>> 0);
+  let seedInt, tempSeed;
+
+  if (pattern === 'cda6_v43') {
+    // getSeedInt: BE read from last 4 bytes
+    seedInt = u32(
+      ((seed[seed.length-4] & 0xFF) << 24) |
+      ((seed[seed.length-3] & 0xFF) << 16) |
+      ((seed[seed.length-2] & 0xFF) << 8)  |
+       (seed[seed.length-1] & 0xFF)
+    );
+    // getKeyInt: different byte-swap order
+    tempSeed = u32(
+      ((seed[seed.length-3] & 0xFF) << 24) |
+      ((seed[seed.length-4] & 0xFF) << 16) |
+      ((seed[seed.length-1] & 0xFF) << 8)  |
+       (seed[seed.length-2] & 0xFF)
+    );
+    // shiftLeft helper: mask-aware left shift
+    const shiftLeft = (n, amt) => {
+      const mask = (0x7FFFFFFF >>> (amt - 1)) >>> 0;
+      return u32((n & mask) << amt);
+    };
+    const keyInt = u32(shiftLeft(tempSeed, 11) + (tempSeed >>> 22));
+    const temp = u32(kc2 & seedInt);
+    const result = u32(keyInt ^ kc1 ^ temp);
+    return [(result >>> 24) & 0xFF, (result >>> 16) & 0xFF, (result >>> 8) & 0xFF, result & 0xFF];
+  }
+
+  // Standard and v42 both use same formula, differ only in seed read offset
+  const off = (pattern === 'cda6_v42') ? seed.length - 4 : 0;
+  seedInt = u32(
+    ((seed[off]   & 0xFF) << 24) |
+    ((seed[off+1] & 0xFF) << 16) |
+    ((seed[off+2] & 0xFF) << 8)  |
+     (seed[off+3] & 0xFF)
+  );
+  // FCA standard byte-swap: (b2<<24)|(b3<<16)|(b0<<8)|b1
+  tempSeed = u32(
+    (((seedInt >>> 8)  & 0xFF) << 24) |
+    (((seedInt)        & 0xFF) << 16) |
+    (((seedInt >>> 24) & 0xFF) << 8)  |
+     ((seedInt >>> 16) & 0xFF)
+  );
+  const shiftSeed = u32(((tempSeed << 11) | (tempSeed >>> 21)));
+  const result = u32(shiftSeed ^ kc1 ^ u32(kc2 & seedInt));
+  return [(result >>> 24) & 0xFF, (result >>> 16) & 0xFF, (result >>> 8) & 0xFF, result & 0xFF];
+}
