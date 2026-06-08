@@ -658,7 +658,7 @@ function resolveBcmSec16(data){
       let hdrZeroOk=true;for(let j=2;j<8;j++)if(data[off+j]!==0x00){hdrZeroOk=false;break;}
       const idx=data[off+8];
       const idxOk=idx===0x01||idx===0x02;
-      const sepOk=data[off+16]===0x04&&data[off+17]===0x04&&data[off+18]===0x00&&data[off+19]===0x14;
+      const sepOk=data[off+16]===0x04&&(data[off+17]===0x04||data[off+17]===0x00)&&data[off+18]===0x00&&(data[off+19]===0x14||data[off+19]===0x01);
       if(!hdrFFok||!hdrZeroOk||!idxOk||!sepOk)continue;
       const sec=new Uint8Array(16);
       for(let k=0;k<7;k++)sec[k]=data[off+9+k];
@@ -686,11 +686,17 @@ function resolveBcmSec16(data){
       return -1;
     };
     const m1=findRec(inactiveBase,0xEB,0x18);
-    if(m1>=0&&m1+25<=sz){
-      const idx=data[m1+8];
-      const sec=data.slice(m1+9,m1+25);
-      const blank=Array.from(sec).every(b=>b===0xFF||b===0x00);
-      candidates.mirror1={offset:m1,bytes:new Uint8Array(sec),blank,idx};
+    if(m1>=0&&m1+24<=sz){
+      /* Record = 8-byte header + 16-byte data field.
+       * Data field layout: [8 bytes app data][8 bytes FEE write counter].
+       * Only the first 8 bytes are real SEC16 content; the last 8 are
+       * FEE journal metadata (incrementing counters like 31 3E 00 10...).
+       * Blank check examines only the app-data portion so FEE counters
+       * can never produce a false-positive "non-blank SEC16". */
+      const fullField=data.slice(m1+8,m1+24);
+      const appData=fullField.slice(0,8);
+      const blank=Array.from(appData).every(b=>b===0xFF||b===0x00);
+      candidates.mirror1={offset:m1,bytes:new Uint8Array(appData),blank,idx:fullField[0]};
     }
     const m2=findRec(inactiveBase,0xCA,0x28);
     if(m2>=0&&m2+25<=sz){
@@ -700,21 +706,26 @@ function resolveBcmSec16(data){
       candidates.mirror2={offset:m2,bytes:new Uint8Array(sec),blank,idx};
     }
   }
-  /* -- legacy flat slice at 0x40C9 -- */
-  if(sz>=0x40D9){
-    const sec=data.slice(0x40C9,0x40D9);
-    const blank=Array.from(sec).every(b=>b===0xFF||b===0x00);
-    candidates.flat={offset:0x40C9,bytes:new Uint8Array(sec),blank};
+  /* -- legacy flat slice at 0x40C8 (start of slot 0xEB data field) -- */
+  if(sz>=0x40D8){
+    /* Same structure as mirror1: first 8 bytes = app data, last 8 = FEE counter.
+     * Only app-data portion is checked for blankness. */
+    const fullField=data.slice(0x40C8,0x40D8);
+    const appData=fullField.slice(0,8);
+    const blank=Array.from(appData).every(b=>b===0xFF||b===0x00);
+    candidates.flat={offset:0x40C8,bytes:new Uint8Array(appData),blank};
   }
   /* -- pick winner: prefer the first non-blank candidate in priority order
-   * (split → mirror1 → mirror2 → flat). Any candidate that is not
-   * structurally blank (all-FF / all-00) is accepted — including low-entropy
-   * flat slices on pre-Redeye paired BCMs (e.g. the 6.2 Charger bench set
-   * whose flat slice `00 00 00 00 00 00 00 31 3E 00 10 00 18 00 0A 00` has
-   * only 5 non-zero/non-FF bytes but IS the authoritative vehicle secret,
-   * confirmed by FCA SINCRO). */
+   * (split → mirror1 → mirror2 → flat). Split records store full 16-byte
+   * SEC16; mirror1/flat store only the 8-byte app-data portion (FEE write
+   * counters stripped). A candidate is accepted when its app-data bytes
+   * are not all-FF/all-00 (i.e. the module has been paired). */
   let chosen=null,source=null;
-  for(const key of ['split','mirror1','mirror2','flat']){
+  /* Priority: split (16B) → mirror2 (16B from 0xCA) → mirror1 (8B from 0xEB) → flat (8B).
+   * mirror2 (slot 0xCA, size 0x28=40B) holds full 16-byte SEC16 in its app-data.
+   * mirror1 (slot 0xEB, size 0x18=24B) only holds 8 bytes of app-data (first half).
+   * Prefer mirror2 over mirror1 so paired BCMs always yield a full 16-byte secret. */
+  for(const key of ['split','mirror2','mirror1','flat']){
     const c=candidates[key];
     if(c&&!c.blank){chosen=c;source=key;break;}
   }

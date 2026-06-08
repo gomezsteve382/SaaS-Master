@@ -229,3 +229,11 @@
 - [x] 95640 sub-tab VIN write support: Patch VIN input + USE MASTER button + CRC8_42 recalculation at 0x275/0x288 + auto-download
 - [x] Batch file drop: accept multiple .bin files at once, auto-classify each, show summary table with → LOAD button
 - [x] BONUS: Fixed Security Sync PCM slot rejecting PCM_IMMO_DONOR files (expanded forceType regex to match PCM/IMMO + size hint for 4-8KB files)
+
+## Critical Bug Fix: BCM SEC16 FEE Counter False Positive (Jun 8)
+- [x] Fixed resolveBcmSec16() mirror1 reading 16 bytes (including 8 FEE counter bytes) instead of only 8 bytes of real app data
+- [x] Fixed priority order: changed from split→mirror1→mirror2→flat to split→mirror2→mirror1→flat so paired BCMs always get full 16-byte SEC16 from mirror2
+- [x] Fixed flat candidate (0x40C8) to also read only 8 bytes of app data (strips FEE counter)
+- [x] Relaxed split separator check to accept variant format (04 00 00 01 in addition to 04 04 00 14)
+- [x] Verified: CHARGER_BCM_VIN_2C3CDXGJ6GH183312.bin now correctly returns sec16Absent=true, blank=true, bytes=null
+- [x] All 346 tests pass after fix
