@@ -191,3 +191,9 @@
 - [x] Add UDS DID library tab/section with full DID catalog from all sources
 - [x] Wire Auto-Program Planner LLM mode (invokeLLM for natural-language frame plans)
 - [x] Add CDA6 Security → Seed Tab bridge (pre-fill SA level/algo from DB Tools security table)
+## UDS Workflow Assistant (Jun 8)
+- [x] Build UDS Workflow Assistant panel in J2534UdsConsoleTab — natural language input ("change VIN in the radio")
+- [x] Server-side tRPC endpoint that takes intent + selected module and generates full UDS workflow using MODULE_REGISTRY + DID + SA knowledge
+- [ ] Workflow output: step-by-step numbered sequence with hex commands, expected responses, security prerequisites
+- [ ] "Execute All" button that queues the generated workflow steps for sequential relay execution
+- [ ] Each workflow step shows: service name, hex bytes, expected response pattern, and explanation

@@ -203,6 +203,175 @@ Keep responses concise and technical. Use hex notation for bytes. Do not provide
         const content = response?.choices?.[0]?.message?.content || "No response from AI.";
         return { explanation: content };
       }),
+    // --- UDS Workflow Assistant ---
+    workflow: protectedProcedure
+      .input(z.object({
+        intent: z.string().max(1000),
+        moduleCode: z.string().max(50).optional(),
+        vehiclePlatform: z.string().max(20).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const systemPrompt = `You are an expert FCA/Stellantis UDS diagnostic engineer with complete knowledge of the MODULE_REGISTRY. You generate precise, executable UDS command workflows.
+
+KNOWLEDGE BASE:
+
+MODULE REGISTRY (48 modules with CAN IDs, sessions, security, DIDs):
+- ECM (GPEC2A): TX=0x7E0 RX=0x7E8, sessions=[01,02,03], security: diag=01 prog=03, algo=gpec2a, DIDs: F15A(RW,sec03), F180(R), F181(R), F1A2(R)
+- BCM: TX=0x744 RX=0x74C, sessions=[01,02,03], security: diag=01 prog=03, algo=cda6, DIDs: F15A(RW,sec03), F1A3(RW,sec03), 0101(RW,sec03), 0102(RW,sec03)
+- TCM: TX=0x7E2 RX=0x7EA, sessions=[01,02,03], security: diag=01 prog=03, algo=gpec2
+- RFHUB: TX=0x746 RX=0x74E, sessions=[01,02,03], security: diag=01 prog=03, algo=cda6
+- IPC: TX=0x742 RX=0x74A, sessions=[01,02,03], security: diag=01 prog=03, algo=sbec
+- ABS: TX=0x7E4 RX=0x7EC, sessions=[01,02,03], security: diag=01 prog=03, algo=gpec2
+- RADIO: TX=0x772 RX=0x77A, sessions=[01,02,03], security: diag=01 prog=03, algo=alfa_w6, DIDs: F190(RW,sec01), F10B(R)
+- HVAC: TX=0x76A RX=0x772, sessions=[01,02,03], security: diag=01 prog=03, algo=alfa_w6
+- TPMS: TX=0x752 RX=0x75A, sessions=[01,02], algo=sbec
+- SCCM: TX=0x748 RX=0x750, sessions=[01,02], algo=sbec
+- TIPM: TX=0x740 RX=0x748, sessions=[01,02,03], security: diag=01 prog=03, algo=t80
+- SGW (Gateway): TX=0x73E RX=0x73F, sessions=[01,02,03], algo=xtea_sgw
+- ADCM: TX=0x7B0 RX=0x7B8, sessions=[01,02,03], security: diag=01 prog=03, algo=gpec2
+- AMP: TX=0x76E RX=0x776, sessions=[01,02], algo=alfa_w6
+- BSM: TX=0x756 RX=0x75E, sessions=[01,02], algo=sbec
+- EPS: TX=0x762 RX=0x76A, sessions=[01,02], algo=sbec
+- ORC: TX=0x74A RX=0x752, sessions=[01,02], algo=sbec
+- DDM: TX=0x760 RX=0x768, algo=sbec
+- PDM: TX=0x764 RX=0x76C, algo=sbec
+- SKREEM: TX=0x74C RX=0x754, algo=sbec
+- ACC: TX=0x77E RX=0x786, algo=alfa_w6
+
+COMMON DIDs (available on ALL modules):
+- F190: VIN (RW, secLevel=01)
+- F10B: Part Number (R)
+- F10C: Software Version (R)
+- F10D: Calibration ID (R)
+- F10E: Odometer BCD 8 bytes (RW, secLevel=03)
+- F10F: Vehicle Body Code (RW, secLevel=03)
+- F110: Feature Flags 4 bytes (RW, secLevel=03)
+- F18C: ECU Serial Number (R)
+- F186: Active Diagnostic Session (R)
+- F187: ECU SW Version (R)
+- F189: Programming Date (R)
+- F191: ECU HW Number (R)
+- F192: Supplier HW Number (R)
+- F193: Supplier HW Version (R)
+- F194: Supplier SW Number (R)
+- F195: Supplier SW Version (R)
+- F197: Vehicle Name (R)
+
+SECURITY ACCESS ALGORITHMS:
+- SBEC: key = (seed * 4) + 0x9018 (16-bit). Used by IPC, SKIM, EPS, BSM, ORC, DDM, PDM, SKREEM, SCCM, TPMS
+- CDA6: CDA6 transform with dual key constants (KC1, KC2). Used by BCM, RFHUB
+- GPEC2A: key = M-seed XOR C, C=0x47EC21F8. Used by ECM/PCM modern
+- GPEC2: GPEC2 cipher. Used by TCM, ABS, ADCM
+- XTEA_SGW: XTEA with key [0xBC474048, 0xA33B483A, 0x63687279, 0x73313372]. Used by SGW
+- TIPM: Level-based algorithm. Used by TIPM
+- W6/W7: AlfaOBD algorithms. Used by RADIO, HVAC, AMP, ACC
+
+UDS SERVICE IDs:
+- 10 XX: DiagnosticSessionControl (01=default, 02=programming, 03=extended)
+- 11 XX: ECUReset (01=hard, 03=soft)
+- 14 FF FF FF: ClearDTCs
+- 19 02 XX: ReadDTCByStatus
+- 22 XX XX: ReadDataByIdentifier
+- 27 XX: SecurityAccess (odd=requestSeed, even=sendKey)
+- 2E XX XX: WriteDataByIdentifier
+- 31 01 XX XX: RoutineControl (start)
+- 34: RequestDownload
+- 36: TransferData
+- 37: RequestTransferExit
+- 3E 00/02: TesterPresent
+
+RULES FOR WORKFLOW GENERATION:
+1. Always start with DiagnosticSessionControl to enter the correct session
+2. If writing (2E) or programming, unlock security first (27 seed/key)
+3. For VIN writes: enter extended session (10 03), unlock security at the DID's secLevel, then write (2E F1 90 + VIN bytes)
+4. For reading: just enter extended session and read (22 XX XX)
+5. Always end with ECU Reset (11 01) after writes
+6. Include TesterPresent (3E 00) keep-alive note for long sequences
+7. Show expected positive response patterns (e.g., 6E F1 90 for successful VIN write)
+8. Note NRC codes that may occur (7F XX 22=conditionsNotCorrect, 7F XX 33=securityAccessDenied, 7F XX 72=generalProgrammingFailure)
+
+OUTPUT FORMAT:
+Return a JSON object with this exact structure:
+{
+  "title": "Brief workflow title",
+  "module": { "code": "MODULE_CODE", "name": "Full Name", "tx": "0xXXX", "rx": "0xXXX" },
+  "prerequisites": ["list of prerequisites"],
+  "steps": [
+    {
+      "step": 1,
+      "service": "Service Name",
+      "hex": "XX XX XX",
+      "description": "What this does",
+      "expectedResponse": "XX XX XX pattern",
+      "notes": "Optional notes"
+    }
+  ],
+  "warnings": ["safety warnings"],
+  "postActions": ["what to do after"]
+}
+
+IMPORTANT: Return ONLY the JSON object, no markdown code fences, no explanation text outside the JSON.`;
+
+        const userMsg = `Generate the UDS workflow for: "${input.intent}"${input.moduleCode ? `\nTarget module: ${input.moduleCode}` : ""}${input.vehiclePlatform ? `\nVehicle platform: ${input.vehiclePlatform}` : ""}`;
+
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userMsg },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "uds_workflow",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  title: { type: "string", description: "Brief workflow title" },
+                  module: {
+                    type: "object",
+                    properties: {
+                      code: { type: "string" },
+                      name: { type: "string" },
+                      tx: { type: "string" },
+                      rx: { type: "string" },
+                    },
+                    required: ["code", "name", "tx", "rx"],
+                    additionalProperties: false,
+                  },
+                  prerequisites: { type: "array", items: { type: "string" } },
+                  steps: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        step: { type: "integer" },
+                        service: { type: "string" },
+                        hex: { type: "string" },
+                        description: { type: "string" },
+                        expectedResponse: { type: "string" },
+                        notes: { type: "string" },
+                      },
+                      required: ["step", "service", "hex", "description", "expectedResponse", "notes"],
+                      additionalProperties: false,
+                    },
+                  },
+                  warnings: { type: "array", items: { type: "string" } },
+                  postActions: { type: "array", items: { type: "string" } },
+                },
+                required: ["title", "module", "prerequisites", "steps", "warnings", "postActions"],
+                additionalProperties: false,
+              },
+            },
+          },
+        });
+        const content = (response?.choices?.[0]?.message?.content || "{}") as string;
+        try {
+          return JSON.parse(content);
+        } catch {
+          return { title: "Error", module: { code: "?", name: "?", tx: "?", rx: "?" }, prerequisites: [], steps: [], warnings: ["Failed to parse AI response"], postActions: [] };
+        }
+      }),
   }),
 });
 export type AppRouter = typeof appRouter;

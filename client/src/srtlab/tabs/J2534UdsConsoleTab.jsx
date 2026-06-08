@@ -243,6 +243,13 @@ export default function J2534UdsConsoleTab() {
   const [didList, setDidList] = useState([]);
   const [didLoaded, setDidLoaded] = useState(false);
 
+  /* Workflow Assistant state */
+  const [wfOpen, setWfOpen] = useState(false);
+  const [wfIntent, setWfIntent] = useState("");
+  const [wfLoading, setWfLoading] = useState(false);
+  const [wfResult, setWfResult] = useState(null);
+  const [wfError, setWfError] = useState(null);
+
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
   const urlRef = useRef(getAutelState().url);
@@ -532,6 +539,40 @@ export default function J2534UdsConsoleTab() {
       }
     }
   }, [busy, historyIdx, sendRaw]);
+
+
+  /* ── Workflow Assistant — generate UDS workflow from intent ────────── */
+  const handleWorkflow = useCallback(async () => {
+    if (!wfIntent.trim()) return;
+    setWfLoading(true);
+    setWfError(null);
+    setWfResult(null);
+    try {
+      const res = await fetch("/api/trpc/planner.workflow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          json: {
+            intent: wfIntent.trim(),
+            moduleCode: selectedModule || undefined,
+            vehiclePlatform: undefined,
+          },
+        }),
+      });
+      const data = await res.json();
+      const result = data?.result?.data?.json || data?.result?.data || null;
+      if (result && result.title) {
+        setWfResult(result);
+        addLog("Workflow generated: " + result.title + " (" + (result.steps?.length || 0) + " steps)", "info");
+      } else {
+        setWfError("No valid workflow returned from AI. Try rephrasing your intent.");
+      }
+    } catch (e) {
+      setWfError("Error: " + e.message);
+    } finally {
+      setWfLoading(false);
+    }
+  }, [wfIntent, selectedModule, addLog]);
 
   /* ── Security Access — Phase 1: request seed + compute key ──────────── */
   const runSecurityAccess = useCallback(async () => {
@@ -1107,6 +1148,192 @@ export default function J2534UdsConsoleTab() {
               }).length > 80 && (
                 <div style={{ fontSize: 10, color: S.dim, textAlign: "center", marginTop: 6 }}>
                   Showing first 80 results — refine your search
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ── UDS Workflow Assistant ──────────────────────────────────────── */}
+        <div style={{
+          borderRadius: 8, border: `1px solid ${wfOpen ? '#42A5F5' : S.border}`,
+          background: wfOpen ? '#E3F2FD' : S.card, marginBottom: 12, overflow: 'hidden',
+          transition: 'border-color 0.2s',
+        }}>
+          <button
+            onClick={() => setWfOpen(o => !o)}
+            style={{
+              width: '100%', padding: '10px 16px', background: 'none', border: 'none',
+              display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+              fontFamily: S.font, color: S.text, textAlign: 'left',
+            }}
+          >
+            <span style={{ fontSize: 16 }}>{wfOpen ? '▾' : '▸'}</span>
+            <span style={{ fontWeight: 900, fontSize: 12, letterSpacing: 1 }}>
+              🧠 WORKFLOW ASSISTANT
+            </span>
+            <span style={{ fontSize: 10, color: S.dim, marginLeft: 'auto' }}>
+              Describe what you want to do → get the full UDS sequence
+            </span>
+          </button>
+          {wfOpen && (
+            <div style={{ padding: '0 16px 16px' }}>
+              <div style={{ fontSize: 11, color: S.dim, marginBottom: 8, lineHeight: 1.5 }}>
+                Examples: "change VIN in the radio" · "read all DTCs from BCM" · "flash ECM calibration" · "unlock IPC programming session"
+              </div>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+                <input
+                  type="text"
+                  value={wfIntent}
+                  onChange={e => setWfIntent(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && wfIntent.trim() && !wfLoading) handleWorkflow(); }}
+                  placeholder="What do you want to do? e.g. change VIN in the radio"
+                  style={{
+                    flex: 1, padding: '8px 12px', borderRadius: 6,
+                    border: `1px solid ${S.border}`, background: '#FFF',
+                    fontFamily: S.font, fontSize: 13, color: S.text,
+                  }}
+                />
+                <button
+                  onClick={handleWorkflow}
+                  disabled={!wfIntent.trim() || wfLoading}
+                  style={{
+                    padding: '8px 16px', borderRadius: 6, border: 'none',
+                    background: wfLoading ? '#90CAF9' : '#1976D2', color: '#FFF',
+                    fontFamily: S.font, fontWeight: 900, fontSize: 12,
+                    cursor: wfLoading ? 'wait' : 'pointer', opacity: (!wfIntent.trim() || wfLoading) ? 0.5 : 1,
+                  }}
+                >
+                  {wfLoading ? 'Generating...' : '⚡ Generate Workflow'}
+                </button>
+              </div>
+              {/* Quick presets */}
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+                {['Change VIN in the radio', 'Read all DTCs from ECM', 'Unlock BCM programming', 'Write odometer to IPC', 'Read ECM calibration ID', 'Clear DTCs all modules'].map(preset => (
+                  <button
+                    key={preset}
+                    onClick={() => setWfIntent(preset)}
+                    style={{
+                      padding: '4px 10px', borderRadius: 12, border: `1px solid ${S.border}`,
+                      background: '#FAFAFA', fontSize: 10, fontFamily: S.font,
+                      color: S.dim, cursor: 'pointer',
+                    }}
+                  >
+                    {preset}
+                  </button>
+                ))}
+              </div>
+              {wfError && (
+                <div style={{ padding: 10, borderRadius: 6, background: '#FFEBEE', border: '1px solid #EF5350', color: '#C62828', fontSize: 12, marginBottom: 10 }}>
+                  {wfError}
+                </div>
+              )}
+              {wfResult && (
+                <div style={{ borderRadius: 8, border: `1px solid #90CAF9`, background: '#FFF', padding: 16 }}>
+                  <div style={{ fontWeight: 900, fontSize: 14, color: '#1565C0', marginBottom: 4 }}>
+                    {wfResult.title}
+                  </div>
+                  <div style={{ fontSize: 11, color: S.dim, marginBottom: 12 }}>
+                    Module: {wfResult.module.code} ({wfResult.module.name}) · TX {wfResult.module.tx} · RX {wfResult.module.rx}
+                  </div>
+                  {/* Prerequisites */}
+                  {wfResult.prerequisites?.length > 0 && (
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ fontWeight: 700, fontSize: 11, color: '#F57C00', marginBottom: 4 }}>PREREQUISITES</div>
+                      {wfResult.prerequisites.map((p, i) => (
+                        <div key={i} style={{ fontSize: 11, color: '#E65100', paddingLeft: 10, lineHeight: 1.6 }}>• {p}</div>
+                      ))}
+                    </div>
+                  )}
+                  {/* Steps */}
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontWeight: 700, fontSize: 11, color: '#1565C0', marginBottom: 8 }}>WORKFLOW STEPS</div>
+                    {wfResult.steps?.map((step, i) => (
+                      <div key={i} style={{
+                        padding: '10px 12px', marginBottom: 6, borderRadius: 6,
+                        background: '#F5F5F5', border: '1px solid #E0E0E0',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <span style={{
+                            background: '#1976D2', color: '#FFF', borderRadius: '50%',
+                            width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: 10, fontWeight: 900, flexShrink: 0,
+                          }}>{step.step}</span>
+                          <span style={{ fontWeight: 700, fontSize: 12, color: '#333' }}>{step.service}</span>
+                          <button
+                            onClick={() => { setRawCmd(step.hex); addLog(`Loaded step ${step.step}: ${step.hex}`, 'info'); }}
+                            style={{
+                              marginLeft: 'auto', padding: '2px 8px', borderRadius: 4,
+                              border: '1px solid #90CAF9', background: '#E3F2FD',
+                              fontSize: 9, fontWeight: 700, color: '#1565C0', cursor: 'pointer',
+                            }}
+                            title="Load this command into the UDS command input"
+                          >→ Load</button>
+                        </div>
+                        <div style={{
+                          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                          fontSize: 13, fontWeight: 700, color: '#1565C0',
+                          background: '#E8F5E9', padding: '4px 8px', borderRadius: 4, marginBottom: 4,
+                        }}>
+                          {step.hex}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#555', lineHeight: 1.5 }}>{step.description}</div>
+                        {step.expectedResponse && (
+                          <div style={{ fontSize: 10, color: '#388E3C', marginTop: 3 }}>
+                            Expected: {step.expectedResponse}
+                          </div>
+                        )}
+                        {step.notes && step.notes !== '' && (
+                          <div style={{ fontSize: 10, color: '#F57C00', marginTop: 2 }}>
+                            ⚠ {step.notes}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  {/* Warnings */}
+                  {wfResult.warnings?.length > 0 && (
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ fontWeight: 700, fontSize: 11, color: '#D32F2F', marginBottom: 4 }}>⚠ WARNINGS</div>
+                      {wfResult.warnings.map((w, i) => (
+                        <div key={i} style={{ fontSize: 11, color: '#C62828', paddingLeft: 10, lineHeight: 1.6 }}>• {w}</div>
+                      ))}
+                    </div>
+                  )}
+                  {/* Post Actions */}
+                  {wfResult.postActions?.length > 0 && (
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 11, color: '#388E3C', marginBottom: 4 }}>POST-WORKFLOW</div>
+                      {wfResult.postActions.map((a, i) => (
+                        <div key={i} style={{ fontSize: 11, color: '#2E7D32', paddingLeft: 10, lineHeight: 1.6 }}>• {a}</div>
+                      ))}
+                    </div>
+                  )}
+                  {/* Execute All button */}
+                  {isLive && wfResult.steps?.length > 0 && (
+                    <div style={{ marginTop: 12, borderTop: '1px solid #E0E0E0', paddingTop: 12 }}>
+                      <button
+                        onClick={() => {
+                          wfResult.steps.forEach((step, i) => {
+                            setTimeout(() => {
+                              setRawCmd(step.hex);
+                              addLog(`Queued step ${step.step}: ${step.service} → ${step.hex}`, 'info');
+                            }, i * 200);
+                          });
+                        }}
+                        style={{
+                          padding: '8px 16px', borderRadius: 6, border: 'none',
+                          background: '#388E3C', color: '#FFF',
+                          fontFamily: S.font, fontWeight: 900, fontSize: 12, cursor: 'pointer',
+                        }}
+                      >
+                        ⚡ Load All Steps Sequentially
+                      </button>
+                      <span style={{ fontSize: 10, color: S.dim, marginLeft: 8 }}>
+                        Each step will be loaded into the command input
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
