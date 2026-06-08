@@ -604,6 +604,8 @@ function AutoProgramPane({database}){
   const [intent,setIntent] = useState('Read VIN from BCM');
   const [operation,setOperation] = useState('natural');
   const [moduleIndex,setModuleIndex] = useState(0);
+  const [aiExplanation,setAiExplanation] = useState('');
+  const [aiLoading,setAiLoading] = useState(false);
   const [params,setParams] = useState({did:'',securityLevel:'',routineId:'',routineSubFunction:'01',sessionType:'03',resetType:'01',memoryAddress:'',memoryLength:'',downloadAddress:'00000000',downloadLength:'00000000'});
   const rows = useMemo(()=>({
     ecuRows: safeTableRows(database, 'ecu_to_bus', 3000),
@@ -667,7 +669,7 @@ function AutoProgramPane({database}){
       <Card style={{padding:0,overflow:'hidden',background:'#111',border:'1px solid #2E2E2E'}}>
         <div style={{padding:18,borderBottom:'1px solid #2E2E2E',display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',flexWrap:'wrap'}}>
           <div><div style={{fontSize:12,fontWeight:900,color:'#FFB199',letterSpacing:.6,textTransform:'uppercase'}}>Command output panel</div><div style={{fontSize:20,fontWeight:900,color:'#fff',marginTop:4}}>{plan.title}</div><div style={{fontSize:12,color:'#CDBABA',marginTop:4}}>{plan.summary}</div></div>
-          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={()=>navigator.clipboard?.writeText(planText)} style={{border:'1px solid #FFFFFF30',background:'#FFFFFF12',color:'#fff',borderRadius:12,padding:'10px 12px',fontFamily:'Nunito',fontWeight:900,cursor:'pointer'}}>Copy plan</button><Tag color={plan.can.isExtended?'#8BE9FD':'#70C67A'}>{plan.can.isExtended?'29-bit CAN':'11-bit CAN'}</Tag></div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={()=>navigator.clipboard?.writeText(planText)} style={{border:'1px solid #FFFFFF30',background:'#FFFFFF12',color:'#fff',borderRadius:12,padding:'10px 12px',fontFamily:'Nunito',fontWeight:900,cursor:'pointer'}}>Copy plan</button><button onClick={async()=>{setAiLoading(true);setAiExplanation('');try{const res=await fetch('/api/trpc/planner.enhance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({json:{intent,planText:planText.slice(0,8000),moduleLabel:plan.moduleLabel}})});const data=await res.json();setAiExplanation(data?.result?.data?.json?.explanation||data?.result?.data?.explanation||'No response');}catch(e){setAiExplanation('Error: '+e.message);}finally{setAiLoading(false);}}} disabled={aiLoading} style={{border:'1px solid #FFD16680',background:'#FFD16620',color:'#fff',borderRadius:12,padding:'10px 12px',fontFamily:'Nunito',fontWeight:900,cursor:aiLoading?'wait':'pointer',opacity:aiLoading?0.6:1}}>{aiLoading?'Thinking...':'\uD83E\uDD16 Ask AI'}</button><Tag color={plan.can.isExtended?'#8BE9FD':'#70C67A'}>{plan.can.isExtended?'29-bit CAN':'11-bit CAN'}</Tag></div>
         </div>
         <div style={{padding:18,display:'grid',gap:12,maxHeight:760,overflow:'auto'}}>
           {plan.steps.map((step,index)=><div key={index} style={{border:'1px solid #333',borderRadius:16,background:index%2?'#191919':'#151515',padding:15}}>
@@ -698,6 +700,10 @@ function AutoProgramPane({database}){
           <div style={{fontSize:13,fontWeight:900,color:C.tx}}>Planner warnings</div>
           <div style={{display:'grid',gap:8,marginTop:10}}>{plan.warnings.map((warning,index)=><div key={index} style={{fontSize:12,lineHeight:1.55,color:C.ts,padding:10,borderRadius:10,background:C.c2,border:`1px solid ${C.bd}`}}>{warning}</div>)}</div>
         </Card>
+        {aiExplanation && <Card style={{padding:18,border:'1px solid #42A5F5',background:'#E3F2FD'}}>
+          <div style={{fontSize:13,fontWeight:900,color:'#1565C0'}}>\uD83E\uDD16 AI Analysis</div>
+          <pre style={{whiteSpace:'pre-wrap',wordBreak:'break-word',fontSize:12,lineHeight:1.7,margin:'10px 0 0',color:'#1A237E',fontFamily:'Nunito'}}>{aiExplanation}</pre>
+        </Card>}
       </div>
     </div>
   </div>;
@@ -726,7 +732,7 @@ function SecurityReferencePane({database}){
   return <Card style={{padding:20}}>
     <div style={{display:'flex',justifyContent:'space-between',gap:16,alignItems:'start',flexWrap:'wrap'}}><div><div style={{fontSize:13,fontWeight:900,color:C.tx}}>Security Access Reference</div><p style={{fontSize:13,color:C.ts,lineHeight:1.6,margin:'6px 0 0'}}>Summarize security levels per ECU, algorithm metadata, and the services/routines each level appears to unlock from the CDA6 security table.</p></div><Tag color={C.sr}>{rows.length.toLocaleString()} security rows</Tag></div>
     <input value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Search ECU, level, algorithm, seed/key, routine, or service" style={{width:'100%',boxSizing:'border-box',border:`1.5px solid ${C.bd}`,borderRadius:12,padding:'13px 14px',fontFamily:'Nunito',fontSize:14,outline:'none',margin:'16px 0'}} />
-    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:10,marginBottom:14}}>{filtered.slice(0,12).map((row,index)=>{const algorithm=normaliseCell(pickValue(row, ['algorithm','algo','seed_key','seedkey','crypt','type']) || 'Algorithm not labelled'); const unlocks=normaliseCell(pickValue(row, ['unlock','service','routine','access','permission','operation']) || describeRow(row, ['service','routine','access'])); return <div key={index} style={{border:`1px solid ${C.bd}`,borderRadius:14,padding:13,background:'#fff'}}><div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}><Tag color={C.a3}>Level 0x{guessSecurityLevel(row) || '—'}</Tag><span style={{fontSize:12,fontWeight:900,color:C.tx}}>{guessModuleName(row)}</span></div><div style={{fontSize:12,color:C.ts,lineHeight:1.55,marginTop:8}}><strong style={{color:C.tx}}>Algorithm:</strong> {algorithm}<br/><strong style={{color:C.tx}}>Unlocks:</strong> {unlocks}</div></div>;})}</div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:10,marginBottom:14}}>{filtered.slice(0,12).map((row,index)=>{const algorithm=normaliseCell(pickValue(row, ['algorithm','algo','seed_key','seedkey','crypt','type']) || 'Algorithm not labelled'); const unlocks=normaliseCell(pickValue(row, ['unlock','service','routine','access','permission','operation']) || describeRow(row, ['service','routine','access'])); return <div key={index} style={{border:`1px solid ${C.bd}`,borderRadius:14,padding:13,background:'#fff'}}><div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}><Tag color={C.a3}>Level 0x{guessSecurityLevel(row) || '—'}</Tag><span style={{fontSize:12,fontWeight:900,color:C.tx}}>{guessModuleName(row)}</span></div><div style={{fontSize:12,color:C.ts,lineHeight:1.55,marginTop:8}}><strong style={{color:C.tx}}>Algorithm:</strong> {algorithm}<br/><strong style={{color:C.tx}}>Unlocks:</strong> {unlocks}</div><button onClick={()=>{const level=guessSecurityLevel(row)||'01';const algo=algorithm;const mod=guessModuleName(row);sessionStorage.setItem('srtlab:seed:prefill:level',level);sessionStorage.setItem('srtlab:seed:prefill:algo',algo);sessionStorage.setItem('srtlab:seed:prefill:module',mod);const ev=new CustomEvent('srtlab:nav',{detail:{tab:'cdasession'}});window.dispatchEvent(ev);}} style={{marginTop:8,padding:'5px 10px',fontSize:10,fontWeight:800,borderRadius:6,border:`1px solid #7E57C2`,background:'#EDE7F6',color:'#4527A0',cursor:'pointer',letterSpacing:0.5}}>\uD83D\uDD11 Send to Seed Tab</button></div>;})}</div>
     <DataTable columns={columns} rows={filtered} maxHeight={560}/>
   </Card>;
 }

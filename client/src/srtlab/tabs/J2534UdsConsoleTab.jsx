@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { getStatus, open as openBridge, connect as bridgeConnect, setFilter, sendMsg, readMsg, getAutelState } from "../lib/bridgeClient.js";
 import { decodeNRC } from "../lib/nrc.js";
 import { ALGOS, unlockKeyBytes, pickUnlockChain } from "../lib/algos.js";
+import { loadDidDescriptions, getAllDids } from "../lib/dids.js";
 
 /* ─── localStorage key for remembered algo per TX address ──────────────────── */
 const saStorageKey = (txHex) => `sa_algo_${txHex.toLowerCase().replace(/\s/g, "")}`;
@@ -122,25 +123,25 @@ async function udsCall(url, tx, rx, data, timeoutMs = 4000) {
 
 /* ─── Styles ─────────────────────────────────────────────────────────────── */
 const S = {
-  bg:     "#0A0A0F",
-  card:   "#12121A",
-  border: "#1E1E2E",
-  text:   "#E0E0E0",
-  dim:    "#666",
-  red:    "#DC143C",
-  green:  "#00C853",
-  blue:   "#2196F3",
-  yellow: "#FFB300",
+  bg:     "#F4F1EC",
+  card:   "#FFFFFF",
+  border: "#E8E4DE",
+  text:   "#1A1A1A",
+  dim:    "#5A5A5A",
+  red:    "#D32F2F",
+  green:  "#2E7D32",
+  blue:   "#1565C0",
+  yellow: "#E65100",
   font:   '"Nunito", sans-serif',
   mono:   '"JetBrains Mono", monospace',
 };
 
 /* ─── Status badge ────────────────────────────────────────────────────────── */
 const STATUS_META = {
-  disconnected:    { label: "○ NO BRIDGE",   bg: "#1A1A1A", color: S.dim },
-  bridge_connected:{ label: "● DAEMON OK",   bg: "#1A1A1A", color: "#AAA" },
-  device_open:     { label: "● DEVICE OPEN", bg: "#1A1A1A", color: S.yellow },
-  can_connected:   { label: "● CAN LIVE",    bg: "#003300", color: S.green },
+  disconnected:    { label: "○ NO BRIDGE",   bg: "#F5F5F5", color: S.dim },
+  bridge_connected:{ label: "● DAEMON OK",   bg: "#F5F5F5", color: "#555" },
+  device_open:     { label: "● DEVICE OPEN", bg: "#FFF3E0", color: S.yellow },
+  can_connected:   { label: "● CAN LIVE",    bg: "#E8F5E9", color: S.green },
 };
 
 function StatusBadge({ status }) {
@@ -165,8 +166,8 @@ function Btn({ children, onClick, disabled, color = S.blue, small }) {
       disabled={disabled}
       style={{
         padding: small ? "6px 12px" : "9px 16px",
-        background: disabled ? "#222" : color,
-        color: disabled ? "#555" : "#fff",
+        background: disabled ? "#E0E0E0" : color,
+        color: disabled ? "#9E9E9E" : "#fff",
         border: "none", borderRadius: 6, cursor: disabled ? "not-allowed" : "pointer",
         fontFamily: S.font, fontWeight: 700, fontSize: small ? 11 : 12,
         opacity: disabled ? 0.55 : 1, whiteSpace: "nowrap",
@@ -214,6 +215,12 @@ export default function J2534UdsConsoleTab() {
   const [busy, setBusy] = useState(false);
   const [search, setSearch] = useState("");
 
+  /* Command history (up/down arrow recall) */
+  const [cmdHistory, setCmdHistory] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("srtlab:uds:cmdHistory") || "[]"); } catch { return []; }
+  });
+  const [historyIdx, setHistoryIdx] = useState(-1);
+
   /* Security Access panel state */
   const [saOpen, setSaOpen] = useState(false);
   const [saLevelIdx, setSaLevelIdx] = useState(0);
@@ -229,6 +236,12 @@ export default function J2534UdsConsoleTab() {
   /* Remembered Algorithms panel state */
   const [saMemoryOpen, setSaMemoryOpen] = useState(false);
   const [rememberedEntries, setRememberedEntries] = useState([]);
+
+  /* DID Library panel state */
+  const [didLibOpen, setDidLibOpen] = useState(false);
+  const [didSearch, setDidSearch] = useState("");
+  const [didList, setDidList] = useState([]);
+  const [didLoaded, setDidLoaded] = useState(false);
 
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
@@ -279,6 +292,27 @@ export default function J2534UdsConsoleTab() {
 
   /* Load remembered entries on mount */
   useEffect(() => { loadRemembered(); }, [loadRemembered]);
+
+  /* CDA6 DB Tools → UDS Console prefill bridge */
+  useEffect(() => {
+    const tx = sessionStorage.getItem("srtlab:uds:prefill:tx");
+    const rx = sessionStorage.getItem("srtlab:uds:prefill:rx");
+    const cmd = sessionStorage.getItem("srtlab:uds:prefill:cmd");
+    if (tx) { setTxHex(tx); sessionStorage.removeItem("srtlab:uds:prefill:tx"); }
+    if (rx) { setRxHex(rx); sessionStorage.removeItem("srtlab:uds:prefill:rx"); }
+    if (cmd) { setRawCmd(cmd); sessionStorage.removeItem("srtlab:uds:prefill:cmd"); }
+    if (tx || rx || cmd) addLog("Pre-filled from CDA6 DB Tools", "header");
+  }, [addLog]);
+
+  /* Load DID library when panel is opened */
+  useEffect(() => {
+    if (didLibOpen && !didLoaded) {
+      loadDidDescriptions().then(() => {
+        setDidList(getAllDids());
+        setDidLoaded(true);
+      });
+    }
+  }, [didLibOpen, didLoaded]);
 
   /* When TX address changes: load remembered algo from localStorage, clear live detection */
   useEffect(() => {
@@ -463,8 +497,39 @@ export default function J2534UdsConsoleTab() {
   const sendRaw = useCallback(() => {
     const bytes = hexToBytes(rawCmd);
     if (!bytes.length) { addLog("Enter hex bytes first.", "error"); return; }
+    /* Save to command history */
+    const trimmed = rawCmd.trim();
+    if (trimmed) {
+      setCmdHistory(prev => {
+        const next = [trimmed, ...prev.filter(c => c !== trimmed)].slice(0, 20);
+        localStorage.setItem("srtlab:uds:cmdHistory", JSON.stringify(next));
+        return next;
+      });
+      setHistoryIdx(-1);
+    }
     send(bytes);
   }, [rawCmd, send]);
+
+  /* Handle up/down arrow for command history */
+  const handleCmdKeyDown = useCallback((e) => {
+    if (e.key === "Enter" && !busy) { sendRaw(); return; }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setCmdHistory(h => {
+        const newIdx = Math.min(historyIdx + 1, h.length - 1);
+        if (newIdx >= 0 && h[newIdx]) { setRawCmd(h[newIdx]); setHistoryIdx(newIdx); }
+        return h;
+      });
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (historyIdx <= 0) { setHistoryIdx(-1); setRawCmd(""); }
+      else {
+        const newIdx = historyIdx - 1;
+        setCmdHistory(h => { if (h[newIdx]) setRawCmd(h[newIdx]); return h; });
+        setHistoryIdx(newIdx);
+      }
+    }
+  }, [busy, historyIdx, sendRaw]);
 
   /* ── Security Access — Phase 1: request seed + compute key ──────────── */
   const runSecurityAccess = useCallback(async () => {
@@ -826,7 +891,7 @@ export default function J2534UdsConsoleTab() {
   const isLive = status === "can_connected";
 
   /* ── Log line colour map ────────────────────────────────────────────── */
-  const logColor = { tx: "#4FC3F7", rx: "#69F0AE", error: "#FF5252", warn: "#FFB300", success: "#69F0AE", info: "#AAA", header: "#BB86FC", hint: "#FF8F00" };
+  const logColor = { tx: "#1565C0", rx: "#2E7D32", error: "#D32F2F", warn: "#E65100", success: "#2E7D32", info: "#5A5A5A", header: "#6A1B9A", hint: "#E65100" };
 
   return (
     <div data-testid="uds-console-tab" style={{ background: S.bg, minHeight: "100%", padding: 16, fontFamily: S.font, color: S.text }}>
@@ -835,11 +900,11 @@ export default function J2534UdsConsoleTab() {
         {/* ── Header ────────────────────────────────────────────────────── */}
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16,
             padding: "14px 18px", borderRadius: 10, border: `1px solid ${S.border}`,
-            background: "linear-gradient(135deg,#0D1B2A 0%,#0A1628 60%,#0F2240 100%)" }}>
+            background: "linear-gradient(135deg,#EDE7F6 0%,#D1C4E9 60%,#B39DDB 100%)" }}>
           <div style={{ fontSize: 28 }}>🔌</div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: "'Righteous'", fontSize: 22, letterSpacing: 2, color: "#E0E0E0" }}>UDS CONSOLE</div>
-            <div style={{ fontSize: 10, opacity: 0.6, letterSpacing: 3, fontWeight: 700, marginTop: 2 }}>J2534 · RAW UDS · ANY MODULE</div>
+            <div style={{ fontFamily: "'Righteous'", fontSize: 22, letterSpacing: 2, color: "#4A148C" }}>UDS CONSOLE</div>
+            <div style={{ fontSize: 10, opacity: 0.9, letterSpacing: 3, fontWeight: 700, marginTop: 2, color: "#6A1B9A" }}>J2534 · RAW UDS · ANY MODULE</div>
           </div>
           <StatusBadge status={status} />
         </div>
@@ -872,7 +937,7 @@ export default function J2534UdsConsoleTab() {
             onChange={e => setSearch(e.target.value)}
             placeholder="Filter modules…"
             style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: `1px solid ${S.border}`,
-              background: "#0A0A0F", color: S.text, fontFamily: S.mono, fontSize: 11,
+              background: "#FAFAFA", color: S.text, fontFamily: S.mono, fontSize: 11,
               marginBottom: 8, boxSizing: "border-box" }}
           />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4, maxHeight: 96, overflowY: "auto", marginBottom: 12 }}>
@@ -882,7 +947,7 @@ export default function J2534UdsConsoleTab() {
                 <button key={m.name} onClick={() => pickModule(m)} style={{
                   padding: "4px 9px", fontSize: 10, fontWeight: 700, borderRadius: 5,
                   border: `1px solid ${active ? S.green : S.border}`,
-                  background: active ? "#003300" : "#0A0A0F",
+                  background: active ? "#E8F5E9" : "#FAFAFA",
                   color: active ? S.green : S.dim, cursor: "pointer", fontFamily: S.mono,
                 }}>{m.name}</button>
               );
@@ -895,19 +960,19 @@ export default function J2534UdsConsoleTab() {
               <div style={{ fontSize: 10, color: S.dim, marginBottom: 4, fontWeight: 700 }}>TX ADDRESS</div>
               <input value={txHex} onChange={e => setTxHex(e.target.value)}
                 style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: `1px solid ${S.border}`,
-                  background: "#0A0A0F", color: "#4FC3F7", fontFamily: S.mono, fontSize: 13, fontWeight: 700, boxSizing: "border-box" }} />
+                  background: "#FAFAFA", color: "#1565C0", fontFamily: S.mono, fontSize: 13, fontWeight: 700, boxSizing: "border-box" }} />
             </div>
             <div>
               <div style={{ fontSize: 10, color: S.dim, marginBottom: 4, fontWeight: 700 }}>RX ADDRESS</div>
               <input value={rxHex} onChange={e => setRxHex(e.target.value)}
                 style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: `1px solid ${S.border}`,
-                  background: "#0A0A0F", color: "#69F0AE", fontFamily: S.mono, fontSize: 13, fontWeight: 700, boxSizing: "border-box" }} />
+                  background: "#FAFAFA", color: "#2E7D32", fontFamily: S.mono, fontSize: 13, fontWeight: 700, boxSizing: "border-box" }} />
             </div>
           </div>
         </div>
 
         {/* ── UDS command card ──────────────────────────────────────────── */}
-        <div style={{ padding: "12px 16px", borderRadius: 8, border: `1px solid ${isLive ? "#1E3A2E" : S.border}`,
+        <div style={{ padding: "12px 16px", borderRadius: 8, border: `1px solid ${isLive ? "#A5D6A7" : S.border}`,
             background: S.card, marginBottom: 12, opacity: isLive ? 1 : 0.55 }}>
           <div style={{ fontSize: 11, fontWeight: 800, color: S.dim, letterSpacing: 1.5, marginBottom: 10 }}>UDS COMMAND</div>
 
@@ -916,11 +981,11 @@ export default function J2534UdsConsoleTab() {
             <input
               value={rawCmd}
               onChange={e => setRawCmd(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter" && isLive && !busy) sendRaw(); }}
+              onKeyDown={handleCmdKeyDown}
               placeholder="hex bytes — e.g. 22 F1 90"
               disabled={!isLive}
               style={{ flex: 1, padding: "9px 12px", borderRadius: 6, border: `1px solid ${S.border}`,
-                background: "#0A0A0F", color: S.text, fontFamily: S.mono, fontSize: 13, fontWeight: 700 }}
+                background: "#FAFAFA", color: S.text, fontFamily: S.mono, fontSize: 13, fontWeight: 700 }}
             />
             <Btn onClick={sendRaw} disabled={!isLive || busy}>Send</Btn>
           </div>
@@ -935,8 +1000,8 @@ export default function J2534UdsConsoleTab() {
                 onClick={() => send(qc.bytes)}
                 style={{
                   padding: "6px 12px", fontSize: 11, fontWeight: 700, borderRadius: 6,
-                  border: `1px solid ${S.border}`, background: "#14141E",
-                  color: isLive ? "#CCC" : S.dim, cursor: isLive && !busy ? "pointer" : "not-allowed",
+                  border: `1px solid ${S.border}`, background: "#F5F5F5",
+                  color: isLive ? "#333" : S.dim, cursor: isLive && !busy ? "pointer" : "not-allowed",
                   fontFamily: S.mono, opacity: isLive ? 1 : 0.5,
                 }}
               >
@@ -949,11 +1014,108 @@ export default function J2534UdsConsoleTab() {
           </div>
         </div>
 
+        {/* ── DID Library panel ──────────────────────────────────────────── */}
+        <div style={{
+          borderRadius: 8, border: `1px solid ${didLibOpen ? "#42A5F5" : S.border}`,
+          background: didLibOpen ? "#E3F2FD" : S.card, marginBottom: 12, overflow: "hidden",
+          transition: "border-color 0.2s",
+        }}>
+          <button
+            onClick={() => setDidLibOpen(o => !o)}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "10px 14px", background: "transparent", border: "none", cursor: "pointer",
+            }}
+          >
+            <span style={{ fontSize: 11, fontWeight: 800, color: S.text, letterSpacing: 1.5 }}>
+              \uD83D\uDCDA DID LIBRARY {didLoaded ? `(${didList.length})` : ""}
+            </span>
+            <span style={{ fontSize: 12, color: S.dim }}>{didLibOpen ? "\u25B2" : "\u25BC"}</span>
+          </button>
+          {didLibOpen && (
+            <div style={{ padding: "0 14px 14px" }}>
+              <input
+                value={didSearch}
+                onChange={e => setDidSearch(e.target.value)}
+                placeholder="Search by hex (F190) or name (VIN)..."
+                style={{
+                  width: "100%", padding: "8px 10px", borderRadius: 6, border: `1px solid ${S.border}`,
+                  background: "#FAFAFA", color: S.text, fontFamily: S.mono, fontSize: 12, marginBottom: 8,
+                  boxSizing: "border-box",
+                }}
+              />
+              <div style={{ maxHeight: 260, overflowY: "auto", fontSize: 11 }}>
+                {didList
+                  .filter(d => {
+                    if (!didSearch) return true;
+                    const q = didSearch.toLowerCase();
+                    const hexStr = d.did.toString(16).toUpperCase().padStart(4, "0");
+                    return hexStr.toLowerCase().includes(q) || d.name.toLowerCase().includes(q)
+                      || (d.descriptions || []).some(desc => desc.toLowerCase().includes(q));
+                  })
+                  .slice(0, 80)
+                  .map(d => {
+                    const hexStr = d.did.toString(16).toUpperCase().padStart(d.did > 0xFFFF ? 6 : 4, "0");
+                    const isStandard = d.did >= 0xF100 && d.did <= 0xF1FF;
+                    return (
+                      <div
+                        key={d.did}
+                        onClick={() => {
+                          if (d.did <= 0xFFFF) {
+                            const hi = (d.did >> 8) & 0xFF;
+                            const lo = d.did & 0xFF;
+                            setRawCmd(`22 ${hx(hi)} ${hx(lo)}`);
+                          }
+                        }}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 8, padding: "5px 6px",
+                          borderRadius: 4, cursor: d.did <= 0xFFFF ? "pointer" : "default",
+                          borderBottom: `1px solid ${S.border}`,
+                          transition: "background 0.15s",
+                        }}
+                        onMouseEnter={e => { if (d.did <= 0xFFFF) e.currentTarget.style.background = "#E8F5E9"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                      >
+                        <span style={{
+                          fontFamily: S.mono, fontWeight: 700, color: isStandard ? "#1565C0" : "#6A1B9A",
+                          minWidth: 52,
+                        }}>
+                          {hexStr}
+                        </span>
+                        <span style={{ flex: 1, color: S.text, fontWeight: 500 }}>{d.name}</span>
+                        {d.did <= 0xFFFF && (
+                          <span style={{ fontSize: 9, color: S.dim, fontFamily: S.mono }}>
+                            22 {hx((d.did >> 8) & 0xFF)} {hx(d.did & 0xFF)}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                {didList.length === 0 && didLoaded && (
+                  <div style={{ color: S.dim, textAlign: "center", padding: 20 }}>No DIDs loaded</div>
+                )}
+                {!didLoaded && (
+                  <div style={{ color: S.dim, textAlign: "center", padding: 20 }}>Loading DID catalog...</div>
+                )}
+              </div>
+              {didSearch && didList.filter(d => {
+                const q = didSearch.toLowerCase();
+                const hexStr = d.did.toString(16).toUpperCase().padStart(4, "0");
+                return hexStr.toLowerCase().includes(q) || d.name.toLowerCase().includes(q);
+              }).length > 80 && (
+                <div style={{ fontSize: 10, color: S.dim, textAlign: "center", marginTop: 6 }}>
+                  Showing first 80 results — refine your search
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* ── Security Access panel ──────────────────────────────────────── */}
         {isLive && (
           <div style={{
-            borderRadius: 8, border: `1px solid ${saOpen ? "#4A3000" : S.border}`,
-            background: saOpen ? "#0D0900" : S.card, marginBottom: 12, overflow: "hidden",
+            borderRadius: 8, border: `1px solid ${saOpen ? "#FFB74D" : S.border}`,
+            background: saOpen ? "#FFF8E1" : S.card, marginBottom: 12, overflow: "hidden",
             transition: "border-color 0.2s",
           }}>
             {/* Collapsible header */}
@@ -971,9 +1133,9 @@ export default function J2534UdsConsoleTab() {
               {saOpen && (
                 <span style={{
                   marginLeft: "auto", fontSize: 9, padding: "2px 7px", borderRadius: 4,
-                  background: saSweepLevels ? "#003A1A" : "#2A1A00",
+                  background: saSweepLevels ? "#E8F5E9" : "#FFF3E0",
                   color: saSweepLevels ? S.green : S.yellow,
-                  border: `1px solid ${saSweepLevels ? "#004A20" : "#5A3A00"}`, fontWeight: 700,
+                  border: `1px solid ${saSweepLevels ? "#66BB6A" : "#FF8F00"}`, fontWeight: 700,
                 }}>
                   {saSweepLevels ? `SWEEP ×${SA_LEVELS.length}` : SA_LEVELS[saLevelIdx].label.split("—")[0].trim()} · {(SA_ALGOS.find(a => a.id === saAlgoId) || SA_ALGOS[0]).n}
                 </span>
@@ -988,7 +1150,7 @@ export default function J2534UdsConsoleTab() {
                   <div style={{ display: "flex", alignItems: "center", marginBottom: 6, gap: 8 }}>
                     <div style={{ fontSize: 10, color: S.dim, fontWeight: 700, letterSpacing: 1 }}>SECURITY LEVEL</div>
                     {saDetectedLevel && (
-                      <div style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#001A00", color: S.green, border: `1px solid #004400`, fontWeight: 700, fontFamily: S.mono }}>
+                      <div style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#E8F5E9", color: S.green, border: `1px solid #A5D6A7`, fontWeight: 700, fontFamily: S.mono }}>
                         ✓ detected: 0x{hx(saDetectedLevel.seed)}
                       </div>
                     )}
@@ -998,7 +1160,7 @@ export default function J2534UdsConsoleTab() {
                     onChange={e => setSaLevelIdx(Number(e.target.value))}
                     style={{
                       width: "100%", padding: "7px 10px", borderRadius: 6,
-                      border: `1px solid ${S.yellow}`, background: "#1A1000",
+                      border: `1px solid ${S.yellow}`, background: "#FFF3E0",
                       color: S.yellow, fontFamily: S.mono, fontSize: 11, fontWeight: 700,
                       cursor: "pointer", outline: "none",
                     }}
@@ -1019,13 +1181,13 @@ export default function J2534UdsConsoleTab() {
                   <div style={{ display: "flex", alignItems: "center", marginBottom: 6, gap: 8, flexWrap: "wrap" }}>
                     <div style={{ fontSize: 10, color: S.dim, fontWeight: 700, letterSpacing: 1 }}>ALGORITHM</div>
                     {saDetectedAlgo && (
-                      <div style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#001A00", color: S.green, border: `1px solid #004400`, fontWeight: 700, fontFamily: S.mono }}>
+                      <div style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#E8F5E9", color: S.green, border: `1px solid #A5D6A7`, fontWeight: 700, fontFamily: S.mono }}>
                         ✓ auto-detected: {(SA_ALGOS.find(a => a.id === saDetectedAlgo) || { n: saDetectedAlgo }).n}
                       </div>
                     )}
                     {saRememberedAlgo && !saDetectedAlgo && (
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <div style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#1A1A2A", color: S.blue, border: "1px solid #2A2A4A", fontWeight: 700, fontFamily: S.mono }}>
+                        <div style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#E3F2FD", color: S.blue, border: "1px solid #90CAF9", fontWeight: 700, fontFamily: S.mono }}>
                           ★ remembered: {(SA_ALGOS.find(a => a.id === saRememberedAlgo) || { n: saRememberedAlgo }).n}
                         </div>
                         <button
@@ -1058,7 +1220,7 @@ export default function J2534UdsConsoleTab() {
                           style={{
                             padding: "4px 9px", fontSize: 10, fontWeight: 700, borderRadius: 5,
                             border: `1px solid ${active ? S.yellow : winner ? S.green : remembered ? S.blue : S.border}`,
-                            background: active ? "#1A1000" : winner ? "#001400" : remembered ? "#0A0A1A" : "#0A0A0F",
+                            background: active ? "#FFF3E0" : winner ? "#E8F5E9" : remembered ? "#E8EAF6" : "#FAFAFA",
                             color: active ? S.yellow : winner ? S.green : remembered ? S.blue : S.dim,
                             cursor: "pointer", fontFamily: S.mono, whiteSpace: "nowrap",
                           }}
@@ -1084,7 +1246,7 @@ export default function J2534UdsConsoleTab() {
                     onClick={() => setSaSweepLevels(v => !v)}
                     style={{
                       width: 34, height: 18, borderRadius: 9, position: "relative",
-                      background: saSweepLevels ? "#003A1A" : "#1A1A1A",
+                      background: saSweepLevels ? "#E8F5E9" : "#F5F5F5",
                       border: `1px solid ${saSweepLevels ? S.green : S.border}`,
                       transition: "all 0.2s", flexShrink: 0,
                     }}
@@ -1115,7 +1277,7 @@ export default function J2534UdsConsoleTab() {
                     onClick={() => setSaAutoConfirm(v => !v)}
                     style={{
                       width: 34, height: 18, borderRadius: 9, position: "relative",
-                      background: saAutoConfirm ? "#5A3A00" : "#1A1A1A",
+                      background: saAutoConfirm ? "#FFF3E0" : "#F5F5F5",
                       border: `1px solid ${saAutoConfirm ? S.yellow : S.border}`,
                       transition: "all 0.2s", flexShrink: 0,
                     }}
@@ -1139,7 +1301,7 @@ export default function J2534UdsConsoleTab() {
                 {saExtHint && (
                   <div style={{
                     marginBottom: 12, padding: "10px 14px", borderRadius: 6,
-                    background: "#1A1000", border: "1px solid #5A3A00",
+                    background: "#FFF3E0", border: "1px solid #FFB74D",
                     borderLeft: "3px solid #FF8F00",
                     display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
                   }}>
@@ -1152,7 +1314,7 @@ export default function J2534UdsConsoleTab() {
                       disabled={busy}
                       style={{
                         padding: "7px 14px", borderRadius: 6, border: `1px solid ${busy ? S.border : "#FF8F00"}`,
-                        background: busy ? "#222" : "#241300", color: busy ? "#555" : "#FF8F00",
+                        background: busy ? "#E0E0E0" : "#FFF3E0", color: busy ? "#9E9E9E" : "#E65100",
                         fontFamily: S.font, fontWeight: 800, fontSize: 11, letterSpacing: 0.5,
                         cursor: busy ? "not-allowed" : "pointer", whiteSpace: "nowrap",
                       }}
@@ -1166,7 +1328,7 @@ export default function J2534UdsConsoleTab() {
                 {saPending && (
                   <div style={{
                     borderRadius: 8, border: `2px solid ${S.yellow}`,
-                    background: "#110B00", padding: "14px 16px", marginBottom: 12,
+                    background: "#FFF8E1", padding: "14px 16px", marginBottom: 12,
                   }}>
                     <div style={{
                       fontSize: 11, fontWeight: 800, color: S.yellow, letterSpacing: 1.5, marginBottom: 10,
@@ -1182,17 +1344,17 @@ export default function J2534UdsConsoleTab() {
                       fontFamily: S.mono, fontSize: 11, marginBottom: 14,
                     }}>
                       <span style={{ color: S.dim, fontWeight: 700 }}>Module</span>
-                      <span style={{ color: "#CCC" }}>
+                      <span style={{ color: "#333" }}>
                         TX 0x{hx(saPending.tx, 3)} → RX 0x{hx(saPending.rx, 3)}
                       </span>
                       <span style={{ color: S.dim, fontWeight: 700 }}>Level</span>
-                      <span style={{ color: "#CCC" }}>
+                      <span style={{ color: "#333" }}>
                         {saPending.level.label.split("—")[0].trim()} (seed 0x{hx(saPending.level.seed)}, key 0x{hx(saPending.level.key)})
                       </span>
                       <span style={{ color: S.dim, fontWeight: 700 }}>Algorithm</span>
-                      <span style={{ color: "#CCC" }}>{saPending.algo.n}</span>
+                      <span style={{ color: "#333" }}>{saPending.algo.n}</span>
                       <span style={{ color: S.dim, fontWeight: 700 }}>Seed</span>
-                      <span style={{ color: "#4FC3F7", fontWeight: 700 }}>{bytesToHex(saPending.seedBytes)}</span>
+                      <span style={{ color: "#1565C0", fontWeight: 700 }}>{bytesToHex(saPending.seedBytes)}</span>
                       <span style={{ color: S.dim, fontWeight: 700 }}>Key</span>
                       <span style={{ color: S.green, fontWeight: 700 }}>{bytesToHex(saPending.keyBytes)}</span>
                     </div>
@@ -1203,8 +1365,8 @@ export default function J2534UdsConsoleTab() {
                         style={{
                           flex: 1, padding: "9px 0", borderRadius: 6,
                           border: `1px solid ${busy ? S.border : S.green}`,
-                          background: busy ? "#222" : "#001A00",
-                          color: busy ? "#555" : S.green,
+                          background: busy ? "#E0E0E0" : "#E8F5E9",
+                          color: busy ? "#9E9E9E" : S.green,
                           fontFamily: S.font, fontWeight: 800, fontSize: 12, letterSpacing: 1,
                           cursor: busy ? "not-allowed" : "pointer",
                         }}
@@ -1237,7 +1399,7 @@ export default function J2534UdsConsoleTab() {
                       style={{
                         flex: 1, padding: "10px 0", borderRadius: 6,
                         border: `1px solid ${busy ? S.border : S.green}`,
-                        background: busy ? "#222" : "#001A00", color: busy ? "#555" : S.green,
+                        background: busy ? "#E0E0E0" : "#E8F5E9", color: busy ? "#9E9E9E" : S.green,
                         fontFamily: S.font, fontWeight: 800, fontSize: 11, letterSpacing: 1,
                         cursor: busy ? "not-allowed" : "pointer", transition: "all 0.2s",
                       }}
@@ -1250,7 +1412,7 @@ export default function J2534UdsConsoleTab() {
                       style={{
                         flex: 2, padding: "10px 0", borderRadius: 6,
                         border: `1px solid ${busy ? S.border : S.yellow}`,
-                        background: busy ? "#222" : "#1A1000", color: busy ? "#555" : S.yellow,
+                        background: busy ? "#E0E0E0" : "#FFF3E0", color: busy ? "#9E9E9E" : S.yellow,
                         fontFamily: S.font, fontWeight: 800, fontSize: 11, letterSpacing: 1,
                         cursor: busy ? "not-allowed" : "pointer", transition: "all 0.2s",
                       }}
@@ -1267,8 +1429,8 @@ export default function J2534UdsConsoleTab() {
         {/* ── Remembered Algorithms management panel ───────────────────── */}
         <div style={{
           borderRadius: 8,
-          border: `1px solid ${saMemoryOpen ? "#1A2A4A" : S.border}`,
-          background: saMemoryOpen ? "#080C14" : S.card,
+          border: `1px solid ${saMemoryOpen ? "#90CAF9" : S.border}`,
+          background: saMemoryOpen ? "#E3F2FD" : S.card,
           marginBottom: 12, overflow: "hidden", transition: "border-color 0.2s",
         }}>
           <button
@@ -1285,8 +1447,8 @@ export default function J2534UdsConsoleTab() {
             {rememberedEntries.length > 0 && (
               <span style={{
                 marginLeft: "auto", fontSize: 9, padding: "2px 7px", borderRadius: 4,
-                background: "#0A1A2A", color: S.blue,
-                border: "1px solid #1A3A5A", fontWeight: 700,
+                background: "#E3F2FD", color: S.blue,
+                border: "1px solid #90CAF9", fontWeight: 700,
               }}>
                 {rememberedEntries.length} saved
               </span>
@@ -1325,12 +1487,12 @@ export default function J2534UdsConsoleTab() {
                         gridTemplateColumns: "72px 90px 1fr auto",
                         gap: "0 12px", alignItems: "center",
                         padding: "7px 10px", borderRadius: 5,
-                        background: "#0A0A14", border: `1px solid ${S.border}`,
+                        background: "#F5F5F5", border: `1px solid ${S.border}`,
                       }}>
-                        <span style={{ fontSize: 11, color: "#AAA", fontFamily: S.mono, fontWeight: 700 }}>
+                        <span style={{ fontSize: 11, color: "#555", fontFamily: S.mono, fontWeight: 700 }}>
                           {e.moduleName || "—"}
                         </span>
-                        <span style={{ fontSize: 11, color: "#4FC3F7", fontFamily: S.mono }}>
+                        <span style={{ fontSize: 11, color: "#1565C0", fontFamily: S.mono }}>
                           {e.addrStr}
                         </span>
                         <span style={{ fontSize: 11, color: S.yellow, fontFamily: S.mono }}>
@@ -1357,7 +1519,7 @@ export default function J2534UdsConsoleTab() {
         </div>
 
         {/* ── Log panel ─────────────────────────────────────────────────── */}
-        <div style={{ borderRadius: 8, border: `1px solid ${S.border}`, background: "#07070D", overflow: "hidden" }}>
+        <div style={{ borderRadius: 8, border: `1px solid ${S.border}`, background: "#FAFAFA", overflow: "hidden" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center",
               padding: "8px 14px", borderBottom: `1px solid ${S.border}`, background: S.card }}>
             <span style={{ fontSize: 11, fontWeight: 800, color: S.dim, letterSpacing: 1.5 }}>
@@ -1368,6 +1530,13 @@ export default function J2534UdsConsoleTab() {
                 background: "none", border: "none", color: S.dim, cursor: "pointer", fontSize: 11, fontFamily: S.font,
               }}>Clear</button>
             )}
+          </div>
+          <div style={{ display: "flex", gap: 12, padding: "4px 14px", borderBottom: `1px solid ${S.border}`, background: "#F5F5F5", fontSize: 9, fontFamily: S.mono, color: S.dim }}>
+            <span><span style={{ color: logColor.tx }}>●</span> TX</span>
+            <span><span style={{ color: logColor.rx }}>●</span> RX</span>
+            <span><span style={{ color: logColor.error }}>●</span> ERR</span>
+            <span><span style={{ color: logColor.warn }}>●</span> WARN</span>
+            <span><span style={{ color: logColor.header }}>●</span> HDR</span>
           </div>
           <div ref={logRef} style={{
             minHeight: 260, maxHeight: 420, overflowY: "auto",
@@ -1380,16 +1549,16 @@ export default function J2534UdsConsoleTab() {
                 <div key={i} style={{
                   color: logColor[l.type] || S.dim,
                   ...(l.type === "hint" ? {
-                    background: "#1A1000",
-                    border: "1px solid #5A3A00",
-                    borderLeft: "3px solid #FF8F00",
+                    background: "#FFF3E0",
+                    border: "1px solid #FFB74D",
+                    borderLeft: "3px solid #E65100",
                     borderRadius: 4,
                     padding: "3px 8px",
                     margin: "3px 0",
                     fontWeight: 700,
                   } : {}),
                 }}>
-                  <span style={{ color: l.type === "hint" ? "#7A5A00" : "#444", userSelect: "none" }}>[{l.ts}] </span>
+                  <span style={{ color: l.type === "hint" ? "#E65100" : "#888", userSelect: "none" }}>[{l.ts}] </span>
                   {l.type === "hint" && <span style={{ marginRight: 5 }}>⚡</span>}
                   {l.msg}
                 </div>

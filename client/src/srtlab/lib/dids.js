@@ -195,3 +195,20 @@ export function _resetDidDescriptionsForTests() {
 export function getDidDescriptionCount() {
   return lookup.size;
 }
+
+/**
+ * Return all loaded DIDs as an array of { did, name, descriptions, operations }.
+ * Call loadDidDescriptions() first to populate the full catalog.
+ */
+export function getAllDids() {
+  const result = [];
+  for (const [did, name] of lookup.entries()) {
+    result.push({
+      did,
+      name,
+      descriptions: allDescriptions.get(did) || [name],
+      operations: operations.get(did) || [],
+    });
+  }
+  return result;
+}

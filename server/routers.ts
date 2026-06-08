@@ -18,6 +18,7 @@ import {
 } from "./db";
 import { storagePut, storageGet, storageGetSignedUrl } from "./storage";
 import crypto from "crypto";
+import { invokeLLM } from "./_core/llm";
 
 export const appRouter = router({
   system: systemRouter,
@@ -172,7 +173,36 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return getSessionAuditLogs(input.sessionId);
       }),
+    }),
+  // --- AI Planner ---
+  planner: router({
+    enhance: protectedProcedure
+      .input(z.object({
+        intent: z.string().max(500),
+        planText: z.string().max(8000),
+        moduleLabel: z.string().max(200).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const response = await invokeLLM({
+          messages: [
+            {
+              role: "system",
+              content: `You are an expert automotive UDS (Unified Diagnostic Services) engineer specializing in FCA/Stellantis CDA6 protocol. You help operators understand and plan diagnostic sequences. Given a user's intent and a generated plan from the CDA6 database, provide:
+1. A clear explanation of what each step does at the protocol level
+2. Any safety warnings or prerequisites
+3. Expected timing and flow control notes
+4. Tips for troubleshooting if a step fails
+Keep responses concise and technical. Use hex notation for bytes. Do not provide seed/key bypass methods.`,
+            },
+            {
+              role: "user",
+              content: `Intent: ${input.intent}\n\nModule: ${input.moduleLabel || "unknown"}\n\nGenerated plan:\n${input.planText}\n\nPlease provide an enhanced explanation of this UDS sequence with protocol-level detail, safety notes, and troubleshooting tips.`,
+            },
+          ],
+        });
+        const content = response?.choices?.[0]?.message?.content || "No response from AI.";
+        return { explanation: content };
+      }),
   }),
 });
-
 export type AppRouter = typeof appRouter;
