@@ -152,12 +152,15 @@ export default function SecuritySyncTab() {
     setRfh({file, bytes, parsed: engParseRfh(bytes, file.name)});
   }, []);
   const loadPcm = useCallback((file, bytes) => {
-    // 8 KB files named with 'GPEC' (e.g. FCA_CONTINENTAL_GPEC2A_EXTEEPROM_zo.bin) are
-    // GPEC2A EXT EEPROM captures. parseModule.js intentionally blocks the filename
-    // override for 8 KB files to protect the keyProgWizard doubled-PCM path, so we
-    // must pass forceType:'GPEC2A' here when the filename clearly signals GPEC.
+    // 8 KB files named with 'GPEC', 'PCM', or 'IMMO' are GPEC2A EXT EEPROM captures.
+    // parseModule.js blocks filename override for 8 KB files, so we must pass
+    // forceType:'GPEC2A' here. Also force for any 4-8 KB file in this PCM slot
+    // (the slot only accepts GPEC2A, so user intent is clear).
     const nameUpper = (file.name || '').toUpperCase();
-    const forceOpts = /GPEC/.test(nameUpper) ? {forceType: 'GPEC2A'} : undefined;
+    const sz = bytes.length;
+    const nameHint = /GPEC|PCM|IMMO/.test(nameUpper);
+    const sizeHint = sz >= 4096 && sz <= 8192;
+    const forceOpts = (nameHint || sizeHint) ? {forceType: 'GPEC2A'} : undefined;
     const pm = parseModule(bytes, file.name, forceOpts);
     const cf = corruptFillError(pm);
     if (cf) { setErr(cf); return; }

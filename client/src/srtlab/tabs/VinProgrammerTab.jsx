@@ -392,6 +392,13 @@ export default function VinProgrammerTab() {
   const [newVin, setNewVin] = useState('');
   const [result, setResult] = useState(null); // {mode, vin, log, bytes, filename}
   const [error, setError] = useState(null);
+  // Batch file drop state
+  const [batchFiles, setBatchFiles] = useState([]); // [{name, bytes, info}]
+  const [batchMode, setBatchMode] = useState(false);
+  const batchInputRef = useRef(null);
+  // 95640 VIN write state
+  const [eepNewVin, setEepNewVin] = useState('');
+  const eepNewVinCheck = useMemo(() => checkDigit(eepNewVin), [eepNewVin]);
 
   const onPick = useCallback(async (f) => {
     setError(null); setResult(null);
@@ -405,6 +412,56 @@ export default function VinProgrammerTab() {
       setError(`Could not read file: ${e?.message || e}`);
     }
   }, []);
+
+  // Batch file drop handler
+  const onBatchPick = useCallback(async (files) => {
+    const results = [];
+    for (const f of files) {
+      try {
+        const buf = await f.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        const info = analyzeFile(bytes, f.name);
+        results.push({name: f.name, bytes, info});
+      } catch (e) {
+        results.push({name: f.name, bytes: null, info: null, error: e?.message || String(e)});
+      }
+    }
+    setBatchFiles(results);
+  }, []);
+  const onBatchFilePick = useCallback((e) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length > 0) onBatchPick(files);
+    if (e.target) e.target.value = '';
+  }, [onBatchPick]);
+  const onBatchDrop = useCallback((e) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+    if (files.length > 0) onBatchPick(files);
+  }, [onBatchPick]);
+  const loadBatchItem = useCallback((item) => {
+    if (!item.bytes || !item.info) return;
+    setFile({name: item.name, bytes: item.bytes, info: item.info});
+    setBatchMode(false);
+  }, []);
+
+  // 95640 VIN patch handler
+  const onEepPatch = useCallback(() => {
+    if (!eepMod || !eepNewVin || eepNewVin.length !== 17 || !eepNewVinCheck.ok) return;
+    try {
+      // Use analyzeFile on the raw data, then patchFile
+      const info = analyzeFile(eepMod.data, eepMod.filename || 'eep.bin');
+      if (info.type !== '95640' || info.vins.length === 0) return;
+      const {data, log} = patchFile(info, eepNewVin.toUpperCase());
+      // Re-parse and update mod
+      const m = parseModule(data, eepMod.filename || 'eep_patched.bin');
+      setEepMod(m);
+      // Download
+      const fn = patchedFilename(eepMod.filename || 'eep.bin', eepNewVin.toUpperCase(), 'patch');
+      downloadBytes(data, fn);
+    } catch (e) {
+      // silent — the UI shows the error inline
+    }
+  }, [eepMod, eepNewVin, eepNewVinCheck.ok]);
 
   const onFilePick = useCallback((e) => {
     const f = e.target.files && e.target.files[0];
@@ -623,6 +680,19 @@ export default function VinProgrammerTab() {
           <div style={{fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, color: C.gn, letterSpacing: 1.5, marginBottom: 10}}>
             4 · {result.mode === 'fix' ? 'CHECKSUMS REWRITTEN' : 'PATCH COMPLETE'}
           </div>
+          {/* VIN cross-check against master VIN */}
+          {result.mode === 'patch' && masterVinValid && result.vin !== masterVin && (
+            <div style={{marginBottom: 10, padding: '10px 14px', borderRadius: 8, background: '#FFF3CD', border: '1.5px solid #FFCC02'}}>
+              <div style={{fontWeight: 800, fontSize: 11, color: '#856404', marginBottom: 4}}>⚠️ VIN MISMATCH vs MASTER</div>
+              <div style={{fontSize: 11, color: '#856404', fontFamily: "'JetBrains Mono'"}}>
+                Patched: <span style={{fontWeight: 800}}>{result.vin}</span><br/>
+                Master: <span style={{fontWeight: 800}}>{masterVin}</span>
+              </div>
+              <div style={{fontSize: 10, color: '#856404', marginTop: 4, fontStyle: 'italic'}}>
+                The VIN you wrote does not match the workspace master VIN. Double-check this is intentional.
+              </div>
+            </div>
+          )}
           <div style={{fontSize: 12, color: C.tx, marginBottom: 10, fontFamily: "'JetBrains Mono'"}}>
             <div>VIN written: <span style={{fontWeight: 800, letterSpacing: 1}} data-testid="vinprog-result-vin">{result.vin}</span></div>
             <div style={{marginTop: 4, fontSize: 10, color: C.tm}}>{result.bytes.length.toLocaleString()} B output → {result.filename}</div>
@@ -645,6 +715,59 @@ export default function VinProgrammerTab() {
           </Btn>
         </Card>
       )}
+
+      {/* ─── BATCH FILE DROP ─── */}
+      <Card style={{marginTop: 14, border: '1.5px dashed ' + (batchMode ? C.a3 : C.bd), background: batchMode ? '#F8F6FF' : '#FAFAF8'}}>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10}}>
+          <div style={{fontFamily: "'Nunito'", fontWeight: 800, fontSize: 12, color: C.a3, letterSpacing: 1.5}}>📦 BATCH DROP</div>
+          <button onClick={() => { setBatchMode(m => !m); setBatchFiles([]); }} style={{fontSize: 10, fontWeight: 700, color: batchMode ? C.er : C.a3, background: 'transparent', border: '1px solid ' + (batchMode ? C.er : C.a3), padding: '3px 10px', borderRadius: 6, cursor: 'pointer'}}>
+            {batchMode ? '✕ CLOSE' : 'OPEN'}
+          </button>
+        </div>
+        {!batchMode && <div style={{fontSize: 11, color: C.tm}}>Drop multiple .bin files at once — auto-classify each and show a summary table.</div>}
+        {batchMode && <>
+          <div
+            onDragOver={e => e.preventDefault()}
+            onDrop={onBatchDrop}
+            onClick={() => batchInputRef.current && batchInputRef.current.click()}
+            style={{border: '2px dashed ' + C.a3 + '66', borderRadius: 12, padding: 20, textAlign: 'center', cursor: 'pointer', background: '#fff', marginBottom: 10}}
+          >
+            <input ref={batchInputRef} type="file" multiple accept=".bin,.BIN" style={{display: 'none'}} onChange={onBatchFilePick}/>
+            <div style={{fontSize: 22, marginBottom: 4}}>📂</div>
+            <div style={{fontFamily: "'JetBrains Mono'", fontSize: 11, fontWeight: 700, color: C.tx}}>Drop multiple .bin files or click to pick</div>
+          </div>
+          {batchFiles.length > 0 && (
+            <div style={{borderRadius: 10, border: '1px solid ' + C.bd, overflow: 'hidden'}}>
+              <table style={{width: '100%', fontSize: 11, borderCollapse: 'collapse'}}>
+                <thead>
+                  <tr style={{background: C.c2, fontWeight: 800, color: C.ts, fontSize: 10, letterSpacing: 0.5}}>
+                    <th style={{padding: '8px 10px', textAlign: 'left'}}>FILE</th>
+                    <th style={{padding: '8px 10px', textAlign: 'left'}}>TYPE</th>
+                    <th style={{padding: '8px 10px', textAlign: 'left'}}>SIZE</th>
+                    <th style={{padding: '8px 10px', textAlign: 'left'}}>VINs</th>
+                    <th style={{padding: '8px 10px', textAlign: 'center'}}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {batchFiles.map((item, i) => (
+                    <tr key={i} style={{borderTop: '1px solid ' + C.bd}}>
+                      <td style={{padding: '6px 10px', fontFamily: "'JetBrains Mono'", fontWeight: 700, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{item.name}</td>
+                      <td style={{padding: '6px 10px', color: item.info?.color || C.tm, fontWeight: 800}}>{item.error ? '✗ ERROR' : (item.info?.name || item.info?.type || '?')}</td>
+                      <td style={{padding: '6px 10px', color: C.tm}}>{item.bytes ? (item.bytes.length / 1024).toFixed(item.bytes.length % 1024 === 0 ? 0 : 1) + ' KB' : '—'}</td>
+                      <td style={{padding: '6px 10px', color: C.tx, fontWeight: 700}}>{item.info?.vins?.length || 0}</td>
+                      <td style={{padding: '6px 10px', textAlign: 'center'}}>
+                        {item.info && item.bytes && (
+                          <button onClick={() => loadBatchItem(item)} style={{fontSize: 10, fontWeight: 800, color: C.a3, background: C.a3 + '14', border: '1px solid ' + C.a3 + '44', padding: '3px 8px', borderRadius: 5, cursor: 'pointer'}}>→ LOAD</button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>}
+      </Card>
 
       <Card style={{marginTop: 14, background: '#FFF8F0', fontSize: 11, color: C.tm}}>
         <div style={{fontWeight: 800, color: C.sr, letterSpacing: 1, fontSize: 11, marginBottom: 6}}>BENCH WORK ONLY</div>
@@ -705,11 +828,40 @@ export default function VinProgrammerTab() {
           mod={eepMod}
           setMod={setEepMod}
           onSwitchTab={setSub}
-        >
-          {(m) => <ModuleFieldsPanel mod={m}/>}
+                >
+          {(m) => <>
+            <ModuleFieldsPanel mod={m}/>
+            {/* 95640 VIN Write Section */}
+            <Card style={{marginTop: 14, padding: 16, border: '1.5px solid ' + C.a3 + '44'}}>
+              <div style={{fontWeight: 800, fontSize: 12, color: C.a3, letterSpacing: 1.5, marginBottom: 10, fontFamily: "'Nunito'"}}>✏️ PATCH VIN</div>
+              <div style={{fontSize: 11, color: C.tm, marginBottom: 10}}>Write a new VIN to both slots (0x275 + 0x288) with CRC8/42 recalculation. Downloads the patched file.</div>
+              <div style={{display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8}}>
+                <input
+                  value={eepNewVin}
+                  onChange={e => setEepNewVin(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, 17))}
+                  maxLength={17}
+                  placeholder="17-char VIN"
+                  style={{flex: 1, padding: '10px 14px', border: `2px solid ${eepNewVin.length === 0 ? C.bd : (eepNewVinCheck.ok ? C.gn : C.er)}`, borderRadius: 10, fontSize: 14, fontFamily: "'JetBrains Mono'", fontWeight: 700, letterSpacing: 2, background: '#fff', color: C.tx}}
+                />
+                <Btn color={C.a3} onClick={() => { if (masterVinValid) setEepNewVin(masterVin); }} disabled={!masterVinValid}>USE MASTER</Btn>
+              </div>
+              <div style={{fontSize: 11, minHeight: 16, marginBottom: 8}}>
+                {eepNewVin.length > 0 && eepNewVin.length < 17 && <span style={{color: C.tm}}>{eepNewVin.length}/17</span>}
+                {eepNewVin.length === 17 && eepNewVinCheck.ok && <span style={{color: C.gn, fontWeight: 700}}>✓ valid (check digit {eepNewVinCheck.expected})</span>}
+                {eepNewVin.length === 17 && !eepNewVinCheck.ok && <span style={{color: C.er, fontWeight: 700}}>✗ {eepNewVinCheck.err}</span>}
+              </div>
+              <Btn color={C.gn} full disabled={eepNewVin.length !== 17 || !eepNewVinCheck.ok} onClick={onEepPatch}>
+                PATCH VIN + DOWNLOAD
+              </Btn>
+              {eepNewVin.length === 17 && eepNewVinCheck.ok && masterVinValid && eepNewVin !== masterVin && (
+                <div style={{marginTop: 8, padding: '8px 12px', borderRadius: 8, background: '#FFF3CD', border: '1px solid #FFCC02'}}>
+                  <div style={{fontWeight: 700, fontSize: 10, color: '#856404'}}>⚠️ VIN differs from master ({masterVin})</div>
+                </div>
+              )}
+            </Card>
+          </>}
         </ModuleSubTab>
       </div>
-
       {/*
            UDS VIN WRITE (udsEngine session sequence + algos.js vinWriteDids)
            Live-over-CAN VIN programming via UDS 2E WriteDataByIdentifier.

@@ -223,3 +223,9 @@
 - [x] PATCHER sub-tab: added GPEC2A VIN-based signature detection in _detectBySignature so 8KB PCM files are correctly classified as GPEC2A (not 95640)
 - [x] Added 95640 sub-tab to VIN Programmer (BCM backup EEPROM with VIN at 0x275/0x288, key @0x40, FOB @0x200) using ModuleFieldsPanel
 - [x] Auto-detect and suggest correct sub-tab on file mismatch — clickable "→ Open in [X] sub-tab instead" link with onSwitchTab prop
+
+## VIN Programmer Improvements (Jun 8 - Round 4)
+- [x] VIN cross-check in PATCHER: after patching, compare new VIN against master VIN and show mismatch warning (yellow banner)
+- [x] 95640 sub-tab VIN write support: Patch VIN input + USE MASTER button + CRC8_42 recalculation at 0x275/0x288 + auto-download
+- [x] Batch file drop: accept multiple .bin files at once, auto-classify each, show summary table with → LOAD button
+- [x] BONUS: Fixed Security Sync PCM slot rejecting PCM_IMMO_DONOR files (expanded forceType regex to match PCM/IMMO + size hint for 4-8KB files)
