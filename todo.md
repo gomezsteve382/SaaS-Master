@@ -201,3 +201,8 @@
 ## Bug Fixes (Jun 8)
 - [x] Fixed `selectedModule is not defined` ReferenceError — added state declaration
 - [x] Fixed Workflow Assistant 401 auth error — changed planner.workflow and planner.enhance to publicProcedure, added credentials:include to fetch
+
+## UDS Console UX Improvements (Jun 8)
+- [x] Add module selector dropdown to Workflow Assistant panel (populated from FCA_MODULES list)
+- [x] Add "Copy All Steps" button to generated workflow output
+- [x] Persist J2534 bridge URL in localStorage via setAutelState (srtlab_autel key)

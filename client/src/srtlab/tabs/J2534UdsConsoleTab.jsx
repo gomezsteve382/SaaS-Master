@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { getStatus, open as openBridge, connect as bridgeConnect, setFilter, sendMsg, readMsg, getAutelState } from "../lib/bridgeClient.js";
+import { getStatus, open as openBridge, connect as bridgeConnect, setFilter, sendMsg, readMsg, getAutelState, setAutelState } from "../lib/bridgeClient.js";
 import { decodeNRC } from "../lib/nrc.js";
 import { ALGOS, unlockKeyBytes, pickUnlockChain } from "../lib/algos.js";
 import { loadDidDescriptions, getAllDids } from "../lib/dids.js";
@@ -243,6 +243,8 @@ export default function J2534UdsConsoleTab() {
   const [didList, setDidList] = useState([]);
   const [didLoaded, setDidLoaded] = useState(false);
 
+  /* Bridge URL editing state — persisted via setAutelState (localStorage) */
+  const [bridgeUrlInput, setBridgeUrlInput] = useState(() => getAutelState().url);
   /* Workflow Assistant state */
   const [wfOpen, setWfOpen] = useState(false);
   const [wfIntent, setWfIntent] = useState("");
@@ -250,6 +252,7 @@ export default function J2534UdsConsoleTab() {
   const [wfResult, setWfResult] = useState(null);
   const [wfError, setWfError] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
+  const [wfCopied, setWfCopied] = useState(false);
 
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
@@ -962,10 +965,34 @@ export default function J2534UdsConsoleTab() {
         {/* ── Connection strip ──────────────────────────────────────────── */}
         <div style={{ padding: "12px 16px", borderRadius: 8, border: `1px solid ${S.border}`,
             background: S.card, marginBottom: 12, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11, fontWeight: 800, color: S.dim, letterSpacing: 1.5 }}>BRIDGE</span>
-          <div style={{ flex: 1, minWidth: 0, fontSize: 11, color: S.dim, fontFamily: S.mono, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {urlRef.current}
-          </div>
+          <span style={{ fontSize: 11, fontWeight: 800, color: S.dim, letterSpacing: 1.5, flexShrink: 0 }}>BRIDGE</span>
+          <input
+            type="text"
+            value={bridgeUrlInput}
+            onChange={e => setBridgeUrlInput(e.target.value)}
+            onBlur={e => {
+              const v = e.target.value.trim() || getAutelState().url;
+              setBridgeUrlInput(v);
+              setAutelState({ url: v });
+              urlRef.current = v;
+            }}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                const v = e.target.value.trim() || getAutelState().url;
+                setBridgeUrlInput(v);
+                setAutelState({ url: v });
+                urlRef.current = v;
+                e.target.blur();
+              }
+            }}
+            placeholder="http://localhost:8765"
+            style={{
+              flex: 1, minWidth: 0, fontSize: 11, color: S.text, fontFamily: S.mono,
+              background: '#FAFAFA', border: `1px solid ${S.border}`, borderRadius: 5,
+              padding: '4px 8px', outline: 'none',
+            }}
+            title="J2534 bridge URL — edit and press Enter or click away to save"
+          />
           {(status === "disconnected" || status === "bridge_connected") && (
             <Btn onClick={connectBridge} disabled={busy} color={S.blue}>Connect</Btn>
           )}
@@ -1188,6 +1215,26 @@ export default function J2534UdsConsoleTab() {
               <div style={{ fontSize: 11, color: S.dim, marginBottom: 8, lineHeight: 1.5 }}>
                 Examples: "change VIN in the radio" · "read all DTCs from BCM" · "flash ECM calibration" · "unlock IPC programming session"
               </div>
+              {/* Module selector */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: S.dim, letterSpacing: 1, flexShrink: 0 }}>TARGET MODULE</span>
+                <select
+                  value={selectedModule}
+                  onChange={e => setSelectedModule(e.target.value)}
+                  style={{
+                    flex: 1, padding: '5px 8px', borderRadius: 5, border: `1px solid ${S.border}`,
+                    background: '#FAFAFA', color: S.text, fontFamily: S.mono, fontSize: 11,
+                  }}
+                  title="Optionally pin the target module so the AI generates the correct CAN IDs and security sequence"
+                >
+                  <option value="">Auto-detect from intent</option>
+                  {FCA_MODULES.map(m => (
+                    <option key={m.name} value={m.name}>
+                      {m.name} — TX 0x{m.tx.toString(16).toUpperCase()} / RX 0x{m.rx.toString(16).toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                 <input
                   type="text"
@@ -1237,8 +1284,40 @@ export default function J2534UdsConsoleTab() {
               )}
               {wfResult && (
                 <div style={{ borderRadius: 8, border: `1px solid #90CAF9`, background: '#FFF', padding: 16 }}>
-                  <div style={{ fontWeight: 900, fontSize: 14, color: '#1565C0', marginBottom: 4 }}>
-                    {wfResult.title}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                    <div style={{ fontWeight: 900, fontSize: 14, color: '#1565C0', flex: 1 }}>
+                      {wfResult.title}
+                    </div>
+                    <button
+                      onClick={() => {
+                        const lines = [
+                          `# ${wfResult.title}`,
+                          `Module: ${wfResult.module.code} (${wfResult.module.name}) · TX ${wfResult.module.tx} · RX ${wfResult.module.rx}`,
+                          '',
+                          ...(wfResult.prerequisites?.length ? ['Prerequisites:', ...wfResult.prerequisites.map(p => `  • ${p}`), ''] : []),
+                          'Steps:',
+                          ...(wfResult.steps?.map(s =>
+                            `  ${s.step}. [${s.service}] ${s.hex}  → ${s.expectedResponse || '?'}  // ${s.description}${s.notes ? ` ⚠ ${s.notes}` : ''}`
+                          ) || []),
+                          ...(wfResult.warnings?.length ? ['', 'Warnings:', ...wfResult.warnings.map(w => `  ⚠ ${w}`)] : []),
+                          ...(wfResult.postActions?.length ? ['', 'Post-workflow:', ...wfResult.postActions.map(a => `  • ${a}`)] : []),
+                        ].join('\n');
+                        navigator.clipboard.writeText(lines).then(() => {
+                          setWfCopied(true);
+                          setTimeout(() => setWfCopied(false), 2000);
+                        });
+                      }}
+                      style={{
+                        padding: '3px 10px', borderRadius: 5, border: '1px solid #90CAF9',
+                        background: wfCopied ? '#E8F5E9' : '#E3F2FD',
+                        color: wfCopied ? '#388E3C' : '#1565C0',
+                        fontSize: 10, fontWeight: 700, cursor: 'pointer', flexShrink: 0,
+                        transition: 'all 0.2s',
+                      }}
+                      title="Copy all steps as plain text"
+                    >
+                      {wfCopied ? '✓ Copied' : '📋 Copy All'}
+                    </button>
                   </div>
                   <div style={{ fontSize: 11, color: S.dim, marginBottom: 12 }}>
                     Module: {wfResult.module.code} ({wfResult.module.name}) · TX {wfResult.module.tx} · RX {wfResult.module.rx}
