@@ -215,3 +215,6 @@
 ## UDS Console UX Improvements Round 3 (Jun 8)
 - [x] Execute All sequential auto-send (fires each step through bridge with 600ms delay, real-time step indicator, Stop button)
 - [x] DID Library module filter dropdown (narrows DID list to module's CRITICAL_DIDS profile; auto-syncs with TX address picker)
+
+## Bug Fixes (Jun 8 - Round 2)
+- [x] VIN Programmer ECM sub-tab rejects 8KB PCM_IMMO_DONOR files (detected as 95640 instead of GPEC2A) — added forceType prop to ModuleSubTab, ECM sub-tab now passes forceType='GPEC2A'

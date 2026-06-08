@@ -167,7 +167,7 @@ function SubTabBar({sub, setSub}) {
  * match the sub-tab, and hand the parsed `mod` to its render-prop child
  * (which mounts the matching shared ImmoVIN panel). `mod`/`setMod` live in
  * the parent so the loaded dump survives sub-tab switches. */
-function ModuleSubTab({testidPrefix, label, blurb, expectedTypes, mod, setMod, children}) {
+function ModuleSubTab({testidPrefix, label, blurb, expectedTypes, forceType, mod, setMod, children}) {
   const inputRef = useRef(null);
   const [err, setErr] = useState('');
 
@@ -176,7 +176,7 @@ function ModuleSubTab({testidPrefix, label, blurb, expectedTypes, mod, setMod, c
     if (!f) return;
     try {
       const bytes = new Uint8Array(await f.arrayBuffer());
-      const m = parseModule(bytes, f.name);
+      const m = parseModule(bytes, f.name, forceType ? { forceType } : undefined);
       if (expectedTypes && !expectedTypes.includes(m.type)) {
         setErr(`Selected file detected as ${m.name || m.type} — load a ${label} dump for this sub-tab.`);
         return;
@@ -185,7 +185,7 @@ function ModuleSubTab({testidPrefix, label, blurb, expectedTypes, mod, setMod, c
     } catch (e) {
       setErr(`Could not read file: ${e?.message || e}`);
     }
-  }, [expectedTypes, label, setMod]);
+  }, [expectedTypes, forceType, label, setMod]);
 
   const onFilePick = useCallback((e) => {
     const f = e.target.files && e.target.files[0];
@@ -626,6 +626,7 @@ export default function VinProgrammerTab() {
           label="ECM (GPEC2A)"
           blurb="Continental GPEC2A PCM dump — VIN copies, SEC6 secret, checksum verdicts and one-click IMMO fix."
           expectedTypes={['GPEC2A']}
+          forceType="GPEC2A"
           mod={ecmMod}
           setMod={setEcmMod}
         >
