@@ -194,6 +194,6 @@
 ## UDS Workflow Assistant (Jun 8)
 - [x] Build UDS Workflow Assistant panel in J2534UdsConsoleTab — natural language input ("change VIN in the radio")
 - [x] Server-side tRPC endpoint that takes intent + selected module and generates full UDS workflow using MODULE_REGISTRY + DID + SA knowledge
-- [ ] Workflow output: step-by-step numbered sequence with hex commands, expected responses, security prerequisites
-- [ ] "Execute All" button that queues the generated workflow steps for sequential relay execution
-- [ ] Each workflow step shows: service name, hex bytes, expected response pattern, and explanation
+- [x] Workflow output: step-by-step numbered sequence with hex commands, expected responses, security prerequisites
+- [x] "Execute All" button that queues the generated workflow steps for sequential relay execution
+- [x] Each workflow step shows: service name, hex bytes, expected response pattern, and explanation
