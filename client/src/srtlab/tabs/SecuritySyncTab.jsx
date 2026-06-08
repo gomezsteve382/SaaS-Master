@@ -5,7 +5,7 @@ import {resolveBcmSec16, classifyPcmSec6, corruptFillError, parseModule, pcmChip
 import {engParseBcm, engParseRfh, engParsePcm} from "./ModuleSync.jsx";
 import Gpec2aImmoPanel from "../components/Gpec2aImmoPanel.jsx";
 import {StatBadge} from "../components/ImmoChecksumPanel.jsx";
-import {writeRfhSec16FromBcm, writeRfhSec16Gen1, writeRfhSec16Gen2Slots, writeXc2268Sec16, writePcmSec6} from "../lib/securityBytes.js";
+import {writeRfhSec16FromBcm, writeRfhSec16Gen1, writeRfhSec16Gen2Slots, writeXc2268Sec16, writePcmSec6, PCM_SEC6_MARKER_OFFSET, PCM_SEC6_OFFSET} from "../lib/securityBytes.js";
 import {isXc2268Rfhub} from "../lib/xc2268Rfhub.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {RfhubKeyTypeBanner} from "../components/RfhubKeyTypeBanner.jsx";
@@ -131,6 +131,13 @@ export default function SecuritySyncTab() {
   const [err, setErr] = useState("");
   const [showFixAnyway, setShowFixAnyway] = useState(false);
 
+  // ── Originals for rollback/undo ──
+  // Store the original file bytes as loaded from disk so the user can revert
+  // after a bad repair without needing to re-upload.
+  const [origBcm, setOrigBcm] = useState(null); // {file, bytes}
+  const [origRfh, setOrigRfh] = useState(null);
+  const [origPcm, setOrigPcm] = useState(null);
+
   // Refuse-on-doubt: every slot validates the parsed module type before it is
   // accepted. A wrong-type (but non-corrupt) file would otherwise skew the
   // byte comparison and — worse — feed a misclassified donor into the embedded
@@ -141,6 +148,8 @@ export default function SecuritySyncTab() {
     if (cf) { setErr(cf); return; }
     if (pm.type !== "BCM") { setErr(`Selected file detected as ${pm.type || "UNKNOWN"} — load a BCM dump in this slot.`); return; }
     setErr("");
+    // Save original for rollback (only on fresh load from disk, not re-parse after repair)
+    if (!file._fromRepair) setOrigBcm({file, bytes: new Uint8Array(bytes)});
     setBcm({file, bytes, parsed: engParseBcm(bytes, file.name)});
   }, []);
   const loadRfh = useCallback((file, bytes) => {
@@ -149,6 +158,7 @@ export default function SecuritySyncTab() {
     if (cf) { setErr(cf); return; }
     if (pm.type !== "RFHUB" && pm.type !== "XC2268_RFHUB") { setErr(`Selected file detected as ${pm.type || "UNKNOWN"} — load an RFHUB dump in this slot.`); return; }
     setErr("");
+    if (!file._fromRepair) setOrigRfh({file, bytes: new Uint8Array(bytes)});
     setRfh({file, bytes, parsed: engParseRfh(bytes, file.name)});
   }, []);
   const loadPcm = useCallback((file, bytes) => {
@@ -167,6 +177,7 @@ export default function SecuritySyncTab() {
     if (pm.type !== "GPEC2A") { setErr(`Selected file detected as ${pm.type || "UNKNOWN"} — load a PCM (GPEC2A) dump in this slot.`); return; }
     setErr("");
     setShowFixAnyway(false);
+    if (!file._fromRepair) setOrigPcm({file, bytes: new Uint8Array(bytes)});
     setPcm({file, bytes, parsed: engParsePcm(bytes, file.name)});
   }, []);
 
@@ -227,6 +238,11 @@ export default function SecuritySyncTab() {
   // in the PCM slot card so the user never has to scroll down.
   const applyPcmDonorFill = useCallback(() => {
     if (!pcm || !expectedSec6) return;
+    // Pre-repair validation gate
+    if (bcmSec16 && bcmSec16.length < 16) {
+      setErr(`⛔ PCM DONOR FILL BLOCKED: BCM SEC16 source is only ${bcmSec16.length} bytes (from "${bcmRes?.source}"). Need a full 16-byte source for safe SEC6 derivation.`);
+      return;
+    }
     try {
       const res = writePcmSec6(pcm.bytes, expectedRfh);
       if (!res.ok) { setErr('PCM donor fill: writePcmSec6 returned 0 patches — PCM size not supported'); return; }
@@ -239,7 +255,56 @@ export default function SecuritySyncTab() {
       URL.revokeObjectURL(url);
       setPcm({ file: { name: fname }, bytes: res.bytes, parsed: engParsePcm(res.bytes, fname) });
     } catch (e) { setErr('PCM donor fill failed: ' + e.message); }
-  }, [pcm, expectedSec6, expectedRfh]);
+  }, [pcm, expectedSec6, expectedRfh, bcmSec16, bcmRes]);
+
+  // ── Pre-repair validation gate ──
+  // Block any repair if the BCM SEC16 source is only 8 bytes (mirror1/flat).
+  // These sources cannot provide a full 16-byte secret needed by the RFHUB/PCM
+  // writers. Only split (16B) and mirror2 (16B) are safe donor sources.
+  const bcmSourceSafe = bcmRes && bcmSec16 && bcmSec16.length === 16;
+  const bcmSourceWarn = bcmRes && bcmSec16 && bcmSec16.length < 16;
+  // Also check: if source is mirror1 or flat, it's only 8 bytes — unsafe for repair
+  const bcmSourceUnsafe = bcmRes && bcmSec16 && (bcmRes.source === 'mirror1' || bcmRes.source === 'flat') && bcmSec16.length < 16;
+
+  // ── PCM SEC6 Clear (zero) tool ──
+  // For virgin BCM cases where no SEC6 should exist: writes 6 zero bytes at 0x3C8
+  // and clears the IMMO marker at 0x3C4 (sets to 00 00 00 00).
+  const clearPcmSec6 = useCallback(() => {
+    if (!pcm) return;
+    try {
+      const out = new Uint8Array(pcm.bytes);
+      // Clear IMMO marker at 0x3C4
+      for (let k = 0; k < 4; k++) out[PCM_SEC6_MARKER_OFFSET + k] = 0x00;
+      // Clear SEC6 at 0x3C8
+      for (let k = 0; k < 6; k++) out[PCM_SEC6_OFFSET + k] = 0x00;
+      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const fname = `PCM_SEC6_CLEARED_${ts}.bin`;
+      const blob = new Blob([out], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = fname;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setPcm({ file: { name: fname, _fromRepair: true }, bytes: out, parsed: engParsePcm(out, fname) });
+    } catch (e) { setErr('Clear SEC6 failed: ' + e.message); }
+  }, [pcm]);
+
+  // ── Rollback/Undo — revert to original loaded file ──
+  const revertBcm = useCallback(() => {
+    if (!origBcm) return;
+    setBcm({ file: origBcm.file, bytes: new Uint8Array(origBcm.bytes), parsed: engParseBcm(origBcm.bytes, origBcm.file.name) });
+    setWizardResults(null);
+  }, [origBcm]);
+  const revertRfh = useCallback(() => {
+    if (!origRfh) return;
+    setRfh({ file: origRfh.file, bytes: new Uint8Array(origRfh.bytes), parsed: engParseRfh(origRfh.bytes, origRfh.file.name) });
+    setWizardResults(null);
+  }, [origRfh]);
+  const revertPcm = useCallback(() => {
+    if (!origPcm) return;
+    setPcm({ file: origPcm.file, bytes: new Uint8Array(origPcm.bytes), parsed: engParsePcm(origPcm.bytes, origPcm.file.name) });
+    setShowFixAnyway(false);
+    setWizardResults(null);
+  }, [origPcm]);
 
   const rfhNeedsFix = !!(bcmSec16 && rfh && !rfh.parsed.tooSmall && !rfhVerdict.good);
   const pcmNeedsFix = !!(bcmSec16 && pcm && !pcm.parsed.tooSmall && !sec6Verdict.good);
@@ -247,6 +312,11 @@ export default function SecuritySyncTab() {
 
   const applyAllFixes = useCallback(async () => {
     if (!wizardCanRun || wizardBusy) return;
+    // Pre-repair validation gate: block if BCM SEC16 source is insufficient
+    if (bcmSourceUnsafe || bcmSourceWarn) {
+      setErr(`⛔ REPAIR BLOCKED: BCM SEC16 source is "${bcmRes.source}" (${bcmSec16.length} bytes). Only split or mirror2 sources provide a full 16-byte secret safe for repair. This ${bcmSec16.length}-byte value may contain partial or unreliable data. Load a BCM with a split or mirror2 SEC16 source, or use the "Clear SEC6" tool if the BCM is truly virgin.`);
+      return;
+    }
     setWizardBusy(true);
     setWizardResults(null);
     const results = { rfh: null, pcm: null };
@@ -307,7 +377,7 @@ export default function SecuritySyncTab() {
 
     setWizardResults(results);
     setWizardBusy(false);
-  }, [wizardCanRun, wizardBusy, rfhNeedsFix, pcmNeedsFix, bcmSec16, rfh, pcm, expectedRfh]);
+  }, [wizardCanRun, wizardBusy, rfhNeedsFix, pcmNeedsFix, bcmSec16, rfh, pcm, expectedRfh, bcmSourceUnsafe, bcmSourceWarn, bcmRes]);
 
   // ── Overall GO / NO-GO on the security bytes ──
   // A single, prominent verdict so the user does not have to read the byte grid
@@ -400,18 +470,34 @@ export default function SecuritySyncTab() {
               )}
             </div>
           </div>
+          {/* Pre-repair validation gate warning */}
+          {bcmSourceWarn && wizardCanRun && (
+            <div data-testid="secsync-validation-gate-warn" style={{
+              padding: '10px 14px', borderRadius: 8, marginBottom: 10,
+              background: '#FFF3CD', border: '1px solid #FFCA28', color: '#5D4037',
+            }}>
+              <div style={{fontWeight: 800, fontSize: 11, marginBottom: 4}}>⛔ REPAIR BLOCKED — INSUFFICIENT SEC16 SOURCE</div>
+              <div style={{fontSize: 10, lineHeight: 1.5}}>
+                BCM SEC16 source is <strong style={{fontFamily: mono}}>{bcmRes?.source}</strong> ({bcmSec16?.length} bytes).
+                Only <strong>split</strong> or <strong>mirror2</strong> sources provide a full 16-byte secret safe for repair.
+                An 8-byte source may contain partial or FEE counter data that would produce incorrect security bytes.
+                <br/><br/>
+                <strong>Options:</strong> Load a BCM with a split/mirror2 SEC16, or use the "⚠️ Clear SEC6" tool below if the BCM is truly virgin and no SEC6 should exist.
+              </div>
+            </div>
+          )}
           {wizardCanRun ? (
             <button
               onClick={applyAllFixes}
-              disabled={wizardBusy}
+              disabled={wizardBusy || bcmSourceWarn}
               data-testid="secsync-wizard-apply-btn"
               style={{
-                width: '100%', padding: '12px 0', borderRadius: 8, border: 'none', cursor: wizardBusy ? 'not-allowed' : 'pointer',
-                background: wizardBusy ? C.bd : C.wn, color: '#000', fontFamily: "'Righteous'", fontSize: 15, fontWeight: 800, letterSpacing: 1,
-                opacity: wizardBusy ? 0.6 : 1, transition: 'opacity 0.15s',
+                width: '100%', padding: '12px 0', borderRadius: 8, border: 'none', cursor: (wizardBusy || bcmSourceWarn) ? 'not-allowed' : 'pointer',
+                background: (wizardBusy || bcmSourceWarn) ? C.bd : C.wn, color: '#000', fontFamily: "'Righteous'", fontSize: 15, fontWeight: 800, letterSpacing: 1,
+                opacity: (wizardBusy || bcmSourceWarn) ? 0.6 : 1, transition: 'opacity 0.15s',
               }}
             >
-              {wizardBusy ? '⏳ APPLYING FIXES…' : `⚡ APPLY ALL FIXES (${[rfhNeedsFix && 'RFHUB', pcmNeedsFix && 'PCM'].filter(Boolean).join(' + ')}) & DOWNLOAD`}
+              {wizardBusy ? '⏳ APPLYING FIXES…' : bcmSourceWarn ? '⛔ BLOCKED — SEC16 SOURCE INSUFFICIENT' : `⚡ APPLY ALL FIXES (${[rfhNeedsFix && 'RFHUB', pcmNeedsFix && 'PCM'].filter(Boolean).join(' + ')}) & DOWNLOAD`}
             </button>
           ) : wizardResults ? (
             <div style={{fontSize: 12, color: C.gn, fontWeight: 800, textAlign: 'center', padding: '8px 0'}}>✅ All repairs applied — patched files downloaded above.</div>
@@ -439,7 +525,27 @@ export default function SecuritySyncTab() {
                 : <>
                     <div style={{color: C.ts}}>VIN: <span style={{fontFamily: mono, color: C.tx}}>{bcm.parsed.vin || "—"}</span></div>
                     <div style={{marginTop: 3}}>{bcmSec16 ? <StatBadge value={"SEC16 · " + (bcmRes.source || "set")} good /> : <StatBadge value="SEC16 BLANK" good={false} />}</div>
+                    {/* Source length warning */}
+                    {bcmSec16 && bcmSec16.length < 16 && (
+                      <div style={{marginTop: 3, fontSize: 9, color: '#E65100', fontWeight: 700}}>
+                        ⚠️ {bcmSec16.length}B source ({bcmRes.source}) — insufficient for repair
+                      </div>
+                    )}
                   </>}
+              {/* Rollback button */}
+              {origBcm && bcm.file.name !== origBcm.file.name && (
+                <button
+                  onClick={revertBcm}
+                  data-testid="secsync-bcm-revert-btn"
+                  style={{
+                    marginTop: 6, width: '100%', padding: '4px 0', borderRadius: 5,
+                    border: `1px solid ${C.wn}66`, background: C.wn + '14', color: C.wn,
+                    fontFamily: "'Righteous'", fontSize: 9, fontWeight: 800, letterSpacing: 0.6, cursor: 'pointer',
+                  }}
+                >
+                  ↩ REVERT TO ORIGINAL
+                </button>
+              )}
             </div>
           )}
         />
@@ -453,6 +559,20 @@ export default function SecuritySyncTab() {
                     <div style={{color: C.ts}}>VIN: <span style={{fontFamily: mono, color: C.tx}}>{rfh.parsed.vin || "—"}</span> · {rfh.parsed.format}</div>
                     <div style={{marginTop: 3}}>{rfhSec16 ? <StatBadge value="SEC16 SET" good /> : <StatBadge value="SEC16 VIRGIN" good={false} />}</div>
                   </>}
+              {/* Rollback button */}
+              {origRfh && rfh.file.name !== origRfh.file.name && (
+                <button
+                  onClick={revertRfh}
+                  data-testid="secsync-rfh-revert-btn"
+                  style={{
+                    marginTop: 6, width: '100%', padding: '4px 0', borderRadius: 5,
+                    border: `1px solid ${C.wn}66`, background: C.wn + '14', color: C.wn,
+                    fontFamily: "'Righteous'", fontSize: 9, fontWeight: 800, letterSpacing: 0.6, cursor: 'pointer',
+                  }}
+                >
+                  ↩ REVERT TO ORIGINAL
+                </button>
+              )}
             </div>
           )}
         />
@@ -492,7 +612,7 @@ export default function SecuritySyncTab() {
                           : <StatBadge value="NO SEC6" good={false} />}
                     </div>
                     {/* Use Donor shortcut — only show when BCM SEC16 is available and PCM SEC6 is mismatched */}
-                    {expectedSec6 && !sec6Verdict.good && (
+                    {expectedSec6 && !sec6Verdict.good && bcmSourceSafe && (
                       <div style={{marginTop: 6}}>
                         <button
                           data-testid="secsync-pcm-donor-fill-btn"
@@ -510,7 +630,40 @@ export default function SecuritySyncTab() {
                         </div>
                       </div>
                     )}
+                    {/* Clear SEC6 tool — for virgin BCM cases */}
+                    {sec6Populated && (
+                      <div style={{marginTop: 6}}>
+                        <button
+                          data-testid="secsync-pcm-clear-sec6-btn"
+                          onClick={clearPcmSec6}
+                          style={{
+                            width: '100%', padding: '5px 0', borderRadius: 6, border: '1px solid #E6515166',
+                            background: '#E6515118', color: '#E65151', fontFamily: "'Righteous'", fontSize: 10,
+                            fontWeight: 800, letterSpacing: 0.8, cursor: 'pointer',
+                          }}
+                        >
+                          ⚠️ CLEAR SEC6 · ZERO OUT & DOWNLOAD
+                        </button>
+                        <div style={{fontSize: 9, color: C.tm, marginTop: 3, lineHeight: 1.4}}>
+                          Writes 6 zero bytes at 0x3C8 and clears the IMMO marker. Use when BCM is virgin and no SEC6 should exist.
+                        </div>
+                      </div>
+                    )}
                   </>
+                )}
+                {/* Rollback button */}
+                {origPcm && pcm.file.name !== origPcm.file.name && (
+                  <button
+                    onClick={revertPcm}
+                    data-testid="secsync-pcm-revert-btn"
+                    style={{
+                      marginTop: 6, width: '100%', padding: '4px 0', borderRadius: 5,
+                      border: `1px solid ${C.wn}66`, background: C.wn + '14', color: C.wn,
+                      fontFamily: "'Righteous'", fontSize: 9, fontWeight: 800, letterSpacing: 0.6, cursor: 'pointer',
+                    }}
+                  >
+                    ↩ REVERT TO ORIGINAL
+                  </button>
                 )}
               </div>
             );
@@ -603,6 +756,11 @@ export default function SecuritySyncTab() {
 
         const doRfhFix = () => {
           if (!canFix) return;
+          // Pre-repair validation gate
+          if (bcmSourceWarn) {
+            setErr(`⛔ RFHUB FIX BLOCKED: BCM SEC16 source is "${bcmRes?.source}" (${bcmSec16?.length} bytes). Need a full 16-byte source (split or mirror2) for safe repair.`);
+            return;
+          }
           setRfhFixBusy(true);
           setRfhFixResult(null);
           try {

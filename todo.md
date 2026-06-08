@@ -237,3 +237,8 @@
 - [x] Relaxed split separator check to accept variant format (04 00 00 01 in addition to 04 04 00 14)
 - [x] Verified: CHARGER_BCM_VIN_2C3CDXGJ6GH183312.bin now correctly returns sec16Absent=true, blank=true, bytes=null
 - [x] All 346 tests pass after fix
+
+## Security Sync Safety Improvements (Jun 8)
+- [x] PCM SEC6 zeroing tool: one-click "Clear SEC6" button in Security Sync PCM slot that writes 6 zero bytes at offset 0x3C8 in GPEC2A file, for virgin BCM cases where no SEC6 should exist
+- [x] Pre-repair validation gate: before wizard writes any "fixed" file, verify source SEC16 is full 16 bytes and not derived from 8-byte mirror1 source; block repair with clear warning if source is insufficient
+- [x] Repair rollback/undo: "Revert to Original" button in Security Sync that re-downloads the unmodified file from the last loaded state, allowing users to undo a bad repair without re-uploading
