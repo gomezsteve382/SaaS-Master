@@ -293,26 +293,7 @@ export default function J2534UdsConsoleTab() {
   /* Load remembered entries on mount */
   useEffect(() => { loadRemembered(); }, [loadRemembered]);
 
-  /* CDA6 DB Tools → UDS Console prefill bridge */
-  useEffect(() => {
-    const tx = sessionStorage.getItem("srtlab:uds:prefill:tx");
-    const rx = sessionStorage.getItem("srtlab:uds:prefill:rx");
-    const cmd = sessionStorage.getItem("srtlab:uds:prefill:cmd");
-    if (tx) { setTxHex(tx); sessionStorage.removeItem("srtlab:uds:prefill:tx"); }
-    if (rx) { setRxHex(rx); sessionStorage.removeItem("srtlab:uds:prefill:rx"); }
-    if (cmd) { setRawCmd(cmd); sessionStorage.removeItem("srtlab:uds:prefill:cmd"); }
-    if (tx || rx || cmd) addLog("Pre-filled from CDA6 DB Tools", "header");
-  }, [addLog]);
 
-  /* Load DID library when panel is opened */
-  useEffect(() => {
-    if (didLibOpen && !didLoaded) {
-      loadDidDescriptions().then(() => {
-        setDidList(getAllDids());
-        setDidLoaded(true);
-      });
-    }
-  }, [didLibOpen, didLoaded]);
 
   /* When TX address changes: load remembered algo from localStorage, clear live detection */
   useEffect(() => {
@@ -349,6 +330,27 @@ export default function J2534UdsConsoleTab() {
     const ts = new Date().toLocaleTimeString("en-US", { hour12: false });
     setLog(p => [...p.slice(-500), { ts, msg, type }]);
   }, []);
+
+  /* CDA6 DB Tools → UDS Console prefill bridge */
+  useEffect(() => {
+    const tx = sessionStorage.getItem("srtlab:uds:prefill:tx");
+    const rx = sessionStorage.getItem("srtlab:uds:prefill:rx");
+    const cmd = sessionStorage.getItem("srtlab:uds:prefill:cmd");
+    if (tx) { setTxHex(tx); sessionStorage.removeItem("srtlab:uds:prefill:tx"); }
+    if (rx) { setRxHex(rx); sessionStorage.removeItem("srtlab:uds:prefill:rx"); }
+    if (cmd) { setRawCmd(cmd); sessionStorage.removeItem("srtlab:uds:prefill:cmd"); }
+    if (tx || rx || cmd) addLog("Pre-filled from CDA6 DB Tools", "header");
+  }, [addLog]);
+
+  /* Load DID library when panel is opened */
+  useEffect(() => {
+    if (didLibOpen && !didLoaded) {
+      loadDidDescriptions().then(() => {
+        setDidList(getAllDids());
+        setDidLoaded(true);
+      });
+    }
+  }, [didLibOpen, didLoaded]);
 
   /* ── Disconnect / reset ──────────────────────────────────────────────── */
   const disconnect = useCallback(async () => {
@@ -1028,7 +1030,7 @@ export default function J2534UdsConsoleTab() {
             }}
           >
             <span style={{ fontSize: 11, fontWeight: 800, color: S.text, letterSpacing: 1.5 }}>
-              \uD83D\uDCDA DID LIBRARY {didLoaded ? `(${didList.length})` : ""}
+              📚 DID LIBRARY {didLoaded ? `(${didList.length})` : ""}
             </span>
             <span style={{ fontSize: 12, color: S.dim }}>{didLibOpen ? "\u25B2" : "\u25BC"}</span>
           </button>

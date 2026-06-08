@@ -185,9 +185,9 @@
 - [x] Vitest tests for ECU catalog lookup, SA algorithm parsing
 
 ## UDS Console Light Theme + New Features (Jun 7)
-- [ ] Fix J2534UdsConsoleTab.jsx dark theme — convert to light cream theme matching rest of app
+- [x] Fix J2534UdsConsoleTab.jsx dark theme — convert to light cream theme matching rest of app
 - [x] Add UDS command history (up-arrow recall, last 20 commands in localStorage)
-- [ ] Add CDA6→UDS bridge prefill support in J2534UdsConsoleTab (read sessionStorage keys)
-- [ ] Add UDS DID library tab/section with full DID catalog from all sources
+- [x] Add CDA6→UDS bridge prefill support in J2534UdsConsoleTab (read sessionStorage keys)
+- [x] Add UDS DID library tab/section with full DID catalog from all sources
 - [x] Wire Auto-Program Planner LLM mode (invokeLLM for natural-language frame plans)
 - [x] Add CDA6 Security → Seed Tab bridge (pre-fill SA level/algo from DB Tools security table)
