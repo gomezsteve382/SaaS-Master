@@ -258,13 +258,13 @@ export default function SecuritySyncTab() {
   }, [pcm, expectedSec6, expectedRfh, bcmSec16, bcmRes]);
 
   // ── Pre-repair validation gate ──
-  // Block any repair if the BCM SEC16 source is only 8 bytes (mirror1/flat).
-  // These sources cannot provide a full 16-byte secret needed by the RFHUB/PCM
-  // writers. Only split (16B) and mirror2 (16B) are safe donor sources.
+  // Block any repair if the BCM SEC16 source is under 16 bytes.
+  // mirror1 (slot 0xEB) stores only 15 bytes (missing byte 16) — insufficient.
+  // split (16B), mirror2 (16B), and flat (16B) are all safe full-length sources.
   const bcmSourceSafe = bcmRes && bcmSec16 && bcmSec16.length === 16;
   const bcmSourceWarn = bcmRes && bcmSec16 && bcmSec16.length < 16;
-  // Also check: if source is mirror1 or flat, it's only 8 bytes — unsafe for repair
-  const bcmSourceUnsafe = bcmRes && bcmSec16 && (bcmRes.source === 'mirror1' || bcmRes.source === 'flat') && bcmSec16.length < 16;
+  // mirror1 is the only source that returns < 16 bytes (15B)
+  const bcmSourceUnsafe = bcmRes && bcmSec16 && bcmRes.source === 'mirror1' && bcmSec16.length < 16;
 
   // ── PCM SEC6 Clear (zero) tool ──
   // For virgin BCM cases where no SEC6 should exist: writes 6 zero bytes at 0x3C8

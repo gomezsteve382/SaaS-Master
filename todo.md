@@ -242,3 +242,13 @@
 - [x] PCM SEC6 zeroing tool: one-click "Clear SEC6" button in Security Sync PCM slot that writes 6 zero bytes at offset 0x3C8 in GPEC2A file, for virgin BCM cases where no SEC6 should exist
 - [x] Pre-repair validation gate: before wizard writes any "fixed" file, verify source SEC16 is full 16 bytes and not derived from 8-byte mirror1 source; block repair with clear warning if source is insufficient
 - [x] Repair rollback/undo: "Revert to Original" button in Security Sync that re-downloads the unmodified file from the last loaded state, allowing users to undo a bad repair without re-uploading
+
+## Critical Bug Fix: BCM SEC16 Resolver Data Layout Correction (Jun 8)
+- [x] Fixed mirror1 (slot 0xEB) interpretation: stores 8B header + 1B idx + 15B SEC16 (NOT 8B app + 8B FEE counter)
+- [x] Fixed flat candidate at 0x40C8: reads full 16 bytes as raw SEC16 (NOT inside a FEE record structure)
+- [x] Added active bank mirror search: if inactive bank yields blank, also searches active bank for populated records
+- [x] Updated priority order: split(16B) → mirror2(16B) → flat(16B) → mirror1(15B) — prefer full-length sources
+- [x] Updated validation gate: only mirror1 (15B) triggers the unsafe-source warning now
+- [x] Verified: charger-bcm-0x1328 now correctly returns sec16=ff08a1c5e7ba303582c3821594793c2f (source=flat, 16B)
+- [x] Verified: charger-bcm-vin-write still correctly returns sec16=e6e82e96c1ab767f58f57871ba2f6c69 (source=split, 16B)
+- [x] All 346 tests pass after fix
