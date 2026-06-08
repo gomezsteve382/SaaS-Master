@@ -552,6 +552,7 @@ export default function J2534UdsConsoleTab() {
       const res = await fetch("/api/trpc/planner.workflow", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           json: {
             intent: wfIntent.trim(),
@@ -561,6 +562,11 @@ export default function J2534UdsConsoleTab() {
         }),
       });
       const data = await res.json();
+      /* tRPC superjson wraps result in .result.data.json; also handle error responses */
+      if (data?.error) {
+        const errMsg = data.error?.json?.message || data.error?.message || "Server error";
+        throw new Error(errMsg);
+      }
       const result = data?.result?.data?.json || data?.result?.data || null;
       if (result && result.title) {
         setWfResult(result);

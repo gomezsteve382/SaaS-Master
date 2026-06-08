@@ -197,3 +197,7 @@
 - [x] Workflow output: step-by-step numbered sequence with hex commands, expected responses, security prerequisites
 - [x] "Execute All" button that queues the generated workflow steps for sequential relay execution
 - [x] Each workflow step shows: service name, hex bytes, expected response pattern, and explanation
+
+## Bug Fixes (Jun 8)
+- [x] Fixed `selectedModule is not defined` ReferenceError — added state declaration
+- [x] Fixed Workflow Assistant 401 auth error — changed planner.workflow and planner.enhance to publicProcedure, added credentials:include to fetch

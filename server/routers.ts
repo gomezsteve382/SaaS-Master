@@ -176,7 +176,7 @@ export const appRouter = router({
     }),
   // --- AI Planner ---
   planner: router({
-    enhance: protectedProcedure
+    enhance: publicProcedure
       .input(z.object({
         intent: z.string().max(500),
         planText: z.string().max(8000),
@@ -204,7 +204,7 @@ Keep responses concise and technical. Use hex notation for bytes. Do not provide
         return { explanation: content };
       }),
     // --- UDS Workflow Assistant ---
-    workflow: protectedProcedure
+    workflow: publicProcedure
       .input(z.object({
         intent: z.string().max(1000),
         moduleCode: z.string().max(50).optional(),
