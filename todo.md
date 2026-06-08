@@ -211,3 +211,7 @@
 - [x] Auto-sync Workflow Assistant module selector with TX address picker
 - [x] Workflow history — last 5 workflows saved to localStorage, accessible via history panel
 - [x] Per-step "Send" button for live relay execution when bridge is connected
+
+## UDS Console UX Improvements Round 3 (Jun 8)
+- [x] Execute All sequential auto-send (fires each step through bridge with 600ms delay, real-time step indicator, Stop button)
+- [x] DID Library module filter dropdown (narrows DID list to module's CRITICAL_DIDS profile; auto-syncs with TX address picker)

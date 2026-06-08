@@ -3,10 +3,17 @@ import { getStatus, open as openBridge, connect as bridgeConnect, setFilter, sen
 import { decodeNRC } from "../lib/nrc.js";
 import { ALGOS, unlockKeyBytes, pickUnlockChain } from "../lib/algos.js";
 import { loadDidDescriptions, getAllDids } from "../lib/dids.js";
+import { CRITICAL_DIDS } from "../lib/audit.js";
 
 /* ─── localStorage key for remembered algo per TX address ──────────────────── */
 const saStorageKey = (txHex) => `sa_algo_${txHex.toLowerCase().replace(/\s/g, "")}`;
 
+/* ─── Module → DID set map built from CRITICAL_DIDS (used by DID Library filter) ─── */
+const MODULE_DID_SETS = {};
+for (const [mod, rows] of Object.entries(CRITICAL_DIDS || {})) {
+  if (mod === 'VILLAIN_EXT') continue;
+  MODULE_DID_SETS[mod] = new Set((rows || []).map(r => r.did));
+}
 /* ─── FCA module address table (mirrors J2534Scanner.jsx) ─────────────────── */
 const FCA_MODULES = [
   { name: "ECM",         tx: 0x7E0, rx: 0x7E8 },
@@ -240,8 +247,13 @@ export default function J2534UdsConsoleTab() {
   /* DID Library panel state */
   const [didLibOpen, setDidLibOpen] = useState(false);
   const [didSearch, setDidSearch] = useState("");
+  const [didModuleFilter, setDidModuleFilter] = useState(""); // module name to filter DID list
   const [didList, setDidList] = useState([]);
   const [didLoaded, setDidLoaded] = useState(false);
+  /* Execute All sequential state */
+  const [wfRunAll, setWfRunAll] = useState(false); // true while auto-executing all steps
+  const [wfRunStep, setWfRunStep] = useState(-1); // current step index being executed
+  const wfRunCancelRef = useRef(false); // set to true to abort mid-run
 
   /* Bridge URL editing state — persisted via setAutelState (localStorage) */
   const [bridgeUrlInput, setBridgeUrlInput] = useState(() => getAutelState().url);
@@ -949,6 +961,9 @@ export default function J2534UdsConsoleTab() {
     setTxHex("0x" + hx(mod.tx, 3));
     setRxHex("0x" + hx(mod.rx, 3));
     setSelectedModule(mod.name);
+    /* Sync DID library filter to the picked module if it has a CRITICAL_DIDS profile */
+    if (MODULE_DID_SETS[mod.name]) setDidModuleFilter(mod.name);
+    else setDidModuleFilter("");
     addLog(`Target: ${mod.name} TX:0x${hx(mod.tx, 3)} RX:0x${hx(mod.rx, 3)}`, "info");
   }, [addLog]);
   /* Send a single hex string directly to the bridge (used by per-step Send button) */
@@ -958,6 +973,31 @@ export default function J2534UdsConsoleTab() {
     setStepSending(stepIdx);
     try { await send(bytes); } finally { setStepSending(null); }
   }, [send]);
+  /* Execute All steps sequentially through the bridge */
+  const runAllSteps = useCallback(async (steps) => {
+    if (!steps?.length) return;
+    wfRunCancelRef.current = false;
+    setWfRunAll(true);
+    setWfRunStep(0);
+    try {
+      for (let i = 0; i < steps.length; i++) {
+        if (wfRunCancelRef.current) { addLog('Execute All cancelled.', 'warn'); break; }
+        setWfRunStep(i);
+        const bytes = hexToBytes(steps[i].hex);
+        if (!bytes.length) continue;
+        addLog(`▶ Auto-step ${steps[i].step}/${steps.length}: ${steps[i].service} → ${steps[i].hex}`, 'info');
+        await send(bytes);
+        /* Wait 600 ms between steps to let the module settle */
+        if (i < steps.length - 1 && !wfRunCancelRef.current) {
+          await new Promise(r => setTimeout(r, 600));
+        }
+      }
+      if (!wfRunCancelRef.current) addLog('✓ Execute All complete.', 'info');
+    } finally {
+      setWfRunAll(false);
+      setWfRunStep(-1);
+    }
+  }, [send, addLog]);
 
   const filteredModules = search.trim()
     ? FCA_MODULES.filter(m => m.name.toLowerCase().includes(search.toLowerCase()))
@@ -1061,8 +1101,14 @@ export default function J2534UdsConsoleTab() {
                 setTxHex(e.target.value);
                 const norm = e.target.value.trim().toLowerCase();
                 const match = FCA_MODULES.find(m => ("0x" + hx(m.tx, 3)).toLowerCase() === norm);
-                if (match) setSelectedModule(match.name);
-                else setSelectedModule("");
+                if (match) {
+                  setSelectedModule(match.name);
+                  if (MODULE_DID_SETS[match.name]) setDidModuleFilter(match.name);
+                  else setDidModuleFilter("");
+                } else {
+                  setSelectedModule("");
+                  setDidModuleFilter("");
+                }
               }}
                 style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: `1px solid ${S.border}`,
                   background: "#FAFAFA", color: "#1565C0", fontFamily: S.mono, fontSize: 13, fontWeight: 700, boxSizing: "border-box" }} />
@@ -1139,19 +1185,41 @@ export default function J2534UdsConsoleTab() {
           </button>
           {didLibOpen && (
             <div style={{ padding: "0 14px 14px" }}>
-              <input
-                value={didSearch}
-                onChange={e => setDidSearch(e.target.value)}
-                placeholder="Search by hex (F190) or name (VIN)..."
-                style={{
-                  width: "100%", padding: "8px 10px", borderRadius: 6, border: `1px solid ${S.border}`,
-                  background: "#FAFAFA", color: S.text, fontFamily: S.mono, fontSize: 12, marginBottom: 8,
-                  boxSizing: "border-box",
-                }}
-              />
+              {/* Module filter + search row */}
+              <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                <select
+                  value={didModuleFilter}
+                  onChange={e => setDidModuleFilter(e.target.value)}
+                  style={{
+                    padding: '6px 8px', borderRadius: 6, border: `1px solid ${S.border}`,
+                    background: '#FAFAFA', color: S.text, fontSize: 11, fontWeight: 700,
+                    fontFamily: S.font, flexShrink: 0,
+                  }}
+                  title="Filter DIDs by module profile"
+                >
+                  <option value="">All Modules</option>
+                  {Object.keys(MODULE_DID_SETS).map(mod => (
+                    <option key={mod} value={mod}>{mod}</option>
+                  ))}
+                </select>
+                <input
+                  value={didSearch}
+                  onChange={e => setDidSearch(e.target.value)}
+                  placeholder="Search by hex (F190) or name (VIN)..."
+                  style={{
+                    flex: 1, padding: "6px 10px", borderRadius: 6, border: `1px solid ${S.border}`,
+                    background: "#FAFAFA", color: S.text, fontFamily: S.mono, fontSize: 12,
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
               <div style={{ maxHeight: 260, overflowY: "auto", fontSize: 11 }}>
                 {didList
                   .filter(d => {
+                    /* Module filter: only show DIDs in the selected module's CRITICAL_DIDS profile */
+                    if (didModuleFilter && MODULE_DID_SETS[didModuleFilter]) {
+                      if (!MODULE_DID_SETS[didModuleFilter].has(d.did)) return false;
+                    }
                     if (!didSearch) return true;
                     const q = didSearch.toLowerCase();
                     const hexStr = d.did.toString(16).toUpperCase().padStart(4, "0");
@@ -1488,26 +1556,40 @@ export default function J2534UdsConsoleTab() {
                   )}
                   {/* Execute All button */}
                   {isLive && wfResult.steps?.length > 0 && (
-                    <div style={{ marginTop: 12, borderTop: '1px solid #E0E0E0', paddingTop: 12 }}>
-                      <button
-                        onClick={() => {
-                          wfResult.steps.forEach((step, i) => {
-                            setTimeout(() => {
-                              setRawCmd(step.hex);
-                              addLog(`Queued step ${step.step}: ${step.service} → ${step.hex}`, 'info');
-                            }, i * 200);
-                          });
-                        }}
-                        style={{
-                          padding: '8px 16px', borderRadius: 6, border: 'none',
-                          background: '#388E3C', color: '#FFF',
-                          fontFamily: S.font, fontWeight: 900, fontSize: 12, cursor: 'pointer',
-                        }}
-                      >
-                        ⚡ Load All Steps Sequentially
-                      </button>
-                      <span style={{ fontSize: 10, color: S.dim, marginLeft: 8 }}>
-                        Each step will be loaded into the command input
+                    <div style={{ marginTop: 12, borderTop: '1px solid #E0E0E0', paddingTop: 12, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                      {!wfRunAll ? (
+                        <button
+                          onClick={() => runAllSteps(wfResult.steps)}
+                          disabled={busy || stepSending !== null}
+                          style={{
+                            padding: '8px 16px', borderRadius: 6, border: 'none',
+                            background: '#1976D2', color: '#FFF',
+                            fontFamily: S.font, fontWeight: 900, fontSize: 12,
+                            cursor: (busy || stepSending !== null) ? 'not-allowed' : 'pointer',
+                            opacity: (busy || stepSending !== null) ? 0.6 : 1,
+                          }}
+                        >
+                          ⚡ Execute All ({wfResult.steps.length} steps)
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => { wfRunCancelRef.current = true; }}
+                            style={{
+                              padding: '8px 16px', borderRadius: 6, border: 'none',
+                              background: '#D32F2F', color: '#FFF',
+                              fontFamily: S.font, fontWeight: 900, fontSize: 12, cursor: 'pointer',
+                            }}
+                          >
+                            ⏹ Stop
+                          </button>
+                          <span style={{ fontSize: 11, color: '#1976D2', fontWeight: 700 }}>
+                            Step {wfRunStep + 1}/{wfResult.steps.length}: {wfResult.steps[wfRunStep]?.service || '...'}
+                          </span>
+                        </>
+                      )}
+                      <span style={{ fontSize: 10, color: S.dim }}>
+                        {wfRunAll ? 'Executing — 600 ms between steps' : 'Fires each step through the bridge in sequence'}
                       </span>
                     </div>
                   )}
