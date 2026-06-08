@@ -249,6 +249,7 @@ export default function J2534UdsConsoleTab() {
   const [wfLoading, setWfLoading] = useState(false);
   const [wfResult, setWfResult] = useState(null);
   const [wfError, setWfError] = useState(null);
+  const [selectedModule, setSelectedModule] = useState("");
 
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
