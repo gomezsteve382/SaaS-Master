@@ -8,6 +8,7 @@ import VinChargerSubtitle from "../lib/VinChargerSubtitle.jsx";
 import Gpec2aImmoPanel from "../components/Gpec2aImmoPanel.jsx";
 import BcmImmoSection from "../components/BcmImmoSection.jsx";
 import RfhubImmoSection from "../components/RfhubImmoSection.jsx";
+import ModuleFieldsPanel from "../components/ModuleFieldsPanel.jsx";
 import {
   getAllModules, buildSessionSequence, getModuleDids,
   buildReadDid, buildWriteDid, buildDsc, buildSeedRequest,
@@ -127,8 +128,18 @@ const SUBTABS = [
   {id: 'ecm', label: 'ECM', icon: '🧠'},
   {id: 'bcm', label: 'BCM', icon: '🔧'},
   {id: 'rfhub', label: 'RFHUB', icon: '📡'},
+  {id: 'eep', label: '95640', icon: '💾'},
   {id: 'uds', label: 'UDS VIN WRITE', icon: '🔌'},
 ];
+
+/* Map detected type → sub-tab id for auto-switch suggestions */
+const TYPE_TO_SUBTAB = {
+  'GPEC2A': 'ecm',
+  'BCM': 'bcm',
+  'RFHUB': 'rfhub',
+  'XC2268_RFHUB': 'rfhub',
+  '95640': 'eep',
+};
 
 function SubTabBar({sub, setSub}) {
   return (
@@ -167,17 +178,23 @@ function SubTabBar({sub, setSub}) {
  * match the sub-tab, and hand the parsed `mod` to its render-prop child
  * (which mounts the matching shared ImmoVIN panel). `mod`/`setMod` live in
  * the parent so the loaded dump survives sub-tab switches. */
-function ModuleSubTab({testidPrefix, label, blurb, expectedTypes, forceType, mod, setMod, children}) {
+function ModuleSubTab({testidPrefix, label, blurb, expectedTypes, forceType, mod, setMod, onSwitchTab, children}) {
   const inputRef = useRef(null);
   const [err, setErr] = useState('');
+  const [suggestedTab, setSuggestedTab] = useState(null); // {id, label}
 
   const onPick = useCallback(async (f) => {
-    setErr('');
+    setErr(''); setSuggestedTab(null);
     if (!f) return;
     try {
       const bytes = new Uint8Array(await f.arrayBuffer());
       const m = parseModule(bytes, f.name, forceType ? { forceType } : undefined);
       if (expectedTypes && !expectedTypes.includes(m.type)) {
+        const targetTabId = TYPE_TO_SUBTAB[m.type];
+        const targetTab = targetTabId ? SUBTABS.find(t => t.id === targetTabId) : null;
+        if (targetTab && onSwitchTab) {
+          setSuggestedTab(targetTab);
+        }
         setErr(`Selected file detected as ${m.name || m.type} — load a ${label} dump for this sub-tab.`);
         return;
       }
@@ -185,7 +202,7 @@ function ModuleSubTab({testidPrefix, label, blurb, expectedTypes, forceType, mod
     } catch (e) {
       setErr(`Could not read file: ${e?.message || e}`);
     }
-  }, [expectedTypes, forceType, label, setMod]);
+  }, [expectedTypes, forceType, label, setMod, onSwitchTab]);
 
   const onFilePick = useCallback((e) => {
     const f = e.target.files && e.target.files[0];
@@ -246,6 +263,20 @@ function ModuleSubTab({testidPrefix, label, blurb, expectedTypes, forceType, mod
           </div>
         )}
         {err && <div style={{marginTop: 10}}><SLine type="error" msg={err}/></div>}
+        {suggestedTab && onSwitchTab && (
+          <div style={{marginTop: 8}}>
+            <button
+              onClick={() => { onSwitchTab(suggestedTab.id); setErr(''); setSuggestedTab(null); }}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: C.a3, fontWeight: 700, fontSize: 12, textDecoration: 'underline',
+                fontFamily: "'Nunito'", padding: 0,
+              }}
+            >
+              → Open in {suggestedTab.label} sub-tab instead
+            </button>
+          </div>
+        )}
       </Card>
       {mod && children(mod)}
     </div>
@@ -262,6 +293,7 @@ export default function VinProgrammerTab() {
   const [ecmMod, setEcmMod] = useState(null);
   const [bcmMod, setBcmMod] = useState(null);
   const [rfhubMod, setRfhubMod] = useState(null);
+  const [eepMod, setEepMod] = useState(null);
   // UDS VIN write subtab state
   const [udsVinModule, setUdsVinModule] = useState('IPC');
   const [udsVin, setUdsVin] = useState('');
@@ -629,6 +661,7 @@ export default function VinProgrammerTab() {
           forceType="GPEC2A"
           mod={ecmMod}
           setMod={setEcmMod}
+          onSwitchTab={setSub}
         >
           {(m) => <Gpec2aImmoPanel mod={m} donorMods={donorMods} onPatched={onEcmPatched}/>}
         </ModuleSubTab>
@@ -642,6 +675,7 @@ export default function VinProgrammerTab() {
           expectedTypes={['BCM']}
           mod={bcmMod}
           setMod={setBcmMod}
+          onSwitchTab={setSub}
         >
           {(m) => <BcmImmoSection mod={m} onPatched={onBcmPatched}/>}
         </ModuleSubTab>
@@ -655,12 +689,28 @@ export default function VinProgrammerTab() {
           expectedTypes={['RFHUB', 'XC2268_RFHUB']}
           mod={rfhubMod}
           setMod={setRfhubMod}
+          onSwitchTab={setSub}
         >
           {(m) => <RfhubImmoSection mod={m} onPatched={onRfhubPatched}/>}
         </ModuleSubTab>
       </div>
 
-      {/* ────────────────────────────────────────────────────────────────────────────────
+      {/* ─── 95640 BCM BACKUP EEPROM ─── */}
+      <div data-testid="vinprog-subtab-eep-wrap" style={{display: sub === 'eep' ? 'block' : 'none'}}>
+        <ModuleSubTab
+          testidPrefix="vinprog-eep"
+          label="95640"
+          blurb="95640 BCM backup EEPROM — VIN slots at 0x275/0x288/0x1B82, secret key @0x40, FOB block @0x200, SEC16 @0x838."
+          expectedTypes={['95640']}
+          mod={eepMod}
+          setMod={setEepMod}
+          onSwitchTab={setSub}
+        >
+          {(m) => <ModuleFieldsPanel mod={m}/>}
+        </ModuleSubTab>
+      </div>
+
+      {/*
            UDS VIN WRITE (udsEngine session sequence + algos.js vinWriteDids)
            Live-over-CAN VIN programming via UDS 2E WriteDataByIdentifier.
            Generates the full byte sequence: DSC→03→SA→01/02→2E F190+mirrors→22 readback→11 reset.

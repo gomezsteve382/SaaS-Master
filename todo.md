@@ -218,3 +218,8 @@
 
 ## Bug Fixes (Jun 8 - Round 2)
 - [x] VIN Programmer ECM sub-tab rejects 8KB PCM_IMMO_DONOR files (detected as 95640 instead of GPEC2A) — added forceType prop to ModuleSubTab, ECM sub-tab now passes forceType='GPEC2A'
+
+## VIN Programmer Improvements (Jun 8 - Round 3)
+- [x] PATCHER sub-tab: added GPEC2A VIN-based signature detection in _detectBySignature so 8KB PCM files are correctly classified as GPEC2A (not 95640)
+- [x] Added 95640 sub-tab to VIN Programmer (BCM backup EEPROM with VIN at 0x275/0x288, key @0x40, FOB @0x200) using ModuleFieldsPanel
+- [x] Auto-detect and suggest correct sub-tab on file mismatch — clickable "→ Open in [X] sub-tab instead" link with onSwitchTab prop

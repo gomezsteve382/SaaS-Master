@@ -11,6 +11,9 @@ function _detectBySignature(data){
   const sz=data.length;
   if(sz>=4096&&sz<=20480){const b0=data[0],b1=data[1];const cm=data[0x10];const hasTcm=(b0===0x00&&b1===0x00)||(b0===0xFF&&b1===0xFF);const tcmC=cm>=0x01&&cm<=0x08;let h55=false;for(let i=0;i<Math.min(32,sz-1);i++)if(data[i]===0x55&&data[i+1]===0xAA){h55=true;break;}const hA5=data[2]===0xA5||data[3]===0xA5||data[4]===0xA5;if((hasTcm&&tcmC)||(h55&&tcmC)||(hA5&&tcmC))return'TCM';}
   if(sz>=1024&&sz<=10240){const tv=data[0x04]===0x36||data[0x04]===0x80||data[0x04]===0x81||data[0x04]===0x3C;let aa=0;for(let i=0;i<Math.min(16,sz);i++)if(data[i]===0xAA)aa++;const hTh=(data[0]===0x00&&data[1]===0x00)||(data[0]===0xFF&&data[1]===0xFF);if(tv&&(aa>=4||hTh))return'TIPM';}
+  // GPEC2A heuristic: if VINs are present at canonical GPEC2A offsets (0x0000, 0x01F0)
+  // in a 4-8 KB file, it's a GPEC2A PCM dump, not a 95640 BCM backup EEPROM.
+  if(sz>=4096&&sz<=8192){const _gpOff=[0x0000,0x01F0];let _gpH=0;for(const _o of _gpOff){if(_o+17>sz)continue;let _ok=true;for(let j=0;j<17;j++){const b=data[_o+j];if(b<0x30||b>0x5A){_ok=false;break;}}if(_ok)_gpH++;}if(_gpH>=2)return'GPEC2A';}
   return'UNKNOWN';
 }
 
