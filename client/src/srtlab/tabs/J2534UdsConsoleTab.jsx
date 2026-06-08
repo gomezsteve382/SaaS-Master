@@ -253,6 +253,13 @@ export default function J2534UdsConsoleTab() {
   const [wfError, setWfError] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
   const [wfCopied, setWfCopied] = useState(false);
+  /* Workflow history — last 5 results persisted to localStorage */
+  const [wfHistory, setWfHistory] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("srtlab:wf:history") || "[]"); } catch { return []; }
+  });
+  const [wfHistoryOpen, setWfHistoryOpen] = useState(false);
+  /* Per-step send busy tracking */
+  const [stepSending, setStepSending] = useState(null); // step index being sent
 
   const logRef = useRef(null);
   const periodicIdRef = useRef(null);
@@ -574,6 +581,13 @@ export default function J2534UdsConsoleTab() {
       if (result && result.title) {
         setWfResult(result);
         addLog("Workflow generated: " + result.title + " (" + (result.steps?.length || 0) + " steps)", "info");
+        /* Save to history (last 5) */
+        setWfHistory(prev => {
+          const entry = { ...result, _intent: wfIntent.trim(), _ts: Date.now() };
+          const next = [entry, ...prev.filter(h => h._intent !== entry._intent)].slice(0, 5);
+          try { localStorage.setItem("srtlab:wf:history", JSON.stringify(next)); } catch {}
+          return next;
+        });
       } else {
         setWfError("No valid workflow returned from AI. Try rephrasing your intent.");
       }
@@ -934,8 +948,16 @@ export default function J2534UdsConsoleTab() {
   const pickModule = useCallback((mod) => {
     setTxHex("0x" + hx(mod.tx, 3));
     setRxHex("0x" + hx(mod.rx, 3));
+    setSelectedModule(mod.name);
     addLog(`Target: ${mod.name} TX:0x${hx(mod.tx, 3)} RX:0x${hx(mod.rx, 3)}`, "info");
   }, [addLog]);
+  /* Send a single hex string directly to the bridge (used by per-step Send button) */
+  const sendStep = useCallback(async (hexStr, stepIdx) => {
+    const bytes = hexToBytes(hexStr);
+    if (!bytes.length) return;
+    setStepSending(stepIdx);
+    try { await send(bytes); } finally { setStepSending(null); }
+  }, [send]);
 
   const filteredModules = search.trim()
     ? FCA_MODULES.filter(m => m.name.toLowerCase().includes(search.toLowerCase()))
@@ -1035,7 +1057,13 @@ export default function J2534UdsConsoleTab() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
               <div style={{ fontSize: 10, color: S.dim, marginBottom: 4, fontWeight: 700 }}>TX ADDRESS</div>
-              <input value={txHex} onChange={e => setTxHex(e.target.value)}
+              <input value={txHex} onChange={e => {
+                setTxHex(e.target.value);
+                const norm = e.target.value.trim().toLowerCase();
+                const match = FCA_MODULES.find(m => ("0x" + hx(m.tx, 3)).toLowerCase() === norm);
+                if (match) setSelectedModule(match.name);
+                else setSelectedModule("");
+              }}
                 style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: `1px solid ${S.border}`,
                   background: "#FAFAFA", color: "#1565C0", fontFamily: S.mono, fontSize: 13, fontWeight: 700, boxSizing: "border-box" }} />
             </div>
@@ -1261,6 +1289,49 @@ export default function J2534UdsConsoleTab() {
                   {wfLoading ? 'Generating...' : '⚡ Generate Workflow'}
                 </button>
               </div>
+              {/* Workflow history */}
+              {wfHistory.length > 0 && (
+                <div style={{ marginBottom: 10 }}>
+                  <button
+                    onClick={() => setWfHistoryOpen(o => !o)}
+                    style={{
+                      background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                      fontSize: 10, fontWeight: 800, color: S.dim, letterSpacing: 1,
+                      display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4,
+                    }}
+                  >
+                    <span>{wfHistoryOpen ? '▾' : '▸'}</span>
+                    <span>RECENT WORKFLOWS ({wfHistory.length})</span>
+                  </button>
+                  {wfHistoryOpen && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      {wfHistory.map((h, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setWfIntent(h._intent || h.title);
+                            setWfResult(h);
+                            setWfError(null);
+                          }}
+                          style={{
+                            padding: '5px 10px', borderRadius: 5, textAlign: 'left',
+                            border: '1px solid #C5CAE9', background: '#F3F4FF',
+                            fontSize: 10, color: '#3949AB', cursor: 'pointer',
+                            fontFamily: S.font, fontWeight: 600,
+                          }}
+                          title={`Restore: ${h.title}`}
+                        >
+                          <span style={{ fontWeight: 800 }}>{h.module?.code || '?'}</span>
+                          {' — '}{h._intent || h.title}
+                          <span style={{ float: 'right', opacity: 0.5, fontSize: 9 }}>
+                            {h._ts ? new Date(h._ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               {/* Quick presets */}
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
                 {['Change VIN in the radio', 'Read all DTCs from ECM', 'Unlock BCM programming', 'Write odometer to IPC', 'Read ECM calibration ID', 'Clear DTCs all modules'].map(preset => (
@@ -1346,15 +1417,35 @@ export default function J2534UdsConsoleTab() {
                             fontSize: 10, fontWeight: 900, flexShrink: 0,
                           }}>{step.step}</span>
                           <span style={{ fontWeight: 700, fontSize: 12, color: '#333' }}>{step.service}</span>
-                          <button
-                            onClick={() => { setRawCmd(step.hex); addLog(`Loaded step ${step.step}: ${step.hex}`, 'info'); }}
-                            style={{
-                              marginLeft: 'auto', padding: '2px 8px', borderRadius: 4,
-                              border: '1px solid #90CAF9', background: '#E3F2FD',
-                              fontSize: 9, fontWeight: 700, color: '#1565C0', cursor: 'pointer',
-                            }}
-                            title="Load this command into the UDS command input"
-                          >→ Load</button>
+                          <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
+                            <button
+                              onClick={() => { setRawCmd(step.hex); addLog(`Loaded step ${step.step}: ${step.hex}`, 'info'); }}
+                              style={{
+                                padding: '2px 8px', borderRadius: 4,
+                                border: '1px solid #90CAF9', background: '#E3F2FD',
+                                fontSize: 9, fontWeight: 700, color: '#1565C0', cursor: 'pointer',
+                              }}
+                              title="Load this command into the UDS command input"
+                            >→ Load</button>
+                            {isLive && (
+                              <button
+                                onClick={() => sendStep(step.hex, i)}
+                                disabled={stepSending !== null || busy}
+                                style={{
+                                  padding: '2px 8px', borderRadius: 4,
+                                  border: '1px solid #A5D6A7',
+                                  background: stepSending === i ? '#C8E6C9' : '#E8F5E9',
+                                  fontSize: 9, fontWeight: 700,
+                                  color: stepSending === i ? '#1B5E20' : '#388E3C',
+                                  cursor: (stepSending !== null || busy) ? 'wait' : 'pointer',
+                                  opacity: (stepSending !== null || busy) ? 0.7 : 1,
+                                }}
+                                title="Send this command directly to the bridge now"
+                              >
+                                {stepSending === i ? '⏳' : '▶ Send'}
+                              </button>
+                            )}
+                          </div>
                         </div>
                         <div style={{
                           fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',

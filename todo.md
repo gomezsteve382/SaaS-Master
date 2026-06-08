@@ -206,3 +206,8 @@
 - [x] Add module selector dropdown to Workflow Assistant panel (populated from FCA_MODULES list)
 - [x] Add "Copy All Steps" button to generated workflow output
 - [x] Persist J2534 bridge URL in localStorage via setAutelState (srtlab_autel key)
+
+## UDS Console UX Improvements Round 2 (Jun 8)
+- [x] Auto-sync Workflow Assistant module selector with TX address picker
+- [x] Workflow history — last 5 workflows saved to localStorage, accessible via history panel
+- [x] Per-step "Send" button for live relay execution when bridge is connected
