@@ -496,6 +496,110 @@ export const PCF7945_53_VIRGIN_PROFILE = Object.freeze({
   note: 'Confirmed blank profile from CF324E65 bench read (2026-06-04). SK stays at MIKRON default.',
 });
 
+/* ======================== CHIP READ REGISTRY -- Black Key (2021 Redeye) ===========
+ * Autel page reads from real 2021 Charger 6.2 Redeye BLACK keys.
+ * Collected 2026-06-09. Two chip families observed:
+ *   - PCF7945/53 (HITAG 2): Chip IDs 6D0EF991, 5E478092, 8748C092, 6B470092, 0236B59C
+ *   - HITAG AES (PCF7953):  Chip IDs A0CC096F (x2 reads -- same chip, same car)
+ *
+ * HITAG AES black keys (A0CC096F):
+ *   SK0-SK3 = factory test pattern (11112222 33334444 55556666 77778888) -- MIKRON default.
+ *   Config = 00FFFFFF, Page1 = 77778888, Page2 = FFFFFFFF.
+ *   NOTE: This is the BLANK profile for HITAG AES black keys.
+ *
+ * PCF7945/53 black keys -- blank vs programmed:
+ *   BLANK:      Config=00000000, Page0=00000000, Page1=00000000, Page2=00000000, Page3=00000000
+ *               (same blank profile as red keys -- confirmed from 6B470092 which had no page data)
+ *   PROGRAMMED: Config=00AA4854, Page1=01011CC6, Page2=011F1CC6, Page3=01041CD8 (shared pattern)
+ *               Page0 varies per chip (00000000 or FFFFFFFF)
+ *
+ * VIRGINIZE procedure (PCF7945/53 black keys): identical to red keys --
+ *   write Config + Page0-3 = 00000000. SK stays at MIKRON default.
+ *
+ * VIRGINIZE procedure (HITAG AES black keys):
+ *   write Config = 00000000, Page1 = 00000000, Page2 = 00000000.
+ *   SK0-SK3 stay at factory test pattern (11112222 33334444 55556666 77778888).
+ * =================================================================================== */
+export const PCF7945_53_BLACK_KEY_READS = Object.freeze([
+  /* 6D0EF991 -- programmed PCF7945/53 black key (bench-read 2026-06-09) */
+  Object.freeze({
+    chipId: '6D0EF991', chipType: 'PCF7945/53', state: 'programmed', keyColor: 'black',
+    lowSk: '4D494B52', highSk: '00004F4E',
+    config: '00AA4854', page0: '00000000', page1: '01011CC6', page2: '011F1CC6', page3: '01041CD8',
+    note: 'Programmed 2021 Redeye black key. Config=00AA4854. Page1-3 match black key standard pattern.',
+  }),
+  /* 5E478092 -- programmed PCF7945/53 black key (bench-read 2026-06-09) */
+  Object.freeze({
+    chipId: '5E478092', chipType: 'PCF7945/53', state: 'programmed', keyColor: 'black',
+    lowSk: '4D494B52', highSk: '00004F4E',
+    config: '00AA4854', page0: 'FFFFFFFF', page1: '01011CC6', page2: '011F1CC6', page3: '01041CD8',
+    note: 'Programmed 2021 Redeye black key. Page0=FFFFFFFF (erased/uninit). Page1-3 match standard black key pattern.',
+  }),
+  /* 8748C092 -- programmed PCF7945/53 black key (bench-read 2026-06-09) */
+  Object.freeze({
+    chipId: '8748C092', chipType: 'PCF7945/53', state: 'programmed', keyColor: 'black',
+    lowSk: '4D494B52', highSk: '00004F4E',
+    config: '00AA4854', page0: '00000000', page1: '01011CC6', page2: '011F1CC6', page3: '01041CD8',
+    note: 'Programmed 2021 Redeye black key. Page0=00000000. Page1-3 match standard black key pattern.',
+  }),
+  /* 6B470092 -- unread PCF7945/53 black key (bench-read 2026-06-09, pages not populated) */
+  Object.freeze({
+    chipId: '6B470092', chipType: 'PCF7945/53', state: 'unknown', keyColor: 'black',
+    lowSk: '4D494B52', highSk: '00004F4E',
+    config: null, page0: null, page1: null, page2: null, page3: null,
+    note: 'Black key -- Autel detected chip ID but page data not read (chip info fields blank in screenshot). State unknown.',
+  }),
+  /* 0236B59C -- programmed PCF7945/53 black key (bench-read 2026-06-09) */
+  Object.freeze({
+    chipId: '0236B59C', chipType: 'PCF7945/53', state: 'programmed', keyColor: 'black',
+    lowSk: '4D494B52', highSk: '00004F4E',
+    config: '08AA4854', page0: '6063013B', page1: '50207755', page2: '01000000', page3: 'FF6E0000',
+    note: 'Programmed 2021 Redeye black key. Config=08AA4854. Page1+Page2 match FCA red key standard -- may be cross-programmed or same programmer.',
+  }),
+]);
+
+export const HITAG_AES_BLACK_KEY_READS = Object.freeze([
+  /* A0CC096F -- HITAG AES black key (bench-read 2026-06-09, two reads = same chip) */
+  Object.freeze({
+    chipId: 'A0CC096F', chipType: 'HITAG AES', state: 'blank', keyColor: 'black',
+    sk0: '11112222', sk1: '33334444', sk2: '55556666', sk3: '77778888',
+    config: '00FFFFFF', page1: '77778888', page2: 'FFFFFFFF',
+    note: 'HITAG AES black key -- factory blank profile. SK0-SK3 = MIKRON factory test pattern. Config=00FFFFFF, Page1=77778888, Page2=FFFFFFFF.',
+  }),
+]);
+
+/**
+ * Confirmed blank profile for PCF7945/53 BLACK keys (2021 Redeye).
+ * Virginize procedure: write Config + Page0-3 = 00000000. SK stays at MIKRON default.
+ * Blank profile is identical to red key blank profile.
+ */
+export const PCF7945_53_BLACK_VIRGIN_PROFILE = Object.freeze({
+  config: '00000000',
+  page0: '00000000',
+  page1: '00000000',
+  page2: '00000000',
+  page3: '00000000',
+  lowSk: '4D494B52',  // MIKRON default -- do NOT change
+  highSk: '00004F4E', // MIKRON default -- do NOT change
+  note: 'Confirmed blank profile for PCF7945/53 black keys. Identical to red key blank profile. SK stays at MIKRON default.',
+});
+
+/**
+ * Confirmed blank profile for HITAG AES BLACK keys (2021 Redeye).
+ * Virginize procedure: write Config = 00000000, Page1 = 00000000, Page2 = 00000000.
+ * SK0-SK3 stay at factory test pattern -- do NOT change.
+ */
+export const HITAG_AES_BLACK_VIRGIN_PROFILE = Object.freeze({
+  config: '00000000',
+  page1: '00000000',
+  page2: '00000000',
+  sk0: '11112222',  // MIKRON factory test pattern -- do NOT change
+  sk1: '33334444',  // MIKRON factory test pattern -- do NOT change
+  sk2: '55556666',  // MIKRON factory test pattern -- do NOT change
+  sk3: '77778888',  // MIKRON factory test pattern -- do NOT change
+  note: 'Confirmed blank profile for HITAG AES black keys (A0CC096F bench-read 2026-06-09). SK0-SK3 stay at factory test pattern.',
+});
+
 /* Normalize a hex token the same way dedupeKey / validateKeyRecord do: strip
  * separators + an optional 0x prefix, uppercase. */
 function normHex(s) {
