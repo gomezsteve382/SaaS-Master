@@ -198,3 +198,31 @@ export const cdaj2534Sessions = mysqlTable("cdaj2534_sessions", {
 
 export type Cdaj2534Session = typeof cdaj2534Sessions.$inferSelect;
 export type InsertCdaj2534Session = typeof cdaj2534Sessions.$inferInsert;
+
+/**
+ * Module Map Scans — persists each Vehicle Module Manifest scan result.
+ * Stores VIN, equipped/not-equipped module list, raw DID responses, and metadata.
+ */
+export const moduleMapScans = mysqlTable("module_map_scans", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"),
+  /** VIN extracted from BCM Proxy VIN Data (DID 2023), if present */
+  vin: varchar("vin", { length: 17 }),
+  /** Vehicle label entered by the tech (e.g. "2018 Charger SRT") */
+  vehicleLabel: varchar("vehicleLabel", { length: 255 }),
+  /** Adapter bridge URL used */
+  adapterUrl: varchar("adapterUrl", { length: 256 }),
+  /** JSON array of { module, equipped, source, did } */
+  moduleList: json("moduleList").notNull(),
+  /** Raw DID responses as JSON object { didId: hexString } */
+  rawResponses: json("rawResponses"),
+  /** Number of modules detected as equipped */
+  equippedCount: int("equippedCount").default(0).notNull(),
+  /** Number of modules detected as not equipped */
+  notEquippedCount: int("notEquippedCount").default(0).notNull(),
+  /** Notes entered by the tech */
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ModuleMapScan = typeof moduleMapScans.$inferSelect;
+export type InsertModuleMapScan = typeof moduleMapScans.$inferInsert;

@@ -844,8 +844,24 @@ export default function CdaJ2534Tab() {
   const [scanningAll, setScanningAll] = useState(false);
   const [manifest, setManifest] = useState(null);
   const [manifestReading, setManifestReading] = useState(false);
+  const [savedScanId, setSavedScanId] = useState(null);
 
   const saveSession = trpc.cdaj2534.saveSession.useMutation();
+  const saveScanMutation = trpc.moduleMap.saveScan.useMutation();
+  const deleteScanMutation = trpc.moduleMap.deleteScan.useMutation();
+  const { data: scanHistory } = trpc.moduleMap.listScans.useQuery();
+  const utils = trpc.useUtils();
+
+  const handleSaveScan = useCallback(async (payload) => {
+    const result = await saveScanMutation.mutateAsync(payload);
+    setSavedScanId(result.id);
+    utils.moduleMap.listScans.invalidate();
+  }, [saveScanMutation, utils]);
+
+  const handleDeleteScan = useCallback(async (id) => {
+    await deleteScanMutation.mutateAsync({ id });
+    utils.moduleMap.listScans.invalidate();
+  }, [deleteScanMutation, utils]);
 
   /* Read all manifest DIDs from TIPM + BCM and build the module manifest */
   const readManifestDids = useCallback(async () => {
@@ -1055,6 +1071,12 @@ export default function CdaJ2534Tab() {
                   manifest={manifest}
                   onReadAll={readManifestDids}
                   isReading={manifestReading}
+                  onSaveScan={handleSaveScan}
+                  isSaving={saveScanMutation.isPending}
+                  savedScanId={savedScanId}
+                  scanHistory={scanHistory}
+                  onDeleteScan={handleDeleteScan}
+                  adapterUrl={bridgeUrl}
                 />
               </div>
             )}

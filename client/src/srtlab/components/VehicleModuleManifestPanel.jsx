@@ -6,12 +6,18 @@
  * not equipped (Not Set) vs unknown (no data).
  *
  * Props:
- *   manifest  — result of buildModuleManifest() from bcmModuleManifest.js
- *   onReadAll — callback to trigger reading all required DIDs from the bridge
- *   isReading — boolean, true while DIDs are being read
+ *   manifest      — result of buildModuleManifest() from bcmModuleManifest.js
+ *   onReadAll     — callback to trigger reading all required DIDs from the bridge
+ *   isReading     — boolean, true while DIDs are being read
+ *   onSaveScan    — async callback(payload) to save scan to DB
+ *   isSaving      — boolean, true while saving
+ *   savedScanId   — number|null, set after successful save
+ *   scanHistory   — array of past scans from DB
+ *   onDeleteScan  — async callback(id) to delete a scan
+ *   adapterUrl    — string, current bridge URL
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { buildModuleManifest, groupManifestByCategory, MANIFEST_REQUIRED_DIDS } from '../lib/bcmModuleManifest.js';
 
 const C = {
@@ -145,22 +151,160 @@ function CategorySection({ category, modules }) {
   );
 }
 
-export default function VehicleModuleManifestPanel({ manifest, onReadAll, isReading }) {
+function HistoryOverlay({ scans, onClose, onDelete }) {
+  const [deletingId, setDeletingId] = useState(null);
+
+  const handleDelete = async (id) => {
+    setDeletingId(id);
+    try { await onDelete(id); } finally { setDeletingId(null); }
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      background: 'rgba(0,0,0,0.55)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }} onClick={onClose}>
+      <div style={{
+        background: C.card, borderRadius: 12, width: 640, maxWidth: '95vw',
+        maxHeight: '80vh', overflow: 'hidden',
+        display: 'flex', flexDirection: 'column',
+        boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
+      }} onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '14px 18px', borderBottom: `1px solid ${C.border}`,
+        }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: C.bk }}>📋 Scan History</span>
+          <button onClick={onClose} style={{
+            background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: C.gray,
+          }}>✕</button>
+        </div>
+
+        {/* List */}
+        <div style={{ overflowY: 'auto', flex: 1 }}>
+          {(!scans || scans.length === 0) ? (
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: C.gray, fontSize: 13 }}>
+              No saved scans yet. Run a MODULE MAP read and click "Save Scan" to record it.
+            </div>
+          ) : scans.map(scan => {
+            const moduleList = Array.isArray(scan.moduleList) ? scan.moduleList : [];
+            const equipped = moduleList.filter(m => m.equipped).length;
+            const total = moduleList.length;
+            const date = new Date(scan.createdAt).toLocaleString();
+            return (
+              <div key={scan.id} style={{
+                padding: '12px 18px',
+                borderBottom: `1px solid ${C.border}`,
+                display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+                gap: 12,
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    {scan.vin && (
+                      <span style={{
+                        fontSize: 13, fontFamily: 'monospace', fontWeight: 700,
+                        color: C.bk, letterSpacing: 1,
+                      }}>{scan.vin}</span>
+                    )}
+                    {scan.vehicleLabel && (
+                      <span style={{ fontSize: 12, color: C.gray }}>{scan.vehicleLabel}</span>
+                    )}
+                    {!scan.vin && !scan.vehicleLabel && (
+                      <span style={{ fontSize: 12, color: C.gray, fontStyle: 'italic' }}>No VIN / label</span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 11, color: C.gray, marginBottom: 2 }}>
+                    {equipped}/{total} equipped · {date}
+                  </div>
+                  {scan.notes && (
+                    <div style={{ fontSize: 11, color: '#555', fontStyle: 'italic' }}>{scan.notes}</div>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleDelete(scan.id)}
+                  disabled={deletingId === scan.id}
+                  style={{
+                    background: 'none', border: `1px solid #FFCDD2`,
+                    borderRadius: 6, padding: '4px 10px',
+                    fontSize: 11, color: '#B71C1C', cursor: 'pointer',
+                    opacity: deletingId === scan.id ? 0.5 : 1,
+                    flexShrink: 0,
+                  }}
+                >
+                  {deletingId === scan.id ? '…' : '🗑 Delete'}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function VehicleModuleManifestPanel({
+  manifest,
+  onReadAll,
+  isReading,
+  onSaveScan,
+  isSaving,
+  savedScanId,
+  scanHistory,
+  onDeleteScan,
+  adapterUrl,
+}) {
   const grouped = useMemo(() => {
     if (!manifest) return null;
     return groupManifestByCategory(manifest);
   }, [manifest]);
 
+  const [vehicleLabel, setVehicleLabel] = useState('');
+  const [notes, setNotes] = useState('');
+  const [showHistory, setShowHistory] = useState(false);
+
   const equippedCount = manifest?.modules?.filter(m => m.present === true).length ?? 0;
   const confirmedCount = manifest?.modules?.filter(m => m.confidence === 'confirmed').length ?? 0;
+  const notEquippedCount = manifest?.modules?.filter(m => m.present === false && m.confidence === 'confirmed').length ?? 0;
   const missingDids = manifest?.didsMissing ?? MANIFEST_REQUIRED_DIDS.map(d => d.did);
+
+  const handleSave = () => {
+    if (!onSaveScan || !manifest) return;
+    const moduleList = manifest.modules.map(m => ({
+      module: m.id,
+      equipped: m.present === true,
+      source: m.source,
+      did: m.did,
+      label: m.label,
+    }));
+    onSaveScan({
+      vin: manifest.vin || undefined,
+      vehicleLabel: vehicleLabel.trim() || undefined,
+      adapterUrl: adapterUrl || undefined,
+      moduleList,
+      rawResponses: manifest.rawResponses || undefined,
+      equippedCount,
+      notEquippedCount,
+      notes: notes.trim() || undefined,
+    });
+  };
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif' }}>
+      {/* History overlay */}
+      {showHistory && (
+        <HistoryOverlay
+          scans={scanHistory}
+          onClose={() => setShowHistory(false)}
+          onDelete={onDeleteScan}
+        />
+      )}
+
       {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        marginBottom: 16,
+        marginBottom: 16, flexWrap: 'wrap', gap: 8,
       }}>
         <div>
           <div style={{ fontSize: 15, fontWeight: 700, color: C.bk }}>
@@ -170,21 +314,35 @@ export default function VehicleModuleManifestPanel({ manifest, onReadAll, isRead
             Derived from TIPM CGW Config + BCM BODY_PN_CONFIG
           </div>
         </div>
-        {onReadAll && (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {/* History button */}
           <button
-            onClick={onReadAll}
-            disabled={isReading}
+            onClick={() => setShowHistory(true)}
             style={{
-              background: C.a1, color: '#FFF', border: 'none',
-              borderRadius: 6, padding: '7px 16px',
-              fontSize: 12, fontWeight: 700, cursor: isReading ? 'not-allowed' : 'pointer',
-              opacity: isReading ? 0.6 : 1,
-              transition: 'opacity 0.15s',
+              background: 'none', color: C.a3, border: `1px solid ${C.a3}`,
+              borderRadius: 6, padding: '6px 12px',
+              fontSize: 12, fontWeight: 700, cursor: 'pointer',
             }}
           >
-            {isReading ? '⏳ Reading…' : '▶ Read All DIDs'}
+            📋 History {scanHistory?.length > 0 ? `(${scanHistory.length})` : ''}
           </button>
-        )}
+          {/* Read All DIDs */}
+          {onReadAll && (
+            <button
+              onClick={onReadAll}
+              disabled={isReading}
+              style={{
+                background: C.a1, color: '#FFF', border: 'none',
+                borderRadius: 6, padding: '7px 16px',
+                fontSize: 12, fontWeight: 700, cursor: isReading ? 'not-allowed' : 'pointer',
+                opacity: isReading ? 0.6 : 1,
+                transition: 'opacity 0.15s',
+              }}
+            >
+              {isReading ? '⏳ Reading…' : '▶ Read All DIDs'}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* VIN banner */}
@@ -207,7 +365,7 @@ export default function VehicleModuleManifestPanel({ manifest, onReadAll, isRead
         <div style={{
           background: '#FFF8F0', border: `1px solid ${C.border}`,
           borderRadius: 8, padding: '8px 14px', marginBottom: 14,
-          display: 'flex', alignItems: 'center', gap: 16,
+          display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
         }}>
           <span style={{ fontSize: 12, color: C.gray }}>
             <b style={{ color: '#1B5E20' }}>{equippedCount}</b> equipped
@@ -256,6 +414,73 @@ export default function VehicleModuleManifestPanel({ manifest, onReadAll, isRead
       {grouped && Object.entries(grouped).map(([cat, mods]) => (
         <CategorySection key={cat} category={cat} modules={mods} />
       ))}
+
+      {/* Save Scan card — shown when manifest has data */}
+      {manifest && confirmedCount > 0 && onSaveScan && (
+        <div style={{
+          border: `1px solid ${C.border}`, borderRadius: 8,
+          padding: '14px 16px', marginTop: 8,
+          background: savedScanId ? '#E8F5E9' : '#FAFAFA',
+        }}>
+          {savedScanId ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 22 }}>✅</span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1B5E20' }}>
+                  Scan saved to database (ID #{savedScanId})
+                </div>
+                <div style={{ fontSize: 11, color: C.gray, marginTop: 2 }}>
+                  View it any time from the History button above.
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.bk, marginBottom: 10 }}>
+                💾 Save This Scan to Database
+              </div>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                <input
+                  value={vehicleLabel}
+                  onChange={e => setVehicleLabel(e.target.value)}
+                  placeholder="Vehicle label (e.g. 2018 Charger SRT)"
+                  style={{
+                    flex: 1, minWidth: 180,
+                    border: `1px solid ${C.border}`, borderRadius: 6,
+                    padding: '6px 10px', fontSize: 12, background: '#FFF',
+                    color: C.bk, outline: 'none',
+                  }}
+                />
+                <input
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  placeholder="Notes (optional)"
+                  style={{
+                    flex: 1, minWidth: 180,
+                    border: `1px solid ${C.border}`, borderRadius: 6,
+                    padding: '6px 10px', fontSize: 12, background: '#FFF',
+                    color: C.bk, outline: 'none',
+                  }}
+                />
+              </div>
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                style={{
+                  background: C.a2, color: '#FFF', border: 'none',
+                  borderRadius: 6, padding: '7px 20px',
+                  fontSize: 12, fontWeight: 700,
+                  cursor: isSaving ? 'not-allowed' : 'pointer',
+                  opacity: isSaving ? 0.6 : 1,
+                  transition: 'opacity 0.15s',
+                }}
+              >
+                {isSaving ? '⏳ Saving…' : '💾 Save Scan'}
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Empty state */}
       {!manifest && (

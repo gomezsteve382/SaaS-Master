@@ -17,7 +17,7 @@ import {
   getSessionAuditLogs,
   getDb,
 } from "./db";
-import { cdaj2534Sessions } from "../drizzle/schema";
+import { cdaj2534Sessions, moduleMapScans } from "../drizzle/schema";
 import { desc } from "drizzle-orm";
 import { storagePut, storageGet, storageGetSignedUrl } from "./storage";
 import crypto from "crypto";
@@ -447,5 +447,86 @@ IMPORTANT: Return ONLY the JSON object, no markdown code fences, no explanation 
         return rows[0] ?? null;
       }),
   }),
+
+  moduleMap: router({
+    /** Save a MODULE MAP scan result to the database */
+    saveScan: publicProcedure
+      .input(
+        z.object({
+          vin: z.string().max(17).optional(),
+          vehicleLabel: z.string().max(255).optional(),
+          adapterUrl: z.string().max(256).optional(),
+          moduleList: z.array(
+            z.object({
+              module: z.string(),
+              equipped: z.boolean(),
+              source: z.string(),
+              did: z.string().optional(),
+              label: z.string().optional(),
+            })
+          ),
+          rawResponses: z.record(z.string(), z.string()).optional(),
+          equippedCount: z.number().int().min(0).default(0),
+          notEquippedCount: z.number().int().min(0).default(0),
+          notes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("DB unavailable");
+        const [result] = await db.insert(moduleMapScans).values({
+          userId: ctx.user?.id ?? null,
+          vin: input.vin ?? null,
+          vehicleLabel: input.vehicleLabel ?? null,
+          adapterUrl: input.adapterUrl ?? null,
+          moduleList: input.moduleList,
+          rawResponses: input.rawResponses ?? null,
+          equippedCount: input.equippedCount,
+          notEquippedCount: input.notEquippedCount,
+          notes: input.notes ?? null,
+        });
+        const id = (result as any).insertId ?? null;
+        return { id };
+      }),
+
+    /** List all MODULE MAP scans, newest first */
+    listScans: publicProcedure
+      .input(z.object({ limit: z.number().int().min(1).max(100).default(50) }).optional())
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        return db
+          .select()
+          .from(moduleMapScans)
+          .orderBy(desc(moduleMapScans.createdAt))
+          .limit(input?.limit ?? 50);
+      }),
+
+    /** Get a single MODULE MAP scan by ID */
+    getScan: publicProcedure
+      .input(z.object({ id: z.number().int() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return null;
+        const rows = await db
+          .select()
+          .from(moduleMapScans)
+          .where((t: any) => t.id.eq(input.id))
+          .limit(1);
+        return rows[0] ?? null;
+      }),
+
+    /** Delete a MODULE MAP scan by ID */
+    deleteScan: publicProcedure
+      .input(z.object({ id: z.number().int() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("DB unavailable");
+        const { eq } = await import("drizzle-orm");
+        await db.delete(moduleMapScans).where(eq(moduleMapScans.id, input.id));
+        return { ok: true };
+      }),
+  }),
 });
 export type AppRouter = typeof appRouter;
+
