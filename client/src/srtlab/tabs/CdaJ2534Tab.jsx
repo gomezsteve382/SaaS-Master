@@ -21,7 +21,7 @@ import {
   getAutelState, setAutelState,
 } from '../lib/bridgeClient.js';
 import { CDA_MODULES } from '../lib/cdaModuleMap.js';
-import { getProfileForEcu } from '../lib/cdaProfiles.js';
+import { getProfileByEcu } from '../lib/cdaProfiles.js';
 import { trpc } from '../../lib/trpc';
 
 /* ─── Design tokens (match App.jsx palette) ─────────────────────────── */
@@ -846,7 +846,7 @@ export default function CdaJ2534Tab() {
     }]);
   }, []);
 
-  const profile = selectedModule ? getProfileForEcu(selectedModule.name) : null;
+  const profile = selectedModule ? getProfileByEcu(selectedModule.name) : null;
 
   /* Connect / disconnect */
   const handleConnect = useCallback(async () => {
