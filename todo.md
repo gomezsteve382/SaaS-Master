@@ -252,3 +252,8 @@
 - [x] Verified: charger-bcm-0x1328 now correctly returns sec16=ff08a1c5e7ba303582c3821594793c2f (source=flat, 16B)
 - [x] Verified: charger-bcm-vin-write still correctly returns sec16=e6e82e96c1ab767f58f57871ba2f6c69 (source=split, 16B)
 - [x] All 346 tests pass after fix
+
+## Key Importer Feature (Jun 9)
+- [x] OCR/image extraction: parse Autel key screenshot to extract Low SK and High SK hex values (parseAutelKeyOcr)
+- [x] RFHUB key slot writer: modify key table at 0x0C5E and recalculate checksum (writeKeySlotToRfhub)
+- [x] Key Importer UI: upload Autel image + RFHUB file, show extracted keys, select target slot, write and download modified RFHUB (KeyImporterTab.jsx)

@@ -84,7 +84,9 @@ import AutelSgwTab from "./tabs/AutelSgwTab.jsx";
 import FirmwareEmulationTab from "./tabs/FirmwareEmulationTab.jsx";
 import RfhubKeyTransplantPanel from "./components/RfhubKeyTransplantPanel.jsx";
 import QuickCloneTab from "./tabs/QuickCloneTab.jsx";
+import KeyImporterTab from "./tabs/KeyImporterTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
+import { parseAutelKeyOcr, buildKeySlot, writeKeySlotToRfhub, listRfhubKeySlots } from "./lib/keyImporter.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
 import ProgrammerSizeHelp from "./components/ProgrammerSizeHelp.jsx";
 import CorruptFillBanner from "./components/CorruptFillBanner.jsx";
@@ -944,6 +946,7 @@ const WORKSPACE_TABS = [
   {id:'keymgr',     i:'🗝️', l:'KEY MGR',          s:'Dual-file RFHUB fob transfer'},
   {id:'keytransplant', i:'🔑', l:'KEY TRANSPLANT', s:'Donor → Target RFHUB · auth sector + ring buffer · no OBD'},
   {id:'quickclone', i:'⚡', l:'QUICK CLONE',      s:'VIN + Security + Keys · 3-step guided wizard'},
+  {id:'keyimporter', i:'📸', l:'KEY IMPORTER',      s:'Autel screenshot → RFHUB key write'},
   {id:'livekey',    i:'🔑', l:'LIVE KEYS',        s:'OBD PIN extract · key prog · SKREEM'},
   {id:'jailbreak',  i:'💀', l:'JAILBREAK',        s:'SRT · Demon · Hellcat · Redeye'},
   {id:'seed',       i:'🔑', l:'SEED→KEY',         s:'14 Algorithms'},
@@ -1011,7 +1014,7 @@ const WORKSPACE_TABS = [
  * INFO is intentionally absent — it lives in the reference panel. */
 const WORKSPACE_CATEGORIES = {
   // PROGRAM — anything that writes to a module / produces a flashable file.
-  jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM',   keytransplant:'PROGRAM', quickclone:'PROGRAM', livekey:'PROGRAM',
+  jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM',   keytransplant:'PROGRAM', quickclone:'PROGRAM', keyimporter:'PROGRAM', livekey:'PROGRAM',
   vinprog:'PROGRAM', vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
   cdasession:'PROGRAM', cdadbtools:'PROGRAM', ipccluster:'PROGRAM', rfhdump:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
@@ -1262,6 +1265,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='keymgr'    && <KeyManagerTab vehicle={vehicle}/>}
         {tab==='keytransplant' && <div style={{padding:24,maxWidth:900,margin:'0 auto'}}><RfhubKeyTransplantPanel/></div>}
         {tab==='quickclone' && <QuickCloneTab vehicle={vehicle}/>}
+        {tab==='keyimporter' && <KeyImporterTab/>}
         {tab==='livekey'   && <LiveKeyTab/>}
         {tab==='ecm'       && <EcmTab vehicle={vehicle}/>}
         {tab==='smartbox'  && <SmartBoxTab/>}
