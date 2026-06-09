@@ -25,7 +25,7 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Card, Btn, Tag } from '../lib/ui.jsx';
 import { C } from '../lib/constants.js';
-import { KNOWN_WORKING_KEYS } from '../lib/keyWriter/knownWorkingKeys.js';
+import { KNOWN_WORKING_KEYS, HITAG_AES_BLACK_VIRGIN_PROFILE, lookupChipReadByChipId } from '../lib/keyWriter/knownWorkingKeys.js';
 import VehicleYearGuard from '../components/VehicleYearGuard.jsx';
 
 /* ─── blank reference storage ─── */
@@ -1060,6 +1060,140 @@ export default function HitagAesTab({ vehicle: selectedVehicle }) {
             )}
           </Card>
         </div>
+      </div>
+
+      {/* ─── HITAG AES Virginize Panel ─── */}
+      <AesVirginizePanel chipId={chipId} />
+    </div>
+  );
+}
+
+/* ─── AesVirginizePanel component ─── */
+function AesVirginizePanel({ chipId: liveChipId }) {
+  const profile = HITAG_AES_BLACK_VIRGIN_PROFILE;
+  const [copied, setCopied] = useState('');
+  const copy = useCallback((text, label) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(label);
+      setTimeout(() => setCopied(''), 1800);
+    });
+  }, []);
+
+  const detected = useMemo(() => lookupChipReadByChipId(liveChipId), [liveChipId]);
+  const isAes = detected?.chipFamily === 'HITAG AES';
+
+  const [vConfig, setVConfig] = useState('');
+  const [vPage1,  setVPage1]  = useState('');
+  const [vPage2,  setVPage2]  = useState('');
+  const verifyFields = [
+    ['Config', vConfig, setVConfig],
+    ['Page 1', vPage1,  setVPage1],
+    ['Page 2', vPage2,  setVPage2],
+  ];
+  const verifyResults = verifyFields.map(([label, val]) => {
+    const norm = val.replace(/\s/g, '').toUpperCase();
+    if (!norm) return { label, status: 'empty' };
+    return { label, status: norm === '00000000' ? 'pass' : 'fail' };
+  });
+  const anyEntered = verifyFields.some(([, v]) => v.trim() !== '');
+  const allPass = anyEntered && verifyResults.every(r => r.status === 'pass' || r.status === 'empty') && verifyResults.some(r => r.status === 'pass');
+  const anyFail = verifyResults.some(r => r.status === 'fail');
+
+  const writeFields = [
+    ['CONFIG', profile.config, '#F59E0B'],
+    ['PAGE 1', profile.page1,  '#60A5FA'],
+    ['PAGE 2', profile.page2,  '#60A5FA'],
+  ];
+  const skFields = [
+    ['SK0', profile.sk0], ['SK1', profile.sk1], ['SK2', profile.sk2], ['SK3', profile.sk3],
+  ];
+
+  return (
+    <div style={{ marginTop: 16, padding: 16, borderRadius: 10, background: '#0d1117', border: '1px solid #2d3748' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+        <div style={{ fontWeight: 700, color: '#A78BFA', fontSize: 13, letterSpacing: 1, flex: 1 }}>
+          🔓 VIRGINIZE KEY — HITAG AES Black Key (PCF7953)
+        </div>
+        {isAes && (
+          <span style={{ fontSize: 10, color: '#34D399', background: '#0a2a1a', border: '1px solid #1a4a2a', borderRadius: 12, padding: '2px 8px' }}>
+            ✓ Auto-detected: HITAG AES black key
+          </span>
+        )}
+      </div>
+
+      <div style={{ color: '#888', fontSize: 11, marginBottom: 14, lineHeight: 1.6 }}>
+        Confirmed blank profile for 2021 Charger 6.2 Redeye <strong style={{ color: '#9CA3AF' }}>black keys</strong> (PCF7953, HITAG AES).
+        Bench-read from chip <code>A0CC096F</code> (2026-06-09).
+        {' '}<strong style={{ color: '#F59E0B' }}>SK0–SK3 stay at factory test pattern — do not change them.</strong>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 14 }}>
+        {writeFields.map(([label, val, color]) => (
+          <div key={label} style={{ background: '#0a0a0a', border: `1px solid ${color}33`, borderRadius: 6, padding: '8px 10px' }}>
+            <div style={{ color: '#555', fontSize: 10, letterSpacing: 1, marginBottom: 4 }}>{label}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <code style={{ color, fontFamily: 'monospace', fontSize: 14, flex: 1 }}>{val}</code>
+              <button onClick={() => copy(val, label)} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, background: copied === label ? '#166534' : '#1a2a1a', color: copied === label ? '#4ade80' : '#555', border: '1px solid #2a3a2a', cursor: 'pointer' }}>
+                {copied === label ? '✓' : 'Copy'}
+              </button>
+            </div>
+            <div style={{ color: '#444', fontSize: 10, marginTop: 2 }}>Write this value via Autel</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 14 }}>
+        {skFields.map(([label, val]) => (
+          <div key={label} style={{ background: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: 6, padding: '6px 10px' }}>
+            <div style={{ color: '#444', fontSize: 10, letterSpacing: 1, marginBottom: 3 }}>{label} <span style={{ color: '#333' }}>(do not change)</span></div>
+            <code style={{ color: '#555', fontFamily: 'monospace', fontSize: 12 }}>{val}</code>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ background: '#0a0a0a', border: '1px solid #2a2a2a', borderRadius: 6, padding: '10px 14px', marginBottom: 14 }}>
+        <div style={{ color: '#A78BFA', fontWeight: 700, marginBottom: 8, fontSize: 12 }}>✅ POST-VIRGINIZE VERIFY — Paste read-back values to confirm all zeros</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 8 }}>
+          {verifyFields.map(([label, val, setter]) => {
+            const norm = val.replace(/\s/g, '').toUpperCase();
+            const res = !norm ? 'empty' : norm === '00000000' ? 'pass' : 'fail';
+            const borderColor = res === 'pass' ? '#22c55e' : res === 'fail' ? '#ef4444' : '#2a2a2a';
+            return (
+              <div key={label}>
+                <div style={{ color: '#555', fontSize: 10, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+                <input
+                  value={val}
+                  onChange={e => setter(e.target.value)}
+                  placeholder="00000000"
+                  maxLength={8}
+                  style={{ width: '100%', boxSizing: 'border-box', background: '#0d1117', border: `1px solid ${borderColor}`, color: res === 'pass' ? '#22c55e' : res === 'fail' ? '#ef4444' : '#aaa', fontFamily: 'monospace', fontSize: 13, padding: '4px 6px', borderRadius: 4, textTransform: 'uppercase' }}
+                />
+                {res !== 'empty' && (
+                  <div style={{ fontSize: 10, marginTop: 2, color: res === 'pass' ? '#22c55e' : '#ef4444' }}>
+                    {res === 'pass' ? '✓ ZERO' : '✗ NOT ZERO'}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {anyEntered && (
+          <div style={{ padding: '6px 12px', borderRadius: 6, background: allPass ? '#0a2a0a' : anyFail ? '#2a0a0a' : '#1a1a1a', border: `1px solid ${allPass ? '#22c55e' : anyFail ? '#ef4444' : '#333'}`, color: allPass ? '#22c55e' : anyFail ? '#ef4444' : '#aaa', fontSize: 12, fontWeight: 700 }}>
+            {allPass ? '✅ KEY IS VIRGIN — All pages confirmed zero. Ready to program.' : anyFail ? '❌ NOT VIRGIN — One or more pages still have data. Retry the write.' : '⏳ Enter all read-back values to verify...'}
+          </div>
+        )}
+      </div>
+
+      <div style={{ background: '#0a0f1a', border: '1px solid #1e3a5f', borderRadius: 6, padding: '10px 14px', fontSize: 11, color: '#aaa', lineHeight: 1.8 }}>
+        <div style={{ color: '#A78BFA', fontWeight: 700, marginBottom: 6, fontSize: 12 }}>Autel Virginize Procedure — HITAG AES Black Key (PCF7953)</div>
+        <div>1. Connect key to Autel → select <strong>HITAG AES → Fiat</strong></div>
+        <div>2. Read chip — confirm Chip ID and SK0–SK3 are visible</div>
+        <div>3. Write <strong>Config</strong> → <code style={{ color: '#F59E0B' }}>00000000</code></div>
+        <div>4. Write <strong>Page 1</strong> → <code style={{ color: '#60A5FA' }}>00000000</code></div>
+        <div>5. Write <strong>Page 2</strong> → <code style={{ color: '#60A5FA' }}>00000000</code></div>
+        <div>6. <strong>Do NOT change SK0–SK3</strong> — leave at factory test pattern</div>
+        <div>7. Re-read chip and paste values into the Verify checker above</div>
+        <div style={{ marginTop: 8, color: '#555', fontSize: 10 }}>Source: A0CC096F bench-read 2026-06-09 (2021 Charger 6.2 Redeye black key, HITAG AES / PCF7953).</div>
       </div>
     </div>
   );

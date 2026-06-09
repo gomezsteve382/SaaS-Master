@@ -600,6 +600,27 @@ export const HITAG_AES_BLACK_VIRGIN_PROFILE = Object.freeze({
   note: 'Confirmed blank profile for HITAG AES black keys (A0CC096F bench-read 2026-06-09). SK0-SK3 stay at factory test pattern.',
 });
 
+/**
+ * Look up a chip read entry by Chip ID across all corpus arrays.
+ * Returns { entry, keyColor, chipFamily } or null if not found.
+ * keyColor: 'red' | 'black' | null
+ * chipFamily: 'PCF7945/53' | 'HITAG AES' | null
+ */
+export function lookupChipReadByChipId(chipIdRaw) {
+  if (!chipIdRaw) return null;
+  const id = String(chipIdRaw).replace(/\s/g, '').toUpperCase();
+  // PCF7945/53 red keys
+  const redEntry = PCF7945_53_CHIP_READS.find(e => e.chipId.toUpperCase() === id);
+  if (redEntry) return { entry: redEntry, keyColor: 'red', chipFamily: 'PCF7945/53' };
+  // PCF7945/53 black keys
+  const blackEntry = PCF7945_53_BLACK_KEY_READS.find(e => e.chipId.toUpperCase() === id);
+  if (blackEntry) return { entry: blackEntry, keyColor: 'black', chipFamily: 'PCF7945/53' };
+  // HITAG AES black keys
+  const aesEntry = HITAG_AES_BLACK_KEY_READS.find(e => e.chipId.toUpperCase() === id);
+  if (aesEntry) return { entry: aesEntry, keyColor: 'black', chipFamily: 'HITAG AES' };
+  return null;
+}
+
 /* Normalize a hex token the same way dedupeKey / validateKeyRecord do: strip
  * separators + an optional 0x prefix, uppercase. */
 function normHex(s) {

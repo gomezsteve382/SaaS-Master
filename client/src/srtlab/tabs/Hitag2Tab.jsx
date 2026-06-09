@@ -21,7 +21,7 @@ import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
 import VehicleYearGuard from '../components/VehicleYearGuard.jsx';
-import { PCF7945_53_VIRGIN_PROFILE, PCF7945_53_BLACK_VIRGIN_PROFILE } from '../lib/keyWriter/knownWorkingKeys.js';
+import { PCF7945_53_VIRGIN_PROFILE, PCF7945_53_BLACK_VIRGIN_PROFILE, lookupChipReadByChipId } from '../lib/keyWriter/knownWorkingKeys.js';
 
 /* ─── blank reference storage (same pattern as HitagAesTab) ─── */
 const BLANK_REFS_KEY = 'srt-lab.hitag2.blank-refs.v1';
@@ -71,9 +71,38 @@ function splitSkForVvdi(sk12) {
 }
 
 /* ─── VirginizePanel component ─── */
-function VirginizePanel({ copied, copy }) {
+function VirginizePanel({ copied, copy, chipId: liveChipId }) {
   const [keyColor, setKeyColor] = useState('red');
-  const profile = keyColor === 'red' ? PCF7945_53_VIRGIN_PROFILE : PCF7945_53_BLACK_VIRGIN_PROFILE;
+  const [manualOverride, setManualOverride] = useState(false);
+
+  // Auto-detect key color from live chip ID
+  const detected = useMemo(() => lookupChipReadByChipId(liveChipId), [liveChipId]);
+  const effectiveColor = (!manualOverride && detected) ? detected.keyColor : keyColor;
+
+  // Verify checker state
+  const [verifyConfig, setVerifyConfig]   = useState('');
+  const [verifyPage0,  setVerifyPage0]    = useState('');
+  const [verifyPage1,  setVerifyPage1]    = useState('');
+  const [verifyPage2,  setVerifyPage2]    = useState('');
+  const [verifyPage3,  setVerifyPage3]    = useState('');
+  const profile = effectiveColor === 'red' ? PCF7945_53_VIRGIN_PROFILE : PCF7945_53_BLACK_VIRGIN_PROFILE;
+
+  // Verify checker logic
+  const verifyFields = [
+    ['Config', verifyConfig, setVerifyConfig],
+    ['Page 0', verifyPage0,  setVerifyPage0],
+    ['Page 1', verifyPage1,  setVerifyPage1],
+    ['Page 2', verifyPage2,  setVerifyPage2],
+    ['Page 3', verifyPage3,  setVerifyPage3],
+  ];
+  const verifyResults = verifyFields.map(([label, val]) => {
+    const norm = val.replace(/\s/g, '').toUpperCase();
+    if (!norm) return { label, status: 'empty' };
+    return { label, status: norm === '00000000' ? 'pass' : 'fail', val: norm };
+  });
+  const anyEntered = verifyFields.some(([, v]) => v.trim() !== '');
+  const allPass = anyEntered && verifyResults.every(r => r.status === 'pass' || r.status === 'empty') && verifyResults.filter(r => r.status !== 'empty').length > 0;
+  const anyFail = verifyResults.some(r => r.status === 'fail');
   const fields = [
     ['CONFIG PAGE', profile.config, '#F59E0B'],
     ['PAGE 0',      profile.page0,  '#60A5FA'],
@@ -88,31 +117,39 @@ function VirginizePanel({ copied, copy }) {
           🔓 VIRGINIZE KEY — Restore to Factory Blank
         </div>
         {/* Key color selector */}
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {detected && !manualOverride && (
+            <span style={{ fontSize: 10, color: '#34D399', background: '#0a2a1a', border: '1px solid #1a4a2a', borderRadius: 12, padding: '2px 8px' }}>
+              ✓ Auto-detected: {detected.keyColor === 'red' ? 'Red' : 'Black'} key
+            </span>
+          )}
           <button
-            onClick={() => setKeyColor('red')}
+            onClick={() => { setKeyColor('red'); setManualOverride(true); }}
             style={{
               padding: '4px 14px', borderRadius: 20, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700,
-              background: keyColor === 'red' ? '#DC2626' : '#1a1a1a',
-              color: keyColor === 'red' ? '#fff' : '#888',
+              background: effectiveColor === 'red' ? '#DC2626' : '#1a1a1a',
+              color: effectiveColor === 'red' ? '#fff' : '#888',
               transition: 'all 160ms',
             }}
           >🔴 RED KEY</button>
           <button
-            onClick={() => setKeyColor('black')}
+            onClick={() => { setKeyColor('black'); setManualOverride(true); }}
             style={{
               padding: '4px 14px', borderRadius: 20, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700,
-              background: keyColor === 'black' ? '#374151' : '#1a1a1a',
-              color: keyColor === 'black' ? '#fff' : '#888',
-              border: keyColor === 'black' ? '1px solid #6B7280' : '1px solid #2a2a2a',
+              background: effectiveColor === 'black' ? '#374151' : '#1a1a1a',
+              color: effectiveColor === 'black' ? '#fff' : '#888',
+              border: effectiveColor === 'black' ? '1px solid #6B7280' : '1px solid #2a2a2a',
               transition: 'all 160ms',
             }}
           >⚫ BLACK KEY</button>
+          {manualOverride && detected && (
+            <button onClick={() => setManualOverride(false)} style={{ fontSize: 10, color: '#60A5FA', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Auto</button>
+          )}
         </div>
       </div>
 
       <div style={{ color: '#888', fontSize: 11, marginBottom: 14, lineHeight: 1.6 }}>
-        {keyColor === 'red'
+        {effectiveColor === 'red'
           ? <>Confirmed blank profile for 2021 Charger 6.2 Redeye <strong style={{ color: '#DC2626' }}>red keys</strong> (PCF7945/53, HITAG 2). 5 keys bench-read 2026-06-09.</>
           : <>Confirmed blank profile for 2021 Charger 6.2 Redeye <strong style={{ color: '#9CA3AF' }}>black keys</strong> (PCF7945/53, HITAG 2). 5 keys bench-read 2026-06-09.</>}
         {' '}<strong style={{ color: '#F59E0B' }}>SK stays at MIKRON default — do not change it.</strong>
@@ -142,8 +179,42 @@ function VirginizePanel({ copied, copy }) {
         </div>
       </div>
 
+      {/* ─── Post-Virginize Verify Checker ─── */}
+      <div style={{ background: '#0a0a0a', border: '1px solid #2a2a2a', borderRadius: 6, padding: '10px 14px', marginBottom: 14 }}>
+        <div style={{ color: '#A78BFA', fontWeight: 700, marginBottom: 8, fontSize: 12 }}>✅ POST-VIRGINIZE VERIFY — Paste read-back values to confirm all zeros</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 8 }}>
+          {verifyFields.map(([label, val, setter]) => {
+            const norm = val.replace(/\s/g, '').toUpperCase();
+            const res = !norm ? 'empty' : norm === '00000000' ? 'pass' : 'fail';
+            const borderColor = res === 'pass' ? '#22c55e' : res === 'fail' ? '#ef4444' : '#2a2a2a';
+            return (
+              <div key={label}>
+                <div style={{ color: '#555', fontSize: 10, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+                <input
+                  value={val}
+                  onChange={e => setter(e.target.value)}
+                  placeholder="00000000"
+                  maxLength={8}
+                  style={{ width: '100%', boxSizing: 'border-box', background: '#0d1117', border: `1px solid ${borderColor}`, color: res === 'pass' ? '#22c55e' : res === 'fail' ? '#ef4444' : '#aaa', fontFamily: 'monospace', fontSize: 13, padding: '4px 6px', borderRadius: 4, textTransform: 'uppercase' }}
+                />
+                {res !== 'empty' && (
+                  <div style={{ fontSize: 10, marginTop: 2, color: res === 'pass' ? '#22c55e' : '#ef4444' }}>
+                    {res === 'pass' ? '✓ ZERO' : '✗ NOT ZERO'}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {anyEntered && (
+          <div style={{ padding: '6px 12px', borderRadius: 6, background: allPass ? '#0a2a0a' : anyFail ? '#2a0a0a' : '#1a1a1a', border: `1px solid ${allPass ? '#22c55e' : anyFail ? '#ef4444' : '#333'}`, color: allPass ? '#22c55e' : anyFail ? '#ef4444' : '#aaa', fontSize: 12, fontWeight: 700 }}>
+            {allPass ? '✅ KEY IS VIRGIN — All pages confirmed zero. Ready to program.' : anyFail ? '❌ NOT VIRGIN — One or more pages still have data. Retry the write.' : '⏳ Enter all read-back values to verify...'}
+          </div>
+        )}
+      </div>
+
       <div style={{ background: '#0a0f1a', border: '1px solid #1e3a5f', borderRadius: 6, padding: '10px 14px', fontSize: 11, color: '#aaa', lineHeight: 1.8 }}>
-        <div style={{ color: '#60A5FA', fontWeight: 700, marginBottom: 6, fontSize: 12 }}>Autel Virginize Procedure — {keyColor === 'red' ? 'Red Key (PCF7945/53)' : 'Black Key (PCF7945/53)'}</div>
+        <div style={{ color: '#60A5FA', fontWeight: 700, marginBottom: 6, fontSize: 12 }}>Autel Virginize Procedure — {effectiveColor === 'red' ? 'Red Key (PCF7945/53)' : 'Black Key (PCF7945/53)'}</div>
         <div>1. Open Autel → HITAG 2 → Chip info</div>
         <div>2. Verify Low SK = <span style={{ fontFamily: 'monospace', color: '#34D399' }}>4D494B52</span> and High SK = <span style={{ fontFamily: 'monospace', color: '#34D399' }}>4F4E</span> (MIKRON default). If different, key has custom SK — cannot freely write.</div>
         <div>3. Write Config page → <span style={{ fontFamily: 'monospace', color: '#F59E0B' }}>00000000</span></div>
@@ -152,13 +223,13 @@ function VirginizePanel({ copied, copy }) {
         <div>6. Write Page 2 → <span style={{ fontFamily: 'monospace', color: '#60A5FA' }}>00000000</span></div>
         <div>7. Write Page 3 → <span style={{ fontFamily: 'monospace', color: '#60A5FA' }}>00000000</span></div>
         <div>8. Read back all pages to confirm all zeros. Key is now virgin and ready to program to a new vehicle.</div>
-        {keyColor === 'black' && (
+        {effectiveColor === 'black' && (
           <div style={{ marginTop: 6, color: '#F59E0B' }}>
             ⚠️ Note: Black key <strong>0236B59C</strong> showed Config=08AA4854 and Page1/Page2 matching the red key FCA pattern — may have been cross-programmed. Virginize procedure is the same regardless.
           </div>
         )}
         <div style={{ marginTop: 8, color: '#666' }}>
-          {keyColor === 'red'
+          {effectiveColor === 'red'
             ? 'Sources: CF324E65 blank bench-read 2026-06-04. 4 programmed red keys cross-referenced 2026-06-09.'
             : 'Sources: 5 black key bench-reads 2026-06-09 (6D0EF991, 5E478092, 8748C092, 6B470092, 0236B59C).'}
         </div>
@@ -702,7 +773,7 @@ export default function Hitag2Tab({ vehicle }) {
       </div>
 
       {/* ─── Virginize Key Panel ─── */}
-      <VirginizePanel copied={copied} copy={copy} />
+      <VirginizePanel copied={copied} copy={copy} chipId={chipId} />
 
       {/* Chip type info banner */}
       <Card style={{ marginTop: 16, background: '#0a0a0a' }}>
