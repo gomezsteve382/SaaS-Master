@@ -104,6 +104,7 @@ function normalizeStatus(raw){
     dllPath:   vci.dll_path || raw.dllPath || '',
     deviceOpen:       !!(vci.is_open || raw.deviceOpen),
     channelConnected: !!(vci.is_connected || raw.channelConnected),
+    channelId: vci.channel_id ?? raw.channelId ?? 0,
     deviceId:  raw.deviceId || 0,
     versions: {
       firmware: vci.firmware || '',
@@ -129,18 +130,48 @@ function normalizeOpen(raw){
 }
 export function open(url){return call(u(url),'/open','POST',{}).then(normalizeOpen);}
 export function close(url){return call(u(url),'/close','POST',{});}
+function normalizeConnect(raw){
+  if(!raw||!raw.ok) return raw;
+  return { ...raw, channelId: raw.channel_id ?? raw.channelId ?? 0 };
+}
 export function connect(opts={},url){
+  // Normalize protocol: accept 'ISO15765' string or numeric (bridge expects numeric 6)
+  const proto = typeof opts.protocol === 'string'
+    ? (opts.protocol.toUpperCase().includes('15765') ? 6 : 6)
+    : (opts.protocol ?? 6);
   return call(u(url),'/connect','POST',{
-    protocol:opts.protocol??6,flags:opts.flags??0,baudrate:opts.baudrate??500000,
-  });
+    protocol: proto, flags: opts.flags ?? 0, baudrate: opts.baudrate ?? 500000,
+  }).then(normalizeConnect);
 }
 export function disconnect(url){return call(u(url),'/disconnect','POST',{});}
 export function setFilter({txId,rxId},url){return call(u(url),'/setfilter','POST',{tx_id:txId,rx_id:rxId});}
 export function sendMsg({txId,data,flags=0x40,timeoutMs=1000},url){
   return call(u(url),'/sendmsg','POST',{tx_id:txId,data,flags,timeout_ms:timeoutMs});
 }
+function normalizeReadMsg(raw){
+  if(!raw||!raw.ok) return raw;
+  // Python bridge returns: { ok, messages: [{ rx_id, data, rx_status, timestamp }] }
+  // CdaJ2534Tab expects:   r.data (flat hex string of first message)
+  // J2534UdsConsoleTab expects: r.msg.data + r.msg.canId
+  const msgs = raw.messages || [];
+  const first = msgs[0] || null;
+  return {
+    ...raw,
+    // flat .data for CdaJ2534Tab
+    data: first ? first.data : (raw.data || null),
+    // .msg object for J2534UdsConsoleTab
+    msg: first ? {
+      data:      first.data,
+      canId:     first.rx_id ?? first.canId ?? 0,
+      rxStatus:  first.rx_status ?? first.rxStatus ?? 0,
+      timestamp: first.timestamp ?? 0,
+    } : (raw.msg || null),
+    // keep original messages array
+    messages: msgs,
+  };
+}
 export function readMsg({timeoutMs=1000,maxMsgs=20}={},url){
-  return call(u(url),'/readmsg','POST',{timeout_ms:timeoutMs,max_msgs:maxMsgs},timeoutMs+1000);
+  return call(u(url),'/readmsg','POST',{timeout_ms:timeoutMs,max_msgs:maxMsgs},timeoutMs+1000).then(normalizeReadMsg);
 }
 
 /* Back-compat object wrapper used internally by the AUTEL tab and the
