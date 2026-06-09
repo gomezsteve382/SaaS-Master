@@ -298,3 +298,10 @@
 - [x] lastFreeCharSlot now returns slot 8 (0-indexed 7) as the highest free slot on virgin RFHUBs
 - [x] Verified: addCharKey('6D0EF991') now writes to slot 8 with correct record 91f90e6df601 + mirror
 - [x] All 346 tests pass, build clean
+
+## Black Key Auto-Flag Detection Fix (Jun 9, 2026)
+- [x] Root cause analysis: key 8748C092 was written with flag 0x01 (HITAG 2) instead of 0x03 (AES/Alt black key), causing car rejection
+- [x] CharRfhubKeyAdderPanel: auto-detect key family from corpus (lookupChipReadByKeyId) when Key ID is typed — black keys auto-select AES/Alt (0x03), red keys auto-select HITAG 2 (0x01)
+- [x] CharRfhubKeyAdderPanel: show AUTO-DETECTED banner when corpus match found, show override warning when operator manually overrides auto-detect
+- [x] server/charRfhubKeyTable.blackKey.test.ts: 15 regression tests covering flag 0x03 write, index derivation, corpus lookup, and binary verification
+- [x] Generated RFHUB_EEE_KEY_8748C092_ADDED.bin: key 8748C092 written to slot 2 with correct flag 0x03 and index 0xD8

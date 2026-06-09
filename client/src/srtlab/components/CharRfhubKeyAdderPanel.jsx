@@ -66,6 +66,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
   const [keyId, setKeyId] = useState('');
   const [indexHex, setIndexHex] = useState('');
   const [keyFamily, setKeyFamily] = useState('hitag2'); // 'hitag2' (0x01) | 'alt' (0x03)
+  const [familyManualOverride, setFamilyManualOverride] = useState(false); // true once operator clicks a family button
   const [ack, setAck] = useState(false);
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
@@ -81,6 +82,8 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
   const applyKeyId = useCallback(id => {
     setKeyId(id);
     setMsg(''); setErr('');
+    // Reset manual override so auto-detect can re-fire for the new Key ID
+    setFamilyManualOverride(false);
   }, []);
 
   const onPhotoChange = useCallback(e => {
@@ -181,6 +184,21 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
   const baseName = filename.replace(/\.[^.]+$/, '') || 'rfhub';
 
   const keyIdValid = /^[0-9a-fA-F]{8}$/.test(keyId.trim());
+
+  // Auto-detect key family from corpus when Key ID is valid and operator hasn't
+  // manually overridden. Black keys (PCF7945/53 or HITAG AES) need flag 0x03;
+  // red keys need flag 0x01. If the Key ID is not in the corpus, leave the
+  // current selection unchanged.
+  const corpusDetect = useMemo(
+    () => (keyIdValid ? lookupChipReadByKeyId(keyId.trim()) : null),
+    [keyIdValid, keyId],
+  );
+  useEffect(() => {
+    if (!familyManualOverride && corpusDetect) {
+      const autoFamily = corpusDetect.keyColor === 'black' ? 'alt' : 'hitag2';
+      setKeyFamily(autoFamily);
+    }
+  }, [corpusDetect, familyManualOverride]);
   const indexVal = useMemo(() => {
     const v = parseInt(indexHex, 16);
     return Number.isInteger(v) && v >= 0 && v <= 0xFF ? v : null;
@@ -562,10 +580,24 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                 </div>
                 <div style={{flex: '0 0 180px'}}>
                   <div style={labelStyle}>Key Family (transponder chip)</div>
+                  {/* Auto-detect banner: shown when corpus matched and family was auto-set */}
+                  {corpusDetect && !familyManualOverride && (
+                    <div
+                      data-testid="char-key-family-autodetect-banner"
+                      style={{
+                        marginBottom: 6, padding: '4px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700,
+                        background: corpusDetect.keyColor === 'black' ? '#88888818' : '#FF000018',
+                        border: '1px solid ' + (corpusDetect.keyColor === 'black' ? '#88888840' : '#FF000040'),
+                        color: corpusDetect.keyColor === 'black' ? '#aaa' : '#FF4444',
+                      }}
+                    >
+                      {corpusDetect.keyColor === 'black' ? '⚫' : '🔴'} AUTO-DETECTED from corpus: {corpusDetect.keyColor.toUpperCase()} KEY ({corpusDetect.chipFamily})
+                    </div>
+                  )}
                   <div style={{display: 'flex', gap: 6}}>
                     <button
                       data-testid="char-key-family-hitag2"
-                      onClick={() => setKeyFamily('hitag2')}
+                      onClick={() => { setKeyFamily('hitag2'); setFamilyManualOverride(true); }}
                       style={{
                         flex: 1, padding: '8px 6px', borderRadius: 8, border: '1.5px solid ' + (keyFamily === 'hitag2' ? C.sr : C.bd),
                         background: keyFamily === 'hitag2' ? C.sr + '18' : C.cd, color: keyFamily === 'hitag2' ? C.sr : C.ts,
@@ -576,7 +608,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                     </button>
                     <button
                       data-testid="char-key-family-alt"
-                      onClick={() => setKeyFamily('alt')}
+                      onClick={() => { setKeyFamily('alt'); setFamilyManualOverride(true); }}
                       style={{
                         flex: 1, padding: '8px 6px', borderRadius: 8, border: '1.5px solid ' + (keyFamily === 'alt' ? C.sr : C.bd),
                         background: keyFamily === 'alt' ? C.sr + '18' : C.cd, color: keyFamily === 'alt' ? C.sr : C.ts,
@@ -588,6 +620,11 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                   </div>
                   <div style={{marginTop: 4, fontSize: 10, color: C.tm}}>
                     {keyFamily === 'alt' ? 'PCF7953 AES black key' : 'PCF7945/53 HITAG 2 red key'}
+                    {familyManualOverride && corpusDetect && (
+                      <span style={{marginLeft: 6, color: C.wn || '#FF8C00', fontWeight: 700}}>
+                        ⚠ overriding corpus auto-detect
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div style={{flex: '0 0 120px'}}>
