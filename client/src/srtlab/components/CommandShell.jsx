@@ -227,7 +227,28 @@ export default function CommandShell({
   const {vin} = useContext(MasterVinContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bridgeHelpOpen, setBridgeHelpOpen] = useState(false);
+  const [selectedDll, setSelectedDll] = useState('topdon-artidiag');
+  const [bridgeUrlInput, setBridgeUrlInput] = useState(DEFAULT_BRIDGE_URL);
   const bridge = useBridgeStatus(5000);
+
+  // All registered J2534 DLLs confirmed on this machine + common extras
+  const KNOWN_DLLS = [
+    {id:'topdon-artidiag', label:'TOPDON R-Link / ArtiDiag VCI',   path:'C:\\Program Files (x86)\\TOPDON\\ArtiDiagVci\\PassThru432.dll',                                                        badge:'RECOMMENDED', badgeColor:'#2E7D32', note:'Confirmed on this machine. Best choice for FCA/Stellantis vehicles.'},
+    {id:'witech-legacy',   label:'Chrysler wiTECH Legacy VCI',     path:'C:\\Program Files (x86)\\DCC Tools\\wiTECH\\jserver\\app\\legacyVCI\\lvci32.dll',                                     badge:'FCA NATIVE',  badgeColor:'#1565C0', note:'OEM Chrysler/FCA J2534 driver. Try this if TOPDON gives errors on BCM/TIPM. Compare side-by-side for best results.'},
+    {id:'autel-elite',     label:'Autel MaxiFlash Elite / Pro',    path:'C:\\Windows\\SysWOW64\\CFJW432.DLL',                                                                                    badge:'',            badgeColor:'',        note:'Requires Autel VCI to be physically connected. Currently installed on this machine.'},
+    {id:'autel-vcmi',      label:'Autel MaxiFlash VCMI',           path:'C:\\Windows\\SysWOW64\\VCMI432.DLL',                                                                                    badge:'',            badgeColor:'',        note:'Autel VCMI adapter.'},
+    {id:'autel-vcmi2',     label:'Autel MaxiFlash VCMI2',          path:'C:\\Windows\\SysWOW64\\VCMI2432.dll',                                                                                   badge:'',            badgeColor:'',        note:'Autel VCMI2 adapter.'},
+    {id:'autel-jvci',      label:'Autel MaxiFlash JVCI',           path:'C:\\Windows\\SysWOW64\\JVCI432.DLL',                                                                                    badge:'',            badgeColor:'',        note:'Autel JVCI adapter.'},
+    {id:'autel-jvcip',     label:'Autel MaxiFlash JVCI+',          path:'C:\\Windows\\SysWOW64\\JVCIPLUS432.DLL',                                                                               badge:'',            badgeColor:'',        note:'Autel JVCI+ adapter.'},
+    {id:'autel-lvci',      label:'Autel MaxiFlash LVCI',           path:'C:\\Windows\\SysWOW64\\LVCI432.dll',                                                                                    badge:'',            badgeColor:'',        note:'Autel LVCI adapter.'},
+    {id:'autel-vci',       label:'Autel MaxiFlash VCI',            path:'C:\\Windows\\SysWOW64\\VCI432.DLL',                                                                                     badge:'',            badgeColor:'',        note:'Autel VCI adapter.'},
+    {id:'autel-vci2',      label:'Autel MaxiFlash VCI2',           path:'C:\\Windows\\SysWOW64\\VCI2432.dll',                                                                                    badge:'',            badgeColor:'',        note:'Autel VCI2 adapter.'},
+    {id:'autel-bt',        label:'Autel MaxiFlash Bluetooth',      path:'C:\\Windows\\SysWOW64\\MFBT432.DLL',                                                                                    badge:'',            badgeColor:'',        note:'Autel Bluetooth VCI.'},
+    {id:'autel-xlink',     label:'Autel MaxiFlash XLink',          path:'C:\\Windows\\SysWOW64\\XLINK432.dll',                                                                                   badge:'',            badgeColor:'',        note:'Autel XLink adapter.'},
+    {id:'bosch-mdi',       label:'Bosch MDI (GM)',                 path:'C:\\Program Files (x86)\\GM MDI Software\\Products\\MDI\\Dynamic Link Libraries\\BVTX4J32.dll',                        badge:'',            badgeColor:'',        note:'GM MDI adapter — for GM vehicles only.'},
+    {id:'bosch-mdi2',      label:'Bosch MDI 2 (GM)',               path:'C:\\Program Files (x86)\\Bosch\\VTX-VCI\\VCI Software (GM)\\Products\\MDI 2\\Dynamic Link Libraries\\BVTX4J32.dll', badge:'',            badgeColor:'',        note:'GM MDI 2 adapter — for GM vehicles only.'},
+  ];
+  const activeDll = KNOWN_DLLS.find(d => d.id === selectedDll) || KNOWN_DLLS[0];
 
   const advancedCount = useMemo(
     () => tabs.filter(t => !PRIMARY_KEYS.has(t.id)).length,

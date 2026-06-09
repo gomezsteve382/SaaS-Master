@@ -16,54 +16,45 @@ echo  Port: %BRIDGE_PORT%
 echo ============================================================
 echo.
 
-REM ---- DLL Auto-Detection ----
-REM PRIMARY: TOPDON R-Link / ArtiDiag (confirmed path on this machine)
+REM ---- DLL Selection ----
+REM TOPDON R-Link / ArtiDiag VCI — confirmed path on this machine
+echo  Adapter: TOPDON R-Link / ArtiDiag VCI
+echo  DLL:     C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru432.dll
+echo.
+
 if exist "C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru432.dll" (
     set DLL_PATH=C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru432.dll
-    echo [FOUND] TOPDON R-Link / ArtiDiag VCI ^(confirmed^)
+    echo [OK] TOPDON R-Link DLL found
     goto :write_bridge
 )
+
+REM Try alternate TOPDON paths
 if exist "C:\Program Files (x86)\TOPDON\RLink\PassThru432.dll" (
     set DLL_PATH=C:\Program Files (x86)\TOPDON\RLink\PassThru432.dll
-    echo [FOUND] TOPDON R-Link 32-bit
+    echo [OK] TOPDON R-Link ^(alt path^)
     goto :write_bridge
 )
 if exist "C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru464.dll" (
     set DLL_PATH=C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru464.dll
-    echo [FOUND] TOPDON ArtiDiag 64-bit
-    goto :write_bridge
-)
-if exist "C:\Program Files (x86)\TOPDON\RLink\PassThru464.dll" (
-    set DLL_PATH=C:\Program Files (x86)\TOPDON\RLink\PassThru464.dll
-    echo [FOUND] TOPDON R-Link 64-bit
-    goto :write_bridge
-)
-if exist "C:\Program Files\TOPDON\RLink\PassThru464.dll" (
-    set DLL_PATH=C:\Program Files\TOPDON\RLink\PassThru464.dll
-    echo [FOUND] TOPDON R-Link 64-bit ^(PF^)
-    goto :write_bridge
-)
-REM SECONDARY: wiTECH Legacy VCI ^(Chrysler/FCA native — excellent for FCA vehicles^)
-if exist "C:\Program Files (x86)\DCC Tools\wiTECH\jserver\app\legacyVCI\lvci32.dll" (
-    set DLL_PATH=C:\Program Files (x86)\DCC Tools\wiTECH\jserver\app\legacyVCI\lvci32.dll
-    echo [FOUND] Chrysler wiTECH Legacy VCI ^(FCA native^)
-    goto :write_bridge
-)
-REM FALLBACK: Autel MaxiFlash Elite/Pro
-if exist "C:\Windows\SysWOW64\CFJW432.DLL" (
-    set DLL_PATH=C:\Windows\SysWOW64\CFJW432.DLL
-    echo [FOUND] Autel MaxiFlash Elite/Pro ^(fallback — connect Autel VCI^)
+    echo [OK] TOPDON ArtiDiag 64-bit
     goto :write_bridge
 )
 
-REM Registry fallback
-for /f "tokens=2*" %%A in ('reg query "HKLM\SOFTWARE\WOW6432Node\PassThruSupport.04.04" /s /v "FunctionLibrary" 2^>nul') do (
-    if "!DLL_PATH!"=="" set DLL_PATH=%%B
+REM TOPDON not found — show clear error, do NOT fall back to Autel silently
+echo.
+echo [ERROR] TOPDON R-Link DLL not found at expected path:
+echo         C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru432.dll
+echo.
+echo  Make sure TOPDON R-Link software is installed.
+echo  If you want to use a different adapter, edit this .bat file
+echo  and change DLL_PATH to your adapter's DLL path.
+echo.
+echo  Available adapters on this machine ^(from registry^):
+for /f "tokens=1,2*" %%A in ('reg query "HKLM\SOFTWARE\WOW6432Node\PassThruSupport.04.04" /s /v "FunctionLibrary" 2^>nul') do (
+    if "%%B"=="FunctionLibrary" echo    %%C
 )
-if "!DLL_PATH!"=="" (
-    echo [ERROR] No J2534 DLL found. Install TOPDON R-Link software.
-    pause & exit /b 1
-)
+echo.
+pause & exit /b 1
 
 :write_bridge
 echo [DLL]  !DLL_PATH!

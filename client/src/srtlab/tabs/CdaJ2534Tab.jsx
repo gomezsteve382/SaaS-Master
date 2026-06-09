@@ -158,7 +158,7 @@ const MonoField = ({ label, value, color = C.a2 }) => (
 );
 
 /* ─── Adapter Panel ──────────────────────────────────────────────────── */
-function AdapterPanel({ bridgeUrl, setBridgeUrl, connected, onConnect, onDisconnect, status }) {
+function AdapterPanel({ bridgeUrl, setBridgeUrl, connected, onConnect, onDisconnect, status, activeVci }) {
   return (
     <div style={{
       background: C.dk2, borderBottom: `1px solid #333`,
@@ -187,7 +187,27 @@ function AdapterPanel({ bridgeUrl, setBridgeUrl, connected, onConnect, onDisconn
         }
         <Badge color={connected ? C.gn : C.tm}>{connected ? '● LIVE' : '○ OFFLINE'}</Badge>
       </div>
-      {status && (
+      {/* Active adapter info — shown when connected */}
+      {connected && activeVci && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          background: C.gn + '11', border: `1px solid ${C.gn}33`,
+          borderRadius: 6, padding: '4px 10px',
+        }}>
+          <span style={{ fontSize: 13 }}>🔌</span>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.gn, letterSpacing: 0.3 }}>
+              {activeVci.name}
+            </div>
+            {(activeVci.firmware || activeVci.dll_version) && (
+              <div style={{ fontSize: 9, color: C.tm, fontFamily: 'JetBrains Mono, monospace' }}>
+                {[activeVci.firmware && `FW: ${activeVci.firmware}`, activeVci.dll_version && `DLL: ${activeVci.dll_version}`].filter(Boolean).join(' · ')}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {status && !activeVci && (
         <div style={{ fontSize: 10, color: C.tm, fontFamily: 'JetBrains Mono, monospace', marginLeft: 'auto' }}>
           {status}
         </div>
@@ -847,6 +867,7 @@ export default function CdaJ2534Tab() {
   const [bridgeUrl, setBridgeUrl] = useState(() => getAutelState().url || 'http://localhost:8765');
   const [connected, setConnected] = useState(false);
   const [adapterStatus, setAdapterStatus] = useState('');
+  const [activeVci, setActiveVci] = useState(null); // { name, firmware, dll_version }
   const [selectedModule, setSelectedModule] = useState(null);
   const [scanStates, setScanStates] = useState({});
   const [activeTab, setActiveTab] = useState('readdata');
@@ -934,11 +955,32 @@ export default function CdaJ2534Tab() {
     setAdapterStatus('Connected · ' + bridgeUrl);
     setAutelState({ url: bridgeUrl });
     addLog({ dir: 'TX', hex: '—', label: `Connected to ${bridgeUrl}` });
+    // Fetch /status to get active VCI info (vendor name, firmware, DLL version)
+    try {
+      const st = await getStatus(bridgeUrl);
+      if (st?.ok && st?.vci) {
+        const rawName = (st.vci.name || '').toLowerCase();
+        const friendlyName =
+          rawName.includes('passthru432') || rawName.includes('artidiag') || rawName.includes('rlink')
+            ? 'TOPDON R-Link / ArtiDiag VCI'
+            : rawName.includes('lvci') ? 'Chrysler wiTECH Legacy VCI'
+            : rawName.includes('cfj') || rawName.includes('cfjw') ? 'Autel MaxiFlash Elite'
+            : rawName.includes('vcmi') ? 'Autel VCMI'
+            : (st.vci.name || 'J2534 Device').replace(/\.dll$/i, '').toUpperCase();
+        setActiveVci({
+          name: friendlyName,
+          firmware: st.vci.firmware || null,
+          dll_version: st.vci.dll_version || null,
+        });
+        addLog({ dir: 'HDR', hex: '—', label: `Adapter: ${friendlyName}${st.vci.firmware ? ' · FW ' + st.vci.firmware : ''}` });
+      }
+    } catch (_) {}
   }, [bridgeUrl, addLog]);
 
   const handleDisconnect = useCallback(async () => {
     await bridgeDisconnect(bridgeUrl);
     setConnected(false);
+    setActiveVci(null);
     setAdapterStatus('Disconnected');
     addLog({ dir: 'ERR', hex: '—', label: 'Disconnected' });
   }, [bridgeUrl, addLog]);
@@ -1008,6 +1050,7 @@ export default function CdaJ2534Tab() {
         onConnect={handleConnect}
         onDisconnect={handleDisconnect}
         status={adapterStatus}
+        activeVci={activeVci}
       />
       {/* Bridge not running banner — shown when bridge is unreachable */}
       {!connected && adapterStatus && (adapterStatus.includes('ERR_DEVICE_NOT_CONNECTED') || adapterStatus.includes('not detected') || adapterStatus.includes('Bridge open failed') || adapterStatus.includes('unreachable')) && (
