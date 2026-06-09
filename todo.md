@@ -345,3 +345,8 @@
 - [x] SalesCodeTab merged into WiTechServicesTab (TCIDProcessedConfig contract documented with cURL template)
 - [x] PROXI fetch documented in WiTechServicesTab (getPROXI contract with electronicPIN + bcmBrand params)
 - [x] getKeyCodes documented in WiTechServicesTab (authPIN + iac params, cURL template)
+
+## J2534 Bridge Launcher (Jun 9, 2026)
+- [x] Confirmed bridgeClient.js already speaks correct Python bridge HTTP protocol (/status /open /connect /sendmsg /readmsg /setfilter /close)
+- [x] Created tools/run_bridge.bat — TOPDON R-Link auto-detection + registry fallback, calls SaaS-Master j2534_bridge.py
+- [x] Created tools/run_bridge_standalone.bat — fully self-contained, writes inline Python bridge to temp and runs it, no external dependencies
