@@ -19,15 +19,28 @@
 export function parseAutelKeyOcr(ocrText) {
   const text = String(ocrText || '').toUpperCase();
   
-  // Pattern 1: "Low SK" / "High SK" with colon
-  const lowSkMatch = text.match(/LOW\s*SK\s*[:\s]+([0-9A-F]{8})/);
-  const highSkMatch = text.match(/HIGH\s*SK\s*[:\s]+([0-9A-F]{8})/);
+  // Pattern 1: "Low SK" / "High SK" with colon — accept 4-8 hex chars (High SK can be short like "4F4E")
+  const lowSkMatch = text.match(/LOW\s*SK\s*[:\s]+([0-9A-F]{4,8})/);
+  const highSkMatch = text.match(/HIGH\s*SK\s*[:\s]+([0-9A-F]{4,8})/);
   
   // Pattern 2: "Parameter" section with Low/High labels
-  const paramMatch = text.match(/PARAMETER[\s\S]*?LOW\s*SK\s*([0-9A-F]{8})[\s\S]*?HIGH\s*SK\s*([0-9A-F]{8})/);
+  const paramMatch = text.match(/PARAMETER[\s\S]*?LOW\s*SK\s*([0-9A-F]{4,8})[\s\S]*?HIGH\s*SK\s*([0-9A-F]{4,8})/);
   
-  const lowSk = lowSkMatch?.[1] || paramMatch?.[1] || null;
-  const highSk = highSkMatch?.[1] || paramMatch?.[2] || null;
+  // Pattern 3: Chip ID extraction
+  const chipIdMatch = text.match(/CHIP\s*ID\s*[:\s]+([0-9A-F]{6,8})/);
+  
+  // Pattern 4: Page data extraction
+  const page0Match = text.match(/PAGE\s*0\s*[:\s]+([0-9A-F]{8})/);
+  const page1Match = text.match(/PAGE\s*1\s*[:\s]+([0-9A-F]{7,8})/);
+  const page2Match = text.match(/PAGE\s*2\s*[:\s]+([0-9A-F]{7,8})/);
+  const page3Match = text.match(/PAGE\s*3\s*[:\s]+([0-9A-F]{7,8})/);
+  
+  let lowSk = lowSkMatch?.[1] || paramMatch?.[1] || null;
+  let highSk = highSkMatch?.[1] || paramMatch?.[2] || null;
+  
+  // Pad short values to 8 chars with leading zeros
+  if (lowSk && lowSk.length < 8) lowSk = lowSk.padStart(8, '0');
+  if (highSk && highSk.length < 8) highSk = highSk.padStart(8, '0');
   
   // Confidence: 100% if both found, 50% if one found, 0% if none
   const confidence = (lowSk && highSk) ? 100 : (lowSk || highSk) ? 50 : 0;
@@ -35,6 +48,11 @@ export function parseAutelKeyOcr(ocrText) {
   return {
     lowSk: lowSk ? lowSk.toUpperCase() : null,
     highSk: highSk ? highSk.toUpperCase() : null,
+    chipId: chipIdMatch?.[1] || null,
+    page0: page0Match?.[1] || null,
+    page1: page1Match?.[1] || null,
+    page2: page2Match?.[1] || null,
+    page3: page3Match?.[1] || null,
     confidence,
   };
 }

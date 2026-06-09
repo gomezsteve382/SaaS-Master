@@ -52,11 +52,24 @@ export default function KeyImporterTab({ preloadedRfhub = null }) {
         // Send to Claude vision for OCR
         const result = await analyzeKeyPhoto.mutateAsync({
           imageBase64: base64,
-          prompt: `Extract the HITAG 2 key data from this Autel key screenshot. 
-          Look for fields labeled "Low SK" and "High SK" in the Parameter section.
-          Return ONLY the hex values in this format:
-          Low SK: XXXXXXXX
-          High SK: XXXXXXXX`,
+          prompt: `This is an Autel IM608 HITAG 2 / PCF7945/53 key programmer screenshot.
+
+Extract these fields:
+1. From the "Parameter" section (top-right area): "Low SK" and "High SK" hex values
+2. From the "Chip info" section (left): "Low SK" and "High SK" hex values  
+3. From "Chip data" section (right): Page 0, Page 1, Page 2, Page 3 hex values
+4. "Chip ID" hex value (top-left)
+
+Return ALL values found in this exact format:
+Chip ID: XXXXXXXX
+Low SK: XXXXXXXX
+High SK: XXXXXXXX
+Page 0: XXXXXXXX
+Page 1: XXXXXXXX
+Page 2: XXXXXXXX
+Page 3: XXXXXXXX
+
+If a field shows multiple values (Parameter vs Chip info), prefer the Parameter section values. Return hex only, no 0x prefix.`,
         });
         
         // Parse the OCR result

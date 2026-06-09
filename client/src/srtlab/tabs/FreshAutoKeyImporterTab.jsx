@@ -50,11 +50,24 @@ export default function FreshAutoKeyImporterTab({ preloadedRfhub = null }) {
         // Send to Claude vision for OCR
         const result = await analyzeKeyPhoto.mutateAsync({
           imageBase64: base64,
-          prompt: `Extract the HITAG 2 key data from this Autel key screenshot. 
-          Look for fields labeled "Low SK" and "High SK" in the Parameter section.
-          Return ONLY the hex values in this format:
-          Low SK: XXXXXXXX
-          High SK: XXXXXXXX`,
+          prompt: `This is an Autel IM608 HITAG 2 / PCF7945/53 key programmer screenshot.
+
+Extract these fields:
+1. From the "Parameter" section (top-right area): "Low SK" and "High SK" hex values
+2. From the "Chip info" section (left): "Low SK" and "High SK" hex values  
+3. From "Chip data" section (right): Page 0, Page 1, Page 2, Page 3 hex values
+4. "Chip ID" hex value (top-left)
+
+Return ALL values found in this exact format:
+Chip ID: XXXXXXXX
+Low SK: XXXXXXXX
+High SK: XXXXXXXX
+Page 0: XXXXXXXX
+Page 1: XXXXXXXX
+Page 2: XXXXXXXX
+Page 3: XXXXXXXX
+
+If a field shows multiple values (Parameter vs Chip info), prefer the Parameter section values. Return hex only, no 0x prefix.`,
         });
         
         // Parse the OCR result
@@ -207,6 +220,11 @@ export default function FreshAutoKeyImporterTab({ preloadedRfhub = null }) {
                 <div className="space-y-1 font-mono text-sm">
                   <p><span className="font-semibold">Low SK:</span> {extractedKeys.lowSk}</p>
                   <p><span className="font-semibold">High SK:</span> {extractedKeys.highSk}</p>
+                  {extractedKeys.chipId && <p><span className="font-semibold">Chip ID:</span> {extractedKeys.chipId}</p>}
+                  {extractedKeys.page0 && <p className="text-xs"><span className="font-semibold">Page 0:</span> {extractedKeys.page0}</p>}
+                  {extractedKeys.page1 && <p className="text-xs"><span className="font-semibold">Page 1:</span> {extractedKeys.page1}</p>}
+                  {extractedKeys.page2 && <p className="text-xs"><span className="font-semibold">Page 2:</span> {extractedKeys.page2}</p>}
+                  {extractedKeys.page3 && <p className="text-xs"><span className="font-semibold">Page 3:</span> {extractedKeys.page3}</p>}
                   <p className="text-xs text-gray-600 mt-2">Confidence: {extractedKeys.confidence}%</p>
                 </div>
               </div>
