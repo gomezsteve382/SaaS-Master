@@ -281,3 +281,12 @@
 - [x] Hex view shows 128-byte table window with changed bytes highlighted in red
 - [x] Manual Key ID entry field with auto-derived index preview
 - [x] All 346 tests pass, build clean
+
+## Fix: isCharRfhubKeyTable Rejects Virgin/Blank RFHUBs (Jun 9)
+- [x] Fixed isCharRfhubKeyTable to accept virgin/blank RFHUBs where slot 8 is a boundary marker (FE 00 FF 00 FE 00)
+- [x] Slot 8 boundary detection: if record is neither empty template nor valid key flag, treat as boundary and skip mirror/sep checks
+- [x] Slot 7 trailing separator exemption: when slot 8 is boundary, slot 7 trailing sep allowed to be non-FF (bleeds into boundary)
+- [x] Updated parseCharKeyTable to classify boundary slots as state='boundary' (non-writable, non-key)
+- [x] Added hasBoundarySlot flag to parse result for UI display
+- [x] Verified: user's RFHUB.bin now passes validation, addCharKey writes key 6D0EF991 to slot 7 with idx=0xF6, flag=0x01, mirror=true
+- [x] All 346 tests pass, build clean

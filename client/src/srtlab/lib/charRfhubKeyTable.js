@@ -312,19 +312,42 @@ export function revUidToKeyId(rev) {
 /** isCharRfhubKeyTable(bytes) — strict structural gate (won't false-positive on
  *  an unrelated 4 KB image): canonical size + every slot is a mirrored 6-byte
  *  record with an inner FF FF separator. The trailing FF FF separator is
- *  required on slots 1-7 only; the last slot abuts the 4-byte trailer + aux
- *  parameter table on real dumps (see hasInnerFFSep/hasTrailingFFSep above). */
+ *  required on slots 1-6 only; slot 7's trailing byte may bleed into the slot 8
+ *  boundary on virgin/blank RFHUBs (trailing = FF 00). The last slot (8) abuts
+ *  the 4-byte trailer + aux parameter table on real dumps.
+ *
+ *  Virgin/blank RFHUBs have slot 8 as a boundary marker (FE 00 FF 00 FE 00 or
+ *  similar non-key data) — the mirror won't match and the inner sep may still be
+ *  FF FF. These are recognized by checking whether the slot 8 record is neither
+ *  a valid key (flag 0x01/0x03) nor the empty template (5A5A5A5A9500). When
+ *  slot 8 is a boundary marker, it is excluded from mirror/record checks. */
 export function isCharRfhubKeyTable(bytes) {
   if (!(bytes instanceof Uint8Array) || bytes.length !== CANONICAL_SIZE) return false;
   if (slotOffset(CHAR_KEYTABLE_SLOTS - 1) + CHAR_KEYTABLE_STRIDE > bytes.length) return false;
   const lastIdx = CHAR_KEYTABLE_SLOTS - 1;
+  const secondLastIdx = CHAR_KEYTABLE_SLOTS - 2; // slot 7 (0-indexed 6)
+
+  // Detect whether slot 8 is a boundary marker (virgin/blank RFHUB pattern)
+  const lastOff = slotOffset(lastIdx);
+  const lastRec = bytes.slice(lastOff, lastOff + CHAR_KEY_RECLEN);
+  const lastIsEmpty = lastRec[0] === 0x5A && lastRec[1] === 0x5A && lastRec[2] === 0x5A
+    && lastRec[3] === 0x5A && lastRec[4] === 0x95 && lastRec[5] === 0x00;
+  const lastIsKey = keyKindForFlag(lastRec[5]) !== null;
+  const lastIsBoundary = !lastIsEmpty && !lastIsKey;
+
   for (let i = 0; i < CHAR_KEYTABLE_SLOTS; i++) {
     const off = slotOffset(i);
+    // Skip slot 8 entirely if it's a boundary marker (virgin RFHUB)
+    if (i === lastIdx && lastIsBoundary) continue;
     if (!hasInnerFFSep(bytes, off)) return false;
-    // The final slot abuts the 4-byte trailer + aux parameter table on real dumps,
-    // so only slots 1-7 carry a trailing FF FF separator. The mirror check
-    // below is still enforced on every slot, including the last.
-    if (i < lastIdx && !hasTrailingFFSep(bytes, off)) return false;
+    // Trailing FF FF: required on slots 1-6. Slot 7 is exempt when slot 8 is a
+    // boundary (its trailing byte bleeds into the boundary data on virgin dumps).
+    // Slot 8 is always exempt (abuts aux parameter table).
+    if (i < lastIdx) {
+      if (i < secondLastIdx && !hasTrailingFFSep(bytes, off)) return false;
+      if (i === secondLastIdx && !lastIsBoundary && !hasTrailingFFSep(bytes, off)) return false;
+      // When lastIsBoundary, slot 7 trailing sep is allowed to be non-FF
+    }
     if (!recordsMatch(bytes, off, off + CHAR_KEY_MIRROR_OFFSET)) return false;
   }
   return true;
@@ -341,6 +364,14 @@ export function parseCharKeyTable(bytes) {
   if (!isCharRfhubKeyTable(bytes)) {
     return { ok: false, error: 'Charger 8-slot key table not found at 0xC5E (mirror/separator check failed)', slots: [], keyCount: 0 };
   }
+  // Detect boundary slot 8 (virgin/blank RFHUB pattern)
+  const lastOff = slotOffset(CHAR_KEYTABLE_SLOTS - 1);
+  const lastRec = bytes.slice(lastOff, lastOff + CHAR_KEY_RECLEN);
+  const lastIsEmpty = lastRec[0] === 0x5A && lastRec[1] === 0x5A && lastRec[2] === 0x5A
+    && lastRec[3] === 0x5A && lastRec[4] === 0x95 && lastRec[5] === 0x00;
+  const lastIsKey = keyKindForFlag(lastRec[5]) !== null;
+  const lastIsBoundary = !lastIsEmpty && !lastIsKey;
+
   const slots = [];
   let keyCount = 0;
   let unknownCount = 0;
@@ -348,22 +379,24 @@ export function parseCharKeyTable(bytes) {
     const off = slotOffset(i);
     const mirrorOffset = off + CHAR_KEY_MIRROR_OFFSET;
     const raw = bytes.slice(off, off + CHAR_KEY_RECLEN);
-    const state = classifySlot(bytes, off);
+    // Slot 8 boundary marker: treat as non-writable, non-key
+    const isBoundarySlot = (i === CHAR_KEYTABLE_SLOTS - 1) && lastIsBoundary;
+    const state = isBoundarySlot ? 'boundary' : classifySlot(bytes, off);
     const empty = state === 'empty';
-    const mirrorOk = recordsMatch(bytes, off, mirrorOffset);
-    const keyId = empty ? null : revUidToKeyId(raw);
+    const mirrorOk = isBoundarySlot ? false : recordsMatch(bytes, off, mirrorOffset);
+    const keyId = (empty || isBoundarySlot) ? null : revUidToKeyId(raw);
     const indexLow = raw[4];
     const flag = raw[5];
     // keyKind distinguishes the present-key sub-family ('hitag2' for flag 0x01,
-    // 'alt' for flag 0x03). null for empty/unknown slots. Lets callers tell the
-    // recognized alternate-family keys apart from base Hitag2 keys without
-    // re-deriving it from the flag byte.
+    // 'alt' for flag 0x03). null for empty/unknown/boundary slots. Lets callers
+    // tell the recognized alternate-family keys apart from base Hitag2 keys
+    // without re-deriving it from the flag byte.
     const keyKind = state === 'key' ? keyKindForFlag(flag) : null;
     if (state === 'key') keyCount++;
     else if (state === 'unknown') unknownCount++;
     slots.push({ slot: i + 1, offset: off, mirrorOffset, empty, state, keyKind, mirrorOk, keyId, indexLow, flag, raw });
   }
-  return { ok: true, slots, keyCount, unknownCount };
+  return { ok: true, slots, keyCount, unknownCount, hasBoundarySlot: lastIsBoundary };
 }
 
 /** firstFreeCharSlot(bytes) → 0-based slot idx | -1
