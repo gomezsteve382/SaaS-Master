@@ -321,7 +321,10 @@
 - [x] Vitest tests for profile DB lookup and service execution logic (16 tests)
 
 ## BCM Config Data Parser (Jun 9, 2026)
-- [ ] Build bcmConfigParser.js: parse DID 2023 (Proxy VIN Data) response bytes into equipped/not-equipped module map
-- [ ] Build BcmConfigPanel.jsx: display module equipment status with EQUIPPED/NOT EQUIPPED badges
-- [ ] Wire BcmConfigPanel into CdaJ2534Tab Read Data tab when BCM is selected
-- [ ] Write vitest tests for bcmConfigParser.js
+- [x] Build bcmModuleManifest.js: parse TIPM 3B04/3B05/3B0B/3B0C + BCM 0123/2023 into equipped/not-equipped module map
+- [x] Build VehicleModuleManifestPanel.jsx: display module equipment status with EQUIPPED/NOT EQUIPPED badges
+- [x] Wire VehicleModuleManifestPanel into CdaJ2534Tab as MODULE MAP tab (reads 6 DIDs from TIPM + BCM)
+- [x] Write vitest tests for bcmModuleManifest.js (16 bit-extraction tests, all passing)
+
+## Scan All Relay Wiring (Jun 9, 2026)
+- [x] Wire Scan All button to relay: fire 10 03 (+ 10 01 fallback) to each of 22 modules in sequence, update ECU list status badges live (RESPONDED / NO RESPONSE), SCANNING... button state during run

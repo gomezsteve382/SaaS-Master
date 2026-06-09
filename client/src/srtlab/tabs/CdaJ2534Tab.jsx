@@ -198,7 +198,7 @@ function AdapterPanel({ bridgeUrl, setBridgeUrl, connected, onConnect, onDisconn
 /* ─── ECU List ───────────────────────────────────────────────────────── */
 const SCAN_STATES = { idle: '—', pending: '⏳', ok: '✅', no_resp: '❌', error: '⚠️' };
 
-function EcuList({ selected, onSelect, scanStates, onScan, onScanAll, connected }) {
+function EcuList({ selected, onSelect, scanStates, onScan, onScanAll, connected, scanningAll }) {
   return (
     <div style={{
       width: 220, minWidth: 180, background: C.dk2, borderRight: `1px solid #2a2a2a`,
@@ -209,7 +209,9 @@ function EcuList({ selected, onSelect, scanStates, onScan, onScanAll, connected 
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <span style={{ fontSize: 11, fontWeight: 900, color: C.a3, letterSpacing: 1 }}>ECU LIST</span>
-        <Btn small color={C.a3} disabled={!connected} onClick={onScanAll}>SCAN ALL</Btn>
+        <Btn small color={C.a3} disabled={!connected || scanningAll} onClick={onScanAll}>
+            {scanningAll ? 'SCANNING...' : 'SCAN ALL'}
+          </Btn>
       </div>
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {CDA_MODULES.map(mod => {
@@ -839,6 +841,7 @@ export default function CdaJ2534Tab() {
   const [activeTab, setActiveTab] = useState('readdata');
   const [logEntries, setLogEntries] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [scanningAll, setScanningAll] = useState(false);
   const [manifest, setManifest] = useState(null);
   const [manifestReading, setManifestReading] = useState(false);
 
@@ -902,24 +905,41 @@ export default function CdaJ2534Tab() {
     addLog({ dir: 'ERR', hex: '—', label: 'Disconnected' });
   }, [bridgeUrl, addLog]);
 
-  /* Scan single module */
+  /* Scan single module — uses 10 03 (Extended Diagnostic Session) to match CDAJ2534 */
   const scanModule = useCallback(async (mod) => {
     if (!connected) return;
     setScanStates(prev => ({ ...prev, [mod.name]: 'pending' }));
     const tx = `0x${mod.tx.toString(16)}`;
     const rx = `0x${mod.rx.toString(16)}`;
-    addLog({ dir: 'TX', hex: '10 01', label: `Scan ${mod.name}` });
-    const r = await udsRequest('10 01', tx, rx, bridgeUrl, 1500);
+    addLog({ dir: 'TX', hex: '10 03', label: `Scan ${mod.name}` });
+    const r = await udsRequest('10 03', tx, rx, bridgeUrl, 1500);
     addLog({ dir: r.ok ? 'RX' : 'ERR', hex: r.raw, label: `Scan ${mod.name}` });
-    setScanStates(prev => ({ ...prev, [mod.name]: r.ok ? 'ok' : 'no_resp' }));
+    // Also try 10 01 (Default Session) as fallback if 10 03 gets no response
+    if (!r.ok) {
+      addLog({ dir: 'TX', hex: '10 01', label: `Scan ${mod.name} (fallback)` });
+      const r2 = await udsRequest('10 01', tx, rx, bridgeUrl, 1500);
+      addLog({ dir: r2.ok ? 'RX' : 'ERR', hex: r2.raw, label: `Scan ${mod.name} (fallback)` });
+      setScanStates(prev => ({ ...prev, [mod.name]: r2.ok ? 'ok' : 'no_resp' }));
+      return;
+    }
+    setScanStates(prev => ({ ...prev, [mod.name]: 'ok' }));
   }, [connected, bridgeUrl, addLog]);
 
-  /* Scan all modules */
+  /* Scan all modules in sequence — fires 10 03 (then 10 01 fallback) to all 22 modules */
   const scanAll = useCallback(async () => {
+    if (!connected || scanningAll) return;
+    setScanningAll(true);
+    // Reset all states to pending first for visual feedback
+    const pending = {};
+    CDA_MODULES.forEach(m => { pending[m.name] = 'pending'; });
+    setScanStates(pending);
+    addLog({ dir: 'TX', hex: '—', label: `Scanning all ${CDA_MODULES.length} modules...` });
     for (const mod of CDA_MODULES) {
       await scanModule(mod);
     }
-  }, [scanModule]);
+    addLog({ dir: 'RX', hex: '—', label: 'Scan complete' });
+    setScanningAll(false);
+  }, [connected, scanningAll, scanModule, addLog]);
 
   /* Save session to DB after a run */
   const handleSaveSession = useCallback(async (outcome = 'ok', errorMessage = null) => {
@@ -962,6 +982,7 @@ export default function CdaJ2534Tab() {
           onScan={scanModule}
           onScanAll={scanAll}
           connected={connected}
+          scanningAll={scanningAll}
         />
 
         {/* Workspace */}
