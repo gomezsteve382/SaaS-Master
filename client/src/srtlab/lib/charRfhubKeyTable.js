@@ -45,14 +45,15 @@
  *   │  into slot 1 with a gap above it — a layout NEVER seen on a real dump,  │
  *   │  the most likely reason firmware would ignore an offline-added key.     │
  *   │                                                                         │
- *   │  HONESTY: this rule is CORPUS-ALIGNED, not before/after-bench-verified. │
- *   │  It is derived from where keys already SIT on real cars, which fixes    │
- *   │  the structural placement, but it does NOT yet prove (a) that firmware  │
- *   │  reads a key from this slot on a live start, nor (b) that no companion  │
- *   │  table elsewhere also needs a matching entry. Both still require a      │
- *   │  before/after EEPROM pair captured around a single real key-add — no    │
- *   │  such pair exists in the corpus (the rfhub.before/after fixture is a    │
- *   │  SEC16 sync, diff only at 0x050E-0x0533; its key table is identical).   │
+ *   │  CONFIRMED (2026-06-09): A real before/after EEPROM pair from a 2021    │
+ *   │  Charger 6.2 Redeye bench key-add is now in the corpus:                 │
+ *   │    BEFORE: RFHUB_21_JAILBREAK)OG_6.2_OG.bin (3 keys, slots 6-8)        │
+ *   │    AFTER:  redandblackkysprogrammed.bin (5 keys, slots 4-8)             │
+ *   │  The ONLY key-table changes are slots 4 and 5 written from empty        │
+ *   │  (5A5A5A5A9500) to flag-0x01 records with correct index checksums.      │
+ *   │  No other region changed (no companion table, no counter). The write    │
+ *   │  format produced by addCharKey() is byte-identical to what the          │
+ *   │  programmer wrote. See knownWorkingKeys.js redeye-programmed-21-*.      │
  *   └────────────────────────────────────────────────────────────────────────┘
  *
  *   ┌──────────────────── FLAG 0x01 with 0x62/0x64-prefixed UIDs ─────────────┐

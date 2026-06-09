@@ -276,6 +276,51 @@ export const KNOWN_WORKING_KEYS = Object.freeze([
     }),
   ),
 
+  /* ---------------------- 2021 Charger 6.2 Redeye -- PROGRAMMED keys (flag 0x01) ---
+   * VIN unknown (RFHUB SEC16 = AB8015D77ED943C1AB45EC16896969DA). These two keys
+   * were BENCH-CONFIRMED added to a 2021 Charger 6.2 Redeye RFHUB that already had
+   * 3 flag-0x03 keys in slots 6-8. The before/after EEPROM pair is:
+   *   BEFORE: RFHUB_21_JAILBREAK)OG_6.2_OG.bin -- 3 keys (slots 6-8, flag 0x03)
+   *   AFTER:  redandblackkysprogrammed.bin / redandblackkysprogrammed_afterprogrammed.bin
+   *           -- 5 keys (slots 4-5 flag 0x01 ADDED + slots 6-8 flag 0x03 unchanged)
+   * The ONLY changes in the key table region between before and after are:
+   *   Slot4 0x0C8E: 5A5A5A5A9500 -> 647E5ED5E601 (+ mirror)
+   *   Slot5 0x0C9E: 5A5A5A5A9500 -> 654E32CF4801 (+ mirror)
+   * Both records are flag 0x01 (HITAG 2 / PCF7945/53), mirror-verified, index
+   * checksum valid (deriveCharKeyIndex passes). This is the first BEFORE/AFTER
+   * EEPROM pair in the corpus that proves the key-add write format is correct.
+   * Chip ID CF324E65 (slot5) is the same key previously registered as blank-ref
+   * (factory-blank 2021 Redeye red key) -- this pair confirms it was programmed
+   * into a running car with flag 0x01 at slot5.
+   * VIN unknown -- no BCM paired to this RFHUB in the corpus.
+   * -------------------------------------------------------------------------- */
+  ...([
+    { keyId: 'D55E7E64', revUid: '647E5ED5', tableIndex: deriveCharKeyIndex('D55E7E64'), tableAddr: 0x0C8E, slot: 4 },
+    { keyId: 'CF324E65', revUid: '654E32CF', tableIndex: deriveCharKeyIndex('CF324E65'), tableAddr: 0x0C9E, slot: 5 },
+  ].map((k) =>
+    Object.freeze({
+      id: `redeye-programmed-21-${k.keyId}`,
+      vin: null,
+      keyId: k.keyId,
+      revUid: k.revUid,
+      chipId: 'pcf7953',
+      sk: '4F4E4D494B52',
+      keyKind: 'standard',
+      flags: Object.freeze({ locked: false, coding: 'manchester', encryption: true, cloneable: true }),
+      tableIndex: k.tableIndex,
+      tableFlag: 0x01,
+      tableAddr: k.tableAddr,
+      vehicle: '2021 Charger 6.2 Redeye (RFHUB EEPROM, flag 0x01, bench-confirmed key-add)',
+      provenance:
+        `BENCH-CONFIRMED key-add. Flag 0x01, mirror-verified, at slot ${k.slot} / ` +
+        `0x${k.tableAddr.toString(16).toUpperCase()} in redandblackkysprogrammed.bin. ` +
+        `Before/after EEPROM pair (RFHUB_21_JAILBREAK)OG_6.2_OG.bin vs redandblackkysprogrammed.bin) ` +
+        `shows this exact record written from empty (5A5A5A5A9500) to this value. ` +
+        `First corpus-confirmed key-add write proof. SEC16=AB8015D77ED943C1AB45EC16896969DA. ` +
+        `SK = MIKRON default placeholder (no per-chip Autel page read for this UID). 2026-06-09.`,
+    }),
+  )),
+
   /* ---------------------- Blank key reference -- 2021 Redeye (CF324E65) ------
    * A factory-blank 2021 Charger 6.2 Redeye red key read on Autel (2026-06-04).
    * Chip ID CF324E65, HITAG AES / PCF7953 family. SK0-SK3 = factory test pattern
@@ -283,6 +328,8 @@ export const KNOWN_WORKING_KEYS = Object.freeze([
    * This entry is a BLANK KEY REFERENCE -- it is NOT a paired/working key.
    * It is stored so the HitagAesTab can cross-reference a blank key read against
    * the known blank profile and confirm the key is ready to program.
+   * NOTE: The before/after pair above (redeye-programmed-21-CF324E65) proves this
+   * same Chip ID was programmed into a running 2021 Redeye with flag 0x01 at slot5.
    * -------------------------------------------------------------------------- */
   Object.freeze({
     id: 'blank-ref-redeye-CF324E65',
@@ -379,6 +426,75 @@ export const PENDING_ALT_FAMILY_KEYS = Object.freeze(
     }),
   ),
 );
+
+/* ======================== CHIP READ REGISTRY -- PCF7945/53 Red Key (2021 Redeye) =====
+ * Autel HITAG 2 page reads from real 2021 Charger 6.2 Redeye red keys (PCF7945/53).
+ * Collected 2026-06-09. All keys use MIKRON default SK (4D494B52 / 00004F4E) --
+ * none have a custom SK, so all are freely writable via Autel without SK auth.
+ *
+ * BLANK profile (confirmed from CF324E65, bench-read 2026-06-04):
+ *   Config = 00000000, Page0 = 00000000, Page1 = 00000000, Page2 = 00000000, Page3 = 00000000
+ *
+ * VIRGINIZE procedure: write Config + Page0-3 = 00000000. SK stays untouched.
+ *
+ * Programmed page patterns observed across 4 keys:
+ *   Config: 08AA4854 (3/4 keys) or 00AA4854 (1/4) -- FCA standard config byte
+ *   Page1:  50207755 (3/4 keys) -- likely fixed FCA programmer value
+ *   Page2:  01000000 (2/4 keys) -- likely fixed FCA programmer value
+ *   Page0 + Page3: chip-unique (transponder secret / rolling counter derivative)
+ * =================================================================================== */
+export const PCF7945_53_CHIP_READS = Object.freeze([
+  /* CF324E65 -- BLANK reference (bench-read 2026-06-04, never programmed) */
+  Object.freeze({
+    chipId: 'CF324E65', chipType: 'PCF7945/53', state: 'blank',
+    lowSk: '4D494B52', highSk: '00004F4E',
+    config: '00000000', page0: '00000000', page1: '00000000', page2: '00000000', page3: '00000000',
+    note: 'Factory-blank 2021 Redeye red key. All pages zero. Confirmed blank reference.',
+  }),
+  /* 195A209F -- programmed (bench-read 2026-06-09) */
+  Object.freeze({
+    chipId: '195A209F', chipType: 'PCF7945/53', state: 'programmed',
+    lowSk: '4D494B52', highSk: '00004F4E',
+    config: '08AA4854', page0: 'A0DD99E6', page1: '50207755', page2: '01000000', page3: 'FF680000',
+    note: 'Programmed 2021 Redeye red key. Config=08AA4854 (standard FCA). Page0+Page3 chip-unique.',
+  }),
+  /* E5F40E9F -- programmed (bench-read 2026-06-09) */
+  Object.freeze({
+    chipId: 'E5F40E9F', chipType: 'PCF7945/53', state: 'programmed',
+    lowSk: '4D494B52', highSk: '00004F4E',
+    config: '00AA4854', page0: '00000000', page1: '00012C4E', page2: '111F2C4E', page3: '01142C4E',
+    note: 'Programmed 2021 Redeye red key. Config=00AA4854 (variant). Different page pattern -- possibly different programmer or vehicle.',
+  }),
+  /* 437C2C9F -- programmed (bench-read 2026-06-09) */
+  Object.freeze({
+    chipId: '437C2C9F', chipType: 'PCF7945/53', state: 'programmed',
+    lowSk: '4D494B52', highSk: '00004F4E',
+    config: '08AA4854', page0: 'AABBCCDD', page1: '50207755', page2: '00000000', page3: 'FF6CEA60',
+    note: 'Programmed 2021 Redeye red key. Page0=AABBCCDD (test/placeholder pattern). Page1 matches FCA standard.',
+  }),
+  /* 0077A29B -- programmed (bench-read 2026-06-09) */
+  Object.freeze({
+    chipId: '0077A29B', chipType: 'PCF7945/53', state: 'programmed',
+    lowSk: '4D494B52', highSk: '00004F4E',
+    config: '08AA4854', page0: 'FFFFFFFF', page1: '50207755', page2: '01000000', page3: 'FF6E5500',
+    note: 'Programmed 2021 Redeye red key. Page0=FFFFFFFF (erased/uninit). Page1+Page2 match FCA standard.',
+  }),
+]);
+
+/**
+ * Returns the confirmed blank page profile for PCF7945/53 red keys.
+ * Write all returned fields to the chip via Autel to virginize.
+ */
+export const PCF7945_53_VIRGIN_PROFILE = Object.freeze({
+  config: '00000000',
+  page0: '00000000',
+  page1: '00000000',
+  page2: '00000000',
+  page3: '00000000',
+  lowSk: '4D494B52',  // MIKRON default -- do NOT change
+  highSk: '00004F4E', // MIKRON default -- do NOT change
+  note: 'Confirmed blank profile from CF324E65 bench read (2026-06-04). SK stays at MIKRON default.',
+});
 
 /* Normalize a hex token the same way dedupeKey / validateKeyRecord do: strip
  * separators + an optional 0x prefix, uppercase. */

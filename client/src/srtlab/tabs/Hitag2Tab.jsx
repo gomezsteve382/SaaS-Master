@@ -21,6 +21,7 @@ import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
 import VehicleYearGuard from '../components/VehicleYearGuard.jsx';
+import { PCF7945_53_VIRGIN_PROFILE } from '../lib/keyWriter/knownWorkingKeys.js';
 
 /* ─── blank reference storage (same pattern as HitagAesTab) ─── */
 const BLANK_REFS_KEY = 'srt-lab.hitag2.blank-refs.v1';
@@ -602,6 +603,66 @@ export default function Hitag2Tab({ vehicle }) {
           </Card>
         </div>
       </div>
+
+      {/* ─── Virginize Key Panel ─── */}
+      <Card style={{ marginTop: 16, background: '#0d1117', border: '1px solid #2d3748' }}>
+        <div style={{ fontWeight: 700, color: '#F59E0B', fontSize: 13, marginBottom: 4, letterSpacing: 1 }}>
+          🔓 VIRGINIZE KEY — Restore to Factory Blank
+        </div>
+        <div style={{ color: '#888', fontSize: 11, marginBottom: 14, lineHeight: 1.6 }}>
+          Confirmed blank profile for 2021 Charger 6.2 Redeye red keys (PCF7945/53, HITAG 2).
+          Write these values via Autel to restore a programmed key to factory-blank state.
+          <strong style={{ color: '#F59E0B' }}> SK stays at MIKRON default — do not change it.</strong>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 14 }}>
+          {[['CONFIG PAGE', PCF7945_53_VIRGIN_PROFILE.config, '#F59E0B'],
+            ['PAGE 0',      PCF7945_53_VIRGIN_PROFILE.page0,  '#60A5FA'],
+            ['PAGE 1',      PCF7945_53_VIRGIN_PROFILE.page1,  '#60A5FA'],
+            ['PAGE 2',      PCF7945_53_VIRGIN_PROFILE.page2,  '#60A5FA'],
+            ['PAGE 3',      PCF7945_53_VIRGIN_PROFILE.page3,  '#60A5FA'],
+          ].map(([label, val, col]) => (
+            <div key={label} style={{ background: '#0a0a0a', border: '1px solid #2a2a2a', borderRadius: 6, padding: '8px 12px' }}>
+              <div style={{ color: '#555', fontSize: 10, letterSpacing: 1, marginBottom: 4 }}>{label}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontFamily: 'monospace', fontSize: 15, color: col, fontWeight: 700, flex: 1 }}>{val}</span>
+                <Btn
+                  onClick={() => copy(val, 'vg-' + label)}
+                  style={{ fontSize: 10, padding: '3px 8px', flexShrink: 0 }}
+                >
+                  {copied === 'vg-' + label ? '✓' : 'Copy'}
+                </Btn>
+              </div>
+            </div>
+          ))}
+
+          {/* SK — read-only, do not change */}
+          <div style={{ background: '#0a0a0a', border: '1px solid #1a3a1a', borderRadius: 6, padding: '8px 12px' }}>
+            <div style={{ color: '#555', fontSize: 10, letterSpacing: 1, marginBottom: 4 }}>LOW SK — DO NOT CHANGE</div>
+            <div style={{ fontFamily: 'monospace', fontSize: 15, color: '#34D399', fontWeight: 700 }}>{PCF7945_53_VIRGIN_PROFILE.lowSk}</div>
+            <div style={{ color: '#444', fontSize: 10, marginTop: 2 }}>MIKRON default — leave as-is</div>
+          </div>
+          <div style={{ background: '#0a0a0a', border: '1px solid #1a3a1a', borderRadius: 6, padding: '8px 12px' }}>
+            <div style={{ color: '#555', fontSize: 10, letterSpacing: 1, marginBottom: 4 }}>HIGH SK — DO NOT CHANGE</div>
+            <div style={{ fontFamily: 'monospace', fontSize: 15, color: '#34D399', fontWeight: 700 }}>{PCF7945_53_VIRGIN_PROFILE.highSk}</div>
+            <div style={{ color: '#444', fontSize: 10, marginTop: 2 }}>MIKRON default — leave as-is</div>
+          </div>
+        </div>
+
+        {/* Step-by-step instructions */}
+        <div style={{ background: '#0a0f1a', border: '1px solid #1e3a5f', borderRadius: 6, padding: '10px 14px', fontSize: 11, color: '#aaa', lineHeight: 1.8 }}>
+          <div style={{ color: '#60A5FA', fontWeight: 700, marginBottom: 6, fontSize: 12 }}>Autel Virginize Procedure</div>
+          <div>1. Open Autel → HITAG 2 → Chip info</div>
+          <div>2. Verify Low SK = <span style={{ fontFamily: 'monospace', color: '#34D399' }}>4D494B52</span> and High SK = <span style={{ fontFamily: 'monospace', color: '#34D399' }}>4F4E</span> (MIKRON default). If different, the key has a custom SK and cannot be freely written.</div>
+          <div>3. Write Config page → <span style={{ fontFamily: 'monospace', color: '#F59E0B' }}>00000000</span></div>
+          <div>4. Write Page 0 → <span style={{ fontFamily: 'monospace', color: '#60A5FA' }}>00000000</span></div>
+          <div>5. Write Page 1 → <span style={{ fontFamily: 'monospace', color: '#60A5FA' }}>00000000</span></div>
+          <div>6. Write Page 2 → <span style={{ fontFamily: 'monospace', color: '#60A5FA' }}>00000000</span></div>
+          <div>7. Write Page 3 → <span style={{ fontFamily: 'monospace', color: '#60A5FA' }}>00000000</span></div>
+          <div>8. Read back all pages to confirm all zeros. Key is now virgin and ready to program to a new vehicle.</div>
+          <div style={{ marginTop: 8, color: '#666' }}>Confirmed blank profile source: Chip ID CF324E65, bench-read 2026-06-04. 4 programmed keys cross-referenced 2026-06-09.</div>
+        </div>
+      </Card>
 
       {/* Chip type info banner */}
       <Card style={{ marginTop: 16, background: '#0a0a0a' }}>
