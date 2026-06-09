@@ -319,3 +319,9 @@
 - [x] Add tRPC procedures: cdaj2534.saveSession, cdaj2534.listSessions, cdaj2534.getSession
 - [x] DB schema: cdaj2534_sessions table (module, profile, services_run, log, timestamp)
 - [x] Vitest tests for profile DB lookup and service execution logic (16 tests)
+
+## BCM Config Data Parser (Jun 9, 2026)
+- [ ] Build bcmConfigParser.js: parse DID 2023 (Proxy VIN Data) response bytes into equipped/not-equipped module map
+- [ ] Build BcmConfigPanel.jsx: display module equipment status with EQUIPPED/NOT EQUIPPED badges
+- [ ] Wire BcmConfigPanel into CdaJ2534Tab Read Data tab when BCM is selected
+- [ ] Write vitest tests for bcmConfigParser.js

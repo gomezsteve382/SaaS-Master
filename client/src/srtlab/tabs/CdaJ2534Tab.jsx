@@ -23,6 +23,8 @@ import {
 import { CDA_MODULES } from '../lib/cdaModuleMap.js';
 import { getProfileByEcu } from '../lib/cdaProfiles.js';
 import { trpc } from '../../lib/trpc';
+import VehicleModuleManifestPanel from '../components/VehicleModuleManifestPanel.jsx';
+import { buildModuleManifest, MANIFEST_REQUIRED_DIDS } from '../lib/bcmModuleManifest.js';
 
 /* ─── Design tokens (match App.jsx palette) ─────────────────────────── */
 const C = {
@@ -821,6 +823,7 @@ function SessionHistoryPanel({ onClose }) {
 /* ─── Main Tab ───────────────────────────────────────────────────────── */
 const WORKSPACE_TABS_CDA = [
   { id: 'readdata',   label: 'READ DATA',   icon: '📊' },
+  { id: 'manifest',   label: 'MODULE MAP',  icon: '🗺️' },
   { id: 'dtcs',       label: 'DTCs',        icon: '⚠️' },
   { id: 'routines',   label: 'ROUTINES',    icon: '⚙️' },
   { id: 'unlock',     label: 'ECU UNLOCK',  icon: '🔓' },
@@ -836,8 +839,39 @@ export default function CdaJ2534Tab() {
   const [activeTab, setActiveTab] = useState('readdata');
   const [logEntries, setLogEntries] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [manifest, setManifest] = useState(null);
+  const [manifestReading, setManifestReading] = useState(false);
 
   const saveSession = trpc.cdaj2534.saveSession.useMutation();
+
+  /* Read all manifest DIDs from TIPM + BCM and build the module manifest */
+  const readManifestDids = useCallback(async () => {
+    if (!connected) return;
+    setManifestReading(true);
+    const responses = {};
+    // TIPM DIDs
+    const tipmTx = `0x${(0x740).toString(16)}`;
+    const tipmRx = `0x${(0x760).toString(16)}`;
+    // BCM DIDs
+    const bcmTx = `0x${(0x750).toString(16)}`;
+    const bcmRx = `0x${(0x758).toString(16)}`;
+    for (const { did, request, label } of MANIFEST_REQUIRED_DIDS) {
+      const isBcm = did.startsWith('01') || did.startsWith('20');
+      const tx = isBcm ? bcmTx : tipmTx;
+      const rx = isBcm ? bcmRx : tipmRx;
+      addLog({ dir: 'TX', hex: request, label: `Manifest: ${label}` });
+      const r = await udsRequest(request, tx, rx, bridgeUrl, 2500);
+      addLog({ dir: r.ok ? 'RX' : 'ERR', hex: r.raw, label });
+      if (r.ok) {
+        // Convert hex string to Uint8Array
+        const bytes = (r.raw.replace(/\s/g, '').match(/.{2}/g) || []).map(b => parseInt(b, 16));
+        responses[did] = new Uint8Array(bytes);
+      }
+    }
+    const built = buildModuleManifest(responses);
+    setManifest(built);
+    setManifestReading(false);
+  }, [connected, bridgeUrl, addLog]);
 
   const addLog = useCallback((entry) => {
     setLogEntries(prev => [...prev.slice(-499), {
@@ -993,6 +1027,15 @@ export default function CdaJ2534Tab() {
             )}
             {activeTab === 'unlock' && (
               <EcuUnlockTab module={selectedModule} connected={connected} bridgeUrl={bridgeUrl} onLog={addLog} />
+            )}
+            {activeTab === 'manifest' && (
+              <div style={{ padding: 16, overflowY: 'auto', flex: 1 }}>
+                <VehicleModuleManifestPanel
+                  manifest={manifest}
+                  onReadAll={readManifestDids}
+                  isReading={manifestReading}
+                />
+              </div>
             )}
             {activeTab === 'calibration' && (
               <CalibrationTab module={selectedModule} profile={profile} connected={connected} bridgeUrl={bridgeUrl} onLog={addLog} />
