@@ -85,8 +85,7 @@ import FirmwareEmulationTab from "./tabs/FirmwareEmulationTab.jsx";
 import RfhubKeyTransplantPanel from "./components/RfhubKeyTransplantPanel.jsx";
 import QuickCloneTab from "./tabs/QuickCloneTab.jsx";
 import KeyImporterTab from "./tabs/KeyImporterTab.jsx";
-import FreshAutoKeyImporterTab from "./tabs/FreshAutoKeyImporterTab.jsx";
-import KeyImporterRouter from "./tabs/KeyImporterRouter.jsx";
+import GoatMezKeyImporterTab from "./tabs/GoatMezKeyImporterTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import { parseAutelKeyOcr, buildKeySlot, writeKeySlotToRfhub, listRfhubKeySlots } from "./lib/keyImporter.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
@@ -948,7 +947,7 @@ const WORKSPACE_TABS = [
   {id:'keymgr',     i:'🗝️', l:'KEY MGR',          s:'Dual-file RFHUB fob transfer'},
   {id:'keytransplant', i:'🔑', l:'KEY TRANSPLANT', s:'Donor → Target RFHUB · auth sector + ring buffer · no OBD'},
   {id:'quickclone', i:'⚡', l:'QUICK CLONE',      s:'VIN + Security + Keys · 3-step guided wizard'},
-  {id:'keyimporter', i:'📸', l:'KEY IMPORTER',      s:'Auto-detect RFHUB type & import keys from Autel'},
+  {id:'keyimporter', i:'📸', l:'GoatMez Key Importer', s:'Add transponder key to RFHUB from Autel/Xhorse photo'},
   {id:'livekey',    i:'🔑', l:'LIVE KEYS',        s:'OBD PIN extract · key prog · SKREEM'},
   {id:'jailbreak',  i:'💀', l:'JAILBREAK',        s:'SRT · Demon · Hellcat · Redeye'},
   {id:'seed',       i:'🔑', l:'SEED→KEY',         s:'14 Algorithms'},
@@ -1267,7 +1266,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='keymgr'    && <KeyManagerTab vehicle={vehicle}/>}
         {tab==='keytransplant' && <div style={{padding:24,maxWidth:900,margin:'0 auto'}}><RfhubKeyTransplantPanel/></div>}
         {tab==='quickclone' && <QuickCloneTab vehicle={vehicle}/>}
-        {tab==='keyimporter' && <KeyImporterRouter/>}
+        {tab==='keyimporter' && <GoatMezKeyImporterTab/>}
         {tab==='livekey'   && <LiveKeyTab/>}
         {tab==='ecm'       && <EcmTab vehicle={vehicle}/>}
         {tab==='smartbox'  && <SmartBoxTab/>}

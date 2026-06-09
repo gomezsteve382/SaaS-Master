@@ -268,3 +268,16 @@
 - [x] Unified KeyImporterRouter tab: upload RFHUB, auto-detect type, route to correct importer (MPC or FreshAuto) (KeyImporterRouter.jsx)
 - [x] Update App.jsx to replace separate tabs with unified router
 - [x] Updated KeyImporterTab and FreshAutoKeyImporterTab to accept preloaded RFHUB from router
+
+## GoatMez Key Importer Rewrite (Jun 9)
+- [x] Rewrote Key Importer to use correct addCharKey() from charRfhubKeyTable.js
+- [x] Uses Chip ID (from Autel OCR) as Key ID — byte-reversed for storage
+- [x] Auto-derives index byte via mod-255 checksum (deriveCharKeyIndex)
+- [x] Highest-free-slot placement (keys pack toward slot 8)
+- [x] 6-byte record format: [4B UID rev][1B idx][1B flag] + mirror copy
+- [x] Renamed to 'GoatMez Key Importer' in sidebar nav
+- [x] Removed old FreshAuto/KeyImporterRouter routing — single unified tab
+- [x] Key table state grid shows all 8 slots with populated/empty status
+- [x] Hex view shows 128-byte table window with changed bytes highlighted in red
+- [x] Manual Key ID entry field with auto-derived index preview
+- [x] All 346 tests pass, build clean
