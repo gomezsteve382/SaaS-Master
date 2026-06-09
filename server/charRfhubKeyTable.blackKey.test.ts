@@ -198,3 +198,104 @@ describe('charRfhubKeyTable — virgin RFHUB.bin file regression', () => {
     expect(data[off + CHAR_KEY_MIRROR_OFFSET + 5]).toBe(0x03);
   });
 });
+
+describe('charRfhubKeyTable — virginizeCharKeyTable', () => {
+  it('virginizeCharKeyTable: erases all 6 keys from RFHUB_EEE.bin', async () => {
+    const { virginizeCharKeyTable, parseCharKeyTable } = await import(libPath);
+    const eeeFile = resolve(ROOT, 'upload/RFHUB_EEE.bin');
+    if (!existsSync(eeeFile)) {
+      console.warn('Skipping: RFHUB_EEE.bin not found');
+      return;
+    }
+    const before = new Uint8Array(readFileSync(eeeFile));
+    const r = virginizeCharKeyTable(before);
+    expect(r.ok).toBe(true);
+    expect(r.keyCountBefore).toBe(6);
+    expect(r.erasedKeys).toHaveLength(6);
+    // Re-parse the output — should have 0 keys and 8 free slots
+    const after = parseCharKeyTable(r.bytes);
+    expect(after.ok).toBe(true);
+    expect(after.keyCount).toBe(0);
+    expect(after.slots.every((s: any) => s.empty)).toBe(true);
+  });
+
+  it('virginizeCharKeyTable: all 8 slots set to EMPTY_TEMPLATE in primary and mirror', async () => {
+    const { virginizeCharKeyTable } = await import(libPath);
+    const buf = makeVirginRfhub();
+    // Put one key in slot 8 (already done by makeVirginRfhub's uninit, but let's use a real key)
+    const { addCharKey, CHAR_KEY_FLAG_ALT } = await import(libPath);
+    const withKey = addCharKey(buf, { keyId: '8748C092', flag: CHAR_KEY_FLAG_ALT });
+    expect(withKey.ok).toBe(true);
+    const r = virginizeCharKeyTable(withKey.bytes);
+    expect(r.ok).toBe(true);
+    for (let i = 0; i < 8; i++) {
+      const off = slotOffset(i);
+      const primary = Array.from(r.bytes.slice(off, off + CHAR_KEY_RECLEN));
+      const mirror  = Array.from(r.bytes.slice(off + CHAR_KEY_MIRROR_OFFSET, off + CHAR_KEY_MIRROR_OFFSET + CHAR_KEY_RECLEN));
+      expect(primary).toEqual(EMPTY_TEMPLATE);
+      expect(mirror).toEqual(EMPTY_TEMPLATE);
+    }
+  });
+
+  it('virginizeCharKeyTable: bytes outside key table are unchanged', async () => {
+    const { virginizeCharKeyTable } = await import(libPath);
+    const eeeFile = resolve(ROOT, 'upload/RFHUB_EEE.bin');
+    if (!existsSync(eeeFile)) {
+      console.warn('Skipping: RFHUB_EEE.bin not found');
+      return;
+    }
+    const before = new Uint8Array(readFileSync(eeeFile));
+    const r = virginizeCharKeyTable(before);
+    expect(r.ok).toBe(true);
+    // Bytes before key table should be identical
+    const TABLE_START = CHAR_KEYTABLE_BASE;
+    const TABLE_END   = CHAR_KEYTABLE_BASE + 8 * CHAR_KEYTABLE_STRIDE;
+    for (let i = 0; i < TABLE_START; i++) {
+      expect(r.bytes[i]).toBe(before[i]);
+    }
+    // Bytes after key table should be identical
+    for (let i = TABLE_END; i < before.length; i++) {
+      expect(r.bytes[i]).toBe(before[i]);
+    }
+  });
+
+  it('virginizeCharKeyTable: rejects non-RFHUB buffer', async () => {
+    const { virginizeCharKeyTable } = await import(libPath);
+    const junk = new Uint8Array(4096).fill(0xAA);
+    const r = virginizeCharKeyTable(junk);
+    expect(r.ok).toBe(false);
+    expect(r.error).toMatch(/not a recognized/i);
+  });
+});
+
+describe('charRfhubKeyTable — post-write verification logic', () => {
+  it('parseCharKeyTable on addCharKey output: slot matches expected flag and index', async () => {
+    const { addCharKey, parseCharKeyTable, CHAR_KEY_FLAG_ALT } = await import(libPath);
+    const buf = makeVirginRfhub();
+    const r = addCharKey(buf, { keyId: '8748C092', flag: CHAR_KEY_FLAG_ALT });
+    expect(r.ok).toBe(true);
+    const verify = parseCharKeyTable(r.bytes);
+    expect(verify.ok).toBe(true);
+    const writtenSlot = verify.slots.find((s: any) => s.slot === r.slot);
+    expect(writtenSlot).toBeDefined();
+    expect(writtenSlot.keyId).toBe('8748C092');
+    expect(writtenSlot.flag).toBe(0x03);
+    expect(writtenSlot.indexLow).toBe(0xD8);
+    expect(writtenSlot.mirrorOk).toBe(true);
+  });
+
+  it('parseCharKeyTable on addCharKey output: wrong flag (0x01) produces wrong index', async () => {
+    const { addCharKey, parseCharKeyTable, CHAR_KEY_FLAG_PRESENT } = await import(libPath);
+    const buf = makeVirginRfhub();
+    const r = addCharKey(buf, { keyId: '8748C092', flag: CHAR_KEY_FLAG_PRESENT });
+    expect(r.ok).toBe(true);
+    const verify = parseCharKeyTable(r.bytes);
+    expect(verify.ok).toBe(true);
+    const writtenSlot = verify.slots.find((s: any) => s.slot === r.slot);
+    expect(writtenSlot).toBeDefined();
+    expect(writtenSlot.flag).toBe(0x01);
+    expect(writtenSlot.indexLow).toBe(0xDA); // wrong index for black key
+    // Verify that flag 0x01 ≠ CHAR_KEY_FLAG_ALT (0x03)
+    expect(writtenSlot.flag).not.toBe(0x03);
+  });
+});

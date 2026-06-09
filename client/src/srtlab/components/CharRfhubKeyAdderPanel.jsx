@@ -24,6 +24,8 @@ import {
   parseCharKeyTable,
   isCharRfhubKeyTable,
   addCharKey,
+  virginizeCharKeyTable,
+  diffCharKeyTables,
   deriveCharKeyIndex,
   CHAR_KEY_DEFAULT_INDEX,
   CHAR_KEY_FLAG_PRESENT,
@@ -71,6 +73,9 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
   const [patched, setPatched] = useState(null);
+  const [writeVerification, setWriteVerification] = useState(null); // post-write parse result
+  const [virginizeAck, setVirginizeAck] = useState(false);
+  const [virginizeResult, setVirginizeResult] = useState(null);
 
   // Photo import (opt-in): read a Key ID off a photo of the key / programmer
   // readout via the api-server vision endpoint, then auto-fill the Key ID field.
@@ -224,7 +229,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
   const canAdd = tableOk && keyIdValid && indexVal != null && ack && freeSlots > 0;
 
   const onAdd = useCallback(() => {
-    setMsg(''); setErr('');
+    setMsg(''); setErr(''); setWriteVerification(null);
     if (!bytes) { setErr('No RFHUB dump loaded.'); return; }
     // Only pass indexLow when the operator overrode the auto-filled value;
     // otherwise let addCharKey derive it so indexDerived is reported truthfully.
@@ -238,12 +243,46 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
     dl(r.bytes, fname);
     setPatched({bytes: r.bytes, filename: fname});
     if (typeof onAdded === 'function') onAdded(r);
+    // Post-write verification: re-parse the output and find the written slot
+    const verify = parseCharKeyTable(r.bytes);
+    if (verify.ok) {
+      const writtenSlot = verify.slots.find(s => s.slot === r.slot);
+      const mirrorOk = writtenSlot ? writtenSlot.mirrorOk : false;
+      const flagOk = writtenSlot ? writtenSlot.flag === r.flag : false;
+      const indexOk = writtenSlot ? writtenSlot.indexLow === r.indexLow : false;
+      const keyIdOk = writtenSlot ? writtenSlot.keyId === r.keyId : false;
+      setWriteVerification({
+        pass: !!(writtenSlot && mirrorOk && flagOk && indexOk && keyIdOk),
+        slot: r.slot,
+        offset: r.offset,
+        mirrorOffset: r.mirrorOffset,
+        keyId: r.keyId,
+        flag: r.flag,
+        flagOk,
+        indexLow: r.indexLow,
+        indexOk,
+        mirrorOk,
+        keyIdOk,
+        keyCountAfter: r.keyCountAfter,
+      });
+    }
     setMsg(
       'Added key ' + r.keyId + ' to slot ' + r.slot + ' (index ' + hex2(r.indexLow) + ') at '
       + hexOff(r.offset) + ' + mirror ' + hexOff(r.mirrorOffset) + '. '
       + r.keyCountAfter + ' keys now present. Downloaded as ' + fname + '.'
     );
-  }, [bytes, keyId, indexVal, indexOverridden, baseName, onAdded]);
+  }, [bytes, keyId, indexVal, indexOverridden, baseName, onAdded, activeFlag]);
+
+  const onVirginize = useCallback(() => {
+    if (!bytes || !virginizeAck) return;
+    const r = virginizeCharKeyTable(bytes);
+    if (!r.ok) { setErr(r.error); return; }
+    const fname = baseName + '_VIRGINIZED.bin';
+    dl(r.bytes, fname);
+    setVirginizeResult({ erasedKeys: r.erasedKeys, keyCountBefore: r.keyCountBefore, filename: fname });
+    setVirginizeAck(false);
+    setMsg('RFHUB virginized: ' + r.keyCountBefore + ' key(s) erased. Downloaded as ' + fname + '.');
+  }, [bytes, virginizeAck, baseName]);
 
   const onPushBack = useCallback(() => {
     if (!patched || typeof onPatched !== 'function') return;
@@ -555,6 +594,34 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
             </Card>
           )}
 
+          {/* Virginize card: shown when table is loaded and has at least one key */}
+          {analysis && analysis.ok && analysis.keyCount > 0 && (
+            <Card style={{marginBottom: 12, borderLeft: '3px solid #FF6B00'}}>
+              <div style={{fontWeight: 800, fontSize: 11, color: '#FF6B00', marginBottom: 6, letterSpacing: 2}}>VIRGINIZE THIS RFHUB</div>
+              <div style={{fontSize: 10, color: C.tm, marginBottom: 8}}>
+                Erase all {analysis.keyCount} key(s) from the table and download a factory-blank RFHUB image.
+                VIN, SEC16, master secret, and all other regions are untouched.
+                Flash the virginized .bin to the module before programming new keys.
+              </div>
+              {virginizeResult && (
+                <div
+                  data-testid="char-rfhub-virginize-result"
+                  style={{marginBottom: 8, padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700,
+                    background: '#FF6B0012', border: '1px solid #FF6B0040', color: '#FF6B00'}}
+                >
+                  ✓ Erased {virginizeResult.keyCountBefore} key(s): {virginizeResult.erasedKeys.map(k => k.keyId).join(', ')}. Downloaded as {virginizeResult.filename}.
+                </div>
+              )}
+              <label style={{display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 11, color: '#FF6B00', fontWeight: 700, cursor: 'pointer', marginBottom: 8}}>
+                <input type="checkbox" data-testid="char-rfhub-virginize-ack" checked={virginizeAck} onChange={e => setVirginizeAck(e.target.checked)} style={{marginTop: 2}} />
+                I have a backup of the original RFHUB dump. Erasing keys is irreversible.
+              </label>
+              <Btn data-testid="char-rfhub-virginize-btn" color="#FF6B00" full onClick={onVirginize} disabled={!virginizeAck}>
+                ERASE ALL KEYS &amp; DOWNLOAD VIRGINIZED BIN
+              </Btn>
+            </Card>
+          )}
+
           {/* Add key form */}
           {analysis && analysis.ok && (
             <Card style={{marginBottom: 12}}>
@@ -654,6 +721,45 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                   ADD KEY &amp; DOWNLOAD
                 </Btn>
               </div>
+            </Card>
+          )}
+
+          {/* Post-write verification panel */}
+          {writeVerification && (
+            <Card
+              data-testid="char-rfhub-write-verification"
+              style={{marginBottom: 12, borderLeft: '3px solid ' + (writeVerification.pass ? C.gn : C.er)}}
+            >
+              <div style={{fontWeight: 800, fontSize: 11, color: writeVerification.pass ? C.gn : C.er, marginBottom: 8, letterSpacing: 2}}>
+                {writeVerification.pass ? '✓ WRITE VERIFIED' : '✗ WRITE VERIFICATION FAILED'}
+              </div>
+              <table style={{width: '100%', borderCollapse: 'collapse', fontSize: 10, fontFamily: mono}}>
+                <tbody>
+                  {[
+                    ['Key ID', writeVerification.keyId, writeVerification.keyIdOk],
+                    ['Slot', String(writeVerification.slot), true],
+                    ['Primary offset', hexOff(writeVerification.offset), true],
+                    ['Mirror offset', hexOff(writeVerification.mirrorOffset), true],
+                    ['Flag', hex2(writeVerification.flag) + (writeVerification.flag === 0x03 ? ' (AES/Alt ⚫)' : ' (HITAG 2 🔴)'), writeVerification.flagOk],
+                    ['Index', hex2(writeVerification.indexLow), writeVerification.indexOk],
+                    ['Mirror match', writeVerification.mirrorOk ? 'YES' : 'NO', writeVerification.mirrorOk],
+                    ['Keys after write', String(writeVerification.keyCountAfter), true],
+                  ].map(([label, value, ok]) => (
+                    <tr key={label} style={{borderBottom: '1px solid ' + C.bd}}>
+                      <td style={{padding: '4px 8px', color: C.ts, width: 130}}>{label}</td>
+                      <td style={{padding: '4px 8px', color: ok ? C.tx : C.er, fontWeight: ok ? 400 : 800}}>{value}</td>
+                      <td style={{padding: '4px 8px', color: ok ? C.gn : C.er, fontWeight: 800, textAlign: 'right'}}>
+                        {ok ? '✓ PASS' : '✗ FAIL'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {!writeVerification.pass && (
+                <div style={{marginTop: 8, fontSize: 10, color: C.er, fontWeight: 700}}>
+                  One or more fields failed verification. Do NOT flash this file. Re-run with the correct settings.
+                </div>
+              )}
             </Card>
           )}
 

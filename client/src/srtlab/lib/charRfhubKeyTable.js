@@ -650,3 +650,42 @@ export function diffCharKeyTables(before, after) {
     afterKeyCount: pa.keyCount,
   };
 }
+
+/* ============================================================================
+ * virginizeCharKeyTable(bytes) — erase all 8 key slots back to the empty
+ * template (5A 5A 5A 5A 95 00) in both primary and mirror positions.
+ *
+ * Use case: produce a clean, factory-blank RFHUB EEPROM image from a live dump
+ * so a bench programmer can write it to a replacement module before adding new
+ * keys. The VIN area, SEC16, master secret, and all other regions are untouched.
+ *
+ * Returns { ok, bytes, erasedKeys, keyCountBefore } on success.
+ * Returns { ok:false, error } when the input is not a canonical key table.
+ * ========================================================================== */
+export function virginizeCharKeyTable(bytes) {
+  if (!(bytes instanceof Uint8Array)) return { ok: false, error: 'virginizeCharKeyTable: missing buffer' };
+  if (!isCharRfhubKeyTable(bytes)) {
+    return { ok: false, error: 'virginizeCharKeyTable: not a recognized Charger RFHUB key table' };
+  }
+  const parsed = parseCharKeyTable(bytes);
+  if (!parsed.ok) return { ok: false, error: 'virginizeCharKeyTable: parse failed — ' + parsed.error };
+  const out = new Uint8Array(bytes);
+  const erasedKeys = [];
+  for (let i = 0; i < CHAR_KEYTABLE_SLOTS; i++) {
+    const s = parsed.slots[i];
+    if (!s.empty) {
+      erasedKeys.push({ slot: s.slot, keyId: s.keyId, flag: s.flag, keyKind: s.keyKind });
+    }
+    const off = slotOffset(i);
+    for (let k = 0; k < CHAR_KEY_RECLEN; k++) {
+      out[off + k] = CHAR_EMPTY_TEMPLATE[k];
+      out[off + CHAR_KEY_MIRROR_OFFSET + k] = CHAR_EMPTY_TEMPLATE[k];
+    }
+  }
+  return {
+    ok: true,
+    bytes: out,
+    erasedKeys,
+    keyCountBefore: parsed.keyCount,
+  };
+}
