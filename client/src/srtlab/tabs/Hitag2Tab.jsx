@@ -492,11 +492,14 @@ export default function Hitag2Tab({ vehicle }) {
     setOcrRaw(null);
     const reader = new FileReader();
     reader.onload = async (ev) => {
-      setPhotoPreview(ev.target.result);
+      const dataUrl = ev.target.result;
+      setPhotoPreview(dataUrl);
       try {
-        const formData = new FormData();
-        formData.append('photo', file);
-        const res = await fetch('/api/anthropic/key-photo', { method: 'POST', body: formData });
+        const res = await fetch('/api/anthropic/key-photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageBase64: dataUrl, mediaType: file.type || 'image/png' }),
+        });
         if (!res.ok) throw new Error(`Server error ${res.status}`);
         const data = await res.json();
         if (data.error) throw new Error(data.error);

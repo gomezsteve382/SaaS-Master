@@ -305,3 +305,17 @@
 - [x] CharRfhubKeyAdderPanel: show AUTO-DETECTED banner when corpus match found, show override warning when operator manually overrides auto-detect
 - [x] server/charRfhubKeyTable.blackKey.test.ts: 15 regression tests covering flag 0x03 write, index derivation, corpus lookup, and binary verification
 - [x] Generated RFHUB_EEE_KEY_8748C092_ADDED.bin: key 8748C092 written to slot 2 with correct flag 0x03 and index 0xD8
+
+## CDAJ2534 Integration (Jun 9, 2026)
+- [ ] Expand profiles.json with all 8 FCA modules (ECM, TCM, BCM, RFHUB, IPC, ABS, ORC, RADIO) + full DID/service catalog
+- [ ] Build CdaJ2534Tab.jsx: J2534 adapter scanner panel, ECU list panel, workspace tabs (Read Data, DTCs, Routines, ECU Unlock, Calibration), live log
+- [ ] Wire CdaJ2534Tab into App.jsx nav under DIAGNOSE category
+- [ ] Fix BCM TX/RX ID in CDAJ2534 module map (0x750/0x758, not 0x740/0x748)
+- [ ] Port j2534_registry.py DLL scanner logic to relay agent (already done in srt-relay.js — expose listAdapters result in UI)
+- [ ] Port passthru.py PassThruWriteMsgs/ReadMsgs/FlowControl logic — already in srt-relay.js sendFrame
+- [ ] Port UDS client (read_did/write_did/routine_control/change_session/send_key) into CdaJ2534Tab using existing udsCall transport
+- [ ] Port ServiceManager.execute() profile-driven service execution into CdaJ2534Tab
+- [ ] Port security access (request_seed / send_key) using existing algos.js seed-key
+- [ ] Add tRPC procedures: cdaj2534.getProfiles, cdaj2534.getProfile, cdaj2534.saveSession, cdaj2534.getSessionLog
+- [ ] DB schema: cdaj2534_sessions table (module, profile, services_run, log, timestamp)
+- [ ] Vitest tests for profile DB lookup and service execution logic
