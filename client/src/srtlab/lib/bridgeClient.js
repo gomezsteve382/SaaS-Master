@@ -90,8 +90,44 @@ async function call(url,path,method='GET',body=null,timeoutMs=4000){
    the app expects: getStatus(), open(), connect({...}), etc. */
 const u=(url)=>url||getAutelState().url;
 
-export function getStatus(url){return call(u(url),'/status','GET');}
-export function open(url){return call(u(url),'/open','POST',{});}
+/* Normalize the Python bridge /status response into the shape all tabs expect.
+   Python bridge returns: { ok, vci: { name, dll_path, is_open, is_connected, firmware, dll_version } }
+   Tabs expect:           { ok, dllLoaded, vendor, dllPath, deviceOpen, channelConnected, versions, deviceId } */
+function normalizeStatus(raw){
+  if(!raw||!raw.ok) return raw;
+  const vci=raw.vci||{};
+  return {
+    ...raw,
+    // field aliases used by J2534UdsConsoleTab, AutelSgwTab, CdaJ2534Tab
+    dllLoaded: !!(vci.name || vci.dll_path || raw.dllLoaded),
+    vendor:    vci.name || raw.vendor || 'J2534 Device',
+    dllPath:   vci.dll_path || raw.dllPath || '',
+    deviceOpen:       !!(vci.is_open || raw.deviceOpen),
+    channelConnected: !!(vci.is_connected || raw.channelConnected),
+    deviceId:  raw.deviceId || 0,
+    versions: {
+      firmware: vci.firmware || '',
+      dll:      vci.dll_version || '',
+      api:      vci.api_version || '',
+    },
+    // keep vci sub-object for components that read it directly
+    vci,
+  };
+}
+export function getStatus(url){return call(u(url),'/status','GET').then(normalizeStatus);}
+function normalizeOpen(raw){
+  if(!raw||!raw.ok) return raw;
+  return {
+    ...raw,
+    deviceId: raw.device_id ?? raw.deviceId ?? 0,
+    versions: raw.versions || {
+      firmware: raw.firmware || '',
+      dll:      raw.dll_version || '',
+      api:      raw.api_version || '',
+    },
+  };
+}
+export function open(url){return call(u(url),'/open','POST',{}).then(normalizeOpen);}
 export function close(url){return call(u(url),'/close','POST',{});}
 export function connect(opts={},url){
   return call(u(url),'/connect','POST',{
@@ -99,12 +135,12 @@ export function connect(opts={},url){
   });
 }
 export function disconnect(url){return call(u(url),'/disconnect','POST',{});}
-export function setFilter({txId,rxId},url){return call(u(url),'/setfilter','POST',{txId,rxId});}
+export function setFilter({txId,rxId},url){return call(u(url),'/setfilter','POST',{tx_id:txId,rx_id:rxId});}
 export function sendMsg({txId,data,flags=0x40,timeoutMs=1000},url){
-  return call(u(url),'/sendmsg','POST',{txId,data,flags,timeoutMs});
+  return call(u(url),'/sendmsg','POST',{tx_id:txId,data,flags,timeout_ms:timeoutMs});
 }
-export function readMsg({timeoutMs=1000}={},url){
-  return call(u(url),'/readmsg','POST',{timeoutMs},timeoutMs+1000);
+export function readMsg({timeoutMs=1000,maxMsgs=20}={},url){
+  return call(u(url),'/readmsg','POST',{timeout_ms:timeoutMs,max_msgs:maxMsgs},timeoutMs+1000);
 }
 
 /* Back-compat object wrapper used internally by the AUTEL tab and the
