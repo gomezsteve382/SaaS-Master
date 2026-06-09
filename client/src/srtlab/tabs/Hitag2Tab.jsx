@@ -137,7 +137,7 @@ function VirginizePanel({ copied, copy, chipId: liveChipId, onLogEntry }) {
           <button
             onClick={() => { setKeyColor('black'); setManualOverride(true); }}
             style={{
-              padding: '4px 14px', borderRadius: 20, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700,
+              padding: '4px 14px', borderRadius: 20, cursor: 'pointer', fontSize: 11, fontWeight: 700,
               background: effectiveColor === 'black' ? '#374151' : '#1a1a1a',
               color: effectiveColor === 'black' ? '#fff' : '#888',
               border: effectiveColor === 'black' ? '1px solid #6B7280' : '1px solid #2a2a2a',
