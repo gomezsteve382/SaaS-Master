@@ -262,3 +262,9 @@
 - [x] FreshAuto ring buffer writer: parse write pointer, inject key at write pointer, handle dual-write redundancy, recalculate checksum (freshAutoKeyImporter.js)
 - [x] FreshAutoKeyImporterTab UI: reuse Autel OCR from KeyImporter, upload FreshAuto RFHUB, show ring buffer state, inject key, download (FreshAutoKeyImporterTab.jsx)
 - [x] Register FreshAutoKeyImporterTab in App.jsx with PROGRAM category
+
+## RFHUB Type Auto-Detect Feature (Jun 9)
+- [x] RFHUB type detector: scan for FreshAuto ring buffer markers (5A 5A 95 00) vs MPC slot table markers (8-slot pattern at 0x0C5E) (rfhubTypeDetector.js)
+- [x] Unified KeyImporterRouter tab: upload RFHUB, auto-detect type, route to correct importer (MPC or FreshAuto) (KeyImporterRouter.jsx)
+- [x] Update App.jsx to replace separate tabs with unified router
+- [x] Updated KeyImporterTab and FreshAutoKeyImporterTab to accept preloaded RFHUB from router

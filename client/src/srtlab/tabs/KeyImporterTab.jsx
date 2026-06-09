@@ -9,11 +9,11 @@ import { AlertCircle, CheckCircle2, Upload, Download, Zap } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { parseAutelKeyOcr, buildKeySlot, writeKeySlotToRfhub, listRfhubKeySlots } from '../lib/keyImporter';
 
-export default function KeyImporterTab() {
+export default function KeyImporterTab({ preloadedRfhub = null }) {
   const [autelImage, setAutelImage] = useState(null);
   const [autelImageFile, setAutelImageFile] = useState(null);
   const [rfhubFile, setRfhubFile] = useState(null);
-  const [rfhubData, setRfhubData] = useState(null);
+  const [rfhubData, setRfhubData] = useState(preloadedRfhub || null);
   
   const [extractedKeys, setExtractedKeys] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState('0');
@@ -23,6 +23,15 @@ export default function KeyImporterTab() {
   const [modifiedRfhub, setModifiedRfhub] = useState(null);
   
   const analyzeKeyPhoto = trpc.system.analyzeKeyPhoto.useMutation();
+  
+  // Initialize with preloaded RFHUB if provided
+  React.useEffect(() => {
+    if (preloadedRfhub && rfhubData === preloadedRfhub) {
+      const slots = listRfhubKeySlots(preloadedRfhub);
+      setKeySlots(slots);
+      setStatus(`✓ RFHUB loaded (${slots.filter(s => !s.isEmpty).length}/8 slots populated)`);
+    }
+  }, [preloadedRfhub]);
   
   // Handle Autel image upload
   const handleAutelImageUpload = async (e) => {

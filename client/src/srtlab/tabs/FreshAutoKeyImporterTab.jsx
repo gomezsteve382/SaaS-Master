@@ -7,11 +7,11 @@ import { trpc } from '@/lib/trpc';
 import { parseAutelKeyOcr } from '../lib/keyImporter';
 import { parseFreshAutoRingBuffer, injectKeyIntoFreshAutoRingBuffer, listFreshAutoKeys } from '../lib/freshAutoKeyImporter';
 
-export default function FreshAutoKeyImporterTab() {
+export default function FreshAutoKeyImporterTab({ preloadedRfhub = null }) {
   const [autelImage, setAutelImage] = useState(null);
   const [autelImageFile, setAutelImageFile] = useState(null);
   const [rfhubFile, setRfhubFile] = useState(null);
-  const [rfhubData, setRfhubData] = useState(null);
+  const [rfhubData, setRfhubData] = useState(preloadedRfhub || null);
   
   const [extractedKeys, setExtractedKeys] = useState(null);
   const [ringBufferState, setRingBufferState] = useState(null);
@@ -21,6 +21,16 @@ export default function FreshAutoKeyImporterTab() {
   const [injectedSlot, setInjectedSlot] = useState(null);
   
   const analyzeKeyPhoto = trpc.system.analyzeKeyPhoto.useMutation();
+  
+  // Initialize with preloaded RFHUB if provided
+  React.useEffect(() => {
+    if (preloadedRfhub && rfhubData === preloadedRfhub) {
+      const state = parseFreshAutoRingBuffer(preloadedRfhub);
+      setRingBufferState(state);
+      const populatedCount = state.slots.filter(s => !s.isEmpty).length;
+      setStatus(`✓ FreshAuto RFHUB loaded (${populatedCount}/8 slots populated, write pointer at slot ${state.writePointer >= 0 ? state.writePointer : 'N/A'})`);
+    }
+  }, [preloadedRfhub]);
   
   // Handle Autel image upload
   const handleAutelImageUpload = async (e) => {
