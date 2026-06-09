@@ -257,3 +257,8 @@
 - [x] OCR/image extraction: parse Autel key screenshot to extract Low SK and High SK hex values (parseAutelKeyOcr)
 - [x] RFHUB key slot writer: modify key table at 0x0C5E and recalculate checksum (writeKeySlotToRfhub)
 - [x] Key Importer UI: upload Autel image + RFHUB file, show extracted keys, select target slot, write and download modified RFHUB (KeyImporterTab.jsx)
+
+## FreshAuto Key Importer Feature (Jun 9)
+- [x] FreshAuto ring buffer writer: parse write pointer, inject key at write pointer, handle dual-write redundancy, recalculate checksum (freshAutoKeyImporter.js)
+- [x] FreshAutoKeyImporterTab UI: reuse Autel OCR from KeyImporter, upload FreshAuto RFHUB, show ring buffer state, inject key, download (FreshAutoKeyImporterTab.jsx)
+- [x] Register FreshAutoKeyImporterTab in App.jsx with PROGRAM category
