@@ -26,6 +26,8 @@ import {
   addCharKey,
   deriveCharKeyIndex,
   CHAR_KEY_DEFAULT_INDEX,
+  CHAR_KEY_FLAG_PRESENT,
+  CHAR_KEY_FLAG_ALT,
 } from '../lib/charRfhubKeyTable.js';
 import {parseCharAuxTable, CHAR_AUX_BASE, CHAR_AUX_END, CHAR_AUX_CHECKSUM_TARGET} from '../lib/charRfhubAuxTable.js';
 import {dl} from './ImmoChecksumPanel.jsx';
@@ -62,6 +64,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
 
   const [keyId, setKeyId] = useState('');
   const [indexHex, setIndexHex] = useState('');
+  const [keyFamily, setKeyFamily] = useState('hitag2'); // 'hitag2' (0x01) | 'alt' (0x03)
   const [ack, setAck] = useState(false);
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
@@ -182,12 +185,13 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
     return Number.isInteger(v) && v >= 0 && v <= 0xFF ? v : null;
   }, [indexHex]);
 
-  // The correct index is derived from the Key ID (mod-255 checksum). Auto-fill
-  // the field whenever a valid Key ID is entered; the operator may still type
-  // over it for a bench override.
+  // The correct index is derived from the Key ID AND the family flag (mod-255
+  // checksum). Auto-fill the field whenever a valid Key ID or family changes;
+  // the operator may still type over it for a bench override.
+  const activeFlag = keyFamily === 'alt' ? CHAR_KEY_FLAG_ALT : CHAR_KEY_FLAG_PRESENT;
   const derivedIndex = useMemo(
-    () => (keyIdValid ? deriveCharKeyIndex(keyId.trim()) : null),
-    [keyIdValid, keyId],
+    () => (keyIdValid ? deriveCharKeyIndex(keyId.trim(), activeFlag) : null),
+    [keyIdValid, keyId, activeFlag],
   );
   useEffect(() => {
     if (derivedIndex != null) {
@@ -207,6 +211,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
     // otherwise let addCharKey derive it so indexDerived is reported truthfully.
     const r = addCharKey(bytes, {
       keyId: keyId.trim(),
+      flag: activeFlag,
       ...(indexOverridden ? { indexLow: indexVal } : {}),
     });
     if (!r.ok) { setErr(r.error); return; }
@@ -417,10 +422,10 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                   </thead>
                   <tbody>
                     {analysis.slots.map(s => {
-                      const badge = s.state === 'empty' ? {t: 'FREE', c: C.tm}
-                        : s.state === 'unknown' ? {t: 'UNKNOWN', c: C.wn}
-                        : s.keyKind === 'alt' ? {t: 'KEY · ALT', c: C.wn}
-                        : {t: 'KEY', c: C.gn};
+                      const badge = s.state === 'empty' ? {t: 'FREE', c: C.tm, icon: ''}
+                        : s.state === 'unknown' ? {t: 'UNKNOWN', c: C.wn, icon: '⚠'}
+                        : s.keyKind === 'alt' ? {t: 'BLACK KEY', c: '#888', icon: '⚫'}
+                        : {t: 'RED KEY', c: C.gn, icon: '🔴'};
                       return (
                       <tr key={s.slot} data-testid={'char-key-slot-' + s.slot} style={{borderBottom: '1px solid ' + C.bd, fontFamily: mono}}>
                         <td style={{padding: '6px 8px', color: C.ts}}>{s.slot}</td>
@@ -431,7 +436,7 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                         <td style={{padding: '6px 8px', color: C.tm}}>{s.empty ? '—' : hex2(s.indexLow)}</td>
                         <td style={{padding: '6px 8px'}}>
                           <span style={{fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: badge.c + '18', color: badge.c, fontFamily: mono}}>
-                            {badge.t}
+                            {badge.icon && <span style={{marginRight: 4}}>{badge.icon}</span>}{badge.t}
                           </span>
                         </td>
                       </tr>
@@ -521,6 +526,36 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                   />
                   <div style={{marginTop: 4, fontSize: 10, color: C.tm, fontFamily: mono}}>
                     {keyIdValid ? 'stored as ' + Array.from(keyId.match(/../g)).reverse().join(' ') : 'as shown on the Autel key read'}
+                  </div>
+                </div>
+                <div style={{flex: '0 0 180px'}}>
+                  <div style={labelStyle}>Key Family (transponder chip)</div>
+                  <div style={{display: 'flex', gap: 6}}>
+                    <button
+                      data-testid="char-key-family-hitag2"
+                      onClick={() => setKeyFamily('hitag2')}
+                      style={{
+                        flex: 1, padding: '8px 6px', borderRadius: 8, border: '1.5px solid ' + (keyFamily === 'hitag2' ? C.sr : C.bd),
+                        background: keyFamily === 'hitag2' ? C.sr + '18' : C.cd, color: keyFamily === 'hitag2' ? C.sr : C.ts,
+                        fontWeight: 800, fontSize: 10, cursor: 'pointer', letterSpacing: 0.5,
+                      }}
+                    >
+                      🔴 HITAG 2<br/><span style={{fontWeight: 400, fontSize: 9}}>flag 0x01</span>
+                    </button>
+                    <button
+                      data-testid="char-key-family-alt"
+                      onClick={() => setKeyFamily('alt')}
+                      style={{
+                        flex: 1, padding: '8px 6px', borderRadius: 8, border: '1.5px solid ' + (keyFamily === 'alt' ? C.sr : C.bd),
+                        background: keyFamily === 'alt' ? C.sr + '18' : C.cd, color: keyFamily === 'alt' ? C.sr : C.ts,
+                        fontWeight: 800, fontSize: 10, cursor: 'pointer', letterSpacing: 0.5,
+                      }}
+                    >
+                      ⚫ AES/Alt<br/><span style={{fontWeight: 400, fontSize: 9}}>flag 0x03</span>
+                    </button>
+                  </div>
+                  <div style={{marginTop: 4, fontSize: 10, color: C.tm}}>
+                    {keyFamily === 'alt' ? 'PCF7953 AES black key' : 'PCF7945/53 HITAG 2 red key'}
                   </div>
                 </div>
                 <div style={{flex: '0 0 120px'}}>

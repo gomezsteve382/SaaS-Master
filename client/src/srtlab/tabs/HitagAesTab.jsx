@@ -26,6 +26,8 @@ import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Card, Btn, Tag } from '../lib/ui.jsx';
 import { C } from '../lib/constants.js';
 import { KNOWN_WORKING_KEYS, HITAG_AES_BLACK_VIRGIN_PROFILE, lookupChipReadByChipId } from '../lib/keyWriter/knownWorkingKeys.js';
+import { addVirginizeLogEntry } from '../lib/virginizeLog.js';
+import VirginizeLogPanel from '../components/VirginizeLogPanel.jsx';
 import VehicleYearGuard from '../components/VehicleYearGuard.jsx';
 
 /* ─── blank reference storage ─── */
@@ -301,6 +303,10 @@ export default function HitagAesTab({ vehicle: selectedVehicle }) {
   const [blankRefs, setBlankRefs] = useState(() => loadBlankRefs());
   const [saveMsg,   setSaveMsg]   = useState('');
   const [showRefs,  setShowRefs]  = useState(false);
+
+  /* ── virginize log refresh trigger ── */
+  const [logRefreshKey, setLogRefreshKey] = useState(0);
+  const handleLogEntry = useCallback(() => setLogRefreshKey(k => k + 1), []);
 
   /* ── File/Photo upload state ── */
   const [uploadMsg, setUploadMsg] = useState('');
@@ -1063,13 +1069,18 @@ export default function HitagAesTab({ vehicle: selectedVehicle }) {
       </div>
 
       {/* ─── HITAG AES Virginize Panel ─── */}
-      <AesVirginizePanel chipId={chipId} />
+      <AesVirginizePanel chipId={chipId} onLogEntry={handleLogEntry} />
+
+      {/* ─── Virginize Session Log ─── */}
+      <div style={{ padding: '0 16px 16px' }}>
+        <VirginizeLogPanel refreshKey={logRefreshKey} />
+      </div>
     </div>
   );
 }
 
 /* ─── AesVirginizePanel component ─── */
-function AesVirginizePanel({ chipId: liveChipId }) {
+function AesVirginizePanel({ chipId: liveChipId, onLogEntry }) {
   const profile = HITAG_AES_BLACK_VIRGIN_PROFILE;
   const [copied, setCopied] = useState('');
   const copy = useCallback((text, label) => {
@@ -1178,8 +1189,16 @@ function AesVirginizePanel({ chipId: liveChipId }) {
           })}
         </div>
         {anyEntered && (
-          <div style={{ padding: '6px 12px', borderRadius: 6, background: allPass ? '#0a2a0a' : anyFail ? '#2a0a0a' : '#1a1a1a', border: `1px solid ${allPass ? '#22c55e' : anyFail ? '#ef4444' : '#333'}`, color: allPass ? '#22c55e' : anyFail ? '#ef4444' : '#aaa', fontSize: 12, fontWeight: 700 }}>
-            {allPass ? '✅ KEY IS VIRGIN — All pages confirmed zero. Ready to program.' : anyFail ? '❌ NOT VIRGIN — One or more pages still have data. Retry the write.' : '⏳ Enter all read-back values to verify...'}
+          <div style={{ padding: '6px 12px', borderRadius: 6, background: allPass ? '#0a2a0a' : anyFail ? '#2a0a0a' : '#1a1a1a', border: `1px solid ${allPass ? '#22c55e' : anyFail ? '#ef4444' : '#333'}`, color: allPass ? '#22c55e' : anyFail ? '#ef4444' : '#aaa', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ flex: 1 }}>{allPass ? '✅ KEY IS VIRGIN — All pages confirmed zero. Ready to program.' : anyFail ? '❌ NOT VIRGIN — One or more pages still have data. Retry the write.' : '⏳ Enter all read-back values to verify...'}</span>
+            {(allPass || anyFail) && (
+              <button
+                onClick={() => { addVirginizeLogEntry({ chipId: liveChipId, chipFamily: 'HITAG AES', keyColor: 'black', result: allPass ? 'pass' : 'fail' }); onLogEntry && onLogEntry(); }}
+                style={{ fontSize: 10, padding: '3px 10px', borderRadius: 4, background: allPass ? '#166534' : '#7f1d1d', color: '#fff', border: 'none', cursor: 'pointer', flexShrink: 0, fontWeight: 700 }}
+              >
+                📋 Log Result
+              </button>
+            )}
           </div>
         )}
       </div>
