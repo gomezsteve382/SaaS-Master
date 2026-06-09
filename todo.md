@@ -290,3 +290,11 @@
 - [x] Added hasBoundarySlot flag to parse result for UI display
 - [x] Verified: user's RFHUB.bin now passes validation, addCharKey writes key 6D0EF991 to slot 7 with idx=0xF6, flag=0x01, mirror=true
 - [x] All 346 tests pass, build clean
+
+## Critical Fix: Slot 8 is First Key Slot, Not Boundary (Jun 9)
+- [x] Fixed: slot 8 factory-uninitialized data (FE 00 FF 00 FE 00) was incorrectly classified as 'boundary' (non-writable)
+- [x] Real working RFHUBs prove slot 8 ALWAYS has a key — it's the first slot written on a real car
+- [x] Changed classification from 'boundary' to 'empty' (writable) so addCharKey targets slot 8 first
+- [x] lastFreeCharSlot now returns slot 8 (0-indexed 7) as the highest free slot on virgin RFHUBs
+- [x] Verified: addCharKey('6D0EF991') now writes to slot 8 with correct record 91f90e6df601 + mirror
+- [x] All 346 tests pass, build clean
