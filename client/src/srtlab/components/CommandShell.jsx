@@ -4,6 +4,8 @@ import {
   ChevronRight, Wrench, Car, ShieldCheck, Search, X, ListChecks, KeyRound, Lock, Replace, ScanEye, Zap,
 } from 'lucide-react';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
+import {useBridgeStatus, DEFAULT_BRIDGE_URL} from '../lib/bridgeClient.js';
+import {Plug, PlugZap, AlertCircle} from 'lucide-react';
 
 /* SRT command-center design tokens (graduated from the approved canvas mockup). */
 const T = {
@@ -224,6 +226,8 @@ export default function CommandShell({
 }) {
   const {vin} = useContext(MasterVinContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [bridgeHelpOpen, setBridgeHelpOpen] = useState(false);
+  const bridge = useBridgeStatus(5000);
 
   const advancedCount = useMemo(
     () => tabs.filter(t => !PRIMARY_KEYS.has(t.id)).length,
@@ -270,11 +274,33 @@ export default function CommandShell({
 
         <div style={{flex: 1}} />
 
-        {/* Bench status */}
-        <div style={{display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, letterSpacing: 1}}>
-          <span style={{opacity: 0.85, fontWeight: 700}}>BENCH READY</span>
-          <span style={{width: 7, height: 7, borderRadius: '50%', background: '#69d36e', boxShadow: '0 0 0 3px rgba(105,211,110,.25)'}} />
-        </div>
+        {/* J2534 Bridge status dot — click to open setup modal */}
+        <button
+          type="button"
+          data-testid="topbar-bridge-btn"
+          onClick={() => setBridgeHelpOpen(true)}
+          title={bridge.connected ? `J2534 Bridge connected — ${bridge.status?.vci?.name || 'adapter OK'}` : 'J2534 Bridge not connected — click to set up'}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            background: bridge.connected ? 'rgba(46,125,50,0.22)' : 'rgba(211,47,47,0.18)',
+            border: `1px solid ${bridge.connected ? '#2E7D32' : '#D32F2F'}`,
+            borderRadius: 9, padding: '6px 12px', color: '#fff', cursor: 'pointer',
+            fontSize: 12, fontWeight: 700, letterSpacing: 0.5, transition: 'all 0.2s',
+          }}
+        >
+          {bridge.connected
+            ? <PlugZap size={14} style={{color: '#69d36e', flexShrink: 0}} />
+            : <Plug size={14} style={{color: '#FF6D00', flexShrink: 0}} />}
+          <span>{bridge.connected ? 'BRIDGE OK' : 'START BRIDGE'}</span>
+          <span style={{
+            width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+            background: bridge.loading ? '#FFA726' : bridge.connected ? '#69d36e' : '#FF5252',
+            boxShadow: bridge.connected
+              ? '0 0 0 3px rgba(105,211,110,.28)'
+              : bridge.loading ? '0 0 0 3px rgba(255,167,38,.28)'
+              : '0 0 0 3px rgba(255,82,82,.28)',
+          }} />
+        </button>
 
         {/* Always-available general Claude co-pilot */}
         <button
@@ -325,6 +351,80 @@ export default function CommandShell({
           <span style={{background: T.red, borderRadius: 20, padding: '1px 7px', fontSize: 10.5, fontWeight: 800}}>{advancedCount}</span>
         </button>
       </header>
+
+      {/* ── J2534 Bridge Setup Modal ── */}
+      {bridgeHelpOpen && (
+        <div
+          role="dialog"
+          aria-label="J2534 Bridge Setup"
+          style={{position:'fixed',inset:0,zIndex:9999,background:'rgba(0,0,0,0.72)',display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(3px)'}}
+          onClick={() => setBridgeHelpOpen(false)}
+        >
+          <div
+            style={{background:'#1C1C1C',border:`2px solid ${bridge.connected ? '#2E7D32' : '#D32F2F'}`,borderRadius:18,padding:32,maxWidth:560,width:'92%',boxShadow:'0 32px 80px rgba(0,0,0,0.7)',fontFamily:"'Nunito',sans-serif"}}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:22}}>
+              <div style={{width:44,height:44,borderRadius:12,background:'linear-gradient(135deg,#D32F2F,#FF6D00)',display:'grid',placeItems:'center',flexShrink:0}}>
+                <PlugZap size={22} color="#fff"/>
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontFamily:"'Righteous',sans-serif",fontSize:22,color:'#fff',letterSpacing:1}}>J2534 BRIDGE SETUP</div>
+                <div style={{fontSize:12,color:'rgba(255,255,255,0.45)',marginTop:2}}>One-click launcher for TOPDON R-Link &amp; compatible adapters</div>
+              </div>
+              <button onClick={() => setBridgeHelpOpen(false)} style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:8,color:'rgba(255,255,255,0.6)',cursor:'pointer',fontSize:18,lineHeight:1,padding:'6px 10px'}}>&#x2715;</button>
+            </div>
+            <div style={{background:bridge.connected?'rgba(46,125,50,0.18)':'rgba(211,47,47,0.14)',border:`1px solid ${bridge.connected?'#2E7D32':'#D32F2F'}`,borderRadius:10,padding:'12px 16px',marginBottom:22,display:'flex',alignItems:'center',gap:12}}>
+              {bridge.connected ? <PlugZap size={18} style={{color:'#69d36e',flexShrink:0}}/> : <AlertCircle size={18} style={{color:'#FF5252',flexShrink:0}}/>}
+              <div style={{flex:1}}>
+                <div style={{fontWeight:800,fontSize:13,color:bridge.connected?'#69d36e':'#FF5252'}}>
+                  {bridge.connected ? '✓ Bridge Connected' : '✗ Bridge Not Running'}
+                </div>
+                <div style={{fontSize:11,color:'rgba(255,255,255,0.5)',marginTop:2}}>
+                  {bridge.connected
+                    ? `Adapter: ${bridge.status?.vci?.name||'OK'} · Firmware: ${bridge.status?.vci?.firmware||'—'} · ${bridge.url}`
+                    : `${bridge.url||DEFAULT_BRIDGE_URL} · ${bridge.error||'unreachable'}`}
+                </div>
+              </div>
+              <button onClick={() => bridge.refresh()} style={{background:'rgba(255,255,255,0.1)',border:'1px solid rgba(255,255,255,0.18)',borderRadius:8,color:'#fff',padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>&#x21bb; Retry</button>
+            </div>
+            <div style={{marginBottom:22}}>
+              <div style={{fontWeight:800,fontSize:12,color:'#FF6D00',marginBottom:12,letterSpacing:1}}>HOW TO START THE BRIDGE</div>
+              {[
+                {n:'1',t:'Plug in your TOPDON R-Link adapter',s:'Connect via USB. Wait for the LED to turn solid green or blue.'},
+                {n:'2',t:'Download the bridge launcher below',s:'Click the orange button — it downloads run_bridge_standalone.bat to your PC.'},
+                {n:'3',t:'Double-click run_bridge_standalone.bat',s:'Auto-detects your R-Link DLL and starts the Python bridge on port 8765.'},
+                {n:'4',t:'Keep the window open',s:'The bridge must stay running while using SRT Lab. This dot turns green automatically.'},
+              ].map(step => (
+                <div key={step.n} style={{display:'flex',gap:12,marginBottom:11,alignItems:'flex-start'}}>
+                  <div style={{width:26,height:26,borderRadius:'50%',background:'#D32F2F',display:'grid',placeItems:'center',fontFamily:"'Righteous',sans-serif",fontSize:13,color:'#fff',flexShrink:0,marginTop:1}}>{step.n}</div>
+                  <div>
+                    <div style={{fontWeight:800,fontSize:13,color:'#fff'}}>{step.t}</div>
+                    <div style={{fontSize:11,color:'rgba(255,255,255,0.5)',marginTop:2}}>{step.s}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <a
+              href="/tools/run_bridge_standalone.bat"
+              download="run_bridge_standalone.bat"
+              style={{
+                display:'flex',alignItems:'center',justifyContent:'center',gap:12,
+                background:'linear-gradient(135deg,#D32F2F 0%,#FF6D00 100%)',
+                color:'#fff',borderRadius:12,padding:'15px 28px',
+                fontFamily:"'Righteous',sans-serif",fontSize:16,letterSpacing:1.2,
+                textDecoration:'none',boxShadow:'0 6px 24px rgba(211,47,47,0.45)',
+                marginBottom:12,
+              }}
+            >
+              <PlugZap size={20}/> DOWNLOAD BRIDGE LAUNCHER (.BAT)
+            </a>
+            <div style={{fontSize:11,color:'rgba(255,255,255,0.3)',textAlign:'center'}}>
+              Requires Python 3 on Windows &nbsp;&middot;&nbsp; Works with TOPDON R-Link, ArtiDiag, Autel MaxiFlash, and any SAE J2534-1 adapter
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{display: 'flex', flex: 1, minHeight: 0}}>
         {/* Left rail */}

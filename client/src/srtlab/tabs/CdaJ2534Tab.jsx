@@ -916,7 +916,18 @@ export default function CdaJ2534Tab() {
   const handleConnect = useCallback(async () => {
     setAdapterStatus('Opening bridge...');
     const openRes = await openBridge(bridgeUrl);
-    if (!openRes?.ok) { setAdapterStatus('Bridge open failed: ' + (openRes?.error || 'no response')); return; }
+    if (!openRes?.ok) {
+      const errMsg = openRes?.error || 'no response';
+      const isDeviceNotConnected = errMsg.includes('ERR_DEVICE_NOT_CONNECTED') || errMsg.includes('Device not connected');
+      if (isDeviceNotConnected) {
+        setAdapterStatus('⚠ Adapter not detected — plug in your TOPDON R-Link and retrying in 5s...');
+        addLog({ dir: 'ERR', hex: '—', label: 'ERR_DEVICE_NOT_CONNECTED — auto-retry in 5s' });
+        setTimeout(() => handleConnect(), 5000);
+      } else {
+        setAdapterStatus('Bridge open failed: ' + errMsg);
+      }
+      return;
+    }
     const connRes = await bridgeConnect({ protocol: 'ISO15765', baudrate: 500000 }, bridgeUrl);
     if (!connRes?.ok) { setAdapterStatus('Connect failed: ' + (connRes?.error || 'no response')); return; }
     setConnected(true);
@@ -998,6 +1009,46 @@ export default function CdaJ2534Tab() {
         onDisconnect={handleDisconnect}
         status={adapterStatus}
       />
+      {/* Bridge not running banner — shown when bridge is unreachable */}
+      {!connected && adapterStatus && (adapterStatus.includes('ERR_DEVICE_NOT_CONNECTED') || adapterStatus.includes('not detected') || adapterStatus.includes('Bridge open failed') || adapterStatus.includes('unreachable')) && (
+        <div style={{
+          background: 'linear-gradient(90deg, rgba(211,47,47,0.18) 0%, rgba(255,109,0,0.12) 100%)',
+          border: '1px solid rgba(211,47,47,0.45)',
+          borderRadius: 0, padding: '10px 18px',
+          display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap',
+        }}>
+          <span style={{fontSize: 18}}>🔌</span>
+          <div style={{flex: 1, minWidth: 200}}>
+            <div style={{fontWeight: 800, fontSize: 12, color: '#FF6D00', letterSpacing: 0.5}}>J2534 BRIDGE NOT RUNNING</div>
+            <div style={{fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 2}}>
+              {adapterStatus.includes('not detected') || adapterStatus.includes('ERR_DEVICE_NOT_CONNECTED')
+                ? 'Adapter detected but device not connected. Plug in your TOPDON R-Link — auto-retry is active.'
+                : 'Start the bridge on your Windows machine, then click CONNECT.'}
+            </div>
+          </div>
+          <a
+            href="/tools/run_bridge_standalone.bat"
+            download="run_bridge_standalone.bat"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              background: 'linear-gradient(135deg,#D32F2F,#FF6D00)',
+              color: '#fff', borderRadius: 8, padding: '8px 16px',
+              fontSize: 12, fontWeight: 800, textDecoration: 'none',
+              letterSpacing: 0.5, whiteSpace: 'nowrap',
+            }}
+          >
+            ⬇ Download Bridge Launcher
+          </a>
+          <button
+            onClick={handleConnect}
+            style={{
+              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+              borderRadius: 8, color: '#fff', padding: '8px 16px',
+              fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+            }}
+          >↺ Retry Now</button>
+        </div>
+      )}
 
       {/* Main body */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
