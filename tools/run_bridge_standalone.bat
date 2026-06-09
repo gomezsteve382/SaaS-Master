@@ -17,19 +17,15 @@ echo ============================================================
 echo.
 
 REM ---- DLL Auto-Detection ----
+REM PRIMARY: TOPDON R-Link / ArtiDiag (confirmed path on this machine)
+if exist "C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru432.dll" (
+    set DLL_PATH=C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru432.dll
+    echo [FOUND] TOPDON R-Link / ArtiDiag VCI ^(confirmed^)
+    goto :write_bridge
+)
 if exist "C:\Program Files (x86)\TOPDON\RLink\PassThru432.dll" (
     set DLL_PATH=C:\Program Files (x86)\TOPDON\RLink\PassThru432.dll
     echo [FOUND] TOPDON R-Link 32-bit
-    goto :write_bridge
-)
-if exist "C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru432.dll" (
-    set DLL_PATH=C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru432.dll
-    echo [FOUND] TOPDON ArtiDiag 32-bit
-    goto :write_bridge
-)
-if exist "C:\Program Files (x86)\TOPDON\RLink\PassThru464.dll" (
-    set DLL_PATH=C:\Program Files (x86)\TOPDON\RLink\PassThru464.dll
-    echo [FOUND] TOPDON R-Link 64-bit
     goto :write_bridge
 )
 if exist "C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru464.dll" (
@@ -37,14 +33,26 @@ if exist "C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru464.dll" (
     echo [FOUND] TOPDON ArtiDiag 64-bit
     goto :write_bridge
 )
-if exist "C:\Program Files\TOPDON\RLink\PassThru464.dll" (
-    set DLL_PATH=C:\Program Files\TOPDON\RLink\PassThru464.dll
-    echo [FOUND] TOPDON R-Link 64-bit (PF)
+if exist "C:\Program Files (x86)\TOPDON\RLink\PassThru464.dll" (
+    set DLL_PATH=C:\Program Files (x86)\TOPDON\RLink\PassThru464.dll
+    echo [FOUND] TOPDON R-Link 64-bit
     goto :write_bridge
 )
+if exist "C:\Program Files\TOPDON\RLink\PassThru464.dll" (
+    set DLL_PATH=C:\Program Files\TOPDON\RLink\PassThru464.dll
+    echo [FOUND] TOPDON R-Link 64-bit ^(PF^)
+    goto :write_bridge
+)
+REM SECONDARY: wiTECH Legacy VCI ^(Chrysler/FCA native — excellent for FCA vehicles^)
+if exist "C:\Program Files (x86)\DCC Tools\wiTECH\jserver\app\legacyVCI\lvci32.dll" (
+    set DLL_PATH=C:\Program Files (x86)\DCC Tools\wiTECH\jserver\app\legacyVCI\lvci32.dll
+    echo [FOUND] Chrysler wiTECH Legacy VCI ^(FCA native^)
+    goto :write_bridge
+)
+REM FALLBACK: Autel MaxiFlash Elite/Pro
 if exist "C:\Windows\SysWOW64\CFJW432.DLL" (
     set DLL_PATH=C:\Windows\SysWOW64\CFJW432.DLL
-    echo [FOUND] Autel MaxiFlash fallback
+    echo [FOUND] Autel MaxiFlash Elite/Pro ^(fallback — connect Autel VCI^)
     goto :write_bridge
 )
 
