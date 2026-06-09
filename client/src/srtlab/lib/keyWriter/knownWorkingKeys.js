@@ -621,6 +621,16 @@ export function lookupChipReadByChipId(chipIdRaw) {
   return null;
 }
 
+/**
+ * Look up a chip read entry by RFHUB Key ID (the big-endian chip UID as shown
+ * in the RFHUB slot table, e.g. '6D0EF991').
+ * The RFHUB Key ID is the same as the Autel Chip ID for PCF7945/53 keys.
+ * Returns { entry, keyColor, chipFamily } or null if not found.
+ */
+export function lookupChipReadByKeyId(keyIdRaw) {
+  return lookupChipReadByChipId(keyIdRaw);
+}
+
 /* Normalize a hex token the same way dedupeKey / validateKeyRecord do: strip
  * separators + an optional 0x prefix, uppercase. */
 function normHex(s) {

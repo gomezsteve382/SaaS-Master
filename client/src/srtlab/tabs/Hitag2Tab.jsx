@@ -17,7 +17,7 @@
  *     and compare future reads against it
  */
 
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { C } from '../lib/constants.js';
 import { Card, Tag, Btn } from '../lib/ui.jsx';
 import VehicleYearGuard from '../components/VehicleYearGuard.jsx';
@@ -429,6 +429,48 @@ export default function Hitag2Tab({ vehicle }) {
   const [logRefreshKey, setLogRefreshKey] = useState(0);
   const handleLogEntry = useCallback(() => setLogRefreshKey(k => k + 1), []);
 
+  /* ── virginize prefill banner (from RFHUB slot-table shortcut) ── */
+  const [prefillBanner, setPrefillBanner] = useState(null);
+
+  useEffect(() => {
+    function consumePrefill() {
+      try {
+        const raw = sessionStorage.getItem('srtlab:virginize:prefill');
+        if (!raw) return;
+        sessionStorage.removeItem('srtlab:virginize:prefill');
+        const payload = JSON.parse(raw);
+        // Only consume if the payload is fresh (within 30 seconds)
+        if (!payload || !payload.chipId || Date.now() - (payload.ts || 0) > 30000) return;
+        const { entry, keyColor, chipFamily } = payload;
+        // Pre-fill the chip ID field
+        if (payload.chipId) setChipId(payload.chipId);
+        // Pre-fill the page data from the corpus entry if available
+        if (entry) {
+          if (entry.lowSk)  setLowSk(entry.lowSk);
+          if (entry.highSk) setHighSk(entry.highSk.replace(/^00004F4E$/i, '4F4E').slice(0, 4) || entry.highSk);
+          if (entry.config) setConfigPage(entry.config);
+          if (entry.page0)  setPage0(entry.page0);
+          if (entry.page1)  setPage1(entry.page1);
+          if (entry.page2)  setPage2(entry.page2);
+          if (entry.page3)  setPage3(entry.page3);
+        }
+        setPrefillBanner({
+          chipId: payload.chipId,
+          keyColor: keyColor || 'unknown',
+          chipFamily: chipFamily || 'PCF7945/53',
+          fromSlot: payload.fromSlot,
+          state: entry?.state || 'unknown',
+        });
+      } catch { /* ignore */ }
+    }
+    // Consume on mount (tab was just opened)
+    consumePrefill();
+    // Also consume when the tab becomes visible (user switches to it)
+    const onVisible = () => { if (document.visibilityState === 'visible') consumePrefill(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, []);
+
   /* ── copy helper ── */
   const { copy, copied } = useCopy();
 
@@ -524,6 +566,33 @@ export default function Hitag2Tab({ vehicle }) {
           FCA/Mopar 2011–2019 · FOBIK transponder · 6-byte SK · VVDI Prog write helper
         </div>
       </div>
+
+      {/* Virginize prefill banner */}
+      {prefillBanner && (
+        <div style={{
+          marginBottom: 16, padding: '10px 14px', borderRadius: 8,
+          background: '#FF6B0015', border: '1.5px solid #FF6B0060',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+        }}>
+          <div style={{ fontSize: 12, color: '#FF6B00', fontFamily: 'monospace' }}>
+            <span style={{ fontWeight: 800, marginRight: 8 }}>⚡ VIRGINIZE PREFILL</span>
+            Chip <strong>{prefillBanner.chipId}</strong>
+            {' '}—{' '}
+            {prefillBanner.keyColor === 'red' ? '🔴 RED KEY' : '⚫ BLACK KEY'}
+            {' '}—{' '}
+            {prefillBanner.state === 'programmed' ? 'Programmed (corpus-confirmed)' : 'State: ' + prefillBanner.state}
+            {prefillBanner.fromSlot != null && ` — from RFHUB slot ${prefillBanner.fromSlot}`}
+            <span style={{ marginLeft: 10, color: '#aaa', fontWeight: 400 }}>
+              Fields pre-filled from corpus. Scroll down to Virginize panel to verify.
+            </span>
+          </div>
+          <button
+            onClick={() => setPrefillBanner(null)}
+            style={{ background: 'none', border: 'none', color: '#FF6B00', cursor: 'pointer', fontSize: 16, padding: '0 4px' }}
+            title="Dismiss"
+          >×</button>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         {/* LEFT — Photo OCR + Manual Input */}

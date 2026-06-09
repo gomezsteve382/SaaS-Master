@@ -31,6 +31,7 @@ import {
 } from '../lib/charRfhubKeyTable.js';
 import {parseCharAuxTable, CHAR_AUX_BASE, CHAR_AUX_END, CHAR_AUX_CHECKSUM_TARGET} from '../lib/charRfhubAuxTable.js';
 import {dl} from './ImmoChecksumPanel.jsx';
+import {lookupChipReadByKeyId} from '../lib/keyWriter/knownWorkingKeys.js';
 import {
   CHAR_MPC_8SLOT_LAYOUT,
   KEY_ADD_VERIFY_EVENT,
@@ -426,6 +427,22 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                         : s.state === 'unknown' ? {t: 'UNKNOWN', c: C.wn, icon: '⚠'}
                         : s.keyKind === 'alt' ? {t: 'BLACK KEY', c: '#888', icon: '⚫'}
                         : {t: 'RED KEY', c: C.gn, icon: '🔴'};
+                      // Check if this slot's Key ID matches the chip read corpus
+                      const corpusMatch = !s.empty && s.keyId ? lookupChipReadByKeyId(s.keyId) : null;
+                      const handleVirginizeShortcut = () => {
+                        if (!corpusMatch) return;
+                        // Write one-shot prefill payload to sessionStorage
+                        sessionStorage.setItem('srtlab:virginize:prefill', JSON.stringify({
+                          chipId: s.keyId,
+                          keyColor: corpusMatch.keyColor,
+                          chipFamily: corpusMatch.chipFamily,
+                          entry: corpusMatch.entry,
+                          fromSlot: s.slot,
+                          ts: Date.now(),
+                        }));
+                        // Navigate to the HITAG 2 tab
+                        window.dispatchEvent(new CustomEvent('srtlab:openTab', { detail: 'hitag2' }));
+                      };
                       return (
                       <tr key={s.slot} data-testid={'char-key-slot-' + s.slot} style={{borderBottom: '1px solid ' + C.bd, fontFamily: mono}}>
                         <td style={{padding: '6px 8px', color: C.ts}}>{s.slot}</td>
@@ -438,6 +455,21 @@ export default function CharRfhubKeyAdderPanel({initialMod = null, onPatched = n
                           <span style={{fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: badge.c + '18', color: badge.c, fontFamily: mono}}>
                             {badge.icon && <span style={{marginRight: 4}}>{badge.icon}</span>}{badge.t}
                           </span>
+                        </td>
+                        <td style={{padding: '6px 8px'}}>
+                          {corpusMatch && (
+                            <button
+                              onClick={handleVirginizeShortcut}
+                              title={`Open HITAG 2 tab pre-filled with ${s.keyId} virginize data`}
+                              style={{
+                                fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 6,
+                                background: '#FF6B0018', color: '#FF6B00', border: '1px solid #FF6B0040',
+                                cursor: 'pointer', fontFamily: mono, letterSpacing: 0.5,
+                              }}
+                            >
+                              VIRGINIZE →
+                            </button>
+                          )}
                         </td>
                       </tr>
                       );
