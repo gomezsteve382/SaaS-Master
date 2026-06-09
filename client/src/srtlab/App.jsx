@@ -87,6 +87,7 @@ import RfhubKeyTransplantPanel from "./components/RfhubKeyTransplantPanel.jsx";
 import QuickCloneTab from "./tabs/QuickCloneTab.jsx";
 import KeyImporterTab from "./tabs/KeyImporterTab.jsx";
 import GoatMezKeyImporterTab from "./tabs/GoatMezKeyImporterTab.jsx";
+import WiTechServicesTab from "./tabs/WiTechServicesTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import { parseAutelKeyOcr, buildKeySlot, writeKeySlotToRfhub, listRfhubKeySlots } from "./lib/keyImporter.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
@@ -1003,6 +1004,7 @@ const WORKSPACE_TABS = [
   {id:'canuniverse',i:'🌐', l:'CAN UNIVERSE',     s:'awesome-canbus + Eclipse SDV catalog'},
   {id:'loganalyser',i:'📜', l:'LOG ANALYSER',     s:'candump · UDS · iddiff · catalog growth'},
   {id:'fwemul',     i:'🔬', l:'FW EMULATE',       s:'Seed→key from firmware · Unicorn CPU emulator'},
+  {id:'witech',      i:'🏥', l:'wiTECH SERVICES',  s:'Flash lookup · Sales codes · PROXI fetch · Key codes'},
 ]
   // Drop the INFO entry — it now lives behind the floating "?" reference
   // panel rather than occupying a sidebar slot. The id remains a valid
@@ -1031,7 +1033,7 @@ const WORKSPACE_CATEGORIES = {
   loganalyser:'ANALYZE', workflow:'ANALYZE', hitagaes:'ANALYZE', hitag2:'ANALYZE',
   // TOOLS — cross-cutting catalogs and coverage dashboards.
   unlockcov:'TOOLS', alfaobd:'TOOLS', alfaintel:'TOOLS', dispatchcov:'TOOLS',
-  sigdisc:'TOOLS',
+  sigdisc:'TOOLS', witech:'TOOLS',
   // RESEARCH — experimental / read-only knowledge surfaces (collapsed by default).
   binintel:'RESEARCH', patterns:'RESEARCH', kg:'RESEARCH', investigation:'RESEARCH',
   canuniverse:'RESEARCH', fwemul:'RESEARCH',
@@ -1315,6 +1317,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='canuniverse' && <CanUniverseTab/>}
         {tab==='loganalyser' && <LogAnalyserTab/>}
         {tab==='fwemul'     && <FirmwareEmulationTab/>}
+        {tab==='witech'     && <WiTechServicesTab/>}
         {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
           // Funnel through the shared workspace `loadF` so the same
           // upload-time size guard that protects the Dumps tab also

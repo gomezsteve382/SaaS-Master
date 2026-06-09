@@ -21,6 +21,7 @@ import {
   getAutelState, setAutelState,
 } from '../lib/bridgeClient.js';
 import { CDA_MODULES } from '../lib/cdaModuleMap.js';
+import { COMPLETE_MODULES } from '../lib/completeModuleDatabase.generated.js';
 import { getProfileByEcu } from '../lib/cdaProfiles.js';
 import { trpc } from '../../lib/trpc';
 import VehicleModuleManifestPanel from '../components/VehicleModuleManifestPanel.jsx';
@@ -199,6 +200,15 @@ function AdapterPanel({ bridgeUrl, setBridgeUrl, connected, onConnect, onDisconn
 const SCAN_STATES = { idle: '—', pending: '⏳', ok: '✅', no_resp: '❌', error: '⚠️' };
 
 function EcuList({ selected, onSelect, scanStates, onScan, onScanAll, connected, scanningAll }) {
+  const getModuleTooltip = (modName) => {
+    const cm = COMPLETE_MODULES[modName];
+    if (!cm) return undefined;
+    const lines = [];
+    if (cm.description) lines.push(cm.description);
+    if (cm.common_on?.length) lines.push('Common on: ' + cm.common_on.join(', '));
+    if (cm.priority) lines.push(`Priority: ${cm.priority}/5 (${cm.priority === 5 ? 'always present' : cm.priority === 4 ? 'very common' : cm.priority === 3 ? 'common option' : cm.priority === 2 ? 'rare option' : 'specialty'})`);
+    return lines.join('\n') || undefined;
+  };
   return (
     <div style={{
       width: 220, minWidth: 180, background: C.dk2, borderRight: `1px solid #2a2a2a`,
@@ -221,6 +231,7 @@ function EcuList({ selected, onSelect, scanStates, onScan, onScanAll, connected,
             <div
               key={mod.name}
               onClick={() => onSelect(mod)}
+              title={getModuleTooltip(mod.name)}
               style={{
                 padding: '8px 12px', cursor: 'pointer',
                 background: isSelected ? C.a3 + '22' : 'transparent',

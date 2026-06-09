@@ -15,6 +15,7 @@ import {
   computeKey, ALGO, sbecKey,
 } from "../lib/udsEngine.js";
 import { vinWriteDids, VIN_WRITE_DIDS } from "../lib/algos.js";
+import { detectBcmSupplier, validateBackupVinSlot, verifyChecksums, bcmModuleKeyForPartNumber } from '../lib/vinOffsetHelper.js';
 
 /* VIN PROGRAMMER TAB
  *
@@ -391,6 +392,7 @@ export default function VinProgrammerTab() {
   const [file, setFile] = useState(null); // {name, bytes, info}
   const [newVin, setNewVin] = useState('');
   const [result, setResult] = useState(null); // {mode, vin, log, bytes, filename}
+  const [vinValidation, setVinValidation] = useState(null); // post-patch offset validation
   const [error, setError] = useState(null);
   // Batch file drop state
   const [batchFiles, setBatchFiles] = useState([]); // [{name, bytes, info}]
@@ -513,6 +515,23 @@ export default function VinProgrammerTab() {
     }
     try {
       const {data, log} = patchFile(file.info, vinToWrite);
+      // Run post-patch validation using vinOffsetDatabase
+      let validation = null;
+      if (file.info && file.info.type) {
+        try {
+          const typeToKey = { BCM: 'BCM_CHRYSLER', RFHUB: 'RFHUB', GPEC2A: 'ECM_GPEC2A', GPEC2: 'ECM_GPEC2' };
+          const baseKey = typeToKey[file.info.type];
+          if (baseKey) {
+            const pn = file.info.partNumber || file.info.partNumbers?.[0] || '';
+            const finalKey = file.info.type === 'BCM' ? bcmModuleKeyForPartNumber(pn) : baseKey;
+            const supplier = file.info.type === 'BCM' ? detectBcmSupplier(pn) : null;
+            const backupResult = validateBackupVinSlot(data, finalKey);
+            const checksums = verifyChecksums(data, finalKey);
+            validation = { moduleKey: finalKey, supplier, backupResult, checksums };
+          }
+        } catch { /* validation is best-effort */ }
+      }
+      setVinValidation(validation);
       setResult({
         mode,
         vin: vinToWrite,
@@ -710,6 +729,37 @@ export default function VinProgrammerTab() {
           }} data-testid="vinprog-log">
             {result.log.map((line, i) => <div key={i} style={{padding: '1px 0'}}>{line}</div>)}
           </div>
+          {/* VIN Offset Database validation panel */}
+          {vinValidation && (
+            <div style={{marginBottom: 12, padding: '10px 14px', borderRadius: 8,
+              background: vinValidation.backupResult?.match && vinValidation.checksums?.every(c => c.ok) ? '#F0FFF4' : '#FFF3CD',
+              border: `1.5px solid ${vinValidation.backupResult?.match && vinValidation.checksums?.every(c => c.ok) ? C.gn : '#FFCC02'}`}}>
+              <div style={{fontWeight: 800, fontSize: 11, letterSpacing: 0.5, marginBottom: 6,
+                color: vinValidation.backupResult?.match && vinValidation.checksums?.every(c => c.ok) ? C.gn : '#856404'}}>
+                {vinValidation.backupResult?.match && vinValidation.checksums?.every(c => c.ok) ? '✅ OFFSET VALIDATION PASSED' : '⚠️ OFFSET VALIDATION ISSUES'}
+              </div>
+              {vinValidation.supplier && (
+                <div style={{fontSize: 10, color: '#555', marginBottom: 4}}>
+                  BCM Supplier detected: <span style={{fontWeight: 700}}>{vinValidation.supplier.name}</span> ({vinValidation.moduleKey})
+                </div>
+              )}
+              {vinValidation.backupResult?.hasBackupSlot && (
+                <div style={{fontSize: 10, marginBottom: 2, color: vinValidation.backupResult.match ? C.gn : '#856404'}}>
+                  {vinValidation.backupResult.match ? '✓' : '✗'} Backup slot @ 0x{vinValidation.backupResult.backupOffset?.toString(16)}:{' '}
+                  {vinValidation.backupResult.match
+                    ? `matches primary (${vinValidation.backupResult.backupVin})`
+                    : `MISMATCH — backup=${vinValidation.backupResult.backupVin || 'BLANK'} vs primary=${vinValidation.backupResult.primaryVin}`}
+                </div>
+              )}
+              {vinValidation.checksums?.map((cs, i) => (
+                <div key={i} style={{fontSize: 10, marginBottom: 2, color: cs.ok ? C.gn : '#856404'}}>
+                  {cs.ok ? '✓' : '✗'} CRC @ 0x{cs.offset.toString(16)}: {cs.ok
+                    ? `0x${cs.computed.toString(16).padStart(4,'0')} ✓`
+                    : `stored=0x${cs.stored.toString(16).padStart(4,'0')} expected=0x${cs.computed.toString(16).padStart(4,'0')}`} (covers {cs.covers})
+                </div>
+              ))}
+            </div>
+          )}
           <Btn data-testid="vinprog-download" color={C.gn} onClick={onDownload} full>
             DOWNLOAD PATCHED FILE
           </Btn>

@@ -328,3 +328,20 @@
 
 ## Scan All Relay Wiring (Jun 9, 2026)
 - [x] Wire Scan All button to relay: fire 10 03 (+ 10 01 fallback) to each of 22 modules in sequence, update ECU list status badges live (RESPONDED / NO RESPONSE), SCANNING... button state during run
+
+## Unused Database Wire-In Features (Jun 9, 2026)
+
+### vinOffsetDatabase — VIN Offset & CRC Engine
+- [x] Create vinOffsetHelper.js: multi-supplier BCM detection (Chrysler/Continental/Marelli), backup VIN slot lookup, CRC-16-CCITT verifier
+- [x] Wire into VinProgrammerTab: auto-detect BCM supplier from part number, apply correct offset table, validate backup slot at 0x200
+- [x] Wire into ProgramAllTab: post-write CRC verifier — after each live VIN write read back and verify checksum bytes at documented offsets
+
+### completeModuleDatabase — Priority-Ordered Batch & Tooltips
+- [x] Wire completeModuleDatabase into ProgramAllTab: sort batch queue by priority (5→1), skip vin_support:false modules
+- [x] Wire completeModuleDatabase into CdaJ2534Tab scan results: show "Expected on this vehicle" tooltip (common_on text) next to each module row
+
+### masterModuleDatabase — Dealer Service Features
+- [x] Create WiTechServicesTab.jsx: Flash Lookup + Sales Code + PROXI Fetch + Key Code reference panel (cURL templates, param docs, verified module addresses)
+- [x] SalesCodeTab merged into WiTechServicesTab (TCIDProcessedConfig contract documented with cURL template)
+- [x] PROXI fetch documented in WiTechServicesTab (getPROXI contract with electronicPIN + bcmBrand params)
+- [x] getKeyCodes documented in WiTechServicesTab (authPIN + iac params, cURL template)

@@ -10,6 +10,7 @@ import {useBridgeStatus} from "../lib/bridgeClient.js";
 import {useSgwAuth, isSgwAuthenticated} from "../lib/sgwAuth.js";
 import {MasterVinContext} from "../lib/masterVinContext.jsx";
 import {partitionForVin, getRow} from "../lib/moduleRegistry.js";
+import {COMPLETE_MODULES} from "../lib/completeModuleDatabase.generated.js";
 import {programVin} from "../lib/vinProgrammer.js";
 import {backupModule} from "../lib/audit.js";
 import {build} from "@workspace/uds";
@@ -250,7 +251,19 @@ export default function ProgramAllTab(){
     }
   }, [masterVin, blog, setJobId]);
 
-  const allWritable = partition.writable;
+  // Sort writable rows by completeModuleDatabase priority (5=always present → 1=rare option)
+  // and filter out modules explicitly marked vin_support:false (SGW, GWAY)
+  const allWritable = useMemo(() => {
+    const rows = partition.writable.filter(r => {
+      const cm = COMPLETE_MODULES[r.code];
+      return !cm || cm.vin_support !== false;
+    });
+    return [...rows].sort((a, b) => {
+      const pa = COMPLETE_MODULES[a.code]?.priority ?? 3;
+      const pb = COMPLETE_MODULES[b.code]?.priority ?? 3;
+      return pb - pa; // descending: priority 5 first
+    });
+  }, [partition.writable]);
   const sgwBlockedRows = partition.blockedBySgw;
   // Two distinct gates:
   //   1. Bridge reachable — daemon is running, cable is plugged in.
