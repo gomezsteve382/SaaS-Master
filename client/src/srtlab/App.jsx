@@ -77,6 +77,7 @@ import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
 import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
 import J2534UdsConsoleTab from "./tabs/J2534UdsConsoleTab.jsx";
+import CdaJ2534Tab from "./tabs/CdaJ2534Tab.jsx";
 import IpcClusterReprogramTab from "./tabs/IpcClusterReprogramTab.jsx";
 import RfhDumpAnalyzerTab from "./tabs/RfhDumpAnalyzerTab.jsx";
 import ChecksumCalculatorTab from "./tabs/ChecksumCalculatorTab.jsx";
@@ -959,6 +960,7 @@ const WORKSPACE_TABS = [
   {id:'backups',    i:'💾', l:'BACKUPS',          s:'History · Restore'},
   {id:'obd',        i:'📡', l:'LIVE OBD',         s:'UDS · Seed→Key · J2534 · Gould'},
   {id:'uds-console',i:'🔌', l:'UDS CONSOLE',      s:'J2534 bridge · raw UDS · any module'},
+  {id:'cda-j2534',  i:'🩺', l:'CDA J2534',         s:'Adapter · ECU list · Read · DTCs · Unlock'},
   {id:'autelsgw',   i:'🛡️', l:'AUTEL SGW',        s:'MaxiSys SGW bypass · auth · seed/key'},
   {id:'skim',       i:'🛡️', l:'SKIM',             s:'Keys · Immo'},
   {id:'info',       i:'ℹ️', l:'INFO',             s:'Reference'},
@@ -1021,7 +1023,7 @@ const WORKSPACE_CATEGORIES = {
   cdasession:'PROGRAM', cdadbtools:'PROGRAM', ipccluster:'PROGRAM', rfhdump:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
   checksum:'TOOLS',
   // LIVE — connected OBD/J2534 sessions and external bench tools.
-  obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE', autelsgw:'LIVE',
+  obd:'LIVE', 'uds-console':'LIVE', 'cda-j2534':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE', autelsgw:'LIVE',
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
   dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE', efd2bin:'ANALYZE',
   benchval:'ANALYZE', efdiff:'ANALYZE', flashbin:'ANALYZE',
@@ -1273,6 +1275,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='backups'   && <BackupsTab/>}
         {tab==='obd'       && <LiveObdTab vehicle={vehicle} onOpenTab={setTab}/>}
         {tab==='uds-console' && <J2534UdsConsoleTab/>}
+        {tab==='cda-j2534' && <CdaJ2534Tab/>}
         {tab==='autelsgw'    && <AutelSgwTab/>}
         {tab==='skim'      && <SkimSecurityTab vehicle={vehicle}/>}
         {tab==='info'      && <InfoTab vehicle={vehicle}/>}

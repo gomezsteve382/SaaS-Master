@@ -15,7 +15,10 @@ import {
   createAuditLog,
   getUserAuditLogs,
   getSessionAuditLogs,
+  getDb,
 } from "./db";
+import { cdaj2534Sessions } from "../drizzle/schema";
+import { desc } from "drizzle-orm";
 import { storagePut, storageGet, storageGetSignedUrl } from "./storage";
 import crypto from "crypto";
 import { invokeLLM } from "./_core/llm";
@@ -371,6 +374,77 @@ IMPORTANT: Return ONLY the JSON object, no markdown code fences, no explanation 
         } catch {
           return { title: "Error", module: { code: "?", name: "?", tx: "?", rx: "?" }, prerequisites: [], steps: [], warnings: ["Failed to parse AI response"], postActions: [] };
         }
+      }),
+  }),
+
+  // ─── CDA J2534 Session Logging ────────────────────────────────────────────
+  cdaj2534: router({
+    /** Save a completed diagnostic session to the DB */
+    saveSession: publicProcedure
+      .input(z.object({
+        moduleName: z.string(),
+        txId: z.string(),
+        rxId: z.string(),
+        profileId: z.string().optional(),
+        adapterName: z.string().optional(),
+        servicesRun: z.array(z.object({
+          name: z.string(),
+          did: z.string().optional(),
+          request: z.string().optional(),
+          response: z.string().optional(),
+          ok: z.boolean(),
+          errorMsg: z.string().optional(),
+        })).optional(),
+        udsLog: z.array(z.object({
+          t: z.string(),
+          dir: z.string(),
+          hex: z.string(),
+        })).optional(),
+        outcome: z.enum(["ok", "error", "partial"]).default("ok"),
+        errorMessage: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) return { id: null };
+        const [result] = await db.insert(cdaj2534Sessions).values({
+          userId: ctx.user?.id ?? null,
+          moduleName: input.moduleName,
+          txId: input.txId,
+          rxId: input.rxId,
+          profileId: input.profileId ?? null,
+          adapterName: input.adapterName ?? null,
+          servicesRun: input.servicesRun ?? null,
+          udsLog: input.udsLog ?? null,
+          outcome: input.outcome,
+          errorMessage: input.errorMessage ?? null,
+        });
+        return { id: (result as any)?.insertId ?? null };
+      }),
+
+    /** List recent sessions (last 50) */
+    listSessions: publicProcedure
+      .query(async ({ ctx }) => {
+        const db = await getDb();
+        if (!db) return [];
+        return db
+          .select()
+          .from(cdaj2534Sessions)
+          .orderBy(desc(cdaj2534Sessions.createdAt))
+          .limit(50);
+      }),
+
+    /** Get a single session by ID */
+    getSession: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return null;
+        const rows = await db
+          .select()
+          .from(cdaj2534Sessions)
+          .where((t: any) => t.id.eq(input.id))
+          .limit(1);
+        return rows[0] ?? null;
       }),
   }),
 });

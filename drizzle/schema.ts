@@ -167,3 +167,34 @@ export const sec16SyncEvents = mysqlTable("sec16_sync_events", {
 
 export type Sec16SyncEvent = typeof sec16SyncEvents.$inferSelect;
 export type InsertSec16SyncEvent = typeof sec16SyncEvents.$inferInsert;
+
+/**
+ * CDA J2534 Sessions — records each live diagnostic session with module,
+ * profile used, services run, and the full UDS log.
+ */
+export const cdaj2534Sessions = mysqlTable("cdaj2534_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"),
+  /** Module name (ECM, BCM, RFHUB, etc.) */
+  moduleName: varchar("moduleName", { length: 64 }).notNull(),
+  /** TX CAN ID (hex string, e.g. "0x750") */
+  txId: varchar("txId", { length: 16 }).notNull(),
+  /** RX CAN ID (hex string) */
+  rxId: varchar("rxId", { length: 16 }).notNull(),
+  /** Profile ID used (e.g. "bcm", "ecm") */
+  profileId: varchar("profileId", { length: 64 }),
+  /** Adapter name/DLL used */
+  adapterName: varchar("adapterName", { length: 256 }),
+  /** Services executed as JSON array of {name, did, response, ok} */
+  servicesRun: json("servicesRun"),
+  /** Full UDS frame log as JSON array of {t, dir, hex} */
+  udsLog: json("udsLog"),
+  /** Session outcome: ok, error, partial */
+  outcome: mysqlEnum("outcome", ["ok", "error", "partial"]).default("ok").notNull(),
+  /** Error message if outcome != ok */
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Cdaj2534Session = typeof cdaj2534Sessions.$inferSelect;
+export type InsertCdaj2534Session = typeof cdaj2534Sessions.$inferInsert;
