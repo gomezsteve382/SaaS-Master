@@ -247,7 +247,15 @@ Extraction rules:
         ? (normHex(parsed.chipInfoLowSK, 8) || '') + (normHex(parsed.chipInfoHighSK, 8) || '')
         : null;
 
+      // Build candidates: all unique non-null hex IDs extracted, excluding the primary chipId
+      const allIds = [chipId, normHex(parsed.paramLowSK), normHex(parsed.paramHighSK, 4),
+        normHex(parsed.chipInfoLowSK), normHex(parsed.chipInfoHighSK),
+        p0, p1, p2, p3, sk0, sk1, sk2, sk3]
+        .filter((v): v is string => !!v && v !== chipId);
+      const candidates = [...new Set(allIds)];
       return res.json({
+        // keyId is the primary Key ID to use — chipId is the canonical HITAG 2 identifier
+        keyId: chipId || null,
         // Normalized fields for direct tab population
         chipId,
         sk0,
@@ -257,6 +265,8 @@ Extraction rules:
         config,
         page1: p1,
         page2: p2,
+        // Candidates: other hex values found in the image (operator can pick)
+        candidates,
         // Raw extracted fields for display
         chipType:       parsed.chipType || null,
         paramLowSK:     normHex(parsed.paramLowSK),
