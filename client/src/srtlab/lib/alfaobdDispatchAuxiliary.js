@@ -2,46 +2,70 @@
 // catalog JSON. The catalog only resolves the 8 fully-traced families
 // plus 2 fully-traced ECU rows; the upstream RE README documents 31
 // additional explicit `eEcutype` equality checks inside `abf()` whose
-// wrapper names have not yet been catalogued.
+// wrapper names have not yet been fully catalogued.
 //
-// Listing those branches here lets consumers SEE the dispatcher's
-// actual scope (UCONNECT and RADIO_FGA are NOT the only ECU-specific
-// branches) without polluting the auto-generated module — which must
-// stay a pure projection of the catalog JSON.
+// The authoritative data file is ecuBranchAlgorithms.js. This module
+// re-exports the relevant pieces so existing consumers keep working
+// without changes. When the RE agent returns the full 31-entry table,
+// update ecuBranchAlgorithms.js ONLY — everything here auto-updates.
 //
 // Source: attached_assets/alfaobd_seedkey_README_1776573875647.md,
 // "Plus 41 explicit eEcutype equality checks for individual ECUs..."
-//
-// Once the upstream RE traces a wrapper name for one of these ECUs,
-// it should be moved INTO the catalog JSON (and out of this file) so
-// the codegen picks it up automatically. Removing an entry here is
-// safe — consumers must treat it as advisory metadata, never as a
-// computable algorithm.
-const README_ECU_BRANCHES = [
-  "ORC","OCM_PN","ABS_PN","ABS_CHRYSLER","TIPM_CGW",
-  "RADIO_NON_PN","DDM_DT","PDM_DT","AFLS_PN","IPC_PN","EPS_PN",
-  "ADCM","ADCM_PN","ASCM_PN","ASBS_PN","TTPM_PN","CSWM_PN",
-  "LBSS_PN","RBSS_PN","APM_PN","OBCM","BPCM","BPCM_PN","EVCU",
-  "TGW_PN","ICS_PN","CVPM_PN","AMP_PN","ANC_PN","TBM2","TBM2_PN",
-];
 
-// Status marker used by SeedTab to render these rows as advisory-only
-// (no compute affordance), distinguishable from the resolved rows.
-const STATUS_BRANCH_KNOWN = "branch_known_algo_not_traced";
+import {
+  ECU_BRANCH_ALGORITHMS,
+  getBranchByName,
+  getBranchByEcuType,
+  getComputableBranches,
+  getPendingBranches,
+  getBranchCoverage,
+} from './ecuBranchAlgorithms.js';
 
-// One advisory entry per README ECU. Empty levels map = no level
-// resolves to a wrapper today; `_status` is documentation, not data.
+// Flat name list for backward compatibility with SeedTab / AlfaObdIntelTab
+const README_ECU_BRANCHES = ECU_BRANCH_ALGORITHMS.map(e => e.name);
+
+// Status marker used by SeedTab to render pending rows as advisory-only
+const STATUS_BRANCH_KNOWN = 'branch_known_algo_not_traced';
+const STATUS_CONFIRMED    = 'confirmed';
+const STATUS_INFERRED     = 'inferred';
+
+// Legacy AOBD_DISPATCH_AUX shape — pending entries get the old advisory
+// marker; confirmed/inferred entries get their algorithm data.
 const AOBD_DISPATCH_AUX = Object.fromEntries(
-  README_ECU_BRANCHES.map((ecu) => [`ecu_${ecu}`, { _status: STATUS_BRANCH_KNOWN }])
+  ECU_BRANCH_ALGORITHMS.map(e => [
+    `ecu_${e.name}`,
+    e.confidence === 'pending'
+      ? { _status: STATUS_BRANCH_KNOWN }
+      : {
+          _status: e.confidence,
+          algo: e.algo,
+          wrapper: e.wrapper,
+          level: e.level,
+          ecuType: e.ecuType,
+          note: e.note,
+        },
+  ])
 );
 
 // Convenience: merged view of the catalog's resolved dispatch and the
 // auxiliary advisory rows. Consumers (e.g. SeedTab) call this to get
-// the full dispatcher scope; the resolved entries take precedence so
-// a future RE finding in the catalog JSON automatically wins over the
-// placeholder here.
+// the full dispatcher scope; the resolved entries take precedence.
 function mergeDispatch(catalogDispatch) {
   return { ...AOBD_DISPATCH_AUX, ...catalogDispatch };
 }
 
-export { README_ECU_BRANCHES, AOBD_DISPATCH_AUX, STATUS_BRANCH_KNOWN, mergeDispatch };
+export {
+  README_ECU_BRANCHES,
+  AOBD_DISPATCH_AUX,
+  STATUS_BRANCH_KNOWN,
+  STATUS_CONFIRMED,
+  STATUS_INFERRED,
+  mergeDispatch,
+  // Re-export from ecuBranchAlgorithms for direct consumers
+  ECU_BRANCH_ALGORITHMS,
+  getBranchByName,
+  getBranchByEcuType,
+  getComputableBranches,
+  getPendingBranches,
+  getBranchCoverage,
+};
