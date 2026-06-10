@@ -354,4 +354,5 @@
 ## Bug Fixes (Jun 10, 2026)
 - [x] BUG: Publish button doesn't update after new changes — create checkpoint to re-enable Publish
 - [x] Wire 6 confirmed ECU algorithm mappings into ecuBranchAlgorithms.js (ORC=0x107, OCM_PN=0x139, ABS_PN=0x12C, ABS_CHRYSLER=0x12B, TIPM_CGW=0x12E, RADIO_NON_PN=0x143)
-- [ ] Add placeholder stubs for remaining 25 ECUs pending RE agent second pass (stubs already exist as 'pending' entries)
+- [x] Add placeholder stubs for remaining 25 ECUs pending RE agent second pass (stubs already exist as 'pending' entries in ecuBranchAlgorithms.js)
+- [x] BUG: parseKeyRingBuffer silently rejects all keys from FCA Ram/Jeep/Chrysler RFHUB donors — flags 0xDF, 0xDA, 0x79, 0x3B, 0xE3, 0x51, 0x89 not in KNOWN_FLAGS. Fixed by adding all 7 extended FCA platform flags to KNOWN_FLAGS and flagInfo() in rfhubKeyTransplant.js. Verified: donor file 19_rfhub_ogfile_scat.bin now detects 7 keys (was 0).

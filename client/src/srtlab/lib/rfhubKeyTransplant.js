@@ -22,6 +22,15 @@
  *     0x48 = Red Key (Hitag AES, FCA/Stellantis)
  *     0xE6 = Black Key (Hitag AES, FCA/Stellantis)
  *
+ *   EXTENDED FLAGS (observed in FCA Ram/Jeep/Chrysler platforms — bench-observed):
+ *     0xDF = AES Key (FCA platform variant, flag observed in donor file)
+ *     0xDA = AES Key (FCA platform variant)
+ *     0x79 = AES Key (FCA platform variant)
+ *     0x3B = AES Key (FCA platform variant)
+ *     0xE3 = AES Key (FCA platform variant)
+ *     0x51 = AES Key (FCA platform variant)
+ *     0x89 = AES Key (FCA platform variant)
+ *
  *   AUTEL ID = chip_id bytes 0-3 reversed (big-endian display)
  *   Example: EEPROM bytes 64 7E 5E D5 -> Autel ID D55E7E64
  *
@@ -78,7 +87,12 @@ export const RFHUB_MIN_SIZE = 0x1000; // 4KB
  * Known transplantable key flags (bench-verified).
  * Entries with other flags are historical log data and must not be transplanted.
  */
-const KNOWN_FLAGS = new Set([0x01, 0x03, 0x48, 0xE6]);
+const KNOWN_FLAGS = new Set([
+  // Bench-verified (Charger/Challenger)
+  0x01, 0x03, 0x48, 0xE6,
+  // Extended FCA platform flags (observed in Ram/Jeep/Chrysler RFHUB donors)
+  0xDF, 0xDA, 0x79, 0x3B, 0xE3, 0x51, 0x89,
+]);
 
 /** Empty fill pattern prefix (first 4 bytes of an empty ring buffer area) */
 const EMPTY_FILL_PREFIX = [0x5A, 0x5A, 0x95, 0x00];
@@ -94,6 +108,14 @@ export function flagInfo(flag) {
     case 0x48: return { label: 'Red Key',      sub: 'Hitag AES',  color: '#B71C1C' };
     case 0x01: return { label: 'Standard',     sub: 'Hitag2',     color: '#1565C0' };
     case 0x03: return { label: 'Alt Family',   sub: 'Hitag2',     color: '#4527A0' };
+    // Extended FCA platform flags (Ram/Jeep/Chrysler)
+    case 0xDF: return { label: 'AES Key',      sub: 'Hitag AES (FCA)',  color: '#7B1FA2' };
+    case 0xDA: return { label: 'AES Key',      sub: 'Hitag AES (FCA)',  color: '#7B1FA2' };
+    case 0x79: return { label: 'AES Key',      sub: 'Hitag AES (FCA)',  color: '#7B1FA2' };
+    case 0x3B: return { label: 'AES Key',      sub: 'Hitag AES (FCA)',  color: '#7B1FA2' };
+    case 0xE3: return { label: 'AES Key',      sub: 'Hitag AES (FCA)',  color: '#7B1FA2' };
+    case 0x51: return { label: 'AES Key',      sub: 'Hitag AES (FCA)',  color: '#7B1FA2' };
+    case 0x89: return { label: 'AES Key',      sub: 'Hitag AES (FCA)',  color: '#7B1FA2' };
     default:   return { label: `Flag 0x${flag.toString(16).toUpperCase().padStart(2,'0')}`, sub: 'Unknown', color: '#424242' };
   }
 }
