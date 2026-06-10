@@ -46,29 +46,29 @@
 export const ECU_BRANCH_ALGORITHMS = [
   // ── Restraint / Safety ────────────────────────────────────────────────────
   {
-    name: 'ORC',        ecuType: null, algo: 'unknown', wrapper: null, level: 1,
-    confidence: 'pending',
-    note: 'Occupant Restraint Controller — awaiting RE trace',
+    name: 'ORC',        ecuType: 0x107, algo: 'ht', wrapper: null, level: 1,
+    confidence: 'confirmed',
+    note: 'Occupant Restraint Controller — eEcutype 0x107, ad::ht (no wrapper), RE-verified from abf() IL',
     category: 'safety',
   },
   {
-    name: 'OCM_PN',     ecuType: null, algo: 'unknown', wrapper: null, level: 1,
-    confidence: 'pending',
-    note: 'Occupant Classification Module (PN variant) — awaiting RE trace',
+    name: 'OCM_PN',     ecuType: 0x139, algo: 'ht', wrapper: null, level: 1,
+    confidence: 'confirmed',
+    note: 'Occupant Classification Module (PN variant) — eEcutype 0x139, ad::ht (no wrapper), RE-verified from abf() IL',
     category: 'safety',
   },
 
   // ── Braking ───────────────────────────────────────────────────────────────
   {
-    name: 'ABS_PN',     ecuType: null, algo: 'unknown', wrapper: null, level: 1,
-    confidence: 'pending',
-    note: 'Anti-lock Braking System (PN variant) — awaiting RE trace',
+    name: 'ABS_PN',     ecuType: 0x12C, algo: 'ht', wrapper: null, level: 1,
+    confidence: 'confirmed',
+    note: 'Anti-lock Braking System (PN variant) — eEcutype 0x12C, ad::ht (no wrapper), RE-verified from abf() IL',
     category: 'braking',
   },
   {
-    name: 'ABS_CHRYSLER', ecuType: null, algo: 'unknown', wrapper: null, level: 1,
-    confidence: 'pending',
-    note: 'Chrysler-platform ABS — awaiting RE trace',
+    name: 'ABS_CHRYSLER', ecuType: 0x12B, algo: 'ht', wrapper: null, level: 1,
+    confidence: 'confirmed',
+    note: 'Chrysler-platform ABS — eEcutype 0x12B, ad::ht (no wrapper), RE-verified from abf() IL',
     category: 'braking',
   },
   {
@@ -80,9 +80,9 @@ export const ECU_BRANCH_ALGORITHMS = [
 
   // ── Power / Integration ───────────────────────────────────────────────────
   {
-    name: 'TIPM_CGW',   ecuType: null, algo: 'unknown', wrapper: null, level: 1,
-    confidence: 'pending',
-    note: 'Total Integrated Power Module / Central Gateway variant — awaiting RE trace',
+    name: 'TIPM_CGW',   ecuType: 0x12E, algo: 'f', wrapper: null, level: 1,
+    confidence: 'confirmed',
+    note: 'Total Integrated Power Module / Central Gateway variant — eEcutype 0x12E, ad::f, RE-verified from abf() IL',
     category: 'power',
   },
   {
@@ -118,9 +118,9 @@ export const ECU_BRANCH_ALGORITHMS = [
 
   // ── Infotainment / HMI ────────────────────────────────────────────────────
   {
-    name: 'RADIO_NON_PN', ecuType: null, algo: 'unknown', wrapper: null, level: 5,
-    confidence: 'pending',
-    note: 'Non-PN Radio — awaiting RE trace (likely XTEA-BE like UCONNECT)',
+    name: 'RADIO_NON_PN', ecuType: 0x143, algo: 'ao', wrapper: null, level: 5,
+    confidence: 'confirmed',
+    note: 'Non-PN Radio — eEcutype 0x143, ad::ao (XTEA-BE, same family as UCONNECT/RADIO_FGA), RE-verified from abf() IL',
     category: 'infotainment',
   },
   {

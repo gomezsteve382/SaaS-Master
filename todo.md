@@ -350,3 +350,8 @@
 - [x] Confirmed bridgeClient.js already speaks correct Python bridge HTTP protocol (/status /open /connect /sendmsg /readmsg /setfilter /close)
 - [x] Created tools/run_bridge.bat — TOPDON R-Link auto-detection + registry fallback, calls SaaS-Master j2534_bridge.py
 - [x] Created tools/run_bridge_standalone.bat — fully self-contained, writes inline Python bridge to temp and runs it, no external dependencies
+
+## Bug Fixes (Jun 10, 2026)
+- [x] BUG: Publish button doesn't update after new changes — create checkpoint to re-enable Publish
+- [x] Wire 6 confirmed ECU algorithm mappings into ecuBranchAlgorithms.js (ORC=0x107, OCM_PN=0x139, ABS_PN=0x12C, ABS_CHRYSLER=0x12B, TIPM_CGW=0x12E, RADIO_NON_PN=0x143)
+- [ ] Add placeholder stubs for remaining 25 ECUs pending RE agent second pass (stubs already exist as 'pending' entries)

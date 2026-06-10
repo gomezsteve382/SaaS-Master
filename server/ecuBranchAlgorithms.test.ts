@@ -222,14 +222,16 @@ describe('simulated RE agent data integration', () => {
   });
 
   it('coverage stats update correctly when entries are confirmed', () => {
-    // Simulate a scenario where 5 entries are confirmed
+    // Simulate confirming all remaining pending entries
     const mockAlgos = ECU_BRANCH_ALGORITHMS.map((e, i) =>
-      i < 5 ? { ...e, confidence: 'confirmed' as const, ecuType: 0x150 + i } : e
+      e.confidence === 'pending'
+        ? { ...e, confidence: 'confirmed' as const, ecuType: 0x150 + i }
+        : e
     );
     const confirmed = mockAlgos.filter(e => e.confidence === 'confirmed').length;
     const pending   = mockAlgos.filter(e => e.confidence === 'pending').length;
-    expect(confirmed).toBe(5);
-    expect(pending).toBe(26);
+    expect(confirmed).toBe(31);
+    expect(pending).toBe(0);
     expect(confirmed + pending).toBe(31);
   });
 });
