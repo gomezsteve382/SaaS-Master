@@ -3,6 +3,7 @@ import {C} from "../lib/constants.js";
 import {Card,Btn} from "../lib/ui.jsx";
 import {getAuth29Detections, subscribeAuth29, clearAuth29Detections, loadAuth29Detections, getAuth29Unlocks, clearAuth29Unlocks} from "../lib/auth29State.js";
 import {ALGOS, UNLOCK_FALLBACK, xtea_sgw_full, alfaW6, alfaW6By, u32, MOD_UNLOCK} from "../lib/algos.js";
+import {parseSeedResponse, computeSeedKey, FCA_MODULE_ALGO} from "../lib/alfaobdSeedKey.js";
 import {AOBD_W6, AOBD_W7, AOBD_DISPATCH} from "../lib/alfaobdAlgorithms.generated.js";
 import {EXTENDED_ALGORITHMS} from "../lib/extendedAlgorithms.generated.js";
 import {mergeDispatch, STATUS_BRANCH_KNOWN} from "../lib/alfaobdDispatchAuxiliary.js";
@@ -73,6 +74,72 @@ function SeedTab(){
     try{navigator.clipboard.writeText(text).catch(()=>{});}catch(_){}
     setCopiedId(id);setTimeout(()=>setCopiedId(i=>i===id?null:i),1500);
   };
+  // ── Auto-parse 67 XX seed response ──────────────────────────────────────────
+  // Paste the full UDS 67 XX response and the tab extracts the seed, picks the
+  // best algorithm from FCA_MODULE_ALGO (or the module registry), computes the
+  // key, and pre-fills the manual seed field below.
+  const [rawResponse, setRawResponse] = useState('');
+  const [autoModCode, setAutoModCode] = useState('');
+  const [autoResult, setAutoResult] = useState(null);
+  const [autoError, setAutoError] = useState('');
+
+  const autoCompute = useCallback(() => {
+    setAutoError('');
+    setAutoResult(null);
+    const raw = rawResponse.trim();
+    if (!raw) return;
+    try {
+      let seedBytes;
+      const parts = raw.replace(/,/g,' ').trim().split(/\s+/).filter(Boolean);
+      if (parts.length >= 6 && parts[0].toUpperCase() === '67') {
+        // Full 67 XX s0 s1 s2 s3 response
+        seedBytes = parseSeedResponse(raw);
+      } else if (parts.length === 4) {
+        // Bare 4 seed bytes
+        seedBytes = parts.map(h => parseInt(h, 16));
+        if (seedBytes.some(isNaN)) throw new Error('Invalid hex bytes');
+      } else if (parts.length === 1 && /^[0-9A-Fa-f]{8}$/.test(parts[0])) {
+        // 8-char hex string
+        const v = parseInt(parts[0], 16);
+        seedBytes = [(v>>>24)&0xFF,(v>>>16)&0xFF,(v>>>8)&0xFF,v&0xFF];
+      } else {
+        throw new Error('Paste the full 67 XX response (e.g. "67 05 C1 FF CB C1") or 4 seed bytes');
+      }
+      // Determine algo from selected module code (FCA_MODULE_ALGO first, then udsEngine)
+      const fcaInfo = autoModCode ? (FCA_MODULE_ALGO[autoModCode] || null) : null;
+      let opts = {};
+      if (fcaInfo) {
+        opts.algorithm = fcaInfo.algo;
+        if (fcaInfo.wrapper) opts.wrapper = fcaInfo.wrapper;
+        if (fcaInfo.level) opts.securityLevel = fcaInfo.level;
+      } else if (autoModCode) {
+        // Fall back to udsEngine registry algo hint
+        const algoId = MODULE_ALGO_HINT[autoModCode];
+        if (algoId === 'gpec2a' || algoId === 'gpec2') opts.algorithm = 'gpec2a';
+        else if (algoId === 'xtea_sgw') opts.algorithm = 'f';
+        else opts.algorithm = 'w6';
+        if (opts.algorithm === 'w6') opts.wrapper = 'tt'; // sensible default
+      } else {
+        // No module selected — try GPEC2A w6/tt as the most common SRT ECM algo
+        opts.algorithm = 'w6';
+        opts.wrapper = 'tt';
+      }
+      const result = computeSeedKey(seedBytes, opts);
+      const seedHex = seedBytes.map(b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
+      setSh(seedHex); // pre-fill manual seed field
+      setAutoResult({
+        seedHex,
+        keyHex: result.keyHex,
+        sendCommand: result.sendCommand,
+        algorithm: result.algorithm,
+        note: fcaInfo?.note || null,
+        moduleCode: autoModCode || null,
+      });
+    } catch (e) {
+      setAutoError(e.message);
+    }
+  }, [rawResponse, autoModCode]);
+
   // AlfaOBD lookup affordances — these don't pollute the main picker
   // (380 wrappers would be unusable). Selecting a family/level or
   // entering a wrapper name computes alongside the chosen ALGOS entry.
@@ -422,6 +489,66 @@ function SeedTab(){
         </div>}
       </div>
 
+      {/* ── AUTO-PARSE & COMPUTE ──────────────────────────────────────── */}
+      <div data-testid="auto-parse-panel" style={{padding:14,borderRadius:12,background:'#0D0D15',border:'2px solid '+C.sr+'50',marginBottom:16}}>
+        <div style={{fontSize:11,fontWeight:900,color:C.sr,letterSpacing:1.5,marginBottom:6}}>⚡ AUTO-PARSE &amp; COMPUTE</div>
+        <div style={{fontSize:10,color:C.tm,marginBottom:8}}>Paste the full UDS seed response (e.g. <code style={{color:C.a3}}>67 05 C1 FF CB C1</code>) — algorithm is auto-selected from the module.</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 180px',gap:8,marginBottom:8}}>
+          <input
+            data-testid="auto-parse-input"
+            value={rawResponse}
+            onChange={e=>setRawResponse(e.target.value.toUpperCase().replace(/[^0-9A-F\s,]/g,''))}
+            placeholder="67 05 C1 FF CB C1"
+            style={{padding:'10px 12px',borderRadius:9,border:'1.5px solid '+C.bd,background:'#0A0A12',color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:13,fontWeight:700,letterSpacing:2,outline:'none',boxSizing:'border-box',width:'100%'}}
+            onFocus={e=>e.target.style.borderColor=C.sr} onBlur={e=>e.target.style.borderColor=C.bd}
+            onKeyDown={e=>{if(e.key==='Enter')autoCompute();}}
+          />
+          <select
+            data-testid="auto-parse-module-select"
+            value={autoModCode}
+            onChange={e=>setAutoModCode(e.target.value)}
+            style={{padding:'10px 10px',borderRadius:9,border:'1.5px solid '+C.bd,background:C.c2,color:C.tx,fontSize:11,fontFamily:"'Nunito'",boxSizing:'border-box'}}>
+            <option value="">— module (optional) —</option>
+            {Object.entries(FCA_MODULE_ALGO).map(([code,info])=><option key={code} value={code}>{code} — {info.note||info.algo}</option>)}
+            {allMods.filter(m=>!FCA_MODULE_ALGO[m.code]).map(m=><option key={m.code} value={m.code}>{m.code} — {m.name}</option>)}
+          </select>
+        </div>
+        <button
+          data-testid="auto-parse-btn"
+          onClick={autoCompute}
+          disabled={!rawResponse.trim()}
+          style={{width:'100%',padding:'10px',borderRadius:9,border:'none',background:rawResponse.trim()?C.sr:'#333',color:'#fff',fontWeight:900,fontSize:12,letterSpacing:1,cursor:rawResponse.trim()?'pointer':'not-allowed',transition:'background .15s'}}>
+          ⚡ COMPUTE KEY
+        </button>
+        {autoError&&<div data-testid="auto-parse-error" style={{marginTop:8,fontSize:11,color:'#EF5350',fontWeight:700}}>{autoError}</div>}
+        {autoResult&&<div data-testid="auto-parse-result" style={{marginTop:12,padding:14,borderRadius:10,background:'#0A0A12',border:'1.5px solid '+C.sr+'60'}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 32px 1fr',gap:10,alignItems:'center',marginBottom:10}}>
+            <div>
+              <div style={{fontSize:8,color:C.tm,letterSpacing:2,marginBottom:4}}>SEED</div>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:18,fontWeight:800,color:C.a3,letterSpacing:2}}>{autoResult.seedHex}</div>
+            </div>
+            <div style={{textAlign:'center',fontSize:18,color:C.tm}}>→</div>
+            <div>
+              <div style={{fontSize:8,color:C.tm,letterSpacing:2,marginBottom:4}}>KEY</div>
+              <div style={{fontFamily:"'JetBrains Mono'",fontSize:18,fontWeight:800,color:C.sr,letterSpacing:2}}>{autoResult.keyHex}</div>
+            </div>
+          </div>
+          <div style={{padding:'8px 10px',borderRadius:8,background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:12,color:'#40C4FF',letterSpacing:1,marginBottom:8,wordBreak:'break-all'}}>
+            {autoResult.sendCommand}
+          </div>
+          <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+            <span style={{fontSize:9,color:C.tm}}>algo: <code style={{color:C.a4}}>{autoResult.algorithm}</code></span>
+            {autoResult.moduleCode&&<span style={{fontSize:9,color:C.tm}}>module: <code style={{color:C.a4}}>{autoResult.moduleCode}</code></span>}
+            {autoResult.note&&<span style={{fontSize:9,color:C.tm,fontStyle:'italic'}}>{autoResult.note}</span>}
+            <button
+              data-testid="auto-parse-copy-btn"
+              onClick={()=>{try{navigator.clipboard.writeText(autoResult.sendCommand).catch(()=>{});}catch(_){}}}
+              style={{marginLeft:'auto',cursor:'pointer',border:'1.5px solid '+C.sr,padding:'3px 10px',borderRadius:6,background:'transparent',color:C.sr,fontWeight:800,fontSize:9,letterSpacing:.5,fontFamily:"'Nunito'"}}>
+              COPY COMMAND
+            </button>
+          </div>
+        </div>}
+      </div>
       <div style={{fontSize:10,fontWeight:800,color:C.tm,marginBottom:6,letterSpacing:2}}>SEED (HEX)</div>
       <input value={sh} placeholder="e.g. A1B2C3D4" onChange={e=>setSh(e.target.value.toUpperCase().replace(/[^A-F0-9\s]/g,''))}
         style={{width:'100%',padding:'14px 16px',borderRadius:12,border:'2px solid '+C.bd,background:C.c2,color:C.tx,fontFamily:"'JetBrains Mono'",fontSize:20,fontWeight:700,letterSpacing:4,textAlign:'center',outline:'none',boxSizing:'border-box'}}

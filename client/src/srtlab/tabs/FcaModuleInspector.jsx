@@ -73,6 +73,7 @@ import { buildModuleReportData } from "../lib/reportData.js";
 import { buildModulePDF } from "../lib/buildAnalysisPDF.js";
 import { scanForKeys } from "../lib/keyScanner.js";
 import { scanEepromLayout, ROLE_COLORS } from "../lib/eepromLayoutScan.js";
+import { FCA_MODULE_ALGO } from "../lib/alfaobdSeedKey.js";
 
 // Module types the inspector cares about. Other types loaded into the
 // workspace (e.g. '95640' EEPROM backups, EFD payloads, C-Flash blobs)
@@ -1216,6 +1217,27 @@ export default function FcaModuleInspector({ onOpenTab } = {}) {
           {m.fobikCount !== undefined && <div style={{ fontSize: 11, marginBottom: 3 }}>FOBIK: <span style={{ color: C.a4, fontWeight: 700 }}>{m.fobikCount} keys</span></div>}
           {m.securityLock && <div style={{ fontSize: 11, marginBottom: 3 }}>Lock: <span style={{ color: m.securityLock.locked ? C.gn : C.wn, fontWeight: 700 }}>{m.securityLock.locked ? "0x5A LOCKED" : "UNLOCKED"}</span></div>}
           {m.zzzzTamper && <div style={{ fontSize: 11 }}>Tamper: <span style={{ color: m.zzzzTamper.intact ? C.gn : C.wn, fontWeight: 700 }}>{m.zzzzTamper.intact ? "INTACT" : "CLEARED"}</span></div>}
+          {/* UDS Unlock Path — auto-resolved from FCA_MODULE_ALGO */}
+          {(() => {
+            const code = m.type === 'GPEC2A' ? 'ECM' : m.type === 'RFHUB' ? 'RFHUB' : m.type === 'BCM' ? 'BCM' : m.type === 'ZF_8HP_TCU' ? 'TCM' : null;
+            const info = code ? FCA_MODULE_ALGO[code] : null;
+            if (!info) return null;
+            const algoLabel = info.algo === 'w6' ? `w6 / ${info.wrapper}` : info.algo === 'ht' ? 'ht (bit-shuffle)' : info.algo === 'ao' ? 'ao (XTEA-BE)' : info.algo === 'aes_cmac' ? 'AES-CMAC (SGW)' : info.algo;
+            return (
+              <div data-testid={`unlock-path-${m.type}`} style={{ marginTop: 10, padding: '8px 10px', borderRadius: 8, background: '#0D0D1580', border: '1.5px solid ' + C.sr + '40' }}>
+                <div style={{ fontSize: 9, fontWeight: 900, color: C.sr, letterSpacing: 1.5, marginBottom: 5 }}>UDS UNLOCK PATH</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
+                  <div style={{ fontSize: 10, color: C.tm }}>Algorithm</div>
+                  <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, fontWeight: 800, color: C.a4 }}>{algoLabel}</div>
+                  <div style={{ fontSize: 10, color: C.tm }}>Security Level</div>
+                  <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, fontWeight: 800, color: C.a3 }}>0x{(info.level || 1).toString(16).padStart(2,'0').toUpperCase()}</div>
+                  <div style={{ fontSize: 10, color: C.tm }}>Send</div>
+                  <div style={{ fontFamily: "'JetBrains Mono'", fontSize: 10, fontWeight: 800, color: C.a3 }}>27 {((info.level||1)+1).toString(16).padStart(2,'0').toUpperCase()} [key]</div>
+                </div>
+                {info.note && <div style={{ marginTop: 5, fontSize: 9, color: C.tm, fontStyle: 'italic' }}>{info.note}</div>}
+              </div>
+            );
+          })()}
         </Card>)}
       </div>
     </div>}

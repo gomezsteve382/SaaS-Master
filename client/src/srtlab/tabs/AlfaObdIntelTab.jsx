@@ -65,6 +65,8 @@ import {
 } from "../lib/alfaobdDbSchema.generated.js";
 
 import { DISPATCH_GAP_REPORT } from "../lib/dispatchGapReport.generated.js";
+import { AOBD_DISPATCH, AOBD_META } from "../lib/alfaobdAlgorithms.generated.js";
+import { DISPATCH as SK_DISPATCH, FCA_MODULE_ALGO, AOBD_W6_TABLE } from "../lib/alfaobdSeedKey.js";
 
 /* ── palette ──────────────────────────────────────────────────────────── */
 const MONO = "'JetBrains Mono', monospace";
@@ -990,6 +992,101 @@ function DispatchCoveragePanel() {
   );
 }
 
+/* ── Seed-Key Dispatch Cross-Reference Panel ──────────────────────────── */
+function SeedKeyDispatchXRefPanel() {
+  const [q, setQ] = useState("");
+  const rows = useMemo(() => {
+    const out = [];
+    for (const [famKey, levels] of Object.entries(AOBD_DISPATCH)) {
+      for (const [lvlKey, wrapper] of Object.entries(levels)) {
+        if (lvlKey.startsWith('_')) continue;
+        const famMatch = famKey.match(/family_(\d+)/);
+        const lvlMatch = lvlKey.match(/aj_(\d+)/);
+        const familyId = famMatch ? parseInt(famMatch[1]) : null;
+        const secLevel = lvlMatch ? parseInt(lvlMatch[1]) : null;
+        const dispKey = familyId != null && secLevel != null ? familyId * 100 + secLevel : null;
+        const inSK = dispKey != null ? SK_DISPATCH[dispKey] : null;
+        const wrapperMatch = inSK === wrapper;
+        out.push({ source: 'catalog', famKey, lvlKey, wrapper, inSeedKey: inSK || null,
+          status: !inSK ? 'catalog-only' : wrapperMatch ? 'match' : 'mismatch',
+          wrapperComputable: !!(wrapper && AOBD_W6_TABLE[wrapper]) });
+      }
+    }
+    for (const [key, wrapper] of Object.entries(SK_DISPATCH)) {
+      const numKey = parseInt(key);
+      const familyId = Math.floor(numKey / 100);
+      const secLevel = numKey % 100;
+      const famKey = `family_${familyId}`;
+      const lvlKey = `aj_${secLevel}`;
+      const inCatalog = AOBD_DISPATCH[famKey]?.[lvlKey];
+      if (!inCatalog) {
+        out.push({ source: 'seedkey', famKey, lvlKey, wrapper, inSeedKey: wrapper,
+          status: 'seedkey-only', wrapperComputable: !!(AOBD_W6_TABLE[wrapper]) });
+      }
+    }
+    return out;
+  }, []);
+  const filtered = useMemo(() => {
+    if (!q.trim()) return rows;
+    const lq = q.toLowerCase();
+    return rows.filter(r => r.famKey.toLowerCase().includes(lq) || r.lvlKey.includes(lq) || (r.wrapper||'').includes(lq) || r.status.includes(lq));
+  }, [rows, q]);
+  const counts = useMemo(() => ({
+    match: rows.filter(r => r.status === 'match').length,
+    mismatch: rows.filter(r => r.status === 'mismatch').length,
+    catalogOnly: rows.filter(r => r.status === 'catalog-only').length,
+    seedkeyOnly: rows.filter(r => r.status === 'seedkey-only').length,
+  }), [rows]);
+  const statusColor = s => s === 'match' ? '#2E7D32' : s === 'mismatch' ? '#BF360C' : s === 'catalog-only' ? '#1565C0' : '#6A1B9A';
+  const statusLabel = s => s === 'match' ? '✓ MATCH' : s === 'mismatch' ? '✗ MISMATCH' : s === 'catalog-only' ? 'CATALOG ONLY' : 'SEEDKEY ONLY';
+  return (
+    <div data-testid="seedkey-xref-panel" style={{ border: '1px solid #E8E4DE', borderRadius: 10, padding: '12px 14px', marginBottom: 12, background: '#FFF' }}>
+      <div style={{ fontFamily: SANS, fontWeight: 900, fontSize: 12, color: C.tm, letterSpacing: 1.6, textTransform: 'uppercase', marginBottom: 8 }}>
+        🔑 Seed-Key Dispatch Cross-Reference
+      </div>
+      <ProvenanceBanner text={`Cross-join: AOBD_DISPATCH (${AOBD_META.dispatch_keys} catalog keys) vs alfaobdSeedKey DISPATCH (${Object.keys(SK_DISPATCH).length} entries). W6 table: ${AOBD_META.w6_count} wrappers. FCA_MODULE_ALGO: ${Object.keys(FCA_MODULE_ALGO).length} module types.`} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 10 }}>
+        {[['Match', counts.match, '#2E7D32'], ['Mismatch', counts.mismatch, '#BF360C'], ['Catalog only', counts.catalogOnly, '#1565C0'], ['SeedKey only', counts.seedkeyOnly, '#6A1B9A']].map(([label, val, color]) => (
+          <div key={label} style={{ background: '#FAFAF8', border: '1px solid #E8E4DE', borderRadius: 8, padding: '8px 10px' }}>
+            <div style={{ fontFamily: SANS, fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1, textTransform: 'uppercase' }}>{label}</div>
+            <div style={{ fontFamily: MONO, fontSize: 18, fontWeight: 700, color, marginTop: 2 }}>{val}</div>
+          </div>
+        ))}
+      </div>
+      <input value={q} onChange={e => setQ(e.target.value)} placeholder="Filter by family, level, wrapper, or status…"
+        style={{ width: '100%', padding: '7px 10px', borderRadius: 7, border: '1px solid #E8E4DE', background: '#FAFAF8', color: C.tx, fontSize: 11, marginBottom: 8, boxSizing: 'border-box', fontFamily: SANS }} />
+      <div style={{ maxHeight: 320, overflow: 'auto', border: '1px solid #E8E4DE', borderRadius: 8 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: 10 }}>
+          <thead style={{ position: 'sticky', top: 0, background: '#F5F3EF', borderBottom: '1px solid #E8E4DE' }}>
+            <tr>
+              {['FAMILY', 'LEVEL', 'CATALOG WRAPPER', 'SK WRAPPER', 'STATUS', 'COMPUTABLE'].map(h => (
+                <th key={h} style={{ textAlign: 'left', padding: '6px 10px', fontWeight: 800, color: C.tm }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((r, i) => (
+              <tr key={i} style={{ borderTop: '1px solid #E8E4DE88', background: i % 2 === 0 ? 'transparent' : '#FAFAF8' }}>
+                <td style={{ padding: '4px 10px', fontWeight: 800, color: '#1565C0' }}>{r.famKey}</td>
+                <td style={{ padding: '4px 10px' }}>{r.lvlKey}</td>
+                <td style={{ padding: '4px 10px', fontWeight: 700, color: '#2E7D32' }}>{r.wrapper || '—'}</td>
+                <td style={{ padding: '4px 10px', color: r.inSeedKey ? '#2E7D32' : C.tm }}>{r.inSeedKey || '—'}</td>
+                <td style={{ padding: '4px 10px' }}>
+                  <span style={{ fontWeight: 800, fontSize: 9, padding: '2px 6px', borderRadius: 4, background: statusColor(r.status) + '18', color: statusColor(r.status) }}>{statusLabel(r.status)}</span>
+                </td>
+                <td style={{ padding: '4px 10px', textAlign: 'center', color: r.wrapperComputable ? '#2E7D32' : C.tm }}>{r.wrapperComputable ? '✓' : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div style={{ marginTop: 8, fontSize: 10, color: C.tm, fontFamily: SANS }}>
+        FCA_MODULE_ALGO: {Object.entries(FCA_MODULE_ALGO).map(([k,v]) => `${k}→${v.algo}${v.wrapper?'/'+v.wrapper:''}`).join(' · ')}
+      </div>
+    </div>
+  );
+}
+
 /* ── Section 6: DB Schema ──────────────────────────────────────────────── */
 function DbSchemaSection() {
   const [expanded, setExpanded] = useState(null);
@@ -1001,6 +1098,7 @@ function DbSchemaSection() {
         text={`Source: AlfaOBD SQLite catalog DB — ${(ALFAOBD_DB_META.fileSize / 1024 / 1024).toFixed(1)} MB, ${ALFAOBD_DB_META.totalPages.toLocaleString()} × ${ALFAOBD_DB_META.pageSize}-byte pages, encrypted with 1024-byte XOR key (alfaobdDbXorKey.js). ${tableNames.length} tables documented.`}
       />
 
+      <SeedKeyDispatchXRefPanel />
       <DispatchCoveragePanel />
 
       {/* Dispatch gap alert */}
