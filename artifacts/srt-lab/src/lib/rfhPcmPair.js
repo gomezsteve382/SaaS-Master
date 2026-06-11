@@ -1,6 +1,7 @@
 import {crc16, crc8rf, rfhGen2VinCs, rfhGen2DetectMagic} from './crc.js';
 import {writePcmSec6} from './securityBytes.js';
 import {classifyPcmSec6,PCM_VIN_OFFSETS_GPEC2A} from './parseModule.js';
+import {reverse16} from './immoSecret.js';
 
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
 
@@ -116,8 +117,7 @@ function parseSec16(data, off) {
   const csXorWord = (xr << 8) | xr;
   const csOk = !blank && (csStored === csXorWord || csStored === csXorByte || (csStored & 0xFF) === xr);
   const hex = hexBytes(raw);
-  const reversed = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) reversed[i] = raw[15 - i];
+  const reversed = reverse16(raw);
   const bcmHex = hexBytes(reversed);
   const pinDec = ((raw[14] << 8) | raw[15]).toString().padStart(5, '0');
   return {

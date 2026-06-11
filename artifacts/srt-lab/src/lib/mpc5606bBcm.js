@@ -38,6 +38,7 @@
 
 import { crc16 } from './crc.js';
 import { writeBcmSec16Gen2, writeBcmFlatSec16 } from './securityBytes.js';
+import { reverse16 } from './immoSecret.js';
 
 export const MPC5606B_CANONICAL_BASES = [0x5320, 0x5340, 0x5360, 0x5380];
 export const MPC5606B_ALT_BASES       = [0x1320, 0x1340, 0x1360, 0x1380];
@@ -359,8 +360,7 @@ export function applyMpc5606bBcm(data, parsed, { newVin, newSec16Hex } = {}) {
     /* writeBcmSec16Gen2 takes the RFHUB-side SEC16 (BCM stores the
      * byte-reversed form). The tab collects 32 hex in BCM display
      * order, so we reverse here before handing off. */
-    const rfhSec16 = new Uint8Array(16);
-    for (let i = 0; i < 16; i++) rfhSec16[i] = bcmSec16[15 - i];
+    const rfhSec16 = reverse16(bcmSec16);
     const r = writeBcmSec16Gen2(out, rfhSec16);
     out.set(r.bytes);
     sec16Result = {
@@ -432,8 +432,7 @@ export function rekeyVirginBcmFromRfhub(data, rfhSec16, newFobikCount) {
   }
 
   /* BCM SEC16 = reverse of RFHUB SEC16 (byte-swap across the 16-byte slot) */
-  const bcmSec16 = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) bcmSec16[i] = rfhSec16[15 - i];
+  const bcmSec16 = reverse16(rfhSec16);
 
   /* Step 1 — Fresh copy of the source buffer. */
   const buf = new Uint8Array(data);

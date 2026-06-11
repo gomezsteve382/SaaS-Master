@@ -29,6 +29,7 @@ import {
   writeRfhSec16FromBcm,
   writeXc2268Sec16,
 } from './securityBytes.js';
+import { reverse16 } from './immoSecret.js';
 
 const IMMO_BACKUP_SIZE = 24 * 8; // 192 bytes (IMMO_REC × IMMO_KC)
 
@@ -663,8 +664,7 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
     let bcmPatched;
     try {
       const r1 = writeBcmSec16Gen2(bcm.data, rfhSec16);
-      const bcmSec16BE = new Uint8Array(16);
-      for (let i = 0; i < 16; i++) bcmSec16BE[i] = rfhSec16[15 - i];
+      const bcmSec16BE = reverse16(rfhSec16);
       // writeBcmFlatSec16 self-guards against an overlapping mirror1 at
       // 0x40C0 (see securityBytes.js) — no caller-side skip needed.
       const flat = writeBcmFlatSec16(r1.bytes, bcmSec16BE);
@@ -749,7 +749,7 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
   const rfhAfter = parseModule(rfhPatched, rfh.name + '_SYNC');
   const slot1 = rfhAfter?.sec16s?.[0];
   const slot2 = rfhAfter?.sec16s?.[1];
-  const expectedRfh = Array.from(bcmSec16BE).reverse();
+  const expectedRfh = reverse16(bcmSec16BE);
   const slot1Eq = slot1?.raw && expectedRfh.every((b, i) => slot1.raw[i] === b);
   const slot2Eq = slot2?.raw && expectedRfh.every((b, i) => slot2.raw[i] === b);
   ok('Round-trip: parseModule(patched RFH).sec16s[0].raw = reverse(BCM SEC16)', !!slot1Eq);
