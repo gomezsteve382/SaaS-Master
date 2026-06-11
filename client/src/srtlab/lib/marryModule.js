@@ -207,6 +207,81 @@ export function marryModule(cfg) {
   };
 }
 
+/**
+ * marryAll — bring an RFHUB and/or a PCM into a set with a married BCM as the
+ * single source of truth. BCM is authoritative: both targets are derived from
+ * the SAME BCM root (RFH SEC16 = reverse(BCM), PCM SEC6 = reverse(BCM)[0:6]),
+ * so they are guaranteed mutually in sync. Each target is married via
+ * marryModule (derive → write → re-parse-verify), then a cross-sync check
+ * re-reads both outputs and confirms they share the BCM root. All-or-nothing:
+ * ok only when every provided target married + verified AND cross-sync passes.
+ *
+ * @param {object} cfg
+ * @param {{bytes:Uint8Array, info?:object}} cfg.bcm   authoritative source (required)
+ * @param {{bytes:Uint8Array, info?:object}} [cfg.rfhub]  target (optional)
+ * @param {{bytes:Uint8Array, info?:object}} [cfg.pcm]    target (optional)
+ * @param {string}  [cfg.vin]
+ * @param {boolean} [cfg.allowUnverifiedTarget]          needed for Gen1/XC2268 RFHUB
+ * @returns {{ ok, source:'BCM', results:{rfhub?,pcm?}, crossSync, checks, files:[{name,bytes}] }}
+ */
+export function marryAll(cfg) {
+  const { bcm, rfhub, pcm, vin, allowUnverifiedTarget = false } = cfg || {};
+  const checks = [];
+  const note = (label, pass, detail) => { checks.push({ label, pass: !!pass, detail: detail || '' }); return !!pass; };
+  const bail = (label, detail) => ({ ok: false, source: 'BCM', results: {}, crossSync: false, checks: [{ label, pass: false, detail }], files: [] });
+
+  if (!bcm?.bytes?.length) return bail('BCM source provided', 'BCM is the source of truth and is required');
+  if (!rfhub && !pcm) return bail('At least one target provided', 'provide an RFHUB and/or a PCM to marry');
+
+  const bcmSrc = { bytes: bcm.bytes, info: bcm.info };
+  const results = {};
+  const files = [];
+  const vinTag = vin ? '_' + String(vin).trim() : '';
+
+  if (rfhub?.bytes?.length) {
+    const r = marryModule({ source: bcmSrc, target: { bytes: rfhub.bytes, info: rfhub.info }, vin, allowUnverifiedTarget });
+    results.rfhub = r;
+    note(`RFHUB married (${r.op || '—'})`, r.ok && r.verified, r.reason || (r.grounding && r.grounding.level) || '');
+    if (r.ok && r.bytes) files.push({ name: `RFHUB_MARRIED${vinTag}.bin`, bytes: r.bytes });
+  }
+  if (pcm?.bytes?.length) {
+    const r = marryModule({ source: bcmSrc, target: { bytes: pcm.bytes, info: pcm.info }, vin, allowUnverifiedTarget });
+    results.pcm = r;
+    note(`PCM married (${r.op || '—'})`, r.ok && r.verified, r.reason || (r.grounding && r.grounding.level) || '');
+    if (r.ok && r.bytes) files.push({ name: `PCM_MARRIED${vinTag}.bin`, bytes: r.bytes });
+  }
+
+  /* Cross-sync: independently re-derive the BCM root and confirm BOTH married
+   * outputs carry it (RFHUB slot1 == root, PCM SEC6 == root[0:6]). This is the
+   * "all 3 are in sync" guarantee, checked on the actual output bytes. */
+  let crossSync = true;
+  const root = resolveRootSecret(bcm.bytes, asInfo(bcm.bytes, bcm.info, 'bcm'));
+  if (!root.ok) crossSync = false;
+  if (root.ok && results.rfhub?.ok && results.rfhub.bytes) {
+    const slot = parseModule(results.rfhub.bytes, 'rfh')?.sec16s?.[0]?.raw;
+    crossSync = crossSync && !!slot && arrEq(Array.from(slot).slice(0, 16), Array.from(root.rfhSec16));
+  }
+  if (root.ok && results.pcm?.ok && results.pcm.bytes) {
+    const sec6 = parseModule(results.pcm.bytes, 'pcm')?.pcmSec6?.raw;
+    crossSync = crossSync && !!sec6 && arrEq(Array.from(sec6).slice(0, 6), Array.from(pcmSec6FromRfh(root.rfhSec16)));
+  }
+  note('Cross-sync: RFHUB SEC16 and PCM SEC6 both derive from the BCM root', crossSync,
+    root.ok ? '' : 'BCM root unresolved');
+
+  /* Direct RFHUB <-> PCM verification pass: when both targets married, confirm
+   * the two OUTPUTS agree with each other (PCM SEC6 == married RFHUB SEC16[0:6]),
+   * independent of the BCM. Belt-and-suspenders end-to-end on the real bytes. */
+  if (results.rfhub?.ok && results.rfhub.bytes && results.pcm?.ok && results.pcm.bytes) {
+    const rfhSlot = parseModule(results.rfhub.bytes, 'rfh')?.sec16s?.[0]?.raw;
+    const pcmSec6 = parseModule(results.pcm.bytes, 'pcm')?.pcmSec6?.raw;
+    const direct = !!rfhSlot && !!pcmSec6 && arrEq(Array.from(pcmSec6).slice(0, 6), Array.from(rfhSlot).slice(0, 6));
+    note('Direct RFHUB ↔ PCM cross-check (married outputs agree)', direct);
+    crossSync = crossSync && direct;
+  }
+
+  return { ok: checks.every((c) => c.pass) && files.length > 0, source: 'BCM', results, crossSync, checks, files };
+}
+
 /* Re-parse `out` and assert the written secret reads back exactly as derived. */
 function verifyMarriage(out, op, { rfhSec16, bcmSec16 }, ok) {
   let re;
