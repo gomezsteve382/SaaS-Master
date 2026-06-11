@@ -407,14 +407,26 @@ function SeedTab(){
         </button>
       </div>
 
+      <div style={{display:'flex',gap:14,alignItems:'center',fontSize:9,color:C.tm,marginBottom:6,flexWrap:'wrap'}}>
+        <span style={{fontWeight:800,letterSpacing:.5}}>CONFIDENCE:</span>
+        <span><span style={{display:'inline-block',width:6,height:6,borderRadius:'50%',background:'#2E7D32',marginRight:4}}/>bench-verified</span>
+        <span><span style={{display:'inline-block',width:6,height:6,borderRadius:'50%',background:'#F9A825',marginRight:4}}/>extracted · unconfirmed</span>
+        <span><span style={{display:'inline-block',width:6,height:6,borderRadius:'50%',background:'#D32F2F',marginRight:4}}/>unverified — try on bench, don't trust</span>
+      </div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(130px,1fr))',gap:6,marginBottom:16}}>
-        {PICKER_ALGOS.map(a=><div key={a.id} title={a.extended?(a.docstring||a.tag):a.h} onClick={()=>{setAl(a.id);setAll(false);setFallback(false);}} style={{
+        {PICKER_ALGOS.map(a=>{
+          // Confidence dot from the trust ledger (algoProvenance.js): green =
+          // bench-verified, amber = extracted-but-unconfirmed, red = unverified.
+          const badge=confidenceBadge(groundingFor(a.id));
+          const dot=badge.tone==='good'?'#2E7D32':badge.tone==='warn'?'#F9A825':'#D32F2F';
+          return <div key={a.id} title={`${a.extended?(a.docstring||a.tag):a.h} — ${badge.text}`} onClick={()=>{setAl(a.id);setAll(false);setFallback(false);}} style={{
           padding:'9px 11px',borderRadius:10,cursor:'pointer',transition:'all 0.2s',position:'relative',
           background:al===a.id&&!all&&!fallback?C.sr+'12':C.c2,border:`1.5px solid ${al===a.id&&!all&&!fallback?C.sr:C.bd}`}}>
-          <div style={{fontSize:11,fontWeight:800,color:al===a.id&&!all&&!fallback?C.sr:C.tx}}>{a.n}</div>
+          <div style={{fontSize:11,fontWeight:800,color:al===a.id&&!all&&!fallback?C.sr:C.tx,paddingLeft:10}}>{a.n}</div>
           <div style={{fontSize:8,color:C.tm}}>{a.h}</div>
+          <span title={badge.text} style={{position:'absolute',top:7,left:7,width:6,height:6,borderRadius:'50%',background:dot}}/>
           {a.extended&&<span data-testid={`ext-chip-${a.tag}`} style={{position:'absolute',top:4,right:4,fontSize:7,fontWeight:800,letterSpacing:.5,padding:'1px 4px',borderRadius:3,background:'#9C27B014',color:'#6A1B9A'}}>EXT</span>}
-        </div>)}
+        </div>;})}
         <div data-testid="fallback-chain-tile" onClick={()=>{setFallback(true);setAll(false);}} style={{padding:'9px 11px',borderRadius:10,cursor:'pointer',background:fallback?'#1B5E2012':C.c2,border:`1.5px solid ${fallback?'#1B5E20':C.bd}`}}>
           <div style={{fontSize:11,fontWeight:800,color:fallback?'#1B5E20':C.tx}}>FALLBACK</div>
           <div style={{fontSize:8,color:C.tm}}>Try {FALLBACK_ALGOS.length} · UNLOCK_FALLBACK chain</div>

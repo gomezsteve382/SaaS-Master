@@ -26,6 +26,7 @@
 
 import { writePcmSec6 } from './securityBytes.js';
 import { writeModuleVIN } from './fileUtils.js';
+import { reverse16 } from './immoSecret.js';
 
 /**
  * P1 — TwinTab.applyPcmFromBcm.
@@ -44,9 +45,9 @@ import { writeModuleVIN } from './fileUtils.js';
  * non-canonical PCM size (engine writer refuses).
  */
 export function applyPcmFromBcm(pcmBuf, bcmSec16Stored) {
-  const sec16Rev = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) sec16Rev[i] = bcmSec16Stored[15 - i];
-  return writePcmSec6(pcmBuf, sec16Rev);
+  // BCM stores SEC16 byte-reversed vs the RFH form; reverse16 yields the RFH
+  // form the engine writer slices its first 6 bytes from. (immoSecret.js)
+  return writePcmSec6(pcmBuf, reverse16(bcmSec16Stored));
 }
 
 /**

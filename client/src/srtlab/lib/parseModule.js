@@ -1,4 +1,5 @@
 import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs,RFH_GEN2_VIN_CS_KNOWN_MAGICS} from './crc.js';
+import {reverse16} from './immoSecret.js';
 import {isXc2268Rfhub,parseXc2268Image} from './xc2268Rfhub.js';
 import {isZf8hpImage,parseZf8hpImage} from './zf8hp.js';
 import {TC,TL,SKIM_VALUES,IMMO_REC,IMMO_KC,IMMO_BLOCK,SKIM_OFF} from './constants.js';
@@ -1233,7 +1234,7 @@ function parseModule(data,filename,opts){
       const csOk=storedCs===calcCs;
       const blank=raw16.every(b=>b===0xFF||b===0x00);
       const hex=Array.from(raw16).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-      const reversed=new Uint8Array(16);for(let i=0;i<16;i++)reversed[i]=raw16[15-i];
+      const reversed=reverse16(raw16);
       const reversedHex=Array.from(reversed).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
       info.bcmSec16={offset:0x838,raw:raw16,hex,reversed,reversedHex,storedCs,calcCs,csOk,blank};
     }

@@ -48,28 +48,28 @@ function algoTarget(id) {
   switch (id) {
     case 'gpec1': return 'Pre-2008 GPEC1 PCM';
     case 'gpec2': return 'Continental GPEC2 PCM';
-    case 'gpec2_q2': return 'GPEC2 secondary (VILLAIN q2)';
+    case 'gpec2_q2': return 'GPEC2 secondary (q2 const · unverified)';
     case 'gpec2f': return 'GPEC2 Flash boot';
-    case 'gpec2f_q2': return 'GPEC2 Flash secondary (VILLAIN q2)';
+    case 'gpec2f_q2': return 'GPEC2 Flash secondary (q2 const · unverified)';
     case 'gpec2e': return 'GPEC2 EPROM mode';
-    case 'gpec2e_q2': return 'GPEC2 EPROM secondary (VILLAIN q2)';
-    case 'gpec2e_q3': return 'GPEC2 EPROM tertiary (VILLAIN q3)';
-    case 'gpec2e_q4': return 'GPEC2 EPROM quaternary (VILLAIN q4)';
+    case 'gpec2e_q2': return 'GPEC2 EPROM secondary (q2 const · unverified)';
+    case 'gpec2e_q3': return 'GPEC2 EPROM tertiary (q3 const · unverified)';
+    case 'gpec2e_q4': return 'GPEC2 EPROM quaternary (q4 const · unverified)';
     case 'gpec3': return '2018+ GPEC3 PCM';
-    case 'gpec3_q2': return 'GPEC3 EPROM secondary (VILLAIN q2)';
+    case 'gpec3_q2': return 'GPEC3 EPROM secondary (q2 const · unverified)';
     case 'gpec2a': return 'GPEC2A SRT/Hellcat';
-    case 'gpec2a_q2': return 'GPEC2A EPROM secondary (VILLAIN q2)';
+    case 'gpec2a_q2': return 'GPEC2A EPROM secondary (q2 const · unverified)';
     case 'gpec15': return 'GPEC2 2015-18';
-    case 'gpec15_q2': return 'GPEC2 2015 secondary (VILLAIN q2)';
+    case 'gpec15_q2': return 'GPEC2 2015 secondary (q2 const · unverified)';
     case 'ngc': return 'NGC PCM (Daimler era)';
     case 'jtec': return 'JTEC (key always 0x00000000)';
-    case 'cda6': return 'BCM / ABS / IPC (2016+)';
-    case 't80':   return 'TIPM 0x80 (t8001)';
-    case 't36':   return 'TIPM 0x36 (t3605)';
-    case 't81':   return 'TIPM 0x81 (t8101)';
-    case 't3c':   return 'TIPM 0x3C (t3c)';
-    case 't3608': return 'TIPM 0x08 (t3608, VILLAIN confirmed)';
-    case 'tc605': return 'TIPM 0xC6 (tc605, VILLAIN confirmed)';
+    case 'cda6': return 'BCM / ABS / IPC (2016+) · UNVERIFIED formula';
+    case 't80':   return 'TIPM 0x80 (t8001 · mixing unverified)';
+    case 't36':   return 'TIPM 0x36 (t3605 · mixing unverified)';
+    case 't81':   return 'TIPM 0x81 (t8101 · mixing unverified)';
+    case 't3c':   return 'TIPM 0x3C (t3c · mixing unverified)';
+    case 't3608': return 'TIPM 0x08 (t3608 · tables extracted, mixing unverified)';
+    case 'tc605': return 'TIPM 0xC6 (tc605 · tables extracted, mixing unverified)';
     default: return '';
   }
 }

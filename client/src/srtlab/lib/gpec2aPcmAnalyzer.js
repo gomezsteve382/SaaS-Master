@@ -35,6 +35,7 @@ import {
   writePcmSec6,
 } from './securityBytes.js';
 import { extractRfhPflashIdentity } from './rfhPflashIdentity.js';
+import { reverse16, pcmSec6FromRfh } from './immoSecret.js';
 
 /* Valid VIN body: 17 chars, A–Z / 0–9, no I, O, Q. */
 export const GPEC2A_VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
@@ -265,11 +266,10 @@ export function derivePcmSec6FromDonor(donorMod) {
   if (donorMod.type === 'BCM') {
     const r = resolveBcmSec16(donorMod.data);
     if (!r || !r.bytes || r.bytes.length < 16 || r.blank) return null;
-    const rfhSec16 = new Uint8Array(16);
-    for (let i = 0; i < 16; i++) rfhSec16[i] = r.bytes[15 - i];
+    const rfhSec16 = reverse16(r.bytes.slice(0, 16));
     if (allFill(rfhSec16, 0xff) || allFill(rfhSec16, 0x00)) return null;
     return {
-      sec6: rfhSec16.slice(0, 6),
+      sec6: pcmSec6FromRfh(rfhSec16),
       rfhSec16,
       source: 'BCM',
       detail: `reverse(BCM SEC16 · ${r.source || 'resolved'})[0:6]`,
@@ -281,7 +281,7 @@ export function derivePcmSec6FromDonor(donorMod) {
     const rfhSec16 = new Uint8Array(vs.bytes);
     if (allFill(rfhSec16, 0xff) || allFill(rfhSec16, 0x00)) return null;
     return {
-      sec6: rfhSec16.slice(0, 6),
+      sec6: pcmSec6FromRfh(rfhSec16),
       rfhSec16,
       source: 'RFHUB',
       detail: 'RFHUB SEC16[0:6]',
