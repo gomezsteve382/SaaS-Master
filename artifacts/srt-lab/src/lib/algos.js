@@ -1,5 +1,11 @@
 const u32=n=>n>>>0;
 function sxor(s,c){let k=u32(s);for(let i=0;i<5;i++)k=k&0x80000000?u32((k<<1)^u32(c)):u32(k<<1);return k;}
+/* cda6 — default body-bus unlock (BCM/RFHUB/ABS/IPC/EPS/radio/ORC/HVAC).
+ * UNVERIFIED: the constants 0x4B129F/0x1234/0xABCD appear in NO extraction
+ * artifact. CDA.swf confirms only which modules carry the "cda6" *label*, not
+ * this transform, and there are no live seed→key pairs. Highest blast radius
+ * of any single guess in the tool — see algoProvenance.js. Do not present its
+ * output as known-correct. */
 function cda6(s){let k=u32(s);k=u32(k^0x4B129F);k=u32((k<<3)|(k>>>29));k=u32(k+0x1234);k=u32(k^0xABCD);return u32((k>>>5)|(k<<27));}
 const NT=[0x44,0x41,0x49,0x4D,0x4C,0x45,0x52,0x43,0x48,0x52,0x59,0x53,0x4C,0x45,0x52,0x31],NS=[0x9D9F,0xCE48,0xB0F3,0xD99B,0xA720,0xFDD6,0x836D,0x6F8E];
 // NGC 14×32-bit pre-computation table — extracted from VILLAIN memory dump
@@ -143,6 +149,7 @@ function alfaAo(seedBytes){
 // generated module isn't pulled into the algos.js import graph for
 // callers that only need the SGW XTEA bits.
 import { AOBD_W6 } from "./alfaobdAlgorithms.generated.js";
+import { groundingFor } from "./algoProvenance.js";
 
 function alfaW6By(seedBytes,name){
   const rs=AOBD_W6[name];
@@ -313,30 +320,30 @@ function ptim_lx(seed){
 const ALGOS=[
   {id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},
   {id:'gpec2',n:'GPEC2',h:'Continental',fn:s=>sxor(s,0xE72E3799)},
-  {id:'gpec2_q2',n:'GPEC2 q2',h:'0x1B64DB03 (VILLAIN q2)',fn:s=>sxor(s,0x1B64DB03)},
+  {id:'gpec2_q2',n:'GPEC2 q2',h:'0x1B64DB03 · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0x1B64DB03)},
   {id:'gpec2f',n:'GPEC2 Flash',h:'Flash',fn:s=>sxor(s,0x966AEEB1)},
-  {id:'gpec2f_q2',n:'GPEC2 Flash q2',h:'0x440BCE28 (VILLAIN q2)',fn:s=>sxor(s,0x440BCE28)},
+  {id:'gpec2f_q2',n:'GPEC2 Flash q2',h:'0x440BCE28 · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0x440BCE28)},
   {id:'gpec2e',n:'GPEC2 EPROM',h:'EPROM',fn:s=>sxor(s,0x3F711F5A)},
-  {id:'gpec2e_q2',n:'GPEC2 EPROM q2',h:'0xC3573AE9 (VILLAIN q2)',fn:s=>sxor(s,0xC3573AE9)},
-  {id:'gpec2e_q3',n:'GPEC2 EPROM q3',h:'0x725EF016 (VILLAIN q3)',fn:s=>sxor(s,0x725EF016)},
-  {id:'gpec2e_q4',n:'GPEC2 EPROM q4',h:'0x58329671 (VILLAIN q4)',fn:s=>sxor(s,0x58329671)},
+  {id:'gpec2e_q2',n:'GPEC2 EPROM q2',h:'0xC3573AE9 · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0xC3573AE9)},
+  {id:'gpec2e_q3',n:'GPEC2 EPROM q3',h:'0x725EF016 · q3 const, sxor UNVERIFIED',fn:s=>sxor(s,0x725EF016)},
+  {id:'gpec2e_q4',n:'GPEC2 EPROM q4',h:'0x58329671 · q4 const, sxor UNVERIFIED',fn:s=>sxor(s,0x58329671)},
   {id:'gpec3',n:'GPEC3',h:'2018+',fn:s=>sxor(s,0x129D657F)},
-  {id:'gpec3_q2',n:'GPEC3 EPROM q2',h:'0xD0726B89 (VILLAIN q2)',fn:s=>sxor(s,0xD0726B89)},
+  {id:'gpec3_q2',n:'GPEC3 EPROM q2',h:'0xD0726B89 · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0xD0726B89)},
   {id:'gpec2a',n:'GPEC2A',h:'GPEC2A',fn:s=>sxor(s,0xCE853A6F)},
-  {id:'gpec2a_q2',n:'GPEC2A EPROM q2',h:'0x3BA8FDC7 (VILLAIN q2)',fn:s=>sxor(s,0x3BA8FDC7)},
+  {id:'gpec2a_q2',n:'GPEC2A EPROM q2',h:'0x3BA8FDC7 · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0x3BA8FDC7)},
   {id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},
-  {id:'gpec15_q2',n:'GPEC2 2015 q2',h:'0xCFB81A2E (VILLAIN q2)',fn:s=>sxor(s,0xCFB81A2E)},
+  {id:'gpec15_q2',n:'GPEC2 2015 q2',h:'0xCFB81A2E · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0xCFB81A2E)},
   {id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},
   {id:'jtec',n:'JTEC',h:'Fixed 0000',fn:()=>0},
-  {id:'sbec',n:'SBEC (legacy)',h:'(seed*4)+0x9018',fn:s=>u32(s*4+0x9018)},
-  {id:'cda6',n:'CDA6',h:'BCM/ABS/IPC',fn:s=>cda6(s)},
-  {id:'xtea_sgw',n:'SGW (XTEA)',h:'2018+ Secure Gateway (CDA.swf)',fn:s=>xtea_sgw(s)},
-  {id:'t80',  n:'TIPM 0x80',h:'t8001 (VILLAIN confirmed)',fn:s=>tipm(s,'a')},
-  {id:'t36',  n:'TIPM 0x36',h:'t3605 (VILLAIN confirmed)',fn:s=>tipm(s,'b')},
-  {id:'t81',  n:'TIPM 0x81',h:'t8101 (VILLAIN confirmed)',fn:s=>tipm(s,'c')},
-  {id:'t3c',  n:'TIPM 0x3C',h:'t3c   (VILLAIN confirmed)',fn:s=>tipm(s,'d')},
-  {id:'t3608',n:'TIPM 0x08',h:'t3608 (VILLAIN confirmed)',fn:s=>tipm(s,'e')},
-  {id:'tc605',n:'TIPM 0xC6',h:'tc605 (VILLAIN confirmed)',fn:s=>tipm(s,'f')},
+  {id:'sbec',n:'SBEC (legacy)',h:'(seed*4)+0x9018 · UNVERIFIED, no source',fn:s=>u32(s*4+0x9018)},
+  {id:'cda6',n:'CDA6',h:'BCM/ABS/IPC · UNVERIFIED formula (label only in CDA.swf)',fn:s=>cda6(s)},
+  {id:'xtea_sgw',n:'SGW (XTEA)',h:'2018+ SGW · key from CDA.swf · may be SERVER-SIDE',fn:s=>xtea_sgw(s)},
+  {id:'t80',  n:'TIPM 0x80',h:'t8001 · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'a')},
+  {id:'t36',  n:'TIPM 0x36',h:'t3605 · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'b')},
+  {id:'t81',  n:'TIPM 0x81',h:'t8101 · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'c')},
+  {id:'t3c',  n:'TIPM 0x3C',h:'t3c   · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'d')},
+  {id:'t3608',n:'TIPM 0x08',h:'t3608 · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'e')},
+  {id:'tc605',n:'TIPM 0xC6',h:'tc605 · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'f')},
   // ── AlfaOBD seed-key family (RE'd from AlfaOBD.exe .NET IL) ──
   {id:'alfa_ht',n:'AlfaOBD ht',h:'w6(0x41AA42BB,0x22BA9A31)',fn:alfaHtU32},
   {id:'alfa_f', n:'AlfaOBD f',  h:'XTEA64 LE seed',           fn:alfaFU32},
@@ -370,6 +377,18 @@ const ALGOS=[
   // truth for what gets computed.
   {id:'alfa_w6_custom',n:'AlfaOBD w6 (custom)',h:'wrapper name or manual (r, s)',fn:()=>0,custom:'alfa_w6'},
 ];
+
+/* Attach the honest grounding record (algoProvenance.js) to every algorithm so
+ * the SeedTab/unlock UI can render a confidence badge instead of trusting the
+ * free-text `h` hint. `grounding` = {level, source, caveat}; defaults to
+ * 'unverified' for any id without an explicit ledger entry. */
+for (const a of ALGOS) a.grounding = groundingFor(a.id);
+
+/** Grounding record for an unlock id (used by unlockKey / SeedTab). Unknown or
+ * missing id resolves to cda6 at runtime, which is itself UNVERIFIED. */
+export function groundingForUnlock(unlockId) {
+  return groundingFor(unlockId || 'cda6');
+}
 
 // Look up an unlock algorithm by the id used in MODULE_TARGETS.unlock.
 // Returns a u32 key for the given u32 seed, or null if the id is unknown.
