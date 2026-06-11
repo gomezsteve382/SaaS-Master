@@ -7,6 +7,7 @@ import PcmRepairWizard from "../components/PcmRepairWizard.jsx";
 import PairingRepairPanel from "../components/PairingRepairPanel.jsx";
 import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
 import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16, writeXc2268Sec16 } from "../lib/securityBytes.js";
+import { writerGrounding, GROUNDING } from "../lib/algoProvenance.js";
 import { isXc2268Rfhub } from "../lib/xc2268Rfhub.js";
 import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
 import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, corruptFillError, detectCorruptFill, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
@@ -3803,11 +3804,31 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         const snapR = new Uint8Array(rfh.bytes);
         setOriginals(prev => ({ ...prev, rfh: { bytes: snapR, filename: rfh.file?.name || 'RFH' } }));
         const rfhIsXc2268 = isXc2268Rfhub(rfh.bytes);
+        /* Ultimate-machine gate: the XC2268 SEC16 writer is UNVERIFIED (its
+         * offset map incl. the image checksum was reconstructed from a
+         * screenshot — see algoProvenance.js). Stamping an unverified secret
+         * into a real 2019+ Ram RFHUB can brick it, so require an explicit,
+         * informed acknowledgement before this write — same standard as the
+         * marryModule engine. (Gen2 Yazaki path is bench-verified, no gate.) */
+        if (rfhIsXc2268) {
+          const g = writerGrounding('writeXc2268Sec16');
+          if (g.level !== GROUNDING.BENCH && !(typeof window !== 'undefined' && window.confirm(
+            'XC2268 RFHUB SEC16 writer is UNVERIFIED — ' + g.caveat + '.\n\n'
+            + 'Writing an unverified secret to a real module can BRICK it. '
+            + 'Proceed only if you have confirmed this layout on THIS module.\n\nWrite XC2268 SEC16?'))) {
+            log('✗ XC2268 SEC16 write cancelled — unverified writer not acknowledged', 'err');
+            return;
+          }
+        }
         const sr = rfhIsXc2268
           ? writeXc2268Sec16(rfh.bytes, bcmSec16)
           : engWriteRfhSec16FromBcm(rfh.bytes, bcmSec16);
         log(`RFHUB SEC16 sync (BCM → RFH${rfhIsXc2268 ? ' XC2268' : ' Gen2'}): ${sr.patched} slot(s) written`, 'ok');
         log(`  RFHUB new SEC16: ${sr.rfhSec16Hex.toUpperCase()}${rfhIsXc2268 ? '' : ` · slot chk: 0x${sr.chk.toString(16).padStart(2,'0').toUpperCase()}`}`, 'muted');
+        {
+          const wg = writerGrounding(rfhIsXc2268 ? 'writeXc2268Sec16' : 'writeRfhSec16FromBcm');
+          log(`  writer confidence: ${wg.level}${wg.caveat ? ' — ' + wg.caveat : ''}`, wg.level === GROUNDING.BENCH ? 'muted' : 'err');
+        }
         const rfhFinal = sr.bytes;
         const ts2 = timestamp();
         /* Task #1023 — symmetric twin of the original brick scenario: a secret
