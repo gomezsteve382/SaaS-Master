@@ -115,6 +115,7 @@ export const WRITER_GROUNDING = Object.freeze({
   writeRfhSec16FromBcm:{ level: GROUNDING.BENCH, source: 'real 24C32 before/after', caveat: '' },
   knownWorkingKeys:    { level: GROUNDING.BENCH, source: 'real anonymized RFHUB dumps', caveat: 'primary vehicles only' },
   charRfhubKeyTable:   { level: GROUNDING.EXTRACTED, source: 'real 21-key corpus RE', caveat: 'index formula solved but no before/after key-add pair' },
+  write95640Sec16:     { level: GROUNDING.EXTRACTED, source: '95640 SEC16 mirror @0x838 + CRC16 @0x848', caveat: 'offsets known; round-trip verified, not before/after bench-confirmed' },
   fcaProxi:            { level: GROUNDING.EXTRACTED, source: 'decompiled proxi_record.py', caveat: 'offsets decompile-derived, not bench-reverified' },
   // The risky writers — these touch a real module but rest on a guess.
   writeRfhSec16Gen1:   { level: GROUNDING.UNVERIFIED, source: null, caveat: 'crc8_65 assumed from Gen2; no physical 24C16 dump exists', dangerous: true },
