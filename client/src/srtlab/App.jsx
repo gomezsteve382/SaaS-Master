@@ -29,7 +29,8 @@ import SeedTab from "./tabs/SeedTab";
 import ModuleSync, { moduleSizeBadge, resizePcmForTargetChip } from "./tabs/ModuleSync";
 import JailbreakTab from "./tabs/JailbreakTab";
 import BcmTab from "./tabs/BcmTab";
-import RfhubTab from "./tabs/RfhubTab";
+import RfhubTab from './tabs/RfhubTab';
+import MarryModuleTab from './tabs/MarryModuleTab.jsx';
 import SkimTab from "./tabs/SkimTab";
 import BackupsTab from "./tabs/BackupsTab";
 import SampleLibraryTab from "./tabs/SampleLibraryTab.jsx";
@@ -948,6 +949,7 @@ const WORKSPACE_TABS = [
   {id:'keyxfer',    i:'🔑', l:'KEY PROGRAM',      s:'Offline transponder-key transfer · no OBD'},
   {id:'keymgr',     i:'🗝️', l:'KEY MGR',          s:'Dual-file RFHUB fob transfer'},
   {id:'keytransplant', i:'🔑', l:'KEY TRANSPLANT', s:'Donor → Target RFHUB · auth sector + ring buffer · no OBD'},
+  {id:'marrymodule', i:'💍', l:'MARRY MODULES',     s:'Unified VIN/SEC/KEY sync · marryModule engine'},
   {id:'quickclone', i:'⚡', l:'QUICK CLONE',      s:'VIN + Security + Keys · 3-step guided wizard'},
   {id:'keyimporter', i:'📸', l:'GoatMez Key Importer', s:'Add transponder key to RFHUB from Autel/Xhorse photo'},
   {id:'livekey',    i:'🔑', l:'LIVE KEYS',        s:'OBD PIN extract · key prog · SKREEM'},
@@ -1020,7 +1022,8 @@ const WORKSPACE_TABS = [
 const WORKSPACE_CATEGORIES = {
   // PROGRAM — anything that writes to a module / produces a flashable file.
   jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM',   keytransplant:'PROGRAM', quickclone:'PROGRAM', keyimporter:'PROGRAM', livekey:'PROGRAM',
-  vinprog:'PROGRAM', vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
+  vinprog:'PROGRAM',   marrymodule:'PROGRAM',
+  vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
   cdasession:'PROGRAM', cdadbtools:'PROGRAM', ipccluster:'PROGRAM', rfhdump:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
   checksum:'TOOLS',
@@ -1269,6 +1272,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='rfhub'     && <RfhubTab vehicle={vehicle}/>}
         {tab==='keymgr'    && <KeyManagerTab vehicle={vehicle}/>}
         {tab==='keytransplant' && <div style={{padding:24,maxWidth:900,margin:'0 auto'}}><RfhubKeyTransplantPanel/></div>}
+        {tab==='marrymodule' && <MarryModuleTab/>}
         {tab==='quickclone' && <QuickCloneTab vehicle={vehicle}/>}
         {tab==='keyimporter' && <GoatMezKeyImporterTab/>}
         {tab==='livekey'   && <LiveKeyTab/>}

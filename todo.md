@@ -356,3 +356,22 @@
 - [x] Wire 6 confirmed ECU algorithm mappings into ecuBranchAlgorithms.js (ORC=0x107, OCM_PN=0x139, ABS_PN=0x12C, ABS_CHRYSLER=0x12B, TIPM_CGW=0x12E, RADIO_NON_PN=0x143)
 - [x] Add placeholder stubs for remaining 25 ECUs pending RE agent second pass (stubs already exist as 'pending' entries in ecuBranchAlgorithms.js)
 - [x] BUG: parseKeyRingBuffer silently rejects all keys from FCA Ram/Jeep/Chrysler RFHUB donors — flags 0xDF, 0xDA, 0x79, 0x3B, 0xE3, 0x51, 0x89 not in KNOWN_FLAGS. Fixed by adding all 7 extended FCA platform flags to KNOWN_FLAGS and flagInfo() in rfhubKeyTransplant.js. Verified: donor file 19_rfhub_ogfile_scat.bin now detects 7 keys (was 0).
+
+
+## Stage C — Unified Marry/Sync Tab (In Progress)
+- [ ] Create MarryModuleTab.jsx with 4 unified workflows (vinsync, secsync, modsync, keyprog)
+- [ ] Integrate marryModule() engine for all secret pairing operations
+- [ ] Add source/target module file upload and parsing
+- [ ] Add VIN stamping UI (optional)
+- [ ] Add round-trip verification display with check results
+- [ ] Add output file download for married modules
+- [ ] Wire into App.jsx under MARRY category
+- [ ] Run tests and verify all workflows
+
+
+## Stage C — Unified Marry/Sync Tab (Jun 11, 2026)
+
+- [x] Applied 7-commit SRT Lab cleanup patch series (immoSecret.js, dealerLockoutBypass, algoProvenance, marryModule engine, SeedTab confidence)
+- [x] Built MarryModuleTab.jsx with split-screen UI, 4 workflows, drag-and-drop uploads, marryModule() integration, checksum details panel
+- [x] Wired MarryModuleTab into App.jsx (import, WORKSPACE_TABS, WORKSPACE_CATEGORIES, tab renderer)
+- [x] All 479 tests pass
