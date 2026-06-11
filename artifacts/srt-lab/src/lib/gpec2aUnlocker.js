@@ -33,14 +33,33 @@
  * Set PATTERNS_AVAILABLE = true and populate the three arrays once the
  * 4-byte values have been recovered (see header comment above).
  */
-export const PATTERNS_AVAILABLE = false;
+/* RECOVERED from a real locked/unlocked GPEC2A INT_FLASH (4 MB) pair — the
+ * WinLicense-sealed patterns were never statically extractable, so they were
+ * derived by byte-diffing a genuine unlock (derive-gpec-patterns.mjs).
+ *
+ * PROVEN for INT_FLASH:
+ *   - Applying this algorithm to the locked file reproduces the real unlocked
+ *     file BYTE-FOR-BYTE (0 diffs) through patchGpec2aFile().
+ *   - UNLOCK_TARGET_PATTERN occurs EXACTLY ONCE in every 4 MB INT_FLASH dump in
+ *     the corpus (offset varies per dump — 0x25DB6 / 0x25FD6 — but always
+ *     unique), so it is universal firmware code, not dump-specific.
+ *
+ * SCOPE / still-open:
+ *   - EXT_EEPROM: UNLOCK_TARGET_PATTERN is NOT present in the EXT_EEPROM dumps,
+ *     so those resolve to 'offset_only' (flag set, no E8 patch). A real
+ *     EXT_EEPROM locked/unlocked pair is needed to recover its pattern.
+ *   - GEN_DETECT_PATTERN remains null (needs a 2015-vs-2018+ sample) — only
+ *     affects the generation LABEL, not the unlock. */
+export const PATTERNS_AVAILABLE = true;
 
-export const GEN_DETECT_PATTERN       = null; // [04:0005] — 4 bytes, "2015-2018" marker
-export const ALREADY_UNLOCKED_PATTERN = null; // [04:0006] — 4 bytes, scanned with look-behind
-export const UNLOCK_TARGET_PATTERN    = null; // [04:0007] — 4 bytes, byte[match] → 0xE8
+export const GEN_DETECT_PATTERN       = null;                       // [04:0005] still unknown — gen label only, not needed to unlock
+export const ALREADY_UNLOCKED_PATTERN = [0x06, 0x65, 0xDD, 0xE8];  // [04:0006] — scanned with 0xE8 look-behind
+export const UNLOCK_TARGET_PATTERN    = [0xE6, 0x06, 0x65, 0xDD];  // [04:0007] — byte[match] → 0xE8
 
-/* Unlock flag offset — this constant is NOT protected and confirmed from IL */
-export const UNLOCK_FLAG_OFFSET = 0x2FFFC; // 196604 — only applied when file > this offset
+/* Unlock flag. CORRECTED from the prior IL guess of 0x2FFFC: the real unlock
+ * writes 0x96 at 0x2FFF0 (0x2FFFC was unchanged in the genuine unlocked file).
+ * Verified byte-for-byte against the INT_FLASH capture. */
+export const UNLOCK_FLAG_OFFSET = 0x2FFF0; // 196592 — only applied when file > this offset
 export const UNLOCK_FLAG_BYTE   = 0x96;
 
 /* ── Internal helpers ──────────────────────────────────────────────────────*/
