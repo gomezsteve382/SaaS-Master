@@ -48,10 +48,9 @@ import EcmFlasherTab from "./tabs/EcmFlasherTab.jsx";
 import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
 import Cda6DatabaseToolsTab from "./tabs/Cda6DatabaseToolsTab.jsx";
 import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
-import SecuritySyncTab from "./tabs/SecuritySyncTab.jsx";
+import MarrySyncTab from "./tabs/MarrySyncTab.jsx";
 import ProxiTab from "./tabs/ProxiTab.jsx";
 import ImmoBcm56xbTab from "./tabs/ImmoBcm56xbTab.jsx";
-import BcmPcmPairingTab from "./tabs/BcmPcmPairingTab.jsx";
 import BcmConfigTab from "./tabs/BcmConfigTab.jsx";
 import FcaModuleInspector from "./tabs/FcaModuleInspector.jsx";
 import UnlockCoverageTab from "./tabs/UnlockCoverageTab.jsx";
@@ -925,7 +924,7 @@ function VehicleLanding({onSelect}){
 const WORKSPACE_TABS = [
   {id:'dumps',     i:'📂', l:'DUMPS',        s:'VIN · SEC16 · Unlocks · Hex'},
   {id:'vinsync',   i:'🪪', l:'VIN → SYNC',   s:'Step 1 VIN+CRC · Step 2 security'},
-  {id:'secsync',   i:'🔐', l:'SECURITY SYNC',s:'BCM · RFHUB · PCM · SEC16/SEC6 side-by-side'},
+  {id:'secsync',   i:'🔐', l:'MARRY / SYNC', s:'Marry a module into a set · derive → write → verify'},
   {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
   {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
   {id:'keyxfer',   i:'🔑', l:'KEY PROGRAM',  s:'Offline transponder-key transfer · no OBD'},
@@ -953,7 +952,6 @@ const WORKSPACE_TABS = [
   {id:'vinprog',   i:'🪪', l:'VIN + CHECKSUM', s:'Single-file VIN write + CRC patcher'},
   {id:'proxi',     i:'📋', l:'PROXI',        s:'BCM 0x2023 + DEnn feature decoder · read-only'},
   {id:'immobcm56xb',i:'🧠', l:'IMMO BCM 56xB',s:'64 KB MPC5606B · FULL / VIN_ONLY / LOCKED · file in/out'},
-  {id:'bcmpcmpair', i:'🔐', l:'BCM → PCM',    s:'MPC5606B full-flash · GPEC2A · SEC6 pairing workbench'},
   {id:'bcmconfig', i:'⚙️', l:'BCM CONFIG',   s:'DE00..DE0C · 155 toggles · SRT/Perf/Track'},
   {id:'inspector', i:'🔍', l:'MODULE INSPECTOR', s:'GPEC2A · RFHUB · BCM auto-detect'},
   {id:'unlockcov', i:'🗝️', l:'UNLOCK COV',   s:'81 DLLs · reversed vs dll_only'},
@@ -994,7 +992,7 @@ const WORKSPACE_CATEGORIES = {
   smartbox:'MODULES', immobcm56xb:'MODULES', bcmconfig:'MODULES', inspector:'MODULES', proxi:'MODULES',
   // MARRY & KEYS — secret pairing, sync, key programming (marryModule engine).
   vinsync:'MARRY', secsync:'MARRY', modsync:'MARRY', keyprog:'MARRY', keyxfer:'MARRY',
-  keymgr:'MARRY', bcmpcmpair:'MARRY', livekey:'MARRY', keywriter:'MARRY', radiocodes:'MARRY',
+  keymgr:'MARRY', livekey:'MARRY', keywriter:'MARRY', radiocodes:'MARRY',
   seed:'MARRY', jailbreak:'MARRY',
   // FLASH & FIRMWARE — offline image patch / program.
   flasher:'FLASH', cflash:'FLASH', gpecunlock:'FLASH', efd:'FLASH', efd2bin:'FLASH',
@@ -1006,6 +1004,13 @@ const WORKSPACE_CATEGORIES = {
   // INTEL & REFERENCE — read-only catalogs, coverage dashboards, research surfaces.
   alfaobd:'INTEL', alfaintel:'INTEL', binintel:'INTEL', dispatchcov:'INTEL', unlockcov:'INTEL',
   canuniverse:'INTEL', patterns:'INTEL', kg:'INTEL', sigdisc:'INTEL', cda6db:'INTEL', exttools:'INTEL',
+};
+
+/* Retired tab ids → their replacement. The engine-backed Marry/Sync workspace
+ * (MarrySyncTab, rendered under 'secsync') subsumes the old BCM→PCM pairing tab;
+ * any deep-link / setTab('bcmpcmpair') lands on the unified tab instead. */
+const TAB_REDIRECTS = {
+  bcmpcmpair: 'secsync',
 };
 
 function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
@@ -1022,7 +1027,10 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
   const [referenceOpen, setReferenceOpen] = useState(false);
   const setTab = useCallback((next)=>{
     if (next === 'info') { setReferenceOpen(true); return; }
-    setTabRaw(VALID_TAB_IDS.has(next) ? next : 'dumps');
+    // Retired tabs consolidated into the engine-backed Marry/Sync workspace
+    // (rendered under the 'secsync' id). Redirect old ids / deep-links there.
+    const redirected = TAB_REDIRECTS[next] || next;
+    setTabRaw(VALID_TAB_IDS.has(redirected) ? redirected : 'dumps');
   },[VALID_TAB_IDS]);
   /* Window-level "open this tab" channel so deeply-nested components
    * (e.g. the inline CAN Universe panel rendered on tabs that don't
@@ -1227,7 +1235,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
       >
         {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
         {tab==='vinsync'   && <VinThenSyncTab vehicle={vehicle}/>}
-        {tab==='secsync'   && <SecuritySyncTab/>}
+        {tab==='secsync'   && <MarrySyncTab/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
         {tab==='keyprog'   && <KeyProgTab/>}
         {tab==='keyxfer'   && <KeyTransferTab/>}
@@ -1254,7 +1262,6 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='vinprog'   && <VinProgrammerTab/>}
         {tab==='proxi'     && <ProxiTab/>}
         {tab==='immobcm56xb' && <ImmoBcm56xbTab/>}
-        {tab==='bcmpcmpair' && <BcmPcmPairingTab/>}
         {tab==='bcmconfig' && <BcmConfigTab vehicle={vehicle}/>}
         {tab==='inspector' && <FcaModuleInspector onOpenTab={setTab}/>}
         {tab==='unlockcov' && <UnlockCoverageTab/>}
