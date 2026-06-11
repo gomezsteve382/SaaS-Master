@@ -48,6 +48,7 @@ describe('dealerLockoutBypass — happy path', () => {
     });
     const r = await runDealerLockoutBypass({
       tx: 0x6FF, rx: 0x707, uds, securityAccess: sa, delay: async () => {},
+      acknowledgeEraseRisk: true,
     });
     expect(r.ok).toBe(true);
     expect(r.cleared).toBe(true);
@@ -66,6 +67,7 @@ describe('dealerLockoutBypass — happy path', () => {
     const sa = FakeSecurityAccessSource({ default: { ok: true } });
     await runDealerLockoutBypass({
       tx: 0x6FF, rx: 0x707, uds, securityAccess: sa, delay: async () => {},
+      acknowledgeEraseRisk: true,
     });
     // 0x10 0x03 — extended session
     expect(uds.calls[0].bytes).toEqual([0x10, 0x03]);
@@ -110,11 +112,30 @@ describe('dealerLockoutBypass — failure paths', () => {
     const sa = FakeSecurityAccessSource({ default: { ok: true } });
     const r = await runDealerLockoutBypass({
       tx: 0x6FF, rx: 0x707, uds, securityAccess: sa, delay: async () => {},
+      acknowledgeEraseRisk: true,
     });
     expect(r.cleared).toBe(false);
     const reprobe = r.steps.find((s) => s.id === 're-probe');
     expect(reprobe.ok).toBe(false);
     expect(reprobe.reason).toMatch(/Still locked/i);
+  });
+
+  it('REFUSES the destructive 0xFF00 step unless acknowledgeEraseRisk is set', async () => {
+    const uds = makeStubUds({
+      0x10: posResp(0x10, 0x03),
+      0x31: posResp(0x31, 0x01, 0xFF, 0x00, 0x00), // would succeed IF it were sent
+      0x11: posResp(0x11, 0x01),
+      0x27: posResp(0x27, 0x01, 0x11, 0x22, 0x33, 0x44),
+    });
+    const sa = FakeSecurityAccessSource({ default: { ok: true } });
+    const r = await runDealerLockoutBypass({ tx: 0x6FF, rx: 0x707, uds, securityAccess: sa });
+    expect(r.refused).toBe(true);
+    expect(r.cleared).toBe(false);
+    const clear = r.steps.find((s) => s.id === 'clear');
+    expect(clear.refused).toBe(true);
+    expect(clear.reason).toMatch(/erase|UNVERIFIED/i);
+    // the destructive 0x31 0xFF00 routine must NOT have been transmitted
+    expect(uds.calls.some((c) => c.bytes[0] === 0x31)).toBe(false);
   });
 
   it('rejects missing callbacks / ids', async () => {
