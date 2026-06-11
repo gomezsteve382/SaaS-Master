@@ -164,6 +164,24 @@ export function analyzeGpec2aPcm(bytes) {
     };
   }
 
+  /* ── SKIM immobilizer enable byte @0x0011 ──
+   * 0x80 = ENABLED (PCM enforces the immo secret); 0x00 / 0x02 = DISABLED
+   * (immo BYPASSED — the PCM ignores the secret and starts regardless). The
+   * immo fix only writes the SEC6 secret; it does NOT change SKIM (a real sync
+   * leaves it untouched, per the bench golden). But syncing SEC6 on a PCM whose
+   * SKIM is DISABLED is moot — the secret won't be enforced — so surface it. */
+  let skim = null;
+  if (sz > 0x0011) {
+    const b = bytes[0x0011];
+    skim = {
+      offset: 0x0011,
+      byte: b,
+      hex: '0x' + b.toString(16).toUpperCase().padStart(2, '0'),
+      enabled: b === 0x80,
+      state: b === 0x80 ? 'ENABLED' : (b === 0x00 || b === 0x02) ? 'DISABLED' : 'UNKNOWN',
+    };
+  }
+
   /* ── EEPROM / chip ── */
   const chip = pcmChipFromSize(sz);
   const eeprom = {
@@ -194,10 +212,12 @@ export function analyzeGpec2aPcm(bytes) {
             : 'SEC6 DAMAGED'
     );
   }
+  if (skim) stateParts.push(skim.enabled ? 'SKIM ON' : 'SKIM ' + skim.state);
   const state = {
     verdict: stateParts.join(' / '),
     validVinCount,
     immoSync: immo ? immo.synced : false,
+    skimEnabled: skim ? skim.enabled : null,
   };
 
   /* ── Family / confidence ── */
@@ -238,6 +258,11 @@ export function analyzeGpec2aPcm(bytes) {
         : `IMMO not synced — marker ${immo.currentHex}, expected ${immo.expectedHex}`,
     });
   }
+  if (skim) {
+    notes.push(skim.enabled
+      ? { tag: 'IMMO', text: 'SKIM @0x0011 = 0x80 (ENABLED) — immobilizer active' }
+      : { tag: 'WARNING', text: `SKIM @0x0011 is ${skim.hex} (${skim.state}) — immobilizer BYPASSED; a SEC6 sync will not be enforced until SKIM is enabled (0x80).` });
+  }
 
   /* ── Internal IDs / signatures ── */
   const identity = extractRfhPflashIdentity(bytes) || {};
@@ -253,7 +278,7 @@ export function analyzeGpec2aPcm(bytes) {
     dt23_081C: asciiField(bytes, 0x081c, 7) || null,
   };
 
-  return { ok: canonical, canonical, family, eeprom, state, sec6, immo, notes, vinRows, ids };
+  return { ok: canonical, canonical, family, eeprom, state, sec6, immo, skim, notes, vinRows, ids };
 }
 
 /* ── Donor → PCM SEC6 derivation ─────────────────────────────────────────
