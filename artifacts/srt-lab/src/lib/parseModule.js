@@ -1,4 +1,4 @@
-import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs,RFH_GEN2_VIN_CS_KNOWN_MAGICS} from './crc.js';
+import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs,RFH_GEN2_VIN_CS_KNOWN_MAGICS,crc16ccitt} from './crc.js';
 import {reverse16} from './immoSecret.js';
 import {isXc2268Rfhub,parseXc2268Image} from './xc2268Rfhub.js';
 import {isZf8hpImage,parseZf8hpImage} from './zf8hp.js';
@@ -648,7 +648,7 @@ function detectBySignature(data){
  * ---------------------------------------------------------------------------- */
 function resolveBcmSec16(data){
   const sz=data.length;
-  const candidates={split:null,mirror1:null,mirror2:null,flat:null};
+  const candidates={split:null,mirror1:null,mirror2:null,legacyMirror:null,flat:null};
   let inactiveBase=null;
   /* -- split records (0x81A0/C0/E0) -- */
   if(sz>=0x8200){
@@ -701,6 +701,30 @@ function resolveBcmSec16(data){
       candidates.mirror2={offset:m2,bytes:new Uint8Array(sec),blank,idx};
     }
   }
+  /* -- legacy 2014-era mirror records (0x00C8 / 0x00F0) — pre-gen2 BCM family
+   * (e.g. 68396563AC on a 2014 LX Charger). 22-byte record:
+   *   +0 idx · +1..+16 SEC16 · +17 tag 0x8F · +18..+19 FF FF · +20..+21 CRC16-BE
+   * Accept only when the 0x8F/FF/FF tag AND CRC-16/CCITT over the first 20 bytes
+   * validate, so blank early flash never yields a phantom. This mirrors
+   * engBcmParse/engParseBcm so the engine resolves the SAME secret ModuleSync
+   * does (proven by verify-bcm-resolve equivalence). -- */
+  if(sz>=0x00F0+22){
+    for(const off of [0x00C8,0x00F0]){
+      if(off+22>sz)continue;
+      if(data[off+17]!==0x8F||data[off+18]!==0xFF||data[off+19]!==0xFF)continue;
+      const idx=data[off];
+      const sec=data.slice(off+1,off+17);
+      const cin=new Uint8Array(20);cin[0]=idx;
+      for(let k=0;k<16;k++)cin[1+k]=sec[k];
+      cin[17]=0x8F;cin[18]=0xFF;cin[19]=0xFF;
+      const stored=(data[off+20]<<8)|data[off+21];
+      if(crc16ccitt(cin)!==stored)continue;
+      const blank=Array.from(sec).every(b=>b===0xFF||b===0x00);
+      if(!candidates.legacyMirror||candidates.legacyMirror.blank){
+        candidates.legacyMirror={offset:off,bytes:new Uint8Array(sec),blank,idx};
+      }
+    }
+  }
   /* -- legacy flat slice at 0x40C9 -- */
   if(sz>=0x40D9){
     const sec=data.slice(0x40C9,0x40D9);
@@ -715,7 +739,7 @@ function resolveBcmSec16(data){
    * only 5 non-zero/non-FF bytes but IS the authoritative vehicle secret,
    * confirmed by FCA SINCRO). */
   let chosen=null,source=null;
-  for(const key of ['split','mirror1','mirror2','flat']){
+  for(const key of ['split','mirror1','mirror2','legacyMirror','flat']){
     const c=candidates[key];
     if(c&&!c.blank){chosen=c;source=key;break;}
   }
@@ -725,6 +749,7 @@ function resolveBcmSec16(data){
     (!candidates.split||candidates.split.blank)&&
     (!candidates.mirror1||candidates.mirror1.blank)&&
     (!candidates.mirror2||candidates.mirror2.blank)&&
+    (!candidates.legacyMirror||candidates.legacyMirror.blank)&&
     (!candidates.flat||candidates.flat.blank);
   /* sec16Absent: true only when every candidate is blank — i.e. the module
    * is in a fully virgin / factory state with no real SEC16 anywhere.
