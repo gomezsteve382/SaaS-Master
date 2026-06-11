@@ -743,12 +743,40 @@ function resolveBcmSec16(data){
       }
     }
   }
+  /* -- legacy 2014-era mirror records (0x00C8 / 0x00F0) — pre-gen2 BCM family
+   * (e.g. 68396563AC on a 2014 LX Charger). 22-byte record:
+   *   +0 idx · +1..+16 SEC16 · +17 tag 0x8F · +18..+19 FF FF · +20..+21 CRC16-BE
+   * Accept only when the 0x8F/FF/FF tag AND CRC-16/CCITT over the first 20 bytes
+   * validate, so blank early flash never yields a phantom. This mirrors
+   * engBcmParse/engParseBcm so the engine resolves the SAME secret ModuleSync
+   * does (proven by verify-bcm-resolve equivalence). -- */
+  if(sz>=0x00F0+22){
+    for(const off of [0x00C8,0x00F0]){
+      if(off+22>sz)continue;
+      if(data[off+17]!==0x8F||data[off+18]!==0xFF||data[off+19]!==0xFF)continue;
+      const idx=data[off];
+      const sec=data.slice(off+1,off+17);
+      const cin=new Uint8Array(20);cin[0]=idx;
+      for(let k=0;k<16;k++)cin[1+k]=sec[k];
+      cin[17]=0x8F;cin[18]=0xFF;cin[19]=0xFF;
+      const stored=(data[off+20]<<8)|data[off+21];
+      if(crc16ccitt(cin)!==stored)continue;
+      const blank=Array.from(sec).every(b=>b===0xFF||b===0x00);
+      if(!candidates.legacyMirror||candidates.legacyMirror.blank){
+        candidates.legacyMirror={offset:off,bytes:new Uint8Array(sec),blank,idx};
+      }
+    }
+  }
   /* -- flat raw SEC16 at 0x40C8 (16 bytes) -- */
   if(sz>=0x40D8){
     /* This offset is NOT inside a FEE record structure (no valid FEE header
      * at 0x40C0). It stores a raw 16-byte SEC16 directly. The full 16 bytes
      * are read and checked for blankness. */
     const sec=data.slice(0x40C8,0x40D8);
+  }
+  /* -- legacy flat slice at 0x40C9 -- */
+  if(sz>=0x40D9){
+    const sec=data.slice(0x40C9,0x40D9);
     const blank=Array.from(sec).every(b=>b===0xFF||b===0x00);
     candidates.flat={offset:0x40C8,bytes:new Uint8Array(sec),blank};
   }

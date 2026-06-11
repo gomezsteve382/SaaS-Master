@@ -6,7 +6,9 @@ import MismatchWizard from "../components/MismatchWizard.jsx";
 import PcmRepairWizard from "../components/PcmRepairWizard.jsx";
 import PairingRepairPanel from "../components/PairingRepairPanel.jsx";
 import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
-import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeRfhSec16Gen1, writeRfhSec16Gen2Slots, writeBcmFlatSec16, writeXc2268Sec16 } from "../lib/securityBytes.js";
+import { engParseBcm } from '../lib/engBcmParse.js';
+import { marryModule, marryAll } from '../lib/marryModule.js';
+import { algoProvenance } from '../lib/algoProvenance.js';
 import { writerGrounding, GROUNDING } from "../lib/algoProvenance.js";
 import { isXc2268Rfhub } from "../lib/xc2268Rfhub.js";
 import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
@@ -385,18 +387,24 @@ export function engParseRfh(bytes, filename) {
     const g2Pop = !s1.every(b => b === 0xFF) && !s1.every(b => b === 0x00);
     r.format = 'gen2';
     r.sec16  = { slot1: s1, slot2: s2, match: aeq(s1, s2), virgin: s1.every(b => b === 0xFF), offsets: [0x050E, 0x0522] };
-    if (!g2Pop && bytes.length >= 0x024C) {
+    if (!g2Pop && bytes.length >= 0x00D0) {
       /* Gen2 header but Gen2 slots are empty — fall back to reading Gen1 area */
-      const g1 = bytes.slice(0x0226, 0x0236);
+      const g1 = bytes.slice(0x00AE, 0x00BE);
       if (!g1.every(b => b === 0xFF) && !g1.every(b => b === 0x00)) {
         r.format = 'gen2-hybrid';
       }
     }
-  } else if (bytes.length >= 0x024C) {
-    const s1 = bytes.slice(0x0226, 0x0236);   /* 16 bytes (skip 2-byte trailer) */
-    const s2 = bytes.slice(0x023A, 0x024A);
+  } else if (bytes.length >= 0x00D0) {
+    /* Gen1 24C16 SEC16 lives at 0x00AE / 0x00C0 — matching parseModule.js,
+     * securityBytes.writeRfhSec16Gen1 (the WRITER), pairingRepair.js and
+     * rfhPcmPair.js. The previous 0x0226 here was a latent bug: it read from
+     * the key-table region (CHAR_MASTER_OFFSET = 0x0226), so the master was
+     * read from a different offset than the writer writes to — Gen1 RFH sync
+     * was internally inconsistent. Aligned to the canonical 0x00AE. */
+    const s1 = bytes.slice(0x00AE, 0x00BE);   /* 16 bytes */
+    const s2 = bytes.slice(0x00C0, 0x00D0);
     r.format = 'gen1';
-    r.sec16  = { slot1: s1, slot2: s2, match: aeq(s1, s2), virgin: s1.every(b => b === 0xFF), offsets: [0x0226, 0x023A] };
+    r.sec16  = { slot1: s1, slot2: s2, match: aeq(s1, s2), virgin: s1.every(b => b === 0xFF), offsets: [0x00AE, 0x00C0] };
   }
 
   const text = new TextDecoder('ascii', { fatal: false }).decode(bytes);
@@ -3671,7 +3679,16 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
         const snapR = new Uint8Array(rfh.bytes);
         setOriginals(prev => ({ ...prev, rfh: { bytes: snapR, filename: rfh.file?.name || 'RFH' } }));
         const rfhIsXc2268 = isXc2268Rfhub(rfh.bytes);
-        const rfhFmt = rfh.parsed?.format || 'gen2';
+      const rfhFmt = parseModule(rfhubData, 'RFHUB.bin');
+      if (!rfhFmt?.ok) {
+        setError('Invalid RFHUB module');
+        return;
+      }
+      // XC2268 unverified-write gate
+      if (rfhFmt.gen === 'Gen1' && !allowUnverified) {
+        setError('Gen1 RFHUB requires "Allow Unverified Target" checkbox');
+        return;
+      }
         /* Ultimate-machine gate: the XC2268 SEC16 writer is UNVERIFIED (its
          * offset map incl. the image checksum was reconstructed from a
          * screenshot — see algoProvenance.js). Stamping an unverified secret
