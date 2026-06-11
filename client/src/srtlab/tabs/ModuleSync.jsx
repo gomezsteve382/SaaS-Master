@@ -13,7 +13,7 @@ import { writerGrounding, GROUNDING } from "../lib/algoProvenance.js";
 import { isXc2268Rfhub } from "../lib/xc2268Rfhub.js";
 import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
 import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, corruptFillError, detectCorruptFill, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
-import { engParseBcm, engResolveBcmSec16 } from "../lib/engBcmParse.js";
+import { engResolveBcmSec16 } from "../lib/engBcmParse.js";
 import { crossValidate } from "../lib/crossValidate.js";
 import { checkExportSafety, formatBlockingMessage } from "../lib/exportSafetyGate.js";
 import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
