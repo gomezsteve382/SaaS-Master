@@ -145,6 +145,16 @@ export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null})
         sub: "@ 0x3C8 · State: " + (a.sec6 ? a.sec6.state : "—"),
       },
       {
+        title: "SKIM (Immobilizer Enable)",
+        accent: a.skim ? (a.skim.enabled ? C.gn : C.er) : C.tm,
+        badge: a.skim ? {value: a.skim.state, good: a.skim.enabled} : undefined,
+        value: a.skim ? a.skim.hex : "—",
+        spaced: true,
+        sub: a.skim
+          ? "@ 0x0011 · " + (a.skim.enabled ? "ENABLED — secret enforced" : "DISABLED — immo BYPASSED (SEC6 sync not enforced)")
+          : "@ 0x0011 · —",
+      },
+      {
         title: "Current IMMO Pattern",
         accent: a.immo?.synced ? C.gn : C.wn,
         value: a.immo ? a.immo.currentHex : "—",
