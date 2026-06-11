@@ -984,26 +984,28 @@ const WORKSPACE_TABS = [
   // any later duplicates so the sidebar renders one button per id.
   .filter((t, i, a) => a.findIndex(x => x.id === t.id) === i);
 
-/* Maps every workspace tab id to one of five sidebar categories.
- * INFO is intentionally absent — it lives in the reference panel. */
+/* Maps every workspace tab id to one of six drawer groups. Every non-primary
+ * tab MUST appear here — the drawer drops any tab without a category
+ * (CommandShell AdvancedDrawer), so an omission makes a tab unreachable.
+ * INFO is intentionally absent — it lives in the reference panel, not the drawer. */
 const WORKSPACE_CATEGORIES = {
-  // PROGRAM — anything that writes to a module / produces a flashable file.
-  jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM', livekey:'PROGRAM',
-  vinprog:'PROGRAM', vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
-  ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
-  cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
-  // LIVE — connected OBD/J2534 sessions and external bench tools.
-  obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE',
-  // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
-  dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE', efd2bin:'ANALYZE',
-  proxi:'ANALYZE', smartbox:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
-  loganalyser:'ANALYZE', workflow:'ANALYZE',
-  // TOOLS — cross-cutting catalogs and coverage dashboards.
-  unlockcov:'TOOLS', alfaobd:'TOOLS', alfaintel:'TOOLS', dispatchcov:'TOOLS',
-  cda6db:'TOOLS', sigdisc:'TOOLS',
-  // RESEARCH — experimental / read-only knowledge surfaces (collapsed by default).
-  binintel:'RESEARCH', patterns:'RESEARCH', kg:'RESEARCH', investigation:'RESEARCH',
-  canuniverse:'RESEARCH', fwemul:'RESEARCH',
+  // MODULES — read / parse / edit a single module image.
+  bcm:'MODULES', rfhub:'MODULES', ecm:'MODULES', skim:'MODULES', skimlive:'MODULES',
+  smartbox:'MODULES', immobcm56xb:'MODULES', bcmconfig:'MODULES', inspector:'MODULES', proxi:'MODULES',
+  // MARRY & KEYS — secret pairing, sync, key programming (marryModule engine).
+  vinsync:'MARRY', secsync:'MARRY', modsync:'MARRY', keyprog:'MARRY', keyxfer:'MARRY',
+  keymgr:'MARRY', bcmpcmpair:'MARRY', livekey:'MARRY', keywriter:'MARRY', radiocodes:'MARRY',
+  seed:'MARRY', jailbreak:'MARRY',
+  // FLASH & FIRMWARE — offline image patch / program.
+  flasher:'FLASH', cflash:'FLASH', gpecunlock:'FLASH', efd:'FLASH', efd2bin:'FLASH',
+  fwemul:'FLASH', vinprog:'FLASH', cdasession:'FLASH',
+  // LIVE & DIAGNOSTICS — connected OBD/UDS sessions and trace analysis.
+  obd:'LIVE', 'uds-console':'LIVE', udsanalyzer:'LIVE', loganalyser:'LIVE',
+  // DATA & WORKFLOW — dumps, backups, fixtures, job tracking.
+  dumps:'DATA', backups:'DATA', samples:'DATA', workflow:'DATA', investigation:'DATA',
+  // INTEL & REFERENCE — read-only catalogs, coverage dashboards, research surfaces.
+  alfaobd:'INTEL', alfaintel:'INTEL', binintel:'INTEL', dispatchcov:'INTEL', unlockcov:'INTEL',
+  canuniverse:'INTEL', patterns:'INTEL', kg:'INTEL', sigdisc:'INTEL', cda6db:'INTEL', exttools:'INTEL',
 };
 
 function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){

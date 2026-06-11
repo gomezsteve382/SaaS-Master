@@ -39,13 +39,14 @@ export const FOOTER_NAV = [
 ];
 
 const CATEGORY_META = {
-  PROGRAM:  {label: 'PROGRAM',  blurb: 'Write to module'},
-  LIVE:     {label: 'LIVE',     blurb: 'Connected ECU'},
-  ANALYZE:  {label: 'ANALYZE',  blurb: 'Dumps & reports'},
-  TOOLS:    {label: 'TOOLS',    blurb: 'Cross-cutting utilities'},
-  RESEARCH: {label: 'RESEARCH', blurb: 'Experimental / catalogs'},
+  MODULES: {label: 'MODULES',          blurb: 'Read & edit a single module'},
+  MARRY:   {label: 'MARRY & KEYS',     blurb: 'Pairing, sync, key programming'},
+  FLASH:   {label: 'FLASH & FIRMWARE', blurb: 'Offline image patch & program'},
+  LIVE:    {label: 'LIVE & DIAGNOSTICS', blurb: 'Connected OBD / UDS & traces'},
+  DATA:    {label: 'DATA & WORKFLOW',  blurb: 'Dumps, backups, jobs'},
+  INTEL:   {label: 'INTEL & REFERENCE', blurb: 'Read-only catalogs & research'},
 };
-const SECTION_ORDER = ['PROGRAM', 'LIVE', 'ANALYZE', 'TOOLS', 'RESEARCH'];
+const SECTION_ORDER = ['MODULES', 'MARRY', 'FLASH', 'LIVE', 'DATA', 'INTEL'];
 
 function matchesQuery(tab, q) {
   if (!q) return true;
